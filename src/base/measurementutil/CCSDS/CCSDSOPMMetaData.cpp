@@ -60,7 +60,7 @@ const Gmat::ParameterType CCSDSOPMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the CCSDSOPMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMMetaData::CCSDSOPMMetaData() :
+CCSDSOPMMetaData::CCSDSOPMMetaData() : CCSDSMetaData(),
     objectName(std::string("")),
     internationalDesignator(std::string("")),
     refFrameOrigin(std::string("")),
@@ -77,8 +77,8 @@ CCSDSOPMMetaData::CCSDSOPMMetaData() :
  * Constructor for the CCSDSOPMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMMetaData::CCSDSOPMMetaData
-               (const CCSDSOPMMetaData &opmMD) :
+CCSDSOPMMetaData::CCSDSOPMMetaData(const CCSDSOPMMetaData &opmMD) :
+    CCSDSMetaData(opmMD),
     objectName(opmMD.objectName),
     internationalDesignator(opmMD.internationalDesignator),
     refFrameOrigin(opmMD.refFrameOrigin),
@@ -99,11 +99,12 @@ CCSDSOPMMetaData::CCSDSOPMMetaData
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSOPMMetaData& CCSDSOPMMetaData::operator=
-                                     (const CCSDSOPMMetaData &opmMD)
+const CCSDSOPMMetaData& CCSDSOPMMetaData::operator=(const CCSDSOPMMetaData &opmMD)
 {
     if (&opmMD == this)
         return *this;
+
+    CCSDSMetaData::operator=(opmMD);
 
     objectName = opmMD.objectName;
     internationalDesignator = opmMD.internationalDesignator;
@@ -426,20 +427,19 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetada
    //output.setf(std::ios::showpoint);
    //output.setf(std::ios::scientific);
 
-   output << "META_START" << std::endl;
-
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
+   unsigned int i;
+   for (i = 0; i < myMetadata->comments.size(); i++ )
    {
        output << "COMMENT " << myMetadata->comments[i] << std::endl;
    }
+   if (i > 0) output << std::endl;
+
    output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
    output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
    output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
    output << "REF_FRAME = " << myMetadata->refFrame << std::endl;
    output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-
-
-   output << "META_STOP" << std::endl << std::endl;
+   output << std::endl;
 
    return output;
 }

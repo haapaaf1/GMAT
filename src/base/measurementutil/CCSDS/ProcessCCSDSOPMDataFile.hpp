@@ -41,13 +41,18 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(const ObType *myOb);
     bool GetData(ObType *myOb);
+
+    friend class CCSDSOPMMetaData;
+    friend class CCSDSOPMStateVector;
+    friend class CCSDSKeplerianElements;
+    friend class CCSDSSpacecraftParameters;
+    friend class CCSDSManeuvers;
 
 private:
 
     // Specific data type processing functions
-    bool GetCCSDSMetaData(std::string &nextline, CCSDSOPMObType *myOb);
+    bool GetCCSDSMetaData(std::string &lff, CCSDSOPMObType *myOb);
     bool GetCCSDSOPMData(std::string &lff, CCSDSOPMObType *myOb);
 
     bool GetCCSDSOPMStateVector(std::string &lff, CCSDSOPMObType *myOb);
@@ -55,10 +60,6 @@ private:
     bool GetCCSDSSpacecraftParameters(std::string &lff, CCSDSOPMObType *myOb);
     bool GetCCSDSManeuver(std::string &lff, CCSDSOPMObType *myOb);
 
-    CCSDSOPMMetaData *currentCCSDSMetaData;
-    CCSDSOPMMetaData *lastMetaDataWritten;
-    bool isMetaDataWritten;
-    Integer requiredNumberMetaDataParameters;
     Integer requiredNumberStateVectorParameters;
     Integer requiredNumberKeplerianElementsParameters;
     Integer requiredNumberSpacecraftParameters;

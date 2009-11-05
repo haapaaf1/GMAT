@@ -43,7 +43,6 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(const ObType *myOb);
     bool GetData(ObType *myOb);
     
 private:
@@ -53,10 +52,6 @@ private:
                           CCSDSTDMObType *myOb);
     bool GetCCSDSTDMData(std::string &lff, CCSDSTDMObType *myOb);
 
-    CCSDSTDMMetaData *currentCCSDSMetaData;
-    CCSDSTDMMetaData *lastMetaDataWritten;
-    bool isMetaDataWritten;
-    Integer requiredNumberMetaDataParameters;
 
 
 };

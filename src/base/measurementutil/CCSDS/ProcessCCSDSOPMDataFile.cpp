@@ -66,21 +66,11 @@ bool ProcessCCSDSOPMDataFile::Initialize()
         i_theData = theData.begin();
 
         #ifdef DEBUG_CCSDSOPM_DATA
-/*
-            fstream *outFile = new fstream;
-            outFile->open("opm.output",ios::out);
-
-            // Output to file to make sure all the data is properly stored
-            for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-		*outFile << (CCSDSOPMObType*)(*j) << std::endl;
-
-            outFile->close();
-*/
 
             ProcessCCSDSOPMDataFile myOutFile("theFile");
             myOutFile.SetReadWriteMode("w");
-            myOutFile.SetFileName("./OPM.output");
-            //myOutFile.Initialize();
+            myOutFile.SetFileName("OPM.output");
+            myOutFile.Initialize();
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
                 myOutFile.WriteData((*j));
             myOutFile.CloseFile();
@@ -115,17 +105,13 @@ bool ProcessCCSDSOPMDataFile::Initialize()
 //------------------------------------------------------------------------------
 ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const std::string &itsName) :
 	ProcessCCSDSDataFile ("CCSDSOPMDataFile", itsName),
-	currentCCSDSMetaData(NULL),
-	lastMetaDataWritten(NULL),
-        isMetaDataWritten(false),
-        requiredNumberMetaDataParameters(0),
         requiredNumberStateVectorParameters(0),
         requiredNumberKeplerianElementsParameters(0),
         requiredNumberSpacecraftParameters(0),
         requiredNumberManeuverParameters(0)
 {
    objectTypeNames.push_back("CCSDSOPMDataFile");
-   fileFormatName = "CCSDSOPM";
+   fileFormatName = "OPM";
    fileFormatID = 8;
    numLines = 1;
 }
@@ -139,10 +125,6 @@ ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const std::string &itsName) :
 //------------------------------------------------------------------------------
 ProcessCCSDSOPMDataFile::ProcessCCSDSOPMDataFile(const ProcessCCSDSOPMDataFile &CCSDSOPMdf) :
     ProcessCCSDSDataFile(CCSDSOPMdf),
-    currentCCSDSMetaData(CCSDSOPMdf.currentCCSDSMetaData),
-    lastMetaDataWritten(CCSDSOPMdf.lastMetaDataWritten),
-    isMetaDataWritten(CCSDSOPMdf.isMetaDataWritten),
-    requiredNumberMetaDataParameters(CCSDSOPMdf.requiredNumberMetaDataParameters),
     requiredNumberStateVectorParameters(CCSDSOPMdf.requiredNumberStateVectorParameters),
     requiredNumberKeplerianElementsParameters(CCSDSOPMdf.requiredNumberKeplerianElementsParameters),
     requiredNumberSpacecraftParameters(CCSDSOPMdf.requiredNumberSpacecraftParameters),
@@ -164,10 +146,6 @@ const ProcessCCSDSOPMDataFile& ProcessCCSDSOPMDataFile::operator=(const ProcessC
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSOPMdf);
-    currentCCSDSMetaData = CCSDSOPMdf.currentCCSDSMetaData;
-    lastMetaDataWritten = CCSDSOPMdf.lastMetaDataWritten;
-    isMetaDataWritten = CCSDSOPMdf.isMetaDataWritten;
-    requiredNumberMetaDataParameters = CCSDSOPMdf.requiredNumberMetaDataParameters;
     requiredNumberStateVectorParameters = CCSDSOPMdf.requiredNumberStateVectorParameters;
     requiredNumberKeplerianElementsParameters = CCSDSOPMdf.requiredNumberKeplerianElementsParameters;
     requiredNumberSpacecraftParameters = CCSDSOPMdf.requiredNumberSpacecraftParameters;
@@ -261,7 +239,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
 
 	if (GetCCSDSHeader(lff,myOPM))
 	{
-	    // success so set currentHeader pointer to the
+            // success so set currentHeader pointer to the
 	    // one just processed
 	    currentCCSDSHeader = myOPM->ccsdsHeader;
         }
@@ -278,7 +256,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     {
         // success so set currentHeader pointer to the
         // one just processed
-        currentCCSDSMetaData = myOPM->ccsdsOPMMetaData;
+        currentCCSDSMetaData = myOPM->ccsdsMetaData;
     }
     else
     {
@@ -296,7 +274,7 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     if (pcrecpp::RE("^EPOCH.*").FullMatch(lff))
     {
 	myOPM->ccsdsHeader = currentCCSDSHeader;
-        myOPM->ccsdsOPMMetaData = currentCCSDSMetaData;
+        myOPM->ccsdsMetaData = (CCSDSOPMMetaData*)currentCCSDSMetaData;
 	if (GetCCSDSOPMData(lff,myOPM))
         {
             if (commentsFound)
@@ -431,6 +409,14 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
         switch (keyID)
         {
 
+            case CCSDSStateVector::CCSDS_STATEVECTOR_COMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSComment(lff,stemp))
+                    myOPMStateVector->comments.push_back(stemp);
+                }
+                break;
+
             case CCSDSStateVector::CCSDS_STATEVECTOR_TIMETAG_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->timeTag)) return false;
@@ -513,6 +499,14 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
 
         switch (keyID)
         {
+
+            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_COMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSComment(lff,stemp))
+                    myOPMKeplerianElements->comments.push_back(stemp);
+                }
+                break;
 
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
 
@@ -614,6 +608,14 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSSpacecraftParameters(std::string &lff,
         switch (keyID)
         {
 
+            case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_COMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSComment(lff,stemp))
+                    myOPMSpacecraftParameters->comments.push_back(stemp);
+                }
+                break;
+
             case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_MASS_ID:
 
                 if (!GetCCSDSValue(lff,myOPMSpacecraftParameters->mass)) return false;
@@ -684,6 +686,14 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSManeuver(std::string &lff,
 
         switch (keyID)
         {
+
+            case CCSDSManeuver::CCSDS_MANUEVER_COMMENTS_ID:
+                {
+                std::string stemp;
+                if (!GetCCSDSComment(lff,stemp))
+                    myOPMManeuver->comments.push_back(stemp);
+                }
+                break;
 
             case CCSDSManeuver::CCSDS_MANUEVER_IGNITIONEPOCH_ID:
 
@@ -756,7 +766,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSManeuver(std::string &lff,
 bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
                                 CCSDSOPMObType *myOb)
 {
-    
+
     // Initialize individual data struct
     // This needs new memory allocation because
     // we are storing pointers to this data
@@ -827,28 +837,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
     while(requiredCount < requiredNumberMetaDataParameters && !IsEOF() ||
           pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
 
-    myOb->ccsdsOPMMetaData = myMetaData;
+    myOb->ccsdsMetaData = myMetaData;
 
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// bool WriteData(const ObType *myOb)
-//------------------------------------------------------------------------------
-/**
- * Writes a CCSDS orbit ephemeris message to file
- *
- * @param <myOPM> the OPM data to be written to file
- * @return Boolean success or failure
- */
-//------------------------------------------------------------------------------
-bool ProcessCCSDSOPMDataFile::WriteData(const ObType *myOb)
-{
-    if (!pcrecpp::RE("^CCSDSOPMObType").FullMatch(myOb->GetTypeName())) return false;
-
-    CCSDSOPMObType *theOPM = (CCSDSOPMObType*)myOb;
-    WriteDataHeader(theOPM);
-    WriteMetaData(theOPM);
-    *theFile << theOPM;
     return true;
 }

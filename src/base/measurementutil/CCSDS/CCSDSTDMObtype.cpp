@@ -184,7 +184,7 @@ const std::string CCSDSTDMObType::DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualit
  */
 //------------------------------------------------------------------------------
 CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
-	ccsdsTDMMetaData(NULL),
+	ccsdsMetaData(NULL),
         ccsdsTDMData(NULL)
 {
 }
@@ -197,7 +197,7 @@ CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSTDMObType::CCSDSTDMObType(const CCSDSTDMObType &tdm) : CCSDSObType(tdm),
-	ccsdsTDMMetaData(tdm.ccsdsTDMMetaData),
+	ccsdsMetaData(tdm.ccsdsMetaData),
         ccsdsTDMData(tdm.ccsdsTDMData)
 {
 }
@@ -220,7 +220,7 @@ const CCSDSTDMObType& CCSDSTDMObType::operator=(const CCSDSTDMObType &tdm)
 
    CCSDSObType::operator=(tdm);
 
-   ccsdsTDMMetaData = tdm.ccsdsTDMMetaData;
+   ccsdsMetaData = tdm.ccsdsMetaData;
    ccsdsTDMData = tdm.ccsdsTDMData;
 
    return *this;

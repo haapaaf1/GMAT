@@ -47,6 +47,7 @@ public :
 	EndCCSDSOPMTimeReps
     };
 
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSOPMDataFile;
 
 private:
@@ -54,7 +55,7 @@ private:
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOPMTimeReps - EndCCSDSTimeReps];
 
     // Pointer to the data records
-    CCSDSOPMMetaData *ccsdsOPMMetaData;
+    CCSDSOPMMetaData *ccsdsMetaData;
     CCSDSOPMStateVector *ccsdsOPMStateVector;
     CCSDSKeplerianElements *ccsdsOPMKeplerianElements;
     CCSDSSpacecraftParameters *ccsdsOPMSpacecraftParameters;

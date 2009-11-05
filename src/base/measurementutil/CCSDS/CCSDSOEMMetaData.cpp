@@ -89,7 +89,7 @@ const Gmat::ParameterType CCSDSOEMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the CCSDSOEMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSOEMMetaData::CCSDSOEMMetaData() :
+CCSDSOEMMetaData::CCSDSOEMMetaData() : CCSDSMetaData(),
     objectName(std::string("")),
     internationalDesignator(std::string("")),
     refFrameOrigin(std::string("")),
@@ -112,8 +112,8 @@ CCSDSOEMMetaData::CCSDSOEMMetaData() :
  * Constructor for the CCSDSOEMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSOEMMetaData::CCSDSOEMMetaData
-               (const CCSDSOEMMetaData &oemMD) :
+CCSDSOEMMetaData::CCSDSOEMMetaData(const CCSDSOEMMetaData &oemMD) :
+    CCSDSMetaData(oemMD),
     objectName(oemMD.objectName),
     internationalDesignator(oemMD.internationalDesignator),
     refFrameOrigin(oemMD.refFrameOrigin),
@@ -145,6 +145,8 @@ const CCSDSOEMMetaData& CCSDSOEMMetaData::operator=
 {
     if (&oemMD == this)
         return *this;
+
+    CCSDSMetaData::operator=(oemMD);
 
     objectName = oemMD.objectName;
     internationalDesignator = oemMD.internationalDesignator;

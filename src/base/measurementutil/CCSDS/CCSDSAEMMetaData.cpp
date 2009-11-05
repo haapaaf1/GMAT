@@ -120,7 +120,7 @@ const Gmat::ParameterType CCSDSAEMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the CCSDSAEMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMMetaData::CCSDSAEMMetaData() :
+CCSDSAEMMetaData::CCSDSAEMMetaData() : CCSDSMetaData(),
     objectName(std::string("")),
     internationalDesignator(std::string("")),
     refFrameOrigin(std::string("")),
@@ -149,8 +149,8 @@ CCSDSAEMMetaData::CCSDSAEMMetaData() :
  * Constructor for the CCSDSAEMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMMetaData::CCSDSAEMMetaData
-               (const CCSDSAEMMetaData &aemMD) :
+CCSDSAEMMetaData::CCSDSAEMMetaData(const CCSDSAEMMetaData &aemMD) :
+    CCSDSMetaData(aemMD),
     objectName(aemMD.objectName),
     internationalDesignator(aemMD.internationalDesignator),
     refFrameOrigin(aemMD.refFrameOrigin),
@@ -173,7 +173,7 @@ CCSDSAEMMetaData::CCSDSAEMMetaData
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSAEMMetaData& operator= (const CCSDSAEMMetaData &aemMD)
+//  CCSDSAEMMetaData& operator=(const CCSDSAEMMetaData &aemMD)
 //---------------------------------------------------------------------------
 /**
  * Assignment operator for CCSDSAEMMetaData structures.
@@ -183,11 +183,12 @@ CCSDSAEMMetaData::CCSDSAEMMetaData
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSAEMMetaData& CCSDSAEMMetaData::operator=
-                                     (const CCSDSAEMMetaData &aemMD)
+const CCSDSAEMMetaData& CCSDSAEMMetaData::operator=(const CCSDSAEMMetaData &aemMD)
 {
     if (&aemMD == this)
         return *this;
+
+    CCSDSMetaData::operator=(aemMD);
 
     objectName = aemMD.objectName;
     internationalDesignator = aemMD.internationalDesignator;

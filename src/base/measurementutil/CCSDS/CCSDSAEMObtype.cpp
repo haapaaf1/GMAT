@@ -21,7 +21,7 @@ const std::string CCSDSAEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAEMTimeR
  */
 //------------------------------------------------------------------------------
 CCSDSAEMObType::CCSDSAEMObType() : CCSDSObType("CCSDSAEMObType", ""),
-	ccsdsAEMMetaData(NULL),
+	ccsdsMetaData(NULL),
         ccsdsAEMQuaternion(NULL),
         ccsdsAEMEulerAngle(NULL),
         ccsdsAEMSpinStabilized(NULL)
@@ -36,7 +36,7 @@ CCSDSAEMObType::CCSDSAEMObType() : CCSDSObType("CCSDSAEMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSAEMObType::CCSDSAEMObType(const CCSDSAEMObType &aem) : CCSDSObType(aem),
-	ccsdsAEMMetaData(aem.ccsdsAEMMetaData),
+	ccsdsMetaData(aem.ccsdsMetaData),
         ccsdsAEMQuaternion(aem.ccsdsAEMQuaternion),
         ccsdsAEMEulerAngle(aem.ccsdsAEMEulerAngle),
         ccsdsAEMSpinStabilized(aem.ccsdsAEMSpinStabilized)
@@ -61,7 +61,7 @@ const CCSDSAEMObType& CCSDSAEMObType::operator=(const CCSDSAEMObType &aem)
 
    CCSDSObType::operator=(aem);
 
-   ccsdsAEMMetaData = aem.ccsdsAEMMetaData;
+   ccsdsMetaData = aem.ccsdsMetaData;
 
    return *this;
 }

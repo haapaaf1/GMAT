@@ -24,9 +24,9 @@ public :
     GmatBase *Clone() const;
 
     friend std::string GetAttitudeTypeText(const Integer id);
-    friend Integer    GetAttitudeTypeID(const std::string &str);
+    friend Integer     GetAttitudeTypeID(const std::string &str);
     friend std::string GetAttitudeDirText(const Integer id);
-    friend Integer    GetAttitudeDirID(const std::string &str);
+    friend Integer     GetAttitudeDirID(const std::string &str);
     
     virtual const std::string* GetTimeSystems() const;
     virtual std::string GetTimeSystemText(const Integer &id) const;

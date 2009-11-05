@@ -41,7 +41,6 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(const ObType *myOb);
     bool GetData(ObType *myOb);
 
 private:
@@ -55,11 +54,6 @@ private:
     bool GetCCSDSSpacecraftInertia(std::string &lff, CCSDSAPMObType *myOb);
     bool GetCCSDSAttitudeManeuver(std::string &lff, CCSDSAPMObType *myOb);
 
-    CCSDSAPMMetaData *currentCCSDSMetaData;
-    CCSDSAPMMetaData *lastMetaDataWritten;
-    bool isMetaDataWritten;
-
-    Integer requiredNumberMetaDataParameters;
     Integer requiredNumberQuaternionParameters;
     Integer requiredNumberEulerAngleParameters;
     Integer requiredNumberSpinStabilizedParameters;

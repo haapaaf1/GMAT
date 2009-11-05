@@ -47,6 +47,7 @@ public:
 	EndCCSDSOEMTimeReps
     };
 
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSOEMDataFile;
 
 protected:
@@ -54,7 +55,7 @@ protected:
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeReps - EndCCSDSTimeReps];
    
     // Pointer to the data records
-    CCSDSOEMMetaData* ccsdsOEMMetaData;
+    CCSDSOEMMetaData* ccsdsMetaData;
     CCSDSOEMStateVector *ccsdsOEMStateVector;
 
 };   

@@ -83,7 +83,11 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const std::string &itsType,
 	currentCCSDSHeader(NULL),
 	lastHeaderWritten(NULL),
         isHeaderWritten(false),
-        requiredNumberHeaderParameters(0)
+        requiredNumberHeaderParameters(0),
+        currentCCSDSMetaData(NULL),
+        lastMetaDataWritten(NULL),
+        isMetaDataWritten(false),
+        requiredNumberMetaDataParameters(0)
 {
     commentsAllowed = true;
 }
@@ -100,7 +104,11 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const ProcessCCSDSDataFile &CCSDSdf) 
     currentCCSDSHeader(CCSDSdf.currentCCSDSHeader),
     lastHeaderWritten(CCSDSdf.lastHeaderWritten),
     isHeaderWritten(CCSDSdf.isHeaderWritten),
-    requiredNumberHeaderParameters(CCSDSdf.requiredNumberHeaderParameters)
+    requiredNumberHeaderParameters(CCSDSdf.requiredNumberHeaderParameters),
+    currentCCSDSMetaData(CCSDSdf.currentCCSDSMetaData),
+    lastMetaDataWritten(CCSDSdf.lastMetaDataWritten),
+    isMetaDataWritten(CCSDSdf.isMetaDataWritten),
+    requiredNumberMetaDataParameters(CCSDSdf.requiredNumberMetaDataParameters)
 {
 }
 
@@ -118,10 +126,16 @@ const ProcessCCSDSDataFile& ProcessCCSDSDataFile::operator=(const ProcessCCSDSDa
 	return *this;
 
     DataFile::operator=(CCSDSdf);
+
     currentCCSDSHeader = CCSDSdf.currentCCSDSHeader;
     lastHeaderWritten = CCSDSdf.lastHeaderWritten;
     isHeaderWritten = CCSDSdf.isHeaderWritten;
     requiredNumberHeaderParameters = CCSDSdf.requiredNumberHeaderParameters;
+    currentCCSDSMetaData = CCSDSdf.currentCCSDSMetaData;
+    lastMetaDataWritten = CCSDSdf.lastMetaDataWritten;
+    isMetaDataWritten = CCSDSdf.isMetaDataWritten;
+    requiredNumberMetaDataParameters = CCSDSdf.requiredNumberMetaDataParameters;
+    
     return *this;
 }
 
@@ -209,7 +223,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
 
     if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp))
     {
-        MessageInterface::ShowMessage("\nReading " + stemp + " Data from file\n");
+        MessageInterface::ShowMessage("\nReading CCSDS " + stemp + " Data from file\n");
 
         myHeader->fileType = stemp;
 	myHeader->ccsdsVersion = dtemp;
@@ -579,12 +593,12 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
 }
 
 //------------------------------------------------------------------------------
-// bool WriteDataHeader(const CCSDSHeader *myHeader)
+// bool WriteDataHeader(const ObType *myOb)
 //------------------------------------------------------------------------------
 /**
  * Writes CCSDS header data to file
  *
- * @param <myHeader> the CCSDS header struct to be written to file
+ * @param <myOb> the CCSDS ObType to be written to file
  * @return Boolean success or failure
  */
 //------------------------------------------------------------------------------
@@ -598,6 +612,7 @@ bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
     if (!isHeaderWritten)
     {
         *theFile << myHeader;
+
         lastHeaderWritten = myHeader;
         isHeaderWritten = true;
     }
@@ -611,5 +626,168 @@ bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
         lastHeaderWritten = myHeader;
         isHeaderWritten = true;
     }
+    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool WriteMetaData(const ObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Writes CCSDS metadata to file
+ *
+ * @param <myOb> the CCSDS metadata to be written to file
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
+{
+    std::string regex = "^CCSDS([A-Z]{3})Obtype.*";
+    std::string fileType;
+
+    if (!pcrecpp::RE(regex).FullMatch(myOb->GetTypeName(),&fileType))
+        return false;
+
+    Integer fileTypeID = GetFileFormatID(fileType);
+
+    // Check to see if this ObType corresponds to this Data Format Type
+    if (fileTypeID != fileFormatID) return false;
+
+    CCSDSMetaData *myMetaData;
+
+    switch(fileTypeID)
+    {
+        case DataFile::CCSDS_TDM_ID:
+            myMetaData = ((CCSDSTDMObType*)myOb)->ccsdsMetaData;
+            break;
+        case DataFile::CCSDS_OPM_ID:
+            myMetaData = ((CCSDSOPMObType*)myOb)->ccsdsMetaData;
+            break;
+        case DataFile::CCSDS_OEM_ID:
+            myMetaData = ((CCSDSOEMObType*)myOb)->ccsdsMetaData;
+            break;
+        case DataFile::CCSDS_APM_ID:
+            myMetaData = ((CCSDSAPMObType*)myOb)->ccsdsMetaData;
+            break;
+        case DataFile::CCSDS_AEM_ID:
+            myMetaData = ((CCSDSAEMObType*)myOb)->ccsdsMetaData;
+            break;
+        default:
+            return false;
+    }
+
+    if (!isMetaDataWritten)
+    {
+
+        switch(fileTypeID)
+        {
+            case DataFile::CCSDS_TDM_ID:
+                *theFile << (CCSDSTDMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_OPM_ID:
+                *theFile << (CCSDSOPMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_OEM_ID:
+                *theFile << (CCSDSOEMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_APM_ID:
+                *theFile << (CCSDSAPMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_AEM_ID:
+                *theFile << (CCSDSAEMMetaData*)myMetaData;
+                break;
+            default:
+                return false;
+        }
+
+        lastMetaDataWritten = myMetaData;
+        isMetaDataWritten = true;
+    }
+    else if (isMetaDataWritten && myMetaData != lastMetaDataWritten)
+    {
+        isMetaDataWritten = false;
+        lastMetaDataWritten = NULL;
+
+        switch(fileTypeID)
+        {
+            case DataFile::CCSDS_TDM_ID:
+                *theFile << (CCSDSTDMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_OPM_ID:
+                *theFile << (CCSDSOPMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_OEM_ID:
+                *theFile << (CCSDSOEMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_APM_ID:
+                *theFile << (CCSDSAPMMetaData*)myMetaData;
+                break;
+            case DataFile::CCSDS_AEM_ID:
+                *theFile << (CCSDSAEMMetaData*)myMetaData;
+                break;
+            default:
+                return false;
+        }
+
+        lastMetaDataWritten = myMetaData;
+        isMetaDataWritten = true;
+    }
+    return true;
+}
+
+//------------------------------------------------------------------------------
+// bool WriteData(const ObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Writes CCSDS data to file
+ *
+ * @param <myOb> the CCSDS data to be written to file
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::WriteData(const ObType *myOb)
+{
+    std::string regex = "^CCSDS([A-Z]{3})ObType.*";
+    std::string fileType;
+
+    if (!pcrecpp::RE(regex).FullMatch(myOb->GetTypeName(),&fileType))
+        return false;
+
+    Integer fileTypeID = GetFileFormatID(fileType);
+
+    // Check to see if this ObType corresponds to this Data Format Type
+    if (fileTypeID != fileFormatID) return false;
+
+    switch(fileTypeID)
+    {
+        case DataFile::CCSDS_TDM_ID:
+            WriteDataHeader((CCSDSTDMObType*)myOb);
+            WriteMetaData((CCSDSTDMObType*)myOb);
+            *theFile << (CCSDSTDMObType*)myOb;
+            break;
+        case DataFile::CCSDS_OPM_ID:
+            WriteDataHeader((CCSDSOPMObType*)myOb);
+            WriteMetaData((CCSDSOPMObType*)myOb);
+            *theFile << (CCSDSOPMObType*)myOb;
+            break;
+        case DataFile::CCSDS_OEM_ID:
+            WriteDataHeader((CCSDSOEMObType*)myOb);
+            WriteMetaData((CCSDSOEMObType*)myOb);
+            *theFile << (CCSDSOEMObType*)myOb;
+            break;
+        case DataFile::CCSDS_APM_ID:
+            WriteDataHeader((CCSDSAPMObType*)myOb);
+            WriteMetaData((CCSDSAPMObType*)myOb);
+            *theFile << (CCSDSAPMObType*)myOb;
+            break;
+        case DataFile::CCSDS_AEM_ID:
+            WriteDataHeader((CCSDSAEMObType*)myOb);
+            WriteMetaData((CCSDSAEMObType*)myOb);
+            *theFile << (CCSDSAEMObType*)myOb;
+            break;
+        default:
+            return false;
+    }
+
     return true;
 }

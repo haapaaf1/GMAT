@@ -148,6 +148,7 @@ public :
 	EndCCSDSTDMDataQualityReps
     };
      	        
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSTDMDataFile;
     
 protected:
@@ -165,7 +166,7 @@ protected:
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps];
     
     // Pointer to the metadata record associated with this data point
-    CCSDSTDMMetaData *ccsdsTDMMetaData;
+    CCSDSTDMMetaData *ccsdsMetaData;
 
     // Pointers to the generic key epoch value data format
     CCSDSData *ccsdsTDMData;

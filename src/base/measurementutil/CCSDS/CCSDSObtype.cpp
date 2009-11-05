@@ -13,8 +13,6 @@ const std::string CCSDSObType::CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps] =
     "SPIN/NUTATION"
 };
 
-
-
 const std::string CCSDSObType::CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps] =
 {
     "A2B",

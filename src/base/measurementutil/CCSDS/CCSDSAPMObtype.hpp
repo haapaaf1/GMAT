@@ -48,6 +48,7 @@ public:
 	EndCCSDSAPMTimeReps
     };
 
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSAPMDataFile;
 
 protected:
@@ -56,7 +57,7 @@ protected:
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAPMTimeReps - EndCCSDSTimeReps];
 
     // Pointer to the data records
-    CCSDSAPMMetaData *ccsdsAPMMetaData;
+    CCSDSAPMMetaData *ccsdsMetaData;
     CCSDSAPMQuaternion *ccsdsAPMQuaternion;
     CCSDSAPMEulerAngle *ccsdsAPMEulerAngle;
     CCSDSAPMSpinStabilized *ccsdsAPMSpinStabilized;

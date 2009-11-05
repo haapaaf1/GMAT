@@ -69,7 +69,9 @@ public:
         EndCCSDSRefFrameReps
     };
 
+    bool WriteData(const ObType *myOb);
     bool WriteDataHeader(const ObType *myOb);
+    bool WriteMetaData(const ObType *myOb);
 
     friend class CCSDSHeader;
 
@@ -103,6 +105,11 @@ protected:
     CCSDSHeader *lastHeaderWritten;
     bool isHeaderWritten;
     Integer requiredNumberHeaderParameters;
+    CCSDSMetaData *currentCCSDSMetaData;
+    CCSDSMetaData *lastMetaDataWritten;
+    bool isMetaDataWritten;
+    Integer requiredNumberMetaDataParameters;
+
 
 };
 

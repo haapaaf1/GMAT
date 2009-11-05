@@ -102,14 +102,10 @@ bool ProcessCCSDSAEMDataFile::Initialize()
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSAEMDataFile::ProcessCCSDSAEMDataFile(const std::string &itsName) :
-	ProcessCCSDSDataFile ("CCSDSAEMDataFile", itsName),
-	currentCCSDSMetaData(NULL),
-	lastMetaDataWritten(NULL),
-        isMetaDataWritten(false),
-        requiredNumberMetaDataParameters(0)
+	ProcessCCSDSDataFile ("CCSDSAEMDataFile", itsName)
 {
    objectTypeNames.push_back("CCSDSAEMDataFile");
-   fileFormatName = "CCSDSAEM";
+   fileFormatName = "AEM";
    fileFormatID = 11;
    numLines = 1;
 }
@@ -122,11 +118,7 @@ ProcessCCSDSAEMDataFile::ProcessCCSDSAEMDataFile(const std::string &itsName) :
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSAEMDataFile::ProcessCCSDSAEMDataFile(const ProcessCCSDSAEMDataFile &CCSDSAEMdf) :
-    ProcessCCSDSDataFile(CCSDSAEMdf),
-    currentCCSDSMetaData(CCSDSAEMdf.currentCCSDSMetaData),
-    lastMetaDataWritten(CCSDSAEMdf.lastMetaDataWritten),
-    isMetaDataWritten(CCSDSAEMdf.isMetaDataWritten),
-    requiredNumberMetaDataParameters(CCSDSAEMdf.requiredNumberMetaDataParameters)
+    ProcessCCSDSDataFile(CCSDSAEMdf)
 {
 }
 
@@ -144,10 +136,7 @@ const ProcessCCSDSAEMDataFile& ProcessCCSDSAEMDataFile::operator=(const ProcessC
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSAEMdf);
-    currentCCSDSMetaData = CCSDSAEMdf.currentCCSDSMetaData;
-    lastMetaDataWritten = CCSDSAEMdf.lastMetaDataWritten;
-    isMetaDataWritten = CCSDSAEMdf.isMetaDataWritten;
-    requiredNumberMetaDataParameters = CCSDSAEMdf.requiredNumberMetaDataParameters;
+
     return *this;
 }
 
@@ -257,7 +246,7 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetaData = myAEM->ccsdsAEMMetaData;
+	    currentCCSDSMetaData = myAEM->ccsdsMetaData;
 	}
 	else
 	{
@@ -284,7 +273,7 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
     {
 	myAEM->ccsdsHeader = currentCCSDSHeader;
-        myAEM->ccsdsAEMMetaData = currentCCSDSMetaData;
+        myAEM->ccsdsMetaData = (CCSDSAEMMetaData*)currentCCSDSMetaData;
 	return GetCCSDSAEMData(line,myAEM);
     }
 
@@ -316,13 +305,13 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
     double dtemp1, dtemp2, dtemp3, dtemp4, dtemp5, dtemp6, dtemp7, dtemp8;
     std::string stemp;
 
-    switch (myOb->ccsdsAEMMetaData->attitudeType)
+    switch (myOb->ccsdsMetaData->attitudeType)
     {
         case CCSDSObType::CCSDS_QUATERNION_ID:
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
-            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            if (myOb->ccsdsMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {  
                 std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -337,8 +326,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q1 = dtemp2;
                     myQData->q2 = dtemp3;
                     myQData->q3 = dtemp4;
-                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
-                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
@@ -348,7 +337,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
                 return false;
             }
-            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            else if (myOb->ccsdsMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -363,8 +352,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q2 = dtemp2;
                     myQData->q3 = dtemp3;
                     myQData->qC = dtemp4;
-                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
-                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
@@ -384,7 +373,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
-            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            if (myOb->ccsdsMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -406,8 +395,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q1Dot = dtemp6;
                     myQData->q2Dot = dtemp7;
                     myQData->q3Dot = dtemp8;
-                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
-                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
@@ -417,7 +406,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
                 return false;
             }
-            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            else if (myOb->ccsdsMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -439,8 +428,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->q2Dot = dtemp6;
                     myQData->q3Dot = dtemp7;
                     myQData->qCDot = dtemp8;
-                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
-                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
@@ -460,7 +449,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
-            if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            if (myOb->ccsdsMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -481,8 +470,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->xRate = dtemp5;
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
-                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
-                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
@@ -492,7 +481,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
                 return false;
             }
-            else if (myOb->ccsdsAEMMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            else if (myOb->ccsdsMetaData->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
@@ -513,8 +502,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     myQData->xRate = dtemp5;
                     myQData->yRate = dtemp6;
                     myQData->zRate = dtemp7;
-                    myQData->quaternionType = myOb->ccsdsAEMMetaData->quaternionType;
-                    myQData->attitudeType = myOb->ccsdsAEMMetaData->attitudeType;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
@@ -851,29 +840,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
     while(requiredCount < requiredNumberMetaDataParameters ||
           pcrecpp::RE("^DATA_START.*$").FullMatch(lff));
 
-    myOb->ccsdsAEMMetaData = myMetaData;
+    myOb->ccsdsMetaData = myMetaData;
 
-    return true;
-}
-
-
-//------------------------------------------------------------------------------
-// bool WriteData(const ObType *myOb)
-//------------------------------------------------------------------------------
-/**
- * Writes a CCSDS orbit ephemeris message to file
- *
- * @param <myAEM> the AEM data to be written to file
- * @return Boolean success or failure
- */
-//------------------------------------------------------------------------------
-bool ProcessCCSDSAEMDataFile::WriteData(const ObType *myOb)
-{
-    if (myOb->GetTypeName() != "CCSDSAEMObType") return false;
-
-    CCSDSAEMObType *theAEM = (CCSDSAEMObType*)myOb;
-    WriteDataHeader(theAEM);
-    WriteMetaData(theAEM);
-    *theFile << theAEM;
     return true;
 }

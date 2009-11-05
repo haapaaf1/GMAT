@@ -84,10 +84,11 @@ std::ostream& operator<< (std::ostream &output,
 
    //output.precision(ProcessCCSDSOEMDataFile::precision);
 
-   for (unsigned int i = 0; i < myOEMStateVector->comments.size(); i++)
+   unsigned int i;
+   for (i = 0; i < myOEMStateVector->comments.size(); i++)
        output << myOEMStateVector->comments[i] << endl;
 
-   output << endl;
+   if (i > 0) output << endl;
 
    output << myOEMStateVector->timeTag;
    output << " " << myOEMStateVector->x;

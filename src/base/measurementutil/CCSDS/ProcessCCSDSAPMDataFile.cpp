@@ -109,14 +109,10 @@ bool ProcessCCSDSAPMDataFile::Initialize()
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSAPMDataFile::ProcessCCSDSAPMDataFile(const std::string &itsName) :
-	ProcessCCSDSDataFile ("CCSDSAPMDataFile", itsName),
-	currentCCSDSMetaData(NULL),
-	lastMetaDataWritten(NULL),
-        isMetaDataWritten(false),
-        requiredNumberMetaDataParameters(0)
+	ProcessCCSDSDataFile ("CCSDSAPMDataFile", itsName)
 {
    objectTypeNames.push_back("CCSDSAPMDataFile");
-   fileFormatName = "CCSDSAPM";
+   fileFormatName = "APM";
    fileFormatID = 10;
    numLines = 1;
 }
@@ -129,11 +125,7 @@ ProcessCCSDSAPMDataFile::ProcessCCSDSAPMDataFile(const std::string &itsName) :
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSAPMDataFile::ProcessCCSDSAPMDataFile(const ProcessCCSDSAPMDataFile &CCSDSAPMdf) :
-    ProcessCCSDSDataFile(CCSDSAPMdf),
-    currentCCSDSMetaData(CCSDSAPMdf.currentCCSDSMetaData),
-    lastMetaDataWritten(CCSDSAPMdf.lastMetaDataWritten),
-    isMetaDataWritten(CCSDSAPMdf.isMetaDataWritten),
-    requiredNumberMetaDataParameters(CCSDSAPMdf.requiredNumberMetaDataParameters)
+    ProcessCCSDSDataFile(CCSDSAPMdf)
 {
 }
 
@@ -151,10 +143,6 @@ const ProcessCCSDSAPMDataFile& ProcessCCSDSAPMDataFile::operator=(const ProcessC
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSAPMdf);
-    currentCCSDSMetaData = CCSDSAPMdf.currentCCSDSMetaData;
-    lastMetaDataWritten = CCSDSAPMdf.lastMetaDataWritten;
-    isMetaDataWritten = CCSDSAPMdf.isMetaDataWritten;
-    requiredNumberMetaDataParameters = CCSDSAPMdf.requiredNumberMetaDataParameters;
     return *this;
 }
 
@@ -267,7 +255,7 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
 	{
 	    // success so set current meta data pointer to the
 	    // one just processed
-	    currentCCSDSMetaData = myAPM->ccsdsAPMMetaData;
+	    currentCCSDSMetaData = myAPM->ccsdsMetaData;
 	}
 	else
 	{
@@ -290,7 +278,7 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
     if (pcrecpp::RE("^EPOCH.*").FullMatch(lff))
     {
 	myAPM->ccsdsHeader = currentCCSDSHeader;
-        myAPM->ccsdsAPMMetaData = currentCCSDSMetaData;
+        myAPM->ccsdsMetaData = (CCSDSAPMMetaData*)currentCCSDSMetaData;
 	if (GetCCSDSAPMData(lff,myAPM))
         {
             if (commentsFound)
@@ -1119,28 +1107,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSMetaData(std::string &lff,
     while(requiredCount < requiredNumberMetaDataParameters ||
           pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
 
-    myOb->ccsdsAPMMetaData = myMetaData;
+    myOb->ccsdsMetaData = myMetaData;
 
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// bool WriteData(const ObType *myOb)
-//------------------------------------------------------------------------------
-/**
- * Writes a CCSDS orbit ephemeris message to file
- *
- * @param <myAPM> the APM data to be written to file
- * @return Boolean success or failure
- */
-//------------------------------------------------------------------------------
-bool ProcessCCSDSAPMDataFile::WriteData(const ObType *myOb)
-{
-    if (GetTypeName() != "CCSDSAPMObType") return false;
-
-    CCSDSAPMObType *theAPM = (CCSDSAPMObType*)myOb;
-    WriteDataHeader(theAPM);
-    WriteMetaData(theAPM);
-    *theFile << theAPM;
     return true;
 }

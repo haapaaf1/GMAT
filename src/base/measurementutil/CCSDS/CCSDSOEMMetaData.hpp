@@ -8,15 +8,9 @@
 #ifndef _CCSDSOEMMETADATA_HPP
 #define	_CCSDSOEMMETADATA_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
+#include "CCSDSMetaData.hpp"
 
-class CCSDSOEMMetaData
+class CCSDSOEMMetaData : public CCSDSMetaData
 {
     
 public:
@@ -30,7 +24,6 @@ public:
 
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSOEMMetaData *myMetaData);
-
 
     Integer     GetIntegerDataParameter(const Integer id) const;
     Integer     GetIntegerDataParameter(const std::string &label) const;
@@ -71,7 +64,7 @@ public:
         EndCCSDSOEMMetaDataReps
     };
 
-
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSOEMDataFile;
 
 private:

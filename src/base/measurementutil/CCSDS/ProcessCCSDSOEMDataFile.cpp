@@ -63,18 +63,13 @@ bool ProcessCCSDSOEMDataFile::Initialize()
 
         #ifdef DEBUG_CCSDSOEM_DATA
 
-            fstream *outFile = new fstream;
-            outFile->open("oem.output",ios::out);
-
-            // Output to file to make sure all the data is properly stored
+            ProcessCCSDSOEMDataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetFileName("OEM.output");
+            myOutFile.Initialize();
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
-                *outFile << (*(CCSDSOEMObType*)(*j)).ccsdsHeader;
-                *outFile << (*(CCSDSOEMObType*)(*j)).ccsdsOEMMetaData;
-		*outFile << (CCSDSOEMObType*)(*j);
-            }
-
-            outFile->close();
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
 
         #endif
 
@@ -105,14 +100,10 @@ bool ProcessCCSDSOEMDataFile::Initialize()
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const std::string &itsName) :
-	ProcessCCSDSDataFile ("CCSDSOEMDataFile", itsName),
-	currentCCSDSMetaData(NULL),
-	lastMetaDataWritten(NULL),
-        isMetaDataWritten(false),
-        requiredNumberMetaDataParameters(0)
+	ProcessCCSDSDataFile ("CCSDSOEMDataFile", itsName)
 {
    objectTypeNames.push_back("CCSDSOEMDataFile");
-   fileFormatName = "CCSDSOEM";
+   fileFormatName = "OEM";
    fileFormatID = 9;
    numLines = 1;
 }
@@ -125,11 +116,7 @@ ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const std::string &itsName) :
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &CCSDSOEMdf) :
-    ProcessCCSDSDataFile(CCSDSOEMdf),
-    currentCCSDSMetaData(CCSDSOEMdf.currentCCSDSMetaData),
-    lastMetaDataWritten(CCSDSOEMdf.lastMetaDataWritten),
-    isMetaDataWritten(CCSDSOEMdf.isMetaDataWritten),
-    requiredNumberMetaDataParameters(CCSDSOEMdf.requiredNumberMetaDataParameters)
+    ProcessCCSDSDataFile(CCSDSOEMdf)
 {
 }
 
@@ -147,10 +134,6 @@ const ProcessCCSDSOEMDataFile& ProcessCCSDSOEMDataFile::operator=(const ProcessC
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSOEMdf);
-    currentCCSDSMetaData = CCSDSOEMdf.currentCCSDSMetaData;
-    lastMetaDataWritten = CCSDSOEMdf.lastMetaDataWritten;
-    isMetaDataWritten = CCSDSOEMdf.isMetaDataWritten;
-    requiredNumberMetaDataParameters = CCSDSOEMdf.requiredNumberMetaDataParameters;
     return *this;
 }
 
@@ -260,7 +243,7 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetaData = myOEM->ccsdsOEMMetaData;
+	    currentCCSDSMetaData = myOEM->ccsdsMetaData;
 	}
 	else
 	{
@@ -272,7 +255,7 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
         do
         {
             myOEM->ccsdsHeader = currentCCSDSHeader;
-            myOEM->ccsdsOEMMetaData = currentCCSDSMetaData;
+            myOEM->ccsdsMetaData = (CCSDSOEMMetaData*)currentCCSDSMetaData;
 
             // Container for any comments found before the first state vector
             StringArray comments;
@@ -425,7 +408,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
     while(requiredCount < requiredNumberMetaDataParameters &&
           !pcrecpp::RE("^META_STOP.*$").FullMatch(lff));
 
-    myOb->ccsdsOEMMetaData = myMetaData;
+    myOb->ccsdsMetaData = myMetaData;
 
     // Read past the META_STOP line
     lff = ReadLineFromFile();
@@ -483,25 +466,4 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
     }
 
     return false;
-}
-
-//------------------------------------------------------------------------------
-// bool WriteData(const ObType *myOb)
-//------------------------------------------------------------------------------
-/**
- * Writes a CCSDS orbit ephemeris message to file
- *
- * @param <myOEM> the OEM data to be written to file
- * @return Boolean success or failure
- */
-//------------------------------------------------------------------------------
-bool ProcessCCSDSOEMDataFile::WriteData(const ObType *myOb)
-{
-    if (!pcrecpp::RE("^CCSDSOEMObType").FullMatch(myOb->GetTypeName())) return false;
-
-    CCSDSOEMObType *theOEM = (CCSDSOEMObType*)myOb;
-    WriteDataHeader(theOEM);
-    WriteMetaData(theOEM);
-    *theFile << theOEM;
-    return true;
 }

@@ -55,7 +55,7 @@ const Gmat::ParameterType CCSDSAPMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the CCSDSAPMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMMetaData::CCSDSAPMMetaData() :
+CCSDSAPMMetaData::CCSDSAPMMetaData() : CCSDSMetaData(),
     objectName(std::string("")),
     internationalDesignator(std::string("")),
     refFrameOrigin(std::string("")),
@@ -71,8 +71,8 @@ CCSDSAPMMetaData::CCSDSAPMMetaData() :
  * Constructor for the CCSDSAPMMetaData class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMMetaData::CCSDSAPMMetaData
-               (const CCSDSAPMMetaData &apmMD) :
+CCSDSAPMMetaData::CCSDSAPMMetaData(const CCSDSAPMMetaData &apmMD) :
+    CCSDSMetaData(apmMD),
     objectName(apmMD.objectName),
     internationalDesignator(apmMD.internationalDesignator),
     refFrameOrigin(apmMD.refFrameOrigin),
@@ -92,11 +92,12 @@ CCSDSAPMMetaData::CCSDSAPMMetaData
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSAPMMetaData& CCSDSAPMMetaData::operator=
-                                     (const CCSDSAPMMetaData &apmMD)
+const CCSDSAPMMetaData& CCSDSAPMMetaData::operator=(const CCSDSAPMMetaData &apmMD)
 {
     if (&apmMD == this)
         return *this;
+
+    CCSDSMetaData::operator=(apmMD);
 
     objectName = apmMD.objectName;
     internationalDesignator = apmMD.internationalDesignator;

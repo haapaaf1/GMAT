@@ -22,7 +22,7 @@ const std::string CCSDSOPMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOPMTimeR
  */
 //------------------------------------------------------------------------------
 CCSDSOPMObType::CCSDSOPMObType() : CCSDSObType("CCSDSOPMObType", ""),
-	ccsdsOPMMetaData(NULL),
+	ccsdsMetaData(NULL),
         ccsdsOPMStateVector(NULL),
         ccsdsOPMKeplerianElements(NULL),
         ccsdsOPMSpacecraftParameters(NULL),
@@ -38,7 +38,7 @@ CCSDSOPMObType::CCSDSOPMObType() : CCSDSObType("CCSDSOPMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSOPMObType::CCSDSOPMObType(const CCSDSOPMObType &opm) : CCSDSObType(opm),
-	ccsdsOPMMetaData(opm.ccsdsOPMMetaData),
+	ccsdsMetaData(opm.ccsdsMetaData),
         ccsdsOPMStateVector(opm.ccsdsOPMStateVector),
         ccsdsOPMKeplerianElements(opm.ccsdsOPMKeplerianElements),
         ccsdsOPMSpacecraftParameters(opm.ccsdsOPMSpacecraftParameters),
@@ -64,7 +64,7 @@ const CCSDSOPMObType& CCSDSOPMObType::operator=(const CCSDSOPMObType &opm)
 
     CCSDSObType::operator=(opm);
 
-    ccsdsOPMMetaData = opm.ccsdsOPMMetaData;
+    ccsdsMetaData = opm.ccsdsMetaData;
     ccsdsOPMStateVector = opm.ccsdsOPMStateVector;
     ccsdsOPMKeplerianElements = opm.ccsdsOPMKeplerianElements;
     ccsdsOPMSpacecraftParameters = opm.ccsdsOPMSpacecraftParameters;

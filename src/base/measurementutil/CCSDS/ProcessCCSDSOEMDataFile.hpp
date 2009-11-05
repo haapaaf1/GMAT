@@ -41,7 +41,6 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(const ObType *myOb);
     bool GetData(ObType *myOb);
 
     friend class CCSDSOEMMetaData;
@@ -50,14 +49,8 @@ public:
 private:
 
     // Specific data type processing functions
-    bool GetCCSDSMetaData(std::string &nextline,
-                          CCSDSOEMObType *myOb);
+    bool GetCCSDSMetaData(std::string &lff, CCSDSOEMObType *myOb);
     bool GetCCSDSOEMData(std::string &lff, CCSDSOEMObType *myOb);
-
-    CCSDSOEMMetaData *currentCCSDSMetaData;
-    CCSDSOEMMetaData *lastMetaDataWritten;
-    bool isMetaDataWritten;
-    Integer requiredNumberMetaDataParameters;
 
 };
 #endif	/* _ProcessCCSDSOEMDataFileData_hpp */

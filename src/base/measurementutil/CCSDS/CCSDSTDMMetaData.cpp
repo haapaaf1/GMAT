@@ -247,7 +247,7 @@ const Gmat::ParameterType CCSDSTDMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSTDMMetaData::CCSDSTDMMetaData() :
+CCSDSTDMMetaData::CCSDSTDMMetaData() : CCSDSMetaData(),
     comments(0),
     timeSystem(std::string("")),
     startTime(std::string("")),
@@ -303,6 +303,7 @@ CCSDSTDMMetaData::CCSDSTDMMetaData() :
  */
 //------------------------------------------------------------------------------
 CCSDSTDMMetaData::CCSDSTDMMetaData(const CCSDSTDMMetaData &tdmd) :
+    CCSDSMetaData(tdmd),
     comments(tdmd.comments),
     timeSystem(tdmd.timeSystem),
     startTime(tdmd.startTime),
@@ -363,8 +364,10 @@ CCSDSTDMMetaData::CCSDSTDMMetaData(const CCSDSTDMMetaData &tdmd) :
 //---------------------------------------------------------------------------
 const CCSDSTDMMetaData& CCSDSTDMMetaData::operator=(const CCSDSTDMMetaData &tdmd)
 {
-   if (&tdmd == this)
-      return *this;
+    if (&tdmd == this)
+        return *this;
+
+    CCSDSMetaData::operator=(tdmd);
 
     comments = tdmd.comments;
     timeSystem = tdmd.timeSystem;

@@ -41,7 +41,6 @@ public:
     bool        IsParameterReadOnly(const Integer id) const;
     bool        IsParameterReadOnly(const std::string &label) const;
 
-    bool WriteData(const ObType *myOb);
     bool GetData(ObType *myOb);
 
 private:
@@ -49,12 +48,7 @@ private:
     // Specific data type processing functions
     bool GetCCSDSMetaData(std::string &nextline, CCSDSAEMObType *myOb);
     bool GetCCSDSAEMData(std::string &lff, CCSDSAEMObType *myOb);
-
-    CCSDSAEMMetaData *currentCCSDSMetaData;
-    CCSDSAEMMetaData *lastMetaDataWritten;
-    bool isMetaDataWritten;
-    Integer requiredNumberMetaDataParameters;
-
+    
 };
 #endif	/* _ProcessCCSDSAEMDataFileData_hpp */
 

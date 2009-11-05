@@ -77,6 +77,13 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+   unsigned int i;
+   for (i = 0; i < myOPMStateVector->comments.size(); i++ )
+   {
+       output << "COMMENT " << myOPMStateVector->comments[i] << std::endl;
+   }
+   if (i > 0) output << std::endl;
+
    output << "EPOCH = " << myOPMStateVector->timeTag << endl;
    output << "X = " << myOPMStateVector->x << endl;
    output << "Y = " << myOPMStateVector->y << endl;
@@ -84,6 +91,8 @@ std::ostream& operator<< (std::ostream &output,
    output << "X_DOT = " << myOPMStateVector->xDot << endl;
    output << "Y_DOT = " << myOPMStateVector->yDot << endl;
    output << "Z_DOT = " << myOPMStateVector->zDot << endl;
+
+   output << std::endl;
 
    return output;
 }

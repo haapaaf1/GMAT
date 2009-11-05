@@ -8,15 +8,9 @@
 #ifndef _CCSDSTDMMETADATA_HPP
 #define	_CCSDSTDMMETADATA_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
+#include "CCSDSMetaData.hpp"
 
-class CCSDSTDMMetaData
+class CCSDSTDMMetaData : public CCSDSMetaData
 {
     
 public:
@@ -31,6 +25,7 @@ public:
 
     friend class CCSDSObType;
     friend class CCSDSTDMObType;
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSTDMDataFile;
 
     // Functions to verify data availability

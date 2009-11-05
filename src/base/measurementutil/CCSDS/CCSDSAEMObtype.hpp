@@ -44,6 +44,7 @@ public:
 	EndCCSDSAEMTimeReps
     };
 
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSAEMDataFile;
 
 protected:
@@ -51,7 +52,7 @@ protected:
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAEMTimeReps - EndCCSDSTimeReps];
 
     // Pointer to the metadata record
-    CCSDSAEMMetaData* ccsdsAEMMetaData;
+    CCSDSAEMMetaData* ccsdsMetaData;
     CCSDSAEMQuaternion *ccsdsAEMQuaternion;
     CCSDSAEMEulerAngle *ccsdsAEMEulerAngle;
     CCSDSAEMSpinStabilized *ccsdsAEMSpinStabilized;

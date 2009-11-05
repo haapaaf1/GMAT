@@ -26,7 +26,7 @@ const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeR
  */
 //------------------------------------------------------------------------------
 CCSDSOEMObType::CCSDSOEMObType() : CCSDSObType("CCSDSOEMObType", ""),
-	ccsdsOEMMetaData(NULL),
+	ccsdsMetaData(NULL),
         ccsdsOEMStateVector(NULL)
 {
 }
@@ -39,7 +39,7 @@ CCSDSOEMObType::CCSDSOEMObType() : CCSDSObType("CCSDSOEMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSOEMObType::CCSDSOEMObType(const CCSDSOEMObType &oem) : CCSDSObType(oem),
-	ccsdsOEMMetaData(oem.ccsdsOEMMetaData),
+	ccsdsMetaData(oem.ccsdsMetaData),
         ccsdsOEMStateVector(oem.ccsdsOEMStateVector)
 {
 }
@@ -61,7 +61,7 @@ const CCSDSOEMObType& CCSDSOEMObType::operator=(const CCSDSOEMObType &oem)
       return *this;
 
    CCSDSObType::operator=(oem);
-   ccsdsOEMMetaData = oem.ccsdsOEMMetaData;
+   ccsdsMetaData = oem.ccsdsMetaData;
    ccsdsOEMStateVector = oem.ccsdsOEMStateVector;
 
    return *this;

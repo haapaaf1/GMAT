@@ -22,7 +22,7 @@ const std::string CCSDSAPMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSAPMTimeR
  */
 //------------------------------------------------------------------------------
 CCSDSAPMObType::CCSDSAPMObType() : CCSDSObType("CCSDSAPMObType", ""),
-	ccsdsAPMMetaData(NULL),
+	ccsdsMetaData(NULL),
         ccsdsAPMQuaternion(NULL),
         ccsdsAPMEulerAngle(NULL),
         ccsdsAPMSpinStabilized(NULL),
@@ -39,7 +39,7 @@ CCSDSAPMObType::CCSDSAPMObType() : CCSDSObType("CCSDSAPMObType", ""),
  */
 //------------------------------------------------------------------------------
 CCSDSAPMObType::CCSDSAPMObType(const CCSDSAPMObType &apm) : CCSDSObType(apm),
-	ccsdsAPMMetaData(apm.ccsdsAPMMetaData),
+	ccsdsMetaData(apm.ccsdsMetaData),
         ccsdsAPMQuaternion(apm.ccsdsAPMQuaternion),
         ccsdsAPMEulerAngle(apm.ccsdsAPMEulerAngle),
         ccsdsAPMSpinStabilized(apm.ccsdsAPMSpinStabilized),
@@ -66,7 +66,7 @@ const CCSDSAPMObType& CCSDSAPMObType::operator=(const CCSDSAPMObType &apm)
 
     CCSDSObType::operator=(apm);
 
-    ccsdsAPMMetaData = apm.ccsdsAPMMetaData;
+    ccsdsMetaData = apm.ccsdsMetaData;
     ccsdsAPMQuaternion = apm.ccsdsAPMQuaternion;
     ccsdsAPMEulerAngle = apm.ccsdsAPMEulerAngle;
     ccsdsAPMSpinStabilized = apm.ccsdsAPMSpinStabilized;

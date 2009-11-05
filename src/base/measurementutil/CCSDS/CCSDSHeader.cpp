@@ -401,12 +401,15 @@ std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
     output.unsetf ( ios_base::floatfield );
 
     output << "CCSDS_" << myHeader->fileType << "_VERS = " << myHeader->ccsdsVersion << endl;
-    for (unsigned int i = 0; i < myHeader->comments.size(); i++)
+    output << "CREATION_DATE = " << myHeader->creationDate << endl;
+    output << "ORIGINATOR = " << myHeader->originator << endl;
+    output << endl;
+    unsigned int i;
+    for (i = 0; i < myHeader->comments.size(); i++)
     {
         output << "COMMENT " << myHeader->comments[i] << endl;
     }
-    output << "CREATION_DATE = " << myHeader->creationDate << endl;
-    output << "ORIGINATOR = " << myHeader->originator << endl;
+   if (i > 0) output << endl;
 
     return output;
 }

@@ -8,15 +8,9 @@
 #ifndef _CCSDSOPMMETADATA_HPP
 #define	_CCSDSOPMMETADATA_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
+#include "CCSDSMetaData.hpp"
 
-class CCSDSOPMMetaData 
+class CCSDSOPMMetaData : public CCSDSMetaData
 {
     
 public:
@@ -60,6 +54,7 @@ public:
         EndCCSDSOPMMetaDataReps
     };
 
+    friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSOPMDataFile;
 
 private:

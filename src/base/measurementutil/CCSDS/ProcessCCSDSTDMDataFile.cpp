@@ -104,14 +104,10 @@ bool ProcessCCSDSTDMDataFile::Initialize()
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const std::string &itsName) :
-	ProcessCCSDSDataFile ("CCSDSDataFile", itsName),
-	currentCCSDSMetaData(NULL),
-	lastMetaDataWritten(NULL),
-        isMetaDataWritten(false),
-        requiredNumberMetaDataParameters(0)
+	ProcessCCSDSDataFile ("CCSDSTDMDataFile", itsName)
 {
-   objectTypeNames.push_back("CCSDSDataFile");
-   fileFormatName = "CCSDSTDM";
+   objectTypeNames.push_back("CCSDSTDMDataFile");
+   fileFormatName = "TDM";
    fileFormatID = 7;
    numLines = 1;
 }
@@ -124,11 +120,7 @@ ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const std::string &itsName) :
  */
 //------------------------------------------------------------------------------
 ProcessCCSDSTDMDataFile::ProcessCCSDSTDMDataFile(const ProcessCCSDSTDMDataFile &CCSDSTDMdf) :
-    ProcessCCSDSDataFile(CCSDSTDMdf),
-    currentCCSDSMetaData(CCSDSTDMdf.currentCCSDSMetaData),
-    lastMetaDataWritten(CCSDSTDMdf.lastMetaDataWritten),
-    isMetaDataWritten(CCSDSTDMdf.isMetaDataWritten),
-    requiredNumberMetaDataParameters(CCSDSTDMdf.requiredNumberMetaDataParameters)
+    ProcessCCSDSDataFile(CCSDSTDMdf)
 {
 }
 
@@ -146,10 +138,7 @@ const ProcessCCSDSTDMDataFile& ProcessCCSDSTDMDataFile::operator=(const ProcessC
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSTDMdf);
-    currentCCSDSMetaData = CCSDSTDMdf.currentCCSDSMetaData;
-    lastMetaDataWritten = CCSDSTDMdf.lastMetaDataWritten;
-    isMetaDataWritten = CCSDSTDMdf.isMetaDataWritten;
-    requiredNumberMetaDataParameters = CCSDSTDMdf.requiredNumberMetaDataParameters;
+
     return *this;
 }
 
@@ -261,7 +250,7 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-	    currentCCSDSMetaData = myTDM->ccsdsTDMMetaData;
+	    currentCCSDSMetaData = myTDM->ccsdsMetaData;
 	}
 	else
 	{
@@ -288,7 +277,7 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
     if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(lff) && !pcrecpp::RE("").FullMatch(lff))
     {
         myTDM->ccsdsHeader = currentCCSDSHeader;
-        myTDM->ccsdsTDMMetaData = currentCCSDSMetaData;
+        myTDM->ccsdsMetaData = (CCSDSTDMMetaData*)currentCCSDSMetaData;
 	return GetCCSDSTDMData(lff,myTDM);
     }
 
@@ -331,7 +320,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
 
 //------------------------------------------------------------------------------
 // bool GetCCSDSMetaData(std::string &lff,
-//                       CCSDSTDMMetaData *myMetaData)
+//                       ccsdsMetaData *myMetaData)
 //------------------------------------------------------------------------------
 /**
  * Extracts the metadata information from the tracking data message.
@@ -646,30 +635,9 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
     while(requiredCount < requiredNumberMetaDataParameters &&
           !pcrecpp::RE("^DATA_START$").FullMatch(lff));
 
-    myOb->ccsdsTDMMetaData = myMetaData;
+    myOb->ccsdsMetaData = myMetaData;
 
     return true;
 
-}
-
-//------------------------------------------------------------------------------
-// bool WriteData(const ObType *myOb)
-//------------------------------------------------------------------------------
-/**
- * Writes a CCSDS tracking data message to file
- *
- * @param <myTDM> the TDM data to be written to file
- * @return Boolean success or failure
- */
-//------------------------------------------------------------------------------
-bool ProcessCCSDSTDMDataFile::WriteData(const ObType *myOb)
-{
-    if (myOb->GetTypeName() != "CCSDSTDMObType") return false;
-
-    CCSDSTDMObType *theTDM = (CCSDSTDMObType*)myOb;
-    WriteDataHeader(theTDM);
-    WriteMetaData(theTDM);
-    *theFile << theTDM;
-    return true;
 }
 
