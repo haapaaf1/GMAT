@@ -308,7 +308,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
 
-        //MessageInterface::ShowMessage("Found State Vector\n");
+        MessageInterface::ShowMessage("Found State Vector\n");
 
         if (GetCCSDSOPMStateVector(lff,myOb))
         {
@@ -325,7 +325,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     regex = "^SEMI_MAJOR_AXIS\\s*=.*";
     if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
-        //MessageInterface::ShowMessage("Found Keplerian Elements\n");
+        MessageInterface::ShowMessage("Found Keplerian Elements\n");
 
         if (GetCCSDSKeplerianElements(lff,myOb))
         {
@@ -342,7 +342,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     regex = "^MASS\\s*=.*";
     if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
-        //MessageInterface::ShowMessage("Found Spacecraft Parameters\n");
+        MessageInterface::ShowMessage("Found Spacecraft Parameters\n");
 
         if (GetCCSDSSpacecraftParameters(lff,myOb))
         {
@@ -362,7 +362,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
 
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
-        //MessageInterface::ShowMessage("Found Maneuver\n");
+        MessageInterface::ShowMessage("Found Maneuver\n");
 
         if (GetCCSDSManeuver(lff,myOb))
         {
@@ -401,9 +401,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
-
         Integer keyID = myOPMStateVector->GetKeywordID(keyword);
-
         if(myOPMStateVector->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
@@ -456,6 +454,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
 
             default:
 
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in State Vector\n");
                 return false;
                 break;
             }
@@ -492,9 +491,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
-
         Integer keyID = myOPMKeplerianElements->GetKeywordID(keyword);
-
         if(myOPMKeplerianElements->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
@@ -509,27 +506,22 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
                 break;
 
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
-
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->semiMajorAxis)) return false;
                 break;
 
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_ECCENTRICITY_ID:
-
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->eccentricity)) return false;
                 break;
 
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_INCLINATION_ID:
-
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->inclination)) return false;
                 break;
 
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_RAAN_ID:
-
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->raan)) return false;
                 break;
 
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
-
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->argumentOfPericenter)) return false;
                 break;
 
@@ -556,12 +548,12 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
                 break;
 
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
-
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->gravitationalCoefficient)) return false;
                 break;
 
             default:
 
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in Keplerian Elements\n");
                 return false;
                 break;
 
@@ -570,7 +562,10 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( requiredCount < requiredNumberKeplerianElementsParameters );
+    while ( requiredCount < requiredNumberKeplerianElementsParameters && !IsEOF() ||
+          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff) ||
+          pcrecpp::RE("^TRUE_ANOMALY\\s*.*$").FullMatch(lff) ||
+          pcrecpp::RE("^MEAN_ANOMALY\\s*.*$").FullMatch(lff));
 
     myOb->ccsdsOPMKeplerianElements = myOPMKeplerianElements;
 
@@ -643,6 +638,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSSpacecraftParameters(std::string &lff,
 
             default:
 
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in Spacecraft Parameters\n");
                 return false;
                 break;
             }
@@ -650,7 +646,8 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSSpacecraftParameters(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( requiredCount < requiredNumberSpacecraftParameters );
+    while ( requiredCount < requiredNumberSpacecraftParameters && !IsEOF() ||
+          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
 
     myOb->ccsdsOPMSpacecraftParameters = myOPMSpacecraftParameters;
 
@@ -738,6 +735,8 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSManeuver(std::string &lff,
                 break;
 
             default:
+
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in Maneuvers\n");
                 return false;
                 break;
 
@@ -746,9 +745,12 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSManeuver(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( requiredCount < requiredNumberManeuverParameters );
+    while ( requiredCount < requiredNumberManeuverParameters && !IsEOF() ||
+          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
 
-    myOb->ccsdsOPMManeuvers.push_back(myOPMManeuver);
+    MessageInterface::ShowMessage("About to push back a maneuver\n");
+
+    (myOb->ccsdsOPMManeuvers).push_back(myOPMManeuver);
 
     return true;
 
@@ -827,7 +829,8 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 
             default:
 
-                //return false;
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in MetaData\n");
+                return false;
                 break;
 
         }

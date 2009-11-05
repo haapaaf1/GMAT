@@ -312,8 +312,10 @@ bool ProcessCCSDSDataFile::GetCCSDSValue(const std::string &lff, Integer &value)
     // assigned to the GMAT type via casting.
     int itemp;
 
+//    std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
+//                        REGEX_INTEGER + ")[\\s*\[(\\w+)\]]?.*";
     std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
-                        REGEX_INTEGER + ")$";
+                        REGEX_INTEGER + ").*$";
 
     if (pcrecpp::RE(regex).FullMatch(lff,&itemp))
     {
@@ -344,7 +346,7 @@ bool ProcessCCSDSDataFile::GetCCSDSValue(const std::string &lff, Real &value)
     double dtemp;
 
     std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
-                        REGEX_SCINUMBER + ")$";
+                        REGEX_SCINUMBER + ").*$";
 
     if (pcrecpp::RE(regex).FullMatch(lff,&dtemp))
     {
@@ -446,7 +448,7 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
     std::string stemp, stemp2;
 
     std::string regex = "^" + REGEX_CCSDS_SAVETHEKEYWORD + "\\s*=\\s*(" +
-            REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ")$";
+            REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ").*$";
 
     if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&stemp2,&dtemp))
     {

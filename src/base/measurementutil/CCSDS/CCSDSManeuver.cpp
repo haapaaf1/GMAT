@@ -11,7 +11,7 @@ const std::string CCSDSManeuver::CCSDS_MANEUVER_KEYWORDS[EndCCSDSManeuverDataRep
     "MAN_DV_1",
     "MAN_DV_2",
     "MAN_DV_3",
-    ""
+    "COMMENT"
 };
 
 const std::string CCSDSManeuver::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSManeuverDataReps] =

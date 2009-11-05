@@ -5,7 +5,7 @@
 //---------------------------------
 const std::string CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_KEYWORDS[EndCCSDSKeplerianElementsDataReps] =
 {
-    "SEMI_MAJ_AXIS",
+    "SEMI_MAJOR_AXIS",
     "ECCENTRICITY",
     "INCLINATION",
     "RA_OF_ASC_NODE",
@@ -49,8 +49,8 @@ const bool CCSDSKeplerianElements::CCSDS_IS_REQUIRED[EndCCSDSKeplerianElementsDa
     true,
     true,
     true,
-    true,
-    true,
+    false,
+    false,
     true,
     false
 };
