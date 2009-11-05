@@ -259,8 +259,8 @@ void VaryPanel::LoadData()
       wxString multCfStr =
          mVaryCommand->GetStringParameter(mVaryCommand->GetParameterID("MultiplicativeScaleFactor")).c_str();
       
-      mSolverComboBox->SetStringSelection(solverName);
-      mVarNameTextCtrl->SetValue(variableName);
+      mSolverComboBox->SetStringSelection(solverName.c_str());
+      mVarNameTextCtrl->SetValue(variableName.c_str());
       
       mInitialTextCtrl->SetValue(initValStr);
       mPertTextCtrl->SetValue(pertStr);
