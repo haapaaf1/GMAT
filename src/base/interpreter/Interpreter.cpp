@@ -4883,7 +4883,7 @@ bool Interpreter::SetComplexProperty(GmatBase *obj, const std::string &prop,
       StringArray cells = theTextParser.SeparateSpaces(rhsRows[0]);
       UnsignedInt colCount = cells.size();
 
-      if ((Integer)colCount >= covariance->GetDimension())
+      if ((Integer)colCount > covariance->GetDimension())
          throw GmatBaseException("Input covariance matrix is larger than the "
                "matrix built from the input array");
 
@@ -5238,12 +5238,11 @@ bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
 
    if (propName == "Type")
    {
-      MeasurementModel *mModel = (MeasurementModel*)obj;
       GmatBase* model = CreateObject(value, "", 0, false);
       if (model != NULL)
       {
          if (model->IsOfType(Gmat::CORE_MEASUREMENT))
-            retval = mModel->SetMeasurement((CoreMeasurement*)model);
+            retval = obj->SetRefObject(model, Gmat::CORE_MEASUREMENT, "");
       }
       else
          throw InterpreterException("Failed to create a " + value +
@@ -5362,12 +5361,11 @@ bool Interpreter::SetDataStreamProperty(GmatBase *obj,
 
    if (propName == "Format")
    {
-      Datafile *dFile = (Datafile*)obj;
       GmatBase* obs = CreateObject(value, "", 0, false);
       if (obs != NULL)
       {
          if (obs->IsOfType(Gmat::OBTYPE))
-            retval = dFile->SetStream((Obtype*)obs);
+            retval = obj->SetRefObject(obs, Gmat::OBTYPE);
       }
       else
          throw InterpreterException("Failed to create a " + value +

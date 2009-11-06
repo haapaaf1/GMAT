@@ -43,12 +43,6 @@
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
 
-#include "MeasurementModelFactory.hpp"
-#include "MeasurementFactory.hpp"
-#include "DatafileFactory.hpp"
-#include "ObtypeFactory.hpp"
-#include "EstimatorFactory.hpp"
-#include "EstimatorCommandFactory.hpp"
 
 
 #include "NoOp.hpp"
@@ -192,14 +186,6 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 
       theFactoryManager->RegisterFactory(new CelestialBodyFactory());
       theFactoryManager->RegisterFactory(new AssetFactory());
-
-      // Estimator factory classes
-      theFactoryManager->RegisterFactory(new MeasurementModelFactory());
-      theFactoryManager->RegisterFactory(new MeasurementFactory());
-      theFactoryManager->RegisterFactory(new EstimatorFactory());
-      theFactoryManager->RegisterFactory(new EstimatorCommandFactory());
-      theFactoryManager->RegisterFactory(new DatafileFactory());
-      theFactoryManager->RegisterFactory(new ObtypeFactory());
 
       // Create publisher
       
@@ -7309,7 +7295,7 @@ void Moderator::AddMeasurementToSandbox(Integer index)
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetMeasurementModel(names[i]);
-      sandboxes[index]->AddObject(obj);
+      sandboxes[index]->AddObject((GmatBase*)obj);
 
       #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
@@ -7342,7 +7328,7 @@ void Moderator::AddDataStreamToSandbox(Integer index)
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetDataStream(names[i]);
-      sandboxes[index]->AddObject(obj);
+      sandboxes[index]->AddObject((GmatBase*)obj);
 
       #if DEBUG_RUN > 1
       MessageInterface::ShowMessage

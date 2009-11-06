@@ -46,10 +46,10 @@
 #include "MathNode.hpp"
 #include "Attitude.hpp"
 
-#include "MeasurementModel.hpp"
-#include "GeometricMeasurement.hpp"  // Change to "CoreMeasurement.hpp" when ready
-#include "Datafile.hpp"
-#include "Obtype.hpp"
+class MeasurementModel;
+class CoreMeasurement;
+class Datafile;
+class Obtype;
 
 
 /**

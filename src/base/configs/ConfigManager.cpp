@@ -545,14 +545,16 @@ void ConfigManager::AddCalculatedPoint(CalculatedPoint *cs)
 //------------------------------------------------------------------------------
 void ConfigManager::AddMeasurementModel(MeasurementModel *mModel)
 {
-   std::string name = mModel->GetName();
+   GmatBase *obj = (GmatBase*)mModel;
+
+   std::string name = obj->GetName();
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!mModel->IsOfType(Gmat::MEASUREMENT_MODEL))
+   if (!obj->IsOfType(Gmat::MEASUREMENT_MODEL))
       throw ConfigManagerException(name + " is not a MeasurementModel");
 
-   AddObject(mModel);
+   AddObject(obj);
 }
 
 
@@ -567,44 +569,49 @@ void ConfigManager::AddMeasurementModel(MeasurementModel *mModel)
 //------------------------------------------------------------------------------
 void ConfigManager::AddMeasurement(CoreMeasurement *meas)
 {
-   std::string name = meas->GetName();
+   GmatBase *obj = (GmatBase*)meas;
+   std::string name = obj->GetName();
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!meas->IsOfType(Gmat::CORE_MEASUREMENT))
+   if (!obj->IsOfType(Gmat::CORE_MEASUREMENT))
       throw ConfigManagerException(name + " is not a Measurement");
 
    MessageInterface::ShowMessage("Warning: Core measurement %s configured; it "
          "should be hidden inside of a MeasurementModel", name.c_str());
-   AddObject(meas);
+   AddObject(obj);
 }
 
 
 void ConfigManager::AddDatafile(Datafile *df)
 {
-   std::string name = df->GetName();
+   GmatBase *obj = (GmatBase*)df;
+
+   std::string name = obj->GetName();
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!df->IsOfType(Gmat::DATASTREAM))
+   if (!obj->IsOfType(Gmat::DATASTREAM))
       throw ConfigManagerException(name + " is not a Datafile");
 
-   AddObject(df);
+   AddObject(obj);
 }
 
 
 void ConfigManager::AddObtype(Obtype *ot)
 {
-   std::string name = ot->GetName();
+   GmatBase *obj = (GmatBase*)ot;
+
+   std::string name = obj->GetName();
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!ot->IsOfType(Gmat::OBTYPE))
+   if (!obj->IsOfType(Gmat::OBTYPE))
       throw ConfigManagerException(name + " is not an Obtype");
 
    MessageInterface::ShowMessage("Warning: Obtype %s configured; it "
          "should be hidden inside of a Datafile", name.c_str());
-   AddObject(ot);
+   AddObject(obj);
 }
 
 

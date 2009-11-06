@@ -244,7 +244,11 @@ GmatBase::GmatBase(const GmatBase &a) :
     attributeInlineComments   (a.attributeInlineComments),
     showPrefaceComment        (a.showPrefaceComment),
     showInlineComment         (a.showInlineComment),
-    cloaking                  (a.cloaking)
+    cloaking                  (a.cloaking),
+    covarianceList            (a.covarianceList),
+    covarianceIds             (a.covarianceIds),
+    covarianceSizes           (a.covarianceSizes),
+    covariance                (a.covariance)
 {
    // one more instance - add to the instanceCount
    ++instanceCount;
@@ -288,6 +292,10 @@ GmatBase& GmatBase::operator=(const GmatBase &a)
    showPrefaceComment        = a.showPrefaceComment;
    showInlineComment         = a.showInlineComment;
    cloaking                  = a.cloaking;
+   covarianceList            = a.covarianceList;
+   covarianceIds             = a.covarianceIds;
+   covarianceSizes           = a.covarianceSizes;
+   covariance                = a.covariance;
 
    return *this;
 }

@@ -39,7 +39,6 @@ Covariance::~Covariance()
 
 Covariance::Covariance(const Covariance &cov) :
    covarianceOwner   (cov.covarianceOwner),
-   theCovariance     (cov.theCovariance),
    subCovariance     (NULL),
    elementNames      (cov.elementNames),
    elementIndices    (cov.elementIndices),
@@ -47,6 +46,8 @@ Covariance::Covariance(const Covariance &cov) :
    elementOwners     (cov.elementOwners),
    dimension         (cov.dimension)
 {
+   if (cov.theCovariance.IsSized())
+      theCovariance     = cov.theCovariance;
 }
 
 
@@ -55,7 +56,8 @@ Covariance& Covariance::operator=(const Covariance &cov)
    if (&cov != this)
    {
       covarianceOwner   = cov.covarianceOwner;
-      theCovariance     = cov.theCovariance;
+      if (cov.theCovariance.IsSized())
+         theCovariance     = cov.theCovariance;
       elementNames      = cov.elementNames;
       elementIndices    = cov.elementIndices;
       elementSizes      = cov.elementSizes;
@@ -95,25 +97,49 @@ Real Covariance::operator()(const Integer r, const Integer c) const
 void Covariance::AddCovarianceElement(const std::string &name,
       GmatBase* owner)
 {
-#ifdef DEBUG_CONSTRUCTION
-   MessageInterface::ShowMessage("Adding covariance element %s:\n",
-         name.c_str());
-#endif
-
    Integer parmID = owner->GetParameterID(name);
    Integer covSize = owner->HasParameterCovariances(parmID);
+
+   //#ifdef DEBUG_CONSTRUCTION
+      MessageInterface::ShowMessage("Adding covariance element %s with id %d"
+            "to object named %s\n", name.c_str(), owner->GetParameterID(name),
+            owner->GetName().c_str());
+   //#endif
+
    if (covSize > 0)
    {
-      elementNames.push_back(name);
-      elementIndices.push_back(parmID);
-      elementSizes.push_back(covSize);
-      elementOwners.push_back(owner);
+      // Check to see if element already exists for this object; if not, add it
+      Integer index = -1;
+      for (UnsignedInt i = 0; i < elementNames.size(); ++i)
+      {
+         if (name == elementNames[i])
+         {
+            if (elementOwners[i] == owner)
+            {
+               index = i;
+               break;
+            }
+         }
+      }
 
-      dimension += covSize;
+      if (index == -1)
+      {
+         elementNames.push_back(name);
+         elementIndices.push_back(parmID);
+         elementSizes.push_back(covSize);
+         elementOwners.push_back(owner);
+         useDefaults.push_back(true);
+         dimension += covSize;
+      }
    }
    else
       throw GmatBaseException("Covariance handling for " + name +
             " is not implemented");
+
+   //#ifdef DEBUG_CONSTRUCTION
+      MessageInterface::ShowMessage("Covariance dimension is now %d\n",
+            dimension);
+   //#endif
 }
 
 bool Covariance::ConstructLHS(const std::string& lhs)
@@ -259,6 +285,9 @@ Rmatrix *Covariance::GetCovariance(Integer forParameterID)
 
    for (UnsignedInt i = 0; i < elementIndices.size(); ++i)
    {
+      MessageInterface::ShowMessage("Checking if index %d == %d\n",
+            elementIndices[i], forParameterID);
+
       if (elementIndices[i] == forParameterID)
       {
          // Found it!

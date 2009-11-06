@@ -53,9 +53,7 @@
 #include "Interpolator.hpp"
 #include "CalculatedPoint.hpp"
 #include "MathNode.hpp"
-// estimation
-#include "MeasurementModel.hpp"
-#include "GeometricMeasurement.hpp"   // Change to "CoreMeasurement.hpp" when ready
+
 // files
 #include "EopFile.hpp"
 #include "ItrfCoefficientsFile.hpp"

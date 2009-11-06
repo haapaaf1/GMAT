@@ -40,10 +40,15 @@
 #include "CoordinateSystem.hpp"
 #include "CalculatedPoint.hpp"
 
-#include "MeasurementModel.hpp"
-#include "GeometricMeasurement.hpp"  // Will be "CoreMeasurement.hpp"
-#include "Datafile.hpp"
-#include "Obtype.hpp"
+//#include "MeasurementModel.hpp"
+//#include "GeometricMeasurement.hpp"  // Will be "CoreMeasurement.hpp"
+//#include "Datafile.hpp"
+//#include "Obtype.hpp"
+
+class MeasurementModel;
+class CoreMeasurement;
+class Datafile;
+class Obtype;
 
 
 /**
