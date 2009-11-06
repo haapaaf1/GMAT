@@ -59,7 +59,6 @@ protected:
    IntegerArray elementIndices;
    IntegerArray elementSizes;
    ObjectArray  elementOwners;
-   std::vector<bool> useDefaults;
 
    Integer dimension;
 

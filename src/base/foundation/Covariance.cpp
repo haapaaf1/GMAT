@@ -100,11 +100,11 @@ void Covariance::AddCovarianceElement(const std::string &name,
    Integer parmID = owner->GetParameterID(name);
    Integer covSize = owner->HasParameterCovariances(parmID);
 
-   //#ifdef DEBUG_CONSTRUCTION
+   #ifdef DEBUG_CONSTRUCTION
       MessageInterface::ShowMessage("Adding covariance element %s with id %d"
             "to object named %s\n", name.c_str(), owner->GetParameterID(name),
             owner->GetName().c_str());
-   //#endif
+   #endif
 
    if (covSize > 0)
    {
@@ -128,7 +128,6 @@ void Covariance::AddCovarianceElement(const std::string &name,
          elementIndices.push_back(parmID);
          elementSizes.push_back(covSize);
          elementOwners.push_back(owner);
-         useDefaults.push_back(true);
          dimension += covSize;
       }
    }
@@ -136,10 +135,10 @@ void Covariance::AddCovarianceElement(const std::string &name,
       throw GmatBaseException("Covariance handling for " + name +
             " is not implemented");
 
-   //#ifdef DEBUG_CONSTRUCTION
+   #ifdef DEBUG_CONSTRUCTION
       MessageInterface::ShowMessage("Covariance dimension is now %d\n",
             dimension);
-   //#endif
+   #endif
 }
 
 bool Covariance::ConstructLHS(const std::string& lhs)
@@ -315,4 +314,9 @@ Rmatrix *Covariance::GetCovariance(Integer forParameterID)
 void Covariance::PrepareMatrix()
 {
    theCovariance.SetSize(dimension, dimension);
+
+   // Initialize to the identity
+   for (Integer i = 0; i < dimension; ++i)
+      for (Integer j = 0; j < dimension; ++j)
+         theCovariance(i, j) = (i == j ? 1.0 : 0.0);
 }
