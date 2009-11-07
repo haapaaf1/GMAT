@@ -29,14 +29,14 @@ const std::string CCSDSStateVector::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSStateVectorD
 
 const std::string CCSDSStateVector::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSStateVectorDataReps] =
 {
-    "State Vector Epoch",
-    "State Vector X",
-    "State Vector Y",
-    "State Vector Z",
-    "State Vector X Dot",
-    "State Vector Y Dot",
-    "State Vector Z Dot",
-    "State Vector Comments"
+    "Epoch",
+    "X",
+    "Y",
+    "Z",
+    "XDot",
+    "YDot",
+    "ZDot",
+    "Comments"
 };
 
 const bool CCSDSStateVector::CCSDS_IS_REQUIRED[EndCCSDSStateVectorDataReps] =
@@ -330,6 +330,7 @@ std::string CCSDSStateVector::GetStringDataParameter(const std::string &label) c
 //------------------------------------------------------------------------------
 StringArray CCSDSStateVector::GetStringArrayDataParameter(const Integer id) const
 {
+
     switch (id)
     {
         case CCSDS_STATEVECTOR_COMMENTS_ID:

@@ -72,10 +72,12 @@ std::ostream& operator<< (std::ostream &output,
 {
     using namespace std;
 
-    for (unsigned int i = 0; i < myCCSDSAPMSpinStabilized->comments.size(); i++)
+    unsigned int i;
+    for (i = 0; i < myCCSDSAPMSpinStabilized->comments.size(); i++ )
     {
         output << "COMMENT " << myCCSDSAPMSpinStabilized->comments[i] << endl;
     }
+    if (i > 0) output << endl;
 
     switch (myCCSDSAPMSpinStabilized->attitudeType)
     {
@@ -111,6 +113,8 @@ std::ostream& operator<< (std::ostream &output,
             break;
 
     }
+
+    output << endl;
 
     return output;
 

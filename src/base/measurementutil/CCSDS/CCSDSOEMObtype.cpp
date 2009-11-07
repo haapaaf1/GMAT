@@ -27,7 +27,8 @@ const std::string CCSDSOEMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOEMTimeR
 //------------------------------------------------------------------------------
 CCSDSOEMObType::CCSDSOEMObType() : CCSDSObType("CCSDSOEMObType", ""),
 	ccsdsMetaData(NULL),
-        ccsdsOEMStateVector(NULL)
+        ccsdsOEMStateVector(NULL),
+        commentsCurrentlyAllowed(false)
 {
 }
 
@@ -40,7 +41,8 @@ CCSDSOEMObType::CCSDSOEMObType() : CCSDSObType("CCSDSOEMObType", ""),
 //------------------------------------------------------------------------------
 CCSDSOEMObType::CCSDSOEMObType(const CCSDSOEMObType &oem) : CCSDSObType(oem),
 	ccsdsMetaData(oem.ccsdsMetaData),
-        ccsdsOEMStateVector(oem.ccsdsOEMStateVector)
+        ccsdsOEMStateVector(oem.ccsdsOEMStateVector),
+        commentsCurrentlyAllowed(oem.commentsCurrentlyAllowed)
 {
 }
 
@@ -63,6 +65,7 @@ const CCSDSOEMObType& CCSDSOEMObType::operator=(const CCSDSOEMObType &oem)
    CCSDSObType::operator=(oem);
    ccsdsMetaData = oem.ccsdsMetaData;
    ccsdsOEMStateVector = oem.ccsdsOEMStateVector;
+   commentsCurrentlyAllowed = oem.commentsCurrentlyAllowed;
 
    return *this;
 }
@@ -174,6 +177,19 @@ Integer CCSDSOEMObType::GetTimeSystemID(const std::string &label)
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSOEMObType *myOEM)
 {
+
+    if (myOEM->commentsCurrentlyAllowed)
+    {
+        StringArray comments = myOEM->ccsdsOEMStateVector->GetStringArrayDataParameter(CCSDSStateVector::CCSDS_STATEVECTOR_COMMENTS_ID);
+        unsigned int i;
+        for (i = 0; i < comments.size(); i++ )
+        {
+            output << "COMMENT " << comments[i];
+            output << std::endl;
+        }
+        if (i > 0) output << std::endl;
+    }
+
     if(myOEM->ccsdsOEMStateVector != NULL)
         output << myOEM->ccsdsOEMStateVector;
 

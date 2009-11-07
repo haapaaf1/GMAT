@@ -58,6 +58,8 @@ protected:
     CCSDSOEMMetaData* ccsdsMetaData;
     CCSDSOEMStateVector *ccsdsOEMStateVector;
 
+    bool commentsCurrentlyAllowed;
+
 };   
 
 #endif	/* _CCSDSOEMOBTYPE_HPP */

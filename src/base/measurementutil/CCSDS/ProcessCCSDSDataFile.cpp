@@ -87,7 +87,8 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const std::string &itsType,
         currentCCSDSMetaData(NULL),
         lastMetaDataWritten(NULL),
         isMetaDataWritten(false),
-        requiredNumberMetaDataParameters(0)
+        requiredNumberMetaDataParameters(0),
+        writingDataBlock(false)
 {
     commentsAllowed = true;
 }
@@ -108,7 +109,8 @@ ProcessCCSDSDataFile::ProcessCCSDSDataFile(const ProcessCCSDSDataFile &CCSDSdf) 
     currentCCSDSMetaData(CCSDSdf.currentCCSDSMetaData),
     lastMetaDataWritten(CCSDSdf.lastMetaDataWritten),
     isMetaDataWritten(CCSDSdf.isMetaDataWritten),
-    requiredNumberMetaDataParameters(CCSDSdf.requiredNumberMetaDataParameters)
+    requiredNumberMetaDataParameters(CCSDSdf.requiredNumberMetaDataParameters),
+    writingDataBlock(CCSDSdf.writingDataBlock)
 {
 }
 
@@ -135,7 +137,8 @@ const ProcessCCSDSDataFile& ProcessCCSDSDataFile::operator=(const ProcessCCSDSDa
     lastMetaDataWritten = CCSDSdf.lastMetaDataWritten;
     isMetaDataWritten = CCSDSdf.isMetaDataWritten;
     requiredNumberMetaDataParameters = CCSDSdf.requiredNumberMetaDataParameters;
-    
+    writingDataBlock = CCSDSdf.writingDataBlock;
+
     return *this;
 }
 
@@ -247,9 +250,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
-
         Integer keyID = myHeader->GetKeywordID(keyword);
-
         if(myHeader->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
@@ -277,7 +278,9 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
                 break;
 
             default:
-                //return false;
+
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in header!\n");
+                return false;
                 break;
         }
 
@@ -285,8 +288,7 @@ bool ProcessCCSDSDataFile::GetCCSDSHeader(std::string &lff, CCSDSObType *myOb)
         lff = ReadLineFromFile();
 
     }
-    while (requiredCount < requiredNumberHeaderParameters && !IsEOF() ||
-          pcrecpp::RE("^COMMENT.*$").FullMatch(lff));
+    while (requiredCount < requiredNumberHeaderParameters && !IsEOF());
 
     myOb->ccsdsHeader = myHeader;
 
@@ -475,21 +477,16 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
 bool ProcessCCSDSDataFile::GetCCSDSComments(std::string &lff,
                                             StringArray &comments)
 {
-    // Temporary variables for string to number conversion.
-    // This is needed because the from_string utility function
-    // only supports the standard C++ types and does not
-    // support the GMAT types Real and Integer. Therefore,
-    // extraction is done into a temporary variable and then
-    // assigned to the GMAT type via casting.
     std::string stemp;
+    comments.clear();
 
     bool found = false;
 
-    std::string regex = "^COMMENT\\s*(.*)$";
+    std::string regex = "^COMMENT(.*)$";
 
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff,&stemp))
     {
-       comments.push_back(stemp);
+       comments.push_back(Trim(stemp));
        found = true;
        lff = ReadLineFromFile();
     }
@@ -511,11 +508,32 @@ bool ProcessCCSDSDataFile::GetCCSDSComments(std::string &lff,
 bool ProcessCCSDSDataFile::GetCCSDSComment(std::string &lff,
                                            std::string &comment)
 {
-    std::string regex = "^COMMENT\\s*(.*)$";
-
-    if(pcrecpp::RE(regex).FullMatch(lff,&comment)) return true;
+    std::string regex = "^COMMENT(.*)$";
+    std::string stemp;
+    
+    if(pcrecpp::RE(regex).FullMatch(lff,&stemp))
+    {
+        comment = Trim(stemp);
+        return true;
+    }
     else return false;
 }
+
+//------------------------------------------------------------------------------
+// bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date)
+//------------------------------------------------------------------------------
+/**
+ * Converts the CCSDS time tag to the GMAT A1Date
+
+//
+//------------------------------------------------------------------------------
+bool ProcessCCSDSDataFile::A1Date2CCSDSTimeTag(A1Date &myA1Date,std::string &timeTag,
+                                               Integer displayMode)
+{
+    return false;
+}
+
+*/
 
 //------------------------------------------------------------------------------
 // bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date)
@@ -540,8 +558,11 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
 
     // YYYY-MM-DDTHH:MM:SS.SSSSS
 
-    std::string regex = "^"+REGEX_CCSDS_SAVETHEDATE1+"$";
-    if (pcrecpp::RE(regex).FullMatch(timeTag,&itemp1,&itemp2,&itemp3,&itemp4,&itemp5,&dtemp,&stemp))
+    std::string regex1 = "^"+REGEX_CCSDS_SAVETHEDATE1+"$";
+    std::string regex2 = "^"+REGEX_CCSDS_SAVETHEDATE2+"$";
+    std::string regex3 = "^"+REGEX_NUMBER+"$";
+
+    if (pcrecpp::RE(regex2).FullMatch(timeTag,&itemp1,&itemp2,&itemp3,&itemp4,&itemp5,&dtemp,&stemp))
     {
         //std::string timeZone = stemp;
         Integer year = itemp1;
@@ -558,8 +579,7 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
 
     // YYYY-DOYTHH:MM:SS.SSSSS
    
-    regex = "^"+REGEX_CCSDS_SAVETHEDATE2+"$";
-    if (pcrecpp::RE(regex).FullMatch(timeTag,&itemp1,&itemp2,&itemp3,&itemp4,&dtemp,&stemp))
+    else if (pcrecpp::RE(regex1).FullMatch(timeTag,&itemp1,&itemp2,&itemp3,&itemp4,&dtemp,&stemp))
     {
         //std::string timeZone = stemp;
         Integer year = itemp1;
@@ -576,8 +596,7 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
     // Julian date
     // JJJJJJ.JJJJJJJJ
     
-    regex = "^"+REGEX_NUMBER+"$";
-    if (pcrecpp::RE(regex).FullMatch(timeTag,&dtemp))
+    else if (pcrecpp::RE(regex3).FullMatch(timeTag,&dtemp))
     {
         //std::string timeZone = stemp;
 
@@ -589,8 +608,8 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
         myA1Date = myA1MJD.ToA1Date();
         return true;
     }
-
-    return false;
+    else
+        return false;
 
 }
 
@@ -606,6 +625,7 @@ bool ProcessCCSDSDataFile::CCSDSTimeTag2A1Date(std::string &timeTag,
 //------------------------------------------------------------------------------
 bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
 {
+    // Make sure this is a CCSDS Obtype
     if (!pcrecpp::RE("^CCSDS[A-Z]{3}ObType.*").FullMatch(myOb->GetTypeName()))
         return false;
 
@@ -617,6 +637,7 @@ bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
 
         lastHeaderWritten = myHeader;
         isHeaderWritten = true;
+        writingDataBlock = false;
     }
     else if (isHeaderWritten && myHeader != lastHeaderWritten)
     {
@@ -627,6 +648,7 @@ bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
 
         lastHeaderWritten = myHeader;
         isHeaderWritten = true;
+        writingDataBlock = false;
     }
     return true;
 }
@@ -644,16 +666,10 @@ bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
 //------------------------------------------------------------------------------
 bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
 {
-    std::string regex = "^CCSDS([A-Z]{3})Obtype.*";
-    std::string fileType;
-
-    if (!pcrecpp::RE(regex).FullMatch(myOb->GetTypeName(),&fileType))
-        return false;
-
-    Integer fileTypeID = GetFileFormatID(fileType);
-
     // Check to see if this ObType corresponds to this Data Format Type
-    if (fileTypeID != fileFormatID) return false;
+    Integer fileTypeID = GetFileFormatID(((CCSDSObType*)myOb)->GetCCSDSObType());
+    if (fileFormatID != fileTypeID)
+        return false;
 
     CCSDSMetaData *myMetaData;
 
@@ -704,11 +720,17 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
 
         lastMetaDataWritten = myMetaData;
         isMetaDataWritten = true;
+        writingDataBlock = false;
+
     }
     else if (isMetaDataWritten && myMetaData != lastMetaDataWritten)
     {
         isMetaDataWritten = false;
         lastMetaDataWritten = NULL;
+
+        // Output a blank line to separate the new metadata from
+        // the last block of ephemeris data
+        *theFile << std::endl;
 
         switch(fileTypeID)
         {
@@ -733,6 +755,7 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
 
         lastMetaDataWritten = myMetaData;
         isMetaDataWritten = true;
+        writingDataBlock = false;
     }
     return true;
 }
@@ -749,47 +772,49 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
 //------------------------------------------------------------------------------
 bool ProcessCCSDSDataFile::WriteData(const ObType *myOb)
 {
-    std::string regex = "^CCSDS([A-Z]{3})ObType.*";
-    std::string fileType;
-
-    if (!pcrecpp::RE(regex).FullMatch(myOb->GetTypeName(),&fileType))
-        return false;
-
-    Integer fileTypeID = GetFileFormatID(fileType);
 
     // Check to see if this ObType corresponds to this Data Format Type
-    if (fileTypeID != fileFormatID) return false;
+    Integer fileTypeID = GetFileFormatID(((CCSDSObType*)myOb)->GetCCSDSObType());
+    if (fileFormatID != fileTypeID)
+        return false;
+
+    if (!WriteDataHeader(myOb))
+    {
+        MessageInterface::ShowMessage("ERROR: Failed to write CCSDS Header. Abort!\n");
+        return false;
+    }
+
+    if (!WriteMetaData(myOb))
+    {
+        MessageInterface::ShowMessage("ERROR: Failed to write CCSDS MetaData. Abort!\n");
+        return false;
+    }
 
     switch(fileTypeID)
     {
         case DataFile::CCSDS_TDM_ID:
-            WriteDataHeader((CCSDSTDMObType*)myOb);
-            WriteMetaData((CCSDSTDMObType*)myOb);
             *theFile << (CCSDSTDMObType*)myOb;
             break;
         case DataFile::CCSDS_OPM_ID:
-            WriteDataHeader((CCSDSOPMObType*)myOb);
-            WriteMetaData((CCSDSOPMObType*)myOb);
             *theFile << (CCSDSOPMObType*)myOb;
             break;
         case DataFile::CCSDS_OEM_ID:
-            WriteDataHeader((CCSDSOEMObType*)myOb);
-            WriteMetaData((CCSDSOEMObType*)myOb);
+            ((CCSDSOEMObType*)myOb)->commentsCurrentlyAllowed = !writingDataBlock;
             *theFile << (CCSDSOEMObType*)myOb;
             break;
         case DataFile::CCSDS_APM_ID:
-            WriteDataHeader((CCSDSAPMObType*)myOb);
-            WriteMetaData((CCSDSAPMObType*)myOb);
             *theFile << (CCSDSAPMObType*)myOb;
             break;
         case DataFile::CCSDS_AEM_ID:
-            WriteDataHeader((CCSDSAEMObType*)myOb);
-            WriteMetaData((CCSDSAEMObType*)myOb);
             *theFile << (CCSDSAEMObType*)myOb;
             break;
         default:
+            MessageInterface::ShowMessage("ERROR: This CCSDS data type not recognized. Abort!\n");
             return false;
+            break;
     }
+
+    writingDataBlock = true;
 
     return true;
 }

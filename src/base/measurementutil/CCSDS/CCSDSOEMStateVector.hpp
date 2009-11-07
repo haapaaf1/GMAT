@@ -21,7 +21,7 @@ public:
     ~CCSDSOEMStateVector();
 
     friend class ProcessCCSDSOEMDataFile;
-
+    
     friend std::ostream& operator<< (std::ostream &output,
                                     const CCSDSOEMStateVector *myCCSDSOEMStateVector);
 };

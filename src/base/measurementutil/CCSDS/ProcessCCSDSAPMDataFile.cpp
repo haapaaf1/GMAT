@@ -1066,7 +1066,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSMetaData(std::string &lff,
             case CCSDSAPMMetaData::CCSDS_APM_METADATACOMMENTS_ID:
                 {
                 std::string stemp;
-                if (!GetCCSDSValue(lff,stemp)) return false;
+                if (GetCCSDSComment(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
                 }
                 break;
@@ -1104,8 +1104,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSMetaData(std::string &lff,
 
         lff = ReadLineFromFile();
     }
-    while(requiredCount < requiredNumberMetaDataParameters ||
-          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
+    while(requiredCount < requiredNumberMetaDataParameters && !IsEOF());
 
     myOb->ccsdsMetaData = myMetaData;
 

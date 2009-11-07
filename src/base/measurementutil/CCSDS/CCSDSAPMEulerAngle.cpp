@@ -72,6 +72,13 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+   unsigned int i;
+   for (i = 0; i < myAPMEulerAngle->comments.size(); i++ )
+   {
+       output << "COMMENT " << myAPMEulerAngle->comments[i] << endl;
+   }
+   if (i > 0) output << endl;
+
    output << "EULER_FRAME_A = " << myAPMEulerAngle->frameA << endl;
    output << "EULER_FRAME_B = " << myAPMEulerAngle->frameB << endl;
    output << "EULER_DIR = " << myAPMEulerAngle->direction << endl;
@@ -83,6 +90,8 @@ std::ostream& operator<< (std::ostream &output,
    output << "X_RATE = " << myAPMEulerAngle->xRate << endl;
    output << "Y_RATE = " << myAPMEulerAngle->yRate << endl;
    output << "Z_RATE = " << myAPMEulerAngle->zRate << endl;
+
+   output << endl;
 
    return output;
 }

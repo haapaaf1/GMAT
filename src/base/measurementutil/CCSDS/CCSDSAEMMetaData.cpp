@@ -604,10 +604,13 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetada
 
    output << "META_START" << std::endl;
 
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
+   unsigned int i;
+   for (i = 0; i < myMetadata->comments.size(); i++ )
    {
        output << "COMMENT " << myMetadata->comments[i] << std::endl;
    }
+   if (i > 0) output << std::endl;
+
    output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
    output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
    output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
@@ -626,7 +629,8 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetada
    output << "INTERPOLATION = " << myMetadata->interpolationMethod << std::endl;
    output << "INTERPOLATION_DEGREE = " << myMetadata->interpolationDegree << std::endl;
 
-   output << "META_STOP" << std::endl << std::endl;
+   output << "META_STOP" << std::endl;
+   output << std::endl;
 
    return output;
 }

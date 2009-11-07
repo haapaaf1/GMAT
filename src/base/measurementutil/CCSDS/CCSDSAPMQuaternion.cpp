@@ -72,6 +72,13 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+   unsigned int i;
+   for (i = 0; i < myAPMQuaternion->comments.size(); i++ )
+   {
+       output << "COMMENT " << myAPMQuaternion->comments[i] << endl;
+   }
+   if (i > 0) output << endl;
+
    output << "Quaternion Type = " << myAPMQuaternion->quaternionType << endl;
    output << "Q_FRAME_A = " << myAPMQuaternion->frameA << endl;
    output << "Q_FRAME_B = " << myAPMQuaternion->frameB << endl;
@@ -84,6 +91,8 @@ std::ostream& operator<< (std::ostream &output,
    output << "Q2_DOT = " << myAPMQuaternion->q2Dot << endl;
    output << "Q3_DOT = " << myAPMQuaternion->q3Dot << endl;
    output << "QC_DOT = " << myAPMQuaternion->qCDot << endl;
+
+   output << endl;
 
    return output;
 }

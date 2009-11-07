@@ -481,6 +481,13 @@ std::ostream& operator<< (std::ostream &output, const CCSDSManeuver *myManeuver)
 {
     using namespace std;
 
+    unsigned int i;
+    for (i = 0; i < myManeuver->comments.size(); i++ )
+    {
+        output << "COMMENT " << myManeuver->comments[i] << endl;
+    }
+    if (i > 0) output << endl;
+
     output << "MAN_EPOCH_IGNITION = " << myManeuver->ignitionEpoch << endl;
     output << "MAN_DURATION = " << myManeuver->duration << endl;
     output << "MAN_DELTA_MASS = " << myManeuver->deltaMass << endl;
@@ -488,6 +495,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSManeuver *myManeuver)
     output << "MAN_DV_1 = " << myManeuver->deltaV1 << endl;
     output << "MAN_DV_2 = " << myManeuver->deltaV2 << endl;
     output << "MAN_DV_3 = " << myManeuver->deltaV3 << endl;
-
+    output << endl;
+    
    return output;
 }

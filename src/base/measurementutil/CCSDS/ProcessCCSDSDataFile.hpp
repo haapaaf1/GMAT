@@ -28,6 +28,8 @@ public:
     
     // Utility functions
     bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date);
+    //bool A1Date2CCSDSTimeTag(A1Date &myA1Date, std::string &timeTag,
+    //                         Integer displayMode);
 
     // methods to get descriptions of allowable CCSDS time system
     // and reference frame values
@@ -109,6 +111,10 @@ protected:
     CCSDSMetaData *lastMetaDataWritten;
     bool isMetaDataWritten;
     Integer requiredNumberMetaDataParameters;
+
+    // This flag indicates if the data block is currently being written
+    // and indicates whether comments are allowed to be written
+    bool writingDataBlock;
 
 
 };

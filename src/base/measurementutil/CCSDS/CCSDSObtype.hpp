@@ -23,6 +23,9 @@ public :
 
     GmatBase *Clone() const;
 
+    // Validation methods
+    std::string GetCCSDSObType();
+
     friend std::string GetAttitudeTypeText(const Integer id);
     friend Integer     GetAttitudeTypeID(const std::string &str);
     friend std::string GetAttitudeDirText(const Integer id);

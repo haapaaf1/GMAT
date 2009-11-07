@@ -702,7 +702,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
             case CCSDSAEMMetaData::CCSDS_AEM_METADATACOMMENTS_ID:
                 {
                 std::string stemp;
-                if (!GetCCSDSValue(lff,stemp)) return false;
+                if (!GetCCSDSComment(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
                 }
                 break;

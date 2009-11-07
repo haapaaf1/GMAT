@@ -83,13 +83,7 @@ std::ostream& operator<< (std::ostream &output,
    //    output << showpoint;
 
    //output.precision(ProcessCCSDSOEMDataFile::precision);
-
-   unsigned int i;
-   for (i = 0; i < myOEMStateVector->comments.size(); i++)
-       output << myOEMStateVector->comments[i] << endl;
-
-   if (i > 0) output << endl;
-
+  
    output << myOEMStateVector->timeTag;
    output << " " << myOEMStateVector->x;
    output << " " << myOEMStateVector->y;

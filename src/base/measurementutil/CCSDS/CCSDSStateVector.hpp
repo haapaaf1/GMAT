@@ -16,6 +16,7 @@
 #include <sstream>
 #include <pcrecpp.h>
 #include "StringUtil.hpp"
+#include "MessageInterface.hpp"
 
 class CCSDSStateVector
 {

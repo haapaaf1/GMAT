@@ -29,7 +29,7 @@ bool DataParameterConverter::Convert(Real &origValue,
 	return true;
     }
 
-    if (fromType == Obtype::TWOWAYTIMEOFFLIGHT_ID && toType == Obtype::RANGE_ID)
+    if (fromType == ObType::TWOWAYTIMEOFFLIGHT_ID && toType == ObType::RANGE_ID)
     {
 	// @TODO: Light time iteration here???
 	// @TODO: Check for consistent units!!!
@@ -38,7 +38,7 @@ bool DataParameterConverter::Convert(Real &origValue,
 	return true;
     }
     
-    if (fromType == Obtype::RANGE_ID && toType == Obtype::TWOWAYTIMEOFFLIGHT_ID)
+    if (fromType == ObType::RANGE_ID && toType == ObType::TWOWAYTIMEOFFLIGHT_ID)
     {
 	// @TODO: Light time iteration here???
 	// @TODO: Check for consistent units!!!

@@ -115,7 +115,8 @@ ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const std::string &itsName) :
  * Copy constructor for ProcessCCSDSOEMDataFile objects
  */
 //------------------------------------------------------------------------------
-ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &CCSDSOEMdf) :
+ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile
+                                   (const ProcessCCSDSOEMDataFile &CCSDSOEMdf) :
     ProcessCCSDSDataFile(CCSDSOEMdf)
 {
 }
@@ -128,12 +129,14 @@ ProcessCCSDSOEMDataFile::ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &
  * Operator = constructor for ProcessCCSDSOEMDataFile objects
  */
 //------------------------------------------------------------------------------
-const ProcessCCSDSOEMDataFile& ProcessCCSDSOEMDataFile::operator=(const ProcessCCSDSOEMDataFile &CCSDSOEMdf)
+const ProcessCCSDSOEMDataFile& ProcessCCSDSOEMDataFile::operator=
+                                     (const ProcessCCSDSOEMDataFile &CCSDSOEMdf)
 {
     if (&CCSDSOEMdf == this)
 	return *this;
 
     ProcessCCSDSDataFile::operator=(CCSDSOEMdf);
+
     return *this;
 }
 
@@ -209,7 +212,8 @@ bool ProcessCCSDSOEMDataFile::IsParameterReadOnly(const std::string &label) cons
 bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 {
 
-    if (!pcrecpp::RE("^CCSDSOEMObType").FullMatch(myOEMData->GetTypeName())) return false;
+    if (!pcrecpp::RE("^CCSDSOEMObType").FullMatch(myOEMData->GetTypeName()))
+        return false;
 
     // Re-cast the generic ObType pointer as a CCSDSOEMObtype pointer
     CCSDSOEMObType *myOEM = (CCSDSOEMObType*)myOEMData;
@@ -219,18 +223,19 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 
     // Check to see if we encountered a new header record.
     // The first lff of any CCSDS data file should be the version
-    if (!IsEOF() && currentCCSDSHeader == NULL && pcrecpp::RE("^CCSDS_OEM_VERS.*").FullMatch(lff))
+    if (!IsEOF() && currentCCSDSHeader == NULL
+                 && pcrecpp::RE("^CCSDS_OEM_VERS.*").FullMatch(lff))
     {
 	if (GetCCSDSHeader(lff,myOEM))
 	{
-	    // success so set currentHeader pointer to the
+            // success so set currentHeader pointer to the
 	    // one just processed
 	    currentCCSDSHeader = myOEM->ccsdsHeader;
 	}
 	else
 	{
 	    // failure to read header line, abort
-            MessageInterface::ShowMessage("Faile to read OEM Header! Abort!\n");
+            MessageInterface::ShowMessage("Failed to read OEM Header! Abort!\n");
 	    currentCCSDSHeader = NULL;
 	    return false;
 	}
@@ -238,6 +243,7 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 
     do
     {
+
         // Read in metadata
 	if (GetCCSDSMetaData(lff,myOEM))
 	{
@@ -248,12 +254,14 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 	else
 	{
 	    // failure to read header line, abort
+            MessageInterface::ShowMessage("Failed to read OEM MetaData! Abort!\n");
 	    currentCCSDSMetaData = NULL;
 	    return false;
 	}
 
         do
         {
+
             myOEM->ccsdsHeader = currentCCSDSHeader;
             myOEM->ccsdsMetaData = (CCSDSOEMMetaData*)currentCCSDSMetaData;
 
@@ -268,7 +276,6 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
                     myOEM->ccsdsOEMStateVector->comments = comments;
 
                 // Push this data point onto the obtype data stack
-                MessageInterface::ShowMessage("Found OEM Data\n");
                 theData.push_back(myOEM);
             }
             else
@@ -301,7 +308,6 @@ bool ProcessCCSDSOEMDataFile::GetData(ObType *myOEMData)
 bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
                                                CCSDSOEMObType *myOb)
 {
-
     CCSDSOEMMetaData *myMetaData = new CCSDSOEMMetaData;
 
     Integer requiredCount = 0;
@@ -314,18 +320,15 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
     {
 
         if (!GetCCSDSKeyword(lff,keyword)) return false;
-
         Integer keyID = myMetaData->GetKeywordID(keyword);
-
         if(myMetaData->IsParameterRequired(keyID)) requiredCount++;
-
         switch (keyID)
         {
 
             case CCSDSOEMMetaData::CCSDS_OEM_METADATACOMMENTS_ID:
                 {
                 std::string stemp;
-                if (!GetCCSDSValue(lff,stemp)) return false;
+                if (!GetCCSDSComment(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
                 }
                 break;
@@ -398,15 +401,24 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
 
             default:
 
-                //return false;
+                MessageInterface::ShowMessage(keyword +
+                                     " : This data not allowed in MetaData!\n");
+                return false;
                 break;
 
         }
 
         lff = ReadLineFromFile();
     }
-    while(requiredCount < requiredNumberMetaDataParameters &&
+    while(requiredCount <= requiredNumberMetaDataParameters &&
           !pcrecpp::RE("^META_STOP.*$").FullMatch(lff));
+
+
+    if (requiredCount < requiredNumberMetaDataParameters)
+    {
+        MessageInterface::ShowMessage("Error: MetaData does not contain all required elements! Abort!\n");
+        return false;
+    }
 
     myOb->ccsdsMetaData = myMetaData;
 
@@ -451,7 +463,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
                                      &dtemp4,&dtemp5,&dtemp6))
     {
         myOEMData->timeTag = stemp;
-        //if (!CCSDSTimeTag2A1Date(myOEMData->timeTag,myOb->epoch)) return false;
+        if (!CCSDSTimeTag2A1Date(myOEMData->timeTag,myOb->epoch)) return false;
         myOEMData->x = dtemp1;
         myOEMData->y = dtemp2;
         myOEMData->z = dtemp3;
@@ -464,6 +476,6 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
         
         return true;
     }
-
-    return false;
+    else
+        return false;
 }

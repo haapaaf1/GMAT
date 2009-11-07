@@ -41,7 +41,7 @@ const std::string ObType::OBTYPES[EndObTypeReps] =
 //------------------------------------------------------------------------------
 ObType::ObType(const std::string &type, const std::string &name) :
    GmatBase       (Gmat::OBTYPE, type, name),
-    epoch(1900,1,1,0,0),
+    epoch(1950,1,1,0,0,0),
     satelliteID(0),
     internationalDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
     sensorID(0)

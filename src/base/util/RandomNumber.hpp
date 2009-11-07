@@ -99,10 +99,6 @@
 #ifndef _RandomNumber_hpp
 #define _RandomNumber_hpp
 
-// This is for the GSL libraries so that
-// extern C will be used
-//#define __cplusplus
-
 #include "gmatdefs.hpp"
 #include "RealUtilities.hpp"
 #include "UtilityException.hpp"

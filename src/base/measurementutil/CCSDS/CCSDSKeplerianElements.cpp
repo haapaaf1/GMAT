@@ -458,6 +458,13 @@ std::ostream& operator<< (std::ostream &output, const CCSDSKeplerianElements *my
 {
    using namespace std;
 
+    unsigned int i;
+    for (i = 0; i < myKeplerianElements->comments.size(); i++ )
+    {
+        output << "COMMENT " << myKeplerianElements->comments[i] << endl;
+    }
+    if (i > 0) output << endl;
+
    output << "SEMI_MAJOR_AXIS = " << myKeplerianElements->semiMajorAxis << endl;
    output << "ECCENTRICITY = " << myKeplerianElements->eccentricity << endl;
    output << "INCLINATION = " << myKeplerianElements->inclination << endl;
@@ -466,6 +473,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSKeplerianElements *my
    output << "TRUE_ANOMALY = " << myKeplerianElements->theAnomaly.GetTrueAnomaly() << endl;
    output << "MEAN_ANOMALY = " << myKeplerianElements->theAnomaly.GetMeanAnomaly() << endl;
    output << "GM = " << myKeplerianElements->gravitationalCoefficient << endl;
+   output << endl;
 
    return output;
 }

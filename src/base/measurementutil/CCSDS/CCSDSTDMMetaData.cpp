@@ -985,11 +985,15 @@ std::ostream& operator<< (std::ostream &output,
    //output.setf(std::ios::showpoint);
    //output.setf(std::ios::scientific);
 
-    output << "META_START" << endl;
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
+   output << "META_START" << endl;
+
+   unsigned int i;
+   for (i = 0; i < myMetadata->comments.size(); i++ )
    {
        output << "COMMENT " << myMetadata->comments[i] << endl;
    }
+   if (i > 0) output << endl;
+
    output << "TIME_SYSTEM = " << myMetadata->timeSystem << endl;
    output << "START_TIME = " << myMetadata->startTime << endl;
    output << "STOP_TIME = " << myMetadata->stopTime << endl;
@@ -1034,7 +1038,8 @@ std::ostream& operator<< (std::ostream &output,
    output << "CORRECTION_TRANSMIT = " << myMetadata->correctionTransmit << endl;
    output << "CORRECTIONS_APPLIED = " << myMetadata->correctionsApplied << endl;
 
-   output << "META_STOP" << std::endl << endl;
+   output << "META_STOP" << endl;
+   output << endl;
 
    return output;
 }

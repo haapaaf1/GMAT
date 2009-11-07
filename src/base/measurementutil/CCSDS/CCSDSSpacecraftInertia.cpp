@@ -482,6 +482,13 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+   unsigned int i;
+   for (i = 0; i < mySpacecraftInertia->comments.size(); i++ )
+   {
+       output << "COMMENT " << mySpacecraftInertia->comments[i] << endl;
+   }
+   if (i > 0) output << endl;
+
    output << "INERTIA_REF_FRAME = " << mySpacecraftInertia->inertiaRefFrame << endl;
    output << "I11 = " << mySpacecraftInertia->i11 << endl;
    output << "I22 = " << mySpacecraftInertia->i22 << endl;
@@ -489,6 +496,8 @@ std::ostream& operator<< (std::ostream &output,
    output << "I12 = " << mySpacecraftInertia->i12 << endl;
    output << "I13 = " << mySpacecraftInertia->i13 << endl;
    output << "I23 = " << mySpacecraftInertia->i23 << endl;
+
+   output << endl;
 
    return output;
 }

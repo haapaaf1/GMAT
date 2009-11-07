@@ -428,11 +428,20 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+    unsigned int i;
+    for (i = 0; i < mySpacecraftParameters->comments.size(); i++ )
+    {
+        output << "COMMENT " << mySpacecraftParameters->comments[i] << endl;
+    }
+    if (i > 0) output << endl;
+
    output << "MASS = " << mySpacecraftParameters->mass << endl;
    output << "SOLAR_RAD_AREA = " << mySpacecraftParameters->solarRadiationArea << endl;
    output << "SOLAR_RAD_COEFF = " << mySpacecraftParameters->solarRadiationCoefficient << endl;
    output << "DRAG_AREA = " << mySpacecraftParameters->dragArea << endl;
    output << "DRAG_COEFF = " << mySpacecraftParameters->dragCoefficient << endl;
+
+   output << endl;
 
    return output;
 }

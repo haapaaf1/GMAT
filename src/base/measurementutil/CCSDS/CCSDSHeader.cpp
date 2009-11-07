@@ -409,7 +409,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
     {
         output << "COMMENT " << myHeader->comments[i] << endl;
     }
-   if (i > 0) output << endl;
+    if (i > 0) output << endl;
 
     return output;
 }

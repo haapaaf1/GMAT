@@ -263,6 +263,24 @@ Integer CCSDSObType::GetTimeSystemID(const std::string &label)
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetCCSDSObType(const ObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Obtains the CCSDS ObType
+ *
+ * @param <myOb> the CCSDS data
+ *
+ * @return The CCSDS ObType (eg. CCSDSTDM,CCSDSOPM,CCSDSOEM,CCSDSAPM,CCSDSAEM)
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSObType::GetCCSDSObType()
+{
+    std::string regex = "^(CCSDS[A-Z]{3})ObType.*";
+    std::string theObType;
 
-
-
+    if (pcrecpp::RE(regex).FullMatch(GetTypeName(),&theObType))
+        return theObType;
+    else
+        return GmatBase::STRING_PARAMETER_UNDEFINED;
+}

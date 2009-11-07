@@ -302,21 +302,26 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     // Container for any comments found
     StringArray comments;
 
+    // This will capture comments after the meta data but before the
+    // first line of expected data
     bool commentsFound = GetCCSDSComments(lff,comments);
 
     std::string regex = "^EPOCH\\s*=.*";
     if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
 
-        MessageInterface::ShowMessage("Found State Vector\n");
+        //MessageInterface::ShowMessage("Found State Vector\n");
 
         if (GetCCSDSOPMStateVector(lff,myOb))
         {
             if (commentsFound)
             {
                 myOb->ccsdsOPMStateVector->comments = comments;
-                comments.clear();
+                commentsFound = false;
             }
+
+            // This will capture comments after the state vector
+            // but only if the state vector is successully found
             commentsFound = GetCCSDSComments(lff,comments);
         }
         else return false;
@@ -325,15 +330,17 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     regex = "^SEMI_MAJOR_AXIS\\s*=.*";
     if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
-        MessageInterface::ShowMessage("Found Keplerian Elements\n");
+        //MessageInterface::ShowMessage("Found Keplerian Elements\n");
 
         if (GetCCSDSKeplerianElements(lff,myOb))
         {
             if (commentsFound)
             {
                 myOb->ccsdsOPMKeplerianElements->comments = comments;
-                comments.clear();
+                commentsFound = false;
             }
+            // This will capture comments after the Keplerian elements
+            // but only if the Keplerian elements are successully found
             commentsFound = GetCCSDSComments(lff,comments);
         }
         else return false;
@@ -342,15 +349,17 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
     regex = "^MASS\\s*=.*";
     if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
-        MessageInterface::ShowMessage("Found Spacecraft Parameters\n");
+        //MessageInterface::ShowMessage("Found Spacecraft Parameters\n");
 
         if (GetCCSDSSpacecraftParameters(lff,myOb))
         {
             if (commentsFound)
             {
                 myOb->ccsdsOPMSpacecraftParameters->comments = comments;
-                comments.clear();
+                commentsFound = false;
             }
+            // This will capture comments after the spacecraft parameters
+            // but only if the spacecraft parameters are successully found
             commentsFound = GetCCSDSComments(lff,comments);
         }
         else return false;
@@ -362,19 +371,19 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMData(std::string &lff,
 
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
     {
-        MessageInterface::ShowMessage("Found Maneuver\n");
 
         if (GetCCSDSManeuver(lff,myOb))
         {
-            myOb->i_ccsdsOPMManeuvers++;
             if (commentsFound)
-            {
-                (*myOb->i_ccsdsOPMManeuvers)->comments = comments;
-                comments.clear();
-            }
+                (myOb->ccsdsOPMManeuvers.back())->comments = comments;
+
+            // This will capture comments after the maneuver
+            // but only if the maneuver is successully found
             commentsFound = GetCCSDSComments(lff,comments);
         }
     }
+
+    myOb->i_ccsdsOPMManeuvers = myOb->ccsdsOPMManeuvers.begin();
 
     return true;
 
@@ -407,19 +416,11 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSOPMStateVector(std::string &lff,
         switch (keyID)
         {
 
-            case CCSDSStateVector::CCSDS_STATEVECTOR_COMMENTS_ID:
-                {
-                std::string stemp;
-                if (!GetCCSDSComment(lff,stemp))
-                    myOPMStateVector->comments.push_back(stemp);
-                }
-                break;
-
             case CCSDSStateVector::CCSDS_STATEVECTOR_TIMETAG_ID:
 
                 if (!GetCCSDSValue(lff,myOPMStateVector->timeTag)) return false;
-                //if (!CCSDSTimeTag2A1Date(myOPMStateVector->timeTag,
-                //                         myOb->epoch)) return false;
+                if (!CCSDSTimeTag2A1Date(myOPMStateVector->timeTag,myOb->epoch))
+                    return false;
                 break;
 
             case CCSDSStateVector::CCSDS_STATEVECTOR_X_ID:
@@ -497,14 +498,6 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
         switch (keyID)
         {
 
-            case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_COMMENTS_ID:
-                {
-                std::string stemp;
-                if (!GetCCSDSComment(lff,stemp))
-                    myOPMKeplerianElements->comments.push_back(stemp);
-                }
-                break;
-
             case CCSDSKeplerianElements::CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
                 if (!GetCCSDSValue(lff,myOPMKeplerianElements->semiMajorAxis)) return false;
                 break;
@@ -562,8 +555,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSKeplerianElements(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( requiredCount < requiredNumberKeplerianElementsParameters && !IsEOF() ||
-          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff) ||
+    while ( requiredCount < requiredNumberKeplerianElementsParameters ||
           pcrecpp::RE("^TRUE_ANOMALY\\s*.*$").FullMatch(lff) ||
           pcrecpp::RE("^MEAN_ANOMALY\\s*.*$").FullMatch(lff));
 
@@ -593,7 +585,6 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSSpacecraftParameters(std::string &lff,
 
     do
     {
-
         if (!GetCCSDSKeyword(lff,keyword)) return false;
 
         Integer keyID = myOPMSpacecraftParameters->GetKeywordID(keyword);
@@ -602,14 +593,6 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSSpacecraftParameters(std::string &lff,
 
         switch (keyID)
         {
-
-            case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_COMMENTS_ID:
-                {
-                std::string stemp;
-                if (!GetCCSDSComment(lff,stemp))
-                    myOPMSpacecraftParameters->comments.push_back(stemp);
-                }
-                break;
 
             case CCSDSSpacecraftParameters::CCSDS_SPACECRAFTPARAMETERS_MASS_ID:
 
@@ -646,8 +629,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSSpacecraftParameters(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( requiredCount < requiredNumberSpacecraftParameters && !IsEOF() ||
-          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
+    while ( requiredCount < requiredNumberSpacecraftParameters );
 
     myOb->ccsdsOPMSpacecraftParameters = myOPMSpacecraftParameters;
 
@@ -683,14 +665,6 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSManeuver(std::string &lff,
 
         switch (keyID)
         {
-
-            case CCSDSManeuver::CCSDS_MANUEVER_COMMENTS_ID:
-                {
-                std::string stemp;
-                if (!GetCCSDSComment(lff,stemp))
-                    myOPMManeuver->comments.push_back(stemp);
-                }
-                break;
 
             case CCSDSManeuver::CCSDS_MANUEVER_IGNITIONEPOCH_ID:
 
@@ -745,12 +719,10 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSManeuver(std::string &lff,
         lff = ReadLineFromFile();
 
     }
-    while ( requiredCount < requiredNumberManeuverParameters && !IsEOF() ||
-          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
-
-    MessageInterface::ShowMessage("About to push back a maneuver\n");
+    while ( requiredCount < requiredNumberManeuverParameters );
 
     (myOb->ccsdsOPMManeuvers).push_back(myOPMManeuver);
+    myOb->i_ccsdsOPMManeuvers++;
 
     return true;
 
@@ -792,8 +764,8 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
             case CCSDSOPMMetaData::CCSDS_OPM_METADATACOMMENTS_ID:
                 {
                 std::string stemp;
-                if (!GetCCSDSComment(lff,stemp))
-                    myMetaData->comments.push_back(stemp);
+                if (!GetCCSDSComment(lff,stemp)) return false;
+                myMetaData->comments.push_back(stemp);
                 }
                 break;
 
@@ -837,8 +809,7 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 
         lff = ReadLineFromFile();
     }
-    while(requiredCount < requiredNumberMetaDataParameters && !IsEOF() ||
-          pcrecpp::RE("^COMMENT\\s*.*$").FullMatch(lff));
+    while( requiredCount < requiredNumberMetaDataParameters );
 
     myOb->ccsdsMetaData = myMetaData;
 
