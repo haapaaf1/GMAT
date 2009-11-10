@@ -73,6 +73,9 @@ public:
    void SetPrecision(int p);
    
    void Put(Real rval);
+   void Put(const std::string &str, Real rval1, Real rval2, Real rval3);
+   void Put(const std::string &str1, Real rvalx, const std::string &str2,
+            Real rval1, Real rval2, Real rval3);
    void Put(Real rval1, const std::string &str, Real rval2);
    void Put(Real rval1, const std::string &str1,
             Real rval2, const std::string &str2);
@@ -88,7 +91,11 @@ public:
    void Put(const Rvector &rvec);
    void Put(const std::string &str, const Rmatrix &rmat);
    void Put(const std::string &str, const Rvector &rvec);
+   void CheckValue(Real actual, Real expect, Real tol = TEST_TOL);
    void Validate(Real actual, Real expect, Real tol = TEST_TOL,
+                 bool validate = true);
+   void Validate(Real actual1, Real actual2, Real actual3,
+                 Real expect1, Real expect2, Real expect3, Real tol = TEST_TOL,
                  bool validate = true);
    void Validate(Rmatrix actual, Rmatrix expect, Real tol = TEST_TOL,
                  bool validate = true);

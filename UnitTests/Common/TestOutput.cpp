@@ -391,22 +391,44 @@ void TestOutput::SetPrecision(int p)
 
 
 //------------------------------------------------------------------------------
-// void Put(Real rval1, const std::string &str, Real rval2)
-//------------------------------------------------------------------------------
-void TestOutput::Put(Real rval1, const std::string &str, Real rval2)
-{
-   mOutfile << rval1 << str << rval2 << endl;
-   cout << rval1 << str << rval2 << endl;
-}
-
-
-//------------------------------------------------------------------------------
 // void Put(Real rval)
 //------------------------------------------------------------------------------
 void TestOutput::Put(Real rval)
 {
    mOutfile << rval << endl;
    cout << rval << endl;
+}
+
+
+//------------------------------------------------------------------------------
+// void Put(const std::string &str, Real rval1, Real rval2, Real rval3)
+//------------------------------------------------------------------------------
+void TestOutput::Put(const std::string &str, Real rval1, Real rval2, Real rval3)
+{
+   mOutfile << str << rval1 << "  " << rval2 << "  " << rval3 << endl;
+   cout << str << rval1 << "  " << rval2 << "  " << rval3 << endl;
+}
+
+
+//------------------------------------------------------------------------------
+// void Put(const std::string &str1, Real rvalx, const std::string &str2,
+//          Real rval1, Real rval2, Real rval3)
+//------------------------------------------------------------------------------
+void TestOutput::Put(const std::string &str1, Real rvalx, const std::string &str2,
+                     Real rval1, Real rval2, Real rval3)
+{
+   mOutfile << str1 << rvalx << str2 << rval1 << "  " << rval2 << "  " << rval3 << endl;
+   cout << str1 << rvalx << str2 << rval1 << "  " << rval2 << "  " << rval3 << endl;
+}
+
+
+//------------------------------------------------------------------------------
+// void Put(Real rval1, const std::string &str, Real rval2)
+//------------------------------------------------------------------------------
+void TestOutput::Put(Real rval1, const std::string &str, Real rval2)
+{
+   mOutfile << rval1 << str << rval2 << endl;
+   cout << rval1 << str << rval2 << endl;
 }
 
 
@@ -526,8 +548,28 @@ void TestOutput::Put(const std::string &str, const std::string &sval)
       mOutfile << str << sval;
       cout << str << sval;
    }
-   
-   //mAddNewLine = true;
+}
+
+
+//------------------------------------------------------------------------------
+// void CheckValue(Real actual, Real expect, Real tol = TEST_TOL)
+//------------------------------------------------------------------------------
+void TestOutput::CheckValue(Real actual, Real expect, Real tol)
+{
+   if (fabs(actual - expect) > tol)
+   {
+      throw GmatBaseException
+         (">>>>> The expected result is : " + GmatRealUtil::ToString(expect) +
+          ", but got " + GmatRealUtil::ToString(actual) + "\n");
+   }
+   else
+   {
+      if (tol > 1.0e-5)
+      {
+         mOutfile << "===> test passed with tol = " << tol << endl;
+         cout << "===> test passed with tol = " << tol << endl;
+      }
+   }
 }
 
 
@@ -538,28 +580,39 @@ void TestOutput::Validate(Real actual, Real expect, Real tol, bool validate)
 {
    mOutfile << actual << endl;
    cout << actual << endl;
-
+   
    if (validate)
-   {
-      if (fabs(actual - expect) > tol)
-      {
-         throw GmatBaseException
-            (">>>>> The expected result is : " + GmatRealUtil::ToString(expect) +
-             ", but got " + GmatRealUtil::ToString(actual) + "\n");
-      }
-      else
-      {
-         if (tol > 1.0e-5)
-         {
-            mOutfile << "===> test passed with tol = " << tol << endl;
-            cout << "===> test passed with tol = " << tol << endl;
-         }
-      }
-   }
+      CheckValue(actual, expect, tol);
    
    mOutfile << endl;
    cout << endl;
 
+}
+
+
+//------------------------------------------------------------------------------
+// void Validate(Real actual1, Real actual2, Real actual3,
+//               Real expect1, Real expect2, Real expect3, Real tol = TEST_TOL,
+//               bool validate = true);
+//------------------------------------------------------------------------------
+void TestOutput::Validate(Real actual1, Real actual2, Real actual3,
+                          Real expect1, Real expect2, Real expect3, Real tol,
+                          bool validate)
+{
+   mOutfile << "Actual values are " << actual1 << "  " << actual2 << "  " << actual3 << endl;
+   cout << "Actual values are " << actual1 << "  " << actual2 << "  " << actual3 << endl;
+   mOutfile << "Expect values are " << expect1 << "  " << expect2 << "  " << expect3 << endl;
+   cout << "Expect values are " << expect1 << "  " << expect2 << "  " << expect3 << endl;
+   
+   if (validate)
+   {
+      CheckValue(actual1, expect1, tol);
+      CheckValue(actual2, expect2, tol);
+      CheckValue(actual3, expect3, tol);
+   }
+   
+   mOutfile << endl;
+   cout << endl;
 }
 
 

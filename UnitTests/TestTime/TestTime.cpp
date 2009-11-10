@@ -1,4 +1,4 @@
-//$Header: /cygdrive/p/dev/cvs/test/TestUtil/TestTime.cpp,v 1.2 2005/02/22 18:44:56 agreene Exp $
+//$Id$
 //------------------------------------------------------------------------------
 //                                  TestTime
 //------------------------------------------------------------------------------
@@ -27,6 +27,9 @@
 #include "TimeSystemConverter.hpp"
 #include "EopFile.hpp"
 #include "TestOutput.hpp"
+#include "FileManager.hpp"
+#include "MessageInterface.hpp"
+#include "ConsoleMessageReceiver.hpp"
 
 using namespace std;
 using namespace TimeConverterUtil;
@@ -86,7 +89,7 @@ int RunTest(TestOutput &out)
    }
    catch (BaseException &e)
    {
-      out.Put(e.GetMessage());
+      out.Put(e.GetFullMessage());
    }
 
    out.Put("\n============================== test A1Mjd.ToUtcDate()");
@@ -101,72 +104,81 @@ int RunTest(TestOutput &out)
    }
    catch (BaseException &e)
    {
-      out.Put(e.GetMessage());
+      out.Put(e.GetFullMessage());
    }
    
+   FileManager *fileManager = FileManager::Instance();
+   std::string lsFileName = fileManager->GetFullPathname("LEAP_SECS_FILE");
+   MessageInterface::ShowMessage
+      ("===> Setting leap seconds file to %s\n", lsFileName.c_str());
+   
+   std::string eopFileName = fileManager->GetFullPathname("EOP_FILE");
+   MessageInterface::ShowMessage
+      ("===> Setting eop file to %s\n", eopFileName.c_str());
+   
    //---------------------------------------------------------------------------
-   out.Put("\n============================== Test Time Coeff File Reader");
+   out.Put("\n============================== Test Leap Seconds File Reader");
    try
    {
-      LeapSecsFileReader *tcfr = new LeapSecsFileReader();
+      LeapSecsFileReader *tcfr = new LeapSecsFileReader(lsFileName);
       tcfr->Initialize();
-
+      
       UtcMjd utcmMjd = a1mjd.ToUtcMjd() + 30000;
       // greater then last table position
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
-//      cout << "The number of leap seconds from the analytic = "
-//           << a1mjd.UtcMjdToA1Mjd(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 29000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 28000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 27000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 26000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 25000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 24000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 23000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 22000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 21000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 20000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 19000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 18000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 17000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       utcmMjd = a1mjd.ToUtcMjd() + 16000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
       // less than first position in table
       utcmMjd = a1mjd.ToUtcMjd() + 15000;
-      cout << utcmMjd << " => number of leap seconds = "
-           << tcfr->NumberOfLeapSecondsFrom(utcmMjd) << endl;
+      out.Put(utcmMjd, " => number of leap seconds = ",
+              tcfr->NumberOfLeapSecondsFrom(utcmMjd));
+      
+      delete tcfr;
    }
    catch (BaseException &e)
    {
-      cout << e.GetMessage() << endl;
+      out.Put(e.GetFullMessage());
    }
 
    out.Put("");
@@ -174,77 +186,88 @@ int RunTest(TestOutput &out)
    out.Put("\n============================== test TimeSystemConverter()");
    try
    {
-//      SetJdMjdOffset(2400000.5);
-      LeapSecsFileReader *tcfr = new LeapSecsFileReader();
-      tcfr->Initialize();
-      SetLeapSecsFileReader(tcfr);
-
-      EopFile *ef = new EopFile("finals.data", GmatEop::FINALS);
+      LeapSecsFileReader *lsfr = new LeapSecsFileReader(lsFileName);
+      lsfr->Initialize();
+      SetLeapSecsFileReader(lsfr);
+      
+      //@todo GmatEop::FINALS causes TableTemplate error : index out-of-bounds.
+      //EopFile *ef = new EopFile(eopFileName, GmatEop::FINALS);
+      EopFile *ef = new EopFile(eopFileName, GmatEop::EOP_C04);
       ef->Initialize();
       SetEopFile(ef);
-
+      
       Real taiMjd = 53180.5;
-//      Real taiMjd = 38334.4;
       cout.precision(15);
-      Real a1Mjd = ConvertFromTaiMjd("A1Mjd", taiMjd);
-      cout << taiMjd << " => to A1Mjd = " << a1Mjd
-           << " => to taimjd = " << ConvertToTaiMjd("A1Mjd", a1Mjd)
-           << endl;
-
-      Real ttMjd = ConvertFromTaiMjd("TtMjd", taiMjd);
-      cout << taiMjd << " => to TtMjd = " << ttMjd
-           << " => to taimjd = " << ConvertToTaiMjd("TtMjd", ttMjd)
-           << endl;
-
-      Real utcMjd = ConvertFromTaiMjd("UtcMjd", taiMjd);
-      cout << taiMjd << " => to UtcMjd = " << utcMjd
-           << " => to taimjd = " << ConvertToTaiMjd("UtcMjd", utcMjd)
-           << endl;
-
-      Real ut1Mjd = ConvertFromTaiMjd("Ut1Mjd", taiMjd);
-      cout << taiMjd << " => to Ut1Mjd = " << ut1Mjd
-           << " => to taimjd = " << ConvertToTaiMjd("Ut1Mjd", ut1Mjd)
-           << endl;
-
-      Real tcbMjd = ConvertFromTaiMjd("TcbMjd", taiMjd);
-      cout << taiMjd << " => to TcbMjd = " << tcbMjd
-//           << " => to taimjd = " << ConvertToTaiMjd("TcbMjd", tcbMjd)
-           << endl;
-
-      Real tdbMjd = ConvertFromTaiMjd("TdbMjd", taiMjd);
-      cout << taiMjd << " => to TdbMjd = " << tdbMjd
-//           << " => to taimjd = " << ConvertToTaiMjd("TdbMjd", tdbMjd)
-           << endl;
-
-//      EopFile *eopFile = new EopFile("finals.data", GmatEop::FINALS);
-//      SetEopFile(eopFile);
-
-//      Real ut1Mjd = ConvertFromTaiMjd("Ut1Mjd", taiMjd);
-//      cout << taiMjd << " => to Ut1Mjd = " << ut1Mjd
-//           << " => to taimjd = " << ConvertToTaiMjd("Ut1Mjd", ut1Mjd)
-//           << endl;
-
-      cout << "\n=============== Test Convert Method" << endl;
-      Real ttMjd2 = Convert(a1Mjd, "A1Mjd", "TtMjd");
-      cout << "A1Mjd: " << a1Mjd << " ==> to TtMjd: " << ttMjd2 << endl;
-      cout << "A1Mjd: " << a1Mjd << " ==> to UtcMjd: "
-           << Convert(a1Mjd, "A1Mjd", "UtcMjd") << endl;
-
-      cout << "\n=============== Test Convert Method with diff offset" << endl;
+      Real a1Mjd = ConvertFromTaiMjd(A1MJD, taiMjd);
+      out.Put(taiMjd, " => to A1Mjd = ", a1Mjd, " => to taimjd = ",
+              ConvertToTaiMjd(A1MJD, a1Mjd));
+      
+      Real ttMjd = ConvertFromTaiMjd(TTMJD, taiMjd);
+      out.Put(taiMjd, " => to TtMjd = ", ttMjd, " => to taimjd = ",
+              ConvertToTaiMjd(TTMJD, ttMjd));
+      
+      Real utcMjd = ConvertFromTaiMjd(UTCMJD, taiMjd);
+      out.Put(taiMjd, " => to UtcMjd = ", utcMjd, " => to taimjd = ",
+              ConvertToTaiMjd(UTCMJD, utcMjd));
+      
+      Real ut1Mjd = ConvertFromTaiMjd(UT1MJD, taiMjd);
+      out.Put(taiMjd, " => to Ut1Mjd = ", ut1Mjd, " => to taimjd = ",
+              ConvertToTaiMjd(UT1MJD, ut1Mjd));
+      
+      Real tcbMjd = ConvertFromTaiMjd(TCBMJD, taiMjd);
+      out.Put(taiMjd, " => to TcbMjd = ", tcbMjd );
+      
+      Real tdbMjd = ConvertFromTaiMjd(TDBMJD, taiMjd);
+      out.Put(taiMjd, " => to TdbMjd = ", tdbMjd );
+      
+      out.Put("\n=============== Test Convert Method" );
+      Real ttMjd2 = Convert(a1Mjd, A1MJD, TTMJD, GmatTimeUtil::JD_NOV_17_1858);
+      out.Put("A1Mjd: ", a1Mjd, " ==> to TtMjd: ", ttMjd2 );
+      out.Put("A1Mjd: ", a1Mjd, " ==> to UtcMjd: ",
+              Convert(a1Mjd, A1MJD, UTCMJD, GmatTimeUtil::JD_NOV_17_1858));
+      
+      out.Put("\n=============== Test Convert Method with diff offset" );
       Real a1Mjd2 = a1Mjd + 500000;
-      Real utcMjd2 = Convert(a1Mjd2, "A1Mjd", "UtcMjd", GmatTimeUtil::JD_JAN_5_1941);
-      cout << "A1Mjd: " << a1Mjd2 << " ==> to UtcMjd: " << utcMjd2 << endl;
-
-      cout << "UtcMjd: " << utcMjd2 << " ==> to TtMjd: "
-           << Convert(utcMjd2, "UtcMjd", "TtMjd", GmatTimeUtil::JD_JAN_5_1941)
-           << endl;
-
+      Real utcMjd2 = Convert(a1Mjd2, A1MJD, UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
+      out.Put("A1Mjd: ", a1Mjd2, " ==> to UtcMjd: ", utcMjd2 );
+      
+      out.Put("UtcMjd: ", utcMjd2, " ==> to TtMjd: ",
+              Convert(utcMjd2, UTCMJD, TTMJD, GmatTimeUtil::JD_NOV_17_1858));
+      
+      delete lsfr;
+      delete ef;
    }
    catch (BaseException &e)
    {
-      out.Put(e.GetMessage());
+      out.Put(e.GetFullMessage());
    }
-
+   
+   //---------------------------------------------------------------------------
+   try
+   {
+      out.Put("\n=============== Test Convert(fromTypeStr, fromMjd, &fromStr, toTypeStr, toMjd, toStr)");
+      LeapSecsFileReader *leapSecsFile = new LeapSecsFileReader(lsFileName);
+      leapSecsFile->Initialize();
+      TimeConverterUtil::SetLeapSecsFileReader(leapSecsFile);
+      
+      Real epoch = 25131.176088;
+      Real toMjd;
+      std::string epochFormat = "UTCGregorian";
+      std::string epochStr;
+      Convert("A1ModJulian", epoch, "", "UTCGregorian", toMjd, epochStr);
+      out.Put(epochStr);
+      
+      epoch = 25131.171227249783;
+      Convert("A1ModJulian", epoch, "", "UTCGregorian", toMjd, epochStr);
+      out.Put(epochStr);
+      
+      delete leapSecsFile;
+   }
+   catch (BaseException &e)
+   {
+      out.Put(e.GetFullMessage());
+   }
+   
    out.Put("");
 }
 
@@ -254,7 +277,18 @@ int RunTest(TestOutput &out)
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-   TestOutput out("..\\..\\test\\TestUtil\\TestTime.out");
+   std::string startupFile = "gmat_startup_file.txt";
+   FileManager *fm = FileManager::Instance();
+   fm->ReadStartupFile(startupFile);
+   
+   ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
+   MessageInterface::SetMessageReceiver(consoleMsg);
+   std::string outPath = "../../TestTime/";
+   MessageInterface::SetLogFile(outPath + "GmatLog.txt");
+   std::string outFile = outPath + "TestTimeOut.txt";
+   TestOutput out(outFile);
+   out.Put(GmatTimeUtil::GetCurrentTime());
+   MessageInterface::ShowMessage("%s\n", GmatTimeUtil::GetCurrentTime().c_str());
    
    try
    {
@@ -263,7 +297,7 @@ int main(int argc, char *argv[])
    }
    catch (BaseException &e)
    {
-      out.Put(e.GetMessage());
+      out.Put(e.GetFullMessage());
    }
    catch (...)
    {

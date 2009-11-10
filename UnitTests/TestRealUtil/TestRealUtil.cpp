@@ -1,4 +1,4 @@
-//$Header: /cygdrive/p/dev/cvs/test/TestUtil/TestRealUtil.cpp,v 1.3 2007/05/02 18:35:33 lojun Exp $
+//$Id$
 //------------------------------------------------------------------------------
 //                                  TestRealUtil
 //------------------------------------------------------------------------------
@@ -20,6 +20,8 @@
 #include "PhysicalConstants.hpp"
 #include "RealUtilities.hpp"
 #include "TestOutput.hpp"
+#include "MessageInterface.hpp"
+#include "ConsoleMessageReceiver.hpp"
 
 using namespace std;
 using namespace GmatMathUtil;
@@ -156,7 +158,12 @@ int RunTest(TestOutput &out)
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-   TestOutput out("..\\..\\Test\\TestUtil\\TestRealUtilOut.txt");
+   ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
+   MessageInterface::SetMessageReceiver(consoleMsg);
+   std::string outPath = "../../TestRealUtil/";
+   MessageInterface::SetLogFile(outPath + "GmatLog.txt");
+   std::string outFile = outPath + "TestRealUtil.txt";
+   TestOutput out(outFile);
    
    try
    {
