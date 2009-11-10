@@ -1,0 +1,178 @@
+Create Array            boundaries[1,3];
+Create Barycenter       EMBary;
+Create CoordinateSystem EarthRLP;
+Create CoordinateSystem L2RLP;
+Create ForceModel       fm;
+Create GmatFunction     Bug1599_reg_prop;
+Create ImpulsiveBurn    burnBaby;
+Create LibrationPoint   SEML2;
+Create OpenGLPlot       LView;
+Create OpenGLPlot       L2View;
+Create Propagator       prop;
+Create ReportFile       out;
+Create Spacecraft       sc;
+Create Variable         LBoundary;
+Create Variable         RBoundary;
+Create Variable         TBoundary;
+Create Variable         start_epoch;
+Create Variable         stop_cond;
+Create Variable         time_diff;
+
+sc.DateFormat                     = UTCGregorian;
+sc.CoordinateSystem               = EarthMJ2000Eq;
+sc.DisplayStateType               = Keplerian;
+sc.Epoch                          = '01 Jan 2010 12:00:00.000';
+sc.SMA                            = 7000;
+sc.ECC                            = 0.001;
+sc.INC                            = 28.5;
+sc.RAAN                           = 280;
+sc.AOP                            = 0;
+sc.TA                             = 0;
+
+EMBary.BodyNames                  = {Earth,Luna};
+
+SEML2.Primary                     = Sun;
+SEML2.Secondary                   = EMBary;
+SEML2.Point                       = L2;
+ 
+fm.CentralBody                    = Earth;
+fm.PrimaryBodies                  = {Earth};
+fm.Gravity.Earth.Model            = JGM2;
+fm.Gravity.Earth.Degree           = 0;
+fm.Gravity.Earth.Order            = 0;
+fm.PointMasses                    = {Sun, Luna};
+
+prop.FM                           = fm;
+prop.Type                         = RungeKutta89;
+prop.InitialStepSize              = 60;
+prop.MaxStep                      = 86400;
+
+burnBaby.Origin                   = Earth;
+burnBaby.Axes                     = VNB;
+burnBaby.VectorFormat             = Cartesian;
+burnBaby.Element1                 = 3.0928009196;
+burnBaby.Element2                 = 0;
+burnBaby.Element3                 = 0;
+
+EarthRLP.Origin                   = Earth;
+EarthRLP.Axes                     = ObjectReferenced;
+EarthRLP.UpdateInterval           = 60;
+EarthRLP.XAxis                    = R;
+EarthRLP.ZAxis                    = N;
+EarthRLP.Primary                  = Sun;
+EarthRLP.Secondary                = EMBary;
+
+L2RLP.Origin                      = SEML2;
+L2RLP.Axes                        = ObjectReferenced;
+L2RLP.UpdateInterval              = 60;
+L2RLP.OverrideOriginInterval      = false;
+L2RLP.XAxis                       = R;
+L2RLP.ZAxis                       = N;
+L2RLP.Primary                     = Sun;
+L2RLP.Secondary                   = EMBary;
+
+LView.Add                         = {sc, Earth, Luna};
+LView.CoordinateSystem            = EarthRLP;
+LView.ViewPointReference          = Earth;
+LView.ViewDirection               = Earth;
+LView.ViewScaleFactor             = 100;
+LView.FixedFovAngle               = 45;
+LView.ViewUpCoordinateSystem      = EarthRLP;
+LView.ViewUpAxis                  = Y;
+LView.CelestialPlane              = Off;
+LView.XYPlane                     = Off;
+LView.WireFrame                   = Off;
+LView.SolverIterations            = None;
+LView.Axes                        = On;
+LView.Grid                        = Off;
+LView.SunLine                     = Off;
+LView.UseInitialView              = On;
+LView.PerspectiveMode             = Off;
+LView.UseFixedFov                 = Off;
+LView.DataCollectFrequency        = 1;
+LView.UpdatePlotFrequency         = 50;
+LView.NumPointsToRedraw           = 0;
+LView.ShowPlot                    = true;
+
+L2View.Add                        = {sc, Earth, Luna};
+L2View.CoordinateSystem           = L2RLP;
+L2View.ViewPointReference         = SEML2;
+L2View.ViewDirection              = SEML2;
+L2View.ViewScaleFactor            = 100;
+L2View.FixedFovAngle              = 45;
+L2View.ViewUpCoordinateSystem     = L2RLP;
+L2View.ViewUpAxis                 = Y;
+L2View.CelestialPlane             = Off;
+L2View.XYPlane                    = Off;
+L2View.WireFrame                  = Off;
+L2View.SolverIterations           = None;
+L2View.Axes                       = On;
+L2View.Grid                       = Off;
+L2View.SunLine                    = Off;
+L2View.UseInitialView             = On;
+L2View.PerspectiveMode            = Off;
+L2View.UseFixedFov                = Off;
+L2View.DataCollectFrequency       = 1;
+L2View.UpdatePlotFrequency        = 50;
+L2View.NumPointsToRedraw          = 0;
+L2View.ShowPlot                   = true;
+
+out.SolverIterations              = Current;
+%%out.Filename                      = 'c:\cschiff\GMAT\output\trial1.txt';
+out.Filename                      = Bug1599-FunctionBug.report;
+out.Precision                     = 16;
+out.Add                           = {sc.UTCModJulian, sc.ElapsedDays, sc.ElapsedSecs, sc.L2RLP.X, sc.L2RLP.Y, sc.L2RLP.Z};
+out.WriteHeaders                  = On;
+out.LeftJustify                   = On;
+out.ZeroFill                      = Off;
+out.ColumnWidth                   = 20;
+
+%%reg_prop.FunctionPath = 'C:\Cschiff\GMAT\GmatFunctions\reg_prop.gmf';
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+BeginScript;
+
+burnBaby.Element1 = 3.0928009196;
+LBoundary         = -2000000;
+RBoundary         =  -400000;
+TBoundary         = 400;
+boundaries(1,1)   = LBoundary;
+boundaries(1,2)   = RBoundary;
+boundaries(1,3)   = TBoundary;
+start_epoch       = sc.UTCModJulian;
+
+Report out burnBaby.Element1 stop_cond sc.UTCModJulian start_epoch time_diff sc.L2RLP.X;
+Propagate prop(sc,{sc.ElapsedSecs = 60});
+Maneuver  burnBaby(sc);
+
+%%----- 1st function call
+[sc, stop_cond] = Bug1599_reg_prop(sc, prop, fm, boundaries, EMBary, L2RLP, SEML2);
+
+time_diff = sc.UTCModJulian - start_epoch;
+Report out burnBaby.Element1 stop_cond sc.UTCModJulian start_epoch time_diff sc.L2RLP.X;
+
+boundaries(1,1) =  -400000;
+boundaries(1,2) =   400000;
+boundaries(1,3) =      400;
+
+%%----- 2nd function call
+[sc, stop_cond] = Bug1599_reg_prop(sc, prop, fm, boundaries, EMBary, L2RLP, SEML2);
+
+time_diff = sc.UTCModJulian - start_epoch;
+Report out burnBaby.Element1 stop_cond sc.UTCModJulian start_epoch time_diff sc.L2RLP.X;
+
+boundaries(1,1) =  -500000;
+boundaries(1,2) =   500000;
+boundaries(1,3) =      500;
+
+%%----- 3rd function call
+[sc, stop_cond] = Bug1599_reg_prop(sc, prop, fm, boundaries, EMBary, L2RLP, SEML2);
+
+time_diff = sc.UTCModJulian - start_epoch;
+Report out burnBaby.Element1 stop_cond sc.UTCModJulian start_epoch time_diff sc.L2RLP.X;
+
+EndScript;
