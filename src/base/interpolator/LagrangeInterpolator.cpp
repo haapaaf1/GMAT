@@ -192,7 +192,7 @@ Integer LagrangeInterpolator::IsInterpolationFeasible(Real ind)
    MessageInterface::ShowMessage
       ("   range1 = %f, range2 = %f\n", range[0], range[1]);
    #endif
-
+   
    if (ind < range[0])
    {
       #if 0
@@ -310,7 +310,9 @@ bool LagrangeInterpolator::AddPoint(const Real ind, const Real *data)
 bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
 {
    #ifdef DEBUG_LAGRANGE_INTERPOLATE
-   MessageInterface::ShowMessage("Lagrange::Interpolate() entered, ind=%f\n", ind);
+   MessageInterface::ShowMessage
+      ("Lagrange::Interpolate() entered, ind=%f, dimension=%d, forceInterpolation=%d\n",
+       ind, dimension, forceInterpolation);
    #endif
    
    // Check for interpolation feasibility
@@ -354,33 +356,47 @@ bool LagrangeInterpolator::Interpolate(const Real ind, Real *results)
    for (Integer i = startPoint; i < startPoint + order; i++)
    {
       for (Integer dim = 0; dim < dimension; dim++)
+      {
          products[dim] = y[i][dim];
-      
-      #ifdef DEBUG_LAGRANGE_INTERPOLATE_MORE
-      MessageInterface::ShowMessage("  i=%d, products[0]=%f\n", i, products[0]);
-      #endif
-      
+         
+         #ifdef DEBUG_LAGRANGE_INTERPOLATE_MORE
+         MessageInterface::ShowMessage
+            ("  i=%d, products[%d]=%f\n", i, dim, products[dim]);
+         #endif
+      }
+
       for (Integer j = startPoint; j < startPoint + order; j++)
       {
          if (i != j)
          {
             for (Integer dim = 0; dim < dimension; dim++)
+            {
+               // Should I check for divide by zero?
+               if ((x[i]- x[j] == 0.0))
+               {
+                  #ifdef DEBUG_LAGRANGE_INTERPOLATE_MORE
+                  MessageInterface::ShowMessage("   x[%d]- x[%d]=%f\n", i, j, (x[i]- x[j]));
+                  #endif
+               }
                products[dim] = products[dim] * (ind - x[j]) / (x[i]- x[j]);
+            }
          }
       }
       
       for (Integer dim = 0; dim < dimension; dim++)
+      {
+         #ifdef DEBUG_LAGRANGE_INTERPOLATE_MORE
+         MessageInterface::ShowMessage
+            ("  i=%d, products[%d]=%f\n", i, dim, products[dim]);
+         #endif
          estimates[dim] = estimates[dim] + products[dim];
+      }
    }
    
    // copy results
    for (Integer dim = 0; dim < dimension; dim++)
    {
       results[dim] = estimates[dim];
-      
-      #ifdef DEBUG_LAGRANGE_INTERPOLATE_MORE
-      MessageInterface::ShowMessage("   results[%d] = %f\n", dim, results[dim]);
-      #endif
    }
    
    delete [] products;
@@ -570,6 +586,9 @@ bool LagrangeInterpolator::IsDataNearCenter(Real ind)
    Integer end = dataIndex + (order/2);
    
    beginIndex = begin;
+   if ((beginIndex + order) > actualSize)
+      beginIndex = actualSize - order;
+   
    // Check if there are enough points before and after data requested
    if (begin >= 0 && end < actualSize)
    {
@@ -634,12 +653,15 @@ Integer LagrangeInterpolator::FindStartingPoint(Real ind)
    
    #ifdef DEBUG_LAGRANGE_BUILD
    MessageInterface::ShowMessage
-      ("   beginIndex=%d, qEnd=%d, qMin = %d, startPoint = %d\n", beginIndex,
+      ("   beginIndex=%d, qEnd=%d, qMin=%d, startPoint=%d\n", beginIndex,
        qEnd, qMin, startPoint);
    #endif
    
    if (startPoint < 0)
       startPoint = 0;
+   
+   if (beginIndex > 0)
+      startPoint = beginIndex;
    
    #ifdef DEBUG_LAGRANGE_BUILD
    MessageInterface::ShowMessage
