@@ -30,6 +30,8 @@
 //#define DEBUG_EPHEMFILE_TIME
 //#define DEBUG_EPHEMFILE_ORBIT
 //#define DEBUG_EPHEMFILE_WRITE
+//#define DEBUG_EPHEMFILE_MANEUVER
+//#define DEBUG_EPHEMFILE_FINISH
 //#define DBGLVL_EPHEMFILE_DATA 1
 
 //#ifndef DEBUG_MEMORY
@@ -108,6 +110,7 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    coordSystemName     ("EarthMJ2000Eq"),
    writeEphemeris      ("Yes"),
    interpolationOrder  (7),
+   initialCount        (0),
    waitCount           (0),
    stepSizeInA1Mjd     (-999.999),
    initialEpochA1Mjd   (-999.999),
@@ -115,7 +118,10 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    nextOutEpoch        (-999.999),
    nextReqEpoch        (-999.999),
    currentEpoch        (-999.999),
+   prevEpoch           (-999.999),
+   prevProcTime        (-999.999),
    firstTimeWriting    (true),
+   writingNewSegment   (true),
    useStepSize         (false),
    writeOrbit          (false),
    writeAttitude       (false),
@@ -206,6 +212,7 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    coordSystemName     (ef.coordSystemName),
    writeEphemeris      (ef.writeEphemeris),
    interpolationOrder  (ef.interpolationOrder),
+   initialCount        (ef.initialCount),
    waitCount           (ef.waitCount),
    stepSizeInA1Mjd     (ef.stepSizeInA1Mjd),
    initialEpochA1Mjd   (ef.initialEpochA1Mjd),
@@ -213,7 +220,9 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    nextOutEpoch        (ef.nextOutEpoch),
    nextReqEpoch        (ef.nextReqEpoch),
    currentEpoch        (ef.currentEpoch),
-   firstTimeWriting    (ef.firstTimeWriting),
+   prevEpoch           (ef.prevEpoch),
+   prevProcTime        (ef.prevProcTime),
+   writingNewSegment   (ef.writingNewSegment),
    useStepSize         (ef.useStepSize),
    writeOrbit          (ef.writeOrbit),
    writeAttitude       (ef.writeAttitude),
@@ -255,6 +264,7 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    coordSystemName     = ef.coordSystemName;
    writeEphemeris      = ef.writeEphemeris;
    interpolationOrder  = ef.interpolationOrder;
+   initialCount        = ef.initialCount;
    waitCount           = ef.waitCount;
    stepSizeInA1Mjd     = ef.stepSizeInA1Mjd;
    initialEpochA1Mjd   = ef.initialEpochA1Mjd;
@@ -262,7 +272,9 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    nextOutEpoch        = ef.nextOutEpoch;
    nextReqEpoch        = ef.nextReqEpoch;
    currentEpoch        = ef.currentEpoch;
-   firstTimeWriting    = ef.firstTimeWriting;
+   prevProcTime        = ef.prevProcTime;
+   prevEpoch           = ef.prevEpoch;
+   writingNewSegment   = ef.writingNewSegment;
    useStepSize         = ef.useStepSize;
    writeOrbit          = ef.writeOrbit;
    writeAttitude       = ef.writeAttitude;
@@ -407,8 +419,10 @@ bool EphemerisFile::Initialize()
       fileType = SPK_ATTITUDE;
    else
       fileType = TEXT_FILE;
-   
+
+   // Shoud I have InitializeData() method and initialize them?
    firstTimeWriting = true;
+   writingNewSegment = true;
    epochsOnWaiting.clear();
    
    #ifdef DEBUG_EPHEMFILE_INIT
@@ -1068,6 +1082,40 @@ bool EphemerisFile::OpenEphemerisFile()
 
 
 //------------------------------------------------------------------------------
+// void RestartInterpolation(const std::string &comments = "")
+//------------------------------------------------------------------------------
+/**
+ * Resets interpolator to start new segments of data.
+ */
+//------------------------------------------------------------------------------
+void EphemerisFile::RestartInterpolation(const std::string &comments)
+{
+   #ifdef DEBUG_EPHEMFILE_RESTART
+   MessageInterface::ShowMessage
+      ("===== EphemerisFile::RestartInterpolation() entered\n");
+   #endif
+   
+   WriteComments(comments);
+   epochsOnWaiting.clear();
+   interpolator->Clear();
+   
+   initialCount        = 0;
+   waitCount           = 0;
+   nextOutEpoch        = -999.999;
+   nextReqEpoch        = -999.999;
+   currentEpoch        = -999.999;
+   prevEpoch           = -999.999;
+   prevProcTime        = -999.999;
+   writingNewSegment   = true;
+   
+   #ifdef DEBUG_EPHEMFILE_RESTART
+   MessageInterface::ShowMessage
+      ("===== EphemerisFile::RestartInterpolation() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 // bool IsTimeToWrite(Real epoch, Real *state)
 //------------------------------------------------------------------------------
 /*
@@ -1078,7 +1126,8 @@ bool EphemerisFile::IsTimeToWrite(Real epoch, Real *state)
 {
    #ifdef DEBUG_EPHEMFILE_TIME
    MessageInterface::ShowMessage
-      ("EphemerisFile::IsTimeToWrite() entered, epoch=%f\n", epoch);
+      ("EphemerisFile::IsTimeToWrite() entered, epoch=%f, writingNewSegment=%d\n",
+       epoch, writingNewSegment);
    DebugWriteTime("current", epoch);
    #endif
    bool retval = true;
@@ -1089,7 +1138,25 @@ bool EphemerisFile::IsTimeToWrite(Real epoch, Real *state)
       // Add data points
       if (writeOrbit)
       {
-         interpolator->AddPoint(epoch, state);
+         // If staring new segment, we want add data to interpolator
+         //if (writingNewSegment || epoch > prevEpoch)
+         if (epoch > prevEpoch)
+         {
+            #ifdef DEBUG_EPHEMFILE_TIME
+            DebugWriteTime("===== Adding to interpolator", epoch);
+            #endif
+            
+            interpolator->AddPoint(epoch, state);
+            prevEpoch = epoch;
+         }
+         else
+         {
+            #ifdef DEBUG_EPHEMFILE_TIME
+            MessageInterface::ShowMessage
+               ("========== skipping epoch<=prevEpoch epoch=%f, prevEpoch=%f\n",
+                epoch, prevEpoch);
+            #endif
+         }
       }
       else if (writeAttitude)
       {
@@ -1098,13 +1165,18 @@ bool EphemerisFile::IsTimeToWrite(Real epoch, Real *state)
          #endif
       }
       
+      #ifdef DEBUG_EPHEMFILE_TIME
+      MessageInterface::ShowMessage
+         ("===== processingLargeStep=%d, waitCount=%d\n", processingLargeStep, waitCount);
+      #endif
+      
       // If step size is to large, we may miss the data points since interpolator
       // buffer size is limited. So do additional process here.
       if (processingLargeStep)
       {
          waitCount++;
          
-         if (waitCount > interpolationOrder / 2)
+         if (waitCount >= interpolationOrder / 2)
          {
             #ifdef DEBUG_EPHEMFILE_TIME
             MessageInterface::ShowMessage
@@ -1118,7 +1190,7 @@ bool EphemerisFile::IsTimeToWrite(Real epoch, Real *state)
       }
       
       // compute next output time
-      if (firstTimeWriting)
+      if (writingNewSegment)
       {
          nextOutEpoch = epoch;
          nextReqEpoch = epoch;
@@ -1136,7 +1208,7 @@ bool EphemerisFile::IsTimeToWrite(Real epoch, Real *state)
                epochsOnWaiting.push_back(nextOutEpoch);
                nextReqEpoch = nextOutEpoch;
                #ifdef DEBUG_EPHEMFILE_TIME
-               DebugWriteTime("1", nextOutEpoch);
+               DebugWriteTime("===== Adding 1", nextOutEpoch);
                #endif
             }
             
@@ -1152,14 +1224,16 @@ bool EphemerisFile::IsTimeToWrite(Real epoch, Real *state)
                   epochsOnWaiting.push_back(nextOut);
                   nextOutEpoch = nextOut;
                   #ifdef DEBUG_EPHEMFILE_TIME
-                  DebugWriteTime("2", nextOut);
+                  DebugWriteTime("===== Adding 2", nextOut);
                   #endif
                }
             }
             retval = true;
          }
          else
+         {
             retval = false;
+         }
       }
    }
    
@@ -1243,7 +1317,8 @@ void EphemerisFile::WriteOrbitAt(Real reqEpoch, Real *state)
       ("EphemerisFile::WriteOrbitAt() entered, reqEpoch=%f\n", reqEpoch);
    #endif
    
-   if (firstTimeWriting)
+   //if (firstTimeWriting)
+   if (writingNewSegment)
    {
       WriteOrbit(reqEpoch, state);
    }
@@ -1251,32 +1326,6 @@ void EphemerisFile::WriteOrbitAt(Real reqEpoch, Real *state)
    {
       // Process epochs on waiting
       ProcessEpochsOnWaiting(false);
-      
-      // Check for interpolation feasibility
-      Integer retval = interpolator->IsInterpolationFeasible(reqEpoch);
-      #ifdef DEBUG_EPHEMFILE_ORBIT
-      MessageInterface::ShowMessage
-         ("   =====> interpolation feasibity at reqEpoch %f is %d\n", reqEpoch, retval);
-      #endif
-      
-      // Interpolate if feasible
-      if (retval == 1)
-      {
-         // Since time should be in order, force process epochs on waiting.
-         // First few request time can not be placed in the middle of the buffer.
-         interpolator->SetForceInterpolation(true);
-         ProcessEpochsOnWaiting(false);
-         interpolator->SetForceInterpolation(false);         
-      }
-      else
-      {
-         // If epoch is after the last data, collect number of order points
-         // and process before epoch becomes out of the first data range
-         if (retval ==  -3)
-         {
-            processingLargeStep = true;
-         }
-      }
    }
    
    #ifdef DEBUG_EPHEMFILE_ORBIT
@@ -1324,7 +1373,8 @@ void EphemerisFile::FinishUpWriting()
 {
    #ifdef DEBUG_EPHEMFILE_FINISH
    MessageInterface::ShowMessage
-      ("EphemerisFile::FinishUpWriting() entered, currentEpoch=%18.12f\n", currentEpoch);
+      ("EphemerisFile::FinishUpWriting() entered, isFinalized=%d\n", isFinalized);
+   DebugWriteTime("", currentEpoch);
    #endif
    
    if (!isFinalized)
@@ -1372,45 +1422,86 @@ void EphemerisFile::ProcessEpochsOnWaiting(bool checkFinalEpoch)
    #endif
    
    Real estimates[6];
+   Real reqEpoch = 0.0;
    
    RealArray::iterator i = epochsOnWaiting.begin();
    while (i < epochsOnWaiting.end())
    {
+      reqEpoch = *i;
+      
       // Do not write after the final epoch
       if (checkFinalEpoch)
       {
-         if ( (*i) > currentEpoch)
+         if ( reqEpoch > currentEpoch)
             break;
       }
       
-      if (interpolator->IsInterpolationFeasible(*i) == 1)
+      #ifdef DEBUG_EPHEMFILE_ORBIT
+      DebugWriteTime("ProcessEpochsOnWaiting() Checking to see if it is feasible", reqEpoch);
+      #endif
+      
+      Integer retval = interpolator->IsInterpolationFeasible(reqEpoch);
+      
+      #ifdef DEBUG_EPHEMFILE_ORBIT
+      MessageInterface::ShowMessage
+         ("   =====> interpolation feasibility at reqEpoch %f is %d\n", reqEpoch, retval);
+      #endif
+      
+      if (retval == 1)
       {
          // Now interpolate at epoch
          #ifdef DEBUG_EPHEMFILE_ORBIT
          MessageInterface::ShowMessage
-            ("   =====> now try interpolating at epoch %18.12f\n", *i);
+            ("   =====> now try interpolating at epoch %18.12f\n", reqEpoch);
          #endif
-         if (interpolator->Interpolate(*i, estimates))
+         if (interpolator->Interpolate(reqEpoch, estimates))
          {
-            WriteOrbit(*i, estimates);
+            WriteOrbit(reqEpoch, estimates);
+            #ifdef DEBUG_EPHEMFILE_ORBIT
+            DebugWriteTime("   =====> now erasing", reqEpoch);
+            #endif
             epochsOnWaiting.erase(i); // erase returns the next one
          }
          else
          {
-            #ifdef DEBUG_EPHEMFILE_ORBIT
-            MessageInterface::ShowMessage
-               ("   =====> epoch %18.12f failed to interpolate so exiting the loop\n",
-                *i);
-            #endif
-            break;
+            if (initialCount <= interpolationOrder/2)
+            {
+               initialCount++;
+               
+               #ifdef DEBUG_EPHEMFILE_ORBIT
+               MessageInterface::ShowMessage
+                  ("   =====> Forcing to interpolate at epoch %18.12f\n", reqEpoch);
+               #endif
+               
+               // Since time should be in order, force process epochs on waiting.
+               // First few request time can not be placed in the middle of the buffer.
+               interpolator->SetForceInterpolation(true);
+               ProcessEpochsOnWaiting(false);
+               interpolator->SetForceInterpolation(false);
+            }
+            else
+            {
+               #ifdef DEBUG_EPHEMFILE_ORBIT
+               MessageInterface::ShowMessage
+                  ("   =====> epoch %18.12f failed to interpolate so exiting the loop\n", reqEpoch);
+               #endif
+               break;
+            }
          }
       }
       else
       {
+         // If epoch is after the last data, collect number of order points
+         // and process before epoch becomes out of the first data range
+         if (retval ==  -3)
+         {
+            processingLargeStep = true;
+         }
+         
          // @todo Is there more checking here?
          #ifdef DEBUG_EPHEMFILE_ORBIT
          MessageInterface::ShowMessage
-            ("   =====> epoch %18.12f is not feasible so exiting the loop\n", *i);
+            ("   =====> epoch %18.12f is not feasible so exiting the loop\n", reqEpoch);
          #endif
          break;
       }
@@ -1569,6 +1660,20 @@ void EphemerisFile::WriteMetadata()
 
 
 //------------------------------------------------------------------------------
+// void WriteComments(const std::string &comments)
+//------------------------------------------------------------------------------
+/**
+ * Writes comments to specific file.
+ */
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteComments(const std::string &comments)
+{
+   if (fileType == CCSDS_OEM || fileType == CCSDS_AEM)
+      WriteCcsdsComments(comments);
+}
+
+
+//------------------------------------------------------------------------------
 // void WriteCcsdsHeader()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsHeader()
@@ -1583,7 +1688,7 @@ void EphemerisFile::WriteCcsdsHeader()
       ss << "CCSDS_AEM_VERS = 1.0" << std::endl;
    
    ss << "CREATION_DATE  = @TODO_FORMAT " << creationTime; // << std::endl;
-   ss << "ORIGINATOR     = GMAT USER" << std::endl << std::endl;
+   ss << "ORIGINATOR     = GMAT USER" << std::endl;
    
    WriteString(ss.str());
 }
@@ -1599,9 +1704,10 @@ void EphemerisFile::WriteCcsdsOemMetadata()
    std::string csType = "UNKNOWN";
    GmatBase *cs = (GmatBase*)(spacecraft->GetRefObject(Gmat::COORDINATE_SYSTEM, ""));
    if (cs)
-      csType = cs->GetTypeName();
+      csType = (cs->GetRefObject(Gmat::AXIS_SYSTEM, ""))->GetTypeName();
    
    std::stringstream ss("");
+   ss << std::endl;
    ss << "META_START" << std::endl;
    ss << "OBJECT_NAME           = " << spacecraftName << std::endl;
    ss << "OBJECT_ID             = " << objId << std::endl;
@@ -1671,10 +1777,11 @@ void EphemerisFile::WriteCcsdsAem(const std::string &epoch, Real quat[4])
 
 
 //------------------------------------------------------------------------------
-// void WriteCcsdsComment(const std::string &comment)
+// void WriteCcsdsComments(const std::string &comments)
 //------------------------------------------------------------------------------
-void EphemerisFile::WriteCcsdsComment(const std::string &comment)
+void EphemerisFile::WriteCcsdsComments(const std::string &comments)
 {
+   WriteString("\nCOMMENT  " + comments + "\n");
 }
 
 
@@ -1686,10 +1793,10 @@ void EphemerisFile::DebugWriteTime(const std::string &msg, Real epoch)
    Real toMjd;
    std::string epochStr;
    // Convert current epoch to specified format
-   TimeConverterUtil::Convert("A1ModJulian", epoch, "", epochFormat,
-                              toMjd, epochStr);
+   TimeConverterUtil::Convert("A1ModJulian", epoch, "", epochFormat, toMjd, epochStr);
+   
    MessageInterface::ShowMessage
-      ("========== %s epoch = %f '%s'\n", msg.c_str(), epoch,
+      ("%s epoch = %18.12f '%s'\n", msg.c_str(), epoch,
        epochStr.c_str());
 }
 
@@ -1714,11 +1821,12 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
 {
    #if DBGLVL_EPHEMFILE_DATA > 0
    MessageInterface::ShowMessage
-      ("EphemerisFile::Distribute() this=<%p>'%s' called len=%d\n""   fileName='%s'\n",
-       this, GetName().c_str(), len, fileName.c_str());
+      ("EphemerisFile::Distribute() this=<%p>'%s' called\n""   fileName='%s'\n",
+       this, GetName().c_str(), fileName.c_str());
    MessageInterface::ShowMessage
-      ("   active=%d, isEndOfReceive=%d, mSolverIterOption=%d, runstate=%d\n",
-       active, isEndOfReceive, mSolverIterOption, runstate);
+      ("   len=%d, active=%d, isEndOfReceive=%d, mSolverIterOption=%d, runstate=%d, "
+       "isManeuvering=%d, firstTimeWriting=%d\n", len, active, isEndOfReceive,
+       mSolverIterOption, runstate, isManeuvering, firstTimeWriting);
    #endif
    
    if (!active)
@@ -1726,12 +1834,20 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
    
    if (isEndOfReceive || len == 0)
    {
+      #ifdef DEBUG_EPHEMFILE_FINISH
+      MessageInterface::ShowMessage
+         ("EphemerisFile::Distribute() Calling FinishUpWriting(), "
+          "isEndOfReceive=%d, len=%d\n", isEndOfReceive, len);
+      #endif
+      
       FinishUpWriting();
       return true;
    }
    
    if (len == 0)
       return true;
+   
+   isFinalized = false;
    
    //------------------------------------------------------------
    // if not writing solver data and solver is running, just return
@@ -1741,7 +1857,8 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
    {
       #if DBGLVL_EPHEMFILE_DATA > 0
       MessageInterface::ShowMessage
-         ("   ===> Just returning; not writing solver data and solver is running\n");
+         ("EphemerisFile::Distribute() Just returning; not writing solver "
+          "data and solver is running\n");
       #endif
       
       return true;
@@ -1787,6 +1904,19 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
    // Check if it is time to write
    bool timeToWrite = IsTimeToWrite(currentEpoch, currState);
    
+   // LagrangeInterpolator's maximum buffer size is set to 80 which can hold
+   // 80 min of data assuming average of 60 sec data interveval.
+   // Check at least 10 min interval for large step size, since interpolater
+   // buffer size is limited
+   if (!timeToWrite)
+   {
+      if (((currentEpoch - prevProcTime) * 86400.0) > 600.0)
+         timeToWrite = true;
+   }
+   
+   if (timeToWrite)
+      prevProcTime = currentEpoch;
+   
    //------------------------------------------------------------
    // write data to file
    //------------------------------------------------------------
@@ -1794,12 +1924,13 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
    if (writeData && timeToWrite)
    {
       if (firstTimeWriting)
-      {
          WriteHeader();
+      
+      if (writingNewSegment)
          WriteMetadata();
-         if (fileType == CCSDS_AEM)
-            WriteString("DATA_START\n");
-      }
+      
+      if (fileType == CCSDS_AEM && (firstTimeWriting || writingNewSegment))
+         WriteString("DATA_START\n");
       
       if (writeOrbit)
       {
@@ -1815,8 +1946,46 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
       
       if (firstTimeWriting)
          firstTimeWriting = false;
+
+      if (writingNewSegment)
+         writingNewSegment = false;
    }
    
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void HandleManeuvering(Real epoch, const std::string &satName)
+//------------------------------------------------------------------------------
+void EphemerisFile::HandleManeuvering(Real epoch, const std::string &satName)
+{
+   #ifdef DEBUG_EPHEMFILE_MANEUVER
+   MessageInterface::ShowMessage("EphemerisFile::HandleManeuvering() entered\n");
+   #endif
+   
+   if ((mSolverIterOption == SI_NONE) &&
+       (runstate == Gmat::SOLVING || runstate == Gmat::SOLVEDPASS))
+   {
+      #ifdef DEBUG_EPHEMFILE_MANEUVER
+      MessageInterface::ShowMessage
+         ("EphemerisFile::HandleManeuvering() Just leaving; not writing solver "
+          "data and solver is running\n");
+      #endif
+      return;
+   }
+   
+   Real toMjd;
+   std::string epochStr;
+   
+   // Convert current epoch to specified format
+   TimeConverterUtil::Convert("A1ModJulian", epoch, "", epochFormat, toMjd, epochStr);
+   
+   // Restart interpolation
+   RestartInterpolation("This block begins after maneuver at " + epochStr + "\n");
+   
+   #ifdef DEBUG_EPHEMFILE_MANEUVER
+   MessageInterface::ShowMessage("EphemerisFile::HandleManeuvering() leaving\n");
+   #endif
 }
 

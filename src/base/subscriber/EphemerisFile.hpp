@@ -108,6 +108,7 @@ protected:
    std::string coordSystemName;
    std::string writeEphemeris;
    Integer     interpolationOrder;
+   Integer     initialCount;
    Integer     waitCount;
    
    Real        stepSizeInA1Mjd;
@@ -116,11 +117,14 @@ protected:
    Real        nextOutEpoch;
    Real        nextReqEpoch;
    Real        currentEpoch;
+   Real        prevEpoch;
+   Real        prevProcTime;
    Real        attEpoch;
    Real        attQuat[4];
    RealArray   epochsOnWaiting;
    
    bool        firstTimeWriting;
+   bool        writingNewSegment;
    bool        useStepSize;
    bool        writeOrbit;
    bool        writeAttitude;
@@ -151,6 +155,9 @@ protected:
    
    void        CreateInterpolator();
    bool        OpenEphemerisFile();
+   
+   // Interpolation
+   void        RestartInterpolation(const std::string &comments = "");
    bool        IsTimeToWrite(Real epoch, Real *state);
    void        WriteOrbit(Real reqEpoch, Real *state);
    void        WriteOrbitAt(Real reqEpoch, Real *state);
@@ -171,6 +178,7 @@ protected:
    void        WriteString(const std::string &str);
    void        WriteHeader();
    void        WriteMetadata();
+   void        WriteComments(const std::string &comments);
    
    // CCSDS file writing
    void        WriteCcsdsHeader();
@@ -178,14 +186,15 @@ protected:
    void        WriteCcsdsAemMetadata();
    void        WriteCcsdsOem(const std::string &epoch, Real state[6]);
    void        WriteCcsdsAem(const std::string &epoch, Real quat[4]);
-   void        WriteCcsdsComment(const std::string &comment);
-
+   void        WriteCcsdsComments(const std::string &comments);
+   
    // for debugging
    void        DebugWriteTime(const std::string &msg, Real epoch);
    
    // methods inherited from Subscriber
    virtual bool         Distribute(Integer len);
    virtual bool         Distribute(const Real * dat, Integer len);
+   virtual void         HandleManeuvering(Real epoch, const std::string &satName);
    
    enum
    {
