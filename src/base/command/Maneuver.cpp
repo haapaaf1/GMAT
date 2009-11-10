@@ -22,6 +22,8 @@
 
 //#define DEBUG_MANEUVER 1
 //#define DEBUG_MANEUVER_PARSE
+//#define DEBUG_MANEUVER_INIT
+//#define DEBUG_MANEUVER_EXEC
 
 //------------------------------------------------------------------------------
 // Maneuver()
@@ -51,7 +53,7 @@ Maneuver::Maneuver() :
  * Destructor.
  */
 //------------------------------------------------------------------------------
-Maneuver::~Maneuver(void)
+Maneuver::~Maneuver()
 {
 }
 
@@ -186,12 +188,12 @@ GmatBase* Maneuver::Clone() const
  */
 //------------------------------------------------------------------------------
 const std::string& Maneuver::GetGeneratingString(Gmat::WriteMode mode,
-                                                  const std::string &prefix,
-                                                  const std::string &useName)
+                                                 const std::string &prefix,
+                                                 const std::string &useName)
 {
    generatingString = prefix + "Maneuver ";
    generatingString += burnName + "(" + satName + ");";
-
+   
    return GmatCommand::GetGeneratingString(mode, prefix, useName);
 }
 
@@ -516,8 +518,14 @@ bool Maneuver::InterpretAction()
  * @return true if the GmatCommand is initialized, false if an error occurs.
  */
 //------------------------------------------------------------------------------
-bool Maneuver::Initialize(void)
+bool Maneuver::Initialize()
 {
+   #ifdef DEBUG_MANEUVER_INIT
+   MessageInterface::ShowMessage
+      ("Maneuver::Initialize() this=<%p>'%s' entered\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+   #endif
+   
    GmatCommand::Initialize();
 
    GmatBase *mapObj = NULL;
@@ -532,7 +540,24 @@ bool Maneuver::Initialize(void)
    sat = (Spacecraft *)mapObj;
    if (!sat)
       return false;
-
+   
+   // Register this Maneuver to the Publisher (LOJ: 2009.11.10)
+   // Do we need to register? Currently Maneuver does not publish any data.
+   // Just remove it for now.
+   #ifdef __REGISTER_MANEUVER__
+   StringArray owners, elements;
+   owners.push_back(satName);
+   elements.push_back(satName + ".epoch");
+   streamID = publisher->RegisterPublishedData(this, streamID, owners, elements);
+   
+   #ifdef DEBUG_MANEUVER_INIT
+   MessageInterface::ShowMessage("   streamID=%d\n", streamID);
+   MessageInterface::ShowMessage
+      ("Maneuver::Initialize() this=<%p>'%s' returning true\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+   #endif
+   #endif
+   
    return true;
 }
 
@@ -550,17 +575,38 @@ bool Maneuver::Initialize(void)
 //------------------------------------------------------------------------------
 bool Maneuver::Execute()
 {
-   #ifdef DEBUG_MANEUVER
+   #ifdef DEBUG_MANEUVER_EXEC
       MessageInterface::ShowMessage("Maneuver::Execute maneuvering %s\n",
             ((sat == NULL) ? "a NULL spaceecraft" : sat->GetName().c_str()));
    #endif
-
+      
    Real epoch = sat->GetRealParameter("A1Epoch");
+   
+   #ifdef DEBUG_MANEUVER_EXEC
+   Rvector6 state = sat->GetState(0); // Get cartesian state
+   MessageInterface::ShowMessage
+      ("   state before maneuver = \n   %s\n", state.ToString().c_str());
+   #endif
+   
    burn->SetSpacecraftToManeuver(sat);
+   
+   // Set maneuvering to Publisher so that any subscriber can do its own action
+   publisher->SetManeuvering(true, epoch, satName);
+   
    bool retval = burn->Fire(NULL, epoch);
+   
+   // Reset maneuvering to Publisher so that any subscriber can do its own action
+   publisher->SetManeuvering(false, epoch, satName);
+   
+   #ifdef DEBUG_MANEUVER_EXEC
+   state = sat->GetState(0); // Get cartesian state
+   MessageInterface::ShowMessage
+      ("   state after  maneuver = \n   %s", state.ToString().c_str());
+   #endif
+   
    BuildCommandSummary(true);
-
-   #ifdef DEBUG_MANEUVER
+   
+   #ifdef DEBUG_MANEUVER_EXEC
       MessageInterface::ShowMessage("Maneuver::Execute complete\n");
    #endif
 
