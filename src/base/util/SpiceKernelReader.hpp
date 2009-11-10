@@ -34,8 +34,7 @@
 #include "A1Mjd.hpp"
 #include "Rvector6.hpp"
 #include "Rmatrix33.hpp"
-// shouldn't have to do 'extern "C"', as it is handled in the header, as long as 
-// the __cplusplus directive is used
+// include the appropriate SPICE C header
 extern "C"  
 {
 #include "SpiceUsr.h"    // for CSPICE routines
@@ -45,7 +44,7 @@ class GMAT_API SpiceKernelReader
 {
 public:
    static      SpiceKernelReader* Instance();
-    ~SpiceKernelReader();
+   ~SpiceKernelReader();
    
    bool        LoadKernel(const std::string &fileName);
    bool        UnloadKernel(const std::string &fileName);
