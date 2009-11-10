@@ -29,7 +29,7 @@ class GMAT_API Publisher
 {
 public:
    static Publisher*    Instance();
-
+   
    bool Subscribe(Subscriber *s);
    bool Unsubscribe(Subscriber *s);
    bool UnsubscribeAll();
@@ -45,7 +45,7 @@ public:
    // Interface methods used to identify the data sent to the publisher and
    // subscribers
    Integer              RegisterPublishedData(GmatBase *provider, Integer id,
-                                              const StringArray& owners, 
+                                              const StringArray& owners,
                                               const StringArray& elements);
    void                 UnregisterPublishedData(GmatBase *provider);
    void                 ClearPublishedData();
@@ -56,6 +56,9 @@ public:
    
    // Interfaces used to update the state of the running system
    void                 SetRunState(const Gmat::RunState state);
+   void                 SetManeuvering(bool flag, Real epoch,
+                                       const std::string &satName);
+   bool                 GetManeuvering();
    
    CoordinateSystem* GetInternalCoordSystem() { return internalCoordSystem; }
    CoordinateSystem* GetDataCoordSystem() { return dataCoordSystem; }
@@ -78,6 +81,8 @@ private:
    
    /// State of the system (used to track data for display or suppression)
    Gmat::RunState           runState;
+   /// Flag indicating maneuvering
+   bool                     maneuvering;
    /// Internal coordinate system
    CoordinateSystem         *internalCoordSystem;
    /// Coordinate system of data
