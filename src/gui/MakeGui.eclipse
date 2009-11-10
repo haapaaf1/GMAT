@@ -326,7 +326,7 @@ macrez:
 	echo "linking Carbon and wx resource files ......."
 	$(REZ) -d WXUSINGDLL -o $(WXTARGET)
 	cp -f $(WXTARGET) ../../bin/.
-	@chmod -R 755 ../../bin
+#	@chmod -R 755 ../../bin
 #  $(REZ) -o $(WXTARGET)
 
 macosx: 
