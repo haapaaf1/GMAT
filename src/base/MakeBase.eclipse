@@ -14,7 +14,7 @@ ifeq ($(LINUX_MAC), 1)
 
 ifdef MAC_SPECIFIC
 SHARED_EXTENSION = .dylib
-SHARED_LIB_FLAGS = -dylib -dynamiclib -Wl -two_levelnamespace -undefined dynamic_lookup
+SHARED_LIB_FLAGS = $(SPICE_LIBRARIES) -dylib -dynamiclib -Wl -two_levelnamespace -undefined dynamic_lookup
 else
 SHARED_EXTENSION = .so
 SHARED_LIB_FLAGS = -shared -Wl --out-implib
