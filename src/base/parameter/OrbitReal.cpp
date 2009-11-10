@@ -286,7 +286,7 @@ bool OrbitReal::Initialize()
       #endif
       
       throw ParameterException
-         ("WARNING:  Incorrect parameter dependency: " + GetName() + ".\n" +
+         ("Incorrect parameter dependency: " + GetName() + ".\n" +
           this->GetTypeName() + e.GetFullMessage() + "\n");
    }
    catch(BaseException &e)
@@ -298,7 +298,7 @@ bool OrbitReal::Initialize()
       #endif
       
       throw ParameterException
-         ("WARNING:  " + e.GetFullMessage() + " in " + GetName() + "\n");
+         (e.GetFullMessage() + " in " + GetName() + "\n");
    }
    
    return true;

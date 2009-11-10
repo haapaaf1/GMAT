@@ -1089,8 +1089,8 @@ void OrbitData::InitializeRefObjects()
          #endif
       
          throw ParameterException
-            ("Coordinate system origin: " + mOutCoordSystem->GetOriginName() +
-             " not found.");
+            ("OrbitData::InitializeRefObjects() The origin of CoordinateSystem \"" +
+             mOutCoordSystem->GetOriginName() + "\" is NULL");
       }
       
       // get gravity constant if out coord system origin is CelestialBody
