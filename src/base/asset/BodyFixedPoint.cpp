@@ -333,7 +333,8 @@ Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
    switch (id)
    {
    case CENTRAL_BODY:
-      return Gmat::SPACE_POINT;
+      return Gmat::CELESTIAL_BODY;
+//      return Gmat::SPACE_POINT;
    default:
       return SpacePoint::GetPropertyObjectType(id);
    }

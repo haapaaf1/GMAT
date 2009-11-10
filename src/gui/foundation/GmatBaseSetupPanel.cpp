@@ -19,6 +19,8 @@
 #include "GmatBaseSetupPanel.hpp"
 #include "MessageInterface.hpp"
 
+//#define DEBUG_BASEPANEL_LOAD
+
 //-----------------------------------------
 // static members
 //-----------------------------------------
@@ -257,6 +259,20 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index)
             managedComboBoxMap.insert(std::make_pair("SpacePoint", cbControl));
             control = cbControl;
          }
+         else if (type == Gmat::CELESTIAL_BODY)
+         {
+            // The GuiItemManager automatically registers wxComboBox in order to
+            // listen for any SpacePoint updates, so need to unregister
+            // in the destructor
+            wxComboBox *cbControl =
+            theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX,
+                                                    wxSize(180,-1));
+//            theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX,
+//                                                    wxSize(180,-1), false);
+            managedComboBoxMap.insert(std::make_pair("CelestialBody", cbControl));
+            control = cbControl;
+         }
+
          else if (type == Gmat::SPACECRAFT)
          {
             // The GuiItemManager automatically registers wxComboBox in order to
@@ -382,7 +398,8 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
          
       case Gmat::OBJECT_TYPE:
          valueString = (mObject->GetStringParameter(mObject->GetParameterID(label))).c_str();
-         ((wxComboBox*)theControl)->Append(valueString);
+         ((wxComboBox*)theControl)->SetStringSelection(valueString);
+//         ((wxComboBox*)theControl)->Append(valueString); // removed for Bug 1621 wcs 2009.11.10
          
       case Gmat::ENUMERATION_TYPE:
          {
