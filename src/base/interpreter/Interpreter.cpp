@@ -5253,6 +5253,15 @@ bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
       Integer id;
       Gmat::ParameterType type;
 
+      StringArray parts = theTextParser.SeparateDots(property);
+      // if property has multiple dots, handle separately
+      if (parts.size() > 1)
+      {
+         retval = SetComplexProperty(obj, property, value);
+         if (retval)
+            return retval;
+      }
+
       id = obj->GetParameterID(property);
       type = obj->GetParameterType(id);
       if (property == "Covariance")

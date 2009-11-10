@@ -42,7 +42,7 @@ GMAT ODSat.EulerAngleSequence = '312';
 GMAT ODSat.AngularVelocityX = 0;
 GMAT ODSat.AngularVelocityY = 0;
 GMAT ODSat.AngularVelocityZ = 0;
-ODSat.Covariance.CartesianState = [100.0 100.0 100.0 0.0001 0.0001 0.0001];
+ODSat.Covariance.CartesianState = [200.0 100.0 150.0 0.0009 0.0006 0.0003];
 
 %----------------------------------------
 %---------- GroundStations
@@ -116,9 +116,7 @@ GMAT ODProp.MaxStepAttempts = 50;
 %----- Create the data file
 
 Create Datafile MauiMeasData;
-
 GMAT MauiMeasData.Filename = 'MauiData.gmd';
-
 GMAT MauiMeasData.Format = GMATInternal;
 
 %----------------------------------------
@@ -135,7 +133,8 @@ GMAT RangeMeasurement.Participants = {Maui, ODSat};
 GMAT RangeMeasurement.Bias = 0;
 GMAT RangeMeasurement.NoiseSigma = 1e-05;
 GMAT RangeMeasurement.TimeConstant = 6000;
-GMAT RangeMeasurement.Covariance = [0.01];
+GMAT RangeMeasurement.Covariance.Bias = [0.01];
+% GMAT RangeMeasurement.Covariance.ObservationNoise = [0.01];
 
 %----------------------------------------
 %---------- Solvers

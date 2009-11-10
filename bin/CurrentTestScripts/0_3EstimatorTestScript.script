@@ -43,6 +43,8 @@ GMAT ODSat.AngularVelocityX = 0;
 GMAT ODSat.AngularVelocityY = 0;
 GMAT ODSat.AngularVelocityZ = 0;
 
+ODSat.Covariance.CartesianState = [1e12 1e12 1e12 1e6 1e6 1e6];
+
 %----------------------------------------
 %---------- GroundStations
 %----------------------------------------
@@ -129,6 +131,8 @@ GMAT RangeMeasurement.Participants = {Maui, ODSat};
 GMAT RangeMeasurement.Bias = 0;
 GMAT RangeMeasurement.NoiseSigma = 1e-05;
 GMAT RangeMeasurement.TimeConstant = 6000;
+
+RangeMeasurement.Covariance.Bias = [1000000];
 
 %----------------------------------------
 %---------- Solvers
