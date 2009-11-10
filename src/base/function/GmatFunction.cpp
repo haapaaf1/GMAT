@@ -395,14 +395,16 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
    if (reinitialize)
       objectsInitialized = false;
    
-   // Reinitialize Parameters only to fix bug 1519 (LOJ: 2009.09.16)
+   // Reinitialize CoordinateSystem to fix bug 1599 (LOJ: 2009.11.05)
+   // Reinitialize Parameters to fix bug 1519 (LOJ: 2009.09.16)
    if (objectsInitialized)
    {
-      if (!objInit->InitializeObjects(true, Gmat::PARAMETER))
-      {
+      if (!objInit->InitializeObjects(true, Gmat::COORDINATE_SYSTEM))
          throw FunctionException
             ("Failed to re-initialize Parameters in the \"" + functionName + "\"");
-      }
+      if (!objInit->InitializeObjects(true, Gmat::PARAMETER))
+         throw FunctionException
+            ("Failed to re-initialize Parameters in the \"" + functionName + "\"");
    }
    
    // Go through each command in the sequence and execute.
