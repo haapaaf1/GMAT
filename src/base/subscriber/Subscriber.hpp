@@ -55,6 +55,8 @@ public:
    virtual bool         FlushData();
    virtual bool         SetEndOfRun();
    virtual void         SetRunState(Gmat::RunState rs);
+   virtual void         SetManeuvering(bool flag, Real epoch,
+                                       const std::string &satName);
    
    Subscriber*          Next();
    bool                 Add(Subscriber *s);
@@ -139,6 +141,7 @@ protected:
    SolarSystem          *theSolarSystem;
    
    bool                 active;
+   bool                 isManeuvering;
    bool                 isEndOfReceive;
    bool                 isEndOfRun;
    bool                 isInitialized;
@@ -154,13 +157,16 @@ protected:
    WrapperArray         depParamWrappers;
    WrapperArray         paramWrappers;
    
+   // For ElementWrapper
    bool                 CloneWrappers(WrapperArray &toWrappers,
                                       const WrapperArray &fromWrappers);
    bool                 SetWrapperReference(GmatBase *obj, const std::string &name);
+   void WriteWrappers();
+   
+   // Methods that derived classes can override
    virtual bool         Distribute(Integer len) = 0;
    virtual bool         Distribute(const Real *dat, Integer len);
-   
-   void WriteWrappers();
+   virtual void         HandleManeuvering(Real epoch, const std::string &satName);
    
    enum
    {

@@ -93,12 +93,13 @@ Subscriber::PARAMETER_TYPE[SubscriberParamCount - GmatBaseParamCount] =
 //------------------------------------------------------------------------------
 Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    GmatBase (Gmat::SUBSCRIBER, typeStr, nomme),
-   data (NULL),
-   next (NULL),
-   theInternalCoordSystem (NULL),
-   theDataCoordSystem (NULL),
-   theSolarSystem (NULL),
-   active (true),
+   data(NULL),
+   next(NULL),
+   theInternalCoordSystem(NULL),
+   theDataCoordSystem(NULL),
+   theSolarSystem(NULL),
+   active(true),
+   isManeuvering(false),
    isEndOfReceive(false),
    isEndOfRun(false),
    isInitialized(false),
@@ -120,13 +121,14 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
 // Subscriber(const Subscriber &copy)
 //------------------------------------------------------------------------------
 Subscriber::Subscriber(const Subscriber &copy) :
-   GmatBase (copy),
-   data (NULL),
-   next (NULL),
-   theInternalCoordSystem (NULL),
-   theDataCoordSystem (NULL),
-   theSolarSystem (NULL),
-   active (copy.active),
+   GmatBase(copy),
+   data(NULL),
+   next(NULL),
+   theInternalCoordSystem(NULL),
+   theDataCoordSystem(NULL),
+   theSolarSystem(NULL),
+   active(copy.active),
+   isManeuvering(copy.isManeuvering),
    isEndOfReceive(copy.isEndOfReceive),
    isEndOfRun(copy.isEndOfRun),
    isInitialized(copy.isInitialized),
@@ -172,7 +174,8 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    data = rhs.data;
    next = rhs.next;
    active = rhs.active;
-   isEndOfReceive = rhs.isEndOfReceive;
+   active = rhs.active;
+   isManeuvering = rhs.isManeuvering;
    isEndOfRun = rhs.isEndOfRun;
    isInitialized = rhs.isInitialized;
    isFinalized = rhs.isFinalized;
@@ -390,6 +393,25 @@ bool Subscriber::SetEndOfRun()
 void Subscriber::SetRunState(Gmat::RunState rs)
 {
    runstate = rs;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetManeuvering(bool flag, Real epoch, const std::string &satName)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft maneuvering flag.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver
+ * @param satName Name of the maneuvering spacecraft
+ */
+//------------------------------------------------------------------------------
+void Subscriber::SetManeuvering(bool flag, Real epoch, const std::string &satName)
+{
+   isManeuvering = flag;
+   if (isManeuvering)
+      HandleManeuvering(epoch, satName);
 }
 
 
@@ -1248,6 +1270,15 @@ bool Subscriber::SetOnOffParameter(const std::string &label,
 bool Subscriber::Distribute(const double *dat, int len)
 {
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void HandleManeuvering(Real epoch, const std::string &satName)
+//------------------------------------------------------------------------------
+void Subscriber::HandleManeuvering(Real epoch, const std::string &satName)
+{
+   // do nothing here
 }
 
 
