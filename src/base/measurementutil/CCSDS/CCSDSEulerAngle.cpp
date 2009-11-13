@@ -3,15 +3,8 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSEulerAngle::CCSDS_RATE_FRAME[EndCCSDSRateFrameReps] =
-{
-    "REF_FRAME_A",
-    "REF_FRAME_B"
-};
-
 const std::string CCSDSEulerAngle::CCSDS_EULERANGLE_KEYWORDS[EndCCSDSEulerAngleDataReps] =
 {
-    "",
     "EULER_FRAME_A",
     "EULER_FRAME_B",
     "EULER_DIR",
@@ -32,7 +25,6 @@ const std::string CCSDSEulerAngle::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSEulerAngleDat
     "",
     "",
     "",
-    "",
     "deg",
     "deg",
     "deg",
@@ -44,7 +36,6 @@ const std::string CCSDSEulerAngle::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSEulerAngleDat
 
 const std::string CCSDSEulerAngle::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps] =
 {
-    "Euler Angle Type",
     "Euler Angle Frame A",
     "Euler Angle Frame B",
     "Euler Angle Direction",
@@ -65,14 +56,13 @@ const bool CCSDSEulerAngle::CCSDS_IS_REQUIRED[EndCCSDSEulerAngleDataReps] =
     true,
     true,
     true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
     false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
 };
 
 const Gmat::ParameterType CCSDSEulerAngle::CCSDS_PARAMETER_TYPE[EndCCSDSEulerAngleDataReps] =
@@ -98,7 +88,7 @@ const Gmat::ParameterType CCSDSEulerAngle::CCSDS_PARAMETER_TYPE[EndCCSDSEulerAng
  * Constructor for the CCSDSEulerAngle class
  */
 //------------------------------------------------------------------------------
-CCSDSEulerAngle::CCSDSEulerAngle() :
+CCSDSEulerAngle::CCSDSEulerAngle() : CCSDSData(),
     eulerAngleType(0),
     timeTag(std::string("")),
     frameA(std::string("")),
@@ -124,6 +114,7 @@ CCSDSEulerAngle::CCSDSEulerAngle() :
  */
 //------------------------------------------------------------------------------
 CCSDSEulerAngle::CCSDSEulerAngle(const CCSDSEulerAngle &ea) :
+    CCSDSData(ea),
     eulerAngleType(ea.eulerAngleType),
     timeTag(ea.timeTag),
     frameA(ea.frameA),
@@ -158,6 +149,8 @@ const CCSDSEulerAngle& CCSDSEulerAngle::operator=(const CCSDSEulerAngle &ea)
     if (&ea == this)
         return *this;
 
+    CCSDSData::operator=(ea);
+
     eulerAngleType = ea.eulerAngleType;
     timeTag = ea.timeTag;
     frameA = ea.frameA;
@@ -185,54 +178,6 @@ const CCSDSEulerAngle& CCSDSEulerAngle::operator=(const CCSDSEulerAngle &ea)
 //------------------------------------------------------------------------------
 CCSDSEulerAngle::~CCSDSEulerAngle()
 {
-}
-
-//------------------------------------------------------------------------------
-//  std::string  GetRateFrameText(const Integer id)
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the attitude type keyword for a specific ID
- *
- * @param <id> The rate frame type id
- * @return The rate frame type keyword
- *
- */
-//------------------------------------------------------------------------------
-std::string GetRateFrameText(const Integer id)
-{
-   if ((id >= 0) && (id < CCSDSEulerAngle::EndCCSDSRateFrameReps))
-   {
-      return CCSDSEulerAngle::CCSDS_RATE_FRAME[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  Integer  GetRateFrameID(const std::string &str)
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the ID associated with an rate frame keyword
- *
- * @param <str> The rate frame keyword
- * @return The rate frame id
- *
- */
-//------------------------------------------------------------------------------
-Integer GetRateFrameID(const std::string &str)
-{
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < CCSDSEulerAngle::EndCCSDSRateFrameReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDSEulerAngle::CCSDS_RATE_FRAME[i]))
-	{
-	    return i;
-	}
-   }
-
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -318,9 +263,6 @@ Integer CCSDSEulerAngle::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case CCSDS_EULERANGLE_TYPE_ID:
-
-	    return eulerAngleType;
 
 	case CCSDS_EULERANGLE_DIRECTION_ID:
 
@@ -521,7 +463,7 @@ const Integer CCSDSEulerAngle::GetKeywordID(const std::string str) const
             return i;
     }
 
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
 }
 
@@ -584,31 +526,63 @@ Integer CountRequiredNumberEulerAngleParameters()
     return num;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
 /**
- * Checks to see if data is available in a given data format
+ * Checks to see if the header is valid
  *
- * @return true if successfull
+ * @return True if the header is valid, false otherwise (the default)
  */
-//------------------------------------------------------------------------------
-bool CCSDSEulerAngle::CheckDataAvailability(const std::string str) const
+//---------------------------------------------------------------------------
+bool CCSDSEulerAngle::Validate() const
 {
 
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSEulerAngleDataReps; i++)
+    for (unsigned int i = 0; i < EndCCSDSEulerAngleDataReps; i++ )
     {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+
+        if (IsParameterRequired(i))
         {
-            return true;
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::INTEGER_TYPE:
+                    {
+                    Integer ivalue = GetIntegerDataParameter(i);
+                    if (&ivalue == NULL ||
+                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
         }
     }
 
-   return false;
-
+    return true;
 }
-

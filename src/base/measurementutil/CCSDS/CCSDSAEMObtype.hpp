@@ -57,6 +57,8 @@ protected:
     CCSDSAEMEulerAngle *ccsdsAEMEulerAngle;
     CCSDSAEMSpinStabilized *ccsdsAEMSpinStabilized;
 
+    bool commentsCurrentlyAllowed;
+    
 };
 
 #endif	/* _CCSDSAEMOBTYPE_HPP */

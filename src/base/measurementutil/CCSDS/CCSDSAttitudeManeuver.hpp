@@ -8,16 +8,9 @@
 #ifndef _CCSDSATTITUDEMANEUVER_HPP
 #define	_CCSDSATTITUDEMANEUVER_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
-#include "StringUtil.hpp"
+#include "CCSDSData.hpp"
 
-class CCSDSAttitudeManeuver
+class CCSDSAttitudeManeuver : public CCSDSData
 {
 
 public:
@@ -43,9 +36,9 @@ public:
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberAttitudeManeuverParameters();
+    bool Validate() const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;

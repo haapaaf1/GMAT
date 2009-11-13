@@ -8,16 +8,9 @@
 #ifndef _CCSDSEULERANGLE_HPP
 #define	_CCSDSEULERANGLE_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
-#include "CCSDSObtype.hpp"
+#include "CCSDSData.hpp"
 
-class CCSDSEulerAngle
+class CCSDSEulerAngle : public CCSDSData
 {
 
 public:
@@ -26,9 +19,6 @@ public:
     CCSDSEulerAngle(const CCSDSEulerAngle &ea);
     const CCSDSEulerAngle& CCSDSEulerAngle::operator=(const CCSDSEulerAngle &ea);
     ~CCSDSEulerAngle();
-
-    friend std::string GetRateFrameText(const Integer id);
-    friend Integer    GetRateFrameID(const std::string &str);
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -45,9 +35,9 @@ public:
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberEulerAngleParameters();
+    bool Validate() const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -55,8 +45,7 @@ public:
 
     enum CCSDS_DATA_REPS
     {
-        CCSDS_EULERANGLE_TYPE_ID,
-	CCSDS_EULERANGLE_FRAMEA_ID,
+	CCSDS_EULERANGLE_FRAMEA_ID = 0,
 	CCSDS_EULERANGLE_FRAMEB_ID,
 	CCSDS_EULERANGLE_DIRECTION_ID,
         CCSDS_EULERANGLE_ROTATIONSEQUENCE_ID,
@@ -71,19 +60,11 @@ public:
         EndCCSDSEulerAngleDataReps
     };
 
-    enum CCSDS_RATE_FRAME
-    {
-        CCSDS_RATE_FRAME_A_ID = 0,
-        CCSDS_RATE_FRAME_B_ID,
-        EndCCSDSRateFrameReps
-    };
-
     friend class ProcessCCSDSAEMDataFile;
     friend class ProcessCCSDSAPMDataFile;
     
 protected:
 
-    static const std::string CCSDS_RATE_FRAME[EndCCSDSRateFrameReps];
     static const std::string CCSDS_EULERANGLE_KEYWORDS[EndCCSDSEulerAngleDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSEulerAngleDataReps];

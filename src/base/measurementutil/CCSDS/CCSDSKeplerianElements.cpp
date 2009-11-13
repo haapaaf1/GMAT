@@ -75,7 +75,7 @@ const Gmat::ParameterType CCSDSKeplerianElements::CCSDS_PARAMETER_TYPE[EndCCSDSK
  * Constructor for the CCSDSKeplerianElements class
  */
 //------------------------------------------------------------------------------
-CCSDSKeplerianElements::CCSDSKeplerianElements() :
+CCSDSKeplerianElements::CCSDSKeplerianElements() : CCSDSData(),
     semiMajorAxis(0),
     eccentricity(0),
     inclination(0),
@@ -88,51 +88,52 @@ CCSDSKeplerianElements::CCSDSKeplerianElements() :
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSKeplerianElements(const CCSDSKeplerianElements &opmKE)
+//  CCSDSKeplerianElements(const CCSDSKeplerianElements &ke)
 //------------------------------------------------------------------------------
 /**
  * Constructor for the CCSDSKeplerianElements class
  */
 //------------------------------------------------------------------------------
 CCSDSKeplerianElements::CCSDSKeplerianElements
-               (const CCSDSKeplerianElements &opmKE) :
-    semiMajorAxis(opmKE.semiMajorAxis),
-    eccentricity(opmKE.eccentricity),
-    inclination(opmKE.inclination),
-    raan(opmKE.raan),
-    argumentOfPericenter(opmKE.argumentOfPericenter),
-    theAnomaly(opmKE.theAnomaly),
-    gravitationalCoefficient(opmKE.gravitationalCoefficient),
-    comments(opmKE.comments)
+               (const CCSDSKeplerianElements &ke) :
+    CCSDSData(ke),
+    semiMajorAxis(ke.semiMajorAxis),
+    eccentricity(ke.eccentricity),
+    inclination(ke.inclination),
+    raan(ke.raan),
+    argumentOfPericenter(ke.argumentOfPericenter),
+    theAnomaly(ke.theAnomaly),
+    gravitationalCoefficient(ke.gravitationalCoefficient),
+    comments(ke.comments)
 {
 }
 
 //---------------------------------------------------------------------------
 //  CCSDSKeplerianElements& operator=
-//                                   (const CCSDSKeplerianElements &opmKE)
+//                                   (const CCSDSKeplerianElements &ke)
 //---------------------------------------------------------------------------
 /**
  * Assignment operator for CCSDSKeplerianElements structures.
  *
- * @param <opmKE> The original that is being copied.
+ * @param <ke> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
 const CCSDSKeplerianElements& CCSDSKeplerianElements::operator=
-                                     (const CCSDSKeplerianElements &opmKE)
+                                     (const CCSDSKeplerianElements &ke)
 {
-    if (&opmKE == this)
+    if (&ke == this)
         return *this;
 
-    semiMajorAxis = opmKE.semiMajorAxis;
-    eccentricity = opmKE.eccentricity;
-    inclination = opmKE.inclination;
-    raan = opmKE.raan;
-    argumentOfPericenter = opmKE.argumentOfPericenter;
-    theAnomaly = opmKE.theAnomaly;
-    gravitationalCoefficient = opmKE.gravitationalCoefficient;
-    comments = opmKE.comments;
+    semiMajorAxis = ke.semiMajorAxis;
+    eccentricity = ke.eccentricity;
+    inclination = ke.inclination;
+    raan = ke.raan;
+    argumentOfPericenter = ke.argumentOfPericenter;
+    theAnomaly = ke.theAnomaly;
+    gravitationalCoefficient = ke.gravitationalCoefficient;
+    comments = ke.comments;
 
     return *this;
 }
@@ -167,23 +168,6 @@ std::string CCSDSKeplerianElements::GetDataParameterText(const Integer id) const
    }
    return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
-
-//------------------------------------------------------------------------------
-//  std::string  GetUnits(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSKeplerianElements::GetUnits(const Integer &id) const
-{
-   if ((id >= 0) && (id < EndCCSDSKeplerianElementsDataReps))
-   {
-      return CCSDS_UNIT_DESCRIPTIONS[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
 
 //------------------------------------------------------------------------------
 //  Integer  GetDataParameterID(const std::string &str) const
@@ -374,6 +358,22 @@ const Integer CCSDSKeplerianElements::GetKeywordID(const std::string str) const
 
 }
 
+//------------------------------------------------------------------------------
+//  std::string  GetUnits(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSKeplerianElements::GetUnits(const Integer &id) const
+{
+   if ((id >= 0) && (id < EndCCSDSKeplerianElementsDataReps))
+   {
+      return CCSDS_UNIT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
 //---------------------------------------------------------------------------
 //  bool IsParameterRequired(const Integer id) const
 //---------------------------------------------------------------------------
@@ -414,32 +414,49 @@ Integer CountRequiredNumberKeplerianElementsParameters()
     return num;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
 /**
- * Checks to see if data is available in a given data format
+ * Checks to see if the header is valid
  *
- * @return true if successfull
+ * @return True if the header is valid, false otherwise (the default)
  */
-//------------------------------------------------------------------------------
-bool CCSDSKeplerianElements::CheckDataAvailability(const std::string str) const
+//---------------------------------------------------------------------------
+bool CCSDSKeplerianElements::Validate() const
 {
 
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSKeplerianElementsDataReps; i++)
+    for (unsigned int i = 0; i < EndCCSDSKeplerianElementsDataReps; i++ )
     {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+
+        if (IsParameterRequired(i))
         {
-            return true;
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
         }
     }
 
-   return false;
-
+    return true;
 }
 
 //------------------------------------------------------------------------------

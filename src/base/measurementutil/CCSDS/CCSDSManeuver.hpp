@@ -8,15 +8,9 @@
 #ifndef _CCSDSMANEUVER_HPP
 #define	_CCSDSMANEUVER_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
+#include "CCSDSData.hpp"
 
-class CCSDSManeuver
+class CCSDSManeuver : public CCSDSData
 {
 
 public:
@@ -42,9 +36,9 @@ public:
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberManeuverParameters();
+    bool Validate() const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;

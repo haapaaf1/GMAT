@@ -23,7 +23,6 @@ public:
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSAEMMetaData *myMetaData);
 
-
     Integer     GetIntegerDataParameter(const Integer id) const;
     Integer     GetIntegerDataParameter(const std::string &label) const;
     std::string GetStringDataParameter(const Integer id) const;
@@ -45,6 +44,7 @@ public:
 
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberAEMMetaDataParameters();
+    bool Validate() const;
 
     enum CCSDS_METADATA_REPS
     {

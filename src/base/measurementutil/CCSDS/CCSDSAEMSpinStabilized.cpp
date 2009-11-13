@@ -82,10 +82,10 @@ std::ostream& operator<< (std::ostream &output,
         case CCSDSObType::CCSDS_SPIN_ID:
         {
             output << myAEMSpinStabilized->timeTag
-                   << myAEMSpinStabilized->spinAlpha
-                   << myAEMSpinStabilized->spinDelta
-                   << myAEMSpinStabilized->spinAngle
-                   << myAEMSpinStabilized->spinAngleVelocity << endl;
+                   << " " << myAEMSpinStabilized->spinAlpha
+                   << " " << myAEMSpinStabilized->spinDelta
+                   << " " << myAEMSpinStabilized->spinAngle
+                   << " " << myAEMSpinStabilized->spinAngleVelocity << endl;
             return output;
         }
 
@@ -94,13 +94,13 @@ std::ostream& operator<< (std::ostream &output,
         case CCSDSObType::CCSDS_SPIN_NUTATION_ID:
         {
             output << myAEMSpinStabilized->timeTag
-                   << myAEMSpinStabilized->spinAlpha
-                   << myAEMSpinStabilized->spinDelta
-                   << myAEMSpinStabilized->spinAngle
-                   << myAEMSpinStabilized->spinAngleVelocity
-                   << myAEMSpinStabilized->nutation
-                   << myAEMSpinStabilized->nutationPeriod
-                   << myAEMSpinStabilized->nutationPhase
+                   << " " << myAEMSpinStabilized->spinAlpha
+                   << " " << myAEMSpinStabilized->spinDelta
+                   << " " << myAEMSpinStabilized->spinAngle
+                   << " " << myAEMSpinStabilized->spinAngleVelocity
+                   << " " << myAEMSpinStabilized->nutation
+                   << " " << myAEMSpinStabilized->nutationPeriod
+                   << " " << myAEMSpinStabilized->nutationPhase
                    << endl;
 
             return output;

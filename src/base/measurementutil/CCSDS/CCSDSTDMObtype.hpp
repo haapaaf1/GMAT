@@ -10,7 +10,7 @@
 
 #include "CCSDSObType.hpp"
 #include "CCSDSTDMMetaData.hpp"
-#include "CCSDSData.hpp"
+#include "CCSDSTrackingData.hpp"
 
 class CCSDSTDMObType : public CCSDSObType
 {   
@@ -169,7 +169,7 @@ protected:
     CCSDSTDMMetaData *ccsdsMetaData;
 
     // Pointers to the generic key epoch value data format
-    CCSDSData *ccsdsTDMData;
+    CCSDSTrackingData *ccsdsTDMData;
 };
 #endif	/* _CCSDSTDMOBTYPE_HPP */
 

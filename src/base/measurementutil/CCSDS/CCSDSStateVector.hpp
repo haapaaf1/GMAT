@@ -8,17 +8,9 @@
 #ifndef _CCSDSSTATEVECTOR_HPP
 #define	_CCSDSSTATEVECTOR_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
-#include "StringUtil.hpp"
-#include "MessageInterface.hpp"
+#include "CCSDSData.hpp"
 
-class CCSDSStateVector
+class CCSDSStateVector : public CCSDSData
 {
 
 public:
@@ -33,17 +25,17 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
-    Real	GetRealDataParameter(const Integer id) const;
-    Real	GetRealDataParameter(const std::string &label) const;
-    std::string GetStringDataParameter(const Integer id) const;
-    std::string GetStringDataParameter(const std::string &label) const;
-    StringArray GetStringArrayDataParameter(const Integer id) const;
-    StringArray GetStringArrayDataParameter(const std::string &label) const;
+    virtual Real	GetRealDataParameter(const Integer id) const;
+    virtual Real	GetRealDataParameter(const std::string &label) const;
+    virtual std::string GetStringDataParameter(const Integer id) const;
+    virtual std::string GetStringDataParameter(const std::string &label) const;
+    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
+    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberStateVectorParameters();
+    bool Validate() const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;

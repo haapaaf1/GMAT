@@ -526,6 +526,16 @@ bool DataFile::OpenFile()
 //------------------------------------------------------------------------------
 bool DataFile::CloseFile()
 {
+
+    switch(fileFormatID)
+    {
+        case CCSDS_AEM_ID:
+            *theFile << "DATA_STOP";
+            break;
+        default:
+            break;
+    }
+
     theFile->close();
 
     if(theFile->is_open())

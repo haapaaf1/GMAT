@@ -69,7 +69,7 @@ const Gmat::ParameterType CCSDSSpacecraftInertia::CCSDS_PARAMETER_TYPE[EndCCSDSS
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSSpacecraftInertia::CCSDSSpacecraftInertia() :
+CCSDSSpacecraftInertia::CCSDSSpacecraftInertia() : CCSDSData(),
     inertiaRefFrame(std::string("")),
     i11(0),
     i22(0),
@@ -89,6 +89,7 @@ CCSDSSpacecraftInertia::CCSDSSpacecraftInertia() :
  */
 //------------------------------------------------------------------------------
 CCSDSSpacecraftInertia::CCSDSSpacecraftInertia(const CCSDSSpacecraftInertia &si) :
+    CCSDSData(si),
     inertiaRefFrame(si.inertiaRefFrame),
     i11(si.i11),
     i22(si.i22),
@@ -115,6 +116,8 @@ const CCSDSSpacecraftInertia& CCSDSSpacecraftInertia::operator=(const CCSDSSpace
 {
    if (&si == this)
       return *this;
+
+   CCSDSData::operator=(si);
 
     inertiaRefFrame = si.inertiaRefFrame;
     i11 = si.i11;
@@ -437,32 +440,57 @@ Integer CountRequiredNumberSpacecraftInertiaParameters()
     return num;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
 /**
- * Checks to see if data is available in a given data format
+ * Checks to see if the header is valid
  *
- * @return true if successfull
+ * @return True if the header is valid, false otherwise (the default)
  */
-//------------------------------------------------------------------------------
-bool CCSDSSpacecraftInertia::CheckDataAvailability(const std::string str) const
+//---------------------------------------------------------------------------
+bool CCSDSSpacecraftInertia::Validate() const
 {
 
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSSpacecraftInertiaDataReps; i++)
+    for (unsigned int i = 0; i < EndCCSDSSpacecraftInertiaDataReps; i++ )
     {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+
+        if (IsParameterRequired(i))
         {
-            return true;
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
         }
     }
 
-   return false;
-
+    return true;
 }
 
 // std::ostream& operator<< (std::ostream &output,

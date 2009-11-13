@@ -2,23 +2,6 @@
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
-const std::string CCSDSObType::CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps] =
-{
-    "QUATERNION",
-    "QUATERNION/DERIVATIVE",
-    "QUATERNION/RATE",
-    "EULER_ANGLE",
-    "EULER_ANGLE/RATE",
-    "SPIN",
-    "SPIN/NUTATION"
-};
-
-const std::string CCSDSObType::CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps] =
-{
-    "A2B",
-    "B2A"
-};
-
 const std::string CCSDSObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
 
 //------------------------------------------------------------------------------
@@ -98,102 +81,6 @@ GmatBase* CCSDSObType::Clone() const
 //------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-//  std::string  GetAttitudeTypeText(const Integer id)
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the attitude type keyword for a specific ID
- *
- * @param <id> The attitude type id
- * @return The attitude type keyword
- *
- */
-//------------------------------------------------------------------------------
-std::string GetAttitudeTypeText(const Integer id)
-{
-   if ((id >= 0) && (id < CCSDSObType::EndCCSDSAttitudeTypeReps))
-   {
-      return CCSDSObType::CCSDS_ATTITUDE_TYPE[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  Integer  GetAttitudeTypeID(const std::string &str)
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the ID associated with an attitude type keyword
- *
- * @param <str> The attitude type keyword
- * @return The attitude type id
- *
- */
-//------------------------------------------------------------------------------
-Integer GetAttitudeTypeID(const std::string &str)
-{
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < CCSDSObType::EndCCSDSAttitudeTypeReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDSObType::CCSDS_ATTITUDE_TYPE[i]))
-	{
-	    return i;
-	}
-   }
-
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  std::string  GetAttitudeDirText(const Integer id)
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the attitude type keyword for a specific ID
- *
- * @param <id> The attitude direction id
- * @return The attitude direction keyword
- *
- */
-//------------------------------------------------------------------------------
-std::string GetAttitudeDirText(const Integer id)
-{
-   if ((id >= 0) && (id < CCSDSObType::EndCCSDSAttitudeDirReps))
-   {
-      return CCSDSObType::CCSDS_ATTITUDE_DIR[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-//  Integer  GetAttitudeDirID(const std::string &str)
-//------------------------------------------------------------------------------
-/**
- * Function to obtain the ID associated with an attitude type keyword
- *
- * @param <str> The attitude direction keyword
- * @return The attitude direction id
- *
- */
-//------------------------------------------------------------------------------
-Integer GetAttitudeDirID(const std::string &str)
-{
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < CCSDSObType::EndCCSDSAttitudeDirReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDSObType::CCSDS_ATTITUDE_DIR[i]))
-	{
-	    return i;
-	}
-   }
-
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
-}
 
 //------------------------------------------------------------------------------
 // const StringArray GetTimeSystems() const

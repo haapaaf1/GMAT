@@ -21,7 +21,8 @@
 
 #include <ProcessCCSDSAEMDataFile.hpp>
 
-//#define DEBUG_CCSDSAEM_DATA
+#define DEBUG_CCSDSAEM_DATA
+
 //---------------------------------
 //  public methods
 //---------------------------------
@@ -46,15 +47,15 @@ bool ProcessCCSDSAEMDataFile::Initialize()
         // Construct an orbit parameter message obtype
         CCSDSAEMObType *myAEM = new CCSDSAEMObType;
 
-        while (!IsEOF())
+        if (!IsEOF())
         {
             // The GetData function will attempt to populate the
             // AEM obtype variables
-            if (GetData(myAEM))
-                // Push this data point onto the obtype data stack
-                theData.push_back(myAEM);
-            else
+            if (!GetData(myAEM))
+            {
                 delete myAEM;
+                return false;
+            }
 
             // Allocate another struct in memory
             myAEM = new CCSDSAEMObType;
@@ -65,14 +66,13 @@ bool ProcessCCSDSAEMDataFile::Initialize()
 
         #ifdef DEBUG_CCSDSAEM_DATA
 
-            fstream *outFile = new fstream;
-            outFile->open("aem.output",ios::out);
-
-            // Output to file to make sure all the data is properly stored
+            ProcessCCSDSAEMDataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetFileName("AEM.output");
+            myOutFile.Initialize();
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-		*outFile << (CCSDSAEMObType*)(*j) << std::endl;
-
-            outFile->close();
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
 
         #endif
 
@@ -206,24 +206,26 @@ bool ProcessCCSDSAEMDataFile::IsParameterReadOnly(const std::string &label) cons
 // bool GetData(ObType *myAEM)
 //------------------------------------------------------------------------------
 /**
- * Obtains the header line of AEM data from file.
+ * Obtains the header lff of AEM data from file.
  */
 //------------------------------------------------------------------------------
 bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
 {
 
-    if (myAEMData->GetTypeName() != "CCSDSAEMObType") return false;
+    if (!pcrecpp::RE("^CCSDSAEMObType").FullMatch(myAEMData->GetTypeName()))
+        return false;
 
     // Re-cast the generic ObType pointer as a CCSDSAEMObtype pointer
     CCSDSAEMObType *myAEM = (CCSDSAEMObType*)myAEMData;
 
-    // Read the first line from file
-    std::string line = ReadLineFromFile();
+    // Read the first lff from file
+    std::string lff = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF() && pcrecpp::RE("^CCSDS_AEM_VERS.*").FullMatch(line))
+    if (!IsEOF() && currentCCSDSHeader == NULL
+                 && pcrecpp::RE("^CCSDS_AEM_VERS.*").FullMatch(lff))
     {
-	if (GetCCSDSHeader(line,myAEM))
+	if (GetCCSDSHeader(lff,myAEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
@@ -231,18 +233,24 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
 	}
 	else
 	{
-	    // failure to read header line, abort
+	    // failure to read header lff, abort
+            MessageInterface::ShowMessage("Failed to read AEM Header! Abort!\n");
 	    currentCCSDSHeader = NULL;
 	    return false;
 	}
     }
 
-    // Test for the prescence of meta data
-    // If the header data was just processed, line should now contain
-    // the "META_START" line
-    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(line))
+    do
     {
-	if (GetCCSDSMetaData(line,myAEM))
+
+        // Test for DATA_STOP and advance to next line
+        // This really only applies after going through this do-while
+        // loop more than one time.
+        if (pcrecpp::RE("^DATA_STOP.*$").FullMatch(lff))
+            lff = ReadLineFromFile();
+
+        // Read in metadata
+	if (GetCCSDSMetaData(lff,myAEM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
@@ -250,34 +258,48 @@ bool ProcessCCSDSAEMDataFile::GetData(ObType *myAEMData)
 	}
 	else
 	{
-	    // failure to read header line, abort
+	    // failure to read header lff, abort
+            MessageInterface::ShowMessage("Failed to read AEM MetaData! Abort!\n");
 	    currentCCSDSMetaData = NULL;
 	    return false;
 	}
+
+        do
+        {
+            myAEM->ccsdsHeader = currentCCSDSHeader;
+            myAEM->ccsdsMetaData = (CCSDSAEMMetaData*)currentCCSDSMetaData;
+
+            // Container for any comments found before the first state vector
+            StringArray comments;
+
+            bool commentsFound = GetCCSDSComments(lff,comments);
+
+            if (GetCCSDSAEMData(lff,myAEM))
+            {
+                if (commentsFound)
+                    myAEM->ccsdsAEMQuaternion->comments = comments;
+
+                // Push this data point onto the obtype data stack
+                theData.push_back(myAEM);
+            }
+            else
+            {
+                delete myAEM;
+                return false;
+            }
+
+            // Allocate another struct in memory
+            myAEM = new CCSDSAEMObType;
+
+            lff = ReadLineFromFile();
+
+        }
+        while (!IsEOF() && !pcrecpp::RE("^DATA_STOP.*").FullMatch(lff));
+
     }
+    while (!IsEOF());
 
-    // Test for the presence of the start data marker
-    // If the meta data was just processed, line should contain
-    // the "DATA_START" marker which we can skip over to start processing
-    // the actual data.
-    if (pcrecpp::RE("^DATA_START.*").FullMatch(line))
-    {
-        line = ReadLineFromFile();
-    }
-
-    // Parse the data record making sure that we have identified
-    // a header record and a metadata record previously
-    if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
-	return false;
-
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(line) && !pcrecpp::RE("").FullMatch(line))
-    {
-	myAEM->ccsdsHeader = currentCCSDSHeader;
-        myAEM->ccsdsMetaData = (CCSDSAEMMetaData*)currentCCSDSMetaData;
-	return GetCCSDSAEMData(line,myAEM);
-    }
-
-    return false;
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -296,6 +318,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                                               CCSDSAEMObType *myOb)
 {
 
+    if (pcrecpp::RE("^DATA_START.*$").FullMatch(lff))
+        lff = ReadLineFromFile();
+
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
     // only supports the standard C++ types and does not
@@ -307,7 +332,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
     switch (myOb->ccsdsMetaData->attitudeType)
     {
-        case CCSDSObType::CCSDS_QUATERNION_ID:
+        case CCSDSData::CCSDS_QUATERNION_ID:
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
@@ -331,6 +356,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
                     myOb->ccsdsAEMQuaternion = myQData;
                     myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
+                    MessageInterface::ShowMessage("Here4\n");
 
                     return true;
                 }
@@ -369,7 +395,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         break;
 
-        case CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID:
+        case CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID:
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
@@ -445,7 +471,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         break;
 
-        case CCSDSObType::CCSDS_QUATERNION_RATE_ID:
+        case CCSDSData::CCSDS_QUATERNION_RATE_ID:
         {
             CCSDSAEMQuaternion *myQData = new CCSDSAEMQuaternion;
 
@@ -519,7 +545,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         break;
 
-        case CCSDSObType::CCSDS_EULER_ANGLE_ID:
+        case CCSDSData::CCSDS_EULER_ANGLE_ID:
         {
             CCSDSAEMEulerAngle *myEulerData = new CCSDSAEMEulerAngle;
 
@@ -538,7 +564,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->xAngle = dtemp1;
                 myEulerData->yAngle = dtemp2;
                 myEulerData->zAngle = dtemp3;
-                myEulerData->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_ID;
+                myEulerData->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_ID;
 
                 myOb->ccsdsAEMEulerAngle = myEulerData;
                 myOb->ccsdsHeader->dataType = CCSDSHeader::EULERANGLE_ID;
@@ -552,7 +578,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         break;
 
-        case CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID:
+        case CCSDSData::CCSDS_EULER_ANGLE_RATE_ID:
         {
             CCSDSAEMEulerAngle *myEulerData = new CCSDSAEMEulerAngle;
 
@@ -560,7 +586,6 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
                     REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
-
 
             if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
                                              &dtemp3,&dtemp4,&dtemp5,
@@ -576,7 +601,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 myEulerData->xRate = dtemp4;
                 myEulerData->yRate = dtemp5;
                 myEulerData->zRate = dtemp6;
-                myEulerData->eulerAngleType = CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID;
+                myEulerData->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_RATE_ID;
 
                 myOb->ccsdsAEMEulerAngle = myEulerData;
                 myOb->ccsdsHeader->dataType = CCSDSHeader::EULERANGLE_ID;
@@ -590,7 +615,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         break;
 
-        case CCSDSObType::CCSDS_SPIN_ID:
+        case CCSDSData::CCSDS_SPIN_ID:
         {
             CCSDSAEMSpinStabilized *mySpinData = new CCSDSAEMSpinStabilized;
 
@@ -610,7 +635,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->spinDelta = dtemp2;
                 mySpinData->spinAngle = dtemp3;
                 mySpinData->spinAngleVelocity = dtemp4;
-                mySpinData->attitudeType = CCSDSObType::CCSDS_SPIN_ID;
+                mySpinData->attitudeType = CCSDSData::CCSDS_SPIN_ID;
 
                 myOb->ccsdsAEMSpinStabilized = mySpinData;
                 myOb->ccsdsHeader->dataType = CCSDSHeader::SPINSTABILIZED_ID;
@@ -623,7 +648,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
         break;
 
-        case CCSDSObType::CCSDS_SPIN_NUTATION_ID:
+        case CCSDSData::CCSDS_SPIN_NUTATION_ID:
         {
             CCSDSAEMSpinStabilized *mySpinData = new CCSDSAEMSpinStabilized;
 
@@ -648,7 +673,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
                 mySpinData->nutation = dtemp5;
                 mySpinData->nutationPeriod = dtemp6;
                 mySpinData->nutationPhase = dtemp7;
-                mySpinData->attitudeType = CCSDSObType::CCSDS_SPIN_NUTATION_ID;
+                mySpinData->attitudeType = CCSDSData::CCSDS_SPIN_NUTATION_ID;
 
                 myOb->ccsdsAEMSpinStabilized = mySpinData;
                 myOb->ccsdsHeader->dataType = CCSDSHeader::SPINSTABILIZED_ID;
@@ -662,6 +687,8 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
         break;
 
         default:
+
+            MessageInterface::ShowMessage("ERROR: Invalid AEM ephemeris data type! Abort!\n");
 
             return false;
 
@@ -682,10 +709,14 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                                 CCSDSAEMObType *myOb)
 {
+    
     CCSDSAEMMetaData *myMetaData = new CCSDSAEMMetaData;
 
     Integer requiredCount = 0;
     std::string keyword;
+
+    if (pcrecpp::RE("^META_START.*$").FullMatch(lff))
+        lff = ReadLineFromFile();
 
     do
     {
@@ -784,7 +815,7 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
-                myMetaData->direction = GetAttitudeDirID(stemp);
+                myMetaData->direction = myMetaData->GetAttitudeDirID(stemp);
                 }
                 break;
 
@@ -793,28 +824,21 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
-                myMetaData->attitudeType = GetAttitudeTypeID(stemp);
+                myMetaData->attitudeType = myMetaData->GetAttitudeTypeID(stemp);
                 }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID:
                 {
-                if (myMetaData->attitudeType != CCSDSObType::CCSDS_QUATERNION_ID
-                 || myMetaData->attitudeType != CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID
-                 || myMetaData->attitudeType != CCSDSObType::CCSDS_QUATERNION_RATE_ID)
-                    return false;
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
-                myMetaData->quaternionType = GetQuaternionTypeID(stemp);
+                myMetaData->quaternionType = myMetaData->GetQuaternionTypeID(stemp);
                 }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID:
 
-                if (myMetaData->attitudeType != CCSDSObType::CCSDS_EULER_ANGLE_ID
-                 || myMetaData->attitudeType != CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID )
-                    return false;
                 if (!GetCCSDSValue(lff,myMetaData->eulerRotationSequence))
                     return false;
                 break;
@@ -824,12 +848,14 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
                 std::string stemp;
                 if (!GetCCSDSValue(lff,stemp))
                     return false;
-                myMetaData->rateFrame = GetRateFrameID(stemp);
+                myMetaData->rateFrame = myMetaData->GetRateFrameID(stemp);
                 }
                 break;
 
             default:
 
+                MessageInterface::ShowMessage(keyword +
+                                     " : This data not allowed in MetaData!\n");
                 return false;
                 break;
 
@@ -837,10 +863,31 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSMetaData(std::string &lff,
 
         lff = ReadLineFromFile();
     }
-    while(requiredCount < requiredNumberMetaDataParameters ||
-          pcrecpp::RE("^DATA_START.*$").FullMatch(lff));
+    while(requiredCount <= requiredNumberMetaDataParameters &&
+          !pcrecpp::RE("^META_STOP.*$").FullMatch(lff));
 
+    if (requiredCount < requiredNumberMetaDataParameters)
+    {
+        MessageInterface::ShowMessage("Error: MetaData does not contain all required elements! Abort!\n");
+        return false;
+    }
+
+    /*
+    if (myMetaData->quaternionType == CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID
+        && (myMetaData->attitudeType != CCSDSData::CCSDS_QUATERNION_ID
+        || myMetaData->attitudeType != CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID
+        || myMetaData->attitudeType != CCSDSData::CCSDS_QUATERNION_RATE_ID))
+        return false;
+
+    if (myMetaData->eulerRotationSequence == CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID
+        && (myMetaData->attitudeType != CCSDSData::CCSDS_EULER_ANGLE_ID
+        || myMetaData->attitudeType != CCSDSData::CCSDS_EULER_ANGLE_RATE_ID ))
+        return false;
+    */
     myOb->ccsdsMetaData = myMetaData;
+
+    // Read past the META_STOP line
+    lff = ReadLineFromFile();
 
     return true;
 }

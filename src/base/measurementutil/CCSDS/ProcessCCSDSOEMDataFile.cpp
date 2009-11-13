@@ -411,7 +411,7 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
         lff = ReadLineFromFile();
     }
     while(requiredCount <= requiredNumberMetaDataParameters &&
-          !pcrecpp::RE("^META_STOP.*$").FullMatch(lff));
+          !pcrecpp::RE("^META_STOP.*$").FullMatch(lff) && !IsEOF());
 
 
     if (requiredCount < requiredNumberMetaDataParameters)
@@ -419,13 +419,13 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSMetaData(std::string &lff,
         MessageInterface::ShowMessage("Error: MetaData does not contain all required elements! Abort!\n");
         return false;
     }
-
-    myOb->ccsdsMetaData = myMetaData;
-
-    // Read past the META_STOP line
-    lff = ReadLineFromFile();
-
-    return true;
+    else
+    {
+        myOb->ccsdsMetaData = myMetaData;
+        // Read past the META_STOP line
+        lff = ReadLineFromFile();
+        return true;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -463,7 +463,11 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
                                      &dtemp4,&dtemp5,&dtemp6))
     {
         myOEMData->timeTag = stemp;
-        if (!CCSDSTimeTag2A1Date(myOEMData->timeTag,myOb->epoch)) return false;
+        if (!CCSDSTimeTag2A1Date(myOEMData->timeTag,myOb->epoch))
+        {
+            MessageInterface::ShowMessage("Failed to convert CCSDS Time Tag to A1Date! Abort!\n");            
+            return false;
+        }
         myOEMData->x = dtemp1;
         myOEMData->y = dtemp2;
         myOEMData->z = dtemp3;
@@ -477,5 +481,8 @@ bool ProcessCCSDSOEMDataFile::GetCCSDSOEMData(std::string &lff,
         return true;
     }
     else
+    {
+        MessageInterface::ShowMessage("Failed to process OEM data line! Abort!\n");
         return false;
+    }
 }

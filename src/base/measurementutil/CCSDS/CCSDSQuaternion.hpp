@@ -8,16 +8,9 @@
 #ifndef _CCSDSQUATERNION_HPP
 #define	_CCSDSQUATERNION_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
-#include "CCSDSObtype.hpp"
+#include "CCSDSData.hpp"
 
-class CCSDSQuaternion
+class CCSDSQuaternion : public CCSDSData
 {
 
 public:
@@ -27,8 +20,8 @@ public:
     const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ);
     ~CCSDSQuaternion();
 
-    friend std::string GetQuaternionTypeText(const Integer id);
-    friend Integer    GetQuaternionTypeID(const std::string &str);
+    std::string GetQuaternionTypeText(const Integer id) const;
+    Integer    GetQuaternionTypeID(const std::string &str) const;
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -45,9 +38,9 @@ public:
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberQuaternionParameters();
+    bool Validate() const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -59,11 +52,9 @@ public:
         CCSDS_QUATERNION_LAST_ID,
         EndCCSDSQuaternionTypeReps
     };
-
+    
     enum CCSDS_DATA_REPS
     {
-	CCSDS_QUATERNION_ATTITUDETYPE_ID,
-	CCSDS_QUATERNION_TYPE_ID,
 	CCSDS_QUATERNION_TIMETAG_ID,
 	CCSDS_QUATERNION_FRAMEA_ID,
 	CCSDS_QUATERNION_FRAMEB_ID,

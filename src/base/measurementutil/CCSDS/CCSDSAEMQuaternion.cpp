@@ -77,20 +77,20 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
             if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEMQuaternion->timeTag
-                       << myAEMQuaternion->qC
-                       << myAEMQuaternion->q1
-                       << myAEMQuaternion->q2
-                       << myAEMQuaternion->q3 << endl;
+                       << " " << myAEMQuaternion->qC
+                       << " " << myAEMQuaternion->q1
+                       << " " << myAEMQuaternion->q2
+                       << " " << myAEMQuaternion->q3 << endl;
 
                 return output;
             }
             else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEMQuaternion->timeTag
-                       << myAEMQuaternion->q1
-                       << myAEMQuaternion->q2
-                       << myAEMQuaternion->q3
-                       << myAEMQuaternion->qC << endl;
+                       << " " << myAEMQuaternion->q1
+                       << " " << myAEMQuaternion->q2
+                       << " " << myAEMQuaternion->q3
+                       << " " << myAEMQuaternion->qC << endl;
 
                 return output;
             }
@@ -105,28 +105,28 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
             if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEMQuaternion->timeTag
-                       << myAEMQuaternion->qC
-                       << myAEMQuaternion->q1
-                       << myAEMQuaternion->q2
-                       << myAEMQuaternion->q3
-                       << myAEMQuaternion->qCDot
-                       << myAEMQuaternion->q1Dot
-                       << myAEMQuaternion->q2Dot
-                       << myAEMQuaternion->q3Dot << endl;
+                       << " " << myAEMQuaternion->qC
+                       << " " << myAEMQuaternion->q1
+                       << " " << myAEMQuaternion->q2
+                       << " " << myAEMQuaternion->q3
+                       << " " << myAEMQuaternion->qCDot
+                       << " " << myAEMQuaternion->q1Dot
+                       << " " << myAEMQuaternion->q2Dot
+                       << " " << myAEMQuaternion->q3Dot << endl;
 
                 return output;
             }
             else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEMQuaternion->timeTag
-                       << myAEMQuaternion->q1
-                       << myAEMQuaternion->q2
-                       << myAEMQuaternion->q3
-                       << myAEMQuaternion->qC
-                       << myAEMQuaternion->q1Dot
-                       << myAEMQuaternion->q2Dot
-                       << myAEMQuaternion->q3Dot
-                       << myAEMQuaternion->qCDot << endl;
+                       << " " << myAEMQuaternion->q1
+                       << " " << myAEMQuaternion->q2
+                       << " " << myAEMQuaternion->q3
+                       << " " << myAEMQuaternion->qC
+                       << " " << myAEMQuaternion->q1Dot
+                       << " " << myAEMQuaternion->q2Dot
+                       << " " << myAEMQuaternion->q3Dot
+                       << " " << myAEMQuaternion->qCDot << endl;
 
                 return output;
             }
@@ -141,26 +141,26 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
             if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEMQuaternion->timeTag
-                       << myAEMQuaternion->qC
-                       << myAEMQuaternion->q1
-                       << myAEMQuaternion->q2
-                       << myAEMQuaternion->q3
-                       << myAEMQuaternion->xRate
-                       << myAEMQuaternion->yRate
-                       << myAEMQuaternion->zRate << endl;
+                       << " " << myAEMQuaternion->qC
+                       << " " << myAEMQuaternion->q1
+                       << " " << myAEMQuaternion->q2
+                       << " " << myAEMQuaternion->q3
+                       << " " << myAEMQuaternion->xRate
+                       << " " << myAEMQuaternion->yRate
+                       << " " << myAEMQuaternion->zRate << endl;
 
                 return output;
             }
             else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEMQuaternion->timeTag
-                       << myAEMQuaternion->q1
-                       << myAEMQuaternion->q2
-                       << myAEMQuaternion->q3
-                       << myAEMQuaternion->qC
-                       << myAEMQuaternion->xRate
-                       << myAEMQuaternion->yRate
-                       << myAEMQuaternion->zRate << endl;
+                       << " " << myAEMQuaternion->q1
+                       << " " << myAEMQuaternion->q2
+                       << " " << myAEMQuaternion->q3
+                       << " " << myAEMQuaternion->qC
+                       << " " << myAEMQuaternion->xRate
+                       << " " << myAEMQuaternion->yRate
+                       << " " << myAEMQuaternion->zRate << endl;
 
                 return output;
             }

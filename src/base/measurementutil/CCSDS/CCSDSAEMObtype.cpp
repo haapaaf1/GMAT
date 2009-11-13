@@ -24,7 +24,8 @@ CCSDSAEMObType::CCSDSAEMObType() : CCSDSObType("CCSDSAEMObType", ""),
 	ccsdsMetaData(NULL),
         ccsdsAEMQuaternion(NULL),
         ccsdsAEMEulerAngle(NULL),
-        ccsdsAEMSpinStabilized(NULL)
+        ccsdsAEMSpinStabilized(NULL),
+        commentsCurrentlyAllowed(false)
 {
 }
 
@@ -39,7 +40,8 @@ CCSDSAEMObType::CCSDSAEMObType(const CCSDSAEMObType &aem) : CCSDSObType(aem),
 	ccsdsMetaData(aem.ccsdsMetaData),
         ccsdsAEMQuaternion(aem.ccsdsAEMQuaternion),
         ccsdsAEMEulerAngle(aem.ccsdsAEMEulerAngle),
-        ccsdsAEMSpinStabilized(aem.ccsdsAEMSpinStabilized)
+        ccsdsAEMSpinStabilized(aem.ccsdsAEMSpinStabilized),
+        commentsCurrentlyAllowed(aem.commentsCurrentlyAllowed)
 {
 }
 
@@ -62,6 +64,7 @@ const CCSDSAEMObType& CCSDSAEMObType::operator=(const CCSDSAEMObType &aem)
    CCSDSObType::operator=(aem);
 
    ccsdsMetaData = aem.ccsdsMetaData;
+   commentsCurrentlyAllowed = aem.commentsCurrentlyAllowed;
 
    return *this;
 }
@@ -173,6 +176,20 @@ Integer CCSDSAEMObType::GetTimeSystemID(const std::string &label)
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 {
+
+    if (myAEM->commentsCurrentlyAllowed)
+    {
+        StringArray comments = myAEM->ccsdsAEMQuaternion->GetStringArrayDataParameter(CCSDSQuaternion::CCSDS_QUATERNION_COMMENTS_ID);
+        unsigned int i;
+        for (i = 0; i < comments.size(); i++ )
+        {
+            output << "COMMENT " << comments[i];
+            output << std::endl;
+        }
+        if (i > 0) output << std::endl;
+        output << "DATA_START" << std::endl;
+
+    }
 
     if (myAEM->ccsdsAEMQuaternion != NULL);
         output << myAEM->ccsdsAEMQuaternion;

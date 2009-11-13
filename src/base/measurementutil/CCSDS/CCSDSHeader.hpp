@@ -17,6 +17,7 @@
 #include <sstream>
 #include <pcrecpp.h>
 #include "StringUtil.hpp"
+#include "MessageInterface.hpp"
 
 class CCSDSHeader
 {
@@ -28,9 +29,18 @@ public:
     const CCSDSHeader& CCSDSHeader::operator=(const CCSDSHeader &header);
     virtual ~CCSDSHeader();
 
-    virtual const std::string* GetDataTypes() const;
-    virtual std::string GetDataTypeText(const Integer &id) const;
-    virtual Integer GetDataTypeID(const std::string &label);
+    virtual Real        GetRealDataParameter(const Integer id) const;
+    virtual Real        GetRealDataParameter(const std::string &label) const;
+    virtual Integer     GetIntegerDataParameter(const Integer id) const;
+    virtual Integer     GetIntegerDataParameter(const std::string &label) const;
+    virtual std::string GetStringDataParameter(const Integer id) const;
+    virtual std::string GetStringDataParameter(const std::string &label) const;
+    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
+    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    const std::string* GetDataTypes() const;
+    std::string GetDataTypeText(const Integer &id) const;
+    Integer GetDataTypeID(const std::string &label);
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -41,8 +51,15 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
-    virtual bool CheckDataAvailability(const std::string str) const;
-    virtual bool IsParameterRequired(const Integer id) const;
+    bool CheckDataAvailability(const std::string str) const;
+    bool IsParameterRequired(const Integer id) const;
+    virtual bool IsParameterDefined(const Integer id, std::string value) const;
+    virtual bool IsParameterDefined(const Integer id, StringArray value) const;
+    virtual bool IsParameterDefined(const Integer id, Real value) const;
+    virtual bool IsParameterDefined(const Integer id, Integer value) const;
+    virtual bool IsParameterDefined(const Integer id, bool value) const;
+    virtual bool Validate() const;
+
     friend Integer CountRequiredNumberHeaderDataParameters();
 
     friend std::ostream& operator<< (std::ostream &output,
@@ -68,7 +85,7 @@ public:
         SPACECRAFTINERTIA_ID,
         MANEUVER_ID,
         ATTITUDEMANEUVER_ID,
-        GENERICDATA_ID,
+        TRACKINGDATA_ID,
 	EndCCSDSTypeReps
     };
 

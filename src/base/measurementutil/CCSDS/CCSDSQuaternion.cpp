@@ -10,8 +10,6 @@ const std::string CCSDSQuaternion::CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeR
 
 const std::string CCSDSQuaternion::CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps] =
 {
-    "",
-    "",
     "EPOCH",
     "Q_FRAME_A",
     "Q_FRAME_B",
@@ -39,8 +37,6 @@ const std::string CCSDSQuaternion::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDat
     "",
     "",
     "",
-    "",
-    "",
     "1/s",
     "1/s",
     "1/s",
@@ -53,8 +49,6 @@ const std::string CCSDSQuaternion::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDat
 
 const std::string CCSDSQuaternion::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps] =
 {
-    "Quaternion Attitude Type",
-    "Quaternion Type",
     "Quaternion Epoch",
     "Quaternion Frame A",
     "Quaternion Frame B",
@@ -83,22 +77,18 @@ const bool CCSDSQuaternion::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
     true,
     true,
     true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
     false
 };
 
 const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps] =
 {
-    Gmat::INTEGER_TYPE,
-    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::INTEGER_TYPE,
@@ -116,7 +106,7 @@ const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaterni
     Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE
 };
-
+  
 //------------------------------------------------------------------------------
 //  CCSDSQuaternion()
 //------------------------------------------------------------------------------
@@ -124,7 +114,7 @@ const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaterni
  * Constructor for the CCSDSQuaternion class
  */
 //------------------------------------------------------------------------------
-CCSDSQuaternion::CCSDSQuaternion() :
+CCSDSQuaternion::CCSDSQuaternion() : CCSDSData(),
     attitudeType(0),
     quaternionType(0),
     timeTag(std::string("")),
@@ -153,7 +143,8 @@ CCSDSQuaternion::CCSDSQuaternion() :
  * Constructor for the StateVector class
  */
 //------------------------------------------------------------------------------
-CCSDSQuaternion::CCSDSQuaternion(const CCSDSQuaternion &myQ) : 
+CCSDSQuaternion::CCSDSQuaternion(const CCSDSQuaternion &myQ) :
+    CCSDSData(myQ),
     attitudeType(myQ.attitudeType),
     quaternionType(myQ.quaternionType),
     timeTag(myQ.timeTag),
@@ -191,6 +182,8 @@ const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ)
 {
     if (&myQ == this)
         return *this;
+
+    CCSDSData::operator=(myQ);
 
     attitudeType = myQ.attitudeType;
     quaternionType = myQ.quaternionType;
@@ -308,14 +301,6 @@ Integer CCSDSQuaternion::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case CCSDS_QUATERNION_ATTITUDETYPE_ID:
-
-	    return attitudeType;
-
-        case CCSDS_QUATERNION_TYPE_ID:
-
-	    return quaternionType;
-
 	case CCSDS_QUATERNION_DIRECTION_ID:
 
 	    return direction;
@@ -512,14 +497,13 @@ const Integer CCSDSQuaternion::GetKeywordID(const std::string str) const
 {
 
     std::string regex = "^" + str + "$";
-
     for (Integer i = 0; i < EndCCSDSQuaternionDataReps; i++)
     {
         if (pcrecpp::RE(regex).FullMatch(CCSDS_QUATERNION_KEYWORDS[i]))
             return i;
     }
 
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
 }
 
@@ -584,35 +568,7 @@ Integer CountRequiredNumberQuaternionParameters()
 }
 
 //------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool CCSDSQuaternion::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSQuaternionDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
-
-//------------------------------------------------------------------------------
-//  std::string  GetQuaternionTypeText(const Integer id)
+//  std::string  GetQuaternionTypeText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
  * Function to obtain the quaternion type keyword for a specific ID
@@ -622,16 +578,77 @@ bool CCSDSQuaternion::CheckDataAvailability(const std::string str) const
  *
  */
 //------------------------------------------------------------------------------
-std::string GetQuaternionTypeText(const Integer id)
+std::string CCSDSQuaternion::GetQuaternionTypeText(const Integer id) const
 {
-   if ((id >= 0) && (id < CCSDSQuaternion::EndCCSDSQuaternionTypeReps))
-       return CCSDSQuaternion::CCSDS_QUATERNION_TYPE[id];
+   if ((id >= 0) && (id < EndCCSDSQuaternionTypeReps))
+       return CCSDS_QUATERNION_TYPE[id];
    else
        return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSQuaternion::Validate() const
+{
+
+    for (unsigned int i = 0; i < EndCCSDSQuaternionDataReps; i++ )
+    {
+
+        if (IsParameterRequired(i))
+        {
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::INTEGER_TYPE:
+                    {
+                    Integer ivalue = GetIntegerDataParameter(i);
+                    if (&ivalue == NULL ||
+                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
+        }
+    }
+
+    return true;
+}
+
 //------------------------------------------------------------------------------
-//  Integer  GetQuaternionTypeID(const std::string &str)
+//  Integer  GetQuaternionTypeID(const std::string &str) const
 //------------------------------------------------------------------------------
 /**
  * Function to obtain the ID associated with an quaternion type keyword
@@ -641,15 +658,15 @@ std::string GetQuaternionTypeText(const Integer id)
  *
  */
 //------------------------------------------------------------------------------
-Integer GetQuaternionTypeID(const std::string &str)
+Integer CCSDSQuaternion::GetQuaternionTypeID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
 
-    for (Integer i = 0; i < CCSDSQuaternion::EndCCSDSQuaternionTypeReps; i++)
+    for (Integer i = 0; i < EndCCSDSQuaternionTypeReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
-                       ).FullMatch(CCSDSQuaternion::CCSDS_QUATERNION_TYPE[i]))
+                       ).FullMatch(CCSDS_QUATERNION_TYPE[i]))
 	{
 	    return i;
 	}

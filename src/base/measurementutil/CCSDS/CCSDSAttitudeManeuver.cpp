@@ -64,7 +64,7 @@ const Gmat::ParameterType CCSDSAttitudeManeuver::CCSDS_PARAMETER_TYPE[EndCCSDSAt
  * Constructor for the CCSDSAttitudeManeuver class
  */
 //------------------------------------------------------------------------------
-CCSDSAttitudeManeuver::CCSDSAttitudeManeuver() :
+CCSDSAttitudeManeuver::CCSDSAttitudeManeuver() : CCSDSData(),
     epochStart(std::string("")),
     duration(0),
     refFrame(std::string("")),
@@ -83,6 +83,7 @@ CCSDSAttitudeManeuver::CCSDSAttitudeManeuver() :
  */
 //------------------------------------------------------------------------------
 CCSDSAttitudeManeuver::CCSDSAttitudeManeuver(const CCSDSAttitudeManeuver &am) :
+    CCSDSData(am),
     epochStart(am.epochStart),
     duration(am.duration),
     refFrame(am.refFrame),
@@ -109,6 +110,8 @@ const CCSDSAttitudeManeuver& CCSDSAttitudeManeuver::operator=(const CCSDSAttitud
 {
     if (&am == this)
         return *this;
+
+    CCSDSData::operator=(am);
 
     epochStart = am.epochStart;
     duration = am.duration;
@@ -427,32 +430,57 @@ Integer CountRequiredNumberAttitudeManeuverParameters()
     return num;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
 /**
- * Checks to see if data is available in a given data format
+ * Checks to see if the header is valid
  *
- * @return true if successfull
+ * @return True if the header is valid, false otherwise (the default)
  */
-//------------------------------------------------------------------------------
-bool CCSDSAttitudeManeuver::CheckDataAvailability(const std::string str) const
+//---------------------------------------------------------------------------
+bool CCSDSAttitudeManeuver::Validate() const
 {
 
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSAttitudeManeuverDataReps; i++)
+    for (unsigned int i = 0; i < EndCCSDSAttitudeManeuverDataReps; i++ )
     {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+
+        if (IsParameterRequired(i))
         {
-            return true;
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
         }
     }
 
-   return false;
-
+    return true;
 }
 
 //------------------------------------------------------------------------------

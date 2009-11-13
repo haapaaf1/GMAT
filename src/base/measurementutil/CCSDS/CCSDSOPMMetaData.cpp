@@ -407,6 +407,74 @@ StringArray CCSDSOPMMetaData::GetStringArrayDataParameter(const std::string &lab
    return GetStringArrayDataParameter(GetDataParameterID(label));
 }
 
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSOPMMetaData::Validate() const
+{
+
+    for (unsigned int i = 0; i < EndCCSDSOPMMetaDataReps; i++ )
+    {
+
+        if (IsParameterRequired(i))
+        {
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::BOOLEAN_TYPE:
+                    {
+                    bool bvalue = GetBooleanDataParameter(i);
+                    if (&bvalue == NULL)
+                        return false;
+                    }
+                    break;
+                case Gmat::INTEGER_TYPE:
+                    {
+                    Integer ivalue = GetIntegerDataParameter(i);
+                    if (&ivalue == NULL ||
+                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
+        }
+    }
+
+    return true;
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetadata)
 //------------------------------------------------------------------------------

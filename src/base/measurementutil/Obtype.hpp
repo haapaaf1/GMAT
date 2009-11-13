@@ -17,6 +17,7 @@
 #include <pcrecpp.h>
 #include "StringUtil.hpp"
 #include "A1Date.hpp"
+#include "MessageInterface.hpp"
 
 using namespace std; // so we don't have to type std::cout and std::endl
 

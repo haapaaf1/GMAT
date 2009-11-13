@@ -83,9 +83,9 @@ std::ostream& operator<< (std::ostream &output,
         case CCSDSObType::CCSDS_EULER_ANGLE_ID:
         {
             output << myAEMEulerAngle->timeTag
-                   << myAEMEulerAngle->xAngle
-                   << myAEMEulerAngle->yAngle
-                   << myAEMEulerAngle->zAngle << endl;
+                   << " " << myAEMEulerAngle->xAngle
+                   << " " << myAEMEulerAngle->yAngle
+                   << " " << myAEMEulerAngle->zAngle << endl;
 
             return output;
         }
@@ -95,12 +95,12 @@ std::ostream& operator<< (std::ostream &output,
         case CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID:
         {
             output << myAEMEulerAngle->timeTag
-                   << myAEMEulerAngle->xAngle
-                   << myAEMEulerAngle->yAngle
-                   << myAEMEulerAngle->zAngle
-                   << myAEMEulerAngle->xRate
-                   << myAEMEulerAngle->yRate
-                   << myAEMEulerAngle->zRate << endl;
+                   << " " << myAEMEulerAngle->xAngle
+                   << " " << myAEMEulerAngle->yAngle
+                   << " " << myAEMEulerAngle->zAngle
+                   << " " << myAEMEulerAngle->xRate
+                   << " " << myAEMEulerAngle->yRate
+                   << " " << myAEMEulerAngle->zRate << endl;
 
             return output;
         }

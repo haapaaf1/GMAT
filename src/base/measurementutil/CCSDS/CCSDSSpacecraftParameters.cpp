@@ -60,7 +60,7 @@ const Gmat::ParameterType CCSDSSpacecraftParameters::CCSDS_PARAMETER_TYPE[EndCCS
  * Constructor for the CCSDSSpacecraftParameters class
  */
 //------------------------------------------------------------------------------
-CCSDSSpacecraftParameters::CCSDSSpacecraftParameters() :
+CCSDSSpacecraftParameters::CCSDSSpacecraftParameters() : CCSDSData(),
     mass(0),
     solarRadiationArea(0),
     solarRadiationCoefficient(0),
@@ -79,6 +79,7 @@ CCSDSSpacecraftParameters::CCSDSSpacecraftParameters() :
 //------------------------------------------------------------------------------
 CCSDSSpacecraftParameters::CCSDSSpacecraftParameters
                (const CCSDSSpacecraftParameters &sp) :
+    CCSDSData(sp),
     mass(sp.mass),
     solarRadiationArea(sp.solarRadiationArea),
     solarRadiationCoefficient(sp.solarRadiationCoefficient),
@@ -105,6 +106,8 @@ const CCSDSSpacecraftParameters& CCSDSSpacecraftParameters::operator=
 {
     if (&sp == this)
         return *this;
+
+    CCSDSData::operator=(sp);
 
     mass = sp.mass;
     solarRadiationArea = sp.solarRadiationArea;
@@ -382,32 +385,49 @@ Integer CountRequiredNumberSpacecraftParameters()
     return num;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
 /**
- * Checks to see if data is available in a given data format
+ * Checks to see if the header is valid
  *
- * @return true if successfull
+ * @return True if the header is valid, false otherwise (the default)
  */
-//------------------------------------------------------------------------------
-bool CCSDSSpacecraftParameters::CheckDataAvailability(const std::string str) const
+//---------------------------------------------------------------------------
+bool CCSDSSpacecraftParameters::Validate() const
 {
 
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSSpacecraftParametersDataReps; i++)
+    for (unsigned int i = 0; i < EndCCSDSSpacecraftParametersDataReps; i++ )
     {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+
+        if (IsParameterRequired(i))
         {
-            return true;
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
         }
     }
 
-   return false;
-
+    return true;
 }
 
 //------------------------------------------------------------------------------

@@ -20,7 +20,7 @@ const std::string CCSDSAEMMetaData::CCSDS_AEM_METADATA_KEYWORDS[EndCCSDSAEMMetaD
     "QUATERNION_TYPE",
     "EULER_ROT_SEQ",
     "RATE_FRAME",
-    "INTERPOLATION",
+    "INTERPOLATION_METHOD",
     "INTERPOLATION_DEGREE",
     "COMMENT"
 };
@@ -126,14 +126,14 @@ CCSDSAEMMetaData::CCSDSAEMMetaData() : CCSDSMetaData(),
     refFrameOrigin(std::string("")),
     frameA(std::string("")),
     frameB(std::string("")),
-    direction(0),
+    direction(GmatBase::INTEGER_PARAMETER_UNDEFINED),
     timeSystem(std::string("")),
     startEpoch(std::string("")),
     stopEpoch(std::string("")),
     useableStartEpoch(std::string("")),
     useableStopEpoch(std::string("")),
-    attitudeType(0),
-    quaternionType(0),
+    attitudeType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    quaternionType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
     eulerRotationSequence(std::string("")),
     rateFrame(0),
     interpolationMethod(std::string("")),
@@ -188,7 +188,7 @@ const CCSDSAEMMetaData& CCSDSAEMMetaData::operator=(const CCSDSAEMMetaData &aemM
     if (&aemMD == this)
         return *this;
 
-    CCSDSMetaData::operator=(aemMD);
+    CCSDSAEMMetaData::operator=(aemMD);
 
     objectName = aemMD.objectName;
     internationalDesignator = aemMD.internationalDesignator;
@@ -584,6 +584,74 @@ StringArray CCSDSAEMMetaData::GetStringArrayDataParameter(const std::string &lab
    return GetStringArrayDataParameter(GetDataParameterID(label));
 }
 
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSAEMMetaData::Validate() const
+{
+
+    for (unsigned int i = 0; i < EndCCSDSAEMMetaDataReps; i++ )
+    {
+
+        if (IsParameterRequired(i))
+        {
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::BOOLEAN_TYPE:
+                    {
+                    bool bvalue = GetBooleanDataParameter(i);
+                    if (&bvalue == NULL)
+                        return false;
+                    }
+                    break;
+                case Gmat::INTEGER_TYPE:
+                    {
+                    Integer ivalue = GetIntegerDataParameter(i);
+                    if (&ivalue == NULL ||
+                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
+        }
+    }
+
+    return true;
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetadata)
 //------------------------------------------------------------------------------
@@ -596,43 +664,133 @@ StringArray CCSDSAEMMetaData::GetStringArrayDataParameter(const std::string &lab
  * return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetadata)
+std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetaData)
 {
+
+    if(!myMetaData->Validate()) return output;
 
    //output.setf(std::ios::showpoint);
    //output.setf(std::ios::scientific);
 
-   output << "META_START" << std::endl;
+    output << "META_START" << std::endl;
 
-   unsigned int i;
-   for (i = 0; i < myMetadata->comments.size(); i++ )
-   {
-       output << "COMMENT " << myMetadata->comments[i] << std::endl;
-   }
-   if (i > 0) output << std::endl;
+    for (unsigned int i = 0; i < CCSDSAEMMetaData::EndCCSDSAEMMetaDataReps; i++ )
+    {
 
-   output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
-   output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
-   output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
-   output << "REF_FRAME_A = " << myMetadata->frameA << std::endl;
-   output << "REF_FRAME_B = " << myMetadata->frameB << std::endl;
-   output << "ATTITUDE_DIR = " << myMetadata->direction << std::endl;
-   output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-   output << "START_TIME = " << myMetadata->startEpoch << std::endl;
-   output << "USEABLE_START_TIME = " << myMetadata->useableStartEpoch << std::endl;
-   output << "USEABLE_STOP_TIME = " << myMetadata->useableStopEpoch << std::endl;
-   output << "STOP_TIME = " << myMetadata->stopEpoch << std::endl;
-   output << "ATTITUDE_TYPE = " << myMetadata->attitudeType << std::endl;
-   output << "QUATERNION_TYPE = " << myMetadata->quaternionType << std::endl;
-   output << "EULER_ROT_SEQ = " << myMetadata->eulerRotationSequence << std::endl;
-   output << "RATE_FRAME = " << myMetadata->rateFrame << std::endl;
-   output << "INTERPOLATION = " << myMetadata->interpolationMethod << std::endl;
-   output << "INTERPOLATION_DEGREE = " << myMetadata->interpolationDegree << std::endl;
+        switch (i)
+        {
 
-   output << "META_STOP" << std::endl;
-   output << std::endl;
+            case CCSDSAEMMetaData::CCSDS_AEM_METADATACOMMENTS_ID:
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(i,myMetaData->comments);
+                if (definedFlag)
+                {
+                    for (unsigned int i = 0; i < myMetaData->comments.size(); i++)
+                    {
+                        output << "COMMENT " << myMetaData->comments[i];
+                        output << std::endl;
+                    }
+                }
+                }
+                break;
 
-   return output;
+            case CCSDSAEMMetaData::CCSDS_AEM_OBJECTNAME_ID:
+
+                output << "OBJECT_NAME = " << myMetaData->objectName;
+                output << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_OBJECTID_ID:
+
+                output << "OBJECT_ID = " << myMetaData->internationalDesignator;
+                output << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_CENTERNAME_ID:
+
+                output << "CENTER_NAME = " << myMetaData->refFrameOrigin << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_TIMESYSTEM_ID:
+                output << "TIME_SYSTEM = " << myMetaData->timeSystem << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_STARTEPOCH_ID:
+                output << "START_TIME = " << myMetaData->startEpoch << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_STOPEPOCH_ID:
+                output << "STOP_TIME = " << myMetaData->stopEpoch << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STARTEPOCH_ID:
+                output << "USEABLE_START_TIME = " << myMetaData->useableStartEpoch << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STOPEPOCH_ID:
+                output << "USEABLE_STOP_TIME = " << myMetaData->useableStopEpoch << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATION_ID:
+                output << "INTERPOLATION_METHOD = " << myMetaData->interpolationMethod << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATIONDEGREE_ID:
+                output << "INTERPOLATION_DEGREE = " << myMetaData->interpolationDegree << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEA_ID:
+                output << "REF_FRAME_A = " << myMetaData->frameA << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEB_ID:
+                output << "REF_FRAME_B = " << myMetaData->frameB << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_ATTITUDEDIR_ID:
+                {
+                std::string directionText = myMetaData->GetAttitudeDirText(myMetaData->direction);
+                output << "ATTITUDE_DIR = " << directionText << std::endl;
+                }
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_ATTITUDETYPE_ID:
+                {
+                std::string attitudeTypeText = myMetaData->GetAttitudeTypeText(myMetaData->attitudeType);
+                output << "ATTITUDE_TYPE = " << attitudeTypeText << std::endl;
+                }
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID:
+                {
+                std::string quaternionTypeText = myMetaData->GetQuaternionTypeText(myMetaData->quaternionType);
+                output << "QUATERNION_TYPE = " << quaternionTypeText << std::endl;
+                }
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID:
+
+                output << "EULER_ROT_SEQ = " << myMetaData->eulerRotationSequence << std::endl;
+                break;
+
+            case CCSDSAEMMetaData::CCSDS_AEM_RATEFRAME_ID:
+                {
+                std::string rateFrameText = myMetaData->GetRateFrameText(myMetaData->rateFrame);
+                output << "RATE_FRAME = " << rateFrameText << std::endl;
+                }
+                break;
+
+            default:
+
+                break;
+
+        }
+    }
+
+    output << "META_STOP" << std::endl;
+    output << std::endl;
+   
+    return output;
 }
 
 

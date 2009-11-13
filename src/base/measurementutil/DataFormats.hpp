@@ -32,6 +32,7 @@
 #include "CCSDSObtype.hpp"
 #include "CCSDSHeader.hpp"
 #include "CCSDSData.hpp"
+#include "CCSDSTrackingData.hpp"
 #include "CCSDSMetaData.hpp"
 #include "CCSDSStateVector.hpp"
 #include "CCSDSOPMStateVector.hpp"

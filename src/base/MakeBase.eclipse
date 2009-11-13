@@ -367,6 +367,7 @@ OBJECTS = \
     measurementutil/CCSDS/CCSDSAPMMetaData.o \
     measurementutil/CCSDS/CCSDSAEMMetaData.o \
     measurementutil/CCSDS/CCSDSData.o \
+    measurementutil/CCSDS/CCSDSTrackingData.o \
     measurementutil/CCSDS/CCSDSStateVector.o \
     measurementutil/CCSDS/CCSDSOPMStateVector.o \
     measurementutil/CCSDS/CCSDSOEMStateVector.o \
@@ -380,10 +381,10 @@ OBJECTS = \
     measurementutil/CCSDS/CCSDSAPMSpinStabilized.o \
     measurementutil/CCSDS/CCSDSAEMSpinStabilized.o \
     measurementutil/CCSDS/CCSDSAttitudeManeuver.o \
+    measurementutil/CCSDS/CCSDSManeuver.o \
     measurementutil/CCSDS/CCSDSSpacecraftInertia.o \
     measurementutil/CCSDS/CCSDSSpacecraftParameters.o \
     measurementutil/CCSDS/CCSDSKeplerianElements.o \
-    measurementutil/CCSDS/CCSDSManeuver.o \
     measurementutil/SLRObtype.o \
     measurementutil/TLEObtype.o \
     measurementutil/DataFile.o \

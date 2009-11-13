@@ -234,7 +234,8 @@ bool ProcessCCSDSOPMDataFile::GetData(ObType *myOPMData)
     std::string lff = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
-    if (!IsEOF() && currentCCSDSHeader == NULL && pcrecpp::RE("^CCSDS_OPM_VERS.*").FullMatch(lff))
+    if (!IsEOF() && currentCCSDSHeader == NULL
+                 && pcrecpp::RE("^CCSDS_OPM_VERS.*").FullMatch(lff))
     {
 
 	if (GetCCSDSHeader(lff,myOPM))
@@ -809,9 +810,16 @@ bool ProcessCCSDSOPMDataFile::GetCCSDSMetaData(std::string &lff,
 
         lff = ReadLineFromFile();
     }
-    while( requiredCount < requiredNumberMetaDataParameters );
+    while( requiredCount < requiredNumberMetaDataParameters && !IsEOF());
 
-    myOb->ccsdsMetaData = myMetaData;
-
-    return true;
+    if (requiredCount < requiredNumberMetaDataParameters)
+    {
+        MessageInterface::ShowMessage("Error: MetaData does not contain all required elements! Abort!\n");
+        return false;
+    }
+    else
+    {
+        myOb->ccsdsMetaData = myMetaData;
+        return true;
+    }
 }

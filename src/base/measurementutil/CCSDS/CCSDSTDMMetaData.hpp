@@ -53,6 +53,7 @@ public:
     
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberTDMMetaDataParameters();
+    bool Validate() const;
     
     enum CCSDS_METADATA_REPS
     {

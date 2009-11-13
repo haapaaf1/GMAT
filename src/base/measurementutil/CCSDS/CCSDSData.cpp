@@ -1,34 +1,28 @@
 #include "CCSDSData.hpp"
-
 //---------------------------------
 //  static data
 //---------------------------------
-
-const std::string CCSDSData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSGenericDataReps] =
+const std::string CCSDSData::CCSDS_RATE_FRAME[EndCCSDSRateFrameReps] =
 {
-    "Keyword ID",
-    "Keyword",
-    "Epoch",
-    "Measurement",
-    "Comment"
+    "REF_FRAME_A",
+    "REF_FRAME_B"
 };
 
-const bool CCSDSData::CCSDS_IS_REQUIRED[EndCCSDSGenericDataReps] =
+const std::string CCSDSData::CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps] =
 {
-    true,
-    true,
-    true,
-    true,
-    false
+    "QUATERNION",
+    "QUATERNION/DERIVATIVE",
+    "QUATERNION/RATE",
+    "EULER_ANGLE",
+    "EULER_ANGLE/RATE",
+    "SPIN",
+    "SPIN/NUTATION"
 };
 
-const Gmat::ParameterType CCSDSData::CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataReps] =
+const std::string CCSDSData::CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps] =
 {
-    Gmat::INTEGER_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::STRINGARRAY_TYPE
+    "A2B",
+    "B2A"
 };
 
 //------------------------------------------------------------------------------
@@ -38,28 +32,18 @@ const Gmat::ParameterType CCSDSData::CCSDS_PARAMETER_TYPE[EndCCSDSGenericDataRep
  * Constructor for the CCSDSData class
  */
 //------------------------------------------------------------------------------
-CCSDSData::CCSDSData() :
-    keywordID(0),
-    keyword(std::string("")),
-    timeTag(std::string("")),
-    measurement(0),
-    comments()
+CCSDSData::CCSDSData()
 {
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSData(const CCSDSData &data) : 
+//  CCSDSData(const CCSDSData &data)
 //------------------------------------------------------------------------------
 /**
- * Constructor for the generic CCSDS Data class
+ * Constructor for the CCSDSData class
  */
 //------------------------------------------------------------------------------
-CCSDSData::CCSDSData(const CCSDSData &data) : 
-    keywordID(data.keywordID),
-    keyword(data.keyword),
-    timeTag(data.timeTag),
-    measurement(data.measurement),
-    comments(data.comments)
+CCSDSData::CCSDSData(const CCSDSData &data)
 {
 }
 
@@ -67,24 +51,17 @@ CCSDSData::CCSDSData(const CCSDSData &data) :
 //  CCSDSData& operator=(const CCSDSData &data)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for Data structures.
+ * Assignment operator for CCSDSData structures.
  *
- * @param <data> The original that is being copied.
+ * @param <aemMD> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
 const CCSDSData& CCSDSData::operator=(const CCSDSData &data)
-
 {
     if (&data == this)
         return *this;
-
-    keywordID = data.keywordID;
-    keyword = data.keyword;
-    timeTag = data.timeTag;
-    measurement = data.measurement;
-    comments = data.comments;
 
     return *this;
 }
@@ -100,114 +77,56 @@ CCSDSData::~CCSDSData()
 {
 }
 
-//---------------------------------------------------------------------------
-//  bool IsParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//  bool GetBooleanDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
 /**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
+ * @see ObType
  */
 //---------------------------------------------------------------------------
-bool CCSDSData::IsParameterRequired(const Integer id) const
+bool CCSDSData::GetBooleanDataParameter(const Integer id) const
 {
-    if (id >= 0 && id <= EndCCSDSGenericDataReps)
-	return CCSDS_IS_REQUIRED[id];
-    else
-	return false;
+    return false;
 }
 
 //------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool CCSDSData::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSGenericDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
-
-//------------------------------------------------------------------------------
-// Measurement Data Access functions
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-//  std::string  GetDataParameterText(const Integer id) const
+//  bool GetBooleanDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSData::GetDataParameterText(const Integer id) const
+bool CCSDSData::GetBooleanDataParameter(const std::string &label) const
 {
-   if ((id >= 0) && (id < EndCCSDSGenericDataReps))
-   {
-      return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
+   return GetBooleanDataParameter(GetDataParameterID(label));
 }
 
 //------------------------------------------------------------------------------
-//  Integer  GetDataParameterID(const std::string &str) const
+//  Real GetRealDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//---------------------------------------------------------------------------
+Real CCSDSData::GetRealDataParameter(const Integer id) const
+{
+    return GmatBase::REAL_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+//  Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer CCSDSData::GetDataParameterID(const std::string &str) const
+Real CCSDSData::GetRealDataParameter(const std::string &label) const
 {
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSGenericDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
-	{
-	    return i;
-	}
-   }
-
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+   return GetRealDataParameter(GetDataParameterID(label));
 }
 
-
 //------------------------------------------------------------------------------
-//  Gmat::ParameterType  GetDataParameterType(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Gmat::ParameterType CCSDSData::GetDataParameterType(const Integer id) const
-{
-   if ((id >= 0) && (id < EndCCSDSGenericDataReps))
-      return CCSDS_PARAMETER_TYPE[id];
-
-   return Gmat::UNKNOWN_PARAMETER_TYPE;
-}
-//------------------------------------------------------------------------------
-// Integer GetIntegerDataParameter(const Integer id) const
+//  Integer GetIntegerDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -215,22 +134,11 @@ Gmat::ParameterType CCSDSData::GetDataParameterType(const Integer id) const
 //---------------------------------------------------------------------------
 Integer CCSDSData::GetIntegerDataParameter(const Integer id) const
 {
-    switch (id)
-    {
-	case CCSDS_GENERICDATA_KEYWORDID_ID:
-
-            return keywordID;
-
-     default:
-
-        return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
-
-    }
-
+    return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
-// Integer GetIntegerDataParameter(const std::string &label) const
+//  Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -241,20 +149,8 @@ Integer CCSDSData::GetIntegerDataParameter(const std::string &label) const
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
 
-//---------------------------------------------------------------------------
-//  std::string GetDataParameterTypeString(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//---------------------------------------------------------------------------
-std::string CCSDSData::GetDataParameterTypeString(const Integer id) const
-{
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
 //------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const Integer id) const
+//  std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -262,27 +158,11 @@ std::string CCSDSData::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CCSDSData::GetStringDataParameter(const Integer id) const
 {
-    switch (id)
-    {
-
-	case CCSDS_GENERICDATA_KEYWORD_ID:
-
-            return keyword;
-
-	case CCSDS_GENERICDATA_TIMETAG_ID:
-
-            return timeTag;
-
-        default:
-
-            return GmatBase::STRING_PARAMETER_UNDEFINED;
-
-    }
-
+    return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const std::string &label) const
+//  std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -302,18 +182,7 @@ std::string CCSDSData::GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 StringArray CCSDSData::GetStringArrayDataParameter(const Integer id) const
 {
-    switch (id)
-    {
-        case CCSDS_GENERICDATA_COMMENTS_ID:
-
-	    return comments;
-
-        default:
-
-            return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
-
-    }
-
+    return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -328,84 +197,271 @@ StringArray CCSDSData::GetStringArrayDataParameter(const std::string &label) con
    return GetStringArrayDataParameter(GetDataParameterID(label));
 }
 
-//------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool IsParameterDefined(const Integer id, bool value) const
+//---------------------------------------------------------------------------
 /**
- * @see ObType
+ * Checks to see if the requested parameter is defined.
+ *
+ * @param <id> ID of the parameter.
+ * @param <value> Value of the parameter.
+ *
+ * @return true if the parameter is defined, false if not (the default)
  */
-//------------------------------------------------------------------------------
-Real CCSDSData::GetRealDataParameter(const Integer id) const
+//---------------------------------------------------------------------------
+bool CCSDSData::IsParameterDefined(const Integer id, bool value) const
 {
-    switch (id)
+    if (GetDataParameterType(id) == Gmat::BOOLEAN_TYPE)
     {
-
-	case CCSDS_GENERICDATA_MEASUREMENT_ID:
-
-	    return measurement;
-
-	default:
-
-	    return GmatBase::REAL_PARAMETER_UNDEFINED;
-
+        if (&value == NULL)
+            return false;
+        else
+            return true;
     }
+    else
+        return false;
+}
 
+//---------------------------------------------------------------------------
+//  bool IsParameterDefined(const Integer id, StringArray value) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is defined.
+ *
+ * @param <id> ID of the parameter.
+ * @param <value> Value of the parameter.
+ *
+ * @return true if the parameter is defined, false if not (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSData::IsParameterDefined(const Integer id, StringArray value) const
+{
+    if (GetDataParameterType(id) == Gmat::STRINGARRAY_TYPE)
+    {
+        if (&value == NULL || value == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterDefined(const Integer id, std::string value) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is defined.
+ *
+ * @param <id> ID of the parameter.
+ * @param <value> Value of the parameter.
+ *
+ * @return true if the parameter is defined, false if not (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSData::IsParameterDefined(const Integer id, std::string value) const
+{
+    if (GetDataParameterType(id) == Gmat::STRING_TYPE)
+    {
+        if (&value == NULL || value == GmatBase::STRING_PARAMETER_UNDEFINED)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterDefined(const Integer id, Real value) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is defined.
+ *
+ * @param <id> ID of the parameter.
+ * @param <value> Value of the parameter.
+ *
+ * @return true if the parameter is defined, false if not (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSData::IsParameterDefined(const Integer id, Real value) const
+{
+    if (GetDataParameterType(id) == Gmat::REAL_TYPE)
+    {
+        if (&value == NULL || value == GmatBase::REAL_PARAMETER_UNDEFINED)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterDefined(const Integer id, Integer value) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is defined.
+ *
+ * @param <id> ID of the parameter.
+ * @param <value> Value of the parameter.
+ *
+ * @return true if the parameter is defined, false if not (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSData::IsParameterDefined(const Integer id, Integer value) const
+{
+    if (GetDataParameterType(id) == Gmat::INTEGER_TYPE)
+    {
+        if (&value == NULL || value == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
 }
 
 //------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const std::string &label) const
+//  std::string  GetAttitudeDirText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Real CCSDSData::GetRealDataParameter(const std::string &label) const
-{
-   return GetRealDataParameter(GetDataParameterID(label));
-}
-
-
-//---------------------------------------------------------------------------
-//  bool CCSDSCountRequiredNumberDataParameters()
-//---------------------------------------------------------------------------
-/**
- * Count the number of required variables.
+ * Function to obtain the attitude type keyword for a specific ID
  *
- * @return The number of required variables.
+ * @param <id> The attitude direction id
+ * @return The attitude direction keyword
+ *
  */
-//---------------------------------------------------------------------------
-Integer CCSDSCountRequiredNumberDataParameters()
+//------------------------------------------------------------------------------
+std::string CCSDSData::GetAttitudeDirText(const Integer id) const
 {
-
-    Integer num = 0;
-
-    for (Integer id = 0; id < CCSDSData::EndCCSDSGenericDataReps; id++)
-        if (CCSDSData::CCSDS_IS_REQUIRED[id])
-            num++;
-
-    return num;
+   if ((id >= 0) && (id < EndCCSDSAttitudeDirReps))
+   {
+      return CCSDS_ATTITUDE_DIR[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output,
-//                           const CCSDSData *myCCSDSData)
+//  Integer  GetAttitudeDirID(const std::string &str) const
 //------------------------------------------------------------------------------
 /**
- * Formats CCCSDSObType data and sends to output stream.
+ * Function to obtain the ID associated with an attitude type keyword
  *
- * @param  <output>  Output stream
- * @param  <myData>    CCSDS data to write out
+ * @param <str> The attitude direction keyword
+ * @return The attitude direction id
  *
- * @return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output,
-                          const CCSDSData *myCCSDSData)
+Integer CCSDSData::GetAttitudeDirID(const std::string &str) const
 {
-    using namespace std;
+    std::string regex = "^" + str + "$";
 
-    output << myCCSDSData->keyword << " = " << myCCSDSData->timeTag
-           << " " << myCCSDSData->measurement << endl;
+    for (Integer i = 0; i < EndCCSDSAttitudeDirReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_ATTITUDE_DIR[i]))
+	{
+	    return i;
+	}
+   }
 
-    return output;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetAttitudeTypeText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Function to obtain the attitude type keyword for a specific ID
+ *
+ * @param <id> The attitude type id
+ * @return The attitude type keyword
+ *
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSData::GetAttitudeTypeText(const Integer id) const
+{
+   if ((id >= 0) && (id < EndCCSDSAttitudeTypeReps))
+   {
+      return CCSDS_ATTITUDE_TYPE[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+//  Integer  GetAttitudeTypeID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * Function to obtain the ID associated with an attitude type keyword
+ *
+ * @param <str> The attitude type keyword
+ * @return The attitude type id
+ *
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSData::GetAttitudeTypeID(const std::string &str) const
+{
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSAttitudeTypeReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_ATTITUDE_TYPE[i]))
+	{
+	    return i;
+	}
+   }
+
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetRateFrameText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Function to obtain the attitude type keyword for a specific ID
+ *
+ * @param <id> The rate frame type id
+ * @return The rate frame type keyword
+ *
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSData::GetRateFrameText(const Integer id) const
+{
+   if ((id >= 0) && (id < EndCCSDSRateFrameReps))
+   {
+      return CCSDS_RATE_FRAME[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+//  Integer  GetRateFrameID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * Function to obtain the ID associated with an rate frame keyword
+ *
+ * @param <str> The rate frame keyword
+ * @return The rate frame id
+ *
+ */
+//------------------------------------------------------------------------------
+Integer CCSDSData::GetRateFrameID(const std::string &str) const
+{
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSRateFrameReps; i++)
+    {
+        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
+                                          .set_extended(true)
+                       ).FullMatch(CCSDS_RATE_FRAME[i]))
+	{
+	    return i;
+	}
+   }
+
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }

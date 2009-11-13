@@ -25,11 +25,6 @@ public :
 
     // Validation methods
     std::string GetCCSDSObType();
-
-    friend std::string GetAttitudeTypeText(const Integer id);
-    friend Integer     GetAttitudeTypeID(const std::string &str);
-    friend std::string GetAttitudeDirText(const Integer id);
-    friend Integer     GetAttitudeDirID(const std::string &str);
     
     virtual const std::string* GetTimeSystems() const;
     virtual std::string GetTimeSystemText(const Integer &id) const;
@@ -40,25 +35,6 @@ public :
 	EndCCSDSTimeReps
     };
     
-    enum CCSDS_ATTITUDE_TYPE
-    {
-        CCSDS_QUATERNION_ID = 0,
-        CCSDS_QUATERNION_DERIVATIVE_ID,
-        CCSDS_QUATERNION_RATE_ID,
-        CCSDS_EULER_ANGLE_ID,
-        CCSDS_EULER_ANGLE_RATE_ID,
-        CCSDS_SPIN_ID,
-        CCSDS_SPIN_NUTATION_ID,
-        EndCCSDSAttitudeTypeReps
-    };
-
-    enum CCSDS_ATTITUDE_DIR
-    {
-        CCSDS_ATTITUDE_A2B_ID = 0,
-        CCSDS_ATTITUDE_B2A_ID,
-        EndCCSDSAttitudeDirReps
-    };
-
     friend class ProcessCCSDSDataFile;
     friend class ProcessCCSDSTDMDataFile;
     friend class ProcessCCSDSOPMDataFile;
@@ -68,8 +44,6 @@ public :
     
 protected:
 
-    static const std::string CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps];
-    static const std::string CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps];
     static const std::string CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTimeReps];
 
     // Pointer to the header record associated with this data point

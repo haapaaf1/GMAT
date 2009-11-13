@@ -8,16 +8,9 @@
 #ifndef _CCSDSSPINSTABILIZED_HPP
 #define	_CCSDSSPINSTABILIZED_HPP
 
-#include "GmatBase.hpp"
-#include "gmatdefs.hpp"
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <pcrecpp.h>
-#include "CCSDSObtype.hpp"
+#include "CCSDSData.hpp"
 
-class CCSDSSpinStabilized
+class CCSDSSpinStabilized : public CCSDSData
 {
 
 public:
@@ -42,9 +35,9 @@ public:
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
     friend Integer CountRequiredNumberSpinStabilizedParameters();
+    bool Validate() const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -67,7 +60,7 @@ public:
 	CCSDS_SPINSTABILIZED_COMMENTS_ID,
         EndCCSDSSpinStabilizedDataReps
     };
-
+    
     friend class ProcessCCSDSAPMDataFile;
 
 protected:

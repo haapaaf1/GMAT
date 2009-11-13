@@ -66,14 +66,13 @@ bool ProcessCCSDSTDMDataFile::Initialize()
 
         #ifdef DEBUG_CCSDSTDM_DATA
 
-            fstream *outFile = new fstream;
-            outFile->open("tdm.output",ios::out);
-
-            // Output to file to make sure all the data is properly stored
+            ProcessCCSDSTDMDataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetFileName("TDM.output");
+            myOutFile.Initialize();
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-		*outFile << (CCSDSTDMObType*)(*j) << std::endl;
-
-            outFile->close();
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
 
         #endif
 
@@ -285,7 +284,7 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 }
 
 //------------------------------------------------------------------------------
-// bool GetCCSDSTDMData(std::string &lff, CCSDSData *myData,
+// bool GetCCSDSTDMData(std::string &lff, CCSDSTrackingData *myData,
 //                      CCSDSObType *myOb)
 //------------------------------------------------------------------------------
 /**
@@ -299,7 +298,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
     std::string keyword, ccsdsEpoch;
     Real value;
 
-    CCSDSData *myTDMData = new CCSDSData;
+    CCSDSTrackingData *myTDMData = new CCSDSTrackingData;
 
     GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value);
 
@@ -311,7 +310,7 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
         if (!CCSDSTimeTag2A1Date(myTDMData->timeTag,myOb->epoch)) return false;
         myTDMData->measurement = value;
         myOb->ccsdsTDMData =  myTDMData;
-        myOb->ccsdsHeader->dataType = CCSDSHeader::GENERICDATA_ID;
+        myOb->ccsdsHeader->dataType = CCSDSHeader::TRACKINGDATA_ID;
         return true;
     }
 

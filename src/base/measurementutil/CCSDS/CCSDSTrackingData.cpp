@@ -1,147 +1,191 @@
-#include "CCSDSStateVector.hpp"
+#include "CCSDSTrackingData.hpp"
 
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSStateVector::CCSDS_STATEVECTOR_KEYWORDS[EndCCSDSStateVectorDataReps] =
+const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_KEYWORDS[EndCCSDSTrackingDataReps] =
 {
-    "EPOCH",
-    "X",
-    "Y",
-    "Z",
-    "X_DOT",
-    "Y_DOT",
-    "Z_DOT",
+    "",
+    "",
+    "",
     "COMMENT"
 };
 
-const std::string CCSDSStateVector::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSStateVectorDataReps] =
+const std::string CCSDSTrackingData::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTrackingDataReps] =
 {
     "",
-    "km",
-    "km",
-    "km",
-    "km/s",
-    "km/s",
-    "km/s",
+    "",
+    "",
     ""
 };
-
-const std::string CCSDSStateVector::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSStateVectorDataReps] =
+const std::string CCSDSTrackingData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTrackingDataReps] =
 {
+    "Keyword",
     "Epoch",
-    "X",
-    "Y",
-    "Z",
-    "XDot",
-    "YDot",
-    "ZDot",
-    "Comments"
+    "Measurement",
+    "Comment"
 };
 
-const bool CCSDSStateVector::CCSDS_IS_REQUIRED[EndCCSDSStateVectorDataReps] =
+const bool CCSDSTrackingData::CCSDS_IS_REQUIRED[EndCCSDSTrackingDataReps] =
 {
-    true,
-    true,
-    true,
-    true,
     true,
     true,
     true,
     false
 };
 
-const Gmat::ParameterType CCSDSStateVector::CCSDS_PARAMETER_TYPE[EndCCSDSStateVectorDataReps] =
+const Gmat::ParameterType CCSDSTrackingData::CCSDS_PARAMETER_TYPE[EndCCSDSTrackingDataReps] =
 {
     Gmat::STRING_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
+    Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE
 };
 
 //------------------------------------------------------------------------------
-//  CCSDSStateVector()
+//  CCSDSTrackingData()
 //------------------------------------------------------------------------------
 /**
- * Constructor for the CCSDSStateVector class
+ * Constructor for the CCSDSTrackingData class
  */
 //------------------------------------------------------------------------------
-CCSDSStateVector::CCSDSStateVector() : CCSDSData(),
+CCSDSTrackingData::CCSDSTrackingData() : CCSDSData(),
+    keywordID(0),
+    keyword(std::string("")),
     timeTag(std::string("")),
-    x(0),
-    y(0),
-    z(0),
-    xDot(0),
-    yDot(0),
-    zDot(0),
+    measurement(0),
     comments()
 {
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSStateVector(const CCSDSStateVector &sv)
+//  CCSDSTrackingData(const CCSDSTrackingData &data) :
 //------------------------------------------------------------------------------
 /**
- * Constructor for the StateVector class
+ * Constructor for the generic CCSDS Data class
  */
 //------------------------------------------------------------------------------
-CCSDSStateVector::CCSDSStateVector(const CCSDSStateVector &sv) :
-    CCSDSData(sv),
-    timeTag(sv.timeTag),
-    x(sv.x),
-    y(sv.y),
-    z(sv.z),
-    xDot(sv.xDot),
-    yDot(sv.yDot),
-    zDot(sv.zDot),
-    comments(sv.comments)
+CCSDSTrackingData::CCSDSTrackingData(const CCSDSTrackingData &data) :
+    CCSDSData(data),
+    keywordID(data.keywordID),
+    keyword(data.keyword),
+    timeTag(data.timeTag),
+    measurement(data.measurement),
+    comments(data.comments)
 {
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSStateVector& operator=(const CCSDSStateVector &sv)
+//  CCSDSTrackingData& operator=(const CCSDSTrackingData &data)
 //---------------------------------------------------------------------------
 /**
- * Assignment operator for StateVector structures.
+ * Assignment operator for Data structures.
  *
- * @param <sv> The original that is being copied.
+ * @param <data> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSStateVector& CCSDSStateVector::operator=(const CCSDSStateVector &sv)
+const CCSDSTrackingData& CCSDSTrackingData::operator=(const CCSDSTrackingData &data)
 
 {
-    if (&sv == this)
+    if (&data == this)
         return *this;
 
-    CCSDSData::operator=(sv);
-    
-    timeTag = sv.timeTag;
-    x = sv.x;
-    y = sv.y;
-    z = sv.z;
-    xDot = sv.xDot;
-    yDot = sv.yDot;
-    zDot = sv.zDot;
-    comments = sv.comments;
+    CCSDSData::operator=(data);
+
+    keywordID = data.keywordID;
+    keyword = data.keyword;
+    timeTag = data.timeTag;
+    measurement = data.measurement;
+    comments = data.comments;
 
     return *this;
 }
 
 //------------------------------------------------------------------------------
-//  ~CCSDSStateVector()
+//  ~CCSDSTrackingData()
 //------------------------------------------------------------------------------
 /**
- * Destructor for the CCSDSStateVector class
+ * Destructor for the CCSDSTrackingData class
  */
 //------------------------------------------------------------------------------
-CCSDSStateVector::~CCSDSStateVector()
+CCSDSTrackingData::~CCSDSTrackingData()
 {
+}
+
+//------------------------------------------------------------------------------
+// const std::string* GetKeywords() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string array of allowable CCSDS OPM keywords
+ *
+ * @return String array of keywords.
+ *
+ */
+//------------------------------------------------------------------------------
+const std::string* CCSDSTrackingData::GetKeywords() const
+{
+   return CCSDS_TRACKINGDATA_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+//  const Integer GetKeywordID(const std::string str) const
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if data is available in a given data format
+ *
+ * @return ID associated with a keyword
+ */
+//------------------------------------------------------------------------------
+const Integer CCSDSTrackingData::GetKeywordID(const std::string str) const
+{
+
+    std::string regex = "^" + str + "$";
+
+    for (Integer i = 0; i < EndCCSDSTrackingDataReps; i++)
+    {
+        if (pcrecpp::RE(regex).FullMatch(CCSDS_TRACKINGDATA_KEYWORDS[i]))
+            return i;
+    }
+
+   return -1;
+
+}
+
+//------------------------------------------------------------------------------
+//  std::string  GetUnits(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+std::string CCSDSTrackingData::GetUnits(const Integer &id) const
+{
+   if ((id >= 0) && (id < EndCCSDSTrackingDataReps))
+   {
+      return CCSDS_UNIT_DESCRIPTIONS[id];
+   }
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterRequired(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is required by the data format.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSTrackingData::IsParameterRequired(const Integer id) const
+{
+    if (id >= 0 && id <= EndCCSDSTrackingDataReps)
+	return CCSDS_IS_REQUIRED[id];
+    else
+	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -155,31 +199,14 @@ CCSDSStateVector::~CCSDSStateVector()
  * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSStateVector::GetDataParameterText(const Integer id) const
+std::string CCSDSTrackingData::GetDataParameterText(const Integer id) const
 {
-   if ((id >= 0) && (id < EndCCSDSStateVectorDataReps))
+   if ((id >= 0) && (id < EndCCSDSTrackingDataReps))
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
    return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
-
-//------------------------------------------------------------------------------
-//  std::string  GetUnits(const Integer &id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-std::string CCSDSStateVector::GetUnits(const Integer &id) const
-{
-   if ((id >= 0) && (id < EndCCSDSStateVectorDataReps))
-   {
-      return CCSDS_UNIT_DESCRIPTIONS[id];
-   }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
 
 //------------------------------------------------------------------------------
 //  Integer  GetDataParameterID(const std::string &str) const
@@ -188,11 +215,11 @@ std::string CCSDSStateVector::GetUnits(const Integer &id) const
  * @see ObType
  */
 //------------------------------------------------------------------------------
-Integer CCSDSStateVector::GetDataParameterID(const std::string &str) const
+Integer CCSDSTrackingData::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
 
-    for (Integer i = 0; i < EndCCSDSStateVectorDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSTrackingDataReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -213,9 +240,9 @@ Integer CCSDSStateVector::GetDataParameterID(const std::string &str) const
  * @see ObType
  */
 //------------------------------------------------------------------------------
-Gmat::ParameterType CCSDSStateVector::GetDataParameterType(const Integer id) const
+Gmat::ParameterType CCSDSTrackingData::GetDataParameterType(const Integer id) const
 {
-   if ((id >= 0) && (id < EndCCSDSStateVectorDataReps))
+   if ((id >= 0) && (id < EndCCSDSTrackingDataReps))
       return CCSDS_PARAMETER_TYPE[id];
 
    return Gmat::UNKNOWN_PARAMETER_TYPE;
@@ -228,64 +255,9 @@ Gmat::ParameterType CCSDSStateVector::GetDataParameterType(const Integer id) con
  * @see ObType
  */
 //---------------------------------------------------------------------------
-std::string CCSDSStateVector::GetDataParameterTypeString(const Integer id) const
+std::string CCSDSTrackingData::GetDataParameterTypeString(const Integer id) const
 {
    return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Real CCSDSStateVector::GetRealDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-	case CCSDS_STATEVECTOR_X_ID:
-
-            return x;
-
-	case CCSDS_STATEVECTOR_Y_ID:
-
-            return y;
-
-	case CCSDS_STATEVECTOR_Z_ID:
-
-            return z;
-
-	case CCSDS_STATEVECTOR_XDOT_ID:
-
-            return xDot;
-
-        case CCSDS_STATEVECTOR_YDOT_ID:
-
-            return yDot;
-
-	case CCSDS_STATEVECTOR_ZDOT_ID:
-
-            return zDot;
-
-        default:
-
-            return GmatBase::REAL_PARAMETER_UNDEFINED;
-
-    }
-
-}
-
-//------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see ObType
- */
-//------------------------------------------------------------------------------
-Real CCSDSStateVector::GetRealDataParameter(const std::string &label) const
-{
-   return GetRealDataParameter(GetDataParameterID(label));
 }
 
 //------------------------------------------------------------------------------
@@ -295,14 +267,18 @@ Real CCSDSStateVector::GetRealDataParameter(const std::string &label) const
  * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSStateVector::GetStringDataParameter(const Integer id) const
+std::string CCSDSTrackingData::GetStringDataParameter(const Integer id) const
 {
     switch (id)
     {
 
-        case CCSDS_STATEVECTOR_TIMETAG_ID:
+	case CCSDS_TRACKINGDATA_KEYWORD_ID:
 
-	    return timeTag;
+            return keyword;
+
+	case CCSDS_TRACKINGDATA_TIMETAG_ID:
+
+            return timeTag;
 
         default:
 
@@ -319,7 +295,7 @@ std::string CCSDSStateVector::GetStringDataParameter(const Integer id) const
  * @see ObType
  */
 //------------------------------------------------------------------------------
-std::string CCSDSStateVector::GetStringDataParameter(const std::string &label) const
+std::string CCSDSTrackingData::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
 }
@@ -331,12 +307,11 @@ std::string CCSDSStateVector::GetStringDataParameter(const std::string &label) c
  * @see ObType
  */
 //------------------------------------------------------------------------------
-StringArray CCSDSStateVector::GetStringArrayDataParameter(const Integer id) const
+StringArray CCSDSTrackingData::GetStringArrayDataParameter(const Integer id) const
 {
-
     switch (id)
     {
-        case CCSDS_STATEVECTOR_COMMENTS_ID:
+        case CCSDS_TRACKINGDATA_COMMENTS_ID:
 
 	    return comments;
 
@@ -355,71 +330,50 @@ StringArray CCSDSStateVector::GetStringArrayDataParameter(const Integer id) cons
  * @see ObType
  */
 //------------------------------------------------------------------------------
-StringArray CCSDSStateVector::GetStringArrayDataParameter(const std::string &label) const
+StringArray CCSDSTrackingData::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
 }
 
 //------------------------------------------------------------------------------
-// const std::string* GetKeywords() const
+// virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
- * Returns the string array of allowable CCSDS OEM keywords
- *
- * @return String array of keywords.
- *
+ * @see ObType
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSStateVector::GetKeywords() const
+Real CCSDSTrackingData::GetRealDataParameter(const Integer id) const
 {
-   return CCSDS_STATEVECTOR_KEYWORDS;
-}
-
-//------------------------------------------------------------------------------
-//  const Integer GetKeywordID(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return ID associated with a keyword
- */
-//------------------------------------------------------------------------------
-const Integer CCSDSStateVector::GetKeywordID(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSStateVectorDataReps; i++)
+    switch (id)
     {
-        if (pcrecpp::RE(regex).FullMatch(CCSDS_STATEVECTOR_KEYWORDS[i]))
-            return i;
+
+	case CCSDS_TRACKINGDATA_MEASUREMENT_ID:
+
+	    return measurement;
+
+	default:
+
+	    return GmatBase::REAL_PARAMETER_UNDEFINED;
+
     }
 
-   return -1;
-
 }
 
-//---------------------------------------------------------------------------
-//  bool IsParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// virtual Real GetRealDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
 /**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
+ * @see ObType
  */
-//---------------------------------------------------------------------------
-bool CCSDSStateVector::IsParameterRequired(const Integer id) const
+//------------------------------------------------------------------------------
+Real CCSDSTrackingData::GetRealDataParameter(const std::string &label) const
 {
-    if (id >= 0 && id <= EndCCSDSStateVectorDataReps)
-	return CCSDS_IS_REQUIRED[id];
-    else
-	return false;
+   return GetRealDataParameter(GetDataParameterID(label));
 }
 
+
 //---------------------------------------------------------------------------
-//  Integer CountRequiredNumberStateVectorParameters()
+//  bool CCSDSCountRequiredNumberDataParameters()
 //---------------------------------------------------------------------------
 /**
  * Count the number of required variables.
@@ -427,17 +381,18 @@ bool CCSDSStateVector::IsParameterRequired(const Integer id) const
  * @return The number of required variables.
  */
 //---------------------------------------------------------------------------
-Integer CountRequiredNumberStateVectorParameters()
+Integer CCSDSCountRequiredNumberDataParameters()
 {
 
     Integer num = 0;
 
-    for (Integer id = 0; id < CCSDSStateVector::EndCCSDSStateVectorDataReps; id++)
-        if (CCSDSStateVector::CCSDS_IS_REQUIRED[id])
+    for (Integer id = 0; id < CCSDSTrackingData::EndCCSDSTrackingDataReps; id++)
+        if (CCSDSTrackingData::CCSDS_IS_REQUIRED[id])
             num++;
 
     return num;
 }
+
 //---------------------------------------------------------------------------
 //  bool Validate() const
 //---------------------------------------------------------------------------
@@ -447,10 +402,10 @@ Integer CountRequiredNumberStateVectorParameters()
  * @return True if the header is valid, false otherwise (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSStateVector::Validate() const
+bool CCSDSTrackingData::Validate() const
 {
 
-    for (unsigned int i = 0; i < EndCCSDSStateVectorDataReps; i++ )
+    for (unsigned int i = 0; i < EndCCSDSTrackingDataReps; i++ )
     {
 
         if (IsParameterRequired(i))
@@ -492,3 +447,26 @@ bool CCSDSStateVector::Validate() const
 }
 
 
+//------------------------------------------------------------------------------
+// std::ostream& operator<< (std::ostream &output,
+//                           const CCSDSTrackingData *myCCSDSTrackingData)
+//------------------------------------------------------------------------------
+/**
+ * Formats CCCSDSObType data and sends to output stream.
+ *
+ * @param  <output>  Output stream
+ * @param  <myData>    CCSDS data to write out
+ *
+ * @return  Output stream
+ */
+//------------------------------------------------------------------------------
+std::ostream& operator<< (std::ostream &output,
+                          const CCSDSTrackingData *myCCSDSTrackingData)
+{
+    using namespace std;
+
+    output << myCCSDSTrackingData->keyword << " = " << myCCSDSTrackingData->timeTag
+           << " " << myCCSDSTrackingData->measurement << endl;
+
+    return output;
+}

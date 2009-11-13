@@ -90,7 +90,7 @@ const Gmat::ParameterType CCSDSSpinStabilized::CCSDS_PARAMETER_TYPE[EndCCSDSSpin
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSSpinStabilized::CCSDSSpinStabilized() :
+CCSDSSpinStabilized::CCSDSSpinStabilized() : CCSDSData(),
     attitudeType(0),
     timeTag(std::string("")),
     frameA(std::string("")),
@@ -115,6 +115,7 @@ CCSDSSpinStabilized::CCSDSSpinStabilized() :
  */
 //------------------------------------------------------------------------------
 CCSDSSpinStabilized::CCSDSSpinStabilized(const CCSDSSpinStabilized &ss) :
+    CCSDSData(ss),
     attitudeType(ss.attitudeType),
     timeTag(ss.timeTag),
     frameA(ss.frameA),
@@ -147,19 +148,21 @@ const CCSDSSpinStabilized& CCSDSSpinStabilized::operator=(const CCSDSSpinStabili
    if (&ss == this)
       return *this;
 
-    attitudeType = ss.attitudeType;
-    timeTag = ss.timeTag;
-    frameA = ss.frameA;
-    frameB = ss.frameB;
-    direction = ss.direction;
-    spinAlpha = ss.spinAlpha;
-    spinDelta = ss.spinDelta;
-    spinAngle = ss.spinAngle;
-    spinAngleVelocity = ss.spinAngleVelocity;
-    nutation = ss.nutation;
-    nutationPeriod = ss.nutationPeriod;
-    nutationPhase = ss.nutationPhase;
-    comments = ss.comments;
+   CCSDSData::operator=(ss);
+
+   attitudeType = ss.attitudeType;
+   timeTag = ss.timeTag;
+   frameA = ss.frameA;
+   frameB = ss.frameB;
+   direction = ss.direction;
+   spinAlpha = ss.spinAlpha;
+   spinDelta = ss.spinDelta;
+   spinAngle = ss.spinAngle;
+   spinAngleVelocity = ss.spinAngleVelocity;
+   nutation = ss.nutation;
+   nutationPeriod = ss.nutationPeriod;
+   nutationPhase = ss.nutationPhase;
+   comments = ss.comments;
 
    return *this;
 }
@@ -524,30 +527,63 @@ Integer CountRequiredNumberSpinStabilizedParameters()
     return num;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
 /**
- * Checks to see if data is available in a given data format
+ * Checks to see if the header is valid
  *
- * @return true if successfull
+ * @return True if the header is valid, false otherwise (the default)
  */
-//------------------------------------------------------------------------------
-bool CCSDSSpinStabilized::CheckDataAvailability(const std::string str) const
+//---------------------------------------------------------------------------
+bool CCSDSSpinStabilized::Validate() const
 {
 
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSSpinStabilizedDataReps; i++)
+    for (unsigned int i = 0; i < EndCCSDSSpinStabilizedDataReps; i++ )
     {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+
+        if (IsParameterRequired(i))
         {
-            return true;
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::INTEGER_TYPE:
+                    {
+                    Integer ivalue = GetIntegerDataParameter(i);
+                    if (&ivalue == NULL ||
+                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
         }
     }
 
-   return false;
-
+    return true;
 }

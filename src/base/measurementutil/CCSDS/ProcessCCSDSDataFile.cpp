@@ -730,6 +730,7 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
 
         // Output a blank line to separate the new metadata from
         // the last block of ephemeris data
+        *theFile << "DATA_STOP" << std::endl;
         *theFile << std::endl;
 
         switch(fileTypeID)
@@ -806,6 +807,7 @@ bool ProcessCCSDSDataFile::WriteData(const ObType *myOb)
             *theFile << (CCSDSAPMObType*)myOb;
             break;
         case DataFile::CCSDS_AEM_ID:
+            ((CCSDSAEMObType*)myOb)->commentsCurrentlyAllowed = !writingDataBlock;
             *theFile << (CCSDSAEMObType*)myOb;
             break;
         default:

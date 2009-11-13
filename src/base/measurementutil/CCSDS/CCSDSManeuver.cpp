@@ -69,7 +69,7 @@ const Gmat::ParameterType CCSDSManeuver::CCSDS_PARAMETER_TYPE[EndCCSDSManeuverDa
  * Constructor for the CCSDSManeuver class
  */
 //------------------------------------------------------------------------------
-CCSDSManeuver::CCSDSManeuver() :
+CCSDSManeuver::CCSDSManeuver() : CCSDSData(),
     ignitionEpoch(std::string("")),
     duration(0),
     deltaMass(0),
@@ -88,8 +88,8 @@ CCSDSManeuver::CCSDSManeuver() :
  * Constructor for the Maneuver class
  */
 //------------------------------------------------------------------------------
-CCSDSManeuver::CCSDSManeuver
-               (const CCSDSManeuver &man) :
+CCSDSManeuver::CCSDSManeuver(const CCSDSManeuver &man) :
+    CCSDSData(man),
     ignitionEpoch(man.ignitionEpoch),
     duration(man.duration),
     deltaMass(man.deltaMass),
@@ -116,6 +116,8 @@ const CCSDSManeuver& CCSDSManeuver::operator=(const CCSDSManeuver &man)
 {
     if (&man == this)
         return *this;
+
+    CCSDSData::operator=(man);
 
     ignitionEpoch = man.ignitionEpoch;
     duration = man.duration;
@@ -437,32 +439,57 @@ Integer CountRequiredNumberManeuverParameters()
     return num;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
 /**
- * Checks to see if data is available in a given data format
+ * Checks to see if the header is valid
  *
- * @return true if successfull
+ * @return True if the header is valid, false otherwise (the default)
  */
-//------------------------------------------------------------------------------
-bool CCSDSManeuver::CheckDataAvailability(const std::string str) const
+//---------------------------------------------------------------------------
+bool CCSDSManeuver::Validate() const
 {
 
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSManeuverDataReps; i++)
+    for (unsigned int i = 0; i < EndCCSDSManeuverDataReps; i++ )
     {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_FILEFORMAT_DESCRIPTIONS[i]))
+
+        if (IsParameterRequired(i))
         {
-            return true;
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::REAL_TYPE:
+                    {
+                    Real rvalue = GetRealDataParameter(i);
+                    if (&rvalue == NULL ||
+                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    {
+                    std::string svalue = GetStringDataParameter(i);
+                    if (&svalue == NULL ||
+                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    {
+                    StringArray savalue = GetStringArrayDataParameter(i);
+                    if (&savalue == NULL ||
+                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
         }
     }
 
-   return false;
-
+    return true;
 }
 
 //------------------------------------------------------------------------------
