@@ -601,14 +601,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\base\command\RunSimulator.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\command\RunSimulator.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\base\command\RunSolver.cpp"
 						>
 					</File>
@@ -1049,14 +1041,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\base\factory\DatafileFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\factory\DatafileFactory.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\base\factory\Factory.cpp"
 						>
 					</File>
@@ -1102,30 +1086,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\factory\MathFactory.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\factory\MeasurementFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\factory\MeasurementFactory.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\factory\MeasurementModelFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\factory\MeasurementModelFactory.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\factory\ObtypeFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\factory\ObtypeFactory.hpp"
 						>
 					</File>
 					<File
@@ -1288,6 +1248,14 @@
 				<Filter
 					Name="foundation"
 					>
+					<File
+						RelativePath="..\..\..\src\base\foundation\Covariance.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\foundation\Covariance.hpp"
+						>
+					</File>
 					<File
 						RelativePath="..\..\..\src\base\foundation\ElementWrapper.cpp"
 						>
@@ -3262,94 +3230,6 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="measurement"
-					>
-					<File
-						RelativePath="..\..\..\src\base\measurement\EstimationDefs.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\GeometricMeasurement.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\GeometricMeasurement.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\MeasurementData.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\MeasurementData.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\MeasurementException.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\MeasurementManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\MeasurementManager.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\MeasurementModel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\MeasurementModel.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\RangeMeasurement.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurement\RangeMeasurement.hpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="measurementfile"
-					>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\Datafile.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\Datafile.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\GmatObtype.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\GmatObtype.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\ObservationData.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\ObservationData.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\Obtype.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\measurementfile\Obtype.hpp"
-						>
-					</File>
-				</Filter>
-				<Filter
 					Name="asset"
 					>
 					<File
@@ -3374,34 +3254,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\asset\GroundStation.hpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="esitmator"
-					>
-					<File
-						RelativePath="..\..\..\src\base\estimator\EstimatorCommandFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\estimator\EstimatorCommandFactory.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\estimator\EstimatorFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\estimator\EstimatorFactory.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\estimator\Simulator.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\estimator\Simulator.hpp"
 						>
 					</File>
 				</Filter>
