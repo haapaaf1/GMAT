@@ -18,7 +18,8 @@ CCSDSAEMSpinStabilized::CCSDSAEMSpinStabilized() : CCSDSSpinStabilized()
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMSpinStabilized::CCSDSAEMSpinStabilized(const CCSDSAEMSpinStabilized &aemSS) : CCSDSSpinStabilized(aemSS)
+CCSDSAEMSpinStabilized::CCSDSAEMSpinStabilized
+              (const CCSDSAEMSpinStabilized &aemSS) : CCSDSSpinStabilized(aemSS)
 {
 }
 
@@ -33,7 +34,8 @@ CCSDSAEMSpinStabilized::CCSDSAEMSpinStabilized(const CCSDSAEMSpinStabilized &aem
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSAEMSpinStabilized& CCSDSAEMSpinStabilized::operator=(const CCSDSAEMSpinStabilized &aemSS)
+const CCSDSAEMSpinStabilized& CCSDSAEMSpinStabilized::operator=
+               (const CCSDSAEMSpinStabilized &aemSS)
 {
    if (&aemSS == this)
       return *this;
@@ -56,51 +58,53 @@ CCSDSAEMSpinStabilized::~CCSDSAEMSpinStabilized()
 
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output,
-//                       const CCSDSAEMSpinStabilized *myAEMSpinStabilized)
+//                       const CCSDSAEMSpinStabilized *mySS)
 //------------------------------------------------------------------------------
 /**
  * Formats CCCSDSObType data and sends to output stream.
  *
  * @param  <output>  Output stream
- * @param  <myAEMSpinStabilized>    CCSDS spin stabilized data to write out
+ * @param  <mySS>    CCSDS spin stabilized data to write out
  *
  * @return  Output stream
  */
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output,
-                         const CCSDSAEMSpinStabilized *myAEMSpinStabilized)
+                         const CCSDSAEMSpinStabilized *mySS)
 {
     using namespace std;
 
-    for (unsigned int i = 0; i < myAEMSpinStabilized->comments.size(); i++)
+    if (!mySS->Validate()) return output;
+
+    for (unsigned int i = 0; i < mySS->comments.size(); i++)
     {
-        output << "COMMENT " << myAEMSpinStabilized->comments[i] << endl;
+        output << "COMMENT " << mySS->comments[i] << endl;
     }
 
-    switch (myAEMSpinStabilized->attitudeType)
+    switch (mySS->attitudeType)
     {
-        case CCSDSObType::CCSDS_SPIN_ID:
+        case CCSDSData::CCSDS_SPIN_ID:
         {
-            output << myAEMSpinStabilized->timeTag
-                   << " " << myAEMSpinStabilized->spinAlpha
-                   << " " << myAEMSpinStabilized->spinDelta
-                   << " " << myAEMSpinStabilized->spinAngle
-                   << " " << myAEMSpinStabilized->spinAngleVelocity << endl;
+            output << mySS->timeTag
+                   << " " << mySS->spinAlpha
+                   << " " << mySS->spinDelta
+                   << " " << mySS->spinAngle
+                   << " " << mySS->spinAngleVelocity << endl;
             return output;
         }
 
         break;
 
-        case CCSDSObType::CCSDS_SPIN_NUTATION_ID:
+        case CCSDSData::CCSDS_SPIN_NUTATION_ID:
         {
-            output << myAEMSpinStabilized->timeTag
-                   << " " << myAEMSpinStabilized->spinAlpha
-                   << " " << myAEMSpinStabilized->spinDelta
-                   << " " << myAEMSpinStabilized->spinAngle
-                   << " " << myAEMSpinStabilized->spinAngleVelocity
-                   << " " << myAEMSpinStabilized->nutation
-                   << " " << myAEMSpinStabilized->nutationPeriod
-                   << " " << myAEMSpinStabilized->nutationPhase
+            output << mySS->timeTag
+                   << " " << mySS->spinAlpha
+                   << " " << mySS->spinDelta
+                   << " " << mySS->spinAngle
+                   << " " << mySS->spinAngleVelocity
+                   << " " << mySS->nutation
+                   << " " << mySS->nutationPeriod
+                   << " " << mySS->nutationPhase
                    << endl;
 
             return output;

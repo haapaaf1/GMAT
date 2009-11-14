@@ -742,6 +742,8 @@ std::ostream& operator<< (std::ostream &output, const CCSDSHeader *myHeader)
 {
     using namespace std;
 
+    if (!myHeader->Validate()) return output;
+
     output.setf(ios::fixed, ios_base::floatfield);
     output.precision(2);
     output << "CCSDS_" << myHeader->fileType << "_VERS = " << myHeader->ccsdsVersion << endl;

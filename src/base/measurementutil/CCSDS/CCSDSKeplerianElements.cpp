@@ -471,25 +471,28 @@ bool CCSDSKeplerianElements::Validate() const
  * @return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSKeplerianElements *myKeplerianElements)
+std::ostream& operator<< (std::ostream &output,
+                                             const CCSDSKeplerianElements *myKE)
 {
-   using namespace std;
+    using namespace std;
+
+   if (!myKE->Validate()) return output;
 
     unsigned int i;
-    for (i = 0; i < myKeplerianElements->comments.size(); i++ )
+    for (i = 0; i < myKE->comments.size(); i++ )
     {
-        output << "COMMENT " << myKeplerianElements->comments[i] << endl;
+        output << "COMMENT " << myKE->comments[i] << endl;
     }
     if (i > 0) output << endl;
 
-   output << "SEMI_MAJOR_AXIS = " << myKeplerianElements->semiMajorAxis << endl;
-   output << "ECCENTRICITY = " << myKeplerianElements->eccentricity << endl;
-   output << "INCLINATION = " << myKeplerianElements->inclination << endl;
-   output << "RA_OF_ASC_NODE = " << myKeplerianElements->raan << endl;
-   output << "ARG_OF_PERICENTER = " << myKeplerianElements->argumentOfPericenter << endl;
-   output << "TRUE_ANOMALY = " << myKeplerianElements->theAnomaly.GetTrueAnomaly() << endl;
-   output << "MEAN_ANOMALY = " << myKeplerianElements->theAnomaly.GetMeanAnomaly() << endl;
-   output << "GM = " << myKeplerianElements->gravitationalCoefficient << endl;
+   output << "SEMI_MAJOR_AXIS = " << myKE->semiMajorAxis << endl;
+   output << "ECCENTRICITY = " << myKE->eccentricity << endl;
+   output << "INCLINATION = " << myKE->inclination << endl;
+   output << "RA_OF_ASC_NODE = " << myKE->raan << endl;
+   output << "ARG_OF_PERICENTER = " << myKE->argumentOfPericenter << endl;
+   output << "TRUE_ANOMALY = " << myKE->theAnomaly.GetTrueAnomaly() << endl;
+   output << "MEAN_ANOMALY = " << myKE->theAnomaly.GetMeanAnomaly() << endl;
+   output << "GM = " << myKE->gravitationalCoefficient << endl;
    output << endl;
 
    return output;

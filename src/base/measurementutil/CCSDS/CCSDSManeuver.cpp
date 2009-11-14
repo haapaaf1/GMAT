@@ -508,6 +508,8 @@ std::ostream& operator<< (std::ostream &output, const CCSDSManeuver *myManeuver)
 {
     using namespace std;
 
+    if (!myManeuver->Validate()) return output;
+
     unsigned int i;
     for (i = 0; i < myManeuver->comments.size(); i++ )
     {

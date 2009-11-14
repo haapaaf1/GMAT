@@ -75,6 +75,8 @@ std::ostream& operator<< (std::ostream &output,
                           const CCSDSOEMStateVector *myOEMStateVector)
 {
    using namespace std;
+
+  if (!myOEMStateVector->Validate()) return output;
    
    //if (ProcessCCSDSOEMDataFile::scientific)
    // output.setf(std::ios::scientific);

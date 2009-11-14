@@ -682,7 +682,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetaDa
 
             case CCSDSAEMMetaData::CCSDS_AEM_METADATACOMMENTS_ID:
                 {
-                bool definedFlag = myMetaData->IsParameterDefined(i,myMetaData->comments);
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->comments);
                 if (definedFlag)
                 {
                     for (unsigned int i = 0; i < myMetaData->comments.size(); i++)
@@ -695,88 +695,178 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetaDa
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_OBJECTNAME_ID:
-
-                output << "OBJECT_NAME = " << myMetaData->objectName;
-                output << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->objectName);
+                if (definedFlag)
+                {
+                    output << "OBJECT_NAME = " << myMetaData->objectName;
+                    output << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_OBJECTID_ID:
-
-                output << "OBJECT_ID = " << myMetaData->internationalDesignator;
-                output << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->internationalDesignator);
+                if (definedFlag)
+                {
+                    output << "OBJECT_ID = " << myMetaData->internationalDesignator;
+                    output << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_CENTERNAME_ID:
-
-                output << "CENTER_NAME = " << myMetaData->refFrameOrigin << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->refFrameOrigin);
+                if (definedFlag)
+                {
+                    output << "CENTER_NAME = " << myMetaData->refFrameOrigin << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_TIMESYSTEM_ID:
-                output << "TIME_SYSTEM = " << myMetaData->timeSystem << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->timeSystem);
+                if (definedFlag)
+                {
+                    output << "TIME_SYSTEM = " << myMetaData->timeSystem << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_STARTEPOCH_ID:
-                output << "START_TIME = " << myMetaData->startEpoch << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->startEpoch);
+                if (definedFlag)
+                {
+                    output << "START_TIME = " << myMetaData->startEpoch << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_STOPEPOCH_ID:
-                output << "STOP_TIME = " << myMetaData->stopEpoch << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->stopEpoch);
+                if (definedFlag)
+                {
+                    output << "STOP_TIME = " << myMetaData->stopEpoch << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STARTEPOCH_ID:
-                output << "USEABLE_START_TIME = " << myMetaData->useableStartEpoch << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->useableStartEpoch);
+                if (definedFlag)
+                {
+                    output << "USEABLE_START_TIME = " << myMetaData->useableStartEpoch << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_USEABLE_STOPEPOCH_ID:
-                output << "USEABLE_STOP_TIME = " << myMetaData->useableStopEpoch << std::endl;
-                break;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->useableStopEpoch);
+                if (definedFlag)
+                {
+                    output << "USEABLE_STOP_TIME = " << myMetaData->useableStopEpoch << std::endl;
+                }
+                }
+                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATION_ID:
-                output << "INTERPOLATION_METHOD = " << myMetaData->interpolationMethod << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->interpolationMethod);
+                if (definedFlag)
+                {
+                    output << "INTERPOLATION_METHOD = " << myMetaData->interpolationMethod << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_INTERPOLATIONDEGREE_ID:
-                output << "INTERPOLATION_DEGREE = " << myMetaData->interpolationDegree << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->interpolationDegree);
+                if (definedFlag)
+                {
+                    output << "INTERPOLATION_DEGREE = " << myMetaData->interpolationDegree << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEA_ID:
-                output << "REF_FRAME_A = " << myMetaData->frameA << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->frameA);
+                if (definedFlag)
+                {
+                    output << "REF_FRAME_A = " << myMetaData->frameA << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_REFFRAMEB_ID:
-                output << "REF_FRAME_B = " << myMetaData->frameB << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->frameB);
+                if (definedFlag)
+                {
+                    output << "REF_FRAME_B = " << myMetaData->frameB << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_ATTITUDEDIR_ID:
                 {
-                std::string directionText = myMetaData->GetAttitudeDirText(myMetaData->direction);
-                output << "ATTITUDE_DIR = " << directionText << std::endl;
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->direction);
+                if (definedFlag)
+                {
+                    std::string directionText = myMetaData->GetAttitudeDirText(myMetaData->direction);
+                    output << "ATTITUDE_DIR = " << directionText << std::endl;
+                }
                 }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_ATTITUDETYPE_ID:
                 {
-                std::string attitudeTypeText = myMetaData->GetAttitudeTypeText(myMetaData->attitudeType);
-                output << "ATTITUDE_TYPE = " << attitudeTypeText << std::endl;
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->attitudeType);
+                if (definedFlag)
+                {
+                    std::string attitudeTypeText = myMetaData->GetAttitudeTypeText(myMetaData->attitudeType);
+                    output << "ATTITUDE_TYPE = " << attitudeTypeText << std::endl;
+                }
                 }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_QUATERNIONTYPE_ID:
                 {
-                std::string quaternionTypeText = myMetaData->GetQuaternionTypeText(myMetaData->quaternionType);
-                output << "QUATERNION_TYPE = " << quaternionTypeText << std::endl;
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->quaternionType);
+                if (definedFlag)
+                {
+                    std::string quaternionTypeText = myMetaData->GetQuaternionTypeText(myMetaData->quaternionType);
+                    output << "QUATERNION_TYPE = " << quaternionTypeText << std::endl;
+                }
                 }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_EULERROTSEQ_ID:
-
-                output << "EULER_ROT_SEQ = " << myMetaData->eulerRotationSequence << std::endl;
+                {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->eulerRotationSequence);
+                if (definedFlag)
+                {
+                    output << "EULER_ROT_SEQ = " << myMetaData->eulerRotationSequence << std::endl;
+                }
+                }
                 break;
 
             case CCSDSAEMMetaData::CCSDS_AEM_RATEFRAME_ID:
                 {
-                std::string rateFrameText = myMetaData->GetRateFrameText(myMetaData->rateFrame);
-                output << "RATE_FRAME = " << rateFrameText << std::endl;
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->rateFrame);
+                if (definedFlag)
+                {
+                    std::string rateFrameText = myMetaData->GetRateFrameText(myMetaData->rateFrame);
+                    output << "RATE_FRAME = " << rateFrameText << std::endl;
+                }
                 }
                 break;
 

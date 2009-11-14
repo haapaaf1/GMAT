@@ -17,7 +17,6 @@
 #include <pcrecpp.h>
 #include "StringUtil.hpp"
 #include "MessageInterface.hpp"
-//#include "CCSDSObtype.hpp"
 
 class CCSDSData
 {

@@ -77,6 +77,8 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+   if (!myOPMStateVector->Validate()) return output;
+
    unsigned int i;
    for (i = 0; i < myOPMStateVector->comments.size(); i++ )
    {

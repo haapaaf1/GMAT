@@ -446,7 +446,9 @@ bool CCSDSSpacecraftParameters::Validate() const
 std::ostream& operator<< (std::ostream &output,
                         const CCSDSSpacecraftParameters *mySpacecraftParameters)
 {
-   using namespace std;
+    using namespace std;
+
+    if (!mySpacecraftParameters->Validate()) return output;
 
     unsigned int i;
     for (i = 0; i < mySpacecraftParameters->comments.size(); i++ )

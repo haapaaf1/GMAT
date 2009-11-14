@@ -18,7 +18,8 @@ CCSDSAEMEulerAngle::CCSDSAEMEulerAngle() : CCSDSEulerAngle()
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMEulerAngle::CCSDSAEMEulerAngle(const CCSDSAEMEulerAngle &aemEA) : CCSDSEulerAngle(aemEA)
+CCSDSAEMEulerAngle::CCSDSAEMEulerAngle(const CCSDSAEMEulerAngle &aemEA) :
+        CCSDSEulerAngle(aemEA)
 {
 }
 
@@ -33,7 +34,8 @@ CCSDSAEMEulerAngle::CCSDSAEMEulerAngle(const CCSDSAEMEulerAngle &aemEA) : CCSDSE
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSAEMEulerAngle& CCSDSAEMEulerAngle::operator=(const CCSDSAEMEulerAngle &aemEA)
+const CCSDSAEMEulerAngle& CCSDSAEMEulerAngle::operator=
+                                               (const CCSDSAEMEulerAngle &aemEA)
 {
    if (&aemEA == this)
       return *this;
@@ -72,6 +74,8 @@ std::ostream& operator<< (std::ostream &output,
 {
     using namespace std;
 
+   if (!myAEMEulerAngle->Validate()) return output;
+
     for (unsigned int i = 0; i < myAEMEulerAngle->comments.size(); i++)
     {
         output << "COMMENT " << myAEMEulerAngle->comments[i] << endl;
@@ -80,7 +84,7 @@ std::ostream& operator<< (std::ostream &output,
     switch (myAEMEulerAngle->eulerAngleType)
     {
 
-        case CCSDSObType::CCSDS_EULER_ANGLE_ID:
+        case CCSDSData::CCSDS_EULER_ANGLE_ID:
         {
             output << myAEMEulerAngle->timeTag
                    << " " << myAEMEulerAngle->xAngle
@@ -92,7 +96,7 @@ std::ostream& operator<< (std::ostream &output,
 
         break;
 
-        case CCSDSObType::CCSDS_EULER_ANGLE_RATE_ID:
+        case CCSDSData::CCSDS_EULER_ANGLE_RATE_ID:
         {
             output << myAEMEulerAngle->timeTag
                    << " " << myAEMEulerAngle->xAngle

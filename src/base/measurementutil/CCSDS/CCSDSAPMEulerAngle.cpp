@@ -74,6 +74,8 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+   if (!myAPMEulerAngle->Validate()) return output;
+
    unsigned int i;
    for (i = 0; i < myAPMEulerAngle->comments.size(); i++ )
    {

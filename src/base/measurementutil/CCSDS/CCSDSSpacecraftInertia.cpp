@@ -510,6 +510,8 @@ std::ostream& operator<< (std::ostream &output,
 {
    using namespace std;
 
+   if (!mySpacecraftInertia->Validate()) return output;
+
    unsigned int i;
    for (i = 0; i < mySpacecraftInertia->comments.size(); i++ )
    {

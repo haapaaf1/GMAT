@@ -18,7 +18,8 @@ CCSDSAEMQuaternion::CCSDSAEMQuaternion() : CCSDSQuaternion()
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAEMQuaternion::CCSDSAEMQuaternion(const CCSDSAEMQuaternion &aemQ) : CCSDSQuaternion(aemQ)
+CCSDSAEMQuaternion::CCSDSAEMQuaternion(const CCSDSAEMQuaternion &aemQ) :
+    CCSDSQuaternion(aemQ)
 {
 }
 
@@ -33,7 +34,8 @@ CCSDSAEMQuaternion::CCSDSAEMQuaternion(const CCSDSAEMQuaternion &aemQ) : CCSDSQu
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSAEMQuaternion& CCSDSAEMQuaternion::operator=(const CCSDSAEMQuaternion &aemQ)
+const CCSDSAEMQuaternion& CCSDSAEMQuaternion::operator=
+                                                (const CCSDSAEMQuaternion &aemQ)
 {
    if (&aemQ == this)
       return *this;
@@ -68,11 +70,13 @@ CCSDSAEMQuaternion::~CCSDSAEMQuaternion()
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQuaternion)
 {
-   using namespace std;
+    using namespace std;
+
+    if (!myAEMQuaternion->Validate()) return output;
 
     switch (myAEMQuaternion->attitudeType)
     {
-        case CCSDSObType::CCSDS_QUATERNION_ID:
+        case CCSDSData::CCSDS_QUATERNION_ID:
         {
             if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
@@ -100,7 +104,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 
         break;
 
-        case CCSDSObType::CCSDS_QUATERNION_DERIVATIVE_ID:
+        case CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID:
         {
             if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
@@ -136,7 +140,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 
         break;
 
-        case CCSDSObType::CCSDS_QUATERNION_RATE_ID:
+        case CCSDSData::CCSDS_QUATERNION_RATE_ID:
         {
             if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {

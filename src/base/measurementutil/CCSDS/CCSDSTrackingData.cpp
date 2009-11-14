@@ -461,12 +461,14 @@ bool CCSDSTrackingData::Validate() const
  */
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output,
-                          const CCSDSTrackingData *myCCSDSTrackingData)
+                          const CCSDSTrackingData *myTrackingData)
 {
     using namespace std;
 
-    output << myCCSDSTrackingData->keyword << " = " << myCCSDSTrackingData->timeTag
-           << " " << myCCSDSTrackingData->measurement << endl;
+    if (!myTrackingData->Validate()) return output;
+
+    output << myTrackingData->keyword << " = " << myTrackingData->timeTag
+           << " " << myTrackingData->measurement << endl;
 
     return output;
 }

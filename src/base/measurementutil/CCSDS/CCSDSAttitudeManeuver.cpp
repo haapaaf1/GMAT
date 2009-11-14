@@ -501,6 +501,8 @@ std::ostream& operator<< (std::ostream &output,
 {
     using namespace std;
 
+    if (!myAttitudeManeuver->Validate()) return output;
+
     output << "MAN_EPOCH_START = " << myAttitudeManeuver->epochStart << endl;
     output << "MAN_DURATION = " << myAttitudeManeuver->duration << endl;
     output << "MAN_REF_FRAME = " << myAttitudeManeuver->refFrame << endl;

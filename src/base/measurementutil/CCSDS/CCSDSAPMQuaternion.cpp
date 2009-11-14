@@ -70,7 +70,9 @@ CCSDSAPMQuaternion::~CCSDSAPMQuaternion()
 std::ostream& operator<< (std::ostream &output,
                           const CCSDSAPMQuaternion *myAPMQuaternion)
 {
-   using namespace std;
+    using namespace std;
+
+    if (!myAPMQuaternion->Validate()) return output;
 
    unsigned int i;
    for (i = 0; i < myAPMQuaternion->comments.size(); i++ )
