@@ -61,11 +61,11 @@ public:
     virtual bool IsParameterRequired(const Integer id) const = 0;
     virtual bool Validate() const = 0;
 
-    virtual bool IsParameterDefined(const Integer id, std::string value) const;
-    virtual bool IsParameterDefined(const Integer id, StringArray value) const;
-    virtual bool IsParameterDefined(const Integer id, Real value) const;
-    virtual bool IsParameterDefined(const Integer id, Integer value) const;
-    virtual bool IsParameterDefined(const Integer id, bool value) const;
+    virtual bool IsParameterDefined(std::string value) const;
+    virtual bool IsParameterDefined(StringArray value) const;
+    virtual bool IsParameterDefined(Real value) const;
+    virtual bool IsParameterDefined(Integer value) const;
+    virtual bool IsParameterDefined(bool value) const;
 
     enum CCSDS_METADATA_REPS
     {

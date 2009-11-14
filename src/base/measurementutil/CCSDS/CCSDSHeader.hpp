@@ -51,13 +51,12 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
-    bool CheckDataAvailability(const std::string str) const;
     bool IsParameterRequired(const Integer id) const;
-    virtual bool IsParameterDefined(const Integer id, std::string value) const;
-    virtual bool IsParameterDefined(const Integer id, StringArray value) const;
-    virtual bool IsParameterDefined(const Integer id, Real value) const;
-    virtual bool IsParameterDefined(const Integer id, Integer value) const;
-    virtual bool IsParameterDefined(const Integer id, bool value) const;
+    virtual bool IsParameterDefined(std::string value) const;
+    virtual bool IsParameterDefined(StringArray value) const;
+    virtual bool IsParameterDefined(Real value) const;
+    virtual bool IsParameterDefined(Integer value) const;
+    virtual bool IsParameterDefined(bool value) const;
     virtual bool Validate() const;
 
     friend Integer CountRequiredNumberHeaderDataParameters();

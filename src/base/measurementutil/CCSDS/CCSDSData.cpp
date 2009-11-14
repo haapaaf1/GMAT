@@ -198,7 +198,7 @@ StringArray CCSDSData::GetStringArrayDataParameter(const std::string &label) con
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, bool value) const
+//  bool IsParameterDefined(bool value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -209,21 +209,16 @@ StringArray CCSDSData::GetStringArrayDataParameter(const std::string &label) con
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSData::IsParameterDefined(const Integer id, bool value) const
+bool CCSDSData::IsParameterDefined(bool value) const
 {
-    if (GetDataParameterType(id) == Gmat::BOOLEAN_TYPE)
-    {
-        if (&value == NULL)
-            return false;
-        else
-            return true;
-    }
-    else
+    if (&value == NULL)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, StringArray value) const
+//  bool IsParameterDefined(StringArray value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -234,21 +229,16 @@ bool CCSDSData::IsParameterDefined(const Integer id, bool value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSData::IsParameterDefined(const Integer id, StringArray value) const
+bool CCSDSData::IsParameterDefined(StringArray value) const
 {
-    if (GetDataParameterType(id) == Gmat::STRINGARRAY_TYPE)
-    {
-        if (&value == NULL || value == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
-            return false;
-        else
-            return true;
-    }
-    else
+    if (&value == NULL || value == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, std::string value) const
+//  bool IsParameterDefined(std::string value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -259,21 +249,16 @@ bool CCSDSData::IsParameterDefined(const Integer id, StringArray value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSData::IsParameterDefined(const Integer id, std::string value) const
+bool CCSDSData::IsParameterDefined(std::string value) const
 {
-    if (GetDataParameterType(id) == Gmat::STRING_TYPE)
-    {
-        if (&value == NULL || value == GmatBase::STRING_PARAMETER_UNDEFINED)
-            return false;
-        else
-            return true;
-    }
-    else
+    if (&value == NULL || value == GmatBase::STRING_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, Real value) const
+//  bool IsParameterDefined(Real value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -284,21 +269,16 @@ bool CCSDSData::IsParameterDefined(const Integer id, std::string value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSData::IsParameterDefined(const Integer id, Real value) const
+bool CCSDSData::IsParameterDefined(Real value) const
 {
-    if (GetDataParameterType(id) == Gmat::REAL_TYPE)
-    {
-        if (&value == NULL || value == GmatBase::REAL_PARAMETER_UNDEFINED)
-            return false;
-        else
-            return true;
-    }
-    else
+    if (&value == NULL || value == GmatBase::REAL_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, Integer value) const
+//  bool IsParameterDefined(Integer value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -309,18 +289,14 @@ bool CCSDSData::IsParameterDefined(const Integer id, Real value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSData::IsParameterDefined(const Integer id, Integer value) const
+bool CCSDSData::IsParameterDefined(Integer value) const
 {
-    if (GetDataParameterType(id) == Gmat::INTEGER_TYPE)
-    {
-        if (&value == NULL || value == GmatBase::INTEGER_PARAMETER_UNDEFINED)
-            return false;
-        else
-            return true;
-    }
-    else
+    if (&value == NULL || value == GmatBase::INTEGER_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetAttitudeDirText(const Integer id) const

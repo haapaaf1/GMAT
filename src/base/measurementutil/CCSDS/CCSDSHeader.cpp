@@ -239,7 +239,7 @@ Integer CountRequiredNumberHeaderDataParameters()
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, bool value) const
+//  bool IsParameterDefined(bool value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -250,21 +250,16 @@ Integer CountRequiredNumberHeaderDataParameters()
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSHeader::IsParameterDefined(const Integer id, bool value) const
+bool CCSDSHeader::IsParameterDefined(bool value) const
 {
-    if (GetDataParameterType(id) == Gmat::BOOLEAN_TYPE)
-    {
-        if (&value == NULL)
-            return false;
-        else
-            return true;
-    }
-    else
+    if (&value == NULL)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, StringArray value) const
+//  bool IsParameterDefined(StringArray value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -275,27 +270,16 @@ bool CCSDSHeader::IsParameterDefined(const Integer id, bool value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSHeader::IsParameterDefined(const Integer id, StringArray value) const
+bool CCSDSHeader::IsParameterDefined(StringArray value) const
 {
-    if (id >= 0 && id <= EndCCSDSHeaderDataReps)
-    {
-
-        if (GetDataParameterType(id) == Gmat::STRINGARRAY_TYPE)
-        {
-            if (&value == NULL || value == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
-                return false;
-            else
-                return true;
-        }
-        else
-            return false;
-    }
-    else
+    if (&value == NULL || value == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, std::string value) const
+//  bool IsParameterDefined(std::string value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -306,27 +290,16 @@ bool CCSDSHeader::IsParameterDefined(const Integer id, StringArray value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSHeader::IsParameterDefined(const Integer id, std::string value) const
+bool CCSDSHeader::IsParameterDefined(std::string value) const
 {
-    if (id >= 0 && id <= EndCCSDSHeaderDataReps)
-    {
-
-        if (GetDataParameterType(id) == Gmat::STRING_TYPE)
-        {
-            if (&value == NULL || value == GmatBase::STRING_PARAMETER_UNDEFINED)
-                return false;
-            else
-                return true;
-        }
-        else
-            return false;
-    }
-    else
+    if (&value == NULL || value == GmatBase::STRING_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, Real value) const
+//  bool IsParameterDefined(Real value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -337,26 +310,16 @@ bool CCSDSHeader::IsParameterDefined(const Integer id, std::string value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSHeader::IsParameterDefined(const Integer id, Real value) const
+bool CCSDSHeader::IsParameterDefined(Real value) const
 {
-    if (id >= 0 && id <= EndCCSDSHeaderDataReps)
-    {
-        if (GetDataParameterType(id) == Gmat::REAL_TYPE)
-        {
-            if (&value == NULL || value == GmatBase::REAL_PARAMETER_UNDEFINED)
-                return false;
-            else
-                return true;
-        }
-        else
-            return false;
-    }
-    else
+    if (&value == NULL || value == GmatBase::REAL_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
-//  bool IsParameterDefined(const Integer id, Integer value) const
+//  bool IsParameterDefined(Integer value) const
 //---------------------------------------------------------------------------
 /**
  * Checks to see if the requested parameter is defined.
@@ -367,23 +330,12 @@ bool CCSDSHeader::IsParameterDefined(const Integer id, Real value) const
  * @return true if the parameter is defined, false if not (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSHeader::IsParameterDefined(const Integer id, Integer value) const
+bool CCSDSHeader::IsParameterDefined(Integer value) const
 {
-    if (id >= 0 && id <= EndCCSDSHeaderDataReps)
-    {
-
-        if (GetDataParameterType(id) == Gmat::INTEGER_TYPE)
-        {
-            if (&value == NULL || value == GmatBase::INTEGER_PARAMETER_UNDEFINED)
-                return false;
-            else
-                return true;
-        }
-        else
-            return false;
-    }
-    else
+    if (&value == NULL || value == GmatBase::INTEGER_PARAMETER_UNDEFINED)
         return false;
+    else
+        return true;
 }
 
 //---------------------------------------------------------------------------
@@ -466,33 +418,6 @@ bool CCSDSHeader::IsParameterRequired(const Integer id) const
         return false;
 }
 
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool CCSDSHeader::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSHeaderDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_HEADER_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
