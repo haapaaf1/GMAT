@@ -166,6 +166,60 @@ Integer CCSDSOPMObType::GetTimeSystemID(const std::string &label)
 
 }
 
+
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSOPMObType::Validate() const
+{
+
+    if (ccsdsHeader != NULL)
+    {
+        if (!ccsdsHeader->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsMetaData != NULL)
+    {
+        if (!ccsdsMetaData->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsOPMStateVector != NULL)
+        if (!ccsdsOPMStateVector->Validate())
+            return false;
+
+    if (ccsdsOPMKeplerianElements != NULL)
+        if (!ccsdsOPMKeplerianElements->Validate())
+            return false;
+
+    if (ccsdsOPMSpacecraftParameters != NULL)
+        if (!ccsdsOPMSpacecraftParameters->Validate())
+            return false;
+
+    for (std::vector<CCSDSManeuver*>::const_iterator
+         j = ccsdsOPMManeuvers.begin();
+         j != ccsdsOPMManeuvers.end(); ++j)
+    {
+        if((*j) != NULL)
+            if (!(*j)->Validate())
+                return false;
+    }
+
+    return true;
+
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSOPMObType *myOPM)
 //------------------------------------------------------------------------------
@@ -192,8 +246,8 @@ std::ostream& operator<< (std::ostream &output, const CCSDSOPMObType *myOPM)
         output << myOPM->ccsdsOPMSpacecraftParameters;
 
     for (std::vector<CCSDSManeuver*>::const_iterator
-         j=myOPM->ccsdsOPMManeuvers.begin();
-         j!=myOPM->ccsdsOPMManeuvers.end(); ++j)
+         j = myOPM->ccsdsOPMManeuvers.begin();
+         j != myOPM->ccsdsOPMManeuvers.end(); ++j)
     {
         if((*j) != NULL)
             output << (*j);

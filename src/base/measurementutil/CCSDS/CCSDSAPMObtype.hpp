@@ -28,6 +28,8 @@ public:
 
     GmatBase *Clone() const;
 
+    bool Validate() const;
+
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSAPMObType *myAPM);
 

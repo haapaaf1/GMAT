@@ -18,7 +18,8 @@ CCSDSAPMEulerAngle::CCSDSAPMEulerAngle() : CCSDSEulerAngle()
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSAPMEulerAngle::CCSDSAPMEulerAngle(const CCSDSAPMEulerAngle &apmEA) : CCSDSEulerAngle(apmEA)
+CCSDSAPMEulerAngle::CCSDSAPMEulerAngle(const CCSDSAPMEulerAngle &apmEA) :
+    CCSDSEulerAngle(apmEA)
 {
 }
 
@@ -33,7 +34,8 @@ CCSDSAPMEulerAngle::CCSDSAPMEulerAngle(const CCSDSAPMEulerAngle &apmEA) : CCSDSE
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSAPMEulerAngle& CCSDSAPMEulerAngle::operator=(const CCSDSAPMEulerAngle &apmEA)
+const CCSDSAPMEulerAngle& CCSDSAPMEulerAngle::operator=
+                                               (const CCSDSAPMEulerAngle &apmEA)
 {
    if (&apmEA == this)
       return *this;

@@ -21,15 +21,15 @@ public :
     const CCSDSObType& operator=(const CCSDSObType &ob);
     virtual ~CCSDSObType();
 
-    GmatBase *Clone() const;
-
     // Validation methods
     std::string GetCCSDSObType();
     
     virtual const std::string* GetTimeSystems() const;
     virtual std::string GetTimeSystemText(const Integer &id) const;
-    virtual Integer GetTimeSystemID(const std::string &label);    
+    virtual Integer GetTimeSystemID(const std::string &label);
 
+    virtual bool Validate() const = 0;
+    
     enum CCSDS_TIMESYSTEM_REPS
     {
 	EndCCSDSTimeReps

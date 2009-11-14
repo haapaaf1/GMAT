@@ -169,6 +169,64 @@ Integer CCSDSAPMObType::GetTimeSystemID(const std::string &label)
 
 }
 
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSAPMObType::Validate() const
+{
+
+    if (ccsdsHeader != NULL)
+    {
+        if (!ccsdsHeader->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsMetaData != NULL)
+    {
+        if (!ccsdsMetaData->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsAPMQuaternion != NULL)
+        if (!ccsdsAPMQuaternion->Validate())
+            return false;
+
+    if (ccsdsAPMEulerAngle != NULL)
+        if (!ccsdsAPMEulerAngle->Validate())
+            return false;
+
+    if (ccsdsAPMSpinStabilized != NULL)
+        if (!ccsdsAPMSpinStabilized->Validate())
+            return false;
+
+    if (ccsdsAPMSpacecraftInertia != NULL)
+        if (!ccsdsAPMSpacecraftInertia->Validate())
+            return false;
+
+    for (std::vector<CCSDSAttitudeManeuver*>::const_iterator
+        j = ccsdsAPMAttitudeManeuvers.begin();
+        j != ccsdsAPMAttitudeManeuvers.end(); ++j)
+    {
+        if ((*j) != NULL)
+            if (!(*j)->Validate())
+                return false;
+    }
+
+
+    return true;
+
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSAPMObType *myAPM)
 //------------------------------------------------------------------------------
@@ -193,8 +251,8 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAPMObType *myAPM)
         output << myAPM->ccsdsAPMSpinStabilized;
 
     for (std::vector<CCSDSAttitudeManeuver*>::const_iterator 
-         j=myAPM->ccsdsAPMAttitudeManeuvers.begin();
-         j!=myAPM->ccsdsAPMAttitudeManeuvers.end(); ++j)
+         j = myAPM->ccsdsAPMAttitudeManeuvers.begin();
+         j != myAPM->ccsdsAPMAttitudeManeuvers.end(); ++j)
     {
         if((*j) != NULL)
             output << (*j);

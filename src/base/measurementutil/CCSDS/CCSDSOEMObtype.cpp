@@ -163,6 +163,42 @@ Integer CCSDSOEMObType::GetTimeSystemID(const std::string &label)
 
 }
 
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSOEMObType::Validate() const
+{
+
+    if (ccsdsHeader != NULL)
+    {
+        if (!ccsdsHeader->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsMetaData != NULL)
+    {
+        if (!ccsdsMetaData->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsOEMStateVector != NULL)
+        if (!ccsdsOEMStateVector->Validate())
+            return false;
+
+    return true;
+
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSOEMObType *myOEM)
 //------------------------------------------------------------------------------

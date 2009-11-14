@@ -162,6 +162,50 @@ Integer CCSDSAEMObType::GetTimeSystemID(const std::string &label)
 
 }
 
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSAEMObType::Validate() const
+{
+
+    if (ccsdsHeader != NULL)
+    {
+        if (!ccsdsHeader->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsMetaData != NULL)
+    {
+        if (!ccsdsMetaData->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsAEMQuaternion != NULL)
+        if (!ccsdsAEMQuaternion->Validate())
+            return false;
+
+    if (ccsdsAEMEulerAngle != NULL)
+        if (!ccsdsAEMEulerAngle->Validate())
+            return false;
+
+    if (ccsdsAEMSpinStabilized != NULL)
+        if (!ccsdsAEMSpinStabilized->Validate())
+            return false;
+
+    return true;
+
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 //------------------------------------------------------------------------------

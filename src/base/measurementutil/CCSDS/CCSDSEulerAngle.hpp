@@ -25,14 +25,14 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
-    Integer	GetIntegerDataParameter(const Integer id) const;
-    Integer	GetIntegerDataParameter(const std::string &label) const;
-    Real	GetRealDataParameter(const Integer id) const;
-    Real	GetRealDataParameter(const std::string &label) const;
-    std::string GetStringDataParameter(const Integer id) const;
-    std::string GetStringDataParameter(const std::string &label) const;
-    StringArray GetStringArrayDataParameter(const Integer id) const;
-    StringArray GetStringArrayDataParameter(const std::string &label) const;
+    virtual Integer	GetIntegerDataParameter(const Integer id) const;
+    virtual Integer	GetIntegerDataParameter(const std::string &label) const;
+    virtual Real	GetRealDataParameter(const Integer id) const;
+    virtual Real	GetRealDataParameter(const std::string &label) const;
+    virtual std::string GetStringDataParameter(const Integer id) const;
+    virtual std::string GetStringDataParameter(const std::string &label) const;
+    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
+    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
     bool IsParameterRequired(const Integer id) const;

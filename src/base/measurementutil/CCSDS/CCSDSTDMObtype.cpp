@@ -430,6 +430,42 @@ Integer CCSDSTDMObType::GetTimeSystemID(const std::string &label)
  
 }
 
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSTDMObType::Validate() const
+{
+
+    if (ccsdsHeader != NULL)
+    {
+        if (!ccsdsHeader->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsMetaData != NULL)
+    {
+        if (!ccsdsMetaData->Validate())
+            return false;
+    }
+    else
+        return false;
+
+    if (ccsdsTDMData != NULL)
+        if (!ccsdsTDMData->Validate())
+            return false;
+
+    return true;
+
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 //------------------------------------------------------------------------------

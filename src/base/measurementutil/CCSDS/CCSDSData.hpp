@@ -17,7 +17,7 @@
 #include <pcrecpp.h>
 #include "StringUtil.hpp"
 #include "MessageInterface.hpp"
-#include "CCSDSObtype.hpp"
+//#include "CCSDSObtype.hpp"
 
 class CCSDSData
 {
@@ -35,7 +35,7 @@ public:
     std::string GetAttitudeDirText(const Integer id) const;
     Integer     GetAttitudeDirID(const std::string &str) const;
     std::string GetRateFrameText(const Integer id) const;
-    Integer    GetRateFrameID(const std::string &str) const;
+    Integer     GetRateFrameID(const std::string &str) const;
     std::string GetAttitudeTypeText(const Integer id) const;
     Integer     GetAttitudeTypeID(const std::string &str) const;
 
