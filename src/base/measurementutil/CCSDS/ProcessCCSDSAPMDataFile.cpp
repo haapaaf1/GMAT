@@ -747,7 +747,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMEulerAngle(std::string &lff,
         }
         while ( requiredCount < requiredNumberEulerAngleParameters + 3 && !IsEOF());
 
-        myAPMEulerAngle->eulerAngleType = CCSDSQuaternion::CCSDS_EULER_ANGLE_ID;
+        myAPMEulerAngle->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_ID;
 
     }
 
@@ -798,7 +798,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMEulerAngle(std::string &lff,
         }
         while ( requiredCount < requiredNumberEulerAngleParameters + 3 && !IsEOF());
 
-        myAPMEulerAngle->eulerAngleType = CCSDSQuaternion::CCSDS_EULER_ANGLE_RATE_ID;
+        myAPMEulerAngle->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_RATE_ID;
 
     }
 

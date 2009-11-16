@@ -29,8 +29,6 @@ public:
     friend class ProcessCCSDSTDMDataFile;
 
     // Functions to verify data availability
-    bool CheckMetaDataAvailability(const std::string str) const;
-
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
     std::string GetUnits(const Integer &id) const;

@@ -72,30 +72,49 @@ CCSDSAPMEulerAngle::~CCSDSAPMEulerAngle()
 std::ostream& operator<< (std::ostream &output,
                           const CCSDSAPMEulerAngle *myAPMEulerAngle)
 {
-   using namespace std;
+    using namespace std;
 
-   if (!myAPMEulerAngle->Validate()) return output;
+    if (!myAPMEulerAngle->Validate()) return output;
 
-   unsigned int i;
-   for (i = 0; i < myAPMEulerAngle->comments.size(); i++ )
-   {
-       output << "COMMENT " << myAPMEulerAngle->comments[i] << endl;
-   }
-   if (i > 0) output << endl;
+    unsigned int i;
+    for (i = 0; i < myAPMEulerAngle->comments.size(); i++ )
+    {
+           output << "COMMENT " << myAPMEulerAngle->comments[i] << endl;
+    }
+    if (i > 0) output << endl;
 
-   output << "EULER_FRAME_A = " << myAPMEulerAngle->frameA << endl;
-   output << "EULER_FRAME_B = " << myAPMEulerAngle->frameB << endl;
-   output << "EULER_DIR = " << myAPMEulerAngle->direction << endl;
-   output << "EULER_ROT_SEQ = " << myAPMEulerAngle->rotationSequence << endl;
-   output << "RATE_FRAME = " << myAPMEulerAngle->rateFrame << endl;
-   output << "X_ANGLE = " << myAPMEulerAngle->xAngle << endl;
-   output << "Y_ANGLE = " << myAPMEulerAngle->yAngle << endl;
-   output << "Z_ANGLE = " << myAPMEulerAngle->zAngle << endl;
-   output << "X_RATE = " << myAPMEulerAngle->xRate << endl;
-   output << "Y_RATE = " << myAPMEulerAngle->yRate << endl;
-   output << "Z_RATE = " << myAPMEulerAngle->zRate << endl;
+    output << "EULER_FRAME_A = " << myAPMEulerAngle->frameA << endl;
+    output << "EULER_FRAME_B = " << myAPMEulerAngle->frameB << endl;
+    output << "EULER_DIR = " << myAPMEulerAngle->GetAttitudeDirText(myAPMEulerAngle->direction) << endl;
+    output << "EULER_ROT_SEQ = " << myAPMEulerAngle->rotationSequence << endl;
 
-   output << endl;
+    switch (myAPMEulerAngle->eulerAngleType)
+    {
+        case CCSDSData::CCSDS_EULER_ANGLE_ID:
+        {
+            output << "X_ANGLE = " << myAPMEulerAngle->xAngle << endl;
+            output << "Y_ANGLE = " << myAPMEulerAngle->yAngle << endl;
+            output << "Z_ANGLE = " << myAPMEulerAngle->zAngle << endl;
+            output << endl;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_EULER_ANGLE_RATE_ID:
+        {
+            output << "RATE_FRAME = " << myAPMEulerAngle->GetRateFrameText(myAPMEulerAngle->rateFrame) << endl;
+            output << "X_RATE = " << myAPMEulerAngle->xRate << endl;
+            output << "Y_RATE = " << myAPMEulerAngle->yRate << endl;
+            output << "Z_RATE = " << myAPMEulerAngle->zRate << endl;
+            output << endl;
+        }
+
+        break;
+
+        default:
+
+            break;
+    }
 
    return output;
 }

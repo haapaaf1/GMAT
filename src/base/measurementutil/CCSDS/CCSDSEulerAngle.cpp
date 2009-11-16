@@ -69,7 +69,7 @@ const Gmat::ParameterType CCSDSEulerAngle::CCSDS_PARAMETER_TYPE[EndCCSDSEulerAng
 {
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
+    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
@@ -546,36 +546,20 @@ bool CCSDSEulerAngle::Validate() const
             switch (GetDataParameterType(i))
             {
                 case Gmat::INTEGER_TYPE:
-                    {
-                    Integer ivalue = GetIntegerDataParameter(i);
-                    if (&ivalue == NULL ||
-                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetIntegerDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::REAL_TYPE:
-                    {
-                    Real rvalue = GetRealDataParameter(i);
-                    if (&rvalue == NULL ||
-                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetRealDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRING_TYPE:
-                    {
-                    std::string svalue = GetStringDataParameter(i);
-                    if (&svalue == NULL ||
-                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
-                    {
-                    StringArray savalue = GetStringArrayDataParameter(i);
-                    if (&savalue == NULL ||
-                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
                         return false;
-                    }
                     break;
                 default:
                     return false;

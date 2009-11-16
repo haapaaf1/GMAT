@@ -74,32 +74,32 @@ CCSDSOEMStateVector::~CCSDSOEMStateVector()
 std::ostream& operator<< (std::ostream &output,
                           const CCSDSOEMStateVector *myOEMStateVector)
 {
-   using namespace std;
+    using namespace std;
 
-  if (!myOEMStateVector->Validate()) return output;
+    if (!myOEMStateVector->Validate()) return output;
    
-   //if (ProcessCCSDSOEMDataFile::scientific)
-   // output.setf(std::ios::scientific);
+    //if (ProcessCCSDSOEMDataFile::scientific)
+    // output.setf(std::ios::scientific);
 
-   //if (ProcessCCSDSOEMDataFile::showPoint)
-   //    output << showpoint;
+    //if (ProcessCCSDSOEMDataFile::showPoint)
+    //    output << showpoint;
 
-   //output.precision(ProcessCCSDSOEMDataFile::precision);
+    //output.precision(ProcessCCSDSOEMDataFile::precision);
   
-   output << myOEMStateVector->timeTag;
-   output << " " << myOEMStateVector->x;
-   output << " " << myOEMStateVector->y;
-   output << " " << myOEMStateVector->z;
-   output << " " << myOEMStateVector->xDot;
-   output << " " << myOEMStateVector->yDot;
-   output << " " << myOEMStateVector->zDot;
-   output << endl;
+    output << myOEMStateVector->timeTag;
+    output << " " << myOEMStateVector->x;
+    output << " " << myOEMStateVector->y;
+    output << " " << myOEMStateVector->z;
+    output << " " << myOEMStateVector->xDot;
+    output << " " << myOEMStateVector->yDot;
+    output << " " << myOEMStateVector->zDot;
+    output << endl;
 
-   //if (ProcessCCSDSOEMDataFile::scientific)
-   //    output.unsetf(std::ios_base::floatfield);
+    //if (ProcessCCSDSOEMDataFile::scientific)
+    //    output.unsetf(std::ios_base::floatfield);
 
-   //if (ProcessCCSDSOEMDataFile::showPoint)
-   //    output << noshowpoint;
+    //if (ProcessCCSDSOEMDataFile::showPoint)
+    //    output << noshowpoint;
 
-   return output;
+    return output;
 }

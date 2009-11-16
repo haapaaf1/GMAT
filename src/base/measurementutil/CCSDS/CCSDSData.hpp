@@ -95,6 +95,8 @@ public:
     {
         CCSDS_RATE_FRAME_A_ID = 0,
         CCSDS_RATE_FRAME_B_ID,
+        CCSDS_EULER_RATE_FRAME_A_ID,
+        CCSDS_EULER_RATE_FRAME_B_ID,
         EndCCSDSRateFrameReps
     };
 

@@ -5,7 +5,9 @@
 const std::string CCSDSData::CCSDS_RATE_FRAME[EndCCSDSRateFrameReps] =
 {
     "REF_FRAME_A",
-    "REF_FRAME_B"
+    "REF_FRAME_B",
+    "EULER_FRAME_A",
+    "EULER_FRAME_B"
 };
 
 const std::string CCSDSData::CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps] =

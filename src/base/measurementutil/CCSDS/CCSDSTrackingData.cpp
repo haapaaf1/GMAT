@@ -413,28 +413,16 @@ bool CCSDSTrackingData::Validate() const
             switch (GetDataParameterType(i))
             {
                 case Gmat::REAL_TYPE:
-                    {
-                    Real rvalue = GetRealDataParameter(i);
-                    if (&rvalue == NULL ||
-                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetRealDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRING_TYPE:
-                    {
-                    std::string svalue = GetStringDataParameter(i);
-                    if (&svalue == NULL ||
-                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
-                    {
-                    StringArray savalue = GetStringArrayDataParameter(i);
-                    if (&savalue == NULL ||
-                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
                         return false;
-                    }
                     break;
                 default:
                     return false;

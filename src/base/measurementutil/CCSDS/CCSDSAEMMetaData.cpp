@@ -98,16 +98,16 @@ const Gmat::ParameterType CCSDSAEMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
+    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
+    Gmat::INTEGER_TYPE,
+    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
+    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::INTEGER_TYPE,
     Gmat::STRINGARRAY_TYPE
@@ -121,23 +121,23 @@ const Gmat::ParameterType CCSDSAEMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  */
 //------------------------------------------------------------------------------
 CCSDSAEMMetaData::CCSDSAEMMetaData() : CCSDSMetaData(),
-    objectName(std::string("")),
-    internationalDesignator(std::string("")),
-    refFrameOrigin(std::string("")),
-    frameA(std::string("")),
-    frameB(std::string("")),
+    objectName(GmatBase::STRING_PARAMETER_UNDEFINED),
+    internationalDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
+    refFrameOrigin(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameA(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameB(GmatBase::STRING_PARAMETER_UNDEFINED),
     direction(GmatBase::INTEGER_PARAMETER_UNDEFINED),
-    timeSystem(std::string("")),
-    startEpoch(std::string("")),
-    stopEpoch(std::string("")),
-    useableStartEpoch(std::string("")),
-    useableStopEpoch(std::string("")),
+    timeSystem(GmatBase::STRING_PARAMETER_UNDEFINED),
+    startEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
+    stopEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
+    useableStartEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
+    useableStopEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
     attitudeType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
     quaternionType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
-    eulerRotationSequence(std::string("")),
-    rateFrame(0),
-    interpolationMethod(std::string("")),
-    interpolationDegree(0),
+    eulerRotationSequence(GmatBase::STRING_PARAMETER_UNDEFINED),
+    rateFrame(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    interpolationMethod(GmatBase::STRING_PARAMETER_UNDEFINED),
+    interpolationDegree(GmatBase::INTEGER_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -314,34 +314,6 @@ Integer CountRequiredNumberAEMMetaDataParameters()
             num++;
 
     return num;
-}
-
-//------------------------------------------------------------------------------
-//  bool CheckMetaDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool CCSDSAEMMetaData::CheckMetaDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSAEMMetaDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_METADATA_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
 }
 
 //------------------------------------------------------------------------------
@@ -601,46 +573,28 @@ bool CCSDSAEMMetaData::Validate() const
 
         if (IsParameterRequired(i))
         {
+
             switch (GetDataParameterType(i))
             {
                 case Gmat::BOOLEAN_TYPE:
-                    {
-                    bool bvalue = GetBooleanDataParameter(i);
-                    if (&bvalue == NULL)
+                    if (!IsParameterDefined(GetBooleanDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::INTEGER_TYPE:
-                    {
-                    Integer ivalue = GetIntegerDataParameter(i);
-                    if (&ivalue == NULL ||
-                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetIntegerDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::REAL_TYPE:
-                    {
-                    Real rvalue = GetRealDataParameter(i);
-                    if (&rvalue == NULL ||
-                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetRealDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRING_TYPE:
-                    {
-                    std::string svalue = GetStringDataParameter(i);
-                    if (&svalue == NULL ||
-                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
-                    {
-                    StringArray savalue = GetStringArrayDataParameter(i);
-                    if (&savalue == NULL ||
-                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
                         return false;
-                    }
                     break;
                 default:
                     return false;
@@ -669,8 +623,8 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMMetaData *myMetaDa
 
     if(!myMetaData->Validate()) return output;
 
-   //output.setf(std::ios::showpoint);
-   //output.setf(std::ios::scientific);
+    //output.setf(std::ios::showpoint);
+    //output.setf(std::ios::scientific);
 
     output << "META_START" << std::endl;
 

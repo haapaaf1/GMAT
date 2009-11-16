@@ -728,26 +728,38 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
         isMetaDataWritten = false;
         lastMetaDataWritten = NULL;
 
-        // Output a blank line to separate the new metadata from
-        // the last block of ephemeris data
-        *theFile << "DATA_STOP" << std::endl;
-        *theFile << std::endl;
-
         switch(fileTypeID)
         {
             case DataFile::CCSDS_TDM_ID:
+                // Output a blank line to separate the new
+                // metadata from the last block of data
+                *theFile << std::endl;
                 *theFile << (CCSDSTDMMetaData*)myMetaData;
                 break;
             case DataFile::CCSDS_OPM_ID:
+                // Output a blank line to separate the new
+                // metadata from the last block of data
+                *theFile << std::endl;
                 *theFile << (CCSDSOPMMetaData*)myMetaData;
                 break;
             case DataFile::CCSDS_OEM_ID:
+                // Output a blank line to separate the new
+                // metadata from the last block of data
+                *theFile << std::endl;
                 *theFile << (CCSDSOEMMetaData*)myMetaData;
                 break;
             case DataFile::CCSDS_APM_ID:
+                // Output a blank line to separate the new
+                // metadata from the last block of data
+                *theFile << std::endl;
                 *theFile << (CCSDSAPMMetaData*)myMetaData;
                 break;
             case DataFile::CCSDS_AEM_ID:
+                // Finalize last block of ephemeris data
+                *theFile << "DATA_STOP" << std::endl;
+                // Output a blank line to separate the new
+                // metadata from the last block of data
+                *theFile << std::endl;
                 *theFile << (CCSDSAEMMetaData*)myMetaData;
                 break;
             default:

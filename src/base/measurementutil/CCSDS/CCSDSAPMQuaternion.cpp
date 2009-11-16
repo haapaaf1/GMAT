@@ -74,25 +74,64 @@ std::ostream& operator<< (std::ostream &output,
 
     if (!myAPMQuaternion->Validate()) return output;
 
-   unsigned int i;
-   for (i = 0; i < myAPMQuaternion->comments.size(); i++ )
-   {
-       output << "COMMENT " << myAPMQuaternion->comments[i] << endl;
-   }
-   if (i > 0) output << endl;
+    unsigned int i;
+    for (i = 0; i < myAPMQuaternion->comments.size(); i++ )
+    {
+        output << "COMMENT " << myAPMQuaternion->comments[i] << endl;
+    }
+    if (i > 0) output << endl;
 
-   output << "Quaternion Type = " << myAPMQuaternion->quaternionType << endl;
-   output << "Q_FRAME_A = " << myAPMQuaternion->frameA << endl;
-   output << "Q_FRAME_B = " << myAPMQuaternion->frameB << endl;
-   output << "Q_DIR = " << myAPMQuaternion->direction << endl;
-   output << "Q1 = " << myAPMQuaternion->q1 << endl;
-   output << "Q2 = " << myAPMQuaternion->q2 << endl;
-   output << "Q3 = " << myAPMQuaternion->q3 << endl;
-   output << "QC = " << myAPMQuaternion->qC << endl;
-   output << "Q1_DOT = " << myAPMQuaternion->q1Dot << endl;
-   output << "Q2_DOT = " << myAPMQuaternion->q2Dot << endl;
-   output << "Q3_DOT = " << myAPMQuaternion->q3Dot << endl;
-   output << "QC_DOT = " << myAPMQuaternion->qCDot << endl;
+    output << "EPOCH = " << myAPMQuaternion->timeTag << endl;
+    output << "Q_FRAME_A = " << myAPMQuaternion->frameA << endl;
+    output << "Q_FRAME_B = " << myAPMQuaternion->frameB << endl;
+    output << "Q_DIR = " << myAPMQuaternion->GetAttitudeDirText(myAPMQuaternion->direction) << endl;
+
+    switch (myAPMQuaternion->attitudeType)
+    {
+        case CCSDSData::CCSDS_QUATERNION_ID:
+        {
+            output << "Q1 = " << myAPMQuaternion->q1 << endl;
+            output << "Q2 = " << myAPMQuaternion->q2 << endl;
+            output << "Q3 = " << myAPMQuaternion->q3 << endl;
+            output << "QC = " << myAPMQuaternion->qC << endl;
+            return output;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID:
+        {
+            output << "Q1 = " << myAPMQuaternion->q1 << endl;
+            output << "Q2 = " << myAPMQuaternion->q2 << endl;
+            output << "Q3 = " << myAPMQuaternion->q3 << endl;
+            output << "QC = " << myAPMQuaternion->qC << endl;
+            output << "Q1_DOT = " << myAPMQuaternion->q1Dot << endl;
+            output << "Q2_DOT = " << myAPMQuaternion->q2Dot << endl;
+            output << "Q3_DOT = " << myAPMQuaternion->q3Dot << endl;
+            output << "QC_DOT = " << myAPMQuaternion->qCDot << endl;
+            return output;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_QUATERNION_RATE_ID:
+        {
+            output << "Q1 = " << myAPMQuaternion->q1 << endl;
+            output << "Q2 = " << myAPMQuaternion->q2 << endl;
+            output << "Q3 = " << myAPMQuaternion->q3 << endl;
+            output << "QC = " << myAPMQuaternion->qC << endl;
+            output << "X_RATE = " << myAPMQuaternion->xRate << endl;
+            output << "Y_RATE = " << myAPMQuaternion->yRate << endl;
+            output << "Z_RATE = " << myAPMQuaternion->zRate << endl;
+            return output;
+        }
+
+        break;
+
+        default:
+
+            break;
+    }
 
    output << endl;
 

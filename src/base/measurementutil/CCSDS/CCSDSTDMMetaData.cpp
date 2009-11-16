@@ -522,34 +522,6 @@ Integer CountRequiredNumberTDMMetaDataParameters()
 }
 
 //------------------------------------------------------------------------------
-//  bool CheckMetaDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool CCSDSTDMMetaData::CheckMetaDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndCCSDSTDMMetaDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(CCSDS_METADATA_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
-
-//------------------------------------------------------------------------------
 // Measurement Data Access functions
 //------------------------------------------------------------------------------
 
@@ -983,43 +955,24 @@ bool CCSDSTDMMetaData::Validate() const
             switch (GetDataParameterType(i))
             {
                 case Gmat::BOOLEAN_TYPE:
-                    {
-                    bool bvalue = GetBooleanDataParameter(i);
-                    if (&bvalue == NULL)
+                    if (!IsParameterDefined(GetBooleanDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::INTEGER_TYPE:
-                    {
-                    Integer ivalue = GetIntegerDataParameter(i);
-                    if (&ivalue == NULL ||
-                        ivalue == GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetIntegerDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::REAL_TYPE:
-                    {
-                    Real rvalue = GetRealDataParameter(i);
-                    if (&rvalue == NULL ||
-                        rvalue == GmatBase::REAL_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetRealDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRING_TYPE:
-                    {
-                    std::string svalue = GetStringDataParameter(i);
-                    if (&svalue == NULL ||
-                        svalue == GmatBase::STRING_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringDataParameter(i)))
                         return false;
-                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
-                    {
-                    StringArray savalue = GetStringArrayDataParameter(i);
-                    if (&savalue == NULL ||
-                        savalue == GmatBase::STRINGARRAY_PARAMETER_UNDEFINED)
+                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
                         return false;
-                    }
                     break;
                 default:
                     return false;
