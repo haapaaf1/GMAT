@@ -19,7 +19,6 @@
 #include "gmatwxdefs.hpp"
 #include "GmatDialog.hpp"
 #include "gmatdefs.hpp"
-#include "RgbColor.hpp"
 #include <wx/string.h> // for wxArrayString
 
 class CelesBodySelectDialog : public GmatDialog
@@ -32,33 +31,22 @@ public:
    
    wxArrayString& GetBodyNames()
       { return mBodyNames; }
-   UnsignedIntArray& GetBodyColors()
-      { return mBodyColors; }
    bool IsBodySelected()
       { return mIsBodySelected; }
-   
-   void SetBodyColors(const wxArrayString &bodyNames,
-                      const UnsignedIntArray &bodyColors);
-   
+      
 private:
    wxArrayString mBodyNames;
    wxArrayString mBodiesToExclude;
    wxArrayString mBodiesToHide;
-   
-   UnsignedIntArray mBodyColors;
-   
+      
    bool mIsBodySelected;
    bool mShowCalPoints;
    
    wxString mSelBodyName;
-   std::map<wxString, RgbColor> mBodyColorMap;
-   
-   wxColour mSelBodyColor;
    
    wxButton *mAddBodyButton;
    wxButton *mRemoveBodyButton;
    wxButton *mClearBodyButton;
-   wxButton *mBodyColorButton;
    
    wxListBox *mBodyListBox;
    wxListBox *mBodySelectedListBox;
@@ -73,11 +61,10 @@ private:
    
    // event handling
    void OnButton(wxCommandEvent& event);
-   void OnColorButtonClick(wxCommandEvent& event);
    void OnSelectBody(wxCommandEvent& event);
    
    DECLARE_EVENT_TABLE()
-      
+   
    // IDs for the controls and the menu commands
    enum
    {     
@@ -85,7 +72,6 @@ private:
       ID_LISTBOX,
       ID_BODY_SEL_LISTBOX,
       ID_BUTTON,
-      ID_COLOR_BUTTON,
    };
 };
 
