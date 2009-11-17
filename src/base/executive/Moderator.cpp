@@ -1743,6 +1743,13 @@ SpaceObject* Moderator::CreateSpacecraft(const std::string &type,
       }
       #endif
       
+      // Create internal and default CoordinateSystems if they do not exist.
+      // This code will make new mission to work after script errors occur.
+      // This change was made while looking at Bug 1532 (LOJ: 2009.11.13)
+      if (theInternalCoordSystem == NULL)
+         CreateInternalCoordSystem();
+      CreateDefaultCoordSystems();
+      
       if (type == "Spacecraft")
       {
          // Set internal and default CoordinateSystem
@@ -1762,6 +1769,11 @@ SpaceObject* Moderator::CreateSpacecraft(const std::string &type,
                                        e.GetFullMessage());
       }
       
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateSpacecraft() returning <%p>'%s'\n", sc,
+          sc->GetName().c_str());
+      #endif
       return sc;
    }
    else
@@ -4861,6 +4873,18 @@ bool Moderator::ClearResource()
    // Delete solar system in use. We want to begin with default solar system
    // before creating default mission or new script is read.
    #ifndef __DISABLE_SOLAR_SYSTEM_CLONING__
+   // Do not delete SolarSystem in case user wants to create a new mission from
+   // the GUI after getting errors in script build. This will fix Bug 1532 (LOJ: 2009.11.13)
+   if (!isRunReady && endOfInterpreter)
+   {
+      #if DEBUG_SEQUENCE_CLEARING | DEBUG_FINALIZE > 0
+      MessageInterface::ShowMessage
+         (".....Mod::ClearResource - <%p>theSolarSystemInUse was not deleted since "
+          "there was script errors\n", theSolarSystemInUse);
+      #endif
+   }
+   else
+   {
       if (theSolarSystemInUse != NULL)
       {
          #if DEBUG_SEQUENCE_CLEARING | DEBUG_FINALIZE > 0
@@ -4877,8 +4901,9 @@ bool Moderator::ClearResource()
          delete theSolarSystemInUse;
          theSolarSystemInUse = NULL;
       }
+   }
    #endif
-      
+   
    #if DEBUG_SEQUENCE_CLEARING
    MessageInterface::ShowMessage("Moderator::ClearResource() returning true\n");
    #endif
@@ -4967,6 +4992,9 @@ Integer Moderator::RunMission(Integer sandboxNum)
    //MessageInterface::ShowMessage("Moderator::RunMission() entered\n");
    MessageInterface::ShowMessage("Running mission...\n");
    Integer status = 1;
+   // Set to 1 to always run the mission and get the sandbox error message
+   // Changed this code while looking at Bug 1532 (LOJ: 2009.11.13)
+   isRunReady = 1;
    
    //MessageInterface::ShowMessage
    //   ("==> HasConfigurationChanged()=%d\n", HasConfigurationChanged());
@@ -5004,7 +5032,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
          AddSolarSystemToSandbox(sandboxNum-1);
          AddInternalCoordSystemToSandbox(sandboxNum-1);
          AddCoordSystemToSandbox(sandboxNum-1);
-         /// @note AddSpacecraftToSandbox() also adds associated hardware          
+         /// @note AddSpacecraftToSandbox() also adds associated hardware
          AddSpacecraftToSandbox(sandboxNum-1);
          AddFormationToSandbox(sandboxNum-1);
          AddSpacePointToSandbox(sandboxNum-1);
@@ -5082,7 +5110,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
    else
    {
       MessageInterface::PopupMessage
-         (Gmat::ERROR_, "Mission not Complete. Cannot Run Mission.\n");
+         (Gmat::ERROR_, "Cannot Run Mission. No mission sequence defined.\n");
       status = -4;
    }
    
@@ -5795,20 +5823,30 @@ void Moderator::CreateSolarSystemInUse()
 //------------------------------------------------------------------------------
 void Moderator::CreateInternalCoordSystem()
 {
-   #if DEBUG_INTERNAL_CS
+   #if DEBUG_INITIALIZE
    //MessageInterface::ShowMessage("========================================\n");
    MessageInterface::ShowMessage("Moderator creating internal coordinate system...\n");
    #endif
    
-   // Create internal CoordinateSystem with no name, since we don't want
-   // it to be configured.
-   theInternalCoordSystem =
-      CreateCoordinateSystem("InternalEarthMJ2000Eq", true, true);
-   
-   #if DEBUG_INTERNAL_CS
-   MessageInterface::ShowMessage
-      (".....created  (%p)theInternalCoordSystem\n",theInternalCoordSystem);
-   #endif
+   if (theInternalCoordSystem != NULL)
+   {
+      #if DEBUG_INITIALIZE
+      MessageInterface::ShowMessage
+         ("..... <%p>theInternalCoordSystem already exists\n",theInternalCoordSystem);
+      #endif
+   }
+   else
+   {
+      // Create internal CoordinateSystem with no name, since we don't want
+      // it to be configured.
+      theInternalCoordSystem =
+         CreateCoordinateSystem("InternalEarthMJ2000Eq", true, true);
+      
+      #if DEBUG_INITIALIZE
+      MessageInterface::ShowMessage
+         (".....created  <%p>theInternalCoordSystem\n",theInternalCoordSystem);
+      #endif
+   }
 }
 
 
@@ -5830,7 +5868,12 @@ void Moderator::CreateDefaultCoordSystems()
       CoordinateSystem *eqcs = GetCoordinateSystem("EarthMJ2000Eq");
       if (eqcs == NULL)
       {
-         CreateCoordinateSystem("EarthMJ2000Eq", true);
+         eqcs = CreateCoordinateSystem("EarthMJ2000Eq", true);
+         
+         #if DEBUG_INITIALIZE
+         MessageInterface::ShowMessage
+            (".....created <%p>'%s'\n", eqcs, eqcs->GetName().c_str());
+         #endif
       }
       else
       {
@@ -5843,6 +5886,10 @@ void Moderator::CreateDefaultCoordSystems()
       if (eccs == NULL)
       {
          eccs = CreateCoordinateSystem("EarthMJ2000Ec", false);
+         #if DEBUG_INITIALIZE
+         MessageInterface::ShowMessage
+            (".....created <%p>'%s'\n", eccs, eccs->GetName().c_str());
+         #endif
          AxisSystem *ecAxis = CreateAxisSystem("MJ2000Ec", "MJ2000Ec_Earth");
          eccs->SetStringParameter("Origin", "Earth");
          eccs->SetStringParameter("J2000Body", "Earth");
@@ -5870,6 +5917,10 @@ void Moderator::CreateDefaultCoordSystems()
       if (bfcs == NULL)
       {
          bfcs = CreateCoordinateSystem("EarthFixed", false);
+         #if DEBUG_INITIALIZE
+         MessageInterface::ShowMessage
+            (".....created <%p>'%s'\n", bfcs, bfcs->GetName().c_str());
+         #endif
          BodyFixedAxes *bfecAxis =
             (BodyFixedAxes*)CreateAxisSystem("BodyFixed", "BodyFixed_Earth");
          bfecAxis->SetEopFile(theEopFile);
