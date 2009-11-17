@@ -1394,6 +1394,11 @@ Integer GmatMainFrame::RunCurrentMission()
 
    Integer retval = 1;
 
+   // We don't want to write out script error message since users can start
+   // brand new mission from the GUI when script errors occur.
+   // So exclude it until we revisit this. Changed the code while looking
+   // at bug 1532. (LOJ: 2009.11.13)
+   #if 0
    if (mInterpretFailed)
    {
       MessageInterface::PopupMessage
@@ -1403,7 +1408,8 @@ Integer GmatMainFrame::RunCurrentMission()
 
       return 0;
    }
-
+   #endif
+   
    EnableMenuAndToolBar(false, true);
 
    wxYield();
@@ -1435,8 +1441,8 @@ Integer GmatMainFrame::RunCurrentMission()
       //if (mMatlabServer)
       if (retval != 1 && mMatlabServer)
          StopMatlabServer(); // stop server if running to avoid getting callback staus
-                       // when run stopped by user
-
+                             // when run stopped by user
+      
       EnableMenuAndToolBar(true, true);
       SetStatusText("", 1);
 
@@ -1558,7 +1564,7 @@ void GmatMainFrame::StopMatlabServer()
                            wxT("Please wait while GMAT closes the server"), 100, this,
                            wxPD_AUTO_HIDE | wxPD_APP_MODAL | wxPD_SMOOTH);
 
-      // wait for 2 secconds
+      // wait for 2 seconds
       for (int i=0; i<10; i++)
       {
          dlg.Update((i+1)*10);
@@ -3023,7 +3029,8 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
    while (cont)
    {
       if (filename.Contains(".report") || filename.Contains(".txt") ||
-          filename.Contains(".data") || filename.Contains(".script"))
+          filename.Contains(".data") || filename.Contains(".script") ||
+          filename.Contains(".eph"))
       {
          // if file has prefix
          if (filename.Left(prefixLen) == basePrefix)
@@ -3031,7 +3038,8 @@ void GmatMainFrame::OnFileCompareText(wxCommandEvent& event)
             filepath = baseDir + "/" + filename;
 
             // remove any backup files
-            if (filename.Last() == 't' || filename.Last() == 'a')
+            if (filename.Last() == 't' || filename.Last() == 'a' ||
+                filename.Last() == 'h')
             {
                wxString noPrefixName = filename;
                noPrefixName.Replace(basePrefix, "", false);
