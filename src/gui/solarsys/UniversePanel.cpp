@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              UniversePanel
 //------------------------------------------------------------------------------
@@ -25,7 +25,9 @@
 #include "StringUtil.hpp"
 #include <fstream>
 
-//#define DEBUG_UNIV_PANEL 1
+#define DEBUG_UNIVERSEPANEL_CREATE
+#define DEBUG_UNIVERSEPANEL_LOAD
+#define DEBUG_UNIVERSEPANEL_SAVE
 
 //------------------------------
 // event tables for wxWindows
@@ -62,12 +64,29 @@ UniversePanel::UniversePanel(wxWindow *parent):GmatPanel(parent)
 {
    mHasFileTypesInUseChanged = false;
    mHasFileNameChanged = false;
-//   mHasAnaModelChanged = false;
+   //mHasAnaModelChanged = false;
    mHasTextModified = false;
+   theSolarSystem = NULL;
    
-   Create();
-   Show();
+   // get solar system in use
+   theSolarSystem = theGuiInterpreter->GetSolarSystemInUse();
+   if (theSolarSystem == NULL)
+   {
+      MessageInterface::PopupMessage(Gmat::ERROR_, "The Solar System is NULL");
+   }
+   else
+   {
+      #ifdef DEBUG_UNIVERSEPANEL_CREATE
+      MessageInterface::ShowMessage
+         ("UniversePanel::UniversePanel() theSolarSystem=<%p>'%s'\n", theSolarSystem,
+          theSolarSystem->GetName().c_str());
+      #endif
+      
+      Create();
+      Show();
+   }
 }
+
 
 //------------------------------------------------------------------------------
 // ~UniversePanel()
@@ -113,16 +132,11 @@ void UniversePanel::OnScript(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void UniversePanel::Create()
 {
-   // SetParent(new wxFrame(0,-1,"title"));
-   // parent = GetParent();
-
-   #if DEBUG_UNIV_PANEL
-   MessageInterface::ShowMessage("UniversePanel::Create() entering\n");
+   #ifdef DEBUG_UNIVERSEPANEL_CREATE
+   MessageInterface::ShowMessage("UniversePanel::Create() entered\n");
    #endif
-
+   
    int bsize = 2;
-   //VC++ error C2466: cannot allocate an array of constant size 0
-   //wxString emptyArray[] = { };
    wxArrayString emptyArray;
    
    //-------------------------------------------------------
@@ -142,7 +156,7 @@ void UniversePanel::Create()
                        wxDefaultPosition, wxSize(-1,-1), 0);
    
    mFileTypeComboBox = 
-      new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize, //0,
+      new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize,
                      emptyArray, wxCB_READONLY);
    
    //-------------------------------------------------------
@@ -159,14 +173,14 @@ void UniversePanel::Create()
    mBrowseButton =
       new wxButton(this, ID_BUTTON_BROWSE, wxT("Browse"),
                    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-                   
+   
    //-------------------------------------------------------
    // use TT for ephemeris
    //-------------------------------------------------------
    mOverrideCheckBox =
       new wxCheckBox(this, CHECKBOX, wxT("Use TT for Ephemeris"),
                      wxDefaultPosition, wxSize(-1, -1), 0);
-
+   
    //-------------------------------------------------------
    // analytic motel
    //-------------------------------------------------------
@@ -212,6 +226,11 @@ void UniversePanel::Create()
 //   mPageSizer->Add(mAnaModelSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    
    theMiddleSizer->Add(mPageSizer, 0, wxALIGN_CENTER|wxALL, bsize);
+   
+   #ifdef DEBUG_UNIVERSEPANEL_CREATE
+   MessageInterface::ShowMessage("UniversePanel::Create() leaving\n");
+   #endif
+
 }
 
 
@@ -220,63 +239,76 @@ void UniversePanel::Create()
 //------------------------------------------------------------------------------
 void UniversePanel::LoadData()
 {
-   // load data from the core engine
-   theSolarSystem = theGuiInterpreter->GetSolarSystemInUse();
-   mAllFileTypes = theGuiInterpreter->GetPlanetarySourceTypes();
-//   mAnalyticModels = theGuiInterpreter->GetAnalyticModelNames();
-   StringArray fileTypesInUse = theGuiInterpreter->GetPlanetarySourceTypesInUse();
+   #ifdef DEBUG_UNIVERSEPANEL_LOAD
+   MessageInterface::ShowMessage("UniversePanel::LoadData() entered\n");
+   #endif
    
-   // load  ephemeris update interval
-   Real interval = theSolarSystem->GetEphemUpdateInterval();
-   mIntervalTextCtrl->SetValue(theGuiManager->ToWxString(interval));
-   
-   // available source
-   for (unsigned int i=0; i<mAllFileTypes.size(); i++)
+   try
    {
-      wxString type = mAllFileTypes[i].c_str();
-      mFileTypeNameMap[type] =
-         theGuiInterpreter->GetPlanetarySourceName(mAllFileTypes[i]).c_str();
+      mAllFileTypes = theGuiInterpreter->GetPlanetarySourceTypes();
+      //mAnalyticModels = theGuiInterpreter->GetAnalyticModelNames();
+      StringArray fileTypesInUse = theGuiInterpreter->GetPlanetarySourceTypesInUse();
       
-      mFileTypeComboBox->Append(type);
+      // load  ephemeris update interval
+      Real interval = theSolarSystem->GetEphemUpdateInterval();
+      mIntervalTextCtrl->SetValue(theGuiManager->ToWxString(interval));
+      
+      // available source
+      for (unsigned int i=0; i<mAllFileTypes.size(); i++)
+      {
+         wxString type = mAllFileTypes[i].c_str();
+         mFileTypeNameMap[type] =
+            theGuiInterpreter->GetPlanetarySourceName(mAllFileTypes[i]).c_str();
+         
+         mFileTypeComboBox->Append(type);
+      }
+      
+      // available analytic models
+      //for (unsigned int i=0; i<mAnalyticModels.size(); i++)
+      //{
+      //   mAnalyticModelComboBox->Append(mAnalyticModels[i].c_str());
+      //}
+      //   
+      // set defaults
+      //mAnalyticModelComboBox->SetSelection(0);
+      
+      std::string currentSource =
+         theSolarSystem->GetStringParameter(theSolarSystem->GetParameterID("EphemerisSource"));
+      mFileTypeComboBox->SetStringSelection(currentSource.c_str());
+      
+      //mFileTypeComboBox->SetStringSelection(fileTypesInUse[0].c_str());
+      //if (mFileTypeComboBox->GetStringSelection() == "Analytic")
+      if (mFileTypeComboBox->GetStringSelection() == "TwoBodyPropagation")
+      {
+         mBrowseButton->Disable();
+         mFileNameTextCtrl->Disable();
+         //mPageSizer->Show(mAnaModelSizer, true);
+      }
+      else
+      {
+         mBrowseButton->Enable();
+         mFileNameTextCtrl->Enable();
+         //mPageSizer->Show(mAnaModelSizer, false);
+      }
+      
+      mFileNameTextCtrl->
+         SetValue(mFileTypeNameMap[mFileTypeComboBox->GetStringSelection()]);
+      
+      mOverrideCheckBox->SetValue
+         (theSolarSystem->GetBooleanParameter("UseTTForEphemeris"));
+      
+      mPageSizer->Layout();
+      mObject = theSolarSystem;
+      EnableUpdate(false);
    }
-   
-   // available analytic models
-//   for (unsigned int i=0; i<mAnalyticModels.size(); i++)
-//   {
-//      mAnalyticModelComboBox->Append(mAnalyticModels[i].c_str());
-//   }
-//   
-//   // set defaults
-//   mAnalyticModelComboBox->SetSelection(0);
-   std::string currentSource = theSolarSystem->GetStringParameter(
-         theSolarSystem->GetParameterID("EphemerisSource"));
-   mFileTypeComboBox->SetStringSelection(currentSource.c_str());
-//   mFileTypeComboBox->SetStringSelection(fileTypesInUse[0].c_str());
-//   if (mFileTypeComboBox->GetStringSelection() == "Analytic")
-   if (mFileTypeComboBox->GetStringSelection() == "TwoBodyPropagation")
+   catch (BaseException &e)
    {
-      mBrowseButton->Disable();
-      mFileNameTextCtrl->Disable();
-//      mPageSizer->Show(mAnaModelSizer, true);
-   }
-   else
-   {
-      mBrowseButton->Enable();
-      mFileNameTextCtrl->Enable();
-//      mPageSizer->Show(mAnaModelSizer, false);
+      MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
    }
    
-   mFileNameTextCtrl->
-      SetValue(mFileTypeNameMap[mFileTypeComboBox->GetStringSelection()]);
-
-   mOverrideCheckBox->SetValue(theSolarSystem->GetBooleanParameter(
-      "UseTTForEphemeris"));
-
-   mPageSizer->Layout();
-   
-   mObject = theSolarSystem;
-
-   EnableUpdate(false);
+   #ifdef DEBUG_UNIVERSEPANEL_LOAD
+   MessageInterface::ShowMessage("UniversePanel::LoadData() leaving\n");
+   #endif
 }
 
 
@@ -285,6 +317,10 @@ void UniversePanel::LoadData()
 //------------------------------------------------------------------------------
 void UniversePanel::SaveData()
 {
+   #ifdef DEBUG_UNIVERSEPANEL_SAVE
+   MessageInterface::ShowMessage("UniversePanel::SaveData() entered\n");
+   #endif
+   
    canClose = true;
    std::string str;
    Real interval;
@@ -322,7 +358,7 @@ void UniversePanel::SaveData()
          mFileTypesInUse.push_back(srcSelection);
          theSolarSystem->SetStringParameter(theSolarSystem->GetParameterID("EphemerisSource"),
                srcSelection);
-         #if DEBUG_UNIV_PANEL
+         #ifdef DEBUG_UNIVERSEPANEL_SAVE
          MessageInterface::ShowMessage
             ("UniversePanel::SaveData() types=%s\n",
              mFileTypesInUse[0].c_str());
@@ -377,6 +413,10 @@ void UniversePanel::SaveData()
       canClose = false;
       return;
    }
+   
+   #ifdef DEBUG_UNIVERSEPANEL_SAVE
+   MessageInterface::ShowMessage("UniversePanel::SaveData() leaving\n");
+   #endif
 }// end SaveData()
 
 
