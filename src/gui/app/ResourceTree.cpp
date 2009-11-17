@@ -2040,6 +2040,11 @@ void ResourceTree::OnAddSpacecraft(wxCommandEvent &event)
       Expand(item);
 
       theGuiManager->UpdateSpacecraft();
+      // Update CoordindateSystem folder since Moderator creates default
+      // coordinate systems if not created already when creating a spacecraft
+      theGuiManager->UpdateCoordSystem();
+      DeleteChildren(mCoordSysItem);
+      AddDefaultCoordSys(mCoordSysItem);
    }
 }
 
