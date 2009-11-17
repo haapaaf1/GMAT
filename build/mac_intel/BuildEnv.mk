@@ -23,7 +23,7 @@ USE_SHARED = 1
 SHARED_BASE = 1
 
 # *** EDIT THIS *** - put the top of the GMAT project directory structure here ....  *** MUST BE EDITED ****
-TOP_DIR = <<<<<put your top level directory here!!!!!!>>>>>   
+TOP_DIR = <<<<<put your top level directory here!!!!!!>>>>>
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
 WX_HOME = /Applications/wxmac-2.8.10/osx-build
 # *** EDIT THIS *** - 'sudo make install' of wxMac will put things here ......
