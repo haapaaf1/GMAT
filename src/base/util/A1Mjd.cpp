@@ -611,7 +611,9 @@ CalDate A1Mjd::UtcMjdToCalDate(const UtcMjd &utcmjd)
    // Changed 1.0e6 to 1.0e4 to avoid 59.99999999999 (LOJ: 2009.11.09)
    // A1MJD of 25131.171227249783 gives 26 Oct 2009 16:05:60.000 instead of
    //    16:06:00.000
-   static const Real MJDSEC_TO_WHOLE_NUM = 1.0e4;      
+   // Changed to 1.0e3 for Bug 1631 (LOJ: 2009.11.13)
+   //static const Real MJDSEC_TO_WHOLE_NUM = 1.0e4;
+   static const Real MJDSEC_TO_WHOLE_NUM = 1.0e3;
    
    // add a half day (julian to gregorian) offset to the input utcmjd
    modjul = utcmjd + 0.50;
