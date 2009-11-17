@@ -112,11 +112,13 @@ protected:
    Integer     waitCount;
    
    Real        stepSizeInA1Mjd;
+   Real        stepSizeInSecs;
    Real        initialEpochA1Mjd;
    Real        finalEpochA1Mjd;
    Real        nextOutEpoch;
    Real        nextReqEpoch;
-   Real        currentEpoch;
+   Real        currEpochInDays;
+   Real        currEpochInSecs;
    Real        prevEpoch;
    Real        prevProcTime;
    Real        attEpoch;
@@ -158,7 +160,7 @@ protected:
    
    // Interpolation
    void        RestartInterpolation(const std::string &comments = "");
-   bool        IsTimeToWrite(Real epoch, Real *state);
+   bool        IsTimeToWrite(Real epochInSecs, Real *state);
    void        WriteOrbit(Real reqEpoch, Real *state);
    void        WriteOrbitAt(Real reqEpoch, Real *state);
    void        GetAttitude();
