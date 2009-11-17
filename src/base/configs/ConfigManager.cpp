@@ -1212,6 +1212,13 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
             MessageInterface::ShowMessage
                ("   Deleting '%s' from mapping\n", name.c_str());
             #endif
+            
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (obj, name, "ConfigManager::RemoveItem()",
+                "deleting object from mapping");
+            #endif
+            
             delete obj;
             obj = NULL;
             status = true;
