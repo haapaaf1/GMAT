@@ -18,12 +18,21 @@ public:
     CCSDSAPMEulerAngle();
     CCSDSAPMEulerAngle(const CCSDSAPMEulerAngle &apmEA);
     const CCSDSAPMEulerAngle& CCSDSAPMEulerAngle::operator=(const CCSDSAPMEulerAngle &apmEA);
-    ~CCSDSAPMEulerAngle();
+    virtual ~CCSDSAPMEulerAngle();
 
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAPMEulerAngle *myCCSDSAPMEulerAngle);
 
     friend class ProcessCCSDSAPMDataFile;
+
+    // Functions to verify data availability
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberAPMEulerAngleParameters();
+    bool Validate() const;
+
+protected:
+    
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSEulerAngleDataReps];
 
 };
 

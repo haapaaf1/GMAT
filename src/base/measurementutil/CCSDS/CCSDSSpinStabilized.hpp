@@ -18,7 +18,7 @@ public:
     CCSDSSpinStabilized();
     CCSDSSpinStabilized(const CCSDSSpinStabilized &ss);
     const CCSDSSpinStabilized& CCSDSSpinStabilized::operator=(const CCSDSSpinStabilized &ss);
-    ~CCSDSSpinStabilized();
+    virtual ~CCSDSSpinStabilized();
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
@@ -34,18 +34,12 @@ public:
     StringArray GetStringArrayDataParameter(const Integer id) const;
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
-    // Functions to verify data availability
-    bool IsParameterRequired(const Integer id) const;
-    friend Integer CountRequiredNumberSpinStabilizedParameters();
-    bool Validate() const;
-
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
     std::string GetUnits(const Integer &id) const;
 
     enum CCSDS_DATA_REPS
     {
-        CCSDS_SPINSTABILIZED_ATTITUDETYPE_ID,
 	CCSDS_SPINSTABILIZED_TIMETAG_ID,
 	CCSDS_SPINSTABILIZED_FRAMEA_ID,
 	CCSDS_SPINSTABILIZED_FRAMEB_ID,
@@ -67,7 +61,6 @@ protected:
 
     static const std::string CCSDS_SPINSTABILIZED_KEYWORDS[EndCCSDSSpinStabilizedDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSSpinStabilizedDataReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSSpinStabilizedDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSSpinStabilizedDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSSpinStabilizedDataReps];
 

@@ -76,13 +76,13 @@ const Gmat::ParameterType CCSDSKeplerianElements::CCSDS_PARAMETER_TYPE[EndCCSDSK
  */
 //------------------------------------------------------------------------------
 CCSDSKeplerianElements::CCSDSKeplerianElements() : CCSDSData(),
-    semiMajorAxis(0),
-    eccentricity(0),
-    inclination(0),
-    raan(0),
-    argumentOfPericenter(0),
+    semiMajorAxis(GmatBase::REAL_PARAMETER_UNDEFINED),
+    eccentricity(GmatBase::REAL_PARAMETER_UNDEFINED),
+    inclination(GmatBase::REAL_PARAMETER_UNDEFINED),
+    raan(GmatBase::REAL_PARAMETER_UNDEFINED),
+    argumentOfPericenter(GmatBase::REAL_PARAMETER_UNDEFINED),
     theAnomaly(0,0,0,Anomaly::TA,false),
-    gravitationalCoefficient(0),
+    gravitationalCoefficient(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -435,11 +435,17 @@ bool CCSDSKeplerianElements::Validate() const
             {
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;

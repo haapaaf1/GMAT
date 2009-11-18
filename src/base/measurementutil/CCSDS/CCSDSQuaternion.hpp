@@ -18,7 +18,7 @@ public:
     CCSDSQuaternion();
     CCSDSQuaternion(const CCSDSQuaternion &myQ);
     const CCSDSQuaternion& CCSDSQuaternion::operator=(const CCSDSQuaternion &myQ);
-    ~CCSDSQuaternion();
+    virtual ~CCSDSQuaternion();
 
     std::string GetQuaternionTypeText(const Integer id) const;
     Integer    GetQuaternionTypeID(const std::string &str) const;
@@ -36,11 +36,6 @@ public:
     std::string GetStringDataParameter(const std::string &label) const;
     StringArray GetStringArrayDataParameter(const Integer id) const;
     StringArray GetStringArrayDataParameter(const std::string &label) const;
-
-    // Functions to verify data availability
-    bool IsParameterRequired(const Integer id) const;
-    friend Integer CountRequiredNumberQuaternionParameters();
-    bool Validate() const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -79,7 +74,6 @@ protected:
     static const std::string CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps];
     static const std::string CCSDS_QUATERNION_KEYWORDS[EndCCSDSQuaternionDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSQuaternionDataReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuaternionDataReps];
 

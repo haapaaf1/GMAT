@@ -18,26 +18,21 @@ public:
     CCSDSEulerAngle();
     CCSDSEulerAngle(const CCSDSEulerAngle &ea);
     const CCSDSEulerAngle& CCSDSEulerAngle::operator=(const CCSDSEulerAngle &ea);
-    ~CCSDSEulerAngle();
+    virtual ~CCSDSEulerAngle();
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
-    virtual Integer	GetIntegerDataParameter(const Integer id) const;
-    virtual Integer	GetIntegerDataParameter(const std::string &label) const;
-    virtual Real	GetRealDataParameter(const Integer id) const;
-    virtual Real	GetRealDataParameter(const std::string &label) const;
-    virtual std::string GetStringDataParameter(const Integer id) const;
-    virtual std::string GetStringDataParameter(const std::string &label) const;
-    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
-    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
-
-    // Functions to verify data availability
-    bool IsParameterRequired(const Integer id) const;
-    friend Integer CountRequiredNumberEulerAngleParameters();
-    bool Validate() const;
+    Integer	GetIntegerDataParameter(const Integer id) const;
+    Integer	GetIntegerDataParameter(const std::string &label) const;
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;
@@ -67,7 +62,6 @@ protected:
 
     static const std::string CCSDS_EULERANGLE_KEYWORDS[EndCCSDSEulerAngleDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSEulerAngleDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSEulerAngleDataReps];
     static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps];
 

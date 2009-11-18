@@ -18,19 +18,19 @@ public:
     CCSDSStateVector();
     CCSDSStateVector(const CCSDSStateVector &sv);
     const CCSDSStateVector& CCSDSStateVector::operator=(const CCSDSStateVector &sv);
-    ~CCSDSStateVector();
+    virtual ~CCSDSStateVector();
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
-    virtual Real	GetRealDataParameter(const Integer id) const;
-    virtual Real	GetRealDataParameter(const std::string &label) const;
-    virtual std::string GetStringDataParameter(const Integer id) const;
-    virtual std::string GetStringDataParameter(const std::string &label) const;
-    virtual StringArray GetStringArrayDataParameter(const Integer id) const;
-    virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
+    Real	GetRealDataParameter(const Integer id) const;
+    Real	GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    StringArray GetStringArrayDataParameter(const Integer id) const;
+    StringArray GetStringArrayDataParameter(const std::string &label) const;
 
     // Functions to verify data availability
     bool IsParameterRequired(const Integer id) const;

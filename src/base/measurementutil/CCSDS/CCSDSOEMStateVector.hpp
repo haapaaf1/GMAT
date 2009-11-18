@@ -18,7 +18,7 @@ public:
     CCSDSOEMStateVector();
     CCSDSOEMStateVector(const CCSDSOEMStateVector &oemSV);
     const CCSDSOEMStateVector& CCSDSOEMStateVector::operator=(const CCSDSOEMStateVector &oemSV);
-    ~CCSDSOEMStateVector();
+    virtual ~CCSDSOEMStateVector();
 
     friend class ProcessCCSDSOEMDataFile;
     

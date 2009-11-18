@@ -359,19 +359,31 @@ bool CCSDSHeader::Validate() const
             {
                 case Gmat::INTEGER_TYPE:
                     if (!IsParameterDefined(GetIntegerDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Integer parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRING_TYPE:
                     if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;

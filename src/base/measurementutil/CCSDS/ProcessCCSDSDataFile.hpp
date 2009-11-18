@@ -92,6 +92,8 @@ protected:
     bool GetCCSDSComment(std::string &lff, std::string &comment);
 
     static const std::string REGEX_CCSDS_DATE;
+    static const std::string REGEX_CCSDS_DATE1;
+    static const std::string REGEX_CCSDS_DATE2;
     static const std::string REGEX_CCSDS_SAVETHEDATE1;
     static const std::string REGEX_CCSDS_SAVETHEDATE2;
     static const std::string REGEX_CCSDS_KEYWORD;

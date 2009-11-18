@@ -39,9 +39,9 @@ bool ProcessCCSDSAPMDataFile::Initialize()
     if (!ProcessCCSDSDataFile::Initialize()) return false;
 
     requiredNumberMetaDataParameters = CountRequiredNumberAPMMetaDataParameters();
-    requiredNumberQuaternionParameters = CountRequiredNumberQuaternionParameters();
-    requiredNumberEulerAngleParameters = CountRequiredNumberEulerAngleParameters();
-    requiredNumberSpinStabilizedParameters = CountRequiredNumberSpinStabilizedParameters();
+    requiredNumberQuaternionParameters = CountRequiredNumberAPMQuaternionParameters();
+    requiredNumberEulerAngleParameters = CountRequiredNumberAPMEulerAngleParameters();
+    requiredNumberSpinStabilizedParameters = CountRequiredNumberAPMSpinStabilizedParameters();
     requiredNumberSpacecraftInertiaParameters = CountRequiredNumberSpacecraftInertiaParameters();
     requiredNumberAttitudeManeuverParameters = CountRequiredNumberAttitudeManeuverParameters();
 
@@ -234,7 +234,6 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
 	{
 	    // success so set current header pointer to the
 	    // one just processed
-            MessageInterface::ShowMessage("Finished reading header...\n");
 	    currentCCSDSHeader = myAPM->ccsdsHeader;
 	}
 	else
@@ -251,7 +250,6 @@ bool ProcessCCSDSAPMDataFile::GetData(ObType *myAPMData)
     {
         // success so set current meta data pointer to the
         // one just processed
-        MessageInterface::ShowMessage("Finished reading meta data...\n");
         currentCCSDSMetaData = myAPM->ccsdsMetaData;
     }
     else
@@ -301,8 +299,6 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
 
     bool commentsFound = GetCCSDSComments(lff,comments);
 
-    MessageInterface::ShowMessage("Getting Quaternions...\n");
-
     std::string regex = "^EPOCH\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
@@ -322,7 +318,6 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
         }
     }
 
-    MessageInterface::ShowMessage("Getting Euler Angles...\n");
     regex = "^EULER_FRAME_A\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
@@ -342,7 +337,6 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
         }
     }
 
-    MessageInterface::ShowMessage("Getting Spin Frame...\n");
     regex = "^SPIN_FRAME_A\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
@@ -362,7 +356,6 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
         }
     }
 
-    MessageInterface::ShowMessage("Getting Inertias...\n");
     regex = "^INERTIA_REF_FRAME\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
@@ -383,8 +376,6 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
     }
 
     regex = "^MAN_TIMETAG_START\\s*=.*";
-    MessageInterface::ShowMessage("Getting Attitude Maneuvers...\n");
-
     myOb->i_ccsdsAPMAttitudeManeuvers = myOb->ccsdsAPMAttitudeManeuvers.begin();
     
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
@@ -505,7 +496,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMQuaternion(std::string &lff,
     }
     while ( requiredCount < requiredNumberQuaternionParameters && !IsEOF());
 
-    myAPMQuaternion->quaternionType = CCSDSQuaternion::CCSDS_QUATERNION_ID;
+    myAPMQuaternion->attitudeType = CCSDSData::CCSDS_QUATERNION_ID;
 
     std::string regex = "^Q1_DOT\\s*=.*";
     if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
@@ -560,39 +551,44 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMQuaternion(std::string &lff,
         }
         while ( requiredCount < requiredNumberQuaternionParameters + 4 && !IsEOF());
 
-        myAPMQuaternion->quaternionType = CCSDSQuaternion::CCSDS_QUATERNION_DERIVATIVE_ID;
+        myAPMQuaternion->attitudeType = CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID;
 
     }
 
-    /*
     regex = "^X_RATE\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
-        count = 0;
+        requiredCount = 0;
 
         do
         {
 
-            if (!GetCCSDSKeyword(lff,keyword)) return false;
+            if (!GetCCSDSKeyword(lff,keyword))
+                return false;
 
-            switch (myOb->GetKeywordID(keyword))
+            Integer keyID = myAPMQuaternion->GetKeywordID(keyword);
+
+            if(myAPMQuaternion->IsParameterRequired(keyID)) requiredCount++;
+
+            switch (keyID)
             {
+
                 case CCSDSAPMQuaternion::CCSDS_QUATERNION_XRATE_ID:
 
-                    if (!GetCCSDSValue(lff,myAPMQuaternion->xRate)) return false;
-                    count++;
+                    if (!GetCCSDSValue(lff,myAPMQuaternion->xRate))
+                        return false;
                     break;
 
                 case CCSDSAPMQuaternion::CCSDS_QUATERNION_YRATE_ID:
 
-                    if (!GetCCSDSValue(lff,myAPMQuaternion->yRate)) return false;
-                    count++;
+                    if (!GetCCSDSValue(lff,myAPMQuaternion->yRate))
+                        return false;
                     break;
 
                 case CCSDSAPMQuaternion::CCSDS_QUATERNION_ZRATE_ID:
 
-                    if (!GetCCSDSValue(lff,myAPMQuaternion->zRate)) return false;
-                    count++;
+                    if (!GetCCSDSValue(lff,myAPMQuaternion->zRate))
+                        return false;
                     break;
 
                 default:
@@ -604,12 +600,11 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMQuaternion(std::string &lff,
             lff = ReadLineFromFile();
 
         }
-        while ( count < 3 );
+        while ( requiredCount < requiredNumberQuaternionParameters + 3 );
 
-        myAPMQuaternion->quaternionType = CCSDSObType::CCSDS_QUATERNION_RATE_ID;
+        myAPMQuaternion->attitudeType = CCSDSData::CCSDS_QUATERNION_RATE_ID;
 
     }
-    */
 
     myOb->ccsdsAPMQuaternion = myAPMQuaternion;
 
@@ -894,7 +889,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpinStabilized(std::string &lff,
     }
     while ( requiredCount < requiredNumberSpinStabilizedParameters && !IsEOF());
 
-    myAPMSpinStabilized->attitudeType = CCSDSQuaternion::CCSDS_SPIN_ID;
+    myAPMSpinStabilized->attitudeType = CCSDSData::CCSDS_SPIN_ID;
 
     std::string regex = "^NUTATION\\s*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
@@ -942,7 +937,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpinStabilized(std::string &lff,
         }
         while ( requiredCount < requiredNumberSpinStabilizedParameters + 3 && !IsEOF());
 
-        myAPMSpinStabilized->attitudeType = CCSDSQuaternion::CCSDS_SPIN_NUTATION_ID;
+        myAPMSpinStabilized->attitudeType = CCSDSData::CCSDS_SPIN_NUTATION_ID;
 
     }
 

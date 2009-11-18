@@ -67,26 +67,6 @@ const std::string CCSDSQuaternion::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSQuatern
     "Quaternion Comments"
 };
 
-const bool CCSDSQuaternion::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
-{
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
-};
-
 const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaternionDataReps] =
 {
     Gmat::STRING_TYPE,
@@ -115,23 +95,23 @@ const Gmat::ParameterType CCSDSQuaternion::CCSDS_PARAMETER_TYPE[EndCCSDSQuaterni
  */
 //------------------------------------------------------------------------------
 CCSDSQuaternion::CCSDSQuaternion() : CCSDSData(),
-    attitudeType(0),
-    quaternionType(0),
-    timeTag(std::string("")),
-    frameA(std::string("")),
-    frameB(std::string("")),
-    direction(0),
-    q1(0),
-    q2(0),
-    q3(0),
-    qC(0),
-    q1Dot(0),
-    q2Dot(0),
-    q3Dot(0),
-    qCDot(0),
-    xRate(0),
-    yRate(0),
-    zRate(0),
+    attitudeType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    quaternionType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    timeTag(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameA(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameB(GmatBase::STRING_PARAMETER_UNDEFINED),
+    direction(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    q1(GmatBase::REAL_PARAMETER_UNDEFINED),
+    q2(GmatBase::REAL_PARAMETER_UNDEFINED),
+    q3(GmatBase::REAL_PARAMETER_UNDEFINED),
+    qC(GmatBase::REAL_PARAMETER_UNDEFINED),
+    q1Dot(GmatBase::REAL_PARAMETER_UNDEFINED),
+    q2Dot(GmatBase::REAL_PARAMETER_UNDEFINED),
+    q3Dot(GmatBase::REAL_PARAMETER_UNDEFINED),
+    qCDot(GmatBase::REAL_PARAMETER_UNDEFINED),
+    xRate(GmatBase::REAL_PARAMETER_UNDEFINED),
+    yRate(GmatBase::REAL_PARAMETER_UNDEFINED),
+    zRate(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -524,49 +504,6 @@ std::string CCSDSQuaternion::GetUnits(const Integer &id) const
         return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
-
-//---------------------------------------------------------------------------
-//  bool IsParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSQuaternion::IsParameterRequired(const Integer id) const
-{
-    if (id >= 0 && id <= EndCCSDSQuaternionDataReps)
-        return CCSDS_IS_REQUIRED[id];
-    else
-        return false;
-}
-
-
-
-//---------------------------------------------------------------------------
-//  Integer CountRequiredNumberQuaternionParameters()
-//---------------------------------------------------------------------------
-/**
- * Count the number of required variables.
- *
- * @return The number of required variables.
- */
-//---------------------------------------------------------------------------
-Integer CountRequiredNumberQuaternionParameters()
-{
-
-    Integer num = 0;
-
-    for (Integer id = 0; id < CCSDSQuaternion::EndCCSDSQuaternionDataReps; id++)
-        if (CCSDSQuaternion::CCSDS_IS_REQUIRED[id])
-            num++;
-
-    return num;
-}
-
 //------------------------------------------------------------------------------
 //  std::string  GetQuaternionTypeText(const Integer id) const
 //------------------------------------------------------------------------------
@@ -584,55 +521,6 @@ std::string CCSDSQuaternion::GetQuaternionTypeText(const Integer id) const
        return CCSDS_QUATERNION_TYPE[id];
    else
        return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//---------------------------------------------------------------------------
-//  bool Validate() const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the header is valid
- *
- * @return True if the header is valid, false otherwise (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSQuaternion::Validate() const
-{
-
-    for (unsigned int i = 0; i < EndCCSDSQuaternionDataReps; i++ )
-    {
-
-        if (IsParameterRequired(i))
-        {
-            switch (GetDataParameterType(i))
-            {
-                case Gmat::BOOLEAN_TYPE:
-                    if (!IsParameterDefined(GetBooleanDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::INTEGER_TYPE:
-                    if (!IsParameterDefined(GetIntegerDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::REAL_TYPE:
-                    if (!IsParameterDefined(GetRealDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::STRING_TYPE:
-                    if (!IsParameterDefined(GetStringDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::STRINGARRAY_TYPE:
-                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
-                        return false;
-                    break;
-                default:
-                    return false;
-                    break;
-            }
-        }
-    }
-
-    return true;
 }
 
 //------------------------------------------------------------------------------

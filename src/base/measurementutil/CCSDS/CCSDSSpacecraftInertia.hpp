@@ -18,7 +18,7 @@ public:
     CCSDSSpacecraftInertia();
     CCSDSSpacecraftInertia(const CCSDSSpacecraftInertia &si);
     const CCSDSSpacecraftInertia& CCSDSSpacecraftInertia::operator=(const CCSDSSpacecraftInertia &si);
-    ~CCSDSSpacecraftInertia();
+    virtual ~CCSDSSpacecraftInertia();
 
     std::string GetDataParameterText(const Integer id) const;
     Integer    GetDataParameterID(const std::string &str) const;

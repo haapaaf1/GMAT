@@ -529,8 +529,11 @@ bool DataFile::CloseFile()
 
     switch(fileFormatID)
     {
+        case CCSDS_TDM_ID:
+            *theFile << "DATA_STOP" << std::endl;
+            break;
         case CCSDS_AEM_ID:
-            *theFile << "DATA_STOP";
+            *theFile << "DATA_STOP" << std::endl;
             break;
         default:
             break;

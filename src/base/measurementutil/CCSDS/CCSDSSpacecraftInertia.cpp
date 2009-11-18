@@ -70,13 +70,13 @@ const Gmat::ParameterType CCSDSSpacecraftInertia::CCSDS_PARAMETER_TYPE[EndCCSDSS
  */
 //------------------------------------------------------------------------------
 CCSDSSpacecraftInertia::CCSDSSpacecraftInertia() : CCSDSData(),
-    inertiaRefFrame(std::string("")),
-    i11(0),
-    i22(0),
-    i33(0),
-    i12(0),
-    i13(0),
-    i23(0),
+    inertiaRefFrame(GmatBase::STRING_PARAMETER_UNDEFINED),
+    i11(GmatBase::REAL_PARAMETER_UNDEFINED),
+    i22(GmatBase::REAL_PARAMETER_UNDEFINED),
+    i33(GmatBase::REAL_PARAMETER_UNDEFINED),
+    i12(GmatBase::REAL_PARAMETER_UNDEFINED),
+    i13(GmatBase::REAL_PARAMETER_UNDEFINED),
+    i23(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -461,15 +461,24 @@ bool CCSDSSpacecraftInertia::Validate() const
             {
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRING_TYPE:
                     if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;

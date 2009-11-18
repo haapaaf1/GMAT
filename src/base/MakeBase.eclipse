@@ -353,6 +353,8 @@ OBJECTS = \
     measurement/GeometricRangeAzElMeasurementModel.o \
     measurementutil/Obtype.o \
     measurementutil/B3Obtype.o \
+    measurementutil/SLRObtype.o \
+    measurementutil/TLEObtype.o \
     measurementutil/CCSDS/CCSDSObtype.o \
     measurementutil/CCSDS/CCSDSTDMObtype.o \
     measurementutil/CCSDS/CCSDSOPMObtype.o \
@@ -368,6 +370,9 @@ OBJECTS = \
     measurementutil/CCSDS/CCSDSAEMMetaData.o \
     measurementutil/CCSDS/CCSDSData.o \
     measurementutil/CCSDS/CCSDSTrackingData.o \
+    measurementutil/CCSDS/CCSDSSpacecraftInertia.o \
+    measurementutil/CCSDS/CCSDSSpacecraftParameters.o \
+    measurementutil/CCSDS/CCSDSKeplerianElements.o \
     measurementutil/CCSDS/CCSDSStateVector.o \
     measurementutil/CCSDS/CCSDSOPMStateVector.o \
     measurementutil/CCSDS/CCSDSOEMStateVector.o \
@@ -382,11 +387,6 @@ OBJECTS = \
     measurementutil/CCSDS/CCSDSAEMSpinStabilized.o \
     measurementutil/CCSDS/CCSDSAttitudeManeuver.o \
     measurementutil/CCSDS/CCSDSManeuver.o \
-    measurementutil/CCSDS/CCSDSSpacecraftInertia.o \
-    measurementutil/CCSDS/CCSDSSpacecraftParameters.o \
-    measurementutil/CCSDS/CCSDSKeplerianElements.o \
-    measurementutil/SLRObtype.o \
-    measurementutil/TLEObtype.o \
     measurementutil/DataFile.o \
     measurementutil/DataFileException.o \
     measurementutil/CCSDS/ProcessCCSDSDataFile.o \

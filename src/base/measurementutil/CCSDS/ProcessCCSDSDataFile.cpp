@@ -8,6 +8,14 @@ const std::string ProcessCCSDSDataFile::REGEX_CCSDS_DATE = MANDATORY_DIGITS + "-
                              + MANDATORY_DIGITS + "[-]?" + OPTIONAL_DIGITS + "T"
                              + MANDATORY_DIGITS + ":" + MANDATORY_DIGITS + ":"
                              + REGEX_NUMBER + "[Z]?";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_DATE1 = MANDATORY_DIGITS + "-"
+                             + MANDATORY_DIGITS + "T" + MANDATORY_DIGITS
+                             + ":" + MANDATORY_DIGITS + ":"
+                             + REGEX_NUMBER + "[Z]?";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_DATE2 = MANDATORY_DIGITS + "-"
+                             + MANDATORY_DIGITS + "-" + MANDATORY_DIGITS
+                             + "T" + MANDATORY_DIGITS + ":"
+                             + MANDATORY_DIGITS + ":" + REGEX_NUMBER + "[Z]?";
 const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEDATE1 = "(" + MANDATORY_DIGITS + ")-("
                              + MANDATORY_DIGITS + ")T(" + MANDATORY_DIGITS 
                              + "):(" + MANDATORY_DIGITS + "):("
@@ -16,8 +24,8 @@ const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEDATE2 = "(" + MANDATO
                              + MANDATORY_DIGITS + ")-(" + MANDATORY_DIGITS
                              + ")T(" + MANDATORY_DIGITS + "):("
                              + MANDATORY_DIGITS + "):(" + REGEX_NUMBER + ")([Z]?)";
-const std::string ProcessCCSDSDataFile::REGEX_CCSDS_KEYWORD = "\\w*[_]?\\w+";
-const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEKEYWORD = "(\\w*[_]?\\w+)";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_KEYWORD = "[\\w_]*";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEKEYWORD = "([\\w_]*)";
 
 const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8] =
 {
@@ -346,6 +354,7 @@ bool ProcessCCSDSDataFile::GetCCSDSValue(const std::string &lff, Real &value)
     // extraction is done into a temporary variable and then
     // assigned to the GMAT type via casting.
     double dtemp;
+    int itemp;
 
     std::string regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" +
                         REGEX_SCINUMBER + ").*$";
@@ -353,6 +362,14 @@ bool ProcessCCSDSDataFile::GetCCSDSValue(const std::string &lff, Real &value)
     if (pcrecpp::RE(regex).FullMatch(lff,&dtemp))
     {
        value = dtemp;
+       return true;
+    }
+
+    // Catch integers here since the above tests for decimal points
+    regex = "^" + REGEX_CCSDS_KEYWORD + "\\s*=\\s*(" + REGEX_INTEGER + ").*$";
+    if (pcrecpp::RE(regex).FullMatch(lff,&itemp))
+    {
+       value = itemp;
        return true;
     }
 
@@ -427,7 +444,6 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyword(const std::string &lff,
 
     return false;
 }
-
 //------------------------------------------------------------------------------
 // bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &key,
 //                           Real &value)
@@ -438,7 +454,7 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyword(const std::string &lff,
  */
 //------------------------------------------------------------------------------
 bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
-                              std::string &epoch, std::string &key, Real &value)
+                            std::string &timeTag, std::string &key, Real &value)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -449,15 +465,23 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
     double dtemp;
     std::string stemp, stemp2;
 
-    std::string regex = "^" + REGEX_CCSDS_SAVETHEKEYWORD + "\\s*=\\s*(" +
-            REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ").*$";
+    std::string regex = "^.*=\\s*(" + REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ").*$";
+//    std::string regex = "^" + REGEX_CCSDS_SAVETHEKEYWORD + "\\s*=\\s*(" +
+//            REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ").*$";
 
-    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&stemp2,&dtemp))
+    MessageInterface::ShowMessage("HERE\n");
+
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp))
     {
-       key = Trim(stemp);
-       epoch = stemp2;
-       value = dtemp;
-       return true;
+        //key = stemp;
+        timeTag = stemp;
+        value = dtemp;
+
+        MessageInterface::ShowMessage("Key = "+key+"\n");
+        MessageInterface::ShowMessage("TimeTag = "+timeTag+"\n");
+        MessageInterface::ShowMessage("Value = %f\n",value);
+
+        return true;
     }
 
     return false;
@@ -633,6 +657,9 @@ bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
 
     if (!isHeaderWritten)
     {
+
+        MessageInterface::ShowMessage("Writing header...\n");
+
         *theFile << myHeader;
 
         lastHeaderWritten = myHeader;
@@ -731,6 +758,8 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
         switch(fileTypeID)
         {
             case DataFile::CCSDS_TDM_ID:
+                // Finalize last block of tracking data
+                *theFile << "DATA_STOP" << std::endl;
                 // Output a blank line to separate the new
                 // metadata from the last block of data
                 *theFile << std::endl;
@@ -788,8 +817,12 @@ bool ProcessCCSDSDataFile::WriteData(const ObType *myOb)
 
     // Check to see if this ObType corresponds to this Data Format Type
     Integer fileTypeID = GetFileFormatID(((CCSDSObType*)myOb)->GetCCSDSObType());
+
     if (fileFormatID != fileTypeID)
+    {
+        MessageInterface::ShowMessage("ERROR: This observation does not correspond to the output file format. Abort!\n");
         return false;
+    }
 
     if (!WriteDataHeader(myOb))
     {

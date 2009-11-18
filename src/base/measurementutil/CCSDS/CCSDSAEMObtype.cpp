@@ -221,28 +221,57 @@ bool CCSDSAEMObType::Validate() const
 std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
 {
 
-    if (myAEM->commentsCurrentlyAllowed)
+    if (myAEM->ccsdsAEMQuaternion != NULL)
     {
-        StringArray comments = myAEM->ccsdsAEMQuaternion->GetStringArrayDataParameter(CCSDSQuaternion::CCSDS_QUATERNION_COMMENTS_ID);
-        unsigned int i;
-        for (i = 0; i < comments.size(); i++ )
-        {
-            output << "COMMENT " << comments[i];
-            output << std::endl;
-        }
-        if (i > 0) output << std::endl;
-        output << "DATA_START" << std::endl;
 
+        if (myAEM->commentsCurrentlyAllowed)
+        {
+            output << "DATA_START" << std::endl;
+            StringArray comments = myAEM->ccsdsAEMQuaternion->GetStringArrayDataParameter(CCSDSQuaternion::CCSDS_QUATERNION_COMMENTS_ID);
+            unsigned int i;
+            for (i = 0; i < comments.size(); i++ )
+            {
+                output << "COMMENT " << comments[i];
+                output << std::endl;
+            }
+            if (i > 0) output << std::endl;
+        }
+        output << myAEM->ccsdsAEMQuaternion;
     }
 
-    if (myAEM->ccsdsAEMQuaternion != NULL);
-        output << myAEM->ccsdsAEMQuaternion;
-
     if (myAEM->ccsdsAEMEulerAngle != NULL)
+    {
+        if (myAEM->commentsCurrentlyAllowed)
+        {
+            output << "DATA_START" << std::endl;
+            StringArray comments = myAEM->ccsdsAEMEulerAngle->GetStringArrayDataParameter(CCSDSEulerAngle::CCSDS_EULERANGLE_COMMENTS_ID);
+            unsigned int i;
+            for (i = 0; i < comments.size(); i++ )
+            {
+                output << "COMMENT " << comments[i];
+                output << std::endl;
+            }
+            if (i > 0) output << std::endl;
+        }
         output << myAEM->ccsdsAEMEulerAngle;
+    }
 
     if (myAEM->ccsdsAEMSpinStabilized != NULL)
+    {
+        if (myAEM->commentsCurrentlyAllowed)
+        {
+            output << "DATA_START" << std::endl;
+            StringArray comments = myAEM->ccsdsAEMSpinStabilized->GetStringArrayDataParameter(CCSDSSpinStabilized::CCSDS_SPINSTABILIZED_COMMENTS_ID);
+            unsigned int i;
+            for (i = 0; i < comments.size(); i++ )
+            {
+                output << "COMMENT " << comments[i];
+                output << std::endl;
+            }
+            if (i > 0) output << std::endl;
+        }
         output << myAEM->ccsdsAEMSpinStabilized;
+    }
 
     return output;
 }

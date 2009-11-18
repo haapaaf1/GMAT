@@ -71,13 +71,13 @@ const Gmat::ParameterType CCSDSStateVector::CCSDS_PARAMETER_TYPE[EndCCSDSStateVe
  */
 //------------------------------------------------------------------------------
 CCSDSStateVector::CCSDSStateVector() : CCSDSData(),
-    timeTag(std::string("")),
-    x(0),
-    y(0),
-    z(0),
-    xDot(0),
-    yDot(0),
-    zDot(0),
+    timeTag(GmatBase::STRING_PARAMETER_UNDEFINED),
+    x(GmatBase::REAL_PARAMETER_UNDEFINED),
+    y(GmatBase::REAL_PARAMETER_UNDEFINED),
+    z(GmatBase::REAL_PARAMETER_UNDEFINED),
+    xDot(GmatBase::REAL_PARAMETER_UNDEFINED),
+    yDot(GmatBase::REAL_PARAMETER_UNDEFINED),
+    zDot(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -458,15 +458,24 @@ bool CCSDSStateVector::Validate() const
             {
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRING_TYPE:
                     if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;

@@ -18,12 +18,21 @@ public:
     CCSDSAEMEulerAngle();
     CCSDSAEMEulerAngle(const CCSDSAEMEulerAngle &aemEA);
     const CCSDSAEMEulerAngle& CCSDSAEMEulerAngle::operator=(const CCSDSAEMEulerAngle &aemEA);
-    ~CCSDSAEMEulerAngle();
+    virtual ~CCSDSAEMEulerAngle();
 
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAEMEulerAngle *myCCSDSAEMEulerAngle);
 
     friend class ProcessCCSDSAEMDataFile;
+
+    // Functions to verify data availability
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberAEMEulerAngleParameters();
+    bool Validate() const;
+
+protected:
+
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSEulerAngleDataReps];
 
 };
 

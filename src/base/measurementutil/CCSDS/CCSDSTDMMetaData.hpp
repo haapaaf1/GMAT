@@ -38,6 +38,21 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
+    std::string GetModeText(const Integer id) const;
+    Integer     GetModeID(const std::string &str) const;
+    std::string GetTimeTagText(const Integer id) const;
+    Integer     GetTimeTagID(const std::string &str) const;
+    std::string GetIntegrationText(const Integer id) const;
+    Integer     GetIntegrationID(const std::string &str) const;
+    std::string GetRangeModeText(const Integer id) const;
+    Integer     GetRangeModeID(const std::string &str) const;
+    std::string GetRangeUnitText(const Integer id) const;
+    Integer     GetRangeUnitID(const std::string &str) const;
+    std::string GetAngleTypeText(const Integer id) const;
+    Integer     GetAngleTypeID(const std::string &str) const;
+    std::string GetDataQualityText(const Integer id) const;
+    Integer     GetDataQualityID(const std::string &str) const;
+
     Real	GetRealDataParameter(const Integer id) const;
     Real	GetRealDataParameter(const std::string &label) const;
     Integer	GetIntegerDataParameter(const Integer id) const;
@@ -99,19 +114,74 @@ public:
 	CCSDS_TDM_CORRECTIONRECEIVE_ID,
 	CCSDS_TDM_CORRECTIONTRANSMIT_ID,
 	CCSDS_TDM_CORRECTIONAPPLIED_ID,
-	CCSDS_TDM_TIMETAG_ID,
-	CCSDS_TDM_MEASUREMENT_ID,
-	CCSDS_TDM_UNITS_ID,
-	CCSDS_TDM_KEYWORD_ID,
-        CCSDS_GENERALDATA_KEYWORD_ID,
-        CCSDS_GENERALDATA_TIMETAG_ID,
-        CCSDS_GENERALDATA_MEASUREMENT_ID,
-        CCSDS_GENERALDATA_COMMENTS_ID,
 	EndCCSDSTDMMetaDataReps
+    };
+
+    enum TDM_MODE_REPS
+    {
+	SEQUENTIAL_ID,
+	SINGLE_DIFF_ID,
+	EndCCSDSTDMModeReps
+    };
+
+
+    enum TDM_TIMETAG_REPS
+    {
+	TRANSMIT_ID,
+	RECEIVE_ID,
+	EndCCSDSTDMTimetagReps
+    };
+
+    enum TDM_INTEGRATION_REPS
+    {
+	START_ID,
+	MIDDLE_ID,
+	END_ID,
+	EndCCSDSTDMIntegrationReps
+    };
+
+    enum TDM_RANGEMODE_REPS
+    {
+	COHERENT_ID,
+	CONSTANT_ID,
+	ONE_WAY_ID,
+	EndCCSDSTDMRangeModeReps
+    };
+
+    enum TDM_RANGEUNIT_REPS
+    {
+	KM_ID,
+	S_ID,
+	RU_ID,
+	EndCCSDSTDMRangeUnitReps
+    };
+
+    enum TDM_ANGLETYPE_REPS
+    {
+	AZEL_ID,
+	RADEC_ID,
+	XEYN_ID,
+	XSYE_ID,
+	EndCCSDSTDMAngleTypeReps
+    };
+
+    enum TDM_DATAQUALITY_REPS
+    {
+	RAW_ID,
+	VALIDATED_ID,
+	DEGRADED_ID,
+	EndCCSDSTDMDataQualityReps
     };
 
 protected:
 
+    static const std::string MODE_DESCRIPTIONS[EndCCSDSTDMModeReps];
+    static const std::string TIMETAG_DESCRIPTIONS[EndCCSDSTDMTimetagReps];
+    static const std::string INTEGRATION_DESCRIPTIONS[EndCCSDSTDMIntegrationReps];
+    static const std::string RANGEMODE_DESCRIPTIONS[EndCCSDSTDMRangeModeReps];
+    static const std::string RANGEUNIT_DESCRIPTIONS[EndCCSDSTDMRangeUnitReps];
+    static const std::string ANGLETYPE_DESCRIPTIONS[EndCCSDSTDMAngleTypeReps];
+    static const std::string DATAQUALITY_DESCRIPTIONS[EndCCSDSTDMDataQualityReps];
     static const std::string CCSDS_TDM_METADATA_KEYWORDS[EndCCSDSTDMMetaDataReps];
     static const std::string CCSDS_METADATA_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMMetaDataReps];
     static const std::string CCSDS_METADATA_UNIT_DESCRIPTIONS[EndCCSDSTDMMetaDataReps];
@@ -123,24 +193,24 @@ protected:
     std::string startTime;
     std::string stopTime;
     std::string participants[5];
-    std::string mode;
+    Integer mode;
     std::string path[3];
     std::string transmitBand;
     std::string receiveBand;
     Integer turnaroundNumerator;
     Integer turnaroundDenominator;
-    std::string timeTagRef;
+    Integer timeTagRef;
     Real integrationInterval;
-    std::string integrationRef;
+    Integer integrationRef;
     Real frequencyOffset;
-    std::string rangeMode;
+    Integer rangeMode;
     Real rangeModulus;
-    std::string rangeUnits;
-    std::string angleType;
+    Integer rangeUnits;
+    Integer angleType;
     std::string referenceFrame;
     Real transmitDelay[5];
     Real receiveDelay[5];
-    std::string dataQuality;
+    Integer dataQuality;
     Real correctionAngle1;
     Real correctionAngle2;
     Real correctionDoppler;

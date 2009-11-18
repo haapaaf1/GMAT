@@ -3,6 +3,123 @@
 //---------------------------------
 //  static data
 //---------------------------------
+const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_DESCRIPTIONS[EndCCSDSTDMTypeReps] =
+{
+    "Angle1",
+    "Angle2",
+    "CarrierPower",
+    "ClockBias",
+    "ClockDrift",
+    "Comment",
+    "DopplerInstantaneous",
+    "DopplerIntegrated",
+    "DOR",
+    "PCN0",
+    "PRN0",
+    "Pressure",
+    "Range",
+    "ReceiveFrequency",
+    "ReceiveFrequency1",
+    "ReceiveFrequency2",
+    "ReceiveFrequency3",
+    "ReceiveFrequency4",
+    "ReceiveFrequency5",
+    "RelativeHumidity",
+    "STEC",
+    "Temperature",
+    "TransmitFrequency1",
+    "TransmitFrequency2",
+    "TransmitFrequency3",
+    "TransmitFrequency4",
+    "TransmitFrequency5",
+    "TransmitFrequencyRate1",
+    "TransmitFrequencyRate2",
+    "TransmitFrequencyRate3",
+    "TransmitFrequencyRate4",
+    "TransmitFrequencyRate5",
+    "TropoDry",
+    "TropoWet",
+    "VLBIDelay"
+};
+
+const std::string CCSDSTrackingData::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps] =
+{
+    "ANGLE_1",
+    "ANGLE_2",
+    "CARRIER_POWER",
+    "CLOCK_BIAS",
+    "CLOCK_DRIFT",
+    "COMMENT",
+    "DOPPLER_INSTANTANEOUS",
+    "DOPPLER_INTEGRATED",
+    "DOR",
+    "PC_N0",
+    "PR_N0",
+    "PRESSURE",
+    "RANGE",
+    "RECEIVE_FREQ",
+    "RECEIVE_FREQ_1",
+    "RECEIVE_FREQ_2",
+    "RECEIVE_FREQ_3",
+    "RECEIVE_FREQ_4",
+    "RECEIVE_FREQ_5",
+    "RHUMIDITY",
+    "STEC",
+    "TEMPERATURE",
+    "TRANSMIT_FREQ_1",
+    "TRANSMIT_FREQ_2",
+    "TRANSMIT_FREQ_3",
+    "TRANSMIT_FREQ_4",
+    "TRANSMIT_FREQ_5",
+    "TRANSMIT_FREQ_RATE_1",
+    "TRANSMIT_FREQ_RATE_2",
+    "TRANSMIT_FREQ_RATE_3",
+    "TRANSMIT_FREQ_RATE_4",
+    "TRANSMIT_FREQ_RATE_5",
+    "TROPO_DRY",
+    "TROPO_WET",
+    "VLBI_DELAY"
+};
+
+const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_UNITS[EndCCSDSTDMTypeReps] =
+{
+    "deg",
+    "deg",
+    "dBW",
+    "s",
+    "s/s",
+    "n/a",
+    "km/s",
+    "km/s",
+    "s",
+    "dBHz",
+    "dBHz",
+    "hPa",
+    "km, s, or RU",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "%",
+    "TECU",
+    "K",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz",
+    "Hz/s",
+    "Hz/s",
+    "Hz/s",
+    "Hz/s",
+    "Hz/s",
+    "m",
+    "m",
+    "s"
+};
+
 const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_KEYWORDS[EndCCSDSTrackingDataReps] =
 {
     "",
@@ -50,10 +167,10 @@ const Gmat::ParameterType CCSDSTrackingData::CCSDS_PARAMETER_TYPE[EndCCSDSTracki
  */
 //------------------------------------------------------------------------------
 CCSDSTrackingData::CCSDSTrackingData() : CCSDSData(),
-    keywordID(0),
-    keyword(std::string("")),
-    timeTag(std::string("")),
-    measurement(0),
+    keywordID(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    keyword(GmatBase::STRING_PARAMETER_UNDEFINED),
+    timeTag(GmatBase::STRING_PARAMETER_UNDEFINED),
+    measurement(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -414,15 +531,24 @@ bool CCSDSTrackingData::Validate() const
             {
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRING_TYPE:
                     if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;

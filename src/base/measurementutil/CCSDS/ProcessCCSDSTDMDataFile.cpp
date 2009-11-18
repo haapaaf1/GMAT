@@ -71,7 +71,9 @@ bool ProcessCCSDSTDMDataFile::Initialize()
             myOutFile.SetFileName("TDM.output");
             myOutFile.Initialize();
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+            {
                 myOutFile.WriteData((*j));
+            }
             myOutFile.CloseFile();
 
         #endif
@@ -213,7 +215,8 @@ bool ProcessCCSDSTDMDataFile::IsParameterReadOnly(const std::string &label) cons
 bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 {
     
-    if (myTDMData->GetTypeName() != "CCSDSTDMObType") return false;
+    if (!pcrecpp::RE("^CCSDSTDMObType").FullMatch(myTDMData->GetTypeName()))
+        return false;
 
     // Re-cast the generic ObType pointer as a CCSDSTDMObtype pointer
     CCSDSTDMObType *myTDM = (CCSDSTDMObType*)myTDMData;
@@ -222,65 +225,82 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
     std::string lff = ReadLineFromFile();
 
     // Check to see if we encountered a new header record.
-    while (!IsEOF() && pcrecpp::RE("^CCSDS_TDM_VERS.*").FullMatch(lff))
-    {
+    if (!IsEOF() && currentCCSDSHeader == NULL
+                 &&  pcrecpp::RE("^CCSDS_TDM_VERS.*").FullMatch(lff))
     {
 	if (GetCCSDSHeader(lff,myTDM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
+            MessageInterface::ShowMessage("Completed reading TDM Header...\n");
 	    currentCCSDSHeader = myTDM->ccsdsHeader;
 	}
 	else
 	{
 	    // failure to read header line, abort
+            MessageInterface::ShowMessage("Failed to read TDM Header! Abort!\n");
 	    currentCCSDSHeader = NULL;
 	    return false;
 	}
     }
-    }
 
-    // Test for the prescence of meta data
-    // If the header data was just processed, line should now contain
-    // the "META_START" line
-    while (!IsEOF() && pcrecpp::RE("^META_START.*").FullMatch(lff))
-    {       
+    do
+    {
+
+        // Test for DATA_STOP and advance to next line
+        // This really only applies after going through this do-while
+        // loop more than one time.
+        if (pcrecpp::RE("^DATA_STOP.*$").FullMatch(lff))
+        {
+            lff = ReadLineFromFile();
+            if (IsEOF()) break;
+        }
+
+        // Read in metadata
 	if (GetCCSDSMetaData(lff,myTDM))
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
+            MessageInterface::ShowMessage("Completed reading TDM MetaData...\n");
 	    currentCCSDSMetaData = myTDM->ccsdsMetaData;
 	}
 	else
 	{
 	    // failure to read header line, abort
+            MessageInterface::ShowMessage("Failed to read TDM MetaData! Abort!\n");
 	    currentCCSDSMetaData = NULL;
 	    return false;
 	}
+
+        do
+        {
+
+            myTDM->ccsdsHeader = currentCCSDSHeader;
+            myTDM->ccsdsMetaData = (CCSDSTDMMetaData*)currentCCSDSMetaData;
+
+            if (GetCCSDSTDMData(lff,myTDM))
+            {
+                // Push this data point onto the obtype data stack
+                theData.push_back(myTDM);
+            }
+            else
+            {
+                delete myTDM;
+                return false;
+            }
+
+            // Allocate another struct in memory
+            myTDM = new CCSDSTDMObType;
+
+            lff = ReadLineFromFile();
+
+        }
+        while (!IsEOF() && !pcrecpp::RE("^DATA_STOP.*").FullMatch(lff));
+
     }
+    while (!IsEOF());
 
-    // Test for the presence of the start data marker
-    // If the meta data was just processed, line should contain
-    // the "DATA_START" marker which we can skip over to start processing
-    // the actual data.
-    if (pcrecpp::RE("^DATA_START.*").FullMatch(lff))
-    {
-        lff = ReadLineFromFile();
-    }
-
-    // Parse the data record making sure that we have identified
-    // a header record and a metadata record previously
-    if (currentCCSDSHeader == NULL || currentCCSDSMetaData == NULL)
-	return false;
-
-    if (!pcrecpp::RE("^DATA_STOP.*").FullMatch(lff) && !pcrecpp::RE("").FullMatch(lff))
-    {
-        myTDM->ccsdsHeader = currentCCSDSHeader;
-        myTDM->ccsdsMetaData = (CCSDSTDMMetaData*)currentCCSDSMetaData;
-	return GetCCSDSTDMData(lff,myTDM);
-    }
-
-    return false;
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -295,21 +315,40 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
                                               CCSDSTDMObType *myOb)
 {
+
+    StringArray comments;
+    bool commentsFound = false;
+
+    if (pcrecpp::RE("^DATA_START.*$").FullMatch(lff))
+    {
+        // Read  past DATA_START line
+        lff = ReadLineFromFile();
+        // Attempt to extract comments, if any
+        commentsFound = GetCCSDSComments(lff,comments);
+    }
+
     std::string keyword, ccsdsEpoch;
     Real value;
 
-    CCSDSTrackingData *myTDMData = new CCSDSTrackingData;
+    MessageInterface::ShowMessage(lff+"\n");
 
     GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value);
 
-    myTDMData->keywordID = myOb->GetKeywordID(keyword);
+    CCSDSTrackingData *myTDMData = new CCSDSTrackingData;
+
+    myTDMData->keywordID = myTDMData->GetKeywordID(keyword);
     if(myTDMData->keywordID >= 0)
     {
         myTDMData->keyword = keyword;
         myTDMData->timeTag = ccsdsEpoch;
-        if (!CCSDSTimeTag2A1Date(myTDMData->timeTag,myOb->epoch)) return false;
+        if (!CCSDSTimeTag2A1Date(myTDMData->timeTag,myOb->epoch))
+            return false;
         myTDMData->measurement = value;
-        myOb->ccsdsTDMData =  myTDMData;
+
+        if (commentsFound)
+            myTDMData->comments = comments;
+
+        myOb->ccsdsTrackingData =  myTDMData;
         myOb->ccsdsHeader->dataType = CCSDSHeader::TRACKINGDATA_ID;
         return true;
     }
@@ -338,6 +377,9 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
     Integer requiredCount = 0;
     std::string keyword;
 
+    if (pcrecpp::RE("^META_START.*$").FullMatch(lff))
+        lff = ReadLineFromFile();
+
     do
     {
 
@@ -351,291 +393,497 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSMetaData(std::string &lff,
         {
 
             case CCSDSTDMMetaData::CCSDS_TDM_METADATACOMMENTS_ID:
-                {
+            {
                 std::string stemp;
                 if (!GetCCSDSComment(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
-                }
-                break;
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TIMESYSTEM_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->timeSystem))
+                {
+                    MessageInterface::ShowMessage("Failed to get timeSystem\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_STARTTIME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->startTime))
+                {
+                    MessageInterface::ShowMessage("Failed to get startTime\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_STOPTIME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->stopTime))
+                {
+                    MessageInterface::ShowMessage("Failed to get stopTime\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[0]))
+                {
+                    MessageInterface::ShowMessage("Failed to get participants[0]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[1]))
+                {
+                    MessageInterface::ShowMessage("Failed to get participants[1]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT3_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[2]))
+                {
+                    MessageInterface::ShowMessage("Failed to get participants[2]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT4_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[3]))
+                {
+                    MessageInterface::ShowMessage("Failed to get participants[3]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PARTICIPANT5_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->participants[4]))
+                {
+                    MessageInterface::ShowMessage("Failed to get participants[4]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_MODE_ID:
-
-                if (!GetCCSDSValue(lff,myMetaData->mode))
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get mode\n");
                     return false;
-                break;
+                }
+                myMetaData->mode = myMetaData->GetModeID(stemp);
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PATH_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->path[0]))
+                {
+                    MessageInterface::ShowMessage("Failed to get path\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PATH1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->path[1]))
+                {
+                    MessageInterface::ShowMessage("Failed to get path[1]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_PATH2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->path[2]))
+                {
+                    MessageInterface::ShowMessage("Failed to get path[2]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITBAND_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitBand))
+                {
+                    MessageInterface::ShowMessage("Failed to get transmitBand\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEBAND_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveBand))
+                {
+                    MessageInterface::ShowMessage("Failed to get receiveBand\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TURNAROUNDNUMERATOR_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->turnaroundNumerator))
+                {
+                    MessageInterface::ShowMessage("Failed to get turnaroundNumerator\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TURNAROUNDDENOMINATOR_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->turnaroundDenominator))
+                {
+                    MessageInterface::ShowMessage("Failed to get turnaroundDenominator\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TIMETAGREF_ID:
-
-                if (!GetCCSDSValue(lff,myMetaData->timeTagRef))
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get timeTagRef\n");
                     return false;
-                break;
+                }
+                myMetaData->timeTagRef = myMetaData->GetTimeTagID(stemp);
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_INTEGRATIONINTERVAL_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->integrationInterval))
+                {
+                    MessageInterface::ShowMessage("Failed to get integrationInterval\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_INTEGRATIONREF_ID:
-
-                if (!GetCCSDSValue(lff,myMetaData->integrationRef))
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get integrationRef\n");
                     return false;
-                break;
+                }
+                myMetaData->integrationRef = myMetaData->GetIntegrationID(stemp);
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_FREQUENCYOFFSET_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->frequencyOffset))
+                {
+                    MessageInterface::ShowMessage("Failed to get frequencyOffset\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RANGEMODE_ID:
-
-                if (!GetCCSDSValue(lff,myMetaData->rangeMode))
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get rangeMode\n");
                     return false;
-                break;
+                }
+                myMetaData->rangeMode = myMetaData->GetRangeModeID(stemp);
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RANGEMODULUS_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->rangeModulus))
+                {
+                    MessageInterface::ShowMessage("Failed to get rangeModulus\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RANGEUNITS_ID:
-
-                if (!GetCCSDSValue(lff,myMetaData->rangeUnits))
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get rangeUnits\n");
                     return false;
-                break;
+                }
+                myMetaData->rangeUnits = myMetaData->GetRangeUnitID(stemp);
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_ANGLETYPE_ID:
-
-                if (!GetCCSDSValue(lff,myMetaData->angleType))
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get angleType\n");
                     return false;
-                break;
+                }
+                myMetaData->angleType = myMetaData->GetAngleTypeID(stemp);
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_REFERENCEFRAME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->referenceFrame))
+                {
+                    MessageInterface::ShowMessage("Failed to get referenceFrame\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[0]))
+                {
+                    MessageInterface::ShowMessage("Failed to get transmitDelay[0]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[1]))
+                {
+                    MessageInterface::ShowMessage("Failed to get transmitDelay[1]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY3_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[2]))
+                {
+                    MessageInterface::ShowMessage("Failed to get transmitDelay[2]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY4_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[3]))
+                {
+                    MessageInterface::ShowMessage("Failed to get transmitDelay[3]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_TRANSMITDELAY5_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->transmitDelay[4]))
+                {
+                    MessageInterface::ShowMessage("Failed to get transmitDelay[4]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[0]))
+                {
+                    MessageInterface::ShowMessage("Failed to get receiveDelay[0]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[1]))
+                {
+                    MessageInterface::ShowMessage("Failed to get receiveDelay[1]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY3_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[2]))
+                {
+                    MessageInterface::ShowMessage("Failed to get receiveDelay[2]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY4_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[3]))
+                {
+                    MessageInterface::ShowMessage("Failed to get receiveDelay[3]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_RECEIVEDELAY5_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->receiveDelay[4]))
+                {
+                    MessageInterface::ShowMessage("Failed to get receiveDelay[4]\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_DATAQUALITY_ID:
-
-                if (!GetCCSDSValue(lff,myMetaData->dataQuality))
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get dataQuality\n");
                     return false;
-                break;
+                }
+                myMetaData->dataQuality = myMetaData->GetDataQualityID(stemp);
+            }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONANGLE1_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionAngle1))
+                {
+                    MessageInterface::ShowMessage("Failed to get correctionAngle1\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONANGLE2_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionAngle2))
+                {
+                    MessageInterface::ShowMessage("Failed to get correctionAngle2\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONDOPPLER_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionDoppler))
+                {
+                    MessageInterface::ShowMessage("Failed to get correctionDoppler\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONRANGE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionRange))
+                {
+                    MessageInterface::ShowMessage("Failed to get correctionRange\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONRECEIVE_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionReceive))
+                {
+                    MessageInterface::ShowMessage("Failed to get correctionReceive\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONTRANSMIT_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->correctionTransmit))
+                {
+                    MessageInterface::ShowMessage("Failed to get correctionTransmit\n");
                     return false;
-                break;
+                }
+
+            break;
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONAPPLIED_ID:
                 {
                 std::string stemp;
-                if (!GetCCSDSValue(lff,stemp)) return false;
+                if (!GetCCSDSValue(lff,stemp))
+                {
+                    MessageInterface::ShowMessage("Failed to get correctionsApplied\n");
+                    return false;
+                }
                 if (pcrecpp::RE("^YES$").FullMatch(Trim(stemp)))
                     myMetaData->correctionsApplied = true;
                 else
                     myMetaData->correctionsApplied = false;
 
                 }
-                break;
+
+            break;
 
             default:
 
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in TDM MetaData\n");
                 return false;
-                break;
+
+            break;
 
         }
 
         lff = ReadLineFromFile();
     }
-    while(requiredCount < requiredNumberMetaDataParameters &&
-          !pcrecpp::RE("^DATA_START$").FullMatch(lff));
+    while(requiredCount <= requiredNumberMetaDataParameters &&
+          !pcrecpp::RE("^META_STOP$").FullMatch(lff));
+
+    if (requiredCount < requiredNumberMetaDataParameters)
+    {
+        MessageInterface::ShowMessage("Error: MetaData does not contain all required elements! Abort!\n");
+        return false;
+    }
 
     myOb->ccsdsMetaData = myMetaData;
 
+    // Read past the META_STOP line
+    lff = ReadLineFromFile();
+    
     return true;
 
 }

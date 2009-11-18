@@ -18,7 +18,7 @@ public:
     CCSDSAttitudeManeuver();
     CCSDSAttitudeManeuver(const CCSDSAttitudeManeuver &am);
     const CCSDSAttitudeManeuver& CCSDSAttitudeManeuver::operator=(const CCSDSAttitudeManeuver &am);
-    ~CCSDSAttitudeManeuver();
+    virtual ~CCSDSAttitudeManeuver();
 
     friend std::ostream& operator<< (std::ostream &output,
                        const CCSDSAttitudeManeuver *myCCSDSAttitudemaneuver);

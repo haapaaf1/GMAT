@@ -34,7 +34,7 @@ public:
     ProcessCCSDSTDMDataFile(const std::string &itsName);
     ProcessCCSDSTDMDataFile(const ProcessCCSDSTDMDataFile &CCSDSTDMdf);
     const ProcessCCSDSTDMDataFile& operator=(const ProcessCCSDSTDMDataFile &CCSDSTDMdf);
-    ~ProcessCCSDSTDMDataFile();
+    virtual ~ProcessCCSDSTDMDataFile();
 
     // Initialization happens here
     bool Initialize();

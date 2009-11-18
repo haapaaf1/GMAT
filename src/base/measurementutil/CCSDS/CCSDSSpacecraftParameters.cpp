@@ -61,11 +61,11 @@ const Gmat::ParameterType CCSDSSpacecraftParameters::CCSDS_PARAMETER_TYPE[EndCCS
  */
 //------------------------------------------------------------------------------
 CCSDSSpacecraftParameters::CCSDSSpacecraftParameters() : CCSDSData(),
-    mass(0),
-    solarRadiationArea(0),
-    solarRadiationCoefficient(0),
-    dragArea(0),
-    dragCoefficient(0),
+    mass(GmatBase::REAL_PARAMETER_UNDEFINED),
+    solarRadiationArea(GmatBase::REAL_PARAMETER_UNDEFINED),
+    solarRadiationCoefficient(GmatBase::REAL_PARAMETER_UNDEFINED),
+    dragArea(GmatBase::REAL_PARAMETER_UNDEFINED),
+    dragCoefficient(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -406,11 +406,17 @@ bool CCSDSSpacecraftParameters::Validate() const
             {
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;

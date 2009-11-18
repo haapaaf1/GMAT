@@ -49,7 +49,7 @@ const bool CCSDSAttitudeManeuver::CCSDS_IS_REQUIRED[EndCCSDSAttitudeManeuverData
 const Gmat::ParameterType CCSDSAttitudeManeuver::CCSDS_PARAMETER_TYPE[EndCCSDSAttitudeManeuverDataReps] =
 {
     Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
     Gmat::STRING_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
@@ -65,12 +65,12 @@ const Gmat::ParameterType CCSDSAttitudeManeuver::CCSDS_PARAMETER_TYPE[EndCCSDSAt
  */
 //------------------------------------------------------------------------------
 CCSDSAttitudeManeuver::CCSDSAttitudeManeuver() : CCSDSData(),
-    epochStart(std::string("")),
-    duration(0),
-    refFrame(std::string("")),
-    tor1(0),
-    tor2(0),
-    tor3(0),
+    epochStart(GmatBase::STRING_PARAMETER_UNDEFINED),
+    duration(GmatBase::REAL_PARAMETER_UNDEFINED),
+    refFrame(GmatBase::STRING_PARAMETER_UNDEFINED),
+    tor1(GmatBase::REAL_PARAMETER_UNDEFINED),
+    tor2(GmatBase::REAL_PARAMETER_UNDEFINED),
+    tor3(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -451,15 +451,24 @@ bool CCSDSAttitudeManeuver::Validate() const
             {
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRING_TYPE:
                     if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;

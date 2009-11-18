@@ -18,7 +18,7 @@ public:
     CCSDSManeuver();
     CCSDSManeuver(const CCSDSManeuver &man);
     const CCSDSManeuver& CCSDSManeuver::operator=(const CCSDSManeuver &man);
-    ~CCSDSManeuver();
+    virtual ~CCSDSManeuver();
 
     friend std::ostream& operator<< (std::ostream &output,
                                      const CCSDSManeuver *myCCSDSManeuver);

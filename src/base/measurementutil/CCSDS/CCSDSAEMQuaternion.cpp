@@ -1,5 +1,28 @@
 #include "CCSDSAEMQuaternion.hpp"
 
+//---------------------------------
+//  static data
+//---------------------------------
+const bool CCSDSAEMQuaternion::CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps] =
+{
+    true,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+};
+
 //------------------------------------------------------------------------------
 //  CCSDSAEMQuaternion()
 //------------------------------------------------------------------------------
@@ -56,6 +79,117 @@ CCSDSAEMQuaternion::~CCSDSAEMQuaternion()
 {
 }
 
+//---------------------------------------------------------------------------
+//  bool IsParameterRequired(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is required by the data format.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSAEMQuaternion::IsParameterRequired(const Integer id) const
+{
+    if (id >= 0 && id <= EndCCSDSQuaternionDataReps)
+        return CCSDS_IS_REQUIRED[id];
+    else
+        return false;
+}
+
+
+
+//---------------------------------------------------------------------------
+//  Integer CountRequiredNumberAEMQuaternionParameters()
+//---------------------------------------------------------------------------
+/**
+ * Count the number of required variables.
+ *
+ * @return The number of required variables.
+ */
+//---------------------------------------------------------------------------
+Integer CountRequiredNumberAEMQuaternionParameters()
+{
+
+    Integer num = 0;
+
+    for (Integer id = 0; id < CCSDSAEMQuaternion::EndCCSDSQuaternionDataReps; id++)
+        if (CCSDSAEMQuaternion::CCSDS_IS_REQUIRED[id])
+            num++;
+
+    return num;
+}
+
+//---------------------------------------------------------------------------
+//  bool Validate() const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the header is valid
+ *
+ * @return True if the header is valid, false otherwise (the default)
+ */
+//---------------------------------------------------------------------------
+bool CCSDSAEMQuaternion::Validate() const
+{
+
+    if (!IsParameterDefined(attitudeType))
+    {
+        MessageInterface::ShowMessage("Error: Quaternion must have attitudeType defined.\n");
+        return false;
+    }
+
+    if (!IsParameterDefined(quaternionType))
+    {
+        MessageInterface::ShowMessage("Error: Quaternion must have quaternionType defined.\n");
+        return false;
+    }
+
+    for (unsigned int i = 0; i < EndCCSDSQuaternionDataReps; i++ )
+    {
+
+        if (IsParameterRequired(i))
+        {
+            switch (GetDataParameterType(i))
+            {
+                case Gmat::INTEGER_TYPE:
+                    if (!IsParameterDefined(GetIntegerDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Integer parameter " + GetDataParameterText(i) + " not defined!\n");
+                        return false;
+                    }
+                    break;
+                case Gmat::REAL_TYPE:
+                    if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
+                        return false;
+                    }
+                    break;
+                case Gmat::STRING_TYPE:
+                    if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
+                        return false;
+                    }
+                    break;
+                case Gmat::STRINGARRAY_TYPE:
+                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+                    break;
+            }
+        }
+    }
+
+    return true;
+}
+
 //------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQuaternion)
 //------------------------------------------------------------------------------
@@ -78,7 +212,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
     {
         case CCSDSData::CCSDS_QUATERNION_ID:
         {
-            if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            if (myAEMQuaternion->quaternionType == CCSDSAEMQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEMQuaternion->timeTag
                        << " " << myAEMQuaternion->qC
@@ -88,7 +222,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 
                 return output;
             }
-            else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            else if (myAEMQuaternion->quaternionType == CCSDSAEMQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEMQuaternion->timeTag
                        << " " << myAEMQuaternion->q1
@@ -106,7 +240,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 
         case CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID:
         {
-            if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            if (myAEMQuaternion->quaternionType == CCSDSAEMQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEMQuaternion->timeTag
                        << " " << myAEMQuaternion->qC
@@ -120,7 +254,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 
                 return output;
             }
-            else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            else if (myAEMQuaternion->quaternionType == CCSDSAEMQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEMQuaternion->timeTag
                        << " " << myAEMQuaternion->q1
@@ -142,7 +276,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 
         case CCSDSData::CCSDS_QUATERNION_RATE_ID:
         {
-            if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_FIRST_ID)
+            if (myAEMQuaternion->quaternionType == CCSDSAEMQuaternion::CCSDS_QUATERNION_FIRST_ID)
             {
                 output << myAEMQuaternion->timeTag
                        << " " << myAEMQuaternion->qC
@@ -155,7 +289,7 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMQuaternion *myAEMQ
 
                 return output;
             }
-            else if (myAEMQuaternion->quaternionType == CCSDSQuaternion::CCSDS_QUATERNION_LAST_ID)
+            else if (myAEMQuaternion->quaternionType == CCSDSAEMQuaternion::CCSDS_QUATERNION_LAST_ID)
             {
                 output << myAEMQuaternion->timeTag
                        << " " << myAEMQuaternion->q1

@@ -18,12 +18,22 @@ public:
     CCSDSAEMQuaternion();
     CCSDSAEMQuaternion(const CCSDSAEMQuaternion &aemQ);
     const CCSDSAEMQuaternion& CCSDSAEMQuaternion::operator=(const CCSDSAEMQuaternion &aemQ);
-    ~CCSDSAEMQuaternion();
+    virtual ~CCSDSAEMQuaternion();
 
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAEMQuaternion *myCCSDSAEMQuaternion);
 
     friend class ProcessCCSDSAEMDataFile;
+
+    // Functions to verify data availability
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberAEMQuaternionParameters();
+    bool Validate() const;
+
+protected:
+
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps];
+
     
 };
 

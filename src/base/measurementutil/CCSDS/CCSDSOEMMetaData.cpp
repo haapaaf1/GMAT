@@ -90,17 +90,17 @@ const Gmat::ParameterType CCSDSOEMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  */
 //------------------------------------------------------------------------------
 CCSDSOEMMetaData::CCSDSOEMMetaData() : CCSDSMetaData(),
-    objectName(std::string("")),
-    internationalDesignator(std::string("")),
-    refFrameOrigin(std::string("")),
-    refFrame(std::string("")),
-    timeSystem(std::string("")),
-    startEpoch(std::string("")),
-    stopEpoch(std::string("")),
-    useableStartEpoch(std::string("")),
-    useableStopEpoch(std::string("")),
-    interpolationMethod(std::string("")),
-    interpolationDegree(0),
+    objectName(GmatBase::STRING_PARAMETER_UNDEFINED),
+    internationalDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
+    refFrameOrigin(GmatBase::STRING_PARAMETER_UNDEFINED),
+    refFrame(GmatBase::STRING_PARAMETER_UNDEFINED),
+    timeSystem(GmatBase::STRING_PARAMETER_UNDEFINED),
+    startEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
+    stopEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
+    useableStartEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
+    useableStopEpoch(GmatBase::STRING_PARAMETER_UNDEFINED),
+    interpolationMethod(GmatBase::STRING_PARAMETER_UNDEFINED),
+    interpolationDegree(GmatBase::INTEGER_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -502,23 +502,38 @@ bool CCSDSOEMMetaData::Validate() const
             {
                 case Gmat::BOOLEAN_TYPE:
                     if (!IsParameterDefined(GetBooleanDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Boolean parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::INTEGER_TYPE:
                     if (!IsParameterDefined(GetIntegerDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Integer parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRING_TYPE:
                     if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;
@@ -531,43 +546,178 @@ bool CCSDSOEMMetaData::Validate() const
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetadata)
+// std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetaData)
 //------------------------------------------------------------------------------
 /**
  * Formats CCCSDSOEMObType value and sends to output stream.
  *
  * @param  <output>  Output stream
- * @param  <myMetadata>    CCSDS OEM metadata to write out
+ * @param  <myMetaData>    CCSDS OEM metadata to write out
  *
  * return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetadata)
+std::ostream& operator<< (std::ostream &output, const CCSDSOEMMetaData *myMetaData)
 {
+    using namespace std;
 
+    if(!myMetaData->Validate()) return output;
+    
    //output.setf(std::ios::showpoint);
    //output.setf(std::ios::scientific);
 
-   output << "META_START" << std::endl;
+   output << "META_START" << endl;
 
-   for (unsigned int i = 0; i < myMetadata->comments.size(); i++ )
+   for (unsigned int i = 0; i < myMetaData->comments.size(); i++ )
    {
-       output << "COMMENT " << myMetadata->comments[i] << std::endl;
+       output << "COMMENT " << myMetaData->comments[i] << endl;
    }
-   output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
-   output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
-   output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
-   output << "REF_FRAME = " << myMetadata->refFrame << std::endl;
-   output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-   output << "START_TIME = " << myMetadata->startEpoch << std::endl;
-   output << "USEABLE_START_TIME = " << myMetadata->useableStartEpoch << std::endl;
-   output << "USEABLE_STOP_TIME = " << myMetadata->useableStopEpoch << std::endl;
-   output << "STOP_TIME = " << myMetadata->stopEpoch << std::endl;
-   output << "INTERPOLATION = " << myMetadata->interpolationMethod << std::endl;
-   output << "INTERPOLATION_DEGREE = " << myMetadata->interpolationDegree << std::endl;
+   
+    for (unsigned int i = 0; i < CCSDSOEMMetaData::EndCCSDSOEMMetaDataReps; i++)
+    {
 
+        switch (i)
+        {
 
-   output << "META_STOP" << std::endl << std::endl;
+            case CCSDSOEMMetaData::CCSDS_OEM_OBJECTNAME_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->objectName);
+                if (definedFlag)
+                {
+                    output << "OBJECT_NAME = " << myMetaData->objectName;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_OBJECTID_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->internationalDesignator);
+                if (definedFlag)
+                {
+                    output << "OBJECT_ID = " << myMetaData->internationalDesignator;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_CENTERNAME_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->refFrameOrigin);
+                if (definedFlag)
+                {
+                    output << "CENTER_NAME = " << myMetaData->refFrameOrigin;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_REFFRAME_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->refFrame);
+                if (definedFlag)
+                {
+                    output << "REF_FRAME = " << myMetaData->refFrame;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_TIMESYSTEM_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->timeSystem);
+                if (definedFlag)
+                {
+                    output << "TIME_SYSTEM = " << myMetaData->timeSystem;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_STARTEPOCH_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->startEpoch);
+                if (definedFlag)
+                {
+                    output << "START_TIME = " << myMetaData->startEpoch;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_USEABLE_STARTEPOCH_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->useableStartEpoch);
+                if (definedFlag)
+                {
+                    output << "USEABLE_START_TIME = " << myMetaData->useableStartEpoch;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_USEABLE_STOPEPOCH_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->useableStopEpoch);
+                if (definedFlag)
+                {
+                    output << "USEABLE_STOP_TIME = " << myMetaData->useableStopEpoch;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_STOPEPOCH_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->stopEpoch);
+                if (definedFlag)
+                {
+                    output << "STOP_TIME = " << myMetaData->stopEpoch;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_INTERPOLATION_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->interpolationMethod);
+                if (definedFlag)
+                {
+                    output << "INTERPOLATION = " << myMetaData->interpolationMethod;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOEMMetaData::CCSDS_OEM_INTERPOLATIONDEGREE_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->interpolationDegree);
+                if (definedFlag)
+                {
+                    output << "INTERPOLATION_DEGREE = " << myMetaData->interpolationDegree;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            default:
+                break;
+        }
+    }
+
+    output << "META_STOP" << endl;
 
    return output;
+   
 }

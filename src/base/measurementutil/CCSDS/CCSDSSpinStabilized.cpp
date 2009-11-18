@@ -5,7 +5,6 @@
 //---------------------------------
 const std::string CCSDSSpinStabilized::CCSDS_SPINSTABILIZED_KEYWORDS[EndCCSDSSpinStabilizedDataReps] =
 {
-    "",
     "SPIN_FRAME_A",
     "SPIN_FRAME_B",
     "SPIN_DIR",
@@ -24,7 +23,6 @@ const std::string CCSDSSpinStabilized::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSSpinStabi
     "",
     "",
     "",
-    "",
     "deg",
     "deg",
     "deg",
@@ -37,7 +35,6 @@ const std::string CCSDSSpinStabilized::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSSpinStabi
 
 const std::string CCSDSSpinStabilized::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSSpinStabilizedDataReps] =
 {
-    "Spin Stabilized Attitude Type",
     "Spin Stabilized Frame A",
     "Spin Stabilized Frame B",
     "Spin Stabilized Direction",
@@ -51,25 +48,8 @@ const std::string CCSDSSpinStabilized::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSSpi
     "Spin Stabilized Comments"
 };
 
-const bool CCSDSSpinStabilized::CCSDS_IS_REQUIRED[EndCCSDSSpinStabilizedDataReps] =
-{
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    false
-};
-
 const Gmat::ParameterType CCSDSSpinStabilized::CCSDS_PARAMETER_TYPE[EndCCSDSSpinStabilizedDataReps] =
 {
-    Gmat::INTEGER_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::INTEGER_TYPE,
@@ -91,18 +71,18 @@ const Gmat::ParameterType CCSDSSpinStabilized::CCSDS_PARAMETER_TYPE[EndCCSDSSpin
  */
 //------------------------------------------------------------------------------
 CCSDSSpinStabilized::CCSDSSpinStabilized() : CCSDSData(),
-    attitudeType(0),
-    timeTag(std::string("")),
-    frameA(std::string("")),
-    frameB(std::string("")),
-    direction(0),
-    spinAlpha(0),
-    spinDelta(0),
-    spinAngle(0),
-    spinAngleVelocity(0),
-    nutation(0),
-    nutationPeriod(0),
-    nutationPhase(0),
+    attitudeType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    timeTag(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameA(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameB(GmatBase::STRING_PARAMETER_UNDEFINED),
+    direction(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    spinAlpha(GmatBase::REAL_PARAMETER_UNDEFINED),
+    spinDelta(GmatBase::REAL_PARAMETER_UNDEFINED),
+    spinAngle(GmatBase::REAL_PARAMETER_UNDEFINED),
+    spinAngleVelocity(GmatBase::REAL_PARAMETER_UNDEFINED),
+    nutation(GmatBase::REAL_PARAMETER_UNDEFINED),
+    nutationPeriod(GmatBase::REAL_PARAMETER_UNDEFINED),
+    nutationPhase(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -261,10 +241,7 @@ Integer CCSDSSpinStabilized::GetIntegerDataParameter(const Integer id) const
 {
     switch (id)
     {
-        case CCSDS_SPINSTABILIZED_ATTITUDETYPE_ID:
-
-	    return attitudeType;
-
+        
 	case CCSDS_SPINSTABILIZED_DIRECTION_ID:
 
 	    return direction;
@@ -483,91 +460,4 @@ std::string CCSDSSpinStabilized::GetUnits(const Integer &id) const
         return CCSDS_UNIT_DESCRIPTIONS[id];
     else
         return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-
-//---------------------------------------------------------------------------
-//  bool IsParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSSpinStabilized::IsParameterRequired(const Integer id) const
-{
-    if (id >= 0 && id <= EndCCSDSSpinStabilizedDataReps)
-        return CCSDS_IS_REQUIRED[id];
-    else
-        return false;
-}
-
-
-//---------------------------------------------------------------------------
-//  Integer CountRequiredNumberSpinStabilizedParameters()
-//---------------------------------------------------------------------------
-/**
- * Count the number of required variables.
- *
- * @return The number of required variables.
- */
-//---------------------------------------------------------------------------
-Integer CountRequiredNumberSpinStabilizedParameters()
-{
-
-    Integer num = 0;
-
-    for (Integer id = 0; id < CCSDSSpinStabilized::EndCCSDSSpinStabilizedDataReps; id++)
-        if (CCSDSSpinStabilized::CCSDS_IS_REQUIRED[id])
-            num++;
-
-    return num;
-}
-
-//---------------------------------------------------------------------------
-//  bool Validate() const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the header is valid
- *
- * @return True if the header is valid, false otherwise (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSSpinStabilized::Validate() const
-{
-
-    for (unsigned int i = 0; i < EndCCSDSSpinStabilizedDataReps; i++ )
-    {
-
-        if (IsParameterRequired(i))
-        {
-            switch (GetDataParameterType(i))
-            {
-                case Gmat::INTEGER_TYPE:
-                    if (!IsParameterDefined(GetIntegerDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::REAL_TYPE:
-                    if (!IsParameterDefined(GetRealDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::STRING_TYPE:
-                    if (!IsParameterDefined(GetStringDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::STRINGARRAY_TYPE:
-                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
-                        return false;
-                    break;
-                default:
-                    return false;
-                    break;
-            }
-        }
-    }
-
-    return true;
 }

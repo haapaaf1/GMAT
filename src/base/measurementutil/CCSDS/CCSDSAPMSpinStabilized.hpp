@@ -18,12 +18,22 @@ public:
     CCSDSAPMSpinStabilized();
     CCSDSAPMSpinStabilized(const CCSDSAPMSpinStabilized &apmSS);
     const CCSDSAPMSpinStabilized& CCSDSAPMSpinStabilized::operator=(const CCSDSAPMSpinStabilized &apmSS);
-    ~CCSDSAPMSpinStabilized();
+    virtual ~CCSDSAPMSpinStabilized();
 
     friend std::ostream& operator<< (std::ostream &output,
                         const CCSDSAPMSpinStabilized *myCCSDSAPMSpinStabilized);
 
     friend class ProcessCCSDSAPMDataFile;
+    
+    // Functions to verify data availability
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberAPMSpinStabilizedParameters();
+    bool Validate() const;
+    
+protected:
+
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSSpinStabilizedDataReps];
+
 
 };
 

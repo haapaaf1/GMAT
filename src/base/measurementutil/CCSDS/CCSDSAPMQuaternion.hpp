@@ -18,13 +18,22 @@ public:
     CCSDSAPMQuaternion();
     CCSDSAPMQuaternion(const CCSDSAPMQuaternion &apmQ);
     const CCSDSAPMQuaternion& CCSDSAPMQuaternion::operator=(const CCSDSAPMQuaternion &apmQ);
-    ~CCSDSAPMQuaternion();
+    virtual ~CCSDSAPMQuaternion();
     
     friend std::ostream& operator<< (std::ostream &output,
                                 const CCSDSAPMQuaternion *myCCSDSAPMQuaternion);
 
     friend class ProcessCCSDSAPMDataFile;
 
+    // Functions to verify data availability
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberAPMQuaternionParameters();
+    bool Validate() const;
+
+protected:
+
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSQuaternionDataReps];
+    
 };
 
 #endif	/* _CCSDSAPMQUATERNION_HPP */

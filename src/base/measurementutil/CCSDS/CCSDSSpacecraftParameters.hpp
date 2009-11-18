@@ -19,7 +19,7 @@ public:
     CCSDSSpacecraftParameters(const CCSDSSpacecraftParameters &sp);
     const CCSDSSpacecraftParameters& CCSDSSpacecraftParameters::operator=
                                     (const CCSDSSpacecraftParameters &sp);
-    ~CCSDSSpacecraftParameters();
+    virtual ~CCSDSSpacecraftParameters();
 
     friend std::ostream& operator<< (std::ostream &output,
                const CCSDSSpacecraftParameters *myCCSDSspacecraftParameters);

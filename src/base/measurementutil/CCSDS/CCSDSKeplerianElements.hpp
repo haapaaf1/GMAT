@@ -20,7 +20,7 @@ public:
     CCSDSKeplerianElements(const CCSDSKeplerianElements &ke);
     const CCSDSKeplerianElements& CCSDSKeplerianElements::operator=
                                        (const CCSDSKeplerianElements &ke);
-    ~CCSDSKeplerianElements();
+    virtual ~CCSDSKeplerianElements();
 
     friend std::ostream& operator<< (std::ostream &output,
                         const CCSDSKeplerianElements *myCCSDSKeplerianElements);

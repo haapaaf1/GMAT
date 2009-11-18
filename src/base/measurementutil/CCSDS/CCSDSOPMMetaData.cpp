@@ -61,11 +61,11 @@ const Gmat::ParameterType CCSDSOPMMetaData::CCSDS_METADATA_PARAMETER_TYPE[EndCCS
  */
 //------------------------------------------------------------------------------
 CCSDSOPMMetaData::CCSDSOPMMetaData() : CCSDSMetaData(),
-    objectName(std::string("")),
-    internationalDesignator(std::string("")),
-    refFrameOrigin(std::string("")),
-    refFrame(std::string("")),
-    timeSystem(std::string("")),
+    objectName(GmatBase::STRING_PARAMETER_UNDEFINED),
+    internationalDesignator(GmatBase::STRING_PARAMETER_UNDEFINED),
+    refFrameOrigin(GmatBase::STRING_PARAMETER_UNDEFINED),
+    refFrame(GmatBase::STRING_PARAMETER_UNDEFINED),
+    timeSystem(GmatBase::STRING_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -400,23 +400,38 @@ bool CCSDSOPMMetaData::Validate() const
             {
                 case Gmat::BOOLEAN_TYPE:
                     if (!IsParameterDefined(GetBooleanDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Boolean parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::INTEGER_TYPE:
                     if (!IsParameterDefined(GetIntegerDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Integer parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::REAL_TYPE:
                     if (!IsParameterDefined(GetRealDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required Real parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRING_TYPE:
                     if (!IsParameterDefined(GetStringDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 case Gmat::STRINGARRAY_TYPE:
                     if (!IsParameterDefined(GetStringArrayDataParameter(i)))
+                    {
+                        MessageInterface::ShowMessage("Error: Required String parameter " + GetDataParameterText(i) + " not defined!\n");
                         return false;
+                    }
                     break;
                 default:
                     return false;
@@ -429,38 +444,103 @@ bool CCSDSOPMMetaData::Validate() const
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetadata)
+// std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetaData)
 //------------------------------------------------------------------------------
 /**
  * Formats CCCSDSOPMObType value and sends to output stream.
  *
  * @param  <output>  Output stream
- * @param  <myMetadata>    CCSDS OPM metadata to write out
+ * @param  <myMetaData>    CCSDS OPM metadata to write out
  *
  * return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetadata)
+std::ostream& operator<< (std::ostream &output, const CCSDSOPMMetaData *myMetaData)
 {
 
-    output.unsetf ( std::ios_base::floatfield );
+    using namespace std;
+
+    if(!myMetaData->Validate()) return output;
 
    //output.setf(std::ios::showpoint);
    //output.setf(std::ios::scientific);
 
-   unsigned int i;
-   for (i = 0; i < myMetadata->comments.size(); i++ )
+   for (unsigned int i = 0; i < myMetaData->comments.size(); i++ )
    {
-       output << "COMMENT " << myMetadata->comments[i] << std::endl;
+       output << "COMMENT " << myMetaData->comments[i] << endl;
    }
-   if (i > 0) output << std::endl;
 
-   output << "OBJECT_NAME = " << myMetadata->objectName << std::endl;
-   output << "OBJECT_ID = " << myMetadata->internationalDesignator << std::endl;
-   output << "CENTER_NAME = " << myMetadata->refFrameOrigin << std::endl;
-   output << "REF_FRAME = " << myMetadata->refFrame << std::endl;
-   output << "TIME_SYSTEM = " << myMetadata->timeSystem << std::endl;
-   output << std::endl;
+    for (unsigned int i = 0; i < CCSDSOPMMetaData::EndCCSDSOPMMetaDataReps; i++)
+    {
 
-   return output;
+        switch (i)
+        {
+
+            case CCSDSOPMMetaData::CCSDS_OPM_OBJECTNAME_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->objectName);
+                if (definedFlag)
+                {
+                    output << "OBJECT_NAME = " << myMetaData->objectName;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_OBJECTID_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->internationalDesignator);
+                if (definedFlag)
+                {
+                    output << "OBJECT_ID = " << myMetaData->internationalDesignator;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_CENTERNAME_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->refFrameOrigin);
+                if (definedFlag)
+                {
+                    output << "CENTER_NAME = " << myMetaData->refFrameOrigin;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_REFFRAME_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->refFrame);
+                if (definedFlag)
+                {
+                    output << "REF_FRAME = " << myMetaData->refFrame;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            case CCSDSOPMMetaData::CCSDS_OPM_TIMESYSTEM_ID:
+            {
+                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->timeSystem);
+                if (definedFlag)
+                {
+                    output << "TIME_SYSTEM = " << myMetaData->timeSystem;
+                    output << endl;
+                }
+            }
+
+            break;
+
+            default:
+                break;
+        }
+    }
+
+    return output;
+
 }

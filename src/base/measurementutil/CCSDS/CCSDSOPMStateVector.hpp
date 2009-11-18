@@ -18,7 +18,7 @@ public:
     CCSDSOPMStateVector();
     CCSDSOPMStateVector(const CCSDSOPMStateVector &opmSV);
     const CCSDSOPMStateVector& CCSDSOPMStateVector::operator=(const CCSDSOPMStateVector &opmSV);
-    ~CCSDSOPMStateVector();
+    virtual ~CCSDSOPMStateVector();
 
     friend class ProcessCCSDSOPMDataFile;
 

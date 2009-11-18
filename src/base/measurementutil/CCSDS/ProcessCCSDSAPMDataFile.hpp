@@ -32,7 +32,7 @@ public:
     ProcessCCSDSAPMDataFile(const std::string &itsName);
     ProcessCCSDSAPMDataFile(const ProcessCCSDSAPMDataFile &CCSDSAPMdf);
     const ProcessCCSDSAPMDataFile& operator=(const ProcessCCSDSAPMDataFile &CCSDSAPMdf);
-    ~ProcessCCSDSAPMDataFile();
+    virtual ~ProcessCCSDSAPMDataFile();
 
     // Initialization happens here
     bool Initialize();

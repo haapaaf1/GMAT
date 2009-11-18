@@ -18,7 +18,7 @@ public:
     CCSDSTrackingData();
     CCSDSTrackingData(const CCSDSTrackingData &data);
     const CCSDSTrackingData& CCSDSTrackingData::operator=(const CCSDSTrackingData &data);
-    ~CCSDSTrackingData();
+    virtual ~CCSDSTrackingData();
 
     friend std::ostream& operator<< (std::ostream &output,
                        const CCSDSTrackingData *myCCSDSTrackingData);
@@ -44,6 +44,46 @@ public:
     friend Integer CCSDSCountRequiredNumberDataParameters();
     bool Validate() const;
 
+    enum DATATYPE_REPS
+    {
+	ANGLE1_ID,
+	ANGLE2_ID,
+	CARRIERPOWER_ID,
+	CLOCKBIAS_ID,
+	CLOCKDRIFT_ID,
+	COMMENT_ID,
+	DOPPLERINSTANTANEOUS_ID,
+	DOPPLERINTEGRATED_ID,
+	DOR_ID,
+	PCN0_ID,
+	PRN0_ID,
+	PRESSURE_ID,
+	RANGE_ID,
+	RECEIVEFREQUENCY_ID,
+	RECEIVEFREQUENCY1_ID,
+	RECEIVEFREQUENCY2_ID,
+	RECEIVEFREQUENCY3_ID,
+	RECEIVEFREQUENCY4_ID,
+	RECEIVEFREQUENCY5_ID,
+	RHUMIDITY_ID,
+	STEC_ID,
+	TEMPERATURE_ID,
+	TRANSMITFREQUENCY1_ID,
+	TRANSMITFREQUENCY2_ID,
+	TRANSMITFREQUENCY3_ID,
+	TRANSMITFREQUENCY4_ID,
+	TRANSMITFREQUENCY5_ID,
+	TRANSMITFREQUENCYRate1_ID,
+	TRANSMITFREQUENCYRate2_ID,
+	TRANSMITFREQUENCYRate3_ID,
+	TRANSMITFREQUENCYRate4_ID,
+	TRANSMITFREQUENCYRate5_ID,
+	TROPODRY_ID,
+	TROPOWET_ID,
+	VLBIDELAY_ID,
+        EndCCSDSTDMTypeReps
+    };
+
     enum CCSDS_DATA_REPS
     {
         CCSDS_TRACKINGDATA_KEYWORD_ID,
@@ -57,6 +97,10 @@ public:
 
 protected:
 
+    static const std::string CCSDS_TRACKINGDATA_DESCRIPTIONS[EndCCSDSTDMTypeReps];
+    static const std::string CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps];
+    static const std::string CCSDS_TRACKINGDATA_UNITS[EndCCSDSTDMTypeReps];
+    
     static const std::string CCSDS_TRACKINGDATA_KEYWORDS[EndCCSDSTrackingDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTrackingDataReps];
     static const bool CCSDS_IS_REQUIRED[EndCCSDSTrackingDataReps];

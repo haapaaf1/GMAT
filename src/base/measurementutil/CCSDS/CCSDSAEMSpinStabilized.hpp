@@ -18,12 +18,21 @@ public:
     CCSDSAEMSpinStabilized();
     CCSDSAEMSpinStabilized(const CCSDSAEMSpinStabilized &aemSS);
     const CCSDSAEMSpinStabilized& CCSDSAEMSpinStabilized::operator=(const CCSDSAEMSpinStabilized &aemSS);
-    ~CCSDSAEMSpinStabilized();
+    virtual ~CCSDSAEMSpinStabilized();
 
     friend std::ostream& operator<< (std::ostream &output,
                         const CCSDSAEMSpinStabilized *myCCSDSAEMSpinStabilized);
 
     friend class ProcessCCSDSAEMDataFile;
+
+    // Functions to verify data availability
+    bool IsParameterRequired(const Integer id) const;
+    friend Integer CountRequiredNumberAEMSpinStabilizedParameters();
+    bool Validate() const;
+
+protected:
+
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSSpinStabilizedDataReps];
     
 };
 

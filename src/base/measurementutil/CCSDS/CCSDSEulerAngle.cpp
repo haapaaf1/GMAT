@@ -50,21 +50,6 @@ const std::string CCSDSEulerAngle::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSEulerAn
     "Euler Angle Comments"
 };
 
-const bool CCSDSEulerAngle::CCSDS_IS_REQUIRED[EndCCSDSEulerAngleDataReps] =
-{
-    true,
-    true,
-    true,
-    true,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
-};
-
 const Gmat::ParameterType CCSDSEulerAngle::CCSDS_PARAMETER_TYPE[EndCCSDSEulerAngleDataReps] =
 {
     Gmat::STRING_TYPE,
@@ -89,19 +74,19 @@ const Gmat::ParameterType CCSDSEulerAngle::CCSDS_PARAMETER_TYPE[EndCCSDSEulerAng
  */
 //------------------------------------------------------------------------------
 CCSDSEulerAngle::CCSDSEulerAngle() : CCSDSData(),
-    eulerAngleType(0),
-    timeTag(std::string("")),
-    frameA(std::string("")),
-    frameB(std::string("")),
-    direction(0),
-    rotationSequence(std::string("")),
-    rateFrame(0),
-    xAngle(0),
-    yAngle(0),
-    zAngle(0),
-    xRate(0),
-    yRate(0),
-    zRate(0),
+    eulerAngleType(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    timeTag(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameA(GmatBase::STRING_PARAMETER_UNDEFINED),
+    frameB(GmatBase::STRING_PARAMETER_UNDEFINED),
+    direction(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    rotationSequence(GmatBase::STRING_PARAMETER_UNDEFINED),
+    rateFrame(GmatBase::INTEGER_PARAMETER_UNDEFINED),
+    xAngle(GmatBase::REAL_PARAMETER_UNDEFINED),
+    yAngle(GmatBase::REAL_PARAMETER_UNDEFINED),
+    zAngle(GmatBase::REAL_PARAMETER_UNDEFINED),
+    xRate(GmatBase::REAL_PARAMETER_UNDEFINED),
+    yRate(GmatBase::REAL_PARAMETER_UNDEFINED),
+    zRate(GmatBase::REAL_PARAMETER_UNDEFINED),
     comments()
 {
 }
@@ -482,91 +467,4 @@ std::string CCSDSEulerAngle::GetUnits(const Integer &id) const
         return CCSDS_UNIT_DESCRIPTIONS[id];
     else
         return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-
-//---------------------------------------------------------------------------
-//  bool IsParameterRequired(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the requested parameter is required by the data format.
- *
- * @param <id> Description for the parameter.
- *
- * @return true if the parameter is read only, false (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSEulerAngle::IsParameterRequired(const Integer id) const
-{
-    if (id >= 0 && id <= EndCCSDSEulerAngleDataReps)
-        return CCSDS_IS_REQUIRED[id];
-    else
-        return false;
-}
-
-
-//---------------------------------------------------------------------------
-//  Integer CountRequiredNumberEulerAngleParameters()
-//---------------------------------------------------------------------------
-/**
- * Count the number of required variables.
- *
- * @return The number of required variables.
- */
-//---------------------------------------------------------------------------
-Integer CountRequiredNumberEulerAngleParameters()
-{
-
-    Integer num = 0;
-
-    for (Integer id = 0; id < CCSDSEulerAngle::EndCCSDSEulerAngleDataReps; id++)
-        if (CCSDSEulerAngle::CCSDS_IS_REQUIRED[id])
-            num++;
-
-    return num;
-}
-
-//---------------------------------------------------------------------------
-//  bool Validate() const
-//---------------------------------------------------------------------------
-/**
- * Checks to see if the header is valid
- *
- * @return True if the header is valid, false otherwise (the default)
- */
-//---------------------------------------------------------------------------
-bool CCSDSEulerAngle::Validate() const
-{
-
-    for (unsigned int i = 0; i < EndCCSDSEulerAngleDataReps; i++ )
-    {
-
-        if (IsParameterRequired(i))
-        {
-            switch (GetDataParameterType(i))
-            {
-                case Gmat::INTEGER_TYPE:
-                    if (!IsParameterDefined(GetIntegerDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::REAL_TYPE:
-                    if (!IsParameterDefined(GetRealDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::STRING_TYPE:
-                    if (!IsParameterDefined(GetStringDataParameter(i)))
-                        return false;
-                    break;
-                case Gmat::STRINGARRAY_TYPE:
-                    if (!IsParameterDefined(GetStringArrayDataParameter(i)))
-                        return false;
-                    break;
-                default:
-                    return false;
-                    break;
-            }
-        }
-    }
-
-    return true;
 }

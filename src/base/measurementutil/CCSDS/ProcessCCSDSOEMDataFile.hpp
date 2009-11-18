@@ -32,7 +32,7 @@ public:
     ProcessCCSDSOEMDataFile(const std::string &itsName);
     ProcessCCSDSOEMDataFile(const ProcessCCSDSOEMDataFile &CCSDSOEMdf);
     const ProcessCCSDSOEMDataFile& operator=(const ProcessCCSDSOEMDataFile &CCSDSOEMdf);
-    ~ProcessCCSDSOEMDataFile();
+    virtual ~ProcessCCSDSOEMDataFile();
 
     // Initialization happens here
     bool Initialize();
