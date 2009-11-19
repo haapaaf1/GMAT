@@ -1,9 +1,23 @@
-/* 
- * File:   CCSDSHeader.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSHeader
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:02 AM
+ * This class specifies the CCSDS Header data that is common to all
+ * of the CCSDS data message formats.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSHEADER_HPP
 #define	_CCSDSHEADER_HPP

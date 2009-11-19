@@ -1,9 +1,22 @@
-/* 
- * File:   CCSDSOEMMetaData.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSOEMMetaData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/20
+//
+/**
  *
- * Created on October 20, 2009, 11:27 AM
+ * This class specifies the CCSDS Orbit Ephemeris MetaData class.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSOEMMETADATA_HPP
 #define	_CCSDSOEMMETADATA_HPP

@@ -1,9 +1,23 @@
-/* 
- * File:   CCSDSQuaternion.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSQuaternion
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:03 AM
+ * This class specifies the base class for the Quaternion data construct
+ *  that is used by the CCSDS Attitude Parameter and Ephemeris Message formats.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSQUATERNION_HPP
 #define	_CCSDSQUATERNION_HPP

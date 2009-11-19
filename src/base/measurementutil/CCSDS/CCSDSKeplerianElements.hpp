@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSKEPLERIANELEMENTS.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSKeplerianElements
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the Kepelerian Element data construct that is used
+ * by the CCSDS Orbit Parameter Message format.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSKEPLERIANELEMENTS_HPP
 #define	_CCSDSKEPLERIANELEMENTS_HPP

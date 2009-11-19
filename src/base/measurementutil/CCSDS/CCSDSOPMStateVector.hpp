@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSOPMStateVector.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSOPMStateVector
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the CCSDS Orbit Parameter message format
+ * implementation of the State Vector construct.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSOPMStateVector_HPP
 #define	_CCSDSOPMStateVector_HPP
@@ -23,7 +37,7 @@ public:
     friend class ProcessCCSDSOPMDataFile;
 
     friend std::ostream& operator<< (std::ostream &output,
-                                    const CCSDSOPMStateVector *myCCSDSOPMStateVector);
+                              const CCSDSOPMStateVector *myCCSDSOPMStateVector);
 
 };
 

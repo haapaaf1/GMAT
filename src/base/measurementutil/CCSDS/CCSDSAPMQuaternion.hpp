@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSAPMQUATERNION.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAPMQuaternion
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the CCSDS Attitude Parameter implementation of
+ * the Quaternion data construct.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSAPMQUATERNION_HPP
 #define	_CCSDSAPMQUATERNION_HPP

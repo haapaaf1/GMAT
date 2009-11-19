@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSEulerAngle.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSEulerAngle
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:02 AM
+ * This class specifies the base class for the Euler Angle data construct
+ *  that is used by the CCSDS Attitude Parameter and Ephemeris Message formats.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSEULERANGLE_HPP
 #define	_CCSDSEULERANGLE_HPP

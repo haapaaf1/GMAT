@@ -1,4 +1,26 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAttitudeManeuver
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
+ *
+ * This class specifies the attitude maneuver data construct used in the
+ * CCSDS Attitude Parameter message format.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSAttitudeManeuver.hpp"
+
 //---------------------------------
 //  static data
 //---------------------------------

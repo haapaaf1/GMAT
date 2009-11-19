@@ -1,9 +1,23 @@
-/* 
- * File:   ObType.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/02
+//
+/**
  *
- * Created on September 2, 2009, 7:33 AM
+ * This class specifies the base observation data type from which the
+ * various data format observation types flow.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _OBTYPE_HPP
 #define	_OBTYPE_HPP

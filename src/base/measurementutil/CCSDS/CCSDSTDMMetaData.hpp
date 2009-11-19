@@ -1,9 +1,22 @@
-/* 
- * File:   CCSDSTDMMetaData.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSTDMMetaData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/20
+//
+/**
  *
- * Created on October 19, 2009, 1:51 PM
+ * This class specifies the CCSDS Tracking Data MetaData class.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSTDMMETADATA_HPP
 #define	_CCSDSTDMMETADATA_HPP

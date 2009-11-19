@@ -1,9 +1,22 @@
-/* 
- * File:   CCSDSOPMMetaData.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSOPMMetaData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/20
+//
+/**
  *
- * Created on October 20, 2009, 10:48 AM
+ * This class specifies the CCSDS Orbit Parameter MetaData class.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSOPMMETADATA_HPP
 #define	_CCSDSOPMMETADATA_HPP

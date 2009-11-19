@@ -1,3 +1,24 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSSpacecraftParameters
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
+ *
+ * This class specifies the Spacecraft Parameter data construct that is used
+ * by the CCSDS Orbit Parameter Message format.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSSpacecraftParameters.hpp"
 
 //---------------------------------

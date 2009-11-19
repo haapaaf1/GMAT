@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSAEMQUATERNION.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAEMQuaternion
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the CCSDS Attitude Ephemeris implementation of
+ * the Quaternion data construct.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSAEMQUATERNION_HPP
 #define	_CCSDSAEMQUATERNION_HPP

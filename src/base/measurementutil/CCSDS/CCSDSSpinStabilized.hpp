@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSSpinStabilized.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSSpinStabilized
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the base class for the Spin Stabilized data construct
+ *  that is used by the CCSDS Attitude Parameter and Ephemeris Message formats.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSSPINSTABILIZED_HPP
 #define	_CCSDSSPINSTABILIZED_HPP

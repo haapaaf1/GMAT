@@ -1,9 +1,22 @@
-/* 
- * File:   CCSDSAEMObtype.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAEMObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/04
+//
+/**
  *
- * Created on September 4, 2009, 5:23 AM
+ * This class specifies the CCSDS Attitude Ephemeris observation data type.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSAEMOBTYPE_HPP
 #define	_CCSDSAEMOBTYPE_HPP

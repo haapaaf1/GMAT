@@ -1,4 +1,26 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAEMEulerAngle
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
+ *
+ * This class specifies the CCSDS Attitude Ephemeris implementation of
+ * the Euler Angle data construct.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSAEMEulerAngle.hpp"
+
 //---------------------------------
 //  static data
 //---------------------------------

@@ -1,3 +1,23 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSOEMObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/04
+//
+/**
+ *
+ * This class specifies the CCSDS Orbit Ephemeris observation data type.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSOEMObtype.hpp"
 
 //---------------------------------

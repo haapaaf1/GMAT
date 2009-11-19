@@ -1,3 +1,23 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAEMMetaData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/20
+//
+/**
+ *
+ * This class specifies the CCSDS Attitude Ephemeris MetaData class.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSAEMMetaData.hpp"
 
 //---------------------------------

@@ -1,9 +1,23 @@
-/* 
- * File:   CCSDSTrackingData.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSTrackingData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on November 13, 2009, 9:59 AM
+ * This class specifies the Tracking Data construct that is used by the
+ * CCSDS Tracking Data message format.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSTRACKINGDATA_HPP
 #define	_CCSDSTRACKINGDATA_HPP

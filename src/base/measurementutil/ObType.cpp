@@ -1,3 +1,24 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/02
+//
+/**
+ *
+ * This class specifies the base observation data type from which the
+ * various data format observation types flow.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include <ObType.hpp>
 
 //---------------------------------

@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSOEMStateVector.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSOEMStateVector
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the CCSDS Orbit Ephemeris message format
+ * implementation of the State Vector construct.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSOEMStateVector_HPP
 #define	_CCSDSOEMStateVector_HPP
@@ -23,7 +37,7 @@ public:
     friend class ProcessCCSDSOEMDataFile;
     
     friend std::ostream& operator<< (std::ostream &output,
-                                    const CCSDSOEMStateVector *myCCSDSOEMStateVector);
+                              const CCSDSOEMStateVector *myCCSDSOEMStateVector);
 };
 
 #endif	/* _CCSDSOEMStateVector_HPP */

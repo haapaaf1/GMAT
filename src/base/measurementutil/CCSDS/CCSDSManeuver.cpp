@@ -1,4 +1,26 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSManeuver
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
+ *
+ * This class specifies the maneuver data construct used in the
+ * CCSDS Orbit Parameter message format.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSManeuver.hpp"
+
 //---------------------------------
 //  static data
 //---------------------------------

@@ -1,3 +1,24 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSStateVector
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
+ *
+ * This class specifies the State Vector construct that is used by the
+ * CCSDS Orbit Parameter and Ephemeris message formats.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSStateVector.hpp"
 
 //---------------------------------

@@ -1,9 +1,24 @@
-/*
- * File:   CCSDSSpacecraftInertia.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSSpacecraftInertia
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the Spacecraft Inertia data construct that is used
+ * by the CCSDS Attitude Parameter Message format.
+ *
  */
+//------------------------------------------------------------------------------
+
 
 #ifndef _CCSDSSPACECRAFTINERTIA_HPP
 #define	_CCSDSSPACECRAFTINERTIA_HPP

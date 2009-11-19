@@ -1,9 +1,22 @@
-/* 
- * File:   CCSDSFormatDescription.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSTDMObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/04
+//
+/**
  *
- * Created on September 3, 2009, 4:58 AM
+ * This class specifies the CCSDS Tracking Data observation data type.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSTDMOBTYPE_HPP
 #define	_CCSDSTDMOBTYPE_HPP

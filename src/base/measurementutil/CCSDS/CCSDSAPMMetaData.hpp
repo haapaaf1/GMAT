@@ -1,9 +1,22 @@
-/* 
- * File:   CCSDSAPMMetaData.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAPMMetaData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/20
+//
+/**
  *
- * Created on October 20, 2009, 12:53 PM
+ * This class specifies the CCSDS Attitude Parameter MetaData class.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSAPMMETADATA_HPP
 #define	_CCSDSAPMMETADATA_HPP

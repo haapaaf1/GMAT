@@ -1,9 +1,23 @@
-/* 
- * File:   CCSDSObType.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/04
+//
+/**
  *
- * Created on September 4, 2009, 5:29 AM
+ * This class specifies the CCSDS base observation data type from which the
+ * various data format observation types flow.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSOBTYPE_HPP
 #define	_CCSDSOBTYPE_HPP

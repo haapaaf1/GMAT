@@ -1,9 +1,22 @@
-/* 
- * File:   ProcessCCSDSDataFile.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             ProcessCCSDSDataFile
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/08/30
+//
+/**
  *
- * Created on September 10, 2009, 3:19 PM
+ * Implements DataFile base class to read files written in CCSDS data formats.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _ProcessCCSDSDATAFILE_HPP
 #define	_ProcessCCSDSDATAFILE_HPP

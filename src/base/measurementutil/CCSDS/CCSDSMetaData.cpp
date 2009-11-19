@@ -1,3 +1,24 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSMetaData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/11/04
+//
+/**
+ *
+ * This class specifies the CCSDS MetaData base class from which the individual
+ * meta data constructs for each of the CCSDS data formats is derived
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSMetaData.hpp"
 //---------------------------------
 //  static data

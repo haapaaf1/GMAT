@@ -1,3 +1,23 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             ProcessCCSDSDataFile
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/08/30
+//
+/**
+ *
+ * Implements DataFile base class to read files written in CCSDS data formats.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "ProcessCCSDSDataFile.hpp"
 
 //------------------------------------------------------------------------------

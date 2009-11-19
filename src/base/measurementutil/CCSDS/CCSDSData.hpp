@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSData.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSData
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 data
+ * This class specifies the base class for implementing CCSDS data constructs
+ * such as state vectors, keplerian elements, and attitude representations.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSDATA_HPP
 #define	_CCSDSDATA_HPP

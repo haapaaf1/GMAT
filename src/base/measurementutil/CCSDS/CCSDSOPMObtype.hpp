@@ -1,9 +1,22 @@
-/* 
- * File:   CCSDSOPMObType.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSOPMObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/04
+//
+/**
  *
- * Created on September 4, 2009, 5:20 AM
+ * This class specifies the CCSDS Orbit Parameter observation data type.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSOPMOBTYPE_HPP
 #define	_CCSDSOPMOBTYPE_HPP

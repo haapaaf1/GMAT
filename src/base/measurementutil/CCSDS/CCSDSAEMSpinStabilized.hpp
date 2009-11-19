@@ -1,9 +1,23 @@
-/*
- * File:   CCSDSAEMSPINSTABILIZED.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAEMSpinStabilized
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/10/22
+//
+/**
  *
- * Created on October 22, 2009, 10:01 AM
+ * This class specifies the CCSDS Attitude Ephemeris implementation of
+ * the Spin Stabilized data construct.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _CCSDSAEMSPINSTABILIZED_HPP
 #define	_CCSDSAEMSPINSTABILIZED_HPP

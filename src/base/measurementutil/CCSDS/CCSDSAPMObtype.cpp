@@ -1,3 +1,23 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             CCSDSAPMObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/04
+//
+/**
+ *
+ * This class specifies the CCSDS Attitude Parameter observation data type.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "CCSDSAPMObtype.hpp"
 
 //---------------------------------
