@@ -1,4 +1,4 @@
 Create CCSDSTDMDataFile TDMData
-TDMData.FileName = ./TDM.txt;
+TDMData.FileName = /Users/mwilkins/GMAT/SVN/branches/OD_Dev_Merge/OD_Dev_Merge/src/base/measurementutil/testscripts/TDM.txt;
 TDMData.ReadWriteMode = read;
 Save TDMData

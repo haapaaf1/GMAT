@@ -1,4 +1,4 @@
 Create CCSDSAEMDataFile AEMData
-AEMData.FileName = ./AEM2.txt;
+AEMData.FileName = /Users/mwilkins/GMAT/SVN/branches/OD_Dev_Merge/OD_Dev_Merge/src/base/measurementutil/testscripts/AEM2.txt;
 AEMData.ReadWriteMode = read;
 Save AEMData

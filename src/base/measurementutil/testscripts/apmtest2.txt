@@ -1,4 +1,4 @@
 Create CCSDSAPMDataFile APMData
-APMData.FileName = ./APM2.txt;
+APMData.FileName = /Users/mwilkins/GMAT/SVN/branches/OD_Dev_Merge/OD_Dev_Merge/src/base/measurementutil/testscripts/APM2.txt;
 APMData.ReadWriteMode = read;
 Save APMData
