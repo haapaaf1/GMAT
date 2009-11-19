@@ -51,6 +51,7 @@
 //#define DEBUG_CELESTIAL_BODY 1
 //#define DEBUG_GET_STATE
 //#define DEBUG_CB_SET
+//#define DEBUG_CB_INIT
 //#define DEBUG_TWO_BODY
 //#define DEBUG_EPHEM_SOURCE
 //#define DEBUG_MODIFIED_FLAG
@@ -234,7 +235,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
-   naifId             (-1),
+   naifId             (-99999999),
    naifIdSet          (false),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
@@ -326,7 +327,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
-   naifId             (-1),
+   naifId             (-99999999),
    naifIdSet          (false),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
