@@ -1,0 +1,4 @@
+Create CCSDSAEMDataFile AEMData
+AEMData.FileName = ./AEM.txt;
+AEMData.ReadWriteMode = read;
+Save AEMData

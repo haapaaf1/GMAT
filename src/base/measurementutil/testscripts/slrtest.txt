@@ -1,0 +1,4 @@
+Create SLRDataFile SLRData
+SLRData.FileName = ./SLR.txt;
+SLRData.ReadWriteMode = read;
+Save SLRData

@@ -127,8 +127,11 @@ bool CCSDSAEMEulerAngle::Validate() const
 {
 
     if (!IsParameterDefined(eulerAngleType))
+    {
+        MessageInterface::ShowMessage("Error: Euler angle type must be defined!\n");
         return false;
-
+    }
+    
     for (unsigned int i = 0; i < EndCCSDSEulerAngleDataReps; i++ )
     {
 
@@ -192,12 +195,7 @@ std::ostream& operator<< (std::ostream &output,
 {
     using namespace std;
 
-   if (!myAEMEulerAngle->Validate()) return output;
-
-    for (unsigned int i = 0; i < myAEMEulerAngle->comments.size(); i++)
-    {
-        output << "COMMENT " << myAEMEulerAngle->comments[i] << endl;
-    }
+    if (!myAEMEulerAngle->Validate()) return output;
 
     switch (myAEMEulerAngle->eulerAngleType)
     {
@@ -205,9 +203,9 @@ std::ostream& operator<< (std::ostream &output,
         case CCSDSData::CCSDS_EULER_ANGLE_ID:
         {
             output << myAEMEulerAngle->timeTag
-                   << " " << myAEMEulerAngle->xAngle
-                   << " " << myAEMEulerAngle->yAngle
-                   << " " << myAEMEulerAngle->zAngle << endl;
+                   << " " << myAEMEulerAngle->angle1
+                   << " " << myAEMEulerAngle->angle2
+                   << " " << myAEMEulerAngle->angle3 << endl;
 
             return output;
         }
@@ -217,12 +215,12 @@ std::ostream& operator<< (std::ostream &output,
         case CCSDSData::CCSDS_EULER_ANGLE_RATE_ID:
         {
             output << myAEMEulerAngle->timeTag
-                   << " " << myAEMEulerAngle->xAngle
-                   << " " << myAEMEulerAngle->yAngle
-                   << " " << myAEMEulerAngle->zAngle
-                   << " " << myAEMEulerAngle->xRate
-                   << " " << myAEMEulerAngle->yRate
-                   << " " << myAEMEulerAngle->zRate << endl;
+                   << " " << myAEMEulerAngle->angle1
+                   << " " << myAEMEulerAngle->angle2
+                   << " " << myAEMEulerAngle->angle3
+                   << " " << myAEMEulerAngle->angleRate1
+                   << " " << myAEMEulerAngle->angleRate2
+                   << " " << myAEMEulerAngle->angleRate3 << endl;
 
             return output;
         }

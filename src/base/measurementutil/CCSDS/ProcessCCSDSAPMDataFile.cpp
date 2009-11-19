@@ -318,7 +318,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
         }
     }
 
-    regex = "^EULER_FRAME_A\\s*=.*";
+    regex = "^EULER_.*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
         if(GetCCSDSAPMEulerAngle(lff,myOb))
@@ -337,7 +337,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
         }
     }
 
-    regex = "^SPIN_FRAME_A\\s*=.*";
+    regex = "^SPIN_.*=.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
         if(GetCCSDSAPMSpinStabilized(lff,myOb))
@@ -356,7 +356,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
         }
     }
 
-    regex = "^INERTIA_REF_FRAME\\s*=.*";
+    regex = "^I.*";
     if (pcrecpp::RE(regex).FullMatch(lff))
     {
         if(GetCCSDSSpacecraftInertia(lff,myOb))
@@ -375,7 +375,7 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMData(std::string &lff,
         }
     }
 
-    regex = "^MAN_TIMETAG_START\\s*=.*";
+    regex = "^MAN_EPOCH_START\\s*=.*";
     myOb->i_ccsdsAPMAttitudeManeuvers = myOb->ccsdsAPMAttitudeManeuvers.begin();
     
     while (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
@@ -416,195 +416,239 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMQuaternion(std::string &lff,
     CCSDSAPMQuaternion *myAPMQuaternion = new CCSDSAPMQuaternion;
 
     Integer requiredCount = 0;
+    bool addedQuaternionRateCount = false;
+    bool addedXYZRateCount = false;
+    bool foundQuaternionRates = false;
+    bool foundXYZRates = false;
+    bool isAQuaternionKeyword = false;
+
     std::string keyword;
 
-    do
-    {
+    if (!GetCCSDSKeyword(lff,keyword))
+        return false;
 
-        if (!GetCCSDSKeyword(lff,keyword))
-            return false;
-        Integer keyID = myAPMQuaternion->GetKeywordID(keyword);
+    Integer keyID = myAPMQuaternion->GetKeywordID(keyword);
+
+    if (keyID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
+        isAQuaternionKeyword = true;
+    else
+        isAQuaternionKeyword = false;
+
+
+    while (!IsEOF() && !pcrecpp::RE("^COMMENT.*").FullMatch(lff) && (
+        requiredCount < requiredNumberQuaternionParameters || isAQuaternionKeyword))
+    {
 
         if(myAPMQuaternion->IsParameterRequired(keyID)) requiredCount++;
 
         switch (keyID)
         {
-
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_TIMETAG_ID:
 
                 if (!GetCCSDSValue(lff,myAPMQuaternion->timeTag))
                     return false;
                 if (!CCSDSTimeTag2A1Date(myAPMQuaternion->timeTag, myOb->epoch))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_FRAMEA_ID:
 
                 if (!GetCCSDSValue(lff,myAPMQuaternion->frameA))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_FRAMEB_ID:
 
                 if (!GetCCSDSValue(lff,myAPMQuaternion->frameB))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_DIRECTION_ID:
-                {
+            {
                 std::string svalue;
                 if (!GetCCSDSValue(lff,svalue))
                     return false;
                 myAPMQuaternion->direction = myAPMQuaternion->GetAttitudeDirID(svalue);
-                }
-                break;
+            }
+
+            break;
 
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q1_ID:
 
                 if (!GetCCSDSValue(lff,myAPMQuaternion->q1))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q2_ID:
 
                 if (!GetCCSDSValue(lff,myAPMQuaternion->q2))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q3_ID:
 
                 if (!GetCCSDSValue(lff,myAPMQuaternion->q3))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMQuaternion::CCSDS_QUATERNION_QC_ID:
 
                 if (!GetCCSDSValue(lff,myAPMQuaternion->qC))
                     return false;
-                break;
+
+            break;
+
+            case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q1DOT_ID:
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedQuaternionRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 4;
+                    foundQuaternionRates = true;
+                    addedQuaternionRateCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q1Dot))
+                    return false;
+
+            break;
+
+            case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q2DOT_ID:
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedQuaternionRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 4;
+                    foundQuaternionRates = true;
+                    addedQuaternionRateCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q2Dot))
+                    return false;
+
+            break;
+
+            case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q3DOT_ID:
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedQuaternionRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 4;
+                    foundQuaternionRates = true;
+                    addedQuaternionRateCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->q3Dot))
+                    return false;
+
+            break;
+
+            case CCSDSAPMQuaternion::CCSDS_QUATERNION_QCDOT_ID:
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedQuaternionRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 4;
+                    foundQuaternionRates = true;
+                    addedQuaternionRateCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->qCDot))
+                    return false;
+
+            break;
+
+            case CCSDSAPMQuaternion::CCSDS_QUATERNION_XRATE_ID:
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedXYZRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 3;
+                    foundXYZRates = true;
+                    addedXYZRateCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->xRate))
+                    return false;
+
+            break;
+
+            case CCSDSAPMQuaternion::CCSDS_QUATERNION_YRATE_ID:
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedXYZRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 3;
+                    foundXYZRates = true;
+                    addedXYZRateCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->yRate))
+                    return false;
+
+            break;
+
+            case CCSDSAPMQuaternion::CCSDS_QUATERNION_ZRATE_ID:
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedXYZRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 3;
+                    foundXYZRates = true;
+                    addedXYZRateCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMQuaternion->zRate))
+                    return false;
+
+            break;
 
             default:
 
                 MessageInterface::ShowMessage(keyword + " : This data not allowed in Quaternions\n");
                 return false;
-                break;
+
+            break;
 
         }
 
         lff = ReadLineFromFile();
 
+        if (!IsEOF())
+        {
+
+            if (!GetCCSDSKeyword(lff,keyword))
+                return false;
+
+            keyID = myAPMQuaternion->GetKeywordID(keyword);
+
+            if (keyID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                isAQuaternionKeyword = true;
+            else
+                isAQuaternionKeyword = false;
+        }
+
     }
-    while ( requiredCount < requiredNumberQuaternionParameters && !IsEOF());
+
+    if (requiredCount < requiredNumberQuaternionParameters)
+    {
+        MessageInterface::ShowMessage("Error: Quaternion processing did not find all required parameters! %d of %d Abort...\n",requiredCount,requiredNumberQuaternionParameters);
+        return false;
+    }
 
     myAPMQuaternion->attitudeType = CCSDSData::CCSDS_QUATERNION_ID;
 
-    std::string regex = "^Q1_DOT\\s*=.*";
-    if (!IsEOF() && pcrecpp::RE(regex).FullMatch(lff))
-    {
-
-        do
-        {
-
-            if (!GetCCSDSKeyword(lff,keyword))
-                return false;
-
-            Integer keyID = myAPMQuaternion->GetKeywordID(keyword);
-
-            if(myAPMQuaternion->IsParameterRequired(keyID)) requiredCount++;
-
-            switch (keyID)
-            {
-
-            case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q1DOT_ID:
-
-                if (!GetCCSDSValue(lff,myAPMQuaternion->q1Dot))
-                    return false;
-                break;
-
-            case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q2DOT_ID:
-
-                if (!GetCCSDSValue(lff,myAPMQuaternion->q2Dot))
-                    return false;
-                break;
-
-            case CCSDSAPMQuaternion::CCSDS_QUATERNION_Q3DOT_ID:
-
-                if (!GetCCSDSValue(lff,myAPMQuaternion->q3Dot))
-                    return false;
-                break;
-
-            case CCSDSAPMQuaternion::CCSDS_QUATERNION_QCDOT_ID:
-
-                if (!GetCCSDSValue(lff,myAPMQuaternion->qCDot))
-                    return false;
-                break;
-
-            default:
-
-                MessageInterface::ShowMessage(keyword + " : This data not allowed in Quaternion Rates\n");
-                return false;
-                break;
-            }
-
-            lff = ReadLineFromFile();
-        
-        }
-        while ( requiredCount < requiredNumberQuaternionParameters + 4 && !IsEOF());
-
+    if (foundQuaternionRates)
         myAPMQuaternion->attitudeType = CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID;
 
-    }
-
-    regex = "^X_RATE\\s*=.*";
-    if (pcrecpp::RE(regex).FullMatch(lff))
-    {
-        requiredCount = 0;
-
-        do
-        {
-
-            if (!GetCCSDSKeyword(lff,keyword))
-                return false;
-
-            Integer keyID = myAPMQuaternion->GetKeywordID(keyword);
-
-            if(myAPMQuaternion->IsParameterRequired(keyID)) requiredCount++;
-
-            switch (keyID)
-            {
-
-                case CCSDSAPMQuaternion::CCSDS_QUATERNION_XRATE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMQuaternion->xRate))
-                        return false;
-                    break;
-
-                case CCSDSAPMQuaternion::CCSDS_QUATERNION_YRATE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMQuaternion->yRate))
-                        return false;
-                    break;
-
-                case CCSDSAPMQuaternion::CCSDS_QUATERNION_ZRATE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMQuaternion->zRate))
-                        return false;
-                    break;
-
-                default:
-
-                    return false;
-                    break;
-            }
-
-            lff = ReadLineFromFile();
-
-        }
-        while ( requiredCount < requiredNumberQuaternionParameters + 3 );
-
+    if (foundXYZRates)
         myAPMQuaternion->attitudeType = CCSDSData::CCSDS_QUATERNION_RATE_ID;
-
-    }
 
     myOb->ccsdsAPMQuaternion = myAPMQuaternion;
 
@@ -627,175 +671,217 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMEulerAngle(std::string &lff,
     CCSDSAPMEulerAngle *myAPMEulerAngle = new CCSDSAPMEulerAngle;
 
     Integer requiredCount = 0;
+    Integer eulerAngleCount = 0;
+    Integer eulerRateCount = 0;
+    bool addedAngleCount = false;
+    bool addedRateCount = false;
+    bool foundEulerAngles = false;
+    bool foundEulerRates = false;
+    bool isAnEulerKeyword = false;
+
     std::string keyword;
 
-    do
+    if (!GetCCSDSKeyword(lff,keyword))
+        return false;
+
+    Integer keyID = myAPMEulerAngle->GetKeywordID(keyword);
+
+    if (keyID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
+        isAnEulerKeyword = true;
+    else
+        isAnEulerKeyword = false;
+
+
+    while (!IsEOF() && !pcrecpp::RE("^COMMENT.*").FullMatch(lff) && (
+        requiredCount < requiredNumberEulerAngleParameters || isAnEulerKeyword))
     {
 
-        if (!GetCCSDSKeyword(lff,keyword))
-            return false;
-
-        Integer keyID = myAPMEulerAngle->GetKeywordID(keyword);
-
-        if(myAPMEulerAngle->IsParameterRequired(keyID)) requiredCount++;
+        if(myAPMEulerAngle->IsParameterRequired(keyID))
+            requiredCount++;
 
         switch (keyID)
         {
 
-            case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_FRAMEA_ID:
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_FRAMEA_ID:
 
+                
                 if (!GetCCSDSValue(lff,myAPMEulerAngle->frameA))
                     return false;
-                break;
 
-            case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_FRAMEB_ID:
+            break;
+
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_FRAMEB_ID:
 
                 if (!GetCCSDSValue(lff,myAPMEulerAngle->frameB))
                     return false;
-                break;
 
-            case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_DIRECTION_ID:
-                {
+            break;
+
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_DIRECTION_ID:
+            {
                 std::string svalue;
                 if (!GetCCSDSValue(lff,svalue))
                     return false;
                 myAPMEulerAngle->direction = myAPMEulerAngle->GetAttitudeDirID(svalue);
-                }
-                break;
+            }
 
-            case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_ROTATIONSEQUENCE_ID:
+            break;
 
-                if (!GetCCSDSValue(lff,myAPMEulerAngle->rotationSequence))
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_ROTATIONSEQUENCE_ID:
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
                     return false;
-                break;
+                myAPMEulerAngle->rotationSequence = myAPMEulerAngle->GetEulerSequenceID(stemp);
+            }
 
-            case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_RATEFRAME_ID:
+            break;
+
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_XANGLE_ID:
+                // Fall through
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_YANGLE_ID:
+                // Fall through
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_ZANGLE_ID:
+
+                // Found an Euler Angle so increment counter
+                eulerAngleCount++;
+                requiredCount++;
+
+                // Check to see if the requiredCount has been incremented
+                if (!addedAngleCount)
                 {
+                    requiredNumberEulerAngleParameters += 3;
+                    foundEulerAngles = true;
+                    addedAngleCount = true;
+                }
+
+                if (eulerAngleCount == 1)
+                {
+                    if (!GetCCSDSValue(lff,myAPMEulerAngle->angle1))
+                        return false;
+                }
+                else if (eulerAngleCount == 2)
+                {
+                    if (!GetCCSDSValue(lff,myAPMEulerAngle->angle2))
+                        return false;
+                }
+                else if (eulerAngleCount == 3)
+                {
+                    if (!GetCCSDSValue(lff,myAPMEulerAngle->angle3))
+                        return false;
+                }
+                else
+                {
+                    MessageInterface::ShowMessage("Error : There are too many Euler Angles specified!\n");
+                    return false;
+                }
+
+            break;
+
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_RATEFRAME_ID:
+            {
+
+                requiredCount++;
+
+                if (!addedRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 4;
+                    foundEulerRates = true;
+                    addedRateCount = true;
+                }
+
                 std::string svalue;
                 if (!GetCCSDSValue(lff,svalue))
                     return false;
                 myAPMEulerAngle->rateFrame = myAPMEulerAngle->GetRateFrameID(svalue);
+            }
+
+            break;
+
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_XRATE_ID:
+                // Fall through
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_YRATE_ID:
+                // Fall through
+            case CCSDSEulerAngle::CCSDS_EULERANGLE_ZRATE_ID:
+
+                // Found an Euler Angle so increment counter
+                eulerRateCount++;
+                requiredCount++;
+                
+                // Check to see if the requiredCount has been incremented
+                if (!addedRateCount)
+                {
+                    requiredNumberEulerAngleParameters += 4;
+                    foundEulerRates = true;
+                    addedRateCount = true;
                 }
-                break;
+
+                if (eulerRateCount == 1)
+                {
+                    if (!GetCCSDSValue(lff,myAPMEulerAngle->angleRate1))
+                        return false;
+                }
+                else if (eulerRateCount == 2)
+                {
+                    if (!GetCCSDSValue(lff,myAPMEulerAngle->angleRate2))
+                        return false;
+                }
+                else if (eulerRateCount == 3)
+                {
+                    if (!GetCCSDSValue(lff,myAPMEulerAngle->angleRate3))
+                        return false;
+                }
+                else
+                {
+                    MessageInterface::ShowMessage("Error : There are too many Euler Angle Rates specified!\n");
+                    return false;
+                }
+
+
+            break;
 
             default:
                 
-                MessageInterface::ShowMessage(keyword + " : This data not allowed in Euler Angles1\n");
+                MessageInterface::ShowMessage(keyword + " : This data not allowed in Euler Angles\n");
                 return false;
-                break;
+
+            break;
 
 
         }
 
         lff = ReadLineFromFile();
-
-    }
-    while ( requiredCount < requiredNumberEulerAngleParameters && !IsEOF()
-            || pcrecpp::RE("^RATE_FRAME\\s*=.*").FullMatch(lff));
-
-    std::string regex = "^[XYZ]_ANGLE\\s*=.*";
-    if (pcrecpp::RE(regex).FullMatch(lff))
-    {
-        do
+        
+        if (!IsEOF())
         {
-
-            MessageInterface::ShowMessage(lff + "\n");
 
             if (!GetCCSDSKeyword(lff,keyword))
                 return false;
 
-            Integer keyID = myAPMEulerAngle->GetKeywordID(keyword);
+            keyID = myAPMEulerAngle->GetKeywordID(keyword);
 
-            if(myAPMEulerAngle->IsParameterRequired(keyID)) requiredCount++;
-
-            switch (keyID)
-            {
-
-                case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_XANGLE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMEulerAngle->xAngle))
-                        return false;
-                    break;
-
-                case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_YANGLE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMEulerAngle->yAngle))
-                        return false;
-                    break;
-
-                case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_ZANGLE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMEulerAngle->zAngle))
-                        return false;
-                    break;
-
-                default:
-
-                    MessageInterface::ShowMessage(keyword + " : This data not allowed in Euler Angles2\n");
-                    return false;
-                    break;
-
-            }
-
-            lff = ReadLineFromFile();
-
+            if (keyID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                isAnEulerKeyword = true;
+            else
+                isAnEulerKeyword = false;
         }
-        while ( requiredCount < requiredNumberEulerAngleParameters + 3 && !IsEOF());
 
+    }
+
+    if (requiredCount < requiredNumberEulerAngleParameters)
+    {
+        MessageInterface::ShowMessage("Error: Euler Angle processing did not find all required parameters! %d of %d Abort...\n",requiredCount,requiredNumberEulerAngleParameters);
+        return false;
+    }
+
+    if (foundEulerAngles)
         myAPMEulerAngle->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_ID;
 
-    }
+    if (foundEulerRates)
+        myAPMEulerAngle->eulerAngleType = CCSDSData::CCSDS_EULER_RATE_ID;
 
-
-    regex = "^[XYZ]_RATE\\s*=.*";
-    if (pcrecpp::RE(regex).FullMatch(lff))
-    {
-        do
-        {
-
-            if (!GetCCSDSKeyword(lff,keyword))
-                return false;
-
-            Integer keyID = myAPMEulerAngle->GetKeywordID(keyword);
-
-            if(myAPMEulerAngle->IsParameterRequired(keyID)) requiredCount++;
-
-            switch (keyID)
-            {
-
-                case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_XRATE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMEulerAngle->xRate))
-                        return false;
-                    break;
-
-                case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_YRATE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMEulerAngle->yRate))
-                        return false;
-                    break;
-
-                case CCSDSAPMEulerAngle::CCSDS_EULERANGLE_ZRATE_ID:
-
-                    if (!GetCCSDSValue(lff,myAPMEulerAngle->zRate))
-                        return false;
-                    break;
-
-                default:
-
-                    MessageInterface::ShowMessage(keyword + " : This data not allowed in Euler Angles3\n");
-                    return false;
-                    break;
-            }
-
-            lff = ReadLineFromFile();
-
-        }
-        while ( requiredCount < requiredNumberEulerAngleParameters + 3 && !IsEOF());
-
+    if (foundEulerAngles && foundEulerRates)
         myAPMEulerAngle->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_RATE_ID;
-
-    }
 
     myOb->ccsdsAPMEulerAngle = myAPMEulerAngle;
 
@@ -818,15 +904,26 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpinStabilized(std::string &lff,
     CCSDSAPMSpinStabilized *myAPMSpinStabilized = new CCSDSAPMSpinStabilized;
 
     Integer requiredCount = 0;
+    bool addedNutationCount = false;
+    bool foundNutation = false;
+    bool isASpinStabilizedKeyword = false;
+
     std::string keyword;
 
-    do
+    if (!GetCCSDSKeyword(lff,keyword))
+        return false;
+
+    Integer keyID = myAPMSpinStabilized->GetKeywordID(keyword);
+
+    if (keyID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
+        isASpinStabilizedKeyword = true;
+    else
+        isASpinStabilizedKeyword = false;
+
+
+    while (!IsEOF() && !pcrecpp::RE("^COMMENT.*").FullMatch(lff) && (
+        requiredCount < requiredNumberSpinStabilizedParameters || isASpinStabilizedKeyword))
     {
-
-        if (!GetCCSDSKeyword(lff,keyword))
-            return false;
-
-        Integer keyID = myAPMSpinStabilized->GetKeywordID(keyword);
 
         if(myAPMSpinStabilized->IsParameterRequired(keyID)) requiredCount++;
 
@@ -836,110 +933,140 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAPMSpinStabilized(std::string &lff,
             case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_FRAMEA_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpinStabilized->frameA))
-                break;
+                    return false;
+
+            break;
 
             case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_FRAMEB_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpinStabilized->frameB))
-                break;
+                    return false;
+
+            break;
 
             case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_DIRECTION_ID:
-                {
+            {
                 std::string svalue;
                 if (!GetCCSDSValue(lff,svalue))
                     return false;
                 myAPMSpinStabilized->direction = myAPMSpinStabilized->GetAttitudeDirID(svalue);
-                }
-                break;
+            }
+
+            break;
 
             case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_SPINALPHA_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinAlpha))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_SPINDELTA_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinDelta))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_SPINANGLE_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinAngle))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_SPINANGLEVEOCITY_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpinStabilized->spinAngleVelocity))
                     return false;
-                break;
+
+            break;
+
+            case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_NUTATION_ID:
+
+                requiredCount++;
+
+                if (!addedNutationCount)
+                {
+                    requiredNumberSpinStabilizedParameters += 3;
+                    foundNutation = true;
+                    addedNutationCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutation))
+                    return false;
+
+            break;
+
+            case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_NUTATIONPERIOD_ID:
+
+                requiredCount++;
+                
+                if (!addedNutationCount)
+                {
+                    requiredNumberSpinStabilizedParameters += 3;
+                    foundNutation = true;
+                    addedNutationCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutationPeriod))
+                    return false;
+
+            break;
+
+            case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_NUTATIONPHASE_ID:
+
+                requiredCount++;
+
+                if (!addedNutationCount)
+                {
+                    requiredNumberSpinStabilizedParameters += 3;
+                    foundNutation = true;
+                    addedNutationCount = true;
+                }
+
+                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutationPhase))
+                    return false;
+
+            break;
 
             default:
 
                 MessageInterface::ShowMessage(keyword + " : This data not allowed in Spin Stabilized1\n");
                 return false;
-                break;
+
+            break;
 
         }
 
         lff = ReadLineFromFile();
 
-    }
-    while ( requiredCount < requiredNumberSpinStabilizedParameters && !IsEOF());
-
-    myAPMSpinStabilized->attitudeType = CCSDSData::CCSDS_SPIN_ID;
-
-    std::string regex = "^NUTATION\\s*=.*";
-    if (pcrecpp::RE(regex).FullMatch(lff))
-    {
-        do
+        if (!IsEOF())
         {
 
             if (!GetCCSDSKeyword(lff,keyword))
                 return false;
 
-            Integer keyID = myAPMSpinStabilized->GetKeywordID(keyword);
+            keyID = myAPMSpinStabilized->GetKeywordID(keyword);
 
-            if(myAPMSpinStabilized->IsParameterRequired(keyID)) requiredCount++;
-
-            switch (keyID)
-            {
-
-            case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_NUTATION_ID:
-
-                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutation))
-                    return false;
-                break;
-
-            case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_NUTATIONPERIOD_ID:
-
-                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutationPeriod))
-                    return false;
-                break;
-
-            case CCSDSAPMSpinStabilized::CCSDS_SPINSTABILIZED_NUTATIONPHASE_ID:
-
-                if (!GetCCSDSValue(lff,myAPMSpinStabilized->nutationPhase))
-                    return false;
-                break;
-
-            default:
-
-                MessageInterface::ShowMessage(keyword + " : This data not allowed in Spin Stabilized2\n");
-                return false;
-                break;
-            }
-
-            lff = ReadLineFromFile();
-
+            if (keyID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                isASpinStabilizedKeyword = true;
+            else
+                isASpinStabilizedKeyword = false;
         }
-        while ( requiredCount < requiredNumberSpinStabilizedParameters + 3 && !IsEOF());
-
-        myAPMSpinStabilized->attitudeType = CCSDSData::CCSDS_SPIN_NUTATION_ID;
 
     }
+
+    if (requiredCount < requiredNumberSpinStabilizedParameters)
+    {
+        MessageInterface::ShowMessage("Error: Spin Stabilized processing did not find all required parameters! %d of %d Abort...\n",requiredCount,requiredNumberSpinStabilizedParameters);
+        return false;
+    }
+
+    myAPMSpinStabilized->attitudeType = CCSDSData::CCSDS_SPIN_ID;
+
+    if (foundNutation)
+        myAPMSpinStabilized->attitudeType = CCSDSData::CCSDS_SPIN_NUTATION_ID;
 
     myOb->ccsdsAPMSpinStabilized = myAPMSpinStabilized;
 
@@ -981,49 +1108,57 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSSpacecraftInertia(std::string &lff,
 
                 if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->inertiaRefFrame))
                     return false;
-                break;
+
+            break;
 
             case CCSDSSpacecraftInertia::CCSDS_SPACECRAFTINERTIA_I11_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i11))
                     return false;
-                break;
+
+            break;
 
             case CCSDSSpacecraftInertia::CCSDS_SPACECRAFTINERTIA_I22_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i22))
                     return false;
-                break;
+
+            break;
 
             case CCSDSSpacecraftInertia::CCSDS_SPACECRAFTINERTIA_I33_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i33))
                     return false;
-                break;
+
+            break;
 
             case CCSDSSpacecraftInertia::CCSDS_SPACECRAFTINERTIA_I12_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i12))
                     return false;
-                break;
+
+            break;
 
             case CCSDSSpacecraftInertia::CCSDS_SPACECRAFTINERTIA_I13_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i13))
                     return false;
-                break;
+
+            break;
 
             case CCSDSSpacecraftInertia::CCSDS_SPACECRAFTINERTIA_I23_ID:
 
                 if (!GetCCSDSValue(lff,myAPMSpacecraftInertia->i23))
                     return false;
-                break;
+
+            break;
 
             default:
 
                 MessageInterface::ShowMessage(keyword + " : This data not allowed in Sacecraft Inertias\n");
                 return false;
-                break;
+
+            break;
 
         }
 
@@ -1031,6 +1166,12 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSSpacecraftInertia(std::string &lff,
 
     }
     while ( requiredCount < requiredNumberSpacecraftInertiaParameters && !IsEOF());
+
+    if ( requiredCount < requiredNumberSpacecraftInertiaParameters )
+    {
+        MessageInterface::ShowMessage("Error: Spacecraft Intertia processing did not find all required parameters! %d of %d Abort...\n",requiredCount,requiredNumberSpacecraftInertiaParameters);
+        return false;
+    }
 
     myOb->ccsdsAPMSpacecraftInertia = myAPMSpacecraftInertia;
 
@@ -1071,43 +1212,50 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAttitudeManeuver(std::string &lff,
 
                 if (!GetCCSDSValue(lff,myAPMManeuver->epochStart))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAttitudeManeuver::CCSDS_ATTITUDEMANUEVER_DURATION_ID:
 
                 if (!GetCCSDSValue(lff,myAPMManeuver->duration))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAttitudeManeuver::CCSDS_ATTITUDEMANUEVER_REFFRAME_ID:
 
                 if (!GetCCSDSValue(lff,myAPMManeuver->refFrame))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAttitudeManeuver::CCSDS_ATTITUDEMANUEVER_TOR1_ID:
 
                 if (!GetCCSDSValue(lff,myAPMManeuver->tor1))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAttitudeManeuver::CCSDS_ATTITUDEMANUEVER_TOR2_ID:
 
                 if (!GetCCSDSValue(lff,myAPMManeuver->tor2))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAttitudeManeuver::CCSDS_ATTITUDEMANUEVER_TOR3_ID:
 
                 if (!GetCCSDSValue(lff,myAPMManeuver->tor3))
                     return false;
-                break;
+
+            break;
 
             default:
 
                 MessageInterface::ShowMessage(keyword + " : This data not allowed in Attitude Maneuvers\n");
                 return false;
-                break;
+
+            break;
 
         }
 
@@ -1115,6 +1263,12 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSAttitudeManeuver(std::string &lff,
 
     }
     while ( requiredCount < requiredNumberAttitudeManeuverParameters && !IsEOF());
+
+    if ( requiredCount < requiredNumberAttitudeManeuverParameters )
+    {
+        MessageInterface::ShowMessage("Error: Attitude Maneuver processing did not find all required parameters! %d of %d Abort...\n",requiredCount,requiredNumberAttitudeManeuverParameters);
+        return false;
+    }
 
     myOb->ccsdsAPMAttitudeManeuvers.push_back(myAPMManeuver);
 
@@ -1151,42 +1305,48 @@ bool ProcessCCSDSAPMDataFile::GetCCSDSMetaData(std::string &lff,
         {
 
             case CCSDSAPMMetaData::CCSDS_APM_METADATACOMMENTS_ID:
-                {
+            {
                 std::string stemp;
                 if (!GetCCSDSComment(lff,stemp)) return false;
                 myMetaData->comments.push_back(stemp);
-                }
-                break;
+            }
+
+            break;
 
             case CCSDSAPMMetaData::CCSDS_APM_OBJECTNAME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->objectName))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMMetaData::CCSDS_APM_OBJECTID_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->internationalDesignator))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMMetaData::CCSDS_APM_CENTERNAME_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->refFrameOrigin))
                     return false;
-                break;
+
+            break;
 
             case CCSDSAPMMetaData::CCSDS_APM_TIMESYSTEM_ID:
 
                 if (!GetCCSDSValue(lff,myMetaData->timeSystem))
                     return false;
-                break;
+
+            break;
 
             default:
 
                 MessageInterface::ShowMessage(keyword + " : This data not allowed in MetaData\n");
                 return false;
-                break;
+
+            break;
 
         }
 

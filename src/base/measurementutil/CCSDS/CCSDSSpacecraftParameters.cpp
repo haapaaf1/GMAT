@@ -448,12 +448,10 @@ std::ostream& operator<< (std::ostream &output,
 
     if (!mySpacecraftParameters->Validate()) return output;
 
-    unsigned int i;
-    for (i = 0; i < mySpacecraftParameters->comments.size(); i++ )
+    for (unsigned int i = 0; i < mySpacecraftParameters->comments.size(); i++ )
     {
         output << "COMMENT " << mySpacecraftParameters->comments[i] << endl;
     }
-    if (i > 0) output << endl;
 
    output << "MASS = " << mySpacecraftParameters->mass << endl;
    output << "SOLAR_RAD_AREA = " << mySpacecraftParameters->solarRadiationArea << endl;

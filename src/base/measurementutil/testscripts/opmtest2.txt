@@ -1,0 +1,4 @@
+Create CCSDSOPMDataFile OPMData
+OPMData.FileName = ./OPM2.txt;
+OPMData.ReadWriteMode = read;
+Save OPMData

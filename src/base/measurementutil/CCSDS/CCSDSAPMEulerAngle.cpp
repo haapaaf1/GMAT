@@ -127,7 +127,10 @@ bool CCSDSAPMEulerAngle::Validate() const
 {
 
     if (!IsParameterDefined(eulerAngleType))
+    {
+        MessageInterface::ShowMessage("Error: Euler angle type must be defined!\n");
         return false;
+    }
 
     for (unsigned int i = 0; i < EndCCSDSEulerAngleDataReps; i++ )
     {
@@ -165,6 +168,7 @@ bool CCSDSAPMEulerAngle::Validate() const
                     }
                     break;
                 default:
+                    MessageInterface::ShowMessage("Error: Invalid Data Parameter Type in Euler Angles!\n");
                     return false;
                     break;
             }
@@ -194,37 +198,384 @@ std::ostream& operator<< (std::ostream &output,
 
     if (!myAPMEulerAngle->Validate()) return output;
 
-    unsigned int i;
-    for (i = 0; i < myAPMEulerAngle->comments.size(); i++ )
+    for (unsigned int i = 0; i < myAPMEulerAngle->comments.size(); i++ )
     {
            output << "COMMENT " << myAPMEulerAngle->comments[i] << endl;
     }
-    if (i > 0) output << endl;
 
     output << "EULER_FRAME_A = " << myAPMEulerAngle->frameA << endl;
     output << "EULER_FRAME_B = " << myAPMEulerAngle->frameB << endl;
     output << "EULER_DIR = " << myAPMEulerAngle->GetAttitudeDirText(myAPMEulerAngle->direction) << endl;
-    output << "EULER_ROT_SEQ = " << myAPMEulerAngle->rotationSequence << endl;
+    output << "EULER_ROT_SEQ = " << myAPMEulerAngle->GetEulerSequenceText(myAPMEulerAngle->rotationSequence) << endl;
 
     switch (myAPMEulerAngle->eulerAngleType)
     {
         case CCSDSData::CCSDS_EULER_ANGLE_ID:
         {
-            output << "X_ANGLE = " << myAPMEulerAngle->xAngle << endl;
-            output << "Y_ANGLE = " << myAPMEulerAngle->yAngle << endl;
-            output << "Z_ANGLE = " << myAPMEulerAngle->zAngle << endl;
-            output << endl;
+            switch(myAPMEulerAngle->rotationSequence)
+            {
+            
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_123:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_132:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_213:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_231:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_312:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_321:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_121:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_131:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_212:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_232:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_313:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+                
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_323:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+
+                    break;
+
+                default:
+
+                    break;
+            }
+
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_EULER_RATE_ID:
+        {
+
+            output << "RATE_FRAME = " << myAPMEulerAngle->GetRateFrameText(myAPMEulerAngle->rateFrame) << endl;
+
+            switch(myAPMEulerAngle->rotationSequence)
+            {
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_123:
+
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_132:
+
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_213:
+
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_231:
+
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_312:
+
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_321:
+
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_121:
+
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_131:
+
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_212:
+
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_232:
+
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_313:
+
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_323:
+
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                default:
+
+                    break;
+            }
         }
 
         break;
 
         case CCSDSData::CCSDS_EULER_ANGLE_RATE_ID:
         {
+
             output << "RATE_FRAME = " << myAPMEulerAngle->GetRateFrameText(myAPMEulerAngle->rateFrame) << endl;
-            output << "X_RATE = " << myAPMEulerAngle->xRate << endl;
-            output << "Y_RATE = " << myAPMEulerAngle->yRate << endl;
-            output << "Z_RATE = " << myAPMEulerAngle->zRate << endl;
-            output << endl;
+
+            switch(myAPMEulerAngle->rotationSequence)
+            {
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_123:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_132:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_213:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_231:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_312:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_321:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_121:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_131:
+
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_212:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_232:
+
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_313:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "X_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "X_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                case CCSDSEulerAngle::CCSDS_EULERANGLE_323:
+
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle1 << endl;
+                    output << "Y_ANGLE = " << myAPMEulerAngle->angle2 << endl;
+                    output << "Z_ANGLE = " << myAPMEulerAngle->angle3 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate1 << endl;
+                    output << "Y_RATE = " << myAPMEulerAngle->angleRate2 << endl;
+                    output << "Z_RATE = " << myAPMEulerAngle->angleRate3 << endl;
+
+                    break;
+
+                default:
+
+                    break;
+            }
         }
 
         break;
@@ -233,6 +584,7 @@ std::ostream& operator<< (std::ostream &output,
 
             break;
     }
-
-   return output;
+    
+    return output;
+    
 }

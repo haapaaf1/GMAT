@@ -1,0 +1,4 @@
+Create CCSDSAPMDataFile APMData
+APMData.FileName = ./APM4.txt;
+APMData.ReadWriteMode = read;
+Save APMData

@@ -242,20 +242,23 @@ bool CCSDSAPMObType::Validate() const
 std::ostream& operator<< (std::ostream &output, const CCSDSAPMObType *myAPM)
 {
     if (myAPM->ccsdsAPMQuaternion != NULL);
-        output << myAPM->ccsdsAPMQuaternion;
+        output << myAPM->ccsdsAPMQuaternion << std::endl;
 
     if (myAPM->ccsdsAPMEulerAngle != NULL)
-        output << myAPM->ccsdsAPMEulerAngle;
+        output << myAPM->ccsdsAPMEulerAngle << std::endl;
 
     if (myAPM->ccsdsAPMSpinStabilized != NULL)
-        output << myAPM->ccsdsAPMSpinStabilized;
+        output << myAPM->ccsdsAPMSpinStabilized << std::endl;
+
+    if (myAPM->ccsdsAPMSpacecraftInertia != NULL)
+        output << myAPM->ccsdsAPMSpacecraftInertia << std::endl;
 
     for (std::vector<CCSDSAttitudeManeuver*>::const_iterator 
          j = myAPM->ccsdsAPMAttitudeManeuvers.begin();
          j != myAPM->ccsdsAPMAttitudeManeuvers.end(); ++j)
     {
         if((*j) != NULL)
-            output << (*j);
+            output << (*j) << std::endl;
     }
     return output;
 }

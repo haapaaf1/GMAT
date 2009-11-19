@@ -16,6 +16,7 @@ const std::string CCSDSData::CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps] =
     "QUATERNION/DERIVATIVE",
     "QUATERNION/RATE",
     "EULER_ANGLE",
+    "EULER_RATE",
     "EULER_ANGLE/RATE",
     "SPIN",
     "SPIN/NUTATION"

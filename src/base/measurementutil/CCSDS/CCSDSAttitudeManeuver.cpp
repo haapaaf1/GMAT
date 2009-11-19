@@ -7,9 +7,9 @@ const std::string CCSDSAttitudeManeuver::CCSDS_ATTITUDEMANEUVER_KEYWORDS[EndCCSD
     "MAN_EPOCH_START",
     "MAN_DURATION",
     "MAN_REF_FRAME",
-    "MAN_TOR1",
-    "MAN_TOR2",
-    "MAN_TOR3",
+    "MAN_TOR_1",
+    "MAN_TOR_2",
+    "MAN_TOR_3",
     "COMMENT"
 };
 
@@ -499,6 +499,11 @@ std::ostream& operator<< (std::ostream &output,
     using namespace std;
 
     if (!myAttitudeManeuver->Validate()) return output;
+
+    for (unsigned int i = 0; i < myAttitudeManeuver->comments.size(); i++ )
+    {
+        output << "COMMENT " << myAttitudeManeuver->comments[i] << endl;
+    }
 
     output << "MAN_EPOCH_START = " << myAttitudeManeuver->epochStart << endl;
     output << "MAN_DURATION = " << myAttitudeManeuver->duration << endl;

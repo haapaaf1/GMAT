@@ -1,0 +1,3 @@
+Create TLEDataFile TLEData
+TLEData.FileName = /Users/mwilkins/GMAT/SVN/odTools/src/base/DataTest/TLE.txt;
+Save TLEData

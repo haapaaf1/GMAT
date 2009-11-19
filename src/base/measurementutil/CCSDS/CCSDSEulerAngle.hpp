@@ -25,6 +25,9 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
+    std::string GetEulerSequenceText(const Integer id) const;
+    Integer     GetEulerSequenceID(const std::string &str) const;
+
     Integer	GetIntegerDataParameter(const Integer id) const;
     Integer	GetIntegerDataParameter(const std::string &label) const;
     Real	GetRealDataParameter(const Integer id) const;
@@ -52,7 +55,31 @@ public:
         CCSDS_EULERANGLE_YRATE_ID,
         CCSDS_EULERANGLE_ZRATE_ID,
         CCSDS_EULERANGLE_COMMENTS_ID,
-        EndCCSDSEulerAngleDataReps
+        EndCCSDSEulerAngleDataReps,
+        CCSDS_EULERANGLE_ANGLE1_ID,
+        CCSDS_EULERANGLE_ANGLE2_ID,
+        CCSDS_EULERANGLE_ANGLE3_ID,
+        CCSDS_EULERANGLE_RATE1_ID,
+        CCSDS_EULERANGLE_RATE2_ID,
+        CCSDS_EULERANGLE_RATE3_ID,
+        EndEulerAngleDataReps
+    };
+
+    enum CCSDS_EULER_SEQ_LIST
+    {
+        CCSDS_EULERANGLE_123,
+        CCSDS_EULERANGLE_132,
+        CCSDS_EULERANGLE_213,
+        CCSDS_EULERANGLE_231,
+        CCSDS_EULERANGLE_312,
+        CCSDS_EULERANGLE_321,
+        CCSDS_EULERANGLE_121,
+        CCSDS_EULERANGLE_131,
+        CCSDS_EULERANGLE_212,
+        CCSDS_EULERANGLE_232,
+        CCSDS_EULERANGLE_313,
+        CCSDS_EULERANGLE_323,
+        EndCCSDSEulerSeqList
     };
 
     friend class ProcessCCSDSAEMDataFile;
@@ -60,20 +87,21 @@ public:
     
 protected:
 
+    static const std::string CCSDS_EULERSEQUENCE_LIST[EndCCSDSEulerSeqList];
     static const std::string CCSDS_EULERANGLE_KEYWORDS[EndCCSDSEulerAngleDataReps];
     static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps];
     static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSEulerAngleDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSEulerAngleDataReps];
+    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndEulerAngleDataReps];
 
     Integer eulerAngleType;
     std::string timeTag;
     std::string frameA;
     std::string frameB;
     Integer direction;
-    std::string rotationSequence;
+    Integer rotationSequence;
     Integer rateFrame;
-    Real xAngle, yAngle, zAngle;
-    Real xRate, yRate, zRate;
+    Real angle1, angle2, angle3;
+    Real angleRate1, angleRate2, angleRate3;
     StringArray comments;
 };
 

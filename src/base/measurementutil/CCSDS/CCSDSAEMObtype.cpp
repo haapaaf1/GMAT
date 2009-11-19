@@ -228,13 +228,11 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
         {
             output << "DATA_START" << std::endl;
             StringArray comments = myAEM->ccsdsAEMQuaternion->GetStringArrayDataParameter(CCSDSQuaternion::CCSDS_QUATERNION_COMMENTS_ID);
-            unsigned int i;
-            for (i = 0; i < comments.size(); i++ )
+            
+            for (unsigned int i = 0; i < comments.size(); i++ )
             {
-                output << "COMMENT " << comments[i];
-                output << std::endl;
+                output << "COMMENT " << comments[i] << std::endl;
             }
-            if (i > 0) output << std::endl;
         }
         output << myAEM->ccsdsAEMQuaternion;
     }
@@ -245,13 +243,10 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
         {
             output << "DATA_START" << std::endl;
             StringArray comments = myAEM->ccsdsAEMEulerAngle->GetStringArrayDataParameter(CCSDSEulerAngle::CCSDS_EULERANGLE_COMMENTS_ID);
-            unsigned int i;
-            for (i = 0; i < comments.size(); i++ )
+            for (unsigned int i = 0; i < comments.size(); i++ )
             {
-                output << "COMMENT " << comments[i];
-                output << std::endl;
+                output << "COMMENT " << comments[i] << std::endl;
             }
-            if (i > 0) output << std::endl;
         }
         output << myAEM->ccsdsAEMEulerAngle;
     }
@@ -262,13 +257,10 @@ std::ostream& operator<< (std::ostream &output, const CCSDSAEMObType *myAEM)
         {
             output << "DATA_START" << std::endl;
             StringArray comments = myAEM->ccsdsAEMSpinStabilized->GetStringArrayDataParameter(CCSDSSpinStabilized::CCSDS_SPINSTABILIZED_COMMENTS_ID);
-            unsigned int i;
-            for (i = 0; i < comments.size(); i++ )
+            for (unsigned int i = 0; i < comments.size(); i++ )
             {
-                output << "COMMENT " << comments[i];
-                output << std::endl;
+                output << "COMMENT " << comments[i] << std::endl;
             }
-            if (i > 0) output << std::endl;
         }
         output << myAEM->ccsdsAEMSpinStabilized;
     }

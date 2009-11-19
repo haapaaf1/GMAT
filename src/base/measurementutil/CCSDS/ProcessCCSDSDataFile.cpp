@@ -657,9 +657,6 @@ bool ProcessCCSDSDataFile::WriteDataHeader(const ObType *myOb)
 
     if (!isHeaderWritten)
     {
-
-        MessageInterface::ShowMessage("Writing header...\n");
-
         *theFile << myHeader;
 
         lastHeaderWritten = myHeader;
@@ -737,6 +734,7 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
                 break;
             case DataFile::CCSDS_APM_ID:
                 *theFile << (CCSDSAPMMetaData*)myMetaData;
+                *theFile << std::endl;
                 break;
             case DataFile::CCSDS_AEM_ID:
                 *theFile << (CCSDSAEMMetaData*)myMetaData;
@@ -782,6 +780,7 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
                 // metadata from the last block of data
                 *theFile << std::endl;
                 *theFile << (CCSDSAPMMetaData*)myMetaData;
+                *theFile << std::endl;
                 break;
             case DataFile::CCSDS_AEM_ID:
                 // Finalize last block of ephemeris data
@@ -799,6 +798,7 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
         isMetaDataWritten = true;
         writingDataBlock = false;
     }
+
     return true;
 }
 

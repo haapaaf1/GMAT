@@ -1,0 +1,4 @@
+Create CCSDSTDMDataFile TDMData
+TDMData.FileName = ./TDM.txt;
+TDMData.ReadWriteMode = read;
+Save TDMData

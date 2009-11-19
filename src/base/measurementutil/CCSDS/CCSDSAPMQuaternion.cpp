@@ -201,13 +201,11 @@ std::ostream& operator<< (std::ostream &output,
 
     if (!myAPMQuaternion->Validate()) return output;
 
-    unsigned int i;
-    for (i = 0; i < myAPMQuaternion->comments.size(); i++ )
+    for (unsigned int i = 0; i < myAPMQuaternion->comments.size(); i++ )
     {
         output << "COMMENT " << myAPMQuaternion->comments[i] << endl;
     }
-    if (i > 0) output << endl;
-
+    
     output << "EPOCH = " << myAPMQuaternion->timeTag << endl;
     output << "Q_FRAME_A = " << myAPMQuaternion->frameA << endl;
     output << "Q_FRAME_B = " << myAPMQuaternion->frameB << endl;
