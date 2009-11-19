@@ -81,6 +81,7 @@ public:
 	TROPODRY_ID,
 	TROPOWET_ID,
 	VLBIDELAY_ID,
+        COMMENTS_ID,
         EndCCSDSTDMTypeReps
     };
 
@@ -96,16 +97,13 @@ public:
     friend class ProcessCCSDSTDMDataFile;
 
 protected:
-
-    static const std::string CCSDS_TRACKINGDATA_DESCRIPTIONS[EndCCSDSTDMTypeReps];
-    static const std::string CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps];
-    static const std::string CCSDS_TRACKINGDATA_UNITS[EndCCSDSTDMTypeReps];
     
-    static const std::string CCSDS_TRACKINGDATA_KEYWORDS[EndCCSDSTrackingDataReps];
-    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTrackingDataReps];
-    static const bool CCSDS_IS_REQUIRED[EndCCSDSTrackingDataReps];
-    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSTrackingDataReps];
-    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTrackingDataReps];
+    static const std::string CCSDS_TRACKINGDATA_KEYWORDS[EndCCSDSTDMTypeReps];
+    static const std::string CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps];
+    static const bool CCSDS_IS_REQUIRED[EndCCSDSTDMTypeReps];
+    static const Gmat::ParameterType CCSDS_PARAMETER_TYPE[EndCCSDSTDMTypeReps];
+    static const std::string CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMTypeReps];
+    static const std::string CCSDS_TRACKINGDATA_DESCRIPTIONS[EndCCSDSTrackingDataReps];
 
     Integer keywordID;
     std::string keyword;

@@ -3,7 +3,15 @@
 //---------------------------------
 //  static data
 //---------------------------------
-const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_DESCRIPTIONS[EndCCSDSTDMTypeReps] =
+const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_DESCRIPTIONS[EndCCSDSTrackingDataReps] =
+{
+    "Keyword",
+    "Epoch",
+    "Measurement",
+    "Comment"
+};
+
+const std::string CCSDSTrackingData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTDMTypeReps] =
 {
     "Angle1",
     "Angle2",
@@ -39,10 +47,11 @@ const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_DESCRIPTIONS[EndCCSDSTDM
     "TransmitFrequencyRate5",
     "TropoDry",
     "TropoWet",
-    "VLBIDelay"
+    "VLBIDelay",
+    "Comments"
 };
 
-const std::string CCSDSTrackingData::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps] =
+const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_KEYWORDS[EndCCSDSTDMTypeReps] =
 {
     "ANGLE_1",
     "ANGLE_2",
@@ -78,10 +87,11 @@ const std::string CCSDSTrackingData::CCSDS_TDM_KEYWORDS[EndCCSDSTDMTypeReps] =
     "TRANSMIT_FREQ_RATE_5",
     "TROPO_DRY",
     "TROPO_WET",
-    "VLBI_DELAY"
+    "VLBI_DELAY",
+    "COMMENT"
 };
 
-const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_UNITS[EndCCSDSTDMTypeReps] =
+const std::string CCSDSTrackingData::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTDMTypeReps] =
 {
     "deg",
     "deg",
@@ -117,44 +127,86 @@ const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_UNITS[EndCCSDSTDMTypeRep
     "Hz/s",
     "m",
     "m",
-    "s"
-};
-
-const std::string CCSDSTrackingData::CCSDS_TRACKINGDATA_KEYWORDS[EndCCSDSTrackingDataReps] =
-{
-    "",
-    "",
-    "",
-    "COMMENT"
-};
-
-const std::string CCSDSTrackingData::CCSDS_UNIT_DESCRIPTIONS[EndCCSDSTrackingDataReps] =
-{
-    "",
-    "",
-    "",
+    "s",
     ""
 };
-const std::string CCSDSTrackingData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndCCSDSTrackingDataReps] =
-{
-    "Keyword",
-    "Epoch",
-    "Measurement",
-    "Comment"
-};
 
-const bool CCSDSTrackingData::CCSDS_IS_REQUIRED[EndCCSDSTrackingDataReps] =
+const bool CCSDSTrackingData::CCSDS_IS_REQUIRED[EndCCSDSTDMTypeReps] =
 {
-    true,
-    true,
-    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
     false
 };
 
-const Gmat::ParameterType CCSDSTrackingData::CCSDS_PARAMETER_TYPE[EndCCSDSTrackingDataReps] =
+const Gmat::ParameterType CCSDSTrackingData::CCSDS_PARAMETER_TYPE[EndCCSDSTDMTypeReps] =
 {
-    Gmat::STRING_TYPE,
-    Gmat::STRING_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
+    Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::STRINGARRAY_TYPE
 };
@@ -260,13 +312,13 @@ const Integer CCSDSTrackingData::GetKeywordID(const std::string str) const
 
     std::string regex = "^" + str + "$";
 
-    for (Integer i = 0; i < EndCCSDSTrackingDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSTDMTypeReps; i++)
     {
         if (pcrecpp::RE(regex).FullMatch(CCSDS_TRACKINGDATA_KEYWORDS[i]))
             return i;
     }
 
-   return -1;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
 }
 
@@ -279,7 +331,7 @@ const Integer CCSDSTrackingData::GetKeywordID(const std::string str) const
 //------------------------------------------------------------------------------
 std::string CCSDSTrackingData::GetUnits(const Integer &id) const
 {
-   if ((id >= 0) && (id < EndCCSDSTrackingDataReps))
+   if ((id >= 0) && (id < EndCCSDSTDMTypeReps))
    {
       return CCSDS_UNIT_DESCRIPTIONS[id];
    }
@@ -299,7 +351,7 @@ std::string CCSDSTrackingData::GetUnits(const Integer &id) const
 //---------------------------------------------------------------------------
 bool CCSDSTrackingData::IsParameterRequired(const Integer id) const
 {
-    if (id >= 0 && id <= EndCCSDSTrackingDataReps)
+    if (id >= 0 && id <= EndCCSDSTDMTypeReps)
 	return CCSDS_IS_REQUIRED[id];
     else
 	return false;
@@ -318,7 +370,7 @@ bool CCSDSTrackingData::IsParameterRequired(const Integer id) const
 //------------------------------------------------------------------------------
 std::string CCSDSTrackingData::GetDataParameterText(const Integer id) const
 {
-   if ((id >= 0) && (id < EndCCSDSTrackingDataReps))
+   if ((id >= 0) && (id < EndCCSDSTDMTypeReps))
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
@@ -336,7 +388,7 @@ Integer CCSDSTrackingData::GetDataParameterID(const std::string &str) const
 {
     std::string regex = "^" + str + "$";
 
-    for (Integer i = 0; i < EndCCSDSTrackingDataReps; i++)
+    for (Integer i = 0; i < EndCCSDSTDMTypeReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -359,7 +411,7 @@ Integer CCSDSTrackingData::GetDataParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 Gmat::ParameterType CCSDSTrackingData::GetDataParameterType(const Integer id) const
 {
-   if ((id >= 0) && (id < EndCCSDSTrackingDataReps))
+   if ((id >= 0) && (id < EndCCSDSTDMTypeReps))
       return CCSDS_PARAMETER_TYPE[id];
 
    return Gmat::UNKNOWN_PARAMETER_TYPE;

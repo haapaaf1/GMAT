@@ -232,7 +232,6 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-            MessageInterface::ShowMessage("Completed reading TDM Header...\n");
 	    currentCCSDSHeader = myTDM->ccsdsHeader;
 	}
 	else
@@ -261,7 +260,6 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
 	{
 	    // success so set currentHeader pointer to the
 	    // one just processed
-            MessageInterface::ShowMessage("Completed reading TDM MetaData...\n");
 	    currentCCSDSMetaData = myTDM->ccsdsMetaData;
 	}
 	else
@@ -284,10 +282,7 @@ bool ProcessCCSDSTDMDataFile::GetData(ObType *myTDMData)
                 theData.push_back(myTDM);
             }
             else
-            {
-                delete myTDM;
                 return false;
-            }
 
             // Allocate another struct in memory
             myTDM = new CCSDSTDMObType;
@@ -330,14 +325,17 @@ bool ProcessCCSDSTDMDataFile::GetCCSDSTDMData(std::string &lff,
     std::string keyword, ccsdsEpoch;
     Real value;
 
-    MessageInterface::ShowMessage(lff+"\n");
-
-    GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value);
+    if (!GetCCSDSKeyEpochValueData(lff,keyword,ccsdsEpoch,value))
+    {
+        MessageInterface::ShowMessage("Error: Unable to extract tracking data keyword, epoch and value.\n");
+        return false;
+    }
 
     CCSDSTrackingData *myTDMData = new CCSDSTrackingData;
 
     myTDMData->keywordID = myTDMData->GetKeywordID(keyword);
-    if(myTDMData->keywordID >= 0)
+
+    if(myTDMData->keywordID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
     {
         myTDMData->keyword = keyword;
         myTDMData->timeTag = ccsdsEpoch;

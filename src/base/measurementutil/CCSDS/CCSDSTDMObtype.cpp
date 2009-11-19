@@ -20,7 +20,8 @@ const std::string CCSDSTDMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeR
 //------------------------------------------------------------------------------
 CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
 	ccsdsMetaData(NULL),
-        ccsdsTrackingData(NULL)
+        ccsdsTrackingData(NULL),
+        commentsCurrentlyAllowed(false)
 {
 }
 
@@ -33,7 +34,8 @@ CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
 //------------------------------------------------------------------------------
 CCSDSTDMObType::CCSDSTDMObType(const CCSDSTDMObType &tdm) : CCSDSObType(tdm),
 	ccsdsMetaData(tdm.ccsdsMetaData),
-        ccsdsTrackingData(tdm.ccsdsTrackingData)
+        ccsdsTrackingData(tdm.ccsdsTrackingData),
+        commentsCurrentlyAllowed(tdm.commentsCurrentlyAllowed)
 {
 }
 
@@ -57,6 +59,7 @@ const CCSDSTDMObType& CCSDSTDMObType::operator=(const CCSDSTDMObType &tdm)
 
    ccsdsMetaData = tdm.ccsdsMetaData;
    ccsdsTrackingData = tdm.ccsdsTrackingData;
+   commentsCurrentlyAllowed = tdm.commentsCurrentlyAllowed;
 
    return *this;
 }
@@ -205,6 +208,19 @@ bool CCSDSTDMObType::Validate() const
 std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 {
     if (myTDM->ccsdsTrackingData != NULL)
+    {
+        if (myTDM->commentsCurrentlyAllowed)
+        {
+            output << "DATA_START" << std::endl;
+            StringArray comments = myTDM->ccsdsTrackingData->GetStringArrayDataParameter(CCSDSTrackingData::CCSDS_TRACKINGDATA_COMMENTS_ID);
+
+            for (unsigned int i = 0; i < comments.size(); i++ )
+            {
+                output << "COMMENT " << comments[i] << std::endl;
+            }
+        }
+
         output << myTDM->ccsdsTrackingData;
+    }
     return output;
 }

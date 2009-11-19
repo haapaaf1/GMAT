@@ -86,8 +86,8 @@ protected:
     bool GetCCSDSValue(const std::string &lff, Integer &value);
 
     bool GetCCSDSKeyword(const std::string &lff, std::string &keyword);
-    bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &epoch,
-                                   std::string &key, Real &value);
+    bool GetCCSDSKeyEpochValueData(const std::string &lff, std::string &key,
+                                   std::string &epoch, Real &value);
     bool GetCCSDSComments(std::string &lff, StringArray &comments);
     bool GetCCSDSComment(std::string &lff, std::string &comment);
 

@@ -56,6 +56,9 @@ protected:
 
     // Pointers to the generic key epoch value data format
     CCSDSTrackingData *ccsdsTrackingData;
+
+    bool commentsCurrentlyAllowed;
+
 };
 #endif	/* _CCSDSTDMOBTYPE_HPP */
 

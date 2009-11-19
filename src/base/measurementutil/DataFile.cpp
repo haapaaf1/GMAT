@@ -28,7 +28,7 @@
 
 const std::string DataFile::OPTIONAL_SIGN = "[-+]?";
 const std::string DataFile::MANDATORY_DIGITS = "\\d+";
-const std::string DataFile::DECIMAL_POINT = "\\.";
+const std::string DataFile::DECIMAL_POINT = "\\.?";
 const std::string DataFile::OPTIONAL_DIGITS = "\\d*";
 const std::string DataFile::OPTIONAL_EXPONENT = "[Ee]?" + OPTIONAL_SIGN +
                                                 OPTIONAL_DIGITS;

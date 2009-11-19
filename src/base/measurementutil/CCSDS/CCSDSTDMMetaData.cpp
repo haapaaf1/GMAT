@@ -1407,15 +1407,10 @@ std::ostream& operator<< (std::ostream &output,
    //output.setf(std::ios::showpoint);
    //output.setf(std::ios::scientific);
 
-   output << "META_START";
+   output << "META_START" << endl;
 
-   unsigned int i;
-   for (i = 0; i < myMetaData->comments.size(); i++ )
-   {
+   for (unsigned int i = 0; i < myMetaData->comments.size(); i++ )
        output << "COMMENT " << myMetaData->comments[i] << endl;
-   }
-   if (i > 0) output << endl;
-
 
     for (unsigned int i = 0; i < CCSDSTDMMetaData::EndCCSDSTDMMetaDataReps; i++)
     {
@@ -1928,14 +1923,22 @@ std::ostream& operator<< (std::ostream &output,
 
             case CCSDSTDMMetaData::CCSDS_TDM_CORRECTIONAPPLIED_ID:
             {
-                bool definedFlag = myMetaData->IsParameterDefined(myMetaData->correctionsApplied);
-                if (definedFlag)
+                bool definedFlag1 = myMetaData->IsParameterDefined(myMetaData->correctionAngle1);
+                bool definedFlag2 = myMetaData->IsParameterDefined(myMetaData->correctionAngle2);
+                bool definedFlag3 = myMetaData->IsParameterDefined(myMetaData->correctionDoppler);
+                bool definedFlag4 = myMetaData->IsParameterDefined(myMetaData->correctionRange);
+                bool definedFlag5 = myMetaData->IsParameterDefined(myMetaData->correctionReceive);
+                bool definedFlag6 = myMetaData->IsParameterDefined(myMetaData->correctionTransmit);
+
+                if (definedFlag1 || definedFlag2 || definedFlag3 ||
+                    definedFlag4 || definedFlag5 || definedFlag6)
                 {
-                    output << "CORRECTIONS_APPLIED = " << myMetaData->correctionsApplied;
-                    output << endl;
+                    if (myMetaData->correctionsApplied)
+                        output << "CORRECTIONS_APPLIED = YES" << endl;
+                    else
+                        output << "CORRECTIONS_APPLIED = NO" << endl;
                 }
             }
-
             break;
 
             default:

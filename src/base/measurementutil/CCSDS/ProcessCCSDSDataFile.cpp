@@ -24,8 +24,8 @@ const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEDATE2 = "(" + MANDATO
                              + MANDATORY_DIGITS + ")-(" + MANDATORY_DIGITS
                              + ")T(" + MANDATORY_DIGITS + "):("
                              + MANDATORY_DIGITS + "):(" + REGEX_NUMBER + ")([Z]?)";
-const std::string ProcessCCSDSDataFile::REGEX_CCSDS_KEYWORD = "[\\w_]*";
-const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEKEYWORD = "([\\w_]*)";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_KEYWORD = "[A-Z0-9_]*";
+const std::string ProcessCCSDSDataFile::REGEX_CCSDS_SAVETHEKEYWORD = "([A-Z0-9_]*)";
 
 const std::string ProcessCCSDSDataFile::CCSDS_TIME_SYSTEM_REPS[EndCCSDSTimeSystemReps-8] =
 {
@@ -454,7 +454,7 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyword(const std::string &lff,
  */
 //------------------------------------------------------------------------------
 bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
-                            std::string &timeTag, std::string &key, Real &value)
+                            std::string &key, std::string &timeTag, Real &value)
 {
     // Temporary variables for string to number conversion.
     // This is needed because the from_string utility function
@@ -465,22 +465,15 @@ bool ProcessCCSDSDataFile::GetCCSDSKeyEpochValueData(const std::string &lff,
     double dtemp;
     std::string stemp, stemp2;
 
-    std::string regex = "^.*=\\s*(" + REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ").*$";
-//    std::string regex = "^" + REGEX_CCSDS_SAVETHEKEYWORD + "\\s*=\\s*(" +
-//            REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ").*$";
+    std::string regex = "^" + REGEX_CCSDS_SAVETHEKEYWORD + "\\s*=\\s*(" +
+            REGEX_CCSDS_DATE + ")\\s*("+ REGEX_SCINUMBER + ").*$";
 
-    MessageInterface::ShowMessage("HERE\n");
-
-    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp))
+    if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&stemp2,&dtemp))
     {
-        //key = stemp;
-        timeTag = stemp;
+        key = stemp;
+        timeTag = stemp2;
         value = dtemp;
-
-        MessageInterface::ShowMessage("Key = "+key+"\n");
-        MessageInterface::ShowMessage("TimeTag = "+timeTag+"\n");
-        MessageInterface::ShowMessage("Value = %f\n",value);
-
+        
         return true;
     }
 
@@ -725,6 +718,7 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
         {
             case DataFile::CCSDS_TDM_ID:
                 *theFile << (CCSDSTDMMetaData*)myMetaData;
+                *theFile << std::endl;
                 break;
             case DataFile::CCSDS_OPM_ID:
                 *theFile << (CCSDSOPMMetaData*)myMetaData;
@@ -762,6 +756,7 @@ bool ProcessCCSDSDataFile::WriteMetaData(const ObType *myOb)
                 // metadata from the last block of data
                 *theFile << std::endl;
                 *theFile << (CCSDSTDMMetaData*)myMetaData;
+                *theFile << std::endl;
                 break;
             case DataFile::CCSDS_OPM_ID:
                 // Output a blank line to separate the new
@@ -839,6 +834,7 @@ bool ProcessCCSDSDataFile::WriteData(const ObType *myOb)
     switch(fileTypeID)
     {
         case DataFile::CCSDS_TDM_ID:
+            ((CCSDSTDMObType*)myOb)->commentsCurrentlyAllowed = !writingDataBlock;
             *theFile << (CCSDSTDMObType*)myOb;
             break;
         case DataFile::CCSDS_OPM_ID:
