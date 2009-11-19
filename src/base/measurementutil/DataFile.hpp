@@ -38,6 +38,7 @@
 #include "A1Date.hpp"
 #include "A1MJD.hpp"
 #include "UtcDate.hpp"
+#include "DateUtil.hpp"
 
 using namespace std; // so we don't have to type std::cout and std::endl
 

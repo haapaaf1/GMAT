@@ -582,9 +582,9 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
                 if (!CCSDSTimeTag2A1Date(myEulerData->timeTag,myOb->epoch)) return false;
 
-                myEulerData->xAngle = dtemp1;
-                myEulerData->yAngle = dtemp2;
-                myEulerData->zAngle = dtemp3;
+                myEulerData->angle1 = dtemp1;
+                myEulerData->angle2 = dtemp2;
+                myEulerData->angle3 = dtemp3;
                 myEulerData->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_ID;
 
                 if (commentsFound)
@@ -619,12 +619,12 @@ bool ProcessCCSDSAEMDataFile::GetCCSDSAEMData(std::string &lff,
 
                 if (!CCSDSTimeTag2A1Date(myEulerData->timeTag,myOb->epoch)) return false;
 
-                myEulerData->xAngle = dtemp1;
-                myEulerData->yAngle = dtemp2;
-                myEulerData->zAngle = dtemp3;
-                myEulerData->xRate = dtemp4;
-                myEulerData->yRate = dtemp5;
-                myEulerData->zRate = dtemp6;
+                myEulerData->angle1 = dtemp1;
+                myEulerData->angle2 = dtemp2;
+                myEulerData->angle3 = dtemp3;
+                myEulerData->angleRate1 = dtemp4;
+                myEulerData->angleRate2 = dtemp5;
+                myEulerData->angleRate3 = dtemp6;
                 myEulerData->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_RATE_ID;
 
                 if (commentsFound)

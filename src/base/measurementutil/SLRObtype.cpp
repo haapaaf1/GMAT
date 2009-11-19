@@ -797,7 +797,7 @@ Integer SLRCheckSum(const std::string &str)
 //------------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream &output, const SLRObType *mySLR)
 {
-    // TLE's have a maximum length of 68 characters plus a 1 character checksum
+
     ostringstream buffer;
 
     // Output either standard data record or engineering data record

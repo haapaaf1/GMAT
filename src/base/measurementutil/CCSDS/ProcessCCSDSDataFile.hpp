@@ -41,8 +41,8 @@ public:
     
     // Utility functions
     bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date);
-    //bool A1Date2CCSDSTimeTag(A1Date &myA1Date, std::string &timeTag,
-    //                         Integer displayMode);
+    bool A1Date2CCSDSTimeTag(A1Date &myA1Date, std::string &timeTag,
+                             Integer displayMode);
 
     // methods to get descriptions of allowable CCSDS time system
     // and reference frame values
@@ -69,6 +69,14 @@ public:
         GPS_ID,
         SCLK_ID,
         EndCCSDSTimeSystemReps
+    };
+
+    enum EpochDisplayModes
+    {
+        YEARMONTHDAY_ID = 0,
+        YEARDAYOFYEAR_ID,
+        JULIANDATE_ID,
+        EndEpochDisplayModes
     };
 
     enum ReferenceFrameValues

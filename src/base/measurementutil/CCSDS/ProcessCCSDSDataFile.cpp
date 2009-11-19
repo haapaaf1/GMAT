@@ -561,16 +561,93 @@ bool ProcessCCSDSDataFile::GetCCSDSComment(std::string &lff,
 //------------------------------------------------------------------------------
 /**
  * Converts the CCSDS time tag to the GMAT A1Date
-
+*/
 //
 //------------------------------------------------------------------------------
-bool ProcessCCSDSDataFile::A1Date2CCSDSTimeTag(A1Date &myA1Date,std::string &timeTag,
+bool ProcessCCSDSDataFile::A1Date2CCSDSTimeTag(A1Date &myA1Date,
+                                               std::string &timeTag,
                                                Integer displayMode)
 {
-    return false;
+    ostringstream buffer;
+
+    switch(displayMode)
+    {
+
+        case YEARMONTHDAY_ID:
+        {
+
+            Integer year, month, day, hour, minute;
+            Real second;
+
+            myA1Date.ToYearMonDayHourMinSec(year, month, day, hour, minute, second);
+                    
+            buffer << setw(4) << right << year;
+            buffer << "-";
+            buffer << setw(2) << setfill('0') << right << month;
+            buffer << "-";
+            buffer << setw(2) << setfill('0') << right << day;
+            buffer << "T";
+            buffer << setw(2) << setfill('0') << right << hour;
+            buffer << ":";
+            buffer << setw(2) << setfill('0') << right << minute;
+            buffer << ":";
+            buffer.precision(10);
+            buffer << setfill('0') << left << second;
+
+        }
+
+        break;
+
+        case YEARDAYOFYEAR_ID:
+        {
+
+            Integer year, dayOfYear, hour, minute;
+            Real second;
+
+            myA1Date.ToYearDOYHourMinSec(year, dayOfYear, hour, minute, second);
+
+            buffer << setw(4) << right << year;
+            buffer << "-";
+            buffer << setw(3) << setfill('0') << right << dayOfYear;
+            buffer << "T";
+            buffer << setw(2) << setfill('0') << right << hour;
+            buffer << ":";
+            buffer << setw(2) << setfill('0') << right << minute;
+            buffer << ":";
+            buffer.precision(10);
+            buffer << setfill('0') << left << second;
+
+        }
+
+        break;
+
+        case JULIANDATE_ID:
+        {
+            Integer year, month, day, hour, minute;
+            Real second;
+
+            myA1Date.ToYearMonDayHourMinSec(year, month, day, hour, minute, second);
+
+            Real julianDate = JulianDate(year, month, day, hour, minute, second);
+
+            buffer.precision(20);
+            buffer << left << julianDate;
+
+        }
+        break;
+
+        default:
+
+            return false;
+            break;
+    }
+
+    timeTag = buffer.str();
+
+    return true;
 }
 
-*/
+
 
 //------------------------------------------------------------------------------
 // bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date)
