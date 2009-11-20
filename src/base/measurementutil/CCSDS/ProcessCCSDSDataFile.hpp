@@ -42,7 +42,7 @@ public:
     // Utility functions
     bool CCSDSTimeTag2A1Date(std::string &timeTag, A1Date &myA1Date);
     bool A1Date2CCSDSTimeTag(A1Date &myA1Date, std::string &timeTag,
-                             Integer displayMode);
+                             Integer displayMode = 0);
 
     // methods to get descriptions of allowable CCSDS time system
     // and reference frame values
