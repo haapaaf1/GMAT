@@ -96,6 +96,9 @@ HEADERS = -Iinclude \
           -Imeasurement \
           -Imeasurementutil \
           -Imeasurementutil/CCSDS \
+          -Imeasurementutil/CCSDS/CCSDSData \
+          -Imeasurementutil/CCSDS/CCSDSMetaData \
+          -Imeasurementutil/CCSDS/CCSDSObTypes \
           -Iparameter \
           -Iconfigs \
           -Iburn \
@@ -355,38 +358,38 @@ OBJECTS = \
     measurementutil/B3Obtype.o \
     measurementutil/SLRObtype.o \
     measurementutil/TLEObtype.o \
-    measurementutil/CCSDS/CCSDSObtype.o \
-    measurementutil/CCSDS/CCSDSTDMObtype.o \
-    measurementutil/CCSDS/CCSDSOPMObtype.o \
-    measurementutil/CCSDS/CCSDSOEMObtype.o \
-    measurementutil/CCSDS/CCSDSAPMObtype.o \
-    measurementutil/CCSDS/CCSDSAEMObtype.o \
+    measurementutil/CCSDS/CCSDSObTypes/CCSDSObtype.o \
+    measurementutil/CCSDS/CCSDSObTypes/CCSDSTDMObtype.o \
+    measurementutil/CCSDS/CCSDSObTypes/CCSDSOPMObtype.o \
+    measurementutil/CCSDS/CCSDSObTypes/CCSDSOEMObtype.o \
+    measurementutil/CCSDS/CCSDSObTypes/CCSDSAPMObtype.o \
+    measurementutil/CCSDS/CCSDSObTypes/CCSDSAEMObtype.o \
     measurementutil/CCSDS/CCSDSHeader.o \
-    measurementutil/CCSDS/CCSDSMetaData.o \
-    measurementutil/CCSDS/CCSDSTDMMetaData.o \
-    measurementutil/CCSDS/CCSDSOPMMetaData.o \
-    measurementutil/CCSDS/CCSDSOEMMetaData.o \
-    measurementutil/CCSDS/CCSDSAPMMetaData.o \
-    measurementutil/CCSDS/CCSDSAEMMetaData.o \
-    measurementutil/CCSDS/CCSDSData.o \
-    measurementutil/CCSDS/CCSDSTrackingData.o \
-    measurementutil/CCSDS/CCSDSSpacecraftInertia.o \
-    measurementutil/CCSDS/CCSDSSpacecraftParameters.o \
-    measurementutil/CCSDS/CCSDSKeplerianElements.o \
-    measurementutil/CCSDS/CCSDSStateVector.o \
-    measurementutil/CCSDS/CCSDSOPMStateVector.o \
-    measurementutil/CCSDS/CCSDSOEMStateVector.o \
-    measurementutil/CCSDS/CCSDSQuaternion.o \
-    measurementutil/CCSDS/CCSDSAPMQuaternion.o \
-    measurementutil/CCSDS/CCSDSAEMQuaternion.o \
-    measurementutil/CCSDS/CCSDSEulerAngle.o \
-    measurementutil/CCSDS/CCSDSAPMEulerAngle.o \
-    measurementutil/CCSDS/CCSDSAEMEulerAngle.o \
-    measurementutil/CCSDS/CCSDSSpinStabilized.o \
-    measurementutil/CCSDS/CCSDSAPMSpinStabilized.o \
-    measurementutil/CCSDS/CCSDSAEMSpinStabilized.o \
-    measurementutil/CCSDS/CCSDSAttitudeManeuver.o \
-    measurementutil/CCSDS/CCSDSManeuver.o \
+    measurementutil/CCSDS/CCSDSMetaData/CCSDSMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/CCSDSTDMMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/CCSDSOPMMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/CCSDSOEMMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/CCSDSAPMMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/CCSDSAEMMetaData.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSTrackingData.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSSpacecraftInertia.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSSpacecraftParameters.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSKeplerianElements.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSStateVector.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSOPMStateVector.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSOEMStateVector.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSQuaternion.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSAPMQuaternion.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSAEMQuaternion.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSEulerAngle.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSAPMEulerAngle.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSAEMEulerAngle.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSSpinStabilized.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSAPMSpinStabilized.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSAEMSpinStabilized.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSAttitudeManeuver.o \
+    measurementutil/CCSDS/CCSDSData/CCSDSManeuver.o \
     measurementutil/DataFile.o \
     measurementutil/DataFileException.o \
     measurementutil/CCSDS/ProcessCCSDSDataFile.o \

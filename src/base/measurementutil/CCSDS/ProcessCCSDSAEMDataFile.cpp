@@ -21,7 +21,7 @@
 
 #include <ProcessCCSDSAEMDataFile.hpp>
 
-#define DEBUG_CCSDSAEM_DATA
+//#define DEBUG_CCSDSAEM_DATA
 
 //---------------------------------
 //  public methods

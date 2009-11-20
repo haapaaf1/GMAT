@@ -48,6 +48,18 @@ public:
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
 
+    void SetMetaData(CCSDSAEMMetaData *myCCSDSMetaData);
+    CCSDSAEMMetaData* GetMetaData();
+
+    void SetQuaternion(CCSDSAEMQuaternion *myQuaternion);
+    CCSDSAEMQuaternion* GetQuaternion();
+
+    void SetEulerAngle(CCSDSAEMEulerAngle *myEulerAngle);
+    CCSDSAEMEulerAngle* GetEulerAngle();
+
+    void SetSpinStabilized(CCSDSAEMSpinStabilized *mySpinStabilized);
+    CCSDSAEMSpinStabilized* GetSpinStabilized();
+
     enum CCSDS_TIMESYSTEM_REPS
     {
 	UTC_ID = EndCCSDSTimeReps,
@@ -72,6 +84,8 @@ protected:
     CCSDSAEMEulerAngle *ccsdsAEMEulerAngle;
     CCSDSAEMSpinStabilized *ccsdsAEMSpinStabilized;
 
+private:
+    
     bool commentsCurrentlyAllowed;
     
 };

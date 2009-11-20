@@ -1,6 +1,6 @@
 //$Header$
 //------------------------------------------------------------------------------
-//                             CCSDSOPMObType
+//                             CCSDSTDMObType
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,94 +13,85 @@
 //
 /**
  *
- * This class specifies the CCSDS Orbit Parameter observation data type.
+ * This class specifies the CCSDS Tracking Data observation data type.
  *
  */
 //------------------------------------------------------------------------------
 
-#include "CCSDSOPMObtype.hpp"
+#include "CCSDSTDMObType.hpp"
 
 //---------------------------------
 //  static data
 //---------------------------------
-
-const std::string CCSDSOPMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSOPMTimeReps-EndCCSDSTimeReps] =
+const std::string CCSDSTDMObType::CCSDS_TIMESYSTEM_DESCRIPTIONS[EndCCSDSTDMTimeReps-EndCCSDSTimeReps] =
 {
     "UTC",
     "TAI",
-    "TT",
     "GPS",
-    "TDB",
-    "TCB"
+    "SCLK"
 };
 
 //------------------------------------------------------------------------------
-//  CCSDSOPMObType()
+//  CCSDSTDMObType()
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMObType::CCSDSOPMObType() : CCSDSObType("CCSDSOPMObType", ""),
+CCSDSTDMObType::CCSDSTDMObType() : CCSDSObType("CCSDSTDMObType", ""),
 	ccsdsMetaData(NULL),
-        ccsdsOPMStateVector(NULL),
-        ccsdsOPMKeplerianElements(NULL),
-        ccsdsOPMSpacecraftParameters(NULL),
-        ccsdsOPMManeuvers(NULL)
+        ccsdsTrackingData(NULL),
+        commentsCurrentlyAllowed(false)
 {
 }
 
 //------------------------------------------------------------------------------
-//  CCSDSOPMObType(const CCSDSOPMObType &opm)
+//  CCSDSTDMObType(const CCSDSTDMObType &tdm)
 //------------------------------------------------------------------------------
 /**
  * Constructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMObType::CCSDSOPMObType(const CCSDSOPMObType &opm) : CCSDSObType(opm),
-	ccsdsMetaData(opm.ccsdsMetaData),
-        ccsdsOPMStateVector(opm.ccsdsOPMStateVector),
-        ccsdsOPMKeplerianElements(opm.ccsdsOPMKeplerianElements),
-        ccsdsOPMSpacecraftParameters(opm.ccsdsOPMSpacecraftParameters),
-        ccsdsOPMManeuvers(opm.ccsdsOPMManeuvers)
+CCSDSTDMObType::CCSDSTDMObType(const CCSDSTDMObType &tdm) : CCSDSObType(tdm),
+	ccsdsMetaData(tdm.ccsdsMetaData),
+        ccsdsTrackingData(tdm.ccsdsTrackingData),
+        commentsCurrentlyAllowed(tdm.commentsCurrentlyAllowed)
 {
 }
 
 //---------------------------------------------------------------------------
-//  CCSDSOPMObType& operator=(const CCSDSOPMObType &opm)
+//  CCSDSTDMObType& operator=(const CCSDSTDMObType &tdm)
 //---------------------------------------------------------------------------
 /**
  * Assignment operator for ObType structures.
  *
- * @param <OPM> The original that is being copied.
+ * @param <tdm> The original that is being copied.
  *
  * @return Reference to this object
  */
 //---------------------------------------------------------------------------
-const CCSDSOPMObType& CCSDSOPMObType::operator=(const CCSDSOPMObType &opm)
+const CCSDSTDMObType& CCSDSTDMObType::operator=(const CCSDSTDMObType &tdm)
 {
-    if (&opm == this)
-        return *this;
+   if (&tdm == this)
+      return *this;
 
-    CCSDSObType::operator=(opm);
+   CCSDSTDMObType::operator=(tdm);
 
-    ccsdsMetaData = opm.ccsdsMetaData;
-    ccsdsOPMStateVector = opm.ccsdsOPMStateVector;
-    ccsdsOPMKeplerianElements = opm.ccsdsOPMKeplerianElements;
-    ccsdsOPMSpacecraftParameters = opm.ccsdsOPMSpacecraftParameters;
-    ccsdsOPMManeuvers = opm.ccsdsOPMManeuvers;
+   ccsdsMetaData = tdm.ccsdsMetaData;
+   ccsdsTrackingData = tdm.ccsdsTrackingData;
+   commentsCurrentlyAllowed = tdm.commentsCurrentlyAllowed;
 
-    return *this;
+   return *this;
 }
 
 //------------------------------------------------------------------------------
-//  ~CCSDSOPMObType()
+//  ~CCSDSTDMObType()
 //------------------------------------------------------------------------------
 /**
  * Destructor for the obtype class
  */
 //------------------------------------------------------------------------------
-CCSDSOPMObType::~CCSDSOPMObType()
+CCSDSTDMObType::~CCSDSTDMObType()
 {
 }
 
@@ -108,15 +99,71 @@ CCSDSOPMObType::~CCSDSOPMObType()
 //  GmatBase* Clone() const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the ProcessCCSDSOPMDataFile.
+ * This method returns a clone of the ProcessCCSDSTDMDataFile.
  *
- * @return clone of the ProcessCCSDSOPMDataFile.
+ * @return clone of the ProcessCCSDSTDMDataFile.
  */
 //------------------------------------------------------------------------------
-GmatBase* CCSDSOPMObType::Clone() const
+GmatBase* CCSDSTDMObType::Clone() const
 {
-   GmatBase *clone = new CCSDSOPMObType(*this);
+   GmatBase *clone = new CCSDSTDMObType(*this);
    return (clone);
+}
+
+//------------------------------------------------------------------------------
+// void SetMetaData(CCSDSTDMMetaData *myCCSDSMetaData)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS MetaData variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSTDMObType::SetMetaData(CCSDSTDMMetaData *myCCSDSMetaData)
+{
+   ccsdsMetaData = myCCSDSMetaData;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSTDMMetaData* GetMetaData()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS MetaData variable construct
+ *
+ * @return The pointer to the CCSDS MetaData
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSTDMMetaData* CCSDSTDMObType::GetMetaData()
+{
+   return ccsdsMetaData;
+}
+
+//------------------------------------------------------------------------------
+// void SetTrackingData(CCSDSTrackingData *myCCSDSTrackingData)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS TrackingData variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSTDMObType::SetTrackingData(CCSDSTrackingData *myCCSDSTrackingData)
+{
+   ccsdsTrackingData = myCCSDSTrackingData;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSTrackingData* GetTrackingData()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS TrackingData variable construct
+ *
+ * @return The pointer to the CCSDS TrackingData
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSTrackingData* CCSDSTDMObType::GetTrackingData()
+{
+   return ccsdsTrackingData;
 }
 
 //------------------------------------------------------------------------------
@@ -129,7 +176,7 @@ GmatBase* CCSDSOPMObType::Clone() const
  *
  */
 //------------------------------------------------------------------------------
-const std::string* CCSDSOPMObType::GetTimeSystems() const
+const std::string* CCSDSTDMObType::GetTimeSystems() const
 {
    return CCSDS_TIMESYSTEM_DESCRIPTIONS;
 }
@@ -145,14 +192,14 @@ const std::string* CCSDSOPMObType::GetTimeSystems() const
  *
  */
 //------------------------------------------------------------------------------
-std::string CCSDSOPMObType::GetTimeSystemText(const Integer &id) const
+std::string CCSDSTDMObType::GetTimeSystemText(const Integer &id) const
 {
-   if ((id >= EndCCSDSTimeReps) && (id < EndCCSDSOPMTimeReps))
+   if ((id >= EndCCSDSTimeReps) && (id < EndCCSDSTDMTimeReps))
    {
       return CCSDS_TIMESYSTEM_DESCRIPTIONS[id];
    }
 
-   return CCSDSObType::GetTimeSystemText(id);
+   return CCSDSTDMObType::GetTimeSystemText(id);
 }
 
 //------------------------------------------------------------------------------
@@ -166,12 +213,12 @@ std::string CCSDSOPMObType::GetTimeSystemText(const Integer &id) const
  *
  */
 //------------------------------------------------------------------------------
-Integer CCSDSOPMObType::GetTimeSystemID(const std::string &label)
+Integer CCSDSTDMObType::GetTimeSystemID(const std::string &label)
 {
 
     std::string regex = "^" + label + "$";
-
-    for (Integer i = EndCCSDSTimeReps; i < EndCCSDSOPMTimeReps; i++)
+    
+    for (Integer i = EndCCSDSTimeReps; i < EndCCSDSTDMTimeReps; i++)
     {
         if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
                                           .set_extended(true)
@@ -179,13 +226,12 @@ Integer CCSDSOPMObType::GetTimeSystemID(const std::string &label)
         {
 	    return i;
 	}
-
+    
     }
-
-    return CCSDSObType::GetTimeSystemID(label);
-
+      
+    return CCSDSTDMObType::GetTimeSystemID(label);
+ 
 }
-
 
 //---------------------------------------------------------------------------
 //  bool Validate() const
@@ -196,7 +242,7 @@ Integer CCSDSOPMObType::GetTimeSystemID(const std::string &label)
  * @return True if the header is valid, false otherwise (the default)
  */
 //---------------------------------------------------------------------------
-bool CCSDSOPMObType::Validate() const
+bool CCSDSTDMObType::Validate() const
 {
 
     if (ccsdsHeader != NULL)
@@ -215,64 +261,42 @@ bool CCSDSOPMObType::Validate() const
     else
         return false;
 
-    if (ccsdsOPMStateVector != NULL)
-        if (!ccsdsOPMStateVector->Validate())
+    if (ccsdsTrackingData != NULL)
+        if (!ccsdsTrackingData->Validate())
             return false;
-
-    if (ccsdsOPMKeplerianElements != NULL)
-        if (!ccsdsOPMKeplerianElements->Validate())
-            return false;
-
-    if (ccsdsOPMSpacecraftParameters != NULL)
-        if (!ccsdsOPMSpacecraftParameters->Validate())
-            return false;
-
-    for (std::vector<CCSDSManeuver*>::const_iterator
-         j = ccsdsOPMManeuvers.begin();
-         j != ccsdsOPMManeuvers.end(); ++j)
-    {
-        if((*j) != NULL)
-            if (!(*j)->Validate())
-                return false;
-    }
 
     return true;
 
 }
 
 //------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, const CCSDSOPMObType *myOPM)
+// std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 //------------------------------------------------------------------------------
 /**
- * Formats CCCSDSOPMObType value and sends to output stream.
+ * Formats CCCSDSTDMObType value and sends to output stream.
  *
  * @param  <output>  Output stream
- * @param  <myMetadata>    CCSDS OPM metadata to write out
+ * @param  <myMetadata>    CCSDS TDM metadata to write out
  *
  * return  Output stream
  */
 //------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const CCSDSOPMObType *myOPM)
+std::ostream& operator<< (std::ostream &output, const CCSDSTDMObType *myTDM)
 {
-    if(myOPM->ccsdsOPMStateVector != NULL)
-        output << myOPM->ccsdsOPMStateVector;
-    else
-        return output;
-
-    if(myOPM->ccsdsOPMKeplerianElements != NULL)
-        output << myOPM->ccsdsOPMKeplerianElements;
-
-    if(myOPM->ccsdsOPMSpacecraftParameters != NULL)
-        output << myOPM->ccsdsOPMSpacecraftParameters;
-
-    for (std::vector<CCSDSManeuver*>::const_iterator
-         j = myOPM->ccsdsOPMManeuvers.begin();
-         j != myOPM->ccsdsOPMManeuvers.end(); ++j)
+    if (myTDM->ccsdsTrackingData != NULL)
     {
-        if((*j) != NULL)
-            output << (*j);
-    }
+        if (myTDM->commentsCurrentlyAllowed)
+        {
+            output << "DATA_START" << std::endl;
+            StringArray comments = myTDM->ccsdsTrackingData->GetStringArrayDataParameter(CCSDSTrackingData::CCSDS_TRACKINGDATA_COMMENTS_ID);
 
+            for (unsigned int i = 0; i < comments.size(); i++ )
+            {
+                output << "COMMENT " << comments[i] << std::endl;
+            }
+        }
+
+        output << myTDM->ccsdsTrackingData;
+    }
     return output;
 }
-

@@ -123,6 +123,202 @@ GmatBase* CCSDSAPMObType::Clone() const
 }
 
 //------------------------------------------------------------------------------
+// void SetMetaData(CCSDSAPMMetaData *myCCSDSMetaData)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS MetaData variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::SetMetaData(CCSDSAPMMetaData *myCCSDSMetaData)
+{
+   ccsdsMetaData = myCCSDSMetaData;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAPMMetaData* GetMetaData()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS MetaData variable construct
+ *
+ * @return The pointer to the CCSDS MetaData
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAPMMetaData* CCSDSAPMObType::GetMetaData()
+{
+   return ccsdsMetaData;
+}
+
+//------------------------------------------------------------------------------
+// void SetQuaternion(CCSDSAPMQuaternion *myQuaternion)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Quaternion variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::SetQuaternion(CCSDSAPMQuaternion *myQuaternion)
+{
+   ccsdsAPMQuaternion = myQuaternion;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAPMQuaternion* GetQuaternion()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Quaternion variable construct
+ *
+ * @return The pointer to the CCSDS Quaternion
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAPMQuaternion* CCSDSAPMObType::GetQuaternion()
+{
+   return ccsdsAPMQuaternion;
+}
+
+//------------------------------------------------------------------------------
+// void SetEulerAngle(CCSDSAPMEulerAngle *myEulerAngle)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Euler Angle variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::SetEulerAngle(CCSDSAPMEulerAngle *myEulerAngle)
+{
+   ccsdsAPMEulerAngle = myEulerAngle;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAPMEulerAngle* GetEulerAngle()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Euler Angle variable construct
+ *
+ * @return The pointer to the CCSDS Euler Angle
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAPMEulerAngle* CCSDSAPMObType::GetEulerAngle()
+{
+   return ccsdsAPMEulerAngle;
+}
+
+//------------------------------------------------------------------------------
+// void SetSpinStabilized(CCSDSAPMSpinStabilized *mySpinStabilized)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Spin Stabilized variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::SetSpinStabilized(CCSDSAPMSpinStabilized *mySpinStabilized)
+{
+   ccsdsAPMSpinStabilized = mySpinStabilized;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAPMSpinStabilized* GetSpinStabilized()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Spin Stabilized variable construct
+ *
+ * @return The pointer to the CCSDS Spin Stabilized
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAPMSpinStabilized* CCSDSAPMObType::GetSpinStabilized()
+{
+   return ccsdsAPMSpinStabilized;
+}
+
+//------------------------------------------------------------------------------
+// void SetSpacecraftInertia(CCSDSSpacecraftInertia *mySpacecraftInertia)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Spacecraft Inertia variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::SetSpacecraftInertia(CCSDSSpacecraftInertia *mySpacecraftInertia)
+{
+   ccsdsAPMSpacecraftInertia =mySpacecraftInertia;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSSpacecraftInertia* GetSpacecraftInertia()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Spacecraft Inertia variable construct
+ *
+ * @return The pointer to the CCSDS Spacecraft Inertia
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSSpacecraftInertia* CCSDSAPMObType::GetSpacecraftInertia()
+{
+   return ccsdsAPMSpacecraftInertia;
+}
+
+//------------------------------------------------------------------------------
+// void AddAttitudeManeuver(CCSDSManeuver *myAttitudeManeuver)
+//------------------------------------------------------------------------------
+/**
+ * Add an attitude maneuver to the vector container of attitude maneuvers
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::AddAttitudeManeuver(CCSDSAttitudeManeuver *myAttitudeManeuver)
+{
+   ccsdsAPMAttitudeManeuvers.push_back(myAttitudeManeuver);
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAttitudeManeuver* GetCurrentAttitudeManeuver()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the current CCSDS attitude maneuver variable construct
+ *
+ * @return The pointer to the CCSDS attitude maneuver
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAttitudeManeuver* CCSDSAPMObType::GetCurrentAttitudeManeuver()
+{
+   return (*i_ccsdsAPMAttitudeManeuvers);
+}
+
+//------------------------------------------------------------------------------
+// void AdvanceToNextAttitudeManeuver()
+//------------------------------------------------------------------------------
+/**
+ * Moves the iterator pointer to the next CCSDS attitude
+ * maneuver variable construct
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::AdvanceToNextAttitudeManeuver()
+{
+   i_ccsdsAPMAttitudeManeuvers++;
+}
+
+//------------------------------------------------------------------------------
+// void BackupToPreviousAttitudeManeuver()
+//------------------------------------------------------------------------------
+/**
+ * Moves the iterator pointer to the previous CCSDS attitude
+ * maneuver variable construct
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAPMObType::BackupToPreviousAttitudeManeuver()
+{
+   i_ccsdsAPMAttitudeManeuvers--;
+}
+
+//------------------------------------------------------------------------------
 // const StringArray GetTimeSystems() const
 //------------------------------------------------------------------------------
 /**

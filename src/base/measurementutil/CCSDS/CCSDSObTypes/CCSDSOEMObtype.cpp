@@ -117,6 +117,62 @@ GmatBase* CCSDSOEMObType::Clone() const
 }
 
 //------------------------------------------------------------------------------
+// void SetMetaData(CCSDSOEMMetaData *myCCSDSMetaData)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS MetaData variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSOEMObType::SetMetaData(CCSDSOEMMetaData *myCCSDSMetaData)
+{
+   ccsdsMetaData = myCCSDSMetaData;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSOEMMetaData* GetMetaData()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS MetaData variable construct
+ *
+ * @return The pointer to the CCSDS MetaData
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSOEMMetaData* CCSDSOEMObType::GetMetaData()
+{
+   return ccsdsMetaData;
+}
+
+//------------------------------------------------------------------------------
+// void SetStateVector(CCSDSOEMStateVector *myOEMStateVector)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS state vector variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSOEMObType::SetStateVector(CCSDSOEMStateVector *myOEMStateVector)
+{
+   ccsdsOEMStateVector = myOEMStateVector;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSOEMStateVector* GetStateVector()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS state vector variable construct
+ *
+ * @return The pointer to the CCSDS state vector
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSOEMStateVector* CCSDSOEMObType::GetStateVector()
+{
+   return ccsdsOEMStateVector;
+}
+
+//------------------------------------------------------------------------------
 // const StringArray GetTimeSystems() const
 //------------------------------------------------------------------------------
 /**

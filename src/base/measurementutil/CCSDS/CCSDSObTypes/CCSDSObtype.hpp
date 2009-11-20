@@ -42,6 +42,9 @@ public :
     virtual std::string GetTimeSystemText(const Integer &id) const;
     virtual Integer GetTimeSystemID(const std::string &label);
 
+    void SetHeader(CCSDSHeader *myCCSDSHeader);
+    CCSDSHeader* GetHeader();
+
     virtual bool Validate() const = 0;
     
     enum CCSDS_TIMESYSTEM_REPS

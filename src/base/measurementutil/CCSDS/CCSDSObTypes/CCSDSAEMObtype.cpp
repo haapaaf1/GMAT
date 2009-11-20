@@ -116,6 +116,118 @@ GmatBase* CCSDSAEMObType::Clone() const
 }
 
 //------------------------------------------------------------------------------
+// void SetMetaData(CCSDSAEMMetaData *myCCSDSMetaData)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS MetaData variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAEMObType::SetMetaData(CCSDSAEMMetaData *myCCSDSMetaData)
+{
+   ccsdsMetaData = myCCSDSMetaData;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAEMMetaData* GetMetaData()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS MetaData variable construct
+ *
+ * @return The pointer to the CCSDS MetaData
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAEMMetaData* CCSDSAEMObType::GetMetaData()
+{
+   return ccsdsMetaData;
+}
+
+//------------------------------------------------------------------------------
+// void SetQuaternion(CCSDSAEMQuaternion *myQuaternion)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Quaternion variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAEMObType::SetQuaternion(CCSDSAEMQuaternion *myQuaternion)
+{
+   ccsdsAEMQuaternion = myQuaternion;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAEMQuaternion* GetQuaternion()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Quaternion variable construct
+ *
+ * @return The pointer to the CCSDS Quaternion
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAEMQuaternion* CCSDSAEMObType::GetQuaternion()
+{
+   return ccsdsAEMQuaternion;
+}
+
+//------------------------------------------------------------------------------
+// void SetEulerAngle(CCSDSAEMEulerAngle *myEulerAngle)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Euler Angle variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAEMObType::SetEulerAngle(CCSDSAEMEulerAngle *myEulerAngle)
+{
+   ccsdsAEMEulerAngle = myEulerAngle;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAEMEulerAngle* GetEulerAngle()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Euler Angle variable construct
+ *
+ * @return The pointer to the CCSDS Euler Angle
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAEMEulerAngle* CCSDSAEMObType::GetEulerAngle()
+{
+   return ccsdsAEMEulerAngle;
+}
+
+//------------------------------------------------------------------------------
+// void SetSpinStabilized(CCSDSAEMSpinStabilized *mySpinStabilized)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Spin Stabilized variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSAEMObType::SetSpinStabilized(CCSDSAEMSpinStabilized *mySpinStabilized)
+{
+   ccsdsAEMSpinStabilized = mySpinStabilized;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSAEMSpinStabilized* GetSpinStabilized()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Spin Stabilized variable construct
+ *
+ * @return The pointer to the CCSDS Spin Stabilized
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSAEMSpinStabilized* CCSDSAEMObType::GetSpinStabilized()
+{
+   return ccsdsAEMSpinStabilized;
+}
+
+//------------------------------------------------------------------------------
 // const StringArray GetTimeSystems() const
 //------------------------------------------------------------------------------
 /**

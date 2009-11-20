@@ -50,6 +50,26 @@ public:
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
 
+    void SetMetaData(CCSDSAPMMetaData *myCCSDSMetaData);
+    CCSDSAPMMetaData* GetMetaData();
+
+    void SetQuaternion(CCSDSAPMQuaternion *myQuaternion);
+    CCSDSAPMQuaternion* GetQuaternion();
+
+    void SetEulerAngle(CCSDSAPMEulerAngle *myEulerAngle);
+    CCSDSAPMEulerAngle* GetEulerAngle();
+
+    void SetSpinStabilized(CCSDSAPMSpinStabilized *mySpinStabilized);
+    CCSDSAPMSpinStabilized* GetSpinStabilized();
+
+    void SetSpacecraftInertia(CCSDSSpacecraftInertia *mySpacecraftInertia);
+    CCSDSSpacecraftInertia* GetSpacecraftInertia();
+
+    void AddAttitudeManeuver(CCSDSAttitudeManeuver *myAttitudeManeuver);
+    CCSDSAttitudeManeuver* GetCurrentAttitudeManeuver();
+    void AdvanceToNextAttitudeManeuver();
+    void BackupToPreviousAttitudeManeuver();
+
     //bool IsParameterRequired(const Integer id) const;
 
     enum CCSDS_TIMESYSTEM_REPS

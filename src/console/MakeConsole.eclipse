@@ -36,6 +36,11 @@ HEADERS = -I../base/include -I../base/foundation \
           -I/usr/local/include/lapackpp \
           -I/usr/local/include/unicode \
           -I../base/measurement \
+          -I../base/measurementutil \
+          -I../base/measurementutil/CCSDS \
+          -I../base/measurementutil/CCSDS/CCSDSData \
+          -I../base/measurementutil/CCSDS/CCSDSMetaData \
+          -I../base/measurementutil/CCSDS/CCSDSObTypes \
           -I../base/environment \
           -I../base/asset
 

@@ -49,6 +49,23 @@ public :
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
 
+    void SetMetaData(CCSDSOPMMetaData *myCCSDSMetaData);
+    CCSDSOPMMetaData* GetMetaData();
+
+    void SetStateVector(CCSDSOPMStateVector *myOPMStateVector);
+    CCSDSOPMStateVector* GetStateVector();
+
+    void SetKeplerianElements(CCSDSKeplerianElements *myOPMKeplerianElements);
+    CCSDSKeplerianElements* GetKeplerianElements();
+
+    void SetSpacecraftParameters(CCSDSSpacecraftParameters *mySpacecraftParameters);
+    CCSDSSpacecraftParameters* GetSpacecraftParameters();
+
+    void AddManeuver(CCSDSManeuver *myManeuver);
+    CCSDSManeuver* GetCurrentManeuver();
+    void AdvanceToNextManeuver();
+    void BackupToPreviousManeuver();
+
     //bool IsParameterRequired(const Integer id) const;
 
     enum CCSDS_TIMESYSTEM_REPS

@@ -90,6 +90,34 @@ CCSDSObType::~CCSDSObType()
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+// void SetHeader(CCSDSHeader *myCCSDSHeader)
+//------------------------------------------------------------------------------
+/**
+ * Sets the pointer to the CCSDS Header variable construct.
+ *
+ */
+//------------------------------------------------------------------------------
+void CCSDSObType::SetHeader(CCSDSHeader *myCCSDSHeader)
+{
+   ccsdsHeader = myCCSDSHeader;
+}
+
+//------------------------------------------------------------------------------
+// CCSDSHeader* GetHeader()
+//------------------------------------------------------------------------------
+/**
+ * Gets the pointer to the CCSDS Header variable construct
+ *
+ * @return The pointer to the CCSDS Header
+ *
+ */
+//------------------------------------------------------------------------------
+CCSDSHeader* CCSDSObType::GetHeader()
+{
+   return ccsdsHeader;
+}
+
+//------------------------------------------------------------------------------
 // const StringArray GetTimeSystems() const
 //------------------------------------------------------------------------------
 /**

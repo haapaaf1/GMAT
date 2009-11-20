@@ -45,7 +45,13 @@ public :
     const std::string* GetTimeSystems() const;
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
-        
+
+    void SetMetaData(CCSDSTDMMetaData *myCCSDSMetaData);
+    CCSDSTDMMetaData* GetMetaData();
+
+    void SetTrackingData(CCSDSTrackingData *myCCSDSTrackingData);
+    CCSDSTrackingData* GetTrackingData();
+
     //bool IsParameterRequired(const Integer id) const;
 
      enum CCSDS_TIMESYSTEM_REPS
@@ -70,6 +76,8 @@ protected:
     // Pointers to the generic key epoch value data format
     CCSDSTrackingData *ccsdsTrackingData;
 
+private:
+    
     bool commentsCurrentlyAllowed;
 
 };

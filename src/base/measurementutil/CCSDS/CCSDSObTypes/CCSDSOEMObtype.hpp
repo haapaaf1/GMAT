@@ -45,6 +45,12 @@ public:
     const std::string* GetTimeSystems() const;
     std::string GetTimeSystemText(const Integer &id) const;
     Integer GetTimeSystemID(const std::string &label);
+
+    void SetMetaData(CCSDSOEMMetaData *myCCSDSMetaData);
+    CCSDSOEMMetaData* GetMetaData();
+
+    void SetStateVector(CCSDSOEMStateVector *myOEMStateVector);
+    CCSDSOEMStateVector* GetStateVector();
         
     enum CCSDS_TIMESYSTEM_REPS
     {
@@ -73,6 +79,8 @@ protected:
     CCSDSOEMMetaData* ccsdsMetaData;
     CCSDSOEMStateVector *ccsdsOEMStateVector;
 
+private:
+    
     bool commentsCurrentlyAllowed;
 
 };   
