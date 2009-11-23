@@ -54,6 +54,15 @@ Procedure:
       NAIF ID (Spice)                        [ ] Pass  [ ] Fail  Bug# ______ 
       SPK Files (Spice)                      [ ] Pass  [ ] Fail  Bug# ______ 
 
+      Initial TwoBody State
+      Initial A1 Epoch                       [ ] Pass  [ ] Fail  Bug# ______ 
+      SMA                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      ECC                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      INC                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      RAAN                                   [ ] Pass  [ ] Fail  Bug# ______ 
+      AOP                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      TA                                     [ ] Pass  [ ] Fail  Bug# ______ 
+
    Orientation Tab 
       Spin Axis RA Constant                  [ ] Pass  [ ] Fail  Bug# ______
       Spin Axis RA Rate                      [ ] Pass  [ ] Fail  Bug# ______

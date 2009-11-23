@@ -1,4 +1,4 @@
-$Id: SolarSystemAsteriodPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
+$Id: SolarSystemEarth'sMooonPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
 Tester: _____________  Date: ____________  Build: ____________
@@ -21,11 +21,11 @@ Procedure:
 
 1. Add and open the appropriate object panel.
                                                                                 
-   Add Asteriod Resource                     [ ] Pass  [ ] Fail  Bug# ______
+   Add Moon Resource                         [ ] Pass  [ ] Fail  Bug# ______
    
-   Open Asteriod Resource                    [ ] Pass  [ ] Fail  Bug# ______
+   Open Resource                             [ ] Pass  [ ] Fail  Bug# ______
    
-   Close Asteriod Resource                   [ ] Pass  [ ] Fail  Bug# ______
+   Close Resource                            [ ] Pass  [ ] Fail  Bug# ______
 
 
 2. Evaluate the aesthetic qualities of the panel.
@@ -53,7 +53,7 @@ Procedure:
       Ephemeris Data Ephemeris File (DE405)  [ ] Pass  [ ] Fail  Bug# ______ 
       NAIF ID (Spice)                        [ ] Pass  [ ] Fail  Bug# ______ 
       SPK Files (Spice)                      [ ] Pass  [ ] Fail  Bug# ______ 
- 
+
       Initial TwoBody State
       Initial A1 Epoch                       [ ] Pass  [ ] Fail  Bug# ______ 
       SMA                                    [ ] Pass  [ ] Fail  Bug# ______ 
@@ -62,6 +62,7 @@ Procedure:
       RAAN                                   [ ] Pass  [ ] Fail  Bug# ______ 
       AOP                                    [ ] Pass  [ ] Fail  Bug# ______ 
       TA                                     [ ] Pass  [ ] Fail  Bug# ______ 
+
 
    Orientation Tab 
       Spin Axis RA Constant                  [ ] Pass  [ ] Fail  Bug# ______

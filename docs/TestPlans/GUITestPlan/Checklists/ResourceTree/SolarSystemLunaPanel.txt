@@ -1,4 +1,4 @@
-$Id: SolarSystemLunaPanel.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
+$Id: SolarSystemLunaPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
 Tester: _____________  Date: ____________  Build: ____________
@@ -13,7 +13,7 @@ Platform:   ___ Windows, Version: ______________________
 
 Description:  
 
-This test validates the functionality of the Luna panel.
+This test validates the functionality of the Sun panel.
 (* indicates sub-panel whose functionality is tested separately)
 
 
@@ -21,12 +21,11 @@ Procedure:
 
 1. Add and open the appropriate object panel.
                                                                                 
-   Add Luna Resource                        [ ] Pass  [ ] Fail  Bug# ______
-
-   Open Luna Resource                       [ ] Pass  [ ] Fail  Bug# ______
+   Add Moon Resource                         [ ] Pass  [ ] Fail  Bug# ______
    
-   Close Luna Resource                      [ ] Pass  [ ] Fail  Bug# ______
+   Open  Resource                            [ ] Pass  [ ] Fail  Bug# ______
    
+   Close Resource                            [ ] Pass  [ ] Fail  Bug# ______
 
 
 2. Evaluate the aesthetic qualities of the panel.
@@ -34,33 +33,48 @@ Procedure:
    Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
    
 
-3. Evaluate the individual panel elements.
+3. Evaluate the individual panel elements. (* all from Earth values)
 
-   mu Text Field                             [ ] Pass  [ ] Fail  Bug# ______
+   Properties Tab
+      
+      mu Text Field                          [ ] Pass  [ ] Fail  Bug# ______
+      
+      Equatorial Radius Text Field           [ ] Pass  [ ] Fail  Bug# ______
+      
+      Flattening Factor Text Field           [ ] Pass  [ ] Fail  Bug# ______
+      
+      Texture Map File                       [ ] Pass  [ ] Fail  Bug# ______
+      
+      Browse Button                          [ ] Pass  [ ] Fail  Bug# ______
 
-   Equatorial Radius Text Field              [ ] Pass  [ ] Fail  Bug# ______
+   Orbit Tab 
+      Ephemeris Data Central Body            [ ] Pass  [ ] Fail  Bug# ______ 
+      Ephemeris Date Ephemeris Source        [ ] Pass  [ ] Fail  Bug# ______
+      Ephemeris Data Ephemeris File (DE405)  [ ] Pass  [ ] Fail  Bug# ______ 
+      NAIF ID (Spice)                        [ ] Pass  [ ] Fail  Bug# ______ 
+      SPK Files (Spice)                      [ ] Pass  [ ] Fail  Bug# ______ 
+  
+      Initial TwoBody State
+      Initial A1 Epoch                       [ ] Pass  [ ] Fail  Bug# ______ 
+      SMA                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      ECC                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      INC                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      RAAN                                   [ ] Pass  [ ] Fail  Bug# ______ 
+      AOP                                    [ ] Pass  [ ] Fail  Bug# ______ 
+      TA                                     [ ] Pass  [ ] Fail  Bug# ______ 
 
-   Flattening Factor Text Field              [ ] Pass  [ ] Fail  Bug# ______
 
-   Initial Epoch Text Field                  [ ] Pass  [ ] Fail  Bug# ______
-
-   Semimajor Axis Text Field                 [ ] Pass  [ ] Fail  Bug# ______
-
-   Eccentricity Text Field                   [ ] Pass  [ ] Fail  Bug# ______
-
-   Inclination Text Field                    [ ] Pass  [ ] Fail  Bug# ______
-
-   RA of Ascending Node Text Field           [ ] Pass  [ ] Fail  Bug# ______
-
-   Argument of Perigee Text Field            [ ] Pass  [ ] Fail  Bug# ______
-
-   True Anomaly Text Field                   [ ] Pass  [ ] Fail  Bug# ______
-
-   Rotation Data Source Combo Box            [ ] Pass  [ ] Fail  Bug# ______
-   
+   Orientation Tab 
+      Spin Axis RA Constant                  [ ] Pass  [ ] Fail  Bug# ______
+      Spin Axis RA Rate                      [ ] Pass  [ ] Fail  Bug# ______
+      Spin Axis DEC Constant                 [ ] Pass  [ ] Fail  Bug# ______
+      Spin Axis DEC Rate                     [ ] Pass  [ ] Fail  Bug# ______
+      Rotation Constant                      [ ] Pass  [ ] Fail  Bug# ______
+      Rotation Rate                          [ ] Pass  [ ] Fail  Bug# ______
+      Rotation Date Source                   [ ] Pass  [ ] Fail  Bug# ______
 
 4. Evaluate panel-specific functionality.
-
+  
    N/A
    
 
@@ -94,7 +108,7 @@ Procedure:
 
 7. Evaluate rename functionality.
 
-   Rename (on resource tree)                 [ ] Pass  [ ] Fail  Bug# ______
+   Rename (on resource tree)     n/a         [ ] Pass  [ ] Fail  Bug# ______
 
 
 Summary: 
