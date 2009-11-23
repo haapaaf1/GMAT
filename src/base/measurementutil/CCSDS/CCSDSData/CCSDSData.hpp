@@ -115,12 +115,12 @@ public:
         EndCCSDSRateFrameReps
     };
 
-    friend class ProcessCCSDSDataFile;
-    friend class ProcessCCSDSTDMDataFile;
-    friend class ProcessCCSDSOPMDataFile;
-    friend class ProcessCCSDSOEMDataFile;
-    friend class ProcessCCSDSAPMDataFile;
-    friend class ProcessCCSDSAEMDataFile;
+    friend class CCSDSDataFile;
+    friend class TDMCCSDSDataFile;
+    friend class OPMCCSDSDataFile;
+    friend class OEMCCSDSDataFile;
+    friend class APMCCSDSDataFile;
+    friend class AEMCCSDSDataFile;
 
 private:
 

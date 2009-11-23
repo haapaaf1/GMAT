@@ -102,12 +102,12 @@ public:
 	EndCCSDSTypeReps
     };
 
-    friend class ProcessCCSDSDataFile;
-    friend class ProcessCCSDSAPMDataFile;
-    friend class ProcessCCSDSAEMDataFile;
-    friend class ProcessCCSDSOPMDataFile;
-    friend class ProcessCCSDSOEMDataFile;
-    friend class ProcessCCSDSTDMDataFile;
+    friend class CCSDSDataFile;
+    friend class APMCCSDSDataFile;
+    friend class AEMCCSDSDataFile;
+    friend class OPMCCSDSDataFile;
+    friend class OEMCCSDSDataFile;
+    friend class TDMCCSDSDataFile;
 
 protected:
 

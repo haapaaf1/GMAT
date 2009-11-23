@@ -354,53 +354,53 @@ OBJECTS = \
     measurement/MeasurementModelException.o \
     measurement/GeometricRangeMeasurementModel.o \
     measurement/GeometricRangeAzElMeasurementModel.o \
-    measurementutil/Obtype.o \
-    measurementutil/B3Obtype.o \
-    measurementutil/SLRObtype.o \
-    measurementutil/TLEObtype.o \
-    measurementutil/CCSDS/CCSDSObTypes/CCSDSObtype.o \
-    measurementutil/CCSDS/CCSDSObTypes/CCSDSTDMObtype.o \
-    measurementutil/CCSDS/CCSDSObTypes/CCSDSOPMObtype.o \
-    measurementutil/CCSDS/CCSDSObTypes/CCSDSOEMObtype.o \
-    measurementutil/CCSDS/CCSDSObTypes/CCSDSAPMObtype.o \
-    measurementutil/CCSDS/CCSDSObTypes/CCSDSAEMObtype.o \
+    measurementutil/ObType.o \
+    measurementutil/B3ObType.o \
+    measurementutil/SLRObType.o \
+    measurementutil/TLEObType.o \
+    measurementutil/CCSDS/CCSDSObTypes/CCSDSObType.o \
+    measurementutil/CCSDS/CCSDSObTypes/TDMCCSDSObType.o \
+    measurementutil/CCSDS/CCSDSObTypes/OPMCCSDSObType.o \
+    measurementutil/CCSDS/CCSDSObTypes/OEMCCSDSObType.o \
+    measurementutil/CCSDS/CCSDSObTypes/APMCCSDSObType.o \
+    measurementutil/CCSDS/CCSDSObTypes/AEMCCSDSObType.o \
     measurementutil/CCSDS/CCSDSHeader.o \
     measurementutil/CCSDS/CCSDSMetaData/CCSDSMetaData.o \
-    measurementutil/CCSDS/CCSDSMetaData/CCSDSTDMMetaData.o \
-    measurementutil/CCSDS/CCSDSMetaData/CCSDSOPMMetaData.o \
-    measurementutil/CCSDS/CCSDSMetaData/CCSDSOEMMetaData.o \
-    measurementutil/CCSDS/CCSDSMetaData/CCSDSAPMMetaData.o \
-    measurementutil/CCSDS/CCSDSMetaData/CCSDSAEMMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/TDMCCSDSMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/OPMCCSDSMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/OEMCCSDSMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/APMCCSDSMetaData.o \
+    measurementutil/CCSDS/CCSDSMetaData/AEMCCSDSMetaData.o \
     measurementutil/CCSDS/CCSDSData/CCSDSData.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSTrackingData.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSSpacecraftInertia.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSSpacecraftParameters.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSKeplerianElements.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSStateVector.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSOPMStateVector.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSOEMStateVector.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSQuaternion.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSAPMQuaternion.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSAEMQuaternion.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSEulerAngle.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSAPMEulerAngle.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSAEMEulerAngle.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSSpinStabilized.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSAPMSpinStabilized.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSAEMSpinStabilized.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSAttitudeManeuver.o \
-    measurementutil/CCSDS/CCSDSData/CCSDSManeuver.o \
+    measurementutil/CCSDS/CCSDSData/TrackingCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/SpacecraftInertiaCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/SpacecraftParametersCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/KeplerianElementsCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/StateVectorCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/OPMStateVectorCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/OEMStateVectorCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/QuaternionCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/APMQuaternionCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/AEMQuaternionCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/EulerAngleCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/APMEulerAngleCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/AEMEulerAngleCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/SpinStabilizedCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/APMSpinStabilizedCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/AEMSpinStabilizedCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/AttitudeManeuverCCSDSData.o \
+    measurementutil/CCSDS/CCSDSData/ManeuverCCSDSData.o \
     measurementutil/DataFile.o \
     measurementutil/DataFileException.o \
-    measurementutil/CCSDS/ProcessCCSDSDataFile.o \
-    measurementutil/CCSDS/ProcessCCSDSTDMDataFile.o \
-    measurementutil/CCSDS/ProcessCCSDSOPMDataFile.o \
-    measurementutil/CCSDS/ProcessCCSDSOEMDataFile.o \
-    measurementutil/CCSDS/ProcessCCSDSAPMDataFile.o \
-    measurementutil/CCSDS/ProcessCCSDSAEMDataFile.o \
-    measurementutil/ProcessB3DataFile.o \
-    measurementutil/ProcessSLRDataFile.o \
-    measurementutil/ProcessTLEDataFile.o \
+    measurementutil/CCSDS/CCSDSDataFile.o \
+    measurementutil/CCSDS/TDMCCSDSDataFile.o \
+    measurementutil/CCSDS/OPMCCSDSDataFile.o \
+    measurementutil/CCSDS/OEMCCSDSDataFile.o \
+    measurementutil/CCSDS/APMCCSDSDataFile.o \
+    measurementutil/CCSDS/AEMCCSDSDataFile.o \
+    measurementutil/B3DataFile.o \
+    measurementutil/SLRDataFile.o \
+    measurementutil/TLEDataFile.o \
     parameter/AngularParameters.o \
     parameter/Array.o \
     parameter/ArrayWrapper.o \
@@ -572,7 +572,7 @@ OBJECTS = \
 #    $(BRIDGEOBJECTS)
 
 # Future classes:
-#    measurementutil/CCSDSOEMObtype.o \
+#    measurementutil/CCSDSOEMObType.o \
 #    measurementutil/ProcessCCSDSOEMDataFile.o \
 #    solarsys/IonosphereModel.o \
 #    solarsys/TroposphereModel.o \

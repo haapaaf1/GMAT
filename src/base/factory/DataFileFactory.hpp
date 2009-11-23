@@ -24,14 +24,14 @@
 #include "Factory.hpp"
 
 // Forward References for the supported DataFiles
-class ProcessB3DataFile;
-class ProcessTLEDataFile;
-class ProcessSLRDataFile;
-class ProcessCCSDSTDMDataFile;
-class ProcessCCSDSOPMDataFile;
-class ProcessCCSDSOEMDataFile;
-class ProcessCCSDSAPMDataFile;
-class ProcessCCSDSAEMDataFile;
+class B3DataFile;
+class TLEDataFile;
+class SLRDataFile;
+class TDMCCSDSDataFile;
+class OPMCCSDSDataFile;
+class OEMCCSDSDataFile;
+class APMCCSDSDataFile;
+class AEMCCSDSDataFile;
 
 class DataFileFactory : public Factory
 {

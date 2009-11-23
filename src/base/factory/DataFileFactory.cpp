@@ -23,14 +23,14 @@
 
 // Here are the supported classes
 #include "DataFile.hpp"
-#include "ProcessB3DataFile.hpp"
-#include "ProcessSLRDataFile.hpp"
-#include "ProcessTLEDataFile.hpp"
-#include "ProcessCCSDSTDMDataFile.hpp"
-#include "ProcessCCSDSOPMDataFile.hpp"
-#include "ProcessCCSDSOEMDataFile.hpp"
-#include "ProcessCCSDSAPMDataFile.hpp"
-#include "ProcessCCSDSAEMDataFile.hpp"
+#include "B3DataFile.hpp"
+#include "SLRDataFile.hpp"
+#include "TLEDataFile.hpp"
+#include "TDMCCSDSDataFile.hpp"
+#include "OPMCCSDSDataFile.hpp"
+#include "OEMCCSDSDataFile.hpp"
+#include "APMCCSDSDataFile.hpp"
+#include "AEMCCSDSDataFile.hpp"
 
 //---------------------------------
 //  public methods
@@ -54,21 +54,21 @@ DataFile* DataFileFactory::CreateDataFile(const std::string &ofType,
 MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
       ofType.c_str(), withName.c_str());
    if (ofType == "B3DataFile")
-      return new ProcessB3DataFile(withName);
+      return new B3DataFile(withName);
    if (ofType == "SLRDataFile")
-      return new ProcessSLRDataFile(withName);
+      return new SLRDataFile(withName);
    if (ofType == "TLEDataFile")
-      return new ProcessTLEDataFile(withName);
-   if (ofType == "CCSDSTDMDataFile")
-      return new ProcessCCSDSTDMDataFile(withName);
-   if (ofType == "CCSDSOPMDataFile")
-      return new ProcessCCSDSOPMDataFile(withName);
-   if (ofType == "CCSDSOEMDataFile")
-      return new ProcessCCSDSOEMDataFile(withName);
-   if (ofType == "CCSDSAPMDataFile")
-      return new ProcessCCSDSAPMDataFile(withName);
-   if (ofType == "CCSDSAEMDataFile")
-      return new ProcessCCSDSAEMDataFile(withName);
+      return new TLEDataFile(withName);
+   if (ofType == "TDMCCSDSDataFile")
+      return new TDMCCSDSDataFile(withName);
+   if (ofType == "OPMCCSDSDataFile")
+      return new OPMCCSDSDataFile(withName);
+   if (ofType == "OEMCCSDSDataFile")
+      return new OEMCCSDSDataFile(withName);
+   if (ofType == "APMCCSDSDataFile")
+      return new APMCCSDSDataFile(withName);
+   if (ofType == "AEMCCSDSDataFile")
+      return new AEMCCSDSDataFile(withName);
 
    return NULL;
 }
@@ -91,11 +91,11 @@ DataFileFactory::DataFileFactory() :
       creatables.push_back("B3DataFile");
       creatables.push_back("SLRDataFile");
       creatables.push_back("TLEDataFile");
-      creatables.push_back("CCSDSTDMDataFile");
-      creatables.push_back("CCSDSOPMDataFile");
-      creatables.push_back("CCSDSOEMDataFile");
-      creatables.push_back("CCSDSAPMDataFile");
-      creatables.push_back("CCSDSAEMDataFile");
+      creatables.push_back("TDMCCSDSDataFile");
+      creatables.push_back("OPMCCSDSDataFile");
+      creatables.push_back("OEMCCSDSDataFile");
+      creatables.push_back("APMCCSDSDataFile");
+      creatables.push_back("AEMCCSDSDataFile");
    }
 }
 
@@ -132,11 +132,11 @@ DataFileFactory::DataFileFactory(const DataFileFactory& fact) :
       creatables.push_back("B3DataFile");
       creatables.push_back("SLRDataFile");
       creatables.push_back("TLEDataFile");
-      creatables.push_back("CCSDSTDMDataFile");
-      creatables.push_back("CCSDSOPMDataFile");
-      creatables.push_back("CCSDSOEMDataFile");
-      creatables.push_back("CCSDSAPMDataFile");
-      creatables.push_back("CCSDSAEMDataFile");
+      creatables.push_back("TDMCCSDSDataFile");
+      creatables.push_back("OPMCCSDSDataFile");
+      creatables.push_back("OEMCCSDSDataFile");
+      creatables.push_back("APMCCSDSDataFile");
+      creatables.push_back("AEMCCSDSDataFile");
    }
 }
 

@@ -597,23 +597,23 @@ Integer DataFile::GetFileFormatID(const std::string &label)
     {
        return TRK234_ID;
     }
-    else if (label == "CCSDSTDM")
+    else if (label == "TDMCCSDS")
     {
        return CCSDS_TDM_ID;
     }
-    else if (label == "CCSDSOPM")
+    else if (label == "OPMCCSDS")
     {
        return CCSDS_OPM_ID;
     }
-    else if (label == "CCSDSOEM")
+    else if (label == "OEMCCSDS")
     {
        return CCSDS_OEM_ID;
     }
-    else if (label == "CCSDSAPM")
+    else if (label == "APMCCSDS")
     {
        return CCSDS_APM_ID;
     }
-    else if (label == "CCSDSAEM")
+    else if (label == "AEMCCSDS")
     {
        return CCSDS_AEM_ID;
     }
