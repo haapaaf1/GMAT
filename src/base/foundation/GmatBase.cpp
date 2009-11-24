@@ -1115,10 +1115,11 @@ Integer GmatBase::GetParameterID(const std::string &str) const
       {
          return i;
       }
-
+   
    throw GmatBaseException
-      ("The object named \"" + GetName() + "\" of type \"" + GetTypeName() + "\" "
-       "has no parameter defined with \"" + str + "\"");
+      ("GmatBase::GetParameterID() The object named \"" + GetName() +
+       "\" of type \"" + GetTypeName() + "\" has no parameter defined with \"" +
+       str + "\"");
 }
 
 
@@ -1139,18 +1140,18 @@ bool GmatBase::IsParameterReadOnly(const Integer id) const
    if ((id < 0) || (id >= parameterCount))
    {
       std::stringstream errmsg;
-      errmsg << "No parameter defined with id " << id <<" on " << typeName
-             << " named \"" << instanceName <<"\"";
+      errmsg << "GmatBase::IsParameterReadOnly() No parameter defined with id "
+             << id << " on " << typeName << " named \"" << instanceName <<"\"";
       throw GmatBaseException(errmsg.str());
    }
-
+   
    // Hide covariance if it hasn't been defined
    if (id == COVARIANCE)
    {
       if (covarianceList.size() == 0)
          return true;
    }
-
+   
    return false;
 }
 
@@ -2836,8 +2837,8 @@ const std::string& GmatBase::GetGeneratingString(Gmat::WriteMode mode,
 {
    #ifdef DEBUG_GENERATING_STRING
    MessageInterface::ShowMessage
-      ("GmatBase::GetGeneratingString() entered for %s<%s>, mode=%d, prefix=%s, "
-       "useName=%s, \n", GetTypeName().c_str(), GetName().c_str(), mode,
+      ("GmatBase::GetGeneratingString() <%p><%s>'%s' entered, mode=%d, prefix='%s', "
+       "useName='%s', \n", this, GetTypeName().c_str(), GetName().c_str(), mode,
        prefix.c_str(), useName.c_str());
    MessageInterface::ShowMessage
       ("   showPrefaceComment=%d, commentLine=<%s>\n   showInlineComment=%d "
@@ -3277,19 +3278,37 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
 {
    #ifdef DEBUG_WRITE_PARAM
    MessageInterface::ShowMessage
-      ("GmatBase::WriteParameters() mode=%d, prefix='%s'\n", mode, prefix.c_str());
+      ("GmatBase::WriteParameters() <%p><%s>'%s' entered, mode=%d, prefix='%s'\n",
+       this, GetTypeName().c_str(), GetName().c_str(), mode, prefix.c_str());
    #endif
-
+   
    Integer i;
    Gmat::ParameterType parmType;
    std::stringstream value;
    value.precision(GetDataPrecision());
-
+   
    // Create parameter write order if it is empty (LOJ: 2009.02.13)
    if (parameterWriteOrder.empty())
    {
       for (i = 0; i < parameterCount; ++i)
          parameterWriteOrder.push_back(i);
+   }
+   else
+   {
+      if ((Integer)parameterWriteOrder.size() < parameterCount)
+      {
+         // Add GmatBase parameters since it's count is no longer 0 (LOJ: 2009.11.20)
+         for (i = 0; i < GmatBaseParamCount; ++i)
+            parameterWriteOrder.push_back(i);
+         
+         if ((Integer)parameterWriteOrder.size() != parameterCount)
+         {
+            GmatBaseException gbe;
+            gbe.SetDetails("GmatBase::WriteParameters(), there are more actual "
+                           "parameters [%d] than ordered parameters [%d]\n",
+                           parameterCount, parameterWriteOrder.size());
+         }
+      }
    }
    
    Integer id;
@@ -3309,8 +3328,7 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       bool parameterIsToBeWritten = !IsParameterReadOnly(id);
       if (mode != Gmat::SHOW_SCRIPT) 
          parameterIsToBeWritten = parameterIsToBeWritten && (!IsParameterCloaked(id));
-
-//      if ((!IsParameterReadOnly(id)) && (!IsParameterCloaked(id)))
+      
       if (parameterIsToBeWritten)
       {
          parmType = GetParameterType(id);
@@ -3395,19 +3413,22 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
          }
       }
    }
-
+   
    GmatBase *ownedObject;
    std::string nomme, newprefix;
-
+   
+   // Get owned object count since subclasses may have GetOwnedObjectCount()
+   Integer ownedObjCount = GetOwnedObjectCount();
    #ifdef DEBUG_OWNED_OBJECT_STRINGS
-      MessageInterface::ShowMessage("\"%s\" has %d owned objects\n",
-         instanceName.c_str(), GetOwnedObjectCount());
+   MessageInterface::ShowMessage
+      ("<%p><%s>'%s' has %d owned objects\n", this, GetTypeName().c_str(),
+       instanceName.c_str(), ownedObjCount);
    #endif
-      
+   
    // don't include the owned objects (celestial bodies) for the Solar System 
    if (IsOfType("SolarSystem"))  return;
    
-   for (i = 0; i < GetOwnedObjectCount(); ++i)
+   for (i = 0; i < ownedObjCount; ++i)
    {
       newprefix = prefix;
       ownedObject = GetOwnedObject(i);
@@ -3415,7 +3436,7 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
 
       #ifdef DEBUG_OWNED_OBJECT_STRINGS
       MessageInterface::ShowMessage
-         ("   id %d has type %s and name \"%s\"\n", i,
+         ("   id %d has owned object of type %s and name \"%s\"\n", i,
           ownedObject->GetTypeName().c_str(), ownedObject->GetName().c_str());
       #endif
 
@@ -3436,7 +3457,6 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
             newprefix += ownedPropName + ".";
          else if (nomme != "")
             newprefix += nomme + ".";
-
       }
 
       #ifdef DEBUG_OWNED_OBJECT_STRINGS
