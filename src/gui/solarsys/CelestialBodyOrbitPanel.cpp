@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  CelestialBodyOrbitPanel
 //------------------------------------------------------------------------------
@@ -36,6 +36,7 @@ BEGIN_EVENT_TABLE(CelestialBodyOrbitPanel, wxPanel)
    EVT_TEXT(ID_TEXT_CTRL_EPHEM_FILE, CelestialBodyOrbitPanel::OnEphemFileTextCtrlChange)
    EVT_BUTTON(ID_BROWSE_BUTTON_EPHEM_FILE, CelestialBodyOrbitPanel::OnEphemFileBrowseButton)
    EVT_BUTTON(ID_BROWSE_BUTTON_SPK_FILE, CelestialBodyOrbitPanel::OnSpkFileBrowseButton)
+   EVT_BUTTON(ID_REMOVE_BUTTON_SPK_FILE, CelestialBodyOrbitPanel::OnSpkFileRemoveButton)
    EVT_LISTBOX(ID_LIST_BOX_SPK_FILE, CelestialBodyOrbitPanel::OnSpkFileListBoxChange)
    EVT_TEXT(ID_TEXT_CTRL_NAIF_ID, CelestialBodyOrbitPanel::OnNaifIdTextCtrlChange)
    EVT_COMBOBOX(ID_COMBO_BOX_CENTRAL_BODY, CelestialBodyOrbitPanel::OnCentralBodyComboBoxChange)
@@ -359,8 +360,9 @@ void CelestialBodyOrbitPanel::LoadData()
             spkFileArrayWX[jj] = wxT(spkFileArray[jj].c_str());
          }
          spkFileListBox->InsertItems(spkListSz, spkFileArrayWX, 0);
+         spkFileListBox->SetSelection(spkListSz-1); // Select the last item
       }
-
+      
       if (ephemSrc != "DE405")
       {
          ephemFileStaticText->Hide();
@@ -382,6 +384,7 @@ void CelestialBodyOrbitPanel::LoadData()
             spkFileStaticText->Hide();
             spkFileListBox->Hide();
             spkFileBrowseButton->Hide();
+            spkFileRemoveButton->Hide();
             naifIDStaticText->Hide();
             naifIDTextCtrl->Hide();
             naifIDBlankText->Hide();
@@ -392,6 +395,7 @@ void CelestialBodyOrbitPanel::LoadData()
             spkFileStaticText->Show();
             spkFileListBox->Show();
             spkFileBrowseButton->Show();
+            spkFileRemoveButton->Show();
             naifIDStaticText->Show();
             naifIDTextCtrl->Show();
             naifIDBlankText->Show();
@@ -435,7 +439,6 @@ void CelestialBodyOrbitPanel::LoadData()
 }
 
 
-
 //------------------------------------------------------------------------------
 // private methods
 //------------------------------------------------------------------------------
@@ -447,10 +450,8 @@ void CelestialBodyOrbitPanel::Create()
    userDef = theBody->IsUserDefined();
    allowSpiceForDefaultBodies = ss->IsSpiceAllowedForDefaultBodies();
    
-   GmatStaticBoxSizer  *boxSizer1 = new GmatStaticBoxSizer(wxVERTICAL, this, "Ephemeris Data");
-   
    // empty the temporary value strings
-   ephemSourceStringWX       = "";
+   ephemSourceStringWX    = "";
    ephemFileStringWX      = "";
    naifIDStringWX         = "";
    centralBodyStringWX    = "";
@@ -477,10 +478,11 @@ void CelestialBodyOrbitPanel::Create()
    ephemFileStaticText    =  new wxStaticText(this, ID_TEXT, wxT("Ephemeris File"),
                              wxDefaultPosition, wxSize(-1,-1), 0);
    ephemFileTextCtrl      = new wxTextCtrl(this, ID_TEXT_CTRL_EPHEM_FILE, wxT(""),
-                            wxDefaultPosition, wxSize(200,-1), 0);
+                            wxDefaultPosition, wxSize(150,-1), 0);
    ephemFileBrowseButton  = new wxButton(this, ID_BROWSE_BUTTON_EPHEM_FILE, wxT("Browse"),
                             wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
    
+   wxBoxSizer *spkButtonSizer = NULL;
    
    if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable)
    {
@@ -492,15 +494,20 @@ void CelestialBodyOrbitPanel::Create()
       naifIDBlankText    = new wxStaticText(this, ID_TEXT,wxT(""),
                            wxDefaultPosition, wxSize(-1,-1), 0);
       // SPK file(s)
-     wxArrayString emptyList;
-     spkFileStaticText      = new wxStaticText(this, ID_TEXT, wxT("SPK Files"),
-                              wxDefaultPosition, wxSize(-1,-1), 0);
-     spkFileListBox         = new wxListBox(this, ID_LIST_BOX_SPK_FILE, wxDefaultPosition, wxSize(80, 100),
-                              emptyList, wxLB_EXTENDED|wxLB_NEEDED_SB|wxLB_HSCROLL);
-     spkFileBrowseButton    = new wxButton(this, ID_BROWSE_BUTTON_SPK_FILE, wxT("Add"),
-                              wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+      wxArrayString emptyList;
+      spkFileStaticText   = new wxStaticText(this, ID_TEXT, wxT("SPK Files"),
+                            wxDefaultPosition, wxSize(-1,-1), 0);
+      spkFileListBox      = new wxListBox(this, ID_LIST_BOX_SPK_FILE, wxDefaultPosition, wxSize(80, 100),
+                            emptyList, wxLB_EXTENDED|wxLB_NEEDED_SB|wxLB_HSCROLL);
+      spkFileBrowseButton = new wxButton(this, ID_BROWSE_BUTTON_SPK_FILE, wxT("Add"),
+                            wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+      spkFileRemoveButton = new wxButton(this, ID_REMOVE_BUTTON_SPK_FILE, wxT("Remove"),
+                            wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+      spkButtonSizer = new wxBoxSizer(wxHORIZONTAL);
+      spkButtonSizer->Add(spkFileBrowseButton,0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
+      spkButtonSizer->Add(spkFileRemoveButton,0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
    }
-  
+   
    // central body
 //   centralBodyArray      = ss->GetBodiesInUse();
 //   unsigned int bodiesSz = centralBodyArray.size();
@@ -513,7 +520,7 @@ void CelestialBodyOrbitPanel::Create()
 //                           wxDefaultPosition, wxDefaultSize, bodiesSz, centralBodyArrayWX,
 //                           wxCB_DROPDOWN|wxCB_READONLY);
    centralBodyComboBox = guiManager->GetCelestialBodyComboBox(this, ID_COMBO_BOX_CENTRAL_BODY, 
-                                                              wxSize(80,-1));
+                                                              wxSize(150,-1));
    
    if (!isSun)
    {
@@ -573,30 +580,36 @@ void CelestialBodyOrbitPanel::Create()
    
    }
    
-// sizers
+   // sizers
    
    orbitDataFlexGridSizer = new wxFlexGridSizer(3,0,0);
    orbitDataFlexGridSizer->Add(centralBodyStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
    orbitDataFlexGridSizer->Add(centralBodyComboBox,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
-   orbitDataFlexGridSizer->Add(30,20,0,wxGROW|wxALIGN_LEFT|wxALL, bSize);
-
+   //orbitDataFlexGridSizer->Add(30,20,0,wxGROW|wxALIGN_LEFT|wxALL, bSize);
+   orbitDataFlexGridSizer->Add(0, 0);
+   
    orbitDataFlexGridSizer->Add(ephemSourceStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
    orbitDataFlexGridSizer->Add(ephemSourceComboBox,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
-   orbitDataFlexGridSizer->Add(30,20,0,wxGROW|wxALIGN_LEFT|wxALL, bSize);
+   //orbitDataFlexGridSizer->Add(30,20,0,wxGROW|wxALIGN_LEFT|wxALL, bSize);
+   orbitDataFlexGridSizer->Add(0, 0);
    
    orbitDataFlexGridSizer->Add(ephemFileStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
    orbitDataFlexGridSizer->Add(ephemFileTextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
    orbitDataFlexGridSizer->Add(ephemFileBrowseButton,0, wxALIGN_CENTRE|wxALL, bSize);
    
-
    if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable)
    {
       orbitDataFlexGridSizer->Add(naifIDStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       orbitDataFlexGridSizer->Add(naifIDTextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
-      orbitDataFlexGridSizer->Add(naifIDBlankText,wxGROW|wxALIGN_LEFT|wxALL, bSize);
+      orbitDataFlexGridSizer->Add(0, 0);
+      
       orbitDataFlexGridSizer->Add(spkFileStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       orbitDataFlexGridSizer->Add(spkFileListBox,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
-      orbitDataFlexGridSizer->Add(spkFileBrowseButton,0, wxALIGN_CENTRE|wxALL, bSize);
+      orbitDataFlexGridSizer->Add(0, 0);
+      
+      orbitDataFlexGridSizer->Add(0, 0);
+      orbitDataFlexGridSizer->Add(spkButtonSizer, 0, wxALIGN_CENTRE|wxALL, bSize);
+      orbitDataFlexGridSizer->Add(0, 0);
    }
    
    wxFlexGridSizer *initialStateFlexGridSizer = NULL;
@@ -610,37 +623,47 @@ void CelestialBodyOrbitPanel::Create()
       initialStateFlexGridSizer->Add(SMAStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(SMATextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(SMAUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   
+      
       initialStateFlexGridSizer->Add(ECCStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(ECCTextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(ECCUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   
+      
       initialStateFlexGridSizer->Add(INCStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(INCTextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(INCUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   
+      
       initialStateFlexGridSizer->Add(RAANStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(RAANTextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(RAANUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   
+      
       initialStateFlexGridSizer->Add(AOPStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(AOPTextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(AOPUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   
+      
       initialStateFlexGridSizer->Add(TAStaticText,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(TATextCtrl,0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
       initialStateFlexGridSizer->Add(TAUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
+      
+      // Make state edit box growable
+      initialStateFlexGridSizer->AddGrowableCol( 1 );
    }
    
-   boxSizer1->Add(orbitDataFlexGridSizer, 0, wxGROW|wxALIGN_LEFT|wxALL, bSize);
+   mainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
    
-   mainBoxSizer    = new GmatStaticBoxSizer(wxHORIZONTAL, this, "");
-   mainBoxSizer->Add(boxSizer1, 0, wxGROW|wxALIGN_LEFT|wxALL, bSize); 
-   if (!isSun)
+   GmatStaticBoxSizer  *boxSizer1 = new GmatStaticBoxSizer(wxVERTICAL, this, "Ephemeris Data");
+   boxSizer1->Add(orbitDataFlexGridSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
+   
+   if (isSun)
    {
-      GmatStaticBoxSizer  *boxSizer2 = new GmatStaticBoxSizer(wxVERTICAL, this, "Initial TwoBody State");
+      mainBoxSizer->Add(boxSizer1, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
+      mainBoxSizer->Add(0,0);
+   }
+   else
+   {
+      GmatStaticBoxSizer  *boxSizer2 = new GmatStaticBoxSizer(wxVERTICAL, this, "Initial Two Body State");
       boxSizer2->Add(initialStateFlexGridSizer, 0, wxGROW|wxALIGN_CENTER|wxALL, bSize);
-      mainBoxSizer->Add(boxSizer2, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize); 
+      mainBoxSizer->Add(boxSizer1, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
+      mainBoxSizer->Add(boxSizer2, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize); 
    }
    
    // disable ephem source, ephem file, and central body for default bodies, since
@@ -654,10 +677,26 @@ void CelestialBodyOrbitPanel::Create()
    centralBodyComboBox->Disable(); // do not allow user to change central body (maybe make this
                                    // static text somewhere ...)
    
+   // Added #if in case if we want to add another layer of lined box for consistency.
+   // I like without another layer, too many lines, so set to 0 (LOJ: 2009.11.18)
+   #if 0
+   
+   GmatStaticBoxSizer *mainStaticBoxSizer = new GmatStaticBoxSizer(wxHORIZONTAL, this, "");
+   mainStaticBoxSizer->Add(mainBoxSizer, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
+   
+   this->SetAutoLayout(true);
+   this->SetSizer(mainStaticBoxSizer);
+   mainStaticBoxSizer->Fit(this);
+   mainStaticBoxSizer->SetSizeHints(this);
+   
+   #else
+   
    this->SetAutoLayout(true);
    this->SetSizer(mainBoxSizer);
    mainBoxSizer->Fit(this);
    mainBoxSizer->SetSizeHints(this);
+   
+   #endif
 }
 
 void CelestialBodyOrbitPanel::ResetChangeFlags(bool discardMods)
@@ -731,6 +770,7 @@ void CelestialBodyOrbitPanel::OnEphemSourceComboBoxChange(wxCommandEvent &event)
          spkFileStaticText->Hide();
          spkFileListBox->Hide();
          spkFileBrowseButton->Hide();
+         spkFileRemoveButton->Hide();
          naifIDStaticText->Hide();
          naifIDTextCtrl->Hide();
          naifIDBlankText->Hide();
@@ -742,11 +782,11 @@ void CelestialBodyOrbitPanel::OnEphemSourceComboBoxChange(wxCommandEvent &event)
          spkFileStaticText->Show();
          spkFileListBox->Show();
          spkFileBrowseButton->Show();
+         spkFileRemoveButton->Show();
          naifIDStaticText->Show();
          naifIDTextCtrl->Show();
          naifIDBlankText->Show();
          naifIDTextCtrl->Enable();
-//         orbitDataFlexGridSizer->Layout();
          mainBoxSizer->Layout();
       }
    }
@@ -798,6 +838,12 @@ void CelestialBodyOrbitPanel::OnSpkFileBrowseButton(wxCommandEvent &event)
       }
       if (foundAt == -99) // not found, so it's new 
       {
+         // Deselect current selections first
+         wxArrayInt selections;
+         int numSelect = spkFileListBox->GetSelections(selections);
+         for (int i = 0; i < numSelect; i++)
+            spkFileListBox->Deselect(selections[i]);
+         
          spkFileChanged   = true;
          dataChanged      = true;
          spkFileListBox->Append(fileName);
@@ -807,11 +853,27 @@ void CelestialBodyOrbitPanel::OnSpkFileBrowseButton(wxCommandEvent &event)
    }
 }
 
+//------------------------------------------------------------------------------
+// void OnSpkFileRemoveButton(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void CelestialBodyOrbitPanel::OnSpkFileRemoveButton(wxCommandEvent &event)
+{
+   wxArrayInt selections;
+   int numSelect = spkFileListBox->GetSelections(selections);
+   for (int i = numSelect-1; i >= 0; i--)
+      spkFileListBox->Delete(selections[i]);
+   
+   // Select the last item
+   unsigned int count = spkFileListBox->GetCount();
+   if (count > 0)
+      spkFileListBox->SetSelection(count -1);
+}
+
 void CelestialBodyOrbitPanel::OnSpkFileListBoxChange(wxCommandEvent &event)
 {
-      spkFileChanged = true;
-      dataChanged    = true;
-      theCBPanel->EnableUpdate(true);
+   spkFileChanged = true;
+   dataChanged    = true;
+   theCBPanel->EnableUpdate(true);
 }
 
 void CelestialBodyOrbitPanel::OnNaifIdTextCtrlChange(wxCommandEvent &event)

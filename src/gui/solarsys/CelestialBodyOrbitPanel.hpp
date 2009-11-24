@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  CelestialBodyOrbitPanel
 //------------------------------------------------------------------------------
@@ -99,6 +99,7 @@ private:
    void     OnEphemFileTextCtrlChange(wxCommandEvent &event);
    void     OnEphemFileBrowseButton(wxCommandEvent &event);
    void     OnSpkFileBrowseButton(wxCommandEvent &event);
+   void     OnSpkFileRemoveButton(wxCommandEvent &event);
    void     OnSpkFileListBoxChange(wxCommandEvent &event);
    void     OnNaifIdTextCtrlChange(wxCommandEvent &event);
    void     OnCentralBodyComboBoxChange(wxCommandEvent &event);
@@ -150,6 +151,7 @@ private:
    
    wxButton     *ephemFileBrowseButton;
    wxButton     *spkFileBrowseButton;
+   wxButton     *spkFileRemoveButton;
    
    // strings for the combo boxes
    StringArray  sourceArray;
@@ -176,8 +178,8 @@ private:
    wxString     TAStringWX;
    
    
-   GmatStaticBoxSizer *mainBoxSizer;
-   wxFlexGridSizer    *orbitDataFlexGridSizer;
+   wxBoxSizer      *mainBoxSizer;
+   wxFlexGridSizer *orbitDataFlexGridSizer;
 
    
    /// IDs for the controls 
@@ -189,6 +191,7 @@ private:
       ID_LIST_BOX_SPK_FILE,
       ID_BROWSE_BUTTON_EPHEM_FILE,
       ID_BROWSE_BUTTON_SPK_FILE,
+      ID_REMOVE_BUTTON_SPK_FILE,
       ID_TEXT_CTRL_NAIF_ID,
       ID_COMBO_BOX_CENTRAL_BODY,
       ID_TEXT_CTRL_INITIAL_EPOCH,
