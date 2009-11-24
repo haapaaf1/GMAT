@@ -1008,16 +1008,16 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    GmatBase *object =  NULL;
    
    //-----------------------------------
-    // The Solar System
-    //-----------------------------------
-    #ifdef DEBUG_SCRIPT_WRITING
-    MessageInterface::ShowMessage("   Found Solar Systems In Use\n");
-    #endif
-    objs.clear();
-    objs.push_back("SolarSystem");
-    WriteObjects(objs, "Solar System User-Modified Values", mode);
-    
-     //-----------------------------------
+   // The Solar System
+   //-----------------------------------
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found Solar Systems In Use\n");
+   #endif
+   objs.clear();
+   objs.push_back("SolarSystem");
+   WriteObjects(objs, "Solar System User-Modified Values", mode);
+   
+   //-----------------------------------
    // Celestial Bodies (for now, only user-defined or modified ones)
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::CELESTIAL_BODY);
@@ -1061,17 +1061,17 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    }
    
    //-----------------------------------
-    // Libration Points and Barycenters
-    //-----------------------------------
-    objs = theModerator->GetListOfObjects(Gmat::CALCULATED_POINT);
-    #ifdef DEBUG_SCRIPT_WRITING
-    MessageInterface::ShowMessage("   Found %d Calculated Points\n", objs.size());
-    #endif
-    if (objs.size() > 0)
-       WriteObjects(objs, "Calculated Points", mode);
-    
-
-    //-----------------------------------
+   // Libration Points and Barycenters
+   //-----------------------------------
+   objs = theModerator->GetListOfObjects(Gmat::CALCULATED_POINT);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d Calculated Points\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "Calculated Points", mode);
+   
+   
+   //-----------------------------------
    // Spacecraft
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::SPACECRAFT);
@@ -1110,7 +1110,7 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    #endif
    if (objs.size() > 0)
       WriteObjects(objs, "GroundStations", mode);
-
+   
    //-----------------------------------
    // Force Model
    //-----------------------------------
@@ -1118,8 +1118,10 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Force Models\n", objs.size());
    #endif
-   if (objs.size() > 0)
-      WriteObjects(objs, "ForceModels", mode);
+   // Special handling is needed for writing ODEModels (LOJ: 2009.11.23)
+   //if (objs.size() > 0)
+   //   WriteObjects(objs, "ForceModels", mode);
+   WriteODEModels(objs, mode);
    
    //-----------------------------------
    // Propagator
@@ -1811,6 +1813,34 @@ void ScriptInterpreter::SetComments(GmatBase *obj, const std::string &preStr,
 
 
 //------------------------------------------------------------------------------
+// void WriteSectionDelimiter(const GmatBase *firstObj,
+//                            const std::string &objDesc)
+//------------------------------------------------------------------------------
+void ScriptInterpreter::WriteSectionDelimiter(const GmatBase *firstObj,
+                                              const std::string &objDesc)
+{
+   if (firstObj == NULL)
+      return;
+   
+   std::string comment = firstObj->GetCommentLine();
+   
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("WriteSectionDelimiter() PrefaceComment of %s=<%s>\n",
+       firstObj->GetName().c_str(), comment.c_str());
+   #endif
+   
+   // Write if section delimiter not found
+   if (comment.find("----------------------------------------") == comment.npos)
+   {
+      theReadWriter->WriteText(sectionDelimiterString[0]);
+      theReadWriter->WriteText(sectionDelimiterString[1] + objDesc);
+      theReadWriter->WriteText(sectionDelimiterString[2]);
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // void WriteSectionDelimiter(const std::string &firstObj,
 //                            const std::string &objDesc)
 //------------------------------------------------------------------------------
@@ -1821,22 +1851,25 @@ void ScriptInterpreter::WriteSectionDelimiter(const std::string &firstObj,
    object = FindObject(firstObj);
    if (object == NULL)
       return;
+
+   WriteSectionDelimiter(object, objDesc);
+
    
-   std::string comment = object->GetCommentLine();
+//    std::string comment = object->GetCommentLine();
    
-   #ifdef DEBUG_SCRIPT_WRITING
-   MessageInterface::ShowMessage
-      ("WriteSectionDelimiter() PrefaceComment of %s=<%s>\n",
-       object->GetName().c_str(), comment.c_str());
-   #endif
+//    #ifdef DEBUG_SCRIPT_WRITING
+//    MessageInterface::ShowMessage
+//       ("WriteSectionDelimiter() PrefaceComment of %s=<%s>\n",
+//        object->GetName().c_str(), comment.c_str());
+//    #endif
    
-   // Write if section delimiter not found
-   if (comment.find("----------------------------------------") == comment.npos)
-   {
-      theReadWriter->WriteText(sectionDelimiterString[0]);
-      theReadWriter->WriteText(sectionDelimiterString[1] + objDesc);
-      theReadWriter->WriteText(sectionDelimiterString[2]);
-   }
+//    // Write if section delimiter not found
+//    if (comment.find("----------------------------------------") == comment.npos)
+//    {
+//       theReadWriter->WriteText(sectionDelimiterString[0]);
+//       theReadWriter->WriteText(sectionDelimiterString[1] + objDesc);
+//       theReadWriter->WriteText(sectionDelimiterString[2]);
+//    }
 }
 
 
@@ -1865,6 +1898,71 @@ void ScriptInterpreter::WriteObjects(StringArray &objs, const std::string &objDe
             theReadWriter->WriteText("\n");
          
          theReadWriter->WriteText(object->GetGeneratingString(mode));
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteODEModels(StringArray &objs, Gmat::WriteMode mod)
+//------------------------------------------------------------------------------
+/*
+ * This method writes ODEModel objects.
+ */
+//------------------------------------------------------------------------------
+void ScriptInterpreter::WriteODEModels(StringArray &objs, Gmat::WriteMode mode)
+{
+   GmatBase *object =  NULL;
+   StringArray propOdes;
+   ObjectArray props;
+   
+   // Since actual ODEModel used are written from the PropSetup, check for the
+   // same name first to avoid duplicate writing.
+   
+   StringArray propNames = theModerator->GetListOfObjects(Gmat::PROP_SETUP);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d Propagators\n", propNames.size());
+   #endif
+   
+   for (StringArray::iterator i = propNames.begin(); i != propNames.end(); ++i)
+   {
+      PropSetup *ps = (PropSetup*)FindObject(*i);
+      if (ps != NULL)
+      {
+         ODEModel *ode = ps->GetODEModel();
+         if (ode != NULL)
+         {
+            props.push_back(ps);
+            propOdes.push_back(ode->GetName());
+         }
+      }
+   }
+   
+   // Make a list of configured odes not in PropSetups
+   StringArray odes;
+   set_difference(objs.begin(), objs.end(), propOdes.begin(),
+                  propOdes.end(), back_inserter(odes));
+   
+   // Write configured ODEModels not in PropSetups
+   if (odes.size() > 0)
+      WriteObjects(odes, "ForceModels", mode);
+   
+   // Write ODEModel from PropSetup
+   if (propOdes.size() > 0)
+   {
+      if (odes.empty())
+      {
+         WriteSectionDelimiter(props[0], "ForceModels");
+      }
+      
+      for (ObjectArray::iterator i = props.begin(); i != props.end(); ++i)
+      {
+         ODEModel *ode = ((PropSetup*)(*i))->GetODEModel();
+         if (ode != NULL)
+         {
+            theReadWriter->WriteText("\n");
+            theReadWriter->WriteText(ode->GetGeneratingString(mode));
+         }
       }
    }
 }
