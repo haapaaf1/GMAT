@@ -56,7 +56,11 @@ public:
    virtual bool         SetEndOfRun();
    virtual void         SetRunState(Gmat::RunState rs);
    virtual void         SetManeuvering(bool flag, Real epoch,
-                                       const std::string &satName);
+                                       const std::string &satName,
+                                       const std::string &desc);
+   virtual void         SetManeuvering(bool flag, Real epoch,
+                                       const StringArray &satNames,
+                                       const std::string &desc);
    
    Subscriber*          Next();
    bool                 Add(Subscriber *s);
@@ -161,12 +165,14 @@ protected:
    bool                 CloneWrappers(WrapperArray &toWrappers,
                                       const WrapperArray &fromWrappers);
    bool                 SetWrapperReference(GmatBase *obj, const std::string &name);
-   void WriteWrappers();
+   void                 WriteWrappers();
    
    // Methods that derived classes can override
    virtual bool         Distribute(Integer len) = 0;
    virtual bool         Distribute(const Real *dat, Integer len);
-   virtual void         HandleManeuvering(Real epoch, const std::string &satName);
+   virtual void         HandleManeuvering(bool flag, Real epoch,
+                                          const StringArray &satNames,
+                                          const std::string &desc);
    
    enum
    {

@@ -397,7 +397,8 @@ void Subscriber::SetRunState(Gmat::RunState rs)
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const std::string &satName)
+// void SetManeuvering(bool flag, Real epoch, const std::string &satName,
+//                     const std::string &desc)
 //------------------------------------------------------------------------------
 /**
  * Sets spacecraft maneuvering flag.
@@ -405,13 +406,38 @@ void Subscriber::SetRunState(Gmat::RunState rs)
  * @param flag Set to true if maneuvering
  * @param epoch Epoch of maneuver
  * @param satName Name of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Subscriber::SetManeuvering(bool flag, Real epoch, const std::string &satName)
+void Subscriber::SetManeuvering(bool flag, Real epoch, const std::string &satName,
+                                const std::string &desc)
+{
+   static StringArray satNames;
+   satNames.clear();
+   isManeuvering = flag;
+   satNames.push_back(satName);
+   HandleManeuvering(flag, epoch, satNames, desc);
+}
+
+
+//------------------------------------------------------------------------------
+// void SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+//                    const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft maneuvering flag.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver
+ * @param satNames Names of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Subscriber::SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+                                const std::string &desc)
 {
    isManeuvering = flag;
-   if (isManeuvering)
-      HandleManeuvering(epoch, satName);
+   HandleManeuvering(flag, epoch, satNames, desc);
 }
 
 
@@ -1274,9 +1300,20 @@ bool Subscriber::Distribute(const double *dat, int len)
 
 
 //------------------------------------------------------------------------------
-// virtual void HandleManeuvering(Real epoch, const std::string &satName)
+// virtual void HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
+//                               const std::string &desc)
 //------------------------------------------------------------------------------
-void Subscriber::HandleManeuvering(Real epoch, const std::string &satName)
+/**
+ * Handles maneuvering on or off.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver on or off
+ * @param satNames Names of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Subscriber::HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
+                                   const std::string &desc)
 {
    // do nothing here
 }

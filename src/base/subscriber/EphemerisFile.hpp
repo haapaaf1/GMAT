@@ -155,6 +155,7 @@ protected:
    /// Available write ephemeris list
    static StringArray writeEphemerisList;
    
+   // Initialization
    void        CreateInterpolator();
    bool        OpenEphemerisFile();
    
@@ -196,7 +197,9 @@ protected:
    // methods inherited from Subscriber
    virtual bool         Distribute(Integer len);
    virtual bool         Distribute(const Real * dat, Integer len);
-   virtual void         HandleManeuvering(Real epoch, const std::string &satName);
+   virtual void         HandleManeuvering(bool flag, Real epoch,
+                                          const StringArray &satNames,
+                                          const std::string &desc);
    
    enum
    {

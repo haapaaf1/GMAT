@@ -1103,7 +1103,8 @@ void EphemerisFile::RestartInterpolation(const std::string &comments)
    
    WriteComments(comments);
    epochsOnWaiting.clear();
-   interpolator->Clear();
+   if (interpolator != NULL)
+      interpolator->Clear();
    
    initialCount        = 0;
    waitCount           = 0;
@@ -2014,9 +2015,15 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
 
 
 //------------------------------------------------------------------------------
-// virtual void HandleManeuvering(Real epoch, const std::string &satName)
+// virtual void HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
+//                                const std::string &desc)
 //------------------------------------------------------------------------------
-void EphemerisFile::HandleManeuvering(Real epoch, const std::string &satName)
+/*
+ * @see Subscriber
+ */
+//------------------------------------------------------------------------------
+void EphemerisFile::HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
+                                      const std::string &desc)
 {
    #ifdef DEBUG_EPHEMFILE_MANEUVER
    MessageInterface::ShowMessage("EphemerisFile::HandleManeuvering() entered\n");
@@ -2033,6 +2040,10 @@ void EphemerisFile::HandleManeuvering(Real epoch, const std::string &satName)
       return;
    }
    
+   // Check spacecraft name first   
+   if (find(satNames.begin(), satNames.end(), spacecraftName) == satNames.end())
+      return;
+   
    Real toMjd;
    std::string epochStr;
    
@@ -2040,7 +2051,7 @@ void EphemerisFile::HandleManeuvering(Real epoch, const std::string &satName)
    TimeConverterUtil::Convert("A1ModJulian", epoch, "", epochFormat, toMjd, epochStr);
    
    // Restart interpolation
-   RestartInterpolation("This block begins after maneuver at " + epochStr + "\n");
+   RestartInterpolation("This block begins after " + desc + " at " + epochStr + "\n");
    
    #ifdef DEBUG_EPHEMFILE_MANEUVER
    MessageInterface::ShowMessage("EphemerisFile::HandleManeuvering() leaving\n");
