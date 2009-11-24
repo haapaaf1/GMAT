@@ -630,34 +630,6 @@ bool B3ObType::IsParameterRequired(const Integer id) const
 }
 
 //------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
-bool B3ObType::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndB3DataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(B3_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
-
-//------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const B3ObType &myB3)
 //------------------------------------------------------------------------------
 /**

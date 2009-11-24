@@ -291,7 +291,7 @@ AttitudeManeuverCCSDSData* APMCCSDSObType::GetCurrentAttitudeManeuver()
 }
 
 //------------------------------------------------------------------------------
-// void AdvanceToNextAttitudeManeuver()
+// bool AdvanceToNextAttitudeManeuver()
 //------------------------------------------------------------------------------
 /**
  * Moves the iterator pointer to the next CCSDS attitude
@@ -299,13 +299,19 @@ AttitudeManeuverCCSDSData* APMCCSDSObType::GetCurrentAttitudeManeuver()
  *
  */
 //------------------------------------------------------------------------------
-void APMCCSDSObType::AdvanceToNextAttitudeManeuver()
+bool APMCCSDSObType::AdvanceToNextAttitudeManeuver()
 {
    i_ccsdsAPMAttitudeManeuvers++;
+
+   if (i_ccsdsAPMAttitudeManeuvers == ccsdsAPMAttitudeManeuvers.end())
+       return false;
+   else
+       return true;
+
 }
 
 //------------------------------------------------------------------------------
-// void BackupToPreviousAttitudeManeuver()
+// bool BackupToPreviousAttitudeManeuver()
 //------------------------------------------------------------------------------
 /**
  * Moves the iterator pointer to the previous CCSDS attitude
@@ -313,9 +319,15 @@ void APMCCSDSObType::AdvanceToNextAttitudeManeuver()
  *
  */
 //------------------------------------------------------------------------------
-void APMCCSDSObType::BackupToPreviousAttitudeManeuver()
+bool APMCCSDSObType::BackupToPreviousAttitudeManeuver()
 {
    i_ccsdsAPMAttitudeManeuvers--;
+
+   if (i_ccsdsAPMAttitudeManeuvers == ccsdsAPMAttitudeManeuvers.begin())
+       return false;
+   else
+       return true;
+
 }
 
 //------------------------------------------------------------------------------

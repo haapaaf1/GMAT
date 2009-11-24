@@ -67,8 +67,8 @@ public:
 
     void AddAttitudeManeuver(AttitudeManeuverCCSDSData *myAttitudeManeuver);
     AttitudeManeuverCCSDSData* GetCurrentAttitudeManeuver();
-    void AdvanceToNextAttitudeManeuver();
-    void BackupToPreviousAttitudeManeuver();
+    bool AdvanceToNextAttitudeManeuver();
+    bool BackupToPreviousAttitudeManeuver();
 
     //bool IsParameterRequired(const Integer id) const;
 

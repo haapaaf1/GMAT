@@ -53,11 +53,11 @@ public :
     };
     
     friend class CCSDSDataFile;
-    friend class CCSDSTDMDataFile;
-    friend class CCSDSOPMDataFile;
-    friend class CCSDSOEMDataFile;
-    friend class CCSDSAPMDataFile;
-    friend class CCSDSAEMDataFile;
+    friend class TDMCCSDSDataFile;
+    friend class OPMCCSDSDataFile;
+    friend class OEMCCSDSDataFile;
+    friend class APMCCSDSDataFile;
+    friend class AEMCCSDSDataFile;
     
 protected:
 

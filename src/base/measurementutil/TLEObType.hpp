@@ -91,9 +91,6 @@ public :
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
 
-    // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
-
     friend Integer TLECheckSum(const std::string &str);
 
     friend std::ostream& operator<< (std::ostream &output, const TLEObType *myTLE);

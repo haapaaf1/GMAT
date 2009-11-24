@@ -63,8 +63,8 @@ public :
 
     void AddManeuver(ManeuverCCSDSData *myManeuver);
     ManeuverCCSDSData* GetCurrentManeuver();
-    void AdvanceToNextManeuver();
-    void BackupToPreviousManeuver();
+    bool AdvanceToNextManeuver();
+    bool BackupToPreviousManeuver();
 
     //bool IsParameterRequired(const Integer id) const;
 

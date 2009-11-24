@@ -40,9 +40,6 @@ public :
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
 
-    // Functions to verify data availability
-    bool CheckDataAvailability(const std::string str) const;
-
     const std::string* GetDataTypes() const;
     std::string GetDataTypeText(const Integer &id) const;
     Integer GetDataTypeID(const std::string &label);

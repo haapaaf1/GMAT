@@ -356,6 +356,7 @@ OBJECTS = \
     measurement/GeometricRangeAzElMeasurementModel.o \
     measurementutil/ObType.o \
     measurementutil/B3ObType.o \
+    measurementutil/SLRHeader.o \
     measurementutil/SLRObType.o \
     measurementutil/TLEObType.o \
     measurementutil/CCSDS/CCSDSObTypes/CCSDSObType.o \

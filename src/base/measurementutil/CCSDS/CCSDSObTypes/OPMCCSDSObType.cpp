@@ -260,29 +260,40 @@ ManeuverCCSDSData* OPMCCSDSObType::GetCurrentManeuver()
 }
 
 //------------------------------------------------------------------------------
-// void AdvanceToNextManeuver()
+// bool AdvanceToNextManeuver()
 //------------------------------------------------------------------------------
 /**
  * Moves the iterator pointer to the next CCSDS maneuver variable construct
  *
  */
 //------------------------------------------------------------------------------
-void OPMCCSDSObType::AdvanceToNextManeuver()
+bool OPMCCSDSObType::AdvanceToNextManeuver()
 {
    i_ccsdsOPMManeuvers++;
+
+   if (i_ccsdsOPMManeuvers == ccsdsOPMManeuvers.end())
+       return false;
+   else
+       return true;
 }
 
 //------------------------------------------------------------------------------
-// void BackupToPreviousManeuver()
+// bool BackupToPreviousManeuver()
 //------------------------------------------------------------------------------
 /**
  * Moves the iterator pointer to the previous CCSDS maneuver variable construct
  *
  */
 //------------------------------------------------------------------------------
-void OPMCCSDSObType::BackupToPreviousManeuver()
+bool OPMCCSDSObType::BackupToPreviousManeuver()
 {
    i_ccsdsOPMManeuvers--;
+
+   if (i_ccsdsOPMManeuvers == ccsdsOPMManeuvers.begin())
+       return false;
+   else
+       return true;
+
 }
 
 //------------------------------------------------------------------------------

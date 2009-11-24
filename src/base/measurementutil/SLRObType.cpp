@@ -618,34 +618,6 @@ Real SLRObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
-
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
- bool SLRObType::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-
-    for (Integer i = 0; i < EndSLRDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                                   .set_extended(true)
-                       ).FullMatch(SLR_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
  
  //------------------------------------------------------------------------------
 // const std::string* GetDataTypes() const
@@ -752,38 +724,6 @@ Integer SLRObType::GetTimeSystemID(const std::string &label)
 }
 
 //------------------------------------------------------------------------------
-//  Integer  SLRCheckSum(const std::string &str)
-//------------------------------------------------------------------------------
-/**
- * This method computes the checksum for a string of SLR data
- *
- * @param <str> String of data
- *
- * @return Integer checksum modulo 10
- */
-//------------------------------------------------------------------------------
-Integer SLRCheckSum(const std::string &str)
-{
-
-    Integer checksum = 0;
-    int num = 0 ;
-
-    for ( Integer pos = 0; pos < (Integer)str.length(); ++pos )
-    {
-        // If it's a number, add the number to the checksum
-        // ignore everything else
-        if (pcrecpp::RE("(\\d)").FullMatch(str.substr(pos,1),&num))
-        {
-            checksum += num;
-            num = 0;
-        }
-    }
-
-    return GmatMathUtil::Mod(checksum,100);
-
-}
-
-//------------------------------------------------------------------------------
 // std::ostream& operator<< (std::ostream &output, const SLRObType &mySLR)
 //------------------------------------------------------------------------------
 /**
@@ -801,7 +741,7 @@ std::ostream& operator<< (std::ostream &output, const SLRObType *mySLR)
     ostringstream buffer;
 
     // Output either standard data record or engineering data record
-    if ((mySLR->slrHeader)->slrType == 99999)
+    if ((mySLR->slrHeader)->GetSLRType() == 99999)
     {
         // The time of laser firing and the two way time of flight
         // is too large of an integer to store in an INT or even a LONG INT
@@ -830,7 +770,7 @@ std::ostream& operator<< (std::ostream &output, const SLRObType *mySLR)
         output << buffer.str();
         output << setw(2) << SLRCheckSum(buffer.str()) << endl;
     }
-    else if ((mySLR->slrHeader)->slrType == 88888)
+    else if ((mySLR->slrHeader)->GetSLRType() == 88888)
     {
 
         // The time of laser firing and the two way time of flight
@@ -864,74 +804,6 @@ std::ostream& operator<< (std::ostream &output, const SLRObType *mySLR)
         output << buffer.str();
         output << setw(2) << SLRCheckSum(buffer.str()) << endl;
     }
-
-    return output;
-}
-
-//------------------------------------------------------------------------------
-// std::ostream& operator<< (std::ostream &output, SLRHeader *mySLRheader)
-//------------------------------------------------------------------------------
-/**
- * Formats SLRObType value and sends to output stream.
- *
- * @param  output  Output stream
- * @param  mySLR   SLR observation to write out
- *
- * return  Output stream
- */
-//------------------------------------------------------------------------------
-std::ostream& operator<< (std::ostream &output, const SLRHeader *mySLRheader)
-{
-    // TLE's have a maximum length of 68 characters plus a 1 character checksum
-    ostringstream buffer;
-
-    // Write the record type
-    // 99999 for regular data
-    // 88888 for engineering data
-    output << mySLRheader->slrType << endl;
-
-    // Write the header record itself
-    buffer << setw(7) << mySLRheader->ilrsSatnum;
-    // Put year in two digit format
-    if ( mySLRheader->year >= 2000 )
-    {
-        buffer << setw(2) << setfill('0') << right << mySLRheader->year-2000;
-    }
-    else
-    {
-        buffer << setw(2) << setfill('0') << right << mySLRheader->year-1900;
-    }
-
-    buffer << setw(3) << setfill('0') << right << mySLRheader->dayOfYear;
-    buffer << setw(4) << mySLRheader->cdpPadID;
-    buffer << setw(2) << mySLRheader->cdpSysNum;
-    buffer << setw(2) << mySLRheader->cdpOccupancySequenceNum;
-    if (mySLRheader->wavelength >= 300 && mySLRheader->wavelength < 1000)
-    {
-        int wv = mySLRheader->wavelength*10 + 0.5;
-        buffer << setw(4) << setfill('0') << left << wv;
-    }
-    else if (mySLRheader->wavelength >= 1000 && mySLRheader->wavelength < 3000)
-    {
-        int wv = mySLRheader->wavelength + 0.5;
-        buffer << setw(4) << setfill('0') << left << wv;
-    }
-
-    buffer << setw(8) << setfill('0') << right << mySLRheader->calSysDelay;
-    buffer << setw(6) << setfill('0') << right << mySLRheader->calDelayShift;
-    buffer << setw(4) << setfill('0') << right << mySLRheader->rmsSysDelay;
-    buffer << setw(1) << mySLRheader->normalPointWindowIndicator;
-    buffer << setw(1) << mySLRheader->epochTimeScaleIndicator;
-    buffer << setw(1) << mySLRheader->sysCalMethodIndicator;
-    buffer << setw(1) << mySLRheader->schIndicator;
-    buffer << setw(1) << mySLRheader->sciIndicator;
-    buffer << setw(4) << setfill('0') << right << mySLRheader->passRMS;
-    buffer << setw(1) << mySLRheader->dataQualAssessmentIndicator;
-
-    // Output buffer string to file along with checksum and format revision number
-    output << buffer.str();
-    output << setw(2) << SLRCheckSum(buffer.str());
-    output << setw(1) << mySLRheader->formatRevisionNum << endl;
 
     return output;
 }

@@ -103,9 +103,6 @@ public:
 
     // Function to validate data
     virtual bool Validate() const;
-
-    // Functions to verify data availability
-    virtual bool CheckDataAvailability(const std::string str) const;
            
     // Test if data format requires this parameter to be
     // defined in order to have a valid data record
@@ -117,9 +114,13 @@ public:
     Integer GetObTypeID(std::string keyword);
     
     A1Date& GetEpoch();
+    void SetEpoch(A1Date &myDate);
     Integer GetSatID();
+    void SetSatID(Integer &mySatID);
     std::string GetInternationalDesignator();
+    void SetInternationalDesignator(std::string &myID);
     Integer GetSensorID();
+    void SetSensorID(Integer &mySensorID);
     
     friend std::string Ilrs2Cospar(std::string ilrsSatnum);
     friend std::string Cospar2Ilrs(std::string cosparSatnum);
@@ -131,7 +132,7 @@ public:
 
 protected:
 
-    static const std::string ObType::OBTYPES[EndObTypeReps];
+    static const std::string OBTYPES[EndObTypeReps];
 
 
     // This is the GMAT epoch time in the Goddard A1 time system

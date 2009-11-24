@@ -140,6 +140,21 @@ A1Date& ObType::GetEpoch()
 }
 
 //------------------------------------------------------------------------------
+// void SetEpoch(A1Date &myDate)
+//------------------------------------------------------------------------------
+/**
+ * Code used to set the epoch
+ *
+ * @param <myDate> The epoch in GMAT A1 time
+ *
+ */
+//------------------------------------------------------------------------------
+void ObType::SetEpoch(A1Date &myDate)
+{
+   epoch = myDate;
+}
+
+//------------------------------------------------------------------------------
 // Integer GetSatID()
 //------------------------------------------------------------------------------
 /**
@@ -152,6 +167,21 @@ A1Date& ObType::GetEpoch()
 Integer ObType::GetSatID()
 {
    return satelliteID;
+}
+
+//------------------------------------------------------------------------------
+// void GetSatID(Integer &mySatID)
+//------------------------------------------------------------------------------
+/**
+ * Code used to set the satellite ID
+ *
+ * @param <mySatID> The satellite ID corresponding to the NORAD catalog
+ *
+ */
+//------------------------------------------------------------------------------
+void ObType::SetSatID(Integer &mySatID)
+{
+   satelliteID = mySatID;
 }
 
 //------------------------------------------------------------------------------
@@ -170,6 +200,21 @@ std::string ObType::GetInternationalDesignator()
 }
 
 //------------------------------------------------------------------------------
+// void SetInternationalDesignator(std::string &myID)
+//------------------------------------------------------------------------------
+/**
+ * Code used to set the international designator
+ *
+ * @return The international designator
+ *
+ */
+//------------------------------------------------------------------------------
+void ObType::SetInternationalDesignator(std::string &myID)
+{
+   internationalDesignator = myID;
+}
+
+//------------------------------------------------------------------------------
 // Integer GetSensorID()
 //------------------------------------------------------------------------------
 /**
@@ -182,6 +227,21 @@ std::string ObType::GetInternationalDesignator()
 Integer ObType::GetSensorID()
 {
    return sensorID;
+}
+
+//------------------------------------------------------------------------------
+// void GetSensorID(Integer mySensorID)
+//------------------------------------------------------------------------------
+/**
+ * Code used to set the sensor ID
+ *
+ * @param <mySensorID> The sensorID
+ *
+ */
+//------------------------------------------------------------------------------
+void ObType::SetSensorID(Integer &mySensorID)
+{
+   sensorID = mySensorID;
 }
 
 //------------------------------------------------------------------------------
@@ -733,20 +793,6 @@ bool ObType::IsParameterRequired(const std::string &label) const
  */
 //------------------------------------------------------------------------------
 bool ObType::Validate() const
-{
-   return false;
-}
-
-//------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
- bool ObType::CheckDataAvailability(const std::string str) const
 {
    return false;
 }

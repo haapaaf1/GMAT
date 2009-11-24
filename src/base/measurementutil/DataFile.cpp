@@ -855,7 +855,7 @@ Integer DataFile::GetSortedBy() const
 {
    i_theData++;
    
-   if (i_theData == theData.end()) 
+   if (i_theData == theData.end())
        return false;
    else
        return true;

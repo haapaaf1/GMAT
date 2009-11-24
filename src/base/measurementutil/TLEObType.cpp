@@ -232,34 +232,6 @@ GmatBase* TLEObType::Clone() const
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-//  bool CheckDataAvailability(const std::string str) const
-//------------------------------------------------------------------------------
-/**
- * Checks to see if data is available in a given data format
- *
- * @return true if successfull
- */
-//------------------------------------------------------------------------------
- bool TLEObType::CheckDataAvailability(const std::string str) const
-{
-
-    std::string regex = "^" + str + "$";
-    
-    for (Integer i = 0; i < EndTLEDataReps; i++)
-    {
-        if (pcrecpp::RE(regex,pcrecpp::RE_Options().set_caseless(true)
-                                          .set_extended(true)
-                       ).FullMatch(TLE_FILEFORMAT_DESCRIPTIONS[i]))
-        {
-            return true;
-        }
-    }
-
-   return false;
-
-}
- 
-//------------------------------------------------------------------------------
 //  std::string  GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
