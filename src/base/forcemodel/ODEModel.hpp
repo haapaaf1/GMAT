@@ -187,13 +187,6 @@ public:
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
    virtual std::string  BuildPropertyName(GmatBase *ownedObj);
    
-   #ifdef __WITH_FM_GEN_STRING__
-   virtual const std::string&
-   GetGeneratingString(Gmat::WriteMode mode = Gmat::SCRIPTING,
-                       const std::string &prefix = "",
-                       const std::string &useName = "");
-   #endif
-   
    void                 UpdateInitialData(bool dynamicOnly = false);
    void                 ReportEpochData();
    

@@ -405,13 +405,14 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 
    #ifdef DEBUG_ODEMODEL_INIT
       MessageInterface::ShowMessage(
-         "ODEModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
-         pPhysicalModel->GetTypeName().c_str());
+         "ODEModel::AddForce() <%p>'%s' entered, adding force = <%p><%s>'%s'\n", this,
+         GetName().c_str(), pPhysicalModel, pPhysicalModel->GetTypeName().c_str(),
+         pPhysicalModel->GetName().c_str());
    #endif       
-    
+   
    pPhysicalModel->SetDimension(dimension);
    initialized = false;
-    
+   
    // Handle the name issues
    std::string pmType = pPhysicalModel->GetTypeName();
    if (pmType == "DragForce")
@@ -464,6 +465,9 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
    if (find(forceList.begin(), forceList.end(), pPhysicalModel) == forceList.end())
       forceList.push_back(pPhysicalModel);
    numForces = forceList.size();
+   
+   // Update owned object count
+   ownedObjectCount = numForces;
 }
 
 //------------------------------------------------------------------------------
@@ -502,7 +506,8 @@ void ODEModel::DeleteForce(const std::string &name)
             #endif
             delete pm;
          }
-         
+
+         ownedObjectCount = numForces;
          return;
       }
    }
@@ -539,7 +544,8 @@ void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
             #endif
             delete pm;
          }
-         
+
+         ownedObjectCount = numForces;
          return;
       }
    }
@@ -1379,6 +1385,11 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
 //------------------------------------------------------------------------------
 Integer ODEModel::GetOwnedObjectCount()
 {
+   #ifdef DEBUG_ODEMODEL_OWNED_OBJECT
+   MessageInterface::ShowMessage
+      ("ODEModel::GetOwnedObjectCount() this=<%p>'%s' returning %d\n",
+       this, GetName().c_str(), numForces);
+   #endif
    return numForces;
 }
 
@@ -3074,203 +3085,6 @@ ObjectArray& ODEModel::GetRefObjectArray(const std::string& typeString)
    }
    return objects;
 }
-
-
-//We can remove GetGeneratingString() and WriteFMParameters() now (loj: 2008.01.25)
-#ifdef __WITH_FM_GEN_STRING__
-//------------------------------------------------------------------------------
-// StringArray GetGeneratingString(Gmat::WriteMode mode,
-//                const std::string &prefix, const std::string &useName)
-//------------------------------------------------------------------------------
-/**
- * Produces a string, possibly multi-line, containing the text that produces an
- * object.
- *
- * @param mode Specifies the type of serialization requested.
- * @param prefix Optional prefix appended to the object's name
- * @param useName Name that replaces the object's name.
- *
- * @return A string containing the text.
- *
- * @note Temporarily (?) put this code here to facilitate writing force model
- *       parms prior to 5/25/05 demo
- */
-//------------------------------------------------------------------------------
-const std::string& ODEModel::GetGeneratingString(Gmat::WriteMode mode,
-                                                   const std::string &prefix,
-                                                   const std::string &useName)
-{
-   #ifdef DEBUG_GEN_STRING
-   MessageInterface::ShowMessage
-      ("ODEModel::GetGeneratingString() this=%p, mode=%d, prefix=%s, "
-       "useName=%s\n", this, mode, prefix.c_str(), useName.c_str());
-   #endif
-   
-   std::stringstream data;
-   
-   // Crank up data precision so we don't lose anything
-   data.precision(GmatGlobal::Instance()->GetDataPrecision());
-   std::string preface = "", nomme;
-   
-   if ((mode == Gmat::SCRIPTING) || (mode == Gmat::OWNED_OBJECT) ||
-       (mode == Gmat::SHOW_SCRIPT))
-      inMatlabMode = false;
-   if (mode == Gmat::MATLAB_STRUCT || mode == Gmat::EPHEM_HEADER)
-      inMatlabMode = true;
-
-   if (useName != "")
-      nomme = useName;
-   else
-      nomme = instanceName;
-
-   if ((mode == Gmat::SCRIPTING) || (mode == Gmat::SHOW_SCRIPT) ||
-       (mode == Gmat::EPHEM_HEADER))
-   {
-      std::string tname = typeName;
-      if (tname == "PropSetup")
-         tname = "Propagator";
-      
-      if (mode == Gmat::EPHEM_HEADER)
-      {
-         data << tname << " = " << "'" << nomme << "';\n";
-         preface = "";
-      }
-      else
-      {
-         data << "Create " << tname << " " << nomme << ";\n";
-         preface = "GMAT ";
-      }
-   }
-
-   nomme += ".";
-
-   if (mode == Gmat::OWNED_OBJECT) {
-      preface = prefix;
-      nomme = "";
-   }
-   
-   preface += nomme;
-   WriteFMParameters(mode, preface, data);
-   
-   generatingString = data.str();
-   
-   return generatingString;
-   
-   // Call the base class method for preface and inline comments
-   //return GmatBase::GetGeneratingString(mode, prefix, useName);
-}
-
-
-//------------------------------------------------------------------------------
-// void WriteFMParameters(std::string &prefix, GmatBase *obj)
-//------------------------------------------------------------------------------
-/**
- * Code that writes the parameter details for an object.
- *
- * @param prefix Starting portion of the script string used for the parameter.
- * @param obj The object that is written.
- *
- * @note Temporarily (?) put this code here to facilitate writing force model
- *       parms prior to 5/25/05 demo
- */
-//------------------------------------------------------------------------------
-void ODEModel::WriteFMParameters(Gmat::WriteMode mode, std::string &prefix,
-                                   std::stringstream &stream)
-{
-   Integer i;
-   Gmat::ParameterType parmType;
-   std::stringstream value;
-   value.precision(GmatGlobal::Instance()->GetDataPrecision());
-      
-   for (i = 0; i < parameterCount; ++i)
-   {
-      if (IsParameterReadOnly(i) == false)
-      {
-         parmType = GetParameterType(i);
-         // Handle StringArray parameters separately
-         if (parmType != Gmat::STRINGARRAY_TYPE)
-         {
-            // Skip unhandled types
-            if (
-                (parmType != Gmat::UNSIGNED_INTARRAY_TYPE) &&
-                (parmType != Gmat::RVECTOR_TYPE) &&
-                (parmType != Gmat::RMATRIX_TYPE) &&
-                (parmType != Gmat::UNKNOWN_PARAMETER_TYPE)
-               )
-            {
-               // Fill in the l.h.s.
-               value.str("");
-               WriteParameterValue(i, value);
-               if (value.str() != "")
-                  stream << prefix << GetParameterText(i)
-                         << " = " << value.str() << ";\n";
-            }
-         }
-         else
-         {
-            // Handle StringArrays
-            StringArray sar = GetStringArrayParameter(i);
-            if (sar.size() > 0)
-            {
-               stream << prefix << GetParameterText(i) << " = {";
-               for (StringArray::iterator n = sar.begin(); n != sar.end(); ++n)
-               {
-                  if (n != sar.begin())
-                     stream << ", ";
-                  if (inMatlabMode)
-                     stream << "'";
-                  stream << (*n);
-                  if (inMatlabMode)
-                     stream << "'";
-               }
-               stream << "};\n";
-            }
-         }
-      }
-   }
-   
-   GmatBase *ownedObject;
-   std::string nomme, newprefix;
-   
-   #ifdef DEBUG_OWNED_OBJECT_STRINGS
-      MessageInterface::ShowMessage
-         ("ODEModel::WriteFMParameters() \"%s\" has %d owned objects\n",
-          instanceName.c_str(), GetOwnedObjectCount());
-   #endif
-      
-   for (i = 0; i < GetOwnedObjectCount(); ++i)
-   {
-      newprefix = prefix;
-      ownedObject = GetOwnedObject(i);
-      if (ownedObject != NULL)
-      {
-         nomme = BuildForceNameString((PhysicalModel*)ownedObject);
-
-         #ifdef DEBUG_OWNED_OBJECT_STRINGS
-             MessageInterface::ShowMessage(
-                "   id %d has type %s and name \"%s\", addr=%p\n",
-                i, ownedObject->GetTypeName().c_str(),
-                nomme.c_str(), ownedObject);
-         #endif
-         
-         if (nomme != "")
-            newprefix += nomme + ".";
-         else if (GetType() == Gmat::FORCE_MODEL)
-            newprefix += ownedObject->GetTypeName() + ".";
-         
-         #ifdef DEBUG_OWNED_OBJECT_STRINGS
-         MessageInterface::ShowMessage
-            ("   Calling ownedObject->GetGeneratingString() with "
-             "newprefix='%s'\n", newprefix.c_str());
-         #endif
-         
-         stream << ownedObject->GetGeneratingString(Gmat::OWNED_OBJECT, newprefix);
-      }
-      else
-         MessageInterface::ShowMessage("Cannot access force %d\n", i);
-   }
-}
-#endif
 
 
 //------------------------------------------------------------------------------
