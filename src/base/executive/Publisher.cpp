@@ -943,7 +943,8 @@ void Publisher::SetRunState(const Gmat::RunState state)
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const std::string &satName)
+// void SetManeuvering(bool flag, Real epoch, const std::string &satName,
+//                     const std::string &desc)
 //------------------------------------------------------------------------------
 /**
  * Sets spacecraft maneuvering flag.
@@ -951,15 +952,43 @@ void Publisher::SetRunState(const Gmat::RunState state)
  * @param flag Set to true if maneuvering
  * @param epoch Epoch of maneuver
  * @param satName Name of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Publisher::SetManeuvering(bool flag, Real epoch, const std::string &satName)
+void Publisher::SetManeuvering(bool flag, Real epoch, const std::string &satName,
+                               const std::string &desc)
 {
    maneuvering = flag;
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
-      (*current)->SetManeuvering(flag, epoch, satName);
+      (*current)->SetManeuvering(flag, epoch, satName, desc);
+      current++;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+//                     const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft maneuvering flag.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver
+ * @param satNames Names of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Publisher::SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+                               const std::string &desc)
+{
+   maneuvering = flag;
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
+   {
+      (*current)->SetManeuvering(flag, epoch, satNames, desc);
       current++;
    }
 }
