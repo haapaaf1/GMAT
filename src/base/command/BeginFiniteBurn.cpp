@@ -600,6 +600,13 @@ bool BeginFiniteBurn::Execute()
       transientForces->push_back(burnForce);
    }
    
+   // Set maneuvering to Publisher so that any subscriber can do its own action
+   if (!sats.empty())
+   {
+      Real epoch = sats[0]->GetEpoch();
+      publisher->SetManeuvering(true, epoch, satNames, "begin of finite maneuver");
+   }
+   
    #ifdef DEBUG_BEGIN_MANEUVER_EXE
       MessageInterface::ShowMessage("Current TransientForces list:\n");
       for (std::vector<PhysicalModel*>::iterator j = transientForces->begin();

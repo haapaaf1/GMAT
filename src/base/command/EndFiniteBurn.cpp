@@ -552,6 +552,13 @@ bool EndFiniteBurn::Execute()
       }
    }
    
+   // Reset maneuvering to Publisher so that any subscriber can do its own action
+   if (!sats.empty())
+   {
+      Real epoch = sats[0]->GetEpoch();
+      publisher->SetManeuvering(false, epoch, satNames, "end of finite maneuver");
+   }
+   
    #ifdef DEBUG_END_MANEUVER_EXE
       MessageInterface::ShowMessage("EndFiniteBurn::Execute() Current TransientForces list:\n");
       for (std::vector<PhysicalModel*>::iterator j = transientForces->begin();
