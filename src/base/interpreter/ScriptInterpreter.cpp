@@ -1912,7 +1912,6 @@ void ScriptInterpreter::WriteObjects(StringArray &objs, const std::string &objDe
 //------------------------------------------------------------------------------
 void ScriptInterpreter::WriteODEModels(StringArray &objs, Gmat::WriteMode mode)
 {
-   GmatBase *object =  NULL;
    StringArray propOdes;
    ObjectArray props;
    
