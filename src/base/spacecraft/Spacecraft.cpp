@@ -3753,6 +3753,17 @@ const std::string& Spacecraft::GetGeneratingString(Gmat::WriteMode mode,
                                                    const std::string &prefix,
                                                    const std::string &useName)
 {
+   #ifdef DEBUG_GEN_STRING
+   MessageInterface::ShowMessage
+      ("Spacecraft::GetGeneratingString() <%p><%s>'%s' entered, mode=%d, "
+       "prefix='%s', useName='%s', \n", this, GetTypeName().c_str(),
+       GetName().c_str(), mode, prefix.c_str(), useName.c_str());
+   MessageInterface::ShowMessage
+      ("   showPrefaceComment=%d, commentLine=<%s>\n   showInlineComment=%d "
+       "inlineComment=<%s>\n",  showPrefaceComment, commentLine.c_str(),
+       showInlineComment, inlineComment.c_str());
+   #endif
+   
    std::stringstream data;
 
    data.precision(GetDataPrecision());   // Crank up data precision so we don't lose anything
@@ -3799,8 +3810,17 @@ const std::string& Spacecraft::GetGeneratingString(Gmat::WriteMode mode,
       ("==========> <%p>'%s'\n%s\n", this, GetName().c_str(), generatingString.c_str());
    #endif
    
+   #ifdef DEBUG_GEN_STRING
+   MessageInterface::ShowMessage
+      ("Spacecraft::GetGeneratingString() <%p><%s>'%s' leaving\n",
+       this, GetTypeName().c_str(), GetName().c_str());
+   #endif
+   
+   return generatingString;
+   
+   // Commented out all parameter writings are handled here (LOJ: 2009.11.23)
    // Then call the parent class method for preface and inline comments
-   return SpaceObject::GetGeneratingString(mode, prefix, useName);
+   //return SpaceObject::GetGeneratingString(mode, prefix, useName);
 }
 
 
@@ -3881,7 +3901,7 @@ void Spacecraft::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       
    Rvector6 repState = GetStateInRepresentation(displayStateType);
    
-   #ifdef DEBUG_SPACECRAFT_GEN_STRING
+   #ifdef DEBUG_WRITE_PARAMETERS
    MessageInterface::ShowMessage
       ("   trueAnomaly=%s\n", trueAnomaly.ToString().c_str());
    MessageInterface::ShowMessage
