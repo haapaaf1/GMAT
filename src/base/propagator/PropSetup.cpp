@@ -126,6 +126,13 @@ PropSetup::PropSetup(const std::string &name)
    mPropagator = new RungeKutta89("RungeKutta89");
    mODEModel = new ODEModel(mODEModelName);
    PhysicalModel *pmf = new PointMassForce;
+   
+   #ifdef DEBUG_PROPSETUP   
+   MessageInterface::ShowMessage
+      ("PropSetup::PropSetup() adding <%p><PointMassForce> to  "
+       "<%p><ODEModel>'InternalODEModel\n", pmf, mODEModel);
+   #endif
+   
    mODEModel->AddForce(pmf);
    
    #ifdef DEBUG_MEMORY
@@ -305,6 +312,11 @@ Propagator* PropSetup::GetPropagator()
 //------------------------------------------------------------------------------
 ODEModel* PropSetup::GetODEModel()
 {
+   #ifdef DEBUG_PROPSETUP_ODEMODEL
+   MessageInterface::ShowMessage
+      ("PropSetup::GetODEModel() returning <%p>'%s'\n", mODEModel,
+       mODEModel ? mODEModel->GetName().c_str() : "NULL");
+   #endif
    return mODEModel;
 }
 
@@ -358,7 +370,7 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
       ("PropSetup::SetODEModel() this=<%p> '%s' entered, mODEModel=<%p>, "
-       "ODEModel=<%p>\n", this, GetName().c_str(), mODEModel, odeModel);
+       "odeModel=<%p>\n", this, GetName().c_str(), mODEModel, odeModel);
    #endif
    
    if (odeModel == NULL)
@@ -1032,8 +1044,8 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
 {
    #ifdef DEBUG_PROPSETUP_GEN_STRING
    MessageInterface::ShowMessage
-      ("PropSetup::GetGeneratingString() '%s' entered, mODEModel=<%p> '%s'\n",
-       GetName().c_str(), mODEModel,
+      ("PropSetup::GetGeneratingString() <%p>'%s' entered, mODEModel=<%p> '%s'\n",
+       this, GetName().c_str(), mODEModel,
        mODEModel ? mODEModel->GetName().c_str() : "NULL");
    #endif
    std::string gen, fmName = "", temp;
@@ -1048,7 +1060,9 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
       }
       else
          fmName = temp;
-      
+
+      // For Gmat::SCRIPTING which saves to script file, we need to write
+      // ODEModels first so it is handled in the ScriptInterpreter.
       if (mode == Gmat::SHOW_SCRIPT)
          showODEModel = true;
       
@@ -1064,6 +1078,11 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
    gen += GmatBase::GetGeneratingString(mode, prefix, useName);
    generatingString = gen;
    
+   #ifdef DEBUG_PROPSETUP_GEN_STRING
+   MessageInterface::ShowMessage
+      ("PropSetup::GetGeneratingString() <%p>'%s' returning\n%s\n", this,
+       GetName().c_str(), generatingString.c_str());
+   #endif
    return generatingString;
 }
 
@@ -1112,8 +1131,9 @@ void PropSetup::CloneODEModel(ODEModel *fm)
 {
    #ifdef DEBUG_PROPSETUP_CLONE
    MessageInterface::ShowMessage
-      ("PropSetup::CloneODEModel() <%p>'%s' entered, fm=<%p>\n", this,
-       GetName().c_str(), fm);
+      ("PropSetup::CloneODEModel() <%p>'%s' entered, fm=<%p>, mODEModel=<%p>, "
+       "mODEModelName='%s'\n", this, GetName().c_str(), fm, mODEModel,
+       mODEModelName.c_str());
    #endif
    if (fm != NULL)
    {
