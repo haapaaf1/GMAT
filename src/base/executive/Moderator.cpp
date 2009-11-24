@@ -2728,7 +2728,7 @@ ODEModel* Moderator::CreateODEModel(const std::string &type,
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (fm, name, "Moderator::CreateParameter()", funcName);
+            (fm, name, "Moderator::CreateODEModel()", funcName);
       }
       #endif
       
@@ -2886,7 +2886,7 @@ Solver* Moderator::CreateSolver(const std::string &type, const std::string &name
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (solver, name, "Moderator::CreateParameter()", funcName);
+            (solver, name, "Moderator::CreateSolver()", funcName);
       }
       #endif
       
@@ -2946,13 +2946,18 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    MessageInterface::ShowMessage("Moderator::CreateDefaultPropSetup() name='%s'\n",
                                  name.c_str());
    #endif
-
-   // create PropSetup, it creates default RungeKutta89 Integrator
+   
+   // create PropSetup, PropSetup constructor creates default RungeKutta89 Integrator
+   // and Earth PointMassForce
    PropSetup *propSetup = CreatePropSetup(name);
    
    // create default force model with Earth primary body with JGM2
-   ODEModel *fm= CreateODEModel("ForceModel", name + "_ForceModel");
+   // Create unnamed ODEModel when creating default PropSetup (LOJ: 2009.11.23)
+   //ODEModel *fm= CreateODEModel("ForceModel", name + "_ForceModel");
+   ODEModel *fm= CreateODEModel("ForceModel", "");
+   fm->SetName(name + "_ForceModel");
    GravityField *gravForce = new GravityField("", "Earth");
+   
    #ifdef DEBUG_MEMORY
    std::string funcName;
    funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
@@ -2960,6 +2965,7 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
       (gravForce, gravForce->GetName(),
        "Moderator::CreateDefaultPropSetup(), *gravForce = new GravityField", funcName);
    #endif
+   
    gravForce->SetName("Earth");
    gravForce->SetSolarSystem(theSolarSystemInUse);
    gravForce->SetBody("Earth");
@@ -2967,6 +2973,15 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    gravForce->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));  
    fm->AddForce(gravForce);   
    propSetup->SetODEModel(fm);
+   
+   // PropSetup::SetODEModel() clones the ODEModel, so delete it from here (LOJ: 2009.11.23)
+   #ifdef DEBUG_MEMORY
+   funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+   MemoryTracker::Instance()->Remove
+      (fm, fm->GetName(), "Moderator::CreateDefaultPropSetup()"
+       "deleting fm", funcName);
+   #endif
+   delete fm;
    
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
