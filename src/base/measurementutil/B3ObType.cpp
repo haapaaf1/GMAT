@@ -492,6 +492,218 @@ Real B3ObType::GetRealDataParameter(const std::string &label) const
 }
 
 //------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool B3ObType::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+       case B3_SECONDS_ID:
+
+            seconds = value;
+            return true;
+
+        case B3_ELEVATION_ID:
+
+            elevation = value;
+            return true;
+
+        case B3_DECLINATION_ID:
+
+            declination = value;
+            return true;
+
+        case B3_RIGHTASCENSION_ID:
+
+            rightAscension = value;
+            return true;
+
+        case B3_AZIMUTH_ID:
+
+            azimuth = value;
+            return true;
+
+        case B3_RANGE_ID:
+
+            range = value;
+            return true;
+
+        case B3_RANGERATE_ID:
+
+            rangeRate = value;
+            return true;
+
+        case B3_ECFX_ID:
+
+            ecf_X = value;
+            return true;
+
+        case B3_ECFY_ID:
+
+            ecf_Y = value;
+            return true;
+
+        case B3_ECFZ_ID:
+
+            ecf_Z = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool B3ObType::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool B3ObType::SetDataParameter(const Integer id, const Integer &value)
+{
+    switch (id)
+    {
+        case B3_TYPE_ID:
+
+            b3Type = value;
+            return true;
+
+        case B3_SATELLITE_ID:
+
+            satelliteID = value;
+            return true;
+
+        case B3_SENSORID_ID:
+
+            sensorID = value;
+            return true;
+
+        case B3_YEAR_ID:
+
+            year = value;
+            return true;
+
+        case B3_DAYOFYEAR_ID:
+
+            dayOfYear = value;
+            return true;
+
+        case B3_HOUR_ID:
+
+            hour = value;
+            return true;
+
+        case B3_MINUTE_ID:
+
+            minute = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool B3ObType::SetDataParameter(const std::string &label, const Integer &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool B3ObType::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+        case B3_SECURITYCLASSIFICATION_ID:
+
+            securityClassification = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool B3ObType::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
 // const std::string* GetDataTypes() const
 //------------------------------------------------------------------------------
 /**

@@ -101,6 +101,19 @@ public:
     virtual StringArray GetStringArrayDataParameter(const Integer id) const;
     virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
 
+    virtual bool        SetDataParameter(const Integer id, const Integer &value);
+    virtual bool        SetDataParameter(const std::string &label, const Integer &value);
+    virtual bool        SetDataParameter(const Integer id, const IntegerArray &value);
+    virtual bool        SetDataParameter(const std::string &label, const IntegerArray &value);
+    virtual bool        SetDataParameter(const Integer id, const Real &value);
+    virtual bool        SetDataParameter(const std::string &label, const Real &value);
+    virtual bool        SetDataParameter(const Integer id, const std::string &value);
+    virtual bool        SetDataParameter(const std::string &label, const std::string &value);
+    virtual bool        SetDataParameter(const Integer id, const StringArray &value);
+    virtual bool        SetDataParameter(const std::string &label, const StringArray &value);
+    virtual bool        SetDataParameter(const Integer id, const bool &value);
+    virtual bool        SetDataParameter(const std::string &label, const bool &value);
+    
     // Function to validate data
     virtual bool Validate() const;
            

@@ -91,6 +91,13 @@ public :
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
 
+    bool SetDataParameter(const Integer id, const Integer &value);
+    bool SetDataParameter(const std::string &label, const Integer &value);
+    bool SetDataParameter(const Integer id, const Real &value);
+    bool SetDataParameter(const std::string &label, const Real &value);
+    bool SetDataParameter(const Integer id, const std::string &value);
+    bool SetDataParameter(const std::string &label, const std::string &value);
+
     friend Integer TLECheckSum(const std::string &str);
 
     friend std::ostream& operator<< (std::ostream &output, const TLEObType *myTLE);

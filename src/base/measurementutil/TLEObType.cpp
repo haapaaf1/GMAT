@@ -366,7 +366,6 @@ Integer TLEObType::GetIntegerDataParameter(const Integer id) const
    
 }
 
-
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
@@ -481,6 +480,212 @@ Real TLEObType::GetRealDataParameter(const Integer id) const
 Real TLEObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool TLEObType::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+       case TLE_EPOCHDAYOFYEAR_ID:
+
+            epochDayOfYear = value;
+            return true;
+
+        case TLE_NDOTBY2_ID:
+
+            ndotby2 = value;
+            return true;
+
+        case TLE_NDDOTBY6_ID:
+
+            nddotby6 = value;
+            return true;
+
+        case TLE_BSTAR_ID:
+
+            bstar = value;
+            return true;
+
+        case TLE_INCLINATION_ID:
+
+            inclination = value;
+            return true;
+
+        case TLE_RAAN_ID:
+
+            raan = value;
+            return true;
+
+        case TLE_ECCENTRICITY_ID:
+
+            eccentricity = value;
+            return true;
+
+        case TLE_ARGPERIGEE_ID:
+
+            argPerigee = value;
+            return true;
+
+        case TLE_MEANANOMALY_ID:
+
+            meanAnomaly = value;
+            return true;
+
+        case TLE_MEANMOTION_ID:
+
+            meanMotion = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TLEObType::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool TLEObType::SetDataParameter(const Integer id, const Integer &value)
+{
+    switch (id)
+    {
+        case TLE_SATNUM_ID:
+
+            satnum = value;
+            return true;
+
+        case TLE_EPOCHYEAR_ID:
+
+            epochYear = value;
+            return true;
+
+        case TLE_EPHEMERISTYPE_ID:
+
+            ephemerisType = value;
+            return true;
+
+        case TLE_ELEMENTNUM_ID:
+
+            elementNum = value;
+            return true;
+
+        case TLE_REVOLUTIONNUM_ID:
+
+            revolutionNum = value;
+            return true;
+
+        default:
+
+            return false;
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TLEObType::SetDataParameter(const std::string &label, const Integer &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool TLEObType::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+        case TLE_SECURITYCLASSIFICATION_ID:
+
+            securityClassification = value;
+            return true;
+
+        case TLE_INTLDESIGNATOR_ID:
+
+            intlDesignator = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TLEObType::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //------------------------------------------------------------------------------

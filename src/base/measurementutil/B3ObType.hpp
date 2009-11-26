@@ -40,6 +40,13 @@ public :
     std::string GetStringDataParameter(const Integer id) const;
     std::string GetStringDataParameter(const std::string &label) const;
 
+    bool SetDataParameter(const Integer id, const Integer &value);
+    bool SetDataParameter(const std::string &label, const Integer &value);
+    bool SetDataParameter(const Integer id, const Real &value);
+    bool SetDataParameter(const std::string &label, const Real &value);
+    bool SetDataParameter(const Integer id, const std::string &value);
+    bool SetDataParameter(const std::string &label, const std::string &value);
+
     const std::string* GetDataTypes() const;
     std::string GetDataTypeText(const Integer &id) const;
     Integer GetDataTypeID(const std::string &label);

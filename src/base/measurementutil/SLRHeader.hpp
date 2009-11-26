@@ -38,7 +38,58 @@ public:
     friend class SLRObType;
     friend class SLRDataFile;
 
+    // Data access functions
+    std::string GetDataParameterText(const Integer id) const;
+    Integer     GetDataParameterID(const std::string &str) const;
+    Gmat::ParameterType GetDataParameterType(const Integer id) const;
+    std::string GetDataParameterTypeString(const Integer id) const;
+    std::string GetDataUnits(const Integer id) const;
+
+    Integer     GetIntegerDataParameter(const Integer id) const;
+    Integer     GetIntegerDataParameter(const std::string &label) const;
+    Real        GetRealDataParameter(const Integer id) const;
+    Real        GetRealDataParameter(const std::string &label) const;
+    std::string GetStringDataParameter(const Integer id) const;
+    std::string GetStringDataParameter(const std::string &label) const;
+    
+    bool SetDataParameter(const Integer id, const Integer &value);
+    bool SetDataParameter(const std::string &label, const Integer &value);
+    bool SetDataParameter(const Integer id, const Real &value);
+    bool SetDataParameter(const std::string &label, const Real &value);
+    bool SetDataParameter(const Integer id, const std::string &value);
+    bool SetDataParameter(const std::string &label, const std::string &value);
+
+    enum SLR_HEADERDATA_REPS
+    {
+        SLR_TYPE_ID,
+	SLR_ILRSSATNUM_ID,
+	SLR_YEAR_ID,
+	SLR_DAYOFYEAR_ID,
+	SLR_CDPPADID_ID,
+	SLR_CDPSYSNUM_ID,
+	SLR_CDPOCCUPANCYSEQUENCENUM_ID,
+	SLR_WAVELENGTH_ID,
+	SLR_CALSYSDELAY_ID,
+	SLR_CALDELAYSHIFT_ID,
+	SLR_RMSSYSDELAY_ID,
+	SLR_NORMALPOINTWINDOWINDICATOR_ID,
+	SLR_EPOCHTIMESCALEINDICATOR_ID,
+	SLR_SYSCALMETHODINDICATOR_ID,
+	SLR_SCHINDICATOR_ID,
+	SLR_SCIINDICATOR_ID,
+	SLR_PASSRMS_ID,
+	SLR_DATAQUALASSESSMENTINDICATOR_ID,
+	SLR_FORMATREVISIONNUM_ID,
+        EndSLRHeaderDataReps
+    };
+
+
 protected:
+
+    static const bool SLR_IS_REQUIRED[EndSLRHeaderDataReps];
+    static const Gmat::ParameterType SLR_PARAMETER_TYPE[EndSLRHeaderDataReps];
+    static const std::string SLR_UNIT_DESCRIPTIONS[EndSLRHeaderDataReps];
+    static const std::string SLR_FILEFORMAT_DESCRIPTIONS[EndSLRHeaderDataReps];
     
     // SLR Type
     // 99999 - Standard observation data

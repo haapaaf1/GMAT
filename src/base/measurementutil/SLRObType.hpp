@@ -33,25 +33,6 @@ public :
     
     enum SLR_DATA_REPS
     {
-	SLR_TYPE_ID,
-	SLR_ILRSSATNUM_ID,
-	SLR_YEAR_ID,
-	SLR_DAYOFYEAR_ID,
-	SLR_CDPPADID_ID,
-	SLR_CDPSYSNUM_ID,
-	SLR_CDPOCCUPANCYSEQUENCENUM_ID,
-	SLR_WAVELENGTH_ID,
-	SLR_CALSYSDELAY_ID,
-	SLR_CALDELAYSHIFT_ID,
-	SLR_RMSSYSDELAY_ID,
-	SLR_NORMALPOINTWINDOWINDICATOR_ID,
-	SLR_EPOCHTIMESCALEINDICATOR_ID,
-	SLR_SYSCALMETHODINDICATOR_ID,
-	SLR_SCHINDICATOR_ID,
-	SLR_SCIINDICATOR_ID,
-	SLR_PASSRMS_ID,
-	SLR_DATAQUALASSESSMENTINDICATOR_ID,
-	SLR_FORMATREVISIONNUM_ID,
 	SLR_TIMEOFLASERFIRING_ID,
 	SLR_TWOWAYTIMEOFFLIGHT_ID,
 	SLR_BINRMSRANGE_ID,
@@ -82,9 +63,12 @@ public :
     Real     GetRealDataParameter(const std::string &label) const;
     Integer     GetIntegerDataParameter(const Integer id) const;
     Integer     GetIntegerDataParameter(const std::string &label) const;
-    std::string GetStringDataParameter(const Integer id) const;
-    std::string GetStringDataParameter(const std::string &label) const;
-    
+
+    bool SetDataParameter(const Integer id, const Integer &value);
+    bool SetDataParameter(const std::string &label, const Integer &value);
+    bool SetDataParameter(const Integer id, const Real &value);
+    bool SetDataParameter(const std::string &label, const Real &value);
+
     const std::string* GetDataTypes() const;
     std::string GetDataTypeText(const Integer &id) const;
     Integer GetDataTypeID(const std::string &label);

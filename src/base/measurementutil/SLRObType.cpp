@@ -19,25 +19,6 @@ const std::string SLRObType::SLR_TIMESYSTEM_DESCRIPTIONS[EndSLRTimeReps] =
 
 const std::string SLRObType::SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
 {
-	"SlrType",
-	"IlrsSatnum",
-	"Year",
-	"DayOfYear",
-	"CdpPadID",
-	"CdpSysNum",
-	"CdpOccupancySequenceNum",
-	"Wavelength",
-	"CalSysDelay",
-	"CalDelayShift",
-	"RmsSysDelay",
-	"NormalPointWindowIndicator",
-	"EpochTimeScaleIndicator",
-	"SysCalMethodIndicator",
-	"SchIndicator",
-	"SciIndicator",
-	"PassRMS",
-	"DataQualAssessmentIndicator",
-	"FormatRevisionNum",
 	"TimeOfLaserFiring",
 	"TwoWayTimeOfFlight",
 	"BinRMSRange",
@@ -58,25 +39,6 @@ const std::string SLRObType::SLR_FILEFORMAT_DESCRIPTIONS[EndSLRDataReps] =
 
 const std::string SLRObType::SLR_UNIT_DESCRIPTIONS[EndSLRDataReps] =
 {
-	"",
-	"",
-	"years",
-	"DayOfYear",
-	"",
-	"",
-	"",
-	"nm",
-	"picosec",
-	"picosec",
-	"picosec",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"picosec",
-	"",
-	"",
 	"sec",
 	"sec",
 	"picosec",
@@ -97,25 +59,6 @@ const std::string SLRObType::SLR_UNIT_DESCRIPTIONS[EndSLRDataReps] =
 
 const Gmat::ParameterType SLRObType::SLR_PARAMETER_TYPE[EndSLRDataReps] =
 {
-	Gmat::INTEGER_TYPE,
-	Gmat::STRING_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::INTEGER_TYPE,
 	Gmat::REAL_TYPE,
 	Gmat::REAL_TYPE,
 	Gmat::INTEGER_TYPE,
@@ -136,25 +79,6 @@ const Gmat::ParameterType SLRObType::SLR_PARAMETER_TYPE[EndSLRDataReps] =
 
 const bool SLRObType::SLR_IS_REQUIRED[EndSLRDataReps] =
 {
-    true,
-    true,
-    true,
-    true,
-    true,
-    false,
-    false,
-    true,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    true,
     true,
     true,
     false,
@@ -405,74 +329,6 @@ Integer SLRObType::GetIntegerDataParameter(const Integer id) const
 
     switch (id)
     {
-        case SLR_TYPE_ID:
-
-            return slrHeader->slrType;
-
-        case SLR_YEAR_ID:
-
-            return slrHeader->year;
-
-        case SLR_DAYOFYEAR_ID:
-
-            return slrHeader->dayOfYear;
-
-        case SLR_CDPPADID_ID:
-
-            return slrHeader->cdpPadID;
-
-        case SLR_CDPSYSNUM_ID:
-
-            return slrHeader->cdpSysNum;
-
-        case SLR_CDPOCCUPANCYSEQUENCENUM_ID:
-
-            return slrHeader->cdpOccupancySequenceNum;
-
-        case SLR_CALSYSDELAY_ID:
-
-            return slrHeader->calSysDelay;
-
-        case SLR_CALDELAYSHIFT_ID:
-
-            return slrHeader->calDelayShift;
-
-        case SLR_RMSSYSDELAY_ID:
-
-            return slrHeader->rmsSysDelay;
-
-        case SLR_NORMALPOINTWINDOWINDICATOR_ID:
-
-            return slrHeader->normalPointWindowIndicator;
-
-        case SLR_EPOCHTIMESCALEINDICATOR_ID:
-
-            return slrHeader->epochTimeScaleIndicator;
-
-        case SLR_SYSCALMETHODINDICATOR_ID:
-
-            return slrHeader->sysCalMethodIndicator;
-
-        case SLR_SCHINDICATOR_ID:
-
-            return slrHeader->schIndicator;
-
-        case SLR_SCIINDICATOR_ID:
-
-            return slrHeader->sciIndicator;
-
-        case SLR_PASSRMS_ID:
-
-            return slrHeader->passRMS;
-
-        case SLR_DATAQUALASSESSMENTINDICATOR_ID:
-
-            return slrHeader->dataQualAssessmentIndicator;
-
-        case SLR_FORMATREVISIONNUM_ID:
-
-            return slrHeader->formatRevisionNum;
-
         case SLR_BINRMSRANGE_ID:
 
             return binRMSRange;
@@ -529,35 +385,6 @@ Integer SLRObType::GetIntegerDataParameter(const std::string &label) const
    return GetIntegerDataParameter(GetDataParameterID(label));
 }
 
-//------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const Integer id) const
-//------------------------------------------------------------------------------
-std::string SLRObType::GetStringDataParameter(const Integer id) const
-{
-    switch (id)
-    {
-        case SLR_ILRSSATNUM_ID:
-
-            return slrHeader->ilrsSatnum;
-
-        default:
-
-            return GmatBase::STRING_PARAMETER_UNDEFINED;
-
-    }
-}
-
-//------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const std::string &label) const
-//------------------------------------------------------------------------------
-/**
- * @see GmatBase
- */
-//------------------------------------------------------------------------------
-std::string SLRObType::GetStringDataParameter(const std::string &label) const
-{
-   return GetStringDataParameter(GetDataParameterID(label));
-}
 
 //------------------------------------------------------------------------------
 // virtual Real GetRealDataParameter(const Integer id) const
@@ -566,10 +393,6 @@ Real SLRObType::GetRealDataParameter(const Integer id) const
 {
     switch (id)
     {
-
-        case SLR_WAVELENGTH_ID:
-
-            return slrHeader->wavelength;
 
         case SLR_TIMEOFLASERFIRING_ID:
 
@@ -618,7 +441,169 @@ Real SLRObType::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
 }
- 
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool SLRObType::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+        case SLR_TIMEOFLASERFIRING_ID:
+
+            timeOfLaserFiring = value;
+            return true;
+
+        case SLR_TWOWAYTIMEOFFLIGHT_ID:
+
+            twoWayTimeOfFlight = value;
+            return true;
+
+        case SLR_SURFACEPRESSURE_ID:
+
+            surfacePressure = value;
+            return true;
+
+        case SLR_SURFACETEMP_ID:
+
+            surfaceTemp = value;
+            return true;
+
+        case SLR_SIGNALTONOISERATIO_ID:
+
+            signalToNoiseRatio = value;
+            return true;
+
+        case SLR_AZIMUTH_ID:
+
+            az = value;
+            return true;
+
+        case SLR_ELEVATION_ID:
+
+            el = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SLRObType::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool SLRObType::SetDataParameter(const Integer id, const Integer &value)
+{
+
+    switch (id)
+    {
+        case SLR_BINRMSRANGE_ID:
+
+            binRMSRange = value;
+            return true;
+
+        case SLR_RELATIVEHUMIDITY_ID:
+
+            relativeHumidity = value;
+            return true;
+
+        case SLR_NUMRAWRANGES_ID:
+
+            numRawRanges = value;
+            return true;
+
+        case SLR_DATARELEASEFLAG_ID:
+
+            dataReleaseFlag = value;
+            return true;
+
+        case SLR_RAWRANGEFACTOR_ID:
+
+            rawRangeFactor = value;
+            return true;
+
+        case SLR_NORMALPOINTWINDOWINDICATOR2_ID:
+
+            normalPointWindowIndicator2 = value;
+            return true;
+
+        case SLR_BURSTCALSYSDELAY_ID:
+
+            burstCalSysDelay = value;
+            return true;
+
+        case SLR_SIGNALSTRENGTH_ID:
+
+            signalStrength = value;
+            return true;
+
+        case SLR_ANGLEORIGININDICATOR_ID:
+
+            angleOriginIndicator = value;
+            return true;
+
+       default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SLRObType::SetDataParameter(const std::string &label, const Integer &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
  //------------------------------------------------------------------------------
 // const std::string* GetDataTypes() const
 //------------------------------------------------------------------------------
