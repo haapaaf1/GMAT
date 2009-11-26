@@ -36,6 +36,7 @@ public:
     friend std::ostream& operator<< (std::ostream &output, const SLRHeader *mySLRheader);
 
     friend class SLRObType;
+    friend class SLRDataFile;
 
 protected:
     

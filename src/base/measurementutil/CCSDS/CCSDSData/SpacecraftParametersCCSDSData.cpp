@@ -128,7 +128,7 @@ const SpacecraftParametersCCSDSData& SpacecraftParametersCCSDSData::operator=
     if (&sp == this)
         return *this;
 
-    CCSDSData::operator=(sp);
+    SpacecraftParametersCCSDSData::operator=(sp);
 
     mass = sp.mass;
     solarRadiationArea = sp.solarRadiationArea;
@@ -325,6 +325,117 @@ StringArray SpacecraftParametersCCSDSData::GetStringArrayDataParameter(const Int
 StringArray SpacecraftParametersCCSDSData::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool SpacecraftParametersCCSDSData::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_SPACECRAFTPARAMETERS_MASS_ID:
+
+            mass = value;
+            return true;
+
+	case CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONAREA_ID:
+
+            solarRadiationArea = value;
+            return true;
+
+	case CCSDS_SPACECRAFTPARAMETERS_SOLARRADIATIONCOEFFICIENT_ID:
+
+            solarRadiationCoefficient = value;
+            return true;
+
+	case CCSDS_SPACECRAFTPARAMETERS_DRAGAREA_ID:
+
+            dragArea = value;
+            return true;
+
+	case CCSDS_SPACECRAFTPARAMETERS_DRAGCOEFFICIENT_ID:
+
+            dragCoefficient = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpacecraftParametersCCSDSData::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool SpacecraftParametersCCSDSData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+        case CCSDS_SPACECRAFTPARAMETERS_COMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpacecraftParametersCCSDSData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //------------------------------------------------------------------------------

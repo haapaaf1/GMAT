@@ -1,4 +1,4 @@
-Create CCSDSOEMDataFile OEMData
+Create OEMCCSDSDataFile OEMData
 OEMData.FileName = /Users/mwilkins/GMAT/SVN/branches/OD_Dev_Merge/OD_Dev_Merge/src/base/measurementutil/testscripts/OEM.txt;
 OEMData.ReadWriteMode = read;
 Save OEMData

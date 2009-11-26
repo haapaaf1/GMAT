@@ -347,9 +347,7 @@ std::string OPMCCSDSMetaData::GetStringDataParameter(const Integer id) const
         default:
 
             return GmatBase::STRING_PARAMETER_UNDEFINED;
-
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -382,9 +380,7 @@ StringArray OPMCCSDSMetaData::GetStringArrayDataParameter(const Integer id) cons
         default:
 
             return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
-
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -397,6 +393,113 @@ StringArray OPMCCSDSMetaData::GetStringArrayDataParameter(const Integer id) cons
 StringArray OPMCCSDSMetaData::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool OPMCCSDSMetaData::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+
+        case CCSDS_OPM_TIMESYSTEM_ID:
+
+            timeSystem = value;
+            return true;
+
+	case CCSDS_OPM_REFFRAME_ID:
+
+            refFrame = value;
+            return true;
+
+	case CCSDS_OPM_CENTERNAME_ID:
+
+            refFrameOrigin = value;
+            return true;
+
+	case CCSDS_OPM_OBJECTID_ID:
+
+            internationalDesignator = value;
+            return true;
+
+        case CCSDS_OPM_OBJECTNAME_ID:
+
+            objectName = value;
+            return true;
+
+        default:
+
+            return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool OPMCCSDSMetaData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool OPMCCSDSMetaData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+        case CCSDS_OPM_METADATACOMMENTS_ID:
+
+	    comments = value;
+            return false;
+
+        default:
+
+            return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool OPMCCSDSMetaData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-Create CCSDSOPMDataFile OPMData
+Create OPMCCSDSDataFile OPMData
 OPMData.FileName = /Users/mwilkins/GMAT/SVN/branches/OD_Dev_Merge/OD_Dev_Merge/src/base/measurementutil/testscripts/OPM.txt;
 OPMData.ReadWriteMode = read;
 Save OPMData

@@ -53,6 +53,13 @@ public:
     StringArray GetStringArrayDataParameter(const Integer id) const;
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
+    bool SetDataParameter(const Integer id, const Real &value);
+    bool SetDataParameter(const std::string &label, const Real &value);
+    bool SetDataParameter(const Integer id, const std::string &value);
+    bool SetDataParameter(const std::string &label, const std::string &value);
+    bool SetDataParameter(const Integer id, const StringArray &value);
+    bool SetDataParameter(const std::string &label, const StringArray &value);
+
     // Functions to verify data availability
     bool IsParameterRequired(const Integer id) const;
     friend Integer CCSDSCountRequiredNumberDataParameters();

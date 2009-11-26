@@ -41,6 +41,11 @@ public:
     StringArray GetStringArrayDataParameter(const Integer id) const;
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
+    bool SetDataParameter(const Integer id, const std::string &value);
+    bool SetDataParameter(const std::string &label, const std::string &value);
+    bool SetDataParameter(const Integer id, const StringArray &value);
+    bool SetDataParameter(const std::string &label, const StringArray &value);
+
     // Functions to verify data availability
     const std::string* GetKeywords() const;
     const Integer GetKeywordID(const std::string str) const;

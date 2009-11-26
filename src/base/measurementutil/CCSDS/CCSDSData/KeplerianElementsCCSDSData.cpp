@@ -341,6 +341,134 @@ StringArray KeplerianElementsCCSDSData::GetStringArrayDataParameter(const std::s
 }
 
 //------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool KeplerianElementsCCSDSData::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+	case CCSDS_KEPLERIANELEMENTS_SEMIMAJORAXIS_ID:
+
+            semiMajorAxis = value;
+            return true;
+
+	case CCSDS_KEPLERIANELEMENTS_ECCENTRICITY_ID:
+
+            eccentricity = value;
+            return true;
+
+	case CCSDS_KEPLERIANELEMENTS_INCLINATION_ID:
+
+            inclination = value;
+            return true;
+
+	case CCSDS_KEPLERIANELEMENTS_RAAN_ID:
+
+            raan = value;
+            return true;
+
+	case CCSDS_KEPLERIANELEMENTS_ARGUMENTOFPERICENTER_ID:
+
+            argumentOfPericenter = value;
+            return true;
+
+	case CCSDS_KEPLERIANELEMENTS_TRUEANOMALY_ID:
+
+            // Note this assumes that the value is provide in degrees
+            theAnomaly.SetValue(value,false);
+            return true;
+
+	case CCSDS_KEPLERIANELEMENTS_MEANANOMALY_ID:
+
+            // Note this assumes that the value is provide in degrees
+            theAnomaly.SetValue(value,false);
+            return true;
+
+	case CCSDS_KEPLERIANELEMENTS_GRAVITATIONALCOEFFICIENT_ID:
+
+            gravitationalCoefficient = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool KeplerianElementsCCSDSData::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool KeplerianElementsCCSDSData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+        case CCSDS_KEPLERIANELEMENTS_COMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool KeplerianElementsCCSDSData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
 // const std::string* GetKeywords() const
 //------------------------------------------------------------------------------
 /**

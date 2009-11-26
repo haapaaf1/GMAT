@@ -337,7 +337,6 @@ std::string APMCCSDSMetaData::GetStringDataParameter(const Integer id) const
             return GmatBase::STRING_PARAMETER_UNDEFINED;
 
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -373,7 +372,6 @@ StringArray APMCCSDSMetaData::GetStringArrayDataParameter(const Integer id) cons
             return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
 
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -386,6 +384,107 @@ StringArray APMCCSDSMetaData::GetStringArrayDataParameter(const Integer id) cons
 StringArray APMCCSDSMetaData::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool APMCCSDSMetaData::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_APM_TIMESYSTEM_ID:
+
+            timeSystem = value;
+
+	case CCSDS_APM_CENTERNAME_ID:
+
+            refFrameOrigin = value;
+
+	case CCSDS_APM_OBJECTID_ID:
+
+            internationalDesignator = value;
+
+        case CCSDS_APM_OBJECTNAME_ID:
+
+            objectName = value;
+
+        default:
+
+            return false;
+
+    }
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool APMCCSDSMetaData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool APMCCSDSMetaData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+
+        case CCSDS_APM_METADATACOMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool APMCCSDSMetaData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //---------------------------------------------------------------------------

@@ -1087,7 +1087,6 @@ bool TDMCCSDSMetaData::GetBoolDataParameter(const Integer id) const
 	default:
 
 	    return false;
-
     }
 }
 
@@ -1179,9 +1178,7 @@ std::string TDMCCSDSMetaData::GetStringDataParameter(const Integer id) const
         default:
 
             return GmatBase::STRING_PARAMETER_UNDEFINED;
-
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -1214,9 +1211,7 @@ StringArray TDMCCSDSMetaData::GetStringArrayDataParameter(const Integer id) cons
         default:
 
             return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
-
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -1322,9 +1317,7 @@ Real TDMCCSDSMetaData::GetRealDataParameter(const Integer id) const
 	default:
 
 	    return GmatBase::REAL_PARAMETER_UNDEFINED;
-
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -1337,6 +1330,421 @@ Real TDMCCSDSMetaData::GetRealDataParameter(const Integer id) const
 Real TDMCCSDSMetaData::GetRealDataParameter(const std::string &label) const
 {
    return GetRealDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+	case TDMCCSDSMetaData::CCSDS_TDM_INTEGRATIONINTERVAL_ID:
+
+	    integrationInterval = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_FREQUENCYOFFSET_ID:
+
+	    frequencyOffset = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RANGEMODULUS_ID:
+
+	    rangeModulus = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TRANSMITDELAY1_ID:
+
+	    transmitDelay[0] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TRANSMITDELAY2_ID:
+
+	    transmitDelay[1] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TRANSMITDELAY3_ID:
+
+	    transmitDelay[2] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TRANSMITDELAY4_ID:
+
+	    transmitDelay[3] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TRANSMITDELAY5_ID:
+
+	    transmitDelay[4] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RECEIVEDELAY1_ID:
+
+	    receiveDelay[0] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RECEIVEDELAY2_ID:
+
+	    receiveDelay[1] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RECEIVEDELAY3_ID:
+
+	    receiveDelay[2] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RECEIVEDELAY4_ID:
+
+	    receiveDelay[3] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RECEIVEDELAY5_ID:
+
+	    receiveDelay[4] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_CORRECTIONANGLE1_ID:
+
+	    correctionAngle1 = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_CORRECTIONANGLE2_ID:
+
+	    correctionAngle2 = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_CORRECTIONDOPPLER_ID:
+
+	    correctionDoppler = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_CORRECTIONRANGE_ID:
+
+	    correctionRange = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_CORRECTIONRECEIVE_ID:
+
+	    correctionReceive = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_CORRECTIONTRANSMIT_ID:
+
+	    correctionTransmit = value;
+            return true;
+
+	default:
+
+	    return false;
+    }
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const Integer id, const Integer &value)
+{
+    switch (id)
+    {
+	case TDMCCSDSMetaData::CCSDS_TDM_TURNAROUNDNUMERATOR_ID:
+
+	    turnaroundNumerator = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TURNAROUNDDENOMINATOR_ID:
+
+	    turnaroundDenominator = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_MODE_ID:
+
+            mode = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TIMETAGREF_ID:
+
+            timeTagRef = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_INTEGRATIONREF_ID:
+
+            integrationRef = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RANGEMODE_ID:
+
+            rangeMode = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RANGEUNITS_ID:
+
+            rangeUnits = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_ANGLETYPE_ID:
+
+            angleType = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_DATAQUALITY_ID:
+
+            dataQuality = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const std::string &label, const Integer &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const bool &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a boolean parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const Integer id, const bool &value)
+{
+    switch (id)
+    {
+	case TDMCCSDSMetaData::CCSDS_TDM_CORRECTIONAPPLIED_ID:
+
+	    correctionsApplied = value;
+            return true;
+
+	default:
+
+	    return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const bool &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a boolean parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const std::string &label, const bool &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TIMESYSTEM_ID:
+
+            timeSystem = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_STARTTIME_ID:
+
+            startTime = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_STOPTIME_ID:
+
+            stopTime = value;
+            return true;
+
+        case TDMCCSDSMetaData::CCSDS_TDM_PARTICIPANT1_ID:
+
+            participants[0] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_PARTICIPANT2_ID:
+
+            participants[1] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_PARTICIPANT3_ID:
+
+            participants[2] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_PARTICIPANT4_ID:
+
+            participants[3] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_PARTICIPANT5_ID:
+
+            participants[4] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_PATH_ID:
+
+            path[0] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_PATH1_ID:
+
+            path[1] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_PATH2_ID:
+
+            path[2] = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_TRANSMITBAND_ID:
+
+            transmitBand = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_RECEIVEBAND_ID:
+
+            receiveBand = value;
+            return true;
+
+	case TDMCCSDSMetaData::CCSDS_TDM_REFERENCEFRAME_ID:
+
+            referenceFrame = value;
+            return true;
+
+        default:
+
+            return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+        case TDMCCSDSMetaData::CCSDS_TDM_METADATACOMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+    }
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TDMCCSDSMetaData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //---------------------------------------------------------------------------

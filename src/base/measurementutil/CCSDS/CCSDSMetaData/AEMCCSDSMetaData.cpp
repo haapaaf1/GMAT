@@ -445,7 +445,6 @@ Integer AEMCCSDSMetaData::GetIntegerDataParameter(const Integer id) const
             return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -574,6 +573,218 @@ StringArray AEMCCSDSMetaData::GetStringArrayDataParameter(const Integer id) cons
 StringArray AEMCCSDSMetaData::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool AEMCCSDSMetaData::SetDataParameter(const Integer id, const Integer &value)
+{
+    switch (id)
+    {
+
+        case CCSDS_AEM_ATTITUDEDIR_ID:
+
+            direction = value;
+            return true;
+
+        case CCSDS_AEM_RATEFRAME_ID:
+
+            rateFrame = value;
+            return true;
+
+        case CCSDS_AEM_ATTITUDETYPE_ID:
+
+            attitudeType = value;
+            return true;
+
+        case CCSDS_AEM_QUATERNIONTYPE_ID:
+
+            quaternionType = value;
+            return true;
+
+	case CCSDS_AEM_INTERPOLATIONDEGREE_ID:
+
+	    interpolationDegree = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+}
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool AEMCCSDSMetaData::SetDataParameter(const std::string &label, const Integer &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool AEMCCSDSMetaData::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_AEM_TIMESYSTEM_ID:
+
+            timeSystem = value;
+            return true;
+
+	case CCSDS_AEM_REFFRAMEA_ID:
+
+            frameA = value;
+            return true;
+
+	case CCSDS_AEM_REFFRAMEB_ID:
+
+            frameB = value;
+            return true;
+
+	case CCSDS_AEM_CENTERNAME_ID:
+
+            refFrameOrigin = value;
+            return true;
+
+	case CCSDS_AEM_OBJECTID_ID:
+
+            internationalDesignator = value;
+            return true;
+
+        case CCSDS_AEM_OBJECTNAME_ID:
+
+            objectName = value;
+            return true;
+
+        case CCSDS_AEM_STARTEPOCH_ID:
+
+            startEpoch = value;
+            return true;
+
+        case CCSDS_AEM_STOPEPOCH_ID:
+
+            stopEpoch = value;
+            return true;
+
+        case CCSDS_AEM_USEABLE_STARTEPOCH_ID:
+
+            useableStartEpoch = value;
+            return true;
+
+        case CCSDS_AEM_USEABLE_STOPEPOCH_ID:
+
+            useableStopEpoch = value;
+            return true;
+
+        case CCSDS_AEM_EULERROTSEQ_ID:
+
+            eulerRotationSequence = value;
+            return true;
+
+        case CCSDS_AEM_INTERPOLATION_ID:
+
+            interpolationMethod = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool AEMCCSDSMetaData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool AEMCCSDSMetaData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+
+        case CCSDS_AEM_METADATACOMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool AEMCCSDSMetaData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //---------------------------------------------------------------------------

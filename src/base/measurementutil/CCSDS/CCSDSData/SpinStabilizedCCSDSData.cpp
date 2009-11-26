@@ -149,7 +149,7 @@ const SpinStabilizedCCSDSData& SpinStabilizedCCSDSData::operator=(const SpinStab
    if (&ss == this)
       return *this;
 
-   CCSDSData::operator=(ss);
+   SpinStabilizedCCSDSData::operator=(ss);
 
    attitudeType = ss.attitudeType;
    timeTag = ss.timeTag;
@@ -196,7 +196,7 @@ std::string SpinStabilizedCCSDSData::GetDataParameterText(const Integer id) cons
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ Gmat::ParameterType SpinStabilizedCCSDSData::GetDataParameterType(const Integer 
 //---------------------------------------------------------------------------
 std::string SpinStabilizedCCSDSData::GetDataParameterTypeString(const Integer id) const
 {
-   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -267,9 +267,9 @@ Integer SpinStabilizedCCSDSData::GetIntegerDataParameter(const Integer id) const
 
 	    return direction;
 
-     default:
+        default:
 
-        return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
+            return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
     }
 
@@ -425,6 +425,231 @@ StringArray SpinStabilizedCCSDSData::GetStringArrayDataParameter(const Integer i
 StringArray SpinStabilizedCCSDSData::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_SPINSTABILIZED_SPINALPHA_ID:
+
+            spinAlpha = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_SPINDELTA_ID:
+
+            spinDelta = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_SPINANGLE_ID:
+
+            spinAngle = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_SPINANGLEVEOCITY_ID:
+
+            spinAngleVelocity = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_NUTATION_ID:
+
+            nutation = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_NUTATIONPERIOD_ID:
+
+            nutationPeriod = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_NUTATIONPHASE_ID:
+
+            nutationPhase = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const Integer id, const Integer &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_SPINSTABILIZED_DIRECTION_ID:
+
+	    direction = value;
+            return false;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const std::string &label, const Integer &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_SPINSTABILIZED_TIMETAG_ID:
+
+	    timeTag = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_FRAMEA_ID:
+
+	    frameA = value;
+            return true;
+
+	case CCSDS_SPINSTABILIZED_FRAMEB_ID:
+
+	    frameB = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+
+        case CCSDS_SPINSTABILIZED_COMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpinStabilizedCCSDSData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //------------------------------------------------------------------------------

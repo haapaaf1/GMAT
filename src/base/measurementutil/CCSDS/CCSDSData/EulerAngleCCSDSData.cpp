@@ -178,7 +178,7 @@ const EulerAngleCCSDSData& EulerAngleCCSDSData::operator=(const EulerAngleCCSDSD
     if (&ea == this)
         return *this;
 
-    CCSDSData::operator=(ea);
+    EulerAngleCCSDSData::operator=(ea);
 
     eulerAngleType = ea.eulerAngleType;
     timeTag = ea.timeTag;
@@ -274,7 +274,7 @@ std::string EulerAngleCCSDSData::GetDataParameterText(const Integer id) const
    {
       return CCSDS_FILEFORMAT_DESCRIPTIONS[id];
    }
-   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -326,7 +326,7 @@ Gmat::ParameterType EulerAngleCCSDSData::GetDataParameterType(const Integer id) 
 //---------------------------------------------------------------------------
 std::string EulerAngleCCSDSData::GetDataParameterTypeString(const Integer id) const
 {
-   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -355,7 +355,7 @@ Integer EulerAngleCCSDSData::GetIntegerDataParameter(const Integer id) const
 
      default:
 
-        return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
+        return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 
     }
 
@@ -503,6 +503,232 @@ StringArray EulerAngleCCSDSData::GetStringArrayDataParameter(const Integer id) c
 StringArray EulerAngleCCSDSData::GetStringArrayDataParameter(const std::string &label) const
 {
    return GetStringArrayDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+        case CCSDS_EULERANGLE_ANGLE1_ID:
+
+            angle1 = value;
+            return true;
+
+        case CCSDS_EULERANGLE_ANGLE2_ID:
+
+            angle2 = value;
+            return true;
+
+        case CCSDS_EULERANGLE_ANGLE3_ID:
+
+            angle3 = value;
+            return true;
+
+        case CCSDS_EULERANGLE_RATE1_ID:
+
+            angleRate1 = value;
+            return true;
+
+        case CCSDS_EULERANGLE_RATE2_ID:
+
+            angleRate2 = value;
+            return true;
+
+        case CCSDS_EULERANGLE_RATE3_ID:
+
+            angleRate3 = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const Integer id, const Integer &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_EULERANGLE_DIRECTION_ID:
+
+	    direction = value;
+            return false;
+
+        case CCSDS_EULERANGLE_RATEFRAME_ID:
+
+	    rateFrame = value;
+            return false;
+
+        case CCSDS_EULERANGLE_ROTATIONSEQUENCE_ID:
+
+	    rotationSequence = value;
+            return false;
+
+     default:
+
+        return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const std::string &label, const Integer &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_EULERANGLE_FRAMEA_ID:
+
+	    frameA = value;
+            return true;
+
+	case CCSDS_EULERANGLE_FRAMEB_ID:
+
+	    frameB = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+
+        case CCSDS_EULERANGLE_COMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool EulerAngleCCSDSData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
 }
 
 //------------------------------------------------------------------------------

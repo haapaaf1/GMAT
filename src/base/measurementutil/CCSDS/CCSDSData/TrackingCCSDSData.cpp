@@ -282,7 +282,7 @@ const TrackingCCSDSData& TrackingCCSDSData::operator=(const TrackingCCSDSData &d
     if (&data == this)
         return *this;
 
-    CCSDSData::operator=(data);
+    TrackingCCSDSData::operator=(data);
 
     keywordID = data.keywordID;
     keyword = data.keyword;
@@ -561,6 +561,149 @@ Real TrackingCCSDSData::GetRealDataParameter(const std::string &label) const
    return GetRealDataParameter(GetDataParameterID(label));
 }
 
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Real &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//---------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const Integer id, const Real &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_TRACKINGDATA_MEASUREMENT_ID:
+
+	    measurement = value;
+            return true;
+
+	default:
+
+	    return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Real &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Real parameter.
+ *
+ * @param <label> String label identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const std::string &label, const Real &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const Integer id, const std::string &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_TRACKINGDATA_KEYWORD_ID:
+
+            keyword = value;
+            return true;
+
+	case CCSDS_TRACKINGDATA_TIMETAG_ID:
+
+            timeTag = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const std::string &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a std::string parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const StringArray &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const Integer id, const StringArray &value)
+{
+    switch (id)
+    {
+        case CCSDS_TRACKINGDATA_COMMENTS_ID:
+
+	    comments = value;
+            return true;
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const StringArray &value)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a StringArray parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const std::string &label, const StringArray &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
 
 //---------------------------------------------------------------------------
 //  bool CCSDSCountRequiredNumberDataParameters()

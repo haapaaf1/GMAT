@@ -63,6 +63,17 @@ public:
     virtual std::string GetStringDataParameter(const std::string &label) const;
     virtual StringArray GetStringArrayDataParameter(const Integer id) const;
     virtual StringArray GetStringArrayDataParameter(const std::string &label) const;
+
+    virtual bool        SetDataParameter(const Integer id, const Integer &value);
+    virtual bool        SetDataParameter(const std::string &label, const Integer &value);
+    virtual bool        SetDataParameter(const Integer id, const Real &value);
+    virtual bool        SetDataParameter(const std::string &label, const Real &value);
+    virtual bool        SetDataParameter(const Integer id, const std::string &value);
+    virtual bool        SetDataParameter(const std::string &label, const std::string &value);
+    virtual bool        SetDataParameter(const Integer id, const StringArray &value);
+    virtual bool        SetDataParameter(const std::string &label, const StringArray &value);
+    virtual bool        SetDataParameter(const Integer id, const bool &value);
+    virtual bool        SetDataParameter(const std::string &label, const bool &value);
     
     virtual const std::string* GetKeywords() const = 0;
     virtual const Integer GetKeywordID(const std::string str) const = 0;
@@ -133,20 +144,7 @@ private:
     static const std::string CCSDS_ATTITUDE_TYPE[EndCCSDSAttitudeTypeReps];
     static const std::string CCSDS_ATTITUDE_DIR[EndCCSDSAttitudeDirReps];
     static const std::string CCSDS_QUATERNION_TYPE[EndCCSDSQuaternionTypeReps];
-    //static const std::string CCSDS_METADATA_KEYWORDS[EndCCSDSMetaDataReps];
-    //static const std::string CCSDS_METADATA_UNIT_DESCRIPTIONS[EndCCSDSMetaDataReps];
-    //static const bool CCSDS_METADATA_IS_REQUIRED[EndCCSDSMetaDataReps];
-    //static const Gmat::ParameterType CCSDS_METADATA_PARAMETER_TYPE[EndCCSDSMetaDataReps];
-    //static const std::string CCSDS_METADATA_FILEFORMAT_DESCRIPTIONS[EndCCSDSMetaDataReps];
-
-protected:
-
-    std::string objectName;
-    std::string internationalDesignator;
-    std::string refFrameOrigin;
-    std::string refFrame;
-    std::string timeSystem;
-    StringArray comments;
+    
 };
 
 #endif	/* _CCSDSMETADATA_HPP */
