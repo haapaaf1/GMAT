@@ -48,16 +48,20 @@
 //#define DEBUG_WRITE_PARAM
 
 /// Set the static "undefined" parameters
-const Real        GmatBase::REAL_PARAMETER_UNDEFINED = -987654321.0123e-45;
-const Integer     GmatBase::INTEGER_PARAMETER_UNDEFINED = -987654321;
-const UnsignedInt GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED = 987654321;
-const std::string GmatBase::STRING_PARAMETER_UNDEFINED = "STRING_PARAMETER_UNDEFINED";
-const StringArray GmatBase::STRINGARRAY_PARAMETER_UNDEFINED = StringArray(1,
-		  GmatBase::STRING_PARAMETER_UNDEFINED);
-const Rvector     GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
-                  GmatBase::REAL_PARAMETER_UNDEFINED);
-const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
-                  GmatBase::REAL_PARAMETER_UNDEFINED);
+const Real              GmatBase::REAL_PARAMETER_UNDEFINED = -987654321.0123e-45;
+const Integer           GmatBase::INTEGER_PARAMETER_UNDEFINED = -987654321;
+const UnsignedInt       GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED = 987654321;
+const std::string       GmatBase::STRING_PARAMETER_UNDEFINED = "STRING_PARAMETER_UNDEFINED";
+const StringArray       GmatBase::STRINGARRAY_PARAMETER_UNDEFINED = StringArray(1,
+                        GmatBase::STRING_PARAMETER_UNDEFINED);
+const IntegerArray      GmatBase::INTEGERARRAY_PARAMETER_UNDEFINED = IntegerArray(1,
+                        GmatBase::INTEGER_PARAMETER_UNDEFINED);
+const UnsignedIntArray  GmatBase::UNSIGNED_INTARRAY_PARAMETER_UNDEFINED = UnsignedIntArray(1,
+                        GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED);
+const Rvector           GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
+                        GmatBase::REAL_PARAMETER_UNDEFINED);
+const Rmatrix           GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
+                        GmatBase::REAL_PARAMETER_UNDEFINED);
 
 
 /**

@@ -347,6 +347,10 @@ public:
    static const std::string  STRING_PARAMETER_UNDEFINED;
    /// Return value used if the parameter is not accessible as a StringArray
    static const StringArray  STRINGARRAY_PARAMETER_UNDEFINED;
+   /// Return value used if the parameter is not accessible as a IntegerArray
+   static const IntegerArray INTEGERARRAY_PARAMETER_UNDEFINED;
+   /// Return value used if the parameter is not accessible as a UnsignedIntArray
+   static const UnsignedIntArray UNSIGNED_INTARRAY_PARAMETER_UNDEFINED;
    /// Return value used if the parameter is not accessible as a Rvector
    static const Rvector      RVECTOR_PARAMETER_UNDEFINED;
    /// Return value used if the parameter is not accessible as a Rmatrix
