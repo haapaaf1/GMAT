@@ -267,12 +267,9 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index)
             wxComboBox *cbControl =
             theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX,
                                                     wxSize(180,-1));
-//            theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX,
-//                                                    wxSize(180,-1), false);
             managedComboBoxMap.insert(std::make_pair("CelestialBody", cbControl));
             control = cbControl;
          }
-
          else if (type == Gmat::SPACECRAFT)
          {
             // The GuiItemManager automatically registers wxComboBox in order to
@@ -297,9 +294,14 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index)
          }
          else
          {
-            wxArrayString emptyList;
+            // Check if enumeration strings available for owned object types
+            wxArrayString enumList;
+            StringArray enumStrings = mObject->GetPropertyEnumStrings(index);
+            for (UnsignedInt i=0; i<enumStrings.size(); i++)
+               enumList.Add(enumStrings[i].c_str());
+            
             control = new wxComboBox(parent, ID_COMBOBOX, wxT(""),
-                                     wxDefaultPosition, wxSize(180,-1), emptyList,
+                                     wxDefaultPosition, wxSize(180,-1), enumList,
                                      wxCB_READONLY);
          }
       }
