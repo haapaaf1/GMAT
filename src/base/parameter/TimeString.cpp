@@ -19,6 +19,7 @@
 //------------------------------------------------------------------------------
 
 #include "TimeString.hpp"
+#include "ParameterException.hpp"
 
 //---------------------------------
 // public methods
@@ -42,7 +43,8 @@ TimeString::TimeString(const std::string &name, const std::string &typeStr,
                        GmatBase *obj, const std::string &desc,
                        const std::string &unit)
    : StringVar(name, typeStr, GmatParam::SYSTEM_PARAM, obj, desc, unit,
-               GmatParam::NO_DEP, Gmat::SPACECRAFT, true)
+               GmatParam::NO_DEP, Gmat::SPACECRAFT, true),
+     TimeData(name)
 {
    AddRefObject(obj);
 }
@@ -176,7 +178,22 @@ bool TimeString::Initialize()
 {
    mInitialEpoch = 0.0;
    mIsInitialEpochSet = false;
-   InitializeRefObjects();
+
+   try
+   {
+      InitializeRefObjects();
+   }
+   catch (BaseException &e)
+   {
+      #if DEBUG_TIMESTRING
+      MessageInterface::ShowMessage
+         ("TimeString::Initialize() Fail to initialize Parameter '%s'\n",
+          this->GetName().c_str());
+      #endif
+      
+      throw ParameterException
+         ("WARNING:  " + e.GetFullMessage() + " in " + GetName() + "\n");
+   }
    
    return true;
 }
@@ -191,8 +208,8 @@ bool TimeString::Initialize()
 //                       const std::string &oldName, const std::string &newName)
 //---------------------------------------------------------------------------
 bool TimeString::RenameRefObject(const Gmat::ObjectType type,
-                               const std::string &oldName,
-                               const std::string &newName)
+                                 const std::string &oldName,
+                                 const std::string &newName)
 {
    return TimeData::RenameRefObject(type, oldName, newName);
 }
