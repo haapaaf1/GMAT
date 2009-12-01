@@ -17,7 +17,7 @@
 //
 /**
  * Implementation for the ObjectInitializer class.
- * This class initializes objects of the specified LocalObjectStore and ,
+ * This class initializes objects of the specified LocalObjectStore and,
  * on option, GlobalObjectStore.
  */
 //------------------------------------------------------------------------------
@@ -228,10 +228,10 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
    // The initialization order is:
    //
    //  1. CoordinateSystems
-   //  2. Spacecrafts
+   //  2. Spacecraft
    //  3. Measurement Models
    //  4. System Parameters
-   //  5. Parameters.
+   //  5. Parameters
    //  6. Subscribers
    //  7. Remaining Objects
       
@@ -241,14 +241,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize CoordinateSystems in LOS\n");
       #endif
-      InitializeObjectsInTheMap(LOS, Gmat::COORDINATE_SYSTEM, "");
-   
+      InitializeObjectsInTheMap(LOS, Gmat::COORDINATE_SYSTEM);
+      
       if (includeGOS)
       {
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize CoordinateSystems in GOS\n");
          #endif
-         InitializeObjectsInTheMap(GOS, Gmat::COORDINATE_SYSTEM, "");
+         InitializeObjectsInTheMap(GOS, Gmat::COORDINATE_SYSTEM);
       }
    }
    
@@ -258,14 +258,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize Spacecrafts in LOS\n");
       #endif
-      InitializeObjectsInTheMap(LOS, Gmat::SPACECRAFT, "");
-   
+      InitializeObjectsInTheMap(LOS, Gmat::SPACECRAFT);
+      
       if (includeGOS)
       {
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize Spacecrafts in GOS\n");
          #endif
-         InitializeObjectsInTheMap(GOS, Gmat::SPACECRAFT, "");
+         InitializeObjectsInTheMap(GOS, Gmat::SPACECRAFT);
       }
    }
    
@@ -276,14 +276,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize MeasurementModels in LOS\n");
       #endif
-      InitializeObjectsInTheMap(LOS, Gmat::MEASUREMENT_MODEL, "");
+      InitializeObjectsInTheMap(LOS, Gmat::MEASUREMENT_MODEL);
       
       if (includeGOS)
       {
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize MeasurementModels in GOS\n");
          #endif
-         InitializeObjectsInTheMap(GOS, Gmat::MEASUREMENT_MODEL, "");
+         InitializeObjectsInTheMap(GOS, Gmat::MEASUREMENT_MODEL);
       }
    }
    
@@ -310,14 +310,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize Variables in LOS\n");
       #endif
-      InitializeObjectsInTheMap(LOS, Gmat::VARIABLE, "");
+      InitializeObjectsInTheMap(LOS, Gmat::VARIABLE);
       
       if (includeGOS)
       {
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize Variables in GOS\n");
          #endif
-         InitializeObjectsInTheMap(GOS, Gmat::VARIABLE, "");
+         InitializeObjectsInTheMap(GOS, Gmat::VARIABLE);
       }
    }
    
@@ -327,14 +327,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize Strings in LOS\n");
       #endif
-      InitializeObjectsInTheMap(LOS, Gmat::STRING, "");
+      InitializeObjectsInTheMap(LOS, Gmat::STRING);
       
       if (includeGOS)
       {
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize String in GOS\n");
          #endif
-         InitializeObjectsInTheMap(GOS, Gmat::STRING, "");
+         InitializeObjectsInTheMap(GOS, Gmat::STRING);
       }
    }
    
@@ -344,14 +344,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize Subscriber in LOS\n");
       #endif
-      InitializeObjectsInTheMap(LOS, Gmat::SUBSCRIBER, "");
+      InitializeObjectsInTheMap(LOS, Gmat::SUBSCRIBER);
       
       if (includeGOS)
       {
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize Subscriber in GOS\n");
          #endif
-         InitializeObjectsInTheMap(GOS, Gmat::SUBSCRIBER, "");
+         InitializeObjectsInTheMap(GOS, Gmat::SUBSCRIBER);
       }
    }
    
@@ -420,26 +420,24 @@ void ObjectInitializer::SetObjectJ2000Body(ObjectMap *objMap)
 
 
 //------------------------------------------------------------------------------
-// void InitializeObjectsInTheMap(ObjectMap *objMap, ...)
+// void InitializeObjectsInTheMap(ObjectMap *objMap, Gmat::ObjectType objType)
 //------------------------------------------------------------------------------
 /*
- * Initializes specific types of objects in the map. if objType is UNDEFINED_OBJECT,
- * it will check for objTypeName to retrieve objects.
+ * Initializes specific types of objects in the map. If objType is UNDEFINED_OBJECT,
+ * it will check for objTypeStr to retrieve objects.
  *
  * @param objMap the object map to be used for retrieving objects
- * @param objType the objec type to be used for retrieving objects
- * @param objTypeName the objec type name to be used for retrieving objects
+ * @param objType the object type to be used for retrieving objects
  */
 //------------------------------------------------------------------------------
 void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
-                                                  Gmat::ObjectType objType,
-                                                  const std::string objTypeName)
+                                                  Gmat::ObjectType objType)
 {
+   std::string objTypeStr = GmatBase::GetObjectTypeString(objType).c_str();
    #ifdef DEBUG_INITIALIZE_OBJ
    MessageInterface::ShowMessage
-      ("InitializeObjectsInTheMap() entered, objMap=<%p>, objType=%d, objTypeName='%s', "
-       "objTypeStr='%s'\n", objMap, objType, objTypeName.c_str(),
-       GmatBase::GetObjectTypeString(objType).c_str());
+      ("InitializeObjectsInTheMap() entered, objMap=<%p>, objType=%d, "
+       "objTypeStr='%s'\n", objMap, objType, objTypeStr.c_str());
    #endif
    
    std::map<std::string, GmatBase *>::iterator omi;
@@ -485,7 +483,7 @@ void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
                publisher->Subscribe((Subscriber*)obj);
             }
          }
-         else if (obj->IsOfType(objTypeName))
+         else if (obj->IsOfType(objTypeStr))
          {
             BuildReferencesAndInitialize(obj);
          }
@@ -671,7 +669,7 @@ void ObjectInitializer::InitializeInternalObjects()
 // void InitializeCoordinateSystem(GmatBase *obj)
 //------------------------------------------------------------------------------
 /*
- * Sets reference objects of CoordianteSystem object and owned objects.
+ * Sets reference objects of CoordinateSystem object and owned objects.
  */
 //------------------------------------------------------------------------------
 void ObjectInitializer::InitializeCoordinateSystem(GmatBase *obj)

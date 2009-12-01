@@ -60,23 +60,22 @@ protected:
    CoordinateSystem *internalCS;
    Publisher        *publisher;
    
-   bool            includeGOS;
-   bool            registerSubscribers;
+   bool includeGOS;
+   bool registerSubscribers;
    
-   void            SetObjectJ2000Body(ObjectMap *objMap);
-   void            InitializeObjectsInTheMap(ObjectMap *objMap, Gmat::ObjectType objType,
-                                             const std::string objTypeName = "");
-   void            InitializeSystemParamters(ObjectMap *objMap);
-   void            InitializeAllOtherObjects(ObjectMap *objMap);
-   void            InitializeInternalObjects();
-   void            InitializeCoordinateSystem(GmatBase *obj);
-   void            BuildReferencesAndInitialize(GmatBase *obj);
-   void            BuildReferences(GmatBase *obj);
-   void            SetRefFromName(GmatBase *obj, const std::string &oName);
-   void            BuildAssociations(GmatBase * obj);
+   void SetObjectJ2000Body(ObjectMap *objMap);
+   void InitializeObjectsInTheMap(ObjectMap *objMap, Gmat::ObjectType objType);
+   void InitializeSystemParamters(ObjectMap *objMap);
+   void InitializeAllOtherObjects(ObjectMap *objMap);
+   void InitializeInternalObjects();
+   void InitializeCoordinateSystem(GmatBase *obj);
+   void BuildReferencesAndInitialize(GmatBase *obj);
+   void BuildReferences(GmatBase *obj);
+   void SetRefFromName(GmatBase *obj, const std::string &oName);
+   void BuildAssociations(GmatBase * obj);
    
-   SpacePoint*     FindSpacePoint(const std::string &spName);   
-   GmatBase*       FindObject(const std::string &name);
+   SpacePoint* FindSpacePoint(const std::string &spName);   
+   GmatBase*   FindObject(const std::string &name);
    
 private:
    
