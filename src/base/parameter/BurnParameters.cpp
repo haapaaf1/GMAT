@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            File: BurnParameters.cpp
 //------------------------------------------------------------------------------
@@ -46,7 +46,7 @@
 DeltaVDir1::DeltaVDir1(const std::string &name, const std::string &typeName,
                        GmatBase *obj)
    : BurnReal(name, typeName, Gmat::IMPULSIVE_BURN, obj,
-              "ImpulsiveBurn Element1", "Km/s", GmatParam::NO_DEP, true)
+              "ImpulsiveBurn Element1", "Km/s", GmatParam::NO_DEP, false)
 {
    mColor = GmatColor::RED32;
 }
@@ -180,7 +180,7 @@ GmatBase* DeltaVDir1::Clone(void) const
 DeltaVDir2::DeltaVDir2(const std::string &name, const std::string &typeName,
                        GmatBase *obj)
    : BurnReal(name, typeName, Gmat::IMPULSIVE_BURN, obj,
-              "Impulsive Burn Element2", "Km/s", GmatParam::NO_DEP, true)
+              "Impulsive Burn Element2", "Km/s", GmatParam::NO_DEP, false)
 {
    mColor = GmatColor::GREEN32;
 }
@@ -299,7 +299,7 @@ GmatBase* DeltaVDir2::Clone(void) const
 DeltaVDir3::DeltaVDir3(const std::string &name, const std::string &typeName,
                        GmatBase *obj)
    : BurnReal(name, typeName, Gmat::IMPULSIVE_BURN, obj,
-              "Impulsive Burn Element3", "Km/s", GmatParam::NO_DEP, true)
+              "Impulsive Burn Element3", "Km/s", GmatParam::NO_DEP, false)
 {
    mColor = GmatColor::BLUE32;
 }
