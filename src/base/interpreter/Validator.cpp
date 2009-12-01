@@ -38,6 +38,7 @@
 #include "ObjectWrapper.hpp"
 #include "StringUtil.hpp"               // for GmatStringUtil::
 #include "Assignment.hpp"
+#include "ParameterInfo.hpp"            // for IsSettable()
 
 //#define DEBUG_HANDLE_ERROR
 //#define DEBUG_VALIDATE_COMMAND
@@ -51,7 +52,7 @@
 //#define DEBUG_COORD_SYS_PROP
 //#define DEBUG_PROP_SETUP_PROP
 //#define DEBUG_FORCE_MODEL_PROP
-//#define DBGLVL_WRAPPERS 1
+//#define DBGLVL_WRAPPERS 2
 //#define DEBUG_AXIS_SYSTEM
 
 //#ifndef DEBUG_MEMORY
@@ -760,7 +761,20 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
       MessageInterface::ShowMessage("==========> Create Assignment LHS wrapper\n");
       #endif
       
-      leftEw = CreateElementWrapper(lhs, false, manage);
+      std::string type, owner, dep;
+      GmatStringUtil::ParseParameter(lhs, type, owner, dep);
+      
+      // If lhs has two dots and settable, treat it as Parameter.
+      // This will enable assignment such as Sat.Thruster1.FuelMass = 735;
+      bool isLhsSettable = ParameterInfo::Instance()->IsSettable(type);
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage
+         ("   ==> '%s' is%ssettable\n", type.c_str(), isLhsSettable ? " " : " NOT ");
+      #endif
+      if (lhs.find_first_of(".") != lhs.find_last_of(".") && isLhsSettable)
+         leftEw = CreateElementWrapper(lhs, true, manage);
+      else
+         leftEw = CreateElementWrapper(lhs, false, manage);
       
       if (leftEw == NULL)
          return false;
