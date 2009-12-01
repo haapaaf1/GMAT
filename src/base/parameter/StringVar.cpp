@@ -76,6 +76,7 @@ StringVar::StringVar(const std::string &name, const std::string &typeStr,
    objectTypeNames.push_back("String");
    mStringValue = STRING_PARAMETER_UNDEFINED;
    mReturnType = Gmat::STRING_TYPE;
+   mExpr = name;
 }
 
 
