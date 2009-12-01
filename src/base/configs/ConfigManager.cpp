@@ -795,7 +795,7 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
          
          #if DEBUG_RENAME
          MessageInterface::ShowMessage
-            ("===> objString=\n%s\n", objString.c_str());
+            ("===> objString =\n%s\n", objString.c_str());
          #endif
          
          if (pos != objString.npos)
@@ -950,7 +950,7 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
 {
    #if DEBUG_RENAME
       MessageInterface::ShowMessage
-         ("ConfigManager::RenameItem() type=%d, oldName=%s, newName=%s\n",
+         ("ConfigManager::RenameItem() type=%d, oldName='%s', newName='%s'\n",
           type, oldName.c_str(), newName.c_str());
    #endif
    
@@ -1041,9 +1041,12 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    //----------------------------------------------------
    // Rename system parameters and expression of variables
    //----------------------------------------------------
+   // Since new hardware Parameters were added, chcek for the Hardware also.
    
-   else if (type == Gmat::SPACECRAFT || type == Gmat::COORDINATE_SYSTEM ||
-            type == Gmat::CALCULATED_POINT || type == Gmat::IMPULSIVE_BURN)
+   if (type == Gmat::SPACECRAFT || type == Gmat::COORDINATE_SYSTEM ||
+       type == Gmat::CALCULATED_POINT || type == Gmat::BURN ||
+       type == Gmat::IMPULSIVE_BURN || type == Gmat::HARDWARE ||
+       type == Gmat::THRUSTER || type == Gmat::FUEL_TANK)
    {
       StringArray params = GetListOfItems(Gmat::PARAMETER);
       std::string oldParamName, newParamName;
@@ -1095,7 +1098,7 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    }
    
    #if DEBUG_RENAME
-   StringArray& allItems = GetListOfAllItems();
+   StringArray allItems = GetListOfAllItems();
    for (UnsignedInt i=0; i<allItems.size(); i++)
       MessageInterface::ShowMessage("===> item[%d] = %s\n", i, allItems[i].c_str());
    #endif
