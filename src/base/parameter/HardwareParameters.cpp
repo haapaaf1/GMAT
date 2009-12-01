@@ -794,6 +794,11 @@ ThrustCoefficients::ThrustCoefficients(const std::string &type,
    : HardwareReal(name, "ThrustCoefficients", obj, "ThrustCoefficients", "")
 {
    mColor = GmatColor::CHESTNUT;
+   
+   // Add type to ParameterInfo so that we can get information without an instance
+   ParameterInfo::Instance()->Add(type, mOwnerType, instanceName, mDepObj,
+                                  mIsPlottable, mIsReportable, mIsSettable);
+   
    if      (type == "C1" )  mThrustCoeffId = C1;
    else if (type == "C2" )  mThrustCoeffId = C2;
    else if (type == "C3" )  mThrustCoeffId = C3;
