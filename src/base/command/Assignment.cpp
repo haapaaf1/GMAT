@@ -971,7 +971,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
 {
    #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
-      ("Assignment::SetElementWrapper() toWrapper=%p, name='%s'\n   lhs='%s'\n   rhs='%s', "
+      ("Assignment::SetElementWrapper() toWrapper=<%p>, name='%s'\n   lhs='%s'\n   rhs='%s', "
        "mathTree=<%p>\n", toWrapper,withName.c_str(), lhs.c_str(), rhs.c_str(), mathTree);
    #endif
    
@@ -1004,7 +1004,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    
    if (withName == lhs)
    {
-      // lhs should always be object property wrapper, so check first
+      // All lhs object property wrapper are settable, so check first
       if (withName.find(".") == withName.npos ||
           (withName.find(".") != withName.npos &&
            toWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY_WT))
@@ -1016,6 +1016,20 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
             lhsWrapper = toWrapper;
          }
          retval = true;
+      }
+      else if (withName.find(".") != withName.npos)
+      {
+         // Some lhs Parameters are settable such as Sat.Thruster1.FuelMass, so check here
+         Parameter *param = (Parameter*)toWrapper->EvaluateObject();
+         if (param && param->IsSettable())
+         {
+            if (lhsWrapper != toWrapper)
+            {
+               lhsOldWrapper = lhsWrapper;
+               lhsWrapper = toWrapper;
+            }
+            retval = true;
+         }
       }
    }
    
@@ -1203,29 +1217,21 @@ bool Assignment::RenameRefObject(const Gmat::ObjectType type,
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
    
-   if (type != Gmat::PARAMETER && type != Gmat::SPACECRAFT &&
-       type != Gmat::IMPULSIVE_BURN && type != Gmat::COORDINATE_SYSTEM &&
-       type != Gmat::CALCULATED_POINT)
-   {
-      #ifdef DEBUG_RENAME
-      MessageInterface::ShowMessage("===> no replacement needed, just return true\n");
-      #endif
-      
-      return true;
-   }
-   
+   // Go through lhs and rhs
    if (lhs.find(oldName) != lhs.npos)
       lhs = GmatStringUtil::ReplaceName(lhs, oldName, newName);
    
    if (rhs.find(oldName) != rhs.npos)
       rhs = GmatStringUtil::ReplaceName(rhs, oldName, newName);
-   
+
+   // Go through wrappers
    if (lhsWrapper)
       lhsWrapper->RenameObject(oldName, newName);
    
    if (rhsWrapper)
       rhsWrapper->RenameObject(oldName, newName);
-   
+
+   // Go through math tree
    if (mathTree)
       mathTree->RenameRefObject(type, oldName, newName);
    
