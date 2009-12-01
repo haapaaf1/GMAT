@@ -20,7 +20,7 @@
 
 #include "HardwareParameters.hpp"
 #include "ColorTypes.hpp"
-
+#include "ParameterInfo.hpp"
 
 //==============================================================================
 //                              FuelMass
@@ -76,11 +76,24 @@ bool FuelMass::Evaluate()
 {
    mRealValue = SpacecraftData::GetReal(FUEL_MASS);
    
-    
    if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
       return false;
    else
       return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void FuelMass::SetReal(Real val)
+{
+   SpacecraftData::SetReal(FUEL_MASS, val);
+   RealVar::SetReal(val);
 }
 
 
@@ -155,6 +168,20 @@ bool Pressure::Evaluate()
 
 
 //------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void Pressure::SetReal(Real val)
+{
+   SpacecraftData::SetReal(PRESSURE, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* Pressure::Clone(void) const
 //------------------------------------------------------------------------------
 GmatBase* Pressure::Clone(void) const
@@ -225,11 +252,109 @@ bool Temperature::Evaluate()
 
 
 //------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void Temperature::SetReal(Real val)
+{
+   SpacecraftData::SetReal(TEMPERATURE, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* Temperature::Clone(void) const
 //------------------------------------------------------------------------------
 GmatBase* Temperature::Clone(void) const
 {
    return new Temperature(*this);
+}
+
+
+//==============================================================================
+//                              RefTemperature
+//==============================================================================
+/**
+ * Implements RefTemperature class.
+ */
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// RefTemperature(const std::string &name, GmatBase *obj)
+//------------------------------------------------------------------------------
+RefTemperature::RefTemperature(const std::string &name, GmatBase *obj)
+   : HardwareReal(name, "RefTemperature", obj, "RefTemperature", "")
+{
+   mColor = GmatColor::BLUE32;
+}
+
+
+//------------------------------------------------------------------------------
+// RefTemperature(const RefTemperature &copy)
+//------------------------------------------------------------------------------
+RefTemperature::RefTemperature(const RefTemperature &copy)
+   : HardwareReal(copy)
+{
+}
+
+
+//------------------------------------------------------------------------------
+// RefTemperature& operator=(const RefTemperature &right)
+//------------------------------------------------------------------------------
+RefTemperature& RefTemperature::operator=(const RefTemperature &right)
+{
+   if (this != &right)
+      HardwareReal::operator=(right);
+
+   return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// ~RefTemperature()
+//------------------------------------------------------------------------------
+RefTemperature::~RefTemperature()
+{
+}
+
+
+//------------------------------------------------------------------------------
+// bool Evaluate()
+//------------------------------------------------------------------------------
+bool RefTemperature::Evaluate()
+{
+   mRealValue = SpacecraftData::GetReal(REF_TEMPERATURE);
+    
+   if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
+      return false;
+   else
+      return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void RefTemperature::SetReal(Real val)
+{
+   SpacecraftData::SetReal(REF_TEMPERATURE, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* RefTemperature::Clone(void) const
+//------------------------------------------------------------------------------
+GmatBase* RefTemperature::Clone(void) const
+{
+   return new RefTemperature(*this);
 }
 
 
@@ -291,6 +416,20 @@ bool Volume::Evaluate()
       return false;
    else
       return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void Volume::SetReal(Real val)
+{
+   SpacecraftData::SetReal(VOLUME, val);
+   RealVar::SetReal(val);
 }
 
 
@@ -365,6 +504,20 @@ bool FuelDensity::Evaluate()
 
 
 //------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void FuelDensity::SetReal(Real val)
+{
+   SpacecraftData::SetReal(FUEL_DENSITY, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* FuelDensity::Clone(void) const
 //------------------------------------------------------------------------------
 GmatBase* FuelDensity::Clone(void) const
@@ -431,6 +584,20 @@ bool DutyCycle::Evaluate()
       return false;
    else
       return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void DutyCycle::SetReal(Real val)
+{
+   SpacecraftData::SetReal(DUTY_CYCLE, val);
+   RealVar::SetReal(val);
 }
 
 
@@ -505,6 +672,20 @@ bool ThrustScaleFactor::Evaluate()
 
 
 //------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void ThrustScaleFactor::SetReal(Real val)
+{
+   SpacecraftData::SetReal(THRUSTER_SCALE_FACTOR, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* ThrustScaleFactor::Clone(void) const
 //------------------------------------------------------------------------------
 GmatBase* ThrustScaleFactor::Clone(void) const
@@ -575,11 +756,256 @@ bool GravitationalAccel::Evaluate()
 
 
 //------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void GravitationalAccel::SetReal(Real val)
+{
+   SpacecraftData::SetReal(GRAVITATIONAL_ACCEL, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* GravitationalAccel::Clone(void) const
 //------------------------------------------------------------------------------
 GmatBase* GravitationalAccel::Clone(void) const
 {
    return new GravitationalAccel(*this);
+}
+
+
+//==============================================================================
+//                              ThrustCoefficients
+//==============================================================================
+/**
+ * Implements ThrustCoefficients class.
+ */
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// ThrustCoefficients(const std::string &type, const std::string &name, GmatBase *obj)
+//------------------------------------------------------------------------------
+ThrustCoefficients::ThrustCoefficients(const std::string &type,
+                                       const std::string &name, GmatBase *obj)
+   : HardwareReal(name, "ThrustCoefficients", obj, "ThrustCoefficients", "")
+{
+   mColor = GmatColor::CHESTNUT;
+   if      (type == "C1" )  mThrustCoeffId = C1;
+   else if (type == "C2" )  mThrustCoeffId = C2;
+   else if (type == "C3" )  mThrustCoeffId = C3;
+   else if (type == "C4" )  mThrustCoeffId = C4;
+   else if (type == "C5" )  mThrustCoeffId = C5;
+   else if (type == "C6" )  mThrustCoeffId = C6;
+   else if (type == "C7" )  mThrustCoeffId = C7;
+   else if (type == "C8" )  mThrustCoeffId = C8;
+   else if (type == "C9" )  mThrustCoeffId = C9;
+   else if (type == "C10")  mThrustCoeffId = C10;
+   else if (type == "C11")  mThrustCoeffId = C11;
+   else if (type == "C12")  mThrustCoeffId = C12;
+   else if (type == "C13")  mThrustCoeffId = C13;
+   else if (type == "C14")  mThrustCoeffId = C14;
+   else if (type == "C15")  mThrustCoeffId = C15;
+   else if (type == "C16")  mThrustCoeffId = C16;
+   else
+      mThrustCoeffId = -1;
+   
+   #ifdef DEBUG_THRUST_COEFF
+   MessageInterface::ShowMessage
+      ("ThrustCoefficients::ThrustCoefficients() type='%s', name='%s', "
+       "mThrustCoeffId=%d\n", type.c_str(), name.c_str(), mThrustCoeffId);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// ThrustCoefficients(const ThrustCoefficients &copy)
+//------------------------------------------------------------------------------
+ThrustCoefficients::ThrustCoefficients(const ThrustCoefficients &copy)
+   : HardwareReal(copy)
+{
+   mThrustCoeffId = copy.mThrustCoeffId;
+}
+
+
+//------------------------------------------------------------------------------
+// ThrustCoefficients& operator=(const ThrustCoefficients &right)
+//------------------------------------------------------------------------------
+ThrustCoefficients& ThrustCoefficients::operator=(const ThrustCoefficients &right)
+{
+   if (this != &right)
+   {
+      HardwareReal::operator=(right);
+      mThrustCoeffId = right.mThrustCoeffId;
+   }
+   
+   return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// ~ThrustCoefficients()
+//------------------------------------------------------------------------------
+ThrustCoefficients::~ThrustCoefficients()
+{
+}
+
+
+//------------------------------------------------------------------------------
+// bool Evaluate()
+//------------------------------------------------------------------------------
+bool ThrustCoefficients::Evaluate()
+{
+   mRealValue = SpacecraftData::GetReal(mThrustCoeffId);
+   
+   if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
+      return false;
+   else
+      return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void ThrustCoefficients::SetReal(Real val)
+{
+   SpacecraftData::SetReal(mThrustCoeffId, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* ThrustCoefficients::Clone(void) const
+//------------------------------------------------------------------------------
+GmatBase* ThrustCoefficients::Clone(void) const
+{
+   return new ThrustCoefficients(*this);
+}
+
+
+//==============================================================================
+//                              ImpulseCoefficients
+//==============================================================================
+/**
+ * Implements ImpulseCoefficients class.
+ */
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// ImpulseCoefficients(const std::string &type, const std::string &name, GmatBase *obj)
+//------------------------------------------------------------------------------
+ImpulseCoefficients::ImpulseCoefficients(const std::string &type,
+                                         const std::string &name, GmatBase *obj)
+   : HardwareReal(name, "ImpulseCoefficients", obj, "ImpulseCoefficients", "")
+{
+   mColor = GmatColor::CHESTNUT;
+
+   // Add type to ParameterInfo so that we can get information without an instance
+   ParameterInfo::Instance()->Add(type, mOwnerType, instanceName, mDepObj,
+                                  mIsPlottable, mIsReportable, mIsSettable);
+   
+   if      (type == "K1" )  mImpulseCoeffId = K1;
+   else if (type == "K2" )  mImpulseCoeffId = K2;
+   else if (type == "K3" )  mImpulseCoeffId = K3;
+   else if (type == "K4" )  mImpulseCoeffId = K4;
+   else if (type == "K5" )  mImpulseCoeffId = K5;
+   else if (type == "K6" )  mImpulseCoeffId = K6;
+   else if (type == "K7" )  mImpulseCoeffId = K7;
+   else if (type == "K8" )  mImpulseCoeffId = K8;
+   else if (type == "K9" )  mImpulseCoeffId = K9;
+   else if (type == "K10")  mImpulseCoeffId = K10;
+   else if (type == "K11")  mImpulseCoeffId = K11;
+   else if (type == "K12")  mImpulseCoeffId = K12;
+   else if (type == "K13")  mImpulseCoeffId = K13;
+   else if (type == "K14")  mImpulseCoeffId = K14;
+   else if (type == "K15")  mImpulseCoeffId = K15;
+   else if (type == "K16")  mImpulseCoeffId = K16;
+   else
+      mImpulseCoeffId = -1;
+   
+   #ifdef DEBUG_IMPULSE_COEFF
+   MessageInterface::ShowMessage
+      ("ImpulseCoefficients::ImpulseCoefficients() type='%s', name='%s', "
+       "mImpulseCoeffId=%d\n", type.c_str(), name.c_str(), mImpulseCoeffId);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// ImpulseCoefficients(const ImpulseCoefficients &copy)
+//------------------------------------------------------------------------------
+ImpulseCoefficients::ImpulseCoefficients(const ImpulseCoefficients &copy)
+   : HardwareReal(copy)
+{
+   mImpulseCoeffId = copy.mImpulseCoeffId;
+}
+
+
+//------------------------------------------------------------------------------
+// ImpulseCoefficients& operator=(const ImpulseCoefficients &right)
+//------------------------------------------------------------------------------
+ImpulseCoefficients& ImpulseCoefficients::operator=(const ImpulseCoefficients &right)
+{
+   if (this != &right)
+   {
+      HardwareReal::operator=(right);
+      mImpulseCoeffId = right.mImpulseCoeffId;
+   }
+   
+   return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// ~ImpulseCoefficients()
+//------------------------------------------------------------------------------
+ImpulseCoefficients::~ImpulseCoefficients()
+{
+}
+
+
+//------------------------------------------------------------------------------
+// bool Evaluate()
+//------------------------------------------------------------------------------
+bool ImpulseCoefficients::Evaluate()
+{
+   mRealValue = SpacecraftData::GetReal(mImpulseCoeffId);
+   
+   if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
+      return false;
+   else
+      return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void ImpulseCoefficients::SetReal(Real val)
+{
+   SpacecraftData::SetReal(mImpulseCoeffId, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* ImpulseCoefficients::Clone(void) const
+//------------------------------------------------------------------------------
+GmatBase* ImpulseCoefficients::Clone(void) const
+{
+   return new ImpulseCoefficients(*this);
 }
 
 

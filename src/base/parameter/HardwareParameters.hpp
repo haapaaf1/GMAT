@@ -13,8 +13,8 @@
 //
 /**
  * Declares Hardware related parameter classes.
- *    FuelTank: FuelMass, Pressure, Temperature, FuelVolume, FuelDensity
- *    Thruster: DutyCycle, ThrustScaleFactor, GravitationalAccel
+ *    FuelTank: FuelMass, Pressure, Temperature, RefTemperature, FuelVolume, FuelDensity
+ *    Thruster: DutyCycle, ThrustScaleFactor, GravitationalAccel, C1-C16, K1-K16
  */
 //------------------------------------------------------------------------------
 #ifndef HardwareParameters_hpp
@@ -34,6 +34,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -53,6 +54,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -72,6 +74,27 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
+   
+   // methods inherited from GmatBase
+   virtual GmatBase* Clone(void) const;
+   
+protected:
+
+};
+
+class GMAT_API RefTemperature : public HardwareReal
+{
+public:
+
+   RefTemperature(const std::string &name = "", GmatBase *obj = NULL);
+   RefTemperature(const RefTemperature &copy);
+   RefTemperature& operator=(const RefTemperature &right);
+   virtual ~RefTemperature();
+   
+   // methods inherited from Parameter
+   virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -91,6 +114,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -110,6 +134,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -129,6 +154,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -148,6 +174,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -167,12 +194,59 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
    
 protected:
 
+};
+
+class GMAT_API ThrustCoefficients : public HardwareReal
+{
+public:
+
+   ThrustCoefficients(const std::string &type = "",
+                      const std::string &name = "",
+                      GmatBase *obj = NULL);
+   ThrustCoefficients(const ThrustCoefficients &copy);
+   ThrustCoefficients& operator=(const ThrustCoefficients &right);
+   virtual ~ThrustCoefficients();
+   
+   // methods inherited from Parameter
+   virtual bool Evaluate();
+   virtual void SetReal(Real val);
+   
+   // methods inherited from GmatBase
+   virtual GmatBase* Clone(void) const;
+   
+protected:
+   Integer mThrustCoeffId;
+   
+};
+
+class GMAT_API ImpulseCoefficients : public HardwareReal
+{
+public:
+
+   ImpulseCoefficients(const std::string &type = "",
+                       const std::string &name = "",
+                       GmatBase *obj = NULL);
+   ImpulseCoefficients(const ImpulseCoefficients &copy);
+   ImpulseCoefficients& operator=(const ImpulseCoefficients &right);
+   virtual ~ImpulseCoefficients();
+   
+   // methods inherited from Parameter
+   virtual bool Evaluate();
+   virtual void SetReal(Real val);
+   
+   // methods inherited from GmatBase
+   virtual GmatBase* Clone(void) const;
+   
+protected:
+   Integer mImpulseCoeffId;
+   
 };
 
 #endif //HardwareParameters_hpp

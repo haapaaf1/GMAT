@@ -33,6 +33,7 @@ public:
    virtual ~SpacecraftData();
    
    Real GetReal(Integer item);
+   Real SetReal(Integer item, Real val);
    
    // The inherited methods from RefData
    virtual bool ValidateRefObjects(GmatBase *param);
@@ -63,11 +64,14 @@ protected:
       TEMPERATURE,
       VOLUME,
       FUEL_DENSITY,
+      REF_TEMPERATURE,
       
       // for Spacecraft owned Thruster
       DUTY_CYCLE,
       THRUSTER_SCALE_FACTOR,
       GRAVITATIONAL_ACCEL,
+      C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16,
+      K1, K2, K3, K4, K5, K6, K7, K8, K9, K10, K11, K12, K13, K14, K15, K16,
    };
    
    enum
@@ -77,10 +81,12 @@ protected:
    };
    
    static const std::string VALID_OBJECT_TYPE_LIST[SpacecraftDataObjectCount];
-
+   
 private:
-
+   
    Real GetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &name);
+   Real SetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &name,
+                               Real val);
    
 };
 
