@@ -396,6 +396,7 @@ void VaryPanel::SaveData()
          MessageInterface::ShowMessage
             ("   Variable changed, variableName='%s'\n", variableName.c_str());
          #endif
+         validateCommand = true;
          mVaryCommand->SetStringParameter("Variable", variableName);
          solver->SetStringParameter("Variables", variableName);
          variableChanged = false;
