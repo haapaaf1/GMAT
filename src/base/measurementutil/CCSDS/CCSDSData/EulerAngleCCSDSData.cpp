@@ -42,6 +42,7 @@ const std::string EulerAngleCCSDSData::CCSDS_EULERSEQUENCE_LIST[EndCCSDSEulerSeq
 
 const std::string EulerAngleCCSDSData::CCSDS_EULERANGLE_KEYWORDS[EndEulerAngleCCSDSDataDataReps] =
 {
+    "EPOCH",
     "EULER_FRAME_A",
     "EULER_FRAME_B",
     "EULER_DIR",
@@ -62,6 +63,7 @@ const std::string EulerAngleCCSDSData::CCSDS_UNIT_DESCRIPTIONS[EndEulerAngleCCSD
     "",
     "",
     "",
+    "",
     "deg",
     "deg",
     "deg",
@@ -73,6 +75,7 @@ const std::string EulerAngleCCSDSData::CCSDS_UNIT_DESCRIPTIONS[EndEulerAngleCCSD
 
 const std::string EulerAngleCCSDSData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndEulerAngleDataReps] =
 {
+    "Euler Angle Epoch",
     "Euler Angle Frame A",
     "Euler Angle Frame B",
     "Euler Angle Direction",
@@ -96,6 +99,7 @@ const std::string EulerAngleCCSDSData::CCSDS_FILEFORMAT_DESCRIPTIONS[EndEulerAng
 
 const Gmat::ParameterType EulerAngleCCSDSData::CCSDS_PARAMETER_TYPE[EndEulerAngleCCSDSDataDataReps] =
 {
+    Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::STRING_TYPE,
     Gmat::INTEGER_TYPE,
@@ -441,6 +445,10 @@ std::string EulerAngleCCSDSData::GetStringDataParameter(const Integer id) const
     switch (id)
     {
 
+	case CCSDS_EULERANGLE_TIMETAG_ID:
+
+	    return timeTag;
+
 	case CCSDS_EULERANGLE_FRAMEA_ID:
 
 	    return frameA;
@@ -648,6 +656,11 @@ bool EulerAngleCCSDSData::SetDataParameter(const Integer id, const std::string &
 {
     switch (id)
     {
+
+	case CCSDS_EULERANGLE_TIMETAG_ID:
+
+	    timeTag = value;
+            return true;
 
 	case CCSDS_EULERANGLE_FRAMEA_ID:
 

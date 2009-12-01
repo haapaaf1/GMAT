@@ -1,3 +1,5 @@
 Create TLEDataFile TLEData
 TLEData.FileName = /Users/mwilkins/GMAT/SVN/odTools/src/base/DataTest/TLE.txt;
+TLEData.NumLines = 2;
+TLEData.ReadWriteMode = r;
 Save TLEData

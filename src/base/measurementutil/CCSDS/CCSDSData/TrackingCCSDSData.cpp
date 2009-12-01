@@ -308,7 +308,7 @@ TrackingCCSDSData::~TrackingCCSDSData()
 // const std::string* GetKeywords() const
 //------------------------------------------------------------------------------
 /**
- * Returns the string array of allowable CCSDS OPM keywords
+ * Returns the string array of allowable CCSDS tracking data keywords
  *
  * @return String array of keywords.
  *
@@ -317,6 +317,22 @@ TrackingCCSDSData::~TrackingCCSDSData()
 const std::string* TrackingCCSDSData::GetKeywords() const
 {
    return CCSDS_TRACKINGDATA_KEYWORDS;
+}
+
+//------------------------------------------------------------------------------
+// std::string GetKeyword(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Returns the string keyword associated with the tracking data keyword ID
+ *
+ * @param <id> ID of the desired string keyword
+ * @return String keyword
+ *
+ */
+//------------------------------------------------------------------------------
+std::string TrackingCCSDSData::GetKeyword(const Integer id) const
+{
+   return CCSDS_TRACKINGDATA_KEYWORDS[id];
 }
 
 //------------------------------------------------------------------------------
@@ -451,7 +467,7 @@ std::string TrackingCCSDSData::GetDataParameterTypeString(const Integer id) cons
 }
 
 //------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const Integer id) const
+// std::string GetStringDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -479,7 +495,7 @@ std::string TrackingCCSDSData::GetStringDataParameter(const Integer id) const
 }
 
 //------------------------------------------------------------------------------
-// virtual std::string GetStringDataParameter(const std::string &label) const
+// std::string GetStringDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -488,6 +504,42 @@ std::string TrackingCCSDSData::GetStringDataParameter(const Integer id) const
 std::string TrackingCCSDSData::GetStringDataParameter(const std::string &label) const
 {
    return GetStringDataParameter(GetDataParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// Integer GetIntegerDataParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer TrackingCCSDSData::GetIntegerDataParameter(const Integer id) const
+{
+    switch (id)
+    {
+
+	case CCSDS_TRACKINGDATA_KEYWORD_ID:
+
+            return keywordID;
+
+        default:
+
+            return GmatBase::INTEGER_PARAMETER_UNDEFINED;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// Integer GetIntegerDataParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * @see ObType
+ */
+//------------------------------------------------------------------------------
+Integer TrackingCCSDSData::GetIntegerDataParameter(const std::string &label) const
+{
+   return GetIntegerDataParameter(GetDataParameterID(label));
 }
 
 //------------------------------------------------------------------------------
@@ -526,7 +578,7 @@ StringArray TrackingCCSDSData::GetStringArrayDataParameter(const std::string &la
 }
 
 //------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const Integer id) const
+// Real GetRealDataParameter(const Integer id) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -550,7 +602,7 @@ Real TrackingCCSDSData::GetRealDataParameter(const Integer id) const
 }
 
 //------------------------------------------------------------------------------
-// virtual Real GetRealDataParameter(const std::string &label) const
+// Real GetRealDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 /**
  * @see ObType
@@ -627,7 +679,15 @@ bool TrackingCCSDSData::SetDataParameter(const Integer id, const std::string &va
 	case CCSDS_TRACKINGDATA_KEYWORD_ID:
 
             keyword = value;
-            return true;
+            keywordID = GetKeywordID(value);
+            
+            if (keywordID != GmatBase::INTEGER_PARAMETER_UNDEFINED)
+                return true;
+            else
+            {
+                keyword = GmatBase::STRING_PARAMETER_UNDEFINED;
+                return false;
+            }
 
 	case CCSDS_TRACKINGDATA_TIMETAG_ID:
 
@@ -656,6 +716,61 @@ bool TrackingCCSDSData::SetDataParameter(const Integer id, const std::string &va
  */
 //------------------------------------------------------------------------------
 bool TrackingCCSDSData::SetDataParameter(const std::string &label, const std::string &value)
+{
+    return SetDataParameter(GetDataParameterID(label),value);
+}
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const Integer id, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of an Integer parameter.
+ *
+ * @param <id> Integer ID identifying the parameter to be set
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ */
+//------------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const Integer id, const Integer &value)
+{
+    switch (id)
+    {
+
+	case CCSDS_TRACKINGDATA_KEYWORDID_ID:
+
+            keywordID = value;
+            keyword = GetKeyword(value);
+
+            if (keyword != GmatBase::STRING_PARAMETER_UNDEFINED)
+                return true;
+            else
+            {
+                keywordID = GmatBase::INTEGER_PARAMETER_UNDEFINED;
+                return false;
+            }
+
+        default:
+
+            return false;
+
+    }
+
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetDataParameter(const std::string &label, const Integer &value) const
+//------------------------------------------------------------------------------
+/**
+ * Method to set the value of a Integer parameter.
+ *
+ * @param <label> String label identifying the parameter to be set.
+ * @param <value> The desired value to be set
+ * @return Boolean success or failure
+ *
+ */
+//------------------------------------------------------------------------------
+bool TrackingCCSDSData::SetDataParameter(const std::string &label, const Integer &value)
 {
     return SetDataParameter(GetDataParameterID(label),value);
 }

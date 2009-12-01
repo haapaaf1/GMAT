@@ -1,3 +1,4 @@
 Create B3DataFile B3Data
 B3Data.FileName = /Users/mwilkins/GMAT/SVN/odTools/src/base/DataTest/B3.txt;
+B3Data.ReadWriteMode = r;
 Save B3Data

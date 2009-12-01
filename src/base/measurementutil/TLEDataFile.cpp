@@ -42,10 +42,7 @@ bool TLEDataFile::Initialize()
     // check to make sure numLines is set
     if (numLines != 2 && numLines != 3)
     {
-	MessageInterface::ShowMessage("\nThe number of lines in the TLE data ",
-		"format was not set!\n GMAT will assume that each TLE has no ",
-		"comment line.\n If this is not correct, set NumLines to the ",
-		"appropriate value and re-run the script.\n");
+	MessageInterface::ShowMessage("\nThe number of lines in the TLE data format was not set!\n GMAT will assume that each TLE has no comment line.\n If this is not correct, set NumLines to the appropriate value and re-run the script.\n");
         numLines = 2;
     }
 
@@ -71,16 +68,14 @@ bool TLEDataFile::Initialize()
 
         #ifdef DEBUG_TLE_DATA
 
-            fstream *outFile = new fstream;
-            outFile->open("tle.output",ios::out);
-
-            // Output to file to make sure all the data is properly stored
-            for (ObTypeVector::const_iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
-		*outFile << (TLEObType*)(*j) << std::endl;
-            }
-
-            outFile->close();
+            TLEDataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetNumLines(2);
+            myOutFile.SetFileName("TLE.output");
+            myOutFile.Initialize();
+            for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
 
         #endif
     

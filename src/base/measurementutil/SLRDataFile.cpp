@@ -179,16 +179,13 @@ bool SLRDataFile::Initialize()
 
         #ifdef DEBUG_SLR_DATA
 
-            fstream *outFile = new fstream;
-            outFile->open("slr.output",ios::out);
-
-            // Output to file to make sure all the data is properly stored
+            SLRDataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetFileName("SLR.output");
+            myOutFile.Initialize();
             for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
-		*outFile << (SLRObType*)(*j) << std::endl;
-            }
-
-            outFile->close();
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
 
         #endif
 

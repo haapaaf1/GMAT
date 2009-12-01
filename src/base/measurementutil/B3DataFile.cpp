@@ -63,16 +63,13 @@ bool B3DataFile::Initialize()
 
         #ifdef DEBUG_B3_DATA
 
-            fstream *outFile2 = new fstream;
-            outFile2->open("test.output",ios::out);
-	    
-            // Output to file to make sure all the data is properly stored
-            for (ObTypeVector::const_iterator j=theData.begin(); j!=theData.end(); ++j)
-            {
-		*outFile2 << (B3ObType*)(*j) << std::endl;
-            }
-        
-            outFile2->close();
+            B3DataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetFileName("B3.output");
+            myOutFile.Initialize();
+            for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
 
         #endif
 	

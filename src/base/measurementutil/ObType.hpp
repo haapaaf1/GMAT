@@ -185,8 +185,20 @@ template <class T> bool from_string(T& t, const std::string& s,
 class ObTypeVector : public std::vector<ObType*>
 {
 public:
-     // Make sure that the vector items are de-allocated so we don't leak
 
+    const ObTypeVector operator=(const ObTypeVector &myData)
+    {
+        if (&myData == this)
+            return *this;
+
+        this->clear();
+
+        for (iterator pItem=begin(); pItem != end(); ++pItem)
+            this->push_back(*pItem);
+
+    }
+
+     // Make sure that the vector items are de-allocated so we don't leak
      ~ObTypeVector()
      {
           for (iterator pItem=begin(); pItem != end(); ++pItem)

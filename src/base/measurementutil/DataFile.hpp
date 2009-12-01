@@ -82,6 +82,10 @@ public:
     void SetNumLines(const Integer &nl);
     Integer GetNumLines() const;
 
+    // methods to get/set the ObtypeVector
+    void SetTheData(const ObTypeVector &myData);
+    ObTypeVector GetTheData() const;
+
     // Method to retrieve number of observations available after
     // the file has been processed
     Integer GetNumMeasurements() const;
@@ -340,6 +344,9 @@ public:
 
     // Method to obtain a data point from the fstream pointer to file
     virtual bool GetData(ObType *myObType) = 0;
+
+    // This method dumps all the data contained in theData to file
+    virtual bool WriteAllTheData();
     
     // Methods to write data to the file defined on this object
     virtual bool WriteData(const ObType *myObType) = 0;

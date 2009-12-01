@@ -1,0 +1,6 @@
+GMAT Build Date: Nov 29 2009 11:40:15
+
+GuiMessageReceiver::SetLogFile() Log file set to GmatLog.txt
+The log file mode is create
+Error occured during initialization: Utility Exception: FileManager::ReadStartupFile() cannot open:gmat_startup_file.txt
+

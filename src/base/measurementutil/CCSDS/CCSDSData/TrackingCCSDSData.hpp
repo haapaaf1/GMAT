@@ -38,6 +38,7 @@ public:
                        const TrackingCCSDSData *myTrackingCCSDSData);
 
     const std::string* GetKeywords() const;
+    std::string GetKeyword(const Integer id) const;
     const Integer GetKeywordID(const std::string str) const;
     std::string GetUnits(const Integer &id) const;
 
@@ -46,6 +47,8 @@ public:
     Gmat::ParameterType GetDataParameterType(const Integer id) const;
     std::string GetDataParameterTypeString(const Integer id) const;
 
+    Integer	GetIntegerDataParameter(const Integer id) const;
+    Integer	GetIntegerDataParameter(const std::string &label) const;
     Real	GetRealDataParameter(const Integer id) const;
     Real	GetRealDataParameter(const std::string &label) const;
     std::string GetStringDataParameter(const Integer id) const;
@@ -53,6 +56,8 @@ public:
     StringArray GetStringArrayDataParameter(const Integer id) const;
     StringArray GetStringArrayDataParameter(const std::string &label) const;
 
+    bool SetDataParameter(const Integer id, const Integer &value);
+    bool SetDataParameter(const std::string &label, const Integer &value);
     bool SetDataParameter(const Integer id, const Real &value);
     bool SetDataParameter(const std::string &label, const Real &value);
     bool SetDataParameter(const Integer id, const std::string &value);
@@ -108,6 +113,7 @@ public:
 
     enum CCSDS_DATA_REPS
     {
+        CCSDS_TRACKINGDATA_KEYWORDID_ID,
         CCSDS_TRACKINGDATA_KEYWORD_ID,
         CCSDS_TRACKINGDATA_TIMETAG_ID,
         CCSDS_TRACKINGDATA_MEASUREMENT_ID,

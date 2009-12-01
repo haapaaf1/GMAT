@@ -745,6 +745,34 @@ Integer DataFile::GetFileFormatID() const
 }
 
 //------------------------------------------------------------------------------
+// void SetTheData(const ObTypeVector &myData)
+//------------------------------------------------------------------------------
+/**
+ * Sets the ObTypeVector of data
+ *
+ * @param <myData> The desired data
+ */
+//------------------------------------------------------------------------------
+void DataFile::SetTheData(const ObTypeVector &myData)
+{
+   theData = myData;
+}
+
+//------------------------------------------------------------------------------
+// ObTypeVector GetTheData() const
+//------------------------------------------------------------------------------
+/**
+ * Returns the ObTypeVector of data
+ *
+ * @return The ObTypeVector of data
+ */
+//------------------------------------------------------------------------------
+ObTypeVector DataFile::GetTheData() const
+{
+   return theData;
+}
+
+//------------------------------------------------------------------------------
 // Integer SetNumLines(const Integer &nl)
 //------------------------------------------------------------------------------
 /**
@@ -1331,6 +1359,31 @@ void DataFile::SortByInternationalDesignator(bool sortOrder)
 		  AscendingInternationalDesignatorSort());
 
     sortedBy = SORTED_BY_INTERNATIONALDESIGNATOR;
+}
+
+//------------------------------------------------------------------------------
+// virtual bool WriteAllTheData()
+//------------------------------------------------------------------------------
+/**
+ * Writes all the data to file
+ */
+//------------------------------------------------------------------------------
+bool DataFile::WriteAllTheData()
+{
+
+    if (!theData.size() > 0)
+    {
+        MessageInterface::ShowMessage("Error: Attempting to output data and this DataFile object currently has no data!\n");
+        return false;
+    }
+    
+    for (ObTypeVector::iterator j = theData.begin(); j != theData.end(); ++j)
+    {
+        if (!WriteData((*j)))
+            return false;
+    }
+
+    return true;
 }
 
 //------------------------------------------------------------------------------
