@@ -355,13 +355,16 @@ void TimeData::InitializeRefObjects()
    mSpacecraft = (Spacecraft*)FindFirstObject(VALID_OBJECT_TYPE_LIST[SPACECRAFT]);
    if (mSpacecraft == NULL)
    {
+      std::string scName = GetRefObjectName(Gmat::SPACECRAFT);
       #ifdef DEBUG_TIMEDATA
       MessageInterface::ShowMessage
-         ("TimeData::InitializeRefObjects() Cannot find Spacecraft object\n");
+         ("TimeData::InitializeRefObjects() Cannot find Spacecraft object named "
+          "\"%s\"\n", scName.c_str());
       #endif
       
       throw ParameterException
-         ("TimeData::InitializeRefObjects() Cannot find Spacecraft object\n");
+         ("TimeData::InitializeRefObjects() Cannot find Spacecraft object named \"" + 
+          scName + "\"\n");
    }
    else
    {

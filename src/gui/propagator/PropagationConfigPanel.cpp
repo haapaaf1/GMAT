@@ -98,6 +98,9 @@ PropagationConfigPanel::PropagationConfigPanel(wxWindow *parent,
    if (SetObject(obj))
    {
       thePropSetup = (PropSetup*)obj;
+      #ifdef DEBUG_PROP_PANEL_SETUP
+      MessageInterface::ShowMessage("   thePropSetup=<%p>\n", thePropSetup);
+      #endif
       Create();
       Show();
    }
@@ -1183,8 +1186,8 @@ void PropagationConfigPanel::SaveData()
          
          #ifdef DEBUG_PROP_PANEL_SAVE
          MessageInterface::ShowMessage
-            ("   pm=(%p)%s(%s)\n", pm, pm->GetTypeName().c_str(),
-             pm->GetBodyName().c_str());
+            ("   pm=<%p><%s>'%s', Body='%s'\n", pm, pm->GetTypeName().c_str(),
+             pm->GetName().c_str(), pm->GetBodyName().c_str());
          #endif
          
          for (int j=0; j<size; j++)

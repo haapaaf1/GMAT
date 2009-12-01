@@ -248,7 +248,7 @@ const std::string& Vary::GetGeneratingString(Gmat::WriteMode mode,
 {
    #ifdef DEBUG_VARY_GEN_STRING
    MessageInterface::ShowMessage
-      ("Vary::GetGeneratingString() <%p>'%s' entered\n", this);
+      ("Vary::GetGeneratingString() <%p>'%s' entered\n", this, GetTypeName().c_str());
    #endif
    
    // Build the local string
@@ -281,7 +281,7 @@ const std::string& Vary::GetGeneratingString(Gmat::WriteMode mode,
       #ifdef DEBUG_VARY_GEN_STRING
       MessageInterface::ShowMessage
          ("   solver = <%p><%s>'%s'\n", solver, solver->GetTypeName().c_str(),
-          solver->GetName().c_str();
+          solver->GetName().c_str());
       #endif
       
       Integer id = solver->GetParameterID("AllowVariablePertSetting");
@@ -428,7 +428,7 @@ const std::string& Vary::GetGeneratingString(Gmat::WriteMode mode,
    gen += details.str();
    generatingString = gen + "});";
    
-   // Then call the base class method
+   // Then call the base class method to handle comments
    return GmatCommand::GetGeneratingString(mode, prefix, useName);
 }
 
