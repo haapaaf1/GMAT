@@ -29,6 +29,7 @@
 //#define DEBUG_REPORT_EXEC
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_OBJECT_MAP
+//#define DEBUG_RENAME
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -602,7 +603,7 @@ bool Report::RenameRefObject(const Gmat::ObjectType type,
                              const std::string &oldName,
                              const std::string &newName)
 {
-   #if DEBUG_RENAME
+   #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
       ("Report::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
@@ -623,12 +624,13 @@ bool Report::RenameRefObject(const Gmat::ObjectType type,
          if (actualParmNames[i] == oldName)
             actualParmNames[i] = newName;
    }
-   // Since parameter name is composed of spacecraftName.dep.paramType or
-   // burnName.dep.paramType, check the type first
+   // Since parameter name is composed of spacecraftName.dep.paramType,
+   // spacecraftName.hardwareName.paramType, or burnName.dep.paramType
+   // check the type first
    else if (type == Gmat::SPACECRAFT || type == Gmat::BURN ||
-            type == Gmat::COORDINATE_SYSTEM || type == Gmat::CALCULATED_POINT)
+            type == Gmat::COORDINATE_SYSTEM || type == Gmat::CALCULATED_POINT ||
+            type == Gmat::HARDWARE)
    {
-      
       for (UnsignedInt i=0; i<parmNames.size(); i++)
          if (parmNames[i].find(oldName) != std::string::npos)
             parmNames[i] = GmatStringUtil::Replace(parmNames[i], oldName, newName);
@@ -638,6 +640,23 @@ bool Report::RenameRefObject(const Gmat::ObjectType type,
             actualParmNames[i] =
                GmatStringUtil::Replace(actualParmNames[i], oldName, newName);
       
+      // Go through wrappers
+      for (WrapperArray::iterator i = parmWrappers.begin(); i < parmWrappers.end(); i++)
+      {
+         #ifdef DEBUG_RENAME
+         MessageInterface::ShowMessage
+            ("   before rename, wrapper desc = '%s'\n", (*i)->GetDescription().c_str());
+         #endif
+         
+         (*i)->RenameObject(oldName, newName);
+         
+         #ifdef DEBUG_RENAME
+         MessageInterface::ShowMessage
+            ("   after  rename, wrapper desc = '%s'\n", (*i)->GetDescription().c_str());
+         #endif
+      }
+      
+      // Go through generating string
       generatingString = GmatStringUtil::Replace(generatingString, oldName, newName);
    }
    
@@ -755,8 +774,8 @@ bool Report::Initialize()
       mapObj = FindObject(*i);
       if (mapObj == NULL)
       {
-         std::string msg = "Object named " + (*i) +
-            " cannot be found for the Report command '" +
+         std::string msg = "Object named \"" + (*i) +
+            "\" cannot be found for the Report command '" +
             GetGeneratingString(Gmat::NO_COMMENTS) + "'";
          #ifdef DEBUG_REPORT_INIT
          MessageInterface::ShowMessage("**** ERROR **** %s\n", msg.c_str());
