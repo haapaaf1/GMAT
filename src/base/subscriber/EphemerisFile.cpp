@@ -52,6 +52,7 @@ StringArray EphemerisFile::finalEpochList;
 StringArray EphemerisFile::stepSizeList;
 StringArray EphemerisFile::stateTypeList;
 StringArray EphemerisFile::writeEphemerisList;
+StringArray EphemerisFile::interpolatorTypeList;
 
 const std::string
 EphemerisFile::PARAMETER_TEXT[EphemerisFileParamCount - SubscriberParamCount] =
@@ -170,6 +171,10 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    writeEphemerisList.clear();
    writeEphemerisList.push_back("Yes");
    writeEphemerisList.push_back("No");
+
+   interpolatorTypeList.clear();
+   interpolatorTypeList.push_back("Lagrange");
+   interpolatorTypeList.push_back("SLERP");
 }
 
 
@@ -701,7 +706,9 @@ const StringArray& EphemerisFile::GetPropertyEnumStrings(const Integer id) const
    case STATE_TYPE:
       return stateTypeList;
    case WRITE_EPHEMERIS:
-      return writeEphemerisList;
+      return writeEphemerisList;      
+   case INTERPOLATOR:
+      return interpolatorTypeList;
    default:
       return Subscriber::GetPropertyEnumStrings(id);
    }

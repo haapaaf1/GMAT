@@ -154,6 +154,8 @@ protected:
    static StringArray stateTypeList;   
    /// Available write ephemeris list
    static StringArray writeEphemerisList;
+   /// Available interpolator type list
+   static StringArray interpolatorTypeList;
    
    // Initialization
    void        CreateInterpolator();
