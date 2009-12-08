@@ -161,8 +161,12 @@ bool PropagationStateManager::SetProperty(std::string propName)
          throw PropagatorException(propName 
                + " is not a known propagation parameter on " 
                + current->GetName());
-      elements[current]->push_back(propName);
       
+      // Only add it if it is not yet there
+      if (find(elements[current]->begin(), elements[current]->end(),
+            propName) == elements[current]->end())
+         elements[current]->push_back(propName);
+
       #ifdef DEBUG_STATE_CONSTRUCTION
          MessageInterface::ShowMessage("Current property List:\n");
             for (StringArray::iterator i = elements[current]->begin(); 

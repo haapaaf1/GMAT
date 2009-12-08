@@ -273,7 +273,7 @@ protected:
    bool                 AllowIndependentPerts;
    /// Solver mode used for this instance
    std::string          solverMode;
-   /// State macjhine setting for the solver mode
+   /// State machine setting for the solver mode
    MachineMode          currentMode;
    /// String specifying the exit mode
    std::string          exitModeText;

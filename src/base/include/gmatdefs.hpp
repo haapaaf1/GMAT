@@ -149,6 +149,9 @@ namespace Gmat
       
       MATH_TREE,
       BODY_FIXED_POINT,
+
+      EVENT,
+
       // Estimation types
       MEASUREMENT_MODEL,
       CORE_MEASUREMENT,    // For the measurement primitives

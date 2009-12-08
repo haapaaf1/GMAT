@@ -53,6 +53,7 @@
 //#define DEBUG_WRITE_PARAMETERS
 //#define DEBUG_OWNED_OBJECT_STRINGS
 //#define DEBUG_SC_OWNED_OBJECT
+//#define DEBUG_MASS_FLOW
 
 #ifdef DEBUG_SPACECRAFT
 #include <iostream>

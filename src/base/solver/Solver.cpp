@@ -149,6 +149,8 @@ Solver::~Solver()
 {
    if (textFile.is_open())
       textFile.close();
+   if (plotter != NULL)
+      delete plotter;
 }
 
 

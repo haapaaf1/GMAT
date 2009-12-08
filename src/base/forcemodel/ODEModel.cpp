@@ -1533,7 +1533,13 @@ void ODEModel::UpdateTransientForces()
         tf != forceList.end(); ++tf) 
    {
       if ((*tf)->IsTransient())
-          (*tf)->SetPropList(&propObjects);
+      {
+         #ifdef DEBUG_INITIALIZATION
+            MessageInterface::ShowMessage("Updating transient force %s\n",
+               (*tf)->GetName().c_str());
+         #endif
+         (*tf)->SetPropList(&propObjects);
+      }
    }
 }
 
