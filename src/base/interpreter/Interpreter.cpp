@@ -3039,15 +3039,24 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
          }
          else
          {
-            // check if it is property first
             std::string afterDot = rhs.substr(dot+1);
-            GmatBase *toObj = NULL;
-            Integer toId = -1;
-            Gmat::ParameterType toType;
-            if (FindPropertyID(rhsObj, afterDot, &toObj, toId, toType))
+            // Check if rhs is a Parameter first
+            // This will fix Bug 1669 (LOJ: 2009.12.08)
+            if (theValidator->IsParameterType(rhs))
+            {
                rhsPropName = afterDot;
+            }
             else
-               rhsPropName = rhsParts[1];
+            {
+               // Check if it is object property
+               GmatBase *toObj = NULL;
+               Integer toId = -1;
+               Gmat::ParameterType toType;
+               if (FindPropertyID(rhsObj, afterDot, &toObj, toId, toType))
+                  rhsPropName = afterDot;
+               else
+                  rhsPropName = rhsParts[1];
+            }
          }
       }
    }
