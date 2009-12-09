@@ -1459,7 +1459,7 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
    if (integratorChanged)
    {
       std::string integratorType = integratorTypeArray[propIndex].c_str();
-      thePropagatorName = propSetupName + "_" + integratorType;
+      thePropagatorName = integratorType;
       thePropagator = (Propagator*)theGuiInterpreter->GetConfiguredObject(thePropagatorName);
       if (thePropagator == NULL)
          thePropagator = (Propagator*)
