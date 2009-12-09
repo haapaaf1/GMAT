@@ -249,19 +249,43 @@ void UniversePanel::LoadData()
       //mAnalyticModels = theGuiInterpreter->GetAnalyticModelNames();
       StringArray fileTypesInUse = theGuiInterpreter->GetPlanetarySourceTypesInUse();
       
+      #ifdef DEBUG_UNIVERSEPANEL_LOAD
+      MessageInterface::ShowMessage
+         ("   There are %d available file type(s)\n", mAllFileTypes.size());
+      for (unsigned int i=0; i<mAllFileTypes.size(); i++)
+         MessageInterface::ShowMessage
+            ("      '%s'\n", mAllFileTypes[i].c_str());
+      MessageInterface::ShowMessage
+         ("   There are %d file type(s) in use\n", fileTypesInUse.size());
+      for (unsigned int i=0; i<fileTypesInUse.size(); i++)
+         MessageInterface::ShowMessage
+            ("      '%s'\n", fileTypesInUse[i].c_str());
+      #endif
+      
       // load  ephemeris update interval
       Real interval = theSolarSystem->GetEphemUpdateInterval();
       mIntervalTextCtrl->SetValue(theGuiManager->ToWxString(interval));
+      
+      #ifdef DEBUG_UNIVERSEPANEL_LOAD
+      MessageInterface::ShowMessage("   Interval set to %f\n", interval);
+      #endif
       
       // available source
       for (unsigned int i=0; i<mAllFileTypes.size(); i++)
       {
          wxString type = mAllFileTypes[i].c_str();
-         mFileTypeNameMap[type] =
-            theGuiInterpreter->GetPlanetarySourceName(mAllFileTypes[i]).c_str();
-         
+         wxString typeName = theGuiInterpreter->GetPlanetarySourceName(mAllFileTypes[i]).c_str();
+         mFileTypeNameMap[type] = typeName;
          mFileTypeComboBox->Append(type);
       }
+      
+      #ifdef DEBUG_UNIVERSEPANEL_LOAD
+      MessageInterface::ShowMessage("   Here is the mapping of file types\n");
+      for (std::map<wxString, wxString>::iterator i = mFileTypeNameMap.begin();
+           i != mFileTypeNameMap.end(); ++i)
+         MessageInterface::ShowMessage
+            ("      <%-20s>   '%-30s'\n", (i->first).c_str(), (i->second).c_str());
+      #endif
       
       // available analytic models
       //for (unsigned int i=0; i<mAnalyticModels.size(); i++)
@@ -275,6 +299,11 @@ void UniversePanel::LoadData()
       std::string currentSource =
          theSolarSystem->GetStringParameter(theSolarSystem->GetParameterID("EphemerisSource"));
       mFileTypeComboBox->SetStringSelection(currentSource.c_str());
+      
+      #ifdef DEBUG_UNIVERSEPANEL_LOAD
+      MessageInterface::ShowMessage
+         ("   Ephemeris source set to '%s'\n", currentSource.c_str());
+      #endif
       
       //mFileTypeComboBox->SetStringSelection(fileTypesInUse[0].c_str());
       //if (mFileTypeComboBox->GetStringSelection() == "Analytic")
@@ -291,11 +320,29 @@ void UniversePanel::LoadData()
          //mPageSizer->Show(mAnaModelSizer, false);
       }
       
-      mFileNameTextCtrl->
-         SetValue(mFileTypeNameMap[mFileTypeComboBox->GetStringSelection()]);
+      wxString selStr = mFileTypeComboBox->GetStringSelection();
+      #ifdef DEBUG_UNIVERSEPANEL_LOAD
+      MessageInterface::ShowMessage
+         ("   Selected ephemeris source is '%s'\n", selStr.c_str());
+      #endif
+      if (selStr != "")
+      {
+         wxString fileName = mFileTypeNameMap[selStr];
+         mFileNameTextCtrl->SetValue(fileName);
+         
+         #ifdef DEBUG_UNIVERSEPANEL_LOAD
+         MessageInterface::ShowMessage
+            ("   Ephemeris file name set to '%s'\n", fileName.c_str());
+         #endif
+      }
       
-      mOverrideCheckBox->SetValue
-         (theSolarSystem->GetBooleanParameter("UseTTForEphemeris"));
+      bool useTT = theSolarSystem->GetBooleanParameter("UseTTForEphemeris");
+      mOverrideCheckBox->SetValue(useTT);
+      
+      #ifdef DEBUG_UNIVERSEPANEL_LOAD
+      MessageInterface::ShowMessage
+         ("   UseTTForEphemeris set to %s\n", useTT ? "true" : "false");
+      #endif
       
       mPageSizer->Layout();
       mObject = theSolarSystem;
