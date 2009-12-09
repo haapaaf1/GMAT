@@ -415,14 +415,18 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
       if (!CreateAssignmentWrappers(cmd, manage))
       {
          // Handle error if function (LOJ: 2009.03.17)
-         if (manage != 1)
-         {
+         // Hmm, I cannot recall why writing error message only when
+         // objects are not configured. Showing too many error messages?
+         // Anyway we also need to handle assignment error in the main script.
+         // This will fix Bug 1670 ((LOJ: 2009.12.09)
+         //if (manage != 1)
+         //{
             theErrorMsg = "Could not create an ElementWrapper for \"" +
                theDescription + "\"";
             return HandleError();
-         }
-         else
-            return false;
+            //}
+            //else
+            //return false;
       }
    }
    else
@@ -645,22 +649,21 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
          ((ArrayElementWrapper*)ew)->SetRow(row);
          ElementWrapper *col    = CreateElementWrapper(colName, false, manage);
          ((ArrayElementWrapper*)ew)->SetColumn(col);
-      }
+      }      
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage
+         ("Validator::CreateElementWrapper() returning <%p> for '%s'\n",
+       ew, ew->GetDescription().c_str());
+      #endif
    }
    else
    {
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         ("Validator::CreateElementWrapper() Could not create an ElementWrapper for \"" +
-          theDescription + "\"\n");
+         ("Validator::CreateElementWrapper() returning NULL, could not create an "
+          "ElementWrapper for \"" + theDescription + "\"\n");
       #endif
    }
-   
-   #if DBGLVL_WRAPPERS > 1
-   MessageInterface::ShowMessage
-      ("Validator::CreateElementWrapper() returning <%p> for '%s'\n",
-       ew, ew->GetDescription().c_str());
-   #endif
    
    return ew;
 }
@@ -993,7 +996,7 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
       
       if (body == NULL)
       {
-         theErrorMsg = "Body: " + bodyName + " not found in the SolarSystem\n";
+         theErrorMsg = "The body named \"" + bodyName + "\" not found in the SolarSystem\n";
          HandleError();
       }
       else
@@ -1167,7 +1170,14 @@ ElementWrapper* Validator::CreateWrapperWithDot(bool parametersFirst, Integer ma
    // if cannot find object and manage option is to use configuration,
    // we cannot continue, so just return NULL (loj: 2008.07.24)
    if (obj == NULL && manage == 1)
+   {
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage
+         ("Validator::CreateWrapperWithDot() returning NULL, the configured "
+          "object '%s' not found\n", owner.c_str());
+      #endif
       return NULL;
+   }
    
    //-----------------------------------------------------------------
    // Special case for SolarSystem
@@ -2329,6 +2339,11 @@ bool Validator::IsParameterType(const std::string &desc)
 //------------------------------------------------------------------------------
 bool Validator::ValidateParameter(const StringArray &refNames, GmatBase *obj)
 {
+   #ifdef DEBUG_CHECK_OBJECT
+   MessageInterface::ShowMessage
+      ("Validator::ValidateParameter() entered. There are %d ref objects\n",
+       refNames.size());
+   #endif
    bool retval = true;
    
    for (UnsignedInt j=0; j<refNames.size(); j++)
@@ -2337,6 +2352,12 @@ bool Validator::ValidateParameter(const StringArray &refNames, GmatBase *obj)
       {
          std::string type, ownerName, depObj;
          GmatStringUtil::ParseParameter(refNames[j], type, ownerName, depObj);
+         
+         #ifdef DEBUG_CHECK_OBJECT
+         MessageInterface::ShowMessage
+            ("   refName='%s', type='%s', owner='%s', dep='%s'\n", refNames[j].c_str(),
+             type.c_str(), ownerName.c_str(), depObj.c_str());
+         #endif
          
          // Check only system parameters
          if (type == "")
@@ -2367,6 +2388,10 @@ bool Validator::ValidateParameter(const StringArray &refNames, GmatBase *obj)
       }
    }
    
+   #ifdef DEBUG_CHECK_OBJECT
+   MessageInterface::ShowMessage
+      ("Validator::ValidateParameter() returning %d\n", retval);
+   #endif
    return retval;
 }
 
