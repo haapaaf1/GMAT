@@ -47,6 +47,7 @@ class CoordinateSystem;
 class MathNode;
 class Attitude;
 class SpacePoint;
+class Event;
 
 class MeasurementModel;
 class CoreMeasurement;
@@ -116,6 +117,8 @@ public:
                                            const std::string &withName = "");
    virtual Obtype*          CreateObtype(const std::string &ofType,
                                          const std::string &withName = "");
+   virtual Event*           CreateEvent(const std::string &ofType,
+                                        const std::string &withName = "");
    
    // method to return list of types of objects that this factory can create
    StringArray              GetListOfCreatableObjects(void) const;

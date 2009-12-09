@@ -765,7 +765,7 @@ Datafile* Factory::CreateDatafile(const std::string & ofType,
 
 
 //------------------------------------------------------------------------------
-// Obtype* Measurement(const std::string & ofType, const std::string & withName)
+// Obtype* CreateObtype(const std::string & ofType, const std::string & withName)
 //------------------------------------------------------------------------------
 /**
  * Creates an Obtype object.
@@ -788,8 +788,36 @@ Obtype* Factory::CreateObtype(const std::string & ofType,
       const std::string & withName)
 {
    throw FactoryException
-   ("Factory::CreateObtype() must be implemented by a ObtypeFactory\n");
+   ("Factory::CreateObtype() must be implemented by an ObtypeFactory\n");
 }
+
+
+//------------------------------------------------------------------------------
+// Event* CreateEvent(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates an Event object.
+ *
+ * Must be implemented by derived classes that create Event objects -
+ * in that case, it returns a new Event object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Event.
+ *
+ * @param <ofType>   specific type of Event object to create.
+ * @param <withName> name to give to the newly created Event object.
+ *
+ * @return pointer to a new Event object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type Event.
+ */
+//------------------------------------------------------------------------------
+Event* Factory::CreateEvent(const std::string &ofType, const std::string &withName)
+{
+   throw FactoryException
+         ("Factory::CreateEvent() must be implemented by an EventFactory\n");
+}
+
 
 
 //------------------------------------------------------------------------------
