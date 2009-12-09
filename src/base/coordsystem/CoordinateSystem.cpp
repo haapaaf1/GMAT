@@ -29,6 +29,7 @@
 #include "ObjectReferencedAxes.hpp"
 #include "MJ2000EqAxes.hpp"
 #include "TopocentricAxes.hpp"
+#include "BodyFixedAxes.hpp"
 #include "Rmatrix33.hpp"
 #include "MessageInterface.hpp"
 
@@ -1369,7 +1370,7 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
    
    //   CoordinateSystem *localCS = new CoordinateSystem(csName);
    //   AxisSystem *theAxes = new ObjectReferencedAxes(csName);
-      localCS  = new CoordinateSystem(csName);
+      localCS  = new CoordinateSystem("CoordinateSystem",csName);
       theAxes  = new ObjectReferencedAxes(csName);
      
       #ifdef DEBUG_MEMORY
@@ -1417,10 +1418,10 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
       
       #ifdef DEBUG_CS_CREATE
       MessageInterface::ShowMessage
-         ("   Local CS <%p> created with AxisSystem <%p>:\n"
+         ("   Local CS %s<%p> created with AxisSystem <%p>:\n"
           "      axesType    = '%s'\n      Origin      = <%p>'%s'\n"
           "      Primary     = <%p>'%s'\n      Secondary   = <%p>'%s'\n"
-          "      j2000body   = <%p>'%s'\n", localCS, theAxes, axesType.c_str(),
+          "      j2000body   = <%p>'%s'\n", csName.c_str(), localCS, theAxes, axesType.c_str(),
           localCS->GetOrigin(), localCS->GetOriginName().c_str(), localCS->GetPrimaryObject(),
           localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
           localCS->GetSecondaryObject(),
@@ -1438,13 +1439,16 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
       return localCS;
    }
    // these are needed at least by the Measurement code
-   else if ((axesType == "MJ2000Eq") || (axesType == "Topocentric"))
+   else if ((axesType == "MJ2000Eq") || (axesType == "Topocentric") ||
+            (axesType == "BodyFixed" ))
    {
-      localCS = new CoordinateSystem(csName);
+      localCS = new CoordinateSystem("CoordinateSystem",csName);
       if (axesType == "MJ2000Eq")
          theAxes = new MJ2000EqAxes(csName);
-      else
+      else if (axesType == "Topocentric")
          theAxes = new TopocentricAxes(csName);
+      else
+         theAxes = new BodyFixedAxes(csName);
 
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
@@ -1461,6 +1465,20 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
       localCS->SetRefObject(j2000Body, Gmat::SPACE_POINT, j2000Body->GetName());
       localCS->SetSolarSystem(solarSystem);
       localCS->Initialize();
+
+      #ifdef DEBUG_CS_CREATE
+      MessageInterface::ShowMessage
+         ("   Local CS %s<%p> created with AxisSystem <%p>:\n"
+          "      axesType    = '%s'\n      Origin      = <%p>'%s'\n"
+          "      Primary     = <%p>'%s'\n      Secondary   = <%p>'%s'\n"
+          "      j2000body   = <%p>'%s'\n", csName.c_str(), localCS, theAxes, axesType.c_str(),
+          localCS->GetOrigin(), localCS->GetOriginName().c_str(), localCS->GetPrimaryObject(),
+          localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
+          localCS->GetSecondaryObject(),
+          localCS->GetSecondaryObject() ? localCS->GetSecondaryObject()->GetName().c_str() : "NULL",
+          localCS->GetJ2000Body(),
+          localCS->GetJ2000Body() ? localCS->GetJ2000Body()->GetName().c_str() : "NULL");
+      #endif
 
       delete theAxes;
       return localCS;
