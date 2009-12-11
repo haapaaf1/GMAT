@@ -60,6 +60,7 @@
 #include "LeapSecsFileReader.hpp"
 // plug-in code
 #include "DynamicLibrary.hpp"
+#include "TriggerManager.hpp"
 
 namespace Gmat
 {
@@ -423,6 +424,7 @@ private:
    bool showFinalState;
    Integer objectManageOption;
    std::vector<Sandbox*> sandboxes;
+   std::vector<TriggerManager*> triggerManagers;
    std::vector<GmatCommand*> commands;
    
    ObjectMap *objectMapInUse;

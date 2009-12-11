@@ -67,6 +67,7 @@ typedef std::vector<Real>        RealArray;
 typedef std::vector<Integer>     IntegerArray;
 typedef std::vector<UnsignedInt> UnsignedIntArray;
 typedef std::vector<std::string> StringArray;
+typedef std::vector<bool>        BooleanArray;
 
 class GmatBase;                            // Forward reference for ObjectArray
 class ElementWrapper;
@@ -85,7 +86,7 @@ typedef struct geoparms
 
 
 /// GMAT's epoch representation; eventually a struct holding MJ day & sec of day
-typedef double GmatEpoch;
+typedef Real GmatEpoch;
 typedef std::vector<Integer> IntegerArray;
 
 

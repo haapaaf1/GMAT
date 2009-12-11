@@ -82,7 +82,7 @@
 //#define DEBUG_SOLAR_SYSTEM 1
 //#define DEBUG_SOLAR_SYSTEM_IN_USE 1
 //#define DEBUG_CREATE_BODY
-//#define DEBUG_PLUGIN_REGISTRATION
+#define DEBUG_PLUGIN_REGISTRATION
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -625,6 +625,25 @@ void Moderator::LoadAPlugin(std::string pluginName)
    else
       MessageInterface::ShowMessage(
             "Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
+
+   // Test to see if there might be TriggerManagers
+   Integer triggerCount = theLib->GetTriggerManagerCount();
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage(
+         "Library %s contains %d %s.\n", pluginName.c_str(), triggerCount,
+         ( triggerCount == 1 ? "TriggerManager" : "TriggerManagers"));
+   #endif
+
+   for (Integer i = 0; i < triggerCount; ++i)
+   {
+      TriggerManager *tm = theLib->GetTriggerManager(i);
+      triggerManagers.push_back(tm);
+
+      #ifdef DEBUG_PLUGIN_REGISTRATION
+         MessageInterface::ShowMessage(
+            "   TriggerManager %d is now registered.\n", i);
+      #endif
+   }
 }
 
 //------------------------------------------------------------------------------

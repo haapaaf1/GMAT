@@ -153,7 +153,7 @@ bool DynamicLibrary::LoadDynamicLibrary()
    }
    catch (GmatBaseException& ex)
    {
-      // Just ignore these exceptions
+      // Just ignore these exceptions -- no message receiver interfaces
    }
 
    if (libHandle == NULL)
@@ -245,7 +245,7 @@ Factory* DynamicLibrary::GetGmatFactory(Integer index)
 {
    if (libHandle == NULL)
       throw GmatBaseException("Library " + libName + " has not been opened "
-            "successfully; cannot search for factories \n");
+            "successfully; cannot search for factories\n");
 
    Factory* (*GetFactory)(Integer) = NULL;
    GetFactory = (Factory*(*)(Integer))GetFunction("GetFactoryPointer");
@@ -257,4 +257,64 @@ Factory* DynamicLibrary::GetGmatFactory(Integer index)
             libName.c_str());
 
    return theFactory;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetTriggerManagerCount()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the number of TriggerManagers in the plugin.
+ *
+ * @return The number of TriggerManagers.
+ */
+//------------------------------------------------------------------------------
+Integer DynamicLibrary::GetTriggerManagerCount()
+{
+   Integer triggerCount = 0;
+
+   // Test to see if there is a TriggerManager count function
+   try
+   {
+      Integer (*tmCount)() = NULL;
+      tmCount = (Integer (*)())GetFunction("GetTriggerManagerCount");
+      if (tmCount != NULL)  // There may be TriggerManagers
+         triggerCount = tmCount();
+   }
+   catch (GmatBaseException &ex)
+   {
+      // Ignored -- Just indicates that there are no TriggerManager interfaces
+   }
+
+   return triggerCount;
+}
+
+
+//------------------------------------------------------------------------------
+// TriggerManager* GetTriggerManager(Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TriggerManager pointer from the plugin.
+ *
+ * @param index Zero based index into the list of TriggerManagers
+ *
+ * @return The pointer to the TriggerManager at the specified index.
+ */
+//------------------------------------------------------------------------------
+TriggerManager* DynamicLibrary::GetTriggerManager(Integer index)
+{
+   if (libHandle == NULL)
+      throw GmatBaseException("Library " + libName + " has not been opened "
+            "successfully; cannot search for TriggerManagers\n");
+
+   TriggerManager* (*GetTM)(Integer) = NULL;
+   GetTM = (TriggerManager* (*)(Integer))GetFunction("GetTriggerManager");
+
+   TriggerManager *theTM = GetTM(index);
+   if (theTM == NULL)
+      MessageInterface::ShowMessage(
+            "Cannot access TriggerManager #%d in the \"%s\" library\n", index,
+            libName.c_str());
+
+   return theTM;
 }

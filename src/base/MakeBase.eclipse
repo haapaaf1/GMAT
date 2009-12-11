@@ -241,6 +241,7 @@ OBJECTS = \
     executive/Publisher.o \
     executive/SandboxException.o \
     executive/Sandbox.o \
+    executive/TriggerManager.o \
     factory/AtmosphereFactory.o \
     factory/AssetFactory.o \
     factory/AttitudeFactory.o \
