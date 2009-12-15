@@ -105,6 +105,7 @@ GmatCommand::GmatCommand(const std::string &typeStr) :
    objectMap            (NULL),
    globalObjectMap      (NULL),
    solarSys             (NULL),
+   triggerManagers      (NULL),
    internalCoordSys     (NULL),
    publisher            (NULL),
    streamID             (-1),
@@ -648,6 +649,21 @@ void GmatCommand::SetSolarSystem(SolarSystem *ss)
    solarSys = ss;
 }
 
+
+//------------------------------------------------------------------------------
+// void SetTriggerManagers(std::vector<TriggerManager*> *trigs)
+//------------------------------------------------------------------------------
+/**
+ * Sets the trigger manager pointers
+ *
+ * @param trigs A vector of TriggerManager pointers passed in from the local
+ *              Sandbox.
+ */
+//------------------------------------------------------------------------------
+void GmatCommand::SetTriggerManagers(std::vector<TriggerManager*> *trigs)
+{
+   triggerManagers = trigs;
+}
 
 //------------------------------------------------------------------------------
 // virtual void SetInternalCoordSystem(CoordinateSystem *cs)

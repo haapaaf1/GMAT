@@ -241,7 +241,6 @@ OBJECTS = \
     executive/Publisher.o \
     executive/SandboxException.o \
     executive/Sandbox.o \
-    executive/TriggerManager.o \
     factory/AtmosphereFactory.o \
     factory/AssetFactory.o \
     factory/AttitudeFactory.o \
@@ -284,6 +283,7 @@ OBJECTS = \
     foundation/ObjectInitializer.o \
     foundation/SpacePoint.o \
     foundation/StateManager.o \
+    foundation/TriggerManager.o \
     function/Function.o \
     function/FunctionException.o \
     function/FunctionManager.o \

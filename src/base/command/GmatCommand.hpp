@@ -34,10 +34,11 @@
 #include "ElementWrapper.hpp"
 
 // Headers for the referenced classes
-#include "SolarSystem.hpp"   // for SolarSystem
-#include "Publisher.hpp"     // For the Publisher and ...
-#include "Subscriber.hpp"    // ... base of the Subscribers
-#include "SpaceObject.hpp"   // for SpaceObjects
+#include "SolarSystem.hpp"    // for SolarSystem
+#include "Publisher.hpp"      // For the Publisher and ...
+#include "Subscriber.hpp"     // ... base of the Subscribers
+#include "SpaceObject.hpp"    // for SpaceObjects
+#include "TriggerManager.hpp" // Trigger managers, usually from a plugin
 
 // Forward reference for the transient force vector
 class PhysicalModel;
@@ -108,6 +109,7 @@ public:
    
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
    virtual void         SetSolarSystem(SolarSystem *ss);
+   virtual void         SetTriggerManagers(std::vector<TriggerManager*> *trigs);
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual ObjectMap*   GetObjectMap();
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
@@ -240,6 +242,8 @@ protected:
                         *globalObjectMap;
    /// Solar System, set by the local Sandbox
    SolarSystem          *solarSys;
+   /// Trigger managers, set by the local Sandbox
+   std::vector<TriggerManager*> *triggerManagers;
    /// Internal coordinate system, set by the local Sandbox
    CoordinateSystem     *internalCoordSys;
    /// transient forces to pass to the function

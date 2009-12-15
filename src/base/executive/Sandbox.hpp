@@ -54,6 +54,7 @@ public:
    GmatBase* AddObject(GmatBase *obj);   
    bool AddCommand(GmatCommand *cmd);
    bool AddSolarSystem(SolarSystem *ss);
+   bool AddTriggerManagers(const std::vector<TriggerManager*> *trigs);
    bool AddSubscriber(Subscriber *sub);
    bool SetInternalCoordSystem(CoordinateSystem *ss);
    bool SetPublisher(Publisher *pub = NULL);
@@ -111,6 +112,8 @@ private:
    // Additions made for finite maneuvers
    /// List of FiniteThrust objects that are currently available
    std::vector<PhysicalModel *>      transientForces;
+   /// Trigger managers for this Sandbox
+   std::vector<TriggerManager*>      triggerManagers;
 
    Sandbox(const Sandbox&);
    Sandbox& operator=(const Sandbox&);

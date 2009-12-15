@@ -138,6 +138,9 @@ Sandbox::~Sandbox()
       }
    #endif
    
+   for (UnsignedInt i = 0; i < triggerManagers.size(); ++i)
+      delete triggerManagers[i];
+
    if (sequence)
    {
       #ifdef DEBUG_MEMORY
@@ -324,6 +327,47 @@ bool Sandbox::AddSolarSystem(SolarSystem *ss)
    #endif
 #endif
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool AddTriggerManagers(const std::vector<TriggerManager*> *trigs)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+bool Sandbox::AddTriggerManagers(const std::vector<TriggerManager*> *trigs)
+{
+   bool retval = true;
+
+   for (UnsignedInt i = 0; i < triggerManagers.size(); ++i)
+      delete triggerManagers[i];
+   triggerManagers.clear();
+
+//   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("Sandbox received %d trigger managers\n",
+            trigs->size());
+//   #endif
+
+   for (UnsignedInt i = 0; i < trigs->size(); ++i)
+   {
+      TriggerManager *trigMan = (*trigs)[i]->Clone();
+      if (trigMan != NULL)
+         triggerManagers.push_back(trigMan);
+      else
+      {
+         MessageInterface::ShowMessage("Unable to clone a TriggerManager -- "
+               "please check the copy constructor and assignment operator");
+         retval = false;
+      }
+   }
+
+   return retval;
 }
 
 
@@ -615,6 +659,8 @@ bool Sandbox::Initialize()
           current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       
+      current->SetTriggerManagers(&triggerManagers);
+
       #ifdef DEBUG_SANDBOX_GMATFUNCTION
          MessageInterface::ShowMessage("Initializing %s command\n",
             current->GetTypeName().c_str());
@@ -988,6 +1034,11 @@ void Sandbox::Clear()
    solarSys = NULL;
 #endif
    
+   // Remove the TriggerManager clones
+   for (UnsignedInt i = 0; i < triggerManagers.size(); ++i)
+      delete triggerManagers[i];
+   triggerManagers.clear();
+
    // who deletes objects?  ConfigManager::RemoveAllItems() deleletes them
    objectMap.clear();
    globalObjectMap.clear();

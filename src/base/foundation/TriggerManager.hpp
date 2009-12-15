@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                         ClassName
+//                         TriggerManager
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -10,10 +10,10 @@
 // number NNG06CA54C
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
-// Created: 2009/ /
+// Created: 2009/12/10
 //
 /**
- * File description here.
+ * Interface class defining GMAT's TriggerManager interfaces.
  */
 //------------------------------------------------------------------------------
 
@@ -42,9 +42,17 @@ public:
    TriggerManager(const TriggerManager& tm);
    TriggerManager& operator=(const TriggerManager& tm);
 
+   const Integer GetTriggerType();
+   const std::string GetTriggerTypeString();
+
+   virtual TriggerManager* Clone() = 0;
    virtual bool CheckForTrigger() = 0;
    virtual Real LocateTrigger() = 0;
    virtual void SetObject(GmatBase *obj);
+
+protected:
+   Integer triggerType;
+   std::string triggerTypeString;
 };
 
 #endif /* TriggerManager_hpp */

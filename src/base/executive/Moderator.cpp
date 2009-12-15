@@ -641,7 +641,8 @@ void Moderator::LoadAPlugin(std::string pluginName)
 
       #ifdef DEBUG_PLUGIN_REGISTRATION
          MessageInterface::ShowMessage(
-            "   TriggerManager %d is now registered.\n", i);
+            "   TriggerManager %d of type %s is now registered.\n", i,
+            tm->GetTriggerTypeString().c_str());
       #endif
    }
 }
@@ -5064,6 +5065,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
       {
          // add objects to sandbox
          AddSolarSystemToSandbox(sandboxNum-1);
+         AddTriggerManagersToSandbox(sandboxNum-1);
          AddInternalCoordSystemToSandbox(sandboxNum-1);
          AddCoordSystemToSandbox(sandboxNum-1);
          /// @note AddSpacecraftToSandbox() also adds associated hardware
@@ -7025,6 +7027,21 @@ void Moderator::AddSolarSystemToSandbox(Integer index)
    #else
       sandboxes[index]->AddSolarSystem(theSolarSystemInUse);
    #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void Moderator::AddTriggerManagersToSandbox(Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Passes TriggerManager array to a Sandbox so the Sandbox can clone managers
+ *
+ * @param index The index of the sandbox getting the trigger managers
+ */
+//------------------------------------------------------------------------------
+void Moderator::AddTriggerManagersToSandbox(Integer index)
+{
+   sandboxes[index]->AddTriggerManagers(&triggerManagers);
 }
 
 

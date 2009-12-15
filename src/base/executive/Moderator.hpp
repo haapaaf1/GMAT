@@ -388,6 +388,7 @@ private:
    
    // sandbox
    void AddSolarSystemToSandbox(Integer index);
+   void AddTriggerManagersToSandbox(Integer index);
    void AddInternalCoordSystemToSandbox(Integer index);
    void AddPublisherToSandbox(Integer index);
    void AddCoordSystemToSandbox(Integer index);
