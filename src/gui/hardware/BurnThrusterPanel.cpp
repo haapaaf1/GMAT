@@ -154,26 +154,26 @@ void BurnThrusterPanel::Create()
    // thrust vector items
    //-----------------------------------------------------------------
    
-   // Element1
+   // ThrustDirection1
    wxStaticText *elem1Unit = new wxStaticText(this, ID_TEXT, wxT(" km/s"));
-   wxStaticText *XLabel = new wxStaticText(this, ID_TEXT, wxT("Element1"));
+   wxStaticText *XLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection1"));
    elem1TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
                       wxDefaultPosition, wxSize(150,-1), 0);
    
-   // Element2
+   // ThrustDirection2
    wxStaticText *elem2Unit =
       new wxStaticText(this, ID_TEXT, wxT(" km/s"));
    wxStaticText *YLabel =
-      new wxStaticText(this, ID_TEXT, wxT("Element2"),
+      new wxStaticText(this, ID_TEXT, wxT("ThrustDirection2"),
                         wxDefaultPosition,wxDefaultSize, 0);
    elem2TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
                       wxDefaultPosition, wxSize(150,-1), 0);
    
-   // Element3
+   // ThrustDirection3
    wxStaticText *elem3Unit = new wxStaticText(this, ID_TEXT, wxT(" km/s"));
-   wxStaticText *ZLabel = new wxStaticText(this, ID_TEXT, wxT("Element3"));
+   wxStaticText *ZLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection3"));
    elem3TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
                      wxDefaultPosition, wxSize(150,-1), 0);
@@ -341,6 +341,22 @@ void BurnThrusterPanel::LoadData()
    
    // Set object pointer for "Show Script"
    mObject = theObject;
+   bool isImpBurn = false;
+   if (theObject->GetType() == Gmat::IMPULSIVE_BURN)
+      isImpBurn = true;
+   
+   if (isImpBurn)
+   {
+      thrustDir1 = "Element1";
+      thrustDir2 = "Element2";
+      thrustDir3 = "Element3";
+   }
+   else
+   {
+      thrustDir1 = "ThrustDirection1";
+      thrustDir2 = "ThrustDirection2";
+      thrustDir3 = "ThrustDirection3";
+   }
    
    Integer paramID;
    
@@ -358,13 +374,13 @@ void BurnThrusterPanel::LoadData()
       objName = theObject->GetStringParameter(paramID);
       axesComboBox->SetValue(objName.c_str());
       
-      paramID = theObject->GetParameterID("Element1");
+      paramID = theObject->GetParameterID(thrustDir1);
       elem1TextCtrl->SetValue(wxVariant(theObject->GetRealParameter(paramID)));
       
-      paramID = theObject->GetParameterID("Element2");
+      paramID = theObject->GetParameterID(thrustDir2);
       elem2TextCtrl->SetValue(wxVariant(theObject->GetRealParameter(paramID)));
       
-      paramID = theObject->GetParameterID("Element3");
+      paramID = theObject->GetParameterID(thrustDir3);
       elem3TextCtrl->SetValue(wxVariant(theObject->GetRealParameter(paramID)));
       
       paramID = theObject->GetParameterID("DecrementMass");
@@ -439,13 +455,13 @@ void BurnThrusterPanel::SaveData()
        elem3TextCtrl->IsModified() || gravityAccelTextCtrl->IsModified())
    {
       str = elem1TextCtrl->GetValue();
-      CheckReal(elem1, str, "Element1", "Real Number");
+      CheckReal(elem1, str, thrustDir1, "Real Number");
       
       str = elem2TextCtrl->GetValue();
-      CheckReal(elem2, str, "Element2", "Real Number");
+      CheckReal(elem2, str, thrustDir2, "Real Number");
       
       str = elem3TextCtrl->GetValue();
-      CheckReal(elem3, str, "Element3", "Real Number");
+      CheckReal(elem3, str, thrustDir3, "Real Number");
       
       str = gravityAccelTextCtrl->GetValue();
       CheckReal(gravityAccel, str, "GravitationalAccel", "Real Number > 0", false,
@@ -480,16 +496,16 @@ void BurnThrusterPanel::SaveData()
          theObject->SetStringParameter(paramID, axesComboBox->GetValue().c_str());
       }
       
-      // Save Elements
+      // Save ThrustDirections
       if (realDataChanged)
       {
-         paramID = theObject->GetParameterID("Element1");
+         paramID = theObject->GetParameterID(thrustDir1);
          theObject->SetRealParameter(paramID, elem1);
          
-         paramID = theObject->GetParameterID("Element2");
+         paramID = theObject->GetParameterID(thrustDir2);
          theObject->SetRealParameter(paramID, elem2);
          
-         paramID = theObject->GetParameterID("Element3");
+         paramID = theObject->GetParameterID(thrustDir3);
          theObject->SetRealParameter(paramID, elem3);
          
          paramID = theObject->GetParameterID("GravitationalAccel");

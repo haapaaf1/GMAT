@@ -47,6 +47,9 @@ protected:
    
    std::string coordSysName;
    std::string tankName;
+   std::string thrustDir1;
+   std::string thrustDir2;
+   std::string thrustDir3;
    
    bool isCoordSysChanged;
    bool isTankChanged;
