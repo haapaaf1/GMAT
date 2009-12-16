@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              DragInputsDialog
 //------------------------------------------------------------------------------
@@ -31,7 +31,6 @@ private:
    bool isTextModified;
    bool useFile;
    
-   void Initialize();
    void Update();
    
    wxStaticText *solarFluxStaticText;

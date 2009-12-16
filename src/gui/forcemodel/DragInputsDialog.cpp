@@ -54,6 +54,13 @@ DragInputsDialog::DragInputsDialog(wxWindow *parent, DragForce *dragForce,
                                    const wxString& title)
    : GmatDialog(parent, -1, title)
 {
+   #ifdef DEBUG_DRAG_INPUT
+   MessageInterface::ShowMessage
+      ("DragInputsDialog::DragInputsDialog() entered, dragForce=<%p><%s>'%s'\n",
+       dragForce, dragForce ? dragForce->GetTypeName().c_str() : "NULL",
+       dragForce ? dragForce->GetName().c_str() : "NULL");
+   #endif
+   
    mObject = (GmatBase*)dragForce;   
    theForce = dragForce;
    isTextModified = false;
@@ -68,6 +75,10 @@ DragInputsDialog::DragInputsDialog(wxWindow *parent, DragForce *dragForce,
       MessageInterface::ShowMessage
          ("***  ERROR *** DragInputsDialog() input drag force is NULL\n");
    }
+   
+   #ifdef DEBUG_DRAG_INPUT
+   MessageInterface::ShowMessage("DragInputsDialog::DragInputsDialog() leaving\n");
+   #endif
 }
 
 
@@ -90,17 +101,6 @@ DragForce* DragInputsDialog::GetForce()
 //-------------------------------
 // private methods
 //-------------------------------
-
-//------------------------------------------------------------------------------
-// void Initialize()
-//------------------------------------------------------------------------------
-void DragInputsDialog::Initialize()
-{  
-   if (theForce != NULL)
-      theForce->Initialize();
-   
-   useFile = false;
-}
 
 //------------------------------------------------------------------------------
 // void Update()
@@ -227,8 +227,10 @@ void DragInputsDialog::Create()
 // virtual void LoadData()
 //------------------------------------------------------------------------------
 void DragInputsDialog::LoadData()
-{   
-   Initialize();
+{
+   #ifdef DEBUG_DRAG_LOAD
+   MessageInterface::ShowMessage("DragInputsDialog::LoadData() entered\n");
+   #endif
    
    try
    {
@@ -305,6 +307,10 @@ void DragInputsDialog::LoadData()
    }
    
    Update();
+   
+   #ifdef DEBUG_DRAG_LOAD
+   MessageInterface::ShowMessage("DragInputsDialog::LoadData() leaving\n");
+   #endif
 }
 
 
@@ -313,8 +319,11 @@ void DragInputsDialog::LoadData()
 //------------------------------------------------------------------------------
 void DragInputsDialog::SaveData()
 {
-   canClose = true;
+   #ifdef DEBUG_DRAG_SAVE
+   MessageInterface::ShowMessage("DragInputsDialog::SaveData() entered\n");
+   #endif
    
+   canClose = true;
    Real flux, avgFlux, magIndex;
    
    //-----------------------------------------------------------------
@@ -359,9 +368,10 @@ void DragInputsDialog::SaveData()
          theForce->SetStringParameter(inputSourceID, inputSourceString.c_str());
          theForce->SetStringParameter(solarFluxFileID,
                                       fileNameTextCtrl->GetValue().c_str());
-         
-         //MessageInterface::ShowMessage("Saved filename%s\n",
-         //   fileNameTextCtrl->GetValue().c_str());
+         #ifdef DEBUG_DRAG_SAVE
+         MessageInterface::ShowMessage
+            ("   ==> Saved filename%s\n", fileNameTextCtrl->GetValue().c_str());
+         #endif
       }
       else
       {
@@ -383,7 +393,10 @@ void DragInputsDialog::SaveData()
       MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
       canClose = false;
    }
-
+   
+   #ifdef DEBUG_DRAG_SAVE
+   MessageInterface::ShowMessage("DragInputsDialog::SaveData() leaving\n");
+   #endif
 }
 
 
