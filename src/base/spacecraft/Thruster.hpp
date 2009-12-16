@@ -214,6 +214,8 @@ protected:
    void                 ConvertDirectionToInertial(Real *dv, Real *dvInertial,
                                                    Real epoch);
    void                 ComputeInertialDirection(Real epoch);
+   void                 WriteDeprecatedMessage(const std::string &oldProp,
+                                               const std::string &newProp) const;
    
 };
 

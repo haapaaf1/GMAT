@@ -448,11 +448,11 @@ std::string Thruster::GetParameterText(const Integer id) const
       return PARAMETER_TEXT[id - HardwareParamCount];
    
    if (id == DIRECTION_X)
-      return "Element1";
+      return "ThrustDirection1";
    if (id == DIRECTION_Y)
-      return "Element2";
+      return "ThrustDirection2";
    if (id == DIRECTION_Z)
-      return "Element3";
+      return "ThrustDirection3";
    
    return Hardware::GetParameterText(id);
 }
@@ -477,32 +477,26 @@ Integer Thruster::GetParameterID(const std::string &str) const
          return i;
    }
    
-   if (str == "Element1")
+   if (str == "ThrustDirection1")
       return DIRECTION_X;
-   if (str == "Element2")
+   if (str == "ThrustDirection2")
       return DIRECTION_Y;
-   if (str == "Element3")
+   if (str == "ThrustDirection3")
       return DIRECTION_Z;
    
-   if (str == "X_Direction")
+   if (str == "X_Direction" || str == "Element1")
    {
-      MessageInterface::ShowMessage("\"X_Direction\" thruster orientations "
-         "are deprecated and will be removed from a future build; please use "
-         "\"Element1\" instead.\n");
+      WriteDeprecatedMessage(str, "ThrustDirection1");
       return DIRECTION_X;
    }
-   if (str == "Y_Direction")
+   if (str == "Y_Direction" || str == "Element2")
    {
-      MessageInterface::ShowMessage("\"Y_Direction\" thruster orientations "
-         "are deprecated and will be removed from a future build; please use "
-         "\"Element2\" instead.\n");
+      WriteDeprecatedMessage(str, "ThrustDirection2");
       return DIRECTION_Y;
    }
-   if (str == "Z_Direction")
+   if (str == "Z_Direction" || str == "Element3")
    {
-      MessageInterface::ShowMessage("\"Z_Direction\" thruster orientations "
-         "are deprecated and will be removed from a future build; please use "
-         "\"Element3\" instead.\n");
+      WriteDeprecatedMessage(str, "ThrustDirection3");
       return DIRECTION_Z;
    }
    
@@ -585,7 +579,8 @@ bool Thruster::IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
 Real Thruster::GetRealParameter(const Integer id) const
 {
-   switch (id) {
+   switch (id)
+   {
       case C1:
          return cCoefficients[0];
       case C2:
@@ -2029,4 +2024,47 @@ void Thruster::ComputeInertialDirection(Real epoch)
    ConvertDirectionToInertial(direction, inertialDirection, epoch);
 }
 
+
+//------------------------------------------------------------------------------
+// void WriteDeprecatedMessage(const std::string &oldProp,
+//                             const std::string &newProp) const
+//------------------------------------------------------------------------------
+void Thruster::WriteDeprecatedMessage(const std::string &oldProp,
+                                      const std::string &newProp) const
+{
+   // Write only one message per session
+   static bool writeXDirection = true;
+   static bool writeYDirection = true;
+   static bool writeZDirection = true;
+   static bool writeElement1 = true;
+   static bool writeElement2 = true;
+   static bool writeElement3 = true;
+   
+   if ((oldProp == "X_Direction" && writeXDirection) ||
+       (oldProp == "Y_Direction" && writeYDirection) ||
+       (oldProp == "Z_Direction" && writeZDirection) ||
+       (oldProp == "Element1" && writeElement1) ||
+       (oldProp == "Element2" && writeElement2) ||
+       (oldProp == "Element3" && writeElement3))
+   {
+      MessageInterface::ShowMessage
+         ("*** WARNING *** \"" + oldProp + "\" of Thruster orientation is "
+          "deprecated and will be removed from a future build; please use \"" +
+          newProp + "\" instead.\n");
+   }
+   
+   if (oldProp == "X_Direction")
+      writeXDirection = false;
+   else if (oldProp == "Y_Direction")
+      writeYDirection = false;
+   else if (oldProp == "Z_Direction")
+      writeYDirection = false;
+   else if (oldProp == "Element1")
+      writeElement1 = false;
+   else if (oldProp == "Element2")
+      writeElement2 = false;
+   else if (oldProp == "Element3")
+      writeElement3 = false;
+   
+}
 
