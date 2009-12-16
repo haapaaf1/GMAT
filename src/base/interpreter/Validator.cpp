@@ -757,6 +757,7 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    // Handle LHS
    //-------------------------------------------------------------------
    ElementWrapper *leftEw = NULL;
+   static bool writeWarning = true; // To write warning messaage per session
    
    try
    {         
@@ -769,10 +770,31 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
       
       // If lhs has two dots and settable, treat it as Parameter.
       // This will enable assignment such as Sat.Thruster1.FuelMass = 735;
-      bool isLhsSettable = ParameterInfo::Instance()->IsSettable(type);
+      // Handle deprecated Element* on Thruster (2009.12.15)
+      std::string newType = type;
+      if ((type == "Element1" || type == "Element2" || type == "Element3") &&
+          GmatStringUtil::NumberOfOccurrences(lhs, '.') > 1)
+      {
+         newType = GmatStringUtil::Replace(newType, "Element", "ThrustDirection");
+         #if DBGLVL_WRAPPERS > 0
+         MessageInterface::ShowMessage
+            ("   Parameter type '%s' in '%s' changed to '%s'\n", type.c_str(),
+             lhs.c_str(), newType.c_str());
+         #endif
+         if (writeWarning)
+         {
+            MessageInterface::ShowMessage
+               ("*** WARNING *** The Parameter type \"" + type + "\" of Thruster is "
+                "deprecated and will be removed from a future build; please use \"" +
+                newType + "\" instead in \"" + lhs + ".\"\n");
+            writeWarning = false;
+         }
+      }
+      
+      bool isLhsSettable = ParameterInfo::Instance()->IsSettable(newType);
       #if DBGLVL_WRAPPERS > 1
       MessageInterface::ShowMessage
-         ("   ==> '%s' is%ssettable\n", type.c_str(), isLhsSettable ? " " : " NOT ");
+         ("   ==> '%s' is%ssettable\n", newType.c_str(), isLhsSettable ? " " : " NOT ");
       #endif
       if (lhs.find_first_of(".") != lhs.find_last_of(".") && isLhsSettable)
          leftEw = CreateElementWrapper(lhs, true, manage);
@@ -1915,8 +1937,8 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
    ElementWrapper *ew = NULL;
    
    // if there are two dots, then treat it as a Parameter
-   // @note We can have more than two dots for Parameters in the future
-   if (theDescription.find_first_of(".") != theDescription.find_last_of("."))
+   // e.g. Sat.Thruster1.K1
+   if (GmatStringUtil::NumberOfOccurrences(theDescription, '.') > 1)
    {
       // see if reallay create a ParameterWrapper first, there are a few exceptions.
       bool paramFirst = true;
