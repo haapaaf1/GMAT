@@ -1061,7 +1061,7 @@ void PropagationConfigPanel::SaveData()
                {
                   theAtmosphereModel = (AtmosphereModel*)theGuiInterpreter->CreateObject
                      (primaryBodyList[i]->dragType.c_str(), primaryBodyList[i]->dragType.c_str());
-               
+                  
                   #ifdef DEBUG_PROP_PANEL_SAVE
                   ShowForceList("Exiting if (theAtmosphereModel == NULL)");
                   #endif
@@ -2170,12 +2170,20 @@ bool PropagationConfigPanel::SaveAtmosModel()
    theCelestialBody = theSolarSystem->GetBody(bodyName.c_str()); 
    theAtmosphereModel = theCelestialBody->GetAtmosphereModel();
    
+   #ifdef DEBUG_PROP_PANEL_SAVE
+   MessageInterface::ShowMessage
+      ("PropagationConfigPanel::SaveAtmosModel() theCelestialBody=<%p>'%s', "
+       "theAtmosphereModel=<%p>'%s'\n", theCelestialBody,
+       theCelestialBody->GetName().c_str(), theAtmosphereModel, theAtmosphereModel ?
+       theAtmosphereModel->GetName().c_str() : "NULL");
+   #endif
+   
    if (theAtmosphereModel == NULL)  
    {
       #ifdef DEBUG_PROP_PANEL_SAVE
       MessageInterface::ShowMessage
          ("PropagationConfigPanel::SaveAtmosModel() AtmosphereModel not found "
-          "for body:%s\n", bodyName.c_str());
+          "for body '%s'\n", bodyName.c_str());
       #endif
    }
    
@@ -2184,7 +2192,8 @@ bool PropagationConfigPanel::SaveAtmosModel()
    //-------------------------------------------------------
    try
    {
-      theDragForce->SetInternalAtmosphereModel(theAtmosphereModel);
+      if (theAtmosphereModel != NULL)
+         theDragForce->SetInternalAtmosphereModel(theAtmosphereModel);
       paramId = theDragForce->GetParameterID("AtmosphereModel");
       theDragForce->SetStringParameter(paramId, dragType.c_str());
       theDragForce->SetStringParameter("BodyName", bodyName.c_str());
@@ -2514,8 +2523,8 @@ void PropagationConfigPanel::OnGravSearchButton(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::OnSetupButton(wxCommandEvent &event)
 {
-   DragForce *dragForce;
-
+   DragForce *dragForce = NULL;
+   
    // if DragForce has not been created, create it first by calling SaveData()
    if (primaryBodyList[currentBodyId]->dragf == NULL)
    {
