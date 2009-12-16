@@ -223,18 +223,10 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
       return new BVectorAngle(withName);
    
    // ImpulsiveBurn parameters
-   if (ofType == "Element1")
-      return new DeltaVDir1(withName, ofType);
-   if (ofType == "Element2")
-      return new DeltaVDir2(withName, ofType);
-   if (ofType == "Element3")
-      return new DeltaVDir3(withName, ofType);
-   if (ofType == "V")
-      return new DeltaVDir1(withName, ofType);
-   if (ofType == "N")
-      return new DeltaVDir2(withName, ofType);
-   if (ofType == "B")
-      return new DeltaVDir3(withName, ofType);
+   if (ofType == "Element1" || ofType == "Element2" || ofType == "Element3")
+      return new ImpBurnElements(ofType, withName);   
+   if (ofType == "V" || ofType == "N" || ofType == "B")
+      return new ImpBurnElements(ofType, withName);
    
    // Attitude parameters
    if (ofType == "DCM11" || ofType == "DirectionCosineMatrix11")
@@ -342,6 +334,10 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
        ofType == "K9"  || ofType == "K10" || ofType == "K11" || ofType == "K12" ||
        ofType == "K13" || ofType == "K14" || ofType == "K15" || ofType == "K16")
       return new ImpulseCoefficients(ofType, withName);
+   
+   if (ofType == "ThrustDirection1" || ofType == "ThrustDirection2" ||
+       ofType == "ThrustDirection3")
+      return new ThrustDirections(ofType, withName);
    
    // add others here
    
@@ -554,6 +550,10 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("K14");
       creatables.push_back("K15");
       creatables.push_back("K16");
+      
+      creatables.push_back("ThrustDirection1");
+      creatables.push_back("ThrustDirection2");
+      creatables.push_back("ThrustDirection3");
    }
 }
 
