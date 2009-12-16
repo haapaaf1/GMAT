@@ -26,6 +26,7 @@
 // Uncomment to generate drag model data for debugging:
 //#define DEBUG_DRAGFORCE_DENSITY
 //#define DEBUG_DRAGFORCE_PARAM
+//#define DEBUG_DRAGFORCE_REFOBJ
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -225,21 +226,15 @@ DragForce::DragForce(const DragForce& df) :
    cartIndex               (df.cartIndex),
    fillCartesian           (df.fillCartesian)
 {
-   if (useExternalAtmosphere)
+   internalAtmos = NULL;
+   if (df.internalAtmos)
    {
-      internalAtmos = NULL;
-   }
-   else
-   {
-      if (df.internalAtmos)
-      {
-         internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone();
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Add
-            (internalAtmos, internalAtmos->GetName(), "DragForce::DragForce(copy)",
-             "internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone()", this);
-         #endif
-      }
+      internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (internalAtmos, internalAtmos->GetName(), "DragForce::DragForce(copy)",
+          "internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone()", this);
+      #endif
    }
    
    parameterCount += 7;
@@ -292,7 +287,7 @@ DragForce& DragForce::operator=(const DragForce& df)
    massID                = df.massID;
    cdID                  = df.cdID;
    areaID                = df.areaID;
-
+   
    if (internalAtmos != NULL)
    {
       #ifdef DEBUG_MEMORY
@@ -301,22 +296,18 @@ DragForce& DragForce::operator=(const DragForce& df)
           "deleting internal atmosphere model");
       #endif
       delete internalAtmos;
-      internalAtmos = NULL;
    }
    
-   if (useExternalAtmosphere)
-      internalAtmos = NULL;
-   else
+   internalAtmos = NULL;
+   
+   if (df.internalAtmos)
    {
-      if (df.internalAtmos)
-      {
-         internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone();
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Add
-            (internalAtmos, internalAtmos->GetName(), "DragForce::operator=()",
-             "internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone()", this);
-         #endif
-      }
+      internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone();
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (internalAtmos, internalAtmos->GetName(), "DragForce::operator=()",
+          "internalAtmos = (AtmosphereModel*)df.internalAtmos->Clone()", this);
+      #endif
    }
    
    atmos                 = NULL;
@@ -494,7 +485,7 @@ void DragForce::SetSatelliteParameter(const Integer i,
    unsigned parmNumber = (unsigned)(i+1);
 
    #ifdef DEBUG_DRAGFORCE_DENSITY
-      dragdata << "Setting satellite parameter " << parmName
+      dragdata << "Setting satellite parameter ID " << parmID
                << " for Spacecraft " << i << " to " << parm << "\n";
    #endif
 
@@ -684,23 +675,26 @@ bool DragForce::Initialize()
             {
                #ifdef DEBUG_DRAGFORCE_DENSITY
                MessageInterface::ShowMessage
-                  ("   Setting atmosphereType=%s addr:%d to body:%s\n",
-                   atmosphereType.c_str(), internalAtmos,
+                  ("   Setting atmosphereType<%p><%s>'%s' to body '%s'\n",
+                   internalAtmos, internalAtmos ? internalAtmos->GetTypeName().c_str() :
+                   "NULL", internalAtmos ? internalAtmos->GetName().c_str() : "NULL",
                    centralBody->GetName().c_str());
                #endif
                
-               AtmosphereModel *amCloned = (AtmosphereModel*)internalAtmos->Clone();
-               #ifdef DEBUG_MEMORY
-               MemoryTracker::Instance()->Add
-                  (amCloned, amCloned->GetName(), "DragForce::Initialize()",
-                   "amCloned = (AtmosphereModel*)internalAtmos->Clone()", this);
-               #endif
-               
-               centralBody->SetAtmosphereModelType(atmosphereType);
-               centralBody->SetAtmosphereModel(amCloned);
+               if (internalAtmos)
+               {
+                  AtmosphereModel *amCloned = (AtmosphereModel*)internalAtmos->Clone();
+                  #ifdef DEBUG_MEMORY
+                  MemoryTracker::Instance()->Add
+                     (amCloned, amCloned->GetName(), "DragForce::Initialize()",
+                      "amCloned = (AtmosphereModel*)internalAtmos->Clone()", this);
+                  #endif
+                  
+                  centralBody->SetAtmosphereModelType(atmosphereType);
+                  centralBody->SetAtmosphereModel(amCloned);
+               }
             }
             
-            //if (atmosphereType == "BodyDefault")
             if ((atmosphereType == "BodyDefault") ||
                 (atmosphereType == modelBodyIsUsing))
                atmos = centralBody->GetAtmosphereModel();
@@ -1312,12 +1306,13 @@ std::string DragForce::GetStringParameter(const std::string &label) const
  * 
  * @return     true if the parameter was set, false if the call failed.
  */
+//------------------------------------------------------------------------------
 bool DragForce::SetStringParameter(const Integer id, const std::string &value)
 {
-#ifdef DEBUG_DRAGFORCE_PARAM
+   #ifdef DEBUG_DRAGFORCE_PARAM
    MessageInterface::ShowMessage
       ("DragForce::SetStringParameter() id=%d, value=%s\n", id, value.c_str());
-#endif
+   #endif
    
    if (id == ATMOSPHERE_MODEL)
    {
@@ -1327,7 +1322,7 @@ bool DragForce::SetStringParameter(const Integer id, const std::string &value)
          useExternalAtmosphere = true;
       else
       {
-         if (!useExternalAtmosphere)
+         if (!useExternalAtmosphere && atmos != NULL)
          {
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
@@ -1415,23 +1410,27 @@ bool DragForce::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    #ifdef DEBUG_DRAGFORCE_REFOBJ
    MessageInterface::ShowMessage
       ("DragForce::SetRefObject() <%p>'%s' entered, obj=<%p>'%s', name='%s'\n",
-       this, GetName().c_str(), obj, obj->GetName().c_str(), name.c_str());
+       this, GetName().c_str(), obj, obj ? obj->GetName().c_str() : "NULL",
+       name.c_str());
    #endif
+   
+   if (obj == NULL)
+      return false;
    
    if (type == Gmat::ATMOSPHERE)
    {
       if (obj->GetType() != Gmat::ATMOSPHERE)
          throw ODEModelException("DragForce::SetRefObject: AtmosphereModel "
-                                   "type set incorrectly.");
+                                   "type set incorrectly.");      
       SetInternalAtmosphereModel((AtmosphereModel*)obj);
       return true;
    }
    return PhysicalModel::SetRefObject(obj, type, name);
 }
-   
+
 
 //------------------------------------------------------------------------------
-// bool DragForce::SetInternalAtmosphereModel(AtmosphereModel* atm)
+// bool SetInternalAtmosphereModel(AtmosphereModel* atm)
 //------------------------------------------------------------------------------
 /**
  * Sets the internal atmosphere model for the DragForce.
@@ -1443,6 +1442,21 @@ bool DragForce::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 bool DragForce::SetInternalAtmosphereModel(AtmosphereModel* atm)
 {
+   #ifdef DEBUG_DRAGFORCE_REFOBJ
+   MessageInterface::ShowMessage
+      ("DragForce::SetInternalAtmosphereModel() entered, atm=<%p>, "
+       "internalAtmos=<%p>\n", atm, internalAtmos);
+   #endif
+   
+   if (atm == NULL)
+   {
+      #ifdef DEBUG_DRAGFORCE_REFOBJ
+      MessageInterface::ShowMessage
+         ("DragForce::SetInternalAtmosphereModel() returning false, atm is NULL\n");
+      #endif
+      return false;
+   }
+   
    if (internalAtmos)
    {
       #ifdef DEBUG_MEMORY
@@ -1454,11 +1468,18 @@ bool DragForce::SetInternalAtmosphereModel(AtmosphereModel* atm)
    }
    
    internalAtmos = atm;
+   
+   #ifdef DEBUG_DRAGFORCE_REFOBJ
+   MessageInterface::ShowMessage
+      ("DragForce::SetInternalAtmosphereModel() returning true, internalAtmos=<%p>\n",
+       internalAtmos);
+   #endif
+   
    return true;
 }
 
 //------------------------------------------------------------------------------
-// AtmosphereModel* DragForce::GetInternalAtmosphereModel()
+// AtmosphereModel* GetInternalAtmosphereModel()
 //------------------------------------------------------------------------------
 /**
  * Gets the internal atmosphere model for the DragForce.
