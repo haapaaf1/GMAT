@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              Msise90Atmosphere
 //------------------------------------------------------------------------------
@@ -37,14 +37,14 @@ static FILE *logFile;  // Temp log file
 #endif
 
 //------------------------------------------------------------------------------
-//  Msise90Atmosphere()
+//  Msise90Atmosphere(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  *  Constructor.
  */
 //------------------------------------------------------------------------------
-Msise90Atmosphere::Msise90Atmosphere() :
-    AtmosphereModel     ("MSISE90"),
+Msise90Atmosphere::Msise90Atmosphere(const std::string &name) :
+    AtmosphereModel     ("MSISE90", name),
     fileData            (false),
     fluxfilename        ("")
 {

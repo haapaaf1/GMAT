@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              Msise90Atmosphere
 //------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 class Msise90Atmosphere : public AtmosphereModel
 {
 public:
-   Msise90Atmosphere();
+   Msise90Atmosphere(const std::string &name = "");
    virtual ~Msise90Atmosphere();
    Msise90Atmosphere(const Msise90Atmosphere& msise);
    Msise90Atmosphere&      operator=(const Msise90Atmosphere& msise);

@@ -52,10 +52,11 @@ AtmosphereModel::PARAMETER_TYPE[AtmosphereModelParamCount-GmatBaseParamCount] =
  *  Constructor.
  *
  *  @param <typeStr> The type of the derived atmosphere model.
+ *  @param <name> The name of the derived atmosphere model.
  */
 //------------------------------------------------------------------------------
-AtmosphereModel::AtmosphereModel(const std::string &typeStr) :
-   GmatBase            (Gmat::ATMOSPHERE, typeStr),
+AtmosphereModel::AtmosphereModel(const std::string &typeStr, const std::string &name) :
+   GmatBase            (Gmat::ATMOSPHERE, typeStr, name),
    fileReader          (NULL),
    mCentralBody        (NULL),
    sunVector           (NULL),

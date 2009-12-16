@@ -23,14 +23,14 @@
 
 
 //------------------------------------------------------------------------------
-// ExponentialAtmosphere()
+// ExponentialAtmosphere(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  * Default constructor.
  */
 //------------------------------------------------------------------------------
-ExponentialAtmosphere::ExponentialAtmosphere() :
-   AtmosphereModel      ("Exponential"),
+ExponentialAtmosphere::ExponentialAtmosphere(const std::string &name) :
+   AtmosphereModel      ("Exponential", name),
    scaleHeight          (NULL),
    refHeight            (NULL),
    refDensity           (NULL),

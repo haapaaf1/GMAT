@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              JacchiaRobertsAtmosphere
 //------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 class JacchiaRobertsAtmosphere : public AtmosphereModel
 {
 public:
-   JacchiaRobertsAtmosphere();
+   JacchiaRobertsAtmosphere(const std::string &name = "");
    virtual ~JacchiaRobertsAtmosphere();
    JacchiaRobertsAtmosphere(const JacchiaRobertsAtmosphere& jr);
    JacchiaRobertsAtmosphere& operator=(const JacchiaRobertsAtmosphere& jr);

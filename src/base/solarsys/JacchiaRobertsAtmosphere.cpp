@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              JacchiaRobertsAtmosphere
 //------------------------------------------------------------------------------
@@ -202,14 +202,14 @@ const Real con_den[5][7] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// JacchiaRobertsAtmosphere()
+// JacchiaRobertsAtmosphere(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  *
  */
 //------------------------------------------------------------------------------
-JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere() :
-   AtmosphereModel("JacchiaRoberts")
+JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const std::string &name) :
+   AtmosphereModel("JacchiaRoberts", name)
 {
    earth = NULL;
 }
@@ -439,8 +439,8 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
             // if values read from file are not accurate.
             if (status != 0)
             {
-            	  throw AtmosphereException("Error loading in JacchiaRoberts data file."
-            	                            "Density has be set to 0.0\n");
+                  throw AtmosphereException("Error loading in JacchiaRoberts data file."
+                                            "Density has be set to 0.0\n");
                Real dValue = 0.0;
                return dValue; 
             }    
