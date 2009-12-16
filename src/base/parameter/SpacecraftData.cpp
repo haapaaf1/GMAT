@@ -192,6 +192,14 @@ Real SpacecraftData::GetReal(Integer item)
    case K16:
       return GetOwnedObjectProperty(Gmat::THRUSTER, "K16");
       
+   // Thruster ThrustDirections
+   case THRUST_DIRECTION1:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection1");
+   case THRUST_DIRECTION2:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection2");
+   case THRUST_DIRECTION3:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection3");
+      
    default:
       // otherwise, there is an error   
       throw ParameterException
@@ -318,6 +326,14 @@ Real SpacecraftData::SetReal(Integer item, Real val)
    case K16:
       return SetOwnedObjectProperty(Gmat::THRUSTER, "K16", val);
       
+   // Thruster ThrustDirections
+   case THRUST_DIRECTION1:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection1", val);
+   case THRUST_DIRECTION2:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection2", val);
+   case THRUST_DIRECTION3:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection3", val);
+      
    default:
       // otherwise, there is an error   
       throw ParameterException
@@ -370,7 +386,7 @@ bool SpacecraftData::ValidateRefObjects(GmatBase *param)
 //------------------------------------------------------------------------------
 void SpacecraftData::InitializeRefObjects()
 {
-   #if DEBUG_BALLISTICDATA_INIT
+   #if DEBUG_SPACECRAFTDATA_INIT
    MessageInterface::ShowMessage
       ("SpacecraftData::InitializeRefObjects() entered.\n");
    #endif
@@ -381,7 +397,7 @@ void SpacecraftData::InitializeRefObjects()
    {
       // Just write a message since Parameters in GmatFunction may not have ref. object
       // set until execution
-      #if DEBUG_BALLISTICDATA_INIT
+      #if DEBUG_SPACECRAFTDATA_INIT
       MessageInterface::ShowMessage
          ("SpacecraftData::InitializeRefObjects() Cannot find Spacecraft object.\n");
       #endif
@@ -390,7 +406,7 @@ void SpacecraftData::InitializeRefObjects()
       //   ("SpacecraftData::InitializeRefObjects() Cannot find Spacecraft object.\n");
    }
    
-   #if DEBUG_BALLISTICDATA_INIT
+   #if DEBUG_SPACECRAFTDATA_INIT
    MessageInterface::ShowMessage
       ("SpacecraftData::InitializeRefObjects() mSpacecraft=%s\n",
        mSpacecraft->GetName().c_str())
