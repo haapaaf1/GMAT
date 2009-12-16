@@ -43,7 +43,9 @@
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
 
-
+#ifdef __USE_CCSDS_FILE__
+#include "DataFileFactory.hpp"
+#endif
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
@@ -82,7 +84,7 @@
 //#define DEBUG_SOLAR_SYSTEM 1
 //#define DEBUG_SOLAR_SYSTEM_IN_USE 1
 //#define DEBUG_CREATE_BODY
-#define DEBUG_PLUGIN_REGISTRATION
+//#define DEBUG_PLUGIN_REGISTRATION
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -186,9 +188,12 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 
       theFactoryManager->RegisterFactory(new CelestialBodyFactory());
       theFactoryManager->RegisterFactory(new AssetFactory());
-
-      // Create publisher
       
+#ifdef __USE_CCSDS_FILE__
+      theFactoryManager->RegisterFactory(new DataFileFactory());
+#endif
+      
+      // Create publisher
       thePublisher = Publisher::Instance();
       
       #if DEBUG_INITIALIZE
@@ -621,30 +626,30 @@ void Moderator::LoadAPlugin(std::string pluginName)
       else
          MessageInterface::ShowMessage(
                "Library %s does not contain a factory\n", pluginName.c_str());
+
+      // Test to see if there might be TriggerManagers
+      Integer triggerCount = theLib->GetTriggerManagerCount();
+      #ifdef DEBUG_PLUGIN_REGISTRATION
+         MessageInterface::ShowMessage(
+            "Library %s contains %d %s.\n", pluginName.c_str(), triggerCount,
+            ( triggerCount == 1 ? "TriggerManager" : "TriggerManagers"));
+      #endif
+
+      for (Integer i = 0; i < triggerCount; ++i)
+      {
+         TriggerManager *tm = theLib->GetTriggerManager(i);
+         triggerManagers.push_back(tm);
+
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage(
+               "   TriggerManager %d of type %s is now registered.\n", i,
+               tm->GetTriggerTypeString().c_str());
+         #endif
+      }
    }
    else
       MessageInterface::ShowMessage(
             "Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
-
-   // Test to see if there might be TriggerManagers
-   Integer triggerCount = theLib->GetTriggerManagerCount();
-   #ifdef DEBUG_PLUGIN_REGISTRATION
-      MessageInterface::ShowMessage(
-         "Library %s contains %d %s.\n", pluginName.c_str(), triggerCount,
-         ( triggerCount == 1 ? "TriggerManager" : "TriggerManagers"));
-   #endif
-
-   for (Integer i = 0; i < triggerCount; ++i)
-   {
-      TriggerManager *tm = theLib->GetTriggerManager(i);
-      triggerManagers.push_back(tm);
-
-      #ifdef DEBUG_PLUGIN_REGISTRATION
-         MessageInterface::ShowMessage(
-            "   TriggerManager %d of type %s is now registered.\n", i,
-            tm->GetTriggerTypeString().c_str());
-      #endif
-   }
 }
 
 //------------------------------------------------------------------------------
@@ -2607,8 +2612,24 @@ Parameter* Moderator::CreateParameter(const std::string &type,
       return param;
    }
    
+   // Check for deprecated Element* on Thruster, new Parameters are ThrustDirection*
+   std::string newType = type;
+   if (type == "Element1" || type == "Element2" || type == "Element3")
+   {
+      Integer numDots = GmatStringUtil::NumberOfOccurrences(name, '.');
+      if (numDots > 1)
+      {
+         newType = GmatStringUtil::Replace(newType, "Element", "ThrustDirection");
+         #if DEBUG_CREATE_PARAMETER
+         MessageInterface::ShowMessage
+            ("   Parameter type '%s' in '%s' changed to '%s'\n", type.c_str(),
+             name.c_str(), newType.c_str());
+         #endif
+      }
+   }
+   
    // Ceate new Parameter
-   param = theFactoryManager->CreateParameter(type, name);
+   param = theFactoryManager->CreateParameter(newType, name);
    
    #ifdef DEBUG_MEMORY
    if (param)
@@ -2628,17 +2649,17 @@ Parameter* Moderator::CreateParameter(const std::string &type,
    if (param == NULL)
    {
       throw GmatBaseException
-         ("The Moderator cannot create a Parameter type \"" + type +
+         ("The Moderator cannot create a Parameter type \"" + newType +
           "\" named \"" + name + "\"\n");
    }
    
    // We don't know the owner type the parameter before create,
    // so validate owner type after create.
    if (ownerName != "" && manage != 0)
-      CheckParameterType(param, type, ownerName);
+      CheckParameterType(param, newType, ownerName);
    
    // set Parameter reference object
-   SetParameterRefObject(param, type, name, ownerName, depName, manage);
+   SetParameterRefObject(param, newType, name, ownerName, depName, manage);
    
    // Add to configuration if manage flag is true and it is a named parameter
    try
