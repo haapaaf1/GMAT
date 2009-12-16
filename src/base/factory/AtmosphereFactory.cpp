@@ -53,11 +53,11 @@ AtmosphereFactory::CreateAtmosphereModel(const std::string &ofType,
                                          const std::string &forBody)
 {
    if (ofType == "Exponential")
-      return new ExponentialAtmosphere();
+      return new ExponentialAtmosphere(withName);
    else if (ofType == "MSISE90")
-      return new Msise90Atmosphere();
-   else if (ofType == "JacchiaRoberts") //loj: 10/28/04 Changed from Jacchia-Roberts
-      return new JacchiaRobertsAtmosphere();
+      return new Msise90Atmosphere(withName);
+   else if (ofType == "JacchiaRoberts")
+      return new JacchiaRobertsAtmosphere(withName);
    return NULL;
 }
 
