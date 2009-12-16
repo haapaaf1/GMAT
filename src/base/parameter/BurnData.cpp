@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  BurnData
 //------------------------------------------------------------------------------
@@ -133,13 +133,13 @@ BurnData::~BurnData()
 
 
 //------------------------------------------------------------------------------
-// Real GetBurnReal(Integer item)
+// Real GetReal(Integer item)
 //------------------------------------------------------------------------------
 /**
  * Retrives Burn element.
  */
 //------------------------------------------------------------------------------
-Real BurnData::GetBurnReal(Integer item)
+Real BurnData::GetReal(Integer item)
 {
    ///@todo convert internal DeltaV to Parameter CoordinateSystem.
    if (mImpBurn == NULL)
@@ -161,42 +161,20 @@ Real BurnData::GetBurnReal(Integer item)
    case ELEMENT3:
       return mImpBurn->GetRealParameter(mImpBurn->GetParameterID("Element3"));
    default:
-      throw ParameterException("BurnData::GetBurnReal() Unknown ELEMENT id: " +
+      throw ParameterException("BurnData::GetReal() Unknown ELEMENT id: " +
                                GmatRealUtil::ToString(item));
    }
 }
 
 
 //------------------------------------------------------------------------------
-// Real GetBurnReal(const std::string &str)
+// void SetReal(Integer item, Real rval)
 //------------------------------------------------------------------------------
-/**
- * Retrives Burn data
- */
-//------------------------------------------------------------------------------
-Real BurnData::GetBurnReal(const std::string &str)
-{
-   if (str == "Element1")
-      return GetBurnReal(ELEMENT1);
-   else if (str == "Element2")
-      return GetBurnReal(ELEMENT2);
-   else if (str == "Element3")
-      return GetBurnReal(ELEMENT3);
-   else
-      throw ParameterException
-         ("BurnData::GetBurnReal() Unknown parameter name: \n" + str);
-    
-}
-
-
-//------------------------------------------------------------------------------
-// void SetBurnReal(Integer item, Real rval)
-//------------------------------------------------------------------------------
-void BurnData::SetBurnReal(Integer item, Real rval)
+void BurnData::SetReal(Integer item, Real rval)
 {
    #if DEBUG_BURNDATA_SET
    MessageInterface::ShowMessage
-      ("BurnData::SetBurnReal() item=%d, rval=%f\n", item, rval);
+      ("BurnData::SetReal() item=%d, rval=%f\n", item, rval);
    #endif
    
    ///@todo convert internal DeltaV to Parameter CoordinateSystem.
@@ -221,7 +199,7 @@ void BurnData::SetBurnReal(Integer item, Real rval)
       mImpBurn->SetRealParameter(mImpBurn->GetParameterID("Element3"), rval);
       break;
    default:
-      throw ParameterException("BurnData::SetBurnReal() Unknown ELEMENT id: " +
+      throw ParameterException("BurnData::SetReal() Unknown ELEMENT id: " +
                                GmatRealUtil::ToString(item));
    }
 }
