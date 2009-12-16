@@ -12,9 +12,10 @@
 // Created: 2009.03.20
 //
 /**
- * Declares Hardware related parameter classes.
- *    FuelTank: FuelMass, Pressure, Temperature, RefTemperature, FuelVolume, FuelDensity
- *    Thruster: DutyCycle, ThrustScaleFactor, GravitationalAccel, C1-C16, K1-K16
+ * Declares Hardware related Parameter classes.
+ *    FuelTank: FuelMass, Pressure, Temperature, RefTemperature, FuelVolume,
+ *    FuelDensity, Thruster: DutyCycle, ThrustScaleFactor, GravitationalAccel,
+ *    C1-C16, K1-K16, ThrustDirections
  */
 //------------------------------------------------------------------------------
 #ifndef HardwareParameters_hpp
@@ -246,6 +247,29 @@ public:
    
 protected:
    Integer mImpulseCoeffId;
+   
+};
+
+class GMAT_API ThrustDirections : public HardwareReal
+{
+public:
+
+   ThrustDirections(const std::string &type = "",
+                    const std::string &name = "",
+                    GmatBase *obj = NULL);
+   ThrustDirections(const ThrustDirections &copy);
+   ThrustDirections& operator=(const ThrustDirections &right);
+   virtual ~ThrustDirections();
+   
+   // methods inherited from Parameter
+   virtual bool Evaluate();
+   virtual void SetReal(Real val);
+   
+   // methods inherited from GmatBase
+   virtual GmatBase* Clone(void) const;
+   
+protected:
+   Integer mThrustDirectionId;
    
 };
 

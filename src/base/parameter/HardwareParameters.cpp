@@ -1014,3 +1014,111 @@ GmatBase* ImpulseCoefficients::Clone(void) const
 }
 
 
+//==============================================================================
+//                              ThrustDirections
+//==============================================================================
+/**
+ * Implements ThrustDirections class.
+ */
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// ThrustDirections(const std::string &type, const std::string &name, GmatBase *obj)
+//------------------------------------------------------------------------------
+ThrustDirections::ThrustDirections(const std::string &type,
+                                   const std::string &name, GmatBase *obj)
+   : HardwareReal(name, "ThrustDirection", obj, "ThrustDirection", "")
+{
+   mColor = GmatColor::CHESTNUT;
+   
+   // Add type to ParameterInfo so that we can get information without an instance
+   ParameterInfo::Instance()->Add(type, mOwnerType, instanceName, mDepObj,
+                                  mIsPlottable, mIsReportable, mIsSettable);
+   
+   if (type == "ThrustDirection1" )
+      mThrustDirectionId = THRUST_DIRECTION1;
+   else if (type == "ThrustDirection2" )
+      mThrustDirectionId = THRUST_DIRECTION2;
+   else if (type == "ThrustDirection3" )
+      mThrustDirectionId = THRUST_DIRECTION3;
+   else
+      mThrustDirectionId = -1;
+   
+   #ifdef DEBUG_IMPULSE_COEFF
+   MessageInterface::ShowMessage
+      ("ThrustDirections::ThrustDirections() type='%s', name='%s', "
+       "mThrustDirectionId=%d\n", type.c_str(), name.c_str(), mThrustDirectionId);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// ThrustDirections(const ThrustDirections &copy)
+//------------------------------------------------------------------------------
+ThrustDirections::ThrustDirections(const ThrustDirections &copy)
+   : HardwareReal(copy)
+{
+   mThrustDirectionId = copy.mThrustDirectionId;
+}
+
+
+//------------------------------------------------------------------------------
+// ThrustDirections& operator=(const ThrustDirections &right)
+//------------------------------------------------------------------------------
+ThrustDirections& ThrustDirections::operator=(const ThrustDirections &right)
+{
+   if (this != &right)
+   {
+      HardwareReal::operator=(right);
+      mThrustDirectionId = right.mThrustDirectionId;
+   }
+   
+   return *this;
+}
+
+
+//------------------------------------------------------------------------------
+// ~ThrustDirections()
+//------------------------------------------------------------------------------
+ThrustDirections::~ThrustDirections()
+{
+}
+
+
+//------------------------------------------------------------------------------
+// bool Evaluate()
+//------------------------------------------------------------------------------
+bool ThrustDirections::Evaluate()
+{
+   mRealValue = SpacecraftData::GetReal(mThrustDirectionId);
+   
+   if (mRealValue == GmatBase::REAL_PARAMETER_UNDEFINED)
+      return false;
+   else
+      return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ */
+//------------------------------------------------------------------------------
+void ThrustDirections::SetReal(Real val)
+{
+   SpacecraftData::SetReal(mThrustDirectionId, val);
+   RealVar::SetReal(val);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* ThrustDirections::Clone(void) const
+//------------------------------------------------------------------------------
+GmatBase* ThrustDirections::Clone(void) const
+{
+   return new ThrustDirections(*this);
+}
+
+
