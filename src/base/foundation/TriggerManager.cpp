@@ -65,3 +65,8 @@ const std::string TriggerManager::GetTriggerTypeString()
 void TriggerManager::SetObject(GmatBase *obj)
 {
 }
+
+
+void TriggerManager::ClearObject(GmatBase* obj)
+{
+}

@@ -49,6 +49,8 @@ public:
    virtual bool CheckForTrigger() = 0;
    virtual Real LocateTrigger() = 0;
    virtual void SetObject(GmatBase *obj);
+   virtual void ClearObject(GmatBase* obj);
+
 
 protected:
    Integer triggerType;
