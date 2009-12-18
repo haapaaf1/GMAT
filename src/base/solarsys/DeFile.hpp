@@ -56,6 +56,7 @@ public:
    // method to initialize the DeFile - must be done before De file can be read
    void Initialize();
    
+   
    // method to return the body ID for the requested body
    Integer  GetBodyID(std::string bodyName);
 
@@ -73,7 +74,8 @@ public:
    // at the specified time
    Real* GetPosVel(Integer forBody, A1Mjd atTime, 
                    bool overrideTimeSystem = false);
-                   
+   
+   /// method to return angles and rates (for Luna ONLY!!)                
    void  GetAnglesAndRates(A1Mjd atTime, Real* angles, Real* rates, 
                            bool overrideTimeSystem = false);
 
@@ -82,8 +84,8 @@ public:
    Integer* GetStartDayAndYear();
 
    // method to convert an ASCII file to a binary file; this method assumes that
-   // there is  an appropriate header file in teh ssame directory as the
-   // ASCII file.
+   // there is  an appropriate header file in the same directory as the
+   // ASCII file.  @todo - code this method, as its implementation is currently TBD
    std::string Convert(std::string deFileNameAscii); 
 
 

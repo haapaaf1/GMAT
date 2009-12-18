@@ -46,6 +46,7 @@ class GmatCommand;
 class AtmosphereModel;
 class Function;
 class Hardware;
+class Sensor;
 class AxisSystem;
 class CoordinateSystem;
 class MathNode;
@@ -102,6 +103,8 @@ public:
                                            const std::string &withName = "");
    virtual Hardware*        CreateHardware(const std::string &ofType,
                                            const std::string &withName = "");
+   virtual Sensor*          CreateSensor(const std::string &ofType,
+                                         const std::string &withName = "");
    virtual AxisSystem*      CreateAxisSystem(const std::string &ofType,
                                              const std::string &withName = "");
    virtual CoordinateSystem* CreateCoordinateSystem(const std::string &ofType,

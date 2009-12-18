@@ -37,6 +37,7 @@ public:
    
    // Parameter access methods - overridden from GmatBase
    virtual std::string  GetParameterText(const Integer id) const;
+   virtual std::string  GetParameterUnit(const Integer id) const;
    virtual Integer      GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
                         GetParameterType(const Integer id) const;
@@ -47,10 +48,24 @@ public:
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         SetRealParameter(const Integer id,
                                          const Real value);
+   virtual Real         GetRealParameter(const std::string &label) const;
+   virtual Real         SetRealParameter(const std::string &label,
+                                         const Real value);
    virtual bool         GetBooleanParameter(const Integer id) const;
    virtual bool         SetBooleanParameter(const Integer id,
                                             const bool value);
+   virtual std::string  GetStringParameter(const Integer id) const;
+   virtual bool         SetStringParameter(const Integer id,
+                                           const std::string &value);
+   virtual std::string  GetStringParameter(const std::string &label) const;
+   virtual bool         SetStringParameter(const std::string &label,
+                                           const std::string &value);
    
+   // for enumerated strings
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const Integer id) const;
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const std::string &label) const;
    
    // required method for all subclasses
    virtual GmatBase*    Clone() const;
@@ -73,6 +88,8 @@ protected:
    Real                 density;
    /// Flag indicating is the tank is pressure regulated or blow-down
    bool                 pressureRegulated;
+   /// Pressure model used
+   Integer              pressureModel;
    
    // Parameters used for internal calculations
    
@@ -86,6 +103,17 @@ protected:
    virtual void         UpdateTank();
    virtual void         DepleteFuel(Real dm);
    
+   /// Pressure model list
+   enum
+   {
+      TPM_PRESSURE_REGULATED,
+      TPM_BLOW_DOWN
+   };
+   
+   /// Availabel pressure model list
+   static StringArray   pressureModelList;
+   //static const std::string pressureModelList[2];
+   
    /// Published parameters for generic fuel tanks
    enum
    {
@@ -95,16 +123,17 @@ protected:
       REFERENCE_TEMPERATURE,
       VOLUME,
       FUEL_DENSITY,
-      PRESSURE_REGULATED,
+      PRESSURE_MODEL,
+      PRESSURE_REGULATED,  // deprecated
       FuelTankParamCount
    };
    
    /// Parameter labels
    static const std::string 
-                  PARAMETER_TEXT[FuelTankParamCount - HardwareParamCount];
+      PARAMETER_TEXT[FuelTankParamCount - HardwareParamCount];
    /// Parameter types
    static const Gmat::ParameterType 
-                  PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount];
+      PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount];
 };
 
 #endif // FUELTANK_HPP

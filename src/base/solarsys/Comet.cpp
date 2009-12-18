@@ -89,6 +89,7 @@ CelestialBody     ("Comet",name)
    // @todo - add other default values here
 
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 
 }
 
@@ -120,6 +121,7 @@ CelestialBody     ("Comet",name)
    // @todo - add other default values here
 
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 
 }
 

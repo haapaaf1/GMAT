@@ -46,6 +46,30 @@ GmatBase* Factory::CreateObject(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
+//  Sensor* CreateSensor(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Must be implemented by derived classes that create Sensor objects -
+ * in that case, it returns a new Sensor object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Sensor.
+ *
+ * @param <ofType>   specific type of Sensor object to create.
+ * @param <withName> name to give to the newly created Sensor object.
+ *
+ * @return pointer to a new Sensor object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ * objects of type Spacecraft.
+ */
+//------------------------------------------------------------------------------
+Sensor* Factory::CreateSensor(const std::string &ofType,
+                                   const std::string &withName)
+{
+   throw FactoryException("requested object must be of type Sensor");
+}
+
+//------------------------------------------------------------------------------
 //  Spacecraft* CreateSpacecraft(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**
@@ -66,7 +90,7 @@ GmatBase* Factory::CreateObject(const std::string &ofType,
 SpaceObject* Factory::CreateSpacecraft(const std::string &ofType,
                                        const std::string &withName)
 {
-   throw FactoryException("requested object must be of type SpaceObject");
+   throw FactoryException("requested object must be of type Spacecraft");
 }
 
 //------------------------------------------------------------------------------
@@ -76,7 +100,7 @@ SpaceObject* Factory::CreateSpacecraft(const std::string &ofType,
  * Must be implemented by derived classes that create SpacePoint objects -
  * in that case, it returns a new SpacePoint object.  Otherwise, it
  * throws an exception indicating that the class does not create objects of
- * type Spacecraft.
+ * type SpacePoint.
  * 
  * This method is used to create objects that have a physical location modeled 
  * in a GMAT mission: GroundStation objects, other objects used for modeling 

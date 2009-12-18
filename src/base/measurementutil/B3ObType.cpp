@@ -1,3 +1,23 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             B3ObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/03
+//
+/**
+ *
+ * This class specifies the B3 observation data type.
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "B3ObType.hpp"
 
 //---------------------------------

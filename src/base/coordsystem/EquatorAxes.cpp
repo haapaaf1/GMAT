@@ -366,7 +366,7 @@ void EquatorAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       
    }
    else if ((originName == SolarSystem::MOON_NAME) && 
-           (((CelestialBody*)origin)->GetRotationDataSource() == Gmat::DE_FILE))
+           (((CelestialBody*)origin)->GetRotationDataSource() == Gmat::DE_405_FILE))
    {
       #ifdef DEBUG_EQ_LUNA // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
          MessageInterface::ShowMessage(
@@ -468,7 +468,7 @@ void EquatorAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    else  // use IAU data for all other bodies, and Luna (if DE file not selected)
    {
       #ifdef DEBUG_EQ_LUNA // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
-         MessageInterface::ShowMessage("Equator for body %s with NO DE_FILE source ...\n",
+         MessageInterface::ShowMessage("Equator for body %s with NO DE_405_FILE source ...\n",
          originName.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
       // this method will return alpha (deg), delta (deg), 

@@ -52,10 +52,6 @@ public:
    bool SetRadiantPower(Real radPower, Real refDistance);
    bool SetPhotosphereRadius(Real rad);
 
-//   virtual Rvector       GetBodyCartographicCoordinates(
-//                            const A1Mjd &forTime) const;
-//   virtual Real          GetHourAngle(A1Mjd atTime); 
-
    // overridden access methods from CelestialBody
    virtual std::string    GetParameterText(const Integer id) const;
    virtual Integer        GetParameterID(const std::string &str) const;
@@ -66,28 +62,18 @@ public:
    virtual Real           GetRealParameter(const Integer id) const;
    virtual Real           SetRealParameter(const Integer id,
                                            const Real value);
+
+   
+   virtual bool           IsParameterReadOnly(const Integer id) const;
+   // add these, if needed later (currently all parameters are read-only anyway
+//   virtual bool           IsParameterCloaked(const Integer id) const;
+//   virtual bool           IsParameterEqualToDefault(const Integer id) const;
+//   virtual bool           SaveAllAsDefault();
+//   virtual bool           SaveParameterAsDefault(const Integer id);
+
    // inherited from GmatBase
    virtual GmatBase* Clone(void) const;
 
-   // default values for CelesitalBody data
-//   static const Gmat::BodyType        BODY_TYPE;
-//   //static const Real                  MASS;
-//   static const Real                  EQUATORIAL_RADIUS;
-//   static const Real                  FLATTENING;
-//   //static const Real                  POLAR_RADIUS;
-//   static const Real                  MU;
-//   static const Gmat::PosVelSource    POS_VEL_SOURCE;
-////   static const Gmat::AnalyticMethod  ANALYTIC_METHOD;
-//   static const Integer               BODY_NUMBER;
-//   static const Integer               REF_BODY_NUMBER;
-//   //static const Integer               COEFFICIENT_SIZE;
-//   static const Integer               ORDER;
-//   static const Integer               DEGREE;
-//   static const Rmatrix               SIJ;
-//   static const Rmatrix               CIJ;
-//   
-//   static const Real                  TWO_BODY_EPOCH;
-//   static const Rvector6              TWO_BODY_ELEMENTS;
 
 //   static const Real                  STAR_RADIANT_POWER;       // W / m^2
 //   static const Real                  STAR_REFERENCE_DISTANCE;  // km

@@ -45,30 +45,10 @@ public:
    virtual ~Moon();
 
    virtual Rvector GetBodyCartographicCoordinates(const A1Mjd &forTime) const;
-//   virtual Real    GetHourAngle(A1Mjd atTime); 
    
    // inherited from GmatBase
    virtual GmatBase* Clone(void) const;
 
-
-   // default values for CelestialBody data
-//   static const Gmat::BodyType        BODY_TYPE;
-//   static const Gmat::PosVelSource    POS_VEL_SOURCE;
-////   static const Gmat::AnalyticMethod  ANALYTIC_METHOD;
-//   static const Integer               ORDER;
-//   static const Integer               DEGREE;
-//
-//   static const Integer               LUNA_BODY_NUMBER;
-//   static const Integer               LUNA_REF_BODY_NUMBER;
-//
-//   static const Real                  LUNA_EQUATORIAL_RADIUS;
-//   static const Real                  LUNA_FLATTENING;
-//   static const Real                  LUNA_MU;
-//   static const Rmatrix               LUNA_SIJ;
-//   static const Rmatrix               LUNA_CIJ;
-//   
-//   static const Real                  TWO_BODY_EPOCH;
-//   static const Rvector6              TWO_BODY_ELEMENTS;
 
 protected:
    enum
@@ -81,8 +61,6 @@ protected:
    
    //static const Gmat::ParameterType 
    //                         PARAMETER_TYPE[MoonParamCount - CelestialBodyParamCount];
-
-//   void             InitializeMoon(const std::string &cBody);
    
 
 private:

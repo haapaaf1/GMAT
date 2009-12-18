@@ -26,7 +26,7 @@
 
 #include "MessageInterface.hpp"
 
-#include <algorithm>			// Required by GCC 4.3
+#include <algorithm>                    // Required by GCC 4.3
 
 //#define DEBUG_OR_AXES
 //#define DEBUG_ROT_MATRIX
@@ -59,9 +59,9 @@ ObjectReferencedAxes::PARAMETER_TEXT[ObjectReferencedAxesParamCount - DynamicAxe
 const Gmat::ParameterType
 ObjectReferencedAxes::PARAMETER_TYPE[ObjectReferencedAxesParamCount - DynamicAxesParamCount] =
 {
-   Gmat::ENUMERATION_TYPE,
-   Gmat::ENUMERATION_TYPE,
-   Gmat::ENUMERATION_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,
    Gmat::OBJECT_TYPE,
    Gmat::OBJECT_TYPE,
 };
@@ -143,7 +143,7 @@ xAxis         (orAxes.xAxis),
 yAxis         (orAxes.yAxis),
 zAxis         (orAxes.zAxis)
 {
-   parameterCount = ObjectReferencedAxesParamCount;
+   parameterCount = ObjectReferencedAxesParamCount;   
 }
 
 //---------------------------------------------------------------------------
@@ -172,6 +172,7 @@ const ObjectReferencedAxes& ObjectReferencedAxes::operator=(
    zAxis         = orAxes.zAxis;
    return *this;
 }
+
 //---------------------------------------------------------------------------
 //  ~ObjectReferencedAxes(void)
 //---------------------------------------------------------------------------
@@ -351,13 +352,26 @@ void ObjectReferencedAxes::ResetAxes()
 bool ObjectReferencedAxes::Initialize()
 {
    DynamicAxes::Initialize();
+   
+   // Commented out per Bug 1534 (LOJ: 2009.09.21)
+   // Setting ObjectReferencedAxes properties inside a GmatFunction does not
+   // work properly if not all axes are set. All setting inside a function
+   // is done by Assignment commands and this object can be initialized more
+   // than one time during function execution.
    // use defaults, per Steve's email of 2005.05.13
-   if (xAxis == "" && yAxis == "" && zAxis == "")
-   {
-      xAxis = "R";
-      zAxis = "N";
-      yAxis = "";
-   }
+   //if (xAxis == "" && yAxis == "" && zAxis == "")
+   //{
+   //   xAxis = "R";
+   //   zAxis = "N";
+   //   yAxis = "";
+   //}
+   
+   #ifdef DEBUG_ORA_INIT
+   MessageInterface::ShowMessage
+      ("ObjectReferencedAxes::Initialize() this=<%p>, xAxis='%s', yAxis='%s', "
+       "zAxis='%s'\n", this, xAxis.c_str(), yAxis.c_str(), zAxis.c_str());
+   #endif
+   
    return true;
 }
 
@@ -768,14 +782,25 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    if (!primary)
       throw CoordinateSystemException("Primary \"" + primaryName +
          "\" is not yet set in object referenced!");
-
-   if ((xAxis == yAxis) || (xAxis == zAxis) ||
-       (yAxis == zAxis))
-      throw CoordinateSystemException(
-            "For object referenced axes, axes are improperly defined.");
+   
+   if ((xAxis == yAxis) || (xAxis == zAxis) || (yAxis == zAxis))
+   {
+      CoordinateSystemException cse;
+      cse.SetDetails("For object referenced axes, axes are improperly "
+                     "defined.\nXAxis = '%s', YAxis = '%s', ZAxis = '%s'",
+                     xAxis.c_str(), yAxis.c_str(), zAxis.c_str());
+      throw cse;
+   }
+   
    if ((xAxis != "") && (yAxis != "") && (zAxis != ""))
-      throw CoordinateSystemException(
-            "For object referenced axes, too many axes are defined.");
+   {
+      CoordinateSystemException cse;
+      cse.SetDetails("For object referenced axes, too many axes are defined.\n"
+                     "XAxis = '%s', YAxis = '%s', ZAxis = '%s'",
+                     xAxis.c_str(), yAxis.c_str(), zAxis.c_str());
+      throw cse;
+   }
+   
    SpacePoint *useAsSecondary = secondary;
    if (!useAsSecondary)  useAsSecondary = origin;
    Rvector6 rv     = useAsSecondary->GetMJ2000State(atEpoch) -
@@ -976,8 +1001,9 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 
    // Check for orthogonality - is this correct?
    // orthonormal instead? accuracy (tolerance)?
-   if (!rotMatrix.IsOrthogonal(1.0e-15))
+   //if (!rotMatrix.IsOrthogonal(1.0e-15))
+   if (!rotMatrix.IsOrthogonal(1.0e-14))
       throw CoordinateSystemException(
-            "Object referenced axes definition does not result in an "
-            "orthogonal system\n\nrotMatrix = " + rotMatrix.ToString());
+         "Object referenced axes definition does not result in an "
+         "orthogonal system\n\nrotMatrix =\n" + rotMatrix.ToString(16, 20));
 }

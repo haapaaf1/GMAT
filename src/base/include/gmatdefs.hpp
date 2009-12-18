@@ -134,6 +134,12 @@ namespace Gmat
       FUEL_TANK,
       THRUSTER,
       HARDWARE,            // Tanks, Thrusters, Antennae, Sensors, etc.
+      SENSOR,
+      ANTENNA,
+      RETROREFLECTOR,
+      RECEIVER,
+      TRANSMITTER,
+      TRANSCEIVER,
       COORDINATE_SYSTEM,
       AXIS_SYSTEM,
       ATTITUDE,

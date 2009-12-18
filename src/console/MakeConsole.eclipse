@@ -25,6 +25,7 @@ HEADERS = -I../base/include -I../base/foundation \
           -I../base/executive -I../base/factory \
           -I../base/forcemodel -I../base/subscriber \
           -I../base/command -I../base/spacecraft \
+          -I../base/hardware -I../base/hardware/sensors \
           -I../base/solarsys -I../base/propagator \
           -I../base/interpreter -I../base/parameter \
           -I../base/interpolator -I../base/util \

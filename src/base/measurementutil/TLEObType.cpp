@@ -1,3 +1,25 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             TLEObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/03
+//
+/**
+ *
+ * This class specifies the TLE observation data type.
+ * The description and background info for the TLE variables come
+ * from T.S. Kelso's website http://www.celestrak.com
+ *
+ */
+//------------------------------------------------------------------------------
+
 #include "TLEObType.hpp"
 
 //---------------------------------

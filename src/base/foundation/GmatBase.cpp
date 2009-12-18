@@ -95,9 +95,11 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    "CalculatedPoint", "LibrationPoint",   "Barycenter",    "Atmosphere",
    "Parameter",       "StopCondition",    "Solver",        "Subscriber",
    "PropSetup",       "Function",         "FuelTank",      "Thruster",
-   "Hardware",        "CoordinateSystem", "AxisSystem",    "Attitude",
-   "MathNode",        "MathTree",         "Estimator",     "MeasurementModel",
-   "BodyFixedPoint",  "DataFile",         "Obtype",        "UnknownObject"
+   "Hardware",        "Sensor",           "Antenna",       "Retroreflector",
+   "Receiver",        "Transmitter",      "Transceiver",   "CoordinateSystem",
+   "AxisSystem",      "Attitude",         "MathNode",      "MathTree",
+   "Estimator",       "MeasurementModel", "BodyFixedPoint","DataFile",
+    "Obtype",         "UnknownObject"
 };
 
 const bool
@@ -110,9 +112,10 @@ GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    false,             false,              false,           false,
    false,             false,              false,           false,
    false,             false,              false,           false,
-   false,             false,              true,            true,
-   false,             false,              false,           true,
    false,             false,              false,           false,
+   false,             false,              false,           false,
+   true,              true,               false,           false,
+   false,             true,               false,           false,
    false,             false
 };
 
@@ -980,7 +983,7 @@ std::string GmatBase::GetParameterText(const Integer id) const
 }
 
 //---------------------------------------------------------------------------
-//  std::string GetParameterUnits(const Integer id) const
+//  std::string GetParameterUnit(const Integer id) const
 //---------------------------------------------------------------------------
 /**
  * Retrieve the description for the parameter units.
@@ -991,7 +994,8 @@ std::string GmatBase::GetParameterText(const Integer id) const
  *
  * @note The parameter strings should not include any white space
  */
-std::string GmatBase::GetParameterUnits(const Integer id) const
+//---------------------------------------------------------------------------
+std::string GmatBase::GetParameterUnit(const Integer id) const
 {
    std::stringstream indexString;
    indexString << id;
@@ -1081,7 +1085,7 @@ Gmat::ObjectType GmatBase::GetPropertyObjectType(const Integer id) const
 
 
 //---------------------------------------------------------------------------
-// StringArray& GetPropertyEnumStrings(const Integer id) const
+// const StringArray& GetPropertyEnumStrings(const Integer id) const
 //---------------------------------------------------------------------------
 /**
  * Retrieves eumeration symbols of parameter of given id.
@@ -1091,10 +1095,27 @@ Gmat::ObjectType GmatBase::GetPropertyObjectType(const Integer id) const
  * @return list of enumeration symbols
  */
 //---------------------------------------------------------------------------
-StringArray& GmatBase::GetPropertyEnumStrings(const Integer id) const
+const StringArray& GmatBase::GetPropertyEnumStrings(const Integer id) const
 {
    static StringArray enumStrings;
    return enumStrings;
+}
+
+
+//---------------------------------------------------------------------------
+// const StringArray& GetPropertyEnumStrings(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieves eumeration symbols of parameter of given label
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return list of enumeration symbols
+ */
+//---------------------------------------------------------------------------
+const StringArray& GmatBase::GetPropertyEnumStrings(const std::string &label) const
+{
+   return GetPropertyEnumStrings(GetParameterID(label));
 }
 
 

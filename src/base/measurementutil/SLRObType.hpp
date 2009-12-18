@@ -1,13 +1,26 @@
-/* 
- * File:   SLROBTYPE.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             SLRObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/03
+//
+/**
  *
- * Created on September 3, 2009, 5:00 AM
+ * This class specifies the SLR observation data type.
+ * See the following website for a complete description of the SLR
+ * data format. The comments below are taken directly from the ILRS website.
+ * http://ilrs.gsfc.nasa.gov/products_formats_procedures/normal_point/np_format.html
+ * 
  */
+//------------------------------------------------------------------------------
 
-    // See the following website for a complete description of the SLR
-    // data format. The comments below are taken directly from the ILRS website.
-    // http://ilrs.gsfc.nasa.gov/products_formats_procedures/normal_point/np_format.html
 
 #ifndef _SLROBTYPE_HPP
 #define _SLROBTYPE_HPP

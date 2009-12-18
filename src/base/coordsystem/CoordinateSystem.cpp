@@ -26,10 +26,14 @@
 #include "CoordinateSystem.hpp"
 #include "CoordinateSystemException.hpp"
 #include "CoordinateBase.hpp"
+#include "ObjectReferencedAxes.hpp"
+#include "MJ2000EqAxes.hpp"
+#include "TopocentricAxes.hpp"
+#include "BodyFixedAxes.hpp"
 #include "Rmatrix33.hpp"
 #include "MessageInterface.hpp"
 
-#include <algorithm>			// Required by GCC 4.3
+#include <algorithm>                    // Required by GCC 4.3
 
 //#define DEBUG_RENAME 1
 //#define DEBUG_INPUTS_OUTPUTS
@@ -38,6 +42,7 @@
 //#define DEBUG_CS_INIT 1
 //#define DEBUG_CS_SET_REF
 //#define DEBUG_TRANSLATION
+//#define DEBUG_CS_CREATE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -46,7 +51,7 @@
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
- 
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -150,7 +155,16 @@ const CoordinateSystem& CoordinateSystem::operator=(
    if (&coordSys == this)
       return *this;
    CoordinateBase::operator=(coordSys);
-   //axes           = coordSys.axes;
+   
+   if (axes)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (axes, axes->GetTypeName(), "CoordinateSystem::operator=",
+          "deleting axes");
+      #endif
+      delete axes;
+   }
    
    if (coordSys.axes)
    {
@@ -1289,6 +1303,196 @@ bool CoordinateSystem::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    // Not handled here -- invoke the next higher SetRefObject call
    return CoordinateBase::SetRefObject(obj, type, name);
 }
+
+
+//----------------------------
+// public static methods
+//----------------------------
+//------------------------------------------------------------------------------
+// static CoordinateSystem* CreateLocalCoordinateSystem(
+//                     const std::string &csName, const std::string &axesType,
+//                     SpacePoint *origin, SpacePoint *primary,
+//                     SpacePoint *secondary, SpacePoint *j2000Body,
+//                     SolarSystem *solarSystem)
+//------------------------------------------------------------------------------
+/**
+ * Creates CoordinateSystem with VNB, LVLH, MJ2000Eq, and SpacecraftBody axis.
+ *
+ * @param  csName      Name of the cooridnate system
+ * @param  axesType    Axes system type name
+ * @param  origin      Axes system origin body pointer
+ * @param  primary     Axes system primary body pointer
+ * @param  secondary   Axes system secondary body pointer
+ * @param  j2000Body   Axes system J2000 body pointer
+ * @param  solarSystem Solar system pointer
+ *
+ * @return new CoordinateSystem pointer if successful, NULL otherwise
+ */
+//------------------------------------------------------------------------------
+CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
+                     const std::string &csName, const std::string &axesType,
+                     SpacePoint *origin, SpacePoint *primary,
+                     SpacePoint *secondary, SpacePoint *j2000Body,
+                     SolarSystem *solarSystem)
+{
+   #ifdef DEBUG_CS_CREATE
+   MessageInterface::ShowMessage
+      ("CoordinateSystem::CreateLocalCoordinateSystem() entered\n   csName='%s', "
+       "axesType='%s', origin=<%p>, primary=<%p>, secondary=<%p>\n   j2000Body=<%p>, "
+       "solarSystem=<%p>\n", csName.c_str(), axesType.c_str(), origin, primary,
+       secondary, j2000Body, solarSystem);
+   #endif
+   // check for NULL pointers
+//   if (origin == NULL || primary == NULL || secondary == NULL ||
+//       j2000Body == NULL || solarSystem == NULL)
+//      return NULL;
+   if (origin == NULL || j2000Body == NULL || solarSystem == NULL)
+      return NULL;
+   
+   CoordinateSystem *localCS = NULL;
+   AxisSystem       *theAxes = NULL;
+   
+//   if (axesType != "VNB" && axesType != "LVLH" && axesType != "MJ2000Eq" &&
+//       axesType != "SpacecraftBody")
+//   {
+//      MessageInterface::ShowMessage
+//         ("**** ERROR **** CoordinateSystem::CreateLocalCoordinateSystem() cannot "
+//          "create CoordinateSystem, axes name \"%s\" is not supported\n", axesType.c_str());
+//      return NULL;
+//   }
+   
+   // check for supported axes name - these are used at least in the Burn code
+   if (axesType == "VNB" || axesType == "LVLH" || // axesType == "MJ2000Eq" ||
+       axesType == "SpacecraftBody")
+   {
+      if (primary == NULL || secondary == NULL)
+         return NULL;
+   
+   //   CoordinateSystem *localCS = new CoordinateSystem(csName);
+   //   AxisSystem *theAxes = new ObjectReferencedAxes(csName);
+      localCS  = new CoordinateSystem("CoordinateSystem",csName);
+      theAxes  = new ObjectReferencedAxes(csName);
+     
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (localCS, "localCS", "Burn::CreateLocalCoordinateSystem()",
+          "new CoordinateSystem()");
+      MemoryTracker::Instance()->Add
+         (theAxes, "localAxes", "Burn::CreateLocalCoordinateSystem()",
+          "new ObjectReferencedAxes()");
+      #endif
+      
+      theAxes->SetStringParameter("Primary", primary->GetName());
+      theAxes->SetStringParameter("Secondary", secondary->GetName());
+      theAxes->SetRefObject(origin, Gmat::SPACE_POINT, origin->GetName());
+      theAxes->SetRefObject(primary, Gmat::SPACE_POINT, primary->GetName());
+      theAxes->SetRefObject(secondary, Gmat::SPACE_POINT, secondary->GetName());
+      
+      if (axesType == "VNB")
+      {
+         theAxes->SetStringParameter("XAxis", "V");
+         theAxes->SetStringParameter("YAxis", "N");
+         localCS->SetStringParameter("Origin", secondary->GetName());
+         localCS->SetRefObject(secondary, Gmat::SPACE_POINT, secondary->GetName());
+      }
+      else if (axesType == "LVLH")
+      {
+         theAxes->SetStringParameter("XAxis", "-R");
+         theAxes->SetStringParameter("YAxis", "-N");
+         localCS->SetStringParameter("Origin", secondary->GetName());
+         localCS->SetRefObject(secondary, Gmat::SPACE_POINT, secondary->GetName());
+      }
+//      else if (axesType == "MJ2000Eq")
+//      {
+//         localCS->SetStringParameter("Origin", j2000Body->GetName());
+//      }
+      else if (axesType == "SpacecraftBody")
+      {
+         localCS->SetStringParameter("Origin", j2000Body->GetName());
+      }
+      
+      localCS->SetRefObject(theAxes, Gmat::AXIS_SYSTEM, theAxes->GetName());
+      localCS->SetRefObject(j2000Body, Gmat::SPACE_POINT, j2000Body->GetName());
+      localCS->SetSolarSystem(solarSystem);
+      localCS->Initialize();
+      
+      #ifdef DEBUG_CS_CREATE
+      MessageInterface::ShowMessage
+         ("   Local CS %s<%p> created with AxisSystem <%p>:\n"
+          "      axesType    = '%s'\n      Origin      = <%p>'%s'\n"
+          "      Primary     = <%p>'%s'\n      Secondary   = <%p>'%s'\n"
+          "      j2000body   = <%p>'%s'\n", csName.c_str(), localCS, theAxes, axesType.c_str(),
+          localCS->GetOrigin(), localCS->GetOriginName().c_str(), localCS->GetPrimaryObject(),
+          localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
+          localCS->GetSecondaryObject(),
+          localCS->GetSecondaryObject() ? localCS->GetSecondaryObject()->GetName().c_str() : "NULL",
+          localCS->GetJ2000Body(),
+          localCS->GetJ2000Body() ? localCS->GetJ2000Body()->GetName().c_str() : "NULL");
+      #endif
+      
+      // Since CoordinateSystem clones AxisSystem, delete it from here
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (theAxes, "theAxes", "Burn::CreateLocalCoordinateSystem()", "deleting localAxes");
+      #endif
+      delete theAxes;
+      return localCS;
+   }
+   // these are needed at least by the Measurement code
+   else if ((axesType == "MJ2000Eq") || (axesType == "Topocentric") ||
+            (axesType == "BodyFixed" ))
+   {
+      localCS = new CoordinateSystem("CoordinateSystem",csName);
+      if (axesType == "MJ2000Eq")
+         theAxes = new MJ2000EqAxes(csName);
+      else if (axesType == "Topocentric")
+         theAxes = new TopocentricAxes(csName);
+      else
+         theAxes = new BodyFixedAxes(csName);
+
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (localCS, "localCS", "CreateLocalCoordinateSystem()",
+          "new CoordinateSystem()");
+      MemoryTracker::Instance()->Add
+         (theAxes, "localAxes", "CreateLocalCoordinateSystem()",
+          "new ObjectReferencedAxes()");
+      #endif
+      
+      localCS->SetStringParameter("Origin", origin->GetName());
+      localCS->SetRefObject(origin, Gmat::SPACE_POINT, origin->GetName());
+      localCS->SetRefObject(theAxes, Gmat::AXIS_SYSTEM, theAxes->GetName());
+      localCS->SetRefObject(j2000Body, Gmat::SPACE_POINT, j2000Body->GetName());
+      localCS->SetSolarSystem(solarSystem);
+      localCS->Initialize();
+
+      #ifdef DEBUG_CS_CREATE
+      MessageInterface::ShowMessage
+         ("   Local CS %s<%p> created with AxisSystem <%p>:\n"
+          "      axesType    = '%s'\n      Origin      = <%p>'%s'\n"
+          "      Primary     = <%p>'%s'\n      Secondary   = <%p>'%s'\n"
+          "      j2000body   = <%p>'%s'\n", csName.c_str(), localCS, theAxes, axesType.c_str(),
+          localCS->GetOrigin(), localCS->GetOriginName().c_str(), localCS->GetPrimaryObject(),
+          localCS->GetPrimaryObject() ? localCS->GetPrimaryObject()->GetName().c_str() : "NULL",
+          localCS->GetSecondaryObject(),
+          localCS->GetSecondaryObject() ? localCS->GetSecondaryObject()->GetName().c_str() : "NULL",
+          localCS->GetJ2000Body(),
+          localCS->GetJ2000Body() ? localCS->GetJ2000Body()->GetName().c_str() : "NULL");
+      #endif
+
+      delete theAxes;
+      return localCS;
+   }
+   else
+   {
+      MessageInterface::ShowMessage
+         ("**** ERROR **** CoordinateSystem::CreateLocalCoordinateSystem() cannot "
+          "create CoordinateSystem, axes name \"%s\" is not supported\n", axesType.c_str());
+      return NULL;
+   }
+   
+}
+
 
 //------------------------------------------------------------------------------
 // protected methods

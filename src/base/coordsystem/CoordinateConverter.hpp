@@ -59,9 +59,11 @@ public:
                 bool forceNutationComputation = false, bool omitTranslation = false);
    // method to return the rotation matrix used to do the last conversion
    Rmatrix33    GetLastRotationMatrix() const;
+   Rmatrix33    GetLastRotationDotMatrix() const;
 
 protected:
    Rmatrix33 lastRotMatrix;
+   Rmatrix33 lastRotDotMatrix;
    /*
    Rvector internalState;
    Rmatrix33 toMJ2000RotMatrix;

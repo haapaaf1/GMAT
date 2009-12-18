@@ -142,6 +142,8 @@ public:
                                             const bool value);
    virtual bool         SetBooleanParameter(const std::string &label,
                                             const bool value);
+   virtual std::string  GetStringParameter(const Integer id) const;
+   virtual std::string  GetStringParameter(const std::string &label) const;
    virtual bool         SetStringParameter(const Integer id, 
                                            const std::string &value);
    virtual bool         SetStringParameter(const std::string &label, 
@@ -153,7 +155,13 @@ public:
    
    virtual Integer      GetOwnedObjectCount();
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
-   
+
+   virtual bool         IsParameterReadOnly(const Integer id) const;
+   virtual bool         IsParameterCloaked(const Integer id) const;
+   virtual bool         IsParameterEqualToDefault(const Integer id) const;
+   virtual bool         SaveAllAsDefault();
+   virtual bool         SaveParameterAsDefault(const Integer id);
+
    // all classes derived from GmatBase must supply this Clone method
    virtual SolarSystem* Clone(void) const;
    
@@ -240,7 +248,10 @@ protected:
    {
       BODIES_IN_USE = GmatBaseParamCount,
       NUMBER_OF_BODIES,
-      EPHEMERIS,
+      EPHEMERIS,   // deprecated!!!!!!
+      EPHEMERIS_SOURCE, 
+      DE_FILE_NAME,
+      SPK_FILE_NAME,
       OVERRIDE_TIME_SYSTEM,
       EPHEM_UPDATE_INTERVAL,
       SolarSystemParamCount
@@ -252,8 +263,7 @@ protected:
    
    static const Gmat::ParameterType
       PARAMETER_TYPE[SolarSystemParamCount - GmatBaseParamCount];
-   
-   
+      
    Gmat::PosVelSource    pvSrcForAll;
    PlanetaryEphem*       thePlanetaryEphem;
    bool                  overrideTimeForAll;
@@ -287,6 +297,14 @@ private:
    bool        spiceAvailable;
    /// name of the SPK file for the default bodies
    std::string theSPKFilename;
+   
+   // default values for parameters
+   StringArray default_planetarySourceTypesInUse;  // deprecated!!
+   std::string default_ephemerisSource;
+   std::string default_DEFilename;
+   std::string default_SPKFilename;
+   bool        default_overrideTimeForAll;
+   Real        default_ephemUpdateInterval;
    
    // method to find a body in the solar system, given its name
    CelestialBody* FindBody(std::string withName);

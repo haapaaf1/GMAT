@@ -338,15 +338,17 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
             outState[3], outState[4], outState[5]);
    #endif
    
+   // last rotation matrix
    Real lastToMat[9];
    Real lastFromMat[9];
+   Real lrm[3][3];
+   Integer p3;
+
    inCoord->GetLastRotationMatrix(lastToMat);
    outCoord->GetLastRotationMatrix(lastFromMat);
    Real  fromDataT[9] = {lastFromMat[0], lastFromMat[3], lastFromMat[6],
                          lastFromMat[1], lastFromMat[4], lastFromMat[7],
                          lastFromMat[2], lastFromMat[5], lastFromMat[8]};
-   Real lrm[3][3];
-   Integer p3;
    
    for (Integer p = 0; p < 3; ++p)
    {
@@ -361,7 +363,28 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
    lastRotMatrix.Set(lrm[0][0],lrm[0][1],lrm[0][2],
                      lrm[1][0],lrm[1][1],lrm[1][2],
                      lrm[2][0],lrm[2][1],lrm[2][2]);
-   
+ 
+
+   // last rotation Dot matrix
+   inCoord->GetLastRotationDotMatrix(lastToMat);
+   outCoord->GetLastRotationDotMatrix(lastFromMat);
+   Real  fromDotDataT[9] = {lastFromMat[0], lastFromMat[3], lastFromMat[6],
+                            lastFromMat[1], lastFromMat[4], lastFromMat[7],
+                            lastFromMat[2], lastFromMat[5], lastFromMat[8]};
+   for (Integer p = 0; p < 3; ++p)
+   {
+      p3 = 3*p;
+      for (Integer q = 0; q < 3; ++q)
+      {
+         lrm[p][q] = fromDotDataT[p3]   * lastToMat[q]   + 
+                     fromDotDataT[p3+1] * lastToMat[q+3] + 
+                     fromDotDataT[p3+2] * lastToMat[q+6];
+      }
+   }
+   lastRotDotMatrix.Set(lrm[0][0],lrm[0][1],lrm[0][2],
+                        lrm[1][0],lrm[1][1],lrm[1][2],
+                        lrm[2][0],lrm[2][1],lrm[2][2]);
+
    #ifdef DEBUG_FIRST_CALL
       if ((firstCallFired == false) || (epoch.Get() == 21545.0))
       {
@@ -387,5 +410,13 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
 Rmatrix33 CoordinateConverter::GetLastRotationMatrix() const
 {
    return lastRotMatrix;
+}
+
+//------------------------------------------------------------------------------
+// Rmatrix33 CoordinateConverter::GetLastRotationDotMatrix() const
+//------------------------------------------------------------------------------
+Rmatrix33 CoordinateConverter::GetLastRotationDotMatrix() const
+{
+   return lastRotDotMatrix;
 }
 

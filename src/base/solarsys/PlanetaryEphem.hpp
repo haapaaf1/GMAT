@@ -23,7 +23,7 @@
 #include "gmatdefs.hpp"
 #include "A1Mjd.hpp"
 
-namespace Gmat  // does this belong in DeFIle.hpp???????????????
+namespace Gmat  // does this belong in DeFile.hpp???????????????
 {
    // different types of DE files
    enum DeFileType
@@ -33,7 +33,8 @@ namespace Gmat  // does this belong in DeFIle.hpp???????????????
 //      DE202,
 //      DE403,
       DE_DE405,
-//      DE406
+//      DE406.
+//      DE_421,
    };
 
    // different types of DE files

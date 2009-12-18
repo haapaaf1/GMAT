@@ -1,9 +1,22 @@
-/* 
- * File:   B3FormatDesciption.hpp
- * Author: matthewwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             B3ObType
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/03
+//
+/**
  *
- * Created on September 3, 2009, 5:00 AM
+ * This class specifies the B3 observation data type.
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _B3OBTYPE_HPP
 #define	_B3OBTYPE_HPP

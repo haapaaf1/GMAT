@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              AtmosphereModel
 //------------------------------------------------------------------------------
@@ -35,9 +35,9 @@ class CelestialBody;
 class GMAT_API AtmosphereModel : public GmatBase
 {
 public:
-   AtmosphereModel(const std::string &typeStr);
+   AtmosphereModel(const std::string &typeStr, const std::string &name = "");
    virtual ~AtmosphereModel();
-    
+   
    // copy constructor - needed by child classes (for Clone)
    AtmosphereModel(const AtmosphereModel& am);
    AtmosphereModel& operator=(const AtmosphereModel& am);

@@ -153,7 +153,7 @@ public:
 
    // Access methods derived classes can override
    virtual std::string  GetParameterText(const Integer id) const;
-   virtual std::string  GetParameterUnits(const Integer id) const;
+   virtual std::string  GetParameterUnit(const Integer id) const;
    virtual Integer      GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
                         GetParameterType(const Integer id) const;
@@ -164,7 +164,10 @@ public:
 
    virtual Gmat::ObjectType
                         GetPropertyObjectType(const Integer id) const;
-   virtual StringArray& GetPropertyEnumStrings(const Integer id) const;
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const Integer id) const;
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const std::string &label) const;
 
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         SetRealParameter(const Integer id,

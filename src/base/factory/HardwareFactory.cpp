@@ -21,7 +21,8 @@
 #include "HardwareFactory.hpp"
 #include "FuelTank.hpp"
 #include "Thruster.hpp"
-
+#include "Antenna.hpp"
+//#include "Retroreflector.hpp"
 
 //---------------------------------
 //  public methods
@@ -55,6 +56,10 @@ Hardware* HardwareFactory::CreateHardware(const std::string &ofType,
       return new FuelTank(withName);
    if (ofType == "Thruster")
       return new Thruster(withName);
+   if (ofType == "Antenna")
+      return new Antenna(withName);
+//   if (ofType == "Retroreflector")
+//      return new Retroreflector(withName);
    return NULL;
 }
 
@@ -75,6 +80,8 @@ Factory(Gmat::HARDWARE)
    {
       creatables.push_back("FuelTank");
       creatables.push_back("Thruster");
+      creatables.push_back("Antenna");
+//      creatables.push_back("Retroreflector");
    }
 }
 
@@ -95,6 +102,8 @@ Factory(createList, Gmat::HARDWARE)
    {
       creatables.push_back("FuelTank");
       creatables.push_back("Thruster");
+      creatables.push_back("Antenna");
+//      creatables.push_back("Retroreflector");
    }
 }
 
@@ -115,6 +124,8 @@ Factory(fact)
    {
       creatables.push_back("FuelTank");
       creatables.push_back("Thruster");
+      creatables.push_back("Antenna");
+//      creatables.push_back("Retroreflector");
    }
 }
 
@@ -137,6 +148,8 @@ HardwareFactory& HardwareFactory::operator= (const HardwareFactory& fact)
    {
       creatables.push_back("FuelTank");
       creatables.push_back("Thruster");
+      creatables.push_back("Antenna");
+//      creatables.push_back("Retroreflector");
    }
    return *this;
 }

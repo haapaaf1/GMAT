@@ -26,261 +26,12 @@
 #include "TimeTypes.hpp"
 #include "TimeSystemConverter.hpp"
 #include "AngleUtil.hpp"
-//#include "FileManager.hpp"
 #include "StringUtil.hpp"
 
 //#define DEBUG_PLANET 1
-//#define DEBUG_PLANET_ANALYTIC
+//#define DEBUG_PLANET_TWO_BODY
 
 using namespace GmatMathUtil;
-
-// initialize static default values
-//// default values for Planet data
-//const Gmat::BodyType        Planet::DEFAULT_BODY_TYPE         = Gmat::PLANET;
-//const Gmat::PosVelSource    Planet::DEFAULT_POS_VEL_SOURCE    = Gmat::DE405; 
-////const Gmat::AnalyticMethod  Planet::DEFAULT_ANALYTIC_METHOD   = Gmat::LOW_FIDELITY;
-//const Integer               Planet::DEFAULT_BODY_NUMBER       = 1;
-//const Integer               Planet::DEFAULT_REF_BODY_NUMBER   = 3;
-//
-//// Units for Equatorial radius are km
-//const Real                  Planet::EQUATORIAL_RADIUS[NumberOfPlanets]         =
-//{
-//   2.43970000000000e+003, // to match STK 2006.01.31 - was 2439.7,
-//   6.05190000000000e+003, // match to STK 2006.01.31 - was 6051.8,
-//   6.3781363E3, // to match STK 2006.01.31 - was 6378.1363,
-//   3.39700000000000e+003, // to match STK 2006.01.31 - was 3396.200,
-//   7.14920000000000e+004, // to match STK 2006.01.31 - was 71492.00,
-//   6.02680000000000e+004, // to match STK 2006.01.31 - was 60368.0,
-//   2.55590000000000e+004, // to match STK 2006.01.31 - was 25559.0,
-//   2.52690000000000e+004, // to match STK 2006.01.31 - was 24764.0,
-//   1162.0 // changed to match with STK. old:1195.0
-//};
-//const Real                  Planet::FLATTENING[NumberOfPlanets]         =   
-//{
-//   0.0,
-//   0.0,
-//   0.00335270, // match to STK 2006.01.31 - was 0.0033528,
-//   0.00647630, // match to STK 2006.01.31 - was 0.0064763,
-//   0.06487439, // match to STK 2006.01.31 - was 0.0648744,
-//   0.09796243, // match to STK 2006.01.31 - was 0.0979624,
-//   0.02292734, // match to STK 2006.01.31 - was 0.0229273,
-//   0.01856029, // match to STK 2006.01.31 - was 0.0171,
-//   0.0
-//};
-//// Units for Mu are km^3/s^2
-//const Real                  Planet::MU[NumberOfPlanets]                        =
-//{
-//   22032.080486418, 
-//   324858.59882646, 
-//   398600.4415,  
-//   42828.314258067, 
-//   126712767.85780, 
-//   37940626.061137,
-//   5794549.0070719, 
-//   6836534.0638793, 
-//   981.60088770700  
-//};
-//const Integer               Planet::ORDER[NumberOfPlanets]               =
-//                            {0, 0, 4, 0, 0, 0, 0, 0, 0};
-//
-//const Integer               Planet::DEGREE[NumberOfPlanets]              =
-//                            {0, 0, 4, 0, 0, 0, 0, 0, 0};
-//const Rmatrix               Planet::SIJ[NumberOfPlanets]                 =
-//{
-//   Rmatrix(5,5,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0),
-//   Rmatrix(5,5,
-//           0.0,                  0.0,                  0.0,                  
-//           0.0,                  0.0,
-//           0.0,                  0.0,                  0.0,                  
-//           0.0,                  0.0,
-//           0.0, 1.47467423600000E-08,-9.53141845209000E-08,                  
-//           0.0,                  0.0,
-//           0.0, 5.40176936891000E-07, 8.11618282044000E-07, 
-//           2.11451354723000E-07, 0.0,
-//           0.0, 4.91465604098000E-07, 4.83653955909000E-07,
-//          -1.18564194898000E-07,      1.37586364127000E-06),
-//   Rmatrix(5,5,
-//           0.0,                  0.0,                  0.0,                  
-//           0.0,                  0.0,
-//           0.0,                  0.0,                  0.0,                  
-//           0.0,                  0.0,
-//           0.0, 1.19528010000000E-09,-1.40026639758800E-06,                  
-//           0.0,                  0.0,
-//           0.0, 2.48130798255610E-07,-6.18922846478490E-07, 
-//           1.41420398473540E-06, 0.0,
-//           0.0,-4.73772370615970E-07, 6.62571345942680E-07,
-//          -2.00987354847310E-07,      3.08848036903550E-07),
-//   Rmatrix(5,5,
-//           0.0,                  0.0,                  0.0,                  
-//           0.0,                  0.0,
-//           0.0,                  0.0,                  0.0,                  
-//           0.0,                  0.0,
-//           0.0, 6.54655690000000E-09, 4.90611750000000E-05,                  
-//           0.0,                  0.0,
-//           0.0, 2.52926620000000E-05, 8.31603630000000E-06, 
-//           2.55554990000000E-05, 0.0,
-//           0.0, 3.70906170000000E-06,-8.97764090000000E-06,
-//          -1.72832060000000E-07,     -1.28554120000000E-05),
-//   Rmatrix(5,5,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0),
-//   Rmatrix(5,5,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0),
-//   Rmatrix(5,5,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0),
-//   Rmatrix(5,5,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0),
-//   Rmatrix(5,5,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0),
-//};
-//const Rmatrix               Planet::CIJ[NumberOfPlanets]                 =
-//{
-//   Rmatrix(5,5,
-//                             1.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//           -2.68328157300000E-05, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0),
-//   Rmatrix(5,5,
-//                             1.0,                  0.0,                  0.0,
-//                             0.0,                  0.0,
-//                             0.0,                  0.0,                  0.0,
-//                             0.0,                  0.0,
-//           -1.95847963769000E-06, 2.87322988834000E-08, 8.52182522007000E-07,
-//                             0.0,                  0.0,
-//            7.98507258430000E-07, 2.34759127059000E-06,-9.45132723095000E-09,
-//           -1.84756674598000E-07,                  0.0,
-//            7.15385582249000E-07,-4.58736811774000E-07, 1.26875441402000E-07,
-//           -1.74034531883000E-07, 1.78438307106000E-07),
-//   Rmatrix(5,5,
-//                             1.0,                  0.0,                  0.0,
-//                             0.0,                   0.0,
-//                             0.0,                  0.0,                  0.0,
-//                             0.0,                   0.0,
-//           -4.84165374886470E-04,-1.86987640000000E-10, 2.43926074865630E-06,
-//                             0.0,                   0.0,
-//            9.57170590888000E-07, 2.03013720555300E-06, 9.04706341272910E-07, 
-//            7.21144939823090E-07,                   0.0,
-//            5.39777068357300E-07,-5.36243554298510E-07, 3.50670156459380E-07,
-//            9.90868905774410E-07,-1.88481367425270E-07),
-//   Rmatrix(5,5,
-//                             1.0,                  0.0,                  0.0,
-//                             0.0,                   0.0,
-//                             0.0,                  0.0,                  0.0,
-//                             0.0,                   0.0,
-//           -8.75977040000000E-04, 3.69395770000000E-09,-8.46829230000000E-05,
-//                             0.0,                   0.0,
-//           -1.19062310000000E-05, 3.74737410000000E-06,-1.59844090000000E-05, 
-//            3.51325710000000E-05,                   0.0,
-//            5.14919500000000E-06, 4.26122630000000E-06,-1.05467200000000E-06, 
-//            6.47421510000000E-06, 2.97350070000000E-07),
-//   Rmatrix(5,5,
-//                             1.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//           -6.59640053360000E-03, 0.0,             0.0,             0.0,
-//                             0.0,
-//            2.19219394350000E-04, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0),
-//   Rmatrix(5,5,
-//                             1.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//           -7.35666364600000E-03, 0.0,             0.0,             0.0,
-//                             0.0,
-//           -3.77964473010000E-04, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0),
-//   Rmatrix(5,5,
-//                             1.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//           -5.36656314600000E-03, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0),
-//   Rmatrix(5,5,
-//                             1.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//           -1.78885438200000E-03, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0,
-//                             0.0, 0.0,             0.0,             0.0,
-//                             0.0),
-//   Rmatrix(5,5,
-//           1.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0,
-//           0.0, 0.0,             0.0,             0.0,             0.0),
-//};
-//const Real                  Planet::ANALYTIC_EPOCH[NumberOfPlanets]      =
-//{
-//   21544.500370768266, 21544.500370768266, 21544.500370768266,
-//   21544.500370768266, 21544.500370768266, 21544.500370768266,
-//   21544.500370768266, 21544.500370768266, 21544.500370768266
-//};
-//const Rvector6              Planet::ANALYTIC_ELEMENTS[NumberOfPlanets]   =
-//{
-//   Rvector6(57909212.938567216, 0.20562729774965544, 28.551674963293556,
-//            10.99100758149257, 67.548689584103984,  175.10396761800456),
-//   Rvector6(108208423.76486244, 0.0067572911404369688, 24.433051334216176,
-//            8.007373221205856, 124.55871063212626,     49.889845117140576),
-//   Rvector6(149653978.9783766,        0.01704556707314489, 23.439034090426388,
-//            0.00018646554487906264, 101.7416388084352,    358.12708491129), 
-//   Rvector6(227939100.16983532,   0.093314935483163344, 24.677089965042784,
-//            3.3736838414054472, 333.01849018562076,     23.020633424007744),
-//   Rvector6(779362950.5867208, 0.049715759324379896, 23.235170252934984,
-//            3.253166212922,   12.959463238924978,    20.296667207322848),
-//   Rvector6(1433895241.1645338,  0.055944006117351672, 22.551333377462712, 
-//            5.9451029086964872, 83.977808941927856,   316.23400767222348),
-//   Rvector6(2876804054.239868,   0.044369079419761096, 23.663364175915172,
-//            1.850441916938424, 168.86875273062818,    145.8502865552013),
-//   Rvector6(4503691751.2342816, 0.011211871260687014, 22.29780590076114,
-//            3.47555654789392,  33.957145210261132,   266.76236610390636),
-//   Rvector6(5909627293.567856,    0.24928777871911536, 23.4740184346088,
-//            43.998303104440304, 183.03164997859696,    25.513664216653164)
-//};
 
 //---------------------------------
 // static data
@@ -317,8 +68,6 @@ Planet::Planet(std::string name) :
    CelestialBody     ("Planet",name),
    nutationUpdateInterval    (60.0)
 {   
-//   CelestialBody::InitializeBody();
-
    objectTypeNames.push_back("Planet");
    parameterCount = PlanetParamCount;
 
@@ -326,9 +75,11 @@ Planet::Planet(std::string name) :
    bodyType            = Gmat::PLANET;
    bodyNumber          = 1;
    referenceBodyNumber = 3;
-   rotationSrc         = Gmat::IAU_DATA;
+   rotationSrc         = Gmat::IAU_SIMPLIFIED;
    if (name == SolarSystem::EARTH_NAME) 
-      rotationSrc      = Gmat::NOT_APPLICABLE;
+      rotationSrc      = Gmat::FK5_IAU_1980;
+   else if (name == SolarSystem::NEPTUNE_NAME)
+      rotationSrc      = Gmat::IAU_2002;
 
    // defaults for now ...
    Rmatrix s(5,5,
@@ -347,6 +98,7 @@ Planet::Planet(std::string name) :
    cij = c;
 
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 }
 
 //------------------------------------------------------------------------------
@@ -365,8 +117,6 @@ Planet::Planet(std::string name, const std::string &cBody) :
    CelestialBody     ("Planet",name),
    nutationUpdateInterval    (60.0)
 {
-//   CelestialBody::InitializeBody();
-
    objectTypeNames.push_back("Planet");
    parameterCount = PlanetParamCount;
    
@@ -374,11 +124,14 @@ Planet::Planet(std::string name, const std::string &cBody) :
    bodyType            = Gmat::PLANET;
    bodyNumber          = 1;
    referenceBodyNumber = 3;
-   rotationSrc         = Gmat::IAU_DATA;
+   rotationSrc         = Gmat::IAU_SIMPLIFIED;
    if (name == SolarSystem::EARTH_NAME) 
-      rotationSrc      = Gmat::NOT_APPLICABLE;
+      rotationSrc      = Gmat::FK5_IAU_1980;
+   else if (name == SolarSystem::NEPTUNE_NAME)
+      rotationSrc      = Gmat::IAU_2002;
    
    DeterminePotentialFileNameFromStartup();
+   SaveAllAsDefault();
 }
 
 //------------------------------------------------------------------------------
@@ -393,7 +146,8 @@ Planet::Planet(std::string name, const std::string &cBody) :
 //------------------------------------------------------------------------------
 Planet::Planet(const Planet &pl) :
    CelestialBody  (pl),
-   nutationUpdateInterval (pl.nutationUpdateInterval)
+   nutationUpdateInterval (pl.nutationUpdateInterval),
+   default_nutationUpdateInterval (pl.default_nutationUpdateInterval)
 {
 }
 
@@ -415,7 +169,8 @@ Planet& Planet::operator=(const Planet &pl)
       return *this;
 
    CelestialBody::operator=(pl);
-   nutationUpdateInterval = pl.nutationUpdateInterval;
+   nutationUpdateInterval          = pl.nutationUpdateInterval;
+   default_nutationUpdateInterval  = pl.default_nutationUpdateInterval;
    return *this;
 }
 
@@ -451,6 +206,8 @@ Rvector Planet::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
    // Neptune is the special case for the planets
    if (instanceName == SolarSystem::NEPTUNE_NAME)
    {
+      if (rotationSrc == Gmat::IAU_2002)
+      {
       Real d = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
       Real T = d / 36525;                        // interval in Julian centuries
       Real N    = 357.85 + 52.316 * T;
@@ -461,82 +218,28 @@ Rvector Planet::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
       Real W         = orientation[4] + orientation[5] * d - 0.48 * Sin(Rad(N));
       Real Wdot      = orientation[5] * CelestialBody::dDot - 0.48 * NDot * Cos(Rad(N));
       return Rvector(4, alpha, delta, W, Wdot);
+      }
+      else if (rotationSrc == Gmat::IAU_SIMPLIFIED)
+      {
+         return CelestialBody::GetBodyCartographicCoordinates(forTime);
+      }
+      else
+      {
+         std::string errmsg = "Error computing cartographic coordinates for Neptune - ";
+         errmsg += "unknown or invalid rotation data source\n";
+         throw SolarSystemException(errmsg);
+      }
    }
-   else
+   else if (instanceName == SolarSystem::EARTH_NAME)
+   {
+      // TBD - actually, the FK5 stuff is handled in the AxesSystem class(es) for 
+      // which it is appropriate (e.g. BodyFixedAxes)
       return CelestialBody::GetBodyCartographicCoordinates(forTime);
+   }
+
+   // by default, call the method that handles the IAU_SIMPLIFIED method
+   return CelestialBody::GetBodyCartographicCoordinates(forTime);
    
-//   if (instanceName == SolarSystem::MERCURY_NAME)
-//   {
-//      alpha = 281.01  - 0.033 * T;
-//      delta = 61.45   - 0.005 * T;
-//      W     = 329.548 + 6.1385025 * d;
-//      Wdot  = 6.1385025 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::VENUS_NAME)
-//   {
-//      alpha = 272.76;
-//      delta = 67.16;
-//      W     = 160.20 - 1.4813688 * d;
-//      Wdot = - 1.4813688 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::EARTH_NAME)
-//   {
-//      alpha = 0.00    - 0.641 * T;
-//      delta = 90.00   - 0.557 * T;
-//      W     = 190.147 + 360.9856235 * d;
-//      Wdot  = 360.9856235 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::MARS_NAME)
-//   {
-//      alpha = 317.68143 - 0.1061 * T;
-//      delta = 52.88650  - 0.0609 * T;
-//      W     = 176.630   + 350.89198226 * d;
-//      Wdot = 350.89198226 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::JUPITER_NAME)
-//   {
-//      alpha = 268.05 - 0.009 * T;
-//      delta = 64.49  + 0.003 * T;
-//      W     = 284.95 + 870.5366420 * d;
-//      Wdot  = 870.5366420 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::SATURN_NAME)
-//   {
-//      alpha = 40.589 - 0.036 * T;
-//      delta = 83.537 - 0.004 * T;
-//      W     = 38.90  + 810.7939024 * d;
-//      Wdot  = 810.7939024 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::URANUS_NAME)
-//   {
-//      alpha = 257.311;
-//      delta = -15.175;
-//      W     = 203.81 - 501.1600928 * d;
-//      Wdot  = - 501.1600928 * CelestialBody::dDot;
-//   }
-//   else if (instanceName == SolarSystem::NEPTUNE_NAME)
-//   {
-//      Real N    = 357.85 + 52.316 * T;
-//      //Real NDot = 52.316 * CelestialBody::TDot;
-//      Real NDot = 6.0551e-04;   // per new specs 2004.02.22
-//      alpha     = 299.36 + 0.70 * Sin(Rad(N));
-//      delta     = 43.46  - 0.51 * Cos(Rad(N));
-//      W         = 253.18 + 536.3128492 * d - 0.48 * Sin(Rad(N));
-//      Wdot      = 536.3128492 * CelestialBody::dDot - 0.48 * NDot * Cos(Rad(N));
-//   }
-//   else if (instanceName == SolarSystem::PLUTO_NAME)
-//   {
-//      alpha = 313.02;
-//      delta = 9.09;
-//      W     = 236.77 - 56.3623195 * d;
-//      Wdot  = - 56.3623195 * CelestialBody::dDot;
-//   }
-//   else
-//   {
-//      return CelestialBody::GetBodyCartographicCoordinates(forTime);
-//   }
-//   
-//   return Rvector(4, alpha, delta, W, Wdot);
 }
 
 //------------------------------------------------------------------------------
@@ -561,8 +264,6 @@ Real  Planet::GetHourAngle(A1Mjd atTime)
    {
       // Convert the time to a UT1 MJD
       // 20.02.06 - arg: changed to use enum types instead of strings
-//      Real mjdUT1 = TimeConverterUtil::Convert(atTime.Get(),
-//                                               "A1Mjd", "Ut1Mjd", GmatTimeUtil::JD_JAN_5_1941);
       Real mjdUT1 = TimeConverterUtil::Convert(atTime.Get(),
                                  TimeConverterUtil::A1MJD, TimeConverterUtil::UT1MJD,
                                  GmatTimeUtil::JD_JAN_5_1941);
@@ -584,56 +285,6 @@ Real  Planet::GetHourAngle(A1Mjd atTime)
       hourAngle = AngleUtil::PutAngleInDegRange(mst,0.0,360.0);
       return hourAngle;
    }
-//   else
-//   {
-//      Real d = GetJulianDaysFromTCBEpoch(atTime); // interval in Julian days
-//      Real T = d / 36525;                        // interval in Julian centuries
-//      if (instanceName == SolarSystem::MERCURY_NAME)
-//      {
-//         hourAngle     = 329.548 + 6.1385025 * d;
-//      }
-//      else if (instanceName == SolarSystem::VENUS_NAME)
-//      {
-//         hourAngle     = 160.20 - 1.4813688 * d;
-//      }
-//      //else if (instanceName == SolarSystem::EARTH_NAME)
-//      //{
-//      //   hourAngle     = 190.147 + 360.9856235 * d;
-//      //}
-//      else if (instanceName == SolarSystem::MARS_NAME)
-//      {
-//         hourAngle     = 176.630   + 350.89198226 * d;
-//      }
-//      else if (instanceName == SolarSystem::JUPITER_NAME)
-//      {
-//         hourAngle     = 284.95 + 870.5366420 * d;
-//      }
-//      else if (instanceName == SolarSystem::SATURN_NAME)
-//      {
-//         hourAngle     = 38.90  + 810.7939024 * d;
-//      }
-//      else if (instanceName == SolarSystem::URANUS_NAME)
-//      {
-//         hourAngle     = 203.81 - 501.1600928 * d;
-//      }
-//      else if (instanceName == SolarSystem::NEPTUNE_NAME)
-//      {
-//         Real N        = 357.85 + 52.316 * T;
-//         hourAngle     = 253.18 + 536.3128492 * d - 0.48 * Sin(Rad(N));
-//      }
-//      else if (instanceName == SolarSystem::PLUTO_NAME)
-//      {
-//         hourAngle     = 236.77 - 56.3623195 * d;
-//      }
-//      else
-//      {
-//         return CelestialBody::GetHourAngle(atTime);
-//      }
-//      // reduce to a quantity within one day (86400 seconds, 360.0 degrees)
-//      hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
-//  }
-   
-//   return hourAngle; 
    return CelestialBody::GetHourAngle(atTime);
 }
 
@@ -652,7 +303,7 @@ Real  Planet::GetHourAngle(A1Mjd atTime)
 //------------------------------------------------------------------------------
 bool Planet::SetTwoBodyEpoch(const A1Mjd &toTime)
 {
-   #ifdef DEBUG_PLANET_ANALYTIC
+   #ifdef DEBUG_PLANET_TWO_BODY
       MessageInterface::ShowMessage(
       "In Planet::SetTwoBodyEpoch with time = %.12f\n", toTime.Get());
    #endif
@@ -664,7 +315,7 @@ bool Planet::SetTwoBodyEpoch(const A1Mjd &toTime)
       if (!theCentralBody) 
          throw SolarSystemException("Central body must be set for " 
                                     + instanceName);
-      #ifdef DEBUG_PLANET_ANALYTIC
+      #ifdef DEBUG_PLANET_TWO_BODY
          MessageInterface::ShowMessage(
          "-------- and setting central body's epoch time to %.12f\n", 
          toTime.Get());
@@ -688,7 +339,7 @@ bool Planet::SetTwoBodyEpoch(const A1Mjd &toTime)
 //------------------------------------------------------------------------------
 bool Planet::SetTwoBodyElements(const Rvector6 &kepl)
 {
-   #ifdef DEBUG_PLANET_ANALYTIC
+   #ifdef DEBUG_PLANET_TWO_BODY
       MessageInterface::ShowMessage(
       "In Planet::SetTwoBodyElements, kepl = \n%.12f %.12f %.12f %.12f %.12f %.12f\n", 
       kepl[0], kepl[1], kepl[2], kepl[3], kepl[4], kepl[5]);
@@ -707,7 +358,7 @@ bool Planet::SetTwoBodyElements(const Rvector6 &kepl)
                             totalMu, CoordUtil::TA)); 
       Rvector6 sunKepl = CoordUtil::CartesianToKeplerian(cart, totalMu, &ma);
 
-      #ifdef DEBUG_PLANET_ANALYTIC
+      #ifdef DEBUG_PLANET_TWO_BODY
          MessageInterface::ShowMessage(
          "-------- and setting central body's elements to \n %.12f %.12f %.12f %.12f %.12f %.12f\n", 
          sunKepl[0], sunKepl[1], sunKepl[2], 
@@ -932,56 +583,49 @@ Real Planet::SetRealParameter(const std::string &label, const Real value)
    return SetRealParameter(GetParameterID(label), value);
 }
 
+bool Planet::IsParameterCloaked(const Integer id) const
+{
+   if (!cloaking) return false;
+   // if it's read-only, we'll cloak it
+   if (IsParameterReadOnly(id)) return true;
+
+   if (id >= CelestialBodyParamCount && id < PlanetParamCount)
+      return IsParameterEqualToDefault(id);
+   
+   return CelestialBody::IsParameterCloaked(id);
+}
+
+bool Planet::IsParameterEqualToDefault(const Integer id) const
+{
+   if (id == NUTATION_UPDATE_INTERVAL)
+   {
+      if (default_nutationUpdateInterval == nutationUpdateInterval)     return true;
+      else                                                              return false;
+   }
+   return CelestialBody::IsParameterEqualToDefault(id);
+}
+
+bool Planet::SaveAllAsDefault()
+{
+   CelestialBody::SaveAllAsDefault();
+   default_nutationUpdateInterval = nutationUpdateInterval;
+   return true;
+}
+
+bool Planet::SaveParameterAsDefault(const Integer id)
+{
+   if (id == NUTATION_UPDATE_INTERVAL)  
+   {
+      default_nutationUpdateInterval = nutationUpdateInterval;
+      return true;
+   }
+   return CelestialBody::SaveParameterAsDefault(id);
+}
 
 //------------------------------------------------------------------------------
 // protected methods
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//  void  InitializePlanet(const std::string &cBody)
-//------------------------------------------------------------------------------
-/**
- * This method initializes the data values for the body.
- *
- * @param <cBody> central body (default is NULL).
- *
- */
-//------------------------------------------------------------------------------
-//void Planet::InitializePlanet(const std::string &cBody)
-//{
-//   CelestialBody::InitializeBody();
-//
-//   // fill in with default values, use Earth values for Earth and unheard-of
-//   // planets
-//   theCentralBodyName  = cBody;
-//   bodyType            = Gmat::PLANET;
-//   bodyNumber          = 1;
-//   referenceBodyNumber = 3;
-//   rotationSrc         = Gmat::IAU_DATA;
-//
-////   bodyType            = Planet::DEFAULT_BODY_TYPE;
-////   posVelSrc           = Planet::DEFAULT_POS_VEL_SOURCE;
-//////   analyticMethod      = Planet::DEFAULT_ANALYTIC_METHOD;
-////   bodyNumber          = Planet::DEFAULT_BODY_NUMBER;
-////   referenceBodyNumber = Planet::DEFAULT_REF_BODY_NUMBER;
-////   rotationSrc         = Gmat::IAU_DATA;
-////
-////   if (instanceName == SolarSystem::MERCURY_NAME)      bodyIndex = MERCURY;
-////   else if (instanceName == SolarSystem::VENUS_NAME)   bodyIndex = VENUS;
-////   else if (instanceName == SolarSystem::EARTH_NAME)   bodyIndex = EARTH;
-////   else if (instanceName == SolarSystem::MARS_NAME)    bodyIndex = MARS;
-////   else if (instanceName == SolarSystem::JUPITER_NAME) bodyIndex = JUPITER;
-////   else if (instanceName == SolarSystem::SATURN_NAME)  bodyIndex = SATURN;
-////   else if (instanceName == SolarSystem::URANUS_NAME)  bodyIndex = URANUS;
-////   else if (instanceName == SolarSystem::NEPTUNE_NAME) bodyIndex = NEPTUNE;
-////   else if (instanceName == SolarSystem::PLUTO_NAME)   bodyIndex = PLUTO;
-////   else    // for Earth and other(?) planets, use Earth defaults
-////   {
-////      bodyIndex = EARTH;
-////      std::string errMsg =  "Unknown planet created - please supply ";
-////      errMsg            +=  "potential file or physical parameter values\n";
-////      MessageInterface::ShowMessage(errMsg);
-////   }
-//}
+// none at this time
 
 //------------------------------------------------------------------------------
 // private methods

@@ -1,9 +1,25 @@
-/* 
- * File:   SLRHeader.hpp
- * Author: mwilkins
+//$Header$
+//------------------------------------------------------------------------------
+//                             SLRHeader
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/09/03
+//
+/**
  *
- * Created on November 23, 2009, 10:28 AM
+ * This utility class specifies the SLR header data type.
+ * See the following website for a complete description of the SLR
+ * data format. The comments below are taken directly from the ILRS website.
+ * http://ilrs.gsfc.nasa.gov/products_formats_procedures/normal_point/np_format.html
+ *
  */
+//------------------------------------------------------------------------------
 
 #ifndef _SLRHEADER_HPP
 #define	_SLRHEADER_HPP

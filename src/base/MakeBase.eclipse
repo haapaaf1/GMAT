@@ -81,6 +81,8 @@ HEADERS = -Iinclude \
           -Iexecutive \
           -Iattitude \
           -Ispacecraft \
+          -Ihardware \
+          -Ihardware/sensors \
           -Iasset \
           -Iforcemodel \
           -Ipropagator \
@@ -504,15 +506,17 @@ OBJECTS = \
     solver/LineSearch.o \
     spacecraft/Converter.o \
     spacecraft/Formation.o \
-    spacecraft/FuelTank.o \
-    spacecraft/HardwareException.o \
-    spacecraft/Hardware.o \
     spacecraft/Spacecraft.o \
     spacecraft/SpaceObject.o \
     spacecraft/StateConverter.o \
     spacecraft/TextTrajectoryFile.o \
-    spacecraft/Thruster.o \
     spacecraft/TimeConverter.o \
+    hardware/FuelTank.o \
+    hardware/HardwareException.o \
+    hardware/Hardware.o \
+    hardware/Thruster.o \
+    hardware/Antenna.o \
+    hardware/sensors/Sensor.o \
     stopcond/StopCondition.o \
     subscriber/MatlabWs.o \
     subscriber/MessageWindow.o \

@@ -17,12 +17,16 @@
 
 
 #include "FuelTank.hpp"
+#include "StringUtil.hpp"     // for GmatStringUtil
 #include <sstream>
 
 
 //---------------------------------
 // static data
 //---------------------------------
+
+/// Available pressure models
+StringArray FuelTank::pressureModelList;
 
 /// Labels used for the fuel tank parameters.
 const std::string
@@ -34,23 +38,23 @@ FuelTank::PARAMETER_TEXT[FuelTankParamCount - HardwareParamCount] =
    "RefTemperature",
    "Volume",
    "FuelDensity",
-   "PressureRegulated"
+   "PressureModel",
+   "PressureRegulated"  // deprecated
 };
-
 
 /// Types of the parameters used by fuel tanks.
 const Gmat::ParameterType
 FuelTank::PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount] =
 {
-   Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE,
-   Gmat::REAL_TYPE,
-   Gmat::BOOLEAN_TYPE
+   Gmat::REAL_TYPE,        // "FuelMass",
+   Gmat::REAL_TYPE,        // "Pressure", 
+   Gmat::REAL_TYPE,        // "Temperature",
+   Gmat::REAL_TYPE,        // "RefTemperature",
+   Gmat::REAL_TYPE,        // "Volume",
+   Gmat::REAL_TYPE,        // "FuelDensity",
+   Gmat::ENUMERATION_TYPE, // "PressureModel",
+   Gmat::BOOLEAN_TYPE      // deprecated
 };
-
 
 
 //------------------------------------------------------------------------------
@@ -63,20 +67,26 @@ FuelTank::PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount] =
  */
 //------------------------------------------------------------------------------
 FuelTank::FuelTank(std::string nomme) :
-   Hardware             (Gmat::HARDWARE, "FuelTank", nomme),
+   Hardware             (Gmat::FUEL_TANK, "FuelTank", nomme),
    fuelMass             (756.0),       // 0.6 m^3 of fuel
    pressure             (1500.0),
    temperature          (20.0),
    refTemperature       (20.0),
    volume               (0.75),
    density              (1260.0),      // Hydrazine/H2O2 mixture
-   pressureRegulated    (true),
+   pressureModel        (TPM_PRESSURE_REGULATED),
    initialized          (false)
 {
    objectTypes.push_back(Gmat::FUEL_TANK);
    objectTypeNames.push_back("FuelTank");
    
    parameterCount = FuelTankParamCount;
+   
+   // Available pressure model list
+   // Since it is static data, clear it first
+   pressureModelList.clear();
+   pressureModelList.push_back("PressureRegulated");
+   pressureModelList.push_back("BlowDown");
 }
 
 
@@ -111,7 +121,7 @@ FuelTank::FuelTank(const FuelTank& ft) :
    refTemperature       (ft.refTemperature),
    volume               (ft.volume),
    density              (ft.density),
-   pressureRegulated    (ft.pressureRegulated),
+   pressureModel        (ft.pressureModel),
    gasVolume            (ft.gasVolume),
    pvBase               (ft.pvBase),
    initialized          (false)
@@ -138,22 +148,22 @@ FuelTank& FuelTank::operator=(const FuelTank& ft)
       
    GmatBase::operator=(ft);
 
-   fuelMass = ft.fuelMass;
-   pressure = ft.pressure;
-   temperature = ft.temperature;
+   fuelMass       = ft.fuelMass;
+   pressure       = ft.pressure;
+   temperature    = ft.temperature;
    refTemperature = ft.refTemperature;
-   volume = ft.volume;
-   density = ft.density;
-   pressureRegulated = ft.pressureRegulated;
-   gasVolume         = ft.gasVolume;
-   pvBase            = ft.pvBase;
-   initialized       = false;
+   volume         = ft.volume;
+   density        = ft.density;
+   pressureModel  = ft.pressureModel;
+   gasVolume      = ft.gasVolume;
+   pvBase         = ft.pvBase;
+   initialized    = false;
    
    Initialize();
    
    return *this;
 }
-  
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetParameterText(const Integer id) const
@@ -173,6 +183,35 @@ std::string FuelTank::GetParameterText(const Integer id) const
       return PARAMETER_TEXT[id - HardwareParamCount];
    return Hardware::GetParameterText(id);
 }
+
+
+//------------------------------------------------------------------------------
+//  std::string  GetParameterUnit(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string FuelTank::GetParameterUnit(const Integer id) const
+{
+   switch (id)
+   {
+   case FUEL_MASS:
+      return "kg";
+   case PRESSURE:
+      return "kPa";
+   case TEMPERATURE:
+   case REFERENCE_TEMPERATURE:
+      return "C";
+   case VOLUME:
+      return "m^3";
+   case FUEL_DENSITY:
+      return "kg/m^3";
+   default:
+      return Hardware::GetParameterUnit(id);
+   }
+}
+
 
 //------------------------------------------------------------------------------
 //  Integer  GetParameterID(const std::string &str) const
@@ -253,7 +292,10 @@ bool FuelTank::IsParameterReadOnly(const Integer id) const
 {
    if ((id == DIRECTION_X) || (id == DIRECTION_Y) || (id == DIRECTION_Z))
       return true;
-      
+   
+   if (id == PRESSURE_REGULATED)
+      return true;
+   
    return Hardware::IsParameterReadOnly(id);
 }
 
@@ -271,7 +313,8 @@ bool FuelTank::IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
 Real FuelTank::GetRealParameter(const Integer id) const
 {
-   switch (id) {
+   switch (id)
+   {
       case FUEL_MASS:
          return fuelMass;
          
@@ -316,49 +359,47 @@ Real FuelTank::GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
 Real FuelTank::SetRealParameter(const Integer id, const Real value)
 {
-   switch (id) {
+   #ifdef DEBUG_FUELTANK_SET
+   MessageInterface::ShowMessage
+      ("FuelTank::SetRealParameter(), id=%d, value=%f\n", id, value);
+   #endif
+   
+   switch (id)
+   {
       case FUEL_MASS:
-//         if (value < 0.0)
-//            throw HardwareException("Fuel mass must be >= 0\n");
-//         fuelMass = value;
-//         initialized = false;
-//         return fuelMass;
-         
-         if (value >= 0.0)
-            fuelMass = value;
-         else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Fuel Mass\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            if (value >= 0.0)
+            {
+               fuelMass = value;
+               UpdateTank();
+               // initialized = false;
+               return fuelMass;
+            }
+            else
+            {
+               HardwareException hwe("");
+               hwe.SetDetails(errorMessageFormat.c_str(),
+                              GmatStringUtil::ToString(value, 16).c_str(),
+                              "FuelMass", "Real Number >= 0.0");
+               throw hwe;
+            }
          }
-         initialized = false;
-         return fuelMass;
          
       case PRESSURE:
-//         if (value < 0.0)
-//            throw HardwareException("Tank pressure must be >= 0\n");
-//         pressure = value;
-//         initialized = false;
-//         return pressure;
          
          if (value >= 0.0)
             pressure = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Pressure\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException hwe("");
+            hwe.SetDetails(errorMessageFormat.c_str(),
+                           GmatStringUtil::ToString(value, 16).c_str(),
+                           "Pressure", "Real Number >= 0.0");
+            throw hwe;
          }
          initialized = false;
          return pressure;
-
+         
       case TEMPERATURE:
          temperature = value;
          initialized = false;
@@ -370,43 +411,31 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
          return refTemperature;
          
       case VOLUME:
-//         if (value < 0.0)
-//            throw HardwareException("Tank volume must be >= 0\n");
-//         volume = value;
-//         initialized = false;
-//         return volume;
          
          if (value >= 0.0)
             volume = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Volume\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException hwe("");
+            hwe.SetDetails(errorMessageFormat.c_str(),
+                           GmatStringUtil::ToString(value, 16).c_str(),
+                           "Volume", "Real Number >= 0.0");
+            throw hwe;
          }
          initialized = false;
          return volume;
 
       case FUEL_DENSITY:
-//         if (value < 0.0)
-//            throw HardwareException("Fuel density must be >= 0\n");
-//         density = value;
-//         initialized = false;
-//         return density;
          
          if (value >= 0.0)
             density = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Fuel Density\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException hwe("");
+            hwe.SetDetails(errorMessageFormat.c_str(),
+                           GmatStringUtil::ToString(value, 16).c_str(),
+                           "FuelDensity", "Real Number >= 0.0");
+            throw hwe;
          }
          initialized = false;
          return density;
@@ -414,8 +443,26 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
       default:
          break;   // Default just drops through
    }
-
+   
    return Hardware::SetRealParameter(id, value);
+}
+
+
+//---------------------------------------------------------------------------
+// Real GetRealParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+Real FuelTank::GetRealParameter(const std::string &label) const
+{
+   return GetRealParameter(GetParameterID(label));
+}
+
+
+//---------------------------------------------------------------------------
+// Real SetRealParameter(const std::string &label, const Real value)
+//---------------------------------------------------------------------------
+Real FuelTank::SetRealParameter(const std::string &label, const Real value)
+{
+   return SetRealParameter(GetParameterID(label), value);
 }
 
 
@@ -433,8 +480,13 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
 //------------------------------------------------------------------------------
 bool FuelTank::GetBooleanParameter(const Integer id) const
 {
-   if (id == PRESSURE_REGULATED) {
-      return pressureRegulated;
+   if (id == PRESSURE_REGULATED)
+   {
+      MessageInterface::ShowMessage
+         ("*** WARNING *** \"PressureRegulated\" is deprecated and will be "
+          "removed from a future build; please use \"PressureModel\" "
+          "instead.\n");      
+      return true;
    }
    return Hardware::GetBooleanParameter(id);
 }
@@ -455,12 +507,120 @@ bool FuelTank::GetBooleanParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool FuelTank::SetBooleanParameter(const Integer id, const bool value)
 {
-   if (id == PRESSURE_REGULATED) {
-      pressureRegulated = value;
+   if (id == PRESSURE_REGULATED)
+   {
+      if (value)
+         pressureModel = TPM_PRESSURE_REGULATED;
+      else
+         pressureModel = TPM_BLOW_DOWN;
+      
+      MessageInterface::ShowMessage
+         ("*** WARNING *** \"PressureRegulated\" is deprecated and will be "
+          "removed from a future build; please use \"PressureModel\" "
+          "instead.\n");      
       return true;
    }
    
    return Hardware::SetBooleanParameter(id, value);
+}
+
+
+//---------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id) const
+//---------------------------------------------------------------------------
+std::string FuelTank::GetStringParameter(const Integer id) const
+{
+   if (id == PRESSURE_MODEL)
+      return pressureModelList[pressureModel];
+   
+   return Hardware::GetStringParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value)
+//---------------------------------------------------------------------------
+bool FuelTank::SetStringParameter(const Integer id, const std::string &value)
+{
+   #ifdef DEBUG_FUELTANK_SET
+   MessageInterface::ShowMessage
+      ("FuelTank::SetStringParameter() entered, id=%d, value='%s'\n", id,
+       value.c_str());
+   #endif
+   
+   if (id == PRESSURE_MODEL)
+   {
+      if (find(pressureModelList.begin(), pressureModelList.end(), value) !=
+          pressureModelList.end())
+      {
+         for (UnsignedInt i=0; i<pressureModelList.size(); i++)
+            if (value == pressureModelList[i])
+               pressureModel = i;
+      }
+      else
+      {
+         // write one warning per GMAT session
+         static bool firstTimeWarning = true;
+         std::string framelist = pressureModelList[0];
+         for (UnsignedInt n = 1; n < pressureModelList.size(); ++n)
+            framelist += ", " + pressureModelList[n];
+         
+         std::string msg =
+            "The value of \"" + value + "\" for field \"PressureModel\""
+            " on object \"" + instanceName + "\" is not an allowed value.\n"
+            "The allowed values are: [ " + framelist + " ]. ";
+         
+         if (firstTimeWarning)
+         {
+            firstTimeWarning = false;
+            throw HardwareException(msg);
+         }
+      }
+      
+      return true;
+   }
+   
+   return Hardware::SetStringParameter(id, value);
+}
+
+
+//---------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+std::string FuelTank::GetStringParameter(const std::string &label) const
+{
+   return GetStringParameter(GetParameterID(label));
+}
+
+
+//---------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value)
+//---------------------------------------------------------------------------
+bool FuelTank::SetStringParameter(const std::string &label,
+                                  const std::string &value)
+{
+   return SetStringParameter(GetParameterID(label), value);
+}
+
+
+//---------------------------------------------------------------------------
+// const StringArray& GetPropertyEnumStrings(const Integer id) const
+//---------------------------------------------------------------------------
+const StringArray& FuelTank::GetPropertyEnumStrings(const Integer id) const
+{
+   if (id == PRESSURE_MODEL)
+      return pressureModelList;
+   
+   return Hardware::GetPropertyEnumStrings(id);
+}
+
+
+//---------------------------------------------------------------------------
+// const StringArray& GetPropertyEnumStrings(const std::string &label) const
+//---------------------------------------------------------------------------
+const StringArray& FuelTank::GetPropertyEnumStrings(const std::string &label) const
+{
+   return GetPropertyEnumStrings(GetParameterID(label));
 }
 
 
@@ -545,9 +705,23 @@ bool FuelTank::Initialize()
 //------------------------------------------------------------------------------
 void FuelTank::UpdateTank()
 {
-   if (!pressureRegulated) {
+   if (pressureModel != TPM_PRESSURE_REGULATED)
+   {
+      #ifdef DEBUG_MASS_FLOW
+         MessageInterface::ShowMessage("Vol = %.12lf, fuelMass = %.12lf, "
+               "density = %.12lf, P0 = %.12lf, PV = %.12lf", volume, fuelMass,
+               density, pressure, pvBase);
+      #endif
+      if (!initialized)
+         Initialize();
+
       gasVolume = volume - fuelMass / density;
       pressure = pvBase / gasVolume;
+
+      #ifdef DEBUG_MASS_FLOW
+         MessageInterface::ShowMessage("Gas Vol = %.12lf, Pf = %.12lf\n",
+               gasVolume, pvBase);
+      #endif
    }
 }
 

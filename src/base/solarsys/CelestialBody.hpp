@@ -37,6 +37,8 @@
 #ifdef __USE_SPICE__
 #include "SpiceKernelReader.hpp"
 #endif
+// forward reference for SolarSystem
+class SolarSystem;
 
 // Add needed things to Gmat namespace
 namespace Gmat
@@ -119,19 +121,21 @@ namespace Gmat
    
    enum RotationDataSource
    {
-      DE_FILE = 0,
-      IAU_DATA,
+      DE_405_FILE = 0,
+      IAU_2002,
 //      IAU_FILE,   // TBD
-      NOT_APPLICABLE,
+      FK5_IAU_1980,
+      IAU_SIMPLIFIED,
       RotationDataSrcCount
    };
    
    const std::string ROTATION_DATA_SOURCE_STRINGS[RotationDataSrcCount] = 
    {
-      "DE405",
+      "DE405File",
       "IAU2002",
 //      "IAUFile",  // TBD
-      "NotApplicable",
+      "FK5IAU1980",
+      "IAUSimplified",
    };
 };
 
@@ -158,12 +162,14 @@ public:
    virtual ~CelestialBody();
 
    virtual bool Initialize();
+   virtual void SetUpBody();
    
    // method to return the state (position and velocity) of the body at
    // the specified time, using the specified method
    virtual const Rvector6&      GetState(A1Mjd atTime);
    virtual const Rvector6&      GetState(Real atTime); 
    virtual void                 GetState(const A1Mjd &atTime, Real *outState);
+   virtual void                 SetSolarSystem(SolarSystem *ss);
    
    // methods to return the body type, central body, gravitational constant,
    // radius, mass, posvel source, analytic method, and userDefined flag
@@ -202,7 +208,6 @@ public:
                                 GetRotationDataSource() const;
    virtual StringArray          GetRotationDataSourceList() const;
    virtual bool                 IsUserDefined() const;
-   virtual bool                 HasBeenModified() const;
    virtual StringArray          GetEphemSourceList() const;
    virtual Rvector6             GetOrientationParameters() const;
    
@@ -210,9 +215,9 @@ public:
    // methods to set data for the body
    virtual bool           SetBodyType(Gmat::BodyType bType);
    virtual bool           SetCentralBody(const std::string &cBody);
-   virtual bool           SetGravitationalConstant(Real newMu, bool makeDefault = false);
-   virtual bool           SetEquatorialRadius(Real newEqRadius, bool makeDefault = false);
-   virtual bool           SetFlattening(Real flat, bool makeDefault = false);
+   virtual bool           SetGravitationalConstant(Real newMu);
+   virtual bool           SetEquatorialRadius(Real newEqRadius);
+   virtual bool           SetFlattening(Real flat);
    virtual bool           SetSource(Gmat::PosVelSource pvSrc);
    virtual bool           SetSourceFile(PlanetaryEphem *src);
    virtual bool           SetAllowSpice(const bool allow);
@@ -240,7 +245,6 @@ public:
    virtual bool           SetECC(Real value);   
    virtual bool           SetRotationDataSource(Gmat::RotationDataSource src);
    virtual bool           SetUserDefined(bool userDefinedBody);
-   virtual void           ClearModifiedFlag();
    
    // methods inherited from SpacePoint, that must be implemented here (and/or
    // in the derived classes
@@ -317,7 +321,13 @@ public:
                                     const std::string &name = "");
    
    virtual bool        IsParameterReadOnly(const Integer id) const;
-   virtual bool        IsParameterReadOnly(const std::string &label) const;
+//   virtual bool        IsParameterReadOnly(const std::string &label) const;
+   virtual bool        IsParameterCloaked(const Integer id) const;
+//   virtual bool        IsParameterCloaked(const std::string &label) const;
+   virtual bool        IsParameterEqualToDefault(const Integer id) const;
+//   virtual bool         IsParameterEqualToDefault(const std::string &label);
+   virtual bool        SaveAllAsDefault();
+   virtual bool        SaveParameterAsDefault(const Integer id);
 
    // need methods to get/set stateTime (a1MJD type)?
 
@@ -332,16 +342,6 @@ public:
    // required method for all subclasses that can be copied in a script
    virtual void         Copy(const GmatBase* orig);
    
-   //------------------------------------------------------------------------------
-   // virtual CelestialBody* Clone(void) const
-   //------------------------------------------------------------------------------
-   /**
-     * Method used to create a copy of the object
-     * Each class that can be instantiated provides an implementation of this
-     * method so that copies can be made from a base class pointer.
-     */
-   //------------------------------------------------------------------------------
-   //virtual CelestialBody* Clone(void) const = 0;
    
    // strings representing the possible celestial body types
    //static const std::string BODY_TYPE_STRINGS[Gmat::BodyTypeCount];
@@ -424,67 +424,112 @@ protected:
    static const Integer KEPLER_MAX_ITERATIONS;
    
    // body type of the body
-   Gmat::BodyType         bodyType;
+   Gmat::BodyType           bodyType;
    // mass
-   Real                   mass;
+   Real                     mass;
    /// radius of the body at the equator
-   Real                   equatorialRadius;
+   Real                     equatorialRadius;
    /// flattening - used to compute polar radius
-   Real                   flattening;
+   Real                     flattening;
    /// radius of the body from center to the pole
-   Real                   polarRadius;
+   Real                     polarRadius;
    /// gravitational constant in km^3/s^2
-   Real                   mu;
+   Real                     mu;
    /// source for position and velocity
-   Gmat::PosVelSource     posVelSrc;
+   Gmat::PosVelSource       posVelSrc;
    /// analytic method to use
    //Gmat::AnalyticMethod   analyticMethod;
    /// state of the body 0-2 position 3-5 velocity
-   Rvector6               state ;
+   Rvector6                 state ;
    // time of the state
-   A1Mjd                  stateTime;
+   A1Mjd                    stateTime;
    
+   /// the solar system to which this body belongs
+   SolarSystem              *theSolarSystem;
    /// name of central body around which this body revolves
-   std::string            theCentralBodyName;
+   std::string              theCentralBodyName;
    /// central body around which this body revolves
-   CelestialBody          *theCentralBody;
+   CelestialBody            *theCentralBody;
+   /// flag indicating whether or not the central body has been set
+   bool                     centralBodySet;
    /// body number for the SLP file
-   Integer                bodyNumber;
+   Integer                  bodyNumber;
    /// body number of origin of coordinate system for file
-   Integer                referenceBodyNumber;
+   Integer                  referenceBodyNumber;
    /// name of file that is the source of position and velocity for this body (DE)
-   std::string            sourceFilename;
+   std::string              sourceFilename;
    /// the source file (DE)
-   PlanetaryEphem         *theSourceFile;
+   PlanetaryEphem           *theSourceFile;
    /// the name(s) of the SPK file(s)
-   StringArray            spiceKernelNames;
+   StringArray              spiceKernelNames;
    #ifdef __USE_SPICE__
       /// the SPICE file (kernel) reader
       SpiceKernelReader      *kernelReader;
    #endif
    
    /// flag indicating whether or not to get data from potential file
-   bool                   usePotentialFile;
+   bool                     usePotentialFile;
    /// file name of the potential file to use
-   std::string            potentialFileName;
+   std::string              potentialFileName;
    /// angular velocity
-   Rvector3               angularVelocity;
+   Rvector3                 angularVelocity;
    /// the hour angle 
-   Real                   hourAngle;
+   Real                     hourAngle;
    /// pointer to the atmosphere model to use for the body
-   AtmosphereModel*       atmModel;
+   AtmosphereModel*         atmModel;
    /// the type of the atmosphere model (e.g. "Exponential")
-   std::string            atmModelType;
+   std::string              atmModelType;
 
    /// has the potential file been read already?
-   bool                   potentialFileRead;
-
-   /// default mu to use if potential file is not used
-   Real                   defaultMu;
+   bool                     potentialFileRead;
+   // default values for the (non-read-only) celestial body parameters
    /// default eauatorial radius to use if potential file is not used
-   Real                   defaultEqRadius;
+   Real                     default_equatorialRadius;
    /// default flattening coefficient
-   Real                   defaultFlattening;
+   Real                     default_flattening;
+   /// default mu to use if potential file is not used
+   Real                     default_mu;
+   /// default value for the ephem source
+   std::string              default_posVelSrc;
+   /// default value for the central body
+   std::string              default_centralBodyName;
+//   /// default value for the body number (used when reading DE405 file)
+//   Integer                  default_bodyNumber;
+   /// default value for the ephemeris file
+   std::string              default_sourceFilename;
+   /// default values for the SPICe kernel names
+   StringArray              default_spiceKernelNames;
+//   /// default value for the use potential file flag
+//   bool                     default_usePotentialFile;  
+//   /// default value for potential file name
+//   std::string              default_potentialFileName;
+//   /// default value for angular velocity
+//   Rvector3                 default_angularVelocity;
+//  /// default value for atmosphere model name
+//   std::string              default_atmModel;
+   /// default value for rotation data source
+   Gmat::RotationDataSource default_rotationSrc; 
+//   /// default value for two-body date format
+//   std::string              default_twoBodyFormat;
+//   /// default value for two-body state type
+//   std::string              default_twoBodyStateType;
+   /// default value for two-body intial epoch
+   A1Mjd                    default_twoBodyEpoch;
+   /// default value for initial two-body state
+   Rvector6                 default_twoBodyKepler;
+//   /// default value for orientation data format
+//   std::string              default_orientationDateFormat;
+   /// default value for orientation epoch
+   A1Mjd                    default_orientationEpoch;
+   /// default value for orientation values in the order:
+   /// SpinAxisRAConstant, SpinAxisRARate, SpinAxisDECConstant, 
+   /// SpinAxisDECRate, RotationConstant, RotationRate
+   Rvector6                 default_orientation;
+   /// default value for NAIF ID
+   Integer                  default_naifId;
+   /// default value for texture map file name
+   std::string              default_textureMapFileName;
+
    
    /// order of the gravity model
    Integer                order;    
@@ -512,7 +557,7 @@ protected:
    bool                   newTwoBody;
    /// flag indicating whether or not to override the TDB/TCB tiems with TT
    bool                   overrideTime;
-   /// update interval for the ephemeris calsulations (file-reading)
+   /// update interval for the ephemeris calculations (file-reading)
    Real                   ephemUpdateInterval;
    /// last time that the state was calculated
    A1Mjd                  lastEphemTime;
@@ -533,10 +578,6 @@ protected:
    /// flag indicating whether or not SPICE is allowed as position/velocity source
    /// for this (default) body
    bool                   allowSpice;
-   /// flag indicating whether or not data for this celestial body has been modified (particularly
-   /// important for the user bodies, as this determines whether or not the data
-   /// willbe written to the saved script file)
-   bool                   hasBeenModified;
    
    /// date format for the orientation epoch
    std::string            orientationDateFormat;

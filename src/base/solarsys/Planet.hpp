@@ -73,8 +73,6 @@ public:
    
    virtual Real          GetNutationUpdateInterval() const;
    virtual bool          SetNutationUpdateInterval(Real val);
-//   virtual Real          GetUpdateInterval() const;
-//   virtual bool          SetUpdateInterval(Real val);
 
    // inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -93,26 +91,15 @@ public:
    virtual Real            SetRealParameter(const std::string &label,
                                             const Real value);
                                             
-protected:
+   virtual bool         IsParameterCloaked(const Integer id) const;
+   virtual bool         IsParameterEqualToDefault(const Integer id) const;
+   virtual bool         SaveAllAsDefault();
+   virtual bool         SaveParameterAsDefault(const Integer id);
 
-//   enum
-//   {
-//      MERCURY = 0,
-//      VENUS,
-//      EARTH,
-//      MARS,
-//      JUPITER,
-//      SATURN,
-//      URANUS,
-//      NEPTUNE,
-//      PLUTO,
-//      NumberOfPlanets
-//      /// @todo  add Sedna later??
-//   };
+protected:
 
    enum
    {
-//      UPDATE_INTERVAL = CelestialBodyParamCount,
       NUTATION_UPDATE_INTERVAL = CelestialBodyParamCount,
       PlanetParamCount
    };
@@ -121,29 +108,11 @@ protected:
    
    static const Gmat::ParameterType PARAMETER_TYPE[PlanetParamCount - CelestialBodyParamCount];
    
-//   // default values for CelestialBody data
-//   static const Gmat::BodyType        DEFAULT_BODY_TYPE;
-//   static const Gmat::PosVelSource    DEFAULT_POS_VEL_SOURCE;
-////   static const Gmat::AnalyticMethod  DEFAULT_ANALYTIC_METHOD;
-//   static const Integer               DEFAULT_BODY_NUMBER;
-//   static const Integer               DEFAULT_REF_BODY_NUMBER;
-//
-//   static const Real                  EQUATORIAL_RADIUS[NumberOfPlanets];
-//   static const Real                  FLATTENING[NumberOfPlanets];
-//   static const Real                  MU[NumberOfPlanets];
-//   static const Integer               ORDER[NumberOfPlanets];
-//   static const Integer               DEGREE[NumberOfPlanets];
-//   static const Rmatrix               SIJ[NumberOfPlanets];
-//   static const Rmatrix               CIJ[NumberOfPlanets];
-//   
-//   static const Real                  ANALYTIC_EPOCH[NumberOfPlanets];
-//   static const Rvector6              ANALYTIC_ELEMENTS[NumberOfPlanets];
-                                            
-//   Real                               updateInterval;
-   Real                               nutationUpdateInterval;
+   Real     nutationUpdateInterval;
    /// @todo add other ones as needed
+   /// default values for the parameter(s)
+   Real     default_nutationUpdateInterval;
 
-//   void             InitializePlanet(const std::string &cBody);
                                           
 
 private:

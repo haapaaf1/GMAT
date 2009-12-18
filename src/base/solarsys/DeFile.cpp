@@ -149,6 +149,8 @@ PlanetaryEphem(def)
    T_beg          = def.T_beg;
    T_end          = def.T_end;
    T_span         = def.T_span;
+   
+   theFileName    = def.theFileName;
 
    EPHEMERIS      = def.EPHEMERIS; 
 }
@@ -187,6 +189,8 @@ DeFile& DeFile::operator=(const DeFile& def)
    T_end          = def.T_end;
    T_span         = def.T_span;
 
+   theFileName    = def.theFileName;
+
    EPHEMERIS      = def.EPHEMERIS;
    return *this;
 }
@@ -200,7 +204,8 @@ DeFile& DeFile::operator=(const DeFile& def)
 //------------------------------------------------------------------------------
 DeFile::~DeFile()
 {
-   // nothing to do ... la la la la la
+   // close the file, if it's open
+   if (Ephemeris_File != NULL) fclose(Ephemeris_File);
 }
 
 
@@ -222,7 +227,6 @@ void DeFile::Initialize()
       throw PlanetaryEphemException(pe.GetFullMessage());
    }
 }
-
 
 //------------------------------------------------------------------------------
 //  Integer GetBodyID(std::string bodyName)
@@ -275,8 +279,8 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
 {
    #ifdef DEBUG_DEFILE_GET
    MessageInterface::ShowMessage
-      ("DeFile::GetPosVel() entered, forBody=%d, atTime=%f, overrideTimeSystem=%d\n",
-       forBody, atTime.GetReal(), overrideTimeSystem);
+      ("DeFile::GetPosVel() entered, forBody=%d, atTime=%f, overrideTimeSystem=%d, reading file %s\n",
+       forBody, atTime.GetReal(), overrideTimeSystem, itsName.c_str());
    #endif
    
    static Real      result[6];
@@ -430,6 +434,8 @@ Integer* DeFile::GetStartDayAndYear()
    uTime.ToYearDOYHourMinSec(y,doy,h,min,sec);
    res[0]   = doy;
    res[1]   = y;
+   
+   delete a;
    return res;
 }
 

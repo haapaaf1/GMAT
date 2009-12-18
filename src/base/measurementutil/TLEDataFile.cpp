@@ -435,7 +435,7 @@ bool TLEDataFile::GetTLEData(std::string &lff, std::string &lff2,
 		    std::string str1 = s1+"."+s2;
 		    from_string<double>(nddotby6,str1,std::dec);
 		
-		    myTLEdata->nddotby6 = nddotby6*pow(10,i3);
+		    myTLEdata->nddotby6 = nddotby6*GmatMathUtil::Pow(10.0,i3);
 		}
 		else
 		{
@@ -465,7 +465,7 @@ bool TLEDataFile::GetTLEData(std::string &lff, std::string &lff2,
 			
 			std::string str1 = s1+"."+s2;
 			from_string<double>(bstar,str1,std::dec);
-			myTLEdata->bstar = bstar*pow(10,i3);
+			myTLEdata->bstar = bstar*GmatMathUtil::Pow(10.0,i3);
 		    } 
 		    else
 		    {
