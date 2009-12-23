@@ -1,0 +1,5 @@
+function WriteParametersNested(MMS, filename)
+%$Id$
+
+% Call function
+WriteParameters(MMS, filename);

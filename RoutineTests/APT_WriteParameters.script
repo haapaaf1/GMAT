@@ -1,0 +1,185 @@
+Create Spacecraft Sat;
+GMAT Sat.Tanks = {FuelTank1};
+GMAT Sat.Thrusters = {Thruster1};
+
+Create Spacecraft MMS;
+GMAT MMS.Tanks = {mmsTank};
+GMAT MMS.Thrusters = {mmsThruster};
+
+Create FuelTank mmsTank;
+
+Create Thruster mmsThruster;
+GMAT mmsThruster.Tank = {mmsTank};
+GMAT mmsThruster.ThrustDirection3 = 0.333;
+
+Create Thruster Thruster1;
+GMAT Thruster1.CoordinateSystem = EarthMJ2000Eq;
+%%----- Test deprecated Element* on Thruster
+GMAT Thruster1.Element1 = 1;
+GMAT Thruster1.Element2 = 0.1;
+GMAT Thruster1.Element3 = -0.2;
+GMAT Thruster1.DutyCycle = 0.9;
+GMAT Thruster1.ThrustScaleFactor = 0.95;
+GMAT Thruster1.DecrementMass = true;
+GMAT Thruster1.Tank = {FuelTank1};
+GMAT Thruster1.GravitationalAccel = 9.81;
+GMAT Thruster1.C1 = 10;
+GMAT Thruster1.C2 = 0.50;
+GMAT Thruster1.C3 = 0.25;
+GMAT Thruster1.C4 = 1;
+GMAT Thruster1.C5 = 2;
+GMAT Thruster1.C6 = 3;
+GMAT Thruster1.C7 = 4;
+GMAT Thruster1.C8 = 5;
+GMAT Thruster1.C9 = 6;
+GMAT Thruster1.C10 = 7;
+GMAT Thruster1.C11 = 8;
+GMAT Thruster1.C12 = 9;
+GMAT Thruster1.C13 = 10;
+GMAT Thruster1.C14 = 11;
+GMAT Thruster1.C15 = 12;
+GMAT Thruster1.C16 = 13;
+GMAT Thruster1.K1 = 300;
+GMAT Thruster1.K2 = 0.35;
+GMAT Thruster1.K3 = 0.75;
+GMAT Thruster1.K4 = 14;
+GMAT Thruster1.K5 = 15;
+GMAT Thruster1.K6 = 16;
+GMAT Thruster1.K7 = 17;
+GMAT Thruster1.K8 = 18;
+GMAT Thruster1.K9 = 19;
+GMAT Thruster1.K10 = 20;
+GMAT Thruster1.K11 = 21;
+GMAT Thruster1.K12 = 22;
+GMAT Thruster1.K13 = 23;
+GMAT Thruster1.K14 = 24;
+GMAT Thruster1.K15 = 25;
+GMAT Thruster1.K16 = 26;
+ 
+%-----  Fuel Tank
+Create FuelTank FuelTank1;
+GMAT FuelTank1.FuelMass = 725;
+GMAT FuelTank1.Pressure = 1200;
+GMAT FuelTank1.Temperature = 20;
+GMAT FuelTank1.RefTemperature = 12;
+GMAT FuelTank1.Volume = 0.8;
+GMAT FuelTank1.FuelDensity = 1029;
+GMAT FuelTank1.PressureModel = BlowDown;
+
+Create ForceModel DefaultProp_ForceModel;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+
+Create ReportFile TestReport;
+GMAT TestReport.Filename = 'APT_WriteParameters.report';
+GMAT TestReport.WriteHeaders = On;
+GMAT TestReport.Precision = 21;
+GMAT TestReport.ColumnWidth = 25;
+
+%% This doesn't work in object setting mode yet (LOJ)
+%%GMAT Sat.FuelTank1.FuelMass = 730;
+%%GMAT Sat.Thruster1.DutyCycle = 0.8;
+
+BeginScript;
+EndScript;
+
+Report TestReport Sat.FuelTank1.FuelMass
+Report TestReport Sat.FuelTank1.Pressure
+Report TestReport Sat.FuelTank1.Temperature
+Report TestReport Sat.FuelTank1.RefTemperature
+Report TestReport Sat.FuelTank1.Volume
+Report TestReport Sat.FuelTank1.FuelDensity
+Report TestReport Sat.Thruster1.DutyCycle
+Report TestReport Sat.Thruster1.ThrustScaleFactor
+Report TestReport Sat.Thruster1.GravitationalAccel
+Report TestReport Sat.Thruster1.C1
+Report TestReport Sat.Thruster1.C2
+Report TestReport Sat.Thruster1.C3
+Report TestReport Sat.Thruster1.C4
+Report TestReport Sat.Thruster1.C5
+Report TestReport Sat.Thruster1.C6
+Report TestReport Sat.Thruster1.C7
+Report TestReport Sat.Thruster1.C8
+Report TestReport Sat.Thruster1.C9
+Report TestReport Sat.Thruster1.C10
+Report TestReport Sat.Thruster1.C11
+Report TestReport Sat.Thruster1.C12
+Report TestReport Sat.Thruster1.C13
+Report TestReport Sat.Thruster1.C14
+Report TestReport Sat.Thruster1.C15
+Report TestReport Sat.Thruster1.C16
+Report TestReport Sat.Thruster1.K1
+Report TestReport Sat.Thruster1.K2
+Report TestReport Sat.Thruster1.K3
+Report TestReport Sat.Thruster1.K4
+Report TestReport Sat.Thruster1.K5
+Report TestReport Sat.Thruster1.K6
+Report TestReport Sat.Thruster1.K7
+Report TestReport Sat.Thruster1.K8
+Report TestReport Sat.Thruster1.K9
+Report TestReport Sat.Thruster1.K10
+Report TestReport Sat.Thruster1.K11
+Report TestReport Sat.Thruster1.K12
+Report TestReport Sat.Thruster1.K13
+Report TestReport Sat.Thruster1.K14
+Report TestReport Sat.Thruster1.K15
+Report TestReport Sat.Thruster1.K16
+Report TestReport Sat.Thruster1.ThrustDirection1
+Report TestReport Sat.Thruster1.ThrustDirection2
+Report TestReport Sat.Thruster1.ThrustDirection3
+
+%%----- Test setting local spacecraft owned object
+
+GMAT Sat.DryMass = 2222.5
+GMAT Sat.FuelTank1.FuelMass = 123.5
+GMAT Sat.Thruster1.C11 = 111.5
+GMAT Sat.Thruster1.C16 = 116.5
+GMAT Sat.Thruster1.K11 = 11.5
+GMAT Sat.Thruster1.K16 = 16.5
+GMAT Sat.Thruster1.ThrustDirection1 = 0.111;
+GMAT Sat.Thruster1.ThrustDirection2 = 0.222;
+GMAT Sat.Thruster1.ThrustDirection3 = 0.333;
+
+Report TestReport Sat.DryMass;
+Report TestReport Sat.FuelTank1.FuelMass;
+Report TestReport Sat.Thruster1.C11;
+Report TestReport Sat.Thruster1.C16;
+Report TestReport Sat.Thruster1.K11;
+Report TestReport Sat.Thruster1.K16;
+Report TestReport Sat.Thruster1.ThrustDirection1
+Report TestReport Sat.Thruster1.ThrustDirection2
+Report TestReport Sat.Thruster1.ThrustDirection3
+
+%%----- Test deprecated Element* on Thruster
+
+GMAT Sat.Thruster1.Element1 = 0.444;
+GMAT Sat.Thruster1.Element2 = 0.555;
+GMAT Sat.Thruster1.Element3 = 0.666;
+
+Report TestReport Sat.Thruster1.Element1
+Report TestReport Sat.Thruster1.Element2
+Report TestReport Sat.Thruster1.Element3
+Report TestReport Sat.Thruster1.ThrustDirection1
+Report TestReport Sat.Thruster1.ThrustDirection2
+Report TestReport Sat.Thruster1.ThrustDirection3
+
+%%----- Test setting input spacecraft owned object
+
+GMAT MMS.mmsThruster.ThrustDirection1 = 0.111;
+
+Report TestReport MMS.mmsThruster.ThrustDirection1
+
+%%----- Test setting without Report command
+
+GMAT MMS.DryMass = 2222.5
+GMAT MMS.mmsTank.FuelMass = 123.5
+GMAT MMS.mmsThruster.C11 = 111.5
+GMAT MMS.mmsThruster.C16 = 116.5
+GMAT MMS.mmsThruster.K11 = 11.5
+GMAT MMS.mmsThruster.K16 = 16.5
+GMAT MMS.mmsThruster.ThrustDirection2 = 0.222;
+
+%%----- Test Report without setting
+
+Report TestReport MMS.mmsThruster.ThrustDirection3;

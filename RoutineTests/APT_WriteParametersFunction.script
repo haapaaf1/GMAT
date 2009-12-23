@@ -1,0 +1,27 @@
+%$Id$
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String fileName, fileNameNested;
+Create Spacecraft MMS;
+GMAT MMS.Tanks = {mmsTank};
+GMAT MMS.Thrusters = {mmsThruster};
+
+Create FuelTank mmsTank;
+
+Create Thruster mmsThruster;
+GMAT mmsThruster.Tank = {mmsTank};
+
+GMAT fileName = 'APT_WriteParametersFunction.report';
+GMAT fileNameNested = 'APT_WriteParametersNestedFunction.report';
+
+BeginScript;
+EndScript;
+
+GMAT MMS.mmsThruster.ThrustDirection3 = 0.333;
+
+% Call function
+WriteParameters(MMS, fileName);
+WriteParametersNested(MMS, fileNameNested);
+
