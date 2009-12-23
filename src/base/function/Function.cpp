@@ -259,7 +259,7 @@ bool Function::IsFcsFinalized()
 void Function::SetObjectMap(ObjectMap *objMap)
 {
    #ifdef DEBUG_OBJECT_MAP
-   ShowObjectMap(objMap, "In Function::SetObjectMap");
+   ShowObjectMap(objMap, "In Function::SetObjectMap", "Input Object Map");
    #endif
    objectStore = objMap;
 }
@@ -497,7 +497,7 @@ void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj,
           ownerName.c_str(), owner, owner ? owner->GetTypeName().c_str() : "NULL",
           owner ? owner->GetName().c_str() : "NULL");
          #ifdef DEBUG_OBJECT_MAP
-         ShowObjectMap(objectStore, "In Function::AddAutomaticObject");
+         ShowObjectMap(objectStore, "In Function::AddAutomaticObject", "objectStore");
          #endif
       #endif
       if (owner == NULL)
@@ -572,7 +572,12 @@ void Function::AddAutomaticObject(const std::string &withName, GmatBase *obj,
       ("Function::AddAutomaticObject() <%p>'%s' leaving, <%p>'%s' inserted to "
        "automaticObjectMap\n", this, GetName().c_str(), obj, withName.c_str());
    #endif
+   
    automaticObjectMap.insert(std::make_pair(withName,obj));
+   
+   #ifdef DEBUG_AUTO_OBJ
+   ShowObjectMap(&automaticObjectMap, "In AddAutomaticObject()", "automaticObjectMap");
+   #endif
 }
 
 
@@ -954,7 +959,7 @@ GmatBase* Function::FindObject(const std::string &name)
    // If not found in the LOS, check the Global Object Store (GOS)
    if (globalObjectStore && globalObjectStore->find(newName) != globalObjectStore->end())
       return (*globalObjectStore)[newName];
-   
+
    // Let's try SolarSystem (loj: 2008.06.12)
    if (solarSys && solarSys->GetBody(newName))
       return (GmatBase*)(solarSys->GetBody(newName));
@@ -1139,9 +1144,11 @@ void Function::ClearAutomaticObjects()
 
 
 //------------------------------------------------------------------------------
-// void ShowObjectMap(ObjectMap *objMap, const std::string &title)
+// void ShowObjectMap(ObjectMap *objMap, const std::string &title,
+//                    const std::string &mapName)
 //------------------------------------------------------------------------------
-void Function::ShowObjectMap(ObjectMap *objMap, const std::string &title)
+void Function::ShowObjectMap(ObjectMap *objMap, const std::string &title,
+                             const std::string &mapName)
 {
    MessageInterface::ShowMessage("%s\n", title.c_str());
    MessageInterface::ShowMessage("this=<%p>, functionName='%s'\n", this, functionName.c_str());
@@ -1151,12 +1158,16 @@ void Function::ShowObjectMap(ObjectMap *objMap, const std::string &title)
       return;
    }
    
+   std::string objMapName = mapName;
+   if (objMapName == "")
+      objMapName = "object map";
+   
    MessageInterface::ShowMessage("========================================\n");
    MessageInterface::ShowMessage
-      ("Here is objectStore <%p>, it has %d objects\n", objMap, objMap->size());
+      ("Here is %s <%p>, it has %d objects\n", objMapName.c_str(), objMap, objMap->size());
    for (ObjectMap::iterator i = objMap->begin(); i != objMap->end(); ++i)
       MessageInterface::ShowMessage
-         ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+         ("   %40s  <%p><%s>\n", i->first.c_str(), i->second,
           i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
 }
 

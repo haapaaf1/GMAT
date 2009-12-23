@@ -169,7 +169,8 @@ protected:
    GmatBase* FindObject(const std::string &name);
    
    // for debug
-   void ShowObjectMap(ObjectMap *objMap, const std::string &title = "");
+   void ShowObjectMap(ObjectMap *objMap, const std::string &title = "",
+                      const std::string &mapName = "");
    void ShowObjects(const std::string &title);
 };
 

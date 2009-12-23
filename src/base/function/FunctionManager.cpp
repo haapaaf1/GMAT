@@ -2499,7 +2499,7 @@ void FunctionManager::ShowObjectMap(ObjectMap *om, const std::string &mapID)
          for (std::map<std::string, GmatBase *>::iterator i = om->begin();
               i != om->end(); ++i)
             MessageInterface::ShowMessage
-               ("   name: %30s ...... pointer: %p...... object type: %s\n", i->first.c_str(),
+               ("   name: %40s ...... pointer: %p...... object type: %s\n", i->first.c_str(),
                 i->second, i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
       }
    }
