@@ -18,6 +18,7 @@
  * The assignment class is the Command class that handles commands of the form
  * 
  *     GMAT object.parameter = value;
+ *     GMAT sat.thruster1.ThrustDirection1 = value; (Setting to Parameter)
  *     GMAT variable = parameter;
  *     GMAT variable = equation;
  *
@@ -923,6 +924,11 @@ const StringArray& Assignment::GetWrapperObjectNameArray()
    // If rhs is not an equation, just add rhs
    if (mathTree == NULL)
    {
+      // If LHS has more than 1 dot add to the list and Interpreter::ValidateCommand()
+      // will figure out if it is settable Parameter or not.(LOJ: 2009.12.22)
+      if (GmatStringUtil::NumberOfOccurrences(lhs, '.') > 1)
+         wrapperObjectNames.push_back(lhs);
+      
       if (rhs != "")
       {
          wrapperObjectNames.push_back(rhs);
