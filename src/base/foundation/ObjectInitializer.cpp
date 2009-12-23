@@ -154,18 +154,22 @@ void ObjectInitializer::SetInternalCoordinateSystem(CoordinateSystem* intCS)
 }
 
 //------------------------------------------------------------------------------
-// bool InitializeObjects(bool registerSubs, Gmat::ObjectType objType)
+// bool InitializeObjects(bool registerSubs, Gmat::ObjectType objType,
+//                        StringArray *unusedGOL)
 //------------------------------------------------------------------------------
 /*
  * Initializes objects
  *
  * @param  registerSubs  Registers subscribers if set to true (false)
  * @param  objType       Initializes only this object type, if objType is
- *                       UNKNOWN_OBJECT it initializes all objects (UNKNOWN_OBJECT) 
+ *                       UNKNOWN_OBJECT it initializes all objects (UNKNOWN_OBJECT)
+ * @param  unusedGOL     Unused global object list which tells to ignore object
+ *                       checking (NULL)
  */
 //------------------------------------------------------------------------------
 bool ObjectInitializer::InitializeObjects(bool registerSubs,
-                                          Gmat::ObjectType objType)
+                                          Gmat::ObjectType objType,
+                                          StringArray *unusedGOL)
 {
    #ifdef DEBUG_TRACE
    static Integer callCount = 0;
@@ -175,9 +179,29 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       ("=== ObjectInitializer::InitializeObjects() entered, Count = %d\n",
        callCount);
    #endif
+
+   #ifdef DEBUG_OBJECT_MAP
+   ShowObjectMaps("In InitializeObjects");
+   #endif
+   
+   // First check for NULL object pointer in the map to avoid crash down the road
+   std::map<std::string, GmatBase *>::iterator iter;
+   for (iter = LOS->begin(); iter != LOS->end(); ++iter)
+   {
+      if (iter->second == NULL)
+         throw CommandException
+            ("ObjectInitializer::InitializeObjects() cannot continue "
+             "due to \"" + iter->first + "\" has NULL object pointer in LOS");
+   }
+   for (iter = GOS->begin(); iter != GOS->end(); ++iter)
+   {
+      if (iter->second == NULL)
+         throw CommandException
+            ("ObjectInitializer::InitializeObjects() cannot continue "
+             "due to \"" + iter->first + "\" has NULL object pointer in GOS");
+   }
    
    registerSubscribers =  registerSubs;
-   std::map<std::string, GmatBase *>::iterator omIter;
    std::map<std::string, GmatBase *>::iterator omi;
    std::string oName;
    std::string j2kName;
@@ -205,6 +229,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
    // NOTE - at this point, everything should be in the SandboxObjectMap,
    // and the GlobalObjectMap should be empty
    #ifdef DEBUG_OBJECT_INITIALIZER
+      std::map<std::string, GmatBase *>::iterator omIter;
       MessageInterface::ShowMessage("--- Right before setting the J2000 body ---\n");
       MessageInterface::ShowMessage("The Object Map contains:\n");
       for (omIter = LOS->begin(); omIter != LOS->end(); ++omIter)
@@ -248,7 +273,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize CoordinateSystems in GOS\n");
          #endif
-         InitializeObjectsInTheMap(GOS, Gmat::COORDINATE_SYSTEM);
+         InitializeObjectsInTheMap(GOS, Gmat::COORDINATE_SYSTEM, true, unusedGOL);
       }
    }
    
@@ -431,7 +456,9 @@ void ObjectInitializer::SetObjectJ2000Body(ObjectMap *objMap)
  */
 //------------------------------------------------------------------------------
 void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
-                                                  Gmat::ObjectType objType)
+                                                  Gmat::ObjectType objType,
+                                                  bool usingGOS,
+                                                  StringArray *unusedGOL)
 {
    std::string objTypeStr = GmatBase::GetObjectTypeString(objType).c_str();
    #ifdef DEBUG_INITIALIZE_OBJ
@@ -440,52 +467,80 @@ void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
        "objTypeStr='%s'\n", objMap, objType, objTypeStr.c_str());
    #endif
    
-   std::map<std::string, GmatBase *>::iterator omi;
-   for (omi = objMap->begin(); omi != objMap->end(); ++omi)
+   std::string objName;
+   
+   try
    {
-      GmatBase *obj = omi->second;
-      if (objType != Gmat::UNKNOWN_OBJECT)
+      std::map<std::string, GmatBase *>::iterator omi;
+      for (omi = objMap->begin(); omi != objMap->end(); ++omi)
       {
-         if (obj->IsOfType(objType))
+         GmatBase *obj = omi->second;
+         objName = obj->GetName();
+         
+         if (objType != Gmat::UNKNOWN_OBJECT)
+         {
+            if (obj->IsOfType(objType))
+            {
+               #ifdef DEBUG_OBJECT_INITIALIZER
+               MessageInterface::ShowMessage
+                  ("Initializing <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
+                   obj->GetName().c_str());
+               #endif
+               if (obj->IsOfType(Gmat::COORDINATE_SYSTEM))
+               {
+                  BuildReferences(obj);
+                  InitializeCoordinateSystem((CoordinateSystem *)obj);
+                  obj->Initialize();
+               }
+               else if (obj->IsOfType(Gmat::SPACECRAFT))
+               {
+                  BuildReferences(obj);
+                  
+                  // Setup spacecraft hardware
+                  BuildAssociations(obj);
+                  obj->Initialize();
+               }
+               else
+               {
+                  BuildReferencesAndInitialize(obj);    
+               }
+               
+               // Check if we need to register subscribers to the publisher
+               if (objType == Gmat::SUBSCRIBER && registerSubscribers)
+               {
+                  #ifdef DEBUG_SUBSCRIBER
+                  MessageInterface::ShowMessage
+                     ("ObjectInitializer registering global subscriber '%s' of type '%s' "
+                      "to publisher\n", obj->GetName().c_str(), obj->GetTypeName().c_str());
+                  #endif
+                  publisher->Subscribe((Subscriber*)obj);
+               }
+            }
+            else if (obj->IsOfType(objTypeStr))
+            {
+               BuildReferencesAndInitialize(obj);
+            }
+         }
+      }
+   }
+   catch (BaseException &be)
+   {
+      // Check if undefined ref objects can be ignored
+      if (usingGOS && unusedGOL != NULL)
+      {
+         if (find(unusedGOL->begin(), unusedGOL->end(), objName) !=
+             unusedGOL->end())
          {
             #ifdef DEBUG_OBJECT_INITIALIZER
             MessageInterface::ShowMessage
-               ("Initializing <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
-                obj->GetName().c_str());
+               ("==> Ignoring undefined ref obj '%s' in GOS\n",
+                objName.c_str());
             #endif
-            if (obj->IsOfType(Gmat::COORDINATE_SYSTEM))
-            {
-               BuildReferences(obj);
-               InitializeCoordinateSystem((CoordinateSystem *)obj);
-               obj->Initialize();
-            }
-            else if (obj->IsOfType(Gmat::SPACECRAFT))
-            {
-               BuildReferences(obj);
-               
-               // Setup spacecraft hardware
-               BuildAssociations(obj);
-               obj->Initialize();
-            }
-            else
-            {
-               BuildReferencesAndInitialize(obj);    
-            }
-            
-            // Check if we need to register subscribers to the publisher
-            if (objType == Gmat::SUBSCRIBER && registerSubscribers)
-            {
-               #ifdef DEBUG_SUBSCRIBER
-               MessageInterface::ShowMessage
-                  ("ObjectInitializer registering global subscriber '%s' of type '%s' "
-                   "to publisher\n", obj->GetName().c_str(), obj->GetTypeName().c_str());
-               #endif
-               publisher->Subscribe((Subscriber*)obj);
-            }
          }
-         else if (obj->IsOfType(objTypeStr))
+         else
          {
-            BuildReferencesAndInitialize(obj);
+            be.SetFatal(true);
+            throw;
          }
       }
    }
@@ -1254,6 +1309,40 @@ GmatBase* ObjectInitializer::FindObject(const std::string &name)
    }
    else
       return (*LOS)[name];
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void ShowObjectMaps(const std::string &str)
+//------------------------------------------------------------------------------
+void ObjectInitializer::ShowObjectMaps(const std::string &str)
+{
+   MessageInterface::ShowMessage
+      ("%s\n======================================================================\n",
+       str.c_str());
+   MessageInterface::ShowMessage
+      ("ObjectInitializer::ShowObjectMaps() LOS=<%p>, GOS=<%p>\n", LOS, GOS);
+   
+   if (LOS)
+   {
+      MessageInterface::ShowMessage("Here is the local object map \n");
+      for (std::map<std::string, GmatBase *>::iterator i = LOS->begin();
+           i != LOS->end(); ++i)
+         MessageInterface::ShowMessage
+            ("   %40s  <%p> [%s]\n", i->first.c_str(), i->second,
+             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+   }
+   if (GOS)
+   {
+      MessageInterface::ShowMessage("Here is the global object map\n");
+      for (std::map<std::string, GmatBase *>::iterator i = GOS->begin();
+           i != GOS->end(); ++i)
+         MessageInterface::ShowMessage
+            ("   %40s  <%p> [%s]\n", i->first.c_str(), i->second,
+             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+   }
+   MessageInterface::ShowMessage
+      ("======================================================================\n");
 }
 
 //------------------------------------------------------------------------------
