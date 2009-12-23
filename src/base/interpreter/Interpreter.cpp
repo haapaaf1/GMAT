@@ -1078,7 +1078,7 @@ bool Interpreter::ValidateCommand(GmatCommand *cmd)
    // automatic store at this time. It will be added during function initialization.
    #ifdef DEBUG_VALIDATE_COMMAND
    MessageInterface::ShowMessage
-      ("Calling CreateSystemParameter() for each ref. names\n");
+      ("   Calling CreateSystemParameter() for each ref. names\n");
    #endif
    for (UnsignedInt i=0; i<names.size(); i++)
    {
@@ -1379,7 +1379,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
    {
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
-         ("   Now creatinig <%s> command and setting GenString to <%s>\n",
+         ("   Now creating <%s> command and setting GenString to <%s>\n",
           type.c_str(), std::string(type + " " + desc).c_str());
       #endif
       cmd = AppendCommand(type, retFlag, inCmd);
@@ -6225,19 +6225,21 @@ bool Interpreter::FinalPass()
          
          refObj = FindObject(refNameList[j]);
          if ((refObj == NULL) || !(refObj->IsOfType(Gmat::SPACE_POINT)))
-         {            
-            InterpreterException ex
-               ("Nonexistent SpacePoint \"" + refNameList[j] +
-                "\" referenced in \"" + obj->GetName() + "\"");
-            HandleError(ex, false);
+         {
+            // Checking for undefined ref objects already done for CoordinateSystem
+            // so commented out to avoid duplicated message (LOJ: 2009.12.17)
+            //InterpreterException ex
+            //   ("Nonexistent SpacePoint \"" + refNameList[j] +
+            //    "\" referenced in the CoordinateSystem \"" + cs->GetName() + "\"");
+            //HandleError(ex, false);
             retval = false;
          }
          else
          {
             cs->SetRefObject(refObj, Gmat::SPACE_POINT, refObj->GetName());
+            cs->Initialize();
          }
       }
-      cs->Initialize();
    }
    
    //-------------------------------------------------------------------
