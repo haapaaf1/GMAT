@@ -122,7 +122,7 @@ GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    false,     false,     false,     false,     false,
    false,     false,     false,     true ,     false,
    false,     false,     false,     false,     false,
-   false,     false,     false,     false,     false,
+   true,      true,      true,      true,      false,
    false,     false,     false,     false,     false,
    false,     false,     false,     false,     false,
    false,     true,      true,      false,     false,
