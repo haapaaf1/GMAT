@@ -183,12 +183,18 @@ void SolverBranchCommand::StoreLoopData()
    // loop iterations
    // Check the Local Object Store first
    std::map<std::string, GmatBase *>::iterator pair = objectMap->begin();
-   GmatBase *obj;
-    
+   GmatBase *obj = NULL;
+   
    // Loop through the object map, looking for objects we'll need to restore.
    while (pair != objectMap->end()) 
    {
       obj = (*pair).second;
+      
+      if (obj == NULL)
+         throw CommandException
+            (typeName + "::StoreLoopData() cannot continue "
+             "due to NULL object pointer in " + generatingString);
+      
       // Save copies of all of the spacecraft
       if (obj->GetType() == Gmat::SPACECRAFT)
       {
