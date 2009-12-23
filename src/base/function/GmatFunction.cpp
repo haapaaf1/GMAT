@@ -74,6 +74,7 @@ GmatFunction::GmatFunction(const std::string &name) :
    Function("GmatFunction", name)
 {
    mIsNewFunction = false;
+   unusedGlobalObjectList = NULL;
    
    // for initial function path, use FileManager
    FileManager *fm = FileManager::Instance();
@@ -148,8 +149,11 @@ GmatFunction::~GmatFunction()
    #endif
    
    // delete function sequence including NoOp (loj: 2008.12.22)
-   if (fcs)
+   if (fcs != NULL)
       GmatCommandUtil::ClearCommandSeq(fcs, false);
+   
+   if (unusedGlobalObjectList != NULL)
+      delete unusedGlobalObjectList;
    
    #ifdef DEBUG_GMATFUNCTION
    MessageInterface::ShowMessage("GmatFunction() destructor exiting\n");
@@ -169,6 +173,8 @@ GmatFunction::~GmatFunction()
 GmatFunction::GmatFunction(const GmatFunction &copy) :
    Function(copy)
 {
+   mIsNewFunction = false;
+   unusedGlobalObjectList = NULL;
 }
 
 
@@ -189,6 +195,8 @@ GmatFunction& GmatFunction::operator=(const GmatFunction& right)
       return *this;
    
    Function::operator=(right);
+   mIsNewFunction = false;
+   unusedGlobalObjectList = NULL;
    
    return *this;
 }
@@ -349,6 +357,13 @@ bool GmatFunction::Initialize()
       
       current = current->GetNext();
    }
+   
+   // Get automatic global object list and check if they are used in the function
+   // command sequence so that when any global object is declared in the main script
+   // but not used in the fucntion, they can be ignored during function local object
+   // initialization. (LOJ: 2009.12.18)
+   BuildUnusedGlobalObjectList();
+   
    fcsFinalized = false;
    #ifdef DEBUG_FUNCTION_INIT
    MessageInterface::ShowMessage
@@ -443,44 +458,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
             if (beginInit)
             {
                objectsInitialized = true;
-               
-               #ifdef DEBUG_FUNCTION_EXEC
-               MessageInterface::ShowMessage
-                  ("Now at command \"%s\"\n\n",
-                   current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
-               MessageInterface::ShowMessage
-                  ("\n============================ Begin initialization of local objects\n");
-               #endif
-               
-               // Why internal coordinate syste is empty in ObjectInitializer?
-               // Set internal coordinate system (added (loj: 2008.10.07)
-               objInit->SetInternalCoordinateSystem(internalCoordSys);
-               
-               // Let's try initialzing local objects using ObjectInitializer (2008.06.19)
-               // We need to add subscribers to publisher, so pass true
-               try
-               {
-                  if (!objInit->InitializeObjects(true))
-                     // Should we throw an exception instead?
-                     return false;
-               }
-               catch (BaseException &e)
-               {
-                  // We need to ignore exception thrown for the case Object is
-                  // created after it is used, such as
-                  // GMAT DefaultOpenGL.ViewPointReference = EarthSunL1;
-                  // Create LibrationPoint EarthSunL1;
-                  #ifdef DEBUG_FUNCTION_EXEC
-                  MessageInterface::ShowMessage
-                     ("objInit->InitializeObjects() threw an exception:\n'%s'\n"
-                      "   So ignoring...\n", e.GetFullMessage().c_str());
-                  #endif
-               }
-               
-               #ifdef DEBUG_FUNCTION_EXEC
-               MessageInterface::ShowMessage
-                  ("============================ End   initialization of local objects\n");
-               #endif
+               InitializeLocalObjects(objInit, current, true);
             }
          }
       }
@@ -513,21 +491,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
          }
          
          // Let's try initialzing local objects here again (2008.10.14)
-         // We need to add subscribers to publisher, so pass true               
-         #ifdef DEBUG_FUNCTION_EXEC
-         MessageInterface::ShowMessage
-            ("current->Execute() threw an exception:\n'%s'\n   So re-initializing "
-             "local objects\n", e.GetFullMessage().c_str());
-         MessageInterface::ShowMessage
-            ("\n============================ Begin initialization of local objects\n");
-         #endif
-         if (!objInit->InitializeObjects(true))
-            return false;
-         
-         #ifdef DEBUG_FUNCTION_EXEC
-         MessageInterface::ShowMessage
-            ("============================ End   initialization of local objects\n");
-         #endif
+         InitializeLocalObjects(objInit, current, false);
          
          #ifdef DEBUG_FUNCTION_EXEC
          MessageInterface::ShowMessage
@@ -535,6 +499,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
              current->GetTypeName().c_str(),
              current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
          #endif
+         
          if (!(current->Execute()))
             return false;
       }
@@ -829,3 +794,123 @@ void GmatFunction::ShowTrace(Integer count, Integer t1, const std::string &label
    }
 }
 
+
+//------------------------------------------------------------------------------
+// bool InitializeLocalObjects(ObjectInitializer *objInit,
+//                             GmatCommand *current, bool ignoreException)
+//------------------------------------------------------------------------------
+bool GmatFunction::InitializeLocalObjects(ObjectInitializer *objInit,
+                                          GmatCommand *current,
+                                          bool ignoreException)
+{
+   #ifdef DEBUG_FUNCTION_EXEC
+   MessageInterface::ShowMessage
+      ("\n============================ Begin initialization of local objects\n");
+   MessageInterface::ShowMessage
+      ("Now at command \"%s\"\n",
+       current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+   #endif
+   
+   // Why internal coordinate system is empty in ObjectInitializer?
+   // Set internal coordinate system (added (loj: 2008.10.07)
+   objInit->SetInternalCoordinateSystem(internalCoordSys);
+   
+   // Let's try initialzing local objects using ObjectInitializer (2008.06.19)
+   // We need to add subscribers to publisher, so pass true
+   try
+   {
+      if (!objInit->InitializeObjects(true, Gmat::UNKNOWN_OBJECT,
+                                      unusedGlobalObjectList))
+         // Should we throw an exception instead?
+         return false;
+   }
+   catch (BaseException &e)
+   {
+      // We need to ignore exception thrown for the case Object is
+      // created after it is used, such as
+      // GMAT DefaultOpenGL.ViewPointReference = EarthSunL1;
+      // Create LibrationPoint EarthSunL1;
+      if (!ignoreException || ignoreException && e.IsFatal())
+      {
+         throw;
+      }
+      else
+      {
+         #ifdef DEBUG_FUNCTION_EXEC
+         MessageInterface::ShowMessage
+            ("objInit->InitializeObjects() threw an exception:\n'%s'\n"
+             "   So ignoring...\n", e.GetFullMessage().c_str());
+         #endif
+      }
+   }
+   
+   #ifdef DEBUG_FUNCTION_EXEC
+   MessageInterface::ShowMessage
+      ("============================ End   initialization of local objects\n");
+   #endif
+   
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
+// void BuildUnusedGlobalObjectList()
+//------------------------------------------------------------------------------
+/*
+ * Builds unused global object list which is used in the ObjectInitializer
+ * for ignoring undefined ref objects. For now it adds automatic global
+ * CoordinateSystem if it's ref objects is Spacecraft and it is not used in
+ * the function sequence. Since Spacecraft is not an automatic object it is
+ * not automatically added to GOS.
+ */
+//------------------------------------------------------------------------------
+void GmatFunction::BuildUnusedGlobalObjectList()
+{
+   #ifdef DEBUG_UNUSED_GOL
+   MessageInterface::ShowMessage
+      ("BuildUnusedGlobalObjectList() entered. There are %d global objects\n",
+       globalObjectStore->size());
+   #endif
+   
+   if (unusedGlobalObjectList != NULL)
+      delete unusedGlobalObjectList;
+   
+   unusedGlobalObjectList = new StringArray;
+   
+   // Check global object store
+   std::string cmdUsed;
+   std::map<std::string, GmatBase *>::iterator omi;
+   for (omi = globalObjectStore->begin(); omi != globalObjectStore->end(); ++omi)
+   {
+      GmatBase *obj = omi->second;
+      if (!GmatCommandUtil::FindObject(fcs, (omi->second)->GetType(), omi->first,
+                                       cmdUsed))
+      {
+         // Add unused global CoordinateSystem with Spacecraft origin,  primary,
+         // or secondary, since Spacecraft is not an automatic global object and
+         // we don't want to throw an exception for unexisting Spacecraft in the GOS.
+         if (obj->IsOfType(Gmat::COORDINATE_SYSTEM))
+         {
+            GmatBase *origin = obj->GetRefObject(Gmat::SPACE_POINT, "_GFOrigin_");
+            GmatBase *primary = obj->GetRefObject(Gmat::SPACE_POINT, "_GFPrimary_");
+            GmatBase *secondary = obj->GetRefObject(Gmat::SPACE_POINT, "_GFSecondary_");
+            
+            if ((origin != NULL && origin->IsOfType(Gmat::SPACECRAFT)) ||
+                (primary != NULL && primary->IsOfType(Gmat::SPACECRAFT)) ||
+                (secondary != NULL && secondary->IsOfType(Gmat::SPACECRAFT)))
+            {
+               #ifdef DEBUG_UNUSED_GOL
+               MessageInterface::ShowMessage
+                  ("==> Adding '%s' to unusedGOL\n", (omi->first).c_str());
+               #endif
+               unusedGlobalObjectList->push_back(omi->first);
+            }
+         }
+      }
+   }
+   #ifdef DEBUG_UNUSED_GOL
+   MessageInterface::ShowMessage
+      ("BuildUnusedGlobalObjectList() leaving, There are %d unused global objects\n",
+       unusedGlobalObjectList->size());
+   #endif
+}
