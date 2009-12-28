@@ -406,7 +406,7 @@ protected:
       ROTATION_CONSTANT,
       ROTATION_RATE,
       //
-      NAIF_ID,
+//      NAIF_ID,  moved to SpacePoint   wcs 2009.12.28
       TEXTURE_MAP_FILE_NAME,
       // @todo - add Shape Models, etc.
       CelestialBodyParamCount
@@ -526,7 +526,7 @@ protected:
    /// SpinAxisDECRate, RotationConstant, RotationRate
    Rvector6                 default_orientation;
    /// default value for NAIF ID
-   Integer                  default_naifId;
+ //  Integer                  default_naifId;  // moved to SpacePoint wcs  2009.12.28
    /// default value for texture map file name
    std::string              default_textureMapFileName;
 
@@ -587,7 +587,7 @@ protected:
    /// SpinAxisRAConstant, SpinAxisRARate, SpinAxisDECConstant, SpinAxisDECRate, RotationConstant, RotationRate
    Rvector6               orientation;   
    /// NAIF Id (for SPICE)
-   Integer                naifId;
+//   Integer                naifId;   // moved to SpacePoint   wcs 2009.12.28
    // has the naifID been set (figured out from SPK file(s))
    bool                   naifIdSet;
    /// Name of the texture map file to use when plotting

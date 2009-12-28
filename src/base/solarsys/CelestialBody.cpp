@@ -122,7 +122,7 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "SpinAxisDECRate",
    "RotationConstant",
    "RotationRate",
-   "NAIFId",
+//   "NAIFId",     // moved to SpacePoint  wcs 2009.12.28
    "TextureMapFileName",
 };
 
@@ -170,7 +170,7 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::REAL_TYPE,     //"SpinAxisDECRate", 
    Gmat::REAL_TYPE,     //"RotationConstant", 
    Gmat::REAL_TYPE,     //"RotationRate", 
-   Gmat::INTEGER_TYPE,  //"NAIFId"
+//   Gmat::INTEGER_TYPE,  //"NAIFId"  // moved to SpacePoint   wcs 2009.12.28
    Gmat::STRING_TYPE,   //"TextureMapFileName"
 };
 
@@ -235,7 +235,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
-   naifId             (-99999999),
+//   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
@@ -327,7 +327,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
-   naifId             (-99999999),
+//   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
@@ -415,7 +415,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
 //   default_orientationDateFormat (cBody.default_orientationDateFormat),
    default_orientationEpoch      (cBody.default_orientationEpoch),
    default_orientation           (cBody.default_orientation),
-   default_naifId                (cBody.default_naifId),
+//   default_naifId                (cBody.default_naifId),
    default_textureMapFileName    (cBody.default_textureMapFileName),
    order               (cBody.order),
    degree              (cBody.degree),
@@ -438,7 +438,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    orientationDateFormat (cBody.orientationDateFormat),
    orientationEpoch    (cBody.orientationEpoch),
    orientation         (cBody.orientation),
-   naifId              (cBody.naifId),
+//   naifId              (cBody.naifId),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet           (cBody.naifIdSet),
    textureMapFileName  (cBody.textureMapFileName)
 {
@@ -545,7 +545,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
 //   default_orientationDateFormat  = cBody.default_orientationDateFormat;
    default_orientationEpoch       = cBody.default_orientationEpoch;
    default_orientation            = cBody.default_orientation;
-   default_naifId                 = cBody.default_naifId;
+//   default_naifId                 = cBody.default_naifId;
    default_textureMapFileName     = cBody.default_textureMapFileName;
    
    isFirstTimeMu                  = cBody.isFirstTimeMu;
@@ -596,7 +596,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    orientationEpoch    = cBody.orientationEpoch;
    orientation         = cBody.orientation;
    
-   naifId              = cBody.naifId;
+//   naifId              = cBody.naifId;   // moved to SpacePoint  wcs  2009.12.28
    naifIdSet           = cBody.naifIdSet;
    textureMapFileName  = cBody.textureMapFileName;
    
@@ -2707,7 +2707,7 @@ Integer CelestialBody::GetIntegerParameter(const Integer id) const
    if (id == BODY_NUMBER)          return bodyNumber;
    if (id == REF_BODY_NUMBER)      return referenceBodyNumber;
    if (id == ROTATION_DATA_SRC)    return (Integer) rotationSrc;
-   if (id == NAIF_ID)              return naifId;
+//   if (id == NAIF_ID)              return naifId;   // moved to SpacePoint  wcs  2009.12.28
    
    return SpacePoint::GetIntegerParameter(id); // add others in later?
 }
@@ -2749,11 +2749,11 @@ Integer CelestialBody::SetIntegerParameter(const Integer id,
       referenceBodyNumber = value;
       return true;
    }
-   if (id == NAIF_ID)
-   {
-      naifId              = value;
-      return true;
-   }
+//   if (id == NAIF_ID)    // moved to SpacePoint  wcs  2009.12.28
+//   {
+//      naifId              = value;
+//      return true;
+//   }
    
    return SpacePoint::SetIntegerParameter(id,value);  // add others in later
 }
@@ -3632,10 +3632,10 @@ bool CelestialBody::IsParameterEqualToDefault(const Integer id) const
    {
       return (default_orientation == orientation);
    }
-   if (id == NAIF_ID)
-   {
-      return (default_naifId == naifId);
-   }
+//   if (id == NAIF_ID)
+//   {
+//      return (default_naifId == naifId);
+//   }
    if (id == TEXTURE_MAP_FILE_NAME)
    {
       return (default_textureMapFileName == textureMapFileName);
@@ -3668,7 +3668,7 @@ bool CelestialBody::SaveAllAsDefault()
 //   default_orientationDateFormat  = orientationDateFormat;
    default_orientationEpoch       = orientationEpoch;
    default_orientation            = orientation;
-   default_naifId                 = naifId;
+//   default_naifId                 = naifId;
    default_textureMapFileName     = textureMapFileName;
    
    return true;
@@ -3778,11 +3778,11 @@ bool CelestialBody::SaveParameterAsDefault(const Integer id)
       default_orientation = orientation;
       return true;
    }
-   if (id == NAIF_ID)
-   {
-      default_naifId = naifId;
-      return true;
-   }
+//   if (id == NAIF_ID)
+//   {
+//      default_naifId = naifId;
+//      return true;
+//   }
    if (id == TEXTURE_MAP_FILE_NAME)
    {
       default_textureMapFileName = textureMapFileName;
@@ -4275,7 +4275,7 @@ bool CelestialBody::SetUpSPICE()
             throw; // rethrow the exception, for now
          }
    }
-   // get the NAIF Id from the Spice Kernel(s)
+   // get the NAIF Id from the Spice Kernel(s)   @todo - should this be moved to SpacePoint?
    if (!naifIdSet)
    {
       // SPICE calls Earth's moon "Moon" (like it's the only important one or something - sheesh!)
@@ -4286,14 +4286,14 @@ bool CelestialBody::SetUpSPICE()
       else
          spiceNaifId = kernelReader->GetNaifID(instanceName); 
       
-      if ((naifId != -1) && (spiceNaifId != naifId))
+      if ((naifId != 0) && (spiceNaifId != naifId))
       {
          std::stringstream ss;
          ss << "Overriding input NAIF ID for body \"" << instanceName <<
                "\" with SPICE NAIF ID (" << spiceNaifId << ").\n";
          MessageInterface::PopupMessage(Gmat::WARNING_, ss.str());
-         naifId    = spiceNaifId;
       }
+      naifId    = spiceNaifId;
       naifIdSet = true;
    }
    #ifdef DEBUG_CB_SPICE

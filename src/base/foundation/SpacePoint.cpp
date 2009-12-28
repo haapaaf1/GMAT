@@ -43,12 +43,14 @@ const std::string
 SpacePoint::PARAMETER_TEXT[SpacePointParamCount - GmatBaseParamCount] =
 {
    "J2000BodyName",
+   "NAIFId",
 };
 
 const Gmat::ParameterType
 SpacePoint::PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount] =
 {
-   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,   // "J2000BodyName"
+   Gmat::INTEGER_TYPE,  // "NAIFId"
 };
 
 
@@ -76,7 +78,8 @@ SpacePoint::SpacePoint(Gmat::ObjectType ofType, const std::string &itsType,
                        const std::string &itsName) :
 GmatBase(ofType,itsType,itsName),
 j2000Body      (NULL),
-j2000BodyName  ("Earth")
+j2000BodyName  ("Earth"),
+naifId         (0)        // 0 means unset
 {
    objectTypes.push_back(Gmat::SPACE_POINT);
    objectTypeNames.push_back("SpacePoint");
@@ -97,7 +100,9 @@ SpacePoint::SpacePoint(const SpacePoint &sp) :
 GmatBase(sp),
 j2000Body             (NULL),
 j2000BodyName         (sp.j2000BodyName),
-default_j2000BodyName (sp.default_j2000BodyName)
+naifId                (sp.naifId),
+default_j2000BodyName (sp.default_j2000BodyName),
+default_naifId        (sp.default_naifId)
 {
 }
 
@@ -118,7 +123,9 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
       return *this;
    j2000Body             = sp.j2000Body;
    j2000BodyName         = sp.j2000BodyName;
+   naifId                = sp.naifId;
    default_j2000BodyName = sp.default_j2000BodyName;
+   default_naifId        = sp.default_naifId;
 
    return *this;
 }
@@ -212,8 +219,11 @@ bool SpacePoint::IsParameterEqualToDefault(const Integer id) const
 {
    if (id == J2000_BODY_NAME)
    {
-      if (j2000BodyName == default_j2000BodyName) return true;
-      else                                        return false;
+      return (j2000BodyName == default_j2000BodyName);
+   }
+   if (id == NAIF_ID)
+   {
+      return (default_naifId == naifId);
    }
    return GmatBase::IsParameterEqualToDefault(id);    
 }
@@ -222,6 +232,7 @@ bool SpacePoint::SaveAllAsDefault()
 {
    GmatBase::SaveAllAsDefault();
    default_j2000BodyName = j2000BodyName;
+   default_naifId        = naifId;
    return true;
 }
 
@@ -230,6 +241,11 @@ bool SpacePoint::SaveParameterAsDefault(const Integer id)
    if (id == J2000_BODY_NAME)  
    {
       default_j2000BodyName = j2000BodyName;
+      return true;
+   }
+   if (id == NAIF_ID)
+   {
+      default_naifId = naifId;
       return true;
    }
    return GmatBase::SaveParameterAsDefault(id);
@@ -360,6 +376,53 @@ bool SpacePoint::IsParameterReadOnly(const std::string &label) const
 {
    return IsParameterReadOnly(GetParameterID(label));
 }
+
+//------------------------------------------------------------------------------
+//  Integer  GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the Integer parameter value, given the input
+ * parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return  Integer value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+Integer SpacePoint::GetIntegerParameter(const Integer id) const
+{
+   if (id == NAIF_ID)              return naifId;
+
+   return GmatBase::GetIntegerParameter(id);
+}
+
+//------------------------------------------------------------------------------
+//  Integer  SetIntegerParameter(const Integer id, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * This method sets the Integer parameter value, given the input
+ * parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ * @param <value> Integer value for the requested parameter.
+ *
+ * @return  Integer value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+Integer SpacePoint::SetIntegerParameter(const Integer id,
+                                           const Integer value)
+{
+   if (id == NAIF_ID)
+   {
+      naifId              = value;
+      return true;
+   }
+
+   return GmatBase::SetIntegerParameter(id,value);
+}
+
 
 
 //------------------------------------------------------------------------------

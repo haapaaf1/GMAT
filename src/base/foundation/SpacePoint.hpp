@@ -124,7 +124,11 @@ public:
 
    virtual bool            IsParameterReadOnly(const Integer id) const;
    virtual bool            IsParameterReadOnly(const std::string &label) const;
-   
+
+   virtual Integer         GetIntegerParameter(const Integer id) const;
+   virtual Integer         SetIntegerParameter(const Integer id,
+                                               const Integer value);
+
    virtual std::string     GetStringParameter(const Integer id) const;
    virtual bool            SetStringParameter(const Integer id, 
                                               const std::string &value);
@@ -160,6 +164,7 @@ protected:
    enum
    {
       J2000_BODY_NAME = GmatBaseParamCount,
+      NAIF_ID,
       SpacePointParamCount
    };
    
@@ -173,8 +178,13 @@ protected:
    SpacePoint      *j2000Body;  
    /// Name for the J2000 body
    std::string     j2000BodyName;
+   /// NAIF Id (for SPICE)
+   Integer                naifId;
+
    // saved default values
    std::string     default_j2000BodyName;
+   /// default value for NAIF ID
+   Integer                  default_naifId;
    
 };
 #endif // SpacePoint_hpp
