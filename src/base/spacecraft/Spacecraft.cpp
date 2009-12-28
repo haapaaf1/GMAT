@@ -3822,11 +3822,13 @@ const std::string& Spacecraft::GetGeneratingString(Gmat::WriteMode mode,
        this, GetTypeName().c_str(), GetName().c_str());
    #endif
 
-   return generatingString;
+//   return generatingString;
 
    // Commented out all parameter writings are handled here (LOJ: 2009.11.23)
    // Then call the parent class method for preface and inline comments
-   //return SpaceObject::GetGeneratingString(mode, prefix, useName);
+   // Added back in to fix issue with no comment header being written before
+   // Spacecraft section
+   return SpaceObject::GetGeneratingString(mode, prefix, useName);
 }
 
 
