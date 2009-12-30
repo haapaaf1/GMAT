@@ -108,7 +108,8 @@ private:
    SpiceBoolean    foundSPICE;
    
    static const std::string VALID_ABERRATION_FLAGS[9];
-   static const std::string VALID_FRAMES[9];   // ????????????? number of them? ***
+   static const Integer     NUM_VALID_FRAMES;
+   static const std::string VALID_FRAMES[12];
    /// maximum number of characters for short, explanation of short, or
    /// long error message requested when calling CSPICE method getmsg_c
    static const Integer     MAX_SHORT_MESSAGE;

@@ -56,9 +56,14 @@ SpiceKernelReader::VALID_ABERRATION_FLAGS[9] =
    "XCN+S",   // Converged Newtonian light time and stellar aberration correction
 };
 
+const Integer SpiceKernelReader::NUM_VALID_FRAMES = 1; // for now, only "J2000"
+
 const std::string
-SpiceKernelReader::VALID_FRAMES[9] =
+SpiceKernelReader::VALID_FRAMES[12] =
 {
+   "J2000",   // default frame
+   "NONE",   // TBD
+   "NONE",   // TBD
    "NONE",   // TBD
    "NONE",   // TBD
    "NONE",   // TBD
@@ -240,7 +245,7 @@ StringArray SpiceKernelReader::GetValidAberrationCorrectionFlags()
 StringArray SpiceKernelReader::GetValidFrames()
 {
    StringArray frames;
-   for (unsigned int ii = 0; ii < 9; ii++)  // ****** adjust this ******
+   for (Integer ii = 0; ii < NUM_VALID_FRAMES; ii++)
       frames.push_back(VALID_FRAMES[ii]);
    return frames;
 }
@@ -264,6 +269,10 @@ Integer SpiceKernelReader::GetNaifID(const std::string &forBody)
       MessageInterface::PopupMessage(Gmat::WARNING_, warnmsg);
       return -1;
    }
+   #ifdef DEBUG_SPK_READING
+      MessageInterface::ShowMessage("NAIF ID for body %s has been found: it is %d\n",
+                                    forBody.c_str(), (Integer) id);
+   #endif
    return (Integer) id;
 }
 
@@ -367,7 +376,7 @@ SpiceKernelReader::SpiceKernelReader() :
 {
    loadedKernels.clear();
    // set output file and action for cspice methods
-   errdev_c("SET", 1840, "./cspice_error.txt"); // @todo this should be set in startup file 
+   errdev_c("SET", 1840, "./GMATSpiceKernelReaderError.txt"); // @todo this should be set in startup file
    erract_c("SET", 1840, "RETURN");
 }
                               
