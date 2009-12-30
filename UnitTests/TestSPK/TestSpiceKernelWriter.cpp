@@ -65,7 +65,7 @@ int RunTest(TestOutput &out)
    std::string scName         = "MySpacecraft";
    std::string centerName     = "Earth";
    Integer     scNaifId       = -101;   // ???
-   Integer     centerNaifId   = 399;
+   Integer     centerNaifId   = 0;    // test checking for 0   - shoule be 399;
    std::string referenceFrame = "J2000";
    StateArray  sa;
    EpochArray  ea;
@@ -152,6 +152,9 @@ int RunTest(TestOutput &out)
    Integer nid = skr->GetNaifID(scName);
    out.Put("NAIF id for the object is ");
    out.Put(nid);
+   nid = skr->GetNaifID(centerName);
+   out.Put("NAIF id for the central body is ");
+   out.Put(nid);
 
    try
    {
@@ -161,8 +164,9 @@ int RunTest(TestOutput &out)
       for (Integer ii = 0; ii < 400; ii++)
       {
          outState = skr->GetTargetState(scName, epochs[ii], centerName);
-         for (Integer jj = 0; jj < 6; jj++)
-            out.Validate(outState[jj], (states[ii])[jj], 1.0e-7, true);
+         out.Validate(outState, states[ii], 1.0e-7, true);
+//         for (Integer jj = 0; jj < 6; jj++)
+//            out.Validate(outState[jj], (states[ii])[jj], 1.0e-7, true);
       }
    }
    catch (BaseException &e)
