@@ -37,6 +37,8 @@
 #include "TimeSystemConverter.hpp"
 #include "UtilityException.hpp"
 
+//#define DEBUG_SPK_WRITING
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -88,7 +90,10 @@ SpiceKernelWriter::SpiceKernelWriter(const std::string       &objName,   const s
    }
    /// set up CSPICE data
    objectNAIFId      = objNAIFId;
-   centralBodyNAIFId = centerNAIFId;
+   if (centerNAIFId == 0) // need to find the NAIF Id for the central body  @todo - for object too??
+      centralBodyNAIFId = GetNaifID(centralBodyName);
+   else
+      centralBodyNAIFId = centerNAIFId;
    kernelName        = kernelFileName.c_str();
    degree            = deg;
    referenceFrame    = frameName.c_str();
@@ -368,3 +373,25 @@ void SpiceKernelWriter::WriteMetaData()
    // remove the temporary text file
    remove(tmpTxt);
 }
+
+Integer SpiceKernelWriter::GetNaifID(const std::string &forBody)
+{
+   SpiceBoolean   found;
+   SpiceInt       id;
+   ConstSpiceChar *bodyName = forBody.c_str();
+   bodn2c_c(bodyName, &id, &found);
+   if (found == SPICEFALSE)
+   {
+      std::string warnmsg = "Cannot find NAIF ID for body ";
+      warnmsg += forBody + ".  Insufficient data available.  Another SPICE Kernel may be necessary.";
+      MessageInterface::PopupMessage(Gmat::WARNING_, warnmsg);
+      return 0;
+   }
+   #ifdef DEBUG_SPK_WRITING
+      MessageInterface::ShowMessage("NAIF ID for body %s has been found: it is %d\n",
+                                    forBody.c_str(), (Integer) id);
+   #endif
+   return (Integer) id;
+}
+
+

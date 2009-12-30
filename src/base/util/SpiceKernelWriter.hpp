@@ -131,6 +131,9 @@ private:
    /// on the SPK file
    void        WriteMetaData();
 
+   Integer     GetNaifID(const std::string &forBody);
+
+
 };
 
 #endif // SpiceKernelWriter_hpp

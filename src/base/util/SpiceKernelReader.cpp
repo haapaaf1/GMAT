@@ -267,7 +267,7 @@ Integer SpiceKernelReader::GetNaifID(const std::string &forBody)
       std::string warnmsg = "Cannot find NAIF ID for body ";
       warnmsg += forBody + ".  Insufficient data available.  Another SPICE Kernel may be necessary.";
       MessageInterface::PopupMessage(Gmat::WARNING_, warnmsg);
-      return -1;
+      return 0;
    }
    #ifdef DEBUG_SPK_READING
       MessageInterface::ShowMessage("NAIF ID for body %s has been found: it is %d\n",
