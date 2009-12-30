@@ -69,13 +69,17 @@ typedef std::vector<UnsignedInt> UnsignedIntArray;
 typedef std::vector<std::string> StringArray;
 typedef std::vector<bool>        BooleanArray;
 
-class GmatBase;                            // Forward reference for ObjectArray
+class GmatBase;        // Forward reference for ObjectArray
 class ElementWrapper;
-typedef std::vector<GmatBase*> ObjectArray;
-typedef std::vector<ElementWrapper*> WrapperArray;
-typedef std::map<std::string, GmatBase*> ObjectMap;
+class A1Mjd;           // Forward reference for A1Mjd (epoch)
+class Rvector6;        // Forward reference for Rvector6 (ephem state)
+typedef std::vector<GmatBase*>                 ObjectArray;
+typedef std::vector<ElementWrapper*>           WrapperArray;
+typedef std::vector<Rvector6*>                 StateArray;
+typedef std::vector<A1Mjd*>                    EpochArray;
+typedef std::map<std::string, GmatBase*>       ObjectMap;
 typedef std::map<std::string, ElementWrapper*> WrapperMap;
-typedef std::stack<ObjectMap*> ObjectMapStack;
+typedef std::stack<ObjectMap*>                 ObjectMapStack;
 
 typedef struct geoparms
 {
@@ -246,7 +250,7 @@ namespace Gmat
    };
 }
 
-typedef std::vector<Gmat::ObjectType> ObjectTypeArray;
+typedef std::vector<Gmat::ObjectType>      ObjectTypeArray;
 typedef std::vector<Gmat::WrapperDataType> WrapperTypeArray;
 
 #endif //GMATDEFS_HPP
