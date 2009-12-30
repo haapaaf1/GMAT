@@ -99,6 +99,8 @@ public:
                  bool validate = true);
    void Validate(Rmatrix actual, Rmatrix expect, Real tol = TEST_TOL,
                  bool validate = true);
+   void Validate(Rvector actual, Rvector expect, Real tol = TEST_TOL,
+                 bool validate = true);
    #endif
    
 private:

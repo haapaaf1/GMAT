@@ -645,6 +645,35 @@ void TestOutput::Validate(Rmatrix actualMat, Rmatrix expectMat, Real tol,
 }
 
 
+//------------------------------------------------------------------------------
+// void Validate(Rvector actual, Rvector expect, Real tol = TEST_TOL,
+//               bool validate = true)
+//------------------------------------------------------------------------------
+void TestOutput::Validate(Rvector actual, Rvector expect, Real tol,
+                          bool validate)
+{
+   mOutfile << actual << endl;
+   cout << actual << endl;
+
+   if (validate)
+   {
+      if (actual != expect)
+      {
+         std::stringstream ss("");
+         ss << ">>>>> \nThe expected result is\n";
+         ss << setw(20) << setprecision(20) << expect;
+         ss << ", but got\n";
+         ss << actual << "\n";
+
+         throw GmatBaseException(ss.str());
+      }
+   }
+
+   mOutfile << endl;
+   cout << endl;
+}
+
+
 #endif
 
 
