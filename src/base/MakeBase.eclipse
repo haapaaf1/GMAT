@@ -67,7 +67,8 @@ endif
 
 ifeq ($(USE_SPICE),1)
 SPICE_OBJECTS = \
-    util/SpiceKernelReader.o
+    util/SpiceKernelReader.o \
+    util/SpiceKernelWriter.o
 else
 SPICE_OBJECTS =
 endif
