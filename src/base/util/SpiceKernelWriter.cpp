@@ -225,7 +225,9 @@ void SpiceKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
                          TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
    SpiceDouble  endSPICE = (endTDB + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
 
-   SpiceDouble  epochArray[numStates];
+//   SpiceDouble  epochArray[numStates];
+   SpiceDouble  *epochArray;     // (deleted at end of method)
+   epochArray = new SpiceDouble[numStates];
    Real         tmpTDB;
    for (Integer ii = 0; ii < numStates; ii++)
    {
@@ -234,15 +236,19 @@ void SpiceKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
       epochArray[ii] = (SpiceDouble) (tmpTDB + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
    }
 
-   // put states into ConstSpiceDouble arrays
-   SpiceDouble         stateArray[numStates][6];
+   // put states into SpiceDouble arrays
+//   SpiceDouble         stateArray[numStates][6];  // MSVC compiler doesn't like this allocation
+   SpiceDouble  *stateArray;
+   stateArray = new SpiceDouble[numStates * 6];
 
    for (Integer ii = 0; ii < numStates; ii++)
    {
-      for (Integer jj = 0; jj < 6; jj++)   stateArray[ii][jj] = ((states.at(ii))->GetDataVector())[jj];
+      for (Integer jj = 0; jj < 6; jj++)
+      {
+//         stateArray[ii][jj] = ((states.at(ii))->GetDataVector())[jj];
+         stateArray[(ii*6) + jj] = ((states.at(ii))->GetDataVector())[jj];
+      }
    }
-//  ConstSpiceDouble    *statesSPICE = stateArray;
-
 
    // create a segment ID
    std::string         segmentID = "SPK_SEGMENT";
@@ -264,6 +270,8 @@ void SpiceKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
       errmsg += errStr + "\n";
       throw UtilityException(errmsg);
    }
+   delete [] epochArray;
+   delete [] stateArray;
 }
 
 void SpiceKernelWriter::AddMetaData(const StringArray &lines, bool done)
@@ -348,9 +356,11 @@ void SpiceKernelWriter::WriteMetaData()
    // write the meta data to the SPK file comment area by telling it to read the
    // temporary text file
    Integer     txtLength = tmpTxtFileName.length();
-   char        tmpTxt[txtLength+1];
+//   char        tmpTxt[txtLength+1]; // MSVC doesn't like this allocation
+   char        *tmpTxt;    // (deleted at end of method)
+   tmpTxt = new char[txtLength + 1];
    for (Integer jj = 0; jj < txtLength; jj++)
-      tmpTxt[jj] = tmpTxtFileName.at(jj);   // need to NULL-terminate this??
+      tmpTxt[jj] = tmpTxtFileName.at(jj);
    tmpTxt[txtLength] = '\0';
    integer     unit;
    ftnlen      txtLen = txtLength + 1;
@@ -372,6 +382,7 @@ void SpiceKernelWriter::WriteMetaData()
    ftncls_c(unit);
    // remove the temporary text file
    remove(tmpTxt);
+   delete [] tmpTxt;
 }
 
 Integer SpiceKernelWriter::GetNaifID(const std::string &forBody)
