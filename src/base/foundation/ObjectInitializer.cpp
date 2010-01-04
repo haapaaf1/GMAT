@@ -543,6 +543,10 @@ void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
             throw;
          }
       }
+      else
+      {
+         throw;
+      }
    }
 }
 
