@@ -317,7 +317,7 @@ void SpiceKernelWriter::SetBasicMetaData()
 void SpiceKernelWriter::FinalizeKernel()
 {
    // write all the meta data to the file
-//   WriteMetaData();                     // TBD - not working yet ****************
+   WriteMetaData();
    basicMetaData.clear();
    addedMetaData.clear();
    // close the SPK file
@@ -366,7 +366,7 @@ void SpiceKernelWriter::WriteMetaData()
    integer     unit;
    ftnlen      txtLen = txtLength + 1;
    txtopr_(tmpTxt, &unit, txtLen);
-   spcac_(&handle, &unit, "", "", 1, 1);
+   spcac_(&handle, &unit, " ", " ", 1, 1);
    if (failed_c())
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
