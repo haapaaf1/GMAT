@@ -397,6 +397,20 @@ Integer SpacePoint::GetIntegerParameter(const Integer id) const
    return GmatBase::GetIntegerParameter(id);
 }
 
+
+//---------------------------------------------------------------------------
+//  Integer GetIntegerParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//---------------------------------------------------------------------------
+Integer SpacePoint::GetIntegerParameter(const std::string &label) const
+{
+   return GetIntegerParameter(GetParameterID(label));
+}
+
+
 //------------------------------------------------------------------------------
 //  Integer  SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------

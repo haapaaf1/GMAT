@@ -126,6 +126,7 @@ public:
    virtual bool            IsParameterReadOnly(const std::string &label) const;
 
    virtual Integer         GetIntegerParameter(const Integer id) const;
+   virtual Integer         GetIntegerParameter(const std::string &label) const;
    virtual Integer         SetIntegerParameter(const Integer id,
                                                const Integer value);
 
