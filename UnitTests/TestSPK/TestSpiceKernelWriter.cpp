@@ -74,7 +74,8 @@ int RunTest(TestOutput &out)
    
    try
    {
-      skw = new SpiceKernelWriter(scName, centerName, scNaifId, centerNaifId, kernelName);
+      Integer degree = 9;
+      skw = new SpiceKernelWriter(scName, centerName, scNaifId, centerNaifId, kernelName, degree);
    }
    catch (BaseException &e)
    {
