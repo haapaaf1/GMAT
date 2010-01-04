@@ -36,6 +36,7 @@
 #include "TimeTypes.hpp"
 #include "TimeSystemConverter.hpp"
 #include "UtilityException.hpp"
+#include "RealUtilities.hpp"
 
 //#define DEBUG_SPK_WRITING
 
@@ -83,7 +84,7 @@ SpiceKernelWriter::SpiceKernelWriter(const std::string       &objName,   const s
    fileOpen        (false),
    tmpTxtFile      (NULL)
 {
-   if (degree%2 == 0) // degree must be odd for Data Type 13
+   if (GmatMathUtil::IsEven(deg)) // degree must be odd for Data Type 13
    {
       std::string errmsg = "Error creating SpiceKernelWriter: degree must be odd for Data Type 13\n";
       throw UtilityException(errmsg);

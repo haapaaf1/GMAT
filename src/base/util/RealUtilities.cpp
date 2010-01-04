@@ -221,6 +221,27 @@ Integer GmatMathUtil::SignOf (Real theNumber)
 }
 
 //------------------------------------------------------------------------------
+//  bool IsOdd(Integer theNumber)
+//------------------------------------------------------------------------------
+bool GmatMathUtil::IsOdd(Integer theNumber)   // MSVC doesn't like %?
+{
+   Integer byTwo = theNumber / 2;
+   if ((theNumber - (byTwo * 2)) == 0)  return false;
+   return true;
+}
+
+//------------------------------------------------------------------------------
+//  bool IsEven(Integer theNumber)
+//------------------------------------------------------------------------------
+bool GmatMathUtil::IsEven(Integer theNumber)
+{
+   Integer byTwo = theNumber / 2;
+   if ((theNumber - (byTwo * 2)) == 0)  return true;
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
 //  Real Rad (Real angleInDeg, bool modBy2Pi)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::Rad (Real angleInDeg, bool modBy2Pi)

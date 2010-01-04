@@ -90,6 +90,8 @@ namespace GmatMathUtil
    bool    IsEqual(Real left, Real right, 
                     Real accuracy = GmatRealConst::REAL_EPSILON);
    Integer SignOf(Real theNumber);
+   bool    IsOdd(Integer theNumber);
+   bool    IsEven(Integer theNumber);
    
    Real    Rad(Real angleInDeg, bool modBy2Pi = false);
    Real    Deg(Real angleInRad, bool modBy360 = false);
