@@ -274,6 +274,19 @@ void SpiceKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
    delete [] epochArray;
    delete [] stateArray;
 }
+void SpiceKernelWriter::AddMetaData(const std::string &line, bool done)
+{
+   if (!fileOpen)
+   {
+      std::string errmsg = "Unable to add meta data to SPK kernel \"";
+      errmsg += kernelFileName + "\".  File has been finalized and closed.\n";
+      throw UtilityException(errmsg);
+   }
+   addedMetaData.push_back(line);
+
+   if (done)
+      FinalizeKernel();
+}
 
 void SpiceKernelWriter::AddMetaData(const StringArray &lines, bool done)
 {

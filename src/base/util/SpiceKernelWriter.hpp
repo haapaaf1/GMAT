@@ -74,6 +74,7 @@ public:
 
    void        WriteSegment(const A1Mjd &start, const A1Mjd &end,
                             const StateArray &states, const EpochArray &epochs);
+   void        AddMetaData(const std::string &line,  bool done = false);
    void        AddMetaData(const StringArray &lines, bool done = false);
    void        FinalizeKernel();
 
