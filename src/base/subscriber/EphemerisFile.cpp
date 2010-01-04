@@ -20,18 +20,22 @@
 #include "FileManager.hpp"           // for GetPathname()
 #include "SubscriberException.hpp"   // for exception
 #include "StringUtil.hpp"            // for ToString()
+#include "FileUtil.hpp"              // for ParseFileExtension()
 #include "TimeSystemConverter.hpp"   // for ValidateTimeFormat()
-#include "LagrangeInterpolator.hpp" 
+#include "LagrangeInterpolator.hpp"
 #include "MessageInterface.hpp"
 
 //#define DEBUG_EPHEMFILE_SET
 //#define DEBUG_EPHEMFILE_INIT
 //#define DEBUG_EPHEMFILE_OPEN
+//#define DEBUG_EPHEMFILE_SPICE
+//#define DEBUG_EPHEMFILE_SPICE_BUFFER
 //#define DEBUG_EPHEMFILE_TIME
 //#define DEBUG_EPHEMFILE_ORBIT
 //#define DEBUG_EPHEMFILE_WRITE
 //#define DEBUG_EPHEMFILE_MANEUVER
 //#define DEBUG_EPHEMFILE_FINISH
+//#define DEBUG_EPHEMFILE_TXT_FILE
 //#define DBGLVL_EPHEMFILE_DATA 1
 
 //#ifndef DEBUG_MEMORY
@@ -97,6 +101,7 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    spacecraft          (NULL),
    coordSystem         (NULL),
    interpolator        (NULL),
+   spkWriter           (NULL),
    oututPath           (""),
    filePath            (""),
    spacecraftName      (""),
@@ -194,6 +199,17 @@ EphemerisFile::~EphemerisFile()
       #endif
       delete interpolator;
    }
+   if (spkWriter != NULL)
+   {
+      FinalizeSpkFile();
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (spkWriter, "SPK writer", "EphemerisFile::~EphemerisFile()()",
+          "deleting local SPK writer");
+      #endif
+      delete spkWriter;
+   }
 }
 
 
@@ -205,6 +221,7 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    spacecraft          (ef.spacecraft),
    coordSystem         (ef.coordSystem),
    interpolator        (NULL),
+   spkWriter           (NULL),
    oututPath           (ef.oututPath),
    filePath            (ef.filePath),
    spacecraftName      (ef.spacecraftName),
@@ -259,6 +276,7 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    spacecraft          = ef.spacecraft;
    coordSystem         = ef.coordSystem;
    interpolator        = NULL;
+   spkWriter           = NULL;
    oututPath           = ef.oututPath;
    filePath            = ef.filePath;
    spacecraftName      = ef.spacecraftName;
@@ -319,10 +337,7 @@ std::string EphemerisFile::GetFileName()
       
       if (fileName == "")
       {
-         if (fileFormat == "SPK")
-            fname = oututPath + instanceName + ".spk";
-         else
-            fname = oututPath + instanceName + "." + fileFormat + ".ephem";
+         fname = oututPath + instanceName + "." + fileFormat + ".eph";
       }
       else
       {
@@ -337,14 +352,36 @@ std::string EphemerisFile::GetFileName()
    catch (GmatBaseException &e)
    {
       if (fileName == "")
-         fname = instanceName + ".txt";
+         fname = instanceName + ".eph";
       
       MessageInterface::ShowMessage(e.GetFullMessage());
    }
    
+   // If SPK file, extension should be ".bsp"
+   if (fileFormat == "SPK")
+   {
+      std::string fileExt = GmatFileUtil::ParseFileExtension(fname, true);
+      if (fileExt != ".bsp")
+      {
+         std::string ofname = fname;
+         fname = GmatStringUtil::Replace(fname, fileExt, ".bsp");
+         MessageInterface::ShowMessage
+            ("*** WARNING *** SPK file extension should be \".bsp\", so "
+             "file name '%s' changed to '%s'\n", ofname.c_str(), fname.c_str());
+      }
+      
+      #ifdef DEBUG_EPHEMFILE_OPEN
+      // Add current time to file in debug mode, SpiceKernelWriter throws an exceptin
+      // if writing to exiting file
+      std::string currTime = GmatTimeUtil::FormatCurrentTime(3);
+      MessageInterface::ShowMessage("   currTime='%s'\n", currTime.c_str());
+      fname = GmatStringUtil::Replace(fname, ".bsp", currTime + ".bsp");
+      #endif
+   }
+   
    #ifdef DEBUG_EPHEMFILE_OPEN
    MessageInterface::ShowMessage
-      ("EphemerisFile::GetFileName() returning fname=%s\n", fname.c_str());
+      ("EphemerisFile::GetFileName() returning fname\n   %s\n", fname.c_str());
    #endif
    
    return fname;
@@ -429,8 +466,9 @@ bool EphemerisFile::Initialize()
    else if (fileFormat == "SPK" && stateType == "Quaternion")
       fileType = SPK_ATTITUDE;
    else
-      fileType = TEXT_FILE;
-
+      throw SubscriberException
+         ("FileFormat \"" + fileFormat + "\" is not valid");
+   
    // Shoud I have InitializeData() method and initialize them?
    firstTimeWriting = true;
    writingNewSegment = true;
@@ -469,7 +507,10 @@ bool EphemerisFile::Initialize()
       writeAttitude = true;
    
    // Determine output coordinate system, set to boolean to avoid string comparison
-   if (theDataCoordSystem->GetName() != coordSystemName)
+   // We don't need conversion for SPK_ORBIT. SpiceKernelWriter assumes it is in
+   // J2000Eq frame for now
+   if (fileType == CCSDS_OEM &&
+       theDataCoordSystem->GetName() != coordSystemName)
       writeDataInDataCS = false;
    
    // Determine initial and final epoch in A1ModJulian, this format is what spacecraft
@@ -487,6 +528,23 @@ bool EphemerisFile::Initialize()
    
    // Set solver iteration option to none. We only writes solutions to a file
    mSolverIterOption = SI_NONE;
+   
+   #ifdef __USE_CCSDS_FILE__
+   // Set CCSDS header and meta data pointer
+   if (fileType == CCSDS_OEM)
+   {
+      ccsdsOemData.SetHeader(&ccsdsHeader);
+      ccsdsOemData.SetMetaData(&ccsdsOemMetaData);
+      #ifdef DEBUG_EPHEMFILE_INIT
+      MessageInterface::ShowMessage
+         ("   Setting ccsdsHeader and ccsdsOemMetaData to ccsdsOemData\n");
+      #endif
+   }
+   #endif
+   
+   // Create SpiceKernelWriter
+   if (fileType == SPK_ORBIT)
+      CreateSpiceKernelWriter();
    
    #ifdef DEBUG_EPHEMFILE_INIT
    MessageInterface::ShowMessage
@@ -1063,6 +1121,80 @@ void EphemerisFile::CreateInterpolator()
 
 
 //------------------------------------------------------------------------------
+// void CreateSpiceKernelWriter()
+//------------------------------------------------------------------------------
+void EphemerisFile::CreateSpiceKernelWriter()
+{
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage
+      ("EphemerisFile::CreateSpiceKernelWriter() entered, spkWriter=<%p>\n",
+       spkWriter);
+   #endif
+   
+   //=======================================================
+   #ifdef __USE_SPICE__
+   //=======================================================
+   // If spkWriter is not NULL, delete it first
+   if (spkWriter != NULL)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (spkWriter, "spkWriter", "EphemerisFile::CreateSpiceKernelWriter()",
+          "deleting local spkWriter");
+      #endif
+      delete spkWriter;
+      spkWriter = NULL;
+   }
+   
+   std::string name = instanceName;
+   std::string centerName = spacecraft->GetOriginName();
+   Integer objNAIFId = spacecraft->GetIntegerParameter("NAIFId");
+   Integer centerNAIFId = (spacecraft->GetOrigin())->GetIntegerParameter("NAIFId");
+   
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage
+      ("   Creating SpiceKernelWriter with name='%s', centerName='%s', "
+       "objNAIFId=%d, centerNAIFId=%d, fileName='%s', interpolationOrder=%d\n",
+       name.c_str(), centerName.c_str(), objNAIFId, centerNAIFId,
+       fileName.c_str(), interpolationOrder);
+   #endif
+   
+   try
+   {
+      spkWriter =
+         new SpiceKernelWriter(name, centerName, objNAIFId, centerNAIFId,
+                               fileName, interpolationOrder, "J2000");
+   }
+   catch (BaseException &e)
+   {
+      MessageInterface::ShowMessage(e.GetFullMessage());
+      throw SubscriberException(e.GetFullMessage());
+   }
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (spkWriter, "spkWriter", "EphemerisFile::Initialize()",
+       "spkWriter = new SpiceKernelWriter()");
+   #endif
+   
+   //=======================================================
+   #else
+   //=======================================================
+   MessageInterface::ShowMessage
+      ("*** WARNING *** Use of SpiceKernelWriter is turned off\n");
+   //=======================================================
+   #endif
+   //=======================================================
+   
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage
+      ("EphemerisFile::CreateSpiceKernelWriter() leaving, spkWriter=<%p>\n",
+       spkWriter);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 // bool OpenEphemerisFile()
 //------------------------------------------------------------------------------
 bool EphemerisFile::OpenEphemerisFile()
@@ -1073,17 +1205,42 @@ bool EphemerisFile::OpenEphemerisFile()
    #endif
    
    fileName = GetFileName();
-   bool retval = false;
+   bool retval = true;
    
+   #ifdef __USE_CCSDS_FILE__
+   // Open CCSDS output file
+   if (fileType == CCSDS_OEM)
+   {
+      #ifdef DEBUG_EPHEMFILE_OPEN
+      MessageInterface::ShowMessage
+         ("   About to open CCSDS output file\n");
+      #endif
+      
+      //ProcessCCSDSOEMDataFile ccsdsOutFile("theFile");
+      //ccsdsOutFile.SetReadWriteMode("w");
+      //ccsdsOutFile.SetFileName(fileName);
+      //ccsdsOutFile.Initialize();
+   }
+   #endif
+   
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
    // Close the stream if it is open
    if (dstream.is_open())
       dstream.close();
    
-   dstream.open(fileName.c_str());
+   std::string debugFileName = fileName + ".debug";
+   dstream.open(debugFileName.c_str());
    if (dstream.is_open())
+   {
       retval = true;
+      MessageInterface::ShowMessage("   '%s' is opened for debug\n", debugFileName.c_str());
+   }
    else
-      MessageInterface::ShowMessage("   %s is not opened\n", fileName.c_str());
+   {
+      retval = false;
+      MessageInterface::ShowMessage("   '%s' was failed open\n", debugFileName.c_str());
+   }
+   #endif
    
    #ifdef DEBUG_EPHEMFILE_OPEN
    MessageInterface::ShowMessage
@@ -1131,7 +1288,7 @@ void EphemerisFile::RestartInterpolation(const std::string &comments)
 
 
 //------------------------------------------------------------------------------
-// bool IsTimeToWrite(Real epochInSecs, Real *state)
+// bool IsTimeToWrite(Real epochInSecs, Real state[6])
 //------------------------------------------------------------------------------
 /*
  * Determines if it is time to write to ephemeris file based on the step size.
@@ -1139,7 +1296,7 @@ void EphemerisFile::RestartInterpolation(const std::string &comments)
  * @param epochInSecs Epoch in seconds
  */
 //------------------------------------------------------------------------------
-bool EphemerisFile::IsTimeToWrite(Real epochInSecs, Real *state)
+bool EphemerisFile::IsTimeToWrite(Real epochInSecs, Real state[6])
 {
    #ifdef DEBUG_EPHEMFILE_TIME
    MessageInterface::ShowMessage
@@ -1258,7 +1415,8 @@ bool EphemerisFile::IsTimeToWrite(Real epochInSecs, Real *state)
    Real toMjd;
    std::string epochStr;
    // Convert current epoch to specified format
-   TimeConverterUtil::Convert("A1ModJulian", nextOutEpoch, "", epochFormat, toMjd, epochStr);
+   TimeConverterUtil::Convert("A1ModJulian", nextOutEpoch/86400.0, "",
+                              epochFormat, toMjd, epochStr);
    MessageInterface::ShowMessage
       ("EphemerisFile::IsTimeToWrite() returning %d, nextOutEpoch=%f, epochStr='%s'\n",
        retval, nextOutEpoch, epochStr.c_str());
@@ -1268,7 +1426,7 @@ bool EphemerisFile::IsTimeToWrite(Real epochInSecs, Real *state)
 
 
 //------------------------------------------------------------------------------
-// void WriteOrbit(Real reqEpoch, Real *state)
+// void WriteOrbit(Real reqEpoch, Real state[6])
 //------------------------------------------------------------------------------
 /**
  * Writes spacecraft orbit data to a ephemeris file.
@@ -1277,7 +1435,7 @@ bool EphemerisFile::IsTimeToWrite(Real epochInSecs, Real *state)
  * @param state State to write 
  */
 //------------------------------------------------------------------------------
-void EphemerisFile::WriteOrbit(Real reqEpoch, Real *state)
+void EphemerisFile::WriteOrbit(Real reqEpoch, Real state[6])
 {
    #ifdef DEBUG_EPHEMFILE_WRITE
    MessageInterface::ShowMessage
@@ -1285,33 +1443,42 @@ void EphemerisFile::WriteOrbit(Real reqEpoch, Real *state)
        reqEpoch, state[0]);
    #endif
    
-   Rvector6 inState;
-   inState.Set(state);
-   Rvector6 outState;
    Real toMjd;
    std::string epochStr;
    Real reqEpochInDays = reqEpoch / 86400.0;
+   Rvector6 inState(state);
+   Rvector6 outState(state);
    
    // Convert current epoch to specified format
    TimeConverterUtil::Convert("A1ModJulian", reqEpochInDays, "", epochFormat,
                               toMjd, epochStr);
    
-   // Convert orbit data to output coordinate system
-   if (writeDataInDataCS)
+   // if writing SPK file format
+   if (fileType == SPK_ORBIT)
    {
-      outState = inState;
+      BufferSpkOrbitData(reqEpochInDays, state);
    }
    else
    {
-      coordConverter.Convert(A1Mjd(reqEpochInDays), inState, theDataCoordSystem,
-                             outState, coordSystem, true);
+      // Convert orbit data to output coordinate system
+      if (writeDataInDataCS)
+      {
+         outState = inState;
+      }
+      else
+      {
+         coordConverter.Convert(A1Mjd(reqEpochInDays), inState, theDataCoordSystem,
+                                outState, coordSystem, true);
+      }
    }
    
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
    char strBuff[200];
    sprintf(strBuff, "%s  %24.10f  %24.10f  %24.10f  %20.16f  %20.16f  %20.16f\n",
            epochStr.c_str(), outState[0], outState[1], outState[2], outState[3],
            outState[4], outState[5]);
    dstream << strBuff;
+   #endif
    
    #ifdef DEBUG_EPHEMFILE_WRITE
    MessageInterface::ShowMessage("EphemerisFile::WriteOrbit() leaving\n");
@@ -1320,7 +1487,7 @@ void EphemerisFile::WriteOrbit(Real reqEpoch, Real *state)
 
 
 //------------------------------------------------------------------------------
-// void WriteOrbitAt(Real reqEpoch, Real *state)
+// void WriteOrbitAt(Real reqEpoch, Real state[6])
 //------------------------------------------------------------------------------
 /**
  * Writes spacecraft orbit data to a ephemeris file at requested epoch
@@ -1329,7 +1496,7 @@ void EphemerisFile::WriteOrbit(Real reqEpoch, Real *state)
  * @param state State to write 
  */
 //------------------------------------------------------------------------------
-void EphemerisFile::WriteOrbitAt(Real reqEpoch, Real *state)
+void EphemerisFile::WriteOrbitAt(Real reqEpoch, Real state[6])
 {
    #ifdef DEBUG_EPHEMFILE_ORBIT
    MessageInterface::ShowMessage
@@ -1397,7 +1564,10 @@ void EphemerisFile::FinishUpWriting()
    MessageInterface::ShowMessage
       ("   There are %d epochs waiting to be output\n", epochsOnWaiting.size());
    for (UnsignedInt i = 0; i < epochsOnWaiting.size(); i++)
-      DebugWriteTime("      ", epochsOnWaiting[i]);   
+      DebugWriteTime("      ", epochsOnWaiting[i]);
+   MessageInterface::ShowMessage
+      ("   There are %d data in the SPK buffer, spkWriter=<%p>\n",
+       spkEpochArray.size(), spkWriter);
    #endif
    
    if (!isFinalized)
@@ -1427,8 +1597,29 @@ void EphemerisFile::FinishUpWriting()
          }
       }
       
+      #ifdef DEBUG_EPHEMFILE_TXT_FILE
       if (fileType == CCSDS_AEM)
          WriteString("DATA_STOP\n");
+      #endif
+      
+      if (fileType == SPK_ORBIT)
+      {
+         if (spkWriter != NULL)
+         {
+            WriteSpkOrbitDataSegment();
+         }
+         else
+         {
+            #ifdef __USE_SPICE__
+            if (spkEpochArray.size() > 0)
+            {
+               throw SubscriberException
+                  ("*** INTERNANL ERROR *** SPK Writer is NULL in "
+                   "EphemerisFile::FinishUpWriting()\n");
+            }
+            #endif
+         }
+      }
       
       isFinalized = true;
    }
@@ -1696,6 +1887,8 @@ void EphemerisFile::WriteHeader()
 {
    if (fileType == CCSDS_OEM || fileType == CCSDS_AEM)
       WriteCcsdsHeader();
+   else if (fileType == SPK_ORBIT)
+      WriteSpkHeader();
 }
 
 
@@ -1708,6 +1901,8 @@ void EphemerisFile::WriteMetadata()
       WriteCcsdsOemMetadata();
    else if (fileType == CCSDS_AEM)
       WriteCcsdsAemMetadata();
+   else if (fileType == SPK_ORBIT)
+      WriteSpkOrbitMetaData();
 }
 
 
@@ -1722,6 +1917,8 @@ void EphemerisFile::WriteComments(const std::string &comments)
 {
    if (fileType == CCSDS_OEM || fileType == CCSDS_AEM)
       WriteCcsdsComments(comments);
+   else if (fileType == SPK_ORBIT)
+      WriteSpkComments(comments);
 }
 
 
@@ -1730,8 +1927,8 @@ void EphemerisFile::WriteComments(const std::string &comments)
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsHeader()
 {
-   // @todo reformat the time in 2009-10-27T14:26:30
-   std::string creationTime = GmatTimeUtil::GetCurrentTime();
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
+   std::string creationTime = GmatTimeUtil::FormatCurrentTime(2);
    std::stringstream ss("");
    
    if (fileType == CCSDS_OEM)
@@ -1739,10 +1936,11 @@ void EphemerisFile::WriteCcsdsHeader()
    else
       ss << "CCSDS_AEM_VERS = 1.0" << std::endl;
    
-   ss << "CREATION_DATE  = @TODO_FORMAT " << creationTime; // << std::endl;
+   ss << "CREATION_DATE  = " << creationTime << std::endl;
    ss << "ORIGINATOR     = GMAT USER" << std::endl;
    
    WriteString(ss.str());
+   #endif
 }
 
 
@@ -1751,6 +1949,7 @@ void EphemerisFile::WriteCcsdsHeader()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsOemMetadata()
 {
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -1775,6 +1974,7 @@ void EphemerisFile::WriteCcsdsOemMetadata()
    ss << "META_STOP" << std::endl << std::endl;
    
    WriteString(ss.str());
+   #endif
 }
 
 
@@ -1783,6 +1983,7 @@ void EphemerisFile::WriteCcsdsOemMetadata()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsAemMetadata()
 {
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -1809,6 +2010,7 @@ void EphemerisFile::WriteCcsdsAemMetadata()
    ss << "META_STOP" << std::endl << std::endl;
    
    WriteString(ss.str());
+   #endif
 }
 
 
@@ -1833,7 +2035,177 @@ void EphemerisFile::WriteCcsdsAem(const std::string &epoch, Real quat[4])
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsComments(const std::string &comments)
 {
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
    WriteString("\nCOMMENT  " + comments + "\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteSpkHeader()
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteSpkHeader()
+{
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
+   std::string creationTime = GmatTimeUtil::FormatCurrentTime(2);
+   std::stringstream ss("");
+   
+   ss << "SPK ORBIT DATA" << std::endl;
+   ss << "CREATION_DATE  = " << creationTime << std::endl;
+   ss << "ORIGINATOR     = GMAT USER" << std::endl;
+   
+   WriteString(ss.str());
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void BufferSpkOrbitData(Real epoch, Real state[6])
+//------------------------------------------------------------------------------
+void EphemerisFile::BufferSpkOrbitData(Real epoch, Real state[6])
+{
+   #ifdef DEBUG_EPHEMFILE_SPICE_BUFFER
+   MessageInterface::ShowMessage
+      ("==> BufferSpkOrbitData() entered, epoch=%f, state[0]=%f\n", epoch,
+       state[0]);
+   #endif
+
+   //=======================================================
+   #ifdef __USE_SPICE__
+   //=======================================================
+   if (spkEpochArray.size() > MAX_SEGMENT_SIZE)
+   {
+      WriteSpkOrbitDataSegment();
+   }
+   
+   Rvector6 *rv6 = new Rvector6(state);
+   A1Mjd *a1mjd = new A1Mjd(epoch);
+   spkEpochArray.push_back(a1mjd);
+   spkStateArray.push_back(rv6);
+   //=======================================================
+   #endif
+   //=======================================================
+   
+   #ifdef DEBUG_EPHEMFILE_SPICE_BUFFER
+   MessageInterface::ShowMessage
+      ("==> BufferSpkOrbitData() leaving, there are %d data\n", spkEpochArray.size());
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void DeleteSpkOrbitData()
+//------------------------------------------------------------------------------
+void EphemerisFile::DeleteSpkOrbitData()
+{
+   EpochArray::iterator ei;
+   for (ei = spkEpochArray.begin(); ei != spkEpochArray.end(); ++ei)
+      delete (*ei);
+   
+   StateArray::iterator si;
+   for (si = spkStateArray.begin(); si != spkStateArray.end(); ++si)
+      delete (*si);
+   
+   spkEpochArray.clear();
+   spkStateArray.clear();
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteSpkOrbitDataSegment()
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteSpkOrbitDataSegment()
+{
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage
+      ("=====> WriteSpkOrbitDataSegment() entered, spkEpochArray.size()=%d, "
+       "spkStateArray.size()=%d\n", spkEpochArray.size(), spkStateArray.size());
+   #endif
+   
+   #ifdef __USE_SPICE__
+   if (spkEpochArray.size() > 0)
+   {
+      A1Mjd *start = spkEpochArray.front();
+      A1Mjd *end   = spkEpochArray.back();
+      
+      #ifdef DEBUG_EPHEMFILE_SPICE
+      MessageInterface::ShowMessage
+         ("   Writing start=%f, end=%f\n", start->GetReal(), end->GetReal());
+      #endif
+      
+      spkWriter->WriteSegment(*start, *end, spkStateArray, spkEpochArray);
+      
+      // Now free spk data
+      DeleteSpkOrbitData();
+   }
+   #endif
+   
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage
+      ("=====> WriteSpkOrbitDataSegment() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteSpkOrbitMetaData()
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteSpkOrbitMetaData()
+{
+   std::string objId  = spacecraft->GetStringParameter("Id");
+   std::string origin = spacecraft->GetOriginName();
+   std::string csType = "UNKNOWN";
+   GmatBase *cs = (GmatBase*)(spacecraft->GetRefObject(Gmat::COORDINATE_SYSTEM, ""));
+   if (cs)
+      csType = (cs->GetRefObject(Gmat::AXIS_SYSTEM, ""))->GetTypeName();
+   
+   std::stringstream ss("");
+   ss << std::endl;
+   ss << "META_START" << std::endl;
+   ss << "OBJECT_NAME           = " << spacecraftName << std::endl;
+   ss << "OBJECT_ID             = " << objId << std::endl;
+   ss << "CENTER_NAME           = " << origin << std::endl;
+   ss << "REF_FRAME             = " << csType << std::endl;
+   ss << "TIME_SYSTEM           = " << epochFormat << std::endl;
+   ss << "START_TIME            = " << "@TODO_START" << std::endl;
+   ss << "USEABLE_START_TIME    = " << "@TODO_USTART" << std::endl;
+   ss << "USEABLE_STOP_TIME     = " << "@TODO_USTOP" << std::endl;
+   ss << "STOP_TIME             = " << "@TODO_STOP" << std::endl;
+   ss << "INTERPOLATION         = " << interpolatorName << std::endl;
+   ss << "INTERPOLATION_DEGREE  = " << interpolationOrder << std::endl;
+   ss << "META_STOP" << std::endl << std::endl;
+   
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
+   WriteString(ss.str());
+   #endif
+   
+   WriteSpkComments(ss.str());
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteSpkComments(const std::string &comments)
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteSpkComments(const std::string &comments)
+{
+   #ifdef DEBUG_EPHEMFILE_TXT_FILE
+   WriteString("\nCOMMENT  " + comments + "\n");
+   #endif
+   
+   #ifdef __USE_SPICE__
+   spkWriter->AddMetaData(comments);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void FinalizeSpkFile()
+//------------------------------------------------------------------------------
+void EphemerisFile::FinalizeSpkFile()
+{
+   #ifdef __USE_SPICE__
+   spkWriter->FinalizeKernel();
+   #endif
 }
 
 
@@ -1913,8 +2285,7 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
    //------------------------------------------------------------
    // if not writing solver data and solver is running, just return
    //------------------------------------------------------------
-   if ((mSolverIterOption == SI_NONE) &&
-       (runstate == Gmat::SOLVING || runstate == Gmat::SOLVEDPASS))
+   if ((mSolverIterOption == SI_NONE) && (runstate == Gmat::SOLVING))
    {
       #if DBGLVL_EPHEMFILE_DATA > 0
       MessageInterface::ShowMessage

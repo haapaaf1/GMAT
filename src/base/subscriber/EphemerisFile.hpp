@@ -24,6 +24,24 @@
 #include "Interpolator.hpp"
 #include <iostream>
 
+#ifdef __USE_SPICE__
+#include "SpiceKernelWriter.hpp"
+#endif
+
+#ifdef __USE_CCSDS_FILE__
+// CCSDS header
+#include "CCSDSHeader.hpp"
+// CCSDS Orbit Ephemeris Message
+#include "OEMCCSDSObType.hpp"
+#include "OEMCCSDSMetaData.hpp"
+#include "OEMStateVectorCCSDSData.hpp"
+//#include "ProcessCCSDSOEMDataFile.hpp"
+// CCSDS Attitude Ephemeris Message (future work)
+//#include "AEMCCSDSObType.hpp"
+//#include "AEMCCSDSMetaData.hpp"
+//#include "AEMQuaternionCCSDSData.hpp"
+#endif
+
 class EphemerisFile : public Subscriber
 {
 public:
@@ -82,15 +100,35 @@ public:
    
    
 protected:
+
+   const static UnsignedInt MAX_SEGMENT_SIZE = 500;
    
    enum FileType
    {
-      CCSDS_OEM, CCSDS_AEM, SPK_ORBIT, SPK_ATTITUDE, TEXT_FILE
+      CCSDS_OEM, CCSDS_AEM, SPK_ORBIT, SPK_ATTITUDE,
    };
    
-   Spacecraft       *spacecraft;
-   CoordinateSystem *coordSystem;
-   Interpolator     *interpolator; // owned object
+   Spacecraft        *spacecraft;
+   CoordinateSystem  *coordSystem;
+   Interpolator      *interpolator; // owned object
+
+#ifdef __USE_SPICE__
+   SpiceKernelWriter *spkWriter;    // owned object
+#else
+   void              *spkWriter;
+#endif
+   
+#ifdef __USE_CCSDS_FILE__
+   /// CCSDS file
+   CCSDSHeader             ccsdsHeader;
+   OEMCCSDSMetaData        ccsdsOemMetaData;
+   OEMCCSDSObType          ccsdsOemData;
+   //ProcessCCSDSOEMDataFile ccsdsOutFile;
+#endif
+   
+   // for SPK file
+   EpochArray  spkEpochArray;
+   StateArray  spkStateArray;
    
    /// ephemeris output path from the startup file
    std::string oututPath;
@@ -159,13 +197,14 @@ protected:
    
    // Initialization
    void        CreateInterpolator();
+   void        CreateSpiceKernelWriter();
    bool        OpenEphemerisFile();
    
    // Interpolation
    void        RestartInterpolation(const std::string &comments = "");
-   bool        IsTimeToWrite(Real epochInSecs, Real *state);
-   void        WriteOrbit(Real reqEpoch, Real *state);
-   void        WriteOrbitAt(Real reqEpoch, Real *state);
+   bool        IsTimeToWrite(Real epochInSecs, Real state[6]);
+   void        WriteOrbit(Real reqEpoch, Real state[6]);
+   void        WriteOrbitAt(Real reqEpoch, Real state[6]);
    void        GetAttitude();
    void        WriteAttitude();
    void        FinishUpWriting();
@@ -192,6 +231,15 @@ protected:
    void        WriteCcsdsOem(const std::string &epoch, Real state[6]);
    void        WriteCcsdsAem(const std::string &epoch, Real quat[4]);
    void        WriteCcsdsComments(const std::string &comments);
+   
+   // SPK file writing
+   void        WriteSpkHeader(); // This is for debug
+   void        BufferSpkOrbitData(Real reqEpoch, Real state[6]);
+   void        DeleteSpkOrbitData();
+   void        WriteSpkOrbitDataSegment();
+   void        WriteSpkOrbitMetaData();
+   void        WriteSpkComments(const std::string &comments);
+   void        FinalizeSpkFile();
    
    // for debugging
    void        DebugWriteTime(const std::string &msg, Real epoch);
