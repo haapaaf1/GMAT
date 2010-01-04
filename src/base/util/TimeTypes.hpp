@@ -106,6 +106,6 @@ namespace GmatTimeUtil
    bool IsValidMonthName(const std::string &str);
    std::string GetMonthName(Integer month);
    Integer GetMonth(const std::string &monthName);
-   std::string GetCurrentTime();
+   std::string FormatCurrentTime(Integer format = 1);
 }
 #endif // TimeTypes_hpp
