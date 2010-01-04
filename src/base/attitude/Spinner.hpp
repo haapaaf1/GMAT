@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 Spinner
 //------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ protected:
 
 private:
    // Default constructor - not implemented
-   Spinner();
+   //Spinner(); // MSVC compiler gives warning: multiple default constructors specified
 
 };
 #endif /*Spinner_hpp*/

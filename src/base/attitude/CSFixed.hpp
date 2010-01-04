@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 CSFixed
 //------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ protected:
 
 private:
    // Default constructor - not implemented
-   CSFixed();
+   //CSFixed(); // MSVC compiler gives warning: multiple default constructors specified
 
 };
 #endif /*CSFixed_hpp*/
