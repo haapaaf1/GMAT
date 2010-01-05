@@ -101,7 +101,7 @@ public:
    
 protected:
 
-   const static UnsignedInt MAX_SEGMENT_SIZE = 500;
+   const static UnsignedInt MAX_SEGMENT_SIZE = 1000;
    
    enum FileType
    {
@@ -157,6 +157,7 @@ protected:
    Real        nextReqEpoch;
    Real        currEpochInDays;
    Real        currEpochInSecs;
+   Real        currState[6];
    Real        prevEpoch;
    Real        prevProcTime;
    Real        attEpoch;
@@ -200,13 +201,18 @@ protected:
    void        CreateSpiceKernelWriter();
    bool        OpenEphemerisFile();
    
+   // Time and data
+   bool        CheckInitialAndFinalEpoch();
+   void        HandleCcsdsOrbitData(bool writeData);
+   void        HandleSpkOrbitData(bool writeData);
+   
    // Interpolation
    void        RestartInterpolation(const std::string &comments = "");
    bool        IsTimeToWrite(Real epochInSecs, Real state[6]);
-   void        WriteOrbit(Real reqEpoch, Real state[6]);
-   void        WriteOrbitAt(Real reqEpoch, Real state[6]);
+   void        WriteCcsdsOrbit(Real reqEpochInSecs, Real state[6]);
+   void        WriteCcsdsOrbitAt(Real reqEpochInSecs, Real state[6]);
    void        GetAttitude();
-   void        WriteAttitude();
+   void        WriteCcsdsAttitude();
    void        FinishUpWriting();
    void        ProcessEpochsOnWaiting(bool checkFinalEpoch = false);
    bool        SetEpoch(Integer id, const std::string &value,
@@ -243,6 +249,7 @@ protected:
    
    // for debugging
    void        DebugWriteTime(const std::string &msg, Real epoch);
+   void        DebugWriteOrbit(Real reqEpochInSecs, Real state[6]);
    
    // methods inherited from Subscriber
    virtual bool         Distribute(Integer len);
