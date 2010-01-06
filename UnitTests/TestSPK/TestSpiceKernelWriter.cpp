@@ -64,8 +64,8 @@ int RunTest(TestOutput &out)
    std::string kernelName     = "TestSpiceKernelWriter.bsp";
    std::string scName         = "MySpacecraft";
    std::string centerName     = "Earth";
-   Integer     scNaifId       = -101;   // ???
-   Integer     centerNaifId   = 0;    // test checking for 0   - shoule be 399;
+   Integer     scNaifId       = -101;   // made up, of course
+   Integer     centerNaifId   = 0;    // test checking for 0   - should be 399;
    std::string referenceFrame = "J2000";
    StateArray  sa;
    EpochArray  ea;
@@ -91,6 +91,9 @@ int RunTest(TestOutput &out)
       meta.push_back(metaData);
       // try sending meta data to the SKW
       skw->AddMetaData(meta);
+
+      metaData = "Add another line using the one-string method too!!  Woo Hoo!!\n";
+      skw->AddMetaData(metaData);
 
       // Test sending states and epochs to the SKW
       A1Mjd      refA1(GmatTimeUtil::A1MJD_OF_J2000 + 2922.00); // Jan 1 2008?
@@ -192,7 +195,7 @@ int main(int argc, char *argv[])
    MessageInterface::SetLogFile("./output/GmatLog.txt"); // ??
    
    TestOutput out("TestSpiceKernelWriterOut.txt");
-   out.Put(GmatTimeUtil::GetCurrentTime());
+   out.Put(GmatTimeUtil::FormatCurrentTime());
    
    try
    {
