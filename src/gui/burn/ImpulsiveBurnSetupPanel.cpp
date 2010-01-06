@@ -16,6 +16,7 @@
 //------------------------------------------------------------------------------
 
 #include "ImpulsiveBurnSetupPanel.hpp"
+#include "MessageInterface.hpp"
 
 //#define DEBUG_BURNPANEL_LOAD
 
