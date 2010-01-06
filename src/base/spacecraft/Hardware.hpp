@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Hardware
 //------------------------------------------------------------------------------
@@ -20,7 +20,6 @@
 #define HARDWARE_HPP
 
 #include "GmatBase.hpp"
-#include "HardwareException.hpp"
 
 /**
  * Base class used for spacecraft hardware.
@@ -36,9 +35,9 @@
 class GMAT_API Hardware : public GmatBase 
 {
 public:
-	Hardware(Gmat::ObjectType typeId, const std::string &typeStr, 
+   Hardware(Gmat::ObjectType typeId, const std::string &typeStr, 
             const std::string &nomme = "");
-	virtual ~Hardware();
+   virtual ~Hardware();
    Hardware(const Hardware& hw);
    Hardware&               operator=(const Hardware& hw);
    
