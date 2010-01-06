@@ -23,7 +23,6 @@
 #include "FuelTank.hpp"
 #include "CoordinateSystem.hpp"
 #include "CelestialBody.hpp"
-#include "Spacecraft.hpp"
 
 // Declare forward reference since Spacecraft ownes Thruster
 class Spacecraft;
