@@ -22,6 +22,7 @@
  */
 //------------------------------------------------------------------------------
 #include "ThrusterConfigPanel.hpp"
+#include "MessageInterface.hpp"
 
 //------------------------------
 // public methods
