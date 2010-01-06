@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include "Optimize.hpp"
+#include "MessageInterface.hpp"
 
 //Added __USE_EXTERNAL_OPTIMIZER__ so that header will not be compiled
 #ifdef __USE_EXTERNAL_OPTIMIZER__
