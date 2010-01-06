@@ -26,7 +26,7 @@
 #include "GuiInterpreter.hpp"
 #include "Spacecraft.hpp"
 #include "RealUtilities.hpp"
-
+#include "MessageInterface.hpp"
 #include <stdlib.h>
 
 //#define DEBUG_SPACECRAFT_PANEL 1
