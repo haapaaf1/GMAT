@@ -23,6 +23,7 @@
 #include "CoordinateConverter.hpp"
 #include "Interpolator.hpp"
 #include <iostream>
+#include <fstream>
 
 #ifdef __USE_SPICE__
 #include "SpiceKernelWriter.hpp"
