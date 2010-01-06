@@ -22,8 +22,8 @@
 #include "SolverBranchCommand.hpp"
 #include "Spacecraft.hpp"
 #include "Formation.hpp"
-
-#include "Vary.hpp"           // For SetInitialValue() method
+#include "Vary.hpp"                // For SetInitialValue() method
+#include "MessageInterface.hpp"
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
