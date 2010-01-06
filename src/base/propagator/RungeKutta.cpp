@@ -52,6 +52,7 @@
 
 #include "gmatdefs.hpp"
 #include "RungeKutta.hpp"
+#include "MessageInterface.hpp"
 
 //#define DEBUG_PROPAGATOR_FLOW
 //#define DEBUG_RAW_STEP_STATE
