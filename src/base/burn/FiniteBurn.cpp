@@ -20,7 +20,8 @@
 
 #include "FiniteBurn.hpp"
 #include "BurnException.hpp"
-#include "StringUtil.hpp"     // for ToString()
+#include "StringUtil.hpp"          // for ToString()
+#include "MessageInterface.hpp"
 
 //#define DEBUG_RENAME
 //#define DEBUG_BURN_ORIGIN
