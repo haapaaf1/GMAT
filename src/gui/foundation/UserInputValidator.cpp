@@ -15,6 +15,7 @@
 #include "UserInputValidator.hpp"
 #include "GmatPanel.hpp"
 #include "GmatDialog.hpp"
+#include "MessageInterface.hpp"
 
 //------------------------------------------------------------------------------
 // UserInputValidator()
