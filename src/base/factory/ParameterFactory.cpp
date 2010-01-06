@@ -38,6 +38,7 @@
 #include "BallisticMassParameters.hpp"
 #include "OrbitStmParameters.hpp"
 #include "HardwareParameters.hpp"
+#include "MessageInterface.hpp"
 
 //---------------------------------
 //  public methods
