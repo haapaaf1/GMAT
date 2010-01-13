@@ -322,11 +322,13 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    // Initialize the covariance matrix
    covariance.AddCovarianceElement("CartesianState", this);
    covariance.ConstructLHS();
-
+   
    covariance(0,0) = covariance(1,1) = covariance(2,2) = 1.0e10;
    covariance(3,3) = covariance(4,4) = covariance(5,5) = 1.0e6;
-
-
+   
+   // Set some negative value to naifId
+   naifId = -123456789;
+   
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft() <%p>'%s' exiting\n", this, name.c_str());
