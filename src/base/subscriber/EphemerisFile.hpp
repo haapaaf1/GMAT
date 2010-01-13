@@ -163,6 +163,7 @@ protected:
    Real        prevProcTime;
    Real        attEpoch;
    Real        attQuat[4];
+   Real        maneuverEpochInDays;
    RealArray   epochsOnWaiting;
    
    bool        firstTimeWriting;
@@ -172,10 +173,16 @@ protected:
    bool        writeAttitude;
    bool        writeDataInDataCS;
    bool        processingLargeStep;
+   bool        spkWriteFailed;
+   
+   Gmat::RunState prevRunState;
    
    CoordinateConverter coordConverter;
    
    FileType    fileType;
+   
+   /// for maneuver handling
+   ObjectArray maneuversHandled;
    
    /// output data stream
    std::ofstream      dstream;
@@ -198,6 +205,7 @@ protected:
    static StringArray interpolatorTypeList;
    
    // Initialization
+   void        InitializeData();
    void        CreateInterpolator();
    void        CreateSpiceKernelWriter();
    bool        OpenEphemerisFile();
@@ -250,14 +258,14 @@ protected:
    
    // for debugging
    void        DebugWriteTime(const std::string &msg, Real epoch);
-   void        DebugWriteOrbit(Real reqEpochInSecs, Real state[6]);
+   void        DebugWriteOrbit(Real reqEpochInSecs, Real state[6], bool logOnly = false);
    
    // methods inherited from Subscriber
-   virtual bool         Distribute(Integer len);
-   virtual bool         Distribute(const Real * dat, Integer len);
-   virtual void         HandleManeuvering(bool flag, Real epoch,
-                                          const StringArray &satNames,
-                                          const std::string &desc);
+   virtual bool Distribute(Integer len);
+   virtual bool Distribute(const Real * dat, Integer len);
+   virtual void HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
+                                  const StringArray &satNames,
+                                  const std::string &desc);
    
    enum
    {

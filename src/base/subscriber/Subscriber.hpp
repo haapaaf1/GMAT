@@ -55,10 +55,10 @@ public:
    virtual bool         FlushData();
    virtual bool         SetEndOfRun();
    virtual void         SetRunState(Gmat::RunState rs);
-   virtual void         SetManeuvering(bool flag, Real epoch,
+   virtual void         SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
                                        const std::string &satName,
                                        const std::string &desc);
-   virtual void         SetManeuvering(bool flag, Real epoch,
+   virtual void         SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
                                        const StringArray &satNames,
                                        const std::string &desc);
    
@@ -170,7 +170,8 @@ protected:
    // Methods that derived classes can override
    virtual bool         Distribute(Integer len) = 0;
    virtual bool         Distribute(const Real *dat, Integer len);
-   virtual void         HandleManeuvering(bool flag, Real epoch,
+   virtual void         HandleManeuvering(GmatBase *originator,
+                                          bool flag, Real epoch,
                                           const StringArray &satNames,
                                           const std::string &desc);
    
