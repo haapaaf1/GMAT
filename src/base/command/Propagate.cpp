@@ -31,11 +31,6 @@
 #include <sstream>
 #include <cmath>
 
-// The old Publisher code keep incrementing the provider id whenever
-// Publisher::RegisterPublishedData() is called, which causes OpenGL
-// plot to fail if it is used in the nested GmatFunction.
-//#define __USE_OLD_PUB_CODE__
-
 //#define DEBUG_PROPAGATE_ASSEMBLE 1
 //#define DEBUG_PROPAGATE_OBJ 1
 //#define DEBUG_PROPAGATE_INIT 1
@@ -2680,50 +2675,25 @@ void Propagate::PrepareToPropagate()
                MessageInterface::ShowMessage(
                   "SpaceObject %s is maneuvering\n", (*sc)->GetName().c_str());
             #endif
-            
+               
             // Add the force
             for (UnsignedInt index = 0; index < prop.size(); ++index)
             {
                for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
-                    i != transientForces->end(); ++i) 
+                    i != transientForces->end(); ++i)
                {
-                  // @todo Do we really want to check for spacecraft in the
-                  // SpaceObject list? Don't check it for now (LOJ: 2009.05.04)
-                  //======================================================
-                  #ifdef __CHECK_SPACEOBJECT__             
-                  //======================================================
-                  ODEModel *fm = prop[index]->GetODEModel();
-                  const StringArray sar = fm->GetRefObjectNameArray(Gmat::SPACEOBJECT);
-                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end())
-                  {
-                     #ifdef DEBUG_TRANSIENT_FORCES
-                     MessageInterface::ShowMessage
-                        ("   Adding tf<%p>'%' to forceList\n",
-                         *i, (*i)->GetName().c_str());
-                     #endif
-                     prop[index]->GetODEModel()->AddForce(*i);
-                  }
-                  
-                  //======================================================
-                  #else
-                  //======================================================
                   #ifdef DEBUG_TRANSIENT_FORCES
                   MessageInterface::ShowMessage
                      ("Propagate::PrepareToPropagate() Adding transientForce<%p>'%s'\n",
                       *i, (*i)->GetName().c_str());
                   #endif
                   prop[index]->GetODEModel()->AddForce(*i);
-                  
-                  //======================================================
-                  #endif
-                  //======================================================
-                  
                   // todo: Rebuild ODEModel by calling BuildModelFromMap()
                }
             }
          }
       }
-
+      
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
       {
          elapsedTime[n] = 0.0;
@@ -3000,35 +2970,32 @@ void Propagate::PrepareToPropagate()
    if (pubdata)
    {
       #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-             "deleting pub data");
+      MemoryTracker::Instance()->Remove
+         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+          "deleting pub data");
       #endif
       delete [] pubdata;
    }
    pubdata = new Real[dim+1];
    #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-          "pubdata = new Real[dim+1]");
+   MemoryTracker::Instance()->Add
+      (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+       "pubdata = new Real[dim+1]");
    #endif
-
+   
+   // @todo Somehow the epoch doesn't get updated after maneuver. (LOJ: 2010.01.12)
    // Publish the data
    pubdata[0] = currEpoch[0];
    memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
    
    #ifdef DEBUG_PUBLISH_DATA
-      MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
-          "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
-          dim+1, streamID, pubdata[0]);
+   MessageInterface::ShowMessage
+      ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
+       "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+       dim+1, streamID, pubdata[0]);
    #endif
    
-   #ifdef __USE_OLD_PUB_CODE__
-      publisher->Publish(streamID, pubdata, dim+1);
-   #else
-      publisher->Publish(this, streamID, pubdata, dim+1);
-   #endif
+   publisher->Publish(this, streamID, pubdata, dim+1);
 }
 
 
@@ -3067,7 +3034,10 @@ bool Propagate::Execute()
 
          // Check for initial stop condition before first step in while loop
          // eg) elapsed time of 0
-         if (publisher->GetRunState() == Gmat::RUNNING)
+         // Added to also check Gmat::SOLVING, since Optimize.cpp was updated to
+         // set the run state to Gmat::SOLVING (LOJ: 2010.01.12)
+         if (publisher->GetRunState() == Gmat::RUNNING ||
+             publisher->GetRunState() == Gmat::SOLVING)
          {
             // remove any old stop conditions that may have reported valid
             triggers.clear();
@@ -3182,11 +3152,7 @@ bool Propagate::Execute()
                 dim+1, streamID, pubdata[0]);
             #endif
             
-            #ifdef __USE_OLD_PUB_CODE__
-               publisher->Publish(streamID, pubdata, dim+1);
-            #else
-               publisher->Publish(this, streamID, pubdata, dim+1);
-            #endif
+            publisher->Publish(this, streamID, pubdata, dim+1);
          }
          else
          {  
@@ -3843,11 +3809,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
           dim+1, streamID, pubdata[0]);
       #endif
       
-      #ifdef __USE_OLD_PUB_CODE__
-         publisher->Publish(streamID, pubdata, dim+1);
-      #else
-         publisher->Publish(this, streamID, pubdata, dim+1);
-      #endif
+      publisher->Publish(this, streamID, pubdata, dim+1);
       
       #if DEBUG_PROPAGATE_EXE
          MessageInterface::ShowMessage
