@@ -943,52 +943,56 @@ void Publisher::SetRunState(const Gmat::RunState state)
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const std::string &satName,
-//                     const std::string &desc)
+// void SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+//                     const std::string &satName, const std::string &desc)
 //------------------------------------------------------------------------------
 /**
- * Sets spacecraft maneuvering flag.
- * 
- * @param flag Set to true if maneuvering
- * @param epoch Epoch of maneuver
- * @param satName Name of the maneuvering spacecraft
- * @param desc Description of maneuver (e.g. impulsive or finite)
+ * Sets single spacecraft maneuvering flag.
+ *
+ * @param originator  The maneuver command pointer who is maneuvering
+ * @param flag  Set to true if maneuvering
+ * @param epoch  Epoch of maneuver
+ * @param satName  Name of the maneuvering spacecraft
+ * @param desc  Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Publisher::SetManeuvering(bool flag, Real epoch, const std::string &satName,
+void Publisher::SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+                               const std::string &satName,
                                const std::string &desc)
 {
    maneuvering = flag;
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
-      (*current)->SetManeuvering(flag, epoch, satName, desc);
+      (*current)->SetManeuvering(originator, flag, epoch, satName, desc);
       current++;
    }
 }
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
-//                     const std::string &desc)
+// void SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+//                     const StringArray &satNames, const std::string &desc)
 //------------------------------------------------------------------------------
 /**
- * Sets spacecraft maneuvering flag.
+ * Sets multiple spacecrafts maneuvering flag.
  * 
- * @param flag Set to true if maneuvering
- * @param epoch Epoch of maneuver
- * @param satNames Names of the maneuvering spacecraft
- * @param desc Description of maneuver (e.g. impulsive or finite)
+ * @param originator  The maneuver command pointer who is maneuvering
+ * @param flag  Set to true if maneuvering
+ * @param epoch  Epoch of maneuver
+ * @param satNames  Names of the maneuvering spacecraft
+ * @param desc  Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Publisher::SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+void Publisher::SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+                               const StringArray &satNames,
                                const std::string &desc)
 {
    maneuvering = flag;
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
-      (*current)->SetManeuvering(flag, epoch, satNames, desc);
+      (*current)->SetManeuvering(originator, flag, epoch, satNames, desc);
       current++;
    }
 }

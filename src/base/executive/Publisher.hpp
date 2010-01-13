@@ -56,10 +56,12 @@ public:
    
    // Interfaces used to update the state of the running system
    void                 SetRunState(const Gmat::RunState state);
-   void                 SetManeuvering(bool flag, Real epoch,
+   void                 SetManeuvering(GmatBase *originator,
+                                       bool flag, Real epoch,
                                        const std::string &satNames,
                                        const std::string &desc);
-   void                 SetManeuvering(bool flag, Real epoch,
+   void                 SetManeuvering(GmatBase *originator,
+                                       bool flag, Real epoch,
                                        const StringArray &satNames,
                                        const std::string &desc);
    bool                 GetManeuvering();
