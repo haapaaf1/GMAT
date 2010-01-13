@@ -1134,20 +1134,8 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
 //------------------------------------------------------------------------------
 void Assignment::ClearWrappers()
 {
-   ElementWrapper* lhsEw = NULL;
-   ElementWrapper* rhsEw = NULL;
-   
-   if (lhsWrapper)
-   {
-      lhsEw = lhsWrapper;
-      lhsWrapper = NULL;
-   }
-   
-   if (rhsWrapper)
-   {
-      rhsEw = rhsWrapper;
-      rhsWrapper = NULL;
-   }
+   ElementWrapper* lhsEw = lhsWrapper;
+   ElementWrapper* rhsEw = rhsWrapper;
    
    if (rhsEw)
    {
@@ -1181,7 +1169,7 @@ void Assignment::ClearWrappers()
       }
    }
    
-   if (lhsEw)
+   if (lhsEw && lhsEw != rhsWrapper)
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
@@ -1191,6 +1179,9 @@ void Assignment::ClearWrappers()
       delete lhsEw;
       lhsEw = NULL;
    }
+   
+   lhsWrapper = NULL;
+   rhsWrapper = NULL;
    
    mathWrapperMap.clear();
 }
