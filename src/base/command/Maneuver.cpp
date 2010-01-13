@@ -19,6 +19,7 @@
 
 
 #include "Maneuver.hpp"
+#include "MessageInterface.hpp"
 
 //#define DEBUG_MANEUVER 1
 //#define DEBUG_MANEUVER_PARSE
@@ -576,8 +577,8 @@ bool Maneuver::Initialize()
 bool Maneuver::Execute()
 {
    #ifdef DEBUG_MANEUVER_EXEC
-      MessageInterface::ShowMessage("Maneuver::Execute maneuvering %s\n",
-            ((sat == NULL) ? "a NULL spaceecraft" : sat->GetName().c_str()));
+      MessageInterface::ShowMessage("Maneuver::Execute this=<%p> maneuvering %s\n",
+            this, ((sat == NULL) ? "a NULL spaceecraft" : sat->GetName().c_str()));
    #endif
       
    Real epoch = sat->GetRealParameter("A1Epoch");
@@ -585,29 +586,29 @@ bool Maneuver::Execute()
    #ifdef DEBUG_MANEUVER_EXEC
    Rvector6 state = sat->GetState(0); // Get cartesian state
    MessageInterface::ShowMessage
-      ("   state before maneuver = \n   %s\n", state.ToString().c_str());
+      ("   state before maneuver at epoch %f\n   %s\n", epoch, state.ToString().c_str());
    #endif
    
    burn->SetSpacecraftToManeuver(sat);
    
    // Set maneuvering to Publisher so that any subscriber can do its own action
-   publisher->SetManeuvering(true, epoch, satName, "ImpulsiveBurn");
+   publisher->SetManeuvering(this, true, epoch, satName, "ImpulsiveBurn");
    
    bool retval = burn->Fire(NULL, epoch);
    
    // Reset maneuvering to Publisher so that any subscriber can do its own action
-   publisher->SetManeuvering(false, epoch, satName, "ImpulsiveBurn");
+   publisher->SetManeuvering(this, false, epoch, satName, "ImpulsiveBurn");
    
    #ifdef DEBUG_MANEUVER_EXEC
    state = sat->GetState(0); // Get cartesian state
    MessageInterface::ShowMessage
-      ("   state after  maneuver = \n   %s", state.ToString().c_str());
+      ("   state after  maneuver at epoch %f \n   %s", epoch, state.ToString().c_str());
    #endif
    
    BuildCommandSummary(true);
    
    #ifdef DEBUG_MANEUVER_EXEC
-      MessageInterface::ShowMessage("Maneuver::Execute complete\n");
+      MessageInterface::ShowMessage("Maneuver::Execute this=<%p> complete\n", this);
    #endif
 
    return retval;

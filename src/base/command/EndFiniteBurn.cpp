@@ -512,17 +512,18 @@ bool EndFiniteBurn::Execute()
    for (std::vector<Thruster*>::iterator i = thrusters.begin(); 
         i != thrusters.end(); ++i)
    {
+      Thruster *th = *i;
       #ifdef DEBUG_END_MANEUVER_EXE
          MessageInterface::ShowMessage
-            ("EndFiniteBurn::Execute() Deactivating engine %s\n", 
-             (*i)->GetName().c_str());
+            ("EndFiniteBurn::Execute() Deactivating engine <%p>'%s'\n", th,
+             th->GetName().c_str());
       #endif
-      (*i)->SetBooleanParameter((*i)->GetParameterID("IsFiring"), false);
+      th->SetBooleanParameter(th->GetParameterID("IsFiring"), false);
 
       #ifdef DEBUG_END_MANEUVER_EXE
          MessageInterface::ShowMessage
             ("Checking to see if engine is inactive: returned %s\n", 
-             ((*i)->GetBooleanParameter((*i)->GetParameterID("IsFiring")) ? 
+             (th->GetBooleanParameter(th->GetParameterID("IsFiring")) ? 
               "true" : "false"));
       #endif      
    }
@@ -556,7 +557,7 @@ bool EndFiniteBurn::Execute()
    if (!sats.empty())
    {
       Real epoch = sats[0]->GetEpoch();
-      publisher->SetManeuvering(false, epoch, satNames, "end of finite maneuver");
+      publisher->SetManeuvering(this, false, epoch, satNames, "end of finite maneuver");
    }
    
    #ifdef DEBUG_END_MANEUVER_EXE

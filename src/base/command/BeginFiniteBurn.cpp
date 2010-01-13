@@ -560,20 +560,25 @@ bool BeginFiniteBurn::Execute()
    }
    
    // Turn on all of the referenced thrusters
+   #ifdef DEBUG_BEGIN_MANEUVER_EXE
+   MessageInterface::ShowMessage
+      ("BeginFiniteBurn::Execute() entered, firstTimeExecution=%d, \n   "
+       "There are %d thruster(s) in use\n", firstTimeExecution, thrusters.size());
+   #endif
    for (std::vector<Thruster*>::iterator i = thrusters.begin(); 
         i != thrusters.end(); ++i)
    {
+      Thruster *th = *i;
       #ifdef DEBUG_BEGIN_MANEUVER_EXE
          MessageInterface::ShowMessage
-            ("Activating engine %s\n", 
-             (*i)->GetName().c_str());
+            ("Activating engine <%p>'%s'\n", th, th->GetName().c_str());
       #endif
-      (*i)->SetBooleanParameter((*i)->GetParameterID("IsFiring"), true);
-
+      th->SetBooleanParameter(th->GetParameterID("IsFiring"), true);
+      
       #ifdef DEBUG_BEGIN_MANEUVER_EXE
          MessageInterface::ShowMessage
             ("Checking to see if engine is active: returned %s\n", 
-             ((*i)->GetBooleanParameter((*i)->GetParameterID("IsFiring")) ? 
+             (th->GetBooleanParameter(th->GetParameterID("IsFiring")) ? 
               "true" : "false"));
       #endif      
    }
@@ -604,10 +609,12 @@ bool BeginFiniteBurn::Execute()
    if (!sats.empty())
    {
       Real epoch = sats[0]->GetEpoch();
-      publisher->SetManeuvering(true, epoch, satNames, "begin of finite maneuver");
+      publisher->SetManeuvering(this, true, epoch, satNames, "begin of finite maneuver");
    }
    
    #ifdef DEBUG_BEGIN_MANEUVER_EXE
+      MessageInterface::ShowMessage
+         ("There are %d transient force(s)\n", transientForces->size());
       MessageInterface::ShowMessage("Current TransientForces list:\n");
       for (std::vector<PhysicalModel*>::iterator j = transientForces->begin();
            j != transientForces->end(); ++j)
