@@ -1016,8 +1016,8 @@ bool FminconOptimizer::OpenConnection()
 #if defined __USE_MATLAB__
    matlabIf = MatlabInterface::Instance();
       
-   // open the MatlabInterface (which is currently a static class)
-   if (!matlabIf->Open())
+   // open the MatlabInterface
+   if (!matlabIf->Open("GmatMatlab"))
       throw SolverException("Error attempting to access interface to MATLAB");
    
    // clear the last error message
