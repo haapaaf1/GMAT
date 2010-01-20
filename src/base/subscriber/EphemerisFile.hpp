@@ -36,7 +36,7 @@
 #include "OEMCCSDSObType.hpp"
 #include "OEMCCSDSMetaData.hpp"
 #include "OEMStateVectorCCSDSData.hpp"
-//#include "ProcessCCSDSOEMDataFile.hpp"
+#include "CCSDSOEMDataFile.hpp"
 // CCSDS Attitude Ephemeris Message (future work)
 //#include "AEMCCSDSObType.hpp"
 //#include "AEMCCSDSMetaData.hpp"
@@ -57,6 +57,7 @@ public:
    
    // methods inherited from Subscriber
    virtual bool         Initialize();
+   virtual void         SetProvider(GmatBase *provider);
    
    // methods inherited from GmatBase
    virtual GmatBase*    Clone(void) const;
@@ -146,6 +147,10 @@ protected:
    std::string stateType;
    std::string coordSystemName;
    std::string writeEphemeris;
+   /// for propagator change
+   std::string prevPropName;
+   std::string currPropName;
+   
    Integer     interpolationOrder;
    Integer     initialCount;
    Integer     waitCount;
@@ -183,7 +188,7 @@ protected:
    
    /// for maneuver handling
    ObjectArray maneuversHandled;
-   
+      
    /// output data stream
    std::ofstream      dstream;
    
@@ -266,6 +271,7 @@ protected:
    virtual void HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
                                   const StringArray &satNames,
                                   const std::string &desc);
+   virtual void HandlePropagatorChange(GmatBase *provider);
    
    enum
    {

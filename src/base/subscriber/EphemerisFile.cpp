@@ -35,12 +35,13 @@
 //#define DEBUG_EPHEMFILE_TIME
 //#define DEBUG_EPHEMFILE_ORBIT
 //#define DEBUG_EPHEMFILE_WRITE
-//#define DEBUG_EPHEMFILE_MANEUVER
 //#define DEBUG_EPHEMFILE_RESTART
 //#define DEBUG_EPHEMFILE_FINISH
 //#define DEBUG_EPHEMFILE_SOLVER_DATA
 #define DEBUG_EPHEMFILE_TEXT
 //#define DBGLVL_EPHEMFILE_DATA 1
+//#define DBGLVL_EPHEMFILE_MANEUVER 1
+//#define DBGLVL_EPHEMFILE_PROP_CHANGE 1
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -119,6 +120,8 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    stateType           ("Cartesian"),
    coordSystemName     ("EarthMJ2000Eq"),
    writeEphemeris      ("Yes"),
+   prevPropName        (""),
+   currPropName        (""),
    interpolationOrder  (7),
    initialCount        (0),
    waitCount           (0),
@@ -262,6 +265,8 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    stateType           (ef.stateType),
    coordSystemName     (ef.coordSystemName),
    writeEphemeris      (ef.writeEphemeris),
+   prevPropName        (ef.prevPropName),
+   currPropName        (ef.currPropName),
    interpolationOrder  (ef.interpolationOrder),
    initialCount        (ef.initialCount),
    waitCount           (ef.waitCount),
@@ -320,6 +325,8 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    stateType           = ef.stateType;
    coordSystemName     = ef.coordSystemName;
    writeEphemeris      = ef.writeEphemeris;
+   prevPropName        = ef.prevPropName;
+   currPropName        = ef.currPropName;
    interpolationOrder  = ef.interpolationOrder;
    initialCount        = ef.initialCount;
    waitCount           = ef.waitCount;
@@ -518,6 +525,7 @@ bool EphemerisFile::Initialize()
    
    // Initialize data
    firstTimeWriting = true;
+   prevPropName = "";
    InitializeData();
    maneuversHandled.clear();
    
@@ -605,6 +613,16 @@ bool EphemerisFile::Initialize()
    #endif
    
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetProvider(GmatBase *provider)
+//------------------------------------------------------------------------------
+void EphemerisFile::SetProvider(GmatBase *provider)
+{
+   Subscriber::SetProvider(provider);
+   HandlePropagatorChange(provider);
 }
 
 
@@ -1299,7 +1317,7 @@ bool EphemerisFile::OpenEphemerisFile()
       MessageInterface::ShowMessage("   About to open CCSDS output file\n");
       #endif
       
-      ProcessCCSDSOEMDataFile ccsdsOutFile("theFile");
+      CCSDSOEMDataFile ccsdsOutFile("theFile");
       ccsdsOutFile.SetReadWriteMode("w");
       ccsdsOutFile.SetFileName(fileName);
       ccsdsOutFile.Initialize();
@@ -2564,10 +2582,11 @@ void EphemerisFile::HandleManeuvering(GmatBase *originator, bool flag, Real epoc
                                       const StringArray &satNames,
                                       const std::string &desc)
 {
-   #ifdef DEBUG_EPHEMFILE_MANEUVER
+   #if DBGLVL_EPHEMFILE_MANEUVER > 1
    MessageInterface::ShowMessage
-      ("EphemerisFile::HandleManeuvering() entered, originator=<%p>, runstate=%d, "
-       "maneuversHandled.size()=%d\n",originator, runstate, maneuversHandled.size());
+      ("EphemerisFile::HandleManeuvering() entered, originator=<%p>, prevRunState=%d, "
+       "runstate=%d, maneuversHandled.size()=%d\n",originator, prevRunState, runstate,
+       maneuversHandled.size());
    #endif
    
    // SOLVEDPASS is passed multiple times, one from the solver loop another from
@@ -2579,7 +2598,7 @@ void EphemerisFile::HandleManeuvering(GmatBase *originator, bool flag, Real epoc
       if (find(maneuversHandled.begin(), maneuversHandled.end(), originator) !=
           maneuversHandled.end())
       {
-         #ifdef DEBUG_EPHEMFILE_MANEUVER
+         #if DBGLVL_EPHEMFILE_MANEUVER
          MessageInterface::ShowMessage
             ("EphemerisFile::HandleManeuvering() leaving, prevRunState is "
              "SOLVEDPASS for the same originator\n");
@@ -2590,36 +2609,47 @@ void EphemerisFile::HandleManeuvering(GmatBase *originator, bool flag, Real epoc
    
    if (runstate == Gmat::RUNNING || runstate == Gmat::SOLVEDPASS)
    {
-      #ifdef DEBUG_EPHEMFILE_MANEUVER
+      #if DBGLVL_EPHEMFILE_MANEUVER
       MessageInterface::ShowMessage
-         ("EphemerisFile::HandleManeuvering() GMAT is not solving or solver has finished\n");
+         ("EphemerisFile::HandleManeuvering() GMAT is not solving or solver has "
+          "finished; prevRunState=%d, runstate=%d\n", prevRunState, runstate);
       #endif
       
-      // Check spacecraft name first   
-      if (find(satNames.begin(), satNames.end(), spacecraftName) == satNames.end())
-         return;
-      
-      Real toMjd;
-      std::string epochStr;
-      
-      // Added to maneuvers handled
-      maneuversHandled.push_back(originator);
-      maneuverEpochInDays = epoch;
-      
-      // Convert current epoch to specified format
-      TimeConverterUtil::Convert("A1ModJulian", epoch, "", epochFormat, toMjd, epochStr);
-      
-      #ifdef DEBUG_EPHEMFILE_MANEUVER
-      MessageInterface::ShowMessage
-         ("=====> Restarting the interpolation at %s\n", epochStr.c_str());
-      #endif
-      
-      // Restart interpolation
-      RestartInterpolation("This block begins after " + desc + " at " + epochStr + "\n");
+      if (prevRunState != Gmat::IDLE)
+      {
+         // Check spacecraft name first   
+         if (find(satNames.begin(), satNames.end(), spacecraftName) == satNames.end())
+         {
+            #if DBGLVL_EPHEMFILE_MANEUVER > 1
+            MessageInterface::ShowMessage
+               ("EphemerisFile::HandleManeuvering() leaving, the spacecraft '%s' is not maneuvering\n",
+                spacecraftName.c_str());
+            #endif
+            return;
+         }
+         
+         Real toMjd;
+         std::string epochStr;
+         
+         // Added to maneuvers handled
+         maneuversHandled.push_back(originator);
+         maneuverEpochInDays = epoch;
+         
+         // Convert current epoch to specified format
+         TimeConverterUtil::Convert("A1ModJulian", epoch, "", epochFormat, toMjd, epochStr);
+         
+         #if DBGLVL_EPHEMFILE_MANEUVER
+         MessageInterface::ShowMessage
+            ("=====> Restarting the interpolation at %s\n", epochStr.c_str());
+         #endif
+         
+         // Restart interpolation
+         RestartInterpolation("This block begins after " + desc + " at " + epochStr + "\n");
+      }
    }
    else
    {
-      #ifdef DEBUG_EPHEMFILE_MANEUVER
+      #if DBGLVL_EPHEMFILE_MANEUVER > 1
       MessageInterface::ShowMessage
          ("EphemerisFile::HandleManeuvering() GMAT is solving\n");
       #endif
@@ -2627,8 +2657,91 @@ void EphemerisFile::HandleManeuvering(GmatBase *originator, bool flag, Real epoc
    
    prevRunState = runstate;
    
-   #ifdef DEBUG_EPHEMFILE_MANEUVER
+   #if DBGLVL_EPHEMFILE_MANEUVER > 1
    MessageInterface::ShowMessage("EphemerisFile::HandleManeuvering() leaving\n");
    #endif
 }
 
+
+//------------------------------------------------------------------------------
+// virtual void HandlePropagatorChange(GmatBase *provider)
+//------------------------------------------------------------------------------
+void EphemerisFile::HandlePropagatorChange(GmatBase *provider)
+{
+   #if DBGLVL_EPHEMFILE_PROP_CHANGE > 1
+   MessageInterface::ShowMessage
+      ("EphemerisFile::HandlePropagatorChange() entered, provider=<%p><%s>\n",
+       provider, provider->GetTypeName().c_str());
+   #endif
+   
+   if (runstate == Gmat::RUNNING || runstate == Gmat::SOLVEDPASS)
+   {
+      #if DBGLVL_EPHEMFILE_PROP_CHANGE > 1
+      MessageInterface::ShowMessage
+         ("EphemerisFile::HandlePropagatorChange() GMAT is not solving or solver has finished\n");
+      #endif
+      
+      // Check if propagator name changed on ephemeris file spacecraft
+      if (provider->GetTypeName() == "Propagate")
+      {
+         // Go through propagator list and check if spacecraft found
+         StringArray propNames = provider->GetRefObjectNameArray(Gmat::PROP_SETUP);
+         Integer scId = provider->GetParameterID("Spacecraft");
+         for (UnsignedInt prop = 0; prop < propNames.size(); prop++)
+         {
+            StringArray satNames = provider->GetStringArrayParameter(scId, prop);
+            for (UnsignedInt sat = 0; sat < satNames.size(); sat++)
+            {
+               if (spacecraftName == satNames[sat])
+               {
+                  if (currPropName != propNames[prop])
+                  {
+                     currPropName = propNames[prop];
+                     
+                     #if DBGLVL_EPHEMFILE_PROP_CHANGE
+                     MessageInterface::ShowMessage
+                        ("The propagator changed from '%s' to '%s'\n", prevPropName.c_str(),
+                         currPropName.c_str());
+                     #endif
+                     
+                     if (prevPropName != "")
+                     {
+                        #if DBGLVL_EPHEMFILE_PROP_CHANGE
+                        MessageInterface::ShowMessage
+                           ("=====> Restarting the interpolation\n");
+                        #endif
+                        
+                        // Restart interpolation
+                        RestartInterpolation("This block begins after propagator change from " +
+                                             prevPropName + " to " + currPropName + "\n");
+                     }
+                     
+                     prevPropName = currPropName;
+                     
+                  }
+                  else
+                  {
+                     #if DBGLVL_EPHEMFILE_PROP_CHANGE > 1
+                     MessageInterface::ShowMessage
+                        ("The propagator is the same as '%s'\n", currPropName.c_str());
+                     #endif
+                  }
+               }
+            }
+         }
+      }
+   }
+   else
+   {
+      #if DBGLVL_EPHEMFILE_PROP_CHANGE > 1
+      MessageInterface::ShowMessage
+         ("EphemerisFile::HandlePropagatorChange() GMAT is solving\n");
+      #endif
+   }
+   
+   #if DBGLVL_EPHEMFILE_PROP_CHANGE > 1
+   MessageInterface::ShowMessage
+      ("EphemerisFile::HandlePropagatorChange() leaving, provider=<%p><%s>\n",
+       provider, provider->GetTypeName().c_str());
+   #endif
+}
