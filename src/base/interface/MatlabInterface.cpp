@@ -33,13 +33,14 @@
 #include "MatlabInterface.hpp"
 #include "MessageInterface.hpp"
 #include "InterfaceException.hpp"
+#include "GmatGlobal.hpp"         // for GetMatlabMode()
+#include "StringUtil.hpp"         // for ToString()
 
 //#define DEBUG_MATLAB_OPEN_CLOSE
 //#define DEBUG_MATLAB_PUT_REAL
 //#define DEBUG_MATLAB_GET_REAL
 //#define DEBUG_MATLAB_GET_STRING
 //#define DEBUG_MATLAB_EVAL
-#define DEBUG_OUTPUT_BUFFER
 
 //--------------------------------------
 //  initialize static variables
@@ -74,39 +75,43 @@ MatlabInterface* MatlabInterface::Instance()
 
 
 //------------------------------------------------------------------------------
-//  int Open()
+// int Open(const std::string &engineName = ""))
 //------------------------------------------------------------------------------
-//  Purpose:
-//     Opens Matlab engine.
+// Purpose:
+//    Opens Matlab engine.
 //
-//  Returns:
-//     1 = no error, 0 = error
+// @param engineName    Engine name used for single use, if blank it will be generated
+//
+// Returns:
+//    1 = no error, 0 = error
 //------------------------------------------------------------------------------
-int MatlabInterface::Open()
+int MatlabInterface::Open(const std::string &engineName)
 {
 #if defined __USE_MATLAB__
+
+   //=======================================================
+   #ifdef __WXMAC__
+   //=======================================================
 
    #ifdef DEBUG_MATLAB_OPEN_CLOSE
    MessageInterface::ShowMessage
       ("MatlabInterface::Open() enginePtr=%p\n", enginePtr);
    #endif
-
+   
    if (enginePtr == NULL)
       MessageInterface::ShowMessage("Please wait while MATLAB engine opens...\n");
-
-#ifdef __WXMAC__
-
+   
    /// Check if MATLAB is still running then doesn't need to re-launch
    if (enginePtr != NULL)
    {
       accessCount++;
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
          MessageInterface::ShowMessage(
-         "Attempting to reopen MATLAB connection ... accessCount = %d\n", accessCount);
+         "Attempting to reopen MATLAB engine ... accessCount = %d\n", accessCount);
       #endif
       return 1;
    }
-
+   
    // open the X11 application before launching the matlab
    system("open -a X11");
    // need to get IP address or hostname here
@@ -127,7 +132,7 @@ int MatlabInterface::Open()
       accessCount++;
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
          MessageInterface::ShowMessage(
-         "Attempting to open MATLAB connection ... accessCount = %d\n", accessCount);
+         "Attempting to open MATLAB engine ... accessCount = %d\n", accessCount);
       #endif
       //engSetVisible(enginePtr,1);  // rats!
       return 1;
@@ -139,41 +144,117 @@ int MatlabInterface::Open()
                runString.c_str());
       return 0;
    }
-
-#else
-
-   if (enginePtr != NULL)
-   {
-      #ifdef DEBUG_MATLAB_OPEN_CLOSE
-      MessageInterface::ShowMessage("Connecting to current MATLAB session\n");
-      #endif
-
-      return 1;
-   }
-
-   // open new MATLAB engine
-   if ((enginePtr = engOpen(NULL)))
-   {
-      accessCount++;
-
+   
+   //=======================================================
+   #else // #ifdef __WXMAC__
+   //=======================================================
+   
+   // If opening MATLAB for single use
+   if (GmatGlobal::Instance()->GetMatlabMode() == GmatGlobal::SINGLE_USE)
+   {      
+      //Engine* engOpenSingleUse(const char *startcmd, void *dcom, int *retstatus);
+      //startcmd
+      //   String to start MATLAB process. On Microsoft Windows systems,
+      //   the startcmd string must be NULL.
+      //dcom
+      //   Reserved for future use; must be NULL.
+      //retstatus
+      //   Return status; possible cause of failure.
+      //      0 = success
+      //     -2 = error - second argument must be NULL
+      //     -3 = error - engOpenSingleUse failed
+      
+      // Check for the engine name first      
+      if (engineName == "")
+         lastEngineName = "matlabEngine_" + GmatStringUtil::ToString(accessCount+1, 1);
+      else
+         lastEngineName = engineName;
+      
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
       MessageInterface::ShowMessage
-         ("Attempting to open MATLAB connection ... accessCount = %d, "
-          "enginePtr=%p\n", accessCount, enginePtr);
+         ("Attempting to open MATLAB engine '%s' for single use ... accessCount = %d\n",
+          lastEngineName.c_str(), accessCount+1);
       #endif
-
+      
+      if (matlabEngineMap.find(lastEngineName) != matlabEngineMap.end())
+      {
+         MessageInterface::ShowMessage
+            ("'%s' already opened for single use\n", lastEngineName.c_str());
+         enginePtr = matlabEngineMap[lastEngineName];
+         return 1;
+      }
+      
+      // Set current engine pointer to enginePtr
+      int retval = -99;
+      enginePtr = engOpenSingleUse(NULL, NULL, &retval);
+      
+      if (retval != 0)
+      {
+         MessageInterface::ShowMessage
+            ("Failed to open MATLAB engine for single use...\n");
+         return 0;
+      }
+      
+      accessCount++;
+      matlabEngineMap.insert(std::make_pair(lastEngineName, enginePtr));
+      
+      #ifdef DEBUG_MATLAB_OPEN_CLOSE
+      MessageInterface::ShowMessage
+         ("Added <%p>'%s' to matlabEngineMap\n", enginePtr, lastEngineName.c_str());
+      #endif
+      
       // set precision to long
       EvalString("format long");
-      MessageInterface::ShowMessage("MATLAB engine successfully opened\n");
+      MessageInterface::ShowMessage
+         ("MATLAB engine '%s' successfully opened\n", lastEngineName.c_str());
       return 1;
    }
    else
    {
-      MessageInterface::ShowMessage("Failed to open MATLAB engine ...\n");
-      return 0;
+      #ifdef DEBUG_MATLAB_OPEN_CLOSE
+      MessageInterface::ShowMessage
+         ("MatlabInterface::Open() enginePtr=%p\n", enginePtr);
+      #endif
+      
+      if (enginePtr == NULL)
+      {
+         MessageInterface::ShowMessage("Please wait while MATLAB engine opens...\n");
+      }
+      else
+      {
+         #ifdef DEBUG_MATLAB_OPEN_CLOSE
+         MessageInterface::ShowMessage("Connecting to current MATLAB session\n");
+         #endif
+         
+         return 1;
+      }
+      
+      // open new MATLAB engine
+      if ((enginePtr = engOpen(NULL)))
+      {
+         accessCount++;
+         
+         #ifdef DEBUG_MATLAB_OPEN_CLOSE
+         MessageInterface::ShowMessage
+            ("Attempting to open MATLAB engine ... accessCount = %d, "
+             "enginePtr=%p\n", accessCount, enginePtr);
+         #endif
+         
+         // set precision to long
+         EvalString("format long");
+         MessageInterface::ShowMessage("MATLAB engine successfully opened\n");
+         return 1;
+      }
+      else
+      {
+         MessageInterface::ShowMessage("Failed to open MATLAB engine ...\n");
+         return 0;
+      }
    }
-#endif  // End-ifdef __WXMAC__
-
+   //=======================================================
+   #endif  // End-ifdef __WXMAC__
+   //=======================================================
+   
    return 0;
 #endif // End-ifdef __USE_MATLAB__
 
@@ -183,61 +264,104 @@ int MatlabInterface::Open()
 
 
 //------------------------------------------------------------------------------
-//  int Close()
+//  int Close(const std::string &engineName = "")
 //------------------------------------------------------------------------------
 //  Purpose:
-//     Closes Matlab engine.
+//     Closes Matlab engine
 //
 //  Returns:
 //     1 = no error, 0 = error
 //------------------------------------------------------------------------------
-int MatlabInterface::Close()
+int MatlabInterface::Close(const std::string &engineName)
 {
 #if defined __USE_MATLAB__
-   // Check if MATLAB is still running then close it.
-   if (enginePtr != NULL)
+   if (GmatGlobal::Instance()->GetMatlabMode() == GmatGlobal::SINGLE_USE)
    {
-      #ifdef DEBUG_MATLAB_OPEN_CLOSE
-      MessageInterface::ShowMessage
-         ("MatlabInterface::Close() enginePtr=%p\n", enginePtr);
-      #endif
-
-      accessCount--;
-      #ifdef DEBUG_MATLAB_OPEN_CLOSE
-         MessageInterface::ShowMessage(
-         "Attempting to close MATLAB connection ... accessCount = %d\n", accessCount);
-      #endif
-
-      //if (accessCount <= 0)
-      //{
-         #ifdef __WXMAC__
-            // need to close X11 here ------------ **** TBD ****
-            MessageInterface::ShowMessage(
-            "Closing connection to MATLAB ... please close X11 ...\n");
-         #endif
-
-         if (engClose(enginePtr) != 0)
-               MessageInterface::ShowMessage("\nError closing MATLAB\n");
-
-         enginePtr = NULL;      // set to NULL, so it can be reopened
-         MessageInterface::ShowMessage("MATLAB has been closed ...\n");
-      //}
-      //else
-      //{
-      //   MessageInterface::ShowMessage(
-      //   "\nGMAT still accessing MATLAB ... not closing connection at this time\n");
-      //}
+      if (engineName != "")
+      {
+         std::map<std::string, Engine*>::iterator pos = matlabEngineMap.find(engineName);
+         if (pos != matlabEngineMap.end())
+         {
+            if (engClose(pos->second) == 0)
+               MessageInterface::ShowMessage
+                  ("MATLAB engine '%s' closed\n", engineName.c_str());
+            else
+               MessageInterface::ShowMessage
+                  ("\nError closing MATLAB engine '%s'\n", engineName.c_str());
+         }
+         else
+         {
+            MessageInterface::ShowMessage
+               ("\nError closing MATLAB engine '%s'\n", engineName.c_str());
+         }
+      }
+      else
+      {
+         // Close all matlab engines
+         for (std::map<std::string, Engine*>::iterator pos = matlabEngineMap.begin();
+              pos != matlabEngineMap.end(); ++pos)
+         {
+            #ifdef DEBUG_MATLAB_OPEN_CLOSE
+            MessageInterface::ShowMessage
+               ("MatlabInterface::Close() about to close engine <%p>'%s'\n",
+                pos->second, (pos->first).c_str());
+            #endif
+            
+            if (engClose(pos->second) == 0)
+               MessageInterface::ShowMessage
+                  ("MATLAB engine '%s' closed\n", (pos->first).c_str());
+            else
+               MessageInterface::ShowMessage
+                  ("\nError closing MATLAB engine '%s'\n", (pos->first).c_str());
+         }
+      }
    }
    else
    {
-      #ifdef DEBUG_MATLAB_OPEN_CLOSE
-      MessageInterface::ShowMessage
-         ("\nUnable to close MATLAB because it is not currently running\n");
-      #endif
-
-      return 0;
+      // Check if MATLAB is still running then close it.
+      if (enginePtr != NULL)
+      {
+         #ifdef DEBUG_MATLAB_OPEN_CLOSE
+         MessageInterface::ShowMessage
+            ("MatlabInterface::Close() enginePtr=%p\n", enginePtr);
+         #endif
+         
+         accessCount--;
+         #ifdef DEBUG_MATLAB_OPEN_CLOSE
+         MessageInterface::ShowMessage
+            ("Attempting to close MATLAB engine ... accessCount = %d\n", accessCount);
+         #endif
+         
+         //if (accessCount <= 0)
+         //{
+         #ifdef __WXMAC__
+            // need to close X11 here ------------ **** TBD ****
+            MessageInterface::ShowMessage(
+            "Closing MATLAB engine ... please close X11 ...\n");
+         #endif
+            
+         if (engClose(enginePtr) != 0)
+               MessageInterface::ShowMessage("\nError closing MATLAB\n");
+         
+         enginePtr = NULL;      // set to NULL, so it can be reopened
+         MessageInterface::ShowMessage("MATLAB has been closed ...\n");
+         //}
+         //else
+         //{
+         //   MessageInterface::ShowMessage(
+         //   "\nGMAT still accessing MATLAB ... not closing engine at this time\n");
+         //}
+      }
+      else
+      {
+         #ifdef DEBUG_MATLAB_OPEN_CLOSE
+         MessageInterface::ShowMessage
+            ("\nUnable to close MATLAB because it is not currently running\n");
+         #endif
+         
+         return 0;
+      }
    }
-
 #endif
 
    return 1;
@@ -542,12 +666,38 @@ char* MatlabInterface::GetOutputBuffer()
 
 
 //------------------------------------------------------------------------------
-// bool IsOpen()
+// bool IsOpen(const std::string &engineName = "")
 //------------------------------------------------------------------------------
-bool MatlabInterface::IsOpen()
+/**
+ * Checks if engine is open. If engineName is blank for single use, it will
+ * return true if there are more than one engine is opened.
+ */
+//------------------------------------------------------------------------------
+bool MatlabInterface::IsOpen(const std::string &engineName)
 {
    #ifdef __USE_MATLAB__
+   if (GmatGlobal::Instance()->GetMatlabMode() == GmatGlobal::SINGLE_USE)
+   {
+      if (engineName != "")
+      {
+         std::map<std::string, Engine*>::iterator pos = matlabEngineMap.find(engineName);
+         if (pos == matlabEngineMap.end())
+            return false;
+         else
+            return true;
+      }
+      else
+      {
+         if (matlabEngineMap.empty())
+            return false;
+         else
+            return true;
+      }
+   }
+   else
+   {
       return (MatlabInterface::enginePtr != NULL);
+   }
    #endif
    return false;
 }
@@ -576,7 +726,7 @@ void MatlabInterface::RunMatlabString(std::string evalString)
       if (MatlabInterface::Open() == 0)
          throw InterfaceException("**** ERROR **** Failed to open MATLAB engine\n");
    }
-
+   
    // add try/catch to string to evaluate
    evalString = "try,\n  " + evalString + "\ncatch\n  errormsg = lasterr;\nend";
 

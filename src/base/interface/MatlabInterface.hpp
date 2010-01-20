@@ -21,6 +21,7 @@
 #endif
 
 #include <string>
+#include <map>
 
 class MatlabInterface
 {
@@ -29,8 +30,11 @@ public:
 
    static MatlabInterface* Instance();
    
-   int   Open();
-   int   Close();
+   int   Open(const std::string &engineName = "");
+   int   Close(const std::string &engineName = "");
+   
+   std::string GetLastEngineName(); // Call this one after Open()
+   
    int   PutRealArray(const std::string &matlabVarName, int numRows, int numCols,
                       const double *inArray);
    int   GetRealArray(const std::string &matlabVarName, int numElements,
@@ -39,18 +43,20 @@ public:
    int   EvalString(const std::string &evalString);
    int   SetOutputBuffer(int size);
    char* GetOutputBuffer();
-   bool  IsOpen();
+   bool  IsOpen(const std::string &engineName = "");
    void  RunMatlabString(std::string evalString); 
    
 private:
-
+   
    MatlabInterface();
    ~MatlabInterface();
    
 #if defined __USE_MATLAB__
    static MatlabInterface *instance;
    static const int MAX_OUT_SIZE;
-   Engine *enginePtr;   
+   Engine *enginePtr;
+   std::map<std::string, Engine*> matlabEngineMap;
+   std::string lastEngineName;
    int accessCount;
    char *outBuffer;
 #endif
