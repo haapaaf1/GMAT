@@ -71,6 +71,8 @@ public:
    
    virtual void         SetProviderId(Integer id);
    virtual Integer      GetProviderId();
+   
+   virtual void         SetProvider(GmatBase *provider);
    virtual void         SetDataLabels(const StringArray& elements);
    virtual void         ClearDataLabels();
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
@@ -143,6 +145,7 @@ protected:
    CoordinateSystem     *theDataCoordSystem;
    CelestialBody        *theDataMJ2000EqOrigin;
    SolarSystem          *theSolarSystem;
+   GmatBase             *currentProvider;
    
    bool                 active;
    bool                 isManeuvering;
@@ -153,7 +156,7 @@ protected:
    
    /// The current run state, so actions based on state can be taken
    Gmat::RunState       runstate;
-   Integer              currentProvider;
+   Integer              currProviderId;
    
    /// The list of names of Wrapper objects
    StringArray          wrapperObjectNames;
