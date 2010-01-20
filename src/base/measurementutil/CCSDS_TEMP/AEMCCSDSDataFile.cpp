@@ -1,0 +1,926 @@
+//$Header$
+//------------------------------------------------------------------------------
+//                             AEMCCSDSDataFile
+//------------------------------------------------------------------------------
+// GMAT: Goddard Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed by Dr. Matthew P. Wilkins, Schafer Corporation
+//
+// Author: Matthew P. Wilkins
+// Created: 2009/08/30
+//
+/**
+ *
+ * Implements DataFile base class to read files written in CCSDS tracking
+ * data message format.
+ *
+ */
+//------------------------------------------------------------------------------
+
+#include <AEMCCSDSDataFile.hpp>
+
+#define DEBUG_CCSDSAEM_DATA
+
+//---------------------------------
+//  public methods
+//---------------------------------
+
+//------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Initializes the datafile object.
+ */
+//------------------------------------------------------------------------------
+bool AEMCCSDSDataFile::Initialize()
+{
+    if (!CCSDSDataFile::Initialize()) return false;
+
+    requiredNumberMetaDataParameters = CountRequiredNumberAEMMetaDataParameters();
+
+    // Test to see if we are reading or writing
+    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
+    {
+
+        // Construct an orbit parameter message obtype
+        AEMCCSDSObType *myAEM = new AEMCCSDSObType;
+
+        if (!IsEOF())
+        {
+            // The GetData function will attempt to populate the
+            // AEM obtype variables
+            if (!GetData(myAEM))
+            {
+                delete myAEM;
+                return false;
+            }
+
+            // Allocate another struct in memory
+            myAEM = new AEMCCSDSObType;
+        }
+
+        // Set data iterator to beginning of vector container
+        i_theData = theData.begin();
+
+        #ifdef DEBUG_CCSDSAEM_DATA
+
+            AEMCCSDSDataFile myOutFile("theFile");
+            myOutFile.SetReadWriteMode("w");
+            myOutFile.SetFileName("AEM.output");
+            myOutFile.Initialize();
+            for (ObTypeVector::iterator j=theData.begin(); j!=theData.end(); ++j)
+                myOutFile.WriteData((*j));
+            myOutFile.CloseFile();
+
+        #endif
+
+        MessageInterface::ShowMessage("Completed reading AEM data\n");
+
+    }
+    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
+    {
+        // Currently do nothing if writing
+        // wait to write stuff
+
+    }
+    else
+    {
+        throw DataFileException("Invalid Read/Write mode: " + readWriteMode);
+        MessageInterface::ShowMessage("Invalid Read/Write mode: " + readWriteMode);
+    }
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//  AEMCCSDSDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Constructs base AEMCCSDSDataFile structures
+ */
+//------------------------------------------------------------------------------
+AEMCCSDSDataFile::AEMCCSDSDataFile(const std::string &itsName) :
+	CCSDSDataFile ("AEMCCSDSDataFile", itsName)
+{
+   objectTypeNames.push_back("AEMCCSDSDataFile");
+   fileFormatName = "AEM";
+   fileFormatID = 11;
+   numLines = 1;
+}
+
+//------------------------------------------------------------------------------
+//  AEMCCSDSDataFile::AEMCCSDSDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor for AEMCCSDSDataFile objects
+ */
+//------------------------------------------------------------------------------
+AEMCCSDSDataFile::AEMCCSDSDataFile(const AEMCCSDSDataFile &CCSDSAEMdf) :
+    CCSDSDataFile(CCSDSAEMdf)
+{
+}
+
+
+//------------------------------------------------------------------------------
+//  AEMCCSDSDataFile::AEMCCSDSDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Operator = constructor for AEMCCSDSDataFile objects
+ */
+//------------------------------------------------------------------------------
+const AEMCCSDSDataFile& AEMCCSDSDataFile::operator=(const AEMCCSDSDataFile &CCSDSAEMdf)
+{
+    if (&CCSDSAEMdf == this)
+	return *this;
+
+    CCSDSDataFile::operator=(CCSDSAEMdf);
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+//  AEMCCSDSDataFile::~AEMCCSDSDataFile()
+//------------------------------------------------------------------------------
+/**
+ * Class destructor
+ */
+//------------------------------------------------------------------------------
+AEMCCSDSDataFile::~AEMCCSDSDataFile()
+{
+}
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the AEMCCSDSDataFile.
+ *
+ * @return clone of the AEMCCSDSDataFile.
+ */
+//------------------------------------------------------------------------------
+GmatBase* AEMCCSDSDataFile::Clone() const
+{
+   GmatBase *clone = new AEMCCSDSDataFile(*this);
+   return (clone);
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not,
+ *         throws if the parameter is out of the valid range of values.
+ */
+//---------------------------------------------------------------------------
+bool AEMCCSDSDataFile::IsParameterReadOnly(const Integer id) const
+{
+   if (id == NUMLINES_ID)  return true;
+   if (id == FILEFORMAT_ID)  return true;
+   return GmatBase::IsParameterReadOnly(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not.
+ */
+//---------------------------------------------------------------------------
+bool AEMCCSDSDataFile::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool GetData(ObType *myAEM)
+//------------------------------------------------------------------------------
+/**
+ * Obtains the header lff of AEM data from file.
+ */
+//------------------------------------------------------------------------------
+bool AEMCCSDSDataFile::GetData(ObType *myAEMData)
+{
+
+    if (!pcrecpp::RE("^AEMCCSDSObType").FullMatch(myAEMData->GetTypeName()))
+        return false;
+
+    // Re-cast the generic ObType pointer as a CCSDSAEMObtype pointer
+    AEMCCSDSObType *myAEM = (AEMCCSDSObType*)myAEMData;
+
+    // Read the first lff from file
+    std::string lff = ReadLineFromFile();
+
+    // Check to see if we encountered a new header record.
+    if (!IsEOF() && currentCCSDSHeader == NULL
+                 && pcrecpp::RE("^CCSDS_AEM_VERS.*").FullMatch(lff))
+    {
+	if (GetCCSDSHeader(lff,myAEM))
+	{
+	    // success so set currentHeader pointer to the
+	    // one just ed
+	    currentCCSDSHeader = myAEM->ccsdsHeader;
+	}
+	else
+	{
+	    // failure to read header lff, abort
+            MessageInterface::ShowMessage("Failed to read AEM Header! Abort!\n");
+	    currentCCSDSHeader = NULL;
+	    return false;
+	}
+    }
+
+    do
+    {
+
+        // Test for DATA_STOP and advance to next line
+        // This really only applies after going through this do-while
+        // loop more than one time.
+        if (pcrecpp::RE("^DATA_STOP.*$").FullMatch(lff))
+        {
+            lff = ReadLineFromFile();
+            if (IsEOF()) break;
+        }
+
+        // Read in metadata
+	if (GetCCSDSMetaData(lff,myAEM))
+	{
+	    // success so set currentHeader pointer to the
+	    // one just ed
+	    currentCCSDSMetaData = myAEM->ccsdsMetaData;
+	}
+	else
+	{
+	    // failure to read header lff, abort
+            MessageInterface::ShowMessage("Failed to read AEM MetaData! Abort!\n");
+	    currentCCSDSMetaData = NULL;
+	    return false;
+	}
+
+        do
+        {
+
+            myAEM->ccsdsHeader = currentCCSDSHeader;
+            myAEM->ccsdsMetaData = (AEMCCSDSMetaData*)currentCCSDSMetaData;
+
+            if (GetCCSDSAEMData(lff,myAEM))
+            {
+                // Push this data point onto the obtype data stack
+                theData.push_back(myAEM);
+            }
+            else
+            {
+                delete myAEM;
+                return false;
+            }
+
+            // Allocate another struct in memory
+            myAEM = new AEMCCSDSObType;
+
+            lff = ReadLineFromFile();
+
+        }
+        while (!IsEOF() && !pcrecpp::RE("^DATA_STOP.*").FullMatch(lff));
+
+    }
+    while (!IsEOF());
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSAEMData(std::string &lff, CCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the data from the orbit ephemeris message.
+ *
+ * @param <lff> Line from file
+ * @param <myOb> Pointer to AEM data
+ * @return Boolean success or failure
+ */
+//
+//------------------------------------------------------------------------------
+bool AEMCCSDSDataFile::GetCCSDSAEMData(std::string &lff,
+                                              AEMCCSDSObType *myOb)
+{
+    StringArray comments;
+    bool commentsFound = false;
+
+    if (pcrecpp::RE("^DATA_START.*$").FullMatch(lff))
+    {
+        // Read  past DATA_START line
+        lff = ReadLineFromFile();
+        // Attempt to extract comments, if any
+        commentsFound = GetCCSDSComments(lff,comments);
+    }
+
+    // Temporary variables for string to number conversion.
+    // This is needed because the from_string utility function
+    // only supports the standard C++ types and does not
+    // support the GMAT types Real and Integer. Therefore,
+    // extraction is done into a temporary variable and then
+    // assigned to the GMAT type via casting.
+    double dtemp1, dtemp2, dtemp3, dtemp4, dtemp5, dtemp6, dtemp7, dtemp8;
+    std::string stemp;
+
+    switch (myOb->ccsdsMetaData->attitudeType)
+    {
+        case CCSDSData::CCSDS_QUATERNION_ID:
+        {
+            AEMQuaternionCCSDSData *myQData = new AEMQuaternionCCSDSData;
+
+            if (myOb->ccsdsMetaData->quaternionType == QuaternionCCSDSData::CCSDS_QUATERNION_FIRST_ID)
+            {  
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4))
+                {
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
+                    myQData->qC = dtemp1;
+                    myQData->q1 = dtemp2;
+                    myQData->q2 = dtemp3;
+                    myQData->q3 = dtemp4;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
+
+                    if (commentsFound)
+                        myQData->comments = comments;
+
+                    myOb->ccsdsAEMQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else if (myOb->ccsdsMetaData->quaternionType == QuaternionCCSDSData::CCSDS_QUATERNION_LAST_ID)
+            {
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4))
+                {
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
+                    myQData->q1 = dtemp1;
+                    myQData->q2 = dtemp2;
+                    myQData->q3 = dtemp3;
+                    myQData->qC = dtemp4;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
+
+                    if (commentsFound)
+                        myQData->comments = comments;
+
+                    myOb->ccsdsAEMQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else
+                return false;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID:
+        {
+            AEMQuaternionCCSDSData *myQData = new AEMQuaternionCCSDSData;
+
+            if (myOb->ccsdsMetaData->quaternionType == QuaternionCCSDSData::CCSDS_QUATERNION_FIRST_ID)
+            {
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7,&dtemp8))
+                {
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
+                    myQData->qC = dtemp1;
+                    myQData->q1 = dtemp2;
+                    myQData->q2 = dtemp3;
+                    myQData->q3 = dtemp4;
+                    myQData->qCDot = dtemp5;
+                    myQData->q1Dot = dtemp6;
+                    myQData->q2Dot = dtemp7;
+                    myQData->q3Dot = dtemp8;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
+
+                    if (commentsFound)
+                        myQData->comments = comments;
+
+                    myOb->ccsdsAEMQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else if (myOb->ccsdsMetaData->quaternionType == QuaternionCCSDSData::CCSDS_QUATERNION_LAST_ID)
+            {
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7,&dtemp8))
+                {
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
+                    myQData->q1 = dtemp1;
+                    myQData->q2 = dtemp2;
+                    myQData->q3 = dtemp3;
+                    myQData->qC = dtemp4;
+                    myQData->q1Dot = dtemp5;
+                    myQData->q2Dot = dtemp6;
+                    myQData->q3Dot = dtemp7;
+                    myQData->qCDot = dtemp8;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
+
+                    if (commentsFound)
+                        myQData->comments = comments;
+
+                    myOb->ccsdsAEMQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else
+                return false;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_QUATERNION_RATE_ID:
+        {
+            AEMQuaternionCCSDSData *myQData = new AEMQuaternionCCSDSData;
+
+            if (myOb->ccsdsMetaData->quaternionType == QuaternionCCSDSData::CCSDS_QUATERNION_FIRST_ID)
+            {
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7))
+                {
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
+                    myQData->qC = dtemp1;
+                    myQData->q1 = dtemp2;
+                    myQData->q2 = dtemp3;
+                    myQData->q3 = dtemp4;
+                    myQData->xRate = dtemp5;
+                    myQData->yRate = dtemp6;
+                    myQData->zRate = dtemp7;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
+
+                    if (commentsFound)
+                        myQData->comments = comments;
+
+                    myOb->ccsdsAEMQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else if (myOb->ccsdsMetaData->quaternionType == QuaternionCCSDSData::CCSDS_QUATERNION_LAST_ID)
+            {
+                std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")$";
+
+                if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4,&dtemp5,
+                                                 &dtemp6,&dtemp7))
+                {
+                    myQData->timeTag = stemp;
+                    if (!CCSDSTimeTag2A1Date(myQData->timeTag,myOb->epoch)) return false;
+                    myQData->q1 = dtemp1;
+                    myQData->q2 = dtemp2;
+                    myQData->q3 = dtemp3;
+                    myQData->qC = dtemp4;
+                    myQData->xRate = dtemp5;
+                    myQData->yRate = dtemp6;
+                    myQData->zRate = dtemp7;
+                    myQData->quaternionType = myOb->ccsdsMetaData->quaternionType;
+                    myQData->attitudeType = myOb->ccsdsMetaData->attitudeType;
+
+                    if (commentsFound)
+                        myQData->comments = comments;
+
+                    myOb->ccsdsAEMQuaternion = myQData;
+                    myOb->ccsdsHeader->dataType = CCSDSHeader::QUATERNION_ID;
+
+                    return true;
+                }
+
+                return false;
+            }
+            else
+                return false;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_EULER_ANGLE_ID:
+        {
+            AEMEulerAngleCCSDSData *myEulerData = new AEMEulerAngleCCSDSData;
+
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")$";
+
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                             &dtemp3))
+            {
+                myEulerData->timeTag = stemp;
+
+                if (!CCSDSTimeTag2A1Date(myEulerData->timeTag,myOb->epoch)) return false;
+
+                myEulerData->angle1 = dtemp1;
+                myEulerData->angle2 = dtemp2;
+                myEulerData->angle3 = dtemp3;
+                myEulerData->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_ID;
+
+                if (commentsFound)
+                    myEulerData->comments = comments;
+
+                myOb->ccsdsAEMEulerAngle = myEulerData;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::EULERANGLE_ID;
+
+                return true;
+
+            }
+
+            return false;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_EULER_ANGLE_RATE_ID:
+        {
+            AEMEulerAngleCCSDSData *myEulerData = new AEMEulerAngleCCSDSData;
+
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                             &dtemp3,&dtemp4,&dtemp5,
+                                             &dtemp6))
+            {
+                myEulerData->timeTag = stemp;
+
+                if (!CCSDSTimeTag2A1Date(myEulerData->timeTag,myOb->epoch)) return false;
+
+                myEulerData->angle1 = dtemp1;
+                myEulerData->angle2 = dtemp2;
+                myEulerData->angle3 = dtemp3;
+                myEulerData->angleRate1 = dtemp4;
+                myEulerData->angleRate2 = dtemp5;
+                myEulerData->angleRate3 = dtemp6;
+                myEulerData->eulerAngleType = CCSDSData::CCSDS_EULER_ANGLE_RATE_ID;
+
+                if (commentsFound)
+                    myEulerData->comments = comments;
+
+                myOb->ccsdsAEMEulerAngle = myEulerData;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::EULERANGLE_ID;
+
+                return true;
+
+            }
+
+            return false;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_SPIN_ID:
+        {
+
+            AEMSpinStabilizedCCSDSData *mySpinData = new AEMSpinStabilizedCCSDSData;
+
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                    REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")$";
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                                 &dtemp3,&dtemp4))
+            {
+                mySpinData->timeTag = stemp;
+
+                if (!CCSDSTimeTag2A1Date(mySpinData->timeTag,myOb->epoch)) return false;
+
+                mySpinData->spinAlpha = dtemp1;
+                mySpinData->spinDelta = dtemp2;
+                mySpinData->spinAngle = dtemp3;
+                mySpinData->spinAngleVelocity = dtemp4;
+                mySpinData->attitudeType = CCSDSData::CCSDS_SPIN_ID;
+
+                if (commentsFound)
+                    mySpinData->comments = comments;
+
+                myOb->ccsdsAEMSpinStabilized = mySpinData;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::SPINSTABILIZED_ID;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        break;
+
+        case CCSDSData::CCSDS_SPIN_NUTATION_ID:
+        {
+            AEMSpinStabilizedCCSDSData *mySpinData = new AEMSpinStabilizedCCSDSData;
+
+            std::string regex = "^(" + REGEX_CCSDS_DATE + ")\\s*(" +
+                REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                REGEX_SCINUMBER + ")\\s*(" + REGEX_SCINUMBER + ")\\s*(" +
+                REGEX_SCINUMBER + ")$";
+
+            if (pcrecpp::RE(regex).FullMatch(lff,&stemp,&dtemp1,&dtemp2,
+                                             &dtemp3,&dtemp4,&dtemp5,
+                                             &dtemp6,&dtemp7))
+            {
+                mySpinData->timeTag = stemp;
+
+                if (!CCSDSTimeTag2A1Date(mySpinData->timeTag,myOb->epoch)) return false;
+
+                mySpinData->spinAlpha = dtemp1;
+                mySpinData->spinDelta = dtemp2;
+                mySpinData->spinAngle = dtemp3;
+                mySpinData->spinAngleVelocity = dtemp4;
+                mySpinData->nutation = dtemp5;
+                mySpinData->nutationPeriod = dtemp6;
+                mySpinData->nutationPhase = dtemp7;
+                mySpinData->attitudeType = CCSDSData::CCSDS_SPIN_NUTATION_ID;
+
+                if (commentsFound)
+                    mySpinData->comments = comments;
+
+                myOb->ccsdsAEMSpinStabilized = mySpinData;
+                myOb->ccsdsHeader->dataType = CCSDSHeader::SPINSTABILIZED_ID;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        break;
+
+        default:
+
+            MessageInterface::ShowMessage("ERROR: Invalid AEM ephemeris data type! Abort!\n");
+
+            return false;
+
+            break;
+
+    }
+
+}
+
+//------------------------------------------------------------------------------
+// bool GetCCSDSMetaData(std::string &lff, AEMCCSDSObType *myOb)
+//------------------------------------------------------------------------------
+/**
+ * Extracts the metadata information from the tracking data message.
+ */
+//
+//------------------------------------------------------------------------------
+bool AEMCCSDSDataFile::GetCCSDSMetaData(std::string &lff,
+                                AEMCCSDSObType *myOb)
+{
+    
+    AEMCCSDSMetaData *myMetaData = new AEMCCSDSMetaData;
+
+    Integer requiredCount = 0;
+    std::string keyword;
+
+    if (pcrecpp::RE("^META_START.*$").FullMatch(lff))
+        lff = ReadLineFromFile();
+
+    do
+    {
+
+        if (!GetCCSDSKeyword(lff,keyword)) return false;
+
+        Integer keyID = myMetaData->GetKeywordID(keyword);
+
+        if(myMetaData->IsParameterRequired(keyID)) requiredCount++;
+
+        switch (keyID)
+        {
+
+            case AEMCCSDSMetaData::CCSDS_AEM_METADATACOMMENTS_ID:
+            {
+                std::string stemp;
+                if (!GetCCSDSComment(lff,stemp)) return false;
+                myMetaData->comments.push_back(stemp);
+            }
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_OBJECTNAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->objectName))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_OBJECTID_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->internationalDesignator))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_CENTERNAME_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->refFrameOrigin))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_TIMESYSTEM_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->timeSystem))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_STARTEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->startEpoch))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_STOPEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->stopEpoch))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_USEABLE_STARTEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->useableStartEpoch))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_USEABLE_STOPEPOCH_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->useableStopEpoch))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_INTERPOLATION_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->interpolationMethod))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_INTERPOLATIONDEGREE_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->interpolationDegree))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_REFFRAMEA_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->frameA))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_REFFRAMEB_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->frameB))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_ATTITUDEDIR_ID:
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->direction = myMetaData->GetAttitudeDirID(stemp);
+            }
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_ATTITUDETYPE_ID:
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->attitudeType = myMetaData->GetAttitudeTypeID(stemp);
+            }
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_QUATERNIONTYPE_ID:
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->quaternionType = myMetaData->GetQuaternionTypeID(stemp);
+            }
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_EULERROTSEQ_ID:
+
+                if (!GetCCSDSValue(lff,myMetaData->eulerRotationSequence))
+                    return false;
+                break;
+
+            case AEMCCSDSMetaData::CCSDS_AEM_RATEFRAME_ID:
+            {
+                std::string stemp;
+                if (!GetCCSDSValue(lff,stemp))
+                    return false;
+                myMetaData->rateFrame = myMetaData->GetRateFrameID(stemp);
+            }
+                break;
+
+            default:
+
+                MessageInterface::ShowMessage(keyword +
+                                     " : This data not allowed in MetaData!\n");
+                return false;
+                break;
+
+        }
+
+        lff = ReadLineFromFile();
+    }
+    while(requiredCount <= requiredNumberMetaDataParameters &&
+          !pcrecpp::RE("^META_STOP.*$").FullMatch(lff));
+
+    if (requiredCount < requiredNumberMetaDataParameters)
+    {
+        MessageInterface::ShowMessage("Error: MetaData does not contain all required elements! Abort!\n");
+        return false;
+    }
+
+    /*
+    if (myMetaData->quaternionType == AEMCCSDSMetaData::CCSDS_AEM_QUATERNIONTYPE_ID
+        && (myMetaData->attitudeType != CCSDSData::CCSDS_QUATERNION_ID
+        || myMetaData->attitudeType != CCSDSData::CCSDS_QUATERNION_DERIVATIVE_ID
+        || myMetaData->attitudeType != CCSDSData::CCSDS_QUATERNION_RATE_ID))
+        return false;
+
+    if (myMetaData->eulerRotationSequence == AEMCCSDSMetaData::CCSDS_AEM_EULERROTSEQ_ID
+        && (myMetaData->attitudeType != CCSDSData::CCSDS_EULER_ANGLE_ID
+        || myMetaData->attitudeType != CCSDSData::CCSDS_EULER_ANGLE_RATE_ID ))
+        return false;
+    */
+    myOb->ccsdsMetaData = myMetaData;
+
+    // Read past the META_STOP line
+    lff = ReadLineFromFile();
+
+    return true;
+}
