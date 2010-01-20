@@ -35,7 +35,6 @@ public:
    bool UnsubscribeAll();
    
    bool Publish(GmatBase *provider, Integer id, Real *data, Integer count);
-   bool Publish(Integer id, Real *data, Integer count);
    bool Publish(Integer id, char *data, Integer count = 0);
    bool Publish(Integer id, Integer *data, Integer count);
    
@@ -77,9 +76,9 @@ private:
    /// List of the subscribers
    std::list<Subscriber*>   subscriberList;
    /// Index used to identify number of registered data providers
-   Integer                  providerID;
+   Integer                  providerId;
    /// ID for the current data provider
-   Integer                  currentProvider;
+   Integer                  currProviderId;
    /// Arrays used to track objects for published data
    std::vector<StringArray> objectArray;
    /// Arrays used to track elements for published data
@@ -113,7 +112,7 @@ private:
    /// published data map
    std::map<GmatBase*, std::vector<DataType>* > providerMap;
    
-   void                 UpdateProviderID(Integer newId);
+   void                 UpdateProviderId(Integer newId);
    
    // for debug
    void                 ShowSubscribers();
