@@ -1024,7 +1024,7 @@ GmatBase* Estimator::GetRefObject(const Gmat::ObjectType type,
       retval = (GmatBase*)propagator;
    }
 
-   if (type == Gmat::DATA_FILE)
+   if (type == Gmat::DATASTREAM)
    {
       for (ObjectArray::iterator i = dataSources.begin();
            i != dataSources.end(); ++i)
@@ -1078,7 +1078,7 @@ bool Estimator::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       }
    }
 
-   if (obj->IsOfType(Gmat::DATA_FILE))
+   if (obj->IsOfType(Gmat::DATASTREAM))
    {
       if (find(dataSources.begin(), dataSources.end(), obj) == dataSources.end())
       {

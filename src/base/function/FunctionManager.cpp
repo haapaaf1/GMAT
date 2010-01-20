@@ -43,18 +43,20 @@
 //#define DEBUG_FM_FINALIZE
 //#define DEBUG_FM_STACK
 //#define DEBUG_OBJECT_MAP
+//#define DEBUG_WRAPPERS
+//#define DEBUG_CLEANUP
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -222,7 +224,7 @@ void FunctionManager::SetPublisher(Publisher *pub)
 {
    #ifdef DEBUG_PUBLISHER
    MessageInterface::ShowMessage
-      ("FunctionManager::SetPublisher() '%s' setting publiser <%p>\n",
+      ("FunctionManager::SetPublisher() '%s' setting publisher <%p>\n",
        fName.c_str(), pub);
    #endif
    publisher = pub;
@@ -735,6 +737,13 @@ bool FunctionManager::PrepareObjectMap()
 //------------------------------------------------------------------------------
 bool FunctionManager::Initialize()
 {
+   #ifdef DEBUG_TRACE
+   static Integer callCount = 0;
+   callCount++;
+   clock_t t1 = clock();
+   ShowTrace(callCount, t1, "FunctionManager::Initialize() entered");
+   #endif
+   
    #ifdef DEBUG_FM_INIT
    MessageInterface::ShowMessage
       ("=======================================================================\n"
@@ -772,6 +781,11 @@ bool FunctionManager::Initialize()
    
    firstExecution = false;
    isFinalized = false;
+   
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "FunctionManager::Initialize() exiting", true);
+   #endif
+   
    return true;
 }
 
@@ -783,14 +797,12 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    if (f == NULL)
       throw FunctionException("FunctionManager: Function pointer is NULL");
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Execute() entered, '%s' Count = %d\n",
-       fName.c_str(), callCount);
-   MessageInterface::ShowMessage("=== firstExecution=%d\n", firstExecution);
+   ShowTrace(callCount, t1, "FunctionManager::Execute() entered");
+   //MessageInterface::ShowMessage("   === firstExecution=%d\n", firstExecution);
    #endif
    
    #ifdef DEBUG_FM_EXECUTE
@@ -916,9 +928,33 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    bool reinitialize = false;
    if (callingFunction != NULL)
       reinitialize = true;
-   if (!f->Execute(objInit, reinitialize))
+
+   // If function sequence failed or threw an exception, finalize the function
+   try
    {
+      if (!f->Execute(objInit, reinitialize))
+      {
+         MessageInterface::ShowMessage
+            ("*** ERROR *** FunctionManager finializing... due to false returned "
+             "from f->Execute()\n");
+         f->Finalize();
+         if (publisher)
+            publisher->ClearPublishedData();
+         
+         Cleanup();
+         return false;
+      }
+   }
+   catch (BaseException &e)
+   {
+      MessageInterface::ShowMessage
+         ("*** ERROR *** FunctionManager finializing... due to \n%s\n",
+          e.GetFullMessage().c_str());
       f->Finalize();
+      if (publisher)
+         publisher->ClearPublishedData();
+      
+      Cleanup();
       return false;
    }
    
@@ -932,13 +968,13 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    
    // Now deal with the calling function here
    if (!HandleCallStack())
+   {
+      Cleanup();
       return false;
+   }
    
-   #ifdef DEBUG_PERFORMANCE
-   clock_t t2 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",
-       fName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "FunctionManager::Execute() exiting", true);
    #endif
    
    return true;
@@ -1008,13 +1044,11 @@ Rmatrix FunctionManager::MatrixEvaluate(FunctionManager *callingFM)
 //------------------------------------------------------------------------------
 void FunctionManager::Finalize()
 {
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Finalize() entered, '%s' Count = %d\n",
-       fName.c_str(), callCount);
+   ShowTrace(callCount, t1, "FunctionManager::Finalize() entered");
    #endif
    
    #ifdef DEBUG_FM_FINALIZE
@@ -1032,40 +1066,14 @@ void FunctionManager::Finalize()
    #endif
    #endif
    
-   if (f != NULL)
-      if (f->IsOfType("GmatFunction")) //loj: added check for GmatFunction
-      {
-         ////Edwin's MMS script failed, so commented out (loj: 2008.12.03)
-         ////We need to delete this somewhere though.
-         ////f->ClearAutomaticObjects();
-         f->Finalize();
-      }
-   // now delete all of the items/entries in the FOS - we can do this since they 
-   // are all either locally-created or clones of reference objects or automatic objects
-   if (functionObjectStore)
-   {
-      DeleteObjectMap(functionObjectStore, "FOS in Finalize");
-      functionObjectStore = NULL;
-   }
-   
-   Integer numClones = clonedObjectStores.size();
-   for (Integer i=0; i<numClones; i++)
-   {
-      DeleteObjectMap(clonedObjectStores[i], "clonedOS in Finalize");
-      clonedObjectStores[i] = NULL;
-   }
-   clonedObjectStores.clear();
+   Cleanup();
    
    firstExecution = true;
    isFinalized = true;
    
-   #ifdef DEBUG_PERFORMANCE
-   clock_t t2 = clock();
-   MessageInterface::ShowMessage
-      ("=== FunctionManager::Finalize() exiting, '%s' Count = %d, Run Time: %f seconds\n",
-       fName.c_str(), callCount, (Real)(t2-t1)/CLOCKS_PER_SEC);
+   #ifdef DEBUG_TRACE
+   ShowTrace(callCount, t1, "FunctionManager::Finalize() exiting", true, true);
    #endif
-   
 }
 
 //------------------------------------------------------------------------------
@@ -1254,6 +1262,10 @@ bool FunctionManager::CreatePassingArgWrappers()
       passedName = passedIns.at(ii);
       if (!(obj = FindObject(passedName)))
       {
+         #ifdef DEBUG_FM_INIT
+         MessageInterface::ShowMessage
+            ("==========> '%s' not found so creating...\n", passedName.c_str());
+         #endif
          obj = CreateObject(passedName);
          if (!obj)
          {
@@ -1292,8 +1304,15 @@ bool FunctionManager::CreatePassingArgWrappers()
       // Do we neet to set this inside the loop? commented out (loj: 2008.11.21)
       //validator->SetObjectMap(&combinedObjectStore);
       //validator->SetSolarSystem(solarSys);
-      std::string inName = passedIns.at(ii);
+      std::string inName = passedIns.at(ii);      
+      #ifdef DEBUG_WRAPPERS
+      MessageInterface::ShowMessage
+         ("==========> FM:CreatePassingArgWrappers() '%s' Creating "
+          "ElementWrapper for '%s'\n", fName.c_str(), inName.c_str());
+      #endif
+      
       ElementWrapper *inWrapper = validator->CreateElementWrapper(inName, false, false);
+      
       #ifdef DEBUG_MORE_MEMORY
       MessageInterface::ShowMessage
          ("+++ FunctionManager::CreatePassingArgWrappers() *inWrapper = validator->"
@@ -1307,7 +1326,6 @@ bool FunctionManager::CreatePassingArgWrappers()
                inWrapper->GetWrapperType(), inName.c_str());
       #endif // -------------------------------------------------------------- end debug ---
    }
-   
    
    // Outputs cannot be numeric or string literals or array elements, etc.
    // They must be found in the object store; and we do not need to clone them
@@ -1332,8 +1350,15 @@ bool FunctionManager::CreatePassingArgWrappers()
          // Do we neet to set this inside the loop? commented out (loj: 2008.11.21)
          //validator->SetObjectMap(&combinedObjectStore);
          //validator->SetSolarSystem(solarSys);
-         std::string outName = passedOuts.at(jj);
-         ElementWrapper *outWrapper = validator->CreateElementWrapper(outName);;
+         std::string outName = passedOuts.at(jj);         
+         #ifdef DEBUG_WRAPPERS
+         MessageInterface::ShowMessage
+            ("==========> FM:CreatePassingArgWrappers() '%s' Creating "
+             "ElementWrapper for '%s'\n", fName.c_str(), outName.c_str());
+         #endif
+         
+         ElementWrapper *outWrapper = validator->CreateElementWrapper(outName);
+         
          #ifdef DEBUG_MORE_MEMORY
          MessageInterface::ShowMessage
             ("+++ FunctionManager::CreatePassingArgWrappers() *outWrapper = validator->"
@@ -1477,7 +1502,7 @@ void FunctionManager::RefreshFormalInputObjects()
       
       // Now find the corresponding input object
       // if passed name not found in LOS or GOS, it may be a number, string literal,
-      // array element, or automatic object suc
+      // array element, or automatic object such as sat.X
       if (!(obj = FindObject(passedName)))
       {
          #ifdef DEBUG_FM_EXECUTE
@@ -1613,6 +1638,17 @@ GmatBase* FunctionManager::FindObject(const std::string &name, bool arrayElement
 //------------------------------------------------------------------------------
 // GmatBase* CreateObject(const std::string &fromString)
 //------------------------------------------------------------------------------
+/*
+ * Creates an object from the input string name. If input string is numeric string
+ * it creates a Variable, and StringVar if it is string literal. All other string
+ * values are handled by first creating an element wrapper and create a proper object
+ * based on the wrapper type. The local element wrapper is deleted at last.
+ *
+ * @param fromString input name of the object to be created
+ *
+ * @return newly created object
+ */
+//------------------------------------------------------------------------------
 GmatBase* FunctionManager::CreateObject(const std::string &fromString)
 {
    #ifdef DEBUG_CREATE_OBJ
@@ -1663,7 +1699,10 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
       // NOTE that we are only allowing Real and Array here 
       validator->SetObjectMap(&combinedObjectStore);
       validator->SetSolarSystem(solarSys);
-      ElementWrapper *ew = validator->CreateElementWrapper(fromString);
+      
+      // We should pass manage=2 as Function here so that new objects created
+      // can be stored in the function object store(LOJ: 2009.05.14)
+      ElementWrapper *ew = validator->CreateElementWrapper(fromString, false, 2);
       if (ew)
       {
          #ifdef DEBUG_MORE_MEMORY
@@ -1744,6 +1783,14 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
                break;
             }
          }
+         
+         // We need to delete newly created element wrapper here
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (ew, ew->GetDescription(), "FunctionManager::CreateObject()",
+             "deleting unused wrapper");
+         #endif
+         delete ew;
       }
       if (obj) createdOthers.insert(std::make_pair(str, obj));
    }
@@ -1756,7 +1803,7 @@ GmatBase* FunctionManager::CreateObject(const std::string &fromString)
        obj ? obj->GetName().c_str() : "NULL");
    #endif
    return obj;
-}
+} // CreateObject()
 
 
 //------------------------------------------------------------------------------
@@ -1878,7 +1925,14 @@ bool FunctionManager::HandleCallStack()
    {
       // We need to finalize all commands in FCS here (loj: 2008.10.08)
       // Do not call Finalize() it will delete LOS and nested function will not work
+      #ifdef DEBUG_FM_EXECUTE
+      MessageInterface::ShowMessage
+         ("   calling function <%p>'%s'->Finalize()\n", f, f->GetName().c_str());
+      #endif
       f->Finalize();
+      
+      // Unsubscribe subscribers since function run is completed
+      UnsubscribeSubscribers(functionObjectStore);
       
       // delete cloned object store
       Integer numClones = clonedObjectStores.size();
@@ -1895,10 +1949,12 @@ bool FunctionManager::HandleCallStack()
       // remove the caller from the stack of callers      
       callingFunction = callers.top();
       callers.pop();
+      #ifdef DEBUG_FM_EXECUTE
+      ShowCallers("After pop");
+      #endif
    }
    
    #ifdef DEBUG_FM_EXECUTE
-   ShowCallers("After pop");
    MessageInterface::ShowMessage("Exiting  FM::HandleCallStack()\n");
    #endif
    
@@ -2089,6 +2145,87 @@ bool FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// void Cleanup()
+//------------------------------------------------------------------------------
+void FunctionManager::Cleanup()
+{
+   #ifdef DEBUG_CLEANUP
+   MessageInterface::ShowMessage("==> FunctionManager::Cleanup() entered\n");
+   #endif
+   
+   if (f != NULL)
+      if (f->IsOfType("GmatFunction"))
+      {
+         ////Edwin's MMS script failed, so commented out (loj: 2008.12.03)
+         ////We need to delete this somewhere though.
+         ////f->ClearAutomaticObjects();
+         f->Finalize();
+      }
+   
+   // now delete all of the items/entries in the FOS - we can do this since they 
+   // are all either locally-created or clones of reference objects or automatic objects
+   if (functionObjectStore)
+   {
+      DeleteObjectMap(functionObjectStore, "FOS in Finalize");
+      functionObjectStore = NULL;
+   }
+   
+   Integer numClones = clonedObjectStores.size();
+   for (Integer i=0; i<numClones; i++)
+   {
+      DeleteObjectMap(clonedObjectStores[i], "clonedOS in Finalize");
+      clonedObjectStores[i] = NULL;
+   }
+   clonedObjectStores.clear();
+   
+   #ifdef DEBUG_CLEANUP
+   MessageInterface::ShowMessage("==> FunctionManager::Cleanup() exiting\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void UnsubscribeSubscribers(ObjectMap *om)
+//------------------------------------------------------------------------------
+void FunctionManager::UnsubscribeSubscribers(ObjectMap *om)
+{
+   std::map<std::string, GmatBase *>::iterator omi;
+   for (omi = om->begin(); omi != om->end(); ++omi)
+   {
+      if (omi->second != NULL)
+      {
+         if ((omi->second)->IsOfType(Gmat::SUBSCRIBER))
+         {
+            // Finalize subscriber
+            Subscriber *sub = (Subscriber*)omi->second;
+            sub->TakeAction("Finalize");
+            
+            #ifdef DEBUG_FM_SUBSCRIBER
+            MessageInterface::ShowMessage
+               ("   '%s' Unsubscribe <%p>'%s' from the publisher <%p>\n",
+                fName.c_str(), sub, (omi->second)->GetName().c_str(), publisher);
+            #endif
+            
+            // Unsubscribe subscriber
+            if (publisher)
+            {
+               publisher->Unsubscribe(sub);
+            }
+            else
+            {
+               #ifdef DEBUG_FM_SUBSCRIBER
+               MessageInterface::ShowMessage
+                  ("   '%s' Cannot unsubscribe, the publisher is NULL\n", fName.c_str());
+               #endif
+            }
+         }
+      }
+   }
+}
+
+
 //------------------------------------------------------------------------------
 // bool EmptyObjectMap(ObjectMap *om, const std::string &mapID)
 //------------------------------------------------------------------------------
@@ -2103,7 +2240,7 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
       return true;
    }
    
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_CLEANUP
    MessageInterface::ShowMessage
       ("in FM::EmptyObjectMap(), object map '%s' <%p> had %u objects\n", mapID.c_str(),
        om, om->size());
@@ -2141,9 +2278,12 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             Subscriber *sub = (Subscriber*)omi->second;
             // Instead of deleting OpenGL plot from the OpenGlPlot destructor
             // call TakeAction() to delete it (LOJ:2009.04.22)
-            sub->TakeAction("DeletePlot");
+            sub->TakeAction("Finalize");
+            //@todo This causes Func_AssigningWholeObjects crash
+            // in Subscriber::ClearWrappers() due to stale wrapper pointers
+            //sub->ClearWrappers();
             
-            #ifdef DEBUG_OBJECT_MAP
+            #ifdef DEBUG_CLEANUP
             MessageInterface::ShowMessage
                ("   '%s' Unsubscribe <%p>'%s' from the publisher <%p>\n",
                 fName.c_str(), sub, (omi->second)->GetName().c_str(), publisher);
@@ -2151,13 +2291,11 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
             
             if (publisher)
             {
-               //@todo This causes Func_AssigningWholeObjects crash
-               //sub->ClearWrappers();
                publisher->Unsubscribe(sub);
             }
             else
             {
-               #ifdef DEBUG_OBJECT_MAP
+               #ifdef DEBUG_CLEANUP
                MessageInterface::ShowMessage
                   ("   '%s' Cannot unsubscribe, the publisher is NULL\n", fName.c_str());
                #endif
@@ -2189,7 +2327,7 @@ bool FunctionManager::EmptyObjectMap(ObjectMap *om, const std::string &mapID)
    }
    for (unsigned int kk = 0; kk < toDelete.size(); kk++)
    {
-      #ifdef DEBUG_OBJECT_MAP
+      #ifdef DEBUG_CLEANUP
       MessageInterface::ShowMessage
          ("   Erasing element with name '%s'\n", (toDelete.at(kk)).c_str());
       #endif
@@ -2206,14 +2344,14 @@ bool FunctionManager::DeleteObjectMap(ObjectMap *om, const std::string &mapID)
 {
    if (om == NULL)
    {
-      #ifdef DEBUG_OBJECT_MAP
+      #ifdef DEBUG_CLEANUP
       MessageInterface::ShowMessage
          ("in FM::DeleteObjectMap(), object map %s is NULL\n", mapID.c_str());
       #endif
       return true;
    }
    
-   #ifdef DEBUG_OBJECT_MAP
+   #ifdef DEBUG_CLEANUP
    MessageInterface::ShowMessage
       ("in FM::DeleteObjectMap(), object map %s <%p> had %u objects\n", mapID.c_str(),
        om, om->size());
@@ -2361,7 +2499,7 @@ void FunctionManager::ShowObjectMap(ObjectMap *om, const std::string &mapID)
          for (std::map<std::string, GmatBase *>::iterator i = om->begin();
               i != om->end(); ++i)
             MessageInterface::ShowMessage
-               ("   name: %30s ...... pointer: %p...... object type: %s\n", i->first.c_str(),
+               ("   name: %40s ...... pointer: %p...... object type: %s\n", i->first.c_str(),
                 i->second, i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
       }
    }
@@ -2435,5 +2573,47 @@ void FunctionManager::ShowCallers(const std::string &label)
       temp.pop();
    }
    MessageInterface::ShowMessage("===============================\n");
+}
+
+
+//------------------------------------------------------------------------------
+// void ShowTrace(Integer count, Integer t1, const std::string &label = "",
+//                bool showMemoryTracks = false, bool addEol = false)
+//------------------------------------------------------------------------------
+void FunctionManager::ShowTrace(Integer count, Integer t1, const std::string &label,
+                                bool showMemoryTracks, bool addEol)
+{
+   // To locally control debug output
+   bool showTrace = false;
+   bool showTracks = true;
+   
+   showTracks = showTracks & showMemoryTracks;
+   
+   if (showTrace)
+   {
+      #ifdef DEBUG_TRACE
+      clock_t t2 = clock();
+      MessageInterface::ShowMessage
+         ("=== %s, '%s' Count = %d, elapsed time: %f sec\n", label.c_str(),
+          fName.c_str(), count, (Real)(t2-t1)/CLOCKS_PER_SEC);
+      #endif
+   }
+   
+   if (showTracks)
+   {
+      #ifdef DEBUG_MEMORY
+      StringArray tracks = MemoryTracker::Instance()->GetTracks(false, false);
+      if (showTrace)
+         MessageInterface::ShowMessage
+            ("    ==> There are %d memory tracks\n", tracks.size());
+      else
+         MessageInterface::ShowMessage
+            ("=== There are %d memory tracks when %s, '%s'\n", tracks.size(),
+             label.c_str(), fName.c_str());
+      
+      if (addEol)
+         MessageInterface::ShowMessage("\n");
+      #endif
+   }
 }
 

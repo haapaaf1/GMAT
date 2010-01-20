@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                           ExponentialAtmosphere
 //------------------------------------------------------------------------------
@@ -53,7 +53,7 @@
 class GMAT_API ExponentialAtmosphere : public AtmosphereModel
 {
 public:
-   ExponentialAtmosphere();
+   ExponentialAtmosphere(const std::string &name = "");
    virtual ~ExponentialAtmosphere();
    ExponentialAtmosphere(const ExponentialAtmosphere& atm);
    ExponentialAtmosphere&  operator=(const ExponentialAtmosphere& atm);

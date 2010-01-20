@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            NotAKnotInterpolator
 //------------------------------------------------------------------------------
@@ -69,7 +69,8 @@ NotAKnotInterpolator::NotAKnotInterpolator(const std::string &name,
  */
 //------------------------------------------------------------------------------
 NotAKnotInterpolator::~NotAKnotInterpolator()
-{
+{   
+   CleanupArrays();
 }
 
 
@@ -82,12 +83,11 @@ NotAKnotInterpolator::~NotAKnotInterpolator()
  * @param csi The original that is being copied.
  */
 //------------------------------------------------------------------------------
-NotAKnotInterpolator::NotAKnotInterpolator
-                                          (const NotAKnotInterpolator &csi) :
+NotAKnotInterpolator::NotAKnotInterpolator(const NotAKnotInterpolator &csi) :
    Interpolator       (csi),
    lastX              (csi.lastX)
 {
-	B[0]  = NULL;
+   B[0]  = NULL;
    B[1]  = NULL;
    B[2]  = NULL;
    s[0]  = NULL;
@@ -110,8 +110,8 @@ NotAKnotInterpolator::NotAKnotInterpolator
       
    for (i = 0; i < 3; i++)
    {
-   	   for (j = 0; j < 3; j++)
-   	      A[i][j] = csi.A[i][j];
+      for (j = 0; j < 3; j++)
+         A[i][j] = csi.A[i][j];
    }
 }
 
@@ -132,17 +132,11 @@ NotAKnotInterpolator& NotAKnotInterpolator::operator=
 {
    if (&csi == this)
       return *this;
-        
-   B[0]  = NULL;
-   B[1]  = NULL;
-   B[2]  = NULL;
-   s[0]  = NULL;
-   s[1]  = NULL;
-   s[2]  = NULL;
-   s[3]  = NULL;
-   s[4]  = NULL;
+   
+   CleanupArrays();
+   
    lastX = csi.lastX;
-        
+   
    CopyArrays(csi);
    
    Integer i, j;
@@ -152,8 +146,8 @@ NotAKnotInterpolator& NotAKnotInterpolator::operator=
       
    for (i = 0; i < 3; i++)
    {
-   	   for (j = 0; j < 3; j++)
-   	      A[i][j] = csi.A[i][j];
+      for (j = 0; j < 3; j++)
+         A[i][j] = csi.A[i][j];
    }
    
    return *this;

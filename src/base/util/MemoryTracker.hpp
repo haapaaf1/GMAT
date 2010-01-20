@@ -28,14 +28,17 @@ public:
    
    static MemoryTracker* Instance();
    
+   void           SetScript(const std::string &script);
    void           SetShowTrace(bool show);
    void           Add(void *addr, const std::string &objName,
-                      const std::string &funName, const std::string &note = "");
+                      const std::string &funName, const std::string &note = "",
+                      void *from = NULL);
    void           Remove(void *addr, const std::string &objName,
-                      const std::string &funName, const std::string &note = "");
-   StringArray&   GetTracks();
+                         const std::string &funName, const std::string &note = "",
+                         void *from = NULL);
+   StringArray&   GetTracks(bool clearTracks = false, bool writeScriptName = false);
    StringArray&   FindLeaks();
-
+   
 private:
    
    static MemoryTracker *instance;
@@ -47,17 +50,21 @@ private:
       std::string objectName;
       std::string functionName;
       std::string remark;
+      std::string scriptName;
       TrackType(const std::string &pref, void* addr, const std::string &objName,
-                const std::string &funName, const std::string &note)
+                const std::string &funName, const std::string &note,
+                const std::string &script)
          {
             preface = pref;
             address = addr;
             objectName = objName;
             functionName = funName;
             remark = note;
+            scriptName = script;
          };
    };
    
+   std::string scriptFile;
    std::vector<TrackType> memoryTracks;
    StringArray allTracks;
    bool showTrace;

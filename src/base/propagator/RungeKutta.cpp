@@ -39,19 +39,20 @@
 //                             backwards
 //
 //                           : 09/24/2003 - W. Waktola, Missions Applications Branch
-//				Changes:
-//				  - Updated style using GMAT cpp style guide
+//                              Changes:
+//                                - Updated style using GMAT cpp style guide
 //
 //                           : 10/21/2003 - W. Waktola, Missions Applications Branch
-//				Changes:
-//				  - All double types to Real types
-//				  - All primitive int types to Integer types
-//				Removals:
-//				Additions:
+//                              Changes:
+//                                - All double types to Real types
+//                                - All primitive int types to Integer types
+//                              Removals:
+//                              Additions:
 // **************************************************************************
 
 #include "gmatdefs.hpp"
 #include "RungeKutta.hpp"
+#include "MessageInterface.hpp"
 
 //#define DEBUG_PROPAGATOR_FLOW
 //#define DEBUG_RAW_STEP_STATE
@@ -66,12 +67,12 @@
 /**
  * The RK Constructor
  *
- * @param st	Number of stages in the specific algorithm implemented
- * @param order	Order of the expansion used for the integrator
+ * @param st    Number of stages in the specific algorithm implemented
+ * @param order Order of the expansion used for the integrator
  */
 //------------------------------------------------------------------------------
 RungeKutta::RungeKutta(Integer st, Integer order, const std::string &typeStr,
-					   const std::string &nomme) :
+                                           const std::string &nomme) :
     Integrator      (typeStr, nomme),
     stages          (st),
     ki              (NULL),
@@ -139,6 +140,8 @@ RungeKutta& RungeKutta::operator=(const RungeKutta& rk)
     sigma = rk.sigma;
     incPower = rk.incPower;
     decPower = rk.decPower;
+
+    ClearArrays();
 
     ki = NULL;
     ai = NULL;
@@ -265,9 +268,9 @@ bool RungeKutta::Initialize()
  *
  * This method implements the heart of the Runge-Kutta integration
  *
- * @return	true if a good step was taken, false if no good step was found or
- *    		if another failure was encountered (a bad force model call, for
- *      	example)
+ * @return      true if a good step was taken, false if no good step was found or
+ *              if another failure was encountered (a bad force model call, for
+ *              example)
  */
 //------------------------------------------------------------------------------
 bool RungeKutta::Step()
@@ -297,7 +300,7 @@ bool RungeKutta::Step()
     do
     {
         if (!RawStep())
-            return false;
+           return false;
 
         maxerror = EstimateError();
         stepTaken = stepSize;
@@ -314,7 +317,11 @@ bool RungeKutta::Step()
         }
 
         if (stepAttempts >= maxStepAttempts)
-            return false;
+        {
+           MessageInterface::ShowMessage("%d step attempts taken; max is %d\n",
+                 stepAttempts, maxStepAttempts);
+           return false;
+        }
     } while (!goodStepTaken);
 
     physicalModel->IncrementTime(stepTaken);
@@ -343,10 +350,10 @@ bool RungeKutta::RawStep()
    #ifdef DEBUG_RAW_STEP_STATE
       MessageInterface::ShowMessage("inState: [");
       for (Integer q = 0; q < dimension-1; ++q)
-      	MessageInterface::ShowMessage("%le, ", inState[q]);
+        MessageInterface::ShowMessage("%le, ", inState[q]);
       MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
    #endif
-   
+
    // Calculate the stages
    for (i = 0; i < stages; i++)
    {
@@ -355,11 +362,11 @@ bool RungeKutta::RawStep()
       #ifdef DEBUG_RAW_STEP_STATE
          MessageInterface::ShowMessage("inState[%d]: [", i);
          for (Integer q = 0; q < dimension-1; ++q)
-         	MessageInterface::ShowMessage("%le, ", inState[q]);
+                MessageInterface::ShowMessage("%le, ", inState[q]);
          MessageInterface::ShowMessage("%le]\n", inState[dimension-1]);
          MessageInterface::ShowMessage("stageState: [");
          for (Integer q = 0; q < dimension-1; ++q)
-         	MessageInterface::ShowMessage("%le, ", stageState[q]);
+                MessageInterface::ShowMessage("%le, ", stageState[q]);
          MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
       #endif
 
@@ -381,14 +388,14 @@ bool RungeKutta::RawStep()
       #ifdef DEBUG_RAW_STEP_STATE
          MessageInterface::ShowMessage("ddt data: [");
          for (Integer q = 0; q < dimension-1; ++q)
-         	MessageInterface::ShowMessage("%le, ", ddt[q]);
+                MessageInterface::ShowMessage("%le, ", ddt[q]);
          MessageInterface::ShowMessage("%le]\n", ddt[dimension-1]);
          MessageInterface::ShowMessage("++ After GetDerivatives,  stageState: [");
          for (Integer q = 0; q < dimension-1; ++q)
             MessageInterface::ShowMessage("%le, ", stageState[q]);
          MessageInterface::ShowMessage("%le]\n", stageState[dimension-1]);
       #endif
-         
+
       for (j = 0; j < dimension; j++)
          ki[i][j] = stepSize * ddt[j];
    }
@@ -402,14 +409,14 @@ bool RungeKutta::RawStep()
          candidateState[j] += cj[i] * ki[i][j];
       }
    }
-    
+
    #ifdef DEBUG_RAW_STEP_STATE
       MessageInterface::ShowMessage("candidateState: [");
       for (Integer q = 0; q < dimension-1; ++q)
          MessageInterface::ShowMessage("%le, ", candidateState[q]);
       MessageInterface::ShowMessage("%le]\n", candidateState[dimension-1]);
-   #endif 
-   
+   #endif
+
 //   delete [] inState;
 
    return true;
@@ -421,7 +428,7 @@ bool RungeKutta::RawStep()
 /**
  * Method used to step a fixed time
  *
- * @param dt	The time interval to step
+ * @param dt    The time interval to step
  */
 //------------------------------------------------------------------------------
 bool RungeKutta::Step(Real dt)
@@ -434,7 +441,8 @@ bool RungeKutta::Step(Real dt)
         if (attemptsTaken > maxStepAttempts)
         {
            MessageInterface::ShowMessage(
-              "Integrator attempted too many steps!\n");
+              "   Integrator attempted too many steps! (%d attempts taken)\n",
+              attemptsTaken);
            return false;
         }
         if (!Propagator::Step(timeleft))
@@ -507,9 +515,9 @@ Real RungeKutta::EstimateError()
  *
  *  This issue needs to be reexamined once the system is functional.
  *
- *  @param maxerror	Maximum error found in the current attempt
+ *  @param maxerror     Maximum error found in the current attempt
  *
- *  @return			true if the step is accepted, false if not
+ *  @return             true if the step is accepted, false if not
  */
 //------------------------------------------------------------------------------
 bool RungeKutta::AdaptStep(Real maxerror)

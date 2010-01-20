@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  XyPlot
 //------------------------------------------------------------------------------
@@ -22,6 +22,10 @@
 #include "Subscriber.hpp"
 #include "Parameter.hpp"
 
+
+/**
+ * Subscriber class used to drive the TsPlot components on the GUI
+ */
 class TsPlot : public Subscriber 
 {
 public:
@@ -36,7 +40,7 @@ public:
    virtual bool         Initialize();
    
    // methods inherited from GmatBase
-   virtual GmatBase*    Clone(void) const;
+   virtual GmatBase*    Clone() const;
    virtual void         Copy(const GmatBase* orig);
    
    virtual bool         SetName(const std::string &who,
@@ -116,6 +120,7 @@ protected:
    bool ResetYParameters();
    bool PenUp();
    bool PenDown();
+   bool MarkPoint();
    
    void DeletePlotCurves();
    
@@ -142,6 +147,11 @@ protected:
    Integer mNumDataPoints;
    Integer mNumCollected;
    
+   bool useLines;
+   Integer lineWidth;
+   bool useMarkers;
+   Integer markerSize;
+
    enum
    {
       IND_VAR = SubscriberParamCount,
@@ -153,6 +163,10 @@ protected:
       DATA_COLLECT_FREQUENCY,
       UPDATE_PLOT_FREQUENCY,
       SHOW_PLOT,
+      USE_LINES,
+      LINE_WIDTH,
+      USE_MARKERS,
+      MARKER_SIZE,
       TsPlotParamCount
    };
    

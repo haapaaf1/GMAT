@@ -52,7 +52,17 @@ public:
                                            const std::string &value);
 protected:
    
-   bool mIsNewFunction;
+   bool         mIsNewFunction;
+   StringArray  *unusedGlobalObjectList;
+   
+   bool InitializeLocalObjects(ObjectInitializer *objInit,
+                               GmatCommand *current,
+                               bool ignoreException);
+   void BuildUnusedGlobalObjectList();
+   
+   // for debug
+   void ShowTrace(Integer count, Integer t1, const std::string &label = "",
+                  bool showMemoryTracks = false, bool addEol = false);
    
    enum
    {

@@ -20,7 +20,7 @@
  * secondary when defining a CoordinateSystem.
  *
  * @note Methods returning the point's state information at time atTime return
- * the state in a frame with axes aligned with the MJ2000 Earth Equatorial
+ * the state in a frame with axes aligned with the MJ2000 Earth Equatorial 
  * Coordinate System but based at the origin j2000Body.
  *
  */
@@ -44,17 +44,22 @@ public:
               const std::string &itsName = "");
    // copy constructor
    SpacePoint(const SpacePoint &sp);
-   // operator =
+   // operator = 
    const SpacePoint& operator=(const SpacePoint &sp);
    // destructor
    virtual ~SpacePoint();
-
+   
    // methods for accessing the bodyName or body pointer
    virtual bool       RequiresJ2000Body();
    const std::string  GetJ2000BodyName() const;
    SpacePoint*        GetJ2000Body() const;
    bool               SetJ2000BodyName(const std::string &toName);
    void               SetJ2000Body(SpacePoint* toBody);
+
+   virtual bool       IsParameterCloaked(const Integer id) const;
+   virtual bool       IsParameterEqualToDefault(const Integer id) const;
+   virtual bool       SaveAllAsDefault();
+   virtual bool       SaveParameterAsDefault(const Integer id);
 
    //---------------------------------------------------------------------------
    //  const Rvector6 GetMJ2000State(const A1Mjd &atTime)
@@ -66,7 +71,7 @@ public:
     *
     * @return state of the SpacePoint at time atTime.
     *
-    * @note This method is pure virtual and must be implemented by the
+    * @note This method is pure virtual and must be implemented by the 
     *       'leaf' (non-abstract derived) classes.
     */
    //---------------------------------------------------------------------------
@@ -82,7 +87,7 @@ public:
     *
     * @return position of the SpacePoint at time atTime.
     *
-    * @note This method is pure virtual and must be implemented by the
+    * @note This method is pure virtual and must be implemented by the 
     *       'leaf' (non-abstract derived) classes.
     */
    //---------------------------------------------------------------------------
@@ -98,21 +103,21 @@ public:
     *
     * @return velocity of the SpacePoint at time atTime.
     *
-    * @note This method is pure virtual and must be implemented by the
+    * @note This method is pure virtual and must be implemented by the 
     *       'leaf' (non-abstract derived) classes.
     */
    //---------------------------------------------------------------------------
    virtual const Rvector3 GetMJ2000Velocity(const A1Mjd &atTime) = 0;
-
+   
    virtual const Rvector3 GetMJ2000Acceleration(const A1Mjd &atTime);
 
    // all classes derived from GmatBase must supply this Clone method;
    // this must be implemented in the 'leaf' classes
    //virtual GmatBase*       Clone(void) const;
 
-   // Parameter access methods - overridden from GmatBase
-   virtual std::string     GetParameterText(const Integer id) const;
-   virtual Integer         GetParameterID(const std::string &str) const;
+   // Parameter access methods - overridden from GmatBase 
+   virtual std::string     GetParameterText(const Integer id) const;     
+   virtual Integer         GetParameterID(const std::string &str) const; 
    virtual Gmat::ParameterType
                            GetParameterType(const Integer id) const;
    virtual std::string     GetParameterTypeString(const Integer id) const;
@@ -120,54 +125,67 @@ public:
    virtual bool            IsParameterReadOnly(const Integer id) const;
    virtual bool            IsParameterReadOnly(const std::string &label) const;
 
+   virtual Integer         GetIntegerParameter(const Integer id) const;
+   virtual Integer         GetIntegerParameter(const std::string &label) const;
+   virtual Integer         SetIntegerParameter(const Integer id,
+                                               const Integer value);
+
    virtual std::string     GetStringParameter(const Integer id) const;
-   virtual bool            SetStringParameter(const Integer id,
+   virtual bool            SetStringParameter(const Integer id, 
                                               const std::string &value);
    virtual std::string     GetStringParameter(const std::string &label) const;
-   virtual bool            SetStringParameter(const std::string &label,
+   virtual bool            SetStringParameter(const std::string &label, 
                                               const std::string &value);
    virtual GmatBase*       GetRefObject(const Gmat::ObjectType type,
                                         const std::string &name);
    virtual bool            SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                         const std::string &name = "");
-
+   
    // DJC Added, 12/16/04
-   virtual std::string     GetStringParameter(const Integer id,
+   virtual std::string     GetStringParameter(const Integer id, 
                                               const Integer index) const;
-   virtual bool            SetStringParameter(const Integer id,
-                                              const std::string &value,
+   virtual bool            SetStringParameter(const Integer id, 
+                                              const std::string &value, 
                                               const Integer index);
-   virtual std::string     GetStringParameter(const std::string &label,
+   virtual std::string     GetStringParameter(const std::string &label, 
                                               const Integer index) const;
-   virtual bool            SetStringParameter(const std::string &label,
-                                              const std::string &value,
+   virtual bool            SetStringParameter(const std::string &label, 
+                                              const std::string &value, 
                                               const Integer index);
    virtual GmatBase*       GetRefObject(const Gmat::ObjectType type,
-                                        const std::string &name,
+                                        const std::string &name, 
                                         const Integer index);
    virtual bool            SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                                        const std::string &name,
+                                        const std::string &name, 
                                         const Integer index);
-
-
+   
+   
 protected:
 
    enum
    {
       J2000_BODY_NAME = GmatBaseParamCount,
+      NAIF_ID,
       SpacePointParamCount
    };
-
+   
    static const std::string PARAMETER_TEXT[SpacePointParamCount - GmatBaseParamCount];
-
+   
    static const Gmat::ParameterType PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount];
-
-
+   
+   
    /// Origin for the return coordinate system (aligned with the MJ2000 Earth
    /// Equatorial coordinate system)
-   SpacePoint      *j2000Body;
+   SpacePoint      *j2000Body;  
    /// Name for the J2000 body
    std::string     j2000BodyName;
+   /// NAIF Id (for SPICE)
+   Integer                naifId;
 
+   // saved default values
+   std::string     default_j2000BodyName;
+   /// default value for NAIF ID
+   Integer                  default_naifId;
+   
 };
 #endif // SpacePoint_hpp

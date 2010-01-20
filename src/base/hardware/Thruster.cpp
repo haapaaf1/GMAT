@@ -18,6 +18,7 @@
 
 #include "Thruster.hpp"
 #include "StringUtil.hpp"
+#include "HardwareException.hpp"
 #include "MessageInterface.hpp"
 #include <sstream>
 #include <math.h>          // for pow(real, real)

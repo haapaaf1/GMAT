@@ -25,12 +25,6 @@
 #include "GmatBase.hpp"
 #include "Spacecraft.hpp"
 
-// This will be removed in the future
-#ifdef __USE_MANEUVER_FRAME__
-#include "ManeuverFrame.hpp"
-#include "ManeuverFrameManager.hpp"
-#endif
-
 /**
  * All maneuver classes are derived from this base class.
  */
@@ -42,6 +36,8 @@ public:
    virtual ~Burn();
    Burn(const Burn &b);
    Burn&                operator=(const Burn &b);
+
+   bool                 IsUsingLocalCoordSystem();
    
    // Inherited (GmatBase) methods
    // for parameters
@@ -62,8 +58,12 @@ public:
    virtual bool         SetStringParameter(const Integer id,
                                            const std::string &value,
                                            const Integer index);
+   
+   // for enumerated strings
    virtual const StringArray&
-                        GetStringArrayParameter(const Integer id) const;
+                        GetPropertyEnumStrings(const Integer id) const;
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const std::string &label) const;
    
    // for Ref. objects
    virtual const ObjectTypeArray&
@@ -101,13 +101,6 @@ public:
     
 protected:
 
-#ifdef __USE_MANEUVER_FRAME__
-   /// Maneuver frame conversion class manager
-   ManeuverFrameManager *frameman;
-   /// Current maneuver frame
-   ManeuverFrame        *frame;
-#endif
-   
    /// Solar system used to find the J2000 body, etc.
    SolarSystem          *solarSystem;
    /// Local Coordinate system
@@ -142,6 +135,10 @@ protected:
    std::string          vectorFormat;
    /// Flag indicating if local coordinate system is used
    bool                 usingLocalCoordSys;
+   /// Flag indicating if axes is MJ2000Eq
+   bool                 isMJ2000EqAxes;
+   /// Flag indicating if axes is SpacecrftBody
+   bool                 isSpacecraftBodyAxes;
    /// Flag used to determine if the configuration needs updating
    bool                 initialized;
    

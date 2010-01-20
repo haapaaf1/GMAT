@@ -38,6 +38,11 @@
 #include "StringUtil.hpp"          // for Replace()
 #include "MessageInterface.hpp"
 
+// The old Publisher code keep incrementing the provider id whenever
+// Publisher::RegisterPublishedData() is called, which causes OpenGL
+// plot to fail if it is used in the nested GmatFunction.
+//#define __USE_OLD_PUB_CODE__
+
 // Cloning wrapper is not ready
 //#define __ENABLE_CLONING_WRAPPERS__
 
@@ -88,15 +93,17 @@ Subscriber::PARAMETER_TYPE[SubscriberParamCount - GmatBaseParamCount] =
 //------------------------------------------------------------------------------
 Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    GmatBase (Gmat::SUBSCRIBER, typeStr, nomme),
-   data (NULL),
-   next (NULL),
-   theInternalCoordSystem (NULL),
-   theDataCoordSystem (NULL),
-   theSolarSystem (NULL),
-   active (true),
+   data(NULL),
+   next(NULL),
+   theInternalCoordSystem(NULL),
+   theDataCoordSystem(NULL),
+   theSolarSystem(NULL),
+   active(true),
+   isManeuvering(false),
    isEndOfReceive(false),
    isEndOfRun(false),
    isInitialized(false),
+   isFinalized(false),
    runstate(Gmat::IDLE),
    currentProvider(0)
 {
@@ -106,7 +113,7 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    mSolverIterations = "Current";
    mSolverIterOption = SI_CURRENT;
    
-   isCloned = false;
+   wrappersCopied = false;
 }
 
 
@@ -114,23 +121,25 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
 // Subscriber(const Subscriber &copy)
 //------------------------------------------------------------------------------
 Subscriber::Subscriber(const Subscriber &copy) :
-   GmatBase (copy),
-   data (NULL),
-   next (NULL),
-   theInternalCoordSystem (NULL),
-   theDataCoordSystem (NULL),
-   theSolarSystem (NULL),
-   active (copy.active),
+   GmatBase(copy),
+   data(NULL),
+   next(NULL),
+   theInternalCoordSystem(NULL),
+   theDataCoordSystem(NULL),
+   theSolarSystem(NULL),
+   active(copy.active),
+   isManeuvering(copy.isManeuvering),
    isEndOfReceive(copy.isEndOfReceive),
    isEndOfRun(copy.isEndOfRun),
    isInitialized(copy.isInitialized),
+   isFinalized(copy.isFinalized),
    runstate(copy.runstate),
    currentProvider(copy.currentProvider),
    wrapperObjectNames(copy.wrapperObjectNames)
 {
    mSolverIterations = copy.mSolverIterations;
    mSolverIterOption = copy.mSolverIterOption;
-   isCloned = true;
+   wrappersCopied = true;
    
 #ifdef __ENABLE_CLONING_WRAPPERS__
    // Create new wrappers by cloning (LOJ: 2009.03.10)
@@ -140,6 +149,10 @@ Subscriber::Subscriber(const Subscriber &copy) :
    // Copy wrappers
    depParamWrappers = copy.depParamWrappers;
    paramWrappers = copy.paramWrappers;
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage("Subscriber(copy) copied wrappers\n");
+   WriteWrappers();
+   #endif
 #endif
 }
 
@@ -161,9 +174,11 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    data = rhs.data;
    next = rhs.next;
    active = rhs.active;
-   isEndOfReceive = rhs.isEndOfReceive;
+   active = rhs.active;
+   isManeuvering = rhs.isManeuvering;
    isEndOfRun = rhs.isEndOfRun;
    isInitialized = rhs.isInitialized;
+   isFinalized = rhs.isFinalized;
    runstate = rhs.runstate;
    currentProvider = rhs.currentProvider;
    theInternalCoordSystem = NULL;
@@ -171,6 +186,7 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    wrapperObjectNames = rhs.wrapperObjectNames;
    mSolverIterations = rhs.mSolverIterations;
    mSolverIterOption = rhs.mSolverIterOption;
+   wrappersCopied = true;
    
 #ifdef __ENABLE_CLONING_WRAPPERS__
    // Clear old wrappers
@@ -178,10 +194,14 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    // Create new wrappers by cloning (LOJ: 2009.03.10)
    CloneWrappers(depParamWrappers, rhs.depParamWrappers);
    CloneWrappers(paramWrappers, rhs.paramWrappers);
-   #else
+#else
    // Copy wrappers
    depParamWrappers = rhs.depParamWrappers;
    paramWrappers = rhs.paramWrappers;
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage("Subscriber(=) copied wrappers\n");
+   WriteWrappers();
+   #endif
 #endif
    
    return *this;
@@ -196,8 +216,24 @@ Subscriber::~Subscriber()
 #ifdef __ENABLE_CLONING_WRAPPERS__
    ClearWrappers();
 #else
-   if (!isCloned)
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("~Subscriber() <%p>'%s' entered, wrappersCopied = %d\n", this, GetName().c_str(),
+       wrappersCopied);
+   #endif
+   
+   // Since we just copies wrappers, we can only delete if it is not a cloned
+   if (!wrappersCopied)
+   {
       ClearWrappers();
+   }
+   else
+   {
+      //@todo We should delete wrappers here
+      //Func_BallisticMassParamTest.script leaves memory trace
+      //If we clear wrappers, APT_AttitudeTest.script crashes
+      //ClearWrappers();
+   }
 #endif
 }
 
@@ -209,6 +245,8 @@ bool Subscriber::Initialize()
 {
    isEndOfReceive = false;
    isEndOfRun = false;
+   isInitialized = false;
+   isFinalized = false;
    return true;
 }
 
@@ -242,21 +280,40 @@ bool Subscriber::ReceiveData(const char *datastream,  const int len)
 {
    #ifdef DEBUG_RECEIVE_DATA
    MessageInterface::ShowMessage
-      ("Subscriber::ReceiveData() active=%d, data='%s', len=%d\n",
-       active, datastream, len);
+      ("Subscriber::ReceiveData(char*, int) <%p>'%s' entered, active=%d, len=%d\n"
+       "data='%s'\n", this, GetName().c_str(), active, len, datastream);
    #endif
    
    if (!active)        // Not currently processing data
+   {
+      #ifdef DEBUG_RECEIVE_DATA
+      MessageInterface::ShowMessage
+         ("Subscriber::ReceiveData() '%s' is not active, so just returning true\n",
+          GetName().c_str());
+      #endif
       return true;
+   }
    
    data = datastream;
    if (!Distribute(len))
    {
       data = NULL;
+      #ifdef DEBUG_RECEIVE_DATA
+      MessageInterface::ShowMessage
+         ("Subscriber::ReceiveData() '%s' failed to distribute, so just returning false\n",
+          GetName().c_str());
+      #endif
       return false;
    }
    
    data = NULL;
+   
+   #ifdef DEBUG_RECEIVE_DATA
+   MessageInterface::ShowMessage
+      ("Subscriber::ReceiveData() '%s' was successful, returning true\n",
+       GetName().c_str());
+   #endif
+   
    return true;
 }
 
@@ -266,12 +323,27 @@ bool Subscriber::ReceiveData(const char *datastream,  const int len)
 //------------------------------------------------------------------------------
 bool Subscriber::ReceiveData(const double *datastream, const int len)
 {
+   #ifdef DEBUG_RECEIVE_DATA
+   MessageInterface::ShowMessage
+      ("Subscriber::ReceiveData(double*) <%p>'%s' entered, active=%d, len=%d\n",
+       this, GetName().c_str(), active, len);
+   if (len > 0)
+      MessageInterface::ShowMessage("   data[0]=%f\n", datastream[0]);
+   #endif
+   
    if (!active)        // Not currently processing data
+   {
+      #ifdef DEBUG_RECEIVE_DATA
+      MessageInterface::ShowMessage
+         ("Subscriber::ReceiveData() '%s' is not active, so just returning true\n",
+          GetName().c_str());
+      #endif
       return true;
-
+   }
+   
    if (len == 0)
       return true;
-
+   
    if (!Distribute(datastream, len))
    {
       return false;
@@ -321,6 +393,51 @@ bool Subscriber::SetEndOfRun()
 void Subscriber::SetRunState(Gmat::RunState rs)
 {
    runstate = rs;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetManeuvering(bool flag, Real epoch, const std::string &satName,
+//                     const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft maneuvering flag.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver
+ * @param satName Name of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Subscriber::SetManeuvering(bool flag, Real epoch, const std::string &satName,
+                                const std::string &desc)
+{
+   static StringArray satNames;
+   satNames.clear();
+   isManeuvering = flag;
+   satNames.push_back(satName);
+   HandleManeuvering(flag, epoch, satNames, desc);
+}
+
+
+//------------------------------------------------------------------------------
+// void SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+//                    const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft maneuvering flag.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver
+ * @param satNames Names of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Subscriber::SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+                                const std::string &desc)
+{
+   isManeuvering = flag;
+   HandleManeuvering(flag, epoch, satNames, desc);
 }
 
 
@@ -416,11 +533,34 @@ Integer Subscriber::GetProviderId()
 //------------------------------------------------------------------------------
 void Subscriber::SetDataLabels(const StringArray& elements)
 {
+   //=================================================================
+   #ifdef __USE_OLD_PUB_CODE__
+   //=================================================================
+   
    theDataLabels.push_back(elements);
+   
+   //=================================================================
+   #else
+   //=================================================================
+
+   #ifdef DEBUG_SUBSCRIBER_SET_LABELS
+   MessageInterface::ShowMessage
+      ("==> Subscriber::SetDataLabels() Using new Publisher code\n");
+   #endif
+   
+   // Publisher new code always sets current labels
+   if (theDataLabels.empty())
+      theDataLabels.push_back(elements);
+   else
+      theDataLabels[0] = elements;
+   
+   //=================================================================
+   #endif
+   //=================================================================
    
    #ifdef DEBUG_SUBSCRIBER_DATA
    MessageInterface::ShowMessage
-      ("Subscriber::SetDataLabels() <%s> entered, theDataLabels.size()=%d, "
+      ("Subscriber::SetDataLabels() <%s> leaving, theDataLabels.size()=%d, "
        "first label is '%s'\n", GetName().c_str(), theDataLabels.size(),
        elements[0].c_str());
    #endif
@@ -695,9 +835,7 @@ void Subscriber::ClearWrappers()
    #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
       ("Subscriber::ClearWrappers() <%p>'%s' entered\n", this, GetName().c_str());
-   MessageInterface::ShowMessage
-      ("   depParamWrappers.size()=%d, paramWrappers.size()=%d\n",
-       depParamWrappers.size(), paramWrappers.size());
+   WriteWrappers();
    #endif
    
    ElementWrapper *wrapper;
@@ -711,6 +849,10 @@ void Subscriber::ClearWrappers()
           find(paramWrappers.begin(), paramWrappers.end(), wrapper) ==
           paramWrappers.end())
       {
+         #ifdef DEBUG_WRAPPER_CODE
+         MessageInterface::ShowMessage("   deleting depParamWrapper = <%p>\n", wrapper);
+         #endif
+         
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (wrapper, wrapper->GetDescription(), "Subscriber::ClearWrappers()",
@@ -728,7 +870,7 @@ void Subscriber::ClearWrappers()
       wrapper = paramWrappers[i];
       
       #ifdef DEBUG_WRAPPER_CODE
-      MessageInterface::ShowMessage("   wrapper=<%p>\n", wrapper);
+      MessageInterface::ShowMessage("   deleting paramWrapper = <%p>\n", wrapper);
       #endif
       
       if (wrapper != NULL)
@@ -1158,6 +1300,26 @@ bool Subscriber::Distribute(const double *dat, int len)
 
 
 //------------------------------------------------------------------------------
+// virtual void HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
+//                               const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Handles maneuvering on or off.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver on or off
+ * @param satNames Names of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Subscriber::HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
+                                   const std::string &desc)
+{
+   // do nothing here
+}
+
+
+//------------------------------------------------------------------------------
 // const std::string* GetSolverIterOptionList()
 //------------------------------------------------------------------------------
 const std::string* Subscriber::GetSolverIterOptionList()
@@ -1165,3 +1327,29 @@ const std::string* Subscriber::GetSolverIterOptionList()
    return SOLVER_ITER_OPTION_TEXT;
 }
 
+
+//------------------------------------------------------------------------------
+// void WriteWrappers()
+//------------------------------------------------------------------------------
+void Subscriber::WriteWrappers()
+{
+   MessageInterface::ShowMessage
+      ("Subscriber::WriteWrappers() <%p>'%s' has %d depParamWrappers and %d "
+       "paramWrappers\n", this, GetName().c_str(), depParamWrappers.size(),
+       paramWrappers.size());
+   
+   ElementWrapper *wrapper;
+   for (UnsignedInt i = 0; i < depParamWrappers.size(); ++i)
+   {
+      wrapper = depParamWrappers[i];
+      MessageInterface::ShowMessage
+         ("   depPaWrapper = <%p> '%s'\n", wrapper, wrapper->GetDescription().c_str());
+   }
+   
+   for (UnsignedInt i = 0; i < paramWrappers.size(); ++i)
+   {
+      wrapper = paramWrappers[i];
+      MessageInterface::ShowMessage
+         ("   paramWrapper = <%p> '%s'\n", wrapper, wrapper->GetDescription().c_str());
+   }
+}

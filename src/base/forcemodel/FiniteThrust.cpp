@@ -22,6 +22,7 @@
 #include "FiniteThrust.hpp"
 
 //#define DEBUG_FINITETHRUST_INIT
+//#define DEBUG_REGISTRATION
 //#define DEBUG_FINITETHRUST_EXE
 
 
@@ -42,7 +43,10 @@ FiniteThrust::FiniteThrust(const std::string &name) :
    PhysicalModel        (Gmat::PHYSICAL_MODEL, "FiniteThrust", name),
    satCount             (0),
    cartIndex            (-1),
-   fillCartesian        (false)
+   fillCartesian        (false),
+   satThrustCount       (0),
+   mDotIndex            (-1),
+   depleteMass          (true)
 {
    derivativeIds.push_back(Gmat::CARTESIAN_STATE);
 }
@@ -70,16 +74,19 @@ FiniteThrust::~FiniteThrust()
  */
 //------------------------------------------------------------------------------
 FiniteThrust::FiniteThrust(const FiniteThrust& ft) :
-   PhysicalModel          (ft),
-   burnNames              (ft.burnNames),
-   mySpacecraft           (ft.mySpacecraft),
-   spacecraft             (ft.spacecraft),
-   satCount               (ft.satCount),
-   cartIndex              (ft.cartIndex),
-   fillCartesian          (ft.fillCartesian)
+   PhysicalModel           (ft),
+   burnNames               (ft.burnNames),
+   mySpacecraft            (ft.mySpacecraft),
+   spacecraft              (ft.spacecraft),
+   satCount                (ft.satCount),
+   cartIndex               (ft.cartIndex),
+   fillCartesian           (ft.fillCartesian),
+   satThrustCount          (ft.satThrustCount),
+   mDotIndex               (ft.mDotIndex),
+   depleteMass             (ft.depleteMass)
 {
-        burns.clear();
-        scIndices.clear();
+   burns.clear();
+   scIndices.clear();
 }
 
 
@@ -96,21 +103,23 @@ FiniteThrust::FiniteThrust(const FiniteThrust& ft) :
 //------------------------------------------------------------------------------
 FiniteThrust& FiniteThrust::operator=(const FiniteThrust& ft)
 {
-   if (this == &ft)
-      return *this;
-        
-   PhysicalModel::operator=(ft);
-   
-   burnNames    = ft.burnNames;
-   spacecraft   = ft.spacecraft;
-   mySpacecraft = ft.mySpacecraft;
-   burns.clear();
-   scIndices.clear();
-   
-   satCount      = ft.satCount;
-   cartIndex     = ft.cartIndex;
-   fillCartesian = ft.fillCartesian;
-      
+   if (this != &ft)
+   {
+      PhysicalModel::operator=(ft);
+
+      burnNames    = ft.burnNames;
+      spacecraft   = ft.spacecraft;
+      mySpacecraft = ft.mySpacecraft;
+      burns.clear();
+      scIndices.clear();
+
+      satCount       = ft.satCount;
+      cartIndex      = ft.cartIndex;
+      fillCartesian  = ft.fillCartesian;
+      satThrustCount = ft.satThrustCount;
+      mDotIndex      = ft.mDotIndex;
+      depleteMass    = ft.depleteMass;
+   }
    return *this;
 }
 
@@ -264,6 +273,20 @@ bool FiniteThrust::IsTransient()
    return true;
 }
 
+//------------------------------------------------------------------------------
+// bool DepeletesMass()
+//------------------------------------------------------------------------------
+/**
+ * Detects mass depletion from a PhysicalModel
+ *
+ * @return true if the model depletes mass, false if it does not
+ */
+//------------------------------------------------------------------------------
+bool FiniteThrust::DepeletesMass()
+{
+   return depleteMass;
+}
+
 
 //------------------------------------------------------------------------------
 // bool IsTransient()
@@ -392,8 +415,8 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
    #endif
 
    Real accel[3], mDot, burnData[4];
-   Integer i6;
-   Integer i = 0;
+   Integer i6, mloc = -1;
+   Integer i = 0, j = 0;
    SpaceObject *sat;
    
    if (fillCartesian)
@@ -404,6 +427,17 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
       {
          i6 = cartIndex + i * 6;
          
+         if (1)  // <-- NEED A TEST HERE!
+         {
+            if (j < satThrustCount)
+            {
+               mloc = mDotIndex + j;
+               ++j;
+            }
+         }
+         else
+            mloc = -1;
+
          if ((*sc)->IsOfType(Gmat::SPACEOBJECT) == false)
             continue;
          
@@ -420,7 +454,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
          {
 
             #ifdef DEBUG_FINITETHRUST_EXE
-               MessageInterface::ShowMessage("   Maneuvering ");
+               MessageInterface::ShowMessage("   Maneuvering\n");
             #endif
    
             if (sat->GetType() != Gmat::SPACECRAFT)
@@ -443,12 +477,32 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                   accel[0] += burnData[0];
                   accel[1] += burnData[1];
                   accel[2] += burnData[2];
-                  mDot     += burnData[3];
+                  #ifdef DEBUG_MASS_FLOW
+                     MessageInterface::ShowMessage(
+                           "   --> direction = [%.12lf %.12lf %.12lf]",
+                           accel[0], accel[1], accel[2]);
+                  #endif
+                  if ((*fb)->DepletesMass())
+                  {
+                     if (order != 1)
+                        throw ODEModelException("Mass depletion cannot be "
+                              "performed with the selected propagator.");
+                     mDot += burnData[3];
+                     #ifdef DEBUG_MASS_FLOW
+                        MessageInterface::ShowMessage("  mDot =  %.12lf\n",
+                              mDot);
+                     #endif
+                  }
+                  #ifdef DEBUG_MASS_FLOW
+                  else
+                     MessageInterface::ShowMessage("  mDot =  0.0\n");
+                  #endif
+
                }
                #ifdef DEBUG_FINITETHRUST_EXE
                   MessageInterface::ShowMessage(
-                     "\n   Acceleration = [%18le  %18le  %18le]", accel[0], 
-                     accel[1], accel[2]);
+                     "\n   Acceleration = [%18le  %18le  %18le]; "
+                     "dm/dt = %.18le", accel[0], accel[1], accel[2], mDot);
                #endif
             }
       
@@ -460,12 +514,15 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
             if (order == 1) 
             {
                // dr/dt = v
-                  deriv[i6]     = 
-                  deriv[1 + i6] = 
-                  deriv[2 + i6] = 0.0;
+               deriv[i6]     = 
+               deriv[1 + i6] = 
+               deriv[2 + i6] = 0.0;
                deriv[3 + i6] = accel[0];
                deriv[4 + i6] = accel[1];
                deriv[5 + i6] = accel[2];
+
+               if (mloc >= 0)
+                  deriv[mloc]   = mDot;
             } 
             else  
             {
@@ -508,7 +565,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
       //ShowDerivative("FiniteThrust::GetDerivatives() AFTER compute", state,
       //               satCount);
       MessageInterface::ShowMessage
-         ("   deriv[1:3] = [%18le %18le %18le]\n   deriv[4:6] = [%18le %18le %18le]\n",
+         ("     deriv[1:3] = [%18le %18le %18le]\n     deriv[4:6] = [%18le %18le %18le]\n",
           deriv[0], deriv[1], deriv[2], deriv[3], deriv[4], deriv[5]);
       MessageInterface::ShowMessage("FiniteThrust::GetDerivatives finished\n");
    #endif
@@ -537,14 +594,18 @@ bool FiniteThrust::SupportsDerivative(Gmat::StateElementId id)
    #endif
    
    if (id == Gmat::CARTESIAN_STATE)
-   return true;
+      return true;
    
 //   if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
 //      return true;
    
    if (id == Gmat::MASS_FLOW)
-      // todo: Make true when mass flow is added
-      return false;
+   {
+      #ifdef DEBUG_REGISTRATION
+         MessageInterface::ShowMessage("I support mass flow!\n");
+      #endif
+      return true;
+   }
    
    return PhysicalModel::SupportsDerivative(id);
 }
@@ -593,6 +654,10 @@ bool FiniteThrust::SetStart(Gmat::StateElementId id, Integer index,
          
       case Gmat::MASS_FLOW:
          // todo: add mass flow bits here
+         satThrustCount = quantity;
+         mDotIndex = index;
+         depleteMass = true;
+         retval = true;
          break;
          
       default:

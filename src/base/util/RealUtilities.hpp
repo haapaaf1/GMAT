@@ -75,6 +75,7 @@ namespace GmatMathUtil
    Real    NearestInt(Real theNumber);
    Real    Round(Real theNumber);
    Real    Floor(Real theNumber);
+   Real    Fix(Real theNumber);
    Real    Ceiling(Real theNumber);
    Real    Mod(Real left, Real right);
    Real    Rem(Real left, Real right);
@@ -89,6 +90,8 @@ namespace GmatMathUtil
    bool    IsEqual(Real left, Real right, 
                     Real accuracy = GmatRealConst::REAL_EPSILON);
    Integer SignOf(Real theNumber);
+   bool    IsOdd(Integer theNumber);
+   bool    IsEven(Integer theNumber);
    
    Real    Rad(Real angleInDeg, bool modBy2Pi = false);
    Real    Deg(Real angleInRad, bool modBy360 = false);
@@ -121,7 +124,14 @@ namespace GmatMathUtil
    Real    Log10(Real x);          // Base 10 Logarithm of x
    Real    Log(Real x, Real base); // Base <base> Logarithm of x
    Real    Log(Real x, Integer base);
-    
+   
+   void    SetSeed(Integer initialSeed1, Integer initialSeed2); 
+   void    GetSeed(Integer& initialSeed1, Integer& initialSeed2);
+   //loj:void    SetSeedByClock();
+   Real    Number(Real lowerBound=0.0, Real upperBound=1.0); 
+   Real    GaussianNumber(Real mu= 0.0, Real sigma=1.0); 
+   Real    Ran();
+   void    SetRanKey(Real k=0.0); 
    //loj:Real    Cot(Real x);
    Real    Cbrt(Real x);
    Real    Sqrt(Real x);

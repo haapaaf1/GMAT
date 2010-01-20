@@ -105,6 +105,7 @@ GmatCommand::GmatCommand(const std::string &typeStr) :
    objectMap            (NULL),
    globalObjectMap      (NULL),
    solarSys             (NULL),
+   triggerManagers      (NULL),
    internalCoordSys     (NULL),
    publisher            (NULL),
    streamID             (-1),
@@ -648,6 +649,21 @@ void GmatCommand::SetSolarSystem(SolarSystem *ss)
    solarSys = ss;
 }
 
+
+//------------------------------------------------------------------------------
+// void SetTriggerManagers(std::vector<TriggerManager*> *trigs)
+//------------------------------------------------------------------------------
+/**
+ * Sets the trigger manager pointers
+ *
+ * @param trigs A vector of TriggerManager pointers passed in from the local
+ *              Sandbox.
+ */
+//------------------------------------------------------------------------------
+void GmatCommand::SetTriggerManagers(std::vector<TriggerManager*> *trigs)
+{
+   triggerManagers = trigs;
+}
 
 //------------------------------------------------------------------------------
 // virtual void SetInternalCoordSystem(CoordinateSystem *cs)
@@ -1658,6 +1674,10 @@ void GmatCommand::RunComplete()
       ("GmatCommand::RunComplete for (%p)%s\n", this, typeName.c_str());
    #endif
    
+   // Reset stream ID and initialized flag
+   streamID = -1;
+   initialized = false;
+   
    if (this->IsOfType("BranchEnd"))
       return;
    
@@ -2448,6 +2468,13 @@ void GmatCommand::ClearOldWrappers()
 //------------------------------------------------------------------------------
 void GmatCommand::CollectOldWrappers(ElementWrapper **wrapper)
 {
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("GmatCommand::CollectOldWrappers() <%p>'%s' entered, wrapper=<%p>\n",
+       this, GetTypeName().c_str(), *wrapper);
+   MessageInterface::ShowMessage("   There are %d old wrappers\n", oldWrappers.size());
+   #endif
+   
    if (*wrapper)
    {
       if (find(oldWrappers.begin(), oldWrappers.end(), *wrapper) == oldWrappers.end())
@@ -2456,6 +2483,12 @@ void GmatCommand::CollectOldWrappers(ElementWrapper **wrapper)
          *wrapper = NULL;
       }
    }
+   
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("GmatCommand::CollectOldWrappers() <%p>'%s' leaving\n", this, GetTypeName().c_str());
+   MessageInterface::ShowMessage("   There are %d old wrappers\n", oldWrappers.size());
+   #endif
 }
 
 
@@ -2471,10 +2504,26 @@ void GmatCommand::DeleteOldWrappers()
    #endif
    
    ElementWrapper *wrapper;
+   WrapperArray wrappersToDelete;
+   
+   // Add wrappers to delete
    for (UnsignedInt i = 0; i < oldWrappers.size(); ++i)
    {
       wrapper = oldWrappers[i];
-      
+      if (find(wrappersToDelete.begin(), wrappersToDelete.end(), wrapper) ==
+          wrappersToDelete.end())
+      {
+         wrappersToDelete.push_back(wrapper);
+         #ifdef DEBUG_WRAPPER_CODE
+         MessageInterface::ShowMessage("   <%p> added to wrappersToDelete\n", wrapper);
+         #endif
+      }
+   }
+   
+   // Delete wrappers
+   for (UnsignedInt i = 0; i < wrappersToDelete.size(); ++i)
+   {
+      wrapper = wrappersToDelete[i];
       #ifdef DEBUG_WRAPPER_CODE
       MessageInterface::ShowMessage
          ("   wrapper=<%p>'%s'\n", wrapper, wrapper ? wrapper->GetDescription().c_str() : "NULL");
@@ -2492,4 +2541,10 @@ void GmatCommand::DeleteOldWrappers()
    }
    
    oldWrappers.clear();
+   
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("GmatCommand::DeleteOldWrappers() <%p>'%s' leaving, has %d old wrappers\n",
+       this, GetTypeName().c_str(), oldWrappers.size());
+   #endif
 }

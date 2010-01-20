@@ -35,7 +35,7 @@ namespace GmatParam
    
    enum DepObject
    {
-      COORD_SYS, ORIGIN, NO_DEP, DepObjectCount
+      COORD_SYS, ORIGIN, NO_DEP, OWNED_OBJ, DepObjectCount
    };
 };
 

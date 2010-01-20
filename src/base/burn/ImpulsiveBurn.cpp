@@ -22,12 +22,6 @@
 #include "BurnException.hpp"
 #include "MessageInterface.hpp"
 
-
-// This will be removed in the future
-//#ifndef __USE_MANEUVER_FRAME__
-//#define __USE_MANEUVER_FRAME__
-//#endif
-
 //#define DEBUG_IMPBURN_INIT
 //#define DEBUG_IMPBURN_SET
 //#define DEBUG_IMPBURN_FIRE
@@ -53,7 +47,7 @@ const Gmat::ParameterType
 ImpulsiveBurn::PARAMETER_TYPE[ImpulsiveBurnParamCount - BurnParamCount] =
 {
    Gmat::BOOLEAN_TYPE,
-   Gmat::STRINGARRAY_TYPE,
+   Gmat::OBJECTARRAY_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
@@ -163,8 +157,9 @@ void ImpulsiveBurn::SetSpacecraftToManeuver(Spacecraft *sat)
 {
    #ifdef DEBUG_IMPBURN_SET
    MessageInterface::ShowMessage
-      ("ImpulsiveBurn::SetSpacecraftToManeuver() sat=<%p>'%s'\n", sat,
-       sat->GetName().c_str());
+      ("ImpulsiveBurn::SetSpacecraftToManeuver() sat=<%p>'%s', spacecraft=<%p>'%s'\n",
+       sat, sat->GetName().c_str(), spacecraft,
+       spacecraft ? spacecraft->GetName().c_str() : "NULL");
    #endif
    
    if (sat == NULL)
@@ -208,66 +203,6 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
    MessageInterface::ShowMessage
       ("   deltaV: %18le  %18le  %18le\n", deltaV[0], deltaV[1], deltaV[2]);
    #endif
-   
-   //=================================================================
-   #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   
-   frame = frameman->GetFrameInstance(localAxesName);
-   if (frame == NULL)
-      throw BurnException("Maneuver frame undefined");
-   
-   Real *satState;
-   
-   /// @todo Consolidate Finite & Impulsive burn initialization into base class
-   if (spacecraft)
-      satState = spacecraft->GetState().GetState();
-   else
-      throw BurnException("Maneuver initial state undefined (No spacecraft?)");
-   
-   Real state[6];
-   
-   if (epoch == 21545.0)
-      epoch = spacecraft->GetRealParameter("A1Epoch");
-   
-   TransformJ2kToBurnOrigin(satState, state, epoch);
-   
-   // Set the state 6-vector from the associated spacecraft
-   frame->SetState(state);
-   // Calculate the maneuver basis vectors
-   frame->CalculateBasis(frameBasis);
-   
-   #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("   Maneuvering spacecraft %s\n",
-         spacecraft->GetName().c_str());
-      MessageInterface::ShowMessage
-         ("   Position for burn:    %18le  %18le  %18le\n",
-         state[0], state[1], state[2]);
-      MessageInterface::ShowMessage
-         ("   Velocity before burn: %18le  %18le  %18le\n",
-         state[3], state[4], state[5]);
-   #endif
-   
-   satState[3] += deltaV[0]*frameBasis[0][0] +
-                  deltaV[1]*frameBasis[0][1] +
-                  deltaV[2]*frameBasis[0][2];
-   satState[4] += deltaV[0]*frameBasis[1][0] +
-                  deltaV[1]*frameBasis[1][1] +
-                  deltaV[2]*frameBasis[1][2];
-   satState[5] += deltaV[0]*frameBasis[2][0] +
-                  deltaV[1]*frameBasis[2][1] +
-                  deltaV[2]*frameBasis[2][2];
-   
-   #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage(
-         "   Velocity after burn:  %18le  %18le  %18le\n",
-         satState[3], satState[4], satState[5]);
-   #endif
-   
-   //=================================================================
-   #else
-   //=================================================================
    
    #ifdef DEBUG_IMPBURN_FIRE
    MessageInterface::ShowMessage
@@ -320,58 +255,7 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
    
    if (decrementMass)
       DecrementMass();
-   
-   #if 0
-   {
-      totalTankMass = spacecraft->GetRealParameter("TotalMass");
       
-      #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("   Now decrementing mass\n      before maneuver totalTankMass = %f\n",
-          totalTankMass);
-      #endif
-      
-      Real dv = sqrt( deltaV[0]*deltaV[0] + deltaV[1]*deltaV[1] + deltaV[2]*deltaV[2]);
-      deltaTankMass = totalTankMass * (exp(-dv * 1000/(isp * gravityAccel)) - 1.0);
-      
-      #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("       after maneuver deltaTankMass = %f\n", deltaTankMass);
-      #endif
-      
-      totalTankMass = totalTankMass + deltaTankMass;
-      
-      #ifdef DEBUG_IMPBURN_FIRE
-      MessageInterface::ShowMessage
-         ("       after maneuver totalTankMass = %f\n", totalTankMass);
-      #endif
-      
-      // Update tank mass
-      if (!tankMap.empty())
-      {
-         for (ObjectMap::iterator tankPos = tankMap.begin();
-              tankPos != tankMap.end(); ++tankPos)
-         {
-            GmatBase *currTank = tankPos->second;
-            Integer paramID = currTank->GetParameterID("FuelMass");
-            Real currTankMass = currTank->GetRealParameter(paramID);
-            currTankMass = currTankMass + deltaTankMass;
-            currTank->SetRealParameter(paramID, currTankMass);
-            
-            #ifdef DEBUG_IMPBURN_FIRE
-            MessageInterface::ShowMessage
-               ("       after maneuver '%s' tankMass = %f\n", (tankPos->first).c_str(),
-                currTankMass);
-            #endif
-         }
-      }
-   }
-   #endif
-   
-   //=================================================================
-   #endif // #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   
    #ifdef DEBUG_IMPBURN_FIRE
    MessageInterface::ShowMessage("ImpulsiveBurn::Fire() returning true\n");
    #endif
@@ -391,12 +275,19 @@ bool ImpulsiveBurn::Initialize()
 {
    #ifdef DEBUG_IMPBURN_INIT
    MessageInterface::ShowMessage
-      ("ImpulsiveBurn::Initialize() '%s' entered, localCoordSystem=<%p>\n",
-       GetName().c_str(), localCoordSystem);
+      ("ImpulsiveBurn::Initialize() '%s' entered, localCoordSystem=<%p>, "
+       "decrementMass=%d, tankNames.size()=%d\n", GetName().c_str(),
+       localCoordSystem, decrementMass, tankNames.size());
    #endif
    
    if (!Burn::Initialize())
+   {
+      #ifdef DEBUG_IMPBURN_INIT
+      MessageInterface::ShowMessage
+         ("ImpulsiveBurn::Initialize() '%s' returning false\n", GetName().c_str());
+      #endif
       return false;
+   }
    
    bool retval = false;
    
@@ -747,6 +638,36 @@ bool ImpulsiveBurn::SetStringParameter(const Integer id, const std::string &valu
 
 
 //---------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const std::string &value,
+//                          const Integer index)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ImpulsiveBurn::SetStringParameter(const Integer id, const std::string &value,
+                                       const Integer index)
+{
+   switch (id)
+   {
+   case FUEL_TANK:
+      {
+         if (index < (Integer)tankNames.size())
+            tankNames[index] = value;
+         else
+            // Add the tank only if it is not in the list already
+            if (find(tankNames.begin(), tankNames.end(), value) == tankNames.end()) 
+               tankNames.push_back(value);
+         
+         return true;
+      }
+   default:
+      return Burn::SetStringParameter(id, value, index);
+   }
+}
+
+
+//---------------------------------------------------------------------------
 //  const StringArray& GetStringArrayParameter(const Integer id) const
 //---------------------------------------------------------------------------
 /**
@@ -912,6 +833,13 @@ bool ImpulsiveBurn::SetTankFromSpacecraft()
       {
          while (scTank != tankArray.end())
          {
+            #ifdef DEBUG_IMPBURN_SET
+            MessageInterface::ShowMessage
+               ("   The tank '%s' associated with spacecraft is <%p>'%s'\n",
+                (*tankName).c_str(), (*scTank),
+                (*scTank) ? (*scTank)->GetName().c_str() : "NULL");
+            #endif
+            
             // Just in case, check for NULL tank pointer
             if (*scTank == NULL)
                continue;
@@ -944,9 +872,10 @@ bool ImpulsiveBurn::SetTankFromSpacecraft()
 //------------------------------------------------------------------------------
 void ImpulsiveBurn::DecrementMass()
 {
-   #ifdef DEBUG_IMPBURN_FIRE
+   #ifdef DEBUG_IMPBURN_DECMASS
    MessageInterface::ShowMessage
-      ("ImpulsiveBurn::DecrementMass() <%p>'%s' entered\n", this, instanceName.c_str());
+      ("ImpulsiveBurn::DecrementMass() <%p>'%s' entered. There are %d tank(s)\n",
+       this, instanceName.c_str(), tankMap.size());
    #endif
    
    totalTankMass = spacecraft->GetRealParameter("TotalMass");
@@ -978,11 +907,12 @@ void ImpulsiveBurn::DecrementMass()
       for (ObjectMap::iterator tankPos = tankMap.begin();
            tankPos != tankMap.end(); ++tankPos)
       {
+         GmatBase *currTank = tankPos->second;
          #ifdef DEBUG_IMPBURN_DECMASS
          MessageInterface::ShowMessage
-            ("       Decrementing tank mass for '%s'\n", (tankPos->first).c_str());
+            ("       Decrementing tank mass for <%p>'%s'\n", currTank,
+             (tankPos->first).c_str());
          #endif
-         GmatBase *currTank = tankPos->second;
          Integer paramID = currTank->GetParameterID("FuelMass");
          Real oldTankMass = currTank->GetRealParameter(paramID);
          Real currTankMass = oldTankMass + deltaTankMass;

@@ -147,7 +147,7 @@ GmatBase* SimMeasurementModel::GetRefObject(const Gmat::ObjectType type,
 {
    GmatBase* retval = NULL;
 
-   if (type == Gmat::DATA_FILE)
+   if (type == Gmat::DATASTREAM)
    {
       for (ObjectArray::iterator i = myDataFiles.begin();
            i != myDataFiles.end(); ++i)
@@ -176,7 +176,7 @@ bool SimMeasurementModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType typ
 {
    bool retval = false;
 
-   if (obj->IsOfType(Gmat::DATA_FILE))
+   if (obj->IsOfType(Gmat::DATASTREAM))
    {
       if (find(myDataFiles.begin(), myDataFiles.end(), obj) == myDataFiles.end())
       {

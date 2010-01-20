@@ -161,8 +161,12 @@ bool PropagationStateManager::SetProperty(std::string propName)
          throw PropagatorException(propName 
                + " is not a known propagation parameter on " 
                + current->GetName());
-      elements[current]->push_back(propName);
       
+      // Only add it if it is not yet there
+      if (find(elements[current]->begin(), elements[current]->end(),
+            propName) == elements[current]->end())
+         elements[current]->push_back(propName);
+
       #ifdef DEBUG_STATE_CONSTRUCTION
          MessageInterface::ShowMessage("Current property List:\n");
             for (StringArray::iterator i = elements[current]->begin(); 
@@ -175,6 +179,81 @@ bool PropagationStateManager::SetProperty(std::string propName)
    
    return false;   
 }
+
+
+bool PropagationStateManager::SetProperty(std::string propName, Integer index)
+{
+   #ifdef DEBUG_STATE_CONSTRUCTION
+      MessageInterface::ShowMessage("Entered SetProperty(%s, %d)\n",
+            propName.c_str(), index);
+   #endif
+
+   if ((index < 0) || (index >= (Integer)objects.size()))
+      throw PropagatorException("Index out of bounds specifying a prop object "
+            "in a propagation state manager\n");
+
+   GmatBase *obj = objects[index];
+
+   if (obj)
+   {
+      // Validate that the property can be propagated
+      if (obj->SetPropItem(propName) == Gmat::UNKNOWN_STATE)
+         throw PropagatorException(propName
+               + " is not a known propagation parameter on "
+               + obj->GetName());
+      if (find(elements[obj]->begin(), elements[obj]->end(), propName) ==
+            elements[obj]->end())
+         elements[obj]->push_back(propName);
+
+      #ifdef DEBUG_STATE_CONSTRUCTION
+         MessageInterface::ShowMessage("Current property List:\n");
+            for (StringArray::iterator i = elements[obj]->begin();
+                  i != elements[obj]->end(); ++i)
+               MessageInterface::ShowMessage("   %s\n", i->c_str());
+      #endif
+
+      return true;
+   }
+
+   return false;
+}
+
+
+bool PropagationStateManager::SetProperty(std::string propName, GmatBase *forObject)
+{
+   #ifdef DEBUG_STATE_CONSTRUCTION
+      MessageInterface::ShowMessage("Entered SetProperty(%s, %s)\n",
+            propName.c_str(), forObject->GetName().c_str());
+   #endif
+
+   if (find(objects.begin(), objects.end(), forObject) == objects.end())
+      throw PropagatorException("Prop object not found in a propagation "
+            "state manager\n");
+
+   if (forObject)
+   {
+      // Validate that the property can be propagated
+      if (forObject->SetPropItem(propName) == Gmat::UNKNOWN_STATE)
+         throw PropagatorException(propName
+               + " is not a known propagation parameter on "
+               + forObject->GetName());
+      if (find(elements[forObject]->begin(), elements[forObject]->end(),
+            propName) == elements[forObject]->end())
+         elements[forObject]->push_back(propName);
+
+      #ifdef DEBUG_STATE_CONSTRUCTION
+         MessageInterface::ShowMessage("Current property List:\n");
+            for (StringArray::iterator i = elements[forObject]->begin();
+                  i != elements[forObject]->end(); ++i)
+               MessageInterface::ShowMessage("   %s\n", i->c_str());
+      #endif
+
+      return true;
+   }
+
+   return false;
+}
+
 
 
 bool PropagationStateManager::BuildState()
@@ -229,6 +308,10 @@ bool PropagationStateManager::BuildState()
 
 bool PropagationStateManager::MapObjectsToVector()
 {
+   #ifdef DEBUG_OBJECT_UPDATES
+      MessageInterface::ShowMessage("Mapping objects to vector\n");
+   #endif
+
    for (Integer index = 0; index < stateSize; ++index)
    {
       switch (stateMap[index]->parameterType)
@@ -337,14 +420,12 @@ bool PropagationStateManager::MapVectorToObjects()
 }
 
 
-const std::vector<ListItem*>* PropagationStateManager::GetStateMap()
-{
-   return &stateMap;
-}
-
-
 Integer PropagationStateManager::SortVector()
 {
+   #ifdef DEBUG_STATE_CONSTRUCTION
+      MessageInterface::ShowMessage(
+            "Entered PropagationStateManager::SortVector()\n");
+   #endif
    StringArray *propList;
    std::vector<Integer> order;
    std::vector<Gmat::StateElementId> idList;
@@ -371,6 +452,9 @@ Integer PropagationStateManager::SortVector()
          if (id == Gmat::UNKNOWN_STATE)
             throw PropagatorException("Unknown state element: " + (*j));
          size = current->GetPropItemSize(id);
+         if (size <= 0)
+            throw PropagatorException("State element " + (*j) +
+                  " has size set less than or equal to 0; unable to continue.");
          stateSize += size;
          for (Integer k = 0; k < size; ++k)
          {
@@ -405,6 +489,11 @@ Integer PropagationStateManager::SortVector()
    
    ListItem *newItem;
    val = 0;
+
+   #ifdef DEBUG_STATE_CONSTRUCTION
+      MessageInterface::ShowMessage(
+            "State size is %d()\n", stateSize);
+   #endif
    
    for (Integer i = 0; i < stateSize; ++i)
    {
@@ -425,17 +514,21 @@ Integer PropagationStateManager::SortVector()
       newItem->parameterType = 
             owners[order[i]]->GetParameterType(newItem->parameterID);
       
+      newItem->dynamicObjectProperty =
+            newItem->object->ParameterAffectsDynamics(newItem->parameterID);
+
       if (newItem->parameterType == Gmat::REAL_TYPE)
          newItem->parameterID += val - 1;
 
       #ifdef DEBUG_STATE_CONSTRUCTION
-         MessageInterface::ShowMessage("[%s, %s, %d, %d, %d, %d]\n", 
+         MessageInterface::ShowMessage("[%s, %s, %d, %d, %d, %d, %s]\n",
                newItem->objectName.c_str(),
                newItem->elementName.c_str(),
                newItem->elementID,
                newItem->subelement,
                newItem->parameterID,
-               newItem->parameterType); 
+               newItem->parameterType,
+               (newItem->dynamicObjectProperty ? "dynamic" : "static"));
       #endif
 
       if (newItem->parameterType == Gmat::RVECTOR_TYPE)
@@ -477,6 +570,8 @@ Integer PropagationStateManager::SortVector()
                (*i)->objectName.c_str(), (*i)->elementName.c_str(),
                (*i)->elementID, (*i)->subelement, (*i)->length, 
                (*i)->parameterID); 
+      MessageInterface::ShowMessage(
+            "Finished PropagationStateManager::SortVector()\n");
    #endif
    
    return stateSize;

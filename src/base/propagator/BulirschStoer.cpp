@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 // *** File Name : BulirschStoer.cpp
 // *** Created   : October 1, 2002
 // **************************************************************************
@@ -28,14 +28,14 @@
 //                             Updated interfaces based on GSFC feedback
 //
 //                           : 06/15/2004 - W. Waktola, Missions Applications Branch
-//				                 Changes:
-//				                 - Updated style using GMAT cpp style guide
-//				                 - All double types to Real types
-//				                 - All int types to Integer types
+//                                               Changes:
+//                                               - Updated style using GMAT cpp style guide
+//                                               - All double types to Real types
+//                                               - All int types to Integer types
 //                               - Added Parameter accessor methods
 //                           : 06/22/2004 - W. Waktola, Missions Applications Branch
-//				                 Removals:
-//				                 - SetParameter()
+//                                               Removals:
+//                                               - SetParameter()
 //                               - GetParameter()
 //                               - GetParameterName()
 //                               - GetType()
@@ -50,17 +50,17 @@
 const std::string
 BulirschStoer::PARAMETER_TEXT[BulirschStoerParamCount - IntegratorParamCount] =
 {
-	"MinimumReduction",
-	"MaximumReduction",
-	"MinimumTolerance",
+        "MinimumReduction",
+        "MaximumReduction",
+        "MinimumTolerance",
 };
 
 const Gmat::ParameterType
 BulirschStoer::PARAMETER_TYPE[BulirschStoerParamCount - IntegratorParamCount] =
 {
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
 };
 
 //---------------------------------
@@ -74,8 +74,7 @@ BulirschStoer::PARAMETER_TYPE[BulirschStoerParamCount - IntegratorParamCount] =
  * The Bulirsch-Stoer constructor
  */
 //------------------------------------------------------------------------------
-BulirschStoer::BulirschStoer(const std::string &typeStr, 
-                             const std::string &nomme) :
+BulirschStoer::BulirschStoer(const std::string &nomme) :
     Integrator                      ("BulirschStoer", nomme),
     depth                           (8),
     depthInitialized                (false), 
@@ -126,14 +125,14 @@ BulirschStoer::~BulirschStoer(void)
         delete [] estimatedState;
 
     if (intermediates)
-	{
+        {
         for (Integer i = 0; i < depth; ++i)
             delete [] intermediates[i];
         delete [] intermediates;
     }
 
     if (estimates)
-	{
+        {
         for (Integer i = 0; i < depth; ++i) 
             delete [] estimates[i];
         delete [] estimates;
@@ -273,54 +272,54 @@ bool BulirschStoer::Initialize(void)
             return initialized;
 
     if (physicalModel)
-	{
+        {
         dimension = physicalModel->GetDimension();
 
         // Clear all allocated memory, in case dimension or depth has changed
         if (errorEstimates)
-		  {
+                  {
             delete [] errorEstimates;
             errorEstimates = NULL;
         }
 
         if (coeffC)
-		{
+                {
             delete [] coeffC;
             coeffC = NULL;
         }
         
         if (estimatedState)
-		{
+                {
             delete [] estimatedState;
             estimatedState = NULL;
         }
 
         if (intermediates)
-		{
+                {
             for (Integer i = 0; i < depth; i++)
-			{
+                        {
                 delete [] intermediates[i];
                 intermediates[i] = NULL;
             }
         }
 
         if (estimates)
-		{
+                {
             for (Integer i = 0; i < depth; i++)
-			{
+                        {
                 delete [] estimates[i];
                 estimates[i] = NULL;
             }
         }
 
         if (mstate)
-		{
+                {
             delete [] mstate;
             mstate = NULL;
         }
 
         if (nstate)
-		{
+                {
             delete [] nstate;
             nstate = NULL;
         }
@@ -328,13 +327,13 @@ bool BulirschStoer::Initialize(void)
         // Now rebuild the data structures
         errorEstimates = new Real[dimension];
         if (!errorEstimates)
-		{
+                {
             return initialized;
         }
 
         coeffC = new Real[dimension];
         if (!coeffC)
-		{
+                {
             delete [] errorEstimates;
             errorEstimates = NULL;
             return initialized;
@@ -342,7 +341,7 @@ bool BulirschStoer::Initialize(void)
         
         estimatedState = new Real[dimension];
         if (!estimatedState)
-		{
+                {
             delete [] errorEstimates;
             errorEstimates = NULL;
             delete [] coeffC;
@@ -352,7 +351,7 @@ bool BulirschStoer::Initialize(void)
 
         mstate = new Real[dimension];
         if (!mstate)
-		{
+                {
             delete [] estimatedState;
             estimatedState = NULL;
             delete [] errorEstimates;
@@ -364,7 +363,7 @@ bool BulirschStoer::Initialize(void)
 
         nstate = new Real[dimension];
         if (!nstate)
-		{
+                {
             delete [] mstate;
             mstate = NULL;
             delete [] estimatedState;
@@ -378,10 +377,10 @@ bool BulirschStoer::Initialize(void)
 
         // Now do the 2-dimensional arrays
         for (i = 0; i < depth; ++i)
-		{
+                {
             intermediates[i] = new Real[dimension];
             if (!intermediates[i])
-			{
+                        {
                 delete [] errorEstimates;
                 errorEstimates = NULL;
                 delete [] coeffC;
@@ -403,10 +402,10 @@ bool BulirschStoer::Initialize(void)
         }
 
         for (i = 0; i < depth; ++i)
-		{
+                {
             estimates[i] = new Real[dimension];
             if (!estimates[i])
-			{
+                        {
                 delete [] errorEstimates;
                 errorEstimates = NULL;
                 delete [] coeffC;
@@ -420,12 +419,12 @@ bool BulirschStoer::Initialize(void)
                 delete [] nstate;
                 nstate = NULL;
                 for (j = 0; j < depth; j++)
-				{
+                                {
                     delete [] intermediates[j];
                     intermediates[j] = NULL;
                 }
                 for (j = 0; j < i; ++j)
-				{
+                                {
                     delete [] estimates[j];
                     estimates[j] = NULL;
                 }
@@ -462,31 +461,31 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
     depthInitialized = false;
 
     if (levelError)
-	{
+        {
         delete [] levelError;
         levelError = NULL;
     }
 
     if (ai)
-	{
+        {
         delete [] ai;
         ai = NULL;
     }
 
     if (subinterval)
-	{
+        {
         delete [] subinterval;
         subinterval = NULL;
     }
 
     if (intervals)
-	{
+        {
         delete [] intervals;
         intervals = NULL;
     }
 
     if (intermediates)
-	{
+        {
         for (j = 0; j < level; ++j)
             if (intermediates[j])
                 delete [] intermediates[j];
@@ -495,7 +494,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
     }
 
     if (estimates)
-	{
+        {
         for (j = 0; j < level; ++j)
             if (estimates[j])
                 delete [] estimates[j];
@@ -504,7 +503,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
     }
 
     if (alpha)
-	{
+        {
         for (j = 0; j < level; j++)
             if (alpha[j])
                 delete [] alpha[j];
@@ -513,7 +512,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
     }
 
     if (d <= 0)
-	{
+        {
         return false;
     }
 
@@ -525,7 +524,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
 
     ai = new Real[depth+2];
     if (!ai)
-	{
+        {
         delete [] levelError;
         levelError = NULL;
         return false;
@@ -533,7 +532,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
 
     subinterval = new Integer[depth+2];
     if (!subinterval)
-	{
+        {
         delete [] levelError;
         levelError = NULL;
         delete [] ai;
@@ -557,7 +556,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
     // Array of substep sizes (squared)
     intervals = new Real[depth];
     if (!intervals)
-	{
+        {
         delete [] levelError;
         levelError = NULL;
         delete [] ai;
@@ -569,7 +568,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
 
     intermediates = new Real*[depth];
     if (!intermediates)
-	{
+        {
         delete [] levelError;
         levelError = NULL;
         delete [] ai;
@@ -585,7 +584,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
 
     estimates = new Real*[depth];
     if (!estimates)
-	{
+        {
         delete [] levelError;
         levelError = NULL;
         delete [] ai;
@@ -604,7 +603,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
     
     alpha = new Real*[depth + 1];
     if (!alpha)
-	{
+        {
         delete [] levelError;
         levelError = NULL;
         delete [] ai;
@@ -620,10 +619,10 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
         return false;
     }
     for (i = 0; i < depth+1; ++i)
-	{
+        {
         alpha[i] = new Real[depth + 1];
         if (!alpha[i])
-		{
+                {
             for (j = 0; j < i; ++j) 
                 delete [] alpha[j];
             delete [] alpha;
@@ -651,7 +650,7 @@ bool BulirschStoer::SetMaximumDepth(Integer d)
 
     for (i = 1; i < depth; ++i)
         for (j = 0; j <= i; ++j)
-		{
+                {
             if (j == i)
                 alpha[j][i] = 1.0;
             else
@@ -745,12 +744,12 @@ bool BulirschStoer::Step(void)
     Real eEstimate = 0.0; // waw: 06/28/04 Initialized
 
     do
-	{
+        {
         tnew = stepSize;
         if (tnew == 0.0)
             return false;
         for (kused = 0; kused < kmax; ++kused)
-		{
+                {
             level = kused;
             MidpointMethod(subinterval[kused+1]);
             PolyExtrapolate();
@@ -759,7 +758,7 @@ bool BulirschStoer::Step(void)
             eEstimate = EstimateError();
             levelError[kused] = eEstimate;
             if ((kused > 1) && (eEstimate < tolerance))
-			{
+                        {
                 converged = true;
                 if (!AdaptStep(eEstimate))
                     return false;
@@ -768,7 +767,7 @@ bool BulirschStoer::Step(void)
         }
 
         if (!converged)
-		{
+                {
             if (!AdaptStep(eEstimate))
                 return false;
         }
@@ -847,7 +846,7 @@ bool BulirschStoer::RawStep(void)
  * extrapolated state is given by
  * 
  * \f[\vec r(t+\delta t) = {1\over 2}\left[\vec z_n + \vec z_{n-1} 
- * 	 + h f(t+\delta t, \vec z_n)\right] \f]
+ *       + h f(t+\delta t, \vec z_n)\right] \f]
  * 
  * This produces the final estimated state.
  * 
@@ -872,11 +871,11 @@ bool BulirschStoer::MidpointMethod(Integer substeps)
         nstate[j] = mstate[j] + substepsize * ddt[j];
 
     for (i = 1; i < substeps; ++i)
-	{
+        {
         if (!physicalModel->GetDerivatives(nstate, substepsize * (i-1)))
             return false;
         for (j = 0; j < dimension; ++j)
-		{
+                {
             swap = mstate[j] + h2 * ddt[j];
             mstate[j] = nstate[j];
             nstate[j] = swap;
@@ -924,11 +923,11 @@ bool BulirschStoer::MidpointMethod(Integer substeps)
  * order polynomial fit is given by
  * 
  * \f[\vec P(h) = 
- * 	 {{(h-h_2)(h-h_3)...(h-h_N)}\over{(h_1-h_2)(h_1-h_3)...(h_1-h_N)}}\vec r_1 
- * 	 + {{(h-h_1)(h-h_3)...(h-h_N)}\over{(h_2-h_2)(h_2-h_3)...(h_2-h_N)}}\vec r_2 
- * 	 + ... 
- * 	 + {{(h-h_1)(h-h_1)...(h-h_{N-1})}\over{(h_N-h_2)(h_N-h_3)...
- * 		 (h_N-h_{N-1})}}\vec r_N \f]
+ *       {{(h-h_2)(h-h_3)...(h-h_N)}\over{(h_1-h_2)(h_1-h_3)...(h_1-h_N)}}\vec r_1 
+ *       + {{(h-h_1)(h-h_3)...(h-h_N)}\over{(h_2-h_2)(h_2-h_3)...(h_2-h_N)}}\vec r_2 
+ *       + ... 
+ *       + {{(h-h_1)(h-h_1)...(h-h_{N-1})}\over{(h_N-h_2)(h_N-h_3)...
+ *               (h_N-h_{N-1})}}\vec r_N \f]
  * 
  *  This polynomial is evaluated at \f$h=0\f$ to produce the estimated state from 
  *  the extrapolation.
@@ -953,12 +952,12 @@ bool BulirschStoer::PolyExtrapolate(void)
     else {
         memcpy(coeffC, estimates[level], dimension * sizeof(Real));
         for (i = 0; i < level; ++i)
-		{
+                {
             delta = 1.0 / (intervals[level-1-i] - intervals[level]);
             f1 = intervals[level] * delta;
             f2 = intervals[level-1-i] * delta;
             for (j = 0; j < dimension; ++j)
-			{
+                        {
                 q = intermediates[i][j];
                 intermediates[i][j] = errorEstimates[j];
                 delta = coeffC[j] - q;
@@ -1033,7 +1032,7 @@ bool BulirschStoer::AdaptStep(Real maxerror)
     Real factor = 1.0, errkm;
 
     if (maxerror > tolerance)
-	{
+        {
         // Step is too large: reduce it 
         errkm = pow(maxerror/(bs_safety1 * tolerance), 1.0 / (2*kused+1));
 
@@ -1053,18 +1052,18 @@ bool BulirschStoer::AdaptStep(Real maxerror)
         ++stepAttempts;
     }
     else
-	{
+        {
         // The step succeeded; step or depth can be increased
         first = false;
         stepTaken = stepSize;
         Real workingMin = 1.0e35, work, scale = 1.0, errorRatio;
         for (Integer i = 0; i <= kused; i++)
-		{
+                {
             errorRatio = levelError[i] / tolerance;
             factor = (errorRatio > scale_dt ? errorRatio : scale_dt);
             work = factor * ai[i+2];
             if (work < workingMin)
-			{
+                        {
                 scale = factor;
                 workingMin = work;
                 kopt = (i+1 > kmax ? kmax : i+1);
@@ -1075,11 +1074,11 @@ bool BulirschStoer::AdaptStep(Real maxerror)
         stepSize /= scale;
 
         if ((kopt >= kused) && (kopt < kmax))
-		{
+                {
             work = scale / alpha[kopt-1][kopt];
             factor = (scale < scale_dt ? scale : scale_dt);
             if (ai[kopt+1] * factor < workingMin)
-			{
+                        {
                 ++kopt;
                 stepSize = stepTaken / factor;
             }
@@ -1180,9 +1179,9 @@ std::string BulirschStoer::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 Real BulirschStoer::GetRealParameter(const Integer id) const
 {
-	if      (id == MINIMUM_REDUCTION)	return minimumReduction;
-	else if (id == MAXIMUM_REDUCTION)	return maximumReduction;
-	else if (id == MIN_TOLERANCE)       return mintolerance;
+        if      (id == MINIMUM_REDUCTION)       return minimumReduction;
+        else if (id == MAXIMUM_REDUCTION)       return maximumReduction;
+        else if (id == MIN_TOLERANCE)       return mintolerance;
 
     return Integrator::GetRealParameter(id);
 }
@@ -1215,30 +1214,30 @@ Real BulirschStoer::GetRealParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 Real BulirschStoer::SetRealParameter(const Integer id, const Real value)
 {
-	if (id == MINIMUM_REDUCTION)
-	{
-		minimumReduction = value;
-		return minimumReduction;
-	}
-	else if (id == MAXIMUM_REDUCTION)
-	{
-		maximumReduction = value;
-		return maximumReduction;
-	}
-	else if (id == MIN_TOLERANCE)
-	{
+        if (id == MINIMUM_REDUCTION)
+        {
+                minimumReduction = value;
+                return minimumReduction;
+        }
+        else if (id == MAXIMUM_REDUCTION)
+        {
+                maximumReduction = value;
+                return maximumReduction;
+        }
+        else if (id == MIN_TOLERANCE)
+        {
         if (fabs(value) <= 1.0)
-		{
+                {
             mintolerance = fabs(value);
             tolerance = (tolerance > mintolerance ? tolerance : mintolerance);
             return mintolerance;
         }
-	}
+        }
 //    if (id == INTEGRATION_ACCURACY)
-//	{
+//      {
 //        // Trap bad tolerance values
 //        if (fabs(val) <= 1.0)
-//		{
+//              {
 //            tolerance = (fabs(val) > mintolerance ? fabs(val) : mintolerance);
 //            if (tolerance == fabs(val))
 //                retval = true;

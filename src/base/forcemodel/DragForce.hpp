@@ -41,6 +41,10 @@ public:
    virtual bool         GetComponentMap(Integer * map, Integer order = 1) const;
    virtual void         SetSatelliteParameter(const Integer i,
                                               const std::string parmName, 
+                                              const Real parm,
+                                              const Integer parmID = -1);
+   virtual void         SetSatelliteParameter(const Integer i,
+                                              Integer parmID,
                                               const Real parm);
    virtual void         SetSatelliteParameter(const Integer i,
                                               const std::string parmName, 
@@ -130,6 +134,11 @@ protected:
    /// State vector translated from force model origin to body with atmosphere
    Real                 *dragState;
    
+   Integer massID;
+   Integer cdID;
+   Integer areaID;
+
+
    // Optional input parameters used by atmospheric models
    /// Name of the body with the atmosphere
    //std::string         bodyName;

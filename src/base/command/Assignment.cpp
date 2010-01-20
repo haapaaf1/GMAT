@@ -18,6 +18,7 @@
  * The assignment class is the Command class that handles commands of the form
  * 
  *     GMAT object.parameter = value;
+ *     GMAT sat.thruster1.ThrustDirection1 = value; (Setting to Parameter)
  *     GMAT variable = parameter;
  *     GMAT variable = equation;
  *
@@ -437,6 +438,18 @@ bool Assignment::InterpretAction()
       GmatStringUtil::GetArrayCommaIndex(lhs, commaPos);
       if (commaPos == -1)
          throw CommandException("Command contains an unexpected comma on left-hand-side");
+   }
+   
+   // check for single quotes in rhs and remove before process further (LOJ: 2009.10.09)
+   // so that mp.IsEquation() will not think as transpose
+   if (rhs.find("{") != rhs.npos && rhs.find("'") != rhs.npos)
+   {
+      // Single quote is allowed if it is paired, such as {'FuelTank1'}
+      if (GmatStringUtil::StartsWith(rhs, "{") && GmatStringUtil::EndsWith(rhs, "}") ||
+          GmatStringUtil::IsEnclosedWith(rhs, "'"))
+      {
+         rhs = GmatStringUtil::RemoveAll(rhs, '\'');
+      }
    }
    
    // it there is still ; then report error since ; should have been removed
@@ -911,6 +924,11 @@ const StringArray& Assignment::GetWrapperObjectNameArray()
    // If rhs is not an equation, just add rhs
    if (mathTree == NULL)
    {
+      // If LHS has more than 1 dot add to the list and Interpreter::ValidateCommand()
+      // will figure out if it is settable Parameter or not.(LOJ: 2009.12.22)
+      if (GmatStringUtil::NumberOfOccurrences(lhs, '.') > 1)
+         wrapperObjectNames.push_back(lhs);
+      
       if (rhs != "")
       {
          wrapperObjectNames.push_back(rhs);
@@ -959,7 +977,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
 {
    #ifdef DEBUG_WRAPPER_CODE
    MessageInterface::ShowMessage
-      ("Assignment::SetElementWrapper() toWrapper=%p, name='%s'\n   lhs='%s'\n   rhs='%s', "
+      ("Assignment::SetElementWrapper() toWrapper=<%p>, name='%s'\n   lhs='%s'\n   rhs='%s', "
        "mathTree=<%p>\n", toWrapper,withName.c_str(), lhs.c_str(), rhs.c_str(), mathTree);
    #endif
    
@@ -992,7 +1010,7 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    
    if (withName == lhs)
    {
-      // lhs should always be object property wrapper, so check first
+      // All lhs object property wrapper are settable, so check first
       if (withName.find(".") == withName.npos ||
           (withName.find(".") != withName.npos &&
            toWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY_WT))
@@ -1004,6 +1022,20 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
             lhsWrapper = toWrapper;
          }
          retval = true;
+      }
+      else if (withName.find(".") != withName.npos)
+      {
+         // Some lhs Parameters are settable such as Sat.Thruster1.FuelMass, so check here
+         Parameter *param = (Parameter*)toWrapper->EvaluateObject();
+         if (param && param->IsSettable())
+         {
+            if (lhsWrapper != toWrapper)
+            {
+               lhsOldWrapper = lhsWrapper;
+               lhsWrapper = toWrapper;
+            }
+            retval = true;
+         }
       }
    }
    
@@ -1191,29 +1223,21 @@ bool Assignment::RenameRefObject(const Gmat::ObjectType type,
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
    
-   if (type != Gmat::PARAMETER && type != Gmat::SPACECRAFT &&
-       type != Gmat::IMPULSIVE_BURN && type != Gmat::COORDINATE_SYSTEM &&
-       type != Gmat::CALCULATED_POINT)
-   {
-      #ifdef DEBUG_RENAME
-      MessageInterface::ShowMessage("===> no replacement needed, just return true\n");
-      #endif
-      
-      return true;
-   }
-   
+   // Go through lhs and rhs
    if (lhs.find(oldName) != lhs.npos)
       lhs = GmatStringUtil::ReplaceName(lhs, oldName, newName);
    
    if (rhs.find(oldName) != rhs.npos)
       rhs = GmatStringUtil::ReplaceName(rhs, oldName, newName);
-   
+
+   // Go through wrappers
    if (lhsWrapper)
       lhsWrapper->RenameObject(oldName, newName);
    
    if (rhsWrapper)
       rhsWrapper->RenameObject(oldName, newName);
-   
+
+   // Go through math tree
    if (mathTree)
       mathTree->RenameRefObject(type, oldName, newName);
    

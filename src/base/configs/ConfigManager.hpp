@@ -40,8 +40,16 @@
 #include "CoordinateSystem.hpp"
 #include "CalculatedPoint.hpp"
 
-#include "MeasurementModel.hpp"
-#include "DataFile.hpp"
+//#include "MeasurementModel.hpp"
+//#include "GeometricMeasurement.hpp"  // Will be "CoreMeasurement.hpp"
+//#include "DataFile.hpp"
+//#include "ObType.hpp"
+
+class MeasurementModel;
+class CoreMeasurement;
+class DataFile;
+class ObType;
+
 
 /**
  * Class used to manage configured objects prior to cloning into the Sandbox.
@@ -50,10 +58,10 @@ class GMAT_API ConfigManager
 {
 public:
    static ConfigManager*   Instance();
-
+   
    std::string         AddClone(const std::string &name);
    std::string         GetNewName(const std::string &name, Integer startCount);
-
+   
    void                AddPhysicalModel(PhysicalModel *pm);
    void                AddPropagator(Propagator *prop);
    void                AddODEModel(ODEModel *fm);
@@ -67,34 +75,39 @@ public:
    void                AddParameter(Parameter* parameter);
    void                AddBurn(Burn* burn);
    void                AddSolver(Solver *solver);
-   void                AddMeasurementModel(MeasurementModel *mm);
-   void                AddDataFile(DataFile *pdf);
    void                AddAtmosphereModel(AtmosphereModel *atmosModel);
    void                AddFunction(Function *function);
    void                AddCoordinateSystem(CoordinateSystem *cs);
    void                AddCalculatedPoint(CalculatedPoint *cp);
-
+   
    void                SetDefaultSolarSystem(SolarSystem *ss);
    void                SetSolarSystemInUse(SolarSystem *ss);
    bool                SetSolarSystemInUse(const std::string &name);
+
+   void                AddMeasurementModel(MeasurementModel *mModel);
+   void                AddMeasurement(CoreMeasurement *meas);
+   void                AddDataFile(DataFile *meas);
+   void                AddObType(ObType *meas);
 
    const StringArray&  GetListOfAllItems();
    const StringArray&  GetListOfItems(Gmat::ObjectType itemType);
    const StringArray&  GetListOfItemsHas(Gmat::ObjectType type,
                                          const std::string &name,
                                          bool includeSysParam = true);
-
+   GmatBase*           GetFirstItemUsing(Gmat::ObjectType type,
+                                         const std::string &name,
+                                         bool includeSysParam = true);
    GmatBase*           GetItem(const std::string &name);
-
+   
    bool                RenameItem(Gmat::ObjectType itemType,
                                   const std::string &oldName,
                                   const std::string &newName);
-
+   
    bool                RemoveAllItems();
    bool                RemoveItem(Gmat::ObjectType type, const std::string &name);
    bool                ReconfigureItem(GmatBase *newobj, const std::string &name);
-
-
+   
+   
    PhysicalModel*      GetPhysicalModel(const std::string &name);
    Propagator*         GetPropagator(const std::string &name);
    ODEModel*           GetODEModel(const std::string &name);
@@ -110,19 +123,19 @@ public:
    Parameter*          GetParameter(const std::string &name);
    Burn*               GetBurn(const std::string &name);
    Solver*             GetSolver(const std::string &name);
-   MeasurementModel*   GetMeasurementModel(const std::string &name);
-   DataFile*           GetDataFile(const std::string &name);
    AtmosphereModel*    GetAtmosphereModel(const std::string &name);
    Function*           GetFunction(const std::string &name);
    CoordinateSystem*   GetCoordinateSystem(const std::string &name);
    CalculatedPoint*    GetCalculatedPoint(const std::string &name);
+   MeasurementModel*   GetMeasurementModel(const std::string &name);
+   DataFile *          GetDataStream(const std::string &name);
 
    bool                HasConfigurationChanged();
    void                ConfigurationChanged(bool tf);
    ObjectMap*          GetObjectMap();
-
+   
 private:
-
+   
    /// The singleton instance
    static ConfigManager*               theConfigManager;
    /// The managed objects
@@ -133,21 +146,21 @@ private:
    std::map<std::string, GmatBase *>   mapping;
    /// Flag indicating that a managed object has been changed by a user
    bool                                objectChanged;
-
-   // Treat default and in use solar system separately until we can manage solar
+   
+   // Treat default and in use solar system separately until we can manage solar 
    // system by name.  All solar system names are "SolarSystem" for now.
-
-   /// Default Solar Systems
+   
+   /// Default Solar Systems 
    SolarSystem *defaultSolarSystem;
    /// Solar Systems in use
    SolarSystem *solarSystemInUse;
-
+   
    void                AddObject(GmatBase* obj);
-
+   
    // Hide the default constructor and destructor to preserve singleton status
    ConfigManager();
    ~ConfigManager();
-
+   
 };
 
 

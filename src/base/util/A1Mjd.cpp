@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                    A1Mjd
 //------------------------------------------------------------------------------
@@ -23,6 +23,7 @@
 #include "UtcDate.hpp"
 #include "A1Date.hpp"
 #include "TimeTypes.hpp"     // for TimeConst::, UtcMjd
+#include "RealTypes.hpp"
 #include "RealUtilities.hpp" // for Round(), IsEqual(), Floor()
 
 using namespace GmatTimeUtil;
@@ -36,7 +37,9 @@ const std::string A1Mjd::DATA_DESCRIPTIONS[NUM_DATA] =
    "A1 Modified Julian Date"
 };
 
-const A1Mjd A1Mjd::J2000 = A1Mjd(A1MJD_OF_J2000);
+const A1Mjd A1Mjd::J2000      = A1Mjd(A1MJD_OF_J2000);
+const Real  A1Mjd::mTolerance = GmatRealConst::REAL_EPSILON;
+
 
 //------------------------------------------------------------------------------
 // A1Mjd()
@@ -604,48 +607,54 @@ CalDate A1Mjd::UtcMjdToCalDate(const UtcMjd &utcmjd)
    Real seconds, modjul;
    long mjd, l, n, i, j;
    
+   // Used in converting mjd seconds to whole number (moved from TimeTypes.hpp)
+   // Changed 1.0e6 to 1.0e4 to avoid 59.99999999999 (LOJ: 2009.11.09)
+   // A1MJD of 25131.171227249783 gives 26 Oct 2009 16:05:60.000 instead of
+   //    16:06:00.000
+   // Changed to 1.0e3 for Bug 1631 (LOJ: 2009.11.13)
+   //static const Real MJDSEC_TO_WHOLE_NUM = 1.0e4;
+   static const Real MJDSEC_TO_WHOLE_NUM = 1.0e3;
+   
    // add a half day (julian to gregorian) offset to the input utcmjd
    modjul = utcmjd + 0.50;
-
+   
    // obtain the offset modified number of julian days
    mjd = (long)modjul;
-
+   
    // convert fractional part of day to seconds
    seconds = (modjul - (Real)mjd) * SECS_PER_DAY;
-
+   
    // round fractional seconds at their accuracy limit to
    // prevent truncation errors during decomposition
-   seconds = (Round(seconds * MJDSEC_TO_WHOLE_NUM)) / MJDSEC_TO_WHOLE_NUM;
-
+   seconds = (NearestInt(seconds * MJDSEC_TO_WHOLE_NUM)) / MJDSEC_TO_WHOLE_NUM;
+   
    // if modjul is negative (pre 1/5/1941) and seconds are negative
    // (measured backwards from the end of the day); turn them around.
    if (modjul < 0.0 && seconds < 0.0)
       seconds += SECS_PER_DAY;
-
+   
    // if the number of seconds exceeds the number of seconds in a day
    if (seconds >= SECS_PER_DAY)
    {
       seconds -= SECS_PER_DAY;
       mjd += 1;
    }
-
+   
    // divide hours out of total seconds
    timeArray[3] = Floor(seconds / SECS_PER_HOUR);
-
+   
    // subtract hours out of total seconds
-   seconds -= timeArray[3] * 3600.0;
-
+   seconds -= timeArray[3] * SECS_PER_HOUR;
+   
    // divide minutes out of remaining seconds
-   //timeArray[4] = floor(seconds / SECS_PER_MINUTE);
-   //loj: 4/1/05 Changed to use Floor()
    timeArray[4] = Floor(seconds / SECS_PER_MINUTE);
-
+   
    // subtract out minutes to leave seconds
-   seconds -= timeArray[4] * 60.0;
-
+   seconds -= timeArray[4] * SECS_PER_MINUTE;
+   
    // once more, round fractional seconds at accuracy limit
-   timeArray[5] = Round(seconds * MJDSEC_TO_WHOLE_NUM) / MJDSEC_TO_WHOLE_NUM;
-
+   timeArray[5] = NearestInt(seconds * MJDSEC_TO_WHOLE_NUM) / MJDSEC_TO_WHOLE_NUM;
+   
    // calculate day, month, and year using the fliegel & van flandern algorithm
    l = mjd + (68569 + 2430000);
    n = 4 * l / 146097;
@@ -657,7 +666,7 @@ CalDate A1Mjd::UtcMjdToCalDate(const UtcMjd &utcmjd)
    l = j / 11;
    timeArray[1] = j + 2 - 12 * l;
    timeArray[0] = 100 * (n - 49) + i + l;
-
+   
    return CalDate((YearNumber)timeArray[0], (MonthOfYear)timeArray[1],
                   (DayOfMonth)timeArray[2], (HourOfDay)timeArray[3],
                   (MinuteOfHour)timeArray[4], timeArray[5]);

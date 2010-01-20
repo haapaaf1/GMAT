@@ -105,7 +105,25 @@ public:
    virtual void ClearTsPlotData(const std::string &plotName) = 0;
    virtual void TsPlotPenUp(const std::string &plotName) = 0;
    virtual void TsPlotPenDown(const std::string &plotName) = 0;
-   
+   virtual void TsPlotMarkPoint(const std::string &plotName, Integer index = -1,
+         Integer forCurve = -1) = 0;
+   virtual void TsPlotChangeColor(const std::string &plotName,
+         Integer index = -1, UnsignedInt newColor = 0xffffff,
+         Integer forCurve = -1) = 0;
+   virtual void TsPlotChangeMarker(const std::string &plotName,
+         Integer index = -1, Integer newMarker = -1, int forCurve = -1) = 0;
+
+   virtual void TsPlotRescale(const std::string &plotName) = 0;
+   virtual void TsPlotCurveSettings(const std::string &plotName,
+         bool useLines = true,
+         Integer lineWidth = 1,
+         Integer lineStyle = 100,
+         bool useMarkers = false,
+         Integer markerSize = 3,
+         Integer marker = 1,
+         bool useHiLow = false,
+         Integer forCurve = -1) = 0;
+
    virtual void SetTsPlotTitle(const std::string &plotName,
                        const std::string &plotTitle) = 0;
    virtual void ShowTsPlotLegend(const std::string &plotName) = 0;
@@ -117,7 +135,17 @@ public:
                      const std::string &xAxisTitle,
                      const std::string &yAxisTitle,
                      bool updateCanvas, bool drawGrid) = 0;
-   
+   virtual bool UpdateTsPlotData(const std::string &plotName, const Real &xval,
+                     const Rvector &yvals, const Rvector *yhis = NULL,
+                     const Rvector *ylows = NULL) = 0;
+   virtual bool UpdateTsPlotCurve(const std::string &plotName,
+                     const Integer whichCurve, const Real xval,
+                     const Real yval, const Real yhi = 0.0,
+                     const Real ylow = 0.0) = 0;
+
+   virtual bool DeactivateTsPlot(const std::string &plotName) = 0;
+   virtual bool ActivateTsPlot(const std::string &plotName) = 0;
+
 protected:
    PlotReceiver();
    virtual ~PlotReceiver();

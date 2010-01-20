@@ -125,7 +125,13 @@ SolarRadiationPressure::SolarRadiationPressure(const std::string &name) :
    bodyIsTheSun        (false),
    satCount            (0),
    cartIndex           (0),
-   fillCartesian       (false)
+   fillCartesian       (false),
+   stmCount            (0),
+   stmIndex            (0),
+   fillSTM             (false),
+   massID              (-1),
+   crID                (-1),
+   areaID              (-1)
 {
    parameterCount = SRPParamCount;
    derivativeIds.push_back(Gmat::CARTESIAN_STATE);
@@ -163,7 +169,13 @@ SolarRadiationPressure::SolarRadiationPressure(const SolarRadiationPressure &srp
    bodyID              (srp.bodyID),
    satCount            (srp.satCount),
    cartIndex           (srp.cartIndex),
-   fillCartesian       (srp.fillCartesian)
+   fillCartesian       (srp.fillCartesian),
+   stmCount            (srp.stmCount),
+   stmIndex            (srp.stmIndex),
+   fillSTM             (srp.fillSTM),
+   massID              (srp.massID),
+   crID                (srp.crID),
+   areaID              (srp.areaID)
 {
    parameterCount = SRPParamCount;
 }
@@ -177,36 +189,42 @@ SolarRadiationPressure::SolarRadiationPressure(const SolarRadiationPressure &srp
 //------------------------------------------------------------------------------
 SolarRadiationPressure& SolarRadiationPressure::operator=(const SolarRadiationPressure &srp)
 {
-   if (this == &srp)
-      return *this;
-
-   PhysicalModel::operator=(srp);
-   theSun       = NULL;
-   useAnalytic  = srp.useAnalytic;
-   shadowModel  = srp.shadowModel;
-   vectorModel  = srp.vectorModel;
-   bodyRadius   = srp.bodyRadius;
-   cbSunVector  = srp.cbSunVector;
-   forceVector  = srp.forceVector;
-   sunRadius    = srp.sunRadius;
-   hasMoons     = srp.hasMoons;
-   cr           = srp.cr;
-   area         = srp.area;
-   mass         = srp.mass;
-   flux         = srp.flux;           // W/m^2, IERS 1996
-   fluxPressure = srp.fluxPressure;   // converted to N/m^2
-   sunDistance  = srp.sunDistance;
-   nominalSun   = srp.nominalSun;
-   bodyIsTheSun = srp.bodyIsTheSun;
-   psunrad      = srp.psunrad;
-   pcbrad       = srp.pcbrad;
-   percentSun   = srp.percentSun;
-   bodyID       = srp.bodyID;
-
-   satCount      = srp.satCount;
-   cartIndex     = srp.cartIndex;
-   fillCartesian = srp.fillCartesian;
-
+   if (this != &srp)
+   {
+      PhysicalModel::operator=(srp);
+      theSun       = NULL;
+      useAnalytic  = srp.useAnalytic;
+      shadowModel  = srp.shadowModel;
+      vectorModel  = srp.vectorModel;
+      bodyRadius   = srp.bodyRadius;
+      cbSunVector  = srp.cbSunVector;
+      forceVector  = srp.forceVector;
+      sunRadius    = srp.sunRadius;
+      hasMoons     = srp.hasMoons;
+      cr           = srp.cr;
+      area         = srp.area;
+      mass         = srp.mass;
+      flux         = srp.flux;           // W/m^2, IERS 1996
+      fluxPressure = srp.fluxPressure;   // converted to N/m^2
+      sunDistance  = srp.sunDistance;
+      nominalSun   = srp.nominalSun;
+      bodyIsTheSun = srp.bodyIsTheSun;
+      psunrad      = srp.psunrad;
+      pcbrad       = srp.pcbrad;
+      percentSun   = srp.percentSun;
+      bodyID       = srp.bodyID;
+   
+      satCount      = srp.satCount;
+      cartIndex     = srp.cartIndex;
+      fillCartesian = srp.fillCartesian;
+      stmCount      = srp.stmCount;
+      stmIndex      = srp.stmIndex;
+      fillSTM       = srp.fillSTM;
+      massID        = srp.massID;
+      crID          = srp.crID;
+      areaID        = srp.areaID;
+   }
+   
    return *this;
 }
 
@@ -549,9 +567,11 @@ bool SolarRadiationPressure::Initialize()
    
       forceVector = new Real[dimension];
       
-      if (!cbSunVector)
-         cbSunVector = new Real[3];
-
+      if (cbSunVector)
+         delete [] cbSunVector;
+      
+      cbSunVector = new Real[3];
+      
       initialized = true;
    }
    
@@ -753,6 +773,97 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
          }
       }
    }
+
+//// Uncomment the following to work on the SRP STM piece
+//   if (fillSTM)
+//   {
+//      Real aTilde[36];
+//      Integer associate, element;
+//      for (Integer i = 0; i < stmCount; ++i)
+//      {
+//         i6 = stmIndex + i * 36;
+//         associate = theState->GetAssociateIndex(i6);
+//         
+////         relativePosition[0] = rv[0] - state[ associate ];
+////         relativePosition[1] = rv[1] - state[associate+1];
+////         relativePosition[2] = rv[2] - state[associate+2];
+////   
+////         r3 = relativePosition[0]*relativePosition[0] + 
+////              relativePosition[1]*relativePosition[1] + 
+////              relativePosition[2]*relativePosition[2];
+////         
+////         radius = sqrt(r3);
+////         r3 *= radius;
+////         mu_r = mu / r3;
+//         
+//         // Calculate A-tilde
+//         
+//         // A = D = 0
+//         aTilde[ 0] = aTilde[ 1] = aTilde[ 2] = 
+//         aTilde[ 6] = aTilde[ 7] = aTilde[ 8] =
+//         aTilde[12] = aTilde[13] = aTilde[14] =
+//         aTilde[21] = aTilde[22] = aTilde[23] = 
+//         aTilde[27] = aTilde[28] = aTilde[29] =
+//         aTilde[33] = aTilde[34] = aTilde[35] = 0.0;
+//         
+//         // Contributions for the origin term only:
+////         if (rbb3 == 0.0)
+////         {
+////            // B = I
+////            aTilde[ 3] = aTilde[10] = aTilde[17] = 1.0;
+////            aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
+////            aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
+////         }
+////         else
+////         {
+//            aTilde[ 3] = aTilde[10] = aTilde[17] = 
+//            aTilde[ 4] = aTilde[ 5] = aTilde[ 9] =
+//            aTilde[11] = aTilde[15] = aTilde[16] = 0.0;
+////         }
+//            
+//         // Math spec, equ 6.69, broken into separate pieces
+////         aTilde[18] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[0] * relativePosition[0];
+////         
+////         aTilde[19] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[0] * relativePosition[1];
+////         
+////         aTilde[20] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[0] * relativePosition[2];
+////         
+////         aTilde[24] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[1] * relativePosition[0];
+////         
+////         aTilde[25] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[1] * relativePosition[1];
+////         
+////         aTilde[26] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[1] * relativePosition[2];
+////         
+////         aTilde[30] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[2] * relativePosition[0];
+////         
+////         aTilde[31] = 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[2] * relativePosition[1];
+////         
+////         aTilde[32] = - mu_r + 3.0 * mu_r / (radius*radius) * 
+////                          relativePosition[2] * relativePosition[2];
+//         
+//         // Now Phi_dot = A_tilde Phi
+//         for (Integer j = 0; j < 6; ++j)
+//         {
+//            for (Integer k = 0; k < 6; ++k)
+//            {
+//               element = j * 6 + k;
+//               deriv[i6+element] = 0.0;
+////               for (Integer l = 0; l < 6; ++l)
+////               {
+////                  deriv[i6+element] += aTilde[j*6+l] * state[i6+l*6+k];
+////               }
+//            }
+//         }
+//      }
+//   }
     
    #ifdef DEBUG_SOLAR_RADIATION_PRESSURE    
       MessageInterface::ShowMessage(
@@ -968,7 +1079,8 @@ Real SolarRadiationPressure::ShadowFunction(Real * state)
 //------------------------------------------------------------------------------
 void SolarRadiationPressure::SetSatelliteParameter(const Integer i, 
                                           const std::string parmName, 
-                                          const Real parm)
+                                          const Real parm,
+                                          const Integer parmID)
 {
     unsigned parmNumber = (unsigned)(i);
 
@@ -979,21 +1091,62 @@ void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
          MessageInterface::ShowMessage(msg.str());
     #endif
     
-    if (parmName == "DryMass")
+    if (parmName == "Mass")
+    {
         if (parmNumber < mass.size())
             mass[i] = parm;
         else
             mass.push_back(parm);
+        if (parmID >= 0)
+           massID = parmID;
+    }
     if (parmName == "Cr")
+    {
         if (parmNumber < cr.size())
             cr[i] = parm;
         else
             cr.push_back(parm);
+        if (parmID >= 0)
+           crID = parmID;
+    }
     if (parmName == "SRPArea")
-        if (parmNumber < area.size())
+    {
+       if (parmNumber < area.size())
             area[i] = parm;
         else
             area.push_back(parm);
+        if (parmID >= 0)
+            areaID = parmID;
+    }
+}
+
+void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
+                                   Integer parmID, const Real parm)
+{
+   unsigned parmNumber = (unsigned)(i);
+
+   #ifdef DEBUG_SOLAR_RADIATION_PRESSURE
+        std::stringstream msg;
+        msg << "Setting satellite parameter " << parmName << " for Spacecraft "
+            << i << " to " << parm << "\n";
+        MessageInterface::ShowMessage(msg.str());
+   #endif
+
+   if (parmID == massID)
+       if (parmNumber < mass.size())
+           mass[i] = parm;
+       else
+           mass.push_back(parm);
+   if (parmID == crID)
+       if (parmNumber < cr.size())
+           cr[i] = parm;
+       else
+           cr.push_back(parm);
+   if (parmID == areaID)
+       if (parmNumber < area.size())
+           area[i] = parm;
+       else
+           area.push_back(parm);
 }
 
 
@@ -1046,8 +1199,8 @@ bool SolarRadiationPressure::SupportsDerivative(Gmat::StateElementId id)
    if (id == Gmat::CARTESIAN_STATE)
       return true;
    
-//   if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
-//      return true;
+   if (id == Gmat::ORBIT_STATE_TRANSITION_MATRIX)
+      return true;
    
    return PhysicalModel::SupportsDerivative(id);
 }
@@ -1088,12 +1241,12 @@ bool SolarRadiationPressure::SetStart(Gmat::StateElementId id, Integer index,
          retval = true;
          break;
          
-//      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
-//         stmCount = quantity;
-//         stmIndex = index;
-//         fillSTM = true;
-//         retval = true;
-//         break;
+      case Gmat::ORBIT_STATE_TRANSITION_MATRIX:
+         stmCount = quantity;
+         stmIndex = index;
+         fillSTM = true;
+         retval = true;
+         break;
          
       default:
          break;

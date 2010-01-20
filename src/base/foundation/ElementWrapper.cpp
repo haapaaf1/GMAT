@@ -452,7 +452,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
    Real rval = -99999.999;
    Integer ival = -99999;
    bool bval = false;
-   std::string sval;
+   std::string sval = "UnknownValue";
    Rmatrix rmat;
    GmatBase *rhsObj = NULL;
    
@@ -500,7 +500,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       case Gmat::REAL_TYPE:
          rval = rhsWrapper->EvaluateReal();
          #ifdef DEBUG_EW_SET_VALUE
-         MessageInterface::ShowMessage("   rhs rval=%f\n", rval);
+         MessageInterface::ShowMessage("   REAL_TYPE rhs rval=%f\n", rval);
          #endif
          break;
       case Gmat::RMATRIX_TYPE:
@@ -509,7 +509,6 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       case Gmat::STRING_TYPE:
       case Gmat::ENUMERATION_TYPE:
          sval = rhsWrapper->EvaluateString();
-         // Remove enclosing quotes (loj: 2008.03.26)
          sval = GmatStringUtil::RemoveEnclosingString(sval, "'");
          break;
       case Gmat::ON_OFF_TYPE:
@@ -588,29 +587,45 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                    rhsDataType == Gmat::ENUMERATION_TYPE ||
                    rhsDataType == Gmat::ON_OFF_TYPE))
          {
-            lhsWrapper->SetString(sval);            
+            lhsWrapper->SetString(sval);
          }
-         // We don't want to allow VARIALE to STRING assignment
+         // We don't want to allow Variable or Array element to STRING assignment
          else if (rhsDataType == Gmat::REAL_TYPE &&
-                  rhsWrapperType != Gmat::VARIABLE_WT)
+                  rhsWrapperType != Gmat::VARIABLE_WT &&
+                  rhsWrapperType != Gmat::ARRAY_ELEMENT_WT)
          {
             lhsWrapper->SetString(rhs);
          }
          else
          {
-            GmatBaseException ex;
-            if (rhsObj != NULL)
-               ex.SetDetails("ElementWrapper::SetValue() Cannot set object of "
-                             "type \"%s\" to an undefined object \"%s\"",
-                             rhsObj->GetTypeName().c_str(), lhs.c_str());
-            else if (lhsWrapperType == Gmat::STRING_OBJECT_WT &&
-                     rhsWrapperType == Gmat::VARIABLE_WT)
-               ex.SetDetails("ElementWrapper::SetValue() Cannot set objet of "
-                             "type \"Variable\" to object of type \"String\"");
+            // Handle setting real value to string here
+            // This fixes Bug 1340 (LOJ: 2009.10.19)
+            if (rhsDataType == Gmat::REAL_TYPE)
+            {
+               sval = GmatStringUtil::ToString(rval, 16);
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage
+                  ("   %f converted to string '%s'\n", rval, sval.c_str());
+               #endif
+               lhsWrapper->SetString(sval);
+               break;
+            }
             else
-               ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to "
-                             "an undefined object \"%s\"", rhs.c_str(), lhs.c_str());
-            throw ex;
+            {
+               GmatBaseException ex;
+               if (rhsObj != NULL)
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set object of "
+                                "type \"%s\" to an undefined object \"%s\"",
+                                rhsObj->GetTypeName().c_str(), lhs.c_str());
+               else if (lhsWrapperType == Gmat::STRING_OBJECT_WT &&
+                        rhsWrapperType == Gmat::VARIABLE_WT)
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set objet of "
+                                "type \"Variable\" to object of type \"String\"");
+               else
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to "
+                                "an undefined object \"%s\"", rhs.c_str(), lhs.c_str());
+               throw ex;
+            }
          }
          break;
       case Gmat::ON_OFF_TYPE:
@@ -639,7 +654,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          }
          else
          {            
-            // check if ref object can be set to lhs (loj: 2008.10.24)
+            // check if ref object can be set to lhs
             if (setRefObj)
             {
                #ifdef DEBUG_EW_SET_VALUE
@@ -678,7 +693,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          {
             bool errorCond = true;
             
-            // Handle case like "GMAT XYPlot1.Add = {sat.X sat.Y};" (loj: 2008.06.20)
+            // Handle case like "GMAT XYPlot1.Add = {sat.X sat.Y};"
             // Set individually if RHS has more than one object
             StringArray rhsValues;
             TextParser tp;
@@ -688,16 +703,21 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             MessageInterface::ShowMessage("   rhs {} has %d items\n", rhsValues.size());
             #endif
             
+            std::string firstTypeStr, currTypeStr;
             for (UnsignedInt i=0; i<rhsValues.size(); i++)
             {
                #ifdef DEBUG_EW_SET_VALUE
                MessageInterface::ShowMessage("   rhsValues[%d]=<%s>\n", i, rhsValues[i].c_str());
                #endif
                
+               // Remove enclosing single quotes (LOJ: 2009.10.09)
+               rhsValues[i] = GmatStringUtil::RemoveEnclosingString(rhsValues[i], "'");
+               
                GmatBase *obj = FindObject(rhsValues[i], solarSys, objMap, globalObjMap);
                
                #ifdef DEBUG_EW_SET_VALUE
-               MessageInterface::ShowMessage("   obj=<%p>\n", obj);
+               MessageInterface::ShowMessage
+                  ("   obj=<%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), obj->GetName().c_str());
                #endif
                
                if (obj == NULL)
@@ -716,7 +736,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                errorCond = false;
             }
             
-            // To handle Earth2Body.PointMasses = {}, check for empty items (loj: 2008.10.14)
+            // To handle Earth2Body.PointMasses = {}, check for empty items
             if (errorCond && rhsValues.size() > 0)
             {
                GmatBaseException ex;

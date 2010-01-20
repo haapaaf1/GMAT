@@ -22,8 +22,8 @@
 #include "SolverBranchCommand.hpp"
 #include "Spacecraft.hpp"
 #include "Formation.hpp"
-
-#include "Vary.hpp"           // For SetInitialValue() method
+#include "Vary.hpp"                // For SetInitialValue() method
+#include "MessageInterface.hpp"
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -183,12 +183,18 @@ void SolverBranchCommand::StoreLoopData()
    // loop iterations
    // Check the Local Object Store first
    std::map<std::string, GmatBase *>::iterator pair = objectMap->begin();
-   GmatBase *obj;
-    
+   GmatBase *obj = NULL;
+   
    // Loop through the object map, looking for objects we'll need to restore.
    while (pair != objectMap->end()) 
    {
       obj = (*pair).second;
+      
+      if (obj == NULL)
+         throw CommandException
+            (typeName + "::StoreLoopData() cannot continue "
+             "due to NULL object pointer in " + generatingString);
+      
       // Save copies of all of the spacecraft
       if (obj->GetType() == Gmat::SPACECRAFT)
       {
@@ -240,6 +246,11 @@ void SolverBranchCommand::StoreLoopData()
       {
          Spacecraft *orig = (Spacecraft*)(obj);
          Spacecraft *sc = new Spacecraft(*orig);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            ((GmatBase*)sc, "cloned local sc", "SolverBranchCommand::StoreLoopData()",
+             "Spacecraft *sc = new Spacecraft(*orig)");
+         #endif
          // Handle CoordinateSystems
          if (orig->GetInternalCoordSystem() == NULL)
             MessageInterface::ShowMessage(
@@ -259,6 +270,11 @@ void SolverBranchCommand::StoreLoopData()
       {
          Formation *orig = (Formation*)(obj);
          Formation *form  = new Formation(*orig);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            ((GmatBase*)form, "cloned local form", "SolverBranchCommand::StoreLoopData()",
+             "Formation *form  = new Formation(*orig)");
+         #endif
          localStore.push_back(form);
       }
       ++globalPair;

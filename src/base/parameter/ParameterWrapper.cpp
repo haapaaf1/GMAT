@@ -26,6 +26,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_PW
+//#define DEBUG_PW_REFOBJ
 
 //---------------------------------
 // static data
@@ -99,6 +100,11 @@ const ParameterWrapper& ParameterWrapper::operator=(const ParameterWrapper &pw)
 //---------------------------------------------------------------------------
 ParameterWrapper::~ParameterWrapper()
 {
+   #ifdef DEBUG_PW_REFOBJ
+   MessageInterface::ShowMessage
+      ("ParameterWrapper::~ParameterWrapper() <%p>'%s' entered, param=<%p><%s>\n",
+       this, description.c_str(), param, param ? param->GetName().c_str() : "NULL");
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -163,7 +169,7 @@ GmatBase* ParameterWrapper::GetRefObject(const std::string &name)
 //---------------------------------------------------------------------------
 bool ParameterWrapper::SetRefObject(GmatBase *obj)
 {
-   #ifdef DEBUG_PW_SET
+   #ifdef DEBUG_PW_REFOBJ
    MessageInterface::ShowMessage
       ("ParameterWrapper::SetRefObject() obj=<%p><%s>\n", obj,
        obj ? obj->GetName().c_str() : "NULL");

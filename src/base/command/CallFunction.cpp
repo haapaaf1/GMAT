@@ -50,14 +50,14 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -675,22 +675,22 @@ bool CallFunction::TakeAction(const std::string &action,
 //------------------------------------------------------------------------------
 // StringArray GetRefObjectNameArray(const Gmat::ObjectType type) const
 //------------------------------------------------------------------------------
-StringArray CallFunction::GetRefObjectNameArray(const Gmat::ObjectType type) const
+const StringArray& CallFunction::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   StringArray result;
-
+   refObjectNames.clear();
+   
    switch (type) {
       case Gmat::PARAMETER:         // Input/Output
          for (unsigned int i=0; i<mInputNames.size(); i++)
-            result.push_back(mInputNames[i]);
+            refObjectNames.push_back(mInputNames[i]);
          for (unsigned int i=0; i<mOutputNames.size(); i++)
-            result.push_back(mOutputNames[i]);
-         return result;
+            refObjectNames.push_back(mOutputNames[i]);
+         return refObjectNames;
       default:
          break;
    }
-
-   return result;
+   
+   return refObjectNames;
 }
 
 
@@ -1058,7 +1058,7 @@ bool CallFunction::Execute()
    if (mFunction == NULL)
       throw CommandException("Function is not defined for CallFunction");
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
@@ -1122,7 +1122,7 @@ bool CallFunction::Execute()
       #endif
    #endif
       
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    clock_t t2 = clock();
    MessageInterface::ShowMessage
       ("=== CallFunction::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",

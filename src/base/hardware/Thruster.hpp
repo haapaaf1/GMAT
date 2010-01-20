@@ -22,9 +22,6 @@
 #include "FuelTank.hpp"
 #include "Hardware.hpp"
 
-// Declare forward reference since Thruster owns FuelTank
-class FuelTank;
-
 /**
  * Thruster model used for finite maneuvers
  */

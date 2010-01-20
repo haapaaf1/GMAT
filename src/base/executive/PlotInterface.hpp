@@ -25,6 +25,10 @@
 #include "CoordinateSystem.hpp"
 #include "PlotReceiver.hpp"
 
+
+/**
+ * Interface functions for the OpenGL and XY plot classes.
+ */
 class PlotInterface
 {
 
@@ -104,7 +108,21 @@ public:
    static void ClearTsPlotData(const std::string &plotName);
    static void TsPlotPenUp(const std::string &plotName);
    static void TsPlotPenDown(const std::string &plotName);
-   
+   static void TsPlotMarkPoint(const std::string &plotName, Integer index = -1,
+         Integer curveNumber = -1);
+
+   static void TsPlotRescale(const std::string &plotName);
+
+   static void TsPlotCurveSettings(const std::string &plotName,
+                                   bool useLines = true,
+                                   Integer lineWidth = 1,
+                                   Integer lineStyle = 100,
+                                   bool useMarkers = false,
+                                   Integer markerSize = 3,
+                                   Integer marker = 1,
+                                   bool useHiLow = false,
+                                   Integer forCurve = -1);
+
    static void SetTsPlotTitle(const std::string &plotName,
                               const std::string &plotTitle);
    static void ShowTsPlotLegend(const std::string &plotName);
@@ -116,7 +134,19 @@ public:
                             const std::string &xAxisTitle,
                             const std::string &yAxisTitle,
                             bool updateCanvas, bool drawGrid);
+   static bool UpdateTsPlotData(const std::string &plotName,
+                                const Real &xval, const Rvector &yvals,
+                                const Rvector &hiError,
+                                const Rvector &lowError);
    
+   static bool UpdateTsPlotCurve(const std::string &plotName,
+                     Integer whichCurve, const Real &xval, const Real &yval,
+                     const Real hi = 0.0, const Real low = 0.0);
+
+   static bool DeactivateTsPlot(const std::string &plotName);
+   static bool ActivateTsPlot(const std::string &plotName);
+
+
 private:
 
    PlotInterface();

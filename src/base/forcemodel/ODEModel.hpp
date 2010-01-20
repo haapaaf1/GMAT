@@ -116,6 +116,9 @@ public:
    void BufferState();
    Integer SetupSpacecraftData(ObjectArray *sats, Integer i);
 
+   Integer UpdateDynamicSpacecraftData(ObjectArray *sats, Integer i);
+
+
    // Methods that were removed
 //   void ClearSpacecraft();
 //   bool AddSpaceObject(SpaceObject *so);
@@ -123,7 +126,7 @@ public:
 //   virtual void IncrementTime(Real dt);
 //   virtual void SetTime(Real t);
    
-   // Parameter definition and accessor methods inherited from GmatBase
+   // Parameter definitio0n and accessor methods inherited from GmatBase
    virtual Integer      GetParameterCount() const;
    virtual bool         RenameRefObject(const Gmat::ObjectType type,
                                         const std::string &oldName,
@@ -184,14 +187,7 @@ public:
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
    virtual std::string  BuildPropertyName(GmatBase *ownedObj);
    
-   #ifdef __WITH_FM_GEN_STRING__
-   virtual const std::string&
-   GetGeneratingString(Gmat::WriteMode mode = Gmat::SCRIPTING,
-                       const std::string &prefix = "",
-                       const std::string &useName = "");
-   #endif
-   
-   void                 UpdateInitialData();
+   void                 UpdateInitialData(bool dynamicOnly = false);
    void                 ReportEpochData();
    
    void                 SetPropStateManager(PropagationStateManager *sm);
@@ -248,7 +244,21 @@ protected:
    Integer satIds[7];
 //   /// ID for the "Epoch" parameter  -- NOT NEEDED, THIS IS A PHYSICAL MODEL ALREADY!!!
 //   Integer modelEpochId;
+
+   /// Number of objects providing Cartesian state data
+   Integer cartObjCount;
+   /// Starting index for Cartesian state data
+   Integer cartStateStart;
+   /// Number of elements in the Cartesian state data
+   Integer cartStateSize;
+   /// If spacecraft properties are dynamic, update at every call
+   bool dynamicProperties;
    
+   IntegerArray dynamicsIndex;
+   ObjectArray  dynamicObjects;
+   IntegerArray dynamicIDs;
+
+
    /// Mapping between script descriptions and force names.
    static std::map<std::string, std::string> scriptAliases;
    
@@ -261,6 +271,7 @@ protected:
    void                UpdateTransientForces();
    
    std::string         BuildForceNameString(PhysicalModel *force);
+   void                ClearForceList(bool deleteTransient = false);
    void                ClearInternalCoordinateSystems();
    void                SetInternalCoordinateSystem(const std::string csId,
                                                    PhysicalModel *currentPm);
@@ -273,7 +284,7 @@ protected:
    
    /// Locally defined coordinate systems, if needed
    std::vector <CoordinateSystem*>
-                             InternalCoordinateSystems;
+                             internalCoordinateSystems;
    
    /// EarthMJ2000Eq pointer, so that it can be cloned to make other Eq systems 
    CoordinateSystem          *earthEq;

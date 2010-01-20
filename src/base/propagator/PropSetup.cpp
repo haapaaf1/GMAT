@@ -126,17 +126,24 @@ PropSetup::PropSetup(const std::string &name)
    mPropagator = new RungeKutta89("RungeKutta89");
    mODEModel = new ODEModel(mODEModelName);
    PhysicalModel *pmf = new PointMassForce;
+   
+   #ifdef DEBUG_PROPSETUP   
+   MessageInterface::ShowMessage
+      ("PropSetup::PropSetup() adding <%p><PointMassForce> to  "
+       "<%p><ODEModel>'InternalODEModel\n", pmf, mODEModel);
+   #endif
+   
    mODEModel->AddForce(pmf);
    
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (mPropagator, "RungeKutta89", "PropSetup::PropSetup()",
-       "mPropagator = new RungeKutta89()");
+       "mPropagator = new RungeKutta89()", this);
    MemoryTracker::Instance()->Add
       (mODEModel, mODEModelName, "PropSetup::PropSetup()",
-       "mODEModel = new ODEModel()");
+       "mODEModel = new ODEModel()", this);
    MemoryTracker::Instance()->Add
-      (pmf, "Earth", "PropSetup::PropSetup()", "*pmf = new PointMassForce");
+      (pmf, "Earth", "PropSetup::PropSetup()", "*pmf = new PointMassForce", this);
    #endif
 }
 
@@ -154,8 +161,8 @@ PropSetup::PropSetup(const PropSetup &ps) :
 {
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
-      ("PropSetup::PropSetup() entered, Propagator=<%p>, ODEModel=<%p>\n",
-       ps.mPropagator, ps.mODEModel);
+      ("PropSetup::PropSetup(copy) <%p>'%s' entered, ps.Propagator=<%p>, ps.ODEModel=<%p>\n",
+       this, GetName().c_str(), ps.mPropagator, ps.mODEModel);
    #endif
    
    ownedObjectCount = ps.ownedObjectCount;
@@ -180,7 +187,7 @@ PropSetup::PropSetup(const PropSetup &ps) :
    
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
-      ("PropSetup::PropSetup() exiting, Propagator=<%p><%s> '%s'\n   "
+      ("PropSetup::PropSetup(copy) exiting, Propagator=<%p><%s> '%s'\n   "
        "ODEModel=<%p><%s> '%s'\n", mPropagator,
        mPropagator ? mPropagator->GetTypeName().c_str() : "NULL",
        mPropagator ? mPropagator->GetName().c_str() : "NULL", mODEModel,
@@ -200,8 +207,10 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
 {
    #ifdef DEBUG_PROPSETUP
    MessageInterface::ShowMessage
-      ("PropSetup::operator=() entered, Propagator=<%p>, ODEModel=<%p>\n",
-       ps.mPropagator, ps.mODEModel);
+      ("PropSetup::operator=() <%p>'%s' entered, Propagator=<%p>, ODEModel=<%p>\n",
+       this, GetName().c_str(), mPropagator, mODEModel);
+   MessageInterface::ShowMessage
+      ("   ps.Propagator=<%p>, ps.ODEModel=<%p>\n", ps.mPropagator, ps.mODEModel);
    #endif
    
    if (this == &ps)
@@ -213,18 +222,17 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
    mInitialized = false;
    mPropagatorName = "";
    mODEModelName = "";
-   mPropagator = NULL;
-   mODEModel = NULL;
    
    psm = ps.psm;
-
+   
    if (ps.mPropagator != NULL)
       mPropagatorName = ps.mPropagator->GetName();
    if (ps.mODEModel != NULL)
       mODEModelName = ps.mODEModel->GetName();
    
-   DeleteOwnedObject(PROPAGATOR);
-   DeleteOwnedObject(ODE_MODEL);
+   // first delete old propagator and ODEModel
+   DeleteOwnedObject(PROPAGATOR, true);
+   DeleteOwnedObject(ODE_MODEL, true);
    ClonePropagator(ps.mPropagator);
    CloneODEModel(ps.mODEModel);
    
@@ -304,6 +312,11 @@ Propagator* PropSetup::GetPropagator()
 //------------------------------------------------------------------------------
 ODEModel* PropSetup::GetODEModel()
 {
+   #ifdef DEBUG_PROPSETUP_ODEMODEL
+   MessageInterface::ShowMessage
+      ("PropSetup::GetODEModel() returning <%p>'%s'\n", mODEModel,
+       mODEModel ? mODEModel->GetName().c_str() : "NULL");
+   #endif
    return mODEModel;
 }
 
@@ -357,7 +370,7 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
       ("PropSetup::SetODEModel() this=<%p> '%s' entered, mODEModel=<%p>, "
-       "ODEModel=<%p>\n", this, GetName().c_str(), mODEModel, ODEModel);
+       "odeModel=<%p>\n", this, GetName().c_str(), mODEModel, odeModel);
    #endif
    
    if (odeModel == NULL)
@@ -368,7 +381,7 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
    
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
-      ("PropSetup::SetODEModel() returning, mODEModel=<%p>\n", mODEModel);
+      ("PropSetup::SetODEModel() exiting, mODEModel=<%p>\n", mODEModel);
    #endif
 }
 
@@ -578,8 +591,13 @@ const ObjectTypeArray& PropSetup::GetRefObjectTypeArray()
    // We need to add in the property order since Interpreter querrys for
    // object type using property id
    refObjectTypes.clear();
-   refObjectTypes.push_back(Gmat::PROPAGATOR);
+   
+   // Fill with UNKNOWN_OBJECT since GmatBase no longer has 0 parameters (LOJ: 2009.11.03)
+   for (Integer i = 0; i < GmatBaseParamCount; i++)
+      refObjectTypes.push_back(Gmat::UNKNOWN_OBJECT);
+   
    refObjectTypes.push_back(Gmat::ODE_MODEL);
+   refObjectTypes.push_back(Gmat::PROPAGATOR);
    return refObjectTypes;
 }
 
@@ -1026,8 +1044,8 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
 {
    #ifdef DEBUG_PROPSETUP_GEN_STRING
    MessageInterface::ShowMessage
-      ("PropSetup::GetGeneratingString() '%s' entered, mODEModel=<%p> '%s'\n",
-       GetName().c_str(), mODEModel,
+      ("PropSetup::GetGeneratingString() <%p>'%s' entered, mODEModel=<%p> '%s'\n",
+       this, GetName().c_str(), mODEModel,
        mODEModel ? mODEModel->GetName().c_str() : "NULL");
    #endif
    std::string gen, fmName = "", temp;
@@ -1042,7 +1060,9 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
       }
       else
          fmName = temp;
-      
+
+      // For Gmat::SCRIPTING which saves to script file, we need to write
+      // ODEModels first so it is handled in the ScriptInterpreter.
       if (mode == Gmat::SHOW_SCRIPT)
          showODEModel = true;
       
@@ -1058,6 +1078,11 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
    gen += GmatBase::GetGeneratingString(mode, prefix, useName);
    generatingString = gen;
    
+   #ifdef DEBUG_PROPSETUP_GEN_STRING
+   MessageInterface::ShowMessage
+      ("PropSetup::GetGeneratingString() <%p>'%s' returning\n%s\n", this,
+       GetName().c_str(), generatingString.c_str());
+   #endif
    return generatingString;
 }
 
@@ -1073,7 +1098,8 @@ void PropSetup::ClonePropagator(Propagator *prop)
 {
    #ifdef DEBUG_PROPSETUP_CLONE
    MessageInterface::ShowMessage
-      ("PropSetup::ClonePropagator() entered, prop=<%p>\n", prop);
+      ("PropSetup::ClonePropagator() <%p>'%s' entered, prop=<%p>\n", this,
+       GetName().c_str(), prop);
    #endif
    if (prop != NULL)
    {
@@ -1082,7 +1108,7 @@ void PropSetup::ClonePropagator(Propagator *prop)
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (mPropagator, mPropagatorName, "PropSetup::ClonePropagator()",
-          "mPropagator = prop->Clone()");
+          "mPropagator = prop->Clone()", this);
       #endif
    }
    else
@@ -1105,7 +1131,9 @@ void PropSetup::CloneODEModel(ODEModel *fm)
 {
    #ifdef DEBUG_PROPSETUP_CLONE
    MessageInterface::ShowMessage
-      ("PropSetup::CloneODEModel() entered, fm=<%p>\n", fm);
+      ("PropSetup::CloneODEModel() <%p>'%s' entered, fm=<%p>, mODEModel=<%p>, "
+       "mODEModelName='%s'\n", this, GetName().c_str(), fm, mODEModel,
+       mODEModelName.c_str());
    #endif
    if (fm != NULL)
    {
@@ -1114,7 +1142,7 @@ void PropSetup::CloneODEModel(ODEModel *fm)
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (mODEModel, mODEModelName, "PropSetup::CloneODEModel()",
-          "mODEModel = fm->Clone()");
+          "mODEModel = fm->Clone()", this);
       #endif
    }
    else
@@ -1144,12 +1172,18 @@ void PropSetup::CloneODEModel(ODEModel *fm)
 //------------------------------------------------------------------------------
 void PropSetup::DeleteOwnedObject(Integer id, bool forceDelete)
 {
+   #ifdef DEBUG_PROPSETUP_DELETE
+   MessageInterface::ShowMessage
+      ("PropSetup::DeleteOwnedObject() <%p>'%s' entered, id=%d, forceDelete=%d\n",
+       this, GetName().c_str(), id, forceDelete);
+   #endif
+   
    // Since Propagator and ODEModel are cloned delete them here. (loj: 2008.11.05)
    if (id == PROPAGATOR)
    {
       #ifdef DEBUG_PROPSETUP_DELETE
       MessageInterface::ShowMessage
-         ("PropSetup::DeleteOwnedObject() mPropagator=<%p>, mPropagatorName='%s'\n",
+         ("   mPropagator=<%p>, mPropagatorName='%s'\n",
           mPropagator, mPropagatorName.c_str());
       #endif
       if (mPropagator != NULL)
@@ -1161,11 +1195,18 @@ void PropSetup::DeleteOwnedObject(Integer id, bool forceDelete)
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
                (mPropagator, mPropagatorName, "PropSetup::DeleteOwnedObject()",
-                "deleting mPropagator");
+                "deleting mPropagator", this);
             #endif
             delete mPropagator;
             mPropagatorName = "";
             mPropagator = NULL;
+         }
+         else
+         {
+            #ifdef DEBUG_PROPSETUP_DELETE
+            MessageInterface::ShowMessage
+               ("   =====> mPropagator=<%p> was not deleted\n", mPropagator);
+            #endif
          }
       }
    }
@@ -1173,7 +1214,7 @@ void PropSetup::DeleteOwnedObject(Integer id, bool forceDelete)
    {
       #ifdef DEBUG_PROPSETUP_DELETE
       MessageInterface::ShowMessage
-         ("PropSetup::DeleteOwnedObject() mODEModel=<%p>, mODEModelName='%s'\n",
+         ("   mODEModel=<%p>, mODEModelName='%s'\n",
           mODEModel, mODEModelName.c_str());
       #endif
       if (mODEModel != NULL)
@@ -1186,14 +1227,26 @@ void PropSetup::DeleteOwnedObject(Integer id, bool forceDelete)
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
                (mODEModel, mODEModelName, "PropSetup::DeleteOwnedObject()",
-                "deleting mODEModel");
+                "deleting mODEModel", this);
             #endif
             delete mODEModel;
             mODEModelName = "";
             mODEModel = NULL;
          }
+         else
+         {
+            #ifdef DEBUG_PROPSETUP_DELETE
+            MessageInterface::ShowMessage
+               ("   =====> mODEModel=<%p> was not deleted\n", mODEModel);
+            #endif
+         }
       }
    }
+   
+   #ifdef DEBUG_PROPSETUP_DELETE
+   MessageInterface::ShowMessage
+      ("PropSetup::DeleteOwnedObject() <%p>'%s' exiting\n", this, GetName().c_str());
+   #endif
 }
 
 

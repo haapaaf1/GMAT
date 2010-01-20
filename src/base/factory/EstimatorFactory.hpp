@@ -24,6 +24,7 @@
 #include "Factory.hpp"
 
 // Forward References for the supported Estimators
+class Estimator;
 class BatchLeastSquares;
 //class SequentialLeastSquares;
 //class SimpleLinearKalmanFilter;

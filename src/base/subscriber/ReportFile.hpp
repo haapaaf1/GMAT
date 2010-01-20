@@ -115,35 +115,40 @@ public:
    
 protected:
    /// Name of the output path
-   std::string    outputPath;
+   std::string          outputPath;
    /// Name of the report file
-   std::string    filename;
+   std::string          filename;
+   /// Default file name of the report file when it is not set
+   std::string          defFileName;
    /// Precision for output of real data
-   Integer        precision;  
+   Integer              precision;  
    /// Width of column
-   Integer        columnWidth;   
+   Integer              columnWidth;   
    /// Write the headers on the top of the column
-   bool           writeHeaders;
+   bool                 writeHeaders;
    /// Left justify
-   bool           leftJustify;
+   bool                 leftJustify;
    /// Fill right field with 0
-   bool           zeroFill;
+   bool                 zeroFill;
    
    /// output data stream
-   std::ofstream           dstream;
+   std::ofstream        dstream;
    std::vector<Parameter*> mParams;
    
-   Integer        mNumParams;
-   StringArray    mParamNames;
-   StringArray    mAllRefObjectNames;
-   Integer        lastUsedProvider;
-   bool           usedByReport;
-   bool           calledByReport;
-   bool           initial;
+   Integer              mNumParams;
+   StringArray          mParamNames;
+   StringArray          mAllRefObjectNames;
+   Integer              lastUsedProvider;
+   bool                 usedByReport;
+   bool                 calledByReport;
+   bool                 initial;
    
    virtual bool         OpenReportFile(void);
    void                 ClearParameters();
    void                 WriteHeaders();
+   Integer              WriteMatrix(StringArray *output, Integer param,
+                                    const Rmatrix &rmat, UnsignedInt &maxRow,
+                                    Integer defWidth);
    
    // methods inherited from Subscriber
    virtual bool         Distribute(Integer len);
@@ -167,7 +172,7 @@ private:
       PARAMETER_TEXT[ReportFileParamCount - SubscriberParamCount];
    static const Gmat::ParameterType
       PARAMETER_TYPE[ReportFileParamCount - SubscriberParamCount];
-
+   
 };
 
 

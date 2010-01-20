@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 Sandbox
 //------------------------------------------------------------------------------
@@ -34,7 +34,6 @@
 #include "Parameter.hpp"            // Remove when temporary code satisfied
 #include "SolarSystem.hpp"
 #include "CoordinateSystem.hpp"
-//  #include "Solver.hpp"
 #include "Burn.hpp"
 #include "GmatFunction.hpp"
 #include "ObjectInitializer.hpp"
@@ -55,6 +54,7 @@ public:
    GmatBase* AddObject(GmatBase *obj);   
    bool AddCommand(GmatCommand *cmd);
    bool AddSolarSystem(SolarSystem *ss);
+   bool AddTriggerManagers(const std::vector<TriggerManager*> *trigs);
    bool AddSubscriber(Subscriber *sub);
    bool SetInternalCoordSystem(CoordinateSystem *ss);
    bool SetPublisher(Publisher *pub = NULL);
@@ -112,28 +112,18 @@ private:
    // Additions made for finite maneuvers
    /// List of FiniteThrust objects that are currently available
    std::vector<PhysicalModel *>      transientForces;
+   /// Trigger managers for this Sandbox
+   std::vector<TriggerManager*>      triggerManagers;
 
    Sandbox(const Sandbox&);
    Sandbox& operator=(const Sandbox&);
    
-   //void                              InitializeInternalObjects();
-   
-   //*********************  TEMPORARY  *****************************************
-   //void  InitializeCoordinateSystem(CoordinateSystem *cs);
-   //*********************  END OF TEMPORARY  **********************************
-
-   //void                              BuildReferences(GmatBase *obj);
-   //void                              SetRefFromName(GmatBase *obj,
-   //                                                 const std::string &oName);
-   //void                              BuildAssociations(GmatBase * obj);
-   //SpacePoint *                      FindSpacePoint(const std::string &spName);
-   
-   GmatBase*                         FindObject(const std::string &name);
-   bool                              SetObjectByNameInMap(const std::string &name,
-                                                          GmatBase *obj);
-   
-   bool                              HandleGmatFunction(GmatCommand *cmd,
-                                        std::map<std::string, GmatBase *> *usingMap);
+   GmatBase* FindObject(const std::string &name);
+   bool      SetObjectByNameInMap(const std::string &name, GmatBase *obj);
+   bool      HandleGmatFunction(GmatCommand *cmd,
+                                std::map<std::string, GmatBase *> *usingMap);
+   void      SetGlobalRefObject(GmatCommand *cmd);
+   void      ShowObjectMap(ObjectMap &om, const std::string &title);
    
    #ifdef DEBUG_SANDBOX_CLONING
       std::vector<Gmat::ObjectType>  clonable;

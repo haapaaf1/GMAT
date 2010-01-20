@@ -51,7 +51,8 @@ OrbitReal::OrbitReal(const std::string &name, const std::string &typeStr,
                      const std::string &unit, GmatParam::DepObject depObj,
                      bool isSettable)
    : RealVar(name, "", typeStr, GmatParam::SYSTEM_PARAM, obj, desc, unit,
-             depObj, Gmat::SPACECRAFT, false, isSettable)
+             depObj, Gmat::SPACECRAFT, false, isSettable),
+     OrbitData(name)
 {
    mNeedCoordSystem = true;
    AddRefObject(obj);
@@ -285,7 +286,7 @@ bool OrbitReal::Initialize()
       #endif
       
       throw ParameterException
-         ("WARNING:  Incorrect parameter dependency: " + GetName() + ".\n" +
+         ("Incorrect parameter dependency: " + GetName() + ".\n" +
           this->GetTypeName() + e.GetFullMessage() + "\n");
    }
    catch(BaseException &e)
@@ -297,7 +298,7 @@ bool OrbitReal::Initialize()
       #endif
       
       throw ParameterException
-         ("WARNING:  " + e.GetFullMessage() + " in " + GetName() + "\n");
+         (e.GetFullMessage() + " in " + GetName() + "\n");
    }
    
    return true;

@@ -1,4 +1,4 @@
-//$Id$
+//$Id: ObjectInitializer.hpp 7516 2009-12-23 17:06:47Z lindajun $
 //------------------------------------------------------------------------------
 //                                  ObjectInitializer
 //------------------------------------------------------------------------------
@@ -48,7 +48,9 @@ public:
    void SetSolarSystem(SolarSystem *solSys);
    void SetObjectMap(ObjectMap *objMap);
    void SetInternalCoordinateSystem(CoordinateSystem* cs);
-   bool InitializeObjects(bool registerSubs = false);
+   bool InitializeObjects(bool registerSubs = false,
+                          Gmat::ObjectType objType = Gmat::UNKNOWN_OBJECT,
+                          StringArray *unusedGOL = NULL);
    
 protected:
    
@@ -59,26 +61,30 @@ protected:
    CoordinateSystem *internalCS;
    Publisher        *publisher;
    
-   bool            includeGOS;
-
-   void            InitializeInternalObjects();
-
-   //*********************  TEMPORARY  *****************************************
-   void  InitializeCoordinateSystem(CoordinateSystem *cs);
-   //*********************  END OF TEMPORARY  **********************************
-
-   void            BuildReferences(GmatBase *obj);
-   void            SetRefFromName(GmatBase *obj,
-                                  const std::string &oName);
-   void            BuildAssociations(GmatBase * obj);
-   SpacePoint *    FindSpacePoint(const std::string &spName);
+   bool includeGOS;
+   bool registerSubscribers;
    
-   GmatBase*       FindObject(const std::string &name);
+   void SetObjectJ2000Body(ObjectMap *objMap);
+   void InitializeObjectsInTheMap(ObjectMap *objMap, Gmat::ObjectType objType,
+                                  bool usingGOS = false,
+                                  StringArray *unusedGOL = NULL);
+   void InitializeSystemParamters(ObjectMap *objMap);
+   void InitializeAllOtherObjects(ObjectMap *objMap);
+   void InitializeInternalObjects();
+   void InitializeCoordinateSystem(GmatBase *obj);
+   void BuildReferencesAndInitialize(GmatBase *obj);
+   void BuildReferences(GmatBase *obj);
+   void SetRefFromName(GmatBase *obj, const std::string &oName);
+   void BuildAssociations(GmatBase * obj);
+   
+   SpacePoint* FindSpacePoint(const std::string &spName);
+   GmatBase*   FindObject(const std::string &name);
+   void        ShowObjectMaps(const std::string &title = "");
    
 private:
    
    ObjectInitializer();
-
+   
 };
 
 #endif // ObjectInitializer_hpp

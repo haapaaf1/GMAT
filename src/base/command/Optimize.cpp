@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include "Optimize.hpp"
+#include "MessageInterface.hpp"
 
 //Added __USE_EXTERNAL_OPTIMIZER__ so that header will not be compiled
 #ifdef __USE_EXTERNAL_OPTIMIZER__
@@ -342,6 +343,11 @@ bool Optimize::Initialize()
       throw CommandException(errorString);
    }
    
+   if (mapObj->IsOfType("Optimizer") == false)
+      throw CommandException("The object " + solverName +
+            " is not an Optimizer, so the Optimize command cannot proceed "
+            "with initialization.");
+
    // Delete the old cloned solver
    if (theSolver)
    {

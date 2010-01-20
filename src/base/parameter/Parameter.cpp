@@ -37,7 +37,7 @@ Parameter::PARAMETER_KEY_STRING[GmatParam::KeyCount] =
 };
 
 const std::string
-Parameter::PARAMETER_TEXT[ParameterParamCount] =
+Parameter::PARAMETER_TEXT[ParameterParamCount - GmatBaseParamCount] =
 {
    "Object",
    "Expression",
@@ -48,7 +48,7 @@ Parameter::PARAMETER_TEXT[ParameterParamCount] =
 };
 
 const Gmat::ParameterType
-Parameter::PARAMETER_TYPE[ParameterParamCount] =
+Parameter::PARAMETER_TYPE[ParameterParamCount - GmatBaseParamCount] =
 {
    Gmat::OBJECT_TYPE,          //"Object",
    Gmat::STRING_TYPE,          //"Expression",

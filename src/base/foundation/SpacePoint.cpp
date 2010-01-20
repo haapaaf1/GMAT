@@ -33,6 +33,7 @@
 
 
 //#define DEBUG_J2000_STATE
+//#define DEBUG_SPACE_POINT_CLOAKING
 
 //---------------------------------
 // static data
@@ -42,12 +43,14 @@ const std::string
 SpacePoint::PARAMETER_TEXT[SpacePointParamCount - GmatBaseParamCount] =
 {
    "J2000BodyName",
+   "NAIFId",
 };
 
 const Gmat::ParameterType
 SpacePoint::PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount] =
 {
-   Gmat::STRING_TYPE,
+   Gmat::STRING_TYPE,   // "J2000BodyName"
+   Gmat::INTEGER_TYPE,  // "NAIFId"
 };
 
 
@@ -67,7 +70,7 @@ SpacePoint::PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount] =
  * @param <itsType> GMAT script string associated with this type of object.
  * @param <itsName> Optional name for the object.  Defaults to "".
  *
- * @note There is no parameter free constructor for SpacePoint.  Derived
+ * @note There is no parameter free constructor for SpacePoint.  Derived 
  *       classes must pass in the typeId and typeStr parameters.
  */
 //---------------------------------------------------------------------------
@@ -75,26 +78,31 @@ SpacePoint::SpacePoint(Gmat::ObjectType ofType, const std::string &itsType,
                        const std::string &itsName) :
 GmatBase(ofType,itsType,itsName),
 j2000Body      (NULL),
-j2000BodyName  ("Earth")
+j2000BodyName  ("Earth"),
+naifId         (0)        // 0 means unset
 {
    objectTypes.push_back(Gmat::SPACE_POINT);
    objectTypeNames.push_back("SpacePoint");
+   SaveAllAsDefault();
 }
 
 //---------------------------------------------------------------------------
 //  SpacePoint(const SpacePoint &sp);
 //---------------------------------------------------------------------------
 /**
- * Constructs base SpacePoint structures used in derived classes, by copying
+ * Constructs base SpacePoint structures used in derived classes, by copying 
  * the input instance (copy constructor).
  *
  * @param <sp>  SpacePoint instance to copy to create "this" instance.
  */
 //---------------------------------------------------------------------------
 SpacePoint::SpacePoint(const SpacePoint &sp) :
-   GmatBase       (sp),
-   j2000Body      (NULL),
-   j2000BodyName  (sp.j2000BodyName)
+GmatBase(sp),
+j2000Body             (NULL),
+j2000BodyName         (sp.j2000BodyName),
+naifId                (sp.naifId),
+default_j2000BodyName (sp.default_j2000BodyName),
+default_naifId        (sp.default_naifId)
 {
 }
 
@@ -113,12 +121,14 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
 {
    if (&sp == this)
       return *this;
-   j2000Body     = sp.j2000Body;
-   j2000BodyName = sp.j2000BodyName;
+   j2000Body             = sp.j2000Body;
+   j2000BodyName         = sp.j2000BodyName;
+   naifId                = sp.naifId;
+   default_j2000BodyName = sp.default_j2000BodyName;
+   default_naifId        = sp.default_naifId;
 
    return *this;
 }
-
 //---------------------------------------------------------------------------
 //  ~SpacePoint(void)
 //---------------------------------------------------------------------------
@@ -162,15 +172,6 @@ const std::string SpacePoint::GetJ2000BodyName() const
    else           return j2000BodyName;
 }
 
-//------------------------------------------------------------------------------
-//  SpacePoint*  GetJ2000Body() const
-//------------------------------------------------------------------------------
-/**
- * This method returns the j2000 Body.
- *
- * @return A pointer to the J2000 Body.
- */
-//------------------------------------------------------------------------------
 SpacePoint* SpacePoint::GetJ2000Body() const
 {
    return j2000Body;
@@ -192,7 +193,7 @@ void SpacePoint::SetJ2000Body(SpacePoint* toBody)
          MessageInterface::ShowMessage("Setting J2000 body to NULL for %s\n",
             instanceName.c_str());
    #endif
-
+   
    j2000Body = toBody;
 
    #ifdef DEBUG_J2000_STATE
@@ -200,6 +201,56 @@ void SpacePoint::SetJ2000Body(SpacePoint* toBody)
          MessageInterface::ShowMessage("J2000 body is now set\n");
    #endif
 }
+
+bool SpacePoint::IsParameterCloaked(const Integer id) const
+{
+   #ifdef DEBUG_SPACE_POINT_CLOAKING
+      MessageInterface::ShowMessage("In SpacePoint:IsParameterCloaked with id = %d %s)\n",
+            id, (GetParameterText(id)).c_str());
+   #endif
+   if (!cloaking) return false;
+   if (id >= GmatBaseParamCount && id < SpacePointParamCount)
+      return IsParameterEqualToDefault(id);
+   
+   return GmatBase::IsParameterCloaked(id);
+}
+
+bool SpacePoint::IsParameterEqualToDefault(const Integer id) const
+{
+   if (id == J2000_BODY_NAME)
+   {
+      return (j2000BodyName == default_j2000BodyName);
+   }
+   if (id == NAIF_ID)
+   {
+      return (default_naifId == naifId);
+   }
+   return GmatBase::IsParameterEqualToDefault(id);    
+}
+
+bool SpacePoint::SaveAllAsDefault()
+{
+   GmatBase::SaveAllAsDefault();
+   default_j2000BodyName = j2000BodyName;
+   default_naifId        = naifId;
+   return true;
+}
+
+bool SpacePoint::SaveParameterAsDefault(const Integer id)
+{
+   if (id == J2000_BODY_NAME)  
+   {
+      default_j2000BodyName = j2000BodyName;
+      return true;
+   }
+   if (id == NAIF_ID)
+   {
+      default_naifId = naifId;
+      return true;
+   }
+   return GmatBase::SaveParameterAsDefault(id);
+}
+
 
 const Rvector3 SpacePoint::GetMJ2000Acceleration(const A1Mjd &atTime)
 {
@@ -247,7 +298,7 @@ Integer SpacePoint::GetParameterID(const std::string &str) const
       if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
          return i;
    }
-
+   
    return GmatBase::GetParameterID(str);
 }
 
@@ -267,7 +318,7 @@ Gmat::ParameterType SpacePoint::GetParameterType(const Integer id) const
 {
    if (id >= GmatBaseParamCount && id < SpacePointParamCount)
       return PARAMETER_TYPE[id - GmatBaseParamCount];
-
+   
    return GmatBase::GetParameterType(id);
 }
 
@@ -326,6 +377,67 @@ bool SpacePoint::IsParameterReadOnly(const std::string &label) const
    return IsParameterReadOnly(GetParameterID(label));
 }
 
+//------------------------------------------------------------------------------
+//  Integer  GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the Integer parameter value, given the input
+ * parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ *
+ * @return  Integer value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+Integer SpacePoint::GetIntegerParameter(const Integer id) const
+{
+   if (id == NAIF_ID)              return naifId;
+
+   return GmatBase::GetIntegerParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  Integer GetIntegerParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//---------------------------------------------------------------------------
+Integer SpacePoint::GetIntegerParameter(const std::string &label) const
+{
+   return GetIntegerParameter(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer  SetIntegerParameter(const Integer id, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * This method sets the Integer parameter value, given the input
+ * parameter ID.
+ *
+ * @param <id> ID for the requested parameter.
+ * @param <value> Integer value for the requested parameter.
+ *
+ * @return  Integer value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+Integer SpacePoint::SetIntegerParameter(const Integer id,
+                                           const Integer value)
+{
+   if (id == NAIF_ID)
+   {
+      naifId              = value;
+      return true;
+   }
+
+   return GmatBase::SetIntegerParameter(id,value);
+}
+
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetStringParameter(const Integer id) const
@@ -342,7 +454,7 @@ bool SpacePoint::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 std::string SpacePoint::GetStringParameter(const Integer id) const
 {
-   if (id == J2000_BODY_NAME)
+   if (id == J2000_BODY_NAME)   
    {
       if (j2000Body) return j2000Body->GetName();
       else           return j2000BodyName;
@@ -365,15 +477,16 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
  *
  */
 //------------------------------------------------------------------------------
- bool SpacePoint::SetStringParameter(const Integer id,
+
+ bool SpacePoint::SetStringParameter(const Integer id, 
                                     const std::string &value)
 {
-   if (id == J2000_BODY_NAME)
+   if (id == J2000_BODY_NAME) 
    {
-      j2000BodyName = value;
+      j2000BodyName = value; 
       return true;
    }
-
+   
    return GmatBase::SetStringParameter(id, value);
 }
 
@@ -404,6 +517,7 @@ std::string SpacePoint::GetStringParameter(const std::string &label) const
  * @param    <value> The new value for the parameter
  */
 //------------------------------------------------------------------------------
+
  bool SpacePoint::SetStringParameter(const std::string &label,
                                        const std::string &value)
 {
@@ -435,7 +549,7 @@ GmatBase* SpacePoint::GetRefObject(const Gmat::ObjectType type,
       default:
          break;
    }
-
+   
    // Not handled here -- invoke the next higher GetRefObject call
    return GmatBase::GetRefObject(type, name);
 }
@@ -448,7 +562,7 @@ GmatBase* SpacePoint::GetRefObject(const Gmat::ObjectType type,
  * This method sets a reference object for the SpacePoint class.
  *
  * @param <obj>   pointer to the reference object
- * @param <type>  type of the reference object
+ * @param <type>  type of the reference object 
  * @param <name>  name of the reference object
  *
  * @return true if successful; otherwise, false.
@@ -458,7 +572,7 @@ GmatBase* SpacePoint::GetRefObject(const Gmat::ObjectType type,
 bool SpacePoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                               const std::string &name)
 {
-
+   
    switch (type)
    {
       case Gmat::SPACE_POINT:
@@ -469,30 +583,30 @@ bool SpacePoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       default:
          break;
    }
-
+   
    // Not handled here -- invoke the next higher SetRefObject call
    return GmatBase::SetRefObject(obj, type, name);
 }
 
 
 // DJC Added, 12/16/04
-// This seems like it should NOT be needed, but GCC seems to be confused about
+// This seems like it should NOT be needed, but GCC seems to be confused about 
 // the overloaded versions of the following six methods:
 
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id, const Integer index) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the string parameter value from a vector of strings,
- * given the input parameter ID and the index into the vector.
+ * This method returns the string parameter value from a vector of strings, 
+ * given the input parameter ID and the index into the vector. 
  *
  * @param id ID for the requested parameter.
  * @param index index for the particular string requested.
- *
+ * 
  * @return The requested string.
  */
 //------------------------------------------------------------------------------
-std::string SpacePoint::GetStringParameter(const Integer id,
+std::string SpacePoint::GetStringParameter(const Integer id, 
                                            const Integer index) const
 {
    return GmatBase::GetStringParameter(id, index);
@@ -500,22 +614,22 @@ std::string SpacePoint::GetStringParameter(const Integer id,
 
 
 //------------------------------------------------------------------------------
-// bool SetStringParameter(const Integer id, const std::string &value,
+// bool SetStringParameter(const Integer id, const std::string &value, 
 //                         const Integer index)
 //------------------------------------------------------------------------------
 /**
- * This method sets a value on a string parameter value in a vector of strings,
- * given the input parameter ID, the value, and the index into the vector.
+ * This method sets a value on a string parameter value in a vector of strings, 
+ * given the input parameter ID, the value, and the index into the vector. 
  *
  * @param id ID for the requested parameter.
  * @param value The new string.
  * @param index index for the particular string requested.
- *
+ * 
  * @return true if successful; otherwise, false.
  */
 //------------------------------------------------------------------------------
-bool SpacePoint::SetStringParameter(const Integer id,
-                                    const std::string &value,
+bool SpacePoint::SetStringParameter(const Integer id, 
+                                    const std::string &value, 
                                     const Integer index)
 {
    return GmatBase::SetStringParameter(id, value, index);
@@ -523,21 +637,21 @@ bool SpacePoint::SetStringParameter(const Integer id,
 
 
 //------------------------------------------------------------------------------
-// std::string GetStringParameter(const std::string &label,
+// std::string GetStringParameter(const std::string &label, 
 //                                const Integer index) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the string parameter value from a vector of strings,
- * given the label associated with the input parameter and the index into the
- * vector.
+ * This method returns the string parameter value from a vector of strings, 
+ * given the label associated with the input parameter and the index into the 
+ * vector. 
  *
  * @param label String identifier for the requested parameter.
  * @param index index for the particular string requested.
- *
+ * 
  * @return The requested string.
  */
 //------------------------------------------------------------------------------
-std::string SpacePoint::GetStringParameter(const std::string &label,
+std::string SpacePoint::GetStringParameter(const std::string &label, 
                                            const Integer index) const
 {
    return GmatBase::GetStringParameter(label, index);
@@ -545,23 +659,23 @@ std::string SpacePoint::GetStringParameter(const std::string &label,
 
 
 //------------------------------------------------------------------------------
-// bool SetStringParameter(const std::string &label, const std::string &value,
+// bool SetStringParameter(const std::string &label, const std::string &value, 
 //                         const Integer index)
 //------------------------------------------------------------------------------
 /**
- * This method sets a value on a string parameter value in a vector of strings,
- * given the label associated with the input parameter and the index into the
- * vector.
+ * This method sets a value on a string parameter value in a vector of strings, 
+ * given the label associated with the input parameter and the index into the 
+ * vector. 
  *
  * @param label String identifier for the requested parameter.
  * @param value The new string.
  * @param index index for the particular string requested.
- *
+ * 
  * @return true if successful; otherwise, false.
  */
 //------------------------------------------------------------------------------
-bool SpacePoint::SetStringParameter(const std::string &label,
-                                    const std::string &value,
+bool SpacePoint::SetStringParameter(const std::string &label, 
+                                    const std::string &value, 
                                     const Integer index)
 {
    return GmatBase::SetStringParameter(label, value, index);
@@ -569,7 +683,7 @@ bool SpacePoint::SetStringParameter(const std::string &label,
 
 
 //------------------------------------------------------------------------------
-// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name,
+// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name, 
 //                        const Integer index)
 //------------------------------------------------------------------------------
 /**
@@ -584,7 +698,7 @@ bool SpacePoint::SetStringParameter(const std::string &label,
  */
 //------------------------------------------------------------------------------
 GmatBase* SpacePoint::GetRefObject(const Gmat::ObjectType type,
-                                   const std::string &name,
+                                   const std::string &name, 
                                    const Integer index)
 {
    return GmatBase::GetRefObject(type, name, index);
@@ -596,7 +710,7 @@ GmatBase* SpacePoint::GetRefObject(const Gmat::ObjectType type,
 //                   const std::string &name, const Integer index)
 //------------------------------------------------------------------------------
 /**
- * This method sets a pointer to a reference object in a vector of objects in
+ * This method sets a pointer to a reference object in a vector of objects in 
  * the SpacePoint class.
  *
  * @param obj The reference object.

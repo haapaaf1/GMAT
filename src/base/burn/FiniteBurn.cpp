@@ -20,12 +20,8 @@
 
 #include "FiniteBurn.hpp"
 #include "BurnException.hpp"
-#include "StringUtil.hpp"     // for ToString()
-
-// This will be removed in the future
-//#ifndef __USE_MANEUVER_FRAME__
-//#define __USE_MANEUVER_FRAME__
-//#endif
+#include "StringUtil.hpp"          // for ToString()
+#include "MessageInterface.hpp"
 
 //#define DEBUG_RENAME
 //#define DEBUG_BURN_ORIGIN
@@ -51,8 +47,8 @@ FiniteBurn::PARAMETER_TEXT[FiniteBurnParamCount - BurnParamCount] =
 const Gmat::ParameterType
 FiniteBurn::PARAMETER_TYPE[FiniteBurnParamCount - BurnParamCount] =
 {
-   Gmat::STRINGARRAY_TYPE,
-   Gmat::STRINGARRAY_TYPE,
+   Gmat::OBJECTARRAY_TYPE,
+   Gmat::OBJECTARRAY_TYPE,
    Gmat::REAL_TYPE,
 };
 
@@ -149,6 +145,10 @@ void FiniteBurn::SetSpacecraftToManeuver(Spacecraft *sat)
    MessageInterface::ShowMessage
       ("FiniteBurn::SetSpacecraftToManeuver() sat=<%p>'%s'\n", sat,
        sat->GetName().c_str());
+   Real *state = (sat->GetState()).GetState();
+   MessageInterface::ShowMessage
+      ("   state = [%.13f %.13f %.13f %.13f %.13f %.13f]\n", state[0],
+       state[1], state[2], state[3], state[4], state[5]);
    #endif
    
    if (sat == NULL)
@@ -196,8 +196,9 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
 {
    #ifdef DEBUG_FINITEBURN_FIRE
       MessageInterface::ShowMessage
-         ("FiniteBurn::Fire entered for <%p>%s, epoch=%f\n", this,
-          instanceName.c_str(), epoch);
+         ("FiniteBurn::Fire() this<%p>'%s' entered, epoch=%f, spacecraft=<%p>'%s'\n",
+          this, instanceName.c_str(), epoch, spacecraft,
+          spacecraft ? spacecraft->GetName().c_str() : "NULL");
    #endif
    
    if (initialized == false)
@@ -206,122 +207,8 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    if (!spacecraft)
       throw BurnException("Maneuver initial state undefined (No spacecraft?)");
    
-   //=================================================================
-   #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   Real *satState = spacecraft->GetState().GetState();
-   Real state[6];
-   
-   frame = frameman->GetFrameInstance(localAxesName);
-   if (frame == NULL)
-      throw BurnException("Maneuver frame undefined");
-   
-   // Transform from J2000 body state to burn origin state
-   TransformJ2kToBurnOrigin(satState, state, epoch);
-   
-   #ifdef DEBUG_BURN_ORIGIN
-   MessageInterface::ShowMessage
-      ("FiniteBurn Vectors:\n   "
-       "Sat   = [%lf %lf %lf %lf %lf %lf]\n   "
-       "state = [%lf %lf %lf %lf %lf %lf]\n   "
-       "Frame = [%lf %lf %lf\n   " 
-       "         %lf %lf %lf\n   "
-       "         %lf %lf %lf]\n\n",
-       satState[0], satState[1], satState[2], satState[3], satState[4], satState[5],
-       state[0], state[1], state[2], state[3], state[4], state[5],
-       frameBasis[0][0], frameBasis[0][1], frameBasis[0][2],
-       frameBasis[1][0], frameBasis[1][1], frameBasis[1][2],
-       frameBasis[2][0], frameBasis[2][1], frameBasis[2][2]);
-   #endif
-   
-   // Set the state 6-vector from the associated spacecraft
-   frame->SetState(state);
-   // Calculate the maneuver basis vectors
-   frame->CalculateBasis(frameBasis);
-   
    // Accumulate the individual accelerations from the thrusters
-   Real dm, tMass, tOverM, *dir, norm;
-   deltaV[0] = deltaV[1] = deltaV[2] = 0.0;
-   Thruster *current;
-   
-   tMass = spacecraft->GetRealParameter("TotalMass");
-   
-   #ifdef DEBUG_FINITE_BURN
-      MessageInterface::ShowMessage(
-         "   Maneuvering spacecraft %s\n",
-         spacecraft->GetName().c_str());
-      MessageInterface::ShowMessage(
-         "   Position for burn: %18le  %18le  %18le\n",
-         state[0], state[1], state[2]);
-      MessageInterface::ShowMessage(
-         "   Velocity for burn: %18le  %18le  %18le\n   Mass = %18le kg\n",
-         state[3], state[4], state[5], tMass);
-   #endif
-   
-   for (StringArray::iterator i = thrusterNames.begin(); 
-        i != thrusterNames.end(); ++i)
-   {
-      #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage("   Accessing thruster '%s'\n", 
-            (*i).c_str());
-      #endif
-      
-      current = (Thruster *)spacecraft->GetRefObject(Gmat::THRUSTER, *i);
-      if (!current)
-         throw BurnException("FiniteBurn::Fire requires thruster named \"" +
-            (*i) + "\" on spacecraft " + spacecraft->GetName());
-      
-      // FiniteBurn class is friend of Thruster class, so we can access
-      // member data directly
-      dir = current->direction;
-      norm = sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
-      
-      #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage
-         ("   Thruster Direction: %18le  %18le  %18le\n"
-          "                 norm: %18le\n", dir[0], dir[1], dir[2], norm);
-      #endif
-         
-      if (norm == 0.0)
-         throw BurnException("FiniteBurn::Fire thruster " + (*i) +
-                             " on spacecraft " + spacecraft->GetName() +
-                             " has no direction.");
-      
-      dm = current->CalculateMassFlow();
-      tOverM = current->thrust / (tMass * norm * 1000.0);
-      deltaV[0] += dir[0] * tOverM;
-      deltaV[1] += dir[1] * tOverM;
-      deltaV[2] += dir[2] * tOverM;
-      
-      #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage("   Thruster %s = %s details:\n", 
-            (*i).c_str(), current->GetName().c_str());
-         MessageInterface::ShowMessage(
-            "      dM    = %16.13le\n      Mass  = %16.13lf\n"
-            "      TSF   = %16.13lf\n      |Acc| = %16.13le\n      "
-            "Acc   = [%16.13le   %16.13le   %16.13le]\n", dm, tMass, 
-            current->thrustScaleFactor, tOverM,
-            deltaV[0], deltaV[1], deltaV[2]);
-      #endif
-   }
-   
-   // Build the acceleration
-   burnData[0] = deltaV[0]*frameBasis[0][0] +
-                 deltaV[1]*frameBasis[0][1] +
-                 deltaV[2]*frameBasis[0][2];
-   burnData[1] = deltaV[0]*frameBasis[1][0] +
-                 deltaV[1]*frameBasis[1][1] +
-                 deltaV[2]*frameBasis[1][2];
-   burnData[2] = deltaV[0]*frameBasis[2][0] +
-                 deltaV[1]*frameBasis[2][1] +
-                 deltaV[2]*frameBasis[2][2];
-   
-   //=================================================================
-   #else // #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
-   
-   // Accumulate the individual accelerations from the thrusters
-   Real dm, tMass, tOverM, *dir, norm;
+   Real dm = 0.0, tMass, tOverM, *dir, norm;
    deltaV[0] = deltaV[1] = deltaV[2] = 0.0;
    Thruster *current;
    
@@ -331,10 +218,10 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    Real *satState = spacecraft->GetState().GetState();
    MessageInterface::ShowMessage
       ("FiniteBurn Vectors:\n   "
-       "Sat   = [%lf %lf %lf %lf %lf %lf]\n   "
-       "Frame = [%lf %lf %lf\n   " 
-       "         %lf %lf %lf\n   "
-       "         %lf %lf %lf]\n\n",
+       "Sat   = [%.15f %.15f %.15f %.15f %.15f %.15f]\n   "
+       "Frame = [%.15f %.15f %.15f\n   " 
+       "         %.15f %.15f %.15f\n   "
+       "         %.15f %.15f %.15f]\n\n",
        satState[0], satState[1], satState[2], satState[3], satState[4], satState[5], 
        frameBasis[0][0], frameBasis[0][1], frameBasis[0][2],
        frameBasis[1][0], frameBasis[1][1], frameBasis[1][2],
@@ -345,14 +232,18 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
         i != thrusterNames.end(); ++i)
    {
       #ifdef DEBUG_FINITE_BURN
-         MessageInterface::ShowMessage("   Accessing thruster '%s'\n", 
-            (*i).c_str());
+         MessageInterface::ShowMessage
+            ("   Accessing thruster '%s' from spacecraft <%p>'%s'\n", (*i).c_str(),
+             spacecraft, spacecraft->GetName().c_str());
       #endif
       
       current = (Thruster *)spacecraft->GetRefObject(Gmat::THRUSTER, *i);
       if (!current)
          throw BurnException("FiniteBurn::Fire requires thruster named \"" +
             (*i) + "\" on spacecraft " + spacecraft->GetName());
+      
+      // Save current thruster so that GetRefObject() can return it (LOJ: 2009.08.28)
+      thrusterMap[current->GetName()] = current;
       
       // FiniteBurn class is friend of Thruster class, so we can access
       // member data directly
@@ -362,8 +253,8 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
       
       #ifdef DEBUG_FINITE_BURN
          MessageInterface::ShowMessage
-         ("   Thruster Direction: %18le  %18le  %18le\n"
-          "                 norm: %18le\n", dir[0], dir[1], dir[2], norm);
+         ("   Thruster Direction: %.15f  %.15f  %.15f\n"
+          "                 norm: %.15f\n", dir[0], dir[1], dir[2], norm);
       #endif
          
       if (norm == 0.0)
@@ -371,8 +262,11 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
                              " on spacecraft " + spacecraft->GetName() +
                              " has no direction.");
       
-      dm = current->CalculateMassFlow();
-      tOverM = current->thrust / (tMass * norm * 1000.0);
+      dm += current->CalculateMassFlow();
+      //tOverM = current->thrust / (tMass * norm * 1000.0); //old code
+      tOverM = current->thrust * current->thrustScaleFactor *
+               current->dutyCycle / (tMass * norm * 1000.0);
+      
       deltaV[0] += dir[0] * tOverM;
       deltaV[1] += dir[1] * tOverM;
       deltaV[2] += dir[2] * tOverM;
@@ -381,10 +275,11 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
          MessageInterface::ShowMessage("   Thruster %s = %s details:\n", 
             (*i).c_str(), current->GetName().c_str());
          MessageInterface::ShowMessage(
-            "      dM    = %16.13le\n      Mass  = %16.13lf\n"
-            "      TSF   = %16.13lf\n      |Acc| = %16.13le\n      "
-            "Acc   = [%16.13le   %16.13le   %16.13le]\n", dm, tMass, 
-            current->thrustScaleFactor, tOverM,
+            "   thrust   = %.15f\n"
+            "       dM   = %.15e\n      Mass  = %.15f\n"
+            "      TSF   = %.15f\n      |Acc| = %.15e\n      "
+            "Acc   = [%.15e   %.15e   %.15e]\n", current->thrust,
+            dm, tMass, current->thrustScaleFactor, tOverM,
             deltaV[0], deltaV[1], deltaV[2]);
       #endif
    }
@@ -399,15 +294,13 @@ bool FiniteBurn::Fire(Real *burnData, Real epoch)
    burnData[2] = deltaV[0]*frameBasis[2][0] +
                  deltaV[1]*frameBasis[2][1] +
                  deltaV[2]*frameBasis[2][2];
-   
-   //=================================================================
-   #endif // #ifdef __USE_MANEUVER_FRAME__
-   //=================================================================
+   burnData[3] = dm;
    
    #ifdef DEBUG_FINITEBURN_FIRE
       MessageInterface::ShowMessage(
-         "   Acceleration from burn:  %18le  %18le  %18le\n   dm/dt: %18le\n",
-         burnData[0], burnData[1], burnData[2], burnData[3]);
+          "FiniteBurn::Fire() this<%p>'%s' returning\n"
+          "   Acceleration:  %.15e  %.15e  %.15e  dm: %.15e\n", this,
+          GetName().c_str(), burnData[0], burnData[1], burnData[2], dm);
    #endif
 
    return true;
@@ -779,6 +672,51 @@ const StringArray& FiniteBurn::GetRefObjectNameArray(const Gmat::ObjectType type
 }
 
 
+//---------------------------------------------------------------------------
+// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+GmatBase* FiniteBurn::GetRefObject(const Gmat::ObjectType type,
+                                   const std::string &name)
+{
+   if (type == Gmat::THRUSTER)
+   {
+      if (thrusterMap.find(name) != thrusterMap.end())
+         return thrusterMap[name];
+      else
+         return NULL;
+   }
+   
+   return Burn::GetRefObject(type, name);
+}
+
+
+//---------------------------------------------------------------------------
+// bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//                   const std::string &name)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool FiniteBurn::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                              const std::string &name)
+{
+   if (type == Gmat::THRUSTER)
+   {
+      if (thrusterMap.find(name) != thrusterMap.end())
+         thrusterMap[name] = obj;
+      
+      return true;
+   }
+   
+   return Burn::SetRefObject(obj, type, name);
+}
+
+
 //------------------------------------------------------------------------------
 //  GmatBase* Clone() const
 //------------------------------------------------------------------------------
@@ -841,6 +779,31 @@ bool FiniteBurn::RenameRefObject(const Gmat::ObjectType type,
    }
    
    return Burn::RenameRefObject(type, oldName, newName);
+}
+
+
+bool FiniteBurn::DepletesMass()
+{
+   bool retval = false;
+
+   ObjectArray thrusterArray = spacecraft->GetRefObjectArray(Gmat::THRUSTER);
+
+   // Check each the thruster
+   for (ObjectArray::iterator th = thrusterArray.begin();
+        th != thrusterArray.end(); ++th)
+   {
+      if ((*th)->GetBooleanParameter("DecrementMass"))
+      {
+         retval = true;
+         #ifdef DEBUG_MASS_FLOW
+            MessageInterface::ShowMessage("Thruster %s decrements mass\n",
+                  (*th)->GetName().c_str());
+         #endif
+         // Save the mass depleting thruster pointer(s) for later access?
+      }
+   }
+
+   return retval;
 }
 
 

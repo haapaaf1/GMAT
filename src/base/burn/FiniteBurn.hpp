@@ -64,6 +64,11 @@ public:
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    
+   virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
+                                     const std::string &name);
+   virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name = "");
+   
    virtual bool         Initialize();
    
    virtual GmatBase*    Clone() const;
@@ -73,6 +78,8 @@ public:
                                         const std::string &oldName,
                                         const std::string &newName);
    
+   virtual bool         DepletesMass();
+
 protected:
 
    /// List of thrusters used in the maneuver

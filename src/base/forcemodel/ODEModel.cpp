@@ -71,6 +71,7 @@
 //#define DEBUG_BUILDING_MODELS
 //#define DEBUG_STATE
 //#define DEBUG_REORIGIN
+//#define DEBUG_ERROR_ESTIMATE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -157,6 +158,10 @@ ODEModel::ODEModel(const std::string &modelName, const std::string typeName) :
    centralBodyName   ("Earth"),
    forceMembersNotInitialized (true),
    satCount          (0),
+   cartObjCount      (0),
+   cartStateStart    (-1),
+   cartStateSize     (0),
+   dynamicProperties (false),
    j2kBodyName       ("Earth"),
    j2kBody           (NULL),
    earthEq           (NULL),
@@ -197,27 +202,8 @@ ODEModel::~ODEModel()
 //   if (previousState)
 //      delete [] previousState;
    
-   // Delete the owned forces
-   std::vector<PhysicalModel *>::iterator ppm = forceList.begin();
-   PhysicalModel *pm;
-   while (ppm != forceList.end())
-   {
-      pm = *ppm;
-      forceList.erase(ppm);
-      // Transient forces are managed in the Sandbox.
-      if (!pm->IsTransient())
-      {
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (pm, pm->GetName(), "ODEModel::~ODEModel()",
-             "deleting non-transient \"" + pm->GetTypeName() +
-             "\" PhysicalModel");
-         #endif
-         delete pm;
-      }
-      ppm = forceList.begin();
-   }
-   
+   // Delete the owned objects
+   ClearForceList();
    ClearInternalCoordinateSystems();
 
    #ifdef DEBUG_FORCE_EPOCHS
@@ -226,7 +212,8 @@ ODEModel::~ODEModel()
    #endif
       
    #ifdef DEBUG_ODEMODEL
-   MessageInterface::ShowMessage("ODEModel destructor exiting\n");
+   MessageInterface::ShowMessage("ODEModel destructor exiting, has %d forces\n",
+                                 forceList.size());
    #endif
 }
 
@@ -254,6 +241,10 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    centralBodyName            (fdf.centralBodyName),
    forceMembersNotInitialized (true),
    satCount                   (0),
+   cartObjCount               (0),
+   cartStateStart             (-1),
+   cartStateSize              (0),
+   dynamicProperties          (false),
    j2kBodyName                (fdf.j2kBodyName),
    /// @note: Since the next three are global objects or reset by the Sandbox, 
    ///assignment works
@@ -281,7 +272,7 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    
 //   spacecraft.clear();
    forceList.clear();
-   InternalCoordinateSystems.clear();
+   internalCoordinateSystems.clear();
    
    // Copy the forces.  May not work -- the copy constructors need to be checked
    for (std::vector<PhysicalModel *>::const_iterator pm = fdf.forceList.begin();
@@ -297,8 +288,8 @@ ODEModel::ODEModel(const ODEModel& fdf) :
       forceList.push_back(newPm);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (newPm, newPm->GetName(), "ODEModel::ODEModel()",
-          "*newPm = (*pm)->Clone()");
+         (newPm, newPm->GetName(), "ODEModel::ODEModel(copy)",
+          "*newPm = (*pm)->Clone()", this);
       #endif
    }
 }
@@ -327,6 +318,10 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    state = NULL;
    psm   = NULL;
    satCount = 0;
+   cartObjCount      = 0;
+   cartStateStart    = -1;
+   cartStateSize     =  0;
+   dynamicProperties = false;
 
    numForces           = fdf.numForces;
    stateSize           = fdf.stateSize;
@@ -352,10 +347,13 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    earthEq             = fdf.earthEq;
    earthFixed          = fdf.earthFixed; 
    forceMembersNotInitialized = fdf.forceMembersNotInitialized;
+
+   // Clear owned objects before clone
+   ClearForceList();
+   ClearInternalCoordinateSystems();
    
 //   spacecraft.clear();
    forceList.clear();
-   InternalCoordinateSystems.clear();
    
    // Copy the forces.  May not work -- the copy constructors need to be checked
    for (std::vector<PhysicalModel *>::const_iterator pm = fdf.forceList.begin();
@@ -366,7 +364,7 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (newPm, newPm->GetName(), "ODEModel::operator=",
-          "*newPm = (*pm)->Clone()");
+          "*newPm = (*pm)->Clone()", this);
       #endif
    }
    
@@ -407,13 +405,14 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 
    #ifdef DEBUG_ODEMODEL_INIT
       MessageInterface::ShowMessage(
-         "ODEModel::AddForce() entered for a <%p> '%s' force\n", pPhysicalModel,
-         pPhysicalModel->GetTypeName().c_str());
+         "ODEModel::AddForce() <%p>'%s' entered, adding force = <%p><%s>'%s'\n", this,
+         GetName().c_str(), pPhysicalModel, pPhysicalModel->GetTypeName().c_str(),
+         pPhysicalModel->GetName().c_str());
    #endif       
-    
+   
    pPhysicalModel->SetDimension(dimension);
    initialized = false;
-    
+   
    // Handle the name issues
    std::string pmType = pPhysicalModel->GetTypeName();
    if (pmType == "DragForce")
@@ -462,8 +461,13 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
             "support additional forces.");
    }
    
-   forceList.push_back(pPhysicalModel);
+   // Add if new PhysicalModel pointer if not found in the forceList
+   if (find(forceList.begin(), forceList.end(), pPhysicalModel) == forceList.end())
+      forceList.push_back(pPhysicalModel);
    numForces = forceList.size();
+   
+   // Update owned object count
+   ownedObjectCount = numForces;
 }
 
 //------------------------------------------------------------------------------
@@ -477,6 +481,11 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
 //------------------------------------------------------------------------------
 void ODEModel::DeleteForce(const std::string &name)
 {
+   #ifdef DEBUG_ODEMODEL
+   MessageInterface::ShowMessage
+      ("ODEModel::DeleteForce() entered, name='%s'\n", name.c_str());
+   #endif
+   
    for (std::vector<PhysicalModel *>::iterator force = forceList.begin(); 
         force != forceList.end(); ++force) 
    {
@@ -493,11 +502,12 @@ void ODEModel::DeleteForce(const std::string &name)
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
                (pm, pm->GetName(), "ODEModel::DeleteForce()",
-                "deleting non-transient force of " + pm->GetTypeName());
+                "deleting non-transient force of " + pm->GetTypeName(), this);
             #endif
             delete pm;
          }
-         
+
+         ownedObjectCount = numForces;
          return;
       }
    }
@@ -530,11 +540,12 @@ void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
                (pm, pm->GetName(), "ODEModel::DeleteForce()",
-                "deleting non-transient force of " + pm->GetTypeName());
+                "deleting non-transient force of " + pm->GetTypeName(), this);
             #endif
             delete pm;
          }
-         
+
+         ownedObjectCount = numForces;
          return;
       }
    }
@@ -721,24 +732,24 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
             "ODEModel::UpdateSpaceObject(%.12lf) called\n", newEpoch);
    #endif
 
-      Integer stateSize;
-      Integer vectorSize;
-      GmatState *state;
-      ReturnFromOrigin(newEpoch);
-      
+   Integer stateSize;
+   Integer vectorSize;
+   GmatState *state;
+   ReturnFromOrigin(newEpoch);
+   
    state = psm->GetState();
-         stateSize = state->GetSize();
-         vectorSize = stateSize * sizeof(Real);
-            
+   stateSize = state->GetSize();
+   vectorSize = stateSize * sizeof(Real);
+   
    previousState = (*state);
    memcpy(state->GetState(), rawState, vectorSize);
-            
+   
    Real newepoch = epoch + elapsedTime / 86400.0;      
-
+   
    // Update the epoch if it was passed in
    if (newEpoch != -1.0)
       newepoch = newEpoch;
-
+   
    state->SetEpoch(newepoch);
    psm->MapVectorToObjects();
    
@@ -852,7 +863,8 @@ bool ODEModel::BuildModelFromMap()
 
    if (psm == NULL)
    {
-      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot build the model: PropStateManager is NULL\n");
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot "
+            "build the model: PropStateManager is NULL\n");
       return retval;
    }
 
@@ -860,7 +872,8 @@ bool ODEModel::BuildModelFromMap()
 
    if (map == NULL)
    {
-      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot build the model: the map is NULL\n");
+      MessageInterface::ShowMessage("ODEModel::BuildModelFromMap():  Cannot "
+            "build the model: the map is NULL\n");
       return retval;
    }
 
@@ -868,12 +881,29 @@ bool ODEModel::BuildModelFromMap()
    Gmat::StateElementId id = Gmat::UNKNOWN_STATE;
    GmatBase *currentObject = NULL;
 
+   dynamicProperties = false;
+   dynamicsIndex.clear();
+   dynamicObjects.clear();
+   dynamicIDs.clear();
+
    // Loop through the state map, counting objects for each type needed
-   for (Integer index = 0; index < (Integer)map->size(); ++index)
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("ODEModel map has %d entries\n",
+            map->size());
+   #endif
+   for (UnsignedInt index = 0; index < map->size(); ++index)
    {
+      if ((*map)[index]->dynamicObjectProperty)
+      {
+         dynamicProperties = true;
+
+         dynamicsIndex.push_back(index);
+         dynamicObjects.push_back((*map)[index]->object);
+         dynamicIDs.push_back((*map)[index]->parameterID);
+      }
 
       // When the elementID changes, act on the previous data processed
-      if (id != (*map)[index]->elementID)
+      if (id != (Gmat::StateElementId)((*map)[index]->elementID))
       {
          // Only build elements if an object needs them
          if (objectCount > 0)
@@ -890,7 +920,7 @@ bool ODEModel::BuildModelFromMap()
             }
          }
          // A new element type was encountered, so reset the pointers & counters
-         id = (*map)[index]->elementID;
+         id = (Gmat::StateElementId)((*map)[index]->elementID);
          objectCount = 0;
          start = index;
          currentObject = NULL;
@@ -1020,6 +1050,15 @@ bool ODEModel::BuildModelElement(Gmat::StateElementId id, Integer start,
    // newStruct.size = ??;
    sstruct.push_back(newStruct);
 
+   // Cartesian state as a special case so error control can do RSS tests
+   /// @todo Check this piece again for 6DoF
+   if (id == Gmat::CARTESIAN_STATE)
+   {
+      cartObjCount   = objectCount;
+      cartStateStart = start;
+      cartStateSize  = objectCount * 6;
+   }
+
    #ifdef DEBUG_BUILDING_MODELS
       MessageInterface::ShowMessage(
             "ODEModel is using %d components for element %d\n", modelsUsed, id);
@@ -1087,6 +1126,12 @@ bool ODEModel::Initialize()
       
    // rawState deallocated in PhysicalModel::Initialize() method so reallocate
    rawState = new Real[dimension];
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (rawState, "rawState", "ODEModel::Initialize()",
+       "rawState = new Real[dimension]", this);
+   #endif
+   
    memcpy(rawState, state->GetState(), dimension * sizeof(Real));
 
    MoveToOrigin();
@@ -1171,6 +1216,45 @@ bool ODEModel::Initialize()
 
 
 //------------------------------------------------------------------------------
+// void ClearForceList()
+//------------------------------------------------------------------------------
+void ODEModel::ClearForceList(bool deleteTransient)
+{
+   #ifdef DEBUG_ODEMODEL_CLEAR
+   MessageInterface::ShowMessage
+      ("ODEModel::ClearForceList() entered, there are %d forces\n", forceList.size());
+   #endif
+   
+   // Delete the owned forces
+   std::vector<PhysicalModel *>::iterator ppm = forceList.begin();
+   PhysicalModel *pm;
+   while (ppm != forceList.end())
+   {
+      pm = *ppm;
+      forceList.erase(ppm);
+      
+      #ifdef DEBUG_ODEMODEL_CLEAR
+      MessageInterface::ShowMessage("   Checking if pm<%p> is transient\n", pm);
+      #endif
+      
+      // Transient forces are managed in the Sandbox.
+      if (!pm->IsTransient() || deleteTransient && pm->IsTransient())
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (pm, pm->GetName(), "ODEModel::~ODEModel()",
+             "deleting non-transient \"" + pm->GetTypeName() +
+             "\" PhysicalModel", this);
+         #endif
+         delete pm;
+      }
+      ppm = forceList.begin();
+   }
+   
+}
+
+
+//------------------------------------------------------------------------------
 // void ClearInternalCoordinateSystems()
 //------------------------------------------------------------------------------
 /**
@@ -1180,17 +1264,17 @@ bool ODEModel::Initialize()
 void ODEModel::ClearInternalCoordinateSystems()
 {
    for (std::vector<CoordinateSystem*>::iterator i = 
-           InternalCoordinateSystems.begin();
-        i != InternalCoordinateSystems.end(); ++i)
+           internalCoordinateSystems.begin();
+        i != internalCoordinateSystems.end(); ++i)
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          ((*i), (*i)->GetName(), "ODEModel::ClearInternalCoordinateSystems()",
-          "deleting ICS");
+          "deleting ICS", this);
       #endif
       delete (*i);
    }
-   InternalCoordinateSystems.clear();
+   internalCoordinateSystems.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -1205,7 +1289,7 @@ void ODEModel::ClearInternalCoordinateSystems()
  */
 //------------------------------------------------------------------------------
 void ODEModel::SetInternalCoordinateSystem(const std::string csId,
-                                             PhysicalModel *currentPm)
+                                           PhysicalModel *currentPm)
 {
    std::string csName;
    CoordinateSystem *cs = NULL;
@@ -1230,8 +1314,8 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
       #endif
       
       for (std::vector<CoordinateSystem*>::iterator i =
-              InternalCoordinateSystems.begin();
-           i != InternalCoordinateSystems.end(); ++i)
+              internalCoordinateSystems.begin();
+           i != internalCoordinateSystems.end(); ++i)
          if ((*i)->GetName() == csName)
             cs = *i;
       
@@ -1251,18 +1335,18 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
          {
             cs = (CoordinateSystem *)earthEq->Clone();
             #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
+            MemoryTracker::Instance()->Add
                (cs, csName, "ODEModel::SetInternalCoordinateSystem()",
-                "cs = earthEq->Clone()");
+                "cs = earthEq->Clone()", this);
             #endif
          }
          else
          {
             cs = (CoordinateSystem *)earthFixed->Clone();
             #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
+            MemoryTracker::Instance()->Add
                (cs, csName, "ODEModel::SetInternalCoordinateSystem()",
-                "cs = earthFixed->Clone()");
+                "cs = earthFixed->Clone()", this);
             #endif
          }
          
@@ -1270,7 +1354,7 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
          cs->SetStringParameter("Origin", centralBodyName);
          cs->SetRefObject(forceOrigin, Gmat::CELESTIAL_BODY, 
             centralBodyName);
-         InternalCoordinateSystems.push_back(cs);
+         internalCoordinateSystems.push_back(cs);
 
          #ifdef DEBUG_ODEMODEL_INIT
             MessageInterface::ShowMessage("Created %s with description\n\n%s\n", 
@@ -1301,6 +1385,11 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
 //------------------------------------------------------------------------------
 Integer ODEModel::GetOwnedObjectCount()
 {
+   #ifdef DEBUG_ODEMODEL_OWNED_OBJECT
+   MessageInterface::ShowMessage
+      ("ODEModel::GetOwnedObjectCount() this=<%p>'%s' returning %d\n",
+       this, GetName().c_str(), numForces);
+   #endif
    return numForces;
 }
 
@@ -1349,7 +1438,7 @@ std::string ODEModel::BuildPropertyName(GmatBase *ownedObj)
  * Updates model and all contained models to catch changes in Spacecraft, etc.
  */
 //------------------------------------------------------------------------------
-void ODEModel::UpdateInitialData()
+void ODEModel::UpdateInitialData(bool dynamicOnly)
 {
    PhysicalModel *current; // = forceList[cf];  // waw: added 06/04/04
 
@@ -1360,18 +1449,24 @@ void ODEModel::UpdateInitialData()
    for (std::vector<PhysicalModel*>::iterator i = forceList.begin();
         i != forceList.end(); ++i)
    {
-      current = (*i);
-      if (!parametersSetOnce)
-      {
-         current->ClearSatelliteParameters();
-      }
       stateObjects.clear();
       psm->GetStateObjects(stateObjects, Gmat::SPACEOBJECT);
       
-      SetupSpacecraftData(&stateObjects, 0);
+      if (dynamicOnly)
+         UpdateDynamicSpacecraftData(&stateObjects, 0);
+      else
+      {
+         current = (*i);
+         if (!parametersSetOnce)
+         {
+            current->ClearSatelliteParameters();
+         }
+
+         SetupSpacecraftData(&stateObjects, 0);
+      }
    }
-   
-   psm->MapObjectsToVector();
+   if (!dynamicOnly)
+      psm->MapObjectsToVector();
 
    parametersSetOnce = true;
 }
@@ -1400,12 +1495,12 @@ void ODEModel::UpdateTransientForces()
      MessageInterface::ShowMessage("ODEModel::UpdateTransientForces entered\n");
    #endif
    if (psm == NULL)
-      {
+   {
 //      MessageInterface::ShowMessage("PSM is NULL\n");
 //      throw ODEModelException(
 //            "Cannot initialize ODEModel; no PropagationStateManager");
       return;
-      }
+   }
    
    const std::vector<ListItem*> *propList = psm->GetStateMap();
          
@@ -1419,19 +1514,32 @@ void ODEModel::UpdateTransientForces()
       if (obj != NULL)
       {
          if (obj->IsOfType(Gmat::SPACECRAFT))
-      {
+         {
             if (find(propObjects.begin(), propObjects.end(), obj) == 
                       propObjects.end())
+            {
+               #ifdef DEBUG_INITIALIZATION
+               MessageInterface::ShowMessage
+                  ("ODEModel::UpdateTransientForces() Adding <%p>'%s' to propObjects\n",
+                   obj, obj->GetName().c_str());
+               #endif
                propObjects.push_back(obj);
+            }
+         }
       }
    }
-}
-
+   
    for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
         tf != forceList.end(); ++tf) 
-{
+   {
       if ((*tf)->IsTransient())
-          (*tf)->SetPropList(&propObjects);
+      {
+         #ifdef DEBUG_INITIALIZATION
+            MessageInterface::ShowMessage("Updating transient force %s\n",
+               (*tf)->GetName().c_str());
+         #endif
+         (*tf)->SetPropList(&propObjects);
+      }
    }
 }
 
@@ -1462,158 +1570,241 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
    {
       sat = *j;
    
-   // Only retrieve the parameter IDs once
-   if ((satIds[1] < 0) && sat->IsOfType("Spacecraft"))
-   {
-      satIds[0] = sat->GetParameterID("A1Epoch");
-      if (satIds[0] < 0)
-         throw ODEModelException("Epoch parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[1] = sat->GetParameterID("CoordinateSystem");
-      if (satIds[1] < 0)
-         throw ODEModelException(
-            "CoordinateSystem parameter undefined on object " + sat->GetName());
-      
-      // Should this be total mass?
-      satIds[2] = sat->GetParameterID("DryMass");
-      if (satIds[2] < 0)
-         throw ODEModelException("DryMass parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[3] = sat->GetParameterID("Cd");
-      if (satIds[3] < 0)
-         throw ODEModelException("Cd parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[4] = sat->GetParameterID("DragArea");
-      if (satIds[4] < 0)
-         throw ODEModelException("Drag Area parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[5] = sat->GetParameterID("SRPArea");
-      if (satIds[5] < 0)
-         throw ODEModelException("SRP Area parameter undefined on object " +
-                                   sat->GetName());
-
-      satIds[6] = sat->GetParameterID("Cr");
-      if (satIds[6] < 0)
-         throw ODEModelException("Cr parameter undefined on object " +
-                                   sat->GetName());
-                                   
-      #ifdef DEBUG_SATELLITE_PARAMETERS
+      // Only retrieve the parameter IDs once
+      if ((satIds[1] < 0) && sat->IsOfType("Spacecraft"))
+      {
+         satIds[0] = sat->GetParameterID("A1Epoch");
+         if (satIds[0] < 0)
+            throw ODEModelException("Epoch parameter undefined on object " +
+                                    sat->GetName());
+         
+         satIds[1] = sat->GetParameterID("CoordinateSystem");
+         if (satIds[1] < 0)
+            throw ODEModelException(
+               "CoordinateSystem parameter undefined on object " + sat->GetName());
+         
+         satIds[2] = sat->GetParameterID("TotalMass");
+         if (satIds[2] < 0)
+            throw ODEModelException("TotalMass parameter undefined on object " +
+                                    sat->GetName());
+         
+         satIds[3] = sat->GetParameterID("Cd");
+         if (satIds[3] < 0)
+            throw ODEModelException("Cd parameter undefined on object " +
+                                    sat->GetName());
+         
+         satIds[4] = sat->GetParameterID("DragArea");
+         if (satIds[4] < 0)
+            throw ODEModelException("Drag Area parameter undefined on object " +
+                                    sat->GetName());
+         
+         satIds[5] = sat->GetParameterID("SRPArea");
+         if (satIds[5] < 0)
+            throw ODEModelException("SRP Area parameter undefined on object " +
+                                    sat->GetName());
+         
+         satIds[6] = sat->GetParameterID("Cr");
+         if (satIds[6] < 0)
+            throw ODEModelException("Cr parameter undefined on object " +
+                                    sat->GetName());
+         
+         #ifdef DEBUG_SATELLITE_PARAMETERS
          MessageInterface::ShowMessage(
             "Parameter ID Array: [%d %d %d %d %d %d %d]; PMepoch id  = %d\n",
             satIds[0], satIds[1], satIds[2], satIds[3], satIds[4], satIds[5], 
                satIds[6], PhysicalModel::EPOCH);
-      #endif
+         #endif
+      }
+      
+      PhysicalModel *pm;
+      for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
+           current != forceList.end(); ++current)
+      {
+         pm = *current;
+         
+         if (sat->GetType() == Gmat::SPACECRAFT)
+         { 
+            #ifdef DEBUG_SATELLITE_PARAMETERS
+               MessageInterface::ShowMessage(
+                   "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
+                   "parametersSetOnce = %s\n",
+                   GetName().c_str(), pm->GetTypeName().c_str(), 
+                   sat->GetName().c_str(), 
+                   (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"), 
+                   (parametersSetOnce ? "true" : "false"));
+            #endif
+               
+            // Manage the epoch ...
+            parm = sat->GetRealParameter(satIds[0]);
+            // Update local value for epoch
+            epoch = parm;
+            pm->SetRealParameter(PhysicalModel::EPOCH, parm);
+            
+            if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
+            {
+               #ifdef DEBUG_SATELLITE_PARAMETERS
+                  MessageInterface::ShowMessage(
+                     "Setting parameters for %s using data from %s\n",
+                     pm->GetTypeName().c_str(), sat->GetName().c_str());
+               #endif
+               
+               // ... Coordinate System ...
+               stringParm = sat->GetStringParameter(satIds[1]);
+               
+               CoordinateSystem *cs =
+                  (CoordinateSystem*)(sat->GetRefObject(Gmat::COORDINATE_SYSTEM, 
+                      stringParm));
+               if (!cs)
+               {
+                  char sataddr[20];
+                  std::sprintf(sataddr, "%lx", (unsigned long)sat);
+                  throw ODEModelException(
+                     "CoordinateSystem is NULL on Spacecraft " + sat->GetName() +
+                     " at address " + sataddr);
+               }
+               pm->SetSatelliteParameter(i, "ReferenceBody", cs->GetOriginName());
+               
+               // ... Mass ...
+               parm = sat->GetRealParameter(satIds[2]);
+               if (parm <= 0)
+                  throw ODEModelException("Mass parameter unphysical on object " + 
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, "Mass", parm, satIds[2]);
+               
+               // ... Coefficient of drag ...
+               parm = sat->GetRealParameter(satIds[3]);
+               if (parm < 0)
+                  throw ODEModelException("Cd parameter unphysical on object " + 
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, "Cd", parm, satIds[3]);
+               
+               // ... Drag area ...
+               parm = sat->GetRealParameter(satIds[4]);
+               if (parm < 0)
+                  throw ODEModelException("Drag Area parameter unphysical on object " + 
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, "DragArea", parm, satIds[4]);
+               
+               // ... SRP area ...
+               parm = sat->GetRealParameter(satIds[5]);
+               if (parm < 0)
+                  throw ODEModelException("SRP Area parameter unphysical on object " + 
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, "SRPArea", parm, satIds[5]);
+               
+               // ... and Coefficient of reflectivity
+               parm = sat->GetRealParameter(satIds[6]);
+               if (parm < 0)
+                  throw ODEModelException("Cr parameter unphysical on object " + 
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, "Cr", parm, satIds[6]);
+               
+               ((SpaceObject*)sat)->ParametersHaveChanged(false);
+            }
+         }
+         else if (sat->GetType() == Gmat::FORMATION) 
+         {
+            ObjectArray formSats;
+            ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
+            for (ObjectArray::iterator n = elements.begin(); n != elements.end();
+                 ++n) 
+            {
+               if ((*n)->IsOfType(Gmat::SPACEOBJECT))
+                  formSats.push_back((SpaceObject *)(*n));
+               else
+                  throw ODEModelException("Object \"" + sat->GetName() +
+                                          "\" is not a SpaceObject.");
+            }
+            SetupSpacecraftData(&formSats, i);
+         }
+         else
+            throw ODEModelException("Setting SpaceObject parameters on unknown "
+                  "type for " + sat->GetName());
+      }
+      ++i;
    }
    
+   return i;
+}
+
+
+
+
+
+Integer ODEModel::UpdateDynamicSpacecraftData(ObjectArray *sats, Integer i)
+{
+   Real parm;
+   std::string stringParm;
+
+   GmatBase* sat;
+
+   for (ObjectArray::iterator j = sats->begin();
+        j != sats->end(); ++j)
+   {
+      sat = *j;
+
+      if (satIds[1] < 0)
+         throw ODEModelException("Epoch parameter undefined on object " +
+                                    sat->GetName());
+
       PhysicalModel *pm;
       for (std::vector<PhysicalModel *>::iterator current = forceList.begin();
            current != forceList.end(); ++current)
       {
          pm = *current;
 
-   if (sat->GetType() == Gmat::SPACECRAFT)
-   { 
-      #ifdef DEBUG_SATELLITE_PARAMETERS
-         MessageInterface::ShowMessage(
-            "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
-            "parametersSetOnce = %s\n",
-            GetName().c_str(), pm->GetTypeName().c_str(), 
-            sat->GetName().c_str(), 
-            (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"), 
-            (parametersSetOnce ? "true" : "false"));
-      #endif
-
-      // Manage the epoch ...
-      parm = sat->GetRealParameter(satIds[0]);
-      // Update local value for epoch
-      epoch = parm;
-            pm->SetRealParameter(PhysicalModel::EPOCH, parm);
-
-      if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
-      {
-         #ifdef DEBUG_SATELLITE_PARAMETERS
-                  MessageInterface::ShowMessage(
-                        "Setting parameters for %s using data from %s\n",
-                        pm->GetTypeName().c_str(), sat->GetName().c_str());
-         #endif
-         
-         // ... Coordinate System ...
-         stringParm = sat->GetStringParameter(satIds[1]);
-         
-         CoordinateSystem *cs =
-            (CoordinateSystem*)(sat->GetRefObject(Gmat::COORDINATE_SYSTEM, 
-                                stringParm));
-         if (!cs)
+         if (sat->GetType() == Gmat::SPACECRAFT)
          {
-            char sataddr[20];
-            std::sprintf(sataddr, "%lx", (unsigned long)sat);
-            throw ODEModelException(
-               "CoordinateSystem is NULL on Spacecraft " + sat->GetName() +
-               " at address " + sataddr);
+            #ifdef DEBUG_SATELLITE_PARAMETER_UPDATES
+               MessageInterface::ShowMessage(
+                   "ODEModel '%s', Member %s: %s->ParmsChanged = %s, "
+                   "parametersSetOnce = %s\n",
+                   GetName().c_str(), pm->GetTypeName().c_str(),
+                   sat->GetName().c_str(),
+                   (((SpaceObject*)sat)->ParametersHaveChanged() ? "true" : "false"),
+                   (parametersSetOnce ? "true" : "false"));
+            #endif
+
+               // ... Mass ...
+               parm = sat->GetRealParameter(satIds[2]);
+               if (parm <= 0)
+                  throw ODEModelException("Mass parameter unphysical on object " +
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, satIds[2], parm);
+
+               // ... Drag area ...
+               parm = sat->GetRealParameter(satIds[4]);
+               if (parm < 0)
+                  throw ODEModelException("Drag Area parameter unphysical on object " +
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, satIds[4], parm);
+
+               // ... SRP area ...
+               parm = sat->GetRealParameter(satIds[5]);
+               if (parm < 0)
+                  throw ODEModelException("SRP Area parameter unphysical on object " +
+                     sat->GetName());
+               pm->SetSatelliteParameter(i, satIds[5], parm);
          }
-         pm->SetSatelliteParameter(i, "ReferenceBody", cs->GetOriginName());
-         
-         // ... Mass ...
-         parm = sat->GetRealParameter(satIds[2]);
-         if (parm <= 0)
-            throw ODEModelException("Mass parameter unphysical on object " + 
-                                            sat->GetName());
-         pm->SetSatelliteParameter(i, "DryMass", parm);
-           
-         // ... Coefficient of drag ...
-         parm = sat->GetRealParameter(satIds[3]);
-         if (parm < 0)
-            throw ODEModelException("Cd parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "Cd", parm);
-         
-         // ... Drag area ...
-         parm = sat->GetRealParameter(satIds[4]);
-         if (parm < 0)
-            throw ODEModelException("Drag Area parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "DragArea", parm);
-         
-         // ... SRP area ...
-         parm = sat->GetRealParameter(satIds[5]);
-         if (parm < 0)
-            throw ODEModelException("SRP Area parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "SRPArea", parm);
-         
-         // ... and Coefficient of reflectivity
-         parm = sat->GetRealParameter(satIds[6]);
-         if (parm < 0)
-            throw ODEModelException("Cr parameter unphysical on object " + 
-                                      sat->GetName());
-         pm->SetSatelliteParameter(i, "Cr", parm);
-         
-         ((SpaceObject*)sat)->ParametersHaveChanged(false);
-      }
-   }
-   else if (sat->GetType() == Gmat::FORMATION) 
-   {
+         else if (sat->GetType() == Gmat::FORMATION)
+         {
             ObjectArray formSats;
-      ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
-      for (ObjectArray::iterator n = elements.begin(); n != elements.end();
-           ++n) 
-      {
+            ObjectArray elements = sat->GetRefObjectArray("SpaceObject");
+            for (ObjectArray::iterator n = elements.begin(); n != elements.end();
+                 ++n)
+            {
                if ((*n)->IsOfType(Gmat::SPACEOBJECT))
                   formSats.push_back((SpaceObject *)(*n));
                else
                   throw ODEModelException("Object \"" + sat->GetName() +
-                        "\" is not a SpaceObject.");
-      }
-            SetupSpacecraftData(&formSats, i);
-   }
-   else
-      throw ODEModelException(
-         "Setting SpaceObject parameters on unknown type for " + 
-         sat->GetName());
+                                          "\" is not a SpaceObject.");
+            }
+            UpdateDynamicSpacecraftData(&formSats, i);
+         }
+         else
+            throw ODEModelException(
+                                    "Setting SpaceObject parameters on unknown "
+                                    "type for " + sat->GetName());
       }
       ++i;
    }
@@ -1668,24 +1859,41 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    if (!initialized)
       return false;
 
+   if (dynamicProperties)
+   {
+      for (UnsignedInt i = 0; i < dynamicsIndex.size(); ++i)
+      {
+         #ifdef DEBUG_MASS_FLOW
+            MessageInterface::ShowMessage("Updating %s on %s to %.12le\n",
+                  dynamicObjects[i]->GetParameterText(dynamicIDs[i]).c_str(),
+                  dynamicObjects[i]->GetName().c_str(),
+                  state[dynamicsIndex[i]]);
+         #endif
+
+         dynamicObjects[i]->
+               SetRealParameter(dynamicIDs[i], state[dynamicsIndex[i]]);
+      }
+      UpdateInitialData(true);
+   }
+
    #ifdef DEBUG_ODEMODEL_EXE
       MessageInterface::ShowMessage("Initializing derivative array\n");
    #endif
 
    #ifdef DEBUG_STATE
       MessageInterface::ShowMessage(
-               "Top of GetDeriv; State with dimension %d = [", dimension);
-      for (Integer i = 0; i < dimension; ++i) //< state->GetSize()-1; ++i)
-         MessageInterface::ShowMessage("%le, ", state[i]); //(*state)[i]);
-      MessageInterface::ShowMessage("%le]\n", state[dimension-1]); //(*state)[state->GetSize()-1]);
+         "Top of GetDeriv; State with dimension %d = [", dimension);
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%le, ", state[i]);
+      MessageInterface::ShowMessage("%le]\n", state[dimension-1]);
    #endif
   
    // Initialize the derivative array
    for (Integer i = 0; i < dimension; ++i)
-      {
-          deriv[i] = 0.0;
-      }
-
+   {
+      deriv[i] = 0.0;
+   }
+   
    const Real* ddt;
 
    #ifdef DEBUG_ODEMODEL_EXE
@@ -1694,14 +1902,14 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    #endif
    for (std::vector<PhysicalModel *>::iterator i = forceList.begin();
          i != forceList.end(); ++i)
-      {
+   {
       #ifdef DEBUG_ODEMODEL_EXE
          MessageInterface::ShowMessage("   %s\n", ((*i)->GetTypeName()).c_str());
       #endif
    
       ddt = (*i)->GetDerivativeArray();
       if (!(*i)->GetDerivatives(state, dt, order))
-   {
+      {
          #ifdef DEBUG_ODEMODEL_EXE
             MessageInterface::ShowMessage("Derivative %s failed\n",
                   ((*i)->GetTypeName()).c_str());
@@ -1709,7 +1917,7 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
          return false;
 
       }
-
+      
       #ifdef DEBUG_ODEMODEL_EXE
       for (Integer j = 0; j < dimension; ++j)
          MessageInterface::ShowMessage("  ddt(%s[%s])[%d] = %le\n",
@@ -1717,9 +1925,9 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
             ((*i)->GetStringParameter((*i)->GetParameterID("BodyName"))).c_str(),
             j, ddt[j]);
       #endif
-
+      
       for (Integer j = 0; j < dimension; ++j)
-         {
+      {
          deriv[j] += ddt[j];
          #ifdef DEBUG_ODEMODEL_EXE
             MessageInterface::ShowMessage("  deriv[%d] = %16.14le\n", j,
@@ -1803,81 +2011,130 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
 //------------------------------------------------------------------------------
 Real ODEModel::EstimateError(Real *diffs, Real *answer) const
 {
-    if (estimationMethod == ESTIMATE_IN_BASE)
-        return PhysicalModel::EstimateError(diffs, answer);
+   if (estimationMethod == ESTIMATE_IN_BASE)
+      return PhysicalModel::EstimateError(diffs, answer);
 
-    Real retval = 0.0, err, mag, vec[3];
+   Real retval = 0.0, err, mag, vec[3];
 
-//MessageInterface::ShowMessage("normType == %d\n", normType);
+   #ifdef DEBUG_ERROR_ESTIMATE
+      MessageInterface::ShowMessage("ODEModel::EstimateError normType == %d; "
+            "dimension = %d\n", normType, dimension);
+   #endif
 
-    for (int i = 0; i < dimension; i += 3) 
-    {
-        switch (normType) 
-        {
+   // Handle non-Cartesian state elements as an L1 norm
+   for (int i = 0; i < cartStateStart; ++i)
+   {
+      // L1 norm
+      mag = fabs(answer[ i ] - modelState[ i ]);
+      err = fabs(diffs[i]);
+      if (mag >relativeErrorThreshold)
+         err = err / mag;
 
-            case -2:
-                // Code for the L2 norm, based on sep from central body
-                vec[0] = 0.5 * (answer[ i ] + modelState[ i ]); 
-                vec[1] = 0.5 * (answer[i+1] + modelState[i+1]); 
-                vec[2] = 0.5 * (answer[i+2] + modelState[i+2]);
+      #ifdef DEBUG_ERROR_ESTIMATE
+         MessageInterface::ShowMessage("   {%d EstErr = %le} ", i, err);
+      #endif
 
-                mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];        
-                err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
-                if (mag >relativeErrorThreshold) 
-                    err = sqrt(err / mag);
-                else
-                    err = sqrt(err);
-                break;
+      if (err > retval)
+      {
+         retval = err;
+      }
+   }
 
-            case -1:
-                // L1 norm, based on sep from central body
-                vec[0] = fabs(0.5 * (answer[ i ] + modelState[ i ])); 
-                vec[1] = fabs(0.5 * (answer[i+1] + modelState[i+1])); 
-                vec[2] = fabs(0.5 * (answer[i+2] + modelState[i+2]));
+   // Handle the Cartesian piece
+   for (int i = cartStateStart; i < cartStateStart + cartStateSize; i += 3)
+   {
+      switch (normType)
+      {
+         case -2:
+            // Code for the L2 norm, based on sep from central body
+            vec[0] = 0.5 * (answer[ i ] + modelState[ i ]);
+            vec[1] = 0.5 * (answer[i+1] + modelState[i+1]);
+            vec[2] = 0.5 * (answer[i+2] + modelState[i+2]);
 
-                mag = vec[0] + vec[1] + vec[2];        
-                err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
-                if (mag >relativeErrorThreshold) 
-                    err = err / mag;
-                break;
+            mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];
+            err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
+            if (mag >relativeErrorThreshold)
+               err = sqrt(err / mag);
+            else
+               err = sqrt(err);
+            break;
 
-            case 0:         // Report no error here
-                return 0.0;
+         case -1:
+            // L1 norm, based on sep from central body
+            vec[0] = fabs(0.5 * (answer[ i ] + modelState[ i ]));
+            vec[1] = fabs(0.5 * (answer[i+1] + modelState[i+1]));
+            vec[2] = fabs(0.5 * (answer[i+2] + modelState[i+2]));
 
-            case 1:
-                // L1 norm
-                vec[0] = fabs(answer[ i ] - modelState[ i ]); 
-                vec[1] = fabs(answer[i+1] - modelState[i+1]); 
-                vec[2] = fabs(answer[i+2] - modelState[i+2]);
+            mag = vec[0] + vec[1] + vec[2];
+            err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
+            if (mag >relativeErrorThreshold)
+               err = err / mag;
+            break;
 
-                mag = vec[0] + vec[1] + vec[2];        
-                err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
-                if (mag >relativeErrorThreshold) 
-                    err = err / mag;
-                break;
+         case 0:         // Report no error here
+            return 0.0;
 
-            case 2:
-            default:
-                // Code for the L2 norm
-                vec[0] = answer[ i ] - modelState[ i ]; 
-                vec[1] = answer[i+1] - modelState[i+1]; 
-                vec[2] = answer[i+2] - modelState[i+2];
+         case 1:
+            // L1 norm
+            vec[0] = fabs(answer[ i ] - modelState[ i ]);
+            vec[1] = fabs(answer[i+1] - modelState[i+1]);
+            vec[2] = fabs(answer[i+2] - modelState[i+2]);
 
-                mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];        
-                err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
-                if (mag > relativeErrorThreshold) 
-                    err = sqrt(err / mag);
-                else
-                    err = sqrt(err);
-        }
+            mag = vec[0] + vec[1] + vec[2];
+            err = fabs(diffs[i]) + fabs(diffs[i+1]) + fabs(diffs[i+2]);
+            if (mag >relativeErrorThreshold)
+               err = err / mag;
+            break;
 
-        if (err > retval)
-        {
-            retval = err;
-        }
-    }
+         case 2:
+         default:
+            // Code for the L2 norm
+            vec[0] = answer[ i ] - modelState[ i ];
+            vec[1] = answer[i+1] - modelState[i+1];
+            vec[2] = answer[i+2] - modelState[i+2];
 
-    return retval;
+            mag = vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2];
+            err = diffs[i]*diffs[i] + diffs[i+1]*diffs[i+1] + diffs[i+2]*diffs[i+2];
+            if (mag > relativeErrorThreshold)
+               err = sqrt(err / mag);
+            else
+               err = sqrt(err);
+      }
+
+      #ifdef DEBUG_ERROR_ESTIMATE
+         MessageInterface::ShowMessage("   {%d EstErr = %le} ", i, err);
+      #endif
+
+      if (err > retval)
+      {
+         retval = err;
+      }
+   }
+
+//   // Handle non-Cartesian state elements as an L1 norm
+//   for (int i = cartStateStart + cartStateSize; i < dimension; ++i)
+//   {
+//      // L1 norm
+//      mag = fabs(answer[ i ] - modelState[ i ]);
+//      err = fabs(diffs[i]);
+//      if (mag >relativeErrorThreshold)
+//         err = err / mag;
+//
+//      #ifdef DEBUG_ERROR_ESTIMATE
+//         MessageInterface::ShowMessage("   {%d EstErr = %le} ", i, err);
+//      #endif
+//
+//      if (err > retval)
+//      {
+//         retval = err;
+//      }
+//   }
+
+   #ifdef DEBUG_ERROR_ESTIMATE
+      MessageInterface::ShowMessage("   >>> Estimated Error = %le\n", retval);
+   #endif
+
+   return retval;
 }
 
 
@@ -2836,203 +3093,6 @@ ObjectArray& ODEModel::GetRefObjectArray(const std::string& typeString)
 }
 
 
-//We can remove GetGeneratingString() and WriteFMParameters() now (loj: 2008.01.25)
-#ifdef __WITH_FM_GEN_STRING__
-//------------------------------------------------------------------------------
-// StringArray GetGeneratingString(Gmat::WriteMode mode,
-//                const std::string &prefix, const std::string &useName)
-//------------------------------------------------------------------------------
-/**
- * Produces a string, possibly multi-line, containing the text that produces an
- * object.
- *
- * @param mode Specifies the type of serialization requested.
- * @param prefix Optional prefix appended to the object's name
- * @param useName Name that replaces the object's name.
- *
- * @return A string containing the text.
- *
- * @note Temporarily (?) put this code here to facilitate writing force model
- *       parms prior to 5/25/05 demo
- */
-//------------------------------------------------------------------------------
-const std::string& ODEModel::GetGeneratingString(Gmat::WriteMode mode,
-                                                   const std::string &prefix,
-                                                   const std::string &useName)
-{
-   #ifdef DEBUG_GEN_STRING
-   MessageInterface::ShowMessage
-      ("ODEModel::GetGeneratingString() this=%p, mode=%d, prefix=%s, "
-       "useName=%s\n", this, mode, prefix.c_str(), useName.c_str());
-   #endif
-   
-   std::stringstream data;
-   
-   // Crank up data precision so we don't lose anything
-   data.precision(GmatGlobal::Instance()->GetDataPrecision());
-   std::string preface = "", nomme;
-   
-   if ((mode == Gmat::SCRIPTING) || (mode == Gmat::OWNED_OBJECT) ||
-       (mode == Gmat::SHOW_SCRIPT))
-      inMatlabMode = false;
-   if (mode == Gmat::MATLAB_STRUCT || mode == Gmat::EPHEM_HEADER)
-      inMatlabMode = true;
-
-   if (useName != "")
-      nomme = useName;
-   else
-      nomme = instanceName;
-
-   if ((mode == Gmat::SCRIPTING) || (mode == Gmat::SHOW_SCRIPT) ||
-       (mode == Gmat::EPHEM_HEADER))
-   {
-      std::string tname = typeName;
-      if (tname == "PropSetup")
-         tname = "Propagator";
-      
-      if (mode == Gmat::EPHEM_HEADER)
-      {
-         data << tname << " = " << "'" << nomme << "';\n";
-         preface = "";
-      }
-      else
-      {
-         data << "Create " << tname << " " << nomme << ";\n";
-         preface = "GMAT ";
-      }
-   }
-
-   nomme += ".";
-
-   if (mode == Gmat::OWNED_OBJECT) {
-      preface = prefix;
-      nomme = "";
-   }
-   
-   preface += nomme;
-   WriteFMParameters(mode, preface, data);
-   
-   generatingString = data.str();
-   
-   return generatingString;
-   
-   // Call the base class method for preface and inline comments
-   //return GmatBase::GetGeneratingString(mode, prefix, useName);
-}
-
-
-//------------------------------------------------------------------------------
-// void WriteFMParameters(std::string &prefix, GmatBase *obj)
-//------------------------------------------------------------------------------
-/**
- * Code that writes the parameter details for an object.
- *
- * @param prefix Starting portion of the script string used for the parameter.
- * @param obj The object that is written.
- *
- * @note Temporarily (?) put this code here to facilitate writing force model
- *       parms prior to 5/25/05 demo
- */
-//------------------------------------------------------------------------------
-void ODEModel::WriteFMParameters(Gmat::WriteMode mode, std::string &prefix,
-                                   std::stringstream &stream)
-{
-   Integer i;
-   Gmat::ParameterType parmType;
-   std::stringstream value;
-   value.precision(GmatGlobal::Instance()->GetDataPrecision());
-      
-   for (i = 0; i < parameterCount; ++i)
-   {
-      if (IsParameterReadOnly(i) == false)
-      {
-         parmType = GetParameterType(i);
-         // Handle StringArray parameters separately
-         if (parmType != Gmat::STRINGARRAY_TYPE)
-         {
-            // Skip unhandled types
-            if (
-                (parmType != Gmat::UNSIGNED_INTARRAY_TYPE) &&
-                (parmType != Gmat::RVECTOR_TYPE) &&
-                (parmType != Gmat::RMATRIX_TYPE) &&
-                (parmType != Gmat::UNKNOWN_PARAMETER_TYPE)
-               )
-            {
-               // Fill in the l.h.s.
-               value.str("");
-               WriteParameterValue(i, value);
-               if (value.str() != "")
-                  stream << prefix << GetParameterText(i)
-                         << " = " << value.str() << ";\n";
-            }
-         }
-         else
-         {
-            // Handle StringArrays
-            StringArray sar = GetStringArrayParameter(i);
-            if (sar.size() > 0)
-            {
-               stream << prefix << GetParameterText(i) << " = {";
-               for (StringArray::iterator n = sar.begin(); n != sar.end(); ++n)
-               {
-                  if (n != sar.begin())
-                     stream << ", ";
-                  if (inMatlabMode)
-                     stream << "'";
-                  stream << (*n);
-                  if (inMatlabMode)
-                     stream << "'";
-               }
-               stream << "};\n";
-            }
-         }
-      }
-   }
-   
-   GmatBase *ownedObject;
-   std::string nomme, newprefix;
-   
-   #ifdef DEBUG_OWNED_OBJECT_STRINGS
-      MessageInterface::ShowMessage
-         ("ODEModel::WriteFMParameters() \"%s\" has %d owned objects\n",
-          instanceName.c_str(), GetOwnedObjectCount());
-   #endif
-      
-   for (i = 0; i < GetOwnedObjectCount(); ++i)
-   {
-      newprefix = prefix;
-      ownedObject = GetOwnedObject(i);
-      if (ownedObject != NULL)
-      {
-         nomme = BuildForceNameString((PhysicalModel*)ownedObject);
-
-         #ifdef DEBUG_OWNED_OBJECT_STRINGS
-             MessageInterface::ShowMessage(
-                "   id %d has type %s and name \"%s\", addr=%p\n",
-                i, ownedObject->GetTypeName().c_str(),
-                nomme.c_str(), ownedObject);
-         #endif
-         
-         if (nomme != "")
-            newprefix += nomme + ".";
-         else if (GetType() == Gmat::FORCE_MODEL)
-            newprefix += ownedObject->GetTypeName() + ".";
-         
-         #ifdef DEBUG_OWNED_OBJECT_STRINGS
-         MessageInterface::ShowMessage
-            ("   Calling ownedObject->GetGeneratingString() with "
-             "newprefix='%s'\n", newprefix.c_str());
-         #endif
-         
-         stream << ownedObject->GetGeneratingString(Gmat::OWNED_OBJECT, newprefix);
-      }
-      else
-         MessageInterface::ShowMessage("Cannot access force %d\n", i);
-   }
-}
-#endif
-
-
 //------------------------------------------------------------------------------
 // std::string BuildForceNameString(PhysicalModel *force)
 //------------------------------------------------------------------------------
@@ -3080,12 +3140,9 @@ void ODEModel::MoveToOrigin(Real newEpoch)
    MessageInterface::ShowMessage("ODEModel::MoveToOrigin entered\n");
 #endif
    
-   satCount = dimension / stateSize;   // psm->GetSatCount();
-   Integer currentScState = 0;
-
 #ifdef DEBUG_REORIGIN
    MessageInterface::ShowMessage(
-         "SatCount = %d, dimension = %d, stateSize = %d\n",satCount, 
+         "SatCount = %d, dimension = %d, stateSize = %d\n",cartObjCount,
          dimension, stateSize);
    MessageInterface::ShowMessage(
          "StatePointers: rawState = %p, modelState = %p\n", rawState, 
@@ -3098,11 +3155,11 @@ void ODEModel::MoveToOrigin(Real newEpoch)
    for (Integer i = 0; i < dimension; ++i)
       MessageInterface::ShowMessage("%lf ", modelState[i]);
    MessageInterface::ShowMessage("]\n\n");
-        #endif
+#endif
     
-   if (centralBodyName == j2kBodyName)
-      memcpy(modelState, rawState, dimension*sizeof(Real));
-   else
+   memcpy(modelState, rawState, dimension*sizeof(Real));
+
+   if (centralBodyName != j2kBodyName)
    {
       Rvector6 cbState, j2kState, delta;
       Real now = ((newEpoch < 0.0) ? epoch : newEpoch);
@@ -3110,86 +3167,46 @@ void ODEModel::MoveToOrigin(Real newEpoch)
       j2kState = j2kBody->GetState(now);
 
       delta = cbState - j2kState;
-      
-      for (Integer i = 0; i < satCount; ++i)
-      {
-         for (int j = 0; j < 6; ++j)
-            modelState[currentScState+j] = rawState[currentScState+j] - delta[j];
 
-#ifdef DEBUG_REORIGIN
-   MessageInterface::ShowMessage(
-       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
-       "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
-       "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
-       "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
-       "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
-       rawState[5],
-       j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
-       j2kState[5],
-       cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
-       cbState[5],
-       delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
-       modelState[0], modelState[1], modelState[2], modelState[3],
-       modelState[4], modelState[5]);
-#endif
-            
-         // Copy any remaining state elements
-         if (stateSize > 6)
-            memcpy(&modelState[currentScState+6], &rawState[currentScState+6], 
-                (stateSize-6)*sizeof(Real));
-         // Move to the next state
-         currentScState += stateSize;
-         
-#ifdef DEBUG_REORIGIN
-   MessageInterface::ShowMessage(
-       "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
-       "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
-       "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
-       "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
-       "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-       rawState[0], rawState[1], rawState[2], rawState[3], rawState[4],
-       rawState[5],
-       j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
-       j2kState[5],
-       cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
-       cbState[5],
-       delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
-       modelState[0], modelState[1], modelState[2], modelState[3],
-       modelState[4], modelState[5]);
-#endif
+      for (Integer i = 0; i < cartObjCount; ++i)
+      {
+         Integer i6 = cartStateStart + i * 6;
+         for (int j = 0; j < 6; ++j)
+            modelState[i6+j] = rawState[i6+j] - delta[j];
+
+         #ifdef DEBUG_REORIGIN
+            MessageInterface::ShowMessage(
+                "ODEModel::MoveToOrigin()\n"
+                "   Input state: [%lf %lf %lf %lf %lf %lf]\n"
+                "   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+                "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+                "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
+                rawState[i6], rawState[i6+1], rawState[i6+2], rawState[i6+3],
+                rawState[i6+4], rawState[i6+5],
+                j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+                j2kState[5],
+                cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+                cbState[5],
+                delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+                modelState[i6], modelState[i6+1], modelState[i6+2],
+                modelState[i6+3], modelState[i6+4], modelState[i6+5]);
+         #endif
       }
-      #ifdef DEBUG_REORIGIN
-         MessageInterface::ShowMessage(
-             "ODEModel::MoveToOrigin()\n   Input state: [%lf %lf %lf %lf %lf "
-             "%lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
-             "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
-             "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
-             "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
-             rawState[0], rawState[1], rawState[2], rawState[3], rawState[4], 
-             rawState[5],    
-             j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4], 
-             j2kState[5],    
-             cbState[0], cbState[1], cbState[2], cbState[3], cbState[4], 
-             cbState[5],    
-             delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],    
-             modelState[0], modelState[1], modelState[2], modelState[3], 
-             modelState[4], modelState[5]);    
-      #endif
    }
    
-#ifdef DEBUG_REORIGIN
-   MessageInterface::ShowMessage(
-       "   Move Complete\n   Input state: [ ");
-   for (Integer i = 0; i < dimension; ++i)
-      MessageInterface::ShowMessage("%lf ", rawState[i]); 
-   MessageInterface::ShowMessage("]\n   model state: [ ");
-   for (Integer i = 0; i < dimension; ++i)
-      MessageInterface::ShowMessage("%lf ", modelState[i]);
-   MessageInterface::ShowMessage("]\n\n");
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage(
+          "   Move Complete\n   Input state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", rawState[i]);
+      MessageInterface::ShowMessage("]\n   model state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", modelState[i]);
+      MessageInterface::ShowMessage("]\n\n");
 
-   MessageInterface::ShowMessage("ODEModel::MoveToOrigin Finished\n");
-#endif
+      MessageInterface::ShowMessage("ODEModel::MoveToOrigin Finished\n");
+   #endif
 }
 
 
@@ -3203,31 +3220,43 @@ void ODEModel::MoveToOrigin(Real newEpoch)
 //------------------------------------------------------------------------------
 void ODEModel::ReturnFromOrigin(Real newEpoch)
 {
-   Integer satCount = dimension / stateSize;
-   Integer currentScState = 0;
-    
-   if (centralBodyName == j2kBodyName)
-      memcpy(rawState, modelState, dimension*sizeof(Real));
-   else
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage("ODEModel::ReturnFromOrigin entered\n");
+   #endif
+
+   memcpy(rawState, modelState, dimension*sizeof(Real));
+   if (centralBodyName != j2kBodyName)
    {
       Rvector6 cbState, j2kState, delta;
       Real now = ((newEpoch < 0.0) ? epoch : newEpoch);
       cbState = forceOrigin->GetState(now);
       j2kState = j2kBody->GetState(now);
-      
+
       delta = j2kState - cbState;
-      
-      for (Integer i = 0; i < satCount; ++i)
+
+
+      for (Integer i = 0; i < cartObjCount; ++i)
       {
+         Integer i6 = cartStateStart + i * 6;
          for (int j = 0; j < 6; ++j)
-            rawState[currentScState+j] = modelState[currentScState+j] - delta[j];
-            
-         // Copy any remaining state elements
-         if (stateSize > 6)
-            memcpy(&rawState[currentScState+6], &modelState[currentScState+6], 
-                (stateSize-6)*sizeof(Real));
-         // Move to the next state
-         currentScState += stateSize;
+            rawState[i6+j] = modelState[i6+j] - delta[j];
+            #ifdef DEBUG_REORIGIN
+               MessageInterface::ShowMessage(
+                   "ODEModel::ReturnFromOrigin()\n   Input (model) state: [%lf %lf %lf %lf %lf"
+                   " %lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                   "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+                   "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+                   "   raw state: [%lf %lf %lf %lf %lf %lf]\n\n",
+                   modelState[0], modelState[1], modelState[2], modelState[3], modelState[4],
+                   modelState[5],
+                   j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+                   j2kState[5],
+                   cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+                   cbState[5],
+                   delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+                   rawState[0], rawState[1], rawState[2], rawState[3],
+                   rawState[4], rawState[5]);
+         #endif
       }
    }
 }

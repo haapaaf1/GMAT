@@ -38,7 +38,7 @@ public:
    virtual ~Variable();
 
    // methods inherited from RealVar
-   virtual Real GetReal();
+   virtual Real GetReal() const;
    virtual Real EvaluateReal();
    
    // methods inherited from GmatBase

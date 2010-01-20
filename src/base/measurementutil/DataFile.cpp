@@ -394,7 +394,7 @@ bool DataFile::Initialize()
 //------------------------------------------------------------------------------
 DataFile::DataFile(const std::string &itsType, 
 				 const std::string &itsName) :
-    GmatBase(Gmat::DATA_FILE,itsType,itsName),
+    GmatBase(Gmat::DATASTREAM,itsType,itsName),
     fileFormatName (""),
 //    dataFileName (""),
     scientific(false),
@@ -406,7 +406,7 @@ DataFile::DataFile(const std::string &itsType,
     sortedBy (0),
     readWriteMode ("read")
 {
-   objectTypes.push_back(Gmat::DATA_FILE);
+   objectTypes.push_back(Gmat::DATASTREAM);
    objectTypeNames.push_back("DataFile");
    theFile = new fstream;
 }

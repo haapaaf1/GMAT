@@ -1,4 +1,4 @@
-//$Id$
+//$Id: SpacecraftData.hpp 7506 2009-12-16 19:59:30Z lindajun $
 //------------------------------------------------------------------------------
 //                                  SpacecraftData
 //------------------------------------------------------------------------------
@@ -27,12 +27,13 @@ class GMAT_API SpacecraftData : public RefData
 {
 public:
 
-   SpacecraftData();
+   SpacecraftData(const std::string &name = "");
    SpacecraftData(const SpacecraftData &data);
    SpacecraftData& operator= (const SpacecraftData& right);
    virtual ~SpacecraftData();
    
    Real GetReal(Integer item);
+   Real SetReal(Integer item, Real val);
    
    // The inherited methods from RefData
    virtual bool ValidateRefObjects(GmatBase *param);
@@ -41,7 +42,7 @@ public:
    const static Real BALLISTIC_REAL_UNDEFINED;
    
 protected:
-   
+
    // The inherited methods from RefData
    virtual void InitializeRefObjects();
    virtual bool IsValidObjectType(Gmat::ObjectType type);
@@ -56,6 +57,22 @@ protected:
       DRAG_AREA,
       SRP_AREA,
       TOTAL_MASS,
+      
+      // for Spacecraft owned FuelTank
+      FUEL_MASS,
+      PRESSURE,
+      TEMPERATURE,
+      VOLUME,
+      FUEL_DENSITY,
+      REF_TEMPERATURE,
+      
+      // for Spacecraft owned Thruster
+      DUTY_CYCLE,
+      THRUSTER_SCALE_FACTOR,
+      GRAVITATIONAL_ACCEL,
+      C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16,
+      K1, K2, K3, K4, K5, K6, K7, K8, K9, K10, K11, K12, K13, K14, K15, K16,
+      THRUST_DIRECTION1, THRUST_DIRECTION2, THRUST_DIRECTION3,
    };
    
    enum
@@ -65,6 +82,13 @@ protected:
    };
    
    static const std::string VALID_OBJECT_TYPE_LIST[SpacecraftDataObjectCount];
+   
+private:
+   
+   Real GetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &name);
+   Real SetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &name,
+                               Real val);
+   
 };
 
 #endif /*SpacecraftData_hpp*/

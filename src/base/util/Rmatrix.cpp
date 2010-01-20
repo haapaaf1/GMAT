@@ -1128,7 +1128,8 @@ std::string Rmatrix::ToString(bool useCurrentFormat, bool scientific,
 
 
 //------------------------------------------------------------------------------
-// std::string ToRowString(Integer row, Integer precision, Integer width)
+// std::string ToRowString(Integer row, Integer precision, Integer width,
+//                         bool showPoint)
 //------------------------------------------------------------------------------
 /*
  * Formats Rmatrix row value to String.
@@ -1136,18 +1137,60 @@ std::string Rmatrix::ToString(bool useCurrentFormat, bool scientific,
  * @param  row         Row values to format
  * @param  precision   Precision to be used in formatting
  * @param  width       Width to be used in formatting (1)
+ * @param  showPoint   True if showing point (false)
  *
  * @return Formatted Rmatrix value string
  */
 //------------------------------------------------------------------------------
-std::string Rmatrix::ToRowString(Integer row, Integer precision, Integer width) const
+std::string Rmatrix::ToRowString(Integer row, Integer precision, Integer width,
+                                 bool showPoint) const
 {
+   #ifdef DEBUG_TO_ROW_STRING
+   MessageInterface::ShowMessage
+      ("Rmatrix::ToRowString() row=%d, prec=%d, width=%d, showPoint=%d\n",
+       row, precision, width, showPoint);
+   #endif
+   
+   // Use c-style formatting
+   //-----------------------------------------------------------------
+   #if 1
+   //-----------------------------------------------------------------
+   
+   Integer w = width;
+   char format[50], buffer[200];
+   
+   if (showPoint)
+      sprintf(format, "%s %d.%de", "%", w, precision);
+   else
+      sprintf(format, "%s %d.%dg", "%", w, precision);
+   
+   Rvector rowVec = GetRow(row);
+   Integer size = rowVec.GetSize();
+   std::stringstream ss("");
+   
+   for (int i=0; i<size; i++)
+   {
+      sprintf(buffer, format, rowVec[i]);
+      ss << buffer;
+      ss << " ";
+   }
+   
+   return ss.str();
+   
+   //-----------------------------------------------------------------
+   #else
+   //-----------------------------------------------------------------
+   
    GmatGlobal *global = GmatGlobal::Instance();
-   global->SetActualFormat(false, false, precision, width, true, 1, "", false);
+   global->SetActualFormat(false, showPoint, precision, width, true, 1, "", false);
    Rvector rowVec = GetRow(row);
    std::stringstream ss("");
-   ss << rowVec;
+   ss << rowVec << " ";
    return ss.str();
+   
+   //-----------------------------------------------------------------
+   #endif
+   //-----------------------------------------------------------------
 }
 
 

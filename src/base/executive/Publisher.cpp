@@ -24,10 +24,24 @@
 #include <string>
 #include <algorithm>               // for find()
 
-//#define DBGLVL_PUBLISHER_SUBS 1
-//#define DBGLVL_PUBLISHER_REGISTER 2
+// The old code keep incrementing the provider id whenever
+// RegisterPublishedData() is called, which causes OpenGL plot to fail
+// if it is used in the nested GmatFunction.
+//#define __USE_OLD_PUB_CODE__
+
+//#define DBGLVL_PUBLISHER_SUBSCRIBE 1
+//#define DBGLVL_PUBLISHER_REGISTER 1
 //#define DBGLVL_PUBLISHER_PUBLISH 1
 //#define DBGLVL_PUBLISHER_CLEAR 1
+//#define DEBUG_PUBLISHER_RUN_STATE
+
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 // Initialize the singleton
 Publisher* Publisher::instance = NULL;
@@ -49,6 +63,7 @@ Publisher::Publisher() :
    providerID          (-1),
    currentProvider     (-1),
    runState            (Gmat::IDLE),
+   maneuvering         (false),
    internalCoordSystem (NULL),
    dataCoordSystem     (NULL),
    dataMJ2000EqOrigin  (NULL)
@@ -69,20 +84,29 @@ Publisher::~Publisher()
 //------------------------------------------------------------------------------
 bool Publisher::Subscribe(Subscriber *s)
 {
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage
-      ("Publisher::Subscribe() sub = <%p>'%s'\n", s, s->GetName().c_str());
+      ("Publisher::Subscribe() sub = <%p><%s>'%s'\n", s, s->GetTypeName().c_str(),
+       s->GetName().c_str());
    #endif
    
    if (!s)
       return false;
+   
+   if (s->GetType() != Gmat::SUBSCRIBER)
+   {
+      MessageInterface::ShowMessage
+         ("**** ERROR **** Publisher::Subscribe() Cannot add non-Subscriber object "
+          "'%s'. It is type of '%s'\n", s->GetName().c_str(), s->GetTypeName().c_str());
+      return false;
+   }
    
    // Add if subscriber is already not in the list (LOJ: 2009.04.08)
    if (find(subscriberList.begin(), subscriberList.end(), s) == subscriberList.end())
    {
       subscriberList.push_back(s);
       s->SetProviderId(currentProvider);
-      #if DBGLVL_PUBLISHER_SUBS
+      #if DBGLVL_PUBLISHER_SUBSCRIBE
       MessageInterface::ShowMessage
          ("   Adding <%p>'%s' to subscriber list\n", s, s->GetName().c_str());
       ShowSubscribers();
@@ -90,13 +114,12 @@ bool Publisher::Subscribe(Subscriber *s)
    }
    else
    {
-      #if DBGLVL_PUBLISHER_SUBS
+      #if DBGLVL_PUBLISHER_SUBSCRIBE
       MessageInterface::ShowMessage
          ("   <%p>'%s' was already added\n", s, s->GetName().c_str());
       #endif      
    }
    
-   //s->SetProviderId(currentProvider);
    return true;
 }
 
@@ -110,25 +133,27 @@ bool Publisher::Unsubscribe(Subscriber *s)
    
    if (subscriberList.empty())
    {
+      #if DBGLVL_PUBLISHER_SUBSCRIBE
       MessageInterface::ShowMessage
          ("Publisher::Unsubscribe() sub = <%p>'%s' returning false, "
           "the subscriber list is empty\n", s, s->GetName().c_str());
-       return false;
+      #endif
+      return false;
    }
    
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage
       ("Publisher::Unsubscribe() sub = <%p>'%s'\n", s, s->GetName().c_str());
    #endif
    
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage("   About to remove <%p> from the list\n", s);
    ShowSubscribers();
    #endif
    
    subscriberList.remove(s);
    
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage("Publisher::Unsubscribe() returning true\n");
    #endif
    
@@ -140,7 +165,7 @@ bool Publisher::Unsubscribe(Subscriber *s)
 //------------------------------------------------------------------------------
 bool Publisher::UnsubscribeAll()
 {
-   #if DBGLVL_PUBLISHER_SUBS
+   #if DBGLVL_PUBLISHER_SUBSCRIBE
    MessageInterface::ShowMessage
       ("Publisher::UnsubscribeAll() entered. Clearing %d subscribers\n",
        subscriberList.size());
@@ -169,15 +194,105 @@ bool Publisher::UnsubscribeAll()
    return true;
 }
 
+
+//------------------------------------------------------------------------------
+// bool Publish(GmatBase *provider, Real *data, Integer count = false)
+//------------------------------------------------------------------------------
+bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer count)
+{
+   #if DBGLVL_PUBLISHER_PUBLISH
+   MessageInterface::ShowMessage
+      ("Publisher::Publish(Real) entered, provider=<%p><%s>, id=%d, "
+       "currentProvider=%d, count=%d\n", provider, provider->GetTypeName().c_str(),
+       id, currentProvider, count);
+   MessageInterface::ShowMessage("   providerMap.size()=%d\n", providerMap.size());
+   #endif
+   
+   // No subscribers
+   if (subscriberList.empty())
+   {
+      #if DBGLVL_PUBLISHER_PUBLISH
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Publisher::Publish() There are no subscribers, "
+          "so just returning false\n");
+      #endif      
+      return false;
+   }
+   
+   // Check for no providers
+   std::map<GmatBase*, std::vector<DataType>* >::iterator iter = providerMap.find(provider);
+   if (iter == providerMap.end())
+   {
+      #if DBGLVL_PUBLISHER_PUBLISH
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Publisher::Publish() There are no registered providers, "
+          "so just returning false\n");
+      #endif      
+      return false;
+   }
+   
+   if (id != currentProvider)
+   {
+      currentProvider = id;
+      UpdateProviderID(id);
+   }
+   
+   // Get data lebels
+   std::vector<DataType>* dataList = iter->second;
+
+   #if DBGLVL_PUBLISHER_PUBLISH > 1
+   MessageInterface::ShowMessage("   dataList->size()=%d\n", dataList->size());
+   #endif
+   
+   // Convert the data into a string for distribution
+   char stream[4334] = "";
+   
+   for (Integer i = 0; i < count; ++i)
+   {
+      sprintf(stream, "%s%12lf", stream, data[i]);
+      if (i < count - 1)
+         strcat(stream, ", ");
+      else
+         strcat(stream, "\n");
+   }   
+   
+   #if DBGLVL_PUBLISHER_PUBLISH
+   MessageInterface::ShowMessage
+      ("Publisher::Publish() calling ReceiveData() number of sub = %d\n",
+       subscriberList.size());
+   #endif
+   
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
+   {
+      #if DBGLVL_PUBLISHER_PUBLISH > 1
+      MessageInterface::ShowMessage
+         ("Publisher::Publish() sub = <%p>'%s'\n", (*current),
+          (*current)->GetName().c_str());
+      #endif
+      
+      // Set labels
+      (*current)->SetDataLabels((*dataList)[id].labels);
+      
+      if (!(*current)->ReceiveData(stream))
+         return false;
+      if (!(*current)->ReceiveData(data, count))
+         return false;
+      current++;
+   }
+   return true;
+}
+
+
 //------------------------------------------------------------------------------
 // bool Publish(Real *data, Integer count = false)
 //------------------------------------------------------------------------------
 bool Publisher::Publish(Integer id, Real *data, Integer count)
 {
-   #if DBGLVL_PUBLISHER_PUBLISH > 1
+   #if DBGLVL_PUBLISHER_PUBLISH
    MessageInterface::ShowMessage
-      ("Publisher::Publish(Real) entered, id=%d, providerID=%d, count=%d\n",
-       id, providerID, count);
+      ("Publisher::Publish(Real) entered, id=%d, providerID=%d, currentProvider=%d, "
+       "count=%d\n", id, providerID, currentProvider, count);
    #endif
    
    // No subscribers
@@ -203,13 +318,14 @@ bool Publisher::Publish(Integer id, Real *data, Integer count)
       return false;
    }
    
-   if (id != currentProvider) {
+   if (id != currentProvider)
+   {
       currentProvider = id;
       UpdateProviderID(id);
    }
    
    // Convert the data into a string for distribution
-   char stream[4096] = "";
+   char stream[4334] = "";
    
    for (Integer i = 0; i < count; ++i)
    {
@@ -231,8 +347,9 @@ bool Publisher::Publish(Integer id, Real *data, Integer count)
    while (current != subscriberList.end())
    {
       #if DBGLVL_PUBLISHER_PUBLISH > 1
-      MessageInterface::ShowMessage("Publisher::Publish() sub = %s\n",
-                                    (*current)->GetName().c_str());
+      MessageInterface::ShowMessage
+         ("Publisher::Publish() sub = <%p>'%s'\n", (*current),
+          (*current)->GetName().c_str());
       #endif
       
       if (!(*current)->ReceiveData(stream))
@@ -272,7 +389,7 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    }
    
    // Convert the data into a string for distribution
-   char stream[4096];
+   char stream[4334];
 
    if (count)
    {
@@ -321,7 +438,7 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
    }
 
    // Convert the data into a string for distribution
-   char stream[4096];
+   char stream[4334];
 
    for(Integer i = 0; i < count; ++i)
    {
@@ -392,11 +509,13 @@ void Publisher::ClearPublishedData()
 {   
    #if DBGLVL_PUBLISHER_CLEAR
    MessageInterface::ShowMessage
-      ("Publisher::ClearPublishedData() Clearing %d providers\n", objectMap.size());
+      ("Publisher::ClearPublishedData() entered, clearing %d element owner objects\n",
+       objectArray.size());
+   MessageInterface::ShowMessage("   providerMap.size()=%d\n", providerMap.size());
    #endif
    
-   objectMap.clear();
-   elementMap.clear();
+   objectArray.clear();
+   elementArray.clear();
    providerID = -1;
    currentProvider = -1;
    
@@ -407,18 +526,78 @@ void Publisher::ClearPublishedData()
       (*current)->ClearDataLabels();
       current++;
    }
+   
+   //=================================================================
+   #ifndef __USE_OLD_PUB_CODE__
+   //=================================================================
+   
+   #if DBGLVL_PUBLISHER_CLEAR > 1
+   MessageInterface::ShowMessage
+      ("Publisher::ClearPublishedData() Using new Publisher code\n");
+   #endif
+   
+   std::map<GmatBase*, std::vector<DataType>* >::iterator iter = providerMap.begin();
+   while (iter != providerMap.end())
+   {
+      std::vector<DataType>* dataList = iter->second;
+      if (dataList != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (dataList, "dataList", "Publisher::ClearPublishedData()", "deleting dataList");
+         #endif
+         
+         delete dataList;
+      }
+      iter++;
+   }
+   providerMap.clear();
+   
+   //=================================================================
+   #endif
+   //=================================================================
+   
+   #if DBGLVL_PUBLISHER_CLEAR
+   MessageInterface::ShowMessage
+      ("Publisher::ClearPublishedData() leaving, providerMap.size()=%d\n",
+       providerMap.size());
+   #endif
 }
 
 
 //------------------------------------------------------------------------------
-// Integer RegisterPublishedData(const StringArray& owners, 
-//                               const StringArray& elements)
+// Integer RegisterPublishedData(GmatBase *provider, Integer id,
+//         const StringArray& owners, const StringArray& elements)
 //------------------------------------------------------------------------------
-Integer Publisher::RegisterPublishedData(const StringArray& owners, 
+/*
+ * Registers provider with data elements. This method passes elements as data
+ * labels to subscribers by calling SetDataLabels(elements).
+ *
+ * @param  provider  Provider who calls publiser
+ * @param  id        Provider id, if id is -1 it will assign new id
+ * @param  owners    Object names, such as spacecraft name
+ * @param  elements  Element names, such as Sat1.X, Sat1.Y
+ *
+ * @return  new provider id or existing id
+ *
+ * @note Currently only Propagate command registers and publishes orbit
+ *       trajectory data. The owner is not currently used since elements has owner
+ *       name, such as Sat1.X which Sat1 is the owner name.
+ */
+//------------------------------------------------------------------------------
+Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
+                                         const StringArray& owners, 
                                          const StringArray& elements)
 {
+   #if DBGLVL_PUBLISHER_REGISTER
+   MessageInterface::ShowMessage
+      ("Publisher::RegisterPublishedData() entered, <%p><%s> passed id: %d, %d "
+       "owners and %d elements\n", provider, provider->GetTypeName().c_str(), id,
+       owners.size(), elements.size());
+   MessageInterface::ShowMessage("   providerMap.size()=%d\n", providerMap.size());
+   #endif
+   
    #if DBGLVL_PUBLISHER_REGISTER > 1
-   MessageInterface::ShowMessage("Publisher::RegisterPublishedData() entered\n");
    for (unsigned int i=0; i<owners.size(); i++)
       MessageInterface::ShowMessage("   owner[%d]=%s\n", i, owners[i].c_str());
    for (unsigned int i=0; i<elements.size(); i++)
@@ -429,30 +608,115 @@ Integer Publisher::RegisterPublishedData(const StringArray& owners,
    
    if (subscriberList.empty())
    {
-      // Let's just show warning (loj: 2008.06.17)
+      // Let's just show warning if debug is turned on
       //throw PublisherException("There are no registered subscribers.");
-      #if DBGLVL_PUBLISHER_REGISTER // show warning if debug is turned on (LOJ: 2008.03.10)
+      #if DBGLVL_PUBLISHER_REGISTER
       MessageInterface::ShowMessage
          ("*** WARNING *** Publisher::RegisterPublishedData() There are no "
           "subscribers to register data\n");
+      MessageInterface::ShowMessage
+         ("Publisher::RegisterPublishedData() returning %d\n", providerID);
       #endif
       return providerID;
    }
    
-   // Do this only when there are subscribers (loj: 2008.06.17)
-   //objectMap.push_back(StringArray(owners));
-   //elementMap.push_back(StringArray(elements));
+   Integer actualId = -1;
    
-   // Increment provider count only when there are registered subscribers (loj: 2008.06.17)
-   //++providerID;
-   objectMap.push_back(StringArray(owners));
-   elementMap.push_back(StringArray(elements));
+   //============================================================
+   #ifdef __USE_OLD_PUB_CODE__
+   //============================================================
+   
+   objectArray.push_back(StringArray(owners));
+   elementArray.push_back(StringArray(elements));
    ++providerID;
+   actualId = providerID;
+   
+   //============================================================
+   #else
+   //============================================================
+   
+   #if DBGLVL_PUBLISHER_REGISTER > 1
+   MessageInterface::ShowMessage
+      ("Publisher::RegisterPublishedData() Using new Publisher code\n");
+   #endif
+   
+   if (id != -1)
+   {
+      #if DBGLVL_PUBLISHER_REGISTER
+      MessageInterface::ShowMessage
+         ("Publisher::RegisterPublishedData() returning %d, provider already has "
+          "registered with data\n", id);
+      #endif
+      return id;
+   }
+   
+   // Add publishing data object names
+   std::map<GmatBase*, std::vector<DataType>* >::iterator iter =
+      providerMap.find(provider);
+   if (!owners.empty())
+   {
+      //@tbd Should it be cleared first? (LOJ: 2009.11.04)
+      objectArray.clear();
+      objectArray.push_back(StringArray(owners));
+   }
+   
+   // @note
+   // New Publisher code doesn't use global providerID anymore. It keeps
+   // track of provider's data labels and ids and copies corresponding
+   // labels to current data labels before distributing the data in Publish().
+   // There was an issue with provider id being kept incrementing if data is
+   // regisgered and published inside a GmatFunction
+   if (!elements.empty())
+   {
+      if (iter == providerMap.end())
+      {
+         #if DBGLVL_PUBLISHER_REGISTER
+         MessageInterface::ShowMessage("==> provider not found\n");
+         #endif
+         
+         // create new dataList
+         actualId = 0;
+         DataType newData(elements, actualId);
+         
+         std::vector<DataType>* dataList = new std::vector<DataType>;
+         
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (dataList, "dataList", "Publisher::RegisterPublishedData()", "creating dataList");
+         #endif
+         
+         dataList->push_back(newData);
+         providerMap.insert(std::make_pair(provider, dataList));
+      }
+      else
+      {
+         #if DBGLVL_PUBLISHER_REGISTER
+         MessageInterface::ShowMessage("==> provider found\n");
+         #endif
+         
+         std::vector<DataType>* oldList = iter->second;
+         actualId = oldList->size();
+         DataType newData(elements, actualId);
+         oldList->push_back(newData);
+      }
+   }
+   
+   #if DBGLVL_PUBLISHER_REGISTER > 1
+   std::map<GmatBase*, std::vector<DataType>* >::iterator iter2 = providerMap.find(provider);
+   std::vector<DataType>* tempList = iter2->second;
+   MessageInterface::ShowMessage
+      ("   actualId=%d, tempList->size() = %d\n", actualId, tempList->size());
+   #endif
+   
+   providerID = actualId;
+   
+   //============================================================
+   #endif
+   //============================================================
    
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
-      
       #if DBGLVL_PUBLISHER_REGISTER > 1
       MessageInterface::ShowMessage
          ("   calling <%s>->SetDataLabels()\n", (*current)->GetName().c_str());
@@ -463,12 +727,55 @@ Integer Publisher::RegisterPublishedData(const StringArray& owners,
    }
    
    #if DBGLVL_PUBLISHER_REGISTER
-   MessageInterface::ShowMessage("   objectMap.size()=%d\n", objectMap.size());
+   MessageInterface::ShowMessage("   providerMap.size()=%d\n", providerMap.size());
    MessageInterface::ShowMessage
-      ("Publisher::RegisterPublishedData() returning %d\n", providerID);
+      ("Publisher::RegisterPublishedData() provider=<%p> returning %d\n",
+       provider, actualId);
    #endif
    
-   return providerID;
+   return actualId;
+}
+
+
+//------------------------------------------------------------------------------
+// UnregisterPublishedData(GmatBase *provider)
+//------------------------------------------------------------------------------
+void Publisher::UnregisterPublishedData(GmatBase *provider)
+{
+   #if DBGLVL_PUBLISHER_REGISTER
+   MessageInterface::ShowMessage
+      ("Publisher::UnregisterPublishedData() entered, <%p><%s>, providerMap.size() = %d\n",
+       provider, provider->GetTypeName().c_str(), providerMap.size());
+   #endif
+   
+   std::map<GmatBase*, std::vector<DataType>* >::iterator iter = providerMap.find(provider);
+   if (iter != providerMap.end())
+   {
+      std::vector<DataType>* dataList = iter->second;
+      if (dataList != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (dataList, "dataList", "Publisher::UnregisterPublishedData()", "deleting dataList");
+         #endif
+         
+         delete dataList;
+      }
+      providerMap.erase(iter);
+   }
+   else
+   {
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Publisher::UnregisterPublishedData() provider <%p> "
+          "not registered\n");
+   }
+   
+   #if DBGLVL_PUBLISHER_REGISTER
+   MessageInterface::ShowMessage
+      ("Publisher::UnregisterPublishedData() leaving, providerMap.size() = %d\n",
+       providerMap.size());
+   #endif
+   
 }
 
 
@@ -481,10 +788,10 @@ const StringArray& Publisher::GetStringArrayParameter(const std::string& type)
       throw PublisherException("Data provider id out of range.");
    
    if (type == "SpaceObjectMap")
-      return objectMap[currentProvider];
+      return objectArray[currentProvider];
    
    if (type == "PublishedDataMap")
-      return elementMap[currentProvider];
+      return elementArray[currentProvider];
    
    throw PublisherException("Unknown StringArray type requested.");
 }
@@ -628,6 +935,71 @@ void Publisher::SetRunState(const Gmat::RunState state)
       (*current)->SetRunState(runState);
       current++;
    }
+   
+   #ifdef DEBUG_PUBLISHER_RUN_STATE
+   MessageInterface::ShowMessage("Publisher::SetRunState() exiting\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void SetManeuvering(bool flag, Real epoch, const std::string &satName,
+//                     const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft maneuvering flag.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver
+ * @param satName Name of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Publisher::SetManeuvering(bool flag, Real epoch, const std::string &satName,
+                               const std::string &desc)
+{
+   maneuvering = flag;
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
+   {
+      (*current)->SetManeuvering(flag, epoch, satName, desc);
+      current++;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+//                     const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft maneuvering flag.
+ * 
+ * @param flag Set to true if maneuvering
+ * @param epoch Epoch of maneuver
+ * @param satNames Names of the maneuvering spacecraft
+ * @param desc Description of maneuver (e.g. impulsive or finite)
+ */
+//------------------------------------------------------------------------------
+void Publisher::SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+                               const std::string &desc)
+{
+   maneuvering = flag;
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
+   {
+      (*current)->SetManeuvering(flag, epoch, satNames, desc);
+      current++;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetManeuvering()
+//------------------------------------------------------------------------------
+bool Publisher::GetManeuvering()
+{
+   return maneuvering;
 }
 
 

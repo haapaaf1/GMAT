@@ -38,6 +38,7 @@
 #include "ObjectWrapper.hpp"
 #include "StringUtil.hpp"               // for GmatStringUtil::
 #include "Assignment.hpp"
+#include "ParameterInfo.hpp"            // for IsSettable()
 
 //#define DEBUG_HANDLE_ERROR
 //#define DEBUG_VALIDATE_COMMAND
@@ -51,20 +52,20 @@
 //#define DEBUG_COORD_SYS_PROP
 //#define DEBUG_PROP_SETUP_PROP
 //#define DEBUG_FORCE_MODEL_PROP
-//#define DBGLVL_WRAPPERS 1
+//#define DBGLVL_WRAPPERS 2
 //#define DEBUG_AXIS_SYSTEM
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -156,7 +157,7 @@ void Validator::SetFunction(Function *func)
 
 
 //------------------------------------------------------------------------------
-// bool StartServer(GmatCommand *cmd)
+// bool StartMatlabServer(GmatCommand *cmd)
 //------------------------------------------------------------------------------
 /*
  * This method starts GmatServer through the Moderator
@@ -164,18 +165,18 @@ void Validator::SetFunction(Function *func)
  * @param cmd  The command pointer requesting the server starup
  *             (currently not used but it may be useful for debugging)
  *
- * @return the result of Moderator::StartServer()
+ * @return the result of Moderator::StartMatlabServer()
  */
 //------------------------------------------------------------------------------
-bool Validator::StartServer(GmatCommand *cmd)
+bool Validator::StartMatlabServer(GmatCommand *cmd)
 {
    #ifdef DEBUG_SERVER
    MessageInterface::ShowMessage
-      ("Validator::StartServer() the command <%p>'%s' requested Server startup\n",
+      ("Validator::StartMatlabServer() the command <%p>'%s' requested Server startup\n",
        cmd, cmd->GetTypeName().c_str());
    #endif
    
-   return theModerator->StartServer();
+   return theModerator->StartMatlabServer();
 }
 
 
@@ -342,7 +343,7 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
 //------------------------------------------------------------------------------
 bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer manage)
 {
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
@@ -414,14 +415,18 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
       if (!CreateAssignmentWrappers(cmd, manage))
       {
          // Handle error if function (LOJ: 2009.03.17)
-         if (manage != 1)
-         {
+         // Hmm, I cannot recall why writing error message only when
+         // objects are not configured. Showing too many error messages?
+         // Anyway we also need to handle assignment error in the main script.
+         // This will fix Bug 1670 ((LOJ: 2009.12.09)
+         //if (manage != 1)
+         //{
             theErrorMsg = "Could not create an ElementWrapper for \"" +
                theDescription + "\"";
             return HandleError();
-         }
-         else
-            return false;
+            //}
+            //else
+            //return false;
       }
    }
    else
@@ -476,11 +481,12 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    
    #ifdef DEBUG_VALIDATE_COMMAND
    MessageInterface::ShowMessage
-      ("Validator::ValidateCommand() returning %d as result of CheckUndefinedReference(%s)\n",
-       retval, cmd->GetTypeName().c_str());
+      ("Validator::ValidateCommand() <%p><%s> returning %d as result of "
+       "CheckUndefinedReference()\n", cmd,
+       cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str(), retval);
    #endif
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    clock_t t2 = clock();
    MessageInterface::ShowMessage
       ("=== Validator::ValidateCommand() Count = %d, Run Time: %f seconds\n",
@@ -631,27 +637,33 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
       // if it's an ArrayElement, set up the row and column wrappers
       if (itsType == Gmat::ARRAY_ELEMENT_WT)
       {
-         std::string    rowName = ((ArrayElementWrapper*)ew)->GetRowName();
+         std::string rowName = ((ArrayElementWrapper*)ew)->GetRowName();
+         std::string colName = ((ArrayElementWrapper*)ew)->GetColumnName();
+         
+         #if DBGLVL_WRAPPERS > 1
+         MessageInterface::ShowMessage
+            ("==> Creating ElementWrapper for row '%s' and column '%s'\n",
+             rowName.c_str(), colName.c_str());
+         #endif                  
          ElementWrapper *row    = CreateElementWrapper(rowName, false, manage);
          ((ArrayElementWrapper*)ew)->SetRow(row);
-         std::string    colName = ((ArrayElementWrapper*)ew)->GetColumnName();
          ElementWrapper *col    = CreateElementWrapper(colName, false, manage);
          ((ArrayElementWrapper*)ew)->SetColumn(col);
-      }
+      }      
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage
+         ("Validator::CreateElementWrapper() returning <%p> for '%s'\n",
+       ew, ew->GetDescription().c_str());
+      #endif
    }
    else
    {
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         ("Validator::CreateElementWrapper() Could not create an ElementWrapper for \"" +
-          theDescription + "\"\n");
+         ("Validator::CreateElementWrapper() returning NULL, could not create an "
+          "ElementWrapper for \"" + theDescription + "\"\n");
       #endif
    }
-   
-   #if DBGLVL_WRAPPERS > 1
-   MessageInterface::ShowMessage
-      ("Validator::CreateElementWrapper() returning <%p>\n", ew);
-   #endif
    
    return ew;
 }
@@ -745,6 +757,7 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    // Handle LHS
    //-------------------------------------------------------------------
    ElementWrapper *leftEw = NULL;
+   static bool writeWarning = true; // To write warning messaage per session
    
    try
    {         
@@ -752,7 +765,41 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
       MessageInterface::ShowMessage("==========> Create Assignment LHS wrapper\n");
       #endif
       
-      leftEw = CreateElementWrapper(lhs, false, manage);
+      std::string type, owner, dep;
+      GmatStringUtil::ParseParameter(lhs, type, owner, dep);
+      
+      // If lhs has two dots and settable, treat it as Parameter.
+      // This will enable assignment such as Sat.Thruster1.FuelMass = 735;
+      // Handle deprecated Element* on Thruster (2009.12.15)
+      std::string newType = type;
+      if ((type == "Element1" || type == "Element2" || type == "Element3") &&
+          GmatStringUtil::NumberOfOccurrences(lhs, '.') > 1)
+      {
+         newType = GmatStringUtil::Replace(newType, "Element", "ThrustDirection");
+         #if DBGLVL_WRAPPERS > 0
+         MessageInterface::ShowMessage
+            ("   Parameter type '%s' in '%s' changed to '%s'\n", type.c_str(),
+             lhs.c_str(), newType.c_str());
+         #endif
+         if (writeWarning)
+         {
+            MessageInterface::ShowMessage
+               ("*** WARNING *** The Parameter type \"" + type + "\" of Thruster is "
+                "deprecated and will be removed from a future build; please use \"" +
+                newType + "\" instead in \"" + lhs + ".\"\n");
+            writeWarning = false;
+         }
+      }
+      
+      bool isLhsSettable = ParameterInfo::Instance()->IsSettable(newType);
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage
+         ("   ==> '%s' is%ssettable\n", newType.c_str(), isLhsSettable ? " " : " NOT ");
+      #endif
+      if (lhs.find_first_of(".") != lhs.find_last_of(".") && isLhsSettable)
+         leftEw = CreateElementWrapper(lhs, true, manage);
+      else
+         leftEw = CreateElementWrapper(lhs, false, manage);
       
       if (leftEw == NULL)
          return false;
@@ -971,7 +1018,7 @@ ElementWrapper* Validator::CreateSolarSystemWrapper(GmatBase *obj,
       
       if (body == NULL)
       {
-         theErrorMsg = "Body: " + bodyName + " not found in the SolarSystem\n";
+         theErrorMsg = "The body named \"" + bodyName + "\" not found in the SolarSystem\n";
          HandleError();
       }
       else
@@ -1145,7 +1192,14 @@ ElementWrapper* Validator::CreateWrapperWithDot(bool parametersFirst, Integer ma
    // if cannot find object and manage option is to use configuration,
    // we cannot continue, so just return NULL (loj: 2008.07.24)
    if (obj == NULL && manage == 1)
+   {
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage
+         ("Validator::CreateWrapperWithDot() returning NULL, the configured "
+          "object '%s' not found\n", owner.c_str());
+      #endif
       return NULL;
+   }
    
    //-----------------------------------------------------------------
    // Special case for SolarSystem
@@ -1665,7 +1719,7 @@ Parameter* Validator::CreateAutoParameter(const std::string &type,
 {
    #ifdef DEBUG_CREATE_PARAM
    MessageInterface::ShowMessage
-      ("Validator::CreateParameter() type='%s', name='%s', ownerName='%s', "
+      ("Validator::CreateAutoParameter() type='%s', name='%s', ownerName='%s', "
        "depName='%s', manage=%d\n", type.c_str(), name.c_str(),
        ownerName.c_str(), depName.c_str(), manage);
    #endif
@@ -1681,7 +1735,7 @@ Parameter* Validator::CreateAutoParameter(const std::string &type,
    
    #ifdef DEBUG_CREATE_PARAM
    MessageInterface::ShowMessage
-      ("Validator::CreateParameter() returning %s <%p><%s> '%s'\n",
+      ("Validator::CreateAutoParameter() returning %s <%p><%s> '%s'\n",
        alreadyManaged ? "old" : "new", param,
        (param == NULL) ? "NULL" : param->GetTypeName().c_str(),
        (param == NULL) ? "NULL" : param->GetName().c_str());
@@ -1796,7 +1850,8 @@ AxisSystem* Validator::CreateAxisSystem(std::string type, GmatBase *owner)
 {
    #ifdef DEBUG_AXIS_SYSTEM
    MessageInterface::ShowMessage
-      ("Validator::CreateAxisSystem() type = '%s'\n", type.c_str());
+      ("Validator::CreateAxisSystem() type = '%s', owner='%s'\n",
+       type.c_str(), owner->GetName().c_str());
    #endif
    
    if (owner == NULL)
@@ -1816,9 +1871,41 @@ AxisSystem* Validator::CreateAxisSystem(std::string type, GmatBase *owner)
       return NULL;
    }
    
-   AxisSystem* axis = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
-   // Moved setting ref object to CreateCoordSystemProperty()
-   //owner->SetRefObject(axis, axis->GetType(), axis->GetName());
+   AxisSystem *axis = NULL;
+   
+   // Clone the axis if it is not NULL and has the same type(LOJ: 2009.10.06)
+   // So primary and secondary names can be copied
+   // This will fix bug 1386 (using ObjectReferenced CoordinateSystem inside a function)
+   // Before this fix: we used to get
+   // CoordinateSystem exception: Primary "" is not yet set in object referenced!
+   
+   // Get AxisSystem from the CoordinateSystem
+   AxisSystem *ownedAxis = (AxisSystem *)(owner->GetRefObject(Gmat::AXIS_SYSTEM, ""));
+   if (ownedAxis != NULL)
+   {
+      #ifdef DEBUG_AXIS_SYSTEM
+      MessageInterface::ShowMessage
+         ("   ownedAxis=<%p><%s>'%s', usingPrimary=%d\n", ownedAxis,
+          ownedAxis->GetTypeName().c_str(), 
+          ownedAxis->GetName().c_str(), ownedAxis->UsesPrimary());
+      #endif
+      
+      if (type == ownedAxis->GetTypeName())
+      {
+         axis = (AxisSystem *)(ownedAxis->Clone());
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (axis, axis->GetName(), "Validator::CreateAxisSystem()",
+             "axis = (AxisSystem *)(ownedAxis->Clone()");
+         #endif
+      }
+      else
+         axis = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
+   }
+   else
+   {
+      axis = (AxisSystem *)(theModerator->CreateAxisSystem(type, ""));
+   }
    
    #ifdef DEBUG_AXIS_SYSTEM
    MessageInterface::ShowMessage
@@ -1850,8 +1937,8 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
    ElementWrapper *ew = NULL;
    
    // if there are two dots, then treat it as a Parameter
-   // @note We can have more than two dots for Parameters in the future
-   if (theDescription.find_first_of(".") != theDescription.find_last_of("."))
+   // e.g. Sat.Thruster1.K1
+   if (GmatStringUtil::NumberOfOccurrences(theDescription, '.') > 1)
    {
       // see if reallay create a ParameterWrapper first, there are a few exceptions.
       bool paramFirst = true;
@@ -2274,6 +2361,11 @@ bool Validator::IsParameterType(const std::string &desc)
 //------------------------------------------------------------------------------
 bool Validator::ValidateParameter(const StringArray &refNames, GmatBase *obj)
 {
+   #ifdef DEBUG_CHECK_OBJECT
+   MessageInterface::ShowMessage
+      ("Validator::ValidateParameter() entered. There are %d ref objects\n",
+       refNames.size());
+   #endif
    bool retval = true;
    
    for (UnsignedInt j=0; j<refNames.size(); j++)
@@ -2282,6 +2374,12 @@ bool Validator::ValidateParameter(const StringArray &refNames, GmatBase *obj)
       {
          std::string type, ownerName, depObj;
          GmatStringUtil::ParseParameter(refNames[j], type, ownerName, depObj);
+         
+         #ifdef DEBUG_CHECK_OBJECT
+         MessageInterface::ShowMessage
+            ("   refName='%s', type='%s', owner='%s', dep='%s'\n", refNames[j].c_str(),
+             type.c_str(), ownerName.c_str(), depObj.c_str());
+         #endif
          
          // Check only system parameters
          if (type == "")
@@ -2312,6 +2410,10 @@ bool Validator::ValidateParameter(const StringArray &refNames, GmatBase *obj)
       }
    }
    
+   #ifdef DEBUG_CHECK_OBJECT
+   MessageInterface::ShowMessage
+      ("Validator::ValidateParameter() returning %d\n", retval);
+   #endif
    return retval;
 }
 

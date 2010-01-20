@@ -245,7 +245,7 @@ Variable::~Variable()
  * @return newly evaluated value of parameter
  */
 //------------------------------------------------------------------------------
-Real Variable::GetReal()
+Real Variable::GetReal() const
 {
    return mRealValue;
 }

@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 // *** File Name : BulirschStoer.hpp
 // *** Created   : October 1, 2002
 // **************************************************************************
@@ -28,14 +28,14 @@
 //                             Updated interfaces based on GSFC feedback
 //
 //                           : 06/15/2004 - W. Waktola, Missions Applications Branch
-//				                 Changes:
-//				                 - Updated style using GMAT cpp style guide
-//				                 - All double types to Real types
-//				                 - All int types to Integer types
+//                                               Changes:
+//                                               - Updated style using GMAT cpp style guide
+//                                               - All double types to Real types
+//                                               - All int types to Integer types
 //                               - Added Parameter accessor methods
 //                           : 06/22/2004 - W. Waktola, Missions Applications Branch
-//				                 Removals:
-//				                 - SetParameter()
+//                                               Removals:
+//                                               - SetParameter()
 //                               - GetParameter()
 //                               - GetParameterName()
 //                               - GetType()
@@ -61,7 +61,7 @@
 class GMAT_API BulirschStoer : public Integrator
 {
 public:
-   BulirschStoer(const std::string &typeStr, const std::string &nomme = "");
+   BulirschStoer(const std::string &nomme = "");
    virtual ~BulirschStoer(void);
    BulirschStoer(const BulirschStoer& bs);
    BulirschStoer& operator=(const BulirschStoer& bs);
@@ -87,7 +87,7 @@ public:
    virtual Real    GetRealParameter(const std::string &label) const;
    virtual Real    SetRealParameter(const Integer id, const Real value);
    virtual Real    SetRealParameter(const std::string &label, const Real value);
-	
+        
 protected:
    enum
    {

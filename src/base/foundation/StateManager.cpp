@@ -23,7 +23,7 @@
 #include "GmatBase.hpp"
 
 
-#define DEBUG_STATE_ACCESS
+//#define DEBUG_STATE_ACCESS
 
 
 //------------------------------------------------------------------------------
@@ -50,6 +50,11 @@ StateManager::StateManager(Integer size) :
 //------------------------------------------------------------------------------
 StateManager::~StateManager()
 {
+   // Delete the string arrays in elements
+   for (std::map<GmatBase*, StringArray*>::iterator i = elements.begin();
+         i != elements.end(); ++i)
+      delete i->second;
+
 }
 
 //------------------------------------------------------------------------------
@@ -61,7 +66,9 @@ StateManager::~StateManager()
 StateManager::StateManager(const StateManager& sm) :
    stateSize   (sm.stateSize),
    state       (sm.state),
-   current     (NULL)
+   objectNames (sm.objectNames),
+   current     (NULL),
+   stateMap    (sm.stateMap)
 {
    objects.clear();
    epochIDs.clear();
@@ -85,7 +92,10 @@ StateManager& StateManager::operator=(const StateManager& sm)
       objects.clear();
       epochIDs.clear();
       elements.clear();
-      current = NULL;
+
+      current     = NULL;
+      objectNames = sm.objectNames;
+      stateMap    = sm.stateMap;
    }
    
    return *this;
@@ -149,6 +159,12 @@ GmatState* StateManager::GetState()
 }
 
 
+Integer StateManager::GetStateSize()
+{
+   return state.GetSize();
+}
+
+
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
@@ -188,3 +204,16 @@ bool StateManager::GetStateObjects(ObjectArray& pObjects,
    
    return retval;
 }
+
+
+const StringArray& StateManager::GetObjectList(std::string ofType)
+{
+   return objectNames;
+}
+
+
+const std::vector<ListItem*>* StateManager::GetStateMap()
+{
+   return &stateMap;
+}
+

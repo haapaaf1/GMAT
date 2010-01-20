@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              BaseException
 //------------------------------------------------------------------------------
@@ -25,35 +25,28 @@
 class BaseException
 {
 public:
-   virtual std::string GetFullMessage() const 
-      {return theMessage + theDetails;};
-   virtual std::string GetDetails() const 
-      {return theDetails;};
-   virtual void SetMessage(const std::string &message)  
-      {theMessage = message;};
-   virtual void SetDetails(const std::string &details)  
-      {theDetails = details;};
-   const BaseException& operator=(const std::string &newMessage) 
-      {theMessage = newMessage;  return *this;};
+   virtual std::string GetFullMessage() const;
+   virtual std::string GetDetails() const;
+   virtual bool IsFatal() const;
+   virtual void SetMessage(const std::string &message);
+   virtual void SetDetails(const std::string &details);
+   virtual void SetFatal(bool fatal);
+   const BaseException& operator=(const std::string &newMessage);
    
    virtual void SetDetails(const char *details, ...);
    
    static const int MAX_MESSAGE_LENGTH = 3000;
    
 protected:
-   BaseException(const std::string& message = "", const std::string &details = "") 
-      {theMessage = message; theDetails = details;};
-   BaseException(const BaseException& baseException) 
-      {theMessage = baseException.theMessage; theDetails = baseException.theDetails;};
-   virtual ~BaseException() 
-      {};
-   const BaseException& operator=(const BaseException& baseException) 
-      {theMessage = baseException.theMessage; theDetails = baseException.theDetails;
-      return *this;};
+   BaseException(const std::string& message = "", const std::string &details = "");
+   BaseException(const BaseException& be);
+   virtual ~BaseException();
+   const BaseException& operator=(const BaseException& be);
    
 private:
    std::string theMessage;
    std::string theDetails;
+   bool isFatal;
 };
 #endif // BaseException_hpp
 

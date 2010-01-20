@@ -57,7 +57,7 @@ namespace GmatTimeUtil
    {
       public:
       ElapsedDate(Integer d, Integer h, Integer m, Real s)
-         : days(d), hours(d), minutes(m), seconds(s)
+         : days(d), hours(h), minutes(m), seconds(s)
          {};
 
       ElapsedDate() : days(0), hours(0), minutes(0), seconds(0.0) {};
@@ -68,21 +68,17 @@ namespace GmatTimeUtil
       Real    seconds;
    };
    
-   const Real SECS_PER_WEEK = 604800.0;
    const Real SECS_PER_DAY = 86400.0;
    const Real SECS_PER_HOUR = 3600.0;
    const Real SECS_PER_MINUTE = 60.0;
    
    const Real TIME_OF_J2000 = 883655990.850000; // 2000/01/01 43167.85
    const Real A1MJD_OF_J2000 = 21545.0;         // 2000/01/01 11:59:27.965622
-   const Real MJDSEC_TO_WHOLE_NUM = 1.0e6;      // Convert mjd seconds to whole number
    const Real JD_MJD_OFFSET = 2400000.5;        // Vallado page 187
    const Real TT_TAI_OFFSET = 32.184;           // GMAT Math Spec section 2.3
    const Real A1_TAI_OFFSET = 0.0343817;        // GMAT Math Spec section 2.1
-   const Real GPS_TAI_OFFSET = 19.0;            // 19 seconds between GPS and TAI time
    const Real JD_JAN_5_1941 = 2430000.0;        // old name JULIAN_DATE_OF_010541
    const Real JD_NOV_17_1858 = 2400000.5;       // old name JD_MJD_OFFSET
-   const Real JD_JAN_6_1980 = 2444244.5;        // GPS Zero Date UTC
    
    const Integer DAYS_BEFORE_MONTH[12] =
    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
@@ -110,6 +106,6 @@ namespace GmatTimeUtil
    bool IsValidMonthName(const std::string &str);
    std::string GetMonthName(Integer month);
    Integer GetMonth(const std::string &monthName);
-   std::string GetCurrentTime();
+   std::string FormatCurrentTime(Integer format = 1);
 }
 #endif // TimeTypes_hpp

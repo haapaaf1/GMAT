@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            SubscriberFactory
 //------------------------------------------------------------------------------
@@ -26,6 +26,7 @@
 #include "OpenGlPlot.hpp"
 #include "TsPlot.hpp"
 #include "MatlabWs.hpp"
+#include "EphemerisFile.hpp"
 
 //---------------------------------
 //  public methods
@@ -62,6 +63,8 @@ Subscriber* SubscriberFactory::CreateSubscriber(const std::string &ofType,
       return new TsPlot(withName);
    else if (ofType == "MatlabWS")
       return new MatlabWs(withName);
+   else if (ofType == "EphemerisFile")
+      return new EphemerisFile(withName);
    
    return NULL;
 }
@@ -88,6 +91,7 @@ Factory(Gmat::SUBSCRIBER)
       creatables.push_back("OpenGLPlot");
       creatables.push_back("XYPlot");
       creatables.push_back("MatlabWS");
+      creatables.push_back("EphemerisFile");
    }
 }
 

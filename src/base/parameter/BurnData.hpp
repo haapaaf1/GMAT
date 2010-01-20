@@ -13,7 +13,7 @@
 // Created: 2004/01/09
 //
 /**
- * Declares ImpulsiveBurn related data class.
+ * Declares Burn related data class.
  */
 //------------------------------------------------------------------------------
 #ifndef BurnData_hpp
@@ -37,10 +37,8 @@ public:
    BurnData& operator= (const BurnData& right);
    virtual ~BurnData();
    
-   Real GetBurnReal(Integer item);
-   Real GetBurnReal(const std::string &str);
-
-   void SetBurnReal(Integer item, Real rval);
+   Real GetReal(Integer item);
+   void SetReal(Integer item, Real rval);
    
    // The inherited methods from RefData
    virtual bool ValidateRefObjects(GmatBase *param);
@@ -84,4 +82,3 @@ protected:
 };
 #endif // BurnData_hpp
 
-   

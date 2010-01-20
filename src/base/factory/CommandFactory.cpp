@@ -17,7 +17,7 @@
  *  creating Command objects.
  */
 //------------------------------------------------------------------------------
-
+ 
 #include "gmatdefs.hpp"
 #include "Factory.hpp"
 #include "CommandFactory.hpp"
@@ -36,11 +36,10 @@
 #include "EndIf.hpp"          // for EndIf command
 #include "While.hpp"          // for FOR command
 #include "EndWhile.hpp"       // for EndFor command
-#include "Assignment.hpp"     // for Assignment (GMAT) command
+#include "Assignment.hpp"     // for Assignment (GMAT) command  
 #include "Report.hpp"         // for Report command
-#include "Load.hpp"           // for Load command
-#include "Save.hpp"           // for Save command
-#include "Stop.hpp"           // for Stop command
+#include "Save.hpp"           // for Save command  
+#include "Stop.hpp"           // for Save command  
 #include "CallFunction.hpp"   // for CallFunction command
 #include "Assignment.hpp"     // for Assignment command
 #include "BeginFiniteBurn.hpp"// for BeginFiniteBurn command
@@ -57,6 +56,7 @@
 #include "ClearPlot.hpp"      // for ClearPlot command
 #include "PenUp.hpp"          // for PenUp command
 #include "PenDown.hpp"        // for PenDown command
+#include "MarkPoint.hpp"      // for MarkPoint command
 #include "Global.hpp"         // for Global command
 #include "Create.hpp"         // for Create command
 
@@ -74,11 +74,11 @@
 //---------------------------------
 
 //------------------------------------------------------------------------------
-//  GmatCommand* CreateCommand(const std::string &ofType,
+//  GmatCommand* CreateCommand(const std::string &ofType, 
 //                             const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * This method creates and returns an object of the requested command class
+ * This method creates and returns an object of the requested command class 
  *
  * @param <ofType>   type of command object to create and return.
  * @param <withName> name of the command (currently not used).
@@ -120,6 +120,10 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
         return new If;
     else if (ofType == "Else")
         return new Else;
+#ifdef __INCLUDE_ELSEIF__
+    else if (ofType == "ElseIf")
+        return new ElseIf;
+#endif
     else if (ofType == "EndIf")
         return new EndIf;
     else if (ofType == "GMAT")
@@ -128,9 +132,6 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
         return new Report;
     else if (ofType == "Save")
         return new Save;
-    // Added for OD
-    else if (ofType == "Load")
-        return new Load;
     else if (ofType == "CallFunction")
         return new CallFunction;
     else if (ofType == "Assignment")
@@ -163,16 +164,18 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
         return new PenUp;
     else if (ofType == "PenDown")
         return new PenDown;
+    else if (ofType == "MarkPoint")
+        return new MarkPoint;
     else if (ofType == "Global")
         return new Global;
     else if (ofType == "Create")
         return new Create;
    // add more here .......
-   else
+   else 
    {
       return NULL;   // doesn't match any known type of command
    }
-
+   
 }
 
 
@@ -228,6 +231,7 @@ CommandFactory::CommandFactory() :
       creatables.push_back("ClearPlot");
       creatables.push_back("PenUp");
       creatables.push_back("PenDown");
+      creatables.push_back("MarkPoint");
       creatables.push_back("Global");
       creatables.push_back("Create");
    }
@@ -299,6 +303,7 @@ CommandFactory::CommandFactory(const CommandFactory& fact) :
       creatables.push_back("ClearPlot");
       creatables.push_back("PenUp");
       creatables.push_back("PenDown");
+      creatables.push_back("MarkPoint");
       creatables.push_back("Global");
       creatables.push_back("Create");
    }

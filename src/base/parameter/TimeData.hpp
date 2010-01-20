@@ -29,9 +29,9 @@ class GMAT_API TimeData : public RefData
 {
 public:
 
-   TimeData();
-   TimeData(const TimeData &ct);
-   TimeData& operator= (const TimeData& right);
+   TimeData(const std::string &name = "");
+   TimeData(const TimeData &td);
+   TimeData& operator= (const TimeData& td);
    virtual ~TimeData();
    
    bool IsInitialEpochSet();

@@ -12,10 +12,6 @@
 // Author: Wendy Shoan
 // Created: 2003/08/28
 //
-// Modified:    2008/07/28
-//              Matthew P. Wilkins, Schafer Corporation
-//              Added Estimator, Observer, and Measurement model factories
-//
 /**
  *  This class is the base class for the factories.  Derived classes will be
  *  responsible for creating objects of a specific type.
@@ -51,11 +47,14 @@ class AxisSystem;
 class CoordinateSystem;
 class MathNode;
 class Attitude;
-class MeasurementModel;
-//class Observer;
 class Estimator;
 class SpacePoint;
+class Event;
+
+class MeasurementModel;
+class CoreMeasurement;
 class DataFile;
+class ObType;
 
 class GMAT_API Factory
 {
@@ -113,13 +112,17 @@ public:
                                            const std::string &withName = "");
    virtual Attitude*        CreateAttitude(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual MeasurementModel*  CreateMeasurementModel(const std::string &ofType,
+   virtual MeasurementModel*
+                            CreateMeasurementModel(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual Estimator*        CreateEstimator(const std::string &ofType,
+   virtual CoreMeasurement* CreateMeasurement(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual DataFile*  CreateDataFile(const std::string &ofType,
+   virtual DataFile*        CreateDataFile(const std::string &ofType,
                                            const std::string &withName = "");
-
+   virtual ObType*          CreateObType(const std::string &ofType,
+                                         const std::string &withName = "");
+   virtual Event*           CreateEvent(const std::string &ofType,
+                                        const std::string &withName = "");
    
    // method to return list of types of objects that this factory can create
    StringArray              GetListOfCreatableObjects(void) const;

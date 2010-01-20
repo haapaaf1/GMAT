@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Hardware
 //------------------------------------------------------------------------------
@@ -20,10 +20,9 @@
 #define HARDWARE_HPP
 
 #include "GmatBase.hpp"
-#include "HardwareException.hpp"
 #include "CoordinateSystem.hpp"
 #include "CelestialBody.hpp"
-#include "Spacecraft.hpp"
+#include "HardwareException.hpp"
 
 class Spacecraft;
 

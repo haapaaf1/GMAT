@@ -100,16 +100,36 @@ Integer GmatTimeUtil::GetMonth(const std::string &monthName)
 
 
 //------------------------------------------------------------------------------
-// std::string GetCurrentTime()
+// std::string FormatCurrentTime(Integer format = 1)
 //------------------------------------------------------------------------------
 /*
- * Returns the current time in "Wed Apr 16 12:30:22 2008" format.
+ * Returns the current time in specified format.
+ *
+ * @param  format  Used in formating current time (1)
+ *                 1 = "Wed Apr 16 12:30:22 2008"
+ *                 2 = "2008-04-16T12:30:22"
+ *                 3 = "2008-04-16-12-30-22"
+ *
  */
 //------------------------------------------------------------------------------
-std::string GmatTimeUtil::GetCurrentTime()
+std::string GmatTimeUtil::FormatCurrentTime(Integer format)
 {
    time_t currTime = time(NULL);
-   char *currTimeStr = ctime(&currTime);
-   return currTimeStr;
+
+   if (format == 1)
+   {
+      char *currTimeStr = ctime(&currTime);
+      return currTimeStr;
+   }
+   else
+   {
+      tm *loctime = localtime(&currTime);
+      char timeBuf[20];
+      if (format == 2)
+         strftime(timeBuf, 20, "%Y-%m-%dT%I:%M:%S", loctime);
+      else
+         strftime(timeBuf, 20, "%Y-%m-%d_%I%M%S", loctime);
+      return timeBuf;
+   }
 }
 

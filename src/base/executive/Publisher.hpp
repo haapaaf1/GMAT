@@ -29,22 +29,25 @@ class GMAT_API Publisher
 {
 public:
    static Publisher*    Instance();
-
+   
    bool Subscribe(Subscriber *s);
    bool Unsubscribe(Subscriber *s);
    bool UnsubscribeAll();
    
+   bool Publish(GmatBase *provider, Integer id, Real *data, Integer count);
    bool Publish(Integer id, Real *data, Integer count);
    bool Publish(Integer id, char *data, Integer count = 0);
    bool Publish(Integer id, Integer *data, Integer count);
-
+   
    bool FlushBuffers();
    bool NotifyEndOfRun();
    
    // Interface methods used to identify the data sent to the publisher and
    // subscribers
-   Integer              RegisterPublishedData(const StringArray& owners, 
+   Integer              RegisterPublishedData(GmatBase *provider, Integer id,
+                                              const StringArray& owners,
                                               const StringArray& elements);
+   void                 UnregisterPublishedData(GmatBase *provider);
    void                 ClearPublishedData();
    const StringArray&   GetStringArrayParameter(const std::string& type);
    void                 SetInternalCoordSystem(CoordinateSystem *cs);
@@ -53,6 +56,13 @@ public:
    
    // Interfaces used to update the state of the running system
    void                 SetRunState(const Gmat::RunState state);
+   void                 SetManeuvering(bool flag, Real epoch,
+                                       const std::string &satNames,
+                                       const std::string &desc);
+   void                 SetManeuvering(bool flag, Real epoch,
+                                       const StringArray &satNames,
+                                       const std::string &desc);
+   bool                 GetManeuvering();
    
    CoordinateSystem* GetInternalCoordSystem() { return internalCoordSystem; }
    CoordinateSystem* GetDataCoordSystem() { return dataCoordSystem; }
@@ -69,11 +79,14 @@ private:
    /// ID for the current data provider
    Integer                  currentProvider;
    /// Arrays used to track objects for published data
-   std::vector<StringArray> objectMap;
+   std::vector<StringArray> objectArray;
    /// Arrays used to track elements for published data
-   std::vector<StringArray> elementMap;
+   std::vector<StringArray> elementArray;
+   
    /// State of the system (used to track data for display or suppression)
    Gmat::RunState           runState;
+   /// Flag indicating maneuvering
+   bool                     maneuvering;
    /// Internal coordinate system
    CoordinateSystem         *internalCoordSystem;
    /// Coordinate system of data
@@ -82,6 +95,21 @@ private:
    CelestialBody            *dataMJ2000EqOrigin;
    /// Map of coordinate system of data
    std::map<std::string, CoordinateSystem*> coordSysMap;
+   
+   /// published data info
+   struct DataType
+   {
+      StringArray    labels;
+      Integer        id;
+      DataType(StringArray labs, Integer pos)
+      {
+         labels = labs;
+         id = pos;
+      };
+   };
+   
+   /// published data map
+   std::map<GmatBase*, std::vector<DataType>* > providerMap;
    
    void                 UpdateProviderID(Integer newId);
    

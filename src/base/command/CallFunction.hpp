@@ -77,8 +77,10 @@ public:
    virtual bool         TakeAction(const std::string &action,
                                    const std::string &actionData = "");
    
-   StringArray          GetRefObjectNameArray(const Gmat::ObjectType type) const;
+   //SringArray          GetRefObjectNameArray(const Gmat::ObjectType type) const;
 
+   virtual const StringArray&
+                        GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         RenameRefObject(const Gmat::ObjectType type,
                                         const std::string &oldName,
                                         const std::string &newName);

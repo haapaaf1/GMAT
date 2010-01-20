@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Interpolator
 //------------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 
 
 #include "Interpolator.hpp"
-
+#include "MessageInterface.hpp"
 
 
 //------------------------------------------------------------------------------
@@ -36,21 +36,21 @@
 //------------------------------------------------------------------------------
 Interpolator::Interpolator(const std::string &name, const std::string &typestr,
                            Integer dim) :
-   GmatBase        (Gmat::INTERPOLATOR, typestr, name),
-   independent     (NULL),
-   dependent       (NULL),
-   previousX       (-9.9999e65),
-   dimension       (dim),
-   requiredPoints  (2),
-   bufferSize      (2),
-   pointCount      (0),
-   latestPoint     (-1),
-   rangeCalculated (false),
-   dataIncreases   (true)
+   GmatBase           (Gmat::INTERPOLATOR, typestr, name),
+   independent        (NULL),
+   dependent          (NULL),
+   previousX          (-9.9999e65),
+   dimension          (dim),
+   requiredPoints     (2),
+   bufferSize         (2),
+   pointCount         (0),
+   latestPoint        (-1),
+   rangeCalculated    (false),
+   dataIncreases      (true),
+   forceInterpolation (true)
 {
    range[0] = range[1] = 0.0;
 }
-
 
 
 //------------------------------------------------------------------------------
@@ -76,15 +76,16 @@ Interpolator::~Interpolator()
  */
 //------------------------------------------------------------------------------
 Interpolator::Interpolator(const Interpolator &i) :
-   GmatBase        (i),
-   previousX       (i.previousX),
-   dimension       (i.dimension),
-   requiredPoints  (i.requiredPoints),
-   bufferSize      (i.bufferSize),
-   pointCount      (i.pointCount),
-   latestPoint     (i.latestPoint),
-   rangeCalculated (i.rangeCalculated),
-   dataIncreases   (i.dataIncreases)
+   GmatBase           (i),
+   previousX          (i.previousX),
+   dimension          (i.dimension),
+   requiredPoints     (i.requiredPoints),
+   bufferSize         (i.bufferSize),
+   pointCount         (i.pointCount),
+   latestPoint        (i.latestPoint),
+   rangeCalculated    (i.rangeCalculated),
+   dataIncreases      (i.dataIncreases),
+   forceInterpolation (i.forceInterpolation)
 {
    if (i.independent)
       CopyArrays(i);
@@ -117,31 +118,34 @@ Interpolator& Interpolator::operator=(const Interpolator &i)
 {
    if (&i == this)
       return *this;
-        
+   
    GmatBase::operator=(i);
-
+   
    // Free any allocated memory
    if (independent)
       CleanupArrays();
-        
+   
    // Now set the member data to the new values
    dimension      = i.dimension;
    requiredPoints = i.requiredPoints;
    bufferSize     = i.bufferSize;
    pointCount     = i.pointCount;
    latestPoint    = i.latestPoint;
-
+   
    // Copy over the memory from i
    if (i.independent)
       CopyArrays(i);
-        
+   
    rangeCalculated = i.rangeCalculated;
    if (rangeCalculated)
    {
       range[0] = i.range[0];
       range[1] = i.range[1];
    }
-
+   
+   dataIncreases      = i.dataIncreases;
+   forceInterpolation = i.forceInterpolation;
+   
    return *this;
 }
 
@@ -172,25 +176,74 @@ Interpolator& Interpolator::operator=(const Interpolator &i)
 bool Interpolator::AddPoint(const Real ind, const Real *data)
 {
    Integer i;
-    
+   
    if (!independent)
       AllocateArrays();
-
+   
    // Reset the index into the array if at the end
    if (latestPoint == bufferSize-1)
       latestPoint = -1;
-        
+   
    dataIncreases = (ind > previousX ? true : false);
    previousX = ind;
-
+   
    independent[++latestPoint] = ind;
    for (i = 0; i < dimension; ++i)
       dependent[latestPoint][i] = data[i];
-        
+   
    ++pointCount;
    rangeCalculated = false;
-    
+   
+//    MessageInterface::ShowMessage
+//       ("===> Interpolator::AddPoint() ind=%f, data[0]=%f added, latestPoint=%d, "
+//        "pointCount=%d\n", ind, data[0], latestPoint, pointCount);
+   
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+//  Integer IsInterpolationFeasible(Real ind)
+//------------------------------------------------------------------------------
+/**
+ * Checks if interpolation is feasible. Derived class should implement
+ * this method if any checking is done.
+ *
+ * @param ind The value of the independent parameter.
+ * @return  1 if feasible
+ *         -1 if there is not enough data to interpolate
+ *         -2 if requested data is not within the interpolation range
+ */
+//------------------------------------------------------------------------------
+Integer Interpolator::IsInterpolationFeasible(Real ind)
+{
+   return 1;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetForceInterpolation(bool flag)
+//------------------------------------------------------------------------------
+/*
+ * Sets force interpolation flag.
+ */
+//------------------------------------------------------------------------------
+void Interpolator::SetForceInterpolation(bool flag)
+{
+   forceInterpolation = flag;
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetForceInterpolation();
+//------------------------------------------------------------------------------
+/*
+ * Retrieves force interpolation flag.
+ */
+//------------------------------------------------------------------------------
+bool Interpolator::GetForceInterpolation()
+{
+   return forceInterpolation;
 }
 
 
@@ -208,6 +261,7 @@ void Interpolator::Clear()
 {
    latestPoint = -1;
    pointCount = 0;
+   previousX = -9.9999e65;
 }
 
 
@@ -291,22 +345,22 @@ void Interpolator::SetRange()
 {
    if (rangeCalculated)
       return;
-        
+   
    // Not enough points -- just continue
    if (requiredPoints > pointCount)
       return;
-        
+   
    range[0] = range[1] = independent[0];
-    
+   
    Integer i, max = (pointCount > bufferSize ? bufferSize : pointCount);
-
+   
    for (i = 1; i < max; ++i) {
       if (independent[i] < range[0])
          range[0] = independent[i];
       if (independent[i] > range[1])
          range[1] = independent[i];
    }
-    
+   
    rangeCalculated = true;
 }
 

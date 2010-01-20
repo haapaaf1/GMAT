@@ -31,6 +31,11 @@
 #include <sstream>
 #include <cmath>
 
+// The old Publisher code keep incrementing the provider id whenever
+// Publisher::RegisterPublishedData() is called, which causes OpenGL
+// plot to fail if it is used in the nested GmatFunction.
+//#define __USE_OLD_PUB_CODE__
+
 //#define DEBUG_PROPAGATE_ASSEMBLE 1
 //#define DEBUG_PROPAGATE_OBJ 1
 //#define DEBUG_PROPAGATE_INIT 1
@@ -50,6 +55,7 @@
 //#define DEBUG_BISECTION_DETAILS
 //#define DEBUG_WRAPPERS
 //#define DEBUG_PUBLISH_DATA
+//#define DEBUG_TRANSIENT_FORCES
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -2407,6 +2413,10 @@ bool Propagate::Initialize()
          }
       }
 
+      // Check for finite thrusts and update the force model if there are any
+      if (finiteBurnActive == true)
+         AddTransientForce(satName[index], odem, psm);
+
       if (psm->BuildState() == false)
          throw CommandException("Could not build the state for the command \n" +
                generatingString);
@@ -2419,16 +2429,17 @@ bool Propagate::Initialize()
       // Set solar system to ForceModel for Propagate inside a GmatFunction(loj: 2008.06.06)
       odem->SetSolarSystem(solarSys);
       
-      // Check for finite thrusts and update the force model if there are any
-      if (finiteBurnActive == true)
-         AddTransientForce(satName[index], odem);
-      
+//      // Check for finite thrusts and update the force model if there are any
+//      if (finiteBurnActive == true)
+//         AddTransientForce(satName[index], odem, psm);
+//
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::Initialize() registering published data\n");
+         ("Propagate::Initialize() '%s' registering published data\n",
+          GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       
-      streamID = publisher->RegisterPublishedData(owners, elements);
+      streamID = publisher->RegisterPublishedData(this, streamID, owners, elements);
       
       p->SetPhysicalModel(odem);
       p->SetRealParameter("InitialStepSize", 
@@ -2676,10 +2687,36 @@ void Propagate::PrepareToPropagate()
                for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
                     i != transientForces->end(); ++i) 
                {
+                  // @todo Do we really want to check for spacecraft in the
+                  // SpaceObject list? Don't check it for now (LOJ: 2009.05.04)
+                  //======================================================
+                  #ifdef __CHECK_SPACEOBJECT__             
+                  //======================================================
                   ODEModel *fm = prop[index]->GetODEModel();
                   const StringArray sar = fm->GetRefObjectNameArray(Gmat::SPACEOBJECT);
-                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end()) 
+                  if (find(sar.begin(), sar.end(), (*sc)->GetName()) != sar.end())
+                  {
+                     #ifdef DEBUG_TRANSIENT_FORCES
+                     MessageInterface::ShowMessage
+                        ("   Adding tf<%p>'%' to forceList\n",
+                         *i, (*i)->GetName().c_str());
+                     #endif
                      prop[index]->GetODEModel()->AddForce(*i);
+                  }
+                  
+                  //======================================================
+                  #else
+                  //======================================================
+                  #ifdef DEBUG_TRANSIENT_FORCES
+                  MessageInterface::ShowMessage
+                     ("Propagate::PrepareToPropagate() Adding transientForce<%p>'%s'\n",
+                      *i, (*i)->GetName().c_str());
+                  #endif
+                  prop[index]->GetODEModel()->AddForce(*i);
+                  
+                  //======================================================
+                  #endif
+                  //======================================================
                   
                   // todo: Rebuild ODEModel by calling BuildModelFromMap()
                }
@@ -2741,7 +2778,7 @@ void Propagate::PrepareToPropagate()
       }
    
       // Now setup the stopping condition elements
-      #if DEBUG_PROPAGATE_EXE
+      #if DEBUG_PROPAGATE_INIT
          MessageInterface::ShowMessage
             ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
           (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
@@ -2781,7 +2818,7 @@ void Propagate::PrepareToPropagate()
                throw CommandException("Stopping condition " + 
                stopWhen[i]->GetName() + " has no associated spacecraft.");
       
-            #if DEBUG_PROPAGATE_EXE
+            #if DEBUG_PROPAGATE_INIT
                MessageInterface::ShowMessage(
                   "Propagate::PrepareToPropagate() stopSat = %s\n",
                   stopSats[i]->GetName().c_str());
@@ -2843,7 +2880,8 @@ void Propagate::PrepareToPropagate()
       fm.clear();
       psm.clear();
       baseEpoch.clear();
-   
+      currEpoch.clear();
+      
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
       {
          elapsedTime.push_back(0.0);
@@ -2877,7 +2915,7 @@ void Propagate::PrepareToPropagate()
          #endif
 
          // Now setup the stopping condition elements
-         #if DEBUG_PROPAGATE_EXE
+         #if DEBUG_PROPAGATE_INIT
             MessageInterface::ShowMessage
                ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
              (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
@@ -2908,7 +2946,7 @@ void Propagate::PrepareToPropagate()
                   throw CommandException("Stopping condition " + 
                   stopWhen[i]->GetName() + " has no associated spacecraft.");
          
-               #if DEBUG_PROPAGATE_EXE
+               #if DEBUG_PROPAGATE_INIT
                   MessageInterface::ShowMessage(
                      "Propagate::PrepareToPropagate() stopSat = %s\n",
                      stopSats[i]->GetName().c_str());
@@ -2981,10 +3019,16 @@ void Propagate::PrepareToPropagate()
    
    #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() publishing initial %d data to "
-          "stream %d, 1st data = %f\n", dim+1, streamID, pubdata[0]);
+         ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
+          "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          dim+1, streamID, pubdata[0]);
    #endif
-   publisher->Publish(streamID, pubdata, dim+1);
+   
+   #ifdef __USE_OLD_PUB_CODE__
+      publisher->Publish(streamID, pubdata, dim+1);
+   #else
+      publisher->Publish(this, streamID, pubdata, dim+1);
+   #endif
 }
 
 
@@ -3133,10 +3177,16 @@ bool Propagate::Execute()
             memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
             #ifdef DEBUG_PUBLISH_DATA
             MessageInterface::ShowMessage
-               ("Propagate::Execute() publishing current %d data to stream %d, "
-                "1st data = %f\n", dim+1, streamID, pubdata[0]);
+               ("Propagate::Execute() '%s' publishing current %d data to stream %d, "
+                "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+                dim+1, streamID, pubdata[0]);
             #endif
-            publisher->Publish(streamID, pubdata, dim+1);
+            
+            #ifdef __USE_OLD_PUB_CODE__
+               publisher->Publish(streamID, pubdata, dim+1);
+            #else
+               publisher->Publish(this, streamID, pubdata, dim+1);
+            #endif
          }
          else
          {  
@@ -3788,10 +3838,16 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::TakeFinalStep() publishing final %d data to stream %d, "
-          "1st data = %f\n", dim+1, streamID, pubdata[0]);
+         ("Propagate::TakeFinalStep() '%s' publishing final %d data to stream %d, "
+          "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          dim+1, streamID, pubdata[0]);
       #endif
-      publisher->Publish(streamID, pubdata, dim+1);
+      
+      #ifdef __USE_OLD_PUB_CODE__
+         publisher->Publish(streamID, pubdata, dim+1);
+      #else
+         publisher->Publish(this, streamID, pubdata, dim+1);
+      #endif
       
       #if DEBUG_PROPAGATE_EXE
          MessageInterface::ShowMessage
@@ -4370,34 +4426,50 @@ Real Propagate::BisectToStop(StopCondition *stopper)
 void Propagate::RunComplete()
 {
    if (inProgress)
+   {
       publisher->FlushBuffers();
-      
+      publisher->UnregisterPublishedData(this);
+   }
+   
    inProgress = false;
    hasFired = false;
-
+   
    #ifdef DEBUG_FIRST_CALL
       firstStepFired = false;
    #endif
+      
+   // Clear transient forces(LOJ: 2009.05.07)
+   ClearTransientForces();
    
    GmatCommand::RunComplete();
 }
 
 
 //------------------------------------------------------------------------------
-// void AddTransientForce(StringArray *sats, ForceModel *p)
+// void AddTransientForce(StringArray *sats, ForceModel *p,
+//       PropagationStateManager *propMan)
 //------------------------------------------------------------------------------
 /**
  * Passes transient forces into the ForceModel(s).
  *
- * @param <sats> The array of satellites used in the ForceModel.
- * @param <p>    The current ForceModel that is receiving the forces.
+ * @param sats The array of satellites used in the ForceModel.
+ * @param p    The current ForceModel that is receiving the forces.
+ * @param propMan PropagationStateManager for this PropSetup
  */
 //------------------------------------------------------------------------------
-void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
+void Propagate::AddTransientForce(StringArray *sats, ODEModel *p,
+      PropagationStateManager *propMan)
 {
+   #ifdef DEBUG_TRANSIENT_FORCES
+   MessageInterface::ShowMessage
+      ("Propagate::AddTransientForce() entered, ODEModel=<%p>, transientForces=<%p>\n",
+       p, transientForces);
+   #endif
+   
    // Find any transient force that is active and add it to the force model
    for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
-        i != transientForces->end(); ++i) {
+        i != transientForces->end(); ++i)
+   {
       StringArray tfSats = (*i)->GetRefObjectNameArray(Gmat::SPACECRAFT);
       // Loop through the spacecraft that go with the force model, ans see if 
       // they are in the spacecraft list for the current transient force
@@ -4406,36 +4478,49 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
       {
          if (find(tfSats.begin(), tfSats.end(), *current) != tfSats.end())
          {
+            #ifdef DEBUG_TRANSIENT_FORCES
+            MessageInterface::ShowMessage
+               ("   Adding transientForce <%p>'%s' to ODEModel\n", *i,
+                (*i)->GetName().c_str());
+            #endif
             p->AddForce(*i);
+            if ((*i)->DepeletesMass())
+            {
+               propMan->SetProperty("MassFlow");
+               #ifdef DEBUG_TRANSIENT_FORCES
+                  MessageInterface::ShowMessage("   %s depletes mass\n",
+                        (*i)->GetName().c_str());
+               #endif
+            }
             break;      // Avoid multiple adds
          }
       }
    }
-
-   #ifdef DEBUG_PROPAGATE_INIT
+   
+   #ifdef DEBUG_TRANSIENT_FORCES
       ODEModel *fm;
       PhysicalModel *pm;
-   
+      
       MessageInterface::ShowMessage(
          "Propagate::AddTransientForces completed; force details:\n");
       for (std::vector<PropSetup*>::iterator p = prop.begin(); 
            p != prop.end(); ++p)
       {
          // todo: fix calls in the debug messages
-//         fm = (*p)->GetForceModel();
-//         if (!fm)
-//            throw CommandException("ForceModel not set in PropSetup \"" +
-//                                   (*p)->GetName() + "\"");
-//         MessageInterface::ShowMessage(
-//            "   Forces in %s:\n", fm->GetName().c_str());
-//         for (Integer i = 0; i < fm->GetNumForces(); ++i)
-//         {
-//            pm = fm->GetForce(i);
-//            MessageInterface::ShowMessage(
-//               "      %s   %s\n", pm->GetTypeName().c_str(),
-//               pm->GetName().c_str());
-//         }
+         fm = (*p)->GetODEModel();
+         if (!fm)
+            throw CommandException("ODEModel not set in PropSetup \"" +
+                                   (*p)->GetName() + "\"");
+         MessageInterface::ShowMessage(
+            "   Forces in %s:\n", fm->GetName().c_str());
+         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+         {
+            pm = fm->GetForce(i);
+            MessageInterface::ShowMessage(
+               "      %15s   %s\n", pm->GetTypeName().c_str(),
+               pm->GetName().c_str());
          }
+      }
    #endif
 }
 
@@ -4449,47 +4534,67 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p)
 //------------------------------------------------------------------------------
 void Propagate::ClearTransientForces()
 {
+   #ifdef DEBUG_TRANSIENT_FORCES
+   MessageInterface::ShowMessage
+      ("Propagate::ClearTransientForces() entered, prop.size()=%d\n",
+       prop.size());
+   #endif
+   
    ODEModel *fm;
    PhysicalModel *pm;
    
    // Loop through the forces in each force model, and remove transient ones
    for (std::vector<PropSetup*>::iterator p = prop.begin(); 
-        p != prop.end(); ++p) {
+        p != prop.end(); ++p)
+   {
       fm = (*p)->GetODEModel();
       if (!fm)
          throw CommandException("ForceModel not set in PropSetup \"" + 
                                 (*p)->GetName() + "\"");
-
+      
+      #ifdef DEBUG_TRANSIENT_FORCES
+      MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
+      #endif
       for (Integer i = 0; i < fm->GetNumForces(); ++i)
       {
          pm = fm->GetForce(i);
+         #ifdef DEBUG_TRANSIENT_FORCES
+         MessageInterface::ShowMessage
+            ("      Checking if pm<%p>'%s' is transient\n", pm, pm->GetName().c_str());
+         #endif
          if (pm->IsTransient())
-         {
+         {            
+            #ifdef DEBUG_TRANSIENT_FORCES
+            MessageInterface::ShowMessage("   calling fm->DeleteForce()\n");
+            #endif
             fm->DeleteForce(pm->GetName());
             i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
          }
       }
    }
    
-   #ifdef DEBUG_PROPAGATE_INIT
+   #ifdef DEBUG_TRANSIENT_FORCES
       MessageInterface::ShowMessage(
          "Propagate::ClearTransientForces completed; force details:\n");
-      for (std::vector<PropSetup*>::iterator p = prop.begin(); 
-           p != prop.end(); ++p) {
+      for (std::vector<PropSetup*>::iterator p = prop.begin();
+           p != prop.end(); ++p)
+      {
          fm = (*p)->GetODEModel();
          if (!fm)
             throw CommandException("ForceModel not set in PropSetup \"" + 
                                    (*p)->GetName() + "\"");
+         #ifdef DEBUG_TRANSIENT_FORCES
+         MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
+         #endif
          MessageInterface::ShowMessage(
-            "   Forces in %s:\n", fm->GetName().c_str());
-         // todo: fix calls in the debug messages
-//         for (Integer i = 0; i < fm->GetNumForces(); ++i)
-//         {
-//            pm = fm->GetForce(i);
-//            MessageInterface::ShowMessage(
-//               "      %s   %s\n", pm->GetTypeName().c_str(),
-//               pm->GetName().c_str());
-//         }
+            "      Forces in %s:\n", fm->GetName().c_str());
+         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+         {
+            pm = fm->GetForce(i);
+            MessageInterface::ShowMessage(
+                "      %15s   %s\n", pm->GetTypeName().c_str(),
+                pm->GetName().c_str());
+          }
       }
    #endif
 }

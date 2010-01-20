@@ -24,6 +24,7 @@
 #include "Factory.hpp"
 
 // Forward References for the supported DataFiles
+class DataFile;
 class B3DataFile;
 class TLEDataFile;
 class SLRDataFile;

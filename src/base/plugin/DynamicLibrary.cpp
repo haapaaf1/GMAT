@@ -31,26 +31,28 @@
 #include <dlfcn.h>
 
 /// @todo Put in the Mac/Linux switching logic for dynamic library extensions
+#ifdef __linux
 // Linux version:
 #define UNIX_EXTENSION ".so"
-
+#else
 // Mac Version:
-//#define UNIX_EXTENSION ".dylib"
+#define UNIX_EXTENSION ".dylib"
 
 #endif
 
+#endif
 
 //------------------------------------------------------------------------------
 // DynamicLibrary(const std::string &name, const std::string &path)
 //------------------------------------------------------------------------------
 /**
  * Default constructor.  Dynamic libraries MUST specify the library name.
- * 
+ *
  * @param name File name for the dynamic library.
  * @param path File path for the library.  If unspecified, ./ is used.
  */
 //------------------------------------------------------------------------------
-DynamicLibrary::DynamicLibrary(const std::string &name, 
+DynamicLibrary::DynamicLibrary(const std::string &name,
       const std::string &path) :
    libName          (name),
    libPath          (path),
@@ -82,7 +84,7 @@ DynamicLibrary::~DynamicLibrary()
 //------------------------------------------------------------------------------
 /**
  * Copy constructor.  Sets the name and path, but does not open the library.
- * 
+ *
  * @param dlib The instance that is copied.
  */
 //------------------------------------------------------------------------------
@@ -99,7 +101,7 @@ DynamicLibrary::DynamicLibrary(const DynamicLibrary& dlib):
 //------------------------------------------------------------------------------
 /**
  * Assignmant operator.  Sets the name and path, but does not open the library.
- * 
+ *
  * @param dlib The instance that is copied to this instance.
  */
 //------------------------------------------------------------------------------
@@ -111,7 +113,7 @@ DynamicLibrary& DynamicLibrary::operator=(const DynamicLibrary& dlib)
       libPath = dlib.libPath;
       libHandle = NULL;
    }
-   
+
    return *this;
 }
 
@@ -120,14 +122,14 @@ DynamicLibrary& DynamicLibrary::operator=(const DynamicLibrary& dlib)
 //------------------------------------------------------------------------------
 /**
  * Loads the library into memory, and sets the MessageReceiver if necessary.
- * 
+ *
  * @return true if the library was loaded.
  */
 //------------------------------------------------------------------------------
 bool DynamicLibrary::LoadDynamicLibrary()
 {
    std::string nameWithPath;
-   
+
    nameWithPath = libPath + libName;
 
    #ifdef __WIN32__
@@ -135,28 +137,28 @@ bool DynamicLibrary::LoadDynamicLibrary()
    #else
       nameWithPath += UNIX_EXTENSION;
       libHandle = dlopen(nameWithPath.c_str(), RTLD_LAZY);
-      
+
       if (libHandle == NULL)
          MessageInterface::ShowMessage("\n%s\n", dlerror());
    #endif
-      
+
    // Set the MessageReceiver if the Library needs it
    try
    {
       void (*SetMR)(MessageReceiver*) = NULL;
-      
+
       SetMR = (void (*)(MessageReceiver*))GetFunction("SetMessageReceiver");
       MessageReceiver* mr = MessageInterface::GetMessageReceiver();
       SetMR(mr);
    }
    catch (GmatBaseException& ex)
    {
-      // Just ignore these exceptions
+      // Just ignore these exceptions -- no message receiver interfaces
    }
-      
+
    if (libHandle == NULL)
       return false;
-   
+
    return true;
 }
 
@@ -166,34 +168,34 @@ bool DynamicLibrary::LoadDynamicLibrary()
 //------------------------------------------------------------------------------
 /**
  * Retrieves the function pointer for a specified function.
- * 
+ *
  * @param funName The name of the function.
- * 
- * @return The function pointer, or NULL if the function was not located.  
- *         A NULL vaaalue should never be found, because the method throws if 
+ *
+ * @return The function pointer, or NULL if the function was not located.
+ *         A NULL vaaalue should never be found, because the method throws if
  *         the function is not found.
  */
 //------------------------------------------------------------------------------
 void (*DynamicLibrary::GetFunction(const std::string &funName))()
 {
    if (libHandle == NULL)
-      throw GmatBaseException("Library " + libName + 
-            " has not been opened successfully; cannot search for function \"" + 
+      throw GmatBaseException("Library " + libName +
+            " has not been opened successfully; cannot search for function \"" +
             funName + "\"\n");
-   
+
    void (*func)() = NULL;
-   
+
    #ifdef __WIN32__
       func = (void(*)())GetProcAddress((HINSTANCE)libHandle, funName.c_str());
    #else
       func = (void(*)())dlsym(libHandle, funName.c_str());
    #endif
-      
+
    if (func == NULL)
-      throw GmatBaseException("Library " + libName + 
-            " cannot locate the function \"" + 
+      throw GmatBaseException("Library " + libName +
+            " cannot locate the function \"" +
             funName + "\"\n");
-   
+
    return func;
 }
 
@@ -203,7 +205,7 @@ void (*DynamicLibrary::GetFunction(const std::string &funName))()
 //------------------------------------------------------------------------------
 /**
  * Retrieves the number of factories in the plugin.
- * 
+ *
  * @return The number of factories.
  */
 //------------------------------------------------------------------------------
@@ -212,7 +214,7 @@ Integer DynamicLibrary::GetFactoryCount()
    if (libHandle == NULL)
       throw GmatBaseException("Library " + libName + " has not been opened "
             "successfully; cannot search for factories \n");
-   
+
    Integer (*FactoryCount)() = NULL;
 
    try
@@ -223,8 +225,8 @@ Integer DynamicLibrary::GetFactoryCount()
    {
       return 0;
    }
-   
-   return FactoryCount();   
+
+   return FactoryCount();
 }
 
 
@@ -233,9 +235,9 @@ Integer DynamicLibrary::GetFactoryCount()
 //------------------------------------------------------------------------------
 /**
  * Retrieves a Factory pointer from the plugin.
- * 
+ *
  * @param index Zero based index into the list of factories
- * 
+ *
  * @return The pointer to the factory at the specified index.
  */
 //------------------------------------------------------------------------------
@@ -243,16 +245,76 @@ Factory* DynamicLibrary::GetGmatFactory(Integer index)
 {
    if (libHandle == NULL)
       throw GmatBaseException("Library " + libName + " has not been opened "
-            "successfully; cannot search for factories \n");
-   
+            "successfully; cannot search for factories\n");
+
    Factory* (*GetFactory)(Integer) = NULL;
    GetFactory = (Factory*(*)(Integer))GetFunction("GetFactoryPointer");
-   
+
    Factory *theFactory = GetFactory(index);
    if (theFactory == NULL)
       MessageInterface::ShowMessage(
-            "Cannot access factory #%d in the \"%s\" library\n", index, 
+            "Cannot access factory #%d in the \"%s\" library\n", index,
             libName.c_str());
-      
+
    return theFactory;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetTriggerManagerCount()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the number of TriggerManagers in the plugin.
+ *
+ * @return The number of TriggerManagers.
+ */
+//------------------------------------------------------------------------------
+Integer DynamicLibrary::GetTriggerManagerCount()
+{
+   Integer triggerCount = 0;
+
+   // Test to see if there is a TriggerManager count function
+   try
+   {
+      Integer (*tmCount)() = NULL;
+      tmCount = (Integer (*)())GetFunction("GetTriggerManagerCount");
+      if (tmCount != NULL)  // There may be TriggerManagers
+         triggerCount = tmCount();
+   }
+   catch (GmatBaseException &ex)
+   {
+      // Ignored -- Just indicates that there are no TriggerManager interfaces
+   }
+
+   return triggerCount;
+}
+
+
+//------------------------------------------------------------------------------
+// TriggerManager* GetTriggerManager(Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TriggerManager pointer from the plugin.
+ *
+ * @param index Zero based index into the list of TriggerManagers
+ *
+ * @return The pointer to the TriggerManager at the specified index.
+ */
+//------------------------------------------------------------------------------
+TriggerManager* DynamicLibrary::GetTriggerManager(Integer index)
+{
+   if (libHandle == NULL)
+      throw GmatBaseException("Library " + libName + " has not been opened "
+            "successfully; cannot search for TriggerManagers\n");
+
+   TriggerManager* (*GetTM)(Integer) = NULL;
+   GetTM = (TriggerManager* (*)(Integer))GetFunction("GetTriggerManager");
+
+   TriggerManager *theTM = GetTM(index);
+   if (theTM == NULL)
+      MessageInterface::ShowMessage(
+            "Cannot access TriggerManager #%d in the \"%s\" library\n", index,
+            libName.c_str());
+
+   return theTM;
 }

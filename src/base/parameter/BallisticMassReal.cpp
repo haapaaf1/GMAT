@@ -29,7 +29,8 @@ BallisticMassReal::BallisticMassReal(const std::string &name, const std::string 
                                      GmatBase *obj, const std::string &desc,
                                      const std::string &unit)
    : RealVar(name, "", typeStr, GmatParam::SYSTEM_PARAM, obj, desc, unit,
-             GmatParam::NO_DEP, Gmat::SPACECRAFT)
+             GmatParam::NO_DEP, Gmat::SPACECRAFT),
+     SpacecraftData(name)
 {
    AddRefObject(obj);
 }

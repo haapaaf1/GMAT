@@ -67,14 +67,19 @@ typedef std::vector<Real>        RealArray;
 typedef std::vector<Integer>     IntegerArray;
 typedef std::vector<UnsignedInt> UnsignedIntArray;
 typedef std::vector<std::string> StringArray;
+typedef std::vector<bool>        BooleanArray;
 
-class GmatBase;                            // Forward reference for ObjectArray
+class GmatBase;        // Forward reference for ObjectArray
 class ElementWrapper;
-typedef std::vector<GmatBase*> ObjectArray;
-typedef std::vector<ElementWrapper*> WrapperArray;
-typedef std::map<std::string, GmatBase*> ObjectMap;
+class A1Mjd;           // Forward reference for A1Mjd (epoch)
+class Rvector6;        // Forward reference for Rvector6 (ephem state)
+typedef std::vector<GmatBase*>                 ObjectArray;
+typedef std::vector<ElementWrapper*>           WrapperArray;
+typedef std::vector<Rvector6*>                 StateArray;
+typedef std::vector<A1Mjd*>                    EpochArray;
+typedef std::map<std::string, GmatBase*>       ObjectMap;
 typedef std::map<std::string, ElementWrapper*> WrapperMap;
-typedef std::stack<ObjectMap*> ObjectMapStack;
+typedef std::stack<ObjectMap*>                 ObjectMapStack;
 
 typedef struct geoparms
 {
@@ -85,7 +90,8 @@ typedef struct geoparms
 
 
 /// GMAT's epoch representation; eventually a struct holding MJ day & sec of day
-typedef double GmatEpoch;
+typedef Real GmatEpoch;
+typedef std::vector<Integer> IntegerArray;
 
 
 namespace Gmat
@@ -98,41 +104,48 @@ namespace Gmat
     */
    enum ObjectType
    {
-      SPACECRAFT= 1001,
+      SPACECRAFT= 101,
       FORMATION,
       SPACEOBJECT,
       GROUND_STATION,
       BURN,
+      
       IMPULSIVE_BURN,
       FINITE_BURN,
       COMMAND,
       PROPAGATOR,
       ODE_MODEL,
-//      FORCE_MODEL = ODE_MODEL,
+      
       PHYSICAL_MODEL,
       TRANSIENT_FORCE,
       INTERPOLATOR,
       SOLAR_SYSTEM,
       SPACE_POINT,
+      
       CELESTIAL_BODY,
       CALCULATED_POINT,
       LIBRATION_POINT,
       BARYCENTER,
       ATMOSPHERE,
+      
       PARAMETER,
       VARIABLE,
       ARRAY,
       STRING,
       STOP_CONDITION,
+      
       SOLVER,
       SUBSCRIBER,
       REPORT_FILE,
       XY_PLOT,
       OPENGL_PLOT,
+      
+      EPHEMERIS_FILE,
       PROP_SETUP,
       FUNCTION,
       FUEL_TANK,
       THRUSTER,
+      
       HARDWARE,            // Tanks, Thrusters, Antennae, Sensors, etc.
       SENSOR,
       ANTENNA,
@@ -144,12 +157,19 @@ namespace Gmat
       AXIS_SYSTEM,
       ATTITUDE,
       MATH_NODE,
+      
       MATH_TREE,
       ESTIMATOR,
-      MEASUREMENT_MODEL,
       BODY_FIXED_POINT,
-      DATA_FILE,
-      OBTYPE,
+
+      EVENT,
+
+      // Estimation types
+      MEASUREMENT_MODEL,
+      CORE_MEASUREMENT,    // For the measurement primitives
+      DATASTREAM,          // For Datafle container objects
+
+      OBTYPE,              // For the specific observation types
       UNKNOWN_OBJECT
    };
 
@@ -208,6 +228,7 @@ namespace Gmat
       PAUSED,
       TARGETING,
       OPTIMIZING,
+      ESTIMATING,
       SOLVING,
       SOLVEDPASS,
       WAITING
@@ -223,8 +244,8 @@ namespace Gmat
       NO_COMMENTS,
       GUI_EDITOR,
    };
-
-   enum StateElementId
+   
+   enum StateElementId 
    {
       UNKNOWN_STATE = -1,
       CARTESIAN_STATE = 3700,          // Integrable state representations
@@ -237,7 +258,7 @@ namespace Gmat
    };
 }
 
-typedef std::vector<Gmat::ObjectType> ObjectTypeArray;
+typedef std::vector<Gmat::ObjectType>      ObjectTypeArray;
 typedef std::vector<Gmat::WrapperDataType> WrapperTypeArray;
 
 #endif //GMATDEFS_HPP

@@ -1,4 +1,3 @@
-//$Header$
 //------------------------------------------------------------------------------
 //                            DataFileFactory
 //------------------------------------------------------------------------------
@@ -83,8 +82,8 @@ MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
  */
 //------------------------------------------------------------------------------
 DataFileFactory::DataFileFactory() :
-   Factory     (Gmat::DATA_FILE)
-//   Factory     (Gmat::DATA_FILE)
+   Factory     (Gmat::DATASTREAM)
+//   Factory     (Gmat::DATASTREAM)
 {
    if (creatables.empty())
    {
@@ -110,7 +109,7 @@ DataFileFactory::DataFileFactory() :
  */
 //------------------------------------------------------------------------------
 DataFileFactory::DataFileFactory(StringArray createList) :
-Factory(createList, Gmat::DATA_FILE)
+Factory(createList, Gmat::DATASTREAM)
 {
 }
 

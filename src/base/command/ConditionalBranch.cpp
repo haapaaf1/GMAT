@@ -374,12 +374,6 @@ bool ConditionalBranch::RemoveCondition(Integer atIndex)
       (ew, ew->GetDescription(), "ConditionalBranch::RemoveCondition()",
        GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsWrapper");
    #endif
-//    #ifdef DEBUG_MEMORY
-//    MessageInterface::ShowMessage
-//       ("--- ConditionalBranch::RemoveCondition() '%s' deleting lhsWrappers <%p> '%s'\n",
-//        GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
-//        ew->GetDescription().c_str());
-//    #endif
    delete ew;
    opStrings.erase(opStrings.begin() + atIndex);
    opList.erase(opList.begin() + atIndex);
@@ -391,12 +385,6 @@ bool ConditionalBranch::RemoveCondition(Integer atIndex)
       (ew, ew->GetDescription(), "ConditionalBranch::RemoveCondition()",
        GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhsWrapper");
    #endif
-//    #ifdef DEBUG_MEMORY
-//    MessageInterface::ShowMessage
-//       ("--- ConditionalBranch::RemoveCondition() '%s' deleting rhsWrappers <%p> '%s'\n",
-//        GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
-//        ew->GetDescription().c_str());
-//    #endif
    delete ew;
    numberOfConditions--;
    return true;
@@ -866,12 +854,6 @@ bool ConditionalBranch::SetStringParameter(const Integer id,
          (ew, ew->GetDescription(), "ConditionalBranch::SetStringParameter()",
           GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsWrapper");
       #endif
-//       #ifdef DEBUG_MEMORY
-//       MessageInterface::ShowMessage
-//          ("--- ConditionalBranch::SetStringParameter() '%s' deleting lhsWrappers "
-//           "<%p> '%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
-//           ew->GetDescription().c_str());
-//       #endif
       delete ew;
       return true;
    }
@@ -900,12 +882,6 @@ bool ConditionalBranch::SetStringParameter(const Integer id,
          (ew, ew->GetDescription(), "ConditionalBranch::SetStringParameter()",
           GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhsWrapper");
       #endif
-//       #ifdef DEBUG_MEMORY
-//       MessageInterface::ShowMessage
-//          ("--- ConditionalBranch::SetStringParameter() '%s' deleting rhsWrappers <%p> "
-//           "'%s'\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(), ew,
-//           ew->GetDescription().c_str());
-//       #endif
       delete ew;
       return true;
    }
@@ -1189,13 +1165,9 @@ void ConditionalBranch::ClearWrappers()
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (ew, ew->GetDescription(), "ConditionalBranch::ClearWrappers()",
-             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsWrapper");
+             //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsWrapper");
+             GetTypeName() + " deleting lhsWrapper");
          #endif
-//          #ifdef DEBUG_MEMORY
-//          MemoryTracker::Instance()->Remove
-//             (wrapper, wrapper->GetDescription(), "ConditionalBranch::ClearWrappers()",
-//              GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsWrapper");
-//          #endif
          delete ew;
       }
       

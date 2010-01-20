@@ -65,6 +65,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "PLANETARY_COEFF_PATH",
    "TIME_PATH",
    "TEXTURE_PATH",
+   "MEASUREMENT_PATH",
    // file name
    "LOG_FILE",
    "REPORT_FILE",
@@ -502,6 +503,17 @@ void FileManager::WriteStartupFile(const std::string &fileName)
          break;
       }
    }
+   outStream << "#-----------------------------------------------------------\n";
+
+   //---------------------------------------------
+   // write MEASUREMENT_PATH next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing MEASUREMENT_PATH paths\n");
+   #endif
+   outStream << setw(20) << "MEASUREMENT_PATH" << " = "
+             << mPathMap["MEASUREMENT_PATH"] << "\n";
+   WriteFiles(outStream, "LOG");
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
@@ -1548,6 +1560,7 @@ void FileManager::RefreshFiles()
    AddFileType("OUTPUT_PATH", "./files/output/");
    AddFileType("LOG_FILE", "OUTPUT_PATH/GmatLog.txt");
    AddFileType("REPORT_FILE", "OUTPUT_PATH/ReportFile.txt");
+   AddFileType("MEASUREMENT_PATH", "./output/");
 
    //loj: Should we create default input files?
 #ifdef FM_CREATE_DEFAULT_INPUT
@@ -1563,6 +1576,9 @@ void FileManager::RefreshFiles()
    // texture file path
    AddFileType("TEXTURE_PATH", "./files/plot/texture/");
 
+   // Measurement/observation data path
+   AddFileType("MEASUREMENT_PATH", "./output/");
+
    // slp files
    AddFileType("SLP_PATH", "./files/planetary_ephem/slp/");
    AddFileType("SLP_FILE", "SLP_PATH/mn2000.pc");
@@ -1576,7 +1592,7 @@ void FileManager::RefreshFiles()
 
    // spk files
    AddFileType("SPK_PATH", "./files/planetary_ephem/spk/");
-   AddFileType("PLANETARY_SPK_FILE", "DE_PATH/de421.bsp");
+   AddFileType("PLANETARY_SPK_FILE", "SPK_PATH/de421.bsp");
 
    // earth gravity files
    AddFileType("EARTH_POT_PATH", "./files/gravity/earth/");

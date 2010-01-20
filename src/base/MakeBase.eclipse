@@ -65,7 +65,8 @@ endif
 
 ifeq ($(USE_SPICE),1)
 SPICE_OBJECTS = \
-    util/SpiceKernelReader.o
+    util/SpiceKernelReader.o \
+    util/SpiceKernelWriter.o \
 else
 SPICE_OBJECTS =
 endif
@@ -197,6 +198,7 @@ OBJECTS = \
     command/If.o \
     command/ManageObject.o \
     command/Maneuver.o \
+    command/MarkPoint.o \
     command/Minimize.o \
     command/NonlinearConstraint.o \
     command/NoOp.o \
@@ -204,8 +206,10 @@ OBJECTS = \
     command/PenDown.o \
     command/PenUp.o \
     command/Propagate.o \
+    command/PropagationEnabledCommand.o \
     command/Report.o \
     command/RunEstimator.o \
+    command/RunSolver.o \
     command/Load.o \
     command/Save.o \
     command/SolverBranchCommand.o \
@@ -290,6 +294,7 @@ OBJECTS = \
     forcemodel/PhysicalModel.o \
     forcemodel/PointMassForce.o \
     forcemodel/SolarRadiationPressure.o \
+    foundation/Covariance.o \
     foundation/ElementWrapper.o \
     foundation/GmatBaseException.o \
     foundation/GmatBase.o \
@@ -298,6 +303,7 @@ OBJECTS = \
     foundation/ObjectInitializer.o \
     foundation/SpacePoint.o \
     foundation/StateManager.o \
+    foundation/TriggerManager.o \
     function/Function.o \
     function/FunctionException.o \
     function/FunctionManager.o \
@@ -309,7 +315,9 @@ OBJECTS = \
     interpolator/BrentDekkerZero.o \
     interpolator/CubicSplineInterpolator.o \
     interpolator/Interpolator.o \
+    interpolator/InterpolatorException.o \
     interpolator/LinearInterpolator.o \
+    interpolator/LagrangeInterpolator.o \
     interpolator/NotAKnotInterpolator.o \
     interpreter/InterpreterException.o \
     interpreter/Interpreter.o \
@@ -425,6 +433,8 @@ OBJECTS = \
     parameter/EnvParameters.o \
     parameter/EnvReal.o \
     parameter/ExpressionParser.o \
+    parameter/HardwareParameters.o \
+    parameter/HardwareReal.o \
     parameter/KeplerianParameters.o \
     parameter/NumberWrapper.o \
     parameter/ObjectWrapper.o \
@@ -518,6 +528,8 @@ OBJECTS = \
     hardware/Antenna.o \
     hardware/sensors/Sensor.o \
     stopcond/StopCondition.o \
+    subscriber/EphemerisFile.o \
+    subscriber/OwnedPlot.o \
     subscriber/MatlabWs.o \
     subscriber/MessageWindow.o \
     subscriber/TextEphemFile.o \
@@ -600,6 +612,7 @@ FORTRAN_OBJECTS = environment/msise90_sub.o
 
     # parameter/EquinoctialParameters.o \
     # stopcond/BaseStopCondition.o \
+    # command/RunSimulator.o \
 
 ifeq ($(SHARED_BASE), 1)
 $(TARGET) : $(OBJECTS) $(FORTRAN_OBJECTS) $(BRIDGEOBJECTS) $(MT_OBJECTS)

@@ -66,9 +66,12 @@ public:
    friend Rmatrix33 Outerproduct(const Rvector3 &v1, const Rvector3 &v2);
    friend Rvector3 Cross(const Rvector3 &v1, const Rvector3 &v2);
    
+   static Real Normalize(const Real from[3], Real to[3]);
+   static void Copy(const Real from[3], Real to[3]);
+   
    Integer GetNumData() const;
    const std::string* GetDataDescriptions() const;
-      
+   
 private:
    static const Integer NUM_DATA = 3;
    static const std::string DATA_DESCRIPTIONS[NUM_DATA];

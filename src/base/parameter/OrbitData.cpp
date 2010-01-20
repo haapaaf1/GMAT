@@ -65,14 +65,14 @@ OrbitData::VALID_OBJECT_TYPE_LIST[OrbitDataObjectCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// OrbitData()
+// OrbitData(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  * Constructor.
  */
 //------------------------------------------------------------------------------
-OrbitData::OrbitData()
-   : RefData(),
+OrbitData::OrbitData(const std::string &name)
+   : RefData(name),
    stateTypeId (-1)
 {
    mCartState = Rvector6::RVECTOR6_UNDEFINED;
@@ -1089,8 +1089,8 @@ void OrbitData::InitializeRefObjects()
          #endif
       
          throw ParameterException
-            ("Coordinate system origin: " + mOutCoordSystem->GetOriginName() +
-             " not found.");
+            ("OrbitData::InitializeRefObjects() The origin of CoordinateSystem \"" +
+             mOutCoordSystem->GetOriginName() + "\" is NULL");
       }
       
       // get gravity constant if out coord system origin is CelestialBody

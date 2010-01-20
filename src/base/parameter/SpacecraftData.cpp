@@ -1,4 +1,4 @@
-//$Id$
+//$Id: SpacecraftData.cpp 7506 2009-12-16 19:59:30Z lindajun $
 //------------------------------------------------------------------------------
 //                                  SpacecraftData
 //------------------------------------------------------------------------------
@@ -34,8 +34,8 @@ const Real SpacecraftData::BALLISTIC_REAL_UNDEFINED = -9876543210.1234;
 //------------------------------------------------------------------------------
 // SpacecraftData()
 //------------------------------------------------------------------------------
-SpacecraftData::SpacecraftData()
-   : RefData()
+SpacecraftData::SpacecraftData(const std::string &name)
+   : RefData(name)
 {
    mSpacecraft = NULL;
 }
@@ -79,7 +79,7 @@ SpacecraftData::~SpacecraftData()
 // Real GetReal(Integer item)
 //------------------------------------------------------------------------------
 /**
- * Retrives Spacecraft element.
+ * Retrives Spacecraft or spacecraft owned hardware element by integer id.
  */
 //------------------------------------------------------------------------------
 Real SpacecraftData::GetReal(Integer item)
@@ -101,10 +101,243 @@ Real SpacecraftData::GetReal(Integer item)
       return mSpacecraft->GetRealParameter("SRPArea");
    case TOTAL_MASS:
       return mSpacecraft->GetRealParameter("TotalMass");
+      
+   // for Spacecraft owned FuelTank
+   case FUEL_MASS:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "FuelMass");
+   case PRESSURE:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "Pressure");
+   case TEMPERATURE:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "Temperature");
+   case REF_TEMPERATURE:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "RefTemperature");
+   case VOLUME:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "Volume");
+   case FUEL_DENSITY:
+      return GetOwnedObjectProperty(Gmat::FUEL_TANK, "FuelDensity");
+      
+   // for Spacecraft owned Thruster
+   case DUTY_CYCLE:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "DutyCycle");
+   case THRUSTER_SCALE_FACTOR:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustScaleFactor");
+   case GRAVITATIONAL_ACCEL:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "GravitationalAccel");
+      
+   // Thrust Coefficients
+   case C1:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C1");
+   case C2:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C2");
+   case C3:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C3");
+   case C4:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C4");
+   case C5:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C5");
+   case C6:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C6");
+   case C7:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C7");
+   case C8:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C8");
+   case C9:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C9");
+   case C10:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C10");
+   case C11:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C11");
+   case C12:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C12");
+   case C13:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C13");
+   case C14:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C14");
+   case C15:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C15");
+   case C16:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "C16");
+      
+   // Impulse Coefficients
+   case K1:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K1");
+   case K2:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K2");
+   case K3:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K3");
+   case K4:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K4");
+   case K5:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K5");
+   case K6:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K6");
+   case K7:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K7");
+   case K8:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K8");
+   case K9:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K9");
+   case K10:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K10");
+   case K11:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K11");
+   case K12:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K12");
+   case K13:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K13");
+   case K14:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K14");
+   case K15:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K15");
+   case K16:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "K16");
+      
+   // Thruster ThrustDirections
+   case THRUST_DIRECTION1:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection1");
+   case THRUST_DIRECTION2:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection2");
+   case THRUST_DIRECTION3:
+      return GetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection3");
+      
    default:
       // otherwise, there is an error   
       throw ParameterException
          ("SpacecraftData::GetReal() Unknown parameter id: " +
+          GmatStringUtil::ToString(item));
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// Real SetReal(Integer item, Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets Spacecraft or spacecraft owned hardware element by integer id.
+ */
+//------------------------------------------------------------------------------
+Real SpacecraftData::SetReal(Integer item, Real val)
+{
+   if (mSpacecraft == NULL)
+      InitializeRefObjects();
+   
+   switch (item)
+   {
+   case DRY_MASS:
+      return mSpacecraft->SetRealParameter("DryMass", val);
+   case DRAG_COEFF:
+      return mSpacecraft->SetRealParameter("Cd", val);
+   case REFLECT_COEFF:
+      return mSpacecraft->SetRealParameter("Cr", val);
+   case DRAG_AREA:
+      return mSpacecraft->SetRealParameter("DragArea", val);
+   case SRP_AREA:      
+      return mSpacecraft->SetRealParameter("SRPArea", val);
+   case TOTAL_MASS:
+      return mSpacecraft->SetRealParameter("TotalMass", val);
+      
+   // for Spacecraft owned FuelTank
+   case FUEL_MASS:
+      return SetOwnedObjectProperty(Gmat::FUEL_TANK, "FuelMass", val);
+   case PRESSURE:
+      return SetOwnedObjectProperty(Gmat::FUEL_TANK, "Pressure", val);
+   case TEMPERATURE:
+      return SetOwnedObjectProperty(Gmat::FUEL_TANK, "Temperature", val);
+   case REF_TEMPERATURE:
+      return SetOwnedObjectProperty(Gmat::FUEL_TANK, "RefTemperature", val);
+   case VOLUME:
+      return SetOwnedObjectProperty(Gmat::FUEL_TANK, "Volume", val);
+   case FUEL_DENSITY:
+      return SetOwnedObjectProperty(Gmat::FUEL_TANK, "FuelDensity", val);
+      
+   // for Spacecraft owned Thruster
+   case DUTY_CYCLE:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "DutyCycle", val);
+   case THRUSTER_SCALE_FACTOR:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "ThrustScaleFactor", val);
+   case GRAVITATIONAL_ACCEL:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "GravitationalAccel", val);
+      
+   // Thrust Coefficients
+   case C1:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C1", val);
+   case C2:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C2", val);
+   case C3:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C3", val);
+   case C4:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C4", val);
+   case C5:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C5", val);
+   case C6:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C6", val);
+   case C7:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C7", val);
+   case C8:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C8", val);
+   case C9:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C9", val);
+   case C10:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C10", val);
+   case C11:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C11", val);
+   case C12:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C12", val);
+   case C13:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C13", val);
+   case C14:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C14", val);
+   case C15:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C15", val);
+   case C16:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "C16", val);
+      
+   // Impulse Coefficients
+   case K1:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K1", val);
+   case K2:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K2", val);
+   case K3:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K3", val);
+   case K4:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K4", val);
+   case K5:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K5", val);
+   case K6:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K6", val);
+   case K7:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K7", val);
+   case K8:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K8", val);
+   case K9:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K9", val);
+   case K10:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K10", val);
+   case K11:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K11", val);
+   case K12:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K12", val);
+   case K13:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K13", val);
+   case K14:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K14", val);
+   case K15:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K15", val);
+   case K16:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "K16", val);
+      
+   // Thruster ThrustDirections
+   case THRUST_DIRECTION1:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection1", val);
+   case THRUST_DIRECTION2:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection2", val);
+   case THRUST_DIRECTION3:
+      return SetOwnedObjectProperty(Gmat::THRUSTER, "ThrustDirection3", val);
+      
+   default:
+      // otherwise, there is an error   
+      throw ParameterException
+         ("SpacecraftData::SetReal() Unknown parameter id: " +
           GmatStringUtil::ToString(item));
    }
 }
@@ -137,7 +370,7 @@ bool SpacecraftData::ValidateRefObjects(GmatBase *param)
       if (HasObjectType(VALID_OBJECT_TYPE_LIST[i]))
          objCount++;
    }
-
+   
    if (objCount == SpacecraftDataObjectCount)
       return true;
    else
@@ -153,7 +386,7 @@ bool SpacecraftData::ValidateRefObjects(GmatBase *param)
 //------------------------------------------------------------------------------
 void SpacecraftData::InitializeRefObjects()
 {
-   #if DEBUG_BALLISTICDATA_INIT
+   #if DEBUG_SPACECRAFTDATA_INIT
    MessageInterface::ShowMessage
       ("SpacecraftData::InitializeRefObjects() entered.\n");
    #endif
@@ -164,7 +397,7 @@ void SpacecraftData::InitializeRefObjects()
    {
       // Just write a message since Parameters in GmatFunction may not have ref. object
       // set until execution
-      #if DEBUG_BALLISTICDATA_INIT
+      #if DEBUG_SPACECRAFTDATA_INIT
       MessageInterface::ShowMessage
          ("SpacecraftData::InitializeRefObjects() Cannot find Spacecraft object.\n");
       #endif
@@ -173,7 +406,7 @@ void SpacecraftData::InitializeRefObjects()
       //   ("SpacecraftData::InitializeRefObjects() Cannot find Spacecraft object.\n");
    }
    
-   #if DEBUG_BALLISTICDATA_INIT
+   #if DEBUG_SPACECRAFTDATA_INIT
    MessageInterface::ShowMessage
       ("SpacecraftData::InitializeRefObjects() mSpacecraft=%s\n",
        mSpacecraft->GetName().c_str())
@@ -200,5 +433,66 @@ bool SpacecraftData::IsValidObjectType(Gmat::ObjectType type)
    
    return false;
 
+}
+
+
+//------------------------------------------------------------------------------
+// Real GetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &propName)
+//------------------------------------------------------------------------------
+Real SpacecraftData::GetOwnedObjectProperty(Gmat::ObjectType objType,
+                                            const std::string &propName)
+{
+   std::string type, owner, dep;
+   GmatStringUtil::ParseParameter(mName, type, owner, dep);
+   
+   #ifdef DEBUG_SC_OWNED_OBJ
+   MessageInterface::ShowMessage
+      ("SpacecraftData::GetOwnedObjectProperty() name='%s', type='%s', owner='%s', "
+       "dep='%s',\n", mName.c_str(), type.c_str(), owner.c_str(), dep.c_str());
+   #endif
+   
+   GmatBase *ownedObj = mSpacecraft->GetRefObject(objType, dep);
+   if (ownedObj == NULL)
+   {
+      ParameterException pe;
+      pe.SetDetails("SpacecraftData::GetOwnedObjectProperty() %s \"%s\" is not "
+                    "attached to Spacecraft \"%s\"",
+                    GmatBase::GetObjectTypeString(objType).c_str(), dep.c_str(),
+                    mSpacecraft->GetName().c_str());
+      throw pe;
+   }
+   else
+      return ownedObj->GetRealParameter(propName);
+}
+
+
+//------------------------------------------------------------------------------
+// Real SetOwnedObjectProperty(Gmat::ObjectType objType, const std::string &propName)
+//------------------------------------------------------------------------------
+Real SpacecraftData::SetOwnedObjectProperty(Gmat::ObjectType objType,
+                                            const std::string &propName,
+                                            Real val)
+{
+   std::string type, owner, dep;
+   GmatStringUtil::ParseParameter(mName, type, owner, dep);
+   
+   #ifdef DEBUG_SC_OWNED_OBJ
+   MessageInterface::ShowMessage
+      ("SpacecraftData::SetOwnedObjectProperty() name='%s', type='%s', owner='%s', "
+       "dep='%s',\n", mName.c_str(), type.c_str(), owner.c_str(), dep.c_str());
+   #endif
+   
+   GmatBase *ownedObj = mSpacecraft->GetRefObject(objType, dep);
+   if (ownedObj == NULL)
+   {
+      ParameterException pe;
+      pe.SetDetails("SpacecraftData::SetOwnedObjectProperty() %s \"%s\" is not "
+                    "attached to Spacecraft \"%s\"",
+                    GmatBase::GetObjectTypeString(objType).c_str(), dep.c_str(),
+                    mSpacecraft->GetName().c_str());
+      throw pe;
+   }
+   else
+      return ownedObj->SetRealParameter(propName, val);
 }
 

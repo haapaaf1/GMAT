@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Hardware
 //------------------------------------------------------------------------------
@@ -18,6 +18,9 @@
 
 #include "Hardware.hpp"
 #include "ObjectReferencedAxes.hpp"
+#include "Spacecraft.hpp"
+#include "HardwareException.hpp"
+#include "MessageInterface.hpp"
 #include <string.h>
 
 //#define DEBUG_HARDWARE

@@ -175,17 +175,19 @@ std::string GmatFileUtil::ParseFileName(const std::string &fullPath)
 
 
 //------------------------------------------------------------------------------
-// std::string ParseFileExtension(const std::string &fullPath)
+// std::string ParseFileExtension(const std::string &fullPath, bool prependDot)
 //------------------------------------------------------------------------------
 /*
  * This function parses file extension (string after .) from given full path name.
  *
  * @param  fullPath  input full path name
+ * @param  prependDot  prepends dot(.) if this is true [false]
  * @return  The file extension from the full path
  *
  */
 //------------------------------------------------------------------------------
-std::string GmatFileUtil::ParseFileExtension(const std::string &fullPath)
+std::string GmatFileUtil::ParseFileExtension(const std::string &fullPath,
+                                             bool prependDot)
 {
    #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
@@ -202,6 +204,9 @@ std::string GmatFileUtil::ParseFileExtension(const std::string &fullPath)
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParseFileExtension() returning <%s>\n", fileExt.c_str());
    #endif
+
+   if (prependDot)
+      fileExt = "." + fileExt;
    
    return fileExt;
 }
