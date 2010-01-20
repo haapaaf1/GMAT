@@ -2702,7 +2702,7 @@ void GmatMainFrame::OnSetPath(wxCommandEvent& event)
 void GmatMainFrame::OnOpenMatlab(wxCommandEvent& event)
 {
    wxBeginBusyCursor();
-   MatlabInterface::Instance()->Open();
+   MatlabInterface::Instance()->Open("GmatMatlab");
    wxEndBusyCursor();
 }
 
