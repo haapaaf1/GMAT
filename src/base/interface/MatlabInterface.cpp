@@ -178,8 +178,11 @@ int MatlabInterface::Open(const std::string &engineName)
       
       if (matlabEngineMap.find(lastEngineName) != matlabEngineMap.end())
       {
+         #ifdef DEBUG_MATLAB_OPEN_CLOSE
          MessageInterface::ShowMessage
             ("'%s' already opened for single use\n", lastEngineName.c_str());
+         #endif
+         
          enginePtr = matlabEngineMap[lastEngineName];
          return 1;
       }
