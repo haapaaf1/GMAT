@@ -102,7 +102,7 @@ SpiceKernelWriter::SpiceKernelWriter(const std::string       &objName,   const s
 
    // @todo - do we need to call boddef_c here to set the NAIF ID for the spacecraft????
 
-   // set output file and action for cspice methods
+   // set output file and action for CSPICE methods
    errdev_c("SET", 1840, "./GMATSpiceKernelWriterError.txt"); // @todo this should be set in startup file
    erract_c("SET", 1840, "RETURN");
 
@@ -110,8 +110,8 @@ SpiceKernelWriter::SpiceKernelWriter(const std::string       &objName,   const s
    SpiceInt        maxChar = MAX_CHAR_COMMENT;
    std::string     internalFileName = "GMAT-generated SPK file for " + objectName;
    ConstSpiceChar  *internalSPKName  = internalFileName.c_str();
-   spkopn_c(kernelName, internalSPKName, maxChar, &handle);
-   if (failed_c())
+   spkopn_c(kernelName, internalSPKName, maxChar, &handle); // CSPICE method to create and open an SPK kernel
+   if (failed_c()) // CSPICE method to detect failure of previous call to CSPICE
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
       SpiceInt       numErrChar = MAX_LONG_MESSAGE;
@@ -127,11 +127,11 @@ SpiceKernelWriter::SpiceKernelWriter(const std::string       &objName,   const s
    // set up the "basic" meta data here ...
    SetBasicMetaData();
    // Get Julian date of J2000 from CSPICE
-   j2ET = j2000_c();
+   j2ET = j2000_c();   // CSPICE method to return Julian date of J2000 (TDB)
 
    // make sure that the NAIF Id is associated with the object name  @todo - need to set center's Id as well sometimes?
    ConstSpiceChar *itsName = objectName.c_str();
-   boddef_c(itsName, objectNAIFId);
+   boddef_c(itsName, objectNAIFId);        // CSPICE method to set NAIF ID for an object
    if (failed_c())
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
@@ -255,7 +255,7 @@ void SpiceKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
    std::string         segmentID = "SPK_SEGMENT";
    ConstSpiceChar      *segmentIDSPICE = segmentID.c_str();
 
-   // pass data to CSPICE
+   // pass data to CSPICE method that writes a segment to a Data Type 13 kernel
    spkw13_c(handle, objectNAIFId, centralBodyNAIFId, referenceFrame, startSPICE,
             endSPICE, segmentIDSPICE, degree, numStates, stateArray, epochArray);
 
@@ -331,8 +331,6 @@ void SpiceKernelWriter::SetBasicMetaData()
    basicMetaData.push_back(metaDataLine);
    metaDataLine = "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---\n";
    basicMetaData.push_back(metaDataLine);
-//   metaDataLine = "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
-//   basicMetaData.push_back(metaDataLine);
 }
 
 void SpiceKernelWriter::FinalizeKernel()
@@ -363,7 +361,8 @@ void SpiceKernelWriter::WriteMetaData()
       return;
    }
 
-   // write the meta data to the temporary file
+   // write the meta data to the temporary file (according to SPICE dcs, must use regular C routines)
+   // close the temporary file, when done
    unsigned int basicSize = basicMetaData.size();
    unsigned int addedSize = addedMetaData.size();
    for (unsigned int ii = 0; ii < basicSize; ii++)
@@ -386,8 +385,8 @@ void SpiceKernelWriter::WriteMetaData()
    tmpTxt[txtLength] = '\0';
    integer     unit;
    ftnlen      txtLen = txtLength + 1;
-   txtopr_(tmpTxt, &unit, txtLen);
-   spcac_(&handle, &unit, " ", " ", 1, 1);
+   txtopr_(tmpTxt, &unit, txtLen);         // CSPICE method to open test file for reading
+   spcac_(&handle, &unit, " ", " ", 1, 1); // CSPICE method to write comments to kernel
    if (failed_c())
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
@@ -401,7 +400,7 @@ void SpiceKernelWriter::WriteMetaData()
       throw UtilityException(errmsg);
    }
    // close the text file
-   ftncls_c(unit);
+   ftncls_c(unit);                         // CSPICE method to close the text file
    // remove the temporary text file
    remove(tmpTxt);
    delete [] tmpTxt;
@@ -412,7 +411,7 @@ Integer SpiceKernelWriter::GetNaifID(const std::string &forBody)
    SpiceBoolean   found;
    SpiceInt       id;
    ConstSpiceChar *bodyName = forBody.c_str();
-   bodn2c_c(bodyName, &id, &found);
+   bodn2c_c(bodyName, &id, &found);        // CSPICE method to get NAIF Id, given body name
    if (found == SPICEFALSE)
    {
       std::string warnmsg = "Cannot find NAIF ID for body ";
