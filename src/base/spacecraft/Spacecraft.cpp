@@ -327,7 +327,7 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    covariance(3,3) = covariance(4,4) = covariance(5,5) = 1.0e6;
    
    // Set some negative value to naifId
-   naifId = -123456789;
+//   naifId = -123456789;   // wcs 2010.01.22 set at SpacePoint level
    
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -1633,6 +1633,9 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
    {
       return true;
    }
+
+   // NAIF ID is not read-only for spacecraft
+   if (id == NAIF_ID)  return false;
 
    // if (id == STATE_TYPE) return true;   when deprecated stuff goes away
 

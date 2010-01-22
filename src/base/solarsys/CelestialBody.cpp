@@ -3478,7 +3478,10 @@ bool CelestialBody::IsParameterReadOnly(const Integer id) const
        (id == SPIN_AXIS_DEC_CONSTANT) || (id == SPIN_AXIS_DEC_RATE) ||
        (id == ROTATION_CONSTANT)      || (id == ROTATION_RATE)))
       return true;
-   
+
+   // NAIF ID is not read-only for celestial bodies
+   if (id == NAIF_ID)  return false;
+
    return SpacePoint::IsParameterReadOnly(id);
 }
 
@@ -4286,7 +4289,7 @@ bool CelestialBody::SetUpSPICE()
       else
          spiceNaifId = kernelReader->GetNaifID(instanceName); 
       
-      if ((naifId != 0) && (spiceNaifId != naifId))
+      if ((naifId != UNDEFINED_NAIF_ID) && (spiceNaifId != naifId))
       {
          std::stringstream ss;
          ss << "Overriding input NAIF ID for body \"" << instanceName <<

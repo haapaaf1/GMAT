@@ -613,7 +613,7 @@ protected:
    virtual Real     GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const;
    virtual Rvector6 ComputeTwoBody(const A1Mjd &forTime);
    virtual Rvector6 KeplersProblem(const A1Mjd &forTime);
-   virtual bool     SetUpSPICE();
+   virtual bool     SetUpSPICE(); // @todo - move this to SpacePoint?
    
 private:
 
