@@ -1,0 +1,32 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-21 Spacecraft GUI SphericalRADec to SphericalAZFPA Conversion\\
+         \hline
+         Requirements & FRR-2.4\\ \hline
+         Summary &
+         %----------------------  The Test Summary
+         This test case applies to state representation conversions performed by the Spacecraft Orbit dialog box.  \\
+         \hline
+         PreConditions & To run this test you need to load BS-1 and have data defined in TD-1 available.\\
+         \hline
+         Steps &
+         %------- The test data is here
+         \begin{compactenum}
+         \item Open the dialog box for DefaultSC via the GUI.
+         \item Change the state type to UTCGregian.
+         \item Enter the UTCGregorian epoch defined in Table TD-2.
+         \item Hit the apply button.
+         \item Change the Epoch Format drop down box to UTCModJulian and compare the epoch to the
+          data contained in TD-1. The epoch should agree identically. 
+         \end{compactenum}\\
+         %------- The test data is here
+         \hline
+         Expected Results & The expected numeric results are described above and in TD-1.\\
+      \hline
+\end{tabular}
+      \label{Table: STC-21}
+      \caption{STC-21 Spacecraft GUI SphericalRADEC to SphericalAZFPA State Conversion}
+       \index{Test Data!STC-21}
+\end{table} 

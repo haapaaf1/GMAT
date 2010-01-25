@@ -1,0 +1,32 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-19 Spacecraft GUI SphericalRADec to Keplerian Conversion\\
+         \hline
+         Requirements & FRR-1.3\\ \hline
+         Summary &
+         %----------------------  The Test Summary
+         This test case applies to state representation conversions performed by the Spacecraft Orbit dialog box.  \\
+         \hline
+         PreConditions & To run this test you need to load BS-1 and have data defined in TD-1 available.\\
+         \hline
+         Steps &
+         %------- The test data is here
+         \begin{compactenum}
+         \item Open the dialog box for DefaultSC via the GUI.
+         \item Change the state type to SphericalRADEC.
+         \item Enter the SphericalRADEC data defined in table TD-1.
+         \item Hit the apply button.
+         \item Change the state type drop down box to Keplerian and compare the Keplerian state to the
+         Keplerian state data contained in TD-1. The states should be equivalent to 14 significant figures.
+         \end{compactenum}\\
+         %------- The test data is here
+         \hline
+         Expected Results & The expected numeric results are described above and in TD-1.\\
+      \hline
+\end{tabular}
+      \label{Table: STC-19}
+      \caption{STC-19 Spacecraft GUI SphericalRADEC to Keplerian State Conversion}
+       \index{Test Data!STC-19}
+\end{table} 

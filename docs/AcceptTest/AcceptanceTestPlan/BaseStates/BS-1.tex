@@ -1,0 +1,66 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & BS-1 The Default Mission\\
+         \hline
+         Summary &
+         %
+         %
+         %----------------------  BEGIN: The Base State Summary
+         This base state configures GMAT to the default mission. 
+         %----------------------  END: The Test Summary
+         %
+         %
+         \\ \hline
+         Description & 
+         %
+         %
+         %----------------------  BEGIN: The Base State Description
+        \begin{verbatim}
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545.000000000';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.NAIFId = -123456789;
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '312';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+         \end{verbatim}
+         %----------------------  END: The Base State Description
+         %
+         %
+         \\ \hline
+\end{tabular}
+      \label{Table: BS-1}
+      \caption{Spacecraft GUI State Conversion Test}
+       \index{Test Data!BS-1}
+\end{table} 
+

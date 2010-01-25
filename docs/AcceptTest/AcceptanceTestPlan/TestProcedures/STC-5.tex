@@ -1,0 +1,45 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-5 GUI Epoch and State Independence for Time Dependent Coordinate System\\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This test is to verify that changing the epoch of the spacecraft, does not effect
+         the orbit state, even when the coordinate system is, for example, a libration point
+         coordinate system that has a time varying origin and axis system.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-2\\
+         \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+              \item Load BS-2
+              \item Open the dialog box for DefaultSC
+              \item Change the CoordinateSystem to CS\_ESL2
+              \item Change the Epoch Format to UTCGregorian
+              \item Change the Epoch value to 01 Jan 2010 12:00:00.000
+              \item Hit Ok to close the dialog box
+              \item Reopen the dialog box for DefaultSC.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\\hline
+         Expected Results &  The data in the GUI should agree with the data below to at least 12 significant figures.
+         \begin{compactitem}
+         \item DefaultSC.X =  273083.6097699367 ;
+         \item DefaultSC.Y = -1332500.504835084;
+         \item DefaultSC.Z = -576402.9744365886 ;
+         \item DefaultSC.VX = 0.2990482122160891;
+         \item DefaultSC.VY = 7.400368588891073;
+         \item DefaultSC.VZ = 1.021835464804587 ;
+                   
+         \end{compactitem}\\
+      \hline
+\end{tabular}
+      \label{Table: STC-5}
+      \caption{STC-5 GUI Epoch and State Independence for Time Dependent Coordinate System}
+      \index{Test Data!STC-5}
+\end{table} 

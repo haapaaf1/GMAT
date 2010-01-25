@@ -1,0 +1,36 @@
+
+
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-11 Setting EA via GUI \\    \hline
+         Requirements & FRR-1.1 \\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This tests setting EA via the GUI and converting to TA.
+         %======================  END: The Test Summary
+         \\  \hline
+         PreConditions & BS-1\\
+         \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Open the dialog box for DefaultSC
+             \item Change State Type to Keplerian
+             \item Change SMA to 10000
+             \item Change ECC to 0.25
+             \item Change Anomaly Type to Eccentric Anomaly
+             \item Change EA to 35.57751520702131 deg.
+             \item Hit Apply (as of this writing, GMAT won't accept the value)
+             \item Change the Anomaly Type flag to TA
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & True anomaly is 45 deg. within 1e-12 \\ \hline
+\end{tabular}
+      \label{Table: STC-11}
+      \caption{STC-11 Setting EA via GUI}
+      \index{Test Data!STC-11}
+\end{table} 

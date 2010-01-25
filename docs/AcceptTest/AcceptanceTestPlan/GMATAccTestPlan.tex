@@ -3,6 +3,8 @@
 %  Standard packages
 \usepackage{graphics,epstopdf,overcite,amsmath, color}
 
+\usepackage{colortbl}
+
 %  for making index, using landscape mode, for multi page tables, supertabular??
 \usepackage{makeidx, lscape, longtable, supertabular}
 
@@ -20,10 +22,11 @@
 
 % Use if want to click dvi to pdf to create pdf . Bookmarks don't open using this method.
 \usepackage[ dvipdfm, bookmarks = true, bookmarksopen]{hyperref}
+\usepackage{paralist}
 
 \setlength{\textwidth}{6.75 in} \setlength{\textheight}{9.5in}
-\setlength{\oddsidemargin}{-0.1in} \setlength{\parindent}{0.0in}
-\setlength{\evensidemargin}{0.1in} \setlength{\topmargin}{-0.35in}
+\setlength{\oddsidemargin}{0.0in} \setlength{\parindent}{0.0in}
+\setlength{\evensidemargin}{0.0in} \setlength{\topmargin}{-0.35in}
 \setlength{\headheight}{0.0in} \setlength{\parskip}{12pt}
 %\setlength{\itemsep}{0ex}
 
@@ -79,8 +82,6 @@
 \input{AccCoverPage}
 \include{ContentsEtc}
 \input{AcceptPlanIntro}
-
-%\part{Numerical Tests}
 \input{Propagators}\index{Propagators}
 \input{CalcParameters}
 \input{Integrators}\index{Integrators}
@@ -89,6 +90,9 @@
 \input{DeltaV}\index{Delta V}
 \input{Performance}\index{Performance}
 \input{ControlFlow}\index{Control Flow}
+\input{TestProcedures}
+\input{TestData}
+\input{BaseStates}
 
 %\part{GUI and Script Tests}
 %\input{GUI}

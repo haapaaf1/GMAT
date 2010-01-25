@@ -1,0 +1,34 @@
+
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-8 GUI Eccentric Anomaly Should be Disallowed for ECC $>$ 1\\   \hline
+         Requirements & FRR-1.1 \\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This test checks that the user cannot select hyperbolic anomaly as an input for
+         elliptic orbits.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1 \\  \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Open the dialog box for DefaultSC
+             \item Change the State Type to Keplerian
+             \item Change the SMA to -10000
+             \item Change the ECC to 1.2
+             \item Click on the down arrow in the AnomalyType drop-down menu
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & Only True Anomaly, Mean Anomaly, and Hyperbolic Anomaly should be
+         available because the orbit is hyperbolic.
+         \\  \hline
+      \end{tabular}
+      \label{Table: STC-8}
+      \caption{STC-8 GUI Eccentric Anomaly Should be Disallowed for ECC $>$ 1}
+      \index{Test Data!STC-8}
+\end{table} 

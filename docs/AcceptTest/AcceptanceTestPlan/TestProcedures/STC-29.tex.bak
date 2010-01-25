@@ -1,0 +1,40 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-28 Spacecraft GUI TTGregorian to Other Epoch Types\\
+         \hline
+         Requirements & FRR-2.4\\ \hline
+         Summary &
+         %----------------------  The Test Summary
+         This test case applies to epoch representation conversions performed by the Spacecraft Orbit dialog box.  \\
+         \hline
+         PreConditions & To run this test you need to load BS-1 and have data defined in TD-2 available.\\
+         \hline
+         Steps &
+         %------- The test data is here
+         \begin{compactenum}
+         \item Open the dialog box for DefaultSC via the GUI.
+         \item Change the Epoch Format to TTGregorian.
+         \item Enter the TTGregorian epoch defined in Table \ref{Table:TD-2}.
+         \item Hit the apply button.
+         \item Change the Epoch Format drop down box to UTCGregorian and compare the epoch to the
+          data contained in TD-2. The epoch should agree identically.
+         \end{compactenum}\\
+         %------- The test data is here
+		 \hline
+         Alternative Paths &
+         %------- The test data is here
+         \begin{compactenum}
+         \item Perform the test using UTCModJulian, TAIGregorian, TAIModJulian, TTModJulian, A1ModJulian,
+         and A1Gregorian in place of UTCGregorian in step 5.
+         \end{compactenum}\\
+         %------- The test data is here
+         \hline
+         Expected Results & The expected numeric results are described above and in TD-2.\\
+      \hline
+\end{tabular}
+      \label{Table:STC-28}
+      \caption{STC-28 Spacecraft GUI TTGregorian to Other Epoch Types}
+       \index{Test Data!STC-28}
+\end{table} 

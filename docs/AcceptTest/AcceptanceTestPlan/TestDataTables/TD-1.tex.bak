@@ -1,0 +1,83 @@
+
+
+\bafdaa{adfasf}
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.0 in} |p{5.0 in} |}
+         \hline
+          \rowcolor[rgb]{0.8,0.8,0.8}  Name & TD-1 Equivalent State Representations in EarthMJ2000Eq\\
+         \hline
+         Description & This table contains equivalent states in all GMAT state representations
+         that have a central body at the origin.    \\ \hline
+         Source &  This is data comes from GMAT and allows testing consistency between state conversions.  We have numerical tests
+         that verify that GMAT is correctly performing conversions correctly via the script when compared to
+         truth data from STK.  The data below is to ensure that the GUI state conversions agree with conversions in the script. \\
+         \hline
+         Data &
+         %------- The test data is here
+          \begin{compactenum}
+              \item Cartesian State
+              \begin{compactenum}
+                  \item X = -2011.554639349956
+                  \item Y = 7587.193672855249
+                  \item Z = 1362.382029017782
+                  \item VX = -7.694247416401868
+                  \item VY = -0.9065479140190984
+                  \item VZ = 0.4284953758282981
+              \end{compactenum}
+              \item Keplerian State
+              \begin{compactenum}
+                  \item SMA = 10000
+                  \item ECC = 0.25
+                  \item INC = 10.0
+                  \item RAAN = 25.0
+                  \item AOP = 35.0
+                  \item TA = 45.0
+                  \item MA = 27.24378911263291;
+                  \item EA = 35.57751520702131;
+              \end{compactenum}
+              \item Modified Keplerian
+               \begin{compactenum}
+                  \item RadPer = 7500
+                  \item RadApo = 12500
+                  \item INC = 10.0
+                  \item RAAN = 25.0
+                  \item AOP = 35.0
+                  \item TA = 45.0
+              \end{compactenum}
+              \item Spherical RADec
+               \begin{compactenum}
+                  \item RMAG = 7966.67714229061
+                  \item RA = 104.8489182889519
+                  \item DEC = 9.846551939834079
+                  \item VMAG = 7.759309293508375
+                  \item AZI = 88.24621654190652
+                  \item FPA = 81.45684518510772
+              \end{compactenum}
+              \item Spherical RADec
+               \begin{compactenum}
+                  \item RMAG = 7966.67714229061
+                  \item RA = 104.8489182889519
+                  \item DEC = 9.846551939834079
+                  \item VMAG = 7.759309293508375
+                  \item AZI = -173.2803040524276
+                  \item FPA = 3.165677683357204
+              \end{compactenum}
+              \item Equinoctial
+               \begin{compactenum}
+                  \item SMA = 10000
+                  \item h = 0.2165063509461095
+                  \item k = 0.125
+                  \item p = 0.03697430690134294
+                  \item q = 0.07929165703097431
+                  \item MLONG = 87.2437891126329
+              \end{compactenum}
+          \end{compactenum}\\
+
+         %------- The test data is here
+         \hline
+\end{tabular}
+   \label{Table: TD-1}
+   \caption{Equivalent State Representations}
+    \index{Test Data!TD-1}
+\end{table} 

@@ -1,0 +1,35 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-3 Orbit GUI Behavior for Disallowed Conversion\\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This  case tests GUI behavior when attempting to convert to a Keplerian state
+         when the coordinate system does not have a celestial body (i.e. mu value) at the origin.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-2\\     \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-2.
+             \item Open the dialog box for DefaultSC.
+             \item Change the StateType to Keplerian.
+             \item Click on the down arrow on the Coordinate System drop-down menu and inspect the available Coordinate Systems.
+             \item Change the StateType to Modified Keplerian.
+             \item Click on the down arrow on the Coordinate System drop-down menu and inspect the available Coordinate Systems.
+             \item Change the StateType to Equinoctial.
+             \item Click on the down arrow on the Coordinate System drop-down menu and inspect the available Coordinate Systems.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The only coordinate systems available in the inspection steps above should be EarthMJ2000Eq, EarthMJ2000Ec, and Earth Fixed.   Coordinate Systems CS\_ESL2  and  CS\_SSBary are NOT available because these orbit state representations are only valid for coordinate systems with a central body at the origin.\\
+      \hline
+\end{tabular}
+      \label{Table: STC-3}
+      \caption{STC-3 Orbit GUI Behavior for Disallowed Conversion}
+      \index{Test Data!STC-3}
+\end{table} 
