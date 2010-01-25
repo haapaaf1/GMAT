@@ -18,14 +18,10 @@
 //------------------------------------------------------------------------------
 
 #include "EndFiniteBurn.hpp"
-
+#include "MessageInterface.hpp"
 
 //#define DEBUG_END_MANEUVER
 //#define DEBUG_END_MANEUVER_EXE
-
-#ifdef DEBUG_END_MANEUVER
-  #include "MessageInterface.hpp"
-#endif
 
 
 //------------------------------------------------------------------------------
@@ -504,9 +500,12 @@ bool EndFiniteBurn::Execute()
    {
       // Get updated thruster pointers from the spacecraft since spacecraft
       // clones them
-      ValidateThrusters();
+      //ValidateThrusters(); // commented out (LOJ: 2010.01.25)
       firstTimeExecution = false;
    }
+   
+   // Let's validate thrusters all the time (LOJ: 2010.01.25)
+   ValidateThrusters();
    
    // Turn off all of the referenced thrusters
    for (std::vector<Thruster*>::iterator i = thrusters.begin(); 
