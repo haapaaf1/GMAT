@@ -13,11 +13,11 @@
  * only one instance of this class can be created.
  */
 //------------------------------------------------------------------------------
-#ifndef h_MatlabInterface_h
-#define h_MatlabInterface_h
+#ifndef MatlabInterface_hpp
+#define MatlabInterface_hpp
 
 #if defined __USE_MATLAB__
-#include "engine.h"      // for Matlab Engine
+#include "engine.h"           // for Matlab Engine
 #endif
 
 #include <string>
@@ -59,8 +59,15 @@ private:
    std::string lastEngineName;
    int accessCount;
    char *outBuffer;
+   
+   int OpenEngineOnMac();
+   int CloseEngineOnMac();
+   int OpenSharedEngine();
+   int CloseSharedEngine();
+   int OpenSingleEngine(const std::string &engineName);
+   int CloseSingleEngine(const std::string &engineName);
 #endif
    
 };
 
-#endif // h_MatlabInterface_h
+#endif // MatlabInterface_hpp
