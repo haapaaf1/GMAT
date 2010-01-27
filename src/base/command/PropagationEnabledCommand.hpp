@@ -25,6 +25,9 @@
 #include "PropSetup.hpp"
 #include "Propagator.hpp"
 
+#include "Spacecraft.hpp"
+#include "Formation.hpp"
+
 /// A convenient typedef used in this code
 typedef std::vector<SpaceObject*> PropObjectArray;
 
@@ -47,6 +50,8 @@ public:
    virtual bool         Initialize();
 
 protected:
+   // todo: Merge the propagator objects in the Propagate command into this code
+
    /// Names of the PropSetups used by this command, as set in a derived class
    StringArray                   propagatorNames;
    /// The PropSetup used by this command, as set in a derived class
@@ -86,11 +91,22 @@ protected:
    /// The Mean-of-J2000 propagation state vector data
    Real                         *j2kState;
    /// Data sent to the Publisher
-   Real                    *pubdata;
+   Real                         *pubdata;
+
+   /// Stopping condition evaluation requires propagation; the satBuffer and
+   /// formBuffer let us restore the Spacecraft and Formations to the state
+   /// needed for the last step
+   std::vector<Spacecraft *>    satBuffer;
+   std::vector<Formation *>     formBuffer;
+
 
    bool                 PrepareToPropagate();
    bool                 AssemblePropagators();
    bool                 Step(Real dt);
+
+   virtual void         AddToBuffer(SpaceObject *so);
+   virtual void         EmptyBuffer();
+   virtual void         BufferSatelliteStates(bool fillingBuffer = true);
 
    virtual void         SetPropagationProperties(PropagationStateManager *psm);
 };

@@ -124,7 +124,7 @@ static bool firstStepFired = false;
  */
 //------------------------------------------------------------------------------
 Propagate::Propagate() :
-   GmatCommand                 ("Propagate"),
+   PropagationEnabledCommand   ("Propagate"),
    direction                   (1.0),
    currentPropMode             (""),
    interruptCheckFrequency     (30),
@@ -237,7 +237,7 @@ Propagate::~Propagate()
  */
 //------------------------------------------------------------------------------
 Propagate::Propagate(const Propagate &prp) :
-   GmatCommand                 (prp),
+   PropagationEnabledCommand   (prp),
    propName                    (prp.propName),
    direction                   (prp.direction),
    satName                     (prp.satName),
@@ -2271,7 +2271,7 @@ bool Propagate::Initialize()
                                     (direction == 1.0?"Forwards":"Backwards"));
    #endif
       
-   GmatCommand::Initialize();
+   PropagationEnabledCommand::Initialize();
    
    inProgress = false;
    hasFired = false;
@@ -2675,12 +2675,12 @@ void Propagate::PrepareToPropagate()
                MessageInterface::ShowMessage(
                   "SpaceObject %s is maneuvering\n", (*sc)->GetName().c_str());
             #endif
-               
+            
             // Add the force
             for (UnsignedInt index = 0; index < prop.size(); ++index)
             {
                for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
-                    i != transientForces->end(); ++i)
+                    i != transientForces->end(); ++i) 
                {
                   #ifdef DEBUG_TRANSIENT_FORCES
                   MessageInterface::ShowMessage
@@ -2693,7 +2693,7 @@ void Propagate::PrepareToPropagate()
             }
          }
       }
-      
+
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
       {
          elapsedTime[n] = 0.0;
@@ -2970,29 +2970,29 @@ void Propagate::PrepareToPropagate()
    if (pubdata)
    {
       #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-          "deleting pub data");
+         MemoryTracker::Instance()->Remove
+            (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+             "deleting pub data");
       #endif
       delete [] pubdata;
    }
    pubdata = new Real[dim+1];
    #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
-       "pubdata = new Real[dim+1]");
+      MemoryTracker::Instance()->Add
+         (pubdata, "pubdata", "Propagate::PrepareToPropagate()",
+          "pubdata = new Real[dim+1]");
    #endif
-   
+
    // @todo Somehow the epoch doesn't get updated after maneuver. (LOJ: 2010.01.12)
    // Publish the data
    pubdata[0] = currEpoch[0];
    memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
    
    #ifdef DEBUG_PUBLISH_DATA
-   MessageInterface::ShowMessage
-      ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
-       "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
-       dim+1, streamID, pubdata[0]);
+      MessageInterface::ShowMessage
+         ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
+          "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          dim+1, streamID, pubdata[0]);
    #endif
    
    publisher->Publish(this, streamID, pubdata, dim+1);
@@ -4590,212 +4590,212 @@ void Propagate::SetNames(const std::string& name, StringArray& owners,
 }
 
 
-//------------------------------------------------------------------------------
-// void AddToBuffer(SpaceObject *so)
-//------------------------------------------------------------------------------
-/**
- * Adds satellites and formations to the state buffer.
- * 
- * @param <so> The SpaceObject that is added.
- */
-//------------------------------------------------------------------------------
-void Propagate::AddToBuffer(SpaceObject *so)
-{
-   #ifdef DEBUG_STOPPING_CONDITIONS
-      MessageInterface::ShowMessage("Buffering states for '%s'\n", 
-         so->GetName().c_str());
-   #endif
-   
-   if (so->IsOfType(Gmat::SPACECRAFT))
-   {
-      Spacecraft *clonedSat = (Spacecraft *)(so->Clone());
-      satBuffer.push_back(clonedSat);
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (clonedSat, clonedSat->GetName(), "Propagate::AddToBuffer()",
-          "(Spacecraft *)(so->Clone())");
-      #endif
-      //satBuffer.push_back((Spacecraft *)(so->Clone()));
-   }
-   else if (so->IsOfType(Gmat::FORMATION))
-   {
-      Formation *form = (Formation*)so;
-      Formation *clonedForm = (Formation *)(so->Clone());
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (clonedForm, clonedForm->GetName(), "Propagate::AddToBuffer()",
-          "(Formation *)(so->Clone())");
-      #endif
-      //formBuffer.push_back((Formation *)(so->Clone()));
-      formBuffer.push_back(clonedForm);
-      StringArray formSats = form->GetStringArrayParameter("Add");
-      
-      for (StringArray::iterator i = formSats.begin(); i != formSats.end(); ++i)
-         AddToBuffer((SpaceObject *)(FindObject(*i)));
-   }
-   else
-      throw CommandException("Object " + so->GetName() + " is not either a "
-         "Spacecraft or a Formation; cannot buffer the object for propagator "
-         "stopping conditions.");
-}
-
-
-//------------------------------------------------------------------------------
-// void EmptyBuffer()
-//------------------------------------------------------------------------------
-/**
- * Cleans up the satellite state buffer.
- */
-//------------------------------------------------------------------------------
-void Propagate::EmptyBuffer()
-{
-   for (std::vector<Spacecraft *>::iterator i = satBuffer.begin(); 
-        i != satBuffer.end(); ++i)
-   {
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         ((*i), (*i)->GetName(), "Propagate::EmptyBuffer()", "deleting from satBuffer");
-      #endif
-      delete (*i);
-   }
-   satBuffer.clear();
-   
-   for (std::vector<Formation *>::iterator i = formBuffer.begin(); 
-        i != formBuffer.end(); ++i)
-   {
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Remove
-         ((*i), (*i)->GetName(), "Propagate::EmptyBuffer()", "deleting from fromBuffer");
-      #endif
-      delete (*i);
-   }
-   formBuffer.clear();
-}
-
-//------------------------------------------------------------------------------
-// void BufferSatelliteStates(bool fillingBuffer)
-//------------------------------------------------------------------------------
-/**
- * Preserves satellite state data so it can be restored after interpolating the 
- * stopping condition propagation time.
- * 
- * @param <fillingBuffer> Flag used to indicate the fill direction.
- */
-//------------------------------------------------------------------------------
-void Propagate::BufferSatelliteStates(bool fillingBuffer)
-{
-   Spacecraft *fromSat, *toSat;
-   Formation *fromForm, *toForm;
-   std::string soName;
-   
-   for (std::vector<Spacecraft *>::iterator i = satBuffer.begin(); 
-        i != satBuffer.end(); ++i)
-   {
-      soName = (*i)->GetName();
-      if (fillingBuffer)
-      {
-         fromSat = (Spacecraft *)FindObject(soName);
-         toSat = *i;
-      }
-      else
-      {
-         fromSat = *i;
-         toSat = (Spacecraft *)FindObject(soName);
-      }
-
-      #ifdef DEBUG_STOPPING_CONDITIONS
-         MessageInterface::ShowMessage(
-            "   Sat is %s, fill direction is %s; fromSat epoch = %.12lf   "
-            "toSat epoch = %.12lf\n",
-            fromSat->GetName().c_str(),
-            (fillingBuffer ? "from propagator" : "from buffer"),
-            fromSat->GetRealParameter("A1Epoch"), 
-            toSat->GetRealParameter("A1Epoch"));
-
-         MessageInterface::ShowMessage(
-            "   '%s' Satellite state:\n", fromSat->GetName().c_str());
-         Real *satrv = fromSat->GetState().GetState();
-         MessageInterface::ShowMessage(
-            "      %.12lf  %.12lf  %.12lf\n      %.12lf  %.12lf  %.12lf\n",
-            satrv[0], satrv[1], satrv[2], satrv[3], satrv[4], satrv[5]);
-      #endif
-      
-      (*toSat) = (*fromSat);
-      
-      #ifdef DEBUG_STOPPING_CONDITIONS
-         MessageInterface::ShowMessage(
-            "After copy, From epoch %.12lf to epoch %.12lf\n",
-            fromSat->GetRealParameter("A1Epoch"), 
-            toSat->GetRealParameter("A1Epoch"));
-      #endif      
-   }
-
-   for (std::vector<Formation *>::iterator i = formBuffer.begin(); 
-        i != formBuffer.end(); ++i)
-   {
-      soName = (*i)->GetName();
-      #ifdef DEBUG_STOPPING_CONDITIONS
-         MessageInterface::ShowMessage("Buffering formation %s, filling = %s\n", 
-            soName.c_str(), (fillingBuffer?"true":"false"));
-      #endif
-      if (fillingBuffer)
-      {
-         fromForm = (Formation *)FindObject(soName);
-         toForm = *i;
-      }
-      else
-      {
-         fromForm = *i;
-         toForm = (Formation *)FindObject(soName);
-      }
-
-      #ifdef DEBUG_STOPPING_CONDITIONS
-         MessageInterface::ShowMessage(
-            "   Formation is %s, fill direction is %s; fromForm epoch = %.12lf"
-            "   toForm epoch = %.12lf\n",
-            fromForm->GetName().c_str(),
-            (fillingBuffer ? "from propagator" : "from buffer"),
-            fromForm->GetRealParameter("A1Epoch"), 
-            toForm->GetRealParameter("A1Epoch"));
-      #endif
-      
-      (*toForm) = (*fromForm);
-      
-      toForm->UpdateState();
-      
-      #ifdef DEBUG_STOPPING_CONDITIONS
-         Integer count = fromForm->GetStringArrayParameter("Add").size();
-
-         MessageInterface::ShowMessage(
-            "After copy, From epoch %.12lf to epoch %.12lf\n",
-            fromForm->GetRealParameter("A1Epoch"), 
-            toForm->GetRealParameter("A1Epoch"));
-
-         MessageInterface::ShowMessage(
-            "   %s for '%s' Formation state:\n", 
-            (fillingBuffer ? "Filling buffer" : "Restoring states"),
-            fromForm->GetName().c_str());
-
-         Real *satrv = fromForm->GetState().GetState();
-         
-         for (Integer i = 0; i < count; ++i)
-            MessageInterface::ShowMessage(
-               "      %d:  %.12lf  %.12lf  %.12lf  %.12lf  %.12lf  %.12lf\n",
-               i, satrv[i*6], satrv[i*6+1], satrv[i*6+2], satrv[i*6+3], 
-               satrv[i*6+4], satrv[i*6+5]);
-      #endif      
-   }
-   
-   #ifdef DEBUG_STOPPING_CONDITIONS
-      for (std::vector<Spacecraft *>::iterator i = satBuffer.begin(); 
-           i != satBuffer.end(); ++i)
-         MessageInterface::ShowMessage(
-            "   Epoch of '%s' is %.12lf\n", (*i)->GetName().c_str(), 
-            (*i)->GetRealParameter("A1Epoch"));
-   #endif
-}
-
-
+////------------------------------------------------------------------------------
+//// void AddToBuffer(SpaceObject *so)
+////------------------------------------------------------------------------------
+///**
+// * Adds satellites and formations to the state buffer.
+// *
+// * @param <so> The SpaceObject that is added.
+// */
+////------------------------------------------------------------------------------
+//void Propagate::AddToBuffer(SpaceObject *so)
+//{
+//   #ifdef DEBUG_STOPPING_CONDITIONS
+//      MessageInterface::ShowMessage("Buffering states for '%s'\n",
+//         so->GetName().c_str());
+//   #endif
+//
+//   if (so->IsOfType(Gmat::SPACECRAFT))
+//   {
+//      Spacecraft *clonedSat = (Spacecraft *)(so->Clone());
+//      satBuffer.push_back(clonedSat);
+//      #ifdef DEBUG_MEMORY
+//      MemoryTracker::Instance()->Add
+//         (clonedSat, clonedSat->GetName(), "Propagate::AddToBuffer()",
+//          "(Spacecraft *)(so->Clone())");
+//      #endif
+//      //satBuffer.push_back((Spacecraft *)(so->Clone()));
+//   }
+//   else if (so->IsOfType(Gmat::FORMATION))
+//   {
+//      Formation *form = (Formation*)so;
+//      Formation *clonedForm = (Formation *)(so->Clone());
+//      #ifdef DEBUG_MEMORY
+//      MemoryTracker::Instance()->Add
+//         (clonedForm, clonedForm->GetName(), "Propagate::AddToBuffer()",
+//          "(Formation *)(so->Clone())");
+//      #endif
+//      //formBuffer.push_back((Formation *)(so->Clone()));
+//      formBuffer.push_back(clonedForm);
+//      StringArray formSats = form->GetStringArrayParameter("Add");
+//
+//      for (StringArray::iterator i = formSats.begin(); i != formSats.end(); ++i)
+//         AddToBuffer((SpaceObject *)(FindObject(*i)));
+//   }
+//   else
+//      throw CommandException("Object " + so->GetName() + " is not either a "
+//         "Spacecraft or a Formation; cannot buffer the object for propagator "
+//         "stopping conditions.");
+//}
+//
+//
+////------------------------------------------------------------------------------
+//// void EmptyBuffer()
+////------------------------------------------------------------------------------
+///**
+// * Cleans up the satellite state buffer.
+// */
+////------------------------------------------------------------------------------
+//void Propagate::EmptyBuffer()
+//{
+//   for (std::vector<Spacecraft *>::iterator i = satBuffer.begin();
+//        i != satBuffer.end(); ++i)
+//   {
+//      #ifdef DEBUG_MEMORY
+//      MemoryTracker::Instance()->Remove
+//         ((*i), (*i)->GetName(), "Propagate::EmptyBuffer()", "deleting from satBuffer");
+//      #endif
+//      delete (*i);
+//   }
+//   satBuffer.clear();
+//
+//   for (std::vector<Formation *>::iterator i = formBuffer.begin();
+//        i != formBuffer.end(); ++i)
+//   {
+//      #ifdef DEBUG_MEMORY
+//      MemoryTracker::Instance()->Remove
+//         ((*i), (*i)->GetName(), "Propagate::EmptyBuffer()", "deleting from fromBuffer");
+//      #endif
+//      delete (*i);
+//   }
+//   formBuffer.clear();
+//}
+//
+////------------------------------------------------------------------------------
+//// void BufferSatelliteStates(bool fillingBuffer)
+////------------------------------------------------------------------------------
+///**
+// * Preserves satellite state data so it can be restored after interpolating the
+// * stopping condition propagation time.
+// *
+// * @param <fillingBuffer> Flag used to indicate the fill direction.
+// */
+////------------------------------------------------------------------------------
+//void Propagate::BufferSatelliteStates(bool fillingBuffer)
+//{
+//   Spacecraft *fromSat, *toSat;
+//   Formation *fromForm, *toForm;
+//   std::string soName;
+//
+//   for (std::vector<Spacecraft *>::iterator i = satBuffer.begin();
+//        i != satBuffer.end(); ++i)
+//   {
+//      soName = (*i)->GetName();
+//      if (fillingBuffer)
+//      {
+//         fromSat = (Spacecraft *)FindObject(soName);
+//         toSat = *i;
+//      }
+//      else
+//      {
+//         fromSat = *i;
+//         toSat = (Spacecraft *)FindObject(soName);
+//      }
+//
+//      #ifdef DEBUG_STOPPING_CONDITIONS
+//         MessageInterface::ShowMessage(
+//            "   Sat is %s, fill direction is %s; fromSat epoch = %.12lf   "
+//            "toSat epoch = %.12lf\n",
+//            fromSat->GetName().c_str(),
+//            (fillingBuffer ? "from propagator" : "from buffer"),
+//            fromSat->GetRealParameter("A1Epoch"),
+//            toSat->GetRealParameter("A1Epoch"));
+//
+//         MessageInterface::ShowMessage(
+//            "   '%s' Satellite state:\n", fromSat->GetName().c_str());
+//         Real *satrv = fromSat->GetState().GetState();
+//         MessageInterface::ShowMessage(
+//            "      %.12lf  %.12lf  %.12lf\n      %.12lf  %.12lf  %.12lf\n",
+//            satrv[0], satrv[1], satrv[2], satrv[3], satrv[4], satrv[5]);
+//      #endif
+//
+//      (*toSat) = (*fromSat);
+//
+//      #ifdef DEBUG_STOPPING_CONDITIONS
+//         MessageInterface::ShowMessage(
+//            "After copy, From epoch %.12lf to epoch %.12lf\n",
+//            fromSat->GetRealParameter("A1Epoch"),
+//            toSat->GetRealParameter("A1Epoch"));
+//      #endif
+//   }
+//
+//   for (std::vector<Formation *>::iterator i = formBuffer.begin();
+//        i != formBuffer.end(); ++i)
+//   {
+//      soName = (*i)->GetName();
+//      #ifdef DEBUG_STOPPING_CONDITIONS
+//         MessageInterface::ShowMessage("Buffering formation %s, filling = %s\n",
+//            soName.c_str(), (fillingBuffer?"true":"false"));
+//      #endif
+//      if (fillingBuffer)
+//      {
+//         fromForm = (Formation *)FindObject(soName);
+//         toForm = *i;
+//      }
+//      else
+//      {
+//         fromForm = *i;
+//         toForm = (Formation *)FindObject(soName);
+//      }
+//
+//      #ifdef DEBUG_STOPPING_CONDITIONS
+//         MessageInterface::ShowMessage(
+//            "   Formation is %s, fill direction is %s; fromForm epoch = %.12lf"
+//            "   toForm epoch = %.12lf\n",
+//            fromForm->GetName().c_str(),
+//            (fillingBuffer ? "from propagator" : "from buffer"),
+//            fromForm->GetRealParameter("A1Epoch"),
+//            toForm->GetRealParameter("A1Epoch"));
+//      #endif
+//
+//      (*toForm) = (*fromForm);
+//
+//      toForm->UpdateState();
+//
+//      #ifdef DEBUG_STOPPING_CONDITIONS
+//         Integer count = fromForm->GetStringArrayParameter("Add").size();
+//
+//         MessageInterface::ShowMessage(
+//            "After copy, From epoch %.12lf to epoch %.12lf\n",
+//            fromForm->GetRealParameter("A1Epoch"),
+//            toForm->GetRealParameter("A1Epoch"));
+//
+//         MessageInterface::ShowMessage(
+//            "   %s for '%s' Formation state:\n",
+//            (fillingBuffer ? "Filling buffer" : "Restoring states"),
+//            fromForm->GetName().c_str());
+//
+//         Real *satrv = fromForm->GetState().GetState();
+//
+//         for (Integer i = 0; i < count; ++i)
+//            MessageInterface::ShowMessage(
+//               "      %d:  %.12lf  %.12lf  %.12lf  %.12lf  %.12lf  %.12lf\n",
+//               i, satrv[i*6], satrv[i*6+1], satrv[i*6+2], satrv[i*6+3],
+//               satrv[i*6+4], satrv[i*6+5]);
+//      #endif
+//   }
+//
+//   #ifdef DEBUG_STOPPING_CONDITIONS
+//      for (std::vector<Spacecraft *>::iterator i = satBuffer.begin();
+//           i != satBuffer.end(); ++i)
+//         MessageInterface::ShowMessage(
+//            "   Epoch of '%s' is %.12lf\n", (*i)->GetName().c_str(),
+//            (*i)->GetRealParameter("A1Epoch"));
+//   #endif
+//}
+//
+//
 
 //------------------------------------------------------------------------------
 // Real GetRangedAngle(const Real angle, const Real midpt)

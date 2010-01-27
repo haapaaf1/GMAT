@@ -21,7 +21,7 @@
 #ifndef Propagate_hpp
 #define Propagate_hpp
 
-#include "GmatCommand.hpp"
+#include "PropagationEnabledCommand.hpp"
 #include "ElementWrapper.hpp"
 #include <list>
 
@@ -51,7 +51,7 @@
  * interpolator (see KnotAKnotInterpolator) to generate an estimated stop epoch, 
  * and then refines that epoch if necessary using a secant solver.
  */
-class GMAT_API Propagate : public GmatCommand
+class GMAT_API Propagate : public PropagationEnabledCommand
 {
 public:
    Propagate();
@@ -182,7 +182,6 @@ protected:
    std::vector<PropSetup*>      prop;
    /// The spacecraft and formations that are propagated
    ObjectArray                  sats;
-//   std::vector<SpaceObject *>   sats;
    /// The stopping conditions
    std::vector<StopCondition *> stopWhen;
    /// The time step that we need to interpolate across
@@ -204,11 +203,11 @@ protected:
    
    /// The spacecraft used by the stopping conditions
    std::vector<SpaceObject *>   stopSats;
-   /// Stopping condition evaluation requires propagation; the satBuffer lets us
-   /// restore the Spacecraft and Formations to the state needed for the last 
-   /// step 
-   std::vector<Spacecraft *>    satBuffer;
-   std::vector<Formation *>     formBuffer;
+//   /// Stopping condition evaluation requires propagation; the satBuffer lets us
+//   /// restore the Spacecraft and Formations to the state needed for the last
+//   /// step
+//   std::vector<Spacecraft *>    satBuffer;
+//   std::vector<Formation *>     formBuffer;
    /// The object array used in GetRefObjectArray()
    ObjectArray                  objectArray;
    
@@ -326,9 +325,9 @@ protected:
                                  PropagationStateManager *propMan);
    void                    ClearTransientForces();
    
-   void                    AddToBuffer(SpaceObject *so);
-   void                    EmptyBuffer();
-   void                    BufferSatelliteStates(bool fillingBuffer = true);
+//   void                    AddToBuffer(SpaceObject *so);
+//   void                    EmptyBuffer();
+//   void                    BufferSatelliteStates(bool fillingBuffer = true);
    bool                    CheckFirstStepStop(Integer i);
    
    Real                    InterpolateToStop(StopCondition *sc);
