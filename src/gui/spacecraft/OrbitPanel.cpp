@@ -127,6 +127,7 @@ OrbitPanel::OrbitPanel(GmatPanel *scPanel, wxWindow *parent,
    mIsEpochChanged = false;
    mIsEpochModified = false;
    canClose = true;
+   coordSysCBOnly = false;
    dataChanged = false;
    
    Create();
@@ -561,6 +562,10 @@ void OrbitPanel::Create()
    //Get CordinateSystem ComboBox from the GuiItemManager.
    mCoordSysComboBox =
       theGuiManager->GetCoordSysComboBox(this, ID_COMBOBOX, wxSize(150,-1));
+   // get the names of the coordinate systems
+   wxArrayString csNames = mCoordSysComboBox->GetStrings();
+   for (Integer ii = 0; ii < (Integer) csNames.GetCount(); ii++)
+      coordSystemNames.push_back((csNames.Item(ii)).c_str());
 
    //-----------------------------------------------------------------
    //  state type 
@@ -603,6 +608,10 @@ void OrbitPanel::Create()
    epochSizer->Add( anomalyStaticText, 0, wxALIGN_LEFT | wxALL, bsize );
    epochSizer->Add( anomalyComboBox, 0, wxGROW|wxALIGN_LEFT | wxALL, bsize );
    
+   // wcs 2010.01.27 remove the Anomaly combo box for now, per S. Hughes
+   anomalyStaticText->Show(false);
+   anomalyComboBox->Show(false);
+
    // panel that has the labels and text fields for the elements
    // adds default descriptors/labels
    AddElements(this);
@@ -843,6 +852,7 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
                return;
             }
          }
+         BuildValidCoordinateSystemList(stateTypeStr);
       }
       
       CoordinateSystem *prevCoord = mOutCoord;
@@ -1010,8 +1020,8 @@ void OrbitPanel::SetLabelsUnits(const std::string &stateType)
    {
       wxString label = Anomaly::GetTypeString(mAnomalyType).c_str();
       description6->SetLabel(label);
-      anomalyStaticText->Show(true);
-      anomalyComboBox->Show(true);
+//      anomalyStaticText->Show(true); // commented out for now - wcs - 2010.01.27 - per S. Hughes
+//      anomalyComboBox->Show(true);
       anomalyComboBox->SetSelection(Anomaly::GetAnomalyType(mAnomalyType));
    }
    else
@@ -1196,15 +1206,20 @@ void OrbitPanel::BuildValidStateTypes()
       // if origin is other calculated points (LibrationPoint, Barycenter)
       // there is no mu associated with it, so we don't want to
       // show Keplerian or ModKeplerian types
-      wxString stateTypeList[] =
-         {
-            wxT("Cartesian"),
-            wxT("SphericalAZFPA"),
-            wxT("SphericalRADEC")
-         };
-      
-      for (int i = 0; i<3; i++)
-         stateTypeComboBox->Append(wxString(stateTypeList[i].c_str()));
+      for (Integer ii = 0; ii < typeCount; ii++)
+      {
+         if (!(stateConverter.RequiresCelestialBodyOrigin(stateTypeList[ii])))
+            stateTypeComboBox->Append(wxString(stateTypeList[ii].c_str()));
+      }
+//      wxString stateTypeList[] =
+//         {
+//            wxT("Cartesian"),
+//            wxT("SphericalAZFPA"),
+//            wxT("SphericalRADEC")
+//         };
+//
+//      for (int i = 0; i<3; i++)
+//         stateTypeComboBox->Append(wxString(stateTypeList[i].c_str()));
       
       mShowFullStateTypeList = false;
       
@@ -1226,6 +1241,46 @@ void OrbitPanel::BuildValidStateTypes()
       ("   BuildValidStateTypes() Setting state type to %s\n",
        mFromStateTypeStr.c_str());
    #endif
+}
+
+//------------------------------------------------------------------------------
+// void BuildValidCoordinateSystemList(const std::string &forStateType)
+//------------------------------------------------------------------------------
+void OrbitPanel::BuildValidCoordinateSystemList(const std::string &forStateType)
+{
+   bool reqCBOnly = stateConverter.RequiresCelestialBodyOrigin(forStateType);
+   // don't rebuild, if ti's not necessary
+   if (((coordSysCBOnly) && reqCBOnly) || ((!coordSysCBOnly) && (!reqCBOnly))) return;
+
+   CoordinateSystem *tmpCS = NULL;
+   SpacePoint       *origin = NULL;
+   std::string      originName;
+   std::string      currentCS = mCoordSysComboBox->GetValue().c_str();
+   std::string      newCS     = currentCS;
+   mCoordSysComboBox->Clear();
+   if (reqCBOnly)
+   {
+      for (Integer ii = 0; ii < (Integer) coordSystemNames.size(); ii++)
+      {
+         if (ii == 0)                                   newCS = coordSystemNames.at(ii);
+         else if (currentCS == coordSystemNames.at(ii)) newCS = currentCS;
+         tmpCS      = (CoordinateSystem*) theGuiInterpreter->GetConfiguredObject(coordSystemNames.at(ii));
+         originName = tmpCS->GetStringParameter("Origin");
+         origin     = (SpacePoint*) theGuiInterpreter->GetConfiguredObject(originName);
+         if (origin->IsOfType("CelestialBody"))  // add it to the list
+            mCoordSysComboBox->Append(wxString(coordSystemNames[ii].c_str()));
+      }
+      mCoordSysComboBox->SetValue(newCS.c_str());
+      coordSysCBOnly = true;
+   }
+   else
+   {
+      for (Integer ii = 0; ii < (Integer) coordSystemNames.size(); ii++)
+            mCoordSysComboBox->Append(wxString(coordSystemNames[ii].c_str()));
+      coordSysCBOnly = false;
+      mCoordSysComboBox->SetValue(currentCS.c_str());
+   }
+
 }
 
 

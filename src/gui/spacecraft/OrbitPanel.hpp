@@ -55,6 +55,8 @@ private:
    StringArray mStateTypeNames;
    /// valid anomaly type in the Anomaly
    StringArray mAnomalyTypeNames;
+   /// names of the available coordinate systems
+   StringArray coordSystemNames;
    
    Anomaly mAnomaly;
    Anomaly mTrueAnomaly;
@@ -63,6 +65,8 @@ private:
    bool dataChanged;
    bool canClose;
    
+   bool coordSysCBOnly;
+
    Spacecraft     *theSpacecraft;
    SolarSystem    *theSolarSystem;
    GuiItemManager *theGuiManager;
@@ -113,6 +117,7 @@ private:
 
    void DisplayState();
    void BuildValidStateTypes();
+   void BuildValidCoordinateSystemList(const std::string &forStateType);
    void BuildState(const Rvector6 &inputState, bool isInternal = false);
    
    wxString ToString(Real rval);
