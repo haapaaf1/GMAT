@@ -46,7 +46,15 @@ const std::string StateConverter::STATE_TYPE_TEXT[StateTypeCount] =
    "Equinoctial",
 };
 
-
+const bool StateConverter::REQUIRES_CB_ORIGIN[StateTypeCount] =
+{
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+};
 //-------------------------------------
 // public methods
 //-------------------------------------
@@ -705,4 +713,17 @@ const std::string* StateConverter::GetStateTypeList()
 {
    return STATE_TYPE_TEXT;
 }
+
+//------------------------------------------------------------------------------
+// bool RequiresCelestialBodyOrigin(const std::string &type)
+//------------------------------------------------------------------------------
+bool StateConverter::RequiresCelestialBodyOrigin(const std::string &type)
+{
+   for (unsigned int ii = 0; ii < StateTypeCount; ii++)
+   {
+      if (type == STATE_TYPE_TEXT[ii])  return REQUIRES_CB_ORIGIN[ii];
+   }
+   return false;  // by default
+}
+
 

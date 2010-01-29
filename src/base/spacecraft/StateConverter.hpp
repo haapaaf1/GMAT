@@ -89,9 +89,10 @@ public:
    // Constant variable
    static const Real DEFAULT_MU;// = 0.3986004415e+06;  // km^3/s^2
    
-   static std::string GetTypeString(const std::string &type);
-   static Integer GetTypeCount() { return StateTypeCount; }
+   static std::string        GetTypeString(const std::string &type);
+   static Integer            GetTypeCount() { return StateTypeCount; }
    static const std::string* GetStateTypeList();
+   static bool               RequiresCelestialBodyOrigin(const std::string &type);
    
 protected:
 
@@ -99,6 +100,7 @@ private:
    Real         mMu;
    
    static const std::string STATE_TYPE_TEXT[StateTypeCount];
+   static const bool        REQUIRES_CB_ORIGIN[StateTypeCount];
 };
 
 #endif // StateConverter_hpp
