@@ -81,6 +81,10 @@ public:
    virtual const StringArray&
                         GetPropertyEnumStrings(const Integer id) const;
    
+   virtual bool         GetBooleanParameter(const Integer id) const;
+   virtual bool         SetBooleanParameter(const Integer id,
+                                            const bool value);
+
    virtual Integer      GetIntegerParameter(const Integer id) const;
    virtual Integer      SetIntegerParameter(const Integer id,
                                             const Integer value);
@@ -146,7 +150,8 @@ protected:
    std::string interpolatorName;
    std::string stateType;
    std::string coordSystemName;
-   std::string writeEphemeris;
+   // std::string writeEphemeris;		made a change
+   bool writeEphemeris;					// made a change
    /// for propagator change
    std::string prevPropName;
    std::string currPropName;

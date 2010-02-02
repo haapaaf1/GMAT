@@ -94,7 +94,7 @@ EphemerisFile::PARAMETER_TYPE[EphemerisFileParamCount - SubscriberParamCount] =
    Gmat::INTEGER_TYPE,      // INTERPOLATION_ORDER
    Gmat::ENUMERATION_TYPE,  // STATE_TYPE
    Gmat::OBJECT_TYPE,       // COORDINATE_SYSTEM
-   Gmat::ENUMERATION_TYPE,  // WRITE_EPHEMERIS
+   Gmat::BOOLEAN_TYPE		// Gmat::ENUMERATION_TYPE,  // WRITE_EPHEMERIS
 };
 
 
@@ -119,7 +119,7 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    interpolatorName    ("Lagrange"),
    stateType           ("Cartesian"),
    coordSystemName     ("EarthMJ2000Eq"),
-   writeEphemeris      ("Yes"),
+   writeEphemeris      (true),
    prevPropName        (""),
    currPropName        (""),
    interpolationOrder  (7),
@@ -831,14 +831,46 @@ const StringArray& EphemerisFile::GetPropertyEnumStrings(const Integer id) const
       return stepSizeList;
    case STATE_TYPE:
       return stateTypeList;
-   case WRITE_EPHEMERIS:
-      return writeEphemerisList;      
+//   case WRITE_EPHEMERIS:			This parameter has boolean type, not string		// made a change
+//      return writeEphemerisList;      
    case INTERPOLATOR:
       return interpolatorTypeList;
    default:
       return Subscriber::GetPropertyEnumStrings(id);
    }
 }
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const Integer id) const
+//------------------------------------------------------------------------------
+bool EphemerisFile::GetBooleanParameter(const Integer id) const
+{
+	switch (id)
+	{
+	case WRITE_EPHEMERIS:
+		return writeEphemeris;
+	default:
+		return Subscriber::GetBooleanParameter(id);
+	}
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
+bool EphemerisFile::SetBooleanParameter(const Integer id, const bool value)
+{
+	switch (id)
+	{
+	case WRITE_EPHEMERIS:
+		writeEphemeris = value;
+		return writeEphemeris;
+	default:
+      return Subscriber::SetBooleanParameter(id, value);
+   }
+}
+
+
 
 
 //------------------------------------------------------------------------------
@@ -911,8 +943,8 @@ std::string EphemerisFile::GetStringParameter(const Integer id) const
       return stateType;
    case COORDINATE_SYSTEM:
       return coordSystemName;
-   case WRITE_EPHEMERIS:
-      return writeEphemeris;
+//   case WRITE_EPHEMERIS:
+//      return writeEphemeris;
    default:
       return Subscriber::GetStringParameter(id);
    }
@@ -1037,17 +1069,17 @@ bool EphemerisFile::SetStringParameter(const Integer id, const std::string &valu
    case COORDINATE_SYSTEM:
       coordSystemName = value;
       return true;
-   case WRITE_EPHEMERIS:
-      if (find(writeEphemerisList.begin(), writeEphemerisList.end(), value) !=
-          writeEphemerisList.end())
-      {
-         writeEphemeris = value;
-         return true;
-      }
-      else
-      {
-         HandleError(WRITE_EPHEMERIS, value, writeEphemerisList);
-      }
+//   case WRITE_EPHEMERIS:
+//      if (find(writeEphemerisList.begin(), writeEphemerisList.end(), value) !=
+//          writeEphemerisList.end())
+//      {
+//         writeEphemeris = value;
+//         return true;
+//      }
+//      else
+//      {
+//         HandleError(WRITE_EPHEMERIS, value, writeEphemerisList);
+//      }
    default:
       return Subscriber::SetStringParameter(id, value);
    }
