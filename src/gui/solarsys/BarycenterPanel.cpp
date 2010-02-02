@@ -87,6 +87,47 @@ void BarycenterPanel::Create()
    //causing VC++ error => wxString emptyList[] = {};
    wxArrayString emptyList;
 
+   // 1. Create Add, Remove, Clear buttons box:
+   wxBoxSizer *buttonsBoxSizer = new wxBoxSizer(wxVERTICAL);
+   addBodyButton = new wxButton( this, ID_BUTTON, wxT("->"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
+   removeBodyButton = new wxButton( this, ID_BUTTON, wxT("<-"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
+   clearBodyButton = new wxButton( this, ID_BUTTON, wxT("<="), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
+   buttonsBoxSizer->Add(addBodyButton, 0, wxALIGN_CENTER|wxALL, borderSize);
+   buttonsBoxSizer->Add(removeBodyButton, 0, wxALIGN_CENTER|wxALL, borderSize);
+   buttonsBoxSizer->Add(clearBodyButton, 0, wxALIGN_CENTER|wxALL, borderSize);
+
+	// 2. Create Available Bodies box:
+	wxStaticBoxSizer* listStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Available Bodies");
+	wxArrayString tmpArrayString;
+	bodyListBox = theGuiManager->GetCelestialBodyListBox(this, -1, wxSize(150, 200), tmpArrayString);
+	listStaticBoxSizer->Add(bodyListBox, 0, wxALIGN_CENTRE|wxALL, borderSize);
+
+
+	// 3. Create Selected Bodies box:
+	wxStaticBoxSizer* selectedStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Selected Bodies");
+	bodySelectedListBox = new wxListBox(this, ID_BODY_SEL_LISTBOX, wxDefaultPosition, wxSize(150, 200), //0,
+										emptyList, wxLB_SINGLE);
+	selectedStaticBoxSizer->Add(bodySelectedListBox, 0, wxALIGN_CENTRE|wxALL, borderSize);
+
+	// 4. Create Bodies box:
+	wxFlexGridSizer *bodyGridSizer = new wxFlexGridSizer(3, 0, 0);
+	bodyGridSizer->Add(listStaticBoxSizer, 0, wxALIGN_CENTER|wxALL, borderSize);
+	bodyGridSizer->Add(buttonsBoxSizer, 0, wxALIGN_CENTER|wxALL, borderSize);
+	bodyGridSizer->Add(selectedStaticBoxSizer, 0, wxALIGN_CENTER|wxALL, borderSize);
+	wxStaticBoxSizer * bodiesStaticBoxSizer = new wxStaticBoxSizer(wxVERTICAL, this, "Bodies");
+	bodiesStaticBoxSizer->Add(bodyGridSizer, 0, wxALIGN_CENTER|wxALL, borderSize);
+
+	// 5. Add to parent sizer:
+	theMiddleSizer->Add(bodiesStaticBoxSizer, 0, wxEXPAND|wxALL, borderSize);
+}
+
+/*
+void BarycenterPanel::Create()
+{
+   int borderSize = 2;
+   //causing VC++ error => wxString emptyList[] = {};
+   wxArrayString emptyList;
+
    //wxStaticText
    wxStaticText *bodyStaticText =
       new wxStaticText( this, ID_TEXT, wxT("Available Bodies"),
@@ -148,6 +189,7 @@ void BarycenterPanel::Create()
    //------------------------------------------------------
    theMiddleSizer->Add(pageBoxSizer, 0, wxALIGN_CENTRE|wxALL, borderSize);
 }
+*/
 
 //------------------------------------------------------------------------------
 // virtual void LoadData()

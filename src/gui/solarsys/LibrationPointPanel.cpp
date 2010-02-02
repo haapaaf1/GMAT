@@ -101,6 +101,67 @@ void LibrationPointPanel::OnComboBoxChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void LibrationPointPanel::Create()
 {
+   int bsize = 2; // border size
+   
+   wxString librationList[] = {"L1", "L2", "L3", "L4", "L5"};
+   
+   if (theLibrationPt != NULL)
+   {
+      // create sizers
+      wxFlexGridSizer *pageSizer = new wxFlexGridSizer(3, 2, bsize, bsize);
+      
+      // label for primary body combobox
+      wxStaticText *primaryBodyLabel = new wxStaticText(this, ID_TEXT,
+         wxT("Primary Body:"), wxDefaultPosition, wxDefaultSize, 0);
+      
+      // combo box for avaliable bodies 
+      primaryBodyCB = 
+         theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX, wxSize(100,-1));
+      
+      // label for secondary body combobox
+      wxStaticText *secondaryBodyLabel = new wxStaticText(this, ID_TEXT,
+         wxT("Secondary Body:"), wxDefaultPosition, wxDefaultSize, 0);
+      
+      // combo box for avaliable bodies 
+      secondaryBodyCB = 
+         theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX, wxSize(100,-1));
+      
+      // label for libration point combobox
+      wxStaticText *librationPointLabel = new wxStaticText(this, ID_TEXT,
+         wxT("Libration Point:"), wxDefaultPosition, wxDefaultSize, 0);
+      
+      // combo box for libration points 
+      librationPtCB = new wxComboBox(this, ID_COMBOBOX, wxT(""), 
+         wxDefaultPosition, wxSize(100,-1), 5, librationList, wxCB_READONLY);
+      
+      // add labels and comboboxes to page sizer    
+      pageSizer->Add(primaryBodyLabel, 0, wxALIGN_LEFT | wxALL, bsize);
+      pageSizer->Add(primaryBodyCB, 0, wxALIGN_LEFT | wxALL, bsize);
+      pageSizer->Add(secondaryBodyLabel, 0, wxALIGN_LEFT | wxALL, bsize);
+      pageSizer->Add(secondaryBodyCB, 0, wxALIGN_LEFT | wxALL, bsize);
+      pageSizer->Add(librationPointLabel, 0, wxALIGN_LEFT | wxALL, bsize);
+      pageSizer->Add(librationPtCB, 0, wxALIGN_LEFT | wxALL, bsize);
+      
+      // create Options box:
+      wxStaticBoxSizer *optionsStaticBoxSizer =
+         new wxStaticBoxSizer(wxVERTICAL, this, "Options");
+      optionsStaticBoxSizer->Add(pageSizer, 0, wxALIGN_LEFT|wxALL,bsize);
+      
+      // add page sizer to middle sizer
+      theMiddleSizer->Add(optionsStaticBoxSizer, 0, wxEXPAND|wxALL, bsize);
+   }
+   else
+   {
+      // show error message
+      MessageInterface::ShowMessage
+         ("LibrationPointPanel:Create() theLP is NULL\n");
+   }
+   
+}
+
+/*
+void LibrationPointPanel::Create()
+{
    int bsize = 5; // bordersize
 
    wxString librationList[] = {"L1", "L2", "L3", "L4", "L5"};
@@ -153,6 +214,7 @@ void LibrationPointPanel::Create()
    }
 
 }
+*/
 
 //------------------------------------------------------------------------------
 // virtual void LoadData()
