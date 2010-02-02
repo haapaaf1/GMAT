@@ -36,7 +36,7 @@ Solver::PARAMETER_TEXT[SolverParamCount - GmatBaseParamCount] =
 {
    "ShowProgress",
    "ReportStyle",
-   "TargeterTextFile", // should be "SolverTextFile",
+   "ReportFile",				// "TargeterTextFile", // should be "SolverTextFile",
    "Variables",
    "MaximumIterations",
    "NumberOfVariables",
@@ -586,9 +586,18 @@ std::string Solver::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer Solver::GetParameterID(const std::string &str) const
 {
+	// 1. This part will be removed for a future build:
+	std::string param_text = str;
+	if (param_text == "TargeterTextFile")
+	{
+		MessageInterface::ShowMessage("***WARNING*** \"TargeterTextFile\" field of Differential Corrector is deprecated. It will be removed in a future build; please use \"ReportFile\" instead\n");
+		param_text = "ReportFile";
+	}
+
+   // 2. This part is kept for a future build:
    for (Integer i = GmatBaseParamCount; i < SolverParamCount; ++i)
    {
-      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
+      if (param_text == PARAMETER_TEXT[i - GmatBaseParamCount])
          return i;
    }
 

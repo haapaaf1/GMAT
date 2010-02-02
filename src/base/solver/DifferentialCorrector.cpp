@@ -48,7 +48,7 @@ DifferentialCorrector::PARAMETER_TEXT[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
    "Goals",
-   "UseCentralDifferences"
+   "DerivativeMethod"           //"UseCentralDifferences"
 };
 
 const Gmat::ParameterType
@@ -56,7 +56,7 @@ DifferentialCorrector::PARAMETER_TYPE[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
    Gmat::STRINGARRAY_TYPE,
-   Gmat::BOOLEAN_TYPE
+   Gmat::STRING_TYPE            //Gmat::BOOLEAN_TYPE
 };
 
 
@@ -78,7 +78,7 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   useCentralDifferences   (false)
+   derivativeMethod                ("CentralDifference")   // useCentralDifferences   (false)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -114,7 +114,8 @@ DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   useCentralDifferences   (dc.useCentralDifferences)  //,
+   derivativeMethod        (dc.derivativeMethod)   // useCentralDifferences
+   //(dc.useCentralDifferences)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -141,7 +142,8 @@ DifferentialCorrector&
    goalNames.clear();
    
    goalCount             = dc.goalCount;
-   useCentralDifferences = dc.useCentralDifferences;
+   derivativeMethod        = dc.derivativeMethod;   // made a change
+   // useCentralDifferences = dc.useCentralDifferences;
 
    return *this;
 }
@@ -211,6 +213,17 @@ std::string DifferentialCorrector::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer DifferentialCorrector::GetParameterID(const std::string &str) const
 {
+   // 1. This part will be removed for a furure build: 
+   if (str == "UseCentralDifferences")
+   {
+      MessageInterface::ShowMessage
+         ("***WARNING*** \"UseCentralDifferences\" field of Differential Corrector "
+          "is deprecated and will be removed from a future build; please use "
+          "\"DerivativeMethod\" instead.\n");
+      return derivativeMethodID;
+   }
+   
+   // 2. This part is kept for a future build:  
    for (Integer i = SolverParamCount; i < DifferentialCorrectorParamCount; ++i)
    {
       if (str == PARAMETER_TEXT[i - SolverParamCount])
@@ -326,8 +339,8 @@ Integer DifferentialCorrector::SetIntegerParameter(const Integer id,
 //------------------------------------------------------------------------------
 bool DifferentialCorrector::GetBooleanParameter(const Integer id) const
 {
-    if (id == useCentralDifferencingID)
-        return useCentralDifferences;
+//    if (id == useCentralDifferencingID)
+//        return useCentralDifferences;
 
     return Solver::GetBooleanParameter(id);
 }
@@ -349,11 +362,11 @@ bool DifferentialCorrector::GetBooleanParameter(const Integer id) const
 bool DifferentialCorrector::SetBooleanParameter(const Integer id,
                                                 const bool value)
 {
-   if (id == useCentralDifferencingID)
-   {
-      useCentralDifferences = value;
-      return useCentralDifferences;
-   }
+//   if (id == useCentralDifferencingID)
+//   {
+//      useCentralDifferences = value;
+//      return useCentralDifferences;
+//   }
 
    return Solver::SetBooleanParameter(id, value);
 }
@@ -376,7 +389,10 @@ std::string DifferentialCorrector::GetStringParameter(const Integer id) const
     //if (id == solverTextFileID)
     //    return solverTextFile;
 
-    return Solver::GetStringParameter(id);
+   if (id == derivativeMethodID)
+      return derivativeMethod;
+   
+   return Solver::GetStringParameter(id);
 }
 
 
@@ -411,6 +427,18 @@ bool DifferentialCorrector::SetStringParameter(const Integer id,
         return true;
     }
 
+    if (id == derivativeMethodID)
+    {
+       if (value == "true")
+          derivativeMethod = "CentralDifference";
+       else if (value == "false")
+          derivativeMethod = "ForwardDifference";
+       else
+          derivativeMethod = value;
+       
+       return true;
+    }
+    
     return Solver::SetStringParameter(id, value);
 }
 
