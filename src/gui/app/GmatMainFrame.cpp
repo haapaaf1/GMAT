@@ -54,6 +54,7 @@
 #include "XyPlotSetupPanel.hpp"
 #include "OpenGlPlotSetupPanel.hpp"
 #include "ReportFileSetupPanel.hpp"
+#include "EphemerisFilePanel.hpp"                       // made a change
 #include "SubscriberSetupPanel.hpp"
 #include "MessageInterface.hpp"
 #include "SolverGoalsPanel.hpp"
@@ -2242,7 +2243,8 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new OpenGlPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::EPHEMERIS_FILE:
-      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      // sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      sizer->Add(new EphemerisFilePanel(scrolledWin, name), 0, wxGROW|wxALL, 0);        // made a change
       break;
    case GmatTree::SUBSCRIBER:
       sizer->Add(new SubscriberSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
