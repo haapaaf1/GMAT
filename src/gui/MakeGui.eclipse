@@ -15,9 +15,17 @@ EXTENSION = .exe
 endif
 
 ifeq ($(USE_MATLAB),1)
-WXTARGET = gmat$(EXTENSION)
+   ifeq ($(USE_CCSDS),1)
+      WXTARGET = GMAT$(EXTENSION)
+   else
+      WXTARGET = GMAT_NoCCSDS$(EXTENSION)
+   endif
 else
-WXTARGET = gmatNoMatlab$(EXTENSION)
+   ifeq ($(USE_CCSDS),1)
+      WXTARGET = GMAT_NoMatlab$(EXTENSION)
+   else
+      WXTARGET = GMAT_NoMatlabNoCCSDS$(EXTENSION)
+   endif
 endif
 
 ifdef MAC_SPECIFIC
@@ -118,9 +126,6 @@ HEADERS = -I../base/include \
           -I../base/math \
           -I../base/coordsystem \
           -I../base/plugin \
-          -I../base/measurement \
-          -I../base/measurementfile \
-          -I../base/estimator \
           -Iinclude \
           -Iinclude/bitmaps \
           -Iinclude/il \
@@ -234,6 +239,7 @@ OBJECTS = \
     output/CompareReportPanel.o \
     output/OutputTree.o \
     output/ReportFilePanel.o \
+    subscriber/EphemerisFilePanel.o \
     subscriber/MdiChildTrajFrame.o \
     subscriber/MdiChildTsFrame.o \
     subscriber/MdiGlPlotData.o \
