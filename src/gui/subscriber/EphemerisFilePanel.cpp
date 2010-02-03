@@ -309,7 +309,7 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
          if (mObject->GetParameterText(index) == "WriteEphemeris")
             cbControl = new wxCheckBox(parent, ID_CHECKBOX, "Write Ephemeris");
          else
-            cbControl = new wxCheckBox(parent, ID_CHECKBOX, mObject->GetParameterText(index));
+            cbControl = new wxCheckBox(parent, ID_CHECKBOX, (mObject->GetParameterText(index)).c_str());
          
          cbControl->SetValue(mObject->GetBooleanParameter(index));
          control = cbControl;
