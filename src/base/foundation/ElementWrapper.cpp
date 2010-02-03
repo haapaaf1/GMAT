@@ -610,6 +610,27 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                lhsWrapper->SetString(sval);
                break;
             }
+            else if (rhsDataType == Gmat::INTEGER_TYPE)
+            {
+               sval = GmatStringUtil::ToString(ival);
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage
+                  ("   %d converted to string '%s'\n", ival, sval.c_str());
+               #endif
+               lhsWrapper->SetString(sval);
+               break;
+            }
+            else if (rhsDataType == Gmat::BOOLEAN_TYPE)
+            {
+               sval = GmatStringUtil::ToString(bval);
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage
+                  ("   %s converted to string '%s'\n", bval ? "true" : "false",
+                   sval.c_str());
+               #endif
+               lhsWrapper->SetString(sval);
+               break;
+            }
             else
             {
                GmatBaseException ex;
