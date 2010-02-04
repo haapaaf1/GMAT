@@ -364,6 +364,9 @@ void ConsoleMessageReceiver::CloseLogFile()
 {
    if (logFile)
       fclose(logFile);
+   
+   logFile = NULL;
+   logFileSet = false;
 }
 
 
@@ -469,8 +472,10 @@ void ConsoleMessageReceiver::ClearMessage()
  */
 //------------------------------------------------------------------------------
 ConsoleMessageReceiver::ConsoleMessageReceiver() :
-   MAX_MESSAGE_LENGTH       (10000),
-   logFile                  (NULL)
+   MAX_MESSAGE_LENGTH      (10000),
+   logFile                 (NULL),
+   logEnabled              (false),
+   logFileSet              (false)
 {
    messageQueue.push("ConsoleMessageReceiver: Starting GMAT ...");
 }
