@@ -55,6 +55,7 @@ public:
    
    // Interfaces used to update the state of the running system
    void                 SetRunState(const Gmat::RunState state);
+   
    void                 SetManeuvering(GmatBase *originator,
                                        bool flag, Real epoch,
                                        const std::string &satNames,
@@ -64,6 +65,10 @@ public:
                                        const StringArray &satNames,
                                        const std::string &desc);
    bool                 GetManeuvering();
+   
+   void                 SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                             const std::string &satName,
+                                             const std::string &desc);
    
    CoordinateSystem* GetInternalCoordSystem() { return internalCoordSystem; }
    CoordinateSystem* GetDataCoordSystem() { return dataCoordSystem; }

@@ -940,6 +940,32 @@ bool Publisher::GetManeuvering()
 
 
 //------------------------------------------------------------------------------
+// void SetScPropertyChanged(GmatBase *originator, Real epoch,
+//                           const std::string &satName, const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft property change so that subscribers can handle appropriately.
+ * 
+ * @param originator  The assignment command pointer who is setting
+ * @param epoch  Epoch of spacecraft at property change
+ * @param satName  Name of the spacecraft
+ * @param desc  Description of property change
+ */
+//------------------------------------------------------------------------------
+void Publisher::SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                     const std::string &satName,
+                                     const std::string &desc)
+{
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
+   {
+      (*current)->SetScPropertyChanged(originator, epoch, satName, desc);
+      current++;
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // void UpdateProviderId(Integer newId)
 //------------------------------------------------------------------------------
 void Publisher::UpdateProviderId(Integer newId)
