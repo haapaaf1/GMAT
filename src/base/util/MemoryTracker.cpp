@@ -139,10 +139,18 @@ StringArray& MemoryTracker::GetTracks(bool clearTracks, bool writeScriptName)
 {
    allTracks.clear();
    std::vector<TrackType>::iterator track = memoryTracks.begin();
-   static char text[300];
+   static char text[400];
+   Integer trackCount = 0;
+
+   #ifdef DEBUG_GET_TRACKS
+   MessageInterface::ShowMessage
+      ("===> MemoryTracker::GetTracks() There are %d memory tracks\n",
+       memoryTracks.size());
+   #endif
    
-   while (track != memoryTracks.end())
+   while (track != memoryTracks.end() && trackCount < 1000)
    {
+      trackCount++;
       std::string script = "";
       if (writeScriptName)
          script = (*track).scriptName;
@@ -155,6 +163,11 @@ StringArray& MemoryTracker::GetTracks(bool clearTracks, bool writeScriptName)
    
    if (clearTracks)
       memoryTracks.clear();
+   
+   #ifdef DEBUG_GET_TRACKS
+   MessageInterface::ShowMessage
+      ("===> MemoryTracker::GetTracks() returning %d memory tracks\n", allTracks.size());
+   #endif
    
    return allTracks;
 }
