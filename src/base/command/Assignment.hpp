@@ -101,6 +101,7 @@ protected:
    
    // methods
    ElementWrapper* RunMathTree();
+   void HandleScPropertyChange(ElementWrapper *lhsWrapper);
 };
 
 #endif // Assignment_hpp

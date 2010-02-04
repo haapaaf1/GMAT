@@ -50,14 +50,14 @@
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
-//#ifndef DEBUG_PERFORMANCE
-//#define DEBUG_PERFORMANCE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE
 //#endif
 
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
-#ifdef DEBUG_PERFORMANCE
+#ifdef DEBUG_TRACE
 #include <ctime>                 // for clock()
 #endif
 
@@ -94,7 +94,7 @@ Assignment::~Assignment()
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         (mathTree, mathTree->GetName(), "Assignment::Assignment()", "deleting mathTree");
+         (mathTree, mathTree->GetName(), "Assignment::~Assignment()", "deleting mathTree");
       #endif
       delete mathTree;
    }
@@ -677,7 +677,7 @@ bool Assignment::Initialize()
 //------------------------------------------------------------------------------
 bool Assignment::Execute()
 {
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    static Integer callCount = 0;
    callCount++;      
    clock_t t1 = clock();
@@ -741,6 +741,11 @@ bool Assignment::Execute()
       {
          retval = ElementWrapper::SetValue(lhsWrapper, rhsWrapper, solarSys, objectMap,
                                            globalObjectMap, setRefObj);
+
+         // Check if setting spacecraft property
+         if (lhsWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY_WT ||
+             lhsWrapper->GetWrapperType() == Gmat::OBJECT_WT)
+            HandleScPropertyChange(lhsWrapper);
       }
       else
       {
@@ -767,14 +772,16 @@ bool Assignment::Execute()
                #ifdef DEBUG_MEMORY
                MemoryTracker::Instance()->Remove
                   (refObj, refObj->GetName(), "Assignment::Execute()",
-                   GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper's refObj");
+                   //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper's refObj");
+                   " deleting outWrapper's refObj");
                #endif
                delete refObj;
             }
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
                (outWrapper, outWrapper->GetDescription(), "Assignment::Execute()",
-                GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper");
+                //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper");
+                " deleting outWrapper");
             #endif
             delete outWrapper;
          }
@@ -830,7 +837,8 @@ bool Assignment::Execute()
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (refObj, refObj->GetName(), "Assignment::Execute()",
-             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper's refObj");
+             //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper's refObj");
+             " deleting outWrapper's refObj");
          #endif
          delete refObj;
          refObj = NULL;
@@ -838,13 +846,14 @@ bool Assignment::Execute()
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (outWrapper, outWrapper->GetDescription(), "Assignment::Execute()",
-          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper");
+          //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting outWrapper");
+          " deleting outWrapper");
       #endif
       delete outWrapper;
       outWrapper = NULL;
    }
    
-   #ifdef DEBUG_PERFORMANCE
+   #ifdef DEBUG_TRACE
    clock_t t2 = clock();
    MessageInterface::ShowMessage
       ("=== Assignment::Execute() exiting, '%s' Count = %d, Run Time: %f seconds\n",
@@ -1088,7 +1097,8 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (lhsOldWrapper, lhsOldWrapper->GetDescription(), "Assignment::SetElementWrapper()",
-          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsOldWrapper");
+          //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsOldWrapper");
+          " deleting lhsOldWrapper");
       #endif
       delete lhsOldWrapper;
       lhsOldWrapper = NULL;
@@ -1101,7 +1111,8 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (lhsOldWrapper, lhsOldWrapper->GetDescription(), "Assignment::SetElementWrapper()",
-             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsOldWrapper");
+             //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhsOldWrapper");
+             " deleting lhsOldWrapper");
          #endif
          delete lhsOldWrapper;     
          lhsOldWrapper = NULL;
@@ -1113,7 +1124,8 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (rhsOldWrapper, rhsOldWrapper->GetDescription(), "Assignment::SetElementWrapper()",
-             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhsOldWrapper");
+             //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhsOldWrapper");
+             " deleting rhsOldWrapper");
          #endif
          delete rhsOldWrapper;
          rhsOldWrapper = NULL;
@@ -1142,7 +1154,8 @@ void Assignment::ClearWrappers()
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (rhsEw, rhsEw->GetDescription(), "Assignment::ClearWrappers()",
-          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhs wrapper");
+          //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting rhs wrapper");
+          " deleting rhs wrapper");
       #endif
       delete rhsEw;
       rhsEw = NULL;
@@ -1161,7 +1174,8 @@ void Assignment::ClearWrappers()
             MemoryTracker::Instance()->Remove
                (ewi->second, (ewi->second)->GetDescription(),
                 "Assignment::ClearWrappers()",
-                GetGeneratingString(Gmat::NO_COMMENTS) + " deleting math node wrapper");
+                //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting math node wrapper");
+                " deleting math node wrapper");
             #endif
             delete ewi->second;
             ewi->second = NULL;
@@ -1174,7 +1188,8 @@ void Assignment::ClearWrappers()
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (lhsEw, lhsEw->GetDescription(), "Assignment::ClearWrappers()",
-          GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhs wrapper");
+          //GetGeneratingString(Gmat::NO_COMMENTS) + " deleting lhs wrapper");
+          " deleting lhs wrapper");
       #endif
       delete lhsEw;
       lhsEw = NULL;
@@ -1424,4 +1439,20 @@ ElementWrapper* Assignment::RunMathTree()
    
 }
 
+
+//------------------------------------------------------------------------------
+// void HandleScPropertyChange(ElementWrapper *lhsWrapper)
+//------------------------------------------------------------------------------
+void Assignment::HandleScPropertyChange(ElementWrapper *lhsWrapper)
+{
+   GmatBase *obj = lhsWrapper->GetRefObject();
+   if (obj != NULL)
+   {
+      if (obj->IsOfType(Gmat::SPACECRAFT))
+      {
+         publisher->SetScPropertyChanged(this, obj->GetRealParameter("A1Epoch"),
+                                         obj->GetName(), lhs + " = " + rhs);
+      }
+   }
+}
 
