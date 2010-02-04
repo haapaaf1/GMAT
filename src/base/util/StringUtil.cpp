@@ -481,6 +481,24 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
 
 
 //------------------------------------------------------------------------------
+// std::string ToString(const bool &val)
+//------------------------------------------------------------------------------
+/*
+ * Formats bool value to String. If value is not true, it returns "false".
+ *
+ * @param  val  boolean value
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::ToString(const bool &val)
+{
+   if (val == true)
+      return "true";
+   else
+      return "false";
+}
+
+
+//------------------------------------------------------------------------------
 // std::string ToString(const Real &val, Integer precision, bool showPoint,
 //                      Integer width)
 //------------------------------------------------------------------------------
