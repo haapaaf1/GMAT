@@ -56,7 +56,9 @@ GuiMessageReceiver*  GuiMessageReceiver::instance = NULL;
 //------------------------------------------------------------------------------
 GuiMessageReceiver::GuiMessageReceiver() :
    MAX_MESSAGE_LENGTH      (10000),
-   logFile                 (NULL)
+   logFile                 (NULL),
+   logEnabled              (false),
+   logFileSet              (false)
 {
    messageQueue.push
       ("GuiMessageReceiver.cpp:GuiMessageReceiver(): Starting GMAT ...");
@@ -630,4 +632,7 @@ void GuiMessageReceiver::CloseLogFile()
 {
    if (logFile)
       fclose(logFile);
+   
+   logFile = NULL;
+   logFileSet = false;
 }
