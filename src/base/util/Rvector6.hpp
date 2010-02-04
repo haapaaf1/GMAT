@@ -37,7 +37,7 @@ public:
    Rvector6(const Real e1, const Real e2, const Real e3, const Real e4,
             const Real e5, const Real e6);
    Rvector6(const Rvector3 &r, const Rvector3 &v);
-   Rvector6(Real vec[6]);
+   Rvector6(const Real vec[6]);
    Rvector6(const Rvector6 &v);
    Rvector6& operator=(const Rvector6 &v);
    virtual ~Rvector6();
