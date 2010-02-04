@@ -187,6 +187,19 @@ const StringArray& ObjectPropertyWrapper::GetRefObjectNames()
 }
 
 
+//------------------------------------------------------------------------------
+//  GmatBase* GetRefObject(const std::string &name = "")
+//------------------------------------------------------------------------------
+/**
+ * @see ElementWrapper
+ */
+//------------------------------------------------------------------------------
+GmatBase* ObjectPropertyWrapper::GetRefObject(const std::string &name)
+{
+   return object;
+}
+
+
 //---------------------------------------------------------------------------
 //  bool SetRefObject(GmatBase *obj)
 //---------------------------------------------------------------------------
