@@ -517,7 +517,9 @@ bool Periapsis::Evaluate()
 //    Real rdotv = R*V;
 //    mRealValue = rdotv;
    mRealValue = R*V;
-   if (mRealValue == 0.0)
+   // Changed to use IsEqual() (LOJ: 2010.02.02)
+   //if (mRealValue == 0.0)
+   if (GmatMathUtil::IsEqual(mRealValue, 0.0))
       mRealValue = 1.0e-40;
 
    return true;
