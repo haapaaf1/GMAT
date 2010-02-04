@@ -28,13 +28,12 @@
 #include "MessageInterface.hpp"
 
 
-//#define DEBUG_BASE_STOPCOND 1
-//#define DEBUG_BASE_STOPCOND_INIT 1
-//#define DEBUG_BASE_STOPCOND_GET 1
-//#define DEBUG_BASE_STOPCOND_SET 1
+//#define DEBUG_STOPCOND_INIT
+//#define DEBUG_STOPCOND_GET
+//#define DEBUG_STOPCOND_SET
+//#define DEBUG_STOPCOND_EVAL
 //#define DEBUG_RENAME
-//#define DEBUG_STOPCOND 2
-//#define DEBUG_STOPCOND_PERIAPSIS 1
+//#define DEBUG_STOPCOND_PERIAPSIS
 //#define DEBUG_BUFFER_FILLING
 //#define DEBUG_CYCLIC_PARAMETERS
 
@@ -423,7 +422,7 @@ bool StopCondition::Evaluate()
       
    #ifdef DEBUG_BUFFER_FILLING
       MessageInterface::ShowMessage(
-         "StopCondition::Evaluate called\n");
+         "StopCondition::Evaluate called, mNumValidPoints=%d\n", mNumValidPoints);
    #endif
    
    // evaluate goal
@@ -437,7 +436,11 @@ bool StopCondition::Evaluate()
       epoch = mEpochParam->EvaluateReal();
       
    currentParmValue = mStopParam->EvaluateReal();
-
+   
+   #ifdef DEBUG_BUFFER_FILLING
+   MessageInterface::ShowMessage("   currentParmValue=%.15f\n", currentParmValue);
+   #endif
+   
    if (isAngleParameter)
    {
       mGoal = AngleUtil::PutAngleInDegRange(mGoal, 0.0, GmatMathUtil::TWO_PI_DEG);
@@ -469,7 +472,7 @@ bool StopCondition::Evaluate()
          previousEpoch = epoch;
       }
    }
-         
+   
    if (isPeriapse)
    {
       readyToTest = CheckOnPeriapsis();
@@ -479,12 +482,17 @@ bool StopCondition::Evaluate()
          previousEpoch = epoch;
       }
    }
-
+   
    if (mNumValidPoints == 0)
    {
       previousValue = currentParmValue;
       previousEpoch = epoch;
       ++mNumValidPoints;
+      
+      #ifdef DEBUG_STOPCOND_EVAL
+      MessageInterface::ShowMessage
+         ("StopCondition::Evaluate()() returning false, mNumValidPoints is zero\n");
+      #endif
       return false;
    }
    
@@ -494,7 +502,7 @@ bool StopCondition::Evaluate()
       min = (currentParmValue<previousValue ? currentParmValue : previousValue);
       max = (currentParmValue>previousValue ? currentParmValue : previousValue);
       
-      #ifdef DEBUG_STOP_COND
+      #ifdef DEBUG_STOPCOND_EVAL
          MessageInterface::ShowMessage(
             "Evaluating: min = %lf, max = %lf, goal = %lf\n", min, max, mGoal);
       #endif
@@ -506,7 +514,7 @@ bool StopCondition::Evaluate()
             goalMet = true;
             mStopInterval = (epoch - previousEpoch) * 86400.0;
       
-            #ifdef DEBUG_STOP_COND
+            #ifdef DEBUG_STOPCOND_EVAL
                MessageInterface::ShowMessage(
                   "Previous Epoch = %.12lf, Epoch  %.12lf, Values = [%.12lf  %.12lf], "
                   "StopInterval = %.12lf\n", previousEpoch, epoch,
@@ -530,7 +538,7 @@ bool StopCondition::Evaluate()
       Real direction = 
            (currGoalDiff - prevGoalDiff > 0.0 ? 1.0 : -1.0);
 
-      #if DEBUG_STOPCOND > 1
+      #ifdef DEBUG_STOPCOND_EVAL
          MessageInterface::ShowMessage(
             "prev = %15.9lf, curr = %15.9lf, lhs = %15.9lf, rhs = %15.9lf, "
             "direction = %15.9lf, \n", previousValue, currentParmValue, 
@@ -550,7 +558,7 @@ bool StopCondition::Evaluate()
       {
          goalMet = true;
          
-         #if DEBUG_STOPCOND > 1
+         #ifdef DEBUG_STOPCOND_EVAL
             MessageInterface::ShowMessage
                ("StopCondition::Evaluate() mUseInternalEpoch = %d, "
                "epoch = %15.9lf, mGoal = %15.9lf, "
@@ -576,6 +584,11 @@ bool StopCondition::Evaluate()
    #endif
    
    ++mNumValidPoints;
+   
+   #ifdef DEBUG_STOPCOND_EVAL
+   MessageInterface::ShowMessage
+      ("StopCondition::Evaluate() returning %s\n", goalMet ? "goal met" : "goal not met");
+   #endif
    return goalMet;
 }
 
@@ -718,7 +731,7 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
          mInterpolator->Clear();
          for (int i=0; i<mBufferSize; i++)
          {
-            #if DEBUG_STOPCOND
+            #ifdef DEBUG_STOPCOND_EVAL
             MessageInterface::ShowMessage
                ("StopCondition::Evaluate() i=%d, mValueBuffer=%f, "
                 "mEpochBuffer=%f\n", i, mValueBuffer[i], mEpochBuffer[i]);
@@ -733,7 +746,7 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
             retval = true;
          }
          
-         #if DEBUG_STOPCOND
+         #ifdef DEBUG_STOPCOND_EVAL
          MessageInterface::ShowMessage
             ("StopCondition::Evaluate() mStopEpoch=%f\n", mStopEpoch);
          #endif
@@ -769,7 +782,7 @@ Real StopCondition::GetStopEpoch()
    if (IsTimeCondition())
    {
       
-      #if DEBUG_STOPCOND
+      #ifdef DEBUG_STOPCOND_EPOCH
          MessageInterface::ShowMessage
             ("StopCondition::GetStopEpoch()\n   Previous = %15.9lf\n   "
             "Current = %15.9lf\n   Goal = %15.9lf", previousEpoch, previousValue, 
@@ -782,7 +795,7 @@ Real StopCondition::GetStopEpoch()
       
    Real stopEpoch = 0.0;
    
-   #if DEBUG_STOPCOND
+   #ifdef DEBUG_STOPCOND_EPOCH
       MessageInterface::ShowMessage
          ("StopCondition::Evaluate()\n   Ring buffer:\n");
    #endif
@@ -790,7 +803,7 @@ Real StopCondition::GetStopEpoch()
    mInterpolator->Clear();
    for (int i=0; i<mBufferSize; i++)
    {
-      #if DEBUG_STOPCOND
+      #ifdef DEBUG_STOPCOND_EPOCH
          MessageInterface::ShowMessage
             ("      i=%d, mValueBuffer=%.12lf, "
              "mEpochBuffer=%.12lf\n", i, mValueBuffer[i], mEpochBuffer[i]);
@@ -804,7 +817,7 @@ Real StopCondition::GetStopEpoch()
    else
       throw StopConditionException("Unable to interpolate a stop epoch");
   
-   #if DEBUG_STOPCOND
+   #ifdef DEBUG_STOPCOND_EPOCH
       MessageInterface::ShowMessage
          ("   Interpolated epoch = %.12lf\n", mStopEpoch);
    #endif
@@ -838,10 +851,22 @@ GmatBase* StopCondition::Clone() const
 //------------------------------------------------------------------------------
 bool StopCondition::CheckOnPeriapsis()
 {   
+   #ifdef DEBUG_STOPCOND_PERIAPSIS
+   MessageInterface::ShowMessage
+      ("StopCondition::CheckOnPeriapsis() entered, previousValue=%.15f, mGoal=%.15f\n",
+       previousValue, mGoal);
+   #endif
+   
+   bool goalMet = false;
+   
    // Eccentricity must be large enough to keep osculations from masking the
    // stop point
    Real ecc = mEccParam->EvaluateReal();
 //   Real rmag = mRmagParam->EvaluateReal();  // ???
+   
+   #ifdef DEBUG_STOPCOND_PERIAPSIS
+   MessageInterface::ShowMessage("   ecc=%.15f\n", ecc);
+   #endif
    
    //----------------------------------------------------------------------
    // A necessary condition for periapse stop: when moving forward in time,
@@ -853,10 +878,18 @@ bool StopCondition::CheckOnPeriapsis()
    {
       if (( mBackwardsProp && (previousValue >= mGoal))  ||  
           (!mBackwardsProp && (previousValue <= mGoal)))
-         return true;
+         goalMet = true;
+      //return true;
    }
    
-   return false;
+   #ifdef DEBUG_STOPCOND_PERIAPSIS
+   MessageInterface::ShowMessage
+      ("StopCondition::CheckOnPeriapsis() returning %s\n", goalMet ?
+       "goal met" : "goal not met");
+   #endif
+   
+   return goalMet;
+   //return false;
 }
 
 
@@ -899,7 +932,7 @@ bool StopCondition::CheckOnAnomaly(Real &anomaly)
 {
    Real tempGoal = AngleUtil::PutAngleInDegRange(mGoal, 0.0, GmatMathUtil::TWO_PI_DEG);
    
-   #ifdef DEBUG_STOP_COND
+   #ifdef DEBUG_STOPCOND_ANOMALY
       MessageInterface::ShowMessage(
          "CheckOnAnomaly(%.12lf), tempGoal = %.12lf\n", anomaly, tempGoal);
    #endif
@@ -965,7 +998,7 @@ bool StopCondition::CheckCyclicCondition(Real &value)
 //------------------------------------------------------------------------------
 bool StopCondition::Initialize()
 {
-   #if DEBUG_BASE_STOPCOND_INIT
+   #ifdef DEBUG_STOPCOND_INIT
    MessageInterface::ShowMessage("StopCondition::Initialize() entered\n");
    #endif
    
@@ -1046,7 +1079,7 @@ bool StopCondition::Initialize()
       }
    }
    
-   #if DEBUG_BASE_STOPCOND_INIT
+   #ifdef DEBUG_STOPCOND_INIT
    MessageInterface::ShowMessage
       ("StopCondition::Initialize() returning mInitialized=%d\n", mInitialized);
    #endif
@@ -1066,7 +1099,7 @@ bool StopCondition::Initialize()
 //------------------------------------------------------------------------------
 bool StopCondition::Validate()
 {   
-   #if DEBUG_STOPCOND_INIT   
+   #ifdef DEBUG_STOPCOND_INIT   
    MessageInterface::ShowMessage
       ("StopCondition::Validate() mUseInternalEpoch=%d, mEpochParam=<%p>, "
        "mStopParam=<%p>, mAllowGoalParam=%d, mGoalParam=<%p>\n", mUseInternalEpoch,
@@ -1104,7 +1137,7 @@ bool StopCondition::Validate()
       else
          stopParamTimeType = UNKNOWN_PARAM_TIME_TYPE;
       
-      #if DEBUG_BASE_STOPCOND_INIT   
+      #ifdef DEBUG_STOPCOND_INIT   
          MessageInterface::ShowMessage(
             "Stop parameter \"%s\" has time type %d\n", timeTypeName.c_str(), 
             stopParamTimeType);
@@ -1136,7 +1169,7 @@ bool StopCondition::Validate()
       // check on Ecc parameter
       if (mEccParam  == NULL)
       {
-         #if DEBUG_BASE_STOPCOND
+         #ifdef DEBUG_STOPCOND_INIT
          MessageInterface::ShowMessage
             ("StopCondition::Validate(): Creating KepEcc...\n");
          #endif
@@ -1170,14 +1203,14 @@ bool StopCondition::Validate()
       {
          if (mRmagParam == NULL)
          {
-            #if DEBUG_BASE_STOPCOND_INIT
+            #ifdef DEBUG_STOPCOND_INIT
             MessageInterface::ShowMessage
                ("StopCondition::Validate(): Creating SphRMag...\n");
             #endif
             
             std::string depObjName = mStopParam->GetStringParameter("DepObject");
             
-            #if DEBUG_BASE_STOPCOND_INIT
+            #ifdef DEBUG_STOPCOND_INIT
             MessageInterface::ShowMessage
                ("StopCondition::Validate() depObjName of mStopParam=%s\n",
                 depObjName.c_str());
@@ -1219,7 +1252,7 @@ bool StopCondition::Validate()
       }
    }
    
-   #if DEBUG_BASE_STOPCOND_INIT
+   #ifdef DEBUG_STOPCOND_INIT
    MessageInterface::ShowMessage
       ("StopCondition::Validate() mUseInternalEpoch=%d, mEpochParam=%p, "
        "mInterpolator=%p\n   mStopParamType=%s, mStopParamName=%s, mStopParam=%s<%p>\n",
@@ -1323,7 +1356,7 @@ void StopCondition::SetPropDirection(Real dir)
    else
       mBackwardsProp = true;
    
-   #if DEBUG_BASE_STOPCOND
+   #ifdef DEBUG_STOPCOND
    MessageInterface::ShowMessage
       ("StopCondition::SetPropDirection() dir=%f, mBackwardsProp=%d\n",
        dir, mBackwardsProp);
@@ -1476,7 +1509,7 @@ void StopCondition::SetGoalString(const std::string &str)
       mAllowGoalParam = true;
    }
    
-   #if DEBUG_BASE_STOPCOND
+   #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
       ("StopCondition::SetGoalString() mAllowGoalParam=%d, mGoalStr=<%s>, "
        "mGoal=%le\n", mAllowGoalParam, mGoalStr.c_str(), mGoal);
@@ -1589,7 +1622,7 @@ StopCondition::GetRefObjectNameArray(const Gmat::ObjectType type)
 bool StopCondition::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                  const std::string &name)
 {
-   #if DEBUG_BASE_STOPCOND_GET
+   #ifdef DEBUG_STOPCOND_GET
    MessageInterface::ShowMessage
       ("StopCondition::SetRefObject() Name=%s, mStopParamName=%s, mGoalStr=%s\n",
        this->GetName().c_str(), mStopParamName.c_str(), mGoalStr.c_str());
@@ -1634,7 +1667,7 @@ std::string StopCondition::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer StopCondition::GetParameterID(const std::string &str) const
 {
-   #if DEBUG_BASE_STOPCOND_GET > 1
+   #ifdef DEBUG_STOPCOND_GET
    MessageInterface::ShowMessage
       ("StopCondition::GetParameterID() str = %s\n", str.c_str());
    #endif
@@ -1790,7 +1823,7 @@ Real StopCondition::SetRealParameter(const Integer id, const Real value)
 //------------------------------------------------------------------------------
 Real StopCondition::SetRealParameter(const std::string &label, const Real value)
 {
-   #if DEBUG_BASE_STOPCOND_SET
+   #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
       ("StopCondition::SetRealParameter() label=%s, "
        "value=%le\n", label.c_str(), value);
@@ -1826,7 +1859,7 @@ std::string StopCondition::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 std::string StopCondition::GetStringParameter(const std::string &label) const
 {
-   #if DEBUG_BASE_STOPCOND_GET
+   #ifdef DEBUG_STOPCOND_GET
    MessageInterface::ShowMessage
       ("StopCondition::GetStringParameter() label = %s\n", label.c_str());
    #endif
@@ -1840,7 +1873,7 @@ std::string StopCondition::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 bool StopCondition::SetStringParameter(const Integer id, const std::string &value)
 {
-   #if DEBUG_BASE_STOPCOND_SET
+   #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
       ("StopCondition::SetStringParameter() id = %d, value = %s \n",
        id, value.c_str());
@@ -1873,7 +1906,7 @@ bool StopCondition::SetStringParameter(const Integer id, const std::string &valu
 bool StopCondition::SetStringParameter(const std::string &label,
                                            const std::string &value)
 {
-   #if DEBUG_BASE_STOPCOND_SET
+   #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
       ("StopCondition::SetStringParameter() label = %s, "
        "value = %s \n", label.c_str(), value.c_str());
@@ -1916,7 +1949,7 @@ Real StopCondition::GetStopDifference()
    else
       goalValue = mGoal;
       
-   #ifdef DEBUG_STOPCOND
+   #ifdef DEBUG_STOPCOND_EVAL
       MessageInterface::ShowMessage("%s goal (%s) = %16.9lf, value = %16.9lf\n", 
          instanceName.c_str(), 
          (mGoalParam ? mGoalParam->GetName().c_str() : "Fixed goal"), goalValue,

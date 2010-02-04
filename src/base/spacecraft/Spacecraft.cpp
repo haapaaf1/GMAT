@@ -3489,7 +3489,7 @@ void Spacecraft::CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
             tanks.push_back(clonedTank);
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Add
-               (clonedTank, "cloned tank", "Spacecraft::CloneOwnedObjects()",
+               (clonedTank, clonedTank->GetName(), "Spacecraft::CloneOwnedObjects()",
                 "clonedTank = (tnks[i])->Clone()", this);
             #endif
          #else
@@ -3509,7 +3509,7 @@ void Spacecraft::CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
             thrusters.push_back(clonedObj);
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Add
-               (clonedObj, "cloned thruster", "Spacecraft::CloneOwnedObjects()",
+               (clonedObj, clonedObj->GetName(), "Spacecraft::CloneOwnedObjects()",
                 "clonedObj = (thrs[i])->Clone()", this);
             #endif
 

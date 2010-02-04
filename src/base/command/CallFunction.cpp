@@ -1089,7 +1089,8 @@ bool CallFunction::Execute()
          BuildCommandSummary(true);
          
          #ifdef DEBUG_CALL_FUNCTION_EXEC
-         MessageInterface::ShowMessage("CallFunction::Execute() exiting with %d\n", status);
+         MessageInterface::ShowMessage
+            ("CallFunction::Execute() MatlabFunction exiting with %d\n", status);
             #ifdef DEBUG_OBJECT_MAP
             ShowObjectMaps("object maps at the end");
             #endif
@@ -1116,7 +1117,8 @@ bool CallFunction::Execute()
    BuildCommandSummary(true);
    
    #ifdef DEBUG_CALL_FUNCTION_EXEC
-      MessageInterface::ShowMessage("CallFunction::Execute() exiting with %d\n", status);
+      MessageInterface::ShowMessage
+         ("CallFunction::Execute() GmatFunction exiting with %d\n", status);
       #ifdef DEBUG_OBJECT_MAP
       ShowObjectMaps("object maps at the end");
       #endif
