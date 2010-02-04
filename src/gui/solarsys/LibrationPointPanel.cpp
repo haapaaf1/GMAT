@@ -20,6 +20,7 @@
 //------------------------------------------------------------------------------
 
 #include "LibrationPointPanel.hpp"
+#include "GmatStaticBoxSizer.hpp"
 #include "MessageInterface.hpp"
 
 //#define DEBUG_LIBRATIONPOINT_PANEL 1
@@ -143,8 +144,8 @@ void LibrationPointPanel::Create()
       pageSizer->Add(librationPtCB, 0, wxALIGN_LEFT | wxALL, bsize);
       
       // create Options box:
-      wxStaticBoxSizer *optionsStaticBoxSizer =
-         new wxStaticBoxSizer(wxVERTICAL, this, "Options");
+      GmatStaticBoxSizer *optionsStaticBoxSizer =
+         new GmatStaticBoxSizer(wxVERTICAL, this, "Options");
       optionsStaticBoxSizer->Add(pageSizer, 0, wxALIGN_LEFT|wxALL,bsize);
       
       // add page sizer to middle sizer
