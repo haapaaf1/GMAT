@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              GregorianDate     
 //------------------------------------------------------------------------------
@@ -42,18 +42,18 @@ public:
    
    GregorianDate();
    GregorianDate(const std::string &str);
-   GregorianDate(Date *newDate);
+   GregorianDate(Date *newDate, Integer format = 1);
    ~GregorianDate();
-
+   
    std::string      GetDate() const;
    bool             SetDate(const std::string &str);
-   bool             SetDate(Date *newDate);
-
+   bool             SetDate(Date *newDate, Integer format = 1);
+   
    std::string      GetType() const;
    bool             SetType(const std::string &str);
-
+   
    std::string      GetYMDHMS() const;
-
+   
    bool             IsValid() const;
    static bool      IsValid(const std::string &greg);
    
@@ -61,18 +61,19 @@ private:
    // function method
    void           Initialize(const std::string &str);
    void           ParseOut(const std::string &str);
-
+   
    std::string    NumToString(const Integer num);
    std::string    NumToString(const Real num);
    Integer        ToInteger(const std::string &str);
    Real           ToReal(const std::string &str);
-
+   
    std::string    GetMonthName(const Integer month);
-
+   
    // data method
    std::string      stringDate;
    std::string      stringYMDHMS;
-   std::string      type; 
+   std::string      type;
+   Integer          outFormat;
    bool             isValid;
    bool             initialized;
 };

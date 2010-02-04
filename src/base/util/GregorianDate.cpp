@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             GregorianDate 
 //------------------------------------------------------------------------------
@@ -32,9 +32,8 @@
 //---------------------------------------------------------------------------
 /**
  * Creates default constructor.
- *
- * 
  */
+//---------------------------------------------------------------------------
 GregorianDate::GregorianDate()
 {
    SetDate("01 Jan 2000 12:00:00.000");
@@ -47,25 +46,25 @@ GregorianDate::GregorianDate()
  * Creates constructor with parameters.
  *
  * @param <str>   Given String of Date
- * 
  */
+//---------------------------------------------------------------------------
 GregorianDate::GregorianDate(const std::string &str)
 {
    SetDate(str);   
 }
 
 //---------------------------------------------------------------------------
-//  GregorianDate(Date *newDate)
+//  GregorianDate(Date *newDate, Integer format = 1)
 //---------------------------------------------------------------------------
 /**
  * Creates default constructor with new Date.
- *
- * 
  */
-GregorianDate::GregorianDate(Date *newDate)
+//---------------------------------------------------------------------------
+GregorianDate::GregorianDate(Date *newDate, Integer format)
 {
+   outFormat = format;
    Initialize("");
-   SetDate(newDate);
+   SetDate(newDate, format);
 }
 
 
@@ -74,8 +73,8 @@ GregorianDate::GregorianDate(Date *newDate)
 //---------------------------------------------------------------------------
 /**
  * Destructor.
- * 
  */
+//---------------------------------------------------------------------------
 GregorianDate::~GregorianDate()
 {
 }
@@ -88,8 +87,8 @@ GregorianDate::~GregorianDate()
  * Get the date in string.
  *
  * @return the date in string. 
- * 
  */
+//---------------------------------------------------------------------------
 std::string GregorianDate::GetDate() const
 {
    return stringDate;
@@ -102,8 +101,8 @@ std::string GregorianDate::GetDate() const
  * Set the date in string. 
  *
  * @return        return flag indicator (true = successful; otherwise, false) 
- * 
  */
+//---------------------------------------------------------------------------
 bool GregorianDate::SetDate(const std::string &str) 
 {
     Initialize(str); // for now....
@@ -112,38 +111,55 @@ bool GregorianDate::SetDate(const std::string &str)
     return true;
 }
 
+
 //---------------------------------------------------------------------------
-//  bool SetDate(const std::string &str) 
+//  bool SetDate(Date *newDate, Integer format = 1) 
 //---------------------------------------------------------------------------
 /**
- * Set the date in string. 
+ * Set the new date in Date
  *
- * @return        return flag indicator (true = successful; otherwise, false) 
+ * @param   format    1 = "01 Jan 2000 11:59:28.000"
+ *                    2 = "2000-01-01T11:59:28.000"
+ * @return  return flag indicator (true = successful; otherwise, false) 
  * 
  */
-bool GregorianDate::SetDate(Date *newDate) 
+//---------------------------------------------------------------------------
+bool GregorianDate::SetDate(Date *newDate, Integer format) 
 {
    // Check validity on date first then convert to string
    if (!newDate->IsValid())
    { 
-      MessageInterface::ShowMessage("Warning:  Can't set date to string");
+      MessageInterface::ShowMessage("Warning:  Can't set date to string\n");
       return (isValid = false); 
    }  
-
+   
    std::string temp;
-   temp = NumToString(newDate->GetDay());
-
+   
    // Convert the date format in string
-   temp += " " + GetMonthName(newDate->GetMonth()) + " "; 
-   temp += NumToString(newDate->GetYear()) + " ";
-   temp += NumToString(newDate->GetHour()) + ":";
-   temp += NumToString(newDate->GetMinute()) + ":";
-   temp += NumToString(newDate->GetSecond());
- 
-   stringDate = temp;
+   if (format == 2)
+   {
+      temp += NumToString(newDate->GetYear()) + "-";
+      temp += NumToString(newDate->GetMonth()) + "-";
+      temp += NumToString(newDate->GetDay()) + "T";
+      temp += NumToString(newDate->GetHour()) + ":";
+      temp += NumToString(newDate->GetMinute()) + ":";
+      temp += NumToString(newDate->GetSecond());
+      stringDate = temp;
+   }
+   else
+   {
+      temp = NumToString(newDate->GetDay());
+      temp += " " + GetMonthName(newDate->GetMonth()) + " "; 
+      temp += NumToString(newDate->GetYear()) + " ";
+      temp += NumToString(newDate->GetHour()) + ":";
+      temp += NumToString(newDate->GetMinute()) + ":";
+      temp += NumToString(newDate->GetSecond());
+      stringDate = temp;
+   }
+   
    stringYMDHMS = newDate->ToPackedCalendarString();
    type = "Gregorian";
-
+   
    return (isValid = true);
 }
 
@@ -156,6 +172,7 @@ bool GregorianDate::SetDate(Date *newDate)
  * @return    string in YYYYMMDD.HHMMSSmmm 
  * 
  */
+//---------------------------------------------------------------------------
 std::string GregorianDate::GetYMDHMS() const
 {
    return stringYMDHMS;
@@ -168,8 +185,8 @@ std::string GregorianDate::GetYMDHMS() const
  * Determines if the date is valid or not.
  *
  * @return        return flag indicator (true = valid; otherwise, false) 
- * 
  */
+//---------------------------------------------------------------------------
 bool GregorianDate::IsValid() const
 {
     return isValid;
@@ -202,8 +219,8 @@ bool GregorianDate::IsValid(const std::string &greg)
 //---------------------------------------------------------------------------
 /**
  * Initializes values of data method
- *
  */
+//---------------------------------------------------------------------------
 void GregorianDate::Initialize(const std::string &str)
 {
    stringDate = str;
@@ -218,8 +235,8 @@ void GregorianDate::Initialize(const std::string &str)
 //---------------------------------------------------------------------------
 /**
  * Parse out the string and check validity
- *
  */
+//---------------------------------------------------------------------------
 void GregorianDate::ParseOut(const std::string &str) 
 {
    #if DEBUG_GREGORIAN_VALIDATE
@@ -385,8 +402,8 @@ void GregorianDate::ParseOut(const std::string &str)
  * @param <num>    Given number of date including day and time
  * 
  * @return     Return the string from the number.
- *
  */
+//---------------------------------------------------------------------------
 std::string GregorianDate::NumToString(const Integer num)
 {
    std::string temp("");
@@ -409,8 +426,8 @@ std::string GregorianDate::NumToString(const Integer num)
  * @param <num>    Given real number 
  * 
  * @return     Return the string from the real number.
- *
  */
+//---------------------------------------------------------------------------
 std::string GregorianDate::NumToString(const Real num)
 {
    std::string temp("");
@@ -435,8 +452,8 @@ std::string GregorianDate::NumToString(const Real num)
  * @param <str>    Given string
  * 
  * @return     Return the integer number from string.
- *
  */
+//---------------------------------------------------------------------------
 Integer GregorianDate::ToInteger(const std::string &str)
 {
    Integer num;
@@ -457,8 +474,8 @@ Integer GregorianDate::ToInteger(const std::string &str)
  * @param <str>    Given string
  * 
  * @return     Return the real number from string.
- *
  */
+//---------------------------------------------------------------------------
 Real GregorianDate::ToReal(const std::string &str)
 {
    Real num;
@@ -481,8 +498,8 @@ Real GregorianDate::ToReal(const std::string &str)
  * @param <month> Given number of and month
  * 
  * @return        Return the string from the number.
- *
  */
+//---------------------------------------------------------------------------
 std::string GregorianDate::GetMonthName(const Integer month)
 {
    if (month < 1 || month > 12) 

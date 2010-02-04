@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 TimeSystemConverter
 //------------------------------------------------------------------------------
@@ -139,11 +139,11 @@ namespace TimeConverterUtil
    void GetTimeSystemAndFormat(const std::string &type, std::string &system,
                                std::string &format);
    
-   std::string ConvertMjdToGregorian(const Real mjd);   
+   std::string ConvertMjdToGregorian(const Real mjd, Integer format = 1);   
    Real ConvertGregorianToMjd(const std::string &greg);
    void Convert(const std::string &fromType, Real fromMjd,
                 const std::string &fromStr, const std::string &toType,
-                Real &toMjd, std::string &toStr);
+                Real &toMjd, std::string &toStr, Integer format = 1);
    
    bool ValidateTimeSystem(std::string sys);   
    bool ValidateTimeFormat(const std::string &format, const std::string &value);
