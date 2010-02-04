@@ -49,6 +49,7 @@
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_SUBSCRIBER
 //#define DEBUG_SUBSCRIBER_PARAM
+//#define DEBUG_RECEIVE_DATA
 //#define DEBUG_RENAME
 
 //#ifndef DEBUG_MEMORY
@@ -452,6 +453,27 @@ void Subscriber::SetManeuvering(GmatBase *originator, bool flag, Real epoch,
 {
    isManeuvering = flag;
    HandleManeuvering(originator, flag, epoch, satNames, desc);
+}
+
+
+//------------------------------------------------------------------------------
+// void SetScPropertyChanged(GmatBase *originator, Real epoch,
+//                           const std::string &satName, const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft property change.
+ * 
+ * @param originator  The assignment command pointer who is setting
+ * @param epoch  Epoch of spacecraft at property change
+ * @param satName  Name of the spacecraft
+ * @param desc  Description of property change
+ */
+//------------------------------------------------------------------------------
+void Subscriber::SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                      const std::string &satName,
+                                      const std::string &desc)
+{
+   HandleScPropertyChange(originator, epoch, satName, desc);
 }
 
 
@@ -1338,6 +1360,27 @@ bool Subscriber::Distribute(const double *dat, int len)
 void Subscriber::HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
                                    const StringArray &satNames,
                                    const std::string &desc)
+{
+   // do nothing here
+}
+
+
+//------------------------------------------------------------------------------
+// void HandleScPropertyChange(GmatBase *originator, Real epoch,
+//                             const std::string &satName, const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Handles spacecraft property change.
+ * 
+ * @param originator  The assignment command pointer who is setting
+ * @param epoch  Epoch of spacecraft at property change
+ * @param satName  Name of the spacecraft
+ * @param desc  Description of property change
+ */
+//------------------------------------------------------------------------------
+void Subscriber::HandleScPropertyChange(GmatBase *originator, Real epoch,
+                                        const std::string &satName,
+                                        const std::string &desc)
 {
    // do nothing here
 }

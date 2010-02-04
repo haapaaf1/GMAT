@@ -55,13 +55,15 @@ public:
    virtual bool         FlushData();
    virtual bool         SetEndOfRun();
    virtual void         SetRunState(Gmat::RunState rs);
-   virtual void         SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
+   void                 SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
                                        const std::string &satName,
                                        const std::string &desc);
-   virtual void         SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
+   void                 SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
                                        const StringArray &satNames,
                                        const std::string &desc);
-   
+   void                 SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                             const std::string &satName,
+                                             const std::string &desc);
    Subscriber*          Next();
    bool                 Add(Subscriber *s);
    bool                 Remove(Subscriber *s, const bool del);
@@ -177,6 +179,9 @@ protected:
                                           bool flag, Real epoch,
                                           const StringArray &satNames,
                                           const std::string &desc);
+   virtual void         HandleScPropertyChange(GmatBase *originator, Real epoch,
+                                               const std::string &satName,
+                                               const std::string &desc);
    
    enum
    {
