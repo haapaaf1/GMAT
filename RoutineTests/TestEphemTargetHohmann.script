@@ -1,0 +1,208 @@
+%Id%
+% GMAT Script File
+% GMAT Release Build 4.1, May 2005
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft sat;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Epoch = 21545;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.X = 7100;
+GMAT sat.Y = 0;
+GMAT sat.Z = 1300;
+GMAT sat.VX = 0;
+GMAT sat.VY = 7.35;
+GMAT sat.VZ = 1;
+GMAT sat.DryMass = 850;
+GMAT sat.Cd = 2.2;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = JGM2.cof;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 133.0843397834731;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn TOI;
+GMAT TOI.Origin = Earth;
+GMAT TOI.Axes = VNB;
+GMAT TOI.VectorFormat = Cartesian;
+GMAT TOI.Element1 = 1.432982502463442;
+GMAT TOI.Element2 = 0;
+GMAT TOI.Element3 = 0;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DC;
+GMAT DC.ShowProgress = true;
+GMAT DC.ReportStyle = Normal;
+GMAT DC.TargeterTextFile = TestCcsdsTargetHohmann-DC.data;
+GMAT DC.MaximumIterations = 25;
+GMAT DC.UseCentralDifferences = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create OpenGLPlot SolverAllPlot;
+GMAT SolverAllPlot.Add = {sat};
+GMAT SolverAllPlot.OrbitColor = [ 255 ];
+GMAT SolverAllPlot.CoordinateSystem = EarthMJ2000Eq;
+GMAT SolverAllPlot.ViewPointReference = Earth;
+GMAT SolverAllPlot.ViewPointVector = [ 0 0 30000];
+GMAT SolverAllPlot.ViewDirection = Earth;
+GMAT SolverAllPlot.ViewScaleFactor = 3;
+GMAT SolverAllPlot.SolverIterations = All;
+
+Create OpenGLPlot SolverCurrentPlot;
+GMAT SolverCurrentPlot.Add = {sat};
+GMAT SolverCurrentPlot.OrbitColor = [ 255 ];
+GMAT SolverCurrentPlot.TargetColor = [ 8454143 ];
+GMAT SolverCurrentPlot.CoordinateSystem = EarthMJ2000Eq;
+GMAT SolverCurrentPlot.ViewPointReference = Earth;
+GMAT SolverCurrentPlot.ViewPointVector = [ 0 0 30000];
+GMAT SolverCurrentPlot.ViewDirection = Earth;
+GMAT SolverCurrentPlot.ViewScaleFactor = 2;
+GMAT SolverCurrentPlot.SolverIterations = Current;
+
+Create OpenGLPlot SolverNonePlot;
+GMAT SolverNonePlot.Add = {sat};
+GMAT SolverNonePlot.OrbitColor = [ 255 ];
+GMAT SolverNonePlot.CoordinateSystem = EarthMJ2000Eq;
+GMAT SolverNonePlot.ViewPointReference = Earth;
+GMAT SolverNonePlot.ViewPointVector = [ 0 0 30000];
+GMAT SolverNonePlot.ViewDirection = Earth;
+GMAT SolverNonePlot.ViewScaleFactor = 2;
+GMAT SolverNonePlot.SolverIterations = None;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.IndVar = sat.A1ModJulian;
+GMAT XYPlot1.Add = {sat.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.ShowPlot = true;
+
+Create ReportFile rf;
+GMAT rf.Filename = 'TestEphemTargetHohmann.report';
+GMAT rf.WriteHeaders = Off;
+
+Create EphemerisFile CCSDS_OEM;
+CCSDS_OEM.Spacecraft         = sat;
+CCSDS_OEM.FileName           = TestEphemTargetHohmann-CCSDS-OEM.eph;
+CCSDS_OEM.FileFormat         = CCSDS-OEM;
+CCSDS_OEM.EpochFormat        = UTCGregorian;
+CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
+CCSDS_OEM.FinalEpoch         = FinalSpacecraftEpoch;
+CCSDS_OEM.StepSize           = IntegratorSteps;
+CCSDS_OEM.Interpolator       = Lagrange;
+CCSDS_OEM.InterpolationOrder = 7;
+CCSDS_OEM.StateType          = Cartesian;
+CCSDS_OEM.CoordinateSystem   = EarthMJ2000Eq;
+CCSDS_OEM.WriteEphemeris     = true;
+
+Create EphemerisFile SPK;
+SPK.Spacecraft               = sat;
+SPK.FileName                 = TestEphemTargetHohmann-SPK.bsp;
+SPK.FileFormat               = SPK;
+SPK.EpochFormat              = UTCGregorian;
+SPK.InitialEpoch             = InitialSpacecraftEpoch;
+SPK.FinalEpoch               = FinalSpacecraftEpoch;
+SPK.StepSize                 = IntegratorSteps;
+SPK.Interpolator             = Lagrange;
+SPK.InterpolationOrder       = 7;
+SPK.StateType                = Cartesian;
+SPK.CoordinateSystem         = EarthMJ2000Eq;
+SPK.WriteEphemeris           = true;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
+Propagate DefaultProp(sat) {sat.Periapsis};
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+
+Target DC;
+   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat) {sat.Apoapsis};
+   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+Propagate DefaultProp(sat) {sat.Periapsis};
+Propagate DefaultProp(sat) {sat.Apoapsis};
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+
+Target DC;
+   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat) {sat.Periapsis};
+   Achieve DC(sat.Earth.SMA = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+

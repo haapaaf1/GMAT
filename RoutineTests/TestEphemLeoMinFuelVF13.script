@@ -1,0 +1,270 @@
+%  Script Mission - Optimization Example
+%
+%  This script demonstrates how to use an Optimize sequence
+%
+%  REVSION HISTORY
+%  $Id$
+
+%-----------------------------------------------------------------
+%------------------Create The Spacecraft--------------------------
+%-----------------------------------------------------------------
+Create Spacecraft Sat;
+GMAT Sat.DateFormat = TAIModJulian;
+GMAT Sat.Epoch = 21545;
+GMAT Sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat.DisplayStateType = Keplerian;
+GMAT Sat.SMA = 7500;
+GMAT Sat.ECC = 0;
+GMAT Sat.INC = 0;
+GMAT Sat.RAAN = 45;
+GMAT Sat.AOP = 0;
+GMAT Sat.TA = 360;
+GMAT Sat.DryMass = 850;
+GMAT Sat.Cd = 2.2;
+GMAT Sat.Cr = 1.8;
+GMAT Sat.DragArea = 15;
+GMAT Sat.SRPArea = 1;
+
+Create Spacecraft DummySat;
+GMAT DummySat.DisplayStateType = Cartesian;
+
+%-----------------------------------------------------------------
+%--------------------Create The Force Model-----------------------
+%-----------------------------------------------------------------
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PointMasses = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 2e-013;
+GMAT DefaultProp.MinStep = 0.0;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%-----------------------------------------------------------------
+%------------------------------OutPut-----------------------------
+%-----------------------------------------------------------------
+Create ReportFile rf;
+GMAT rf.Filename = TestEphemLeoMinFuelVF13.report;
+GMAT rf.WriteHeaders = Off; 
+GMAT rf.ColumnWidth = 24;
+
+%%Create XYPlot CostPlot
+%%CostPlot.IndVar = Iterate;
+%%CostPlot.Add    = Cost;
+
+%%Create XYPlot SMAPlot
+%%SMAPlot.IndVar = Iterate;
+%%SMAPlot.Add    = Sat.SMA;
+
+%%Create XYPlot ECCPlot
+%%ECCPlot.IndVar = Iterate;
+%%ECCPlot.Add    = Sat.ECC;
+
+%%Create XYPlot INCPlot
+%%INCPlot.IndVar = Iterate;
+%%INCPlot.Add    = Sat.INC;
+
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.SolverIterations = None;
+GMAT DefaultOpenGL.Add = {Sat, Earth};
+GMAT DefaultOpenGL.ViewUpAxis = Y;
+
+Create EphemerisFile CCSDS_OEM;
+CCSDS_OEM.Spacecraft         = Sat;
+CCSDS_OEM.FileName           = TestEphemLeoMinFuelVF13-CCSDS-OEM.eph;
+CCSDS_OEM.FileFormat         = CCSDS-OEM;
+CCSDS_OEM.EpochFormat        = UTCGregorian;
+CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
+CCSDS_OEM.FinalEpoch         = FinalSpacecraftEpoch;
+CCSDS_OEM.StepSize           = IntegratorSteps;
+CCSDS_OEM.Interpolator       = Lagrange;
+CCSDS_OEM.InterpolationOrder = 7;
+CCSDS_OEM.StateType          = Cartesian;
+CCSDS_OEM.CoordinateSystem   = EarthMJ2000Eq;
+CCSDS_OEM.WriteEphemeris     = true;
+
+
+Create EphemerisFile SPK;
+SPK.Spacecraft               = Sat;
+SPK.FileName                 = TestEphemLeoMinFuelVF13-SPK.bsp;
+SPK.FileFormat               = SPK;
+SPK.EpochFormat              = UTCGregorian;
+SPK.InitialEpoch             = InitialSpacecraftEpoch;
+SPK.FinalEpoch               = FinalSpacecraftEpoch;
+SPK.StepSize                 = IntegratorSteps;
+SPK.Interpolator             = Lagrange;
+SPK.InterpolationOrder       = 7;
+SPK.StateType                = Cartesian;
+SPK.CoordinateSystem         = EarthMJ2000Eq;
+SPK.WriteEphemeris           = true;
+
+
+Create String SolutionData
+SolutionData = '------------- Solution Data -----------------'
+Create String msg;
+
+%-----------------------------------------------------------------
+%-----------------Create and Setup the Optimizer------------------
+%-----------------------------------------------------------------
+Create VF13ad vf13
+GMAT vf13.MaximumIterations   = 1000;    % Real number
+GMAT vf13.Tolerance = 1e-10;
+
+%-----------------------------------------------------------------
+%--------------------------Create Maneuvers-----------------------
+%-----------------------------------------------------------------
+
+Create ImpulsiveBurn dv1;
+GMAT dv1.Origin = Earth;
+GMAT dv1.Axes   = VNB;
+
+Create ImpulsiveBurn dv2;
+GMAT dv2.Origin = Earth;
+GMAT dv2.Axes   = VNB;
+
+Create Variable TOF dV1Time Cost Constraint1 Constraint2 Constraint3 dV1mag dV2mag RefEpoch PropEpoch Iterate;
+
+%*****************************************************************
+%-----------------------------------------------------------------
+%-------------------The Mission Sequence--------------------------
+%-----------------------------------------------------------------
+%*****************************************************************
+
+%  This can be removed when Plot Command is implemented.
+%%Toggle CostPlot Off;
+%%Toggle SMAPlot  Off;
+%%Toggle ECCPlot  Off;
+%%Toggle INCPlot  Off;
+
+
+Propagate DefaultProp(Sat, {Sat.ElapsedSecs = Sat.OrbitPeriod});
+RefEpoch = Sat.A1ModJulian;
+
+%  The optimization sequence below demonstrates how to use an SQP 
+%  routine in GMAT to solve a minimum fuel orbit transfer using 
+%  two impulsive maneuvers.  The optimization variables are the 
+%  the components of both delta vs (6 variables).... and the TOF
+Iterate = 0;
+Optimize vf13 {SolveMode = Solve, ExitMode = DiscardAndContinue}
+    
+   %  Increment the loop counter
+   Iterate = Iterate + 1;
+
+   %------------------------------
+   %  Propagate to location of the 
+   %  second maneuver
+   %------------------------------
+   %  Vary the tranfer time of flight 
+   %Vary vf13( dV1Time =  .1,  { Lower = -.5, Upper = 0.5, MultiplicativeScaleFactor = 10} ); 
+   PropEpoch = RefEpoch + dV1Time;
+   If dV1Time > 0;
+     Propagate DefaultProp(Sat)  { Sat.A1ModJulian = PropEpoch};  
+   EndIf;
+   If dV1Time < 0;
+     Propagate BackProp DefaultProp(Sat) { Sat.A1ModJulian = PropEpoch};  
+   EndIf;
+
+   %-------------------------------------------------
+   %  Vary all three components of the first maneuver
+   %  Using the optimizer
+   %-------------------------------------------------
+   Vary vf13( dv1.Element1 = .1 ,  { Lower = -5, Upper = 5, ...
+                   AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1, Perturbation = 0.000001 } );
+   Vary vf13( dv1.Element2 = .01 , { Lower = -5, Upper = 5, ...
+                   AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1, Perturbation = 0.000001 } );
+   Vary vf13( dv1.Element3 = .01,  { Lower = -5, Upper = 5, ...
+                   AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1, Perturbation = 0.000001 } );
+   Maneuver  dv1(Sat); 
+
+   msg = '===== after  first maneuver ';
+   Report rf msg Sat.UTCGregorian Sat.X ;
+
+   %------------------------------
+   %  Propagate to location of the 
+   %  second maneuver
+   %------------------------------
+   %  Vary the tranfer time of flight 
+   Vary vf13( TOF = .1,  { Lower = 0, Upper = 1, MultiplicativeScaleFactor = 10, Perturbation = 0.0000001, MaxStep = 0.05 } );
+
+   If TOF > 0.0
+      PropEpoch = RefEpoch + TOF;
+      Propagate DefaultProp(Sat)  { Sat.A1ModJulian = PropEpoch};  
+   EndIf
+
+   %-------------------------------------------------
+   %  Vary all three components of the second maneuver
+   %  Using the optimizer
+   %-------------------------------------------------
+   Vary vf13( dv2.Element1 = .1 ,  { Lower = -5, Upper = 5 , ...
+                    AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1, Perturbation = 0.000001 } );
+   Vary vf13( dv2.Element2 = .01 , { Lower = -5, Upper = 5 , ...
+                    AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1, Perturbation = 0.000001  } );
+   Vary vf13( dv2.Element3 = .01 , { Lower = -5, Upper = 5 , ...
+                    AdditiveScaleFactor = 0, MultiplicativeScaleFactor = 1, Perturbation = 0.000001 } );
+   Maneuver  dv2(Sat);
+
+   msg = '===== after second maneuver ';
+   Report rf msg Sat.UTCGregorian Sat.X ;
+
+   %-------------------------------------------------
+   %  Apply constraints to be satisfied
+   %  After the maneuvers sequence is complete
+   %-------------------------------------------------
+   %  Apply constraints on final orbit
+   Constraint1 = Sat.SMA/10000;
+   Constraint2 = Sat.ECC;
+   Constraint3 = Sat.INC;
+   %  The variables Constraint* are only necessary until bug 846 us fixed.
+   NonlinearConstraint vf13( Constraint1 = 1 );    % SMA Constraint
+   NonlinearConstraint vf13( Constraint2 = 0.05  );    % ECC Constraint 
+   NonlinearConstraint vf13( Constraint3 = 5     );    % INC Constraint
+ 
+   %-------------------------------------------------
+   %  Calculate the cost function
+   %-------------------------------------------------
+   GMAT dV1mag = sqrt( dv1.Element1^2 + dv1.Element2^2 + dv1.Element3^2 );
+   GMAT dV2mag = sqrt( dv2.Element1^2 + dv2.Element2^2 + dv2.Element3^2 );
+   GMAT Cost = ( dV1mag + dV2mag );
+   Minimize vf13( Cost ); 
+  
+
+   %-------------------------------------------------
+   %  Update Reports and Plots
+   %-------------------------------------------------
+   BeginScript
+      %%%Report rf dV1Time TOF Cost Sat.SMA Sat.ECC Sat.INC
+
+      %  This can be removed when Plot Command is implemented.
+      %%Toggle CostPlot On;
+      %%Toggle SMAPlot  On;
+      %%Toggle ECCPlot  On;
+      %%Toggle INCPlot  On;
+      Propagate DefaultProp(DummySat); 
+      %%Toggle CostPlot Off; 
+      %%Toggle SMAPlot  Off;
+      %%Toggle ECCPlot  Off;
+      %%Toggle INCPlot  Off;
+   EndScript
+
+EndOptimize
+
+msg = '===== after  Optimize       ';
+Report rf msg Sat.UTCGregorian Sat.X ;
+
+%%Report rf SolutionData;
+%%Report rf TOF Cost
+%%Report rf  Sat.SMA Sat.ECC Sat.INC
+%%Report rf dv1.Element1  dv1.Element2  dv1.Element3
+%%Report rf dv2.Element1  dv2.Element2 dv2.Element3 
+
+Propagate DefaultProp(Sat, {Sat.ElapsedSecs = Sat.OrbitPeriod});
+
+msg = '===== after  last Propagate ';
+Report rf msg Sat.UTCGregorian Sat.X ;

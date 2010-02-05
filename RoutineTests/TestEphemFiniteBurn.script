@@ -1,0 +1,326 @@
+% GMAT Build 4 Test Script
+% Written by Darrel J. Conway, Thinking Systems, Inc.
+
+
+%----------------------------------------
+%---------- Solar System User-Modified Values
+%----------------------------------------
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Sc;
+GMAT Sc.DateFormat = TAIModJulian;
+GMAT Sc.Epoch = '21545.000000000';
+GMAT Sc.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sc.DisplayStateType = Cartesian;
+GMAT Sc.X = 7100;
+GMAT Sc.Y = 0;
+GMAT Sc.Z = 1300;
+GMAT Sc.VX = 0;
+GMAT Sc.VY = 7.35;
+GMAT Sc.VZ = 1;
+GMAT Sc.DryMass = 850;
+GMAT Sc.Cd = 2.2;
+GMAT Sc.Cr = 1.8;
+GMAT Sc.DragArea = 15;
+GMAT Sc.SRPArea = 1;
+GMAT Sc.Tanks = {tank1, tank2};
+GMAT Sc.Thrusters = {engine1, engine2};
+GMAT Sc.Id = 'SatId';
+GMAT Sc.Attitude = CoordinateSystemFixed;
+GMAT Sc.AttitudeDisplayStateType = 'Quaternion';
+GMAT Sc.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Sc.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT Sc.Q1 = 0;
+GMAT Sc.Q2 = 0;
+GMAT Sc.Q3 = 0;
+GMAT Sc.Q4 = 1;
+GMAT Sc.EulerAngleSequence = '312';
+GMAT Sc.AngularVelocityX = 0;
+GMAT Sc.AngularVelocityY = 0;
+GMAT Sc.AngularVelocityZ = 0;
+
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+Create FuelTank tank1;
+GMAT tank1.FuelMass = 725;
+GMAT tank1.Pressure = 1200;
+GMAT tank1.Temperature = 20;
+GMAT tank1.RefTemperature = 12;
+GMAT tank1.Volume = 0.8;
+GMAT tank1.FuelDensity = 1029;
+GMAT tank1.PressureModel = PressureRegulated;
+
+Create FuelTank tank2;
+GMAT tank2.FuelMass = 325;
+GMAT tank2.Pressure = 1500;
+GMAT tank2.Temperature = 20;
+%GMAT tank2 = tank1;
+GMAT tank2.RefTemperature = 32;
+GMAT tank2.Volume = 0.75;
+GMAT tank2.FuelDensity = 1260;
+GMAT tank2.PressureModel = PressureRegulated;
+
+Create Thruster engine1;
+GMAT engine1.CoordinateSystem = Local;
+GMAT engine1.Origin = Earth;
+GMAT engine1.Axes = VNB;
+GMAT engine1.Element1 = 1;
+GMAT engine1.Element2 = 0;
+GMAT engine1.Element3 = 0;
+GMAT engine1.DutyCycle = 1;
+
+GMAT engine1.ThrustScaleFactor = 1;
+GMAT engine1.DecrementMass = false;
+GMAT engine1.Tank = {tank1};
+GMAT engine1.GravitationalAccel = 9.810000000000001;
+GMAT engine1.C1 = 10;
+GMAT engine1.C2 = 0;
+
+%% Notes: There were some coeff changes by Darrel on 2009.02.17
+GMAT engine1.C3 = 400;
+GMAT engine1.C4 = 0.15;
+GMAT engine1.C5 = 0;
+GMAT engine1.C6 = 0;
+GMAT engine1.C7 = 0;
+GMAT engine1.C8 = 0;
+GMAT engine1.C9 = 0;
+GMAT engine1.C10 = 0;
+GMAT engine1.C11 = 0;
+GMAT engine1.C12 = 0;
+GMAT engine1.C13 = 1;
+GMAT engine1.C14 = 0;
+GMAT engine1.C15 = 0;
+GMAT engine1.C16 = 0;
+GMAT engine1.K1 = 300;
+GMAT engine1.K2 = 0;
+
+GMAT engine1.K3 = 1500;
+GMAT engine1.K4 = 0;
+GMAT engine1.K5 = 0.000451;
+GMAT engine1.K6 = 0;
+GMAT engine1.K7 = 0;
+GMAT engine1.K8 = 0;
+GMAT engine1.K9 = 0;
+GMAT engine1.K10 = 0;
+GMAT engine1.K11 = 0;
+GMAT engine1.K12 = 0;
+GMAT engine1.K13 = 1;
+GMAT engine1.K14 = 0;
+GMAT engine1.K15 = 0;
+GMAT engine1.K16 = 0;
+
+Create Thruster engine2;
+GMAT engine2.CoordinateSystem = EarthMJ2000Eq;
+GMAT engine2.Element1 = 1;
+GMAT engine2.Element2 = 0;
+GMAT engine2.Element3 = 0;
+GMAT engine2.DutyCycle = 1;
+GMAT engine2.ThrustScaleFactor = 1;
+GMAT engine2.DecrementMass = false;
+GMAT engine2.Tank = {tank2};
+GMAT engine2.GravitationalAccel = 9.810000000000001;
+GMAT engine2.C1 = 10;
+GMAT engine2.C2 = 0;
+GMAT engine2.C3 = 500;
+GMAT engine2.C4 = 0;
+GMAT engine2.C5 = 0;
+GMAT engine2.C6 = 0;
+GMAT engine2.C7 = 0;
+GMAT engine2.C8 = 0;
+GMAT engine2.C9 = 0;
+GMAT engine2.C10 = 0;
+GMAT engine2.C11 = 0;
+GMAT engine2.C12 = 0;
+GMAT engine2.C13 = 1;
+GMAT engine2.C14 = 0;
+GMAT engine2.C15 = 0;
+GMAT engine2.C16 = 0;
+GMAT engine2.K1 = 300;
+GMAT engine2.K2 = 0;
+GMAT engine2.K3 = 2150;
+GMAT engine2.K4 = 0;
+GMAT engine2.K5 = 0;
+GMAT engine2.K6 = 0;
+GMAT engine2.K7 = 0;
+GMAT engine2.K8 = 0;
+GMAT engine2.K9 = 0;
+GMAT engine2.K10 = 0;
+GMAT engine2.K11 = 0;
+GMAT engine2.K12 = 0;
+GMAT engine2.K13 = 1;
+GMAT engine2.K14 = 0;
+GMAT engine2.K15 = 0;
+GMAT engine2.K16 = 0;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PointMasses = {Earth, Sun, Luna};
+GMAT fm.Drag = None;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator prop;
+GMAT prop.FM = fm;
+GMAT prop.Type = RungeKutta89;
+GMAT prop.InitialStepSize = 60;
+GMAT prop.Accuracy = 9.999999999999999e-012;
+GMAT prop.MinStep = 0.001;
+GMAT prop.MaxStep = 2700;
+GMAT prop.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn ib;
+GMAT ib.CoordinateSystem = Local;
+GMAT ib.Origin = Earth;
+GMAT ib.Axes = VNB;
+GMAT ib.Element1 = 0;
+GMAT ib.Element2 = 0;
+GMAT ib.Element3 = 0;
+GMAT ib.DecrementMass = false;
+GMAT ib.Isp = 300;
+GMAT ib.GravitationalAccel = 9.810000000000001;
+
+%%GMAT ib.CoordinateSystem = VNB;
+Create FiniteBurn fb;
+GMAT fb.Thrusters = {engine1, engine2};
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = None;
+GMAT ReportFile1.Filename = 'TestEphemFiniteBurn.report';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {Sc.A1ModJulian, Sc.UTCGregorian, Sc.EarthMJ2000Eq.X};
+GMAT ReportFile1.WriteHeaders = On;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.ColumnWidth = 24;
+
+%  Create XYPlot  
+Create XYPlot energy;
+GMAT energy.SolverIterations = None;
+GMAT energy.IndVar = Sc.ElapsedDays;
+GMAT energy.Add = {Sc.Energy};
+GMAT energy.Grid = On;
+GMAT energy.ShowPlot = true;
+
+%  Create OpenGL Plot  
+Create OpenGLPlot SatOpenGL;
+GMAT SatOpenGL.SolverIterations = None;
+GMAT SatOpenGL.Add = {Sc};
+GMAT SatOpenGL.OrbitColor = [ 255 ];
+GMAT SatOpenGL.TargetColor = [ 8421440 ];
+GMAT SatOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewPointReference = Earth;
+GMAT SatOpenGL.ViewPointVector = [ 0 0 30000 ];
+GMAT SatOpenGL.ViewDirection = Earth;
+GMAT SatOpenGL.ViewScaleFactor = 1;
+GMAT SatOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT SatOpenGL.ViewUpAxis = Z;
+GMAT SatOpenGL.CelestialPlane = Off;
+GMAT SatOpenGL.XYPlane = On;
+GMAT SatOpenGL.WireFrame = Off;
+GMAT SatOpenGL.Axes = On;
+GMAT SatOpenGL.Grid = Off;
+GMAT SatOpenGL.SunLine = Off;
+GMAT SatOpenGL.UseInitialView = On;
+GMAT SatOpenGL.DataCollectFrequency = 1;
+GMAT SatOpenGL.UpdatePlotFrequency = 50;
+GMAT SatOpenGL.NumPointsToRedraw = 0;
+GMAT SatOpenGL.ShowPlot = true;
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.SolverIterations = None;
+GMAT OpenGLPlot1.Add = {Sc};
+GMAT OpenGLPlot1.OrbitColor = [ 255 ];
+GMAT OpenGLPlot1.TargetColor = [ 8421440 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000 ];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 1;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = X;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.IndVar = Sc.A1ModJulian;
+GMAT XYPlot1.Add = {Sc.EarthMJ2000Eq.X};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.ShowPlot = true;
+
+Create EphemerisFile CCSDS_OEM;
+GMAT CCSDS_OEM.Spacecraft         = Sc;
+GMAT CCSDS_OEM.FileName           = 'TestEphemFiniteBurn-CCSDS-OEM.eph';
+GMAT CCSDS_OEM.FileFormat         = CCSDS-OEM;
+GMAT CCSDS_OEM.EpochFormat        = UTCGregorian;
+GMAT CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
+GMAT CCSDS_OEM.FinalEpoch         = FinalSpacecraftEpoch;
+GMAT CCSDS_OEM.StepSize           = IntegratorSteps;
+GMAT CCSDS_OEM.Interpolator       = Lagrange;
+GMAT CCSDS_OEM.InterpolationOrder = 7;
+GMAT CCSDS_OEM.StateType          = Cartesian;
+GMAT CCSDS_OEM.CoordinateSystem   = EarthMJ2000Eq;
+GMAT CCSDS_OEM.WriteEphemeris     = true;
+
+Create EphemerisFile SPK;
+GMAT SPK.Spacecraft               = Sc;
+GMAT SPK.FileName                 = 'TestEphemFiniteBurn-SPK.eph';
+GMAT SPK.FileFormat               = SPK;
+GMAT SPK.EpochFormat              = UTCGregorian;
+GMAT SPK.InitialEpoch             = InitialSpacecraftEpoch;
+GMAT SPK.FinalEpoch               = FinalSpacecraftEpoch;
+GMAT SPK.StepSize                 = IntegratorSteps;
+GMAT SPK.Interpolator             = Lagrange;
+GMAT SPK.InterpolationOrder       = 7;
+GMAT SPK.StateType                = Cartesian;
+GMAT SPK.CoordinateSystem         = EarthMJ2000Eq;
+GMAT SPK.WriteEphemeris           = true;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+% Mission sequence
+Propagate prop(Sc) {Sc.ElapsedSecs = 8640};
+BeginFiniteBurn fb(Sc);
+Propagate prop(Sc) {Sc.ElapsedSecs = 3600};
+EndFiniteBurn fb(Sc);
+Propagate prop(Sc) {Sc.ElapsedSecs = 43200};
+
+
