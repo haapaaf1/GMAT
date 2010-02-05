@@ -5,7 +5,8 @@ GMAT MyNewDC.ShowProgress = true;
 GMAT MyNewDC.ReportStyle = 'Concise';
 GMAT MyNewDC.TargeterTextFile = 'MyNewDC.data';
 GMAT MyNewDC.MaximumIterations = 50;
-GMAT MyNewDC.UseCentralDifferences = true;
+%%OLD%%GMAT MyNewDC.UseCentralDifferences = true;
+GMAT MyNewDC.DerivativeMethod = 'CentralDifference';
 
 Create Variable VaryVar;
 
