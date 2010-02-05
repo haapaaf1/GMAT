@@ -30,6 +30,8 @@
 #include "FileManager.hpp"         // for GetFullPathname()
 #include "GmatGlobal.hpp"          // for RunBachMode()
 
+#include <cstdlib>                  // For GCC4.4 support
+
 //---------------------------------
 //  static data
 //---------------------------------
@@ -110,8 +112,9 @@ void ConsoleMessageReceiver::ShowMessage(const char *msg, ...)
    }
    else
    {
-      msgBuffer = 
-         "*** WARNING *** Cannot allocate enough memory to show the message.\n";
+      msgBuffer = (char *)malloc(256);
+      strcpy(msgBuffer, "*** WARNING *** Cannot allocate enough memory to "
+    		  "show the message.\n");
    }
    
    LogMessage(std::string(msgBuffer));
@@ -187,8 +190,9 @@ void ConsoleMessageReceiver::PopupMessage(Gmat::MessageType msgType,
    }
    else
    {
-      msgBuffer = 
-         "*** WARNING *** Cannot allocate enough memory to show the message.\n";
+      msgBuffer = (char *)malloc(256);
+      strcpy(msgBuffer, "*** WARNING *** Cannot allocate enough memory to show"
+    		  " the message.\n");
    }
    
    LogMessage(std::string(msgBuffer) + "\n");
@@ -441,7 +445,9 @@ void ConsoleMessageReceiver::LogMessage(const char *msg, ...)
    }
    else
    {
-      msgBuffer = "*** WARNING *** Cannot allocate enough memory to log the message.\n";
+      msgBuffer = (char *)malloc(256);
+      strcpy(msgBuffer, "*** WARNING *** Cannot allocate enough memory "
+    		  "to log the message.\n");
    }
    
    LogMessage(std::string(msgBuffer));
