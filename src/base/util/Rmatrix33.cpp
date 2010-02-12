@@ -158,7 +158,7 @@ bool Rmatrix33::IsOrthogonal(Real accuracyRequired) const
     Rvector3 cVect1(elementD[1], elementD[4], elementD[7]);
     Rvector3 cVect2(elementD[2], elementD[5], elementD[8]);
 
-    return bool(GmatMathUtil::IsZero(cVect0*cVect1, accuracyRequired)\
+    return bool(GmatMathUtil::IsZero(cVect0*cVect1, accuracyRequired)
         && GmatMathUtil::IsZero(cVect0*cVect2, accuracyRequired)
         && GmatMathUtil::IsZero(cVect1*cVect2, accuracyRequired));
 }
