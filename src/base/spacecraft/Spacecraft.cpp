@@ -2845,7 +2845,7 @@ bool Spacecraft::Initialize()
    #endif
 
    // Set the mu if CelestialBody is there through coordinate system's origin;
-   // Otherwise, discontine process and send the error message
+   // Otherwise, discontinue process and send the error message
    if (!stateConverter.SetMu(coordinateSystem))
    {
       throw SpaceObjectException("Spacecraft has empty coordinate system");
@@ -2930,8 +2930,8 @@ void Spacecraft::SetDateFormat(const std::string &dateType)
 void Spacecraft::SetEpoch(const std::string &ep)
 {
    #ifdef DEBUG_DATE_FORMAT
-   MessageInterface::ShowMessage("Spacecraft::SetEpoch() Setting epoch to %s\n",
-                                 ep.c_str());
+   MessageInterface::ShowMessage("Spacecraft::SetEpoch() Setting epoch  for spacecraft %s to %s\n",
+                                 instanceName.c_str(), ep.c_str());
    #endif
 
    scEpochStr = ep;
@@ -2945,6 +2945,7 @@ void Spacecraft::SetEpoch(const std::string &ep)
 
    if (outMjd != -999.999)
    {
+      RecomputeStateAtEpoch(outMjd);
       state.SetEpoch(outMjd);
       if (attitude) attitude->SetEpoch(outMjd);
    }
@@ -2978,6 +2979,7 @@ void Spacecraft::SetEpoch(const std::string &type, const std::string &ep, Real a
    TimeConverterUtil::GetTimeSystemAndFormat(type, epochSystem, epochFormat);
    epochType = type;
    scEpochStr = ep;
+   RecomputeStateAtEpoch(a1mjd);
    state.SetEpoch(a1mjd);
    if (attitude) attitude->SetEpoch(a1mjd);
    #ifdef DEBUG_SC_EPOCHSTR
@@ -4698,3 +4700,27 @@ Integer Spacecraft::HasParameterCovariances(Integer parameterId)
 
 // Additions for the propagation rework
 
+void Spacecraft::RecomputeStateAtEpoch(const GmatEpoch &toEpoch)
+{
+   if (internalCoordSystem != coordinateSystem)
+   {
+      // First convert from the internal CS to the state CS at the old epoch
+      Rvector6 inState(state.GetState());
+      Rvector6 csState;
+      Rvector6 finalState;
+      coordConverter.Convert(GetEpoch(), inState, internalCoordSystem, csState,
+         coordinateSystem);
+      // Then convert back at the new epoch
+      Real newEpoch = toEpoch;
+      coordConverter.Convert(newEpoch, csState, coordinateSystem, finalState,
+            internalCoordSystem);
+
+      state[0] = finalState[0];
+      state[1] = finalState[1];
+      state[2] = finalState[2];
+      state[3] = finalState[3];
+      state[4] = finalState[4];
+      state[5] = finalState[5];
+   }
+   // otherwise, state stays the same
+}

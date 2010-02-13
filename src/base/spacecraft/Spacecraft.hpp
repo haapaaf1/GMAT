@@ -318,7 +318,7 @@ protected:
    
    std::string       coordSysName;
 
-   /// coordinate sytem map to be used for Thrusters for now
+   /// coordinate system map to be used for Thrusters for now
    std::map<std::string, CoordinateSystem*> coordSysMap;
    
    /// Spacecraft ID Used in estimation, measuremetn data files, etc
@@ -380,6 +380,7 @@ protected:
    Integer           LookUpLabel(const std::string &label, std::string &rep);
    Integer           LookUpID(const Integer id, std::string &label, std::string &rep);
    void              BuildElementLabelMap();
+   void              RecomputeStateAtEpoch(const GmatEpoch &toEpoch);
 };
 
 #endif // Spacecraft_hpp
