@@ -492,11 +492,13 @@ GmatBase* Propagate::GetObject(const Gmat::ObjectType type,
                                const std::string objName)
 {
    if (type == Gmat::STOP_CONDITION)
+   {
       if (stopWhen.empty())
          return NULL;
       else
          return stopWhen[0];
-            
+   }
+
    return GmatCommand::GetObject(type, objName);
 }
 
@@ -1923,7 +1925,7 @@ void Propagate::FindSetupsAndStops(Integer &loc,
       }
             
       setupStrings.push_back(tempString);
-      currentLoc = end+1;
+      currentLoc = end; // +1;  Valgrind fix from Joris Olympio
 
       // Skip trailing comma or white space
       while ((str[currentLoc] == ',') || (str[currentLoc] == ' '))
@@ -1974,7 +1976,7 @@ void Propagate::FindSetupsAndStops(Integer &loc,
          currentLoc = commaLoc + 1;
       } while (commaLoc != (Integer)std::string::npos);
 
-      currentLoc = end+1;
+      currentLoc = end; // +1;  Valgrind fix from Joris Olympio
       
       // Skip trailing comma or white space
       while ((str[currentLoc] == ',') || (str[currentLoc] == ' '))
