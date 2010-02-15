@@ -957,11 +957,13 @@ Real CoordinateSystem::SetRealParameter(const std::string &label, const Real val
 std::string CoordinateSystem::GetStringParameter(const Integer id) const
 {
    if (id == AXES)
+   {
       if (axes)
          return axes->GetTypeName();
       else
          throw CoordinateSystemException("Axis system not set for "
                                          + instanceName);
+   }
       
    return CoordinateBase::GetStringParameter(id);
 }
