@@ -9,11 +9,11 @@
          Requirements & FR-1.3\\  \hline
          Summary &
          %======================  BEGIN: The Test Summary
-         This  case tests GUI behavior when attempting to convert to element representations when the
+         This  case tests GUI behavior when attempting to convert to element representations when the 
          cartesian state results in a circular, equatorial orbit.
          %======================  END: The Test Summary
          \\     \hline
-         PreConditions & BS-1 and TD-5\\     \hline
+         PreConditions & BS-2 and TD-4\\     \hline
          Data &
          %====================== BEGIN: The test procedure
          \begin{compactenum}

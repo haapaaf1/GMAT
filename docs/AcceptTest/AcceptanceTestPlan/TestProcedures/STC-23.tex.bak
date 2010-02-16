@@ -1,40 +1,54 @@
 \begin{table}[htbp!]
 \centering
-      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
-      \hline
-         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-23 Spacecraft GUI UTCGregorian to Other Epoch Types\\
+      \begin{tabular}{|p{1.0 in} |p{5.0 in} |}
          \hline
-         Requirements & FRR-2.4\\ \hline
-         Summary &
-         %----------------------  The Test Summary
-         This test case applies to epoch representation conversions performed by the Spacecraft Orbit dialog box.  \\
+          \rowcolor[rgb]{0.8,0.8,0.8}  Name & Epoch conversion in the spacecraft orbit dialog box\\
          \hline
-         PreConditions & To run this test you need to load BS-1 and have data defined in TD-2 available.\\
-         \hline
+         Requirements & FRR-2.3\\ \hline
+         Summary & This test case represents $n(n-1)$ tests where $n$ is the number of epoch formats
+         supported as input types in GMAT.  Each test case is designated a unique number.  For example,
+         STC-23.32 test GUI conversion from A1Gregorian to TAIModJulian.  The procedures described below
+         must be performed for each test case in the table below.   \\ \hline
+         PreConditions & To run this test you need to load BS-1 and have data defined in TD-2 available.\\ \hline
          Steps &
          %------- The test data is here
-         \begin{compactenum}
-         \item Open the dialog box for DefaultSC via the GUI.
-         \item Change the Epoch Format to UTCGregorian.
-         \item Enter the UTCGregorian epoch defined in Table \ref{Table:TD-2}.
-         \item Hit the apply button.
-         \item Change the Epoch Format drop down box to UTCModJulian and compare the epoch to the
-          data contained in TD-1. The epoch should agree identically. 
-         \end{compactenum}\\
-         %------- The test data is here
-		 \hline
-         Alternative Paths &
-         %------- The test data is here
-         \begin{compactenum}
-         \item Perform the test using TAIGregorian, TAIModJulian, TTGregorian, TTModJulian, A1Gregorian
-         and A1ModJulian in place of UTCModJulian in step 5.
-         \end{compactenum}\\
+          \begin{compactenum}
+             \item Select subtest number. ( STC-23.32, for example)
+             \item Create a new spacecraft.
+             \item Change the Epoch Format to the format defined in the first column of
+                   the row containing the test case ID.  (A1Gregorian, for STC-23.32)
+             \item Enter the epoch in the Define Format from TD-2.
+             \item Change the Epoch Format to the format defined in the first row of the column containing  the test case Id. (TAIModJulian  for STC-23.32)
+             \item Verify that the new epoch exactly matches the value for that format given in TD-2.
+          \end{compactenum}
+          \vspace{.1 in}
+          \begin{centering}
+          \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+          \hline
+             & {\begin{sideways}\parbox{2.5cm}{UTCGregorian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{UTCModJulian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{TAIGregorian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{TAIModJulian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{A1Gregorian}\end{sideways}}  &
+             {\begin{sideways}\parbox{2.5cm}{A1ModJulian}\end{sideways}}  &
+             {\begin{sideways}\parbox{2.5cm}{TTGregorian}\end{sideways}}  &
+             {\begin{sideways}\parbox{2.5cm}{TTModJulian}\end{sideways}}  \\ \hline
+             UTCGregorian & N/A & 23.1 & 23.2 & 23.3 & 23.4 & 23.5 & 23.6 & 23.7 \\ \hline
+             UTCModJulian & 23.8 & N/A & 23.9 & 23.10 & 23.11 & 23.12 & 23.13 & 23.14\\ \hline
+             TAIGregorian & 23.15 & 23.16 & N/A & 23.17 & 23.18 & 23.19 & 23.20 & 23.21\\ \hline
+             TAIModJulian & 23.22 & 23.23 & 23.24 & N/A & 23.25 & 23.26 & 23.27 & 23.28\\ \hline
+             A1Gregorian & 23.29 & 23.30 & 23.31 & 23.32 & N/A & 23.33 & 23.34 & 23.35\\ \hline
+             A1ModJulian & 23.36 & 23.37 & 23.38 & 23.39 & 23.40 &  N/A & 23.41 & 23.42\\ \hline
+             TTGregorian & 23.43 & 23.44 & 23.44 & 23.45 & 23.46 & 23.47 & N/A & 23.48\\ \hline
+             TTModJulian & 23.49 & 23.50 & 23.51 & 23.52 & 23.53 & 23.54 & 23.55 & N/A\\ \hline
+          \end{tabular}
+          \end{centering} \vspace{0.1 in}\\
          %------- The test data is here
          \hline
          Expected Results & The expected numeric results are described above and in TD-2.\\
       \hline
 \end{tabular}
-      \label{Table:STC-23}
-      \caption{STC-23 Spacecraft GUI UTCGregorian to Other Epoch Types}
-       \index{Test Data!STC-23}
+   \label{Table:STC-23}
+   \caption{STC-23 Epoch conversion in the spacecraft orbit dialog box}
+    \index{Test Data!STC-23}
 \end{table} 

@@ -1,40 +1,50 @@
 \begin{table}[htbp!]
 \centering
-      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
-      \hline
-         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-24 Spacecraft GUI UTCModJulian to Other Epoch Types\\
+      \begin{tabular}{|p{1.0 in} |p{5.0 in} |}
          \hline
-         Requirements & FRR-2.4\\ \hline
-         Summary &
-         %----------------------  The Test Summary
-         This test case applies to epoch representation conversions performed by the Spacecraft Orbit dialog box.  \\
+          \rowcolor[rgb]{0.8,0.8,0.8}  Name & STC-24 State conversion in the spacecraft orbit dialog box\\
          \hline
-         PreConditions & To run this test you need to load BS-1 and have data defined in TD-2 available.\\
-         \hline
+         Requirements & FRR-2.3\\ \hline
+         Summary & This test case represents $n(n-1)$ tests where $n$ is the number of state representations
+         supported as input types in GMAT.  Each test case is designated a unique number.  For example,
+         STC-24.17 tests GUI conversion from SphericalRADEC to Keplerian elements.  The procedures described below
+         must be performed for each test case in the table below.   \\ \hline
+         PreConditions & To run this test you need to load BS-1 and have data defined in TD-1 available.\\ \hline
          Steps &
          %------- The test data is here
-         \begin{compactenum}
-         \item Open the dialog box for DefaultSC via the GUI.
-         \item Change the Epoch Format to UTCModJulian.
-         \item Enter the UTCModJulian epoch defined in Table \ref{Table:TD-2}.
-         \item Hit the apply button.
-         \item Change the Epoch Format drop down box to UTCGregorian and compare the epoch to the
-          data contained in TD-1. The epoch should agree identically.
-         \end{compactenum}\\
-         %------- The test data is here
-		 \hline
-         Alternative Paths &
-         %------- The test data is here
-         \begin{compactenum}
-         \item Perform the test using TAIGregorian, TAIModJulian, TTGregorian, TTModJulian, A1Gregorian
-         and A1ModJulian in place of UTCGregorian in step 5.
-         \end{compactenum}\\
+          \begin{compactenum}
+             \item Select subtest number. ( STC-24.17, for example )
+             \item Create a new spacecraft.
+             \item Change the Epoch Format to the format defined in the first column of
+                   the row containing the test case ID.  (SphericalRADEC, for STC-24.17)
+             \item Enter the epoch in the Define Format from TD-1.
+             \item Change the Epoch Format to the format defined in the first row of the column containing  the test case Id. (Keplerian  for STC-24.17)
+             \item Verify that the new state matches the value for that format given in TD-1 to 14 significant figures.
+          \end{compactenum}
+          \vspace{.1 in}
+          \begin{centering}
+          \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+          \hline
+             & {\begin{sideways}\parbox{2.9cm}{Cartesian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.9cm}{Keplerian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.9cm}{Mod. Keplerian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.9cm}{SphericalRADEC}\end{sideways}} &
+             {\begin{sideways}\parbox{2.9cm}{SphericalAZFPA}\end{sideways}}  &
+             {\begin{sideways}\parbox{2.9cm}{Equinoctial}\end{sideways}}  \\ \hline
+             Cartesian & N/A & 24.1 & 24.2 & 24.3 & 24.4 & 24.5\\ \hline
+             Keplerian & 24.6 & N/A & 24.7 & 24.8 & 24.9 & 24.10 \\ \hline
+             TAIGregorian & 25.11 & 24.12 & N/A & 24.13 & 24.14 & 24.15 \\ \hline
+             SphericalRADEC & 24.16 & 24.17 & 24.18 & N/A & 24.19 & 24.20 \\ \hline
+             SphericalAZFPA & 24.21 & 24.22 & 24.23 & 24.24 & N/A & 24.25 \\ \hline
+             Equinoctial & 24.26 & 24.27 & 24.28 & 24.29 & 24.30 &  N/A\\ \hline
+          \end{tabular}
+          \end{centering} \vspace{0.1 in}\\
          %------- The test data is here
          \hline
-         Expected Results & The expected numeric results are described above and in TD-2.\\
+         Expected Results & The expected numeric results are described above and in TD-1.\\
       \hline
 \end{tabular}
-      \label{Table:STC-24}
-      \caption{STC-24 Spacecraft GUI UTCModJulian to Other Epoch Types}
-       \index{Test Data!STC-24}
+   \label{Table:STC-24}
+   \caption{STC-24 Epoch conversion in the spacecraft orbit dialog box}
+    \index{Test Data!STC-24}
 \end{table} 
