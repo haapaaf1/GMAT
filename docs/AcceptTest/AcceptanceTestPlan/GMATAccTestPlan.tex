@@ -2,11 +2,13 @@
 
 %  Standard packages
 \usepackage{graphics,epstopdf,overcite,amsmath, color}
+\usepackage{rotating}
 
-\usepackage{colortbl}
+\usepackage{colortbl}  % For colors in tables
 
 %  for making index, using landscape mode, for multi page tables, supertabular??
 \usepackage{makeidx, lscape, longtable, supertabular}
+\usepackage{tocloft}
 
 %  Used for drawing lines in figures
 \usepackage{epic}
@@ -33,7 +35,7 @@
 \newenvironment{ScriptType}
   {\noindent \begin{ttfamily}   \begin{minipage}[t]{4.0in} }
    {\end{minipage} \end{ttfamily}}
-\makeindex
+%\makeindex
 
 \newenvironment{Script}
  { \vspace{-.15 in} \begin{center}\begin{minipage}[t]{5.0in}\begin{ttfamily} }
@@ -50,7 +52,7 @@
 
 \newcommand{\script}[1][]{\ttfamily}
 
-\makeindex
+%\makeindex
 
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `basename #1
 .tif`.png}
@@ -76,20 +78,20 @@
 
 \begin{document}
 
-\bibliographystyle{aiaa}
-\thispagestyle{empty}
-
-\input{AccCoverPage}
+%\bibliographystyle{aiaa}
+%\thispagestyle{empty}
+%
+%\input{AccCoverPage}
 \include{ContentsEtc}
-\input{AcceptPlanIntro}
-\input{Propagators}\index{Propagators}
-\input{CalcParameters}
-\input{Integrators}\index{Integrators}
-\input{StopCond}\index{Stopping Conditions}
-\input{LibPoint}\index{Libration Points}
-\input{DeltaV}\index{Delta V}
-\input{Performance}\index{Performance}
-\input{ControlFlow}\index{Control Flow}
+%\input{AcceptPlanIntro}
+%\input{Propagators}\index{Propagators}
+%\input{CalcParameters}
+%\input{Integrators}\index{Integrators}
+%\input{StopCond}\index{Stopping Conditions}
+%\input{LibPoint}\index{Libration Points}
+%\input{DeltaV}\index{Delta V}
+%\input{Performance}\index{Performance}
+%\input{ControlFlow}\index{Control Flow}
 \input{TestProcedures}
 \input{TestData}
 \input{BaseStates}
@@ -100,13 +102,13 @@
 %\input{Script2GUI}
 
 %\part{Appendix}
-\appendix
-\input{Acronyms}\index{Acronyms}
-\input{initConds}\index{Initial Conditions}
-\input{CompScripts}
-\input{STKsetup}\index{STK}
-\input{FFsetup}\index{FreeFlyer}
-\input{Reference}
-\printindex
+%\appendix
+%\input{Acronyms}\index{Acronyms}
+%\input{initConds}\index{Initial Conditions}
+%\input{CompScripts}
+%\input{STKsetup}\index{STK}
+%\input{FFsetup}\index{FreeFlyer}
+%\input{Reference}
+%\printindex
 
 \end{document}
