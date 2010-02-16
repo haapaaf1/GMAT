@@ -1,0 +1,39 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-33 Spacecraft GUI Coordinate System Conversion Tests\\
+         \hline
+         Requirements & FRR-12.1\\ \hline
+         Summary &
+         %----------------------  The Test Summary
+         This test case applies to epoch representation conversions performed by the Spacecraft Orbit dialog box.  \\
+         \hline
+         PreConditions & To run this test you need to load BS-3 and have data defined in TD-3 available.\\
+         \hline
+         Steps &
+         %------- The test data is here
+         \begin{compactenum}
+         \item Open the dialog box for SatEarthFixed via the GUI.
+         \item Enter the EarthFixed state data  defined in TD-3.
+         \item Hit the apply button.
+         \item Change the Coordinate System drop down box to EarthMJ2000Eq and compare the state data to
+               the data contained in TD-3 for EarthMJ2000Eq. The epoch should agree to 15 significant
+               figures.
+         \end{compactenum}\\
+         %------- The test data is here
+		 \hline
+         Alternative Paths &
+         %------- The test data is here
+         \begin{compactenum}
+         \item Perform the test again using  EarthMJ2000Ec,  LunaFixed, CS\_ESL2, CS\_SSBary, EarthMoonRot, SunMJ2000Ec, and PhobosMJ2000Eq in step 4.
+         \end{compactenum}\\
+         %------- The test data is here
+         \hline
+         Expected Results & The expected numeric results are described above and in TD-3.\\
+      \hline
+\end{tabular}
+      \label{Table:STC-33}
+      \caption{STC-33 Spacecraft GUI Coordinate System Conversion Tests}
+       \index{Test Data!STC-33}
+\end{table} 
