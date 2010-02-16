@@ -1,0 +1,230 @@
+
+%----------------------------------------
+%---------- Solar System User-Modified Values
+%----------------------------------------
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LEOSat;
+GMAT LEOSat.DateFormat = TAIModJulian;
+GMAT LEOSat.Epoch = '21545.000000000';
+GMAT LEOSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT LEOSat.DisplayStateType = Cartesian;
+GMAT LEOSat.X = 7100;
+GMAT LEOSat.Y = 0;
+GMAT LEOSat.Z = 1300;
+GMAT LEOSat.VX = 0;
+GMAT LEOSat.VY = 7.35;
+GMAT LEOSat.VZ = 1;
+GMAT LEOSat.DryMass = 850;
+GMAT LEOSat.Cd = 2.2;
+GMAT LEOSat.Cr = 1.8;
+GMAT LEOSat.DragArea = 15;
+GMAT LEOSat.SRPArea = 1;
+GMAT LEOSat.NAIFId = -123456789;
+GMAT LEOSat.Id = 'SatId';
+GMAT LEOSat.Attitude = CoordinateSystemFixed;
+GMAT LEOSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT LEOSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LEOSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT LEOSat.Q1 = 0;
+GMAT LEOSat.Q2 = 0;
+GMAT LEOSat.Q3 = 0;
+GMAT LEOSat.Q4 = 1;
+GMAT LEOSat.EulerAngleSequence = '312';
+GMAT LEOSat.AngularVelocityX = 0;
+GMAT LEOSat.AngularVelocityY = 0;
+GMAT LEOSat.AngularVelocityZ = 0;
+
+Create Spacecraft SolarSat;
+GMAT SolarSat.DateFormat = TAIModJulian;
+GMAT SolarSat.Epoch = '21545.000000000';
+GMAT SolarSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT SolarSat.DisplayStateType = Cartesian;
+GMAT SolarSat.X = 7100;
+GMAT SolarSat.Y = 0;
+GMAT SolarSat.Z = 1300;
+GMAT SolarSat.VX = 0;
+GMAT SolarSat.VY = 7.35;
+GMAT SolarSat.VZ = 1;
+GMAT SolarSat.DryMass = 850;
+GMAT SolarSat.Cd = 2.2;
+GMAT SolarSat.Cr = 1.8;
+GMAT SolarSat.DragArea = 15;
+GMAT SolarSat.SRPArea = 1;
+GMAT SolarSat.NAIFId = -123456789;
+GMAT SolarSat.Id = 'SatId';
+GMAT SolarSat.Attitude = CoordinateSystemFixed;
+GMAT SolarSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT SolarSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT SolarSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT SolarSat.Q1 = 0;
+GMAT SolarSat.Q2 = 0;
+GMAT SolarSat.Q3 = 0;
+GMAT SolarSat.Q4 = 1;
+GMAT SolarSat.EulerAngleSequence = '312';
+GMAT SolarSat.AngularVelocityX = 0;
+GMAT SolarSat.AngularVelocityY = 0;
+GMAT SolarSat.AngularVelocityZ = 0;
+
+Create Spacecraft LunarSat;
+GMAT LunarSat.DateFormat = TAIModJulian;
+GMAT LunarSat.Epoch = '21545.000000000';
+GMAT LunarSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT LunarSat.DisplayStateType = Cartesian;
+GMAT LunarSat.X = 7100;
+GMAT LunarSat.Y = 0;
+GMAT LunarSat.Z = 1300;
+GMAT LunarSat.VX = 0;
+GMAT LunarSat.VY = 7.35;
+GMAT LunarSat.VZ = 1;
+GMAT LunarSat.DryMass = 850;
+GMAT LunarSat.Cd = 2.2;
+GMAT LunarSat.Cr = 1.8;
+GMAT LunarSat.DragArea = 15;
+GMAT LunarSat.SRPArea = 1;
+GMAT LunarSat.NAIFId = -123456789;
+GMAT LunarSat.Id = 'SatId';
+GMAT LunarSat.Attitude = CoordinateSystemFixed;
+GMAT LunarSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT LunarSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LunarSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT LunarSat.Q1 = 0;
+GMAT LunarSat.Q2 = 0;
+GMAT LunarSat.Q3 = 0;
+GMAT LunarSat.Q4 = 1;
+GMAT LunarSat.EulerAngleSequence = '312';
+GMAT LunarSat.AngularVelocityX = 0;
+GMAT LunarSat.AngularVelocityY = 0;
+GMAT LunarSat.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel LEO_ForceModel;
+GMAT LEO_ForceModel.CentralBody = Earth;
+GMAT LEO_ForceModel.PrimaryBodies = {Earth};
+GMAT LEO_ForceModel.Drag = None;
+GMAT LEO_ForceModel.SRP = Off;
+GMAT LEO_ForceModel.ErrorControl = RSSStep;
+GMAT LEO_ForceModel.GravityField.Earth.Degree = 4;
+GMAT LEO_ForceModel.GravityField.Earth.Order = 4;
+GMAT LEO_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+Create ForceModel Lunar_ForceModel;
+GMAT Lunar_ForceModel.CentralBody = Earth;
+GMAT Lunar_ForceModel.PrimaryBodies = {Earth};
+GMAT Lunar_ForceModel.Drag = None;
+GMAT Lunar_ForceModel.SRP = Off;
+GMAT Lunar_ForceModel.ErrorControl = RSSStep;
+GMAT Lunar_ForceModel.GravityField.Earth.Degree = 4;
+GMAT Lunar_ForceModel.GravityField.Earth.Order = 4;
+GMAT Lunar_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+Create ForceModel Sun_ForceModel;
+GMAT Sun_ForceModel.CentralBody = Earth;
+GMAT Sun_ForceModel.PrimaryBodies = {Earth};
+GMAT Sun_ForceModel.Drag = None;
+GMAT Sun_ForceModel.SRP = Off;
+GMAT Sun_ForceModel.ErrorControl = RSSStep;
+GMAT Sun_ForceModel.GravityField.Earth.Degree = 4;
+GMAT Sun_ForceModel.GravityField.Earth.Order = 4;
+GMAT Sun_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator LEOProp;
+GMAT LEOProp.FM = LEO_ForceModel;
+GMAT LEOProp.Type = RungeKutta89;
+GMAT LEOProp.InitialStepSize = 60;
+GMAT LEOProp.Accuracy = 9.999999999999999e-12;
+GMAT LEOProp.MinStep = 0.001;
+GMAT LEOProp.MaxStep = 2700;
+GMAT LEOProp.MaxStepAttempts = 50;
+
+Create Propagator LunarProp;
+GMAT LunarProp.FM = Lunar_ForceModel;
+GMAT LunarProp.Type = RungeKutta89;
+GMAT LunarProp.InitialStepSize = 60;
+GMAT LunarProp.Accuracy = 9.999999999999999e-12;
+GMAT LunarProp.MinStep = 0.001;
+GMAT LunarProp.MaxStep = 2700;
+GMAT LunarProp.MaxStepAttempts = 50;
+
+Create Propagator SolarProp;
+GMAT SolarProp.FM = Sun_ForceModel;
+GMAT SolarProp.Type = RungeKutta89;
+GMAT SolarProp.InitialStepSize = 60;
+GMAT SolarProp.Accuracy = 9.999999999999999e-12;
+GMAT SolarProp.MinStep = 0.001;
+GMAT SolarProp.MaxStep = 2700;
+GMAT SolarProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn EarthVNB;
+GMAT EarthVNB.CoordinateSystem = Local;
+GMAT EarthVNB.Origin = Earth;
+GMAT EarthVNB.Axes = VNB;
+GMAT EarthVNB.Element1 = 0;
+GMAT EarthVNB.Element2 = 0;
+GMAT EarthVNB.Element3 = 0;
+GMAT EarthVNB.DecrementMass = false;
+GMAT EarthVNB.Isp = 300;
+GMAT EarthVNB.GravitationalAccel = 9.81;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonMJ2000Ec;
+GMAT MoonMJ2000Ec.Origin = Luna;
+GMAT MoonMJ2000Ec.Axes = MJ2000Eq;
+GMAT MoonMJ2000Ec.UpdateInterval = 60;
+GMAT MoonMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem SunMJ2000Eq;
+GMAT SunMJ2000Eq.Origin = Sun;
+GMAT SunMJ2000Eq.Axes = MJ2000Eq;
+GMAT SunMJ2000Eq.UpdateInterval = 60;
+GMAT SunMJ2000Eq.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.SolverIterations = Current;
+GMAT DefaultOpenGL.Add = {LEOSat, Earth};
+GMAT DefaultOpenGL.OrbitColor = [ 255 32768 ];
+GMAT DefaultOpenGL.TargetColor = [ 8421440 0 ];
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewPointReference = Earth;
+GMAT DefaultOpenGL.ViewPointVector = [ 0 0 30000 ];
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewScaleFactor = 1;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpAxis = Z;
+GMAT DefaultOpenGL.CelestialPlane = Off;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.Axes = On;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.SunLine = Off;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
+GMAT DefaultOpenGL.NumPointsToRedraw = 0;
+GMAT DefaultOpenGL.ShowPlot = true;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
