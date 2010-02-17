@@ -132,6 +132,9 @@ inputCSName             ("EarthMJ2000Eq"),
 fixedCSName             ("EarthFixed"),
 targetCSName            ("EarthMJ2000Eq"),
 potPath                 (""),
+inputCS                 (NULL),
+fixedCS                 (NULL),
+targetCS                (NULL),
 offDiags                (NULL),
 abarCoeff1              (NULL),
 abarCoeff2              (NULL)
@@ -223,6 +226,9 @@ inputCSName             (hf.inputCSName),
 fixedCSName             (hf.fixedCSName),
 targetCSName            (hf.targetCSName),
 potPath                 (hf.potPath),
+inputCS                 (hf.inputCS),
+fixedCS                 (hf.fixedCS),
+targetCS                (hf.targetCS),
 offDiags                (NULL),
 abarCoeff1              (NULL),
 abarCoeff2              (NULL)
@@ -263,6 +269,9 @@ HarmonicField& HarmonicField::operator=(const HarmonicField& hf)
    fixedCSName    = hf.fixedCSName;
    targetCSName   = hf.targetCSName;
    potPath        = hf.potPath;
+   inputCS        = hf.inputCS;
+   fixedCS        = hf.fixedCS;
+   targetCS       = hf.targetCS;
    offDiags       = NULL;
    abarCoeff1     = NULL;
    abarCoeff2     = NULL;
