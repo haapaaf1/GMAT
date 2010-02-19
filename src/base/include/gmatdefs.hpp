@@ -158,8 +158,10 @@ namespace Gmat
       EVENT,
 
       // Estimation types
-      MEASUREMENT_MODEL,
+      MEASUREMENT_MODEL,   // May be replaced by TrackingSystem
       CORE_MEASUREMENT,    // For the measurement primitives
+      TRACKING_DATA,
+      TRACKING_SYSTEM,
       DATASTREAM,          // For Datafle container objects
       
       OBTYPE,              // For the specific observation types
