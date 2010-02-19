@@ -13,7 +13,13 @@
 //
 // Author: Waka Waktola
 // Created: 2004/11/19
-// Modified: 2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
+// Modified: 
+//              2010.02.12 Thomas Grubb 
+//                      - Added tooltips & accelerator keys
+//                      - Added validators to numeric text controls
+//                      - Added GmatStaticBoxSizers: fuelPropertiesSizer and tankPropertiesSizer
+//                        and reordered controls
+//              2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
 /**
  * This class contains information needed to setup users spacecraft tank 
  * parameters.
@@ -21,6 +27,7 @@
 //------------------------------------------------------------------------------
 #include "TankConfigPanel.hpp"
 #include "MessageInterface.hpp"
+#include "GmatStaticBoxSizer.hpp"
 
 
 //====================================================================
@@ -122,59 +129,27 @@ TankConfigPanel::~TankConfigPanel()
 void TankConfigPanel::Create()
 {
    // Border size
+   int minLabelSize;
    Integer bsize = 2;
+   Integer labelSizeProportion = 0;
+   Integer ctrlSizeProportion = 1;
+   Integer unitSizeProportion = 0;
    
-   // Fuel Mass
-   wxStaticText *fuelMassLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Fuel Mass"));
-   fuelMassTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
-   wxStaticText *fuelMassUnit =
-      new wxStaticText( this, ID_TEXT, wxT("kg"));
-   
-   // Pressure
-   wxStaticText *pressureLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Pressure"));
-   pressureTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
-   wxStaticText *pressureUnit =
-      new wxStaticText( this, ID_TEXT, wxT("kPa"));
-   
-   // Temperature
-   wxStaticText *temperatureLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Temperature"));
-   temperatureTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
-   wxStaticText *temperatureUnit =
-      new wxStaticText( this, ID_TEXT, wxT("C"));
-   
-   // Reference Temperature
-   wxStaticText *refTemperatureLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Reference Temperature"));
-   refTemperatureTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
-   wxStaticText *refTemperatureUnit =
-      new wxStaticText( this, ID_TEXT, wxT("C"));
-   
+   //-----------------------------------------------------------------
+   // Create controls in tab order
+   //-----------------------------------------------------------------
    // Volume
    wxStaticText *volumeLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Volume")); 
+      new wxStaticText( this, ID_TEXT, wxT("&Volume")); 
    volumeTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   volumeTextCtrl->SetToolTip(wxT("The original volume of the fuel in the tank"));
    wxStaticText *volumeUnit =
       new wxStaticText( this, ID_TEXT, wxT("m^3"));
    
-   // Fuel Density
-   wxStaticText *fuelDensityLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Fuel Density"));
-   fuelDensityTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
-   wxStaticText *fuelDensityUnit =
-      new wxStaticText( this, ID_TEXT, wxT("kg/m^3"));
-   
    // Pressure Model
    wxStaticText *pressureModelLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Pressure Model"));
+      new wxStaticText( this, ID_TEXT, wxT("Pressure &Model"));
    Integer id = theFuelTank->GetParameterID("PressureModel");
    StringArray pressModelList =
       theFuelTank->GetPropertyEnumStrings(id);
@@ -182,41 +157,131 @@ void TankConfigPanel::Create()
    pressureModelComboBox = 
       new wxComboBox( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(120,-1),
                       wxPressModelLabels, wxCB_DROPDOWN|wxCB_READONLY);
+   pressureModelComboBox->SetToolTip(wxT("The pressure model for the fuel.  \n"
+           "Pressure Regulated means that the pressure will be maintained as a constant during the duration of a thrust.  \n"
+           "Blow down means that the pressure in the tank will decrease with time as more fuel is released by a thruster. "));
    
+   // Fuel Mass
+   wxStaticText *fuelMassLabel =
+      new wxStaticText( this, ID_TEXT, wxT("&Fuel Mass"));
+   fuelMassTextCtrl =
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   fuelMassTextCtrl->SetToolTip(wxT("The total mass of fuel available in the fuel tank"));
+   wxStaticText *fuelMassUnit =
+      new wxStaticText( this, ID_TEXT, wxT("kg"));
+   
+   // Fuel Density
+   wxStaticText *fuelDensityLabel =
+      new wxStaticText( this, ID_TEXT, wxT("Fuel &Density"));
+   fuelDensityTextCtrl =
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   fuelDensityTextCtrl->SetToolTip(wxT("The density of the fuel"));
+   wxStaticText *fuelDensityUnit =
+      new wxStaticText( this, ID_TEXT, wxT("kg/m^3"));
+   
+   // Temperature
+   wxStaticText *temperatureLabel =
+      new wxStaticText( this, ID_TEXT, wxT("&Temperature"));
+   temperatureTextCtrl =
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   temperatureTextCtrl->SetToolTip(wxT("The temperature of the fuel in the tank"));
+   wxStaticText *temperatureUnit =
+      new wxStaticText( this, ID_TEXT, wxT("C"));
+   
+   // Reference Temperature
+   wxStaticText *refTemperatureLabel =
+      new wxStaticText( this, ID_TEXT, wxT("&Reference Temperature"));
+   refTemperatureTextCtrl =
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   wxStaticText *refTemperatureUnit =
+      new wxStaticText( this, ID_TEXT, wxT("C"));
+   
+   // Pressure
+   wxStaticText *pressureLabel =
+      new wxStaticText( this, ID_TEXT, wxT("&Pressure"));
+   pressureTextCtrl =
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   pressureTextCtrl->SetToolTip(wxT("The pressure of the fuel in the tank"));
+   wxStaticText *pressureUnit =
+      new wxStaticText( this, ID_TEXT, wxT("kPa"));
+
+   // set the min width for one of the labels for each GmatStaticBoxSizer
+   minLabelSize = volumeLabel->GetBestSize().x;
+   minLabelSize = (minLabelSize < pressureModelLabel->GetBestSize().x) ? pressureModelLabel->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < fuelMassLabel->GetBestSize().x) ? fuelMassLabel->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < fuelDensityLabel->GetBestSize().x) ? fuelDensityLabel->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < temperatureLabel->GetBestSize().x) ? temperatureLabel->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < refTemperatureLabel->GetBestSize().x) ? refTemperatureLabel->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < pressureLabel->GetBestSize().x) ? pressureLabel->GetBestSize().x : minLabelSize;
+
+   volumeLabel->SetMinSize(wxSize(minLabelSize, volumeLabel->GetMinHeight()));
+   fuelMassLabel->SetMinSize(wxSize(minLabelSize, fuelMassLabel->GetMinHeight()));
+
+   // set the min width for one of the UNIT labels for each GmatStaticBoxSizer
+   minLabelSize = volumeUnit->GetBestSize().x;
+   minLabelSize = (minLabelSize < fuelMassUnit->GetBestSize().x) ? fuelMassUnit->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < fuelDensityUnit->GetBestSize().x) ? fuelDensityUnit->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < temperatureUnit->GetBestSize().x) ? temperatureUnit->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < refTemperatureUnit->GetBestSize().x) ? refTemperatureUnit->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < pressureUnit->GetBestSize().x) ? pressureUnit->GetBestSize().x : minLabelSize;
+
+   volumeUnit->SetMinSize(wxSize(minLabelSize, volumeUnit->GetMinHeight()));
+   fuelMassUnit->SetMinSize(wxSize(minLabelSize, fuelMassUnit->GetMinHeight()));
+
    //-----------------------------------------------------------------
-   // Add to sizer
+   // Add to fuel properties sizer
    //-----------------------------------------------------------------
    wxFlexGridSizer *flexGridSizer1 = new wxFlexGridSizer( 3, 0, 0 );
+   //flexGridSizer1->AddGrowableCol(1);
    
-   flexGridSizer1->Add(fuelMassLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(fuelMassTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
-   flexGridSizer1->Add(fuelMassUnit, 0, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(fuelMassLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(fuelMassTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer1->Add(fuelMassUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
    
-   flexGridSizer1->Add(pressureLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(pressureTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
-   flexGridSizer1->Add(pressureUnit, 0, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(fuelDensityLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(fuelDensityTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer1->Add(fuelDensityUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+
+   flexGridSizer1->Add(temperatureLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(temperatureTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer1->Add(temperatureUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
    
-   flexGridSizer1->Add(temperatureLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(temperatureTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
-   flexGridSizer1->Add(temperatureUnit, 0, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(refTemperatureLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(refTemperatureTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer1->Add(refTemperatureUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
    
-   flexGridSizer1->Add(refTemperatureLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(refTemperatureTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
-   flexGridSizer1->Add(refTemperatureUnit, 0, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(pressureLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer1->Add(pressureTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer1->Add(pressureUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
    
-   flexGridSizer1->Add(volumeLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(volumeTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
-   flexGridSizer1->Add(volumeUnit, 0, wxALIGN_LEFT|wxALL, bsize);
+   // create the Fuel Properties group box
+   fuelPropertiesSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Fuel Properties" );
+   fuelPropertiesSizer->Add(flexGridSizer1, 0, wxEXPAND|wxALL, bsize);
    
-   flexGridSizer1->Add(fuelDensityLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(fuelDensityTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
-   flexGridSizer1->Add(fuelDensityUnit, 0, wxALIGN_LEFT|wxALL, bsize);
+   //-----------------------------------------------------------------
+   // Add to tank properties sizer
+   //-----------------------------------------------------------------
+   wxFlexGridSizer *flexGridSizer2 = new wxFlexGridSizer( 3, 0, 0 );
+   //flexGridSizer2->AddGrowableCol(1);
    
-   flexGridSizer1->Add(pressureModelLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer1->Add(pressureModelComboBox, 0, wxALIGN_CENTER|wxALL, bsize);
-   flexGridSizer1->Add(0, 0, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer2->Add(volumeLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer2->Add(volumeTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer2->Add(volumeUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
    
-   theMiddleSizer->Add(flexGridSizer1, 0, wxALIGN_CENTRE|wxALL, bsize);
+   flexGridSizer2->Add(pressureModelLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+   flexGridSizer2->Add(pressureModelComboBox, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer2->Add(0, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+
+   // create the Tank Properties group box
+   tankPropertiesSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Tank Properties" );
+   tankPropertiesSizer->Add(flexGridSizer2, 0, wxEXPAND|wxALL, bsize);
+
+   //-----------------------------------------------------------------
+   // Now put tank & fuel properties sizers into the middle sizer
+   //-----------------------------------------------------------------
+   theMiddleSizer->Add(tankPropertiesSizer, 0, wxEXPAND|wxALL, bsize);
+   theMiddleSizer->Add(fuelPropertiesSizer, 1, wxEXPAND|wxALL, bsize);
+   theMiddleSizer->SetSizeHints(this);
 }
 
 //------------------------------------------------------------------------------

@@ -13,7 +13,11 @@
 //
 // Author: Waka Waktola
 // Created: 2004/11/19
-// Modified: 2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
+// Modified: 
+//              2010.02.12 Thomas Grubb 
+//                      - defined ___USE_OLD_TANK_PANEL__
+//                      - Added GmatStaticBoxSizers: fuelPropertiesSizer and tankPropertiesSizer
+//              2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
 /**
  * This class contains information needed to setup users spacecraft tank 
  * parameters.
@@ -25,6 +29,7 @@
 // This panel is derived from GmatBaseSetupPanel
 // 
 //====================================================================
+#define __USE_OLD_TANK_PANEL__
 #ifndef __USE_OLD_TANK_PANEL__
 //====================================================================
 
@@ -49,6 +54,7 @@ public:
 #include "gmatwxdefs.hpp"
 #include "GmatPanel.hpp"
 #include "gmatdefs.hpp"
+#include "GmatStaticBoxSizer.hpp"
 #include "FuelTank.hpp"
 
 class TankConfigPanel: public GmatPanel
@@ -78,7 +84,9 @@ private:
    wxTextCtrl *volumeTextCtrl;
    
    wxComboBox *pressureModelComboBox;
-   
+   GmatStaticBoxSizer *tankPropertiesSizer;
+   GmatStaticBoxSizer *fuelPropertiesSizer;
+
    // IDs for the controls and the menu commands
    enum
    {
