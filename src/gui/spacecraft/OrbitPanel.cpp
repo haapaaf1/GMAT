@@ -639,10 +639,11 @@ void OrbitPanel::AddElements(wxWindow *parent)
 
    elementsPanel = new wxPanel(parent);
    wxGridSizer *item0 = new wxGridSizer( 1, 0, 0 );
-
    wxFlexGridSizer *item3 = new wxFlexGridSizer( 6, 3, 0, 0 );
+   // Let's make growable column, so we can see more numbers when expand
+   // Commented out since it doesn't look good on Linux(LOJ: 2010.02.19)
    //item3->AddGrowableCol( 0 );
-   item3->AddGrowableCol( 1 );
+   //item3->AddGrowableCol( 1 );
    //item3->AddGrowableCol( 2 );
    
    // Element 1

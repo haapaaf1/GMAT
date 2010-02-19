@@ -339,10 +339,11 @@ void AttitudePanel::Create()
    wxFlexGridSizer *flexGridSizer2 = new wxFlexGridSizer( 4, 0, 0 );
    wxFlexGridSizer *flexGridSizer3 = new wxFlexGridSizer( 3, 0, 0 );
    // Let's make TextCtrl growable, so we can see more numbers when expand
-   flexGridSizer2->AddGrowableCol( 1 );
-   flexGridSizer2->AddGrowableCol( 2 );
-   flexGridSizer2->AddGrowableCol( 3 );
-   flexGridSizer3->AddGrowableCol( 1 );
+   // Commented out since it doesn't look good on Linux(LOJ: 2010.02.19)
+   //flexGridSizer2->AddGrowableCol( 1 );
+   //flexGridSizer2->AddGrowableCol( 2 );
+   //flexGridSizer2->AddGrowableCol( 3 );
+   //flexGridSizer3->AddGrowableCol( 1 );
    
    // Add to wx*Sizers
    flexGridSizer1->Add(config1StaticText, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );
