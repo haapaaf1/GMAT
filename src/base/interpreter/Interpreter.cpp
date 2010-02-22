@@ -6004,7 +6004,7 @@ bool Interpreter::FinalPass()
           obj->GetName().c_str());
       #endif
       
-      // check System Parameters seperately since it follows certain naming
+      // check System Parameters separately since it follows certain naming
       // convention.  "owner.dep.type" where owner can be either Spacecraft
       // or Burn for now
       

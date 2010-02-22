@@ -2058,6 +2058,21 @@ void ScriptInterpreter::WriteHardwares(StringArray &objs, Gmat::WriteMode mode)
             theReadWriter->WriteText(object->GetGeneratingString(mode));
          }
    }
+
+   // Other Hardware
+   for (current = objs.begin(); current != objs.end(); ++current)
+   {
+      object = FindObject(*current);
+      if (object != NULL)
+         if ((object->GetTypeName() != "FuelTank") &&
+                  (object->GetTypeName() != "Thruster"))
+         {
+            if (object->GetCommentLine() == "")
+               theReadWriter->WriteText("\n");
+            theReadWriter->WriteText(object->GetGeneratingString(mode));
+         }
+   }
+
 }
 
 
