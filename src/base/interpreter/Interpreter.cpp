@@ -298,6 +298,9 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray spl = theModerator->GetListOfFactoryItems(Gmat::SPACE_POINT);
    copy(spl.begin(), spl.end(), back_inserter(spacePointList));
 
+   trackingSystemList.clear();
+   StringArray tsl = theModerator->GetListOfFactoryItems(Gmat::TRACKING_SYSTEM);
+   copy(tsl.begin(), tsl.end(), back_inserter(trackingSystemList));
    
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
@@ -367,6 +370,10 @@ void Interpreter::BuildCreatableObjectMaps()
 
       MessageInterface::ShowMessage("\nSubscribers:\n   ");
       for (pos = subs.begin(); pos != subs.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+
+      MessageInterface::ShowMessage("\nTrackingSystems:\n   ");
+      for (pos = tsl.begin(); pos != tsl.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
 
       MessageInterface::ShowMessage("\nOther SpacePoints:\n   ");
@@ -484,6 +491,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          clist = spacePointList;
          break;
          
+      case Gmat::TRACKING_SYSTEM:
+         clist = trackingSystemList;
+         break;
+
       // These are all intentional fall-throughs:
       case Gmat::SPACECRAFT:
       case Gmat::FORMATION:
@@ -505,6 +516,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::MATH_TREE:
       case Gmat::MEASUREMENT_MODEL:
       case Gmat::DATASTREAM:
+      case Gmat::TRACKING_DATA:
       case Gmat::UNKNOWN_OBJECT:
       default:
          break;
@@ -748,6 +760,9 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    else if (type == "MeasurementModel")
       obj = (GmatBase*)theModerator->CreateMeasurementModel(name);
 
+   else if (type == "TrackingData")
+      obj = (GmatBase*)theModerator->CreateTrackingData(name);
+
    else if (type == "Datafile")
       obj = (GmatBase*)theModerator->CreateDatafile(name);
 
@@ -851,6 +866,10 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
                spacePointList.end())
          obj = (GmatBase*)theModerator->CreateSpacePoint(type, name);
    
+      // Handle TrackingSystems
+      else if (find(trackingSystemList.begin(), trackingSystemList.end(), type) !=
+               trackingSystemList.end())
+         obj = (GmatBase*)theModerator->CreateTrackingSystem(type, name);
    }
    
    //@note
@@ -5342,6 +5361,166 @@ bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// bool SetTrackingDataProperty(GmatBase *obj, const std::string &prop,
+//                              const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+bool Interpreter::SetTrackingDataProperty(GmatBase *obj,
+         const std::string &property, const std::string &value)
+{
+   debugMsg = "In SetTrackingDataProperty()";
+   bool retval = false;
+   StringArray parts = theTextParser.SeparateDots(property);
+   Integer count = parts.size();
+   std::string propName = parts[count-1];
+
+   #ifdef DEBUG_SET_MEASUREMENT_MODEL
+      MessageInterface::ShowMessage
+         ("Interpreter::SetTrackingDataProperty() mModel=%s, prop=%s, "
+          "value=%s\n", obj->GetName().c_str(), propName.c_str(),
+          value.c_str());
+   #endif
+
+   if (propName == "Type")
+   {
+      GmatBase* model = CreateObject(value, "", 0, false);
+      if (model != NULL)
+      {
+         if (model->IsOfType(Gmat::CORE_MEASUREMENT))
+            retval = obj->SetRefObject(model, Gmat::CORE_MEASUREMENT, "");
+      }
+      else
+         throw InterpreterException("Failed to create a " + value +
+               " core measurement");
+   }
+   else
+   {
+      Integer id;
+      Gmat::ParameterType type;
+
+      StringArray parts = theTextParser.SeparateDots(property);
+      // if property has multiple dots, handle separately
+      if (parts.size() > 1)
+      {
+         retval = SetComplexProperty(obj, property, value);
+         if (retval)
+            return retval;
+      }
+
+      id = obj->GetParameterID(property);
+      type = obj->GetParameterType(id);
+      if (property == "Covariance")
+      {
+         // Check the size of the inputs -- MUST be a square matrix
+         StringArray rhsRows;
+         if ((value.find("[") == value.npos) || (value.find("]") == value.npos))
+            throw GmatBaseException("Covariance matrix definition is missing "
+                  "square brackets");
+
+         rhsRows = theTextParser.SeparateBrackets(value, "[]", ";");
+         UnsignedInt rowCount = rhsRows.size();
+
+         StringArray cells = theTextParser.SeparateSpaces(rhsRows[0]);
+         UnsignedInt colCount = cells.size();
+
+         Covariance *covariance = obj->GetCovariance();
+
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("%s covariance has dim %d, "
+                  "row count = %d, colCount = %d\n", obj->GetName().c_str(),
+                  covariance->GetDimension(), rowCount, colCount);
+         #endif
+
+         if ((Integer)colCount > covariance->GetDimension())
+            throw GmatBaseException("Input covariance matrix is larger than the "
+                  "matrix built from the input array");
+
+         for (UnsignedInt i = 1; i < rowCount; ++i)
+         {
+            cells = theTextParser.SeparateSpaces(rhsRows[i]);
+          #ifdef DEBUG_SET
+               MessageInterface::ShowMessage("   Found  %d columns in row %d\n",
+                     cells.size(), i+1);
+          #endif
+
+            if (cells.size() != rowCount)
+               throw InterpreterException("Row/Column mismatch in the Covariance "
+                     "matrix for " + obj->GetName());
+         }
+
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("Found %d rows and %d columns\n",
+                  rowCount, colCount);
+         #endif
+
+         for (UnsignedInt i = 0; i < colCount; ++i)
+         {
+            if (rowCount != 1)
+               cells = theTextParser.SeparateSpaces(rhsRows[i]);
+            for (UnsignedInt j = 0; j < colCount; ++j)
+               if (i == j)
+                  SetPropertyValue(obj, id, type, cells[j], i, j);
+               else
+                  // If a single row, it's the diagonal
+                  if (rowCount == 1)
+                     SetPropertyValue(obj, id, type, "0.0", i, j);
+                  // Otherwise it's cell[j]
+                  else
+                     SetPropertyValue(obj, id, type, cells[j], i, j);
+         }
+
+         retval = true;
+      }
+      else
+         retval = SetProperty(obj, id, type, value);
+   }
+
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetTrackingSystemProperty(GmatBase *obj, const std::string &prop,
+//          const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+bool Interpreter::SetTrackingSystemProperty(GmatBase *obj,
+         const std::string &prop, const std::string &value)
+{
+   debugMsg = "In SetTrackingSystemProperty()";
+   bool retval = false;
+   StringArray parts = theTextParser.SeparateDots(prop);
+
+   // if property has multiple dots, handle separately
+   if (parts.size() > 1)
+   {
+      retval = SetComplexProperty(obj, prop, value);
+      if (retval)
+         return retval;
+   }
+
+   Integer id;
+   Gmat::ParameterType type;
+   id = obj->GetParameterID(prop);
+   type = obj->GetParameterType(id);
+   retval = SetProperty(obj, id, type, value);
+   return retval;
+}
 
 
 //------------------------------------------------------------------------------
@@ -6342,6 +6521,9 @@ bool Interpreter::IsObjectType(const std::string &type)
    if (type == "CoordinateSystem") 
       return true;
    
+   if (type == "TrackingData")
+      return true;
+
    if (theSolarSystem->IsBodyInUse(type))
       return true;
    
@@ -6400,6 +6582,10 @@ bool Interpreter::IsObjectType(const std::string &type)
        subscriberList.end())
       return true;
    
+   if (find(trackingSystemList.begin(), trackingSystemList.end(), type) !=
+       trackingSystemList.end())
+      return true;
+
    return false;
 }
 

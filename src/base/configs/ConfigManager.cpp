@@ -557,6 +557,52 @@ void ConfigManager::AddMeasurementModel(MeasurementModel *mModel)
    AddObject(obj);
 }
 
+//------------------------------------------------------------------------------
+// void AddTrackingSystem(TrackingSystem *ts)
+//------------------------------------------------------------------------------
+/**
+ * Adds a TrackingSystem to the configuration.
+ *
+ * @param ts Pointer to the TrackingSystem instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddTrackingSystem(TrackingSystem *ts)
+{
+   GmatBase *obj = (GmatBase*)ts;
+
+   std::string name = obj->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!obj->IsOfType(Gmat::TRACKING_SYSTEM))
+      throw ConfigManagerException(name + " is not a TrackingSystem");
+
+   AddObject(obj);
+}
+
+//------------------------------------------------------------------------------
+// void AddTrackingData(TrackingData *td)
+//------------------------------------------------------------------------------
+/**
+ * Adds a TrackingData object to the configuration.
+ *
+ * @param td Pointer to the TrackingData instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddTrackingData(TrackingData *td)
+{
+   GmatBase *obj = (GmatBase*)td;
+
+   std::string name = obj->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!obj->IsOfType(Gmat::TRACKING_DATA))
+      throw ConfigManagerException(name + " is not a TrackingData object");
+
+   AddObject(obj);
+}
+
 
 //------------------------------------------------------------------------------
 // void AddMeasurementModel(MeasurementModel *mModel)
@@ -1765,6 +1811,53 @@ MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
    return mm;
 }
 
+//------------------------------------------------------------------------------
+// TrackingSystem* GetTrackingSystem(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingSystem from the configuration
+ *
+ * @param name The name of the TrackingSystem
+ *
+ * @return A pointer to the TrackingSystem, or NULL if it was not found
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* ConfigManager::GetTrackingSystem(const std::string &name)
+{
+   TrackingSystem *obj = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::TRACKING_SYSTEM))
+      {
+         obj = (TrackingSystem *)mapping[name];
+      }
+   }
+   return obj;
+}
+
+//------------------------------------------------------------------------------
+// TrackingData* GetTrackingData(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingData object from the configuration
+ *
+ * @param name The name of the TrackingData object
+ *
+ * @return A pointer to the TrackingData object, or NULL if it was not found
+ */
+//------------------------------------------------------------------------------
+TrackingData* ConfigManager::GetTrackingData(const std::string &name)
+{
+   TrackingData *obj = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::TRACKING_DATA))
+      {
+         obj = (TrackingData *)mapping[name];
+      }
+   }
+   return obj;
+}
 
 Datafile* ConfigManager::GetDataStream(const std::string &name)
 {

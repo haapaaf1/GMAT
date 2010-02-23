@@ -218,6 +218,15 @@ public:
    MeasurementModel* CreateMeasurementModel(const std::string &name);
    MeasurementModel* GetMeasurementModel(const std::string &name);
 
+   // TrackingSystem
+   TrackingSystem* CreateTrackingSystem(const std::string &type,
+                                        const std::string &name);
+   TrackingSystem* GetTrackingSystem(const std::string &name);
+
+   // TrackingData
+   TrackingData* CreateTrackingData(const std::string &name);
+   TrackingData* GetTrackingData(const std::string &name);
+
    // Core Measurement
    CoreMeasurement* CreateMeasurement(const std::string &type,
          const std::string &name);

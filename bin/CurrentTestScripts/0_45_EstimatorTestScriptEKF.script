@@ -42,7 +42,7 @@ GMAT ODSat.EulerAngleSequence = '312';
 GMAT ODSat.AngularVelocityX = 0;
 GMAT ODSat.AngularVelocityY = 0;
 GMAT ODSat.AngularVelocityZ = 0;
-ODSat.Covariance.CartesianState = [200.0 100.0 150.0 0.0009 0.0006 0.0003];
+ODSat.Covariance.CartesianState = [200.0 100.0 150.0 0.0001 0.0006 0.0003];
 
 %----------------------------------------
 %---------- GroundStations
@@ -50,18 +50,11 @@ ODSat.Covariance.CartesianState = [200.0 100.0 150.0 0.0009 0.0006 0.0003];
 
 % State used in the sim
 %GMAT ODSat.X = 6648.937;
-
 %GMAT ODSat.Y = -335.169;
-
 %GMAT ODSat.Z = 2789.137;
-
 %GMAT ODSat.VX = -0.34697109;
-
 %GMAT ODSat.VY = 7.092177415;
-
 %GMAT ODSat.VZ = 2.14549075;
-
-
 
 
 %----- Create the ground station
@@ -79,14 +72,8 @@ GMAT Maui.Id = 'MauiID';
 %---------- ForceModels
 %----------------------------------------
 
-
-
-%----- Create the propagator
-
 Create ForceModel ODProp_ForceModel;
-
 GMAT ODProp_ForceModel.CentralBody = Earth;
-
 GMAT ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
 GMAT ODProp_ForceModel.Drag = None;
 GMAT ODProp_ForceModel.SRP = Off;
@@ -97,9 +84,7 @@ GMAT ODProp_ForceModel.ErrorControl = RSSStep;
 %----------------------------------------
 
 Create Propagator ODProp;
-
 GMAT ODProp.FM = ODProp_ForceModel;
-
 GMAT ODProp.Type = RungeKutta89;
 GMAT ODProp.InitialStepSize = 60;
 GMAT ODProp.Accuracy = 1e-13;
@@ -111,10 +96,6 @@ GMAT ODProp.MaxStepAttempts = 50;
 %---------- Datafiles
 %----------------------------------------
 
-
-
-%----- Create the data file
-
 Create Datafile MauiMeasData;
 GMAT MauiMeasData.Filename = 'MauiData.gmd';
 GMAT MauiMeasData.Format = GMATInternal;
@@ -123,9 +104,6 @@ GMAT MauiMeasData.Format = GMATInternal;
 %---------- MeasurementModels
 %----------------------------------------
 
-
-%----- Create a range measurement between Maui and ODSat
-
 Create MeasurementModel RangeMeasurement;
 GMAT RangeMeasurement.ObservationData = {MauiMeasData};
 GMAT RangeMeasurement.Type = Range;
@@ -133,14 +111,12 @@ GMAT RangeMeasurement.Participants = {Maui, ODSat};
 GMAT RangeMeasurement.Bias = 0;
 GMAT RangeMeasurement.NoiseSigma = 0.1;
 GMAT RangeMeasurement.TimeConstant = 6000;
-GMAT RangeMeasurement.Covariance.Bias = [0.01];
+GMAT RangeMeasurement.Covariance.Bias = [0.1];
 
 
 %----------------------------------------
 %---------- Solvers
 %----------------------------------------
-
-
 
 %----- Create the estimator
 
@@ -160,8 +136,6 @@ GMAT EKF.ShowAllResiduals = On;
 %---------- Subscribers
 %----------------------------------------
 
-
-
 %----- Toss in a plot
 Create XYPlot XYPlot1;
 GMAT XYPlot1.SolverIterations = Current;
@@ -170,13 +144,6 @@ GMAT XYPlot1.Add = {ODSat.EarthMJ2000Eq.X, ODSat.EarthMJ2000Eq.Y, ODSat.EarthMJ2
 GMAT XYPlot1.Grid = On;
 GMAT XYPlot1.ShowPlot = true;
 
-
-
 %----- Run the estimator
 Save EKF;
-
 RunEstimator EKF;
-
-
-
-

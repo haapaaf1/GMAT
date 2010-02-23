@@ -1201,15 +1201,29 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    if (objs.size() > 0)
       WriteObjects(objs, "Datafiles", mode);
 
-   //-----------------------------------
-   // Measurement Models
-   //-----------------------------------
+   //---------------------------------------------
+   // Measurement Models and Tracking Data/Systems
+   //---------------------------------------------
    objs = theModerator->GetListOfObjects(Gmat::MEASUREMENT_MODEL);
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Measurement Models\n", objs.size());
    #endif
    if (objs.size() > 0)
       WriteObjects(objs, "MeasurementModels", mode);
+
+   objs = theModerator->GetListOfObjects(Gmat::TRACKING_DATA);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d TrackingData Objects\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "TrackingData", mode);
+
+   objs = theModerator->GetListOfObjects(Gmat::TRACKING_SYSTEM);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d Tracking Systems\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "TrackingSystems", mode);
 
    //-----------------------------------
    // Solver

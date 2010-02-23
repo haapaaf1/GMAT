@@ -123,11 +123,9 @@ public:
                                            const std::string &withName = "");
    virtual Obtype*          CreateObtype(const std::string &ofType,
                                          const std::string &withName = "");
-   virtual TrackingSystem*
-                            CreateTrackingSystem(const std::string &ofType,
+   virtual TrackingSystem*  CreateTrackingSystem(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual TrackingData*
-                            CreateTrackingData(const std::string &ofType,
+   virtual TrackingData*    CreateTrackingData(const std::string &ofType,
                                            const std::string &withName = "");
    virtual Event*           CreateEvent(const std::string &ofType,
                                         const std::string &withName = "");

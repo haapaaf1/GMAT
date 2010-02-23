@@ -312,6 +312,41 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       }
    }
    
+   // Like Measurement Models, TrackingData objects must init before the
+   // Estimators/Simulator, so do next
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::TRACKING_DATA)
+   {
+      #ifdef DEBUG_INITIALIZE_OBJ
+      MessageInterface::ShowMessage("--- Initialize TrackingData in LOS\n");
+      #endif
+      InitializeObjectsInTheMap(LOS, Gmat::TRACKING_DATA);
+
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize TrackingData in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::TRACKING_DATA);
+      }
+   }
+
+   // Handle TrackingSystem objects before the Estimators/Simulator as well
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::TRACKING_SYSTEM)
+   {
+      #ifdef DEBUG_INITIALIZE_OBJ
+      MessageInterface::ShowMessage("--- Initialize TrackingSystem in LOS\n");
+      #endif
+      InitializeObjectsInTheMap(LOS, Gmat::TRACKING_SYSTEM);
+
+      if (includeGOS)
+      {
+         #ifdef DEBUG_INITIALIZE_OBJ
+         MessageInterface::ShowMessage("--- Initialize TrackingSystem in GOS\n");
+         #endif
+         InitializeObjectsInTheMap(GOS, Gmat::TRACKING_SYSTEM);
+      }
+   }
+
    // System Parameters, such as sat.X
    if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::PARAMETER)
    {

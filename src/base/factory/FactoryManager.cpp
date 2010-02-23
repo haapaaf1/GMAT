@@ -591,6 +591,24 @@ CoreMeasurement* FactoryManager::CreateMeasurement(const std::string &ofType,
    return NULL;
 }
 
+TrackingSystem* FactoryManager::CreateTrackingSystem(const std::string &ofType,
+         const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::TRACKING_SYSTEM, ofType);
+   if (f != NULL)
+      return f->CreateTrackingSystem(ofType, withName);
+   return NULL;
+}
+
+TrackingData* FactoryManager::CreateTrackingData(const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::TRACKING_DATA, "TrackingData");
+   if (f != NULL)
+      return f->CreateTrackingData("TrackingData", withName);
+   return NULL;
+}
+
+
 //------------------------------------------------------------------------------
 // Obtype* FactoryManager::CreateObtype(const std::string &ofType,
 //                                      const std::string &withName)

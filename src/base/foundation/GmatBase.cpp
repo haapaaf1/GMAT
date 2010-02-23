@@ -104,8 +104,8 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    "Solver",        "Subscriber",       "ReportFile",       "XYPlot",          "OpenGLPlot",
    "EphemerisFile", "PropSetup",        "Function",         "FuelTank",        "Thruster",
    "Hardware",      "CoordinateSystem", "AxisSystem",       "Attitude",        "MathNode",
-   "MathTree",      "BodyFixedPoint",   "MeasurementModel", "CoreMeasurement", "DataStream",
-   "ObType",        "UnknownObject"
+   "MathTree",      "BodyFixedPoint",   "MeasurementModel", "CoreMeasurement", "TrackingData",
+   "TrackingSystem", "DataStream",      "ObType",           "UnknownObject"
 };
 /**
  * Build the list of automatic global settings
@@ -128,7 +128,7 @@ GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    false,     true,      true,      false,     false,
    false,     true,      false,     false,     false,
    false,     false,     false,     false,     false,
-   false,     false
+   false,     false,     false,     false
 };
 
 

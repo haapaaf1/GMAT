@@ -3189,6 +3189,175 @@ MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
       return (MeasurementModel*)FindObject(name);
 }
 
+// TrackingSystem
+//------------------------------------------------------------------------------
+// TrackingSystem* CreateTrackingSystem(const std::string &type,
+//       const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a new named TrackingSystem and adds it to the configuration
+ *
+ * @param type The type of the new TrackingSystem
+ * @param name The name of the new TrackingSystem
+ *
+ * @return The new TrackingSystem
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* Moderator::CreateTrackingSystem(const std::string &type,
+         const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::CreateTrackingSystem() type=%s, "
+            "name='%s'\n", type.c_str(), name.c_str());
+   #endif
+
+   if (GetTrackingSystem(name) == NULL)
+   {
+      TrackingSystem *obj = theFactoryManager->CreateTrackingSystem(type, name);
+
+      if (obj == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a TrackingSystem.\n"
+             "Make sure TrackingSystem is correct type and registered to "
+             "TrackingSystemFactory.\n");
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (obj)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (obj, name, "Moderator::CreateTrackingSystem()", funcName);
+      }
+      #endif
+
+      theConfigManager->AddTrackingSystem(obj);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingSystem() returning new TrackingSystem "
+               "<%p>\n", obj);
+      #endif
+
+      return obj;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingSystem() Unable to create "
+          "TrackingSystem name: %s already exists\n", name.c_str());
+      #endif
+      return GetTrackingSystem(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// TrackingSystem* GetTrackingSystem(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingSystem from the configuration
+ *
+ * @param name The name of the TrackingSystem object
+ *
+ * @return The named TrackingSystem
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* Moderator::GetTrackingSystem(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (TrackingSystem*)FindObject(name);
+}
+
+// TrackingData
+//------------------------------------------------------------------------------
+// TrackingData* CreateTrackingData(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a new named TrackingData object and adds it to the configuration
+ *
+ * @param name The name of the new TrackingData object
+ *
+ * @return The new TrackingData object
+ */
+//------------------------------------------------------------------------------
+TrackingData* Moderator::CreateTrackingData(const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::CreateTrackingData() name='%s'\n",
+                                 name.c_str());
+   #endif
+
+   if (GetTrackingData(name) == NULL)
+   {
+      TrackingData *obj = theFactoryManager->CreateTrackingData(name);
+
+      if (obj == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a TrackingData object."
+             "\nMake sure TrackingData is correct type and registered to "
+             "TrackingDataFactory.\n");
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (obj)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (obj, name, "Moderator::CreateTrackingData()", funcName);
+      }
+      #endif
+
+      theConfigManager->AddTrackingData(obj);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingData() returning new TrackingData "
+               "<%p>\n", obj);
+      #endif
+
+      return obj;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingData() Unable to create "
+          "TrackingData name: %s already exists\n", name.c_str());
+      #endif
+      return GetTrackingData(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// TrackingData* GetTrackingData(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingData object from the configuration
+ *
+ * @param name The name of the TrackingData object
+ *
+ * @return The named TrackingData object
+ */
+//------------------------------------------------------------------------------
+TrackingData* Moderator::GetTrackingData(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (TrackingData*)FindObject(name);
+}
+
 
 //------------------------------------------------------------------------------
 // CoreMeasurement* CreateMeasurement(const std::string &type,

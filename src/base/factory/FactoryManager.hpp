@@ -50,6 +50,8 @@ class MeasurementModel;
 class CoreMeasurement;
 class Datafile;
 class Obtype;
+class TrackingSystem;
+class TrackingData;
 
 
 /**
@@ -130,6 +132,9 @@ public:
 
    MeasurementModel*      CreateMeasurementModel(const std::string &withName);
    Datafile*              CreateDatafile(const std::string &withName);
+   TrackingSystem*        CreateTrackingSystem(const std::string &ofType,
+                                               const std::string &withName);
+   TrackingData*          CreateTrackingData(const std::string &withName = "");
 
    // method to return a list of strings representing the objects of the input
    // type that may be created in the system

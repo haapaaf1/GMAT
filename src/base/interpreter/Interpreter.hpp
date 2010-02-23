@@ -121,6 +121,10 @@ public:
    
    bool SetMeasurementModelProperty(GmatBase *obj, const std::string &prop,
                               const std::string &value);
+   bool SetTrackingDataProperty(GmatBase *obj, const std::string &prop,
+                              const std::string &value);
+   bool SetTrackingSystemProperty(GmatBase *obj, const std::string &prop,
+                              const std::string &value);
    bool SetDataStreamProperty(GmatBase *obj, const std::string &property,
                               const std::string &value);
    bool FindOwnedObject(GmatBase *owner, const std::string toProp,
@@ -309,6 +313,7 @@ private:
    StringArray   functionList;
    StringArray   hardwareList;
    StringArray   measurementList;
+   StringArray   trackingSystemList;
    StringArray   obtypeList;
    StringArray   odeModelList;
    StringArray   parameterList;

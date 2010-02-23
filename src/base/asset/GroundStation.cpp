@@ -365,7 +365,7 @@ std::string GroundStation::GetStringParameter(const Integer id,
 }
 
 //------------------------------------------------------------------------------
-// std::string MeasurementModel::GetStringParameter(const std::string & label,
+// std::string GetStringParameter(const std::string & label,
 //       const Integer index) const
 //------------------------------------------------------------------------------
 /**

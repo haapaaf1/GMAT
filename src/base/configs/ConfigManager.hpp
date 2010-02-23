@@ -40,15 +40,12 @@
 #include "CoordinateSystem.hpp"
 #include "CalculatedPoint.hpp"
 
-//#include "MeasurementModel.hpp"
-//#include "GeometricMeasurement.hpp"  // Will be "CoreMeasurement.hpp"
-//#include "Datafile.hpp"
-//#include "Obtype.hpp"
-
 class MeasurementModel;
 class CoreMeasurement;
 class Datafile;
 class Obtype;
+class TrackingSystem;
+class TrackingData;
 
 
 /**
@@ -88,6 +85,8 @@ public:
    void                AddMeasurement(CoreMeasurement *meas);
    void                AddDatafile(Datafile *meas);
    void                AddObtype(Obtype *meas);
+   void                AddTrackingSystem(TrackingSystem *ts);
+   void                AddTrackingData(TrackingData *td);
 
    const StringArray&  GetListOfAllItems();
    const StringArray&  GetListOfItems(Gmat::ObjectType itemType);
@@ -128,6 +127,9 @@ public:
    CoordinateSystem*   GetCoordinateSystem(const std::string &name);
    CalculatedPoint*    GetCalculatedPoint(const std::string &name);
    MeasurementModel*   GetMeasurementModel(const std::string &name);
+   TrackingSystem*     GetTrackingSystem(const std::string &name);
+   TrackingData*       GetTrackingData(const std::string &name);
+
    Datafile *          GetDataStream(const std::string &name);
 
    bool                HasConfigurationChanged();
