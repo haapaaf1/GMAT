@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             Factory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -49,10 +49,16 @@ class Attitude;
 class SpacePoint;
 class Event;
 
+
 class MeasurementModel;
 class CoreMeasurement;
 class Datafile;
 class Obtype;
+class TrackingSystem;
+class TrackingData;
+
+
+/// @todo Find a clever way to allow user types here when we don't know them
 
 class GMAT_API Factory
 {
@@ -117,6 +123,12 @@ public:
                                            const std::string &withName = "");
    virtual Obtype*          CreateObtype(const std::string &ofType,
                                          const std::string &withName = "");
+   virtual TrackingSystem*
+                            CreateTrackingSystem(const std::string &ofType,
+                                           const std::string &withName = "");
+   virtual TrackingData*
+                            CreateTrackingData(const std::string &ofType,
+                                           const std::string &withName = "");
    virtual Event*           CreateEvent(const std::string &ofType,
                                         const std::string &withName = "");
    

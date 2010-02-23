@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            Factory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -819,6 +819,64 @@ Event* Factory::CreateEvent(const std::string &ofType, const std::string &withNa
 }
 
 
+//------------------------------------------------------------------------------
+// TrackingSystem* Factory::CreateTrackingSystem(const std::string &ofType,
+//                                         const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a TrackingSystem object.
+ *
+ * Must be implemented by derived classes that create TrackingSystem objects -
+ * in that case, it returns a new TrackingSystem object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type TrackingSystem.
+ *
+ * @param <ofType>   specific type of TrackingSystem object to create.
+ * @param <withName> name to give to the newly created TrackingSystem object.
+ *
+ * @return pointer to a new TrackingSystem object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type TrackingSystem.
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* Factory::CreateTrackingSystem(const std::string &ofType,
+         const std::string &withName)
+{
+   throw FactoryException
+      ("Factory::CreateTrackingSystem() must be implemented by a "
+               "TrackingSystemFactory\n");
+}
+
+
+//------------------------------------------------------------------------------
+// TrackingData* Factory::CreateTrackingData(const std::string &ofType,
+//                                         const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a TrackingData object.
+ *
+ * Must be implemented by derived classes that create TrackingData objects -
+ * in that case, it returns a new TrackingData object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type TrackingData.
+ *
+ * @param <ofType>   specific type of TrackingData object to create.
+ * @param <withName> name to give to the newly created TrackingData object.
+ *
+ * @return pointer to a new TrackingData object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type TrackingData.
+ */
+//------------------------------------------------------------------------------
+TrackingData* Factory::CreateTrackingData(const std::string &ofType,
+         const std::string &withName)
+{
+   throw FactoryException
+      ("Factory::CreateTrackingData() must be implemented by a "
+               "TrackingDataFactory\n");
+}
 
 //------------------------------------------------------------------------------
 //  StringArray GetListOfCreatableObjects(void) const
