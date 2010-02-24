@@ -1724,9 +1724,14 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    if (obj == NULL)
    {
       #ifdef DEBUG_PARSE
-      MessageInterface::ShowMessage("   obj is NULL, so just return false\n");
+      MessageInterface::ShowMessage
+         ("   obj is NULL, and %singoring the error, so returning %s\n",
+          ignoreError ? "" : "NOT ", ignoreError ? "true" : "false");
       #endif
-      return false;
+      if (ignoreError)
+         return true;
+      else
+         return false;
    }
    
    // paramID will be assigned from call to Interpreter::FindPropertyID()
