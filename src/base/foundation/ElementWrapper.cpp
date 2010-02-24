@@ -458,7 +458,9 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
    
    Gmat::ParameterType lhsDataType = lhsWrapper->GetDataType();
    Gmat::ParameterType rhsDataType = Gmat::UNKNOWN_PARAMETER_TYPE;
-   std::string lhsTypeStr = GmatBase::PARAM_TYPE_STRING[lhsDataType];
+   std::string lhsTypeStr = "UnknownDataType";
+   if (lhsDataType != Gmat::UNKNOWN_PARAMETER_TYPE)
+      lhsTypeStr = GmatBase::PARAM_TYPE_STRING[lhsDataType];
    std::string rhsTypeStr = "UnknownDataType";
    Gmat::WrapperDataType lhsWrapperType = lhsWrapper->GetWrapperType();
    Gmat::WrapperDataType rhsWrapperType = Gmat::UNKNOWN_WRAPPER_TYPE;
