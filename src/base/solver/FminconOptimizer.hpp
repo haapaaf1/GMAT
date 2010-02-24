@@ -112,8 +112,8 @@ protected:
    static const Gmat::ParameterType
                                PARAMETER_TYPE[FminconOptimizerParamCount -
                                               ExternalOptimizerParamCount];
-   static const std::string    ALLOWED_OPTIONS[12];
-   static const std::string    DEFAULT_OPTION_VALUES[12];
+   static const std::string    ALLOWED_OPTIONS[6];			// [12];		// made a change here
+   static const std::string    DEFAULT_OPTION_VALUES[6];	// [12];		// made a change here
    static const Integer        NUM_MATLAB_OPTIONS;
    static const Integer        MATLAB_OPTIONS_OFFSET;
                                               
