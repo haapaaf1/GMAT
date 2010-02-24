@@ -123,12 +123,22 @@ ObjectPropertyWrapper::~ObjectPropertyWrapper()
 //------------------------------------------------------------------------------
 Gmat::ParameterType ObjectPropertyWrapper::GetDataType() const
 {
+   #ifdef DEBUG_OPW
+   MessageInterface::ShowMessage
+      ("ObjectPropertyWrapper::GetDataType() entered, propID = %d\n", propID);
+   #endif
+   
    if (object == NULL)
       throw ParameterException
          ("ObjectPropertyWrapper::GetDataType() The object is NULL, "
           "so cannot get data type");
    
    Gmat::ParameterType propType = object->GetParameterType(propID);
+   
+   #ifdef DEBUG_OPW
+   MessageInterface::ShowMessage
+      ("ObjectPropertyWrapper::GetDataType() returning %d\n", propType);
+   #endif
    
    #ifdef DEBUG_OPW
    MessageInterface::ShowMessage
