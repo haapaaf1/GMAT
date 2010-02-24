@@ -193,7 +193,8 @@ namespace Gmat
       ON_OFF_TYPE,
       ENUMERATION_TYPE,
       TypeCount,
-      UNKNOWN_PARAMETER_TYPE = -1
+      UNKNOWN_PARAMETER_TYPE = -1,
+      PARAMETER_REMOVED = -3,   // For parameters will be removed in the future
    };
 
    enum WrapperDataType
