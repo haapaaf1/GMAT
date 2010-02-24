@@ -3916,6 +3916,16 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
          
          FindPropertyID(toOwner, toProp, &toObj, toId, toType);
          
+         if (toId == Gmat::PARAMETER_REMOVED)
+         {
+            InterpreterException ex
+               ("The field name \"" + toProp + "\" on object " + "\"" +
+                toOwner->GetName() + "\" will no longer be permitted in the future");
+            HandleError(ex, true, true);
+            ignoreError = true;
+            return false;
+         }
+         
          if (toObj == NULL)
          {
             if (parsingDelayedBlock)
@@ -4291,7 +4301,7 @@ bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
          {
             #ifdef DEBUG_SET
             std::string rvalStr =
-               GmatStringUtil::ToString(rval, false, false, 17, 16);
+               GmatStringUtil::ToString(rval, false, false, true, 17, 16);
             MessageInterface::ShowMessage
                ("   Calling <%s>'%s'->SetRealParameter(%d, %s)\n", obj->GetTypeName().c_str(),
                 obj->GetName().c_str(), id, rvalStr.c_str());
