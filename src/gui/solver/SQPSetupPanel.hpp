@@ -22,13 +22,14 @@ private:
    Solver *theSolver;
    bool isTextModified;
    
-   wxStaticText *displayStaticText;
-   wxComboBox *displayComboBox;
+// GradObj, GradConstr, DerivativeCheck, Diagnostics, and Display parameters are no longer been used:
+//   wxStaticText *displayStaticText;
+//   wxComboBox *displayComboBox;
    
-   wxCheckBox *gradObjCB;
-   wxCheckBox *gradConstrCB;
-   wxCheckBox *derivativeCheckCB;
-   wxCheckBox *diagnosticsCB;
+//   wxCheckBox *gradObjCB;
+//   wxCheckBox *gradConstrCB;
+//   wxCheckBox *derivativeCheckCB;
+//   wxCheckBox *diagnosticsCB;
    
    wxStaticText *tolFunStaticText;
    wxStaticText *tolConStaticText;
@@ -45,7 +46,17 @@ private:
    wxTextCtrl *maxIterTextCtrl;
    wxTextCtrl *diffMinChangeTextCtrl;
    wxTextCtrl *diffMaxChangeTextCtrl;
+      
+   wxCheckBox *showProgressCheckBox;
+   wxStaticText *reportfileStaticText;
+   wxTextCtrl *reportfileTextCtrl;
+   wxStaticText *reportStyleStaticText;
+   wxComboBox *styleComboBox;
+
+   wxButton	  *browseButton;
    
+   wxFileDialog	*fileDialog;
+
    // methods inherited from GmatPanel
    virtual void Create();
    virtual void LoadData();
@@ -62,8 +73,9 @@ private:
    void OnComboBoxChange(wxCommandEvent& event);
    void OnTextChange(wxCommandEvent& event);
    void OnCheckboxChange(wxCommandEvent& event);
+   void OnBrowse(wxCommandEvent &event);
        
-   static const wxString DISPLAY_SCHEMES[4];
+//   static const wxString DISPLAY_SCHEMES[4];				// made a change here
    
    // IDs for the controls and the menu commands
    enum
@@ -73,7 +85,8 @@ private:
       ID_BUTTON,
       ID_COMBOBOX,
       ID_CHECKBOX,
-      ID_NOTEBOOK
+      ID_NOTEBOOK,
+	  ID_BUTTON_BROWSE
    };
 };
 
