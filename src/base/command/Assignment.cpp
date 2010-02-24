@@ -739,9 +739,13 @@ bool Assignment::Execute()
       // Use ElementWrapper static method SetValue() (loj: 2008.06.20)
       if (mathTree == NULL)
       {
+         // If lhs is object property and is deprecated to remove in the future, ignore
+         if (lhsWrapper->GetDataType() == Gmat::UNKNOWN_PARAMETER_TYPE)
+            return true;
+         
          retval = ElementWrapper::SetValue(lhsWrapper, rhsWrapper, solarSys, objectMap,
                                            globalObjectMap, setRefObj);
-
+         
          // Check if setting spacecraft property
          if (lhsWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY_WT ||
              lhsWrapper->GetWrapperType() == Gmat::OBJECT_WT)
