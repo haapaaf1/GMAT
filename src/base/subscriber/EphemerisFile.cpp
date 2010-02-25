@@ -2164,9 +2164,9 @@ void EphemerisFile::BufferOrbitData(Real epochInDays, const Real state[6])
    if (a1MjdArray.size() > MAX_SEGMENT_SIZE)
    {
       if (fileType == CCSDS_OEM)
-         WriteSpkOrbitDataSegment();
-      else if (fileType == SPK_ORBIT)
          WriteCcsdsOrbitDataSegment();
+      else if (fileType == SPK_ORBIT)
+         WriteSpkOrbitDataSegment();
    }
    
    Rvector6 *rv6 = new Rvector6(state);
@@ -2453,6 +2453,11 @@ void EphemerisFile::WriteSpkOrbitDataSegment()
    #ifdef __USE_SPICE__
    if (a1MjdArray.size() > 0)
    {
+      if (spkWriter == NULL)
+         throw SubscriberException
+            ("*** INTERNANL ERROR *** SPK Writer is NULL in "
+             "EphemerisFile::WriteSpkOrbitDataSegment()\n");
+      
       A1Mjd *start = a1MjdArray.front();
       A1Mjd *end   = a1MjdArray.back();
       
