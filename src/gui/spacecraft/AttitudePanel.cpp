@@ -403,7 +403,11 @@ void AttitudePanel::Create()
    this->SetAutoLayout( true );  
    this->SetSizerAndFit( boxSizer1 );
    boxSizer1->Fit( this );
-   boxSizer1->SetSizeHints( this );  
+   boxSizer1->SetSizeHints( this );
+
+   std::string initialModel = config1ComboBox->GetValue().c_str();
+   if (initialModel == "CoordinateSystemFixed")
+      DisableInitialAttitudeRate();
    
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::Create() exiting\n");
@@ -958,6 +962,45 @@ bool AttitudePanel::ValidateState(const std::string which)
    return retval;
 }
 
+void AttitudePanel::DisableInitialAttitudeRate()
+{
+   stateTypeRate4StaticText->Disable();
+
+   stateRateTypeComboBox->Disable();
+
+   str1StaticText->Disable();
+   str2StaticText->Disable();
+   str3StaticText->Disable();
+
+   str1TextCtrl->Disable();
+   str2TextCtrl->Disable();
+   str3TextCtrl->Disable();
+
+   rateUnits1->Disable();
+   rateUnits2->Disable();
+   rateUnits3->Disable();
+}
+
+void AttitudePanel::EnableInitialAttitudeRate()
+{
+   stateTypeRate4StaticText->Enable();
+
+   stateRateTypeComboBox->Enable();
+
+   str1StaticText->Enable();
+   str2StaticText->Enable();
+   str3StaticText->Enable();
+
+   str1TextCtrl->Enable();
+   str2TextCtrl->Enable();
+   str3TextCtrl->Enable();
+
+   rateUnits1->Enable();
+   rateUnits2->Enable();
+   rateUnits3->Enable();
+}
+
+
 //------------------------------------------------------------------------------
 // wxString ToString(Real rval)
 //------------------------------------------------------------------------------
@@ -1098,7 +1141,10 @@ void AttitudePanel::OnAttitudeModelSelection(wxCommandEvent &event)
       attitudeModel = newModel;
       theScPanel->EnableUpdate(true);
     }
-    // will need to do something with this on SaveData
+    if (newModel == "CoordinateSystemFixed")
+       DisableInitialAttitudeRate();
+    else
+       EnableInitialAttitudeRate();
 }
 
 //------------------------------------------------------------------------------

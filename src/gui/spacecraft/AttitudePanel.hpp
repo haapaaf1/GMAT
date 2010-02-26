@@ -186,6 +186,9 @@ private:
                         bool discardEdits = false);
    bool ValidateState(const std::string which = "Both");
    
+   void DisableInitialAttitudeRate();
+   void EnableInitialAttitudeRate();
+
    wxString ToString(Real rval); // ??
    
    // Event Handling
