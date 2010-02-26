@@ -318,7 +318,7 @@ void TankConfigPanel::LoadData()
       fuelDensityTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(paramID)));
       
       paramID = theFuelTank->GetParameterID("PressureModel");      
-      pressureModelComboBox->SetValue(theFuelTank->GetStringParameter(paramID));
+      pressureModelComboBox->SetValue(theFuelTank->GetStringParameter(paramID).c_str());
       
    }
    catch (BaseException &e)
