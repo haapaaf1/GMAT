@@ -150,6 +150,7 @@ const std::string Attitude::EULER_SEQ_LIST[12] =
 };
 
 const Real    Attitude::TESTACCURACY            = 1.19209290E-07;
+const Real    Attitude::QUAT_MIN_MAG            = 1.0e-10;
 const Real    Attitude::ATTITUDE_TIME_TOLERANCE = 1.0E-09;
 const Integer Attitude::OTHER_REPS_OFFSET       = 7000;
 
@@ -174,9 +175,21 @@ Rmatrix33 Attitude::ToCosineMatrix(const Rvector &quat1)
    MessageInterface::ShowMessage("ENTERING ToDCM(q) ... %.12f  %.12f  %.12f  %.12f\n",
    quat1[0], quat1[1], quat1[2], quat1[3]);
    #endif
+   // check for proper size and magnitude
    if (quat1.GetSize() != 4)
+   {
       throw AttitudeException(
-            "Cannot convert quaternion of incorrect size to a cosine matrix.");
+            "Quaternion error : the quaternion must have 4 elements.\n");
+   }
+   if (quat1.GetMagnitude() < QUAT_MIN_MAG)
+   {
+      std::ostringstream errmsg;
+      errmsg << "Quaternion error : the quaternion must have a magnitude greater than ";
+      errmsg << QUAT_MIN_MAG << std::endl;
+      throw AttitudeException(errmsg.str());
+   }
+
+
    Rmatrix33 I3;  // identity matrix, by default
    Rvector3  q1_3(quat1(0), quat1(1), quat1(2));
    Rmatrix33 q_x(     0.0, -q1_3(2),  q1_3(1), 
@@ -744,6 +757,15 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
                                      Integer seq1, Integer seq2, 
                                      Integer seq3)
 {
+   #ifdef DEBUG_EULER_ANGLE_RATES
+      MessageInterface::ShowMessage(
+            "Computing Euler Angle Rates from angular velocity %12.10f  %12.10f  %12.10f\n",
+            angularVel[0], angularVel[1], angularVel[2]);
+      MessageInterface::ShowMessage("and Euler Angles %12.10f  %12.10f  %12.10f\n",
+            eulerAngles[0] * GmatMathUtil::DEG_PER_RAD, eulerAngles[1] * GmatMathUtil::DEG_PER_RAD,
+            eulerAngles[2] * GmatMathUtil::DEG_PER_RAD);
+      MessageInterface::ShowMessage("with sequence %d  %d  %d\n", seq1, seq2, seq3);
+   #endif
    bool      singularity = false;
    Real      s2          = GmatMathUtil::Sin(eulerAngles(1));
    Real      c2          = GmatMathUtil::Cos(eulerAngles(1));
@@ -880,6 +902,14 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
       "Singularity detected - using zero vector for euler angle rates\n");
       return Rvector3(); // return zero vector
    }
+   #ifdef DEBUG_EULER_ANGLE_RATES
+      MessageInterface::ShowMessage(
+            "After computation, Si =  %12.10f  %12.10f  %12.10f\n"
+            "                         %12.10f  %12.10f  %12.10f\n"
+            "                         %12.10f  %12.10f  %12.10f\n",
+            Si(0,0), Si(0,1), Si(0,2), Si(1,0), Si(1,1), Si(1,2), Si(2,0), Si(2,1), Si(2,2));
+   #endif
+
    return Si * angularVel;
  }
                                             
@@ -2029,6 +2059,7 @@ Real Attitude::GetRealParameter(const std::string &label) const
 Real Attitude::SetRealParameter(const Integer id,
                                 const Real value)
 {
+   Rvector quat(4,0.0,0.0,0.0,1.0);
    #ifdef DEBUG_ATTITUDE_SET_REAL
    MessageInterface::ShowMessage(
    "ENTERING Att::SetReal with id = %d (%s) and value = %.12f\n", id,
@@ -2046,38 +2077,42 @@ Real Attitude::SetRealParameter(const Integer id,
    if (id == Q_1)
    {
       // check for valid value here ..... how?  without all 4?
-      quaternion    = Attitude::ToQuaternion(cosMat);
-      quaternion(0) = value;
-      cosMat = Attitude::ToCosineMatrix(quaternion);
+      quat    = Attitude::ToQuaternion(cosMat);
+      quat(0) = value;
+      ValidateQuaternion(quat);
+      cosMat = Attitude::ToCosineMatrix(quat);
       inputAttType  = GmatAttitude::QUATERNION_TYPE;
-      return quaternion(0);
+      return quat(0);
    }
    if (id == Q_2)
    {
       // check for valid value here ..... how?  without all 4?
-      quaternion    = Attitude::ToQuaternion(cosMat);
-      quaternion(1) = value;
-      cosMat = Attitude::ToCosineMatrix(quaternion);
+      quat    = Attitude::ToQuaternion(cosMat);
+      quat(1) = value;
+      ValidateQuaternion(quat);
+      cosMat = Attitude::ToCosineMatrix(quat);
       inputAttType  = GmatAttitude::QUATERNION_TYPE;
-      return quaternion(1);
+      return quat(1);
    }
    if (id == Q_3)
    {
       // check for valid value here ..... how?  without all 4?
-      quaternion    = Attitude::ToQuaternion(cosMat);
-      quaternion(2) = value;
-      cosMat = Attitude::ToCosineMatrix(quaternion);
+      quat    = Attitude::ToQuaternion(cosMat);
+      quat(2) = value;
+      ValidateQuaternion(quat);
+      cosMat = Attitude::ToCosineMatrix(quat);
       inputAttType  = GmatAttitude::QUATERNION_TYPE;
-      return quaternion(2);
+      return quat(2);
    }
    if (id == Q_4)
    {
       // check for valid value here ..... how?  without all 4?
-      quaternion    = Attitude::ToQuaternion(cosMat);
-      quaternion(3) = value;
-      cosMat = Attitude::ToCosineMatrix(quaternion);
+      quat    = Attitude::ToQuaternion(cosMat);
+      quat(3) = value;
+      ValidateQuaternion(quat);
+      cosMat = Attitude::ToCosineMatrix(quat);
       inputAttType  = GmatAttitude::QUATERNION_TYPE;
-      return quaternion(3);
+      return quat(3);
    }
    if (id == EULER_ANGLE_1)
    {
@@ -2440,8 +2475,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
    }
    if (id == QUATERNION)
    {
-      if (sz != 4) throw AttitudeException(
-                  "Incorrectly sized Rvector passed in for quaternion.");
+      ValidateQuaternion(value);
       for (i=0;i<4;i++) 
          quaternion(i) = value(i);
       quaternion.Normalize();
@@ -2992,12 +3026,6 @@ bool Attitude::ValidateCosineMatrix(const Rmatrix33 &mat)
       errMsg += "\" on an object of type \"" + typeName;
       errMsg += "\" is not an allowed value.\n";
       errMsg += "The allowed values are: [orthogonal matrix].";
-      // argh! this is not working ..... why not?????
-      //std::string orthogonal = "Orthogonal matrix";
-      //attex.SetDetails(errorMessageFormatUnnamed.c_str(),
-      //           (matS.str()).c_str(), // tried ToString() on mat as well here
-      //           OTHER_REP_TEXT[DIRECTION_COSINE_MATRIX - OTHER_REPS_OFFSET].c_str(), 
-      //           orthogonal.c_str());
       attex.SetDetails(errMsg);
       throw attex;
    }
@@ -3032,6 +3060,22 @@ bool Attitude::ValidateEulerSequence(const UnsignedIntArray &eulAng)
    eulS << eulAng[0] << eulAng[1] << eulAng[2];
    return ValidateEulerSequence(eulStr);
 }
+
+bool Attitude::ValidateQuaternion(const Rvector &quat)
+{
+   if (quat.GetSize() != 4)
+   {
+      throw AttitudeException(
+            "The quaternion must have 4 elements.\n");
+   }
+   if (quat.GetMagnitude() < QUAT_MIN_MAG)
+   {
+      std::string errmsg = "The quaternion magnitude must be greater than 1e-10.\n";
+      throw AttitudeException(errmsg);
+   }
+   return true;
+}
+
 
 void Attitude::UpdateState(const std::string &rep)
 {
