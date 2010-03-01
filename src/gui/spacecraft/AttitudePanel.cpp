@@ -586,94 +586,103 @@ void AttitudePanel::SaveData()
         MessageInterface::ShowMessage("   Attitude pointer is NULL\n");
    #endif
 
-   
-   if (seqModified || isNewAttitude)
+   try
    {
-      #ifdef DEBUG_ATTITUDE_PANEL
-         MessageInterface::ShowMessage("   Setting new sequence: %s\n", 
-         eulerSequence.c_str());
-      #endif
-      useAttitude->SetStringParameter("EulerAngleSequence", eulerSequence);
-      
-      // set attitude state and rate as well, to match what the user sees on the screen
-      if (attStateType == stateTypeArray[EULER_ANGLES])
-         useAttitude->SetRvectorParameter("EulerAngles", ea);
-      else if (attStateType == stateTypeArray[QUATERNION])
-         useAttitude->SetRvectorParameter("Quaternion", q);
-      else 
-         useAttitude->SetRmatrixParameter("DirectionCosineMatrix", mat);
-         
-      if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES])
-         useAttitude->SetRvectorParameter("EulerAngleRates", ear);
-      else 
-         useAttitude->SetRvectorParameter("AngularVelocity", av);
-      seqModified = false;
-   }
-   
-   if (csModified || isNewAttitude)
-   {
-      #ifdef DEBUG_ATTITUDE_PANEL
-         MessageInterface::ShowMessage("   Setting new coordinate system: %s\n",
-         attCoordSystem.c_str());
-      #endif
-      useAttitude->SetStringParameter("AttitudeCoordinateSystem",attCoordSystem);
-      useAttitude->SetRefObject(attCS, Gmat::COORDINATE_SYSTEM, attCoordSystem);
-      csModified = false;
-   }
-   
-   if (stateTypeModified || isNewAttitude)
-   {
-      #ifdef DEBUG_ATTITUDE_PANEL
-         MessageInterface::ShowMessage("   Setting new state type to ...\n",
-         attStateType.c_str());
-      #endif
-      useAttitude->SetStringParameter("AttitudeDisplayStateType", attStateType);
-   }
-      
-   if (stateModified || isNewAttitude)
-   {
-      #ifdef DEBUG_ATTITUDE_PANEL
-         MessageInterface::ShowMessage("   Setting new state ...\n");
-      #endif
-      if (attStateType == stateTypeArray[EULER_ANGLES])
-         useAttitude->SetRvectorParameter("EulerAngles", ea);
-      else if (attStateType == stateTypeArray[QUATERNION])
-         useAttitude->SetRvectorParameter("Quaternion", q);
-      else 
-         useAttitude->SetRmatrixParameter("DirectionCosineMatrix", mat);
-      stateModified = false;
-   }
-   
-   if (rateStateTypeModified || isNewAttitude)
-   {
-      #ifdef DEBUG_ATTITUDE_PANEL
-         MessageInterface::ShowMessage("   Setting new rate state type to ...\n",
-         attRateStateType.c_str());
-      #endif
-      useAttitude->SetStringParameter("AttitudeRateDisplayStateType", attRateStateType);
-   }
+      if (seqModified || isNewAttitude)
+      {
+         #ifdef DEBUG_ATTITUDE_PANEL
+            MessageInterface::ShowMessage("   Setting new sequence: %s\n",
+            eulerSequence.c_str());
+         #endif
+         useAttitude->SetStringParameter("EulerAngleSequence", eulerSequence);
 
-   if (stateRateModified || isNewAttitude)
-   {
-      #ifdef DEBUG_ATTITUDE_PANEL
-         MessageInterface::ShowMessage("   Setting new state rate ...\n");
-      #endif
-      if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES])
-         useAttitude->SetRvectorParameter("EulerAngleRates", ear);
-      else 
-         useAttitude->SetRvectorParameter("AngularVelocity", av);
-      stateRateModified = false;
-   }
+         // set attitude state and rate as well, to match what the user sees on the screen
+         if (attStateType == stateTypeArray[EULER_ANGLES])
+            useAttitude->SetRvectorParameter("EulerAngles", ea);
+         else if (attStateType == stateTypeArray[QUATERNION])
+            useAttitude->SetRvectorParameter("Quaternion", q);
+         else
+            useAttitude->SetRmatrixParameter("DirectionCosineMatrix", mat);
+
+         if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES])
+            useAttitude->SetRvectorParameter("EulerAngleRates", ear);
+         else
+            useAttitude->SetRvectorParameter("AngularVelocity", av);
+         seqModified = false;
+      }
+
+      if (csModified || isNewAttitude)
+      {
+         #ifdef DEBUG_ATTITUDE_PANEL
+            MessageInterface::ShowMessage("   Setting new coordinate system: %s\n",
+            attCoordSystem.c_str());
+         #endif
+         useAttitude->SetStringParameter("AttitudeCoordinateSystem",attCoordSystem);
+         useAttitude->SetRefObject(attCS, Gmat::COORDINATE_SYSTEM, attCoordSystem);
+         csModified = false;
+      }
+      
+      if (stateTypeModified || isNewAttitude)
+      {
+         #ifdef DEBUG_ATTITUDE_PANEL
+            MessageInterface::ShowMessage("   Setting new state type to ...\n",
+            attStateType.c_str());
+         #endif
+         useAttitude->SetStringParameter("AttitudeDisplayStateType", attStateType);
+      }
+         
+      if (stateModified || isNewAttitude)
+      {
+         #ifdef DEBUG_ATTITUDE_PANEL
+            MessageInterface::ShowMessage("   Setting new state ...\n");
+         #endif
+         if (attStateType == stateTypeArray[EULER_ANGLES])
+            useAttitude->SetRvectorParameter("EulerAngles", ea);
+         else if (attStateType == stateTypeArray[QUATERNION])
+            useAttitude->SetRvectorParameter("Quaternion", q);
+         else
+            useAttitude->SetRmatrixParameter("DirectionCosineMatrix", mat);
+         stateModified = false;
+      }
+
+      if (rateStateTypeModified || isNewAttitude)
+      {
+         #ifdef DEBUG_ATTITUDE_PANEL
+            MessageInterface::ShowMessage("   Setting new rate state type to ...\n",
+            attRateStateType.c_str());
+         #endif
+         useAttitude->SetStringParameter("AttitudeRateDisplayStateType", attRateStateType);
+      }
    
-   if (isNewAttitude)
-   {
-      #ifdef DEBUG_ATTITUDE_PANEL
-         MessageInterface::ShowMessage("Setting new attitude model of type %s on spacecraft\n",
-         attitudeModel.c_str());
-      #endif
-      theSpacecraft->SetRefObject(useAttitude, Gmat::ATTITUDE, "");
+      if (stateRateModified || isNewAttitude)
+      {
+         #ifdef DEBUG_ATTITUDE_PANEL
+            MessageInterface::ShowMessage("   Setting new state rate ...\n");
+         #endif
+         if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES])
+            useAttitude->SetRvectorParameter("EulerAngleRates", ear);
+         else
+            useAttitude->SetRvectorParameter("AngularVelocity", av);
+         stateRateModified = false;
+      }
+      
+      if (isNewAttitude)
+      {
+         #ifdef DEBUG_ATTITUDE_PANEL
+            MessageInterface::ShowMessage("Setting new attitude model of type %s on spacecraft\n",
+            attitudeModel.c_str());
+         #endif
+         theSpacecraft->SetRefObject(useAttitude, Gmat::ATTITUDE, "");
+      }
    }
-   ResetStateFlags("Both", true);
+   catch (BaseException &ex)
+   {
+      canClose = false;
+      dataChanged = true;
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+   }
+   ResetStateFlags("Both", canClose);
+   if (canClose) dataChanged = false;
 }
 
 //------------------------------------------------------------------------------
