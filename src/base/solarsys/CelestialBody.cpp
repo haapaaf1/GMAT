@@ -2177,6 +2177,13 @@ bool CelestialBody::SetUserDefined(bool userDefinedBody)
    return true;
 }
 
+void CelestialBody::RemoveSpiceKernelName(const std::string &fileName)
+{
+   StringArray::iterator i;
+   i = find(spiceKernelNames.begin(), spiceKernelNames.end(), fileName);
+   if (i != spiceKernelNames.end())  spiceKernelNames.erase(i);
+}
+
 
 //------------------------------------------------------------------------------
 // const Rvector6 GetMJ2000State(const A1Mjd &atTime)
