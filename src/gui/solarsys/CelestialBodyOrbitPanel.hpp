@@ -68,6 +68,8 @@ private:
    Real           AOP;
    Real           TA;
    
+   StringArray    spkFilesToDelete;
+
    bool           ephemSrcChanged;
    bool           ephemFileChanged;
    bool           spkFileChanged;
@@ -80,6 +82,7 @@ private:
    bool           RAANChanged;
    bool           AOPChanged;
    bool           TAChanged;
+   bool           spkFilesDeleted;
    
    bool           userDef;
    bool           allowSpiceForDefaultBodies;

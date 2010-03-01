@@ -79,6 +79,7 @@ CelestialBodyOrbitPanel::CelestialBodyOrbitPanel(GmatPanel *cbPanel,
    RAANChanged      (false),
    AOPChanged       (false),
    TAChanged        (false),
+   spkFilesDeleted  (false),
    userDef          (false),
    allowSpiceForDefaultBodies (false),
    isSun            (false),
@@ -106,226 +107,181 @@ void CelestialBodyOrbitPanel::SaveData()
    std::string strval;
    Real        tmpval;
    Integer     tmpint;
-   bool        realsOK   = true;
-   bool        intsOK    = true;
-   bool        stringsOK = true;
-   
+   bool        retval;
+   bool        stateChanged = SMAChanged || ECCChanged || INCChanged || RAANChanged ||
+                              AOPChanged || TAChanged;
    
    // don't do anything if no data has been changed.
    // note that dataChanged will be true if the user modified any combo box or
    // text ctrl, whether or not he/she actually changed the value; we want to only
    // send the values to the object if something was really changed, to avoid
    // the hasBeenModified flag being set to true erroneously
-   if (!dataChanged) return;
-   
-   bool reallyChanged = false;
    canClose    = true;
    
-   if (ephemSrcChanged)
+   try
    {
-      strval = ephemSourceComboBox->GetValue();
-      if (strval != ephemSrc) reallyChanged = true;
-      ephemSrc = strval;
-   }
-   if (ephemFileChanged)
-   {
-      strval = ephemFileTextCtrl->GetValue();
-      #ifdef DEBUG_CB_ORBIT_PANEL
-         MessageInterface::ShowMessage("ephemFileChanged is true : %s\n",
-               strval.c_str());       
-      #endif
-      std::ifstream filename(strval.c_str());
-      
-      if (!filename)
+      if (ephemSrcChanged)
       {
-         std::string errmsg = "File \"" + strval;
-         errmsg += "\" does not exist.\n";
-         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg);
-         stringsOK = false;
+         strval = ephemSourceComboBox->GetValue();
+         theBody->SetStringParameter(theBody->GetParameterID("PosVelSource"), strval);
       }
-      else
+      if (ephemFileChanged)
       {
-         if (strval != ephemFile) reallyChanged = true;
-         MessageInterface::ShowMessage(" ------------ new file is %s\n", strval.c_str());  // *******
-         ephemFile = strval;
-         filename.close();
-      } 
-   }
-   if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable && spkFileChanged)
-   {
-      #ifdef DEBUG_CB_ORBIT_PANEL
-         MessageInterface::ShowMessage("spkFileChanged is true : %s\n",
-               strval.c_str());       
-      #endif
-
-      unsigned int numKernels = spkFileListBox->GetCount();
-      for (unsigned int ii = 0; ii < numKernels; ii++)
-      {
-         strval = spkFileListBox->GetString(ii);
+         strval = ephemFileTextCtrl->GetValue();
+         #ifdef DEBUG_CB_ORBIT_PANEL
+            MessageInterface::ShowMessage("ephemFileChanged is true : %s\n",
+                  strval.c_str());
+         #endif
          std::ifstream filename(strval.c_str());
-      
+
          if (!filename)
          {
             std::string errmsg = "File \"" + strval;
             errmsg += "\" does not exist.\n";
             MessageInterface::PopupMessage(Gmat::ERROR_, errmsg);
-            stringsOK = false;
          }
-         else filename.close();
+         else
+         {
+            filename.close();
+            theBody->SetStringParameter(theBody->GetParameterID("SourceFilename"), strval);
+         }
       }
-      if (stringsOK)
+      if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable && spkFileChanged)
       {
-         spkFiles.clear();
-         for (unsigned int ii = 0; ii < numKernels; ii++)  
+         #ifdef DEBUG_CB_ORBIT_PANEL
+            MessageInterface::ShowMessage("spkFileChanged is true : %s\n",
+                  strval.c_str());
+         #endif
+
+         unsigned int numKernels = spkFileListBox->GetCount();
+         for (unsigned int ii = 0; ii < numKernels; ii++)
          {
             strval = spkFileListBox->GetString(ii);
-            spkFiles.push_back(strval);
-         }
-         reallyChanged = true;  // need to compare to all 
-      }
-   }
-   if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable && naifIDChanged)
-   {
-      strval = naifIDTextCtrl->GetValue();
-      if (!theCBPanel->CheckInteger(tmpint, strval, "NAIF ID", "Integer Number"))
-         intsOK = false;
-      else 
-      {
-         if (tmpint != naifID) reallyChanged = true;
-         naifID = tmpint;
-      }
-   }
-   if (cBodyChanged)
-   {
-      strval = centralBodyComboBox->GetValue();
-      theBody->SetStringParameter(theBody->GetParameterID("CentralBody"), strval); 
-      if (strval != centralBody) reallyChanged = true;
-      centralBody = strval;
-   }
-   
-   if (!isSun)
-   {
-      if (epochChanged)
-      {  // this probably needs more checking .......
-         strval = initialEpochTextCtrl->GetValue();
-         if (!theCBPanel->CheckReal(tmpval, strval, "Initial Two Body Epoch", "Real Number"))
-            realsOK = false;
-         else 
-         {
-            if (tmpval != initialEpoch) reallyChanged = true;
-            initialEpoch = tmpval;
-         }
-      }
-      if (SMAChanged) 
-      {
-         strval = SMATextCtrl->GetValue(); 
-         if (!theCBPanel->CheckReal(tmpval, strval, "Initial SMA", "Real Number"))
-            realsOK = false;
-         else 
-         {
-            if (tmpval != SMA) reallyChanged = true;
-            SMA = tmpval;
-         }
-      }
-      if (ECCChanged)  
-      {
-         strval = ECCTextCtrl->GetValue(); 
-         if (!theCBPanel->CheckReal(tmpval, strval, "Initial ECC", "Real Number"))
-            realsOK = false;
-         else 
-         {
-            if (tmpval != ECC) reallyChanged = true;
-            ECC = tmpval;
-         }
-      }
-      if (INCChanged)  
-      {
-         strval = INCTextCtrl->GetValue(); 
-         if (!theCBPanel->CheckReal(tmpval, strval, "Initial INC", "Real Number"))
-            realsOK = false;
-         else 
-         {
-            if (tmpval != INC) reallyChanged = true;
-            INC = tmpval;
-         }
-     }
-      if (RAANChanged) 
-      {
-         strval = RAANTextCtrl->GetValue();
-         if (!theCBPanel->CheckReal(tmpval, strval, "Initial RAAN", "Real Number"))
-            realsOK = false;
-         else 
-         {
-            if (tmpval != RAAN) reallyChanged = true;
-            RAAN = tmpval;
-         }
-      }
-      if (AOPChanged)  
-      {
-         strval = AOPTextCtrl->GetValue(); 
-         if (!theCBPanel->CheckReal(tmpval, strval, "Initial AOP", "Real Number"))
-            realsOK = false;
-         else 
-         {
-            if (tmpval != AOP) reallyChanged = true;
-            AOP = tmpval;
-         }
-      }
-      if (TAChanged)  
-      {
-         strval = TATextCtrl->GetValue();
-         if (!theCBPanel->CheckReal(tmpval, strval, "Initial TA", "Real Number"))
-            realsOK = false;
-         else 
-         {
-            if (tmpval != TA) reallyChanged = true;
-            TA = tmpval;
-         }
-      }
-   }
+            std::ifstream filename(strval.c_str());
 
-   
-   if (!realsOK)
-   {
-      std::string errmsg = "Please enter valid Real values before saving data.\n";
-      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg);
-   }
-   if (!intsOK)
-   {
-      std::string errmsg = "Please enter valid Integer values before saving data.\n";
-      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg);
-   }
-
-   if (realsOK && intsOK && stringsOK && reallyChanged)
-   {
-      // not allowing changes to central body at this time
-      
-      theBody->SetStringParameter(theBody->GetParameterID("PosVelSource"), ephemSrc); 
-      if ((userDef || allowSpiceForDefaultBodies) && (ephemSrc == "SPICE") && spiceAvailable) // set the SPK files & NAIF ID
-      {
-         for (Integer ii = 0; ii < (Integer) spkFiles.size(); ii++)
-            theBody->SetStringParameter(theBody->GetParameterID("SpiceKernelName"),
-               spkFiles.at(ii));
-         theBody->SetIntegerParameter(theBody->GetParameterID("NAIFId"), naifID);
+            if (!filename)
+            {
+               std::string errmsg = "File \"" + strval;
+               errmsg += "\" does not exist.\n";
+               MessageInterface::PopupMessage(Gmat::ERROR_, errmsg);
+               canClose = false;
+            }
+            else
+            {
+               filename.close();
+               theBody->SetStringParameter(theBody->GetParameterID("SpiceKernelName"),
+                     strval);
+            }
+         }
       }
-      else // otherwise, set the DE file name
+      if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable && naifIDChanged)
       {
-         theBody->SetStringParameter(theBody->GetParameterID("SourceFilename"), ephemFile);
+         strval = naifIDTextCtrl->GetValue();
+         retval = theCBPanel->CheckInteger(tmpint, strval, "NAIF ID", "Integer Number");
+         canClose = retval;
+         if (retval)
+         {
+            theBody->SetIntegerParameter(theBody->GetParameterID("NAIFId"), tmpint);
+         }
+      }
+      if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable && spkFilesDeleted)
+      {
+         for (unsigned int ii = 0; ii < spkFilesToDelete.size(); ii++)
+         {
+            theBody->RemoveSpiceKernelName(spkFilesToDelete.at(ii));
+         }
+      }
+      if (cBodyChanged)
+      {
+         strval = centralBodyComboBox->GetValue();
+         theBody->SetStringParameter(theBody->GetParameterID("CentralBody"), strval);
       }
 
       if (!isSun)
       {
-         A1Mjd a1Epoch(initialEpoch);
-         theBody->SetTwoBodyEpoch(a1Epoch);
-         Rvector6 elements(SMA, ECC, INC, RAAN, AOP, TA);
-         theBody->SetTwoBodyElements(elements);
+         if (epochChanged)
+         {
+            strval = initialEpochTextCtrl->GetValue();
+            retval = theCBPanel->CheckReal(tmpval, strval, "Initial Two Body Epoch", "Real Number");
+            canClose = retval;
+            if (retval)
+            {
+               A1Mjd a1Epoch(tmpval);
+               theBody->SetTwoBodyEpoch(a1Epoch);
+            }
+         }
+         if (stateChanged)
+         {
+            #ifdef DEBUG_CB_ORBIT_PANEL
+               MessageInterface::ShowMessage("state has been changed ...\n",
+                     strval.c_str());
+            #endif
+            Rvector6 elements;
+            bool     retval[6];
+            strval = SMATextCtrl->GetValue();
+            retval[0] = theCBPanel->CheckReal(tmpval, strval, "Initial SMA", "Real Number");
+            if (retval[0])
+            {
+               elements[0] = tmpval;
+            }
+            strval = ECCTextCtrl->GetValue();
+            retval[1] = theCBPanel->CheckReal(tmpval, strval, "Initial SMA", "Real Number");
+            if (retval[1])
+            {
+               elements[1] = tmpval;
+            }
+            strval = INCTextCtrl->GetValue();
+            retval[2] = theCBPanel->CheckReal(tmpval, strval, "Initial INC", "Real Number");
+            if (retval[2])
+            {
+               elements[2] = tmpval;
+            }
+            strval = RAANTextCtrl->GetValue();
+            retval[3] = theCBPanel->CheckReal(tmpval, strval, "Initial RAAN", "Real Number");
+            if (retval[3])
+            {
+               elements[3] = tmpval;
+            }
+            strval = AOPTextCtrl->GetValue();
+            retval[4] = theCBPanel->CheckReal(tmpval, strval, "Initial AOP", "Real Number");
+            if (retval[4])
+            {
+               elements[4] = tmpval;
+            }
+            strval = TATextCtrl->GetValue();
+            retval[5] = theCBPanel->CheckReal(tmpval, strval, "Initial TA", "Real Number");
+            if (retval[5])
+            {
+               elements[5] = tmpval;
+            }
+            #ifdef DEBUG_CB_ORBIT_PANEL
+               MessageInterface::ShowMessage(
+                     "elements = %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f   ...\n",
+                     elements[0],elements[1],elements[2],elements[3],elements[4],elements[5]);
+            #endif
+            canClose = retval[0] && retval[1] && retval[2] && retval[3] && retval[4] && retval[5];
+            if (canClose) theBody->SetTwoBodyElements(elements);
+       }
       }
+
+
    }
-   else
+   catch (BaseException &ex)
+   {
       canClose = false;
+      dataChanged = true;
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+   }
    
-   dataChanged = false;
-   ResetChangeFlags(true);
+   #ifdef DEBUG_CB_ORBIT_PANEL
+      MessageInterface::ShowMessage("at end of SaveData, canClose = %s\n",
+            (canClose? "true" : "false"));
+   #endif
+   if (canClose)
+   {
+      dataChanged = false;
+      ResetChangeFlags(true);
+   }
 }
 
 void CelestialBodyOrbitPanel::LoadData()
@@ -713,6 +669,7 @@ void CelestialBodyOrbitPanel::ResetChangeFlags(bool discardMods)
    RAANChanged      = false;
    AOPChanged       = false;
    TAChanged        = false;
+   spkFilesDeleted  = false;
    
    if (discardMods)
    {
@@ -720,7 +677,7 @@ void CelestialBodyOrbitPanel::ResetChangeFlags(bool discardMods)
       ephemFileTextCtrl->DiscardEdits();
       if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable)
       {
-//         spkFileListBox->DiscardEdits();
+//         spkFileListBox->DiscardEdits();  // why doesn't this work??
          naifIDTextCtrl->DiscardEdits();
       }
 //      centralBodyComboBox->DiscardEdits();
@@ -860,8 +817,17 @@ void CelestialBodyOrbitPanel::OnSpkFileRemoveButton(wxCommandEvent &event)
 {
    wxArrayInt selections;
    int numSelect = spkFileListBox->GetSelections(selections);
+   // get the string values and delete the selected names from the list
+   wxString    fileSelected;
    for (int i = numSelect-1; i >= 0; i--)
+   {
+      fileSelected = spkFileListBox->GetString(selections[i]);
+      spkFilesToDelete.push_back(fileSelected.c_str());
       spkFileListBox->Delete(selections[i]);
+   }
+   spkFilesDeleted = true;
+   dataChanged     = true;
+   theCBPanel->EnableUpdate(true);
    
    // Select the last item
    unsigned int count = spkFileListBox->GetCount();
