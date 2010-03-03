@@ -11,6 +11,9 @@
 //
 // Author: Linda Jun
 // Created: 2003/10/29
+// Modified: 
+//    2010.03.01 Thomas Grubb 
+//       - Open configuration file (GMAT.ini)
 //
 /**
  * defines application data.
@@ -18,6 +21,8 @@
 //------------------------------------------------------------------------------
 #include "GmatAppData.hpp"
 #include "GuiInterpreter.hpp"
+#include <wx/confbase.h>
+#include <wx/fileconf.h>
 
 GmatAppData* GmatAppData::theGmatAppData = NULL;
 
@@ -221,6 +226,7 @@ wxString GmatAppData::GetTempScriptName()
 }
 
 
+
 //------------------------------------------------------------------------------
 // GmatAppData()
 //------------------------------------------------------------------------------
@@ -245,6 +251,10 @@ GmatAppData::GmatAppData()
    #endif
    
    theFont = wxFont(10, wxMODERN, wxNORMAL, wxNORMAL);
+   // set the global wx config, read from local directory (GMAT.ini)
+   wxFileConfig *pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, "GMAT.ini", 
+           wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
+   wxConfigBase::Set(pConfig);
 #endif
 }
 
