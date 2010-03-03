@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            TankConfigPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 //
 // **Legal**
@@ -14,10 +14,10 @@
 // Author: Waka Waktola
 // Created: 2004/11/19
 // Modified: 
-//              2010.02.12 Thomas Grubb 
-//                      - defined ___USE_OLD_TANK_PANEL__
-//                      - Added GmatStaticBoxSizers: fuelPropertiesSizer and tankPropertiesSizer
-//              2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
+//    2010.02.12 Thomas Grubb 
+//       - defined ___USE_OLD_TANK_PANEL__
+//       - Added GmatStaticBoxSizers: fuelPropertiesSizer and tankPropertiesSizer
+//    2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
 /**
  * This class contains information needed to setup users spacecraft tank 
  * parameters.

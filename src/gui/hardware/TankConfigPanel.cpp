@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            TankConfigPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 //
 // **Legal**
@@ -14,12 +14,14 @@
 // Author: Waka Waktola
 // Created: 2004/11/19
 // Modified: 
-//              2010.02.12 Thomas Grubb 
-//                      - Added tooltips & accelerator keys
-//                      - Added validators to numeric text controls
-//                      - Added GmatStaticBoxSizers: fuelPropertiesSizer and tankPropertiesSizer
-//                        and reordered controls
-//              2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
+//    2010.03.01 Thomas Grubb 
+//       - Read tooltips from configuration file (GMAT.ini)
+//    2010.02.12 Thomas Grubb 
+//      - Added tooltips & accelerator keys
+//      - Added validators to numeric text controls
+//      - Added GmatStaticBoxSizers: fuelPropertiesSizer and tankPropertiesSizer
+//           and reordered controls
+//    2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
 /**
  * This class contains information needed to setup users spacecraft tank 
  * parameters.
@@ -28,6 +30,8 @@
 #include "TankConfigPanel.hpp"
 #include "MessageInterface.hpp"
 #include "GmatStaticBoxSizer.hpp"
+#include <wx/config.h>
+
 
 
 //====================================================================
@@ -113,6 +117,16 @@ TankConfigPanel::TankConfigPanel(wxWindow *parent, const wxString &name)
 //------------------------------------------------------------------------------
 TankConfigPanel::~TankConfigPanel()
 {
+   ////// get the config object
+   //wxConfigBase *pConfig = wxConfigBase::Get();
+   ////// save the frame position
+   //int x, y, w, h;
+   //GetClientSize(&w, &h);
+   //GetPosition(&x, &y);
+   //pConfig->Write(wxT("/FuelTank/Panel/X"), (long) x);
+   //pConfig->Write(wxT("/FuelTank/Panel/Y"), (long) y);
+   //pConfig->Write(wxT("/FuelTank/Panel/Width"), (long) w);
+   //pConfig->Write(wxT("/FuelTank/Panel/Height"), (long) h);
 }
 
 //-------------------------------
@@ -135,6 +149,11 @@ void TankConfigPanel::Create()
    Integer ctrlSizeProportion = 1;
    Integer unitSizeProportion = 0;
    
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/FuelTank"));
+
    //-----------------------------------------------------------------
    // Create controls in tab order
    //-----------------------------------------------------------------
@@ -143,7 +162,7 @@ void TankConfigPanel::Create()
       new wxStaticText( this, ID_TEXT, wxT("&Volume")); 
    volumeTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
-   volumeTextCtrl->SetToolTip(wxT("The original volume of the fuel in the tank"));
+   volumeTextCtrl->SetToolTip(pConfig->Read(_T("VolumeHint")));
    wxStaticText *volumeUnit =
       new wxStaticText( this, ID_TEXT, wxT("m^3"));
    
@@ -157,16 +176,14 @@ void TankConfigPanel::Create()
    pressureModelComboBox = 
       new wxComboBox( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(120,-1),
                       wxPressModelLabels, wxCB_DROPDOWN|wxCB_READONLY);
-   pressureModelComboBox->SetToolTip(wxT("The pressure model for the fuel.  \n"
-           "Pressure Regulated means that the pressure will be maintained as a constant during the duration of a thrust.  \n"
-           "Blow down means that the pressure in the tank will decrease with time as more fuel is released by a thruster. "));
+   pressureModelComboBox->SetToolTip(pConfig->Read(_T("PressureModelHint")));
    
    // Fuel Mass
    wxStaticText *fuelMassLabel =
       new wxStaticText( this, ID_TEXT, wxT("&Fuel Mass"));
    fuelMassTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
-   fuelMassTextCtrl->SetToolTip(wxT("The total mass of fuel available in the fuel tank"));
+   fuelMassTextCtrl->SetToolTip(pConfig->Read(_T("MassHint")));
    wxStaticText *fuelMassUnit =
       new wxStaticText( this, ID_TEXT, wxT("kg"));
    
@@ -175,7 +192,7 @@ void TankConfigPanel::Create()
       new wxStaticText( this, ID_TEXT, wxT("Fuel &Density"));
    fuelDensityTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
-   fuelDensityTextCtrl->SetToolTip(wxT("The density of the fuel"));
+   fuelDensityTextCtrl->SetToolTip(pConfig->Read(_T("DensityHint")));
    wxStaticText *fuelDensityUnit =
       new wxStaticText( this, ID_TEXT, wxT("kg/m^3"));
    
@@ -184,7 +201,7 @@ void TankConfigPanel::Create()
       new wxStaticText( this, ID_TEXT, wxT("&Temperature"));
    temperatureTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
-   temperatureTextCtrl->SetToolTip(wxT("The temperature of the fuel in the tank"));
+   temperatureTextCtrl->SetToolTip(pConfig->Read(_T("TemperatureHint")));
    wxStaticText *temperatureUnit =
       new wxStaticText( this, ID_TEXT, wxT("C"));
    
@@ -193,6 +210,7 @@ void TankConfigPanel::Create()
       new wxStaticText( this, ID_TEXT, wxT("&Reference Temperature"));
    refTemperatureTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   refTemperatureTextCtrl->SetToolTip(pConfig->Read(_T("ReferenceTemperatureHint")));
    wxStaticText *refTemperatureUnit =
       new wxStaticText( this, ID_TEXT, wxT("C"));
    
@@ -201,7 +219,7 @@ void TankConfigPanel::Create()
       new wxStaticText( this, ID_TEXT, wxT("&Pressure"));
    pressureTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
-   pressureTextCtrl->SetToolTip(wxT("The pressure of the fuel in the tank"));
+   pressureTextCtrl->SetToolTip(pConfig->Read(_T("PressureHint")));
    wxStaticText *pressureUnit =
       new wxStaticText( this, ID_TEXT, wxT("kPa"));
 
@@ -282,6 +300,18 @@ void TankConfigPanel::Create()
    theMiddleSizer->Add(tankPropertiesSizer, 0, wxEXPAND|wxALL, bsize);
    theMiddleSizer->Add(fuelPropertiesSizer, 1, wxEXPAND|wxALL, bsize);
    theMiddleSizer->SetSizeHints(this);
+
+   //int x,y,w,h;
+   //// restore frame position and size
+   //GetClientSize(&w, &h);
+   //GetPosition(&x, &y);
+
+   //x = pConfig->Read(wxT("/FuelTank/Panel/X"), x),
+   //y = pConfig->Read(wxT("/FuelTank/Panel/Y"), y),
+   //w = pConfig->Read(wxT("/FuelTank/Panel/Width"), w),
+   //h = pConfig->Read(wxT("/FuelTank/Panel/Height"), h);
+   //Move(x, y);
+   //SetClientSize(w, h);
 }
 
 //------------------------------------------------------------------------------
