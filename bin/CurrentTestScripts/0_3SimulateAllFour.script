@@ -58,7 +58,7 @@ RADecMeasurement.Participants = { Maui, ODSat };
 
 %------ Create the measurement simulator
 Create Simulator MeasSim
-MeasSim.Measurements    = {RangeMeasurement, RADecMeasurement, AzElMeasurement, RangeRateMeasurement};
+MeasSim.AddData         = {RangeMeasurement, RADecMeasurement, AzElMeasurement, RangeRateMeasurement};
 MeasSim.Propagator      = ODProp;
 MeasSim.InitialEpochFormat = UTCGregorian;
 MeasSim.InitialEpoch       = '01 Jan 2000 11:59:28.000';
