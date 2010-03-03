@@ -7581,7 +7581,8 @@ void Moderator::AddMeasurementToSandbox(Integer index)
 
    #if DEBUG_RUN
    MessageInterface::ShowMessage
-      ("Moderator::AddMeasurementToSandbox() count = %d\n", names.size());
+      ("Moderator::AddMeasurementToSandbox() measurement count = %d\n",
+               names.size());
    #endif
 
    for (Integer i=0; i<(Integer)names.size(); i++)
@@ -7593,6 +7594,27 @@ void Moderator::AddMeasurementToSandbox(Integer index)
       MessageInterface::ShowMessage
          ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
           obj->GetName().c_str());
+      #endif
+   }
+
+   TrackingSystem *ts;
+   names = theConfigManager->GetListOfItems(Gmat::TRACKING_SYSTEM);
+
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::AddMeasurementToSandbox() tracking system count = %d\n",
+               names.size());
+   #endif
+
+   for (Integer i=0; i<(Integer)names.size(); i++)
+   {
+      ts = theConfigManager->GetTrackingSystem(names[i]);
+      sandboxes[index]->AddObject((GmatBase*)ts);
+
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s'\n", ts, ts->GetTypeName().c_str(),
+          ts->GetName().c_str());
       #endif
    }
 }
