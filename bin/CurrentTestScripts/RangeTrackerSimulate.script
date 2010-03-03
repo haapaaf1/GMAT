@@ -59,7 +59,7 @@ ODProp.MaxStepAttempts = 50;
 %---------- Datafiles
 %----------------------------------------
 Create Datafile MauiMeasData;
-MauiMeasData.Filename = 'MauiData.gmd';
+MauiMeasData.Filename = 'USNRangeTrackMaui.gmd';
 MauiMeasData.Format = GMATInternal;
 
 %----------------------------------------
@@ -86,9 +86,9 @@ USNTracker.Add = {RangeMeasurement}
 Create Simulator simmer;
 simmer.AddData             = {USNTracker};
 simmer.InitialEpochFormat  = UTCGregorian;
-simmer.InitialEpoch        = '18 Nov 2009 00:00:00.000';
+simmer.InitialEpoch        = '01 Mar 2010 00:00:00.000';
 simmer.FinalEpochFormat    = UTCGregorian;
-simmer.FinalEpoch          = '25 Nov 2009 00:00:00.000';
+simmer.FinalEpoch          = '15 Mar 2010 00:00:00.000';
 simmer.MeasurementTimeStep = 600;
 simmer.Propagator          = ODProp;
 

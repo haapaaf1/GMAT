@@ -60,7 +60,7 @@ RangeMeasurement2.Participants = { gs2, ODSat };
 
 %------ Create the measurement simulator
 Create Simulator MeasSim
-MeasSim.Measurements    = {RangeMeasurement, RangeMeasurement2};
+MeasSim.AddData         = {RangeMeasurement, RangeMeasurement2};
 MeasSim.Propagator      = ODProp;
 MeasSim.InitialEpochFormat = UTCGregorian;
 MeasSim.InitialEpoch       = '01 Jan 2000 11:59:28.000';
