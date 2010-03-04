@@ -1,0 +1,50 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.0 in} |p{5.0 in} |}
+         \hline
+          \rowcolor[rgb]{0.8,0.8,0.8}  Name & State conversion in the spacecraft orbit dialog box\\
+         \hline
+         Requirements & FRR-2.3\\ \hline
+         Summary & This test case represents $n(n-1)$ tests where $n$ is the number of state representations 
+         supported as input types in GMAT.  Each test case is designated a unique number.  For example,
+         STC-23.32 test GUI conversion from A1Gregorian to TAIModJulian.  The procedures described below
+         must be performed for each test case in the table below.   \\ \hline
+         PreConditions & To run this test you need to load BS-1 and have data defined in TD-1 available.\\ \hline
+         Steps &
+         %------- The test data is here
+          \begin{compactenum}
+             \item Select subtest number. ( STC-23.32, for example)
+             \item Create a new spacecraft.
+             \item Change the Epoch Format to the format defined in the first column of
+                   the row containing the test case ID.  (A1Gregorian, for STC-23.32)
+             \item Enter the epoch in the Define Format from TD-2.
+             \item Change the Epoch Format to the format defined in the first row of the column containing  the test case Id. (TAIModJulian  for STC-23.32)
+             \item Verify that the new epoch exactly matches the value for that format given in TD-2.
+          \end{compactenum}
+          \vspace{.1 in}
+          \begin{centering}
+          \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+          \hline
+             & {\begin{sideways}\parbox{2.5cm}{Cartesian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{Keplerian}\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{Mod. Keplerian\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{SphericalRADEC}\end{sideways}} &
+             {\begin{sideways}\parbox{2.5cm}{SphericalAZFPA}\end{sideways}}  &
+             {\begin{sideways}\parbox{2.5cm}{Equinoctial}\end{sideways}}  \\ \hline
+             Cartesian & N/A & 23.1 & 23.2 & 23.3 & 23.4 & 23.5\\ \hline
+             Keplerian & 23.8 & N/A & 23.9 & 23.10 & 23.11 & 23.12 \\ \hline
+             TAIGregorian & 23.15 & 23.16 & N/A & 23.17 & 23.18 & 23.19 \\ \hline
+             SphericalRADEC & 23.22 & 23.23 & 23.24 & N/A & 23.25 & 23.26 \\ \hline
+             SphericalAZFPA} & 23.29 & 23.30 & 23.31 & 23.32 & N/A & 23.33 \\ \hline
+             Equinoctial & 23.36 & 23.37 & 23.38 & 23.39 & 23.40 &  N/A\\ \hline
+          \end{tabular}
+          \end{centering} \vspace{0.1 in}\\
+         %------- The test data is here
+         \hline
+         Expected Results & The expected numeric results are described above and in TD-1.\\
+      \hline
+\end{tabular}
+   \label{Table:STC-23}
+   \caption{Epoch conversion in the spacecraft orbit dialog box}
+    \index{Test Data!STC-23}
+\end{table} 

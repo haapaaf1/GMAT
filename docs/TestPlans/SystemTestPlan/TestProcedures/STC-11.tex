@@ -1,0 +1,51 @@
+
+
+
+
+
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-11 Orbit GUI Behavior for orbit with zero state\\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This  case tests GUI behavior when attempting to convert to element representations when the
+         cartesian state results in a circular, equatorial orbit.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Enter the following Cartesian State data:
+                      \begin{compactenum}
+                         \item X = 0.0
+                         \item Y = 0.0
+                         \item Z = 0.0
+                         \item VX = 0.0;
+                         \item VY = 0.0;
+                         \item VZ = 0.0;
+                      \end{compactenum}
+             \item Hit Apply.
+             \item Change the state to Keplerian and verify that the following error message is returned: The orbit is a singular conic section and the Keplerian elements are undefined.
+             \item Change the state to Modified Keplerian and verify that the following error message is returned: The orbit is a singular conic section and the Modified Keplerian elements are undefined.
+             \item Change the state to SphericalRADEC and verify that the following error message is returned: The orbit is a singular conic section and the SphericalRADEC elements are undefined.
+             \item Change the state to SphericalAZEL and verify that the following error message is returned: The orbit is a singular conic section and the SphericalAZEL elements are undefined.
+             \item Change the state to Equinoctial and verify that the following error message is returned:
+                   The orbit is a singular conic section and the Equinoctial elements are undefined.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The truth data is described above.\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-11}
+      \caption{STC-11 Orbit GUI Behavior for orbit with zero state}
+      \index{Test Data!STC-11}
+\end{table} 

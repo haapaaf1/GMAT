@@ -1,0 +1,27 @@
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & Attitude GUI behavior when entering zero quaternion\\
+         \hline
+         Requirements & FR-3.1\\  \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Click on the attitude tab.
+             \item Set all values of the quaternion to zero.
+             \item Click Ok.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The following warning is displayed:  The magnitude of a quaternion must be greater than 1e-10.\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-17}
+      \caption{STC-17 Attitude GUI behavior when entering zero quaternion}
+      \index{Test Data!STC-17}
+\end{table} 

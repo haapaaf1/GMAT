@@ -1,0 +1,46 @@
+
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & TC-2 Differential Corrector Dialog Box Range Tests- Allowed Values\\
+         \hline
+         Requirements & FR-19\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This case verifies the Differential Corrector accepts allowed data.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item In the solvers folder in the mission tree, right-click on the Boundary Value Solvers folder and add a Differential Corrector.
+             \item Open the dialog box for the new Differential Corrector.
+             \item Set the Max Iterations to 56.
+             \item In the ReportFile field type \verb".\output\DCReport.txt"
+             \item Uncheck the ShowProgress box.
+             \item Set the DerivativeMethod drop-down menu to CentralDifference.
+             \item Set the ReportStyle drop-down menu to Verbose.
+             \item Click the Apply button.
+             \item Click the Show Script button.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results &
+             \begin{verbatim}
+ Create DifferentialCorrector DC1;
+ GMAT DC1.ShowProgress = false;
+ GMAT DC1.ReportStyle = 'Verbose';
+ GMAT DC1.ReportFile = '.\output\DCData.txt';
+ GMAT DC1.MaximumIterations = 56;
+ GMAT DC1.DerivativeMethod = CentralDifference;
+             \end{verbatim}
+         \\   \hline
+      \end{tabular}
+      \label{Table:TC-2}
+      \caption{TC-2 Differential Corrector Dialog Box Range Tests- Allowed Values}
+      \index{Test Data!TC-2}
+\end{table} 

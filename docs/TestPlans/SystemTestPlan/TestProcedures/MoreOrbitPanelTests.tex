@@ -1,0 +1,256 @@
+\clearpage
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-18 Orbit GUI behavior when Orbit is near parabolic\\
+         \hline
+         Requirements & FR-1.1\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         SMA is undefined for parabolic orbits.  This test check behavior as orbit approaches parabolic
+         from ECC < 1 side for Keplerian state type.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1\\     \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the State Type to Keplerian
+             \item Change ECC to 0.99999999
+             \item Hit Apply.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The following error message should be displayed:
+         The value of "0.99999999" for field "ECC" is not an allowed value.
+         The allowed values are: [0.0 $leq$ Real Number $\leq$ 0.9999999, or Real Number $\geq$ 1.0000001].
+         )\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-18}
+      \caption{STC-18 Orbit GUI behavior when performing Modulo on Equinoctial Angular Elements}
+      \index{Test Data!STC-18}
+\end{table}
+\
+\begin{table}[htbp!]
+\centering\footnotesize
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-19 Orbit GUI conversion for near singular Cartesian state\\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         PreConditions & BS-1\\     \hline
+        Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Set the Cartesian state to the following values
+                 \begin{compactenum}
+                    \item X  = 6999.998216286026
+                    \item Y = 0
+                    \item Z = -5.002359263770285
+                    \item VX = 10.63431352889248
+                    \item VY = 0
+                    \item VZ =  -0.003772975815698364
+                    \end{compactenum}
+             \item Hit Apply.
+             \item Change state type to Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Modified Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the Modified Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Equinoctial and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the Equinoctial elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change the following states.
+             \begin{compactenum}
+                    \item X = 1e-10
+                    \item Y = 1e-10
+                    \item Z = 1e-10
+             \end{compactenum}
+             \item Hit Apply
+             \item Repeat steps 5, 6, and 7.
+             \item Change state type to SphericalRADec and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the SphercialRADEC state to the Cartesian State so conversion was aborted.  The Right Ascension and Declination of position are undefined."
+             \item Change state type to SphericalAZFPA and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the Cartesian State so conversion was aborted.  The Right Ascension and Declination of position are undefined."
+             \item Change the following states:
+                 \begin{compactenum}
+                    \item X  = 6999.998216286026
+                    \item Y = 0
+                    \item Z = -5.002359263770285
+                    \item VX = 1e-10
+                    \item VY = 1e-10
+                    \item VZ = 1e-10
+                 \end{compactenum}
+             \item Hit Apply
+             \item Repeat steps 5, 6, and 7.
+             \item Change state type to SphericalRADec and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the SphericalRADEC so conversion was aborted.  The Right Ascension and Declination of velocity are undefined."
+             \item Change state type to SphericalAZFPA and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the Cartesian State so conversion was aborted.  The Right Ascension and Declination of velocity are undefined."
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & Test results are described above.\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-19}
+      \caption{STC-19 Orbit GUI conversion for near singular Cartesian state}
+      \index{Test Data!STC-19}
+\end{table}
+
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-20 Orbit GUI conversion for near singular SphericalAZEl state \\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         PreConditions & BS-1\\     \hline
+        Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the state type to SphercialAZFPA
+             \item Set the SphercialAZFPA state to the following values
+                 \begin{compactenum}
+                    \item RMAG  = 7000.00000
+                    \item RA = 0
+                    \item DEC = -0.04094487109516581
+                    \item VMAG = 10.63431419820442
+                    \item AZI = 0
+                    \item FPA = 0.02061675296478873
+                    \end{compactenum}
+             \item Hit Apply.
+             \item Change state type to Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Modified Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the Modified Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Equinoctial and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the Equinoctial elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+                 \item Change RMAG to 0.00001 and click apply.
+                 \item Repeat steps 5, 6, and 7.
+                 \item Change RMAG to 70000.
+                 \item Change VMAG to 1e-14.
+                 \item Repeat steps 5, 6, and 7.
+                 \item Change state type to SphericalRADEC and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the SphericalRADEC state so conversion was aborted.  The Right Ascension and Declination of velocity are undefined."
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & Test results are described above.\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-20}
+      \caption{STC-20 Orbit GUI conversion for near singular SphericalAZEl state}
+      \index{Test Data!STC-20}
+\end{table} 
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-20 Orbit GUI conversion for near singular SphericalRADEC state \\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         PreConditions & BS-1\\     \hline
+        Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the state type to SphercialRADEC.
+             \item Set the SphercialRADec state to the following values:
+                 \begin{compactenum}
+                    \item RMAG  = 7000.00000
+                    \item RA = 0
+                    \item DEC = -0.04094487109516581
+                    \item VMAG = 10.63431419820442
+                    \item RAV = 0
+                    \item DECV = -0.0203281181043372
+                    \end{compactenum}
+             \item Hit Apply.
+             \item Change state type to Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialRADEC state to the Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Modified Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialRADEC state to the Modified Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Equinoctial and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the SphercialRADEC state to the Equinoctial elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+                 \item Change RMAG to 0.00001 and click apply.
+                 \item Repeat steps 5, 6, and 7.
+                 \item Change RMAG to 70000.
+                 \item Change VMAG to 1e-14.
+                 \item Repeat steps 5, 6, and 7.
+                 \item Change state type to SphericalRADEC and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialRADEC state to the SphericalAZEL state so conversion was aborted.  The Azimuth and Flight Path Angle are undefined."
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & Test results are described above.\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-21}
+      \caption{STC-21 Orbit GUI conversion for near singular SphericalRADEC state}
+      \index{Test Data!STC-21}
+\end{table} 
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-27 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit\\
+         \hline
+         Requirements & FR-1.1\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This  case tests GUI behavior when attempting to convert to element representations when the
+         cartesian state results in a circular, equatorial orbit.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the State Type to Keplerian
+             \item Change ECC to 0.0.
+             \item Change INC to 0.0 degrees.
+             \item Change RAAN to 380.0 degrees.
+             \item Change AOP to 390.0 degrees.
+             \item Change TA to 430.0 degrees.
+             \item Hit Apply.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results &  RAAN = 0.0 degrees, AOP = 0.0 degrees, and TA = 120.0 degrees. (All
+         values match to 14 sig. figs.)\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-27}
+      \caption{STC-27 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit}
+      \index{Test Data!STC-27}
+\end{table} 
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-28 Performing Modulo on Keplerian Elements for Circular, Inclined Orbit\\
+         \hline
+         Requirements & FR-1.1\\  \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the State Type to Keplerian
+             \item Change ECC to 0.0.
+             \item Change INC to 45 degrees.
+             \item Change RAAN to 380.0 degrees.
+             \item Change AOP to 390.0 degrees.
+             \item Change TA to 430.0 degrees.
+             \item Hit Apply.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results &  RAAN = 20.0 degrees, AOP = 0.0 degrees, and TA = 70.0 degrees. (All
+         values match to 14 sig. figs.)\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-28}
+      \caption{STC-28 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit}
+      \index{Test Data!STC-28}
+\end{table} 

@@ -1,0 +1,38 @@
+
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-7 Orbit GUI Behavior for Circular, Equatorial Orbit\\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This  case tests GUI behavior when attempting to convert to element representations when the 
+         cartesian state results in a circular, equatorial orbit.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-2 and TD-4\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Enter the Cartesian state data from TD-5.
+             \item Hit Apply.
+             \item Change the state to Keplerian and verify the numeric data with TD-5.
+             \item Change the state to Modified Keplerian and verify the numeric data with TD-5.
+             \item Change the state to SphericalRADEC and verify the numeric data with TD-5.
+             \item Change the state to SphericalAZEL and verify the numeric data with TD-5.
+             \item Change the state to Equinoctial and verify the numeric data with TD-5.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The truth data is contained in TD-5.\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-7}
+      \caption{STC-7 Orbit GUI Behavior for Circular, Equatorial Orbit}
+      \index{Test Data!STC-7}
+\end{table} 

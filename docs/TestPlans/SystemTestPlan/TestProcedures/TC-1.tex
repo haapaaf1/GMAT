@@ -1,0 +1,37 @@
+
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & TC-1 Differential Corrector Dialog Box Range Tests - Disallowed Values\\
+         \hline
+         Requirements & FR-19\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This case verifies the Differential Corrector dialog box rejects disallowed data.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item In the solvers folder in the mission tree, right-click on the Boundary Value Solvers folder and add a Differential Corrector.
+             \item Open the dialog box for the new Differential Corrector.
+             \item In the Max Iterations field, enter -2, and hit Apply.  Ensure the following error message 
+             is provided: The value of ``-2" for field "Maximum Iterations" is not an allowed value. The allowed values are: [Integer Number $>$ 0].
+             \item In the Max Iterations field, enter DNE, and hit Apply.  Ensure the following error message
+             is provided: The value of ``DNE" for field "Maximum Iterations" is not an allowed value. The allowed values are: [Integer Number $>$ 0].
+             \item In the Max Iterations field, enter 23.6, and hit Apply.  Ensure the following error message
+             is provided: The value of ``23.6" for field "Maximum Iterations" is not an allowed value. The allowed values are: [Integer Number $>$ 0].
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & Test results are described above.\\
+      \hline
+      \end{tabular}
+      \label{Table:TC-1}
+      \caption{TC-1 Differential Corrector Dialog Box Range Tests - Disallowed Values}
+      \index{Test Data!TC-1}
+\end{table} 

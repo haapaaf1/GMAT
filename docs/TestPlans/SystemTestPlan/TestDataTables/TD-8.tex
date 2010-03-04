@@ -1,0 +1,62 @@
+\clearpage
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.0 in} |p{5.0 in} |}
+         \hline
+          \rowcolor[rgb]{0.8,0.8,0.8}  Name & Equivalent Attitude Representations\\
+         \hline
+         Description & This table contains equivalent states in various coordinate systems.
+          The epoch is 04 Feb 2001 11:59:28.000 UTC.    \\ \hline
+         Source &  This is data comes from GMAT and allows testing consistency between state conversions.  We have numerical tests
+         that verify that GMAT is correctly performing conversions correctly via the script when compared to
+         truth data from STK.  The data below is to ensure that the GUI state conversions agree with conversions in the script. \\
+         \hline
+         Data & \small
+         %------- The test data is here
+          \begin{itemize}
+              \item  Quaternion
+              \begin{compactenum}
+                    \item  0.05431254465935684
+                    \item  0.1536190745285137
+                    \item  0.6870053865727263
+                    \item  0.7081489435519108 
+              \end{compactenum}
+           \item Euler Angles
+          \end{itemize}
+           \begin{centering}\hspace{.5 in}
+        \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+          \hline
+             Sequence & $\theta_1$ (deg.) & $\theta_2$ (deg.) & $\theta_3$ (deg.)   \\ \hline 
+             123 & -8.063660107792256  &   16.98949666527142   &  89.46981218935655   \\ \hline
+             231 & 86.45739059790678   &   81.76589766113709   &   -69.50363702414091 \\ \hline
+             312 & 86.99826598215141   &   16.73807760458099   &   8.584547140308942      \\ \hline
+             132 & 80.12240308416057   &   73.0024763951768    &   88.26525116243468  \\ \hline
+             321 & 89.48768989493576   &   8.21825906808993    &   16.91694843278077  \\ \hline
+             213 & 17.14924429081384   &   -7.709559339371771  &   87.09931277680732  \\ \hline
+             121 & 81.78141688239583   &   89.49295108504926   &   -73.00981782084581 \\ \hline
+             232 & 16.7597858904212    &   87.12555469792072   &   7.719330705131926  \\ \hline
+             313 & 114.6605285775403   &   18.75489666719195   &   -26.39703015347826  \\ \hline
+             131 & -8.218583117604172  &   89.49295108504926   &   16.99018217915419   \\ \hline
+             323 & 24.66052857754036   &   18.75489666719195   &   63.60296984652174   \\ \hline
+             212 & -73.2402141095788   &   87.12555469792072   &   97.71933070513192    \\ \hline 
+          \end{tabular}
+          \end{centering} 
+          \begin{itemize}
+              \item Direction Cosine Matrix
+          \end{itemize}
+            \begin{centering}
+            \hspace{0.25 in}
+            \begin{tabular}{|l|c|c|c|c|}
+             \hline
+             0.008849557522123823 &  0.9896911631236142  &   -0.1429443491946786   \\ \hline
+            -0.9563173917401783   & 0.05014749262536867  &  0.2879970056070911    \\ \hline
+             0.2921963921524783   &  0.134151521118533  &    0.9469026548672567    \\ \hline
+          \end{tabular}\\
+          \end{centering} 
+          %------- The test data is here
+         \\ \hline
+\end{tabular}
+   \label{Table:TD-8}
+   \caption{TD-8 Equivalent Attitude Representations}
+    \index{Test Data!TD-8}
+\end{table} 

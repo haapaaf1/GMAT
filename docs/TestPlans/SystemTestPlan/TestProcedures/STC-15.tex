@@ -1,0 +1,38 @@
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-15 Orbit GUI behavior when performing Modulo on SphericalAZFPA Angular Elements\\
+         \hline
+         Requirements & FR-1.3\\  \hline
+         Summary &
+         %======================  BEGIN: The Test Summary
+         This  case tests GUI behavior when attempting to convert to element representations when the
+         cartesian state results in a circular, equatorial orbit.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the State Type to Spherical
+             \item Change RA to 370.0 degrees.
+             \item Change DEC to 380.0 degrees.
+             \item Change AZI to 390.0 degrees.
+             \item Change FPA t0 400.0 degrees.
+             \item Change the State Type to Cartesian.
+             \item Change the State Type to Keplerian.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & RA = 10.0 degrees, DEC = 20 degrees, AZI = 30.0 degrees, and FPA = 40.0 degrees. (All
+         values match to 14 sig. figs.)\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-15}
+      \caption{STC-15 Orbit GUI behavior when performing Modulo on SphericalAZFPA Angular Elements}
+      \index{Test Data!STC-15}
+\end{table} 
