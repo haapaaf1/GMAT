@@ -2401,17 +2401,21 @@ bool ODEModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    
    // Handle the CS pointers we always want
    if (name == "EarthMJ2000Eq")
+   {
       if (type == Gmat::COORDINATE_SYSTEM)
          earthEq = (CoordinateSystem*)obj;
       else
          throw ODEModelException(
             "Object named EarthMJ2000Eq is not a coordinate system.");
+   }
    if (name == "EarthFixed")
+   {
       if (type == Gmat::COORDINATE_SYSTEM)
          earthFixed = (CoordinateSystem*)obj;
       else
          throw ODEModelException(
             "Object named EarthFixed is not a coordinate system.");
+   }
 
    // Attempt to set the object for the base class    
    try
@@ -3296,9 +3300,17 @@ void ODEModel::ReportEpochData()
 //      epochFile << "\n";
 //   }
 //   else
-      throw ODEModelException(
-         "ODEModel::ReportEpochData: Attempting to write epoch data without "
-         "opening the data file.");
+//      throw ODEModelException(
+//         "ODEModel::ReportEpochData: Attempting to write epoch data without "
+//         "opening the data file.");
+
+   // Changed 3/4/2010, DJC
+   // Repurposed this method so it is not file based.  For some reason all but
+   // the final exception above was commented out, making the method totally
+   // useless.
+
+   MessageInterface::ShowMessage("  Epoch: %.12lf, elapsedTime: %.12lf\n",
+            epoch, elapsedTime);
 }
 
 
@@ -3308,7 +3320,7 @@ void ODEModel::SetPropStateManager(PropagationStateManager *sm)
 }
 
 void ODEModel::SetState(GmatState *gms)
-      {
+{
    state = gms;
 
    #ifdef DEBUG_STATE
