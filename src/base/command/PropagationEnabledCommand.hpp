@@ -32,6 +32,10 @@
 typedef std::vector<SpaceObject*> PropObjectArray;
 
 
+#define TIME_ROUNDOFF 1.0e-6
+#define DEFAULT_STOP_TOLERANCE 1.0e-7
+
+
 /**
  * PropagationEnabledCommand is a base class used for commands that perform
  * propagation.  It provides the methods and interfaces needed perform basic

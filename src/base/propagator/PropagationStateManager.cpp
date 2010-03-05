@@ -354,8 +354,8 @@ bool PropagationStateManager::MapObjectsToVector()
    
    #ifdef DEBUG_OBJECT_UPDATES
       MessageInterface::ShowMessage(
-            "After mapping objects to vector, contents are\n"
-            "   Epoch = %.12lf\n", state.GetEpoch());
+            "After mapping %d objects to vector, contents are\n"
+            "   Epoch = %.12lf\n", objects.size(), state.GetEpoch());
       for (Integer index = 0; index < stateSize; ++index)
       {
          std::stringstream msg("");

@@ -60,9 +60,6 @@
 #include "MemoryTracker.hpp"
 #endif
 
-#define TIME_ROUNDOFF 1.0e-6
-#define DEFAULT_STOP_TOLERANCE 1.0e-7
-
 //--------------------------------- 
 // static data
 //---------------------------------
@@ -3334,7 +3331,7 @@ bool Propagate::TakeAStep(Real propStep)
          default:
             #ifdef DEBUG_PROPAGATE_EXE
                MessageInterface::ShowMessage
-                  ("Propagate::TakeAStep() runnning in undefined mode "
+                  ("Propagate::TakeAStep() running in undefined mode "
                   "(mode = %d)\n", currentMode);
             #endif
             retval = false;
