@@ -40,8 +40,10 @@
 bool B3DataFile::Initialize()
 {
     DataFile::Initialize();
-    
-    if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
+
+    pcrecpp::RE re1("^[Rr].*");
+    pcrecpp::RE re2("^[Ww].*");
+    if (re1.FullMatch(readWriteMode))
     {
 
         // Initialize individual data struct
@@ -77,7 +79,7 @@ bool B3DataFile::Initialize()
 	SortByEpoch();
 	
     }
-    else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
+    else if (re2.FullMatch(readWriteMode))
     {
         // Currently do nothing if writing
         // wait to write stuff
@@ -286,11 +288,13 @@ bool B3DataFile::GetData(ObType *myB3Data)
     switch (myB3->b3Type)
     {
 	case B3ObType::RANGERATEONLY_ID:
+        {
 
 	    // Test to see if the "-" character is present
 	    // This represents a negative range rate value and there is
-	    // one less decimal place of precision 
-            if (pcrecpp::RE("^([-]?\\d+)$").FullMatch(lff.substr(47,7),&itemp))
+	    // one less decimal place of precision
+            pcrecpp::RE re("^([-]?\\d+)$");
+            if (re.FullMatch(lff.substr(47,7),&itemp))
 	    {
 		myB3->rangeRate = itemp * 1e-5;
 	    }
@@ -300,18 +304,21 @@ bool B3DataFile::GetData(ObType *myB3Data)
 
                 return false;
 	    }
+        }
 
-	    break;
+	break;
             
 	case B3ObType::AZEL_ID:
-	    
+        {
 	    // Negative elevation values are formatted as ReverseOverpunched values
 	    // Test to see if ReverseOverpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff.substr(23,6),&itemp)) 
+            pcrecpp::RE re1("^(\\d+)$");
+            pcrecpp::RE re2("^(\\d+)([a-zA-Z])$");
+	    if (re1.FullMatch(lff.substr(23,6),&itemp))
 	    {
 		myB3->elevation = itemp * 1e-4;
 	    } 
-	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff.substr(23,6),&itemp, &code)) 
+            else if (re2.FullMatch(lff.substr(23,6),&itemp, &code))
 	    {
 		Integer digit, sign;
 		
@@ -337,18 +344,21 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    // Find azimuth
 	    if (!from_string<int>(itemp,lff.substr(30,7),std::dec)) return false;
 	    myB3->azimuth = itemp * 1e-4;
-	                
-	    break;
+        }
+
+        break;
             
 	case B3ObType::RAZEL_ID:
-            
+        {
 	    // Negative elevation values are formatted as ReverseOverpunched values
 	    // Test to see if ReverseOverpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff.substr(23,6),&itemp)) 
+            pcrecpp::RE re1("^(\\d+)$");
+            pcrecpp::RE re2("^(\\d+)([a-zA-Z])$");
+	    if (re1.FullMatch(lff.substr(23,6),&itemp))
 	    {
 		myB3->elevation = itemp * 1e-4;
 	    } 
-	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff.substr(23,6),&itemp, &code)) 
+            else if (re2.FullMatch(lff.substr(23,6),&itemp, &code))
 	    {
 		Integer digit, sign;
 		
@@ -383,18 +393,22 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    if (!from_string<int>(itemp,lff.substr(45,1),std::dec)) return false;
 
 	    myB3->range = range * pow(10,itemp);
-	    
-	    break;
+        }
+
+	break;
             
 	case B3ObType::RAZELRR_ID:
+        {
 
 	    // Negative elevation values are formatted as ReverseOverpunched values
 	    // Test to see if ReverseOverpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff.substr(23,6),&itemp)) 
+            pcrecpp::RE re1("^(\\d+)$");
+            pcrecpp::RE re2("^(\\d+)([a-zA-Z])$");
+	    if (re1.FullMatch(lff.substr(23,6),&itemp))
 	    {
 		myB3->elevation = itemp * 1e-4;
 	    }
-	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff.substr(23,6),&itemp, &code)) 
+            else if (re2.FullMatch(lff.substr(23,6),&itemp, &code))
 	    {
 		Integer digit, sign;
 		
@@ -433,8 +447,9 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    // Find range rate
     	    // Test to see if the "." character is present
 	    // This represents a negative range rate value and there is
-	    // one less decimal place of precision 
-            if (pcrecpp::RE("^([-]?\\d+)$").FullMatch(lff.substr(47,7),&itemp))
+	    // one less decimal place of precision
+            pcrecpp::RE re("^([-]?\\d+)$");
+            if (re.FullMatch(lff.substr(47,7),&itemp))
 	    {
 		myB3->rangeRate = itemp * 1e-5;
 	    }
@@ -444,18 +459,21 @@ bool B3DataFile::GetData(ObType *myB3Data)
 
                 return false;
 	    }
+        }
 
-	    break;
+	break;
             
 	case B3ObType::RAZELRR2_ID:
-
+        {
 	    // Negative elevation values are formatted as ReverseOverpunched values
 	    // Test to see if ReverseOverpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff.substr(23,6),&itemp)) 
+            pcrecpp::RE re1("^(\\d+)$");
+            pcrecpp::RE re2("^(\\d+)([a-zA-Z])$");
+	    if (re1.FullMatch(lff.substr(23,6),&itemp))
 	    {
 		myB3->elevation = itemp * 1e-4;
 	    }
-	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff.substr(23,6),&itemp, &code)) 
+            else if (re2.FullMatch(lff.substr(23,6),&itemp, &code))
 	    {
 		Integer digit, sign;
 		
@@ -509,8 +527,9 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    // Find range rate
     	    // Test to see if the "." character is present
 	    // This represents a negative range rate value and there is
-	    // one less decimal place of precision 
-            if (pcrecpp::RE("^([-]?\\d+)$").FullMatch(lff.substr(47,7),&itemp))
+	    // one less decimal place of precision
+            pcrecpp::RE re("^([-]?\\d+)$");
+            if (re.FullMatch(lff.substr(47,7),&itemp))
 	    {
 		myB3->rangeRate = itemp * 1e-5;
 	    }
@@ -520,18 +539,21 @@ bool B3DataFile::GetData(ObType *myB3Data)
 
                 return false;
 	    }
-            
-	    break;
+        }
+
+        break;
             
 	case B3ObType::RADEC_ID:
-	    
+        {
 	    // Negative declination values are formatted as ReverseOverpunched values
 	    // Test to see if ReverseOverpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff.substr(23,6),&itemp)) 
+            pcrecpp::RE re1("^(\\d+)$");
+            pcrecpp::RE re2("^(\\d+)([a-zA-Z])$");
+	    if (re1.FullMatch(lff.substr(23,6),&itemp))
 	    {
 		myB3->declination = itemp * 1e-4;
 	    }
-	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff.substr(23,6),&itemp, &code)) 
+            else if (re2.FullMatch(lff.substr(23,6),&itemp, &code))
 	    {
 		Integer digit, sign;
 		
@@ -558,7 +580,8 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    }
 
 	    // Find right ascension in hours
-            if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff.substr(30,7),&itemp, &itemp2, &itemp3))
+            pcrecpp::RE re("^(\\d{2})(\\d{2})(\\d{3})$");
+            if (re.FullMatch(lff.substr(30,7),&itemp, &itemp2, &itemp3))
 	    {
 		myB3->rightAscension = itemp + itemp2/60.0 + itemp3/10.0/3600.0;
 	    }
@@ -567,11 +590,12 @@ bool B3DataFile::GetData(ObType *myB3Data)
 		// Ill formed data
 		return false;
 	    }
-	    
-	    break;
+        }
+
+        break;
             
 	case B3ObType::RANGEONLY_ID:
-
+        {
 	    // Find range
 	    if (!from_string<int>(itemp,lff.substr(38,7),std::dec)) return false;
 	    range = itemp * 1e-5;
@@ -580,19 +604,22 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    if (!from_string<int>(itemp,lff.substr(45,1),std::dec)) return false;
 
 	    myB3->range = range * pow(10,itemp);
-	    	    
-	    break;
+        }
+        
+        break;
             
 	case B3ObType::AZELSENSORPOS_ID:
-            
+        {
 	    // Negative elevation values are formatted as ReverseOverpunched values
 	    // Test to see if ReverseOverpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff.substr(23,6),&itemp)) 
+            pcrecpp::RE re1("^(\\d+)$");
+            pcrecpp::RE re2("^(\\d+)([a-zA-Z])$");
+	    if (re1.FullMatch(lff.substr(23,6),&itemp))
 	    {
 
 		myB3->elevation = itemp * 1e-4;
 	    }
-	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff.substr(23,6),&itemp, &code)) 
+            else if (re2.FullMatch(lff.substr(23,6),&itemp, &code))
 	    {
 		Integer digit, sign;
 		
@@ -620,7 +647,8 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    myB3->azimuth = itemp * 1e-4;
 
 	    // Check to see if range value defined. If 0 or blank, skip over
-	    if(!pcrecpp::RE("^[ 0]{6)$").FullMatch(lff.substr(23,6))) 
+            pcrecpp::RE re("^[ 0]{6)$");
+	    if(!re.FullMatch(lff.substr(23,6)))
 	    {
 		// Find range
 		if (!from_string<int>(itemp,lff.substr(38,7),std::dec)) return false;
@@ -643,20 +671,23 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    myB3->ecf_Y = itemp * 1e-3;
 	    if (!from_string<int>(itemp,lff.substr(64,9),std::dec)) return false;
 	    myB3->ecf_Z = itemp * 1e-3;
-	    
-	    break;
+        }
+
+        break;
             
 	case B3ObType::RADECSENSORPOS_ID:
-            
+        {
 	    // Negative declination values are formatted as ReverseOverpunched values
 	    // Test to see if ReverseOverpunched and handle appropriately
-	    if (pcrecpp::RE("^(\\d+)$").FullMatch(lff.substr(23,6),&itemp)) 
+            pcrecpp::RE re1("^(\\d+)$");
+            pcrecpp::RE re2("^(\\d+)([a-zA-Z])$");
+	    if (re1.FullMatch(lff.substr(23,6),&itemp))
 	    {
 
 		myB3->declination = itemp * 1e-4;
 		
 	    }
-	    else if (pcrecpp::RE("^(\\d+)([a-zA-Z])$").FullMatch(lff.substr(23,6),&itemp, &code)) 
+            else if (re2.FullMatch(lff.substr(23,6),&itemp, &code))
 	    {
 		
 		Integer digit, sign;
@@ -681,7 +712,8 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    }
 
 	    // Find right ascension in hours
-            if (pcrecpp::RE("^(\\d{2})(\\d{2})(\\d{3})$").FullMatch(lff.substr(30,7),&itemp, &itemp2, &itemp3))
+            pcrecpp::RE re3("^(\\d{2})(\\d{2})(\\d{3})$");
+            if (re3.FullMatch(lff.substr(30,7),&itemp, &itemp2, &itemp3))
 	    {
 		myB3->rightAscension = itemp + itemp2/60.0 + itemp3/10.0/3600.0;
 	    }
@@ -692,7 +724,8 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    }
 
 	    // Check to see if range value defined. If 0 or blank, skip over
-	    if(!pcrecpp::RE("^[ 0]{6)$").FullMatch(lff.substr(23,6))) 
+            pcrecpp::RE re4("^[ 0]{6)$");
+	    if(!re4.FullMatch(lff.substr(23,6)))
 	    {
 		// Find range
 		if (!from_string<int>(itemp,lff.substr(38,7),std::dec)) return false;
@@ -715,8 +748,9 @@ bool B3DataFile::GetData(ObType *myB3Data)
 	    myB3->ecf_Y = itemp * 1e-3;
 	    if (!from_string<int>(itemp,lff.substr(64,9),std::dec)) return false;
 	    myB3->ecf_Z = itemp * 1e-3;
-
-	    break;
+        }
+	
+        break;
             
 	default:
 

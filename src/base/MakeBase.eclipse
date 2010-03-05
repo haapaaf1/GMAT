@@ -102,6 +102,9 @@ HEADERS = -Iinclude \
           -Imeasurementutil/CCSDS/CCSDSData \
           -Imeasurementutil/CCSDS/CCSDSMetaData \
           -Imeasurementutil/CCSDS/CCSDSObTypes \
+          -Imeasurementutil/UTDF \
+          -Imeasurementutil/UTDF/HighSpeedTrackingData \
+          -Imeasurementutil/UTDF/LowSpeedTrackingData \
           -Iparameter \
           -Iconfigs \
           -Iburn \

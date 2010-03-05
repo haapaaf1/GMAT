@@ -34,7 +34,7 @@ public:
 
     AEMCCSDSObType();
     AEMCCSDSObType(const AEMCCSDSObType &AEM);
-    const AEMCCSDSObType& AEMCCSDSObType::operator=(const AEMCCSDSObType &AEM);
+    const AEMCCSDSObType& operator=(const AEMCCSDSObType &AEM);
     ~AEMCCSDSObType();
 
     GmatBase *Clone() const;

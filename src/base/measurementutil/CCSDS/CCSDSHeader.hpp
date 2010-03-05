@@ -40,7 +40,7 @@ public:
 
     CCSDSHeader();
     CCSDSHeader(const CCSDSHeader &header);
-    const CCSDSHeader& CCSDSHeader::operator=(const CCSDSHeader &header);
+    const CCSDSHeader& operator=(const CCSDSHeader &header);
     virtual ~CCSDSHeader();
 
     virtual Real        GetRealDataParameter(const Integer id) const;

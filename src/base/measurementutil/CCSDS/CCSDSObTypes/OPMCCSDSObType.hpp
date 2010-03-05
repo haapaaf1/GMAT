@@ -35,7 +35,7 @@ public :
 
     OPMCCSDSObType();
     OPMCCSDSObType(const OPMCCSDSObType &opm);
-    const OPMCCSDSObType& OPMCCSDSObType::operator=(const OPMCCSDSObType &opm);
+    const OPMCCSDSObType& operator=(const OPMCCSDSObType &opm);
     ~OPMCCSDSObType();
 
     GmatBase *Clone() const;

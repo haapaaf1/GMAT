@@ -32,7 +32,7 @@ public :
     
     TDMCCSDSObType();
     TDMCCSDSObType(const TDMCCSDSObType &tdm);
-    const TDMCCSDSObType& TDMCCSDSObType::operator=(const TDMCCSDSObType &tdm);
+    const TDMCCSDSObType& operator=(const TDMCCSDSObType &tdm);
     ~TDMCCSDSObType();
 
     GmatBase *Clone() const;

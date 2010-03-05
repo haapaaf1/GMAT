@@ -370,7 +370,7 @@ bool DataFile::Initialize()
     // If the vector already has room for the required number of elements,
     // reserve() does nothing. In other words, reserve() will grow the allocated
     // storage of the vector, if necessary, but will never shrink it.
-    theData.reserve(100);    
+    theData.reserve(100);
     
     return OpenFile();
 
@@ -404,7 +404,8 @@ DataFile::DataFile(const std::string &itsType,
     isOpen (false),
     commentsAllowed (false),
     sortedBy (0),
-    readWriteMode ("read")
+    readWriteMode ("read"),
+    isBinary(false)
 {
    objectTypes.push_back(Gmat::DATASTREAM);
    objectTypeNames.push_back("DataFile");
@@ -430,6 +431,7 @@ DataFile::DataFile(const DataFile &pdf) :
     commentsAllowed (pdf.commentsAllowed),
     sortedBy (pdf.sortedBy),
     readWriteMode(pdf.readWriteMode),
+    isBinary(pdf.isBinary),
     theFile (pdf.theFile)
 {
 }
@@ -456,6 +458,7 @@ const DataFile& DataFile::operator=(const DataFile &pdf)
     isOpen = pdf.isOpen;
     sortedBy = pdf.sortedBy;
     readWriteMode = pdf.readWriteMode;
+    isBinary = pdf.isBinary;
     theFile = pdf.theFile;
     
     return *this;
@@ -488,11 +491,17 @@ bool DataFile::OpenFile()
     
     if (pcrecpp::RE("^[Rr].*").FullMatch(readWriteMode))
     {
-        theFile->open(dataFileName.c_str(),ios::in);
+        if (isBinary)
+            theFile->open(dataFileName.c_str(),ios::in | ios::binary);
+        else
+            theFile->open(dataFileName.c_str(),ios::in);
     }
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {
-        theFile->open(dataFileName.c_str(),ios::out);
+        if (isBinary)
+            theFile->open(dataFileName.c_str(),ios::out | ios::binary);
+        else
+            theFile->open(dataFileName.c_str(),ios::out);
     }
     else
     {

@@ -28,7 +28,7 @@
 #include "RealUtilities.hpp" // For sin, cos, etc etc
 #include "lapackpp.h"
 #include "MeasurementModelException.hpp"
-#include "Obtype.hpp"
+#include "ObType.hpp"
 //#include "DataFile.hpp"
 //#include "ProcessB3Data.hpp"
 //#include "ProcessSLRData.hpp"

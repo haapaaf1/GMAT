@@ -36,6 +36,7 @@
 //------------------------------------------------------------------------------
 bool OEMCCSDSDataFile::Initialize()
 {
+
     if (!CCSDSDataFile::Initialize()) return false;
 
     requiredNumberMetaDataParameters = CountRequiredNumberOEMMetaDataParameters();

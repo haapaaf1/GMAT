@@ -32,7 +32,7 @@ public:
 
     OEMCCSDSObType();
     OEMCCSDSObType(const OEMCCSDSObType &oem);
-    const OEMCCSDSObType& OEMCCSDSObType::operator=(const OEMCCSDSObType &oem);
+    const OEMCCSDSObType& operator=(const OEMCCSDSObType &oem);
     ~OEMCCSDSObType();
 
     GmatBase *Clone() const;

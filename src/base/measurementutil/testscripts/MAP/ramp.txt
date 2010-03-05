@@ -1,0 +1,2 @@
+YEAR  DOY  SECONDS  SCID  STA  FREQ (HZ)          RATE (HZ/SEC)  TYPE
+

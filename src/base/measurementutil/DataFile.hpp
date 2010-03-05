@@ -36,7 +36,7 @@
 #include "MessageInterface.hpp"
 #include "StringUtil.hpp"           // for ToString()
 #include "A1Date.hpp"
-#include "A1MJD.hpp"
+#include "A1Mjd.hpp"
 #include "UtcDate.hpp"
 #include "DateUtil.hpp"
 
@@ -334,6 +334,9 @@ protected:
 
     // Flag to indicate if the file is open for reading or writing
     std::string readWriteMode;
+
+    // Flag to indicate if the data file is binary or ASCII
+    bool isBinary;
 
     // This is the pointer to the input/output file stream
     // A new fstream is created at construction but the actual
