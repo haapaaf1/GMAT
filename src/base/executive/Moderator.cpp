@@ -7645,10 +7645,10 @@ void Moderator::AddSubscriberToSandbox(Integer index)
    Subscriber *obj;
    StringArray names = theConfigManager->GetListOfItems(Gmat::SUBSCRIBER);
    
-   //#if DEBUG_RUN
+   #if DEBUG_RUN
    MessageInterface::ShowMessage
       ("Moderator::AddSubscriberToSandbox() count = %d\n", names.size());
-   //#endif
+   #endif
    
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
@@ -7701,11 +7701,11 @@ void Moderator::AddSubscriberToSandbox(Integer index)
       
       sandboxes[index]->AddSubscriber(obj);
       
-      //#if DEBUG_RUN > 1
+      #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
          ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
           obj->GetName().c_str());
-      //#endif
+      #endif
    }
 }
 
