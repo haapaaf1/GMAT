@@ -39,7 +39,7 @@
 //#define DEBUG_EPHEMFILE_RESTART
 //#define DEBUG_EPHEMFILE_FINISH
 //#define DEBUG_EPHEMFILE_SOLVER_DATA
-#define DEBUG_EPHEMFILE_TEXT
+//#define DEBUG_EPHEMFILE_TEXT
 //#define DBGLVL_EPHEMFILE_DATA 1
 //#define DBGLVL_EPHEMFILE_MANEUVER 1
 //#define DBGLVL_EPHEMFILE_PROP_CHANGE 1
@@ -95,15 +95,15 @@ EphemerisFile::PARAMETER_TYPE[EphemerisFileParamCount - SubscriberParamCount] =
    Gmat::INTEGER_TYPE,      // INTERPOLATION_ORDER
    Gmat::ENUMERATION_TYPE,  // STATE_TYPE
    Gmat::OBJECT_TYPE,       // COORDINATE_SYSTEM
-   Gmat::BOOLEAN_TYPE           // Gmat::ENUMERATION_TYPE,  // WRITE_EPHEMERIS
+   Gmat::BOOLEAN_TYPE       // WRITE_EPHEMERIS
 };
 
 
 //------------------------------------------------------------------------------
-// EphemerisFile(const std::string &name)
+// EphemerisFile(const std::string &name, const std::string &type = "EphemerisFile")
 //------------------------------------------------------------------------------
-EphemerisFile::EphemerisFile(const std::string &name) :
-   Subscriber          ("EphemerisFile", name),
+EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
+   Subscriber          (type, name),
    spacecraft          (NULL),
    coordSystem         (NULL),
    interpolator        (NULL),
@@ -200,7 +200,7 @@ EphemerisFile::EphemerisFile(const std::string &name) :
    interpolatorTypeList.push_back("Lagrange");
    interpolatorTypeList.push_back("Hermite");
    interpolatorTypeList.push_back("SLERP");
-   
+      
    #ifdef DEBUG_EPHEMFILE
    MessageInterface::ShowMessage
       ("EphemerisFile::EphemerisFile() <%p>'%s' leaving\n", this, GetName().c_str());
@@ -220,16 +220,6 @@ EphemerisFile::~EphemerisFile()
    
    dstream.flush();
    dstream.close();
-   
-   #ifdef __USE_CCSDS_FILE__
-   // delete oem meta data array
-   for (UnsignedInt i = 0; i < ccsdsOemMetaDataArray.size(); i++)
-      delete ccsdsOemMetaDataArray[i];
-   
-   // delete oem state array
-   for (UnsignedInt i = 0; i < ccsdsOemStateArray.size(); i++)
-      delete ccsdsOemStateArray[i];
-   #endif
    
    if (interpolator != NULL)
    {
@@ -373,7 +363,7 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    spkWriteFailed      = ef.spkWriteFailed;
    prevRunState        = ef.prevRunState;
    coordConverter      = ef.coordConverter;
-   
+      
    return *this;
 }
 
@@ -1352,21 +1342,6 @@ bool EphemerisFile::OpenEphemerisFile()
    fileName = GetFileName();
    bool retval = true;
    
-   #ifdef __USE_CCSDS_FILE__
-   // Open CCSDS output file
-   if (fileType == CCSDS_OEM)
-   {
-      #ifdef DEBUG_EPHEMFILE_OPEN
-      MessageInterface::ShowMessage("   About to open CCSDS output file\n");
-      #endif
-      
-      OEMCCSDSDataFile ccsdsOutFile("OEMCCSDSFILE");
-      ccsdsOutFile.SetReadWriteMode("w");
-      ccsdsOutFile.SetFileName(fileName);
-      ccsdsOutFile.Initialize();
-   }
-   #endif
-   
    #ifdef DEBUG_EPHEMFILE_TEXT
    // Close the stream if it is open
    if (dstream.is_open())
@@ -1385,6 +1360,17 @@ bool EphemerisFile::OpenEphemerisFile()
       MessageInterface::ShowMessage("   '%s' was failed open\n", debugFileName.c_str());
    }
    #endif
+   
+   // Open CCSDS output file
+   if (fileType == CCSDS_OEM)
+   {
+      #ifdef DEBUG_EPHEMFILE_OPEN
+      MessageInterface::ShowMessage("   About to open CCSDS output file\n");
+      #endif
+      
+      if (!OpenCcsdsEphemerisFile())
+         return false;
+   }
    
    #ifdef DEBUG_EPHEMFILE_OPEN
    MessageInterface::ShowMessage
@@ -2176,7 +2162,7 @@ void EphemerisFile::BufferOrbitData(Real epochInDays, const Real state[6])
    
    #ifdef DEBUG_EPHEMFILE_BUFFER
    MessageInterface::ShowMessage
-      ("==> BufferOrbitData() leaving, there are %d data\n", a1MjdArray.size());
+      ("BufferOrbitData() leaving, there are %d data\n", a1MjdArray.size());
    #endif
 }
 
@@ -2200,21 +2186,104 @@ void EphemerisFile::DeleteOrbitData()
 
 
 //------------------------------------------------------------------------------
+// virtual bool OpenRealCcsdsEphemerisFile()
+//------------------------------------------------------------------------------
+bool EphemerisFile::OpenRealCcsdsEphemerisFile()
+{
+   MessageInterface::ShowMessage
+      ("**** ERROR **** No implementation found for OpenRealCcsdsEphemerisFile()\n");
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void WriteRealCcsdsHeader()
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteRealCcsdsHeader()
+{
+   MessageInterface::ShowMessage
+      ("**** ERROR **** No implementation found for WriteRealCcsdsHeader()\n");
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void WriteRealCcsdsOrbitDataSegment()
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteRealCcsdsOrbitDataSegment()
+{
+   MessageInterface::ShowMessage
+      ("**** ERROR **** No implementation found for WriteRealCcsdsOrbitDataSegment()\n");
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void WriteRealCcsdsOemMetaData()
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteRealCcsdsOemMetaData()
+{
+   MessageInterface::ShowMessage
+      ("**** ERROR **** No implementation found for WriteRealCcsdsOemMetaData()\n");
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void WriteRealCcsdsAemMetaData()
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteRealCcsdsAemMetaData()
+{
+   MessageInterface::ShowMessage
+      ("**** ERROR **** No implementation found for WriteRealCcsdsAemMetaData()\n");
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void WriteRealCcsdsAemData(Real reqEpochInSecs, const Real quat[4])
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteRealCcsdsAemData(Real reqEpochInSecs, const Real quat[4])
+{
+   MessageInterface::ShowMessage
+      ("**** ERROR **** No implementation found for WriteRealCcsdsAemData()\n");
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void WriteRealCcsdsComments(const std::string &comments)
+//------------------------------------------------------------------------------
+void EphemerisFile::WriteRealCcsdsComments(const std::string &comments)
+{
+   MessageInterface::ShowMessage
+      ("**** ERROR **** No implementation found for WriteRealCcsdsComments()\n");
+}
+
+
+//------------------------------------------------------------------------------
+// bool OpenCcsdsEphemerisFile()
+//------------------------------------------------------------------------------
+bool EphemerisFile::OpenCcsdsEphemerisFile()
+{
+   #ifdef DEBUG_CCSDS_EPHEMFILE_OPEN
+   MessageInterface::ShowMessage
+      ("CcsdsEphemerisFile::EphemerisFile() entered, fileName = %s\n", fileName.c_str());
+   #endif
+   
+   // Open CCSDS output file
+   bool retval = OpenRealCcsdsEphemerisFile();
+   
+   #ifdef DEBUG_CCSDS_EPHEMFILE_OPEN
+   MessageInterface::ShowMessage
+      ("CcsdsEphemerisFile::OpenCcsdsEphemerisFile() returning %d\n", retval);
+   #endif
+   
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
 // void WriteCcsdsHeader()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsHeader()
 {
-   std::string creationTime = GmatTimeUtil::FormatCurrentTime(2);
-   std::string originator = "GMAT USER";
-   
-   #ifdef __USE_CCSDS_FILE__
-   ccsdsHeader.SetDataParameter(CCSDSHeader::CCSDS_VERSION_ID, 1.0);
-   ccsdsHeader.SetDataParameter(CCSDSHeader::CCSDS_CREATIONDATE_ID, creationTime);
-   ccsdsHeader.SetDataParameter(CCSDSHeader::CCSDS_ORIGINATOR_ID, originator);
-   #endif
-   
-   
-   #ifdef DEBUG_EPHEMFILE_TEXT
+   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
    std::stringstream ss("");
    
    if (fileType == CCSDS_OEM)
@@ -2227,6 +2296,8 @@ void EphemerisFile::WriteCcsdsHeader()
    
    WriteString(ss.str());
    #endif
+   
+   WriteRealCcsdsHeader();
 }
 
 
@@ -2235,70 +2306,28 @@ void EphemerisFile::WriteCcsdsHeader()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsOrbitDataSegment()
 {
-   #ifdef DEBUG_EPHEMFILE_CCSDS
-   MessageInterface::ShowMessage
-      ("=====> WriteCcsdsOrbitDataSegment() entered, a1MjdArray.size()=%d, "
-       "stateArray.size()=%d\n", a1MjdArray.size(), stateArray.size());
-   #endif
-   
    if (a1MjdArray.empty())
+   {
+      #ifdef DEBUG_CCSDS_EPHEMFILE
+      MessageInterface::ShowMessage
+         ("=====> WriteCcsdsOrbitDataSegment() leaving, array is empty\n");
+      #endif
       return;
+   }
    
    Real metaDataStart = (a1MjdArray.front())->GetReal();
    Real metaDataStop  = (a1MjdArray.back())->GetReal();
    metaDataStartStr = ToUtcGregorian(metaDataStart, true, 2);
    metaDataStopStr = ToUtcGregorian(metaDataStop, true, 2);
    
-   //-----------------------------------------------------------------
-   #ifdef __USE_CCSDS_FILE__
-   //-----------------------------------------------------------------
-   
    WriteCcsdsOemMetaData();
    
-   for (UnsignedInt i = 0; i < a1MjdArray.size(); i++)
-   {
-      OEMStateVectorCCSDSData *state = new OEMStateVectorCCSDSData();
-      ccsdsOemStateArray.push_back(state); // So we can delete it later
-      std::string epochStr = ToUtcGregorian(reqEpochInSecs, false, 2);
-      state->SetDataParameter(StateVectorCCSDSData::CCSDS_STATEVECTOR_TIMETAG_ID, epochStr);
-      state->SetDataParameter(StateVectorCCSDSData::CCSDS_STATEVECTOR_X_ID, state[0]);
-      state->SetDataParameter(StateVectorCCSDSData::CCSDS_STATEVECTOR_Y_ID, state[1]);
-      state->SetDataParameter(StateVectorCCSDSData::CCSDS_STATEVECTOR_Z_ID, state[2]);
-      state->SetDataParameter(StateVectorCCSDSData::CCSDS_STATEVECTOR_XDOT_ID, state[3]);
-      state->SetDataParameter(StateVectorCCSDSData::CCSDS_STATEVECTOR_YDOT_ID, state[4]);
-      state->SetDataParameter(StateVectorCCSDSData::CCSDS_STATEVECTOR_ZDOT_ID, state[5]);
-      OEMCCSDSObType oemData;
-      oemData.SetHeader(ccsdsHeader);
-      oemData.SetMetaData(ccsdsOemMetaDataArray.back());
-      oemData.SetStateVector(state);
-      ccsdsOutFile.WriteData(oemData);
-   }
-   //-----------------------------------------------------------------
-   #endif
-   //-----------------------------------------------------------------
-   
-   #ifdef DEBUG_EPHEMFILE_CCSDS
-   MessageInterface::ShowMessage
-      ("   Writing start=%s, end=%s\n", metaDataStartStr.c_str(), metaDataStopStr.c_str());
-   #endif
-   
-   //-----------------------------------------------------------------
-   #ifdef DEBUG_EPHEMFILE_TEXT
-   //-----------------------------------------------------------------
-   WriteMetaData();
-   
+   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
    for (UnsignedInt i = 0; i < a1MjdArray.size(); i++)
          DebugWriteOrbit(a1MjdArray[i], stateArray[i]);
-   //-----------------------------------------------------------------
    #endif
-   //-----------------------------------------------------------------
    
-   DeleteOrbitData();
-   
-   #ifdef DEBUG_EPHEMFILE_CCSDS
-   MessageInterface::ShowMessage
-      ("=====> WriteCcsdsOrbitDataSegment() leaving\n");
-   #endif
+   WriteRealCcsdsOrbitDataSegment();
 }
 
 
@@ -2307,6 +2336,7 @@ void EphemerisFile::WriteCcsdsOrbitDataSegment()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsOemMetaData()
 {
+   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -2315,27 +2345,6 @@ void EphemerisFile::WriteCcsdsOemMetaData()
    if (cs)
       csType = (cs->GetRefObject(Gmat::AXIS_SYSTEM, ""))->GetTypeName();
    
-   #ifdef __USE_CCSDS_FILE__
-   OEMCCSDSMetaData *metaData = new OEMCCSDSMetaData();
-   oemData.SetMetaData(metaData);
-   ccsdsOemMetaDataArray.push_back(metaData); // So we can delete it later
-   
-   //@todo use correct value for REFFRAME and TIMESYSTEM
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_OBJECTNAME_ID, spacecraftName);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_OBJECTID_ID, objId);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_CENTERNAME_ID, origin);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_REFFRAME_ID, "EME2000");
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_TIMESYSTEM_ID, "UTC");
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_STARTEPOCH_ID, metaDataStartStr);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_USEABLE_STARTEPOCH_ID, metaDataStartStr);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_USEABLE_STOPEPOCH_ID, metaDataStopStr);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_STOPEPOCH_ID, metaDataStopStr);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_INTERPOLATION_ID, interpolatorName);
-   metaData->.SetDataParameter(OEMCCSDSMetaData::CCSDS_OEM_INTERPOLATIONDEGREE_ID, interpolationOrder);
-   #endif
-   
-   
-   #ifdef DEBUG_EPHEMFILE_TEXT
    std::stringstream ss("");
    ss << std::endl;
    ss << "META_START" << std::endl;
@@ -2354,6 +2363,8 @@ void EphemerisFile::WriteCcsdsOemMetaData()
    
    WriteString(ss.str());
    #endif
+   
+   WriteRealCcsdsOemMetaData();
 }
 
 
@@ -2361,7 +2372,7 @@ void EphemerisFile::WriteCcsdsOemMetaData()
 // void WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6])
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6])
-{   
+{
    BufferOrbitData(reqEpochInSecs/86400.0, state);
 }
 
@@ -2371,7 +2382,7 @@ void EphemerisFile::WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6])
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsAemMetaData()
 {
-   #ifdef DEBUG_EPHEMFILE_TEXT
+   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -2399,6 +2410,8 @@ void EphemerisFile::WriteCcsdsAemMetaData()
    
    WriteString(ss.str());
    #endif
+   
+   WriteRealCcsdsAemMetaData();
 }
 
 
@@ -2407,6 +2420,7 @@ void EphemerisFile::WriteCcsdsAemMetaData()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsAemData(Real reqEpochInSecs, const Real quat[4])
 {
+   WriteRealCcsdsAemData(reqEpochInSecs, quat);
 }
 
 
@@ -2418,6 +2432,8 @@ void EphemerisFile::WriteCcsdsComments(const std::string &comments)
    #ifdef DEBUG_EPHEMFILE_TEXT
    WriteString("\nCOMMENT  " + comments + "\n");
    #endif
+   
+   WriteRealCcsdsComments(comments);
 }
 
 
@@ -2957,7 +2973,7 @@ void EphemerisFile::HandleScPropertyChange(GmatBase *originator, Real epoch,
 {
    #ifdef DEBUG_EPHEMFILE_SC_PROP
    MessageInterface::ShowMessage
-      ("===> EphemerisFile::HandleScPropertyChange() entered, originator=<%p>, "
+      ("EphemerisFile::HandleScPropertyChange() entered, originator=<%p>, "
        "epoch=%f, satName='%s', desc='%s'\n", originator, epoch, satName.c_str(),
        desc.c_str());
    #endif
@@ -2970,4 +2986,8 @@ void EphemerisFile::HandleScPropertyChange(GmatBase *originator, Real epoch,
       RestartInterpolation("This block begins after spacecraft setting " +
                            desc + " at " + epochStr + "\n");
    }
+   
+   #ifdef DEBUG_EPHEMFILE_SC_PROP
+   MessageInterface::ShowMessage("EphemerisFile::HandleScPropertyChange() leaving\n");
+   #endif
 }

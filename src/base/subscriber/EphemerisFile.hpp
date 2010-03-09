@@ -29,24 +29,10 @@
 #include "SpiceKernelWriter.hpp"
 #endif
 
-#ifdef __USE_CCSDS_FILE__
-// CCSDS header
-#include "CCSDSHeader.hpp"
-// CCSDS Orbit Ephemeris Message
-#include "OEMCCSDSObType.hpp"
-#include "OEMCCSDSMetaData.hpp"
-#include "OEMStateVectorCCSDSData.hpp"
-#include "OEMCCSDSDataFile.hpp"
-// CCSDS Attitude Ephemeris Message (future work)
-//#include "AEMCCSDSObType.hpp"
-//#include "AEMCCSDSMetaData.hpp"
-//#include "AEMQuaternionCCSDSData.hpp"
-#endif
-
 class EphemerisFile : public Subscriber
 {
 public:
-   EphemerisFile(const std::string &name);
+   EphemerisFile(const std::string &name, const std::string &type = "EphemerisFile");
    virtual ~EphemerisFile();
    EphemerisFile(const EphemerisFile &);
    EphemerisFile& operator=(const EphemerisFile&);
@@ -124,13 +110,6 @@ protected:
    void              *spkWriter;
 #endif
    
-#ifdef __USE_CCSDS_FILE__
-   /// CCSDS file
-   CCSDSHeader       ccsdsHeader;
-   OEMCCSDSDataFile  ccsdsOutFile;
-   std::vector<OEMCCSDSMetaData*>        ccsdsOemMetaDataArray;
-   std::vector<OEMStateVectorCCSDSData*> ccsdsOemStateArray;
-#endif
    
    // for buffering ephemeris data
    EpochArray  a1MjdArray;
@@ -219,69 +198,79 @@ protected:
    static StringArray interpolatorTypeList;
    
    // Initialization
-   void        InitializeData();
-   void        CreateInterpolator();
-   void        CreateSpiceKernelWriter();
-   bool        OpenEphemerisFile();
+   void         InitializeData();
+   void         CreateInterpolator();
+   void         CreateSpiceKernelWriter();
+   bool         OpenEphemerisFile();
    
    // Time and data
-   bool        CheckInitialAndFinalEpoch();
-   void        HandleCcsdsOrbitData(bool writeData);
-   void        HandleSpkOrbitData(bool writeData);
+   bool         CheckInitialAndFinalEpoch();
+   void         HandleCcsdsOrbitData(bool writeData);
+   void         HandleSpkOrbitData(bool writeData);
    
    // Interpolation
-   void        RestartInterpolation(const std::string &comments = "");
-   bool        IsTimeToWrite(Real epochInSecs, const Real state[6]);
-   void        WriteOrbit(Real reqEpochInSecs, const Real state[6]);
-   void        WriteOrbitAt(Real reqEpochInSecs, const Real state[6]);
-   void        GetAttitude();
-   void        WriteAttitude();
-   void        FinishUpWriting();
-   void        ProcessEpochsOnWaiting(bool checkFinalEpoch = false);
-   bool        SetEpoch(Integer id, const std::string &value,
-                        const StringArray &allowedValues);
-   bool        SetStepSize(Integer id, const std::string &value,
-                           const StringArray &allowedValues);
-   void        HandleError(Integer id, const std::string &value,
-                           const StringArray &allowedValues,
-                           const std::string &additionalMsg = "");
-   std::string ToString(const StringArray &strList);
+   void         RestartInterpolation(const std::string &comments = "");
+   bool         IsTimeToWrite(Real epochInSecs, const Real state[6]);
+   void         WriteOrbit(Real reqEpochInSecs, const Real state[6]);
+   void         WriteOrbitAt(Real reqEpochInSecs, const Real state[6]);
+   void         GetAttitude();
+   void         WriteAttitude();
+   void         FinishUpWriting();
+   void         ProcessEpochsOnWaiting(bool checkFinalEpoch = false);
+   bool         SetEpoch(Integer id, const std::string &value,
+                         const StringArray &allowedValues);
+   bool         SetStepSize(Integer id, const std::string &value,
+                            const StringArray &allowedValues);
+   void         HandleError(Integer id, const std::string &value,
+                            const StringArray &allowedValues,
+                            const std::string &additionalMsg = "");
+   std::string  ToString(const StringArray &strList);
    
    // General writing
-   void        WriteString(const std::string &str);
-   void        WriteHeader();
-   void        WriteMetaData();
-   void        WriteComments(const std::string &comments);
+   void         WriteString(const std::string &str);
+   void         WriteHeader();
+   void         WriteMetaData();
+   void         WriteComments(const std::string &comments);
    
    // General data buffering
-   void        BufferOrbitData(Real epochInDays, const Real state[6]);
-   void        DeleteOrbitData();
+   void         BufferOrbitData(Real epochInDays, const Real state[6]);
+   void         DeleteOrbitData();
    
-   // CCSDS file writing
-   void        WriteCcsdsHeader();
-   void        WriteCcsdsOrbitDataSegment();
-   void        WriteCcsdsOemMetaData();
-   void        WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6]);
-   void        WriteCcsdsAemMetaData();
-   void        WriteCcsdsAemData(Real reqEpochInSecs, const Real quat[4]);
-   void        WriteCcsdsComments(const std::string &comments);
+   // CCSDS file writing for debug and actual
+   bool         OpenCcsdsEphemerisFile();
+   void         WriteCcsdsHeader();
+   void         WriteCcsdsOrbitDataSegment();
+   void         WriteCcsdsOemMetaData();
+   void         WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6]);
+   void         WriteCcsdsAemMetaData();
+   void         WriteCcsdsAemData(Real reqEpochInSecs, const Real quat[4]);
+   void         WriteCcsdsComments(const std::string &comments);
+   
+   // CCSDS file actual writing (subclass should overwrite this methods)
+   virtual bool OpenRealCcsdsEphemerisFile();
+   virtual void WriteRealCcsdsHeader();
+   virtual void WriteRealCcsdsOrbitDataSegment();
+   virtual void WriteRealCcsdsOemMetaData();
+   virtual void WriteRealCcsdsAemMetaData();
+   virtual void WriteRealCcsdsAemData(Real reqEpochInSecs, const Real quat[4]);
+   virtual void WriteRealCcsdsComments(const std::string &comments);
    
    // SPK file writing
-   void        WriteSpkHeader(); // This is for debug
-   void        WriteSpkOrbitDataSegment();
-   void        WriteSpkOrbitMetaData();
-   void        WriteSpkComments(const std::string &comments);
-   void        FinalizeSpkFile();
+   void         WriteSpkHeader(); // This is for debug
+   void         WriteSpkOrbitDataSegment();
+   void         WriteSpkOrbitMetaData();
+   void         WriteSpkComments(const std::string &comments);
+   void         FinalizeSpkFile();
    
    // for time formatting
-   std::string ToUtcGregorian(Real epoch, bool inDays = false, Integer format = 1);
+   std::string  ToUtcGregorian(Real epoch, bool inDays = false, Integer format = 1);
    
    // for debugging
-   void        DebugWriteTime(const std::string &msg, Real epoch, bool inDays = false,
-                              Integer format = 2);
-   void        DebugWriteOrbit(Real epoch, const Real state[6], bool inDays = false,
-                               bool logOnly = false);
-   void        DebugWriteOrbit(A1Mjd *epochInDays, Rvector6 *state, bool logOnly = false);
+   void         DebugWriteTime(const std::string &msg, Real epoch, bool inDays = false,
+                               Integer format = 2);
+   void         DebugWriteOrbit(Real epoch, const Real state[6], bool inDays = false,
+                                bool logOnly = false);
+   void         DebugWriteOrbit(A1Mjd *epochInDays, Rvector6 *state, bool logOnly = false);
    
    // methods inherited from Subscriber
    virtual bool Distribute(Integer len);
