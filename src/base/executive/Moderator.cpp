@@ -43,9 +43,9 @@
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
 
-#ifdef __USE_CCSDS_FILE__
-#include "DataFileFactory.hpp"
-#endif
+// #ifdef __USE_DATAFILE__
+// #include "DataFileFactory.hpp"
+// #endif
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
@@ -189,9 +189,9 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theFactoryManager->RegisterFactory(new CelestialBodyFactory());
       theFactoryManager->RegisterFactory(new AssetFactory());
       
-#ifdef __USE_CCSDS_FILE__
-      theFactoryManager->RegisterFactory(new DataFileFactory());
-#endif
+// #ifdef __USE_DATAFILE__
+//       theFactoryManager->RegisterFactory(new DataFileFactory());
+// #endif
       
       // Create publisher
       thePublisher = Publisher::Instance();
@@ -3449,111 +3449,116 @@ CoreMeasurement* Moderator::GetMeasurement(const std::string &type,
 }
 
 
-// Datafile
+// DataFile
 //------------------------------------------------------------------------------
-// Datafile* CreateDatafile(const std::string &name)
+// DataFile* CreateDataFile(const std::string &type, const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Creates a new named Datafile and adds it to the configuration
+ * Creates a new named DataFile and adds it to the configuration
  *
- * @param name The name of the new Datafile
+ * @param type The type of the DataFile object
+ * @param name The name of the new DataFile
  *
- * @return The new Datafile
+ * @return The new DataFile
  */
 //------------------------------------------------------------------------------
-Datafile* Moderator::CreateDatafile(const std::string &name)
+DataFile* Moderator::CreateDataFile(const std::string &type,
+                                    const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage("====================\n");
-   MessageInterface::ShowMessage("Moderator::CreateDatafile() name='%s'\n",
-                                 name.c_str());
+   MessageInterface::ShowMessage
+      ("Moderator::CreateDataFile() type='%s', name='%s'\n", type.c_str(),
+       name.c_str());
    #endif
-
-   if (GetDatafile(name) == NULL)
+   
+   if (GetDataFile(name) == NULL)
    {
-      Datafile *df = theFactoryManager->CreateDatafile(name);
-
+      DataFile *df = theFactoryManager->CreateDataFile(type, name);
+      
       if (df == NULL)
       {
          MessageInterface::PopupMessage
-            (Gmat::ERROR_, "The Moderator cannot create a Datafile.\n"
-             "Make sure Datafile is correct type and registered to "
-             "DatafileFactory.\n");
+            (Gmat::ERROR_, "The Moderator cannot create a DataFile.\n"
+             "Make sure DataFile is correct type and registered to "
+             "DataFileFactory.\n");
          return NULL;
       }
-
+      
       #ifdef DEBUG_MEMORY
       if (df)
       {
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (df, name, "Moderator::CreateDatafile()", funcName);
+            (df, name, "Moderator::CreateDataFile()", funcName);
       }
       #endif
-
-      theConfigManager->AddDatafile(df);
-
+      
+      theConfigManager->AddDataFile(df);
+      
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateDatafile() returning new Datafile "
+         ("Moderator::CreateDataFile() returning new DataFile "
                "<%p>\n", df);
       #endif
-
+      
       return df;
    }
    else
    {
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateDatafile() Unable to create "
-          "Datafile name: %s already exists\n", name.c_str());
+         ("Moderator::CreateDataFile() Unable to create "
+          "DataFile name: %s already exists\n", name.c_str());
       #endif
-      return GetDatafile(name);
+      return GetDataFile(name);
    }
 }
 
 
 //------------------------------------------------------------------------------
-// Datafile* GetDatafile(const std::string &name)
+// DataFile* GetDataFile(const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Retrieves a measurement Datafile from the configuration
+ * Retrieves a measurement DataFile from the configuration
  *
- * @param name The name of the Datafile object
+ * @param name The name of the DataFile object
  *
- * @return The named Datafile
+ * @return The named DataFile
  */
 //------------------------------------------------------------------------------
-Datafile* Moderator::GetDatafile(const std::string &name)
+DataFile* Moderator::GetDataFile(const std::string &name)
 {
    if (name == "")
       return NULL;
    else
-      return (Datafile*)FindObject(name);
+      return (DataFile*)FindObject(name);
 }
 
 
-// Obtype
-Obtype* Moderator::CreateObtype(const std::string &type,
-      const std::string &name)
+// ObType
+//------------------------------------------------------------------------------
+// ObType* CreateObType(const std::string &type, const std::string &name)
+//------------------------------------------------------------------------------
+ObType* Moderator::CreateObType(const std::string &type, const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage("====================\n");
-   MessageInterface::ShowMessage("Moderator::CreateObtype() name='%s'\n",
+   MessageInterface::ShowMessage("Moderator::CreateObType() name='%s'\n",
                                  name.c_str());
    #endif
 
-   if (GetObtype(name) == NULL)
+   if (GetObType(name) == NULL)
    {
-      Obtype *ot = theFactoryManager->CreateObtype(type, name);
+      ObType *ot = theFactoryManager->CreateObType(type, name);
 
       if (ot == NULL)
       {
          MessageInterface::PopupMessage
-            (Gmat::ERROR_, "The Moderator cannot create a Obtype.\n"
-             "Make sure Obtype is correct type and registered to a "
-             "ObtypeFactory.\n");
+            (Gmat::ERROR_, "The Moderator cannot create a ObType.\n"
+             "Make sure ObType is correct type and registered to a "
+             "ObTypeFactory.\n");
          return NULL;
       }
 
@@ -3563,17 +3568,17 @@ Obtype* Moderator::CreateObtype(const std::string &type,
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (ot, name, "Moderator::CreateObtype()", funcName);
+            (ot, name, "Moderator::CreateObType()", funcName);
       }
       #endif
 
       if (name != "")
-         theConfigManager->AddObtype(ot);
+         theConfigManager->AddObType(ot);
 
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateObtype() returning new Obtype "
-               "<%p>\n", df);
+         ("Moderator::CreateObType() returning new ObType "
+               "<%p>\n", ot);
       #endif
 
       return ot;
@@ -3582,30 +3587,30 @@ Obtype* Moderator::CreateObtype(const std::string &type,
    {
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateDatafile() Unable to create "
-          "Datafile name: %s already exists\n", name.c_str());
+         ("Moderator::CreateDataFile() Unable to create "
+          "DataFile name: %s already exists\n", name.c_str());
       #endif
-      return GetObtype(name);
+      return GetObType(name);
    }
 }
 
 //------------------------------------------------------------------------------
-// Obtype* GetObtype(const std::string &name)
+// ObType* GetObType(const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Retrieves a Obtype from the configuration
+ * Retrieves a ObType from the configuration
  *
- * @param name The name of the Obtype object
+ * @param name The name of the ObType object
  *
- * @return The named Obtype  (Should always return NULL)
+ * @return The named ObType  (Should always return NULL)
  */
 //------------------------------------------------------------------------------
-Obtype* Moderator::GetObtype(const std::string &name)
+ObType* Moderator::GetObType(const std::string &name)
 {
    if (name == "")
       return NULL;
    else
-      return (Obtype*)FindObject(name);
+      return (ObType*)FindObject(name);
 }
 
 //------------------------------------------------------------------------------
@@ -3920,6 +3925,100 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
  */
 //------------------------------------------------------------------------------
 Subscriber* Moderator::GetSubscriber(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (Subscriber*)FindObject(name);
+}
+
+//------------------------------------------------------------------------------
+// Subscriber* CreateEphemerisFile(const std::string &type,
+//                                 const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a subscriber object by given type and name if not already created.
+ *
+ * @param <type> object type
+ * @param <name> object name
+ *
+ * @return a subscriber object pointer
+ */
+//------------------------------------------------------------------------------
+Subscriber* Moderator::CreateEphemerisFile(const std::string &type,
+                                           const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage
+      ("Moderator::CreateEphemerisFile() type='%s', name='%s'\n",
+       type.c_str(), name.c_str());
+   MessageInterface::ShowMessage
+      ("   in function = <%p>'%s'\n", currentFunction,
+       currentFunction ? currentFunction->GetName().c_str() : "NULL");
+   #endif
+   
+   if (GetEphemerisFile(name) == NULL)
+   {      
+      Subscriber *eph = (Subscriber*)(theFactoryManager->CreateEphemerisFile(type, name));
+      
+      if (eph == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "Cannot create a EphemerisFile type: %s.\n"
+             "Make sure to specify PLUGIN = libDataFile and PLUGIN = libCcsdsEphemerisFile\n"
+             "in the gmat_start_file and make sure such dlls exist.\n",
+             type.c_str(), type.c_str());
+         
+         return NULL;
+      }
+      
+      #ifdef DEBUG_MEMORY
+      if (eph)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (eph, name, "Moderator::CreateEphemerisFile()", funcName);
+      }
+      #endif
+      
+      try
+      {
+         if (eph->GetName() != "")
+            theConfigManager->AddSubscriber(eph);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage("Moderator::CreateEphemerisFile()\n" +
+                                       e.GetFullMessage());
+      }
+      
+      return eph;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateEphemerisFile() Unable to create EphemerisFile "
+          "name: %s already exist\n", name.c_str());
+      #endif
+      
+      return GetEphemerisFile(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// Subscriber* GetEphemerisFile(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a subscriber object pointer by given name.
+ *
+ * @param <name> object name
+ *
+ * @return a subscriber object pointer, return null if name not found
+ */
+//------------------------------------------------------------------------------
+Subscriber* Moderator::GetEphemerisFile(const std::string &name)
 {
    if (name == "")
       return NULL;
@@ -7546,21 +7645,67 @@ void Moderator::AddSubscriberToSandbox(Integer index)
    Subscriber *obj;
    StringArray names = theConfigManager->GetListOfItems(Gmat::SUBSCRIBER);
    
-   #if DEBUG_RUN
+   //#if DEBUG_RUN
    MessageInterface::ShowMessage
       ("Moderator::AddSubscriberToSandbox() count = %d\n", names.size());
-   #endif
+   //#endif
    
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetSubscriber(names[i]);
+      
+      //==============================================================
+      // Special handling for CcsdsEphemerisFile plug-in
+      //==============================================================
+      // This is needed since we create EphemerisFile object first
+      // from the script "Create EphemerisFile". And if file format
+      // contains CCSDS, it will create CcsdsEphemerisFile object via
+      // plug-in factory and replace the object pointer.
+      //==============================================================
+      // Create CcsdsEphemerisFile if file format is CCSDS
+      if (obj->IsOfType(Gmat::EPHEMERIS_FILE))
+      {
+         std::string name = obj->GetName();
+         std::string format = obj->GetStringParameter("FileFormat");
+         MessageInterface::ShowMessage
+            ("==> format of the object<%p><%s>'%s' is '%s'\n", obj, obj->GetTypeName().c_str(),
+             name.c_str(), format.c_str());
+         
+         if (format.find("CCSDS") != format.npos)
+         {
+            // Check type name to avoid recreating a CcsdsEphemerisFile object for re-runs
+            if (obj->GetTypeName() != "CcsdsEphemerisFile")
+            {
+               MessageInterface::ShowMessage("==> about to create new CcsdsEphemerisFile\n");
+               
+               GmatBase *newObj = CreateEphemerisFile("CcsdsEphemerisFile", "");
+               if (newObj == NULL)
+               {
+                  throw GmatBaseException
+                     ("Moderator::AddSubscriberToSandbox() Cannot continue due to missing "
+                      "CcsdsEphemerisFile plugin dll\n");
+               }
+               
+               newObj->SetName(name);
+               ReconfigureItem(newObj, name);
+               newObj->Copy(obj);
+               newObj->SetTypeName("CcsdsEphemerisFile");
+               MessageInterface::ShowMessage
+                  ("==> new obj <%p><%s>'%s' created\n", newObj, newObj->GetTypeName().c_str(),
+                   name.c_str());
+               obj = (Subscriber*)newObj;
+            }
+         }
+      }
+      //=========================================================
+      
       sandboxes[index]->AddSubscriber(obj);
       
-      #if DEBUG_RUN > 1
+      //#if DEBUG_RUN > 1
       MessageInterface::ShowMessage
          ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
           obj->GetName().c_str());
-      #endif
+      //#endif
    }
 }
 
@@ -7631,7 +7776,7 @@ void Moderator::AddMeasurementToSandbox(Integer index)
 //------------------------------------------------------------------------------
 void Moderator::AddDataStreamToSandbox(Integer index)
 {
-   Datafile *obj;
+   DataFile *obj;
    StringArray names = theConfigManager->GetListOfItems(Gmat::DATASTREAM);
 
    #if DEBUG_RUN

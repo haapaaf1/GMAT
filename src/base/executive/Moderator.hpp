@@ -23,7 +23,6 @@
 #include "gmatdefs.hpp"
 // executive
 #include "Sandbox.hpp"
-// #include "GuiInterpreter.hpp"
 #include "ScriptInterpreter.hpp"
 #include "FactoryManager.hpp"
 #include "ConfigManager.hpp"
@@ -53,7 +52,6 @@
 #include "Interpolator.hpp"
 #include "CalculatedPoint.hpp"
 #include "MathNode.hpp"
-
 // files
 #include "EopFile.hpp"
 #include "ItrfCoefficientsFile.hpp"
@@ -61,6 +59,9 @@
 // plug-in code
 #include "DynamicLibrary.hpp"
 #include "TriggerManager.hpp"
+
+class DataFile;
+class ObType;
 
 namespace Gmat
 {
@@ -213,11 +214,11 @@ public:
    PropSetup* CreateDefaultPropSetup(const std::string &name);
    PropSetup* CreatePropSetup(const std::string &name);
    PropSetup* GetPropSetup(const std::string &name);
-
+   
    // MeasurementModel
    MeasurementModel* CreateMeasurementModel(const std::string &name);
    MeasurementModel* GetMeasurementModel(const std::string &name);
-
+   
    // TrackingSystem
    TrackingSystem* CreateTrackingSystem(const std::string &type,
                                         const std::string &name);
@@ -233,15 +234,16 @@ public:
    CoreMeasurement* GetMeasurement(const std::string &type,
          const std::string &name);
    
-   // Datafile
-   Datafile* CreateDatafile(const std::string &name);
-   Datafile* GetDatafile(const std::string &name);
-
-   // Obtype
-   Obtype* CreateObtype(const std::string &type,
+   // DataFile
+   DataFile* CreateDataFile(const std::string &type,
+                            const std::string &name);
+   DataFile* GetDataFile(const std::string &name);
+   
+   // ObType
+   ObType* CreateObType(const std::string &type,
                         const std::string &name);
-   Obtype* GetObtype(const std::string &name);
-
+   ObType* GetObType(const std::string &name);
+   
    // Interpolator
    Interpolator* CreateInterpolator(const std::string &type,
                                     const std::string &name);
@@ -260,6 +262,12 @@ public:
                                 const std::string &fileName = "",
                                 bool createDefault = false);
    Subscriber* GetSubscriber(const std::string &name);
+   
+   // EphemerisFile
+   Subscriber* CreateEphemerisFile(const std::string &type,
+                                   const std::string &name);
+   
+   Subscriber* GetEphemerisFile(const std::string &name);
    
    // Function
    Function* CreateFunction(const std::string &type,
