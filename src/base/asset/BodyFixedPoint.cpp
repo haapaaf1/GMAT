@@ -174,10 +174,12 @@ BodyFixedPoint& BodyFixedPoint::operator=(const BodyFixedPoint& bfp)
       stateType      = bfp.stateType;
       horizon        = bfp.horizon;
       solarSystem    = bfp.solarSystem;
-      //bfcsName       = bfp.bfcsName;   // yes or no?
+      bfcsName       = bfp.bfcsName;
       //bfcs           = bfp.bfcs;       // yes or no?
-      //mj2kcsName     = bfp.mj2kcsName; // yes or no?
+      bfcs           = NULL;
+      mj2kcsName     = bfp.mj2kcsName;
       //mj2kcs         = bfp.mj2kcs;     // yes or no?
+      mj2kcs         = NULL;
 
       location[0]    = bfp.location[0];
       location[1]    = bfp.location[1];
@@ -563,8 +565,9 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
    #ifdef DEBUG_OBJECT_MAPPING
       MessageInterface::ShowMessage
-         ("BodyFixedPoint::SetRefObject() this=%s, obj=<%p><%s> entered\n",
-          GetName().c_str(), obj, obj->GetName().c_str());
+         ("BodyFixedPoint::SetRefObject() this=%s, obj=<%p><%s>, type=<%d><%s> entered\n",
+          GetName().c_str(), obj, obj->GetName().c_str(), (Integer) type,
+          GetObjectTypeString(type).c_str());
    #endif
 
    switch (type)
@@ -578,11 +581,11 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
             #ifdef DEBUG_OBJECT_MAPPING
                MessageInterface::ShowMessage
-                  ("BodyFixedPoint::Set theBody to %s\n", 
+                  ("BodyFixedPoint::Setting theBody to %s\n",
                    theBody->GetName().c_str());
             #endif
             
-            SpacePoint::SetRefObject(obj, type, name);
+//            SpacePoint::SetRefObject(obj, type, name);
             return true;
          }
          break;
@@ -595,12 +598,22 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             if ((name == bfcsName) &&
                 (tmpCS->GetOriginName() == cBodyName))
             {
+               #ifdef DEBUG_OBJECT_MAPPING
+                  MessageInterface::ShowMessage
+                     ("BodyFixedPoint::Setting bfcs to %s\n",
+                      tmpCS->GetName().c_str());
+               #endif
                bfcs = tmpCS;
                return true;
             }
             if ((name == mj2kcsName) &&
                 (tmpCS->GetOriginName() == cBodyName))
             {
+               #ifdef DEBUG_OBJECT_MAPPING
+                  MessageInterface::ShowMessage
+                     ("BodyFixedPoint::Setting mj2kcs to %s\n",
+                      tmpCS->GetName().c_str());
+               #endif
                mj2kcs = tmpCS;
                return true;
             }
@@ -831,6 +844,10 @@ std::string BodyFixedPoint::GetRefObjectName(const Gmat::ObjectType type) const
 
 const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
+   #ifdef DEBUG_BF_REF
+      MessageInterface::ShowMessage("In BFP::GetRefObjectNameArray, requesting type %d\n",
+            (Integer) type);
+   #endif
    // This is a hack assuming Earth-centered coordinates for everything
    static StringArray csNames;
    
@@ -845,6 +862,23 @@ const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType 
    }
    
    return csNames;
+}
+
+//------------------------------------------------------------------------------
+// const ObjectTypeArray& GetRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the list of ref object types used by this class.
+ *
+ * @return the list of object types.
+ *
+ */
+//------------------------------------------------------------------------------
+const ObjectTypeArray& BodyFixedPoint::GetRefObjectTypeArray()
+{
+   refObjectTypes.clear();
+   refObjectTypes.push_back(Gmat::COORDINATE_SYSTEM);
+   return refObjectTypes;
 }
 
 // Handle the J2000Body methods
@@ -874,8 +908,15 @@ const Rvector6 BodyFixedPoint::GetMJ2000State(const A1Mjd &atTime)
    // For now I'm ignoring velocity
    bfState.Set(bfLocation[0], bfLocation[1], bfLocation[2], 0.0, 0.0, 0.0);
 
-   // Assuming you have pointer to coordinate systems mj2k and topo,
-   // where mj2k is a J2000 system and topo is Topocentric
+   // Convert from the body-fixed location to a J2000 location,
+   // assuming you have pointer to coordinate systems mj2k and bfcs,
+   // where mj2k is a J2000 system and bfcs is BodyFixed
+   #ifdef DEBUG_BODYFIXED_STATE
+      MessageInterface::ShowMessage("... before call to Convert, epoch = %12.10f\n",
+            epoch);
+      MessageInterface::ShowMessage(" ... bfcs = %s  and mj2kcs = %s\n",
+            (bfcs? "NOT NULL" : "NULL"), (mj2kcs? "NOT NULL" : "NULL"));
+   #endif
    ccvtr.Convert(epoch, bfState, bfcs, j2000PosVel, mj2kcs);
    
    return j2000PosVel;

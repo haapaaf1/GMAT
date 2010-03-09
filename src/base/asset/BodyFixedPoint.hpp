@@ -109,6 +109,8 @@ public:
    virtual std::string     GetRefObjectName(const Gmat::ObjectType type) const;
    virtual const StringArray&
                            GetRefObjectNameArray(const Gmat::ObjectType type);
+   virtual const ObjectTypeArray&
+                           GetRefObjectTypeArray();
    
    virtual const Rvector6  GetMJ2000State(const A1Mjd &atTime);
    virtual const Rvector3  GetMJ2000Position(const A1Mjd &atTime);

@@ -6531,6 +6531,98 @@ bool Interpreter::FinalPass()
       }
    }
    
+   //-------------------------------------------------------------------
+   // Special case for BodyFixedPoints, we need to set CoordinateSyatem
+   // pointers for the BodyFixed and the MJ2000Eq coordinate systems.  In
+   // addition, we need to pass the pointer to the central body.
+   //-------------------------------------------------------------------
+   objList = theModerator->GetListOfObjects(Gmat::BODY_FIXED_POINT);
+
+   #if DBGLVL_FINAL_PASS > 1
+   MessageInterface::ShowMessage("FinalPass:: BodyFixedPoint list =\n");
+   for (Integer ii = 0; ii < (Integer) objList.size(); ii++)
+   MessageInterface::ShowMessage("   %s\n", (objList.at(ii)).c_str());
+   #endif
+
+   for (StringArray::iterator i = objList.begin(); i != objList.end(); ++i)
+   {
+      obj = FindObject(*i);
+
+      StringArray csNames = obj->GetRefObjectNameArray(Gmat::COORDINATE_SYSTEM);
+      for (StringArray::iterator csName = csNames.begin();
+           csName != csNames.end(); ++csName)
+      {
+         GmatBase *csObj = FindObject(*csName);
+
+         // To catch as many errors we can, continue with next object
+         if (csObj == NULL)
+            continue;
+
+         #if DBGLVL_FINAL_PASS > 1
+               MessageInterface::ShowMessage
+               ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
+                csObj->GetName().c_str(), csObj, csObj->GetType());
+         #endif
+
+         if (csObj->GetType() != Gmat::COORDINATE_SYSTEM)
+         {
+            InterpreterException ex
+            ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+             "\"CoordinateSystem\" to \"" + *csName + "\"");
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
+
+         try
+         {
+            obj->SetRefObject(csObj, Gmat::COORDINATE_SYSTEM, csObj->GetName());
+         }
+         catch (BaseException &e)
+         {
+            InterpreterException ex
+            ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+             "CoordinateSystem: " + e.GetFullMessage());
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
+      }
+      std::string cbName = obj->GetRefObjectName(Gmat::CELESTIAL_BODY);
+      GmatBase *cbObj = FindObject(cbName);
+
+      #if DBGLVL_FINAL_PASS > 1
+         MessageInterface::ShowMessage
+         ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
+          cbObj->GetName().c_str(), cbObj, cbObj->GetType());
+      #endif
+
+      if (cbObj->GetType() != Gmat::CELESTIAL_BODY)
+      {
+         InterpreterException ex
+         ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+          "\"CelestialBody\" to \"" + cbName + "\"");
+         HandleError(ex, false);
+         retval = false;
+         continue;
+      }
+
+      try
+      {
+         obj->SetRefObject(cbObj, Gmat::CELESTIAL_BODY, cbObj->GetName());
+      }
+      catch (BaseException &e)
+      {
+         InterpreterException ex
+         ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+          "CelestialBody: " + e.GetFullMessage());
+         HandleError(ex, false);
+         retval = false;
+         continue;
+      }
+   }
+
+
    #if DBGLVL_FINAL_PASS
    MessageInterface::ShowMessage("Interpreter::FinalPass() returning %d\n", retval);
    #endif
