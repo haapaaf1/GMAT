@@ -1,5 +1,9 @@
 % Script Test Case for Simulation using a USNTrackingSystem
 
+SolarSystem.Sun.Mu = 1.327122e11;
+SolarSystem.Earth.Mu = 398600.4418;
+SolarSystem.Luna.Mu = 4902.801076
+
 %--------------------------------------------
 %---------- Spacecraft
 %--------------------------------------------
@@ -24,14 +28,26 @@ ODSat.Id = 'ODSat01';
 %----------------------------------------
 %---------- GroundStations
 %----------------------------------------
+%Create GroundStation Maui;
+%Maui.CentralBody = Earth;
+%Maui.StateType = Cartesian;
+%Maui.HorizonReference = Sphere;
+%Maui.X = -4450.8;
+%Maui.Y = 2676.1;
+%Maui.Z = -3691.38;
+%Maui.Id = 'Maui';
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
 Create GroundStation Maui;
-Maui.CentralBody = Earth;
-Maui.StateType = Cartesian;
-Maui.HorizonReference = Sphere;
-Maui.X = -4450.8;
-Maui.Y = 2676.1;
-Maui.Z = -3691.38;
-Maui.Id = 'Maui';
+GMAT Maui.CentralBody = Earth;
+GMAT Maui.StateType = Geographical;
+GMAT Maui.HorizonReference = Ellipsoid;
+GMAT Maui.Latitude = -35.586612724715;
+GMAT Maui.Longitude = 148.983076735472;
+GMAT Maui.Height = 0.675012329852;
+GMAT Maui.Id = 'Maui';
 
 %----------------------------------------
 %---------- ForceModels
@@ -74,11 +90,34 @@ RangeMeasurement.NoiseSigma = 1e-05;
 RangeMeasurement.TimeConstant = 6000;
 RangeMeasurement.Covariance.Bias = [1000000];
 
+
+Create MeasurementModel GRangeMeasurement;
+GRangeMeasurement.ObservationData = {MauiMeasData};
+GRangeMeasurement.Type = Range;
+GRangeMeasurement.Participants = {Maui, ODSat};
+GRangeMeasurement.Bias = 0;
+GRangeMeasurement.NoiseSigma = 1e-05;
+GRangeMeasurement.TimeConstant = 6000;
+GRangeMeasurement.Covariance.Bias = [1000000];
+
 %----------------------------------------
 %---------- Tracking Systems
 %----------------------------------------
 Create USNTrackingSystem USNTracker
-USNTracker.Add = {RangeMeasurement}
+USNTracker.Add = {RangeMeasurement, GRangeMeasurement}
+
+%----------------------------------------
+% Report
+%----------------------------------------
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.Filename = './output/RangeTrackerEphem.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {ODSat.A1ModJulian, ODSat.UTCGregorian, ODSat.EarthMJ2000Eq.X, ODSat.EarthMJ2000Eq.Y, ODSat.EarthMJ2000Eq.Z, ODSat.EarthMJ2000Eq.VX, ODSat.EarthMJ2000Eq.VY, ODSat.EarthMJ2000Eq.VZ};
+GMAT ReportFile1.WriteHeaders = On;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.ColumnWidth = 22;
 
 %----------------------------------------
 %---------- Solvers
@@ -88,8 +127,8 @@ simmer.AddData             = {USNTracker};
 simmer.InitialEpochFormat  = UTCGregorian;
 simmer.InitialEpoch        = '01 Mar 2005 00:00:00.000';
 simmer.FinalEpochFormat    = UTCGregorian;
-simmer.FinalEpoch          = '15 Mar 2005 00:00:00.000';
-simmer.MeasurementTimeStep = 600;
+simmer.FinalEpoch          = '04 Mar 2005 00:00:00.000';
+simmer.MeasurementTimeStep = 10;
 simmer.Propagator          = ODProp;
 
 %----- Run the estimator
