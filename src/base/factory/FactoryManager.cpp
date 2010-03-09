@@ -315,8 +315,11 @@ Subscriber* FactoryManager::CreateSubscriber(const std::string &ofType,
 
    if (f != NULL)
       return f->CreateSubscriber(ofType, withName, fileName);
-
-   MessageInterface::ShowMessage("      Could not find Factory for %s\n", ofType.c_str());
+   
+   #ifdef DEBUG_FACTORY_MANAGER
+   MessageInterface::ShowMessage("Could not find Factory for %s\n", ofType.c_str());
+   #endif
+   
    return NULL;
 }
 
@@ -341,7 +344,10 @@ EphemerisFile* FactoryManager::CreateEphemerisFile(const std::string &ofType,
    if (f != NULL)
       return f->CreateEphemerisFile(ofType, withName);
    
-   MessageInterface::ShowMessage("      Could not find Factory for %s\n", ofType.c_str());
+   #ifdef DEBUG_FACTORY_MANAGER
+   MessageInterface::ShowMessage("Could not find Factory for %s\n", ofType.c_str());
+   #endif
+   
    return NULL;
 }
 
