@@ -2374,6 +2374,9 @@ bool Validator::ValidateParameter(const StringArray &refNames, GmatBase *obj)
       {
          std::string type, ownerName, depObj;
          GmatStringUtil::ParseParameter(refNames[j], type, ownerName, depObj);
+         MessageInterface::ShowMessage
+            ("===> refName='%s', type='%s', owner='%s', dep='%s'\n", refNames[j].c_str(),
+             type.c_str(), ownerName.c_str(), depObj.c_str());
          
          #ifdef DEBUG_CHECK_OBJECT
          MessageInterface::ShowMessage

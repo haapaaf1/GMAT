@@ -310,6 +310,8 @@ private:
    StringArray   axisSystemList;
    StringArray   burnList;
    StringArray   calculatedPointList;
+   StringArray   dataFileList;
+   StringArray   ephemFileList;
    StringArray   functionList;
    StringArray   hardwareList;
    StringArray   measurementList;

@@ -156,7 +156,7 @@ void Interpreter::Initialize()
 {
    #ifdef DEBUG_INIT
    MessageInterface::ShowMessage
-      ("Interpreter::Initialize() initialized=%d\n", initialized);
+      ("Interpreter::Initialize() entered, initialized=%d\n", initialized);
    #endif
    
    errorList.clear();
@@ -185,6 +185,10 @@ void Interpreter::Initialize()
    theTextParser.Initialize(commandList);
    
    initialized = true;
+   
+   #ifdef DEBUG_INIT
+   MessageInterface::ShowMessage("Interpreter::Initialize() leaving\n");
+   #endif
 }
 
 
@@ -249,6 +253,14 @@ void Interpreter::BuildCreatableObjectMaps()
    calculatedPointList.clear();
    StringArray cals = theModerator->GetListOfFactoryItems(Gmat::CALCULATED_POINT);
    copy(cals.begin(), cals.end(), back_inserter(calculatedPointList));
+   
+   dataFileList.clear();
+   StringArray dfs = theModerator->GetListOfFactoryItems(Gmat::DATA_FILE);
+   copy(dfs.begin(), dfs.end(), back_inserter(dataFileList));
+   
+   ephemFileList.clear();
+   StringArray ephems = theModerator->GetListOfFactoryItems(Gmat::EPHEMERIS_FILE);
+   copy(ephems.begin(), ephems.end(), back_inserter(ephemFileList));
    
    functionList.clear();
    StringArray fns = theModerator->GetListOfFactoryItems(Gmat::FUNCTION);
@@ -325,6 +337,14 @@ void Interpreter::BuildCreatableObjectMaps()
       for (pos = cals.begin(); pos != cals.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
       
+      MessageInterface::ShowMessage("\nDataFiles:\n   ");
+      for (pos = dfs.begin(); pos != dfs.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+      
+      MessageInterface::ShowMessage("\nEphemerisFiles:\n   ");
+      for (pos = ephems.begin(); pos != ephems.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+      
       MessageInterface::ShowMessage("\nFunctions:\n   ");
       for (pos = fns.begin(); pos != fns.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
@@ -349,37 +369,37 @@ void Interpreter::BuildCreatableObjectMaps()
       for (std::vector<std::string>::iterator pos = props.begin();
            pos != props.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nMeasurements:\n   ");
-      for (pos = mmIndex = measurements.begin();
+      for (pos = measurements.begin();
             pos != measurements.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nObservations:\n   ");
-      for (pos = mmIndex = obs.begin();
+      for (pos = obs.begin();
             pos != obs.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nSolvers:\n   ");
       for (pos = solvers.begin(); pos != solvers.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nStopConds:\n   ");
       for (pos = stops.begin(); pos != stops.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nSubscribers:\n   ");
       for (pos = subs.begin(); pos != subs.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nTrackingSystems:\n   ");
       for (pos = tsl.begin(); pos != tsl.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nOther SpacePoints:\n   ");
       for (pos = spl.begin(); pos != spl.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\n");
    #endif
    
@@ -441,6 +461,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          
       case Gmat::COMMAND:
          clist = commandList;
+         break;
+         
+      case Gmat::DATA_FILE:
+         clist = dataFileList;
          break;
          
       case Gmat::FUNCTION:
@@ -762,10 +786,10 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
 
    else if (type == "TrackingData")
       obj = (GmatBase*)theModerator->CreateTrackingData(name);
-
-   else if (type == "Datafile")
-      obj = (GmatBase*)theModerator->CreateDatafile(name);
-
+   
+   else if (type == "DataFile")
+      obj = (GmatBase*)theModerator->CreateDataFile(type, name);
+   
 //   else if (type == "ForceModel") 
 //      obj = (GmatBase*)theModerator->CreateODEModel(type, name);
    
@@ -821,6 +845,11 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
                calculatedPointList.end())
          obj =(GmatBase*) theModerator->CreateCalculatedPoint(type, name, true);
       
+      // Handle DataFiles
+      else if (find(dataFileList.begin(), dataFileList.end(), type) != 
+               dataFileList.end())
+         obj = (GmatBase*)theModerator->CreateDataFile(type, name);
+      
       // Handle Functions
       else if (find(functionList.begin(), functionList.end(), type) != 
                functionList.end())
@@ -839,7 +868,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       // Handle Observations
       else if (find(obtypeList.begin(), obtypeList.end(), type) !=
             obtypeList.end())
-         obj = (GmatBase*)theModerator->CreateObtype(type, name);
+         obj = (GmatBase*)theModerator->CreateObType(type, name);
 
       // Handle Parameters
       else if (find(parameterList.begin(), parameterList.end(), type) != 
@@ -860,6 +889,11 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
       else if (find(subscriberList.begin(), subscriberList.end(), type) != 
                subscriberList.end())
          obj = (GmatBase*)theModerator->CreateSubscriber(type, name);
+      
+      // Handle EphemerisFile
+      else if (find(ephemFileList.begin(), ephemFileList.end(), type) != 
+               ephemFileList.end())
+         obj = (GmatBase*)theModerator->CreateEphemerisFile(type, name);
       
       // Handle other SpacePoints
       else if (find(spacePointList.begin(), spacePointList.end(), type) != 
@@ -1153,7 +1187,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    // Now continue validation
    #ifdef DEBUG_WRAPPERS
    MessageInterface::ShowMessage
-      ("Interpreter::ValidateSubscriber() obj=<%p><%s>\n", obj,
+      ("Interpreter::ValidateSubscriber() entered, obj=<%p><%s>\n", obj,
        obj->GetName().c_str());
    #endif
    
@@ -1161,7 +1195,8 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    
    // This method can be called from other than Interpreter, so check if
    // object is SUBSCRIBER type
-   if (obj->GetType() != Gmat::SUBSCRIBER)
+   //if (obj->GetType() != Gmat::SUBSCRIBER)
+   if (!obj->IsOfType(Gmat::SUBSCRIBER))
    {
       InterpreterException ex
          ("ElementWrapper for \"" + obj->GetName() + "\" of type \"" +
@@ -1171,6 +1206,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    }
    
    Subscriber *sub = (Subscriber*)obj;
+   
    // We don't want to clear wrappers since Subscriber::ClearWrappers() changed to
    // also empty wrappers.  (LOJ: 2009.03.12)
    //sub->ClearWrappers();
@@ -1205,7 +1241,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
          return false;
       }
    }
-      
+   
    return true;
    
 } // ValidateSubscriber()
@@ -5540,7 +5576,7 @@ bool Interpreter::SetTrackingSystemProperty(GmatBase *obj,
 /**
  * This method configures properties on a DataStream
  *
- * The method creates Obtypes as needed, and passes the remaining
+ * The method creates ObTypes as needed, and passes the remaining
  * parameters to the SetProperty() method.
  *
  * @param obj        The DataStream that is being configured
@@ -6562,6 +6598,10 @@ bool Interpreter::IsObjectType(const std::string &type)
 
    if (find(calculatedPointList.begin(), calculatedPointList.end(), type) != 
        calculatedPointList.end()) 
+      return true;
+   
+   if (find(ephemFileList.begin(), ephemFileList.end(), type) != 
+       ephemFileList.end())
       return true;
    
    if (find(functionList.begin(), functionList.end(), type) != 
