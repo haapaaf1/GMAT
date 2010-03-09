@@ -3964,7 +3964,7 @@ Subscriber* Moderator::CreateEphemerisFile(const std::string &type,
       if (eph == NULL)
       {
          MessageInterface::PopupMessage
-            (Gmat::ERROR_, "Cannot create a EphemerisFile type: %s.\n"
+            (Gmat::ERROR_, "**** ERROR **** Cannot create a EphemerisFile type: %s.\n"
              "Make sure to specify PLUGIN = libDataFile and PLUGIN = libCcsdsEphemerisFile\n"
              "in the gmat_start_file and make sure such dlls exist.\n",
              type.c_str(), type.c_str());
@@ -7667,16 +7667,21 @@ void Moderator::AddSubscriberToSandbox(Integer index)
       {
          std::string name = obj->GetName();
          std::string format = obj->GetStringParameter("FileFormat");
+         
+         #if DEBUG_RUN
          MessageInterface::ShowMessage
             ("==> format of the object<%p><%s>'%s' is '%s'\n", obj, obj->GetTypeName().c_str(),
              name.c_str(), format.c_str());
+         #endif
          
          if (format.find("CCSDS") != format.npos)
          {
             // Check type name to avoid recreating a CcsdsEphemerisFile object for re-runs
             if (obj->GetTypeName() != "CcsdsEphemerisFile")
             {
+               #if DEBUG_RUN
                MessageInterface::ShowMessage("==> about to create new CcsdsEphemerisFile\n");
+               #endif
                
                GmatBase *newObj = CreateEphemerisFile("CcsdsEphemerisFile", "");
                if (newObj == NULL)
@@ -7690,9 +7695,13 @@ void Moderator::AddSubscriberToSandbox(Integer index)
                ReconfigureItem(newObj, name);
                newObj->Copy(obj);
                newObj->SetTypeName("CcsdsEphemerisFile");
+               
+               #if DEBUG_RUN
                MessageInterface::ShowMessage
                   ("==> new obj <%p><%s>'%s' created\n", newObj, newObj->GetTypeName().c_str(),
                    name.c_str());
+               #endif
+               
                obj = (Subscriber*)newObj;
             }
          }
