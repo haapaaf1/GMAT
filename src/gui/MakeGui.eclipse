@@ -15,17 +15,9 @@ EXTENSION = .exe
 endif
 
 ifeq ($(USE_MATLAB),1)
-   ifeq ($(USE_CCSDS),1)
-      WXTARGET = GMAT$(EXTENSION)
-   else
-      WXTARGET = GMAT_NoCCSDS$(EXTENSION)
-   endif
+   WXTARGET = GMAT$(EXTENSION)
 else
-   ifeq ($(USE_CCSDS),1)
-      WXTARGET = GMAT_NoMatlab$(EXTENSION)
-   else
-      WXTARGET = GMAT_NoMatlabNoCCSDS$(EXTENSION)
-   endif
+   WXTARGET = GMAT_NoMatlab$(EXTENSION)
 endif
 
 ifdef MAC_SPECIFIC
@@ -94,7 +86,7 @@ STC_EDITOR_OBJECTS =
 endif
 
 all: prep $(TARGETS) 
-	rm -f gmatNoMatlab
+	rm -f GMAT_NoMatlab
 
 gui: $(WXTARGET)
 
