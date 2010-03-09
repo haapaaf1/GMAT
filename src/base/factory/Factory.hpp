@@ -38,6 +38,7 @@ class CelestialBody;
 class SolarSystem;
 class Solver;
 class Subscriber;
+class EphemerisFile;
 class GmatCommand;
 class AtmosphereModel;
 class Function;
@@ -52,8 +53,8 @@ class Event;
 
 class MeasurementModel;
 class CoreMeasurement;
-class Datafile;
-class Obtype;
+class DataFile;
+class ObType;
 class TrackingSystem;
 class TrackingData;
 
@@ -97,6 +98,8 @@ public:
    virtual Subscriber*      CreateSubscriber(const std::string &ofType,
                                              const std::string &withName = "",
                                              const std::string &fileName = "");
+   virtual EphemerisFile*   CreateEphemerisFile(const std::string &ofType,
+                                                const std::string &withName = "");
    virtual GmatCommand*     CreateCommand(const std::string &ofType,
                                           const std::string &withName = "");
    virtual AtmosphereModel* CreateAtmosphereModel(const std::string &ofType,
@@ -119,9 +122,9 @@ public:
                                            const std::string &withName = "");
    virtual CoreMeasurement* CreateMeasurement(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual Datafile*        CreateDatafile(const std::string &ofType,
+   virtual DataFile*        CreateDataFile(const std::string &ofType,
                                            const std::string &withName = "");
-   virtual Obtype*          CreateObtype(const std::string &ofType,
+   virtual ObType*          CreateObType(const std::string &ofType,
                                          const std::string &withName = "");
    virtual TrackingSystem*  CreateTrackingSystem(const std::string &ofType,
                                            const std::string &withName = "");

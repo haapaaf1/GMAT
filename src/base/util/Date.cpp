@@ -440,3 +440,48 @@ Date::~Date()
 {
 }
 
+//------------------------------------------------------------------------------
+//  bool operator> (const Date &date) const
+//------------------------------------------------------------------------------
+/**
+ * Comparison operator >
+ */
+//------------------------------------------------------------------------------
+bool Date::operator> (const Date &date) const
+{
+    if (yearD > date.yearD)
+	return true;
+    else if ( yearD == date.yearD && monthD > date.monthD )
+	return true;
+    else if ( yearD == date.yearD && monthD == date.monthD && dayD > date.dayD)
+	return true;
+    else if ( yearD == date.yearD && monthD == date.monthD && dayD == date.dayD
+	      && secondsOfDayD > date.secondsOfDayD)
+	return true;
+    else
+	return false;
+}
+
+
+//------------------------------------------------------------------------------
+//  bool operator< (const Date &date) const
+//------------------------------------------------------------------------------
+/**
+ * Comparison operator <
+ */
+//------------------------------------------------------------------------------
+bool Date::operator< (const Date &date) const
+{
+    if (yearD < date.yearD)
+	return true;
+    else if ( yearD == date.yearD && monthD < date.monthD )
+	return true;
+    else if ( yearD == date.yearD && monthD == date.monthD && dayD < date.dayD)
+	return true;
+    else if ( yearD == date.yearD && monthD == date.monthD && dayD == date.dayD
+	      && secondsOfDayD < date.secondsOfDayD)
+	return true;
+    else
+	return false;
+}
+

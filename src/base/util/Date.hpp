@@ -75,7 +75,10 @@ protected:
     Date(const std::string &time); // "YYYYMMDD.hhmmssnnn"
     Date(const Date &date);
     ~Date();
-   
+
+    bool  operator>  (const Date &date) const;
+    bool  operator<  (const Date &date) const;
+    
     Integer  yearD;
     Integer  monthD;
     Integer  dayD;

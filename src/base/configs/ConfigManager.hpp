@@ -42,8 +42,8 @@
 
 class MeasurementModel;
 class CoreMeasurement;
-class Datafile;
-class Obtype;
+class DataFile;
+class ObType;
 class TrackingSystem;
 class TrackingData;
 
@@ -83,8 +83,8 @@ public:
 
    void                AddMeasurementModel(MeasurementModel *mModel);
    void                AddMeasurement(CoreMeasurement *meas);
-   void                AddDatafile(Datafile *meas);
-   void                AddObtype(Obtype *meas);
+   void                AddDataFile(DataFile *meas);
+   void                AddObType(ObType *meas);
    void                AddTrackingSystem(TrackingSystem *ts);
    void                AddTrackingData(TrackingData *td);
 
@@ -130,7 +130,7 @@ public:
    TrackingSystem*     GetTrackingSystem(const std::string &name);
    TrackingData*       GetTrackingData(const std::string &name);
 
-   Datafile *          GetDataStream(const std::string &name);
+   DataFile *          GetDataStream(const std::string &name);
 
    bool                HasConfigurationChanged();
    void                ConfigurationChanged(bool tf);
@@ -142,6 +142,7 @@ private:
    static ConfigManager*               theConfigManager;
    /// The managed objects
    std::vector<GmatBase*>              objects;
+   std::vector<GmatBase*>              newObjects;
    /// A list of the names of the managed objects
    StringArray                         listOfItems;
    /// Mapping between the object names and their pointers

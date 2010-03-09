@@ -321,6 +321,31 @@ Subscriber* FactoryManager::CreateSubscriber(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
+//  EphemerisFile* CreateEphemerisFile(const std::string &ofType,
+//                                     const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Create an object of type EphemerisFile, with the name withName.
+ *
+ * @param <ofType>   type name of the new EphemerisFile object.
+ * @param <withName> name of the new EphemerisFile object.
+ *
+ * @return pointer to the newly-created EphemerisFile object
+ */
+//------------------------------------------------------------------------------
+EphemerisFile* FactoryManager::CreateEphemerisFile(const std::string &ofType,
+                                                   const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::EPHEMERIS_FILE, ofType);
+   
+   if (f != NULL)
+      return f->CreateEphemerisFile(ofType, withName);
+   
+   MessageInterface::ShowMessage("      Could not find Factory for %s\n", ofType.c_str());
+   return NULL;
+}
+
+//------------------------------------------------------------------------------
 //  GmatCommand* CreateCommand(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**
@@ -610,25 +635,25 @@ TrackingData* FactoryManager::CreateTrackingData(const std::string &withName)
 
 
 //------------------------------------------------------------------------------
-// Obtype* FactoryManager::CreateObtype(const std::string &ofType,
+// ObType* FactoryManager::CreateObType(const std::string &ofType,
 //                                      const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * This method creates the Obtype used in a Datafile
+ * This method creates the ObType used in a DataFile
  *
- * @param ofType The type of Obtype
- * @param withName The name of the Obtype.  This should be an
+ * @param ofType The type of ObType
+ * @param withName The name of the ObType.  This should be an
  *                 empty string in the current implementation.
  *
  * @return The pointer to the new object
  */
 //------------------------------------------------------------------------------
-Obtype* FactoryManager::CreateObtype(const std::string &ofType,
+ObType* FactoryManager::CreateObType(const std::string &ofType,
                                      const std::string &withName)
 {
    Factory* f = FindFactory(Gmat::OBTYPE, ofType);
    if (f != NULL)
-      return f->CreateObtype(ofType, withName);
+      return f->CreateObType(ofType, withName);
    return NULL;
 }
 
@@ -652,21 +677,24 @@ MeasurementModel* FactoryManager::CreateMeasurementModel(const std::string &with
 }
 
 //------------------------------------------------------------------------------
-// Datafile* FactoryManager::CreateDatafile(const std::string &withName)
+// DataFile* FactoryManager::CreateDataFile(const std::string &ofType,
+//                                          const std::string &withName)
 //------------------------------------------------------------------------------
 /**
- * Create an object of type Datafile, with the name withName.
+ * Create an object of type DataFile, with the name withName.
  *
- * @param withName name of the new Datafile object.
+ * @param ofType   type of the new DataFile object.
+ * @param withName name of the new DataFile object.
  *
- * @return pointer to the newly-created Datafile object
+ * @return pointer to the newly-created DataFile object
  */
 //------------------------------------------------------------------------------
-Datafile* FactoryManager::CreateDatafile(const std::string &withName)
+DataFile* FactoryManager::CreateDataFile(const std::string &ofType,
+                                         const std::string &withName)
 {
-   Factory* f = FindFactory(Gmat::DATASTREAM, "Datafile");
+   Factory* f = FindFactory(Gmat::DATA_FILE, "DataFile");
    if (f != NULL)
-      return f->CreateDatafile("Datafile", withName);
+      return f->CreateDataFile("DataFile", withName);
    return NULL;
 }
 
@@ -760,6 +788,7 @@ const StringArray& FactoryManager::GetListOfAllItems()
    GetList(Gmat::STOP_CONDITION);
    GetList(Gmat::SUBSCRIBER);
    GetList(Gmat::CELESTIAL_BODY);
+   GetList(Gmat::DATA_FILE);
    
    return entireList;
 }
@@ -924,7 +953,6 @@ Factory* FactoryManager::FindFactory(Gmat::ObjectType ofType,
 const StringArray& FactoryManager::GetList(Gmat::ObjectType ofType)
 {
    //entireList.clear();
-   
    std::list<Factory*>::iterator f = factoryList.begin();
    while (f != factoryList.end())
    {

@@ -48,11 +48,11 @@
 
 class MeasurementModel;
 class CoreMeasurement;
-class Datafile;
-class Obtype;
+class DataFile;
+class ObType;
 class TrackingSystem;
 class TrackingData;
-
+class EphemerisFile;
 
 /**
  * GMAT Factory Manager Class, the interface between the Moderator and the
@@ -97,6 +97,8 @@ public:
    Subscriber*            CreateSubscriber(const std::string &ofType,
                                            const std::string &withName = "",
                                            const std::string &fileName = "");
+   EphemerisFile*         CreateEphemerisFile(const std::string &ofType,
+                                              const std::string &withName = "");
    GmatCommand*           CreateCommand(const std::string &ofType,
                                         const std::string &withName = "");
    Burn*                  CreateBurn(const std::string &ofType,
@@ -120,7 +122,7 @@ public:
    CoreMeasurement*       CreateMeasurement(const std::string &ofType,
                                             const std::string &withName = "");
 
-   Obtype*                CreateObtype(const std::string &ofType,
+   ObType*                CreateObType(const std::string &ofType,
                                             const std::string &withName = "");
 
    //----- Just container
@@ -131,7 +133,8 @@ public:
    CoordinateSystem*      CreateCoordinateSystem(const std::string &withName = "");
 
    MeasurementModel*      CreateMeasurementModel(const std::string &withName);
-   Datafile*              CreateDatafile(const std::string &withName);
+   DataFile*              CreateDataFile(const std::string &ofType,
+                                         const std::string &withName);
    TrackingSystem*        CreateTrackingSystem(const std::string &ofType,
                                                const std::string &withName);
    TrackingData*          CreateTrackingData(const std::string &withName = "");

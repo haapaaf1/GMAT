@@ -39,6 +39,10 @@ public:
    friend Real ModifiedJulianDate(YearNumber year, MonthOfYear month,
                                   DayOfMonth day, Integer hour, Integer minute,
                                   Real second);
+
+   friend Real ModifiedJulianDate(YearNumber year, MonthOfYear month,
+                                  DayOfMonth day, Integer hour, Integer minute,
+                                  Real second, Real refEpochJD);
    
    friend void UnpackDate(Real packedDate, Integer& year, Integer& month, 
                           Integer& day);        // input in YYYYMMDD. 

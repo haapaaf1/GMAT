@@ -23,7 +23,8 @@
 //#define DEBUG_CONFIG 1
 //#define DEBUG_CONFIG_SS 1
 //#define DEBUG_CONFIG_ADD_CLONE 1
-//#define DEBUG_CONFIG_REMOVE
+#define DEBUG_CONFIG_REMOVE
+#define DEBUG_CONFIG_REMOVE_MORE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -629,7 +630,7 @@ void ConfigManager::AddMeasurement(CoreMeasurement *meas)
 }
 
 
-void ConfigManager::AddDatafile(Datafile *df)
+void ConfigManager::AddDataFile(DataFile *df)
 {
    GmatBase *obj = (GmatBase*)df;
 
@@ -638,13 +639,13 @@ void ConfigManager::AddDatafile(Datafile *df)
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
    if (!obj->IsOfType(Gmat::DATASTREAM))
-      throw ConfigManagerException(name + " is not a Datafile");
+      throw ConfigManagerException(name + " is not a DataFile");
 
    AddObject(obj);
 }
 
 
-void ConfigManager::AddObtype(Obtype *ot)
+void ConfigManager::AddObType(ObType *ot)
 {
    GmatBase *obj = (GmatBase*)ot;
 
@@ -653,10 +654,10 @@ void ConfigManager::AddObtype(Obtype *ot)
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
    if (!obj->IsOfType(Gmat::OBTYPE))
-      throw ConfigManagerException(name + " is not an Obtype");
+      throw ConfigManagerException(name + " is not an ObType");
 
-   MessageInterface::ShowMessage("Warning: Obtype %s configured; it "
-         "should be hidden inside of a Datafile", name.c_str());
+   MessageInterface::ShowMessage("Warning: ObType %s configured; it "
+         "should be hidden inside of a DataFile", name.c_str());
    AddObject(obj);
 }
 
@@ -1176,6 +1177,12 @@ bool ConfigManager::RemoveAllItems()
    {
       std::string objName = objects[i]->GetName();
       
+      #ifdef DEBUG_CONFIG_REMOVE_MORE
+      MessageInterface::ShowMessage
+         ("   deleting <%p><%s>'%s'\n", objects[i], objects[i]->GetTypeName().c_str(),
+          objects[i]->GetName().c_str());
+      #endif
+      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (objects[i], objects[i]->GetName(), "ConfigManager::RemoveAllItems()",
@@ -1186,7 +1193,32 @@ bool ConfigManager::RemoveAllItems()
       objects[i] = NULL;
    }
    
+   #ifdef DEBUG_CONFIG_REMOVE
+   MessageInterface::ShowMessage("Deleting %d new objects\n", newObjects.size());
+   #endif
+   // delete objects that were reconfigured, ie, just object pointer reset in the map
+   for (unsigned int i=0; i<newObjects.size(); i++)
+   {
+      std::string objName = newObjects[i]->GetName();
+      
+      #ifdef DEBUG_CONFIG_REMOVE_MORE
+      MessageInterface::ShowMessage
+         ("   deleting <%p><%s>'%s'\n", newObjects[i], newObjects[i]->GetTypeName().c_str(),
+          newObjects[i]->GetName().c_str());
+      #endif
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (newObjects[i], newObjects[i]->GetName(), "ConfigManager::RemoveAllItems()",
+          " deleting configured obj");
+      #endif
+      
+      delete newObjects[i];
+      newObjects[i] = NULL;
+   }
+   
    objects.clear();
+   newObjects.clear();
    mapping.clear();
    
    return true;
@@ -1321,9 +1353,12 @@ bool ConfigManager::ReconfigureItem(GmatBase *newobj, const std::string &name)
              newobj);
          #endif
          
-         if (obj->GetTypeName() == newobj->GetTypeName())
+         //if (obj->GetTypeName() == newobj->GetTypeName())
+         // We want to replace if classsified as the same sub type
+         if (newobj->IsOfType(obj->GetTypeName()))
          {
             mapping[name] = newobj;
+            newObjects.push_back(newobj);
             return true;
          }
       }
@@ -1859,14 +1894,14 @@ TrackingData* ConfigManager::GetTrackingData(const std::string &name)
    return obj;
 }
 
-Datafile* ConfigManager::GetDataStream(const std::string &name)
+DataFile* ConfigManager::GetDataStream(const std::string &name)
 {
-   Datafile *df = NULL;
+   DataFile *df = NULL;
    if (mapping.find(name) != mapping.end())
    {
       if (mapping[name]->IsOfType(Gmat::DATASTREAM))
       {
-         df = (Datafile *)mapping[name];
+         df = (DataFile *)mapping[name];
       }
    }
    return df;

@@ -77,6 +77,7 @@ public:
    // Access methods called on the base class
    virtual Gmat::ObjectType
                         GetType() const;
+   virtual bool         SetTypeName(const std::string &newType);
    inline std::string   GetTypeName() const;
    inline std::string   GetName() const;
    virtual bool         SetName(const std::string &who,
@@ -222,6 +223,12 @@ public:
    virtual const UnsignedIntArray&
                         GetUnsignedIntArrayParameter(const Integer id) const;
 
+   virtual const IntegerArray&
+                        GetIntegerArrayParameter(const Integer id) const;
+   virtual const IntegerArray&
+                        GetIntegerArrayParameter(const Integer id,
+                                                const Integer index) const;
+
    virtual const Rvector&
                         GetRvectorParameter(const Integer id) const;
    virtual const Rvector&
@@ -362,6 +369,12 @@ public:
    static const UnsignedInt  UNSIGNED_INT_PARAMETER_UNDEFINED;
    /// Return value used if the parameter is not accessible as a String
    static const std::string  STRING_PARAMETER_UNDEFINED;
+   /// Return value used if the parameter is not accessible as a StringArray
+   static const StringArray  STRINGARRAY_PARAMETER_UNDEFINED;
+   /// Return value used if the parameter is not accessible as a IntegerArray
+   static const IntegerArray INTEGERARRAY_PARAMETER_UNDEFINED;
+   /// Return value used if the parameter is not accessible as a UnsignedIntArray
+   static const UnsignedIntArray UNSIGNED_INTARRAY_PARAMETER_UNDEFINED;
    /// Return value used if the parameter is not accessible as a Rvector
    static const Rvector      RVECTOR_PARAMETER_UNDEFINED;
    /// Return value used if the parameter is not accessible as a Rmatrix

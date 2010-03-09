@@ -154,17 +154,17 @@ namespace Gmat
       
       MATH_TREE,
       BODY_FIXED_POINT,
-
       EVENT,
-
       // Estimation types
       MEASUREMENT_MODEL,   // May be replaced by TrackingSystem
       CORE_MEASUREMENT,    // For the measurement primitives
+      
       TRACKING_DATA,
       TRACKING_SYSTEM,
-      DATASTREAM,          // For Datafle container objects
-      
+      DATASTREAM,          // For DataFile container objects      
+      DATA_FILE,           // For DataFile objects
       OBTYPE,              // For the specific observation types
+      
       UNKNOWN_OBJECT
    };
 
@@ -180,6 +180,7 @@ namespace Gmat
       INTEGER_TYPE,
       UNSIGNED_INT_TYPE,
       UNSIGNED_INTARRAY_TYPE,
+      INTARRAY_TYPE,
       REAL_TYPE,
       REAL_ELEMENT_TYPE,
       STRING_TYPE,

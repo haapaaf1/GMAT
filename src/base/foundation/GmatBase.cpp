@@ -53,6 +53,12 @@ const Real        GmatBase::REAL_PARAMETER_UNDEFINED = -987654321.0123e-45;
 const Integer     GmatBase::INTEGER_PARAMETER_UNDEFINED = -987654321;
 const UnsignedInt GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED = 987654321;
 const std::string GmatBase::STRING_PARAMETER_UNDEFINED = "STRING_PARAMETER_UNDEFINED";
+const StringArray       GmatBase::STRINGARRAY_PARAMETER_UNDEFINED = StringArray(1,
+                        GmatBase::STRING_PARAMETER_UNDEFINED);
+const IntegerArray      GmatBase::INTEGERARRAY_PARAMETER_UNDEFINED = IntegerArray(1,
+                        GmatBase::INTEGER_PARAMETER_UNDEFINED);
+const UnsignedIntArray  GmatBase::UNSIGNED_INTARRAY_PARAMETER_UNDEFINED = UnsignedIntArray(1,
+                        GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED);
 const Rvector     GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
                   GmatBase::REAL_PARAMETER_UNDEFINED);
 const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
@@ -81,10 +87,10 @@ const std::string GmatBase::PARAMETER_LABEL[GmatBaseParamCount] =
 const std::string
 GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 {
-   "Integer",     "UnsignedInt", "UnsignedIntArray", "Real",
-   "RealElement", "String",      "StringArray",      "Boolean",
-   "Rvector",     "Rmatrix",     "Time",             "Object",
-   "ObjectArray", "OnOff",       "Enumeration",
+   "Integer",     "UnsignedInt", "UnsignedIntArray", "IntegerArray", "Real",
+   "RealElement", "String",      "StringArray",      "Boolean",      "Rvector",
+   "Rmatrix",     "Time",        "Object",           "ObjectArray",  "OnOff",
+   "Enumeration",
 };
 
 /**
@@ -96,16 +102,17 @@ GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 const std::string
 GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
 {
-   "Spacecraft",    "Formation",        "SpaceObject",      "GroundStation",   "Burn",
-   "ImpulsiveBurn", "FiniteBurn",       "Command",          "Propagator",      "ODEModel",
-   "PhysicalModel", "TransientForce",   "Interpolator",     "SolarSystem",     "SpacePoint",
-   "CelestialBody", "CalculatedPoint",  "LibrationPoint",   "Barycenter",      "Atmosphere",
-   "Parameter",     "Variable",         "Array",            "String",          "StopCondition",
-   "Solver",        "Subscriber",       "ReportFile",       "XYPlot",          "OpenGLPlot",
-   "EphemerisFile", "PropSetup",        "Function",         "FuelTank",        "Thruster",
-   "Hardware",      "CoordinateSystem", "AxisSystem",       "Attitude",        "MathNode",
-   "MathTree",      "BodyFixedPoint",   "MeasurementModel", "CoreMeasurement", "TrackingData",
-   "TrackingSystem", "DataStream",      "ObType",           "UnknownObject"
+   "Spacecraft",    "Formation",        "SpaceObject",      "GroundStation",    "Burn",
+   "ImpulsiveBurn", "FiniteBurn",       "Command",          "Propagator",       "ODEModel",
+   "PhysicalModel", "TransientForce",   "Interpolator",     "SolarSystem",      "SpacePoint",
+   "CelestialBody", "CalculatedPoint",  "LibrationPoint",   "Barycenter",       "Atmosphere",
+   "Parameter",     "Variable",         "Array",            "String",           "StopCondition",
+   "Solver",        "Subscriber",       "ReportFile",       "XYPlot",           "OpenGLPlot",
+   "EphemerisFile", "PropSetup",        "Function",         "FuelTank",         "Thruster",
+   "Hardware",      "CoordinateSystem", "AxisSystem",       "Attitude",         "MathNode",
+   "MathTree",      "BodyFixedPoint",   "Event",            "MeasurementModel", "CoreMeasurement",
+   "TrackingData",  "TrackingSystem",   "DataStream",       "DataFile",         "ObType",
+   "UnknownObject"
 };
 /**
  * Build the list of automatic global settings
@@ -128,7 +135,8 @@ GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    false,     true,      true,      false,     false,
    false,     true,      false,     false,     false,
    false,     false,     false,     false,     false,
-   false,     false,     false,     false
+   false,     false,     false,     false,     false,
+   false
 };
 
 
@@ -315,6 +323,22 @@ Gmat::ObjectType GmatBase::GetType() const
    return type;
 }
 
+
+//---------------------------------------------------------------------------
+//  bool SetTypeName(std::string &newType)
+//---------------------------------------------------------------------------
+/**
+* Set the type name for this instance.
+ *
+ * @param <newType> the object's new type.
+ * @return true if the name was changed, false if an error was encountered.
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::SetTypeName(const std::string &newType)
+{
+   typeName = newType;
+   return true;
+}
 
 //---------------------------------------------------------------------------
 //  bool SetName(std::string &who, const std;:string &oldName = "")
@@ -1650,6 +1674,49 @@ const UnsignedIntArray& GmatBase::GetUnsignedIntArrayParameter(const Integer id)
                            instanceName + "\"");
 }
 
+//---------------------------------------------------------------------------
+//  const IntegerArray& GetIntegerArrayParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Access an array of integer data.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The requested IntegerArray; throws if the parameter is not a
+ *         IntegerArray.
+ */
+const IntegerArray& GmatBase::GetIntegerArrayParameter(const Integer id) const
+{
+   std::stringstream idString;
+   idString << id << ": \"" << GetParameterText(id) << "\"";
+   throw GmatBaseException("Cannot get integer array parameter with "
+                           " ID " + idString.str() +
+                           " on " + typeName + " named " + instanceName);
+}
+
+//---------------------------------------------------------------------------
+//  const IntegerArray& GetIntegerArrayParameter(const Integer id,
+//                                             const Integer index) const
+//---------------------------------------------------------------------------
+/**
+ * Access an array of integer data.
+ *
+ * @param id The integer ID for the parameter.
+ * @param index The index when multiple IntegerArrays are supported.
+ *
+ * @return The requested IntegerArray; throws if the parameter is not a
+ *         IntegerArray.
+ */
+const IntegerArray& GmatBase::GetIntegerArrayParameter(const Integer id,
+                                               const Integer index) const
+{
+   std::stringstream indexString, idString;
+   idString << id << ": \"" << GetParameterText(id) << "\"";
+   indexString << index;
+   throw GmatBaseException("Cannot get integer array parameter with ID " +
+                           idString.str() + " and index " + indexString.str() +
+                           " on " + typeName + " named " + instanceName);
+}
 
 //---------------------------------------------------------------------------
 //  const Rvector& GetRvectorParameter(const Integer id) const
