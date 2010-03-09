@@ -1,32 +1,60 @@
 \begin{table}[htbp!]
-\centering
+\centering\footnotesize
       \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
       \hline
-         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-19 Spacecraft GUI SphericalRADec to Keplerian Conversion\\
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-19 Orbit GUI conversion for near singular Cartesian state\\
          \hline
-         Requirements & FRR-1.3\\ \hline
-         Summary &
-         %----------------------  The Test Summary
-         This test case applies to state representation conversions performed by the Spacecraft Orbit dialog box.  \\
-         \hline
-         PreConditions & To run this test you need to load BS-1 and have data defined in TD-1 available.\\
-         \hline
-         Steps &
-         %------- The test data is here
+         Requirements & FR-1.3\\  \hline
+         PreConditions & BS-1\\     \hline
+        Steps &
+         %====================== BEGIN: The test procedure
          \begin{compactenum}
-         \item Open the dialog box for DefaultSC via the GUI.
-         \item Change the state type to SphericalRADEC.
-         \item Enter the SphericalRADEC data defined in table TD-1.
-         \item Hit the apply button.
-         \item Change the state type drop down box to Keplerian and compare the Keplerian state to the
-         Keplerian state data contained in TD-1. The states should be equivalent to 14 significant figures.
-         \end{compactenum}\\
-         %------- The test data is here
-         \hline
-         Expected Results & The expected numeric results are described above and in TD-1.\\
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Set the Cartesian state to the following values
+                 \begin{compactenum}
+                    \item X  = 6999.998216286026
+                    \item Y = 0
+                    \item Z = -5.002359263770285
+                    \item VX = 10.63431352889248
+                    \item VY = 0
+                    \item VZ =  -0.003772975815698364
+                    \end{compactenum}
+             \item Hit Apply.
+             \item Change state type to Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Modified Keplerian and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the Modified Keplerian elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change state type to Equinoctial and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the Equinoctial elements so conversion was aborted.  The radius of periapsis must be greater than 1 meter."
+             \item Change the following states.
+             \begin{compactenum}
+                    \item X = 1e-10
+                    \item Y = 1e-10
+                    \item Z = 1e-10
+             \end{compactenum}
+             \item Hit Apply
+             \item Repeat steps 5, 6, and 7.
+             \item Change state type to SphericalRADec and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the SphercialRADEC state to the Cartesian State so conversion was aborted.  The Right Ascension and Declination of position are undefined."
+             \item Change state type to SphericalAZFPA and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the Cartesian State so conversion was aborted.  The Right Ascension and Declination of position are undefined."
+             \item Change the following states:
+                 \begin{compactenum}
+                    \item X  = 6999.998216286026
+                    \item Y = 0
+                    \item Z = -5.002359263770285
+                    \item VX = 1e-10
+                    \item VY = 1e-10
+                    \item VZ = 1e-10
+                 \end{compactenum}
+             \item Hit Apply
+             \item Repeat steps 5, 6, and 7.
+             \item Change state type to SphericalRADec and ensure that the following error is thrown:  ``Warning: A nearly singular conic section was encountered while converting from the Cartesian state to the SphericalRADEC so conversion was aborted.  The Right Ascension and Declination of velocity are undefined."
+             \item Change state type to SphericalAZFPA and ensure that the following error is thrown: ``Warning: A nearly singular conic section was encountered while converting from the SphercialAZFPA state to the Cartesian State so conversion was aborted.  The Right Ascension and Declination of velocity are undefined."
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & Test results are described above.\\
       \hline
-\end{tabular}
-      \label{Table: STC-19}
-      \caption{STC-19 Spacecraft GUI SphericalRADEC to Keplerian State Conversion}
-       \index{Test Data!STC-19}
-\end{table} 
+      \end{tabular}
+      \label{Table:STC-19}
+      \caption{STC-19 Orbit GUI conversion for near singular Cartesian state}
+      \index{Test Data!STC-19}
+\end{table}
+

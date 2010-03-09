@@ -1,40 +1,70 @@
+
 \begin{table}[htbp!]
 \centering
       \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
       \hline
-         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-27 Spacecraft GUI TAIGregorian to Other Epoch Types\\
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-27 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit\\
          \hline
-         Requirements & FRR-2.4\\ \hline
+         Requirements & FR-1.1\\  \hline
          Summary &
-         %----------------------  The Test Summary
-         This test case applies to epoch representation conversions performed by the Spacecraft Orbit dialog box.  \\
-         \hline
-         PreConditions & To run this test you need to load BS-1 and have data defined in TD-2 available.\\
-         \hline
-         Steps &
-         %------- The test data is here
+         %======================  BEGIN: The Test Summary
+         This  case tests GUI behavior when attempting to convert to element representations when the
+         cartesian state results in a circular, equatorial orbit.
+         %======================  END: The Test Summary
+         \\     \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
          \begin{compactenum}
-         \item Open the dialog box for DefaultSC via the GUI.
-         \item Change the Epoch Format to TAIGregorian.
-         \item Enter the TAIGregorian epoch defined in Table \ref{Table:TD-2}.
-         \item Hit the apply button.
-         \item Change the Epoch Format drop down box to UTCGregorian and compare the epoch to the
-          data contained in TD-2. The epoch should agree identically.
-         \end{compactenum}\\
-         %------- The test data is here
-		 \hline
-         Alternative Paths &
-         %------- The test data is here
-         \begin{compactenum}
-         \item Perform the test using UTCModJulian, TAIModJulian, TTGregorian, TTModJulian, A1ModJulian,
-         and A1Gregorian in place of UTCGregorian in step 5.
-         \end{compactenum}\\
-         %------- The test data is here
-         \hline
-         Expected Results & The expected numeric results are described above and in TD-2.\\
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the State Type to Keplerian
+             \item Change ECC to 0.0.
+             \item Change INC to 0.0 degrees.
+             \item Change RAAN to 380.0 degrees.
+             \item Change AOP to 390.0 degrees.
+             \item Change TA to 430.0 degrees.
+             \item Hit Apply.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results &  RAAN = 0.0 degrees, AOP = 0.0 degrees, and TA = 120.0 degrees. (All
+         values match to 14 sig. figs.)\\
       \hline
-\end{tabular}
+      \end{tabular}
       \label{Table:STC-27}
-      \caption{STC-27 Spacecraft GUI TAIGregorian to Other Epoch Types}
-       \index{Test Data!STC-27}
+      \caption{STC-27 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit}
+      \index{Test Data!STC-27}
+\end{table}
+
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-28 Performing Modulo on Keplerian Elements for Circular, Inclined Orbit\\
+         \hline
+         Requirements & FR-1.1\\  \hline
+         PreConditions & BS-1\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Open the dialog box for DefaultSC.
+             \item Change the State Type to Keplerian
+             \item Change ECC to 0.0.
+             \item Change INC to 45 degrees.
+             \item Change RAAN to 380.0 degrees.
+             \item Change AOP to 390.0 degrees.
+             \item Change TA to 430.0 degrees.
+             \item Hit Apply.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results &  RAAN = 20.0 degrees, AOP = 0.0 degrees, and TA = 70.0 degrees. (All
+         values match to 14 sig. figs.)\\
+      \hline
+      \end{tabular}
+      \label{Table:STC-28}
+      \caption{STC-28 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit}
+      \index{Test Data!STC-28}
 \end{table} 
