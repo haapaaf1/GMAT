@@ -104,7 +104,8 @@ GRangeMeasurement.Covariance.Bias = [1000000];
 %---------- Tracking Systems
 %----------------------------------------
 Create USNTrackingSystem USNTracker
-USNTracker.Add = {RangeMeasurement, GRangeMeasurement}
+% USNTracker.Add = {RangeMeasurement, GRangeMeasurement}
+USNTracker.Add = {RangeMeasurement}
 
 %----------------------------------------
 % Report
