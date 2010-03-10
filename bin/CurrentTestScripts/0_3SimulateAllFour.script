@@ -23,7 +23,7 @@ GMAT Maui.Y  =  2676.1;
 GMAT Maui.Z  = -3691.38;
 
 %----- Create the data file
-Create Datafile MauiMeasData
+Create DataFile MauiMeasData
 MauiMeasData.Filename = MauiDataAllFour.gmd
 MauiMeasData.Format  = GMATInternal
 

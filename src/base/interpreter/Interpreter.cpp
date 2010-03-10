@@ -3927,7 +3927,8 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
    {
       retval = SetMeasurementModelProperty(toOwner, toProp, value);
    }
-   else if (toOwner->GetType() == Gmat::DATASTREAM)
+   else if ((toOwner->GetType() == Gmat::DATASTREAM) ||
+            (toOwner->GetType() == Gmat::DATA_FILE))
    {
       retval = SetDataStreamProperty(toOwner, toProp, value);
    }

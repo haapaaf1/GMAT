@@ -58,7 +58,7 @@ ODProp.MaxStepAttempts = 50;
 %----------------------------------------
 %---------- Datafiles
 %----------------------------------------
-Create Datafile MauiMeasData;
+Create DataFile MauiMeasData;
 MauiMeasData.Filename = 'USNRangeTrackMaui.gmd';
 MauiMeasData.Format = GMATInternal;
 

@@ -71,9 +71,7 @@ GMAT Maui.Id = 'MauiID';
 %----- Create the propagator
 
 Create ForceModel ODProp_ForceModel;
-
 GMAT ODProp_ForceModel.CentralBody = Earth;
-
 GMAT ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
 GMAT ODProp_ForceModel.Drag = None;
 GMAT ODProp_ForceModel.SRP = Off;
@@ -104,34 +102,23 @@ Create Variable ep resid;
 %---------- Datafiles
 %----------------------------------------
 
-
-
 %----- Create the data file
-
-Create Datafile MauiMeasData;
-
+Create DataFile MauiMeasData;
 GMAT MauiMeasData.Filename = 'MauiData.gmd';
-
 GMAT MauiMeasData.Format = GMATInternal;
 
 %----------------------------------------
 %---------- MeasurementModels
 %----------------------------------------
 
-
 %----- Create a range measurement between Maui and ODSat
-
 Create MeasurementModel RangeMeasurement;
-
 GMAT RangeMeasurement.ObservationData = {MauiMeasData};
-
 GMAT RangeMeasurement.Type = Range;
-
 GMAT RangeMeasurement.Participants = {Maui, ODSat};
 GMAT RangeMeasurement.Bias = 0;
 GMAT RangeMeasurement.NoiseSigma = 1e-05;
 GMAT RangeMeasurement.TimeConstant = 6000;
-
 RangeMeasurement.Covariance.Bias = [1000000];
 
 %----------------------------------------
@@ -145,7 +132,7 @@ RangeMeasurement.Covariance.Bias = [1000000];
 Create BatchEstimatorInv BatchEst;
 GMAT BatchEst.ShowProgress = true;
 GMAT BatchEst.ReportStyle = 'Normal';
-GMAT BatchEst.TargeterTextFile = 'BatchEstimatorInvBatchEst.data';
+GMAT BatchEst.ReportFile = 'BatchEstimatorInvBatchEst.data';
 GMAT BatchEst.MaximumIterations = 15;
 GMAT BatchEst.Measurements = {RangeMeasurement};
 GMAT BatchEst.AddSolveFor = {'ODSat.CartesianState', 'RangeMeasurement.Bias'};

@@ -1,10 +1,8 @@
-% Script Test Case for Build 0.1
-
+% Script Test Case for Build 0.4
 
 %----------------------------------------
 %---------- Solar System User-Modified Values
 %----------------------------------------
-
 
 %----------------------------------------
 %---------- Spacecraft
@@ -12,7 +10,6 @@
 %
 
 %----- Create the spacecraft
-
 Create Spacecraft ODSat;
 GMAT ODSat.DateFormat = UTCGregorian;
 GMAT ODSat.Epoch = '01 Jan 2000 11:59:28.000';
@@ -96,7 +93,7 @@ GMAT ODProp.MaxStepAttempts = 50;
 %---------- Datafiles
 %----------------------------------------
 
-Create Datafile MauiMeasData;
+Create DataFile MauiMeasData;
 GMAT MauiMeasData.Filename = 'MauiData.gmd';
 GMAT MauiMeasData.Format = GMATInternal;
 
@@ -123,7 +120,7 @@ GMAT RangeMeasurement.Covariance.Bias = [0.1];
 Create ExtendedKalmanInv EKF;
 GMAT EKF.ShowProgress = true;
 GMAT EKF.ReportStyle = 'Normal';
-GMAT EKF.TargeterTextFile = 'EKFTextFile.data';
+GMAT EKF.ReportFile = 'EKFTextFile.data';
 GMAT EKF.MaximumIterations = 15;
 GMAT EKF.Measurements = {RangeMeasurement};
 GMAT EKF.AddSolveFor = {'ODSat.CartesianState', 'RangeMeasurement.Bias'};
