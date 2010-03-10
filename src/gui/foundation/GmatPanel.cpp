@@ -6,12 +6,18 @@
 //
 // Author: Linda Jun
 // Created: 2004/02/02
+// Modified: 
+//    2010.03.05 Thomas Grubb 
+//       - Enabled help button to launch wiki page from configuration file (GMAT.ini)
+//       - Added accelerator keys to Apply, Help, Show Script and Command Summary buttons
 //
 /**
  * Implements GmatPanel class.
  */
 //------------------------------------------------------------------------------
 
+#include <wx/utils.h>
+#include <wx/config.h>
 #include "GmatPanel.hpp"
 #include "GmatAppData.hpp"
 #include "MessageInterface.hpp"
@@ -19,6 +25,8 @@
 #include "ShowScriptDialog.hpp"
 #include "ShowSummaryDialog.hpp"
 
+//#define __SHOW_HELP_BUTTON__
+//#define __SMART_APPLY_BUTTON__
 //#define DEBUG_GMATPANEL
 //#define DEBUG_GMATPANEL_SAVE
 
@@ -32,6 +40,9 @@ BEGIN_EVENT_TABLE(GmatPanel, wxPanel)
    EVT_BUTTON(ID_BUTTON_CANCEL, GmatPanel::OnCancel)
    EVT_BUTTON(ID_BUTTON_SCRIPT, GmatPanel::OnScript)
    EVT_BUTTON(ID_BUTTON_SUMMARY, GmatPanel::OnSummary)
+#ifdef __SHOW_HELP_BUTTON__
+   EVT_BUTTON(ID_BUTTON_HELP, GmatPanel::OnHelp)
+#endif
 END_EVENT_TABLE()
 
 //------------------------------
@@ -98,20 +109,25 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
       theOkButton = new wxButton
          (this, ID_BUTTON_OK, "OK", wxDefaultPosition, wxDefaultSize, 0);
       theApplyButton = new wxButton
-         (this, ID_BUTTON_APPLY, "Apply", wxDefaultPosition, wxDefaultSize, 0);
+         (this, ID_BUTTON_APPLY, GUI_ACCEL_KEY"Apply", wxDefaultPosition, wxDefaultSize, 0);
       theCancelButton = new wxButton
-         (this, ID_BUTTON_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, 0);
-      
+                  (this, ID_BUTTON_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, 0);
+
       #ifdef __SHOW_HELP_BUTTON__
       theHelpButton = new wxButton
-         (this, ID_BUTTON_HELP, "Help", wxDefaultPosition, wxDefaultSize, 0);
+         (this, ID_BUTTON_HELP, GUI_ACCEL_KEY"Help", wxDefaultPosition, wxDefaultSize, 0);
       #endif
       
       theScriptButton = new wxButton
-         (this, ID_BUTTON_SCRIPT, "Show Script", wxDefaultPosition, wxDefaultSize, 0);
+         (this, ID_BUTTON_SCRIPT, "Show "GUI_ACCEL_KEY"Script", wxDefaultPosition, wxDefaultSize, 0);
       theSummaryButton = new wxButton
-         (this, ID_BUTTON_SUMMARY, "Command Summary", wxDefaultPosition, wxDefaultSize, 0);
-      
+         (this, ID_BUTTON_SUMMARY, GUI_ACCEL_KEY"Command Summary", wxDefaultPosition, wxDefaultSize, 0);
+
+      // set the Apply button as the default button, T. Grubb
+      #ifdef __SMART_APPLY_BUTTON__   
+      theApplyButton->SetDefault();
+      #endif
+
       // use different color for Show Script, and Command Summary for now
       theScriptButton->SetForegroundColour(*wxBLUE);
       theSummaryButton->SetForegroundColour(*wxBLUE);
@@ -178,6 +194,10 @@ void GmatPanel::EnableUpdate(bool enable)
       mDataChanged = false;
       mdichild->SetDirty(false);
    }
+   // toggle the Apply button based on modifications (T Grubb)
+   #ifdef __SMART_APPLY_BUTTON__   
+   if (theApplyButton != NULL) theApplyButton->Enable(mDataChanged);
+   #endif
 }
 
 
@@ -293,7 +313,12 @@ void GmatPanel::OnCancel(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GmatPanel::OnHelp(wxCommandEvent &event)
 {
-   // open separate window to show help?
+    // get the config object
+    wxConfigBase *pConfig = wxConfigBase::Get();
+    pConfig->SetPath(wxT("/Help"));
+    wxString s = mObject->GetTypeName();
+    // open separate window to show help 
+    wxLaunchDefaultBrowser(pConfig->Read(_T(s),_T("http://gmat.ed-pages.com/wiki/tiki-index.php?page="+s+"+Object")));
 }
 
 
@@ -393,8 +418,9 @@ void GmatPanel::Show()
    
    // tells the enclosing window to adjust to the size of the sizer
    SetAutoLayout( TRUE );
+
    SetSizer(thePanelSizer); //use the sizer for layout
-   thePanelSizer->Fit(this);
+
    thePanelSizer->SetSizeHints(this); //set size hints to honour minimum size
    
    LoadData();

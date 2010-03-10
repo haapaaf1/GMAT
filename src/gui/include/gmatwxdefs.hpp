@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -15,8 +15,8 @@
  * use wxWindows.
  */
 //------------------------------------------------------------------------------
-#ifndef gmatwxdefs_h
-#define gmatwxdefs_h
+#ifndef gmatwxdefs_hpp
+#define gmatwxdefs_hpp
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4267 )  // Disable warning messages 4267 
@@ -59,4 +59,10 @@
 #  include "wx/glcanvas.h"
 #endif
 
-#endif // gmatwxdefs_h
+#ifdef __WXMSW__  // Windows
+   #define GUI_ACCEL_KEY "&"
+#else
+   #define GUI_ACCEL_KEY ""
+#endif // End of OS nits
+
+#endif // gmatwxdefs_hpp

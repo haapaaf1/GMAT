@@ -14,8 +14,11 @@
 // Author: Waka Waktola
 // Created: 2004/11/19
 // Modified: 
+//    2010.03.08 Thomas Grubb 
+//      - Use GUI_ACCEL_KEY from gmatdefs.hpp
+//      - Added HELP button to panel
 //    2010.03.01 Thomas Grubb 
-//       - Read tooltips from configuration file (GMAT.ini)
+//      - Read tooltips from configuration file (GMAT.ini)
 //    2010.02.12 Thomas Grubb 
 //      - Added tooltips & accelerator keys
 //      - Added validators to numeric text controls
@@ -81,6 +84,9 @@ BEGIN_EVENT_TABLE(TankConfigPanel, wxPanel)
    EVT_BUTTON(ID_BUTTON_SCRIPT, GmatPanel::OnScript)
    EVT_TEXT(ID_TEXTCTRL, TankConfigPanel::OnTextChange)
    EVT_COMBOBOX(ID_COMBOBOX, TankConfigPanel::OnComboBoxChange)
+#ifdef __SHOW_HELP_BUTTON__
+   EVT_BUTTON(ID_BUTTON_HELP, GmatPanel::OnHelp)
+#endif
 END_EVENT_TABLE()
 
 //------------------------------
@@ -159,7 +165,7 @@ void TankConfigPanel::Create()
    //-----------------------------------------------------------------
    // Volume
    wxStaticText *volumeLabel =
-      new wxStaticText( this, ID_TEXT, wxT("&Volume")); 
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Volume")); 
    volumeTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    volumeTextCtrl->SetToolTip(pConfig->Read(_T("VolumeHint")));
@@ -168,7 +174,7 @@ void TankConfigPanel::Create()
    
    // Pressure Model
    wxStaticText *pressureModelLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Pressure &Model"));
+      new wxStaticText( this, ID_TEXT, wxT("Pressure "GUI_ACCEL_KEY"Model"));
    Integer id = theFuelTank->GetParameterID("PressureModel");
    StringArray pressModelList =
       theFuelTank->GetPropertyEnumStrings(id);
@@ -180,7 +186,7 @@ void TankConfigPanel::Create()
    
    // Fuel Mass
    wxStaticText *fuelMassLabel =
-      new wxStaticText( this, ID_TEXT, wxT("&Fuel Mass"));
+      new wxStaticText( this, ID_TEXT, wxT("F"GUI_ACCEL_KEY"uel Mass"));
    fuelMassTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    fuelMassTextCtrl->SetToolTip(pConfig->Read(_T("MassHint")));
@@ -189,7 +195,7 @@ void TankConfigPanel::Create()
    
    // Fuel Density
    wxStaticText *fuelDensityLabel =
-      new wxStaticText( this, ID_TEXT, wxT("Fuel &Density"));
+      new wxStaticText( this, ID_TEXT, wxT("Fuel "GUI_ACCEL_KEY"Density"));
    fuelDensityTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    fuelDensityTextCtrl->SetToolTip(pConfig->Read(_T("DensityHint")));
@@ -198,7 +204,7 @@ void TankConfigPanel::Create()
    
    // Temperature
    wxStaticText *temperatureLabel =
-      new wxStaticText( this, ID_TEXT, wxT("&Temperature"));
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Temperature"));
    temperatureTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    temperatureTextCtrl->SetToolTip(pConfig->Read(_T("TemperatureHint")));
@@ -207,7 +213,7 @@ void TankConfigPanel::Create()
    
    // Reference Temperature
    wxStaticText *refTemperatureLabel =
-      new wxStaticText( this, ID_TEXT, wxT("&Reference Temperature"));
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Reference Temperature"));
    refTemperatureTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    refTemperatureTextCtrl->SetToolTip(pConfig->Read(_T("ReferenceTemperatureHint")));
@@ -216,7 +222,7 @@ void TankConfigPanel::Create()
    
    // Pressure
    wxStaticText *pressureLabel =
-      new wxStaticText( this, ID_TEXT, wxT("&Pressure"));
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Pressure"));
    pressureTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    pressureTextCtrl->SetToolTip(pConfig->Read(_T("PressureHint")));
