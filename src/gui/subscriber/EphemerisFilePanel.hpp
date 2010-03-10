@@ -71,6 +71,9 @@ protected:
    
    wxFileDialog *fileDialog;
    
+   /// Managed wxComboBox map used by GuiItemManager
+   std::map<wxString, wxComboBox*>  managedComboBoxMap;
+   
    /// IDs used for event management
    enum
    {

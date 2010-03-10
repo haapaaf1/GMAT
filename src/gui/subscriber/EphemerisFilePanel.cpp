@@ -73,6 +73,10 @@ EphemerisFilePanel::EphemerisFilePanel(wxWindow *parent, const wxString &name)
 //------------------------------------------------------------------------------
 EphemerisFilePanel::~EphemerisFilePanel()
 {
+   // Unregister automatically registered ComboBoxes
+   std::map<wxString, wxComboBox *>::iterator iter;
+   for (iter = managedComboBoxMap.begin(); iter != managedComboBoxMap.end(); ++iter)
+      theGuiManager->UnregisterComboBox(iter->first, iter->second);
 }
 
 
@@ -326,6 +330,7 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
             wxComboBox *cbControl =
                theGuiManager->GetSpacePointComboBox(this, ID_COMBOBOX,
                                                     wxSize(180,-1), false);
+            managedComboBoxMap.insert(std::make_pair("SpacePoint", cbControl));
             control = cbControl;
          }
          else if (type == Gmat::CELESTIAL_BODY)
@@ -336,6 +341,7 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
             wxComboBox *cbControl =
             theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX,
                                                     wxSize(180,-1));
+            managedComboBoxMap.insert(std::make_pair("CelestialBody", cbControl));
             control = cbControl;
          }
          else if (type == Gmat::SPACECRAFT)
@@ -346,6 +352,7 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
             wxComboBox *cbControl =
                theGuiManager->GetSpacecraftComboBox(this, ID_COMBOBOX,
                                                     wxSize(180,-1));
+            managedComboBoxMap.insert(std::make_pair("Spacecraft", cbControl));
             control = cbControl;
          }
          else if (type == Gmat::COORDINATE_SYSTEM)
@@ -356,6 +363,7 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
             wxComboBox *cbControl =
                theGuiManager->GetCoordSysComboBox(this, ID_COMBOBOX,
                                                   wxSize(180,-1));
+            managedComboBoxMap.insert(std::make_pair("CoordinateSystem", cbControl));
             control = cbControl;
          }
          else
