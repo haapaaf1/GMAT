@@ -316,7 +316,7 @@ void GmatPanel::OnHelp(wxCommandEvent &event)
     // get the config object
     wxConfigBase *pConfig = wxConfigBase::Get();
     pConfig->SetPath(wxT("/Help"));
-    wxString s = mObject->GetTypeName();
+    wxString s = mObject->GetTypeName().c_str();
     // open separate window to show help 
     wxLaunchDefaultBrowser(pConfig->Read(_T(s),_T("http://gmat.ed-pages.com/wiki/tiki-index.php?page="+s+"+Object")));
 }
