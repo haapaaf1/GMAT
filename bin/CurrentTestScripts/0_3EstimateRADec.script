@@ -108,7 +108,7 @@ GMAT MauiMeasData.Format = GMATInternal;
 
 Create MeasurementModel RADecMeasurement
 RADecMeasurement.ObservationData = MauiMeasData;
-RADecMeasurement.Type   = RADec;
+RADecMeasurement.Type   = GeometricRADec;
 RADecMeasurement.Participants = { Maui, ODSat };
 RADecMeasurement.Covariance.Bias = [0.1 0.1];
 

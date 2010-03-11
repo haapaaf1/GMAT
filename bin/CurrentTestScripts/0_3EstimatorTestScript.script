@@ -114,7 +114,7 @@ GMAT MauiMeasData.Format = GMATInternal;
 %----- Create a range measurement between Maui and ODSat
 Create MeasurementModel RangeMeasurement;
 GMAT RangeMeasurement.ObservationData = {MauiMeasData};
-GMAT RangeMeasurement.Type = Range;
+GMAT RangeMeasurement.Type = GeometricRange;
 GMAT RangeMeasurement.Participants = {Maui, ODSat};
 GMAT RangeMeasurement.Bias = 0;
 GMAT RangeMeasurement.NoiseSigma = 1e-05;

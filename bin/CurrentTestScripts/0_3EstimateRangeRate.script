@@ -109,7 +109,7 @@ GMAT MauiMeasData.Format = GMATInternal;
 
 Create MeasurementModel RangeRateMeasurement
 RangeRateMeasurement.ObservationData = MauiMeasData;
-RangeRateMeasurement.Type   = RangeRate;
+RangeRateMeasurement.Type   = GeometricRangeRate;
 RangeRateMeasurement.Participants = { Maui, ODSat };
 RangeRateMeasurement.Covariance.Bias = [0.1];
 

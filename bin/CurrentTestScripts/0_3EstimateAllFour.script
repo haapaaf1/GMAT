@@ -116,7 +116,7 @@ GMAT MauiMeasData.Format = GMATInternal;
 %----- Create a range measurement between Maui and ODSat
 Create MeasurementModel RangeMeasurement;
 GMAT RangeMeasurement.ObservationData = {MauiMeasData};
-GMAT RangeMeasurement.Type = Range;
+GMAT RangeMeasurement.Type = GeometricRange;
 GMAT RangeMeasurement.Participants = {Maui, ODSat};
 GMAT RangeMeasurement.Bias = 0;
 GMAT RangeMeasurement.NoiseSigma = 1e-05;
@@ -125,19 +125,19 @@ RangeMeasurement.Covariance.Bias = [1000000];
 
 Create MeasurementModel AzElMeasurement
 AzElMeasurement.ObservationData = MauiMeasData;
-AzElMeasurement.Type   = AzEl;
+AzElMeasurement.Type   = GeometricAzEl;
 AzElMeasurement.Participants = { Maui, ODSat };
 AzElMeasurement.Covariance.Bias = [1000000];
 
 Create MeasurementModel RangeRateMeasurement
 RangeRateMeasurement.ObservationData = MauiMeasData;
-RangeRateMeasurement.Type   = RangeRate;
+RangeRateMeasurement.Type   = GeometricRangeRate;
 RangeRateMeasurement.Participants = { Maui, ODSat };
 RangeRateMeasurement.Covariance.Bias = [1000000];
 
 Create MeasurementModel RADecMeasurement
 RADecMeasurement.ObservationData = MauiMeasData;
-RADecMeasurement.Type   = RADec;
+RADecMeasurement.Type   = GeometricRADec;
 RADecMeasurement.Participants = { Maui, ODSat };
 RADecMeasurement.Covariance.Bias = [1000000];
 

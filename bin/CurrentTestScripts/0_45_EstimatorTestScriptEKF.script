@@ -103,7 +103,7 @@ GMAT MauiMeasData.Format = GMATInternal;
 
 Create MeasurementModel RangeMeasurement;
 GMAT RangeMeasurement.ObservationData = {MauiMeasData};
-GMAT RangeMeasurement.Type = Range;
+GMAT RangeMeasurement.Type = GeometricRange;
 GMAT RangeMeasurement.Participants = {Maui, ODSat};
 GMAT RangeMeasurement.Bias = 0;
 GMAT RangeMeasurement.NoiseSigma = 0.1;

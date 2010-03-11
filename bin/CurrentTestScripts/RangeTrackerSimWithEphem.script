@@ -93,7 +93,7 @@ RangeMeasurement.Covariance.Bias = [1000000];
 
 Create MeasurementModel GRangeMeasurement;
 GRangeMeasurement.ObservationData = {MauiMeasData};
-GRangeMeasurement.Type = Range;
+GRangeMeasurement.Type = GeometricRange;
 GRangeMeasurement.Participants = {Maui, ODSat};
 GRangeMeasurement.Bias = 0;
 GRangeMeasurement.NoiseSigma = 1e-05;

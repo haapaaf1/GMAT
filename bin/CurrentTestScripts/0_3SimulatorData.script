@@ -38,7 +38,7 @@ GMAT ODProp.Type = RungeKutta89;
 %----- Create a range measurement between Maui and ODSat
 Create MeasurementModel RangeMeasurement
 RangeMeasurement.ObservationData = MauiMeasData;
-RangeMeasurement.Type   = Range;
+RangeMeasurement.Type   = GeometricRange;
 RangeMeasurement.Participants = { Maui, ODSat };
 
 %------ Create the measurement simulator
