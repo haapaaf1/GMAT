@@ -3909,6 +3909,14 @@
 					Name="subscriber"
 					>
 					<File
+						RelativePath="..\..\..\src\gui\subscriber\EphemerisFilePanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\EphemerisFilePanel.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\gui\subscriber\MdiChildTrajFrame.cpp"
 						>
 					</File>
