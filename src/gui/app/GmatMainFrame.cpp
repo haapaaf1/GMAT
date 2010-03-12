@@ -135,6 +135,7 @@
 //#define DEBUG_SERVER
 //#define DEBUG_CREATE_CHILD
 //#define DEBUG_REMOVE_CHILD
+//#define DEBUG_REMOVE_CHILD_DETAIL
 //#define DEBUG_INTERPRET
 //#define DEBUG_RUN
 //#define DEBUG_SIZE
@@ -1071,23 +1072,35 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
          MessageInterface::ShowMessage("   ==> calling child->OnClose()\n");
          #endif
          child->OnClose(event);
-         if (child->CanClose())
-            childDeleted = true;
-
-         // if type is not output, check if child can be closed (loj: 2008.02.22)
-         if (type < GmatTree::BEGIN_OF_OUTPUT && type > GmatTree::END_OF_OUTPUT)
+         
+         #ifdef DEBUG_MAINFRAME_CLOSE
+         MessageInterface::ShowMessage("   ==> calling child->CanClose()\n");
+         #endif
+         
+         // We don't want to call CanClose() here. It is handled below for
+         // non-output window, so commented out (LOJ: 2010.03.11)
+         //if (child->CanClose())
+         childDeleted = true;
+         
+         // if type is not output, check if child can be closed
+         if (type < GmatTree::BEGIN_OF_OUTPUT || type > GmatTree::END_OF_OUTPUT)
          {
+            #ifdef DEBUG_MAINFRAME_CLOSE
+            MessageInterface::ShowMessage
+               ("   ==> checking if child<%p> can be closed\n", child);
+            #endif
             if (!child->CanClose())
             {
                canDelete = false;
                #ifdef DEBUG_MAINFRAME_CLOSE
-               MessageInterface::ShowMessage("   ==> cannot close this child, so returning false\n");
+               MessageInterface::ShowMessage
+                  ("   ==> cannot close this child, so returning false\n");
                #endif
                return false;
             }
          }
       }
-
+      
       //-------------------------------------------------
       // Note: The node is deleted from RemoveChild()
       //-------------------------------------------------
@@ -1095,12 +1108,17 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       if (childDeleted)
       {
          nextNode = theMdiChildren->GetFirst();
+         #ifdef DEBUG_MAINFRAME_CLOSE
+         MessageInterface::ShowMessage
+            ("   ==> child was deleted, nextNode=<%p>\n", nextNode);
+         #endif
       }
       else
       {
          nextNode = node->GetNext();
          #ifdef DEBUG_MAINFRAME_CLOSE
-         MessageInterface::ShowMessage("   ==> child was not deleted, so returning false\n");
+         MessageInterface::ShowMessage
+            ("   ==> child was not deleted, so returning false\n");
          #endif
          return false;
       }
@@ -1121,7 +1139,7 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       node = nextNode;
 
       //--------------------------------------------------------------
-      // delete chilren need more work on platforms other than Windows
+      // deleting children needs more work on platforms other than Windows
       //--------------------------------------------------------------
       #else
 
