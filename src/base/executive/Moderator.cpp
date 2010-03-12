@@ -43,10 +43,6 @@
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
 
-// #ifdef __USE_DATAFILE__
-// #include "DataFileFactory.hpp"
-// #endif
-
 #include "NoOp.hpp"
 #include "GravityField.hpp"
 #include "TimeSystemConverter.hpp" // for SetLeapSecsFileReader(), SetEopFile()
@@ -188,11 +184,7 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 
       theFactoryManager->RegisterFactory(new CelestialBodyFactory());
       theFactoryManager->RegisterFactory(new AssetFactory());
-      
-// #ifdef __USE_DATAFILE__
-//       theFactoryManager->RegisterFactory(new DataFileFactory());
-// #endif
-      
+            
       // Create publisher
       thePublisher = Publisher::Instance();
       
