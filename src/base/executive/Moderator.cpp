@@ -7694,7 +7694,7 @@ void Moderator::AddSubscriberToSandbox(Integer index)
                newObj->SetName(name);
                ReconfigureItem(newObj, name);
                newObj->Copy(obj);
-               newObj->SetTypeName("CcsdsEphemerisFile");
+               newObj->TakeAction("ChangeTypeName", "CcsdsEphemerisFile");
                
                #if DEBUG_RUN
                MessageInterface::ShowMessage

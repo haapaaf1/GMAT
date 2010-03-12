@@ -77,7 +77,6 @@ public:
    // Access methods called on the base class
    virtual Gmat::ObjectType
                         GetType() const;
-   virtual bool         SetTypeName(const std::string &newType);
    inline std::string   GetTypeName() const;
    inline std::string   GetName() const;
    virtual bool         SetName(const std::string &who,

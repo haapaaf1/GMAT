@@ -325,22 +325,6 @@ Gmat::ObjectType GmatBase::GetType() const
 
 
 //---------------------------------------------------------------------------
-//  bool SetTypeName(std::string &newType)
-//---------------------------------------------------------------------------
-/**
-* Set the type name for this instance.
- *
- * @param <newType> the object's new type.
- * @return true if the name was changed, false if an error was encountered.
- */
-//------------------------------------------------------------------------------
-bool GmatBase::SetTypeName(const std::string &newType)
-{
-   typeName = newType;
-   return true;
-}
-
-//---------------------------------------------------------------------------
 //  bool SetName(std::string &who, const std;:string &oldName = "")
 //---------------------------------------------------------------------------
 /**

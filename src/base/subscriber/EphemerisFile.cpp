@@ -671,7 +671,7 @@ void EphemerisFile::Copy(const GmatBase* orig)
  */
 //------------------------------------------------------------------------------
 bool EphemerisFile::TakeAction(const std::string &action,
-                            const std::string &actionData)
+                               const std::string &actionData)
 {
    #ifdef DEBUG_EPHEMFILE_ACTION
    MessageInterface::ShowMessage
@@ -689,6 +689,12 @@ bool EphemerisFile::TakeAction(const std::string &action,
       return true;
    }
    
+   if (action == "ChangeTypeName")
+   {
+      typeName = actionData;
+      return true;
+   }
+
    return false;
 }
 
