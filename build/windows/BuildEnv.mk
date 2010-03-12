@@ -12,6 +12,8 @@ WX_28_SYNTAX = 1
 WX_SHARED = 1
 SHARED_BASE = 1
 USE_STC_EDITOR = 1
+SHOW_HELP_BUTTON = 1
+SMART_APPLY_BUTTON = 1
 
 # GMAT application icon for Windows only
 # location of GmatIcon
@@ -22,6 +24,7 @@ GMAT_ICON_O  = $(GMAT_ICON_DIR)/GmatIcon.o
 # The Console app does not support MATLAB linkage or shared base libraries for now
 ifeq ($(CONSOLE_APP), 1)
 USE_MATLAB = 0
+USE_STC_EDITOR = 0
 CONSOLE_FLAGS = -D__CONSOLE_APP__
 else
 CONSOLE_FLAGS =
@@ -30,7 +33,7 @@ endif
 # MATLAB data
 # location of MATLAB headers and libraries
 ifeq ($(USE_MATLAB), 1)
-MATLAB_DIR = C:/Program\ Files/MATLAB/R2007B
+MATLAB_DIR = C:/Program\ Files/MATLAB/R2009B
 MATLAB_CPP_FLAGS = -D__USE_MATLAB__=1 -I$(MATLAB_DIR)/extern/include
 MATLAB_LIB_DIR = -L$(MATLAB_DIR)/bin/win32
 MATLAB_LIBRARIES = $(MATLAB_LIB_DIR) -leng -lmx -lmat
@@ -74,7 +77,21 @@ STC_CPP_FLAGS =
 STC_LIBRARIES =
 endif
 
-GMAT_CPP_FLAGS = $(MATLAB_CPP_FLAGS) $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS)
+ifeq ($(SHOW_HELP_BUTTON), 1)
+ifeq ($(SMART_APPLY_BUTTON), 1)
+GUI_CPP_FLAGS = -D__SHOW_HELP_BUTTON__ -D__SMART_APPLY_BUTTON__
+else
+GUI_CPP_FLAGS = -D__SHOW_HELP_BUTTON__
+endif
+else
+ifeq ($(SMART_APPLY_BUTTON), 1)
+GUI_CPP_FLAGS = -D__SMART_APPLY_BUTTON__
+else
+GUI_CPP_FLAGS =
+endif
+endif
+
+GMAT_CPP_FLAGS = $(MATLAB_CPP_FLAGS) $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS) $(GUI_CPP_FLAGS)
 GMAT_LINK_FLAGS = $(MATLAB_LIBRARIES) $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES)
 
 # wxWidgets settings
