@@ -136,7 +136,7 @@ std::string FlowerConstellation::GetParameterText(const Integer id) const
    if (id >= FormationParamCount && id < FCParamCount)
       return PARAMETER_TEXT[id - FormationParamCount];
 
-   return FlowerConstellation::GetParameterText(id);
+   return Formation::GetParameterText(id);
 }
 
 
@@ -159,7 +159,7 @@ Integer FlowerConstellation::GetParameterID(const std::string &str) const
          return i;
    }
 
-   return FlowerConstellation::GetParameterID(str);
+   return Formation::GetParameterID(str);
 }
 
 
@@ -179,7 +179,7 @@ Gmat::ParameterType FlowerConstellation::GetParameterType(const Integer id) cons
    if (id >= FormationParamCount && id < FCParamCount)
       return PARAMETER_TYPE[id - FormationParamCount];
 
-   return FlowerConstellation::GetParameterType(id);
+   return Formation::GetParameterType(id);
 }
 
 //------------------------------------------------------------------------------
@@ -212,5 +212,99 @@ std::string FlowerConstellation::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool FlowerConstellation::IsParameterReadOnly(const Integer id) const
 {
-   return FlowerConstellation::IsParameterReadOnly(id);
+   return Formation::IsParameterReadOnly(id);
+}
+
+//------------------------------------------------------------------------------
+// bool GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieve a boolean parameter.
+ *
+ * @param <id> The id for the parameter.
+ *
+ * @return the integer value for this parameter.
+ */
+//------------------------------------------------------------------------------
+bool FlowerConstellation::GetIntegerParameter(const Integer id) const
+{
+   switch (id)
+   {
+      case NUMORBITS_ID:
+         return no;
+      case NUMSATS_ID:
+         return ns;
+      default:
+         return Formation::GetIntegerParameter(id);
+   }
+}
+
+//------------------------------------------------------------------------------
+// bool GetIntegerParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieve a boolean parameter.
+ *
+ * @param <label> The (string) label for the parameter.
+ *
+ * @return the integer value for this parameter.
+ */
+//------------------------------------------------------------------------------
+bool FlowerConstellation::GetIntegerParameter(const std::string &label) const
+{
+   return GetIntegerParameter(GetParameterID(label));
+}
+
+//------------------------------------------------------------------------------
+// bool SetIntegerParameter(const Integer id, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a boolean parameter.
+ *
+ * This method is used to clear the Formation's list of spacecraft.
+ *
+ * @param <id> The id for the parameter.
+ * @param <value> The new value for the parameter.
+ *
+ * @return the integer value for this parameter.
+ */
+//------------------------------------------------------------------------------
+bool FlowerConstellation::SetIntegerParameter(const Integer id, const Integer value)
+{
+
+   switch (id)
+   {
+      case NUMORBITS_ID:
+         no = value;
+         break;
+      case NUMSATS_ID:
+         ns = value;
+         break;
+      default:
+         return Formation::SetIntegerParameter(id, value);
+   }
+}
+
+//------------------------------------------------------------------------------
+// bool SetIntegerParameter(const std::string &label, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a boolean parameter.
+ *
+ * @param <label> The (string) label for the parameter.
+ * @param <value> The new value for the parameter.
+ *
+ * @return the integer value for this parameter.
+ */
+//------------------------------------------------------------------------------
+bool FlowerConstellation::SetIntegerParameter(const std::string &label,
+                                    const bool value)
+{
+   #ifdef DEBUG_FORMATION_ACTIONS
+      MessageInterface::ShowMessage(
+         "FlowerConstellation::SetIntegerParameter called with label = %s\n",
+         label.c_str());
+   #endif
+
+   return SetIntegerParameter(GetParameterID(label), value);
 }

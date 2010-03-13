@@ -44,6 +44,12 @@ public:
     virtual std::string  GetParameterTypeString(const Integer id) const;
     virtual bool         IsParameterReadOnly(const Integer id) const;
 
+    virtual bool         GetIntegerParameter(const Integer id) const;
+    virtual bool         GetIntegerParameter(const std::string &label) const;
+    virtual bool         SetIntegerParameter(const Integer id, const bool value);
+    virtual bool         SetIntegerParameter(const std::string &label,
+                                             const bool value);
+
     enum FC_PARAMS
     {
         NUMORBITS_ID = FormationParamCount,
