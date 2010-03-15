@@ -309,8 +309,9 @@ void GuiPlotReceiver::SetGlObject(const std::string &plotName,
 // static void SetGlCoordSystem(const std::string &plotName, ...
 //------------------------------------------------------------------------------
 void GuiPlotReceiver::SetGlCoordSystem(const std::string &plotName,
-                                     CoordinateSystem *viewCs,
-                                     CoordinateSystem *viewUpCs)
+                                       CoordinateSystem *internalCs,
+                                       CoordinateSystem *viewCs,
+                                       CoordinateSystem *viewUpCs)
 {
    #if DEBUG_PLOTIF_GL
    MessageInterface::ShowMessage
@@ -326,7 +327,7 @@ void GuiPlotReceiver::SetGlCoordSystem(const std::string &plotName,
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
-         frame->SetGlCoordSystem(viewCs, viewUpCs);
+         frame->SetGlCoordSystem(internalCs, viewCs, viewUpCs);
       }
    }
 }

@@ -134,11 +134,12 @@ void PlotInterface::SetGlObject(const std::string &plotName,
 // static void SetGlCoordSystem(const std::string &plotName, ...
 //------------------------------------------------------------------------------
 void PlotInterface::SetGlCoordSystem(const std::string &plotName,
+                                     CoordinateSystem *internalCs,
                                      CoordinateSystem *viewCs,
                                      CoordinateSystem *viewUpCs)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->SetGlCoordSystem(plotName, viewCs, viewUpCs);
+      thePlotReceiver->SetGlCoordSystem(plotName, internalCs, viewCs, viewUpCs);
 }
 
 

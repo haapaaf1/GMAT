@@ -1085,22 +1085,27 @@ void TrajPlotCanvas::SetSolarSystem(SolarSystem *ss)
 
 
 //------------------------------------------------------------------------------
-// void SetGlCoordSystem(CoordinateSystem *viewCs, CoordinateSystem *viewUpCs)
+// void SetGlCoordSystem(CoordinateSystem *internalCs,CoordinateSystem *viewCs,
+//                       CoordinateSystem *viewUpCs)
 //------------------------------------------------------------------------------
-void TrajPlotCanvas::SetGlCoordSystem(CoordinateSystem *viewCs,
+void TrajPlotCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
+                                      CoordinateSystem *viewCs,
                                       CoordinateSystem *viewUpCs)
 {
    #if DEBUG_TRAJCANVAS_CS
    MessageInterface::ShowMessage
-      ("TrajPlotCanvas::SetGlCoordSystem() for %s, viewCs=%p, viweUpCs=%p\n",
-       mPlotName.c_str(), viewCs, viewUpCs);
+      ("TrajPlotCanvas::SetGlCoordSystem() for '%s', internalCs=<%p>, viewCs=<%p>, "
+       " viweUpCs=%p\n",  mPlotName.c_str(), internalCs, viewCs, viewUpCs);
    #endif
    
-   if (viewCs == NULL || viewUpCs == NULL)
+   if (internalCs == NULL || viewCs == NULL || viewUpCs == NULL)
    {
       throw SubscriberException
-         ("View CoordinateSystem or View Up CoordinateSystem is NULL\n"); 
+         ("Internal or View or View Up CoordinateSystem is NULL\n"); 
    }
+   
+   pInternalCoordSystem = internalCs;
+   mInternalCoordSysName = internalCs->GetName().c_str();
    
    pViewCoordSystem = viewCs;
    mViewCoordSysName = viewCs->GetName().c_str();

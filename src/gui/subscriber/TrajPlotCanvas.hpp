@@ -116,7 +116,8 @@ public:
    void SetSolarSystem(SolarSystem *ss);
    
    // CoordinateSystem
-   void SetGlCoordSystem(CoordinateSystem *viewCs,
+   void SetGlCoordSystem(CoordinateSystem *internalCs,
+                         CoordinateSystem *viewCs,
                          CoordinateSystem *viewUpCs);
    
    // viewpoint

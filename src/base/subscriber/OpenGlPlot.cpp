@@ -835,8 +835,8 @@ bool OpenGlPlot::Initialize()
             ("   calling PlotInterface::SetGlCoordSystem()\n");
          #endif
          
-         PlotInterface::SetGlCoordSystem(instanceName, mViewCoordSystem,
-                                         mViewUpCoordSystem);
+         PlotInterface::SetGlCoordSystem(instanceName, theInternalCoordSystem,
+                                         mViewCoordSystem, mViewUpCoordSystem);
          
          //--------------------------------------------------------
          // set viewpoint info

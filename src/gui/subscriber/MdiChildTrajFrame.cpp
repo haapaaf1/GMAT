@@ -739,12 +739,13 @@ void MdiChildTrajFrame::SetGlObject(const StringArray &objNames,
 //------------------------------------------------------------------------------
 // void SetGlObject(CoordinateSystem *viewCs, ...
 //------------------------------------------------------------------------------
-void MdiChildTrajFrame::SetGlCoordSystem(CoordinateSystem *viewCs,
+void MdiChildTrajFrame::SetGlCoordSystem(CoordinateSystem *internalCs,
+                                         CoordinateSystem *viewCs,
                                          CoordinateSystem *viewUpCs)
 {
    if (mCanvas)
    {         
-      mCanvas->SetGlCoordSystem(viewCs, viewUpCs);
+      mCanvas->SetGlCoordSystem(internalCs, viewCs, viewUpCs);
    }
 }
 

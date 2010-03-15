@@ -53,6 +53,7 @@ public:
                            const std::vector<SpacePoint*> &objArray);
    
    static void SetGlCoordSystem(const std::string &plotName,
+                                CoordinateSystem *internalCs,
                                 CoordinateSystem *viewCs,
                                 CoordinateSystem *viewUpCs);
    

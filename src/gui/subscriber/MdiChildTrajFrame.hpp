@@ -112,7 +112,8 @@ public:
                     const UnsignedIntArray &objOrbitColors,
                     const std::vector<SpacePoint*> &objArray);
    
-   void SetGlCoordSystem(CoordinateSystem *viewCs,
+   void SetGlCoordSystem(CoordinateSystem *internalCs,
+                         CoordinateSystem *viewCs,
                          CoordinateSystem *viewUpCs);
    
    void SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
