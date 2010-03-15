@@ -421,10 +421,19 @@ OpenGlPlot& OpenGlPlot::operator=(const OpenGlPlot& ogl)
 
 
 //------------------------------------------------------------------------------
-// ~OpenGlPlot(void)
+// ~OpenGlPlot()
 //------------------------------------------------------------------------------
-OpenGlPlot::~OpenGlPlot(void)
-{   
+/**
+ * Destructor
+ *
+ * @note This destructor does not delete OpenGL plot window, but clears data.
+ *       OpenGL plot window is deleted when it is closed by the user or GMAT
+ *       shuts down.
+ */
+//------------------------------------------------------------------------------
+OpenGlPlot::~OpenGlPlot()
+{
+   PlotInterface::TakeGlAction(instanceName, "ClearObjects");
 }
 
 
