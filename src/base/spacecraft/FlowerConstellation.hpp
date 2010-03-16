@@ -52,26 +52,47 @@ public:
 
     enum FC_PARAMS
     {
-        NUMORBITS_ID = FormationParamCount,
+        ECCENTRICITY_ID  = FormationParamCount,
+        INCLINATION_ID,
+        ARGPER_ID,
+        NP_ID,
+        ND_ID,
+        FN_ID,
+        FD_ID,
+        FH_ID,
         NUMSATS_ID,
         FCParamCount
     };
 
 private:
 
-   /// Array of supported parameters
-   static const std::string
-      PARAMETER_TEXT[FCParamCount - FormationParamCount];
-   /// Array of parameter types
-   static const Gmat::ParameterType
-      PARAMETER_TYPE[FCParamCount - FormationParamCount];
-   
-    // Number of orbit planes
+    /// Array of supported parameters
+    static const std::string PARAMETER_TEXT[FCParamCount - FormationParamCount];
+
+    /// Array of parameter types
+    static const Gmat::ParameterType
+                             PARAMETER_TYPE[FCParamCount - FormationParamCount];
+
+    // Orbit parameters
+    Real eccentricity, inclination, argper;
+
+    // Number of "petals" or complete orbits in one period
+    Integer np;
+
+    // Number of days to repeat one period
+    Integer nd;
+
+    // Phasing parameters
+    Integer fn, fh;
+
+    // Number of orbits
     Integer no;
+
+    // Number of satellites per orbit
+    Integer nso;
+
     // Number of satellites
     Integer ns;
-
-
 
 };
 

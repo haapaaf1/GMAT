@@ -20,6 +20,7 @@
 //------------------------------------------------------------------------------
 
 #include "FlowerConstellation.hpp"
+#include "RealUtilities.hpp"
 
 //---------------------------------
 // static data
@@ -27,14 +28,28 @@
 const std::string
 FlowerConstellation::PARAMETER_TEXT[FCParamCount - FormationParamCount] =
 {
-   "NumOrbitPlanes",
-   "NumSatellites"
+   "Eccentricity",
+   "Inclination",
+   "ArgPer",
+   "Np",
+   "Nd",
+   "Fn",
+   "NumOrbits",
+   "Fh",
+   "NumSats"
 };
 
 
 const Gmat::ParameterType
 FlowerConstellation::PARAMETER_TYPE[FCParamCount - FormationParamCount] =
 {
+   Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE,
+   Gmat::INTEGER_TYPE,
+   Gmat::INTEGER_TYPE,
+   Gmat::INTEGER_TYPE,
+   Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE
 };
@@ -55,13 +70,20 @@ FlowerConstellation::PARAMETER_TYPE[FCParamCount - FormationParamCount] =
 FlowerConstellation::FlowerConstellation(Gmat::ObjectType typeId, const std::string &typeStr,
                      const std::string &instName) :
    Formation    (typeId, typeStr, instName),
-   no      (1),
-   ns      (1)
+    eccentricity (0),
+    inclination (0),
+    argper (0),
+    np     (0),
+    nd     (0),
+    fn     (0),
+    no     (0),
+    fh     (0),
+    ns     (1)
 {
    objectTypes.push_back(Gmat::FORMATION);
    objectTypeNames.push_back("Formation");
 
-   parameterCount = FormationParamCount;
+   parameterCount = FCParamCount;
 }
 
 //------------------------------------------------------------------------------
@@ -75,8 +97,15 @@ FlowerConstellation::FlowerConstellation(Gmat::ObjectType typeId, const std::str
 //------------------------------------------------------------------------------
 FlowerConstellation::FlowerConstellation(const FlowerConstellation& orig)  :
    Formation    (orig),
-   no (orig.no),
-   ns (orig.ns)
+    eccentricity (orig.eccentricity),
+    inclination (orig.inclination),
+    argper (orig.argper),
+    np     (orig.np),
+    nd     (orig.nd),
+    fn     (orig.fn),
+    no     (orig.no),
+    fh     (orig.fh),
+    ns     (orig.ns)
 {
     parameterCount = FCParamCount;
 }
@@ -94,14 +123,24 @@ FlowerConstellation::FlowerConstellation(const FlowerConstellation& orig)  :
 //------------------------------------------------------------------------------
 FlowerConstellation& FlowerConstellation::operator=(const FlowerConstellation& orig)
 {
-   if (this != &orig)
-   {
-      FlowerConstellation::operator=(orig);
+    
+    if (this != &orig)
+    {
+        FlowerConstellation::operator=(orig);
 
-      no = orig.no;
-      ns = orig.ns;
+        eccentricity = orig.eccentricity;
+        inclination = orig.inclination;
+        argper = orig.argper;
+        np = orig.np;
+        nd = orig.nd;
+        fn = orig.fn;
+        no = orig.no;
+        fh = orig.fh;
+        ns = orig.ns;
    }
-   return *this;
+
+    return *this;
+
 }
 
 //------------------------------------------------------------------------------
@@ -115,8 +154,42 @@ FlowerConstellation::~FlowerConstellation()
 {
 }
 
+//------------------------------------------------------------------------------
+// Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Method used to initialize the Flower Constellation. This will construct
+ * a Formation object and populate it with the required satellite objects
+ * for a Flower Constellation.
+ */
+//------------------------------------------------------------------------------
 bool FlowerConstellation::Initialize()
 {
+    // Find the Bézout numbers corresponding to Fn, and no
+    Integer en, ed;
+    GmatMathUtil::EGCD(fn,no,en,ed);
+
+    // Compute the factor G for later use
+    G = gcd(nd, np*fn + no*fh);
+
+    // The configuration number, nc
+    nc = GmatMathUtil::Mod(en*(np*fn + no*fh)/G,no);
+
+    // The number of satellites per orbit
+    nso = nd / g;
+
+    // Compute the number of satellites
+    ns = no*nso;
+
+    Real raan[no,nso], meanAnomaly[no,nso]
+
+    for (Integer i = 0; i < no - 1; i++)
+    {
+        raan[i,j] = 2*GmatMathUtil::PI*i / no;
+        for (Integer j = 0; j < nso - 1; j++)
+            meanAnomaly[i,j] = (2*GmatMathUtil::PI*j - nc*raan[i,j]) / nso;
+    }
+    
     return true;
 }
 
@@ -300,7 +373,7 @@ bool FlowerConstellation::SetIntegerParameter(const Integer id, const Integer va
 bool FlowerConstellation::SetIntegerParameter(const std::string &label,
                                     const bool value)
 {
-   #ifdef DEBUG_FORMATION_ACTIONS
+   #inoef DEBUG_FORMATION_ACTIONS
       MessageInterface::ShowMessage(
          "FlowerConstellation::SetIntegerParameter called with label = %s\n",
          label.c_str());
