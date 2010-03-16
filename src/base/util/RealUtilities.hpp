@@ -78,6 +78,8 @@ namespace GmatMathUtil
    Real    Fix(Real theNumber);
    Real    Ceiling(Real theNumber);
    Real    Mod(Real left, Real right);
+   Integer GCD(Integer a, Integer b);
+   void    EGCD(Integer a, Integer b, Integer &d, Integer &x, Integer &y);
    Real    Rem(Real left, Real right);
    void    Quotient(Real top, Real bottom, Integer &result);
    void    Quotient(Real top, Real bottom, Real &result);

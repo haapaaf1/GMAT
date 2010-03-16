@@ -114,6 +114,78 @@ Real GmatMathUtil::Mod (Real left, Real right)
 }
 
 //------------------------------------------------------------------------------
+//  Integer GCD (Integer a, Integer b)
+//------------------------------------------------------------------------------
+//
+// Computes the Greatest Common Divisor using Euclid's algorithm
+//
+// @param <a> The first of two integers we wish to compare.
+// @param <b> The second of two integers we wish to compare.
+// @return The integer representing the greatest common divisor of a and b.
+//
+//------------------------------------------------------------------------------
+Integer GmatMathUtil::GCD(Integer a, Integer b)
+{
+    while( 1 )
+    {
+        a = Mod(a,b);
+        if( a == 0 ) return b;
+	b = Mod(b,a);
+        if( b == 0 ) return a;
+    }
+}
+
+//------------------------------------------------------------------------------
+//  void EGCD(Integer a, Integer b, Integer &x, Integer &y)
+//------------------------------------------------------------------------------
+//
+// Computes the Extended Greatest Common Divisor by solving Bézout's Identity
+// which is a linear diophantine equation.
+// If a and b are nonzero integers with greatest common divisor d, then there
+// exist integers x and y (called Bézout numbers or Bézout coefficients)
+// such that ax + by = d. Additionally, d is the smallest positive integer
+// for which there are integer solutions x and y for the preceding equation.
+//
+// @param <a> The first of two integers we wish to compare.
+// @param <b> The second of two integers we wish to compare.
+// @param <d> gcd(a,b)
+// @param <x> The first of two resulting Bézout numbers.
+// @param <y> The second of two resulting Bézout numbers.
+//
+//------------------------------------------------------------------------------
+void GmatMathUtil::EGCD(Integer a, Integer b, Integer &d, Integer &x, Integer &y)
+{
+    Integer xp = 0, x = 1;
+    Integer yp = 1, y = 0;
+
+    while ( b != 0 )
+    {
+
+        // Use Euclid's algorithm
+        Integer quotient = Quotient(a,b);
+
+        Integer temp = b;
+        b = Mod(a,b);
+        a = temp;
+
+        // Compute x and y
+        temp = xp;
+        xp = x - quotient*xp;
+        x = temp;
+
+        temp = yp;
+        yp = y - quotient*yp;
+        y = temp;
+
+    }
+
+    // a now contains gcd(a,b)
+    d = a;
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
 //  Real Rem (Real left, Real right)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::Rem (Real left, Real right)
