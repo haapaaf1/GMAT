@@ -527,18 +527,18 @@ void Moderator::LoadPlugins()
 
       #ifndef __WIN32__
    
-         #ifdef DEBUG_PLUGIN_REGISTRATION
+         //#ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
                i->c_str());
-         #endif
+         //#endif
          LoadAPlugin(*i);
 
       #else
          
-         #ifdef DEBUG_PLUGIN_REGISTRATION
+         //#ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
                i->c_str());
-         #endif
+         //#endif
          LoadAPlugin(*i);
         
       #endif
@@ -570,12 +570,12 @@ void Moderator::LoadAPlugin(std::string pluginName)
       if (fc > 0)
       {
          // Do the GMAT factory dance
-         #ifdef DEBUG_PLUGIN_REGISTRATION
+         //#ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage(
                "Library %s contains %d %s.\n", pluginName.c_str(), fc,
                ( fc==1 ? "factory" : "factories"));
-         #endif
-               
+         //#endif
+            
          // Now pass factories to the FactoryManager
          Factory *newFactory = NULL;
          for (Integer i = 0; i < fc; ++i)
