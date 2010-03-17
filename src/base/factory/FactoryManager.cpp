@@ -911,6 +911,13 @@ Factory* FactoryManager::FindFactory(Gmat::ObjectType ofType,
          {
             StringArray::iterator s = listObj.begin();
             std::string objType = forType;
+            
+            // Make sure that all type name begins with upper case if
+            // factory expects case sensitive type names since all GMAT type names
+            // begin with upper case.
+            // Currently only math types are NOT case sensitive, so we can
+            // have for example, both Transpose and transpose, Inverse and inverse
+            // for compatibility with MATLAB.
             if (isCaseSensitive)
                objType = GmatStringUtil::Capitalize(objType);
             
