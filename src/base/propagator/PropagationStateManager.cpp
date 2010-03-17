@@ -502,7 +502,7 @@ Integer PropagationStateManager::SortVector()
                idList[order[i]], owners[order[i]]->GetName().c_str(), 
                property[order[i]].c_str());
       #endif
-         
+
       newItem = new ListItem;
       newItem->objectName  = owners[order[i]]->GetName();
       newItem->elementName = property[order[i]];
