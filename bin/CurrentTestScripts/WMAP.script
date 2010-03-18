@@ -71,24 +71,29 @@ DSN14.Z = -3677.05232
 %--------------------------------------------------------------
 %===== Create the Tracking System
 %--------------------------------------------------------------
-Create TrackingData DSN14Range;
+Create Datafile WMAPDSNData;
+WMAPDSNData.Filename = 'WMAPDSNData.gmd';
+WMAPDSNData.Format = GMATInternal;
+
+Create MeasurementModel DSN14Range;
+DSN14Range.ObservationData   = WMAPDSNData;
 DSN14Range.Type              = 'DSNTwoWayRange';
 DSN14Range.Participants      = {DSN14,WMAP};
 
-Create TrackingData DSN43Range;
-%DSN43Range.Type              = 'DSNTwoWayRange';
-%DSN43Range.Participants      = {DSN43,WMAP};
+Create MeasurementModel DSN43Range;
+DSN43Range.ObservationData   = WMAPDSNData;
+DSN43Range.Type              = 'DSNTwoWayRange';
+DSN43Range.Participants      = {DSN43,WMAP};
 
 Create DSNTrackingSystem DSN_WMAP
 DSN_WMAP.Add = {DSN14Range, DSN43Range}
-DSN_WMAP.DataFiles = {'.\output\WMAPData.gmatOD'};
 
 
 %--------------------------------------------------------------
 %===== Create and configure the simulator
 %--------------------------------------------------------------
 Create Simulator WMAPsim;
-%WMAPsim.AddData             = {DSN_WMAP};
+WMAPsim.AddData             = {DSN_WMAP};
 WMAPsim.InitialEpochFormat  = UTCGregorian;
 WMAPsim.InitialEpoch        = '18 Nov 2009 00:00:00.000';
 WMAPsim.FinalEpochFormat    = UTCGregorian;
