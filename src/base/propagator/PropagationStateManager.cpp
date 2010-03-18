@@ -354,8 +354,8 @@ bool PropagationStateManager::MapObjectsToVector()
    
    #ifdef DEBUG_OBJECT_UPDATES
       MessageInterface::ShowMessage(
-            "After mapping objects to vector, contents are\n"
-            "   Epoch = %.12lf\n", state.GetEpoch());
+            "After mapping %d objects to vector, contents are\n"
+            "   Epoch = %.12lf\n", objects.size(), state.GetEpoch());
       for (Integer index = 0; index < stateSize; ++index)
       {
          std::stringstream msg("");
@@ -502,7 +502,7 @@ Integer PropagationStateManager::SortVector()
                idList[order[i]], owners[order[i]]->GetName().c_str(), 
                property[order[i]].c_str());
       #endif
-         
+
       newItem = new ListItem;
       newItem->objectName  = owners[order[i]]->GetName();
       newItem->elementName = property[order[i]];

@@ -345,7 +345,8 @@ bool RungeKutta::RawStep()
 
 //   Real *inState = new Real[dimension];
 
-   memcpy(inState, physicalModel->GetState(), sizeof(Real) * dimension);
+   if (inState != physicalModel->GetState())
+      memcpy(inState, physicalModel->GetState(), sizeof(Real) * dimension);
 
    #ifdef DEBUG_RAW_STEP_STATE
       MessageInterface::ShowMessage("inState: [");
