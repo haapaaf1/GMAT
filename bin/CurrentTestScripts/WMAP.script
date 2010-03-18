@@ -71,18 +71,18 @@ DSN14.Z = -3677.05232
 %--------------------------------------------------------------
 %===== Create the Tracking System
 %--------------------------------------------------------------
-Create Datafile WMAPDSNData;
+Create DataFile WMAPDSNData;
 WMAPDSNData.Filename = 'WMAPDSNData.gmd';
 WMAPDSNData.Format = GMATInternal;
 
 Create MeasurementModel DSN14Range;
 DSN14Range.ObservationData   = WMAPDSNData;
-DSN14Range.Type              = 'DSNTwoWayRange';
+DSN14Range.Type              = DSNTwoWayRange;
 DSN14Range.Participants      = {DSN14,WMAP};
 
 Create MeasurementModel DSN43Range;
 DSN43Range.ObservationData   = WMAPDSNData;
-DSN43Range.Type              = 'DSNTwoWayRange';
+DSN43Range.Type              = DSNTwoWayRange;
 DSN43Range.Participants      = {DSN43,WMAP};
 
 Create DSNTrackingSystem DSN_WMAP
