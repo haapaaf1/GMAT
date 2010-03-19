@@ -33,6 +33,7 @@
 //#define DEBUG_VARY_PARSING
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_RENAME
+//#define DEBUG_VARY_GEN_STRING
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -46,7 +47,7 @@
 //  static data
 //------------------------------------------------------------------------------
 const std::string Vary::PARAMETER_TEXT[VaryParamCount -
-                                              GmatCommandParamCount] = 
+                                       GmatCommandParamCount] = 
 {
    "SolverName",
    "Variable",
@@ -92,10 +93,10 @@ Vary::Vary() :
    currentValue                  (0.0),
    perturbationName              ("0.001"),
    perturbation                  (NULL),
-   variableLowerName           ("-9.999999e300"),
-   variableLower               (NULL),
-   variableUpperName           ("9.999999e300"),
-   variableUpper               (NULL),
+   variableLowerName             ("-9.999999e300"),
+   variableLower                 (NULL),
+   variableUpperName             ("9.999999e300"),
+   variableUpper                 (NULL),
    variableMaximumStepName       ("9.999999e300"),
    variableMaximumStep           (NULL),
    additiveScaleFactorName       ("0.0"),
@@ -357,76 +358,18 @@ const std::string& Vary::GetGeneratingString(Gmat::WriteMode mode,
       #ifdef DEBUG_VARY_GEN_STRING
       MessageInterface::ShowMessage("   solver is NULL\n");
       #endif
-      
-      // figure out if this is inside a Target or an Optimize branch command, to
-      // determine which things should be added to the generatingString
-      std::string targOpt  = "";
-      GmatCommand *prevCmd = GetPrevious();
-      while (prevCmd != NULL)
-      {
-         if (prevCmd->IsOfType("Target"))
-         {
-            targOpt = "Target";
-            break;
-         }
-         if (prevCmd->IsOfType("Optimize"))
-         {
-            targOpt = "Optimize";
-            break;
-         }
-         prevCmd = prevCmd->GetPrevious();
-      }
-      
-      // add perturbation and max step for Target
-      if (targOpt == "Target")
-      {
-         details << "Perturbation = ";
-         if (perturbation)
-            details << perturbation->GetDescription();
-         else
-            details << "Unknown-Perturbation";
-         
-         details << ", MaxStep = ";
-         
-         if (variableMaximumStep)
-            details << variableMaximumStep->GetDescription();
-         else
-            details << "Unknown-VariableMaximumStep";
-         
-         details << ", ";
-      }
-      
-      details << "Lower = ";
-      if (variableLower)
-         details << variableLower->GetDescription();
-      else
-         details << "Unknown-VariableMinimum";
-      
-      details << ", Upper = ";
-      if (variableUpper)
-         details << variableUpper->GetDescription();
-      else
-         details << "Unknown-VariableMaximum";
-      
-      // add the scale factors for Optimize
-      if (targOpt == "Optimize")
-      {
-         details << ", AdditiveScaleFactor = ";
-         if (additiveScaleFactor)
-            details << additiveScaleFactor->GetDescription();
-         else
-            details << "Unknown-AdditiveScaleFactor";
-         
-         details << ", MultiplicativeScaleFactor = ";
-         if (multiplicativeScaleFactor)
-            details << multiplicativeScaleFactor->GetDescription();
-         else
-            details << "Unknown-MultiplicativeScaleFactor";
-      }
+
+      details << "SOLVER IS NOT SET";
    }
    
    gen += details.str();
    generatingString = gen + "});";
+   
+   #ifdef DEBUG_VARY_GEN_STRING
+   MessageInterface::ShowMessage
+      ("Vary::GetGeneratingString() <%p>'%s' returning, '%s'\n",
+       this, GetTypeName().c_str(), generatingString.c_str());
+   #endif
    
    // Then call the base class method to handle comments
    return GmatCommand::GetGeneratingString(mode, prefix, useName);
