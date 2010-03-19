@@ -289,6 +289,11 @@ protected:
    bool CheckBranchCommands(const IntegerArray &lineNumbers,
                             const StringArray &lines);
    
+   // for setting object inside branch command
+   void SetObjectInBranchCommand(GmatCommand *brCmd, const std::string &branchType,
+                                 const std::string &childType,
+                                 const std::string &objName);
+   
    // Final setting of reference object pointers needed by the GUI
    bool FinalPass();
    

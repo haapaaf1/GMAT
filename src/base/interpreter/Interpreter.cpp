@@ -6622,13 +6622,104 @@ bool Interpreter::FinalPass()
          continue;
       }
    }
-
-
+   
+   //-------------------------------------------------------------------
+   // Special case for SolverBranchCommand such as Optimize, Target,
+   // we need to set Solver object to SolverBranchCommand and then
+   // to all Vary commands inside. Since Vary command's parameters are
+   // different depends on the type of the Solver, such as
+   // DifferentialCorrector or Optimizer. When user saves the script
+   // without running, it will not write correctly since the Solve is
+   // not set, so set it here.
+   //-------------------------------------------------------------------
+   GmatCommand *current = theModerator->GetFirstCommand();
+   while (current != NULL)
+   {
+      if ((current->GetChildCommand(0)) != NULL)
+         SetObjectInBranchCommand(current, "SolverBranchCommand", "Vary",
+                                  "SolverName");
+      
+      current = current->GetNext();
+   }
+   
    #if DBGLVL_FINAL_PASS
    MessageInterface::ShowMessage("Interpreter::FinalPass() returning %d\n", retval);
    #endif
    
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetObjectInBranchCommand(GmatCommand *brCmd, const std::string &branchType,
+//                      const std::string childType, const std::string &objName)
+//------------------------------------------------------------------------------
+void Interpreter::SetObjectInBranchCommand(GmatCommand *brCmd,
+                                           const std::string &branchType,
+                                           const std::string &childType,
+                                           const std::string &objName)
+{
+   #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+   MessageInterface::ShowMessage
+      ("Interpreter::SetObjectInBranchCommand() entered, brCmd=<%p><%s>, branchType='%s', "
+       "childType='%s'\n", brCmd, brCmd->GetTypeName().c_str(), branchType.c_str(),
+       childType.c_str());
+   #endif
+   
+   GmatCommand* current = brCmd;
+   Integer childNo = 0;
+   GmatCommand* nextInBranch;
+   GmatCommand* child;
+   GmatBase *solver = NULL;
+   std::string solverName;
+   
+   if (brCmd->IsOfType(branchType))
+   {
+      #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+      MessageInterface::ShowMessage
+         ("==> found type of '%s'\n", brCmd, brCmd->GetTypeName().c_str());
+      #endif
+      
+      solverName = brCmd->GetStringParameter(objName);
+      solver = FindObject(solverName);
+      
+      #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+      MessageInterface::ShowMessage
+         ("   Found solver <%p><%s>'%s'\n", solver, solver ? solver->GetTypeName().c_str() :
+          "NULL", solver ? solver->GetName().c_str() : "NULL");
+      #endif
+   }
+   
+   while((child = current->GetChildCommand(childNo)) != NULL)
+   {
+      nextInBranch = child;
+      
+      while ((nextInBranch != NULL) && (nextInBranch != current))
+      {
+         #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+         MessageInterface::ShowMessage
+            ("   nextInBranch=<%p><%s>\n", nextInBranch, nextInBranch->GetTypeName().c_str());
+         #endif
+         
+         if (nextInBranch->GetTypeName() == childType)
+         {
+            #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+            MessageInterface::ShowMessage
+               ("   found '%s', setting <%p>'%s' to <%p><%s>\n", childType.c_str(),
+                solver, solver->GetName().c_str(), nextInBranch,
+                nextInBranch->GetTypeName().c_str());
+            #endif
+            nextInBranch->SetRefObject(solver, Gmat::SOLVER, solver->GetName());
+         }
+         
+         if (nextInBranch->GetChildCommand() != NULL)
+            SetObjectInBranchCommand(nextInBranch, branchType, childType, objName);
+         
+         nextInBranch = nextInBranch->GetNext();
+      }
+      
+      ++childNo;
+   }
 }
 
 
