@@ -1370,8 +1370,8 @@ SolarSystem* Moderator::CreateSolarSystem(const std::string &name)
 /*
  * Returns SolarSystem in use from configuration or object map in use
  *
- * @param  manage  1, return SolarSystem from the configuration
- * @param  manage  2, return SolarSystem from the object map in use
+ * @param  manage  If value is 1 it will return SolarSystem from the configuration
+ *                 if value is 2 it will return SolarSystem from the object map in use
  */
 //------------------------------------------------------------------------------
 SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
@@ -3647,6 +3647,17 @@ Interpolator* Moderator::GetInterpolator(const std::string &name)
 //                   bool createDefault = false, bool internal = false,
 //                   Integer manage = 1)
 //------------------------------------------------------------------------------
+/**
+ * Creates coordinate system
+ *
+ * @param  name  Name of the coordinate system to create
+ * @param  createDefault  If this flag is set, it will create MJ2000Eq system
+ * @param  internal  If this flag is set, it will not configure the CS
+ * @param  manage  The value to use for managing the newly created CS
+ *                 0 = do not add to configuration
+ *                 1 = add to configuration
+ */
+//------------------------------------------------------------------------------
 CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
                                                     bool createDefault,
                                                     bool internal, Integer manage)
@@ -4648,6 +4659,9 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
                                        GetDefaultSolver()->GetName());
          id = cmd->GetParameterID("SolverName");
          cmd->SetStringParameter(id, solver->GetName());
+         
+         // set sover pointer, so that GetGeneratingString() can write correctly
+         cmd->SetRefObject(solver, Gmat::SOLVER);
          
          // set variable parameter
          id = cmd->GetParameterID("Variable");
