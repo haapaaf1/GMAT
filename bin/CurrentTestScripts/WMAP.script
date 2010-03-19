@@ -41,7 +41,7 @@ GMAT SunEarthL2Prop.FM              = SunEarthL2ForceModel;
 GMAT SunEarthL2Prop.Type            = PrinceDormand78;
 GMAT SunEarthL2Prop.InitialStepSize = 60;
 GMAT SunEarthL2Prop.Accuracy        = 1e-10;
-GMAT SunEarthL2Prop.MinStep         = 0.001;
+GMAT SunEarthL2Prop.MinStep         = 0.0;
 GMAT SunEarthL2Prop.MaxStep         = 86400;
 GMAT SunEarthL2Prop.MaxStepAttempts = 50;
 
