@@ -22,6 +22,7 @@
 
 //#define DEBUG_MATCHING_END
 //#define DEBUG_GET_PARENT
+//#define DEBUG_GET_FIRST
 //#define DEBUG_COMMAND_SEQ_STRING
 //#define DEBUG_COMMAND_FIND_OBJECT
 //#define DEBUG_COMMAND_DELETE
@@ -36,6 +37,39 @@
 #endif
 
 //------------------------------------------------------------------------------
+// GmatCommand* GetFirstCommand(GmatCommand *cmd)
+//------------------------------------------------------------------------------
+/*
+ * Returns first command in the command sequence
+ *
+ * @param  cmd  Command which search begins from
+ */
+//------------------------------------------------------------------------------
+GmatCommand* GmatCommandUtil::GetFirstCommand(GmatCommand *cmd)
+{
+   #ifdef DEBUG_GET_FIRST
+   ShowCommand("GmatCommandUtil::GetFirstCommand() entered, cmd = ", cmd);
+   #endif
+   
+   GmatCommand *prevCmd = cmd;
+   
+   while (cmd != NULL)
+   {
+      cmd = cmd->GetPrevious();
+      
+      #ifdef DEBUG_GET_FIRST
+      ShowCommand("   previous command = ", cmd);
+      #endif
+      
+      if (cmd != NULL)
+         prevCmd = cmd;
+   }
+   
+   return prevCmd;
+}
+
+
+//------------------------------------------------------------------------------
 // GmatCommand* GetLastCommand(GmatCommand *cmd)
 //------------------------------------------------------------------------------
 /*
@@ -46,7 +80,7 @@
 //------------------------------------------------------------------------------
 GmatCommand* GmatCommandUtil::GetLastCommand(GmatCommand *cmd)
 {
-   GmatCommand *prevCmd = cmd;
+   GmatCommand *nextCmd = cmd;
    
    while (cmd != NULL)
    {
@@ -57,10 +91,10 @@ GmatCommand* GmatCommandUtil::GetLastCommand(GmatCommand *cmd)
       cmd = cmd->GetNext();
       
       if (cmd != NULL)
-         prevCmd = cmd;
+         nextCmd = cmd;
    }
    
-   return prevCmd;
+   return nextCmd;
 }
 
 
@@ -185,7 +219,7 @@ GmatCommand* GmatCommandUtil::GetMatchingEnd(GmatCommand *cmd)
 
          #ifdef DEBUG_MATCHING_END
          MessageInterface::ShowMessage
-            ("     scriptEventCount=%d, current=(%p)%s\n", scriptEventCount, current,
+            ("     scriptEventCount=%d, current=<%p><%s>\n", scriptEventCount, current,
              current->GetTypeName().c_str());
          #endif
       
@@ -252,6 +286,10 @@ GmatCommand* GmatCommandUtil::GetMatchingEnd(GmatCommand *cmd)
 //------------------------------------------------------------------------------
 // GmatCommand* GetParentCommand(GmatCommand *top, GmatCommand *cmd)
 //------------------------------------------------------------------------------
+/**
+ * Returns outer most parent command from the commans sequence string at top node.
+ */
+//------------------------------------------------------------------------------
 GmatCommand* GmatCommandUtil::GetParentCommand(GmatCommand *top, GmatCommand *cmd)
 {
    #ifdef DEBUG_GET_PARENT
@@ -299,6 +337,10 @@ GmatCommand* GmatCommandUtil::GetParentCommand(GmatCommand *top, GmatCommand *cm
 
 //------------------------------------------------------------------------------
 // GmatCommand* GetSubParent(GmatCommand *brCmd, GmatCommand *cmd)
+//------------------------------------------------------------------------------
+/**
+ * Returns immediate parent command from the nested branch command.
+ */
 //------------------------------------------------------------------------------
 GmatCommand* GmatCommandUtil::GetSubParent(GmatCommand *brCmd, GmatCommand *cmd)
 {
@@ -668,7 +710,7 @@ bool GmatCommandUtil::FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
    
    #ifdef DEBUG_COMMAND_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("===> GmatCommandUtil::FindObject() cmd=(%p)%s\n", cmd, cmdstr.c_str(),
+      ("===> GmatCommandUtil::FindObject() cmd=<%p><%s>\n", cmd, cmdstr.c_str(),
        objName.c_str());
    #endif
    
@@ -930,19 +972,19 @@ void GmatCommandUtil::ShowCommand(const std::string &title1, GmatCommand *cmd1,
    if (title2 == "")
    {
       if (cmd1 == NULL)
-         MessageInterface::ShowMessage("%s(%p)NULL\n", title1.c_str(), cmd1);
+         MessageInterface::ShowMessage("%s<%p><NULL>\n", title1.c_str(), cmd1);
       else
          MessageInterface::ShowMessage
-            ("%s(%p)%s\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str());
+            ("%s<%p><%s>\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str());
    }
    else
    {
       if (cmd2 == NULL)
          MessageInterface::ShowMessage
-            ("%s(%p)NULL%s(%p)NULL\n", title1.c_str(), cmd1, title2.c_str(), cmd2);
+            ("%s<%p>NULL%s<%p>NULL\n", title1.c_str(), cmd1, title2.c_str(), cmd2);
       else
          MessageInterface::ShowMessage
-            ("%s(%p)%s%s(%p)%s\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str(),
+            ("%s<%p><%s>%s<%p><%s>\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str(),
              title2.c_str(), cmd2, cmd2->GetTypeName().c_str());
    }
 }

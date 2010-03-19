@@ -24,6 +24,7 @@
 
 namespace GmatCommandUtil
 {
+   GmatCommand* GetFirstCommand(GmatCommand *cmd);
    GmatCommand* GetLastCommand(GmatCommand *cmd);
    GmatCommand* GetNextCommand(GmatCommand *cmd);
    GmatCommand* GetPreviousCommand(GmatCommand *from, GmatCommand *cmd);
