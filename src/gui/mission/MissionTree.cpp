@@ -965,18 +965,26 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
                                                   elseName, elseCmd));
             
             wxString endName = "End" + cmdTypeName;
-            endName.Printf("%s%d", endName.c_str(), *cmdCount);
-            InsertItem(node, elseNode, endName, GmatTree::MISSION_ICON_NEST_RETURN, -1,
-                       new MissionTreeItemData(endName, endType, endName, endCmd));
+            //MSVC++ debugger complains about this
+            //endName.Printf("%s%d", endName.c_str(), *cmdCount);
+            //InsertItem(node, elseNode, endName, GmatTree::MISSION_ICON_NEST_RETURN, -1,
+            //           new MissionTreeItemData(endName, endType, endName, endCmd));
+            wxString tmpName;
+            tmpName.Printf("%s%d", endName.c_str(), *cmdCount);
+            InsertItem(node, elseNode, tmpName, GmatTree::MISSION_ICON_NEST_RETURN, -1,
+                       new MissionTreeItemData(tmpName, endType, tmpName, endCmd));
          }
          else
          {
-            wxString endName;
-               endName = "End" + cmdTypeName;
-            
-            endName.Printf("%s%d", endName.c_str(), *cmdCount);
-            InsertItem(node, 0, endName, GmatTree::MISSION_ICON_NEST_RETURN, -1,
-                       new MissionTreeItemData(endName, endType, endName, endCmd));
+            wxString endName = "End" + cmdTypeName;
+            //MSVC++ debugger complains about this
+            //endName.Printf("%s%d", endName.c_str(), *cmdCount);
+            //InsertItem(node, 0, endName, GmatTree::MISSION_ICON_NEST_RETURN, -1,
+            //           new MissionTreeItemData(endName, endType, endName, endCmd));
+            wxString tmpName;
+            tmpName.Printf("%s%d", endName.c_str(), *cmdCount);
+            InsertItem(node, 0, tmpName, GmatTree::MISSION_ICON_NEST_RETURN, -1,
+                       new MissionTreeItemData(tmpName, endType, tmpName, endCmd));
          }
       }
    }
@@ -1228,6 +1236,11 @@ void MissionTree::Append(const wxString &cmdName)
 //------------------------------------------------------------------------------
 void MissionTree::DeleteCommand(const wxString &cmdName)
 {
+   #if DEBUG_MISSION_TREE_DELETE
+   MessageInterface::ShowMessage
+      ("MissionTree::Delete() entered, cmdName='%s'\n", cmdName.c_str());
+   #endif
+   
    #if DEBUG_MISSION_TREE_SHOW_CMD
    ShowCommands("Before Delete(): " + cmdName);
    #endif
@@ -1279,8 +1292,7 @@ void MissionTree::DeleteCommand(const wxString &cmdName)
    
    #if DEBUG_MISSION_TREE_DELETE
    MessageInterface::ShowMessage
-      ("MissionTree::Delete() calling theGuiInterpreter->DeleteCommand(%s)\n",
-       theCmd->GetTypeName().c_str());
+      ("   Calling theGuiInterpreter->DeleteCommand(%s)\n", theCmd->GetTypeName().c_str());
    MessageInterface::ShowMessage
       ("   Previous of %s is %s\n", theCmd->GetTypeName().c_str(),
        theCmd->GetPrevious()->GetTypeName().c_str());
@@ -1295,20 +1307,48 @@ void MissionTree::DeleteCommand(const wxString &cmdName)
    
    GmatCommand *tmp = theGuiInterpreter->DeleteCommand(theCmd);
    if (tmp)
+   {
+      #if DEBUG_MISSION_TREE_DELETE
+      MessageInterface::ShowMessage("   About to delete <%p>\n", tmp);
+      #endif
       delete tmp;
+      tmp = NULL;
+   }
    
-   // reset counter if if there is no more of this command
+   // reset counter if there is no more of this command
+   #if DEBUG_MISSION_TREE_DELETE
+   MessageInterface::ShowMessage
+      ("   Checking if the command counter needs to be reset\n");
+   #endif
    std::string seqString = theGuiInterpreter->GetScript();
    if (seqString.find(cmdType) == seqString.npos)
    {
+      #if DEBUG_MISSION_TREE_DELETE
+      MessageInterface::ShowMessage
+         ("   Resetting the command counter of '%s'\n", cmdType.c_str());
+      #endif
       int *cmdCounter = GetCommandCounter(cmdType.c_str());
       *cmdCounter = 0;
    }
    
    // delete from tree - if parent only has 1 child collapse
+   #if DEBUG_MISSION_TREE_DELETE
+   MessageInterface::ShowMessage
+      ("   Checking if the parent item needs to be collapsed\n");
+   #endif
    if (GetChildrenCount(parentId) <= 1)
+   {
+      #if DEBUG_MISSION_TREE_DELETE
+      MessageInterface::ShowMessage
+         ("   About to collapse parent tree item '%s'\n", GetItemText(parentId).c_str());
+      #endif
       this->Collapse(parentId);
+   }
    
+   #if DEBUG_MISSION_TREE_DELETE
+   MessageInterface::ShowMessage
+      ("   About to delete tree item '%s'\n", GetItemText(itemId).c_str());
+   #endif
    this->Delete(itemId);
    
    #if DEBUG_MISSION_TREE_SHOW_CMD
@@ -1318,6 +1358,11 @@ void MissionTree::DeleteCommand(const wxString &cmdName)
    #ifdef __TEST_MISSION_TREE_ACTIONS__
    if (mSaveActions || mPlaybackActions)
       WriteResults();
+   #endif
+   
+   #if DEBUG_MISSION_TREE_DELETE
+   MessageInterface::ShowMessage
+      ("MissionTree::Delete() leaving, cmdName='%s'\n", cmdName.c_str());
    #endif
 }
 
