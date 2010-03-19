@@ -811,7 +811,7 @@ int MatlabInterface::CloseSharedEngine()
       if (retval == 0)
       {
          retval = 1;
-         MessageInterface::ShowMessage("MATLAB uccessfuly closed\n");
+         MessageInterface::ShowMessage("MATLAB successfuly closed\n");
       }
       else
       {
