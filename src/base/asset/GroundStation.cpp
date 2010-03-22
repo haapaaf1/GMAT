@@ -11,6 +11,9 @@
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2008/08/01
+// Modified: 
+//    2010.03.19 Thomas Grubb 
+//      - Overrode Copy method
 //
 /**
  * Implements the Groundstation class used to model ground based tracking stations.
@@ -115,12 +118,27 @@ GroundStation& GroundStation::operator=(const GroundStation& gs)
 {
    if (&gs != this)
    {
-      BodyFixedPoint::operator=(*this);
+      BodyFixedPoint::operator=(gs);
 
       stationId = gs.stationId;
    }
    
    return *this;
+}
+
+
+//---------------------------------------------------------------------------
+//  void Copy(const GmatBase* orig)
+//---------------------------------------------------------------------------
+/**
+ * Sets this object to match another one.
+ *
+ * @param orig The original that is being copied.
+ */
+//---------------------------------------------------------------------------
+void GroundStation::Copy(const GmatBase* orig)
+{
+   operator=(*((GroundStation *)(orig)));
 }
 
 
@@ -424,10 +442,6 @@ bool GroundStation::SetStringParameter(const Integer id,
 }
 
 
-
-
-
-
 ///------------------------------------------------------------------------------
 /**
  */
@@ -518,7 +532,6 @@ bool GroundStation::Initialize()
 }
 
 
-
 bool GroundStation::IsEstimationParameterValid(const Integer id)
 {
    bool retval = false;
@@ -545,6 +558,7 @@ Integer GroundStation::GetEstimationParameterSize(const Integer item)
 
    return retval;
 }
+
 
 Real* GroundStation::GetEstimationParameterValue(const Integer item)
 {

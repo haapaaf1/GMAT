@@ -11,6 +11,11 @@
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2008/08/01
+// Modified: 
+//    2010.03.15 Thomas Grubb 
+//      - Changed visiblity of PARAMETER_TEXT, PARAMETER_TYPE, and enum from
+//        protected to public
+//      - Overrode Copy method
 //
 /**
  * Defines the Groundstation class used to model ground based tracking stations.
@@ -37,6 +42,7 @@ public:
 
    // all leaf classes derived from GmatBase must supply this Clone method
    virtual GmatBase*       Clone() const;
+   virtual void            Copy(const GmatBase* orig);
 
    // Access methods derived classes can override
    virtual std::string  GetParameterText(const Integer id) const;
@@ -78,6 +84,16 @@ protected:
    /// Ground station ID
    std::string          stationId;
    
+   // Override GetGenString to handle the changeable names for the parameters
+   virtual const std::string&  
+                        GetGeneratingString(
+                           Gmat::WriteMode mode = Gmat::SCRIPTING,
+                           const std::string &prefix = "",
+                           const std::string &useName = "");
+   virtual void         WriteParameters(Gmat::WriteMode mode, 
+                           std::string &prefix, std::stringstream &stream);
+
+public:
    /// Published parameters for ground stations
    enum
    {
@@ -90,14 +106,6 @@ protected:
    static const Gmat::ParameterType
       PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount];
 
-   // Override GetGenString to handle the changeable names for the parameters
-   virtual const std::string&  
-                        GetGeneratingString(
-                           Gmat::WriteMode mode = Gmat::SCRIPTING,
-                           const std::string &prefix = "",
-                           const std::string &useName = "");
-   virtual void         WriteParameters(Gmat::WriteMode mode, 
-                           std::string &prefix, std::stringstream &stream);
 };
 
 #endif /*GroundStation_hpp*/

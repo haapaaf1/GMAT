@@ -6,6 +6,10 @@
 //
 // Author: Darrel J. Conway
 // Created: 2004/11/08
+// Modified: 
+//    2010.03.18 Thomas Grubb 
+//      - Changed visiblity of PARAMETER_TEXT, PARAMETER_TYPE, and enum from
+//        protected to public
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under MOMS Task
 // Order 124.
@@ -112,7 +116,7 @@ protected:
    /// Availabel pressure model list
    static StringArray   pressureModelList;
    //static const std::string pressureModelList[2];
-   
+public:
    /// Published parameters for generic fuel tanks
    enum
    {

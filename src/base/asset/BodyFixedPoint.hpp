@@ -12,6 +12,12 @@
 // Author: Wendy C. Shoan, NASA/GSFC (moved from GroundStation code, 
 //         original author: Darrel J. Conway, Thinking Systems, Inc.)
 // Created: 2008.09.18
+// Modified: 
+//    2010.03.15 Thomas Grubb 
+//      - Changed visiblity of PARAMETER_TEXT, PARAMETER_TYPE, and enum from
+//        protected to public
+//      - Added LOCATION_UNITS_x labels to enum
+//      - Overrode Copy method
 //
 /**
  * Defines the BodyFixedPoint class used to model body-fixed space points.
@@ -36,6 +42,7 @@ public:
    BodyFixedPoint& operator=(const BodyFixedPoint& bfp);
 
    // Parameter access methods - overridden from GmatBase 
+   virtual void            Copy(const GmatBase* orig);
    virtual std::string     GetParameterText(const Integer id) const;     
    virtual Integer         GetParameterID(const std::string &str) const; 
    virtual Gmat::ParameterType
@@ -129,6 +136,8 @@ protected:
    SpacePoint        *theBody;
    /// Strings that identify the location parameters
    StringArray       locationLabels;
+   /// Strings that identify the location units
+   StringArray       locationUnits;
    /// Type of coordinate system
    std::string       stateType;
    /// For geographic states, the horizon type
@@ -159,6 +168,7 @@ protected:
    Rvector3       j2000Vel;
    Rvector6       j2000PosVel;
    
+public:
    /// Published parameters for body-fixed points
    enum
    {
@@ -171,6 +181,9 @@ protected:
       LOCATION_LABEL_1,
       LOCATION_LABEL_2,
       LOCATION_LABEL_3,
+      LOCATION_UNITS_1,
+      LOCATION_UNITS_2,
+      LOCATION_UNITS_3,
       BodyFixedPointParamCount
    };
    

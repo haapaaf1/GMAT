@@ -20,6 +20,8 @@
 //
 //         : 2003/10/03 - Allison Greene
 //         : Updated to include tabs for right side of window and left side.
+//    2010.03.16 Thomas Grubb 
+//      - Modified code to use new GroundStationPanel class instead of default panel
 //
 /**
  * This class provides the main frame for GMAT.
@@ -30,6 +32,7 @@
 #include "GmatAppData.hpp"
 #include "MdiGlPlotData.hpp"
 #include "MdiTsPlotData.hpp"
+#include "GroundStationPanel.hpp"
 #include "GmatNotebook.hpp"
 #include "GmatMenuBar.hpp"
 #include "GmatToolBar.hpp"
@@ -135,7 +138,6 @@
 //#define DEBUG_SERVER
 //#define DEBUG_CREATE_CHILD
 //#define DEBUG_REMOVE_CHILD
-//#define DEBUG_REMOVE_CHILD_DETAIL
 //#define DEBUG_INTERPRET
 //#define DEBUG_RUN
 //#define DEBUG_SIZE
@@ -1072,35 +1074,23 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
          MessageInterface::ShowMessage("   ==> calling child->OnClose()\n");
          #endif
          child->OnClose(event);
-         
-         #ifdef DEBUG_MAINFRAME_CLOSE
-         MessageInterface::ShowMessage("   ==> calling child->CanClose()\n");
-         #endif
-         
-         // We don't want to call CanClose() here. It is handled below for
-         // non-output window, so commented out (LOJ: 2010.03.11)
-         //if (child->CanClose())
-         childDeleted = true;
-         
-         // if type is not output, check if child can be closed
-         if (type < GmatTree::BEGIN_OF_OUTPUT || type > GmatTree::END_OF_OUTPUT)
+         if (child->CanClose())
+            childDeleted = true;
+
+         // if type is not output, check if child can be closed (loj: 2008.02.22)
+         if (type < GmatTree::BEGIN_OF_OUTPUT && type > GmatTree::END_OF_OUTPUT)
          {
-            #ifdef DEBUG_MAINFRAME_CLOSE
-            MessageInterface::ShowMessage
-               ("   ==> checking if child<%p> can be closed\n", child);
-            #endif
             if (!child->CanClose())
             {
                canDelete = false;
                #ifdef DEBUG_MAINFRAME_CLOSE
-               MessageInterface::ShowMessage
-                  ("   ==> cannot close this child, so returning false\n");
+               MessageInterface::ShowMessage("   ==> cannot close this child, so returning false\n");
                #endif
                return false;
             }
          }
       }
-      
+
       //-------------------------------------------------
       // Note: The node is deleted from RemoveChild()
       //-------------------------------------------------
@@ -1108,17 +1098,12 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       if (childDeleted)
       {
          nextNode = theMdiChildren->GetFirst();
-         #ifdef DEBUG_MAINFRAME_CLOSE
-         MessageInterface::ShowMessage
-            ("   ==> child was deleted, nextNode=<%p>\n", nextNode);
-         #endif
       }
       else
       {
          nextNode = node->GetNext();
          #ifdef DEBUG_MAINFRAME_CLOSE
-         MessageInterface::ShowMessage
-            ("   ==> child was not deleted, so returning false\n");
+         MessageInterface::ShowMessage("   ==> child was not deleted, so returning false\n");
          #endif
          return false;
       }
@@ -1139,7 +1124,7 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       node = nextNode;
 
       //--------------------------------------------------------------
-      // deleting children needs more work on platforms other than Windows
+      // delete chilren need more work on platforms other than Windows
       //--------------------------------------------------------------
       #else
 
@@ -2208,7 +2193,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    switch (itemType)
    {
    case GmatTree::GROUND_STATION:
-      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      sizer->Add(new GroundStationPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::SPACECRAFT:
       sizer->Add(new SpacecraftPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);

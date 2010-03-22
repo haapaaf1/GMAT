@@ -14,6 +14,9 @@
 // Author: Waka Waktola
 // Created: 2004/11/19
 // Modified: 
+//    2010.03.18 Thomas Grubb 
+//      - Modified code to use public fuel tank parameter id enums
+//      - Fixed bug with not saving Fuel Density on SaveData
 //    2010.03.08 Thomas Grubb 
 //      - Use GUI_ACCEL_KEY from gmatdefs.hpp
 //      - Added HELP button to panel
@@ -158,7 +161,7 @@ void TankConfigPanel::Create()
    // get the config object
    wxConfigBase *pConfig = wxConfigBase::Get();
    // SetPath() understands ".."
-   pConfig->SetPath(wxT("/FuelTank"));
+   pConfig->SetPath(wxT("/Fuel Tank"));
 
    //-----------------------------------------------------------------
    // Create controls in tab order
@@ -175,9 +178,8 @@ void TankConfigPanel::Create()
    // Pressure Model
    wxStaticText *pressureModelLabel =
       new wxStaticText( this, ID_TEXT, wxT("Pressure "GUI_ACCEL_KEY"Model"));
-   Integer id = theFuelTank->GetParameterID("PressureModel");
    StringArray pressModelList =
-      theFuelTank->GetPropertyEnumStrings(id);
+       theFuelTank->GetPropertyEnumStrings(FuelTank::PRESSURE_MODEL);
    wxArrayString wxPressModelLabels = ToWxArrayString(pressModelList);
    pressureModelComboBox = 
       new wxComboBox( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(120,-1),
@@ -335,26 +337,13 @@ void TankConfigPanel::LoadData()
 
    try
    {
-      paramID = theFuelTank->GetParameterID("FuelMass");
-      fuelMassTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(paramID)));
-      
-      paramID = theFuelTank->GetParameterID("Pressure");
-      pressureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(paramID)));
-      
-      paramID = theFuelTank->GetParameterID("Temperature");
-      temperatureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(paramID)));
-      
-      paramID = theFuelTank->GetParameterID("RefTemperature");
-      refTemperatureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(paramID)));
-      
-      paramID = theFuelTank->GetParameterID("Volume");
-      volumeTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(paramID)));
-      
-      paramID = theFuelTank->GetParameterID("FuelDensity");
-      fuelDensityTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(paramID)));
-      
-      paramID = theFuelTank->GetParameterID("PressureModel");      
-      pressureModelComboBox->SetValue(theFuelTank->GetStringParameter(paramID).c_str());
+      fuelMassTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::FUEL_MASS)));
+      pressureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::PRESSURE)));
+      temperatureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::TEMPERATURE)));
+      refTemperatureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::REFERENCE_TEMPERATURE)));
+      volumeTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::VOLUME)));
+      fuelDensityTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::FUEL_DENSITY)));
+      pressureModelComboBox->SetValue(theFuelTank->GetStringParameter(FuelTank::PRESSURE_MODEL).c_str());
       
    }
    catch (BaseException &e)
@@ -371,7 +360,6 @@ void TankConfigPanel::SaveData()
 {
    canClose = true;
    
-   Integer paramID;
    Real fuelMass, pressure, temp, refTemp, volume, fuelDensity;
    std::string inputString;
    
@@ -412,8 +400,7 @@ void TankConfigPanel::SaveData()
    try
    {
       // Fuel Mass
-      paramID = theFuelTank->GetParameterID("FuelMass");
-      theFuelTank->SetRealParameter(paramID, fuelMass);
+      theFuelTank->SetRealParameter(FuelTank::FUEL_MASS, fuelMass);
    }
    catch (BaseException &ex)
    {
@@ -424,8 +411,7 @@ void TankConfigPanel::SaveData()
    try
    {
       // Pressure 
-      paramID = theFuelTank->GetParameterID("Pressure");
-      theFuelTank->SetRealParameter(paramID, pressure);
+       theFuelTank->SetRealParameter(FuelTank::PRESSURE, pressure);
    }
    catch (BaseException &ex)
    {
@@ -436,8 +422,7 @@ void TankConfigPanel::SaveData()
    try
    {
       // Temperature
-      paramID = theFuelTank->GetParameterID("Temperature");
-      theFuelTank->SetRealParameter(paramID, temp);
+       theFuelTank->SetRealParameter(FuelTank::TEMPERATURE, temp);
    }
    catch (BaseException &ex)
    {
@@ -448,8 +433,7 @@ void TankConfigPanel::SaveData()
    try
    {
       // Reference Temperature
-      paramID = theFuelTank->GetParameterID("RefTemperature");
-      theFuelTank->SetRealParameter(paramID, refTemp);
+       theFuelTank->SetRealParameter(FuelTank::REFERENCE_TEMPERATURE, refTemp);
    }
    catch (BaseException &ex)
    {
@@ -460,8 +444,18 @@ void TankConfigPanel::SaveData()
    try
    {
       // Volume 
-      paramID = theFuelTank->GetParameterID("Volume");
-      theFuelTank->SetRealParameter(paramID, volume);
+       theFuelTank->SetRealParameter(FuelTank::VOLUME, volume);
+   }
+   catch (BaseException &ex)
+   {
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+      canClose = false;
+   }
+   
+   try
+   {
+      // Fuel Density 
+       theFuelTank->SetRealParameter(FuelTank::FUEL_DENSITY, fuelDensity);
    }
    catch (BaseException &ex)
    {
@@ -472,9 +466,8 @@ void TankConfigPanel::SaveData()
    try
    {
       // Pressure Model
-      paramID = theFuelTank->GetParameterID("PressureModel");
       std::string modelName = pressureModelComboBox->GetValue().c_str();
-      theFuelTank->SetStringParameter(paramID, modelName);
+      theFuelTank->SetStringParameter(FuelTank::PRESSURE_MODEL, modelName);
    }
    catch (BaseException &ex)
    {

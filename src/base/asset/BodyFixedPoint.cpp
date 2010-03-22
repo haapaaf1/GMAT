@@ -12,6 +12,14 @@
 // Author: Wendy C. Shoan, NASA/GSFC (moved from GroundStation code, 
 //         original author: Darrel J. Conway, Thinking Systems, Inc.)
 // Created: 2008.08.22
+// Modified: 
+//    2010.03.19 Thomas Grubb 
+//      - Overrode Copy method
+//      - Changed StateType values from (Cartesian, Geographical) to
+//        (Cartesian, Spherical (Geographical deprecates to Spherical))
+//      - Added Location Units labels code
+//      - Added checks that Latitude, Longitude between 0 and 360 and altitude 
+//        greater than or equal to 0
 //
 /**
  * Implements the Groundstation class used to model ground based tracking stations.
@@ -22,6 +30,8 @@
 #include "AssetException.hpp"
 #include "MessageInterface.hpp"
 #include "GmatBaseException.hpp"
+#include "RealUtilities.hpp"
+#include "StringUtil.hpp"
 
 
 //#define DEBUG_OBJECT_MAPPING
@@ -39,7 +49,7 @@ const std::string
 BodyFixedPoint::PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount] =
    {
          "CentralBody",
-         "StateType",         // Cartesian or Geographical
+         "StateType",         // Cartesian or Spherical
          "HorizonReference",  // Sphere or Ellipsoid
          "Location1",         // X or Latitude value
          "Location2",         // Y or Longitude value
@@ -47,6 +57,9 @@ BodyFixedPoint::PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount] 
          "LOCATION_LABEL_1",  // "X" or "Latitude"
          "LOCATION_LABEL_2",  // "Y" or "Longitude"
          "LOCATION_LABEL_3"   // "Z" or "Height"
+         "LOCATION_UNITS_1",  // "km" or "deg"
+         "LOCATION_UNITS_2",  // "km" or "deg"
+         "LOCATION_UNITS_3"   // "km" or "km"
    };
 
 const Gmat::ParameterType 
@@ -95,9 +108,15 @@ BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &it
    objectTypeNames.push_back("BodyFixedPoint");
    parameterCount = BodyFixedPointParamCount;
    
+   // assumes StateType = Cartesian
    locationLabels.push_back("X");
    locationLabels.push_back("Y");
    locationLabels.push_back("Z");
+   
+   // assumes StateType = Cartesian
+   locationUnits.push_back("km");
+   locationUnits.push_back("km");
+   locationUnits.push_back("km");
    
    location[0] = 6378.14;
    location[1] = 0.0;
@@ -134,6 +153,7 @@ BodyFixedPoint::BodyFixedPoint(const BodyFixedPoint& bfp) :
    cBodyName         (bfp.cBodyName),
    theBody           (NULL),
    locationLabels    (bfp.locationLabels),
+   locationUnits     (bfp.locationUnits),
    stateType         (bfp.stateType),
    horizon           (bfp.horizon),
    solarSystem       (NULL),
@@ -167,10 +187,11 @@ BodyFixedPoint& BodyFixedPoint::operator=(const BodyFixedPoint& bfp)
 {
    if (&bfp != this)
    {
-      SpacePoint::operator=(*this);
+      SpacePoint::operator=(bfp);
       
       theBody        = bfp.theBody;
       locationLabels = bfp.locationLabels;
+      locationUnits  = bfp.locationUnits;
       stateType      = bfp.stateType;
       horizon        = bfp.horizon;
       solarSystem    = bfp.solarSystem;
@@ -195,6 +216,21 @@ BodyFixedPoint& BodyFixedPoint::operator=(const BodyFixedPoint& bfp)
 
 
 // Parameter access methods - overridden from GmatBase 
+
+//---------------------------------------------------------------------------
+//  void Copy(const GmatBase* orig)
+//---------------------------------------------------------------------------
+/**
+ * Sets this object to match another one.
+ *
+ * @param orig The original that is being copied.
+ */
+//---------------------------------------------------------------------------
+void BodyFixedPoint::Copy(const GmatBase* orig)
+{
+   operator=(*((BodyFixedPoint *)(orig)));
+}
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetParameterText(const Integer id) const
@@ -295,10 +331,8 @@ std::string BodyFixedPoint::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool BodyFixedPoint::IsParameterReadOnly(const Integer id) const
 {
-   if ((id == LOCATION_LABEL_1) || 
-       (id == LOCATION_LABEL_2) || 
-       (id == LOCATION_LABEL_3) )
-      return true;
+   if ((id >= SpacePointParamCount) && (id < BodyFixedPointParamCount)) 
+      return ((id >= LOCATION_LABEL_1) && (id <= LOCATION_UNITS_3));
 
    return SpacePoint::IsParameterReadOnly(id);
 }
@@ -362,7 +396,7 @@ const StringArray& BodyFixedPoint::GetPropertyEnumStrings(const Integer id) cons
    case STATE_TYPE:
       enumStrings.clear();
       enumStrings.push_back("Cartesian");
-      enumStrings.push_back("Geographical");      
+      enumStrings.push_back("Spherical");      
       return enumStrings;
    case HORIZON_REFERENCE:
       enumStrings.clear();
@@ -403,14 +437,11 @@ std::string BodyFixedPoint::GetStringParameter(const Integer id) const
    if (id == HORIZON_REFERENCE)
       return horizon;
 
-   if (id == LOCATION_LABEL_1)
-      return locationLabels[0];
+   if ((id >= LOCATION_LABEL_1) && (id <= LOCATION_LABEL_3))
+      return locationLabels[id-LOCATION_LABEL_1];
 
-   if (id == LOCATION_LABEL_2)
-      return locationLabels[1];
-
-   if (id == LOCATION_LABEL_3)
-      return locationLabels[2];
+   if ((id >= LOCATION_UNITS_1) && (id <= LOCATION_UNITS_3))
+      return locationUnits[id-LOCATION_UNITS_1];
 
    return SpacePoint::GetStringParameter(id);
 }
@@ -432,6 +463,8 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
                                        const std::string &value)
 {
    bool retval = false;
+   if (IsParameterReadOnly(id))
+       return retval;
    
    if (id == CENTRAL_BODY)   
    {
@@ -442,20 +475,45 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
    }   
    else if (id == STATE_TYPE)
    {
-      if ((value == "Cartesian") || (value == "Geographical"))
+      std::string v = value;
+      if (v == "Geographical") // deprecated value
       {
-         stateType = value;
-         if (value == "Cartesian")
+        // write one warning per GMAT session
+        static bool firstTimeWarning = true;
+        std::string framelist = "Cartesian, Spherical";
+        
+        std::string msg =
+           "The value of \"" + value + "\" for field \"StateType\""
+           " on object \"" + instanceName + "\" is not an allowed value.\n"
+           "The allowed values are: [ " + framelist + " ]. ";
+        
+        if (firstTimeWarning)
+        {
+           firstTimeWarning = false;
+           MessageInterface::ShowMessage("*** WARNING *** " + msg + "\n");
+        }
+      }
+
+      if ((v == "Cartesian") || (v == "Spherical"))
+      {
+         stateType = v;
+         if (v == "Cartesian")
          {
             locationLabels[0] = "X";
             locationLabels[1] = "Y";
             locationLabels[2] = "Z";
+            locationUnits[0] = "km";
+            locationUnits[1] = "km";
+            locationUnits[2] = "km";
          }
          else
          {
             locationLabels[0] = "Latitude";
             locationLabels[1] = "Longitude";
-            locationLabels[2] = "Height";
+            locationLabels[2] = "Altitude";
+            locationUnits[0] = "deg";
+            locationUnits[1] = "deg";
+            locationUnits[2] = "km";
          }
          retval = true;
       }
@@ -468,12 +526,6 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
          retval = true;
       }
    }
-   else if (id == LOCATION_LABEL_1)
-      retval = false;
-   else if (id == LOCATION_LABEL_2)
-      retval = false;
-   else if (id == LOCATION_LABEL_3)
-      retval = false;
    else 
       retval = SpacePoint::SetStringParameter(id, value);
    
@@ -631,37 +683,40 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 }
 
 
-
-
 Real BodyFixedPoint::GetRealParameter(const Integer id) const
 {
-   if (id == LOCATION_1)
-      return location[0];
-   
-   if (id == LOCATION_2)
-      return location[1];
-   
-   if (id == LOCATION_3)
-      return location[2];
+   if ((id >= LOCATION_1) && (id <= LOCATION_3))
+      return location[id-LOCATION_1];
    
    return SpacePoint::GetRealParameter(id);
 }
 
+
 Real BodyFixedPoint::SetRealParameter(const Integer id,
                                       const Real value)
 {
-   // Need to add range checking here
-   if (id == LOCATION_1)
+   if ((id == LOCATION_1) || (id == LOCATION_2))
    {
-      location[0] = value;
-      return location[0];
+      // if statetype <> cartesian, then check if Latitude/Longitude >= 0
+      if (stateType != "Cartesian")
+      {
+         if (value >= 0.0)
+            location[id-LOCATION_1] = GmatMathUtil::Mod(value,360);
+         else
+         {
+            AssetException aException("");
+            aException.SetDetails(errorMessageFormat.c_str(),
+                        GmatStringUtil::ToString(value, 16).c_str(),
+                        GetStringParameter(id-LOCATION_1+LOCATION_LABEL_1).c_str(), "Real Number >= 0.0");
+            throw aException;
+         }
+      }
+      else
+         location[id-LOCATION_1] = value;
+
+      return location[id-LOCATION_1];
    }
    
-   if (id == LOCATION_2)
-   {
-      location[1] = value;
-      return location[1];
-   }
    
    if (id == LOCATION_3)
    {
