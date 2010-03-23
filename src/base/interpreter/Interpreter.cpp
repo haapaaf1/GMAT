@@ -7,6 +7,9 @@
 // Author: Darrel J. Conway
 // Created: 2003/08/28
 // Rework:  2006/09/27 by Linda Jun (NASA/GSFC)
+// Modified: 
+//    2010.03.23 Thomas Grubb/Steve Hughes
+//      - Fixed error message in SetValueToProperty for invalid field values
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -3996,14 +3999,14 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
       if (errorMsg1 == "")
       {
          InterpreterException ex
-            ("The field name \"" + toProp + "\" on object " + "\"" +
+            ("The value of \"" + value + "\" for field \"" + toProp + "\" on object " + "\"" +
              toOwner->GetName() + "\" is not permitted");
          HandleError(ex);
       }
       else
       {
          InterpreterException ex
-            (errorMsg1 + "field \"" + toProp + "\" on object " + "\"" +
+            (errorMsg1 + "Value of \"" + value + "\" for field \"" + toProp + "\" on object " + "\"" +
              toOwner->GetName() + "\" is not an allowed value." + errorMsg2);
          HandleError(ex);
       }
