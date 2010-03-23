@@ -107,6 +107,7 @@ TsPlot::TsPlot(const std::string &name, Parameter *xParam,
    mIsTsPlotWindowSet = false;
    mDataCollectFrequency = 1;
    mUpdatePlotFrequency = 10;
+   mNumDataPoints = 0;           // Found by Bob Wiegand w/ Valgrind
 
    useLines = true;
    lineWidth = 1;
