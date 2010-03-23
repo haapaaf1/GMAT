@@ -95,6 +95,7 @@ prep:
 	rm -f app/AboutDialog.o
 
 HEADERS = -I../base/include \
+          -I../base/asset \
           -I../base/attitude \
           -I../base/foundation \
           -I../base/executive \
@@ -122,6 +123,7 @@ HEADERS = -I../base/include \
           -Iinclude/bitmaps \
           -Iinclude/il \
           -Iapp \
+			 -Iasset \
           -Iburn \
           -Icommand \
           -Icontrollogic \
@@ -178,6 +180,7 @@ OBJECTS = \
     app/ScriptPanel.o \
     app/SetPathDialog.o \
     app/TextEphemFileDialog.o \
+	 asset/GroundStationPanel.o \
     burn/FiniteBurnSetupPanel.o \
     burn/ImpulsiveBurnSetupPanel.o \
     command/AchievePanel.o \
