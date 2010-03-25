@@ -23,12 +23,13 @@
 #include "ParameterException.hpp"
 #include "Rvector3.hpp"
 #include "RealUtilities.hpp"
+#include "Linear.hpp"
 #include "Keplerian.hpp"         // for Cartesian to Keplerian elements
 #include "AngleUtil.hpp"
 #include "UtilityException.hpp"
-#include "SphericalRADEC.hpp"    // for friend CartesianToSphericalRADEC/AZFPA()
+//#include "SphericalRADEC.hpp"    // for friend CartesianToSphericalRADEC/AZFPA()
 #include "ModKeplerian.hpp"      // for friend KeplerianToModKeplerian()
-#include "Equinoctial.hpp"
+//#include "Equinoctial.hpp"
 #include "CelestialBody.hpp"
 #include "OrbitTypes.hpp"        // for KEP_TOL, KEP_ZERO_TOL
 #include "StringUtil.hpp"        // for ToString()
@@ -303,7 +304,8 @@ Rvector6 OrbitData::GetSphRaDecState()
    
    // Call GetCartState() to convert to parameter coord system first
    Rvector6 state = GetCartState();
-   mSphRaDecState = CartesianToSphericalRADEC(state);
+//   mSphRaDecState = CartesianToSphericalRADEC(state);
+   mSphRaDecState = stateConverter.FromCartesian(state, "SphericalRADEC");
 
    #ifdef DEBUG_ORBITDATA_STATE
    MessageInterface::ShowMessage
@@ -325,7 +327,9 @@ Rvector6 OrbitData::GetSphAzFpaState()
    
    // Call GetCartState() to convert to parameter coord system first
    Rvector6 state = GetCartState();
-   mSphAzFpaState = CartesianToSphericalAZFPA(state);
+   //   mSphAzFpaState = CartesianToSphericalAZFPA(state);
+   mSphAzFpaState = stateConverter.FromCartesian(state, "SphericalAZFPA");
+
    
    return mSphAzFpaState;
 }
@@ -341,7 +345,9 @@ Rvector6 OrbitData::GetEquinState()
    
    // Call GetCartState() to convert to parameter coord system first
    Rvector6 state = GetCartState();
-   Rvector6 mEquinState = CartesianToEquinoctial(state, mGravConst);
+//   Rvector6 mEquinState = CartesianToEquinoctial(state, mGravConst);
+   stateConverter.SetMu(mGravConst);
+   Rvector6 mEquinState = stateConverter.FromCartesian(state, "Equinoctial");
    
    return mEquinState;
 }

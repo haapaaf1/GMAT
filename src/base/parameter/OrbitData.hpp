@@ -29,6 +29,7 @@
 #include "SolarSystem.hpp"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
+#include "StateConverter.hpp"
 
 class GMAT_API OrbitData : public RefData
 {
@@ -111,6 +112,8 @@ protected:
    CoordinateSystem *mInternalCoordSystem;
    CoordinateSystem *mOutCoordSystem;
    
+   StateConverter   stateConverter;
+
    // only one CoordinateConverter needed
    static CoordinateConverter mCoordConverter;
    
