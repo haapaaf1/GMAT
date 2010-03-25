@@ -12,7 +12,12 @@
 // Author: Wendy C. Shoan, NASA/GSFC (moved from GroundStation code, 
 //         original author: Darrel J. Conway, Thinking Systems, Inc.)
 // Created: 2008.08.22
+
 // Modified: 
+//    2010.03.25 Thomas Grubb 
+//      - Fixed check for latitude to be between -90 and 90
+//    2010.03.23 Thomas Grubb/Steve Hughes 
+//      - Fixed SetStringParameter to correctly check for statetype values
 //    2010.03.19 Thomas Grubb 
 //      - Overrode Copy method
 //      - Changed StateType values from (Cartesian, Geographical) to
@@ -478,6 +483,7 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
       std::string v = value;
       if (v == "Geographical") // deprecated value
       {
+        v = "Spherical";
         // write one warning per GMAT session
         static bool firstTimeWarning = true;
         std::string framelist = "Cartesian, Spherical";
@@ -695,33 +701,31 @@ Real BodyFixedPoint::GetRealParameter(const Integer id) const
 Real BodyFixedPoint::SetRealParameter(const Integer id,
                                       const Real value)
 {
-   if ((id == LOCATION_1) || (id == LOCATION_2))
+   if (((id == LOCATION_1) || (id == LOCATION_2)) && (stateType != "Cartesian"))
    {
       // if statetype <> cartesian, then check if Latitude/Longitude >= 0
-      if (stateType != "Cartesian")
+      if (id == LOCATION_1) // latitude
       {
-         if (value >= 0.0)
-            location[id-LOCATION_1] = GmatMathUtil::Mod(value,360);
+         if ((value >= -90.0) && (value <= 90))
+            location[id-LOCATION_1] = value;
          else
          {
             AssetException aException("");
             aException.SetDetails(errorMessageFormat.c_str(),
                         GmatStringUtil::ToString(value, 16).c_str(),
-                        GetStringParameter(id-LOCATION_1+LOCATION_LABEL_1).c_str(), "Real Number >= 0.0");
+                        GetStringParameter(id-LOCATION_1+LOCATION_LABEL_1).c_str(), "Real Number >= -90.0 and <= 90.0");
             throw aException;
          }
       }
-      else
-         location[id-LOCATION_1] = value;
-
+      else // longitude (0-360)
+         location[id-LOCATION_1] = GmatMathUtil::Mod(value,360);
       return location[id-LOCATION_1];
    }
    
-   
-   if (id == LOCATION_3)
+   if ((id >= LOCATION_1) && (id <= LOCATION_3))
    {
-      location[2] = value;
-      return location[2];
+      location[id-LOCATION_1] = value;
+      return location[id-LOCATION_1];
    }
    
    return SpacePoint::SetRealParameter(id, value);
