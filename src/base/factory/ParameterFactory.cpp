@@ -25,6 +25,7 @@
 #include "CartesianParameters.hpp"
 #include "KeplerianParameters.hpp"
 #include "SphericalParameters.hpp"
+#include "EquinoctialParameters.hpp"
 #include "OrbitalParameters.hpp"
 #include "AngularParameters.hpp"
 #include "EnvParameters.hpp"
@@ -164,6 +165,20 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
       return new SphAzFpaElem(withName);
    if (ofType == "Altitude")
       return new Altitude(withName);
+
+   // Equinoctial parameters
+   if (ofType == "EquinoctialH")
+      return new EquinEy(withName);
+   if (ofType == "EquinoctialK")
+      return new EquinEx(withName);
+   if (ofType == "EquinoctialP")
+      return new EquinNy(withName);
+   if (ofType == "EquinoctialQ")
+      return new EquinNx(withName);
+   if (ofType == "MLONG")
+      return new EquinMlong(withName);
+   if (ofType == "Equinoctial")
+      return new EquinState(withName);
 
    // Orbital parameters
    if (ofType == "VelApoapsis")
@@ -423,6 +438,18 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("SphericalRADEC");
       creatables.push_back("SphericalAZFPA");
       creatables.push_back("Altitude");
+
+      // Equinoctial parameters
+//      creatables.push_back("h");
+//      creatables.push_back("k");
+//      creatables.push_back("p");
+//      creatables.push_back("q");
+      creatables.push_back("EquinoctialH");
+      creatables.push_back("EquinoctialK");
+      creatables.push_back("EquinoctialP");
+      creatables.push_back("EquinoctialQ");
+      creatables.push_back("MLONG");
+      creatables.push_back("Equinoctial");
 
       // Orbital parameters
       creatables.push_back("VelApoapsis");
