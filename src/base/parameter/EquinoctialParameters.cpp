@@ -323,7 +323,7 @@ bool EquinState::Evaluate()
        mRvec6Value.ToString().c_str());
    #endif
    
-   return mRvec6Value.IsValid(ORBIT_REAL_UNDEFINED);
+   return mRvec6Value.IsValid(GmatOrbit::ORBIT_REAL_UNDEFINED);
 }
 
 
