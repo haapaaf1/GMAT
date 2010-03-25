@@ -11,6 +11,11 @@
 //
 // Author: Allison Greene
 // Created: 2003/08/29
+//    2010.03.23 Thomas Grubb 
+//      - Removed Clone menu item from the Formation popup menu
+//    2010.03.16 Thomas Grubb 
+//      - Moved the GroundStation folder in the mission tree to appear below 
+//        Formation folder
 //
 /**
  * This class provides the resource tree and event handlers.
@@ -542,15 +547,6 @@ void ResourceTree::AddDefaultResources()
       AddRoot(wxT("Resources"), -1, -1,
               new GmatTreeItemData(wxT("Resources"), GmatTree::RESOURCES_FOLDER));
 
-   //----- GroundStation
-   mGroundStationItem =
-      AppendItem(resource, wxT("Ground Station"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("Ground Station"),
-                                      GmatTree::GROUND_STATION_FOLDER));
-
-   SetItemImage(mGroundStationItem, GmatTree::ICON_OPENFOLDER,
-                wxTreeItemIcon_Expanded);
-   
    //----- Spacecraft
    mSpacecraftItem =
       AppendItem(resource, wxT("Spacecraft"), GmatTree::ICON_FOLDER, -1,
@@ -569,6 +565,15 @@ void ResourceTree::AddDefaultResources()
    SetItemImage(mFormationItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
 
+   //----- GroundStation
+   mGroundStationItem =
+      AppendItem(resource, wxT("Ground Station"), GmatTree::ICON_FOLDER, -1,
+                 new GmatTreeItemData(wxT("Ground Station"),
+                                      GmatTree::GROUND_STATION_FOLDER));
+
+   SetItemImage(mGroundStationItem, GmatTree::ICON_OPENFOLDER,
+                wxTreeItemIcon_Expanded);
+   
    #ifdef __ENABLE_CONSTELLATIONS__
    //----- Constellations
    wxTreeItemId constellationItem =
@@ -3712,6 +3717,10 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
          break;
       case GmatTree::SCRIPT_FILE:
          break; // nothing to add
+      case GmatTree::FORMATION:
+         menu.Append(POPUP_OPEN, wxT("Open"));
+         menu.Append(POPUP_CLOSE, wxT("Close"));
+         break;
       default:
          menu.Append(POPUP_OPEN, wxT("Open"));
          menu.Append(POPUP_CLOSE, wxT("Close"));
