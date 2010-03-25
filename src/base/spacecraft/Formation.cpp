@@ -11,6 +11,10 @@
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2004/7/24
+// Modified: 
+//    2010.03.25 Thomas Grubb 
+//      - Modified IsParameterReadOnly to correctly set CartesianState and
+//        A1Epoch to true
 //
 /**
  * Implements the class used for formations. 
@@ -391,11 +395,14 @@ Gmat::ParameterType Formation::GetParameterType(const Integer id) const
 //---------------------------------------------------------------------------
 bool Formation::IsParameterReadOnly(const Integer id) const
 {
+   if (id == EPOCH_PARAM)
+      return true;
+
    if ((id == REMOVED_SPACECRAFT) || (id == CLEAR_NAMES))
       return true;
    
    if ((id >= FORMATION_CARTESIAN_STATE) && 
-       (id < FORMATION_CARTESIAN_STATE + dimension))
+       (id <= FORMATION_CARTESIAN_STATE + dimension))
       return true;
 
    return SpaceObject::IsParameterReadOnly(id);
