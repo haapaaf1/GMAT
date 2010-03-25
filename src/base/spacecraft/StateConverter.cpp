@@ -19,21 +19,25 @@
 
 #include "StateConverter.hpp"
 #include "SpacePoint.hpp"
-#include "Equinoctial.hpp"
+//#include "Equinoctial.hpp"
 #include "CoordUtil.hpp"
 #include "Keplerian.hpp"
 #include "ModKeplerian.hpp"
-#include "Equinoctial.hpp"
-#include "SphericalAZFPA.hpp"
-#include "SphericalRADEC.hpp"
+//#include "Equinoctial.hpp"
+//#include "SphericalAZFPA.hpp"
+//#include "SphericalRADEC.hpp"
 #include "MessageInterface.hpp"
 #include "UtilityException.hpp"
+#include "RealTypes.hpp"
+#include "RealUtilities.hpp"
+
+using namespace GmatMathUtil;
 
 //#define DEBUG_STATE_CONVERTER 1
 
-//-------------------------------------
+//------------------------------------------------------------------------------
 // static data
-//-------------------------------------
+//------------------------------------------------------------------------------
 
 const Real StateConverter::DEFAULT_MU = 0.3986004415e+06;
 const std::string StateConverter::STATE_TYPE_TEXT[StateTypeCount] =
@@ -55,9 +59,9 @@ const bool StateConverter::REQUIRES_CB_ORIGIN[StateTypeCount] =
       false,
       true,
 };
-//-------------------------------------
+//------------------------------------------------------------------------------
 // public methods
-//-------------------------------------
+//------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 //  StateConverter()
@@ -165,7 +169,7 @@ StateConverter& StateConverter::operator=(const StateConverter &converter)
 //---------------------------------------------------------------------------
 bool StateConverter::SetMu(const CoordinateSystem *coordSys)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
       MessageInterface::ShowMessage("\nStateConverter::SetMu(cs) enters...\n");
    #endif
       
@@ -176,7 +180,7 @@ bool StateConverter::SetMu(const CoordinateSystem *coordSys)
    // Get the coordinate system's origin
    SpacePoint *origin = coordSys->GetOrigin();
    
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
       std::string typeName = origin->GetTypeName();
       MessageInterface::ShowMessage("...Origin type is '%s'.", typeName.c_str());
       
@@ -194,7 +198,7 @@ bool StateConverter::SetMu(const CoordinateSystem *coordSys)
    else
       mMu = 0.0;
    
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
       MessageInterface::ShowMessage("...mMu = %f before "
         "StateConverter::SetMu() exits\n\n", mMu);
    #endif
@@ -211,7 +215,7 @@ Rvector6 StateConverter::FromCartesian(const Rvector6 &state,
                                        const std::string &toType,
                                        const std::string &anomalyType)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromCartesian() toType=%s, anomalyType=%s\n"
        "   state=%s\n", toType.c_str(), anomalyType.c_str(),
@@ -251,10 +255,10 @@ Rvector6 StateConverter::FromCartesian(const Rvector6 &state,
           "\". \"" + toType + "\" is Unknown State Type\n");
    }
    
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
-      ("StateConverter::FromCartesian() returning \n   %s\n",
-       outState.ToString(13).c_str());
+      ("StateConverter::FromCartesian() returning (%s)\n   %s\n",
+       toType.c_str(), outState.ToString(13).c_str());
    #endif
 
    return outState;
@@ -269,7 +273,7 @@ Rvector6 StateConverter::FromKeplerian(const Rvector6 &state,
                                        const std::string &toType,
                                        const std::string &anomalyType)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromKeplerian() toType=%s, anomalyType=%s\n"
        "   state=%s\n", toType.c_str(), anomalyType.c_str(),
@@ -294,11 +298,13 @@ Rvector6 StateConverter::FromKeplerian(const Rvector6 &state,
    }
    else if (toType == "SphericalAZFPA")
    {
-      outState = KeplerianToSphericalAZFPA(state, mMu, anomaly);
+      Rvector6 cartesian = Keplerian::KeplerianToCartesian(mMu, state, anomalyType);
+      outState           = CartesianToSphericalAZFPA(cartesian);
    }
    else if (toType == "SphericalRADEC")
    {
-      outState = KeplerianToSphericalRADEC(state, mMu, anomaly);
+      Rvector6 cartesian = Keplerian::KeplerianToCartesian(mMu, state, anomalyType);
+      outState           = CartesianToSphericalRADEC(cartesian);
    }
    else
    {
@@ -307,7 +313,7 @@ Rvector6 StateConverter::FromKeplerian(const Rvector6 &state,
           "\". \"" + toType + " is Unknown State Type\n");
    }
    
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromKeplerian() returning \n   %s\n",
        outState.ToString(13).c_str());
@@ -325,7 +331,7 @@ Rvector6 StateConverter::FromModKeplerian(const Rvector6 &state,
                                           const std::string &toType,
                                           const std::string &anomalyType)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromModKeplerian() toType=%s, anomalyType=%s\n"
        "   state=%s\n", toType.c_str(), anomalyType.c_str(),
@@ -351,12 +357,14 @@ Rvector6 StateConverter::FromModKeplerian(const Rvector6 &state,
    else if (toType == "SphericalAZFPA")
    {
       Rvector6 keplerian = ModKeplerianToKeplerian(state);
-      outState = KeplerianToSphericalAZFPA(keplerian, mMu, anomaly);
+      Rvector6 cartesian = Keplerian::KeplerianToCartesian(mMu, keplerian, anomalyType);
+      outState           = CartesianToSphericalAZFPA(cartesian);
    }
    else if (toType == "SphericalRADEC")
    {
       Rvector6 keplerian = ModKeplerianToKeplerian(state);
-      outState = KeplerianToSphericalRADEC(keplerian, mMu, anomaly);
+      Rvector6 cartesian = Keplerian::KeplerianToCartesian(mMu, keplerian, anomalyType);
+      outState           = CartesianToSphericalRADEC(cartesian);
    }
    else
    {
@@ -365,7 +373,7 @@ Rvector6 StateConverter::FromModKeplerian(const Rvector6 &state,
           "\". \"" + toType + " is Unknown State Type\n");
    }
    
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromModKeplerian() returning \n   %s\n",
        outState.ToString(13).c_str());
@@ -383,7 +391,7 @@ Rvector6 StateConverter::FromSphericalAZFPA(const Rvector6 &state,
                                             const std::string &toType,
                                             const std::string &anomalyType)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromSphericalAZFPA() toType=%s, anomalyType=%s\n"
        "   state=%s\n", toType.c_str(), anomalyType.c_str(),
@@ -403,16 +411,21 @@ Rvector6 StateConverter::FromSphericalAZFPA(const Rvector6 &state,
    }
    else if (toType == "Keplerian")
    {
-      outState = SphericalAZFPAToKeplerian(state, mMu, anomaly);
+      Rvector6 cartesian = SphericalAZFPAToCartesian(state);
+      outState           = Keplerian::CartesianToKeplerian(mMu, cartesian, anomalyType);
    }
    else if (toType == "ModifiedKeplerian")
    {
-      Rvector6 keplerian = SphericalAZFPAToKeplerian(state, mMu, anomaly);
-      outState = KeplerianToModKeplerian(keplerian);
+      Rvector6 cartesian = SphericalAZFPAToCartesian(state);
+      Rvector6 keplerian = Keplerian::CartesianToKeplerian(mMu, cartesian, anomalyType);
+//      Rvector6 keplerian = SphericalAZFPAToKeplerian(state, mMu, anomaly);
+      outState           = KeplerianToModKeplerian(keplerian);
    }
    else if (toType == "SphericalRADEC")
    {
-      outState = AZFPA_To_RADECV(state);
+      Rvector6 cartesian = SphericalAZFPAToCartesian(state);
+      outState           = CartesianToSphericalRADEC(cartesian);
+//      outState = AZFPA_To_RADECV(state);
    }
    else
    {
@@ -421,7 +434,7 @@ Rvector6 StateConverter::FromSphericalAZFPA(const Rvector6 &state,
           "\". \"" + toType + " is Unknown State Type\n");
    }
    
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromSphericalAZFPA() returning \n   %s\n",
        outState.ToString(13).c_str());
@@ -439,7 +452,7 @@ Rvector6 StateConverter::FromSphericalRADEC(const Rvector6 &state,
                                             const std::string &toType,
                                             const std::string &anomalyType)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromSphericalRADEC() toType=%s, anomalyType=%s\n"
        "   state=%s\n", toType.c_str(), anomalyType.c_str(),
@@ -459,16 +472,23 @@ Rvector6 StateConverter::FromSphericalRADEC(const Rvector6 &state,
    }
    else if (toType == "Keplerian")
    {
-      outState = SphericalRADECToKeplerian(state, mMu, anomaly);
+      Rvector6 cartesian = SphericalRADECToCartesian(state);
+      outState           = Keplerian::CartesianToKeplerian(mMu, cartesian, anomalyType);
+//      outState = SphericalRADECToKeplerian(state, mMu, anomaly);
    }
    else if (toType == "ModifiedKeplerian")
    {
-      Rvector6 keplerian = SphericalRADECToKeplerian(state, mMu, anomaly);
-      outState = KeplerianToModKeplerian(keplerian);
+      Rvector6 cartesian = SphericalRADECToCartesian(state);
+      Rvector6 keplerian = Keplerian::CartesianToKeplerian(mMu, cartesian, anomalyType);
+      outState           = KeplerianToModKeplerian(keplerian);
+//      Rvector6 keplerian = SphericalRADECToKeplerian(state, mMu, anomaly);
+//      outState = KeplerianToModKeplerian(keplerian);
    }
    else if (toType == "SphericalAZFPA")
    {
-      outState = RADECV_To_AZFPA(state);
+      Rvector6 cartesian = SphericalRADECToCartesian(state);
+      outState           = CartesianToSphericalAZFPA(cartesian);
+//      outState = RADECV_To_AZFPA(state);
    }
    else
    {
@@ -477,7 +497,7 @@ Rvector6 StateConverter::FromSphericalRADEC(const Rvector6 &state,
           "\". \"" + toType + " is Unknown State Type\n");
    }
    
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromSphericalRADEC() returning \n   %s\n",
        outState.ToString(13).c_str());
@@ -495,7 +515,7 @@ Rvector6 StateConverter::FromEquinoctial(const Rvector6 &state,
                                          const std::string &toType,
                                          const std::string &anomalyType)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromEquinoctial() toType=%s, anomalyType=%s\n"
        "   state=%s\n", toType.c_str(), anomalyType.c_str(),
@@ -540,7 +560,7 @@ Rvector6 StateConverter::FromEquinoctial(const Rvector6 &state,
           "\". \"" + toType + " is Unknown State Type\n");
    }
 
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::FromEquinoctial() returning \n   %s\n",
        outState.ToString(13).c_str());
@@ -572,7 +592,7 @@ Rvector6 StateConverter::Convert(const Rvector6 &state,
                                  const std::string &toType,
                                  const std::string &anomalyType)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::Convert() fromType=%s, toType=%s, anomalyType=%s\n"
        "   state=%s\n", fromType.c_str(), toType.c_str(), anomalyType.c_str(),
@@ -624,7 +644,7 @@ Rvector6 StateConverter::Convert(const Rvector6 &state,
       throw ue;
    }
 
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
       ("StateConverter::Convert() returning \n   %s\n", outState.ToString(13).c_str());
    #endif
@@ -653,7 +673,7 @@ Rvector6 StateConverter::Convert(const Rvector6 &state,
                                  const std::string &toType,
                                  Anomaly &anomaly)
 {
-   #if DEBUG_STATE_CONVERTER
+   #ifdef DEBUG_STATE_CONVERTER
    MessageInterface::ShowMessage
        ("StateConverter::Convert() fromType=%s, toType=%s, state=\n%s\n",
         fromType.c_str(), toType.c_str(), state.ToString(13).c_str());
@@ -726,4 +746,308 @@ bool StateConverter::RequiresCelestialBodyOrigin(const std::string &type)
    return false;  // by default
 }
 
+//------------------------------------------------------------------------------
+// protected methods
+//------------------------------------------------------------------------------
+// none
+
+
+//------------------------------------------------------------------------------
+// private methods
+//------------------------------------------------------------------------------
+Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const Real& mu)
+{
+   Real sma, h, k, p, q, lambda; // equinoctial elements
+
+   Rvector3 pos(cartesian[0], cartesian[1], cartesian[2]);
+   Rvector3 vel(cartesian[3], cartesian[4], cartesian[5]);
+   Real r = pos.GetMagnitude();
+   Real v = vel.GetMagnitude();
+
+   Rvector3 eVec = ( ((v*v - mu/r) * pos) - ((pos * vel) * vel) ) / mu;
+   Real e = eVec.GetMagnitude();
+
+   // Check for a near parabolic orbit
+   if (Abs(1.0 - e) < 1.0e-7)
+   {
+      #ifdef DEBUG_EQUINOCTIAL
+         MessageInterface::ShowMessage("Equinoctial ... failing check for parabolic orbit  ... e = %12.10f\n",
+               e);
+      #endif
+      std::string errmsg =
+            "Conversion to equinoctial elements cannot be completed.  Orbit is nearly parabolic.\n";
+      throw UtilityException(errmsg);
+   }
+
+   Real xi  = (v * v / 2.0) - (mu / r);
+   sma      = - mu / (2.0 * xi);
+
+   // Check to see if the conic section is nearly singular
+   if (Abs(sma * (1.0 - e)) < .001)
+   {
+      #ifdef DEBUG_EQUINOCTIAL
+         MessageInterface::ShowMessage(
+               "Equinoctial ... failing check for singular conic section ... e = %12.10f, sma = %12,10f\n",
+               e, sma);
+      #endif
+      std::string errmsg =
+            "Conversion to equinoctial elements cannot be completed,  The conic section is nearly singular.\n";
+      throw UtilityException(errmsg);
+   }
+
+   Rvector3 am = Cross(pos, vel).GetUnitVector();
+
+   Integer j = 1;
+   if (am[2] <= 0.0) j = -1;   // retrograde orbit
+
+   // Define equinoctial coordinate system
+   Rvector3 f;
+   f[0]      =   1.0 - ((am[0] * am[0]) / (1.0 + Pow(am[2], j)));
+   f[1]      = - (am[0] * am[1]) / (1.0 + Pow(am[2], j));
+   f[2]      = - Pow(am[0], j);
+   f         = f.GetUnitVector();
+
+   Rvector3 g = Cross(am,f).GetUnitVector();
+
+   h =   eVec * g;
+   k =   eVec * f;
+   p =   am[0] / (1.0 + Pow(am[2], j));
+   q = - am[1] / (1.0 + Pow(am[2], j));
+
+   // Calculate mean longitude
+   // First, calculate true longitude
+   Real X1      = pos * f;
+   Real Y1      = pos * g;
+   Real tmpSqrt = Sqrt(1.0 - (h * h) - (k * k));
+   Real beta    = 1.0 / (1.0 + tmpSqrt);
+   Real cosF    = k + ((1.0 - k*k*beta) * X1 - (h * k * beta * Y1)) /
+                  (sma * tmpSqrt);
+   Real sinF    = h + ((1.0 - h * h * beta) * Y1 - (h * k * beta * X1)) /
+                  (sma * tmpSqrt);
+   Real F       = ATan2(sinF, cosF);
+   // limit F to a positive value
+   while (F < 0.0) F += TWO_PI;
+   lambda       = (F + (h * cosF) - (k * sinF)) * DEG_PER_RAD;
+
+   return Rvector6(sma, h, k, p, q, lambda);
+}
+
+Rvector6 StateConverter::EquinoctialToCartesian(const Rvector6& equinoctial, const Real& mu)
+{
+   Real sma    = equinoctial[0];   // semi major axis
+   Real h      = equinoctial[1];   // projection of eccentricity vector onto y
+   Real k      = equinoctial[2];   // projection of eccentricity vector onto x
+   Real p      = equinoctial[3];   // projection of N onto y
+   Real q      = equinoctial[4];   // projection of N onto x
+   Real lambda = equinoctial[5]*RAD_PER_DEG;   // mean longitude
+
+   // Use mean longitude to find true longitude
+   Real prevF;
+   Real fF;
+   Real fPrimeF;
+   Real F = lambda;      // first guess is mean longitude
+   do {
+      prevF   = F;
+      fF      = F + h * Cos(F) - k * Sin(F) - lambda;
+      fPrimeF = 1.0 - h * Sin(F) - k * Cos(F);
+      F       = prevF - (fF/fPrimeF);
+   } while (Abs(F-prevF) >= 1.0e-10);
+//   } while (Abs(F-prevF) >= EQ_TOLERANCE);
+
+   // Adjust true longitude to be between 0 and two-pi
+   while (F < 0) F += TWO_PI;
+
+   Real tmpSqrt = Sqrt(1.0 - (h * h) - (k * k));
+   Real beta    = 1.0 / (1.0 + tmpSqrt);
+
+// Real beta = 1/(1 + Sqrt(1 - pEY*pEY - pEX*pEX));  // eq 4.36
+
+// Real n = Sqrt(mu/(sm*sm*sm));   // eq 4.37
+// Real r = sm*(1 - pEX*Cos(trueLong) - pEY*Sin(trueLong));  // eq 4.38
+   Real n    = Sqrt(mu/(sma * sma * sma));
+   Real cosF = Cos(F);
+   Real sinF = Sin(F);
+   Real r    = sma * (1.0 - (k * cosF) - (h * sinF));
+
+   // Calculate the cartesian components expressed in the equinoctial coordinate system
+
+   Real X1    = sma * (((1.0 - (h * h * beta)) * cosF) + (h * k * beta * sinF) - k);
+   Real Y1    = sma * (((1.0 - (k * k * beta)) * sinF) + (h * k * beta * cosF) - h);
+   Real X1Dot = ((n * sma * sma) / r) * ((h * k * beta * cosF) -
+                (1.0 - (h * h * beta)) * sinF);
+   Real Y1Dot = ((n * sma * sma) / r) * ((1.0 - (k * k * beta)) * cosF -
+                (h * k * beta * sinF));
+
+// // eqns 4.39 - 4.42
+// Real x1  = sm*((1 - pEY*pEY*beta)*Cos(trueLong) + pEY*pEX*beta*Sin(trueLong) - pEX),
+//      y1  = sm*((1 - pEX*pEX*beta)*Sin(trueLong) + pEY*pEX*beta*Cos(trueLong) - pEY),
+//      _x1 = ((n*sm*sm)/r)*(pEY*pEX*beta*Cos(trueLong) - (1 - pEY*pEY*beta)*Sin(trueLong)),
+//      _y1 = ((n*sm*sm)/r)*((1 - pEX*pEX*beta)*Cos(trueLong) - pEY*pEX*beta*Sin(trueLong));
+
+   // assumption in conversion from equinoctial to cartesian
+   Integer j = 1;  // ******** how to determine if retrograde?  *****
+
+   // Compute Q matrix
+   Rmatrix33 Q(1.0 - (p * p) + (q * q),   2.0 * p * q * j,                2.0 * p,
+               2.0 * p * q,               (1.0 + (p * p) - (q * q)) * j, -2.0 * q,
+              -2.0 * p * j,               2.0 * q,                       (1.0 - (p * p) - (q * q)) * j);
+// Rmatrix33 Q = SetQ(pNY, pNX, j);   // eq 4.46
+
+   Rmatrix33 Q2 = (1.0 / (1.0 + (p * p) + (q * q))) * Q;
+   Rvector3  f(Q2(0,0), Q2(1,0), Q2(2,0));
+   Rvector3  g(Q2(0,1), Q2(1,1), Q2(2,1));
+   f = f.GetUnitVector();
+   g = g.GetUnitVector();
+
+   Rvector3 pos = (X1 * f) + (Y1 * g);
+   Rvector3 vel = (X1Dot * f) + (Y1Dot * g);
+
+// // eq 4.45
+// Rmatrix33 _Q = (1/(1+pNY*pNY+pNX*pNX))*Q;
+// Rvector3 fVec = _Q * Rvector3(1,0,0);
+// Rvector3 gVec = _Q * Rvector3(0,1,0);
+
+// Rvector3 pos = x1*fVec + y1*gVec;    // eq 4.43
+// Rvector3 vel = _x1*fVec + _y1*gVec;  // eq 4.44
+
+// Rvector6 cart( pos.Get(0),
+//                pos.Get(1),
+//                pos.Get(2),
+//                vel.Get(0),
+//                vel.Get(1),
+//                vel.Get(2) );
+//
+// return cart;
+   return Rvector6(pos, vel);
+}
+
+Rvector6 StateConverter::CartesianToSphericalAZFPA(const Rvector6& cartesian)
+{
+   // Calculate the magnitude of the position vector, right ascension, and declination
+   Rvector3 pos(cartesian[0], cartesian[1], cartesian[2]);
+   Rvector3 vel(cartesian[3], cartesian[4], cartesian[5]);
+   Real    rMag   = pos.GetMagnitude();
+   Real    lambda = ATan2(pos[1], pos[0]);
+   Real    delta  = ASin(pos[2] / rMag);
+
+   // Calculate magnitude of the velocity vector
+   Real   vMag    = vel.GetMagnitude();
+
+   // Calculate the vertical flight path angle
+   Real   psi     = ACos((pos * vel) / (rMag * vMag));
+
+   //Calculate the azimuth angle
+   // First, calculate basis (column) vectors of Fl expressed in Fi
+   Rvector3 x(Cos(delta) * Cos(lambda),  Cos(delta) * Sin(lambda), Sin(delta));
+   Rvector3 y(Cos(lambda + PI_OVER_TWO), Sin(lambda + PI_OVER_TWO), 0.0);
+   Rvector3 z(-Sin(delta) * Cos(lambda), -Sin(delta) * Sin(lambda), Cos(delta));
+   // Create the transformation matrix from Fi (the frame in which the cartesian state is expressed)
+   // to Fl (local frame, where z is a unit vector that points north); Rli is the tranpose of the
+   // matrix created by the three column vectors    Rli = [x y z]T
+   Rmatrix33 Rli( x[0], x[1], x[2],
+                  y[0], y[1], y[2],
+                  z[0], z[1], z[2] );
+
+   // Compute the velocity in the local frame
+   Rvector3  vLocal = Rli * vel;
+
+   //Compute the flight path azimuth angle
+   Real alphaF     = ATan2(vLocal[1], vLocal[2]);
+
+   return Rvector6(rMag, lambda * DEG_PER_RAD, delta  * DEG_PER_RAD,
+         vMag, alphaF * DEG_PER_RAD, psi    * DEG_PER_RAD);  // existing code expects this order
+//         vMag, psi    * DEG_PER_RAD, alphaF * DEG_PER_RAD);
+}
+
+Rvector6 StateConverter::SphericalAZFPAToCartesian(const Rvector6& spherical)
+{
+   Real     rMag    = spherical[0]; // magnitude of the position vector
+   Real     lambda  = spherical[1] * RAD_PER_DEG; // right ascension
+   Real     delta   = spherical[2] * RAD_PER_DEG; // declination
+   Real     vMag    = spherical[3]; // magnitude of the velocity vector
+//   Real     psi     = spherical[4] * RAD_PER_DEG; // vertical flight path angle
+//   Real     alphaF  = spherical[5] * RAD_PER_DEG; // flight path azimuth
+   Real     alphaF  = spherical[4] * RAD_PER_DEG; // flight path azimuth   *** existing code expects this order
+   Real     psi     = spherical[5] * RAD_PER_DEG; // vertical flight path angle
+
+   // Compute the position
+   Rvector3 pos(rMag * Cos(delta) * Cos(lambda),
+                rMag * Cos(delta) * Sin(lambda),
+                rMag * Sin(delta) );
+
+   Real     sinDelta  = Sin(delta);
+   Real     cosDelta  = Cos(delta);
+   Real     sinLambda = Sin(lambda);
+   Real     cosLambda = Cos(lambda);
+   Real     sinPsi    = Sin(psi);
+   Real     cosPsi    = Cos(psi);
+   Real     sinAlphaF = Sin(alphaF);
+   Real     cosAlphaF = Cos(alphaF);
+
+   Real vx, vy, vz;
+
+   vx = vMag * ( (cosPsi * cosDelta * cosLambda) -
+        sinPsi * ((sinAlphaF * sinLambda) + (cosAlphaF * sinDelta * cosLambda)) );
+   vy = vMag * ( (cosPsi * cosDelta * sinLambda) +
+        sinPsi * ((sinAlphaF * cosLambda) - (cosAlphaF * sinDelta * sinLambda)) );
+   vz = vMag * ( (cosPsi * sinDelta) + (sinPsi * cosAlphaF * cosDelta) );
+   Rvector3 vel(vx, vy, vz);
+
+   return Rvector6(pos, vel);
+}
+
+Rvector6 StateConverter::CartesianToSphericalRADEC(const Rvector6& cartesian)
+{
+   // Calculate the magnitude of the position vector, right ascension, and declination
+   Rvector3 pos(cartesian[0], cartesian[1], cartesian[2]);
+   Rvector3 vel(cartesian[3], cartesian[4], cartesian[5]);
+   Real    rMag   = pos.GetMagnitude();
+   Real    lambda = ATan2(pos[1], pos[0]);
+   Real    delta  = ASin(pos[2] / rMag);
+
+   // Calculate magnitude of the velocity vector
+   Real   vMag    = vel.GetMagnitude();
+
+   // Compute right ascension of velocity
+   Real   lambdaV = ATan2(vel[1], vel[0]);
+
+   // Compute the declination of velocity
+   Real   deltaV  = ASin(vel[2] / vMag);
+
+   return Rvector6(rMag, lambda  * DEG_PER_RAD, delta  * DEG_PER_RAD,
+                   vMag, lambdaV * DEG_PER_RAD, deltaV * DEG_PER_RAD);
+}
+
+Rvector6 StateConverter::SphericalRADECToCartesian(const Rvector6& spherical)
+{
+   Real     rMag    = spherical[0]; // magnitude of the position vector
+   Real     lambda  = spherical[1] * RAD_PER_DEG; // right ascension
+   Real     delta   = spherical[2] * RAD_PER_DEG; // declination
+   Real     vMag    = spherical[3]; // magnitude of the velocity vector
+   Real     lambdaV = spherical[4] * RAD_PER_DEG; // right ascension of velocity
+   Real     deltaV  = spherical[5] * RAD_PER_DEG; // declination of velocity
+
+   #ifdef DEBUG_STATE_CONVERTER
+      MessageInterface::ShowMessage(
+            "Entering SphericalRADECToCartesian with state %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+            spherical[0],spherical[1],spherical[2],spherical[3],spherical[4],spherical[5]);
+   #endif
+   // Compute the position
+   Rvector3 pos(rMag * Cos(delta) * Cos(lambda),
+                rMag * Cos(delta) * Sin(lambda),
+                rMag * Sin(delta) );
+
+   // Compute the velocity
+   Real     vx = vMag   * Cos(lambdaV) * Cos(deltaV);
+   Real     vy = vx     * Tan(lambdaV);
+   Real     vz = vMag   * Sin(deltaV);
+   Rvector3 vel(vx, vy, vz);
+
+   #ifdef DEBUG_STATE_CONVERTER
+      MessageInterface::ShowMessage(
+            "Exiting SphericalRADECToCartesian and returning state %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+            pos[0],pos[1],pos[2],vel[0],vel[1],vel[2]);
+   #endif
+   return Rvector6(pos, vel);
+}
 

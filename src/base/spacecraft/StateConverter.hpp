@@ -101,6 +101,16 @@ private:
    
    static const std::string STATE_TYPE_TEXT[StateTypeCount];
    static const bool        REQUIRES_CB_ORIGIN[StateTypeCount];
+
+   Rvector6 CartesianToEquinoctial(const Rvector6& cartesian, const Real& mu);
+   Rvector6 EquinoctialToCartesian(const Rvector6& equinoctial, const Real& mu);
+
+   Rvector6 CartesianToSphericalAZFPA(const Rvector6& cartesian);
+   Rvector6 SphericalAZFPAToCartesian(const Rvector6& spherical);
+
+   Rvector6 CartesianToSphericalRADEC(const Rvector6& cartesian);
+   Rvector6 SphericalRADECToCartesian(const Rvector6& spherical);
+
 };
 
 #endif // StateConverter_hpp
