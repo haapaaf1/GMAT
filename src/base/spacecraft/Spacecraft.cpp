@@ -37,6 +37,7 @@
 //#define DEBUG_SPACECRAFT
 //#define DEBUG_SPACECRAFT_SET
 //#define DEBUG_SPACECRAFT_SET_ELEMENT
+//#define DEBUG_LOOK_UP_LABEL
 //#define DEBUG_SPACECRAFT_CS
 //#define DEBUG_RENAME
 //#define DEBUG_DATE_FORMAT
@@ -196,10 +197,14 @@ const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] =
    "RAV",
    "DECV",
    // Equinoctial
-   "PEY",
-   "PEX",
-   "PNY",
-   "PNX",
+//   "PEY",
+//   "PEX",
+//   "PNY",
+//   "PNX",
+   "EquinoctialH",
+   "EquinoctialK",
+   "EquinoctialP",
+   "EquinoctialQ",
    "MLONG",
 };
 
@@ -688,11 +693,11 @@ void Spacecraft::SetState(const Real s1, const Real s2, const Real s3,
 GmatState& Spacecraft::GetState()
 {
    #ifdef DEBUG_GET_STATE
-   Rvector6 state;
-   state.Set(SpaceObject::GetState().GetState());
+   Rvector6 stateTmp;
+   stateTmp.Set(SpaceObject::GetState().GetState());
    MessageInterface::ShowMessage
       ("Spacecraft::GetState() '%s' returning\n   %s\n", GetName().c_str(),
-       state.ToString().c_str());
+       stateTmp.ToString().c_str());
    #endif
    return SpaceObject::GetState();
 }
@@ -1496,22 +1501,24 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
          //return ELEMENT1_ID;
 
       else if (str == "Element2" || str == "Y" || str == "ECC" || str == "RadApo" ||
-          str == "RA" || str == "PECCY")
+               str == "RA" || str == "PEY" || str == "EquinoctialH")
+//            str == "RA" || str == "PECCY")
          retval =  ELEMENT2_ID;
          //return ELEMENT2_ID;
 
       else if (str == "Element3" || str == "Z" || str == "INC" || str == "DEC" ||
-          str == "PECCX")
+               str == "PEX" || str == "EquinoctialK")
+//            str == "PECCX")
          retval =  ELEMENT3_ID;
          //return ELEMENT3_ID;
 
       else if (str == "Element4" || str == "VX" || str == "RAAN" || str == "VMAG" ||
-          str == "PNY")
+          str == "PNY" || str == "EquinoctialP")
          retval =  ELEMENT4_ID;
          //return ELEMENT4_ID;
 
       else if (str == "Element5" || str == "VY" || str == "AOP" || str == "AZI" ||
-          str == "RAV" || str == "PNX")
+          str == "RAV" || str == "PNX" || str == "EquinoctialQ")
          retval =  ELEMENT5_ID;
          //return ELEMENT5_ID;
 
@@ -1899,8 +1906,8 @@ Real Spacecraft::GetRealParameter(const std::string &label) const
 Real Spacecraft::SetRealParameter(const Integer id, const Real value)
 {
    #ifdef DEBUG_SPACECRAFT_SET
-   MessageInterface::ShowMessage("In SC::SetRealParameter, id = %d and value = %.12f\n",
-   id, value);
+   MessageInterface::ShowMessage("In SC::SetRealParameter (%s), id = %d and value = %.12f\n",
+   instanceName.c_str(), id, value);
    #endif
    if (id >= CART_X && id < EndMultipleReps)
    {
@@ -2012,8 +2019,8 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
 {
    #ifdef DEBUG_SPACECRAFT_SET
    MessageInterface::ShowMessage
-      ("In SC::SetRealParameter(label), label = %s and value = %.12f\n",
-       label.c_str(), value);
+      ("In SC::SetRealParameter(label)(%s), label = %s and value = %.12f\n",
+       instanceName.c_str(), label.c_str(), value);
    #endif
    // first (really) see if it's a parameter for an owned object (i.e. attitude)
    if (GetParameterID(label) >= ATTITUDE_ID_OFFSET)
@@ -2701,7 +2708,7 @@ bool Spacecraft::TakeAction(const std::string &action,
    {
       #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage
-         ("Spacecraft::TakeAction() Calling StateConverter::SetMu(%p)\n", coordinateSystem);
+         ("Spacecraft::TakeAction(ApplyCoordinateSystem) Calling StateConverter::SetMu(%p)\n", coordinateSystem);
       #endif
 
       if (!stateConverter.SetMu(coordinateSystem))
@@ -2712,14 +2719,19 @@ bool Spacecraft::TakeAction(const std::string &action,
 
       if (csSet == false)
       {
+         Rvector6 st(state.GetState());
          #ifdef DEBUG_SPACECRAFT_CS
          MessageInterface::ShowMessage
-            ("Spacecraft::TakeAction() Calling SetStateFromRepresentation, "
-             "since CS was not set()\n");
+            ("Spacecraft::TakeAction() Calling SetStateFromRepresentation(%s, cartesianstate), "
+             "since CS was not set()\n", stateType.c_str());
+         MessageInterface::ShowMessage(" ... at this point, the state = %s\n", (st.ToString()).c_str());
          #endif
-         Rvector6 st(state.GetState());
-         SetStateFromRepresentation(stateType, st); // this doesn't look right to me *****
+         SetStateFromRepresentation(stateType, st);
 
+         #ifdef DEBUG_SPACECRAFT_CS
+         MessageInterface::ShowMessage
+            ("Spacecraft::TakeAction() setting csSet to true ........\n");
+         #endif
          csSet = true;
       }
 
@@ -4193,6 +4205,10 @@ void Spacecraft::UpdateElementLabels()
    if (displayStateType == "Equinoctial")
    {
       stateElementLabel[0] = "SMA";
+//      stateElementLabel[1] = "EquinoctialH";
+//      stateElementLabel[2] = "EquinoctialK";
+//      stateElementLabel[3] = "EquinoctialP";
+//      stateElementLabel[4] = "EquinoctialQ";
       stateElementLabel[1] = "h";
       stateElementLabel[2] = "k";
       stateElementLabel[3] = "p";
@@ -4248,10 +4264,23 @@ Rvector6 Spacecraft::GetStateInRepresentation(std::string rep)
       rep = stateType;   // do I want displayStateType here?
 
    if (rep == "Cartesian")
+   {
       finalState = csState;
+      #ifdef DEBUG_STATE_INTERFACE
+         MessageInterface::ShowMessage(
+            "Spacecraft::GetStateInRepresentation(string): type is Cartesian, so no conversion done\n");
+      #endif
+   }
    else
+   {
+      #ifdef DEBUG_STATE_INTERFACE
+         MessageInterface::ShowMessage(
+            "Spacecraft::GetStateInRepresentation(string): type is %s, so calling stateConverter to convert\n",
+            rep.c_str());
+      #endif
       //finalState = stateConverter.Convert(csState, "Cartesian", rep, trueAnomaly);
       finalState = stateConverter.Convert(csState, "Cartesian", rep, anomalyType);
+   }
 
    #ifdef DEBUG_STATE_INTERFACE
       MessageInterface::ShowMessage(
@@ -4381,7 +4410,7 @@ void Spacecraft::SetStateFromRepresentation(std::string rep, Rvector6 &st)
 
    #ifdef DEBUG_STATE_INTERFACE
       MessageInterface::ShowMessage(
-         "Spacecraft::SetStateFromRepresentation: State is now\n   "
+         "Spacecraft::SetStateFromRepresentation: Cartesian State is now\n   "
          "%.9lf %.9lf %.9lf %.14lf %.14lf %.14lf\n", state[0], state[1],
          state[2], state[3], state[4], state[5]);
    #endif
@@ -4465,6 +4494,11 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
    #endif
    std::string rep = "";
    Integer id = LookUpLabel(label, rep) - ELEMENT1_ID;
+   #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+      MessageInterface::ShowMessage
+         (" ************ In SC::SetElement, after LookUpLabel, ELEMENT1_ID = %d, id = %d, rep = %s\n",
+               ELEMENT1_ID, id, rep.c_str());
+   #endif
 
    if ((rep != "") && (stateType != rep))
    {
@@ -4476,14 +4510,46 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
          trueAnomaly.SetECC(kep[1]);
          trueAnomaly.SetValue(kep[5]);
       }
-      // 2007.05.24 - wcs - Bug 875 - becasue some elements are the same for
+      // 2007.05.24 - wcs - Bug 875 - because some elements are the same for
       // Keplerian and ModifiedKeplerian, make sure it only changes when it should
-      if ((stateType == "ModifiedKeplerian") && (rep == "Keplerian") &&
-          (label != "SMA") && (label != "ECC"))
+      if ( (stateType == "ModifiedKeplerian") && (rep == "Keplerian") &&
+         (label != "SMA") && (label != "ECC") )
       {
+         #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+            MessageInterface::ShowMessage
+               (" ************ In SC::SetElement, leaving stateType as ModifiedKeplerian\n");
+         #endif
          // leave stateType as ModifiedKeplerian
       }
-      else  stateType = rep;
+      else if ( (stateType == "SphericalRADEC") && (rep == "SphericalAZFPA") &&
+               (label != "AZI") && (label != "FPA") )
+      {
+         #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+            MessageInterface::ShowMessage
+               (" ************ In SC::SetElement, leaving stateType as SphericalRADEC\n");
+         #endif
+         // leave it as SphericalRADEC
+      }
+      /// 2010.03.22 - wcs - SMA could also be Equinoctial
+      else if ( (stateType == "Equinoctial") && (rep == "Keplerian") &&
+               (label == "SMA") )
+//         (label != "SMA"))
+      {
+         #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+            MessageInterface::ShowMessage
+               (" ************ In SC::SetElement, leaving stateType as Equinoctial\n");
+         #endif
+         // leave state as Equinoctial
+      }
+      else
+      {
+         #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+            MessageInterface::ShowMessage
+               (" ************ In SC::SetElement, MODIFYING stateType from %s to %s\n",
+                 stateType.c_str(), rep.c_str());
+         #endif
+         stateType = rep;
+      }
    }
 
    #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
@@ -4492,6 +4558,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
          ("In SC::SetElement, after LookUpLabel, id+ELEMENT1_ID = %d, its "
           "string = \"%s\",  and rep = \"%s\"\n", id+ELEMENT1_ID,
           (GetParameterText(id+ELEMENT1_ID)).c_str(), rep.c_str());
+
    #endif
 
    // parabolic and hyperbolic orbits not yet supported
@@ -4511,12 +4578,18 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
    {
       if (csSet)
       {
+         #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+            MessageInterface::ShowMessage("In SC::SetElement, csSet = TRUE\n");
+         #endif
          Rvector6 tempState = GetStateInRepresentation(rep);
          tempState[id] = value;
          SetStateFromRepresentation(rep, tempState);
       }
       else
       {
+         #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+            MessageInterface::ShowMessage("In SC::SetElement, csSet = FALSE\n");
+         #endif
          Real *tempState = state.GetState();
          tempState[id] = value;
       }
@@ -4524,7 +4597,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
       #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
       Rvector6 vec6(state.GetState());
       MessageInterface::ShowMessage
-         ("   CS was %sset, state is\n   %s \n", csSet ? "" : "NOT ",
+         ("   CS was %sset, state is now\n   %s \n", (csSet ? "" : "NOT "),
           vec6.ToString().c_str());
       MessageInterface::ShowMessage
          ("In SC::SetElement, '%s', returning TRUE\n", GetName().c_str());
@@ -4548,6 +4621,10 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
 //------------------------------------------------------------------------------
 Integer Spacecraft::LookUpLabel(const std::string &label, std::string &rep)
 {
+   #ifdef DEBUG_LOOK_UP_LABEL
+      MessageInterface::ShowMessage("Spacecraft::LookUpLabel(%s)called\n",
+         label.c_str());
+   #endif
    Integer retval = -1;
 
    if (label == "Element1")
@@ -4584,27 +4661,27 @@ Integer Spacecraft::LookUpLabel(const std::string &label, std::string &rep)
    if (label == "X" || label == "SMA" || label == "RadPer" || label == "RMAG")
       retval = ELEMENT1_ID;
 
-   if (label == "Y" || label == "ECC" || label == "RadApo" || label == "RA")
+   else if (label == "Y" || label == "ECC" || label == "RadApo" || label == "RA" || label == "PEY" || label == "EquinoctialH")
       retval = ELEMENT2_ID;
 
-   if (label == "Z" || label == "INC" || label == "DEC")
+   else if (label == "Z" || label == "INC" || label == "DEC" || label == "PEX" || label == "EquinoctialK")
       retval = ELEMENT3_ID;
 
-   if (label == "VX" || label == "RAAN" || label == "VMAG")
+   else if (label == "VX" || label == "RAAN" || label == "VMAG" || label == "PNY" || label == "EquinoctialP")
       retval = ELEMENT4_ID;
 
-   if (label == "VY" || label == "AOP" || label == "AZI" || label == "RAV")
+   else if (label == "VY" || label == "AOP" || label == "AZI" || label == "RAV" || label == "PNX" || label == "EquinoctialQ")
       retval = ELEMENT5_ID;
 
-   if (label == "VZ" || !trueAnomaly.IsInvalid(label) ||
-        label == "FPA" || label == "DECV")
+   else if (label == "VZ" || !trueAnomaly.IsInvalid(label) ||
+        label == "FPA" || label == "DECV" || label == "MLONG")
       retval = ELEMENT6_ID;
 
    rep = elementLabelMap[label];
 
    #ifdef DEBUG_LOOK_UP_LABEL
-      MessageInterface::ShowMessage("Spacecraft::LookUpLabel(%s..) gives rep %s\n",
-         label.c_str(), rep.c_str());
+      MessageInterface::ShowMessage("Spacecraft::LookUpLabel(%s..) gives rep %s with retval = %d\n",
+         label.c_str(), rep.c_str(), retval);
    #endif
 
    return retval;
@@ -4664,10 +4741,14 @@ void Spacecraft::BuildElementLabelMap()
       elementLabelMap["RAV"]  = "SphericalRADEC";
       elementLabelMap["DECV"] = "SphericalRADEC";
 
-      elementLabelMap["PEY"]    = "Equinoctial";
-      elementLabelMap["PEX"]    = "Equinoctial";
-      elementLabelMap["PNY"]    = "Equinoctial";
-      elementLabelMap["PNX"]    = "Equinoctial";
+//      elementLabelMap["PEY"]    = "Equinoctial";
+//      elementLabelMap["PEX"]    = "Equinoctial";
+//      elementLabelMap["PNY"]    = "Equinoctial";
+//      elementLabelMap["PNX"]    = "Equinoctial";
+      elementLabelMap["EquinoctialH"]    = "Equinoctial";
+      elementLabelMap["EquinoctialK"]    = "Equinoctial";
+      elementLabelMap["EquinoctialP"]    = "Equinoctial";
+      elementLabelMap["EquinoctialQ"]    = "Equinoctial";
       elementLabelMap["MLONG"]  = "Equinoctial";
    }
 }
