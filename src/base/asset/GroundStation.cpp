@@ -11,7 +11,11 @@
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2008/08/01
+
 // Modified: 
+//    2010.03.23 Steve Hughes/Thomas Grubb 
+//      - Changed initialize method to use statetype = "Spherical" instead
+//        of deprecated "geographical" state type
 //    2010.03.19 Thomas Grubb 
 //      - Overrode Copy method
 //
@@ -465,7 +469,7 @@ bool GroundStation::Initialize()
       bfLocation[1] = location[1];
       bfLocation[2] = location[2];
    }
-   else if (stateType == "Geographical")
+   else if (stateType == "Spherical")
    {
       sphType = "Geodetic";
       if (horizon == "Sphere")
@@ -488,7 +492,7 @@ bool GroundStation::Initialize()
    else
       throw GmatBaseException("Unable to initialize ground station \"" + 
             instanceName + "\"; stateType is not a recognized type (known "
-                  "types are either \"Cartesian\" or \"Geographical\")");
+                  "types are either \"Cartesian\" or \"Spherical\")");
 
    #ifdef DEBUG_INIT
       MessageInterface::ShowMessage("...Initialized!\n", instanceName.c_str());
