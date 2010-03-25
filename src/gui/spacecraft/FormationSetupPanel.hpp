@@ -10,7 +10,10 @@
 // number S-67573-G
 //
 // Author: Linda Jun
-// Created: 2004/02/12
+// Created: 2004/02/12 
+// Modified: 
+//    2010.03.22 Thomas Grubb 
+//      - Added AVL_LISTBOX window id to use with Available ListBox double-click
 /**
  * Declares FormationSetupPanel class. This class allows user to setup OpenGL Plot.
  */
@@ -52,7 +55,8 @@ protected:
       ADD_BUTTON = 99000,
       REMOVE_BUTTON,
       CLEAR_BUTTON,
-      SEL_LISTBOX
+      SEL_LISTBOX,
+      AVL_LISTBOX
    };
 };
 #endif
