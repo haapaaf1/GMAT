@@ -859,14 +859,42 @@ Rvector6 Keplerian::CartesianToKeplerian(Real mu, const Rvector3 &pos,
    MessageInterface::ShowMessage("CartesianToKeplerian() ");
    #endif
    
-   Real sma = CartesianToSMA(mu, pos, vel);
-   Real ecc = CartesianToECC(mu, pos, vel);
-   Real inc = CartesianToINC(mu, pos, vel);
-   Real raan = CartesianToRAAN(mu, pos, vel);
-   Real aop = CartesianToAOP(mu, pos, vel);
-   Real ta = CartesianToTA(mu, pos, vel);
+//   Real sma = CartesianToSMA(mu, pos, vel);
+//   Real ecc = CartesianToECC(mu, pos, vel);
+//   Real inc = CartesianToINC(mu, pos, vel);
+//   Real raan = CartesianToRAAN(mu, pos, vel);
+//   Real aop = CartesianToAOP(mu, pos, vel);
+//   Real ta = CartesianToTA(mu, pos, vel);
+//
+//   Real anomaly = ta;
+//
+//   if (anomalyType != Anomaly::TA)
+//   {
+//      Anomaly temp;
+//      temp.Set(sma, ecc, ta, Anomaly::TA);
+//      anomaly = temp.GetValue(anomalyType);
+//   }
+
+//   Rvector6 kep(sma, ecc, inc, raan, aop, anomaly);
+   Real tfp, ma;
+   Real p[3], v[3];
+   for (unsigned int ii = 0; ii < 3; ii++)
+   {
+      p[ii] = pos[ii];
+      v[ii] = vel[ii];
+   }
+
+   Real     kepOut[6];
+   Integer retval = CoordUtil::ComputeCartToKepl(mu, p, v, &tfp, kepOut, &ma);
+   if (retval != 0)
+   {
+      ; // an error?  warning message?
+   }
    
-   Real anomaly = ta;
+   Real anomaly = kepOut[5];
+   Real sma = kepOut[0];
+   Real ecc = kepOut[1];
+   Real ta  = kepOut[5];
    
    if (anomalyType != Anomaly::TA)
    {
@@ -874,9 +902,8 @@ Rvector6 Keplerian::CartesianToKeplerian(Real mu, const Rvector3 &pos,
       temp.Set(sma, ecc, ta, Anomaly::TA);
       anomaly = temp.GetValue(anomalyType);
    }
-   
-   Rvector6 kep(sma, ecc, inc, raan, aop, anomaly);
-   
+   Rvector6 kep(sma, ecc, kepOut[2], kepOut[3], kepOut[4], anomaly);
+
    #if DEBUG_KEPLERIAN
    MessageInterface::ShowMessage("returning %s\n", kep.ToString().c_str());
    #endif
