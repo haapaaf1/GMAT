@@ -361,6 +361,7 @@ OBJECTS = \
     parameter/EnvData.o \
     parameter/EnvParameters.o \
     parameter/EnvReal.o \
+	 parameter/EquinoctialParameters.o \
     parameter/ExpressionParser.o \
     parameter/HardwareReal.o \
     parameter/HardwareParameters.o \
@@ -476,7 +477,6 @@ OBJECTS = \
     util/DateUtil.o \
     util/ElapsedTime.o \
     util/EopFile.o \
-    util/Equinoctial.o \
     util/FileManager.o \
     util/FileUtil.o \
     util/GmatGlobal.o \
@@ -498,9 +498,6 @@ OBJECTS = \
     util/Rvector3.o \
     util/Rvector6.o \
     util/Rvector.o \
-    util/SphericalAZFPA.o \
-    util/Spherical.o \
-    util/SphericalRADEC.o \
     util/StringTokenizer.o \
     util/StringUtil.o \
     util/TextParser.o \
