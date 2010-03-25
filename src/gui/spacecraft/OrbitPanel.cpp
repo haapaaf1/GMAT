@@ -78,8 +78,10 @@
 //#define DEBUG_ORBIT_PANEL
 //#define DEBUG_ORBIT_PANEL_LOAD
 //#define DEBUG_ORBIT_PANEL_CONVERT
+//#define DEBUG_ORBIT_PANEL_CHECKSTATE
 //#define DEBUG_ORBIT_PANEL_COMBOBOX
 //#define DEBUG_ORBIT_PANEL_STATE_TYPE
+//#define DEBUG_ORBIT_PANEL_STATE_CHANGE
 //#define DEBUG_ORBIT_PANEL_SAVE
 //#define DEBUG_ORBIT_PANEL_CHECK_RANGE
 
@@ -110,7 +112,7 @@ OrbitPanel::OrbitPanel(GmatPanel *scPanel, wxWindow *parent,
                        Spacecraft *spacecraft, SolarSystem *solarsystem)
    : wxPanel(parent)
 {
-   // initalize data members
+   // initialize data members
    theScPanel = scPanel;
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
@@ -1113,8 +1115,23 @@ void OrbitPanel::DisplayState()
             (stateTypeStr == mStateTypeNames[StateConverter::MOD_KEPLERIAN])) &&
            (mIsStateModified[0] || mIsStateModified[1] || mIsStateModified[5]) )
       {
-         Anomaly temp(midState[0], midState[1], midState[5], mFromAnomalyTypeStr);
-         mAnomaly = temp;
+         #ifdef DEBUG_ORBIT_PANEL_STATE_CHANGE
+            MessageInterface::ShowMessage(
+                  "In DisplayState, stateType = %s, elements [0,1,5] modified = %s  %s  %s\n",
+                  stateTypeStr.c_str(), (mIsStateModified[0]? "true" : "false"),
+                  (mIsStateModified[1]? "true" : "false"), (mIsStateModified[5]? "true" : "false"));
+            MessageInterface::ShowMessage("About to create new Anomaly with anomaly type = %s\n",
+                  mFromAnomalyTypeStr.c_str());
+         #endif
+//         Anomaly temp(midState[0], midState[1], midState[5], mFromAnomalyTypeStr);
+//         mAnomaly = temp;
+         mAnomaly.Set(midState[0], midState[1], midState[5], mFromAnomalyTypeStr);
+         #ifdef DEBUG_ORBIT_PANEL_STATE_CHANGE
+         MessageInterface::ShowMessage("In DisplayState, about to print out anomaly type ...\n");
+            MessageInterface::ShowMessage(
+                  "In DisplayState, after operator = , mAnomalyType = %s\n",
+                  (mAnomaly.GetTypeString()).c_str());
+         #endif
       }
    }
    else
@@ -1307,6 +1324,8 @@ void OrbitPanel::BuildState(const Rvector6 &inputState, bool isInternal)
          (isInternal ? "Internal" : mFromCoord->GetName().c_str()),
          (isInternal ? "Cartesian" : mFromStateTypeStr.c_str()),
          tempState.ToString(16).c_str());
+      MessageInterface::ShowMessage(" ... and mAnomaly type is %s\n",
+            (mAnomaly.GetTypeString()).c_str());
    #endif
       
    Rvector6 midState;
@@ -1323,6 +1342,10 @@ void OrbitPanel::BuildState(const Rvector6 &inputState, bool isInternal)
    {
       if (isInternal)
       {
+         #ifdef DEBUG_ORBIT_PANEL_CONVERT
+         MessageInterface::ShowMessage
+            ("   isInternal is true, setting mCartState to the input state.\n");
+         #endif
          // Input state is Cartesian expressed in internal coordinates
          mCartState = inputState;
       }
@@ -1420,6 +1443,12 @@ void OrbitPanel::ResetStateFlags(bool discardEdits)
 //------------------------------------------------------------------------------
 bool OrbitPanel::CheckState(Rvector6 &state)
 {
+   #ifdef DEBUG_ORBIT_PANEL_CHECKSTATE
+      MessageInterface::ShowMessage(
+            "OrbitPanel::CheckState, state = %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+            state[0], state[1], state[2], state[3], state[4], state[5]);
+      MessageInterface::ShowMessage("   current state type = %s\n", mFromStateTypeStr.c_str());
+   #endif
    for (int i=0; i<6; i++)
       mElements[i] = textCtrl[i]->GetValue();
    
@@ -1455,6 +1484,12 @@ bool OrbitPanel::CheckState(Rvector6 &state)
       if (mIsStateModified[i])
          state[i] = atof(mElements[i].c_str());
    }
+   #ifdef DEBUG_ORBIT_PANEL_CHECKSTATE
+      MessageInterface::ShowMessage(
+            "OrbitPanel::CheckState, LEAVING, state = %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+            state[0], state[1], state[2], state[3], state[4], state[5]);
+      MessageInterface::ShowMessage("   and current state type = %s\n", mFromStateTypeStr.c_str());
+   #endif
    
    return retval;
    
@@ -1586,6 +1621,13 @@ bool OrbitPanel::CheckModKeplerian(Rvector6 &state)
    mAnomalyType = anomalyComboBox->GetValue().c_str();
    bool retval = true;
    
+   #ifdef DEBUG_ORBIT_PANEL_CHECKSTATE
+      MessageInterface::ShowMessage(
+            "OrbitPanel::CheckModKeplerian, state = %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
+            state[0], state[1], state[2], state[3], state[4], state[5]);
+      MessageInterface::ShowMessage("   current anomaly type = %s\n", mAnomalyType.c_str());
+   #endif
+
    if (theScPanel->CheckReal(state[0], mElements[0], "RadPer", "Real Number"))
    {
       if (state[0] == 0.0)
@@ -1626,6 +1668,11 @@ bool OrbitPanel::CheckModKeplerian(Rvector6 &state)
    // check Anomaly
    if (theScPanel->CheckReal(state[5], mElements[5], mAnomalyType, "Real Number"))
    {
+      #ifdef DEBUG_ORBIT_PANEL_CHECKSTATE
+         MessageInterface::ShowMessage(
+               "OrbitPanel::CheckModKeplerian, about to set anomaly with %12.10f  %12.10f  %12.10f  %s\n",
+               state[0], state[1], state[5], mAnomalyType.c_str());
+      #endif
       mAnomaly.Set(state[0], state[1], state[5], mAnomalyType);
    }
    else
