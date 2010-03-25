@@ -8,6 +8,9 @@
 // Created: 2003/08/28
 // Rework:  2006/09/27 by Linda Jun (NASA/GSFC)
 // Modified: 
+//    2010.03.24 Thomas Grubb
+//      - Fixed FinalPass method to gracefully print error message instead of 
+//        access violation when celestial body is not set properly
 //    2010.03.23 Thomas Grubb/Steve Hughes
 //      - Fixed error message in SetValueToProperty for invalid field values
 //
@@ -6601,7 +6604,7 @@ bool Interpreter::FinalPass()
           cbObj->GetName().c_str(), cbObj, cbObj->GetType());
       #endif
 
-      if (cbObj->GetType() != Gmat::CELESTIAL_BODY)
+      if ((cbObj == NULL) || (cbObj->GetType() != Gmat::CELESTIAL_BODY))
       {
          InterpreterException ex
          ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
