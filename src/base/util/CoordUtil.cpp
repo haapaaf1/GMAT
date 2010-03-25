@@ -27,6 +27,7 @@
 
 using namespace GmatMathUtil;
 
+//#define DEBUG_CART_TO_KEPL
 
 const Real CoordUtil::ORBIT_TOL = 1.0E-10;
 const Real CoordUtil::ORBIT_TOL_SQ = 1.0E-20;
@@ -241,7 +242,7 @@ Integer CoordUtil::ComputeMeanToTrueAnomaly(Real ma, Real ecc, Real tol,
 //                                  Real elem[6], Real *ma)
 //------------------------------------------------------------------------------
 /*
- * @param <grav> input graviational constant
+ * @param <grav> input gravitational constant
  * @param <r>    input position vector in cartesian coordinate
  * @param <v>    input velocity vector in cartesian coordinate
  * @param <tfp>  output time from periapsis
@@ -258,6 +259,10 @@ Integer CoordUtil::ComputeMeanToTrueAnomaly(Real ma, Real ecc, Real tol,
 Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
                                      Real elem[6], Real *ma)
 {
+   #ifdef DEBUG_CART_TO_KEPL
+      MessageInterface::ShowMessage("CoordUtil::ComputeCartToKepl called ... \n");
+   #endif
+
    if (Abs(grav) < 1E-30)
       return(2);
    
@@ -270,7 +275,8 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    // eqn 4.2
    Real h = angMomentum.GetMagnitude();
    
-   if (h < 1E-30) {
+   if (h < 1E-30)
+   {
       return 1;
    }
    
@@ -291,16 +297,27 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    // eqn 4.9
    Real zeta = 0.5*velMag*velMag - grav/posMag;
    
-   if (Abs(1 - e) < 1E-30)
+   if (Abs(1 - e) < 1E-7)
    {
       throw UtilityException
          ("CoordUtil::CartesianToKeplerian() "
-          "Radius is near infinite in keplarian to cartesian conversion\n");
+          "Warning: A nearly parabolic orbit was encountered while converting "
+          "from the Cartesian state to the Keplerian elements.  The Keplerian elements "
+          "are undefined for a parabolic orbit.\n");
    }
    
    // eqn 4.10
    Real sma = -grav/(2*zeta);
-   
+
+   if (Abs(sma*(1 - e)) < .001)
+   {
+      throw UtilityException
+         ("CoordUtil::CartesianToKeplerian() "
+          "Warning: A nearly singular conic section was encountered while "
+          "converting from the Cartesian state to the Keplerian elements.  The radius of "
+          "periapsis must be greater than 1 meter.\n");
+
+   }
    // eqn 4.11
    Real i = ACos( angMomentum.Get(2)/h );
    
@@ -467,6 +484,10 @@ Rvector6 CoordUtil::CartesianToKeplerian(const Rvector6 &cartVec, const Real gra
 //------------------------------------------------------------------------------
 Rvector6 CoordUtil::CartesianToKeplerian(const Rvector6 &cartVec, Real grav, Real *ma)
 {
+   #ifdef DEBUG_CART_TO_KEPL
+      MessageInterface::ShowMessage("CoordUtil::CartesianToKeplerian called ... \n");
+   #endif
+
    Real kepl[6];
    Real r[3];
    Real v[3];
