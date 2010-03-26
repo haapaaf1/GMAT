@@ -14,6 +14,8 @@
 // Author: Waka Waktola
 // Created: 2004/11/19
 // Modified: 
+//    2010.03.26 Thomas Grubb 
+//      - Fixed positive real number checks in SaveData 
 //    2010.03.18 Thomas Grubb 
 //      - Modified code to use public fuel tank parameter id enums
 //      - Fixed bug with not saving Fuel Density on SaveData
@@ -368,11 +370,11 @@ void TankConfigPanel::SaveData()
    //-----------------------------------------------------------------
    // Fuel Mass 
    inputString = fuelMassTextCtrl->GetValue();
-   CheckReal(fuelMass, inputString, "FuelMass", "Real Number >= 0.0");
+   CheckReal(fuelMass, inputString, "FuelMass", "Real Number >= 0.0", false, true, true, true);
    
    // Pressure 
    inputString = pressureTextCtrl->GetValue();
-   CheckReal(pressure, inputString, "Pressure", "Real Number >= 0.0");
+   CheckReal(pressure, inputString, "Pressure", "Real Number >= 0.0", false, true, true, true);
    
    // Temperature
    inputString = temperatureTextCtrl->GetValue(); 
@@ -384,11 +386,11 @@ void TankConfigPanel::SaveData()
    
    // Volume
    inputString = volumeTextCtrl->GetValue();
-   CheckReal(volume, inputString, "Volume", "Real Number >= 0.0");
+   CheckReal(volume, inputString, "Volume", "Real Number >= 0.0", false, true, true, true);
    
    // Fuel Density 
    inputString = fuelDensityTextCtrl->GetValue();
-   CheckReal(fuelDensity, inputString, "FuelDensity", "Real Number >= 0.0");
+   CheckReal(fuelDensity, inputString, "FuelDensity", "Real Number >= 0.0", false, true, true, true);
    
    
    if (!canClose)
