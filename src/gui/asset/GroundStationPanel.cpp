@@ -1,4 +1,3 @@
-//$Id$
 //------------------------------------------------------------------------------
 //                            GroundStationPanel
 //------------------------------------------------------------------------------
@@ -14,6 +13,8 @@
 // Author: Thomas Grubb
 // Created: 2010/03/11
 // Modified: 
+//    2010.03.26 Thomas Grubb 
+//      - Fixed positive real number check in SaveData for Longitude
 /**
  * This class contains information needed to set up users ground station
  * parameters.
@@ -117,14 +118,14 @@ void GroundStationPanel::Create()
       new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"ID") );
    stationIDTextCtrl =
       new wxTextCtrl( this, ID_STATION_ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
-   stationIDTextCtrl->SetToolTip(pConfig->Read(_T((GroundStation::PARAMETER_TEXT[GroundStation::STATION_ID-GroundStation::STATION_ID]+"Hint").c_str())));
+   stationIDTextCtrl->SetToolTip(pConfig->Read(_T(GroundStation::PARAMETER_TEXT[GroundStation::STATION_ID-GroundStation::STATION_ID]+"Hint")));
    
    // Central Body
    wxStaticText *centralBodyLabel =
       new wxStaticText( this, ID_TEXT, wxT("Central "GUI_ACCEL_KEY"Body"));
    centralBodyComboBox = GuiItemManager::GetInstance()->GetCelestialBodyComboBox(this, ID_COMBOBOX, 
                                                               wxSize(150,-1));
-   centralBodyComboBox->SetToolTip(pConfig->Read(_T((BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::CENTRAL_BODY-BodyFixedPoint::CENTRAL_BODY]+"Hint").c_str())));
+   centralBodyComboBox->SetToolTip(pConfig->Read(_T(BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::CENTRAL_BODY-BodyFixedPoint::CENTRAL_BODY]+"Hint")));
    
    // State Type
    wxStaticText *stateTypeLabel =
@@ -135,7 +136,7 @@ void GroundStationPanel::Create()
    stateTypeComboBox = 
       new wxComboBox( this, ID_STATE_TYPE_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(120,-1),
                       wxStateTypeLabels, wxCB_DROPDOWN|wxCB_READONLY);
-   stateTypeComboBox->SetToolTip(pConfig->Read(_T((BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::STATE_TYPE-BodyFixedPoint::CENTRAL_BODY]+"Hint").c_str())));
+   stateTypeComboBox->SetToolTip(pConfig->Read(_T(BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::STATE_TYPE-BodyFixedPoint::CENTRAL_BODY]+"Hint")));
    
    // Horizon Reference
    wxStaticText *horizonReferenceLabel =
@@ -146,7 +147,7 @@ void GroundStationPanel::Create()
    horizonReferenceComboBox = 
       new wxComboBox( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(120,-1),
                       wxHorizonReferenceLabels, wxCB_DROPDOWN|wxCB_READONLY);
-   horizonReferenceComboBox->SetToolTip(pConfig->Read(_T((BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::HORIZON_REFERENCE-BodyFixedPoint::CENTRAL_BODY]+"Hint").c_str())));
+   horizonReferenceComboBox->SetToolTip(pConfig->Read(_T(BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::HORIZON_REFERENCE-BodyFixedPoint::CENTRAL_BODY]+"Hint")));
    
    // Location 1
    location1Label =
@@ -311,7 +312,6 @@ void GroundStationPanel::SaveData()
    Real location1, location2, location3;
    std::string inputString;
    std::string text;
-   std::string checkString;
    
    //-----------------------------------------------------------------
    // validate user input for locations if state type is not cartesian
@@ -329,18 +329,17 @@ void GroundStationPanel::SaveData()
       MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
       canClose = false;
    }
-   if (text != "Cartesian")
-       checkString = "Real Number >= 0.0";
-   else
-       checkString = "Real Number";
 
    // Location 1 (Latitude)
    inputString = location1TextCtrl->GetValue();
-   CheckReal(location1, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1), checkString);
+   CheckReal(location1, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1), "Real Number");
    
    // Location 2 (Longitude)
    inputString = location2TextCtrl->GetValue();
-   CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), checkString);
+   if (text != "Cartesian")
+      CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number >= 0.0", false, true, true, true);
+   else
+      CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number");
    
    // Location 3 (Altitude)
    inputString = location3TextCtrl->GetValue();
@@ -447,13 +446,13 @@ void GroundStationPanel::UpdateControls()
    pConfig->SetPath(wxT("/Ground Station"));
 
    location1Label->SetLabel(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1).c_str());
-   location1TextCtrl->SetToolTip(pConfig->Read(_T((localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1)+"Hint").c_str())));
+   location1TextCtrl->SetToolTip(pConfig->Read(_T(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1)+"Hint")));
    location1Unit->SetLabel(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_UNITS_1).c_str());
    location2Label->SetLabel(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2).c_str());
-   location2TextCtrl->SetToolTip(pConfig->Read(_T((localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2)+"Hint").c_str())));
+   location2TextCtrl->SetToolTip(pConfig->Read(_T(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2)+"Hint")));
    location2Unit->SetLabel(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_UNITS_2).c_str());
    location3Label->SetLabel(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3).c_str());
-   location3TextCtrl->SetToolTip(pConfig->Read(_T((localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3)+"Hint").c_str())));
+   location3TextCtrl->SetToolTip(pConfig->Read(_T(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3)+"Hint")));
    location3Unit->SetLabel(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_UNITS_3).c_str());
 }    
 
