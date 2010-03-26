@@ -7,6 +7,9 @@
 // Author: Linda Jun
 // Created: 2004/02/02
 // Modified: 
+//    2010.03.26 Thomas Grubb 
+//       - Reorganized bottom buttons
+//       - Changed Show Script and Command Summary buttons to be bitmap buttons
 //    2010.03.05 Thomas Grubb 
 //       - Enabled help button to launch wiki page from configuration file (GMAT.ini)
 //       - Added accelerator keys to Apply, Help, Show Script and Command Summary buttons
@@ -21,6 +24,8 @@
 #include "GmatPanel.hpp"
 #include "GmatAppData.hpp"
 #include "MessageInterface.hpp"
+#include "bitmaps/NewScript.xpm"
+#include "bitmaps/report.xpm"
 
 #include "ShowScriptDialog.hpp"
 #include "ShowSummaryDialog.hpp"
@@ -106,6 +111,19 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
    if (showBottomSizer)
    {
       // create bottom buttons
+      wxBitmap *bitmap = new wxBitmap(NewScript_xpm);
+      theScriptButton = new wxBitmapButton
+         (this, ID_BUTTON_SCRIPT, *bitmap, wxDefaultPosition, wxDefaultSize, 4);
+      theScriptButton->SetToolTip("Show Script");
+      bitmap = new wxBitmap(report_xpm);
+      theSummaryButton = new wxBitmapButton
+         (this, ID_BUTTON_SUMMARY, *bitmap, wxDefaultPosition, wxDefaultSize, 4);
+      theSummaryButton->SetToolTip("Command Summary");
+      //theScriptButton = new wxButton
+      //   (this, ID_BUTTON_SCRIPT, "Show "GUI_ACCEL_KEY"Script", wxDefaultPosition, wxDefaultSize, 0);
+      //theSummaryButton = new wxButton
+      //   (this, ID_BUTTON_SUMMARY, GUI_ACCEL_KEY"Command Summary", wxDefaultPosition, wxDefaultSize, 0);
+
       theOkButton = new wxButton
          (this, ID_BUTTON_OK, "OK", wxDefaultPosition, wxDefaultSize, 0);
       theApplyButton = new wxButton
@@ -118,11 +136,6 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
          (this, ID_BUTTON_HELP, GUI_ACCEL_KEY"Help", wxDefaultPosition, wxDefaultSize, 0);
       #endif
       
-      theScriptButton = new wxButton
-         (this, ID_BUTTON_SCRIPT, "Show "GUI_ACCEL_KEY"Script", wxDefaultPosition, wxDefaultSize, 0);
-      theSummaryButton = new wxButton
-         (this, ID_BUTTON_SUMMARY, GUI_ACCEL_KEY"Command Summary", wxDefaultPosition, wxDefaultSize, 0);
-
       // set the Apply button as the default button, T. Grubb
       #ifdef __SMART_APPLY_BUTTON__   
       theApplyButton->SetDefault();
@@ -145,19 +158,20 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
    // adds the buttons to button sizer
    if (showBottomSizer)
    {
+      theButtonSizer->Add(theScriptButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      theButtonSizer->Add(theSummaryButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+
+      theButtonSizer->AddSpacer(10);
       theButtonSizer->Add(theOkButton, 0, wxALIGN_CENTER | wxALL, borderSize);
       theButtonSizer->Add(theApplyButton, 0, wxALIGN_CENTER | wxALL, borderSize);
       theButtonSizer->Add(theCancelButton, 0, wxALIGN_CENTER | wxALL, borderSize);
       
       #ifdef __SHOW_HELP_BUTTON__
-      theButtonSizer->Add(theHelpButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+      theButtonSizer->Add(0, 1, wxALIGN_RIGHT);
+      theButtonSizer->Add(theHelpButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
       #endif
       
-      theButtonSizer->Add(100, 20, 0, wxALIGN_CENTER | wxALL, borderSize);   
-      theButtonSizer->Add(theScriptButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-      theButtonSizer->Add(theSummaryButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-      
-      theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
+      theBottomSizer->Add(theButtonSizer, 0, wxGROW | wxALL, borderSize);
    }
    
    #ifdef __SHOW_TOP_SIZER__
