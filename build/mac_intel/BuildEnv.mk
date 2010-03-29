@@ -2,7 +2,7 @@
 # Build environment file for Linux
 # Modifed for Mac OS 10.3  W. Shoan - 2005.11.10
 # Modifed for Mac OS 10.4  W. Shoan - 2006.01.19
-# Modified a whole bunch after that  W. Shoan  - 2006 - 2007
+# Modified a whole bunch after that  W. Shoan  - 2006 - 2010
 # NOTES to user - changes are necessary where you see the "*** EDIT THIS ***" notes
 
 # Flags used to control the build
@@ -31,7 +31,7 @@ WX_INSTALLED = /usr/local/bin
 # *** EDIT THIS *** - this is where you installed MATLAB ......
 # NOTE! for later versions of MATLAB, this needs to be the actual application bundle
 # and you must also provide the name of the hdf dylib
-MATLAB = /Applications/MATLAB_R2009b/MATLAB_R2009a.app
+MATLAB = /Applications/MATLAB_R2009a/MATLAB_R2009a.app
 #MATLAB = /Applications/MATLAB_R2007b
 MATLAB_LIB_DIR = $(MATLAB)/bin/maci
 MATLAB_HDF = -lhdf5.5
@@ -189,7 +189,7 @@ CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
            $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE)\
            $(MATLAB_INCLUDE) $(IL_HEADERS) $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS)\
            -fpascal-strings -I/Developer/Headers/FlatCarbon  \
-           -D__WXMAC__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common
+           -D__WXMAC__ -D__SHOW_HELP_BUTTON__ -D__SMART_APPLY_BUTTON__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common
 F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
            $(WXCPPFLAGS) \
            $(MATLAB_INCLUDE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
@@ -197,7 +197,7 @@ TCPIP_OBJECTS =	$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabClient.o \
 				$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabConnection.o
 else
 CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS) \
-           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
+           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ -D__SHOW_HELP_BUTTON__ -D__SMART_APPLY_BUTTON__ $(WX_28_DEFINES)
 F77_FLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
             $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
 TCPIP_OBJECTS =	
