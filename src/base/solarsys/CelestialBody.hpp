@@ -96,7 +96,7 @@ namespace Gmat
       "Star",
       "Planet",
       "Moon",
-      "Asteroid",           // asteroids not yet implemented
+      "Asteroid",
       "Comet",
       "KuiperBeltObject",   // KBOs not yet implemented
    };
@@ -170,6 +170,7 @@ public:
    virtual const Rvector6&      GetState(Real atTime); 
    virtual void                 GetState(const A1Mjd &atTime, Real *outState);
    virtual void                 SetSolarSystem(SolarSystem *ss);
+   virtual void                 SetSpiceKernelReader(SpiceKernelReader *skr);
    
    // methods to return the body type, central body, gravitational constant,
    // radius, mass, posvel source, analytic method, and userDefined flag

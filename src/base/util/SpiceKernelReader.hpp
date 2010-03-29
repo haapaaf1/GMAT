@@ -43,9 +43,15 @@ extern "C"
 class GMAT_API SpiceKernelReader
 {
 public:
-   static      SpiceKernelReader* Instance();
+//   static      SpiceKernelReader* Instance();
+   SpiceKernelReader();
+   SpiceKernelReader(const SpiceKernelReader &reader);
+   SpiceKernelReader& operator=(const SpiceKernelReader &reader);
+
    ~SpiceKernelReader();
    
+   SpiceKernelReader* Clone() const;
+
    bool        LoadKernel(const std::string &fileName);
    bool        UnloadKernel(const std::string &fileName);
    bool        UnloadAllKernels();
@@ -76,10 +82,8 @@ public:
                                  
                                     
 
-private:
+protected:
 
-   /// array of files (kernels) currently loaded
-   StringArray    loadedKernels;
    /// the name (full path) of the leap second kernel to use
    std::string lsKernel;
    
@@ -116,8 +120,15 @@ private:
    static const Integer     MAX_EXPLAIN_MESSAGE;
    static const Integer     MAX_LONG_MESSAGE;
    
-   static SpiceKernelReader *theInstance;
-   SpiceKernelReader();
+   /// array of files (kernels) currently loaded
+   static StringArray    loadedKernels;
+   /// counter of number of instances created
+   static Integer        numInstances;
+
+   static void InitializeReader();
+
+//   static SpiceKernelReader *theInstance;
+//   SpiceKernelReader();
 };
 
 #endif // SpiceKernelReader_hpp

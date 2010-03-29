@@ -213,7 +213,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
-//   kernelReader       (NULL),
+   kernelReader       (NULL),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -302,7 +302,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
-//   kernelReader       (NULL),
+   kernelReader       (NULL),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -390,7 +390,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    sourceFilename      (cBody.sourceFilename),
    theSourceFile       (cBody.theSourceFile), // ????????????????
    spiceKernelNames    (cBody.spiceKernelNames),
-//   kernelReader        (cBody.kernelReader),
+   kernelReader        (cBody.kernelReader),
    usePotentialFile    (cBody.usePotentialFile),
    potentialFileName   (cBody.potentialFileName),
    hourAngle           (cBody.hourAngle),
@@ -924,6 +924,11 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
 void CelestialBody::SetSolarSystem(SolarSystem *ss)
 {
    theSolarSystem = ss;
+}
+
+void CelestialBody::SetSpiceKernelReader(SpiceKernelReader *skr)
+{
+   kernelReader = skr;
 }
 
 //------------------------------------------------------------------------------
@@ -4254,7 +4259,13 @@ bool CelestialBody::SetUpSPICE()
          MessageInterface::ShowMessage("   kernelReader is NULL\n");
    #endif
    if (posVelSrc != Gmat::SPICE) return false;
-   if (kernelReader == NULL) kernelReader = SpiceKernelReader::Instance();
+//   if (kernelReader == NULL) kernelReader = SpiceKernelReader::Instance();
+   if (kernelReader == NULL)
+   {
+      std::string errmsg = "ERROR - SpiceKernelReader not set for body";
+      errmsg += instanceName + "\n";
+      throw SolarSystemException(errmsg);
+   }
    // Load the leap second kernel
 //   kernelReader->SetLeapSecondKernel("./files/time/naif0009.tls"); // @todo (when needed) ******* get from FileManager ****
    #ifdef DEBUG_CB_SPICE

@@ -763,6 +763,10 @@ SolarSystem::SolarSystem(std::string withName)
    thePlanetaryEphem   = NULL;
    overrideTimeForAll  = false;
    ephemUpdateInterval = 0.0;
+#ifdef __USE_SPICE__
+   spiceKernelReader   = new SpiceKernelReader();
+#endif
+   allowSpiceForDefaultBodies = false;
 
    // we want to cloak the Solar System data; i.e. we want to write only those
    // parameters that have been modified by the suer to a script; and we don't
@@ -1000,6 +1004,7 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
    bodyStrings                       (ss.bodyStrings),
    defaultBodyStrings                (ss.defaultBodyStrings),
    userDefinedBodyStrings            (ss.userDefinedBodyStrings),
+//   spiceKernelReader                 (ss.spiceKernelReader),
    allowSpiceForDefaultBodies        (ss.allowSpiceForDefaultBodies),
    spiceAvailable                    (ss.spiceAvailable),
    theSPKFilename                    (ss.theSPKFilename),
@@ -1013,6 +1018,8 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
 {
    theDefaultDeFile  = NULL;
    parameterCount    = SolarSystemParamCount;
+
+   spiceKernelReader = (ss.spiceKernelReader)->Clone();
 
    // create planetary source first, but do not create default
    thePlanetarySourceNames = ss.thePlanetarySourceNames;
@@ -1061,6 +1068,7 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    defaultBodyStrings         = ss.defaultBodyStrings;
    userDefinedBodyStrings     = ss.userDefinedBodyStrings;
    allowSpiceForDefaultBodies = ss.allowSpiceForDefaultBodies;
+   spiceKernelReader          = ss.spiceKernelReader;
    spiceAvailable             = ss.spiceAvailable;
    theSPKFilename             = ss.theSPKFilename;
    parameterCount             = SolarSystemParamCount;
@@ -1136,6 +1144,8 @@ SolarSystem::~SolarSystem()
           delete theDefaultDeFile;
       #endif
    }
+
+   delete spiceKernelReader;
 }
 
 
@@ -1148,6 +1158,7 @@ bool SolarSystem::Initialize()
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
    {
+      (*cbi)->SetSpiceKernelReader(spiceKernelReader);
       (*cbi)->Initialize();
       ++cbi;
    }

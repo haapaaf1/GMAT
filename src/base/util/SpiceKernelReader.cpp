@@ -79,8 +79,14 @@ const Integer SpiceKernelReader::MAX_SHORT_MESSAGE   = 320;
 const Integer SpiceKernelReader::MAX_EXPLAIN_MESSAGE = 320;
 const Integer SpiceKernelReader::MAX_LONG_MESSAGE    = 1840;
 
+/// array of files (kernels) currently loaded
+StringArray    SpiceKernelReader::loadedKernels;
+/// counter of number of instances created
+Integer        SpiceKernelReader::numInstances = 0;
 
-SpiceKernelReader* SpiceKernelReader::theInstance = NULL;
+
+
+//SpiceKernelReader* SpiceKernelReader::theInstance = NULL;
 
 //---------------------------------
 // public methods
@@ -89,11 +95,52 @@ SpiceKernelReader* SpiceKernelReader::theInstance = NULL;
 //------------------------------------------------------------------------------
 // SpiceKernelReader* Instance()
 //------------------------------------------------------------------------------
-SpiceKernelReader* SpiceKernelReader::Instance()
+//SpiceKernelReader* SpiceKernelReader::Instance()
+//{
+//   if (theInstance == NULL)
+//      theInstance = new SpiceKernelReader;
+//   return theInstance;
+//}
+
+SpiceKernelReader::SpiceKernelReader() :
+   kernelNameSPICE         (NULL),
+   targetBodyNameSPICE     (NULL),
+   observingBodyNameSPICE  (NULL),
+   aberrationSPICE         (NULL),
+   referenceFrameSPICE     (NULL)
 {
-   if (theInstance == NULL)
-      theInstance = new SpiceKernelReader;
-   return theInstance;
+   InitializeReader();
+//   loadedKernels.clear();
+//   // set output file and action for cspice methods
+//   errdev_c("SET", 1840, "./GMATSpiceKernelReaderError.txt"); // @todo this should be set in startup file
+//   erract_c("SET", 1840, "RETURN");
+   numInstances++;
+}
+
+SpiceKernelReader::SpiceKernelReader(const SpiceKernelReader &reader) :
+   lsKernel                (reader.lsKernel),
+   kernelNameSPICE         (NULL),
+   targetBodyNameSPICE     (NULL),
+   observingBodyNameSPICE  (NULL),
+   aberrationSPICE         (NULL),
+   referenceFrameSPICE     (NULL)
+{
+   numInstances++;
+}
+
+SpiceKernelReader& SpiceKernelReader::operator=(const SpiceKernelReader &reader)
+{
+   if (&reader == this)
+      return *this;
+
+   lsKernel                 = reader.lsKernel;
+   kernelNameSPICE          = NULL;
+   targetBodyNameSPICE      = NULL;
+   observingBodyNameSPICE   = NULL;
+   aberrationSPICE          = NULL;
+   referenceFrameSPICE      = NULL;
+   // don't modify numInstances - we are not creating a new instance here
+   return *this;
 }
 
 
@@ -102,7 +149,15 @@ SpiceKernelReader* SpiceKernelReader::Instance()
 //------------------------------------------------------------------------------
 SpiceKernelReader::~SpiceKernelReader()
 {
-   UnloadAllKernels();
+   numInstances--;
+   if (numInstances <= 0) UnloadAllKernels();
+}
+
+SpiceKernelReader* SpiceKernelReader::Clone(void) const
+{
+   SpiceKernelReader * clonedSKR = new SpiceKernelReader(*this);
+
+   return clonedSKR;
 }
 
 bool SpiceKernelReader::LoadKernel(const std::string &fileName)
@@ -364,20 +419,33 @@ Rmatrix33 SpiceKernelReader::GetTargetOrientation(Integer           naifID,
 //---------------------------------
 
 //---------------------------------
-// private methods
+// protected methods
 //---------------------------------
 
-SpiceKernelReader::SpiceKernelReader() :
-   kernelNameSPICE         (NULL),
-   targetBodyNameSPICE     (NULL),
-   observingBodyNameSPICE  (NULL),
-   aberrationSPICE         (NULL),
-   referenceFrameSPICE     (NULL)
+//SpiceKernelReader::SpiceKernelReader() :
+//   kernelNameSPICE         (NULL),
+//   targetBodyNameSPICE     (NULL),
+//   observingBodyNameSPICE  (NULL),
+//   aberrationSPICE         (NULL),
+//   referenceFrameSPICE     (NULL)
+//{
+//   loadedKernels.clear();
+//   // set output file and action for cspice methods
+//   errdev_c("SET", 1840, "./GMATSpiceKernelReaderError.txt"); // @todo this should be set in startup file
+//   erract_c("SET", 1840, "RETURN");
+//}
+// ---------------------
+// static methods
+// ---------------------
+void SpiceKernelReader::InitializeReader()
 {
-   loadedKernels.clear();
-   // set output file and action for cspice methods
-   errdev_c("SET", 1840, "./GMATSpiceKernelReaderError.txt"); // @todo this should be set in startup file
-   erract_c("SET", 1840, "RETURN");
+   if (numInstances == 0)
+   {
+      loadedKernels.clear();
+      // set output file and action for cspice methods
+      errdev_c("SET", 1840, "./GMATSpiceKernelReaderError.txt"); // @todo this should be set in startup file
+      erract_c("SET", 1840, "RETURN");
+   }
 }
-                              
+
 
