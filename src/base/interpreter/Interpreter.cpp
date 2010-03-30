@@ -763,7 +763,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
                                  (!obj->IsOfType("SystemParameter")))))
             {
                InterpreterException ex("");
-               ex.SetDetails("%s object named \"%s\" already exist",
+               ex.SetDetails("%s object named \"%s\" already exists",
                              type.c_str(), name.c_str());
                HandleError(ex, true, true);
                return obj;
