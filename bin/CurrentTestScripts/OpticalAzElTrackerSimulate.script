@@ -42,8 +42,6 @@ Maui.Longitude = 148.983076735;
 Maui.Altitude = 0.675012
 Maui.Id = 'Maui';
 
-
-
 %----------------------------------------
 %---------- ForceModels
 %----------------------------------------
@@ -71,15 +69,24 @@ ODProp.MaxStepAttempts = 50;
 %---------- Datafiles
 %----------------------------------------
 Create DataFile MauiMeasData;
-MauiMeasData.Filename = 'USNRangeTrackMaui.gmd';
+MauiMeasData.Filename = 'OpticalAzElTrackMaui.gmd';
 MauiMeasData.Format = GMATInternal;
 
 %----------------------------------------
 %---------- MeasurementModels
 %----------------------------------------
+Create MeasurementModel AEMeasurement;
+AEMeasurement.ObservationData = {MauiMeasData};
+AEMeasurement.Type = OpticalAzEl;
+AEMeasurement.Participants = {Maui, ODSat};
+AEMeasurement.Bias = 0;
+AEMeasurement.NoiseSigma = 1e-05;
+AEMeasurement.TimeConstant = 6000;
+AEMeasurement.Covariance.Bias = [1000000 1000000];
+
 Create MeasurementModel RangeMeasurement;
 RangeMeasurement.ObservationData = {MauiMeasData};
-RangeMeasurement.Type = USNTwoWayRange;
+RangeMeasurement.Type = DSNTwoWayRange;
 RangeMeasurement.Participants = {Maui, ODSat};
 RangeMeasurement.Bias = 0;
 RangeMeasurement.NoiseSigma = 1e-05;
@@ -89,19 +96,19 @@ RangeMeasurement.Covariance.Bias = [1000000];
 %----------------------------------------
 %---------- Tracking Systems
 %----------------------------------------
-Create USNTrackingSystem USNTracker
-USNTracker.Add = {RangeMeasurement}
+Create OpticalTrackingSystem Tracker
+Tracker.Add = {AEMeasurement, RangeMeasurement}
 
 %----------------------------------------
 %---------- Solvers
 %----------------------------------------
 Create Simulator simmer;
-simmer.AddData             = {USNTracker};
+simmer.AddData             = {Tracker};
 simmer.InitialEpochFormat  = UTCGregorian;
 simmer.InitialEpoch        = '01 Mar 2005 00:00:00.000';
 simmer.FinalEpochFormat    = UTCGregorian;
-simmer.FinalEpoch          = '04 Mar 2005 00:00:00.000';
-simmer.MeasurementTimeStep = 600;
+simmer.FinalEpoch          = '15 Mar 2005 00:00:00.000';
+simmer.MeasurementTimeStep = 60;
 simmer.Propagator          = ODProp;
 
 %----- Run the estimator
