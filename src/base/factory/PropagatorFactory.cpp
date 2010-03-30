@@ -27,6 +27,9 @@
 #include "PrinceDormand78.hpp" 
 #include "AdamsBashforthMoulton.hpp"
 #include "BulirschStoer.hpp"
+
+// Ephemeris propagators
+#include "SPKPropagator.hpp"
 // Not yet implemented:
 //#include "Cowell.hpp"
 /// @todo add others here for future builds
@@ -64,6 +67,10 @@ Propagator* PropagatorFactory::CreatePropagator(const std::string &ofType,
       return new RungeKuttaFehlberg56(withName);
 //   if (ofType == "Cowell")
 //      return new Cowell(withName);
+   // EphemerisPropagators
+   if (ofType == "SPK")
+      return new SPKPropagator(withName);
+
    /// @todo add others here as needed
    else
       return NULL;
@@ -95,6 +102,7 @@ PropagatorFactory::PropagatorFactory()
       creatables.push_back("RungeKuttaFehlberg56");
 //      creatables.push_back("Cowell");
       
+      creatables.push_back("SPK");
    }
 }
 
@@ -109,8 +117,7 @@ PropagatorFactory::PropagatorFactory()
  *
  */
 //------------------------------------------------------------------------------
-PropagatorFactory::PropagatorFactory(StringArray createList) 
-   :
+PropagatorFactory::PropagatorFactory(StringArray createList) :
    Factory(createList, Gmat::PROPAGATOR)
 {
 }

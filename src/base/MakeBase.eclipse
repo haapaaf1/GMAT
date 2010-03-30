@@ -415,6 +415,8 @@ OBJECTS = \
     propagator/RungeKuttaFehlberg56.o \
     propagator/RungeKuttaNystrom.o \
     propagator/RungeKutta.o \
+    propagator/EphemerisPropagator.o \
+    propagator/SPKPropagator.o \
     solarsys/Asteroid.o \
     solarsys/AtmosphereModel.o \
     solarsys/Barycenter.o \

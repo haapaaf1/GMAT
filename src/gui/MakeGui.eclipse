@@ -85,8 +85,13 @@ else
 STC_EDITOR_OBJECTS =
 endif
 
+ifeq ($(USE_MATLAB),1)
+all: prep $(TARGETS) 
+	rm -f GMAT
+else
 all: prep $(TARGETS) 
 	rm -f GMAT_NoMatlab
+endif
 
 gui: $(WXTARGET)
 

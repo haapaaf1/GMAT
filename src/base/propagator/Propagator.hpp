@@ -97,6 +97,15 @@ public:
    virtual Real SetRealParameter(const Integer id, const Real value);
    virtual Real SetRealParameter(const std::string &label, const Real value);
    
+   virtual Real GetRealParameter(const Integer id, const Integer index) const;
+   virtual Real GetRealParameter(const Integer id, const Integer row,
+         const Integer col) const;
+   virtual Real SetRealParameter(const Integer id, const Real value,
+         const Integer index);
+   virtual Real SetRealParameter(const Integer id, const Real value,
+         const Integer row, const Integer col);
+
+
    virtual bool Initialize();
    virtual void SetPhysicalModel(PhysicalModel *pPhysicalModel);
    virtual bool Step(Real dt);

@@ -323,6 +323,89 @@ Real Propagator::SetRealParameter(const std::string &label, const Real value)
     return SetRealParameter(GetParameterID(label), value);
 }
 
+
+//------------------------------------------------------------------------------
+// Real GetRealParameter(const Integer id, const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Pass through method for getting a real parameter
+ *
+ * @param id The parameter ID
+ * @param index Array index for the parameter
+ *
+ * @return The parameter value after the call
+ */
+//------------------------------------------------------------------------------
+Real Propagator::GetRealParameter(const Integer id, const Integer index) const
+{
+   return GmatBase::GetRealParameter(id, index);
+}
+
+
+//------------------------------------------------------------------------------
+// Real GetRealParameter(const Integer id, const Integer row,
+//       const Integer col) const
+//------------------------------------------------------------------------------
+/**
+ * Pass through method for getting a real parameter
+ *
+ * @param id The parameter ID
+ * @param row Array row index for the parameter
+ * @param col Array column index for the parameter
+ *
+ * @return The parameter value after the call
+ */
+//------------------------------------------------------------------------------
+Real Propagator::GetRealParameter(const Integer id, const Integer row,
+      const Integer col) const
+{
+   return GmatBase::GetRealParameter(id, row, col);
+}
+
+
+//------------------------------------------------------------------------------
+// Real SetRealParameter(const Integer id, const Real value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Pass through method for setting a real parameter
+ *
+ * @param id The parameter ID
+ * @param value The new parameter value
+ * @param index Array index for the parameter
+ *
+ * @return The parameter value after the call
+ */
+//------------------------------------------------------------------------------
+Real Propagator::SetRealParameter(const Integer id, const Real value,
+      const Integer index)
+{
+   return GmatBase::SetRealParameter(id, value, index);
+}
+
+
+//------------------------------------------------------------------------------
+// Real SetRealParameter(const Integer id, const Real value, const Integer row,
+//       const Integer col)
+//------------------------------------------------------------------------------
+/**
+ * Pass through method for getting a real parameter
+ *
+ * @param id The parameter ID
+ * @param value The new parameter value
+ * @param row Array row index for the parameter
+ * @param col Array column index for the parameter
+ *
+ * @return The parameter value after the call
+ */
+//------------------------------------------------------------------------------
+Real Propagator::SetRealParameter(const Integer id, const Real value,
+      const Integer row, const Integer col)
+{
+   return GmatBase::SetRealParameter(id, value, row, col);
+}
+
+
 //------------------------------------------------------------------------------
 // bool Propagator::Initialize()
 //------------------------------------------------------------------------------
