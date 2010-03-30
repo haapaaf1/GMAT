@@ -88,12 +88,9 @@ std::string EphemerisPropagator::GetParameterUnit(const Integer id) const
 
 Integer EphemerisPropagator::GetParameterID(const std::string &str) const
 {
-   MessageInterface::ShowMessage("Looking up ID for '%s'\n", str.c_str());
-
    for (Integer i = PropagatorParamCount;
          i < EphemerisPropagatorParamCount; ++i)
    {
-      MessageInterface::ShowMessage("   i = %d\n", i);
       if (str == PARAMETER_TEXT[i - PropagatorParamCount])
          return i;
    }
