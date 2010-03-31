@@ -4009,7 +4009,7 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
       else
       {
          InterpreterException ex
-            (errorMsg1 + "Value of \"" + value + "\" for field \"" + toProp + "\" on object " + "\"" +
+            (errorMsg1 + "field \"" + toProp + "\" on object " + "\"" +
              toOwner->GetName() + "\" is not an allowed value." + errorMsg2);
          HandleError(ex);
       }
