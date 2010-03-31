@@ -213,7 +213,6 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
-   kernelReader       (NULL),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -302,7 +301,6 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
-   kernelReader       (NULL),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -390,7 +388,6 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    sourceFilename      (cBody.sourceFilename),
    theSourceFile       (cBody.theSourceFile), // ????????????????
    spiceKernelNames    (cBody.spiceKernelNames),
-   kernelReader        (cBody.kernelReader),
    usePotentialFile    (cBody.usePotentialFile),
    potentialFileName   (cBody.potentialFileName),
    hourAngle           (cBody.hourAngle),
@@ -926,10 +923,12 @@ void CelestialBody::SetSolarSystem(SolarSystem *ss)
    theSolarSystem = ss;
 }
 
+#ifdef __USE_SPICE__
 void CelestialBody::SetSpiceKernelReader(SpiceKernelReader *skr)
 {
    kernelReader = skr;
 }
+#endif
 
 //------------------------------------------------------------------------------
 //  Gmat::BodyType GetBodyType() const

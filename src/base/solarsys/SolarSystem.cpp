@@ -766,7 +766,7 @@ SolarSystem::SolarSystem(std::string withName)
 #ifdef __USE_SPICE__
    spiceKernelReader   = new SpiceKernelReader();
 #endif
-   allowSpiceForDefaultBodies = false;
+   allowSpiceForDefaultBodies = true; // as of 2010.03.31, this is the default value
 
    // we want to cloak the Solar System data; i.e. we want to write only those
    // parameters that have been modified by the suer to a script; and we don't
@@ -1019,7 +1019,9 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
    theDefaultDeFile  = NULL;
    parameterCount    = SolarSystemParamCount;
 
+#ifdef __USE_SPICE__
    spiceKernelReader = (ss.spiceKernelReader)->Clone();
+#endif
 
    // create planetary source first, but do not create default
    thePlanetarySourceNames = ss.thePlanetarySourceNames;
@@ -1068,7 +1070,6 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    defaultBodyStrings         = ss.defaultBodyStrings;
    userDefinedBodyStrings     = ss.userDefinedBodyStrings;
    allowSpiceForDefaultBodies = ss.allowSpiceForDefaultBodies;
-   spiceKernelReader          = ss.spiceKernelReader;
    spiceAvailable             = ss.spiceAvailable;
    theSPKFilename             = ss.theSPKFilename;
    parameterCount             = SolarSystemParamCount;
@@ -1083,6 +1084,9 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    // create planetary source first, but do not create default
    thePlanetarySourceNames = ss.thePlanetarySourceNames;
    CreatePlanetarySource(false);
+#ifdef __USE_SPICE__
+   spiceKernelReader          = ss.spiceKernelReader;
+#endif
 
    // copy current planetary source in use
    thePlanetarySourceTypesInUse = ss.thePlanetarySourceTypesInUse;
@@ -1145,7 +1149,9 @@ SolarSystem::~SolarSystem()
       #endif
    }
 
+#ifdef __USE_SPICE__
    delete spiceKernelReader;
+#endif
 }
 
 
@@ -1158,7 +1164,9 @@ bool SolarSystem::Initialize()
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
    {
+      #ifdef __USE_SPICE__
       (*cbi)->SetSpiceKernelReader(spiceKernelReader);
+      #endif
       (*cbi)->Initialize();
       ++cbi;
    }

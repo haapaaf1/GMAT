@@ -170,7 +170,9 @@ public:
    virtual const Rvector6&      GetState(Real atTime); 
    virtual void                 GetState(const A1Mjd &atTime, Real *outState);
    virtual void                 SetSolarSystem(SolarSystem *ss);
+#ifdef __USE_SPICE__
    virtual void                 SetSpiceKernelReader(SpiceKernelReader *skr);
+#endif
    
    // methods to return the body type, central body, gravitational constant,
    // radius, mass, posvel source, analytic method, and userDefined flag

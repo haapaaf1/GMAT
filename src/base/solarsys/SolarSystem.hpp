@@ -35,7 +35,9 @@
 #include "CelestialBody.hpp"
 #include "PlanetaryEphem.hpp"
 #include "DeFile.hpp"
+#ifdef __USE_SPICE__
 #include "SpiceKernelReader.hpp"
+#endif
 
 class CoordinateSystem;
 
@@ -292,8 +294,9 @@ private:
    StringArray bodyStrings;  // is this needed, or just a convenience?
    StringArray defaultBodyStrings;
    StringArray userDefinedBodyStrings;
-
+#ifdef __USE_SPICE__
    SpiceKernelReader *spiceKernelReader;
+#endif
    /// flag indicating whether or not SPICE is allowed as a position/velocity 
    /// source for default bodies
    bool        allowSpiceForDefaultBodies;
