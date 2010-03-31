@@ -209,6 +209,7 @@ protected:
       TOTAL_MASS_ID,
       SPACECRAFT_ID,
       ATTITUDE,
+      ORBIT_SPICE_KERNEL_NAME,
       ORBIT_STM,
 //      ORBIT_COVARIANCE,
       
@@ -327,6 +328,9 @@ protected:
    /// Pointer to the object that manages the attitude of the spacecraft
    Attitude          *attitude;
    
+   /// Orbit SPICE kernel name(s)
+   StringArray       orbitSpiceKernelNames;
+
    // for non-internal spacecraft information
    StateConverter    stateConverter;
    CoordinateConverter coordConverter;

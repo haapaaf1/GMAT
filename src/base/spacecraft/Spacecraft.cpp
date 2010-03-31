@@ -111,6 +111,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // TotalMass
       Gmat::STRING_TYPE,      // Id
       Gmat::OBJECT_TYPE,      // Attitude
+      Gmat::STRINGARRAY_TYPE, // OrbitSpiceKernelName
       Gmat::RMATRIX_TYPE,     // OrbitSTM
       Gmat::STRING_TYPE,      // UTCGregorian
       Gmat::REAL_TYPE,        // CartesianX
@@ -153,6 +154,7 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "TotalMass",
       "Id",
       "Attitude",
+      "OrbitSpiceKernelName",
       "OrbitSTM",
       "UTCGregorian",
       "CartesianX",
@@ -2230,6 +2232,8 @@ const StringArray& Spacecraft::GetStringArrayParameter(const Integer id) const
          #endif
          return attitude->GetStringArrayParameter(id - ATTITUDE_ID_OFFSET);
       }
+   if (id == ORBIT_SPICE_KERNEL_NAME)
+      return orbitSpiceKernelNames;
    return SpaceObject::GetStringArrayParameter(id);
 }
 
@@ -2378,6 +2382,15 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
          thrusterNames.push_back(value);
       }
    }
+   else if (id == ORBIT_SPICE_KERNEL_NAME)
+   {
+      // Only add the thruster if it is not in the list already
+      if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
+            value) == orbitSpiceKernelNames.end())
+      {
+         orbitSpiceKernelNames.push_back(value);
+      }
+   }
 
    #ifdef DEBUG_SC_SET_STRING
    MessageInterface::ShowMessage
@@ -2461,6 +2474,16 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
 
          return true;
       }
+
+   case ORBIT_SPICE_KERNEL_NAME:
+      if (index < (Integer)orbitSpiceKernelNames.size())
+         orbitSpiceKernelNames[index] = value;
+      // Only add the orbit spice kernel name if it is not in the list already
+      else if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
+            value) == orbitSpiceKernelNames.end())
+         orbitSpiceKernelNames.push_back(value);
+      return true;
+
    default:
       return GmatBase::SetStringParameter(id, value, index);
    }
