@@ -89,6 +89,7 @@ public:
                                            const std::string &value,
                                            const Integer index);
 
+   bool                 UsesODEModel();
 
 protected:
    /// Step used to propagate through the ephemeris

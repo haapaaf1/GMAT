@@ -46,6 +46,7 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
       const std::string & name) :
    Propagator           (typeStr, name)
 {
+   parameterCount = EphemerisPropagatorParamCount;
 }
 
 
@@ -309,3 +310,19 @@ bool EphemerisPropagator::SetStringParameter(const std::string &label,
 {
    return SetStringParameter(GetParameterID(label), value, index);
 }
+
+
+//------------------------------------------------------------------------------
+// bool UsesODEModel()
+//------------------------------------------------------------------------------
+/**
+ * Used to tell the PropSetup if an ODE model is needed for the propagator
+ *
+ * @return true if an ODEModel is required, false if not
+ */
+//------------------------------------------------------------------------------
+bool EphemerisPropagator::UsesODEModel()
+{
+   return false;
+}
+

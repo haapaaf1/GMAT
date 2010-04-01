@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              Propagator
 //------------------------------------------------------------------------------
@@ -157,8 +157,6 @@ Propagator::Propagator(const Propagator& p)
       physicalModel       (NULL),
       finalStep           (false)
 {
-    // GmatBase data
-    parameterCount = PropagatorParamCount;
 }
 
 //------------------------------------------------------------------------------
@@ -172,6 +170,8 @@ Propagator& Propagator::operator=(const Propagator& p)
 {
     if (this == &p)
         return *this;
+
+    GmatBase::operator=(p);
 
     stepSize       = p.stepSize;
     stepSizeBuffer = p.stepSizeBuffer;
@@ -532,6 +532,22 @@ Integer Propagator::GetPropagatorOrder() const
 {
     return 0;
 }
+
+
+//------------------------------------------------------------------------------
+// bool UsesODEModel()
+//------------------------------------------------------------------------------
+/**
+ * Used to tell the PropSetup if an ODE model is needed for the propagator
+ *
+ * @return true if an ODEModel is required, false if not
+ */
+//------------------------------------------------------------------------------
+bool Propagator::UsesODEModel()
+{
+   return true;
+}
+
 
 //------------------------------------------------------------------------------
 // bool Propagator::Step(Real dt)

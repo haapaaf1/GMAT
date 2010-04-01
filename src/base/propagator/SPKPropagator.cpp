@@ -17,7 +17,7 @@
 
 
 #include "SPKPropagator.hpp"
-
+#include "MessageInterface.hpp"
 
 /// SPKPropagator parameter labels
 const std::string SPKPropagator::PARAMETER_TEXT[
@@ -39,7 +39,7 @@ SPKPropagator::SPKPropagator(const std::string &name) :
 {
    // GmatBase data
   objectTypeNames.push_back("SPK");
-  //parameterCount = PropagatorParamCount;
+  parameterCount = SPKPropagatorParamCount;
 }
 
 

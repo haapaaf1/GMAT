@@ -4613,7 +4613,7 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                
                obj->SetRefObject(ownedObj, ownedObj->GetType(), ownedObj->GetName());
                
-               // Since PropSetup::SetRefObjet() clones Propagator and
+               // Since PropSetup::SetRefObject() clones Propagator and
                // CoordinateSystem::SetRefObject() clones AxisSystem, delete it from here
                // (LOJ: 2009.03.03)
                if ((obj->GetType() == Gmat::PROP_SETUP &&

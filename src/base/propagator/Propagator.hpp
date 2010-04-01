@@ -115,7 +115,8 @@ public:
    virtual void ResetInitialData();
    const Real* AccessOutState();
    
-   virtual Integer GetPropagatorOrder(void) const;    
+   virtual Integer GetPropagatorOrder(void) const;
+   virtual bool UsesODEModel();
    
    //------------------------------------------------------------------------------
    // virtual bool Step(void)

@@ -49,7 +49,7 @@
 /**
  * @note
  * Since we set some Propagator's property through PropSetup, such as
- * 'Propagator.InitialStepSize', properties owend by owning objects were
+ * 'Propagator.InitialStepSize', properties owned by owning objects were
  * added here so that Validator can create corresponding element wrappers 
  * without going through owning object's property list to make Validator
  * job easy. The Validator will simply call GetParameterID() of PropSetup
@@ -354,6 +354,9 @@ void PropSetup::SetPropagator(Propagator *propagator)
    
    DeleteOwnedObject(PROPAGATOR, true);
    ClonePropagator(propagator);
+
+   if (mPropagator->UsesODEModel() == false)
+      DeleteOwnedObject(ODE_MODEL, true);
 }
 
 //------------------------------------------------------------------------------
@@ -702,8 +705,14 @@ Integer PropSetup::GetParameterID(const std::string &str) const
 //---------------------------------------------------------------------------
 bool PropSetup::IsParameterReadOnly(const Integer id) const
 {
-   if (id == ODE_MODEL || id == PROPAGATOR)
+   if ((id == ODE_MODEL) || (id == PROPAGATOR))
+   {
+      if ((id == ODE_MODEL) && (mPropagator != NULL))
+         if (!mPropagator->UsesODEModel())
+            return true;
+
       return false;
+   }
    else if (id >= INITIAL_STEP_SIZE && id <= TARGET_ERROR)
       return true;
    else
@@ -1036,7 +1045,7 @@ bool PropSetup::Initialize()
  * @param prefix Optional prefix appended to the object's name
  * @param useName Name that replaces the object's name.
  *
- * @return A string containing the scrit used to construct the PropSetup.
+ * @return A string containing the script used to construct the PropSetup.
  */
 //------------------------------------------------------------------------------
 const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
@@ -1050,10 +1059,13 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
    #endif
    std::string gen, fmName = "", temp;
    bool showODEModel = false;
+   bool propUsesODEModel = true;
+   if (mPropagator != NULL)
+      propUsesODEModel = mPropagator->UsesODEModel();
    if (mODEModel != NULL)
    {
       temp = mODEModel->GetName();
-      if (temp == "")
+      if ((temp == "") && propUsesODEModel)
       {
          fmName = instanceName + "_ODEModel";
          showODEModel = true;
