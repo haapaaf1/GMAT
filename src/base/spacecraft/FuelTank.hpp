@@ -89,8 +89,10 @@ protected:
    Real                 volume;
    /// Fuel density
    Real                 density;
-   /// Flag indicating is the tank is pressure regulated or blow-down
-   bool                 pressureRegulated;
+   /// Flag indicating if the tank is pressure regulated or blow-down
+   bool                 pressureRegulated; // deprecated
+   /// Flag indicating if negative fuel mass is allowed
+   bool                 allowNegativeFuelMass;
    /// Pressure model used
    Integer              pressureModel;
    
@@ -128,6 +130,7 @@ public:
       FUEL_DENSITY,
       PRESSURE_MODEL,
       PRESSURE_REGULATED,  // deprecated
+      ALLOW_NEGATIVE_FUEL_MASS,
       FuelTankParamCount
    };
    

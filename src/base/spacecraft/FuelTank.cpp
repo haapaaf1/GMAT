@@ -41,7 +41,8 @@ FuelTank::PARAMETER_TEXT[FuelTankParamCount - HardwareParamCount] =
    "Volume",
    "FuelDensity",
    "PressureModel",
-   "PressureRegulated"  // deprecated
+   "PressureRegulated",  // deprecated
+   "AllowNegativeFuelMass",
 };
 
 /// Types of the parameters used by fuel tanks.
@@ -55,7 +56,8 @@ FuelTank::PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount] =
    Gmat::REAL_TYPE,        // "Volume",
    Gmat::REAL_TYPE,        // "FuelDensity",
    Gmat::ENUMERATION_TYPE, // "PressureModel",
-   Gmat::BOOLEAN_TYPE      // deprecated
+   Gmat::BOOLEAN_TYPE,     // deprecated
+   Gmat::BOOLEAN_TYPE,     // "AllowNegativeFuelMass"
 };
 
 
@@ -76,6 +78,7 @@ FuelTank::FuelTank(std::string nomme) :
    refTemperature       (20.0),
    volume               (0.75),
    density              (1260.0),      // Hydrazine/H2O2 mixture
+   allowNegativeFuelMass(false),
    pressureModel        (TPM_PRESSURE_REGULATED),
    initialized          (false)
 {
@@ -123,6 +126,7 @@ FuelTank::FuelTank(const FuelTank& ft) :
    refTemperature       (ft.refTemperature),
    volume               (ft.volume),
    density              (ft.density),
+   allowNegativeFuelMass(ft.allowNegativeFuelMass),
    pressureModel        (ft.pressureModel),
    gasVolume            (ft.gasVolume),
    pvBase               (ft.pvBase),
@@ -150,16 +154,17 @@ FuelTank& FuelTank::operator=(const FuelTank& ft)
       
    GmatBase::operator=(ft);
 
-   fuelMass       = ft.fuelMass;
-   pressure       = ft.pressure;
-   temperature    = ft.temperature;
-   refTemperature = ft.refTemperature;
-   volume         = ft.volume;
-   density        = ft.density;
-   pressureModel  = ft.pressureModel;
-   gasVolume      = ft.gasVolume;
-   pvBase         = ft.pvBase;
-   initialized    = false;
+   fuelMass              = ft.fuelMass;
+   pressure              = ft.pressure;
+   temperature           = ft.temperature;
+   refTemperature        = ft.refTemperature;
+   volume                = ft.volume;
+   density               = ft.density;
+   allowNegativeFuelMass = ft.allowNegativeFuelMass;
+   pressureModel         = ft.pressureModel;
+   gasVolume             = ft.gasVolume;
+   pvBase                = ft.pvBase;
+   initialized           = false;
    
    Initialize();
    
@@ -370,7 +375,7 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
    {
       case FUEL_MASS:
          {
-            if (value >= 0.0)
+            if (value >= 0.0 || allowNegativeFuelMass)
             {
                fuelMass = value;
                UpdateTank();
@@ -490,6 +495,11 @@ bool FuelTank::GetBooleanParameter(const Integer id) const
           "instead.\n");      
       return true;
    }
+   else if (id == ALLOW_NEGATIVE_FUEL_MASS)
+   {
+      return allowNegativeFuelMass;
+   }
+   
    return Hardware::GetBooleanParameter(id);
 }
 
@@ -520,6 +530,11 @@ bool FuelTank::SetBooleanParameter(const Integer id, const bool value)
          ("*** WARNING *** \"PressureRegulated\" is deprecated and will be "
           "removed from a future build; please use \"PressureModel\" "
           "instead.\n");      
+      return true;
+   }
+   else if (id == ALLOW_NEGATIVE_FUEL_MASS)
+   {
+      allowNegativeFuelMass = value;
       return true;
    }
    
