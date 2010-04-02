@@ -25,9 +25,7 @@
 #include <iostream>
 #include <fstream>
 
-#ifdef __USE_SPICE__
-#include "SpiceKernelWriter.hpp"
-#endif
+class SpiceKernelWriter;
 
 class EphemerisFile : public Subscriber
 {
@@ -103,13 +101,7 @@ protected:
    Spacecraft        *spacecraft;
    CoordinateSystem  *coordSystem;
    Interpolator      *interpolator; // owned object
-
-#ifdef __USE_SPICE__
-   SpiceKernelWriter *spkWriter;    // owned object
-#else
-   void              *spkWriter;
-#endif
-   
+   SpiceKernelWriter *spkWriter;    // owned object   
    
    // for buffering ephemeris data
    EpochArray  a1MjdArray;
@@ -129,8 +121,7 @@ protected:
    std::string interpolatorName;
    std::string stateType;
    std::string coordSystemName;
-   // std::string writeEphemeris;               made a change
-   bool writeEphemeris;                                 // made a change
+   bool writeEphemeris;
    /// for propagator change
    std::string prevPropName;
    std::string currPropName;

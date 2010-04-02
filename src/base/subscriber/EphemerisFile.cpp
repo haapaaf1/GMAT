@@ -26,6 +26,11 @@
 #include "RealUtilities.hpp"         // for IsEven()
 #include "MessageInterface.hpp"
 
+#ifdef __USE_SPICE__
+#include "SpiceKernelWriter.hpp"
+#endif
+
+
 //#define DEBUG_EPHEMFILE
 //#define DEBUG_EPHEMFILE_SET
 //#define DEBUG_EPHEMFILE_INIT
