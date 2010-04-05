@@ -67,6 +67,7 @@ endif
 
 ifeq ($(USE_SPICE),1)
 SPICE_OBJECTS = \
+    util/SpiceOrbitKernelReader.o \
     util/SpiceKernelReader.o \
     util/SpiceKernelWriter.o
 else
