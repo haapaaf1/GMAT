@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              SpiceKernelReader
 //------------------------------------------------------------------------------
@@ -93,41 +93,51 @@ Integer        SpiceKernelReader::numInstances = 0;
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// SpiceKernelReader* Instance()
+//  SpiceKernelReader()
 //------------------------------------------------------------------------------
-//SpiceKernelReader* SpiceKernelReader::Instance()
-//{
-//   if (theInstance == NULL)
-//      theInstance = new SpiceKernelReader;
-//   return theInstance;
-//}
-
+/**
+ * This method creates an object of the SpiceKernelReader class
+ * (default constructor).
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceKernelReader::SpiceKernelReader() :
-   kernelNameSPICE         (NULL),
-   targetBodyNameSPICE     (NULL),
-   observingBodyNameSPICE  (NULL),
-   aberrationSPICE         (NULL),
-   referenceFrameSPICE     (NULL)
+   kernelNameSPICE         (NULL)
 {
    InitializeReader();
-//   loadedKernels.clear();
-//   // set output file and action for cspice methods
-//   errdev_c("SET", 1840, "./GMATSpiceKernelReaderError.txt"); // @todo this should be set in startup file
-//   erract_c("SET", 1840, "RETURN");
    numInstances++;
 }
 
+//------------------------------------------------------------------------------
+//  SpiceKernelReader(const SpiceKernelReader &reader)
+//------------------------------------------------------------------------------
+/**
+ * This method creates an object of the SpiceKernelReader class, by copying
+ * the input object.
+ * (copy constructor).
+ *
+* @param <reader> SpiceKernelReader object to copy.
+  */
+//------------------------------------------------------------------------------
 SpiceKernelReader::SpiceKernelReader(const SpiceKernelReader &reader) :
    lsKernel                (reader.lsKernel),
-   kernelNameSPICE         (NULL),
-   targetBodyNameSPICE     (NULL),
-   observingBodyNameSPICE  (NULL),
-   aberrationSPICE         (NULL),
-   referenceFrameSPICE     (NULL)
+   kernelNameSPICE         (NULL)
 {
    numInstances++;
 }
 
+//------------------------------------------------------------------------------
+//  SpiceKernelReader& operator=(const SpiceKernelReader &reader)
+//------------------------------------------------------------------------------
+/**
+ * This method copies the data from the input object to the object.
+ *
+ * @param <reader> the SpiceKernelReader object whose data to assign to "this"
+ *                 SpiceKernelReader.
+ *
+ * @return "this" SpiceKernelReader with data of input SpiceKernelReader reader.
+ */
+//------------------------------------------------------------------------------
 SpiceKernelReader& SpiceKernelReader::operator=(const SpiceKernelReader &reader)
 {
    if (&reader == this)
@@ -135,10 +145,6 @@ SpiceKernelReader& SpiceKernelReader::operator=(const SpiceKernelReader &reader)
 
    lsKernel                 = reader.lsKernel;
    kernelNameSPICE          = NULL;
-   targetBodyNameSPICE      = NULL;
-   observingBodyNameSPICE   = NULL;
-   aberrationSPICE          = NULL;
-   referenceFrameSPICE      = NULL;
    // don't modify numInstances - we are not creating a new instance here
    return *this;
 }
@@ -147,19 +153,29 @@ SpiceKernelReader& SpiceKernelReader::operator=(const SpiceKernelReader &reader)
 //------------------------------------------------------------------------------
 // ~SpiceKernelReader()
 //------------------------------------------------------------------------------
+/**
+ * This method is the destructor for the SpiceKernelReader.
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceKernelReader::~SpiceKernelReader()
 {
    numInstances--;
    if (numInstances <= 0) UnloadAllKernels();
 }
 
-SpiceKernelReader* SpiceKernelReader::Clone(void) const
-{
-   SpiceKernelReader * clonedSKR = new SpiceKernelReader(*this);
-
-   return clonedSKR;
-}
-
+//------------------------------------------------------------------------------
+//  bool LoadKernel(const std::string &fileName)
+//------------------------------------------------------------------------------
+/**
+ * This method loads the input file into the SPICE kernel pool.
+ *
+ * @param <fileName>  full path of the file (kernel) to load.
+ *
+ * @return success flag.
+ *
+ */
+//------------------------------------------------------------------------------
 bool SpiceKernelReader::LoadKernel(const std::string &fileName)
 {
    for (StringArray::iterator jj = loadedKernels.begin();
@@ -199,6 +215,18 @@ bool SpiceKernelReader::LoadKernel(const std::string &fileName)
    return true;
 }
 
+//------------------------------------------------------------------------------
+//  bool UnloadKernel(const std::string &fileName)
+//------------------------------------------------------------------------------
+/**
+ * This method unloads the input file from the SPICE kernel pool.
+ *
+ * @param <fileName>  full path of the file (kernel) to unload.
+ *
+ * @return success flag.
+ *
+ */
+//------------------------------------------------------------------------------
 bool SpiceKernelReader::UnloadKernel(const std::string &fileName)
 {
    bool found = false;
@@ -242,6 +270,16 @@ bool SpiceKernelReader::UnloadKernel(const std::string &fileName)
    return true; 
 }
 
+//------------------------------------------------------------------------------
+//  bool UnloadAllKernels()
+//------------------------------------------------------------------------------
+/**
+ * This method unloads all loaded kernels from the SPICE kernel pool.
+ *
+ * @return success flag.
+ *
+ */
+//------------------------------------------------------------------------------
 bool SpiceKernelReader::UnloadAllKernels()
 {
    for (StringArray::iterator jj = loadedKernels.begin();
@@ -274,6 +312,19 @@ bool SpiceKernelReader::UnloadAllKernels()
    return true;
 }
 
+//------------------------------------------------------------------------------
+//  bool IsLoaded(const std::string &fileName)
+//------------------------------------------------------------------------------
+/**
+ * This method checks to see if the input file is loaded into the kernel pool.
+ *
+ * @param <fileName>  full path of the file (kernel) to check for.
+ *
+ * @return true if the file (kernel) has been loaded;
+ *         false otherwise
+ *
+ */
+//------------------------------------------------------------------------------
 bool SpiceKernelReader::IsLoaded(const std::string &fileName) 
 {
    #ifdef DEBUG_SPK_LOADING
@@ -289,6 +340,16 @@ bool SpiceKernelReader::IsLoaded(const std::string &fileName)
 
 
 
+//------------------------------------------------------------------------------
+//  StringArray GetValidAberrationCorrectionFlags()
+//------------------------------------------------------------------------------
+/**
+ * This method returns a string array containing all valid aberration flags.
+ *
+  * @return array of  strings representing valid SPICE aberration flags.
+ *
+ */
+//------------------------------------------------------------------------------
 StringArray SpiceKernelReader::GetValidAberrationCorrectionFlags()
 {
    StringArray aberr;
@@ -297,6 +358,16 @@ StringArray SpiceKernelReader::GetValidAberrationCorrectionFlags()
    return aberr;
 }
 
+//------------------------------------------------------------------------------
+//  StringArray GetValidFrames()
+//------------------------------------------------------------------------------
+/**
+ * This method returns a string array containing all valid frames.
+ *
+  * @return array of  strings representing valid (built-in) SPICE frames.
+ *
+ */
+//------------------------------------------------------------------------------
 StringArray SpiceKernelReader::GetValidFrames()
 {
    StringArray frames;
@@ -305,12 +376,35 @@ StringArray SpiceKernelReader::GetValidFrames()
    return frames;
 }
 
+//------------------------------------------------------------------------------
+//  void SetLeapSecondKernel(const std::string &lsk)
+//------------------------------------------------------------------------------
+/**
+ * This method sets the leap second kernel, loading it into the kernel pool.
+ *
+ * @param <lsk>  full path of the leap second  kernel to load.
+ *
+ *
+ */
+//------------------------------------------------------------------------------
 void SpiceKernelReader::SetLeapSecondKernel(const std::string &lsk)
 {
    lsKernel = lsk;
    if (!IsLoaded(lsKernel))   LoadKernel(lsKernel);
 }
 
+//------------------------------------------------------------------------------
+//  Integer GetNaifID(const std::string &forBody)
+//------------------------------------------------------------------------------
+/**
+ * This method returns the NAIF Id of an object, given its name.
+ *
+ * @param <forBody>  name of the object.
+ *
+ * @return correspoding NAIF id; or 0 if not found
+ *
+ */
+//------------------------------------------------------------------------------
 Integer SpiceKernelReader::GetNaifID(const std::string &forBody)
 {
    SpiceBoolean   found;
@@ -331,112 +425,26 @@ Integer SpiceKernelReader::GetNaifID(const std::string &forBody)
    return (Integer) id;
 }
 
-
-Rvector6 SpiceKernelReader::GetTargetState(const std::string &targetName,      
-                            const A1Mjd       &atTime,
-                            const std::string &observingBodyName,
-                            const std::string &referenceFrame,           
-                            const std::string &aberration)
-{
-   #ifdef DEBUG_SPK_READING
-      MessageInterface::ShowMessage(
-            "Entering SPKReader::GetTargetState with target = %s, time = %12.10f, observer = %s\n",
-            targetName.c_str(), atTime.Get(), observingBodyName.c_str());
-   #endif
-   std::string targetNameToUse = targetName;
-   if ((targetName == "Luna") || (targetName == "LUNA"))  // Luna, instead of Moon, for GMAT
-      targetNameToUse        = "Moon";
-   targetNameToUse           = GmatStringUtil::ToUpper(targetNameToUse);
-   targetBodyNameSPICE       = targetNameToUse.c_str();
-   observingBodyNameSPICE    = observingBodyName.c_str();
-   referenceFrameSPICE       = referenceFrame.c_str();
-   aberrationSPICE           = aberration.c_str();
-   // convert time to Ephemeris Time (TDB)
-   SpiceDouble j2ET          = j2000_c();
-   Real        etMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
-                               TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
-   etSPICE                   = (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
-   #ifdef DEBUG_SPK_READING
-      MessageInterface::ShowMessage("j2ET = %12.10f\n", (Real) j2ET);
-      MessageInterface::ShowMessage(
-            "In SPKReader::Converted (to TBD) time = %12.10f\n", etMjdAtTime);
-      MessageInterface::ShowMessage("  then the full JD = %12.10f\n",
-            (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941));
-      MessageInterface::ShowMessage("So time passed to SPICE is %12.14f\n", (Real) etSPICE);
-   #endif
-   SpiceDouble state[6];
-   SpiceDouble oneWayLightTime;
-   spkezr_c(targetBodyNameSPICE, etSPICE, referenceFrameSPICE, aberrationSPICE,
-            observingBodyNameSPICE, state, &oneWayLightTime);
-#ifdef DEBUG_SPK_PLANETS
-   Real        ttMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
-                               TimeConverterUtil::TTMJD, GmatTimeUtil::JD_JAN_5_1941);
-   Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
-   Real ttJd                 = ttMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
-   MessageInterface::ShowMessage("Asking CSPICE for state of body %s, with observer %s, referenceFrame %s, and aberration correction %s\n",
-         targetBodyNameSPICE, observingBodyNameSPICE, referenceFrameSPICE, aberrationSPICE);
-   MessageInterface::ShowMessage(
-         "           Body: %s   TT Time:  %12.10f  TDB Time: %12.10f   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
-         targetName.c_str(), ttJd, etJd, state[0], state[1], state[2], state[3], state[4], state[5]);
-#endif
-   if (failed_c())
-   {
-//      ConstSpiceChar option[] = "SHORT"; // retrieve short error message, for now
-//      SpiceInt       numChar  = MAX_SHORT_MESSAGE;
-//      SpiceChar      err[MAX_SHORT_MESSAGE];
-      ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
-      SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
-      getmsg_c(option, numChar, err);
-      std::string errStr(err);
-      std::string errmsg = "Error getting state for body \"";
-      errmsg += targetName + "\".  Message received from CSPICE is: ";
-      errmsg += errStr + "\n";
-      throw UtilityException(errmsg);
-   }
-   #ifdef DEBUG_SPK_READING
-      MessageInterface::ShowMessage(
-            "In SPKReader::Called spkezr_c and got state out\n");
-   #endif
-            
-   
-   Rvector6 r6(state[0],state[1],state[2],state[3],state[4],state[5]);
-   return r6; 
-}
-
-Rmatrix33 SpiceKernelReader::GetTargetOrientation(Integer           naifID,
-                                                 const A1Mjd       &atTime,
-                                                 Real              tolerance,
-                                                 const std::string &referenceFrame)
-{
-   Rmatrix33 r33;
-   // will need sce2c_c here, and a s/c sclk file  .........
-   return r33;  // *********** TBD **************
-}
-   
 //---------------------------------
 // protected methods
 //---------------------------------
 
-//---------------------------------
-// protected methods
-//---------------------------------
-
-//SpiceKernelReader::SpiceKernelReader() :
-//   kernelNameSPICE         (NULL),
-//   targetBodyNameSPICE     (NULL),
-//   observingBodyNameSPICE  (NULL),
-//   aberrationSPICE         (NULL),
-//   referenceFrameSPICE     (NULL)
-//{
-//   loadedKernels.clear();
-//   // set output file and action for cspice methods
-//   errdev_c("SET", 1840, "./GMATSpiceKernelReaderError.txt"); // @todo this should be set in startup file
-//   erract_c("SET", 1840, "RETURN");
-//}
 // ---------------------
 // static methods
 // ---------------------
+//------------------------------------------------------------------------------
+//  void InitializeReader()
+//------------------------------------------------------------------------------
+/**
+ * This method initializes the static data for the reader, and sets up
+ * SPICE error handling.
+ *
+ * @param <forBody>  name of the object.
+ *
+ * @return correspoding NAIF id; or 0 if not found
+ *
+ */
+//------------------------------------------------------------------------------
 void SpiceKernelReader::InitializeReader()
 {
    if (numInstances == 0)
