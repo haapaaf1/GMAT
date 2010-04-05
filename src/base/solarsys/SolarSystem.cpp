@@ -764,7 +764,7 @@ SolarSystem::SolarSystem(std::string withName)
    overrideTimeForAll  = false;
    ephemUpdateInterval = 0.0;
 #ifdef __USE_SPICE__
-   spiceKernelReader   = new SpiceKernelReader();
+   spiceOrbitKernelReader   = new SpiceOrbitKernelReader();
 #endif
    allowSpiceForDefaultBodies = true; // as of 2010.03.31, this is the default value
 
@@ -1020,7 +1020,7 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
    parameterCount    = SolarSystemParamCount;
 
 #ifdef __USE_SPICE__
-   spiceKernelReader = (ss.spiceKernelReader)->Clone();
+   spiceOrbitKernelReader = (ss.spiceOrbitKernelReader)->Clone();
 #endif
 
    // create planetary source first, but do not create default
@@ -1085,7 +1085,7 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    thePlanetarySourceNames = ss.thePlanetarySourceNames;
    CreatePlanetarySource(false);
 #ifdef __USE_SPICE__
-   spiceKernelReader          = ss.spiceKernelReader;
+   spiceOrbitKernelReader          = ss.spiceOrbitKernelReader;
 #endif
 
    // copy current planetary source in use
@@ -1150,7 +1150,7 @@ SolarSystem::~SolarSystem()
    }
 
 #ifdef __USE_SPICE__
-   delete spiceKernelReader;
+   delete spiceOrbitKernelReader;
 #endif
 }
 
@@ -1165,7 +1165,7 @@ bool SolarSystem::Initialize()
    while (cbi != bodiesInUse.end())
    {
       #ifdef __USE_SPICE__
-      (*cbi)->SetSpiceKernelReader(spiceKernelReader);
+      (*cbi)->SetSpiceOrbitKernelReader(spiceOrbitKernelReader);
       #endif
       (*cbi)->Initialize();
       ++cbi;

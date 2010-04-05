@@ -924,7 +924,7 @@ void CelestialBody::SetSolarSystem(SolarSystem *ss)
 }
 
 #ifdef __USE_SPICE__
-void CelestialBody::SetSpiceKernelReader(SpiceKernelReader *skr)
+void CelestialBody::SetSpiceOrbitKernelReader(SpiceOrbitKernelReader *skr)
 {
    kernelReader = skr;
 }

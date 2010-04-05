@@ -35,7 +35,7 @@
 #include "Rvector6.hpp"
 #include "TimeTypes.hpp"
 #ifdef __USE_SPICE__
-#include "SpiceKernelReader.hpp"
+#include "SpiceOrbitKernelReader.hpp"
 #endif
 // forward reference for SolarSystem
 class SolarSystem;
@@ -171,7 +171,7 @@ public:
    virtual void                 GetState(const A1Mjd &atTime, Real *outState);
    virtual void                 SetSolarSystem(SolarSystem *ss);
 #ifdef __USE_SPICE__
-   virtual void                 SetSpiceKernelReader(SpiceKernelReader *skr);
+   virtual void                 SetSpiceOrbitKernelReader(SpiceOrbitKernelReader *skr);
 #endif
    
    // methods to return the body type, central body, gravitational constant,
@@ -469,7 +469,7 @@ protected:
    StringArray              spiceKernelNames;
    #ifdef __USE_SPICE__
       /// the SPICE file (kernel) reader
-      SpiceKernelReader      *kernelReader;
+      SpiceOrbitKernelReader      *kernelReader;
    #endif
    
    /// flag indicating whether or not to get data from potential file

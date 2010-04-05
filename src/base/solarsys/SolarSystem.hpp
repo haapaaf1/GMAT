@@ -36,7 +36,7 @@
 #include "PlanetaryEphem.hpp"
 #include "DeFile.hpp"
 #ifdef __USE_SPICE__
-#include "SpiceKernelReader.hpp"
+#include "SpiceOrbitKernelReader.hpp"
 #endif
 
 class CoordinateSystem;
@@ -295,7 +295,7 @@ private:
    StringArray defaultBodyStrings;
    StringArray userDefinedBodyStrings;
 #ifdef __USE_SPICE__
-   SpiceKernelReader *spiceKernelReader;
+   SpiceOrbitKernelReader *spiceOrbitKernelReader;
 #endif
    /// flag indicating whether or not SPICE is allowed as a position/velocity 
    /// source for default bodies
