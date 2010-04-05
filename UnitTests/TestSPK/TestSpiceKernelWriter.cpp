@@ -41,7 +41,7 @@
 #include "BaseException.hpp"
 #include "MessageInterface.hpp"
 #include "ConsoleMessageReceiver.hpp"
-#include "SpiceKernelReader.hpp"
+#include "SpiceOrbitKernelReader.hpp"
 #include "SpiceKernelWriter.hpp"
 #include "TimeTypes.hpp"
 
@@ -58,7 +58,7 @@ int RunTest(TestOutput &out)
    
 //   Integer id;
    SpiceKernelWriter *skw = NULL;
-   SpiceKernelReader *skr = NULL;
+   SpiceOrbitKernelReader *skr = NULL;
 
    // Create SpiceKernelWriter
    std::string kernelName     = "TestSpiceKernelWriter.bsp";
@@ -150,7 +150,8 @@ int RunTest(TestOutput &out)
    
    skw->FinalizeKernel();
 
-   skr = SpiceKernelReader::Instance();
+//   skr = SpiceKernelReader::Instance();
+	skr = new SpiceOrbitKernelReader();
 
    // first, check to see that the NAIF Id was associated with the name correctly
    Integer nid = skr->GetNaifID(scName);
