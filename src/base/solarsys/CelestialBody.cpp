@@ -795,7 +795,7 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
 //                  (kernelReader == NULL? "really" : "NOT"));       
 //         #endif
          // @todo - what is the observing body here??  Need to handle exceptions here
-         Rvector6 spiceState = kernelReader->GetTargetState(instanceName, atTime, j2000BodyName);
+         Rvector6 spiceState = kernelReader->GetTargetState(instanceName, naifId, atTime, j2000BodyName);
 //         for (Integer i=0;i<6;i++) state[i] = spiceState[i];
          state.Set(spiceState[0], spiceState[1], spiceState[2],
                    spiceState[3], spiceState[4], spiceState[5]);
@@ -896,7 +896,7 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
 ////         Rvector6 state;   // ***** temporary ************
 //         state = ComputeTwoBody(atTime);
          SetUpSPICE();
-         state = kernelReader->GetTargetState(instanceName, atTime, j2000BodyName);
+         state = kernelReader->GetTargetState(instanceName, naifId, atTime, j2000BodyName);
          for (Integer i=0;i<6;i++) outState[i] = state[i];
       #endif
          break;

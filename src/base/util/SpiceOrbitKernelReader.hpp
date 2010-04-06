@@ -43,6 +43,7 @@ public:
    /// method to return the state (position, velocity) of a planetary body or
    /// spacecraft at the specified time, with respect to the specified frame
    Rvector6    GetTargetState(const std::string &targetName,
+                              const Integer     targetNAIFId,
                               const A1Mjd       &atTime,
                               const std::string &observingBodyName,
                               const std::string &referenceFrame = "J2000",

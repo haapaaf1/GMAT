@@ -161,6 +161,7 @@ SpiceOrbitKernelReader* SpiceOrbitKernelReader::Clone(void) const
  */
 //------------------------------------------------------------------------------
 Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
+                                 const Integer     targetNAIFId,
                                  const A1Mjd       &atTime,
                                  const std::string &observingBodyName,
                                  const std::string &referenceFrame,
@@ -168,8 +169,8 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
 {
    #ifdef DEBUG_SPK_READING
       MessageInterface::ShowMessage(
-            "Entering SPKReader::GetTargetState with target = %s, time = %12.10f, observer = %s\n",
-            targetName.c_str(), atTime.Get(), observingBodyName.c_str());
+            "Entering SPKReader::GetTargetState with target = %s, naifId = %d, time = %12.10f, observer = %s\n",
+            targetName.c_str(), targetNAIFId, atTime.Get(), observingBodyName.c_str());
    #endif
    std::string targetNameToUse = targetName;
    if ((targetName == "Luna") || (targetName == "LUNA"))  // Luna, instead of Moon, for GMAT
@@ -184,7 +185,13 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
    Real        etMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD,
                                TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
    etSPICE                   = (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
+   // set the association between the name and the NAIF Id
+   SpiceInt        itsNAIFId = targetNAIFId;
+   boddef_c(targetBodyNameSPICE, itsNAIFId);        // CSPICE method to set NAIF ID for an object
+
    #ifdef DEBUG_SPK_READING
+      MessageInterface::ShowMessage("SET NAIF Id for object %s to %d\n",
+            targetNameToUse.c_str(), targetNAIFId);
       MessageInterface::ShowMessage("j2ET = %12.10f\n", (Real) j2ET);
       MessageInterface::ShowMessage(
             "In SPKReader::Converted (to TBD) time = %12.10f\n", etMjdAtTime);
