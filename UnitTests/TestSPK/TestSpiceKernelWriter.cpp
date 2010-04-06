@@ -157,9 +157,9 @@ int RunTest(TestOutput &out)
    Integer nid = skr->GetNaifID(scName);
    out.Put("NAIF id for the object is ");
    out.Put(nid);
-   nid = skr->GetNaifID(centerName);
+   Integer obsNid = skr->GetNaifID(centerName);
    out.Put("NAIF id for the central body is ");
-   out.Put(nid);
+   out.Put(obsNid);
 
    try
    {
@@ -168,7 +168,7 @@ int RunTest(TestOutput &out)
       Rvector6  outState;
       for (Integer ii = 0; ii < 400; ii++)
       {
-         outState = skr->GetTargetState(scName, epochs[ii], centerName);
+         outState = skr->GetTargetState(scName, nid, epochs[ii], centerName);
          out.Validate(outState, states[ii], 1.0e-7, true);
 //         for (Integer jj = 0; jj < 6; jj++)
 //            out.Validate(outState[jj], (states[ii])[jj], 1.0e-7, true);
