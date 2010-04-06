@@ -1,7 +1,7 @@
 $Id: ResourceTree.txt,v 1.5 2006/11/22 21:32:34 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -31,25 +31,28 @@ Procedure:
 
 3. Evaluate the individual tree elements.
 
-   a. Spacecraft Folder                      [ ] Pass  [ ] Fail  Bug# ______
+   a. Ground Station                         [ ] Pass  [ ] Fail  Bug# ______
+      Add Ground Station                     [ ] Pass  [ ] Fail  Bug# ______
+
+   b. Spacecraft Folder                      [ ] Pass  [ ] Fail  Bug# ______
       Subfolder Hardware                     [ ] Pass  [ ] Fail  Bug# ______
          Add Thruster                        [ ] Pass  [ ] Fail  Bug# ______
          Add Fuel Tank                       [ ] Pass  [ ] Fail  Bug# ______
       DefaultSC exists                       [ ] Pass  [ ] Fail  Bug# ______
       Add Spacecraft                         [ ] Pass  [ ] Fail  Bug# ______
 
-   b. Formation Folder                       [ ] Pass  [ ] Fail  Bug# ______
+   c. Formation Folder                       [ ] Pass  [ ] Fail  Bug# ______
       Add Formation                          [ ] Pass  [ ] Fail  Bug# ______
 
-   c. Burn Folder                            [ ] Pass  [ ] Fail  Bug# ______
+   d. Burn Folder                            [ ] Pass  [ ] Fail  Bug# ______
       Add Impulsive Burn                     [ ] Pass  [ ] Fail  Bug# ______
       Add Finite Burn                        [ ] Pass  [ ] Fail  Bug# ______
 
-   d. Propagators Folder                     [ ] Pass  [ ] Fail  Bug# ______
+   e. Propagators Folder                     [ ] Pass  [ ] Fail  Bug# ______
       DefaultProp exists                     [ ] Pass  [ ] Fail  Bug# ______
       Add Propagator                         [ ] Pass  [ ] Fail  Bug# ______
 
-   e. Solar System Folder                    [ ] Pass  [ ] Fail  Bug# ______
+   f. Solar System Folder                    [ ] Pass  [ ] Fail  Bug# ______
       Subfolder Special Points               [ ] Pass  [ ] Fail  Bug# ______
          Add Barycenter                      [ ] Pass  [ ] Fail  Bug# ______
          Add Libration Point                 [ ] Pass  [ ] Fail  Bug# ______
@@ -65,19 +68,20 @@ Procedure:
       Neptune exists                         [ ] Pass  [ ] Fail  Bug# ______
       Pluto exists                           [ ] Pass  [ ] Fail  Bug# ______
 
-   f. Solvers Folder                         [ ] Pass  [ ] Fail  Bug# ______
+   g. Solvers Folder                         [ ] Pass  [ ] Fail  Bug# ______
       Subfolder Boundary Value Solvers       [ ] Pass  [ ] Fail  Bug# ______
          Add Differential Corrector          [ ] Pass  [ ] Fail  Bug# ______
       Subfolder Optimizers                   [ ] Pass  [ ] Fail  Bug# ______
          Add SQP (fmincon)                   [ ] Pass  [ ] Fail  Bug# ______
 
-   g. Plots/Reports Folder                   [ ] Pass  [ ] Fail  Bug# ______
+   h. Subscribers Folder                     [ ] Pass  [ ] Fail  Bug# ______
       DefaultOpenGL exists                   [ ] Pass  [ ] Fail  Bug# ______
       Add ReportFile                         [ ] Pass  [ ] Fail  Bug# ______
       Add OpenGLPlot                         [ ] Pass  [ ] Fail  Bug# ______
       Add XYPlot                             [ ] Pass  [ ] Fail  Bug# ______
+      Add Ephemeris File                     [ ] Pass  [ ] Fail  Bug# ______
 
-   h. Interfaces Folder                      [ ] Pass  [ ] Fail  Bug# ______
+   i. Interfaces Folder                      [ ] Pass  [ ] Fail  Bug# ______
       Matlab exists                          [ ] Pass  [ ] Fail  Bug# ______
          Open                                [ ] Pass  [ ] Fail  Bug# ______
          Close                               [ ] Pass  [ ] Fail  Bug# ______
@@ -85,21 +89,23 @@ Procedure:
          Start                               [ ] Pass  [ ] Fail  Bug# ______
          Stop                                [ ] Pass  [ ] Fail  Bug# ______
   
-   i. Scripts Folder                         [ ] Pass  [ ] Fail  Bug# ______
+   j. Scripts Folder                         [ ] Pass  [ ] Fail  Bug# ______
       Add Script                             [ ] Pass  [ ] Fail  Bug# ______
       Add Script Folder                      [ ] Pass  [ ] Fail  Bug# ______
       Remove All                             [ ] Pass  [ ] Fail  Bug# ______
   
-   j. Variables/Arrays Folder                [ ] Pass  [ ] Fail  Bug# ______
+   k. Variables/Arrays Folder                [ ] Pass  [ ] Fail  Bug# ______
       Add Variable                           [ ] Pass  [ ] Fail  Bug# ______
+      Add Array                              [ ] Pass  [ ] Fail  Bug# ______
+      Add String                             [ ] Pass  [ ] Fail  Bug# ______
 
-   k. Coordinate Systems Folder              [ ] Pass  [ ] Fail  Bug# ______
+   l. Coordinate Systems Folder              [ ] Pass  [ ] Fail  Bug# ______
       EarthMJ2000Eq exists                   [ ] Pass  [ ] Fail  Bug# ______
       EarthMJ2000Ec exists                   [ ] Pass  [ ] Fail  Bug# ______
       EarthFixed exists                      [ ] Pass  [ ] Fail  Bug# ______
       Add Coordinate System                  [ ] Pass  [ ] Fail  Bug# ______
  
-   l. Functions Folder                       [ ] Pass  [ ] Fail  Bug# ______
+   m. Functions Folder                       [ ] Pass  [ ] Fail  Bug# ______
       Subfolder Predefined Functions         [ ] Pass  [ ] Fail  Bug# ______
       Add Matlab Function                    [ ] Pass  [ ] Fail  Bug# ______
       Add GMAT Function                      [ ] Pass  [ ] Fail  Bug# ______

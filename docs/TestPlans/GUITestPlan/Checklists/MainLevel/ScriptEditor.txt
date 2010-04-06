@@ -1,0 +1,107 @@
+$Id: ScriptEditor.txt,v 1.5 2010/04/01 09:40:00 jbez Exp $ 
+
+
+Tester: _____________  Date: ____________  Build: ____________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the GMAT Resource Tree.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate element.
+                                                                                   
+   Right Click on Scripts and add a script either by the Add
+   or Add Script Folder                                [ ] Pass  [ ] Fail  Bug# ______
+   
+
+2. Evaluate the aesthetic qualities of the tree.
+
+   Panel Aesthetics                                    [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual tree elements.
+
+      Insert character                                 [ ] Pass  [ ] Fail  Bug# ______
+      Insert line                                      [ ] Pass  [ ] Fail  Bug# ______
+      Delete character                                 [ ] Pass  [ ] Fail  Bug# ______
+      Delete line                                      [ ] Pass  [ ] Fail  Bug# ______
+      Page Up                                          [ ] Pass  [ ] Fail  Bug# ______
+      Page Down                                        [ ] Pass  [ ] Fail  Bug# ______
+      Home                                             [ ] Pass  [ ] Fail  Bug# ______
+      End                                              [ ] Pass  [ ] Fail  Bug# ______
+     
+      Expand IF END sequence (click on "...")           [ ] Pass  [ ] Fail  Bug# ______
+      Contract IF END sequence (click on black triangle)[ ] Pass  [ ] Fail  Bug# ______
+      
+      Build                                            [ ] Pass  [ ] Fail  Bug# ______
+      Build and Run                                    [ ] Pass  [ ] Fail  Bug# ______
+      Save                                             [ ] Pass  [ ] Fail  Bug# ______
+      Save As                                          [ ] Pass  [ ] Fail  Bug# ______
+      Close                                            [ ] Pass  [ ] Fail  Bug# ______
+
+
+      Short Cut Keys --------------------
+      (http://gmat.ed-pages.com/wiki/tiki-index.php?page=Ref-ScriptEditorShortcutKeys)
+     
+      Ctrl + C (Copy)                                  [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + X (Cut)                                   [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + V (Paste)                                 [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + Z (Redo)                                  [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + Y (Select All)                            [ ] Pass  [ ] Fail  Bug# ______
+      Tab (Move cursor to next input field)            [ ] Pass  [ ] Fail  Bug# ______
+      Shift + Tab (Move cursor to previous input field)[ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + L (Aligns highlighted text to the left)   [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + E (Aligns highlighted text to the center) [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + R (Aligns highlighted text to the right)  [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + J (Aligns highlighted text to the justified left)
+                                                       [ ] Pass  [ ] Fail  Bug# ______
+      Ctrl + track mouse scroll (enlarge/Decrease text size in script editor)
+
+                                                       [ ] Pass  [ ] Fail  Bug# ______
+
+5. Evaluate data.
+   
+   N/A
+
+
+6. Evaluate tree control.
+
+   Open                                      [ ] Pass  [ ] Fail  Bug# ______
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   Build                                     [ ] Pass  [ ] Fail  Bug# ______
+   Build and Run                             [ ] Pass  [ ] Fail  Bug# ______
+   Remove                                    [ ] Pass  [ ] Fail  Bug# ______
+   
+  
+7. Evaluate rename functionality.
+
+   Included in panel checklists.
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+
