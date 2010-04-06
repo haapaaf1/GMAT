@@ -1,7 +1,8 @@
 $Id: NonlinearConstraintCmdPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
+
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -20,10 +21,17 @@ This test validates the functionality of the NonLinearConstraint Command panel.
 Procedure:
 
 1. Create and open the appropriate object panel.
-                                                                                
-   Create NonLinearConstraint Command        [ ] Pass  [ ] Fail  Bug# ______
+                                                                                   
+   Close NonlinearConstraint Command         [ ] Pass  [ ] Fail  Bug# ______
 
-   Open NonLinearConstraint Command          [ ] Pass  [ ] Fail  Bug# ______
+   Open NonlinearConstraint Command          [ ] Pass  [ ] Fail  Bug# ______
+   
+   Insert Before Command                     [ ] Pass  [ ] Fail  Bug# ______
+ 
+   Insert After Command                      [ ] Pass  [ ] Fail  Bug# ______
+   
+   Delete NonlinearConstraint Command        [ ] Pass  [ ] Fail  Bug# ______
+
 
 
 2. Evaluate the aesthetic qualities of the panel.
@@ -45,9 +53,7 @@ Procedure:
 
    Choose Action Button (Par. Sel. Dialog)*  [ ] Pass  [ ] Fail  Bug# ______
 
-   Tolerance Text Field                      [ ] Pass  [ ] Fail  Bug# ______
-
-
+   
 4. Evaluate panel-specific functionality.
 
    N/A
@@ -76,7 +82,7 @@ Procedure:
    
    Restore                                   [ ] Pass  [ ] Fail  Bug# ______
 
-   Minimize                                  [ ] Pass  [ ] Fail  Bug# ______
+   NonlinearConstraint                                  [ ] Pass  [ ] Fail  Bug# ______
 
    Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
 

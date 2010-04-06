@@ -39,28 +39,25 @@ Procedure:
 
 3. Evaluate the individual panel elements.
 
+   Propagators and Spacecraft ----------
+   
    Propagate Mode Combo Box                  [ ] Pass  [ ] Fail  Bug# ______
 
-   Propagate/SC/Backward Grid                [ ] Pass  [ ] Fail  Bug# ______
+   Backwards Propagate Check Box             [ ] Pass  [ ] Fail  Bug# ______
+   
+   Propagator List Grid                      [ ] Pass  [ ] Fail  Bug# ______
+   
+   Spacecraft List Grid                      [ ] Pass  [ ] Fail  Bug# ______
+   
+   Stopping Conditions -----------------
 
-   Stopping Conditions Grid                  [ ] Pass  [ ] Fail  Bug# ______
+   Stopping Tolerance Text Field             [ ] Pass  [ ] Fail  Bug# ______
 
-   Stopping Condition Name Text Field        [ ] Pass  [ ] Fail  Bug# ______
+   Parameter Name Grid                       [ ] Pass  [ ] Fail  Bug# ______
 
-   Update Action Button                      [ ] Pass  [ ] Fail  Bug# ______
+   Condition Name Grid                       [ ] Pass  [ ] Fail  Bug# ______
 
-   Delete Action Button                      [ ] Pass  [ ] Fail  Bug# ______
-
-   Variable Text Field                       [ ] Pass  [ ] Fail  Bug# ______
-
-   View Action Button (Par. Select Dialog)*  [ ] Pass  [ ] Fail  Bug# ______
-
-   Operator Combo Box                        [ ] Pass  [ ] Fail  Bug# ______
-
-   Value Text Field                          [ ] Pass  [ ] Fail  Bug# ______
-
-   View Action Button (Par. Select Dialog)*  [ ] Pass  [ ] Fail  Bug# ______
-
+   
 
 4. Evaluate panel-specific functionality.
 

@@ -1,0 +1,102 @@
+$Id: SaveCmdPanel.txt,v 1.4 2010/02/25 01:55:00 jbez Exp $ 
+
+
+Tester: _____________  Date: ____________  Build: ____________
+
+
+Platform:   ___ Windows, Version: ______________________
+ 
+            ___ Macintosh, OS X Version: _______________
+ 
+            ___ Linux, Distribution: ___________________ 
+
+
+Description:  
+
+This test validates the functionality of the Save Command panel.
+(* indicates sub-panel whose functionality is tested separately)
+
+
+Procedure:
+
+1. Create and open the appropriate object panel.
+                                                                                
+   Create Stop Command                       [ ] Pass  [ ] Fail  Bug# ______
+
+   Open Stop Command                         [ ] Pass  [ ] Fail  Bug# ______
+
+   Insert Before Command                     [ ] Pass  [ ] Fail  Bug# ______
+ 
+   Insert After Command                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete Stop Command                       [ ] Pass  [ ] Fail  Bug# ______
+
+
+2. Evaluate the aesthetic qualities of the panel.
+
+   Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
+   
+
+3. Evaluate the individual panel elements.
+
+   Insert Before                             [ ] Pass  [ ] Fail  Bug# ______
+   Insert After                              [ ] Pass  [ ] Fail  Bug# ______
+   Delete                                    [ ] Pass  [ ] Fail  Bug# ______
+   
+
+4. Evaluate panel-specific functionality.
+
+   N/A
+   
+
+5. Evaluate data.
+   
+   Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______
+
+   Show Script                               [ ] Pass  [ ] Fail  Bug# ______
+
+   Command Summary (must run script)         [ ] Pass  [ ] Fail  Bug# ______
+
+
+6. Evaluate panel control.
+
+   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+
+   Cancel                                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Apply                                     [ ] Pass  [ ] Fail  Bug# ______
+
+   OK (Save)                                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Help [DEFERRED]
+   
+   Restore                                   [ ] Pass  [ ] Fail  Bug# ______
+
+   Minimize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximize                                  [ ] Pass  [ ] Fail  Bug# ______
+
+   Close                                     [ ] Pass  [ ] Fail  Bug# ______
+   
+
+7. Evaluate rename functionality.
+
+   Rename (on mission tree)                  n/a
+
+
+Summary: 
+
+   Number of passed test elements      ______
+
+   Total number of test elements       ______
+
+   Test case status                          [ ] Pass  [ ] Fail  
+
+
+Bugs Reported:  
+
+
+
+Notes:
+
+
