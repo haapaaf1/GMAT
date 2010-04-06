@@ -41,20 +41,20 @@ Procedure:
 
 3. Evaluate the individual panel elements.
 
+   Volume Text Field                         [ ] Pass  [ ] Fail  Bug# ______
+
+   Pressure Model Drop Down Field            [ ] Pass  [ ] Fail  Bug# ______
+   
    Fuel Mass Text Field                      [ ] Pass  [ ] Fail  Bug# ______
 
-   Pressure Text Field                       [ ] Pass  [ ] Fail  Bug# ______
+   Fuel Density Text Field                   [ ] Pass  [ ] Fail  Bug# ______
 
    Temperature Text Field                    [ ] Pass  [ ] Fail  Bug# ______
 
    Reference Temperature Text Field          [ ] Pass  [ ] Fail  Bug# ______
 
-   Volume Text Field                         [ ] Pass  [ ] Fail  Bug# ______
-
-   Fuel Density Text Field                   [ ] Pass  [ ] Fail  Bug# ______
-
-   Pressure Model Drop Down Field            [ ] Pass  [ ] Fail  Bug# ______
-   
+   Pressure Text Field                       [ ] Pass  [ ] Fail  Bug# ______
+ 
 
 4. Evaluate panel-specific functionality.
 

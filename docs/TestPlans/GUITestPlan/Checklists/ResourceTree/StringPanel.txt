@@ -1,7 +1,7 @@
 $Id: StringPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -24,6 +24,10 @@ Procedure:
    Create String Resource                    [ ] Pass  [ ] Fail  Bug# ______
 
    Open String Resource                      [ ] Pass  [ ] Fail  Bug# ______
+                                                                                 
+   Delete String Resource                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Clone String Resource                     [ ] Pass  [ ] Fail  Bug# ______
    
    
 2. Evaluate the aesthetic qualities of the panel.
@@ -33,10 +37,21 @@ Procedure:
 
 3. Evaluate the individual panel elements. 
 
-   Name Text Field   (read-only)             [ ] Pass  [ ] Fail  Bug# ______
+   Parameter Create Dialog Panel ------
+   Create Action Button                      [ ] Pass  [ ] Fail  Bug# ______
+
+   Name Text Field                           [ ] Pass  [ ] Fail  Bug# ______
 
    Value Text Field                          [ ] Pass  [ ] Fail  Bug# ______
    
+   Strings Combo Box                         [ ] Pass  [ ] Fail  Bug# ______
+
+   String Panel -------------------------  
+   Name Text Field   (read-only)             [ ] Pass  [ ] Fail  Bug# ______
+
+   Value Text Field                          [ ] Pass  [ ] Fail  Bug# ______
+
+
 
 4. Evaluate panel-specific functionality.
 

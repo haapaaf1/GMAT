@@ -1,7 +1,7 @@
 $Id: OpenGLPanel.txt,v 1.4 2006/11/22 21:27:52 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -21,10 +21,14 @@ Procedure:
 
 1. Create and open the appropriate object panel.
                                                                                    
-   Create OpenGL Resource                    [ ] Pass  [ ] Fail  Bug# ______
+   Create OpenGLPlot Resource                [ ] Pass  [ ] Fail  Bug# ______
 
-   Open OpenGL Resource                      [ ] Pass  [ ] Fail  Bug# ______
-   
+   Open OpenGLPlot Resource                  [ ] Pass  [ ] Fail  Bug# ______
+                                                                                  
+   Clone OpenGLPlot Resource                 [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete OpenGLPlot Resource                [ ] Pass  [ ] Fail  Bug# ______
+
 
 2. Evaluate the aesthetic qualities of the panel.
 
@@ -33,17 +37,18 @@ Procedure:
 
 3. Evaluate the individual panel elements.
 
-   Show Plot Check Box                       [ ] Pass  [ ] Fail  Bug# ______
-
+   Plot Options ----------------
    Collect Data Text Field                   [ ] Pass  [ ] Fail  Bug# ______
 
    Update Plot Text Field                    [ ] Pass  [ ] Fail  Bug# ______
 
    Number of Points to Redraw Text Field     [ ] Pass  [ ] Fail  Bug# ______
 
+   Show Plot Check Box                       [ ] Pass  [ ] Fail  Bug# ______
+   
+   
+   Drawing Options --------------
    Draw Wireframe Check Box                  [ ] Pass  [ ] Fail  Bug# ______
-
-   Draw Targeting Check Box                  [ ] Pass  [ ] Fail  Bug# ______
 
    Draw Ecliptic Plane Check Box             [ ] Pass  [ ] Fail  Bug# ______
 
@@ -52,9 +57,13 @@ Procedure:
    Draw Axes Check Box                       [ ] Pass  [ ] Fail  Bug# ______
 
    Draw Grid Check Box                       [ ] Pass  [ ] Fail  Bug# ______
+   
+   Draw Sun Lines Check Box                  [ ] Pass  [ ] Fail  Bug# ______
 
-   Draw Earth/Sun Lines Check Box            [ ] Pass  [ ] Fail  Bug# ______
+   Solver Iterations Combo Box               [ ] Pass  [ ] Fail  Bug# ______
 
+
+   View Object -----------------
    Spacecraft List                           [ ] Pass  [ ] Fail  Bug# ______
 
    Selected Spacecraft List                  [ ] Pass  [ ] Fail  Bug# ______
@@ -69,20 +78,18 @@ Procedure:
 
    < = (Remove All) Selection Button         [ ] Pass  [ ] Fail  Bug# ______
 
-   Show Object Check Box                     [ ] Pass  [ ] Fail  Bug# ______
-
    Orbit Color Select Box                    [ ] Pass  [ ] Fail  Bug# ______
 
    Target Color Select Box                   [ ] Pass  [ ] Fail  Bug# ______
 
+   Draw Object Check Box                     [ ] Pass  [ ] Fail  Bug# ______
+
+
+   View Option -------------------
    Use Initial View Definition Check Box     [ ] Pass  [ ] Fail  Bug# ______
 
-   Use Perspective Mode Check Box            [ ] Pass  [ ] Fail  Bug# ______
-
-   Use Fixed FOV Angle Check Box             [ ] Pass  [ ] Fail  Bug# ______
-
-   Field of View Text Field                  [ ] Pass  [ ] Fail  Bug# ______
-
+  
+   View Definition ----------------
    Coordinate System Combo Box               [ ] Pass  [ ] Fail  Bug# ______
 
    View Point Reference Combo Box (see 4a)   [ ] Pass  [ ] Fail  Bug# ______
@@ -93,6 +100,8 @@ Procedure:
 
    View Direction Combo Box (see 4c)         [ ] Pass  [ ] Fail  Bug# ______
 
+   
+   View Up Definition -----------------
    Coordinate System Combo Box               [ ] Pass  [ ] Fail  Bug# ______
 
    Axis Combo Box                            [ ] Pass  [ ] Fail  Bug# ______
@@ -124,15 +133,7 @@ Procedure:
 
       Vector 3 Text Field                    [ ] Pass  [ ] Fail  Bug# ______
 
-   Use Perspective Mode Check Box            [ ] Pass  [ ] Fail  Bug# ______
-   --- select checkbox to check following
-
-   Use Fixed FOV Angle Check Box             [ ] Pass  [ ] Fail  Bug# ______
-   --- select checkbox to check following
-
-   Field of View Text Field                  [ ] Pass  [ ] Fail  Bug# ______
-
-   
+     
 5. Evaluate data.
    
    Data elements appear complete             [ ] Pass  [ ] Fail  Bug# ______

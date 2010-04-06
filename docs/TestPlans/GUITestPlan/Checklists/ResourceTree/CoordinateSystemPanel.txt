@@ -1,7 +1,7 @@
 $Id: CoordinateSystemPanel.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -25,7 +25,12 @@ Procedure:
    Create Coordinate System Resource         [ ] Pass  [ ] Fail  Bug# ______
 
    Open Coordinate System Resource           [ ] Pass  [ ] Fail  Bug# ______
+                                                                                
+   Delete Coordinate System Resource         [ ] Pass  [ ] Fail  Bug# ______
+
+   Clone Coordinate System Resource          [ ] Pass  [ ] Fail  Bug# ______
    
+
 
 2. Evaluate the aesthetic qualities of the panel.
 
@@ -41,14 +46,14 @@ Procedure:
 
 4. Evaluate panel-specific functionality.
 
-   a. Select Object Referenced Axes Type:
+   a. Select Object Referenced:
       Primary Body Combo Box                 [ ] Pass  [ ] Fail  Bug# ______
       Secondary Body Combo Box               [ ] Pass  [ ] Fail  Bug# ______
       X Combo Box                            [ ] Pass  [ ] Fail  Bug# ______
       Y Combo Box                            [ ] Pass  [ ] Fail  Bug# ______
       Z Combo Box                            [ ] Pass  [ ] Fail  Bug# ______
 
-   b. Select TOEEq/MOEEq:
+   b. Select TOEEq/TOEEc/MOEEq/BodyInertial:
       Epoch Format Combo Box                 [ ] Pass  [ ] Fail  Bug# ______
       Epoch Text Field                       [ ] Pass  [ ] Fail  Bug# ______
 
@@ -56,6 +61,8 @@ Procedure:
       TODEc/TODEq/TOEEc/TOEEq:
       Update Interval Text Field             [ ] Pass  [ ] Fail  Bug# ______
    
+   d. Select Topocentric                     [ ] Pass  [ ] Fail  Bug# ______
+
 
 5. Evaluate data.
    

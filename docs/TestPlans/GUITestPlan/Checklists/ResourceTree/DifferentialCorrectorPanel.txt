@@ -1,7 +1,7 @@
-$Id: DifferentialCorrectorPanel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
+$Id: VF13ad1Panel.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -21,28 +21,36 @@ Procedure:
 
 1. Create and open the appropriate object panel.
                                                                                 
-   Create DifferentialCorrector Resource     [ ] Pass  [ ] Fail  Bug# ______
-
-   Open DifferentialCorrector Resource       [ ] Pass  [ ] Fail  Bug# ______
+   Open VF13ad1 Resource                     [ ] Pass  [ ] Fail  Bug# ______
    
+   Clone VF13ad1 Resource                    [ ] Pass  [ ] Fail  Bug# ______
+   
+   Close VF13ad1 Resource                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Delete VF13ad1 Resource                   [ ] Pass  [ ] Fail  Bug# ______
+
 
 2. Evaluate the aesthetic qualities of the panel.
 
    Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
-   
+  
 
 3. Evaluate the individual panel elements.
 
-   Max Iterations Text Field                 [ ] Pass  [ ] Fail  Bug# ______
+   Covariance Text Field                     [ ] Pass  [ ] Fail  Bug# ______
 
-   Targeter Text File Text Field             [ ] Pass  [ ] Fail  Bug# ______
-
-   Show Progress Check Box                   [ ] Pass  [ ] Fail  Bug# ______
-
-   Use Central Differences Check Box         [ ] Pass  [ ] Fail  Bug# ______
-
-   Report Style Combo Box                    [ ] Pass  [ ] Fail  Bug# ______
+   Show Progress Combo Box                   [ ] Pass  [ ] Fail  Bug# ______
    
+   Report Style Text Field                   [ ] Pass  [ ] Fail  Bug# ______
+   
+   Report File Text Field                    [ ] Pass  [ ] Fail  Bug# ______
+
+   Maximum Iterations Text Field             [ ] Pass  [ ] Fail  Bug# ______  
+
+   Tolerance Text Field                      [ ] Pass  [ ] Fail  Bug# ______  
+   
+   Use Central Differences Combo Box         [ ] Pass  [ ] Fail  Bug# ______  
+
 
 4. Evaluate panel-specific functionality.
 
