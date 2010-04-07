@@ -306,7 +306,7 @@ bool GmatFileUtil::GetLine(std::istream *is, std::string &line)
    return true;
 }
 
-#define DEBUG_APP_INSTALLATION
+//#define DEBUG_APP_INSTALLATION
 //------------------------------------------------------------------------------
 // bool IsAppInstalled(const std::string &appName)
 //------------------------------------------------------------------------------
@@ -348,8 +348,7 @@ bool GmatFileUtil::IsAppInstalled(const std::string &appName, std::string &appLo
    
    std::string matlabFolder = "Software\\MathWorks\\MATLAB\\";
 
-   //std::string folder = matlabFolder + ver79;
-   std::string folder = matlabFolder;
+   std::string folder = matlabFolder + ver79;
    std::string key = "MATLABROOT";
    
    #ifdef DEBUG_APP_INSTALLATION
