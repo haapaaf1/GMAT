@@ -627,6 +627,30 @@ void Interpreter::StartMatlabServer()
 }
 
 //------------------------------------------------------------------------------
+// Interface* GetMatlabInterface()
+//------------------------------------------------------------------------------
+Interface* Interpreter::GetMatlabInterface()
+{
+   return theModerator->GetMatlabInterface();
+}
+
+//------------------------------------------------------------------------------
+// bool OpenMatlabEngine()
+//------------------------------------------------------------------------------
+bool Interpreter::OpenMatlabEngine()
+{
+   return theModerator->OpenMatlabEngine();
+}
+
+//------------------------------------------------------------------------------
+// bool CloseMatlabEngine()
+//------------------------------------------------------------------------------
+bool Interpreter::CloseMatlabEngine()
+{
+   return theModerator->CloseMatlabEngine();
+}
+
+//------------------------------------------------------------------------------
 // void RegisterAliases()
 //------------------------------------------------------------------------------
 /*
@@ -1381,11 +1405,11 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
    #endif
    
    GmatCommand *cmd = NULL;
+   std::string type1 = type;
    std::string desc1 = desc;
    bool commandFound = false;
    
    // handle blank type
-   std::string type1 = type;
    if (type == "")
    {
       std::string::size_type index = desc.find("(");
@@ -1395,16 +1419,44 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
    if (IsCommandType(type1))
       commandFound = true;
    
+   #ifdef DEBUG_CREATE_COMMAND
+   MessageInterface::ShowMessage
+      ("   type1='%s', commandFound=%d\n", type1.c_str(), commandFound);
+   #endif
+   
    // Check for CallFunction
-   if (type[0] == '[')
+   if (type1[0] == '[')
    {
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
-         ("Interpreter::CreateCommand() detecting [ and creating CallFunction ...\n");
+         ("Interpreter::CreateCommand() detected [ and creating CallFunction ...\n");
       #endif
-      cmd = AppendCommand("CallFunction", retFlag, inCmd);
-      desc1 = type +  "=" + desc;
-      cmd->SetGeneratingString(desc1);
+
+      type1 = "CallFunction";
+      
+      #if 1
+      // Figure out if which CallFunction to be created.
+      std::string funcName = GmatStringUtil::ParseFunctionName(desc);
+      if (funcName != "")
+      {
+         GmatBase *func = FindObject(funcName);
+         if (func != NULL && func->IsOfType("MatlabFunction"))
+            type1 = "CallMatlabFunction";
+         else
+            type1 = "CallGmatFunction";
+      }
+      #endif
+      
+      #ifdef DEBUG_CREATE_COMMAND
+      MessageInterface::ShowMessage
+         ("   1 Now creating <%s> command and setting GenString to <%s>\n",
+          type1.c_str(), std::string(type1 + " " + desc).c_str());
+      #endif
+      
+      cmd = AppendCommand(type1, retFlag, inCmd);
+      desc1 = type1 +  "=" + desc;
+      if (cmd != NULL)
+         cmd->SetGeneratingString(desc1);
    }
    /// @TODO: This is a work around for a call function
    /// without any return parameters.  It should be updated in
@@ -1420,39 +1472,82 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
       
       if (IsObjectType(parts[0]))
       {
-         InterpreterException ex("Found invalid command \"" + type + "\"");
+         InterpreterException ex("Found invalid command \"" + type1 + "\"");
          HandleError(ex);
       }
-      else if (!GmatStringUtil::IsValidName(type + desc, true))
+      else if (!GmatStringUtil::IsValidName(type1 + desc, true))
       {
          InterpreterException ex
-            ("Found invalid function name \"" + type + desc + "\"");
+            ("Found invalid function name \"" + type1 + desc + "\"");
          HandleError(ex);
       }
       else
       {
-         cmd = AppendCommand("CallFunction", retFlag, inCmd);
-         desc1 = "[] =" + type + desc;
-         cmd->SetGeneratingString(desc1);
+         type1 = "CallFunction";
+         
+         #if 1
+         std::string funcName = GmatStringUtil::ParseFunctionName(desc);
+         if (funcName != "")
+         {
+            GmatBase *func = FindObject(funcName);
+            if (func != NULL && func->IsOfType("MatlabFunction"))
+               type1 = "CallMatlabFunction";
+            else
+               type1 = "CallGmatFunction";
+         }
+         #endif
+         
+         #ifdef DEBUG_CREATE_COMMAND
+         MessageInterface::ShowMessage
+            ("   2 Now creating <%s> command and setting GenString to <%s>\n",
+             type1.c_str(), std::string(type1 + " " + desc).c_str());
+         #endif
+         cmd = AppendCommand(type1, retFlag, inCmd);
+         desc1 = "[] =" + type1 + desc;
+         //desc1 = "[] =" + type + desc;
+         if (cmd != NULL)
+            cmd->SetGeneratingString(desc1);
       }
    }
    else
    {
+      #if 1
+      if (type1 == "CallFunction")
+      {
+         std::string funcName = GmatStringUtil::ParseFunctionName(desc);
+         if (funcName != "")
+         {
+            GmatBase *func = FindObject(funcName);
+            
+            if (func != NULL && func->IsOfType("MatlabFunction"))
+               type1 = "CallMatlabFunction";
+            else
+               type1 = "CallGmatFunction";
+         }
+      }      
+      #endif
+      
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
-         ("   Now creating <%s> command and setting GenString to <%s>\n",
-          type.c_str(), std::string(type + " " + desc).c_str());
+         ("   3 Now creating <%s> command and setting GenString to <%s>\n",
+          type1.c_str(), std::string(type1 + " " + desc).c_str());
       #endif
-      cmd = AppendCommand(type, retFlag, inCmd);
-      cmd->SetGeneratingString(type + " " + desc);
+      cmd = AppendCommand(type1, retFlag, inCmd);
+      if (cmd != NULL)
+         cmd->SetGeneratingString(type1 + " " + desc);
    }
    
    if (cmd == NULL)
    {
       retFlag = false;
+      #ifdef DEBUG_CREATE_COMMAND
+      MessageInterface::ShowMessage
+         ("CreateCommand() returning NULL for '%s', retFlag=%d\n", type1.c_str(),
+          retFlag);
+      #endif
       return NULL;
    }
-      
+   
    #ifdef DEBUG_CREATE_COMMAND
    if (inCmd == NULL)
       MessageInterface::ShowMessage
@@ -1469,7 +1564,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
    {
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
-         ("   => Now calling %s->InterpretAction()\n", type.c_str());
+         ("   => Now calling %s->InterpretAction()\n", type1.c_str());
       #endif
       
       // Set current function to command 
@@ -1479,7 +1574,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
       if (cmd->InterpretAction())
       {
          // if command is Assignment, check if GmatFunction needs to be created
-         if (type == "GMAT" && ((Assignment*)cmd)->GetMathTree() != NULL)
+         if (type1 == "GMAT" && ((Assignment*)cmd)->GetMathTree() != NULL)
             HandleMathTree(cmd);
          
          #ifdef DEBUG_CREATE_COMMAND
@@ -1489,7 +1584,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
          
          #ifdef DEBUG_CREATE_COMMAND
          MessageInterface::ShowMessage
-            ("   ===> %s has own InterpretAction() returning %p\n", type.c_str(), cmd);
+            ("   ===> %s has own InterpretAction() returning %p\n", type1.c_str(), cmd);
          #endif
          
          return cmd;
@@ -1502,7 +1597,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
       
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
-         ("CreateCommand() leaving creating %s, cmd=<%p>, retFlag=%d\n", type.c_str(),
+         ("CreateCommand() leaving creating %s, cmd=<%p>, retFlag=%d\n", type1.c_str(),
           cmd, retFlag);
       #endif
       
@@ -1524,7 +1619,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
    
    #ifdef DEBUG_CREATE_COMMAND
    MessageInterface::ShowMessage
-      ("CreateCommand() leaving creating %s, cmd=<%p>, retFlag=%d\n", type.c_str(),
+      ("CreateCommand() leaving creating %s, cmd=<%p>, retFlag=%d\n", type1.c_str(),
        cmd, retFlag);
    #endif
    
@@ -1569,7 +1664,8 @@ GmatCommand* Interpreter::AppendCommand(const std::string &type, bool &retFlag,
    }
    
    #ifdef DEBUG_CREATE_COMMAND
-   MessageInterface::ShowMessage("AppendCommand() returning <%p>\n", cmd);
+   MessageInterface::ShowMessage
+      ("AppendCommand() returning <%p>, retFlag=%d\n", cmd, retFlag);
    #endif
    
    return cmd;
@@ -1590,9 +1686,10 @@ bool Interpreter::AssembleCommand(GmatCommand *cmd, const std::string &desc)
        type.c_str(), desc.c_str());
    #endif
    
-   if (type == "For")
+   if (cmd->IsOfType("For"))
       retval = AssembleForCommand(cmd, desc);
-   else if (type == "CallFunction")
+   else if (cmd->IsOfType("CallFunction"))
+   //else if (cmd->IsOfType("CallGmatFunction") || cmd->IsOfType("CallMatlabFunction"))
       retval = AssembleCallFunctionCommand(cmd, desc);
    else if (cmd->IsOfType("ConditionalBranch"))
       retval = AssembleConditionalCommand(cmd, desc);
@@ -1846,8 +1943,6 @@ bool Interpreter::AssembleCallFunctionCommand(GmatCommand *cmd,
    
    // See if Function is MatlabFunction since all MatlabFunctions are created
    // before mission sequence, if not, create as GmatFunction.
-   // Changed to call FindObject()
-   //GmatBase *func = GetConfiguredObject(funcName);
    GmatBase *func = FindObject(funcName);
    if (func == NULL)
       func = CreateObject("GmatFunction", funcName);
@@ -6712,10 +6807,12 @@ void Interpreter::SetObjectInBranchCommand(GmatCommand *brCmd,
             #ifdef DEBUG_BRANCH_COMMAND_OBJECT
             MessageInterface::ShowMessage
                ("   found '%s', setting <%p>'%s' to <%p><%s>\n", childType.c_str(),
-                solver, solver->GetName().c_str(), nextInBranch,
+                solver, solver ? solver->GetName().c_str() : "NULL", nextInBranch,
                 nextInBranch->GetTypeName().c_str());
             #endif
-            nextInBranch->SetRefObject(solver, Gmat::SOLVER, solver->GetName());
+            
+            if (solver != NULL)
+               nextInBranch->SetRefObject(solver, Gmat::SOLVER, solver->GetName());
          }
          
          if (nextInBranch->GetChildCommand() != NULL)
