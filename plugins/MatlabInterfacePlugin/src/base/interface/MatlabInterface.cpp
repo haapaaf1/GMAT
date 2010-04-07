@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                               MatlabInterface
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -51,6 +51,26 @@ const int MatlabInterface::MAX_OUT_SIZE = 8192;
 //--------------------------------------
 //  public functions
 //--------------------------------------
+
+//------------------------------------------------------------------------------
+// MatlabInterface* Instance()
+//------------------------------------------------------------------------------
+/*
+ * Returns this instance
+ */
+//------------------------------------------------------------------------------
+MatlabInterface* MatlabInterface::Instance()
+{
+#ifdef __USE_MATLAB__
+   if (instance == NULL)
+      instance = new MatlabInterface("OneInstance");
+   
+   return instance;
+#endif
+
+   return NULL;
+}
+
 
 //------------------------------------------------------------------------------
 //  <constructor>
@@ -104,26 +124,6 @@ MatlabInterface& MatlabInterface::operator=(const MatlabInterface& mi)
    }
    
    return *this;
-}
-
-
-//------------------------------------------------------------------------------
-// MatlabInterface* Instance()
-//------------------------------------------------------------------------------
-/*
- * Returns this instance
- */
-//------------------------------------------------------------------------------
-MatlabInterface* MatlabInterface::Instance()
-{
-#ifdef __USE_MATLAB__
-   if (instance == NULL)
-      instance = new MatlabInterface("OneInstance");
-   
-   return instance;
-#endif
-
-   return NULL;
 }
 
 

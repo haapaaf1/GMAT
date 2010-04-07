@@ -2,11 +2,17 @@
 //------------------------------------------------------------------------------
 //                             MatlabInterface
 //------------------------------------------------------------------------------
-// Purpose:
-//    declares MatlabInterface class.
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG04CC06P
+//
+// Author: Linda Jun/GSFC
+// Created: 2002/11/04
 //
 // Modifications:
-//    2002.11.04  L. Jun - Created.
 //    2008.10.15  L. Jun - Made a singleton class
 /*
  * Declares MatlabInterface functions. It is a singleton class -
@@ -40,9 +46,6 @@ public:
    
    static MatlabInterface* Instance();
    
-   MatlabInterface(const std::string &name);
-   virtual ~MatlabInterface();
-   
    Integer       Open(const std::string &name = "");
    Integer       Close(const std::string &name = "");
    
@@ -59,12 +62,15 @@ public:
    void          SetMatlabMode(Integer mode);
    Integer       GetMatlabMode();
    
+   
+private:
+   
    // inherited from GmatBase
    virtual GmatBase*    Clone() const;
    virtual void         Copy(const GmatBase* orig);
    
-private:
-   
+   MatlabInterface(const std::string &name);
+   virtual ~MatlabInterface();
    MatlabInterface(const MatlabInterface &mi);
    MatlabInterface& operator=(const MatlabInterface& mi);
    
