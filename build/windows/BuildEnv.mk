@@ -2,7 +2,6 @@
 # Build environment file for Windows
 
 # Flags used to control the build
-USE_MATLAB = 1
 USE_SPICE = 1
 USE_DEVIL = 0
 CONSOLE_APP = 0
@@ -23,7 +22,6 @@ GMAT_ICON_O  = $(GMAT_ICON_DIR)/GmatIcon.o
 
 # The Console app does not support MATLAB linkage or shared base libraries for now
 ifeq ($(CONSOLE_APP), 1)
-USE_MATLAB = 0
 USE_STC_EDITOR = 0
 CONSOLE_FLAGS = -D__CONSOLE_APP__
 else
@@ -32,15 +30,7 @@ endif
 
 # MATLAB data
 # location of MATLAB headers and libraries
-ifeq ($(USE_MATLAB), 1)
-MATLAB_DIR = C:/Program\ Files/MATLAB/R2009B
-MATLAB_CPP_FLAGS = -D__USE_MATLAB__=1 -I$(MATLAB_DIR)/extern/include
-MATLAB_LIB_DIR = -L$(MATLAB_DIR)/bin/win32
-MATLAB_LIBRARIES = $(MATLAB_LIB_DIR) -leng -lmx -lmat
-else
-MATLAB_CPP_FLAGS =
-MATLAB_LIBRARIES =
-endif
+# Removed MATLAB dependency
 
 # SPICE data
 # location of CSPICE headers and libraries
@@ -91,8 +81,8 @@ GUI_CPP_FLAGS =
 endif
 endif
 
-GMAT_CPP_FLAGS = $(MATLAB_CPP_FLAGS) $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS) $(GUI_CPP_FLAGS)
-GMAT_LINK_FLAGS = $(MATLAB_LIBRARIES) $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES)
+GMAT_CPP_FLAGS = $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS) $(GUI_CPP_FLAGS) 
+GMAT_LINK_FLAGS = $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES) 
 
 # wxWidgets settings
 ifeq ($(WX_28_SYNTAX), 1)
@@ -157,9 +147,5 @@ F77_FLAGS = $(CPPFLAGS)
 LINK_FLAGS = $(GMAT_LINK_FLAGS) $(WXLINKFLAGS) \
              $(FORTRAN_LIB) $(DEBUG_FLAGS)
 
-ifeq ($(USE_MATLAB),1)
-CONSOLE_LINK_FLAGS = $(MATLAB_LIBRARIES) -L../base/lib \
-                    -lgfortran $(DEBUG_FLAGS) $(PROFILE_FLAGS)
-else
-CONSOLE_LINK_FLAGS = -L../base/lib $(FORTRAN_LIB) $(DEBUG_FLAGS) 
-endif
+CONSOLE_LINK_FLAGS = -L../base/lib $(FORTRAN_LIB) $(DEBUG_FLAGS) $(PROFILE_FLAGS)
+
