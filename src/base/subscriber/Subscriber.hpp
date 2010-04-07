@@ -42,7 +42,7 @@
 class GMAT_API Subscriber : public GmatBase
 {
 public:
-   Subscriber(std::string typeStr, std::string nomme);
+   Subscriber(const std::string &typeStr, const std::string &nomme);
    Subscriber(const Subscriber &);
    Subscriber& operator=(const Subscriber &);
    virtual ~Subscriber(void);

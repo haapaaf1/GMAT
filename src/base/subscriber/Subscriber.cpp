@@ -90,9 +90,9 @@ Subscriber::PARAMETER_TYPE[SubscriberParamCount - GmatBaseParamCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// Subscriber(std::string typeStr, std::string nomme)
+// Subscriber(const std::string &typeStr, const std::string &nomme)
 //------------------------------------------------------------------------------
-Subscriber::Subscriber(std::string typeStr, std::string nomme) :
+Subscriber::Subscriber(const std::string &typeStr, const std::string &nomme) :
    GmatBase (Gmat::SUBSCRIBER, typeStr, nomme),
    data(NULL),
    next(NULL),
