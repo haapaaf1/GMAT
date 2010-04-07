@@ -16,12 +16,8 @@
  * Definition for the CallFunction command class
  */
 //------------------------------------------------------------------------------
-
-
-
 #ifndef CallFunction_hpp
 #define CallFunction_hpp
-
 
 #include "GmatCommand.hpp"
 #include "Function.hpp"
@@ -30,24 +26,15 @@
 #include "Array.hpp"
 #include "StringVar.hpp"
 
-//#include <map>
-#include <iostream>
-#include <iomanip>
-
-#ifdef __USE_MATLAB__
-#include "MatlabInterface.hpp"
-#endif
-
 // Forward references for GMAT core objects
 class Publisher;
-
 
 class CallFunction : public GmatCommand
 {
 public:
-   CallFunction();
+   CallFunction(const std::string &type);
    virtual ~CallFunction();
-
+   
    CallFunction(const CallFunction& cf);
    CallFunction&        operator=(const CallFunction& cf);
    
@@ -66,6 +53,7 @@ public:
    virtual void         SetObjectMap(std::map<std::string, GmatBase *> *map);
    virtual void         SetGlobalObjectMap(std::map<std::string, GmatBase *> *map);
    virtual bool         HasAFunction();
+   virtual bool         IsMatlabFunctionCall();
    
    // override GmatBase methods
    virtual GmatBase*    Clone() const;
@@ -77,8 +65,6 @@ public:
    virtual bool         TakeAction(const std::string &action,
                                    const std::string &actionData = "");
    
-   //SringArray          GetRefObjectNameArray(const Gmat::ObjectType type) const;
-
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         RenameRefObject(const Gmat::ObjectType type,
@@ -114,12 +100,9 @@ public:
 
 protected:
 
-private:
    ObjectArray objectArray;
    std::vector<Parameter*> mInputList;
    std::vector<Parameter*> mOutputList;
-   // Changed 8/31/05, DJC
-   //   ObjectArray callcmds;
    GmatCommand *callcmds;
    
    StringArray mInputNames;
@@ -130,28 +113,15 @@ private:
    
    Function *mFunction;
    std::string mFunctionName;
-   
-   /// CoordinateSystem used internally
-   // Added this to GmatCommand (loj: 2008.06.18)
-   ////CoordinateSystem *internalCoordSys;
-   
+      
    /// the manager for the Function
    FunctionManager fm;
    
    bool isGmatFunction;
    bool isMatlabFunction;
    
-   #if defined __USE_MATLAB__
-   MatlabInterface *matlabIf;
-   #endif
-   
-   bool ExecuteMatlabFunction();
-   void SendInParam(Parameter *param);
-   void GetOutParams();
-   void EvalMatlabString(std::string evalString);
    void ClearInputParameters();
    void ClearOutputParameters();
-   void UpdateObject(GmatBase *obj, char *buffer);
    
    enum
    {
@@ -167,9 +137,6 @@ private:
       PARAMETER_TEXT[CallFunctionParamCount - GmatCommandParamCount];
    static const Gmat::ParameterType
       PARAMETER_TYPE[CallFunctionParamCount - GmatCommandParamCount];
-   
-   
 };
-
-
 #endif // CallFunction_hpp
+
