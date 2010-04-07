@@ -16,36 +16,30 @@
  * Definition for the FminconOptimizer class. 
  */
 //------------------------------------------------------------------------------
-
-
 #ifndef FminconOptimizer_hpp
 #define FminconOptimizer_hpp
-
 
 #include "gmatdefs.hpp"
 #include "ExternalOptimizer.hpp"
 
-#ifdef __USE_MATLAB__
-#include "MatlabInterface.hpp"
-#endif
+class MatlabInterface;
 
 class GMAT_API FminconOptimizer : public ExternalOptimizer
 {
 public:
-   FminconOptimizer(std::string name);
+   FminconOptimizer(const std::string &name);
    virtual ~FminconOptimizer();
    FminconOptimizer(const FminconOptimizer &opt);
    FminconOptimizer&   operator=(const FminconOptimizer& opt);
-
+   
    virtual bool        Initialize();
    virtual SolverState AdvanceState();
    virtual StringArray AdvanceNestedState(std::vector<Real> vars);
    virtual bool        Optimize();
-
+      
    // inherited from GmatBase
    virtual GmatBase*   Clone() const;
    virtual void        Copy(const GmatBase* orig);
-   //virtual bool        ExecuteCallback();// *TEMPORARY ******************************//
 
    // Access methods overriden from the base class
    
@@ -55,12 +49,6 @@ public:
                        GetParameterType(const Integer id) const;
    virtual std::string GetParameterTypeString(const Integer id) const;
 
-   //virtual Integer     GetIntegerParameter(const Integer id) const;
-   //virtual Integer     SetIntegerParameter(const Integer id,
-   //                                        const Integer value);
-   //virtual bool        GetBooleanParameter(const Integer id) const;
-   //virtual bool        SetBooleanParameter(const Integer id,
-   //                                        const bool value);
    virtual std::string GetStringParameter(const Integer id) const;
    virtual bool        SetStringParameter(const Integer id,
                                           const std::string &value);
@@ -79,54 +67,31 @@ public:
                                           const Integer index);
    virtual const StringArray&
                        GetStringArrayParameter(const Integer id) const;
-   //virtual bool        TakeAction(const std::string &action,
-   //                               const std::string &actionData = "");
-/*
-   virtual const std::string&  
-                       GetGeneratingString(Gmat::WriteMode mode = Gmat::SCRIPTING,
-                                           const std::string &prefix = "",
-                                           const std::string &useName = "");
-*/
+   
    virtual void        WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
                                        std::stringstream &stream);
-protected:
-   // Parameter IDs
-   enum
-   {
-      OPTIONS = ExternalOptimizerParamCount,
-      OPTION_VALUES,
-      FminconOptimizerParamCount
-   };
    
+protected:
    StringArray  options;
    StringArray  optionValues;
    
    Integer      fminconExitFlag;
    
-   #ifdef __USE_MATLAB__
    MatlabInterface *matlabIf;
-   #endif
    
-   static const std::string    PARAMETER_TEXT[FminconOptimizerParamCount -
-                                              ExternalOptimizerParamCount];
-   static const Gmat::ParameterType
-                               PARAMETER_TYPE[FminconOptimizerParamCount -
-                                              ExternalOptimizerParamCount];
-   static const std::string    ALLOWED_OPTIONS[6];			// [12];		// made a change here
-   static const std::string    DEFAULT_OPTION_VALUES[6];	// [12];		// made a change here
+   static const std::string    ALLOWED_OPTIONS[6];
+   static const std::string    DEFAULT_OPTION_VALUES[6];
    static const Integer        NUM_MATLAB_OPTIONS;
    static const Integer        MATLAB_OPTIONS_OFFSET;
-                                              
- 
+   
    // Methods from Solver
    virtual void                CompleteInitialization();
    virtual void                RunExternal();
    virtual void                RunNominal();
    virtual void                CalculateParameters();
    virtual void                RunComplete();
-
+   
    virtual void                FreeArrays();
-   //virtual std::string         GetProgressString(); // moved to Optimizer
    virtual void                WriteToTextFile(
                                   SolverState stateToUse = UNDEFINED_STATE);
    
@@ -136,6 +101,20 @@ protected:
    virtual bool                IsAllowedOption(const std::string &str);
    virtual bool                IsAllowedValue(const std::string &opt,
                                               const std::string &val);
+
+public:
+   // Parameter IDs
+   enum
+   {
+      OPTIONS = ExternalOptimizerParamCount,
+      OPTION_VALUES,
+      FminconOptimizerParamCount
+   };
+   
+   static const std::string
+   PARAMETER_TEXT[FminconOptimizerParamCount - ExternalOptimizerParamCount];
+   static const Gmat::ParameterType
+   PARAMETER_TYPE[FminconOptimizerParamCount - ExternalOptimizerParamCount];
 };
 
 #endif // FminconOptimizer_hpp
