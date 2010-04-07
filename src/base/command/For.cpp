@@ -98,6 +98,7 @@ For::For(void) :
    incrName        ("1")
 {
    parameterCount = ForParamCount;
+   objectTypeNames.push_back("For");
 }
 
 //------------------------------------------------------------------------------
