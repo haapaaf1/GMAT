@@ -46,6 +46,7 @@ class Burn;
 class Function;
 class Moderator;
 class Validator;
+class Interface;
 
 /**
  * Interpreter is the base class for the GMAT Interpreter subsystem.  
@@ -135,12 +136,16 @@ public:
    
    void BuildCreatableObjectMaps();
    StringArray GetCreatableList(Gmat::ObjectType type, Integer subType = 0);
-
+   
    virtual void SetInputFocus();
    virtual void NotifyRunCompleted();
    virtual void UpdateView(Integer type = 7);
    virtual void CloseCurrentProject();
    virtual void StartMatlabServer();
+   
+   Interface* GetMatlabInterface();
+   bool OpenMatlabEngine();
+   bool CloseMatlabEngine();   
    
 protected:
    
