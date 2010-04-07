@@ -36,6 +36,7 @@ namespace GmatFileUtil
    bool DoesDirectoryExist(const std::string &dirPath);
    bool DoesFileExist(const std::string &filename);
    bool GetLine(std::istream *inStream, std::string &line);
+   bool IsAppInstalled(const std::string &appName, std::string &appLoc);
    
    WrapperTypeArray
       GetFunctionOutputTypes(std::istream *is, const StringArray &outputs,

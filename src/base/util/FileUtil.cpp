@@ -306,6 +306,113 @@ bool GmatFileUtil::GetLine(std::istream *is, std::string &line)
    return true;
 }
 
+#define DEBUG_APP_INSTALLATION
+//------------------------------------------------------------------------------
+// bool IsAppInstalled(const std::string &appName)
+//------------------------------------------------------------------------------
+/**
+ * Asks system if requested application is installed
+ *
+ * @param  appName  Name of the application, such as MATLAB
+ * @return  true requested application is installed on the system
+ * @note GMAT currently checks for only MATLAB installation
+ */
+//------------------------------------------------------------------------------
+bool GmatFileUtil::IsAppInstalled(const std::string &appName, std::string &appLoc)
+{
+#ifdef __WIN32__
+   #ifdef DEBUG_APP_INSTALLATION
+   MessageInterface::ShowMessage
+      ("GmatFileUtil::IsAppInstalled() entered, appName='%s'\n", appName.c_str());
+   #endif
+   
+   if (appName != "MATLAB")
+   {
+      MessageInterface::ShowMessage
+         ("GMAT currently checks for only MATLAB installation\n");
+      return false;
+   }
+   
+   long lRet;
+   HKEY hKey;
+   char temp[150];
+   DWORD dwBufLen;
+   HKEY tree = HKEY_LOCAL_MACHINE;
+
+   // @todo
+   // Should we check other versions by querying sub keys?
+   // See RegEnumKeyEx(), RegEnumValue() example in
+   // http://msdn.microsoft.com/en-us/library/ms724256%28VS.85%29.aspx
+   //std::string ver75 = "7.5"; // 2007b
+   std::string ver79 = "7.9"; // 2009b
+   
+   std::string matlabFolder = "Software\\MathWorks\\MATLAB\\";
+
+   //std::string folder = matlabFolder + ver79;
+   std::string folder = matlabFolder;
+   std::string key = "MATLABROOT";
+   
+   #ifdef DEBUG_APP_INSTALLATION
+   MessageInterface::ShowMessage("   About to open '%s'\n", folder.c_str());
+   #endif
+   
+   // Open location
+   lRet = RegOpenKeyEx(tree, folder.c_str(), 0, KEY_QUERY_VALUE, &hKey);
+   if (lRet != ERROR_SUCCESS)
+   {
+      #ifdef DEBUG_APP_INSTALLATION
+      MessageInterface::ShowMessage
+         ("   Failed on RegOpenKeyEx(), return code is %ld\n", lRet);
+      #endif
+      
+      return false;
+   }
+   else
+   {
+      #ifdef DEBUG_APP_INSTALLATION
+      MessageInterface::ShowMessage("   hKey is %ld\n", hKey);
+      #endif
+   }
+   
+   // Get key
+   dwBufLen = sizeof(temp);
+   lRet = RegQueryValueEx( hKey, key.c_str(), NULL, NULL, (BYTE*)&temp, &dwBufLen );
+   if (lRet != ERROR_SUCCESS)
+   {
+      #ifdef DEBUG_APP_INSTALLATION
+      MessageInterface::ShowMessage
+         ("   Failed on RegQueryValueEx(), rReturn code is %ld\n", lRet);
+      #endif
+      return false;
+   }
+   
+   #ifdef DEBUG_APP_INSTALLATION
+   MessageInterface::ShowMessage("   Key value: %s\n", temp);
+   #endif
+   
+   // Close key
+   lRet = RegCloseKey( hKey );
+   if (lRet != ERROR_SUCCESS)
+   {
+      #ifdef DEBUG_APP_INSTALLATION
+      MessageInterface::ShowMessage
+         ("   Failed on RegCloseKey(), return code is %ld\n", lRet);
+      #endif
+      return false;
+   }
+   
+   appLoc = temp;
+   
+   // Got this far, then key exists
+   #ifdef DEBUG_APP_INSTALLATION
+   MessageInterface::ShowMessage("GmatFileUtil::IsAppInstalled() returning true\n");
+   #endif
+   return true;
+   
+#else // other operating system
+   return true;
+#endif
+}
 
 //------------------------------------------------------------------------------
 // WrapperTypeArray GetFunctionOutputTypes(std::istream *inStream,
