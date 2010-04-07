@@ -28,41 +28,38 @@ SHARED_EXTENSION = .dll
 
 endif
 
-ifeq ($(USE_MATLAB),1)
 WXTARGET = lib/libGmatBase$(SHARED_EXTENSION)
-else
-WXTARGET = lib/libGmatBaseNoMatlab$(SHARED_EXTENSION)
-endif
 
 else
 
-ifeq ($(USE_MATLAB),1)
 WXTARGET = lib/libGmatBase.a
-else
-WXTARGET = lib/libGmatBaseNoMatlab.a
-endif
 
 endif
 
 CONSOLETARGET = lib/libGmatConsole.a
 
 ifeq ($(CONSOLE_APP),1)
+
 TARGET = $(CONSOLETARGET)
 # Console (no wx code) versions of these objects
-BRIDGEOBJECTS = 
+BRIDGEOBJECTS =
+
 else
+
 TARGET = $(WXTARGET)
 # GUI versions of these objects
 # Note: ExternalOptimizer also uses some wx code, so it is included here
 
-ifeq ($(USE_MATLAB),1)
-BRIDGEOBJECTS = solver/ExternalOptimizer.o \
-                solver/FminconOptimizer.o       
-else
-BRIDGEOBJECTS = 
+#BRIDGEOBJECTS =
+# ExternalOptimizer now part of base code
+# solver/ExternalOptimizer.o 
+# FminconOptimizer moved to plug-in
+# solver/FminconOptimizer.o       
+#else
+#BRIDGEOBJECTS = 
 # GuiInterpreter now part of the gui code.
 # interpreter/GuiInterpreter.o
-endif
+
 endif
 
 ifeq ($(USE_SPICE),1)
@@ -111,7 +108,7 @@ HEADERS = -Iinclude \
           -I../gui/output \
           -I../gui/foundation \
           -I../gui/subscriber \
-          -I../gui/mission
+          -I../gui/mission 
 
 
 
@@ -169,6 +166,7 @@ OBJECTS = \
     command/BeginScript.o \
     command/BranchCommand.o \
     command/CallFunction.o \
+    command/CallGmatFunction.o \
     command/CommandException.o \
     command/GmatCommand.o \
     command/CommandUtil.o \
@@ -258,6 +256,7 @@ OBJECTS = \
     factory/ODEModelFactory.o \
     factory/FunctionFactory.o \
     factory/HardwareFactory.o \
+    factory/InterfaceFactory.o \
     factory/MathFactory.o \
     factory/ParameterFactory.o \
     factory/PhysicalModelFactory.o \
@@ -292,8 +291,8 @@ OBJECTS = \
     function/GmatFunction.o \
     function/MatlabFunction.o \
     interface/InterfaceException.o \
+    interface/Interface.o \
     interface/GmatInterface.o \
-    interface/MatlabInterface.o \
     interpolator/InterpolatorException.o \
     interpolator/Interpolator.o \
     interpolator/BrentDekkerZero.o \
@@ -362,7 +361,7 @@ OBJECTS = \
     parameter/EnvData.o \
     parameter/EnvParameters.o \
     parameter/EnvReal.o \
-	 parameter/EquinoctialParameters.o \
+    parameter/EquinoctialParameters.o \
     parameter/ExpressionParser.o \
     parameter/HardwareReal.o \
     parameter/HardwareParameters.o \
@@ -442,6 +441,7 @@ OBJECTS = \
     solver/DifferentialCorrector.o \
     solver/Optimizer.o \
     solver/InternalOptimizer.o \
+    solver/ExternalOptimizer.o \
     solver/SteepestDescent.o \
     solver/DerivativeModel.o \
     solver/Gradient.o \
@@ -460,7 +460,6 @@ OBJECTS = \
     spacecraft/TimeConverter.o \
     stopcond/StopCondition.o \
     subscriber/EphemerisFile.o \
-    subscriber/MatlabWs.o \
     subscriber/MessageWindow.o \
     subscriber/TextEphemFile.o \
     subscriber/OpenGlPlot.o \
