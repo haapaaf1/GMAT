@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            SolverFactory
 //------------------------------------------------------------------------------
@@ -22,14 +22,9 @@
 #include "SolverFactory.hpp"
 
 // Headers for the supported Solvers
-//#include "QuasiNewton.hpp"
-#include "SteepestDescent.hpp"
-
-#ifdef __USE_MATLAB__
-#include "FminconOptimizer.hpp"
-#endif
-
 #include "DifferentialCorrector.hpp"
+//#include "QuasiNewton.hpp"
+//#include "SteepestDescent.hpp"
 //#include "Broyden.hpp"
 //#include "ParametricScanner.hpp"
 //#include "MonteCarlo.hpp"
@@ -59,16 +54,11 @@ Solver* SolverFactory::CreateSolver(const std::string &ofType,
 {
    if (ofType == "DifferentialCorrector")
       return new DifferentialCorrector(withName);
-   
-   #if defined __USE_MATLAB__
-   if (ofType == "FminconOptimizer")
-      return new FminconOptimizer(withName);
-   #endif
-   
+     
    //if (ofType == "QuasiNewton") 
    //   return new QuasiNewton(withName);
-//   else if (ofType == "SteepestDescent")
-//      return new SteepestDescent(withName);
+   //else if (ofType == "SteepestDescent")
+   //   return new SteepestDescent(withName);
    // else if (ofType == "Broyden")
    //   return new Broyden(withName);
    //else if (ofType == "ParametricScanner")
@@ -94,12 +84,7 @@ SolverFactory::SolverFactory() :
    if (creatables.empty())
    {
       //creatables.push_back("QuasiNewton");
-//      creatables.push_back("SteepestDescent");
-      
-      #if defined __USE_MATLAB__
-      creatables.push_back("FminconOptimizer");
-      #endif
-      
+      //creatables.push_back("SteepestDescent");
       creatables.push_back("DifferentialCorrector");
       //creatables.push_back("Broyden");
       //creatables.push_back("ParametricScanner");
@@ -138,12 +123,7 @@ SolverFactory::SolverFactory(const SolverFactory& fact) :
    if (creatables.empty())
    {
       //creatables.push_back("QuasiNewton");
-//      creatables.push_back("SteepestDescent");
-      
-      #if defined __USE_MATLAB__
-      creatables.push_back("FminconOptimizer");
-      #endif
-      
+      //creatables.push_back("SteepestDescent");
       creatables.push_back("DifferentialCorrector");
       //creatables.push_back("Broyden");
       //creatables.push_back("ParametricScanner");
