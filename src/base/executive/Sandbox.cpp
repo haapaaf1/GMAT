@@ -1223,7 +1223,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
    
    SetGlobalRefObject(cmd);
    
-   if (cmd->GetTypeName() == "CallFunction") 
+   if (cmd->IsOfType("CallFunction"))
    {
       std::string cfName = cmd->GetStringParameter("FunctionName");
       gfList.push_back(cfName);
@@ -1275,7 +1275,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
       else // it's already in the GOS, so just grab it
          f = (Function*) globalObjectMap[fName];
       
-      if (cmd->GetTypeName() == "CallFunction")  
+      if (cmd->IsOfType("CallFunction"))
       {
          ((CallFunction*)cmd)->SetRefObject(f,Gmat::FUNCTION,fName);
          cmd->SetStringParameter("FunctionName", fName);
@@ -1320,7 +1320,7 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
             }
             #endif
             
-            if ((fcsCmd->GetTypeName() == "CallFunction") ||
+            if ((fcsCmd->IsOfType("CallFunction")) ||
                 (fcsCmd->IsOfType("Assignment")))
             {
                #ifdef DEBUG_SANDBOX_GMATFUNCTION
