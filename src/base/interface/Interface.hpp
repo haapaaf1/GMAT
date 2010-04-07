@@ -21,9 +21,6 @@
 
 #include "GmatBase.hpp" // inheriting class's header file
 
-/**
- * Exceptions thrown from the interface subsystem
- */
 class GMAT_API Interface : public GmatBase
 {
 public:
@@ -33,6 +30,9 @@ public:
    
    virtual Integer      Open(const std::string &name = "");
    virtual Integer      Close(const std::string &name = "");
+   
+protected:
+   
 };
 
 #endif // Interface_hpp
