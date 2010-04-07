@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              RealUtilities
 //------------------------------------------------------------------------------
@@ -402,10 +402,12 @@ Real GmatMathUtil::ASin (Real x, Real cycleInRad)
 
 
 //------------------------------------------------------------------------------
-//  Real ACos (Real x, Real tol=0.0, Real cycleInRad)
+//  Real ACos (Real x, Real tol=GmatRealConst::REAL_EPSILON, Real cycleInRad=TWO_PI)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::ACos (Real x, Real tol, Real cycleInRad)
 {
+   tol = 0.0;
+   
    if (cycleInRad <= 0.0)
       throw RealUtilitiesExceptions::ArgumentError("ACos(angle, cycle <= 0.0)\n");
    
@@ -422,7 +424,7 @@ Real GmatMathUtil::ACos (Real x, Real tol, Real cycleInRad)
          return PI;
       else
          throw RealUtilitiesExceptions::ArgumentError
-            ("The input \"" + GmatRealUtil::ToString(x, true, true) +
+            ("The input \"" + GmatRealUtil::ToString(x, false, false, true, 17, 1) +
              "\" to ACos() is not within -1.0 and 1.0.");
    }
    

@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              RealUtilities
 //------------------------------------------------------------------------------
@@ -110,11 +110,11 @@ namespace GmatMathUtil
    Real    Tanh(Real angleInRad, Real cycleInRad=TWO_PI);
    
    Real    ASin(Real x, Real cycleInRad=TWO_PI); 
-   Real    ACos(Real x, Real tol=0.0, Real cycleInRad=TWO_PI); 
+   Real    ACos(Real x, Real tol=GmatRealConst::REAL_TOL, Real cycleInRad=TWO_PI); 
    Real    ATan(Real y, Real x=1.0, Real cycleInRad=TWO_PI);
    
    Real    ATan2(Real y, Real x=1.0, Real cycleInRad=TWO_PI);
-      
+   
    Real    ASinh(Real x, Real cycleInRad=TWO_PI); 
    Real    ACosh(Real x, Real cycleInRad=TWO_PI); 
    Real    ATanh(Real x, Real cycleInRad=TWO_PI); 
