@@ -45,10 +45,10 @@ InteractiveMatlabDialog::InteractiveMatlabDialog(wxWindow *parent)
    // reset array of strings
    inputStrings.Clear();
    outputStrings.Clear();
-
+   
    // create command
-   theCmd = new CallFunction();
-
+   theCmd = new CallFunction("CallMatlabFunction");
+   
    Create();
    Show();
 }
@@ -241,7 +241,7 @@ void InteractiveMatlabDialog::OnButton(wxCommandEvent& event)
    if (event.GetEventObject() == theEvaluateButton)
    {
       delete(theCmd);
-      theCmd = new CallFunction();
+      theCmd = new CallFunction("CallMatlabFunction");
       SetupCommand();
       SetResults();
    }
