@@ -165,6 +165,7 @@ namespace Gmat
       DATA_FILE,           // For DataFile objects
       OBTYPE,              // For the specific observation types
       
+      INTERFACE,           // MatlabInterface
       UNKNOWN_OBJECT
    };
 
