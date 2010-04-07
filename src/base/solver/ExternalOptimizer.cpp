@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                         ExternalOptimizer
 //------------------------------------------------------------------------------
@@ -20,9 +20,8 @@
 
 
 #include "ExternalOptimizer.hpp"
-#include "MessageInterface.hpp"
 #include "FileManager.hpp"
-//#include "MatlabInterface.hpp"  // currently all static
+#include "MessageInterface.hpp"
 
 
 
@@ -48,6 +47,9 @@ ExternalOptimizer::PARAMETER_TYPE[ExternalOptimizerParamCount - OptimizerParamCo
 // public methods
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// ExternalOptimizer(std::string type, std::string name)
+//------------------------------------------------------------------------------
 ExternalOptimizer::ExternalOptimizer(std::string type, std::string name) :
    Optimizer               (type, name), 
    functionPath            (""),
@@ -63,11 +65,17 @@ ExternalOptimizer::ExternalOptimizer(std::string type, std::string name) :
 }
 
 
+//------------------------------------------------------------------------------
+// ~ExternalOptimizer()
+//------------------------------------------------------------------------------
 ExternalOptimizer::~ExternalOptimizer()
 {
    //FreeArrays();
 }
 
+//------------------------------------------------------------------------------
+// ExternalOptimizer(const ExternalOptimizer &opt) :
+//------------------------------------------------------------------------------
 ExternalOptimizer::ExternalOptimizer(const ExternalOptimizer &opt) :
    Optimizer               (opt),
    functionPath            (opt.functionPath),
@@ -80,12 +88,14 @@ ExternalOptimizer::ExternalOptimizer(const ExternalOptimizer &opt) :
 }
 
 
-ExternalOptimizer& 
-    ExternalOptimizer::operator=(const ExternalOptimizer& opt)
+//------------------------------------------------------------------------------
+// ExternalOptimizer& operator=(const ExternalOptimizer& opt)
+//------------------------------------------------------------------------------
+ExternalOptimizer& ExternalOptimizer::operator=(const ExternalOptimizer& opt)
 {
-    if (&opt == this)
-        return *this;
-
+   if (&opt == this)
+      return *this;
+   
    Optimizer::operator=(opt);
    
    functionPath        = opt.functionPath;
@@ -94,10 +104,13 @@ ExternalOptimizer&
    inSource            = opt.inSource;
    inSourceServer      = opt.inSourceServer;
    parameterCount      = opt.parameterCount;
-  
+   
    return *this;
 }
 
+//------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
 bool ExternalOptimizer::Initialize()
 {
    Optimizer::Initialize();
