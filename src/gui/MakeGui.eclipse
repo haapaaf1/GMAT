@@ -14,11 +14,11 @@ else
 EXTENSION = .exe
 endif
 
-ifeq ($(USE_MATLAB),1)
+#ifeq ($(USE_MATLAB),1)
    WXTARGET = GMAT$(EXTENSION)
-else
-   WXTARGET = GMAT_NoMatlab$(EXTENSION)
-endif
+#else
+#   WXTARGET = GMAT_NoMatlab$(EXTENSION)
+#endif
 
 ifdef MAC_SPECIFIC
 ifeq ($(USE_MATLAB),1)
@@ -43,34 +43,34 @@ SHARED_EXTENSION = .so
 endif
 
 BASELIBNAME = libGmatBase
-ifeq ($(USE_MATLAB),1)
+#ifeq ($(USE_MATLAB),1)
 LIBS = -L../base -L../base/lib -lGmatBase
 LIBNAME = ../base/lib/libGmatBase$(SHARED_EXTENSION)
-else
-LIBS = -L../base -L../base/lib -lGmatBaseNoMatlab
-LIBNAME = ../base/lib/libGmatBaseNoMatlab$(SHARED_EXTENSION)
-endif
+#else
+#LIBS = -L../base -L../base/lib -lGmatBaseNoMatlab
+#LIBNAME = ../base/lib/libGmatBaseNoMatlab$(SHARED_EXTENSION)
+#endif
 
 else
 
-ifeq ($(USE_MATLAB),1)
+#ifeq ($(USE_MATLAB),1)
 LIBNAME = ../base/lib/libGmatBase.dll
 LIBS = $(LIBNAME)
-else
-LIBNAME = ../base/lib/libGmatBaseNoMatlab.dll
-LIBS = $(LIBNAME)
-endif
+#else
+#LIBNAME = ../base/lib/libGmatBaseNoMatlab.dll
+#LIBS = $(LIBNAME)
+#endif
 
 endif
 
 
 else
 
-ifeq ($(USE_MATLAB),1)
+#ifeq ($(USE_MATLAB),1)
 LIBS = ../base/lib/libGmatBase.a
-else
-LIBS = ../base/lib/libGmatBaseNoMatlab.a
-endif
+#else
+#LIBS = ../base/lib/libGmatBaseNoMatlab.a
+#endif
 
 endif
 
@@ -85,13 +85,13 @@ else
 STC_EDITOR_OBJECTS =
 endif
 
-ifeq ($(USE_MATLAB),1)
+#ifeq ($(USE_MATLAB),1)
 all: prep $(TARGETS) 
 	rm -f GMAT
-else
-all: prep $(TARGETS) 
-	rm -f GMAT_NoMatlab
-endif
+#else
+#all: prep $(TARGETS) 
+#	rm -f GMAT_NoMatlab
+#endif
 
 gui: $(WXTARGET)
 
@@ -128,7 +128,7 @@ HEADERS = -I../base/include \
           -Iinclude/bitmaps \
           -Iinclude/il \
           -Iapp \
-			 -Iasset \
+          -Iasset \
           -Iburn \
           -Icommand \
           -Icontrollogic \
@@ -185,7 +185,7 @@ OBJECTS = \
     app/ScriptPanel.o \
     app/SetPathDialog.o \
     app/TextEphemFileDialog.o \
-	 asset/GroundStationPanel.o \
+    asset/GroundStationPanel.o \
     burn/FiniteBurnSetupPanel.o \
     burn/ImpulsiveBurnSetupPanel.o \
     command/AchievePanel.o \
