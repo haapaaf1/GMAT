@@ -1179,13 +1179,14 @@ void ResourceTree::AddDefaultSubscribers(wxTreeItemId itemId, bool restartCounte
 //------------------------------------------------------------------------------
 void ResourceTree::AddDefaultInterfaces(wxTreeItemId itemId)
 {
-   #ifdef __USE_MATLAB__
-   AppendItem(itemId, wxT("Matlab"), GmatTree::ICON_DEFAULT, -1,
-              new GmatTreeItemData(wxT("Matlab"), GmatTree::MATLAB_INTERFACE));
-   AppendItem(itemId, wxT("Matlab Server"), GmatTree::ICON_DEFAULT, -1,
-              new GmatTreeItemData(wxT("Matlab Server"), GmatTree::MATLAB_SERVER));
-   #endif
-
+   if (GmatGlobal::Instance()->IsMatlabAvailable())
+   {
+      AppendItem(itemId, wxT("Matlab"), GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(wxT("Matlab"), GmatTree::MATLAB_INTERFACE));
+      AppendItem(itemId, wxT("Matlab Server"), GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(wxT("Matlab Server"), GmatTree::MATLAB_SERVER));
+   }
+   
    Expand(itemId);
 }
 
@@ -1263,11 +1264,12 @@ void ResourceTree::AddDefaultFunctions(wxTreeItemId itemId)
          AppendItem(itemId, wxT(objName), GmatTree::ICON_MATLAB_FUNCTION, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::MATLAB_FUNCTION));
 
-         #ifndef __USE_MATLAB__
-         MessageInterface::PopupMessage
-            (Gmat::WARNING_, "MATLAB Interface is disabled.  GMAT will not run\n"
-             "if any CallFunction uses MATLAB function: %s\n", objName.c_str());
-         #endif
+         if (!GmatGlobal::Instance()->IsMatlabAvailable())
+         {
+            MessageInterface::PopupMessage
+               (Gmat::WARNING_, "MATLAB is not available.  GMAT will not run\n"
+                "if any CallFunction uses MATLAB function: %s\n", objName.c_str());
+         }
       }
       else if (objTypeName == "GmatFunction")
       {
@@ -3613,10 +3615,10 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
       menu.Append(POPUP_ADD_OPTIMIZER, wxT("Add"), CreatePopupMenu(itemType));
       break;
    case GmatTree::SOLAR_SYSTEM:
-//      menu.Append(POPUP_ADD_BODY, wxT("Add Body"));
-//      menu.Enable(POPUP_ADD_BODY, false);
+      //menu.Append(POPUP_ADD_BODY, wxT("Add Body"));
+      //menu.Enable(POPUP_ADD_BODY, false);
       break;
-//   case GmatTree::CELESTIAL_BODY:
+   //case GmatTree::CELESTIAL_BODY:
    case GmatTree::CELESTIAL_BODY_STAR:
    case GmatTree::CELESTIAL_BODY_PLANET:
    case GmatTree::CELESTIAL_BODY_MOON:
@@ -3627,29 +3629,6 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    case GmatTree::SPECIAL_POINT_FOLDER:
       menu.Append(POPUP_ADD_SPECIAL_POINT, _T("Add"), CreatePopupMenu(itemType));
       break;
-
-   #ifdef __USE_MATLAB__
-   // Matlab needs GmatMainFrame interface, so use GmatMenu::
-   case GmatTree::MATLAB_INTERFACE:
-      menu.Append(GmatMenu::MENU_MATLAB_OPEN, wxT("Open"));
-      menu.Append(GmatMenu::MENU_MATLAB_CLOSE, wxT("Close"));
-      break;
-   case GmatTree::MATLAB_SERVER:
-      menu.Append(GmatMenu::MENU_MATLAB_SERVER_START, wxT("Start"));
-      menu.Append(GmatMenu::MENU_MATLAB_SERVER_STOP, wxT("Stop"));
-      if (mMatlabServerStarted)
-      {
-         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_START, false);
-         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_STOP, true);
-      }
-      else
-      {
-         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_START, true);
-         menu.Enable(GmatMenu::MENU_MATLAB_SERVER_STOP, false);
-      }
-      break;
-   #endif
-
    case GmatTree::SUBSCRIBER_FOLDER:
       menu.Append(POPUP_ADD_SUBSCRIBER, wxT("Add"), CreatePopupMenu(itemType));
       break;
@@ -3697,7 +3676,34 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    default:
       break;
    }
-
+   
+   // Add MATLAB menu if it is installed
+   if (GmatGlobal::Instance()->IsMatlabAvailable())
+   {
+      switch (itemType)
+      {
+         // Matlab needs GmatMainFrame interface, so use GmatMenu::
+      case GmatTree::MATLAB_INTERFACE:
+         menu.Append(GmatMenu::MENU_MATLAB_OPEN, wxT("Open"));
+         menu.Append(GmatMenu::MENU_MATLAB_CLOSE, wxT("Close"));
+         break;
+      case GmatTree::MATLAB_SERVER:
+         menu.Append(GmatMenu::MENU_MATLAB_SERVER_START, wxT("Start"));
+         menu.Append(GmatMenu::MENU_MATLAB_SERVER_STOP, wxT("Stop"));
+         if (mMatlabServerStarted)
+         {
+            menu.Enable(GmatMenu::MENU_MATLAB_SERVER_START, false);
+            menu.Enable(GmatMenu::MENU_MATLAB_SERVER_STOP, true);
+         }
+         else
+         {
+            menu.Enable(GmatMenu::MENU_MATLAB_SERVER_START, true);
+            menu.Enable(GmatMenu::MENU_MATLAB_SERVER_STOP, false);
+         }
+         break;
+      }   
+   }
+   
    // menu items applies to most non-folder items
    if (itemType >= GmatTree::BEGIN_OF_RESOURCE &&
        itemType <= GmatTree::END_OF_RESOURCE)
@@ -3831,10 +3837,9 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
       break;
    case GmatTree::FUNCTION_FOLDER:
       {
-         #ifdef __USE_MATLAB__
-         menu->Append(POPUP_ADD_MATLAB_FUNCTION, wxT("MATLAB Function"));
-         #endif
-
+         if (GmatGlobal::Instance()->IsMatlabAvailable())
+            menu->Append(POPUP_ADD_MATLAB_FUNCTION, wxT("MATLAB Function"));
+         
          wxMenu *gfMenu = new wxMenu;
          gfMenu->Append(POPUP_NEW_GMAT_FUNCTION, wxT("New"));
          gfMenu->Append(POPUP_OPEN_GMAT_FUNCTION, wxT("Open"));
