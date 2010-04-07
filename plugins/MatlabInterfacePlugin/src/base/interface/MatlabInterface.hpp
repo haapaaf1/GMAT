@@ -16,58 +16,76 @@
 #ifndef MatlabInterface_hpp
 #define MatlabInterface_hpp
 
-#if defined __USE_MATLAB__
+#include "Interface.hpp"
+
+#ifdef __USE_MATLAB__
 #include "engine.h"           // for Matlab Engine
 #endif
 
 #include <string>
 #include <map>
 
-class MatlabInterface
+class GMAT_API MatlabInterface : public Interface
 {
 
 public:
 
+   ///@note GmatGlobal uses the same enum
+   enum MatlabMode
+   {
+      SINGLE_USE = 20,
+      SHARED,
+      NO_MATLAB,  // MATLAB is not installed
+   };
+   
    static MatlabInterface* Instance();
    
-   int   Open(const std::string &engineName = "");
-   int   Close(const std::string &engineName = "");
+   MatlabInterface(const std::string &name);
+   virtual ~MatlabInterface();
    
-   std::string GetLastEngineName(); // Call this one after Open()
+   Integer       Open(const std::string &name = "");
+   Integer       Close(const std::string &name = "");
    
-   int   PutRealArray(const std::string &matlabVarName, int numRows, int numCols,
-                      const double *inArray);
-   int   GetRealArray(const std::string &matlabVarName, int numElements,
-                      double outArray[]);
-   int   GetString(const std::string &matlabVarName, std::string &outStr);
-   int   EvalString(const std::string &evalString);
-   int   SetOutputBuffer(int size);
-   char* GetOutputBuffer();
-   bool  IsOpen(const std::string &engineName = "");
-   void  RunMatlabString(std::string evalString); 
+   Integer       PutRealArray(const std::string &matlabVarName, Integer numRows,
+                              Integer numCols, const double *inArray);
+   Integer       GetRealArray(const std::string &matlabVarName, Integer numElements,
+                              double outArray[]);
+   Integer       GetString(const std::string &matlabVarName, std::string &outStr);
+   Integer       EvalString(const std::string &evalString);
+   Integer       SetOutputBuffer(Integer size);
+   char*         GetOutputBuffer();
+   bool          IsOpen(const std::string &engineName = "");
+   void          RunMatlabString(std::string evalString); 
+   void          SetMatlabMode(Integer mode);
+   Integer       GetMatlabMode();
+   
+   // inherited from GmatBase
+   virtual GmatBase*    Clone() const;
+   virtual void         Copy(const GmatBase* orig);
    
 private:
    
-   MatlabInterface();
-   ~MatlabInterface();
+   MatlabInterface(const MatlabInterface &mi);
+   MatlabInterface& operator=(const MatlabInterface& mi);
    
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
    static MatlabInterface *instance;
-   static const int MAX_OUT_SIZE;
-   Engine *enginePtr;
+   static const Integer MAX_OUT_SIZE;
+   Engine *enginePtr;   
    std::map<std::string, Engine*> matlabEngineMap;
    std::string lastEngineName;
-   int accessCount;
+   std::string message;
+   Integer accessCount;
+   Integer matlabMode;
    char *outBuffer;
    
-   int OpenEngineOnMac();
-   int CloseEngineOnMac();
-   int OpenSharedEngine();
-   int CloseSharedEngine();
-   int OpenSingleEngine(const std::string &engineName);
-   int CloseSingleEngine(const std::string &engineName);
+   Integer OpenEngineOnMac();
+   Integer CloseEngineOnMac();
+   Integer OpenSharedEngine();
+   Integer CloseSharedEngine();
+   Integer OpenSingleEngine(const std::string &engineName);
+   Integer CloseSingleEngine(const std::string &engineName);
 #endif
-   
 };
 
 #endif // MatlabInterface_hpp

@@ -10,7 +10,7 @@
 // number NNG04CC06P
 //
 // Author: Linda Jun (NASA/GSFC)
-// Created: 2002/11/04
+// Created: 2010/03/31
 //
 /**
  * Implements MatlabInterface functions. It is a singleton class -
@@ -20,7 +20,7 @@
 #include <stdlib.h>         // for NULL
 #include <string.h>         // for memcpy()
 #include <sstream>          // for std::stringstream
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
 #include "engine.h"         // for Matlab Engine
 #include "matrix.h"         // for Matlab mxArray
 #endif
@@ -31,10 +31,8 @@
 #endif
 
 #include "MatlabInterface.hpp"
-#include "MessageInterface.hpp"
 #include "InterfaceException.hpp"
-#include "GmatGlobal.hpp"         // for GetMatlabMode()
-#include "StringUtil.hpp"         // for ToString()
+#include "MessageInterface.hpp"
 
 //#define DEBUG_MATLAB_OPEN_CLOSE
 //#define DEBUG_MATLAB_PUT_REAL
@@ -55,6 +53,61 @@ const int MatlabInterface::MAX_OUT_SIZE = 8192;
 //--------------------------------------
 
 //------------------------------------------------------------------------------
+//  <constructor>
+//  MatlabInterface()
+//------------------------------------------------------------------------------
+MatlabInterface::MatlabInterface(const std::string &name) :
+   Interface ("MatlabInterface", name)
+{
+#ifdef __USE_MATLAB__
+   enginePtr = 0;
+   accessCount = 0;
+   matlabMode = SHARED;
+   outBuffer = new char[MAX_OUT_SIZE+1];
+   for (int i=0; i<=MAX_OUT_SIZE; i++)
+      outBuffer[i] = '\0';
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+//  <destructor>
+//  MatlabInterface()
+//------------------------------------------------------------------------------
+MatlabInterface::~MatlabInterface()
+{
+#ifdef __USE_MATLAB__
+   if (enginePtr != NULL)
+      Close();
+   delete [] outBuffer;
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+// MatlabInterface(const MatlabInterface &mi)
+//------------------------------------------------------------------------------
+MatlabInterface::MatlabInterface(const MatlabInterface &mi) :
+   Interface (mi)
+{
+}
+
+
+//------------------------------------------------------------------------------
+// MatlabInterface& operator=(const MatlabInterface& mi)
+//------------------------------------------------------------------------------
+MatlabInterface& MatlabInterface::operator=(const MatlabInterface& mi)
+{
+   if (&mi != this)
+   {
+      Interface::operator=(mi);
+   }
+   
+   return *this;
+}
+
+
+//------------------------------------------------------------------------------
 // MatlabInterface* Instance()
 //------------------------------------------------------------------------------
 /*
@@ -63,10 +116,10 @@ const int MatlabInterface::MAX_OUT_SIZE = 8192;
 //------------------------------------------------------------------------------
 MatlabInterface* MatlabInterface::Instance()
 {
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
    if (instance == NULL)
-      instance = new MatlabInterface;
-
+      instance = new MatlabInterface("OneInstance");
+   
    return instance;
 #endif
 
@@ -75,17 +128,18 @@ MatlabInterface* MatlabInterface::Instance()
 
 
 //------------------------------------------------------------------------------
-// int Open(const std::string &engineName = ""))
+// int Open(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  * Opens Matlab engine
  *
+ * @param  name  Name used in identifying matlab engine
  * @return  1 = no error, 0 = error
  */
 //------------------------------------------------------------------------------
-int MatlabInterface::Open(const std::string &engineName)
+int MatlabInterface::Open(const std::string &name)
 {
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
 
    //=======================================================
    #ifdef __WXMAC__
@@ -97,11 +151,16 @@ int MatlabInterface::Open(const std::string &engineName)
    #else
    //=======================================================
    
-   // If opening MATLAB for single use
-   if (GmatGlobal::Instance()->GetMatlabMode() == GmatGlobal::SINGLE_USE)
-      return OpenSingleEngine(engineName);
-   else
+   // If opening MATLAB engine for single use
+   if (matlabMode == SINGLE_USE)
+      return OpenSingleEngine(name);
+   else if (matlabMode == SHARED)
       return OpenSharedEngine();
+   else
+   {
+      message = "matlab mode is invalid, expecting 20 or 21";
+      return 0;
+   }
    
    //=======================================================
    #endif  // End-ifdef __WXMAC__
@@ -109,22 +168,23 @@ int MatlabInterface::Open(const std::string &engineName)
    
 #else
    return 0;
-#endif // End-ifdef __USE_MATLAB__
+#endif
 } // end Open()
 
 
 //------------------------------------------------------------------------------
-//  int Close(const std::string &engineName = "")
+//  int Close(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
  * Closes Matlab engine
  *
+ * @param  name  Name used in identifying matlab engine
  * @return  1 = no error, 0 = error
  */
 //------------------------------------------------------------------------------
-int MatlabInterface::Close(const std::string &engineName)
+int MatlabInterface::Close(const std::string &name)
 {
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
    
    //=======================================================
    #ifdef __WXMAC__
@@ -136,10 +196,15 @@ int MatlabInterface::Close(const std::string &engineName)
    #else
    //=======================================================
    
-   if (GmatGlobal::Instance()->GetMatlabMode() == GmatGlobal::SINGLE_USE)
-      return CloseSingleEngine(engineName);
-   else
+   if (matlabMode == SINGLE_USE)
+      return CloseSingleEngine(name);
+   else if (matlabMode == SHARED)
       return CloseSharedEngine();
+   else
+   {
+      message = "matlab mode is invalid, expecting 20 or 21";
+      return 0;
+   }
    
    //=======================================================
    #endif
@@ -196,9 +261,9 @@ int MatlabInterface::PutRealArray(const std::string &matlabVarName,
    mxDestroyArray(mxArrayPtr);
 
    return 1;
-#endif
-
+#else
    return 0;
+#endif
 } // end PutRealArray()
 
 
@@ -219,7 +284,7 @@ int MatlabInterface::PutRealArray(const std::string &matlabVarName,
 int MatlabInterface::GetRealArray(const std::string &matlabVarName,
                                   int numElements, double outArray[])
 {
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
 
    #ifdef DEBUG_MATLAB_GET_REAL
    MessageInterface::ShowMessage
@@ -282,9 +347,9 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
 
       return 0;
    }
-#endif
-
+#else
    return 0;
+#endif
 } // end GetRealArray()
 
 
@@ -360,8 +425,9 @@ int MatlabInterface::GetString(const std::string &matlabVarName,
 
       return 0;
    }
-#endif
+#else
    return 0;
+#endif
 } // end GetString()
 
 
@@ -386,7 +452,7 @@ int MatlabInterface::EvalString(const std::string &evalString)
        "%s\n\n", evalString.c_str());
    #endif
 
-   // return value is 0 if the command was evaluated by the MATLAB engine session,
+   // return value is 0 if the command was evaluated by the MATLAB engine,
    // and a nonzero value if unsuccessful. Possible reasons for failure include
    // the engine session is no longer running or the engine pointer is invalid or NULL.
    int retval = engEvalString(enginePtr, evalString.c_str());
@@ -395,8 +461,9 @@ int MatlabInterface::EvalString(const std::string &evalString)
    MessageInterface::ShowMessage("MatlabInterface::EvalString() exiting with %d\n", retval);
    #endif
    return retval;
-#endif
+#else
    return 0;
+#endif
 }
 
 
@@ -414,7 +481,8 @@ int MatlabInterface::EvalString(const std::string &evalString)
 //------------------------------------------------------------------------------
 int MatlabInterface::SetOutputBuffer(int size)
 {
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
+   
    outBuffer[0] = '\0';
    int sizeToUse = size-1;
 
@@ -423,9 +491,10 @@ int MatlabInterface::SetOutputBuffer(int size)
 
    engOutputBuffer(enginePtr, outBuffer, sizeToUse);
    return sizeToUse;
-#endif
 
+#else
    return 0;
+#endif
 }
 
 
@@ -448,21 +517,22 @@ char* MatlabInterface::GetOutputBuffer()
 
 
 //------------------------------------------------------------------------------
-// bool IsOpen(const std::string &engineName = "")
+// bool IsOpen(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
- * Checks if engine is open. If engineName is blank for single use, it will
+ * Checks if engine is open. If name is blank for single use, it will
  * return true if there are more than one engine is opened.
  */
 //------------------------------------------------------------------------------
-bool MatlabInterface::IsOpen(const std::string &engineName)
+bool MatlabInterface::IsOpen(const std::string &name)
 {
-   #ifdef __USE_MATLAB__
-   if (GmatGlobal::Instance()->GetMatlabMode() == GmatGlobal::SINGLE_USE)
+#ifdef __USE_MATLAB__
+   
+   if (matlabMode == SINGLE_USE)
    {
-      if (engineName != "")
+      if (name != "")
       {
-         std::map<std::string, Engine*>::iterator pos = matlabEngineMap.find(engineName);
+         std::map<std::string, Engine*>::iterator pos = matlabEngineMap.find(name);
          if (pos == matlabEngineMap.end())
             return false;
          else
@@ -480,8 +550,9 @@ bool MatlabInterface::IsOpen(const std::string &engineName)
    {
       return (MatlabInterface::enginePtr != NULL);
    }
-   #endif
+#else
    return false;
+#endif
 }
 
 
@@ -493,15 +564,15 @@ void MatlabInterface::RunMatlabString(std::string evalString)
    #ifndef __USE_MATLAB__
    return;
    #endif
-
-
+   
+   
    #ifdef DEBUG_MATLAB_EVAL
    MessageInterface::ShowMessage
       ("MatlabInterface::RunMatlabString() entered\n"
        "======================================================================\n"
        "%s\n\n", evalString.c_str());
    #endif
-
+   
    if (!IsOpen())
    {
       // Let's try to open it first (loj: 2008.03.06)
@@ -547,42 +618,78 @@ void MatlabInterface::RunMatlabString(std::string evalString)
 }
 
 
+//------------------------------------------------------------------------------
+// void SetMatlabMode(int mode)
+//------------------------------------------------------------------------------
+/**
+ * Sets matlab run mode.
+ *
+ * @param  mode  The matlab run mode
+ *               (0 = shared, 1 = single use, -1 = no MATLAB installed)
+ */
+//------------------------------------------------------------------------------
+void MatlabInterface::SetMatlabMode(int mode)
+{
+#ifdef __USE_MATLAB__
+   matlabMode = mode;
+#endif
+}
+
+//------------------------------------------------------------------------------
+// int GetMatlabMode()
+//------------------------------------------------------------------------------
+/**
+ * Return matlab run mode.
+ *
+ * @return  The matlab run mode (0 = shared, 1 = single use)
+ */
+//------------------------------------------------------------------------------
+int MatlabInterface::GetMatlabMode()
+{
+#ifdef __USE_MATLAB__
+   return matlabMode;
+#else
+   return -1;
+#endif
+}
+
+
+//------------------------------------------------------------------------------
+//  GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * This method returns a clone of the MatlabInterface.
+ *
+ * @return clone of the MatlabInterface.
+ */
+//------------------------------------------------------------------------------
+GmatBase* MatlabInterface::Clone() const
+{
+   return (new MatlabInterface(*this));
+}
+
+
+//---------------------------------------------------------------------------
+//  void Copy(const GmatBase* orig)
+//---------------------------------------------------------------------------
+/**
+ * Sets this object to match another one.
+ * 
+ * @param orig The original that is being copied.
+ */
+//---------------------------------------------------------------------------
+void MatlabInterface::Copy(const GmatBase* orig)
+{
+   operator=(*((MatlabInterface *)(orig)));
+}
+
+
 //--------------------------------------
 //  private functions
 //--------------------------------------
 
 
-//------------------------------------------------------------------------------
-//  <constructor>
-//  MatlabInterface()
-//------------------------------------------------------------------------------
-MatlabInterface::MatlabInterface()
-{
-#if defined __USE_MATLAB__
-   enginePtr = 0;
-   accessCount = 0;
-   outBuffer = new char[MAX_OUT_SIZE+1];
-   for (int i=0; i<=MAX_OUT_SIZE; i++)
-      outBuffer[i] = '\0';
-#endif
-}
-
-
-//------------------------------------------------------------------------------
-//  <destructor>
-//  MatlabInterface()
-//------------------------------------------------------------------------------
-MatlabInterface::~MatlabInterface()
-{
-#if defined __USE_MATLAB__
-   if (enginePtr != NULL)
-      Close();
-   delete [] outBuffer;
-#endif
-}
-
-
-#if defined __USE_MATLAB__
+#ifdef __USE_MATLAB__
 //------------------------------------------------------------------------------
 // int OpenEngineOnMac()
 //------------------------------------------------------------------------------
@@ -597,13 +704,14 @@ int MatlabInterface::OpenEngineOnMac()
 #ifdef __WXMAC__
    #ifdef DEBUG_MATLAB_OPEN_CLOSE
    MessageInterface::ShowMessage
-      ("MatlabInterface::Open() enginePtr=%p\n", enginePtr);
+      ("MatlabInterface::OpenEngineOnMac() enginePtr=%p\n", enginePtr);
    #endif
    
    if (enginePtr == NULL)
       MessageInterface::ShowMessage("Please wait while MATLAB engine opens...\n");
+      message = "Please wait while MATLAB engine opens...\n";
    
-   /// Check if MATLAB is still running then doesn't need to re-launch
+   /// Check if MATLAB engine is still running then doesn't need to re-launch
    if (enginePtr != NULL)
    {
       accessCount++;
@@ -619,7 +727,13 @@ int MatlabInterface::OpenEngineOnMac()
    // need to get IP address or hostname here
    char hName[128];
    int OK = gethostname(hName, 128);
-   if (OK != 0) MessageInterface::ShowMessage("Error getting host name\n");
+   
+   if (OK != 0)
+   {
+      //MessageInterface::ShowMessage("Error getting host name\n");
+      return 0;
+   }
+   
    std::string hNameStr(hName);
    // -desktop now causes MATLAB desktop to come up (as of 2008.01.11) but it
    // hangs both MATLAB and GMAT
@@ -631,6 +745,8 @@ int MatlabInterface::OpenEngineOnMac()
       MessageInterface::ShowMessage(
                "Successfully opened MATLAB engine using startcmd \"%s\"\n",
                runString.c_str());
+      message = "Successfully opened MATLAB engine using startcmd " + runString + "\n";
+      
       accessCount++;
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
          MessageInterface::ShowMessage(
@@ -644,6 +760,7 @@ int MatlabInterface::OpenEngineOnMac()
       MessageInterface::ShowMessage(
                "Failed to open MATLAB engine using startcmd \"%s\"\n",
                runString.c_str());
+      message = "Failed to open MATLAB engine using startcmd " + runString + "\n";
       return 0;
    }
 #else
@@ -667,7 +784,7 @@ int MatlabInterface::CloseEngineOnMac()
 
    int retval = 1; // set to success
    
-   // Check if MATLAB is still running then close it.
+   // Check if MATLAB engine is still running then close it.
    if (enginePtr != NULL)
    {
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
@@ -689,19 +806,21 @@ int MatlabInterface::CloseEngineOnMac()
       //==============================================================
       // int engClose(Engine *ep);
       // 0 on success, and 1 otherwise. Possible failure includes
-      // attempting to terminate a MATLAB engine session that was
+      // attempting to terminate a MATLAB engine that was
       // already terminated.
       //==============================================================
       retval = engClose(enginePtr);
       if (retval == 0)
       {
          retval = 1;
-         MessageInterface::ShowMessage("MATLAB successfully closed\n");
+         MessageInterface::ShowMessage("MATLAB engine successfully closed\n");
+         message = "MATLAB engine successfully closed\n";
       }
       else
       {
          retval = 0;;
          MessageInterface::ShowMessage("\nError closing MATLAB\n");
+         message = "\nError closing MATLAB\n";
       }
       
       enginePtr = NULL;      // set to NULL, so it can be reopened
@@ -710,7 +829,7 @@ int MatlabInterface::CloseEngineOnMac()
    {
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
       MessageInterface::ShowMessage
-         ("\nUnable to close MATLAB because it is not currently running\n");
+         ("\nUnable to close MATLAB engine because it is not currently running\n");
       #endif
    }
    return retval;
@@ -733,17 +852,19 @@ int MatlabInterface::OpenSharedEngine()
 {
    #ifdef DEBUG_MATLAB_OPEN_CLOSE
    MessageInterface::ShowMessage
-      ("MatlabInterface::Open() enginePtr=%p\n", enginePtr);
+      ("MatlabInterface::OpenSharedEngine() enginePtr=%p\n", enginePtr);
    #endif
    
    if (enginePtr == NULL)
    {
       MessageInterface::ShowMessage("Please wait while MATLAB engine opens...\n");
+      // This message is useless since it will be overwritten by the next message.
+      //message = "Please wait while MATLAB engine opens...\n";
    }
    else
    {
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
-      MessageInterface::ShowMessage("Connecting to current MATLAB session\n");
+      MessageInterface::ShowMessage("Connecting to current MATLAB engine\n");
       #endif
       
       return 1;
@@ -763,11 +884,13 @@ int MatlabInterface::OpenSharedEngine()
       // set precision to long
       EvalString("format long");
       MessageInterface::ShowMessage("MATLAB engine successfully opened\n");
+      message = "MATLAB engine successfully opened\n";
       return 1;
    }
    else
    {
       MessageInterface::ShowMessage("Failed to open MATLAB engine ...\n");
+      message = "Failed to open MATLAB engine ...\n";
       return 0;
    }
 }
@@ -786,12 +909,12 @@ int MatlabInterface::CloseSharedEngine()
 {
    int retval = 0; // set to failed
    
-   // Check if MATLAB is still running then close it.
+   // Check if MATLAB engine is still running then close it.
    if (enginePtr != NULL)
    {
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
       MessageInterface::ShowMessage
-         ("MatlabInterface::Close() enginePtr=%p\n", enginePtr);
+         ("MatlabInterface::CloseSharedEngine() enginePtr=%p\n", enginePtr);
       #endif
       
       accessCount--;
@@ -804,19 +927,21 @@ int MatlabInterface::CloseSharedEngine()
       //==============================================================
       // int engClose(Engine *ep);
       // 0 on success, and 1 otherwise. Possible failure includes
-      // attempting to terminate a MATLAB engine session that was
+      // attempting to terminate a MATLAB engine that was
       // already terminated.
       //==============================================================
       retval = engClose(enginePtr);
       if (retval == 0)
       {
          retval = 1;
-         MessageInterface::ShowMessage("MATLAB successfuly closed\n");
+         MessageInterface::ShowMessage("MATLAB engine successfuly closed\n");
+         message = "MATLAB engine successfuly closed\n";
       }
       else
       {
          retval = 0;
          MessageInterface::ShowMessage("\nError closing MATLAB\n");
+         message = "\nError closing MATLAB\n";
       }
       
       enginePtr = NULL; // set to NULL, so it can be reopened
@@ -826,7 +951,7 @@ int MatlabInterface::CloseSharedEngine()
       retval = 0;
       #ifdef DEBUG_MATLAB_OPEN_CLOSE
       MessageInterface::ShowMessage
-         ("\nUnable to close MATLAB because it is not currently running\n");
+         ("\nUnable to close MATLAB engine because it is not currently running\n");
       #endif
    }
    
@@ -835,7 +960,7 @@ int MatlabInterface::CloseSharedEngine()
 
 
 //------------------------------------------------------------------------------
-// int OpenSingleEngine(const std::string &engineName);
+// int OpenSingleEngine(const std::string &name);
 //------------------------------------------------------------------------------
 /**
  * Opens single Matlab engine on Windows.
@@ -843,7 +968,7 @@ int MatlabInterface::CloseSharedEngine()
  * @return  1 = no error, 0 = error
  */
 //------------------------------------------------------------------------------
-int MatlabInterface::OpenSingleEngine(const std::string &engineName)
+int MatlabInterface::OpenSingleEngine(const std::string &name)
 {
    //=================================================================
    //Engine* engOpenSingleUse(const char *startcmd, void *dcom, int *retstatus);
@@ -858,12 +983,19 @@ int MatlabInterface::OpenSingleEngine(const std::string &engineName)
    //     -2 = error - second argument must be NULL
    //     -3 = error - engOpenSingleUse failed
    //=================================================================
-   
+      
    // Check for the engine name first      
-   if (engineName == "")
-      lastEngineName = "matlabEngine_" + GmatStringUtil::ToString(accessCount+1, 1);
+   if (name == "")
+   {
+      std::stringstream ss("");
+      ss.width(1);
+      ss << accessCount+1;
+      lastEngineName = "matlabEngine_" + ss.str();
+   }
    else
-      lastEngineName = engineName;
+   {
+      lastEngineName = name;
+   }
    
    #ifdef DEBUG_MATLAB_OPEN_CLOSE
    MessageInterface::ShowMessage
@@ -890,6 +1022,7 @@ int MatlabInterface::OpenSingleEngine(const std::string &engineName)
    {
       MessageInterface::ShowMessage
          ("Failed to open MATLAB engine for single use...\n");
+      message = "Failed to open MATLAB engine for single use...\n";
       return 0;
    }
    
@@ -905,53 +1038,57 @@ int MatlabInterface::OpenSingleEngine(const std::string &engineName)
    EvalString("format long");
    MessageInterface::ShowMessage
       ("MATLAB engine '%s' successfully opened\n", lastEngineName.c_str());
-   
+   message = "MATLAB engine " + lastEngineName + " successfully opened\n";
    return 1;
 }
 
 
 //------------------------------------------------------------------------------
-// int CloseSingleEngine(const std::string &engineName)
+// int CloseSingleEngine(const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Closes single MATLAB engine on Windows.
  *
+ * @param  name  Name used in identifying matlab engine
  * @return 1 if successfully closed, 0 otherwise
  */
 //------------------------------------------------------------------------------
-int MatlabInterface::CloseSingleEngine(const std::string &engineName)
+int MatlabInterface::CloseSingleEngine(const std::string &name)
 {
    int retval = 1; // set to success
    bool failedToClose = false;
    
-   if (engineName != "")
+   if (name != "")
    {
-      std::map<std::string, Engine*>::iterator pos = matlabEngineMap.find(engineName);
+      std::map<std::string, Engine*>::iterator pos = matlabEngineMap.find(name);
       if (pos != matlabEngineMap.end())
       {
          //==============================================================
          // int engClose(Engine *ep);
          // 0 on success, and 1 otherwise. Possible failure includes
-         // attempting to terminate a MATLAB engine session that was
+         // attempting to terminate a MATLAB engine that was
          // already terminated.
          //==============================================================
          retval = engClose(pos->second);
          if (retval == 0)
          {
             MessageInterface::ShowMessage
-               ("MATLAB engine '%s' successfully closed\n", engineName.c_str());
+               ("MATLAB engine '%s' successfully closed\n", name.c_str());
+            message = "MATLAB engine " + name + " successfully closed\n";
          }
          else
          {
             failedToClose = true;
             MessageInterface::ShowMessage
-               ("\nError closing MATLAB engine '%s'\n", engineName.c_str());
+               ("\nError closing MATLAB engine '%s'\n", name.c_str());
+            message = "\nError closing MATLAB engine " + name + "\n";
          }
       }
       else
       {
          MessageInterface::ShowMessage
-            ("\nError closing MATLAB engine '%s'\n", engineName.c_str());
+            ("\nError closing MATLAB engine '%s'\n", name.c_str());
+         message = "\nError closing MATLAB engine " + name + "\n";
       }
    }
    else
@@ -962,7 +1099,7 @@ int MatlabInterface::CloseSingleEngine(const std::string &engineName)
       {
          #ifdef DEBUG_MATLAB_OPEN_CLOSE
          MessageInterface::ShowMessage
-            ("MatlabInterface::Close() about to close engine <%p>'%s'\n",
+            ("MatlabInterface::CloseSingleEngine() about to close engine <%p>'%s'\n",
              pos->second, (pos->first).c_str());
          #endif
          
@@ -971,12 +1108,14 @@ int MatlabInterface::CloseSingleEngine(const std::string &engineName)
          {
             MessageInterface::ShowMessage
                ("MATLAB engine '%s' successfully closed\n", (pos->first).c_str());
+            message = "MATLAB engine " + pos->first + " successfully closed\n";
          }
          else
          {
             failedToClose = true;
             MessageInterface::ShowMessage
                ("\nError closing MATLAB engine '%s'\n", (pos->first).c_str());
+            message = "\nError closing MATLAB engine " + pos->first + "\n";
          }
       }
    }
