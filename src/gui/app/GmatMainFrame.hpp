@@ -33,7 +33,6 @@
 #include "GuiInterpreter.hpp"
 #include "GmatTreeItemData.hpp"
 #include "GmatServer.hpp"
-#include "MatlabInterface.hpp"
 #include "MdiChildTrajFrame.hpp"
 #include "MdiChildTsFrame.hpp"
 
