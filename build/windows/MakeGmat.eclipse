@@ -4,15 +4,11 @@
 include BuildEnv.mk
 
 ifeq ($(CONSOLE_APP),1)
-PROGRAM = gmatConsole.exe
+PROGRAM = GMATConsole.exe
 LIBRARY = base/lib/libGmatConsole.a
 else
-PROGRAM = gmat.exe
-ifeq ($(USE_MATLAB),1)
+PROGRAM = GMAT.exe
 LIBRARY = base/lib/libGmatBase.a
-else
-LIBRARY = base/lib/libGmatBaseNoMatlab.a
-endif
 endif
 
 TARGET = ../bin/$(PROGRAM)
