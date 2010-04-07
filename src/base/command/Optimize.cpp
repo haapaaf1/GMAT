@@ -26,12 +26,8 @@
 #include "ExternalOptimizer.hpp"
 #endif
 
-#if defined __USE_MATLAB__
-   #include "MatlabInterface.hpp"
-   #include "GmatInterface.hpp"
-   
-   static GmatInterface *gmatInt = GmatInterface::Instance();
-#endif
+#include "GmatInterface.hpp"
+static GmatInterface *gmatInt = GmatInterface::Instance();
 
 //#define DEBUG_OPTIMIZE_PARSING
 //#define DEBUG_CALLBACK
@@ -443,10 +439,9 @@ bool Optimize::Initialize()
    {
       // NOTE that in the future we may have a callback to/from a non_MATLAB
       // external optimizer
-      #if defined __USE_MATLAB__
+      if (GmatGlobal::Instance()->IsMatlabAvailable())
          if (theSolver->GetStringParameter("SourceType") == "MATLAB")
             gmatInt->RegisterCallbackServer(this);
-      #endif
    }
    
    optimizerInFunctionInitialized = false;
@@ -596,13 +591,9 @@ bool Optimize::ExecuteCallback()
    }
    #endif
    
-   #ifndef __USE_MATLAB__ 
+   // Source type is MATLAB
+   if (!GmatGlobal::Instance()->IsMatlabAvailable())
       throw CommandException("Optimize: ERROR - MATLAB required for Callback");
-   #endif
-   #ifdef __USE_MATLAB__
-   if (!MatlabInterface::Instance()->IsOpen())
-      throw CommandException(
-         "Optimize:: ERROR - Matlab Interface not yet open");
    
    callbackExecuting = true;
    // ask Matlab for the value of X
@@ -646,7 +637,7 @@ bool Optimize::ExecuteCallback()
    #endif
    callbackResults = theSolver->AdvanceNestedState(vars);
    ResetLoopData();
-
+   
    try
    {
       branchExecuting = true;
@@ -683,7 +674,7 @@ bool Optimize::ExecuteCallback()
          MessageInterface::ShowMessage("(%d) -> %s\n",
             ii, (callbackResults.at(ii)).c_str());
    #endif
-   #endif
+      
    callbackExecuting = false;
    return true;
 }
