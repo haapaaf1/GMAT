@@ -40,7 +40,7 @@
 #include "Report.hpp"         // for Report command
 #include "Save.hpp"           // for Save command  
 #include "Stop.hpp"           // for Save command  
-#include "CallFunction.hpp"   // for CallFunction command
+#include "CallGmatFunction.hpp"   // for CallGmatFunction command
 #include "Assignment.hpp"     // for Assignment command
 #include "BeginFiniteBurn.hpp"// for BeginFiniteBurn command
 #include "EndFiniteBurn.hpp"  // for EndFiniteBurn command
@@ -132,8 +132,13 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
         return new Report;
     else if (ofType == "Save")
         return new Save;
-    else if (ofType == "CallFunction")
-        return new CallFunction;
+    // Actual creating of CallFunction is not allowed, but it should
+    // be added to allowed creatables so that Interpreter can continue
+    // with creating proper CallGmatFunction
+    //else if (ofType == "CallFunction")
+    //   return new CallFunction;
+    else if (ofType == "CallGmatFunction")
+        return new CallGmatFunction;
     else if (ofType == "Assignment")
          return new Assignment;
     else if (ofType == "BeginFiniteBurn")
@@ -216,6 +221,7 @@ CommandFactory::CommandFactory() :
       creatables.push_back("Report");
       creatables.push_back("Save");
       creatables.push_back("CallFunction");
+      creatables.push_back("CallGmatFunction");
       creatables.push_back("Assignment");
       creatables.push_back("BeginFiniteBurn");
       creatables.push_back("EndFiniteBurn");
@@ -288,6 +294,7 @@ CommandFactory::CommandFactory(const CommandFactory& fact) :
       creatables.push_back("Report");
       creatables.push_back("Save");
       creatables.push_back("CallFunction");
+      creatables.push_back("CallGmatFunction");
       creatables.push_back("Assignment");
       creatables.push_back("BeginFiniteBurn");
       creatables.push_back("EndFiniteBurn");
