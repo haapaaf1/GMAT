@@ -400,10 +400,22 @@ void FileManager::ReadStartupFile(const std::string &fileName)
 
       if (correctVersionFound)
       {
-         if (type == "RUN_MODE" && name == "TESTING")
-            GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
-         else if (type == "MATLAB_MODE" && name == "SINGLE")
-            GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SINGLE_USE);
+         if (type == "RUN_MODE")
+         {
+            if (name == "TESTING")
+               GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
+            else if (name == "EXIT_AFTER_RUN")
+               GmatGlobal::Instance()->SetRunMode(GmatGlobal::EXIT_AFTER_RUN);
+         }
+         else if (type == "MATLAB_MODE")
+         {
+            if (name == "SINGLE")
+               GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SINGLE_USE);
+            else if (name == "SHARED")
+               GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SHARED);
+            else if (name == "NO_MATLAB")
+               GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::NO_MATLAB);
+         }
          else
             AddFileType(type, name);
       }
