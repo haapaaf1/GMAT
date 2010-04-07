@@ -33,9 +33,6 @@ public:
    
    virtual Integer      Open(const std::string &name = "");
    virtual Integer      Close(const std::string &name = "");
-   
-   // required method for all subclasses
-   //virtual GmatBase*    Clone() const;
 };
 
 #endif // Interface_hpp
