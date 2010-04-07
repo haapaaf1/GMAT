@@ -54,6 +54,17 @@ GmatGlobal* GmatGlobal::Instance()
 
 
 //------------------------------------------------------------------------------
+// void SetMatlabMode(Integer mode)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetMatlabMode(Integer mode)
+{
+   matlabMode = mode;
+   if (mode == NO_MATLAB)
+      isMatlabAvailable = false;
+}
+
+
+//------------------------------------------------------------------------------
 // void SetDefaultFormat()
 //------------------------------------------------------------------------------
 void GmatGlobal::SetDefaultFormat()
@@ -164,6 +175,8 @@ void GmatGlobal::SetActualFormat(bool scientific, bool showPoint, Integer precis
 GmatGlobal::GmatGlobal()
 {
    isBatchMdoe = false;
+   runInterrupted = false;
+   isMatlabAvailable = false;
    runMode = NORMAL;
    matlabMode = SHARED;
    matlabExt = "__m__";

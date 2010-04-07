@@ -28,13 +28,16 @@ public:
    enum RunMode
    {
       NORMAL = 10,
+      EXIT_AFTER_RUN,
       TESTING
    };
    
+   ///@note MatlabEngine uses the same enum
    enum MatlabMode
    {
       SINGLE_USE = 20,
-      SHARED
+      SHARED,
+      NO_MATLAB,  // MATLAB is not installed
    };
    
    static GmatGlobal* Instance();
@@ -72,7 +75,11 @@ public:
    Integer GetRunMode() { return runMode; }
    void SetRunMode(Integer mode) { runMode = mode; }
    Integer GetMatlabMode() { return matlabMode; }
-   void SetMatlabMode(Integer mode) { matlabMode = mode; }
+   void SetMatlabMode(Integer mode);
+   
+   // MATLAB availablity query
+   bool IsMatlabAvailable() { return isMatlabAvailable; }
+   void SetMatlabAvailable(bool flag) { isMatlabAvailable = flag; }
    
    // IO formatting
    bool IsScientific() { return actualFormat.mScientific; }
@@ -174,6 +181,8 @@ private:
    
    bool isBatchMdoe;
    bool runInterrupted;
+   bool isMatlabAvailable;
+   
    Integer runMode;
    Integer matlabMode;
    IoFormat defaultFormat;
