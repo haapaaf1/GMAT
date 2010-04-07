@@ -845,6 +845,33 @@ Event* Factory::CreateEvent(const std::string &ofType, const std::string &withNa
 
 
 //------------------------------------------------------------------------------
+// Interface* CreateInterface(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates an Interface object.
+ *
+ * Must be implemented by derived classes that create Interface objects -
+ * in that case, it returns a new Interface object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type Interface.
+ *
+ * @param <ofType>   specific type of Interface object to create.
+ * @param <withName> name to give to the newly created Interface object.
+ *
+ * @return pointer to a new Interface object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type Interface.
+ */
+//------------------------------------------------------------------------------
+Interface* Factory::CreateInterface(const std::string &ofType, const std::string &withName)
+{
+   throw FactoryException
+         ("Factory::CreateInterface() must be implemented by an InterfaceFactory\n");
+}
+
+
+//------------------------------------------------------------------------------
 // TrackingSystem* Factory::CreateTrackingSystem(const std::string &ofType,
 //                                         const std::string &withName)
 //------------------------------------------------------------------------------

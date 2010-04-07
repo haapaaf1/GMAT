@@ -664,6 +664,29 @@ ObType* FactoryManager::CreateObType(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
+// Interface* FactoryManager::CreateInterface(const std::string &ofType,
+//                                            const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * This method creates the Interface used in a DataFile
+ *
+ * @param ofType The type of Interface
+ * @param withName The name of the Interface.  This should be an
+ *                 empty string in the current implementation.
+ *
+ * @return The pointer to the new object
+ */
+//------------------------------------------------------------------------------
+Interface* FactoryManager::CreateInterface(const std::string &ofType,
+                                           const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::INTERFACE, ofType);
+   if (f != NULL)
+      return f->CreateInterface(ofType, withName);
+   return NULL;
+}
+
+//------------------------------------------------------------------------------
 // MeasurementModel* CreateMeasurementModel(const std::string &withName)
 //------------------------------------------------------------------------------
 /**

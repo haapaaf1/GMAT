@@ -49,7 +49,7 @@ class MathNode;
 class Attitude;
 class SpacePoint;
 class Event;
-
+class Interface;
 
 class MeasurementModel;
 class CoreMeasurement;
@@ -132,6 +132,8 @@ public:
                                            const std::string &withName = "");
    virtual Event*           CreateEvent(const std::string &ofType,
                                         const std::string &withName = "");
+   virtual Interface*       CreateInterface(const std::string &ofType,
+                                            const std::string &withName = "");
    
    // method to return list of types of objects that this factory can create
    StringArray              GetListOfCreatableObjects(void) const;

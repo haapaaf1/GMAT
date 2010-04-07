@@ -53,6 +53,7 @@ class ObType;
 class TrackingSystem;
 class TrackingData;
 class EphemerisFile;
+class Interface;
 
 /**
  * GMAT Factory Manager Class, the interface between the Moderator and the
@@ -123,8 +124,11 @@ public:
                                             const std::string &withName = "");
 
    ObType*                CreateObType(const std::string &ofType,
-                                            const std::string &withName = "");
-
+                                       const std::string &withName = "");
+   
+   Interface*             CreateInterface(const std::string &ofType,
+                                          const std::string &withName = "");
+   
    //----- Just container
    SolarSystem*           CreateSolarSystem(const std::string &withName = "");
    PropSetup*             CreatePropSetup(const std::string &withName = "");
