@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  MatlabWs
+//                                  MatlabWorkspace
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,19 +13,17 @@
 // Created: 2004/09/08
 //
 /**
- * Implements MatlabWs class which evaluates parameters to be sent to MATLAB
+ * Implements MatlabWorkspace class which evaluates parameters to be sent to MATLAB
  * workspace.
  */
 //------------------------------------------------------------------------------
 
-#include "MatlabWs.hpp"
-#include "MessageInterface.hpp"
+#include "MatlabWorkspace.hpp"
 #include "SubscriberException.hpp"
+#include "Parameter.hpp"
 #include "StringUtil.hpp"          // for ToString()
-
-#ifdef __USE_MATLAB__
 #include "MatlabInterface.hpp"
-#endif
+#include "MessageInterface.hpp"
 
 //#define DEBUG_MATLABWS_PARAM
 //#define DEBUG_MATLABWS_INIT
@@ -36,14 +34,14 @@
 // static data
 //---------------------------------
 const std::string
-MatlabWs::PARAMETER_TEXT[MatlabWsParamCount - SubscriberParamCount] =
+MatlabWorkspace::PARAMETER_TEXT[MatlabWorkspaceParamCount - SubscriberParamCount] =
 {
    "Add",
    "UpdateFrequency"
 };
 
 const Gmat::ParameterType
-MatlabWs::PARAMETER_TYPE[MatlabWsParamCount - SubscriberParamCount] =
+MatlabWorkspace::PARAMETER_TYPE[MatlabWorkspaceParamCount - SubscriberParamCount] =
 {
    Gmat::OBJECTARRAY_TYPE,    //"Add"
    Gmat::INTEGER_TYPE,        //"UpdateFrequency"
@@ -51,10 +49,10 @@ MatlabWs::PARAMETER_TYPE[MatlabWsParamCount - SubscriberParamCount] =
 
 
 //------------------------------------------------------------------------------
-// MatlabWs(const std::string &name, Parameter *firstParam)
+// MatlabWorkspace(const std::string &name, Parameter *firstParam)
 //------------------------------------------------------------------------------
-MatlabWs::MatlabWs(const std::string &name, Parameter *firstParam) :
-   Subscriber("MatlabWS", name)
+MatlabWorkspace::MatlabWorkspace(const std::string &name, Parameter *firstParam) :
+   Subscriber("MatlabWorkspace", name)
 {
    mNumParams = 0;
    mDataCount = 0;
@@ -64,26 +62,26 @@ MatlabWs::MatlabWs(const std::string &name, Parameter *firstParam) :
       AddParameter(firstParam->GetName(), 0);
    
    mUpdateFrequency = 1;
-   parameterCount = MatlabWsParamCount;
+   parameterCount = MatlabWorkspaceParamCount;
    
-   #ifdef __USE_MATLAB__
    matlabIf = NULL;
-   #endif
 }
 
 
 //------------------------------------------------------------------------------
-// ~MatlabWs(void)
+// ~MatlabWorkspace(void)
 //------------------------------------------------------------------------------
-MatlabWs::~MatlabWs(void)
+MatlabWorkspace::~MatlabWorkspace(void)
 {
+   //if (matlabIf != NULL)
+   //   delete matlabIf;
 }
 
 
 //------------------------------------------------------------------------------
-// MatlabWs(const MatlabWs &copy)
+// MatlabWorkspace(const MatlabWorkspace &copy)
 //------------------------------------------------------------------------------
-MatlabWs::MatlabWs(const MatlabWs &copy) :
+MatlabWorkspace::MatlabWorkspace(const MatlabWorkspace &copy) :
    Subscriber(copy)
 {
    mParams = copy.mParams; 
@@ -94,20 +92,19 @@ MatlabWs::MatlabWs(const MatlabWs &copy) :
    mDataCount = 0;
    mSendCount = 0;
    
-   #ifdef __USE_MATLAB__
    matlabIf = copy.matlabIf;
-   #endif
+   //matlabIf = new MatlabInterface("MatlabWorkspace");
 }
 
 
 //------------------------------------------------------------------------------
-// MatlabWs& MatlabWs::operator=(const MatlabWs& right)
+// MatlabWorkspace& MatlabWorkspace::operator=(const MatlabWorkspace& right)
 //------------------------------------------------------------------------------
 /**
  * The assignment operator
  */
 //------------------------------------------------------------------------------
-MatlabWs& MatlabWs::operator=(const MatlabWs& right)
+MatlabWorkspace& MatlabWorkspace::operator=(const MatlabWorkspace& right)
 {
    if (this == &right)
       return *this;
@@ -122,9 +119,13 @@ MatlabWs& MatlabWs::operator=(const MatlabWs& right)
    mDataCount = 0;
    mSendCount = 0;
    
-   #ifdef __USE_MATLAB__
    matlabIf = right.matlabIf;
-   #endif
+   
+   //if (matlabIf != NULL)
+   //{
+   //   delete matlabIf;
+   //   matlabIf = new MatlabInterface("MatlabWorkspace");
+   //}
    
    return *this;
 }
@@ -136,11 +137,11 @@ MatlabWs& MatlabWs::operator=(const MatlabWs& right)
 //------------------------------------------------------------------------------
 // virtual bool Initialize()
 //------------------------------------------------------------------------------
-bool MatlabWs::Initialize()
+bool MatlabWorkspace::Initialize()
 {
    #ifdef DEBUG_MATLABWS_INIT
    MessageInterface::ShowMessage
-      ("MatlabWs::Initialize() entered. mUpdateFrequency=%d, mDataCount=%d, "
+      ("MatlabWorkspace::Initialize() entered. mUpdateFrequency=%d, mDataCount=%d, "
        "mSendCount=%d\n", mUpdateFrequency, mDataCount, mSendCount);
    #endif
    
@@ -151,8 +152,8 @@ bool MatlabWs::Initialize()
       if (mNumParams == 0)
       {
          MessageInterface::ShowMessage
-            ("*** WARNING *** The MatlabWS named \"%s\" will not be created.\n"
-             "No parameters were added to MatlabWS.\n", GetName().c_str());
+            ("*** WARNING *** The MatlabWorkspace named \"%s\" will not be created.\n"
+             "No parameters were added to MatlabWorkspace.\n", GetName().c_str());
          
          active = false;
          return false;
@@ -162,9 +163,8 @@ bool MatlabWs::Initialize()
    //-----------------------------------------------------------------
    // Open Matlab engine, clear parameters in the workspace
    //-----------------------------------------------------------------
-   #ifdef __USE_MATLAB__
-   
    MatlabInterface *matlabIf = MatlabInterface::Instance();
+   //MatlabInterface *matlabIf = new MatlabInterface("MatlabWorkspace");
    matlabIf->Open();
    
    for (int i=0; i < mNumParams; i++)
@@ -193,14 +193,13 @@ bool MatlabWs::Initialize()
          matlabIf->RunMatlabString(matlabStr);
       }
    }
-   #endif
    //-----------------------------------------------------------------
    
    mDataCount = 0;
    mSendCount = 0;
    
    #ifdef DEBUG_MATLABWS_INIT
-   MessageInterface::ShowMessage("MatlabWs::Initialize() exiting\n");
+   MessageInterface::ShowMessage("MatlabWorkspace::Initialize() exiting\n");
    #endif
    
    return true;
@@ -211,15 +210,15 @@ bool MatlabWs::Initialize()
 //  GmatBase* Clone(void) const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the MatlabWs.
+ * This method returns a clone of the MatlabWorkspace.
  *
- * @return clone of the MatlabWs.
+ * @return clone of the MatlabWorkspace.
  *
  */
 //------------------------------------------------------------------------------
-GmatBase* MatlabWs::Clone(void) const
+GmatBase* MatlabWorkspace::Clone(void) const
 {
-   return (new MatlabWs(*this));
+   return (new MatlabWorkspace(*this));
 }
 
 
@@ -236,7 +235,7 @@ GmatBase* MatlabWs::Clone(void) const
  *
  */
 //------------------------------------------------------------------------------
-bool MatlabWs::TakeAction(const std::string &action,
+bool MatlabWorkspace::TakeAction(const std::string &action,
                           const std::string &actionData)
 {
    if (action == "Clear")
@@ -252,9 +251,9 @@ bool MatlabWs::TakeAction(const std::string &action,
 //------------------------------------------------------------------------------
 // std::string GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
-std::string MatlabWs::GetParameterText(const Integer id) const
+std::string MatlabWorkspace::GetParameterText(const Integer id) const
 {
-    if (id >= SubscriberParamCount && id < MatlabWsParamCount)
+    if (id >= SubscriberParamCount && id < MatlabWorkspaceParamCount)
         return PARAMETER_TEXT[id - SubscriberParamCount];
     else
         return Subscriber::GetParameterText(id);
@@ -264,9 +263,9 @@ std::string MatlabWs::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 // Integer GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
-Integer MatlabWs::GetParameterID(const std::string &str) const
+Integer MatlabWorkspace::GetParameterID(const std::string &str) const
 {
-    for (Integer i = SubscriberParamCount; i < MatlabWsParamCount; i++)
+    for (Integer i = SubscriberParamCount; i < MatlabWorkspaceParamCount; i++)
     {
         if (str == PARAMETER_TEXT[i - SubscriberParamCount])
             return i;
@@ -279,9 +278,9 @@ Integer MatlabWs::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 // Gmat::ParameterType GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
-Gmat::ParameterType MatlabWs::GetParameterType(const Integer id) const
+Gmat::ParameterType MatlabWorkspace::GetParameterType(const Integer id) const
 {
-    if (id >= SubscriberParamCount && id < MatlabWsParamCount)
+    if (id >= SubscriberParamCount && id < MatlabWorkspaceParamCount)
         return PARAMETER_TYPE[id - SubscriberParamCount];
     else
         return Subscriber::GetParameterType(id);
@@ -292,9 +291,9 @@ Gmat::ParameterType MatlabWs::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
-std::string MatlabWs::GetParameterTypeString(const Integer id) const
+std::string MatlabWorkspace::GetParameterTypeString(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < MatlabWsParamCount)
+   if (id >= SubscriberParamCount && id < MatlabWorkspaceParamCount)
       return Subscriber::PARAM_TYPE_STRING[GetParameterType(id)];
    else
       return Subscriber::GetParameterTypeString(id);
@@ -305,7 +304,7 @@ std::string MatlabWs::GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Integer MatlabWs::GetIntegerParameter(const Integer id) const
+Integer MatlabWorkspace::GetIntegerParameter(const Integer id) const
 {
    switch (id)
    {
@@ -320,7 +319,7 @@ Integer MatlabWs::GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-Integer MatlabWs::GetIntegerParameter(const std::string &label) const
+Integer MatlabWorkspace::GetIntegerParameter(const std::string &label) const
 {
    return GetIntegerParameter(GetParameterID(label));
 }
@@ -329,7 +328,7 @@ Integer MatlabWs::GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Integer SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
-Integer MatlabWs::SetIntegerParameter(const Integer id, const Integer value)
+Integer MatlabWorkspace::SetIntegerParameter(const Integer id, const Integer value)
 {
    switch (id)
    {
@@ -348,7 +347,7 @@ Integer MatlabWs::SetIntegerParameter(const Integer id, const Integer value)
 // virtual Integer SetIntegerParameter(const std::string &label,
 //                                     const Integer value)
 //------------------------------------------------------------------------------
-Integer MatlabWs::SetIntegerParameter(const std::string &label,
+Integer MatlabWorkspace::SetIntegerParameter(const std::string &label,
                                         const Integer value)
 {
    return SetIntegerParameter(GetParameterID(label), value);
@@ -358,7 +357,7 @@ Integer MatlabWs::SetIntegerParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // virtual bool SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
-bool MatlabWs::SetStringParameter(const Integer id, const std::string &value)
+bool MatlabWorkspace::SetStringParameter(const Integer id, const std::string &value)
 {
    switch (id)
    {
@@ -374,7 +373,7 @@ bool MatlabWs::SetStringParameter(const Integer id, const std::string &value)
 // virtual bool SetStringParameter(const std::string &label,
 //                                 const std::string &value)
 //------------------------------------------------------------------------------
-bool MatlabWs::SetStringParameter(const std::string &label,
+bool MatlabWorkspace::SetStringParameter(const std::string &label,
                                   const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
@@ -385,7 +384,7 @@ bool MatlabWs::SetStringParameter(const std::string &label,
 // virtual bool SetStringParameter(const Integer id, const std::string &value,
 //                                 const Integer index)
 //------------------------------------------------------------------------------
-bool MatlabWs::SetStringParameter(const Integer id, const std::string &value,
+bool MatlabWorkspace::SetStringParameter(const Integer id, const std::string &value,
                                   const Integer index)
 {
    switch (id)
@@ -403,7 +402,7 @@ bool MatlabWs::SetStringParameter(const Integer id, const std::string &value,
 //                                 const std::string &value,
 //                                 const Integer index)
 //------------------------------------------------------------------------------
-bool MatlabWs::SetStringParameter(const std::string &label,
+bool MatlabWorkspace::SetStringParameter(const std::string &label,
                                   const std::string &value,
                                   const Integer index)
 {
@@ -414,7 +413,7 @@ bool MatlabWs::SetStringParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // const StringArray& GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
-const StringArray& MatlabWs::GetStringArrayParameter(const Integer id) const
+const StringArray& MatlabWorkspace::GetStringArrayParameter(const Integer id) const
 {
    switch (id)
    {
@@ -429,7 +428,7 @@ const StringArray& MatlabWs::GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // StringArray& GetStringArrayParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-const StringArray& MatlabWs::GetStringArrayParameter(const std::string &label) const
+const StringArray& MatlabWorkspace::GetStringArrayParameter(const std::string &label) const
 {
    return GetStringArrayParameter(GetParameterID(label));
 }
@@ -439,7 +438,7 @@ const StringArray& MatlabWs::GetStringArrayParameter(const std::string &label) c
 // virtual GmatBase* GetRefObject(const Gmat::ObjectType type,
 //                                const std::string &name)
 //------------------------------------------------------------------------------
-GmatBase* MatlabWs::GetRefObject(const Gmat::ObjectType type,
+GmatBase* MatlabWorkspace::GetRefObject(const Gmat::ObjectType type,
                                  const std::string &name)
 {
    for (int i=0; i<mNumParams; i++)
@@ -448,7 +447,7 @@ GmatBase* MatlabWs::GetRefObject(const Gmat::ObjectType type,
          return mParams[i];
    }
 
-   throw GmatBaseException("MatlabWs::GetRefObject() the object name: " + name +
+   throw GmatBaseException("MatlabWorkspace::GetRefObject() the object name: " + name +
                            " not found\n");
 }
 
@@ -457,12 +456,12 @@ GmatBase* MatlabWs::GetRefObject(const Gmat::ObjectType type,
 // virtual bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //                           const std::string &name = "")
 //------------------------------------------------------------------------------
-bool MatlabWs::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+bool MatlabWorkspace::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                           const std::string &name)
 {
    #ifdef DEBUG_MATLABWS_SET
    MessageInterface::ShowMessage
-      ("MatlabWs::SetRefObject() obj=%p, name=%s, objtype=%s, objname=%s\n",
+      ("MatlabWorkspace::SetRefObject() obj=%p, name=%s, objtype=%s, objname=%s\n",
        obj, name.c_str(), obj->GetTypeName().c_str(), obj->GetName().c_str());
    #endif
    
@@ -477,7 +476,7 @@ bool MatlabWs::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    
    #ifdef DEBUG_MATLABWS_SET
    MessageInterface::ShowMessage
-      ("MatlabWs::SetRefObject() %s not found, so returning false\n", name.c_str());
+      ("MatlabWorkspace::SetRefObject() %s not found, so returning false\n", name.c_str());
    #endif
    
    return false;
@@ -487,7 +486,7 @@ bool MatlabWs::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // virtual const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
-const StringArray& MatlabWs::GetRefObjectNameArray(const Gmat::ObjectType type)
+const StringArray& MatlabWorkspace::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    mAllRefObjectNames.clear();
    
@@ -507,7 +506,7 @@ const StringArray& MatlabWs::GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
 // Integer GetNumParameters()
 //------------------------------------------------------------------------------
-Integer MatlabWs::GetNumParameters()
+Integer MatlabWorkspace::GetNumParameters()
 {
    return mNumParams;
 }
@@ -516,11 +515,11 @@ Integer MatlabWs::GetNumParameters()
 //------------------------------------------------------------------------------
 // bool AddParameter(const std::string &paramName, Integer index)
 //------------------------------------------------------------------------------
-bool MatlabWs::AddParameter(const std::string &paramName, Integer index)
+bool MatlabWorkspace::AddParameter(const std::string &paramName, Integer index)
 {
    #ifdef DEBUG_MATLABWS_PARAM
    MessageInterface::ShowMessage
-      ("MatlabWs::AddParameter() name = %s, index = %d\n", paramName.c_str(), index);
+      ("MatlabWorkspace::AddParameter() name = %s, index = %d\n", paramName.c_str(), index);
    #endif
    
    if (paramName != "" && index == mNumParams)
@@ -552,7 +551,7 @@ bool MatlabWs::AddParameter(const std::string &paramName, Integer index)
 //------------------------------------------------------------------------------
 // bool Distribute(int len)
 //------------------------------------------------------------------------------
-bool MatlabWs::Distribute(int len)
+bool MatlabWorkspace::Distribute(int len)
 {      
    return false;
 }
@@ -561,11 +560,11 @@ bool MatlabWs::Distribute(int len)
 //------------------------------------------------------------------------------
 // bool Distribute(const Real * dat, Integer len)
 //------------------------------------------------------------------------------
-bool MatlabWs::Distribute(const Real * dat, Integer len)
+bool MatlabWorkspace::Distribute(const Real * dat, Integer len)
 {
    #if DBGLVL_MATLABWS_RUN
    MessageInterface::ShowMessage
-      ("MatlabWs::Distribute() entered. mUpdateFrequency=%d, mDataCount=%d, "
+      ("MatlabWorkspace::Distribute() entered. mUpdateFrequency=%d, mDataCount=%d, "
        "mSendCount=%d\n", mUpdateFrequency, mDataCount, mSendCount);
    #endif
    
@@ -587,7 +586,7 @@ bool MatlabWs::Distribute(const Real * dat, Integer len)
          for (int i=0; i < mNumParams; i++)
          {
             if (mParams[i] == NULL)
-               throw SubscriberException("MatlabWs::Distribute: Cannot find "
+               throw SubscriberException("MatlabWorkspace::Distribute: Cannot find "
                                          "parameter \"" + mParamNames[i] + "\"\n");
             
             mParams[i]->Evaluate();
@@ -601,8 +600,10 @@ bool MatlabWs::Distribute(const Real * dat, Integer len)
             //--------------------------------------------------------
             // if using MATLAB, send it to workspace
             //--------------------------------------------------------
-            #ifdef __USE_MATLAB__
             MatlabInterface *matlabIf = MatlabInterface::Instance();
+            if (matlabIf == NULL)
+               return false;
+            
             std::string countStr = GmatStringUtil::ToString(mSendCount, 1);
             
             if (mParams[i]->GetTypeName() == "Array")
@@ -623,7 +624,6 @@ bool MatlabWs::Distribute(const Real * dat, Integer len)
             #endif
             
             matlabIf->RunMatlabString(matlabStr);
-            #endif
             //--------------------------------------------------------
          }
       }
@@ -639,10 +639,10 @@ bool MatlabWs::Distribute(const Real * dat, Integer len)
 //------------------------------------------------------------------------------
 // void ClearParameters()
 //------------------------------------------------------------------------------
-void MatlabWs::ClearParameters()
+void MatlabWorkspace::ClearParameters()
 {
    #ifdef DEBUG_MATLABWS_PARAM
-   MessageInterface::ShowMessage("\nMatlabWs::ClearParameters() entered\n");
+   MessageInterface::ShowMessage("\nMatlabWorkspace::ClearParameters() entered\n");
    #endif
    
    mParams.clear();

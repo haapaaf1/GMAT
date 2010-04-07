@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  MatlabWs
+//                                  MatlabWorkspace
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -13,27 +13,25 @@
 // Created: 2004/09/08
 //
 /**
- * Declares MatlabWs class which evaluates parameters to be sent to MATLAB
+ * Declares MatlabWorkspace class which evaluates parameters to be sent to MATLAB
  * workspace.
  */
 //------------------------------------------------------------------------------
-#ifndef MatlabWs_hpp
-#define MatlabWs_hpp
+#ifndef MatlabWorkspace_hpp
+#define MatlabWorkspace_hpp
 
 #include "Subscriber.hpp"
-#include "Parameter.hpp"
 
-#ifdef __USE_MATLAB__
-#include "MatlabInterface.hpp"
-#endif
+class Parameter;
+class MatlabInterface;
 
-class MatlabWs : public Subscriber
+class MatlabWorkspace : public Subscriber
 {
 public:
-   MatlabWs(const std::string &name, Parameter *firstParam = NULL);
-   virtual ~MatlabWs(void);
-   MatlabWs(const MatlabWs &copy);
-   MatlabWs& operator=(const MatlabWs &right);
+   MatlabWorkspace(const std::string &name, Parameter *firstParam = NULL);
+   virtual ~MatlabWorkspace(void);
+   MatlabWorkspace(const MatlabWorkspace &copy);
+   MatlabWorkspace& operator=(const MatlabWorkspace &right);
    
    Integer              GetNumParameters();
    bool                 AddParameter(const std::string &paramName, Integer index);
@@ -93,9 +91,7 @@ protected:
    StringArray mParamNames;
    StringArray mAllRefObjectNames;
    
-   #ifdef __USE_MATLAB__
    MatlabInterface *matlabIf;
-   #endif
    
    virtual bool         Distribute(Integer len);
    virtual bool         Distribute(const Real * dat, Integer len);
@@ -107,15 +103,14 @@ private:
    {
       ADD = SubscriberParamCount,
       UPDATE_FREQUENCY,
-      MatlabWsParamCount  /// Count of the parameters for this class
+      MatlabWorkspaceParamCount  /// Count of the parameters for this class
    };
    
    static const std::string
-      PARAMETER_TEXT[MatlabWsParamCount - SubscriberParamCount];
+      PARAMETER_TEXT[MatlabWorkspaceParamCount - SubscriberParamCount];
    static const Gmat::ParameterType
-      PARAMETER_TYPE[MatlabWsParamCount - SubscriberParamCount];
+      PARAMETER_TYPE[MatlabWorkspaceParamCount - SubscriberParamCount];
    
 };
-
-
 #endif
+
