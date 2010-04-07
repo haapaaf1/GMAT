@@ -101,6 +101,11 @@
 #include "AboutDialog.hpp"
 #include "SetPathDialog.hpp"
 
+// MatlabInterface
+#ifdef __USE_MATLAB__
+#include "MatlabInterface.hpp"
+#endif
+
 #include "FileManager.hpp"
 #include "FileUtil.hpp"               // for Compare()
 
@@ -474,13 +479,12 @@ GmatMainFrame::~GmatMainFrame()
       ("GmatMainFrame::~GmatMainFrame() entered. mMatlabServer=%p, theGuiInterpreter=%p\n",
        mMatlabServer, theGuiInterpreter);
    #endif
-
-   // Close MATLAB connection
-   MatlabInterface::Instance()->Close();
-
+   
+   theGuiInterpreter->CloseMatlabEngine();
+   
    if (mMatlabServer)
       delete mMatlabServer;
-
+   
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
    if (gmatAppData->GetMessageWindow() != NULL)
@@ -1373,6 +1377,9 @@ void GmatMainFrame::BuildAndRunScript(const wxString &filename)
       wxMessageBox(wxT("The script file \"" + filename + "\" does not exist.\n"),
                    wxT("GMAT Error"));
    }
+   
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::EXIT_AFTER_RUN)
+      Close();
 }
 
 
@@ -2707,7 +2714,7 @@ void GmatMainFrame::OnSetPath(wxCommandEvent& event)
 void GmatMainFrame::OnOpenMatlab(wxCommandEvent& event)
 {
    wxBeginBusyCursor();
-   MatlabInterface::Instance()->Open("GmatMatlab");
+   theGuiInterpreter->OpenMatlabEngine();
    wxEndBusyCursor();
 }
 
@@ -2723,7 +2730,7 @@ void GmatMainFrame::OnOpenMatlab(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnCloseMatlab(wxCommandEvent& event)
 {
-   MatlabInterface::Instance()->Close();
+   theGuiInterpreter->CloseMatlabEngine();
 }
 
 
