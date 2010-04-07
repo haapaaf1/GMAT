@@ -246,7 +246,7 @@ bool ScriptInterpreter::Interpret(const std::string &scriptfile)
 // GmatCommand* InterpretGmatFunction(const std::string fileName)
 //------------------------------------------------------------------------------
 /**
- * Retrieves a function object pointer by given name.
+ * Builds function cmmand sequence by parsing the function file.
  *
  * @param <fileName>  Full path and name of the GmatFunction file.
  *
