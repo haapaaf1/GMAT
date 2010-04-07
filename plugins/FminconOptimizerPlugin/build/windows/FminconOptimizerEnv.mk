@@ -1,8 +1,8 @@
 # $Id$
 # Environment settings for the FminconOptimizer plugin
 # location of GMAT base headers and libraries
-GMAT_CODE_LOCATION = ../../../GmatDelivery/src
-GMAT_BIN_LOCATION = ../../../GmatDelivery/bin
+GMAT_CODE_LOCATION = ../../../../src
+GMAT_BIN_LOCATION = ../../../../bin
 
 # location of MATLAB headers and libraries
 MATLAB_IF_CODE_LOCATION = ../../../MatlabInterfacePlugin/src
