@@ -406,8 +406,6 @@ Real GmatMathUtil::ASin (Real x, Real cycleInRad)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::ACos (Real x, Real tol, Real cycleInRad)
 {
-   tol = 0.0;
-   
    if (cycleInRad <= 0.0)
       throw RealUtilitiesExceptions::ArgumentError("ACos(angle, cycle <= 0.0)\n");
    
