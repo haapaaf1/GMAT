@@ -2777,6 +2777,52 @@ std::string GmatStringUtil::RemoveInlineComment(const std::string &str,
 }
 
 //------------------------------------------------------------------------------
+// std::string ParseFunctionName(const std::string &str)
+//------------------------------------------------------------------------------
+/**
+ * Parses function name from the following syntax:
+ *    [out] = Function1(in);
+ *    Function2(in);
+ *    Function3;
+ *
+ * @param  str  Input string
+ * @return  Function name or blank if name not found
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::ParseFunctionName(const std::string &str)
+{
+   if (str == "")
+      return "";
+   
+   // Remove all spaces and semicolons
+   std::string str1 = RemoveAll(str, ' ');
+   while (str1[str1.size()-1] == ';')
+      str1.erase(str1.size()-1, 1);
+   
+   std::string funcName;
+   if (str1.find("[") != str1.npos)
+   {
+      std::string::size_type index1 = str1.find("=");
+      std::string::size_type index2 = str1.find("(", index1 + 1);
+      if (index2 == str1.npos)
+         funcName = str1.substr(index1);
+      else
+         funcName = str1.substr(index1+1, index2-index1-1);
+   }
+   else
+   {
+      std::string::size_type index2 = str1.find("(");
+      if (index2 == str1.npos)
+         funcName = str1.substr(0);
+      else
+         funcName = str1.substr(0, index2);
+   }
+   
+   return funcName;
+}
+
+
+//------------------------------------------------------------------------------
 // bool StartsWith(const std::string &str, const std::string &value)
 //------------------------------------------------------------------------------
 /*
