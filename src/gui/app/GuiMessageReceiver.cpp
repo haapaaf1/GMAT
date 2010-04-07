@@ -188,6 +188,7 @@ void GuiMessageReceiver::ShowMessage(const std::string &msgString)
       // Added since text in the message window are not always scrolled down,
       // such as debug message from the panel or dialog (LOJ: 2009.03.20)
       appData->GetMessageTextCtrl()->PageDown();
+      appData->GetMessageTextCtrl()->Update();
    }
    LogMessage(msgString);   
 }
