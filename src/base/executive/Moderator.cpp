@@ -42,17 +42,21 @@
 #include "SubscriberFactory.hpp"
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
+#include "Interface.hpp"
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
-#include "TimeSystemConverter.hpp" // for SetLeapSecsFileReader(), SetEopFile()
-#include "BodyFixedAxes.hpp"       // for SetEopFile(), SetCoefficientsFile()
+#include "TimeSystemConverter.hpp"  // for SetLeapSecsFileReader(), SetEopFile()
+#include "BodyFixedAxes.hpp"        // for SetEopFile(), SetCoefficientsFile()
 #include "ObjectReferencedAxes.hpp"
 #include "MessageInterface.hpp"
-#include "CommandUtil.hpp"         // for GetCommandSeq()
-#include "StringTokenizer.hpp"
-#include <algorithm>               // for sort(), set_difference()
-#include <ctime>                   // for clock()
+#include "CommandUtil.hpp"          // for GetCommandSeq()
+#include "StringTokenizer.hpp"      // for StringTokenizer
+#include "FileUtil.hpp"             // for GmatFileUtil::
+#include <algorithm>                // for sort(), set_difference()
+#include <ctime>                    // for clock()
+
+
 
 //#define DEBUG_INITIALIZE 1
 //#define DEBUG_FINALIZE 1
@@ -81,6 +85,7 @@
 //#define DEBUG_SOLAR_SYSTEM_IN_USE 1
 //#define DEBUG_CREATE_BODY
 //#define DEBUG_PLUGIN_REGISTRATION
+#define DEBUG_MATLAB
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -281,6 +286,47 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
    MessageInterface::ShowMessage
       ("%s GMAT Moderator successfully created core engine\n", timestr);
    
+   // Check if MatlabInterface is required
+   if (GmatGlobal::Instance()->GetMatlabMode() == GmatGlobal::NO_MATLAB)
+   {
+      MessageInterface::ShowMessage
+         ("*** Use of MATLAB is disabled from the gmat_startup_file\n");
+   }
+   else
+   {
+      try
+      {
+         theMatlabInterface = theFactoryManager->CreateInterface("MatlabInterface", "MI");
+         #ifdef DEBUG_MATLAB
+         MessageInterface::ShowMessage
+            ("Moderator::Initialize() theMatlabInterface=<%p>\n", theMatlabInterface);
+         #endif
+         // Check if MATLAB is installed
+         // Do not override matlab setting in the startup file since
+         // GmatFileUtil::IsAppInstalled() not implemented for all platforms
+         std::string appLoc;
+         bool hasMatlab = GmatFileUtil::IsAppInstalled("MATLAB", appLoc);
+         // Since GmatFileUtil::IsAppInstalled() is not complete for all platforms,
+         // assume there is MATLAB for now. (LOJ: 2010.04.07)
+         hasMatlab = true;
+         if (hasMatlab)
+         {
+            MessageInterface::ShowMessage
+               ("*** MATLAB is installed in '%s'\n", appLoc.c_str());
+            GmatGlobal::Instance()->SetMatlabAvailable(true);
+         }
+         else
+            MessageInterface::ShowMessage("*** MATLAB is not installed\n");
+      }
+      catch (BaseException &be)
+      {
+         MessageInterface::ShowMessage(be.GetFullMessage());
+      }
+   }
+   
+   if (theMatlabInterface == NULL)
+      GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::NO_MATLAB);
+   
    return true;;
 } // Initialize()
 
@@ -324,6 +370,8 @@ void Moderator::Finalize()
    delete theEopFile;
    delete theItrfFile;
    delete theLeapSecsFile;
+   if (theMatlabInterface != NULL)
+      delete theMatlabInterface;
    
    theFileManager = NULL;
    theEopFile = NULL;
@@ -500,6 +548,88 @@ void Moderator::SetRunReady(bool flag)
    isRunReady = flag;
 }
 
+
+//------------------------------------------------------------------------------
+// Interface* GetMatlabInterface()
+//------------------------------------------------------------------------------
+/**
+ * Returns MatlabInterface pointer.
+ */ 
+//------------------------------------------------------------------------------
+Interface* Moderator::GetMatlabInterface()
+{
+   return theMatlabInterface;
+}
+
+
+//------------------------------------------------------------------------------
+// bool OpenMatlabEngine()
+//------------------------------------------------------------------------------
+bool Moderator::OpenMatlabEngine()
+{
+   #ifdef DEBUG_MATLAB
+   MessageInterface::ShowMessage
+      ("Moderator::OpenMatlabEngine() theMatlabInterface=<%p>\n",
+       theMatlabInterface);
+   #endif
+   
+   if (theMatlabInterface != NULL)
+   {
+      #ifdef DEBUG_MATLAB
+      MessageInterface::ShowMessage
+         ("Moderator::OpenMatlabEngine() calling theMatlabInterface->Open()\n");
+      #endif
+      
+      if (theMatlabInterface->Open() == 1)
+         return true;
+      else
+         return false;
+   }
+   else
+   {
+      #ifdef DEBUG_MATLAB
+      MessageInterface::ShowMessage
+         ("Moderator::OpenMatlabEngine() theMatlabInterface is NULL, so returning false\n");
+      #endif
+      return false;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// bool CloseMatlabEngine()
+//------------------------------------------------------------------------------
+bool Moderator::CloseMatlabEngine()
+{
+   #ifdef DEBUG_MATLAB
+   MessageInterface::ShowMessage
+      ("Moderator::CloseMatlabEngine() theMatlabInterface=<%p>\n",
+       theMatlabInterface);
+   #endif
+   
+   if (theMatlabInterface != NULL)
+   {
+      #ifdef DEBUG_MATLAB
+      MessageInterface::ShowMessage
+         ("Moderator::OpenMatlabEngine() calling theMatlabInterface->Close()\n");
+      #endif
+      
+      if (theMatlabInterface->Close() == 1)
+         return true;
+      else
+         return false;
+   }
+   else
+   {
+      #ifdef DEBUG_MATLAB
+      MessageInterface::ShowMessage
+         ("Moderator::OpenMatlabEngine() theMatlabInterface is NULL, so returning false\n");
+      #endif
+      return false;
+   }
+}
+
+
 //---------------------------- Plug-in modules ---------------------------------
 
 //------------------------------------------------------------------------------
@@ -528,7 +658,7 @@ void Moderator::LoadPlugins()
       #ifndef __WIN32__
    
          //#ifdef DEBUG_PLUGIN_REGISTRATION
-            MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+            MessageInterface::ShowMessage("*** Loading dynamic library \"%s\": ", 
                i->c_str());
          //#endif
          LoadAPlugin(*i);
@@ -536,7 +666,7 @@ void Moderator::LoadPlugins()
       #else
          
          //#ifdef DEBUG_PLUGIN_REGISTRATION
-            MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
+            MessageInterface::ShowMessage("*** Loading dynamic library \"%s\": ", 
                i->c_str());
          //#endif
          LoadAPlugin(*i);
@@ -603,7 +733,7 @@ void Moderator::LoadAPlugin(std::string pluginName)
                         MessageInterface::ShowMessage("   %s\n",
                               facts[f].c_str());
                   #endif
-                  
+
                   if (theUiInterpreter != NULL)
                      theUiInterpreter->BuildCreatableObjectMaps();
                   theScriptInterpreter->BuildCreatableObjectMaps();
@@ -641,7 +771,7 @@ void Moderator::LoadAPlugin(std::string pluginName)
    }
    else
       MessageInterface::ShowMessage(
-            "Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
+            "*** Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -677,7 +807,7 @@ DynamicLibrary *Moderator::LoadLibrary(const std::string &libraryName)
    }
    else
    {
-      MessageInterface::ShowMessage(" *** Library %s did not open.\n",
+      MessageInterface::ShowMessage("*** Library \"%s\" did not open.\n",
             libraryName.c_str());
       delete theLib;
       theLib = NULL;
@@ -4457,14 +4587,24 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
 
 
 //------------------------------------------------------------------------------
-// GmatCommand* CreateCommand(const std::string &type, const std::string &name)
+// GmatCommand* CreateCommand(const std::string &type, const std::string &name
+//                            bool &retFlag)
+//------------------------------------------------------------------------------
+/**
+ * Creates command from the factory
+ *
+ * @param  type  The command type name such as Propagate, Maneuver
+ * @param  name  The name of the command, usally blank
+ * @param  retFlag  The return flag
+ */
 //------------------------------------------------------------------------------
 GmatCommand* Moderator::CreateCommand(const std::string &type,
                                       const std::string &name, bool &retFlag)
 {
-   #if DEBUG_CREATE_RESOURCE
-   MessageInterface::ShowMessage("Moderator::CreateCommand() entered: type = " +
-                                 type + ", name = " + name + "\n");
+   #if DEBUG_CREATE_COMMAND
+   MessageInterface::ShowMessage
+      ("Moderator::CreateCommand() entered: type = '%s', name = '%s'\n",
+       type.c_str(), name.c_str());
    #endif
    
    GmatCommand *cmd = theFactoryManager->CreateCommand(type, name);
@@ -4488,6 +4628,12 @@ GmatCommand* Moderator::CreateCommand(const std::string &type,
       MemoryTracker::Instance()->Add
          (cmd, type, "Moderator::CreateCommand()", funcName);
    }
+   #endif
+   
+   #if DEBUG_CREATE_COMMAND
+   MessageInterface::ShowMessage
+      ("Moderator::CreateCommand() returning <%p><%s>, retFlag=%d\n", cmd,
+       cmd->GetTypeName().c_str(), retFlag);
    #endif
    
    retFlag = true;
@@ -4731,9 +4877,17 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
 //------------------------------------------------------------------------------
 // bool AppendCommand(GmatCommand *cmd, Integer sandboxNum)
 //------------------------------------------------------------------------------
+/**
+ * Appends command to last command
+ *
+ * @param  cmd  The command pointer to be appended
+ * @param  sandboxNum  The sandbox number
+ * @return  Return true if command successfully appended
+ */
+//------------------------------------------------------------------------------
 bool Moderator::AppendCommand(GmatCommand *cmd, Integer sandboxNum)
 {
-   #if DEBUG_COMMAND_APPEND
+   #if DEBUG_RESOURCE_COMMAND
    MessageInterface::ShowMessage
       ("==========> Moderator::AppendCommand() cmd=(%p)%s\n",
        cmd, cmd->GetTypeName().c_str());
@@ -4742,7 +4896,7 @@ bool Moderator::AppendCommand(GmatCommand *cmd, Integer sandboxNum)
    // Get last command and append
    GmatCommand *lastCmd = GmatCommandUtil::GetLastCommand(commands[sandboxNum-1]);
    
-   #if DEBUG_COMMAND_APPEND
+   #if DEBUG_RESOURCE_COMMAND
    MessageInterface::ShowMessage
       ("     lastCmd=(%p)%s\n", lastCmd, lastCmd->GetTypeName().c_str());
    #endif
@@ -4756,12 +4910,18 @@ bool Moderator::AppendCommand(GmatCommand *cmd, Integer sandboxNum)
 
 //------------------------------------------------------------------------------
 // GmatCommand* AppendCommand(const std::string &type, const std::string &name,
-//                           Integer sandboxNum)
+//                           bool &retFlag, Integer sandboxNum)
 //------------------------------------------------------------------------------
 GmatCommand* Moderator::AppendCommand(const std::string &type,
                                       const std::string &name, bool &retFlag,
                                       Integer sandboxNum)
 {
+   #if DEBUG_RESOURCE_COMMAND
+   MessageInterface::ShowMessage
+      ("==========> Moderator::AppendCommand() type='%s', name='%s'\n",
+       type.c_str(), name.c_str());
+   #endif
+   
    GmatCommand *cmd = theFactoryManager->CreateCommand(type, name);
    
    if (cmd != NULL)
@@ -4783,6 +4943,12 @@ GmatCommand* Moderator::AppendCommand(const std::string &type,
       throw GmatBaseException
          ("The Moderator cannot create a Command type \"" + type + "\"\n");
    }
+   
+   #if DEBUG_RESOURCE_COMMAND
+   MessageInterface::ShowMessage
+      ("==========> Moderator::AppendCommand() returning <%p>, retFlag=%d\n",
+       cmd, retFlag);
+   #endif
    
    return cmd;
 }
@@ -7878,7 +8044,7 @@ void Moderator::AddCommandToSandbox(Integer index)
    #endif
    
    GmatCommand *cmd = commands[index]->GetNext();
-
+   
    if (cmd != NULL)
    {
       #if DEBUG_RUN > 1
@@ -7980,6 +8146,8 @@ Moderator::Moderator()
    theInternalSolarSystem = NULL;
    runState = Gmat::IDLE;
    objectManageOption = 1;
+   
+   theMatlabInterface = NULL;
    
    // The motivation of adding this data member was due to Parameter creation
    // in function mode. When Parameter is created, the Moderator automatically

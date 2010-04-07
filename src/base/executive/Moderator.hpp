@@ -62,6 +62,7 @@
 
 class DataFile;
 class ObType;
+class Interface;
 
 namespace Gmat
 {
@@ -77,6 +78,11 @@ public:
    void Finalize();
    void SetRunReady(bool flag = true);
    void SetShowFinalState(bool flag = true);
+   
+   //----- Matlab engine
+   Interface* GetMatlabInterface();
+   bool OpenMatlabEngine();
+   bool CloseMatlabEngine();
    
    //----- Plug-in code
    void LoadPlugins();
@@ -465,6 +471,7 @@ private:
    EopFile *theEopFile;
    ItrfCoefficientsFile *theItrfFile;
    LeapSecsFileReader *theLeapSecsFile;
+   Interface *theMatlabInterface;
    Gmat::RunState runState;
 
    // Dynamic library data table
