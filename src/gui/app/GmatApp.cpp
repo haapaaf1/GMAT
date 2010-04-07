@@ -331,7 +331,8 @@ void GmatApp::ProcessCommandLineOptions()
       "   -help            Shows available options\n"
       "   -date            Shows GMAT build date\n"
       "   -ms              Starts MATLAB server when GMAT launches\n"
-      "   -br 'filename'   Builds and runs the script\n\n";
+      "   -br 'filename'   Builds and runs the script\n\n"
+      "   -exit            Exits GMAT after a script is run\n";
 
    #ifdef DEBUG_CMD_LINE
    MessageInterface::ShowMessage("argc = %d\n", argc);
@@ -372,6 +373,10 @@ void GmatApp::ProcessCommandLineOptions()
          else if (arg == "-help")
          {
             MessageInterface::ShowMessage(commandLineOptions.c_str());
+         }
+         else if (arg == "-exit")
+         {
+            GmatGlobal::Instance()->SetRunMode(GmatGlobal::EXIT_AFTER_RUN);
          }
          else
          {
