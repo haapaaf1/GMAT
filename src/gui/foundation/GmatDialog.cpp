@@ -12,6 +12,8 @@
  */
 //------------------------------------------------------------------------------
 
+#include <wx/utils.h>
+#include <wx/config.h>
 #include "GmatDialog.hpp"
 #include "GmatAppData.hpp"
 #include "FileManager.hpp"
@@ -27,7 +29,9 @@
 BEGIN_EVENT_TABLE(GmatDialog, wxDialog)
    EVT_BUTTON(ID_BUTTON_OK, GmatDialog::OnOK)
    EVT_BUTTON(ID_BUTTON_CANCEL, GmatDialog::OnCancel)
+#ifdef __SHOW_HELP_BUTTON__
    EVT_BUTTON(ID_BUTTON_HELP, GmatDialog::OnHelp)
+#endif
    EVT_CLOSE(GmatDialog::OnClose) 
 END_EVENT_TABLE()
 
@@ -90,13 +94,21 @@ GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    theCancelButton =
       new wxButton(this, ID_BUTTON_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, 0);
    
-   //theHelpButton =
-   //   new wxButton(this, ID_BUTTON_HELP, "Help", wxDefaultPosition, wxDefaultSize, 0);
+   #ifdef __SHOW_HELP_BUTTON__
+   theHelpButton = new wxButton
+      (this, ID_BUTTON_HELP, GUI_ACCEL_KEY"Help", wxDefaultPosition, wxDefaultSize, 0);
+   #endif
    
    // adds the buttons to button sizer    
+   #ifdef __SHOW_HELP_BUTTON__
+   theButtonSizer->Add(0, 1, wxALIGN_LEFT | wxALL);
+   #endif
    theButtonSizer->Add(theOkButton, 0, wxALIGN_CENTER | wxALL, borderSize);
    theButtonSizer->Add(theCancelButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-   //theButtonSizer->Add(theHelpButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+   #ifdef __SHOW_HELP_BUTTON__
+   theButtonSizer->Add(0, 1, wxALIGN_RIGHT | wxALL);
+   theButtonSizer->Add(theHelpButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
+   #endif
    
    theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
 }
@@ -185,7 +197,12 @@ void GmatDialog::OnCancel(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GmatDialog::OnHelp(wxCommandEvent &event)
 {
-   // open separate window to show help
+    // get the config object
+    wxConfigBase *pConfig = wxConfigBase::Get();
+    pConfig->SetPath(wxT("/Help"));
+    wxString s = GetName().c_str();
+    // open separate window to show help 
+    wxLaunchDefaultBrowser(pConfig->Read(_T(s),_T("http://gmat.ed-pages.com/wiki/tiki-index.php?page="+s+"+Object")));
 }
 
 
