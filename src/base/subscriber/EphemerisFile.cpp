@@ -236,6 +236,7 @@ EphemerisFile::~EphemerisFile()
       delete interpolator;
    }
    
+   #ifdef __USE_SPICE__
    if (spkWriter != NULL && !spkWriteFailed)
    {
       FinalizeSpkFile();
@@ -247,6 +248,7 @@ EphemerisFile::~EphemerisFile()
       #endif
       delete spkWriter;
    }
+   #endif
    
    #ifdef DEBUG_EPHEMFILE
    MessageInterface::ShowMessage
