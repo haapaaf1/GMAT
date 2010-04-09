@@ -2444,7 +2444,7 @@ wxListBox* GuiItemManager::GetCelestialBodyListBox(wxWindow *parent, wxWindowID 
 {
    wxArrayString emptyList;
    wxListBox *celesBodyListBox =
-      new wxListBox(parent, id, wxDefaultPosition, size, emptyList, wxLB_SINGLE);
+      new wxListBox(parent, id, wxDefaultPosition, size, emptyList, wxLB_SINGLE | wxLB_SORT);
    
    if (excList.GetCount() > 0)
    {
