@@ -23,6 +23,7 @@
 #include "PropagationConfigPanel.hpp"
 #include "GmatStaticBoxSizer.hpp"
 #include "MessageInterface.hpp"
+#include "bitmaps/OpenFolder.xpm"
 
 #include "wx/platform.h"
 #include <wx/config.h>
@@ -139,7 +140,14 @@ void PropagationConfigPanel::Create()
    MessageInterface::ShowMessage("PropagationConfigPanel::Setup() entered\n"); 
    #endif
    
+   #if __WXMAC__
+   int buttonWidth = 40;
+   #else
+   int buttonWidth = 25;
+   #endif
+
    Integer bsize = 2; // border size
+   wxBitmap openBitmap = wxBitmap(OpenFolder_xpm);
    
    // get the config object
    wxConfigBase *pConfig = wxConfigBase::Get();
@@ -359,8 +367,8 @@ void PropagationConfigPanel::Create()
                       wxSize(30,-1), 0 );
    gravityOrderTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelGravityOrderHint")));
    theGravModelSearchButton =
-      new wxButton( this, ID_BUTTON_GRAV_SEARCH, wxT("Search"),
-                    wxDefaultPosition, wxDefaultSize, 0 );
+      new wxBitmapButton(this, ID_BUTTON_GRAV_SEARCH, openBitmap, wxDefaultPosition,
+                         wxSize(buttonWidth, 20));
    theGravModelSearchButton->SetToolTip(pConfig->Read(_T("ForceModelGravitySearchHint")));
    
    wxBoxSizer *degOrdSizer = new wxBoxSizer( wxHORIZONTAL );
