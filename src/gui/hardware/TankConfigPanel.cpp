@@ -332,8 +332,6 @@ void TankConfigPanel::LoadData()
    if (theFuelTank == NULL)
       return; 
    
-   Integer paramID;
-   
    // Set object pointer for "Show Script"
    mObject = theFuelTank;
 
@@ -390,8 +388,7 @@ void TankConfigPanel::SaveData()
    
    // Fuel Density 
    inputString = fuelDensityTextCtrl->GetValue();
-   CheckReal(fuelDensity, inputString, "FuelDensity", "Real Number >= 0.0", false, true, true, true);
-   
+   CheckReal(fuelDensity, inputString, "FuelDensity", "Real Number > 0.0", false, true, true, false);
    
    if (!canClose)
       return;
