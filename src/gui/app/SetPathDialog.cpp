@@ -62,7 +62,7 @@ void SetPathDialog::Create()
    
    //----- read startup file
    wxButton *readButton =
-      new wxButton(this, ID_BUTTON_READ, wxT("Read Other Statrup File"),
+      new wxButton(this, ID_BUTTON_READ, wxT("Read Other Startup File"),
                    wxDefaultPosition, wxDefaultSize, 0);
    wxStaticText *currFileText =
       new wxStaticText(this, -1, wxT("Current Startup File:"), 
@@ -74,7 +74,7 @@ void SetPathDialog::Create()
    
    //----- write startup file
    wxButton *saveButton =
-      new wxButton(this, ID_BUTTON_SAVE, wxT("Save Current Statrup File"),
+      new wxButton(this, ID_BUTTON_SAVE, wxT("Save Current Startup File"),
                    wxDefaultPosition, wxDefaultSize, 0);
    mSaveFileTextCtrl =
       new wxTextCtrl(this, -1, wxT(""),
