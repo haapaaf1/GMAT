@@ -91,13 +91,3 @@ Integer Interface::Close(const std::string &name)
                             " named \"" + instanceName + "\"\n");
 }
 
-
-// //------------------------------------------------------------------------------
-// // virtual GmatBase* Clone() const
-// //------------------------------------------------------------------------------
-// GmatBase* Interface::Clone() const
-// {
-//    throw InterfaceException("Clone() not defined for " + typeName +
-//                             " named \"" + instanceName + "\"\n");
-// }
-
