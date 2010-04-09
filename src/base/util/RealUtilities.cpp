@@ -402,7 +402,7 @@ Real GmatMathUtil::ASin (Real x, Real cycleInRad)
 
 
 //------------------------------------------------------------------------------
-//  Real ACos (Real x, Real tol=GmatRealConst::REAL_EPSILON, Real cycleInRad=TWO_PI)
+//  Real ACos (Real x, Real tol=GmatRealConst::REAL_TOL, Real cycleInRad=TWO_PI)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::ACos (Real x, Real tol, Real cycleInRad)
 {
