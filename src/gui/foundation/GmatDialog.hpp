@@ -81,7 +81,9 @@ protected:
    
    wxButton *theOkButton;
    wxButton *theCancelButton;
-   //wxButton *theHelpButton;
+   #ifdef __SHOW_HELP_BUTTON__
+   wxButton *theHelpButton;
+   #endif
    
    // any class wishing to process wxWindows events must use this macro
    DECLARE_EVENT_TABLE();
