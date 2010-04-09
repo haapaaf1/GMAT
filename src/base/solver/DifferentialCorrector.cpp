@@ -428,15 +428,21 @@ bool DifferentialCorrector::SetStringParameter(const Integer id,
     }
 
     if (id == derivativeMethodID)
-    {
+    { 
+       bool retval = true;
+       //   This is to handle deprecated value UseCentralDifferences = true
        if (value == "true")
           derivativeMethod = "CentralDifference";
+       //   This is to handle deprecated value UseCentralDifferences = false
        else if (value == "false")
           derivativeMethod = "ForwardDifference";
-       else
+       // Allowed values for DerivativeMethod
+       else if (value == "ForwardDifference" || value == "CentralDifference" || value == "BackwardDifference")
           derivativeMethod = value;
-       
-       return true;
+       //  All other values are not allowed!
+       else retval = false;
+
+       return retval;
     }
     
     return Solver::SetStringParameter(id, value);
