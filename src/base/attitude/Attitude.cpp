@@ -153,6 +153,8 @@ const Real    Attitude::TESTACCURACY            = 1.19209290E-07;
 const Real    Attitude::QUAT_MIN_MAG            = 1.0e-10;
 const Real    Attitude::ATTITUDE_TIME_TOLERANCE = 1.0E-09;
 const Integer Attitude::OTHER_REPS_OFFSET       = 7000;
+const Real    Attitude::DCM_ORTHONORMALITY_TOLERANCE = 1.0e-14;
+
 
 //------------------------------------------------------------------------------
 // static methods
@@ -3008,7 +3010,7 @@ void Attitude::DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat,
 
 bool Attitude::ValidateCosineMatrix(const Rmatrix33 &mat)
 {
-   if (!mat.IsOrthogonal()) //return false;
+if (!mat.IsOrthonormal(DCM_ORTHONORMALITY_TOLERANCE)) //return false;
    {
       AttitudeException attex;
       std::ostringstream matS;

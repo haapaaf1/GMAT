@@ -259,8 +259,11 @@ protected:
    static const Real QUAT_MIN_MAG;
 
    static const Real ATTITUDE_TIME_TOLERANCE;
+
+   static const Real DCM_ORTHONORMALITY_TOLERANCE;
    
    static const Integer OTHER_REPS_OFFSET;
+
 
    
    GmatAttitude::AttitudeStateType
