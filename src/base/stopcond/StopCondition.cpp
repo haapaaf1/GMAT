@@ -545,12 +545,13 @@ bool StopCondition::Evaluate()
             prevGoalDiff, currGoalDiff, direction);
       #endif
 
-      if (mNumValidPoints == 1)
-         if (((2.0*mGoal - currentParmValue - previousValue) * direction) < 0.0)
-            MessageInterface::ShowMessage(
-               "Warning!  Time based stopping condition \"%s\" = %.10lf will "
-               "never be satisfied\n",
-               instanceName.c_str(), mGoal);
+      // todo: Fix the direction test code here!!!
+//      if (mNumValidPoints == 1)
+//         if (((2.0*mGoal - currentParmValue - previousValue) * direction) < 0.0)
+//            MessageInterface::ShowMessage(
+//               "Warning!  Time based stopping condition \"%s\" = %.10lf will "
+//               "never be satisfied\n",
+//               instanceName.c_str(), mGoal);
       
       // Goal met if it falls between previous and current values
       if ((currGoalDiff*direction >= 0.0) && 
