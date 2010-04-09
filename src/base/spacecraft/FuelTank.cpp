@@ -434,14 +434,14 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
 
       case FUEL_DENSITY:
          
-         if (value >= 0.0)
+         if (value > 0.0)
             density = value;
          else
          {
             HardwareException hwe("");
             hwe.SetDetails(errorMessageFormat.c_str(),
                            GmatStringUtil::ToString(value, 16).c_str(),
-                           "FuelDensity", "Real Number >= 0.0");
+                           "FuelDensity", "Real Number > 0.0");
             throw hwe;
          }
          initialized = false;
