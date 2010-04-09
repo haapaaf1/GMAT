@@ -25,7 +25,7 @@ class GMAT_API Interface : public GmatBase
 {
 public:
    Interface(const std::string &type, const std::string &name);
-   Interface(const Interface &interface);
+   Interface(const Interface &interf);
    virtual ~Interface();
    
    virtual Integer      Open(const std::string &name = "");

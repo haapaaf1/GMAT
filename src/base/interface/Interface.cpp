@@ -34,16 +34,16 @@ Interface::Interface(const std::string &type, const std::string &name) :
 
 
 //------------------------------------------------------------------------------
-//  Interface(const Interface &interface)
+//  Interface(const Interface &interf)
 //------------------------------------------------------------------------------
 /**
  * Constructs Interface instance (copy constructor). 
  *
- * @param interface Instance that gets copied.
+ * @param  interf  Instance that gets copied.
  */
 //------------------------------------------------------------------------------
-Interface::Interface(const Interface &interface) :
-   GmatBase (interface)
+Interface::Interface(const Interface &interf) :
+   GmatBase (interf)
 {
 }
 
