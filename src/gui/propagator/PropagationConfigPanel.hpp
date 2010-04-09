@@ -202,7 +202,7 @@ private:
    wxComboBox *theMagfModelComboBox;
    wxComboBox *theErrorComboBox;
    
-   wxButton *theGravModelSearchButton;
+   wxBitmapButton *theGravModelSearchButton;
    wxButton *theDragSetupButton;
    wxButton *theMagModelSearchButton;
    
