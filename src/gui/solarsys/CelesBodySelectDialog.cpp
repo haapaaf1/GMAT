@@ -16,6 +16,7 @@
 
 #include "CelesBodySelectDialog.hpp"
 #include "MessageInterface.hpp"
+#include <wx/config.h>
 
 //#define DEBUG_CELESBODY_DIALOG 1
 
@@ -75,21 +76,22 @@ void CelesBodySelectDialog::Create()
    int borderSize = 2;
    wxArrayString emptyList;
    
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Celestial Body"));
+
    // body GridSizer
    wxFlexGridSizer *bodyGridSizer = new wxFlexGridSizer(3, 0, 0);
    
    //-------------------------------------------------------
    // 1st row
    //-------------------------------------------------------
-   wxStaticText *bodySelectStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Selected Bodies"),
-                        wxDefaultPosition, wxDefaultSize, 0 );
    wxStaticText *bodyStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Available Bodies"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Available Bodies"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    bodyGridSizer->Add(bodyStaticText, 0, wxALIGN_CENTRE|wxALL, borderSize);
    bodyGridSizer->Add(20, 20);
-   bodyGridSizer->Add(bodySelectStaticText, 0, wxALIGN_CENTER|wxALL, borderSize);
    
    //-------------------------------------------------------
    // 2nd row
@@ -108,14 +110,18 @@ void CelesBodySelectDialog::Create()
          theGuiManager->GetCelestialBodyListBox(this, -1, wxSize(150, 200),
                                                 mBodiesToExclude);
    }
+   mBodyListBox->SetToolTip(pConfig->Read(_T("AvailableBodiesHint")));
    
    // arrow buttons
    mAddBodyButton =
-      new wxButton( this, ID_BUTTON, wxT("->"), wxDefaultPosition, wxSize(20,20), 0 );
+      new wxButton( this, ID_BUTTON, wxT("-"GUI_ACCEL_KEY">"), wxDefaultPosition, wxSize(20,20), 0 );
+   mAddBodyButton->SetToolTip(pConfig->Read(_T("AddBodyHint")));
    mRemoveBodyButton =
-      new wxButton( this, ID_BUTTON, wxT("<-"), wxDefaultPosition, wxSize(20,20), 0 );
+      new wxButton( this, ID_BUTTON, wxT(GUI_ACCEL_KEY"<-"), wxDefaultPosition, wxSize(20,20), 0 );
+   mRemoveBodyButton->SetToolTip(pConfig->Read(_T("RemoveBodyHint")));
    mClearBodyButton =
-      new wxButton( this, ID_BUTTON, wxT("<="), wxDefaultPosition, wxSize(20,20), 0 );
+      new wxButton( this, ID_BUTTON, wxT("<"GUI_ACCEL_KEY"="), wxDefaultPosition, wxSize(20,20), 0 );
+   mClearBodyButton->SetToolTip(pConfig->Read(_T("ClearBodiesHint")));
    
    // add buttons to sizer
    wxBoxSizer *buttonsBoxSizer = new wxBoxSizer(wxVERTICAL);
@@ -123,6 +129,10 @@ void CelesBodySelectDialog::Create()
    buttonsBoxSizer->Add(mRemoveBodyButton, 0, wxALIGN_CENTER|wxALL, borderSize);
    buttonsBoxSizer->Add(mClearBodyButton, 0, wxALIGN_CENTER|wxALL, borderSize);
    
+   wxStaticText *bodySelectStaticText =
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Selected Bodies"),
+                        wxDefaultPosition, wxDefaultSize, 0 );
+   bodyGridSizer->Add(bodySelectStaticText, 0, wxALIGN_CENTER|wxALL, borderSize);
    // selected celetestial body ListBox
    if (! mBodiesToExclude.IsEmpty())
    {
@@ -134,14 +144,15 @@ void CelesBodySelectDialog::Create()
       
       mBodySelectedListBox =
          new wxListBox(this, ID_BODY_SEL_LISTBOX, wxDefaultPosition,
-                       wxSize(150, 200), selectedBodyList, wxLB_SINGLE);
+                       wxSize(150, 200), selectedBodyList, wxLB_SINGLE | wxLB_SORT);
    }
    else
    {
       mBodySelectedListBox =
          new wxListBox(this, ID_BODY_SEL_LISTBOX, wxDefaultPosition, wxSize(150, 200),
-                       emptyList, wxLB_SINGLE);
+                       emptyList, wxLB_SINGLE|wxLB_SORT);
    }
+   mBodySelectedListBox->SetToolTip(pConfig->Read(_T("SelectedBodiesHint")));
    
    bodyGridSizer->Add(mBodyListBox, 0, wxALIGN_CENTER|wxALL, borderSize);
    bodyGridSizer->Add(buttonsBoxSizer, 0, wxALIGN_CENTER|wxALL, borderSize);
