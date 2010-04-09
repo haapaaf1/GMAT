@@ -25,6 +25,7 @@
 #include "MessageInterface.hpp"
 
 #include "wx/platform.h"
+#include <wx/config.h>
 
 //#define DEBUG_PROP_PANEL_SETUP
 //#define DEBUG_PROP_PANEL_LOAD
@@ -140,13 +141,18 @@ void PropagationConfigPanel::Create()
    
    Integer bsize = 2; // border size
    
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Propagator"));
+
    //-----------------------------------------------------------------
    // Integrator
    //-----------------------------------------------------------------
    // Type
    wxStaticText *integratorStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Type"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE);
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Type"),
+                        wxDefaultPosition, wxDefaultSize);
    
    wxString *intgArray = new wxString[IntegratorCount];
    for (Integer i=0; i<IntegratorCount; i++)
@@ -156,74 +162,83 @@ void PropagationConfigPanel::Create()
       new wxComboBox( this, ID_CB_INTGR, wxT(integratorString),
                       wxDefaultPosition, wxDefaultSize, IntegratorCount,
                       intgArray, wxCB_DROPDOWN|wxCB_READONLY );
+   theIntegratorComboBox->SetToolTip(pConfig->Read(_T("IntegratorTypeHint")));
    
    // Initial Step Size
    wxStaticText *initialStepSizeStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Initial Step Size"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE );
+      new wxStaticText( this, ID_TEXT, wxT("Initial "GUI_ACCEL_KEY"Step Size"),
+                        wxDefaultPosition, wxDefaultSize);
    
    initialStepSizeTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0 );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   initialStepSizeTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorInitialStepSizeHint")));
 
    wxStaticText *unitsInitStepSizeStaticText =
       new wxStaticText( this, ID_TEXT, wxT("sec"),
-                        wxDefaultPosition, wxSize(10,20), wxST_NO_AUTORESIZE );
+                        wxDefaultPosition, wxDefaultSize );
    // Accuracy
    wxStaticText *accuracyStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Accuracy"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE );
+      new wxStaticText( this, ID_TEXT, wxT("A"GUI_ACCEL_KEY"ccuracy"),
+                        wxDefaultPosition, wxDefaultSize );
    accuracyTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0 );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   accuracyTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorAccuracyHint")));
    
    // Minimum Step Size
    wxStaticText *minStepStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Min Step Size"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE );
+      new wxStaticText( this, ID_TEXT, wxT("Mi"GUI_ACCEL_KEY"n Step Size"),
+                        wxDefaultPosition, wxDefaultSize );
    minStepTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0 );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   minStepTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMinStepSizeHint")));
    wxStaticText *unitsMinStepStaticText =
       new wxStaticText( this, ID_TEXT, wxT("sec"),
-                        wxDefaultPosition, wxSize(10,20), wxST_NO_AUTORESIZE );
+                        wxDefaultPosition, wxDefaultSize );
    
    // Maximum Step Size
    wxStaticText *maxStepStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Max Step Size"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE );
+      new wxStaticText( this, ID_TEXT, wxT("Ma"GUI_ACCEL_KEY"x Step Size"),
+                        wxDefaultPosition, wxDefaultSize );
    maxStepTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0 );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   maxStepTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMaxStepSizeHint")));
    wxStaticText *unitsMaxStepStaticText =
       new wxStaticText( this, ID_TEXT, wxT("sec"),
-                        wxDefaultPosition, wxSize(10,20), wxST_NO_AUTORESIZE );
+                        wxDefaultPosition, wxDefaultSize );
    
    // Maximum Step Attempt
    wxStaticText *maxStepAttemptStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Max Step Attempts"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE );
+      new wxStaticText( this, ID_TEXT, wxT("Max Step "GUI_ACCEL_KEY"Attempts"),
+                        wxDefaultPosition, wxDefaultSize );
    maxStepAttemptTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0 );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   maxStepAttemptTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMaxStepAttemptsHint")));
    
    // Minimum Integration Error
    minIntErrorStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Min Integration Error"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE );
+      new wxStaticText( this, ID_TEXT, wxT("Min "GUI_ACCEL_KEY"Integration Error"),
+                        wxDefaultPosition, wxDefaultSize );
    minIntErrorTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0 );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC)  );
+   minIntErrorTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMinIntegrationErrorHint")));
    
    // Nominal Integration Error
    nomIntErrorStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Nominal Integration Error"),
-                        wxDefaultPosition, wxSize(170,20), wxST_NO_AUTORESIZE );  
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Nominal Integration Error"),
+                        wxDefaultPosition, wxDefaultSize );  
    nomIntErrorTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0 );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+   nomIntErrorTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorNominalIntegrationErrorHint")));
    
    wxFlexGridSizer *intFlexGridSizer = new wxFlexGridSizer( 3, 0, 0 );
+   intFlexGridSizer->AddGrowableCol(1);
    intFlexGridSizer->Add( integratorStaticText, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    intFlexGridSizer->Add( theIntegratorComboBox, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    intFlexGridSizer->Add( 20, 20, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
@@ -248,6 +263,18 @@ void PropagationConfigPanel::Create()
    intFlexGridSizer->Add( nomIntErrorStaticText, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    intFlexGridSizer->Add( nomIntErrorTextCtrl, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    intFlexGridSizer->Add( 20, 20, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
+   // define minimum size for the integrator labels
+   int minLabelSize;
+   minLabelSize = integratorStaticText->GetBestSize().x;
+   minLabelSize = (minLabelSize < initialStepSizeStaticText->GetBestSize().x) ? initialStepSizeStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < accuracyStaticText->GetBestSize().x) ? accuracyStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < minStepStaticText->GetBestSize().x) ? minStepStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < maxStepStaticText->GetBestSize().x) ? maxStepStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < maxStepAttemptStaticText->GetBestSize().x) ? maxStepAttemptStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < minIntErrorStaticText->GetBestSize().x) ? minIntErrorStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < nomIntErrorStaticText->GetBestSize().x) ? nomIntErrorStaticText->GetBestSize().x : minLabelSize;
+
+   integratorStaticText->SetMinSize(wxSize(minLabelSize, integratorStaticText->GetMinHeight()));
    
    GmatStaticBoxSizer *intStaticSizer =
       new GmatStaticBoxSizer( wxVERTICAL, this, "Integrator");
@@ -258,13 +285,14 @@ void PropagationConfigPanel::Create()
    //-----------------------------------------------------------------
    // Error Control
    wxStaticText *errorCtrlStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Error Control"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Error Control"),
                         wxDefaultPosition, wxSize(70,20), wxST_NO_AUTORESIZE );
    
    theErrorComboBox =
       new wxComboBox( this, ID_CB_ERROR, errorControlArray[0],
                       wxDefaultPosition, wxSize(100,-1),
                       errorControlArray, wxCB_DROPDOWN|wxCB_READONLY );
+   theErrorComboBox->SetToolTip(pConfig->Read(_T("ForceModelErrorControlHint")));
    
    wxFlexGridSizer *errorFlexGridSizer = new wxFlexGridSizer( 2, 0, 0 );
    errorFlexGridSizer->Add( errorCtrlStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -272,27 +300,33 @@ void PropagationConfigPanel::Create()
    
    // Central Body
    wxStaticText *centralBodyStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Central Body"),
+      new wxStaticText( this, ID_TEXT, wxT("Central "GUI_ACCEL_KEY"Body"),
                         wxDefaultPosition, wxSize(70,20), wxST_NO_AUTORESIZE);
    theOriginComboBox  =
       theGuiManager->GetCelestialBodyComboBox(this, ID_CB_ORIGIN, wxSize(100,-1));
+   theOriginComboBox->SetToolTip(pConfig->Read(_T("ForceModelCentralBodyHint")));
    
    wxFlexGridSizer *centralBodySizer = new wxFlexGridSizer( 2, 0, 2 );
    centralBodySizer->Add( centralBodyStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
    centralBodySizer->Add( theOriginComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
    
    // Primary Bodies
+   GmatStaticBoxSizer *primaryStaticSizer =
+      new GmatStaticBoxSizer(wxVERTICAL, this, "Primary "GUI_ACCEL_KEY"Bodies");
    wxArrayString bodyArray;
    thePrimaryBodyComboBox =
       new wxComboBox( this, ID_CB_BODY, wxT(primaryBodyString),
                       wxDefaultPosition,  wxSize(80,-1),// 0,
                       bodyArray, wxCB_DROPDOWN|wxCB_READONLY );
+   thePrimaryBodyComboBox->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesComboHint")));
    bodyTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""),
                       wxDefaultPosition, wxSize(160,-1), wxTE_READONLY );
+   bodyTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesEditHint")));
    wxButton *primaryBodySelectButton =
       new wxButton( this, ID_BUTTON_ADD_BODY, wxT("Select"),
                     wxDefaultPosition, wxDefaultSize, 0 );
+   primaryBodySelectButton->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesSelectHint")));
    
    wxBoxSizer *bodySizer = new wxBoxSizer( wxHORIZONTAL );
    bodySizer->Add( thePrimaryBodyComboBox, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
@@ -301,7 +335,7 @@ void PropagationConfigPanel::Create()
    
    // Gravity
    wxStaticText *type1StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Model"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Model"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    
    wxArrayString gravArray;
@@ -309,21 +343,25 @@ void PropagationConfigPanel::Create()
       new wxComboBox( this, ID_CB_GRAV, wxT(""),
                       wxDefaultPosition, wxSize(150,-1), // 0,
                       gravArray, wxCB_DROPDOWN|wxCB_READONLY );
+   theGravModelComboBox->SetToolTip(pConfig->Read(_T("ForceModelGravityModelHint")));
    wxStaticText *degree1StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Degree"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Degree"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    gravityDegreeTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_GRAV, wxT(""), wxDefaultPosition,
                       wxSize(30,-1), 0 );
+   gravityDegreeTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelGravityDegreeHint")));
    wxStaticText *order1StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Order"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Order"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    gravityOrderTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_GRAV, wxT(""), wxDefaultPosition,
                       wxSize(30,-1), 0 );
+   gravityOrderTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelGravityOrderHint")));
    theGravModelSearchButton =
       new wxButton( this, ID_BUTTON_GRAV_SEARCH, wxT("Search"),
                     wxDefaultPosition, wxDefaultSize, 0 );
+   theGravModelSearchButton->SetToolTip(pConfig->Read(_T("ForceModelGravitySearchHint")));
    
    wxBoxSizer *degOrdSizer = new wxBoxSizer( wxHORIZONTAL );
    degOrdSizer->Add( type1StaticText, 0, wxALIGN_CENTRE|wxALL, bsize);
@@ -335,11 +373,12 @@ void PropagationConfigPanel::Create()
    degOrdSizer->Add( theGravModelSearchButton, 0, wxALIGN_CENTRE|wxALL, bsize);
    
    potFileStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Potential File"),
+      new wxStaticText( this, ID_TEXT, wxT("Potential "GUI_ACCEL_KEY"File"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    potFileTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_GRAV, wxT(""), wxDefaultPosition,
                       wxSize(290,-1), 0 );
+   potFileTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelGravityPotentialFileHint")));
    
    wxBoxSizer *potFileSizer = new wxBoxSizer( wxHORIZONTAL );   
    potFileSizer->Add( potFileStaticText, 0, wxALIGN_CENTRE|wxALL, bsize);
@@ -352,16 +391,18 @@ void PropagationConfigPanel::Create()
    
    // Drag
    wxStaticText *type2StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Atmosphere Model"),
+      new wxStaticText( this, ID_TEXT, wxT("Atmosphere "GUI_ACCEL_KEY"Model"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    
    theAtmosModelComboBox =
       new wxComboBox( this, ID_CB_ATMOS, dragModelArray[0],
                       wxDefaultPosition, wxDefaultSize,
                       dragModelArray, wxCB_DROPDOWN|wxCB_READONLY );
+   theAtmosModelComboBox->SetToolTip(pConfig->Read(_T("ForceModelDragAtmosphereModelHint")));
    theDragSetupButton =
       new wxButton( this, ID_BUTTON_SETUP, wxT("Setup"),
                     wxDefaultPosition, wxDefaultSize, 0 );
+   theDragSetupButton->SetToolTip(pConfig->Read(_T("ForceModelDragSetupHint")));
    
    wxBoxSizer *atmosSizer = new wxBoxSizer( wxHORIZONTAL );
    atmosSizer->Add( type2StaticText, 0, wxALIGN_CENTRE|wxALL, bsize);   
@@ -374,13 +415,14 @@ void PropagationConfigPanel::Create()
    
    // Magnetic Field
    wxStaticText *type3StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Model"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Model"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    
    theMagfModelComboBox =
       new wxComboBox( this, ID_CB_MAG, magfModelArray[0],
                       wxDefaultPosition, wxDefaultSize,
                       magfModelArray, wxCB_DROPDOWN|wxCB_READONLY );
+   theMagfModelComboBox->SetToolTip(pConfig->Read(_T("ForceModelMagneticFieldModelHint")));
    
    wxStaticText *degree2StaticText =
       new wxStaticText( this, ID_TEXT, wxT("Degree"),
@@ -388,15 +430,18 @@ void PropagationConfigPanel::Create()
    magneticDegreeTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_MAGF, wxT(""), wxDefaultPosition,
                       wxSize(30,-1), 0 );
+   magneticDegreeTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelMagneticDegreeHint")));
    wxStaticText *order2StaticText =
       new wxStaticText( this, ID_TEXT, wxT("Order"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    magneticOrderTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_MAGF, wxT(""), wxDefaultPosition,
                       wxSize(30,-1), 0 );
+   magneticOrderTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelMagneticOrderHint")));
    theMagModelSearchButton =
       new wxButton( this, ID_BUTTON_MAG_SEARCH, wxT("Search"),
                     wxDefaultPosition, wxDefaultSize, 0 );
+   theMagModelSearchButton->SetToolTip(pConfig->Read(_T("ForceModelMagneticSearchHint")));
    
    wxBoxSizer *magfSizer = new wxBoxSizer( wxHORIZONTAL );
    magfSizer->Add( type3StaticText, 0, wxALIGN_CENTRE|wxALL, bsize);
@@ -415,14 +460,16 @@ void PropagationConfigPanel::Create()
    // Point Masses
    //-----------------------------------------------------------------
    wxStaticText *pointMassStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Point Masses"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Point Masses"),
                         wxDefaultPosition, wxDefaultSize, 0 );
    pmEditTextCtrl =
       new wxTextCtrl( this, -1, wxT(""), wxDefaultPosition,
                       wxSize(235,-1), wxTE_READONLY );
+   pmEditTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelPointMassesHint")));
    wxButton *editPmfButton =
       new wxButton( this, ID_BUTTON_PM_EDIT, wxT("Select"),
                     wxDefaultPosition, wxDefaultSize, 0 );
+   editPmfButton->SetToolTip(pConfig->Read(_T("ForceModelSelectPointMassesHint")));
    
    wxFlexGridSizer *pointMassSizer = new wxFlexGridSizer( 3, 0, 2 );
    pointMassSizer->Add( pointMassStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -433,18 +480,18 @@ void PropagationConfigPanel::Create()
    // SRP
    //-----------------------------------------------------------------
    theSrpCheckBox =
-      new wxCheckBox( this, ID_CHECKBOX, wxT("Use Solar Radiation Pressure"),
+      new wxCheckBox( this, ID_CHECKBOX, wxT(GUI_ACCEL_KEY"Use Solar Radiation Pressure"),
                       wxDefaultPosition, wxDefaultSize, 0 );
+   theSrpCheckBox->SetToolTip(pConfig->Read(_T("ForceModelUseSolarRadiationPressureHint")));
    
    //-----------------------------------------------------------------
    // Primary Bodies
    //-----------------------------------------------------------------
-   GmatStaticBoxSizer *primaryStaticSizer =
-      new GmatStaticBoxSizer(wxVERTICAL, this, "Primary Bodies");
    primaryStaticSizer->Add( bodySizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
    primaryStaticSizer->Add( gravStaticSizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
    primaryStaticSizer->Add( atmosStaticSizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
    primaryStaticSizer->Add( magfStaticSizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   primaryStaticSizer->Hide( magfStaticSizer, true ); // hide, not using magnetic right now, TGG, 04/09/10
    
    //-----------------------------------------------------------------
    // Force Model
