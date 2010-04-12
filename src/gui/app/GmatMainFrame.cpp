@@ -101,11 +101,6 @@
 #include "AboutDialog.hpp"
 #include "SetPathDialog.hpp"
 
-// MatlabInterface
-#ifdef __USE_MATLAB__
-#include "MatlabInterface.hpp"
-#endif
-
 #include "FileManager.hpp"
 #include "FileUtil.hpp"               // for Compare()
 
