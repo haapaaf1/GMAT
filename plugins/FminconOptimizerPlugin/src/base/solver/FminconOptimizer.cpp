@@ -1034,8 +1034,12 @@ bool FminconOptimizer::OpenConnection()
    }
    
    matlabIf = MatlabInterface::Instance();
+   
+   #ifdef DEBUG_ML_CONNECTIONS
    MessageInterface::ShowMessage
-      ("==> FminconOptimizer::OpenConnection() matlabIf=<%p>\n", matlabIf);
+      ("FminconOptimizer::OpenConnection() matlabIf=<%p>\n", matlabIf);
+   #endif
+   
    // open the MatlabInterface
    if (!matlabIf->Open("GmatMatlab"))
       throw SolverException
