@@ -359,12 +359,12 @@ macmatlab:
 
 macnomatlab:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
-	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/RunGMATNoML/" $(GMAT_INFO) >$(MAC_PKG)
+	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/RunGMAT/" $(GMAT_INFO) >$(MAC_PKG)
 	echo -n "APPL????" > $(MAC_PKGINFO)
 	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
-	ln -f $(TOP_DIR)/src/gui/RunGMATNoML $(MAC_SCRIPT_DIR)/RunGMATNoML
+	ln -f $(TOP_DIR)/src/gui/RunGMAT $(MAC_SCRIPT_DIR)/RunGMAT
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMATNoMatlab ../base/lib $(BASELIBNAME)NoMatlab
+	./$(INSTALL_WX_LIBS) GMAT ../base/lib $(BASELIBNAME)
 
 macstacksize:
 	echo "setting stack size needed for SPICE"

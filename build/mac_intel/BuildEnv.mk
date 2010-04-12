@@ -7,7 +7,7 @@
 
 # Flags used to control the build
 # Make this 1 if you want MATLAB 
-USE_MATLAB = 1
+#USE_MATLAB = 1
 USE_SPICE = 1
 USE_DEVIL = 0
 CONSOLE_APP = 0
@@ -138,11 +138,11 @@ ifeq ($(MAC_SPECIFIC),1)
 
 MAC_CPP_FLAGS=-current_version 0.5 -compatibility_version 0.5 -fvisibility=default
 
-ifeq ($(USE_MATLAB),1)
+#ifeq ($(USE_MATLAB),1)
 EXECUTABLE 	= $(TOP_DIR)/bin/GMAT
-else
-EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
-endif
+#else
+#EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
+#endif
 # *** EDIT THIS *** - put the version number of the wxMac that you're using here ...
 WX_VERSION   = 2.8.10
 GMAT_INFO    = $(TOP_DIR)/src/gui/Info_GMAT.plist
