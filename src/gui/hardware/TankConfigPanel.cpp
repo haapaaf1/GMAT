@@ -14,21 +14,7 @@
 // Author: Waka Waktola
 // Created: 2004/11/19
 // Modified: 
-//    2010.03.26 Thomas Grubb 
-//      - Fixed positive real number checks in SaveData 
-//    2010.03.18 Thomas Grubb 
-//      - Modified code to use public fuel tank parameter id enums
-//      - Fixed bug with not saving Fuel Density on SaveData
-//    2010.03.08 Thomas Grubb 
-//      - Use GUI_ACCEL_KEY from gmatdefs.hpp
-//      - Added HELP button to panel
-//    2010.03.01 Thomas Grubb 
-//      - Read tooltips from configuration file (GMAT.ini)
-//    2010.02.12 Thomas Grubb 
-//      - Added tooltips & accelerator keys
-//      - Added validators to numeric text controls
-//      - Added GmatStaticBoxSizers: fuelPropertiesSizer and tankPropertiesSizer
-//           and reordered controls
+//    2010.03.26 Thomas Grubb - Modified extensively
 //    2009.05.27 Linda Jun - To derive from GmatBaseSetupPanel
 /**
  * This class contains information needed to setup users spacecraft tank 
@@ -39,8 +25,6 @@
 #include "MessageInterface.hpp"
 #include "GmatStaticBoxSizer.hpp"
 #include <wx/config.h>
-
-
 
 //====================================================================
 #ifndef __USE_OLD_TANK_PANEL__
@@ -88,6 +72,7 @@ BEGIN_EVENT_TABLE(TankConfigPanel, wxPanel)
    EVT_BUTTON(ID_BUTTON_CANCEL, GmatPanel::OnCancel)
    EVT_BUTTON(ID_BUTTON_SCRIPT, GmatPanel::OnScript)
    EVT_TEXT(ID_TEXTCTRL, TankConfigPanel::OnTextChange)
+   EVT_CHECKBOX(ID_CHECKBOX, TankConfigPanel::OnComboBoxChange)
    EVT_COMBOBOX(ID_COMBOBOX, TankConfigPanel::OnComboBoxChange)
 #ifdef __SHOW_HELP_BUTTON__
    EVT_BUTTON(ID_BUTTON_HELP, GmatPanel::OnHelp)
@@ -128,16 +113,6 @@ TankConfigPanel::TankConfigPanel(wxWindow *parent, const wxString &name)
 //------------------------------------------------------------------------------
 TankConfigPanel::~TankConfigPanel()
 {
-   ////// get the config object
-   //wxConfigBase *pConfig = wxConfigBase::Get();
-   ////// save the frame position
-   //int x, y, w, h;
-   //GetClientSize(&w, &h);
-   //GetPosition(&x, &y);
-   //pConfig->Write(wxT("/FuelTank/Panel/X"), (long) x);
-   //pConfig->Write(wxT("/FuelTank/Panel/Y"), (long) y);
-   //pConfig->Write(wxT("/FuelTank/Panel/Width"), (long) w);
-   //pConfig->Write(wxT("/FuelTank/Panel/Height"), (long) h);
 }
 
 //-------------------------------
@@ -196,6 +171,11 @@ void TankConfigPanel::Create()
    fuelMassTextCtrl->SetToolTip(pConfig->Read(_T("MassHint")));
    wxStaticText *fuelMassUnit =
       new wxStaticText( this, ID_TEXT, wxT("kg"));
+   
+   // Allow Negative Fuel Mass
+   allowNegativeFuelMassCheckBox =
+      new wxCheckBox( this, ID_CHECKBOX, wxT("Allow "GUI_ACCEL_KEY"Negative Fuel Mass"));
+   allowNegativeFuelMassCheckBox->SetToolTip(pConfig->Read(_T("AllowNegFuelMassHint")));
    
    // Fuel Density
    wxStaticText *fuelDensityLabel =
@@ -266,6 +246,10 @@ void TankConfigPanel::Create()
    flexGridSizer1->Add(fuelMassTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
    flexGridSizer1->Add(fuelMassUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
    
+   flexGridSizer1->Add(0, 0, 0);
+   flexGridSizer1->Add(allowNegativeFuelMassCheckBox, ctrlSizeProportion, wxGROW|wxALL, bsize);
+   flexGridSizer1->Add(0, 0, 0);
+   
    flexGridSizer1->Add(fuelDensityLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
    flexGridSizer1->Add(fuelDensityTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
    flexGridSizer1->Add(fuelDensityUnit, unitSizeProportion, wxALIGN_LEFT|wxALL, bsize);
@@ -311,17 +295,6 @@ void TankConfigPanel::Create()
    theMiddleSizer->Add(fuelPropertiesSizer, 1, wxEXPAND|wxALL, bsize);
    theMiddleSizer->SetSizeHints(this);
 
-   //int x,y,w,h;
-   //// restore frame position and size
-   //GetClientSize(&w, &h);
-   //GetPosition(&x, &y);
-
-   //x = pConfig->Read(wxT("/FuelTank/Panel/X"), x),
-   //y = pConfig->Read(wxT("/FuelTank/Panel/Y"), y),
-   //w = pConfig->Read(wxT("/FuelTank/Panel/Width"), w),
-   //h = pConfig->Read(wxT("/FuelTank/Panel/Height"), h);
-   //Move(x, y);
-   //SetClientSize(w, h);
 }
 
 //------------------------------------------------------------------------------
@@ -338,6 +311,7 @@ void TankConfigPanel::LoadData()
    try
    {
       fuelMassTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::FUEL_MASS)));
+      allowNegativeFuelMassCheckBox->SetValue(theFuelTank->GetBooleanParameter(FuelTank::ALLOW_NEGATIVE_FUEL_MASS));
       pressureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::PRESSURE)));
       temperatureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::TEMPERATURE)));
       refTemperatureTextCtrl->SetValue(wxVariant(theFuelTank->GetRealParameter(FuelTank::REFERENCE_TEMPERATURE)));
@@ -400,6 +374,17 @@ void TankConfigPanel::SaveData()
    {
       // Fuel Mass
       theFuelTank->SetRealParameter(FuelTank::FUEL_MASS, fuelMass);
+   }
+   catch (BaseException &ex)
+   {
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+      canClose = false;
+   }
+   
+   try
+   {
+      // Allow Negative Fuel Mass
+      theFuelTank->SetBooleanParameter(FuelTank::ALLOW_NEGATIVE_FUEL_MASS, allowNegativeFuelMassCheckBox->GetValue());
    }
    catch (BaseException &ex)
    {

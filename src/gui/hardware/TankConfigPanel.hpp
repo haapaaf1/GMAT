@@ -83,6 +83,8 @@ private:
    wxTextCtrl *pressureTextCtrl;
    wxTextCtrl *volumeTextCtrl;
    
+   wxCheckBox *allowNegativeFuelMassCheckBox;
+
    wxComboBox *pressureModelComboBox;
    GmatStaticBoxSizer *tankPropertiesSizer;
    GmatStaticBoxSizer *fuelPropertiesSizer;
@@ -94,6 +96,7 @@ private:
       ID_TEXTCTRL,
       ID_LISTBOX,
       ID_BUTTON,
+      ID_CHECKBOX,
       ID_COMBOBOX
    };
 };
