@@ -409,7 +409,7 @@ Real GmatMathUtil::ACos (Real x, Real tol, Real cycleInRad)
    if (cycleInRad <= 0.0)
       throw RealUtilitiesExceptions::ArgumentError("ACos(angle, cycle <= 0.0)\n");
    
-   if ((fabs(x) - 1.0) > GmatRealConst::REAL_TOL)
+   if ((fabs(x) - 1.0) > 0.0)
    {
       #ifdef DEBUG_MATH_UTIL
       MessageInterface::ShowMessage
