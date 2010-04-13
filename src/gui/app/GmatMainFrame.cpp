@@ -1059,7 +1059,7 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
          #ifdef DEBUG_MAINFRAME_CLOSE
          MessageInterface::ShowMessage("   ==> closing child = %s\n", name.c_str());
          #endif
-
+         
          //-------------------------------------------------
          // delete child if frame can be closed
          // Note: GmatMdiChildFrame::OnClose() calls RemoveChild()
@@ -1068,28 +1068,45 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
          //-------------------------------------------------
          if (mExitWithoutConfirm)
             child->SetDirty(false);
-
+         
          #ifdef DEBUG_MAINFRAME_CLOSE
          MessageInterface::ShowMessage("   ==> calling child->OnClose()\n");
          #endif
-         child->OnClose(event);
-         if (child->CanClose())
-            childDeleted = true;
-
-         // if type is not output, check if child can be closed (loj: 2008.02.22)
-         if (type < GmatTree::BEGIN_OF_OUTPUT && type > GmatTree::END_OF_OUTPUT)
+         
+         // If it is output frame it is not needed to check for dirty
+         if (type > GmatTree::BEGIN_OF_OUTPUT && type < GmatTree::END_OF_OUTPUT)
          {
-            if (!child->CanClose())
+            child->OnClose(event);
+            childDeleted = true;
+         }
+         else
+         {
+            // Check if frame is dirty first
+            if (!child->IsDirty())
             {
-               canDelete = false;
-               #ifdef DEBUG_MAINFRAME_CLOSE
-               MessageInterface::ShowMessage("   ==> cannot close this child, so returning false\n");
-               #endif
-               return false;
+               child->OnClose(event);
+               childDeleted = true;
+            }
+            else
+            {
+               child->OnClose(event);
+               if (child->CanClose())
+               {
+                  childDeleted = true;
+               }
+               else
+               {
+                  canDelete = false;
+                  #ifdef DEBUG_MAINFRAME_CLOSE
+                  MessageInterface::ShowMessage
+                     ("   ==> cannot close this child, so returning false\n");
+                  #endif
+                  return false;
+               }
             }
          }
       }
-
+      
       //-------------------------------------------------
       // Note: The node is deleted from RemoveChild()
       //-------------------------------------------------
