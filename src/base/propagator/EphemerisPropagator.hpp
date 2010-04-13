@@ -89,17 +89,71 @@ public:
                                            const std::string &value,
                                            const Integer index);
 
+   // Access methods derived classes can override on reference objects
+   virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
+//   virtual const ObjectTypeArray&
+//                        GetRefObjectTypeArray();
+   virtual const StringArray&
+                        GetRefObjectNameArray(const Gmat::ObjectType type);
+   virtual bool         SetRefObjectName(const Gmat::ObjectType type,
+                                         const std::string &name);
+   virtual bool         RenameRefObject(const Gmat::ObjectType type,
+                                        const std::string &oldName,
+                                        const std::string &newName);
+//   virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
+//                                     const std::string &name);
+//   virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
+//                                     const std::string &name,
+//                                     const Integer index);
+   virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name = "");
+   virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name,
+                                     const Integer index);
+//   virtual ObjectArray& GetRefObjectArray(const Gmat::ObjectType type);
+//   virtual ObjectArray& GetRefObjectArray(const std::string& typeString);
+
    bool                 UsesODEModel();
+   virtual void         SetPropStateManager(PropagationStateManager *sm);
+   virtual bool         Initialize();
+   virtual Integer      GetDimension();
+   virtual Real*        GetState();
+   virtual Real*        GetJ2KState();
+   virtual void         UpdateSpaceObject(Real newEpoch = -1.0);
+   virtual void         UpdateFromSpaceObject();
 
 protected:
    /// Step used to propagate through the ephemeris
-   Real                 ephemStep;
+   Real                       ephemStep;
    /// Name of the central body
-   std::string          centralBody;
+   std::string                centralBody;
    /// Format used for the start epoch data
-   std::string          epochFormat;
+   std::string                epochFormat;
    /// Start epoch
-   std::string          startEpoch;
+   std::string                startEpoch;
+   /// Initial epoch
+   Real                       initialEpoch;
+   /// Current epoch
+   Real                       currentEpoch;
+   /// Current epoch - initial epoch (used to minimize accumulated error)
+   Real                       timeFromEpoch;
+
+   /// Names of the objects that are propagated
+   StringArray                propObjectNames;
+   /// The propagated objects
+   ObjectArray                propObjects;
+   /// The (current) ephemeris file names, one per prop object
+   StringArray                theEphems;
+
+   /// The propagation state manager, used to manage the state
+   PropagationStateManager    *psm;
+
+   /// State vector for the latest propagated vector
+   Real                       *state;
+   /// Second state vector
+   Real                       *j2kState;
+   /// Size of the most recent prop step
+   Real                       stepTaken;
 
    /// Parameter IDs
    enum
@@ -117,6 +171,10 @@ protected:
    /// EphemerisPropagator parameter labels
    static const std::string
          PARAMETER_TEXT[EphemerisPropagatorParamCount - PropagatorParamCount];
+
+
+   GmatEpoch ConvertToRealEpoch(const std::string &theEpoch,
+         const std::string &theFormat);
 
 };
 

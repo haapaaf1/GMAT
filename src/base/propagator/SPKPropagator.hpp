@@ -23,6 +23,8 @@
  * SPKPropagator ...
  */
 #include "EphemerisPropagator.hpp"
+#include "SpiceOrbitKernelReader.hpp"
+
 
 class SPKPropagator : public EphemerisPropagator
 {
@@ -70,6 +72,10 @@ public:
                         GetStringArrayParameter(const std::string &label,
                                                 const Integer index) const;
 
+   virtual bool Initialize();
+   // virtual bool Step(Real dt);
+   // virtual void SetAsFinalStep(bool fs);
+
    virtual GmatBase* Clone() const;
    virtual bool Step();
    virtual bool RawStep();
@@ -78,6 +84,11 @@ public:
 protected:
    /// List of the SPICE files that are needed by this propagator
    StringArray spkFileNames;
+   /// ID's used to lookup data for the prop objects
+   IntegerArray naifIds;
+
+   SpiceOrbitKernelReader *skr;
+
 
    /// Parameter IDs
    enum

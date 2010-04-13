@@ -71,6 +71,7 @@
 #include "GmatBase.hpp"
 #include "PhysicalModel.hpp"
 #include "PropagatorException.hpp"      // Propagator Exceptions
+#include "PropagationStateManager.hpp"
 
 
 class GMAT_API Propagator : public GmatBase
@@ -117,7 +118,19 @@ public:
    
    virtual Integer GetPropagatorOrder(void) const;
    virtual bool UsesODEModel();
-   
+
+   // Methods that control behavior for analytic or interpolation evolution
+   // operators
+   virtual void SetPropStateManager(PropagationStateManager *sm);
+   virtual Integer GetDimension();
+   virtual Real* GetState();
+   virtual Real* GetJ2KState();
+   virtual void UpdateSpaceObject(Real newEpoch = -1.0);
+   virtual void UpdateFromSpaceObject();
+
+
+   // Abstract methods
+
    //------------------------------------------------------------------------------
    // virtual bool Step(void)
    //------------------------------------------------------------------------------

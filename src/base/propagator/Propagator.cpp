@@ -420,32 +420,39 @@ Real Propagator::SetRealParameter(const Integer id, const Real value,
 //------------------------------------------------------------------------------
 bool Propagator::Initialize()
 {
-   if (physicalModel != NULL) 
+   if (UsesODEModel())
    {
-       #ifdef DEBUG_INITIALIZATION
-          MessageInterface::ShowMessage(
-             "Propagator::Initialize() calling physicalModel->Initialize() \n");
-       #endif
-             
-       if ( physicalModel->Initialize() )
-          initialized = true;
+      if (physicalModel != NULL)
+      {
+         #ifdef DEBUG_INITIALIZATION
+            MessageInterface::ShowMessage("Propagator::Initialize() calling "
+                  "physicalModel->Initialize() \n");
+         #endif
 
-       #ifdef DEBUG_INITIALIZATION
-          MessageInterface::ShowMessage(
-             "Propagator::Initialize() initialized = %d\n", initialized);
-       #endif
+         if ( physicalModel->Initialize() )
+            initialized = true;
 
-       inState  = physicalModel->GetState();
-       outState = physicalModel->GetState();
-       
-       if (resetInitialData)
-       {
-          stepSize = stepSizeBuffer;
-          resetInitialData = false;
-       }
-    }
-    else
-       throw PropagatorException("Propagator::Initialize -- Force model is not defined");
+         #ifdef DEBUG_INITIALIZATION
+            MessageInterface::ShowMessage(
+               "Propagator::Initialize() initialized = %d\n", initialized);
+         #endif
+
+         inState  = physicalModel->GetState();
+         outState = physicalModel->GetState();
+
+         if (resetInitialData)
+         {
+            stepSize = stepSizeBuffer;
+            resetInitialData = false;
+         }
+      }
+      else
+         throw PropagatorException("Propagator::Initialize -- Force model is "
+               "not defined");
+   }
+   else
+      initialized = true;
+
     
     if (!initialized)
        throw PropagatorException("Propagator failed to initialize");
@@ -471,7 +478,7 @@ void Propagator::SetPhysicalModel(PhysicalModel *pPhysicalModel)
 // void Propagator::Update()
 //------------------------------------------------------------------------------
 /**
- * Envoked to force a propagator reset if the PhysicalModel changes
+ * Invoked to force a propagator reset if the PhysicalModel changes
  */
 //------------------------------------------------------------------------------
 void Propagator::Update(bool forwards)
@@ -550,7 +557,52 @@ bool Propagator::UsesODEModel()
 
 
 //------------------------------------------------------------------------------
-// bool Propagator::Step(Real dt)
+// void SetPropStateManager(PropagationStateManager *sm)
+//------------------------------------------------------------------------------
+/**
+ * Interface used by derived classes to set the PSM for propagators that need it
+ *
+ * This method by default does nothing.  Propagators that do not use an ODEModel
+ * override the method to set the PSM for state updates.
+ *
+ * @param sm The propagation state manager
+ */
+//------------------------------------------------------------------------------
+void Propagator::SetPropStateManager(PropagationStateManager *sm)
+{
+}
+
+
+Integer Propagator::GetDimension()
+{
+   return 0;
+}
+
+
+Real* Propagator::GetState()
+{
+   return NULL;
+}
+
+
+Real* Propagator::GetJ2KState()
+{
+   return NULL;
+}
+
+
+void Propagator::UpdateSpaceObject(Real newEpoch)
+{
+}
+
+
+void Propagator::UpdateFromSpaceObject()
+{
+}
+
+
+//------------------------------------------------------------------------------
+// bool Step(Real dt)
 //------------------------------------------------------------------------------
 /**
  * Evolves the physical model over the specified time

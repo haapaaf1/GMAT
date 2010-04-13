@@ -865,152 +865,165 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
       #ifdef DEBUG_OBJECT_INITIALIZER
          MessageInterface::ShowMessage("--- it is a PropSetup or ODEModel ...\n");
       #endif
-      ODEModel *fm = ((PropSetup *)obj)->GetODEModel();
-      fm->SetSolarSystem(ss);
-      
-      // Handle the coordinate systems
-      StringArray csList = fm->GetStringArrayParameter("CoordinateSystemList");
-      
-      #ifdef DEBUG_OBJECT_INITIALIZER
-         MessageInterface::ShowMessage("Coordinate system list for '%s':\n",
-            fm->GetName().c_str());
-         for (StringArray::iterator i = csList.begin(); i != csList.end(); ++i)
-            MessageInterface::ShowMessage("   %s\n", i->c_str());
-      #endif
-      // Set CS's on the objects
-      for (StringArray::iterator i = csList.begin(); i != csList.end(); ++i)
-      {
-         CoordinateSystem *fixedCS = NULL;
 
-         if (LOS->find(*i) != LOS->end())
-         {
-            GmatBase *ref = (*LOS)[*i];
-            if (ref->IsOfType("CoordinateSystem") == false)
-               throw GmatBaseException("Object named " + (*i) + 
-                  " was expected to be a Coordinate System, but it has type " +
-                  ref->GetTypeName());
-            fixedCS = (CoordinateSystem*)ref;
-            fm->SetRefObject(fixedCS, fixedCS->GetType(), *i); 
-         }
-         else if (GOS->find(*i) != GOS->end())
-         {
-            GmatBase *ref = (*GOS)[*i];
-            if (ref->IsOfType("CoordinateSystem") == false)
-               throw GmatBaseException("Object named " + (*i) + 
-                  " was expected to be a Coordinate System, but it has type " +
-                  ref->GetTypeName());
-            fixedCS = (CoordinateSystem*)ref;
-            fm->SetRefObject(fixedCS, fixedCS->GetType(), *i); 
-         }
-         else
-         {
-            //MessageInterface::ShowMessage("===> create BodyFixed here\n");
-            fixedCS = mod->CreateCoordinateSystem("", false);
-            AxisSystem *axes = mod->CreateAxisSystem("BodyFixed", "");
-            fixedCS->SetName(*i);
-            fixedCS->SetRefObject(axes, Gmat::AXIS_SYSTEM, "");
-            fixedCS->SetOriginName(fm->GetStringParameter("CentralBody"));
-            
-            // Since CoordinateSystem clones AxisSystem, delete it from here
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
-               (axes, "localAxes", "ObjectInitializer::BuildReferences()",
-                "deleting localAxes");
-            #endif
-            delete axes;
-            
-            fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);
-            
-            fixedCS->SetSolarSystem(ss);
-            BuildReferences(fixedCS); 
-            InitializeCoordinateSystem(fixedCS);
-            fixedCS->Initialize();
-            #ifdef DEBUG_INITIALIZE_OBJ
-            MessageInterface::ShowMessage
-               ("--- The object <%p><%s>'%s' initialized\n",  internalCS,
-                internalCS->GetTypeName().c_str(), internalCS->GetName().c_str());
-            #endif
-            // if things have already been moved to the globalObjectStore, put it there
-            if ((GOS->size() > 0) && (fixedCS->GetIsGlobal()))
-               (*GOS)[*i] = fixedCS;
-            // otherwise, put it in the Sandbox object map - it will be moved to the GOS later
-            else
-               (*LOS)[*i] = fixedCS;
-            
-            #ifdef DEBUG_OBJECT_INITIALIZER
-               MessageInterface::ShowMessage(
-                  "Coordinate system %s has body %s\n",
-                  fixedCS->GetName().c_str(), fixedCS->GetOriginName().c_str());
-            #endif
-         }
+      bool hasODEModel = true;
+      
+      if (obj->IsOfType(Gmat::PROP_SETUP))
+      {
+         Propagator *prop = ((PropSetup*)(obj))->GetPropagator();
+         if (prop->UsesODEModel() == false)
+            hasODEModel = false;
       }
-      
-      #ifdef DEBUG_OBJECT_INITIALIZER
-         MessageInterface::ShowMessage(
-            "Initializing force model references for '%s'\n",
-            (fm->GetName() == "" ? obj->GetName().c_str() :
-                                   fm->GetName().c_str()) );
-      #endif
 
-      try
+      if (hasODEModel)
       {
-         StringArray fmRefs = fm->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+         ODEModel *fm = ((PropSetup *)obj)->GetODEModel();
+         fm->SetSolarSystem(ss);
+
+         // Handle the coordinate systems
+         StringArray csList = fm->GetStringArrayParameter("CoordinateSystemList");
+
          #ifdef DEBUG_OBJECT_INITIALIZER
-            MessageInterface::ShowMessage("fmRefs are:\n");
-            for (unsigned int ii=0; ii < fmRefs.size(); ii++)
-               MessageInterface::ShowMessage(" --- %s\n", (fmRefs.at(ii)).c_str());
+            MessageInterface::ShowMessage("Coordinate system list for '%s':\n",
+               fm->GetName().c_str());
+            for (StringArray::iterator i = csList.begin(); i != csList.end(); ++i)
+               MessageInterface::ShowMessage("   %s\n", i->c_str());
          #endif
-         for (StringArray::iterator i = fmRefs.begin(); i != fmRefs.end(); ++i)
+         // Set CS's on the objects
+         for (StringArray::iterator i = csList.begin(); i != csList.end(); ++i)
          {
-            oName = *i;
-            try
+            CoordinateSystem *fixedCS = NULL;
+
+            if (LOS->find(*i) != LOS->end())
             {
-               SetRefFromName(fm, oName);
+               GmatBase *ref = (*LOS)[*i];
+               if (ref->IsOfType("CoordinateSystem") == false)
+                  throw GmatBaseException("Object named " + (*i) +
+                     " was expected to be a Coordinate System, but it has type " +
+                     ref->GetTypeName());
+               fixedCS = (CoordinateSystem*)ref;
+               fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);
             }
-            catch (GmatBaseException &ex)  // *******
+            else if (GOS->find(*i) != GOS->end())
             {
-               // Handle SandboxExceptions first.
-               #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
-                  MessageInterface::ShowMessage(
-                     "RefObjectName " + oName + " not found; ignoring " +
-                     ex.GetFullMessage() + "\n");
+               GmatBase *ref = (*GOS)[*i];
+               if (ref->IsOfType("CoordinateSystem") == false)
+                  throw GmatBaseException("Object named " + (*i) +
+                     " was expected to be a Coordinate System, but it has type " +
+                     ref->GetTypeName());
+               fixedCS = (CoordinateSystem*)ref;
+               fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);
+            }
+            else
+            {
+               //MessageInterface::ShowMessage("===> create BodyFixed here\n");
+               fixedCS = mod->CreateCoordinateSystem("", false);
+               AxisSystem *axes = mod->CreateAxisSystem("BodyFixed", "");
+               fixedCS->SetName(*i);
+               fixedCS->SetRefObject(axes, Gmat::AXIS_SYSTEM, "");
+               fixedCS->SetOriginName(fm->GetStringParameter("CentralBody"));
+
+               // Since CoordinateSystem clones AxisSystem, delete it from here
+               #ifdef DEBUG_MEMORY
+               MemoryTracker::Instance()->Remove
+                  (axes, "localAxes", "ObjectInitializer::BuildReferences()",
+                   "deleting localAxes");
                #endif
-               //throw ex;
-            }
-            catch (BaseException &ex)
-            {
-               // Post a message and -- otherwise -- ignore the exceptions
-               // Handle SandboxExceptions first.
-               #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
+               delete axes;
+
+               fm->SetRefObject(fixedCS, fixedCS->GetType(), *i);
+
+               fixedCS->SetSolarSystem(ss);
+               BuildReferences(fixedCS);
+               InitializeCoordinateSystem(fixedCS);
+               fixedCS->Initialize();
+               #ifdef DEBUG_INITIALIZE_OBJ
+               MessageInterface::ShowMessage
+                  ("--- The object <%p><%s>'%s' initialized\n",  internalCS,
+                   internalCS->GetTypeName().c_str(), internalCS->GetName().c_str());
+               #endif
+               // if things have already been moved to the globalObjectStore, put it there
+               if ((GOS->size() > 0) && (fixedCS->GetIsGlobal()))
+                  (*GOS)[*i] = fixedCS;
+               // otherwise, put it in the Sandbox object map - it will be moved to the GOS later
+               else
+                  (*LOS)[*i] = fixedCS;
+
+               #ifdef DEBUG_OBJECT_INITIALIZER
                   MessageInterface::ShowMessage(
-                     "RefObjectName not found; ignoring " +
-                     ex.GetFullMessage() + "\n");
+                     "Coordinate system %s has body %s\n",
+                     fixedCS->GetName().c_str(), fixedCS->GetOriginName().c_str());
                #endif
             }
          }
-      }
-      catch (GmatBaseException &ex) // **********
-      {
-         // Handle SandboxExceptions first.
-         #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
-            MessageInterface::ShowMessage(
-               "RefObjectNameArray not found; ignoring " +
-               ex.GetFullMessage() + "\n");
-         #endif
-         //throw ex;
-      }
-      catch (BaseException &ex) // Handles no refObject array
-      {
-         // Post a message and -- otherwise -- ignore the exceptions
-         #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
-            MessageInterface::ShowMessage(
-               "RefObjectNameArray not found; ignoring " +
-               ex.GetFullMessage() + "\n");
-         #endif
-      }
 
-      if (obj->IsOfType(Gmat::ODE_MODEL))
-         return;
+         #ifdef DEBUG_OBJECT_INITIALIZER
+            MessageInterface::ShowMessage(
+               "Initializing force model references for '%s'\n",
+               (fm->GetName() == "" ? obj->GetName().c_str() :
+                                      fm->GetName().c_str()) );
+         #endif
+
+         try
+         {
+            StringArray fmRefs = fm->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+            #ifdef DEBUG_OBJECT_INITIALIZER
+               MessageInterface::ShowMessage("fmRefs are:\n");
+               for (unsigned int ii=0; ii < fmRefs.size(); ii++)
+                  MessageInterface::ShowMessage(" --- %s\n", (fmRefs.at(ii)).c_str());
+            #endif
+            for (StringArray::iterator i = fmRefs.begin(); i != fmRefs.end(); ++i)
+            {
+               oName = *i;
+               try
+               {
+                  SetRefFromName(fm, oName);
+               }
+               catch (GmatBaseException &ex)  // *******
+               {
+                  // Handle SandboxExceptions first.
+                  #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
+                     MessageInterface::ShowMessage(
+                        "RefObjectName " + oName + " not found; ignoring " +
+                        ex.GetFullMessage() + "\n");
+                  #endif
+                  //throw ex;
+               }
+               catch (BaseException &ex)
+               {
+                  // Post a message and -- otherwise -- ignore the exceptions
+                  // Handle SandboxExceptions first.
+                  #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
+                     MessageInterface::ShowMessage(
+                        "RefObjectName not found; ignoring " +
+                        ex.GetFullMessage() + "\n");
+                  #endif
+               }
+            }
+         }
+         catch (GmatBaseException &ex) // **********
+         {
+            // Handle SandboxExceptions first.
+            #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
+               MessageInterface::ShowMessage(
+                  "RefObjectNameArray not found; ignoring " +
+                  ex.GetFullMessage() + "\n");
+            #endif
+            //throw ex;
+         }
+         catch (BaseException &ex) // Handles no refObject array
+         {
+            // Post a message and -- otherwise -- ignore the exceptions
+            #ifdef DEBUG_OBJECT_INITIALIZER_DETAILED
+               MessageInterface::ShowMessage(
+                  "RefObjectNameArray not found; ignoring " +
+                  ex.GetFullMessage() + "\n");
+            #endif
+         }
+
+         if (obj->IsOfType(Gmat::ODE_MODEL))
+            return;
+      }
    }
 
 

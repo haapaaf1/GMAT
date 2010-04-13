@@ -19,6 +19,11 @@
 #include "SPKPropagator.hpp"
 #include "MessageInterface.hpp"
 
+
+#define DEBUG_INITIALIZATION
+//#define DEBUG_PROPAGATION
+
+
 /// SPKPropagator parameter labels
 const std::string SPKPropagator::PARAMETER_TEXT[
                  SPKPropagatorParamCount - EphemerisPropagatorParamCount] =
@@ -35,7 +40,8 @@ const Gmat::ParameterType SPKPropagator::PARAMETER_TYPE[
 
 
 SPKPropagator::SPKPropagator(const std::string &name) :
-   EphemerisPropagator        ("SPK", name)
+   EphemerisPropagator        ("SPK", name),
+   skr                        (NULL)
 {
    // GmatBase data
   objectTypeNames.push_back("SPK");
@@ -45,11 +51,14 @@ SPKPropagator::SPKPropagator(const std::string &name) :
 
 SPKPropagator::~SPKPropagator()
 {
+   if (skr)
+      delete skr;
 }
 
 
 SPKPropagator::SPKPropagator(const SPKPropagator & spk) :
-   EphemerisPropagator        (spk)
+   EphemerisPropagator        (spk),
+   skr                        (NULL)
 {
 }
 
@@ -59,6 +68,8 @@ SPKPropagator & SPKPropagator::operator =(const SPKPropagator & spk)
    if (this != &spk)
    {
       EphemerisPropagator::operator=(spk);
+
+      skr = NULL;
    }
 
    return *this;
@@ -238,9 +249,169 @@ const StringArray& SPKPropagator::GetStringArrayParameter(
 }
 
 
+bool SPKPropagator::Initialize()
+{
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("SPKPropagator::Initialize() entered\n");
+   #endif
+
+   bool retval = false;
+
+   if (EphemerisPropagator::Initialize())
+   {
+      // If skr already set, just keep it
+      if (skr == NULL)
+         skr = new SpiceOrbitKernelReader;
+
+      stepTaken = 0.0;
+
+      // todo: Remove hardcoded path here
+      if (skr->IsLoaded("./files/planetary_ephem/spk/de421.bsp") == false)
+         skr->LoadKernel("./files/planetary_ephem/spk/de421.bsp");
+
+      if (propObjects.size() != 1)
+         throw PropagatorException("SPICE propagators (i.e. \"SKP\" "
+               "propagators) require exactly one SpaceObject.");
+
+      naifIds.clear();
+      for (UnsignedInt i = 0; i < propObjects.size(); ++i)
+      {
+         Integer id = propObjects[i]->GetIntegerParameter("NAIFId");
+         naifIds.push_back(id);
+
+         // Load the SPICE files for each propObject
+         StringArray spices;
+         if (propObjects[i]->IsOfType(Gmat::SPACECRAFT))
+            spices = propObjects[i]->GetStringArrayParameter(
+                  "OrbitSpiceKernelName");
+         else
+            throw PropagatorException("Spice (SPK) propagators only work for "
+                  "Spacecraft right now.");
+
+         if (spices.size() == 0)
+            throw PropagatorException("Spice (SPK) propagator requires at "
+                  "least one orbit SPICE kernel,");
+
+         for (UnsignedInt j = 0; j < spices.size(); ++j)
+         {
+            if (skr->IsLoaded(spices[j]) == false)
+               skr->LoadKernel(spices[j]);
+         }
+
+         // Load the initial data point
+         if (skr)
+         {
+            try
+            {
+               Rvector6  outState;
+
+               for (UnsignedInt i = 0; i < propObjects.size(); ++i)
+               {
+                  std::string scName = propObjectNames[i];
+                  Integer id = naifIds[i];
+
+                  currentEpoch = initialEpoch + timeFromEpoch /
+                        GmatTimeUtil::SECS_PER_DAY;
+                  outState = skr->GetTargetState(scName, id, currentEpoch,
+                        centralBody);
+
+                  std::memcpy(j2kState, outState.GetDataVector(),
+                        dimension*sizeof(Real));
+                  std::memcpy(state, outState.GetDataVector(),
+                        dimension*sizeof(Real));
+               }
+
+               UpdateSpaceObject(currentEpoch);
+
+               retval = true;
+            }
+            catch (BaseException &e)
+            {
+               MessageInterface::ShowMessage(e.GetFullMessage());
+               retval = false;
+            }
+         }
+      }
+   }
+
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("SPKPropagator::Initialize(): Start state "
+            "at epoch %.12lf is [", currentEpoch);
+      for (Integer i = 0; i < dimension; ++i)
+      {
+         MessageInterface::ShowMessage("%.12lf", j2kState[i]);
+         if (i < dimension-1)
+            MessageInterface::ShowMessage("   ");
+         else
+            MessageInterface::ShowMessage("]\n");
+      }
+      MessageInterface::ShowMessage("SPKPropagator::Initialize() finished\n");
+   #endif
+
+   return retval;
+}
+
+
 bool SPKPropagator::Step()
 {
+   #ifdef DEBUG_PROPAGATION
+      MessageInterface::ShowMessage("SPKPropagator::Step() entered\n");
+   #endif
+
    bool retval = false;
+
+   if (skr)
+   {
+
+      try
+      {
+         Rvector6  outState;
+
+         for (UnsignedInt i = 0; i < propObjects.size(); ++i)
+         {
+            std::string scName = propObjectNames[i];
+            Integer id = naifIds[i];
+
+            timeFromEpoch += ephemStep;
+            stepTaken = ephemStep;
+            currentEpoch = initialEpoch + timeFromEpoch /
+                  GmatTimeUtil::SECS_PER_DAY;
+            outState = skr->GetTargetState(scName, id, currentEpoch,
+                  centralBody);
+
+            std::memcpy(j2kState, outState.GetDataVector(),
+                  dimension*sizeof(Real));
+            std::memcpy(state, outState.GetDataVector(),
+                  dimension*sizeof(Real));
+
+            #ifdef DEBUG_PROPAGATION
+               MessageInterface::ShowMessage("State at epoch %.12lf is [",
+                     currentEpoch);
+               for (Integer i = 0; i < dimension; ++i)
+               {
+                  MessageInterface::ShowMessage("%.12lf", j2kState[i]);
+                  if (i < 5)
+                     MessageInterface::ShowMessage("   ");
+                  else
+                     MessageInterface::ShowMessage("]\n");
+               }
+            #endif
+         }
+
+         retval = true;
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage(e.GetFullMessage());
+         retval = false;
+      }
+   }
+
+   #ifdef DEBUG_PROPAGATION
+      else
+         MessageInterface::ShowMessage("skr was not initialized]\n");
+   #endif
+
    return retval;
 }
 
@@ -254,6 +425,5 @@ bool SPKPropagator::RawStep()
 
 Real SPKPropagator::GetStepTaken()
 {
-   Real retval = 0.0;
-   return retval;
+   return stepTaken;
 }

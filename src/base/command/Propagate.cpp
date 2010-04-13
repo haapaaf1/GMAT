@@ -2350,7 +2350,7 @@ bool Propagate::Initialize()
       // Toss the spacecraft into the prop state manager
 
       ODEModel *odem = prop[index]->GetODEModel();
-      if (!odem)
+      if ((!odem) && p->UsesODEModel())
          throw CommandException("ForceModel not set in PropSetup\n");
 
       PropagationStateManager *psm = prop[index]->GetPropStateManager();
@@ -2381,9 +2381,9 @@ bool Propagate::Initialize()
             if (psm->SetProperty(*scName) == false)
             {
                std::string errmsg = "Unknown SpaceObject property \"";
-            errmsg += *scName;
-            errmsg += "\"";
-            throw CommandException(errmsg);
+               errmsg += *scName;
+               errmsg += "\"";
+               throw CommandException(errmsg);
             }
          }
          else
@@ -2409,7 +2409,15 @@ bool Propagate::Initialize()
 
       // Check for finite thrusts and update the force model if there are any
       if (finiteBurnActive == true)
-         AddTransientForce(satName[index], odem, psm);
+      {
+         if (odem != NULL)
+            AddTransientForce(satName[index], odem, psm);
+         else
+            MessageInterface::ShowMessage("Spacecraft is performing a "
+                  "finite maneuver but also propagating with an ephemeris "
+                  "propagator; no independent maneuvering will be "
+                  "performed.\n"); //, satName[index].c_str());
+      }
 
       if (psm->BuildState() == false)
          throw CommandException("Could not build the state for the command \n" +
@@ -2418,33 +2426,43 @@ bool Propagate::Initialize()
          throw CommandException("Could not map state objects for the command\n" +
                generatingString);
 
-      odem->SetState(psm->GetState());
+      if (p->UsesODEModel())
+      {
+         odem->SetState(psm->GetState());
+         // Set solar system to ForceModel for Propagate inside a GmatFunction
+         odem->SetSolarSystem(solarSys);
+      }
+      else
+      {
+         ObjectArray pObjects;
+
+         psm->GetStateObjects(pObjects, Gmat::SPACEOBJECT);
+         for (UnsignedInt i = 0; i < pObjects.size(); ++i)
+            p->SetRefObject(pObjects[i], Gmat::SPACEOBJECT,
+                  pObjects[i]->GetName());
+      }
       
-      // Set solar system to ForceModel for Propagate inside a GmatFunction(loj: 2008.06.06)
-      odem->SetSolarSystem(solarSys);
-      
-//      // Check for finite thrusts and update the force model if there are any
-//      if (finiteBurnActive == true)
-//         AddTransientForce(satName[index], odem, psm);
-//
       #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::Initialize() '%s' registering published data\n",
-          GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+            ("Propagate::Initialize() '%s' registering published data\n",
+             GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       
-      streamID = publisher->RegisterPublishedData(this, streamID, owners, elements);
+      streamID = publisher->RegisterPublishedData(this, streamID, owners,
+            elements);
+
       
-      p->SetPhysicalModel(odem);
+      if (p->UsesODEModel())
+         p->SetPhysicalModel(odem);
       p->SetRealParameter("InitialStepSize", 
          fabs(p->GetRealParameter("InitialStepSize")) * direction);
       p->Initialize();
 
       // Set spacecraft parameters for forces that need them
-      if (odem->SetupSpacecraftData(&sats, 0) <= 0)
-         throw PropagatorException("Propagate::Initialize -- "
-               "ODE model cannot set spacecraft parameters");
-
+      if (p->UsesODEModel())
+         if (odem->SetupSpacecraftData(&sats, 0) <= 0)
+            throw PropagatorException("Propagate::Initialize -- "
+                  "ODE model cannot set spacecraft parameters");
 
       ++index;
    } // End of loop through PropSetups
@@ -2678,16 +2696,21 @@ void Propagate::PrepareToPropagate()
             // Add the force
             for (UnsignedInt index = 0; index < prop.size(); ++index)
             {
-               for (std::vector<PhysicalModel*>::iterator i = transientForces->begin();
-                    i != transientForces->end(); ++i) 
+               if (prop[index]->GetPropagator()->UsesODEModel())
                {
-                  #ifdef DEBUG_TRANSIENT_FORCES
-                  MessageInterface::ShowMessage
-                     ("Propagate::PrepareToPropagate() Adding transientForce<%p>'%s'\n",
-                      *i, (*i)->GetName().c_str());
-                  #endif
-                  prop[index]->GetODEModel()->AddForce(*i);
-                  // todo: Rebuild ODEModel by calling BuildModelFromMap()
+                  for (std::vector<PhysicalModel*>::iterator
+                        i = transientForces->begin();
+                        i != transientForces->end(); ++i)
+                  {
+                     #ifdef DEBUG_TRANSIENT_FORCES
+                     MessageInterface::ShowMessage
+                        ("Propagate::PrepareToPropagate() Adding "
+                              "transientForce<%p>'%s'\n", *i,
+                              (*i)->GetName().c_str());
+                     #endif
+                     prop[index]->GetODEModel()->AddForce(*i);
+                     // todo: Rebuild ODEModel by calling BuildModelFromMap()
+                  }
                }
             }
          }
@@ -2697,15 +2720,32 @@ void Propagate::PrepareToPropagate()
       {
          elapsedTime[n] = 0.0;
          currEpoch[n]   = 0.0;
-         fm[n]->SetTime(0.0);
-         fm[n]->SetPropStateManager(prop[n]->GetPropStateManager());
-         fm[n]->UpdateInitialData();
-         dim += fm[n]->GetDimension();
-      
+         if (prop[n]->GetPropagator()->UsesODEModel())
+         {
+            fm[n]->SetTime(0.0);
+            fm[n]->SetPropStateManager(prop[n]->GetPropStateManager());
+            fm[n]->UpdateInitialData();
+            dim += fm[n]->GetDimension();
+         }
+         else
+         {
+            p[n]->SetPropStateManager(prop[n]->GetPropStateManager());
+//            p[n]->
+            dim = p[n]->GetDimension();
+         }
+
          p[n]->Initialize();
          p[n]->Update(direction > 0.0);
-         state = fm[n]->GetState();
-         j2kState = fm[n]->GetJ2KState();
+         if (prop[n]->GetPropagator()->UsesODEModel())
+         {
+            state = fm[n]->GetState();
+            j2kState = fm[n]->GetJ2KState();
+         }
+         else
+         {
+            state = p[n]->GetState();
+            j2kState = p[n]->GetJ2KState();
+         }
       }   
 
       baseEpoch.clear();
@@ -2732,7 +2772,15 @@ void Propagate::PrepareToPropagate()
 
          GmatBase* sat1 = FindObject(*satName[n]->begin());
          baseEpoch.push_back(sat1->GetRealParameter(epochID));
-         elapsedTime[n] = fm[n]->GetTime();
+
+         if (prop[n]->GetPropagator()->UsesODEModel())
+         {
+            elapsedTime[n] = fm[n]->GetTime();
+         }
+         else
+         {
+            elapsedTime[n] = 0.0; //p[n]->GetElapsedTime();
+         }
          currEpoch[n] = baseEpoch[n] + elapsedTime[n] /
             GmatTimeUtil::SECS_PER_DAY;
          #if DEBUG_PROPAGATE_DIRECTION
@@ -2748,12 +2796,20 @@ void Propagate::PrepareToPropagate()
    
       // Now setup the stopping condition elements
       #if DEBUG_PROPAGATE_INIT
-         MessageInterface::ShowMessage
-            ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
-          (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
-         MessageInterface::ShowMessage
-            ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
-            (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
+         if (p[0]->UsesODEModel())
+         {
+            MessageInterface::ShowMessage
+               ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
+             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+            MessageInterface::ShowMessage
+               ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
+               (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
+         }
+         else
+         {
+            MessageInterface::ShowMessage("Propagator state data (No ODE "
+                  "Model):\n   To be filled in\n");
+         }
          Integer stopCondCount = stopWhen.size();
          MessageInterface::ShowMessage
             ("Propagate::PrepareToPropagate() stopCondCount = %d\n", stopCondCount);
@@ -2826,14 +2882,24 @@ void Propagate::PrepareToPropagate()
          ODEModel *ode = (*i)->GetODEModel();
          if (ode != NULL)    // Only do this for the PropSetups that integrate
             ode->SetPropStateManager((*i)->GetPropStateManager());
+         else
+            (*i)->GetPropagator()->SetPropStateManager(
+                  (*i)->GetPropStateManager());
       }
 
       // Initialize the subsystem
+      #ifdef DEBUG_PROPAGATE_INIT
+         MessageInterface::ShowMessage("Initializing Propagate command\n");
+      #endif
       Initialize();
 
       // Loop through the PropSetups and build the models
       for (std::vector<PropSetup*>::iterator i=prop.begin(); i != prop.end(); ++i)
       {
+         #ifdef DEBUG_PROPAGATE_INIT
+            MessageInterface::ShowMessage("Building models for Setup %s\n",
+                  (*i)->GetName().c_str());
+         #endif
          ODEModel *ode = (*i)->GetODEModel();
          if (ode != NULL)    // Only do this for the PropSetups that integrate
          {
@@ -2843,6 +2909,11 @@ void Propagate::PrepareToPropagate()
                throw CommandException("Unable to assemble the ODE model for " +
                      (*i)->GetName());
          }
+         else
+         {
+            (*i)->GetPropagator()->SetPropStateManager((*i)->
+                  GetPropStateManager());
+         }
       }
    
       p.clear();
@@ -2851,25 +2922,47 @@ void Propagate::PrepareToPropagate()
       baseEpoch.clear();
       currEpoch.clear();
       
+      #ifdef DEBUG_PROPAGATE_INIT
+         MessageInterface::ShowMessage("Loading p and fm vectors\n");
+      #endif
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
       {
          elapsedTime.push_back(0.0);
 
          p.push_back(prop[n]->GetPropagator());
-         fm.push_back(prop[n]->GetODEModel());
-         dim += fm[n]->GetDimension();
+         if (prop[n]->GetPropagator()->UsesODEModel())
+         {
+            fm.push_back(prop[n]->GetODEModel());
+            dim += fm[n]->GetDimension();
+         }
+         else
+         {
+            fm.push_back(NULL);
+            dim += p[n]->GetDimension();
+         }
 
          psm.push_back(prop[n]->GetPropStateManager());
          currEpoch.push_back(psm[n]->GetState()->GetEpoch());
    
+         #ifdef DEBUG_PROPAGATE_INIT
+            MessageInterface::ShowMessage("Initializing propagator %d\n", n);
+         #endif
          p[n]->Initialize();
          psm[n]->MapObjectsToVector();
          
          p[n]->Update(direction > 0.0);
-         state = fm[n]->GetState();
-         j2kState = fm[n]->GetJ2KState();
+         if (prop[n]->GetPropagator()->UsesODEModel())
+         {
+            state = fm[n]->GetState();
+            j2kState = fm[n]->GetJ2KState();
+         }
+         else
+         {
+            state = p[n]->GetState();
+            j2kState = p[n]->GetJ2KState();
+         }
          baseEpoch.push_back(psm[n]->GetState()->GetEpoch());
-   
+
          #ifdef DEBUG_PROPAGATE_INIT
             GmatState *dstate = psm[n]->GetState();
             Integer dimension = dstate->GetSize();
@@ -2883,14 +2976,22 @@ void Propagate::PrepareToPropagate()
             }
          #endif
 
+         #ifdef DEBUG_PROPAGATE_INIT
+            MessageInterface::ShowMessage("Setting up stopping conditions\n");
+         #endif
+
          // Now setup the stopping condition elements
          #if DEBUG_PROPAGATE_INIT
-            MessageInterface::ShowMessage
-               ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
-             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
-            MessageInterface::ShowMessage
-               ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
-               (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
+            if (fm[0]!= NULL)
+            {
+               MessageInterface::ShowMessage
+                  ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
+                (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+               MessageInterface::ShowMessage
+                  ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
+                  (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
+            }
+
             Integer stopCondCount = stopWhen.size();
             MessageInterface::ShowMessage
                ("Propagate::PrepareToPropagate() stopCondCount = %d\n", stopCondCount);
@@ -2989,9 +3090,17 @@ void Propagate::PrepareToPropagate()
    
    #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
-          "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
-          dim+1, streamID, pubdata[0]);
+         ("Propagate::PrepareToPropagate()\n   '%s'\nPublishing initial %d "
+               "data to stream %d, 1st data = [",
+          GetGeneratingString(Gmat::NO_COMMENTS).c_str(), dim+1, streamID);
+      for (Integer i = 0; i < dim+1; ++i)
+      {
+         MessageInterface::ShowMessage("%.12lf", pubdata[i]);
+         if (i < dim)
+            MessageInterface::ShowMessage("   ");
+         else
+            MessageInterface::ShowMessage("]\n");
+      }
    #endif
    
    publisher->Publish(this, streamID, pubdata, dim+1);
@@ -3052,7 +3161,8 @@ bool Propagate::Execute()
                // Set the flag to check the first step only if 
                //    (1) the stop value is <= stopAccuracy and
                //    (2) it was (one of) the last stop(s) triggered
-               if (fabs(stopWhen[i]->GetStopValue() - stopWhen[i]->GetStopGoal()) < accuracy)
+               if (fabs(stopWhen[i]->GetStopValue() -
+                     stopWhen[i]->GetStopGoal()) < accuracy)
                {
                   #ifdef DEBUG_FIRST_STEP_STOP
                      std::string scName = stopWhen[i]->GetName();
@@ -3073,7 +3183,7 @@ bool Propagate::Execute()
                }
             }
          }
-      }
+      } // if (!inProgress)
       
       #ifdef DEBUG_EPOCH_SYNC
          MessageInterface::ShowMessage("Nominal steps executing:\n");
@@ -3084,18 +3194,25 @@ bool Propagate::Execute()
          // Update the epoch on the force models
          for (UnsignedInt i = 0; i < fm.size(); ++i)
          {
-            fm[i]->UpdateInitialData();
+            if (fm[i] != NULL)
+               fm[i]->UpdateInitialData();
+//            else
+//               p[i]->LoadInitialData();
          }
          #ifdef DEBUG_EPOCH_UPDATES
-            fm[0]->ReportEpochData();
+            if (fm[0])
+               fm[0]->ReportEpochData();
          #endif
 
-         for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
-            (*f)->BufferState();
+         for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end();
+               ++f)
+            if (*f)
+               (*f)->BufferState();
 
          if (!TakeAStep())
             throw CommandException(
                "Propagate::Execute() Propagator Failed to Step\n");
+
          for (UnsignedInt i = 0; i < fm.size(); ++i)
          {
             // orbit related parameters use spacecraft for data
@@ -3103,7 +3220,13 @@ bool Propagate::Execute()
                MessageInterface::ShowMessage
                   ("Propagate::Execute() Updating epoch data\n");
             #endif
-            elapsedTime[i] = fm[i]->GetTime();
+            if (fm[i])
+            {
+               elapsedTime[i] = fm[i]->GetTime();
+            }
+            else
+// CHECK THIS!!!
+               elapsedTime[i] += p[i]->GetStepTaken();
             currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
                GmatTimeUtil::SECS_PER_DAY;
             #ifdef DEBUG_PROPAGATE_EXE
@@ -3120,7 +3243,10 @@ bool Propagate::Execute()
                   ("Propagate::Execute() Updating SpaceObjects; first vector "
                    "element = %.12lf\n", (psm[i]->GetState()->GetState())[0]);
             #endif
-            fm[i]->UpdateSpaceObject(currEpoch[i]);
+            if (fm[i])
+               fm[i]->UpdateSpaceObject(currEpoch[i]);
+            else
+               p[i]->UpdateSpaceObject(currEpoch[i]);
          }
 
          // In single step mode, we're done!
@@ -3130,6 +3256,30 @@ bool Propagate::Execute()
                MessageInterface::ShowMessage
                   ("Propagate::Breaking for Single Step\n");
             #endif
+
+/** @todo: Determine if we should publish here.
+ *
+ *         We are not publishing the final point when running in single step
+ *         mode; this code does that, but then we end up with repeated points
+ *         because the last point from one step is the first point in the next.
+ *         If we publish here, the Publisher or all Subscribers need to be able
+ *         to handle the repeated point issues.
+ */
+
+//            // todo: Publish the data here?
+//            pubdata[0] = currEpoch[0];
+//            memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
+//            #ifdef DEBUG_PUBLISH_DATA
+//               MessageInterface::ShowMessage
+//                     ("***Propagate::Execute() SingleStep '%s' publishing current "
+//                      "%d data to stream %d, 1st data = [%.12lf %.12lf %.12lf "
+//                      "%.12lf %.12lf %.12lf %.12lf]\n",
+//                      GetGeneratingString(Gmat::NO_COMMENTS).c_str(), dim+1,
+//                      streamID, pubdata[0], pubdata[1], pubdata[2], pubdata[3],
+//                      pubdata[4], pubdata[5], pubdata[6]);
+//            #endif
+//
+//            publisher->Publish(this, streamID, pubdata, dim+1);
 
             break;
          }
@@ -3145,10 +3295,11 @@ bool Propagate::Execute()
             pubdata[0] = currEpoch[0];
             memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
             #ifdef DEBUG_PUBLISH_DATA
-            MessageInterface::ShowMessage
-               ("Propagate::Execute() '%s' publishing current %d data to stream %d, "
-                "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
-                dim+1, streamID, pubdata[0]);
+               MessageInterface::ShowMessage
+                     ("Propagate::Execute() '%s' publishing current %d data to "
+                      "stream %d, 1st data = %f\n",
+                      GetGeneratingString(Gmat::NO_COMMENTS).c_str(), dim+1,
+                      streamID, pubdata[0]);
             #endif
             
             publisher->Publish(this, streamID, pubdata, dim+1);
@@ -3232,7 +3383,8 @@ bool Propagate::Execute()
    if (!singleStepMode)
    {
       for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
-         (*f)->RevertSpaceObject();
+         if (*f)
+            (*f)->RevertSpaceObject();
 
       TakeFinalStep(epochID, trigger);
       // reset the stopping conditions so that scanning starts over
@@ -3248,7 +3400,8 @@ bool Propagate::Execute()
    }
 
    #ifdef DEBUG_EPOCH_UPDATES
-      fm[0]->ReportEpochData();
+      if (fm[0]);
+         fm[0]->ReportEpochData();
    #endif
       
    ClearTransientForces();
@@ -3802,10 +3955,11 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       pubdata[0] = baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY;
       memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
       #ifdef DEBUG_PUBLISH_DATA
-      MessageInterface::ShowMessage
-         ("Propagate::TakeFinalStep() '%s' publishing final %d data to stream %d, "
-          "1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
-          dim+1, streamID, pubdata[0]);
+         MessageInterface::ShowMessage
+               ("Propagate::TakeFinalStep() '%s' publishing final %d data to "
+                "stream %d, 1st data = %f\n",
+                GetGeneratingString(Gmat::NO_COMMENTS).c_str(), dim+1, streamID,
+                pubdata[0]);
       #endif
       
       publisher->Publish(this, streamID, pubdata, dim+1);
@@ -4508,28 +4662,31 @@ void Propagate::ClearTransientForces()
    for (std::vector<PropSetup*>::iterator p = prop.begin(); 
         p != prop.end(); ++p)
    {
-      fm = (*p)->GetODEModel();
-      if (!fm)
-         throw CommandException("ForceModel not set in PropSetup \"" + 
-                                (*p)->GetName() + "\"");
-      
-      #ifdef DEBUG_TRANSIENT_FORCES
-      MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
-      #endif
-      for (Integer i = 0; i < fm->GetNumForces(); ++i)
+      if ((*p)->GetPropagator()->UsesODEModel())
       {
-         pm = fm->GetForce(i);
+         fm = (*p)->GetODEModel();
+         if (!fm)
+            throw CommandException("ForceModel not set in PropSetup \"" +
+                                   (*p)->GetName() + "\"");
+
          #ifdef DEBUG_TRANSIENT_FORCES
-         MessageInterface::ShowMessage
-            ("      Checking if pm<%p>'%s' is transient\n", pm, pm->GetName().c_str());
+         MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
          #endif
-         if (pm->IsTransient())
-         {            
+         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+         {
+            pm = fm->GetForce(i);
             #ifdef DEBUG_TRANSIENT_FORCES
-            MessageInterface::ShowMessage("   calling fm->DeleteForce()\n");
+            MessageInterface::ShowMessage
+               ("      Checking if pm<%p>'%s' is transient\n", pm, pm->GetName().c_str());
             #endif
-            fm->DeleteForce(pm->GetName());
-            i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
+            if (pm->IsTransient())
+            {
+               #ifdef DEBUG_TRANSIENT_FORCES
+               MessageInterface::ShowMessage("   calling fm->DeleteForce()\n");
+               #endif
+               fm->DeleteForce(pm->GetName());
+               i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
+            }
          }
       }
    }
@@ -4540,22 +4697,25 @@ void Propagate::ClearTransientForces()
       for (std::vector<PropSetup*>::iterator p = prop.begin();
            p != prop.end(); ++p)
       {
-         fm = (*p)->GetODEModel();
-         if (!fm)
-            throw CommandException("ForceModel not set in PropSetup \"" + 
-                                   (*p)->GetName() + "\"");
-         #ifdef DEBUG_TRANSIENT_FORCES
-         MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
-         #endif
-         MessageInterface::ShowMessage(
-            "      Forces in %s:\n", fm->GetName().c_str());
-         for (Integer i = 0; i < fm->GetNumForces(); ++i)
+         if ((*p)->GetPropagator()->UsesODEModel())
          {
-            pm = fm->GetForce(i);
+            fm = (*p)->GetODEModel();
+            if (!fm)
+               throw CommandException("ForceModel not set in PropSetup \"" +
+                                      (*p)->GetName() + "\"");
+            #ifdef DEBUG_TRANSIENT_FORCES
+            MessageInterface::ShowMessage("   ODEModel=<%p>\n", fm);
+            #endif
             MessageInterface::ShowMessage(
-                "      %15s   %s\n", pm->GetTypeName().c_str(),
-                pm->GetName().c_str());
-          }
+               "      Forces in %s:\n", fm->GetName().c_str());
+            for (Integer i = 0; i < fm->GetNumForces(); ++i)
+            {
+               pm = fm->GetForce(i);
+               MessageInterface::ShowMessage(
+                   "      %15s   %s\n", pm->GetTypeName().c_str(),
+                   pm->GetName().c_str());
+             }
+         }
       }
    #endif
 }
