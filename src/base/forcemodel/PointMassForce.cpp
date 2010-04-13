@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             PointMassForce
 //------------------------------------------------------------------------------
@@ -71,7 +71,7 @@
 //#define DEBUG_FORCE_MODEL
 //#define DEBUG_FORCE_ORIGIN
 //#define DUMP_PLANET_DATA
-
+//#define DEBUG_INDIRECT_TERM
 //---------------------------------
 // static data
 //---------------------------------
@@ -367,9 +367,21 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
             now.Get(), orig.ToString().c_str(), bodyrv.ToString().c_str());
          MessageInterface::ShowMessage(
             "Now = %16.11lf rbb3 = %16.11le rv = [%16lf %16lf %16lf]\n",
-            now, rbb3, rv[0], rv[1], rv[2]);
+            now.Get(), rbb3, rv[0], rv[1], rv[2]);
       #endif
-   
+
+      #ifdef DEBUG_INDIRECT_TERM
+         MessageInterface::ShowMessage("Indirect term for %s with mu %.15le:\n",
+               body->GetName().c_str(), mu);
+         MessageInterface::ShowMessage("   Origin   = [%16le %16le %16le]\n",
+               orig[0], orig[1], orig[2]);
+         MessageInterface::ShowMessage("   Position = [%16le %16le %16le]\n",
+               bodyrv[0], bodyrv[1], bodyrv[2]);
+         MessageInterface::ShowMessage("   a_indirect = [%16le %16le %16le]\n",
+               body->GetName().c_str(), a_indirect[0],
+               a_indirect[1], a_indirect[2]);
+      #endif
+
    	#if DEBUG_PMF_BODY
    	   ShowBodyState("PointMassForce::GetDerivatives() BEFORE compute " +
    	                 body->GetName(), now, rv);
@@ -398,6 +410,18 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
             r3 *= radius;
             mu_r = mu / r3;
       
+            #ifdef DEBUG_INDIRECT_TERM
+               MessageInterface::ShowMessage("   Raw acc for sp %d:  ", i);
+               MessageInterface::ShowMessage("[%16le %16le %16le]\n",
+                     relativePosition[0] * mu_r, relativePosition[1] * mu_r,
+                     relativePosition[2] * mu_r);
+               MessageInterface::ShowMessage("   Corrected acc =     [%16le "
+                     "%16le %16le]\n",
+                     relativePosition[0] * mu_r - a_indirect[0],
+                     relativePosition[1] * mu_r - a_indirect[1],
+                     relativePosition[2] * mu_r - a_indirect[2]);
+            #endif
+
             if (order == 1) 
             {
                // Do dv/dt first, in case deriv = state
