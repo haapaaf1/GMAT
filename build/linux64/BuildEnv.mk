@@ -2,7 +2,6 @@
 # Build environment file for Linux
 
 # Flags used to control the build
-USE_MATLAB = 1
 USE_SPICE = 1
 USE_DEVIL = 1
 CONSOLE_APP = 0
@@ -40,16 +39,6 @@ SPICE_DIRECTIVE =
 SPICE_STACKSIZE = echo 'SPICE not included in this build ...'
 endif
 
-# MATLAB specific data
-# If you build with MATLAB support, you need to set the path infoirmation here.
-# You may also need to edit this list, depending on your MATLAB version number;
-# this set works with R2007b for Linux.
-MATLAB_INCLUDE = -I/opt/matlab/R2009b/extern/include
-MATLAB_LIB = -L/opt/matlab/R2009b/bin/glnxa64
-MATLAB_LIBRARIES = -leng -lmx -lut  \
-                   -lmat -lpthread -lstdc++ -lm \
-                   -lmwfl -Xlinker -rpath-link /opt/matlab/R2009b/bin/glnxa64 \
-                   -licudata -licuuc -licui18n -licuio -lz -lhdf5 -lxerces-c
 
 # DevIL data
 IL_HEADERS = -I/usr/local/include/IL
@@ -64,9 +53,18 @@ WX_28_DEFINES =
 endif
 endif
 
-# The Console app does not support MATLAB linkage or shared base libraries for now
+
+ifeq ($(USE_STC_EDITOR), 1)
+STC_CPP_FLAGS = -D__USE_STC_EDITOR__
+STC_LIBRARIES = -lwx_gtk2_stc-2.8
+else
+STC_CPP_FLAGS =
+STC_LIBRARIES =
+endif
+
+
+# The Console app does not support shared base libraries for now
 ifeq ($(CONSOLE_APP), 1)
-USE_MATLAB = 0
 SHARED_BASE = 0
 endif
 
@@ -95,9 +93,6 @@ endif
 # Do not edit below this line -- here we build up longer compile/link strings
 LINUX_MAC = 1
 
-# Build specific flags
-MATLAB_FLAGS = -D__USE_MATLAB__=1
-
 ifeq ($(CONSOLE_APP), 0)
 WXCPPFLAGS = `$(WX_CONFIG_PATH)wx-config --cppflags`
 WXLINKFLAGS = `$(WX_CONFIG_PATH)wx-config --libs --gl-libs --static=no`
@@ -122,20 +117,14 @@ PROCFLAGS = -DUSE_64_BIT_LONGS
 endif
 
 # Build the complete list of flags for the compilers
-ifeq ($(USE_MATLAB),1)
-CPP_BASE = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
-           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) \
-           $(MATLAB_INCLUDE) $(PROFILE_FLAGS) $(DEBUG_FLAGS) $(PROCFLAGS)
-else
 CPP_BASE = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
            $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(PROFILE_FLAGS) \
            $(DEBUG_FLAGS) $(PROCFLAGS)
-endif
 
 ifeq ($(USE_DEVIL), 0)
-CPPFLAGS = $(CPP_BASE) -DSKIP_DEVIL $(PROFILE_FLAGS) $(DEBUG_FLAGS) -fPIC
+CPPFLAGS = $(CPP_BASE) -DSKIP_DEVIL $(PROFILE_FLAGS) $(DEBUG_FLAGS) $(STC_CPP_FLAGS) -fPIC
 else
-CPPFLAGS = $(CPP_BASE) $(PROFILE_FLAGS) $(DEBUG_FLAGS) $(IL_HEADERS) -fPIC
+CPPFLAGS = $(CPP_BASE) $(PROFILE_FLAGS) $(DEBUG_FLAGS) $(IL_HEADERS) $(STC_CPP_FLAGS) -fPIC
 endif
 
 
@@ -147,34 +136,16 @@ F2C_FLAGS = -lgfortran -lm
 # Link specific flags
 ifeq ($(USE_DEVIL),1)
 
-ifeq ($(USE_MATLAB),1)
-LINK_FLAGS = $(WXLINKFLAGS)\
-             $(MATLAB_LIB) $(MATLAB_LIBRARIES) $(SPICE_LIBRARIES) \
-             $(DEBUG_FLAGS) \
-             $(IL_LIBRARIES) $(PROFILE_FLAGS) $(F2C_FLAGS)
-else
 LINK_FLAGS = $(WXLINKFLAGS) $(SPICE_LIBRARIES) \
              $(DEBUG_FLAGS) \
-             $(IL_LIBRARIES) $(PROFILE_FLAGS) $(F2C_FLAGS)
-endif
+             $(IL_LIBRARIES) $(STC_LIBRARIES) $(PROFILE_FLAGS) $(F2C_FLAGS)
 
 else
 
-ifeq ($(USE_MATLAB),1)
-LINK_FLAGS = $(WXLINKFLAGS)\
-             $(MATLAB_LIB) $(MATLAB_LIBRARIES) \
-             $(DEBUG_FLAGS) $(F2C_FLAGS)
-else
-LINK_FLAGS = $(WXLINKFLAGS) $(DEBUG_FLAGS) $(F2C_FLAGS)
-endif
+LINK_FLAGS = $(WXLINKFLAGS) $(DEBUG_FLAGS) $(STC_LIBRARIES) $(F2C_FLAGS)
 
 endif
 
 
-ifeq ($(USE_MATLAB),1)
-CONSOLE_LINK_FLAGS = $(MATLAB_LIB) $(MATLAB_LIBRARIES) -L../../base/lib \
-                    -lgfortran -ldl $(DEBUG_FLAGS) $(PROFILE_FLAGS)
-else
 CONSOLE_LINK_FLAGS = -L../../base/lib -lgfortran -ldl $(DEBUG_FLAGS) \
                      $(PROFILE_FLAGS)
-endif
