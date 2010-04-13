@@ -402,6 +402,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    coordSysName         (a.coordSysName),
    coordSysMap          (a.coordSysMap),
    spacecraftId         (a.spacecraftId),
+   orbitSpiceKernelNames(a.orbitSpiceKernelNames),
    stateConverter       (a.stateConverter),
    coordConverter       (a.coordConverter),
    totalMass            (a.totalMass),
@@ -539,6 +540,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    BuildElementLabelMap();
 
    orbitSTM = a.orbitSTM;
+   orbitSpiceKernelNames = a.orbitSpiceKernelNames;
    includeCartesianState = a.includeCartesianState;
 
 
@@ -1551,6 +1553,9 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
       if (str == "STM")
          return ORBIT_STM;
 
+      if (str == "OrbitSpiceKernelName")
+         return ORBIT_SPICE_KERNEL_NAME;
+
 
       if ((str == "CartesianState") || (str == "CartesianX")) return CARTESIAN_X;
       if (str == "CartesianY" )  return CARTESIAN_Y;
@@ -2208,7 +2213,8 @@ std::string Spacecraft::GetStringParameter(const std::string &label) const
 //  const StringArray& GetStringArrayParameter(const Integer id) const
 //---------------------------------------------------------------------------
 /**
- * Accesses lists of tank and thruster (and, eventually, other hardware) names.
+ * Accesses lists of tank and thruster (and, eventually, other hardware) names,
+ * and other StringArray parameters.
  *
  * @param id The integer ID for the parameter.
  *
@@ -2237,6 +2243,25 @@ const StringArray& Spacecraft::GetStringArrayParameter(const Integer id) const
    return SpaceObject::GetStringArrayParameter(id);
 }
 
+
+//------------------------------------------------------------------------------
+// const StringArray& GetStringArrayParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Accesses lists of tank and thruster (and, eventually, other hardware) names,
+ * and other StringArray parameters.
+ *
+ * @param label The script string for the parameter.
+ *
+ * @return The requested StringArray; throws if the parameter is not a
+ *         StringArray.
+ */
+//------------------------------------------------------------------------------
+const StringArray& Spacecraft::GetStringArrayParameter(
+      const std::string &label) const
+{
+   return GetStringArrayParameter(GetParameterID(label));
+}
 
 //---------------------------------------------------------------------------
 //  bool SetStringParameter(const Integer id, const std::string &value)
