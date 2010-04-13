@@ -31,7 +31,7 @@
 //forward declaration for matrix operations
 class Rmatrix;
 
-class Rvector : public ArrayTemplate<Real>
+class GMAT_API Rvector : public ArrayTemplate<Real>
 {
 public:
    

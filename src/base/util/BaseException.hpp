@@ -20,9 +20,10 @@
 #ifndef BaseException_hpp
 #define BaseException_hpp
 
+#include "gmatdefs.hpp"
 #include <string>
 
-class BaseException
+class GMAT_API BaseException
 {
 public:
    virtual std::string GetFullMessage() const;

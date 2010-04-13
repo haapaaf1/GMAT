@@ -33,7 +33,7 @@
 #include "CoordinateConverter.hpp"
 
 
-class BodyFixedPoint : public SpacePoint
+class GMAT_API BodyFixedPoint : public SpacePoint
 {
 public:
    BodyFixedPoint(const std::string &itsType, const std::string &itsName);

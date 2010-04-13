@@ -27,7 +27,7 @@
 /**
  * Helper class used to represent an object's covariance data
  */
-class Covariance
+class GMAT_API Covariance
 {
 public:
    Covariance(GmatBase *owner = NULL);

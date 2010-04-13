@@ -29,7 +29,7 @@
 /**
  * Class used to model accelerations due to drag.
  */
-class DragForce : public PhysicalModel
+class GMAT_API DragForce : public PhysicalModel
 {
 public:
    DragForce(const std::string &name = "");

@@ -120,7 +120,7 @@ public:
 private:
 
    // Global setting
-   struct Setting
+   struct GMAT_API Setting
    {
       Setting(Integer dp = DATA_PRECISION, Integer tp = TIME_PRECISION,
               Integer dw = DATA_WIDTH, Integer tw = TIME_WIDTH,
@@ -143,7 +143,7 @@ private:
    };
    
    // I/O formatting   
-   struct IoFormat
+   struct GMAT_API IoFormat
    {
       IoFormat(bool scientific = false, bool showPoint = false,
                Integer precision = GmatGlobal::DATA_PRECISION,

@@ -24,7 +24,7 @@
 class Rvector6;
 class Rmatrix33;
 
-class Rmatrix66 : public Rmatrix
+class GMAT_API Rmatrix66 : public Rmatrix
 {
 public:
    Rmatrix66(bool IsIdentityMatrix = true);

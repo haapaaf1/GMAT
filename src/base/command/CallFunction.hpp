@@ -29,7 +29,7 @@
 // Forward references for GMAT core objects
 class Publisher;
 
-class CallFunction : public GmatCommand
+class GMAT_API CallFunction : public GmatCommand
 {
 public:
    CallFunction(const std::string &type);

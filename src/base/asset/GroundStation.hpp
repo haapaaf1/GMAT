@@ -32,7 +32,7 @@
 #include "CoordinateConverter.hpp"
 
 
-class GroundStation : public BodyFixedPoint
+class GMAT_API GroundStation : public BodyFixedPoint
 {
 public:
    GroundStation(const std::string &itsName);

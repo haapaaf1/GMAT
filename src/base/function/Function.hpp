@@ -31,7 +31,7 @@
 /**
  * All function classes are derived from this base class.
  */
-class Function : public GmatBase
+class GMAT_API Function : public GmatBase
 {
 public:
    Function(const std::string &typeStr, const std::string &nomme);

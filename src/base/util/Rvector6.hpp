@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                Rvector6
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -29,7 +29,7 @@ class Rmatrix66;
 
 #define NUM_DATA_INIT 6
 
-class Rvector6 : public Rvector
+class GMAT_API Rvector6 : public Rvector
 {
 public:
 

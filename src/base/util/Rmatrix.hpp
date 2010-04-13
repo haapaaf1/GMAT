@@ -31,7 +31,7 @@
 class Rvector;
 class Rvector3;
 
-class Rmatrix :  public TableTemplate<Real>
+class GMAT_API Rmatrix :  public TableTemplate<Real>
 {
 public:
    

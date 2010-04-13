@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  SolarSystem
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -49,7 +49,7 @@ class CoordinateSystem;
  * specified Solar System.  NOTE - For Build 2, the default Solar System
  * contains only the Sun, Earth, and Moon.
  */
-class SolarSystem : public GmatBase
+class GMAT_API SolarSystem : public GmatBase
 {
 public:
    // class default constructor - creates default solar system

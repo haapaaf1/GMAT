@@ -24,7 +24,7 @@
 /**
  * Exceptions thrown from the interface subsystem
  */
-class InterfaceException : public BaseException
+class GMAT_API InterfaceException : public BaseException
 {
    public:
       // class constructor

@@ -28,7 +28,7 @@
 // Forward declarations for operations with vector
 class Rvector3;
 
-class Rmatrix33 : public Rmatrix
+class GMAT_API Rmatrix33 : public Rmatrix
 {
 public:
    Rmatrix33(bool IsIdentityMatrix = true);

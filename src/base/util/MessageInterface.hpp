@@ -30,7 +30,7 @@
  * implementation specific class rerived from teh abstract  MessageReceiver 
  * class.  Display to the user is handled in the derived MessageReceiver.
  */
-class MessageInterface
+class GMAT_API MessageInterface
 {
 public:
    static bool SetMessageReceiver(MessageReceiver *mr);

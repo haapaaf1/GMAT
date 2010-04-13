@@ -27,7 +27,7 @@
 #include "UtcDate.hpp"
 #include "A1Date.hpp"
 
-class A1Mjd
+class GMAT_API A1Mjd
 {
 public:
 

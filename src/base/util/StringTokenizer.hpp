@@ -25,7 +25,7 @@
 #include <iterator>
 #include "gmatdefs.hpp"
 
-class StringTokenizer
+class GMAT_API StringTokenizer
 {
 public:
    StringTokenizer();

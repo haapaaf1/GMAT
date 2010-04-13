@@ -24,7 +24,7 @@
 /**
  * Exceptions thrown from the command subsystem
  */
-class CommandException : public BaseException
+class GMAT_API CommandException : public BaseException
 {
 public:
    // class constructor

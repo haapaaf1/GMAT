@@ -21,7 +21,7 @@
 
 #include "BaseException.hpp"
 
-class GmatBaseException : public BaseException
+class GMAT_API GmatBaseException : public BaseException
 {
 public:
 

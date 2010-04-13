@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                Rvector3
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -26,7 +26,7 @@
 //forward declaration for matrix operations
 class Rmatrix33;
 
-class Rvector3 : public Rvector
+class GMAT_API Rvector3 : public Rvector
 {
 public:
 
