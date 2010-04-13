@@ -311,12 +311,18 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
          hasMatlab = true;
          if (hasMatlab)
          {
+            #ifdef DEBUG_MATLAB
             MessageInterface::ShowMessage
                ("*** MATLAB is installed in '%s'\n", appLoc.c_str());
+            #endif
             GmatGlobal::Instance()->SetMatlabAvailable(true);
          }
          else
+         {
+            #ifdef DEBUG_MATLAB
             MessageInterface::ShowMessage("*** MATLAB is not installed\n");
+            #endif
+         }
       }
       catch (BaseException &be)
       {
