@@ -46,6 +46,7 @@ clean : archclean
 
 archclean :
 	rm -rf */*.o
+	rm -rf $(MEX_OBJECTS)
 	rm -rf $(TARGET)
 	rm -rf */*~
 	rm -rf core
@@ -58,14 +59,15 @@ OBJECTS = \
     factory/CallMatlabFunctionFactory.o \
     interface/MatlabInterface.o \
     subscriber/MatlabWorkspace.o \
-    command/CallMatlabFunction.o 
+    command/CallMatlabFunction.o \
+	 $(MEX_OBJECTS)
 
 ifeq ($(MAC_SPECIFIC), 1)
 $(TARGET) : $(OBJECTS)
 	mkdir -p ../../lib
 	$(CPP) $(OBJECTS) -o $(TARGET) $(SHARED_LIB_FLAGS)
 	install_name_tool -change lib/lib$(BASE_LIBRARY).dylib $(BASE_LIB_LOCATION)lib$(BASE_LIBRARY).dylib $(TARGET)
-	cp $(TARGET) $(GMAT_Bin_Location)
+	cp $(TARGET) $(GMAT_BIN_LOCATION)
 else
 $(TARGET) : $(OBJECTS)
 	mkdir -p ../../lib
