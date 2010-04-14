@@ -26,6 +26,8 @@
 #include "MatlabWorkspaceFactory.hpp"
 #include "CallMatlabFunctionFactory.hpp"
 
+//#define __INCLUDE_MATLAB_WORKSPACE__
+
 extern "C"
 {
    //------------------------------------------------------------------------------
@@ -39,7 +41,11 @@ extern "C"
    //------------------------------------------------------------------------------
    Integer GetFactoryCount()
    {
+      #ifdef __INCLUDE_MATLAB_WORKSPACE__
       return 3;
+      #else
+      return 2;
+      #endif
    }
    
    //------------------------------------------------------------------------------
@@ -64,12 +70,14 @@ extern "C"
             break;
             
          case 1:
-            factory = new MatlabWorkspaceFactory;
-            break;
-            
-         case 2:
             factory = new CallMatlabFunctionFactory;
             break;
+            
+         #ifdef __INCLUDE_MATLAB_WORKSPACE__
+         case 2:
+            factory = new MatlabWorkspaceFactory;
+            break;
+         #endif
             
          default:
             break;
