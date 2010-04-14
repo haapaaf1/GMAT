@@ -3701,6 +3701,8 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
             menu.Enable(GmatMenu::MENU_MATLAB_SERVER_STOP, false);
          }
          break;
+      default:
+         break;
       }   
    }
    
