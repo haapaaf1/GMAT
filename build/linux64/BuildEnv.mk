@@ -15,7 +15,7 @@ SHARED_BASE = 1
 # For AMD64 native code, this variable should be set equal to 1
 USE_64_BIT_LONGS = 1
 
-# If the copy of wx-config you neeed is not in your path, enter the path to the
+# If the copy of wx-config you need is not in your path, enter the path to the
 # file here, including a terminating slash.  (The commented version is an 
 # example, showing what you would use if wx-config were in /usr/local/bin)
 

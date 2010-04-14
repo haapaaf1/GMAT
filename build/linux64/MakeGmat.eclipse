@@ -8,11 +8,7 @@ TARGET = ../bin/gmatConsole
 LIBRARY = base/lib/libGmatConsole.a
 else
 TARGET = ../bin/gmat
-ifeq ($(USE_MATLAB),1)
 LIBRARY = base/lib/libGmatBase.a
-else
-LIBRARY = base/lib/libGmatBaseNoMatlab.a
-endif
 endif
 
 all: prep $(TARGET)
