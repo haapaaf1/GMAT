@@ -64,6 +64,7 @@ endif
 
 ifeq ($(USE_SPICE),1)
 SPICE_OBJECTS = \
+    propagator/SPKPropagator.o \
     util/SpiceOrbitKernelReader.o \
     util/SpiceKernelReader.o \
     util/SpiceKernelWriter.o
@@ -416,7 +417,6 @@ OBJECTS = \
     propagator/RungeKuttaNystrom.o \
     propagator/RungeKutta.o \
     propagator/EphemerisPropagator.o \
-    propagator/SPKPropagator.o \
     solarsys/Asteroid.o \
     solarsys/AtmosphereModel.o \
     solarsys/Barycenter.o \

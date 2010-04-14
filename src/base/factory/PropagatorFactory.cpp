@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            PropagatorFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -29,7 +29,10 @@
 #include "BulirschStoer.hpp"
 
 // Ephemeris propagators
+#ifdef __USE_SPICE__
 #include "SPKPropagator.hpp"
+#endif
+
 // Not yet implemented:
 //#include "Cowell.hpp"
 /// @todo add others here for future builds
@@ -68,8 +71,10 @@ Propagator* PropagatorFactory::CreatePropagator(const std::string &ofType,
 //   if (ofType == "Cowell")
 //      return new Cowell(withName);
    // EphemerisPropagators
+#ifdef __USE_SPICE__
    if (ofType == "SPK")
       return new SPKPropagator(withName);
+#endif
 
    /// @todo add others here as needed
    else
@@ -102,7 +107,9 @@ PropagatorFactory::PropagatorFactory()
       creatables.push_back("RungeKuttaFehlberg56");
 //      creatables.push_back("Cowell");
       
+#ifdef __USE_SPICE__
       creatables.push_back("SPK");
+#endif
    }
 }
 
