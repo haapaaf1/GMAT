@@ -24,7 +24,7 @@
 #include "Factory.hpp"
 #include "Subscriber.hpp"
 
-class MatlabWorkspaceFactory : public Factory
+class GMAT_API MatlabWorkspaceFactory : public Factory
 {
 public:
    virtual Subscriber* CreateSubscriber(const std::string &ofType,

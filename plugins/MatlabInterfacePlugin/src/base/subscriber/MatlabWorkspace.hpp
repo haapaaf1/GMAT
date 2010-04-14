@@ -25,7 +25,7 @@
 class Parameter;
 class MatlabInterface;
 
-class MatlabWorkspace : public Subscriber
+class GMAT_API MatlabWorkspace : public Subscriber
 {
 public:
    MatlabWorkspace(const std::string &name, Parameter *firstParam = NULL);

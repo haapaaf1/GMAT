@@ -22,7 +22,7 @@
 #include "CallFunction.hpp"
 #include "MatlabInterface.hpp"
 
-class CallMatlabFunction : public CallFunction
+class GMAT_API CallMatlabFunction : public CallFunction
 {
 public:
    CallMatlabFunction();

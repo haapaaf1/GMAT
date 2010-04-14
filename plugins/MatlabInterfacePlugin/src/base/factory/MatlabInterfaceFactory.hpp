@@ -22,7 +22,7 @@
 #include "Factory.hpp"
 #include "Interface.hpp"
 
-class MatlabInterfaceFactory : public Factory
+class GMAT_API MatlabInterfaceFactory : public Factory
 {
 public:
    virtual Interface* CreateInterface(const std::string &ofType,

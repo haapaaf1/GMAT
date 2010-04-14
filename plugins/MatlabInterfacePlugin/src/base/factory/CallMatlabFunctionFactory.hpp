@@ -23,7 +23,7 @@
 #include "Factory.hpp"
 #include "GmatCommand.hpp"
 
-class CallMatlabFunctionFactory : public Factory
+class GMAT_API CallMatlabFunctionFactory : public Factory
 {
 public:
    virtual GmatCommand* CreateCommand(const std::string &ofType,
