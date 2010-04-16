@@ -227,6 +227,7 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
       std::string errmsg = "Error getting state for body \"";
       errmsg += targetName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
+      reset_c();
       throw UtilityException(errmsg);
    }
    #ifdef DEBUG_SPK_READING

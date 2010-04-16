@@ -201,6 +201,7 @@ bool SpiceKernelReader::LoadKernel(const std::string &fileName)
       std::string errmsg = "Error loading kernel \"";
       errmsg += fileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
+      reset_c();
       throw UtilityException(errmsg);
    }
 #ifdef DEBUG_SPK_LOADING
@@ -264,6 +265,7 @@ bool SpiceKernelReader::UnloadKernel(const std::string &fileName)
       std::string errmsg = "Error unloading kernel \"";
       errmsg += fileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
+      reset_c();
       throw UtilityException(errmsg);
    }
 
@@ -304,6 +306,7 @@ bool SpiceKernelReader::UnloadAllKernels()
          std::string errmsg = "Error unloading kernel \"";
          errmsg += (*jj) + "\".  Message received from CSPICE is: ";
          errmsg += errStr + "\n";
+         reset_c();
          throw UtilityException(errmsg);
       }
       // @todo - handle exceptional conditions (SPICE signals) here ...

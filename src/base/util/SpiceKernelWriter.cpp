@@ -121,6 +121,7 @@ SpiceKernelWriter::SpiceKernelWriter(const std::string       &objName,   const s
       std::string errmsg = "Error getting file handle for SPK file \"";
       errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
+      reset_c();
       throw UtilityException(errmsg);
    }
    fileOpen = true;
@@ -143,6 +144,7 @@ SpiceKernelWriter::SpiceKernelWriter(const std::string       &objName,   const s
       ss << "Unable to set NAIF Id for object \"" << objectName << "\" to the value ";
       ss << objNAIFId << ".  Message received from CSPICE is: ";
       ss << errStr << std::endl;
+      reset_c();
       throw UtilityException(ss.str());
    }
 }
@@ -269,6 +271,7 @@ void SpiceKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
       std::string errmsg = "Error writing ephemeris data to SPK file \"";
       errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
+      reset_c();
       throw UtilityException(errmsg);
    }
    delete [] epochArray;
@@ -397,6 +400,7 @@ void SpiceKernelWriter::WriteMetaData()
       std::string errmsg = "Error writing meta data to SPK file \"";
       errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
+      reset_c();
       throw UtilityException(errmsg);
    }
    // close the text file
