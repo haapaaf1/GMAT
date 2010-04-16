@@ -193,12 +193,43 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
     }
     case TimeConverterUtil::TDBMJD:
     case TimeConverterUtil::TDB:
-          throw UnimplementedException(
-               "Not Implemented - TDB to TAI");
-//      Real tdbJd = origValue + jdOffset;
-//      Real taiJd = ((tdbJd - ((TDB_COEFF1 *sin(m_E)) +
-//                    (TDB_COEFF2 * sin(2 * m_E)))) * T_TT_COEFF1) - T_TT_OFFSET;
-//      return (taiJd - jdOffset);
+    {
+       // This cleans up round-off error from differencing large numbers
+       Real tttOffset = T_TT_OFFSET - refJd;
+
+       // An approximation valid to the difference between TDB and TT; 1st term
+       // here should be in TT rather than the input TDB, but we do not know TT
+       Real t_TT = (origValue - tttOffset) / T_TT_COEFF1;
+       Real m_E = (M_E_OFFSET + (M_E_COEFF1 * t_TT)) *
+             GmatMathUtil::RAD_PER_DEG;
+
+       Real offset = ((TDB_COEFF1 *Sin(m_E)) + (TDB_COEFF2 * Sin(2 * m_E))) /
+             GmatTimeUtil::SECS_PER_DAY ;
+
+       Real ttJd = origValue - offset;
+       Real taiJd = TimeConverterUtil::ConvertToTaiMjd(TimeConverterUtil::TTMJD,
+             ttJd, 0.0);
+
+      #ifdef DEBUG_TDB
+          MessageInterface::ShowMessage("TDB -> MJD\n");
+          MessageInterface::ShowMessage("   T_TT_COEFF1 = %.15le\n", T_TT_COEFF1);
+          MessageInterface::ShowMessage("   T_TT_OFFSET = %.15le\n", T_TT_OFFSET);
+          MessageInterface::ShowMessage("   M_E_OFFSET  = %.15le\n", M_E_OFFSET);
+          MessageInterface::ShowMessage("   M_E_COEFF1  = %.15le\n", M_E_COEFF1);
+          MessageInterface::ShowMessage("   TDB_COEFF1  = %.15le\n", TDB_COEFF1);
+          MessageInterface::ShowMessage("   TDB_COEFF2  = %.15le\n", TDB_COEFF2);
+          MessageInterface::ShowMessage("   origValue   = %.15le\n", origValue);
+          MessageInterface::ShowMessage("   refJd       = %.15le\n", refJd);
+          MessageInterface::ShowMessage("   t_TT        = %.15le\n", t_TT);
+          MessageInterface::ShowMessage("   m_E         = %.15le\n", m_E);
+          MessageInterface::ShowMessage("   offset      = %.15le\n", offset);
+          MessageInterface::ShowMessage("   ttJd        = %.15le\n", ttJd);
+          MessageInterface::ShowMessage("   taiJd       = %.15le\n", taiJd);
+          MessageInterface::ShowMessage("   tai         = %.15le\n", taiJd - refJd);
+      #endif
+
+       return taiJd;
+    }
     case TimeConverterUtil::TCBMJD:
     case TimeConverterUtil::TCB:
           throw UnimplementedException(
@@ -336,25 +367,27 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
        }
       case TimeConverterUtil::TDBMJD:
       case TimeConverterUtil::TDB:      
-       {
-          #ifdef DEBUG_TIMECONVERTER_DETAILS
-             MessageInterface::ShowMessage("      In the 'tdb' block\n");
-          #endif
-          // convert time to tt
-          Real ttJd = TimeConverterUtil::ConvertFromTaiMjd(TimeConverterUtil::TTMJD, 
-                origValue, refJd);
-          // convert to ttJD
-          ttJd += refJd;
-    
-          // compute T_TT
-          Real t_TT = (ttJd - T_TT_OFFSET) / T_TT_COEFF1;
-          // compute M_E
-          Real m_E = (M_E_OFFSET + (M_E_COEFF1 * t_TT)) * GmatMathUtil::RAD_PER_DEG;
-          Real offset = ((TDB_COEFF1 *Sin(m_E)) + (TDB_COEFF2 * Sin(2 * m_E))) / 
-                        GmatTimeUtil::SECS_PER_DAY ;
-          Real tdbJd = ttJd + offset;
-          return tdbJd - refJd;
-       }      
+          {
+             #ifdef DEBUG_TIMECONVERTER_DETAILS
+                MessageInterface::ShowMessage("      In the 'tdb' block\n");
+             #endif
+             // convert time to tt
+             Real ttJd = TimeConverterUtil::ConvertFromTaiMjd(
+                   TimeConverterUtil::TTMJD, origValue, refJd);
+
+             // compute T_TT
+             // This cleans up round-off error from differencing large numbers
+             Real tttOffset = T_TT_OFFSET - refJd;
+             Real t_TT = (origValue - tttOffset) / T_TT_COEFF1;
+
+             // compute M_E
+             Real m_E = (M_E_OFFSET + (M_E_COEFF1 * t_TT)) *
+                   GmatMathUtil::RAD_PER_DEG;
+             Real offset = ((TDB_COEFF1 *Sin(m_E)) +
+                   (TDB_COEFF2 * Sin(2 * m_E))) / GmatTimeUtil::SECS_PER_DAY;
+             Real tdbJd = ttJd + offset;
+             return tdbJd;
+          }
        case TimeConverterUtil::TCBMJD:
        case TimeConverterUtil::TCB:
        {
