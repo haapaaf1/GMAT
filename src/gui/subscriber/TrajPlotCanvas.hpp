@@ -15,6 +15,7 @@
 #ifndef TrajPlotCanvas_hpp
 #define TrajPlotCanvas_hpp
 
+#include "ViewCanvas.hpp"
 #include "gmatwxdefs.hpp"
 #include "MdiGlPlotData.hpp"
 #include "GuiInterpreter.hpp"
@@ -27,7 +28,7 @@
 
 #include <map>
 
-class TrajPlotCanvas: public wxGLCanvas
+class TrajPlotCanvas: public ViewCanvas
 {
 public:
    TrajPlotCanvas(wxWindow *parent, const wxWindowID id = -1,
@@ -35,7 +36,7 @@ public:
                   const wxSize& size = wxDefaultSize, 
                   const wxString& name = wxT("TrajPlotCanvas"),
                   long style = 0);
-   ~TrajPlotCanvas();
+   virtual ~TrajPlotCanvas();
    
    // initialization
    bool InitGL();
@@ -420,7 +421,6 @@ private:
    
    // texture
    bool LoadGLTextures();
-   bool LoadBodyTextures();
    GLuint BindTexture(SpacePoint *obj, const wxString &objName);
    void SetDefaultView();
    
@@ -486,7 +486,6 @@ private:
    void UpdateRotateFlags();
    bool ConvertObjectData();
    void ConvertObject(int objId, int index);
-   void MakeValidCoordSysList();
    
    // for utility
    Rvector3 ComputeEulerAngles();

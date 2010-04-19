@@ -176,16 +176,12 @@ static GlColorType *sGlColor = (GlColorType*)sIntColor;
 TrajPlotCanvas::TrajPlotCanvas(wxWindow *parent, wxWindowID id,
                                const wxPoint& pos, const wxSize& size,
                                const wxString& name, long style)
-   #ifdef __USE_WX280_GL__
-   : wxGLCanvas(parent, id, 0, pos, size, style, name)
-   #else
-   : wxGLCanvas(parent, id, pos, size, style, name)
-   #endif
+   : ViewCanvas(parent, id, pos, size, name, style)
 {
    mGlInitialized = false;
    mPlotName = name;
    mParent = parent;
-
+   
    // Linux specific
    #ifdef __WXGTK__
       hasBeenPainted = false;
