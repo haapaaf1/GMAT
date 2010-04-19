@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            SubscriberFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -26,6 +26,7 @@
 #include "OpenGlPlot.hpp"
 #include "TsPlot.hpp"
 #include "EphemerisFile.hpp"
+#include "Enhanced3DView.hpp"
 
 //---------------------------------
 //  public methods
@@ -62,6 +63,8 @@ Subscriber* SubscriberFactory::CreateSubscriber(const std::string &ofType,
       return new TsPlot(withName);
    else if (ofType == "EphemerisFile")
       return new EphemerisFile(withName);
+   else if (ofType == "Enhanced3DView")
+      return new Enhanced3DView(withName);
    
    return NULL;
 }
@@ -88,6 +91,7 @@ Factory(Gmat::SUBSCRIBER)
       creatables.push_back("OpenGLPlot");
       creatables.push_back("XYPlot");
       creatables.push_back("EphemerisFile");
+      creatables.push_back("Enhanced3DView");
    }
 }
 
