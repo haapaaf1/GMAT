@@ -2154,14 +2154,6 @@
 						RelativePath="..\..\..\src\base\propagator\RungeKuttaNystrom.hpp"
 						>
 					</File>
-					<File
-						RelativePath="..\..\..\src\base\propagator\SPKPropagator.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\propagator\SPKPropagator.hpp"
-						>
-					</File>
 				</Filter>
 				<Filter
 					Name="parameter"
@@ -2790,6 +2782,14 @@
 				<Filter
 					Name="subscriber"
 					>
+					<File
+						RelativePath="..\..\..\src\base\subscriber\Enhanced3DView.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\subscriber\Enhanced3DView.hpp"
+						>
+					</File>
 					<File
 						RelativePath="..\..\..\src\base\subscriber\EphemerisFile.cpp"
 						>
