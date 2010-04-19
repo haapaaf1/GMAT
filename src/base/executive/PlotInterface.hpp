@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             PlotInterface
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -44,7 +44,8 @@ public:
                                   bool drawESLines, bool overlapPlot,
                                   bool usevpInfo, bool usepm,
                                   Integer numPtsToRedraw);
-   
+
+   static void SetViewType(GmatPlot::ViewType view);
    static void SetGlSolarSystem(const std::string &plotName, SolarSystem *ss);
    
    static void SetGlObject(const std::string &plotName,

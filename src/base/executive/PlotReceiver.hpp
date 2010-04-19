@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             PlotInterface
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -27,10 +27,24 @@
 /**
  * PlotReceiver defines the interfaces used for 3D and XY plot classes.
  */
+
+namespace GmatPlot
+{
+   enum ViewType
+   {
+      TRAJECTORY_PLOT,
+      ENHANCED_3D_VIEW,
+   };
+};
+
 class PlotReceiver
 {
 public:
+
    // for OpenGL Plot
+   void               SetViewType(GmatPlot::ViewType view);
+   GmatPlot::ViewType GetViewType();
+   
    virtual bool CreateGlPlotWindow(const std::string &plotName,
                            const std::string &oldName,
                            bool drawEcPlane, bool drawEqPlane,
@@ -39,8 +53,8 @@ public:
                            bool usevpInfo, bool usepm,
                            Integer numPtsToRedraw) = 0;
    
-   virtual void SetGlSolarSystem(const std::string &plotName, 
-                    SolarSystem *ss) = 0;
+   virtual void SetGlSolarSystem(const std::string &plotName,
+                                 SolarSystem *ss) = 0;
    
    virtual void SetGlObject(const std::string &plotName,
                     const StringArray &objNames,
@@ -148,6 +162,7 @@ public:
    virtual bool ActivateTsPlot(const std::string &plotName) = 0;
 
 protected:
+   GmatPlot::ViewType currentView;
    PlotReceiver();
    virtual ~PlotReceiver();
 };

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             PlotInterface
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -103,6 +103,16 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
                    drawXyPlane, drawWireFrame, drawAxes, drawGrid, drawSunLine,
                    overlapPlot, usevpInfo, usepm, numPtsToRedraw);
    return false;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetViewType(GmatPlot::ViewType view)
+//------------------------------------------------------------------------------
+void PlotInterface::SetViewType(GmatPlot::ViewType view)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->SetViewType(view);
 }
 
 
