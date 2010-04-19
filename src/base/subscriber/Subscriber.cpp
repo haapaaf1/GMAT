@@ -38,11 +38,6 @@
 #include "StringUtil.hpp"          // for Replace()
 #include "MessageInterface.hpp"
 
-// The old Publisher code keep incrementing the provider id whenever
-// Publisher::RegisterPublishedData() is called, which causes OpenGL
-// plot to fail if it is used in the nested GmatFunction.
-//#define __USE_OLD_PUB_CODE__
-
 // Cloning wrapper is not ready
 //#define __ENABLE_CLONING_WRAPPERS__
 
@@ -576,16 +571,6 @@ void Subscriber::SetProvider(GmatBase *provider)
 //------------------------------------------------------------------------------
 void Subscriber::SetDataLabels(const StringArray& elements)
 {
-   //=================================================================
-   #ifdef __USE_OLD_PUB_CODE__
-   //=================================================================
-   
-   theDataLabels.push_back(elements);
-   
-   //=================================================================
-   #else
-   //=================================================================
-
    #ifdef DEBUG_SUBSCRIBER_SET_LABELS
    MessageInterface::ShowMessage
       ("==> Subscriber::SetDataLabels() Using new Publisher code\n");
@@ -596,10 +581,6 @@ void Subscriber::SetDataLabels(const StringArray& elements)
       theDataLabels.push_back(elements);
    else
       theDataLabels[0] = elements;
-   
-   //=================================================================
-   #endif
-   //=================================================================
    
    #ifdef DEBUG_SUBSCRIBER_DATA
    MessageInterface::ShowMessage
