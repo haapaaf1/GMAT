@@ -24,10 +24,6 @@
 #include <string>
 #include <algorithm>               // for find()
 
-// The old code keep incrementing the provider id whenever
-// RegisterPublishedData() is called, which causes OpenGL plot to fail
-// if it is used in the nested GmatFunction.
-//#define __USE_OLD_PUB_CODE__
 
 //#define DBGLVL_PUBLISHER_SUBSCRIBE 1
 //#define DBGLVL_PUBLISHER_REGISTER 1
@@ -458,37 +454,7 @@ void Publisher::ClearPublishedData()
       (*current)->ClearDataLabels();
       current++;
    }
-   
-   //=================================================================
-   #ifndef __USE_OLD_PUB_CODE__
-   //=================================================================
-   
-   #if DBGLVL_PUBLISHER_CLEAR > 1
-   MessageInterface::ShowMessage
-      ("Publisher::ClearPublishedData() Using new Publisher code\n");
-   #endif
-   
-   std::map<GmatBase*, std::vector<DataType>* >::iterator iter = providerMap.begin();
-   while (iter != providerMap.end())
-   {
-      std::vector<DataType>* dataList = iter->second;
-      if (dataList != NULL)
-      {
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (dataList, "dataList", "Publisher::ClearPublishedData()", "deleting dataList");
-         #endif
-         
-         delete dataList;
-      }
-      iter++;
-   }
-   providerMap.clear();
-   
-   //=================================================================
-   #endif
-   //=================================================================
-   
+      
    #if DBGLVL_PUBLISHER_CLEAR
    MessageInterface::ShowMessage
       ("Publisher::ClearPublishedData() leaving, providerMap.size()=%d\n",
@@ -553,19 +519,6 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
    }
    
    Integer actualId = -1;
-   
-   //============================================================
-   #ifdef __USE_OLD_PUB_CODE__
-   //============================================================
-   
-   objectArray.push_back(StringArray(owners));
-   elementArray.push_back(StringArray(elements));
-   ++providerId;
-   actualId = providerId;
-   
-   //============================================================
-   #else
-   //============================================================
    
    #if DBGLVL_PUBLISHER_REGISTER > 1
    MessageInterface::ShowMessage
@@ -641,10 +594,6 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
    #endif
    
    providerId = actualId;
-   
-   //============================================================
-   #endif
-   //============================================================
    
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
