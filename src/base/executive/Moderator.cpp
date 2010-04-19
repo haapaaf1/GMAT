@@ -1523,7 +1523,7 @@ SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
    {
       ss = theConfigManager->GetSolarSystemInUse();
       #if DEBUG_SOLAR_SYSTEM_IN_USE
-      MessageInterface::ShowMessage("   Using SolarSystem from configuration\n");
+      MessageInterface::ShowMessage("   Using SolarSystem from configuration <%p>\n", ss);
       #endif
    }
    else
@@ -1533,7 +1533,7 @@ SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
       {
          ss = (SolarSystem*)pos->second;
          #if DEBUG_SOLAR_SYSTEM_IN_USE
-         MessageInterface::ShowMessage("   Using SolarSystem from objectMapInUse\n");
+         MessageInterface::ShowMessage("   Using SolarSystem from objectMapInUse <%p>\n", ss);
          #endif
       }
       
@@ -1541,7 +1541,7 @@ SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
       {
          ss = theInternalSolarSystem;
          #if DEBUG_SOLAR_SYSTEM_IN_USE
-         MessageInterface::ShowMessage("   Using Internal SolarSystem\n");
+         MessageInterface::ShowMessage("   Using Internal SolarSystem <%p>\n", ss);
          #endif
       }      
    }
@@ -3877,7 +3877,7 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
             cs->SetStringParameter("Origin", "Earth");
             cs->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
             cs->SetRefObject(axis, Gmat::AXIS_SYSTEM, axis->GetName());
-            cs->SetSolarSystem(theSolarSystemInUse);
+            cs->SetSolarSystem(ss);
             cs->Initialize();
             
             // Since CoordinateSystem clones AxisSystem, delete it from here
@@ -4000,10 +4000,11 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
          
          if (createDefault)
          {
-            if (type == "OpenGLPlot")
+            if (type == "OpenGLPlot" || type == "Enhanced3DView")
             {
                // add default spacecraft and coordinate system
                sub->SetStringParameter("Add", GetDefaultSpacecraft()->GetName());
+               sub->SetStringParameter("Add", "Earth");
                sub->SetStringParameter("CoordinateSystem", "EarthMJ2000Eq");
             }
             else if (type == "XYPlot")
@@ -5347,7 +5348,9 @@ bool Moderator::LoadDefaultMission()
    theScriptInterpreter->SetHeaderComment("");
    theScriptInterpreter->SetFooterComment("");
    
-   PrepareNextScriptReading();
+   ClearCommandSeq();
+   ClearResource();
+   
    CreateDefaultMission();
    
    return true;
@@ -6192,7 +6195,7 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
       GmatBase *func = (GmatBase*)(unmanagedFunctions[i]);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         (func, func->GetName(), "Moderator::CreateSolarSystemInUse()",
+         (func, func->GetName(), "Moderator::PrepareNextScriptReading()",
           "deleting unmanaged function");
       #endif
       delete func;
@@ -6226,6 +6229,10 @@ void Moderator::CreateSolarSystemInUse()
       // delete old SolarSystem in use and create new from default
       if (theSolarSystemInUse != NULL)
       {
+         #if DEBUG_INITIALIZE
+         MessageInterface::ShowMessage
+            ("Moderator deleting old solar system in use <%p>\n", theSolarSystemInUse);
+         #endif
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (theSolarSystemInUse, theSolarSystemInUse->GetName(),
@@ -6234,15 +6241,12 @@ void Moderator::CreateSolarSystemInUse()
          delete theSolarSystemInUse;
       }
       
-      #if DEBUG_INITIALIZE
-      MessageInterface::ShowMessage
-         ("ModeratorCreateSSInUse: current SS is at %p\n", theDefaultSolarSystem);
-      #endif
       theSolarSystemInUse = NULL;
       
       #if DEBUG_SOLAR_SYSTEM_IN_USE
       MessageInterface::ShowMessage
-         (".....Setting theSolarSystemInUse to clone of theDefaultSolarSystem...\n");
+         (".....Setting theSolarSystemInUse to clone of theDefaultSolarSystem <%p>...\n",
+          theDefaultSolarSystem);
       #endif
       
       theSolarSystemInUse = theDefaultSolarSystem->Clone();
@@ -6256,40 +6260,46 @@ void Moderator::CreateSolarSystemInUse()
       #endif
       
       #if DEBUG_SOLAR_SYSTEM_IN_USE
-      MessageInterface::ShowMessage(".....Setting SolarSystemInUse to theInternalSolarSystem...\n");
+      MessageInterface::ShowMessage
+         (".....Setting SolarSystemInUse to theInternalSolarSystem...\n");
       #endif
       theInternalSolarSystem = theSolarSystemInUse;
       
       // set solar system in use
       SetSolarSystemInUse(theSolarSystemInUse);
       
-      #if DEBUG_SOLAR_SYSTEM_IN_USE
+      #if DEBUG_INITIALIZE
       MessageInterface::ShowMessage
-         ("Moderator created solar system in use: %p\n", theSolarSystemInUse);
+         ("Moderator created new solar system in use: %p\n", theSolarSystemInUse);
       #endif
-      
-//       // delete old theInternalCoordSystem and create new one      
-//       #if DEBUG_SOLAR_SYSTEM_IN_USE
-//       MessageInterface::ShowMessage
-//          (".....deleting (%p)theInternalCoordSystem\n", theInternalCoordSystem);
-//       #endif      
-//       #ifdef DEBUG_MEMORY
-//       MemoryTracker::Instance()->Remove
-//          (theInternalCoordSystem, theInternalCoordSystem->GetName(),
-//           "Moderator::CreateSolarSystemInUse()");
-//       #endif
-//       delete theInternalCoordSystem;
-//       theInternalCoordSystem = NULL;
-//       CreateInternalCoordSystem();
       
    //-----------------------------------------------------------------
    #else
    //-----------------------------------------------------------------
-      theSolarSystemInUse->Copy(theDefaultSolarSystem);
+      if (theSolarSystemInUse == NULL)
+      {
+         theSolarSystemInUse = theDefaultSolarSystem->Clone();
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (theSolarSystemInUse, theSolarSystemInUse->GetName(),
+             "Moderator::CreateSolarSystemInUse()",
+             "theSolarSystemInUse = theDefaultSolarSystem->Clone()");
+         #endif
+         theSolarSystemInUse->SetName("SolarSystem");
+         SetSolarSystemInUse(theSolarSystemInUse);
+      }
+      else
+      {
+         theSolarSystemInUse->Copy(theDefaultSolarSystem);
+         theSolarSystemInUse->SetName("SolarSystem");
+      }
+      
+      theInternalSolarSystem = theSolarSystemInUse;
+      
       #if DEBUG_SOLAR_SYSTEM_IN_USE
       MessageInterface::ShowMessage
-         ("Moderator::CreateSolarSystemInUse() theSolarSystemInUse=%p, "
-          "theDefaultSolarSystem=%p\n", theSolarSystemInUse,  theDefaultSolarSystem);
+         ("Moderator::CreateSolarSystemInUse() theSolarSystemInUse=<%p>, "
+          "theDefaultSolarSystem=<%p>\n", theSolarSystemInUse,  theDefaultSolarSystem);
       #endif
    //-----------------------------------------------------------------
    #endif
@@ -6347,7 +6357,7 @@ void Moderator::CreateInternalCoordSystem()
       
       #if DEBUG_INITIALIZE
       MessageInterface::ShowMessage
-         (".....created  <%p>theInternalCoordSystem\n",theInternalCoordSystem);
+         (".....created  <%p>theInternalCoordSystem\n", theInternalCoordSystem);
       #endif
    }
 }
@@ -6360,12 +6370,14 @@ void Moderator::CreateDefaultCoordSystems()
 {
    #if DEBUG_INITIALIZE
    MessageInterface::ShowMessage("========================================\n");
-   MessageInterface::ShowMessage("Moderator creating default coordinate systems...\n");
+   MessageInterface::ShowMessage
+      ("Moderator checking if default coordinate systems should be created...\n");
    #endif
    
    try
    {
       SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
+      SolarSystem *ss = GetSolarSystemInUse();
       
       // EarthMJ2000Eq
       CoordinateSystem *eqcs = GetCoordinateSystem("EarthMJ2000Eq");
@@ -6380,7 +6392,11 @@ void Moderator::CreateDefaultCoordSystems()
       }
       else
       {
-         eqcs->SetSolarSystem(theSolarSystemInUse);
+         #if DEBUG_INITIALIZE
+         MessageInterface::ShowMessage
+            (".....found <%p>'%s'\n", eqcs, eqcs->GetName().c_str());
+         #endif
+         eqcs->SetSolarSystem(ss);
          eqcs->Initialize();
       }
       
@@ -6399,7 +6415,7 @@ void Moderator::CreateDefaultCoordSystems()
          eccs->SetRefObject(ecAxis, Gmat::AXIS_SYSTEM, ecAxis->GetName());
          eccs->SetOrigin(earth);
          eccs->SetJ2000Body(earth);
-         eccs->SetSolarSystem(theSolarSystemInUse);
+         eccs->SetSolarSystem(ss);
          eccs->Initialize();
          
          // Since CoordinateSystem clones AxisSystem, delete it from here
@@ -6411,7 +6427,11 @@ void Moderator::CreateDefaultCoordSystems()
       }
       else
       {
-         eccs->SetSolarSystem(theSolarSystemInUse);
+         #if DEBUG_INITIALIZE
+         MessageInterface::ShowMessage
+            (".....found <%p>'%s'\n", eccs, eccs->GetName().c_str());
+         #endif
+         eccs->SetSolarSystem(ss);
          eccs->Initialize();
       }
       
@@ -6433,7 +6453,7 @@ void Moderator::CreateDefaultCoordSystems()
          bfcs->SetRefObject(bfecAxis, Gmat::AXIS_SYSTEM, bfecAxis->GetName());
          bfcs->SetOrigin(earth);
          bfcs->SetJ2000Body(earth);
-         bfcs->SetSolarSystem(theSolarSystemInUse);
+         bfcs->SetSolarSystem(ss);
          bfcs->Initialize();
          
          // Since CoordinateSystem clones AxisSystem, delete it from here
@@ -6445,7 +6465,11 @@ void Moderator::CreateDefaultCoordSystems()
       }
       else
       {
-         eccs->SetSolarSystem(theSolarSystemInUse);
+         #if DEBUG_INITIALIZE
+         MessageInterface::ShowMessage
+            (".....found <%p>'%s'\n", bfcs, bfcs->GetName().c_str());
+         #endif
+         bfcs->SetSolarSystem(ss);
          bfcs->Initialize();
       }
    }
@@ -6530,7 +6554,7 @@ void Moderator::CreateDefaultMission()
       // Since CoordinateSystem clones AxisSystem, delete it from here
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         (orAxis, "localAxes", "Moderator::CreateCoordinateSystem()",
+         (orAxis, "localAxes", "Moderator::CreateDefaultMission()",
           "deleting localAxes");
       #endif
       
