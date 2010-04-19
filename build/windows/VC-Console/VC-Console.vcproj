@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\burn;..\..\..\src\base\command;..\..\..\src\base\configs;..\..\..\src\base\coordsystem;..\..\..\src\base\executive;..\..\..\src\base\factory;..\..\..\src\base\forcemodel;..\..\..\src\base\foundation;..\..\..\src\base\function;..\..\..\src\base\include;..\..\..\src\base\interface;..\..\..\src\base\interpolator;..\..\..\src\base\interpreter;..\..\..\src\base\math;..\..\..\src\base\parameter;..\..\..\src\base\plugin;..\..\..\src\base\propagator;..\..\..\src\base\solarsys;..\..\..\src\base\solver;..\..\..\src\base\spacecraft;..\..\..\src\base\stopcond;..\..\..\src\base\subscriber;..\..\..\src\base\util;..\..\..\src\gui\app;..\..\..\src\gui\include;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;"
-				PreprocessorDefinitions="__WIN32__;__WXMSW__;wxUSE_GLCANVAS;__USE_WX280__;__USE_WX280_GL__;SKIP_DEVIL;__SKIP_MSISE90__;__CONSOLE_APP__"
+				PreprocessorDefinitions="__WIN32__;__WXMSW__;SKIP_DEVIL;__SKIP_MSISE90__;__CONSOLE_APP__"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -50,7 +50,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4267;4996"
+				DisableSpecificWarnings="4267;4996;4101"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -63,9 +63,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28.lib wxmsw28_core.lib wxmsw28_adv.lib wxmsw28_gl.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib opengl32.lib"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(WXWIN)\lib\vc_lib&quot;"
+				LinkLibraryDependencies="false"
+				UseUnicodeResponseFiles="false"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib opengl32.lib $(NOINHERIT)"
+				OutputFile="$(OutDir)\VC_$(ProjectName).exe"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories=""
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeForWindows98="0"
@@ -351,6 +356,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\command\CallFunction.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\command\CallGmatFunction.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\command\CallGmatFunction.hpp"
 						>
 					</File>
 					<File
@@ -1366,19 +1379,19 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\base\interface\Interface.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\interface\Interface.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\base\interface\InterfaceException.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\interface\InterfaceException.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\interface\MatlabInterface.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\interface\MatlabInterface.hpp"
 						>
 					</File>
 				</Filter>
@@ -1958,22 +1971,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\base\solver\ExternalOptimizer.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\solver\ExternalOptimizer.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\solver\FminconOptimizer.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\solver\FminconOptimizer.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\base\solver\Gradient.cpp"
 						>
 					</File>
@@ -2059,6 +2056,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\propagator\DormandElMikkawyPrince68.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\propagator\EphemerisPropagator.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\propagator\EphemerisPropagator.hpp"
 						>
 					</File>
 					<File
@@ -2319,6 +2324,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\parameter\EnvReal.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\parameter\EquinoctialParameters.cpp"
 						>
 					</File>
 					<File
@@ -2786,19 +2795,19 @@
 					Name="subscriber"
 					>
 					<File
+						RelativePath="..\..\..\src\base\subscriber\Enhanced3DView.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\subscriber\Enhanced3DView.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\base\subscriber\EphemerisFile.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\subscriber\EphemerisFile.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\subscriber\MatlabWs.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\subscriber\MatlabWs.hpp"
 						>
 					</File>
 					<File
@@ -2967,14 +2976,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\util\EopFile.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\util\Equinoctial.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\util\Equinoctial.hpp"
 						>
 					</File>
 					<File
@@ -3154,30 +3155,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\base\util\Spherical.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\util\Spherical.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\util\SphericalAZFPA.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\util\SphericalAZFPA.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\util\SphericalRADEC.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\util\SphericalRADEC.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\base\util\StringTokenizer.cpp"
 						>
 					</File>
@@ -3299,20 +3276,12 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="gui"
-				>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\..\src\base\include\gmatdefs.hpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
