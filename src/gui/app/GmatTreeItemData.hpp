@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GmatTreeItemData
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -181,6 +181,7 @@ namespace GmatTree
       REPORT_FILE,
       XY_PLOT,
       OPENGL_PLOT,
+      ENHANCED_3D_VIEW,
       EPHEMERIS_FILE,
       
       VARIABLE = 41600,
@@ -247,6 +248,7 @@ namespace GmatTree
       BEGIN_OF_OUTPUT = 46000,
       OUTPUT_REPORT,
       OUTPUT_OPENGL_PLOT,
+      OUTPUT_3D_VIEW,
       OUTPUT_XY_PLOT,
       COMPARE_REPORT,
       END_OF_OUTPUT,
