@@ -64,7 +64,6 @@
 //#define DEBUG_SET
 //#define DEBUG_SET_FORCE_MODEL
 //#define DEBUG_SET_SOLAR_SYS
-//#define DEBUG_CHECK_OBJECT
 //#define DEBUG_CHECK_BRANCH
 //#define DEBUG_SPECIAL_CASE
 //#define DEBUG_PARSE_REPORT
@@ -4546,7 +4545,7 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
    
    debugMsg = "In SetPropertyObjectValue()";
    Parameter *param = NULL;
-
+   
    // Remove enclosing single quotes first (LOJ: 2009.06.08)
    std::string valueToUse = value;
    valueToUse = GmatStringUtil::RemoveEnclosingString(valueToUse, "'");
@@ -4740,7 +4739,8 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                   // Set as String parameter, so it can be caught in FinalPass()
                   #ifdef DEBUG_SET
                   MessageInterface::ShowMessage
-                     ("   Calling '%s'->SetStringParameter(%d, %s)\n",
+                     ("   Calling '%s'->SetStringParameter(%d, %s) so it can be "
+                      "caught in FinalPass()\n",
                       obj->GetName().c_str(), id, valueToUse.c_str());
                   #endif
                   
@@ -6395,15 +6395,17 @@ bool Interpreter::FinalPass()
       // Note: This section needs be modified as needed. 
       // GetRefObjectTypeArray() should be implemented if we want to
       // add to this list. This was added to write specific error messages.
+      // @todo We should add a method HasGetRefObjectTypeArray() in GmatBase
+      // so that we don't need to keep updating this list
       //-----------------------------------------------------------------
       
-      // Changed GetType() == to IsOfType() (LOJ: 2009.03.03)
       else if (obj->IsOfType(Gmat::BURN) ||
                obj->IsOfType(Gmat::SPACECRAFT) ||
                obj->IsOfType(Gmat::ODE_MODEL) ||
                obj->IsOfType(Gmat::COORDINATE_SYSTEM) ||
                obj->IsOfType(Gmat::CALCULATED_POINT) ||
-               obj->IsOfType(Gmat::SUBSCRIBER))
+               obj->IsOfType(Gmat::SUBSCRIBER) ||
+               obj->IsOfType(Gmat::PROP_SETUP))
       {
          // Set return flag to false if any check failed
          try
