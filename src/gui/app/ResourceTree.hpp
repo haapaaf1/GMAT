@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              ResourceTree
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Allison Greene
 // Created: 2003/08/28
@@ -141,6 +141,7 @@ protected:
    void OnAddReportFile(wxCommandEvent &event);
    void OnAddXyPlot(wxCommandEvent &event);
    void OnAddOpenGlPlot(wxCommandEvent &event);
+   void OnAddEnhanced3DView(wxCommandEvent &event);
    void OnAddEphemerisFile(wxCommandEvent &event);
    void OnAddSubscriber(wxCommandEvent &event);
    void OnAddDiffCorr(wxCommandEvent &event);
@@ -225,6 +226,7 @@ protected:
       POPUP_ADD_REPORT_FILE,
       POPUP_ADD_XY_PLOT,
       POPUP_ADD_OPENGL_PLOT,
+      POPUP_ADD_ENHANCED_3D_VIEW,
       POPUP_ADD_EPHEMERIS_FILE,
       
       POPUP_ADD_VARIABLE,
