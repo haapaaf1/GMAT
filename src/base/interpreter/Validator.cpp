@@ -232,7 +232,7 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
          AxisSystem *axis = CreateAxisSystem("MJ2000Eq", obj);
          theErrorMsg = "The CoordinateSystem \"" + obj->GetName() +
             "\" has empty AxisSystem, so default MJ2000Eq was created";
-         retval = retval && HandleError();
+         retval = HandleError() && retval;
          
          // Set AxisSystem to CoordinateSystem
          obj->SetRefObject(axis, axis->GetType(), axis->GetName());
@@ -255,6 +255,15 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
          ("   %s\n", GmatBase::GetObjectTypeString(refTypes[i]).c_str());
       #endif
       
+      // We don't need to check for unknown object type
+      if (refTypes[i] == Gmat::UNKNOWN_OBJECT)
+      {
+         #ifdef DEBUG_CHECK_OBJECT
+         MessageInterface::ShowMessage("      Skipping UnknownObject\n");
+         #endif
+         continue;
+      }
+      
       try
       {
          refNames = obj->GetRefObjectNameArray(refTypes[i]);
@@ -262,8 +271,7 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
          #ifdef DEBUG_CHECK_OBJECT
          MessageInterface::ShowMessage("      Object names are:\n");
          for (UnsignedInt j=0; j<refNames.size(); j++)
-            MessageInterface::ShowMessage
-               ("      %s\n", refNames[j].c_str());
+            MessageInterface::ShowMessage("      %s\n", refNames[j].c_str());
          #endif
          
          // Check System Parameters seperately since it follows certain naming
@@ -282,13 +290,18 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
                if (obj->GetType() != Gmat::COMMAND)
                   objName = objName + " \"" + obj->GetName() + "\"";
                
+               #ifdef DEBUG_CHECK_OBJECT
+               MessageInterface::ShowMessage
+                  ("   Checking if '%s' exist\n", refNames[j].c_str());
+               #endif
+               
                GmatBase *refObj = FindObject(refNames[j]);
                
                if (refObj == NULL)
                {
                   theErrorMsg = "Nonexistent " + GmatBase::GetObjectTypeString(refTypes[i]) +
                      " \"" + refNames[j] + "\" referenced in the " + objName;
-                  retval = retval && HandleError();
+                  retval = HandleError() && retval;
                }
                else if (!refObj->IsOfType(refTypes[i]))
                {
@@ -300,7 +313,15 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
                   
                   theErrorMsg = "\"" + refNames[j] + "\" referenced in the " + objName +
                      " is not an object of " + GmatBase::GetObjectTypeString(refTypes[i]);
-                  retval = retval && HandleError();
+                  retval = HandleError() && retval;
+               }
+               else
+               {
+                  #ifdef DEBUG_CHECK_OBJECT
+                  MessageInterface::ShowMessage
+                     ("   Found '%s', <%p>'%s'\n", refNames[j].c_str(), refObj,
+                      refObj->GetTypeName().c_str(), refObj->GetName().c_str());
+                  #endif
                }
             }
          }
@@ -2691,8 +2712,8 @@ bool Validator::HandleError(bool addFunction)
 {
    #ifdef DEBUG_HANDLE_ERROR
    MessageInterface::ShowMessage
-      ("Validator::HandleError() TheErrorMsg=\n   **** ERROR **** %s\n\n",
-       theErrorMsg.c_str());
+      ("Validator::HandleError() continueOnError=%d, TheErrorMsg=\n   **** ERROR **** %s\n\n",
+       continueOnError, theErrorMsg.c_str());
    #endif
    
    if (continueOnError)
