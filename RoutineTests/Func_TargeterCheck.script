@@ -1,0 +1,44 @@
+%$Id$
+% Created from the following script: TargeterCheck.m
+%
+% Functions used: Func_TargeterCheck.gmf, Func_TargeterCheck_nested.gmf
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = 'Func_TargeterCheck.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Func_TargeterCheck_nested.report';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+ 
+% Call function
+Func_TargeterCheck(reportLoc1)
+Func_TargeterCheck_nested(reportLoc1_nested)

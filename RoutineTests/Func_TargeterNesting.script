@@ -1,0 +1,44 @@
+%$Id$
+% Created from the following script: TargeterNesting.m
+%
+% Functions used: Func_TargeterNesting.gmf, Func_TargeterNesting_nested.gmf
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = 'Func_TargeterNesting.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Func_TargeterNesting_nested.report';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+ 
+% Call function
+Func_TargeterNesting(reportLoc1)
+Func_TargeterNesting_nested(reportLoc1_nested)
