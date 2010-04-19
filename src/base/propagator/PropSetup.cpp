@@ -624,7 +624,8 @@ const StringArray& PropSetup::GetRefObjectNameArray(const Gmat::ObjectType type)
    if (mPropagatorName != "" && mPropagatorName != "InternalPropagator")
       if (type == Gmat::PROPAGATOR || type == Gmat::UNKNOWN_OBJECT)
          refObjectNames.push_back(mPropagatorName);
-   if (mODEModelName != "" && mODEModelName != "InternalODEModel")
+   if (mODEModelName != "" && mODEModelName != "InternalODEModel" &&
+       mODEModelName != "InternalForceModel")
       if (type == Gmat::ODE_MODEL || type == Gmat::UNKNOWN_OBJECT)
          refObjectNames.push_back(mODEModelName);
    return refObjectNames;
