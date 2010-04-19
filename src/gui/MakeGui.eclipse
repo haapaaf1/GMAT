@@ -240,6 +240,8 @@ OBJECTS = \
     output/OutputTree.o \
     output/ReportFilePanel.o \
     subscriber/EphemerisFilePanel.o \
+    subscriber/MdiChild3DViewFrame.o \
+    subscriber/MdiChildViewFrame.o \
     subscriber/MdiChildTrajFrame.o \
     subscriber/MdiChildTsFrame.o \
     subscriber/MdiGlPlotData.o \
@@ -248,6 +250,8 @@ OBJECTS = \
     subscriber/OpenGlPlotSetupPanel.o \
     subscriber/ReportFileSetupPanel.o \
     subscriber/SubscriberSetupPanel.o \
+    subscriber/ViewCanvas.o \
+    subscriber/Enhanced3DViewCanvas.o \
     subscriber/TrajPlotCanvas.o \
     subscriber/TsPlotCanvas.o \
     subscriber/TsPlotXYCanvas.o \
