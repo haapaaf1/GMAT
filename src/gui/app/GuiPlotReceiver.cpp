@@ -22,10 +22,12 @@
 #include "gmatwxdefs.hpp"
 #include "gmatwxrcs.hpp"
 #include "GmatAppData.hpp"
-#include "MdiGlPlotData.hpp"       // for OpenGL plot
-#include "MdiChildTrajFrame.hpp"   // for OpenGL plot
-#include "MdiTsPlotData.hpp"       // for XY plot
-#include "MdiChildTsFrame.hpp"     // for XY plot
+#include "MdiGlPlotData.hpp"         // for 3D Visualization
+#include "MdiChildViewFrame.hpp"     // for 3D Visualization
+#include "MdiChildTrajFrame.hpp"     // for 3D Visualization
+#include "MdiChild3DViewFrame.hpp"   // for 3D Visualization
+#include "MdiTsPlotData.hpp"         // for XY plot
+#include "MdiChildTsFrame.hpp"       // for XY plot
 
 #endif
 
@@ -123,7 +125,7 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
    //-------------------------------------------------------
    bool createNewFrame = true;
    wxString currPlotName;
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    #if DEBUG_PLOTIF_GL_CREATE
    MessageInterface::ShowMessage
@@ -134,7 +136,7 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame)
          currPlotName = frame->GetPlotName();
@@ -168,7 +170,7 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
    {
       #if DEBUG_PLOTIF_GL_CREATE
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::CreateGlPlotWindow() Creating MdiChildTrajFrame "
+         ("GuiPlotReceiver::CreateGlPlotWindow() Creating MdiChildViewFrame "
           "%s\n", plotName.c_str());
       #endif
 
@@ -189,13 +191,37 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
          h = -1;
       #endif
 
-      frame =
-         new MdiChildTrajFrame(GmatAppData::Instance()->GetMainFrame(),
-                               wxString(plotName.c_str()),
-                               wxString(plotName.c_str()),
-                               wxPoint(x, y), wxSize(w, h),
-                               wxDEFAULT_FRAME_STYLE);
-
+      if (currentView == GmatPlot::TRAJECTORY_PLOT)
+      {
+         #if DEBUG_PLOTIF_GL_CREATE
+         MessageInterface::ShowMessage("   Creating MdiChildTrajFrame...\n");
+         #endif
+         frame = new MdiChildTrajFrame
+            (GmatAppData::Instance()->GetMainFrame(),
+             wxString(plotName.c_str()),
+             wxString(plotName.c_str()),
+             wxPoint(x, y), wxSize(w, h),
+             wxDEFAULT_FRAME_STYLE);
+      }
+      else if (currentView == GmatPlot::ENHANCED_3D_VIEW)
+      {
+         #if DEBUG_PLOTIF_GL_CREATE
+         MessageInterface::ShowMessage("   Creating MdiChild3DViewFrame...\n");
+         #endif
+         frame = new MdiChild3DViewFrame
+            (GmatAppData::Instance()->GetMainFrame(),
+             wxString(plotName.c_str()),
+             wxString(plotName.c_str()),
+             wxPoint(x, y), wxSize(w, h),
+             wxDEFAULT_FRAME_STYLE);
+      }
+      else
+      {
+         MessageInterface::ShowMessage
+            ("**** ERROR **** Unknown view type %d\n", currentView);
+         return false;
+      }
+      
       if (frame)
          frame->Show();
       else
@@ -264,10 +290,10 @@ void GuiPlotReceiver::SetGlSolarSystem(const std::string &plotName, SolarSystem 
 
    wxString owner = wxString(plotName.c_str());
 
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
@@ -292,10 +318,10 @@ void GuiPlotReceiver::SetGlObject(const std::string &plotName,
 
    wxString owner = wxString(plotName.c_str());
 
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
@@ -319,11 +345,11 @@ void GuiPlotReceiver::SetGlCoordSystem(const std::string &plotName,
    #endif
 
    wxString owner = wxString(plotName.c_str());
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
@@ -350,11 +376,11 @@ void GuiPlotReceiver::SetGlViewOption(const std::string &plotName,
    #endif
 
    wxString owner = wxString(plotName.c_str());
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
@@ -384,11 +410,11 @@ void GuiPlotReceiver::SetGlDrawOrbitFlag(const std::string &plotName,
    #endif
 
    wxString owner = wxString(plotName.c_str());
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
@@ -410,11 +436,11 @@ void GuiPlotReceiver::SetGlShowObjectFlag(const std::string &plotName,
    #endif
 
    wxString owner = wxString(plotName.c_str());
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
@@ -431,11 +457,11 @@ void GuiPlotReceiver::SetGlUpdateFrequency(const std::string &plotName,
                                          Integer updFreq)
 {
    wxString owner = wxString(plotName.c_str());
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       if (frame->GetPlotName().IsSameAs(owner.c_str()))
       {
@@ -458,10 +484,10 @@ bool GuiPlotReceiver::IsThere(const std::string &plotName)
    {
       wxString owner = wxString(plotName.c_str());
 
-      MdiChildTrajFrame *frame  = NULL;
+      MdiChildViewFrame *frame  = NULL;
       for (int i=0; i<MdiGlPlot::numChildren; i++)
       {
-         frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+         frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
          if (frame->GetPlotName().IsSameAs(owner.c_str()))
          {
@@ -495,11 +521,11 @@ bool GuiPlotReceiver::DeleteGlPlot(const std::string &plotName)
       #endif
 
       wxString owner = wxString(plotName.c_str());
-      MdiChildTrajFrame *frame = NULL;
+      MdiChildViewFrame *frame = NULL;
 
       for (int i=0; i<MdiGlPlot::numChildren; i++)
       {
-         frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+         frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
          if (frame->GetPlotName().IsSameAs(owner.c_str()))
          {
@@ -531,11 +557,11 @@ bool GuiPlotReceiver::RefreshGlPlot(const std::string &plotName)
       #endif
 
       wxString owner = wxString(plotName.c_str());
-      MdiChildTrajFrame *frame = NULL;
+      MdiChildViewFrame *frame = NULL;
 
       for (int i=0; i<MdiGlPlot::numChildren; i++)
       {
-         frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+         frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
          if (frame->GetPlotName().IsSameAs(owner.c_str()))
          {
@@ -565,10 +591,10 @@ bool GuiPlotReceiver::SetGlEndOfRun(const std::string &plotName)
       #endif
       wxString owner = wxString(plotName.c_str());
 
-      MdiChildTrajFrame *frame = NULL;
+      MdiChildViewFrame *frame = NULL;
       for (int i=0; i<MdiGlPlot::numChildren; i++)
       {
-         frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+         frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
          if (frame->GetPlotName().IsSameAs(owner.c_str()))
          {
@@ -606,27 +632,30 @@ bool GuiPlotReceiver::UpdateGlPlot(const std::string &plotName,
    bool updated = false;
    wxString owner = wxString(plotName.c_str());
 
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       #if DEBUG_PLOTIF_GL_UPDATE
       MessageInterface::ShowMessage
          ("GuiPlotReceiver::UpdateGlPlot() frame[%d]->GetPlotName()=%s "
           "owner=%s\n", i, frame->GetPlotName().c_str(), owner.c_str());
       #endif
-
+      
       if (frame)
       {
          if (frame->GetPlotName().IsSameAs(owner.c_str()))
          {
-            //MessageInterface::ShowMessage
-            //   ("GuiPlotReceiver::UpdateGlPlot() now updating GL plot...\n");
+            #if DEBUG_PLOTIF_GL_UPDATE
+            MessageInterface::ShowMessage
+               ("GuiPlotReceiver::UpdateGlPlot() now updating '%s'...\n",
+                frame->GetPlotName().c_str());
+            #endif
             frame->UpdatePlot(scNames, time, posX, posY, posZ, velX, velY, velZ,
                               scColors, solving, solverOption, updateCanvas);
-
+            
             updated = true;
          }
       }
@@ -650,11 +679,11 @@ bool GuiPlotReceiver::TakeGlAction(const std::string &plotName,
    bool retval = false;
    wxString owner = wxString(plotName.c_str());
 
-   MdiChildTrajFrame *frame = NULL;
+   MdiChildViewFrame *frame = NULL;
 
    for (int i=0; i<MdiGlPlot::numChildren; i++)
    {
-      frame = (MdiChildTrajFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
+      frame = (MdiChildViewFrame*)(MdiGlPlot::mdiChildren.Item(i)->GetData());
 
       #if DEBUG_PLOTIF_GL_CLEAR
       MessageInterface::ShowMessage
