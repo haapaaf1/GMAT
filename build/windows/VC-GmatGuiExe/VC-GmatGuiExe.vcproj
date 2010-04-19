@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="GmatBase.lib wxbase28.lib wxmsw28_core.lib wxmsw28_adv.lib wxmsw28_gl.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib opengl32.lib"
+				AdditionalDependencies="GmatBaseDll.lib wxbase28.lib wxmsw28_core.lib wxmsw28_adv.lib wxmsw28_gl.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib odbc32.lib opengl32.lib"
 				OutputFile="$(OutDir)\VC_$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(WXWIN)\lib\vc_lib&quot;"
@@ -826,11 +826,27 @@
 					Name="subscriber"
 					>
 					<File
+						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewCanvas.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewCanvas.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\gui\subscriber\EphemerisFilePanel.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\subscriber\EphemerisFilePanel.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\MdiChild3DViewFrame.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\MdiChild3DViewFrame.hpp"
 						>
 					</File>
 					<File
@@ -847,6 +863,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\subscriber\MdiChildTsFrame.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\MdiChildViewFrame.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\MdiChildViewFrame.hpp"
 						>
 					</File>
 					<File
@@ -943,6 +967,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\subscriber\TsPlotXYCanvas.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\ViewCanvas.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\ViewCanvas.hpp"
 						>
 					</File>
 					<File
