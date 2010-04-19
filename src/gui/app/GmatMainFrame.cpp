@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GmatMainFrame
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -1048,12 +1048,13 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
          }
       }
       
-      bool childDeleted = false;
-      
       //--------------------------------------------------------------
       // delete chilren by child->OnClose() on Windows
       //--------------------------------------------------------------
       #ifdef __WXMSW__
+      
+      bool childDeleted = false;
+      
       if (canDelete)
       {
          #ifdef DEBUG_MAINFRAME_CLOSE
@@ -1187,6 +1188,7 @@ void GmatMainFrame::MinimizeChildren()
    {
       GmatMdiChildFrame *child = (GmatMdiChildFrame *)node->GetData();
       if (child->GetItemType() != GmatTree::OUTPUT_OPENGL_PLOT &&
+          child->GetItemType() != GmatTree::OUTPUT_3D_VIEW &&
           child->GetItemType() != GmatTree::OUTPUT_XY_PLOT &&
           child->GetItemType() != GmatTree::COMPARE_REPORT)
          child->Iconize(TRUE);
@@ -1465,7 +1467,7 @@ Integer GmatMainFrame::RunCurrentMission()
       if (retval != 1 && mMatlabServer)
          StopMatlabServer(); // stop server if running to avoid getting callback staus
                              // when run stopped by user
-      
+
       EnableMenuAndToolBar(true, true);
       SetStatusText("", 1);
 
@@ -2262,11 +2264,11 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new XyPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::OPENGL_PLOT:
+   case GmatTree::ENHANCED_3D_VIEW:
       sizer->Add(new OpenGlPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::EPHEMERIS_FILE:
-      // sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      sizer->Add(new EphemerisFilePanel(scrolledWin, name), 0, wxGROW|wxALL, 0);        // made a change
+      sizer->Add(new EphemerisFilePanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::SUBSCRIBER:
       sizer->Add(new SubscriberSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
@@ -3831,14 +3833,15 @@ void GmatMainFrame::OnAnimation(wxCommandEvent& event)
       toolBar->ToggleTool(TOOL_ANIMATION_PLAY, false);
       return;
    }
-
+   
    // active child is not OpenGL, just return
-   if (child->GetItemType() != GmatTree::OUTPUT_OPENGL_PLOT)
+   if (child->GetItemType() != GmatTree::OUTPUT_OPENGL_PLOT &&
+       child->GetItemType() != GmatTree::OUTPUT_3D_VIEW)
    {
       toolBar->ToggleTool(TOOL_ANIMATION_PLAY, false);
       return;
    }
-
+   
    wxString title = child->GetTitle();
    MdiChildTrajFrame *frame = NULL;
    bool frameFound = false;
