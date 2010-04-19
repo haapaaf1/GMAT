@@ -621,10 +621,10 @@ const ObjectTypeArray& PropSetup::GetRefObjectTypeArray()
 const StringArray& PropSetup::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    refObjectNames.clear();
-   if (mPropagatorName != "")
+   if (mPropagatorName != "" && mPropagatorName != "InternalPropagator")
       if (type == Gmat::PROPAGATOR || type == Gmat::UNKNOWN_OBJECT)
          refObjectNames.push_back(mPropagatorName);
-   if (mODEModelName != "")
+   if (mODEModelName != "" && mODEModelName != "InternalODEModel")
       if (type == Gmat::ODE_MODEL || type == Gmat::UNKNOWN_OBJECT)
          refObjectNames.push_back(mODEModelName);
    return refObjectNames;
