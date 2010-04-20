@@ -74,6 +74,7 @@
 #include "MessageInterface.hpp"
 #include "Anomaly.hpp"
 #include <sstream>
+#include <wx/config.h>
 
 //#define DEBUG_ORBIT_PANEL
 //#define DEBUG_ORBIT_PANEL_LOAD
@@ -518,6 +519,11 @@ void OrbitPanel::Create()
    //causing VC++ error => wxString emptyList[] = {};
    wxArrayString emptyList;
    
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Orbit"));
+
    //-----------------------------------------------------------------
    //  create sizers 
    //-----------------------------------------------------------------
@@ -539,31 +545,34 @@ void OrbitPanel::Create()
    //-----------------------------------------------------------------
    // label for epoch format
    wxStaticText *epochFormatStaticText = new wxStaticText( this, ID_TEXT,
-      wxT("Epoch Format"), wxDefaultPosition, wxDefaultSize, 0 );
+      wxT("Epoch "GUI_ACCEL_KEY"Format"), wxDefaultPosition, wxDefaultSize, 0 );
    
    // combo box for the epoch format
    epochFormatComboBox = new wxComboBox
       ( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(150,-1), //0,
         emptyList, wxCB_DROPDOWN | wxCB_READONLY );
+   epochFormatComboBox->SetToolTip(pConfig->Read(_T("EpochFormatHint")));
    
    // label for epoch
    wxStaticText *epochStaticText = new wxStaticText( this, ID_TEXT,
-      wxT("Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
+      wxT(GUI_ACCEL_KEY"Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
    
    // textfield for the epoch value
    epochValue = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""),
       wxDefaultPosition, wxSize(150,-1), 0 );
+   epochValue->SetToolTip(pConfig->Read(_T("EpochHint")));
 
    //-----------------------------------------------------------------
    //  coordinate system 
    //-----------------------------------------------------------------
    // label for coordinate system
    wxStaticText *coordSysStaticText = new wxStaticText( this, ID_TEXT,
-      wxT("Coordinate System"), wxDefaultPosition, wxDefaultSize, 0 );
+      wxT(GUI_ACCEL_KEY"Coordinate System"), wxDefaultPosition, wxDefaultSize, 0 );
 
    //Get CordinateSystem ComboBox from the GuiItemManager.
    mCoordSysComboBox =
       theGuiManager->GetCoordSysComboBox(this, ID_COMBOBOX, wxSize(150,-1));
+   mCoordSysComboBox->SetToolTip(pConfig->Read(_T("CoordinateSystemHint")));
    // get the names of the coordinate systems
    wxArrayString csNames = mCoordSysComboBox->GetStrings();
    for (Integer ii = 0; ii < (Integer) csNames.GetCount(); ii++)
@@ -574,24 +583,26 @@ void OrbitPanel::Create()
    //-----------------------------------------------------------------
    // label for state type
    wxStaticText *stateTypeStaticText = new wxStaticText( this, ID_TEXT,
-      wxT("State Type"), wxDefaultPosition, wxDefaultSize, 0 );
+      wxT(GUI_ACCEL_KEY"State Type"), wxDefaultPosition, wxDefaultSize, 0 );
 
    // combo box for the state
    stateTypeComboBox = new wxComboBox
       ( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(150,-1),
         emptyList, wxCB_DROPDOWN | wxCB_READONLY);
+   stateTypeComboBox->SetToolTip(pConfig->Read(_T("StateTypeHint")));
    
    //-----------------------------------------------------------------
    //  anomaly 
    //-----------------------------------------------------------------
    // label for anomaly type
    anomalyStaticText = new wxStaticText( this, ID_TEXT,
-      wxT("Anomaly Type "), wxDefaultPosition, wxDefaultSize, 0 );
+      wxT(GUI_ACCEL_KEY"Anomaly Type "), wxDefaultPosition, wxDefaultSize, 0 );
 
    // combo box for the anomaly type
    anomalyComboBox = new wxComboBox
       ( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(150,-1),
         emptyList, wxCB_DROPDOWN | wxCB_READONLY );
+   anomalyComboBox->SetToolTip(pConfig->Read(_T("AnomalyHint")));
    
    // add to epoch sizer
    epochSizer->AddGrowableCol( 1 );
@@ -652,7 +663,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description1 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[0] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, 
-                     wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
+                     wxT(""), wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    unit1 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit1"), 
                wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -660,7 +671,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description2 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[1] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                     wxDefaultPosition, wxSize(150,-1), 0 );
+                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    unit2 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit2"), 
                wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -668,7 +679,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description3 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[2] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                   wxDefaultPosition, wxSize(150,-1), 0 );
+                   wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    unit3 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit3"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -676,7 +687,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description4 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[3] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                   wxDefaultPosition, wxSize(150,-1), 0 );
+                   wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    unit4 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit4"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -684,7 +695,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description5 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[4] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                                 wxDefaultPosition, wxSize(150,-1), 0 );
+                                 wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    unit5 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit5"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -692,7 +703,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description6 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[5] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""),
-                                wxDefaultPosition, wxSize(150,-1), 0 );
+                                wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    unit6 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit6"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -994,6 +1005,11 @@ void OrbitPanel::OnTextChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void OrbitPanel::SetLabelsUnits(const std::string &stateType)
 {
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Orbit"));
+
    Integer baseLabel = theSpacecraft->GetParameterID("Element1");
    Integer baseUnit  = theSpacecraft->GetParameterID("Element1Units");
    
@@ -1001,21 +1017,27 @@ void OrbitPanel::SetLabelsUnits(const std::string &stateType)
    theSpacecraft->SetStringParameter("DisplayStateType", stateType);
    
    description1->SetLabel(theSpacecraft->GetParameterText(baseLabel).c_str());
+   textCtrl[0]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel)+"Hint")));
    unit1->SetLabel(theSpacecraft->GetStringParameter(baseUnit).c_str());
    
    description2->SetLabel(theSpacecraft->GetParameterText(baseLabel+1).c_str());
+   textCtrl[1]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+1)+"Hint")));
    unit2->SetLabel(theSpacecraft->GetStringParameter(baseUnit+1).c_str());
    
    description3->SetLabel(theSpacecraft->GetParameterText(baseLabel+2).c_str());
+   textCtrl[2]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+2)+"Hint")));
    unit3->SetLabel(theSpacecraft->GetStringParameter(baseUnit+2).c_str());
    
    description4->SetLabel(theSpacecraft->GetParameterText(baseLabel+3).c_str());
+   textCtrl[3]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+3)+"Hint")));
    unit4->SetLabel(theSpacecraft->GetStringParameter(baseUnit+3).c_str());
    
    description5->SetLabel(theSpacecraft->GetParameterText(baseLabel+4).c_str());
+   textCtrl[4]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+4)+"Hint")));
    unit5->SetLabel(theSpacecraft->GetStringParameter(baseUnit+4).c_str());
    
    description6->SetLabel(theSpacecraft->GetParameterText(baseLabel+5).c_str());
+   textCtrl[5]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+5)+"Hint")));
    unit6->SetLabel(theSpacecraft->GetStringParameter(baseUnit+5).c_str());
    
    if ( (stateType == mStateTypeNames[StateConverter::KEPLERIAN]) || 
