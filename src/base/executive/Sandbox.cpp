@@ -839,6 +839,7 @@ bool Sandbox::Execute()
    catch (BaseException &e)
    {
       sequence->RunComplete();
+      state = STOPPED;
       
       #if DBGLVL_SANDBOX_RUN
       MessageInterface::ShowMessage
