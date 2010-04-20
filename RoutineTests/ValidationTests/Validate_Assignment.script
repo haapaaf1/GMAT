@@ -1,0 +1,152 @@
+
+Create Spacecraft Sat1 Sat2 WrongSat;
+Create Thruster Thruster1 Thruster2 WrongThruster;
+Create FuelTank Tank1 Tank2 WrongTank;
+Create Formation Formation1 Formation2  WrongFormation
+Create ImpulsiveBurn ImpBurn1 ImpBurn2 WrongImpBurn
+Create FiniteBurn FB1 FB2 WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot Open1 Open2 WrongOpenGL
+Create XYPlot XYP1 XYP2 WrongXYPlot
+XYP1.IndVar = Sat1.X;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile RF1 RF2 WrongReportFile
+Create Variable Var1 Var2 WrongVar
+Create Array Array1[3,3] Array2[3,3] WrongArray[3,3]
+Create CoordinateSystem CS1 CS2 WrongCoordSys;
+Create String Str1 Str2 WrongString;
+Create DifferentialCorrector DC1 DC2 WrongDC;
+Create Variable I J;
+GMAT I = 1;
+GMAT J = 2;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginScript
+EndScript
+
+%*************************************************************** 
+%--------------------------------------------------------------
+%-----------  Command Exceptions !!!
+%--------------------------------------------------------------
+%***************************************************************
+
+
+%***************************************************************
+%--------------------------------------------------------------
+%-----------  Interpreter Exceptions !!!
+%--------------------------------------------------------------
+%***************************************************************
+
+%---------------------------------------
+%  Use of nonexistent resources
+%---------------------------------------
+GMAT Sat1 = UnknownSat;
+GMAT Array2(1,1) = Var12;
+GMAT Array2(3,3) = Array13(3,3);
+GMAT CS1 = CS44;
+GMAT Str1 = Str37;  % this just sets it equal to "str37"
+GMAT UnknownSat = Sat1;
+GMAT Var12 = Array1(2,2);
+GMAT UnknownSat.X = 7000;
+
+%---------------------------------------
+%  Improper use of resources
+%---------------------------------------
+GMAT Sat1 = WrongTank;
+GMAT Thruster1 = WrongFormation;
+GMAT CS1 = WrongProp;
+GMAT Str1 = WrongVar;
+GMAT Array1(1,1) = WorngImpBurn;
+GMAT Open1 = Open2;  % is this allowed?
+
+%---------------------------------------
+%  Improper use of parameters
+%---------------------------------------
+%---- Improper use of allowed parameters
+GMAT Sat1.X = Sat2.CoordinateSystem;
+GMAT Sat1.CoordinateSystem = Var1;
+GMAT Prop.MaxStep = Sat.DisplayStateType;
+GMAT ImpBurn1.Origin = Sat1.Epoch;   % ******** fails at FinalPass - no line number
+GMAT ImpBurn1.Element1 = Sat1.VZ;    % ******** should this fail?  No, OK
+GMAT ImpBurn1.VectorFormat = Sat1.CoordinateSystem;  
+
+%---- Disallowed parameters
+% N/A
+
+%---------------------------------------
+%  Improper use of real numbers
+%---------------------------------------
+GMAT 1.0 = Sat1.X;              
+GMAT Sat1.CoordinateSystem = 2.0;    % caught at FinalPass 
+%-------------------------------------------------
+%  Improper use of conditional operators
+%-------------------------------------------------
+GMAT Sat1.DragArea = Sat1.DryMass < 1000.00;
+GMAT DC1.UseCentralDifferences = DC1.MaximumIterations >= 26;  % 
+
+%-------------------------------------------------
+%  Improper use of mathematical operators
+%-------------------------------------------------
+% see below - must be done inside Mission Sequence
+
+%---------------------------------------------------
+%  Improper use of brackets and parentheses
+%---------------------------------------------------
+
+%---  Missing Parenthesis(es) ----
+GMAT Array13,3 = Array2(3,3);
+
+%---  Missing curly brackets
+% N/A
+
+%--- Miscellaneous bracket and parentheses errors
+GMAT [Var1] = [Var2];  % ********** this one is interpreted as a call function
+GMAT {Sat1} = Sat2;
+{GMAT} Tank1 = Tank2
+GMAT {Str1 = Str2};
+GMAT Str1 = [Str2];
+GMAT Str1 = {Str2};  % this should be OK (now)
+
+%---------------------------------------
+%  Missing command elements
+%---------------------------------------
+Sat1.VY = Sat2.VY  % OK
+GMAT = Var1;
+GMAT Array1(2,2) = 
+
+%--------------------------------
+%-------  Comma Errors    -------
+%--------------------------------
+GMAT Sat1.X, = Sat2.X;
+GMAT Tank1 =, Tank2;
+GMAT Sat1.CoordinateSystem = Sat2.CoordinateSystem,
+GMAT, Thruster1 = Thruster2
+
+
+%---  Missing commas
+% N/A
+
+%----------------------------------------------------------
+%  Improper use of closing branch command statement
+%----------------------------------------------------------
+%  N/A
+
+
+%-------------------------------------------------
+%  Improper use of mathematical operators (see below)
+%-------------------------------------------------
+% Must start Mission Sequence first ...
+Save Sat1;
+
+GMAT ImpBurn1.VectorFormat = Sat1.CoordinateSystem + 1.0;
+GMAT Sat1.X = Var1 + Array1(1,1 / 37.0;
+GMAT ImpBurn1.Element3 = Sat1.Y + Sat2.Yd;
+
+%---------------------------------------
+%  Known Issues (see Bugzilla) - this works now
+%---------------------------------------
+GMAT Array1(I,J) = Array2(J,I);
+

@@ -1,0 +1,42 @@
+% --------------------------------------------
+% Test validation scripts for Barycenter
+% --------------------------------------------
+Create Barycenter Barycenter1;
+
+% ---------
+% Duplicate
+% ---------
+Create Barycenter Barycenter1;
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+Create String testString;
+GMAT testString.Expression = Jupiter;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT Barycenter1.DoesNotExist = {Earth};
+
+% ----------
+% Body Names
+% ----------
+Create Barycenter Barycenter2;
+GMAT Barycenter2.BodyNames = 1;
+GMAT Barycenter2.BodyNames = 1.0;
+GMAT Barycenter2.BodyNames = testVar;
+GMAT Barycenter2.BodyNames = testString;
+GMAT Barycenter2.BodyNames = testArray(1,1);
+GMAT Barycenter2.BodyNames = testSc.A1ModJulian;
+GMAT Barycenter2.BodyNames = DoesNotExist;
+GMAT Barycenter2.BodyNames = Earth;
+GMAT Barycenter2.BodyNames = {Earth};
+GMAT Barycenter2.BodyNames = Earth, Luna;
+GMAT Barycenter2.BodyNames = {Earth, Luna};

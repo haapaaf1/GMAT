@@ -1,0 +1,149 @@
+
+%---------------------------------------------------------------
+%  These objects are for use in commands. They are necessary 
+%  to test when resources are not used correctly in commands.
+%---------------------------------------------------------------
+Create Spacecraft Sat WrongSat;
+Create Thruster Thruster WrongThruster;
+Create FuelTank WrongTank;
+Create Formation Formation WrongFormation
+Create ImpulsiveBurn ImpBurn WrongImpBurn
+Create FiniteBurn FiniteBurn WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot OpenGL WrongOpenGL
+%Create XYPlot XYPlot WrongXYPlot
+Create XYPlot XYPlot1 WrongXYPlot
+XYPlot1.IndVar = Sat.X;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile ReportFile1 WrongReportFile
+Create Variable Var WrongVar
+Create Array Array[3,3] WrongArray[3,3]
+Create CoordinateSystem CoordSys WrongCoordSys;
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+Create DifferentialCorrector DC;
+
+
+%---------------------------------------
+%  Test for use of nonexistent resources
+%---------------------------------------
+%  
+Target DNE
+EndTarget;  % 1
+
+Target DC DNE1.Y DNE2.Y
+EndTarget;  % 2
+
+Target Sat.X DC DNE;
+EndTarget;  % 3
+Target DNE Sat.X;
+EndTarget;  % 4
+
+%---------------------------------------
+%  Test for improper use of parameters
+%---------------------------------------
+
+%---- Non-existent parameters
+Target Sat.DNE
+EndTarget;  % 4
+
+%---- Improper use of allowed parameters
+
+%---- Disallowed parameters
+Target WrongArray(2,1);
+EndTarget;  % 6
+
+%---- Disallowed use of numbers
+Target 1.0;
+EndTarget;  % 7
+Target 1.0 1.0;
+EndTarget;  % 8
+% Here, it doesn't see the Target, so it thinks it has 
+% an extra EndTarget ... hm ... - this is the general bug about the
+% line number being wrong
+%1.0 Target Sat.X;
+%EndTarget;  % 9
+
+%---------------------------------------
+%  Test for improper use of resources
+%---------------------------------------
+Target WrongSat;
+EndTarget;  % 10
+Target WrongProp Sat.X;
+EndTarget;  % 11
+
+%---------------------------------------
+%  Test for missing elements
+%---------------------------------------
+Target 
+EndTarget;  % 12
+Target % also testing the inline commentary here
+EndTarget;
+
+%-------------------------------------------------
+%  Test for improper use of conditional operators
+%-------------------------------------------------
+Target DC < 3;
+EndTarget;  % 13
+Target OpenGL < 3;
+EndTarget;  % 13
+
+%---------------------------------------------------
+%  Test for improper use of brackets and parenthesis
+%---------------------------------------------------
+
+%---  Missing Parenthesis ----
+%  not applicable
+
+%---  Missing curly brackets
+%  not applicable
+
+%--- Mixed incorrect brackets
+% (Same bug as above - related to general wrong-line-number bug)
+%(Target) OpenGL
+%EndTarget;  % 14
+Target DC (Sat.X)
+EndTarget;  % 15
+Target (DC)
+EndTarget;  % 16
+
+Target (DC Sat.X)
+EndTarget;  % 17
+Target {DC}
+EndTarget;  % 18
+Target DC {Sat.X}
+EndTarget;  % 19
+Target {DC Sat.X}
+EndTarget;  % 20
+
+%--------------------------------
+%-------  Comma Errors    -------
+%--------------------------------
+
+%---  Missing commas
+%  not applicable
+
+%---  Improper use of commas
+%  Are these not allowed?
+Target , DC
+EndTarget;  % 21
+Target , DC Sat.X Sat.Y
+EndTarget;  % 21
+Target DC Sat.X, Sat.Y
+EndTarget;  % 22
+
+
+%----------------------------------------------------------
+%  Test for improper use of closing branch command statement
+%----------------------------------------------------------
+%  NOTE - These must each be tested separately - all OK
+%Target DC
+%End;
+%Target DC
+%EndIf;
+%Target DC 
+%EndWhile;
+%Target DC;
+

@@ -1,0 +1,52 @@
+Create Spacecraft sc;
+Create Variable x;
+Create Array array[2, 2];
+Create String str;
+Create ReportFile rf;
+
+GMAT x.Expression = 3;
+GMAT str.Expression = TEST;
+GMAT array.Expression = array;
+GMAT array(1, 1) = 1;
+GMAT array(1, 2) = 2;
+GMAT array(2, 1) = 2;
+GMAT array(2, 2) = 4;
+
+Report NonExistant;
+Report NonExistant NoExistantParam;
+
+Report 1 x;
+Report 1.0 x
+Report str x;
+Report array(1,1) x;
+Report x x;
+
+Report rf sc.X;
+Report rf sc.EarthMJ2000Eq.X;
+Report sc.EarthMJ2000Eq.X;
+REPORT rf sc.EarthMJ2000Eq.X;
+report rf sc.EarthMJ2000Eq.X;
+Reprt rf sc.EarthMJ2000Eq.X;
+Report rf sc.EarthMJ2000Eq.X
+GMAT Report rf sc.EarthMJ2000Eq.X;
+Report rf sc.EarthMJ2000Eq.X sc.EarthMJ2000Eq.Y sc.EarthMJ2000Eq.Z;
+Report rf1 sc.EarthMJ2000Eq.X sc.EarthMJ2000Eq.Y sc.EarthMJ2000Eq.Z;
+Report rf sc.EarthMJ2000Eq.X, sc.EarthMJ2000Eq.Y, sc.EarthMJ2000Eq.Z;
+Report rf sc.EarthMJ2000Eq.X, sc.EarthMJ2000Eq.Y, sc.EarthMJ2000Eq.Z,;
+Report rf sc.EarthMJ2000Eq.X sc.EarthMJ2000Eq.Y sc.EarthMJ2000Eq;
+Report rf {sc.EarthMJ2000Eq.X sc.EarthMJ2000Eq.Y sc.EarthMJ2000Eq.Z};
+Report rf (sc.EarthMJ2000Eq.X sc.EarthMJ2000Eq.Y sc.EarthMJ2000Eq.Z);
+Report rf {sc.EarthMJ2000Eq.X, sc.EarthMJ2000Eq.Y, sc.EarthMJ2000Eq.Z};
+Report rf (sc.EarthMJ2000Eq.X, sc.EarthMJ2000Eq.Y, sc.EarthMJ2000Eq.Z);
+Report rf {sc.EarthMJ2000Eq.X, sc.EarthMJ2000Eq.Y, sc.EarthMJ2000Eq.Z,};
+Report rf (sc.EarthMJ2000Eq.X, sc.EarthMJ2000Eq.Y, sc.EarthMJ2000Eq.Z,);
+Report rf sc.EarthMJ2000Eq.X x x;
+Report rf array;
+Report rf array(1,1);
+Report rf array(5,5);
+Report rf array(1,1) array(0,1);
+Report rf sc;
+Report rf str x sc.EarthMJ2000Eq.X;
+Report rf 1;
+Report rf 1.0;
+Report rf DoesNotExist;

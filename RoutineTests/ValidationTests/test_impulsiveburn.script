@@ -1,0 +1,117 @@
+% ------------------------------------------
+% Test validation scripts for Impulsive Burn
+% ------------------------------------------
+Create ImpulsiveBurn DefaultIB;
+
+% ---------
+% Duplicate
+% ---------
+Create ImpulsiveBurn DefaultIB;
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = -1.01;
+Create String testString;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = -4.7;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT DefaultIB.DoesNotExist = 1;
+
+% ------
+% Origin
+% ------
+Create ImpulsiveBurn DefaultIB1;
+GMAT DefaultIB1.Origin = 1;
+GMAT DefaultIB1.Origin = 1.0;
+GMAT testString.Expression = Pluto;
+GMAT DefaultIB1.Origin = testString;
+GMAT testString.Expression = DNE;
+GMAT DefaultIB1.Origin = testString;
+GMAT DefaultIB1.Origin = testVar;
+GMAT DefaultIB1.Origin = testArray(1,1);
+GMAT DefaultIB1.Origin = testSc.A1ModJulian;
+GMAT DefaultIB1.Origin = DoesNotExist;
+GMAT DefaultIB1.Origin = {Mars};
+GMAT DefaultIB1.Origin = Sun;
+
+%% ----
+%% Axes
+%% ----
+Create ImpulsiveBurn DefaultIB2;
+GMAT DefaultIB2.Axes = 1;
+GMAT DefaultIB2.Axes = 1.0;
+GMAT testString.Expression = VNB;
+GMAT DefaultIB2.Axes = testString;
+GMAT testString.Expression = DNE;
+GMAT DefaultIB2.Axes = testString;
+GMAT DefaultIB2.Axes = testVar;
+GMAT DefaultIB2.Axes = testArray(1,1);
+GMAT DefaultIB2.Axes = testSc.A1ModJulian;
+GMAT DefaultIB2.Axes = DoesNotExist;
+GMAT DefaultIB2.Axes = {VNB};
+GMAT DefaultIB2.Axes = {MJ2000Eq};
+GMAT DefaultIB2.Axes = VNB;
+GMAT DefaultIB2.Axes = MJ2000Eq;
+
+%% -------------
+%% Vector Format
+%% -------------
+Create ImpulsiveBurn DefaultIB3;
+GMAT DefaultIB3.VectorFormat = 1;
+GMAT DefaultIB3.VectorFormat = 1.0;
+GMAT testString.Expression = Cartesian;
+GMAT DefaultIB3.VectorFormat = testString;
+GMAT testString.Expression = DNE;
+GMAT DefaultIB3.VectorFormat = testString;
+GMAT DefaultIB3.VectorFormat = testVar;
+GMAT DefaultIB3.VectorFormat = testArray(1,1);
+GMAT DefaultIB3.VectorFormat = testSc.A1ModJulian;
+GMAT DefaultIB3.VectorFormat = DoesNotExist;
+GMAT DefaultIB3.VectorFormat = {Spherical};
+GMAT DefaultIB3.VectorFormat = {Cartesian};
+GMAT DefaultIB3.VectorFormat = Spherical;
+GMAT DefaultIB3.VectorFormat = Cartesian;
+
+% ---------
+% Element 1
+% ---------
+Create ImpulsiveBurn DefaultIB4;
+GMAT DefaultIB4.Element1 = 1;
+GMAT DefaultIB4.Element1 = 1.01;
+GMAT DefaultIB4.Element1 = testString;
+GMAT DefaultIB4.Element1 = testVar;
+GMAT DefaultIB4.Element1 = testArray(1,1);
+GMAT DefaultIB4.Element1 = testSc.A1ModJulian;
+GMAT DefaultIB4.Element1 = DoesNotExist;
+
+% ---------
+% Element 2
+% ---------
+Create ImpulsiveBurn DefaultIB5;
+GMAT DefaultIB5.Element1 = 1;
+GMAT DefaultIB5.Element1 = 1.01;
+GMAT DefaultIB5.Element1 = testString;
+GMAT DefaultIB5.Element1 = testVar;
+GMAT DefaultIB5.Element1 = testArray(1,1);
+GMAT DefaultIB5.Element1 = testSc.A1ModJulian;
+GMAT DefaultIB5.Element1 = DoesNotExist;
+
+% ---------
+% Element 3
+% ---------
+Create ImpulsiveBurn DefaultIB6;
+GMAT DefaultIB6.Element1 = 1;
+GMAT DefaultIB6.Element1 = 1.01;
+GMAT DefaultIB6.Element1 = testString;
+GMAT DefaultIB6.Element1 = testVar;
+GMAT DefaultIB6.Element1 = testArray(1,1);
+GMAT DefaultIB6.Element1 = testSc.A1ModJulian;
+GMAT DefaultIB6.Element1 = DoesNotExist;
+

@@ -1,0 +1,10 @@
+%----------------------------------------
+%---------- MATLAB Function Components
+%----------------------------------------
+
+Create MatlabFunction Test;
+
+GMAT Test.DoesNotExist = 1;
+
+GMAT Test.FunctionPath = DoesNotExist;
+GMAT Test.FunctionPath = C:/GMAT_Eclipse/GMAT/bin/files/MatlabFunctions/;

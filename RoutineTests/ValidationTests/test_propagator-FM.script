@@ -1,0 +1,318 @@
+% ---------------------------------------
+% Test validation scripts for Force Model
+% ---------------------------------------
+Create ForceModel Propagator1_ForceModel;
+Create Propagator Propagator1;
+
+% ---------
+% Duplicate
+% ---------
+Create ForceModel Propagator1_ForceModel;
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = 3.5;
+Create String testString;
+GMAT testString.Expression = Mars;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = -4.7;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT Propagator1_ForceModel.DoesNotExist = 1;
+
+% ------------
+% Central Body
+% ------------
+Create Propagator Propagator2;
+Create ForceModel Propagator2_ForceModel;
+GMAT Propagator2.FM = Propagator2_ForceModel;
+%GMAT Propagator2_ForceModel.CentralBody = 1;
+%GMAT Propagator2_ForceModel.CentralBody = 1.0;
+%GMAT Propagator2_ForceModel.CentralBody = testString;
+%GMAT Propagator2_ForceModel.CentralBody = testVar;
+%GMAT Propagator2_ForceModel.CentralBody = testArray(1,1);
+%GMAT Propagator2_ForceModel.CentralBody = testSc.A1ModJulian;
+%GMAT Propagator2_ForceModel.CentralBody = DoesNotExist;
+%GMAT Propagator2_ForceModel.CentralBody = {DoesNotExist};
+%GMAT Propagator2_ForceModel.CentralBody = {DoesNotExist, Earth};
+%GMAT Propagator2_ForceModel.CentralBody = DoesNotExist, Earth;
+%GMAT Propagator2_ForceModel.CentralBody = Earth, Pluto;
+%GMAT Propagator2_ForceModel.CentralBody = {Earth};
+GMAT Propagator2_ForceModel.CentralBody = Pluto;
+
+% --------------
+% Primary Bodies
+% --------------
+Create Propagator Propagator3;
+Create ForceModel Propagator3_ForceModel;
+GMAT Propagator3.FM = Propagator3_ForceModel;
+%GMAT Propagator3_ForceModel.PrimaryBodies = {1};
+%GMAT Propagator3_ForceModel.PrimaryBodies = {1.0};
+%GMAT testString.Expression = {Mars, Jupiter};
+%GMAT Propagator3_ForceModel.PrimaryBodies = testString;
+%GMAT Propagator3_ForceModel.PrimaryBodies = testVar;
+%GMAT Propagator3_ForceModel.PrimaryBodies = testArray(1,1);
+%GMAT Propagator3_ForceModel.PrimaryBodies = testSc.A1ModJulian;
+%GMAT Propagator3_ForceModel.PrimaryBodies = {DoesNotExist};
+%GMAT Propagator3_ForceModel.PrimaryBodies = Earth;
+%GMAT Propagator3_ForceModel.PrimaryBodies = {Venus};
+%GMAT Propagator3_ForceModel.PrimaryBodies = {DoesNotExist, Earth};
+GMAT Propagator3_ForceModel.PrimaryBodies = {Earth, Luna};
+
+% ---------------
+% Gravity Model
+% ---------------
+%Create Propagator Propagator4;
+%Create ForceModel Propagator4_ForceModel;
+%GMAT Propagator4.FM = Propagator4_ForceModel;
+%GMAT Propagator4_ForceModel.PrimaryBodies = {Pluto};
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = 1;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = 1.0;
+%GMAT testString.Expression = None;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = testString;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = testVar;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = testArray(1,1);
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = testSc.A1ModJulian;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = DoesNotExist;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = {DoesNotExist};
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = None;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = JGM2;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = Other;
+%GMAT Propagator4_ForceModel.Gravity.Pluto.Model = {None};
+
+% --------------
+% Potential File
+% --------------
+Create Propagator Propagator4;
+Create ForceModel Propagator4_ForceModel;
+GMAT Propagator4.FM = Propagator4_ForceModel;
+GMAT Propagator4_ForceModel.PrimaryBodies = {Earth};
+%GMAT Propagator4_ForceModel.Gravity.Earth.Model = JGM2;
+%GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = 1;
+%GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = 1.0;
+%GMAT testString.Expression = C:\GMAT\Eclipse\GMAT\bin\files\gravity\earth\JGM2.cof;
+%GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = testString;
+%GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = testVar;
+%GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = testArray(1,1);
+%%GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = testSc.A1ModJulian;
+%GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = DoesNotExist;
+GMAT Propagator4_ForceModel.Gravity.Earth.PotentialFile = C:\GMAT\Eclipse\GMAT\bin\files\gravity\earth\JGM2.cof;
+
+% --------------
+% Degree & Order
+% --------------
+Create Propagator Propagator5;
+Create ForceModel Propagator5_ForceModel;
+GMAT Propagator5.FM = Propagator5_ForceModel;
+GMAT Propagator5_ForceModel.PrimaryBodies = {Earth};
+%GMAT Propagator5_ForceModel.Gravity.Earth.PotentialFile = C:/GMAT_Eclipse/GMAT/bin/files/gravity/earth/JGM2.cof;
+
+% Coupling
+GMAT Propagator5_ForceModel.Gravity.Earth.Degree = 4;
+GMAT Propagator5_ForceModel.Gravity.Earth.Order = 7;
+
+%GMAT Propagator5_ForceModel.Gravity.Earth.Degree = -3.5;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Degree = 4.5;
+
+%GMAT Propagator5_ForceModel.Gravity.Earth.Degree = testString;
+%GMAT testVar.Expression = 3;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Degree = testVar;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Degree = testArray(1,1);
+%GMAT Propagator5_ForceModel.Gravity.Earth.Degree = testSc.A1ModJulian;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Degree = DoesNotExist;
+
+%GMAT Propagator5_ForceModel.Gravity.Earth.Order = -3.5;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Order = 4.5;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Order = testString;
+%GMAT testVar.Expression = 8;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Order = testVar;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Order = testArray(1,1);
+%GMAT Propagator5_ForceModel.Gravity.Earth.Order= testSc.A1ModJulian;
+%GMAT Propagator5_ForceModel.Gravity.Earth.Order = DoesNotExist;
+
+GMAT Propagator5_ForceModel.Gravity.Earth.Degree = 7;
+GMAT Propagator5_ForceModel.Gravity.Earth.Order = 8;
+
+% ----
+% Drag
+% ----
+Create Propagator Propagator6;
+Create ForceModel Propagator6_ForceModel;
+GMAT Propagator6.FM = Propagator6_ForceModel;
+GMAT Propagator6_ForceModel.PrimaryBodies = {Venus, Earth};
+%GMAT Propagator6_ForceModel.Gravity.Earth.Model = Other;
+%GMAT Propagator6_ForceModel.Gravity.Earth.PotentialFile = C:/GMAT_Eclipse/GMAT/bin/files/gravity/earth/JGM2.cof;
+%GMAT Propagator6_ForceModel.Gravity.Earth.Degree = 4;
+%GMAT Propagator6_ForceModel.Gravity.Earth.Order = 4;
+
+%GMAT Propagator6_ForceModel.Drag = 1;
+%GMAT Propagator6_ForceModel.Drag = 1.0;
+%GMAT testString.Expression = Exponential;
+%GMAT Propagator6_ForceModel.Drag = testString;
+%GMAT Propagator6_ForceModel.Drag = testVar;
+%GMAT Propagator6_ForceModel.Drag = testArray(1,1);
+%GMAT Propagator6_ForceModel.Drag = testSc.A1ModJulian;
+%GMAT Propagator6_ForceModel.Drag = DoesNotExist;
+%GMAT Propagator6_ForceModel.Drag = MSISE90;
+%GMAT Propagator6_ForceModel.Drag = Exponential;
+GMAT Propagator6_ForceModel.Drag = JacchiaRoberts;
+
+%% ----
+%% F107
+%% ----
+Create Propagator Propagator7;
+Create ForceModel Propagator7_ForceModel;
+GMAT Propagator7.FM = Propagator7_ForceModel;
+GMAT Propagator7_ForceModel.PrimaryBodies = {Earth};
+%GMAT Propagator7_ForceModel.Gravity.Earth.Model = Other;
+%GMAT Propagator7_ForceModel.Gravity.Earth.PotentialFile = C:/GMAT_Eclipse/GMAT/bin/files/gravity/earth/JGM2.cof;
+%GMAT Propagator7_ForceModel.Gravity.Earth.Degree = 4;
+%GMAT Propagator7_ForceModel.Gravity.Earth.Order = 4;
+GMAT Propagator7_ForceModel.Drag = MSISE90;
+
+%GMAT Propagator7_ForceModel.Drag.F107 = 1;
+%GMAT Propagator7_ForceModel.Drag.F107 = -1;
+%GMAT Propagator7_ForceModel.Drag.F107 = 1.9;
+%GMAT Propagator7_ForceModel.Drag.F107 = -1.9;
+%GMAT Propagator7_ForceModel.Drag.F107 = testString;
+%GMAT Propagator7_ForceModel.Drag.F107 = testVar;
+%GMAT Propagator7_ForceModel.Drag.F107 = testArray(1,1);
+%GMAT Propagator7_ForceModel.Drag.F107 = testSc.A1ModJulian;
+%GMAT Propagator7_ForceModel.Drag.F107 = DoesNotExist;
+GMAT Propagator7_ForceModel.Drag.F107 = 150.0;
+
+% -----
+% F107A
+% -----
+Create Propagator Propagator8;
+Create ForceModel Propagator8_ForceModel;
+GMAT Propagator8.FM = Propagator8_ForceModel;
+GMAT Propagator8_ForceModel.PrimaryBodies = {Earth};
+%GMAT Propagator8_ForceModel.Gravity.Earth.Model = Other;
+%GMAT Propagator8_ForceModel.Gravity.Earth.PotentialFile = C:/GMAT_Eclipse/GMAT/bin/files/gravity/earth/JGM2.cof;
+%GMAT Propagator8_ForceModel.Gravity.Earth.Degree = 4;
+%GMAT Propagator8_ForceModel.Gravity.Earth.Order = 4;
+%GMAT Propagator8_ForceModel.Drag = MSISE90;
+%GMAT Propagator8_ForceModel.Drag.F107 = 150.0;
+
+GMAT Propagator8_ForceModel.Drag.F107A = 1;
+GMAT Propagator8_ForceModel.Drag.F107A = -1;
+GMAT Propagator8_ForceModel.Drag.F107A = 1.9;
+GMAT Propagator8_ForceModel.Drag.F107A = -1.9;
+GMAT Propagator8_ForceModel.Drag.F107A = testString;
+GMAT Propagator8_ForceModel.Drag.F107A = testVar;
+GMAT Propagator8_ForceModel.Drag.F107A = testArray(1,1);
+%GMAT Propagator8_ForceModel.Drag.F107A = testSc.A1ModJulian;
+GMAT Propagator8_ForceModel.Drag.F107A = DoesNotExist;
+GMAT Propagator8_ForceModel.Drag.F107A = 150.0;
+
+% --------------
+% Magnetic Index
+% --------------
+Create Propagator Propagator11;
+Create ForceModel Propagator11_ForceModel;
+GMAT Propagator11.FM = Propagator11_ForceModel;
+GMAT Propagator11_ForceModel.PrimaryBodies = {Earth};
+%GMAT Propagator11_ForceModel.Gravity.Earth.Model = Other;
+%GMAT Propagator11_ForceModel.Gravity.Earth.PotentialFile = C:/GMAT_Eclipse/GMAT/bin/files/gravity/earth/JGM2.cof;
+GMAT Propagator11_ForceModel.Gravity.Earth.Degree = 4;
+GMAT Propagator11_ForceModel.Gravity.Earth.Order = 4;
+GMAT Propagator11_ForceModel.Drag = MSISE90;
+GMAT Propagator11_ForceModel.Drag.F107 = 150.0;
+GMAT Propagator11_ForceModel.Drag.F107A = 150.0;
+
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = 1;
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = -1;
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = 1.9;
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = -1.9;
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = testString;
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = testVar;
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = testArray(1,1);
+%%GMAT Propagator11_ForceModel.Drag.MagneticIndex = testSc.A1ModJulian;
+%GMAT Propagator11_ForceModel.Drag.MagneticIndex = DoesNotExist;
+GMAT Propagator11_ForceModel.Drag.MagneticIndex = 3.0;
+
+% ------------------------
+% Solar Radiation Pressure
+% ------------------------
+Create Propagator Propagator12;
+Create ForceModel Propagator12_ForceModel;
+GMAT Propagator12.FM = Propagator12_ForceModel;
+
+%GMAT Propagator12_ForceModel.SRP = 1;
+%GMAT Propagator12_ForceModel.SRP = 1.0;
+%GMAT testString.Expression = On;
+GMAT testString.Expression = On;
+%GMAT Propagator12_ForceModel.SRP = testString;
+%GMAT Propagator12_ForceModel.SRP = testVar;
+%GMAT Propagator12_ForceModel.SRP = testArray(1,1);
+%GMAT Propagator12_ForceModel.SRP = testSc.A1ModJulian;
+%GMAT Propagator12_ForceModel.SRP = DoesNotExist;
+%GMAT Propagator12_ForceModel.SRP = 0;
+%GMAT Propagator12_ForceModel.SRP = True;
+%GMAT Propagator12_ForceModel.SRP = False;
+%GMAT Propagator12_ForceModel.SRP = ON;
+GMAT Propagator12_ForceModel.SRP = On;
+%GMAT Propagator12_ForceModel.SRP = on;
+%GMAT Propagator12_ForceModel.SRP = OFF;
+GMAT Propagator12_ForceModel.SRP = Off;
+%GMAT Propagator12_ForceModel.SRP = off;
+
+% ------------
+% Point Masses
+% ------------
+%Create Propagator Propagator7;
+%Create ForceModel Propagator7_ForceModel;
+%GMAT Propagator7.FM = Propagator7_ForceModel;
+%GMAT Propagator7_ForceModel.PrimaryBodies = {Earth};
+%%GMAT Propagator7_ForceModel.Gravity.Earth.Model = Other;
+%%GMAT Propagator7_ForceModel.Gravity.Earth.PotentialFile = C:/GMAT_Eclipse/GMAT/bin/files/gravity/earth/JGM2.cof;
+%GMAT Propagator7_ForceModel.Gravity.Earth.Degree = 4;
+%GMAT Propagator7_ForceModel.Gravity.Earth.Order = 4;
+%
+%% Coupling
+%%GMAT Propagator7_ForceModel.PointMasses = {Venus, Earth};
+%%GMAT Propagator7_ForceModel.PointMasses = {Neptune, Jupiter};
+
+%GMAT Propagator5_ForceModel.PointMasses = 1;
+%GMAT Propagator5_ForceModel.PointMasses = 1.0;
+%GMAT testString.Expression = {Mars, Jupiter};
+%GMAT Propagator5_ForceModel.PointMasses = testString;
+%GMAT Propagator5_ForceModel.PointMasses = testVar;
+%GMAT Propagator5_ForceModel.PointMasses = testArray(1,1);
+%GMAT Propagator5_ForceModel.PointMasses = testSc.A1ModJulian;
+%GMAT Propagator5_ForceModel.PointMasses = DoesNotExist;
+%GMAT Propagator5_ForceModel.PointMasses = {DoesNotExist};
+%GMAT Propagator5_ForceModel.PointMasses = Earth;
+%GMAT Propagator5_ForceModel.PointMasses = {Earth};
+%GMAT Propagator5_ForceModel.PointMasses = DoesNotExist, Earth;
+%GMAT Propagator5_ForceModel.PointMasses = {DoesNotExist, Earth};
+%GMAT Propagator5_ForceModel.PointMasses = Earth, Luna;
+%GMAT Propagator5_ForceModel.PointMasses = {Earth, Luna};
+
+% -------------
+% Error Control
+% -------------
+Create Propagator Propagator13;
+Create ForceModel Propagator13_ForceModel;
+GMAT Propagator13.FM = Propagator13_ForceModel;
+
+%GMAT Propagator13_ForceModel.ErrorControl = 1;
+%GMAT Propagator13_ForceModel.ErrorControl = 1.0;
+%GMAT testString.Expression = None;
+%GMAT Propagator13_ForceModel.ErrorControl = testString;
+%GMAT Propagator13_ForceModel.ErrorControl = testVar;
+%GMAT Propagator13_ForceModel.ErrorControl = testArray(1,1);
+%GMAT Propagator13_ForceModel.ErrorControl = testSc.A1ModJulian;
+%GMAT Propagator13_ForceModel.ErrorControl = DoesNotExist;
+GMAT Propagator13_ForceModel.ErrorControl = None;
+GMAT Propagator13_ForceModel.ErrorControl = RSSState;
+GMAT Propagator13_ForceModel.ErrorControl = LargestStep;
+GMAT Propagator13_ForceModel.ErrorControl = LargestState;
+GMAT Propagator13_ForceModel.ErrorControl = RSSStep;

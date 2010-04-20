@@ -1,0 +1,118 @@
+% ----------------------------------------------------
+% Test validation scripts for Variables/Strings/Arrays
+% ----------------------------------------------------
+
+%---------
+% Variable
+%---------
+Create Variable testVar;
+GMAT testVar.DoesNotExist = 1;
+
+%  Test to see if a variable name that already exists is refuses
+Create Variable MyVar1;
+Create Variable MyVar1;
+
+%  Test to see if a variable name begins with a number
+Create Variable 1MyVar;
+
+%  Test to see if a object name that already exists is refuses
+Create OpenGLPlot Plot1
+Create Variable Plot1
+
+%  Test to see if a string name that already exists is refuses
+Create String MyVar2
+Create Variable MyVar2
+
+%  Test to see if an array name that already exists is refuses
+Create Array MyVar3[2,2]
+Create Variable MyVar3
+
+%  Testing the expression
+Create Variable testVar;
+Create Variable testVar2;
+Create Variable 1MyVar;
+Create Array testArray[3, 4];
+
+GMAT testVar.Expression = DoesNotExist;
+GMAT testVar.Expression = 3.5;
+GMAT testVar.Expression = testString;
+GMAT testVar.Expression = testArray;
+
+GMAT testVar.Expression = DoesNotExist + 2.0;
+GMAT testVar.Expression = DoesNotExist + testString;
+GMAT testVar.Expression = DoesNotExist + testArray;
+
+GMAT testVar2.Expression = 3.52;
+GMAT testVar.Expression = testVar2 + 2.0;
+GMAT testVar.Expression = testVar2 + testString;
+GMAT testVar.Expression = testVar2 + testArray;
+
+GMAT testVar.Expression = testString + 2.0;
+GMAT testVar.Expression = testString + testArray;
+
+Create Spacecraft DefaultSC;
+GMAT testVar.Expression = DefaultSC.EarthMJ2000Eq.X + DefaultSC.EarthMJ2000Eq.Y;
+
+%-------
+% String
+%-------
+Create String testString;
+GMAT testString.DoesNotExist = 1;
+
+%  Test to see if a variable name that already exists is refuses
+Create String MyVar4;
+Create String MyVar4;
+
+%  Test to see if a string name that already exists is refuses
+Create Variable MyVar5;
+Create String MyVar5;
+
+%  Test to see if an array name that already exists is refuses
+Create Variable MyVar6;
+Create Array MyVar6[2,2];
+
+%  Testing the expression
+Create String testString;
+
+GMAT testString.Expression = DoesNotExist;
+GMAT testString.Expression = "DoesNotExist";
+GMAT testString.Expression = 1;
+GMAT testString.Expression = "1";
+GMAT testString.Expression = ;
+GMAT testString.Expression = "";
+GMAT testString.Expression = Propagate;
+
+%------
+% Array
+%------
+Create Array testArray[2,2];
+GMAT testArray.DoesNotExist = 1;
+
+%  Test that if dimenstions aren't defined that it is caught
+Create Array MyVar7;
+
+%  Test to see if a variable name that already exists is refuses
+Create Array MyVar8[2,2];
+Create Array MyVar8[2,2];
+
+%%  Test to see if a string name that already exists is refuses
+%Create Variable MyVar9
+%Create Array MyVar9[2,2]
+
+%%  Test to see if an array name that already exists is refuses
+%Create String MyVar10
+%Create Array MyVar10[2,2]
+
+%  Testing the expression
+Create Array testArray[2, 2];
+GMAT testArray.Expression = DoesNotExist;
+GMAT testArray.Expression = {1, 3;2, 4};
+
+% Testing setting the array
+GMAT testArray(1, 1) = DoesNotExist;
+GMAT testArray(1, 2) = -1.01;
+GMAT testArray(2, 1) = 1.01;
+GMAT testArray(2, 2) = 1;
+GMAT testArray(1, 2) = testVar;
+GMAT testArray(2, 1) = testString;
+GMAT testArray(2, 1) = testArray;

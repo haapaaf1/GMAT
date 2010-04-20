@@ -1,0 +1,133 @@
+% IN PROGRESS ************************************* %
+%---------------------------------------------------------------
+%  These objects are for use in commands. They are necessary 
+%  to test when resources are not used correctly in commands.
+%---------------------------------------------------------------
+Create Spacecraft Sat;
+GMAT Sat.StateType = Cartesian;
+Create Thruster Thruster WrongThruster;
+Create FuelTank WrongTank;
+Create Formation Formation WrongFormation
+Create ImpulsiveBurn ImpBurn WrongImpBurn
+Create FiniteBurn FiniteBurn WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot OpenGL WrongOpenGL
+%Create XYPlot XYPlot WrongXYPlot
+Create XYPlot XYPlot1 WrongXYPlot
+XYPlot1.IndVar = Sat.X;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile ReportFile WrongReportFile
+Create Variable Var WrongVar
+Create Array Array[3,3] WrongArray[3,3]
+Create CoordinateSystem CoordSys WrongCoordSys;
+Create FminconOptimizer SQPfmincon;
+Create String WrongString;
+GMAT SQPfmincon.DiffMaxChange = 0.01;      % Real number
+GMAT SQPfmincon.DiffMinChange = 0.000001;  % Real number
+GMAT SQPfmincon.MaxFunEvals   = 1000;    % Real number
+GMAT SQPfmincon.MaxIter       = 250;     % Real number
+GMAT SQPfmincon.TolX          = 0.01;    % Real number
+GMAT SQPfmincon.TolFun        = 0.0001;  % Real number
+GMAT SQPfmincon.TolCon        = 0.0001;  % Real number
+GMAT SQPfmincon.DerivativeCheck = Off;   % {On, Off}
+GMAT SQPfmincon.Diagnostics     = On;    % {On, Off}
+GMAT SQPfmincon.Display         = Iter   % {Iter, Off, Notify, Final}
+GMAT SQPfmincon.GradObj         = Off;   % {On, Off}
+GMAT SQPfmincon.GradConstr      = Off;   % {On, Off}
+
+
+Optimize SQPfmincon; % test inside an Optimize loop
+
+Minimize SQPfmincon (Var);  % should be OK
+Minimize SQPfmincon (Array(1,1));   % should be OK
+%---------------------------------------
+%  Use of nonexistent resources
+%---------------------------------------
+Minimize DNE (Var);
+Minimize DNE (WrongArray);
+Minimize Sat.DNE (Var);
+
+%---------------------------------------
+%  Improper use of resources
+%---------------------------------------
+Minimize SQPfmincon(sat.CoordinateSystem);
+Minimize SQPfmincon(WrongProp);
+
+%---------------------------------------
+%  Improper use of parameters
+
+%---- Improper use of allowed parameters
+%---------------------------------------
+Minimize WrongProp(Var);
+Minimize sat.X(Var);
+
+
+%---- Disallowed parameters
+Minimize WrongString(Var);
+
+
+%---------------------------------------
+%  Improper use of real numbers
+%---------------------------------------
+1.0 Minimize SQPfmincon (Var);
+Minimize 1.0(Var);
+Minimize SQPfmincon(12.0);
+
+%-------------------------------------------------
+%  Improper use of conditional operators
+%-------------------------------------------------
+Minimize SQPfmincon(Var < 3);
+Minimize SQPfmincon(Array(1,1) == 0)
+
+%---------------------------------------------------
+%  Improper use of brackets, braces and parentheses
+%---------------------------------------------------
+
+%---  Missing Parentheses ----
+Minimize SQPfmincon Var;
+Minimize SQPfmincon Array(1,1);
+
+
+%---  Missing curly brackets
+% N/A
+
+%--- Miscellaneous bracket and parentheses errors
+Minimize SQPfmincon{Var};
+Minimize SQPfmincon[Var];
+Minimize (SQPfmincon) Var;
+Minimize [SQPfmincon] Var;
+Minimize {SQPfmincon} Var;
+Minimize SQPfmincon (Var
+Minimize SQPfmincon Var);
+
+
+%---------------------------------------
+%  Missing command elements
+%---------------------------------------
+Minimize SQPfmincon;
+Minimize (Var);
+ 
+%----------------------------------------------------------
+%  Improper use of closing branch command statement
+%----------------------------------------------------------
+% N/A
+
+%--------------------------------
+%  Comma errors    
+%--------------------------------
+
+%---  Missing commas
+% N/A
+
+
+%---  Improper use of commas
+Minimize SQPfmincon, (Var);
+Minimize SQPfmincon (Var),
+Minimize, SQPfmincon (Var)
+
+
+%-------------------------------
+%  Closing branch command error
+%-------------------------------
+% N/A
+EndOptimize;

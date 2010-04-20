@@ -1,0 +1,151 @@
+Create Spacecraft DefaultSC;
+
+Create ForceModel DefaultProp_ForceModel;
+Create Propagator DefaultProp;
+
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+
+Create String testString;
+GMAT testString.Expression = TEST;
+
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 1;
+GMAT testArray(1, 2) = 2;
+GMAT testArray(2, 1) = 2;
+GMAT testArray(2, 2) = 4;
+
+% Simple If statement
+If DefaultSC.ElapsedDays < DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < 
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+If DefaultSC.ElapsedDays<1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+
+% Real
+If 0.0 < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testVar < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testArray(1,1) < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testString < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+
+% Variable
+If testVar >= 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testVar >= testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testVar >= testArray(1,1)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testVar >= testString
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testVar >= DefaultSC.ElapsedDays
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+
+% Array element
+If testArray(1,1) ~= 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testArray(1,1) ~= testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testArray(1,1) ~= testArray(1,2)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testArray(1,1) ~= testString
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testArray(1,1) ~= DefaultSC.ElapsedDays
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+
+% Spacecraft parameter
+If DefaultSC.ElapsedDays == 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays == testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays == testArray(1,2)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays == testString
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.Earth.Apoapsis == DefaultSC.Earth.Periapsis
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+
+% Compound If statement
+If DefaultSC.ElapsedDays < DoesNotExist | DefaultSC.ElapsedDays > DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < 1.0 & DefaultSC.ElapsedDays > DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < DoesNotExist | DefaultSC.ElapsedDays > 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < DoesNotExist |& DefaultSC.ElapsedDays > 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+
+
+If 0.0 < 1.0 & testVar >= 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < 1.0 & testArray(1,1) ~= testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testString < 1.0 & DefaultSC.ElapsedDays == 1.0 | testVar >= testArray(1,1)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If testString < 1.0 | DefaultSC.ElapsedDays == 1.0 & testVar >= testArray(1,1)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+
+% If-else statement
+If DefaultSC.ElapsedDays < DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Else
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Else
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;
+If DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Else DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndIf;

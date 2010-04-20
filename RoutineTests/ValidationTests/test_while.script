@@ -1,0 +1,151 @@
+Create Spacecraft DefaultSC;
+
+Create ForceModel DefaultProp_ForceModel;
+Create Propagator DefaultProp;
+
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+
+Create String testString;
+GMAT testString.Expression = TEST;
+
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 1;
+GMAT testArray(1, 2) = 2;
+GMAT testArray(2, 1) = 2;
+GMAT testArray(2, 2) = 4;
+
+% Simple While statement
+While DefaultSC.ElapsedDays < DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < 
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+While DefaultSC.ElapsedDays<1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+
+% Real
+While 0.0 < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testVar < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testArray(1,1) < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testString < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+
+% Variable
+While testVar >= 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testVar >= testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testVar >= testArray(1,1)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testVar >= testString
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testVar >= DefaultSC.ElapsedDays
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+
+% Array element
+While testArray(1,1) ~= 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testArray(1,1) ~= testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testArray(1,1) ~= testArray(1,2)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testArray(1,1) ~= testString
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testArray(1,1) ~= DefaultSC.ElapsedDays
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+
+% Spacecraft parameter
+While DefaultSC.ElapsedDays == 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays == testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays == testArray(1,2)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays == testString
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.Earth.Apoapsis == DefaultSC.Earth.Periapsis
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+
+% Compound While statement
+While DefaultSC.ElapsedDays < DoesNotExist | DefaultSC.ElapsedDays > DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < 1.0 & DefaultSC.ElapsedDays > DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < DoesNotExist | DefaultSC.ElapsedDays > 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < DoesNotExist |& DefaultSC.ElapsedDays > 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+
+
+While 0.0 < 1.0 & testVar >= 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < 1.0 & testArray(1,1) ~= testVar
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testString < 1.0 & DefaultSC.ElapsedDays == 1.0 | testVar >= testArray(1,1)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While testString < 1.0 | DefaultSC.ElapsedDays == 1.0 & testVar >= testArray(1,1)
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+
+% While-else statement
+While DefaultSC.ElapsedDays < DoesNotExist
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Else
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Else
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;
+While DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+Else DefaultSC.ElapsedDays < 1.0
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+EndWhile;

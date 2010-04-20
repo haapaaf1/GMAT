@@ -1,0 +1,156 @@
+% --------------------------------------
+% Test validation scripts for Integrator
+% --------------------------------------
+Create ForceModel Propagator1_ForceModel;
+Create Propagator Propagator1;
+
+% ---------
+% Duplicate
+% ---------
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar = 4;
+Create String testString;
+GMAT testString = Earth;
+Create Array testArray[2, 2];
+GMAT testArray = testArray;
+GMAT testArray(1, 1) = 40;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT Propagator1.DoesNotExist = 1;
+
+% -----------
+% Force Model
+% -----------
+Create Propagator Propagator2;
+Create ForceModel Propagator2_ForceModel;
+GMAT Propagator2.FM = 1;
+GMAT Propagator2.FM = 1.0;
+GMAT testString = DoesNotExist;
+GMAT testString = Propagator2_ForceModel;
+GMAT Propagator2.FM = testString;
+GMAT Propagator2.FM = testVar;
+GMAT Propagator2.FM = testArray(1,1);
+GMAT Propagator2.FM = testSc.A1ModJulian;
+GMAT Propagator2.FM = DoesNotExist;
+GMAT Propagator2.FM = Propagator1_ForceModel;
+
+% ----
+% Type
+% ----
+Create Propagator Propagator3;
+GMAT Propagator3.Type = 1;
+GMAT Propagator3.Type = 1.0;
+GMAT Propagator3.Type = testVar;
+GMAT testString = PrinceDormand78;
+GMAT Propagator3.Type = testString;
+GMAT Propagator3.Type = testArray(1,1);
+GMAT Propagator3.Type = testSc.A1ModJulian;
+GMAT Propagator3.Type = DoesNotExist;
+GMAT Propagator3.Type = PrinceDormand78;
+GMAT Propagator3.Type = AdamsBashforthMoulton;
+GMAT Propagator3.Type = BulirschStoer;
+
+% -----------------
+% Initial Step Size
+% -----------------
+Create Propagator Propagator4;
+GMAT Propagator4.InitialStepSize = 1;
+GMAT Propagator4.InitialStepSize = -1.01;
+GMAT Propagator4.InitialStepSize = 1.01;
+GMAT Propagator4.InitialStepSize = testString;
+GMAT Propagator4.InitialStepSize = testVar;
+GMAT Propagator4.InitialStepSize = testArray(1,1);
+GMAT Propagator4.InitialStepSize = testSc.A1ModJulian;
+GMAT Propagator4.InitialStepSize = DoesNotExist;
+
+% --------
+% Accuracy
+% --------
+Create Propagator Propagator5;
+GMAT Propagator5.Accuracy = 1;
+GMAT Propagator5.Accuracy = -1.0;
+GMAT Propagator5.Accuracy = 0.0;
+GMAT Propagator5.Accuracy = 1.0;
+GMAT Propagator5.Accuracy = testString;
+GMAT Propagator5.Accuracy = testVar;
+GMAT Propagator5.Accuracy = testArray(1,1);
+GMAT Propagator5.Accuracy = testSc.A1ModJulian;
+GMAT Propagator5.Accuracy = DoesNotExist;
+
+% ------------
+% Minimum Step
+% ------------
+Create Propagator Propagator6;
+GMAT Propagator6.MinStep = 1;
+GMAT Propagator6.MinStep = -1.0;
+GMAT Propagator6.MinStep = 0.0;
+GMAT Propagator6.MinStep = 1.0;
+GMAT Propagator6.MinStep = testVar;
+GMAT Propagator6.MinStep = testString;
+GMAT Propagator6.MinStep = testArray(1,1);
+GMAT Propagator6.MinStep = testSc.A1ModJulian;
+GMAT Propagator6.MinStep = DoesNotExist;
+
+% ------------
+% Maximum Step
+% ------------
+Create Propagator Propagator7;
+GMAT Propagator7.MaxStep = 1;
+GMAT Propagator7.MaxStep = -1.0;
+GMAT Propagator7.MaxStep = 0.0;
+GMAT Propagator7.MaxStep = 1.0;
+GMAT Propagator7.MaxStep = testVar;
+GMAT Propagator7.MaxStep = testString;
+GMAT Propagator7.MaxStep = testArray(1,1);
+GMAT Propagator7.MaxStep = testSc.A1ModJulian;
+GMAT Propagator7.MaxStep = DoesNotExist;
+
+% ---------------------
+% Maximum Step Attempts
+% ---------------------
+Create Propagator Propagator8;
+GMAT Propagator8.MaxStepAttempts = -49.5;
+GMAT Propagator8.MaxStepAttempts = 50;
+GMAT Propagator8.MaxStepAttempts = 50.5;
+GMAT Propagator8.MaxStepAttempts = testVar;
+GMAT Propagator8.MaxStepAttempts = testString;
+GMAT Propagator8.MaxStepAttempts = testArray(1,1);
+GMAT Propagator8.MaxStepAttempts = testSc.A1ModJulian;
+GMAT Propagator8.MaxStepAttempts = DoesNotExist;
+
+% -------------------------
+% Minimum Integration Error
+% -------------------------
+Create Propagator Propagator9;
+GMAT Propagator9.Type = AdamsBashforthMoulton;
+GMAT Propagator9.LowerError = 1;
+GMAT Propagator9.LowerError = -1.0;
+GMAT Propagator9.LowerError = 0.0;
+GMAT Propagator9.LowerError = 1.0;
+GMAT Propagator9.LowerError = testVar;
+GMAT Propagator9.LowerError = testString;
+GMAT Propagator9.LowerError = testArray(1,1);
+GMAT Propagator9.LowerError = testSc.A1ModJulian;
+GMAT Propagator9.LowerError = DoesNotExist;
+
+% -------------------------
+% Nominal Integration Error
+% -------------------------
+Create Propagator Propagator10;
+GMAT Propagator10.Type = AdamsBashforthMoulton;
+GMAT Propagator10.TargetError = 1;
+GMAT Propagator10.TargetError = -1.0;
+GMAT Propagator10.TargetError = 0.0;
+GMAT Propagator10.TargetError = 1.0;
+GMAT Propagator10.TargetError = testVar;
+GMAT Propagator10.TargetError = testString;
+GMAT Propagator10.TargetError = testArray(1,1);
+GMAT Propagator10.TargetError = testSc.A1ModJulian;
+GMAT Propagator10.TargetError = DoesNotExist;

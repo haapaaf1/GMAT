@@ -1,0 +1,43 @@
+Create Spacecraft DefaultSC, DefaultSC2;
+Create ImpulsiveBurn DefaultIB;
+Create FiniteBurn DefaultFB;
+Create Formation DefaultFormation;
+
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+
+Create String testString;
+GMAT testString.Expression = TEST;
+
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 1;
+GMAT testArray(1, 2) = 2;
+GMAT testArray(2, 1) = 2;
+GMAT testArray(2, 2) = 4;
+
+
+Maneuver DoesNotExist(DefaultSC);
+Maneuver DefaultIB(DoesNotExist);
+maneuver DefaultIB(DefaultSC);
+Maneuver;
+Maneuver DefaultIB;
+Maneuver (DefaultSC);
+Maneuver DefaultSC;
+Maneuver DefaultIB DefaultSC;
+Maneuver DefaultIB(DefaultFormation);
+Maneuver DefaultFB(DefaultSC);
+Maneuver DefaultIB{DefaultSC, DefaultSC2};
+Maneuver DefaultIB(DefaultSC);
+
+Maneuver 1(DefaultSC);
+Maneuver 1.0(DefaultSC);
+Maneuver testVar(DefaultSC);
+Maneuver testString(DefaultSC);
+Maneuver testArray(1,1)(DefaultSC);
+
+Maneuver DefaultIB(1);
+Maneuver DefaultIB(1.0);
+Maneuver DefaultIB(testVar);
+Maneuver DefaultIB(testString);
+Maneuver DefaultIB(testArray(1,1));

@@ -1,0 +1,110 @@
+% --------------------------------
+% Test validation scripts for Tank
+% --------------------------------
+Create FuelTank FuelTank1;
+
+Create Variable testVar;
+GMAT testVar.Expression = -3.8;
+Create String testString;
+GMAT testString.Expression = TEST;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter
+% -----------------
+GMAT FuelTank1.DoesNotExist = 1;
+
+% ---------
+% Fuel Mass
+% ---------
+GMAT FuelTank1.FuelMass = DoesNotExist;
+GMAT FuelTank1.FuelMass = -1.0;
+GMAT FuelTank1.FuelMass = 0.0;
+GMAT FuelTank1.FuelMass = 1.0;
+GMAT FuelTank1.FuelMass = 1;
+GMAT FuelTank1.FuelMass = testVar;
+GMAT FuelTank1.FuelMass = testString;
+GMAT FuelTank1.FuelMass = testArray(1,1);
+
+% --------
+% Pressure
+% --------
+GMAT FuelTank1.Pressure = DoesNotExist;
+GMAT FuelTank1.Pressure = -1.0;
+GMAT FuelTank1.Pressure = 0.0;
+GMAT FuelTank1.Pressure = 1.0;
+GMAT FuelTank1.Pressure = 1;
+GMAT FuelTank1.Pressure = testVar;
+GMAT FuelTank1.Pressure = testString;
+GMAT FuelTank1.Pressure = testArray(1,1);
+
+% -----------
+% Temperature
+% -----------
+GMAT FuelTank1.Temperature = DoesNotExist;
+GMAT FuelTank1.Temperature = -1.0;
+GMAT FuelTank1.Temperature = 1.01;
+GMAT FuelTank1.Temperature = 1;
+GMAT FuelTank1.Temperature = testVar;
+GMAT FuelTank1.Temperature = testString;
+GMAT FuelTank1.Temperature = testArray(1,1);
+
+% ---------------------
+% Reference Temperature
+% ---------------------
+GMAT FuelTank1.RefTemperature = DoesNotExist;
+GMAT FuelTank1.RefTemperature = -1.01;
+GMAT FuelTank1.RefTemperature = 1.01;
+GMAT FuelTank1.RefTemperature = 1;
+GMAT FuelTank1.RefTemperature = testVar;
+GMAT FuelTank1.RefTemperature = testString;
+GMAT FuelTank1.RefTemperature = testArray(1,1);
+
+% ------
+% Volume
+% ------
+GMAT FuelTank1.Volume = DoesNotExist;
+GMAT FuelTank1.Volume = -1.0;
+GMAT FuelTank1.Volume = 0.0;
+GMAT FuelTank1.Volume = 1.0;
+GMAT FuelTank1.Volume = 1;
+GMAT FuelTank1.Volume = testVar;
+GMAT FuelTank1.Volume = testString;
+GMAT FuelTank1.Volume = testArray(1,1);
+
+% ------------
+% Fuel Density
+% ------------
+GMAT FuelTank1.FuelDensity = DoesNotExist;
+GMAT FuelTank1.FuelDensity = -1.0;
+GMAT FuelTank1.FuelDensity = 0.0;
+GMAT FuelTank1.FuelDensity = 1.0;
+GMAT FuelTank1.FuelDensity = 1;
+GMAT FuelTank1.FuelDensity = testVar;
+GMAT FuelTank1.FuelDensity = testString;
+GMAT FuelTank1.FuelDensity = testArray(1,1);
+
+% ------------------
+% Pressure Regulated
+% ------------------
+GMAT FuelTank1.PressureRegulated = DoesNotExist;
+GMAT FuelTank1.PressureRegulated = On;
+GMAT FuelTank1.PressureRegulated = Off;
+GMAT FuelTank1.PressureRegulated = ON;
+GMAT FuelTank1.PressureRegulated = OFF;
+GMAT FuelTank1.PressureRegulated = on;
+GMAT FuelTank1.PressureRegulated = off;
+GMAT FuelTank1.PressureRegulated = 0;
+GMAT FuelTank1.PressureRegulated = 1;
+GMAT FuelTank1.PressureRegulated = true;
+GMAT FuelTank1.PressureRegulated = false;
+GMAT FuelTank1.PressureRegulated = True;
+GMAT FuelTank1.PressureRegulated = False;
+GMAT FuelTank1.PressureRegulated = TRUE;
+GMAT FuelTank1.PressureRegulated = FALSE;
+GMAT FuelTank1.PressureRegulated = 1;
+GMAT FuelTank1.PressureRegulated = testVar;
+GMAT FuelTank1.PressureRegulated = testString;
+GMAT FuelTank1.PressureRegulated = testArray(1,1);

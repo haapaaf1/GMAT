@@ -1,0 +1,101 @@
+
+%---------------------------------------------------------------
+%  These objects are for use in commands. They are necessary 
+%  to test when resources are not used correctly in commands.
+%---------------------------------------------------------------
+Create Spacecraft Sat WrongSat;
+Create Thruster Thruster WrongThruster;
+Create FuelTank WrongTank;
+Create Formation Formation WrongFormation
+Create ImpulsiveBurn ImpBurn WrongImpBurn
+Create FiniteBurn FiniteBurn WrongFiniteBurn
+Create Propagator Prop WrongProp
+Create OpenGLPlot OpenGL WrongOpenGL
+%Create XYPlot XYPlot WrongXYPlot
+Create XYPlot XYPlot1 XYPlot2 WrongXYPlot
+XYPlot1.IndVar = Sat.X;
+WrongXYPlot.IndVar = WrongSat.X;
+Create ReportFile ReportFile WrongReportFile
+Create Variable Var WrongVar
+Create Array Array[3,3] WrongArray[3,3]
+Create CoordinateSystem CoordSys WrongCoordSys;
+
+PenUp XYPlot1 XYPlot2
+
+%---------------------------------------
+%  Test for use of nonexistent resources
+%---------------------------------------
+%  The script line is not output for these errors
+PenUp DNE
+PenUp Sat.X DNE1.Y DNE2.Y
+PenUp Sat.X DNE;
+PenUp DNE Sat.X;
+
+%---------------------------------------
+%  Test for improper use of parameters
+%---------------------------------------
+
+%---- Non-existent parameters
+PenUp Sat.DNE
+
+%---- Improper use of allowed parameters
+
+%---- Disallowed parameters
+PenUp WrongArray(2,1);
+
+%---- Disallowed use of numbers
+PenUp 1.0;
+PenUp 1.0 1.0;
+1.0 PenUp Sat.X;
+
+%---------------------------------------
+%  Test for improper use of resources
+%---------------------------------------
+PenUp WrongSat;
+PenUp WrongProp Sat.X;
+
+%---------------------------------------
+%  Test for missing elements
+%---------------------------------------
+PenUp
+
+%-------------------------------------------------
+%  Test for improper use of conditional operators
+%-------------------------------------------------
+PenUp OpenGL < 3;
+
+%---------------------------------------------------
+%  Test for improper use of brackets and parenthesis
+%---------------------------------------------------
+
+%---  Missing Parenthesis ----
+%  not applicable
+
+%---  Missing curly brackets
+%  not applicable
+
+%--- Mixed incorrect brackets
+(PenUp) OpenGL
+PenUp OpenGL (Sat.X)
+PenUp (OpenGL)
+PenUp (OpenGL Sat.X)
+PenUp {OpenGL}
+PenUp OpenGL {Sat.X}
+PenUp {OpenGL Sat.X}
+
+%----------------------------------------------------------
+%  Test for improper use of closing branch command statement
+%----------------------------------------------------------
+%  not applicable
+
+%--------------------------------
+%-------  Comma Errors    -------
+%--------------------------------
+
+%---  Missing commas
+%  not applicable
+
+%---  Improper use of commas
+%  Are these not allowed?
+PenUp , OpenGL Sat.X Sat.Y
+PenUp OpenGL Sat.X, Sat.Y

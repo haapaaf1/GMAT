@@ -1,0 +1,40 @@
+% ----------------------------------------
+% Test validation scripts for Fininte Burn
+% ----------------------------------------
+Create FiniteBurn FiniteBurn1;
+Create FiniteBurn FiniteBurn1;
+
+% -----------------
+% Unknown parameter
+% -----------------
+GMAT FiniteBurn1.DoesNotExist = 1;
+
+% ------
+% Origin
+% ------
+GMAT FiniteBurn1.Origin = DoesNotExist;
+GMAT FiniteBurn1.Origin = Earth;
+GMAT FiniteBurn1.Origin = Earth;
+
+% ----
+% Axes
+% ----
+GMAT FiniteBurn1.Axes = DoesNotExist;
+GMAT FiniteBurn1.Axes = VNB;
+GMAT FiniteBurn1.Axes = VNB;
+
+% ---------
+% Thrusters
+% ---------
+Create Thruster Thruster1;
+GMAT FiniteBurn1.Thrusters = DoesNotExist;
+GMAT FiniteBurn1.Thrusters = Thruster1;
+GMAT FiniteBurn1.Thrusters = Thruster1;
+
+% -----------------
+% Burn Scale Factor
+% -----------------
+GMAT FiniteBurn1.BurnScaleFactor = DoesNotExist;
+GMAT FiniteBurn1.BurnScaleFactor = -1.0;
+GMAT FiniteBurn1.BurnScaleFactor = 0.0;
+GMAT FiniteBurn1.BurnScaleFactor = 1.0;

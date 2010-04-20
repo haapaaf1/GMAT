@@ -1,0 +1,207 @@
+% -----------------------------------
+% Test validation scripts for Fmincon
+% -----------------------------------
+Create FminconOptimizer SQP1;
+
+Create Variable testVar;
+GMAT testVar.Expression = 3.6;
+Create String testString;
+GMAT testString.Expression = TEST;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4.5;
+
+% -----------------
+% Unknown parameter
+% -----------------
+GMAT SQP1.DoesNotExist = 1;
+
+% ---------------
+% Diff Max Change
+% ---------------
+GMAT SQP1.DiffMaxChange = DoesNotExist;
+GMAT SQP1.DiffMaxChange = -1.01;
+GMAT SQP1.DiffMaxChange = 0.0;
+GMAT SQP1.DiffMaxChange = 1.01;
+GMAT SQP1.DiffMaxChange = 1;
+GMAT SQP1.DiffMaxChange = testVar;
+GMAT SQP1.DiffMaxChange = testString;
+GMAT SQP1.DiffMaxChange = testArray(1,1);
+
+% ---------------
+% Diff Min Change
+% ---------------
+GMAT SQP1.DiffMinChange = DoesNotExist;
+GMAT SQP1.DiffMinChange = -1.01;
+GMAT SQP1.DiffMinChange = 0.0;
+GMAT SQP1.DiffMinChange = 1.01;
+GMAT SQP1.DiffMinChange = 1;
+GMAT SQP1.DiffMinChange = testVar;
+GMAT SQP1.DiffMinChange = testString;
+GMAT SQP1.DiffMinChange = testArray(1,1);
+
+% -------------
+% Max Fun Evals
+% -------------
+GMAT SQP1.MaxFunEvals = DoesNotExist;
+GMAT SQP1.MaxFunEvals = 1.01;
+GMAT SQP1.MaxFunEvals = -1;
+GMAT SQP1.MaxFunEvals = 1;
+GMAT SQP1.MaxFunEvals = testVar;
+GMAT SQP1.MaxFunEvals = testString;
+GMAT SQP1.MaxFunEvals = testArray(1,1);
+
+% -------------
+% Max Iteration
+% -------------
+GMAT SQP1.MaxIter = DoesNotExist;
+GMAT SQP1.MaxIter = 1.01;
+GMAT SQP1.MaxIter = -1;
+GMAT SQP1.MaxIter = 1;
+GMAT SQP1.MaxIter = testVar;
+GMAT SQP1.MaxIter = testString;
+GMAT SQP1.MaxIter = testArray(1,1);
+
+% ----
+% TolX
+% ----
+GMAT SQP1.TolX = DoesNotExist;
+GMAT SQP1.TolX = -1.01;
+GMAT SQP1.TolX = 0.0;
+GMAT SQP1.TolX = 1.01;
+GMAT SQP1.TolX = 1;
+GMAT SQP1.TolX = testVar;
+GMAT SQP1.TolX = testString;
+GMAT SQP1.TolX = testArray(1,1);
+
+% ------
+% TolFun
+% ------
+GMAT SQP1.TolFun = DoesNotExist;
+GMAT SQP1.TolFun = -1.01;
+GMAT SQP1.TolFun = 0.0;
+GMAT SQP1.TolFun = 1.01;
+GMAT SQP1.TolFun = 1;
+GMAT SQP1.TolFun = testVar;
+GMAT SQP1.TolFun = testString;
+GMAT SQP1.TolFun = testArray(1,1);
+
+% ------
+% TolCon
+% ------
+GMAT SQP1.TolCon = DoesNotExist;
+GMAT SQP1.TolCon = -1.01;
+GMAT SQP1.TolCon = 0.0;
+GMAT SQP1.TolCon = 1.01;
+GMAT SQP1.TolCon = 1;
+GMAT SQP1.TolCon = testVar;
+GMAT SQP1.TolCon = testString;
+GMAT SQP1.TolCon = testArray(1,1);
+
+% ----------------
+% Derivative Check
+% ----------------
+GMAT SQP1.DerivativeCheck = DoesNotExist;
+GMAT SQP1.DerivativeCheck = TRUE;
+GMAT SQP1.DerivativeCheck = True;
+GMAT SQP1.DerivativeCheck = true;
+GMAT SQP1.DerivativeCheck = FALSE;
+GMAT SQP1.DerivativeCheck = False;
+GMAT SQP1.DerivativeCheck = false;
+GMAT SQP1.DerivativeCheck = 0;
+GMAT SQP1.DerivativeCheck = 1;
+GMAT SQP1.DerivativeCheck = ON;
+GMAT SQP1.DerivativeCheck = On;
+GMAT SQP1.DerivativeCheck = on;
+GMAT SQP1.DerivativeCheck = OFF;
+GMAT SQP1.DerivativeCheck = Off;
+GMAT SQP1.DerivativeCheck = off;
+GMAT SQP1.DerivativeCheck = 1.0;
+GMAT SQP1.DerivativeCheck = testVar;
+GMAT SQP1.DerivativeCheck = testString;
+GMAT SQP1.DerivativeCheck = testArray(1,1);
+
+% -----------
+% Diagnostics
+% -----------
+GMAT SQP1.Diagnostics = DoesNotExist;
+GMAT SQP1.Diagnostics = TRUE;
+GMAT SQP1.Diagnostics = True;
+GMAT SQP1.Diagnostics = true;
+GMAT SQP1.Diagnostics = FALSE;
+GMAT SQP1.Diagnostics = False;
+GMAT SQP1.Diagnostics = false;
+GMAT SQP1.Diagnostics = 0;
+GMAT SQP1.Diagnostics = 1;
+GMAT SQP1.Diagnostics = ON;
+GMAT SQP1.Diagnostics = On;
+GMAT SQP1.Diagnostics = on;
+GMAT SQP1.Diagnostics = OFF;
+GMAT SQP1.Diagnostics = Off;
+GMAT SQP1.Diagnostics = off;
+GMAT SQP1.Diagnostics = 1.0;
+GMAT SQP1.Diagnostics = testVar;
+GMAT SQP1.Diagnostics = testString;
+GMAT SQP1.Diagnostics = testArray(1,1);
+
+% -------
+% Display
+% -------
+GMAT SQP1.Display = DoesNotExist;
+GMAT SQP1.Display = ON;
+GMAT SQP1.Display = On;
+GMAT SQP1.Display = on;
+GMAT SQP1.Display = OFF;
+GMAT SQP1.Display = Off;
+GMAT SQP1.Display = off;
+GMAT SQP1.Display = iter;
+GMAT SQP1.Display = 1.0;
+GMAT SQP1.Display = testVar;
+GMAT SQP1.Display = testString;
+GMAT SQP1.Display = testArray(1,1);
+
+% -------
+% GradObj
+% -------
+GMAT SQP1.GradObj = DoesNotExist;
+GMAT SQP1.GradObj = TRUE;
+GMAT SQP1.GradObj = True;
+GMAT SQP1.GradObj = true;
+GMAT SQP1.GradObj = FALSE;
+GMAT SQP1.GradObj = False;
+GMAT SQP1.GradObj = false;
+GMAT SQP1.GradObj = 0;
+GMAT SQP1.GradObj = 1;
+GMAT SQP1.GradObj = ON;
+GMAT SQP1.GradObj = On;
+GMAT SQP1.GradObj = on;
+GMAT SQP1.GradObj = OFF;
+GMAT SQP1.GradObj = Off;
+GMAT SQP1.GradObj = off;
+GMAT SQP1.GradObj = 1.0;
+GMAT SQP1.GradObj = testVar;
+GMAT SQP1.GradObj = testString;
+GMAT SQP1.GradObj = testArray(1,1);
+
+% ----------
+% GradConstr
+% ----------
+GMAT SQP1.GradConstr = DoesNotExist;
+GMAT SQP1.GradConstr = TRUE;
+GMAT SQP1.GradConstr = True;
+GMAT SQP1.GradConstr = true;
+GMAT SQP1.GradConstr = FALSE;
+GMAT SQP1.GradConstr = False;
+GMAT SQP1.GradConstr = false;
+GMAT SQP1.GradConstr = 0;
+GMAT SQP1.GradConstr = 1;
+GMAT SQP1.GradConstr = ON;
+GMAT SQP1.GradConstr = On;
+GMAT SQP1.GradConstr = on;
+GMAT SQP1.GradConstr = OFF;
+GMAT SQP1.GradConstr = Off;
+GMAT SQP1.GradConstr = off;
+GMAT SQP1.GradConstr = 1.0;
+GMAT SQP1.GradConstr = testVar;
+GMAT SQP1.GradConstr = testString;
+GMAT SQP1.GradConstr = testArray(1,1);

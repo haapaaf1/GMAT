@@ -1,0 +1,131 @@
+% -----------------------------------
+% Test validation scripts for XY Plot
+% -----------------------------------
+Create XYPlot XYPlot1;
+
+% ---------
+% Duplicate
+% ---------
+%Create XYPlot XYPlot1;
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = 3;
+Create String testString;
+GMAT testString.Expression = Mars;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = 4;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT XYPlot1.DoesNotExist = 1;
+
+% --------------------
+% Independent Variable
+% --------------------
+%GMAT XYPlot1.IndVar = 1;
+%GMAT XYPlot1.IndVar = 1.0;
+%GMAT XYPlot1.IndVar = testString;
+%GMAT XYPlot1.IndVar = testVar;
+%GMAT XYPlot1.IndVar = testArray(1,1);
+GMAT XYPlot1.IndVar = testSc.A1ModJulian;
+%GMAT XYPlot1.IndVar = DoesNotExist;
+%GMAT XYPlot1.IndVar = Earth;
+
+% ---
+% Add
+% ---
+%GMAT XYPlot1.Add = 1;
+%GMAT XYPlot1.Add = 1.0;
+%GMAT XYPlot1.Add = testString;
+%GMAT XYPlot1.Add = testVar;
+%GMAT XYPlot1.Add = testArray(1,1);
+%GMAT XYPlot1.Add = testSc.EarthMJ2000Eq.X;
+%GMAT XYPlot1.Add = DoesNotExist;
+%GMAT XYPlot1.Add = {};
+%GMAT XYPlot1.Add = {1};
+%GMAT XYPlot1.Add = {1.0};
+%GMAT XYPlot1.Add = {testString};
+%GMAT XYPlot1.Add = {testVar};
+%GMAT XYPlot1.Add = {testArray(1,1)};
+%GMAT XYPlot1.Add = {testSc.EarthMJ2000Eq.X};
+%GMAT XYPlot1.Add = {DoesNotExist};
+GMAT XYPlot1.Add = {testSc.EarthMJ2000Eq.X, testSc.EarthMJ2000Eq.Y};
+%GMAT XYPlot1.Add = testSc.EarthMJ2000Eq.X, testSc.EarthMJ2000Eq.Y;
+
+% ----
+% Grid
+% ----
+%GMAT XYPlot1.Grid = 1;
+%GMAT XYPlot1.Grid = 1.0;
+GMAT testString.Expression = Off;
+GMAT XYPlot1.Grid = testString;
+%GMAT XYPlot1.Grid = testVar;
+%GMAT XYPlot1.Grid = testArray(1,1);
+%GMAT XYPlot1.Grid = testSc.EarthMJ2000Eq.X;
+%GMAT XYPlot1.Grid = DoesNotExist;
+%GMAT XYPlot1.Grid = On;
+%GMAT XYPlot1.Grid = Off;
+%GMAT XYPlot1.Grid = ON;
+%GMAT XYPlot1.Grid = OFF;
+%GMAT XYPlot1.Grid = on;
+%GMAT XYPlot1.Grid = off;
+%GMAT XYPlot1.Grid = true;
+%GMAT XYPlot1.Grid = false;
+%GMAT XYPlot1.Grid = True;
+%GMAT XYPlot1.Grid = False;
+%GMAT XYPlot1.Grid = TRUE;
+%GMAT XYPlot1.Grid = FALSE;
+
+% -------------
+% Target Status
+% -------------
+%GMAT XYPlot1.TargetStatus = 1;
+%GMAT XYPlot1.TargetStatus = 1.0;
+GMAT testString.Expression = On;
+GMAT XYPlot1.TargetStatus = testString;
+%GMAT XYPlot1.TargetStatus = testVar;
+%GMAT XYPlot1.TargetStatus = testArray(1,1);
+%GMAT XYPlot1.TargetStatus = testSc.EarthMJ2000Eq.X;
+%GMAT XYPlot1.TargetStatus = DoesNotExist;
+%GMAT XYPlot1.TargetStatus = On;
+%GMAT XYPlot1.TargetStatus = Off;
+%GMAT XYPlot1.TargetStatus = ON;
+%GMAT XYPlot1.TargetStatus = OFF;
+%GMAT XYPlot1.TargetStatus = on;
+%GMAT XYPlot1.TargetStatus = off;
+%GMAT XYPlot1.TargetStatus = true;
+%GMAT XYPlot1.TargetStatus = false;
+%GMAT XYPlot1.TargetStatus = True;
+%GMAT XYPlot1.TargetStatus = False;
+%GMAT XYPlot1.TargetStatus = TRUE;
+%GMAT XYPlot1.TargetStatus = FALSE;
+%
+%% ---------
+%% Show Plot
+%% ---------
+%GMAT XYPlot1.ShowPlot = On;
+%GMAT XYPlot1.ShowPlot = Off;
+%GMAT XYPlot1.ShowPlot = ON;
+%GMAT XYPlot1.ShowPlot = OFF;
+%GMAT XYPlot1.ShowPlot = on;
+%GMAT XYPlot1.ShowPlot = off;
+%GMAT XYPlot1.ShowPlot = DoesNotExist;
+%GMAT XYPlot1.ShowPlot = 0;
+%GMAT XYPlot1.ShowPlot = 1;
+%GMAT XYPlot1.ShowPlot = true;
+%GMAT XYPlot1.ShowPlot = false;
+%GMAT XYPlot1.ShowPlot = True;
+%GMAT XYPlot1.ShowPlot = False;
+%GMAT XYPlot1.ShowPlot = TRUE;
+%GMAT XYPlot1.ShowPlot = FALSE;
+%GMAT XYPlot1.ShowPlot = 1;
+%GMAT XYPlot1.ShowPlot = 1.0;
+%GMAT XYPlot1.ShowPlot = testVar;
+%GMAT XYPlot1.ShowPlot = testString;
+%GMAT XYPlot1.ShowPlot = testArray(1,1);

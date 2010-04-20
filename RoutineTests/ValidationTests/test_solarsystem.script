@@ -1,0 +1,99 @@
+% ----------------------------------------
+% Test validation scripts for Solar System
+% ----------------------------------------
+
+% ------------------
+% Supporting objects
+% ------------------
+Create Spacecraft testSc;
+Create Variable testVar;
+GMAT testVar.Expression = 1.01;
+Create String testString;
+GMAT testString.Expression = SLP;
+Create Array testArray[2, 2];
+GMAT testArray.Expression = testArray;
+GMAT testArray(1, 1) = -1.01;
+
+% -----------------
+% Unknown parameter
+% -----------------
+%GMAT SolarSystem.DoesNotExist = 1;
+
+% ----------------
+% Ephemeris Source
+% ----------------
+GMAT SolarSystem.Ephemeris = {1};
+%GMAT SolarSystem.Ephemeris = {1.0};
+%GMAT SolarSystem.Ephemeris = testString;
+%GMAT SolarSystem.Ephemeris = testVar;
+%GMAT SolarSystem.Ephemeris = testArray(1,1);
+%%GMAT SolarSystem.Ephemeris = testSc.A1ModJulian;
+%GMAT SolarSystem.Ephemeris = {DoesNotExist};
+%GMAT SolarSystem.Ephemeris = {DE_405};
+%GMAT SolarSystem.Ephemeris = {Analytic};
+GMAT SolarSystem.Ephemeris = {SLP};
+%GMAT SolarSystem.Ephemeris = {DE_200};
+%GMAT SolarSystem.Ephemeris = {DE_405};
+
+% -------------------------
+% Ephemeris Update Interval
+% -------------------------
+GMAT SolarSystem.EphemerisUpdateInterval = 1;
+%GMAT SolarSystem.EphemerisUpdateInterval = 1.0;
+%GMAT SolarSystem.EphemerisUpdateInterval = testVar;
+%GMAT SolarSystem.EphemerisUpdateInterval = testString;
+%GMAT SolarSystem.EphemerisUpdateInterval = testArray(1,1);
+%GMAT SolarSystem.EphemerisUpdateInterval = testSc.A1ModJulian;
+%GMAT SolarSystem.EphemerisUpdateInterval = DoesNotExist;
+
+% --------------------
+% Use TT For Ephemeris
+% --------------------
+%GMAT SolarSystem.UseTTForEphemeris = 1;
+%GMAT SolarSystem.UseTTForEphemeris = 1.0;
+%GMAT testString.Expression = true;
+%GMAT SolarSystem.UseTTForEphemeris = testString;
+%GMAT SolarSystem.UseTTForEphemeris = testVar;
+%GMAT SolarSystem.UseTTForEphemeris = testArray(1,1);
+%GMAT SolarSystem.UseTTForEphemeris = testSc.A1ModJulian;
+%GMAT SolarSystem.UseTTForEphemeris = DoesNotExist;
+%GMAT SolarSystem.UseTTForEphemeris = ON;
+%GMAT SolarSystem.UseTTForEphemeris = On;
+%GMAT SolarSystem.UseTTForEphemeris = on;
+%GMAT SolarSystem.UseTTForEphemeris = OFF;
+%GMAT SolarSystem.UseTTForEphemeris = Off;
+%GMAT SolarSystem.UseTTForEphemeris = off;
+%GMAT SolarSystem.UseTTForEphemeris = 0;
+%GMAT SolarSystem.UseTTForEphemeris = 1;
+%GMAT SolarSystem.UseTTForEphemeris = TRUE;
+%GMAT SolarSystem.UseTTForEphemeris = True;
+GMAT SolarSystem.UseTTForEphemeris = true;
+%GMAT SolarSystem.UseTTForEphemeris = FALSE;
+%GMAT SolarSystem.UseTTForEphemeris = False;
+%GMAT SolarSystem.UseTTForEphemeris = false;
+
+% --------------
+% Ephemeris File
+% --------------
+%GMAT SolarSystem.EphemerisFile = 1;
+%GMAT SolarSystem.EphemerisFile = 1.0;
+GMAT testString.Expression = C:/GMAT/Eclipse/GMAT/bin/files/planetary_ephem/slp/mn2000.pc;
+%GMAT SolarSystem.EphemerisFile = testString;
+%GMAT SolarSystem.EphemerisFile = testVar;
+%GMAT SolarSystem.EphemerisFile = testArray(1,1);
+%GMAT SolarSystem.EphemerisFile= testSc.A1ModJulian;
+%GMAT SolarSystem.EphemerisFile = DoesNotExist;
+%GMAT SolarSystem.EphemerisFile = C:/GMAT/Eclipse/GMAT/bin/files/planetary_ephem/slp/mn2000.pc;
+
+% --------------
+% Analytic Model
+% --------------
+%GMAT SolarSystem.AnalyticModel = 1;
+%GMAT SolarSystem.AnalyticModel = 1.0;
+%GMAT SolarSystem.AnalyticModel = testVar;
+%GMAT SolarSystem.AnalyticModel = testString;
+%GMAT SolarSystem.AnalyticModel = testArray(1,1);
+%GMAT SolarSystem.AnalyticModel = DoesNotExist;
+%GMAT SolarSystem.AnalyticModel = {DoesNotExist};
+%GMAT SolarSystem.AnalyticModel = {LowFidelity};
+%GMAT SolarSystem.AnalyticModel = LowFidelity;

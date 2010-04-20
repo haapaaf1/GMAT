@@ -1,0 +1,46 @@
+%-------------------------------------------------------------------------------
+% This script is used for testing various commands including ElseIf and Switch.
+% ElseIf and Switch commands have not been implemented yet, so we want test
+% error messages
+%-------------------------------------------------------------------------------
+
+Create Spacecraft sat;
+Create Variable a b c
+Create String msg;
+
+Create ReportFile rf;
+GMAT rf.Filename = 'test_ElseIfSwitch';
+Create ReportFile ReportFile;
+
+If a == b
+   msg = 'a == b';
+ElseIf a == c
+   msg = 'a == c';
+ElseIf b > c
+   msg = 'a > c';
+Else
+   msg = 'a != b or a != c or b > c';
+EndIf
+
+Report rf msg;
+
+ElseIf a
+ElseIf(a)
+ElsIf a == b
+ElsIf a > b
+ElsIf a >= b
+ElsIf a <= b
+ElsIf a ~= b
+ElsIf (a<b)
+ElsIf(a<b)
+ElsIf(a)
+
+Switch a
+Switch(a)
+Swtch(a)
+
+ReportFile Sat.X;
+GMAT sat.DragArea = sat.DryMass < 1000.00;
+GMAT sat.DragArea = sat.DryMass <= 1000.00;
+GMAT sat.DragArea = sat.DryMass ~= 1000.00;
+DNE DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
