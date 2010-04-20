@@ -27,6 +27,7 @@
 #include "GmatStaticBoxSizer.hpp"
 #include "StringUtil.hpp"
 #include "RealUtilities.hpp"
+#include <wx/config.h>
 
 //#define DEBUG_ATTITUDE_PANEL 1
 
@@ -152,6 +153,11 @@ void AttitudePanel::Create()
       MessageInterface::ShowMessage("AttitudePanel::Create() entered\n");
    #endif
    
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Attitude"));
+
    // arrays to hold temporary values
    unsigned int x;
    for (x = 0; x < 3; ++x)
@@ -180,19 +186,21 @@ void AttitudePanel::Create()
       attitudeModelArray[x] = wxT(modelArray[x].c_str());
 
    config1StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Attitude Model"),
+      new wxStaticText( this, ID_TEXT, wxT("Attitude "GUI_ACCEL_KEY"Model"),
                         wxDefaultPosition, wxDefaultSize, 0);
    config1ComboBox = 
       new wxComboBox( this, ID_CB_MODEL, wxT(attitudeModelArray[0]), 
          wxDefaultPosition, wxDefaultSize, modelSz, attitudeModelArray, 
          wxCB_DROPDOWN|wxCB_READONLY );
+   config1ComboBox->SetToolTip(pConfig->Read(_T("AttitudeModelHint")));
 
    // Coordinate System
    config2StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Coordinate System"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Coordinate System"),
          wxDefaultPosition, wxDefaultSize, 0);
    config2ComboBox =  theGuiManager->GetCoordSysComboBox(this, ID_CB_COORDSYS, 
       wxDefaultSize);
+   config2ComboBox->SetToolTip(pConfig->Read(_T("CoordinateSystemHint")));
 
    //Euler Angle Sequence
    eulerSeqArray           = Attitude::GetEulerSequenceStrings();
@@ -205,15 +213,16 @@ void AttitudePanel::Create()
       eulerSequenceArray[i] = eulerSeqArray[i].c_str();
 
    config4StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Euler Angle Sequence"),
+      new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Euler Angle Sequence"),
                         wxDefaultPosition, wxDefaultSize, 0);
    config4ComboBox = new wxComboBox( this, ID_CB_SEQ, wxT(eulerSequenceArray[0]),
                       wxDefaultPosition, wxDefaultSize, 12,
                       eulerSequenceArray, wxCB_DROPDOWN|wxCB_READONLY );
+   config4ComboBox->SetToolTip(pConfig->Read(_T("EulerAngleSequenceHint")));
 
    // State Type
    stateTypeStaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Attitude State Type"),
+      new wxStaticText( this, ID_TEXT, wxT("Attitude "GUI_ACCEL_KEY"State Type"),
                         wxDefaultPosition, wxDefaultSize, 0);
 
    for (ii = 0; ii < StateTypeCount; ii++)
@@ -227,6 +236,7 @@ void AttitudePanel::Create()
       new wxComboBox( this, ID_CB_STATE, wxT(stateArray[STARTUP_STATE_TYPE_SELECTION]),
          wxDefaultPosition, wxSize(180,20), StateTypeCount, stateArray, 
          wxCB_DROPDOWN|wxCB_READONLY );
+   stateTypeComboBox->SetToolTip(pConfig->Read(_T("StateTypeHint")));
    
    st1StaticText =
       new wxStaticText( this, ID_TEXT, wxT(""),
@@ -242,38 +252,38 @@ void AttitudePanel::Create()
                         wxDefaultPosition, wxDefaultSize, 0);
    st1TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st2TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st3TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st4TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st5TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st6TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st7TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st8TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st9TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    st10TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0 );  
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );  
 
    // Rate State Type
    stateTypeRate4StaticText =
-      new wxStaticText( this, ID_TEXT, wxT("Attitude Rate State Type"),
+      new wxStaticText( this, ID_TEXT, wxT("Attitude "GUI_ACCEL_KEY"Rate State Type"),
                         wxDefaultPosition, wxDefaultSize, 0);
 
    for (ii = 0; ii < StateRateTypeCount; ii++)
@@ -288,6 +298,7 @@ void AttitudePanel::Create()
          wxT(stateRateArray[STARTUP_RATE_STATE_TYPE_SELECTION]), wxDefaultPosition, 
          wxSize(180,20), StateRateTypeCount, stateRateArray, 
          wxCB_DROPDOWN|wxCB_READONLY );                  
+   stateRateTypeComboBox->SetToolTip(pConfig->Read(_T("RateStateTypeHint")));
    
    str1StaticText =
       new wxStaticText( this, ID_TEXT, wxT(""), wxDefaultPosition, wxDefaultSize, 0);
@@ -298,13 +309,13 @@ void AttitudePanel::Create()
    
    str1TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(80,-1), 0 );
+         wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    str2TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(80,-1), 0 );
+         wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
    str3TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(80,-1), 0 );                
+         wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );                
 
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage
@@ -1255,6 +1266,11 @@ void AttitudePanel::DisplayEulerAngles()
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayEulerAngles() entered\n");
    #endif
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Attitude"));
+
    UpdateEulerAngles();
    stateTypeComboBox->
       SetValue(wxT("Euler Angles"));
@@ -1266,8 +1282,11 @@ void AttitudePanel::DisplayEulerAngles()
    st4StaticText->Show(false);
    
    st1TextCtrl->Show(true);
+   st1TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle1Hint")));
    st2TextCtrl->Show(true);
+   st2TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle2Hint")));
    st3TextCtrl->Show(true);
+   st3TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle3Hint")));
    st4TextCtrl->Show(false);
    
    st5TextCtrl->Show(false);
@@ -1278,9 +1297,9 @@ void AttitudePanel::DisplayEulerAngles()
    st9TextCtrl->Show(false);
    st10TextCtrl->Show(false);
    
-   st1StaticText->SetLabel(wxT("Euler Angle 1"));
-   st2StaticText->SetLabel(wxT("Euler Angle 2"));
-   st3StaticText->SetLabel(wxT("Euler Angle 3"));
+   st1StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"1"));
+   st2StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"2"));
+   st3StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"3"));
 
    st1TextCtrl->SetValue(*eulerAngles[0]);
    st2TextCtrl->SetValue(*eulerAngles[1]);
@@ -1299,6 +1318,11 @@ void AttitudePanel::DisplayQuaternion()
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayQuaternion() entered\n");
    #endif
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Attitude"));
+
    UpdateQuaternion();
    stateTypeComboBox->
       SetValue(wxT("Quaternion"));
@@ -1310,9 +1334,13 @@ void AttitudePanel::DisplayQuaternion()
    st4StaticText->Show(true);
    
    st1TextCtrl->Show(true);
+   st1TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion1Hint")));
    st2TextCtrl->Show(true);
+   st2TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion2Hint")));
    st3TextCtrl->Show(true);
+   st3TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion3Hint")));
    st4TextCtrl->Show(true);
+   st4TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion4Hint")));
    
    st5TextCtrl->Show(false);
    st6TextCtrl->Show(false);
@@ -1322,10 +1350,10 @@ void AttitudePanel::DisplayQuaternion()
    st9TextCtrl->Show(false);
    st10TextCtrl->Show(false);
    
-   st1StaticText->SetLabel(wxT("q1"));
-   st2StaticText->SetLabel(wxT("q2"));
-   st3StaticText->SetLabel(wxT("q3"));
-   st4StaticText->SetLabel(wxT("q4"));
+   st1StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"1"));
+   st2StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"2"));
+   st3StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"3"));
+   st4StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"4"));
 
    st1TextCtrl->SetValue(*quaternion[0]);
    st2TextCtrl->SetValue(*quaternion[1]);
@@ -1345,6 +1373,11 @@ void AttitudePanel::DisplayDCM()
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayDCM() entered\n");
    #endif
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Attitude"));
+
    UpdateCosineMatrix();
    stateTypeComboBox->
       SetValue(wxT("DirectionCosineMatrix"));
@@ -1356,17 +1389,26 @@ void AttitudePanel::DisplayDCM()
    st4StaticText->Show(false);
    
    st1TextCtrl->Show(true);
+   st1TextCtrl->SetToolTip(pConfig->Read(_T("DCM1Hint")));
    st2TextCtrl->Show(true);
+   st2TextCtrl->SetToolTip(pConfig->Read(_T("DCM2Hint")));
    st3TextCtrl->Show(true);
+   st3TextCtrl->SetToolTip(pConfig->Read(_T("DCM3Hint")));
    st4TextCtrl->Show(false);
    
    st5TextCtrl->Show(true);
+   st5TextCtrl->SetToolTip(pConfig->Read(_T("DCM5Hint")));
    st6TextCtrl->Show(true);
+   st6TextCtrl->SetToolTip(pConfig->Read(_T("DCM6Hint")));
    st7TextCtrl->Show(true);
+   st7TextCtrl->SetToolTip(pConfig->Read(_T("DCM7Hint")));
    
    st8TextCtrl->Show(true);
+   st8TextCtrl->SetToolTip(pConfig->Read(_T("DCM8Hint")));
    st9TextCtrl->Show(true);
+   st9TextCtrl->SetToolTip(pConfig->Read(_T("DCM9Hint")));
    st10TextCtrl->Show(true);
+   st10TextCtrl->SetToolTip(pConfig->Read(_T("DCM10Hint")));
    
    st1StaticText->SetLabel(wxT(""));
    st2StaticText->SetLabel(wxT(""));
@@ -1397,13 +1439,22 @@ void AttitudePanel::DisplayEulerAngleRates()
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayEulerAngleRates() entered\n");
    #endif
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Attitude"));
+
    UpdateEulerAngleRates();
    stateRateTypeComboBox->
       SetValue(wxT("EulerAngleRates"));
    attRateStateType = "EulerAngleRates";
-   str1StaticText->SetLabel(wxT("Euler Angle Rate 1"));
-   str2StaticText->SetLabel(wxT("Euler Angle Rate 2"));
-   str3StaticText->SetLabel(wxT("Euler Angle Rate 3"));
+   str1StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"1"));
+   str2StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"2"));
+   str3StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"3"));
+
+   str1TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate1Hint")));
+   str2TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate2Hint")));
+   str3TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate3Hint")));
 
    str1TextCtrl->SetValue(*eulerAngleRates[0]);
    str2TextCtrl->SetValue(*eulerAngleRates[1]);
@@ -1423,13 +1474,22 @@ void AttitudePanel::DisplayAngularVelocity()
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayAngularVelocity() entered\n");
    #endif
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Spacecraft Attitude"));
+
    UpdateAngularVelocity();
    stateRateTypeComboBox->
       SetValue(wxT("AngularVelocity"));
    attRateStateType = "AngularVelocity";
-   str1StaticText->SetLabel(wxT("Angular Velocity X"));
-   str2StaticText->SetLabel(wxT("Angular Velocity Y"));
-   str3StaticText->SetLabel(wxT("Angular Velocity Z"));
+   str1StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"X"));
+   str2StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"Y"));
+   str3StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"Z"));
+
+   str1TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity1Hint")));
+   str2TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity2Hint")));
+   str3TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity3Hint")));
 
    str1TextCtrl->SetValue(*angVel[0]);
    str2TextCtrl->SetValue(*angVel[1]);
