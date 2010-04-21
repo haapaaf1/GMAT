@@ -25,7 +25,7 @@
 #include <iostream>
 #include <fstream>
 
-class SpiceKernelWriter;
+class SpiceOrbitKernelWriter;
 
 class EphemerisFile : public Subscriber
 {
@@ -98,10 +98,10 @@ protected:
       CCSDS_OEM, CCSDS_AEM, SPK_ORBIT, SPK_ATTITUDE,
    };
    
-   Spacecraft        *spacecraft;
-   CoordinateSystem  *coordSystem;
-   Interpolator      *interpolator; // owned object
-   SpiceKernelWriter *spkWriter;    // owned object   
+   Spacecraft             *spacecraft;
+   CoordinateSystem       *coordSystem;
+   Interpolator           *interpolator; // owned object
+   SpiceOrbitKernelWriter *spkWriter;    // owned object
    
    // for buffering ephemeris data
    EpochArray  a1MjdArray;

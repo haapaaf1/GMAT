@@ -27,7 +27,7 @@
 #include "MessageInterface.hpp"
 
 #ifdef __USE_SPICE__
-#include "SpiceKernelWriter.hpp"
+#include "SpiceOrbitKernelWriter.hpp"
 #endif
 
 
@@ -431,7 +431,7 @@ std::string EphemerisFile::GetFileName()
       }
       
       #ifdef DEBUG_EPHEMFILE_OPEN
-      // Add current time to file in debug mode, SpiceKernelWriter throws an exceptin
+      // Add current time to file in debug mode, SpiceOrbitKernelWriter throws an exceptin
       // if writing to exiting file
       std::string currTime = GmatTimeUtil::FormatCurrentTime(3);
       MessageInterface::ShowMessage("   currTime='%s'\n", currTime.c_str());
@@ -582,7 +582,7 @@ bool EphemerisFile::Initialize()
       writeAttitude = true;
    
    // Determine output coordinate system, set to boolean to avoid string comparison
-   // We don't need conversion for SPK_ORBIT. SpiceKernelWriter assumes it is in
+   // We don't need conversion for SPK_ORBIT. SpiceOrbitKernelWriter assumes it is in
    // J2000Eq frame for now
    if (fileType == CCSDS_OEM &&
        theDataCoordSystem->GetName() != coordSystemName)
@@ -604,7 +604,7 @@ bool EphemerisFile::Initialize()
    // Set solver iteration option to none. We only writes solutions to a file
    mSolverIterOption = SI_NONE;
       
-   // Create SpiceKernelWriter
+   // Create SpiceOrbitKernelWriter
    if (fileType == SPK_ORBIT)
       CreateSpiceKernelWriter();
    
@@ -1299,7 +1299,7 @@ void EphemerisFile::CreateSpiceKernelWriter()
    
    #ifdef DEBUG_EPHEMFILE_SPICE
    MessageInterface::ShowMessage
-      ("   Creating SpiceKernelWriter with name='%s', centerName='%s', "
+      ("   Creating SpiceOrbitKernelWriter with name='%s', centerName='%s', "
        "objNAIFId=%d, centerNAIFId=%d, fileName='%s', interpolationOrder=%d\n",
        name.c_str(), centerName.c_str(), objNAIFId, centerNAIFId,
        fileName.c_str(), interpolationOrder);
@@ -1308,7 +1308,7 @@ void EphemerisFile::CreateSpiceKernelWriter()
    try
    {
       spkWriter =
-         new SpiceKernelWriter(name, centerName, objNAIFId, centerNAIFId,
+         new SpiceOrbitKernelWriter(name, centerName, objNAIFId, centerNAIFId,
                                fileName, interpolationOrder, "J2000");
    }
    catch (BaseException &e)
@@ -1322,14 +1322,14 @@ void EphemerisFile::CreateSpiceKernelWriter()
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (spkWriter, "spkWriter", "EphemerisFile::CreateSpiceKernelWriter()",
-       "spkWriter = new SpiceKernelWriter()");
+       "spkWriter = new SpiceOrbitKernelWriter()");
    #endif
    
    //=======================================================
    #else
    //=======================================================
    MessageInterface::ShowMessage
-      ("*** WARNING *** Use of SpiceKernelWriter is turned off\n");
+      ("*** WARNING *** Use of SpiceOrbitKernelWriter is turned off\n");
    //=======================================================
    #endif
    //=======================================================
