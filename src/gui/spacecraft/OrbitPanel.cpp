@@ -1017,27 +1017,27 @@ void OrbitPanel::SetLabelsUnits(const std::string &stateType)
    theSpacecraft->SetStringParameter("DisplayStateType", stateType);
    
    description1->SetLabel(theSpacecraft->GetParameterText(baseLabel).c_str());
-   textCtrl[0]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel)+"Hint")));
+   textCtrl[0]->SetToolTip(pConfig->Read(_T(("Elements"+theSpacecraft->GetParameterText(baseLabel)+"Hint").c_str())));
    unit1->SetLabel(theSpacecraft->GetStringParameter(baseUnit).c_str());
    
    description2->SetLabel(theSpacecraft->GetParameterText(baseLabel+1).c_str());
-   textCtrl[1]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+1)+"Hint")));
+   textCtrl[1]->SetToolTip(pConfig->Read(_T(("Elements"+theSpacecraft->GetParameterText(baseLabel+1)+"Hint").c_str())));
    unit2->SetLabel(theSpacecraft->GetStringParameter(baseUnit+1).c_str());
    
    description3->SetLabel(theSpacecraft->GetParameterText(baseLabel+2).c_str());
-   textCtrl[2]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+2)+"Hint")));
+   textCtrl[2]->SetToolTip(pConfig->Read(_T(("Elements"+theSpacecraft->GetParameterText(baseLabel+2)+"Hint").c_str())));
    unit3->SetLabel(theSpacecraft->GetStringParameter(baseUnit+2).c_str());
    
    description4->SetLabel(theSpacecraft->GetParameterText(baseLabel+3).c_str());
-   textCtrl[3]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+3)+"Hint")));
+   textCtrl[3]->SetToolTip(pConfig->Read(_T(("Elements"+theSpacecraft->GetParameterText(baseLabel+3)+"Hint").c_str())));
    unit4->SetLabel(theSpacecraft->GetStringParameter(baseUnit+3).c_str());
    
    description5->SetLabel(theSpacecraft->GetParameterText(baseLabel+4).c_str());
-   textCtrl[4]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+4)+"Hint")));
+   textCtrl[4]->SetToolTip(pConfig->Read(_T(("Elements"+theSpacecraft->GetParameterText(baseLabel+4)+"Hint").c_str())));
    unit5->SetLabel(theSpacecraft->GetStringParameter(baseUnit+4).c_str());
    
    description6->SetLabel(theSpacecraft->GetParameterText(baseLabel+5).c_str());
-   textCtrl[5]->SetToolTip(pConfig->Read(_T("Elements"+theSpacecraft->GetParameterText(baseLabel+5)+"Hint")));
+   textCtrl[5]->SetToolTip(pConfig->Read(_T(("Elements"+theSpacecraft->GetParameterText(baseLabel+5)+"Hint").c_str())));
    unit6->SetLabel(theSpacecraft->GetStringParameter(baseUnit+5).c_str());
    
    if ( (stateType == mStateTypeNames[StateConverter::KEPLERIAN]) || 
