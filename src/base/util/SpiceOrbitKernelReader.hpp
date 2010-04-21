@@ -56,15 +56,15 @@ protected:
 //   /// the kernel name
 //   ConstSpiceChar  *kernelNameSPICE;
    /// the target body name (SPICE)
-   ConstSpiceChar  *targetBodyNameSPICE;
+//   ConstSpiceChar  *targetBodyNameSPICE;
    /// the observing body name (SPICE)
    ConstSpiceChar  *observingBodyNameSPICE;
-   /// the observer epoch time (SPICE) in Ephemeris (TDB) Time
-   SpiceDouble     etSPICE;
+//   /// the observer epoch time (SPICE) in Ephemeris (TDB) Time
+//   SpiceDouble     etSPICE;
    /// the aberration correction flag (SPICE)
    ConstSpiceChar  *aberrationSPICE;
-   /// the reference frame (SPICE)
-   ConstSpiceChar  *referenceFrameSPICE;
+//   /// the reference frame (SPICE)
+//   ConstSpiceChar  *referenceFrameSPICE;
 
 };
 

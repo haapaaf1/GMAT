@@ -54,10 +54,10 @@
 //------------------------------------------------------------------------------
 SpiceOrbitKernelReader::SpiceOrbitKernelReader() :
    SpiceKernelReader(),
-   targetBodyNameSPICE     (NULL),
+//   targetBodyNameSPICE     (NULL),
    observingBodyNameSPICE  (NULL),
-   aberrationSPICE         (NULL),
-   referenceFrameSPICE     (NULL)
+   aberrationSPICE         (NULL)//,
+//   referenceFrameSPICE     (NULL)
 {
 }
 
@@ -74,10 +74,10 @@ SpiceOrbitKernelReader::SpiceOrbitKernelReader() :
 //------------------------------------------------------------------------------
 SpiceOrbitKernelReader::SpiceOrbitKernelReader(const SpiceOrbitKernelReader &reader) :
    SpiceKernelReader(reader),
-   targetBodyNameSPICE     (NULL),
+//   targetBodyNameSPICE     (NULL),
    observingBodyNameSPICE  (NULL),
-   aberrationSPICE         (NULL),
-   referenceFrameSPICE     (NULL)
+   aberrationSPICE         (NULL)//,
+//   referenceFrameSPICE     (NULL)
 {
 
 }
@@ -102,10 +102,10 @@ SpiceOrbitKernelReader& SpiceOrbitKernelReader::operator=(const SpiceOrbitKernel
 
    SpiceKernelReader::operator=(reader);
 
-   targetBodyNameSPICE      = NULL;
+//   targetBodyNameSPICE      = NULL;
    observingBodyNameSPICE   = NULL;
    aberrationSPICE          = NULL;
-   referenceFrameSPICE      = NULL;
+//   referenceFrameSPICE      = NULL;
 
    return *this;
 }
@@ -176,23 +176,26 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
    if ((targetName == "Luna") || (targetName == "LUNA"))  // Luna, instead of Moon, for GMAT
       targetNameToUse        = "Moon";
    targetNameToUse           = GmatStringUtil::ToUpper(targetNameToUse);
-   targetBodyNameSPICE       = targetNameToUse.c_str();
+   objectNameSPICE           = targetNameToUse.c_str();
    observingBodyNameSPICE    = observingBodyName.c_str();
    referenceFrameSPICE       = referenceFrame.c_str();
    aberrationSPICE           = aberration.c_str();
    // convert time to Ephemeris Time (TDB)
-   SpiceDouble j2ET          = j2000_c();
-   Real        etMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD,
-                               TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
-   etSPICE                   = (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
+   etSPICE                   = A1ToSpiceTime(atTime.Get());
+//   SpiceDouble j2ET          = j2000_c();
+//   Real        etMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD,
+//                               TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
+//   etSPICE                   = (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
    // set the association between the name and the NAIF Id
-   SpiceInt        itsNAIFId = targetNAIFId;
-   boddef_c(targetBodyNameSPICE, itsNAIFId);        // CSPICE method to set NAIF ID for an object
+//   SpiceInt        itsNAIFId = targetNAIFId;
+   naifIDSPICE               = targetNAIFId;
+//   boddef_c(objectNameSPICE, itsNAIFId);        // CSPICE method to set NAIF ID for an object
+   boddef_c(objectNameSPICE, naifIDSPICE);        // CSPICE method to set NAIF ID for an object
 
    #ifdef DEBUG_SPK_READING
       MessageInterface::ShowMessage("SET NAIF Id for object %s to %d\n",
             targetNameToUse.c_str(), targetNAIFId);
-      MessageInterface::ShowMessage("j2ET = %12.10f\n", (Real) j2ET);
+//      MessageInterface::ShowMessage("j2ET = %12.10f\n", (Real) j2ET);
       MessageInterface::ShowMessage(
             "In SPKReader::Converted (to TBD) time = %12.10f\n", etMjdAtTime);
       MessageInterface::ShowMessage("  then the full JD = %12.10f\n",
@@ -201,7 +204,7 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
    #endif
    SpiceDouble state[6];
    SpiceDouble oneWayLightTime;
-   spkezr_c(targetBodyNameSPICE, etSPICE, referenceFrameSPICE, aberrationSPICE,
+   spkezr_c(objectNameSPICE, etSPICE, referenceFrameSPICE, aberrationSPICE,
             observingBodyNameSPICE, state, &oneWayLightTime);
 #ifdef DEBUG_SPK_PLANETS
    Real        ttMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD,
@@ -209,7 +212,7 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
    Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
    Real ttJd                 = ttMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
    MessageInterface::ShowMessage("Asking CSPICE for state of body %s, with observer %s, referenceFrame %s, and aberration correction %s\n",
-         targetBodyNameSPICE, observingBodyNameSPICE, referenceFrameSPICE, aberrationSPICE);
+         objectNameSPICE, observingBodyNameSPICE, referenceFrameSPICE, aberrationSPICE);
    MessageInterface::ShowMessage(
          "           Body: %s   TT Time:  %12.10f  TDB Time: %12.10f   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
          targetName.c_str(), ttJd, etJd, state[0], state[1], state[2], state[3], state[4], state[5]);
