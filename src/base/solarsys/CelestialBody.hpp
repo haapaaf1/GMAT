@@ -380,6 +380,7 @@ protected:
       SOURCE_FILENAME,
       SOURCE_FILE,
       SPICE_KERNEL_NAME,
+      LSK_KERNEL_NAME,
       USE_POTENTIAL_FILE_FLAG,
       POTENTIAL_FILE_NAME,
       ANGULAR_VELOCITY,
@@ -467,6 +468,8 @@ protected:
    PlanetaryEphem           *theSourceFile;
    /// the name(s) of the SPK file(s)
    StringArray              spiceKernelNames;
+   /// name of the leap scond kernel
+   std::string              lskKernelName;
    #ifdef __USE_SPICE__
       /// the SPICE file (kernel) reader
       SpiceOrbitKernelReader      *kernelReader;

@@ -111,6 +111,7 @@ public:
    bool SetSource(const std::string &pvSrc);
    bool SetSourceFile(PlanetaryEphem *src);
    bool SetSPKFile(const std::string &spkFile);
+   bool SetLSKFile(const std::string &lskFile);
    
    bool SetOverrideTimeSystem(bool overrideIt);
    bool SetEphemUpdateInterval(Real intvl);
@@ -255,6 +256,7 @@ protected:
       EPHEMERIS_SOURCE, 
       DE_FILE_NAME,
       SPK_FILE_NAME,
+      LSK_FILE_NAME,
       OVERRIDE_TIME_SYSTEM,
       EPHEM_UPDATE_INTERVAL,
       SolarSystemParamCount
@@ -303,12 +305,15 @@ private:
    bool        spiceAvailable;
    /// name of the SPK file for the default bodies
    std::string theSPKFilename;
+   /// name of the leap second kernel
+   std::string lskKernelName;
    
    // default values for parameters
    StringArray default_planetarySourceTypesInUse;  // deprecated!!
    std::string default_ephemerisSource;
    std::string default_DEFilename;
    std::string default_SPKFilename;
+   std::string default_LSKFilename;
    bool        default_overrideTimeForAll;
    Real        default_ephemUpdateInterval;
    

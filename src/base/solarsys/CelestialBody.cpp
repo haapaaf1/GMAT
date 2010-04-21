@@ -97,6 +97,7 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "SourceFilename",
    "SourceFile",
    "SpiceKernelName",
+   "LeapSecondKernelName",
    "UsePotentialFileFlag",
    "PotentialFileName",
    "AngularVelocity",
@@ -145,6 +146,7 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::STRING_TYPE,   //"SourceFilename",
    Gmat::OBJECT_TYPE,   //"SourceFile",
    Gmat::STRINGARRAY_TYPE,   //"SpiceKernelName",
+   Gmat::STRING_TYPE,   //"LeapScondKernelName",
    Gmat::BOOLEAN_TYPE,  //"UsePotentialFileFlag",
    Gmat::STRING_TYPE,   //"PotentialFileName",
    Gmat::RVECTOR_TYPE,  //"AngularVelocity",
@@ -213,6 +215,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
+   lskKernelName      (""),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -301,6 +304,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
+   lskKernelName      (""),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -388,6 +392,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    sourceFilename      (cBody.sourceFilename),
    theSourceFile       (cBody.theSourceFile), // ????????????????
    spiceKernelNames    (cBody.spiceKernelNames),
+   lskKernelName       (cBody.lskKernelName),
    usePotentialFile    (cBody.usePotentialFile),
    potentialFileName   (cBody.potentialFileName),
    hourAngle           (cBody.hourAngle),
@@ -514,6 +519,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    sourceFilename      = cBody.sourceFilename;
    theSourceFile       = cBody.theSourceFile;   // ??????????????
    spiceKernelNames    = cBody.spiceKernelNames;
+   lskKernelName       = cBody.lskKernelName;
    #ifdef __USE_SPICE__
       kernelReader        = cBody.kernelReader;
    #endif
@@ -634,6 +640,7 @@ CelestialBody::~CelestialBody()
          if (spiceKernelNames.at(kk) != "" && (kernelReader != NULL) && 
             (kernelReader->IsLoaded(spiceKernelNames.at(kk))))
             kernelReader->UnloadKernel(spiceKernelNames.at(kk));
+      if ((kernelReader != NULL) && (lskKernelName != "")) kernelReader->UnloadKernel(lskKernelName);
    #endif
 }
 
@@ -2821,6 +2828,10 @@ std::string CelestialBody::GetStringParameter(const Integer id,
       }
       return spiceKernelNames.at(index);
    }
+   if (id == LSK_KERNEL_NAME)
+   {
+      return lskKernelName;
+   }
    return SpacePoint::GetStringParameter(id, index);
 }
 
@@ -2904,6 +2915,11 @@ bool CelestialBody::SetStringParameter(const Integer id,
          }
       }
       if (!alreadyInList)  spiceKernelNames.push_back(value);
+      return true;
+   }
+   if (id == LSK_KERNEL_NAME)
+   {
+      lskKernelName = value;
       return true;
    }
    if (id == POTENTIAL_FILE_NAME)
@@ -3492,6 +3508,9 @@ bool CelestialBody::IsParameterReadOnly(const Integer id) const
 
    // NAIF ID is not read-only for celestial bodies
    if (id == NAIF_ID)  return false;
+
+   // leap second file is set on the Solar System, not on each celestial body
+   if (id == LSK_KERNEL_NAME) return true;
 
    return SpacePoint::IsParameterReadOnly(id);
 }
@@ -4295,6 +4314,7 @@ bool CelestialBody::SetUpSPICE()
             throw; // rethrow the exception, for now
          }
    }
+   if (lskKernelName != "") kernelReader->SetLeapSecondKernel(lskKernelName);
    // get the NAIF Id from the Spice Kernel(s)   @todo - should this be moved to SpacePoint?
    if (!naifIdSet)
    {

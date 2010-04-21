@@ -49,6 +49,7 @@ SolarSystem::PARAMETER_TEXT[SolarSystemParamCount - GmatBaseParamCount] =
    "EphemerisSource",
    "DEFilename",
    "SPKFilename",
+   "LSKFilename",
    "UseTTForEphemeris",
    "EphemerisUpdateInterval",
 };
@@ -59,6 +60,7 @@ SolarSystem::PARAMETER_TYPE[SolarSystemParamCount - GmatBaseParamCount] =
    Gmat::STRINGARRAY_TYPE,
    Gmat::INTEGER_TYPE,
    Gmat::STRINGARRAY_TYPE,            // deprecated!!!!
+   Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
    Gmat::STRING_TYPE,
@@ -774,6 +776,7 @@ SolarSystem::SolarSystem(std::string withName)
    cloaking = true;
 
    theSPKFilename             = "";
+   lskKernelName              = "";
 
    FileManager *fm = FileManager::Instance();
    std::string upperCaseName;
@@ -1008,10 +1011,12 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
    allowSpiceForDefaultBodies        (ss.allowSpiceForDefaultBodies),
    spiceAvailable                    (ss.spiceAvailable),
    theSPKFilename                    (ss.theSPKFilename),
+   lskKernelName                     (ss.lskKernelName),
    default_planetarySourceTypesInUse (ss.default_planetarySourceTypesInUse), // deprecated!!
    default_ephemerisSource           (ss.default_ephemerisSource),
    default_DEFilename                (ss.default_DEFilename),
    default_SPKFilename               (ss.default_SPKFilename),
+   default_LSKFilename               (ss.default_LSKFilename),
    default_overrideTimeForAll        (ss.default_overrideTimeForAll),
    default_ephemUpdateInterval       (ss.default_ephemUpdateInterval)
 
@@ -1072,12 +1077,14 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    allowSpiceForDefaultBodies = ss.allowSpiceForDefaultBodies;
    spiceAvailable             = ss.spiceAvailable;
    theSPKFilename             = ss.theSPKFilename;
+   lskKernelName              = ss.lskKernelName;
    parameterCount             = SolarSystemParamCount;
    theDefaultDeFile           = NULL;
    default_planetarySourceTypesInUse = ss.default_planetarySourceTypesInUse; // deprecated!!
    default_ephemerisSource           = ss.default_ephemerisSource;
    default_DEFilename                = ss.default_DEFilename;
    default_SPKFilename               = ss.default_SPKFilename;
+   default_LSKFilename               = ss.default_LSKFilename;
    default_overrideTimeForAll        = ss.default_overrideTimeForAll;
    default_ephemUpdateInterval       = ss.default_ephemUpdateInterval;
 
@@ -1222,6 +1229,11 @@ void SolarSystem::CreatePlanetarySource(bool setDefault)
                throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
             thePlanetarySourceNames.push_back(theSPKFilename);
          }
+         std::string lskFullPath = fm->GetFullPathname("LSK_FILE");
+         if (!(GmatStringUtil::IsBlank(lskFullPath)))
+            lskKernelName = lskFullPath;
+         else
+            throw SolarSystemException("Unable to obtain Leap Second Kernel (SLK) full path name.\n");
       }
    }
    // Set planetary ephemeris source
@@ -1658,11 +1670,14 @@ bool SolarSystem::AddBody(CelestialBody* cb)
       {
          if (theSPKFilename != "")
             if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
+         if (lskKernelName != "")
+            if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
       }
    }
    else // set main SPICE file for all added bodies
    {
       if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
+      if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
    }
    if (!cb->SetOverrideTimeSystem(overrideTimeForAll))  return false;
 
@@ -1939,7 +1954,9 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
    {
       bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
       if (!userDef)
+      {
          if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
+      }
       ++cbi;
    }
    return true;
@@ -1947,6 +1964,23 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
 
 
 //------------------------------------------------------------------------------
+bool SolarSystem::SetLSKFile(const std::string &lskFile)
+{
+   lskKernelName = lskFile;
+   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+   while (cbi != bodiesInUse.end())
+   {
+      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
+      if (!userDef)
+      {
+         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("LeapSecondKernelName"), lskKernelName) == false) return false;
+      }
+      ++cbi;
+   }
+   return true;
+}
+
+
 //  bool SetOverrideTimeSystem(bool overrideIt)
 //------------------------------------------------------------------------------
 /**
@@ -2381,6 +2415,7 @@ std::string SolarSystem::GetStringParameter(const Integer id) const
    if (id == EPHEMERIS_SOURCE) return theCurrentPlanetarySource;    // pvSrcForAll (string of)?
    if (id == DE_FILE_NAME)     return thePlanetarySourceNames[Gmat::DE405];
    if (id == SPK_FILE_NAME)    return theSPKFilename;
+   if (id == LSK_FILE_NAME)    return lskKernelName;
 
    return GmatBase::GetStringParameter(id);
 }
@@ -2476,6 +2511,14 @@ bool SolarSystem::SetStringParameter(const Integer id,
       bool isOK = SetSPKFile(value);
       if (!isOK)
          throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+      return true;
+   }
+
+   if (id == LSK_FILE_NAME)
+   {
+      bool isOK = SetLSKFile(value);
+      if (!isOK)
+         throw SolarSystemException("Unable to set LSK file on one or more of the default bodies.\n");
       return true;
    }
 
@@ -2636,6 +2679,10 @@ bool SolarSystem::IsParameterEqualToDefault(const Integer id) const
    {
       return (default_SPKFilename == theSPKFilename);
    }
+   if (id == LSK_FILE_NAME)
+   {
+      return (default_LSKFilename == lskKernelName);
+   }
    if (id == OVERRIDE_TIME_SYSTEM)
    {
       return (default_overrideTimeForAll == overrideTimeForAll);
@@ -2658,6 +2705,7 @@ bool SolarSystem::SaveAllAsDefault()
    default_ephemerisSource           = theCurrentPlanetarySource;
    default_DEFilename                = thePlanetarySourceNames[Gmat::DE405];
    default_SPKFilename               = theSPKFilename;
+   default_LSKFilename               = lskKernelName;
    default_overrideTimeForAll        = overrideTimeForAll;
    default_ephemUpdateInterval       = ephemUpdateInterval;
 #ifdef DEBUG_SS_CLOAKING
@@ -2688,6 +2736,11 @@ bool SolarSystem::SaveParameterAsDefault(const Integer id)
    if (id == SPK_FILE_NAME)
    {
       default_SPKFilename = theSPKFilename;
+      return true;
+   }
+   if (id == LSK_FILE_NAME)
+   {
+      default_LSKFilename = lskKernelName;
       return true;
    }
    if (id == OVERRIDE_TIME_SYSTEM)
