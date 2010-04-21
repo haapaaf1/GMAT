@@ -1152,7 +1152,7 @@ GmatBase* Spacecraft::GetRefObject(const Gmat::ObjectType type,
       case Gmat::ATTITUDE:
          #ifdef DEBUG_SC_ATTITUDE
          MessageInterface::ShowMessage(
-         "In SC::GetRefObject - returning Attitude poinetr <%p>\n", attitude);
+         "In SC::GetRefObject - returning Attitude pointer <%p>\n", attitude);
          #endif
          return attitude;
 
