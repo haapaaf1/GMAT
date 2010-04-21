@@ -25,9 +25,9 @@
 #include "StringUtil.hpp"
 #include <fstream>
 
-#define DEBUG_UNIVERSEPANEL_CREATE
-#define DEBUG_UNIVERSEPANEL_LOAD
-#define DEBUG_UNIVERSEPANEL_SAVE
+//#define DEBUG_UNIVERSEPANEL_CREATE
+//#define DEBUG_UNIVERSEPANEL_LOAD
+//#define DEBUG_UNIVERSEPANEL_SAVE
 
 //------------------------------
 // event tables for wxWindows
