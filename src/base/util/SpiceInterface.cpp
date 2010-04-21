@@ -468,8 +468,9 @@ SpiceDouble SpiceInterface::A1ToSpiceTime(Real a1Time)
    SpiceDouble j2ET      = j2000_c();
    Real        tdbTime   = TimeConverterUtil::Convert(a1Time, TimeConverterUtil::A1MJD,
                            TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
-   SpiceDouble spiceTime = (tdbTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) *
-                            GmatTimeUtil::SECS_PER_DAY;
+   SpiceDouble julianOffset = GmatTimeUtil::JD_JAN_5_1941 - j2ET;
+   SpiceDouble spiceTime = (tdbTime + julianOffset) *
+                           GmatTimeUtil::SECS_PER_DAY;
 
    return spiceTime;
 }
