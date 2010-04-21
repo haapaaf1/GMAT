@@ -36,7 +36,8 @@ GMAT_FUNCTION_PATH   = ./GmatFunctions/
 #GMAT_FUNCTION_PATH   = 
 MATLAB_FUNCTION_PATH = ./matlab/
 FUNCTION_PATH        = ./functions/
-#PLUGIN              = 
+PLUGIN               = libGmatEstimation
+PLUGIN               = libMatlabInterface
 #-----------------------------------------------------------
 SPLASH_PATH          = ROOT_PATH/splash/
 SPLASH_FILE          = SPLASH_PATH/GMATSplashScreen.tif
@@ -79,6 +80,7 @@ NUTATION_COEFF_FILE  = PLANETARY_COEFF_PATH/NUTATION.DAT
 #-----------------------------------------------------------
 TIME_PATH            = ROOT_PATH/time/
 LEAP_SECS_FILE       = TIME_PATH/tai-utc.dat
+LSK_FILE             = TIME_PATH/naif0009.tls
 #-----------------------------------------------------------
 TEXTURE_PATH         = ROOT_PATH/plot/texture/
 SUN_TEXTURE_FILE     = TEXTURE_PATH/Sun.jpg
