@@ -3204,10 +3204,11 @@ bool Propagate::Execute()
                fm[0]->ReportEpochData();
          #endif
 
-         for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end();
-               ++f)
-            if (*f)
-               (*f)->BufferState();
+         for (UnsignedInt i = 0; i < fm.size(); ++i)
+            if (fm[i])
+               fm[i]->BufferState();
+            else
+               p[i]->BufferState();
 
          if (!TakeAStep())
             throw CommandException(
@@ -3305,7 +3306,11 @@ bool Propagate::Execute()
             publisher->Publish(this, streamID, pubdata, dim+1);
          }
          else
-         {  
+         {
+            #ifdef DEBUG_STOPPING_CONDITIONS
+               MessageInterface::ShowMessage("Stopping condition met\n");
+            #endif
+
             stopInterval = 0.0;
             for (UnsignedInt i = 0; i < fm.size(); ++i) 
             {
@@ -3316,18 +3321,36 @@ bool Propagate::Execute()
                switch (currentMode)
                {
                   case SYNCHRONIZED:
-                     elapsedTime[i] = fm[0]->GetTime();
-                     fm[i]->SetTime(elapsedTime[i]);
+                     if (fm[0] != NULL)
+                        elapsedTime[i] = fm[0]->GetTime();
+                     else
+                        elapsedTime[i] = p[0]->GetTime();
+                     if (fm[i] != NULL)
+                        fm[i]->SetTime(elapsedTime[i]);
+                     else
+                        p[i]->SetTime(elapsedTime[i]);
                      break;
                      
                   case INDEPENDENT:
                   default:
-                     elapsedTime[i] = fm[i]->GetTime();
+                     if (fm[i] != NULL)
+                        elapsedTime[i] = fm[i]->GetTime();
+                     else
+                        elapsedTime[i] = p[i]->GetTime();
                }
                
                currEpoch[i] = baseEpoch[i] +
                   elapsedTime[i] / GmatTimeUtil::SECS_PER_DAY;
             }
+
+            #ifdef DEBUG_STOPPING_CONDITIONS
+               MessageInterface::ShowMessage("   Prop #, baseEpoch, currEpoch, "
+                     "elapsedTime\n");
+               for (UnsignedInt i = 0; i < fm.size(); ++i)
+                  MessageInterface::ShowMessage("      %d, %.12lf, %.12lf, "
+                        "%.12lf\n", i, baseEpoch[i], currEpoch[i],
+                        elapsedTime[i]);
+            #endif
 
             stepBrackets[1] = stopInterval;
 
@@ -3382,9 +3405,13 @@ bool Propagate::Execute()
    inProgress = false;
    if (!singleStepMode)
    {
-      for (std::vector<ODEModel *>::iterator f = fm.begin(); f != fm.end(); ++f)
-         if (*f)
-            (*f)->RevertSpaceObject();
+      for (UnsignedInt i = 0; i < fm.size(); ++i)
+      {
+         if (fm[i])
+            fm[i]->RevertSpaceObject();
+         else
+            p[i]->RevertSpaceObject();
+      }
 
       TakeFinalStep(epochID, trigger);
       // reset the stopping conditions so that scanning starts over
@@ -3594,13 +3621,17 @@ void Propagate::CheckStopConditions(Integer epochID)
             stopSats[i]->GetRealParameter(epochID));
          
          #ifdef DEBUG_STOPPING_CONDITIONS
-            MessageInterface::ShowMessage(
-               "Evaluating \"%s\" Stopping condition\n",
-               stopWhen[i]->GetName().c_str());
+            MessageInterface::ShowMessage("Evaluating \"%s\" Stopping "
+                  "condition\n", stopWhen[i]->GetName().c_str());
          #endif
          
          if (stopWhen[i]->Evaluate())
          {
+            #ifdef DEBUG_STOPPING_CONDITIONS
+               MessageInterface::ShowMessage("\"%s\" evaluates true!\n",
+                  stopWhen[i]->GetName().c_str());
+            #endif
+
             stopInterval = stopWhen[i]->GetStopInterval();
             if (stopInterval == 0.0)
             {
@@ -3745,6 +3776,14 @@ bool Propagate::CheckFirstStepStop(Integer i)
 //------------------------------------------------------------------------------
 void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 {
+	#ifdef DEBUG_FINAL_STEP
+   	MessageInterface::ShowMessage("*** Start of TakeFinalStep\n");
+	   MessageInterface::ShowMessage("      State data:\n");
+   	MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+		MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+      	   p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+	#endif
+      
    // We've passed a stop condition, so remember that step size.  Include a 10%
    // safety factor.
    stepBrackets[1] = stopInterval * 1.1;
@@ -3761,9 +3800,16 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
    #ifdef DEBUG_EPOCH_SYNC
       MessageInterface::ShowMessage("Top of final step code:\n");
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
-         MessageInterface::ShowMessage(
-            "   Force model[%d] has base epoch %16.11lf, time dt = %.11lf, stopInterval = %.12lf\n",
-            i, baseEpoch[i], fm[i]->GetTime(), stopInterval);
+         if (fm[i])
+            MessageInterface::ShowMessage(
+               "   Force model[%d] has base epoch %16.11lf, time dt = %.11lf, "
+               "stopInterval = %.12lf\n", i, baseEpoch[i], fm[i]->GetTime(),
+               stopInterval);
+         else
+            MessageInterface::ShowMessage(
+               "   Propagator[%d] has base epoch %16.11lf, time dt = %.11lf, "
+               "stopInterval = %.12lf\n", i, baseEpoch[i], p[i]->GetTime(),
+               stopInterval);
    #endif   
    
    // Toggle propagators into final step mode
@@ -3781,10 +3827,21 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
             currEpoch[i]);
       #endif
 
-      fm[i]->UpdateSpaceObject(  // currEpoch[i]);
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+      if (fm[i])
+         fm[i]->UpdateSpaceObject(  // currEpoch[i]);
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+      else
+         p[i]->UpdateSpaceObject(  // currEpoch[i]);
+               baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
    }
    BufferSatelliteStates(true);
+   #ifdef DEBUG_FINAL_STEP
+		MessageInterface::ShowMessage("   Buffered state data\n");
+		MessageInterface::ShowMessage("      State data:\n");
+		MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+		MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+      		p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+   #endif
    
    #ifdef DEBUG_EPOCH_SYNC
       MessageInterface::ShowMessage("Prior to interpolation:\n");
@@ -3833,6 +3890,14 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       }
    }
 
+   #ifdef DEBUG_FINAL_STEP
+      MessageInterface::ShowMessage("   First search -> dt = %.12lf\n", dt);
+		MessageInterface::ShowMessage("      State data:\n");
+		MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+		MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+      		p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+	#endif
+	
    #if DEBUG_PROPAGATE_EXE
       MessageInterface::ShowMessage(
          "Step = %.12lf sec, calculated off of %.12lf and  %.12lf\n", 
@@ -3840,8 +3905,8 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
    #endif
       
    // Perform stepsize rounding.  Note that the rounding precision can be set
-   // by redefining the macro TIME_ROUNDOFF at the top of this file.  Set it to
-   // 0.0 to prevent rounding.
+   // by redefining the macro TIME_ROUNDOFF at the top of
+   // PropagationEnabledCommand.hpp.  Set it to 0.0 to prevent rounding.
    //
    // Note that this code makes the final propagated state match the granularity 
    // given by other software (aka STK)
@@ -3891,18 +3956,29 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
                i, baseEpoch[i], fm[i]->GetTime());
       #endif
 
+      #ifdef DEBUG_FINAL_STEP
+         MessageInterface::ShowMessage("   After stepping to initial stop condition epoch\n");
+         MessageInterface::ShowMessage("      State data:\n");
+         MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+         MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+               p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+      #endif
       // Check the stopping accuracy
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateSpaceObject(
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+         if (fm[i])
+            fm[i]->UpdateSpaceObject(
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+         else
+            p[i]->UpdateSpaceObject(
+                           baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
       }
 
       stopper->Evaluate();
 
       if (fabs(stopper->GetStopDifference()) > accuracy)
       {
-         #ifdef DEBUG_STOPPING_CONDITIONS   
+         #ifdef DEBUG_STOPPING_CONDITIONS
             MessageInterface::ShowMessage("   Stop condition %s missed by %le; "
                "refining step \n", stopper->GetName().c_str(), 
                stopper->GetStopDifference());
@@ -3916,16 +3992,32 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
             // Back out the steps taken to build the ring buffer
-            fm[i]->UpdateFromSpaceObject();
-            fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+            if (fm[i])
+            {
+               fm[i]->UpdateFromSpaceObject();
+               fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+            }
+            else
+            {
+               p[i]->UpdateFromSpaceObject();
+               p[i]->SetTime(p[i]->GetTime() - secsToStep);
+            }
          }
+
+         #ifdef DEBUG_FINAL_STEP
+            MessageInterface::ShowMessage("   Finished backing out the spline generated step\n");
+            MessageInterface::ShowMessage("      State data:\n");
+            MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+            MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+                  p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+         #endif
 
          // Generate a better time step
          secsToStep = RefineFinalStep(secsToStep, stopper);
          
          // Perform stepsize rounding.  Note that the rounding precision can be 
-         // set by redefining the macro TIME_ROUNDOFF at the top of this file.  
-         // Set it to 0.0 to prevent rounding.
+         // set by redefining the macro TIME_ROUNDOFF at the top of
+         // PropagationEnabledCommand.hpp.  Set it to 0.0 to prevent rounding.
          //
          // Note that this code makes the final propagated state match the 
          // granularity given by other software (aka STK)
@@ -3940,8 +4032,12 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 
          for (UnsignedInt i = 0; i < psm.size(); ++i)
          {
-            fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+            if (fm[i])
+               fm[i]->UpdateSpaceObject(
+                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+            else
+               p[i]->UpdateSpaceObject(
+                  baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
          }
 
          #ifdef DEBUG_STOPPING_CONDITIONS   
@@ -3952,7 +4048,10 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       }
       
       // Publish the final data point here
-      pubdata[0] = baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY;
+      if (fm[0])
+         pubdata[0] = baseEpoch[0]+fm[0]->GetTime()/GmatTimeUtil::SECS_PER_DAY;
+      else
+         pubdata[0] = baseEpoch[0] + p[0]->GetTime()/GmatTimeUtil::SECS_PER_DAY;
       memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
       #ifdef DEBUG_PUBLISH_DATA
          MessageInterface::ShowMessage
@@ -4059,6 +4158,10 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
 
    while ((!stopIsBracketed) && (ringStepsTaken < 8))
    {
+      #ifdef DEBUG_STOPPING_CONDITIONS
+         MessageInterface::ShowMessage("Taking ring step %d, step size = "
+               "%.12lf\n", ringStepsTaken, ringStep);
+      #endif
       // Take a fixed prop step
       if (!TakeAStep(ringStep))
          throw CommandException("Propagator Failed to Step fixed interval "
@@ -4068,8 +4171,12 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
       // Update spacecraft for that step
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateSpaceObject(
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+         if (fm[i])
+            fm[i]->UpdateSpaceObject(
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+         else
+            p[i]->UpdateSpaceObject(
+               baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
       }
 
       // Update the data in the stop condition
@@ -4078,6 +4185,10 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
       
       ++ringStepsTaken;
       firstRingStep = false;
+      #ifdef DEBUG_STOPPING_CONDITIONS
+         MessageInterface::ShowMessage("   step = %.12lf, value = %.12lf\n",
+               elapsedSeconds, sc->GetStopValue());
+      #endif
    }
 
    // Now interpolate the epoch...
@@ -4092,15 +4203,30 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
    BufferSatelliteStates(false);
    for (UnsignedInt i = 0; i < fm.size(); ++i) 
    {
-      fm[i]->UpdateFromSpaceObject();
-      // Back out the steps taken to build the ring buffer
-      fm[i]->SetTime(fm[i]->GetTime() - ringStepsTaken * ringStep);
+      if (fm[i])
+      {
+         fm[i]->UpdateFromSpaceObject();
+         // Back out the steps taken to build the ring buffer
+         fm[i]->SetTime(fm[i]->GetTime() - ringStepsTaken * ringStep);
+      }
+      else
+      {
+         p[i]->UpdateFromSpaceObject();
+         // Back out the steps taken to build the ring buffer
+         p[i]->SetTime(p[i]->GetTime() - ringStepsTaken * ringStep);
+      }
 
       #if DEBUG_PROPAGATE_EXE
-         MessageInterface::ShowMessage(
-            "Force model base Epoch = %.12lf  elapsedTime = %.12lf  "
-            "net Epoch = %.12lf\n", baseEpoch[i], fm[i]->GetTime(), 
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+         if (fm[i])
+            MessageInterface::ShowMessage(
+               "Force model base Epoch = %.12lf  elapsedTime = %.12lf  "
+               "net Epoch = %.12lf\n", baseEpoch[i], fm[i]->GetTime(),
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+         else
+            MessageInterface::ShowMessage(
+               "Propagator base Epoch = %.12lf  elapsedTime = %.12lf  "
+               "net Epoch = %.12lf\n", baseEpoch[i], p[i]->GetTime(),
+               baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
       #endif
    }
    
@@ -4141,7 +4267,11 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
    x[0] = x[1] = y[1] = 0.0;
    
    intercept = y[0] = stopParam->EvaluateReal();
-
+   
+   #ifdef DEBUG_SECANT_DETAILS
+      MessageInterface::ShowMessage("InitialPoint: [%.12lf %.12lf]\n", x[0], y[0]);
+   #endif
+   
    if (stopper->IsTimeCondition())
    {
       // Handle time based stopping condition refinement
@@ -4155,8 +4285,16 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
             BufferSatelliteStates(false);
             for (UnsignedInt i = 0; i < fm.size(); ++i) 
             {
-               fm[i]->UpdateFromSpaceObject();
-               fm[i]->SetTime(fm[i]->GetTime() - prevStep);
+               if (fm[i])
+               {
+                  fm[i]->UpdateFromSpaceObject();
+                  fm[i]->SetTime(fm[i]->GetTime() - prevStep);
+               }
+               else
+               {
+                  p[i]->UpdateFromSpaceObject();
+                  p[i]->SetTime(p[i]->GetTime() - prevStep);
+               }
             }
          }
 
@@ -4168,8 +4306,13 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
          // Update spacecraft for that step
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+            if (fm[i])
+               fm[i]->UpdateSpaceObject(
+                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+            else
+               p[i]->UpdateSpaceObject(
+                     baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+
          }
    
          if (targParam != NULL)
@@ -4180,16 +4323,28 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
          x[1] = secsToStep;
          y[1] = stopParam->EvaluateReal();
 
-         #ifdef DEBUG_STOPPING_CONDITIONS   
-            MessageInterface::ShowMessage(
-               "[%d] Time based secant target: %16.12le\n"
-               "     BaseEpoch: %16.9lf    fmTime: %16.9lf\n"
-               "     Secant data points:\n"
-               "        (%16.12le, %16.12le)\n"
-               "        (%16.12le, %16.12le)\n"
-               "     Secant timestep: %16.12lf\n",
-               attempts, target, baseEpoch[0], fm[0]->GetTime(), x[0], y[0], 
-               x[1], y[1], secsToStep);
+         #ifdef DEBUG_STOPPING_CONDITIONS
+            if (fm[0])
+               MessageInterface::ShowMessage(
+                  "[%d] Time based secant target: %16.12le\n"
+                  "     BaseEpoch: %16.9lf    fmTime: %16.9lf\n"
+                  "     Secant data points:\n"
+                  "        (%16.12le, %16.12le)\n"
+                  "        (%16.12le, %16.12le)\n"
+                  "     Secant timestep: %16.12lf\n",
+                  attempts, target, baseEpoch[0], fm[0]->GetTime(), x[0], y[0],
+                  x[1], y[1], secsToStep);
+            else
+               MessageInterface::ShowMessage(
+                  "[%d] Time based secant target: %16.12le\n"
+                  "     BaseEpoch: %16.9lf    fmTime: %16.9lf\n"
+                  "     Secant data points:\n"
+                  "        (%16.12le, %16.12le)\n"
+                  "        (%16.12le, %16.12le)\n"
+                  "     Secant timestep: %16.12lf\n",
+                  attempts, target, baseEpoch[0], p[0]->GetTime(), x[0], y[0],
+                  x[1], y[1], secsToStep);
+
          #endif
          
          if (fabs(target - y[1]) < timeAccuracy)
@@ -4222,8 +4377,16 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
             BufferSatelliteStates(false);
             for (UnsignedInt i = 0; i < fm.size(); ++i) 
             {
-               fm[i]->UpdateFromSpaceObject();
-               fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+               if (fm[i])
+               {
+                  fm[i]->UpdateFromSpaceObject();
+                  fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+               }
+               else
+               {
+                  p[i]->UpdateFromSpaceObject();
+                  p[i]->SetTime(p[i]->GetTime() - secsToStep);
+               }
             }
          
             if (x[1] == x[0])
@@ -4309,10 +4472,16 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
          }
 
          #ifdef DEBUG_STOPPING_CONDITIONS
-            MessageInterface::ShowMessage(
-                  "Before step, param = %16.12lf, Stepping from %16.12lf by "
-                  "%16.12lf, ", stopParam->EvaluateReal(), fm[0]->GetTime(), 
-                  secsToStep);
+            if (fm[0])
+               MessageInterface::ShowMessage(
+                     "Before step, param = %16.12lf, Stepping from %16.12lf by "
+                     "%16.12lf, ", stopParam->EvaluateReal(), fm[0]->GetTime(),
+                     secsToStep);
+            else
+               MessageInterface::ShowMessage(
+                     "Before step, param = %16.12lf, Stepping from %16.12lf by "
+                     "%16.12lf, ", stopParam->EvaluateReal(), p[0]->GetTime(),
+                     secsToStep);
          #endif
          
          if (!TakeAStep(secsToStep))
@@ -4322,22 +4491,32 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
                   GetGeneratingString() + "\"\n");
          
          #ifdef DEBUG_STOPPING_CONDITIONS
-            MessageInterface::ShowMessage("\nAfter step, param = %16.12lf, "
-                  "Stepped to %16.12lf\n", stopParam->EvaluateReal(), 
-                  fm[0]->GetTime());
+            if (fm[0])
+               MessageInterface::ShowMessage("\nAfter step, param = %16.12lf, "
+                     "Stepped to %16.12lf\n", stopParam->EvaluateReal(),
+                     fm[0]->GetTime());
+            else
+               MessageInterface::ShowMessage("\nAfter step, param = %16.12lf, "
+                     "Stepped to %16.12lf\n", stopParam->EvaluateReal(),
+                     p[0]->GetTime());
          #endif         
          
             // Update spacecraft for that step
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+            if (fm[i])
+               fm[i]->UpdateSpaceObject(
+                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+            else
+               p[i]->UpdateSpaceObject(
+                  baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
          }
 
          #ifdef DEBUG_SECANT_DETAILS
             MessageInterface::ShowMessage(
-                  "%d %16.12lf %16.12lf %16.12lf %16.12lf", attempts, x[0], 
-                  y[0], x[1], y[1]);
+                  "Secant run %d segment points: [%16.12lf %16.12lf], "
+                  "[%16.12lf %16.12lf] => Estimate ", attempts, x[0], y[0],
+                  x[1], y[1]);
          #endif
             
          // Buffer data for next iteration
@@ -4356,7 +4535,7 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
             y[1] = GetRangedAngle(y[1], target);
 
          #ifdef DEBUG_SECANT_DETAILS
-            MessageInterface::ShowMessage(" %16.12lf %16.12lf\n", x[1], y[1]);
+            MessageInterface::ShowMessage("[%16.12lf %16.12lf]\n", x[1], y[1]);
          #endif
          
          // Check to see if accuracy is within tolerance
@@ -4380,8 +4559,16 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
       BufferSatelliteStates(false);
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateFromSpaceObject();
-         fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+         if (fm[i])
+         {
+            fm[i]->UpdateFromSpaceObject();
+            fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+         }
+         else
+         {
+            p[i]->UpdateFromSpaceObject();
+            p[i]->SetTime(p[i]->GetTime() - secsToStep);
+         }
       }
 
       Real bisectSecsToStep = BisectToStop(stopper);
@@ -4398,8 +4585,16 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
    BufferSatelliteStates(false);
    for (UnsignedInt i = 0; i < fm.size(); ++i) 
    {
-      fm[i]->UpdateFromSpaceObject();
-      fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+      if (fm[i])
+      {
+         fm[i]->UpdateFromSpaceObject();
+         fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+      }
+      else
+      {
+         p[i]->UpdateFromSpaceObject();
+         p[i]->SetTime(p[i]->GetTime() - secsToStep);
+      }
    }
       
    return secsToStep;
@@ -4438,8 +4633,16 @@ Real Propagate::BisectToStop(StopCondition *stopper)
          BufferSatelliteStates(false);
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
-            fm[i]->UpdateFromSpaceObject();
-            fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+            if (fm[i])
+            {
+               fm[i]->UpdateFromSpaceObject();
+               fm[i]->SetTime(fm[i]->GetTime() - secsToStep);
+            }
+            else
+            {
+               p[i]->UpdateFromSpaceObject();
+               p[i]->SetTime(p[i]->GetTime() - secsToStep);
+            }
          }
         
          dt *= 0.5;
@@ -4483,8 +4686,16 @@ Real Propagate::BisectToStop(StopCondition *stopper)
       // Update spacecraft for that step
       for (UnsignedInt i = 0; i < fm.size(); ++i) 
       {
-         fm[i]->UpdateSpaceObject(
-            baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+         if (fm[i])
+         {
+            fm[i]->UpdateSpaceObject(baseEpoch[i] + fm[i]->GetTime() /
+                  GmatTimeUtil::SECS_PER_DAY);
+         }
+         else
+         {
+            p[i]->UpdateSpaceObject(baseEpoch[i] + p[i]->GetTime() /
+                  GmatTimeUtil::SECS_PER_DAY);
+         }
       }
 
       if (targParam != NULL)

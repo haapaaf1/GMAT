@@ -26,6 +26,7 @@
 
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_EXECUTION
+//#define DEBUG_STATE_BUFFERING
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
