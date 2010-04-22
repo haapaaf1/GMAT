@@ -20,7 +20,8 @@
 #define EphemerisPropagator_hpp
 
 /**
- * EphemerisPropagator ...
+ * EphemerisPropagator is the base class for objects that model orbit evolution
+ * through interpolation of data in an ephemeris file.
  */
 #include "Propagator.hpp"
 
@@ -116,11 +117,26 @@ public:
    bool                 UsesODEModel();
    virtual void         SetPropStateManager(PropagationStateManager *sm);
    virtual bool         Initialize();
+   virtual bool         Step(Real dt);
+   virtual bool         Step() = 0;
+
    virtual Integer      GetDimension();
    virtual Real*        GetState();
    virtual Real*        GetJ2KState();
    virtual void         UpdateSpaceObject(Real newEpoch = -1.0);
    virtual void         UpdateFromSpaceObject();
+   virtual void         RevertSpaceObject();
+   virtual void         BufferState();
+
+   virtual Real         GetTime();
+   virtual void         SetTime(Real t);
+
+   enum StartEpochSource
+   {
+      FROM_SCRIPT,
+      FROM_EPHEM,
+      FROM_SPACECRAFT
+   };
 
 protected:
    /// Step used to propagate through the ephemeris
@@ -138,6 +154,11 @@ protected:
    /// Current epoch - initial epoch (used to minimize accumulated error)
    Real                       timeFromEpoch;
 
+   /// Start time on the ephem
+   GmatEpoch                  ephemStart;
+   /// End time on the ephem
+   GmatEpoch                  ephemEnd;
+
    /// Names of the objects that are propagated
    StringArray                propObjectNames;
    /// The propagated objects
@@ -154,6 +175,10 @@ protected:
    Real                       *j2kState;
    /// Size of the most recent prop step
    Real                       stepTaken;
+   /// Type of source used to obtain start epoch
+   StartEpochSource           startEpochSource;
+   /// Buffer that allows quick reversion to the previous state
+   GmatState                  previousState;
 
    /// Parameter IDs
    enum
@@ -172,10 +197,13 @@ protected:
    static const std::string
          PARAMETER_TEXT[EphemerisPropagatorParamCount - PropagatorParamCount];
 
-
    GmatEpoch ConvertToRealEpoch(const std::string &theEpoch,
          const std::string &theFormat);
+   virtual void UpdateState() = 0;
 
+   virtual void SetEphemSpan(const GmatEpoch start, const GmatEpoch);
+   virtual void SetEphemSpan(Integer whichOne = 0);
+   virtual bool IsValidEpoch(GmatEpoch time);
 };
 
 #endif /* EphemerisPropagator_hpp */

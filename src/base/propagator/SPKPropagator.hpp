@@ -86,6 +86,8 @@ protected:
    StringArray spkFileNames;
    /// ID's used to lookup data for the prop objects
    IntegerArray naifIds;
+   /// J2000 Epoch from the SPICE library
+   SpiceDouble j2ET;
 
    SpiceOrbitKernelReader *skr;
 
@@ -98,10 +100,15 @@ protected:
    };
 
    /// SPKPropagator parameter types
-   static const Gmat::ParameterType PARAMETER_TYPE[SPKPropagatorParamCount - EphemerisPropagatorParamCount];
+   static const Gmat::ParameterType PARAMETER_TYPE[SPKPropagatorParamCount -
+                                                   EphemerisPropagatorParamCount];
    /// SPKPropagator parameter labels
-   static const std::string PARAMETER_TEXT[SPKPropagatorParamCount - EphemerisPropagatorParamCount];
+   static const std::string PARAMETER_TEXT[SPKPropagatorParamCount -
+                                           EphemerisPropagatorParamCount];
 
+   virtual void         UpdateState();
+
+   virtual void         SetEphemSpan(Integer whichOne = 0);
 };
 
 #endif /* SPKPropagator_hpp */

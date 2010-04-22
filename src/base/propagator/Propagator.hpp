@@ -127,36 +127,40 @@ public:
    virtual Real* GetJ2KState();
    virtual void UpdateSpaceObject(Real newEpoch = -1.0);
    virtual void UpdateFromSpaceObject();
+   virtual void RevertSpaceObject();
+   virtual void BufferState();
 
+   virtual Real GetTime();
+   virtual void SetTime(Real t);
 
    // Abstract methods
 
-   //------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    // virtual bool Step(void)
-   //------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    /**
     * Method to propagate by the default step
     * This pure virtual method provides the interface used to advance the state
     * by the amount specified in the stepSize parameter.  This is the core 
     * propagation routine.  
     * Adaptive step propagators will take the desired step if accuracy permits, 
-    * and then adjust the stepSize parameter to the estimated optimal size for the 
-    * next call.
+    * and then adjust the stepSize parameter to the estimated optimal size for
+    * the next call.
     */
-   //------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    virtual bool Step() = 0;
    
-   //------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    // virtual bool RawStep(void)
-   //------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    /**
     * Method to take a raw propagation step without error control
     */
    virtual bool RawStep() = 0;
    
-   //------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    // virtual bool GetStepTaken()
-   //------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------
    /**
     * Method to report the size of the most recent propagation step.
     */

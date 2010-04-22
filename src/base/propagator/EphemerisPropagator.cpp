@@ -74,10 +74,13 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
    initialEpoch         (-987654321.0),
    currentEpoch         (-987654321.0),
    timeFromEpoch        (0.0),
+   ephemStart           (-987654321.0),
+   ephemEnd             (987654321.0),
    psm                  (NULL),
    state                (NULL),
    j2kState             (NULL),
-   stepTaken            (0.0)
+   stepTaken            (0.0),
+   startEpochSource     (FROM_SCRIPT)
 {
    parameterCount = EphemerisPropagatorParamCount;
 }
@@ -107,8 +110,6 @@ EphemerisPropagator::~EphemerisPropagator()
  * Copy constructor
  *
  * @param ep The Ephemeris propagator copied to the new one.
- *
- * @return
  */
 //------------------------------------------------------------------------------
 EphemerisPropagator::EphemerisPropagator(const EphemerisPropagator & ep) :
@@ -120,10 +121,13 @@ EphemerisPropagator::EphemerisPropagator(const EphemerisPropagator & ep) :
    initialEpoch         (ep.initialEpoch),
    currentEpoch         (ep.currentEpoch),
    timeFromEpoch        (ep.timeFromEpoch),
+   ephemStart           (ep.ephemStart),
+   ephemEnd             (ep.ephemEnd),
    psm                  (NULL),
    state                (NULL),
    j2kState             (NULL),
-   stepTaken            (0.0)
+   stepTaken            (0.0),
+   startEpochSource     (ep.startEpochSource)
 {
 }
 
@@ -153,6 +157,8 @@ EphemerisPropagator& EphemerisPropagator::operator=(
       initialEpoch  = ep.initialEpoch;
       currentEpoch  = ep.currentEpoch;
       timeFromEpoch = ep.timeFromEpoch;
+      ephemStart    = ep.ephemStart;
+      ephemEnd      = ep.ephemEnd;
       psm           = NULL;
       if (state != NULL)
       {
@@ -165,6 +171,7 @@ EphemerisPropagator& EphemerisPropagator::operator=(
          j2kState = NULL;
       }
       stepTaken = 0.0;
+      startEpochSource = ep.startEpochSource;
    }
 
    return *this;
@@ -557,6 +564,17 @@ Real EphemerisPropagator::SetRealParameter(const std::string &label,
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves string parameters
+ *
+ * @param id The id for the parameter
+ *
+ * @return The string
+ */
+//------------------------------------------------------------------------------
 std::string  EphemerisPropagator::GetStringParameter(const Integer id) const
 {
    switch (id)
@@ -578,6 +596,18 @@ std::string  EphemerisPropagator::GetStringParameter(const Integer id) const
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a parameter
+ *
+ * @param id The ID of the parameter
+ * @param value The new parameter value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::SetStringParameter(const Integer id,
       const std::string &value)
 {
@@ -593,6 +623,12 @@ bool EphemerisPropagator::SetStringParameter(const Integer id,
 
       case EPHEM_START_EPOCH:
          startEpoch = value;
+         if (startEpoch == "FromSpacecraft")
+            startEpochSource = FROM_SPACECRAFT;
+         else if (startEpoch == "EphemStart")
+            startEpochSource = FROM_EPHEM;
+         else
+            startEpochSource = FROM_SCRIPT;
          return true;
 
       default:
@@ -603,6 +639,18 @@ bool EphemerisPropagator::SetStringParameter(const Integer id,
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id, const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves string parameters from a StringArray
+ *
+ * @param id The id for the parameter
+ * @param index Index into the array
+ *
+ * @return The string
+ */
+//------------------------------------------------------------------------------
 std::string EphemerisPropagator::GetStringParameter(const Integer id,
       const Integer index) const
 {
@@ -610,6 +658,20 @@ std::string EphemerisPropagator::GetStringParameter(const Integer id,
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets string parameters in a StringArray
+ *
+ * @param id The id for the parameter
+ * @param value The new string value
+ * @param index Index into the array
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::SetStringParameter(const Integer id,
       const std::string &value, const Integer index)
 {
@@ -617,6 +679,17 @@ bool EphemerisPropagator::SetStringParameter(const Integer id,
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves string parameters
+ *
+ * @param label The script name for the parameter
+ *
+ * @return The string
+ */
+//------------------------------------------------------------------------------
 std::string EphemerisPropagator::GetStringParameter(
       const std::string &label) const
 {
@@ -624,6 +697,18 @@ std::string EphemerisPropagator::GetStringParameter(
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the value for a parameter
+ *
+ * @param label The script name for the parameter
+ * @param value The new parameter value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::SetStringParameter(const std::string &label,
       const std::string &value)
 {
@@ -631,6 +716,19 @@ bool EphemerisPropagator::SetStringParameter(const std::string &label,
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string &label,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves string parameters from a StringArray
+ *
+ * @param label The script name for the parameter
+ * @param index Index into the array
+ *
+ * @return The string
+ */
+//------------------------------------------------------------------------------
 std::string EphemerisPropagator::GetStringParameter(const std::string &label,
       const Integer index) const
 {
@@ -638,6 +736,20 @@ std::string EphemerisPropagator::GetStringParameter(const std::string &label,
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets string parameters in a StringArray
+ *
+ * @param label The script name for the parameter
+ * @param value The new string value
+ * @param index Index into the array
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::SetStringParameter(const std::string &label,
       const std::string &value, const Integer index)
 {
@@ -732,8 +844,10 @@ bool EphemerisPropagator::SetRefObject(GmatBase *obj,
 {
    bool retval = false;
 
-   MessageInterface::ShowMessage("Setting object named %s at index %d\n",
-         name.c_str(), index);
+   #ifdef DEBUG_INITIALIZATION
+      MessageInterface::ShowMessage("Setting object named %s at index %d\n",
+            name.c_str(), index);
+   #endif
 
    if (obj->IsOfType(Gmat::SPACEOBJECT))
    {
@@ -778,6 +892,15 @@ void EphemerisPropagator::SetPropStateManager(PropagationStateManager *sm)
 }
 
 
+//------------------------------------------------------------------------------
+// bool EphemerisPropagator::Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Initializes the EphemeridPropagator for use during a run
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::Initialize()
 {
    bool retval = false;
@@ -802,17 +925,43 @@ bool EphemerisPropagator::Initialize()
             j2kState = new Real[dimension];
       }
 
-      initialEpoch = ConvertToRealEpoch(startEpoch, epochFormat);
+      #ifdef DEBUG_INITIALIZATION
+         MessageInterface::ShowMessage("State epoch %s from spacecraft\n",
+               ((startEpochSource == FROM_SPACECRAFT) ? "is" : "is not"));
+         MessageInterface::ShowMessage("State epoch %s from ephemeris\n",
+               ((startEpochSource == FROM_EPHEM) ? "is" : "is not"));
+      #endif
+      switch (startEpochSource)
+      {
+         case FROM_SPACECRAFT:
+            if (propObjects.size() > 0)
+               initialEpoch = ((SpaceObject*)(propObjects[0]))->GetEpoch();
+            break;
+
+         case FROM_EPHEM:
+            if (ephemStart > 0)
+               initialEpoch = ephemStart;
+            break;
+
+         case FROM_SCRIPT:
+         default:
+            initialEpoch = ConvertToRealEpoch(startEpoch, epochFormat);
+            break;
+
+
+      }
 
       if (currentEpoch == -987654321.0)
+      {
          currentEpoch = initialEpoch;
+      }
 
-      MessageInterface::ShowMessage("Initial epoch set to %.12lf\n",
-            initialEpoch);
-      MessageInterface::ShowMessage("Current epoch set to %.12lf\n",
-            currentEpoch);
-
-
+      #ifdef DEBUG_INITIALIZATION
+         MessageInterface::ShowMessage("Initial epoch set to %.12lf\n",
+               initialEpoch);
+         MessageInterface::ShowMessage("Current epoch set to %.12lf\n",
+               currentEpoch);
+      #endif
 
       retval = true;
    }
@@ -820,6 +969,47 @@ bool EphemerisPropagator::Initialize()
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// bool Step(Real dt)
+//------------------------------------------------------------------------------
+/**
+ * Advances the state vector by timestep dt
+ *
+ * @param dt The time step, in seconds
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool EphemerisPropagator::Step(Real dt)
+{
+   #ifdef DEBUG_EXECUTION
+      MessageInterface::ShowMessage("Stepping by %.12lf\n", dt);
+   #endif
+
+   bool retval = false;
+
+   if (initialized)
+   {
+      Real tempStep = ephemStep;
+      ephemStep = dt;
+      retval = Step();
+      ephemStep = tempStep;
+   }
+
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetDimension()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the size of the state vector that gets propagated
+ *
+ * @return The vector size
+ */
+//------------------------------------------------------------------------------
 Integer EphemerisPropagator::GetDimension()
 {
    if (dimension == 0)
@@ -828,18 +1018,46 @@ Integer EphemerisPropagator::GetDimension()
 }
 
 
+//------------------------------------------------------------------------------
+// Real* GetState()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the Real state that gets propagated
+ *
+ * @return The state
+ */
+//------------------------------------------------------------------------------
 Real* EphemerisPropagator::GetState()
 {
    return state;
 }
 
 
+//------------------------------------------------------------------------------
+// Real* GetJ2KState()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the Real state that gets propagated in the J2000 j2kBody reference
+ * frame
+ *
+ * @return The state
+ */
+//------------------------------------------------------------------------------
 Real* EphemerisPropagator::GetJ2KState()
 {
    return j2kState;
 }
 
 
+//------------------------------------------------------------------------------
+// void UpdateSpaceObject(Real newEpoch)
+//------------------------------------------------------------------------------
+/**
+ * Passes state data from the propagator t the objects that are being propagated
+ *
+ * @param newEpoch The epoch of the state; use -1.0 to leave the epoch unchanged
+ */
+//------------------------------------------------------------------------------
 void EphemerisPropagator::UpdateSpaceObject(Real newEpoch)
 {
    #ifdef DEBUG_EXECUTION
@@ -851,15 +1069,12 @@ void EphemerisPropagator::UpdateSpaceObject(Real newEpoch)
    {
       Integer stateSize;
       Integer vectorSize;
-      GmatState *state;
+      GmatState *newState;
    //   ReturnFromOrigin(newEpoch);
 
-      state = psm->GetState();
-      stateSize = state->GetSize();
+      newState = psm->GetState();
+      stateSize = newState->GetSize();
       vectorSize = stateSize * sizeof(Real);
-
-      //previousState = (*state);
-      memcpy(state->GetState(), j2kState, vectorSize);
 
       currentEpoch = initialEpoch + timeFromEpoch / GmatTimeUtil::SECS_PER_DAY;
 
@@ -869,15 +1084,17 @@ void EphemerisPropagator::UpdateSpaceObject(Real newEpoch)
          currentEpoch = newEpoch;
          timeFromEpoch = (currentEpoch-initialEpoch) * GmatTimeUtil::SECS_PER_DAY;
       }
+      UpdateState();
 
-      state->SetEpoch(currentEpoch);
+      memcpy(newState->GetState(), j2kState, vectorSize);
+      newState->SetEpoch(currentEpoch);
       psm->MapVectorToObjects();
 
-      // Formation code: Not part of initial release
-      //// Update elements for each Formation
-      //for (UnsignedInt i = 0; i < stateObjects.size(); ++i)
-      //   if (stateObjects[i]->IsOfType(Gmat::FORMATION))
-      //      ((Formation*)stateObjects[i])->UpdateElements();
+//      // Formation code: Not part of initial release
+//      // Update elements for each Formation
+//      for (UnsignedInt i = 0; i < stateObjects.size(); ++i)
+//         if (stateObjects[i]->IsOfType(Gmat::FORMATION))
+//            ((Formation*)stateObjects[i])->UpdateElements();
 
       #ifdef DEBUG_EXECUTION
          MessageInterface::ShowMessage
@@ -888,9 +1105,64 @@ void EphemerisPropagator::UpdateSpaceObject(Real newEpoch)
    }
 }
 
+//------------------------------------------------------------------------------
+// void UpdateFromSpaceObject()
+//------------------------------------------------------------------------------
+/**
+ * Fills the state vector with data from the objects that are being propagated
+ */
+//------------------------------------------------------------------------------
 void EphemerisPropagator::UpdateFromSpaceObject()
 {
-   Propagator::UpdateFromSpaceObject();
+//   // Update elements for each Formation
+//   for (UnsignedInt i = 0; i < stateObjects.size(); ++i)
+//      if (stateObjects[i]->IsOfType(Gmat::FORMATION))
+//         ((Formation*)stateObjects[i])->UpdateState();
+
+   psm->MapObjectsToVector();
+   GmatState *newState = psm->GetState();
+   memcpy(j2kState, newState->GetState(), newState->GetSize() * sizeof(Real));
+/// THIS TOO?
+   memcpy(state, newState->GetState(), newState->GetSize() * sizeof(Real));
+
+    // Transform to the force model origin
+//    MoveToOrigin();
+}
+
+
+void EphemerisPropagator::RevertSpaceObject()
+{
+   #ifdef DEBUG_ODEMODEL_EXE
+      MessageInterface::ShowMessage
+         ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
+          prevElapsedTime, elapsedTime);
+   #endif
+   timeFromEpoch = (previousState.GetEpoch() - initialEpoch) * 86400.0;
+   currentEpoch = initialEpoch + timeFromEpoch / 86400.0;
+   UpdateState();
+
+//   MoveToOrigin();
+}
+
+
+void EphemerisPropagator::BufferState()
+{
+   GmatState *stateToBuffer = psm->GetState();
+   previousState = (*stateToBuffer);
+}
+
+
+Real EphemerisPropagator::GetTime()
+{
+   return timeFromEpoch;
+}
+
+
+void EphemerisPropagator::SetTime(Real t)
+{
+   timeFromEpoch = t;
+   currentEpoch = initialEpoch + timeFromEpoch / GmatTimeUtil::SECS_PER_DAY;
+   UpdateState();
 }
 
 
@@ -925,5 +1197,33 @@ GmatEpoch EphemerisPropagator::ConvertToRealEpoch(const std::string &theEpoch,
    if (retval == -999.999)
       throw PropagatorException("Error converting the time string \"" +
             theEpoch + "\"; please check the format for the input string.");
+   return retval;
+}
+
+
+void EphemerisPropagator::SetEphemSpan(const GmatEpoch start, const GmatEpoch end)
+{
+   if (end <= start)
+      throw PropagatorException("The ephemeris propagator " + instanceName +
+            " was passed an invalid span in the call to "
+            "EphemerisPropagator::SetEphemSpan(const GmatEpoch start, "
+            "const GmatEpoch end): start >= end");
+   ephemStart = start;
+   ephemEnd   = end;
+}
+
+
+void EphemerisPropagator::SetEphemSpan(Integer whichOne)
+{
+   throw PropagatorException("EphemerisPropagator::SetEphemSpan() is not "
+         "implemented for the " + instanceName + "ephemeris propagator");
+}
+
+
+bool EphemerisPropagator::IsValidEpoch(GmatEpoch time)
+{
+   bool retval = false;
+   if ((time >= ephemStart) && (time <= ephemEnd))
+      retval = true;
    return retval;
 }

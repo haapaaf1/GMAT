@@ -20,8 +20,9 @@
 #include "MessageInterface.hpp"
 
 
-#define DEBUG_INITIALIZATION
+//#define DEBUG_INITIALIZATION
 //#define DEBUG_PROPAGATION
+//#define TEST_TDB_ROUND_TRIP
 
 
 /// SPKPropagator parameter labels
@@ -264,6 +265,7 @@ bool SPKPropagator::Initialize()
          skr = new SpiceOrbitKernelReader;
 
       stepTaken = 0.0;
+      j2ET = j2000_c();   // CSPICE method to return Julian date of J2000 (TDB)
 
       // todo: Remove hardcoded path here
       if (skr->IsLoaded("./files/planetary_ephem/spk/de421.bsp") == false)
@@ -296,6 +298,10 @@ bool SPKPropagator::Initialize()
          {
             if (skr->IsLoaded(spices[j]) == false)
                skr->LoadKernel(spices[j]);
+
+            if (find(spkFileNames.begin(), spkFileNames.end(), spices[j]) ==
+                  spkFileNames.end())
+               spkFileNames.push_back(spices[j]);
          }
 
          // Load the initial data point
@@ -312,6 +318,20 @@ bool SPKPropagator::Initialize()
 
                   currentEpoch = initialEpoch + timeFromEpoch /
                         GmatTimeUtil::SECS_PER_DAY;
+                  if ((currentEpoch < ephemStart) || (currentEpoch > ephemEnd))
+                  {
+                     std::stringstream errmsg;
+                     errmsg.precision(16);
+                     errmsg << "The SPKPropagator "
+                            << instanceName
+                            << " is attempting to initialize outside of the "
+                               "timespan  of the ephemeris data; halting.  ";
+                     errmsg << "The current SPICE ephemeris covers the A.1 modified "
+                               "Julian span ";
+                     errmsg << ephemStart << " to " << ephemEnd << " and the "
+                              "requested epoch is " << currentEpoch << ".\n";
+                     throw PropagatorException(errmsg.str());
+                  }
                   outState = skr->GetTargetState(scName, id, currentEpoch,
                         centralBody);
 
@@ -332,6 +352,8 @@ bool SPKPropagator::Initialize()
             }
          }
       }
+
+      SetEphemSpan();
    }
 
    #ifdef DEBUG_INITIALIZATION
@@ -362,7 +384,6 @@ bool SPKPropagator::Step()
 
    if (skr)
    {
-
       try
       {
          Rvector6  outState;
@@ -376,9 +397,29 @@ bool SPKPropagator::Step()
             stepTaken = ephemStep;
             currentEpoch = initialEpoch + timeFromEpoch /
                   GmatTimeUtil::SECS_PER_DAY;
+
+            if ((currentEpoch < ephemStart) || (currentEpoch > ephemEnd))
+            {
+               std::stringstream errmsg;
+               errmsg.precision(16);
+               errmsg << "The SPKPropagator "
+                      << instanceName
+                      << " is attempting to step outside of the span of the "
+                         "ephemeris data; halting.  ";
+               errmsg << "The current SPICE ephemeris covers the A.1 modified "
+                         "Julian span ";
+               errmsg << ephemStart << " to " << ephemEnd << " and the "
+                     "requested epoch is " << currentEpoch << ".\n";
+               throw PropagatorException(errmsg.str());
+            }
+
             outState = skr->GetTargetState(scName, id, currentEpoch,
                   centralBody);
 
+            /**
+             *  @todo: When SPKProp can evolve more than one spacecraft, these
+             *  memcpy lines need revision
+             */
             std::memcpy(j2kState, outState.GetDataVector(),
                   dimension*sizeof(Real));
             std::memcpy(state, outState.GetDataVector(),
@@ -426,4 +467,102 @@ bool SPKPropagator::RawStep()
 Real SPKPropagator::GetStepTaken()
 {
    return stepTaken;
+}
+
+
+void SPKPropagator::UpdateState()
+{
+   #ifdef DEBUG_EXECUTION
+      MessageInterface::ShowMessage("Updating state to epoch %.12lf\n",
+            currentEpoch);
+   #endif
+
+   if (skr)
+   {
+      try
+      {
+         Rvector6  outState;
+
+         for (UnsignedInt i = 0; i < propObjects.size(); ++i)
+         {
+            std::string scName = propObjectNames[i];
+            Integer id = naifIds[i];
+
+            if ((currentEpoch < ephemStart) || (currentEpoch > ephemEnd))
+            {
+               std::stringstream errmsg;
+               errmsg.precision(16);
+               errmsg << "The SPKPropagator "
+                      << instanceName
+                      << " is attempting to access state data outside of the "
+                         "span of the ephemeris data; halting.  ";
+               errmsg << "The current SPICE ephemeris covers the A.1 modified "
+                         "Julian span "
+                      << ephemStart << " to " << ephemEnd << " and the "
+                         "requested epoch is " << currentEpoch << ".\n";
+               throw PropagatorException(errmsg.str());
+            }
+
+            outState = skr->GetTargetState(scName, id, currentEpoch,
+                  centralBody);
+
+            /**
+             *  @todo: When SPKProp can evolve more than one spacecraft, these
+             *  memcpy lines need revision
+             */
+            std::memcpy(j2kState, outState.GetDataVector(),
+                  dimension*sizeof(Real));
+            std::memcpy(state, outState.GetDataVector(),
+                  dimension*sizeof(Real));
+
+            #ifdef DEBUG_PROPAGATION
+               MessageInterface::ShowMessage("State at epoch %.12lf is [",
+                     currentEpoch);
+               for (Integer i = 0; i < dimension; ++i)
+               {
+                  MessageInterface::ShowMessage("%.12lf", j2kState[i]);
+                  if (i < 5)
+                     MessageInterface::ShowMessage("   ");
+                  else
+                     MessageInterface::ShowMessage("]\n");
+               }
+            #endif
+         }
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage(e.GetFullMessage());
+      }
+   }
+}
+
+
+void SPKPropagator::SetEphemSpan(Integer whichOne)
+{
+   if (whichOne < 0)
+      throw PropagatorException("SPKPropagator::SetEphemSpan(Integer whichOne):"
+            " Invalid index");
+
+   if (skr)
+   {
+      // Load the coverage data
+      SPICEDOUBLE_CELL(cover, 200000);
+      spkcov_c (spkFileNames[0].c_str(), naifIds[0], &cover);
+
+      // Find out how many intervals are in the file
+      SpiceInt niv = wncard_c(&cover);
+
+      // Report the interval(s)
+      SpiceDouble b, e;
+      int i;
+
+      for (i = 0; i < niv; ++i)
+      {
+         // Get the endpoints of the ith interval.
+         wnfetd_c(&cover, i, &b, &e);
+
+         ephemStart = skr->SpiceTimeToA1(b);
+         ephemEnd   = skr->SpiceTimeToA1(e);
+      }
+   }
 }

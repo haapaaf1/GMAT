@@ -72,6 +72,7 @@
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
 #include "PhysicalModel.hpp"
+#include "ODEModel.hpp"
 #include "MessageInterface.hpp"
 
 
@@ -566,39 +567,193 @@ bool Propagator::UsesODEModel()
  * override the method to set the PSM for state updates.
  *
  * @param sm The propagation state manager
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
  */
 //------------------------------------------------------------------------------
 void Propagator::SetPropStateManager(PropagationStateManager *sm)
 {
+   if (physicalModel)
+      if (physicalModel->IsOfType(Gmat::ODE_MODEL))
+         ((ODEModel*)(physicalModel))->SetPropStateManager(sm);
 }
 
 
+//------------------------------------------------------------------------------
+// Integer GetDimension()
+//------------------------------------------------------------------------------
+/**
+ * Returns the size of the propagation state vector
+ *
+ * @return The vector size
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ */
+//------------------------------------------------------------------------------
 Integer Propagator::GetDimension()
 {
+   if (physicalModel)
+      return physicalModel->GetDimension();
    return 0;
 }
 
 
+//------------------------------------------------------------------------------
+// Real* GetState()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the propagation state vector
+ *
+ * @return The vector
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ */
+//------------------------------------------------------------------------------
 Real* Propagator::GetState()
 {
+   if (physicalModel)
+      return physicalModel->GetState();
    return NULL;
 }
 
 
+//------------------------------------------------------------------------------
+// Real* GetJ2KState()
+//------------------------------------------------------------------------------
+/**
+ * Retrieces the J2000 body referenced propagation state vector
+ *
+ * @return The state vector in the correct coordinate frame
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ */
+//------------------------------------------------------------------------------
 Real* Propagator::GetJ2KState()
 {
+   if (physicalModel)
+      return physicalModel->GetJ2KState();
    return NULL;
 }
 
 
+//------------------------------------------------------------------------------
+// void UpdateSpaceObject(Real newEpoch)
+//------------------------------------------------------------------------------
+/**
+ * Updates the propagated objects with data in the propagation state vector
+ *
+ * @param newEpoch The epoch for the data updates
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ */
+//------------------------------------------------------------------------------
 void Propagator::UpdateSpaceObject(Real newEpoch)
 {
+   if (physicalModel)
+      if (physicalModel->IsOfType(Gmat::ODE_MODEL))
+         ((ODEModel*)(physicalModel))->UpdateSpaceObject(newEpoch);
 }
 
 
+//------------------------------------------------------------------------------
+// void UpdateFromSpaceObject()
+//------------------------------------------------------------------------------
+/**
+ * Updates the propagation state vector from the data in the propagating objects
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ */
+//------------------------------------------------------------------------------
 void Propagator::UpdateFromSpaceObject()
 {
+   if (physicalModel)
+      if (physicalModel->IsOfType(Gmat::ODE_MODEL))
+         ((ODEModel*)(physicalModel))->UpdateFromSpaceObject();
 }
+
+
+//------------------------------------------------------------------------------
+// void RevertSpaceObject()
+//------------------------------------------------------------------------------
+/**
+ * Restores a propagation state vector that was buffered in the BufferState()
+ * method.
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ */
+//------------------------------------------------------------------------------
+void Propagator::RevertSpaceObject()
+{
+   if (physicalModel)
+      if (physicalModel->IsOfType(Gmat::ODE_MODEL))
+         ((ODEModel*)(physicalModel))->RevertSpaceObject();
+}
+
+
+//------------------------------------------------------------------------------
+// void BufferState()
+//------------------------------------------------------------------------------
+/**
+ * Saves the propagation state vector so it can be reset later.
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ */
+//------------------------------------------------------------------------------
+void Propagator::BufferState()
+{
+   if (physicalModel)
+      if (physicalModel->IsOfType(Gmat::ODE_MODEL))
+         ((ODEModel*)(physicalModel))->BufferState();
+}
+
+
+//------------------------------------------------------------------------------
+// Real GetTime()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the propagator's time tracking parameter.
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ *
+ * @return The time tracking parameter
+ */
+//------------------------------------------------------------------------------
+Real Propagator::GetTime()
+{
+   if (physicalModel != NULL)
+      return physicalModel->GetTime();
+
+   return 0.0;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetTime(Real t)
+//------------------------------------------------------------------------------
+/**
+ * Sets the propagator's time tracking parameter.
+ *
+ * This method is provided so that the Propagator derivatives that do not use
+ * an ODE model support interfaces needed by the PropagationEnabledCommands.
+ *
+ * @param t The new value for the parameter
+ */
+//------------------------------------------------------------------------------
+void Propagator::SetTime(Real t)
+{
+   if (physicalModel != NULL)
+      physicalModel->SetTime(t);
+}
+
 
 
 //------------------------------------------------------------------------------
