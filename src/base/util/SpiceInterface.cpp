@@ -441,8 +441,8 @@ Integer SpiceInterface::GetNaifID(const std::string &forBody)
 Real SpiceInterface::SpiceTimeToA1(SpiceDouble spiceTime)
 {
    SpiceDouble j2ET    = j2000_c();
-   Real        tdbTime = (spiceTime / GmatTimeUtil::SECS_PER_DAY) + j2ET -
-                         GmatTimeUtil::JD_JAN_5_1941;
+   SpiceDouble julianOffset = GmatTimeUtil::JD_JAN_5_1941 - j2ET;
+   Real        tdbTime = (spiceTime / GmatTimeUtil::SECS_PER_DAY) - julianOffset;
 
    Real        a1Time  = TimeConverterUtil::Convert(tdbTime, TimeConverterUtil::TDBMJD,
                          TimeConverterUtil::A1MJD, GmatTimeUtil::JD_JAN_5_1941);
