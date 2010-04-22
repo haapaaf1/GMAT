@@ -64,6 +64,7 @@
 //#define DEBUG_SET
 //#define DEBUG_SET_FORCE_MODEL
 //#define DEBUG_SET_SOLAR_SYS
+//#define DEBUG_CHECK_OBJECT
 //#define DEBUG_CHECK_BRANCH
 //#define DEBUG_SPECIAL_CASE
 //#define DEBUG_PARSE_REPORT
@@ -4545,7 +4546,7 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
    
    debugMsg = "In SetPropertyObjectValue()";
    Parameter *param = NULL;
-   
+
    // Remove enclosing single quotes first (LOJ: 2009.06.08)
    std::string valueToUse = value;
    valueToUse = GmatStringUtil::RemoveEnclosingString(valueToUse, "'");
@@ -4689,6 +4690,10 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                if (obj->IsOfType(Gmat::PROP_SETUP))
                   ownedName = valueToUse;
                ownedObj = CreateObject(valueToUse, ownedName, 0);
+               if (ownedObj == NULL)
+                  MessageInterface::ShowMessage("Owned object %s was not "
+                        "created for %s; using default\n", ownedName.c_str(),
+                        obj->GetName().c_str());
             }
             
             #ifdef DEBUG_SET
