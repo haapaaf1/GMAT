@@ -139,7 +139,9 @@ public:
    const StringArray&   GetStringArrayParameter(const Integer id) const;
    virtual const StringArray&
                         GetStringArrayParameter(const std::string &label) const;
-   
+   virtual std::string 	GetStringParameter(const Integer id, const Integer index) const;			// made changes by Tuan Nguyen
+   virtual std::string  GetStringParameter(const std::string & label, const Integer index) const;	// made changes by Tuan Nguyen
+
    virtual std::string  GetParameterText(const Integer id) const;
    virtual Gmat::ParameterType
                         GetParameterType(const Integer id) const;
@@ -226,6 +228,9 @@ protected:
       CARTESIAN_VY,
       CARTESIAN_VZ,
       MASS_FLOW,
+
+      // Hardware for spacecraft
+      ADD_HARDWARE,					// made changes by Tuan Nguyen
 
       SpacecraftParamCount
    };
@@ -362,7 +367,12 @@ protected:
    /// Toggle to making Cart state dynamic; Integer to handle multiple includes
    Integer           includeCartesianState;
 
-   // Hardware 
+   // Hardware
+   /// List of hardware names used in the spacecraft
+   StringArray		 hardwareNames;					// made changes by Tuan Nguyen
+   /// List of hardware objects used in the spacecraft
+   ObjectArray 		 hardwareList;					// made changes by Tuan Nguyen
+
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
    bool              ApplyTotalMass(Real newMass);

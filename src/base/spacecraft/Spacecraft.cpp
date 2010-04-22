@@ -121,6 +121,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // CartesianVY
       Gmat::REAL_TYPE,        // CartesianVZ
       Gmat::REAL_TYPE,        // MASS_FLOW,
+      Gmat::OBJECTARRAY_TYPE, // AddHardware	// made changes by Tuan Nguyen
    };
 
 const std::string
@@ -164,6 +165,7 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "CartesianVY",
       "CartesianVZ",
       "MassFlow",
+      "AddHardware",				// made changes by Tuan Nguyen
    };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] =
@@ -437,6 +439,9 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
 
+   hardwareNames 	 = a.hardwareNames;			// made changes by Tuan Nguyen
+   hardwareList 	 = a.hardwareList;			// made changes by Tuan Nguyen
+
    // set cloned hardware
    CloneOwnedObjects(a.attitude, a.tanks, a.thrusters);
 
@@ -522,6 +527,9 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    representations   = a.representations;
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
+
+   hardwareNames     = a.hardwareNames;			// made changes by Tuan Nguyen
+   hardwareList 	 = a.hardwareList;			// made changes by Tuan Nguyen
 
    // delete attached hardware, such as tanks and thrusters
    #ifdef DEBUG_SPACECRAFT
@@ -916,6 +924,16 @@ bool Spacecraft::RenameRefObject(const Gmat::ObjectType type,
    if (type != Gmat::HARDWARE)
       return true;
 
+   // made changes by Tuan Nguyen
+   for (UnsignedInt i=0; i<hardwareNames.size(); i++)
+   {
+      if (hardwareNames[i] == oldName)
+      {
+         hardwareNames[i] = newName;
+         break;
+      }
+   }
+
    for (UnsignedInt i=0; i<thrusterNames.size(); i++)
    {
       if (thrusterNames[i] == oldName)
@@ -1052,6 +1070,7 @@ const StringArray&
       {
          fullList = tankNames;
          fullList.insert(fullList.end(), thrusterNames.begin(), thrusterNames.end());
+         fullList.insert(fullList.end(), hardwareNames.begin(), hardwareNames.end());	// made changes by Tuan Nguyen
          return fullList;
       }
 
@@ -1156,7 +1175,13 @@ GmatBase* Spacecraft::GetRefObject(const Gmat::ObjectType type,
          #endif
          return attitude;
 
-      case Gmat::HARDWARE:
+      case Gmat::HARDWARE:			// made changes by Tuan Nguyen
+          for (ObjectArray::iterator i = hardwareList.begin();
+               i < hardwareList.end(); ++i) {
+             if ((*i)->GetName() == name)
+                return *i;
+          }
+
       case Gmat::FUEL_TANK:
          for (ObjectArray::iterator i = tanks.begin();
               i < tanks.end(); ++i) {
@@ -1254,6 +1279,21 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #else
             return SetHardware(obj, thrusterNames, thrusters);
          #endif
+      }
+
+      // set on hardware		// made changes by Tuan Nguyen
+      if (obj->GetType() == Gmat::HARDWARE)		//(objType == "Hardware")
+      {
+		 #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
+    	    if (find(hardwareList.begin(), hardwareList.end(), obj) == hardwareList.end())
+    	    {
+				hardwareList.push_back(obj);
+				return true;
+    	    }
+    	    return false;
+		#else
+    	    return SetHardware(obj, hardwareNames, hardwareList);
+		#endif
       }
 
       return false;
@@ -1429,6 +1469,8 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //---------------------------------------------------------------------------
 ObjectArray& Spacecraft::GetRefObjectArray(const Gmat::ObjectType type)
 {
+   if (type == Gmat::HARDWARE)		// made changes by Tuan Nguyen
+	  return hardwareList;
    if (type == Gmat::FUEL_TANK)
       return tanks;
    if (type == Gmat::THRUSTER)
@@ -1450,6 +1492,8 @@ ObjectArray& Spacecraft::GetRefObjectArray(const Gmat::ObjectType type)
 //---------------------------------------------------------------------------
 ObjectArray& Spacecraft::GetRefObjectArray(const std::string& typeString)
 {
+   if (typeString == "Hardware")	// made changes by Tuan Nguyen
+	  return hardwareList;
    if ((typeString == "FuelTank") || (typeString == "Tanks"))
       return tanks;
    if ((typeString == "Thruster") || (typeString == "Thrusters"))
@@ -1481,6 +1525,10 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
 
    try
    {
+	  // handle AddHardware parameter:
+	  if (str == "AddHardware")				// made changes by Tuan Nguyen
+		  return ADD_HARDWARE;
+
       // handle special parameter to work in GmatFunction (loj: 2008.06.27)
       if (str == "UTCGregorian")
          return UTC_GREGORIAN;
@@ -2207,6 +2255,55 @@ std::string Spacecraft::GetStringParameter(const std::string &label) const
 //
    return GetStringParameter(GetParameterID(label));
 }
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * This method retrieves a string parameter from a StringArray
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The parameter
+ */
+//------------------------------------------------------------------------------
+std::string Spacecraft::GetStringParameter(const Integer id,
+											const Integer index) const
+{
+   // made changes by Tuan Nguyen
+   switch (id)
+   {
+      case ADD_HARDWARE:
+         {
+            if ((0 <= index)&(index < hardwareNames.size()))
+			   return hardwareNames[index];
+			else
+			   return "";
+		 }
+
+      default:
+    	 break;
+   }
+   return GmatBase::GetStringParameter(id, index);
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string & label,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * This method retrieves a string parameter from a StringArray
+ *
+ * @param label The string label for the parameter
+ *
+ * @return The parameter
+ */
+//------------------------------------------------------------------------------
+std::string Spacecraft::GetStringParameter(const std::string & label,
+      const Integer index) const
+{
+   return GetStringParameter(GetParameterID(label), index);
+}
 
 
 //---------------------------------------------------------------------------
@@ -2224,6 +2321,8 @@ std::string Spacecraft::GetStringParameter(const std::string &label) const
 //---------------------------------------------------------------------------
 const StringArray& Spacecraft::GetStringArrayParameter(const Integer id) const
 {
+   if (id == ADD_HARDWARE)			// make changes by Tuan Nguyen
+      return hardwareNames;
    if (id == FUEL_TANK_ID)
       return tankNames;
    if (id == THRUSTER_ID)
@@ -2282,6 +2381,18 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
          ("Spacecraft::SetStringParameter() string parameter %d (%s) to %s\n",
          id, GetParameterText(id).c_str(), value.c_str());
    #endif
+
+   // made changes by Tuan Nguyen
+   if (id == ADD_HARDWARE)
+   {
+   	  // Only add the hardware if it is not in the list already
+   	  if (find(hardwareNames.begin(), hardwareNames.end(), value) ==
+   	            hardwareNames.end())
+   	  {
+   	     hardwareNames.push_back(value);
+   	  }
+   	  return true;
+   }
 
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude)
@@ -2476,6 +2587,17 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
 
    switch (id)
    {
+   case ADD_HARDWARE:								// made changes by Tuan nguyen
+	  {
+		 if (index < (Integer)hardwareNames.size())
+			hardwareNames[index] = value;
+		 else
+			 // Only add the hardware if it is not in the list already
+			 if (find(hardwareNames.begin(), hardwareNames.end(), value) == hardwareNames.end())
+	               hardwareNames.push_back(value);
+
+	     return true;
+	  }
    case FUEL_TANK_ID:
       {
          if (index < (Integer)tankNames.size())
