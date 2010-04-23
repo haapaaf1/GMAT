@@ -212,7 +212,7 @@ OBJECTS = \
     coordsystem/CoordSysCreateDialog.o \
     coordsystem/CoordSystemConfigPanel.o \
     forcemodel/DragInputsDialog.o \
-    foundation/ArraySetupPanel.o \
+    foundation/ArraySetupDialog.o \
     foundation/GmatDialog.o \
     foundation/GmatMdiChildFrame.o \
     foundation/GmatPanel.o \
