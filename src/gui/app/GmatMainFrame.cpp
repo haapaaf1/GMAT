@@ -71,8 +71,8 @@
 #include "SavePanel.hpp"
 #include "ReportPanel.hpp"
 #include "TogglePanel.hpp"
+#include "ParameterCreateDialog.hpp"
 #include "ParameterSetupPanel.hpp"
-#include "ArraySetupPanel.hpp"
 #include "IfPanel.hpp"
 #include "ForPanel.hpp"
 #include "WhilePanel.hpp"
@@ -2207,6 +2207,20 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
        title.c_str(), name.c_str(), itemType);
    #endif
 
+   // if variable, then display dialog, TGG 4/2010
+   switch (itemType)
+   {
+   case GmatTree::ARRAY:
+   case GmatTree::STRING:
+   case GmatTree::VARIABLE:
+      {
+         ParameterCreateDialog paramDlg(this, name);
+         paramDlg.ShowModal();
+         //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+         return NULL;
+      }
+   }
+
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
    GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
@@ -2273,13 +2287,23 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::SUBSCRIBER:
       sizer->Add(new SubscriberSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
-   case GmatTree::VARIABLE:
-   case GmatTree::STRING:
-      sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      break;
-   case GmatTree::ARRAY:
-      sizer->Add(new ArraySetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      break;
+   //case GmatTree::VARIABLE:
+   //   {
+   //      ParameterCreateDialog paramDlg(this, ParameterCreateDialog::VARIABLE);
+   //      paramDlg.ShowModal();
+   //      //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+   //      break;
+   //   }
+   //case GmatTree::STRING:
+   //   {
+   //      ParameterCreateDialog paramDlg(this, ParameterCreateDialog::STRING);
+   //      paramDlg.ShowModal();
+   //      //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+   //      break;
+   //   }
+   //case GmatTree::ARRAY:
+   //   sizer->Add(new ArraySetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+   //   break;
    case GmatTree::MATLAB_FUNCTION:
       sizer->Add(new MatlabFunctionSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
