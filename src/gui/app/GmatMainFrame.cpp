@@ -72,7 +72,6 @@
 #include "ReportPanel.hpp"
 #include "TogglePanel.hpp"
 #include "ParameterCreateDialog.hpp"
-#include "ParameterSetupPanel.hpp"
 #include "IfPanel.hpp"
 #include "ForPanel.hpp"
 #include "WhilePanel.hpp"
@@ -2216,7 +2215,6 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       {
          ParameterCreateDialog paramDlg(this, name);
          paramDlg.ShowModal();
-         //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
          return NULL;
       }
    }
