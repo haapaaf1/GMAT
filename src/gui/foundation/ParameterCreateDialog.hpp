@@ -26,30 +26,33 @@ class ParameterCreateDialog : public GmatDialog
 {
 public:
    
-   ParameterCreateDialog(wxWindow *parent, int paramType);
+   // parameter type to create
+   enum e_parameter_type
+   {
+      VARIABLE,
+      ARRAY,
+      STRING
+   };
+   
+   ParameterCreateDialog(wxWindow *parent, e_parameter_type paramType);
+   ParameterCreateDialog(wxWindow *parent, const wxString param_name);
    ~ParameterCreateDialog();
    
    wxArrayString& GetParamNames()
       { return mParamNames; }
    bool IsParamCreated()
       { return mIsParamCreated; }
-   
+   virtual void SetParameterType( e_parameter_type param_type );
 protected:
 
    Parameter *mCurrParam;
    
    wxArrayString mParamNames;
    wxArrayString mExcludedScList;
+   wxArrayString mSelectVarStrings;
    
-   int mParamType;
+   e_parameter_type mParamType;
    bool mIsParamCreated;
-   bool mCreateVariable;
-   bool mCreateString;
-   bool mCreateArray;
-   
-   wxColour mColor;
-   
-   wxStaticText *mCoordSysLabel;
    
    wxTextCtrl *mVarNameTextCtrl;
    wxTextCtrl *mExprTextCtrl;
@@ -61,23 +64,20 @@ protected:
    wxTextCtrl *mArrValueTextCtrl;
 
    wxButton *mCreateVariableButton;
-   wxButton *mPastePropertyButton;
-   wxButton *mPasteUserVarButton;
-   wxButton *mColorButton;
+   wxButton *mSelectButton;
    wxButton *mCreateStringButton;
    wxButton *mCreateArrayButton;
-   wxButton *mAssignArrayButton;
-   wxButton *mInitArrayButton;
-   
-   wxListBox *mObjectListBox;
-   wxListBox *mPropertyListBox;
+   wxButton *mEditArrayButton;
+
+   wxBitmapButton *mVarClearButton;
+   wxBitmapButton *mArrClearButton;
+   wxBitmapButton *mStrClearButton;
+
    wxListBox *mUserVarListBox;
-   wxListBox *mUserStringListBox;
+   wxListBox *mUserStringListBox; 
    wxListBox *mUserArrayListBox;
    
-   wxComboBox *mCoordSysComboBox;
-   wxComboBox *mCentralBodyComboBox; //loj: 1/3/05 Added
-   
+   wxNotebook *notebook;
    wxBoxSizer *mDetailsBoxSizer;
 
    // abstract methods from GmatDialog
@@ -85,13 +85,18 @@ protected:
    virtual void LoadData();
    virtual void SaveData();
    virtual void ResetData();
+   virtual void ResetControls();
    
    // event handling
-   void OnTextUpdate(wxCommandEvent& event);
-   void OnComboBoxChange(wxCommandEvent& event);
-   void OnButton(wxCommandEvent& event);
-   void OnColorButtonClick(wxCommandEvent& event);
-   void OnSelectProperty(wxCommandEvent& event);
+   void OnVarTextUpdate(wxCommandEvent& event);
+   void OnStrTextUpdate(wxCommandEvent& event);
+   void OnAryTextUpdate(wxCommandEvent& event);
+   void OnCreateButton(wxCommandEvent& event);
+   void OnSelectButtonClick(wxCommandEvent& event);
+   void OnClearButtonClick(wxCommandEvent& event);
+   void OnEditArrayButtonClick(wxCommandEvent& event);
+   void OnPageChanged(wxNotebookEvent& event);
+   void OnListboxClick(wxCommandEvent& event);
 
    DECLARE_EVENT_TABLE();
    
@@ -99,18 +104,21 @@ protected:
    enum
    {     
       ID_TEXT = 9200,
+      ID_SELECT_BUTTON,
+      ID_EDITARRAY_BUTTON,
+      ID_CREATE_BUTTON,
+      ID_CLEAR_VAR_BUTTON,
+      ID_CLEAR_ARR_BUTTON,
+      ID_CLEAR_STR_BUTTON,
+      ID_VARTEXTCTRL,
+      ID_ARYTEXTCTRL,
+      ID_NOTEBOOK,
       ID_LISTBOX,
-      ID_PROPERTY_LISTBOX,
-      ID_BUTTON,
-      ID_COLOR_BUTTON,
-      ID_COMBO,
-      ID_TEXTCTRL
+      ID_STRTEXTCTRL
    };
-   
+
 private:
-   void ShowCoordSystem();
    Parameter* CreateParameter(const wxString &name);
-   wxString GetParamName();
    void CreateVariable();
    void CreateString();
    void CreateArray();
