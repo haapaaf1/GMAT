@@ -2537,7 +2537,7 @@ void ResourceTree::OnAddVariable(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
 
    // show dialog to create user parameter
-   ParameterCreateDialog paramDlg(this, 1);
+   ParameterCreateDialog paramDlg(this, ParameterCreateDialog::VARIABLE);
    paramDlg.ShowModal();
 }
 
@@ -2556,7 +2556,7 @@ void ResourceTree::OnAddArray(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
 
    // show dialog to create user parameter
-   ParameterCreateDialog paramDlg(this, 2);
+   ParameterCreateDialog paramDlg(this, ParameterCreateDialog::ARRAY);
    paramDlg.ShowModal();
 }
 
@@ -2575,7 +2575,7 @@ void ResourceTree::OnAddString(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
 
    // show dialog to create user parameter
-   ParameterCreateDialog paramDlg(this, 3);
+   ParameterCreateDialog paramDlg(this, ParameterCreateDialog::STRING);
    paramDlg.ShowModal();
 }
 
