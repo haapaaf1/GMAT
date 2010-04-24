@@ -377,7 +377,8 @@ bool SPKPropagator::Initialize()
 bool SPKPropagator::Step()
 {
    #ifdef DEBUG_PROPAGATION
-      MessageInterface::ShowMessage("SPKPropagator::Step() entered\n");
+      MessageInterface::ShowMessage("SPKPropagator::Step() entered; stepsize = "
+            "%.12lf; timeFromEpoch = %.12lf\n", ephemStep, timeFromEpoch);
    #endif
 
    bool retval = false;
@@ -556,13 +557,19 @@ void SPKPropagator::SetEphemSpan(Integer whichOne)
       SpiceDouble b, e;
       int i;
 
-      for (i = 0; i < niv; ++i)
+      // Get the endpoints of the ith interval.
+      wnfetd_c(&cover, 0, &b, &e);
+      ephemStart = skr->SpiceTimeToA1(b);
+      ephemEnd   = skr->SpiceTimeToA1(e);
+
+      for (i = 1; i < niv; ++i)
       {
          // Get the endpoints of the ith interval.
          wnfetd_c(&cover, i, &b, &e);
-
-         ephemStart = skr->SpiceTimeToA1(b);
-         ephemEnd   = skr->SpiceTimeToA1(e);
+         if (ephemStart > skr->SpiceTimeToA1(b))
+            ephemStart = skr->SpiceTimeToA1(b);
+         if (ephemEnd < skr->SpiceTimeToA1(e))
+            ephemEnd   = skr->SpiceTimeToA1(e);
       }
    }
 }

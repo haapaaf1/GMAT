@@ -1137,6 +1137,7 @@ void EphemerisPropagator::RevertSpaceObject()
          ("ODEModel::RevertSpacecraft() prevElapsedTime=%f elapsedTime=%f\n",
           prevElapsedTime, elapsedTime);
    #endif
+
    timeFromEpoch = (previousState.GetEpoch() - initialEpoch) * 86400.0;
    currentEpoch = initialEpoch + timeFromEpoch / 86400.0;
    UpdateState();

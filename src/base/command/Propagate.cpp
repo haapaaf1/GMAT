@@ -2779,7 +2779,8 @@ void Propagate::PrepareToPropagate()
          }
          else
          {
-            elapsedTime[n] = 0.0; //p[n]->GetElapsedTime();
+            elapsedTime[n] = p[n]->GetTime();
+            baseEpoch[n] -= elapsedTime[n] / GmatTimeUtil::SECS_PER_DAY;
          }
          currEpoch[n] = baseEpoch[n] + elapsedTime[n] /
             GmatTimeUtil::SECS_PER_DAY;
@@ -3224,12 +3225,15 @@ bool Propagate::Execute()
             if (fm[i])
             {
                elapsedTime[i] = fm[i]->GetTime();
+               currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
+                  GmatTimeUtil::SECS_PER_DAY;
             }
             else
-// CHECK THIS!!!
-               elapsedTime[i] += p[i]->GetStepTaken();
-            currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
-               GmatTimeUtil::SECS_PER_DAY;
+            {
+               elapsedTime[i] = p[i]->GetTime();
+               currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
+                  GmatTimeUtil::SECS_PER_DAY;
+            }
             #ifdef DEBUG_PROPAGATE_EXE
                MessageInterface::ShowMessage
                   ("   %d  BaseEpoch = %.12lf elapsedTime = %.12lf "
