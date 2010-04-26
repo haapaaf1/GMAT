@@ -393,28 +393,8 @@ void Moderator::Finalize()
       #endif
       
       // Clear command sequence before resource (loj: 2008.07.10)
-      ClearCommandSeq();
-      
-      if (!commands.empty())
-      {
-         // only 1 sandbox for now
-         GmatCommand *cmd = commands[0];
-         #if DEBUG_FINALIZE > 0
-         MessageInterface::ShowMessage
-            (".....Moderator::Finalize() deleting (%p)%s\n", cmd,
-             cmd->GetTypeName().c_str());
-         #endif
-         
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (cmd, cmd->GetTypeName(), "Moderator::Finalize()");
-         #endif
-         
-         delete cmd;
-         cmd = NULL;
-         commands[0] = NULL;
-      }
-      
+      // only 1 sandbox for now
+      ClearCommandSeq(false, false);
       ClearResource();
       
       // Close out the plug-in libraries
@@ -440,7 +420,12 @@ void Moderator::Finalize()
       //delete theConfigManager; (private destructor)
       //delete theScriptInterpreter; (private destructor)
       //delete theGuiInterpreter; (private destructor)
-      //delete thePublisher; (private destructor)
+      #if DEBUG_FINALIZE > 0
+      MessageInterface::ShowMessage
+         (".....Moderator::Finalize() deleting (%p)thePublisher\n",
+          thePublisher);
+      #endif      
+      delete thePublisher;
       
       // delete solar systems
       #if DEBUG_FINALIZE > 0
@@ -679,6 +664,11 @@ void Moderator::LoadPlugins()
         
       #endif
    }
+   
+   if (theUiInterpreter != NULL)
+      theUiInterpreter->BuildCreatableObjectMaps();
+   theScriptInterpreter->BuildCreatableObjectMaps();
+
 }
 
 //------------------------------------------------------------------------------
@@ -739,10 +729,6 @@ void Moderator::LoadAPlugin(std::string pluginName)
                         MessageInterface::ShowMessage("   %s\n",
                               facts[f].c_str());
                   #endif
-
-                  if (theUiInterpreter != NULL)
-                     theUiInterpreter->BuildCreatableObjectMaps();
-                  theScriptInterpreter->BuildCreatableObjectMaps();
                }
             } 
             else
@@ -5348,7 +5334,7 @@ bool Moderator::LoadDefaultMission()
    theScriptInterpreter->SetHeaderComment("");
    theScriptInterpreter->SetFooterComment("");
    
-   ClearCommandSeq();
+   ClearCommandSeq(true, true);
    ClearResource();
    
    CreateDefaultMission();
@@ -5418,9 +5404,21 @@ bool Moderator::ClearResource()
 
 // Command Sequence
 //------------------------------------------------------------------------------
-// bool ClearCommandSeq(Integer sandboxNum = 1)
+// bool ClearCommandSeq(bool leaveFirstCmd, bool callRunComplete,
+//                     Integer sandboxNum)
 //------------------------------------------------------------------------------
-bool Moderator::ClearCommandSeq(Integer sandboxNum)
+/*
+ * Deletes whole command sequence.
+ *
+ * @param  leaveFirstCmd  Set this flag to true if the first command should be
+ *                        left undeleted (true)
+ * @param  callRunComplete  Set this flag to true if RunComplete() should be
+ *                        called for all commands (true)
+ * @param  sandBoxNum  The sandobx number (1)
+ */
+//------------------------------------------------------------------------------
+bool Moderator::ClearCommandSeq(bool leaveFirstCmd, bool callRunComplete,
+                                Integer sandboxNum)
 {
    #if DEBUG_SEQUENCE_CLEARING
    MessageInterface::ShowMessage("Moderator::ClearCommandSeq() entered\n");
@@ -5436,7 +5434,8 @@ bool Moderator::ClearCommandSeq(Integer sandboxNum)
    }
    
    GmatCommand *cmd = commands[sandboxNum-1];
-   bool retval = GmatCommandUtil::ClearCommandSeq(cmd);
+   bool retval =
+      GmatCommandUtil::ClearCommandSeq(cmd, leaveFirstCmd, callRunComplete);
    
    #if DEBUG_SEQUENCE_CLEARING
    MessageInterface::ShowMessage
@@ -5533,29 +5532,14 @@ Integer Moderator::RunMission(Integer sandboxNum)
       
       try
       {
+         
          // add objects to sandbox
          AddSolarSystemToSandbox(sandboxNum-1);
          AddTriggerManagersToSandbox(sandboxNum-1);
          AddInternalCoordSystemToSandbox(sandboxNum-1);
-         AddCoordSystemToSandbox(sandboxNum-1);
-         /// @note AddSpacecraftToSandbox() also adds associated hardware
-         AddSpacecraftToSandbox(sandboxNum-1);
-         AddFormationToSandbox(sandboxNum-1);
-         AddSpacePointToSandbox(sandboxNum-1);
-         AddODEModelToSandbox(sandboxNum-1);
-         AddPropagatorToSandbox(sandboxNum-1);
-         AddPropSetupToSandbox(sandboxNum-1);
-         AddBurnToSandbox(sandboxNum-1);
-         AddMeasurementToSandbox(sandboxNum-1);
-         AddDataStreamToSandbox(sandboxNum-1);
-         AddSolverToSandbox(sandboxNum-1);
-         AddParameterToSandbox(sandboxNum-1);
-         AddFunctionToSandbox(sandboxNum-1);
-         
-         /// @note Add Subscriber after Publisher
-         /// since AddPublisherToSandbox() clears subscribers
          AddPublisherToSandbox(sandboxNum-1);
          AddSubscriberToSandbox(sandboxNum-1);
+         AddOtherObjectsToSandbox(sandboxNum-1);
          
          // add command sequence to sandbox
          AddCommandToSandbox(sandboxNum-1);
@@ -6143,7 +6127,8 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
       MessageInterface::ShowMessage(".....Clearing both resource and command sequence...\n");
       #endif
       
-      ClearCommandSeq();
+      //ClearCommandSeq(true, false);
+      ClearCommandSeq(true, true);
       ClearResource();
    }
    
@@ -6187,7 +6172,7 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
    #ifdef __ENABLE_CLEAR_UNMANAGED_FUNCTIONS__
    #if DEBUG_RUN > 0
    MessageInterface::ShowMessage
-      (".....Moderator::Finalize() deleting %d unmanaged functions\n",
+      (".....Moderator::PrepareNextScriptReading() deleting %d unmanaged functions\n",
        unmanagedFunctions.size());
    #endif
    for (UnsignedInt i=0; i<unmanagedFunctions.size(); i++)
@@ -7567,275 +7552,7 @@ void Moderator::AddPublisherToSandbox(Integer index)
    
    thePublisher->UnsubscribeAll();
    sandboxes[index]->SetPublisher(thePublisher);
-}
-
-
-//------------------------------------------------------------------------------
-// void AddCoordSystemToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddCoordSystemToSandbox(Integer index)
-{
-   CoordinateSystem *cs;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::COORDINATE_SYSTEM);
    
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddCoordSystemToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      cs = theConfigManager->GetCoordinateSystem(names[i]);
-      #ifdef DEBUG_RUN
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", cs, cs->GetTypeName().c_str(),
-          cs->GetName().c_str());
-      #endif
-      sandboxes[index]->AddObject(cs);
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddSpacecraftToSandbox(Integer index)
-//------------------------------------------------------------------------------
-/*
- * Adds Spacecrafts and associated hardwares to sandbox.
- */
-//------------------------------------------------------------------------------
-void Moderator::AddSpacecraftToSandbox(Integer index)
-{
-   Spacecraft *sc;
-   StringArray scNames = theConfigManager->GetListOfItems(Gmat::SPACECRAFT);
-   
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddSpacecraftToSandbox() count = %d\n", scNames.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)scNames.size(); i++)
-   {
-      sc = (Spacecraft*)theConfigManager->GetSpacecraft(scNames[i]);
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", sc, sc->GetTypeName().c_str(),
-          sc->GetName().c_str());
-      #endif
-      sandboxes[index]->AddObject(sc);
-   }
-   
-   Hardware *hw;
-   StringArray hwNames = theConfigManager->GetListOfItems(Gmat::HARDWARE);
-   
-   for (Integer i=0; i<(Integer)hwNames.size(); i++)
-   {
-      hw = (Hardware*)theConfigManager->GetHardware(hwNames[i]);
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", hw, hw->GetTypeName().c_str(),
-          hw->GetName().c_str());
-      #endif
-      sandboxes[index]->AddObject(hw);
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddFormationToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddFormationToSandbox(Integer index)
-{
-   Formation *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::FORMATION);
-
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddFormationToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = (Formation*)theConfigManager->GetSpacecraft(names[i]);
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddSpacePointToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddSpacePointToSandbox(Integer index)
-{
-   SpacePoint *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::SPACE_POINT);
-
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddSpacePointToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = (Formation*)theConfigManager->GetSpacePoint(names[i]);
-      // Spacecraft and Formations are added separately
-      // So check that first before adding (loj: 2008.10.01)
-      if (!obj->IsOfType(Gmat::SPACECRAFT) && !obj->IsOfType(Gmat::FORMATION))
-      {
-         sandboxes[index]->AddObject(obj);
-         
-         #if DEBUG_RUN > 1
-         MessageInterface::ShowMessage
-            ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-             obj->GetName().c_str());
-         #endif
-      }
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddPropSetupToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddPropSetupToSandbox(Integer index)
-{
-   PropSetup *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::PROP_SETUP);
-    
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddPropSetupToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetPropSetup(names[i]);
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
-          obj->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddPropagatorToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddPropagatorToSandbox(Integer index)
-{
-   Propagator *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::PROPAGATOR);
-   
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddPropagatorToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetPropagator(names[i]);
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddODEModelToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddODEModelToSandbox(Integer index)
-{
-   ODEModel *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::ODE_MODEL);
-    
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddODEModelToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetODEModel(names[i]);
-      if (obj == NULL)
-         throw GmatBaseException
-            ("Moderator::AddODEModelToSandbox() The ODEModel named \"" + names[i] +
-             "\" has NULL pointer\n");
-      
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddBurnToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddBurnToSandbox(Integer index)
-{
-   Burn *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::BURN);
-    
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddBurnToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetBurn(names[i]);
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddSolverToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddSolverToSandbox(Integer index)
-{
-   Solver *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::SOLVER);
-   
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddSolverToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetSolver(names[i]);
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
-   }
 }
 
 
@@ -7922,143 +7639,32 @@ void Moderator::AddSubscriberToSandbox(Integer index)
 
 
 //------------------------------------------------------------------------------
-// void AddMeasurementToSandbox(Integer index)
+// void AddOtherObjectsToSandbox(Integer index)
 //------------------------------------------------------------------------------
-/**
- * Passes each configured MeasurementModel into the Sandbox
- *
- * @param index The Sandbox that receives the MeasurementModel
- */
-//------------------------------------------------------------------------------
-void Moderator::AddMeasurementToSandbox(Integer index)
+void Moderator::AddOtherObjectsToSandbox(Integer index)
 {
-   MeasurementModel *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::MEASUREMENT_MODEL);
-
+   GmatBase *obj;
+   StringArray names = theConfigManager->GetListOfAllItems();
+   
    #if DEBUG_RUN
    MessageInterface::ShowMessage
-      ("Moderator::AddMeasurementToSandbox() measurement count = %d\n",
-               names.size());
+      ("Moderator::AddOtherObjectsToSandbox() count = %d\n", names.size());
    #endif
-
+   
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
-      obj = theConfigManager->GetMeasurementModel(names[i]);
-      sandboxes[index]->AddObject((GmatBase*)obj);
+      obj = theConfigManager->GetItem(names[i]);
 
-      #if DEBUG_RUN > 1
+      // Skip subscribers since those are handled separately
+      if (obj->IsOfType(Gmat::SUBSCRIBER))
+         continue;
+      
+      #ifdef DEBUG_RUN
       MessageInterface::ShowMessage
          ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
           obj->GetName().c_str());
       #endif
-   }
-
-   TrackingSystem *ts;
-   names = theConfigManager->GetListOfItems(Gmat::TRACKING_SYSTEM);
-
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddMeasurementToSandbox() tracking system count = %d\n",
-               names.size());
-   #endif
-
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      ts = theConfigManager->GetTrackingSystem(names[i]);
-      sandboxes[index]->AddObject((GmatBase*)ts);
-
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", ts, ts->GetTypeName().c_str(),
-          ts->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddDataStreamToSandbox(Integer index)
-//------------------------------------------------------------------------------
-/**
- * Passes each configured DataStream into the Sandbox
- *
- * @param index The Sandbox that receives the DataStream
- */
-//------------------------------------------------------------------------------
-void Moderator::AddDataStreamToSandbox(Integer index)
-{
-   DataFile *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::DATASTREAM);
-
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddDataStreamToSandbox() count = %d\n", names.size());
-   #endif
-
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetDataStream(names[i]);
-      sandboxes[index]->AddObject((GmatBase*)obj);
-
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
-          obj->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddParameterToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddParameterToSandbox(Integer index)
-{
-   Parameter *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::PARAMETER);
-   
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddParameterToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetParameter(names[i]);
       sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void AddFunctionToSandbox(Integer index)
-//------------------------------------------------------------------------------
-void Moderator::AddFunctionToSandbox(Integer index)
-{
-   Function *obj;
-   StringArray names = theConfigManager->GetListOfItems(Gmat::FUNCTION);
-   
-   #if DEBUG_RUN
-   MessageInterface::ShowMessage
-      ("Moderator::AddFunctionToSandbox() count = %d\n", names.size());
-   #endif
-   
-   for (Integer i=0; i<(Integer)names.size(); i++)
-   {
-      obj = theConfigManager->GetFunction(names[i]);
-      sandboxes[index]->AddObject(obj);
-      
-      #if DEBUG_RUN > 1
-      MessageInterface::ShowMessage
-         ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(), 
-          obj->GetName().c_str());
-      #endif
    }
 }
 

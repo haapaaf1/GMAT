@@ -349,7 +349,8 @@ public:
    bool ClearResource();
    
    // Mission sequence
-   bool ClearCommandSeq(Integer sandboxNum = 1);
+   bool ClearCommandSeq(bool leaveFirstCmd = true, bool callRunComplete = true,
+                        Integer sandboxNum = 1);
    
    // Sandbox
    void ClearAllSandboxes();
@@ -414,20 +415,8 @@ private:
    void AddTriggerManagersToSandbox(Integer index);
    void AddInternalCoordSystemToSandbox(Integer index);
    void AddPublisherToSandbox(Integer index);
-   void AddCoordSystemToSandbox(Integer index);
-   void AddSpacecraftToSandbox(Integer index);
-   void AddFormationToSandbox(Integer index);
-   void AddSpacePointToSandbox(Integer index);
-   void AddPropSetupToSandbox(Integer index);
-   void AddPropagatorToSandbox(Integer index);
-   void AddODEModelToSandbox(Integer index);
-   void AddBurnToSandbox(Integer index);
-   void AddSolverToSandbox(Integer index);
    void AddSubscriberToSandbox(Integer index);
-   void AddMeasurementToSandbox(Integer index);
-   void AddDataStreamToSandbox(Integer index);
-   void AddParameterToSandbox(Integer index);
-   void AddFunctionToSandbox(Integer index);
+   void AddOtherObjectsToSandbox(Integer index);   
    void AddCommandToSandbox(Integer index);
    void InitializeSandbox(Integer index);
    void ExecuteSandbox(Integer index);
