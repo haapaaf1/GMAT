@@ -73,6 +73,23 @@ Publisher::~Publisher()
 {
    subscriberList.clear();
    coordSysMap.clear();
+   
+   // Clear registered pub data
+   std::map<GmatBase*, std::vector<DataType>* >::iterator iter = providerMap.begin();
+   while (iter != providerMap.end())
+   {
+      std::vector<DataType>* dataList = iter->second;
+      if (dataList != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (dataList, "dataList", "Publisher::UnregisterPublishedData()", "deleting dataList");
+         #endif
+         
+         delete dataList;
+      }
+      iter++;
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -646,9 +663,11 @@ void Publisher::UnregisterPublishedData(GmatBase *provider)
    }
    else
    {
+      #if DBGLVL_PUBLISHER_REGISTER
       MessageInterface::ShowMessage
          ("*** WARNING *** Publisher::UnregisterPublishedData() provider <%p> "
           "not registered\n");
+      #endif
    }
    
    #if DBGLVL_PUBLISHER_REGISTER

@@ -30,6 +30,9 @@ class GMAT_API Publisher
 public:
    static Publisher*    Instance();
    
+   // destructor
+   virtual ~Publisher();
+   
    bool Subscribe(Subscriber *s);
    bool Unsubscribe(Subscriber *s);
    bool UnsubscribeAll();
@@ -126,8 +129,6 @@ private:
    Publisher();
    // assignment operator
    Publisher& operator=(const Publisher &right);
-   // destructor
-   virtual ~Publisher();
 };
 
 
