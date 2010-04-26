@@ -66,7 +66,11 @@ Propagator* PropagatorFactory::CreatePropagator(const std::string &ofType,
       return new AdamsBashforthMoulton(withName);
    if (ofType == "DormandElMikkawyPrince68")
       return new DormandElMikkawyPrince68(withName);
+   if (ofType == "RungeKutta68")
+      return new DormandElMikkawyPrince68(withName);
    if (ofType == "RungeKuttaFehlberg56")
+      return new RungeKuttaFehlberg56(withName);
+   if (ofType == "RungeKutta56")
       return new RungeKuttaFehlberg56(withName);
 //   if (ofType == "Cowell")
 //      return new Cowell(withName);
@@ -104,7 +108,9 @@ PropagatorFactory::PropagatorFactory()
       creatables.push_back("BulirschStoer");
       creatables.push_back("AdamsBashforthMoulton");
       creatables.push_back("DormandElMikkawyPrince68");
+      creatables.push_back("RungeKutta68");
       creatables.push_back("RungeKuttaFehlberg56");
+      creatables.push_back("RungeKutta56");
 //      creatables.push_back("Cowell");
       
 #ifdef __USE_SPICE__
