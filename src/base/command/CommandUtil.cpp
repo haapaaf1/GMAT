@@ -569,7 +569,7 @@ GmatCommand* GmatCommandUtil::RemoveCommand(GmatCommand *seq, GmatCommand *cmd)
 
 
 //------------------------------------------------------------------------------
-// bool ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd)
+// bool ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd, bool callRunComplete)
 //------------------------------------------------------------------------------
 /*
  * Deletes whole command sequence.
@@ -577,9 +577,12 @@ GmatCommand* GmatCommandUtil::RemoveCommand(GmatCommand *seq, GmatCommand *cmd)
  * @param  seq  First command of the command sequence
  * @param  leaveFirstCmd  Set this flag to true if the first command should be
  *                        left undeleted (true)
+ * @param  callRunComplete  Set this flag to true if RunComplete() should be
+ *                        called for all commands (true)
  */
 //------------------------------------------------------------------------------
-bool GmatCommandUtil::ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd)
+bool GmatCommandUtil::ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd,
+                                      bool callRunComplete)
 {
    #ifdef DEBUG_SEQUENCE_CLEARING
    MessageInterface::ShowMessage("CommandUtil::ClearCommandSeq() entered\n");
@@ -610,13 +613,17 @@ bool GmatCommandUtil::ClearCommandSeq(GmatCommand *seq, bool leaveFirstCmd)
    cmd = cmd->GetNext();
    while (cmd)
    {
-      // Be sure we're in an idle state first
-      #ifdef DEBUG_SEQUENCE_CLEARING
-      MessageInterface::ShowMessage
-         ("   Calling %s->RunComplete\n", cmd->GetTypeName().c_str());
-      #endif
+      if (callRunComplete)
+      {
+         // Be sure we're in an idle state first
+         #ifdef DEBUG_SEQUENCE_CLEARING
+         MessageInterface::ShowMessage
+            ("   Calling %s->RunComplete\n", cmd->GetTypeName().c_str());
+         #endif
+         
+         cmd->RunComplete();
+      }
       
-      cmd->RunComplete();      
       removedCmd = RemoveCommand(seq, cmd);
       
       if (removedCmd != NULL)
