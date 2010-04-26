@@ -1,5 +1,5 @@
 # $Id$
-# Environment settings for the FminconOptimizer plugin
+# Environment settings for the MatlabInterface plugin
 # location of GMAT base headers and libraries
 GMAT_CODE_LOCATION = ../../../../src
 GMAT_BIN_LOCATION = ../../../../bin
@@ -31,9 +31,6 @@ BASE_LIBRARY = GmatBase
 # BASE_LIB_LOCATION is only used on Mac
 BASE_LIB_LOCATION = GMAT.app/Contents/Frameworks/
 endif
-
-# DataFile library
-MATLAB_LIBRARY = DataFile
 
 # Compiler options
 CPP = g++
@@ -69,22 +66,21 @@ SHARED_LIB_FLAGS = $(MATLAB_LINK_FLAGS) -shared -Wl --out-implib \
 
 endif
 
-DESIRED_OPTIMIZATIONS =  -DSTRICT -Wall -fno-pcc-struct-return -O3 \
+OPTIMIZATIONS =  -DSTRICT -Wall -fno-pcc-struct-return -O3 \
                  -finline-functions -funroll-loops -fno-rtti -DNO_GCC_PRAGMA \
                  -march=pentium -malign-double -fexceptions \
                  -fexpensive-optimizations
 
+# Set options for debugging and profiling
 ifeq ($(DEBUG_BUILD), 1)
-OPTIMIZATIONS = -fno-strict-aliasing $(WX_28_DEFINES)
+DEBUG_FLAGS = -g
 else
-OPTIMIZATIONS = -O3 -fno-strict-aliasing $(WX_28_DEFINES)
+DEBUG_FLAGS = 
 endif
 
-# wxWidgets flags
-WXCPPFLAGS = `/usr/local/bin/wx-config --cppflags`
 
 # Do not edit below this line -- here we build up longer compile/link strings
-CPP_BASE = $(OPTIMIZATIONS) -Wall \
-           $(MATLAB_CPP_FLAGS) $(WXCPPFLAGS) $(PROFILE_FLAGS) $(DEBUG_FLAGS)
+CPP_BASE = $(OPTIMIZATIONS) \
+           $(MATLAB_CPP_FLAGS) $(PROFILE_FLAGS) $(DEBUG_FLAGS)
 
 CPPFLAGS = $(CPP_BASE)
