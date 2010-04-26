@@ -299,9 +299,18 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
                
                if (refObj == NULL)
                {
-                  theErrorMsg = "Nonexistent " + GmatBase::GetObjectTypeString(refTypes[i]) +
-                     " \"" + refNames[j] + "\" referenced in the " + objName;
-                  retval = HandleError() && retval;
+                  // Check if it is local object type
+                  #ifdef DEBUG_CHECK_OBJECT
+                  MessageInterface::ShowMessage
+                     ("   Checking if '%s' is local object type\n", refNames[j].c_str());
+                  #endif
+                  if (!theInterpreter->IsObjectType(refNames[j]))
+                  {
+                     theErrorMsg = "Nonexistent " +
+                        GmatBase::GetObjectTypeString(refTypes[i]) +
+                        " \"" + refNames[j] + "\" referenced in the " + objName;
+                     retval = HandleError() && retval;
+                  }
                }
                else if (!refObj->IsOfType(refTypes[i]))
                {
@@ -442,8 +451,13 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
          // This will fix Bug 1670 ((LOJ: 2009.12.09)
          //if (manage != 1)
          //{
-            theErrorMsg = "Could not create an ElementWrapper for \"" +
-               theDescription + "\"";
+            #if DBGLVL_WRAPPERS > 1
+            MessageInterface::ShowMessage
+               ("Could not create an ElementWrapper for \"" + theDescription + "\"")
+            #endif
+            theErrorMsg = "Undefined function or variable \"" + theDescription +
+               "\" found ";
+            
             return HandleError();
             //}
             //else
@@ -466,7 +480,12 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
             
             if (ew == NULL)
             {
-               theErrorMsg = "Could not create an ElementWrapper for \"" + theDescription + "\"";
+               #if DBGLVL_WRAPPERS > 1
+               MessageInterface::ShowMessage
+                  ("Could not create an ElementWrapper for \"" + theDescription + "\"");
+               #endif
+               theErrorMsg = " Undefined function or variable \"" + *i + "\" found ";
+               
                return HandleError();
             }
             
