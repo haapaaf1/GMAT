@@ -87,6 +87,12 @@
 #include "MemoryTracker.hpp"
 #endif
 
+//---------------------------------
+// static data
+//---------------------------------
+
+StringArray Interpreter::allObjectTypeList = StringArray(1, "");
+
 //------------------------------------------------------------------------------
 // Interpreter(SolarSystem *ss = NULL, ObjectMap *objMap = NULL)
 //------------------------------------------------------------------------------
@@ -236,89 +242,111 @@ void Interpreter::BuildCreatableObjectMaps()
    }
    
    // Build a mapping for all of the defined objects
+   allObjectTypeList.clear();
    celestialBodyList.clear();
    StringArray cbs = theModerator->GetListOfFactoryItems(Gmat::CELESTIAL_BODY);
    copy(cbs.begin(), cbs.end(), back_inserter(celestialBodyList));
+   copy(cbs.begin(), cbs.end(), back_inserter(allObjectTypeList));
    
    atmosphereList.clear();
    StringArray atms = theModerator->GetListOfFactoryItems(Gmat::ATMOSPHERE);
    copy(atms.begin(), atms.end(), back_inserter(atmosphereList));
+   copy(atms.begin(), atms.end(), back_inserter(allObjectTypeList));
    
    attitudeList.clear();
    StringArray atts = theModerator->GetListOfFactoryItems(Gmat::ATTITUDE);
    copy(atts.begin(), atts.end(), back_inserter(attitudeList));
+   copy(atts.begin(), atts.end(), back_inserter(allObjectTypeList));
    
    axisSystemList.clear();
    StringArray axes = theModerator->GetListOfFactoryItems(Gmat::AXIS_SYSTEM);
    copy(axes.begin(), axes.end(), back_inserter(axisSystemList));
+   copy(axes.begin(), axes.end(), back_inserter(allObjectTypeList));
    
    burnList.clear();
    StringArray burns = theModerator->GetListOfFactoryItems(Gmat::BURN);
    copy(burns.begin(), burns.end(), back_inserter(burnList));
+   copy(burns.begin(), burns.end(), back_inserter(allObjectTypeList));
    
    calculatedPointList.clear();
    StringArray cals = theModerator->GetListOfFactoryItems(Gmat::CALCULATED_POINT);
    copy(cals.begin(), cals.end(), back_inserter(calculatedPointList));
+   copy(cals.begin(), cals.end(), back_inserter(allObjectTypeList));
    
    dataFileList.clear();
    StringArray dfs = theModerator->GetListOfFactoryItems(Gmat::DATA_FILE);
    copy(dfs.begin(), dfs.end(), back_inserter(dataFileList));
+   copy(dfs.begin(), dfs.end(), back_inserter(allObjectTypeList));
    
    ephemFileList.clear();
    StringArray ephems = theModerator->GetListOfFactoryItems(Gmat::EPHEMERIS_FILE);
    copy(ephems.begin(), ephems.end(), back_inserter(ephemFileList));
+   copy(ephems.begin(), ephems.end(), back_inserter(allObjectTypeList));
    
    functionList.clear();
    StringArray fns = theModerator->GetListOfFactoryItems(Gmat::FUNCTION);
    copy(fns.begin(), fns.end(), back_inserter(functionList));
+   copy(fns.begin(), fns.end(), back_inserter(allObjectTypeList));
    
    hardwareList.clear();
    StringArray hws = theModerator->GetListOfFactoryItems(Gmat::HARDWARE);
    copy(hws.begin(), hws.end(), back_inserter(hardwareList));
+   copy(hws.begin(), hws.end(), back_inserter(allObjectTypeList));
    
    measurementList.clear();
    StringArray measurements = theModerator->GetListOfFactoryItems(Gmat::CORE_MEASUREMENT);
    copy(measurements.begin(), measurements.end(), back_inserter(measurementList));
-
+   copy(measurements.begin(), measurements.end(), back_inserter(allObjectTypeList));
+   
    obtypeList.clear();
    StringArray obs = theModerator->GetListOfFactoryItems(Gmat::OBTYPE);
    copy(obs.begin(), obs.end(), back_inserter(obtypeList));
-
+   copy(obs.begin(), obs.end(), back_inserter(allObjectTypeList));
+   
    odeModelList.clear();
    StringArray odes = theModerator->GetListOfFactoryItems(Gmat::ODE_MODEL);
    copy(odes.begin(), odes.end(), back_inserter(odeModelList));
+   copy(odes.begin(), odes.end(), back_inserter(allObjectTypeList));
    
    parameterList.clear();
    StringArray parms = theModerator->GetListOfFactoryItems(Gmat::PARAMETER);
    copy(parms.begin(), parms.end(), back_inserter(parameterList));
+   copy(parms.begin(), parms.end(), back_inserter(allObjectTypeList));
    
    propagatorList.clear();
    StringArray props = theModerator->GetListOfFactoryItems(Gmat::PROPAGATOR);
    copy(props.begin(), props.end(), back_inserter(propagatorList));
+   copy(props.begin(), props.end(), back_inserter(allObjectTypeList));
    
    physicalModelList.clear();
    StringArray forces = theModerator->GetListOfFactoryItems(Gmat::PHYSICAL_MODEL);
    copy(forces.begin(), forces.end(), back_inserter(physicalModelList));
+   copy(forces.begin(), forces.end(), back_inserter(allObjectTypeList));
    
    solverList.clear();
    StringArray solvers = theModerator->GetListOfFactoryItems(Gmat::SOLVER);
    copy(solvers.begin(), solvers.end(), back_inserter(solverList));
+   copy(solvers.begin(), solvers.end(), back_inserter(allObjectTypeList));
    
    stopcondList.clear();
    StringArray stops = theModerator->GetListOfFactoryItems(Gmat::STOP_CONDITION);
    copy(stops.begin(), stops.end(), back_inserter(stopcondList));
+   copy(stops.begin(), stops.end(), back_inserter(allObjectTypeList));
    
    subscriberList.clear();
    StringArray subs = theModerator->GetListOfFactoryItems(Gmat::SUBSCRIBER);
    copy(subs.begin(), subs.end(), back_inserter(subscriberList));
+   copy(subs.begin(), subs.end(), back_inserter(allObjectTypeList));
    
    spacePointList.clear();
    StringArray spl = theModerator->GetListOfFactoryItems(Gmat::SPACE_POINT);
    copy(spl.begin(), spl.end(), back_inserter(spacePointList));
-
+   copy(spl.begin(), spl.end(), back_inserter(allObjectTypeList));
+   
    trackingSystemList.clear();
    StringArray tsl = theModerator->GetListOfFactoryItems(Gmat::TRACKING_SYSTEM);
    copy(tsl.begin(), tsl.end(), back_inserter(trackingSystemList));
+   copy(tsl.begin(), tsl.end(), back_inserter(allObjectTypeList));
    
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
@@ -524,7 +552,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::TRACKING_SYSTEM:
          clist = trackingSystemList;
          break;
-
+         
       // These are all intentional fall-throughs:
       case Gmat::SPACECRAFT:
       case Gmat::FORMATION:
@@ -4685,15 +4713,15 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
             if (obj->IsOwnedObject(id))
             {
                // Handle named owned Propagator object for PropSetup (loj: 2008.11.05)
-               // since Propagator is not created by Create command
+               // since Integrator is not created by Create command
                std::string ownedName = "";
                if (obj->IsOfType(Gmat::PROP_SETUP))
                   ownedName = valueToUse;
                ownedObj = CreateObject(valueToUse, ownedName, 0);
                if (ownedObj == NULL)
-                  MessageInterface::ShowMessage("Owned object %s was not "
-                        "created for %s; using default\n", ownedName.c_str(),
-                        obj->GetName().c_str());
+                  MessageInterface::ShowMessage
+                     ("*** WARNING *** Owned object %s was not created for '%s'; "
+                      "using default\n", ownedName.c_str(), obj->GetName().c_str());
             }
             
             #ifdef DEBUG_SET
@@ -6395,22 +6423,13 @@ bool Interpreter::FinalPass()
             retval = retval && retval1;
          }
       }
-      //
+      
       //-----------------------------------------------------------------
       // Note: This section needs be modified as needed. 
       // GetRefObjectTypeArray() should be implemented if we want to
       // add to this list. This was added to write specific error messages.
-      // @todo We should add a method HasGetRefObjectTypeArray() in GmatBase
-      // so that we don't need to keep updating this list
       //-----------------------------------------------------------------
-      
-      else if (obj->IsOfType(Gmat::BURN) ||
-               obj->IsOfType(Gmat::SPACECRAFT) ||
-               obj->IsOfType(Gmat::ODE_MODEL) ||
-               obj->IsOfType(Gmat::COORDINATE_SYSTEM) ||
-               obj->IsOfType(Gmat::CALCULATED_POINT) ||
-               obj->IsOfType(Gmat::SUBSCRIBER) ||
-               obj->IsOfType(Gmat::PROP_SETUP))
+      else if ((obj->HasRefObjectTypeArray()))
       {
          // Set return flag to false if any check failed
          try
@@ -6866,70 +6885,11 @@ bool Interpreter::IsObjectType(const std::string &type)
 
    if (theSolarSystem->IsBodyInUse(type))
       return true;
-   
-   if (find(propagatorList.begin(), propagatorList.end(), type) !=
-       propagatorList.end())
-      return true;
-   
-   if (find(axisSystemList.begin(), axisSystemList.end(), type) !=
-       axisSystemList.end())
-      return true;
-   
-   if (find(celestialBodyList.begin(), celestialBodyList.end(), type) !=
-      celestialBodyList.end())
-      return true;
-   
-   if (find(atmosphereList.begin(), atmosphereList.end(), type) !=
-       atmosphereList.end())
-      return true;
-   
-   if (find(attitudeList.begin(), attitudeList.end(), type) !=
-       attitudeList.end())
-      return true;
-   
-   if (find(burnList.begin(), burnList.end(), type) != burnList.end())
-      return true;
 
-   if (find(calculatedPointList.begin(), calculatedPointList.end(), type) != 
-       calculatedPointList.end()) 
+   if (find(allObjectTypeList.begin(), allObjectTypeList.end(), type) !=
+       allObjectTypeList.end())
       return true;
    
-   if (find(ephemFileList.begin(), ephemFileList.end(), type) != 
-       ephemFileList.end())
-      return true;
-   
-   if (find(functionList.begin(), functionList.end(), type) != 
-       functionList.end())
-      return true;
-   
-   if (find(hardwareList.begin(), hardwareList.end(), type) != 
-       hardwareList.end())
-      return true;
-
-   if (find(measurementList.begin(), measurementList.end(), type) !=
-       measurementList.end())
-      return true;
-
-   if (find(parameterList.begin(), parameterList.end(), type) != 
-       parameterList.end())
-      return true;
-   
-   if (find(physicalModelList.begin(), physicalModelList.end(), type) != 
-       physicalModelList.end())
-      return true;
-   
-   if (find(solverList.begin(), solverList.end(), type) != 
-       solverList.end())
-      return true;
-   
-   if (find(subscriberList.begin(), subscriberList.end(), type) != 
-       subscriberList.end())
-      return true;
-   
-   if (find(trackingSystemList.begin(), trackingSystemList.end(), type) !=
-       trackingSystemList.end())
-      return true;
-
    return false;
 }
 

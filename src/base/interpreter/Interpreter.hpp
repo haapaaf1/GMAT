@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Interpreter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/08/28
@@ -112,6 +112,7 @@ public:
    void SetHeaderComment(const std::string &comment){headerComment = comment;}
    void SetFooterComment(const std::string &comment){footerComment = comment;}
    
+   bool IsObjectType(const std::string &type);
    // to check commands
    bool ValidateCommand(GmatCommand *cmd);
    // to check subscriber
@@ -336,8 +337,8 @@ private:
    StringArray   subscriberList;
    StringArray   spacePointList;
    StringArray   celestialBodyList;
+   static StringArray   allObjectTypeList;
    
-   bool IsObjectType(const std::string &type);
    bool IsParameterType(const std::string &desc);
    bool CheckForSpecialCase(GmatBase *obj, Integer id, std::string &value);
    bool CheckUndefinedReference(GmatBase *obj, bool writeLine = true);
