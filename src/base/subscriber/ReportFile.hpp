@@ -106,6 +106,9 @@ public:
    virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name = "");
    
+   virtual bool         HasRefObjectTypeArray();
+   virtual const ObjectTypeArray&
+                        GetRefObjectTypeArray();
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    

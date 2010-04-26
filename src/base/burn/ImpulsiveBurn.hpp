@@ -69,6 +69,7 @@ public:
                         GetStringArrayParameter(const Integer id) const;
    
    // for Ref. objects
+   virtual bool         HasRefObjectTypeArray();
    virtual const ObjectTypeArray&
                         GetRefObjectTypeArray();
    virtual const StringArray&

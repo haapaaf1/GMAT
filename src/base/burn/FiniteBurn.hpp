@@ -59,6 +59,7 @@ public:
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         SetRealParameter(const Integer id, const Real value);
 
+   virtual bool         HasRefObjectTypeArray();
    virtual const ObjectTypeArray&
                         GetRefObjectTypeArray();
    virtual const StringArray&

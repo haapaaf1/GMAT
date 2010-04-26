@@ -689,6 +689,19 @@ const StringArray& ImpulsiveBurn::GetStringArrayParameter(const Integer id) cons
 
 
 //------------------------------------------------------------------------------
+// virtual bool HasRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ImpulsiveBurn::HasRefObjectTypeArray()
+{
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
 // const ObjectTypeArray& GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 /**

@@ -112,6 +112,7 @@ public:
 
    // Access methods derived classes can override on reference objects
    virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
+   virtual bool         HasRefObjectTypeArray();
    virtual const ObjectTypeArray&
                         GetRefObjectTypeArray();
    virtual const StringArray&
@@ -462,7 +463,8 @@ protected:
    /// error message formats
    std::string         errorMessageFormat;
    std::string         errorMessageFormatUnnamed;
-
+   std::string         deprecatedMessageFormat;
+   
    /// flag used to deterine if the current write is in Matlab mode
    bool                inMatlabMode;
 

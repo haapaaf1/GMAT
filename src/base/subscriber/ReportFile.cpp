@@ -1073,6 +1073,37 @@ bool ReportFile::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
 
 //------------------------------------------------------------------------------
+// virtual bool HasRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ReportFile::HasRefObjectTypeArray()
+{
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
+// const ObjectTypeArray& GetRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the list of ref object types used by this class.
+ *
+ * @return the list of object types.
+ * 
+ */
+//------------------------------------------------------------------------------
+const ObjectTypeArray& ReportFile::GetRefObjectTypeArray()
+{
+   refObjectTypes.clear();
+   refObjectTypes.push_back(Gmat::PARAMETER);
+   return refObjectTypes;
+}
+
+
+//------------------------------------------------------------------------------
 // virtual const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
 const StringArray& ReportFile::GetRefObjectNameArray(const Gmat::ObjectType type)

@@ -97,6 +97,7 @@ public:
    virtual GmatBase*    Clone(void) const;
    virtual void         Copy(const GmatBase* orig);
    
+   virtual bool         HasRefObjectTypeArray();
    virtual const        ObjectTypeArray& GetRefObjectTypeArray();
    virtual const StringArray&
                         GetRefObjectNameArray(const Gmat::ObjectType type);

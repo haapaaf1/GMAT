@@ -177,9 +177,12 @@ GmatBase::GmatBase(const Gmat::ObjectType typeId, const std::string &typeStr,
 {
    attributeCommentLines.clear();
    attributeInlineComments.clear();
-
+   
    if (type == Gmat::COMMAND)
    {
+      deprecatedMessageFormat =
+         "***WARNING*** \"%s\" field of " + typeName + " is deprecated and will "
+         "be removed from a future build; please use \"%s\" instead.\n";
       errorMessageFormat =
          "The value of \"%s\" for field \"%s\" on command \""
          + typeName +  "\" is not an allowed value.\n"
@@ -191,6 +194,10 @@ GmatBase::GmatBase(const Gmat::ObjectType typeId, const std::string &typeStr,
    }
    else
    {
+      deprecatedMessageFormat =
+         "*** WARNING *** \"%s\" field of " + typeName + " on object \"%s\" is "
+         "deprecated and will be removed from a future build; please use \"%s\" "
+         "instead.\n";
       errorMessageFormat =
          "The value of \"%s\" for field \"%s\" on object \""
          + instanceName +  "\" is not an allowed value.\n"
@@ -200,7 +207,7 @@ GmatBase::GmatBase(const Gmat::ObjectType typeId, const std::string &typeStr,
          + typeName +  "\" is not an allowed value.\n"
          "The allowed values are: [%s]";
    }
-
+   
    // Set the isGlobal flag appropriately
    isGlobal = AUTOMATIC_GLOBAL_FLAGS[type - Gmat::SPACECRAFT];
 
@@ -246,6 +253,7 @@ GmatBase::GmatBase(const GmatBase &a) :
     callbackExecuting         (false),
     errorMessageFormat        (a. errorMessageFormat),
     errorMessageFormatUnnamed (a. errorMessageFormatUnnamed),
+    deprecatedMessageFormat   (a. deprecatedMessageFormat),
     commentLine               (a.commentLine),
     inlineComment             (a.inlineComment),
     attributeCommentLines     (a.attributeCommentLines),
@@ -293,6 +301,7 @@ GmatBase& GmatBase::operator=(const GmatBase &a)
    callbackExecuting         = false;
    errorMessageFormat        = a. errorMessageFormat;
    errorMessageFormatUnnamed = a. errorMessageFormatUnnamed;
+   deprecatedMessageFormat   = a.deprecatedMessageFormat;
    commentLine               = a.commentLine;
    inlineComment             = a.inlineComment;
    attributeCommentLines     = a.attributeCommentLines;
@@ -514,6 +523,23 @@ std::string GmatBase::GetRefObjectName(const Gmat::ObjectType type) const
 {
    throw GmatBaseException("Reference Object not defined for " + typeName +
                            " named \"" + instanceName + "\"\n");
+}
+
+
+//------------------------------------------------------------------------------
+// virtual bool HasRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * Returns flag indicating whether GetRefObjectTypeArray() is implemented or not.
+ * Currently this method is used in the Interpreter::FinalPass() for validation.
+ *
+ * @note Derived classes should override this if GetRefObjectTypeArray() is
+ *       implemented
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::HasRefObjectTypeArray()
+{
+   return false;
 }
 
 

@@ -128,6 +128,7 @@ public:
                                           const std::string &value);
    
    virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
+   virtual bool         HasRefObjectTypeArray();
    virtual const ObjectTypeArray&
                         GetRefObjectTypeArray();
    virtual const StringArray&

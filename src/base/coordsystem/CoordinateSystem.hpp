@@ -139,6 +139,7 @@ public:
                                      const std::string &name);
    virtual bool         IsOwnedObject(Integer id) const;
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
+   virtual bool         HasRefObjectTypeArray();
    virtual const ObjectTypeArray&
                         GetRefObjectTypeArray();
    virtual const StringArray&
