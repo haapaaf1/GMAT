@@ -2165,11 +2165,23 @@ void EphemerisFile::BufferOrbitData(Real epochInDays, const Real state[6])
       if (fileType == CCSDS_OEM)
          WriteCcsdsOrbitDataSegment();
       else if (fileType == SPK_ORBIT)
+      {
+         // Save last data to become first data of next segment
+         A1Mjd *a1mjd  = new A1Mjd(*a1MjdArray.back());
+         Rvector6 *rv6 = new Rvector6(*stateArray.back());
+         
+         // Write a segment and delete data array pointers
          WriteSpkOrbitDataSegment();
+         
+         // Add saved data to arrays
+         a1MjdArray.push_back(a1mjd);
+         stateArray.push_back(rv6);
+      }
    }
-   
-   Rvector6 *rv6 = new Rvector6(state);
+
+   // Add new data point
    A1Mjd *a1mjd = new A1Mjd(epochInDays);
+   Rvector6 *rv6 = new Rvector6(state);
    a1MjdArray.push_back(a1mjd);
    stateArray.push_back(rv6);
    
@@ -2494,7 +2506,7 @@ void EphemerisFile::WriteSpkOrbitDataSegment()
       MessageInterface::ShowMessage
          ("   Writing start=%f, end=%f\n", start->GetReal(), end->GetReal());
       #endif
-
+      
       spkWriteFailed = false;
       try
       {
