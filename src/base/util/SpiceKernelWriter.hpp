@@ -2,12 +2,12 @@
 //------------------------------------------------------------------------------
 //                              SpiceKernelWriter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2009.11.25
@@ -54,8 +54,7 @@
 // include the appropriate SPICE C header(s)
 extern "C"
 {
-//#include "SpiceUsr.h"    // included in base SpiceInterface base class
-#include "SpiceZfc.h"    // for CSPICE routines to add meta data
+   #include "SpiceZfc.h"    // for CSPICE routines to add meta data
 }
 
 class GMAT_API SpiceKernelWriter :public SpiceInterface

@@ -1,13 +1,13 @@
-//$Id$
+//$Id:$
 //------------------------------------------------------------------------------
 //                              SpiceKernelReader
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under 
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2009.02.24
@@ -33,7 +33,9 @@
 //---------------------------------
 // static data
 //---------------------------------
-// none
+const Integer  SpiceKernelReader::MAX_IDS_PER_KERNEL     = 200;
+const Integer  SpiceKernelReader::MAX_COVERAGE_INTERVALS = 200000;
+
 
 //---------------------------------
 // public methods

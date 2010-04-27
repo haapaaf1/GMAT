@@ -2,12 +2,12 @@
 //------------------------------------------------------------------------------
 //                              SpiceOrbitKernelWriter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2009.11.25
@@ -51,10 +51,9 @@
 #include "Rvector6.hpp"
 #include "Rmatrix33.hpp"
 #include "SpiceKernelWriter.hpp"
-// include the appropriate SPICE C header
+// include the appropriate SPICE C header(s)
 extern "C"
 {
-//#include "SpiceUsr.h"    // for CSPICE routines
 #include "SpiceZfc.h"    // for CSPICE routines to add meta data
 }
 
@@ -70,11 +69,6 @@ public:
    ~SpiceOrbitKernelWriter();
 
    virtual SpiceOrbitKernelWriter* Clone() const;
-
-
-//   StringArray GetValidFrames();
-//   String      GetSPKName() const;
-//   void        SetLeapSecondKernel(const std::string &lsk);
 
    void        WriteSegment(const A1Mjd &start, const A1Mjd &end,
                             const StateArray &states, const EpochArray &epochs);
@@ -93,14 +87,10 @@ protected:
    std::string     frameName;
 
    // data converted to SPICE types, to pass into SPICE methods
-   /// the kernel name
-//   ConstSpiceChar  *kernelName;
    /// the target body or spacecraft NAIF Id (SPICE)
    SpiceInt        objectNAIFId;
    /// the central body NAIF Id (SPICE)
    SpiceInt        centralBodyNAIFId;
-   /// the observer epoch time (SPICE) in Ephemeris (TDB) Time
-//   SpiceDouble     et;
    /// the degree of interpolating polynomials to pass to SPICE
    SpiceInt        degree;
    /// the reference frame (SPICE)
@@ -116,27 +106,17 @@ protected:
    bool            fileOpen;
    /// the temporary text file
    FILE            *tmpTxtFile;
-//   /// SPICE Julian Date of 2000 JAN 01 12:00:00
-//   SpiceDouble     j2ET;
 
-//   static const Integer     NUM_VALID_FRAMES;
-//   static const std::string VALID_FRAMES[12];
+   static   std::string TMP_TXT_FILE_NAME;
 
-   /// maximum number of characters for short, explanation of short, or
-   /// long error message requested when calling CSPICE method getmsg_c
-//   static const Integer     MAX_SHORT_MESSAGE;
-//   static const Integer     MAX_EXPLAIN_MESSAGE;
-//   static const Integer     MAX_LONG_MESSAGE;
-//   static const Integer     MAX_CHAR_COMMENT;
-
-   static       std::string TMP_TXT_FILE_NAME;
-
-   void        SetBasicMetaData();
+   void     SetBasicMetaData();
    /// method used to create the temporary text file, to use to set metadata (comments)
    /// on the SPK file
-   void        WriteMetaData();
+   void     WriteMetaData();
 
-//   Integer     GetNaifID(const std::string &forBody);
+private:
+   // default constructor
+   SpiceOrbitKernelWriter();
 
 
 };

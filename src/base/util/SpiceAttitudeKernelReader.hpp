@@ -1,13 +1,13 @@
-//$Id$
+//$Id:$
 //------------------------------------------------------------------------------
 //                              SpiceAttitudeKernelReader
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2010.04.05
@@ -40,6 +40,16 @@ public:
 
    SpiceAttitudeKernelReader* Clone() const;
 
+   /// method to return the earliest and latest times of pointing data
+   /// coverage for the specified object, over the specified list of
+   /// CK kernels (non-CK kernels in the list will be ignored).
+   /// NOTE: This method will only check for coverage over intervals where
+   /// angular velocity data is available as well.
+   void   GetCoverageStartAndEnd(StringArray       &kernels,
+                                 Integer           forNaifId,
+                                 Real              &start,
+                                 Real              &end);
+
    /// method to return the orientation (attitude) of an instrument or a
    /// spacecraft at the specified time, with respect to the specified frame
    /// (support for planetary bodies' orientation may be added later)
@@ -50,6 +60,7 @@ public:
                                Rmatrix33         &r33,
                                Rvector3          &angVel,
                                const std::string &referenceFrame = "J2000");
+
 
 protected:
 

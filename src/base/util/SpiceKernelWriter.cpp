@@ -2,12 +2,12 @@
 //------------------------------------------------------------------------------
 //                              SpiceKernelWriter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2009.12.07
@@ -48,16 +48,45 @@
 //---------------------------------
 // public methods
 //---------------------------------
+
+//------------------------------------------------------------------------------
+//  SpiceKernelWriter()
+//------------------------------------------------------------------------------
+/**
+ * This method creates an object of the SpiceKernelWriter class
+ * (default constructor).
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceKernelWriter::SpiceKernelWriter() :
    SpiceInterface()
 {
 }
 
+//------------------------------------------------------------------------------
+//  SpiceKernelWriter(const SpiceKernelWriter &copy)
+//------------------------------------------------------------------------------
+/**
+ * This method creates an object of the SpiceKernelWriter class, with data
+ * copied from the input instance.
+ * (copy constructor).
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceKernelWriter::SpiceKernelWriter(const SpiceKernelWriter &copy) :
    SpiceInterface(copy)
 {
 }
 
+//------------------------------------------------------------------------------
+//  SpiceKernelWriter& operator=(const SpiceKernelWriter &copy)
+//------------------------------------------------------------------------------
+/**
+ * This method sets data on "this" SpiceKernelWriter instance, copying data
+ * from the input instance.
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceKernelWriter& SpiceKernelWriter::operator=(const SpiceKernelWriter &copy)
 {
    if (&copy != this)
@@ -68,6 +97,15 @@ SpiceKernelWriter& SpiceKernelWriter::operator=(const SpiceKernelWriter &copy)
    return *this;
 }
 
+//------------------------------------------------------------------------------
+//  ~SpiceKernelWriter()
+//------------------------------------------------------------------------------
+/**
+ * This method deletes "this" SpiceKernelWriter instance.
+ * (destructor)
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceKernelWriter::~SpiceKernelWriter()
 {
 }

@@ -1,13 +1,13 @@
-//$Id$
+//$Id:$
 //------------------------------------------------------------------------------
 //                              SpiceOrbitKernelReader
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2010.04.05
@@ -31,7 +31,7 @@
 class GMAT_API SpiceOrbitKernelReader : public SpiceKernelReader
 {
 public:
-//   static      SpiceOrbitKernelReader* Instance();
+
    SpiceOrbitKernelReader();
    SpiceOrbitKernelReader(const SpiceOrbitKernelReader &reader);
    SpiceOrbitKernelReader& operator=(const SpiceOrbitKernelReader &reader);
@@ -40,31 +40,32 @@ public:
 
    SpiceOrbitKernelReader* Clone() const;
 
+   /// method to return the earliest and latest times of orbit data
+   /// coverage for the specified object, over the specified list of
+   /// SPK kernels (non-SPK kernels in the list will be ignored).
+   void      GetCoverageStartAndEnd(StringArray       &kernels,
+                                    Integer           forNaifId,
+                                    Real              &start,
+                                    Real              &end);
+
    /// method to return the state (position, velocity) of a planetary body or
    /// spacecraft at the specified time, with respect to the specified frame
-   Rvector6    GetTargetState(const std::string &targetName,
-                              const Integer     targetNAIFId,
-                              const A1Mjd       &atTime,
-                              const std::string &observingBodyName,
-                              const std::string &referenceFrame = "J2000",
-                              const std::string &aberration = "NONE");
+   Rvector6  GetTargetState(const std::string &targetName,
+                            const Integer     targetNAIFId,
+                            const A1Mjd       &atTime,
+                            const std::string &observingBodyName,
+                            const std::string &referenceFrame = "J2000",
+                            const std::string &aberration = "NONE");
+
 
 
 protected:
 
    // data converted to SPICE types, to pass into SPICE methods
-//   /// the kernel name
-//   ConstSpiceChar  *kernelNameSPICE;
-   /// the target body name (SPICE)
-//   ConstSpiceChar  *targetBodyNameSPICE;
    /// the observing body name (SPICE)
    ConstSpiceChar  *observingBodyNameSPICE;
-//   /// the observer epoch time (SPICE) in Ephemeris (TDB) Time
-//   SpiceDouble     etSPICE;
    /// the aberration correction flag (SPICE)
    ConstSpiceChar  *aberrationSPICE;
-//   /// the reference frame (SPICE)
-//   ConstSpiceChar  *referenceFrameSPICE;
 
 };
 

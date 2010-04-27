@@ -1,13 +1,13 @@
-//$Id$
+//$Id:$
 //------------------------------------------------------------------------------
 //                              SpiceKernelReader
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under 
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2008.10.22
@@ -46,6 +46,39 @@ public:
 
    virtual ~SpiceKernelReader();
    
+   //------------------------------------------------------------------------------
+   // void GetCoverageStartAndEnd(const StringArray &kernels, Integer forNaifId,
+   //                             Real              &start,   Real    &end)
+   //------------------------------------------------------------------------------
+   /**
+    * This (pure virtual) method determines the coverage for the specified object
+    * over the specified kernels.
+    *
+    * @param kernels   the array of kernels over which to check the coverage
+    * @param forNaifId the NAIF ID of the object for which coverage should
+    *                  be determined
+    * @param start     (output) the earliest time of coverage for the object
+    *                  included in the specified kernels
+    * @param end       (output) the latest time of coverage for the object
+    *                  included in the specified kernels
+    *
+    * @note An exception is thrown if any of the kernels listed are not currently
+    *       loaded into the kernel pool, and an attempt to load it fails.
+    * @note The interval between the returned start and end times is not
+    *       necessarily continuous.  The method checks all intervals over which
+    *       there is coverage for the specified object and returns the earliest
+    *       time and the latest time of coverage.  There could be gaps in
+    *       coverage over that span.
+    * @note The method will ignore kernels of types not containing the type of
+    *       data requested, e.g. if requesting orbit data, the method will
+    *       ignore kernels in the list that are not of type 'spk'.
+    */
+   //------------------------------------------------------------------------------
+   virtual void GetCoverageStartAndEnd(StringArray       &kernels,
+                                       Integer           forNaifId,
+                                       Real              &start,
+                                       Real              &end) = 0;
+
 protected:
 
    // data converted to SPICE types, to pass into SPICE methods
@@ -57,6 +90,9 @@ protected:
    SpiceDouble     etSPICE;
    /// the reference frame (SPICE)
    ConstSpiceChar  *referenceFrameSPICE;
+
+   static const Integer  MAX_IDS_PER_KERNEL;
+   static const Integer  MAX_COVERAGE_INTERVALS;
 
 };
 

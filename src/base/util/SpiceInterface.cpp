@@ -201,13 +201,13 @@ bool SpiceInterface::LoadKernel(const std::string &fileName)
       reset_c();
       throw UtilityException(errmsg);
    }
-#ifdef DEBUG_SPK_LOADING
-   else
-   {
-      MessageInterface::ShowMessage("SpiceInterface Successfully loaded kernel %s <---------\n",
-            fileName.c_str());
-   }
-#endif
+   #ifdef DEBUG_SPK_LOADING
+      else
+      {
+         MessageInterface::ShowMessage("SpiceInterface Successfully loaded kernel %s <---------\n",
+               fileName.c_str());
+      }
+   #endif
    loadedKernels.push_back(fileName);
    
    return true;
@@ -389,6 +389,9 @@ StringArray SpiceInterface::GetValidFrames()
 //------------------------------------------------------------------------------
 void SpiceInterface::SetLeapSecondKernel(const std::string &lsk)
 {
+   #ifdef DEBUG_SPK_LOADING
+      MessageInterface::ShowMessage("NOW loading LSK kernel %s\n", lsk.c_str());
+   #endif
    lsKernel = lsk;
    if (!IsLoaded(lsKernel))   LoadKernel(lsKernel);
 }

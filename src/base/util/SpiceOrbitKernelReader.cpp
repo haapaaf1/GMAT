@@ -1,13 +1,13 @@
-//$Id$
+//$Id:$
 //------------------------------------------------------------------------------
 //                              SpiceOrbitKernelReader
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2010.04.05
@@ -31,6 +31,7 @@
 
 
 //#define DEBUG_SPK_READING
+//#define DEBUG_SPK_COVERAGE
 //#define DEBUG_SPK_PLANETS
 
 // -----------------------------------------------------------------------------
@@ -54,10 +55,8 @@
 //------------------------------------------------------------------------------
 SpiceOrbitKernelReader::SpiceOrbitKernelReader() :
    SpiceKernelReader(),
-//   targetBodyNameSPICE     (NULL),
    observingBodyNameSPICE  (NULL),
-   aberrationSPICE         (NULL)//,
-//   referenceFrameSPICE     (NULL)
+   aberrationSPICE         (NULL)
 {
 }
 
@@ -74,10 +73,8 @@ SpiceOrbitKernelReader::SpiceOrbitKernelReader() :
 //------------------------------------------------------------------------------
 SpiceOrbitKernelReader::SpiceOrbitKernelReader(const SpiceOrbitKernelReader &reader) :
    SpiceKernelReader(reader),
-//   targetBodyNameSPICE     (NULL),
    observingBodyNameSPICE  (NULL),
-   aberrationSPICE         (NULL)//,
-//   referenceFrameSPICE     (NULL)
+   aberrationSPICE         (NULL)
 {
 
 }
@@ -102,10 +99,8 @@ SpiceOrbitKernelReader& SpiceOrbitKernelReader::operator=(const SpiceOrbitKernel
 
    SpiceKernelReader::operator=(reader);
 
-//   targetBodyNameSPICE      = NULL;
    observingBodyNameSPICE   = NULL;
    aberrationSPICE          = NULL;
-//   referenceFrameSPICE      = NULL;
 
    return *this;
 }
@@ -140,6 +135,178 @@ SpiceOrbitKernelReader* SpiceOrbitKernelReader::Clone(void) const
 }
 
 //------------------------------------------------------------------------------
+// void GetCoverageStartAndEnd(const StringArray &kernels, Integer forNaifId.
+//                             Real              &start,   Real    &end)
+//------------------------------------------------------------------------------
+/**
+ * This (pure virtual) method determines the coverage for the specified object
+ * over the specified kernels.
+ *
+ * @param kernels   the array of kernels over which to check the coverage
+ * @param forNaifId the NAIF ID of the object for which coverage should
+ *                  be determined
+ * @param start     (output) the earliest time of coverage for the object
+ *                  included in the specified kernels
+ * @param end       (output) the latest time of coverage for the object
+ *                  included in the specified kernels
+ *
+ * @note An exception is thrown if any of the kernels listed are not currently
+ *       loaded into the kernel pool, and an attempt to load it fails.
+ * @note The interval between the returned start and end times is not
+ *       necessarily continuous.  The method checks all intervals over which
+ *       there is coverage for the specified object and returns the earliest
+ *       time and the latest time of coverage.  There could be gaps in
+ *       coverage over that span.
+ * @note The method will ignore kernels of types not containing the type of
+ *       data requested, i.e. this method will ignore kernels in the list that
+ *       are not of type 'spk'.
+ */
+//------------------------------------------------------------------------------
+void  SpiceOrbitKernelReader::GetCoverageStartAndEnd(StringArray       &kernels,
+                                                     Integer           forNaifId,
+                                                     Real              &start,
+                                                     Real              &end)
+{
+   // first check to see if a kernel specified is not loaded; if not,
+   // try to load it
+   for (unsigned int ii = 0; ii < kernels.size(); ii++)
+      if (!IsLoaded(kernels.at(ii)))   LoadKernel(kernels.at(ii));
+
+   SpiceInt         idSpice     = forNaifId;
+   SpiceInt         arclen      = 4;
+   SpiceInt         typlen      = 5;
+   bool             firstInt    = true;
+   bool             idOnKernel  = false;
+   ConstSpiceChar   *kernelName = NULL;
+   SpiceInt         objId       = 0;
+   SpiceInt         numInt      = 0;
+   SpiceChar        *kernelType;
+   SpiceChar        *arch;
+   SpiceDouble      b;
+   SpiceDouble      e;
+   Real             bA1;
+   Real             eA1;
+   SPICEINT_CELL(ids, 200);
+   SPICEDOUBLE_CELL(cover, 200000);
+   char             kStr[5] = "    ";
+   char             aStr[4] = "   ";
+
+   // look through each kernel
+   for (unsigned int ii = 0; ii < kernels.size(); ii++)
+   {
+      #ifdef DEBUG_SPK_COVERAGE
+         MessageInterface::ShowMessage("Checking coverage for ID %d on kernel %s\n",
+               forNaifId, (kernels.at(ii)).c_str());
+      #endif
+      kernelName = kernels[ii].c_str();
+      // check the type of kernel
+      arch        = aStr;
+      kernelType  = kStr;
+      getfat_c(kernelName, arclen, typlen, arch, kernelType);
+      if (failed_c())
+      {
+         ConstSpiceChar option[] = "LONG";
+         SpiceInt       numChar  = MAX_LONG_MESSAGE;
+         SpiceChar      err[MAX_LONG_MESSAGE];
+         getmsg_c(option, numChar, err);
+         std::string errStr(err);
+         std::string errmsg = "Error determining type of kernel \"";
+         errmsg += kernels.at(ii) + "\".  Message received from CSPICE is: ";
+         errmsg += errStr + "\n";
+         reset_c();
+         throw UtilityException(errmsg);
+      }
+      #ifdef DEBUG_SPK_COVERAGE
+         MessageInterface::ShowMessage("Kernel is of type %s\n",
+               kernelType);
+      #endif
+      // only deal with SPK kernels
+      if (eqstr_c( kernelType, "spk" ))
+      {
+         spkobj_c(kernelName, &ids);
+         // get the list of objects (IDs) for which data exists in the SPK kernel
+         for (SpiceInt jj = 0;  jj < card_c(&ids);  jj++)
+         {
+            objId = SPICE_CELL_ELEM_I(&ids,jj);
+            #ifdef DEBUG_SPK_COVERAGE
+               MessageInterface::ShowMessage("Kernel contains data for object %d\n",
+                     (Integer) objId);
+            #endif
+            // look to see if this kernel contains data for the object we're interested in
+            if (objId == idSpice)
+            {
+               idOnKernel = true;
+               break;
+            }
+         }
+         // only deal with kernels containing data for the object we're interested in
+         if (idOnKernel)
+         {
+            #ifdef DEBUG_SPK_COVERAGE
+               MessageInterface::ShowMessage("Checking kernel %s for data for object %d\n",
+                     (kernels.at(ii)).c_str(), (Integer) objId);
+            #endif
+            scard_c(0, &cover);   // reset the coverage cell
+            spkcov_c (kernelName, idSpice, &cover);
+            if (failed_c())
+            {
+               ConstSpiceChar option[] = "LONG";
+               SpiceInt       numChar  = MAX_LONG_MESSAGE;
+               SpiceChar      err[MAX_LONG_MESSAGE];
+               getmsg_c(option, numChar, err);
+               std::string errStr(err);
+               std::string errmsg = "Error determining coverage for SPK kernel \"";
+               errmsg += kernels.at(ii) + "\".  Message received from CSPICE is: ";
+               errmsg += errStr + "\n";
+               reset_c();
+               throw UtilityException(errmsg);
+            }
+            numInt = wncard_c(&cover);
+            #ifdef DEBUG_SPK_COVERAGE
+               MessageInterface::ShowMessage("Number of intervals found =  %d\n",
+                     (Integer) numInt);
+            #endif
+            if ((firstInt) && (numInt > 0))
+            {
+               wnfetd_c(&cover, 0, &b, &e);
+               if (failed_c())
+               {
+                  ConstSpiceChar option[] = "LONG";
+                  SpiceInt       numChar  = MAX_LONG_MESSAGE;
+                  SpiceChar      err[MAX_LONG_MESSAGE];
+                  getmsg_c(option, numChar, err);
+                  std::string errStr(err);
+                  std::string errmsg = "Error getting interval times for SPK kernel \"";
+                  errmsg += kernels.at(ii) + "\".  Message received from CSPICE is: ";
+                  errmsg += errStr + "\n";
+                  reset_c();
+                  throw UtilityException(errmsg);
+               }
+               start    = SpiceTimeToA1(b);
+               end      = SpiceTimeToA1(e);
+               firstInt = false;
+            }
+            for (SpiceInt jj = 0; jj < numInt; jj++)
+            {
+               wnfetd_c(&cover, jj, &b, &e);
+               bA1 = SpiceTimeToA1(b);
+               eA1 = SpiceTimeToA1(e);
+               if (bA1 < start)  start = bA1;
+               if (eA1 > end)    end   = eA1;
+            }
+         }
+
+      }
+   }
+   if (firstInt)
+   {
+      std::string errmsg = "Error - no data available for body on specified SPK kernels";
+      throw UtilityException(errmsg);
+   }
+}
+
+
+//------------------------------------------------------------------------------
 //  Rvector6 GetTargetState(const std::string &targetName,
 //                          const A1Mjd       &atTime,
 //                          const std::string &observingBodyName,
@@ -171,6 +338,10 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
       MessageInterface::ShowMessage(
             "Entering SPKReader::GetTargetState with target = %s, naifId = %d, time = %12.10f, observer = %s\n",
             targetName.c_str(), targetNAIFId, atTime.Get(), observingBodyName.c_str());
+      Real start, end;
+      GetCoverageStartAndEnd(loadedKernels, targetNAIFId, start, end);
+      MessageInterface::ShowMessage("   coverage for object %s : %12.10f --> %12.10f\n",
+            targetName.c_str(), start, end);
    #endif
    std::string targetNameToUse = targetName;
    if ((targetName == "Luna") || (targetName == "LUNA"))  // Luna, instead of Moon, for GMAT
@@ -182,24 +353,16 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
    aberrationSPICE           = aberration.c_str();
    // convert time to Ephemeris Time (TDB)
    etSPICE                   = A1ToSpiceTime(atTime.Get());
-//   SpiceDouble j2ET          = j2000_c();
-//   Real        etMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD,
-//                               TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
-//   etSPICE                   = (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941 - j2ET) * GmatTimeUtil::SECS_PER_DAY;
-   // set the association between the name and the NAIF Id
-//   SpiceInt        itsNAIFId = targetNAIFId;
    naifIDSPICE               = targetNAIFId;
-//   boddef_c(objectNameSPICE, itsNAIFId);        // CSPICE method to set NAIF ID for an object
    boddef_c(objectNameSPICE, naifIDSPICE);        // CSPICE method to set NAIF ID for an object
 
    #ifdef DEBUG_SPK_READING
       MessageInterface::ShowMessage("SET NAIF Id for object %s to %d\n",
             targetNameToUse.c_str(), targetNAIFId);
-//      MessageInterface::ShowMessage("j2ET = %12.10f\n", (Real) j2ET);
-      MessageInterface::ShowMessage(
-            "In SPKReader::Converted (to TBD) time = %12.10f\n", etMjdAtTime);
-      MessageInterface::ShowMessage("  then the full JD = %12.10f\n",
-            (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941));
+//      MessageInterface::ShowMessage(
+//            "In SPKReader::Converted (to TBD) time = %12.10f\n", etMjdAtTime);
+//      MessageInterface::ShowMessage("  then the full JD = %12.10f\n",
+//            (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941));
       MessageInterface::ShowMessage("So time passed to SPICE is %12.14f\n", (Real) etSPICE);
    #endif
    SpiceDouble state[6];
@@ -242,5 +405,3 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
    Rvector6 r6(state[0],state[1],state[2],state[3],state[4],state[5]);
    return r6;
 }
-
-

@@ -2,12 +2,12 @@
 //------------------------------------------------------------------------------
 //                              SpiceOrbitKernelWriter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
-// MOMS Task order 124.
+// FDSS Task order 28.
 //
 // Author: Wendy C. Shoan
 // Created: 2009.12.07
@@ -51,10 +51,33 @@ std::string SpiceOrbitKernelWriter::TMP_TXT_FILE_NAME = "./GMATtmpSPKcmmnt";
 //---------------------------------
 // public methods
 //---------------------------------
-SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string       &objName,   const std::string &centerName,
-                                     Integer                 objNAIFId,  Integer           centerNAIFId,
-                                     const std::string       &fileName,  Integer           deg,
-                                     const std::string       &frame) :
+//------------------------------------------------------------------------------
+//  SpiceOrbitKernelWriter(const std::string       &objName,
+//                         const std::string       &centerName,
+//                         Integer                 objNAIFId,
+//                         Integer                 centerNAIFId,
+//                         const std::string       &fileName,
+//                         Integer                 deg,
+//                         const std::string       &frame)
+//------------------------------------------------------------------------------
+/**
+ * This method constructs a SpiceKernelWriter instance.
+ * (constructor)
+ *
+ * @param    objName       name of the object for which to write the SPK kernel
+ * @param    centerName    name of he central body of the object
+ * @param    objNAIFId     NAIF ID for the object
+ * @param    centerNAIFId  NAIF ID for the central body
+ * @param    fileName      name of the kernel to generate
+ * @param    deg           degree of interpolating polynomials
+ * @param    frame         reference frame (default = "J2000")
+ *
+ */
+//------------------------------------------------------------------------------
+SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName,   const std::string &centerName,
+                                              Integer                 objNAIFId,  Integer           centerNAIFId,
+                                              const std::string       &fileName,  Integer           deg,
+                                              const std::string       &frame) :
    SpiceKernelWriter(),
    objectName      (objName),
    centralBodyName (centerName),
@@ -122,6 +145,18 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string       &objName,
    }
 }
 
+//------------------------------------------------------------------------------
+//  SpiceOrbitKernelWriter(const SpiceOrbitKernelWriter &copy)
+//------------------------------------------------------------------------------
+/**
+ * This method constructs a SpiceKernelWriter instance, copying data from the
+ * input instance.
+ * (copy constructor)
+ *
+ * @param    copy       object to copy
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const SpiceOrbitKernelWriter &copy) :
    SpiceKernelWriter(copy),
    objectName        (copy.objectName),
@@ -141,6 +176,17 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const SpiceOrbitKernelWriter &cop
    referenceFrame   = frameName.c_str();
 }
 
+//------------------------------------------------------------------------------
+//  SpiceOrbitKernelWriter& operator=(const SpiceOrbitKernelWriter &copy)
+//------------------------------------------------------------------------------
+/**
+ * This method copies data from the input SpiceKernelWriter instance to
+ * "this" instance.
+ *
+ * @param    copy       object whose data to copy
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceOrbitKernelWriter& SpiceOrbitKernelWriter::operator=(const SpiceOrbitKernelWriter &copy)
 {
    if (&copy != this)
@@ -166,6 +212,15 @@ SpiceOrbitKernelWriter& SpiceOrbitKernelWriter::operator=(const SpiceOrbitKernel
    return *this;
 }
 
+//------------------------------------------------------------------------------
+//  ~SpiceOrbitKernelWriter()
+//------------------------------------------------------------------------------
+/**
+ * This method deletes "this" SpiceKernelWriter instance.
+ * (destructor)
+ *
+ */
+//------------------------------------------------------------------------------
 SpiceOrbitKernelWriter::~SpiceOrbitKernelWriter()
 {
    if (fileOpen) FinalizeKernel();
@@ -189,6 +244,20 @@ SpiceOrbitKernelWriter* SpiceOrbitKernelWriter::Clone(void) const
    return clonedSKW;
 }
 
+//------------------------------------------------------------------------------
+//  void WriteSegment(const A1Mjd &start, const A1Mjd &end,
+//                    const StateArray &states, const EpochArray &epochs)
+//------------------------------------------------------------------------------
+/**
+ * This method writes a segment to the SPK kernel.
+ *
+ * @param   start    start time of the segment data
+ * @param   end      end time of the segment data
+ * @param   states   array of states to write to the segment
+ * @param   epochs   array or corresponding epochs
+ *
+ */
+//------------------------------------------------------------------------------
 void SpiceOrbitKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
                                      const StateArray &states, const EpochArray &epochs)
 {
@@ -247,6 +316,18 @@ void SpiceOrbitKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
    delete [] epochArray;
    delete [] stateArray;
 }
+
+//------------------------------------------------------------------------------
+//  void AddMetaData(const std::string &line, bool done)
+//------------------------------------------------------------------------------
+/**
+ * This method writes meta data (comments) to the SPK kernel.
+ *
+ * @param   line    line of comments to add.
+ * @param   bool    indicates whether or not this is the last line to add
+ *                  (if so, file can be finalized)
+ */
+//------------------------------------------------------------------------------
 void SpiceOrbitKernelWriter::AddMetaData(const std::string &line, bool done)
 {
    if (!fileOpen)
@@ -261,6 +342,17 @@ void SpiceOrbitKernelWriter::AddMetaData(const std::string &line, bool done)
       FinalizeKernel();
 }
 
+//------------------------------------------------------------------------------
+//  void AddMetaData(const StringArray &lines, bool done)
+//------------------------------------------------------------------------------
+/**
+ * This method writes meta data (comments) to the SPK kernel.
+ *
+ * @param   lines   lines of comments to add.
+ * @param   bool    indicates whether or not this is the last line to add
+ *                  (if so, file can be finalized)
+ */
+//------------------------------------------------------------------------------
 void SpiceOrbitKernelWriter::AddMetaData(const StringArray &lines, bool done)
 {
    if (!fileOpen)
@@ -285,6 +377,16 @@ void SpiceOrbitKernelWriter::AddMetaData(const StringArray &lines, bool done)
 //---------------------------------
 // private methods
 //---------------------------------
+
+//------------------------------------------------------------------------------
+//  SetBasicMetaData()
+//------------------------------------------------------------------------------
+/**
+ * This method sets the 'basic' (i.e. written to every kernel)  meta data
+ * (comments).
+ *
+ */
+//------------------------------------------------------------------------------
 void SpiceOrbitKernelWriter::SetBasicMetaData()
 {
    basicMetaData.clear();
@@ -306,6 +408,14 @@ void SpiceOrbitKernelWriter::SetBasicMetaData()
    basicMetaData.push_back(metaDataLine);
 }
 
+//------------------------------------------------------------------------------
+//  FinalizeKernel()
+//------------------------------------------------------------------------------
+/**
+ * This method writes the meta data (comments) to the kernel and then closes it.
+ *
+ */
+//------------------------------------------------------------------------------
 void SpiceOrbitKernelWriter::FinalizeKernel()
 {
    // write all the meta data to the file
@@ -318,6 +428,14 @@ void SpiceOrbitKernelWriter::FinalizeKernel()
 }
 
 
+//------------------------------------------------------------------------------
+//  WriteMetaData()
+//------------------------------------------------------------------------------
+/**
+ * This method writes the meta data (comments) to the kernel.
+ *
+ */
+//------------------------------------------------------------------------------
 void SpiceOrbitKernelWriter::WriteMetaData()
 {
    // create the temporary text file to hold the meta data
@@ -379,3 +497,19 @@ void SpiceOrbitKernelWriter::WriteMetaData()
    delete [] tmpTxt;
 }
 
+//---------------------------------
+// private methods
+//---------------------------------
+
+//------------------------------------------------------------------------------
+//  SpiceOrbitKernelWriter()
+//------------------------------------------------------------------------------
+/**
+ * This method constructs an instance of SpiceOrbitKernelWriter.
+ * (default constructor)
+ *
+ */
+//------------------------------------------------------------------------------
+SpiceOrbitKernelWriter::SpiceOrbitKernelWriter()
+{
+};
