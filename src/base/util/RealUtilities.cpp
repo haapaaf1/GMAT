@@ -388,14 +388,30 @@ Real GmatMathUtil::Tanh (Real angleInRad, Real cycleInRad)
 }
 
 //------------------------------------------------------------------------------
-//  Real ASin (Real x, Real cycleInRad)
+//  Real ASin (Real x, Real tol=GmatRealConst::REAL_TOL, Real cycleInRad)
 //------------------------------------------------------------------------------
-Real GmatMathUtil::ASin (Real x, Real cycleInRad)
+Real GmatMathUtil::ASin (Real x, Real tol, Real cycleInRad)
 {
    if (cycleInRad <= 0.0) 
       throw RealUtilitiesExceptions::ArgumentError("ASin(angle, cycle <= 0.0)\n");
-   else if ((fabs(x) - 1.0) > GmatRealConst::REAL_TOL) 
-      throw RealUtilitiesExceptions::ArgumentError("ASin(value > 1.0, cycle)\n");
+//   else if ((fabs(x) - 1.0) > GmatRealConst::REAL_TOL)
+//      throw RealUtilitiesExceptions::ArgumentError("ASin(value > 1.0, cycle)\n");
+   if ((fabs(x) - 1.0) > 0.0)
+   {
+      #ifdef DEBUG_MATH_UTIL
+      MessageInterface::ShowMessage
+         ("ACos() checking additional tolerance for x=%.16f\n", x);
+      #endif
+
+      if ((x > 1.0 - tol) && (x <= 1.0 + tol))
+         return PI_OVER_TWO;
+      else if ((x > -1.0 - tol) && (x <= -1.0 + tol))
+         return - PI_OVER_TWO;
+      else
+         throw RealUtilitiesExceptions::ArgumentError
+            ("The input \"" + GmatRealUtil::ToString(x, false, false, true, 17, 1) +
+             "\" to ASin() is not within -1.0 and 1.0.");
+   }
    
    return (cycleInRad/TWO_PI)*asin(x);
 }

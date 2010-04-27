@@ -109,7 +109,7 @@ namespace GmatMathUtil
    Real    Sinh(Real angleInRad, Real cycleInRad=TWO_PI);
    Real    Tanh(Real angleInRad, Real cycleInRad=TWO_PI);
    
-   Real    ASin(Real x, Real cycleInRad=TWO_PI); 
+   Real    ASin(Real x, Real tol=GmatRealConst::REAL_TOL, Real cycleInRad=TWO_PI);
    Real    ACos(Real x, Real tol=GmatRealConst::REAL_TOL, Real cycleInRad=TWO_PI); 
    Real    ATan(Real y, Real x=1.0, Real cycleInRad=TWO_PI);
    
