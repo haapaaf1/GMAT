@@ -766,7 +766,7 @@ SolarSystem::SolarSystem(std::string withName)
    overrideTimeForAll  = false;
    ephemUpdateInterval = 0.0;
 #ifdef __USE_SPICE__
-   spiceOrbitKernelReader   = new SpiceOrbitKernelReader();
+   planetarySPK   = new SpiceOrbitKernelReader();
 #endif
    allowSpiceForDefaultBodies = true; // as of 2010.03.31, this is the default value
 
@@ -1025,7 +1025,7 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
    parameterCount    = SolarSystemParamCount;
 
 #ifdef __USE_SPICE__
-   spiceOrbitKernelReader = (ss.spiceOrbitKernelReader)->Clone();
+   planetarySPK = (ss.planetarySPK)->Clone();
 #endif
 
    // create planetary source first, but do not create default
@@ -1092,7 +1092,7 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    thePlanetarySourceNames = ss.thePlanetarySourceNames;
    CreatePlanetarySource(false);
 #ifdef __USE_SPICE__
-   spiceOrbitKernelReader          = ss.spiceOrbitKernelReader;
+   planetarySPK          = ss.planetarySPK;
 #endif
 
    // copy current planetary source in use
@@ -1157,7 +1157,7 @@ SolarSystem::~SolarSystem()
    }
 
 #ifdef __USE_SPICE__
-   delete spiceOrbitKernelReader;
+   delete planetarySPK;
 #endif
 }
 
@@ -1172,7 +1172,11 @@ bool SolarSystem::Initialize()
    while (cbi != bodiesInUse.end())
    {
       #ifdef __USE_SPICE__
-      (*cbi)->SetSpiceOrbitKernelReader(spiceOrbitKernelReader);
+         // Set the kernel reader on the celestial bodies
+         (*cbi)->SetSpiceOrbitKernelReader(planetarySPK);
+         // Load the Planetary SPK and the Leap Second Kernel
+         planetarySPK->LoadKernel(theSPKFilename);
+         planetarySPK->SetLeapSecondKernel(lskKernelName);
       #endif
       (*cbi)->Initialize();
       ++cbi;
@@ -1224,14 +1228,16 @@ void SolarSystem::CreatePlanetarySource(bool setDefault)
          std::string spkFullPath = fm->GetFullPathname("PLANETARY_SPK_FILE");
          if (!(GmatStringUtil::IsBlank(spkFullPath)))
          {
-            bool isOK = SetSPKFile(spkFullPath);
-            if (!isOK)
-               throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+            if (!(SetSPKFile(spkFullPath)))
+               throw SolarSystemException("Unable to set SPK file on the Solar System.\n");
             thePlanetarySourceNames.push_back(theSPKFilename);
          }
          std::string lskFullPath = fm->GetFullPathname("LSK_FILE");
          if (!(GmatStringUtil::IsBlank(lskFullPath)))
-            lskKernelName = lskFullPath;
+         {
+            if (!(SetLSKFile(lskFullPath)))
+               throw SolarSystemException("Unable to set LSK file on the Solar System.\n");
+         }
          else
             throw SolarSystemException("Unable to obtain Leap Second Kernel (SLK) full path name.\n");
       }
@@ -1668,16 +1674,16 @@ bool SolarSystem::AddBody(CelestialBody* cb)
       }
       else if (pvSrcForAll == Gmat::SPICE)
       {
-         if (theSPKFilename != "")
-            if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
-         if (lskKernelName != "")
-            if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
+//         if (theSPKFilename != "")
+//            if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
+//         if (lskKernelName != "")
+//            if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
       }
    }
    else // set main SPICE file for all added bodies
    {
       if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
-      if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
+//      if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
    }
    if (!cb->SetOverrideTimeSystem(overrideTimeForAll))  return false;
 
@@ -1949,16 +1955,16 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
 bool SolarSystem::SetSPKFile(const std::string &spkFile)
 {
    theSPKFilename = spkFile;
-   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-   while (cbi != bodiesInUse.end())
-   {
-      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
-      if (!userDef)
-      {
-         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
-      }
-      ++cbi;
-   }
+//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+//   while (cbi != bodiesInUse.end())
+//   {
+//      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
+//      if (!userDef)
+//      {
+//         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
+//      }
+//      ++cbi;
+//   }
    return true;
 }
 
@@ -1967,16 +1973,16 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
 bool SolarSystem::SetLSKFile(const std::string &lskFile)
 {
    lskKernelName = lskFile;
-   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-   while (cbi != bodiesInUse.end())
-   {
-      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
-      if (!userDef)
-      {
-         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("LeapSecondKernelName"), lskKernelName) == false) return false;
-      }
-      ++cbi;
-   }
+//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+//   while (cbi != bodiesInUse.end())
+//   {
+//      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
+//      if (!userDef)
+//      {
+//         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("LeapSecondKernelName"), lskKernelName) == false) return false;
+//      }
+//      ++cbi;
+//   }
    return true;
 }
 

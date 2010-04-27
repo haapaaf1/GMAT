@@ -297,7 +297,7 @@ private:
    StringArray defaultBodyStrings;
    StringArray userDefinedBodyStrings;
 #ifdef __USE_SPICE__
-   SpiceOrbitKernelReader *spiceOrbitKernelReader;
+   SpiceOrbitKernelReader *planetarySPK;
 #endif
    /// flag indicating whether or not SPICE is allowed as a position/velocity 
    /// source for default bodies
