@@ -234,7 +234,7 @@ void ParameterCreateDialog::Create()
    mStringValueTextCtrl->SetToolTip(pConfig->Read(_T("StringValueHint")));
    
    // wxButton
-   mCreateVariableButton = new wxButton(varPanel, ID_CREATE_BUTTON, wxT(CreateLabel),
+   mCreateVariableButton = new wxButton(varPanel, ID_CREATE_BUTTON, wxT(CreateLabel.c_str()),
                                         wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
    mCreateVariableButton->SetToolTip(pConfig->Read(_T("CreateVariableHint")));
    mCreateVariableButton->Disable();
@@ -242,7 +242,7 @@ void ParameterCreateDialog::Create()
                                      wxDefaultPosition, wxDefaultSize, 0);
    mSelectButton->SetToolTip(pConfig->Read(_T("SelectHint")));
 
-   mCreateArrayButton = new wxButton(arrPanel, ID_CREATE_BUTTON, wxT(CreateLabel),
+   mCreateArrayButton = new wxButton(arrPanel, ID_CREATE_BUTTON, wxT(CreateLabel.c_str()),
                                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
    mCreateArrayButton->SetToolTip(pConfig->Read(_T("CreateArrayHint")));
    mCreateArrayButton->Disable();
@@ -251,7 +251,7 @@ void ParameterCreateDialog::Create()
    mEditArrayButton->Disable();
    mEditArrayButton->SetToolTip(pConfig->Read(_T("EditArrayHint")));
 
-   mCreateStringButton = new wxButton(strPanel, ID_CREATE_BUTTON, wxT(CreateLabel),
+   mCreateStringButton = new wxButton(strPanel, ID_CREATE_BUTTON, wxT(CreateLabel.c_str()),
                                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
    mCreateStringButton->SetToolTip(pConfig->Read(_T("CreateStringHint")));
    mCreateStringButton->Disable();
@@ -408,13 +408,13 @@ void ParameterCreateDialog::LoadData()
       switch (mParamType)
       {
          case VARIABLE:
-            mVarNameTextCtrl->SetValue(mObjectName);
+            mVarNameTextCtrl->SetValue(mObjectName.c_str());
             mExprTextCtrl->SetValue(mCurrParam->GetStringParameter("Expression").c_str());
             mCreateVariableButton->Disable();
-            mUserVarListBox->SetStringSelection(mObjectName);
+            mUserVarListBox->SetStringSelection(mObjectName.c_str());
             break;
          case ARRAY:
-            mArrNameTextCtrl->SetValue(mObjectName);
+            mArrNameTextCtrl->SetValue(mObjectName.c_str());
             mNumRows = mCurrParam->GetIntegerParameter("NumRows");
             mNumCols = mCurrParam->GetIntegerParameter("NumCols");
             str << mNumRows;
@@ -424,13 +424,13 @@ void ParameterCreateDialog::LoadData()
             mArrColTextCtrl->SetValue(str);
             mCreateArrayButton->Disable();
             mEditArrayButton->Enable(mCurrParam != NULL);
-            mUserArrayListBox->SetStringSelection(mObjectName);
+            mUserArrayListBox->SetStringSelection(mObjectName.c_str());
             break;
          case STRING:
-            mStringNameTextCtrl->SetValue(mObjectName);
+            mStringNameTextCtrl->SetValue(mObjectName.c_str());
             mStringValueTextCtrl->SetValue(mCurrParam->GetStringParameter("Expression").c_str());
             mCreateStringButton->Disable();
-            mUserStringListBox->SetStringSelection(mObjectName);
+            mUserStringListBox->SetStringSelection(mObjectName.c_str());
             break;
       }
    }
@@ -466,7 +466,7 @@ void ParameterCreateDialog::SaveData()
    switch (mParamType)
    {
       case VARIABLE:
-         if ((mCurrParam == NULL) || (mObjectName != mVarNameTextCtrl->GetValue()))
+         if ((mCurrParam == NULL) || (mObjectName.c_str() != mVarNameTextCtrl->GetValue()))
          {         
             CreateVariable();
          }
@@ -480,7 +480,7 @@ void ParameterCreateDialog::SaveData()
          }
          break;
       case ARRAY:
-         if ((mCurrParam == NULL) || (mObjectName != mArrNameTextCtrl->GetValue()))
+         if ((mCurrParam == NULL) || (mObjectName.c_str() != mArrNameTextCtrl->GetValue()))
          {         
             CreateArray();
          }
@@ -495,7 +495,7 @@ void ParameterCreateDialog::SaveData()
          }
          break;
       case STRING:
-         if ((mCurrParam == NULL) || (mObjectName != mStringNameTextCtrl->GetValue()))
+         if ((mCurrParam == NULL) || (mObjectName.c_str() != mStringNameTextCtrl->GetValue()))
          {         
             CreateString();
          }
