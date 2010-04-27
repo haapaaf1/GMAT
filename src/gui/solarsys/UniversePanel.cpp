@@ -24,6 +24,8 @@
 #include "ShowScriptDialog.hpp"
 #include "StringUtil.hpp"
 #include <fstream>
+#include "bitmaps/OpenFolder.xpm"
+#include <wx/config.h>
 
 //#define DEBUG_UNIVERSEPANEL_CREATE
 //#define DEBUG_UNIVERSEPANEL_LOAD
@@ -64,7 +66,6 @@ UniversePanel::UniversePanel(wxWindow *parent):GmatPanel(parent)
 {
    mHasFileTypesInUseChanged = false;
    mHasFileNameChanged = false;
-   //mHasAnaModelChanged = false;
    mHasTextModified = false;
    theSolarSystem = NULL;
    
@@ -136,69 +137,85 @@ void UniversePanel::Create()
    MessageInterface::ShowMessage("UniversePanel::Create() entered\n");
    #endif
    
-   int bsize = 2;
+   #if __WXMAC__
+   int buttonWidth = 40;
+   #else
+   int buttonWidth = 25;
+   #endif
+
+   Integer bsize = 2; // border size
+   wxBitmap openBitmap = wxBitmap(OpenFolder_xpm);
+   
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Solar System"));
+
    wxArrayString emptyArray;
    
    //-------------------------------------------------------
    // ephemeris update interval
    //-------------------------------------------------------
    wxStaticText *intervalStaticText =
-      new wxStaticText(this, ID_TEXT, wxT("Ephemeris Update Interval"),
+      new wxStaticText(this, ID_TEXT, wxT("Ephemeris Update "GUI_ACCEL_KEY"Interval"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    mIntervalTextCtrl = new wxTextCtrl(this, ID_TEXT_CTRL, wxT(""),
-                                 wxDefaultPosition, wxSize(50,-1), 0);
+                                 wxDefaultPosition, wxSize(50,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+   mIntervalTextCtrl->SetToolTip(pConfig->Read(_T("EphemerisUpdateIntervalHint")));
+   wxStaticText *intervalUnitsStaticText =
+      new wxStaticText(this, ID_TEXT, wxT("seconds"),
+                       wxDefaultPosition, wxSize(-1,-1), 0);
    
    //-------------------------------------------------------
    // ephemeris source
    //-------------------------------------------------------
    wxStaticText *fileTypeLabel =
-      new wxStaticText(this, ID_TEXT, wxT("Ephemeris Source"),
+      new wxStaticText(this, ID_TEXT, wxT("Ephemeris "GUI_ACCEL_KEY"Source"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    
    mFileTypeComboBox = 
       new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize,
                      emptyArray, wxCB_READONLY);
+   mFileTypeComboBox->SetToolTip(pConfig->Read(_T("EphemerisSourceHint")));
    
    //-------------------------------------------------------
    // ephemeris file
    //-------------------------------------------------------
    wxStaticText *fileNameLabel =
-      new wxStaticText(this, ID_TEXT, wxT("Ephemeris Filename"),
+      new wxStaticText(this, ID_TEXT, wxT("Ephemeris "GUI_ACCEL_KEY"Filename"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    
    mFileNameTextCtrl =
       new wxTextCtrl(this, ID_TEXT_CTRL, wxT(""),
                      wxDefaultPosition, wxSize(300, -1),  0);
+   mFileNameTextCtrl->SetToolTip(pConfig->Read(_T("EphemerisFilenameHint")));
+   
    
    mBrowseButton =
-      new wxButton(this, ID_BUTTON_BROWSE, wxT("Browse"),
-                   wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+      new wxBitmapButton(this, ID_BUTTON_BROWSE, openBitmap, wxDefaultPosition,
+                         wxSize(buttonWidth, 20));
+   mBrowseButton->SetToolTip(pConfig->Read(_T("BrowseEphemerisFilenameHint")));
+   
    
    //-------------------------------------------------------
    // use TT for ephemeris
    //-------------------------------------------------------
    mOverrideCheckBox =
-      new wxCheckBox(this, CHECKBOX, wxT("Use TT for Ephemeris"),
+      new wxCheckBox(this, CHECKBOX, wxT("Use "GUI_ACCEL_KEY"TT for Ephemeris"),
                      wxDefaultPosition, wxSize(-1, -1), 0);
+   mOverrideCheckBox->SetToolTip(pConfig->Read(_T("UseTTForEphemerisHint")));
    
-   //-------------------------------------------------------
-   // analytic motel
-   //-------------------------------------------------------
-   
-//   wxStaticText *anaModelLabel =
-//      new wxStaticText(this, ID_TEXT, wxT("Analytic Model"),
-//                       wxDefaultPosition, wxSize(-1,-1), 0);
-//   
-//   mAnalyticModelComboBox = 
-//      new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize, //0,
-//                     emptyArray, wxCB_READONLY);
    
    //-------------------------------------------------------
    // Add to bottom grid sizer
    //-------------------------------------------------------    
    wxFlexGridSizer *bottomGridSizer = new wxFlexGridSizer(3, 0, 0);
+   wxBoxSizer *intervalBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+   intervalBoxSizer->Add(mIntervalTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   intervalBoxSizer->Add(intervalUnitsStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+
    bottomGridSizer->Add(intervalStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
-   bottomGridSizer->Add(mIntervalTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   bottomGridSizer->Add(intervalBoxSizer);
    bottomGridSizer->Add(20,20,0, wxALIGN_LEFT|wxALL, bsize);
    bottomGridSizer->Add(fileTypeLabel, 0, wxALIGN_LEFT|wxALL, bsize);
    bottomGridSizer->Add(mFileTypeComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -211,19 +228,10 @@ void UniversePanel::Create()
    bottomGridSizer->Add(20,20,0, wxALIGN_LEFT|wxALL, bsize);
 
    //-------------------------------------------------------
-   // Add to analytical model sizer
-   //-------------------------------------------------------    
-//   mAnaModelSizer = new wxBoxSizer(wxHORIZONTAL);
-//   mAnaModelSizer->Add(anaModelLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-//   mAnaModelSizer->Add(mAnalyticModelComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-//   mAnaModelSizer->Add(20,20, 0, wxALIGN_LEFT|wxALL, bsize);
-   
-   //-------------------------------------------------------
    // Add to pageSizer
    //------------------------------------------------------- 
-   mPageSizer = new wxBoxSizer(wxVERTICAL);
+   mPageSizer = new GmatStaticBoxSizer (wxVERTICAL, this, "Options");
    mPageSizer->Add(bottomGridSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
-//   mPageSizer->Add(mAnaModelSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    
    theMiddleSizer->Add(mPageSizer, 0, wxALIGN_CENTER|wxALL, bsize);
    
