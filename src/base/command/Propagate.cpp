@@ -51,6 +51,7 @@
 //#define DEBUG_WRAPPERS
 //#define DEBUG_PUBLISH_DATA
 //#define DEBUG_TRANSIENT_FORCES
+//#define DEBUG_FINAL_STEP
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -4505,7 +4506,7 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
                      p[0]->GetTime());
          #endif         
          
-            // Update spacecraft for that step
+         // Update spacecraft for that step
          for (UnsignedInt i = 0; i < fm.size(); ++i) 
          {
             if (fm[i])
@@ -4544,7 +4545,14 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
          
          // Check to see if accuracy is within tolerance
          if (fabs(stopper->GetStopDifference()) < stopAccuracy)
+         {
+            #ifdef DEBUG_STOPPING_CONDITIONS
+               MessageInterface::ShowMessage("Success!  Stop diff = %.13lf, "
+                     "accuracy = %.13lf\n", stopper->GetStopDifference(),
+                     stopAccuracy);
+            #endif
             closeEnough = true;
+         }
    
          ++attempts;
    
@@ -4611,8 +4619,6 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
  * Bisection method used as a "last resort" to find stopping point.
  * 
  * @param <stopper> Stopping condition we're using.
- * 
- * @note BisectToStop method is not yet implemented
  */
 //------------------------------------------------------------------------------
 Real Propagate::BisectToStop(StopCondition *stopper)
@@ -4620,7 +4626,7 @@ Real Propagate::BisectToStop(StopCondition *stopper)
    Integer attempts = 0, attemptsMax = 52;  // 52 bits in ANSI double
    bool closeEnough = false;
    Real secsToStep = stepBrackets[1];
-   Real values[2], currentValue;
+   Real values[2], currentValue, previousValue;
    Real target = 0.0;       // Bogus initialization to clear a warning
    Real dt = stepBrackets[1] - stepBrackets[0];
    Real increasing = 1.0;
@@ -4629,6 +4635,7 @@ Real Propagate::BisectToStop(StopCondition *stopper)
              *targParam = stopper->GetGoalParameter();
    
    currentValue = values[0] = values[1] = stopParam->EvaluateReal();
+   previousValue = currentValue - 1.0;  // All that matters is that they differ
 
    while ((attempts < attemptsMax) && !closeEnough)
    {
@@ -4653,6 +4660,7 @@ Real Propagate::BisectToStop(StopCondition *stopper)
          
          if (attempts == 1)
          {
+
             values[1] = currentValue;
             secsToStep = stepBrackets[0] + dt; 
             if (stopper->IsCyclicParameter())
@@ -4707,6 +4715,7 @@ Real Propagate::BisectToStop(StopCondition *stopper)
       else
          target = stopper->GetStopGoal();
 
+      previousValue = currentValue;
       currentValue = stopParam->EvaluateReal();
       if (stopper->IsCyclicParameter())
          currentValue = GetRangedAngle(currentValue, target);
@@ -4731,12 +4740,24 @@ Real Propagate::BisectToStop(StopCondition *stopper)
                attempts, stepBrackets[0], values[0], stepBrackets[1], values[1], 
                secsToStep, currentValue, target);
          }
-      #endif   
+      #endif
 
       ++attempts;
       
       if (fabs(target - currentValue) < stopAccuracy)
             closeEnough = true;
+
+      if (previousValue == currentValue)
+      {
+
+         MessageInterface::ShowMessage("The command \"%s\" cannot satisfy "
+               "the stopping tolerance of \"%le\" for the stopping condition "
+               "\"%s\".  The achieved accuracy is \"%.12lf\".\n",
+               GetGeneratingString(Gmat::NO_COMMENTS).c_str(), stopAccuracy,
+               stopper->GetName().c_str(), fabs(target - currentValue));
+
+         closeEnough = true;
+      }
    }
    
    if (attempts == attemptsMax)
