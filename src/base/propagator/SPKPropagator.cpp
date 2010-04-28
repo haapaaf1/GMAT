@@ -18,7 +18,7 @@
 
 #include "SPKPropagator.hpp"
 #include "MessageInterface.hpp"
-
+#include "FileManager.hpp"
 
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_PROPAGATION
@@ -267,9 +267,11 @@ bool SPKPropagator::Initialize()
       stepTaken = 0.0;
       j2ET = j2000_c();   // CSPICE method to return Julian date of J2000 (TDB)
 
-      // todo: Remove hardcoded path here
-      if (skr->IsLoaded("./files/planetary_ephem/spk/de421.bsp") == false)
-         skr->LoadKernel("./files/planetary_ephem/spk/de421.bsp");
+      FileManager *fm = FileManager::Instance();
+      std::string fullPath = fm->GetFullPathname(FileManager::PLANETARY_SPK_FILE);
+
+      if (skr->IsLoaded(fullPath) == false)
+         skr->LoadKernel(fullPath);
 
       if (propObjects.size() != 1)
          throw PropagatorException("SPICE propagators (i.e. \"SKP\" "
@@ -294,14 +296,25 @@ bool SPKPropagator::Initialize()
             throw PropagatorException("Spice (SPK) propagator requires at "
                   "least one orbit SPICE kernel,");
 
+         std::string ephemPath = fm->GetPathname(FileManager::EPHEM_PATH);
          for (UnsignedInt j = 0; j < spices.size(); ++j)
          {
-            if (skr->IsLoaded(spices[j]) == false)
-               skr->LoadKernel(spices[j]);
+            fullPath = spices[j];
 
-            if (find(spkFileNames.begin(), spkFileNames.end(), spices[j]) ==
+            // Check to see if this name includes path information
+            // If no path designation slash character is found, add the default path
+            if ((fullPath.find('/') == std::string::npos) &&
+                (fullPath.find('\\') == std::string::npos))
+            {
+               fullPath = ephemPath + fullPath;
+            }
+
+            if (skr->IsLoaded(fullPath) == false)
+               skr->LoadKernel(fullPath);
+
+            if (find(spkFileNames.begin(), spkFileNames.end(), fullPath) ==
                   spkFileNames.end())
-               spkFileNames.push_back(spices[j]);
+               spkFileNames.push_back(fullPath);
          }
 
          // Load the initial data point

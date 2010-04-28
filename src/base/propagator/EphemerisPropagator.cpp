@@ -759,6 +759,17 @@ bool EphemerisPropagator::SetStringParameter(const std::string &label,
 
 // Reference object code
 
+//------------------------------------------------------------------------------
+// std::string  GetRefObjectName(const Gmat::ObjectType type) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the name of a reference object of the specified type
+ *
+ * @param type The type of the object
+ *
+ * @return The object's name
+ */
+//------------------------------------------------------------------------------
 std::string  EphemerisPropagator::GetRefObjectName(
       const Gmat::ObjectType type) const
 {
@@ -766,6 +777,17 @@ std::string  EphemerisPropagator::GetRefObjectName(
 }
 
 
+//------------------------------------------------------------------------------
+// const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a list of reference objects of the specified type
+ *
+ * @param type The type of the objects
+ *
+ * @return The list of names
+ */
+//------------------------------------------------------------------------------
 const StringArray& EphemerisPropagator::GetRefObjectNameArray(
       const Gmat::ObjectType type)
 {
@@ -777,6 +799,18 @@ const StringArray& EphemerisPropagator::GetRefObjectNameArray(
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetRefObjectName(const Gmat::ObjectType type, const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Passes in the name of a reference object for use during initialization
+ *
+ * @param type The type of the object
+ * @param name The object's name
+ *
+ * @return true if the name was set, false if not
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::SetRefObjectName(const Gmat::ObjectType type,
       const std::string &name)
 {
@@ -796,6 +830,24 @@ bool EphemerisPropagator::SetRefObjectName(const Gmat::ObjectType type,
 }
 
 
+//------------------------------------------------------------------------------
+// bool RenameRefObject(const Gmat::ObjectType type, const std::string &oldName,
+//       const std::string &newName)
+//------------------------------------------------------------------------------
+/**
+ * Changes the name of a previously set reference object.
+ *
+ * This method changes the name or list of names of reference objects.  It does
+ * not change the actual objects themselves; that side of the renaming is
+ * handled separately.
+ *
+ * @param type The type of object that is being renamed
+ * @param oldName The object's name before the change
+ * @param newName The name that now identifies the object
+ *
+ * @return true if a object name was changed, false if not
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::RenameRefObject(const Gmat::ObjectType type,
       const std::string &oldName, const std::string &newName)
 {
