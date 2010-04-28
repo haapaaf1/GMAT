@@ -66,6 +66,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "TIME_PATH",
    "TEXTURE_PATH",
    "MEASUREMENT_PATH",
+   "EPHEM_PATH",
    // file name
    "LOG_FILE",
    "REPORT_FILE",
@@ -176,7 +177,9 @@ std::string FileManager::GetCurrentPath()
    currPath = ".";
 #else
    char buffer[GmatFile::MAX_PATH_LEN];
-   getcwd(buffer, GmatFile::MAX_PATH_LEN);
+   // This clears a warning message
+   if (getcwd(buffer, GmatFile::MAX_PATH_LEN) != buffer)
+      ;
    currPath = buffer;
 #endif
 
@@ -653,6 +656,19 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    outStream << setw(20) << "ICON_PATH" << " = " << mPathMap["ICON_PATH"] << "\n";
    WriteFiles(outStream, "ICON_FILE");
    outStream << "#-----------------------------------------------------------\n";
+
+   //---------------------------------------------
+   // write the EPHEM_PATH next if set
+   //---------------------------------------------
+   if (mPathMap["EPHEM_PATH"] != "./output/")
+   {
+      #ifdef DEBUG_WRITE_STARTUP_FILE
+      MessageInterface::ShowMessage("   .....Writing EPHEM_PATH path\n");
+      #endif
+      outStream << setw(20) << "EPHEM_PATH" << " = " << mPathMap["EPHEM_PATH"];
+      outStream << "\n#---------------------------------------------"
+            "--------------\n";
+   }
 
    //---------------------------------------------
    // write saved comments
@@ -1575,6 +1591,7 @@ void FileManager::RefreshFiles()
    AddFileType("LOG_FILE", "OUTPUT_PATH/GmatLog.txt");
    AddFileType("REPORT_FILE", "OUTPUT_PATH/ReportFile.txt");
    AddFileType("MEASUREMENT_PATH", "./output/");
+   AddFileType("EPHEM_PATH", "./output/");
 
    //loj: Should we create default input files?
 #ifdef FM_CREATE_DEFAULT_INPUT

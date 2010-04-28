@@ -393,7 +393,7 @@ std::string EphemerisFile::GetFileName()
    try
    {
       FileManager *fm = FileManager::Instance();
-      oututPath = fm->GetPathname(FileManager::OUTPUT_PATH);
+      oututPath = fm->GetPathname(FileManager::EPHEM_PATH);
       
       if (fileName == "")
       {

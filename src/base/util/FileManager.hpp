@@ -51,6 +51,7 @@ public:
       TIME_PATH,
       TEXTURE_PATH, //Notes: TEXTURE_PATH is used in SetPathname()
       MEASUREMENT_PATH,
+      EPHEM_PATH,
       
       // general file name
       LOG_FILE,
