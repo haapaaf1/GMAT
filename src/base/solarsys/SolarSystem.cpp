@@ -1674,8 +1674,8 @@ bool SolarSystem::AddBody(CelestialBody* cb)
       }
       else if (pvSrcForAll == Gmat::SPICE)
       {
-//         if (theSPKFilename != "")
-//            if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
+         if (theSPKFilename != "")
+            if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
 //         if (lskKernelName != "")
 //            if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
       }
@@ -1955,16 +1955,16 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
 bool SolarSystem::SetSPKFile(const std::string &spkFile)
 {
    theSPKFilename = spkFile;
-//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-//   while (cbi != bodiesInUse.end())
-//   {
-//      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
-//      if (!userDef)
-//      {
-//         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
-//      }
-//      ++cbi;
-//   }
+   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
+   while (cbi != bodiesInUse.end())
+   {
+      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
+      if (!userDef)
+      {
+         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
+      }
+      ++cbi;
+   }
    return true;
 }
 
