@@ -24,6 +24,9 @@
 //#define DEBUG_PROPAGATION
 //#define TEST_TDB_ROUND_TRIP
 
+//---------------------------------
+// static data
+//---------------------------------
 
 /// SPKPropagator parameter labels
 const std::string SPKPropagator::PARAMETER_TEXT[
@@ -40,6 +43,19 @@ const Gmat::ParameterType SPKPropagator::PARAMETER_TYPE[
 };
 
 
+//---------------------------------
+// public
+//---------------------------------
+
+//------------------------------------------------------------------------------
+// SPKPropagator(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Default constructor
+ *
+ * @param name The name of the object that gets constructed
+ */
+//------------------------------------------------------------------------------
 SPKPropagator::SPKPropagator(const std::string &name) :
    EphemerisPropagator        ("SPK", name),
    skr                        (NULL)
@@ -50,6 +66,13 @@ SPKPropagator::SPKPropagator(const std::string &name) :
 }
 
 
+//------------------------------------------------------------------------------
+// ~SPKPropagator()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
+//------------------------------------------------------------------------------
 SPKPropagator::~SPKPropagator()
 {
    if (skr)
@@ -62,6 +85,15 @@ SPKPropagator::~SPKPropagator()
 }
 
 
+//------------------------------------------------------------------------------
+// SPKPropagator(const SPKPropagator & spk)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor
+ *
+ * @param spk The object that is copied into this new one
+ */
+//------------------------------------------------------------------------------
 SPKPropagator::SPKPropagator(const SPKPropagator & spk) :
    EphemerisPropagator        (spk),
    skr                        (NULL)
@@ -69,6 +101,17 @@ SPKPropagator::SPKPropagator(const SPKPropagator & spk) :
 }
 
 
+//------------------------------------------------------------------------------
+// SPKPropagator & SPKPropagator::operator =(const SPKPropagator & spk)
+//------------------------------------------------------------------------------
+/**
+ * Assignment operator
+ *
+ * @param spk The object that is provides data for into this one
+ *
+ * @return This propagator, configured to match spk.
+ */
+//------------------------------------------------------------------------------
 SPKPropagator & SPKPropagator::operator =(const SPKPropagator & spk)
 {
    if (this != &spk)
@@ -82,12 +125,32 @@ SPKPropagator & SPKPropagator::operator =(const SPKPropagator & spk)
 }
 
 
+//------------------------------------------------------------------------------
+// GmatBase* Clone() const
+//------------------------------------------------------------------------------
+/**
+ * Generates a new object that matches this one
+ *
+ * @return The new object
+ */
+//------------------------------------------------------------------------------
 GmatBase* SPKPropagator::Clone() const
 {
    return new SPKPropagator(*this);
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetParameterText(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the script string for a parameter
+ *
+ * @param id The index of the parameter in the parameter tables
+ *
+ * @return The string
+ */
+//------------------------------------------------------------------------------
 std::string SPKPropagator::GetParameterText(const Integer id) const
 {
    if (id >= EphemerisPropagatorParamCount && id < SPKPropagatorParamCount)
@@ -96,6 +159,17 @@ std::string SPKPropagator::GetParameterText(const Integer id) const
 }
 
 
+//------------------------------------------------------------------------------
+// Integer GetParameterID(const std::string &str) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the ID of a parameter
+ *
+ * @param The script string for the parameter
+ *
+ * @return The parameter's ID
+ */
+//------------------------------------------------------------------------------
 Integer SPKPropagator::GetParameterID(const std::string &str) const
 {
    for (Integer i = EphemerisPropagatorParamCount;
@@ -109,6 +183,17 @@ Integer SPKPropagator::GetParameterID(const std::string &str) const
 }
 
 
+//------------------------------------------------------------------------------
+// Gmat::ParameterType GetParameterType(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the type for a parameter
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The parameter's type
+ */
+//------------------------------------------------------------------------------
 Gmat::ParameterType SPKPropagator::GetParameterType(const Integer id) const
 {
    if (id >= EphemerisPropagatorParamCount && id < SPKPropagatorParamCount)
@@ -117,6 +202,17 @@ Gmat::ParameterType SPKPropagator::GetParameterType(const Integer id) const
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetParameterTypeString(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string description of a parameter's type
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The type of the parameter
+ */
+//------------------------------------------------------------------------------
 std::string SPKPropagator::GetParameterTypeString(const Integer id) const
 {
    if (id >= EphemerisPropagatorParamCount && id < SPKPropagatorParamCount)
@@ -125,12 +221,34 @@ std::string SPKPropagator::GetParameterTypeString(const Integer id) const
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetParameterUnit(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * retrieves the dimensional units for a parameter
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The unit label
+ */
+//------------------------------------------------------------------------------
 std::string SPKPropagator::GetParameterUnit(const Integer id) const
 {
    return EphemerisPropagator::GetParameterUnit(id);
 }
 
 
+//------------------------------------------------------------------------------
+// bool IsParameterReadOnly(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Reports if a parameter should be hidden from the users
+ *
+ * @param id The ID of the parameter
+ *
+ * @return true if the parameter should be hidden, false if not
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::IsParameterReadOnly(const Integer id) const
 {
    if (id == SPKFILENAMES)
@@ -139,18 +257,52 @@ bool SPKPropagator::IsParameterReadOnly(const Integer id) const
 }
 
 
+//------------------------------------------------------------------------------
+// bool IsParameterReadOnly(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Reports if a parameter should be hidden from the users
+ *
+ * @param label The scripted string of the parameter
+ *
+ * @return true if the paameter should be hidden, false if not
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::IsParameterReadOnly(const std::string &label) const
 {
    return IsParameterReadOnly(GetParameterID(label));
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string parameter
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The parameter's value
+ */
+//------------------------------------------------------------------------------
 std::string SPKPropagator::GetStringParameter(const Integer id) const
 {
    return EphemerisPropagator::GetStringParameter(id);
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter
+ *
+ * @param id The ID of the parameter
+ * @param value The new value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::SetStringParameter(const Integer id,
       const std::string &value)
 {
@@ -167,6 +319,18 @@ bool SPKPropagator::SetStringParameter(const Integer id,
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id, const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string parameter from an array
+ *
+ * @param id The ID of the parameter
+ * @param index The array index
+ *
+ * @return The parameter's value
+ */
+//------------------------------------------------------------------------------
 std::string SPKPropagator::GetStringParameter(const Integer id,
       const Integer index) const
 {
@@ -181,6 +345,20 @@ std::string SPKPropagator::GetStringParameter(const Integer id,
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter in an array
+ *
+ * @param id The ID of the parameter
+ * @param value The new value
+ * @param index The index of the parameter in the array
+ *
+ * @return True on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::SetStringParameter(const Integer id,
       const std::string &value, const Integer index)
 {
@@ -198,6 +376,17 @@ bool SPKPropagator::SetStringParameter(const Integer id,
 }
 
 
+//------------------------------------------------------------------------------
+// const StringArray& GetStringArrayParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a StringArray parameter
+ *
+ * @param id The ID of the parameter
+ *
+ * @return The StringArray
+ */
+//------------------------------------------------------------------------------
 const StringArray& SPKPropagator::GetStringArrayParameter(
       const Integer id) const
 {
@@ -207,6 +396,19 @@ const StringArray& SPKPropagator::GetStringArrayParameter(
 }
 
 
+//------------------------------------------------------------------------------
+// const StringArray& GetStringArrayParameter(const Integer id,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a StringArray parameter from an array of StringArrays
+ *
+ * @param id The ID of the parameter
+ * @param index The index of the StringArray
+ *
+ * @return The StringArray
+ */
+//------------------------------------------------------------------------------
 const StringArray& SPKPropagator::GetStringArrayParameter(const Integer id,
       const Integer index) const
 {
@@ -214,12 +416,35 @@ const StringArray& SPKPropagator::GetStringArrayParameter(const Integer id,
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a StringArray parameter
+ *
+ * @param label The script label of the parameter
+ *
+ * @return The StringArray
+ */
+//------------------------------------------------------------------------------
 std::string SPKPropagator::GetStringParameter(const std::string &label) const
 {
    return GetStringParameter(GetParameterID(label));
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter
+ *
+ * @param label The script label of the parameter
+ * @param value The new value
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::SetStringParameter(const std::string &label,
       const std::string &value)
 {
@@ -227,6 +452,19 @@ bool SPKPropagator::SetStringParameter(const std::string &label,
 }
 
 
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const std::string &label,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a string parameter from an array
+ *
+ * @param label The script label of the parameter
+ * @param index The array index
+ *
+ * @return The parameter's value
+ */
+//------------------------------------------------------------------------------
 std::string SPKPropagator::GetStringParameter(const std::string &label,
       const Integer index) const
 {
@@ -234,6 +472,20 @@ std::string SPKPropagator::GetStringParameter(const std::string &label,
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a string parameter in an array
+ *
+ * @param label The script label of the parameter
+ * @param value The new value
+ * @param index The index of the parameter in the array
+ *
+ * @return True on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::SetStringParameter(const std::string &label,
       const std::string &value, const Integer index)
 {
@@ -241,6 +493,17 @@ bool SPKPropagator::SetStringParameter(const std::string &label,
 }
 
 
+//------------------------------------------------------------------------------
+// const StringArray& GetStringArrayParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a StringArray parameter
+ *
+ * @param label The script label of the parameter
+ *
+ * @return The StringArray
+ */
+//------------------------------------------------------------------------------
 const StringArray& SPKPropagator::GetStringArrayParameter(
       const std::string &label) const
 {
@@ -248,6 +511,19 @@ const StringArray& SPKPropagator::GetStringArrayParameter(
 }
 
 
+//------------------------------------------------------------------------------
+// const StringArray& GetStringArrayParameter(const std::string &label,
+//       const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a StringArray parameter from an array of StringArrays
+ *
+ * @param label The script label of the parameter
+ * @param index The index of the StringArray
+ *
+ * @return The StringArray
+ */
+//------------------------------------------------------------------------------
 const StringArray& SPKPropagator::GetStringArrayParameter(
       const std::string &label, const Integer index) const
 {
@@ -255,6 +531,15 @@ const StringArray& SPKPropagator::GetStringArrayParameter(
 }
 
 
+//------------------------------------------------------------------------------
+// bool Initialize()
+//------------------------------------------------------------------------------
+/**
+ * Prepares the SPKPropagator for use in a run
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::Initialize()
 {
    #ifdef DEBUG_INITIALIZATION
@@ -390,6 +675,15 @@ bool SPKPropagator::Initialize()
 }
 
 
+//------------------------------------------------------------------------------
+// bool Step()
+//------------------------------------------------------------------------------
+/**
+ * Advances the state vector by the ephem step
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::Step()
 {
    #ifdef DEBUG_PROPAGATION
@@ -473,6 +767,17 @@ bool SPKPropagator::Step()
 }
 
 
+//------------------------------------------------------------------------------
+// bool RawStep()
+//------------------------------------------------------------------------------
+/**
+ * Performs a propagation step without error control
+ *
+ * @note: RawStep is not used with the SPKPropagator
+ *
+ * @return false always
+ */
+//------------------------------------------------------------------------------
 bool SPKPropagator::RawStep()
 {
    bool retval = false;
@@ -480,12 +785,29 @@ bool SPKPropagator::RawStep()
 }
 
 
+//------------------------------------------------------------------------------
+// Real GetStepTaken()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the size of the most recent SPKPropagator step
+ *
+ * @return The most recent step (0.0 if no step was taken with this instance).
+ */
+//------------------------------------------------------------------------------
 Real SPKPropagator::GetStepTaken()
 {
    return stepTaken;
 }
 
 
+//------------------------------------------------------------------------------
+// void UpdateState()
+//------------------------------------------------------------------------------
+/**
+ * Updates the propagation state vector with data from the
+ * PropagationStateManager
+ */
+//------------------------------------------------------------------------------
 void SPKPropagator::UpdateState()
 {
    #ifdef DEBUG_EXECUTION

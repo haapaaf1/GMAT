@@ -919,6 +919,20 @@ bool EphemerisPropagator::RenameRefObject(const Gmat::ObjectType type,
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//       const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Passes reference objects in to the propagator
+ *
+ * @param obj The object
+ * @param type The object's type
+ * @param name The object's name
+ *
+ * @return true if the object was stored, otherwise false
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::SetRefObject(GmatBase *obj,
       const Gmat::ObjectType type, const std::string &name)
 {
@@ -952,6 +966,21 @@ bool EphemerisPropagator::SetRefObject(GmatBase *obj,
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//       const std::string &name, const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Passes reference objects in to the propagator for use in an object array
+ *
+ * @param obj The object
+ * @param type The object's type
+ * @param name The object's name
+ * @param index Index of the object in the array
+ *
+ * @return true if the object was stored, otherwise false
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::SetRefObject(GmatBase *obj,
       const Gmat::ObjectType type, const std::string &name, const Integer index)
 {
@@ -1235,6 +1264,7 @@ void EphemerisPropagator::UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
 void EphemerisPropagator::UpdateFromSpaceObject()
 {
+//   // Formation code: Not part of initial release
 //   // Update elements for each Formation
 //   for (UnsignedInt i = 0; i < stateObjects.size(); ++i)
 //      if (stateObjects[i]->IsOfType(Gmat::FORMATION))
@@ -1249,6 +1279,13 @@ void EphemerisPropagator::UpdateFromSpaceObject()
 }
 
 
+//------------------------------------------------------------------------------
+// void RevertSpaceObject()
+//------------------------------------------------------------------------------
+/**
+ * Restores SpaceObjects to the states stored in a buffer
+ */
+//------------------------------------------------------------------------------
 void EphemerisPropagator::RevertSpaceObject()
 {
    #ifdef DEBUG_ODEMODEL_EXE
@@ -1265,6 +1302,13 @@ void EphemerisPropagator::RevertSpaceObject()
 }
 
 
+//------------------------------------------------------------------------------
+// void BufferState()
+//------------------------------------------------------------------------------
+/**
+ * Buffers SpaceObjects for later restoration
+ */
+//------------------------------------------------------------------------------
 void EphemerisPropagator::BufferState()
 {
    GmatState *stateToBuffer = psm->GetState();
@@ -1272,12 +1316,30 @@ void EphemerisPropagator::BufferState()
 }
 
 
+//------------------------------------------------------------------------------
+// Real GetTime()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the time elapsed in the state from the propagator's base epoch
+ *
+ * @return The elapsed time
+ */
+//------------------------------------------------------------------------------
 Real EphemerisPropagator::GetTime()
 {
    return timeFromEpoch;
 }
 
 
+//------------------------------------------------------------------------------
+// void SetTime(Real t)
+//------------------------------------------------------------------------------
+/**
+ * Sets the time elapsed in the state from the propagator's base epoch
+ *
+ * @param t The elapsed time
+ */
+//------------------------------------------------------------------------------
 void EphemerisPropagator::SetTime(Real t)
 {
    timeFromEpoch = t;
@@ -1321,6 +1383,16 @@ GmatEpoch EphemerisPropagator::ConvertToRealEpoch(const std::string &theEpoch,
 }
 
 
+//------------------------------------------------------------------------------
+// void SetEphemSpan(const GmatEpoch start, const GmatEpoch end)
+//------------------------------------------------------------------------------
+/**
+ * Sets the ephem start and end epochs
+ *
+ * @param start The start epoch, in the A.1 modified Julian system
+ * @param end The end epoch, in the A.1 modified Julian system
+ */
+//------------------------------------------------------------------------------
 void EphemerisPropagator::SetEphemSpan(const GmatEpoch start, const GmatEpoch end)
 {
    if (end <= start)
@@ -1333,6 +1405,15 @@ void EphemerisPropagator::SetEphemSpan(const GmatEpoch start, const GmatEpoch en
 }
 
 
+//------------------------------------------------------------------------------
+// void SetEphemSpan(Integer whichOne)
+//------------------------------------------------------------------------------
+/**
+ * Sets the ephem start and end epochs for a given ephem
+ *
+ * @param whichOne The index of the ephem being processed
+ */
+//------------------------------------------------------------------------------
 void EphemerisPropagator::SetEphemSpan(Integer whichOne)
 {
    throw PropagatorException("EphemerisPropagator::SetEphemSpan() is not "
@@ -1340,6 +1421,17 @@ void EphemerisPropagator::SetEphemSpan(Integer whichOne)
 }
 
 
+//------------------------------------------------------------------------------
+// bool EphemerisPropagator::IsValidEpoch(GmatEpoch time)
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if an epoch is in the span covered by an ephemeris
+ *
+ * @param time The A.1 modified Julian epoch being checked
+ *
+ * @return true if the epoch is valid, false if not
+ */
+//------------------------------------------------------------------------------
 bool EphemerisPropagator::IsValidEpoch(GmatEpoch time)
 {
    bool retval = false;
@@ -1393,8 +1485,12 @@ void EphemerisPropagator::MoveToOrigin(Real newEpoch)
 
       delta = cbState - mj2kState;
 
-Integer cartObjCount = 1;
-Integer cartStateStart = 0;
+      /**
+       *  @todo When multiple spacecraft are supported, these items will need
+       *  to be set to match the PSM's state vector
+       */
+      Integer cartObjCount = 1;
+      Integer cartStateStart = 0;
 
       for (Integer i = 0; i < cartObjCount; ++i)
       {
@@ -1470,8 +1566,12 @@ void EphemerisPropagator::ReturnFromOrigin(Real newEpoch)
 
       delta = jkState - cbState;
 
-Integer cartObjCount = 1;
-Integer cartStateStart = 0;
+      /**
+       *  @todo When multiple spacecraft are supported, these items will need
+       *  to be set to match the PSM's state vector
+       */
+      Integer cartObjCount = 1;
+      Integer cartStateStart = 0;
 
       for (Integer i = 0; i < cartObjCount; ++i)
       {

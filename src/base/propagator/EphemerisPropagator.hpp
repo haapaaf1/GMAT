@@ -19,12 +19,12 @@
 #ifndef EphemerisPropagator_hpp
 #define EphemerisPropagator_hpp
 
+#include "Propagator.hpp"
+
 /**
  * EphemerisPropagator is the base class for objects that model orbit evolution
  * through interpolation of data in an ephemeris file.
  */
-#include "Propagator.hpp"
-
 class EphemerisPropagator : public Propagator
 {
 public:
@@ -132,6 +132,7 @@ public:
    virtual void         SetTime(Real t);
    virtual void         SetSolarSystem(SolarSystem *ss);
 
+   /// Types of initial epoch data supported
    enum StartEpochSource
    {
       FROM_SCRIPT,

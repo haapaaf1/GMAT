@@ -99,13 +99,18 @@ Propagator::PARAMETER_TYPE[PropagatorParamCount - GmatBaseParamCount] =
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// Propagator::Propagator(void)
+// Propagator(const std::string &typeStr, const std::string &nomme)
 //------------------------------------------------------------------------------
 /**
  * Default base class constructor
+ *
  * The default constructor for the Propagator class sets the stepSize to 60 
  * seconds, sets the member pointers to NULL, the dimension to 0, and the 
  * initialized flag to false.
+ *
+ * @param typeStr The scripted subtype for this Propagator
+ * @param nomme The name of the object that gets constructed
+ *
  */
 //------------------------------------------------------------------------------
 Propagator::Propagator(const std::string &typeStr,
@@ -148,6 +153,8 @@ Propagator::~Propagator()
 //------------------------------------------------------------------------------
 /**
  * The copy constructor
+ *
+ * @param p The object that is copied into this new one
  */
 //------------------------------------------------------------------------------
 Propagator::Propagator(const Propagator& p)
@@ -173,6 +180,10 @@ Propagator::Propagator(const Propagator& p)
 //------------------------------------------------------------------------------
 /**
  * Assignment operator
+ *
+ * @param p The object that is provides data for into this one
+ *
+ * @return This propagator, configured to match p.
  */
 //------------------------------------------------------------------------------
 Propagator& Propagator::operator=(const Propagator& p)
