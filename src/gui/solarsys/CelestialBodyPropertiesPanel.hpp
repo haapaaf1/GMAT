@@ -94,7 +94,7 @@ private:
    wxTextCtrl   *flatTextCtrl;
    wxTextCtrl   *textureTextCtrl;
    
-   wxButton     *browseButton;
+   wxBitmapButton *browseButton;
    
    /// string versions of current data
    wxString     muString;

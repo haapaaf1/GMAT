@@ -24,6 +24,8 @@
 #include "GmatAppData.hpp"
 #include "MessageInterface.hpp"
 #include "StringUtil.hpp"
+#include "bitmaps/OpenFolder.xpm"
+#include <wx/config.h>
 #include <fstream>
 
 //#define DEBUG_CB_PROP_PANEL
@@ -89,7 +91,7 @@ void CelestialBodyPropertiesPanel::SaveData()
    if (muChanged)
    {
       strval = muTextCtrl->GetValue();
-      if (!theCBPanel->CheckReal(tmpval, strval, "Mu", "Positive Real Number",
+      if (!theCBPanel->CheckReal(tmpval, strval, "Mu", "Real Number > 0",
             false, true, true, false))
          realsOK = false;
       else 
@@ -101,7 +103,7 @@ void CelestialBodyPropertiesPanel::SaveData()
    if (eqRadChanged)
    {
       strval = eqRadTextCtrl->GetValue();
-      if (!theCBPanel->CheckReal(tmpval, strval, "Equatorial Radius", "Positive Real Number",
+      if (!theCBPanel->CheckReal(tmpval, strval, "Equatorial Radius", "Real Number > 0",
             false, true, true, false))
          realsOK = false;
       else 
@@ -113,7 +115,7 @@ void CelestialBodyPropertiesPanel::SaveData()
    if (flatChanged)
    {
       strval = flatTextCtrl->GetValue();
-      if (!theCBPanel->CheckReal(tmpval, strval, "Flattening Coefficient", "Non-negative Real Number",
+      if (!theCBPanel->CheckReal(tmpval, strval, "Flattening Coefficient", "Real Number >= 0",
             false, true, true, true))
          realsOK = false;
       else 
@@ -165,12 +167,12 @@ void CelestialBodyPropertiesPanel::SaveData()
       theBody->SetFlattening(flat);
       theBody->SetStringParameter(theBody->GetParameterID("TextureMapFileName"), 
                                   textureMap);
+      dataChanged = false;
+      ResetChangeFlags(true);
    }
    else
       canClose = false;
    
-   dataChanged = false;
-   ResetChangeFlags(true);
 }
 
 void CelestialBodyPropertiesPanel::LoadData()
@@ -208,7 +210,19 @@ void CelestialBodyPropertiesPanel::LoadData()
 void CelestialBodyPropertiesPanel::Create()
 {
    int bSize     = 2;
-   
+   #if __WXMAC__
+   int buttonWidth = 40;
+   #else
+   int buttonWidth = 25;
+   #endif
+
+   wxBitmap openBitmap = wxBitmap(OpenFolder_xpm);
+
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Celestial Body Properties"));
+
    // empty the temporary value strings
    muString      = "";
    eqRadString   = "";
@@ -216,66 +230,79 @@ void CelestialBodyPropertiesPanel::Create()
    textureString = "";
    
    // mu
-   muStaticText      = new wxStaticText(this, ID_TEXT, wxT("Mu"),
+   muStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Mu"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    muTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_MU, wxT(""),
-                       wxDefaultPosition, wxSize(150, -1),0);
+                       wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxFILTER_NUMERIC));
+   muTextCtrl->SetToolTip(pConfig->Read(_T("MuHint")));
    muUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("km^3/sec^2"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    // eq. radius
-   eqRadStaticText      = new wxStaticText(this, ID_TEXT, wxT("Equatorial Radius"),
+   eqRadStaticText      = new wxStaticText(this, ID_TEXT, wxT("Equatorial "GUI_ACCEL_KEY"Radius"),
                           wxDefaultPosition, wxSize(-1,-1), 0);
    eqRadTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_EQRAD, wxT(""),
-                          wxDefaultPosition, wxSize(150, -1),0);
+                          wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxFILTER_NUMERIC));
+   eqRadTextCtrl->SetToolTip(pConfig->Read(_T("EquatorialRadiusHint")));
    eqRadUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("km"),
                           wxDefaultPosition, wxSize(-1,-1), 0);
    // flattening
-   flatStaticText      = new wxStaticText(this, ID_TEXT, wxT("Flattening"),
+   flatStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Flattening"),
                          wxDefaultPosition, wxSize(-1,-1), 0);
    flatTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_FLAT, wxT(""),
-                         wxDefaultPosition, wxSize(150, -1),0);
+                         wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxFILTER_NUMERIC));
+   flatTextCtrl->SetToolTip(pConfig->Read(_T("FlatteningHint")));
    flatUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT(""), // unitless
                          wxDefaultPosition, wxSize(-1,-1), 0);
    // texture map
-   textureStaticText = new wxStaticText(this, ID_TEXT, wxT("Texture Map File"),
+   textureStaticText = new wxStaticText(this, ID_TEXT, wxT("Te"GUI_ACCEL_KEY"xture Map File"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    textureTextCtrl   = new wxTextCtrl(this, ID_TEXT_CTRL_TEXTURE, wxT(""),
                        wxDefaultPosition, wxSize(300,-1), 0);
-   browseButton      = new wxButton(this, ID_BUTTON_BROWSE, wxT("Browse"),
-                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+   textureTextCtrl->SetToolTip(pConfig->Read(_T("TextureMapFileHint")));
+   browseButton      = new wxBitmapButton(this, ID_BUTTON_BROWSE, 
+                       openBitmap, wxDefaultPosition,
+                       wxSize(buttonWidth, 20));
+   browseButton->SetToolTip(pConfig->Read(_T("BrowseTextureMapFileHint"), "Browse for file"));
    
+   // set the min width for one of the labels for each GmatStaticBoxSizer
+   int minLabelSize = muStaticText->GetBestSize().x;
+   minLabelSize = (minLabelSize < eqRadStaticText->GetBestSize().x) ? eqRadStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < flatStaticText->GetBestSize().x) ? flatStaticText->GetBestSize().x : minLabelSize;
+   minLabelSize = (minLabelSize < textureStaticText->GetBestSize().x) ? textureStaticText->GetBestSize().x : minLabelSize;
+
+   eqRadStaticText->SetMinSize(wxSize(minLabelSize, eqRadStaticText->GetMinHeight()));
+   textureStaticText->SetMinSize(wxSize(minLabelSize, textureStaticText->GetMinHeight()));
    
-   wxFlexGridSizer *cbPropGridSizer = new wxFlexGridSizer(4,0,0);
+   wxFlexGridSizer *cbPropGridSizer = new wxFlexGridSizer(3,0,0);
    cbPropGridSizer->Add(muStaticText,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(muTextCtrl,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(muUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(eqRadStaticText,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(eqRadTextCtrl,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(eqRadUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(flatStaticText,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(flatTextCtrl,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(flatUnitsStaticText,0, wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
    cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
-   cbPropGridSizer->Add(20,20,0,wxALIGN_LEFT|wxALL, bSize);
-   
+
    wxFlexGridSizer *cbPropGridSizer2 = new wxFlexGridSizer(3,0,0);
+   cbPropGridSizer2->AddGrowableCol(1);
    cbPropGridSizer2->Add(textureStaticText,0, wxALIGN_LEFT|wxALL, bSize);
-   cbPropGridSizer2->Add(textureTextCtrl,0, wxALIGN_LEFT|wxALL, bSize);
+   cbPropGridSizer2->Add(textureTextCtrl,0, wxALIGN_LEFT|wxGROW, bSize);
    cbPropGridSizer2->Add(browseButton,0, wxALIGN_CENTRE|wxALL, bSize);
+   GmatStaticBoxSizer *optionsSizer    = new GmatStaticBoxSizer(wxVERTICAL, this, "Options");
+   optionsSizer->Add(cbPropGridSizer, 0, wxALIGN_LEFT|wxALL, bSize); 
+   optionsSizer->Add(cbPropGridSizer2, 0, wxALIGN_LEFT|wxGROW, bSize); 
    
    pageSizer    = new GmatStaticBoxSizer(wxVERTICAL, this, "");
    
-   pageSizer->Add(cbPropGridSizer, 0, wxALIGN_CENTRE|wxALL, bSize); 
-   pageSizer->Add(cbPropGridSizer2, 0, wxALIGN_CENTRE|wxALL, bSize); 
+   pageSizer->Add(optionsSizer, 1, wxALIGN_LEFT|wxGROW, bSize); 
    
    this->SetAutoLayout(true);
    this->SetSizer(pageSizer);
    pageSizer->Fit(this);
-   //pageSizer->SetSizerHints(this);
 }
 
 void CelestialBodyPropertiesPanel::ResetChangeFlags(bool discardMods)
