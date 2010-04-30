@@ -93,7 +93,7 @@ void BallisticsMassPanel::Create()
     wxStaticBox *item1 = new wxStaticBox( this, -1, wxT("") );
     wxStaticBoxSizer *item0 = new wxStaticBoxSizer( item1, wxVERTICAL );
     GmatStaticBoxSizer *optionsSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Options" );
-    item0->Add(optionsSizer, 0, wxALIGN_CENTER);
+    item0->Add(optionsSizer, 1, wxALIGN_LEFT|wxGROW);
     wxFlexGridSizer *item2 = new wxFlexGridSizer( 3, 0, 0 );
     item2->AddGrowableCol(1);
 
@@ -162,7 +162,7 @@ void BallisticsMassPanel::Create()
                             wxDefaultPosition, wxDefaultSize, 0 );
     item2->Add( srpAreaUnitsText, 0, wxALIGN_LEFT|wxALL, 5 );
 
-    optionsSizer->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
+    optionsSizer->Add( item2, 0, wxALIGN_LEFT|wxALL, 5 );
 
     this->SetAutoLayout( TRUE );  
     this->SetSizer( item0 );
