@@ -178,6 +178,8 @@ protected:
    StartEpochSource           startEpochSource;
    /// Buffer that allows quick reversion to the previous state
    GmatState                  previousState;
+   /// Direction of propagation
+   Real                       stepDirection;
 
    ///The solar system that supplies the j2kBody and propOrigin
    SolarSystem                *solarSystem;

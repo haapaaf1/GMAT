@@ -80,6 +80,7 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
    j2kState             (NULL),
    stepTaken            (0.0),
    startEpochSource     (FROM_SCRIPT),
+   stepDirection        (1.0),
    solarSystem          (NULL)
 {
    parameterCount = EphemerisPropagatorParamCount;
@@ -127,6 +128,7 @@ EphemerisPropagator::EphemerisPropagator(const EphemerisPropagator & ep) :
    j2kState             (NULL),
    stepTaken            (0.0),
    startEpochSource     (ep.startEpochSource),
+   stepDirection        (ep.stepDirection),
    solarSystem          (NULL)
 {
 }
@@ -169,9 +171,10 @@ EphemerisPropagator& EphemerisPropagator::operator=(
          delete [] j2kState;
          j2kState = NULL;
       }
-      stepTaken = 0.0;
+      stepTaken        = 0.0;
       startEpochSource = ep.startEpochSource;
-      solarSystem = NULL;
+      stepDirection    = ep.stepDirection;
+      solarSystem      = NULL;
    }
 
    return *this;
@@ -356,6 +359,15 @@ Real EphemerisPropagator::SetRealParameter(const Integer id, const Real value)
       if (value != 0.0)
          ephemStep = value;
       return ephemStep;
+   }
+
+   if (id == INITIAL_STEP_SIZE)
+   {
+      if (value < 0.0)
+         stepDirection = -1.0;
+      else
+         stepDirection = 1.0;
+      // Let this fall through to Propagator, so no return here
    }
 
    return Propagator::SetRealParameter(id, value);
@@ -1068,6 +1080,9 @@ bool EphemerisPropagator::Initialize()
          MessageInterface::ShowMessage("Current epoch set to %.12lf\n",
                currentEpoch);
       #endif
+
+      // Set direction for the default step.  Step(Real) overrides the direction
+      ephemStep = fabs(ephemStep) * stepDirection;
 
       retval = true;
    }
