@@ -2441,6 +2441,7 @@ bool Propagate::Initialize()
          for (UnsignedInt i = 0; i < pObjects.size(); ++i)
             p->SetRefObject(pObjects[i], Gmat::SPACEOBJECT,
                   pObjects[i]->GetName());
+         p->SetSolarSystem(solarSys);
       }
       
       #ifdef DEBUG_PUBLISH_DATA

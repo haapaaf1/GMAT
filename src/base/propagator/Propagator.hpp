@@ -200,6 +200,20 @@ protected:
    PhysicalModel *physicalModel;
    /// Flag used to detect if the code is taking the last Propagate step
    bool finalStep; 
+
+   // Pieces for prop with origin code
+   /// Name of the common J2000 body that the state providers all use
+   std::string               j2kBodyName;
+   /// Pointer to the J2000 body
+   CelestialBody             *j2kBody;
+   /// Name of the central body
+   std::string                centralBody;
+   /// Pointer to the central body
+   SpacePoint                *propOrigin;
+
+   virtual void MoveToOrigin(Real newEpoch = -1.0);
+   virtual void ReturnFromOrigin(Real newEpoch = -1.0);
+
 };
 
 #endif // Propagator_hpp

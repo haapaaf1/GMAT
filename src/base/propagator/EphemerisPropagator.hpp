@@ -130,6 +130,7 @@ public:
 
    virtual Real         GetTime();
    virtual void         SetTime(Real t);
+   virtual void         SetSolarSystem(SolarSystem *ss);
 
    enum StartEpochSource
    {
@@ -141,8 +142,6 @@ public:
 protected:
    /// Step used to propagate through the ephemeris
    Real                       ephemStep;
-   /// Name of the central body
-   std::string                centralBody;
    /// Format used for the start epoch data
    std::string                epochFormat;
    /// Start epoch
@@ -171,7 +170,7 @@ protected:
 
    /// State vector for the latest propagated vector
    Real                       *state;
-   /// Second state vector
+   /// Second state vector, in the J2000 frame
    Real                       *j2kState;
    /// Size of the most recent prop step
    Real                       stepTaken;
@@ -180,6 +179,8 @@ protected:
    /// Buffer that allows quick reversion to the previous state
    GmatState                  previousState;
 
+   ///The solar system that supplies the j2kBody and propOrigin
+   SolarSystem                *solarSystem;
    /// Parameter IDs
    enum
    {
@@ -204,6 +205,10 @@ protected:
    virtual void SetEphemSpan(const GmatEpoch start, const GmatEpoch);
    virtual void SetEphemSpan(Integer whichOne = 0);
    virtual bool IsValidEpoch(GmatEpoch time);
+
+   virtual void MoveToOrigin(Real newEpoch = -1.0);
+   virtual void ReturnFromOrigin(Real newEpoch = -1.0);
+
 };
 
 #endif /* EphemerisPropagator_hpp */

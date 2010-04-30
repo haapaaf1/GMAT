@@ -68,7 +68,6 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
       const std::string & name) :
    Propagator           (typeStr, name),
    ephemStep            (300.0),
-   centralBody          ("Earth"),
    epochFormat          ("A1ModJulian"),
    startEpoch           ("21545.0"),
    initialEpoch         (-987654321.0),
@@ -80,7 +79,8 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
    state                (NULL),
    j2kState             (NULL),
    stepTaken            (0.0),
-   startEpochSource     (FROM_SCRIPT)
+   startEpochSource     (FROM_SCRIPT),
+   solarSystem          (NULL)
 {
    parameterCount = EphemerisPropagatorParamCount;
 }
@@ -115,7 +115,6 @@ EphemerisPropagator::~EphemerisPropagator()
 EphemerisPropagator::EphemerisPropagator(const EphemerisPropagator & ep) :
    Propagator           (ep),
    ephemStep            (ep.ephemStep),
-   centralBody          (ep.centralBody),
    epochFormat          (ep.epochFormat),
    startEpoch           (ep.startEpoch),
    initialEpoch         (ep.initialEpoch),
@@ -127,7 +126,8 @@ EphemerisPropagator::EphemerisPropagator(const EphemerisPropagator & ep) :
    state                (NULL),
    j2kState             (NULL),
    stepTaken            (0.0),
-   startEpochSource     (ep.startEpochSource)
+   startEpochSource     (ep.startEpochSource),
+   solarSystem          (NULL)
 {
 }
 
@@ -151,7 +151,6 @@ EphemerisPropagator& EphemerisPropagator::operator=(
       Propagator::operator=(ep);
 
       ephemStep     = ep.ephemStep;
-      centralBody   = ep.centralBody;
       epochFormat   = ep.epochFormat;
       startEpoch    = ep.startEpoch;
       initialEpoch  = ep.initialEpoch;
@@ -172,6 +171,7 @@ EphemerisPropagator& EphemerisPropagator::operator=(
       }
       stepTaken = 0.0;
       startEpochSource = ep.startEpochSource;
+      solarSystem = NULL;
    }
 
    return *this;
@@ -760,6 +760,42 @@ bool EphemerisPropagator::SetStringParameter(const std::string &label,
 // Reference object code
 
 //------------------------------------------------------------------------------
+// void SetSolarSystem(SolarSystem *ss)
+//------------------------------------------------------------------------------
+/**
+ * Sets the solar system pointer
+ *
+ * @param ss Pointer to the solar system used in the modeling.
+ */
+//------------------------------------------------------------------------------
+void EphemerisPropagator::SetSolarSystem(SolarSystem *ss)
+{
+   if (ss == NULL)
+      MessageInterface::ShowMessage("Setting NULL solar system on %s\n",
+         instanceName.c_str());
+   else
+   {
+      solarSystem = ss;
+
+      std::string bName = centralBody;
+      if (bName == "Moon")
+         bName = "Luna";
+      propOrigin = solarSystem->GetBody(bName);
+
+      if (propOrigin == NULL)
+         throw ODEModelException(
+            "Ephemeris propagator origin (" + centralBody +
+            ") was not found in the solar system");
+
+      bName = j2kBodyName;
+      if (bName == "Moon")
+         bName = "Luna";
+      j2kBody = solarSystem->GetBody(bName);
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // std::string  GetRefObjectName(const Gmat::ObjectType type) const
 //------------------------------------------------------------------------------
 /**
@@ -791,6 +827,11 @@ std::string  EphemerisPropagator::GetRefObjectName(
 const StringArray& EphemerisPropagator::GetRefObjectNameArray(
       const Gmat::ObjectType type)
 {
+   #ifdef DEBUG_REF_OBJ
+      MessageInterface::ShowMessage("EphemerisPropagator::"
+            "GetRefObjectNameArray(%d) called\n", type);
+   #endif
+
    if ((type == Gmat::SPACECRAFT) || (type == Gmat::SPACEOBJECT) ||
        (type == Gmat::FORMATION))
       return propObjectNames;
@@ -869,6 +910,14 @@ bool EphemerisPropagator::RenameRefObject(const Gmat::ObjectType type,
 bool EphemerisPropagator::SetRefObject(GmatBase *obj,
       const Gmat::ObjectType type, const std::string &name)
 {
+   #ifdef DEBUG_REF_OBJ
+         MessageInterface::ShowMessage
+               ("EphemerisPropagator::SetRefObject() <%s> entered, obj=<%p><%s>"
+                "<%s>, type=%d, name='%s'\n", GetName().c_str(), obj,
+                (obj ? obj->GetTypeName().c_str() : "NULL"),
+                (obj ? obj->GetName().c_str() : "NULL"), type, name.c_str());
+   #endif
+
    bool retval = false;
 
    if (obj->IsOfType(Gmat::SPACEOBJECT))
@@ -987,20 +1036,25 @@ bool EphemerisPropagator::Initialize()
       {
          case FROM_SPACECRAFT:
             if (propObjects.size() > 0)
+            {
+               // Spacecraft update epochs during the run, so we have to update
+               // timeFromEpoch for this case
                initialEpoch = ((SpaceObject*)(propObjects[0]))->GetEpoch();
+               timeFromEpoch = 0.0;
+            }
             break;
 
          case FROM_EPHEM:
             if (ephemStart > 0)
+            {
                initialEpoch = ephemStart;
+            }
             break;
 
          case FROM_SCRIPT:
          default:
             initialEpoch = ConvertToRealEpoch(startEpoch, epochFormat);
             break;
-
-
       }
 
       if (currentEpoch == -987654321.0)
@@ -1122,7 +1176,7 @@ void EphemerisPropagator::UpdateSpaceObject(Real newEpoch)
       Integer stateSize;
       Integer vectorSize;
       GmatState *newState;
-   //   ReturnFromOrigin(newEpoch);
+      ReturnFromOrigin(newEpoch);
 
       newState = psm->GetState();
       stateSize = newState->GetSize();
@@ -1173,12 +1227,10 @@ void EphemerisPropagator::UpdateFromSpaceObject()
 
    psm->MapObjectsToVector();
    GmatState *newState = psm->GetState();
-   memcpy(j2kState, newState->GetState(), newState->GetSize() * sizeof(Real));
-/// THIS TOO?
    memcpy(state, newState->GetState(), newState->GetSize() * sizeof(Real));
 
     // Transform to the force model origin
-//    MoveToOrigin();
+    MoveToOrigin();
 }
 
 
@@ -1194,7 +1246,7 @@ void EphemerisPropagator::RevertSpaceObject()
    currentEpoch = initialEpoch + timeFromEpoch / 86400.0;
    UpdateState();
 
-//   MoveToOrigin();
+   MoveToOrigin();
 }
 
 
@@ -1279,4 +1331,155 @@ bool EphemerisPropagator::IsValidEpoch(GmatEpoch time)
    if ((time >= ephemStart) && (time <= ephemEnd))
       retval = true;
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// void MoveToOrigin(Real newEpoch)
+//------------------------------------------------------------------------------
+/**
+ * Provides the interface that Propagators that do not use ODEModels use to
+ * translate from the J2000 body to the propagator's central body
+ *
+ * @param newEpoch The epoch of the state that is translated
+ */
+//------------------------------------------------------------------------------
+void EphemerisPropagator::MoveToOrigin(Real newEpoch)
+{
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage("ODEModel::MoveToOrigin entered\n");
+   #endif
+
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage(
+            "SatCount = %d, dimension = %d, stateSize = %d\n",cartObjCount,
+            dimension, stateSize);
+      MessageInterface::ShowMessage(
+            "StatePointers: rawState = %p, modelState = %p\n", rawState,
+            modelState);
+      MessageInterface::ShowMessage(
+          "ODEModel::MoveToOrigin()\n   Input state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", rawState[i]);
+      MessageInterface::ShowMessage("]\n   model state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", modelState[i]);
+      MessageInterface::ShowMessage("]\n\n");
+   #endif
+
+   memcpy(state, j2kState, dimension*sizeof(Real));
+
+   if (centralBody != j2kBodyName)
+   {
+      Rvector6 cbState, mj2kState, delta;
+      Real now = ((newEpoch < 0.0) ? currentEpoch : newEpoch);
+      cbState = propOrigin->GetMJ2000State(now);
+      mj2kState = j2kBody->GetState(now);
+
+      delta = cbState - mj2kState;
+
+Integer cartObjCount = 1;
+Integer cartStateStart = 0;
+
+      for (Integer i = 0; i < cartObjCount; ++i)
+      {
+         Integer i6 = cartStateStart + i * 6;
+         for (int j = 0; j < 6; ++j)
+            state[i6+j] -= delta[j];
+
+         #ifdef DEBUG_REORIGIN
+            MessageInterface::ShowMessage(
+                "ODEModel::MoveToOrigin()\n"
+                "   Input state: [%lf %lf %lf %lf %lf %lf]\n"
+                "   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+                "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+                "   model state: [%lf %lf %lf %lf %lf %lf]\n\n",
+                rawState[i6], rawState[i6+1], rawState[i6+2], rawState[i6+3],
+                rawState[i6+4], rawState[i6+5],
+                mj2kState[0], mj2kState[1], mj2kState[2], mj2kState[3],
+                mj2kState[4], mj2kState[5],
+                cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+                cbState[5],
+                delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+                modelState[i6], modelState[i6+1], modelState[i6+2],
+                modelState[i6+3], modelState[i6+4], modelState[i6+5]);
+         #endif
+      }
+   }
+
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage(
+          "   Move Complete\n   Input state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", rawState[i]);
+      MessageInterface::ShowMessage("]\n   model state: [ ");
+      for (Integer i = 0; i < dimension; ++i)
+         MessageInterface::ShowMessage("%lf ", modelState[i]);
+      MessageInterface::ShowMessage("]\n\n");
+
+      MessageInterface::ShowMessage("ODEModel::MoveToOrigin Finished\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void ReturnFromOrigin(Real newEpoch)
+//------------------------------------------------------------------------------
+/**
+ * Provides the interface that Propagators that do not use ODEModels use to
+ * translate from the propagator's central body to the J2000 body
+ *
+ * @param newEpoch The epoch of the state that is translated
+ */
+//------------------------------------------------------------------------------
+void EphemerisPropagator::ReturnFromOrigin(Real newEpoch)
+{
+   if ((j2kBody == NULL) || (propOrigin == NULL))
+   {
+      MessageInterface::ShowMessage("Cannot reorigin; j2kBody = %p, "
+            "propOrigin = %p\n", j2kBody, propOrigin);
+      return;
+   }
+   #ifdef DEBUG_REORIGIN
+      MessageInterface::ShowMessage("ODEModel::ReturnFromOrigin entered\n");
+   #endif
+
+   memcpy(j2kState, state, dimension*sizeof(Real));
+   if (centralBody != j2kBodyName)
+   {
+      Rvector6 cbState, jkState, delta;
+      Real now = ((newEpoch < 0.0) ? currentEpoch : newEpoch);
+      cbState = propOrigin->GetMJ2000State(now);
+      jkState = j2kBody->GetState(now);
+
+      delta = jkState - cbState;
+
+Integer cartObjCount = 1;
+Integer cartStateStart = 0;
+
+      for (Integer i = 0; i < cartObjCount; ++i)
+      {
+         Integer i6 = cartStateStart + i * 6;
+         for (int j = 0; j < 6; ++j)
+            j2kState[i6+j] -= delta[j];
+            #ifdef DEBUG_REORIGIN
+               MessageInterface::ShowMessage(
+                   "ODEModel::ReturnFromOrigin()\n   Input (model) state: [%lf %lf %lf %lf %lf"
+                   " %lf]\n   j2k state:   [%lf %lf %lf %lf %lf %lf]\n"
+                   "   cb state:    [%lf %lf %lf %lf %lf %lf]\n"
+                   "   delta:       [%lf %lf %lf %lf %lf %lf]\n"
+                   "   raw state: [%lf %lf %lf %lf %lf %lf]\n\n",
+                   modelState[0], modelState[1], modelState[2], modelState[3], modelState[4],
+                   modelState[5],
+                   j2kState[0], j2kState[1], j2kState[2], j2kState[3], j2kState[4],
+                   j2kState[5],
+                   cbState[0], cbState[1], cbState[2], cbState[3], cbState[4],
+                   cbState[5],
+                   delta[0], delta[1], delta[2], delta[3], delta[4], delta[5],
+                   rawState[0], rawState[1], rawState[2], rawState[3],
+                   rawState[4], rawState[5]);
+         #endif
+      }
+   }
 }

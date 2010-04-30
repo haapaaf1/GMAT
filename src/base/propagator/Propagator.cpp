@@ -119,7 +119,11 @@ Propagator::Propagator(const std::string &typeStr,
       outState            (NULL),
       dimension           (0),
       physicalModel       (NULL),
-      finalStep           (false)
+      finalStep           (false),
+      j2kBodyName         ("Earth"),
+      j2kBody             (NULL),
+      centralBody         ("Earth"),
+      propOrigin          (NULL)
 {
     // GmatBase data
    objectTypes.push_back(Gmat::PROPAGATOR);
@@ -156,7 +160,11 @@ Propagator::Propagator(const Propagator& p)
       outState            (NULL),
       dimension           (p.dimension),
       physicalModel       (NULL),
-      finalStep           (false)
+      finalStep           (false),
+      j2kBodyName         (p.j2kBodyName),
+      j2kBody             (NULL),
+      centralBody         (p.centralBody),
+      propOrigin          (NULL)
 {
 }
 
@@ -184,6 +192,11 @@ Propagator& Propagator::operator=(const Propagator& p)
     initialized = false;
     resetInitialData = true;
     finalStep = false;    
+
+    j2kBodyName = p.j2kBodyName;
+    j2kBody     = NULL;
+    centralBody = p.centralBody;
+    propOrigin  = NULL;
 
     return *this;
 }
@@ -827,3 +840,35 @@ bool Propagator::RawStep(Real dt)
     return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// Protected methods
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// void MoveToOrigin(Real newEpoch)
+//------------------------------------------------------------------------------
+/**
+ * Provides the interface that Propagators that do not use ODEModels use to
+ * translate from the J2000 body to the propagator's central body
+ *
+ * @param newEpoch The epoch of the state that is translated
+ */
+//------------------------------------------------------------------------------
+void Propagator::MoveToOrigin(Real newEpoch)
+{
+}
+
+//------------------------------------------------------------------------------
+// void ReturnFromOrigin(Real newEpoch)
+//------------------------------------------------------------------------------
+/**
+ * Provides the interface that Propagators that do not use ODEModels use to
+ * translate from the propagator's central body to the J2000 body
+ *
+ * @param newEpoch The epoch of the state that is translated
+ */
+//------------------------------------------------------------------------------
+void Propagator::ReturnFromOrigin(Real newEpoch)
+{
+}
