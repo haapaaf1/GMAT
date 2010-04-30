@@ -152,7 +152,7 @@ private:
    wxComboBox   *ephemSourceComboBox;
    wxComboBox   *centralBodyComboBox;
    
-   wxButton     *ephemFileBrowseButton;
+   wxBitmapButton     *ephemFileBrowseButton;
    wxButton     *spkFileBrowseButton;
    wxButton     *spkFileRemoveButton;
    
