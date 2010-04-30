@@ -214,6 +214,28 @@ bool SpiceInterface::LoadKernel(const std::string &fileName)
 }
 
 //------------------------------------------------------------------------------
+//  bool LoadKernels(const StringArray &fileNames)
+//------------------------------------------------------------------------------
+/**
+ * This method loads the input files into the SPICE kernel pool.
+ *
+ * @param <fileNames>  array of kernels to load.
+ *
+ * @todo Find files if full path is not given - reference to appropriate
+ *       path from startup file
+ *
+ * @return success flag.
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpiceInterface::LoadKernels(const StringArray &fileNames)
+{
+   for (unsigned int ii = 0; ii < fileNames.size(); ii++)
+      LoadKernel(fileNames.at(ii));
+   return true;
+}
+
+//------------------------------------------------------------------------------
 //  bool UnloadKernel(const std::string &fileName)
 //------------------------------------------------------------------------------
 /**
@@ -267,6 +289,28 @@ bool SpiceInterface::UnloadKernel(const std::string &fileName)
    }
 
    return true; 
+}
+
+//------------------------------------------------------------------------------
+//  bool UnloadKernels(const StringArray &fileNames)
+//------------------------------------------------------------------------------
+/**
+ * This method unloads the input files into the SPICE kernel pool.
+ *
+ * @param <fileNames>  array of kernels to load.
+ *
+ * @todo Find files if full path is not given - reference to appropriate
+ *       path from startup file
+ *
+ * @return success flag.
+ *
+ */
+//------------------------------------------------------------------------------
+bool SpiceInterface::UnloadKernels(const StringArray &fileNames)
+{
+   for (unsigned int ii = 0; ii < fileNames.size(); ii++)
+      UnloadKernel(fileNames.at(ii));
+   return true;
 }
 
 //------------------------------------------------------------------------------

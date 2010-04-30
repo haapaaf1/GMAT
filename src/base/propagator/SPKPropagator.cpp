@@ -53,7 +53,12 @@ SPKPropagator::SPKPropagator(const std::string &name) :
 SPKPropagator::~SPKPropagator()
 {
    if (skr)
+   {
+      // unload the SPK kernels so they will not be retained in the kernel
+      // pool
+      skr->UnloadKernels(spkFileNames);
       delete skr;
+   }
 }
 
 

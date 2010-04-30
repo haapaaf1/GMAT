@@ -60,7 +60,9 @@ public:
    virtual SpiceInterface* Clone() const = 0;
 
    virtual bool        LoadKernel(const std::string &fileName);
+   virtual bool        LoadKernels(const StringArray &fileNames);
    virtual bool        UnloadKernel(const std::string &fileName);
+   virtual bool        UnloadKernels(const StringArray &fileNames);
    virtual bool        UnloadAllKernels();
    virtual bool        IsLoaded(const std::string &fileName);
    
