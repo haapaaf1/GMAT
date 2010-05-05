@@ -525,8 +525,8 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       
       #ifdef DEBUG_EW_SET_VALUE
       MessageInterface::ShowMessage
-         ("   ==> Now assign \"%s\" to \"%s\", rhsObj=%p\n",
-          rhs.c_str(), lhs.c_str(), rhsObj);
+         ("   ==> Now assign \"%s\" to \"%s\", rhsObj=<%p>, sval='%s'\n",
+          rhs.c_str(), lhs.c_str(), rhsObj, sval.c_str());
       #endif
       
       // Now assign to LHS
@@ -694,12 +694,23 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             }
          }
          break;
-      case Gmat::STRINGARRAY_TYPE:
+      case Gmat::STRINGARRAY_TYPE:                  
          if (rhsObj != NULL)
+         {
+            #ifdef DEBUG_EW_SET_VALUE
+            MessageInterface::ShowMessage("   calling lhsWrapper->SetString(rhsObj->GetName())\n");
+            #endif
             lhsWrapper->SetString(rhsObj->GetName());
+         }
          else
          {
-            lhsWrapper->SetString(rhs);
+            #ifdef DEBUG_EW_SET_VALUE
+            MessageInterface::ShowMessage("   calling lhsWrapper->SetString(rhs or sval)\n");
+            #endif
+            if (sval == "UnknownValue")
+               lhsWrapper->SetString(rhs);
+            else
+               lhsWrapper->SetString(sval);
             
             // Commented out to handle SolarSystem.Ephemeris = {SLP} (loj: 2008.07.16)            
             //GmatBaseException ex;
