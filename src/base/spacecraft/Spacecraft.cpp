@@ -121,7 +121,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // CartesianVY
       Gmat::REAL_TYPE,        // CartesianVZ
       Gmat::REAL_TYPE,        // MASS_FLOW,
-      Gmat::OBJECTARRAY_TYPE, // AddHardware	// made changes by Tuan Nguyen
+      Gmat::OBJECTARRAY_TYPE, // AddHardware    // made changes by Tuan Nguyen
    };
 
 const std::string
@@ -165,7 +165,7 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "CartesianVY",
       "CartesianVZ",
       "MassFlow",
-      "AddHardware",				// made changes by Tuan Nguyen
+      "AddHardware",                            // made changes by Tuan Nguyen
    };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] =
@@ -439,8 +439,8 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
 
-   hardwareNames 	 = a.hardwareNames;			// made changes by Tuan Nguyen
-   hardwareList 	 = a.hardwareList;			// made changes by Tuan Nguyen
+   hardwareNames     = a.hardwareNames;                     // made changes by Tuan Nguyen
+   hardwareList      = a.hardwareList;                      // made changes by Tuan Nguyen
 
    // set cloned hardware
    CloneOwnedObjects(a.attitude, a.tanks, a.thrusters);
@@ -528,8 +528,8 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
 
-   hardwareNames     = a.hardwareNames;			// made changes by Tuan Nguyen
-   hardwareList 	 = a.hardwareList;			// made changes by Tuan Nguyen
+   hardwareNames     = a.hardwareNames;                 // made changes by Tuan Nguyen
+   hardwareList      = a.hardwareList;                  // made changes by Tuan Nguyen
 
    // delete attached hardware, such as tanks and thrusters
    #ifdef DEBUG_SPACECRAFT
@@ -1003,6 +1003,7 @@ const ObjectTypeArray& Spacecraft::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::COORDINATE_SYSTEM);
+   refObjectTypes.push_back(Gmat::HARDWARE);
    // Now Attitude is local object it will be created all the time (LOJ:2009.09.24)
    //refObjectTypes.push_back(Gmat::ATTITUDE);
    return refObjectTypes;
@@ -1019,7 +1020,7 @@ const ObjectTypeArray& Spacecraft::GetRefObjectTypeArray()
  */
 //------------------------------------------------------------------------------
 const StringArray&
-      Spacecraft::GetRefObjectNameArray(const Gmat::ObjectType type)
+Spacecraft::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    #ifdef DEBUG_SC_REF_OBJECT
    MessageInterface::ShowMessage
@@ -1028,23 +1029,28 @@ const StringArray&
    #endif
    static StringArray fullList;  // Maintain scope if the full list is requested
    fullList.clear();
-
+   
    // If type is UNKNOWN_OBJECT, add only coordinate system and attitude.
    // Other objects are handled separately in the ObjectInitializer
    if (type == Gmat::UNKNOWN_OBJECT)
    {
       // Put in the SpaceObject origin
       fullList.push_back(originName);
-
+      
       // Add Spacecraft CS name
       fullList.push_back(coordSysName);
+      
+      // Add Tank names
+      fullList.insert(fullList.end(), tankNames.begin(), tankNames.end());
+      
+      // Add Thruster names and it's ref. object names
       for (ObjectArray::iterator i = thrusters.begin(); i < thrusters.end(); ++i)
       {
          // Add Thruster name
          if ((*i)->GetName() != "")
             fullList.push_back((*i)->GetName());
-
-         // Add Thruster's Ref. Objs
+         
+         // Add Thruster's ref. object name
          StringArray refObjNames = (*i)->GetRefObjectNameArray(type);
          for (StringArray::iterator j = refObjNames.begin(); j != refObjNames.end(); ++j)
          {
@@ -1052,11 +1058,15 @@ const StringArray&
                fullList.push_back(*j);
          }
       }
-
+      
+      // Add other hardware names and it's ref. object names      
+      fullList.insert(fullList.end(), hardwareNames.begin(), hardwareNames.end());
+      
+      // Add Attitude's ref. object names      
       std::string attRefObjName = attitude->GetRefObjectName(type);
       if (find(fullList.begin(), fullList.end(), attRefObjName) == fullList.end())
          fullList.push_back(attRefObjName);
-
+      
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
          ("Spacecraft::GetRefObjectNameArray() ALL, thrusters.size()=%d, "
@@ -1083,7 +1093,7 @@ const StringArray&
       {
          fullList = tankNames;
          fullList.insert(fullList.end(), thrusterNames.begin(), thrusterNames.end());
-         fullList.insert(fullList.end(), hardwareNames.begin(), hardwareNames.end());	// made changes by Tuan Nguyen
+         fullList.insert(fullList.end(), hardwareNames.begin(), hardwareNames.end());   // made changes by Tuan Nguyen
          return fullList;
       }
 
@@ -1188,7 +1198,7 @@ GmatBase* Spacecraft::GetRefObject(const Gmat::ObjectType type,
          #endif
          return attitude;
 
-      case Gmat::HARDWARE:			// made changes by Tuan Nguyen
+      case Gmat::HARDWARE:                      // made changes by Tuan Nguyen
           for (ObjectArray::iterator i = hardwareList.begin();
                i < hardwareList.end(); ++i) {
              if ((*i)->GetName() == name)
@@ -1294,19 +1304,19 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          #endif
       }
 
-      // set on hardware		// made changes by Tuan Nguyen
-      if (obj->GetType() == Gmat::HARDWARE)		//(objType == "Hardware")
+      // set on hardware                // made changes by Tuan Nguyen
+      if (obj->GetType() == Gmat::HARDWARE)             //(objType == "Hardware")
       {
-		 #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-    	    if (find(hardwareList.begin(), hardwareList.end(), obj) == hardwareList.end())
-    	    {
-				hardwareList.push_back(obj);
-				return true;
-    	    }
-    	    return false;
-		#else
-    	    return SetHardware(obj, hardwareNames, hardwareList);
-		#endif
+         #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
+         if (find(hardwareList.begin(), hardwareList.end(), obj) == hardwareList.end())
+         {
+            hardwareList.push_back(obj);
+            return true;
+         }
+         return false;
+         #else
+         return SetHardware(obj, hardwareNames, hardwareList);
+         #endif
       }
 
       return false;
@@ -1482,8 +1492,8 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //---------------------------------------------------------------------------
 ObjectArray& Spacecraft::GetRefObjectArray(const Gmat::ObjectType type)
 {
-   if (type == Gmat::HARDWARE)		// made changes by Tuan Nguyen
-	  return hardwareList;
+   if (type == Gmat::HARDWARE)          // made changes by Tuan Nguyen
+      return hardwareList;
    if (type == Gmat::FUEL_TANK)
       return tanks;
    if (type == Gmat::THRUSTER)
@@ -1505,8 +1515,8 @@ ObjectArray& Spacecraft::GetRefObjectArray(const Gmat::ObjectType type)
 //---------------------------------------------------------------------------
 ObjectArray& Spacecraft::GetRefObjectArray(const std::string& typeString)
 {
-   if (typeString == "Hardware")	// made changes by Tuan Nguyen
-	  return hardwareList;
+   if (typeString == "Hardware")        // made changes by Tuan Nguyen
+      return hardwareList;
    if ((typeString == "FuelTank") || (typeString == "Tanks"))
       return tanks;
    if ((typeString == "Thruster") || (typeString == "Thrusters"))
@@ -1538,14 +1548,14 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
 
    try
    {
-	  // handle AddHardware parameter:
-	  if (str == "AddHardware")				// made changes by Tuan Nguyen
-		  return ADD_HARDWARE;
-
+      // handle AddHardware parameter:
+      if (str == "AddHardware")                             // made changes by Tuan Nguyen
+         return ADD_HARDWARE;
+      
       // handle special parameter to work in GmatFunction (loj: 2008.06.27)
       if (str == "UTCGregorian")
          return UTC_GREGORIAN;
-
+      
       // first check the multiple reps
       Integer sz = EndMultipleReps - CART_X;
       for (Integer ii = 0; ii < sz; ii++)
@@ -2281,23 +2291,23 @@ std::string Spacecraft::GetStringParameter(const std::string &label) const
  */
 //------------------------------------------------------------------------------
 std::string Spacecraft::GetStringParameter(const Integer id,
-											const Integer index) const
+                                           const Integer index) const
 {
    // made changes by Tuan Nguyen
    switch (id)
    {
       case ADD_HARDWARE:
          {
-            if ((0 <= index)&(index < hardwareNames.size()))
-			   return hardwareNames[index];
-			else
-			   return "";
-		 }
-
+            if ((0 <= index)&(index < (Integer)(hardwareNames.size())))
+               return hardwareNames[index];
+            else
+               return "";
+         }
+         
       default:
-    	 break;
+         break;
    }
-   return GmatBase::GetStringParameter(id, index);
+   return SpaceObject::GetStringParameter(id, index);
 }
 
 //------------------------------------------------------------------------------
@@ -2334,7 +2344,7 @@ std::string Spacecraft::GetStringParameter(const std::string & label,
 //---------------------------------------------------------------------------
 const StringArray& Spacecraft::GetStringArrayParameter(const Integer id) const
 {
-   if (id == ADD_HARDWARE)			// make changes by Tuan Nguyen
+   if (id == ADD_HARDWARE)                      // make changes by Tuan Nguyen
       return hardwareNames;
    if (id == FUEL_TANK_ID)
       return tankNames;
@@ -2398,15 +2408,15 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
    // made changes by Tuan Nguyen
    if (id == ADD_HARDWARE)
    {
-   	  // Only add the hardware if it is not in the list already
-   	  if (find(hardwareNames.begin(), hardwareNames.end(), value) ==
-   	            hardwareNames.end())
-   	  {
-   	     hardwareNames.push_back(value);
-   	  }
-   	  return true;
+      // Only add the hardware if it is not in the list already
+      if (find(hardwareNames.begin(), hardwareNames.end(), value) ==
+          hardwareNames.end())
+      {
+         hardwareNames.push_back(value);
+      }
+      return true;
    }
-
+   
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude)
       {
@@ -2600,17 +2610,17 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
 
    switch (id)
    {
-   case ADD_HARDWARE:								// made changes by Tuan nguyen
-	  {
-		 if (index < (Integer)hardwareNames.size())
-			hardwareNames[index] = value;
-		 else
-			 // Only add the hardware if it is not in the list already
-			 if (find(hardwareNames.begin(), hardwareNames.end(), value) == hardwareNames.end())
-	               hardwareNames.push_back(value);
-
-	     return true;
-	  }
+   case ADD_HARDWARE:                                                           // made changes by Tuan nguyen
+      {
+         if (index < (Integer)hardwareNames.size())
+            hardwareNames[index] = value;
+         else
+            // Only add the hardware if it is not in the list already
+            if (find(hardwareNames.begin(), hardwareNames.end(), value) == hardwareNames.end())
+               hardwareNames.push_back(value);
+         
+         return true;
+      }
    case FUEL_TANK_ID:
       {
          if (index < (Integer)tankNames.size())
@@ -2645,7 +2655,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
       return true;
 
    default:
-      return GmatBase::SetStringParameter(id, value, index);
+      return SpaceObject::SetStringParameter(id, value, index);
    }
 }
 
