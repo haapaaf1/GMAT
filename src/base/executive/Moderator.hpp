@@ -154,7 +154,7 @@ public:
    SpaceObject* GetSpacecraft(const std::string &name);
    std::string GetSpacecraftNotInFormation();
    
-   // Other SpacePoints
+   // SpacePoints
    SpacePoint* CreateSpacePoint(const std::string &type,
                                  const std::string &name);
    SpacePoint* GetSpacePoint(const std::string &name);
@@ -280,6 +280,10 @@ public:
                             const std::string &name,
                             Integer manage = 1);
    Function* GetFunction(const std::string &name);
+   
+   // Create other object
+   GmatBase* CreateOtherObject(Gmat::ObjectType objType, const std::string &type,
+                               const std::string &name, bool createDefault = false);
    
    //----- Non-Configurable Items
    // StopCondition
