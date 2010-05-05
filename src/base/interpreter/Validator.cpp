@@ -453,7 +453,7 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
          //{
             #if DBGLVL_WRAPPERS > 1
             MessageInterface::ShowMessage
-               ("Could not create an ElementWrapper for \"" + theDescription + "\"")
+               ("1 Could not create an ElementWrapper for \"" + theDescription + "\"\n");
             #endif
             theErrorMsg = "Undefined function or variable \"" + theDescription +
                "\" found ";
@@ -482,7 +482,7 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
             {
                #if DBGLVL_WRAPPERS > 1
                MessageInterface::ShowMessage
-                  ("Could not create an ElementWrapper for \"" + theDescription + "\"");
+                  ("2 Could not create an ElementWrapper for \"" + theDescription + "\"\n");
                #endif
                theErrorMsg = " Undefined function or variable \"" + *i + "\" found ";
                
