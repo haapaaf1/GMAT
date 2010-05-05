@@ -440,15 +440,40 @@ bool Assignment::InterpretAction()
          throw CommandException("Command contains an unexpected comma on left-hand-side");
    }
    
+   bool isRhsString = false;
+   
    // check for single quotes in rhs and remove before process further (LOJ: 2009.10.09)
    // so that mp.IsEquation() will not think as transpose
-   if (rhs.find("{") != rhs.npos && rhs.find("'") != rhs.npos)
+   if (rhs.find("{") != rhs.npos || rhs.find("'") != rhs.npos)
    {
       // Single quote is allowed if it is paired, such as {'FuelTank1'}
-      if (GmatStringUtil::StartsWith(rhs, "{") && GmatStringUtil::EndsWith(rhs, "}") ||
-          GmatStringUtil::IsEnclosedWith(rhs, "'"))
+      if (GmatStringUtil::StartsWith(rhs, "{") && GmatStringUtil::EndsWith(rhs, "}"))
       {
+         #ifdef DEBUG_ASSIGNMENT_IA
+         MessageInterface::ShowMessage
+            ("   Removing single quote from <%s>\n", rhs.c_str());
+         #endif
          rhs = GmatStringUtil::RemoveAll(rhs, '\'');
+         
+         #ifdef DEBUG_ASSIGNMENT_IA
+         MessageInterface::ShowMessage
+            ("   After removing <%s>, Setting isRhsString to true\n", rhs.c_str());
+         #endif
+         isRhsString = true;
+      }
+   }
+   else
+   {
+      // check for common use of ./ (path) in GmatFunction to avoid creating
+      // MathTree for divide
+      if (rhs.find("./") != rhs.npos ||
+          GmatStringUtil::StartsWith(rhs, "'") || GmatStringUtil::EndsWith(rhs, "'"))
+      {
+         isRhsString = true;
+         if (currentFunction != NULL &&
+             (!GmatStringUtil::IsEnclosedWith(rhs, "'")))
+            throw CommandException("The string literal \"" + rhs + "\" must be "
+                                   "enclosed with single quotes");
       }
    }
    
@@ -456,92 +481,87 @@ bool Assignment::InterpretAction()
    if (rhs.find(";") != rhs.npos)
       throw CommandException("Is there a missing \"%\" for inline comment?");
    
-   // check for common use of ./ (path) in GmatFunction to avoid creating MathTree(loj: 2008.09.08)
-   if (rhs.find("./") != rhs.npos)
-   {
-      if (currentFunction != NULL &&
-          (!GmatStringUtil::IsEnclosedWith(rhs, "'")))
-         throw CommandException("The string literal \"" + rhs + "\" must be "
-                                "enclosed with single quotes");
-   }
-   
    // Check if rhs is an equation
-   MathParser mp = MathParser();
-   if (mp.IsEquation(rhs))
+   if (!isRhsString)
    {
-      // Parse RHS if equation
-      #ifdef DEBUG_EQUATION
-      MessageInterface::ShowMessage
-         ("Assignment::InterpretAction() %s is an equation\n", rhs.c_str());
-      #endif
-      
-      MathNode *topNode = mp.Parse(rhs);
-      
-      #ifdef DEBUG_EQUATION
-      if (topNode)
-         MessageInterface::ShowMessage
-            ("   topNode=%s\n", topNode->GetTypeName().c_str());
-      #endif
-      
-      // check if sting has missing start quote (loj: 2008.07.23)
-      // it will be an error only if rhs with blank space removed matches with
-      // any GmatFunction name without letter case
-      std::string str1 = rhs;
-      if (GmatStringUtil::EndsWith(str1, "'"))
+      MathParser mp = MathParser();
+      if (mp.IsEquation(rhs))
       {
+         // Parse RHS if equation
          #ifdef DEBUG_EQUATION
-         MessageInterface::ShowMessage("   <%s> ends with '\n", str1.c_str());
+         MessageInterface::ShowMessage
+            ("Assignment::InterpretAction() %s is an equation\n", rhs.c_str());
          #endif
          
-         str1 = GmatStringUtil::RemoveLastString(str1, "'");
-         str1 = GmatStringUtil::RemoveAll(str1, ' ');
-         StringArray gmatFnNames = mp.GetGmatFunctionNames();
-         bool isError = false;
-         for (UnsignedInt i=0; i<gmatFnNames.size(); i++)
+         MathNode *topNode = mp.Parse(rhs);
+         
+         #ifdef DEBUG_EQUATION
+         if (topNode)
+            MessageInterface::ShowMessage
+               ("   topNode=%s\n", topNode->GetTypeName().c_str());
+         #endif
+         
+         // check if sting has missing start quote (loj: 2008.07.23)
+         // it will be an error only if rhs with blank space removed matches with
+         // any GmatFunction name without letter case
+         std::string str1 = rhs;
+         if (GmatStringUtil::EndsWith(str1, "'"))
          {
-            if (GmatStringUtil::ToUpper(str1) == GmatStringUtil::ToUpper(gmatFnNames[i]))
+            #ifdef DEBUG_EQUATION
+            MessageInterface::ShowMessage("   <%s> ends with '\n", str1.c_str());
+            #endif
+            
+            str1 = GmatStringUtil::RemoveLastString(str1, "'");
+            str1 = GmatStringUtil::RemoveAll(str1, ' ');
+            StringArray gmatFnNames = mp.GetGmatFunctionNames();
+            bool isError = false;
+            for (UnsignedInt i=0; i<gmatFnNames.size(); i++)
             {
-               isError = true;
-               break;
+               if (GmatStringUtil::ToUpper(str1) == GmatStringUtil::ToUpper(gmatFnNames[i]))
+               {
+                  isError = true;
+                  break;
+               }
             }
+            if (isError)
+               throw CommandException("Found missing start quote on the right-hand-side"
+                                      " of an Assignment command");
          }
-         if (isError)
-            throw CommandException("Found missing start quote on the right-hand-side"
-                                   " of an Assignment command");
+         
+         mathTree = new MathTree("MathTree", rhs);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (mathTree, rhs, "Assignment::InterpretAction()", "mathTree = new MathTree()");
+         #endif
+         
+         mathTree->SetTopNode(topNode);
+         mathTree->SetGmatFunctionNames(mp.GetGmatFunctionNames());
       }
-      
-      mathTree = new MathTree("MathTree", rhs);
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (mathTree, rhs, "Assignment::InterpretAction()", "mathTree = new MathTree()");
-      #endif
-      
-      mathTree->SetTopNode(topNode);
-      mathTree->SetGmatFunctionNames(mp.GetGmatFunctionNames());
-   }
-   else // if not an equation, check for unexpected commas on the right-hand-side
-   {
-      // Braces are allowed for lists of names, but brackets shouldn't be allowed
-      // Assignment command should handle something like: 
-      // "plot.ViewPointVector = [ 0 0 30000];", so commented out (loj: 2008.06.05)
-      //if ((rhs.find('[') != rhs.npos) || (rhs.find(']') != rhs.npos))
-      //   throw CommandException(
-      //      "An assignment command is not allowed to contain brackets on the right-hand side"); 
-      //if (!GmatStringUtil::AreAllBracketsBalanced(rhs, "({)}"))
-      if (!GmatStringUtil::AreAllBracketsBalanced(rhs, "[({])}"))
-         throw CommandException(
-            "Parentheses or braces are unbalanced on the right-hand-side of an assignment command"); 
-      
-      // We want to allow the following scripts in the Assignment command.
-      //    Create Formation Formation1;
-      //    GMAT Formation1.Add = {Spacecraft1, Spacecraft2};
-      // So commented out (loj: 2008.03.24)
-      //if (rhs.find(',') != rhs.npos)
-      //{
-      //   GmatStringUtil::GetArrayCommaIndex(rhs, commaPos);
-      //   if (commaPos == -1)
-      //      throw CommandException("Command contains an unexpected comma on right-hand-side");
-      //}
+      else // if not an equation, check for unexpected commas on the right-hand-side
+      {
+         // Braces are allowed for lists of names, but brackets shouldn't be allowed
+         // Assignment command should handle something like: 
+         // "plot.ViewPointVector = [ 0 0 30000];", so commented out (loj: 2008.06.05)
+         //if ((rhs.find('[') != rhs.npos) || (rhs.find(']') != rhs.npos))
+         //   throw CommandException(
+         //      "An assignment command is not allowed to contain brackets on the right-hand side"); 
+         //if (!GmatStringUtil::AreAllBracketsBalanced(rhs, "({)}"))
+         if (!GmatStringUtil::AreAllBracketsBalanced(rhs, "[({])}"))
+            throw CommandException
+               ("Parentheses or braces are unbalanced on the right-hand-side of "
+                "an assignment command"); 
+         
+         // We want to allow the following scripts in the Assignment command.
+         //    Create Formation Formation1;
+         //    GMAT Formation1.Add = {Spacecraft1, Spacecraft2};
+         // So commented out (loj: 2008.03.24)
+         //if (rhs.find(',') != rhs.npos)
+         //{
+         //   GmatStringUtil::GetArrayCommaIndex(rhs, commaPos);
+         //   if (commaPos == -1)
+         //      throw CommandException("Command contains an unexpected comma on right-hand-side");
+         //}
+      }
    }
    
    #ifdef DEBUG_ASSIGNMENT_IA
