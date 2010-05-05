@@ -152,7 +152,7 @@ EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
    writeAttitude       (false),
    writeDataInDataCS   (true),
    processingLargeStep (false),
-   spkWriteFailed      (false),
+   spkWriteFailed      (true),
    prevRunState        (Gmat::IDLE)
 {
    #ifdef DEBUG_EPHEMFILE
@@ -237,9 +237,14 @@ EphemerisFile::~EphemerisFile()
    }
    
    #ifdef __USE_SPICE__
+   #ifdef DEBUG_EPHEMFILE
+   MessageInterface::ShowMessage
+      ("   spkWriter=<%p>, spkWriteFailed=%d\n", spkWriter, spkWriteFailed);
+   #endif
    if (spkWriter != NULL && !spkWriteFailed)
    {
-      FinalizeSpkFile();
+      if (!spkWriteFailed)
+         FinalizeSpkFile();
       
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
@@ -409,7 +414,7 @@ std::string EphemerisFile::GetFileName()
          }
       }
    }
-   catch (GmatBaseException &e)
+   catch (BaseException &e)
    {
       if (fileName == "")
          fname = instanceName + ".eph";
@@ -603,7 +608,7 @@ bool EphemerisFile::Initialize()
    
    // Set solver iteration option to none. We only writes solutions to a file
    mSolverIterOption = SI_NONE;
-      
+   
    // Create SpiceOrbitKernelWriter
    if (fileType == SPK_ORBIT)
       CreateSpiceKernelWriter();
@@ -1276,7 +1281,7 @@ void EphemerisFile::CreateSpiceKernelWriter()
       ("EphemerisFile::CreateSpiceKernelWriter() entered, spkWriter=<%p>\n",
        spkWriter);
    #endif
-   
+      
    //=======================================================
    #ifdef __USE_SPICE__
    //=======================================================
@@ -2537,6 +2542,10 @@ void EphemerisFile::WriteSpkOrbitDataSegment()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteSpkOrbitMetaData()
 {
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage("=====> WriteSpkOrbitMetaData() entered\n");
+   #endif
+   
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -2565,6 +2574,10 @@ void EphemerisFile::WriteSpkOrbitMetaData()
    #endif
    
    WriteSpkComments(ss.str());
+   
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage("=====> WriteSpkOrbitMetaData() leaving\n");
+   #endif
 }
 
 
@@ -2573,12 +2586,44 @@ void EphemerisFile::WriteSpkOrbitMetaData()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteSpkComments(const std::string &comments)
 {
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage("=====> WriteSpkComments() entered\n");
+   #endif
+   
    #ifdef DEBUG_EPHEMFILE_TEXT
    WriteString("\nCOMMENT  " + comments + "\n");
    #endif
    
    #ifdef __USE_SPICE__
-   spkWriter->AddMetaData(comments);
+   if (a1MjdArray.empty())
+   {
+      spkWriteFailed = true;
+      MessageInterface::ShowMessage
+         ("**** TODO **** EphemerisFile::WriteSpkComments() There must be at "
+          "least one segment before this comment \"" + comments + "\" is written\n");
+      return;
+   }
+   
+   try
+   {
+      // Write current segment before writing comments
+      WriteSpkOrbitDataSegment();
+      spkWriter->AddMetaData(comments);
+   }
+   catch (BaseException &e)
+   {
+      DeleteOrbitData();
+      spkWriteFailed = true;
+      #ifdef DEBUG_EPHEMFILE_SPICE
+      MessageInterface::ShowMessage("spkWriter->AddMetaData() failed\n");
+      MessageInterface::ShowMessage(e.GetFullMessage());
+      #endif
+      throw;
+   }
+   #endif
+   
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage("=====> WriteSpkComments() leaving\n");
    #endif
 }
 
@@ -2588,8 +2633,29 @@ void EphemerisFile::WriteSpkComments(const std::string &comments)
 //------------------------------------------------------------------------------
 void EphemerisFile::FinalizeSpkFile()
 {
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage("=====> FinalizeSpkFile() entered\n");
+   #endif
+   
    #ifdef __USE_SPICE__
-   spkWriter->FinalizeKernel();
+   try
+   {
+      spkWriter->FinalizeKernel();
+   }
+   catch (BaseException &e)
+   {
+      DeleteOrbitData();
+      spkWriteFailed = true;
+      #ifdef DEBUG_EPHEMFILE_SPICE
+      MessageInterface::ShowMessage("spkWriter->FinalizeSpkFile() failed\n");
+      MessageInterface::ShowMessage(e.GetFullMessage());
+      #endif
+      throw;
+   }
+   #endif
+   
+   #ifdef DEBUG_EPHEMFILE_SPICE
+   MessageInterface::ShowMessage("=====> FinalizeSpkFile() leaving\n");
    #endif
 }
 
