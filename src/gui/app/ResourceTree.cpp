@@ -68,12 +68,13 @@
 #include "RunScriptFolderDialog.hpp"
 #include "ViewTextDialog.hpp"
 #include "GmatFunction.hpp"           // for SetNewFunction()
-#include "FileManager.hpp"            // for GetPathname()
+#include "FileManager.hpp"            // for GetFullPathname()
 #include "FileUtil.hpp"               // for Compare()
 #include "GmatGlobal.hpp"             // for SetBatchMode()
 #include "StringUtil.hpp"             // for GmatStringUtil::
 #include "SolarSystem.hpp"
 #include "CelestialBody.hpp"
+#include "UtilityException.hpp"
 #include <sstream>
 #include <fstream>
 #include <ctime>                      // for clock()
@@ -3265,10 +3266,19 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    mScriptFolderRunning = true;
    wxArrayString failedToRunScripts;
    wxArrayString runInterruptedScripts;
-
-   // Set output path
-   fm->SetAbsPathname(FileManager::OUTPUT_PATH, currOutPath.c_str());
-
+   
+   // Set output path for reports and ephemeris files
+   try
+   {
+      fm->SetAbsPathname(FileManager::OUTPUT_PATH, currOutPath.c_str());
+      fm->SetAbsPathname(FileManager::EPHEM_PATH, currOutPath.c_str());
+   }
+   catch (UtilityException &ue)
+   {
+      MessageInterface::ShowMessage(ue.GetFullMessage());
+      return;
+   }
+   
    // Change log path and append log messages
    MessageInterface::SetLogPath(currOutPath.c_str(), appendLog);
 
