@@ -113,6 +113,8 @@ public:
    void SetFooterComment(const std::string &comment){footerComment = comment;}
    
    bool IsObjectType(const std::string &type);
+   Gmat::ObjectType GetObjectType(const std::string &type);
+   
    // to check commands
    bool ValidateCommand(GmatCommand *cmd);
    // to check subscriber
@@ -338,7 +340,7 @@ private:
    StringArray   spacePointList;
    StringArray   celestialBodyList;
    static StringArray   allObjectTypeList;
-   
+   static std::map<std::string, Gmat::ObjectType> objectTypeMap;
    bool IsParameterType(const std::string &desc);
    bool CheckForSpecialCase(GmatBase *obj, Integer id, std::string &value);
    bool CheckUndefinedReference(GmatBase *obj, bool writeLine = true);
