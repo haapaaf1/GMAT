@@ -456,7 +456,8 @@ void Publisher::ClearPublishedData()
    MessageInterface::ShowMessage
       ("Publisher::ClearPublishedData() entered, clearing %d element owner objects\n",
        objectArray.size());
-   MessageInterface::ShowMessage("   providerMap.size()=%d\n", providerMap.size());
+   MessageInterface::ShowMessage("   providerMap.size()=%u\n", providerMap.size());
+   MessageInterface::ShowMessage("   subscriberList.size()=%u\n", subscriberList.size());
    #endif
    
    objectArray.clear();
@@ -471,10 +472,34 @@ void Publisher::ClearPublishedData()
       (*current)->ClearDataLabels();
       current++;
    }
-      
+   
+   #if DBGLVL_PUBLISHER_CLEAR > 1
+   MessageInterface::ShowMessage
+      ("Publisher::ClearPublishedData() Using new Publisher code\n");
+   #endif
+   
+   std::map<GmatBase*, std::vector<DataType>* >::iterator iter = providerMap.begin();
+   while (iter != providerMap.end())
+   {
+      std::vector<DataType>* dataList = iter->second;
+      if (dataList != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (dataList, "dataList", "Publisher::ClearPublishedData()", "deleting dataList");
+         #endif
+         
+         delete dataList;
+      }
+      iter++;
+   }
+   
+   providerMap.clear();
+   subscriberList.clear();
+   
    #if DBGLVL_PUBLISHER_CLEAR
    MessageInterface::ShowMessage
-      ("Publisher::ClearPublishedData() leaving, providerMap.size()=%d\n",
+      ("Publisher::ClearPublishedData() leaving, providerMap.size()=%u\n",
        providerMap.size());
    #endif
 }
