@@ -48,7 +48,7 @@ DifferentialCorrector::PARAMETER_TEXT[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
    "Goals",
-   "DerivativeMethod"           //"UseCentralDifferences"
+   "DerivativeMethod"
 };
 
 const Gmat::ParameterType
@@ -56,7 +56,7 @@ DifferentialCorrector::PARAMETER_TYPE[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
    Gmat::STRINGARRAY_TYPE,
-   Gmat::STRING_TYPE            //Gmat::BOOLEAN_TYPE
+   Gmat::ENUMERATION_TYPE
 };
 
 
@@ -78,7 +78,7 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   derivativeMethod                ("CentralDifference")   // useCentralDifferences   (false)
+   derivativeMethod        ("CentralDifference")
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -114,8 +114,7 @@ DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   derivativeMethod        (dc.derivativeMethod)   // useCentralDifferences
-   //(dc.useCentralDifferences)
+   derivativeMethod        (dc.derivativeMethod)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -131,20 +130,19 @@ DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
 // operator=(const DifferentialCorrector& dc)
 //------------------------------------------------------------------------------
 DifferentialCorrector&
-   DifferentialCorrector::operator=(const DifferentialCorrector& dc)
+DifferentialCorrector::operator=(const DifferentialCorrector& dc)
 {
-    if (&dc == this)
-        return *this;
-    
+   if (&dc == this)
+      return *this;
+   
    Solver::operator=(dc);
    
    FreeArrays();
    goalNames.clear();
    
-   goalCount             = dc.goalCount;
-   derivativeMethod        = dc.derivativeMethod;   // made a change
-   // useCentralDifferences = dc.useCentralDifferences;
-
+   goalCount        = dc.goalCount;
+   derivativeMethod = dc.derivativeMethod; 
+   
    return *this;
 }
 
@@ -213,13 +211,19 @@ std::string DifferentialCorrector::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer DifferentialCorrector::GetParameterID(const std::string &str) const
 {
+   // Write deprecated message per GMAT session
+   static bool writeDeprecatedMsg = true;
+   
    // 1. This part will be removed for a furure build: 
    if (str == "UseCentralDifferences")
    {
-      MessageInterface::ShowMessage
-         ("***WARNING*** \"UseCentralDifferences\" field of Differential Corrector "
-          "is deprecated and will be removed from a future build; please use "
-          "\"DerivativeMethod\" instead.\n");
+      if (writeDeprecatedMsg)
+      {
+         MessageInterface::ShowMessage
+            (deprecatedMessageFormat.c_str(), "UseCentralDifferences", GetName().c_str(),
+             "DerivativeMethod");
+         writeDeprecatedMsg = false;
+      }
       return derivativeMethodID;
    }
    
@@ -229,7 +233,7 @@ Integer DifferentialCorrector::GetParameterID(const std::string &str) const
       if (str == PARAMETER_TEXT[i - SolverParamCount])
          return i;
    }
-
+   
    return Solver::GetParameterID(str);
 }
 
@@ -412,40 +416,33 @@ std::string DifferentialCorrector::GetStringParameter(const Integer id) const
 bool DifferentialCorrector::SetStringParameter(const Integer id,
                                                const std::string &value)
 {
-    //if (id == solverTextFileID) {
-    //    solverTextFile = value;
-    //    return true;
-    //}
-
-    //if (id == variableNamesID) {
-    //    variableNames.push_back(value);
-    //    return true;
-    //}
-
-    if (id == goalNamesID) {
-        goalNames.push_back(value);
-        return true;
-    }
-
-    if (id == derivativeMethodID)
-    { 
-       bool retval = true;
-       //   This is to handle deprecated value UseCentralDifferences = true
-       if (value == "true")
-          derivativeMethod = "CentralDifference";
-       //   This is to handle deprecated value UseCentralDifferences = false
-       else if (value == "false")
-          derivativeMethod = "ForwardDifference";
-       // Allowed values for DerivativeMethod
-       else if (value == "ForwardDifference" || value == "CentralDifference" || value == "BackwardDifference")
-          derivativeMethod = value;
-       //  All other values are not allowed!
-       else retval = false;
-
-       return retval;
-    }
-    
-    return Solver::SetStringParameter(id, value);
+   if (id == goalNamesID)
+   {
+      goalNames.push_back(value);
+      return true;
+   }
+   
+   if (id == derivativeMethodID)
+   { 
+      bool retval = true;
+      //   This is to handle deprecated value UseCentralDifferences = true
+      if (value == "true")
+         derivativeMethod = "CentralDifference";
+      //   This is to handle deprecated value UseCentralDifferences = false
+      else if (value == "false")
+         derivativeMethod = "ForwardDifference";
+      // Allowed values for DerivativeMethod
+      else if (value == "ForwardDifference" || value == "CentralDifference" ||
+               value == "BackwardDifference")
+         derivativeMethod = value;
+      //  All other values are not allowed!
+      else
+         retval = false;
+      
+      return retval;
+   }
+   
+   return Solver::SetStringParameter(id, value);
 }
 
 

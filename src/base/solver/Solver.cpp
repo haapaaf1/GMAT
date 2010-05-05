@@ -36,7 +36,7 @@ Solver::PARAMETER_TEXT[SolverParamCount - GmatBaseParamCount] =
 {
    "ShowProgress",
    "ReportStyle",
-   "ReportFile",				// "TargeterTextFile", // should be "SolverTextFile",
+   "ReportFile",
    "Variables",
    "MaximumIterations",
    "NumberOfVariables",
@@ -55,7 +55,7 @@ const Gmat::ParameterType
 Solver::PARAMETER_TYPE[SolverParamCount - GmatBaseParamCount] =
 {
    Gmat::BOOLEAN_TYPE,
-   Gmat::STRING_TYPE,
+   Gmat::ENUMERATION_TYPE,
    Gmat::STRING_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::INTEGER_TYPE,
@@ -586,21 +586,30 @@ std::string Solver::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer Solver::GetParameterID(const std::string &str) const
 {
-	// 1. This part will be removed for a future build:
-	std::string param_text = str;
-	if (param_text == "TargeterTextFile")
-	{
-		MessageInterface::ShowMessage("***WARNING*** \"TargeterTextFile\" field of Differential Corrector is deprecated. It will be removed in a future build; please use \"ReportFile\" instead\n");
-		param_text = "ReportFile";
-	}
-
+   // Write deprecated message per GMAT session
+   static bool writeDeprecatedMsg = true;
+   
+   // 1. This part will be removed for a future build:
+   std::string param_text = str;
+   if (param_text == "TargeterTextFile")
+   {
+      if (writeDeprecatedMsg)
+      {
+         MessageInterface::ShowMessage
+            (deprecatedMessageFormat.c_str(), "TargeterTextFile", GetName().c_str(),
+             "ReportFile");
+         writeDeprecatedMsg = false;
+      }
+      param_text = "ReportFile";
+   }
+   
    // 2. This part is kept for a future build:
    for (Integer i = GmatBaseParamCount; i < SolverParamCount; ++i)
    {
       if (param_text == PARAMETER_TEXT[i - GmatBaseParamCount])
          return i;
    }
-
+   
    return GmatBase::GetParameterID(str);
 }
 
