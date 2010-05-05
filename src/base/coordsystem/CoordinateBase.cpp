@@ -161,8 +161,11 @@ void CoordinateBase::SetSolarSystem(SolarSystem *ss)
    
    #ifdef DEBUG_SET_SS
    MessageInterface::ShowMessage
-      ("CoordinateBase::SetSolarSystem() this=%s, solar=%p, ss=%p\n",
-       GetName().c_str(), solar, ss);
+      ("CoordinateBase::SetSolarSystem() entered, this='%s', solar=<%p>, ss=<%p>, "
+       "originName='%s', j2000BodyName='%s', origin=<%p>'%s', j2000Body=<%p>'%s'\n",
+       GetName().c_str(), solar, ss, originName.c_str(), j2000BodyName.c_str(),
+       origin, origin ? origin->GetName().c_str() : "NULL", j2000Body,
+       j2000Body ? j2000Body->GetName().c_str() : "NULL");
    #endif
    
    if (solar != ss)
@@ -172,12 +175,24 @@ void CoordinateBase::SetSolarSystem(SolarSystem *ss)
       // set new origin 
       SpacePoint *sp = solar->GetBody(originName);
       if (sp != NULL)
+      {
+         #ifdef DEBUG_SET_SS
+         MessageInterface::ShowMessage
+            ("   Setting origin to <%p>'%s'\n", sp, sp->GetName().c_str());
+         #endif
          origin = sp;
+      }
       
       // set new j2000body
       sp = solar->GetBody(j2000BodyName);
       if (sp != NULL)
+      {
+         #ifdef DEBUG_SET_SS
+         MessageInterface::ShowMessage
+            ("   Setting j2000Body to <%p>'%s'\n", sp, sp->GetName().c_str());
+         #endif
          j2000Body = sp;
+      }
       
       // set J2000Body of origin
       if (origin != NULL)
@@ -185,7 +200,8 @@ void CoordinateBase::SetSolarSystem(SolarSystem *ss)
       
       #ifdef DEBUG_SET_SS
       MessageInterface::ShowMessage
-         ("   got new SolarSystem, origin=%p, j2000Body=%p\n", origin, j2000Body);
+         ("CoordinateBase::SetSolarSystem() leaving, got new SolarSystem <%p>, "
+          "origin=%p, j2000Body=%p\n", solar, origin, j2000Body);
       #endif
    }
 }
