@@ -136,6 +136,31 @@ std::string ConfigManager::GetNewName(const std::string &name, Integer startCoun
 
 
 //------------------------------------------------------------------------------
+// void AddObject(Gmat::ObjectType objType, GmatBase *obj)
+//------------------------------------------------------------------------------
+/**
+ * Adds an object to the configuration.
+ *
+ * @param obj Pointer to the object instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddObject(Gmat::ObjectType objType, GmatBase *obj)
+{
+   #ifdef DEBUG_ADD_OBJECT
+   MessageInterface::ShowMessage
+      ("ConfigManager::AddObject() entered, objType=%d, obj=<%p>\n", objType, obj);
+   #endif
+   std::string name = obj->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+   
+   if (!obj->IsOfType(objType))
+      throw ConfigManagerException(name + " is not a valid object type");
+   
+   AddObject(obj);
+}
+
+//------------------------------------------------------------------------------
 // std::string AddClone(const std::string &name)
 //------------------------------------------------------------------------------
 /*
