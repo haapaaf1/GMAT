@@ -21,13 +21,10 @@
 #include "Rvector3.hpp"
 #include "RealUtilities.hpp"
 #include "Linear.hpp"         // for operator<<, operator >>
+#include "StringUtil.hpp"     // for Replace()
 #include <stdarg.h>
 #include <sstream>
-#include <stdio.h>                 // Fix for header rearrangement in gcc 4.4
-
-//---------------------------------
-//  public
-//---------------------------------
+#include <stdio.h>            // Fix for header rearrangement in gcc 4.4
 
 //---------------------------------
 //  public
@@ -1172,7 +1169,19 @@ std::string Rmatrix::ToRowString(Integer row, Integer precision, Integer width,
    for (int i=0; i<size; i++)
    {
       sprintf(buffer, format, rowVec[i]);
-      ss << buffer;
+      
+      // How do I specify 2 digints of the exponent? (LOJ: 2010.05.03)
+      // Manually remove extra 0 in the exponent of scientific notation.
+      // ex) 1.23456e-015 to 1.23456e-15
+      //ss << buffer;
+      
+      std::string sval = buffer;
+      if ((sval.find("e-0") != sval.npos) && (sval.size() - sval.find("e-0")) == 5)
+         sval = GmatStringUtil::Replace(sval, "e-0", "e-");
+      if ((sval.find("e+0") != sval.npos) && (sval.size() - sval.find("e+0")) == 5)
+         sval = GmatStringUtil::Replace(sval, "e+0", "e+");
+      
+      ss << sval;
       ss << " ";
    }
    
@@ -1187,6 +1196,7 @@ std::string Rmatrix::ToRowString(Integer row, Integer precision, Integer width,
    Rvector rowVec = GetRow(row);
    std::stringstream ss("");
    ss << rowVec << " ";
+   
    return ss.str();
    
    //-----------------------------------------------------------------

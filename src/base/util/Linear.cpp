@@ -28,6 +28,7 @@
 #include "Rmatrix.hpp"
 #include "Linear.hpp"
 #include "GmatGlobal.hpp"        // for Global settings
+#include "StringUtil.hpp"        // for Replace()
 #include "MessageInterface.hpp"
 
 using namespace GmatRealUtil;
@@ -279,7 +280,10 @@ std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rvector &a)
          
          for (int i=0; i<size; i++)
          {
-            output << setw(w) << setprecision(p) << a[i];
+            // Use ToString() for consistent formatting
+            //output << setw(w) << setprecision(p) << a[i];
+            std::string sval = ToString(a[i], false, scientific, showPoint, p, w);
+            output << sval;
             if (i < size-1)
                output << spaces;
          }
@@ -291,7 +295,11 @@ std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rvector &a)
       {
          for (int i=0; i<size; i++)
          {
-            output << setw(w) << setprecision(p) << prefix << a[i];
+            // Use ToString() for consistent formatting
+            //output << setw(w) << setprecision(p) << prefix << a[i];
+            output << prefix;
+            std::string sval = ToString(a[i], false, scientific, showPoint, p, w);
+            output << sval;
             if (i < size-1)
                output << std::endl;
          }
@@ -384,9 +392,13 @@ std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rmatrix &a)
       if (horizontal) 
       {
          for (int i=0; i<row; i++) 
-            for (int j=0; j<column; j++) 
-               output << setw(w) << setprecision(p) << a.GetElement(i,j) << spaces;
-         
+            for (int j=0; j<column; j++)
+            {
+               // Use ToString() for consistent formatting
+               //output << setw(w) << setprecision(p) << a.GetElement(i,j) << spaces;
+               std::string sval = ToString(a.GetElement(i,j), false, scientific, showPoint, p, w);
+               output << sval << spaces;
+            }
          if (appendEol)
             output << std::endl;
       }
@@ -397,7 +409,12 @@ std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rmatrix &a)
             output << prefix;
             
             for (int j=0; j<column; j++)
-               output << setw(w) << setprecision(p) << a.GetElement(i,j) << spaces;
+            {
+               // Use ToString() for consistent formatting
+               //output << setw(w) << setprecision(p) << a.GetElement(i,j) << spaces;
+               std::string sval = ToString(a.GetElement(i,j), false, scientific, showPoint, p, w);
+               output << sval << spaces;
+            }
             
             if (i < row-1)
                output << std::endl;
@@ -461,9 +478,28 @@ std::string GmatRealUtil::ToString(const Real &rval, bool useCurrentFormat,
    
    if (isScientific)
       ss.setf(std::ios::scientific);
-   
+
    ss << rval;
-   return ss.str();
+   //return ss.str();
+   
+   // How do I specify 2 digints of the exponent? (LOJ: 2010.05.03)
+   // (This is what I got from internet search)
+   // There is no way to configure using C++ manipulators only.
+   // The reason is in the C library. C++ specifies that 'scientific' shall
+   // cause the output to be the same as %e (or %E if 'uppercase' is set) in
+   // fprintf. In C++ %e causes output of as many digits in the exponent as
+   // necessary to represent the exponent. On your system 'double' has
+   // probably three digits of the exponent.
+   // So manually remove extra 0 in the exponent of scientific notation.
+   // ex) 1.23456e-015 to 1.23456e-15
+   
+   std::string sval = ss.str();
+   if ((sval.find("e-0") != sval.npos) && (sval.size() - sval.find("e-0")) == 5)
+      sval = GmatStringUtil::Replace(sval, "e-0", "e-");
+   if ((sval.find("e+0") != sval.npos) && (sval.size() - sval.find("e+0")) == 5)
+      sval = GmatStringUtil::Replace(sval, "e+0", "e+");
+   
+   return sval;
 }
 
 
