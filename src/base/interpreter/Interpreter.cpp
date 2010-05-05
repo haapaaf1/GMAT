@@ -92,6 +92,7 @@
 //---------------------------------
 
 StringArray Interpreter::allObjectTypeList = StringArray(1, "");
+std::map<std::string, Gmat::ObjectType> Interpreter::objectTypeMap;
 
 //------------------------------------------------------------------------------
 // Interpreter(SolarSystem *ss = NULL, ObjectMap *objMap = NULL)
@@ -244,112 +245,166 @@ void Interpreter::BuildCreatableObjectMaps()
    // Build a mapping for all of the defined objects
    allObjectTypeList.clear();
    celestialBodyList.clear();
+   objectTypeMap.clear();
+   
+   StringArray scs = theModerator->GetListOfFactoryItems(Gmat::SPACECRAFT);
+   //copy(scs.begin(), scs.end(), back_inserter(spacecraftList));
+   copy(scs.begin(), scs.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < scs.size(); i++)
+      objectTypeMap.insert(std::make_pair(scs[i], Gmat::SPACECRAFT));
+   
    StringArray cbs = theModerator->GetListOfFactoryItems(Gmat::CELESTIAL_BODY);
    copy(cbs.begin(), cbs.end(), back_inserter(celestialBodyList));
    copy(cbs.begin(), cbs.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < cbs.size(); i++)
+      objectTypeMap.insert(std::make_pair(cbs[i], Gmat::CELESTIAL_BODY));
    
    atmosphereList.clear();
    StringArray atms = theModerator->GetListOfFactoryItems(Gmat::ATMOSPHERE);
    copy(atms.begin(), atms.end(), back_inserter(atmosphereList));
    copy(atms.begin(), atms.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < atmosphereList.size(); i++)
+      objectTypeMap.insert(std::make_pair(atmosphereList[i], Gmat::ATMOSPHERE));
    
    attitudeList.clear();
    StringArray atts = theModerator->GetListOfFactoryItems(Gmat::ATTITUDE);
    copy(atts.begin(), atts.end(), back_inserter(attitudeList));
    copy(atts.begin(), atts.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < attitudeList.size(); i++)
+      objectTypeMap.insert(std::make_pair(attitudeList[i], Gmat::ATTITUDE));
    
    axisSystemList.clear();
    StringArray axes = theModerator->GetListOfFactoryItems(Gmat::AXIS_SYSTEM);
    copy(axes.begin(), axes.end(), back_inserter(axisSystemList));
    copy(axes.begin(), axes.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < axisSystemList.size(); i++)
+      objectTypeMap.insert(std::make_pair(axisSystemList[i], Gmat::AXIS_SYSTEM));
    
    burnList.clear();
    StringArray burns = theModerator->GetListOfFactoryItems(Gmat::BURN);
    copy(burns.begin(), burns.end(), back_inserter(burnList));
    copy(burns.begin(), burns.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < burnList.size(); i++)
+      objectTypeMap.insert(std::make_pair(burnList[i], Gmat::BURN));
    
    calculatedPointList.clear();
    StringArray cals = theModerator->GetListOfFactoryItems(Gmat::CALCULATED_POINT);
    copy(cals.begin(), cals.end(), back_inserter(calculatedPointList));
    copy(cals.begin(), cals.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < calculatedPointList.size(); i++)
+      objectTypeMap.insert(std::make_pair(calculatedPointList[i], Gmat::CALCULATED_POINT));
    
    dataFileList.clear();
    StringArray dfs = theModerator->GetListOfFactoryItems(Gmat::DATA_FILE);
    copy(dfs.begin(), dfs.end(), back_inserter(dataFileList));
    copy(dfs.begin(), dfs.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < dataFileList.size(); i++)
+      objectTypeMap.insert(std::make_pair(dataFileList[i], Gmat::DATA_FILE));
    
    ephemFileList.clear();
    StringArray ephems = theModerator->GetListOfFactoryItems(Gmat::EPHEMERIS_FILE);
    copy(ephems.begin(), ephems.end(), back_inserter(ephemFileList));
    copy(ephems.begin(), ephems.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < ephemFileList.size(); i++)
+      objectTypeMap.insert(std::make_pair(ephemFileList[i], Gmat::EPHEMERIS_FILE));
    
    functionList.clear();
    StringArray fns = theModerator->GetListOfFactoryItems(Gmat::FUNCTION);
    copy(fns.begin(), fns.end(), back_inserter(functionList));
    copy(fns.begin(), fns.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < functionList.size(); i++)
+      objectTypeMap.insert(std::make_pair(functionList[i], Gmat::FUNCTION));
    
    hardwareList.clear();
    StringArray hws = theModerator->GetListOfFactoryItems(Gmat::HARDWARE);
    copy(hws.begin(), hws.end(), back_inserter(hardwareList));
    copy(hws.begin(), hws.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < hardwareList.size(); i++)
+      objectTypeMap.insert(std::make_pair(hardwareList[i], Gmat::HARDWARE));
    
    measurementList.clear();
    StringArray measurements = theModerator->GetListOfFactoryItems(Gmat::CORE_MEASUREMENT);
    copy(measurements.begin(), measurements.end(), back_inserter(measurementList));
    copy(measurements.begin(), measurements.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < measurementList.size(); i++)
+      objectTypeMap.insert(std::make_pair(measurementList[i], Gmat::CORE_MEASUREMENT));
    
    obtypeList.clear();
    StringArray obs = theModerator->GetListOfFactoryItems(Gmat::OBTYPE);
    copy(obs.begin(), obs.end(), back_inserter(obtypeList));
    copy(obs.begin(), obs.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < obtypeList.size(); i++)
+      objectTypeMap.insert(std::make_pair(obtypeList[i], Gmat::OBTYPE));
    
    odeModelList.clear();
    StringArray odes = theModerator->GetListOfFactoryItems(Gmat::ODE_MODEL);
    copy(odes.begin(), odes.end(), back_inserter(odeModelList));
    copy(odes.begin(), odes.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < odeModelList.size(); i++)
+      objectTypeMap.insert(std::make_pair(odeModelList[i], Gmat::ODE_MODEL));
    
    parameterList.clear();
    StringArray parms = theModerator->GetListOfFactoryItems(Gmat::PARAMETER);
    copy(parms.begin(), parms.end(), back_inserter(parameterList));
    copy(parms.begin(), parms.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < parameterList.size(); i++)
+      objectTypeMap.insert(std::make_pair(parameterList[i], Gmat::PARAMETER));
    
    propagatorList.clear();
    StringArray props = theModerator->GetListOfFactoryItems(Gmat::PROPAGATOR);
    copy(props.begin(), props.end(), back_inserter(propagatorList));
    copy(props.begin(), props.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < propagatorList.size(); i++)
+      objectTypeMap.insert(std::make_pair(propagatorList[i], Gmat::PROPAGATOR));
    
    physicalModelList.clear();
    StringArray forces = theModerator->GetListOfFactoryItems(Gmat::PHYSICAL_MODEL);
    copy(forces.begin(), forces.end(), back_inserter(physicalModelList));
    copy(forces.begin(), forces.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < physicalModelList.size(); i++)
+      objectTypeMap.insert(std::make_pair(physicalModelList[i], Gmat::PHYSICAL_MODEL));
    
    solverList.clear();
    StringArray solvers = theModerator->GetListOfFactoryItems(Gmat::SOLVER);
    copy(solvers.begin(), solvers.end(), back_inserter(solverList));
    copy(solvers.begin(), solvers.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < solverList.size(); i++)
+      objectTypeMap.insert(std::make_pair(solverList[i], Gmat::SOLVER));
    
    stopcondList.clear();
    StringArray stops = theModerator->GetListOfFactoryItems(Gmat::STOP_CONDITION);
    copy(stops.begin(), stops.end(), back_inserter(stopcondList));
    copy(stops.begin(), stops.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < stopcondList.size(); i++)
+      objectTypeMap.insert(std::make_pair(stopcondList[i], Gmat::STOP_CONDITION));
    
    subscriberList.clear();
    StringArray subs = theModerator->GetListOfFactoryItems(Gmat::SUBSCRIBER);
    copy(subs.begin(), subs.end(), back_inserter(subscriberList));
    copy(subs.begin(), subs.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < subscriberList.size(); i++)
+      objectTypeMap.insert(std::make_pair(subscriberList[i], Gmat::SUBSCRIBER));
    
    spacePointList.clear();
    StringArray spl = theModerator->GetListOfFactoryItems(Gmat::SPACE_POINT);
    copy(spl.begin(), spl.end(), back_inserter(spacePointList));
    copy(spl.begin(), spl.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < spacePointList.size(); i++)
+      objectTypeMap.insert(std::make_pair(spacePointList[i], Gmat::SPACE_POINT));
    
    trackingSystemList.clear();
    StringArray tsl = theModerator->GetListOfFactoryItems(Gmat::TRACKING_SYSTEM);
    copy(tsl.begin(), tsl.end(), back_inserter(trackingSystemList));
    copy(tsl.begin(), tsl.end(), back_inserter(allObjectTypeList));
+   for (UnsignedInt i = 0; i < trackingSystemList.size(); i++)
+      objectTypeMap.insert(std::make_pair(trackingSystemList[i], Gmat::TRACKING_SYSTEM));
    
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
+      
+      MessageInterface::ShowMessage("\Spacecraft:\n   ");
+      for (pos = scs.begin(); pos != scs.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
       
       MessageInterface::ShowMessage("\nAtmosphereModel:\n   ");
       for (pos = atms.begin(); pos != atms.end(); ++pos)
@@ -746,8 +801,8 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
 {
    #ifdef DEBUG_CREATE_OBJECT
    MessageInterface::ShowMessage
-      ("Interpreter::CreateObject() type=<%s>, name=<%s>, manage=%d\n",
-       type.c_str(), name.c_str(), manage);
+      ("Interpreter::CreateObject() type=<%s>, name=<%s>, manage=%d, createDefault=%d\n",
+       type.c_str(), name.c_str(), manage, createDefault);
    #endif
    
    debugMsg = "In CreateObject()";
@@ -823,12 +878,99 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
          }
       }
    }
-#ifdef DEBUG_CREATE_CELESTIAL_BODY
-      MessageInterface::ShowMessage("In CreateObject, about to set Object manager option\n");
-#endif
+   #ifdef DEBUG_CREATE_CELESTIAL_BODY
+   MessageInterface::ShowMessage
+      ("In CreateObject, about to set object manage option %d\n", manage);
+   #endif
    
    // Set manage option to Moderator
    theModerator->SetObjectManageOption(manage);
+   
+   //======================================================================
+   // This block of code is the future implementation of creating objects
+   // of non-special object types in general way. This will avoid adding
+   // specific methods to the Moderator when we create new object type
+   // through the plug-in code. This is just initial coding and needs
+   // thorough testing. (LOJ: 2010.05.05)
+   //======================================================================
+   #ifdef __NEW_WAY_OF_CREATE_OBJECT__
+   //======================================================================
+   
+   // Handle container or special object type creation
+   if (type == "PropSetup")
+      obj = (GmatBase*)theModerator->CreatePropSetup(name);
+   
+   // Handle Spacecraft
+   else if (type == "Spacecraft" || type == "Formation")
+      obj = (GmatBase*)theModerator->CreateSpacecraft(type, name);
+   
+   // Handle AxisSystem
+   else if (find(axisSystemList.begin(), axisSystemList.end(), type) != 
+            axisSystemList.end())
+      obj =(GmatBase*) theModerator->CreateAxisSystem(type, name);
+   
+   // Handle Burns
+   else if (find(burnList.begin(), burnList.end(), type) != 
+            burnList.end())
+      obj = (GmatBase*)theModerator->CreateBurn(type, name, createDefault);
+   
+   // Handle CoordinateSystem
+   else if (type == "CoordinateSystem")
+      obj = (GmatBase*)theModerator->CreateCoordinateSystem(name, false, false, manage);
+   
+   // Handle CelestialBody
+   else if (find(celestialBodyList.begin(), celestialBodyList.end(), type) != 
+            celestialBodyList.end())
+      obj = (GmatBase*)theModerator->CreateCelestialBody(type, name);
+   
+   // Handle CalculatedPoint
+   else if (find(calculatedPointList.begin(), calculatedPointList.end(), type) != 
+            calculatedPointList.end())
+      obj =(GmatBase*) theModerator->CreateCalculatedPoint(type, name, true);
+   
+   // Handle Parameters
+   else if (find(parameterList.begin(), parameterList.end(), type) != 
+            parameterList.end())
+      obj = (GmatBase*)CreateParameter(type, name, "", "");
+   
+   // Handle Subscribers
+   else if (find(subscriberList.begin(), subscriberList.end(), type) != 
+            subscriberList.end())
+      obj = (GmatBase*)theModerator->CreateSubscriber(type, name);
+   
+   // Handle other registered creatable object types
+   else if (find(allObjectTypeList.begin(), allObjectTypeList.end(), type) != 
+            allObjectTypeList.end())
+   {
+      Gmat::ObjectType objType = GetObjectType(type);
+      if (objType != Gmat::UNKNOWN_OBJECT)
+         obj = theModerator->CreateOtherObject(objType, type, name);
+      else
+         obj = NULL;
+   }
+   else
+   {
+      obj = NULL;
+   }
+   
+   //@note
+   // Do not throw exception if obj == NULL, since caller uses return pointer
+   // to test further.
+   
+   #ifdef DEBUG_CREATE_OBJECT
+   if (obj != NULL)
+   {
+      MessageInterface::ShowMessage
+         ("Interpreter::CreateObject() type=<%s>, name=<%s> successfully created\n",
+          obj->GetTypeName().c_str(), obj->GetName().c_str());
+   }
+   #endif
+   
+   return obj;
+   
+   //======================================================================
+   #else
+   //======================================================================
    
    if (type == "Spacecraft") 
       obj = (GmatBase*)theModerator->CreateSpacecraft(type, name);
@@ -848,20 +990,18 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    else if (type == "DataFile")
       obj = (GmatBase*)theModerator->CreateDataFile(type, name);
    
-//   else if (type == "ForceModel") 
-//      obj = (GmatBase*)theModerator->CreateODEModel(type, name);
-   
    else if (type == "CoordinateSystem") 
-      obj = (GmatBase*)theModerator->CreateCoordinateSystem(name, true);
+      //obj = (GmatBase*)theModerator->CreateCoordinateSystem(name, true);
+      obj = (GmatBase*)theModerator->CreateCoordinateSystem(name, false, false, manage);
    
    else
    {
-#ifdef DEBUG_CREATE_CELESTIAL_BODY
+      #ifdef DEBUG_CREATE_CELESTIAL_BODY
       MessageInterface::ShowMessage("In CreateObject, type = %s\n", type.c_str());
       MessageInterface::ShowMessage("In CreateObject, list of celestial body types are: \n");
       for (unsigned int ii = 0; ii < celestialBodyList.size(); ii++)
          MessageInterface::ShowMessage(" ... %s\n", (celestialBodyList.at(ii)).c_str());
-#endif
+      #endif
       // Handle Propagator
       if (find(propagatorList.begin(), propagatorList.end(), type) != 
           propagatorList.end())
@@ -979,6 +1119,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    #endif
    
    return obj;
+   #endif
 }
 
 
@@ -2702,7 +2843,11 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    //       and set false to unmanage Array objects
    //-------------------------------------------------------------------
    std::string name;
-   if (objTypeStrToUse == "Variable" || objTypeStrToUse == "Array")
+   // We also need named object for celetial body, so it can be added to the
+   // solar system in use with name (LOJ: 2010.04.30)
+   if ((objTypeStrToUse == "Variable" || objTypeStrToUse == "Array") ||
+       (find(celestialBodyList.begin(), celestialBodyList.end(), objTypeStrToUse) != 
+        celestialBodyList.end()))
       name = objNames[0];
    
    #ifdef DEBUG_ASSEMBLE_CREATE
@@ -6852,10 +6997,6 @@ void Interpreter::SetObjectInBranchCommand(GmatCommand *brCmd,
 }
 
 
-//----------------------------------
-// Private
-//----------------------------------
-
 //------------------------------------------------------------------------------
 // bool IsObjectType(const std::string &type)
 //------------------------------------------------------------------------------
@@ -6893,6 +7034,26 @@ bool Interpreter::IsObjectType(const std::string &type)
    return false;
 }
 
+
+//------------------------------------------------------------------------------
+// Gmat::ObjectType GetObjectType(const std::string &type)
+//------------------------------------------------------------------------------
+/*
+ * Returns corresponding Gmat::ObjectType, or Gmat::UNKNOWN_OBJECT if type is
+ * not valid object type name.
+ */
+//------------------------------------------------------------------------------
+Gmat::ObjectType Interpreter::GetObjectType(const std::string &type)
+{
+   if (objectTypeMap.find(type) != objectTypeMap.end())
+      return objectTypeMap[type];
+   else
+      return Gmat::UNKNOWN_OBJECT;
+}
+
+//----------------------------------
+// Private
+//----------------------------------
 
 //------------------------------------------------------------------------------
 // bool IsParameterType(const std::string &desc)
