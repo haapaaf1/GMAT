@@ -43,7 +43,8 @@
 //#define DEBUG_SANDBOX_OBJ_ADD
 //#define DEBUG_SANDBOX_OBJECT_MAPS
 //#define DBGLVL_SANDBOX_RUN 1
-//#define DEBUG_MORE_MEMORY
+//#define DEBUG_SANDBOX_CLEAR
+//#define DEBUG_SS_CLONING
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -413,25 +414,22 @@ bool Sandbox::SetInternalCoordSystem(CoordinateSystem *cs)
 //------------------------------------------------------------------------------
 bool Sandbox::SetPublisher(Publisher *pub)
 {
-
    if ((state != INITIALIZED) && (state != STOPPED) && (state != IDLE))
           MessageInterface::ShowMessage(
              "Unexpected state transition in the Sandbox\n");
    state = IDLE;
-
-
-   if (pub) {
+   
+   if (pub)
+   {
       publisher = pub;
       // Now publisher needs internal coordinate system
       publisher->SetInternalCoordSystem(internalCoordSys);
       return true;
    }
-
-
+   
    if (!publisher)
       return false;
-
-
+   
    return true;
 }
 
@@ -914,9 +912,13 @@ bool Sandbox::Interrupt()
 //------------------------------------------------------------------------------
 void Sandbox::Clear()
 {
+   #ifdef DEBUG_SANDBOX_CLEAR
+   MessageInterface::ShowMessage("Sandbox::Clear() entered\n");
+   #endif
+   
    sequence  = NULL;
    current   = NULL;
-
+   
    // Delete the all cloned objects
    std::map<std::string, GmatBase *>::iterator omi;
    
@@ -937,7 +939,7 @@ void Sandbox::Clear()
    }
    #endif
    
-   #ifdef DEBUG_MORE_MEMORY
+   #ifdef DEBUG_SANDBOX_CLEAR
    ShowObjectMap(objectMap, "Sandbox::Clear() clearing objectMap\n");
    #endif
    
@@ -971,7 +973,7 @@ void Sandbox::Clear()
          //objectMap.erase(omi);
       }
    }
-   #ifdef DEBUG_MORE_MEMORY
+   #ifdef DEBUG_SANDBOX_CLEAR
    MessageInterface::ShowMessage
       ("--- Sandbox::Clear() deleting objects from objectMap done\n");
    ShowObjectMap(globalObjectMap, "Sandbox::Clear() clearing globalObjectMap\n");
@@ -1007,14 +1009,23 @@ void Sandbox::Clear()
       }
    }
    
-   #ifdef DEBUG_MORE_MEMORY
+   #ifdef DEBUG_SANDBOX_CLEAR
    MessageInterface::ShowMessage
       ("--- Sandbox::Clear() deleting objects from globalObjectMap done\n");
    #endif
    
    // Clear published data
    if (publisher)
+   {
       publisher->ClearPublishedData();
+      #ifdef DEBUG_SANDBOX_CLEAR
+      MessageInterface::ShowMessage
+         ("--- Sandbox::Clear() publisher cleared published data\n");
+      #endif
+   }
+   
+   // Set publisher to NULL. The publisher is set before the run and this method
+   // Sandbox::Clear() can be called multiple times from the Moderator
    publisher = NULL;
    
 #ifndef DISABLE_SOLAR_SYSTEM_CLONING
@@ -1022,7 +1033,7 @@ void Sandbox::Clear()
    {
       #ifdef DEBUG_SS_CLONING
       MessageInterface::ShowMessage
-         ("Sandbox deleting the solar system clone: %p\n", solarSys);
+         ("--- Sandbox::Clear() deleting the solar system clone: %p\n", solarSys);
       #endif
       
       #ifdef DEBUG_MEMORY
@@ -1035,11 +1046,20 @@ void Sandbox::Clear()
    solarSys = NULL;
 #endif
    
+   #ifdef DEBUG_SANDBOX_CLEAR
+   MessageInterface::ShowMessage
+      ("--- Sandbox::Clear() now about to delete triggerManagers\n");
+   #endif
    // Remove the TriggerManager clones
    for (UnsignedInt i = 0; i < triggerManagers.size(); ++i)
       delete triggerManagers[i];
    triggerManagers.clear();
-
+   
+   #ifdef DEBUG_SANDBOX_CLEAR
+   MessageInterface::ShowMessage
+      ("--- Sandbox::Clear() triggerManagers are cleared\n");
+   #endif
+   
    // who deletes objects?  ConfigManager::RemoveAllItems() deleletes them
    objectMap.clear();
    globalObjectMap.clear();
@@ -1078,6 +1098,10 @@ void Sandbox::Clear()
              "Unexpected state transition in the Sandbox\n");
 
    state     = IDLE;
+   
+   #ifdef DEBUG_SANDBOX_CLEAR
+   MessageInterface::ShowMessage("Sandbox::Clear() leaving\n");
+   #endif
 }
 
 
@@ -1332,7 +1356,9 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
                #endif
                
                //Let's handle GmatFunction first
-               OK += HandleGmatFunction(fcsCmd, &combinedObjectMap);
+               //compiler warning: '+=' : unsafe use of type 'bool' in operation
+               //OK += HandleGmatFunction(fcsCmd, &combinedObjectMap);
+               OK = HandleGmatFunction(fcsCmd, &combinedObjectMap) && OK;
                // do not set the non-global object map here; it will need to be
                // setup by the FunctionManager at execution
                fcsCmd->SetGlobalObjectMap(&globalObjectMap);
