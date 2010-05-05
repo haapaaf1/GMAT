@@ -81,7 +81,9 @@ Create::Create() :
 //------------------------------------------------------------------------------
 Create::~Create()
 {
-   if (refObj)
+   // Delete if refObj is not CelestialBody since it is added to SolarSystem
+   // and it is deleted when SolarSysem is destroyed (LOJ: 2010.05.03)
+   if (refObj && !refObj->IsOfType(Gmat::CELESTIAL_BODY))
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
@@ -89,7 +91,7 @@ Create::~Create()
       #endif
       delete refObj;
    }
-   // assuming objects inseted into a valid Object Store (Sandbox, Function, or Global)
+   // assuming objects inserted into a valid Object Store (Sandbox, Function, or Global)
    // will be deleted as members of those stores at the appropriate time; objects created 
    // in the Create command that were not successfully inserted into an object store will
    // need to be deleted in the Execute method; therefore, no objects, other than the
@@ -533,6 +535,11 @@ bool Create::InsertIntoLOS(GmatBase *obj, const std::string &withName)
 //------------------------------------------------------------------------------
 bool Create::InsertIntoObjectStore(GmatBase *obj, const std::string &withName)
 {
+   // if object is a type of CeletialBody, it goes into SolarSyatem, so
+   // ignore here
+   if (obj->IsOfType(Gmat::CELESTIAL_BODY))
+      return true;
+   
    // check to see if the object is a(n automatic) global
    bool isGlobalObj = obj->GetIsGlobal();
    if (!isGlobalObj)
