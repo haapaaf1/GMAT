@@ -207,13 +207,15 @@ void  SpiceOrbitKernelReader::GetCoverageStartAndEnd(StringArray       &kernels,
       {
          ConstSpiceChar option[] = "LONG";
          SpiceInt       numChar  = MAX_LONG_MESSAGE;
-         SpiceChar      err[MAX_LONG_MESSAGE];
+         //SpiceChar      err[MAX_LONG_MESSAGE];
+         SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
          getmsg_c(option, numChar, err);
          std::string errStr(err);
          std::string errmsg = "Error determining type of kernel \"";
          errmsg += kernels.at(ii) + "\".  Message received from CSPICE is: ";
          errmsg += errStr + "\n";
          reset_c();
+         delete [] err;
          throw UtilityException(errmsg);
       }
       #ifdef DEBUG_SPK_COVERAGE
@@ -252,13 +254,15 @@ void  SpiceOrbitKernelReader::GetCoverageStartAndEnd(StringArray       &kernels,
             {
                ConstSpiceChar option[] = "LONG";
                SpiceInt       numChar  = MAX_LONG_MESSAGE;
-               SpiceChar      err[MAX_LONG_MESSAGE];
+               //SpiceChar      err[MAX_LONG_MESSAGE];
+               SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
                getmsg_c(option, numChar, err);
                std::string errStr(err);
                std::string errmsg = "Error determining coverage for SPK kernel \"";
                errmsg += kernels.at(ii) + "\".  Message received from CSPICE is: ";
                errmsg += errStr + "\n";
                reset_c();
+               delete [] err;
                throw UtilityException(errmsg);
             }
             numInt = wncard_c(&cover);
@@ -273,13 +277,15 @@ void  SpiceOrbitKernelReader::GetCoverageStartAndEnd(StringArray       &kernels,
                {
                   ConstSpiceChar option[] = "LONG";
                   SpiceInt       numChar  = MAX_LONG_MESSAGE;
-                  SpiceChar      err[MAX_LONG_MESSAGE];
+                  //SpiceChar      err[MAX_LONG_MESSAGE];
+                  SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
                   getmsg_c(option, numChar, err);
                   std::string errStr(err);
                   std::string errmsg = "Error getting interval times for SPK kernel \"";
                   errmsg += kernels.at(ii) + "\".  Message received from CSPICE is: ";
                   errmsg += errStr + "\n";
                   reset_c();
+                  delete [] err;
                   throw UtilityException(errmsg);
                }
                start    = SpiceTimeToA1(b);
@@ -387,13 +393,15 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
 //      SpiceChar      err[MAX_SHORT_MESSAGE];
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
       SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting state for body \"";
       errmsg += targetName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
       reset_c();
+      delete [] err;
       throw UtilityException(errmsg);
    }
    #ifdef DEBUG_SPK_READING

@@ -113,13 +113,15 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
       SpiceInt       numErrChar = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numErrChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting file handle for SPK file \"";
       errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
       reset_c();
+      delete [] err;
       throw UtilityException(errmsg);
    }
    fileOpen = true;
@@ -133,7 +135,8 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
       SpiceInt       numErrChar = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numErrChar, err);
       std::string errStr(err);
       std::stringstream ss("");
@@ -141,6 +144,7 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
       ss << objNAIFId << ".  Message received from CSPICE is: ";
       ss << errStr << std::endl;
       reset_c();
+      delete [] err;
       throw UtilityException(ss.str());
    }
 }
@@ -304,13 +308,15 @@ void SpiceOrbitKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
       SpiceInt       numErrChar = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numErrChar, err);
       std::string errStr(err);
       std::string errmsg = "Error writing ephemeris data to SPK file \"";
       errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
       reset_c();
+      delete [] err;
       throw UtilityException(errmsg);
    }
    delete [] epochArray;
@@ -481,13 +487,15 @@ void SpiceOrbitKernelWriter::WriteMetaData()
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
       SpiceInt       numErrChar = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numErrChar, err);
       std::string errStr(err);
       std::string errmsg = "Error writing meta data to SPK file \"";
       errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
       reset_c();
+      delete [] err;
       throw UtilityException(errmsg);
    }
    // close the text file

@@ -202,13 +202,15 @@ void SpiceAttitudeKernelReader::GetTargetOrientation(const std::string &objectNa
    {
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
       SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting spacecraft time (ticks) for object \"";
       errmsg += objectName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
       reset_c();
+      delete [] err;
       throw UtilityException(errmsg);
    }
    // get the tolerance in spacecraft clock ticks
@@ -220,13 +222,15 @@ void SpiceAttitudeKernelReader::GetTargetOrientation(const std::string &objectNa
    {
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
       SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting tolerance (ticks) for object \"";
       errmsg += objectName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
       reset_c();
+      delete [] err;
       throw UtilityException(errmsg);
    }
 
@@ -250,14 +254,16 @@ void SpiceAttitudeKernelReader::GetTargetOrientation(const std::string &objectNa
    {
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
       SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      SpiceChar      err[MAX_LONG_MESSAGE];
+      //SpiceChar      err[MAX_LONG_MESSAGE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
       getmsg_c(option, numChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting C-matrix and/or angular velocity for object \"";
       errmsg += objectName + "\".  Message received from CSPICE is: ";
       errmsg += errStr + "\n";
       reset_c();
-     throw UtilityException(errmsg);
+      delete [] err;
+      throw UtilityException(errmsg);
    }
    if (found == SPICEFALSE)
    {
