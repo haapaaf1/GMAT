@@ -33,6 +33,24 @@
 //---------------------------------
 
 //------------------------------------------------------------------------------
+//  CreateObject(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * This method creates and returns an object of the requested ODEModel class
+ * in generic way.
+ *
+ * @param <ofType> the ODEModel object to create and return.
+ * @param <withName> the name to give the newly-created ODEModel object.
+ *
+ */
+//------------------------------------------------------------------------------
+Subscriber* SubscriberFactory::CreateObject(const std::string &ofType,
+                                          const std::string &withName)
+{
+   return CreateSubscriber(ofType, withName);
+}
+
+//------------------------------------------------------------------------------
 //  CreateSubscriber(const std::string &ofType, const std::string &withName,
 //                   const std::string &fileName)
 //------------------------------------------------------------------------------

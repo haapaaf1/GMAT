@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                         ODEModelFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -26,9 +26,11 @@
 class GMAT_API ODEModelFactory : public Factory
 {
 public:
+   ODEModel*  CreateObject(const std::string &ofType,
+                           const std::string &withName = "");
    ODEModel*  CreateODEModel(const std::string &ofType,
-                                 const std::string &withName = "");
-
+                             const std::string &withName = "");
+   
    // default constructor
    ODEModelFactory();
    // constructor

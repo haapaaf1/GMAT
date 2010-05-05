@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            ODEModelFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -26,6 +26,25 @@
 //---------------------------------
 //  public methods
 //---------------------------------
+
+//------------------------------------------------------------------------------
+//  CreateObject(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * This method creates and returns an object of the requested ODEModel class
+ * in generic way.
+ *
+ * @param <ofType> the ODEModel object to create and return.
+ * @param <withName> the name to give the newly-created ODEModel object.
+ *
+ */
+//------------------------------------------------------------------------------
+ODEModel* ODEModelFactory::CreateObject(const std::string &ofType,
+                                        const std::string &withName)
+{
+   return CreateODEModel(ofType, withName);
+}
+
 
 //------------------------------------------------------------------------------
 //  CreateODEModel(const std::string &ofType, const std::string &withName)

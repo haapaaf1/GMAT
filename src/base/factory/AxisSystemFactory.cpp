@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            AxisSystemFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -45,7 +45,25 @@
 //---------------------------------
 
 //------------------------------------------------------------------------------
-//  CreateAxisSystem(std::string ofType, std::string withName)
+//  CreateObject(const std::string &ofType, const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * This method creates and returns an object of the requested ODEModel class
+ * in generic way.
+ *
+ * @param <ofType> the ODEModel object to create and return.
+ * @param <withName> the name to give the newly-created ODEModel object.
+ *
+ */
+//------------------------------------------------------------------------------
+AxisSystem* AxisSystemFactory::CreateObject(const std::string &ofType,
+                                            const std::string &withName)
+{
+   return CreateAxisSystem(ofType, withName);
+}
+
+//------------------------------------------------------------------------------
+// AxisSystem* CreateAxisSystem(std::string ofType, std::string withName)
 //------------------------------------------------------------------------------
 /**
  * This method creates and returns an AxisSystem object of the requested 

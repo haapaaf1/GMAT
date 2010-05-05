@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                         AxisSystemFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -27,6 +27,8 @@
 class GMAT_API AxisSystemFactory : public Factory
 {
 public:
+   AxisSystem*  CreateObject(const std::string &ofType,
+                             const std::string &withName = "");
    AxisSystem*  CreateAxisSystem(const std::string &ofType,
                                  const std::string &withName = "");
  

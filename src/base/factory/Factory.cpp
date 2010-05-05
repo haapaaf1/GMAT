@@ -42,7 +42,8 @@
 GmatBase* Factory::CreateObject(const std::string &ofType,
                                 const std::string &withName)
 {
-   throw FactoryException("Generic factory creation method not implemented");
+   throw FactoryException("Generic factory creation method not implemented for " +
+                          ofType);
 }
 
 //------------------------------------------------------------------------------

@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                         PhysicalModelFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -26,6 +26,8 @@
 class GMAT_API PhysicalModelFactory : public Factory
 {
 public:
+   PhysicalModel*  CreateObject(const std::string &ofType,
+                                const std::string &withName = "");
    PhysicalModel*  CreatePhysicalModel(const std::string &ofType,
                                        const std::string &withName = "");
 

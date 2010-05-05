@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                         PropagatorFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -26,6 +26,8 @@
 class GMAT_API PropagatorFactory : public Factory
 {
 public:
+   Propagator*  CreateObject(const std::string &ofType,
+                             const std::string &withName = "");
    Propagator*  CreatePropagator(const std::string &ofType,
                                  const std::string &withName = "");
 
