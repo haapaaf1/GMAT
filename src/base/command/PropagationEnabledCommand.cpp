@@ -590,11 +590,7 @@ bool PropagationEnabledCommand::PrepareToPropagate()
           dim+1, streamID, pubdata[0]);
    #endif
 
-   #ifdef __USE_OLD_PUB_CODE__
-      publisher->Publish(streamID, pubdata, dim+1);
-   #else
-      publisher->Publish(this, streamID, pubdata, dim+1);
-   #endif
+   publisher->Publish(this, streamID, pubdata, dim+1);
 
 #ifdef DEBUG_INITIALIZATION
    MessageInterface::ShowMessage(
@@ -705,12 +701,15 @@ bool PropagationEnabledCommand::Step(Real dt)
    // Publish the data here
    pubdata[0] = currEpoch[0];
    memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
-
-   #ifdef __USE_OLD_PUB_CODE__
-      publisher->Publish(streamID, pubdata, dim+1);
-   #else
-      publisher->Publish(this, streamID, pubdata, dim+1);
+   
+   #ifdef DEBUG_PUBLISH_DATA
+      MessageInterface::ShowMessage
+         ("Propagate::Step() '%s' publishing %d data to stream %d, 1st data = "
+          "%f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+          dim+1, streamID, pubdata[0]);
    #endif
+   
+   publisher->Publish(this, streamID, pubdata, dim+1);
 
    return retval;
 }
