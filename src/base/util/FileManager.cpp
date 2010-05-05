@@ -53,6 +53,7 @@ const std::string
 FileManager::FILE_TYPE_STRING[FileTypeCount] =
 {
    // file path
+   "BEGIN_OF_PATH",
    "SPLASH_PATH",
    "OUTPUT_PATH",
    "SLP_PATH",
@@ -67,6 +68,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "TEXTURE_PATH",
    "MEASUREMENT_PATH",
    "EPHEM_PATH",
+   "END_OF_PATH",
    // file name
    "LOG_FILE",
    "REPORT_FILE",
@@ -1007,7 +1009,7 @@ std::string FileManager::ConvertToAbsPath(const std::string &relPath)
 //------------------------------------------------------------------------------
 void FileManager::SetAbsPathname(const FileType type, const std::string &newpath)
 {
-   if (type >=0 && type <= TEXTURE_PATH)
+   if (type >= BEGIN_OF_PATH && type <= END_OF_PATH)
    {
       SetAbsPathname(FILE_TYPE_STRING[type], newpath);
    }

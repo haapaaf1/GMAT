@@ -38,7 +38,8 @@ public:
    enum FileType
    {
       // file path
-      SPLASH_PATH = 0,
+      BEGIN_OF_PATH = 0,
+      SPLASH_PATH,
       OUTPUT_PATH,
       SLP_PATH,
       DE_PATH,
@@ -52,6 +53,7 @@ public:
       TEXTURE_PATH, //Notes: TEXTURE_PATH is used in SetPathname()
       MEASUREMENT_PATH,
       EPHEM_PATH,
+      END_OF_PATH,
       
       // general file name
       LOG_FILE,
