@@ -37,6 +37,13 @@
 //#define DEBUG_SS_CLOAKING
 //#define DEBUG_SS_PARAM_EQUAL
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
+
 //---------------------------------
 // static data
 //---------------------------------
@@ -767,6 +774,11 @@ SolarSystem::SolarSystem(std::string withName)
    ephemUpdateInterval = 0.0;
 #ifdef __USE_SPICE__
    planetarySPK   = new SpiceOrbitKernelReader();
+   #ifdef DEBUG_SS_CREATE
+   MessageInterface::ShowMessage
+      ("SolarSystem::SolarSystem(default), this=<%p>, planetarySPK<%p> created\n",
+       this, planetarySPK);
+   #endif
 #endif
    allowSpiceForDefaultBodies = true; // as of 2010.03.31, this is the default value
 
@@ -785,6 +797,11 @@ SolarSystem::SolarSystem(std::string withName)
    // create and add the default bodies
    // Assume only one Star for now : )
    Star* theSun     = new Star(SUN_NAME);
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (theSun, theSun->GetName(), "SolarSystem::SolarSystem()",
+       "Star* theSun = new Star(SUN_NAME)");
+   #endif
    theSun->SetCentralBody(EARTH_NAME);  // central body here is a reference body
    theSun->SetSolarSystem(this);
    theSun->SetSource(STAR_POS_VEL_SOURCE);
@@ -834,6 +851,11 @@ SolarSystem::SolarSystem(std::string withName)
    for (unsigned int ii = 0; ii < NumberOfDefaultPlanets; ii++)
    {
       Planet *newPlanet = new Planet(PLANET_NAMES[ii], SUN_NAME);
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (newPlanet, newPlanet->GetName(), "SolarSystem::SolarSystem()",
+          "Planet *newPlanet = new Planet()");
+      #endif
       if (PLANET_NAMES[ii] == EARTH_NAME) theEarth = newPlanet;
       newPlanet->SetCentralBody(SUN_NAME);
       newPlanet->SetSolarSystem(this);
@@ -895,6 +917,11 @@ SolarSystem::SolarSystem(std::string withName)
    for (unsigned int ii = 0; ii < NumberOfDefaultMoons; ii++)
    {
       Moon *newMoon = new Moon(MOON_NAMES[ii], MOON_CENTRAL_BODIES[ii]);
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (newMoon, newMoon->GetName(), "SolarSystem::SolarSystem()",
+          "Moon *newMoon = new Moon()");
+      #endif
       newMoon->SetSource(MOON_POS_VEL_SOURCE[ii]);
       newMoon->SetEquatorialRadius(MOON_EQUATORIAL_RADIUS[ii]);
       newMoon->SetFlattening(MOON_FLATTENING[ii]);
@@ -1026,6 +1053,11 @@ SolarSystem::SolarSystem(const SolarSystem &ss) :
 
 #ifdef __USE_SPICE__
    planetarySPK = (ss.planetarySPK)->Clone();
+   #ifdef DEBUG_SS_CREATE
+   MessageInterface::ShowMessage
+      ("SolarSystem::SolarSystem(copy), this=<%p>, planetarySPK<%p> cloned\n",
+       this, planetarySPK);
+   #endif
 #endif
 
    // create planetary source first, but do not create default
@@ -1093,6 +1125,11 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
    CreatePlanetarySource(false);
 #ifdef __USE_SPICE__
    planetarySPK          = ss.planetarySPK;
+   #ifdef DEBUG_SS_CREATE
+   MessageInterface::ShowMessage
+      ("SolarSystem::operator=(), this=<%p>, planetarySPK<%p> copied\n",
+       this, planetarySPK);
+   #endif
 #endif
 
    // copy current planetary source in use
@@ -1119,19 +1156,19 @@ SolarSystem& SolarSystem::operator=(const SolarSystem &ss)
 //------------------------------------------------------------------------------
 SolarSystem::~SolarSystem()
 {
-   DeleteBodiesInUse();
    #ifdef SS_CONSTRUCT_DESTRUCT
       MessageInterface::ShowMessage("Now destructing the SolarSystem with name %s at <%p>\n",
             instanceName.c_str(), this);
    #endif
-
-
+      
+   DeleteBodiesInUse();
+   
    #ifdef DEBUG_SS_CLONING
    MessageInterface::ShowMessage
-      ("SolarSystem::~SolarSystem() <%s> thePlanetaryEphem=%p\n",
-       GetName().c_str(), thePlanetaryEphem);
+      ("SolarSystem::~SolarSystem() <%s> thePlanetaryEphem=%p, planetarySPK=<%p> \n",
+       GetName().c_str(), thePlanetaryEphem, planetarySPK);
    #endif
-
+   
 //   if (theDefaultSlpFile != NULL)
 //   {
 //      #ifdef DEBUG_SS_CLONING
@@ -1167,6 +1204,18 @@ SolarSystem::~SolarSystem()
 //------------------------------------------------------------------------------
 bool SolarSystem::Initialize()
 {
+   #ifdef DEBUG_SS_INIT
+   MessageInterface::ShowMessage
+      ("SolarSystem::Initialize() this=<%p> entered, planetarySPK=<%p>\n"
+       "There are %d bodies in use\n", this, planetarySPK, bodiesInUse.size());
+   for (UnsignedInt i = 0; i < bodiesInUse.size(); i++)
+   {
+      CelestialBody *cb = bodiesInUse[i];
+      MessageInterface::ShowMessage
+         ("   <%p>  %-9s %-10s\n", cb, cb->GetTypeName().c_str(), cb->GetName().c_str());
+   }
+   #endif
+   
    // Initialize bodies in use
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
@@ -1174,9 +1223,69 @@ bool SolarSystem::Initialize()
       #ifdef __USE_SPICE__
          // Set the kernel reader on the celestial bodies
          (*cbi)->SetSpiceOrbitKernelReader(planetarySPK);
-         // Load the Planetary SPK and the Leap Second Kernel
-         planetarySPK->LoadKernel(theSPKFilename);
-         planetarySPK->SetLeapSecondKernel(lskKernelName);
+         // Load the Planetary SPK Kernel
+         try
+         {
+            planetarySPK->LoadKernel(theSPKFilename);
+         }
+         catch (UtilityException& ue)
+         {
+            // try again with path name if no path found
+            std::string spkName = theSPKFilename;
+            if (spkName.find("/") == spkName.npos &&
+                spkName.find("\\") == spkName.npos)
+            {
+               std::string spkPath =
+                  FileManager::Instance()->GetFullPathname(FileManager::SPK_PATH);
+               spkName = spkPath + spkName;
+               try
+               {
+                  planetarySPK->LoadKernel(spkName);
+                  #ifdef DEBUG_SS_SPICE
+                  MessageInterface::ShowMessage
+                     ("   kernelReader has loaded file %s\n", spkName.c_str());
+                  #endif
+               }
+               catch (UtilityException& ue)
+               {
+                  MessageInterface::ShowMessage("ERROR loading kernel %s\n",
+                     spkName.c_str());
+                  throw; // rethrow the exception, for now
+               }
+            }
+         }
+         
+         // Load the Leap Second Kernel
+         try
+         {
+            planetarySPK->SetLeapSecondKernel(lskKernelName);
+         }
+         catch (UtilityException& ue)
+         {
+            // try again with path name if no path found
+            std::string lskName = lskKernelName;
+            if (lskName.find("/") == lskName.npos &&
+                lskName.find("\\") == lskName.npos)
+            {
+               std::string lskPath =
+                  FileManager::Instance()->GetFullPathname(FileManager::TIME_PATH);
+               lskName = lskPath + lskName;
+               try
+               {
+                  planetarySPK->LoadKernel(lskName);
+                  #ifdef DEBUG_SS_SPICE
+                  MessageInterface::ShowMessage
+                     ("   kernelReader has loaded file %s\n", lskName.c_str());
+                  #endif
+               }
+               catch (UtilityException& ue)
+               {
+                  MessageInterface::ShowMessage("ERROR loading kernel %s\n",
+                     lskName.c_str());
+                  throw; // rethrow the exception, for now
+               }
+            }
+         }
       #endif
       (*cbi)->Initialize();
       ++cbi;
@@ -1717,7 +1826,14 @@ bool SolarSystem::DeleteBody(const std::string &withName)
       {
          CelestialBody *bodyToDelete = (*cbi);
          bodiesInUse.erase(cbi);
+         
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (bodyToDelete, bodyToDelete->GetName(), "SolarSystem::DeleteBody()",
+             " delete bodyToDelete");
+         #endif
          delete bodyToDelete;
+         
          for (StringArray::iterator si = bodyStrings.begin(); si != bodyStrings.end(); ++si)
             if ((*si) == withName) bodyStrings.erase(si);
          for (StringArray::iterator si = defaultBodyStrings.begin(); si != defaultBodyStrings.end(); ++si)
@@ -2119,7 +2235,7 @@ const StringArray& SolarSystem::GetBodiesInUse() const
 }
 
 //------------------------------------------------------------------------------
-//  SolarSystem* Clone(void) const
+//  SolarSystem* Clone() const
 //------------------------------------------------------------------------------
 /**
 * This method returns a clone of the SolarSystem.
@@ -2128,10 +2244,11 @@ const StringArray& SolarSystem::GetBodiesInUse() const
  *
  */
 //------------------------------------------------------------------------------
-SolarSystem* SolarSystem::Clone(void) const
+SolarSystem* SolarSystem::Clone() const
 {
    // clone all objects in the Solar System as well
    SolarSystem * clonedSS = new SolarSystem(*this);
+   
    #ifdef SS_CONSTRUCT_DESTRUCT
       MessageInterface::ShowMessage("Now cloning a new SolarSystem from <%p> to <%p>\n",
             this, clonedSS);
@@ -2846,18 +2963,23 @@ void SolarSystem::CloneBodiesInUse(const SolarSystem &ss)
    {
       CelestialBody *cb = (CelestialBody*)((*cbi)->Clone());
       bodiesInUse.push_back(cb);
-
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (cb, cb->GetName(), "SolarSystem::CloneBodiesInUse()",
+          "CelestialBody *cb = (CelestialBody*)((*cbi)->Clone())");
+      #endif
       #ifdef DEBUG_SS_CLONING
       MessageInterface::ShowMessage("   Cloned <%p> %s to <%p> %s\n",
             (*cbi), ((*cbi)->GetName()).c_str(), cb, cb->GetName().c_str());
       #endif
    }
-
+   
    // set references to cloned bodies
-      #ifdef DEBUG_SS_CLONING
-         MessageInterface::ShowMessage("   there are now %d cloned celestial bodies\n",
-                           ((Integer) bodiesInUse.size()));
-      #endif
+   #ifdef DEBUG_SS_CLONING
+      MessageInterface::ShowMessage("   there are now %d cloned celestial bodies\n",
+                                    ((Integer) bodiesInUse.size()));
+   #endif
 
    std::string   cbName   = "";
    CelestialBody *cb      = NULL;
@@ -2900,12 +3022,16 @@ void SolarSystem::DeleteBodiesInUse()
       MessageInterface::ShowMessage
          ("   Deleting <%p> %s\n", (*cbi), (*cbi)->GetName().c_str());
       #endif
-
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (*cbi, (*cbi)->GetName(), "SolarSystem::DeleteBodiesInUse()", " deleting body");
+      #endif
       delete (*cbi);       // delete each body first
       (*cbi) = NULL;
       ++cbi;
    }
-
+   
    bodiesInUse.clear();
    bodyStrings.clear();
    defaultBodyStrings.clear();

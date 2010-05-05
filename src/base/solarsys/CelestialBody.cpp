@@ -2846,9 +2846,10 @@ bool CelestialBody::SetStringParameter(const Integer id,
                                        const std::string &value) // const?
 {
    #ifdef DEBUG_CB_SET_STRING
-      std::string idString = GetParameterText(id);
-//      MessageInterface::ShowMessage("CelestialBody::SetStringP:: id = %d (%s), value = %s\n",
-//            id, idString.c_str(), value);
+   std::string idString = GetParameterText(id);
+   MessageInterface::ShowMessage
+      ("CelestialBody::SetStringP:: id = %d (%s), value = %s\n",
+       id, idString.c_str(), value.c_str());
    #endif
    int i;
    if (id == BODY_TYPE)
@@ -4270,8 +4271,8 @@ bool CelestialBody::SetUpSPICE()
 //   if (kernelReader == NULL) kernelReader = SpiceKernelReader::Instance();
    if (kernelReader == NULL)
    {
-      std::string errmsg = "ERROR - SpiceKernelReader not set for body";
-      errmsg += instanceName + "\n";
+      std::string errmsg = "ERROR - SpiceKernelReader not set for body \"";
+      errmsg += instanceName + "\"\n";
       throw SolarSystemException(errmsg);
    }
    #ifdef DEBUG_CB_SPICE
@@ -4298,8 +4299,29 @@ bool CelestialBody::SetUpSPICE()
          }
          catch (UtilityException& ue)
          {
-            MessageInterface::ShowMessage("ERROR loading kernel %s\n", (spiceKernelNames.at(ii).c_str()));
-            throw; // rethrow the exception, for now
+            // try again with path name if no path found
+            std::string spkName = spiceKernelNames.at(ii);
+            if (spkName.find("/") == spkName.npos &&
+                spkName.find("\\") == spkName.npos)
+            {
+               std::string spkPath =
+                  FileManager::Instance()->GetFullPathname(FileManager::SPK_PATH);
+               spkName = spkPath + spkName;
+               try
+               {
+                  kernelReader->LoadKernel(spkName);
+                  #ifdef DEBUG_CB_SPICE
+                  MessageInterface::ShowMessage("   kernelReader has loaded file %s\n",
+                     spkName.c_str());
+                  #endif
+               }
+               catch (UtilityException& ue)
+               {
+                  MessageInterface::ShowMessage("ERROR loading kernel %s\n",
+                     (spiceKernelNames.at(ii).c_str()));
+                  throw; // rethrow the exception, for now
+               }
+            }
          }
    }
 //   if (lskKernelName != "") kernelReader->SetLeapSecondKernel(lskKernelName);
