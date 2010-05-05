@@ -2217,8 +2217,10 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
          paramDlg.ShowModal();
          return NULL;
       }
+   default:
+      break;
    }
-
+   
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
    GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
