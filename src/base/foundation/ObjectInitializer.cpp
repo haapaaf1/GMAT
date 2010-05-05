@@ -510,6 +510,11 @@ void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
       for (omi = objMap->begin(); omi != objMap->end(); ++omi)
       {
          GmatBase *obj = omi->second;
+         
+         if (obj == NULL)
+            throw GmatBaseException
+               ("Cannot initialize NULL pointer of \"" + omi->first + "\" object");
+         
          objName = obj->GetName();
          
          if (objType != Gmat::UNKNOWN_OBJECT)
@@ -596,6 +601,10 @@ void ObjectInitializer::InitializeSystemParamters(ObjectMap *objMap)
    {
       GmatBase *obj = omi->second;
       
+      if (obj == NULL)
+         throw GmatBaseException
+            ("Cannot initialize NULL pointer of \"" + omi->first + "\" object");
+      
       // Treat parameters as a special case -- because system parameters have
       // to be initialized before other parameters.
       if (obj->IsOfType(Gmat::PARAMETER))
@@ -635,6 +644,11 @@ void ObjectInitializer::InitializeAllOtherObjects(ObjectMap *objMap)
    for (omi = objMap->begin(); omi != objMap->end(); ++omi)
    {
       GmatBase *obj = omi->second;
+      
+      if (obj == NULL)
+         throw GmatBaseException
+            ("Cannot initialize NULL pointer of \"" + omi->first + "\" object");
+      
       if ((obj->GetType() != Gmat::COORDINATE_SYSTEM) &&
           (obj->GetType() != Gmat::SPACECRAFT) &&
           (obj->GetType() != Gmat::MEASUREMENT_MODEL) &&
@@ -717,13 +731,13 @@ void ObjectInitializer::InitializeInternalObjects()
 
    // set ref object for internal coordinate system
    #ifdef DEBUG_OBJECT_INITIALIZER
-      MessageInterface::ShowMessage(" ... solar system about to be set on coordinate system  ...\n");
-      //if (!internalCS) MessageInterface::ShowMessage(" but solar system is NULL!!!!!!\n");
+      MessageInterface::ShowMessage
+         (" ... solar system about to be set on internalCS <%p> ...\n", internalCS);
    #endif
    
    internalCS->SetSolarSystem(ss);
    #ifdef DEBUG_OBJECT_INITIALIZER
-      MessageInterface::ShowMessage(" ... and solar system is set on coordinate system  ...\n");
+      MessageInterface::ShowMessage(" ... and solar system is set on internalCS  ...\n");
       MessageInterface::ShowMessage(" ... about to call BuildReferences  ...\n");
    #endif
 
@@ -790,10 +804,17 @@ void ObjectInitializer::InitializeCoordinateSystem(GmatBase *obj)
    // Set the reference objects for the coordinate system
    BuildReferences(cs);
    
-   oName = cs->GetStringParameter("Origin");
-   
+   // Initialize axis of the coordinate system
    GmatBase *axes = cs->GetOwnedObject(0);
+   
+   if (axes == NULL)
+      throw GmatBaseException
+         ("Cannot initialize NULL axes of CoordinateSystem \"" + cs->GetName() + "\"");
+   
    BuildReferences(axes);
+   
+   // Initialize origin of the coordinate system
+   oName = cs->GetStringParameter("Origin");
    
    sp = FindSpacePoint(oName);
    if (sp == NULL)
