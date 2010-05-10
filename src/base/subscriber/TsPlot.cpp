@@ -255,6 +255,9 @@ bool TsPlot::AddYParameter(const std::string &paramName, Integer index)
 //------------------------------------------------------------------------------
 bool TsPlot::Initialize()
 {
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING_NO_PLOTS)
+      return true;
+   
    #if DEBUG_TSPLOT_INIT
    MessageInterface::ShowMessage
       ("TsPlot::Initialize() active=%d, mNumYParams=%d\n", active, mNumYParams);
@@ -1238,6 +1241,9 @@ bool TsPlot::Distribute(int len)
 //------------------------------------------------------------------------------
 bool TsPlot::Distribute(const Real * dat, Integer len)
 {
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING_NO_PLOTS)
+      return true;
+   
    #if DEBUG_TSPLOT_UPDATE > 1
    MessageInterface::ShowMessage
       ("TsPlot::Distribute() entered. isEndOfReceive=%d, active=%d, runState=%d\n",

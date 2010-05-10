@@ -608,6 +608,9 @@ void OpenGlPlot::SetVector(const std::string &which, const Rvector3 &value)
 //------------------------------------------------------------------------------
 bool OpenGlPlot::Initialize()
 {
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING_NO_PLOTS)
+      return true;
+   
    Subscriber::Initialize();
    
    // theInternalCoordSys is used only by OpenGL plot so check. (2008.06.16)
@@ -2858,6 +2861,9 @@ bool OpenGlPlot::Distribute(const Real *dat, Integer len)
        instanceName.c_str(), active, isEndOfRun, isEndOfReceive, mAllSpCount,
        mScCount, len, runstate);
    #endif
+   
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING_NO_PLOTS)
+      return true;
    
    if (!active || mScCount <= 0)
       return true;
