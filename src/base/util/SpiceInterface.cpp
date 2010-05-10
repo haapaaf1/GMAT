@@ -122,6 +122,9 @@ SpiceInterface::SpiceInterface(const SpiceInterface &copy) :
    kernelNameSPICE         (NULL)
 {
    numInstances++;
+   // the kernels are all loaded into that one kernel pool, but we need to copy the names
+   loadedKernels = copy.loadedKernels;
+   lsKernel      = copy.lsKernel;
 }
 
 //------------------------------------------------------------------------------
@@ -142,6 +145,11 @@ SpiceInterface& SpiceInterface::operator=(const SpiceInterface &copy)
       return *this;
 
    kernelNameSPICE          = NULL;
+   // the kernels are all loaded into that one kernel pool, but we need to copy the names
+   loadedKernels.clear();
+   loadedKernels = copy.loadedKernels;
+   lsKernel      = copy.lsKernel;
+
    // don't modify numInstances - we are not creating a new instance here
    return *this;
 }
