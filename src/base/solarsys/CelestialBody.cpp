@@ -704,6 +704,10 @@ void CelestialBody::SetUpBody()
       }
       SetRefObject(cBody, Gmat::CELESTIAL_BODY, theCentralBodyName);
    }
+   if (RequiresJ2000Body() && j2000Body == NULL)
+   {
+      j2000Body = theSolarSystem->GetBody(j2000BodyName);
+   }
    // add other set-up kinds of things later?
    return;
 }
@@ -2198,7 +2202,8 @@ const Rvector6 CelestialBody::GetMJ2000State(const A1Mjd &atTime)
          (j2000Body->GetName()).c_str());
    #endif
    if (j2000Body == NULL)
-      throw SolarSystemException("j2000Body is NULL for " + instanceName);
+      throw SolarSystemException
+         ("CelestialBody::GetMJ2000State() j2000Body is NULL for " + instanceName);
    
    // If j2000Body is this body, return the zero state vector
    if(j2000Body->GetName() == instanceName) 
