@@ -66,6 +66,8 @@ private:
    wxStaticText *str2StaticText;
    wxStaticText *str3StaticText;
    
+   wxStaticText *spiceMessage;
+
    wxTextCtrl *st1TextCtrl;
    wxTextCtrl *st2TextCtrl;
    wxTextCtrl *st3TextCtrl;
@@ -188,6 +190,9 @@ private:
    
    void DisableInitialAttitudeRate();
    void EnableInitialAttitudeRate();
+   void DisableAll();
+   void EnableAll();
+   void DisplaySpiceReminder();
 
    wxString ToString(Real rval); // ??
    

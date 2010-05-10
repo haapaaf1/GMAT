@@ -326,6 +326,12 @@ void AttitudePanel::Create()
    rateUnits2 = new wxStaticText( this, ID_TEXT, wxT("deg/sec"));
    rateUnits3 = new wxStaticText( this, ID_TEXT, wxT("deg/sec"));
 
+   // create the message to be displayed when the user selects "SpiceAttitude"
+   spiceMessage =
+      new wxStaticText( this, ID_TEXT, wxT("Set data on the SPICE tab."),
+                        wxDefaultPosition, wxDefaultSize, 0);
+
+
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage
          ("AttitudePanel::Create() Creating wxString objects\n");
@@ -362,7 +368,10 @@ void AttitudePanel::Create()
    flexGridSizer1->Add(config2StaticText, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );
    flexGridSizer1->Add(config2ComboBox, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );         
    flexGridSizer1->Add(config4StaticText, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );
-   flexGridSizer1->Add(config4ComboBox, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );         
+   flexGridSizer1->Add(config4ComboBox, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );
+
+   flexGridSizer1->Add(spiceMessage, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, bsize );
+   flexGridSizer1->Add(20, 20, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
    
    flexGridSizer2->Add(st1StaticText, 0, wxALIGN_CENTER|wxALL, bsize );
    flexGridSizer2->Add(st1TextCtrl, 0, wxGROW|wxALIGN_CENTER|wxALL, bsize );
@@ -486,6 +495,23 @@ void AttitudePanel::LoadData()
       //else             attCS = (CoordinateSystem*) theAttitude->
       //                 GetRefObject(Gmat::COORDINATE_SYSTEM, 
       //                 attCoordSystem);
+      if (attitudeModel == "CoordinateSystemFixed")
+      {
+         EnableAll();
+         DisableInitialAttitudeRate();
+         spiceMessage->Show(false);
+      }
+      else if (attitudeModel == "SpiceAttitude")
+      {
+         DisableAll();
+         DisplaySpiceReminder();
+         spiceMessage->Show(true);
+      }
+      else
+      {
+         EnableAll();
+         spiceMessage->Show(false);
+      }
       
       if (attStateType == STATE_TEXT[EULER_ANGLES])
       {
@@ -1019,6 +1045,81 @@ void AttitudePanel::EnableInitialAttitudeRate()
    rateUnits2->Enable();
    rateUnits3->Enable();
 }
+void AttitudePanel::DisableAll()
+{
+   DisableInitialAttitudeRate();
+//   config1StaticText->Disable();
+   config2StaticText->Disable();
+//   config3StaticText->Disable();
+   config4StaticText->Disable();
+   config2ComboBox->Disable();
+   config4ComboBox->Disable();
+   stateTypeStaticText->Disable();
+   stateTypeComboBox->Disable();
+   stateTypeRate4StaticText->Disable();
+   st1StaticText->Disable();
+   st2StaticText->Disable();
+   st3StaticText->Disable();
+   st1TextCtrl->Disable();
+   st2TextCtrl->Disable();
+   st3TextCtrl->Disable();
+
+   if (attStateType == STATE_TEXT[QUATERNION])
+   {
+      st4StaticText->Disable();
+      st4TextCtrl->Disable();
+   }
+   if (attStateType == STATE_TEXT[DCM])
+   {
+      st5TextCtrl->Disable();
+      st6TextCtrl->Disable();
+      st7TextCtrl->Disable();
+      st8TextCtrl->Disable();
+      st9TextCtrl->Disable();
+      st10TextCtrl->Disable();
+   }
+   st1TextCtrl->Disable();
+}
+
+void AttitudePanel::EnableAll()
+{
+   EnableInitialAttitudeRate();
+//   config1StaticText->Enable();
+   config2StaticText->Enable();
+//   config3StaticText->Enable();
+   config4StaticText->Enable();
+   config2ComboBox->Enable();
+   config4ComboBox->Enable();
+   stateTypeStaticText->Enable();
+   stateTypeComboBox->Enable();
+   stateTypeRate4StaticText->Enable();
+   st1StaticText->Enable();
+   st2StaticText->Enable();
+   st3StaticText->Enable();
+   st1TextCtrl->Enable();
+   st2TextCtrl->Enable();
+   st3TextCtrl->Enable();
+
+   if (attStateType == STATE_TEXT[QUATERNION])
+   {
+      st4StaticText->Enable();
+      st4TextCtrl->Enable();
+   }
+   if (attStateType == STATE_TEXT[DCM])
+   {
+      st5TextCtrl->Enable();
+      st6TextCtrl->Enable();
+      st7TextCtrl->Enable();
+      st8TextCtrl->Enable();
+      st9TextCtrl->Enable();
+      st10TextCtrl->Enable();
+   }
+   st1TextCtrl->Enable();
+}
+
+void AttitudePanel::DisplaySpiceReminder()
+{
+}
 
 
 //------------------------------------------------------------------------------
@@ -1162,9 +1263,23 @@ void AttitudePanel::OnAttitudeModelSelection(wxCommandEvent &event)
       theScPanel->EnableUpdate(true);
     }
     if (newModel == "CoordinateSystemFixed")
+    {
+       EnableAll();
        DisableInitialAttitudeRate();
+       spiceMessage->Show(false);
+    }
+    else if (newModel == "SpiceAttitude")
+    {
+       DisableAll();
+       DisplaySpiceReminder();
+       spiceMessage->Show(true);
+    }
     else
-       EnableInitialAttitudeRate();
+    {
+       EnableAll();
+       spiceMessage->Show(false);
+    }
+//       EnableInitialAttitudeRate();
 }
 
 //------------------------------------------------------------------------------
