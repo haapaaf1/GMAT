@@ -1,0 +1,131 @@
+%--------------------------------------------------------------
+%===== Create and configure the HST spacecraft
+%--------------------------------------------------------------
+Create Spacecraft HST;
+GMAT HST.DateFormat = UTCGregorian;
+GMAT HST.Epoch = '18 Nov 2009 00:00:00.000';
+GMAT HST.CoordinateSystem = EarthMJ2000Eq;
+GMAT HST.DisplayStateType = Cartesian;
+GMAT HST.SMA = 6600;
+GMAT HST.ECC = .001;
+GMAT HST.INC = 28.5;
+GMAT HST.RAAN = -0.2451132495834106;
+GMAT HST.AOP = 0.1083307708826794;
+GMAT HST.TA = 0.1427860128980402;
+GMAT HST.DryMass = 821.1888;
+GMAT HST.Cd = 2.2;
+GMAT HST.Cr = 1.448009157951282;
+GMAT HST.DragArea = 15;
+GMAT HST.SRPArea = 20.438
+GMAT HST.Cd = 2.2;
+GMAT HST.Id = 'HST';
+
+Create Spacecraft TDRSS41;
+GMAT TDRSS41.DateFormat = UTCGregorian;
+GMAT TDRSS41.Epoch = '18 Nov 2009 00:00:00.000';
+GMAT TDRSS41.CoordinateSystem = EarthMJ2000Eq;
+GMAT TDRSS41.DisplayStateType = Cartesian;
+GMAT TDRSS41.SMA = 42241.096;
+GMAT TDRSS41.ECC = 0.000001;
+GMAT TDRSS41.INC = 13.1;
+GMAT TDRSS41.RAAN = -0.2451132495834106;
+GMAT TDRSS41.AOP = 0.1083307708826794;
+GMAT TDRSS41.TA = 0.1427860128980402;
+GMAT TDRSS41.DryMass = 821.1888;
+GMAT TDRSS41.Cd = 2.2;
+GMAT TDRSS41.Cr = 1.448009157951282;
+GMAT TDRSS41.DragArea = 15;
+GMAT TDRSS41.SRPArea = 20.438
+GMAT TDRSS41.Cd = 2.2;
+GMAT TDRSS41.Id = 'TDRSS41';
+
+Create Spacecraft TDRSS49;
+GMAT TDRSS49.DateFormat = UTCGregorian;
+GMAT TDRSS49.Epoch = '18 Nov 2009 00:00:00.000';
+GMAT TDRSS49.CoordinateSystem = EarthMJ2000Eq;
+GMAT TDRSS49.DisplayStateType = Cartesian;
+GMAT TDRSS49.SMA = 42241.096;
+GMAT TDRSS49.ECC = 0.00001;
+GMAT TDRSS49.INC = 2.1;
+GMAT TDRSS49.RAAN = -0.2451132495834106;
+GMAT TDRSS49.AOP = 0.1083307708826794;
+GMAT TDRSS49.TA = 0.1427860128980402;
+GMAT TDRSS49.DryMass = 821.1888;
+GMAT TDRSS49.Cd = 2.2;
+GMAT TDRSS49.Cr = 1.448009157951282;
+GMAT TDRSS49.DragArea = 15;
+GMAT TDRSS49.SRPArea = 20.438
+GMAT TDRSS49.Cd = 2.2;
+GMAT TDRSS49.Id = 'TDRSS49';
+
+%--------------------------------------------------------------
+%===== Create the propagator
+%--------------------------------------------------------------
+
+Create ForceModel TwoBodyForce;
+Create Propagator TwoBodyProp;
+GMAT TwoBodyForce.CentralBody = Earth;
+GMAT TwoBodyForce.PointMasses = {Earth};
+GMAT TwoBodyForce.Drag = None;
+GMAT TwoBodyForce.SRP = On;
+GMAT TwoBodyForce.ErrorControl = RSSStep;
+
+GMAT TwoBodyProp.FM              = TwoBodyForce;
+GMAT TwoBodyProp.Type            = PrinceDormand78;
+GMAT TwoBodyProp.InitialStepSize = 60;
+GMAT TwoBodyProp.Accuracy        = 1e-10;
+GMAT TwoBodyProp.MinStep         = 0.0;
+GMAT TwoBodyProp.MaxStep         = 86400;
+GMAT TwoBodyProp.MaxStepAttempts = 50;
+
+%--------------------------------------------------------------
+%===== Create the ground stations
+%--------------------------------------------------------------
+
+Create GroundStation WhiteSands
+WhiteSands.Id = WhiteSands
+%WhiteSands.Sensors  = {DSNXPND};
+WhiteSands.CentralBody = Earth;
+WhiteSands.StateType   = Cartesian;
+WhiteSands.HorizonReference = Ellipsoid;
+WhiteSands.X = -4460.89492
+WhiteSands.Y =  2682.36151
+WhiteSands.Z = -3674.74815
+
+%--------------------------------------------------------------
+%===== Create the Tracking Systems and Measurement Models
+%--------------------------------------------------------------
+
+Create TDRSSTrackingSystem HST_TDRSS
+HST_TDRSS.Add = {HST_TDRSS41Range,HST_TDRSS49Range};
+
+Create MeasurementModel HST_TDRSS41Range
+HST_TDRSS41Range.ObservationData = HST_TDRSSData
+HST_TDRSS41Range.Type         = TDRSS1TwoWayRange;
+HST_TDRSS41Range.Participants = {WhiteSands, TDRSS41, HST};
+
+Create MeasurementModel HST_TDRSS49Range
+HST_TDRSS49Range.ObservationData = HST_TDRSSData
+HST_TDRSS49Range.Type         = TDRSS1TwoWayRange;
+HST_TDRSS49Range.Participants = {WhiteSands, TDRSS49, HST};
+
+Create DataFile HST_TDRSSData;
+HST_TDRSSData.Filename = 'HST_TDRSSData.gmd';
+HST_TDRSSData.Format = GMATInternal;
+
+%--------------------------------------------------------------
+%===== Create and configure the simulator
+%--------------------------------------------------------------
+Create Simulator HSTsim;
+HSTsim.AddData             = {HST_TDRSS};
+HSTsim.InitialEpochFormat  = UTCGregorian;
+HSTsim.InitialEpoch        = '18 Nov 2009 00:00:00.000';
+HSTsim.FinalEpochFormat    = UTCGregorian;
+HSTsim.FinalEpoch          = '19 Nov 2009 00:00:00.000';
+HSTsim.MeasurementTimeStep = 60;
+HSTsim.Propagator          = TwoBodyProp;
+
+%--------------------------------------------------------------
+%===== Run the simulator
+%--------------------------------------------------------------
+RunSimulator HSTsim
