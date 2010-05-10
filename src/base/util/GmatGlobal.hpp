@@ -29,7 +29,8 @@ public:
    {
       NORMAL = 10,
       EXIT_AFTER_RUN,
-      TESTING
+      TESTING,
+      TESTING_NO_PLOTS,
    };
    
    ///@note MatlabEngine uses the same enum
