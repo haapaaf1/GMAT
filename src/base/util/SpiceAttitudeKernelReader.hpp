@@ -48,13 +48,15 @@ public:
    void   GetCoverageStartAndEnd(StringArray       &kernels,
                                  Integer           forNaifId,
                                  Real              &start,
-                                 Real              &end);
+                                 Real              &end,
+                                 bool              needAngVel);
 
    /// method to return the orientation (attitude) of an instrument or a
    /// spacecraft at the specified time, with respect to the specified frame
    /// (support for planetary bodies' orientation may be added later)
    void   GetTargetOrientation(const std::string &objectName,
                                Integer           naifID,
+                               Integer           forFrameNaifId,
                                const A1Mjd       &atTime,
 //                               Real              tolerance,
                                Rmatrix33         &r33,
@@ -72,6 +74,8 @@ protected:
    SpiceDouble     toleranceSPICE;
    /// the found flag
    SpiceBoolean    foundSPICE;
+   /// NAIF ID for the object's reference frame
+   Integer         frameNaifIDSPICE;
 
 };
 
