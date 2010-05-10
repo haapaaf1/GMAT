@@ -40,14 +40,17 @@ private:
    
    bool mHasFileTypesInUseChanged;
    bool mHasFileNameChanged;
+   bool mHasLSKFileNameChanged;
    bool mHasTextModified;
    
    wxComboBox *mFileTypeComboBox;
    
    wxTextCtrl *mIntervalTextCtrl;
    wxTextCtrl *mFileNameTextCtrl;
+   wxTextCtrl *mLSKFileNameTextCtrl;
    
    wxBitmapButton *mBrowseButton;
+   wxBitmapButton *mLSKBrowseButton;
 
    wxCheckBox *mOverrideCheckBox;
 
@@ -55,7 +58,11 @@ private:
    
    SolarSystem *theSolarSystem;
    
+   wxStaticText *lskNameLabel;
+
+
    void OnBrowseButton(wxCommandEvent& event);
+   void OnLSKBrowseButton(wxCommandEvent& event);
    void OnComboBoxChange(wxCommandEvent& event);
    void OnCheckBoxChange(wxCommandEvent& event);
    void OnTextCtrlChange(wxCommandEvent& event);
@@ -71,17 +78,18 @@ private:
    enum
    {     
       ID_TEXT = 6100,
-      ID_LISTBOX,
+//      ID_LISTBOX,
       ID_COMBOBOX,
-      ID_BUTTON_ADD,
-      ID_BUTTON_SORT,
-      ID_BUTTON_REMOVE,
-      ID_BUTTON_CLEAR,
-      ID_AVAILABLE_LIST,
+//      ID_BUTTON_ADD,
+//      ID_BUTTON_SORT,
+//      ID_BUTTON_REMOVE,
+//      ID_BUTTON_CLEAR,
+//      ID_AVAILABLE_LIST,
       ID_TEXT_CTRL,
       ID_BUTTON_BROWSE,
-      ID_SELECTED_LIST,
-      CHECKBOX,
+      ID_LSK_BUTTON_BROWSE,
+//      ID_SELECTED_LIST,
+      ID_CHECKBOX,
    };
 };
 #endif
