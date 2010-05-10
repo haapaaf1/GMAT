@@ -23,100 +23,100 @@ GMAT testArray(1, 1) = 25;
 % -----------------
 % Unknown parameter
 % -----------------
-%GMAT DC1.DoesNotExist = 1;
+GMAT DC1.DoesNotExist = 1;
 
 % ------------------
 % Maximum Iterations
 % ------------------
 Create DifferentialCorrector DC2;
 GMAT DC2.MaximumIterations = 1;
-%GMAT DC2.MaximumIterations = 1.0;
-%GMAT DC2.MaximumIterations = testString;
-%GMAT testVar.Expression = -25;
-%GMAT DC2.MaximumIterations = testVar;
-%GMAT DC2.MaximumIterations = testArray(1,1);
-%GMAT DC2.MaximumIterations = testSc.A1ModJulian;
-%GMAT DC2.MaximumIterations = DoesNotExist;
+GMAT DC2.MaximumIterations = 1.0;
+GMAT DC2.MaximumIterations = testString;
+GMAT testVar.Expression = -25;
+GMAT DC2.MaximumIterations = testVar;
+GMAT DC2.MaximumIterations = testArray(1,1);
+GMAT DC2.MaximumIterations = testSc.A1ModJulian;
+GMAT DC2.MaximumIterations = DoesNotExist;
 
 % -------------
 % Show Progress
 % -------------
 Create DifferentialCorrector DC3;
-%GMAT DC3.ShowProgress = 1;
-%GMAT DC3.ShowProgress = 1.0;
-%GMAT testString.Expression = true;
-%GMAT DC3.ShowProgress = testString;
-%GMAT DC3.ShowProgress = testVar;
-%GMAT DC3.ShowProgress = testArray(1,1);
-%GMAT DC3.ShowProgress = testSc.A1ModJulian;
-%GMAT DC3.ShowProgress = DoesNotExist;
-%GMAT DC3.ShowProgress = 0;
-%GMAT DC3.ShowProgress = ON;
-%GMAT DC3.ShowProgress = On;
-%GMAT DC3.ShowProgress = on;
-%GMAT DC3.ShowProgress = OFF;
-%GMAT DC3.ShowProgress = Off;
-%GMAT DC3.ShowProgress = off;
-%GMAT DC3.ShowProgress = TRUE;
-%GMAT DC3.ShowProgress = True;
+GMAT DC3.ShowProgress = 1;
+GMAT DC3.ShowProgress = 1.0;
+GMAT testString.Expression = true;
+GMAT DC3.ShowProgress = testString;
+GMAT DC3.ShowProgress = testVar;
+GMAT DC3.ShowProgress = testArray(1,1);
+GMAT DC3.ShowProgress = testSc.A1ModJulian;
+GMAT DC3.ShowProgress = DoesNotExist;
+GMAT DC3.ShowProgress = 0;
+GMAT DC3.ShowProgress = ON;
+GMAT DC3.ShowProgress = On;
+GMAT DC3.ShowProgress = on;
+GMAT DC3.ShowProgress = OFF;
+GMAT DC3.ShowProgress = Off;
+GMAT DC3.ShowProgress = off;
+GMAT DC3.ShowProgress = TRUE;
+GMAT DC3.ShowProgress = True;
 GMAT DC3.ShowProgress = true;
-%GMAT DC3.ShowProgress = FALSE;
-%GMAT DC3.ShowProgress = False;
-%GMAT DC3.ShowProgress = false;
+GMAT DC3.ShowProgress = FALSE;
+GMAT DC3.ShowProgress = False;
+GMAT DC3.ShowProgress = false;
 
 % ------------
 % Report Style
 % ------------
 Create DifferentialCorrector DC4;
-%GMAT DC4.ReportStyle = 1;
-%GMAT DC4.ReportStyle = = 1.0;
+GMAT DC4.ReportStyle = 1;
+GMAT DC4.ReportStyle = = 1.0;
 GMAT testString.Expression = Debug;
 GMAT DC4.ReportStyle = testString;
-%GMAT DC4.ReportStyle = testVar;
-%GMAT DC4.ReportStyle = testArray(1,1);
-%GMAT DC4.ReportStyle = testSc.A1ModJulian;
-%GMAT DC4.ReportStyle = DoesNotExist;
-%GMAT DC4.ReportStyle = {Concise};
-%GMAT DC4.ReportStyle = Verbose;
-%GMAT DC4.ReportStyle = Normal;
-%GMAT DC4.ReportStyle = Debug;
+GMAT DC4.ReportStyle = testVar;
+GMAT DC4.ReportStyle = testArray(1,1);
+GMAT DC4.ReportStyle = testSc.A1ModJulian;
+GMAT DC4.ReportStyle = DoesNotExist;
+GMAT DC4.ReportStyle = {Concise};
+GMAT DC4.ReportStyle = Verbose;
+GMAT DC4.ReportStyle = Normal;
+GMAT DC4.ReportStyle = Debug;
 
 % ------------------
 % Targeter Text File
 % ------------------
 Create DifferentialCorrector DC5;
-%GMAT DC5.TargeterTextFile = 1;
-%GMAT DC5.TargeterTextFile = 1.0;
+GMAT DC5.TargeterTextFile = 1;
+GMAT DC5.TargeterTextFile = 1.0;
 GMAT testString.Expression = Test.data;
 GMAT DC5.TargeterTextFile = testString;
-%GMAT DC5.TargeterTextFile = testVar;
-%GMAT DC5.TargeterTextFile = testArray(1,1);
-%GMAT DC5.TargeterTextFile = testSc.A1ModJulian;
-%GMAT DC5.TargeterTextFile = DoesNotExist;
-%GMAT DC5.TargeterTextFile = DifferentialCorrectorDC5.data;
+GMAT DC5.TargeterTextFile = testVar;
+GMAT DC5.TargeterTextFile = testArray(1,1);
+GMAT DC5.TargeterTextFile = testSc.A1ModJulian;
+GMAT DC5.TargeterTextFile = DoesNotExist;
+GMAT DC5.TargeterTextFile = DifferentialCorrectorDC5.data;
 
 % -----------------------
 % Use Central Differences
 % -----------------------
 Create DifferentialCorrector DC6;
-%GMAT DC6.UseCentralDifferences = 1;
-%GMAT DC6.UseCentralDifferences = 1.0;
-%GMAT testString.Expression = true;
-%GMAT DC6.UseCentralDifferences = testString;
-%GMAT DC6.UseCentralDifferences = testVar;
-%GMAT DC6.UseCentralDifferences = testArray(1,1);
-%GMAT DC6.UseCentralDifferences = testSc.A1ModJulian;
-%GMAT DC6.UseCentralDifferences = DoesNotExist;
-%GMAT DC6.UseCentralDifferences  = 0;
-%GMAT DC6.UseCentralDifferences = ON;
-%GMAT DC6.UseCentralDifferences = On;
-%GMAT DC6.UseCentralDifferences = on;
-%GMAT DC6.UseCentralDifferences = OFF;
-%GMAT DC6.UseCentralDifferences = Off;
-%GMAT DC6.UseCentralDifferences = off;
-%GMAT DC6.UseCentralDifferences = TRUE;
-%GMAT DC6.UseCentralDifferences = True;
-%GMAT DC6.UseCentralDifferences = true;
-%GMAT DC6.UseCentralDifferences = FALSE;
-%GMAT DC6.UseCentralDifferences = False;
-%GMAT DC6.UseCentralDifferences = false;
+GMAT DC6.UseCentralDifferences = 1;
+GMAT DC6.UseCentralDifferences = 1.0;
+GMAT testString.Expression = true;
+GMAT DC6.UseCentralDifferences = testString;
+GMAT DC6.UseCentralDifferences = testVar;
+GMAT DC6.UseCentralDifferences = testArray(1,1);
+GMAT DC6.UseCentralDifferences = testSc.A1ModJulian;
+GMAT DC6.UseCentralDifferences = DoesNotExist;
+GMAT DC6.UseCentralDifferences  = 0;
+GMAT DC6.UseCentralDifferences = ON;
+GMAT DC6.UseCentralDifferences = On;
+GMAT DC6.UseCentralDifferences = on;
+GMAT DC6.UseCentralDifferences = OFF;
+GMAT DC6.UseCentralDifferences = Off;
+GMAT DC6.UseCentralDifferences = off;
+GMAT DC6.UseCentralDifferences = TRUE;
+GMAT DC6.UseCentralDifferences = True;
+GMAT DC6.UseCentralDifferences = true;
+GMAT DC6.UseCentralDifferences = FALSE;
+GMAT DC6.UseCentralDifferences = False;
+GMAT DC6.UseCentralDifferences = false;

@@ -6,16 +6,11 @@
 %%%       SLP was removed, Analytic was changed to TwoBodyPropagation
 %%%********************************************************************
 
-%--- Set Ephemeris to use DE405, SLP, Analytic 
-%%GMAT SolarSystem.Ephemeris = {DE405, SLP, Analytic};
-GMAT SolarSystem.Ephemeris = {DE405, TwoBodyPropagation};
+%--- Set Ephemeris to use TwoBodyPropagation
+GMAT SolarSystem.EphemerisSource = TwoBodyPropagation;
 
-%--- Set Ephemeris to use SLP
-%%GMAT SolarSystem.Ephemeris = {SLP};
-
-%--- Set Ephemeris to use Analytic
-%%GMAT SolarSystem.Ephemeris = {Analytic};
-GMAT SolarSystem.Ephemeris = {TwoBodyPropagation};
+%--- Set Ephemeris to use DE405
+GMAT SolarSystem.EphemerisSource = DE405;
 
 %--- Create Spacecraft
 Create Spacecraft sat1;
