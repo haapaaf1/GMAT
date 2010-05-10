@@ -186,7 +186,6 @@ public:
    virtual Gmat::PosVelSource   GetPosVelSource() const;
    virtual std::string          GetSourceFileName() const;
    virtual PlanetaryEphem*      GetSourceFile() const;
-   virtual const StringArray&   GetSpiceKernelNames() const;
    virtual bool                 GetUsePotentialFile() const;
    virtual bool                 GetOverrideTimeSystem() const;
    virtual Real                 GetEphemUpdateInterval() const;
@@ -249,8 +248,6 @@ public:
    virtual bool           SetRotationDataSource(Gmat::RotationDataSource src);
    virtual bool           SetUserDefined(bool userDefinedBody);
    
-   virtual void           RemoveSpiceKernelName(const std::string &fileName);
-
    // methods inherited from SpacePoint, that must be implemented here (and/or
    // in the derived classes
    virtual const Rvector6 GetMJ2000State(const A1Mjd &atTime);
@@ -379,7 +376,7 @@ protected:
       REF_BODY_NUMBER,
       SOURCE_FILENAME,
       SOURCE_FILE,
-      SPICE_KERNEL_NAME,
+//      SPICE_KERNEL_NAME,
       USE_POTENTIAL_FILE_FLAG,
       POTENTIAL_FILE_NAME,
       ANGULAR_VELOCITY,
@@ -466,7 +463,7 @@ protected:
    /// the source file (DE)
    PlanetaryEphem           *theSourceFile;
    /// the name(s) of the SPK file(s)
-   StringArray              spiceKernelNames;
+//   StringArray              orbitSpiceKernelNames; // now from SpacePoint
    /// name of the leap scond kernel
 //   std::string              lskKernelName;
    #ifdef __USE_SPICE__
@@ -505,7 +502,7 @@ protected:
    /// default value for the ephemeris file
    std::string              default_sourceFilename;
    /// default values for the SPICe kernel names
-   StringArray              default_spiceKernelNames;
+   StringArray              default_orbitSpiceKernelNames;
 //   /// default value for the use potential file flag
 //   bool                     default_usePotentialFile;  
 //   /// default value for potential file name

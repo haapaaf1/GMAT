@@ -1784,14 +1784,14 @@ bool SolarSystem::AddBody(CelestialBody* cb)
       else if (pvSrcForAll == Gmat::SPICE)
       {
          if (theSPKFilename != "")
-            if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
+            if (!cb->SetStringParameter(cb->GetParameterID("OrbitSpiceKernelName"), theSPKFilename)) return false;
 //         if (lskKernelName != "")
 //            if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
       }
    }
    else // set main SPICE file for all added bodies
    {
-      if (!cb->SetStringParameter(cb->GetParameterID("SpiceKernelName"), theSPKFilename)) return false;
+      if (!cb->SetStringParameter(cb->GetParameterID("OrbitSpiceKernelName"), theSPKFilename)) return false;
 //      if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
    }
    if (!cb->SetOverrideTimeSystem(overrideTimeForAll))  return false;
@@ -2077,7 +2077,7 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
       bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
       if (!userDef)
       {
-         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("SpiceKernelName"), theSPKFilename) == false) return false;
+         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("OrbitSpiceKernelName"), theSPKFilename) == false) return false;
       }
       ++cbi;
    }

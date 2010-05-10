@@ -96,7 +96,7 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "RefBodyNumber",
    "SourceFilename",
    "SourceFile",
-   "SpiceKernelName",
+//   "OrbitSpiceKernelName",
 //   "LeapSecondKernelName",
    "UsePotentialFileFlag",
    "PotentialFileName",
@@ -145,7 +145,7 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::INTEGER_TYPE,  //"RefBodyNumber",
    Gmat::STRING_TYPE,   //"SourceFilename",
    Gmat::OBJECT_TYPE,   //"SourceFile",
-   Gmat::STRINGARRAY_TYPE,   //"SpiceKernelName",
+//   Gmat::STRINGARRAY_TYPE,   //"OrbitSpiceKernelName",
 //   Gmat::STRING_TYPE,   //"LeapScondKernelName",
    Gmat::BOOLEAN_TYPE,  //"UsePotentialFileFlag",
    Gmat::STRING_TYPE,   //"PotentialFileName",
@@ -255,7 +255,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    #ifdef __USE_SPICE__
       kernelReader = NULL;
    #endif
-   spiceKernelNames.clear();
+   orbitSpiceKernelNames.clear();
    
    parameterCount = CelestialBodyParamCount;
    InitializeBody(itsBodyType);
@@ -348,7 +348,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    #ifdef __USE_SPICE__
       kernelReader = NULL;
    #endif
-   spiceKernelNames.clear();
+   orbitSpiceKernelNames.clear();
    
    parameterCount = CelestialBodyParamCount;
    
@@ -391,7 +391,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    referenceBodyNumber (cBody.referenceBodyNumber),
    sourceFilename      (cBody.sourceFilename),
    theSourceFile       (cBody.theSourceFile), // ????????????????
-   spiceKernelNames    (cBody.spiceKernelNames),
+//   orbitSpiceKernelNames    (cBody.orbitSpiceKernelNames),
 //   lskKernelName       (cBody.lskKernelName),
    usePotentialFile    (cBody.usePotentialFile),
    potentialFileName   (cBody.potentialFileName),
@@ -404,7 +404,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    default_centralBodyName       (cBody.default_centralBodyName),
 //   default_bodyNumber            (cBody.default_bodyNumber),
    default_sourceFilename        (cBody.default_sourceFilename),
-   default_spiceKernelNames      (cBody.default_spiceKernelNames),
+   default_orbitSpiceKernelNames      (cBody.default_orbitSpiceKernelNames),
 //   default_usePotentialFile      (cBody.default_usePotentialFile),
 //   default_potentialFileName     (cBody.default_potentialFileName),
 //   default_angularVelocity       (cBody.default_angularVelocity),
@@ -518,7 +518,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    referenceBodyNumber = cBody.referenceBodyNumber;
    sourceFilename      = cBody.sourceFilename;
    theSourceFile       = cBody.theSourceFile;   // ??????????????
-   spiceKernelNames    = cBody.spiceKernelNames;
+//   orbitSpiceKernelNames    = cBody.orbitSpiceKernelNames;
 //   lskKernelName       = cBody.lskKernelName;
    #ifdef __USE_SPICE__
       kernelReader        = cBody.kernelReader;
@@ -535,7 +535,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    default_centralBodyName        = cBody.default_centralBodyName;
 //   default_bodyNumber             = cBody.default_bodyNumber;
    default_sourceFilename         = cBody.default_sourceFilename;
-   default_spiceKernelNames       = cBody.default_spiceKernelNames;
+   default_orbitSpiceKernelNames       = cBody.default_orbitSpiceKernelNames;
 //   default_usePotentialFile       = cBody.default_usePotentialFile;
 //   default_potentialFileName      = cBody.default_potentialFileName;
 //   default_angularVelocity        = cBody.default_angularVelocity;
@@ -631,15 +631,15 @@ CelestialBody::~CelestialBody()
    #ifdef DEBUG_CB_SPICE
       MessageInterface::ShowMessage("In CB (%s) destructor, attempting to unload the kernel(s):\n",
             instanceName.c_str());
-      for (unsigned int jj = 0; jj < spiceKernelNames.size(); jj++)
-         MessageInterface::ShowMessage("    %s\n", (spiceKernelNames.at(jj)).c_str());
+      for (unsigned int jj = 0; jj < orbitSpiceKernelNames.size(); jj++)
+         MessageInterface::ShowMessage("    %s\n", (orbitSpiceKernelNames.at(jj)).c_str());
    #endif
    #ifdef __USE_SPICE__
    // unload the kernel(s) from the SpiceKernelReader
-      for (unsigned int kk = 0; kk < spiceKernelNames.size(); kk++)
-         if (spiceKernelNames.at(kk) != "" && (kernelReader != NULL) && 
-            (kernelReader->IsLoaded(spiceKernelNames.at(kk))))
-            kernelReader->UnloadKernel(spiceKernelNames.at(kk));
+      for (unsigned int kk = 0; kk < orbitSpiceKernelNames.size(); kk++)
+         if (orbitSpiceKernelNames.at(kk) != "" && (kernelReader != NULL) &&
+            (kernelReader->IsLoaded(orbitSpiceKernelNames.at(kk))))
+            kernelReader->UnloadKernel(orbitSpiceKernelNames.at(kk));
 //      if ((kernelReader != NULL) && (lskKernelName != "")) kernelReader->UnloadKernel(lskKernelName);
    #endif
 }
@@ -1164,11 +1164,6 @@ std::string CelestialBody::GetSourceFileName() const
    if (theSourceFile)
       return theSourceFile->GetName();
    return "";
-}
-
-const StringArray& CelestialBody::GetSpiceKernelNames() const
-{
-   return spiceKernelNames;
 }
 
 //------------------------------------------------------------------------------
@@ -2182,13 +2177,6 @@ bool CelestialBody::SetUserDefined(bool userDefinedBody)
    return true;
 }
 
-void CelestialBody::RemoveSpiceKernelName(const std::string &fileName)
-{
-   StringArray::iterator i;
-   i = find(spiceKernelNames.begin(), spiceKernelNames.end(), fileName);
-   if (i != spiceKernelNames.end())  spiceKernelNames.erase(i);
-}
-
 
 //------------------------------------------------------------------------------
 // const Rvector6 GetMJ2000State(const A1Mjd &atTime)
@@ -2813,20 +2801,6 @@ std::string CelestialBody::GetStringParameter(const Integer id) const
 std::string CelestialBody::GetStringParameter(const Integer id,
                                               const Integer index) const
 {   
-   if (id == SPICE_KERNEL_NAME)
-   {
-      if (index < 0 || (index >= (Integer) (spiceKernelNames.size())))
-      {
-         std::string errmsg = "CelestialBody::GetStringParameter - Index into spice kernel names for body ";
-         errmsg += instanceName + " is out of range.\n";
-         throw SolarSystemException(errmsg);
-      }
-      return spiceKernelNames.at(index);
-   }
-//   if (id == LSK_KERNEL_NAME)
-//   {
-//      return lskKernelName;
-//   }
    return SpacePoint::GetStringParameter(id, index);
 }
 
@@ -2894,30 +2868,6 @@ bool CelestialBody::SetStringParameter(const Integer id,
       sourceFilename = value;
       return true;
    }
-   if (id == SPICE_KERNEL_NAME)
-   {
-#ifdef DEBUG_CB_SPICE
-      MessageInterface::ShowMessage("----> CB::SetStringP with kernel name %s\n", 
-            value.c_str());
-#endif
-      bool alreadyInList = false;
-      StringArray::iterator i;
-      for (i = spiceKernelNames.begin(); i != spiceKernelNames.end(); ++i)
-      {
-         if ((*i) == value)
-         {
-            alreadyInList = true;
-            break;
-         }
-      }
-      if (!alreadyInList)  spiceKernelNames.push_back(value);
-      return true;
-   }
-//   if (id == LSK_KERNEL_NAME)
-//   {
-//      lskKernelName = value;
-//      return true;
-//   }
    if (id == POTENTIAL_FILE_NAME)
    {
       potentialFileName = value;
@@ -3017,17 +2967,6 @@ bool CelestialBody::SetStringParameter(const Integer id,
 bool CelestialBody::SetStringParameter(const Integer id, const std::string &value,
                                        const Integer index)
 {
-   if (id == SPICE_KERNEL_NAME)
-   {
-      if (index < 0 || index >= (Integer) spiceKernelNames.size())
-      {
-            std::string errmsg = "CelestialBody::GetStringParameter - Index into spice kernel names for body ";
-            errmsg += instanceName + " is out of range.\n";
-            throw SolarSystemException(errmsg);
-      }
-      spiceKernelNames.at(index) = value;
-      return true;
-   }
    return SpacePoint::SetStringParameter(id, value, index);
 }
 
@@ -3302,8 +3241,6 @@ const Rvector& CelestialBody::SetRvectorParameter(const std::string &label,
 //------------------------------------------------------------------------------
 const StringArray& CelestialBody::GetStringArrayParameter(const Integer id) const
 {
-   if (id == SPICE_KERNEL_NAME)
-      return spiceKernelNames;
    return SpacePoint::GetStringArrayParameter(id);
 }
 
@@ -3504,6 +3441,13 @@ bool CelestialBody::IsParameterReadOnly(const Integer id) const
 
    // NAIF ID is not read-only for celestial bodies
    if (id == NAIF_ID)  return false;
+   // NAIF ID for the spacecraft reference frame is currently read-only for spacecraft BUT
+   // that may change when/if we add the reading of PCK kernels for body orientation data
+//   if (id == NAIF_ID_REFERENCE_FRAME)  return false;
+
+   if (id == ATTITUDE_SPICE_KERNEL_NAME)  return true;  // attitude for bodies (PCK) are TBD
+   if (id == SC_CLOCK_SPICE_KERNEL_NAME)  return true;
+   if (id == FRAME_SPICE_KERNEL_NAME)     return true;  // for now
 
    // leap second file is set on the Solar System, not on each celestial body
 //   if (id == LSK_KERNEL_NAME) return true;
@@ -3584,12 +3528,12 @@ bool CelestialBody::IsParameterEqualToDefault(const Integer id) const
       else  // for default, mods are made at the SolarSystem level
          return true;
    }
-   if (id == SPICE_KERNEL_NAME)
+   if (id == ORBIT_SPICE_KERNEL_NAME)
    {
-      if (default_spiceKernelNames.size() != spiceKernelNames.size()) return false;
-      for (unsigned int ii = 0; ii < default_spiceKernelNames.size(); ii++)
+      if (default_orbitSpiceKernelNames.size() != orbitSpiceKernelNames.size()) return false;
+      for (unsigned int ii = 0; ii < default_orbitSpiceKernelNames.size(); ii++)
       {
-         if (default_spiceKernelNames.at(ii) != spiceKernelNames.at(ii)) return false;
+         if (default_orbitSpiceKernelNames.at(ii) != orbitSpiceKernelNames.at(ii)) return false;
       }
       return true;
    }
@@ -3684,7 +3628,7 @@ bool CelestialBody::SaveAllAsDefault()
    default_centralBodyName        = theCentralBodyName;
 //   default_bodyNumber             = bodyNumber;
    default_sourceFilename         = sourceFilename;
-   default_spiceKernelNames       = spiceKernelNames;
+   default_orbitSpiceKernelNames       = orbitSpiceKernelNames;
 //   default_usePotentialFile       = usePotentialFile;
 //   default_potentialFileName      = potentialFileName;
 //   default_angularVelocity        = angularVelocity;
@@ -3740,9 +3684,9 @@ bool CelestialBody::SaveParameterAsDefault(const Integer id)
       default_sourceFilename = sourceFilename;
       return true;
    }
-   if (id == SPICE_KERNEL_NAME)
+   if (id == ORBIT_SPICE_KERNEL_NAME)
    {
-      default_spiceKernelNames = spiceKernelNames;
+      default_orbitSpiceKernelNames = orbitSpiceKernelNames;
       return true;
    }
 //   if (id == USE_POTENTIAL_FILE_FLAG)
@@ -4265,10 +4209,10 @@ bool CelestialBody::SetUpSPICE()
 #ifdef __USE_SPICE__
    #ifdef DEBUG_CB_SPICE
       MessageInterface::ShowMessage(
-            "Entering SetUpSpice for body %s with source = %s and spiceKernelNames:\n", 
+            "Entering SetUpSpice for body %s with source = %s and orbitSpiceKernelNames:\n",
             instanceName.c_str(), Gmat::POS_VEL_SOURCE_STRINGS[posVelSrc].c_str());
-      for (unsigned int ii = 0; ii < spiceKernelNames.size(); ii++)
-         MessageInterface::ShowMessage("     %s\n", (spiceKernelNames.at(ii)).c_str());
+      for (unsigned int ii = 0; ii < orbitSpiceKernelNames.size(); ii++)
+         MessageInterface::ShowMessage("     %s\n", (orbitSpiceKernelNames.at(ii)).c_str());
       if (kernelReader == NULL)
          MessageInterface::ShowMessage("   kernelReader is NULL\n");
    #endif
@@ -4285,27 +4229,27 @@ bool CelestialBody::SetUpSPICE()
          MessageInterface::ShowMessage("   kernelReader is STILL NULL\n");
    #endif
 
-   if (spiceKernelNames.empty())
+   if (orbitSpiceKernelNames.empty())
    {
       std::string errmsg = "ERROR - SPICE selected as source for body \"";
       errmsg += instanceName + "\", but no SPK file(s) specified.\n";
       throw SolarSystemException(errmsg);
    }
-   for (unsigned int ii = 0; ii < spiceKernelNames.size(); ii++)
+   for (unsigned int ii = 0; ii < orbitSpiceKernelNames.size(); ii++)
    {
-      if (!(kernelReader->IsLoaded(spiceKernelNames.at(ii))))
+      if (!(kernelReader->IsLoaded(orbitSpiceKernelNames.at(ii))))
          try
          {
-            kernelReader->LoadKernel(spiceKernelNames.at(ii));
+            kernelReader->LoadKernel(orbitSpiceKernelNames.at(ii));
             #ifdef DEBUG_CB_SPICE
                MessageInterface::ShowMessage("   kernelReader has loaded file %s\n",
-                     (spiceKernelNames.at(ii)).c_str());
+                     (orbitSpiceKernelNames.at(ii)).c_str());
             #endif
          }
          catch (UtilityException& ue)
          {
             // try again with path name if no path found
-            std::string spkName = spiceKernelNames.at(ii);
+            std::string spkName = orbitSpiceKernelNames.at(ii);
             if (spkName.find("/") == spkName.npos &&
                 spkName.find("\\") == spkName.npos)
             {
@@ -4323,7 +4267,7 @@ bool CelestialBody::SetUpSPICE()
                catch (UtilityException& ue)
                {
                   MessageInterface::ShowMessage("ERROR loading kernel %s\n",
-                     (spiceKernelNames.at(ii).c_str()));
+                     (orbitSpiceKernelNames.at(ii).c_str()));
                   throw; // rethrow the exception, for now
                }
             }
