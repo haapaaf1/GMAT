@@ -111,6 +111,9 @@ public:
    
    virtual const Rvector3 GetMJ2000Acceleration(const A1Mjd &atTime);
 
+   virtual void           RemoveSpiceKernelName(const std::string &kernelType,
+                                                const std::string &fileName);
+
    // all classes derived from GmatBase must supply this Clone method;
    // this must be implemented in the 'leaf' classes
    //virtual GmatBase*       Clone(void) const;
@@ -152,6 +155,9 @@ public:
    virtual bool            SetStringParameter(const std::string &label, 
                                               const std::string &value, 
                                               const Integer index);
+   const StringArray&      GetStringArrayParameter(const Integer id) const;
+   virtual const StringArray&
+                        GetStringArrayParameter(const std::string &label) const;
    virtual GmatBase*       GetRefObject(const Gmat::ObjectType type,
                                         const std::string &name, 
                                         const Integer index);
@@ -166,6 +172,11 @@ protected:
    {
       J2000_BODY_NAME = GmatBaseParamCount,
       NAIF_ID,
+      NAIF_ID_REFERENCE_FRAME,
+      ORBIT_SPICE_KERNEL_NAME,
+      ATTITUDE_SPICE_KERNEL_NAME,
+      SC_CLOCK_SPICE_KERNEL_NAME,
+      FRAME_SPICE_KERNEL_NAME,
       SpacePointParamCount
    };
    
@@ -174,6 +185,7 @@ protected:
    static const Gmat::ParameterType PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount];
    
    static const Integer UNDEFINED_NAIF_ID;
+   static const Integer UNDEFINED_NAIF_ID_REF_FRAME;
 
    
    /// Origin for the return coordinate system (aligned with the MJ2000 Earth
@@ -182,12 +194,25 @@ protected:
    /// Name for the J2000 body
    std::string     j2000BodyName;
    /// NAIF Id (for SPICE)
-   Integer                naifId;
+   Integer         naifId;
+   /// NAIF Id for the body/spacecraft reference frame
+   Integer         naifIdRefFrame;
 
    // saved default values
    std::string     default_j2000BodyName;
    /// default value for NAIF ID
-   Integer                  default_naifId;
+   Integer         default_naifId;
+   /// default value for NAIF ID for the body/spacecraft reference frame
+   Integer         default_naifIdRefFrame;
    
+   /// Orbit SPICE kernel name(s)
+   StringArray     orbitSpiceKernelNames;
+   /// Attitude SPICE kernel name(s)
+   StringArray     attitudeSpiceKernelNames;
+   /// SC Clock SPICE kernel name(s)
+   StringArray     scClockSpiceKernelNames;
+   /// Frame SPICE kernel name(s)
+   StringArray     frameSpiceKernelNames;
+
 };
 #endif // SpacePoint_hpp

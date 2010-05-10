@@ -29,6 +29,7 @@
 #include "SpaceObjectException.hpp"
 #include "StringUtil.hpp"
 #include "CSFixed.hpp"               // for default attitude creation
+#include "SpiceAttitude.hpp"         // for SpiceAttitude - to set object name and ID
 
 // Do we want to write anomaly type?
 //#define __WRITE_ANOMALY_TYPE__
@@ -55,6 +56,7 @@
 //#define DEBUG_OWNED_OBJECT_STRINGS
 //#define DEBUG_SC_OWNED_OBJECT
 //#define DEBUG_MASS_FLOW
+//#define DEBUG_SPICE_KERNELS
 
 #ifdef DEBUG_SPACECRAFT
 #include <iostream>
@@ -111,7 +113,10 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // TotalMass
       Gmat::STRING_TYPE,      // Id
       Gmat::OBJECT_TYPE,      // Attitude
-      Gmat::STRINGARRAY_TYPE, // OrbitSpiceKernelName
+//      Gmat::STRINGARRAY_TYPE, // OrbitSpiceKernelName
+//      Gmat::STRINGARRAY_TYPE, // AttitudeSpiceKernelName
+//      Gmat::STRINGARRAY_TYPE, // SCClockSpiceKernelName
+//      Gmat::STRINGARRAY_TYPE, // FrameSpiceKernelName
       Gmat::RMATRIX_TYPE,     // OrbitSTM
       Gmat::STRING_TYPE,      // UTCGregorian
       Gmat::REAL_TYPE,        // CartesianX
@@ -155,7 +160,10 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "TotalMass",
       "Id",
       "Attitude",
-      "OrbitSpiceKernelName",
+//      "OrbitSpiceKernelName",
+//      "AttitudeSpiceKernelName",
+//      "SCClockSpiceKernelName",
+//      "FrameSpiceKernelName",
       "OrbitSTM",
       "UTCGregorian",
       "CartesianX",
@@ -404,7 +412,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    coordSysName         (a.coordSysName),
    coordSysMap          (a.coordSysMap),
    spacecraftId         (a.spacecraftId),
-   orbitSpiceKernelNames(a.orbitSpiceKernelNames),
+//   orbitSpiceKernelNames(a.orbitSpiceKernelNames),
    stateConverter       (a.stateConverter),
    coordConverter       (a.coordConverter),
    totalMass            (a.totalMass),
@@ -548,7 +556,7 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    BuildElementLabelMap();
 
    orbitSTM = a.orbitSTM;
-   orbitSpiceKernelNames = a.orbitSpiceKernelNames;
+//   orbitSpiceKernelNames = a.orbitSpiceKernelNames;
    includeCartesianState = a.includeCartesianState;
 
 
@@ -826,6 +834,9 @@ Anomaly Spacecraft::GetAnomaly() const
 //------------------------------------------------------------------------------
 const Rmatrix33& Spacecraft::GetAttitude(Real a1mjdTime) const
 {
+   #ifdef DEBUG_SC_ATTITUDE
+      MessageInterface::ShowMessage("Entering SC::GetAttitude ...\n");
+   #endif
    if (attitude) return attitude->GetCosineMatrix(a1mjdTime);
    else
    {
@@ -1467,6 +1478,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          instanceName.c_str());
       #endif
       attitude->SetEpoch(state.GetEpoch());
+      if (attitude->IsOfType("SpiceAttitude")) ((SpiceAttitude*) attitude)->SetObjectID(instanceName, naifId, naifIdRefFrame);
       return true;
    }
 
@@ -1624,8 +1636,17 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
       if (str == "STM")
          return ORBIT_STM;
 
-      if (str == "OrbitSpiceKernelName")
-         return ORBIT_SPICE_KERNEL_NAME;
+//      if (str == "OrbitSpiceKernelName")
+//         return ORBIT_SPICE_KERNEL_NAME;
+//
+//      if (str == "AttitudeSpiceKernelName")
+//         return ATTITUDE_SPICE_KERNEL_NAME;
+//
+//      if (str == "SCClockSpiceKernelName")
+//         return SC_CLOCK_SPICE_KERNEL_NAME;
+//
+//      if (str == "FrameSpiceKernelName")
+//         return FRAME_SPICE_KERNEL_NAME;
 
 
       if ((str == "CartesianState") || (str == "CartesianX")) return CARTESIAN_X;
@@ -1721,6 +1742,9 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
 
    // NAIF ID is not read-only for spacecraft
    if (id == NAIF_ID)  return false;
+
+   // NAIF ID for the spacecraft reference frame is not read-only for spacecraft
+   if (id == NAIF_ID_REFERENCE_FRAME)  return false;
 
    // if (id == STATE_TYPE) return true;   when deprecated stuff goes away
 
@@ -2360,8 +2384,8 @@ const StringArray& Spacecraft::GetStringArrayParameter(const Integer id) const
          #endif
          return attitude->GetStringArrayParameter(id - ATTITUDE_ID_OFFSET);
       }
-   if (id == ORBIT_SPICE_KERNEL_NAME)
-      return orbitSpiceKernelNames;
+//   if (id == ORBIT_SPICE_KERNEL_NAME)
+//      return orbitSpiceKernelNames;
    return SpaceObject::GetStringArrayParameter(id);
 }
 
@@ -2541,15 +2565,15 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
          thrusterNames.push_back(value);
       }
    }
-   else if (id == ORBIT_SPICE_KERNEL_NAME)
-   {
-      // Only add the thruster if it is not in the list already
-      if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
-            value) == orbitSpiceKernelNames.end())
-      {
-         orbitSpiceKernelNames.push_back(value);
-      }
-   }
+//   else if (id == ORBIT_SPICE_KERNEL_NAME)
+//   {
+//      // Only add the thruster if it is not in the list already
+//      if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
+//            value) == orbitSpiceKernelNames.end())
+//      {
+//         orbitSpiceKernelNames.push_back(value);
+//      }
+//   }
 
    #ifdef DEBUG_SC_SET_STRING
    MessageInterface::ShowMessage
@@ -2600,12 +2624,29 @@ bool Spacecraft::SetStringParameter(const std::string &label,
 bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
                                     const Integer index)
 {
+   #ifdef DEBUG_SC_SET_STRING
+      MessageInterface::ShowMessage("In SC::SetStringParameter, id = %d, value = %s, index = %d\n",
+            id, value.c_str(), index);
+   #endif
    if (index < 0)
    {
       SpaceObjectException ex;
       ex.SetDetails("The index %d is out-of-range for field \"%s\"", index,
                     GetParameterText(id).c_str());
       throw ex;
+   }
+   // check for owned object IDs first
+   if (id >= ATTITUDE_ID_OFFSET)
+   {
+      if (attitude)
+      {
+         #ifdef DEBUG_SC_ATTITUDE
+         MessageInterface::ShowMessage(
+            "------ Now calling attitude to SET string parameter for id =  %d"
+            ", index = %d,  and value = %s\n", id, index, value.c_str());
+         #endif
+         return attitude->SetStringParameter(id - ATTITUDE_ID_OFFSET, value, index);
+      }
    }
 
    switch (id)
@@ -2645,14 +2686,14 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
          return true;
       }
 
-   case ORBIT_SPICE_KERNEL_NAME:
-      if (index < (Integer)orbitSpiceKernelNames.size())
-         orbitSpiceKernelNames[index] = value;
-      // Only add the orbit spice kernel name if it is not in the list already
-      else if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
-            value) == orbitSpiceKernelNames.end())
-         orbitSpiceKernelNames.push_back(value);
-      return true;
+//   case ORBIT_SPICE_KERNEL_NAME:
+//      if (index < (Integer)orbitSpiceKernelNames.size())
+//         orbitSpiceKernelNames[index] = value;
+//      // Only add the orbit spice kernel name if it is not in the list already
+//      else if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
+//            value) == orbitSpiceKernelNames.end())
+//         orbitSpiceKernelNames.push_back(value);
+//      return true;
 
    default:
       return SpaceObject::SetStringParameter(id, value, index);
@@ -3070,6 +3111,25 @@ bool Spacecraft::Initialize()
          "Initializing attitude object for spacecraft %s\n",
          instanceName.c_str());
       #endif
+      if (attitude->IsOfType("SpiceAttitude"))
+      {
+         #ifdef DEBUG_SPICE_KERNELS
+         MessageInterface::ShowMessage("About to set %d CK kernels on spiceAttitude\n",
+               attitudeSpiceKernelNames.size());
+         MessageInterface::ShowMessage("About to set %d SCLK kernels on spiceAttitude\n",
+               scClockSpiceKernelNames.size());
+         MessageInterface::ShowMessage("About to set %d FK kernels on spiceAttitude\n",
+               frameSpiceKernelNames.size());
+         #endif
+         SpiceAttitude *spiceAttitude = (SpiceAttitude*) attitude;
+         spiceAttitude->SetObjectID(instanceName, naifId, naifIdRefFrame);
+         for (Integer ii = 0; ii < (Integer) attitudeSpiceKernelNames.size(); ii++)
+            spiceAttitude->SetStringParameter("AttitudeKernelName", attitudeSpiceKernelNames[ii], ii);
+         for (Integer ii = 0; ii < (Integer) scClockSpiceKernelNames.size(); ii++)
+            spiceAttitude->SetStringParameter("SCClockKernelName", scClockSpiceKernelNames[ii], ii);
+         for (Integer ii = 0; ii < (Integer) frameSpiceKernelNames.size(); ii++)
+            spiceAttitude->SetStringParameter("FrameKernelName", frameSpiceKernelNames[ii], ii);
+      }
       attitude->Initialize();
       #ifdef DEBUG_SC_ATTITUDE
          MessageInterface::ShowMessage(

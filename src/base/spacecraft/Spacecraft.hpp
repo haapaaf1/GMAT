@@ -214,7 +214,10 @@ protected:
       TOTAL_MASS_ID,
       SPACECRAFT_ID,
       ATTITUDE,
-      ORBIT_SPICE_KERNEL_NAME,
+//      ORBIT_SPICE_KERNEL_NAME,
+//      ATTITUDE_SPICE_KERNEL_NAME,
+//      SC_CLOCK_SPICE_KERNEL_NAME,
+//      FRAME_SPICE_KERNEL_NAME,
       ORBIT_STM,
 //      ORBIT_COVARIANCE,
       
@@ -336,11 +339,11 @@ protected:
    /// Pointer to the object that manages the attitude of the spacecraft
    Attitude          *attitude;
    
-   /// Orbit SPICE kernel name(s)
-   StringArray       orbitSpiceKernelNames;
+//   /// Orbit SPICE kernel name(s)
+//   StringArray       orbitSpiceKernelNames;
 
    // for non-internal spacecraft information
-   StateConverter    stateConverter;
+   StateConverter      stateConverter;
    CoordinateConverter coordConverter;
    
    // Lists of hardware elements added 11/12/04, djc

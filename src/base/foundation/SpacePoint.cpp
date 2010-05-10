@@ -34,6 +34,7 @@
 
 //#define DEBUG_J2000_STATE
 //#define DEBUG_SPACE_POINT_CLOAKING
+//#define DEBUG_SPICE_KERNEL
 
 //---------------------------------
 // static data
@@ -44,16 +45,27 @@ SpacePoint::PARAMETER_TEXT[SpacePointParamCount - GmatBaseParamCount] =
 {
    "J2000BodyName",
    "NAIFId",
+   "NAIFIdReferenceFrame",
+   "OrbitSpiceKernelName",
+   "AttitudeSpiceKernelName",
+   "SCClockSpiceKernelName",
+   "FrameSpiceKernelName",
 };
 
 const Gmat::ParameterType
 SpacePoint::PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount] =
 {
-   Gmat::STRING_TYPE,   // "J2000BodyName"
-   Gmat::INTEGER_TYPE,  // "NAIFId"
+   Gmat::STRING_TYPE,       // "J2000BodyName"
+   Gmat::INTEGER_TYPE,      // "NAIFId"
+   Gmat::INTEGER_TYPE,      // "NAIFIdReferenceFrame"
+   Gmat::STRINGARRAY_TYPE,  // "OrbitSpiceKernelName"
+   Gmat::STRINGARRAY_TYPE,  // "AttitudeSpiceKernelName"
+   Gmat::STRINGARRAY_TYPE,  // "SCClockSpiceKernelName"
+   Gmat::STRINGARRAY_TYPE,  // "FrameSpiceKernelName"
 };
 
-const Integer SpacePoint::UNDEFINED_NAIF_ID = -123456789;
+const Integer SpacePoint::UNDEFINED_NAIF_ID           = -123456789;
+const Integer SpacePoint::UNDEFINED_NAIF_ID_REF_FRAME = -123456789;
 
 
 //------------------------------------------------------------------------------
@@ -81,7 +93,8 @@ SpacePoint::SpacePoint(Gmat::ObjectType ofType, const std::string &itsType,
 GmatBase(ofType,itsType,itsName),
 j2000Body      (NULL),
 j2000BodyName  ("Earth"),
-naifId         (UNDEFINED_NAIF_ID)
+naifId         (UNDEFINED_NAIF_ID),
+naifIdRefFrame (UNDEFINED_NAIF_ID)
 {
    objectTypes.push_back(Gmat::SPACE_POINT);
    objectTypeNames.push_back("SpacePoint");
@@ -100,11 +113,16 @@ naifId         (UNDEFINED_NAIF_ID)
 //---------------------------------------------------------------------------
 SpacePoint::SpacePoint(const SpacePoint &sp) :
 GmatBase(sp),
-j2000Body             (NULL),
-j2000BodyName         (sp.j2000BodyName),
-naifId                (sp.naifId),
-default_j2000BodyName (sp.default_j2000BodyName),
-default_naifId        (sp.default_naifId)
+j2000Body                (NULL),
+j2000BodyName            (sp.j2000BodyName),
+naifId                   (sp.naifId),
+naifIdRefFrame           (sp.naifIdRefFrame),
+default_j2000BodyName    (sp.default_j2000BodyName),
+default_naifId           (sp.default_naifId),
+orbitSpiceKernelNames    (sp.orbitSpiceKernelNames),
+attitudeSpiceKernelNames (sp.attitudeSpiceKernelNames),
+scClockSpiceKernelNames  (sp.scClockSpiceKernelNames),
+frameSpiceKernelNames    (sp.frameSpiceKernelNames)
 {
 }
 
@@ -123,11 +141,16 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
 {
    if (&sp == this)
       return *this;
-   j2000Body             = sp.j2000Body;
-   j2000BodyName         = sp.j2000BodyName;
-   naifId                = sp.naifId;
-   default_j2000BodyName = sp.default_j2000BodyName;
-   default_naifId        = sp.default_naifId;
+   j2000Body                = sp.j2000Body;
+   j2000BodyName            = sp.j2000BodyName;
+   naifId                   = sp.naifId;
+   naifIdRefFrame           = sp.naifIdRefFrame;
+   orbitSpiceKernelNames    = sp.orbitSpiceKernelNames;
+   attitudeSpiceKernelNames = sp.attitudeSpiceKernelNames;
+   scClockSpiceKernelNames  = sp.scClockSpiceKernelNames;
+   frameSpiceKernelNames    = sp.frameSpiceKernelNames;
+   default_j2000BodyName    = sp.default_j2000BodyName;
+   default_naifId           = sp.default_naifId;
 
    return *this;
 }
@@ -227,14 +250,19 @@ bool SpacePoint::IsParameterEqualToDefault(const Integer id) const
    {
       return (default_naifId == naifId);
    }
+   if (id == NAIF_ID_REFERENCE_FRAME)
+   {
+      return (default_naifIdRefFrame == naifIdRefFrame);
+   }
    return GmatBase::IsParameterEqualToDefault(id);    
 }
 
 bool SpacePoint::SaveAllAsDefault()
 {
    GmatBase::SaveAllAsDefault();
-   default_j2000BodyName = j2000BodyName;
-   default_naifId        = naifId;
+   default_j2000BodyName  = j2000BodyName;
+   default_naifId         = naifId;
+   default_naifIdRefFrame = naifIdRefFrame;
    return true;
 }
 
@@ -250,6 +278,11 @@ bool SpacePoint::SaveParameterAsDefault(const Integer id)
       default_naifId = naifId;
       return true;
    }
+   if (id == NAIF_ID_REFERENCE_FRAME)
+   {
+      default_naifIdRefFrame = naifIdRefFrame;
+      return true;
+   }
    return GmatBase::SaveParameterAsDefault(id);
 }
 
@@ -258,6 +291,37 @@ const Rvector3 SpacePoint::GetMJ2000Acceleration(const A1Mjd &atTime)
 {
    return Rvector3(0.0,0.0,0.0);
 }
+
+void SpacePoint::RemoveSpiceKernelName(const std::string &kernelType,
+                                       const std::string &fileName)
+{
+   if (kernelType == "Orbit")
+   {
+      StringArray::iterator i;
+      i = find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(), fileName);
+      if (i != orbitSpiceKernelNames.end())  orbitSpiceKernelNames.erase(i);
+   }
+   else if (kernelType == "Attitude")
+   {
+      StringArray::iterator i;
+      i = find(attitudeSpiceKernelNames.begin(), attitudeSpiceKernelNames.end(), fileName);
+      if (i != attitudeSpiceKernelNames.end())  attitudeSpiceKernelNames.erase(i);
+   }
+   else if (kernelType == "SCClock")
+   {
+      StringArray::iterator i;
+      i = find(scClockSpiceKernelNames.begin(), scClockSpiceKernelNames.end(), fileName);
+      if (i != scClockSpiceKernelNames.end())  scClockSpiceKernelNames.erase(i);
+   }
+   else if (kernelType == "Frame")
+   {
+      StringArray::iterator i;
+      i = find(frameSpiceKernelNames.begin(), frameSpiceKernelNames.end(), fileName);
+      if (i != frameSpiceKernelNames.end())  frameSpiceKernelNames.erase(i);
+   }
+}
+
+
 
 //------------------------------------------------------------------------------
 // public methods inherited from GmatBase
@@ -360,6 +424,8 @@ bool SpacePoint::IsParameterReadOnly(const Integer id) const
       return true;
    if (id == NAIF_ID) // set to false in appropriate derived classes
       return true;
+   if (id == NAIF_ID_REFERENCE_FRAME) // set to false in appropriate derived classes
+      return true;
 
    return GmatBase::IsParameterReadOnly(id);
 }
@@ -396,7 +462,8 @@ bool SpacePoint::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 Integer SpacePoint::GetIntegerParameter(const Integer id) const
 {
-   if (id == NAIF_ID)              return naifId;
+   if (id == NAIF_ID)                 return naifId;
+   if (id == NAIF_ID_REFERENCE_FRAME) return naifIdRefFrame;
 
    return GmatBase::GetIntegerParameter(id);
 }
@@ -430,11 +497,20 @@ Integer SpacePoint::GetIntegerParameter(const std::string &label) const
  */
 //------------------------------------------------------------------------------
 Integer SpacePoint::SetIntegerParameter(const Integer id,
-                                           const Integer value)
+                                        const Integer value)
 {
+   #ifdef DEBUG_SPICE_KERNEL
+      MessageInterface::ShowMessage("SpacePoint: setting %s to %d\n",
+            GetParameterText(id).c_str(), value);
+   #endif
    if (id == NAIF_ID)
    {
       naifId              = value;
+      return true;
+   }
+   if (id == NAIF_ID_REFERENCE_FRAME)
+   {
+      naifIdRefFrame      = value;
       return true;
    }
 
@@ -491,6 +567,65 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       return true;
    }
    
+   bool alreadyInList = false;
+   if (id == ORBIT_SPICE_KERNEL_NAME)
+   {
+      StringArray::iterator i;
+      for (i = orbitSpiceKernelNames.begin(); i != orbitSpiceKernelNames.end(); ++i)
+      {
+         if ((*i) == value)
+         {
+            alreadyInList = true;
+            break;
+         }
+      }
+      if (!alreadyInList)  orbitSpiceKernelNames.push_back(value);
+      return true;
+   }
+   if (id == ATTITUDE_SPICE_KERNEL_NAME)
+   {
+      StringArray::iterator i;
+      for (i = attitudeSpiceKernelNames.begin(); i != attitudeSpiceKernelNames.end(); ++i)
+      {
+         if ((*i) == value)
+         {
+            alreadyInList = true;
+            break;
+         }
+      }
+      if (!alreadyInList)  attitudeSpiceKernelNames.push_back(value);
+      return true;
+   }
+   if (id == SC_CLOCK_SPICE_KERNEL_NAME)
+   {
+      StringArray::iterator i;
+      for (i = scClockSpiceKernelNames.begin(); i != scClockSpiceKernelNames.end(); ++i)
+      {
+         if ((*i) == value)
+         {
+            alreadyInList = true;
+            break;
+         }
+      }
+      if (!alreadyInList)  scClockSpiceKernelNames.push_back(value);
+      return true;
+   }
+   if (id == FRAME_SPICE_KERNEL_NAME)
+   {
+      StringArray::iterator i;
+      for (i = frameSpiceKernelNames.begin(); i != frameSpiceKernelNames.end(); ++i)
+      {
+         if ((*i) == value)
+         {
+            alreadyInList = true;
+            break;
+         }
+      }
+      if (!alreadyInList)  frameSpiceKernelNames.push_back(value);
+      return true;
+   }
+
+
    return GmatBase::SetStringParameter(id, value);
 }
 
@@ -522,10 +657,40 @@ std::string SpacePoint::GetStringParameter(const std::string &label) const
  */
 //------------------------------------------------------------------------------
 
- bool SpacePoint::SetStringParameter(const std::string &label,
+bool SpacePoint::SetStringParameter(const std::string &label,
                                        const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
+}
+
+//---------------------------------------------------------------------------
+//  const StringArray& GetStringArrayParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Accesses lists of names and other StringArray parameters.
+ *
+ * @param id The integer ID for the parameter.
+ *
+ * @return The requested StringArray; throws if the parameter is not a
+ *         StringArray.
+ */
+//---------------------------------------------------------------------------
+const StringArray& SpacePoint::GetStringArrayParameter(const Integer id) const
+{
+   if (id == ORBIT_SPICE_KERNEL_NAME)
+      return orbitSpiceKernelNames;
+   if (id == ATTITUDE_SPICE_KERNEL_NAME)
+      return attitudeSpiceKernelNames;
+   if (id == SC_CLOCK_SPICE_KERNEL_NAME)
+      return scClockSpiceKernelNames;
+   if (id == FRAME_SPICE_KERNEL_NAME)
+      return frameSpiceKernelNames;
+   return GmatBase::GetStringArrayParameter(id);
+}
+
+const StringArray& SpacePoint::GetStringArrayParameter(const std::string &label) const
+{
+   return GetStringArrayParameter(GetParameterID(label));
 }
 
 
@@ -596,6 +761,8 @@ bool SpacePoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 // DJC Added, 12/16/04
 // This seems like it should NOT be needed, but GCC seems to be confused about 
 // the overloaded versions of the following six methods:
+// WCS modified 2010.05.04 - added string arrays for kernel names, so some of these
+// need to be implemented
 
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id, const Integer index) const
@@ -610,11 +777,46 @@ bool SpacePoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
  * @return The requested string.
  */
 //------------------------------------------------------------------------------
-std::string SpacePoint::GetStringParameter(const Integer id, 
+std::string SpacePoint::GetStringParameter(const Integer id,
                                            const Integer index) const
 {
+   switch (id)
+   {
+   case ORBIT_SPICE_KERNEL_NAME:
+      {
+         if ((index >= 0) && (index < (Integer) orbitSpiceKernelNames.size()))
+            return orbitSpiceKernelNames[index];
+         else
+            throw GmatBaseException("Index into array of SPK kernels is out-of-bounds.\n");
+      }
+   case ATTITUDE_SPICE_KERNEL_NAME:
+      {
+         if ((index >= 0) && (index < (Integer) attitudeSpiceKernelNames.size()))
+            return attitudeSpiceKernelNames[index];
+         else
+            throw GmatBaseException("Index into array of CK kernels is out-of-bounds.\n");
+     }
+   case SC_CLOCK_SPICE_KERNEL_NAME:
+      {
+         if ((index >= 0) && (index < (Integer) scClockSpiceKernelNames.size()))
+            return scClockSpiceKernelNames[index];
+         else
+            throw GmatBaseException("Index into array of SCLK kernels is out-of-bounds.\n");
+      }
+   case FRAME_SPICE_KERNEL_NAME:
+      {
+         if ((index >= 0) && (index < (Integer) frameSpiceKernelNames.size()))
+            return frameSpiceKernelNames[index];
+         else
+            throw GmatBaseException("Index into array of FK kernels is out-of-bounds.\n");
+     }
+
+      default:
+         break;
+   }
    return GmatBase::GetStringParameter(id, index);
 }
+
 
 
 //------------------------------------------------------------------------------
@@ -636,6 +838,65 @@ bool SpacePoint::SetStringParameter(const Integer id,
                                     const std::string &value, 
                                     const Integer index)
 {
+#ifdef DEBUG_SPICE_KERNEL
+   MessageInterface::ShowMessage(
+         "Entering SpacePoint::SetStringParameter with id = %d, value = %s, and index = %d\n",
+         id, value.c_str(), index);
+#endif
+   if (index < 0)
+   {
+      GmatBaseException ex;
+      ex.SetDetails("The index %d is out-of-range for field \"%s\"", index,
+                    GetParameterText(id).c_str());
+      throw ex;
+   }
+    switch (id)
+   {
+      case ORBIT_SPICE_KERNEL_NAME:
+      {
+         if (index < (Integer)orbitSpiceKernelNames.size())
+            orbitSpiceKernelNames[index] = value;
+         // Only add the orbit spice kernel name if it is not in the list already
+         else if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
+               value) == orbitSpiceKernelNames.end())
+            orbitSpiceKernelNames.push_back(value);
+         return true;
+      }
+   case ATTITUDE_SPICE_KERNEL_NAME:
+      {
+         if (index < (Integer)attitudeSpiceKernelNames.size())
+            attitudeSpiceKernelNames[index] = value;
+         // Only add the orbit spice kernel name if it is not in the list already
+         else if (find(attitudeSpiceKernelNames.begin(), attitudeSpiceKernelNames.end(),
+               value) == attitudeSpiceKernelNames.end())
+            attitudeSpiceKernelNames.push_back(value);
+         return true;
+     }
+   case SC_CLOCK_SPICE_KERNEL_NAME:
+      {
+         if (index < (Integer)scClockSpiceKernelNames.size())
+            scClockSpiceKernelNames[index] = value;
+         // Only add the orbit spice kernel name if it is not in the list already
+         else if (find(scClockSpiceKernelNames.begin(), scClockSpiceKernelNames.end(),
+               value) == scClockSpiceKernelNames.end())
+            scClockSpiceKernelNames.push_back(value);
+         return true;
+      }
+   case FRAME_SPICE_KERNEL_NAME:
+      {
+         if (index < (Integer)frameSpiceKernelNames.size())
+            frameSpiceKernelNames[index] = value;
+         // Only add the orbit spice kernel name if it is not in the list already
+         else if (find(frameSpiceKernelNames.begin(), frameSpiceKernelNames.end(),
+               value) == frameSpiceKernelNames.end())
+            frameSpiceKernelNames.push_back(value);
+         return true;
+     }
+
+      default:
+         break;
+   }
+
    return GmatBase::SetStringParameter(id, value, index);
 }
 
@@ -658,7 +919,8 @@ bool SpacePoint::SetStringParameter(const Integer id,
 std::string SpacePoint::GetStringParameter(const std::string &label, 
                                            const Integer index) const
 {
-   return GmatBase::GetStringParameter(label, index);
+   Integer id = GetParameterID(label);
+   return GetStringParameter(id, index);
 }
 
 
@@ -682,7 +944,8 @@ bool SpacePoint::SetStringParameter(const std::string &label,
                                     const std::string &value, 
                                     const Integer index)
 {
-   return GmatBase::SetStringParameter(label, value, index);
+   Integer id = GetParameterID(label);
+   return SetStringParameter(id, value, index);
 }
 
 
