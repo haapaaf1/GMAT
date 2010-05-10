@@ -118,7 +118,7 @@ public:
    // get the attitude as a set of Euler angles, using the input Euler sequence
    virtual const Rvector3&    GetEulerAngles(Real atTime,  Integer seq1, 
                                      Integer seq2, Integer seq3);
-   // gt the attitude as a Direction Cosine Matrix
+   // get the attitude as a Direction Cosine Matrix
    virtual const Rmatrix33&   GetCosineMatrix(Real atTime);
    
    virtual const Rvector3&    GetAngularVelocity(Real atTime);
@@ -186,6 +186,11 @@ public:
                                           const std::string &value);
    virtual bool        SetStringParameter(const std::string &label, 
                                           const std::string &value);
+   virtual std::string GetStringParameter(const Integer id,
+                                          const Integer index) const;
+   virtual bool        SetStringParameter(const Integer id,
+                                          const std::string &value,
+                                          const Integer index);
    virtual const StringArray& 
                        GetStringArrayParameter(const Integer id) const; 
    virtual const StringArray& 

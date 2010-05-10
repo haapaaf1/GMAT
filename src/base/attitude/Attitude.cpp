@@ -31,6 +31,7 @@
 //#define DEBUG_REF_SETTING
 //#define DEBUG_ATTITUDE_GEN_STRING
 //#define DEBUG_ATTITUDE_GET_REAL
+//#define DEBUG_ATTITUDE_GET
 //#define DEBUG_ATTITUDE_SET_REAL
 //#define DEBUG_ATTITUDE_READ_ONLY
 //#define DEBUG_EULER_ANGLE_RATES
@@ -1369,7 +1370,7 @@ const StringArray& Attitude::GetEulerSequenceList() const
 //---------------------------------------------------------------------------
 const Rvector&   Attitude::GetQuaternion(Real atTime)
 {
-   if (GmatMathUtil::Abs(atTime - attitudeTime) > 
+   if (GmatMathUtil::Abs(atTime - attitudeTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
       ComputeCosineMatrixAndAngularVelocity(atTime);
@@ -1398,7 +1399,7 @@ const Rvector&   Attitude::GetQuaternion(Real atTime)
 //---------------------------------------------------------------------------
 const Rvector3&  Attitude::GetEulerAngles(Real atTime)
 {
-   if (GmatMathUtil::Abs(atTime - attitudeTime) > 
+   if (GmatMathUtil::Abs(atTime - attitudeTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
       ComputeCosineMatrixAndAngularVelocity(atTime);
@@ -1426,6 +1427,9 @@ const Rvector3&  Attitude::GetEulerAngles(Real atTime)
  * method uses the Euler sequence passed in here.
  *
  * @param atTime  time at which to compute the attitude.
+ * @param seq1    euler Sequence 1
+ * @param seq2    euler sequence 2
+ * @param seq3    euler sequence 3
  *
  * @return the euler angle representation of the attitude, computed at
  *         time atTime (radians).  
@@ -1436,7 +1440,7 @@ const Rvector3&  Attitude::GetEulerAngles(Real atTime)
 const Rvector3&  Attitude::GetEulerAngles(Real atTime,  Integer seq1, 
                                           Integer seq2, Integer seq3)
 {
-   if (GmatMathUtil::Abs(atTime - attitudeTime) > 
+   if (GmatMathUtil::Abs(atTime - attitudeTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
       ComputeCosineMatrixAndAngularVelocity(atTime);
@@ -1464,7 +1468,12 @@ const Rvector3&  Attitude::GetEulerAngles(Real atTime,  Integer seq1,
 //---------------------------------------------------------------------------
 const Rmatrix33& Attitude::GetCosineMatrix(Real atTime)
 {
-   if (GmatMathUtil::Abs(atTime - attitudeTime) > 
+   #ifdef DEBUG_ATTITUDE_GET
+      MessageInterface::ShowMessage("Entering Attitude::GetCosineMatrix ...\n");
+      MessageInterface::ShowMessage(" ... atTime = %12.10f     attitudeTime = %12.10f\n",
+            atTime, attitudeTime);
+   #endif
+   if (GmatMathUtil::Abs(atTime - attitudeTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
       ComputeCosineMatrixAndAngularVelocity(atTime);
@@ -1488,7 +1497,7 @@ const Rmatrix33& Attitude::GetCosineMatrix(Real atTime)
 //---------------------------------------------------------------------------
 const Rvector3& Attitude::GetAngularVelocity(Real atTime)
 {
-   if (GmatMathUtil::Abs(atTime - attitudeTime) > 
+   if (GmatMathUtil::Abs(atTime - attitudeTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
       ComputeCosineMatrixAndAngularVelocity(atTime);
@@ -1518,13 +1527,13 @@ const Rvector3& Attitude::GetEulerAngleRates(Real atTime)
    "   with atTime = %.12f, attitudeTime = %.12f, and eulerAngleRatesTime = %.12f\n",
    atTime, attitudeTime, eulerAngleRatesTime);
    #endif
-   if (GmatMathUtil::Abs(atTime - attitudeTime) > 
+   if (GmatMathUtil::Abs(atTime - attitudeTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
       ComputeCosineMatrixAndAngularVelocity(atTime);
       attitudeTime = atTime;
    }
-   if (GmatMathUtil::Abs(atTime - eulerAngleRatesTime) > 
+   if (GmatMathUtil::Abs(atTime - eulerAngleRatesTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
       eulerAngles       = GetEulerAngles(atTime);
@@ -2793,6 +2802,45 @@ bool Attitude::SetStringParameter(const std::string &label,
                                   const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
+}
+
+//------------------------------------------------------------------------------
+// std::string GetStringParameter(const Integer id, const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * This method returns the specified string array value at the given index.
+ *
+ * @param id    ID for the requested parameter.
+ * @param index index into the array
+ *
+ * @return The requested string.
+ */
+//------------------------------------------------------------------------------
+std::string  Attitude::GetStringParameter(const Integer id,
+                                        const Integer index) const
+{
+   return GmatBase::GetStringParameter(id, index);
+}
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id,const std::string &value,
+//                         const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * This method sets the specified string array value at the given index.
+ *
+ * @param id    ID for the requested parameter.
+ * @param value string value for the parameter
+ * @param index index into the array
+ *
+ * @return flag indicating success or failure
+ */
+//------------------------------------------------------------------------------
+bool Attitude::SetStringParameter(const Integer id,
+                                        const std::string &value,
+                                        const Integer index)
+{
+   return GmatBase::SetStringParameter(id, value, index);
 }
 
 //------------------------------------------------------------------------------
