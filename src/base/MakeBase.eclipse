@@ -64,6 +64,7 @@ endif
 
 ifeq ($(USE_SPICE),1)
 SPICE_OBJECTS = \
+	 attitude/SpiceAttitude.o \
     propagator/SPKPropagator.o \
     util/SpiceAttitudeKernelReader.o \
 	 util/SpiceInterface.o \
