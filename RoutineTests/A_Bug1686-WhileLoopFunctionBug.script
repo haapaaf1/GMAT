@@ -1,0 +1,61 @@
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create Variable I J mainLoop result;
+Create String debugMsg;
+GMAT I = 1;
+Create Array Mat[3,3];
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile RF;
+GMAT RF.SolverIterations = Current;
+GMAT RF.Filename = 'Bug1686-Output.txt';
+GMAT RF.Precision = 16;
+GMAT RF.WriteHeaders = Off;
+GMAT RF.LeftJustify = On;
+GMAT RF.ZeroFill = Off;
+GMAT RF.ColumnWidth = 20;
+
+%----------------------------------------
+%---------- Functions
+%----------------------------------------
+
+Create GmatFunction Bug1686_FunctionWithWhileLoop;
+Create GmatFunction Bug1686_ReturnInputValue;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+Global RF;
+
+%%I = 0;
+%%While I < 3
+%%    I = I + 1;
+%%    J = I
+%%EndWhile
+
+mainLoop = 1;
+
+GMAT debugMsg = '==================== In main, before While mainLoop = ';
+Report RF debugMsg mainLoop;
+
+While mainLoop <= 5
+   GMAT debugMsg = '========== In main, mainLoop = ';
+   Report RF debugMsg mainLoop;
+   GMAT [I] = Bug1686_FunctionWithWhileLoop(I, Mat);
+   GMAT debugMsg = '========== After calling FunctionWithWhileLoop I = ';
+   Report RF debugMsg I;
+   GMAT [result] = Factorial_CF(mainLoop);
+   GMAT debugMsg = '========== After calling Factorial_CF result = ';
+   Report RF debugMsg result;
+   mainLoop = mainLoop + 1;
+EndWhile
+
+GMAT debugMsg = '==================== In main, after  While mainLoop = ';
+Report RF debugMsg mainLoop;
+
