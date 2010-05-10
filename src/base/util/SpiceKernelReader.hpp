@@ -74,10 +74,10 @@ public:
     *       ignore kernels in the list that are not of type 'spk'.
     */
    //------------------------------------------------------------------------------
-   virtual void GetCoverageStartAndEnd(StringArray       &kernels,
-                                       Integer           forNaifId,
-                                       Real              &start,
-                                       Real              &end) = 0;
+//   virtual void GetCoverageStartAndEnd(StringArray       &kernels,
+//                                       Integer           forNaifId,
+//                                       Real              &start,
+//                                       Real              &end) = 0;
 
 protected:
 
