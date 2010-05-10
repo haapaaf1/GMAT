@@ -190,7 +190,7 @@ void CelestialBodyOrbitPanel::SaveData()
       {
          for (unsigned int ii = 0; ii < spkFilesToDelete.size(); ii++)
          {
-            theBody->RemoveSpiceKernelName(spkFilesToDelete.at(ii));
+            theBody->RemoveSpiceKernelName("Orbit", spkFilesToDelete.at(ii));
          }
       }
       if (cBodyChanged)
@@ -739,6 +739,7 @@ void CelestialBodyOrbitPanel::OnEphemSourceComboBoxChange(wxCommandEvent &event)
       ephemFileStaticText->Hide();
       ephemFileTextCtrl->Hide();
       ephemFileBrowseButton->Hide();
+      orbitDataFlexGridSizer->Layout();
       mainBoxSizer->Layout();
       
    }
