@@ -352,6 +352,10 @@ bool Create::Initialize()
    Integer numNames = (Integer) useNames.size();
    for (Integer jj = 0; jj < numNames; jj++)
    {
+      // Skip CelestialBodies since those are added to SolarSystem
+      if (refObj->IsOfType(Gmat::CELESTIAL_BODY))
+         continue;
+      
       GmatBase *newObj = refObj->Clone();
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
