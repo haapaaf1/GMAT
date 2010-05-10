@@ -409,6 +409,8 @@ void FileManager::ReadStartupFile(const std::string &fileName)
          {
             if (name == "TESTING")
                GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
+            else if (name == "TESTING_NO_PLOTS")
+               GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING_NO_PLOTS);
             else if (name == "EXIT_AFTER_RUN")
                GmatGlobal::Instance()->SetRunMode(GmatGlobal::EXIT_AFTER_RUN);
          }
@@ -429,6 +431,18 @@ void FileManager::ReadStartupFile(const std::string &fileName)
             ("FileManager::ReadStartupFile() the VERSION not found.\n"
              "It no longer can read old startup file.\n");
    } // end While()
+   
+   // Set EPHEM_PATH to OUTPUT_PATH from the startup file if not set
+   // so that ./output directory is not required when writing the ephemeris file.
+   if (mPathMap["EPHEM_PATH"] == "./output/" &&
+       mPathMap["OUTPUT_PATH"] != "./files/output/")
+   {
+      mPathMap["EPHEM_PATH"] = mPathMap["OUTPUT_PATH"];
+      #ifdef DEBUG_READ_STARTUP_FILE
+      MessageInterface::ShowMessage
+         ("==> EPHEM_PATH set to '%s'\n", mPathMap["EPHEM_PATH"].c_str());
+      #endif
+   }
    
    // add potential files by type names
    AddAvailablePotentialFiles();
