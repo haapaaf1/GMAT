@@ -157,7 +157,14 @@ void SpacecraftPanel::Create()
    #if DEBUG_SPACECRAFT_PANEL
    MessageInterface::ShowMessage("   ThrusterPanel created\n");
    #endif
-   
+   #ifdef __USE_SPICE__
+      theSpicePanel = new SpicePanel
+         (this, spacecraftNotebook, currentSpacecraft);
+   #endif
+   #if DEBUG_SPACECRAFT_PANEL
+   MessageInterface::ShowMessage("   SpicePanel created\n");
+   #endif
+
    // visuals = new wxPanel( mainNotebook, -1 );
    
    // Adding panels to notebook
@@ -167,6 +174,9 @@ void SpacecraftPanel::Create()
    spacecraftNotebook->AddPage( theBallisticMassPanel, wxT("Ballistic/Mass") );
    spacecraftNotebook->AddPage( sensors, wxT("Sensors") );
    spacecraftNotebook->AddPage( theTankPanel, wxT("Tanks") );
+   #ifdef __USE_SPICE__
+      spacecraftNotebook->AddPage( theSpicePanel, wxT("SPICE") );
+   #endif
    spacecraftNotebook->AddPage( actuatorNotebook, wxT("Actuators") );
    //spacecraftNotebook->AddPage( visuals , wxT("Visualization") );
    
@@ -193,6 +203,9 @@ void SpacecraftPanel::LoadData()
       theAttitudePanel->LoadData();
       theBallisticMassPanel->LoadData();
       theTankPanel->LoadData();
+      #ifdef __USE_SPICE__
+         theSpicePanel->LoadData();
+      #endif
       theThrusterPanel->LoadData();
    }
    catch (BaseException &e)
@@ -249,7 +262,11 @@ void SpacecraftPanel::SaveData()
    
    if (theTankPanel->IsDataChanged())
       theTankPanel->SaveData();
-   
+   #ifdef __USE_SPICE__
+      if (theSpicePanel->IsDataChanged())
+         theSpicePanel->SaveData();
+   #endif
+
    if (theThrusterPanel->IsDataChanged())
       theThrusterPanel->SaveData();
    
@@ -267,4 +284,7 @@ void SpacecraftPanel::OnPageChange(wxCommandEvent &event)
    theTankPanel->LoadData();
    theThrusterPanel->LoadData();
    theAttitudePanel->LoadData();
+   #ifdef __USE_SPICE__
+      theSpicePanel->LoadData();
+   #endif
 }    

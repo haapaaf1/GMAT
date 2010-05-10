@@ -29,6 +29,7 @@
 #include "TankPanel.hpp"
 #include "AttitudePanel.hpp"
 #include "ThrusterPanel.hpp"
+#include "SpicePanel.hpp"
 #include "GuiInterpreter.hpp"
 
 #include "gmatdefs.hpp"
@@ -87,6 +88,7 @@ private:
    TankPanel *theTankPanel;
    ThrusterPanel *theThrusterPanel;
    AttitudePanel *theAttitudePanel;
+   SpicePanel    *theSpicePanel;
    
    // IDs for the controls and the menu commands
    enum
