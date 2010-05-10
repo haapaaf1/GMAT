@@ -1,0 +1,4 @@
+function Func_SPK_GMAT_AsteroidCeres_nested(reportLoc1)
+ 
+% Call function
+Func_SPK_GMAT_AsteroidCeres(reportLoc1)

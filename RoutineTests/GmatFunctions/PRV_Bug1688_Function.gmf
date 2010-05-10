@@ -1,0 +1,34 @@
+function [sc_input] = PRV_Bug1688_Function(sc_input, launch_date_str_UTCGregorian)
+
+Create Spacecraft sc;
+Create Spacecraft sc_dummy;
+Create Spacecraft sc_input;
+Create Variable   poi_time;
+Create Variable   temp_var;
+
+poi_time                          = 1484.518;
+sc_dummy.DateFormat               = TAIModJulian;
+sc.DateFormat                     = UTCGregorian;  
+sc.CoordinateSystem               = EarthFixed;
+sc.DisplayStateType               = Cartesian;
+sc.Epoch                          = launch_date_str_UTCGregorian;
+temp_var                          = sc.TAIModJulian + poi_time/86400;
+sc_dummy.Epoch                    = temp_var;
+sc.Epoch                          = sc_dummy.UTCGregorian;
+
+sc.X                              = 6281.33698206986;
+sc.Y                              = 3560.3052739013;
+sc.Z                              = -377.151459027992;
+sc.VX                             = -2.15525503119183;
+sc.VY                             = 9.65979534769891;
+sc.VZ                             = -1.13305555287102;
+
+sc_input.Epoch                     = sc_dummy.UTCGregorian;
+
+sc_input.X                         = sc.EarthMJ2000Eq.X;
+sc_input.Y                         = sc.EarthMJ2000Eq.Y;
+sc_input.Z                         = sc.EarthMJ2000Eq.Z;
+sc_input.VX                        = sc.EarthMJ2000Eq.VX;
+sc_input.VY                        = sc.EarthMJ2000Eq.VY;
+sc_input.VZ                        = sc.EarthMJ2000Eq.VZ;
+

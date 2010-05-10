@@ -1,0 +1,147 @@
+function Func_SPK_GMAT_CometBorrelly(reportLoc1)
+% This is the test script used to define a comet
+% and move the planets and comet according to an spk kernel.
+% Borrelly is defined here using borrelly.bsp.
+% The position of Borrelly relative to the Sun,
+% moon, Earth, and Mars is computed.
+% de421 is used for the positions of the other
+% Celestial bodies
+
+%----------------------------------------
+% ----------Declare some variables
+%----------------------------------------
+Create Variable rStoBX rStoBY rStoBZ;
+Create Variable rMoonToBX rMoonToBY rMoonToBZ;
+Create Variable rMtoBX rMtoBY rMtoBZ;
+Create Variable rEtoBX rEtoBY rEtoBZ;
+
+%----------------------------------------
+%---------- Define the Solar System motion
+%----------------------------------------
+GMAT SolarSystem.EphemerisSource = 'SPICE';
+%%GMAT SolarSystem.SPKFilename = '.\files\planetary_ephem\spk\de421.bsp';
+GMAT SolarSystem.SPKFilename = 'de421.bsp';
+
+%----------------------------------------
+%---------- User Defined Comet
+%----------------------------------------
+Create Comet Borrelly;
+GMAT Borrelly.EquatorialRadius = 4.0;
+GMAT Borrelly.Flattening = 0.001;
+GMAT Borrelly.Mu = 0.1;
+GMAT Borrelly.PosVelSource = 'SPICE';
+GMAT Borrelly.CentralBody = 'Sun';
+%%GMAT Borrelly.SpiceKernelName = '.\files\planetary_ephem\spk\borrelly.bsp';
+GMAT Borrelly.SpiceKernelName = 'borrelly.bsp';
+GMAT Borrelly.RotationDataSource = 'IAUSimplified';
+GMAT Borrelly.OrientationEpoch = 21545;
+GMAT Borrelly.SpinAxisRAConstant = 313.02;
+GMAT Borrelly.SpinAxisRARate = 0;
+GMAT Borrelly.SpinAxisDECConstant = 9.09;
+GMAT Borrelly.SpinAxisDECRate = 0;
+GMAT Borrelly.RotationConstant = 236.77;
+GMAT Borrelly.RotationRate = -56.3623195;
+GMAT Borrelly.NAIFId = 1000005;
+GMAT Borrelly.TextureMapFileName = './GenericCelestialBody.jpg';
+
+
+%------------------------------Create Coordinate Systems-------------------
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem MarsMJ2000Eq;
+GMAT MarsMJ2000Eq.Origin = Mars;
+GMAT MarsMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem LunaMJ2000Eq;
+GMAT LunaMJ2000Eq.Origin = Luna;
+GMAT LunaMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem SunMJ2000Eq;
+GMAT SunMJ2000Eq.Origin = Sun;
+GMAT SunMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem BorrellyMJ2000Eq;
+GMAT BorrellyMJ2000Eq.Origin = Borrelly;
+GMAT BorrellyMJ2000Eq.Axes = MJ2000Eq;
+
+%------------------------------Create a spacecraft------------------------
+
+% Create spacecraft Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.DateFormat = 'TAIModJulian';
+GMAT Sat1.Epoch = 22847.5;
+GMAT Sat1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.SMA = 11295.67681418613;
+GMAT Sat1.ECC = 0.2032349944098091;
+GMAT Sat1.INC = 0;
+GMAT Sat1.RAAN = 0;
+GMAT Sat1.AOP = 0;
+GMAT Sat1.TA = 0;
+GMAT Sat1.Id = 'SatId';
+
+%----------------------------Create ForceModels----------------------
+
+%  Define Force Model with point mass only
+Create ForceModel PointMass;
+GMAT PointMass.CentralBody = Earth;
+GMAT PointMass.PrimaryBodies = {Earth};
+GMAT PointMass.Drag = None;
+GMAT PointMass.SRP = Off;
+GMAT PointMass.ErrorControl = RSSStep;
+GMAT PointMass.GravityField.Earth.Degree = 0;
+GMAT PointMass.GravityField.Earth.Order = 0;
+GMAT PointMass.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%--------------------------- Propagators------------------------------
+
+Create Propagator propModel;
+GMAT propModel.FM = PointMass;
+GMAT propModel.Type = RungeKutta89;
+GMAT propModel.InitialStepSize = 60;
+GMAT propModel.Accuracy = 9.999999999999999e-12;
+GMAT propModel.MinStep = 0.001;
+GMAT propModel.MaxStep = 2700;
+GMAT propModel.MaxStepAttempts = 50;
+
+%------------------------------ Create Report -----------------------------
+Create ReportFile dataReport;
+GMAT dataReport.Filename = reportLoc1;
+GMAT dataReport.Precision = 16;
+GMAT dataReport.WriteHeaders = On;
+GMAT dataReport.LeftJustify = On;
+GMAT dataReport.ZeroFill = Off;
+GMAT dataReport.ColumnWidth = 20;
+
+% Begin script
+Propagate propModel(Sat1) {Sat1.ElapsedSecs = 43200.0};
+
+% Position of Borrelly relative to the Sun
+rStoBX = Sat1.SunMJ2000Eq.X - Sat1.BorrellyMJ2000Eq.X;
+rStoBY = Sat1.SunMJ2000Eq.Y - Sat1.BorrellyMJ2000Eq.Y;
+rStoBZ = Sat1.SunMJ2000Eq.Z - Sat1.BorrellyMJ2000Eq.Z;
+
+% Position of Borrelly relative to the moon
+rMoonToBX = Sat1.LunaMJ2000Eq.X - Sat1.BorrellyMJ2000Eq.X;
+rMoonToBY = Sat1.LunaMJ2000Eq.Y - Sat1.BorrellyMJ2000Eq.Y;
+rMoonToBZ = Sat1.LunaMJ2000Eq.Z - Sat1.BorrellyMJ2000Eq.Z;
+
+% Position of Borrelly relative to the Mars
+rMtoBX = Sat1.MarsMJ2000Eq.X - Sat1.BorrellyMJ2000Eq.X;
+rMtoBY = Sat1.MarsMJ2000Eq.Y - Sat1.BorrellyMJ2000Eq.Y;
+rMtoBZ = Sat1.MarsMJ2000Eq.Z - Sat1.BorrellyMJ2000Eq.Z;
+
+% Position of Borrelly relative to Earth
+rEtoBX = Sat1.EarthMJ2000Eq.X - Sat1.BorrellyMJ2000Eq.X;
+rEtoBY = Sat1.EarthMJ2000Eq.Y - Sat1.BorrellyMJ2000Eq.Y;
+rEtoBZ = Sat1.EarthMJ2000Eq.Z - Sat1.BorrellyMJ2000Eq.Z;
+
+% Output data to file
+Report dataReport Sat1.CurrA1MJD rMtoBX rMtoBY rMtoBZ;
+Report dataReport Sat1.CurrA1MJD rEtoBX rEtoBY rEtoBZ;
+Report dataReport Sat1.CurrA1MJD rMoonToBX rMoonToBY rMoonToBZ;
+Report dataReport Sat1.CurrA1MJD rStoBX rStoBY rStoBZ;

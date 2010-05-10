@@ -1,0 +1,186 @@
+function Func_UDCB_GMAT_Asteroid2Body(reportLoc1)
+% This is the test script for defining a
+% user specified asteroid and computing the
+% position of the asteroid with respect
+% to the Sun, moon, Earth, and Mars under
+% 2 body propagation
+
+%---------------------------------------------------------
+% Create variables needed to execute the script
+%---------------------------------------------------------
+Create Variable rStoAX rStoAY rStoAZ;
+Create Variable vStoAX vStoAY vStoAZ;
+Create Variable rEtoAX rEtoAY rEtoAZ;
+Create Variable rMtoAX rMtoAY rMtoAZ;
+Create Variable rMoontoAX rMoontoAY rMoontoAZ;
+
+%----------------------------------------
+%---------- Solar System User-Modified Values
+%----------------------------------------
+
+GMAT SolarSystem.EphemerisSource = 'TwoBodyPropagation';
+
+%----------------------------------------
+%---------- User Defined Asteroid
+%----------------------------------------
+Create Planet newAsteroid;
+GMAT newAsteroid.EquatorialRadius = 233;
+GMAT newAsteroid.Flattening = 0.001;
+GMAT newAsteroid.Mu = 81.60080000000001;
+GMAT newAsteroid.PosVelSource = 'TwoBodyPropagation';
+GMAT newAsteroid.CentralBody = 'Sun';
+GMAT newAsteroid.SpiceKernelName = {''};
+GMAT newAsteroid.RotationDataSource = 'IAUSimplified';
+GMAT newAsteroid.InitialEpoch = 21544.50037076827;
+GMAT newAsteroid.SMA = 446771920.56;
+GMAT newAsteroid.ECC = 0.01;
+GMAT newAsteroid.INC = 0.001;
+GMAT newAsteroid.RAAN = 25.9;
+GMAT newAsteroid.AOP = 10;
+GMAT newAsteroid.TA = 8;
+GMAT newAsteroid.OrientationEpoch = 21545;
+GMAT newAsteroid.SpinAxisRAConstant = 313.02;
+GMAT newAsteroid.SpinAxisRARate = 0;
+GMAT newAsteroid.SpinAxisDECConstant = 9.09;
+GMAT newAsteroid.SpinAxisDECRate = 0;
+GMAT newAsteroid.RotationConstant = 236.77;
+GMAT newAsteroid.RotationRate = -56.3623195;
+GMAT newAsteroid.NAIFId = -1;
+GMAT newAsteroid.TextureMapFileName = './GenericCelestialBody.jpg';
+GMAT newAsteroid.NutationUpdateInterval = 60;
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+%------------------------------Create a spacecraft------------------------
+
+% Create spacecraft Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.DateFormat = 'TAIModJulian';
+GMAT Sat1.Epoch = 21544.50037076827;
+GMAT Sat1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.SMA = 11295.67681418613;
+GMAT Sat1.ECC = 0.2032349944098091;
+GMAT Sat1.INC = 0;
+GMAT Sat1.RAAN = 0;
+GMAT Sat1.AOP = 0;
+GMAT Sat1.TA = 0;
+GMAT Sat1.Id = 'SatId';
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+%----------------------------Create ForceModels----------------------
+
+%  Define Force Model with point mass only
+Create ForceModel PointMass;
+GMAT PointMass.CentralBody = Earth;
+GMAT PointMass.PrimaryBodies = {Earth};
+GMAT PointMass.Drag = None;
+GMAT PointMass.SRP = Off;
+GMAT PointMass.ErrorControl = RSSStep;
+GMAT PointMass.GravityField.Earth.Degree = 0;
+GMAT PointMass.GravityField.Earth.Order = 0;
+GMAT PointMass.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%------------------------------ Create Report -----------------------------
+Create ReportFile dataReport;
+GMAT dataReport.SolverIterations = Current;
+GMAT dataReport.Filename = reportLoc1;
+GMAT dataReport.Precision = 16;
+GMAT dataReport.WriteHeaders = On;
+GMAT dataReport.LeftJustify = On;
+GMAT dataReport.ZeroFill = Off;
+GMAT dataReport.ColumnWidth = 20;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+%--------------------------- Propagators------------------------------
+
+Create Propagator propModel;
+GMAT propModel.FM = PointMass;
+GMAT propModel.Type = RungeKutta89;
+GMAT propModel.InitialStepSize = 60;
+GMAT propModel.Accuracy = 9.999999999999999e-12;
+GMAT propModel.MinStep = 0.001;
+GMAT propModel.MaxStep = 2700;
+GMAT propModel.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem LunaMJ2000Eq;
+GMAT LunaMJ2000Eq.Origin = Luna;
+GMAT LunaMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem SunMJ2000Eq;
+GMAT SunMJ2000Eq.Origin = Sun;
+GMAT SunMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem MarsMJ2000Eq;
+GMAT MarsMJ2000Eq.Origin = Mars;
+GMAT MarsMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem newAsteroidMJ2000Eq;
+GMAT newAsteroidMJ2000Eq.Origin = newAsteroid;
+GMAT newAsteroidMJ2000Eq.Axes = MJ2000Eq;
+
+
+%------------------------------Begin script---------------------------------
+
+% Used to get initila state of asteroid
+% Position of the user defined Asteroid relative to the sun
+%GMAT rStoAX = Sat1.SunMJ2000Eq.X - Sat1.newAsteroidMJ2000Eq.X;
+%GMAT rStoAY = Sat1.SunMJ2000Eq.Y - Sat1.newAsteroidMJ2000Eq.Y;
+%GMAT rStoAZ = Sat1.SunMJ2000Eq.Z - Sat1.newAsteroidMJ2000Eq.Z;
+
+% Velocity of the user defined Asteroid relative to the sun
+%GMAT vStoAX = Sat1.SunMJ2000Eq.VX - Sat1.newAsteroidMJ2000Eq.VX;
+%GMAT vStoAY = Sat1.SunMJ2000Eq.VY - Sat1.newAsteroidMJ2000Eq.VY;
+%GMAT vStoAZ = Sat1.SunMJ2000Eq.VZ - Sat1.newAsteroidMJ2000Eq.VZ;
+
+% Print out the initial position and velocity of the  user 
+% defined asteroid relative to the sun
+%Report dataReport Sat1.CurrA1MJD rStoAX rStoAY rStoAZ;
+%Report dataReport Sat1.CurrA1MJD vStoAX vStoAY vStoAZ;
+
+% Propagate space craft
+Propagate propModel(Sat1) {Sat1.ElapsedSecs = 8640.0};
+
+% Position of the user defined asteroid relative to the sun
+GMAT rStoAX = Sat1.SunMJ2000Eq.X - Sat1.newAsteroidMJ2000Eq.X;
+GMAT rStoAY = Sat1.SunMJ2000Eq.Y - Sat1.newAsteroidMJ2000Eq.Y;
+GMAT rStoAZ = Sat1.SunMJ2000Eq.Z - Sat1.newAsteroidMJ2000Eq.Z;
+
+% Position of the user defined asteroid relative to the Earth
+GMAT rEtoAX = Sat1.EarthMJ2000Eq.X - Sat1.newAsteroidMJ2000Eq.X;
+GMAT rEtoAY = Sat1.EarthMJ2000Eq.Y - Sat1.newAsteroidMJ2000Eq.Y;
+GMAT rEtoAZ = Sat1.EarthMJ2000Eq.Z - Sat1.newAsteroidMJ2000Eq.Z;
+
+% Position of the user defined asteroid relative to Mars
+GMAT rMtoAX = Sat1.MarsMJ2000Eq.X - Sat1.newAsteroidMJ2000Eq.X;
+GMAT rMtoAY = Sat1.MarsMJ2000Eq.Y - Sat1.newAsteroidMJ2000Eq.Y;
+GMAT rMtoAZ = Sat1.MarsMJ2000Eq.Z - Sat1.newAsteroidMJ2000Eq.Z;
+
+% Position of the user defined asteroid relative to the Moon
+GMAT rMoontoAX = Sat1.LunaMJ2000Eq.X - Sat1.newAsteroidMJ2000Eq.X;
+GMAT rMoontoAY = Sat1.LunaMJ2000Eq.Y - Sat1.newAsteroidMJ2000Eq.Y;
+GMAT rMoontoAZ = Sat1.LunaMJ2000Eq.Z - Sat1.newAsteroidMJ2000Eq.Z;
+
+% Report data to file
+Report dataReport rStoAX rStoAY rStoAZ;
+Report dataReport rEtoAX rEtoAY rEtoAZ;
+Report dataReport rMtoAX rMtoAY rMtoAZ;
+Report dataReport rMoontoAX rMoontoAY rMoontoAZ;

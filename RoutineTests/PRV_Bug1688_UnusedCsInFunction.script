@@ -1,0 +1,97 @@
+Create Array            boundaries[1,3];
+Create Barycenter       EMBary;
+Create CoordinateSystem EarthRLP;
+Create CoordinateSystem L2RLP;
+Create CoordinateSystem Sat1VNB;
+Create ForceModel       fm;
+Create ImpulsiveBurn    burnBaby;
+Create LibrationPoint   SEML2;
+Create Propagator       prop;
+Create ReportFile       out;
+Create Spacecraft       sc;
+Create Spacecraft       Sat1;
+Create String           launch_date;
+Create Variable         LBoundary;
+Create Variable         RBoundary;
+Create Variable         TBoundary;
+Create Variable         start_epoch;
+Create Variable         stop_cond;
+Create Variable         time_diff;
+
+EMBary.BodyNames                  = {Earth,Luna};
+
+SEML2.Primary                     = Sun;
+SEML2.Secondary                   = EMBary;
+SEML2.Point                       = L2;
+ 
+fm.CentralBody                    = Earth;
+fm.PrimaryBodies                  = {Earth};
+fm.Gravity.Earth.Model            = JGM2;
+fm.Gravity.Earth.Degree           = 0;
+fm.Gravity.Earth.Order            = 0;
+fm.PointMasses                    = {Sun, Luna};
+
+prop.FM                           = fm;
+prop.Type                         = RungeKutta89;
+prop.InitialStepSize              = 60;
+prop.MaxStep                      = 86400;
+
+burnBaby.Origin                   = Earth;
+burnBaby.Axes                     = VNB;
+burnBaby.VectorFormat             = Cartesian;
+burnBaby.Element1                 = 3.0928009196;
+burnBaby.Element2                 = 0;
+burnBaby.Element3                 = 0;
+
+EarthRLP.Origin                   = Earth;
+EarthRLP.Axes                     = ObjectReferenced;
+EarthRLP.UpdateInterval           = 60;
+EarthRLP.XAxis                    = R;
+EarthRLP.ZAxis                    = N;
+EarthRLP.Primary                  = Sun;
+EarthRLP.Secondary                = EMBary;
+
+
+L2RLP.Origin                      = SEML2;
+L2RLP.Axes                        = ObjectReferenced;
+L2RLP.UpdateInterval              = 60;
+L2RLP.OverrideOriginInterval      = false;
+L2RLP.XAxis                       = R;
+L2RLP.ZAxis                       = N;
+L2RLP.Primary                     = Sun;
+L2RLP.Secondary                   = EMBary;
+
+Sat1VNB.Axes = ObjectReferenced;
+Sat1VNB.Origin = Sat1;
+Sat1VNB.Primary = Earth;
+Sat1VNB.Secondary = Sat1;
+Sat1VNB.XAxis = V;
+Sat1VNB.YAxis = N;
+
+out.SolverIterations              = Current;
+out.Filename                      = 'PRV_Bug1688-TransferTarg.txt';
+out.Precision                     = 16;
+out.WriteHeaders                  = Off;
+out.LeftJustify                   = On;
+out.ZeroFill                      = Off;
+out.ColumnWidth                   = 20;
+
+BeginScript;
+launch_date         = '10 Aug 2014 12:00:00.000';
+sc.DateFormat       = UTCGregorian;
+sc.CoordinateSystem = EarthMJ2000Eq;
+sc.DisplayStateType = Cartesian;
+
+[sc] = PRV_Bug1688_Function(sc, launch_date);
+
+Report out sc.UTCGregorian;
+Report out sc.EarthMJ2000Eq.X;
+Report out sc.EarthMJ2000Eq.Y;
+Report out sc.EarthMJ2000Eq.Z;
+Report out sc.EarthMJ2000Eq.VX;
+Report out sc.EarthMJ2000Eq.VY;
+Report out sc.EarthMJ2000Eq.VZ;
+
+EndScript;
+
+

@@ -1,0 +1,79 @@
+%$Id$
+%----- Spacecraft
+Create Spacecraft Sat;
+
+%----- ForceModel and Propagator
+Create ForceModel Prop_fm;
+GMAT Prop_fm.PrimaryBodies = {Earth};
+
+Create Propagator Prop;
+GMAT Prop.FM = Prop_fm;
+
+%----- Variables, Arrays
+Create Variable SMA ECC RAAN;
+Create Variable r v pi2 mu d2r Energy;
+Create Variable SMAError, ECCError, RAANError;
+Create Array rv[3,1] vv[3,1] ev[3,1] nv[3,1];
+Create Array hv[3,1] xv[3,1];
+% In the Variable creation part:
+Create Variable x y z vx vy vz n
+
+%----- ReportFile
+Create ReportFile rf;
+GMAT rf.Filename = APT_FuncCartToKep_CF.report;
+GMAT rf.ZeroFill = On;
+GMAT rf.WriteHeaders = Off;
+
+GMAT mu = 398600.4415;
+GMAT pi2 = 6.283185307179586232;
+GMAT d2r = 0.01745329251994329509;
+
+Global pi2 Sat;
+
+While Sat.ElapsedDays < 1
+
+   %%%------------------------------------------------------
+   %%% Call PropagateFunction
+   %%%Propagate Prop(Sat)
+   %%%------------------------------------------------------
+   GMAT [Sat, x, y, z, vx, vy, vz] = Propagate8640Secs(Sat);
+   %%%------------------------------------------------------
+   
+   % Put the state data into some data structures
+   GMAT [rv, vv, r, v] = LoadCartState_CF(Sat);
+   
+   % Calculate the Energy and SMA
+   GMAT Energy = v^2/2 - mu/r;
+   GMAT SMA = -mu/2/Energy;
+
+   % Eccentricity built from the eccentricity vector
+   %%%------------------------------------------------------
+   %%% For now just use CallFunction command
+   %%%GMAT ev = cross(vv, cross(rv, vv)) / mu - rv / r;
+   %%%------------------------------------------------------
+   GMAT [hv] = cross(rv, vv);
+   GMAT [xv] = cross(vv, hv);
+   GMAT ev = xv /mu -rv /r;
+
+   GMAT [ECC] = magnitude_CF(ev);
+
+   % Next the ascending node, useing the node vector
+   GMAT nv(1,1) = x*vz-z*vx;
+   GMAT nv(2,1) = y*vz-z*vy;
+   GMAT nv(3,1) = 0;
+   GMAT [n] = magnitude_CF(nv);
+
+   GMAT RAAN = acos( nv(1,1)/n );
+   If nv(2,1) < 0
+      GMAT RAAN = (pi2 - RAAN) / d2r;
+   EndIf
+
+   GMAT SMAError  = Sat.SMA - SMA;
+   GMAT ECCError  = Sat.ECC - ECC;
+   GMAT RAANError = Sat.RAAN - RAAN;
+   
+   Report rf Sat.SMA SMA SMAError;
+   Report rf Sat.ECC ECC ECCError;
+   Report rf Sat.RAAN RAAN RAANError;
+EndWhile
+

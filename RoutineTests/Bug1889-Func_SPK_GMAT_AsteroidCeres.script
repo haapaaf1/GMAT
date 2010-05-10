@@ -1,0 +1,45 @@
+% Created from the following script: SPK_GMAT_AsteroidCeres.m
+%
+% Functions used: Func_SPK_GMAT_AsteroidCeres.gmf, Func_SPK_GMAT_AsteroidCeres_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = 'Bug1889-Func_SPK_GMAT_AsteroidCeres.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Bug1889-Func_SPK_GMAT_AsteroidCeres_nested.report';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+ 
+% Call function
+Func_SPK_GMAT_AsteroidCeres(reportLoc1)
+Func_SPK_GMAT_AsteroidCeres_nested(reportLoc1_nested)

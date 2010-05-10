@@ -1,0 +1,47 @@
+% Created from the following script: Ephem_GMAT_SPK_3600sec.m
+%
+% Functions used: Func_Ephem_GMAT_SPK_3600sec.gmf, Func_Ephem_GMAT_SPK_3600sec_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+%%GMAT reportLoc1 = './output/SystemTest/Func_Ephem_GMAT_SPK_3600sec.report';
+GMAT reportLoc1 = 'Bug1891-Func_Ephem_GMAT_SPK_3600sec.report';
+ 
+Create String reportLoc1_nested;
+%%GMAT reportLoc1_nested = './output/SystemTest/Func_Ephem_GMAT_SPK_3600sec_nested.report';
+GMAT reportLoc1_nested = 'Bug1891-Func_Ephem_GMAT_SPK_3600sec_nested.report';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+ 
+% Call function
+Func_Ephem_GMAT_SPK_3600sec(reportLoc1)
+Func_Ephem_GMAT_SPK_3600sec_nested(reportLoc1_nested)

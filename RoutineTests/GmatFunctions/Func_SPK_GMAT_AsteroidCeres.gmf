@@ -1,0 +1,148 @@
+function Func_SPK_GMAT_AsteroidCeres(reportLoc1)
+% This is the test script used to define an asteroid
+% and move the planets and asteroid according to an spk kernel.
+% Ceres is defined here using ceres_1900_2100.bsp.
+% The position of Ceres reltive to the Sun,
+% moon, Earth, and Mars is computed.
+% de421 is used for the positions of the other
+% Celestial bodies
+
+%----------------------------------------
+% ----------Declare some variables
+%----------------------------------------
+Create Variable rStoCX rStoCY rStoCZ;
+Create Variable rMoonToCX rMoonToCY rMoonToCZ;
+Create Variable rMtoCX rMtoCY rMtoCZ;
+Create Variable rEtoCX rEtoCY rEtoCZ;
+
+%----------------------------------------
+%---------- Define the Solar System motion
+%----------------------------------------
+GMAT SolarSystem.EphemerisSource = 'SPICE';
+%%GMAT SolarSystem.SPKFilename = '.\files\planetary_ephem\spk\de421.bsp';
+GMAT SolarSystem.SPKFilename = 'de421.bsp';
+
+%----------------------------------------
+%---------- User Defined Asteroid
+%----------------------------------------
+Create Asteroid Ceres;
+GMAT Ceres.EquatorialRadius = 490.0;
+GMAT Ceres.Flattening = 0.071;
+GMAT Ceres.Mu = 63.0;
+GMAT Ceres.PosVelSource = 'SPICE';
+GMAT Ceres.CentralBody = 'Sun';
+%%GMAT Ceres.SpiceKernelName = '.\files\planetary_ephem\spk\ceres_1900_2100.bsp';
+GMAT Ceres.SpiceKernelName = 'ceres_1900_2100.bsp';
+GMAT Ceres.RotationDataSource = 'IAUSimplified';
+GMAT Ceres.OrientationEpoch = 21545;
+GMAT Ceres.SpinAxisRAConstant = 313.02;
+GMAT Ceres.SpinAxisRARate = 0;
+GMAT Ceres.SpinAxisDECConstant = 9.09;
+GMAT Ceres.SpinAxisDECRate = 0;
+GMAT Ceres.RotationConstant = 236.77;
+GMAT Ceres.RotationRate = -56.3623195;
+%%GMAT Ceres.NAIFId = -2000001;
+GMAT Ceres.TextureMapFileName = './GenericCelestialBody.jpg';
+
+
+%------------------------------Create Coordinate Systems-------------------
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem MarsMJ2000Eq;
+GMAT MarsMJ2000Eq.Origin = Mars;
+GMAT MarsMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem LunaMJ2000Eq;
+GMAT LunaMJ2000Eq.Origin = Luna;
+GMAT LunaMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem SunMJ2000Eq;
+GMAT SunMJ2000Eq.Origin = Sun;
+GMAT SunMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem CeresMJ2000Eq;
+GMAT CeresMJ2000Eq.Origin = Ceres;
+GMAT CeresMJ2000Eq.Axes = MJ2000Eq;
+
+%------------------------------Create a spacecraft------------------------
+
+% Create spacecraft Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.DateFormat = 'TAIModJulian';
+GMAT Sat1.Epoch = 19197.5;
+GMAT Sat1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.SMA = 11295.67681418613;
+GMAT Sat1.ECC = 0.2032349944098091;
+GMAT Sat1.INC = 0;
+GMAT Sat1.RAAN = 0;
+GMAT Sat1.AOP = 0;
+GMAT Sat1.TA = 0;
+GMAT Sat1.Id = 'SatId';
+
+%----------------------------Create ForceModels----------------------
+
+%  Define Force Model with point mass only
+Create ForceModel PointMass;
+GMAT PointMass.CentralBody = Earth;
+GMAT PointMass.PrimaryBodies = {Earth};
+GMAT PointMass.Drag = None;
+GMAT PointMass.SRP = Off;
+GMAT PointMass.ErrorControl = RSSStep;
+GMAT PointMass.GravityField.Earth.Degree = 0;
+GMAT PointMass.GravityField.Earth.Order = 0;
+GMAT PointMass.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%--------------------------- Propagators------------------------------
+
+Create Propagator propModel;
+GMAT propModel.FM = PointMass;
+GMAT propModel.Type = RungeKutta89;
+GMAT propModel.InitialStepSize = 60;
+GMAT propModel.Accuracy = 9.999999999999999e-12;
+GMAT propModel.MinStep = 0.001;
+GMAT propModel.MaxStep = 2700;
+GMAT propModel.MaxStepAttempts = 50;
+
+%------------------------------ Create Report -----------------------------
+Create ReportFile dataReport;
+GMAT dataReport.Filename = reportLoc1;
+GMAT dataReport.Precision = 16;
+GMAT dataReport.WriteHeaders = On;
+GMAT dataReport.LeftJustify = On;
+GMAT dataReport.ZeroFill = Off;
+GMAT dataReport.ColumnWidth = 20;
+
+% Begin script
+Propagate propModel(Sat1) {Sat1.ElapsedSecs = 43200.0};
+
+% Position of Ceres relative to the Sun
+rStoCX = Sat1.SunMJ2000Eq.X - Sat1.CeresMJ2000Eq.X;
+rStoCY = Sat1.SunMJ2000Eq.Y - Sat1.CeresMJ2000Eq.Y;
+rStoCZ = Sat1.SunMJ2000Eq.Z - Sat1.CeresMJ2000Eq.Z;
+
+% Position of Ceres relative to the moon
+rMoonToCX = Sat1.LunaMJ2000Eq.X - Sat1.CeresMJ2000Eq.X;
+rMoonToCY = Sat1.LunaMJ2000Eq.Y - Sat1.CeresMJ2000Eq.Y;
+rMoonToCZ = Sat1.LunaMJ2000Eq.Z - Sat1.CeresMJ2000Eq.Z;
+
+% Position of Ceres relative to the Mars
+rMtoCX = Sat1.MarsMJ2000Eq.X - Sat1.CeresMJ2000Eq.X;
+rMtoCY = Sat1.MarsMJ2000Eq.Y - Sat1.CeresMJ2000Eq.Y;
+rMtoCZ = Sat1.MarsMJ2000Eq.Z - Sat1.CeresMJ2000Eq.Z;
+
+% Position of Ceres relative to Earth
+rEtoCX = Sat1.EarthMJ2000Eq.X - Sat1.CeresMJ2000Eq.X;
+rEtoCY = Sat1.EarthMJ2000Eq.Y - Sat1.CeresMJ2000Eq.Y;
+rEtoCZ = Sat1.EarthMJ2000Eq.Z - Sat1.CeresMJ2000Eq.Z;
+
+% Output data to file
+Report dataReport Sat1.CurrA1MJD rMtoCX rMtoCY rMtoCZ;
+Report dataReport Sat1.CurrA1MJD rEtoCX rEtoCY rEtoCZ;
+Report dataReport Sat1.CurrA1MJD rMoonToCX rMoonToCY rMoonToCZ;
+Report dataReport Sat1.CurrA1MJD rStoCX rStoCY rStoCZ;
+

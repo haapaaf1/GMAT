@@ -1,0 +1,4 @@
+function Func_Ephem_GMAT_SPK_3600sec_nested(reportLoc1)
+ 
+% Call function
+Func_Ephem_GMAT_SPK_3600sec(reportLoc1)

@@ -1,0 +1,5 @@
+function [Mat] = Bug1686_ReturnInputValue(Mat)
+
+Create Array Mat[3,3];
+
+Mat = Mat;
