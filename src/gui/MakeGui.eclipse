@@ -85,6 +85,14 @@ else
 STC_EDITOR_OBJECTS =
 endif
 
+ifeq ($(USE_SPICE),1)
+SPICE_OBJECTS = \
+	 spacecraft/SpicePanel.o
+else
+SPICE_OBJECTS =
+endif
+
+
 #ifeq ($(USE_MATLAB),1)
 all: prep $(TARGETS) 
 	rm -f GMAT
@@ -285,7 +293,8 @@ OBJECTS = \
     spacecraft/ThrusterPanel.o \
     view/ViewTextDialog.o \
     view/ViewTextFrame.o \
-    $(STC_EDITOR_OBJECTS)
+    $(STC_EDITOR_OBJECTS) \
+    $(SPICE_OBJECTS)
 
 ifeq ($(SHARED_BASE), 1)
 
