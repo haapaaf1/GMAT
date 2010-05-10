@@ -80,7 +80,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    fileMenu->Append(MENU_FILE_SAVE_SCRIPT, wxT("&Save"), wxT(""));
    fileMenu->Append(MENU_FILE_SAVE_SCRIPT_AS, wxT("Save As"), wxT(""));
    
-   if (runMode == GmatGlobal::TESTING)
+   if (runMode == GmatGlobal::TESTING || runMode == GmatGlobal::TESTING_NO_PLOTS)
    {
       fileMenu->AppendSeparator();
       fileMenu->Append(MENU_EMPTY_PROJECT, wxT("Empty Project"), wxT(""));   
@@ -141,7 +141,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    //-----------------------------------------------------------------
    // Tools menu
    //-----------------------------------------------------------------
-   if (runMode == GmatGlobal::TESTING)
+   if (runMode == GmatGlobal::TESTING || runMode == GmatGlobal::TESTING_NO_PLOTS)
    {
       wxMenu *toolsMenu = new wxMenu;
       toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC, wxT("Compare Numeric Values"), wxT(""));
