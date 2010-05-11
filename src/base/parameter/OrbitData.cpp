@@ -240,9 +240,13 @@ Rvector6 OrbitData::GetCartState()
          MessageInterface::ShowMessage
             ("OrbitData::GetCartState() Failed to convert to %s coordinate system.\n   %s\n",
              mOutCoordSystem->GetName().c_str(), e.GetFullMessage().c_str());
-         throw ParameterException
-            ("OrbitData::GetCartState() Failed to convert to " +
-             mOutCoordSystem->GetName() + " coordinate system.\n");
+         std::string errmsg = "OrbitData::GetCartState() Failed to convert to " ;
+         errmsg += mOutCoordSystem->GetName() + " coordinate system.\n";
+         errmsg += "Message: " + e.GetFullMessage() + "\n";
+         throw ParameterException(errmsg);
+//         throw ParameterException
+//            ("OrbitData::GetCartState() Failed to convert to " +
+//             mOutCoordSystem->GetName() + " coordinate system.\n");
       }
    }
    
