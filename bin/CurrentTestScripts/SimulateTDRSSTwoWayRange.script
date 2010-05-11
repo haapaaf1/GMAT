@@ -105,7 +105,7 @@ ST2K_47.Altitude = 1.4522800000000
 %--------------------------------------------------------------
 
 Create TDRSSTrackingSystem AQUA_TDRSS
-AQUA_TDRSS.Add = {AQUA_TDRSS4Range,AQUA_TDRSS5Range};
+AQUA_TDRSS.Add = {AQUA_TDRSS4Range};
 
 Create MeasurementModel AQUA_TDRSS4Range
 AQUA_TDRSS4Range.ObservationData = AQUA_TDRSSData
@@ -127,9 +127,9 @@ AQUA_TDRSSData.Format   = GMATInternal;
 Create Simulator AQUAsim;
 AQUAsim.AddData             = {AQUA_TDRSS};
 AQUAsim.InitialEpochFormat  = UTCGregorian;
-AQUAsim.InitialEpoch        = '18 Nov 2009 00:00:00.000';
+AQUAsim.InitialEpoch        = '09 Jun 2004 00:00:00.000';
 AQUAsim.FinalEpochFormat    = UTCGregorian;
-AQUAsim.FinalEpoch          = '19 Nov 2009 00:00:00.000';
+AQUAsim.FinalEpoch          = '10 Jun 2004 00:00:00.000';
 AQUAsim.MeasurementTimeStep = 60;
 AQUAsim.Propagator          = TwoBodyProp;
 
