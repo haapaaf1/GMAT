@@ -1,62 +1,62 @@
 %--------------------------------------------------------------
 %===== Create and configure the HST spacecraft
 %--------------------------------------------------------------
-Create Spacecraft HST;
-GMAT HST.DateFormat = UTCGregorian;
-GMAT HST.Epoch = '18 Nov 2009 00:00:00.000';
-GMAT HST.CoordinateSystem = EarthMJ2000Eq;
-GMAT HST.DisplayStateType = Cartesian;
-GMAT HST.SMA = 6600;
-GMAT HST.ECC = .001;
-GMAT HST.INC = 28.5;
-GMAT HST.RAAN = -0.2451132495834106;
-GMAT HST.AOP = 0.1083307708826794;
-GMAT HST.TA = 0.1427860128980402;
-GMAT HST.DryMass = 821.1888;
-GMAT HST.Cd = 2.2;
-GMAT HST.Cr = 1.448009157951282;
-GMAT HST.DragArea = 15;
-GMAT HST.SRPArea = 20.438
-GMAT HST.Cd = 2.2;
-GMAT HST.Id = 'HST';
+Create Spacecraft AQUA;
+GMAT AQUA.DateFormat = UTCGregorian;
+GMAT AQUA.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT AQUA.CoordinateSystem = EarthMJ2000Eq;
+GMAT AQUA.DisplayStateType = Cartesian;
+GMAT AQUA.X   = 1301.7911569424441000;
+GMAT AQUA.Y   = -6957.7686256239267000
+GMAT AQUA.Z   = -288.7080151269336200
+GMAT AQUA.VX  = -1.1121653537736800
+GMAT AQUA.VY  = 0.0907365703826921 
+GMAT AQUA.VZ  = -7.4188335652599884
+GMAT AQUA.DryMass = 821.1888;
+GMAT AQUA.Cd = 2.2;
+GMAT AQUA.Cr = 1.448009157951282;
+GMAT AQUA.DragArea = 15;
+GMAT AQUA.SRPArea = 20.438
+GMAT AQUA.Cd = 2.2;
+GMAT AQUA.Id = 'AQUA';
 
-Create Spacecraft TDRSS41;
-GMAT TDRSS41.DateFormat = UTCGregorian;
-GMAT TDRSS41.Epoch = '18 Nov 2009 00:00:00.000';
-GMAT TDRSS41.CoordinateSystem = EarthMJ2000Eq;
-GMAT TDRSS41.DisplayStateType = Cartesian;
-GMAT TDRSS41.SMA = 42241.096;
-GMAT TDRSS41.ECC = 0.000001;
-GMAT TDRSS41.INC = 13.1;
-GMAT TDRSS41.RAAN = -0.2451132495834106;
-GMAT TDRSS41.AOP = 0.1083307708826794;
-GMAT TDRSS41.TA = 0.1427860128980402;
-GMAT TDRSS41.DryMass = 821.1888;
-GMAT TDRSS41.Cd = 2.2;
-GMAT TDRSS41.Cr = 1.448009157951282;
-GMAT TDRSS41.DragArea = 15;
-GMAT TDRSS41.SRPArea = 20.438
-GMAT TDRSS41.Cd = 2.2;
-GMAT TDRSS41.Id = 'TDRSS41';
+Create Spacecraft TDRSS4;
+GMAT TDRSS4.DateFormat = UTCGregorian;
+GMAT TDRSS4.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT TDRSS4.CoordinateSystem = EarthMJ2000Eq;
+GMAT TDRSS4.DisplayStateType = Cartesian;
+GMAT TDRSS4.X = -33706.32486153131300;
+GMAT TDRSS4.Y = -25220.9982290584700000;
+GMAT TDRSS4.X = 2557.3726408292800000 ;
+GMAT TDRSS4.VX = 1.8200462985895349;
+GMAT TDRSS4.VY = -2.4614667170907318;
+GMAT TDRSS4.VZ = -0.2775481078198591;
+GMAT TDRSS4.DryMass = 821.1888;
+GMAT TDRSS4.Cd = 2.2;
+GMAT TDRSS4.Cr = 1.448009157951282;
+GMAT TDRSS4.DragArea = 15;
+GMAT TDRSS4.SRPArea = 20.438
+GMAT TDRSS4.Cd = 2.2;
+GMAT TDRSS4.Id = 'TDRSS4';
 
-Create Spacecraft TDRSS49;
-GMAT TDRSS49.DateFormat = UTCGregorian;
-GMAT TDRSS49.Epoch = '18 Nov 2009 00:00:00.000';
-GMAT TDRSS49.CoordinateSystem = EarthMJ2000Eq;
-GMAT TDRSS49.DisplayStateType = Cartesian;
-GMAT TDRSS49.SMA = 42241.096;
-GMAT TDRSS49.ECC = 0.00001;
-GMAT TDRSS49.INC = 2.1;
-GMAT TDRSS49.RAAN = -0.2451132495834106;
-GMAT TDRSS49.AOP = 0.1083307708826794;
-GMAT TDRSS49.TA = 0.1427860128980402;
-GMAT TDRSS49.DryMass = 821.1888;
-GMAT TDRSS49.Cd = 2.2;
-GMAT TDRSS49.Cr = 1.448009157951282;
-GMAT TDRSS49.DragArea = 15;
-GMAT TDRSS49.SRPArea = 20.438
-GMAT TDRSS49.Cd = 2.2;
-GMAT TDRSS49.Id = 'TDRSS49';
+Create Spacecraft TDRSS5;
+GMAT TDRSS5.DateFormat = UTCGregorian;
+GMAT TDRSS5.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT TDRSS5.CoordinateSystem = EarthMJ2000Eq;
+GMAT TDRSS5.DisplayStateType = Cartesian;
+GMAT TDRSS5.X  = 4421.7271216569197000
+GMAT TDRSS5.Y  = 41917.626848489970000
+GMAT TDRSS5.Z  = 596.556114376500200
+GMAT TDRSS5.VX = -3.0453299842557420 	
+GMAT TDRSS5.VY = 0.3168982270839584
+GMAT TDRSS5.VZ = 0.2890083011048917 
+GMAT TDRSS5.DryMass = 821.1888;
+GMAT TDRSS5.Cd = 2.2;
+GMAT TDRSS5.Cr = 1.448009157951282;
+GMAT TDRSS5.DragArea = 15;
+GMAT TDRSS5.SRPArea = 20.438
+GMAT TDRSS5.Cd = 2.2;
+GMAT TDRSS5.Id = 'TDRSS5';
 
 %--------------------------------------------------------------
 %===== Create the propagator
@@ -82,50 +82,58 @@ GMAT TwoBodyProp.MaxStepAttempts = 50;
 %===== Create the ground stations
 %--------------------------------------------------------------
 
-Create GroundStation WhiteSands
-WhiteSands.Id = WhiteSands
-%WhiteSands.Sensors  = {DSNXPND};
-WhiteSands.CentralBody = Earth;
-WhiteSands.StateType   = Cartesian;
-WhiteSands.HorizonReference = Ellipsoid;
-WhiteSands.X = -4460.89492
-WhiteSands.Y =  2682.36151
-WhiteSands.Z = -3674.74815
+Create GroundStation ST2K_48
+ST2K_48.Id = ST2K_48
+ST2K_48.CentralBody = Earth;
+ST2K_48.StateType   = Spherical;
+ST2K_48.HorizonReference = Ellipsoid;
+ST2K_48.Latitude = 32.5429773611111130
+ST2K_48.Longitude= 253.3879110555556100
+ST2K_48.Altitude = 1.4523099999999999
+
+Create GroundStation ST2K_47
+ST2K_47.Id = ST2K_47
+ST2K_47.CentralBody = Earth;
+ST2K_47.StateType   = Spherical;
+ST2K_47.HorizonReference = Ellipsoid;
+ST2K_47.Latitude = 32.5432795833333300 
+ST2K_47.Longitude= 253.3879110555556100 
+ST2K_47.Altitude = 1.4522800000000
 
 %--------------------------------------------------------------
 %===== Create the Tracking Systems and Measurement Models
 %--------------------------------------------------------------
 
-Create TDRSSTrackingSystem HST_TDRSS
-HST_TDRSS.Add = {HST_TDRSS41Range,HST_TDRSS49Range};
+Create TDRSSTrackingSystem AQUA_TDRSS
+AQUA_TDRSS.Add = {AQUA_TDRSS4Range,AQUA_TDRSS5Range};
 
-Create MeasurementModel HST_TDRSS41Range
-HST_TDRSS41Range.ObservationData = HST_TDRSSData
-HST_TDRSS41Range.Type         = TDRSS1TwoWayRange;
-HST_TDRSS41Range.Participants = {WhiteSands, TDRSS41, HST};
+Create MeasurementModel AQUA_TDRSS4Range
+AQUA_TDRSS4Range.ObservationData = AQUA_TDRSSData
+AQUA_TDRSS4Range.Type            = TDRSSTwoWayRange;
+AQUA_TDRSS4Range.Participants    = {ST2K_48, TDRSS4, AQUA};
 
-Create MeasurementModel HST_TDRSS49Range
-HST_TDRSS49Range.ObservationData = HST_TDRSSData
-HST_TDRSS49Range.Type         = TDRSS1TwoWayRange;
-HST_TDRSS49Range.Participants = {WhiteSands, TDRSS49, HST};
+Create MeasurementModel AQUA_TDRSS5Range
+AQUA_TDRSS5Range.ObservationData = AQUA_TDRSSData
+AQUA_TDRSS5Range.Type            = TDRSSTwoWayRange;
+AQUA_TDRSS5Range.Participants    = {ST2K_48, TDRSS5, AQUA};
 
-Create DataFile HST_TDRSSData;
-HST_TDRSSData.Filename = 'HST_TDRSSData.gmd';
-HST_TDRSSData.Format = GMATInternal;
+Create DataFile AQUA_TDRSSData;
+AQUA_TDRSSData.Filename = 'AQUA_TDRSSData.gmd';
+AQUA_TDRSSData.Format   = GMATInternal; 
 
 %--------------------------------------------------------------
 %===== Create and configure the simulator
 %--------------------------------------------------------------
-Create Simulator HSTsim;
-HSTsim.AddData             = {HST_TDRSS};
-HSTsim.InitialEpochFormat  = UTCGregorian;
-HSTsim.InitialEpoch        = '18 Nov 2009 00:00:00.000';
-HSTsim.FinalEpochFormat    = UTCGregorian;
-HSTsim.FinalEpoch          = '19 Nov 2009 00:00:00.000';
-HSTsim.MeasurementTimeStep = 60;
-HSTsim.Propagator          = TwoBodyProp;
+Create Simulator AQUAsim;
+AQUAsim.AddData             = {AQUA_TDRSS};
+AQUAsim.InitialEpochFormat  = UTCGregorian;
+AQUAsim.InitialEpoch        = '18 Nov 2009 00:00:00.000';
+AQUAsim.FinalEpochFormat    = UTCGregorian;
+AQUAsim.FinalEpoch          = '19 Nov 2009 00:00:00.000';
+AQUAsim.MeasurementTimeStep = 60;
+AQUAsim.Propagator          = TwoBodyProp;
 
 %--------------------------------------------------------------
 %===== Run the simulator
 %--------------------------------------------------------------
-RunSimulator HSTsim
+RunSimulator AQUAsim
