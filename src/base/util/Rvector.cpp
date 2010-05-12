@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                Rvector
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -177,7 +177,7 @@ Rvector Rvector::GetUnitRvector() const
    Real mag = GetMagnitude();
 
    if (GmatMathUtil::IsZero(mag))
-      throw IsZeroVector(" from Rvector::GetUnitRvector()\n");
+      throw ZeroVector(" from Rvector::GetUnitRvector()\n");
    
    Rvector vect(*this);
    
@@ -200,7 +200,7 @@ const Rvector& Rvector::Normalize()
    
    Real mag = GetMagnitude();
    if (GmatMathUtil::IsZero(mag))
-      throw IsZeroVector(" from Rvector::Normalize()\n");
+      throw ZeroVector(" from Rvector::Normalize()\n");
    
    for (i = 0; i < sizeD; i++)
       elementD[i] /=  mag;
@@ -590,13 +590,24 @@ const Rvector& Rvector::operator/=(const Rmatrix &m)
 
 
 //------------------------------------------------------------------------------
-// bool Rvector::MakeZeroVector()
+// bool MakeZeroVector()
 //------------------------------------------------------------------------------
 bool Rvector::MakeZeroVector()
 {
    for (Integer i=0; i<sizeD; i++)
       elementD[i] = 0.0;
    return true;
+}
+
+//------------------------------------------------------------------------------
+// bool IsZeroVector() const
+//------------------------------------------------------------------------------
+bool Rvector::IsZeroVector() const
+{
+   if (GmatMathUtil::IsZero(GetMagnitude()))
+      return true;
+   else
+      return false;
 }
 
 //------------------------------------------------------------------------------

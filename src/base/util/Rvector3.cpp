@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                Rvector3
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -106,7 +106,7 @@ Rvector3 Rvector3::GetUnitVector() const
    Real mag = GetMagnitude();
 
    if (GmatMathUtil::IsZero(mag))
-      throw IsZeroVector(" from Rvector3::GetUnitVector()\n");
+      throw ZeroVector(" from Rvector3::GetUnitVector()\n");
    
    return Rvector3(elementD[0]/mag, elementD[1]/mag, elementD[2]/mag);
 }
@@ -120,7 +120,7 @@ const Rvector3& Rvector3::Normalize()
    Real mag = GetMagnitude();
    
    if (GmatMathUtil::IsZero(mag))
-      throw IsZeroVector(" from Rvector3::Normalize()\n");
+      throw ZeroVector(" from Rvector3::Normalize()\n");
    
    elementD[0] /= mag;
    elementD[1] /= mag;
