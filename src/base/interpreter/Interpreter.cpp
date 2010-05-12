@@ -75,7 +75,7 @@
 //#define DEBUG_MATH_TREE
 //#define DEBUG_FUNCTION
 //#define DBGLVL_FUNCTION_DEF 2
-//#define DBGLVL_FINAL_PASS 1
+//#define DBGLVL_FINAL_PASS 2
 //#define DEBUG_AXIS_SYSTEM
 //#define DEBUG_SET_MEASUREMENT_MODEL
 
@@ -6548,7 +6548,7 @@ bool Interpreter::FinalPass()
          }
       }
       
-      // check Function seperately since it has inputs that can be any object type,
+      // check Function separately since it has inputs that can be any object type,
       // including Real number (1234.5678) and String literal ('abc')
       //
       // We don't want to check this in the FinalPass(), since it will be checked
@@ -6665,7 +6665,7 @@ bool Interpreter::FinalPass()
          if (primary == secondary)
          {
             InterpreterException ex
-               ("The Primay and Secondary bodies cannot be the same in the "
+               ("The Primary and Secondary bodies cannot be the same in the "
                 "LibrationPoint \"" + obj->GetName() + "\"");
             HandleError(ex, false);
             retval = false;
@@ -6739,76 +6739,15 @@ bool Interpreter::FinalPass()
          }
       }
    }
-   
-   //-------------------------------------------------------------------
-   // Special case for Spacecraft, we need to set CoordinateSyatem
-   // pointer in which initial state is represented.  So that
-   // Spacecraft can convert initial state in user representation to
-   // internal representation (EarthMJ2000Eq Cartesian).
-   //-------------------------------------------------------------------
-   objList = theModerator->GetListOfObjects(Gmat::SPACECRAFT);
 
-   #if DBGLVL_FINAL_PASS > 1
-   MessageInterface::ShowMessage("FinalPass:: Spacecraft list =\n");
-   for (Integer ii = 0; ii < (Integer) objList.size(); ii++)
-      MessageInterface::ShowMessage("   %s\n", (objList.at(ii)).c_str());
-   #endif
-   
-   for (StringArray::iterator i = objList.begin(); i != objList.end(); ++i)
-   {
-      obj = FindObject(*i);
-      
-      // Now we have more than one CoordinateSystem from Spacecraft.
-      // In additions to Spacecraft's CS, it has to handle CS from Thrusters
-      // and Attitude. (LOJ: 2009.09.24)
-      //std::string csName = obj->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
-      StringArray csNames = obj->GetRefObjectNameArray(Gmat::COORDINATE_SYSTEM);
-      for (StringArray::iterator csName = csNames.begin();
-           csName != csNames.end(); ++csName)
-      {
-         GmatBase *csObj = FindObject(*csName);
-         
-         // To catch as many errors we can, continue with next object
-         if (csObj == NULL)
-            continue;
-         
-         #if DBGLVL_FINAL_PASS > 1
-         MessageInterface::ShowMessage
-            ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
-             csObj->GetName().c_str(), csObj, csObj->GetType());
-         #endif
-         
-         if (csObj->GetType() != Gmat::COORDINATE_SYSTEM)
-         {
-            InterpreterException ex
-               ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
-                "\"CoordinateSystem\" to \"" + *csName + "\"");
-            HandleError(ex, false);
-            retval = false;
-            continue;
-         }
-         
-         try
-         {
-            obj->SetRefObject(csObj, Gmat::COORDINATE_SYSTEM, csObj->GetName());
-         }
-         catch (BaseException &e)
-         {
-            InterpreterException ex
-               ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
-                "CoordinateSystem: " + e.GetFullMessage());
-            HandleError(ex, false);
-            retval = false;
-            continue;
-         }
-      }
-   }
-   
    //-------------------------------------------------------------------
-   // Special case for BodyFixedPoints, we need to set CoordinateSyatem
+   // Special case for BodyFixedPoints, we need to set CoordinateSystem
    // pointers for the BodyFixed and the MJ2000Eq coordinate systems.  In
    // addition, we need to pass the pointer to the central body.
    //-------------------------------------------------------------------
+   #if DBGLVL_FINAL_PASS > 1
+      MessageInterface::ShowMessage("FinalPass:: about to get BodyFixedPoint list\n");
+   #endif
    objList = theModerator->GetListOfObjects(Gmat::BODY_FIXED_POINT);
 
    #if DBGLVL_FINAL_PASS > 1
@@ -6894,6 +6833,71 @@ bool Interpreter::FinalPass()
          continue;
       }
    }
+
+   //-------------------------------------------------------------------
+   // Special case for Spacecraft, we need to set CoordinateSyatem
+   // pointer in which initial state is represented.  So that
+   // Spacecraft can convert initial state in user representation to
+   // internal representation (EarthMJ2000Eq Cartesian).
+   //-------------------------------------------------------------------
+   objList = theModerator->GetListOfObjects(Gmat::SPACECRAFT);
+
+   #if DBGLVL_FINAL_PASS > 1
+   MessageInterface::ShowMessage("FinalPass:: Spacecraft list =\n");
+   for (Integer ii = 0; ii < (Integer) objList.size(); ii++)
+      MessageInterface::ShowMessage("   %s\n", (objList.at(ii)).c_str());
+   #endif
+
+   for (StringArray::iterator i = objList.begin(); i != objList.end(); ++i)
+   {
+      obj = FindObject(*i);
+
+      // Now we have more than one CoordinateSystem from Spacecraft.
+      // In additions to Spacecraft's CS, it has to handle CS from Thrusters
+      // and Attitude. (LOJ: 2009.09.24)
+      //std::string csName = obj->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
+      StringArray csNames = obj->GetRefObjectNameArray(Gmat::COORDINATE_SYSTEM);
+      for (StringArray::iterator csName = csNames.begin();
+           csName != csNames.end(); ++csName)
+      {
+         GmatBase *csObj = FindObject(*csName);
+
+         // To catch as many errors we can, continue with next object
+         if (csObj == NULL)
+            continue;
+
+         #if DBGLVL_FINAL_PASS > 1
+         MessageInterface::ShowMessage
+            ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
+             csObj->GetName().c_str(), csObj, csObj->GetType());
+         #endif
+
+         if (csObj->GetType() != Gmat::COORDINATE_SYSTEM)
+         {
+            InterpreterException ex
+               ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
+                "\"CoordinateSystem\" to \"" + *csName + "\"");
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
+
+         try
+         {
+            obj->SetRefObject(csObj, Gmat::COORDINATE_SYSTEM, csObj->GetName());
+         }
+         catch (BaseException &e)
+         {
+            InterpreterException ex
+               ("The Spacecraft \"" + obj->GetName() + "\" failed to set "
+                "CoordinateSystem: " + e.GetFullMessage());
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
+      }
+   }
+
    
    //-------------------------------------------------------------------
    // Special case for SolverBranchCommand such as Optimize, Target,
