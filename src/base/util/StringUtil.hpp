@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 StringUtil
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -75,6 +75,7 @@ namespace GmatStringUtil
    GMAT_API StringArray SeparateByComma(const std::string &str);
    GMAT_API StringArray SeparateDots(const std::string &str);
    
+   GMAT_API bool IsNumber(const std::string &str);
    GMAT_API bool ToReal(const std::string &str, Real *value, bool trimParens = false);
    GMAT_API bool ToReal(const std::string &str, Real &value, bool trimParens = false);
    GMAT_API bool ToInteger(const std::string &str, Integer *value, bool trimParens = false);

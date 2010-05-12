@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 StringUtil
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -875,6 +875,25 @@ StringArray GmatStringUtil::SeparateDots(const std::string &chunk)
    #endif
 
    return parts;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsNumber(const std::string &str)
+//------------------------------------------------------------------------------
+/*
+ * @return  true if input string is a number.
+ */
+//------------------------------------------------------------------------------
+bool GmatStringUtil::IsNumber(const std::string &str)
+{
+   Real rval;
+   Integer ival;
+   
+   if (ToReal(str, rval) || ToInteger(str, ival))
+      return true;
+   else
+      return false;
 }
 
 
@@ -2500,8 +2519,12 @@ bool GmatStringUtil::HasNoBrackets(const std::string &str,
                   #endif
                   return false;
                }
-               hasNone = hasNone + HasNoBrackets(left, parensForArraysAllowed)
-                         + HasNoBrackets(right, parensForArraysAllowed);
+               // To remove compiler warning:
+               // forcing value to bool 'true' or 'false' (performance warning)
+               //hasNone = hasNone + HasNoBrackets(left, parensForArraysAllowed)
+               //          + HasNoBrackets(right, parensForArraysAllowed);
+               hasNone = HasNoBrackets(left, parensForArraysAllowed) ||
+                  HasNoBrackets(right, parensForArraysAllowed) || hasNone;
                if (!hasNone)
                {
                   #ifdef DEBUG_NO_BRACKETS
