@@ -1219,7 +1219,7 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
    if (!mUseViewPointRefVector && pViewPointRefObj)
    {
       mViewPointRefObjName = pViewPointRefObj->GetName();
-      mVpRefObjId = GetObjectId(mViewPointRefObjName);
+      mVpRefObjId = GetObjectId(mViewPointRefObjName.c_str());
       
       if (mVpRefObjId == GmatPlot::UNKNOWN_BODY)
       {
