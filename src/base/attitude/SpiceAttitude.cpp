@@ -134,8 +134,10 @@ SpiceAttitude& SpiceAttitude::operator=(const SpiceAttitude& att)
    ck             = att.ck;
    sclk           = att.sclk;
    fk             = att.fk;
+   #ifdef __USE_SPICE__
    if (reader) delete reader;
    reader         = (att.reader)->Clone();
+   #endif
    return *this;
 }
 
