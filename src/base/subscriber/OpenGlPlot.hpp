@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  OpenGlPlot
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -159,6 +159,7 @@ protected:
    CoordinateSystem *mViewCoordSystem;
    CoordinateSystem *mViewUpCoordSystem;
    SpacePoint *mViewCoordSysOrigin;
+   SpacePoint *mViewUpCoordSysOrigin;
    SpacePoint *mViewPointRefObj;
    SpacePoint *mViewPointObj;
    SpacePoint *mViewDirectionObj;

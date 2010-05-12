@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  OpenGlPlot
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -186,6 +186,7 @@ OpenGlPlot::OpenGlPlot(const std::string &name)
    mViewCoordSystem = NULL;
    mViewUpCoordSystem = NULL;
    mViewCoordSysOrigin = NULL;
+   mViewUpCoordSysOrigin = NULL;
    mViewPointRefObj = NULL;
    mViewPointObj = NULL;
    mViewDirectionObj = NULL;
@@ -283,6 +284,7 @@ OpenGlPlot::OpenGlPlot(const OpenGlPlot &ogl)
    mViewCoordSystem = ogl.mViewCoordSystem;
    mViewUpCoordSystem = ogl.mViewCoordSystem;
    mViewCoordSysOrigin = ogl.mViewCoordSysOrigin;
+   mViewUpCoordSysOrigin = ogl.mViewUpCoordSysOrigin;
    mViewPointRefObj = ogl.mViewPointRefObj;
    mViewPointObj = ogl.mViewPointObj;
    mViewDirectionObj = ogl.mViewDirectionObj;
@@ -371,6 +373,7 @@ OpenGlPlot& OpenGlPlot::operator=(const OpenGlPlot& ogl)
    mViewCoordSystem = ogl.mViewCoordSystem;
    mViewUpCoordSystem = ogl.mViewCoordSystem;
    mViewCoordSysOrigin = ogl.mViewCoordSysOrigin;
+   mViewUpCoordSysOrigin = ogl.mViewUpCoordSysOrigin;
    mViewPointRefObj = ogl.mViewPointRefObj;
    mViewPointObj = ogl.mViewPointObj;
    mViewDirectionObj = ogl.mViewDirectionObj;
@@ -770,18 +773,27 @@ bool OpenGlPlot::Initialize()
                ("OpenGlPlot::Initialize() CoordinateSystem: " + mViewUpCoordSysName +
                 " not set\n");               
          
-         // get CoordinateSystem Origin pointer
+         // Get View CoordinateSystem Origin pointer
          mViewCoordSysOrigin = mViewCoordSystem->GetOrigin();
          
          if (mViewCoordSysOrigin != NULL)
             UpdateObjectList(mViewCoordSysOrigin);
          
+         // Get View Up CoordinateSystem Origin pointer
+         mViewUpCoordSysOrigin = mViewUpCoordSystem->GetOrigin();
+         
+         if (mViewUpCoordSysOrigin != NULL)
+            UpdateObjectList(mViewUpCoordSysOrigin);
+         
+         // Get ViewPointRef object pointer from the current SolarSystem
          if (mViewPointRefObj != NULL)
             UpdateObjectList(mViewPointRefObj);
          
+         // Get ViewPoint object pointer from the current SolarSystem
          if (mViewPointObj != NULL)
             UpdateObjectList(mViewPointObj);
          
+         // Get ViewDirection object pointer from the current SolarSystem
          if (mViewDirectionObj != NULL)
             UpdateObjectList(mViewDirectionObj);
          
@@ -830,14 +842,28 @@ bool OpenGlPlot::Initialize()
          //--------------------------------------------------------
          #if DBGLVL_OPENGL_INIT
          MessageInterface::ShowMessage
-            ("   theInternalCoordSystem = <%p>, origin = %s\n"
-             "   theDataCoordSystem     = <%p>, origin = %s\n"
-             "   mViewCoordSystem       = <%p>, origin = %s\n"
-             "   mViewUpCoordSystem     = <%p>, origin = %s\n",
-             theInternalCoordSystem, theInternalCoordSystem->GetOriginName().c_str(),
-             theDataCoordSystem, theDataCoordSystem->GetOriginName().c_str(),
-             mViewCoordSystem, mViewCoordSystem->GetOriginName().c_str(),
-             mViewUpCoordSystem, mViewUpCoordSystem->GetOriginName().c_str());
+            ("   theInternalCoordSystem = <%p>, origin = <%p>'%s'\n"
+             "   theDataCoordSystem     = <%p>, origin = <%p>'%s'\n"
+             "   mViewCoordSystem       = <%p>, origin = <%p>'%s'\n"
+             "   mViewUpCoordSystem     = <%p>, origin = <%p>'%s'\n"
+             "   mViewPointRefObj       = <%p>'%s'\n"
+             "   mViewPointObj          = <%p>'%s'\n"
+             "   mViewDirectionObj      = <%p>'%s'\n",
+             theInternalCoordSystem, theInternalCoordSystem->GetOrigin(),
+             theInternalCoordSystem->GetOriginName().c_str(),
+             theDataCoordSystem, theDataCoordSystem->GetOrigin(),
+             theDataCoordSystem->GetOriginName().c_str(),
+             mViewCoordSystem, mViewCoordSystem->GetOrigin(),
+             mViewCoordSystem->GetOriginName().c_str(),
+             mViewUpCoordSystem, mViewUpCoordSystem->GetOrigin(),
+             mViewUpCoordSystem->GetOriginName().c_str(),
+             mViewPointRefObj,
+             mViewPointRefObj ? mViewPointRefObj->GetName().c_str() : "NULL",
+             mViewPointObj,
+             mViewPointObj ? mViewPointObj->GetName().c_str() : "NULL",
+             mViewDirectionObj,
+             mViewDirectionObj ? mViewDirectionObj->GetName().c_str() : "NULL");
+         
          MessageInterface::ShowMessage
             ("   calling PlotInterface::SetGlCoordSystem()\n");
          #endif
@@ -1569,6 +1595,12 @@ bool OpenGlPlot::SetStringParameter(const Integer id, const std::string &value)
    case VIEWPOINT_REF:
       WriteDeprecatedMessage(id);
       mViewPointRefName = value;
+      mViewPointRefType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewPointRefType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewPointRefVector, id, value);
@@ -1577,6 +1609,12 @@ bool OpenGlPlot::SetStringParameter(const Integer id, const std::string &value)
       return true;
    case VIEWPOINT_REFERENCE:
       mViewPointRefName = value;
+      mViewPointRefType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewPointRefType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewPointRefVector, id, value);
@@ -1587,6 +1625,12 @@ bool OpenGlPlot::SetStringParameter(const Integer id, const std::string &value)
       return true;
    case VIEWPOINT_VECTOR:
       mViewPointVecName = value;
+      mViewPointVecType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewPointVecType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewPointVecVector, id, value);
@@ -1598,6 +1642,12 @@ bool OpenGlPlot::SetStringParameter(const Integer id, const std::string &value)
       return true;
    case VIEW_DIRECTION:
       mViewDirectionName = value;
+      mViewDirectionType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewDirectionType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewDirectionVector, id, value);
@@ -2162,6 +2212,14 @@ bool OpenGlPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          }
       }
       
+      #if DBGLVL_OPENGL_OBJ
+      MessageInterface::ShowMessage
+         ("OpenGlPlot::SetRefObject() realName='%s', mViewPointRefName='%s', "
+          "mViewPointVecName='%s', mViewDirectionName='%s'\n", realName.c_str(),
+          mViewPointRefName.c_str(), mViewPointVecName.c_str(),
+          mViewDirectionName.c_str());
+      #endif
+      
       // ViewPoint info
       if (realName == mViewPointRefName)
          mViewPointRefObj = (SpacePoint*)obj;
@@ -2169,12 +2227,18 @@ bool OpenGlPlot::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       if (realName == mViewPointVecName)
          mViewPointObj = (SpacePoint*)obj;
       
-      else if (realName == mViewDirectionName)
+      if (realName == mViewDirectionName)
          mViewDirectionObj = (SpacePoint*)obj;
       
+      #if DBGLVL_OPENGL_OBJ
+      MessageInterface::ShowMessage
+         ("OpenGlPlot::SetRefObject() mViewPointRefObj=<%p>, mViewPointObj=<%p>, "
+          "mViewDirectionObj=<%p>\n", mViewPointRefObj, mViewPointObj,
+          mViewDirectionObj);
+      #endif
       return true;
    }
-
+   
    return Subscriber::SetRefObject(obj, type, realName);
 }
 
@@ -2539,13 +2603,13 @@ void OpenGlPlot::ClearDynamicArrays()
  */
 //------------------------------------------------------------------------------
 void OpenGlPlot::UpdateObjectList(SpacePoint *sp, bool show)
-{
+{   
    // Add all spacepoint objects
    std::string name = sp->GetName();
    StringArray::iterator pos = 
       find(mObjectNameArray.begin(), mObjectNameArray.end(), name);
-
-   // if name not found
+   
+   // if name not found, add to arrays
    if (pos == mObjectNameArray.end())
    {
       mObjectNameArray.push_back(name);
