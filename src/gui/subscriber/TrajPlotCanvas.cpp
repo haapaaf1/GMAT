@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              TrajPlotCanvas
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -1090,8 +1090,8 @@ void TrajPlotCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
 {
    #if DEBUG_TRAJCANVAS_CS
    MessageInterface::ShowMessage
-      ("TrajPlotCanvas::SetGlCoordSystem() for '%s', internalCs=<%p>, viewCs=<%p>, "
-       " viweUpCs=%p\n",  mPlotName.c_str(), internalCs, viewCs, viewUpCs);
+      ("TrajPlotCanvas::SetGlCoordSystem() '%s' entered, internalCs=<%p>, viewCs=<%p>, "
+       "viweUpCs=%p\n",  mPlotName.c_str(), internalCs, viewCs, viewUpCs);
    #endif
    
    if (internalCs == NULL || viewCs == NULL || viewUpCs == NULL)
@@ -1147,6 +1147,8 @@ void TrajPlotCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
    MessageInterface::ShowMessage
       ("   mViewUpCoordSysName=%s, mViewObjName=%s, mViewObjId=%d\n",
        mViewUpCoordSysName.c_str(), mViewObjName.c_str(), mViewObjId);
+   MessageInterface::ShowMessage
+      ("TrajPlotCanvas::SetGlCoordSystem() '%s' leaving\n",  mPlotName.c_str());
    #endif
    
 } // end SetGlCoordSystem()
@@ -1185,7 +1187,7 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
    pViewPointRefObj = vpRefObj;
    pViewPointVectorObj = vpVecObj;
    pViewDirectionObj = vdObj;
-      
+   
    mViewScaleFactor = vsFactor;
    mViewPointRefVector = vpRefVec;
    mViewPointVector = vpVec;
@@ -1200,11 +1202,11 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
    Rvector3 lvpRefVec(vpRefVec);
    Rvector3 lvpVec(vpVec);
    Rvector3 lvdVec(vdVec);
-      
+   
    #if DEBUG_TRAJCANVAS_PROJ
    MessageInterface::ShowMessage
-      ("TrajPlotCanvas::SetGlViewOption() pViewPointRefObj=%p, "
-       "pViewPointVectorObj=%p\n   pViewDirectionObj=%p, mViewScaleFactor=%f   "
+      ("TrajPlotCanvas::SetGlViewOption() entered, pViewPointRefObj=<%p>, "
+       "pViewPointVectorObj=<%p>\n   pViewDirectionObj=<%p>, mViewScaleFactor=%f   "
        "mViewPointRefVector=%s\n   mViewPointVector=%s, mViewDirectionVector=%s, "
        "mViewUpAxisName=%s\n   mUseViewPointRefVector=%d, mUseViewDirectionVector=%d, "
        "mUseFixedFov=%d, mFixedFovAngle=%f\n",  pViewPointRefObj, pViewPointVectorObj,
@@ -1214,18 +1216,18 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
    #endif
    
    // Set viewpoint ref. object id
-   if (!mUseViewPointRefVector && pViewPointRefObj)
+   if (!mUseViewPointRefVector && pViewPointRefObj && pViewDirectionObj)
    {
       mViewObjName = pViewDirectionObj->GetName().c_str();
       mViewPointRefObjName = pViewPointRefObj->GetName();
       
-      mVpRefObjId = GetObjectId(pViewPointRefObj->GetName().c_str());
+      mVpRefObjId = GetObjectId(mViewPointRefObjName);
       
       if (mVpRefObjId == GmatPlot::UNKNOWN_BODY)
       {
          mUseViewPointRefVector = true;
          MessageInterface::ShowMessage
-            ("*** Warning *** TrajPlotCanvas::SetGlViewOption() Cannot find "
+            ("*** WARNING *** TrajPlotCanvas::SetGlViewOption() Cannot find "
              "pViewPointRefObj name=%s, so using vector=%s\n",
              pViewPointRefObj->GetName().c_str(),
              mViewPointRefVector.ToString().c_str());
@@ -1237,10 +1239,15 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
       
       if (!mUseViewPointRefVector)
          MessageInterface::ShowMessage
-            ("*** Warning *** TrajPlotCanvas::SetGlViewOption() "
-             "ViewPointRefObject is NULL,"
+            ("*** WARNING *** TrajPlotCanvas::SetGlViewOption() "
+             "ViewPointRefObject is NULL, "
              "so will use default Vector instead.\n");
    }
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("   mViewObjName='%s', mViewPointRefObjName='%s', mVpRefObjId=%d\n",
+       mViewObjName.c_str(), mViewPointRefObjName.c_str(), mVpRefObjId);
+   #endif
    
    // Set viewpoint vector object id
    if (!mUseViewPointVector && pViewPointVectorObj)
@@ -1251,7 +1258,7 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
       {
          mUseViewPointVector = true;
          MessageInterface::ShowMessage
-            ("*** Warning *** TrajPlotCanvas::SetGlViewOption() Cannot find "
+            ("*** WARNING *** TrajPlotCanvas::SetGlViewOption() Cannot find "
              "pViewPointVectorObj name=%s, so using vector=%s\n",
              pViewPointVectorObj->GetName().c_str(),
              mViewPointVector.ToString().c_str());
@@ -1261,10 +1268,15 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
    {
       if (!mUseViewPointVector)
          MessageInterface::ShowMessage
-            ("*** Warning *** TrajPlotCanvas::SetGlViewOption() "
+            ("*** WARNING *** TrajPlotCanvas::SetGlViewOption() "
              "ViewPointVectorObject is NULL, "
              "so will use default Vector instead.\n");
    }
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("   mVpVecObjId=%d, mUseViewPointVector=%d\n", mVpVecObjId,
+       mUseViewPointVector);
+   #endif
    
    // Set view direction object id
    if (!mUseViewDirectionVector && pViewDirectionObj)
@@ -1275,7 +1287,7 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
       {
          mUseViewDirectionVector = true;
          MessageInterface::ShowMessage
-            ("*** Warning *** TrajPlotCanvas::SetGlViewOption() Cannot find "
+            ("*** WARNING *** TrajPlotCanvas::SetGlViewOption() Cannot find "
              "pViewDirectionObj name=%s, so using vector=%s\n",
              pViewDirectionObj->GetName().c_str(),
              mViewDirectionVector.ToString().c_str());
@@ -1285,10 +1297,15 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
    {
       if (!mUseViewDirectionVector)
          MessageInterface::ShowMessage
-            ("*** Warning *** TrajPlotCanvas::SetGlViewOption() "
-             "ViewDirectionObject is NULL,"
+            ("*** WARNING *** TrajPlotCanvas::SetGlViewOption() "
+             "ViewDirectionObject is NULL, "
              "so will use default Vector instead.\n");
    }
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("   mVdirObjId=%d, mUseViewDirectionVector=%d\n", mVdirObjId,
+       mUseViewDirectionVector);
+   #endif
    
    // Set view up direction
    if (mViewUpAxisName == "X")
@@ -1304,6 +1321,9 @@ void TrajPlotCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
    else if (mViewUpAxisName == "-Z")
       mUpState.Set(0.0, 0.0, -1.0, 0.0, 0.0, 0.0);
    
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage("TrajPlotCanvas::SetGlViewOption() leaving\n");
+   #endif
 } //end SetGlViewOption()
 
 
@@ -2648,7 +2668,7 @@ void TrajPlotCanvas::ComputeViewVectors()
    {
       #if DEBUG_TRAJCANVAS_PROJ
       MessageInterface::ShowMessage
-         ("ComputeViewVectors() pViewPointRefObj=%p, name=%s\n",
+         ("ComputeViewVectors() pViewPointRefObj=<%p>, name=%s\n",
           pViewPointRefObj, pViewPointRefObj->GetName().c_str());
       #endif
       
@@ -2673,14 +2693,18 @@ void TrajPlotCanvas::ComputeViewVectors()
    // get viewpoint vector
    //-----------------------------------------------------------------
    mVpVec = mViewPointVector;
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("ComputeViewVectors() initial mVpVec=%s\n", mVpVec.ToString().c_str());
+   #endif
    
    if (!mUseViewPointVector && pViewPointVectorObj != NULL)
    {
       #if DEBUG_TRAJCANVAS_PROJ
       MessageInterface::ShowMessage
-         ("ComputeViewVectors() pViewPointVectorObj=%p, name=%s, mVpVecObjId=%d\n",
-          pViewPointVectorObj, pViewPointVectorObj->GetName().c_str(),
-          mVpVecObjId);
+         ("ComputeViewVectors() pViewPointVectorObj=<%p>, name=%s, "
+          "mVpVecObjId=%d, mUseGluLookAt=%d\n", pViewPointVectorObj,
+          pViewPointVectorObj->GetName().c_str(), mVpVecObjId, mUseGluLookAt);
       #endif
       
       // if valid body id
@@ -2694,10 +2718,9 @@ void TrajPlotCanvas::ComputeViewVectors()
             mVpVec.Set(-mObjectViewPos[index+0],
                        -mObjectViewPos[index+1],
                        -mObjectViewPos[index+2]);
-
-            // set z component to zero so that plane doesn't move up and down
-            mVpVec[2] = 0.0;
             
+            // set z component to zero so that plane doesn't move up and down
+            ////mVpVec[2] = 0.0; //commented out LOJ: 2010.05.11
          }
          else
          {
@@ -2715,22 +2738,45 @@ void TrajPlotCanvas::ComputeViewVectors()
              "mVpVecObjId=%d\n", mVpVecObjId);
       }
    }
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("ComputeViewVectors() final mVpVec=%s\n", mVpVec.ToString().c_str());
+   #endif
    
    //-----------------------------------------------------------------
    // get viewpoint location
    //-----------------------------------------------------------------
    mVpLocVec = mVpRefVec + (mViewScaleFactor * mVpVec);
    
+   if (mVpLocVec.IsZeroVector())
+   {
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Viewpoint location vector is zero, so setting "
+          "vector to [ 0 0 30000]\n");
+      mVpLocVec.Set(0.0, 0.0, 30000.0);
+   }
+   
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("ComputeViewVectors() mVpLocVec=%s, mVpRefVec=%s, mViewScaleFactor=%f\n",
+       mVpLocVec.ToString().c_str(), mVpRefVec.ToString().c_str(),
+       mViewScaleFactor);
+   #endif
+   
    //-----------------------------------------------------------------
    // get view direction and view center vector
    //-----------------------------------------------------------------
    mVdVec = mViewDirectionVector;
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("ComputeViewVectors() initial mVdVec=%s\n", mVdVec.ToString().c_str());
+   #endif
    
    if (!mUseViewDirectionVector && pViewDirectionObj != NULL)
    {
       #if DEBUG_TRAJCANVAS_PROJ
       MessageInterface::ShowMessage
-         ("ComputeViewVectors() pViewDirectionObj=%p, name=%s\n",
+         ("ComputeViewVectors() pViewDirectionObj=<%p>, name=%s\n",
           pViewDirectionObj, pViewDirectionObj->GetName().c_str());
       #endif
       
@@ -2760,6 +2806,18 @@ void TrajPlotCanvas::ComputeViewVectors()
              "mVdirObjId=%d\n", mVdirObjId);
       }
    }
+   #if DEBUG_TRAJCANVAS_PROJ
+   MessageInterface::ShowMessage
+      ("ComputeViewVectors() final mVdVec=%s\n", mVdVec.ToString().c_str());
+   #endif
+   
+   if (mVdVec.IsZeroVector())
+   {
+      MessageInterface::ShowMessage
+         ("*** WARNING *** View direction vector is zero, so setting "
+          "vector to [ 0 0 -30000]\n");
+      mVdVec.Set(0.0, 0.0, -30000.0);
+   }
    
    // set view center vector for gluLookAt()
    mVcVec = mVdVec;
@@ -2771,7 +2829,6 @@ void TrajPlotCanvas::ComputeViewVectors()
        mVpVec.ToString().c_str(), mVpLocVec.ToString().c_str(),
        mVdVec.ToString().c_str(), mVcVec.ToString().c_str());
    #endif
-   
    
    //-----------------------------------------------------------------
    // set view center object
@@ -2836,11 +2893,14 @@ void TrajPlotCanvas::ComputeUpAngleAxis()
    
    Rvector3 vdUnit = mVdVec.GetUnitVector();
    Real upDotView = mUpVec * vdUnit;
-   //MessageInterface::ShowMessage("===> upDotView = %f\n", upDotView);
    
    if (Abs(upDotView) == 1.0)
    {
-      //MessageInterface::ShowMessage("===> mUpVec and mVdVec are on the same axis.\n");
+      #if DEBUG_TRAJCANVAS_PROJ
+      MessageInterface::ShowMessage
+         ("TrajPlotCanvas::ComputeUpAngleAxis() mUpVec and mVdVec are on the "
+          "same axis.\n");
+      #endif
       
       if (Abs(mUpVec[0]) > 0.0)
          mVcVec = Cross(mUpVec, Rvector3(0.0, -1.0, 0.0));
@@ -2848,9 +2908,9 @@ void TrajPlotCanvas::ComputeUpAngleAxis()
          mVcVec = Cross(mUpVec, Rvector3(0.0, 0.0, -1.0));
       else
          mVcVec = Cross(mUpVec, Rvector3(-1.0, 0.0, 0.0));
-
+      
       mVdVec = Cross(mVdVec, mVcVec);
-
+      
       // if using gluLookAt, we don't want view point and view up direction line up
       if (mUseGluLookAt)
          mVpLocVec = -mVdVec;
@@ -4496,14 +4556,15 @@ void TrajPlotCanvas::UpdateOtherData(const Real &time)
              mObjectNames[objId].c_str());
          #endif
          
-         // if object id found
+         // if object id found, get object's state
          if (objId != UNKNOWN_OBJ_ID)
          {
+            // Commented out continue since we still need to get object's
+            // position for viewpoint or view direction object (LOJ: 2010.05.11)
             if (!mDrawOrbitArray[objId])
             {
-               //mDrawOrbitFlag[objId*MAX_DATA+mNumData] = false;
                mDrawOrbitFlag[objId * MAX_DATA + mLastIndex] = false;
-               continue;
+               //continue;
             }
             
             int colorIndex = objId * MAX_DATA + mLastIndex;
@@ -4517,7 +4578,7 @@ void TrajPlotCanvas::UpdateOtherData(const Real &time)
             mObjectGciVel[posIndex+0] = objState[3];
             mObjectGciVel[posIndex+1] = objState[4];
             mObjectGciVel[posIndex+2] = objState[5];
-               
+            
             #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
             MessageInterface::ShowMessage
                ("TrajPlotCanvas::UpdateOtherData() %s, posIndex=%d, objState=%s\n",
@@ -4721,7 +4782,7 @@ bool TrajPlotCanvas::ConvertObjectData()
          #if DEBUG_TRAJCANVAS_CONVERT
          MessageInterface::ShowMessage
             ("TrajPlotCanvas::ConvertObjectData() mObjectNames[%d]=%s\n", objId,
-             mObjectNames[i].c_str());
+             mObjectNames[obj].c_str());
          #endif         
          
          // Draw first part from the ring buffer
