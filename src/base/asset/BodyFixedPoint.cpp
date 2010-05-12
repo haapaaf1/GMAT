@@ -41,6 +41,7 @@
 
 //#define DEBUG_OBJECT_MAPPING
 //#define DEBUG_INIT
+//#define DEBUG_BF_REF
 //#define TEST_BODYFIXED_POINT
 //#define DEBUG_BODYFIXED_STATE
 
@@ -891,6 +892,19 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
 
 //------------------------------------------------------------------------------
+// virtual bool HasRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool BodyFixedPoint::HasRefObjectTypeArray()
+{
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
 // 
 //------------------------------------------------------------------------------
 /**
@@ -904,8 +918,8 @@ std::string BodyFixedPoint::GetRefObjectName(const Gmat::ObjectType type) const
 const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    #ifdef DEBUG_BF_REF
-      MessageInterface::ShowMessage("In BFP::GetRefObjectNameArray, requesting type %d\n",
-            (Integer) type);
+      MessageInterface::ShowMessage("In BFP::GetRefObjectNameArray, requesting type %d (%s)\n",
+            (Integer) type, (GmatBase::OBJECT_TYPE_STRING[type]).c_str());
    #endif
    // This is a hack assuming Earth-centered coordinates for everything
    static StringArray csNames;
