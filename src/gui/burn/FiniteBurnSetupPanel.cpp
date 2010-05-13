@@ -14,6 +14,7 @@
 
 #include "FiniteBurnSetupPanel.hpp"
 #include "MessageInterface.hpp"
+#include <wx/config.h>
 
 //#define DEBUG_FINITEBURN_PANEL 1
 
@@ -118,7 +119,12 @@ void FiniteBurnSetupPanel::Create()
    
    Integer bsize;
 
-   if (theBurn != NULL)
+    // get the config object
+    wxConfigBase *pConfig = wxConfigBase::Get();
+    // SetPath() understands ".."
+    pConfig->SetPath(wxT("/Finite Burn Setup"));
+
+    if (theBurn != NULL)
    {
       bsize = 2; // border size
       
@@ -127,9 +133,10 @@ void FiniteBurnSetupPanel::Create()
       
       // Thrusters
       wxStaticText *thrusterLabel = new wxStaticText(this, ID_TEXT,
-         wxT("Thruster"), wxDefaultPosition, wxDefaultSize, 0);
+         wxT(GUI_ACCEL_KEY"Thruster"), wxDefaultPosition, wxDefaultSize, 0);
       mThrusterComboBox =
          theGuiManager->GetThrusterComboBox(this, ID_COMBOBOX, wxSize(150,-1));
+      mThrusterComboBox->SetToolTip(pConfig->Read(_T("ThrusterHint")));
       
       // add to page sizer    
       pageSizer->Add(thrusterLabel, 0, wxALIGN_LEFT | wxALL, bsize);
