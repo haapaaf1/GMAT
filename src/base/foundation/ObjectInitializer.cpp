@@ -26,7 +26,7 @@
 #include "ObjectInitializer.hpp"
 #include "SolarSystem.hpp"
 #include "CoordinateSystem.hpp"
-#include "GmatBaseException.hpp"   // need a specific one here?  ObjectExecption?
+#include "GmatBaseException.hpp"
 #include "SubscriberException.hpp"
 #include "Publisher.hpp"
 
@@ -36,13 +36,6 @@
 //#define DEBUG_INITIALIZE_OBJ
 //#define DEBUG_INITIALIZE_CS
 //#define DEBUG_BUILD_ASSOCIATIONS
-
-// Cloning the hardware in the spacecraft is now good to go (LOJ: 2009.08.25)
-// But if we want to have the old code, just uncomment the lines here and in
-// the Spacecraft
-//#ifndef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-//#define __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-//#endif
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -189,14 +182,14 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
    for (iter = LOS->begin(); iter != LOS->end(); ++iter)
    {
       if (iter->second == NULL)
-         throw CommandException
+         throw GmatBaseException
             ("ObjectInitializer::InitializeObjects() cannot continue "
              "due to \"" + iter->first + "\" has NULL object pointer in LOS");
    }
    for (iter = GOS->begin(); iter != GOS->end(); ++iter)
    {
       if (iter->second == NULL)
-         throw CommandException
+         throw GmatBaseException
             ("ObjectInitializer::InitializeObjects() cannot continue "
              "due to \"" + iter->first + "\" has NULL object pointer in GOS");
    }
@@ -1092,6 +1085,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
    {
       StringArray oNameArray =
          obj->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+      oNameArray = obj->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
       for (StringArray::iterator i = oNameArray.begin();
            i != oNameArray.end(); ++i)
       {
@@ -1230,6 +1224,7 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
    if (obj->IsOfType(Gmat::SPACECRAFT))
    {
       StringArray hw = obj->GetRefObjectNameArray(Gmat::HARDWARE);
+      hw = obj->GetRefObjectNameArray(Gmat::HARDWARE);
       for (StringArray::iterator i = hw.begin(); i < hw.end(); ++i)
       {
          #ifdef DEBUG_BUILD_ASSOCIATIONS
@@ -1244,23 +1239,8 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
                                     "hardware element \"" + (*i) + "\"\n");
          
          // To handle Spacecraft hardware setting inside the function,
-         // all hardware are cloned in the SetRefObject() method. (LOJ: 2009.07.24)
-         #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-            GmatBase *newElem = elem->Clone();
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Add
-               (newElem, newElem->GetName(), "ObjectInitializer::BuildAssociations()",
-                "newElem = elem->Clone()");
-            #endif         
-            #ifdef DEBUG_BUILD_ASSOCIATIONS
-               MessageInterface::ShowMessage
-                  ("ObjectInitializer::BuildAssociations() created clone \"%s\" of type \"%s\"\n",
-                  newElem->GetName().c_str(), newElem->GetTypeName().c_str());
-            #endif
-         #else
-            // Spacecraft will clone the hardware in SetRefObject()
-            GmatBase *newElem = elem;
-         #endif
+         // all hardware are cloned in the Spacecraft::SetRefObject() method. (LOJ: 2009.07.24)
+         GmatBase *newElem = elem;
          
          // now set Hardware to Spacecraft
          if (!obj->SetRefObject(newElem, newElem->GetType(), newElem->GetName()))
