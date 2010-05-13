@@ -556,6 +556,7 @@ bool GmatBase::HasRefObjectTypeArray()
 const ObjectTypeArray& GmatBase::GetRefObjectTypeArray()
 {
    // should return empty array
+   refObjectTypes.clear();
    return refObjectTypes;
 }
 
@@ -574,9 +575,13 @@ const ObjectTypeArray& GmatBase::GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 const StringArray& GmatBase::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   throw GmatBaseException("GetRefObjectNameArray(" + GetObjectTypeString(type) +
-                           ") not defined for " + typeName + " named \"" +
-                           instanceName + "\"\n");
+   // Changed to return empty array (LOJ: 2010.05.13)
+   refObjectNames.clear();
+   return refObjectNames;
+   
+   //throw GmatBaseException("GetRefObjectNameArray(" + GetObjectTypeString(type) +
+   //                        ") not defined for " + typeName + " named \"" +
+   //                        instanceName + "\"\n");
 }
 
 //---------------------------------------------------------------------------
