@@ -17,6 +17,7 @@
 #include "TimeSystemConverter.hpp"  // for Convert()
 #include "StringUtil.hpp"           // for ToReal()
 #include "MessageInterface.hpp"
+#include <wx/config.h>
 
 //#define DEBUG_COORD_PANEL 1
 
@@ -576,29 +577,34 @@ void CoordPanel::Create()
 //------------------------------------------------------------------------------
 void CoordPanel::Setup( wxWindow *parent)
 {
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Coordinate System"));
+
     // wxStaticText
-   originStaticText = new wxStaticText( parent, ID_TEXT, wxT("Origin"),
+   originStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"Origin"),
       wxDefaultPosition, wxDefaultSize, 0 );
-   typeStaticText = new wxStaticText( parent, ID_TEXT, wxT("Type"),
+   typeStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"Type"),
       wxDefaultPosition, wxDefaultSize, 0 );
-   primaryStaticText = new wxStaticText( parent, ID_TEXT, wxT("Primary"),
+   primaryStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"Primary"),
       wxDefaultPosition, wxDefaultSize, 0 );
-   formatStaticText = new wxStaticText( parent, ID_TEXT, wxT("Epoch Format"),
+   formatStaticText = new wxStaticText( parent, ID_TEXT, wxT("Epoch "GUI_ACCEL_KEY"Format"),
       wxDefaultPosition, wxDefaultSize, 0 );
-   secondaryStaticText = new wxStaticText( parent, ID_TEXT, wxT("Secondary"),
+   secondaryStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"Secondary"),
       wxDefaultPosition, wxDefaultSize, 0 );
-   epochStaticText = new wxStaticText( parent, ID_TEXT, wxT("Epoch"),
+   epochStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"Epoch"),
       wxDefaultPosition, wxDefaultSize, 0 );
-   updateStaticText = new wxStaticText( parent, ID_TEXT, wxT("Update Interval"),
+   updateStaticText = new wxStaticText( parent, ID_TEXT, wxT("Update "GUI_ACCEL_KEY"Interval"),
       wxDefaultPosition, wxDefaultSize, 0 );
    secStaticText = new wxStaticText( parent, ID_TEXT, wxT("seconds"),
       wxDefaultPosition, wxDefaultSize, 0 );
 
-   xStaticText = new wxStaticText( parent, ID_TEXT, wxT("X: "),
+   xStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"X: "),
       wxDefaultPosition, wxDefaultSize, 0 );
-   yStaticText = new wxStaticText( parent, ID_TEXT, wxT("Y: "),
+   yStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"Y: "),
       wxDefaultPosition, wxDefaultSize, 0 );
-   zStaticText = new wxStaticText( parent, ID_TEXT, wxT("Z: "),
+   zStaticText = new wxStaticText( parent, ID_TEXT, wxT(GUI_ACCEL_KEY"Z: "),
       wxDefaultPosition, wxDefaultSize, 0 );
           
    #if __WXMAC__
@@ -616,31 +622,41 @@ void CoordPanel::Setup( wxWindow *parent)
    // wxComboBox
    originComboBox = theGuiManager->GetSpacePointComboBox(this, ID_COMBO,
       wxSize(120,-1), false);
+   originComboBox->SetToolTip(pConfig->Read(_T("OriginHint")));
    typeComboBox = new wxComboBox
       ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(120,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
+   typeComboBox->SetToolTip(pConfig->Read(_T("TypeHint")));
    primaryComboBox = theGuiManager->GetSpacePointComboBox(this, ID_COMBO,
       wxSize(120,-1), false);
+   primaryComboBox->SetToolTip(pConfig->Read(_T("PrimaryHint")));
    formatComboBox = new wxComboBox
       ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(120,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
+   formatComboBox->SetToolTip(pConfig->Read(_T("EpochFormatHint")));
    secondaryComboBox = theGuiManager->GetSpacePointComboBox(this, ID_COMBO,
       wxSize(120,-1), false);
+   secondaryComboBox->SetToolTip(pConfig->Read(_T("SecondaryHint")));
    xComboBox = new wxComboBox
       ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(50,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
+   xComboBox->SetToolTip(pConfig->Read(_T("XHint")));
    yComboBox = new wxComboBox
       ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(50,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
+   yComboBox->SetToolTip(pConfig->Read(_T("YHint")));
    zComboBox = new wxComboBox
       ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(50,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
+   zComboBox->SetToolTip(pConfig->Read(_T("ZHint")));
 
    //wxTextCtrl
    epochTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""),
       wxDefaultPosition, wxSize(120,-1), 0 );
+   epochTextCtrl->SetToolTip(pConfig->Read(_T("EpochHint")));
    intervalTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""),
       wxDefaultPosition, wxSize(45,-1), 0 );
+   intervalTextCtrl->SetToolTip(pConfig->Read(_T("UpdateIntervalHint")));
 
    // wx*Sizers
    wxBoxSizer *theMainSizer = new wxBoxSizer( wxVERTICAL );
