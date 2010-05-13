@@ -1386,7 +1386,8 @@ GuiItemManager::GetSpacePointComboBox(wxWindow *parent, wxWindowID id,
       spacePointComboBox->Append("Vector");
    
    for (int i=0; i<theNumSpacePoint; i++)
-      spacePointComboBox->Append(theSpacePointList[i]);
+      if (spacePointComboBox->FindString(theSpacePointList[i]) == wxNOT_FOUND)
+         spacePointComboBox->Append(theSpacePointList[i]);
    
    //---------------------------------------------
    // register to update list
