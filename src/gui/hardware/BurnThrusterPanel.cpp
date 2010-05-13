@@ -23,6 +23,7 @@
 #include "ThrusterCoefficientDialog.hpp"
 #include "GmatStaticBoxSizer.hpp"
 #include <wx/variant.h>
+#include <wx/config.h>
 
 //#define DEBUG_BURNPANEL_CREATE
 //#define DEBUG_BURNPANEL_LOAD
@@ -102,35 +103,42 @@ void BurnThrusterPanel::Create()
    #endif
    
    Integer bsize = 2; // border size
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Burn Thruster"));
    
    //-----------------------------------------------------------------
    // coordinate system items
    //-----------------------------------------------------------------
    // Coordinate Systems 
    wxStaticText *coordSysLabel =
-      new wxStaticText(this, ID_TEXT, wxT("Coordinate System"));
+      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Coordinate System"));
    coordSysComboBox  =
       theGuiManager->GetCoordSysComboBox(this, ID_COMBOBOX, wxSize(150,-1));
+   coordSysComboBox->SetToolTip(pConfig->Read(_T("CoordinateSystemHint")));
    
    // Addd Local to CoordinateSystem list
    coordSysComboBox->Insert("Local", 0);
    
    // Origin
-   originLabel = new wxStaticText(this, ID_TEXT, wxT("Origin"));
+   originLabel = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Origin"));
    originComboBox =
       theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX,
                                               wxSize(150,-1));
+   originComboBox->SetToolTip(pConfig->Read(_T("OriginHint")));
    
    // Axes 
    StringArray axesLabels = theObject->GetPropertyEnumStrings("Axes");
    wxArrayString wxAxesLabels = ToWxArrayString(axesLabels);
    
-   axisLabel = new wxStaticText(this, ID_TEXT, wxT("Axes"));
+   axisLabel = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Axes"));
    
    axesComboBox = 
       new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, 
                      wxSize(150,-1), wxAxesLabels, wxCB_DROPDOWN|wxCB_READONLY);
    axesComboBox->SetSelection(0);
+   axesComboBox->SetToolTip(pConfig->Read(_T("AxesHint")));
    
    //----- Add to sizer
    wxFlexGridSizer *coordSysSizer = new wxFlexGridSizer(3, 0, 0);
@@ -156,27 +164,30 @@ void BurnThrusterPanel::Create()
    
    // ThrustDirection1
    wxStaticText *elem1Unit = new wxStaticText(this, ID_TEXT, wxT(" km/s"));
-   wxStaticText *XLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection1"));
+   wxStaticText *XLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection"GUI_ACCEL_KEY"1"));
    elem1TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                      wxDefaultPosition, wxSize(150,-1), 0);
+                      wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+   elem1TextCtrl->SetToolTip(pConfig->Read(_T("ThrustDirection1Hint")));
    
    // ThrustDirection2
    wxStaticText *elem2Unit =
       new wxStaticText(this, ID_TEXT, wxT(" km/s"));
    wxStaticText *YLabel =
-      new wxStaticText(this, ID_TEXT, wxT("ThrustDirection2"),
+      new wxStaticText(this, ID_TEXT, wxT("ThrustDirection"GUI_ACCEL_KEY"2"),
                         wxDefaultPosition,wxDefaultSize, 0);
    elem2TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                      wxDefaultPosition, wxSize(150,-1), 0);
+                      wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+   elem2TextCtrl->SetToolTip(pConfig->Read(_T("ThrustDirection2Hint")));
    
    // ThrustDirection3
    wxStaticText *elem3Unit = new wxStaticText(this, ID_TEXT, wxT(" km/s"));
-   wxStaticText *ZLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection3"));
+   wxStaticText *ZLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection"GUI_ACCEL_KEY"3"));
    elem3TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                     wxDefaultPosition, wxSize(150,-1), 0);
+                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+   elem3TextCtrl->SetToolTip(pConfig->Read(_T("ThrustDirection3Hint")));
    
    wxStaticText *dutyCycleLabel = NULL;
    wxStaticText *scaleFactorLabel = NULL;
@@ -185,17 +196,19 @@ void BurnThrusterPanel::Create()
    {
       // Thruster Duty Cycle
       dutyCycleLabel =
-         new wxStaticText(this, ID_TEXT, wxT("Duty Cycle"));
+         new wxStaticText(this, ID_TEXT, wxT("Duty "GUI_ACCEL_KEY"Cycle"));
       dutyCycleTextCtrl =
          new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                        wxDefaultPosition, wxSize(150,-1), 0);
+                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+      dutyCycleTextCtrl->SetToolTip(pConfig->Read(_T("DutyCycleHint")));
       
       // Thruster Scale Factor
       scaleFactorLabel =
-         new wxStaticText(this, ID_TEXT, wxT("Thrust Scale Factor"));
+         new wxStaticText(this, ID_TEXT, wxT("Thrust "GUI_ACCEL_KEY"Scale Factor"));
       scaleFactorTextCtrl =
          new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
-                        wxDefaultPosition, wxSize(150,-1), 0);
+                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+      scaleFactorTextCtrl->SetToolTip(pConfig->Read(_T("ThrustScaleFactorHint")));
    }
    
    //----- Add to sizer   
@@ -232,14 +245,16 @@ void BurnThrusterPanel::Create()
    //-----------------------------------------------------------------
    // Decrement mass
    decMassCheckBox =
-      new wxCheckBox(this, ID_CHECKBOX, wxT("Decrement Mass"),
+      new wxCheckBox(this, ID_CHECKBOX, wxT(GUI_ACCEL_KEY"Decrement Mass"),
                      wxDefaultPosition, wxSize(-1, -1), bsize);
+   decMassCheckBox->SetToolTip(pConfig->Read(_T("DecrementMassHint")));
    
    //Tank
    tankLabel =
-      new wxStaticText(this, ID_TEXT, wxT("Tank"));
+      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Tank"));
    tankComboBox =
       theGuiManager->GetFuelTankComboBox(this, ID_COMBOBOX, wxSize(150,-1));
+   tankComboBox->SetToolTip(pConfig->Read(_T("TankHint")));
    
    ispLabel = NULL;
    ispTextCtrl = NULL;
@@ -248,28 +263,32 @@ void BurnThrusterPanel::Create()
    if (theObject->IsOfType(Gmat::IMPULSIVE_BURN))
    {
       ispLabel =
-         new wxStaticText(this, ID_TEXT, wxT("Isp"));
+         new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Isp"));
       ispTextCtrl =
          new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                        wxDefaultPosition, wxSize(150,-1), 0);
+                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+      ispTextCtrl->SetToolTip(pConfig->Read(_T("IspHint")));
       ispUnit =
          new wxStaticText(this, ID_TEXT, wxT(" s"));
    }
    
    // Gravitational Acceleration
    wxStaticText *gravityAccelLabel =
-      new wxStaticText(this, ID_TEXT, wxT("GravitationalAccel"));
+      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"GravitationalAccel"));
    gravityAccelTextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                     wxDefaultPosition, wxSize(150,-1), 0);
+                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+   gravityAccelTextCtrl->SetToolTip(pConfig->Read(_T("GravitationalAccelHint")));
    wxStaticText *gravityAccelUnit =
       new wxStaticText(this, ID_TEXT, wxT(" m/s"));
    
    // Coefficients for Thruster only
    if (theObject->IsOfType(Gmat::THRUSTER))
    {
-      cCoefButton = new wxButton(this, ID_BUTTON, wxT("Edit Thruster Coef."));
-      kCoefButton = new wxButton(this, ID_BUTTON, wxT("Edit Impulse Coef."));
+      cCoefButton = new wxButton(this, ID_BUTTON, wxT("Edit "GUI_ACCEL_KEY"Thruster Coef."));
+      cCoefButton->SetToolTip(pConfig->Read(_T("EditThrusterCoefficientHint")));
+      kCoefButton = new wxButton(this, ID_BUTTON, wxT("Edit "GUI_ACCEL_KEY"Impulse Coef."));
+      kCoefButton->SetToolTip(pConfig->Read(_T("EditImpulseCoefficientHint")));
    }
    
    wxBoxSizer *coefSizer = new wxBoxSizer(wxHORIZONTAL);
