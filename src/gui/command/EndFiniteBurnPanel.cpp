@@ -16,10 +16,12 @@
 //------------------------------------------------------------------------------
 
 #include "EndFiniteBurnPanel.hpp"
+#include "GmatStaticBoxSizer.hpp"
 #include "ParameterSelectDialog.hpp"
 #include "StringTokenizer.hpp"          // for GetAllTokens()
 #include "MessageInterface.hpp"
 #include <algorithm>                    // for sort(), set_difference()
+#include <wx/config.h>
 
 //#define DEBUG_ENDFBPANEL_CREATE
 //#define DEBUG_ENDFBPANEL_SAVE
@@ -142,6 +144,11 @@ void EndFiniteBurnPanel::Create()
    #endif
    
    int bsize = 3;
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/End Finite Burn"));
+
    
    //----------------------------------------------------------------------
    // Burns
@@ -149,7 +156,7 @@ void EndFiniteBurnPanel::Create()
    // create burn label
    wxStaticText *burnLabel =
       new wxStaticText(this, ID_TEXT,
-                       wxT("Burn"), wxDefaultPosition, wxSize(50, -1));
+                       wxT(GUI_ACCEL_KEY"Burn"), wxDefaultPosition, wxSize(50, -1));
    
    #ifdef DEBUG_ENDFBPANEL_CREATE
    MessageInterface::ShowMessage
@@ -160,6 +167,7 @@ void EndFiniteBurnPanel::Create()
    // create finite burn combo box
    mFiniteBurnComboBox =
       theGuiManager->GetFiniteBurnComboBox(this, ID_COMBOBOX, wxSize(150,-1));
+   mFiniteBurnComboBox->SetToolTip(pConfig->Read(_T("BurnHint")));
    
    wxBoxSizer *burnSizer = new wxBoxSizer(wxHORIZONTAL);
    burnSizer->Add(burnLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
@@ -171,29 +179,33 @@ void EndFiniteBurnPanel::Create()
    
    wxStaticText *satLabel =
       new wxStaticText(this, ID_TEXT,
-                       wxT("Spacecraft"), wxDefaultPosition, wxSize(50,-1));
+                       wxT(GUI_ACCEL_KEY"Spacecraft"), wxDefaultPosition, wxSize(50,-1));
    mSatTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(150,-1));
+   mSatTextCtrl->SetToolTip(pConfig->Read(_T("SpacecraftHint")));
    
    wxButton *selectSatButton =
-      new wxButton(this, ID_BUTTON, wxT("Select"), wxDefaultPosition, wxDefaultSize);
+      new wxButton(this, ID_BUTTON, wxT("S"GUI_ACCEL_KEY"elect"), wxDefaultPosition, wxDefaultSize);
+   selectSatButton->SetToolTip(pConfig->Read(_T("SelectSpacecraftHint")));
    
    // add spacecraft textbox and select button to sizer
    wxBoxSizer *satSelectSizer = new wxBoxSizer(wxVERTICAL);   
-   satSelectSizer->Add(mSatTextCtrl, 0, wxALIGN_CENTER|wxGROW|wxALL, bsize);
-   satSelectSizer->Add(selectSatButton, 0, wxALIGN_CENTER|wxALL, bsize);
+   satSelectSizer->Add(mSatTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   satSelectSizer->Add(selectSatButton, 0, wxALIGN_LEFT|wxALL, bsize);
    
    wxBoxSizer *satSizer = new wxBoxSizer(wxHORIZONTAL);
    satSizer->Add(satLabel, 0, wxALIGN_LEFT|wxALL, bsize);
    satSizer->Add(satSelectSizer, 1, wxALIGN_LEFT|wxALL, bsize);
    
    // add items to page sizer
+   GmatStaticBoxSizer *optionsSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Options" );
+   optionsSizer->Add(burnSizer, 0, wxGROW|wxALIGN_LEFT|wxALL, 6);
+   optionsSizer->Add(satSizer, 1, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    wxBoxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
-   pageSizer->Add(burnSizer, 0, wxGROW|wxALIGN_LEFT|wxALL, 6);
-   pageSizer->Add(satSizer, 1, wxGROW|wxALIGN_LEFT|wxALL, bsize);
+   pageSizer->Add(optionsSizer, 1, wxALIGN_CENTER|wxGROW|wxALL, 6);
    
    // add to middle sizer
-   theMiddleSizer->Add(pageSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);     
+   theMiddleSizer->Add(pageSizer, 1, wxGROW|wxALIGN_CENTRE|wxALL, bsize);     
    
    #ifdef DEBUG_ENDFBPANEL_CREATE
    MessageInterface::ShowMessage("EndFiniteBurnPanel::Create() Exiting\n");
