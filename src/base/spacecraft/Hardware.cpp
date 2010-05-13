@@ -14,7 +14,7 @@
  * Class implementation for the Hardware base class.
  */
 //------------------------------------------------------------------------------
-
+#include "MessageInterface.hpp"
 
 #include "Hardware.hpp"
 #include "HardwareException.hpp"
@@ -294,4 +294,14 @@ Real Hardware::SetRealParameter(const Integer id, const Real value)
    }
 
    return GmatBase::SetRealParameter(id, value);
+}
+
+//------------------------------------------------------------------------
+// This function is used to verify a referenced object is properly set up
+// or not.
+//------------------------------------------------------------------------
+bool Hardware::VerifyRefObject(std::string subTypeName, GmatBase* obj)
+{
+	MessageInterface::ShowMessage("Hardware::VerifyRefObject \n");
+	return true;
 }
