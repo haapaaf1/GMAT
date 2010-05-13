@@ -63,16 +63,6 @@
 #include <sstream>
 #endif
 
-// If spacecraft hardware were cloned in the ObjectInitializer
-//@see ObjectInitializer::BuildAssociations()
-//#ifndef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-//#define __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-//#endif
-
-// To enable cloning of tanks and thrusters in the copy constructor or
-// assignment operator. It is working now and will be removed later
-#define __ENABLE_HARDWARE_CLONE__
-
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
@@ -1285,51 +1275,21 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          ("Spacecraft::SetRefObject() tanks.size()=%d, thrusters.size()=%d\n",
           tanks.size(), thrusters.size());
       #endif
-
+      
+      // set fueltank
       if (objType == "FuelTank")
-      {
-         #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-            if (find(tanks.begin(), tanks.end(), obj) == tanks.end())
-            {
-               tanks.push_back(obj);
-               return true;
-            }
-         return false;
-         #else
-            return SetHardware(obj, tankNames, tanks);
-         #endif
-      }
-
+         return SetHardware(obj, tankNames, tanks);
+      
       // set thruster
       if (objType == "Thruster")
-      {
-         #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-            if (find(thrusters.begin(), thrusters.end(), obj) == thrusters.end())
-            {
-            thrusters.push_back(obj);
-            return true;
-         }
-         return false;
-         #else
-            return SetHardware(obj, thrusterNames, thrusters);
-         #endif
-      }
-
+         return SetHardware(obj, thrusterNames, thrusters);
+      
       // set on hardware                // made changes by Tuan Nguyen
       if (obj->GetType() == Gmat::HARDWARE)             //(objType == "Hardware")
       {
-         #ifdef __CLONE_HARDWARE_IN_OBJ_INITIALIZER__
-         if (find(hardwareList.begin(), hardwareList.end(), obj) == hardwareList.end())
-         {
-            hardwareList.push_back(obj);
-            return true;
-         }
-         return false;
-         #else
          return SetHardware(obj, hardwareNames, hardwareList);
-         #endif
       }
-
+      
       return false;
    }
    else if (type == Gmat::COORDINATE_SYSTEM)
@@ -3750,56 +3710,48 @@ void Spacecraft::CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
    {
       for (UnsignedInt i=0; i<tnks.size(); i++)
       {
-         #ifdef __ENABLE_HARDWARE_CLONE__
-            // clone the tanks here
-            GmatBase *clonedTank = (tnks[i])->Clone();
-            tanks.push_back(clonedTank);
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Add
-               (clonedTank, clonedTank->GetName(), "Spacecraft::CloneOwnedObjects()",
-                "clonedTank = (tnks[i])->Clone()", this);
-            #endif
-         #else
-            tanks.push_back(tnks[i]);
+         // clone the tanks here
+         GmatBase *clonedTank = (tnks[i])->Clone();
+         tanks.push_back(clonedTank);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (clonedTank, clonedTank->GetName(), "Spacecraft::CloneOwnedObjects()",
+             "clonedTank = (tnks[i])->Clone()", this);
          #endif
       }
    }
-
+   
    // handle thrusters
    if (thrs.size() > 0)
    {
       for (UnsignedInt i=0; i<thrs.size(); i++)
       {
-         #ifdef __ENABLE_HARDWARE_CLONE__
-            // clone the thrusters here
-            GmatBase *clonedObj = (thrs[i])->Clone();
-            thrusters.push_back(clonedObj);
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Add
-               (clonedObj, clonedObj->GetName(), "Spacecraft::CloneOwnedObjects()",
-                "clonedObj = (thrs[i])->Clone()", this);
-            #endif
-
-            #ifdef DEBUG_OBJ_CLONE
-            MessageInterface::ShowMessage
-               ("Spacecraft::CloneOwnedObjects() Setting ref objects to "
-                "thruster<%p>'%s'\n", clonedObj, clonedObj->GetName().c_str());
-            #endif
-
-            // Set ref. objects to cloned Thruster
-            clonedObj->SetSolarSystem(solarSystem);
-            clonedObj->SetRefObject(this, Gmat::SPACECRAFT, GetName());
-
-            // Set Thruster's CoordinateSystem
-            std::string thrCsName = clonedObj->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
-            if (coordSysMap.find(thrCsName) != coordSysMap.end())
-               clonedObj->SetRefObject(coordSysMap[thrCsName], Gmat::COORDINATE_SYSTEM, thrCsName);
-         #else
-            thrusters.push_back(thrs[i]);
+         // clone the thrusters here
+         GmatBase *clonedObj = (thrs[i])->Clone();
+         thrusters.push_back(clonedObj);
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (clonedObj, clonedObj->GetName(), "Spacecraft::CloneOwnedObjects()",
+             "clonedObj = (thrs[i])->Clone()", this);
          #endif
+         
+         #ifdef DEBUG_OBJ_CLONE
+         MessageInterface::ShowMessage
+            ("Spacecraft::CloneOwnedObjects() Setting ref objects to "
+             "thruster<%p>'%s'\n", clonedObj, clonedObj->GetName().c_str());
+         #endif
+         
+         // Set ref. objects to cloned Thruster
+         clonedObj->SetSolarSystem(solarSystem);
+         clonedObj->SetRefObject(this, Gmat::SPACECRAFT, GetName());
+         
+         // Set Thruster's CoordinateSystem
+         std::string thrCsName = clonedObj->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
+         if (coordSysMap.find(thrCsName) != coordSysMap.end())
+            clonedObj->SetRefObject(coordSysMap[thrCsName], Gmat::COORDINATE_SYSTEM, thrCsName);
       }
    }
-
+   
    if (tnks.size() > 0 && thrs.size() > 0)
    {
       #ifdef DEBUG_OBJ_CLONE
