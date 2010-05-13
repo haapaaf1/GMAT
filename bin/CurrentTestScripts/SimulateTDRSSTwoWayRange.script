@@ -27,7 +27,7 @@ GMAT TDRSS4.CoordinateSystem = EarthMJ2000Eq;
 GMAT TDRSS4.DisplayStateType = Cartesian;
 GMAT TDRSS4.X = -33706.32486153131300;
 GMAT TDRSS4.Y = -25220.9982290584700000;
-GMAT TDRSS4.X = 2557.3726408292800000 ;
+GMAT TDRSS4.Z = 2557.3726408292800000 ;
 GMAT TDRSS4.VX = 1.8200462985895349;
 GMAT TDRSS4.VY = -2.4614667170907318;
 GMAT TDRSS4.VZ = -0.2775481078198591;
@@ -67,7 +67,7 @@ Create Propagator TwoBodyProp;
 GMAT TwoBodyForce.CentralBody = Earth;
 GMAT TwoBodyForce.PointMasses = {Earth};
 GMAT TwoBodyForce.Drag = None;
-GMAT TwoBodyForce.SRP = On;
+GMAT TwoBodyForce.SRP = Off;
 GMAT TwoBodyForce.ErrorControl = RSSStep;
 
 GMAT TwoBodyProp.FM              = TwoBodyForce;
