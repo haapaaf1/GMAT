@@ -71,7 +71,7 @@ protected:
    wxTreeItemId mVariableItem;
    wxTreeItemId mFunctionItem;
    wxTreeItemId mCoordSysItem;
-   wxTreeItemId mPredefinedFunctItem;
+   //wxTreeItemId mPredefinedFunctItem;
    wxTreeItemId mSpecialPointsItem;
    wxTreeItemId mScriptItem;
    wxTreeItemId mScriptFolderItem;

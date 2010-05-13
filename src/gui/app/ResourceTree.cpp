@@ -628,8 +628,8 @@ void ResourceTree::AddDefaultResources()
 
    //----- Subscribers
    mSubscriberItem =
-      AppendItem(resource, wxT("Subscribers"), GmatTree::ICON_FOLDER,
-                 -1, new GmatTreeItemData(wxT("Subscribers"),
+      AppendItem(resource, wxT("Output"), GmatTree::ICON_FOLDER,
+                 -1, new GmatTreeItemData(wxT("Output"),
                                           GmatTree::SUBSCRIBER_FOLDER));
 
    SetItemImage(mSubscriberItem, GmatTree::ICON_OPENFOLDER,
@@ -1288,13 +1288,13 @@ void ResourceTree::AddDefaultFunctions(wxTreeItemId itemId)
    }
 
    //----- Predefined functions
-   mPredefinedFunctItem =
-      AppendItem(itemId, wxT("Predefined Functions"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("Functions"),
-                                      GmatTree::PREDEFINED_FUNCTION_FOLDER));
+   //mPredefinedFunctItem =
+   //   AppendItem(itemId, wxT("Predefined Functions"), GmatTree::ICON_FOLDER, -1,
+   //              new GmatTreeItemData(wxT("Functions"),
+   //                                   GmatTree::PREDEFINED_FUNCTION_FOLDER));
 
-   SetItemImage(mPredefinedFunctItem, GmatTree::ICON_OPENFOLDER,
-                wxTreeItemIcon_Expanded);
+   //SetItemImage(mPredefinedFunctItem, GmatTree::ICON_OPENFOLDER,
+   //             wxTreeItemIcon_Expanded);
 
    if (size > 0)
       Expand(itemId);
