@@ -18,6 +18,7 @@
 #include "MessageInterface.hpp"
 #include "CoordinateSystem.hpp"
 #include "AxisSystem.hpp"
+#include <wx/config.h>
 
 //#define DEBUG_COORD_DIALOG 1
 //#define DEBUG_COORD_DIALOG_SAVE 1
@@ -49,13 +50,19 @@ CoordSysCreateDialog::CoordSysCreateDialog(wxWindow *parent)
 //------------------------------------------------------------------------------
 void CoordSysCreateDialog::Create()
 {
+    // get the config object
+    wxConfigBase *pConfig = wxConfigBase::Get();
+    // SetPath() understands ".."
+    pConfig->SetPath(wxT("/Coordinate System"));
+
     // wxStaticText
     nameStaticText = new wxStaticText( this, ID_TEXT,
-         wxT("Coordinate System Name"), wxDefaultPosition, wxDefaultSize, 0 );
+         wxT("Coordinate System "GUI_ACCEL_KEY"Name"), wxDefaultPosition, wxDefaultSize, 0 );
 
     // wxTextCtrl
     nameTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""),
          wxDefaultPosition, wxSize(160,-1), 0 );
+    nameTextCtrl->SetToolTip(pConfig->Read(_T("NameHint")));
 
     mCoordPanel = new CoordPanel(this, true);
 
