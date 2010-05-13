@@ -29,6 +29,7 @@
 //#define DEBUG_FINITEBURN_FIRE
 //#define DEBUG_FINITEBURN_SET
 //#define DEBUG_FINITEBURN_INIT
+//#define DEBUG_FINITEBURN_OBJECT
 
 //---------------------------------
 // static data
@@ -67,7 +68,7 @@ FiniteBurn::PARAMETER_TYPE[FiniteBurnParamCount - BurnParamCount] =
  */
 //------------------------------------------------------------------------------
 FiniteBurn::FiniteBurn(const std::string &nomme) :
-   Burn              (Gmat::FINITE_BURN, "FiniteBurn", nomme)
+   Burn (Gmat::FINITE_BURN, "FiniteBurn", nomme)
 {
    objectTypes.push_back(Gmat::FINITE_BURN);
    objectTypeNames.push_back("FiniteBurn");
@@ -659,9 +660,15 @@ bool FiniteBurn::HasRefObjectTypeArray()
 const ObjectTypeArray& FiniteBurn::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
-   // There are no Burn parameters
-   //refObjectTypes = Burn::GetRefObjectTypeArray();
-   refObjectTypes.push_back(Gmat::THRUSTER);
+   
+   // Get ref. object types from the parent class
+   refObjectTypes = Burn::GetRefObjectTypeArray();
+   
+   // Add ref. object types from this class if not already added
+   if (find(refObjectTypes.begin(), refObjectTypes.end(), Gmat::THRUSTER) ==
+       refObjectTypes.end())
+      refObjectTypes.push_back(Gmat::THRUSTER);
+   
    return refObjectTypes;
 }
 
@@ -671,17 +678,41 @@ const ObjectTypeArray& FiniteBurn::GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 const StringArray& FiniteBurn::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   refObjectNames.clear();
+   #ifdef DEBUG_FINITEBURN_OBJECT
+   MessageInterface::ShowMessage
+      ("FiniteBurn::GetRefObjectNameArray() this=<%p>'%s' entered, type=%d\n",
+       this, GetName().c_str(), type);
+   #endif
    
-   // There are no Burn parameters
-   //refObjectNames = Burn::GetRefObjectNameArray(type);
+   refObjectNames.clear();
    
    if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::HARDWARE)
    {
-      refObjectNames.insert(refObjectNames.end(), thrusterNames.begin(), thrusterNames.end());
+      // Get ref. objects for requesting type from the parent class
+      Burn::GetRefObjectNameArray(type);
+      
+      // Add ref. objects for requesting type from this class
+      refObjectNames.insert(refObjectNames.end(), thrusterNames.begin(),
+                            thrusterNames.end());
+      
+      #ifdef DEBUG_FINITEBURN_OBJECT
+      MessageInterface::ShowMessage
+         ("FiniteBurn::GetRefObjectNameArray() this=<%p>'%s' returning %d "
+          "ref. object names\n", this, GetName().c_str(), refObjectNames.size());
+      for (UnsignedInt i=0; i<refObjectNames.size(); i++)
+         MessageInterface::ShowMessage("   '%s'\n", refObjectNames[i].c_str());
+      #endif
+      
+      return refObjectNames;
    }
    
-   return refObjectNames;
+   #ifdef DEBUG_FINITEBURN_OBJECT
+   MessageInterface::ShowMessage
+      ("FiniteBurn::GetRefObjectNameArray() this=<%p>'%s' returning "
+       "Burn::GetRefObjectNameArray()\n", this, GetName().c_str());
+   #endif
+   
+   return Burn::GetRefObjectNameArray(type);
 }
 
 

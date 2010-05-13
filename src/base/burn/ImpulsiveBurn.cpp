@@ -24,6 +24,7 @@
 
 //#define DEBUG_IMPBURN_INIT
 //#define DEBUG_IMPBURN_SET
+//#define DEBUG_IMPBURN_OBJECT
 //#define DEBUG_IMPBURN_FIRE
 //#define DEBUG_IMPBURN_DECMASS
 
@@ -713,8 +714,16 @@ bool ImpulsiveBurn::HasRefObjectTypeArray()
 //------------------------------------------------------------------------------
 const ObjectTypeArray& ImpulsiveBurn::GetRefObjectTypeArray()
 {
+   refObjectTypes.clear();
+   
+   // Get ref. object types from the parent class
    Burn::GetRefObjectTypeArray();
-   refObjectTypes.push_back(Gmat::FUEL_TANK);
+   
+   // Add ref. object types from this class if not already added
+   if (find(refObjectTypes.begin(), refObjectTypes.end(), Gmat::FUEL_TANK) ==
+       refObjectTypes.end())
+      refObjectTypes.push_back(Gmat::FUEL_TANK);
+   
    return refObjectTypes;
 }
 
@@ -724,20 +733,40 @@ const ObjectTypeArray& ImpulsiveBurn::GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 const StringArray& ImpulsiveBurn::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   Burn::GetRefObjectNameArray(type);
-   if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::FUEL_TANK)
-      refObjectNames.insert(refObjectNames.begin(),
-                            tankNames.begin(), tankNames.end());
-   
-   #ifdef DEBUG_IMPBURN_GET
+   #ifdef DEBUG_IMPBURN_OBJECT
    MessageInterface::ShowMessage
-      ("ImpulsiveBurn::GetRefObjectNameArray(), refObjectNames.size()=%d\n",
-       refObjectNames.size());
-   for (UnsignedInt i=0; i<refObjectNames.size(); i++)
-      MessageInterface::ShowMessage("   '%s'\n", refObjectNames[i].c_str());
+      ("ImpulsiveBurn::GetRefObjectNameArray() this=<%p>'%s' entered, type=%d\n",
+       this, GetName().c_str(), type);
    #endif
    
-   return refObjectNames;
+   refObjectNames.clear();
+   if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::FUEL_TANK)
+   {
+      // Get ref. objects for requesting type from the parent class
+      Burn::GetRefObjectNameArray(type);
+      
+      // Add ref. objects for requesting type from this class
+      refObjectNames.insert(refObjectNames.begin(), tankNames.begin(),
+                            tankNames.end());
+      
+      #ifdef DEBUG_IMPBURN_OBJECT
+      MessageInterface::ShowMessage
+         ("ImpulsiveBurn::GetRefObjectNameArray() this=<%p>'%s' returning %d "
+          "ref. object names\n", this, GetName().c_str(), refObjectNames.size());
+      for (UnsignedInt i=0; i<refObjectNames.size(); i++)
+         MessageInterface::ShowMessage("   '%s'\n", refObjectNames[i].c_str());
+      #endif
+      
+      return refObjectNames;
+   }
+   
+   #ifdef DEBUG_IMPBURN_OBJECT
+   MessageInterface::ShowMessage
+      ("ImpulsiveBurn::GetRefObjectNameArray() this=<%p>'%s' returning "
+       "Burn::GetRefObjectNameArray()\n", this, GetName().c_str());
+   #endif
+   
+   return Burn::GetRefObjectNameArray(type);
 }
 
 
