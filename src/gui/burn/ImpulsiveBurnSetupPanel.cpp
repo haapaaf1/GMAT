@@ -110,7 +110,7 @@ void ImpulsiveBurnSetupPanel::SaveData()
       if (ispTextCtrl->IsModified())
       {
          str = ispTextCtrl->GetValue();      
-         CheckReal(isp, str, "Isp", "Real Number");
+         CheckReal(isp, str, "Isp", "Real Number >= 0", false, true, true, true);
          ispChanged = true;
       }
       
