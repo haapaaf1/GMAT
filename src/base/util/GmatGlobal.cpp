@@ -178,6 +178,7 @@ GmatGlobal::GmatGlobal()
    runInterrupted = false;
    isMatlabAvailable = false;
    runMode = NORMAL;
+   guiMode = NORMAL_GUI;
    matlabMode = SHARED;
    matlabExt = "__m__";
 }

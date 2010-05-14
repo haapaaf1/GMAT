@@ -33,10 +33,16 @@ public:
       TESTING_NO_PLOTS,
    };
    
+   enum GuiMode
+   {
+      NORMAL_GUI = 20,
+      MINIMIZED_GUI,
+   };
+   
    ///@note MatlabEngine uses the same enum
    enum MatlabMode
    {
-      SINGLE_USE = 20,
+      SINGLE_USE = 30,
       SHARED,
       NO_MATLAB,  // MATLAB is not installed
    };
@@ -75,6 +81,8 @@ public:
    void SetRunInterrupted(bool flag) { runInterrupted = flag; }
    Integer GetRunMode() { return runMode; }
    void SetRunMode(Integer mode) { runMode = mode; }
+   Integer GetGuiMode() { return guiMode; }
+   void SetGuiMode(Integer mode) { guiMode = mode; }
    Integer GetMatlabMode() { return matlabMode; }
    void SetMatlabMode(Integer mode);
    
@@ -185,6 +193,7 @@ private:
    bool isMatlabAvailable;
    
    Integer runMode;
+   Integer guiMode;
    Integer matlabMode;
    IoFormat defaultFormat;
    IoFormat currentFormat;
