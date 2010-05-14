@@ -1390,9 +1390,6 @@ void GmatMainFrame::BuildAndRunScript(const wxString &filename)
       wxMessageBox(wxT("The script file \"" + filename + "\" does not exist.\n"),
                    wxT("GMAT Error"));
    }
-   
-   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::EXIT_AFTER_RUN)
-      Close();
 }
 
 

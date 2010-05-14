@@ -51,6 +51,10 @@ private:
    
    Moderator *theModerator;
    GmatMainFrame *theMainFrame;
+   wxString scriptToRun;
+   bool showMainFrame;
+   bool runScript;
+   bool startMatlabServer;
    
    void ProcessCommandLineOptions();
 };

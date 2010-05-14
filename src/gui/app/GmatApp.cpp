@@ -38,8 +38,8 @@
 #include "GuiPlotReceiver.hpp"
 #include "GuiInterpreter.hpp"
 
-
 //#define DEBUG_GMATAPP
+//#define DEBUG_CMD_LINE
 
 // In single window mode, don't have any child windows; use
 // main window.
@@ -64,6 +64,10 @@ GmatApp::GmatApp()
    PlotInterface::SetPlotReceiver(thePlotReceiver);
    
    theModerator = (Moderator *)NULL;
+   scriptToRun = "";
+   showMainFrame = true;
+   runScript = false;
+   startMatlabServer = false;
 }
 
 
@@ -160,23 +164,33 @@ bool GmatApp::OnInit()
             size = wxSize(235,900);
          #endif
             
-         //show the splash screen
-         try
+         
+         ProcessCommandLineOptions();
+         
+         if (!showMainFrame)
+            return false;
+         
+         
+         if (GmatGlobal::Instance()->GetGuiMode() != GmatGlobal::MINIMIZED_GUI)
          {
-            wxImage::AddHandler(new wxTIFFHandler);
-            
-            wxString splashFile = theModerator->GetFileName("SPLASH_FILE").c_str();
-            wxBitmap *bitmap = new wxBitmap(splashFile, wxBITMAP_TYPE_TIF);
-            
-            // Changed to time out in 1 sec (LOJ: 2009.10.07)
-            new wxSplashScreen(*bitmap,
-                               wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,
-                               1000, NULL, -1, wxDefaultPosition, wxSize(100, 100),
-                               wxSIMPLE_BORDER|wxSTAY_ON_TOP);
-         }
-         catch (BaseException &e)
-         {
-            MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+            //show the splash screen
+            try
+            {
+               wxImage::AddHandler(new wxTIFFHandler);
+               
+               wxString splashFile = theModerator->GetFileName("SPLASH_FILE").c_str();
+               wxBitmap *bitmap = new wxBitmap(splashFile, wxBITMAP_TYPE_TIF);
+               
+               // Changed to time out in 1 sec (LOJ: 2009.10.07)
+               new wxSplashScreen(*bitmap,
+                                  wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,
+                                  1000, NULL, -1, wxDefaultPosition, wxSize(100, 100),
+                                  wxSIMPLE_BORDER|wxSTAY_ON_TOP);
+            }
+            catch (BaseException &e)
+            {
+               MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+            }
          }
          
          wxYield();
@@ -186,6 +200,12 @@ bool GmatApp::OnInit()
                               _T("GMAT - General Mission Analysis Tool"),
                               wxDefaultPosition, size,
                               wxDEFAULT_FRAME_STYLE | wxHSCROLL | wxVSCROLL);
+         
+         wxDateTime now = wxDateTime::Now();
+         wxString wxNowStr = now.FormatISODate() + " " + now.FormatISOTime() + " ";
+         std::string nowStr = wxNowStr.c_str();
+         
+         MessageInterface::LogMessage(nowStr + "GMAT GUI successfully launched.\n");
          
          #ifdef DEBUG_GMATAPP
          MessageInterface::ShowMessage
@@ -199,10 +219,25 @@ bool GmatApp::OnInit()
          theMainFrame->Maximize();
          theMainFrame->CenterOnScreen(wxBOTH);
 #endif
+
+         if (startMatlabServer)
+            theMainFrame->StartMatlabServer();
          
-         theMainFrame->Show(true);
+         if (GmatGlobal::Instance()->GetGuiMode() == GmatGlobal::MINIMIZED_GUI)
+            theMainFrame->Show(false);
+         else
+            theMainFrame->Show(true);
          
-         ProcessCommandLineOptions();
+         if (runScript)
+         {
+            if (GmatGlobal::Instance()->GetGuiMode() == GmatGlobal::MINIMIZED_GUI)
+               theMainFrame->Iconize(true);
+            
+            theMainFrame->BuildAndRunScript(scriptToRun);
+            
+            if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::EXIT_AFTER_RUN)
+               theMainFrame->Close();
+         }
          
          status = true;
       }
@@ -226,11 +261,6 @@ bool GmatApp::OnInit()
       // loop and the application will run. If we returned FALSE here, the
       // application would exit immediately.
       
-      wxDateTime now = wxDateTime::Now();
-      wxString wxNowStr = now.FormatISODate() + " " + now.FormatISOTime() + " ";
-      std::string nowStr = wxNowStr.c_str();
-      
-      MessageInterface::LogMessage(nowStr + "GMAT GUI successfully launched.\n");
       return status;
    }
    catch (BaseException &e)
@@ -331,8 +361,9 @@ void GmatApp::ProcessCommandLineOptions()
       "   -help            Shows available options\n"
       "   -date            Shows GMAT build date\n"
       "   -ms              Starts MATLAB server when GMAT launches\n"
-      "   -br 'filename'   Builds and runs the script\n\n"
-      "   -exit            Exits GMAT after a script is run\n";
+      "   -br 'filename'   Builds and runs the script\n"
+      "   -minimize        Minimizes GMAT window\n"
+      "   -exit            Exits GMAT after a script is run\n\n";
 
    #ifdef DEBUG_CMD_LINE
    MessageInterface::ShowMessage("argc = %d\n", argc);
@@ -344,9 +375,12 @@ void GmatApp::ProcessCommandLineOptions()
       for (int i = 1; i < argc; ++i)
       {
          std::string arg = argv[i];
+         #ifdef DEBUG_CMD_LINE
+         MessageInterface::ShowMessage("arg = %s\n", arg.c_str());
+         #endif
          if (arg == "-ms")
          {
-            theMainFrame->StartMatlabServer();
+            startMatlabServer = true;
          }
          else if (arg == "-date")
          {
@@ -363,11 +397,14 @@ void GmatApp::ProcessCommandLineOptions()
             }
             else
             {
-               wxString script = argv[i+1];
+               scriptToRun = argv[i+1];
                // Replace single quotes
-               script.Replace("'", "", true);
-               theMainFrame->BuildAndRunScript(script);
+               scriptToRun.Replace("'", "", true);
+               runScript = true;
                ++i;
+               #ifdef DEBUG_CMD_LINE
+               MessageInterface::ShowMessage("%s\n", scriptToRun.c_str());
+               #endif
             }
          }
          else if (arg == "-help")
@@ -377,6 +414,10 @@ void GmatApp::ProcessCommandLineOptions()
          else if (arg == "-exit")
          {
             GmatGlobal::Instance()->SetRunMode(GmatGlobal::EXIT_AFTER_RUN);
+         }
+         else if (arg == "-minimize")
+         {
+            GmatGlobal::Instance()->SetGuiMode(GmatGlobal::MINIMIZED_GUI);
          }
          else
          {
