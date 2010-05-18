@@ -112,6 +112,7 @@ HEADERS = -I../base/include \
           -I../base/attitude \
           -I../base/foundation \
           -I../base/executive \
+          -I../base/hardware \
           -I../base/spacecraft \
           -I../base/forcemodel \
           -I../base/propagator \

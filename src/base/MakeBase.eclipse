@@ -83,6 +83,7 @@ console: $(CONSOLETARGET)
 
 HEADERS = -Iinclude \
           -Ifoundation \
+          -Ihardware \
           -Iexecutive \
           -Iattitude \
           -Ispacecraft \
@@ -295,6 +296,10 @@ OBJECTS = \
     function/FunctionManager.o \
     function/GmatFunction.o \
     function/MatlabFunction.o \
+    hardware/FuelTank.o \
+    hardware/HardwareException.o \
+    hardware/Hardware.o \
+    hardware/Thruster.o \
     interface/InterfaceException.o \
     interface/Interface.o \
     interface/GmatInterface.o \
@@ -453,14 +458,10 @@ OBJECTS = \
     solver/LineSearch.o \
     spacecraft/Converter.o \
     spacecraft/Formation.o \
-    spacecraft/FuelTank.o \
-    spacecraft/HardwareException.o \
-    spacecraft/Hardware.o \
     spacecraft/Spacecraft.o \
     spacecraft/SpaceObject.o \
     spacecraft/StateConverter.o \
     spacecraft/TextTrajectoryFile.o \
-    spacecraft/Thruster.o \
     spacecraft/TimeConverter.o \
     stopcond/StopCondition.o \
     subscriber/EphemerisFile.o \
