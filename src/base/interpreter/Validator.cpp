@@ -230,14 +230,17 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
       if (obj->GetRefObject(Gmat::AXIS_SYSTEM, "") == NULL)
       {
          AxisSystem *axis = CreateAxisSystem("MJ2000Eq", obj);
+
+         // Treat this as a warning not as an error (LOJ: 2010.05.14)
          theErrorMsg = "The CoordinateSystem \"" + obj->GetName() +
             "\" has empty AxisSystem, so default MJ2000Eq was created";
-         retval = HandleError() && retval;
+         MessageInterface::ShowMessage("*** WARNING *** %s\n", theErrorMsg.c_str());
+         //retval = HandleError() && retval;
          
          // Set AxisSystem to CoordinateSystem
          obj->SetRefObject(axis, axis->GetType(), axis->GetName());
          
-         // Since CoordinateSystem clones AxisSystem, delete it from here
+         // Since CoordinateSystem::SetRefObject() clones AxisSystem, delete it from here
          // (LOJ: 2009.03.03)
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
