@@ -26,6 +26,7 @@ HEADERS = -Iplugin \
           -I$(GMAT_CODE_LOCATION)/base/coordsystem \
           -I$(GMAT_CODE_LOCATION)/base/util \
           -I$(GMAT_CODE_LOCATION)/base/solarsys \
+          -I$(GMAT_CODE_LOCATION)/base/hardware \
           -I$(GMAT_CODE_LOCATION)/base/spacecraft \
           -I$(GMAT_CODE_LOCATION)/base/foundation \
           -I$(GMAT_CODE_LOCATION)/base/factory \
