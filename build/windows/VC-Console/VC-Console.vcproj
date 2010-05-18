@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\burn;..\..\..\src\base\command;..\..\..\src\base\configs;..\..\..\src\base\coordsystem;..\..\..\src\base\executive;..\..\..\src\base\factory;..\..\..\src\base\forcemodel;..\..\..\src\base\foundation;..\..\..\src\base\function;..\..\..\src\base\include;..\..\..\src\base\interface;..\..\..\src\base\interpolator;..\..\..\src\base\interpreter;..\..\..\src\base\math;..\..\..\src\base\parameter;..\..\..\src\base\plugin;..\..\..\src\base\propagator;..\..\..\src\base\solarsys;..\..\..\src\base\solver;..\..\..\src\base\spacecraft;..\..\..\src\base\stopcond;..\..\..\src\base\subscriber;..\..\..\src\base\util;..\..\..\src\gui\app;..\..\..\src\gui\include;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;"
+				AdditionalIncludeDirectories="..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\burn;..\..\..\src\base\command;..\..\..\src\base\configs;..\..\..\src\base\coordsystem;..\..\..\src\base\executive;..\..\..\src\base\factory;..\..\..\src\base\forcemodel;..\..\..\src\base\foundation;..\..\..\src\base\function;..\..\..\src\base\hardware;..\..\..\src\base\include;..\..\..\src\base\interface;..\..\..\src\base\interpolator;..\..\..\src\base\interpreter;..\..\..\src\base\math;..\..\..\src\base\parameter;..\..\..\src\base\plugin;..\..\..\src\base\propagator;..\..\..\src\base\solarsys;..\..\..\src\base\solver;..\..\..\src\base\spacecraft;..\..\..\src\base\stopcond;..\..\..\src\base\subscriber;..\..\..\src\base\util;..\..\..\src\gui\app;..\..\..\src\gui\include;&quot;$(WXWIN)\include&quot;;&quot;$(WXWIN)\include\msvc&quot;"
 				PreprocessorDefinitions="__WIN32__;__WXMSW__;SKIP_DEVIL;__SKIP_MSISE90__;__CONSOLE_APP__"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -2687,30 +2687,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\base\spacecraft\FuelTank.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\spacecraft\FuelTank.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\spacecraft\Hardware.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\spacecraft\Hardware.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\spacecraft\HardwareException.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\spacecraft\HardwareException.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\base\spacecraft\Spacecraft.cpp"
 						>
 					</File>
@@ -2756,14 +2732,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\spacecraft\TextTrajectoryFile.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\spacecraft\Thruster.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\spacecraft\Thruster.hpp"
 						>
 					</File>
 					<File
@@ -3236,6 +3204,42 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\asset\GroundStation.hpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="hardware"
+					>
+					<File
+						RelativePath="..\..\..\src\base\hardware\FuelTank.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\hardware\FuelTank.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\hardware\Hardware.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\hardware\Hardware.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\hardware\HardwareException.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\hardware\HardwareException.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\hardware\Thruster.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\hardware\Thruster.hpp"
 						>
 					</File>
 				</Filter>

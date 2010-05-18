@@ -26,27 +26,26 @@ VERSION = 2005-07-13
 #-------------------------------------------------------------------------------
 RUN_MODE             = TESTING
 #-------------------------------------------------------------------------------
-ROOT_PATH            = d:/projects/gmat/files/
+ROOT_PATH            = C:/projects/gmat/files/
 #-----------------------------------------------------------
 #OUTPUT_PATH          = ROOT_PATH/Output/VC/
-OUTPUT_PATH          = d:/projects/gmat/Output/VC/
+OUTPUT_PATH          = C:/projects/gmat/Output/VC/
 LOG_FILE             = OUTPUT_PATH/GmatLog.txt
 #REPORT_FILE          = OUTPUT_PATH/GmatReport.txt
 #-----------------------------------------------------------
 #PLUGIN               = libVF13Optimizer
 #-----------------------------------------------------------
-MEASUREMENT_PATH     = d:/projects/gmat/Output/Dev/
+MEASUREMENT_PATH     = C:/projects/gmat/Output/Dev/
 #-----------------------------------------------------------
 # for functions
 #-----------------------------------------------------------
-#GMAT_FUNCTION_PATH   = d:/projects/gmat/GmatFunctionsCVS/
-#GMAT_FUNCTION_PATH   = d:/projects/gmat/GmatFunctionsLOJ/
-GMAT_FUNCTION_PATH   = d:/projects/gmat/GmatFunctions/
-MATLAB_FUNCTION_PATH = d:/projects/gmat/MatlabFunctions/
-MATLAB_FUNCTION_PATH = d:/projects/gmat/matlab/
-MATLAB_FUNCTION_PATH = d:/projects/gmat/matlab/gmat_command/
-MATLAB_FUNCTION_PATH = d:/projects/gmat/matlab/gmat_fmincon/
-MATLAB_FUNCTION_PATH = d:/projects/gmat/matlab/gmat_keyword/
+GMAT_FUNCTION_PATH   = C:/projects/gmat/GmatFunctions/
+GMAT_FUNCTION_PATH   = C:/projects/gmat/RoutineTests/GmatFunctions
+MATLAB_FUNCTION_PATH = C:/projects/gmat/MatlabFunctions/
+MATLAB_FUNCTION_PATH = C:/projects/gmat/matlab/
+MATLAB_FUNCTION_PATH = C:/projects/gmat/matlab/gmat_command/
+MATLAB_FUNCTION_PATH = C:/projects/gmat/matlab/gmat_fmincon/
+MATLAB_FUNCTION_PATH = C:/projects/gmat/matlab/gmat_keyword/
 #MATLAB_FUNCTION_PATH = ROOT_PATH/MatlabFunctions/
 #-----------------------------------------------------------
 SPLASH_PATH          = ROOT_PATH/splash/
@@ -99,6 +98,7 @@ NUTATION_COEFF_FILE  = PLANETARY_COEFF_PATH/NUTATION.DAT
 #-----------------------------------------------------------
 TIME_PATH            = ROOT_PATH/time/
 LEAP_SECS_FILE       = TIME_PATH/tai-utc.dat
+LSK_FILE             = TIME_PATH/naif0009.tls
 #-----------------------------------------------------------
 TEXTURE_PATH         = ROOT_PATH/plot/texture/
 SUN_TEXTURE_FILE     = TEXTURE_PATH/sun.jpg
