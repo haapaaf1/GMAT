@@ -674,7 +674,11 @@ bool CelestialBody::Initialize()
       errmsg += instanceName + "\"";
       throw SolarSystemException(errmsg);
    }
-
+   
+   // Set to false so that it can be reset to valid spiceNaifId
+   // when running function (LOJ: 2010.05.17)
+   naifIdSet = false;
+   
    // Set up the kernel reader, if required
    SetUpSPICE();
    return true;
@@ -805,6 +809,10 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
          Rvector6 spiceState = kernelReader->GetTargetState(instanceName, naifId, atTime, j2000BodyName);
          state.Set(spiceState[0], spiceState[1], spiceState[2],
                    spiceState[3], spiceState[4], spiceState[5]);
+         #else
+         // Throw an error if GMAT was not build with __USE_SPICE__ (LOJ: 2010.05.18)
+         std::string errmsg = "Use of SPICE file was disabled";
+         throw SolarSystemException(errmsg);
          #endif
          break;
       }
