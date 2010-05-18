@@ -41,7 +41,7 @@ GMAT Ceres.SpinAxisDECConstant = 9.09;
 GMAT Ceres.SpinAxisDECRate = 0;
 GMAT Ceres.RotationConstant = 236.77;
 GMAT Ceres.RotationRate = -56.3623195;
-%%GMAT Ceres.NAIFId = -2000001;
+GMAT Ceres.NAIFId = -2000001;
 GMAT Ceres.TextureMapFileName = './GenericCelestialBody.jpg';
 
 

@@ -1,3 +1,4 @@
+%$Id$
 %  Build 4, Test Case 3.  This is a formation flying mission.  The mission 
 %  requires spacecraft dependent coordinate systems and has plots in different 
 %  spacecraft dependent coordinate systems and targets variables that are 
@@ -78,7 +79,7 @@ GMAT Burn1.Element1        = .0001;
 
 %  Create Differential Corrector
 Create DifferentialCorrector DC;
-GMAT DC.TargeterTextFile = FormationRendezvous-DC.data;
+GMAT DC.ReportFile = FormationRendezvous-DC.data;
 %GMAT DC.MaxIterations = 25;
 
 % ------------------------------Coordinate Systems-------------------------
@@ -177,10 +178,9 @@ Report rf Sat2.A1ModJulian Sat2.Sat1LVLH.X Sat2.Sat1LVLH.Y Sat2.Sat1LVLH.Z;
 %  Target for rendezvous
 Target DC;
 
-     Vary DC(Burn1.V = 0.0001, {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
-     Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
-     Vary DC(Burn1.B = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
-     %%%Vary DC(Burn1.B = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = unknown});
+     Vary DC(Burn1.Element1 = 0.0001, {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
+     Vary DC(Burn1.Element2 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
+     Vary DC(Burn1.Element3 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.05, Lower = -0.3, Upper = 0.3});
      
      Maneuver Burn1(Sat2);
      
@@ -188,7 +188,6 @@ Target DC;
      
      Achieve DC(Sat2.Sat1LVLH.X = 0, {Tolerance = 0.0001});
      Achieve DC(Sat2.Sat1LVLH.Y = 0, {Tolerance = 0.0001});
-     %%%Achieve DC(Sat2.Sat1LVLH.Z = 0, {Tolerance = 0.0001});
      Achieve DC(Sat2.Sat1LVLH.Z = arr1(1,1), {Tolerance = 0.0001});
      
 EndTarget;
@@ -198,9 +197,9 @@ Report rf Sat2.A1ModJulian Sat2.Sat1LVLH.X Sat2.Sat1LVLH.Y Sat2.Sat1LVLH.Z;
 %  Target for rendezvous
 Target DC;
 
-     Vary DC(Burn1.V = 0.0001, {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
-     Vary DC(Burn1.N = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
-     Vary DC(Burn1.B = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
+     Vary DC(Burn1.Element1 = 0.0001, {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
+     Vary DC(Burn1.Element2 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
+     Vary DC(Burn1.Element3 = 0.000,  {Perturbation = 0.0001, MaxStep = 0.5, Lower = -1.0, Upper = 1.0});
      
      Maneuver Burn1(Sat2);
      
