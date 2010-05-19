@@ -171,7 +171,7 @@ void CelestialBodyOrbitPanel::SaveData()
             else
             {
                filename.close();
-               theBody->SetStringParameter(theBody->GetParameterID("SpiceKernelName"),
+               theBody->SetStringParameter(theBody->GetParameterID("OrbitSpiceKernelName"),
                      strval);
             }
          }
@@ -308,7 +308,7 @@ void CelestialBodyOrbitPanel::LoadData()
          naifIDStringWX = guiManager->ToWxString(naifID);
          naifIDTextCtrl->SetValue(naifIDStringWX);
          spkFileArray             = theBody->GetStringArrayParameter(
-                                    theBody->GetParameterID("SpiceKernelName"));
+                                    theBody->GetParameterID("OrbitSpiceKernelName"));
          unsigned int spkListSz   = spkFileArray.size();
          spkFileArrayWX           = new wxString[spkListSz];
          spkFiles.clear();
