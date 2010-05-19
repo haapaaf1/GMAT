@@ -935,7 +935,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
       if (!f->Execute(objInit, reinitialize))
       {
          MessageInterface::ShowMessage
-            ("*** ERROR *** FunctionManager finializing... due to false returned "
+            ("*** ERROR *** FunctionManager finalizing... due to false returned "
              "from f->Execute()\n");
          f->Finalize();
          if (publisher)
@@ -948,7 +948,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    catch (BaseException &e)
    {
       MessageInterface::ShowMessage
-         ("*** ERROR *** FunctionManager finializing... due to \n%s\n",
+         ("*** ERROR *** FunctionManager finalizing... due to \n%s\n",
           e.GetFullMessage().c_str());
       f->Finalize();
       if (publisher)
