@@ -160,6 +160,8 @@ SpiceOrbitKernelReader* SpiceOrbitKernelReader::Clone(void) const
  * @note The method will ignore kernels of types not containing the type of
  *       data requested, i.e. this method will ignore kernels in the list that
  *       are not of type 'spk'.
+ * @note Celestial bodies must remember to include the main Solar System SPK
+ *       kernel in the list of kernels passed in to this method.
  */
 //------------------------------------------------------------------------------
 void  SpiceOrbitKernelReader::GetCoverageStartAndEnd(StringArray       &kernels,
