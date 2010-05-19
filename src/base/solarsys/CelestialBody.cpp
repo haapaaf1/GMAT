@@ -63,6 +63,7 @@
 //#define DEBUG_CB_READ_ONLY
 //#define DEBUG_CB_CLOAKING
 //#define DEBUG_CB_CLOAKING_EPOCH
+//#define DEBUG_CB_EQ_RAD
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -1050,6 +1051,11 @@ Real CelestialBody::GetGravitationalConstant()
 //------------------------------------------------------------------------------
 Real CelestialBody::GetEquatorialRadius() 
 {   
+   #ifdef DEBUG_CB_EQ_RAD
+      MessageInterface::ShowMessage("Entering GetEquatorialRadius, %s equatorialRadius = %12.10f\n",
+            instanceName.c_str(), equatorialRadius);
+      MessageInterface::ShowMessage("    usePotentialFile = %s\n", (usePotentialFile? "true" : "false"));
+   #endif
    if (usePotentialFile == true)
    {
       if (!potentialFileRead)
@@ -1097,6 +1103,10 @@ Real CelestialBody::GetEquatorialRadius()
    
    // recompute the polar radius
    polarRadius = (1.0 - flattening) * equatorialRadius;
+   #ifdef DEBUG_CB_EQ_RAD
+      MessageInterface::ShowMessage("Exiting GetEquatorialRadius, %s equatorialRadius = %12.10f\n",
+            instanceName.c_str(), equatorialRadius);
+   #endif
    return equatorialRadius;
 }
 
@@ -4236,8 +4246,8 @@ bool CelestialBody::SetUpSPICE()
       if (kernelReader == NULL)
          MessageInterface::ShowMessage("   kernelReader is STILL NULL\n");
    #endif
-
-   if (orbitSpiceKernelNames.empty())
+   std::string mainSPK = theSolarSystem->GetStringParameter("SPKFilename");
+   if ((orbitSpiceKernelNames.empty()) && (mainSPK == ""))
    {
       std::string errmsg = "ERROR - SPICE selected as source for body \"";
       errmsg += instanceName + "\", but no SPK file(s) specified.\n";
