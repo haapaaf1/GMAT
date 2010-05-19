@@ -612,7 +612,7 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       return true;
    }
    
-   bool alreadyInList = false;
+//   bool alreadyInList = false;
    if (id == ORBIT_SPICE_KERNEL_NAME)
    {
       // if it is the whole StringArray of kernel names, handle that here
@@ -625,16 +625,9 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       }
       else
       {
-         StringArray::iterator i;
-         for (i = orbitSpiceKernelNames.begin(); i != orbitSpiceKernelNames.end(); ++i)
-         {
-            if ((*i) == value)
-            {
-               alreadyInList = true;
-               break;
-            }
-         }
-         if (!alreadyInList)  orbitSpiceKernelNames.push_back(value);
+         if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
+             value) == orbitSpiceKernelNames.end())   orbitSpiceKernelNames.push_back(value);
+
       }
       return true;
    }
@@ -650,17 +643,9 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       }
       else
       {
-         StringArray::iterator i;
-         for (i = attitudeSpiceKernelNames.begin(); i != attitudeSpiceKernelNames.end(); ++i)
-         {
-            if ((*i) == value)
-            {
-               alreadyInList = true;
-               break;
-            }
-         }
-         if (!alreadyInList)  attitudeSpiceKernelNames.push_back(value);
-      }
+         if (find(attitudeSpiceKernelNames.begin(), attitudeSpiceKernelNames.end(),
+             value) == attitudeSpiceKernelNames.end())   attitudeSpiceKernelNames.push_back(value);
+     }
       return true;
    }
    if (id == SC_CLOCK_SPICE_KERNEL_NAME)
@@ -675,16 +660,8 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       }
       else
       {
-         StringArray::iterator i;
-         for (i = scClockSpiceKernelNames.begin(); i != scClockSpiceKernelNames.end(); ++i)
-         {
-            if ((*i) == value)
-            {
-               alreadyInList = true;
-               break;
-            }
-         }
-         if (!alreadyInList)  scClockSpiceKernelNames.push_back(value);
+         if (find(scClockSpiceKernelNames.begin(), scClockSpiceKernelNames.end(),
+             value) == scClockSpiceKernelNames.end())   scClockSpiceKernelNames.push_back(value);
       }
       return true;
    }
@@ -700,17 +677,9 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       }
       else
       {
-         StringArray::iterator i;
-         for (i = frameSpiceKernelNames.begin(); i != frameSpiceKernelNames.end(); ++i)
-         {
-            if ((*i) == value)
-            {
-               alreadyInList = true;
-               break;
-            }
-         }
-         if (!alreadyInList)  frameSpiceKernelNames.push_back(value);
-         }
+         if (find(frameSpiceKernelNames.begin(), frameSpiceKernelNames.end(),
+             value) == frameSpiceKernelNames.end())   frameSpiceKernelNames.push_back(value);
+      }
          return true;
    }
 
