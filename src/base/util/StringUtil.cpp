@@ -650,7 +650,7 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
    Integer size = -1;
    bool append = false;
 
-   // go through each part and put brackets together, insert back delimitter if only one
+   // go through each part and put brackets together, insert back delimiter if only one
    for (int i=0; i<count; i++)
    {
       index1 = tempParts[i].find_first_of(openBrackets);
@@ -659,7 +659,7 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
       {
          if (append)
          {
-            // if only one delimitter, insert it back in (loj: 2008.03.24)
+            // if only one delimiter, insert it back in (loj: 2008.03.24)
             if (delim.size() == 1)
                parts[size] = parts[size] + delim + tempParts[i];
             else
@@ -757,8 +757,8 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
 // StringArray SeparateByComma(const std::string &str)
 //------------------------------------------------------------------------------
 /*
- * Separates string by comma leaving all parenthesis and single quotes intact.
- * If parenthesis are not balanced, it will just return input string.
+ * Separates string by comma leaving all parentheses and single quotes intact.
+ * If parentheses are not balanced, it will just return input string.
  *
  * @param  str  input string
  * @return  StringArray of separated parts
@@ -779,7 +779,7 @@ StringArray GmatStringUtil::SeparateByComma(const std::string &str)
    if (index1 == str.npos)
       return parts;
 
-   // Make sure that all parenthesis are balanced
+   // Make sure that all parentheses are balanced
    if (!IsParenBalanced(str))
       return parts;
 
@@ -1208,6 +1208,41 @@ UnsignedIntArray GmatStringUtil::ToUnsignedIntArray(const std::string &str)
    return intArray;
 }
 
+//------------------------------------------------------------------------------
+// StringArray ToStringArray(const std::string &str)
+//------------------------------------------------------------------------------
+/*
+ * Parse a brace-enclosed string to a string array.
+ * {'str1', 'str2', 'str3']  to an array of 'str1', 'str2', 'str3'.
+ */
+//------------------------------------------------------------------------------
+StringArray GmatStringUtil::ToStringArray(const std::string &str)
+{
+   StringArray strArray;
+
+   if (!IsBracketBalanced(str, "{}"))
+   {
+      std::string errmsg = "String array \"";
+      errmsg += str + "\" does not have matching braces.\n";
+      throw UtilityException(errmsg);
+   }
+
+   std::string str1 = RemoveOuterString(str, "{", "}");
+   str1 = Trim(str1);
+
+   if (str1 == "")
+      return strArray;
+
+   StringArray strVals = SeparateByComma(str1); // <<<<<<<<<<<<<<
+   for (UnsignedInt i=0; i<strVals.size(); i++)
+   {
+      std::string str2 = Trim(strVals.at(i));
+      strArray.push_back(str2);
+   }
+
+   return strArray;
+}
+
 
 //------------------------------------------------------------------------------
 // void ParseParameter(const std::string &str, std::string &type,
@@ -1389,7 +1424,7 @@ void GmatStringUtil::GetArrayCommaIndex(const std::string &str, Integer &comma,
  * @param  name  output array name
  * @param  bracketPair  bracket pair used in the input array, such as "[]", "()"
  *
- * @exception UtilityException  if parenthesis are not balanced, eg) Arr(a, b(3,2
+ * @exception UtilityException  if parentheses are not balanced, eg) Arr(a, b(3,2
  */
 //------------------------------------------------------------------------------
 void GmatStringUtil::GetArrayIndexVar(const std::string &str, std::string &rowStr,
@@ -1604,13 +1639,13 @@ void GmatStringUtil::FindFirstAndLast(const std::string &str, char ch,
 //                     Integer &closeParen, bool &isOuterParen)
 //------------------------------------------------------------------------------
 /*
- * Finds open and close parenthesis index from the string.
+ * Finds open and close parentheses index from the string.
  * if parhenthesis is not found it sets to -1
  *
  * @param <str> input string
  * @param <openParen> set to index of first open parenthesis
  * @param <openParen> set to index of matching close parenthesis of openParen
- * @param <isOuterParen> set to true if item is enclosed with parenthesis
+ * @param <isOuterParen> set to true if item is enclosed with parentheses
  */
 //------------------------------------------------------------------------------
 void GmatStringUtil::FindParenMatch(const std::string &str, Integer &openParen,
@@ -1652,7 +1687,7 @@ void GmatStringUtil::FindParenMatch(const std::string &str, Integer &openParen,
  * @param <str> input string
  * @param <openParen> set to index of first open parenthesis
  * @param <closeParen> set to index of matching close parenthesis of openParen
- * @param <isOuterParen> set to true if item is enclosed with parenthesis
+ * @param <isOuterParen> set to true if item is enclosed with parentheses
  * @param <start> input starting index
  */
 //------------------------------------------------------------------------------
@@ -1832,7 +1867,7 @@ bool GmatStringUtil::IsEnclosedWith(const std::string &str,
 // bool IsEnclosedWithExtraParen(const std::string &str, bool checkOps = true)
 //------------------------------------------------------------------------------
 /*
- * Returns true if item is enclosed with extra parenthesis
+ * Returns true if item is enclosed with extra parentheses
  * It will return true: ((a+b)), (a(1,1)),
  * It wiill return false: (123.456), (1,2), (a*b(1,1)), ((3+5)*2)
  *
@@ -1884,10 +1919,10 @@ bool GmatStringUtil::IsEnclosedWithExtraParen(const std::string &str, bool check
       }
    }
 
-   // if enclosed with open and close parenthesis
+   // if enclosed with open and close parentheses
    if (openParen == 0 && closeParen == length-1)
    {
-      // check for double parenthesis
+      // check for double parentheses
       if (str[1] == '(' && str[length-2] == ')')
       {
          Integer open2, close2;
@@ -1934,12 +1969,23 @@ bool GmatStringUtil::IsEnclosedWithExtraParen(const std::string &str, bool check
    return isEnclosed;
 }
 
-
+//------------------------------------------------------------------------------
+// bool IsEnclosedWithBraces(const std::string &str)
+//------------------------------------------------------------------------------
+/*
+ * return true if entire string is enclosed with braces
+ *
+ */
+//------------------------------------------------------------------------------
+bool GmatStringUtil::IsEnclosedWithBraces(const std::string &str)
+{
+   return (StartsWith(str, "{") && EndsWith(str, "}"));
+}
 //------------------------------------------------------------------------------
 // bool IsParenBalanced(const std::string &str)
 //------------------------------------------------------------------------------
 /*
- * return true if parenthesis are balanced (no mismatching parenthesis)
+ * return true if parentheses are balanced (no mismatching parentheses)
  *
  */
 //------------------------------------------------------------------------------
@@ -2072,7 +2118,7 @@ bool GmatStringUtil::AreAllBracketsBalanced(const std::string &str,
 // bool IsOuterParen(const std::string &str)
 //------------------------------------------------------------------------------
 /*
- * return true if outer parenthesis is not part of ^(#) or array.
+ * return true if outer parentheses is not part of ^(#) or array.
  * It ill return true for (a*b-c), (vec(3,2))
  * It ill return false for (A+b^(-1), (2,2), (abc,def)
  *
@@ -2149,7 +2195,7 @@ bool GmatStringUtil::IsOuterParen(const std::string &str)
 //------------------------------------------------------------------------------
 /*
  * Finds if first comma after start position is part of an array.
- * It first removes outer parenthesis and check for comma.
+ * It first removes outer parentheses and check for comma.
  *
  * It will true for A(arr2(2,2)), A( b(x,y), I)
  * It will false for A(1,2), A(1, b(c,d))
@@ -2162,7 +2208,7 @@ bool GmatStringUtil::IsOuterParen(const std::string &str)
 //------------------------------------------------------------------------------
 bool GmatStringUtil::IsCommaPartOfArray(const std::string &str, Integer start)
 {
-   // First remove parenthesis around array
+   // First remove parentheses around array
    std::string::size_type open = str.find_first_of("(");
    std::string::size_type close = str.find_last_of(")");
    std::string str1 = str.substr(open+1, close-open-1);
@@ -2204,11 +2250,11 @@ bool GmatStringUtil::IsCommaPartOfArray(const std::string &str, Integer start)
  * @param bracketPairs  bracket pairs used in checking ("()", "([)]")
  * @param checkOnlyFirst  true if checking for first bracket pair
  *
- * return true if parenthesis or square bracket is part of an array.
+ * return true if parentheses or square bracket is part of an array.
  *    For example: (2,2) or (abc,def) or [2,2], [i,j]
  *
- * return false if no parenthesis found or non-alphanumeric char found inside
- * parenthesis.
+ * return false if no parentheses found or non-alphanumeric char found inside
+ * parentheses.
  *    For example: abc, abc((2,2)), (1,), (3,2]
  */
 //------------------------------------------------------------------------------
@@ -2375,11 +2421,11 @@ bool GmatStringUtil::IsBracketPartOfArray(const std::string &str,
 // bool IsParenPartOfArray(const std::string &str)
 //------------------------------------------------------------------------------
 /*
- * return true if parenthesis is part of an array.
+ * return true if parentheses is part of an array.
  *    For example: (2,2) or (abc,def)
  *
- * return false if no parenthesis found or non-alphanumeric char found inside
- * parenthesis.
+ * return false if no parentheses found or non-alphanumeric char found inside
+ * parentheses.
  *    For example: abc, abc((2,2))
  */
 //------------------------------------------------------------------------------
@@ -2552,7 +2598,7 @@ bool GmatStringUtil::HasNoBrackets(const std::string &str,
 //------------------------------------------------------------------------------
 /*
  * return true if string does not have arithmetic operators or '.' or
- * enclosed with double parenthesis. For example -123.0, abc, (a), (sat.X), (-123.0).
+ * enclosed with double parentheses. For example -123.0, abc, (a), (sat.X), (-123.0).
  *
  * It will return false for (1,1)
  */
@@ -2602,7 +2648,7 @@ bool GmatStringUtil::IsSingleItem(const std::string &str)
 // std::string RemoveExtraParen(const std::string &str)
 //------------------------------------------------------------------------------
 /*
- * This method removs extra pair of parenthesis.
+ * This method removs extra pair of parentheses.
  * If input string is "(a(1,1) + 10.0)" it return a(1,1) + 10.0.
  *
  * *** NOTES ***
@@ -2625,7 +2671,7 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str)
    std::map<Integer, Integer> openParenMap;
    std::map<Integer, Integer> closeParenMap;
 
-   // remove outer parenthesis
+   // remove outer parentheses
    while (IsEnclosedWithExtraParen(str1))
    {
       counter++;
@@ -2639,7 +2685,7 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str)
    std::string str2 = str1;
    length = str1.size();
 
-   // go through each char and remove extra parenthesis
+   // go through each char and remove extra parentheses
    for (int i=0; i<length; i++)
    {
       if (str1[i] == '(')
@@ -2664,7 +2710,7 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str)
          #endif
 
          //-----------------------------------------------------------
-         // check one more outer parenthesis
+         // check one more outer parentheses
          //-----------------------------------------------------------
 
          openParen = openParenMap[openCounter];
@@ -3082,15 +3128,15 @@ bool GmatStringUtil::IsMathEquation(const std::string &str)
 
    // check if it is array or function
    #if DEBUG_MATH_EQ > 1
-   MessageInterface::ShowMessage("..... check if parenthesis part of array\n");
+   MessageInterface::ShowMessage("..... check if parentheses part of array\n");
    #endif
 
    std::string::size_type index = str.find_first_of("(");
    if (index != str.npos)
    {
-      // check if parenthesis balanced
+      // check if parentheses balanced
       #if DEBUG_MATH_EQ > 1
-      MessageInterface::ShowMessage("..... check if parenthesis is balanced\n");
+      MessageInterface::ShowMessage("..... check if parentheses is balanced\n");
       #endif
       if (!IsParenBalanced(str))
       {
@@ -3102,7 +3148,7 @@ bool GmatStringUtil::IsMathEquation(const std::string &str)
       }
    }
 
-   // go through each part, ignorning parenthesis
+   // go through each part, ignoring parentheses
    for (Integer i=0; i<numParts; i++)
    {
       std::string str1 = parts[i];
