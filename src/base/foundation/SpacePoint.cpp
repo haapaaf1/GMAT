@@ -28,6 +28,7 @@
 #include "A1Mjd.hpp"
 #include "Rvector6.hpp"
 #include "Rvector3.hpp"
+#include "StringUtil.hpp"
 
 #include "MessageInterface.hpp"
 
@@ -540,6 +541,50 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       else           return j2000BodyName;
    }
 
+   // return entire brace-enclosed array for the kernel name arrays
+   // (needed so that assignments will work inside of GmatFunctions) wcs 2010.05.19
+   std::string kernelArrayString = "{";
+   if (id == ORBIT_SPICE_KERNEL_NAME)
+   {
+      for (unsigned int ii = 0; ii < orbitSpiceKernelNames.size(); ii++)
+      {
+         if (ii != 0) kernelArrayString += ",";
+         kernelArrayString              += orbitSpiceKernelNames.at(ii);
+      }
+      kernelArrayString += "}";
+      return kernelArrayString;
+   }
+   if (id == ATTITUDE_SPICE_KERNEL_NAME)
+   {
+      for (unsigned int ii = 0; ii < attitudeSpiceKernelNames.size(); ii++)
+      {
+         if (ii != 0) kernelArrayString += ",";
+         kernelArrayString              += attitudeSpiceKernelNames.at(ii);
+      }
+      kernelArrayString += "}";
+      return kernelArrayString;
+   }
+   if (id == SC_CLOCK_SPICE_KERNEL_NAME)
+   {
+      for (unsigned int ii = 0; ii < scClockSpiceKernelNames.size(); ii++)
+      {
+         if (ii != 0) kernelArrayString += ",";
+         kernelArrayString              += scClockSpiceKernelNames.at(ii);
+      }
+      kernelArrayString += "}";
+      return kernelArrayString;
+   }
+   if (id == FRAME_SPICE_KERNEL_NAME)
+   {
+      for (unsigned int ii = 0; ii < frameSpiceKernelNames.size(); ii++)
+      {
+         if (ii != 0) kernelArrayString += ",";
+         kernelArrayString              += frameSpiceKernelNames.at(ii);
+      }
+      kernelArrayString += "}";
+      return kernelArrayString;
+   }
+
    return GmatBase::GetStringParameter(id);
 }
 
@@ -570,59 +615,103 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
    bool alreadyInList = false;
    if (id == ORBIT_SPICE_KERNEL_NAME)
    {
-      StringArray::iterator i;
-      for (i = orbitSpiceKernelNames.begin(); i != orbitSpiceKernelNames.end(); ++i)
+      // if it is the whole StringArray of kernel names, handle that here
+      // (needed so that assignments will work inside of GmatFunctions) wcs 2010.05.18
+      std::string value1 = GmatStringUtil::Trim(value);
+      if (GmatStringUtil::IsEnclosedWithBraces(value1))
       {
-         if ((*i) == value)
-         {
-            alreadyInList = true;
-            break;
-         }
+         orbitSpiceKernelNames.clear();
+         orbitSpiceKernelNames = GmatStringUtil::ToStringArray(value1);
       }
-      if (!alreadyInList)  orbitSpiceKernelNames.push_back(value);
+      else
+      {
+         StringArray::iterator i;
+         for (i = orbitSpiceKernelNames.begin(); i != orbitSpiceKernelNames.end(); ++i)
+         {
+            if ((*i) == value)
+            {
+               alreadyInList = true;
+               break;
+            }
+         }
+         if (!alreadyInList)  orbitSpiceKernelNames.push_back(value);
+      }
       return true;
    }
    if (id == ATTITUDE_SPICE_KERNEL_NAME)
    {
-      StringArray::iterator i;
-      for (i = attitudeSpiceKernelNames.begin(); i != attitudeSpiceKernelNames.end(); ++i)
+      // if it is the whole StringArray of kernel names, handle that here
+      // (needed so that assignments will work inside of GmatFunctions) wcs 2010.05.18
+      std::string value1 = GmatStringUtil::Trim(value);
+      if (GmatStringUtil::IsEnclosedWithBraces(value1))
       {
-         if ((*i) == value)
-         {
-            alreadyInList = true;
-            break;
-         }
+         attitudeSpiceKernelNames.clear();
+         attitudeSpiceKernelNames = GmatStringUtil::ToStringArray(value1);
       }
-      if (!alreadyInList)  attitudeSpiceKernelNames.push_back(value);
+      else
+      {
+         StringArray::iterator i;
+         for (i = attitudeSpiceKernelNames.begin(); i != attitudeSpiceKernelNames.end(); ++i)
+         {
+            if ((*i) == value)
+            {
+               alreadyInList = true;
+               break;
+            }
+         }
+         if (!alreadyInList)  attitudeSpiceKernelNames.push_back(value);
+      }
       return true;
    }
    if (id == SC_CLOCK_SPICE_KERNEL_NAME)
    {
-      StringArray::iterator i;
-      for (i = scClockSpiceKernelNames.begin(); i != scClockSpiceKernelNames.end(); ++i)
+      // if it is the whole StringArray of kernel names, handle that here
+      // (needed so that assignments will work inside of GmatFunctions) wcs 2010.05.18
+      std::string value1 = GmatStringUtil::Trim(value);
+      if (GmatStringUtil::IsEnclosedWithBraces(value1))
       {
-         if ((*i) == value)
-         {
-            alreadyInList = true;
-            break;
-         }
+         scClockSpiceKernelNames.clear();
+         scClockSpiceKernelNames = GmatStringUtil::ToStringArray(value1);
       }
-      if (!alreadyInList)  scClockSpiceKernelNames.push_back(value);
+      else
+      {
+         StringArray::iterator i;
+         for (i = scClockSpiceKernelNames.begin(); i != scClockSpiceKernelNames.end(); ++i)
+         {
+            if ((*i) == value)
+            {
+               alreadyInList = true;
+               break;
+            }
+         }
+         if (!alreadyInList)  scClockSpiceKernelNames.push_back(value);
+      }
       return true;
    }
    if (id == FRAME_SPICE_KERNEL_NAME)
    {
-      StringArray::iterator i;
-      for (i = frameSpiceKernelNames.begin(); i != frameSpiceKernelNames.end(); ++i)
+      // if it is the whole StringArray of kernel names, handle that here
+      // (needed so that assignments will work inside of GmatFunctions) wcs 2010.05.18
+      std::string value1 = GmatStringUtil::Trim(value);
+      if (GmatStringUtil::IsEnclosedWithBraces(value1))
       {
-         if ((*i) == value)
-         {
-            alreadyInList = true;
-            break;
-         }
+         frameSpiceKernelNames.clear();
+         frameSpiceKernelNames = GmatStringUtil::ToStringArray(value1);
       }
-      if (!alreadyInList)  frameSpiceKernelNames.push_back(value);
-      return true;
+      else
+      {
+         StringArray::iterator i;
+         for (i = frameSpiceKernelNames.begin(); i != frameSpiceKernelNames.end(); ++i)
+         {
+            if ((*i) == value)
+            {
+               alreadyInList = true;
+               break;
+            }
+         }
+         if (!alreadyInList)  frameSpiceKernelNames.push_back(value);
+         }
+         return true;
    }
 
 
