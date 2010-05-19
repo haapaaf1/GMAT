@@ -582,7 +582,9 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    #endif
    
    // first, check to see if it is enclosed with single quotes
-   if (GmatStringUtil::IsEnclosedWith(theDescription, "'"))
+   // or if it is an array of strings, enclosed in braces
+   if (GmatStringUtil::IsEnclosedWith(theDescription, "'") ||
+       GmatStringUtil::IsEnclosedWithBraces(theDescription))
    {
       ew = new StringWrapper();
       #ifdef DEBUG_MEMORY
@@ -594,7 +596,7 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
       
       #if DBGLVL_WRAPPERS
       MessageInterface::ShowMessage
-         (">>> In Validator, it's enclosed with quotes so created a StringWrapper "
+         (">>> In Validator, it's enclosed with quotes or braces so created a StringWrapper "
           "<%p> for \"%s\"\n", ew, theDescription.c_str(), "\"\n");
       #endif
    }
@@ -885,7 +887,10 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    if (leftEw->GetDataType() == Gmat::STRING_TYPE ||
        leftEw->GetDataType() == Gmat::STRINGARRAY_TYPE)
    {
-      // first remove ending ; from the RHS
+      #if DBGLVL_WRAPPERS > 1
+      MessageInterface::ShowMessage("==========> LHS type is STRING or STRINGARRAY\n");
+      #endif
+     // first remove ending ; from the RHS
       rhs = GmatStringUtil::RemoveLastString(rhs, ";");
       if (GmatStringUtil::HasMissingQuote(rhs, "'"))
       {
