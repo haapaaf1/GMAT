@@ -197,7 +197,7 @@ bool BodyInertialAxes::Initialize()
 
 GmatCoordinate::ParameterUsage BodyInertialAxes::UsesEpoch() const
 {
-   return GmatCoordinate::REQUIRED;
+   return GmatCoordinate::NOT_USED;
 }
 
 
