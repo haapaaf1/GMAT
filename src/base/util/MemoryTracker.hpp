@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 MemoryTracker
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -36,8 +36,8 @@ public:
    void           Remove(void *addr, const std::string &objName,
                          const std::string &funName, const std::string &note = "",
                          void *from = NULL);
+   UnsignedInt    GetNumberOfTracks();
    StringArray&   GetTracks(bool clearTracks = false, bool writeScriptName = false);
-   StringArray&   FindLeaks();
    
 private:
    

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 MemoryTracker
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -133,7 +133,23 @@ void MemoryTracker::Remove(void *addr, const std::string &objName,
 
 
 //------------------------------------------------------------------------------
-// StringArray& GetTracks(bool clearTracks, bool writeScriptName)
+// UnsignedInt GetNumberOfTracks()
+//------------------------------------------------------------------------------
+UnsignedInt MemoryTracker::GetNumberOfTracks()
+{
+   return memoryTracks.size();
+}
+
+
+//------------------------------------------------------------------------------
+// StringArray& GetTracks(bool clearTracks, bool justGetSize, bool writeScriptName)
+//------------------------------------------------------------------------------
+/**
+ * Returns memory tracks
+ *
+ * @param  clearTracks  Clears track if set to true [true]
+ * @param  writeScriptName  Adds script name to track record
+ */
 //------------------------------------------------------------------------------
 StringArray& MemoryTracker::GetTracks(bool clearTracks, bool writeScriptName)
 {
