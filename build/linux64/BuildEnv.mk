@@ -12,7 +12,7 @@ USE_STC_EDITOR = 0
 
 SHARED_BASE = 1
 
-# For AMD64 native code, this variable should be set equal to 1
+# For 64-bit versions of Linux, this variable should be set equal to 1
 USE_64_BIT_LONGS = 1
 
 # If the copy of wx-config you need is not in your path, enter the path to the
