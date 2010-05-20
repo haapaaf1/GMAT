@@ -1081,13 +1081,13 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
       }
       else if (objTypeName == "Broyden")
       {
-         AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
-                    new GmatTreeItemData(wxT(objName), GmatTree::BROYDEN));
+         //AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         //           new GmatTreeItemData(wxT(objName), GmatTree::BROYDEN));
       }
       else if (objTypeName == "Quasi-Newton")
       {
-         AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
-                    new GmatTreeItemData(wxT(objName), GmatTree::QUASI_NEWTON));
+         //AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         //           new GmatTreeItemData(wxT(objName), GmatTree::QUASI_NEWTON));
       }
       else if (objTypeName == "FminconOptimizer")
       {
@@ -3825,11 +3825,11 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
       break;
    case GmatTree::BOUNDARY_SOLVER_FOLDER:
       menu->Append(POPUP_ADD_DIFF_CORR, wxT("DifferentialCorrector"));
-      menu->Append(POPUP_ADD_BROYDEN, wxT("Broyden"));
+      //menu->Append(POPUP_ADD_BROYDEN, wxT("Broyden"));
       menu->Enable(POPUP_ADD_BROYDEN, false);
       break;
    case GmatTree::OPTIMIZER_FOLDER:
-      menu->Append(POPUP_ADD_QUASI_NEWTON, wxT("Quasi-Newton"));
+      //menu->Append(POPUP_ADD_QUASI_NEWTON, wxT("Quasi-Newton"));
       menu->Append(POPUP_ADD_SQP, wxT("SQP (fmincon)"));
       menu->Enable(POPUP_ADD_QUASI_NEWTON, false);
 
