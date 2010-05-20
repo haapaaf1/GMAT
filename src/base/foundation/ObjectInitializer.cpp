@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ObjectInitializer
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -36,6 +36,7 @@
 //#define DEBUG_INITIALIZE_OBJ
 //#define DEBUG_INITIALIZE_CS
 //#define DEBUG_BUILD_ASSOCIATIONS
+//#define DEBUG_OBJECT_MAP
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -172,7 +173,7 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
       ("=== ObjectInitializer::InitializeObjects() entered, Count = %d\n",
        callCount);
    #endif
-
+   
    #ifdef DEBUG_OBJECT_MAP
    ShowObjectMaps("In InitializeObjects");
    #endif
@@ -1083,9 +1084,7 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
    // Next handle the array version
    try
    {
-      StringArray oNameArray =
-         obj->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
-      oNameArray = obj->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+      StringArray oNameArray = obj->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
       for (StringArray::iterator i = oNameArray.begin();
            i != oNameArray.end(); ++i)
       {
@@ -1220,11 +1219,11 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
       ("ObjectInitializer::BuildAssociations() entered, obj=<%p><%s>'%s'\n",
        obj, objType.c_str(), objName.c_str());
    #endif
-   // Spacecraft receive clones of the associated hardware objects
+   
+   // Spacecraft clones associated hardware objects
    if (obj->IsOfType(Gmat::SPACECRAFT))
    {
       StringArray hw = obj->GetRefObjectNameArray(Gmat::HARDWARE);
-      hw = obj->GetRefObjectNameArray(Gmat::HARDWARE);
       for (StringArray::iterator i = hw.begin(); i < hw.end(); ++i)
       {
          #ifdef DEBUG_BUILD_ASSOCIATIONS
