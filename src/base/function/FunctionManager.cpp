@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 FunctionManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Wendy C. Shoan
 // FunctionManagerd: 2008.03.24
@@ -724,7 +724,9 @@ bool FunctionManager::PrepareObjectMap()
    MessageInterface::ShowMessage
       ("in FM::PrepareObjectMap(), Validator's object map was just set to "
        "combinedObjectStore\n");
-   //ShowObjectMap(&combinedObjectStore, "CombinedObjectStore");
+   #ifdef DEBUG_OBJECT_MAP
+   ShowObjectMap(&combinedObjectStore, "CombinedObjectStore");
+   #endif
    #endif
    
    validator->SetObjectMap(&combinedObjectStore);
@@ -2085,13 +2087,23 @@ bool FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
       ShowObjectMap(functionObjectStore, "FOS");
    #endif
    
-   // assign output
+   // Assign output
    for (unsigned int jj = 0; jj < outNames.size(); jj++)
    {
-      // find output name from cloned object store
-      GmatBase *clonedObj = (*cloned)[outNames.at(jj)];
-      // find output name from popped object store
-      GmatBase *fosObj    = (*functionObjectStore)[callingNames.at(jj)];
+      // Find output name from cloned object store
+      // If name found then assign to object pointer since [] operator
+      // inserts the item if it doesn't exist (LOJ: 2010.05.19)
+      GmatBase *clonedObj = NULL;
+      if (cloned->find(outNames.at(jj)) != cloned->end())
+          clonedObj = (*cloned)[outNames.at(jj)];
+      
+      // Find output name from popped object store
+      // If name found then assign to object pointer since [] operator
+      // inserts the item if it doesn't exist (LOJ: 2010.05.19)
+      GmatBase *fosObj = NULL;
+      if (functionObjectStore->find(callingNames.at(jj)) != functionObjectStore->end())
+         fosObj = (*functionObjectStore)[callingNames.at(jj)];
+      
       if (clonedObj == NULL)
       {
          std::string errMsg = "PopFromStack::Error getting output named ";
