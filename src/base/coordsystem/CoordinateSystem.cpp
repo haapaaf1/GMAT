@@ -1364,23 +1364,11 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
        secondary, j2000Body, solarSystem);
    #endif
    // check for NULL pointers
-//   if (origin == NULL || primary == NULL || secondary == NULL ||
-//       j2000Body == NULL || solarSystem == NULL)
-//      return NULL;
    if (origin == NULL || j2000Body == NULL || solarSystem == NULL)
       return NULL;
    
    CoordinateSystem *localCS = NULL;
    AxisSystem       *theAxes = NULL;
-   
-//   if (axesType != "VNB" && axesType != "LVLH" && axesType != "MJ2000Eq" &&
-//       axesType != "SpacecraftBody")
-//   {
-//      MessageInterface::ShowMessage
-//         ("**** ERROR **** CoordinateSystem::CreateLocalCoordinateSystem() cannot "
-//          "create CoordinateSystem, axes name \"%s\" is not supported\n", axesType.c_str());
-//      return NULL;
-//   }
    
    // check for supported axes name - these are used at least in the Burn code
    if (axesType == "VNB" || axesType == "LVLH" || // axesType == "MJ2000Eq" ||
@@ -1388,18 +1376,16 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
    {
       if (primary == NULL || secondary == NULL)
          return NULL;
-   
-   //   CoordinateSystem *localCS = new CoordinateSystem(csName);
-   //   AxisSystem *theAxes = new ObjectReferencedAxes(csName);
+      
       localCS  = new CoordinateSystem("CoordinateSystem",csName);
       theAxes  = new ObjectReferencedAxes(csName);
-     
+      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (localCS, "localCS", "Burn::CreateLocalCoordinateSystem()",
+         (localCS, "localCS", "CoordinateSystem::CreateLocalCoordinateSystem()",
           "new CoordinateSystem()");
       MemoryTracker::Instance()->Add
-         (theAxes, "localAxes", "Burn::CreateLocalCoordinateSystem()",
+         (theAxes, "theAxes", "CoordinateSystem::CreateLocalCoordinateSystem()",
           "new ObjectReferencedAxes()");
       #endif
       
@@ -1454,7 +1440,8 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
       // Since CoordinateSystem clones AxisSystem, delete it from here
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         (theAxes, "theAxes", "Burn::CreateLocalCoordinateSystem()", "deleting localAxes");
+         (theAxes, "theAxes", "CoordinateSystem::CreateLocalCoordinateSystem()",
+          "deleting theAxes");
       #endif
       delete theAxes;
       return localCS;
@@ -1476,7 +1463,7 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
          (localCS, "localCS", "CreateLocalCoordinateSystem()",
           "new CoordinateSystem()");
       MemoryTracker::Instance()->Add
-         (theAxes, "localAxes", "CreateLocalCoordinateSystem()",
+         (theAxes, "theAxes", "CreateLocalCoordinateSystem()",
           "new ObjectReferencedAxes()");
       #endif
       
@@ -1486,7 +1473,7 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
       localCS->SetRefObject(j2000Body, Gmat::SPACE_POINT, j2000Body->GetName());
       localCS->SetSolarSystem(solarSystem);
       localCS->Initialize();
-
+      
       #ifdef DEBUG_CS_CREATE
       MessageInterface::ShowMessage
          ("   Local CS %s<%p> created with AxisSystem <%p>:\n"
@@ -1500,7 +1487,13 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
           localCS->GetJ2000Body(),
           localCS->GetJ2000Body() ? localCS->GetJ2000Body()->GetName().c_str() : "NULL");
       #endif
-
+      
+      // Since CoordinateSystem clones AxisSystem, delete it from here
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (theAxes, "theAxes", "CoordinateSystem::CreateLocalCoordinateSystem()",
+          "deleting theAxes");
+      #endif
       delete theAxes;
       return localCS;
    }

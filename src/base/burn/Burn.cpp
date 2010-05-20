@@ -148,7 +148,7 @@ Burn::~Burn()
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         (localCoordSystem, "localCS", "Burn::~Burn()",
+         (localCoordSystem, "localCoordSystem", "Burn::~Burn()",
           "deleting localCoordSystem");
       #endif
       delete localCoordSystem;
@@ -875,7 +875,7 @@ void Burn::SetSpacecraftToManeuver(Spacecraft *sat)
          {
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
-               (localCoordSystem, "localCS", "Burn::SetSpacecraftToManeuver()",
+               (localCoordSystem, "localCoordSystem", "Burn::SetSpacecraftToManeuver()",
                 "deleting localCoordSystem");
             #endif
             delete localCoordSystem;
@@ -952,7 +952,7 @@ bool Burn::Initialize()
    {
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
-         (localCoordSystem, "localCS", "Burn::Initialize()",
+         (localCoordSystem, "localCoordSystem", "Burn::Initialize()",
           "deleting localCoordSystem");
       #endif
       delete localCoordSystem;
@@ -968,7 +968,8 @@ bool Burn::Initialize()
    
    #ifdef DEBUG_BURN_INIT
    MessageInterface::ShowMessage
-      ("Burn::Initialize() <%p>'%s' returning %d\n", this, GetName().c_str(), retval);
+      ("Burn::Initialize() <%p>'%s' returning %d, localCoordSystem=<%p>\n",
+       this, GetName().c_str(), retval, localCoordSystem);
    #endif
    
    return retval;
