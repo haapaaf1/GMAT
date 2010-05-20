@@ -2,9 +2,9 @@
 # Build environment file for Linux
 
 # Flags used to control the build
-USE_MATLAB = 1
+USE_MATLAB = 0
 USE_SPICE = 0
-USE_DEVIL = 1
+USE_DEVIL = 0
 CONSOLE_APP = 0
 DEBUG_BUILD = 0
 PROFILE_BUILD = 0
