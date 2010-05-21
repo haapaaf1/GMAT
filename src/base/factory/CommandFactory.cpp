@@ -22,6 +22,7 @@
 #include "Factory.hpp"
 #include "CommandFactory.hpp"
 #include "NoOp.hpp"           // for NoOp command
+#include "BeginMissionSequence.hpp" // for BeginMissionSequence command
 #include "Toggle.hpp"         // for Toggle command
 #include "Propagate.hpp"      // for Propagate command
 #include "Maneuver.hpp"       // for Maneuver command
@@ -94,6 +95,8 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
 {
     if (ofType == "NoOp")
         return new NoOp;
+    if (ofType == "BeginMissionSequence")
+        return new BeginMissionSequence;
     else if (ofType == "Propagate")
         return new Propagate;
     else if (ofType == "Toggle")
@@ -198,9 +201,10 @@ CommandFactory::CommandFactory() :
 {
    if (creatables.empty())
    {
-      creatables.push_back("NoOp");  // default type for this factory
-      creatables.push_back("Toggle");  // default type for this factory
-      creatables.push_back("Propagate");  // default type for this factory
+      creatables.push_back("NoOp");
+      creatables.push_back("BeginMissionSequence");
+      creatables.push_back("Toggle");
+      creatables.push_back("Propagate");
       creatables.push_back("Maneuver");
       // Commands related to the targeter
       creatables.push_back("Target");
@@ -273,9 +277,10 @@ CommandFactory::CommandFactory(const CommandFactory& fact) :
 {
    if (creatables.empty())
    {
-      creatables.push_back("NoOp");  // default type for this factory
-      creatables.push_back("Toggle");  // default type for this factory
-      creatables.push_back("Propagate");  // default type for this factory
+      creatables.push_back("NoOp");
+      creatables.push_back("BeginMissionSequence");
+      creatables.push_back("Toggle");
+      creatables.push_back("Propagate");
       creatables.push_back("Maneuver");
       // Commands related to the targeter
       creatables.push_back("Target");

@@ -169,6 +169,7 @@ OBJECTS = \
     command/Assignment.o \
     command/BeginFiniteBurn.o \
     command/BeginFunction.o \
+    command/BeginMissionSequence.o \
     command/BeginScript.o \
     command/BranchCommand.o \
     command/CallFunction.o \

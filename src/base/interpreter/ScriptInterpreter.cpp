@@ -1769,15 +1769,17 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
 //------------------------------------------------------------------------------
 bool ScriptInterpreter::IsOneWordCommand(const std::string &str)
 {
+   // Note: The interpreter really should ask the command this!
    bool retval = false;
    
-   if ((str.find("End")           != str.npos  &&
-        str.find("EndFiniteBurn") == str.npos) ||
-       (str.find("BeginScript")   != str.npos) ||
-       (str.find("NoOp")          != str.npos) ||
-       (str.find("Else")          != str.npos  &&
-        str.find("ElseIf")        == str.npos) ||
-       (str.find("Stop")          != str.npos))
+   if ((str.find("End")                  != str.npos  &&
+        str.find("EndFiniteBurn")        == str.npos) ||
+       (str.find("BeginScript")          != str.npos) ||
+       (str.find("NoOp")                 != str.npos) ||
+       (str.find("BeginMissionSequence") != str.npos) ||
+       (str.find("Else")                 != str.npos  &&
+        str.find("ElseIf")               == str.npos) ||
+       (str.find("Stop")                 != str.npos))
    {
       retval = true;
    }

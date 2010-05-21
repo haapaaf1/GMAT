@@ -2354,10 +2354,12 @@ GmatBase* GmatCommand::FindObject(const std::string &name)
    
    // Check for SolarSystem (loj: 2008.06.25)
    if (name == "SolarSystem")
+   {
       if (solarSys)
          return solarSys;
       else
          return NULL;
+   }
    
    // Check for the object in the Local Object Store (LOS) first
    if (objectMap && objectMap->find(newName) != objectMap->end())
