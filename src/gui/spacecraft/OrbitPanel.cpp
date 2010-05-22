@@ -390,7 +390,8 @@ void OrbitPanel::SaveData()
       std::string newEpoch = epochValue->GetValue().c_str();
       std::string epochFormat = epochFormatComboBox->GetValue().c_str();
       Real fromMjd = -999.999;
-      Real taimjd = -999.999;
+//      Real taimjd = -999.999;
+      Real a1mjd = -999.999;
       std::string outStr;
       
       #ifdef DEBUG_ORBIT_PANEL_SAVE
@@ -402,12 +403,17 @@ void OrbitPanel::SaveData()
       {
          try
          {
+//            TimeConverterUtil::Convert(epochFormat, fromMjd, newEpoch,
+//                                       "TAIModJulian", taimjd, outStr);
+            // time sent to the spacecraft should be in A1   WCS 2010.05.22
             TimeConverterUtil::Convert(epochFormat, fromMjd, newEpoch,
-                                       "TAIModJulian", taimjd, outStr);
+                                       "A1ModJulian", a1mjd, outStr);
             
-            theSpacecraft->SetEpoch(epochFormat, newEpoch, taimjd);
+//            theSpacecraft->SetEpoch(epochFormat, newEpoch, taimjd);
+            theSpacecraft->SetEpoch(epochFormat, newEpoch, a1mjd);
             mEpochStr = outStr;
-            mEpoch = taimjd;
+//            mEpoch = taimjd;
+            mEpoch = a1mjd;
             mIsEpochChanged = false;
          }
          catch (BaseException &e)
