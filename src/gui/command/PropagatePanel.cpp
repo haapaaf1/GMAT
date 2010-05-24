@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              PropagatePanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Waka Waktola
 // Created: 2003/08/29
@@ -24,6 +24,7 @@
 
 //#define DEBUG_PROPAGATE_PANEL
 //#define DEBUG_PROPAGATE_PANEL_LOAD
+//#define DEBUG_PROPAGATE_PANEL_SAVE
 //#define DEBUG_RENAME
 
 //------------------------------------------------------------------------------
@@ -584,7 +585,7 @@ void PropagatePanel::OnCellRightClick(wxGridEvent& event)
                
                #ifdef DEBUG_PROPAGATE_PANEL
                MessageInterface::ShowMessage
-                  ("PropagatePanel::OnCellRightClick() soNameList[%d]=%s\n",
+                  ("PropagatePanel::OnCellRightClick() soNameList[%d]='%s'\n",
                    j, mTempProp[row].soNameList[j].c_str());
                #endif
             }
@@ -805,7 +806,7 @@ void PropagatePanel::LoadData()
       {
          #ifdef DEBUG_PROPAGATE_PANEL_LOAD
          MessageInterface::ShowMessage
-            ("PropagatePanel::LoadData() soNameList[%d]=<%s>\n",
+            ("PropagatePanel::LoadData() soNameList[%d]='%s'\n",
              j, soList[j].c_str());
          #endif
          
@@ -818,7 +819,7 @@ void PropagatePanel::LoadData()
          else
          {
             MessageInterface::PopupMessage
-               (Gmat::WARNING_, "The SpaceObject:<%s> was not created, "
+               (Gmat::WARNING_, "The SpaceObject named '%s' was not created, "
                 "so removed from the display list\n", soList[j].c_str());
          }
       }
@@ -1061,14 +1062,14 @@ void PropagatePanel::SaveData()
                std::string spacecraftStr = 
                   propGrid->GetCellValue(i, PROP_SOS_COL).c_str();
                StringArray parts = 
-                  GmatStringUtil::SeparateBy(spacecraftStr, ",");
+                  GmatStringUtil::SeparateBy(spacecraftStr, ", ");
                
                soCount = parts.size();                    
                for (Integer j=0; j<soCount; j++)
                {
                   #ifdef DEBUG_PROPAGATE_PANEL_SAVE
                   MessageInterface::ShowMessage
-                     ("parts[%d] = %s\n", j, parts[j].c_str());
+                     ("parts[%d] = '%s'\n", j, parts[j].c_str());
                   #endif
                   
                   thePropCmd->SetStringParameter
@@ -1128,14 +1129,11 @@ void PropagatePanel::SaveData()
                
                #ifdef DEBUG_PROPAGATE_PANEL_SAVE
                MessageInterface::ShowMessage
-                  ("PropagatePanel::SaveData() name = %s\n varName = %s\n goal = %s\n"
-                   " tol = %f\n repeat = %d\n",
+                  ("PropagatePanel::SaveData() name = '%s'\n varName = %s\n goal = %s\n",
                    mTempStopCond[i].name.c_str(),
                    mTempStopCond[i].varName.c_str(),
-                   mTempStopCond[i].goalStr.c_str(),
-                   mTempStopCond[i].tol,
-                   mTempStopCond[i].repeat);
-              #endif
+                   mTempStopCond[i].goalStr.c_str());
+               #endif
                mTempStopCond[mStopCondCount].stopCondPtr->
                   SetName(std::string(mTempStopCond[i].name.c_str()));
                
