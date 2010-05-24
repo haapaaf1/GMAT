@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                ConfigManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/10/27
@@ -1031,23 +1031,22 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    //--------------------------------------------------
    // change mapping name
    //--------------------------------------------------
-   
+   GmatBase *mapObj = NULL;
    if (mapping.find(oldName) != mapping.end())
    {
-      GmatBase *obj = mapping[oldName];
-      //if (obj->GetType() == type)
-      if (obj->IsOfType(type))
+      mapObj = mapping[oldName];
+      if (mapObj->IsOfType(type))
       {
          // if newName does not exist, change name
          if (mapping.find(newName) == mapping.end())
          {
             mapping.erase(oldName);
-            mapping[newName] = obj;
-            obj->SetName(newName);
+            mapping[newName] = mapObj;
+            mapObj->SetName(newName);
             renamed = true;
             #if DEBUG_RENAME
             MessageInterface::ShowMessage
-               ("===> Rename mapping obj=%s\n", obj->GetName().c_str());
+               ("   Rename mapping mapObj=%s\n", mapObj->GetName().c_str());
             #endif
          }
          else
@@ -1061,7 +1060,7 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
       {
          MessageInterface::ShowMessage
             ("ConfigManager::RenameItem() oldName has different type:%d\n",
-             obj->GetType());
+             mapObj->GetType());
       }
    }
    
@@ -1077,15 +1076,19 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    //----------------------------------------------------
    // Rename ref. objects
    //----------------------------------------------------
-   GmatBase *obj;
+   GmatBase *obj = NULL;
    StringArray itemList = GetListOfItemsHas(type, oldName);
+   #if DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("   There are %d items has '%s'\n", itemList.size(), oldName.c_str());
+   #endif
    for (UnsignedInt i=0; i<itemList.size(); i++)
    {
       obj = GetItem(itemList[i]);
       if (obj)
       {
          #if DEBUG_RENAME
-         MessageInterface::ShowMessage("===> Rename obj=%s\n", obj->GetName().c_str());
+         MessageInterface::ShowMessage("   Rename obj=%s\n", obj->GetName().c_str());
          #endif
          
          renamed = obj->RenameRefObject(type, oldName, newName);
@@ -1093,7 +1096,18 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    }
    
    //----------------------------------------------------
-   // Rename tanks in the thrusters.
+   // Rename owned object ODEModel in the PropSetup.
+   //----------------------------------------------------
+   if (type == Gmat::PROP_SETUP)
+   {
+      #if DEBUG_RENAME
+      MessageInterface::ShowMessage("   Calling PropSetup::RenameRefObject()\n");
+      #endif
+      mapObj->RenameRefObject(type, oldName, newName);
+   }
+   
+   //----------------------------------------------------
+   // Rename owned tanks in the thrusters.
    // Tank is ReadOnly parameter so it does show in
    // GeneratingString()
    //----------------------------------------------------

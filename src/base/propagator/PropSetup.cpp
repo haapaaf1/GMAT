@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              PropSetup
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -26,6 +26,7 @@
 #include "PhysicalModel.hpp"
 #include "RungeKutta89.hpp"
 #include "PointMassForce.hpp"
+#include "StringUtil.hpp"               // for GmatStringUtil::Replace()
 #include "MessageInterface.hpp"
 
 //#define DEBUG_PROPSETUP
@@ -472,7 +473,42 @@ bool PropSetup::RenameRefObject(const Gmat::ObjectType type,
                                 const std::string &oldName,
                                 const std::string &newName)
 {
-   // There is nothing to check for now
+   #ifdef DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("PropSetup::RenameRefObject() entered, this=<%p>'%s', type=%d, "
+       "oldName='%s', newName='%s'\n", this, GetName().c_str(), type,
+       oldName.c_str(), newName.c_str());
+   MessageInterface::ShowMessage
+      ("   mODEModelName='%s', mODEModel=<%p><%s>'%s'\n", mODEModelName.c_str(),
+       mODEModel, mODEModel ? mODEModel->GetTypeName().c_str() : "NULL",
+       mODEModel ? mODEModel->GetName().c_str() : "NULL");
+   #endif
+   
+   // Rename ODE model name
+   if (mODEModelName.find(oldName) != mODEModelName.npos)
+   {
+      mODEModelName = GmatStringUtil::Replace(mODEModelName, oldName, newName);
+   }
+   
+   // Rename acutal ODE model name of ODEModel pointer
+   if (mODEModel)
+   {
+      std::string modelName = mODEModel->GetName();
+      if (modelName.find(oldName) != modelName.npos)
+      {
+         modelName = GmatStringUtil::Replace(modelName, oldName, newName);
+         mODEModel->SetName(modelName);
+      }
+   }
+   
+   #ifdef DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("PropSetup::RenameRefObject() returning true, mODEMoedlName='%s', "
+       "mODEModel=<%p><%s>'%s'\n", mODEModelName.c_str(), mODEModel,
+       mODEModel ? mODEModel->GetTypeName().c_str() : "NULL",
+       mODEModel ? mODEModel->GetName().c_str() : "NULL");
+   #endif
+   
    return true;
 }
 
