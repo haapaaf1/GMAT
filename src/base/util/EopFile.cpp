@@ -1,4 +1,4 @@
-//$Header$
+//$Id:$
 //------------------------------------------------------------------------------
 //                                  EopFile
 //------------------------------------------------------------------------------
@@ -32,6 +32,7 @@
 
 //#define DEBUG_OFFSET
 //#define DEBUG_EOP_READ
+//#define DEBUG_EOP_INITIALIZE
 
 //------------------------------------------------------------------------------
 // static data
@@ -145,6 +146,9 @@ EopFile::~EopFile()
 //------------------------------------------------------------------------------
 void EopFile::Initialize()
 {
+   #ifdef DEBUG_EOP_INITIALIZE
+      MessageInterface::ShowMessage("Initializing EopFile: eopFileName = %s\n", eopFileName.c_str());
+   #endif
    if (isInitialized) return;
    
    std::string   line;
