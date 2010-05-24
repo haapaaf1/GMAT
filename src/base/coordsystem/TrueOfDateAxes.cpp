@@ -1,4 +1,4 @@
-//$Header$
+//$Id:$
 //------------------------------------------------------------------------------
 //                                  TrueOfDateAxes
 //------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ TrueOfDateAxes::~TrueOfDateAxes()
 bool TrueOfDateAxes::Initialize()
 {
    DynamicAxes::Initialize();
-   if (originName == SolarSystem::EARTH_NAME) 
+//   if (originName == SolarSystem::EARTH_NAME) // so can use for other bodies as origin  WCS 2010.05.24
       InitializeFK5();
    return true;
 }
