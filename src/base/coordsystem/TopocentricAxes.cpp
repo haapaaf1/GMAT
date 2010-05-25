@@ -353,55 +353,51 @@ void TopocentricAxes::CalculateRFT(const A1Mjd &atEpoch, const Rvector3 newLocat
    x = newLocation[0];
    y = newLocation[1];
    z = newLocation[2];
-   if (horizonReference == "Sphere")
-      zUnit = newLocation.GetUnitVector();
-   else // "Ellipsoid"
-   {
-      Real rxy      = GmatMathUtil::Sqrt(x*x + y*y);
-      // Calculate the geocentric latitude to use as an initial guess 
-      // to find the geodetic latitude
-      Real phigd    = atan2(z, rxy);
-      Real eSquared = 2 * flattening - (flattening * flattening);
-      Real phiPrime, C, divided, bfLong;
+   Real rxy      = GmatMathUtil::Sqrt(x*x + y*y);
+   // Calculate the geocentric latitude to use as an initial guess
+   // to find the geodetic latitude
+   Real phigd    = atan2(z, rxy);
+   Real eSquared = 2 * flattening - (flattening * flattening);
+   Real phiPrime, C, divided, bfLong;
 
+   #ifdef DEBUG_TOPOCENTRIC_AXES
+      MessageInterface::ShowMessage(
+            "rxy = %12.17f      phigd = %12.17f    eSquared = %12.17f  \n",
+            rxy, phigd, eSquared);
+   #endif
+   // Initialize the loop and iterate to find the geodetic latitude
+   Real delta  = 1.0;
+   while (delta > 1.0e-11)
+   {
+      phiPrime = phigd;
+      C        = radius / GmatMathUtil::Sqrt(1 - eSquared *
+                 (GmatMathUtil::Sin(phiPrime) * GmatMathUtil::Sin(phiPrime)));
+      divided  = (z + (C * eSquared * GmatMathUtil::Sin(phiPrime))) /rxy;
+      phigd    = atan(divided);
       #ifdef DEBUG_TOPOCENTRIC_AXES
          MessageInterface::ShowMessage(
-               "rxy = %12.17f      phigd = %12.17f    eSquared = %12.17f  \n",
-               rxy, phigd, eSquared);
-      #endif
-      // Initialize the loop and iterate to find the geodetic latitude
-      Real delta  = 1.0;
-      while (delta > 1.0e-11)
-      {
-         phiPrime = phigd;
-         C        = radius / GmatMathUtil::Sqrt(1 - eSquared *
-                    (GmatMathUtil::Sin(phiPrime) * GmatMathUtil::Sin(phiPrime)));
-         divided  = (z + (C * eSquared * GmatMathUtil::Sin(phiPrime))) /rxy;
-         phigd    = atan(divided);
-         #ifdef DEBUG_TOPOCENTRIC_AXES
-            MessageInterface::ShowMessage(
-                  "In the loop, delta = %12.17f   phiPrime = %12.17f    C = %12.17f\n",
-                  delta, phiPrime, C);
-            MessageInterface::ShowMessage(
-                  "In the loop, divided = %12.17f   phigd = %12.17f\n",
-                  divided, phigd);
-         #endif
-         delta    = GmatMathUtil::Abs(phigd - phiPrime);
-      }
-      // Compute the longitude of the BodyFixedPoint location
-      bfLong = atan2(y,x);
-      #ifdef DEBUG_TOPOCENTRIC_AXES
+               "In the loop, delta = %12.17f   phiPrime = %12.17f    C = %12.17f\n",
+               delta, phiPrime, C);
          MessageInterface::ShowMessage(
-               "At the end of the loop, delta = %12.17f\n",
-               delta);
-         MessageInterface::ShowMessage(
-               "After the loop, bfLong = %12.17f\n",
-               bfLong);
+               "In the loop, divided = %12.17f   phigd = %12.17f\n",
+               divided, phigd);
       #endif
-      zUnit[0]    = GmatMathUtil::Cos(phigd) * GmatMathUtil::Cos(bfLong);
-      zUnit[1]    = GmatMathUtil::Cos(phigd) * GmatMathUtil::Sin(bfLong);
-      zUnit[2]    = GmatMathUtil::Sin(phigd);
+      delta    = GmatMathUtil::Abs(phigd - phiPrime);
    }
+   // Compute the longitude of the BodyFixedPoint location
+   bfLong = atan2(y,x);
+   #ifdef DEBUG_TOPOCENTRIC_AXES
+      MessageInterface::ShowMessage(
+            "At the end of the loop, delta = %12.17f\n",
+            delta);
+      MessageInterface::ShowMessage(
+            "After the loop, bfLong = %12.17f\n",
+            bfLong);
+   #endif
+   zUnit[0]    = GmatMathUtil::Cos(phigd) * GmatMathUtil::Cos(bfLong);
+   zUnit[1]    = GmatMathUtil::Cos(phigd) * GmatMathUtil::Sin(bfLong);
+   zUnit[2]    = GmatMathUtil::Sin(phigd);
+
    // Complete the computation of x, y, and RFT
    yUnit          = Cross(kUnit, zUnit);
    yUnit          = yUnit.GetUnitVector();
