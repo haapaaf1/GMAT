@@ -471,18 +471,25 @@ bool GroundStation::Initialize()
    }
    else if (stateType == "Spherical")
    {
+      Real equatorialRadius, flattening;
       sphType = "Geodetic";
       if (horizon == "Sphere")
-         sphType = "Geocentric";
+      {
+         sphType    = "Geocentric";
+         flattening = 0.0;              // WCS 2010.05.25 - temporary fix ***
+      }
+      else
+      {
+         flattening = theBody->GetRealParameter("Flattening");
+      }
       // What key goes with "Reduced"?
       
       llh.SetLatitude(location[0], sphType);
       llh.SetLongitude(location[1]);
       llh.SetHeight(location[2]);
       
-      Real equatorialRadius, flattening;
       equatorialRadius = theBody->GetRealParameter("EquatorialRadius");
-      flattening = theBody->GetRealParameter("Flattening");
+
       
       Rvector3 loc = llh.GetSitePosition(equatorialRadius, flattening);
       bfLocation[0] = loc[0];
