@@ -11,7 +11,7 @@ WX_INSTALLED = /usr/local/bin
 # **** edit this line to point to your MATLAB (2009) installation ****
 MATLAB_DIR = /Applications/MATLAB_R2009a/MATLAB_R2009a.app
 
-MATLAB_CPP_FLAGS = -D__USE_MATLAB__=1 -I$(MATLAB_DIR)/extern/include -Igmat_mex/src
+MATLAB_CPP_FLAGS = -D__USE_MATLAB__=1 -I$(MATLAB_DIR)/extern/include -Imatlab/gmat_mex/src
 MATLAB_LIB_DIR = -L$(MATLAB_DIR)/bin/maci -L$(MATLAB_DIR)/bin -L$(MATLAB_DIR)/sys/os/maci
 MATLAB_HDF = -lhdf5.5
 MATLAB_ICU_LIB = $(MATLAB_DIR)/bin/maci
@@ -20,8 +20,8 @@ MATLAB_ICUDATA = $(MATLAB_ICU_LIB)/libicudata.dylib.38 $(MATLAB_ICU_LIB)/libicui
 MATLAB_LIBRARIES = $(MATLAB_LIB_DIR) -leng -lmx -lmat -lut -lz -lstdc++ -lc $(MATLAB_ICUDATA) \
 	-lz.1 -lxerces-c.27 $(MATLAB_HDF)
 
-MEX_OBJECTS =	../gmat_mex/src/MatlabClient.o \
-				../gmat_mex/src/MatlabConnection.o
+MEX_OBJECTS =	../matlab/gmat_mex/src/MatlabClient.o \
+				../matlab/gmat_mex/src/MatlabConnection.o
 				
 # Set to 0 for Windows, 1 for Linux or Mac
 LINUX_MAC = 1   
@@ -54,7 +54,7 @@ WXLINKFLAGS = `$(WX_INSTALLED)/wx-config --libs --universal=no --static=no`
 
 
 SHARED_EXTENSION = .dylib
-SHARED_LIB_FLAGS = -bundle -two_levelnamespace -undefined dynamic_lookup \
+SHARED_LIB_FLAGS = -dylib -dynamiclib -two_levelnamespace -undefined dynamic_lookup \
                    -L$(GMAT_CODE_LOCATION)/base/lib -l$(BASE_LIBRARY) \
                     $(MAC_CPP_FLAGS) $(WXLINKFLAGS) $(MATLAB_LIBRARIES)
 
