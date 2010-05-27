@@ -1,0 +1,51 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & TC-6 Running a Collection of Scripts Several Times\\
+         \hline
+         Requirements & FR-XXX\\  \hline
+         Summary & This cases tests loading and running a set of tests in different orders many times in the same session.  
+         \\  \hline
+         PreConditions & BS-5, BS-6, BS-7, BS-8, BS-9\\     \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-5 via the folder icon in the toolbar.
+             \item Run BS-5 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Load BS-6 via the folder icon in the toolbar.
+             \item Run BS-6 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Load BS-7 via the folder icon in the toolbar.
+             \item Run BS-7 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Load BS-8 via the folder icon in the toolbar.
+             \item Run BS-8 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Load BS-9 via the folder icon in the toolbar.
+             \item Run BS-9 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-5 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-6 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-7 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-8 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-9 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-8 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-8 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-6 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-5 by right-clicking on the script name in the resource tree and selecting build and run.   
+             \item Run BS-8 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-6 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-7 by right-clicking on the script name in the resource tree and selecting build and run.
+             \item Run BS-9 by right-clicking on the script name in the resource tree and selecting build and run.   
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Alternative Paths &
+         %====================== BEGIN: The test procedure
+         Perform all steps above for the other base states listed in the Base States row of this table.
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The system should rerun the missions over and over again without crashing.)\\
+      \hline
+      \end{tabular}
+      \label{Table:TC-6}
+      \caption{TC-6 Running a Collection of Scripts Several Times}
+      \index{Test Case! TC-6}
+\end{table} 

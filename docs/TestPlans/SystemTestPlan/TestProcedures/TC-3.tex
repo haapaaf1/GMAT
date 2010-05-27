@@ -1,0 +1,52 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & TC-3 Adding and Deleting All Commands\\
+         \hline
+         Requirements & FR-XXX\\  \hline
+         Summary & This case tests adding and deleting all supported GMAT commands via the Mission
+         Tree GUI.  This test does not check for adding and deleting commands inside of branch commands.\\  \hline
+         PreConditions & BS-5\\     \hline
+         Data &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-1.
+             \item Click on the mission tree tab.
+             \item Right-click on the Mission Tree folder, select Append, then BeginFiniteBurn
+             \item Follow the steps in the line above for the following commands:
+                \begin{compactenum}
+                    \item Maneuver
+                    \item CallFunction
+                    \item Optimize
+                    \item Equation
+                    \item Report
+                    \item Save
+                    \item Toggle
+                    \item If
+                    \item If/Else
+                    \item BeginFiniteBurn
+                    \item Propagate
+                    \item For
+                    \item While
+                    \item PenUp
+                    \item PenDown
+                    \item RunEstimator
+                    \item EndFiniteBurn
+                    \item RunSimulator
+                    \item ScriptEvent
+                    \item Stop
+                    \item Target
+                \end{compactenum}
+                \item Right-click on the Maneuver command and the top of the tree and select delete.
+                \item Perform the same steps above and delete all commands in the order they were created.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & All objects are created and deleted and no error messages or warnings should be thrown.  )\\
+      \hline
+      \end{tabular}
+      \label{Table:TC-3}
+      \caption{TC-3 TEST NAME TEXT}
+      \index{Test Data! TC-3}
+\end{table} 

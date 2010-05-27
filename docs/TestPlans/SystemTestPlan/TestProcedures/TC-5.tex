@@ -1,0 +1,33 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & TC-5 Rapid Rerun Via Build and Run\\
+         \hline
+         Requirements & FR-XXX\\  \hline
+         Summary & Test opening a script and running it numerous times back-to-back using the run button on
+         the toolbar.\\  \hline
+         PreConditions & BS-5, BS-6, BS-7, BS-8, BS-9\\     \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-5.
+             \item Run the mission by right-clicking on the script name in the mission tree and selecting build and run.
+             \item The run button is greyed out during execution of the script.  Hover the mouse
+             button over the script in the script folder in the resource tree.  When the run button is active again quickly right-click on the script folder and select build and run.
+             \item Perform the previous step 5 times.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Alternative Paths &
+         %====================== BEGIN: The test procedure
+         Perform all steps above for the other base states listed in the Base States row of this table.
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The system should rerun the missions over and over again without crashing.)\\
+      \hline
+      \end{tabular}
+      \label{Table:TC-5}
+      \caption{TC-5 Rapid Rerun Via Build and Run}
+      \index{Test Case! TC-5}
+\end{table} 

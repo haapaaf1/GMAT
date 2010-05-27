@@ -36,35 +36,3 @@
       \caption{STC-27 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit}
       \index{Test Data!STC-27}
 \end{table}
-
-\begin{table}[htbp!]
-\centering
-      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
-      \hline
-         \rowcolor[rgb]{0.8,0.8,0.8} Name & STC-28 Performing Modulo on Keplerian Elements for Circular, Inclined Orbit\\
-         \hline
-         Requirements & FR-1.1\\  \hline
-         PreConditions & BS-1\\     \hline
-         Data &
-         %====================== BEGIN: The test procedure
-         \begin{compactenum}
-             \item Load BS-1.
-             \item Open the dialog box for DefaultSC.
-             \item Change the State Type to Keplerian
-             \item Change ECC to 0.0.
-             \item Change INC to 45 degrees.
-             \item Change RAAN to 380.0 degrees.
-             \item Change AOP to 390.0 degrees.
-             \item Change TA to 430.0 degrees.
-             \item Hit Apply.
-         \end{compactenum}
-         %====================== END: The test procedure
-         \\ \hline
-         Expected Results &  RAAN = 20.0 degrees, AOP = 0.0 degrees, and TA = 70.0 degrees. (All
-         values match to 14 sig. figs.)\\
-      \hline
-      \end{tabular}
-      \label{Table:STC-28}
-      \caption{STC-28 Performing Modulo on Keplerian Elements for Circular, Equatorial orbit}
-      \index{Test Data!STC-28}
-\end{table} 

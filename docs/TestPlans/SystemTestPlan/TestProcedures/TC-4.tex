@@ -1,0 +1,33 @@
+\begin{table}[htbp!]
+\centering
+      \begin{tabular}{|p{1.05 in} |p{4.75 in} |}
+      \hline
+         \rowcolor[rgb]{0.8,0.8,0.8} Name & TC-4 Rapid Rerun Via Run Button\\
+         \hline
+         Requirements & FR-XXX\\  \hline
+         Summary & Test opening a script and running it numerous times back-to-back using the run button on
+         the toolbar.\\  \hline
+         PreConditions & BS-5, BS-6, BS-7, BS-8, BS-9\\     \hline
+         Steps &
+         %====================== BEGIN: The test procedure
+         \begin{compactenum}
+             \item Load BS-5.
+             \item Run the mission using the run button on the toolbar.
+             \item The run button is greyed out during execution of the script.  Hover the mouse
+             button over the run button and when it becomes active again quickly press it to rerun the mission.
+             \item Perform the previous step 5 times.
+         \end{compactenum}
+         %====================== END: The test procedure
+         \\ \hline
+         Alternative Paths &
+         %====================== BEGIN: The test procedure
+         Perform all steps above for the other base states listed in the Base States row of this table.
+         %====================== END: The test procedure
+         \\ \hline
+         Expected Results & The system should rerun the missions over and over again without crashing.)\\
+      \hline
+      \end{tabular}
+      \label{Table:TC-4}
+      \caption{TC-4 Rapid Rerun Via Play Button}
+      \index{Test Case! TC-4}
+\end{table} 
