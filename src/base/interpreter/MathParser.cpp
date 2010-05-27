@@ -146,7 +146,11 @@ bool MathParser::IsEquation(const std::string &str)
    
    #if DEBUG_PARSE_EQUATION
    MessageInterface::ShowMessage
+      ("=================================================================\n");
+   MessageInterface::ShowMessage
       ("MathParser::IsEquation() str=%s\n", str.c_str());
+   MessageInterface::ShowMessage
+      ("=================================================================\n");
    #endif
    
    bool isEq = false;
@@ -215,39 +219,72 @@ std::string MathParser::FindLowestOperator(const std::string &str,
 {
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
-      ("FindLowestOperator() entered str=%s, start=%u, length=%u\n", str.c_str(),
+      ("=================================================================\n");
+   MessageInterface::ShowMessage
+      ("FindLowestOperator() entered, str=%s, start=%u, length=%u\n", str.c_str(),
        start, str.size());
+   MessageInterface::ShowMessage
+      ("=================================================================\n");
    #endif
    
    Integer firstOpen = str.find_first_of("(", start);
    Integer start1 = start;
-   Integer open1, close1;
+   Integer open1 = -1, close1 = -1;
    Integer length = str.size();
-   Integer index;
+   Integer index = -1;
    bool isOuterParen;
    bool done = false;
    std::string opStr;
-   std::map<std::string, Integer> opIndexMap;
+   IntegerMap opIndexMap;
    std::string substr;
-   std::map<std::string, Integer>::iterator pos;
+   IntegerMap::iterator pos;
+   
+   #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage("   firstOpen=%u\n", firstOpen);
+   #endif
+   
+   if (firstOpen == (Integer)str.npos)
+      firstOpen = -1;
+   
+   #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage("   firstOpen=%u\n", firstOpen);
+   #endif
+   
+   if (firstOpen > 0)
+   {
+      std::string::size_type inverseOp = str.find("^(-1)");
+      // Check for ^(-1) which goes toghether as inverse operator
+      if (inverseOp != str.npos)
+      {
+         if (str.substr(firstOpen-1, 5) == "^(-1)")
+         {
+            #if DEBUG_FIND_OPERATOR
+            MessageInterface::ShowMessage("   found ^(-1)\n");
+            #endif
+            
+            firstOpen = str.find_first_of("(", firstOpen + 3);
+            if (firstOpen == (Integer)str.npos)
+               firstOpen = inverseOp;
+         }
+      }
+   }
+   
+   #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage
+      ("FindLowestOperator() Find operator before first open parenthesis, "
+       "firstOpen=%d\n", firstOpen);
+   #endif
    
    //-----------------------------------------------------------------
    // find a lowest operator before first open paren
    //-----------------------------------------------------------------
-   if (firstOpen != 0)
+   if (firstOpen > 0)
    {
-      #if DEBUG_FIND_OPERATOR
-      MessageInterface::ShowMessage
-         ("FindLowestOperator() Find operator before first open parenthesis, "
-          "firstOpen=%u\n", firstOpen);
-      #endif
-      
       substr = str.substr(0, firstOpen);
       opStr = FindOperator(substr, index);
       if (opStr != "")
          opIndexMap[opStr] = index;
    }
-   
    
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
@@ -286,6 +323,10 @@ std::string MathParser::FindLowestOperator(const std::string &str,
    //-----------------------------------------------------------------
    // find a lowest operator after last close paren
    //-----------------------------------------------------------------
+   #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage
+      ("FindLowestOperator() Find lowest operator after last close parenthesis");
+   #endif
    if (close1 != length-1)
    {
       #if DEBUG_FIND_OPERATOR
@@ -302,11 +343,11 @@ std::string MathParser::FindLowestOperator(const std::string &str,
    #if DEBUG_FIND_OPERATOR
    for (pos = opIndexMap.begin(); pos != opIndexMap.end(); ++pos)
       MessageInterface::ShowMessage
-         ("      op=%s, index=%u\n", pos->first.c_str(), pos->second);
+         ("      op=%s, index=%d\n", pos->first.c_str(), pos->second);
    #endif
    
-   std::map<std::string, Integer>::iterator pos1;
-   std::map<std::string, Integer>::iterator pos2;
+   IntegerMap::iterator pos1;
+   IntegerMap::iterator pos2;
    std::string lastOp;
    
    // find + or - first
@@ -324,15 +365,10 @@ std::string MathParser::FindLowestOperator(const std::string &str,
       if (pos1 != opIndexMap.end() || pos2 != opIndexMap.end())
       {
          opStr = GetOperator(pos1, pos2, opIndexMap, index);
-         
-         #if DEBUG_FIND_OPERATOR
-         MessageInterface::ShowMessage
-            ("   found * or / pos1=%u, pos2=%u\n", pos1->second, pos2->second);
-         #endif
       }
       else
       {
-         // find ^
+         // find ^ and not ^(-1) which is inverse matrix
          pos1 = opIndexMap.find("^");
          if (pos1 != opIndexMap.end())
          {
@@ -347,7 +383,7 @@ std::string MathParser::FindLowestOperator(const std::string &str,
    
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
-      ("FindLowestOperator() returning opStr=%s, opIndex=%u\n",
+      ("FindLowestOperator() returning opStr=%s, opIndex=%d\n",
        opStr.c_str(), opIndex);
    #endif
    
@@ -368,6 +404,7 @@ std::string MathParser::FindLowestOperator(const std::string &str,
 //------------------------------------------------------------------------------
 MathNode* MathParser::Parse(const std::string &str)
 {
+   originalEquation = str;
    theEquation = str;
    
    #if DEBUG_PARSE
@@ -606,6 +643,7 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
          //================================================================
          #ifdef __ALLOW_MATH_EXP_NODE__
          //================================================================
+         
          // Create all input nodes (loj: 2008.08.25)
          MathNode *node = ParseNode(inputs[i]);
          
@@ -650,7 +688,8 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
          // check if input is math expression
          if (IsGmatFunction(inputs[i]) || IsEquation(inputs[i]))
             throw MathException
-               ("Currently passing math expression to a function is not allowed");
+               ("*** WARNING *** Currently passing math expression to a "
+                "function is not allowed in \"" + originalEquation + "\"");
          
          fRunner->AddFunctionInput(inputs[i]);
          
@@ -700,10 +739,15 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
 StringArray MathParser::Decompose(const std::string &str)
 {
    #if DEBUG_DECOMPOSE
-   MessageInterface::ShowMessage("MathParser::Decompose() str=%s\n", str.c_str());
+   MessageInterface::ShowMessage
+      ("MathParser::Decompose() entered, str=%s\n", str.c_str());
    #endif
    
    StringArray items = ParseParenthesis(str);
+   
+   #if DEBUG_DECOMPOSE
+   WriteItems("MathParser::Decompose() after ParseParenthesis() ", items);
+   #endif
    
    // if no operator found and left is not empty, decompose again
    if (items[0] == "" && items[1] != "")
@@ -774,11 +818,15 @@ StringArray MathParser::Decompose(const std::string &str)
 //------------------------------------------------------------------------------
 // StringArray ParseParenthesis(const std::string &str)
 //------------------------------------------------------------------------------
+/**
+ * Returns string array of operator, left and right
+ */
+//------------------------------------------------------------------------------
 StringArray MathParser::ParseParenthesis(const std::string &str)
 {
    #if DEBUG_PARENTHESIS
    MessageInterface::ShowMessage
-      ("MathParser::ParseParenthesis() str=%s\n", str.c_str());
+      ("MathParser::ParseParenthesis() entered, str=%s\n", str.c_str());
    #endif
    
    StringArray items;
@@ -834,7 +882,27 @@ StringArray MathParser::ParseParenthesis(const std::string &str)
       FillItems(items, op, left, right);
       
       #if DEBUG_PARENTHESIS
-      WriteItems("MathParser::ParseParenthesis(): lowest + or - found."
+      WriteItems("MathParser::ParseParenthesis(): lowest * or / found."
+                 " returning ", items);
+      #endif
+      
+      return items;
+   }
+   
+   //-----------------------------------------------------------------
+   // if lowest operator is ^, just return with operator
+   //-----------------------------------------------------------------
+   if (opStr1 == "^")
+   {      
+      bool opFound1;      
+      op = GetOperatorName(opStr1, opFound1);
+      
+      left = str.substr(0, index);
+      right = str.substr(index+1, str.npos);
+      FillItems(items, op, left, right);
+      
+      #if DEBUG_PARENTHESIS
+      WriteItems("MathParser::ParseParenthesis(): lowest ^ found."
                  " returning ", items);
       #endif
       
@@ -1035,7 +1103,7 @@ std::string MathParser::FindOperatorFrom(const std::string &str, std::string::si
 {
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
-      ("MathParser::FindOperatorFrom() str=%s, start=%u\n", str.c_str(), start);
+      ("MathParser::FindOperatorFrom() entered, str=%s, start=%u\n", str.c_str(), start);
    #endif
    
    StringArray items;
@@ -1051,12 +1119,12 @@ std::string MathParser::FindOperatorFrom(const std::string &str, std::string::si
       
       if (index1 == str.npos && index2 == str.npos)
          index1 = str.find("^", start);
-
+      
       if (index1 != str.npos)
       {
          #if DEBUG_INVERSE_OP
          MessageInterface::ShowMessage
-            ("MathParser::FindOperatorFrom() found ^ str=%s, index1=%u\n",
+            ("FindOperatorFrom() found ^ str=%s, index1=%u\n",
              str.c_str(), index1);
          #endif
          
@@ -1067,7 +1135,7 @@ std::string MathParser::FindOperatorFrom(const std::string &str, std::string::si
    }
    
    index = index1 == str.npos ? index2 : index1;
-
+   
    if (index != str.npos)
    {
       bool opFound;
@@ -1084,7 +1152,7 @@ std::string MathParser::FindOperatorFrom(const std::string &str, std::string::si
       ("MathParser::FindOperatorFrom() returning op=%s, left=%s, right=%s, opIndex=%u\n",
        op.c_str(), left.c_str(), right.c_str(), opIndex);
    #endif
-
+   
    return op;
    
 }
@@ -1145,7 +1213,8 @@ std::string MathParser::GetOperatorName(const std::string &op, bool &opFound)
 std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
 {
    #if DEBUG_FIND_OPERATOR
-   MessageInterface::ShowMessage("MathParser::FindOperator() str=%s\n", str.c_str());
+   MessageInterface::ShowMessage
+      ("MathParser::FindOperator() entered, str=%s\n", str.c_str());
    #endif
    
    StringArray items;
@@ -1180,16 +1249,18 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
          
          if (index1 != str.npos)
          {
-            //MessageInterface::ShowMessage
-            //   ("MathParser::FindOperator() found ^ str=%s, index1=%u\n",
-            //    str.c_str(), index1);
+            #if DEBUG_FIND_OPERATOR
+            MessageInterface::ShowMessage
+               ("FindOperator() found ^ str=%s, index1=%u\n",
+                str.c_str(), index1);
+            #endif
             
             // try for ^(-1) for inverse
             if (str.substr(index1, 5) == "^(-1)")
             {
                #if DEBUG_FIND_OPERATOR
                MessageInterface::ShowMessage
-                  ("MathParser::FindOperator() returning \"\"\n");
+                  ("MathParser::FindOperator() found ^(-1) so returning \"\"\n");
                #endif
                return "";
             }
@@ -1214,11 +1285,11 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
    
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
-      ("FindOperator() index=%u, index1=%u, index2=%u\n", index, index1, index2);
+      ("FindOperator() Checking for double operator, index=%u, index1=%u, "
+       "index2=%u\n", index, index1, index2);
    #endif
    
-   // Causing VC++ run time error 
-   // check for double operator (*-, /-)
+   // check for double operator such as *-, /-
    
    if (index == 0)
    {
@@ -1254,15 +1325,15 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
 
 
 //------------------------------------------------------------------------------
-// std::string MathParser::GetOperator(const std::map<std::string, Integer>::iterator &pos1,
-//                                     const std::map<std::string, Integer>::iterator &pos2,
-//                                     const std::map<std::string, Integer> &opIndexMap,
-//                                     Integer &opIndex)
+// std::string GetOperator(const IntegerMap::iterator &pos1,
+//                         const IntegerMap::iterator &pos2,
+//                         const IntegerMap &opIndexMap,
+//                         Integer &opIndex)
 //------------------------------------------------------------------------------
-std::string MathParser::GetOperator(const std::map<std::string, Integer>::iterator &pos1,
-                                        const std::map<std::string, Integer>::iterator &pos2,
-                                        const std::map<std::string, Integer> &opIndexMap,
-                                        Integer &opIndex)
+std::string MathParser::GetOperator(const IntegerMap::iterator &pos1,
+                                    const IntegerMap::iterator &pos2,
+                                    const IntegerMap &opIndexMap,
+                                    Integer &opIndex)
 {
    std::string opStr;
    Integer index = -1;
@@ -1304,7 +1375,8 @@ std::string MathParser::GetOperator(const std::map<std::string, Integer>::iterat
 //------------------------------------------------------------------------------
 // UnsignedInt FindSubtract(const std::string &str, std::string::size_type start)
 //------------------------------------------------------------------------------
-std::string::size_type MathParser::FindSubtract(const std::string &str, std::string::size_type start)
+std::string::size_type MathParser::FindSubtract(const std::string &str,
+                                                std::string::size_type start)
 {
    #if DEBUG_INVERSE_OP
    MessageInterface::ShowMessage
@@ -1383,13 +1455,12 @@ std::string::size_type MathParser::FindSubtract(const std::string &str, std::str
             return index;
       }
    }
-
+   
    #if DEBUG_INVERSE_OP
    MessageInterface::ShowMessage
       ("MathParser::FindSubtract() returning str.size()=%u\n", str.size());
    #endif
    
-   //return index2;
    return str.size();
 }
 
@@ -2175,7 +2246,7 @@ void MathParser::BuildFunction(const std::string &str, const StringArray &fnList
 
 
 //------------------------------------------------------------------------------
-// UnsignedInt FindMatchingParen(const std::string &str, UnsignedInt start)
+// std::string::size_type FindMatchingParen(const std::string &str, size_type start)
 //------------------------------------------------------------------------------
 std::string::size_type MathParser::FindMatchingParen(const std::string &str,
                                                      std::string::size_type start)
