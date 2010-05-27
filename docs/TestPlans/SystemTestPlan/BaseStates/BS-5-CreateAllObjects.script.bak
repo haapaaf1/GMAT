@@ -1,0 +1,351 @@
+
+%----------------------------------------
+%---------- Solar System User-Modified Values
+%----------------------------------------
+
+
+%----------------------------------------
+%---------- User-Defined Celestial Bodies
+%----------------------------------------
+
+Create Comet theComet;
+GMAT theComet.NAIFId = -123456789;
+GMAT theComet.EquatorialRadius = 6378.137;
+GMAT theComet.Flattening = 0.003352810664747481;
+GMAT theComet.Mu = 398600.4415;
+GMAT theComet.PosVelSource = 'TwoBodyPropagation';
+GMAT theComet.CentralBody = 'Sun';
+GMAT theComet.SpiceKernelName = {'./files/planetary_ephem/spk/de421.bsp'};
+GMAT theComet.RotationDataSource = 'IAUSimplified';
+GMAT theComet.InitialEpoch = 21545;
+GMAT theComet.SMA = 149653978.9783766;
+GMAT theComet.ECC = 0.01704556707314489;
+GMAT theComet.INC = 23.43903409042639;
+GMAT theComet.RAAN = 0.0001864655448790626;
+GMAT theComet.AOP = 101.7416388084352;
+GMAT theComet.TA = 358.12708491129;
+GMAT theComet.OrientationEpoch = 21545;
+GMAT theComet.SpinAxisRAConstant = 0;
+GMAT theComet.SpinAxisRARate = 0;
+GMAT theComet.SpinAxisDECConstant = 0;
+GMAT theComet.SpinAxisDECRate = 0;
+GMAT theComet.RotationConstant = 0;
+GMAT theComet.RotationRate = 0;
+GMAT theComet.TextureMapFileName = 'GenericCelestialBody.jpg';
+
+Create Asteroid theAsteroid;
+GMAT theAsteroid.NAIFId = -123456789;
+GMAT theAsteroid.EquatorialRadius = 6378.137;
+GMAT theAsteroid.Flattening = 0.003352810664747481;
+GMAT theAsteroid.Mu = 398600.4415;
+GMAT theAsteroid.PosVelSource = 'TwoBodyPropagation';
+GMAT theAsteroid.CentralBody = 'Sun';
+GMAT theAsteroid.SpiceKernelName = {'./files/planetary_ephem/spk/de421.bsp'};
+GMAT theAsteroid.RotationDataSource = 'IAUSimplified';
+GMAT theAsteroid.InitialEpoch = 21545;
+GMAT theAsteroid.SMA = 149653978.9783766;
+GMAT theAsteroid.ECC = 0.01704556707314489;
+GMAT theAsteroid.INC = 23.43903409042639;
+GMAT theAsteroid.RAAN = 0.0001864655448790626;
+GMAT theAsteroid.AOP = 101.7416388084352;
+GMAT theAsteroid.TA = 358.12708491129;
+GMAT theAsteroid.OrientationEpoch = 21545;
+GMAT theAsteroid.SpinAxisRAConstant = 0;
+GMAT theAsteroid.SpinAxisRARate = 0;
+GMAT theAsteroid.SpinAxisDECConstant = 0;
+GMAT theAsteroid.SpinAxisDECRate = 0;
+GMAT theAsteroid.RotationConstant = 0;
+GMAT theAsteroid.RotationRate = 0;
+GMAT theAsteroid.TextureMapFileName = 'GenericCelestialBody.jpg';
+
+Create Planet thePlanet;
+GMAT thePlanet.NAIFId = -123456789;
+GMAT thePlanet.EquatorialRadius = 6378.137;
+GMAT thePlanet.Flattening = 0.003352810664747481;
+GMAT thePlanet.Mu = 398600.4415;
+GMAT thePlanet.PosVelSource = 'TwoBodyPropagation';
+GMAT thePlanet.CentralBody = 'Sun';
+GMAT thePlanet.SpiceKernelName = {'./files/planetary_ephem/spk/de421.bsp'};
+GMAT thePlanet.RotationDataSource = 'IAUSimplified';
+GMAT thePlanet.InitialEpoch = 21545;
+GMAT thePlanet.SMA = 149653978.9783766;
+GMAT thePlanet.ECC = 0.01704556707314489;
+GMAT thePlanet.INC = 23.43903409042639;
+GMAT thePlanet.RAAN = 0.0001864655448790626;
+GMAT thePlanet.AOP = 101.7416388084352;
+GMAT thePlanet.TA = 358.12708491129;
+GMAT thePlanet.OrientationEpoch = 21545;
+GMAT thePlanet.SpinAxisRAConstant = 0;
+GMAT thePlanet.SpinAxisRARate = 0;
+GMAT thePlanet.SpinAxisDECConstant = 0;
+GMAT thePlanet.SpinAxisDECRate = 0;
+GMAT thePlanet.RotationConstant = 0;
+GMAT thePlanet.RotationRate = 0;
+GMAT thePlanet.TextureMapFileName = 'GenericCelestialBody.jpg';
+GMAT thePlanet.NutationUpdateInterval = 60;
+
+Create Moon theMoon;
+GMAT theMoon.NAIFId = -123456789;
+GMAT theMoon.EquatorialRadius = 6378.137;
+GMAT theMoon.Flattening = 0.003352810664747481;
+GMAT theMoon.Mu = 398600.4415;
+GMAT theMoon.PosVelSource = 'TwoBodyPropagation';
+GMAT theMoon.CentralBody = 'Earth';
+GMAT theMoon.SpiceKernelName = {'./files/planetary_ephem/spk/de421.bsp'};
+GMAT theMoon.RotationDataSource = 'IAUSimplified';
+GMAT theMoon.InitialEpoch = 21545;
+GMAT theMoon.SMA = 149653978.9783766;
+GMAT theMoon.ECC = 0.01704556707314489;
+GMAT theMoon.INC = 23.43903409042639;
+GMAT theMoon.RAAN = 0.0001864655448790626;
+GMAT theMoon.AOP = 101.7416388084352;
+GMAT theMoon.TA = 358.12708491129;
+GMAT theMoon.OrientationEpoch = 21545;
+GMAT theMoon.SpinAxisRAConstant = 0;
+GMAT theMoon.SpinAxisRARate = 0;
+GMAT theMoon.SpinAxisDECConstant = 0;
+GMAT theMoon.SpinAxisDECRate = 0;
+GMAT theMoon.RotationConstant = 0;
+GMAT theMoon.RotationRate = 0;
+GMAT theMoon.TextureMapFileName = 'GenericCelestialBody.jpg';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft theSpacecraft;
+GMAT theSpacecraft.DateFormat = TAIModJulian;
+GMAT theSpacecraft.Epoch = '21545.000000000';
+GMAT theSpacecraft.CoordinateSystem = EarthMJ2000Eq;
+GMAT theSpacecraft.DisplayStateType = Cartesian;
+GMAT theSpacecraft.X = 7100;
+GMAT theSpacecraft.Y = 0;
+GMAT theSpacecraft.Z = 1300;
+GMAT theSpacecraft.VX = 0;
+GMAT theSpacecraft.VY = 7.35;
+GMAT theSpacecraft.VZ = 1;
+GMAT theSpacecraft.DryMass = 850;
+GMAT theSpacecraft.Cd = 2.2;
+GMAT theSpacecraft.Cr = 1.8;
+GMAT theSpacecraft.DragArea = 15;
+GMAT theSpacecraft.SRPArea = 1;
+GMAT theSpacecraft.Tanks = {theTank};
+GMAT theSpacecraft.Thrusters = {theThruster};
+GMAT theSpacecraft.NAIFId = -123456789;
+GMAT theSpacecraft.Id = 'SatId';
+GMAT theSpacecraft.Attitude = CoordinateSystemFixed;
+GMAT theSpacecraft.AttitudeDisplayStateType = 'Quaternion';
+GMAT theSpacecraft.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT theSpacecraft.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT theSpacecraft.Q1 = 0;
+GMAT theSpacecraft.Q2 = 0;
+GMAT theSpacecraft.Q3 = 0;
+GMAT theSpacecraft.Q4 = 1;
+GMAT theSpacecraft.EulerAngleSequence = '312';
+GMAT theSpacecraft.AngularVelocityX = 0;
+GMAT theSpacecraft.AngularVelocityY = 0;
+GMAT theSpacecraft.AngularVelocityZ = 0;
+
+Create Spacecraft secondSpacecraft;
+GMAT secondSpacecraft.DateFormat = TAIModJulian;
+GMAT secondSpacecraft.Epoch = '21545.000000000';
+GMAT secondSpacecraft.CoordinateSystem = EarthMJ2000Eq;
+GMAT secondSpacecraft.DisplayStateType = Cartesian;
+GMAT secondSpacecraft.X = 7100;
+GMAT secondSpacecraft.Y = 0;
+GMAT secondSpacecraft.Z = 1300;
+GMAT secondSpacecraft.VX = 0;
+GMAT secondSpacecraft.VY = 7.35;
+GMAT secondSpacecraft.VZ = 1;
+GMAT secondSpacecraft.DryMass = 850;
+GMAT secondSpacecraft.Cd = 2.2;
+GMAT secondSpacecraft.Cr = 1.8;
+GMAT secondSpacecraft.DragArea = 15;
+GMAT secondSpacecraft.SRPArea = 1;
+GMAT secondSpacecraft.NAIFId = -123456789;
+GMAT secondSpacecraft.Id = 'SatId';
+GMAT secondSpacecraft.Attitude = CoordinateSystemFixed;
+GMAT secondSpacecraft.AttitudeDisplayStateType = 'Quaternion';
+GMAT secondSpacecraft.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT secondSpacecraft.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT secondSpacecraft.Q1 = 0;
+GMAT secondSpacecraft.Q2 = 0;
+GMAT secondSpacecraft.Q3 = 0;
+GMAT secondSpacecraft.Q4 = 1;
+GMAT secondSpacecraft.EulerAngleSequence = '312';
+GMAT secondSpacecraft.AngularVelocityX = 0;
+GMAT secondSpacecraft.AngularVelocityY = 0;
+GMAT secondSpacecraft.AngularVelocityZ = 0;
+
+Create Spacecraft thirdSpacecraft;
+GMAT thirdSpacecraft.DateFormat = TAIModJulian;
+GMAT thirdSpacecraft.Epoch = '21545.000000000';
+GMAT thirdSpacecraft.CoordinateSystem = EarthMJ2000Eq;
+GMAT thirdSpacecraft.DisplayStateType = Cartesian;
+GMAT thirdSpacecraft.X = 7100;
+GMAT thirdSpacecraft.Y = 0;
+GMAT thirdSpacecraft.Z = 1300;
+GMAT thirdSpacecraft.VX = 0;
+GMAT thirdSpacecraft.VY = 7.35;
+GMAT thirdSpacecraft.VZ = 1;
+GMAT thirdSpacecraft.DryMass = 850;
+GMAT thirdSpacecraft.Cd = 2.2;
+GMAT thirdSpacecraft.Cr = 1.8;
+GMAT thirdSpacecraft.DragArea = 15;
+GMAT thirdSpacecraft.SRPArea = 1;
+GMAT thirdSpacecraft.NAIFId = -123456789;
+GMAT thirdSpacecraft.Id = 'SatId';
+GMAT thirdSpacecraft.Attitude = CoordinateSystemFixed;
+GMAT thirdSpacecraft.AttitudeDisplayStateType = 'Quaternion';
+GMAT thirdSpacecraft.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT thirdSpacecraft.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT thirdSpacecraft.Q1 = 0;
+GMAT thirdSpacecraft.Q2 = 0;
+GMAT thirdSpacecraft.Q3 = 0;
+GMAT thirdSpacecraft.Q4 = 1;
+GMAT thirdSpacecraft.EulerAngleSequence = '312';
+GMAT thirdSpacecraft.AngularVelocityX = 0;
+GMAT thirdSpacecraft.AngularVelocityY = 0;
+GMAT thirdSpacecraft.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+Create FuelTank theTank;
+GMAT theTank.FuelMass = 756;
+GMAT theTank.Pressure = 1500;
+GMAT theTank.Temperature = 20;
+GMAT theTank.RefTemperature = 20;
+GMAT theTank.Volume = 0.75;
+GMAT theTank.FuelDensity = 1260;
+GMAT theTank.PressureModel = PressureRegulated;
+
+Create Thruster theThruster;
+GMAT theThruster.CoordinateSystem = Local;
+GMAT theThruster.Origin = Earth;
+GMAT theThruster.Axes = VNB;
+GMAT theThruster.ThrustDirection1 = 1;
+GMAT theThruster.ThrustDirection2 = 0;
+GMAT theThruster.ThrustDirection3 = 0;
+GMAT theThruster.DutyCycle = 1;
+GMAT theThruster.ThrustScaleFactor = 1;
+GMAT theThruster.DecrementMass = false;
+GMAT theThruster.GravitationalAccel = 9.81;
+GMAT theThruster.C1 = 10;
+GMAT theThruster.C2 = 0;
+GMAT theThruster.C3 = 0;
+GMAT theThruster.C4 = 0;
+GMAT theThruster.C5 = 0;
+GMAT theThruster.C6 = 0;
+GMAT theThruster.C7 = 0;
+GMAT theThruster.C8 = 0;
+GMAT theThruster.C9 = 0;
+GMAT theThruster.C10 = 0;
+GMAT theThruster.C11 = 0;
+GMAT theThruster.C12 = 0;
+GMAT theThruster.C13 = 0;
+GMAT theThruster.C14 = 0;
+GMAT theThruster.C15 = 0;
+GMAT theThruster.C16 = 0;
+GMAT theThruster.K1 = 300;
+GMAT theThruster.K2 = 0;
+GMAT theThruster.K3 = 0;
+GMAT theThruster.K4 = 0;
+GMAT theThruster.K5 = 0;
+GMAT theThruster.K6 = 0;
+GMAT theThruster.K7 = 0;
+GMAT theThruster.K8 = 0;
+GMAT theThruster.K9 = 0;
+GMAT theThruster.K10 = 0;
+GMAT theThruster.K11 = 0;
+GMAT theThruster.K12 = 0;
+GMAT theThruster.K13 = 0;
+GMAT theThruster.K14 = 0;
+GMAT theThruster.K15 = 0;
+GMAT theThruster.K16 = 0;
+
+%----------------------------------------
+%---------- Formation
+%----------------------------------------
+
+Create Formation theFormation;
+GMAT theFormation.A1Epoch = 21545;
+GMAT theFormation.Add = {secondSpacecraft, thirdSpacecraft};
+GMAT theFormation.CartesianState = 6.365987383715855e-313;
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+
+Create GroundStation theGroundStation;
+GMAT theGroundStation.CentralBody = Earth;
+GMAT theGroundStation.StateType = Cartesian;
+GMAT theGroundStation.HorizonReference = Sphere;
+GMAT theGroundStation.X = 6378.14;
+GMAT theGroundStation.Y = 0;
+GMAT theGroundStation.Z = 0;
+GMAT theGroundStation.Id = 'StationId';
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel theForceModel;
+GMAT theForceModel.CentralBody = Earth;
+GMAT theForceModel.Drag = None;
+GMAT theForceModel.SRP = Off;
+GMAT theForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator thePropagator;
+GMAT thePropagator.FM = theForceModel;
+GMAT thePropagator.Type = RungeKutta89;
+GMAT thePropagator.InitialStepSize = 60;
+GMAT thePropagator.Accuracy = 9.999999999999999e-12;
+GMAT thePropagator.MinStep = 0.001;
+GMAT thePropagator.MaxStep = 2700;
+GMAT thePropagator.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn theImpulsiveBurn;
+GMAT theImpulsiveBurn.CoordinateSystem = Local;
+GMAT theImpulsiveBurn.Origin = Earth;
+GMAT theImpulsiveBurn.Axes = VNB;
+GMAT theImpulsiveBurn.Element1 = 0;
+GMAT theImpulsiveBurn.Element2 = 0;
+GMAT theImpulsiveBurn.Element3 = 0;
+GMAT theImpulsiveBurn.DecrementMass = false;
+GMAT theImpulsiveBurn.Isp = 300;
+GMAT theImpulsiveBurn.GravitationalAccel = 9.81;
+
+Create FiniteBurn theFiniteBurn;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create Variable theVariable I;
+Create Array theArray[2,2];
+Create String theString;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem theCoordinateSystem;
+GMAT theCoordinateSystem.Origin = Earth;
+GMAT theCoordinateSystem.Axes = MJ2000Eq;
+GMAT theCoordinateSystem.UpdateInterval = 60;
+GMAT theCoordinateSystem.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- MeasurementModels
+%----------------------------------------
+
