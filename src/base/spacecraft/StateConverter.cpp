@@ -775,7 +775,7 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
                e);
       #endif
       std::string errmsg =
-            "Conversion to equinoctial elements cannot be completed.  Orbit is nearly parabolic.\n";
+            "Error: The state results in an orbit that is nearly parabolic.\n";
       throw UtilityException(errmsg);
    }
 
@@ -791,7 +791,7 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
                e, sma);
       #endif
       std::string errmsg =
-            "Conversion to equinoctial elements cannot be completed,  The conic section is nearly singular.\n";
+            "Error: The state results in a singular conic section with radius of periapsis less than 1 m.\n";
       throw UtilityException(errmsg);
    }
 
@@ -860,10 +860,6 @@ Rvector6 StateConverter::EquinoctialToCartesian(const Rvector6& equinoctial, con
    Real tmpSqrt = Sqrt(1.0 - (h * h) - (k * k));
    Real beta    = 1.0 / (1.0 + tmpSqrt);
 
-// Real beta = 1/(1 + Sqrt(1 - pEY*pEY - pEX*pEX));  // eq 4.36
-
-// Real n = Sqrt(mu/(sm*sm*sm));   // eq 4.37
-// Real r = sm*(1 - pEX*Cos(trueLong) - pEY*Sin(trueLong));  // eq 4.38
    Real n    = Sqrt(mu/(sma * sma * sma));
    Real cosF = Cos(F);
    Real sinF = Sin(F);
@@ -878,20 +874,13 @@ Rvector6 StateConverter::EquinoctialToCartesian(const Rvector6& equinoctial, con
    Real Y1Dot = ((n * sma * sma) / r) * ((1.0 - (k * k * beta)) * cosF -
                 (h * k * beta * sinF));
 
-// // eqns 4.39 - 4.42
-// Real x1  = sm*((1 - pEY*pEY*beta)*Cos(trueLong) + pEY*pEX*beta*Sin(trueLong) - pEX),
-//      y1  = sm*((1 - pEX*pEX*beta)*Sin(trueLong) + pEY*pEX*beta*Cos(trueLong) - pEY),
-//      _x1 = ((n*sm*sm)/r)*(pEY*pEX*beta*Cos(trueLong) - (1 - pEY*pEY*beta)*Sin(trueLong)),
-//      _y1 = ((n*sm*sm)/r)*((1 - pEX*pEX*beta)*Cos(trueLong) - pEY*pEX*beta*Sin(trueLong));
-
    // assumption in conversion from equinoctial to cartesian
-   Integer j = 1;  // ******** how to determine if retrograde?  *****
+   Integer j = 1;  // ******** how to determine if retrograde?  ***** TBD ********
 
    // Compute Q matrix
    Rmatrix33 Q(1.0 - (p * p) + (q * q),   2.0 * p * q * j,                2.0 * p,
                2.0 * p * q,               (1.0 + (p * p) - (q * q)) * j, -2.0 * q,
               -2.0 * p * j,               2.0 * q,                       (1.0 - (p * p) - (q * q)) * j);
-// Rmatrix33 Q = SetQ(pNY, pNX, j);   // eq 4.46
 
    Rmatrix33 Q2 = (1.0 / (1.0 + (p * p) + (q * q))) * Q;
    Rvector3  f(Q2(0,0), Q2(1,0), Q2(2,0));
@@ -902,22 +891,6 @@ Rvector6 StateConverter::EquinoctialToCartesian(const Rvector6& equinoctial, con
    Rvector3 pos = (X1 * f) + (Y1 * g);
    Rvector3 vel = (X1Dot * f) + (Y1Dot * g);
 
-// // eq 4.45
-// Rmatrix33 _Q = (1/(1+pNY*pNY+pNX*pNX))*Q;
-// Rvector3 fVec = _Q * Rvector3(1,0,0);
-// Rvector3 gVec = _Q * Rvector3(0,1,0);
-
-// Rvector3 pos = x1*fVec + y1*gVec;    // eq 4.43
-// Rvector3 vel = _x1*fVec + _y1*gVec;  // eq 4.44
-
-// Rvector6 cart( pos.Get(0),
-//                pos.Get(1),
-//                pos.Get(2),
-//                vel.Get(0),
-//                vel.Get(1),
-//                vel.Get(2) );
-//
-// return cart;
    return Rvector6(pos, vel);
 }
 

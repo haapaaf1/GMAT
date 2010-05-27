@@ -300,10 +300,12 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    if (Abs(1 - e) < 1E-7)
    {
       throw UtilityException
-         ("CoordUtil::CartesianToKeplerian() "
-          "Warning: A nearly parabolic orbit was encountered while converting "
-          "from the Cartesian state to the Keplerian elements.  The Keplerian elements "
-          "are undefined for a parabolic orbit.\n");
+      ("Error in conversion from Cartesian to Keplerian state: "
+       "The state results in an orbit that is nearly parabolic.\n");
+//         ("CoordUtil::CartesianToKeplerian() "
+//          "Warning: A nearly parabolic orbit was encountered while converting "
+//          "from the Cartesian state to the Keplerian elements.  The Keplerian elements "
+//          "are undefined for a parabolic orbit.\n");
    }
    
    // eqn 4.10
@@ -312,10 +314,12 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    if (Abs(sma*(1 - e)) < .001)
    {
       throw UtilityException
-         ("CoordUtil::CartesianToKeplerian() "
-          "Warning: A nearly singular conic section was encountered while "
-          "converting from the Cartesian state to the Keplerian elements.  The radius of "
-          "periapsis must be greater than 1 meter.\n");
+      ("Error in conversion from Cartesian to Keplerian state: "
+       "The state results in a singular conic section with radius of periapsis less than 1 m.\n");
+//         ("CoordUtil::CartesianToKeplerian() "
+//          "Warning: A nearly singular conic section was encountered while "
+//          "converting from the Cartesian state to the Keplerian elements.  The radius of "
+//          "periapsis must be greater than 1 meter.\n");
 
    }
    // eqn 4.11

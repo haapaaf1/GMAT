@@ -178,7 +178,7 @@ Rvector6 KeplerianToModKeplerian(const Rvector6& keplerian)
       throw UtilityException("ModKeplerian::KeplerianToModKeplerian: " 
                              "If ECC > 1, SMA must be negative");
    
-   // Check for  exaclty parabolic orbit or infinite semi-major axis
+   // Check for  exactly parabolic orbit or infinite semi-major axis
    // then send the error message
    if ( a == 1 || a == std::numeric_limits<Real>::infinity() )
       throw UtilityException("ModKeplerian::KeplerianToModKeplerian: " 
@@ -188,9 +188,22 @@ Rvector6 KeplerianToModKeplerian(const Rvector6& keplerian)
    // Check for parabolic orbit to machine precision
    // then send the error message
    if ( GmatMathUtil::Abs(e - 1) < 2*GmatRealConst::REAL_EPSILON)
-      throw UtilityException("ModKeplerian::KeplerianToModKeplerian: " 
-                             "Orbit is nearly parabolic and state conversion "
-                             "routine is near numerical singularity");
+   {
+//      throw UtilityException("ModKeplerian::KeplerianToModKeplerian: "
+//                             "Orbit is nearly parabolic and state conversion "
+//                             "routine is near numerical singularity");
+      std::string errmsg =
+            "Error in conversion from Keplerian to ModKeplerian state: ";
+      errmsg += "The state results in an orbit that is nearly parabolic.\n";
+      throw UtilityException(errmsg);
+   }
+   // Check for a singular conic section
+   if (GmatMathUtil::Abs(a*(1 - e) < .001))
+   {
+      throw UtilityException
+         ("Error in conversion from Keplerian to ModKeplerian state: "
+          "The state results in a singular conic section with radius of periapsis less than 1 m.\n");
+   }
    
    // Convert into radius of periapsis and apoapsis
    Real radPer = a*(1.0 - e);

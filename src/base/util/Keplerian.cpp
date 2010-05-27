@@ -364,6 +364,7 @@ Real Keplerian::CartesianToSMA(Real mu, const Rvector3 &pos,
    
    Real zeta = 0.5*(vMag*vMag) - mu/rMag;
    
+
    // check if the orbit is near parabolic
    Real ecc = CartesianToECC(mu, pos, vel);
    if ((Abs(1.0 - ecc)) <= GmatOrbit::KEP_ZERO_TOL)
@@ -376,11 +377,20 @@ Real Keplerian::CartesianToSMA(Real mu, const Rvector3 &pos,
           r.ToString() + " vel: " + v.ToString());
       
       throw UtilityException
-         ("GMAT does not support parabolic orbits in conversion \n"
-          "from Cartesian to Keplerian state\n");      
+         ("Error in conversion from Cartesian to Keplerian state: "
+          "The state results in an orbit that is nearly parabolic.\n");
    }
    
    Real sma = -mu/(2*zeta);
+
+   // Check for a singular conic section
+   if (Abs(sma*(1 - ecc) < .001))
+   {
+      throw UtilityException
+         ("Error in conversion from Cartesian to Keplerian state: "
+          "The state results in a singular conic section with radius of periapsis less than 1 m.\n");
+   }
+
       
    #if DEBUG_KEPLERIAN_SMA
    MessageInterface::ShowMessage("returning %f\n", sma);
@@ -456,8 +466,8 @@ Real Keplerian::CartesianToINC(Real mu, const Rvector3 &pos,
           r.ToString() + " vel: " + v.ToString());
       
       throw UtilityException
-         ("GMAT does not support parabolic orbits in conversion \n"
-          "from Cartesian to Keplerian state\n");      
+      ("Error in conversion from Cartesian to Keplerian state: "
+       "The state results in an orbit that is nearly parabolic.\n");
    }
    
    Rvector3 hVec = Cross(pos, vel);
