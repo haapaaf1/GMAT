@@ -1,0 +1,99 @@
+\BOOKMARK [-1][]{part.1}{I Overview}{}
+\BOOKMARK [0][]{chapter.1}{Introduction}{part.1}
+\BOOKMARK [1][]{section.1.1}{Overview}{chapter.1}
+\BOOKMARK [1][]{section.1.2}{Purpose of this Document}{chapter.1}
+\BOOKMARK [1][]{section.1.3}{Overview of the GMAT Development and Testing Process}{chapter.1}
+\BOOKMARK [1][]{section.1.4}{System Test Objectives}{chapter.1}
+\BOOKMARK [1][]{section.1.5}{Formal System Testing}{chapter.1}
+\BOOKMARK [1][]{section.1.6}{Items Not Addressed in System Tests}{chapter.1}
+\BOOKMARK [1][]{section.1.7}{Document Layout}{chapter.1}
+\BOOKMARK [-1][]{part.2}{II System Test Procedures}{}
+\BOOKMARK [0][]{chapter.2}{System Test Preparation}{part.2}
+\BOOKMARK [1][]{section.2.1}{Test Process}{chapter.2}
+\BOOKMARK [1][]{section.2.2}{Test Preparation}{chapter.2}
+\BOOKMARK [1][]{section.2.3}{Updating the Element Lists in the Test Matrices}{chapter.2}
+\BOOKMARK [1][]{section.2.4}{Updating the Test Case Lists}{chapter.2}
+\BOOKMARK [1][]{section.2.5}{Constructing the Test Cases}{chapter.2}
+\BOOKMARK [2][]{subsection.2.5.1}{Updating Script Based Test Cases}{section.2.5}
+\BOOKMARK [2][]{subsection.2.5.2}{Updating the GUI Test Cases}{section.2.5}
+\BOOKMARK [1][]{section.2.6}{Ensuring Complete System Coverage}{chapter.2}
+\BOOKMARK [0][]{chapter.3}{Executing Script Driven Tests}{part.2}
+\BOOKMARK [1][]{section.3.1}{Script Test Case Management}{chapter.3}
+\BOOKMARK [1][]{section.3.2}{Running the Scripted System Tests}{chapter.3}
+\BOOKMARK [2][]{subsection.3.2.1}{Procedure}{section.3.2}
+\BOOKMARK [2][]{subsection.3.2.2}{A Note on Run Frequency}{section.3.2}
+\BOOKMARK [2][]{subsection.3.2.3}{Reporting Results}{section.3.2}
+\BOOKMARK [0][]{chapter.4}{Executing Tests for the Graphical User Interface}{part.2}
+\BOOKMARK [1][]{section.4.1}{GUI Test Case Management}{chapter.4}
+\BOOKMARK [1][]{section.4.2}{Running the GUI System Tests}{chapter.4}
+\BOOKMARK [2][]{subsection.4.2.1}{Sample GUI Test Case}{section.4.2}
+\BOOKMARK [2][]{subsection.4.2.2}{Procedure}{section.4.2}
+\BOOKMARK [2][]{subsection.4.2.3}{Reporting Results}{section.4.2}
+\BOOKMARK [1][]{section.4.3}{Procedural Rules}{chapter.4}
+\BOOKMARK [2][]{subsection.4.3.1}{Test Procedures for All Elements}{section.4.3}
+\BOOKMARK [2][]{subsection.4.3.2}{Procedures for Specific Control Types}{section.4.3}
+\BOOKMARK [2][]{subsection.4.3.3}{Usability Testing}{section.4.3}
+\BOOKMARK [0][]{chapter.5}{Reporting and Reviewing Test Results}{part.2}
+\BOOKMARK [1][]{section.5.1}{System Test Status}{chapter.5}
+\BOOKMARK [1][]{section.5.2}{The System Test Report}{chapter.5}
+\BOOKMARK [1][]{section.5.3}{System Test Review}{chapter.5}
+\BOOKMARK [-1][]{part.3}{III Tests}{}
+\BOOKMARK [0][]{chapter.6}{Stress Tests}{part.3}
+\BOOKMARK [0][]{chapter.7}{Resources}{part.3}
+\BOOKMARK [1][]{section.7.1}{Spacecraft}{chapter.7}
+\BOOKMARK [2][]{subsection.7.1.1}{Nominal Behavior of Spacecraft Orbit Panel}{section.7.1}
+\BOOKMARK [2][]{subsection.7.1.2}{Input Validation of Spacecraft Orbit Panel}{section.7.1}
+\BOOKMARK [1][]{section.7.2}{Spacecraft Attitude Tab}{chapter.7}
+\BOOKMARK [1][]{section.7.3}{Differential Corrector}{chapter.7}
+\BOOKMARK [1][]{section.7.4}{Mission Tree}{chapter.7}
+\BOOKMARK [0][]{chapter.8}{Test Data}{part.3}
+\BOOKMARK [0][]{chapter.9}{Base States}{part.3}
+\BOOKMARK [-1][]{part.4}{IV Checklists}{}
+\BOOKMARK [0][]{chapter.10}{Resources}{part.4}
+\BOOKMARK [1][]{section.10.1}{Differential Corrector}{chapter.10}
+\BOOKMARK [1][]{section.10.2}{Impulsive Burn}{chapter.10}
+\BOOKMARK [1][]{section.10.3}{Finite Burn}{chapter.10}
+\BOOKMARK [1][]{section.10.4}{Formation}{chapter.10}
+\BOOKMARK [1][]{section.10.5}{Propagator}{chapter.10}
+\BOOKMARK [1][]{section.10.6}{Propagator}{chapter.10}
+\BOOKMARK [1][]{section.10.7}{Coordinate System}{chapter.10}
+\BOOKMARK [1][]{section.10.8}{Array}{chapter.10}
+\BOOKMARK [1][]{section.10.9}{Barycenter}{chapter.10}
+\BOOKMARK [1][]{section.10.10}{Variable}{chapter.10}
+\BOOKMARK [1][]{section.10.11}{Solar System Objects}{chapter.10}
+\BOOKMARK [1][]{section.10.12}{Finite Burn}{chapter.10}
+\BOOKMARK [1][]{section.10.13}{Formation}{chapter.10}
+\BOOKMARK [1][]{section.10.14}{Fuel Tank}{chapter.10}
+\BOOKMARK [1][]{section.10.15}{GMAT Function}{chapter.10}
+\BOOKMARK [1][]{section.10.16}{Ground Station}{chapter.10}
+\BOOKMARK [1][]{section.10.17}{Impulsive Burn}{chapter.10}
+\BOOKMARK [1][]{section.10.18}{Libration Point}{chapter.10}
+\BOOKMARK [1][]{section.10.19}{MATLAB function}{chapter.10}
+\BOOKMARK [1][]{section.10.20}{OpenGL Plot}{chapter.10}
+\BOOKMARK [1][]{section.10.21}{Parameter Select \(Create Only\)}{chapter.10}
+\BOOKMARK [1][]{section.10.22}{Parameter Select}{chapter.10}
+\BOOKMARK [1][]{section.10.23}{Propagator}{chapter.10}
+\BOOKMARK [1][]{section.10.24}{Report File}{chapter.10}
+\BOOKMARK [1][]{section.10.25}{Spacecraft}{chapter.10}
+\BOOKMARK [1][]{section.10.26}{fmincon Optimizer}{chapter.10}
+\BOOKMARK [1][]{section.10.27}{String}{chapter.10}
+\BOOKMARK [1][]{section.10.28}{Thruster}{chapter.10}
+\BOOKMARK [1][]{section.10.29}{Variable}{chapter.10}
+\BOOKMARK [1][]{section.10.30}{XY Plot}{chapter.10}
+\BOOKMARK [0][]{chapter.11}{Commands}{part.4}
+\BOOKMARK [1][]{section.11.1}{Achieve}{chapter.11}
+\BOOKMARK [1][]{section.11.2}{Begin Finite Burn}{chapter.11}
+\BOOKMARK [1][]{section.11.3}{Call Function}{chapter.11}
+\BOOKMARK [1][]{section.11.4}{End Finite Burn}{chapter.11}
+\BOOKMARK [1][]{section.11.5}{GMAT Command}{chapter.11}
+\BOOKMARK [1][]{section.11.6}{If}{chapter.11}
+\BOOKMARK [1][]{section.11.7}{Maneuver}{chapter.11}
+\BOOKMARK [1][]{section.11.8}{Minimize}{chapter.11}
+\BOOKMARK [1][]{section.11.9}{Nonlinear Constraint}{chapter.11}
+\BOOKMARK [1][]{section.11.10}{Propagate}{chapter.11}
+\BOOKMARK [1][]{section.11.11}{Report}{chapter.11}
+\BOOKMARK [1][]{section.11.12}{Save}{chapter.11}
+\BOOKMARK [1][]{section.11.13}{Script}{chapter.11}
+\BOOKMARK [1][]{section.11.14}{Target}{chapter.11}
+\BOOKMARK [1][]{section.11.15}{Toggle}{chapter.11}
+\BOOKMARK [1][]{section.11.16}{Vary}{chapter.11}

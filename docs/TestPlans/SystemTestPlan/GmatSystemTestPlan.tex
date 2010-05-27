@@ -1,82 +1,66 @@
-%$Id: GmatSystemTestPlan.tex,v 1.10 2007/08/13 22:29:59 dconway Exp $
-\documentclass[letterpaper,10pt]{book}
 
-\usepackage[T1]{fontenc}
-\usepackage[latin1]{inputenc}
-\usepackage{geometry}
-\usepackage{graphics,color}
-\geometry{letterpaper}
+\documentclass[10 pt]{book}
 
-% Allows alignment of multiple columns of text
-\usepackage{array}
+%  Standard packages
+\usepackage{graphics,epstopdf,overcite,amsmath, color}
+%\usepackage{rotating}
 
-% Enables text wrapping around small tables and figures
-\usepackage{float}
-
-% Enables text wrapping around small tables and figures
-\usepackage{floatflt}
-
-% Enables side by side figures
-\usepackage[countmax]{subfloat}
-
-% Enables line numbering for verbatim text
-\usepackage{lineno}
-
-% Some text listing help for script files
-\usepackage{listings}
-\lstset{frame=single, captionpos=b, language=Matlab, xleftmargin=36pt, xrightmargin=36pt,
-basicstyle=\ttfamily, numberstyle=\tiny, numbers=none}
-
-% Use special characters defined by the ams
-\usepackage{amsmath}
-
-% Enable verbatiminput so functional script files can be read in directly
-\usepackage{fancyvrb}
-
-% Fixes some font sizing problems
-\usepackage{fix-cm}
+\usepackage{colortbl}  % For colors in tables
 
 %  for making index, using landscape mode, for multi page tables, supertabular??
-% This package is needed to include the tables in the GMATDocuments/common subfolder
-\usepackage{longtable, supertabular}
-
-%\usepackage{rotating}  %This breaks the png files in \includegraphics{} calls???
-
-% Used for table organization
-\usepackage{tabularx}
-
-%\usepackage[listofnumwidth=5.5em]{subfig}
-
-% Used to customize table and figure list spacings
+\usepackage{makeidx, lscape, longtable, supertabular}
 \usepackage{tocloft}
 
-% Used to customize captions
-\usepackage{caption}
+%  Used for drawing lines in figures
+\usepackage{epic}
 
-% for creating bookmarks in the final pdf file when using dvipdfm
-\usepackage[dvipdfm, bookmarks = true, bookmarksopen]{hyperref}
+%  for showing script lines as they appear in GMAT
+\usepackage{verbatim}
 
-\oddsidemargin  0.0in
-\evensidemargin 0.0in
-\textwidth      6.5in
-\headheight     0.25in
-\topmargin      0.0in
-\textheight=8.5in
+%  for using multicolumn format
+\usepackage{multicol}
 
-%\DeclareGraphicsExtensions{.png}
+% Use if want to click dvi to ps and ps to pdf to create pdf
+%\usepackage[ dvips, bookmarks = true, bookmarksopen ]{hyperref}
 
-% More space for figure numbers
-\setlength{\cftfignumwidth}{3em}
-% Space between elements of the list
-%\setlength{\cftbeforefigskip}{0.1cm}
-% Space before chapter entries in the TOC
-%\setlength{\cftbeforechapskip}{0.2cm}
-% Space before parts in the TOC
-%\setlength{\cftbeforepartskip}{0.7cm}
+% Use if want to click dvi to pdf to create pdf . Bookmarks don't open using this method.
+\usepackage[ dvipdfm, bookmarks = true, bookmarksopen]{hyperref}
+\usepackage{paralist}
 
-\title{The General Mission Analysis Tool (GMAT)\\System Test Plan}
-\author{Darrel J. Conway\\Thinking Systems, Inc.\\ \\Steven P. Hughes\\Goddard Space Flight Center}
+\setlength{\textwidth}{6.75 in} \setlength{\textheight}{9.5in}
+\setlength{\oddsidemargin}{0.0in} \setlength{\parindent}{0.0in}
+\setlength{\evensidemargin}{0.0in} \setlength{\topmargin}{-0.35in}
+\setlength{\headheight}{0.0in} \setlength{\parskip}{12pt}
+%\setlength{\itemsep}{0ex}
 
+\newenvironment{ScriptType}
+  {\noindent \begin{ttfamily}   \begin{minipage}[t]{4.0in} }
+   {\end{minipage} \end{ttfamily}}
+%\makeindex
+
+\newenvironment{Script}
+ { \vspace{-.15 in} \begin{center}\begin{minipage}[t]{5.0in}\begin{ttfamily} }
+ { \end{ttfamily}\end{minipage}\end{center}\vspace{-.25 in} }
+
+
+\newenvironment{ScriptVerbatim}
+    { \begin{Script} \begin{verbatim} }
+    { \end{verbatim} \end{Script}     }
+
+\newenvironment{myscript}
+    { \begin{ttfamily} }
+    { \end{ttfamily}   }
+
+\newcommand{\script}[1][]{\ttfamily}
+
+%\makeindex
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `basename #1
+.tif`.png}
+
+\graphicspath{{../../Common/Images/}}
+
+%\setcounter{secnumdepth}{2}
 
 %  Make the watermark
 \usepackage{eso-pic}
@@ -88,12 +72,114 @@ basicstyle=\ttfamily, numberstyle=\tiny, numbers=none}
     \setlength{\@tempdimc}{.5\paperheight}%
     \setlength{\unitlength}{1pt}%
     \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
-      \makebox(0,700){\rotatebox{0}{\textcolor[gray]{0.75}{\fontsize{2cm}{2cm}\selectfont{Draft: Work in Progress}}}}
+      \makebox(0,730){\rotatebox{0}{\textcolor[gray]{0.75}{\fontsize{1.2cm}{1.2cm}\selectfont{Draft: Work in Progress}}}}
     }
 } \makeatother
 
-\begin{document}
 
+
+%%$Id: GmatSystemTestPlan.tex,v 1.10 2007/08/13 22:29:59 dconway Exp $
+%\documentclass[letterpaper,10pt]{book}
+%
+%\usepackage{colortbl}  % For colors in tables
+%\usepackage[T1]{fontenc}
+%\usepackage[latin1]{inputenc}
+%\usepackage{geometry}
+%\usepackage{graphics,color}
+%%\usepackage{paralist}  % For compactenum
+%%\usepackage{rotating} % For rotating text
+%\geometry{letterpaper}
+%
+%% Allows alignment of multiple columns of text
+%\usepackage{array}
+%
+%% Enables text wrapping around small tables and figures
+%\usepackage{float}
+%
+%% Enables text wrapping around small tables and figures
+%\usepackage{floatflt}
+%
+%% For input of text test cases
+\usepackage{verbatim}
+%
+%% Enables side by side figures
+%\usepackage[countmax]{subfloat}
+%
+%% Enables line numbering for verbatim text
+%\usepackage{lineno}
+%
+%% Some text listing help for script files
+%\usepackage{listings}
+%\lstset{frame=single, captionpos=b, language=Matlab, xleftmargin=36pt, xrightmargin=36pt,
+%basicstyle=\ttfamily, numberstyle=\tiny, numbers=none}
+%
+%% Use special characters defined by the ams
+%\usepackage{amsmath}
+%
+%% Enable verbatiminput so functional script files can be read in directly
+\usepackage{fancyvrb}
+%
+%% Fixes some font sizing problems
+%%\usepackage{fix-cm}
+%
+%%  for making index, using landscape mode, for multi page tables, supertabular??
+%% This package is needed to include the tables in the GMATDocuments/common subfolder
+%\usepackage{longtable, supertabular}
+%
+%%\usepackage{rotating}  %This breaks the png files in \includegraphics{} calls???
+%
+%% Used for table organization
+%\usepackage{tabularx}
+%\usepackage{paralist}
+%%\usepackage[listofnumwidth=5.5em]{subfig}
+%
+%% Used to customize table and figure list spacings
+%\usepackage{tocloft}
+%
+%% Used to customize captions
+%\usepackage{caption}
+%
+%% for creating bookmarks in the final pdf file when using dvipdfm
+%\usepackage[dvipdfm, bookmarks = true, bookmarksopen]{hyperref}
+%
+%\oddsidemargin  0.0in
+%\evensidemargin 0.0in
+%\textwidth      6.5in
+%\headheight     0.25in
+%\topmargin      0.0in
+%\textheight=8.5in
+%
+%%\DeclareGraphicsExtensions{.png}
+%
+%% More space for figure numbers
+%\setlength{\cftfignumwidth}{3em}
+%% Space between elements of the list
+%%\setlength{\cftbeforefigskip}{0.1cm}
+%% Space before chapter entries in the TOC
+%%\setlength{\cftbeforechapskip}{0.2cm}
+%% Space before parts in the TOC
+%%\setlength{\cftbeforepartskip}{0.7cm}
+%
+%\title{The General Mission Analysis Tool (GMAT)\\System Test Plan}
+%\author{Darrel J. Conway\\Thinking Systems, Inc.\\ \\Steven P. Hughes\\Goddard Space Flight Center}
+%
+%
+%%  Make the watermark
+%\usepackage{eso-pic}
+%\usepackage{color}
+%\usepackage{type1cm}
+%\makeatletter
+%  \AddToShipoutPicture{%
+%    \setlength{\@tempdimb}{.5\paperwidth}%
+%    \setlength{\@tempdimc}{.5\paperheight}%
+%    \setlength{\unitlength}{1pt}%
+%    \put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){%
+%      \makebox(0,700){\rotatebox{0}{\textcolor[gray]{0.75}{\fontsize{2cm}{2cm}\selectfont{Draft: Work in Progress}}}}
+%    }
+%} \makeatother
+%
+%\begin{document}
+\begin{document}
 \newcommand\chapauthor[1]{\emph{#1}}
 
 %\begin{titlepage}
@@ -109,7 +195,7 @@ basicstyle=\ttfamily, numberstyle=\tiny, numbers=none}
 
 \begin{figure}[H]
 \begin{center}
-\includegraphics[411,380]{../../Common/Images/GMATsplash.png}
+%\includegraphics[411,380]{../../Common/Images/GMATsplash.png}
 \end{center}
 \end{figure}
 
@@ -135,7 +221,7 @@ basicstyle=\ttfamily, numberstyle=\tiny, numbers=none}
 \clearpage
 \listoffigures
 \clearpage
-%\listoftables
+\listoftables
 
 \part{Overview}
 \thispagestyle{empty}
@@ -152,6 +238,16 @@ basicstyle=\ttfamily, numberstyle=\tiny, numbers=none}
 \include{GuiTests}
 
 \include{Reporting}
+
+\part{Tests}
+
+\include{TestProcedures}
+\include{TestData}
+\include{BaseStates}
+
+\part{Checklists}
+
+\include{Checklists}
 
 %\appendix
 %
