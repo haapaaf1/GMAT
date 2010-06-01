@@ -426,6 +426,8 @@ void GroundStationPanel::SaveData()
       canClose = false;
    }
 
+   if (!canClose)
+      return;
    // copy the current info into the ground station
    theGroundStation->Copy(localGroundStation);
    EnableUpdate(false);
