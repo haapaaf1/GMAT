@@ -252,34 +252,34 @@ void AttitudePanel::Create()
                         wxDefaultPosition, wxDefaultSize, 0);
    st1TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st2TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st3TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st4TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st5TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st6TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st7TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st8TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st9TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    st10TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE, wxT(""),
-                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );  
+                      wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );  
 
    // Rate State Type
    stateTypeRate4StaticText =
@@ -309,13 +309,13 @@ void AttitudePanel::Create()
    
    str1TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+         wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    str2TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+         wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    str3TextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_STATE_RATE, wxT(""), wxDefaultPosition, 
-         wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );                
+         wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );                
 
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage

@@ -669,7 +669,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description1 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[0] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, 
-                     wxT(""), wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                     wxT(""), wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    unit1 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit1"), 
                wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -677,7 +677,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description2 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[1] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    unit2 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit2"), 
                wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -685,7 +685,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description3 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[2] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                   wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                   wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    unit3 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit3"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -693,7 +693,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description4 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[3] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                   wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                   wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    unit4 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit4"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -701,7 +701,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description5 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[4] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""), 
-                                 wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                                 wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    unit5 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit5"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    
@@ -709,7 +709,7 @@ void OrbitPanel::AddElements(wxWindow *parent)
    description6 = new wxStaticText( elementsPanel, ID_TEXT, 
                       wxT(""), wxDefaultPosition, wxSize(40,-1), 0 );
    textCtrl[5] = new wxTextCtrl( elementsPanel, ID_TEXTCTRL, wxT(""),
-                                wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                                wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    unit6 = new wxStaticText( elementsPanel, ID_TEXT, wxT("Unit6"), 
                 wxDefaultPosition, wxDefaultSize, 0 );
    

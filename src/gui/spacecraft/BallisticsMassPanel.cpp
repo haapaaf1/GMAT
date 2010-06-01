@@ -103,7 +103,7 @@ void BallisticsMassPanel::Create()
     item2->Add( dryMassStaticText, 0, wxALIGN_LEFT|wxALL, 5 );
 
     dryMassTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), 
-                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
     dryMassTextCtrl->SetToolTip(pConfig->Read(_T("DryMassHint")));
     item2->Add( dryMassTextCtrl, 0, wxALIGN_CENTER|wxALL, 5 );
 
@@ -118,7 +118,7 @@ void BallisticsMassPanel::Create()
     item2->Add( dragCoeffStaticText, 0, wxALIGN_LEFT|wxALL, 5 );
 
     dragCoeffTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), 
-                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
     dragCoeffTextCtrl->SetToolTip(pConfig->Read(_T("DragCoefficientHint")));
     item2->Add( dragCoeffTextCtrl, 0, wxALIGN_CENTER|wxALL, 5 );
     item2->Add( emptyText, 0, wxALIGN_LEFT|wxALL, 5 );
@@ -129,7 +129,7 @@ void BallisticsMassPanel::Create()
     item2->Add( reflectCoeffStaticText, 0, wxALIGN_LEFT|wxALL, 5 );
 
     reflectCoeffTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), 
-                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
     reflectCoeffTextCtrl->SetToolTip(pConfig->Read(_T("ReflectivityCoefficientHint")));
     item2->Add( reflectCoeffTextCtrl, 0, wxALIGN_CENTER|wxALL, 5 );
     item2->Add( emptyText, 0, wxALIGN_LEFT|wxALL, 5 );
@@ -140,7 +140,7 @@ void BallisticsMassPanel::Create()
     item2->Add( dragAreaStaticText, 0, wxALIGN_LEFT|wxALL, 5 );
 
     dragAreaTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), 
-                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
     dragAreaTextCtrl->SetToolTip(pConfig->Read(_T("DragAreaHint")));
     item2->Add( dragAreaTextCtrl, 0, wxALIGN_CENTER|wxALL, 5 );
     wxStaticText *dragAreaUnitsText = new wxStaticText( this, ID_TEXT,
@@ -154,7 +154,7 @@ void BallisticsMassPanel::Create()
     item2->Add( srpAreaStaticText, 0, wxALIGN_LEFT|wxALL, 5 );
 
     srpAreaTextCtrl = new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), 
-                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                            wxDefaultPosition, wxSize(80,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
     srpAreaTextCtrl->SetToolTip(pConfig->Read(_T("SRPAreaHint")));
     item2->Add( srpAreaTextCtrl, 0, wxALIGN_CENTER|wxALL, 5 );
     wxStaticText *srpAreaUnitsText = new wxStaticText( this, ID_TEXT,
