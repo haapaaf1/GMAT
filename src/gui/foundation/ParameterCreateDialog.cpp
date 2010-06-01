@@ -214,11 +214,11 @@ void ParameterCreateDialog::Create()
    mArrNameTextCtrl->SetToolTip(pConfig->Read(_T("ArrayNameHint")));
    mArrRowTextCtrl = new wxTextCtrl(arrPanel, ID_ARYTEXTCTRL, wxT(""),
                                     wxDefaultPosition, wxSize(50,20), 0, 
-                                    wxTextValidator(wxFILTER_NUMERIC));
+                                    wxTextValidator(wxGMAT_FILTER_NUMERIC));
    mArrRowTextCtrl->SetToolTip(pConfig->Read(_T("ArrayRowValueHint")));
    mArrColTextCtrl = new wxTextCtrl(arrPanel, ID_ARYTEXTCTRL, wxT(""),
                                     wxDefaultPosition, wxSize(50,20), 0,
-                                    wxTextValidator(wxFILTER_NUMERIC));
+                                    wxTextValidator(wxGMAT_FILTER_NUMERIC));
    mArrColTextCtrl->SetToolTip(pConfig->Read(_T("ArrayColumnValueHint")));
 
    mStrClearButton =
