@@ -167,7 +167,7 @@ void BurnThrusterPanel::Create()
    wxStaticText *XLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection"GUI_ACCEL_KEY"1"));
    elem1TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                      wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                      wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
    elem1TextCtrl->SetToolTip(pConfig->Read(_T("ThrustDirection1Hint")));
    
    // ThrustDirection2
@@ -178,7 +178,7 @@ void BurnThrusterPanel::Create()
                         wxDefaultPosition,wxDefaultSize, 0);
    elem2TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                      wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                      wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
    elem2TextCtrl->SetToolTip(pConfig->Read(_T("ThrustDirection2Hint")));
    
    // ThrustDirection3
@@ -186,7 +186,7 @@ void BurnThrusterPanel::Create()
    wxStaticText *ZLabel = new wxStaticText(this, ID_TEXT, wxT("ThrustDirection"GUI_ACCEL_KEY"3"));
    elem3TextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
    elem3TextCtrl->SetToolTip(pConfig->Read(_T("ThrustDirection3Hint")));
    
    wxStaticText *dutyCycleLabel = NULL;
@@ -199,7 +199,7 @@ void BurnThrusterPanel::Create()
          new wxStaticText(this, ID_TEXT, wxT("Duty "GUI_ACCEL_KEY"Cycle"));
       dutyCycleTextCtrl =
          new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       dutyCycleTextCtrl->SetToolTip(pConfig->Read(_T("DutyCycleHint")));
       
       // Thruster Scale Factor
@@ -207,7 +207,7 @@ void BurnThrusterPanel::Create()
          new wxStaticText(this, ID_TEXT, wxT("Thrust "GUI_ACCEL_KEY"Scale Factor"));
       scaleFactorTextCtrl =
          new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
-                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       scaleFactorTextCtrl->SetToolTip(pConfig->Read(_T("ThrustScaleFactorHint")));
    }
    
@@ -266,7 +266,7 @@ void BurnThrusterPanel::Create()
          new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Isp"));
       ispTextCtrl =
          new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                        wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       ispTextCtrl->SetToolTip(pConfig->Read(_T("IspHint")));
       ispUnit =
          new wxStaticText(this, ID_TEXT, wxT(" s"));
@@ -277,7 +277,7 @@ void BurnThrusterPanel::Create()
       new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"GravitationalAccel"));
    gravityAccelTextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), 
-                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                     wxDefaultPosition, wxSize(150,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
    gravityAccelTextCtrl->SetToolTip(pConfig->Read(_T("GravitationalAccelHint")));
    wxStaticText *gravityAccelUnit =
       new wxStaticText(this, ID_TEXT, wxT(" m/s"));

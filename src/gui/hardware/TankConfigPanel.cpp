@@ -147,7 +147,7 @@ void TankConfigPanel::Create()
    wxStaticText *volumeLabel =
       new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Volume")); 
    volumeTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    volumeTextCtrl->SetToolTip(pConfig->Read(_T("VolumeHint")));
    wxStaticText *volumeUnit =
       new wxStaticText( this, ID_TEXT, wxT("m^3"));
@@ -167,7 +167,7 @@ void TankConfigPanel::Create()
    wxStaticText *fuelMassLabel =
       new wxStaticText( this, ID_TEXT, wxT("F"GUI_ACCEL_KEY"uel Mass"));
    fuelMassTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    fuelMassTextCtrl->SetToolTip(pConfig->Read(_T("MassHint")));
    wxStaticText *fuelMassUnit =
       new wxStaticText( this, ID_TEXT, wxT("kg"));
@@ -181,7 +181,7 @@ void TankConfigPanel::Create()
    wxStaticText *fuelDensityLabel =
       new wxStaticText( this, ID_TEXT, wxT("Fuel "GUI_ACCEL_KEY"Density"));
    fuelDensityTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    fuelDensityTextCtrl->SetToolTip(pConfig->Read(_T("DensityHint")));
    wxStaticText *fuelDensityUnit =
       new wxStaticText( this, ID_TEXT, wxT("kg/m^3"));
@@ -190,7 +190,7 @@ void TankConfigPanel::Create()
    wxStaticText *temperatureLabel =
       new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Temperature"));
    temperatureTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    temperatureTextCtrl->SetToolTip(pConfig->Read(_T("TemperatureHint")));
    wxStaticText *temperatureUnit =
       new wxStaticText( this, ID_TEXT, wxT("C"));
@@ -199,7 +199,7 @@ void TankConfigPanel::Create()
    wxStaticText *refTemperatureLabel =
       new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Reference Temperature"));
    refTemperatureTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    refTemperatureTextCtrl->SetToolTip(pConfig->Read(_T("ReferenceTemperatureHint")));
    wxStaticText *refTemperatureUnit =
       new wxStaticText( this, ID_TEXT, wxT("C"));
@@ -208,7 +208,7 @@ void TankConfigPanel::Create()
    wxStaticText *pressureLabel =
       new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Pressure"));
    pressureTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    pressureTextCtrl->SetToolTip(pConfig->Read(_T("PressureHint")));
    wxStaticText *pressureUnit =
       new wxStaticText( this, ID_TEXT, wxT("kPa"));
