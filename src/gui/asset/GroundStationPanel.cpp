@@ -153,7 +153,7 @@ void GroundStationPanel::Create()
    location1Label =
        new wxStaticText( this, ID_TEXT, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1).c_str());
    location1TextCtrl =
-      new wxTextCtrl( this, ID_LOCATION_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_LOCATION_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    //location1TextCtrl->SetToolTip(pConfig->Read(wxT(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1)+"Hint")));
    location1Unit =
       new wxStaticText( this, ID_TEXT, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_UNITS_1).c_str());
@@ -162,7 +162,7 @@ void GroundStationPanel::Create()
    location2Label =
        new wxStaticText( this, ID_TEXT, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2).c_str());
    location2TextCtrl =
-      new wxTextCtrl( this, ID_LOCATION_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_LOCATION_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    //location2TextCtrl->SetToolTip(pConfig->Read(wxT(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2)+"Hint")));
    location2Unit =
        new wxStaticText( this, ID_TEXT, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_UNITS_2).c_str());
@@ -171,7 +171,7 @@ void GroundStationPanel::Create()
    location3Label =
        new wxStaticText( this, ID_TEXT, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3).c_str());
    location3TextCtrl =
-      new wxTextCtrl( this, ID_LOCATION_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+      new wxTextCtrl( this, ID_LOCATION_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    //location3TextCtrl->SetToolTip(pConfig->Read(_T(localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3)+"Hint")));
    location3Unit =
        new wxStaticText( this, ID_TEXT, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_UNITS_3).c_str());
