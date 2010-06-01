@@ -21,6 +21,7 @@
 #include "ImpulsiveBurn.hpp"
 #include "BurnException.hpp"
 #include "MessageInterface.hpp"
+#include "StringUtil.hpp"
 
 //#define DEBUG_IMPBURN_INIT
 //#define DEBUG_IMPBURN_SET
@@ -564,7 +565,16 @@ Real ImpulsiveBurn::SetRealParameter(const Integer id, const Real value)
    {
       // Isp Coefficients
       case ISP:
-         isp = value;
+         if (value >= 0)
+            isp = value;
+         else
+         { 
+            BurnException aException("");
+            aException.SetDetails(errorMessageFormat.c_str(),
+                        GmatStringUtil::ToString(value, 16).c_str(),
+                        PARAMETER_TEXT[id-DECREMENT_MASS].c_str(), "Real Number >= 0");
+            throw aException;
+         }
          return isp;
       case GRAVITATIONAL_ACCELERATION:
          gravityAccel = value;
