@@ -1,7 +1,7 @@
 //$Id$
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
-//
+// 
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
@@ -59,10 +59,14 @@
 #  include "wx/glcanvas.h"
 #endif
 
+#define wxGMAT_FILTER_NUMERIC wxFILTER_NUMERIC
 #ifdef __WXMSW__  // Windows
    #define GUI_ACCEL_KEY "&"
 #else
    #define GUI_ACCEL_KEY ""
+#  ifdef __WXMAC__
+     #define wxGMAT_FILTER_NUMERIC wxFILTER_ALPHANUMERIC
+#  endif
 #endif // End of OS nits
 
 #endif // gmatwxdefs_hpp
