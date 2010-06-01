@@ -162,7 +162,7 @@ void UniversePanel::Create()
       new wxStaticText(this, ID_TEXT, wxT("Ephemeris Update "GUI_ACCEL_KEY"Interval"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    mIntervalTextCtrl = new wxTextCtrl(this, ID_TEXT_CTRL, wxT(""),
-                                 wxDefaultPosition, wxSize(50,-1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                                 wxDefaultPosition, wxSize(50,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
    mIntervalTextCtrl->SetToolTip(pConfig->Read(_T("EphemerisUpdateIntervalHint")));
    wxStaticText *intervalUnitsStaticText =
       new wxStaticText(this, ID_TEXT, wxT("seconds"),

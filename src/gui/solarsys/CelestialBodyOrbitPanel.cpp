@@ -508,14 +508,14 @@ void CelestialBodyOrbitPanel::Create()
       initialEpochStaticText = new wxStaticText(this, ID_TEXT, wxT("Initial A1 "GUI_ACCEL_KEY"Epoch"),
                                wxDefaultPosition, wxSize(-1,-1), 0);
       initialEpochTextCtrl   = new wxTextCtrl(this, ID_TEXT_CTRL_INITIAL_EPOCH, wxT(""),
-                               wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                               wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       initialEpochTextCtrl->SetToolTip(pConfig->Read(_T("InitialA1EpochHint")));
       
       // SMA
       SMAStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"SMA"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
       SMATextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_SMA, wxT(""),
-                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       SMATextCtrl->SetToolTip(pConfig->Read(_T("SMAHint")));
       SMAUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("km"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
@@ -524,7 +524,7 @@ void CelestialBodyOrbitPanel::Create()
       ECCStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"ECC"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
       ECCTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_ECC, wxT(""),
-                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       ECCTextCtrl->SetToolTip(pConfig->Read(_T("ECCHint")));
       ECCUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT(""),
                            wxDefaultPosition, wxSize(-1,-1), 0);
@@ -533,7 +533,7 @@ void CelestialBodyOrbitPanel::Create()
       INCStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"INC"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
       INCTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_INC, wxT(""),
-                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       INCTextCtrl->SetToolTip(pConfig->Read(_T("INCHint")));
       INCUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("deg"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
@@ -542,7 +542,7 @@ void CelestialBodyOrbitPanel::Create()
       RAANStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"RAAN"),
                             wxDefaultPosition, wxSize(-1,-1), 0);
       RAANTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_RAAN, wxT(""),
-                            wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                            wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       RAANTextCtrl->SetToolTip(pConfig->Read(_T("RAANHint")));
       RAANUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("deg"),
                             wxDefaultPosition, wxSize(-1,-1), 0);
@@ -551,7 +551,7 @@ void CelestialBodyOrbitPanel::Create()
       AOPStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"AOP"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
       AOPTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_AOP, wxT(""),
-                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       AOPTextCtrl->SetToolTip(pConfig->Read(_T("AOPHint")));
       AOPUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("deg"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
@@ -560,7 +560,7 @@ void CelestialBodyOrbitPanel::Create()
       TAStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"TA"),
                            wxDefaultPosition, wxSize(-1,-1), 0);
       TATextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_TA, wxT(""),
-                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxFILTER_NUMERIC));
+                           wxDefaultPosition, wxSize(140, -1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC));
       TATextCtrl->SetToolTip(pConfig->Read(_T("TAHint")));
       TAUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("deg"),
                            wxDefaultPosition, wxSize(-1,-1), 0);

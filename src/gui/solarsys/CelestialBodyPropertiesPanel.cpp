@@ -233,7 +233,7 @@ void CelestialBodyPropertiesPanel::Create()
    muStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Mu"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
    muTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_MU, wxT(""),
-                       wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxFILTER_NUMERIC));
+                       wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxGMAT_FILTER_NUMERIC));
    muTextCtrl->SetToolTip(pConfig->Read(_T("MuHint")));
    muUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("km^3/sec^2"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
@@ -241,7 +241,7 @@ void CelestialBodyPropertiesPanel::Create()
    eqRadStaticText      = new wxStaticText(this, ID_TEXT, wxT("Equatorial "GUI_ACCEL_KEY"Radius"),
                           wxDefaultPosition, wxSize(-1,-1), 0);
    eqRadTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_EQRAD, wxT(""),
-                          wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxFILTER_NUMERIC));
+                          wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxGMAT_FILTER_NUMERIC));
    eqRadTextCtrl->SetToolTip(pConfig->Read(_T("EquatorialRadiusHint")));
    eqRadUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT("km"),
                           wxDefaultPosition, wxSize(-1,-1), 0);
@@ -249,7 +249,7 @@ void CelestialBodyPropertiesPanel::Create()
    flatStaticText      = new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Flattening"),
                          wxDefaultPosition, wxSize(-1,-1), 0);
    flatTextCtrl        = new wxTextCtrl(this, ID_TEXT_CTRL_FLAT, wxT(""),
-                         wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxFILTER_NUMERIC));
+                         wxDefaultPosition, wxSize(150, -1),0,wxTextValidator(wxGMAT_FILTER_NUMERIC));
    flatTextCtrl->SetToolTip(pConfig->Read(_T("FlatteningHint")));
    flatUnitsStaticText = new wxStaticText(this, ID_TEXT, wxT(""), // unitless
                          wxDefaultPosition, wxSize(-1,-1), 0);
