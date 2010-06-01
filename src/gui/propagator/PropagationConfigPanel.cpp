@@ -179,7 +179,7 @@ void PropagationConfigPanel::Create()
    
    initialStepSizeTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    initialStepSizeTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorInitialStepSizeHint")));
 
    wxStaticText *unitsInitStepSizeStaticText =
@@ -191,7 +191,7 @@ void PropagationConfigPanel::Create()
                         wxDefaultPosition, wxDefaultSize );
    accuracyTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    accuracyTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorAccuracyHint")));
    
    // Minimum Step Size
@@ -200,7 +200,7 @@ void PropagationConfigPanel::Create()
                         wxDefaultPosition, wxDefaultSize );
    minStepTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    minStepTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMinStepSizeHint")));
    wxStaticText *unitsMinStepStaticText =
       new wxStaticText( this, ID_TEXT, wxT("sec"),
@@ -212,7 +212,7 @@ void PropagationConfigPanel::Create()
                         wxDefaultPosition, wxDefaultSize );
    maxStepTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    maxStepTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMaxStepSizeHint")));
    wxStaticText *unitsMaxStepStaticText =
       new wxStaticText( this, ID_TEXT, wxT("sec"),
@@ -224,7 +224,7 @@ void PropagationConfigPanel::Create()
                         wxDefaultPosition, wxDefaultSize );
    maxStepAttemptTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    maxStepAttemptTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMaxStepAttemptsHint")));
    
    // Minimum Integration Error
@@ -233,7 +233,7 @@ void PropagationConfigPanel::Create()
                         wxDefaultPosition, wxDefaultSize );
    minIntErrorTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC)  );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC)  );
    minIntErrorTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorMinIntegrationErrorHint")));
    
    // Nominal Integration Error
@@ -242,7 +242,7 @@ void PropagationConfigPanel::Create()
                         wxDefaultPosition, wxDefaultSize );  
    nomIntErrorTextCtrl =
       new wxTextCtrl( this, ID_TEXTCTRL_PROP, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxFILTER_NUMERIC) );
+                      wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    nomIntErrorTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorNominalIntegrationErrorHint")));
    
    wxFlexGridSizer *intFlexGridSizer = new wxFlexGridSizer( 3, 0, 0 );
