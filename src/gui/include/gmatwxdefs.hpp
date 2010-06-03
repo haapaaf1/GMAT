@@ -59,14 +59,16 @@
 #  include "wx/glcanvas.h"
 #endif
 
-#define wxGMAT_FILTER_NUMERIC wxFILTER_NUMERIC
 #ifdef __WXMSW__  // Windows
    #define GUI_ACCEL_KEY "&"
+   #define wxGMAT_FILTER_NUMERIC wxFILTER_NUMERIC
 #else
    #define GUI_ACCEL_KEY ""
-#  ifdef __WXMAC__
+   #ifdef __WXMAC__
      #define wxGMAT_FILTER_NUMERIC wxFILTER_ALPHANUMERIC
-#  endif
+   #else
+      #define wxGMAT_FILTER_NUMERIC wxFILTER_NUMERIC
+   #endif
 #endif // End of OS nits
 
 #endif // gmatwxdefs_hpp
