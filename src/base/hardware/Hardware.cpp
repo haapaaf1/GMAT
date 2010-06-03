@@ -300,8 +300,10 @@ Real Hardware::SetRealParameter(const Integer id, const Real value)
 // This function is used to verify a referenced object is properly set up
 // or not.
 //------------------------------------------------------------------------
+/*
 bool Hardware::VerifyRefObject(std::string subTypeName, GmatBase* obj)
 {
 	MessageInterface::ShowMessage("Hardware::VerifyRefObject \n");
 	return true;
 }
+*/

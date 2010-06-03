@@ -53,7 +53,7 @@ public:
    virtual Real               SetRealParameter(const Integer id,
                                                const Real value);
    
-   virtual bool	 VerifyRefObject(std::string subTypeName, GmatBase* obj); // made changes by Tuan Nguyen
+//   virtual bool	 VerifyRefObject(std::string subTypeName, GmatBase* obj); // made changes by Tuan Nguyen
 
 protected:
    /// Location of center of the hardware element on the spacecraft, in meters.
