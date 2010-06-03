@@ -401,6 +401,10 @@ protected:
    Integer           LookUpID(const Integer id, std::string &label, std::string &rep);
    void              BuildElementLabelMap();
    void              RecomputeStateAtEpoch(const GmatEpoch &toEpoch);
+
+private:
+   bool 			 VerifyAddHardware();			// made changes by Tuan Nguyen
+
 };
 
 #endif // Spacecraft_hpp

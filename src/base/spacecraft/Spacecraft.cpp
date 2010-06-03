@@ -3097,6 +3097,12 @@ bool Spacecraft::Initialize()
          instanceName.c_str());
       #endif
    }
+
+   // made changes by Tuan Nguyen
+   // Verify all Spacecarft's referenced objects:
+   if (this->VerifyAddHardware() == false)		// verify added hardware
+	   return false;
+
    #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage("Spacecraft::Initialize() exiting ----------\n");
    #endif
@@ -5010,3 +5016,99 @@ void Spacecraft::RecomputeStateAtEpoch(const GmatEpoch &toEpoch)
    }
    // otherwise, state stays the same
 }
+
+
+//-------------------------------------------------------------------------
+// This function is used to verify Spacecraft's added hardware.
+//
+// return true if there is no error, false otherwise.
+//-------------------------------------------------------------------------
+// made changes by Tuan Nguyen
+bool Spacecraft::VerifyAddHardware()
+{
+   Gmat::ObjectType type;
+   std::string subTypeName;
+   GmatBase* obj;
+
+   // 1. Verify all hardware in hardwareList are not NULL:
+   for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
+   {
+	   obj = (*i);
+	   if (obj == NULL)
+	   {
+		   MessageInterface::ShowMessage("***Error***:One element of hardwareList = NULL\n");
+		   return false;
+	   }
+   }
+
+   // 2. Verify primary antenna to be in hardwareList:
+   // 2.1. Create antenna list from hardwareList for searching:
+   // extract all antenna from hardwareList and store to antennaList
+   ObjectArray antennaList;
+   for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
+   {
+	  obj = (*i);
+      subTypeName = obj->GetTypeName();
+	  if (subTypeName == "Antenna")
+		 antennaList.push_back(obj);
+   }
+
+   // 2.2. Verify primary antenna of Receiver, Transmitter, and Transponder:
+   GmatBase* antenna;
+   GmatBase* primaryAntenna;
+   std::string primaryAntennaName;
+   bool verify = true;
+   for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
+   {
+	  obj = (*i);
+	  type = obj->GetType();
+	  if (type == Gmat::HARDWARE)
+	  {
+         subTypeName = obj->GetTypeName();
+         if ((subTypeName == "Transmitter")||
+        	 (subTypeName == "Receiver")||
+        	 (subTypeName == "Transponder"))
+         {
+    		 // Get primary antenna:
+    		 primaryAntennaName = obj->GetRefObjectName(Gmat::HARDWARE);
+    		 primaryAntenna = obj->GetRefObject(Gmat::HARDWARE,primaryAntennaName);
+
+    		 bool check;
+    		 if (primaryAntenna == NULL)
+    		 {
+    			 MessageInterface::ShowMessage("***Error***:primary antenna of %s in %s's AddHardware list is NULL \n",obj->GetName().c_str(), this->GetName().c_str());
+    			 check = false;
+    		 }
+    		 else
+    		 {
+    			 // Check primary antenna of transmitter, receiver, or transponder is in antenna list:
+    			 check = false;
+    			 for(ObjectArray::iterator j= antennaList.begin(); j != antennaList.end(); ++j)
+    			 {
+    				 antenna = (*j);
+    				 if (antenna == primaryAntenna)
+    				 {
+    					 check = true;
+    					 break;
+    				 }
+    				 else if (antenna->GetName() == primaryAntenna->GetName())
+    				 {
+    					 MessageInterface::ShowMessage("Primary antenna %s of %s is a clone of an antenna in %s's AddHardware\n",primaryAntenna->GetName().c_str(), obj->GetName().c_str(), this->GetName().c_str());
+    				 }
+    			 }
+            	 if (check == false)
+            	 {
+            		 // Display error message:
+            		 MessageInterface::ShowMessage("***Error***:primary antenna of %s is not in %s's AddHardware\n", obj->GetName().c_str(), this->GetName().c_str());
+            	 }
+
+        	 }
+
+        	 verify = verify && check;
+         }
+	  }
+   }
+
+   return verify;
+}
+
