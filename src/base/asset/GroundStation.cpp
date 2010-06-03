@@ -12,7 +12,9 @@
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2008/08/01
 
-// Modified: 
+// Modified:
+//    2010.06.03 Tuan Nguyen
+//      - Add AddHardware parameter and verify added hardware
 //    2010.03.23 Steve Hughes/Thomas Grubb 
 //      - Changed initialize method to use statetype = "Spherical" instead
 //        of deprecated "geographical" state type
@@ -43,12 +45,14 @@ const std::string
 GroundStation::PARAMETER_TEXT[GroundStationParamCount - BodyFixedPointParamCount] =
    {
       "Id",
+      "AddHardware",				// made changes by Tuan Nguyen
    };
 
 const Gmat::ParameterType
 GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount] =
    {
       Gmat::STRING_TYPE,
+      Gmat::OBJECTARRAY_TYPE,		// made changes by Tuan Nguyen
    };
 
 
@@ -71,6 +75,9 @@ GroundStation::GroundStation(const std::string &itsName) :
    BodyFixedPoint    ("GroundStation", itsName),
    stationId         ("StationId")
 {
+   // made this change by Tuan Nguyen
+   this->type = Gmat::GROUND_STATION;		// change type from Gmat::BODY_FIXED_POINT to Gmat::GROUND_STATION
+
    objectTypes.push_back(Gmat::GROUND_STATION);
    objectTypeNames.push_back("GroundStation");
    parameterCount = GroundStationParamCount;
@@ -88,6 +95,9 @@ GroundStation::GroundStation(const std::string &itsName) :
 //---------------------------------------------------------------------------
 GroundStation::~GroundStation()
 {
+	// delete all hardware
+	for (UnsignedInt i = 0; i < hardwareList.size(); ++i)
+		delete hardwareList[i];
 }
 
 //---------------------------------------------------------------------------
@@ -104,6 +114,8 @@ GroundStation::GroundStation(const GroundStation& gs) :
    BodyFixedPoint        (gs),
    stationId             (gs.stationId)
 {
+	hardwareNames 		= gs.hardwareNames;		// made changes by Tuan Nguyen
+	hardwareList 		= gs.hardwareList;		// should it be cloned ????
 }
 
 
@@ -124,7 +136,9 @@ GroundStation& GroundStation::operator=(const GroundStation& gs)
    {
       BodyFixedPoint::operator=(gs);
 
-      stationId = gs.stationId;
+      stationId 	= gs.stationId;
+      hardwareNames = gs.hardwareNames;		// made changes by Tuan Nguyen
+      hardwareList	= gs.hardwareList;		// should it be cloned ????
    }
    
    return *this;
@@ -331,6 +345,18 @@ bool GroundStation::SetStringParameter(const Integer id,
       return true;
    }
 
+   // made changes by Tuan Nguyen
+   if (id == ADD_HARDWARE)
+   {
+   	  // Only add the hardware if it is not in the list already
+   	  if (find(hardwareNames.begin(), hardwareNames.end(), value) ==
+   	            hardwareNames.end())
+   	  {
+   	     hardwareNames.push_back(value);
+   	  }
+   	  return true;
+   }
+
    return BodyFixedPoint::SetStringParameter(id, value);
 }
 
@@ -383,6 +409,29 @@ bool GroundStation::SetStringParameter(const std::string & label,
 std::string GroundStation::GetStringParameter(const Integer id,
       const Integer index) const
 {
+//   MessageInterface::PopupMessage(Gmat::WARNING_, "GroundStation::GetStringParameter(id, index)");
+   if (index < 0)
+   {
+      GmatBaseException ex;
+      ex.SetDetails("The index %d is out-of-range for field \"%s\"", index,
+                    GetParameterText(id).c_str());
+      throw ex;
+   }
+
+   // made changes by Tuan Nguyen
+   switch (id)
+   {
+      case ADD_HARDWARE:
+         {
+            if ((0 <= index)&&(index < hardwareNames.size()))
+			   return hardwareNames[index];
+			else
+			   return "";
+		 }
+      default:
+    	 break;			// intentional drop through
+   }
+
    return BodyFixedPoint::GetStringParameter(id, index);
 }
 
@@ -442,11 +491,351 @@ bool GroundStation::SetStringParameter(const std::string & label,
 bool GroundStation::SetStringParameter(const Integer id,
       const std::string & value, const Integer index)
 {
+   if (index < 0)
+   {
+      GmatBaseException ex;
+      ex.SetDetails("The index %d is out-of-range for field \"%s\"", index,
+                    GetParameterText(id).c_str());
+      throw ex;
+   }
+
+   switch (id)
+   {
+	  case ADD_HARDWARE:				// made changes by Tuan Nguyen
+		 // Only add the hardware if it is not in the list already
+		 if (find(hardwareNames.begin(), hardwareNames.end(), value) ==
+   	            hardwareNames.end())
+		 {
+			 //hardwareNames[index] = value;		// This line causes system collapse due to index beyond array's size
+			 hardwareNames.push_back(value);
+		 }
+		 return true;
+
+	  default:
+		 break;		// intentional drop through
+   }
+
    return BodyFixedPoint::SetStringParameter(id, value, index);
 }
 
+//---------------------------------------------------------------------------
+//  const StringArray& GetStringArrayParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Accesses StringArray parameters.
+ *
+ * @param id The integer ID for the parameter.
+ *
+ * @return The requested StringArray; throws if the parameter is not a
+ *         StringArray.
+ */
+//---------------------------------------------------------------------------
+const StringArray& GroundStation::GetStringArrayParameter(const Integer id) const
+{
+   if (id == ADD_HARDWARE)
+      return hardwareNames;
 
-///------------------------------------------------------------------------------
+   return BodyFixedPoint::GetStringArrayParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+// const StringArray& GetStringArrayParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Accesses StringArray parameters.
+ *
+ * @param label The script string for the parameter.
+ *
+ * @return The requested StringArray; throws if the parameter is not a
+ *         StringArray.
+ */
+//------------------------------------------------------------------------------
+const StringArray& GroundStation::GetStringArrayParameter(
+      const std::string &label) const
+{
+   return GetStringArrayParameter(GetParameterID(label));
+}
+
+
+//---------------------------------------------------------------------------
+//  bool RenameRefObject(const Gmat::ObjectType type,
+//                       const std::string &oldName, const std::string &newName)
+//---------------------------------------------------------------------------
+bool GroundStation::RenameRefObject(const Gmat::ObjectType type,
+                                 const std::string &oldName,
+                                 const std::string &newName)
+{
+   if (type == Gmat::HARDWARE)
+   {
+      for (UnsignedInt i=0; i<hardwareNames.size(); i++)
+      {
+         if (hardwareNames[i] == oldName)
+         {
+            hardwareNames[i] = newName;
+            break;
+         }
+      }
+      return true;
+   }
+
+   return BodyFixedPoint::RenameRefObject(type, oldName, newName);
+}
+
+
+
+
+//------------------------------------------------------------------------------
+// const StringArray&
+// GroundStation::GetRefObjectNameArray(const Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * Gets an array of referenced object names
+ *
+ * @param type The type of referenced objects
+ *
+ * @return a StringArray containing a list of the referenced object names
+ */
+//------------------------------------------------------------------------------
+const StringArray&
+GroundStation::GetRefObjectNameArray(const Gmat::ObjectType type)
+{
+   static StringArray retval;
+   retval.clear();
+
+   switch(type)
+   {
+      case Gmat::UNKNOWN_OBJECT:
+	  case Gmat::HARDWARE:
+		 retval = hardwareNames;
+		 if (type == Gmat::HARDWARE)
+			 break;
+
+	  default:
+		 break;
+   }
+
+   // Now pick up the objects that the base classes need
+   StringArray baseNames = BodyFixedPoint::GetRefObjectNameArray(type);
+   for (UnsignedInt i = 0; i < baseNames.size(); ++i)
+	  retval.push_back(baseNames[i]);
+
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* GroundStation::GetRefObject(const Gmat::ObjectType type,
+//                                     const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Gets the referenced object specified by type and its name.
+ *
+ * @param type The type of the referenced object
+ * @param name The name of the referenced object
+ *
+ * @return the referenced object match with type and name.
+ */
+//------------------------------------------------------------------------------
+GmatBase* GroundStation::GetRefObject(const Gmat::ObjectType type,
+                                     const std::string &name)
+{
+   switch (type)
+   {
+      case Gmat::UNKNOWN_OBJECT:
+      case Gmat::HARDWARE:
+		 for(ObjectArray::iterator i = hardwareList.begin();
+					i < hardwareList.end(); ++i)
+		 {
+		    if ((*i)->GetName() == name)
+			   return (*i);
+		 }
+		 break;
+
+      default:
+    	 break;
+   }
+   return BodyFixedPoint::GetRefObject(type, name);
+}
+
+//------------------------------------------------------------------------------
+// bool GroundStation::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//                                     const std::string &name = "")
+//------------------------------------------------------------------------------
+/**
+ * Sets the referenced object to a given object specified by type and its name.
+ *
+ * @param obj The object which is assigned to the referenced object.
+ * @param type The type of the referenced object
+ * @param name The name of the referenced object
+ *
+ * @return true when the assignment is successful.
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                     const std::string &name)
+{
+//   MessageInterface::ShowMessage("GroundStation::SetRefObject(obj, type, name )obj.name = %s  type = %d  name = %s\n", obj->GetName().c_str(), type, name.c_str());
+
+   if (obj == NULL)
+	  return false;
+
+   if (type == Gmat::HARDWARE)	// work for hardware
+   {
+      if (obj->GetType() == Gmat::HARDWARE)
+      {
+    	 // Don't add if it's already there
+     	 bool hardwareRegistered = false;
+     	 for (UnsignedInt i=0; i < hardwareList.size(); ++i)
+     	 {
+     		if (hardwareList[i]->GetName() == obj->GetName())
+     		{
+     		   hardwareRegistered = true;
+     		   break;
+     		}
+     	 }
+     	 if (!hardwareRegistered)
+     	 {
+     		hardwareList.push_back(obj->Clone());	// a hardware needs to be cloned
+     	 }
+     	 return true;
+      }
+
+      return false;		// <-- throw here; It was supposed to be hardware, but isn't.
+   }
+
+   return BodyFixedPoint::SetRefObject(obj, type, name);
+}
+
+
+//------------------------------------------------------------------------------
+// virtual bool HasRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::HasRefObjectTypeArray()
+{
+   return true;
+}
+
+//------------------------------------------------------------------------------
+// const ObjectTypeArray& GetRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the list of ref object types used by this class.
+ *
+ * @return the list of object types.
+ *
+ */
+//------------------------------------------------------------------------------
+const ObjectTypeArray& GroundStation::GetRefObjectTypeArray()
+{
+   refObjectTypes.clear();
+   BodyFixedPoint::GetRefObjectTypeArray();
+   refObjectTypes.push_back(Gmat::HARDWARE);
+   return refObjectTypes;
+}
+
+
+
+//-------------------------------------------------------------------------
+// This function is used to verify GroundStation's added hardware.
+//
+// return true if there is no error, false otherwise.
+//-------------------------------------------------------------------------
+// made changes by Tuan Nguyen
+bool GroundStation::VerifyAddHardware()
+{
+   Gmat::ObjectType type;
+   std::string subTypeName;
+   GmatBase* obj;
+
+   // 1. Verify all hardware in hardwareList are not NULL:
+   for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
+   {
+	   obj = (*i);
+	   if (obj == NULL)
+	   {
+		   MessageInterface::ShowMessage("***Error***:One element of hardwareList = NULL\n");
+		   return false;
+	   }
+   }
+
+   // 2. Verify primary antenna to be in hardwareList:
+   // 2.1. Create antenna list from hardwareList for searching:
+   // extract all antenna from hardwareList and store to antennaList
+   ObjectArray antennaList;
+   for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
+   {
+	  obj = (*i);
+      subTypeName = obj->GetTypeName();
+	  if (subTypeName == "Antenna")
+		 antennaList.push_back(obj);
+   }
+
+   // 2.2. Verify primary antenna of Receiver, Transmitter, and Transponder:
+   GmatBase* antenna;
+   GmatBase* primaryAntenna;
+   std::string primaryAntennaName;
+   bool verify = true;
+   for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
+   {
+	  obj = (*i);
+	  type = obj->GetType();
+	  if (type == Gmat::HARDWARE)
+	  {
+         subTypeName = obj->GetTypeName();
+         if ((subTypeName == "Transmitter")||
+        	 (subTypeName == "Receiver")||
+        	 (subTypeName == "Transponder"))
+         {
+    		 // Get primary antenna:
+    		 primaryAntennaName = obj->GetRefObjectName(Gmat::HARDWARE);
+    		 primaryAntenna = obj->GetRefObject(Gmat::HARDWARE,primaryAntennaName);
+
+    		 bool check;
+    		 if (primaryAntenna == NULL)
+    		 {
+    			 MessageInterface::ShowMessage("***Error***:primary antenna of %s in %s's AddHardware list is NULL \n",obj->GetName().c_str(), this->GetName().c_str());
+    			 check = false;
+    		 }
+    		 else
+    		 {
+    			 // Check primary antenna of transmitter, receiver, or transponder is in antenna list:
+    			 check = false;
+    			 for(ObjectArray::iterator j= antennaList.begin(); j != antennaList.end(); ++j)
+    			 {
+    				 antenna = (*j);
+    				 if (antenna == primaryAntenna)
+    				 {
+    					 check = true;
+    					 break;
+    				 }
+    				 else if (antenna->GetName() == primaryAntenna->GetName())
+    				 {
+    					 MessageInterface::ShowMessage("Primary antenna %s of %s is a clone of an antenna in %s's AddHardware\n",primaryAntenna->GetName().c_str(), obj->GetName().c_str(), this->GetName().c_str());
+    				 }
+    			 }
+            	 if (check == false)
+            	 {
+            		 // Display error message:
+            		 MessageInterface::ShowMessage("***Error***:primary antenna of %s is not in %s's AddHardware\n", obj->GetName().c_str(), this->GetName().c_str());
+            	 }
+
+        	 }
+
+        	 verify = verify && check;
+         }
+	  }
+   }
+
+   return verify;
+}
+
+
+//------------------------------------------------------------------------------
 /**
  */
 //------------------------------------------------------------------------------
@@ -539,6 +928,11 @@ bool GroundStation::Initialize()
             "\n   [%s]\n", j2kState.ToString(16).c_str());
    #endif
    
+   // made changes by Tuan Nguyen
+   // verify GroundStation's referenced objects
+   if (this->VerifyAddHardware() == false)	// verify add hardware
+	  return false;
+
    return true;
 }
 

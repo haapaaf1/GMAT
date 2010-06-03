@@ -12,6 +12,8 @@
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2008/08/01
 // Modified: 
+//    2010.06.03 Tuan Nguyen
+//      - Add AddHardware parameter and verify added hardware
 //    2010.03.15 Thomas Grubb 
 //      - Changed visiblity of PARAMETER_TEXT, PARAMETER_TYPE, and enum from
 //        protected to public
@@ -30,6 +32,7 @@
 #include "LatLonHgt.hpp"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
+#include "Hardware.hpp"
 
 
 class GMAT_API GroundStation : public BodyFixedPoint
@@ -72,6 +75,26 @@ public:
                                            const std::string &value,
                                            const Integer index);
 
+   // made changes by Tuan Nguyen
+   virtual const StringArray&
+					    GetStringArrayParameter(const Integer id) const;
+   virtual const StringArray&
+                        GetStringArrayParameter(const std::string &label) const;
+
+   virtual bool         RenameRefObject(const Gmat::ObjectType type,
+                                        const std::string &oldName,
+                                        const std::string &newName);
+   virtual const StringArray&
+                        GetRefObjectNameArray(const Gmat::ObjectType type);
+   virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
+                                        const std::string &name);
+   virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                        const std::string &name = "");
+
+   virtual bool         HasRefObjectTypeArray();
+   virtual const        ObjectTypeArray& GetRefObjectTypeArray();
+
+
    virtual bool         Initialize();
 
 //   virtual Integer         GetEstimationParameterID(const std::string &param);
@@ -84,6 +107,13 @@ protected:
    /// Ground station ID
    std::string          stationId;
    
+   // Added hardware of the ground station
+   StringArray			hardwareNames;			// made changes by Tuan Nguyen
+   ObjectArray 			hardwareList;			// made changes by Tuan Nguyen
+
+//   bool              	SetHardware(GmatBase *obj, StringArray &hwNames,
+//                                 ObjectArray &hwArray);		// made changes by Tuan Nguyen
+
    // Override GetGenString to handle the changeable names for the parameters
    virtual const std::string&  
                         GetGeneratingString(
@@ -98,6 +128,7 @@ public:
    enum
    {
       STATION_ID = BodyFixedPointParamCount,
+      ADD_HARDWARE,								// made changes by Tuan Nguyen
       GroundStationParamCount,
    };
    
@@ -106,6 +137,8 @@ public:
    static const Gmat::ParameterType
       PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount];
 
+private:
+   bool 		        VerifyAddHardware();			// made changes by Tuan Nguyen
 };
 
 #endif /*GroundStation_hpp*/
