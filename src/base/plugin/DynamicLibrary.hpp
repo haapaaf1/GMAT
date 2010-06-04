@@ -28,18 +28,18 @@
 
 /**
  * The DynamicLibrary class defines the interfaces that are needed to build a
- * GMAT plug-in library.  GMAT plugins usually include one or more classes 
- * derived from GmatBase, one or more factories that create instances of these 
- * classes, and three C-style functions that are accessed to import the Factory 
- * into GMAT.  The functions required in the plugin library are defined as 
+ * GMAT plug-in library.  GMAT plugins usually include one or more classes
+ * derived from GmatBase, one or more factories that create instances of these
+ * classes, and three C-style functions that are accessed to import the Factory
+ * into GMAT.  The functions required in the plugin library are defined as
  * follows:
- * 
+ *
  *    Integer     GetFactoryCount();
  *    Factory*    GetFactoryPointer(Integer index);
  *    void        SetMessageReceiver(MessageReceiver* mr);
- * 
+ *
  * The use of the first two functions matches the calls defined for this class.
- * The MessageReceiver is set using the SetMessageReceiver function when the 
+ * The MessageReceiver is set using the SetMessageReceiver function when the
  * library is loaded into memory.
  *
  * Plugin libraries may also optionally create and use TriggerManagers.  A
@@ -74,7 +74,13 @@ public:
    Factory*             GetGmatFactory(Integer index = 0);
    Integer              GetTriggerManagerCount();
    TriggerManager*      GetTriggerManager(Integer index = 0);
-   
+
+   // GUI elements
+   Integer              GetMenuEntryCount();
+   std::string          GetMenuEntry(Integer index, std::string &forMenu);
+   StringArray          GetGuiComponentList();
+   void*                GetGUIFor(const std::string &componentName);
+
 protected:
    std::string          libName;
    std::string          libPath;
