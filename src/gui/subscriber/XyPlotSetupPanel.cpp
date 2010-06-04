@@ -24,9 +24,7 @@
 #include "ParameterSelectDialog.hpp"
 #include "ParameterInfo.hpp"            // for GetDepObjectType()
 #include "MessageInterface.hpp"
-
-#include "wx/colordlg.h"                // for wxColourDialog
-
+#include <wx/config.h>
 
 //#define DEBUG_XYPLOT_PANEL 1
 //#define DEBUG_XYPLOT_PANEL_LOAD 1
@@ -78,13 +76,9 @@ XyPlotSetupPanel::XyPlotSetupPanel(wxWindow *parent,
    
    mXParamChanged = false;
    mYParamChanged = false;
-   mIsColorChanged = false;
    mUseUserParam = false;
    mNumXParams = 0;
    mNumYParams = 0;
-   
-   mLineColor.Set(0,0,0); //black for now
-   mColorMap.clear();
    
    mObjectTypeList.Add("Spacecraft");
    mObjectTypeList.Add("ImpulsiveBurn");
@@ -161,12 +155,9 @@ void XyPlotSetupPanel::ObjectNameChanged(Gmat::ObjectType type,
    
    mXParamChanged = false;
    mYParamChanged = false;
-   mIsColorChanged = false;
    mUseUserParam = false;
    mNumXParams = 0;
    mNumYParams = 0;
-   
-   mColorMap.clear();
    
    LoadData();
    
@@ -212,29 +203,7 @@ void XyPlotSetupPanel::OnCheckBoxChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void XyPlotSetupPanel::OnButtonClick(wxCommandEvent& event)
 {
-   if (event.GetEventObject() == mLineColorButton)
-   {
-      wxColourData data;
-      data.SetColour(mLineColor);
-      wxColourDialog dialog(this, &data);
-      dialog.Center();
-      
-      if (dialog.ShowModal() == wxID_OK)
-      {
-         mSelYName = std::string(mYSelectedListBox->GetStringSelection().c_str());
-      
-         mLineColor = dialog.GetColourData().GetColour();
-         mLineColorButton->SetBackgroundColour(mLineColor);
-      
-         mColorMap[mSelYName].Set(mLineColor.Red(),
-                                  mLineColor.Green(),
-                                  mLineColor.Blue());
-         
-         EnableUpdate(true);
-         mIsColorChanged = true;
-      }
-   }
-   else if (event.GetEventObject() == mViewXButton)
+   if (event.GetEventObject() == mViewXButton)
    {
       ParameterSelectDialog paramDlg(this, mObjectTypeList,
                                      GuiItemManager::SHOW_PLOTTABLE, false);
@@ -299,41 +268,38 @@ void XyPlotSetupPanel::Create()
 {
    wxArrayString emptyList;
    Integer bsize = 2; // border size
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/XY Plot"));
    
    //------------------------------------------------------
    // plot option
    //------------------------------------------------------
    showPlotCheckBox =
-      new wxCheckBox(this, ID_CHECKBOX, wxT("Show Plot"),
+      new wxCheckBox(this, ID_CHECKBOX, wxT("Show "GUI_ACCEL_KEY"Plot"),
                      wxDefaultPosition, wxSize(100, -1), 0);
+   showPlotCheckBox->SetToolTip(pConfig->Read(_T("ShowPlotHint")));
    
    showGridCheckBox =
-      new wxCheckBox(this, ID_CHECKBOX, wxT("Show Grid"),
+      new wxCheckBox(this, ID_CHECKBOX, wxT("Show "GUI_ACCEL_KEY"Grid"),
                      wxDefaultPosition, wxSize(100, -1), 0);
+   showGridCheckBox->SetToolTip(pConfig->Read(_T("ShowGridHint")));
    
    //----- Solver Iteration ComboBox
    wxStaticText *solverIterLabel =
-      new wxStaticText(this, -1, wxT("Solver Iterations"),
+      new wxStaticText(this, -1, wxT(GUI_ACCEL_KEY"Solver Iterations"),
                        wxDefaultPosition, wxSize(-1, -1), 0);
    
    mSolverIterComboBox =
-      new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(65, -1));
+      new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(65, -1), NULL, wxCB_READONLY);
+   mSolverIterComboBox->SetToolTip(pConfig->Read(_T("SolverIterationsHint")));
    
    // Get Solver Iteration option list from the Subscriber
    const std::string *solverIterList = Subscriber::GetSolverIterOptionList();
    int count = Subscriber::GetSolverIterOptionCount();
    for (int i=0; i<count; i++)
       mSolverIterComboBox->Append(solverIterList[i].c_str());
-   
-   //----- line color
-   wxStaticText *titleColor =
-      new wxStaticText(this, -1, wxT("Color"),
-                       wxDefaultPosition, wxSize(40,20), wxALIGN_CENTRE);
-   
-   mLineColorButton = new wxButton(this, ID_BUTTON, "",
-                                   wxDefaultPosition, wxSize(25,20), 0);
-   
-   mLineColorButton->SetBackgroundColour(mLineColor);
    
    wxFlexGridSizer *option2Sizer = new wxFlexGridSizer(2);
    option2Sizer->Add(showPlotCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -342,8 +308,6 @@ void XyPlotSetupPanel::Create()
    option2Sizer->Add(20, 20);
    option2Sizer->Add(solverIterLabel, 0, wxALIGN_LEFT|wxALL, bsize);
    option2Sizer->Add(mSolverIterComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   option2Sizer->Add(titleColor, 0, wxALIGN_LEFT|wxALL, bsize);
-   option2Sizer->Add(mLineColorButton, 0, wxALIGN_LEFT|wxALL, bsize);
    
    GmatStaticBoxSizer *optionSizer =
       new GmatStaticBoxSizer(wxVERTICAL, this, "Options");
@@ -357,9 +321,11 @@ void XyPlotSetupPanel::Create()
    mXSelectedListBox =
       new wxListBox(this, ID_LISTBOX, wxDefaultPosition, wxSize(170, 200),
                     emptyList, wxLB_SINGLE);
+   mXSelectedListBox->SetToolTip(pConfig->Read(_T("SelectedXHint")));
    
-   mViewXButton = new wxButton(this, ID_BUTTON, "View X",
+   mViewXButton = new wxButton(this, ID_BUTTON, "Select "GUI_ACCEL_KEY"X",
                                wxDefaultPosition, wxDefaultSize, 0);
+   mViewXButton->SetToolTip(pConfig->Read(_T("SelectXHint")));
    
    GmatStaticBoxSizer *xSelectedBoxSizer =
       new GmatStaticBoxSizer(wxVERTICAL, this, "Selected X");
@@ -373,9 +339,11 @@ void XyPlotSetupPanel::Create()
    mYSelectedListBox =
       new wxListBox(this, ID_LISTBOX, wxDefaultPosition, wxSize(170,200),
                     emptyList, wxLB_SINGLE);
+   mYSelectedListBox->SetToolTip(pConfig->Read(_T("SelectedYHint")));
    
-   mViewYButton = new wxButton(this, ID_BUTTON, "View Y",
+   mViewYButton = new wxButton(this, ID_BUTTON, "Select "GUI_ACCEL_KEY"Y",
                                wxDefaultPosition, wxDefaultSize, 0);
+   mViewYButton->SetToolTip(pConfig->Read(_T("SelectYHint")));
    
    GmatStaticBoxSizer *ySelectedBoxSizer =
       new GmatStaticBoxSizer(wxVERTICAL, this, "Selected Y");
@@ -415,13 +383,13 @@ void XyPlotSetupPanel::LoadData()
       mObject = mXyPlot;
       
       showPlotCheckBox->SetValue(mXyPlot->IsActive());
-      showGridCheckBox->SetValue(mXyPlot->GetOnOffParameter("Grid") == "On");
+      showGridCheckBox->SetValue(mXyPlot->GetOnOffParameter(TsPlot::SHOW_GRID) == "On");
       mSolverIterComboBox->
-         SetValue(mXyPlot->GetStringParameter("SolverIterations").c_str());
+         SetValue(mXyPlot->GetStringParameter(Subscriber::SOLVER_ITERATIONS).c_str());
       
       // get X parameter
       wxString *xParamNames = new wxString[1];
-      xParamNames[0] = mXyPlot->GetStringParameter("IndVar").c_str();
+      xParamNames[0] = mXyPlot->GetStringParameter(TsPlot::XVARIABLE).c_str();
       mXvarWxStrings.Add(xParamNames[0]);
       
       #if DEBUG_XYPLOT_PANEL_LOAD
@@ -437,7 +405,7 @@ void XyPlotSetupPanel::LoadData()
       }
       
       // get Y parameters
-      StringArray yParamList = mXyPlot->GetStringArrayParameter("Add");
+      StringArray yParamList = mXyPlot->GetStringArrayParameter(TsPlot::YVARIABLE);
       mNumYParams = yParamList.size();
       //MessageInterface::ShowMessage("XyPlotSetupPanel::LoadData() mNumYParams = %d\n",
       //                              mNumYParams);
@@ -459,25 +427,12 @@ void XyPlotSetupPanel::LoadData()
             yParamNames[i] = yParamList[i].c_str();
             mYvarWxStrings.Add(yParamNames[i]);
             
-            // get parameter color            
-            param = (Parameter*)theGuiInterpreter->GetConfiguredObject(yParamList[i]);
-            if (param != NULL)
-            {
-               mColorMap[yParamList[i]]
-                  = RgbColor(param->GetUnsignedIntParameter("Color"));               
-            }
          }
          
          mYSelectedListBox->Set(mNumYParams, yParamNames);
          mYSelectedListBox->SetSelection(0);
          delete [] yParamNames;
          
-         // show parameter option
-         ShowParameterOption(mYSelectedListBox->GetStringSelection(), true);
-      }
-      else
-      {
-         ShowParameterOption("", false);
       }
    }
    catch (BaseException &e)
@@ -506,11 +461,11 @@ void XyPlotSetupPanel::SaveData()
    mXyPlot->Activate(showPlotCheckBox->IsChecked());
    
    if (showGridCheckBox->IsChecked())
-      mXyPlot->SetOnOffParameter("Grid", "On");
+      mXyPlot->SetOnOffParameter(TsPlot::SHOW_GRID, "On");
    else
-      mXyPlot->SetOnOffParameter("Grid", "Off");
+      mXyPlot->SetOnOffParameter(TsPlot::SHOW_GRID, "Off");
    
-   mXyPlot->SetStringParameter("SolverIterations",
+   mXyPlot->SetStringParameter(Subscriber::SOLVER_ITERATIONS,
                                mSolverIterComboBox->GetValue().c_str());
    
    // set X parameter
@@ -526,7 +481,7 @@ void XyPlotSetupPanel::SaveData()
       else
       {
          std::string selXName = std::string(mXSelectedListBox->GetString(0).c_str());
-         mXyPlot->SetStringParameter("IndVar", selXName);
+         mXyPlot->SetStringParameter(TsPlot::XVARIABLE, selXName);
          mXParamChanged = false;
       }
    }
@@ -534,8 +489,6 @@ void XyPlotSetupPanel::SaveData()
    // set Y parameters
    if (mYParamChanged)
    {
-      mIsColorChanged = true;
-      
       int numYParams = mYSelectedListBox->GetCount();
       
       mNumYParams = numYParams;
@@ -571,76 +524,9 @@ void XyPlotSetupPanel::SaveData()
                    mYSelectedListBox->GetString(i).c_str());
             #endif
             std::string selYName = std::string(mYSelectedListBox->GetString(i).c_str());
-            mXyPlot->SetStringParameter("Add", selYName, i);
+            mXyPlot->SetStringParameter(TsPlot::YVARIABLE, selYName, i);
          }
       }
-   }
-   
-   // save color
-   if (mIsColorChanged)
-   {
-      mIsColorChanged = false;
-      Parameter *param;
-      UnsignedInt intColor;
-      
-      for (int i=0; i<mNumYParams; i++)
-      {
-         mSelYName = std::string(mYSelectedListBox->GetString(i).c_str());
-         param = (Parameter*)theGuiInterpreter->GetConfiguredObject(mSelYName);
-
-         if (param != NULL)
-         {
-            intColor = mColorMap[mSelYName].GetIntColor();
-            param->SetUnsignedIntParameter("Color", intColor);
-         }
-      }
-   }
-}
-
-//---------------------------------
-// private methods
-//---------------------------------
-
-//------------------------------------------------------------------------------
-// void ShowParameterOption(const wxString &name, bool show = true)
-//------------------------------------------------------------------------------
-void XyPlotSetupPanel::ShowParameterOption(const wxString &name, bool show)
-{
-   #if DEBUG_XYPLOT_PANEL
-   MessageInterface::ShowMessage
-      ("XyPlotSetupPanel::ShowParameterOption() name=%s\n", name.c_str());
-   #endif
-   
-   if (!name.IsSameAs(""))
-   {
-      mSelYName = std::string(name.c_str());
-      RgbColor color;
-      
-      // if parameter not in the map
-      if (mColorMap.find(mSelYName) == mColorMap.end())
-      {
-         Parameter *param = (Parameter*)theGuiInterpreter->GetConfiguredObject(mSelYName);
-         
-         if (param != NULL)
-         {
-            UnsignedInt intColor = param->GetUnsignedIntParameter("Color");
-            color.Set(intColor);
-
-            mColorMap[mSelYName] = color;
-         }
-      }
-      else
-      {
-         color = mColorMap[mSelYName];
-      }
-      
-      #if DEBUG_XYPLOT_PANEL
-      MessageInterface::ShowMessage
-         ("   intColor=%u\n", mColorMap[mSelYName].GetIntColor());
-      #endif
-      
-      mLineColor.Set(color.Red(), color.Green(), color.Blue());
-      mLineColorButton->SetBackgroundColour(mLineColor);
    }
    
 }

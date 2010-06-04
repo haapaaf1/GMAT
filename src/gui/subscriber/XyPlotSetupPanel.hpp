@@ -23,7 +23,6 @@
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
 #include "TsPlot.hpp"
-#include "RgbColor.hpp"
 
 class XyPlotSetupPanel: public GmatPanel
 {
@@ -42,23 +41,19 @@ protected:
    int  mNumYParams;
    bool mXParamChanged;
    bool mYParamChanged;
-   bool mIsColorChanged;
    bool mUseUserParam;
    
    std::string mSelYName;
    wxArrayString mObjectTypeList;
    wxArrayString mXvarWxStrings;
    wxArrayString mYvarWxStrings;
-   std::map<std::string, RgbColor> mColorMap;
    
    wxStaticText *mCoordSysLabel;
-   wxColour mLineColor;   
    wxComboBox *mSolverIterComboBox;   
    wxListBox *mXSelectedListBox;
    wxListBox *mYSelectedListBox;   
    wxButton *mViewXButton;
    wxButton *mViewYButton;
-   wxButton *mLineColorButton;   
    wxCheckBox *showPlotCheckBox;
    wxCheckBox *showGridCheckBox;
    
@@ -84,7 +79,5 @@ protected:
       ID_BUTTON,
    };
    
-private:
-   void ShowParameterOption(const wxString &scName, bool show = true);
 };
 #endif
