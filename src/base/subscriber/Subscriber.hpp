@@ -183,6 +183,7 @@ protected:
                                                const std::string &satName,
                                                const std::string &desc);
    
+public:
    enum
    {
       SOLVER_ITERATIONS = GmatBaseParamCount,
