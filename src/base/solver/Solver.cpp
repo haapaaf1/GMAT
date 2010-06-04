@@ -223,6 +223,8 @@ Solver& Solver::operator=(const Solver &sol)
    if (&sol == this)
       return *this;
 
+   GmatBase::operator=(sol);
+
    registeredVariableCount  = sol.registeredVariableCount;
    registeredComponentCount = sol.registeredComponentCount;
    variableCount            = sol.variableCount;
