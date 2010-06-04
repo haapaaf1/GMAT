@@ -55,19 +55,19 @@ protected:
    void OnBrowse(wxCommandEvent& event);
    void OnCheck(wxCommandEvent& event);
    
-   wxComboBox* spacecraftComboBox;
-   wxComboBox* stateTypeComboBox;
-   wxComboBox* coordinateSystemComboBox;
-   wxCheckBox* writeEphemerisCheckBox;
-   wxComboBox* fileFormatComboBox;
-   wxTextCtrl* fileNameTextCtrl;
-   wxButton*   browseButton;
-   wxComboBox* interpolatorComboBox;
-   wxTextCtrl* interpolationOrderTextCtrl;
-   wxComboBox* stepSizeComboBox;
-   wxComboBox* epochFormatComboBox;
-   wxComboBox* initialEpochComboBox;
-   wxComboBox* finalEpochComboBox;
+   wxComboBox*     spacecraftComboBox;
+   wxComboBox*     stateTypeComboBox;
+   wxComboBox*     coordinateSystemComboBox;
+   wxCheckBox*     writeEphemerisCheckBox;
+   wxComboBox*     fileFormatComboBox;
+   wxTextCtrl*     fileNameTextCtrl;
+   wxBitmapButton* browseButton;
+   wxComboBox*     interpolatorComboBox;
+   wxTextCtrl*     interpolationOrderTextCtrl;
+   wxComboBox*     stepSizeComboBox;
+   wxComboBox*     epochFormatComboBox;
+   wxComboBox*     initialEpochComboBox;
+   wxComboBox*     finalEpochComboBox;
    
    wxFileDialog *fileDialog;
    

@@ -18,7 +18,8 @@
 
 #include "EphemerisFilePanel.hpp"
 #include "MessageInterface.hpp"
-
+#include "bitmaps/OpenFolder.xpm"
+#include <wx/config.h>
 
 /// wxWidget event mappings for the panel
 BEGIN_EVENT_TABLE(EphemerisFilePanel, GmatPanel)
@@ -92,6 +93,18 @@ void EphemerisFilePanel::Create()
 {
    Integer bsize = 2;              // border size
    Integer id;  
+   #if __WXMAC__
+   int buttonWidth = 40;
+   #else
+   int buttonWidth = 25;
+   #endif
+
+   wxBitmap openBitmap = wxBitmap(OpenFolder_xpm);
+   
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   // SetPath() understands ".."
+   pConfig->SetPath(wxT("/Ephemeris File"));
    
    // 1. Create Options box:
    wxStaticBoxSizer *optionsStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Options");
@@ -101,27 +114,31 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("Spacecraft");
    wxStaticText * spacecraftStaticText =
-      new wxStaticText(this, ID_TEXT, wxT("Spacecraft"), wxDefaultPosition, wxDefaultSize, 0 );
+      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Spacecraft"), wxDefaultPosition, wxDefaultSize, 0 );
    spacecraftComboBox = (wxComboBox*)BuildControl(this, id);
+   spacecraftComboBox->SetToolTip(pConfig->Read(_T("SpacecraftHint")));
    grid1->Add(spacecraftStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid1->Add(spacecraftComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
    id = mObject->GetParameterID("StateType");
    wxStaticText * stateTypeStaticText =
-      new wxStaticText(this, ID_TEXT, wxT("State Type"), wxDefaultPosition, wxDefaultSize, 0 );
+      new wxStaticText(this, ID_TEXT, wxT("State T"GUI_ACCEL_KEY"ype"), wxDefaultPosition, wxDefaultSize, 0 );
    stateTypeComboBox = (wxComboBox*) BuildControl(this, id);
+   stateTypeComboBox->SetToolTip(pConfig->Read(_T("StateTypeHint")));
    grid1->Add(stateTypeStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid1->Add(stateTypeComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
    id = mObject->GetParameterID("CoordinateSystem");
    wxStaticText * coordinateSystemStaticText =
-      new wxStaticText(this, ID_TEXT, wxT("Coordinate System"), wxDefaultPosition, wxDefaultSize, 0 );
+      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Coordinate System"), wxDefaultPosition, wxDefaultSize, 0 );
    coordinateSystemComboBox = (wxComboBox*) BuildControl(this, id);
+   coordinateSystemComboBox->SetToolTip(pConfig->Read(_T("CoordinateSystemHint")));
    grid1->Add(coordinateSystemStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid1->Add(coordinateSystemComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
    id = mObject->GetParameterID("WriteEphemeris");
    writeEphemerisCheckBox = (wxCheckBox*) BuildControl(this, id);
+   writeEphemerisCheckBox->SetToolTip(pConfig->Read(_T("WriteEphemerisHint")));
    grid1->Add(writeEphemerisCheckBox, 0, wxALIGN_LEFT|wxALL, bsize );
    grid1->Add(0, 0, wxALIGN_LEFT|wxALL, bsize );
    
@@ -136,41 +153,49 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("FileFormat");
    wxStaticText * fileFormatStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("File Format"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("File For"GUI_ACCEL_KEY"mat"), wxDefaultPosition, wxDefaultSize, 0 );
    fileFormatComboBox = (wxComboBox*) BuildControl(this, id);
+   fileFormatComboBox->SetToolTip(pConfig->Read(_T("FileFormatHint")));
    grid2->Add(fileFormatStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(fileFormatComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(0, 0, wxALIGN_CENTER|wxALL, bsize );
    
    id = mObject->GetParameterID("FileName");
    wxStaticText * fileNameStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("File Name"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("File "GUI_ACCEL_KEY"Name"), wxDefaultPosition, wxDefaultSize, 0 );
    fileNameTextCtrl = (wxTextCtrl*) BuildControl(this, id);
-   browseButton = new wxButton(this, ID_BUTTON_BROWSE, wxT("Browse"));
+   fileNameTextCtrl->SetToolTip(pConfig->Read(_T("FilenameHint")));
+   browseButton =
+      new wxBitmapButton(this, ID_BUTTON_BROWSE, openBitmap, wxDefaultPosition,
+                         wxSize(buttonWidth, 20));
+   browseButton->SetToolTip(pConfig->Read(_T("BrowseEphemerisFilenameHint")));
    grid2->Add(fileNameStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(fileNameTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(browseButton, 0, wxALIGN_LEFT|wxALL, bsize );
    
    id = mObject->GetParameterID("Interpolator");
    wxStaticText * interpolatorStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Interpolator"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("Interpolato"GUI_ACCEL_KEY"r"), wxDefaultPosition, wxDefaultSize, 0 );
    interpolatorComboBox = (wxComboBox*) BuildControl(this, id);
+   interpolatorComboBox->SetToolTip(pConfig->Read(_T("InterpolatorHint")));
    grid2->Add(interpolatorStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(interpolatorComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(0, 0, wxALIGN_CENTER|wxALL, bsize );
    
    id = mObject->GetParameterID("InterpolationOrder");
    wxStaticText * interpolationOrderStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Interpolation Order"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("Interpolation "GUI_ACCEL_KEY"Order"), wxDefaultPosition, wxDefaultSize, 0 );
    interpolationOrderTextCtrl = (wxTextCtrl*) BuildControl(this, id);
+   interpolationOrderTextCtrl->SetToolTip(pConfig->Read(_T("InterpolationOrderHint")));
    grid2->Add(interpolationOrderStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(interpolationOrderTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(0, 0, wxALIGN_CENTER|wxALL, bsize );
    
    id = mObject->GetParameterID("StepSize");
    wxStaticText * stepSizeStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Step Size"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("S"GUI_ACCEL_KEY"tep Size"), wxDefaultPosition, wxDefaultSize, 0 );
    stepSizeComboBox = (wxComboBox*) BuildControl(this, id);
+   stepSizeComboBox->SetToolTip(pConfig->Read(_T("StepSizeHint")));
    grid2->Add(stepSizeStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(stepSizeComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(0, 0, wxALIGN_CENTER|wxALL, bsize );
@@ -185,22 +210,25 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("EpochFormat");
    wxStaticText * epochFormatStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Epoch Format"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Epoch Format"), wxDefaultPosition, wxDefaultSize, 0 );
    epochFormatComboBox = (wxComboBox*) BuildControl(this, id);
+   epochFormatComboBox->SetToolTip(pConfig->Read(_T("EpochFormatHint")));
    grid3->Add(epochFormatStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid3->Add(epochFormatComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
    id = mObject->GetParameterID("InitialEpoch");
    wxStaticText * initialEpochStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Initial Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Initial Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
    initialEpochComboBox = (wxComboBox*) BuildControl(this, id);
+   initialEpochComboBox->SetToolTip(pConfig->Read(_T("InitialEpochHint")));
    grid3->Add(initialEpochStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid3->Add(initialEpochComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
    id = mObject->GetParameterID("FinalEpoch");
    wxStaticText * finalEpochStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Final Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Final Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
    finalEpochComboBox = (wxComboBox*) BuildControl(this, id);
+   finalEpochComboBox->SetToolTip(pConfig->Read(_T("FinalEpochHint")));
    grid3->Add(finalEpochStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid3->Add(finalEpochComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
@@ -311,7 +339,7 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
       {
          wxCheckBox *cbControl;
          if (mObject->GetParameterText(index) == "WriteEphemeris")
-            cbControl = new wxCheckBox(parent, ID_CHECKBOX, "Write Ephemeris");
+            cbControl = new wxCheckBox(parent, ID_CHECKBOX, GUI_ACCEL_KEY"Write Ephemeris");
          else
             cbControl = new wxCheckBox(parent, ID_CHECKBOX, (mObject->GetParameterText(index)).c_str());
          
@@ -513,6 +541,7 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
    std::string valueString;
    bool valueBool;
    Integer valueInteger;
+   Real stepSize;
    
    Integer index = mObject->GetParameterID(label);
    
@@ -559,7 +588,9 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
    else if (label == "StepSize")
    {
       valueString = stepSizeComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      if ((valueString == "IntegratorSteps") ||
+          (CheckReal(stepSize, valueString, "StepSize", "Real Number > 0.0 or equals 'IntegratorSteps'", false, true, true, false)))
+         mObject->SetStringParameter(index, valueString);
    }
    else if (label == "EpochFormat")
    {
