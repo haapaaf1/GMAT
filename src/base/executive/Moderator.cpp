@@ -43,6 +43,7 @@
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
 #include "Interface.hpp"
+#include "TsPlot.hpp"
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
@@ -4065,8 +4066,8 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
             else if (type == "XYPlot")
             {
                // add default x,y parameter to XYPlot
-               obj->SetStringParameter("IndVar", GetDefaultX()->GetName());
-               obj->SetStringParameter("Add", GetDefaultY()->GetName(), 0);
+               obj->SetStringParameter(TsPlot::XVARIABLE, GetDefaultX()->GetName());
+               obj->SetStringParameter(TsPlot::YVARIABLE, GetDefaultY()->GetName(), 0);
                obj->Activate(true);
             }
             else if (type == "ReportFile")
