@@ -318,3 +318,27 @@ TriggerManager* DynamicLibrary::GetTriggerManager(Integer index)
 
    return theTM;
 }
+
+
+Integer DynamicLibrary::GetMenuEntryCount()
+{
+   return 0;
+}
+
+
+std::string DynamicLibrary::GetMenuEntry(Integer index, std::string &forMenu)
+{
+   return "";
+}
+
+
+StringArray DynamicLibrary::GetGuiComponentList()
+{
+   throw GmatBaseException("GetGuiComponentList not yet implemented.");
+}
+
+
+void* DynamicLibrary::GetGUIFor(const std::string &componentName)
+{
+   return NULL;
+}
