@@ -124,7 +124,8 @@ protected:
    bool MarkPoint();
    
    void DeletePlotCurves();
-   
+   void TsPlot::WriteDeprecatedMessage(Integer id) const;
+
    Parameter *mXParam;
    std::vector<Parameter*> mYParams;
    
@@ -153,14 +154,19 @@ protected:
    bool useMarkers;
    Integer markerSize;
 
+   // methods inherited from Subscriber
+   virtual bool Distribute(Integer len);
+   virtual bool Distribute(const Real * dat, Integer len);
+
+public:
    enum
    {
-      IND_VAR = SubscriberParamCount,
-      ADD,
+      XVARIABLE = SubscriberParamCount,
+      YVARIABLE,
       PLOT_TITLE,
       X_AXIS_TITLE,
       Y_AXIS_TITLE,
-      DRAW_GRID,
+      SHOW_GRID,
       DATA_COLLECT_FREQUENCY,
       UPDATE_PLOT_FREQUENCY,
       SHOW_PLOT,
@@ -168,6 +174,9 @@ protected:
       LINE_WIDTH,
       USE_MARKERS,
       MARKER_SIZE,
+      IND_VAR,                 // deprecated
+      ADD,                     // deprecated
+      DRAW_GRID,               // deprecated
       TsPlotParamCount
    };
    
@@ -175,10 +184,6 @@ protected:
       PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount];
    static const std::string
       PARAMETER_TEXT[TsPlotParamCount - SubscriberParamCount];
-
-   // methods inherited from Subscriber
-   virtual bool Distribute(Integer len);
-   virtual bool Distribute(const Real * dat, Integer len);
 
 };
 
