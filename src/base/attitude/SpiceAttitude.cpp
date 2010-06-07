@@ -323,7 +323,6 @@ const Rvector3&  SpiceAttitude::GetEulerAngles(Real atTime)
                               (Integer) eulerSequenceArray.at(0),
                               (Integer) eulerSequenceArray.at(1),
                               (Integer) eulerSequenceArray.at(2));
-//   eulerAngleTime = atTime;
    return eulerAngles;
 }
 
@@ -353,7 +352,6 @@ const Rvector3&  SpiceAttitude::GetEulerAngles(Real atTime,  Integer seq1,
    ComputeCosineMatrixAndAngularVelocity(atTime);
    attitudeTime   = atTime;
    eulerAngles    = Attitude::ToEulerAngles(cosMat, seq1, seq2, seq3);
-//   eulerAngleTime = atTime;
    return eulerAngles;
 }
 
@@ -419,7 +417,6 @@ const Rvector3& SpiceAttitude::GetEulerAngleRates(Real atTime)
                          (Integer) eulerSequenceArray.at(0),
                          (Integer) eulerSequenceArray.at(1),
                          (Integer) eulerSequenceArray.at(2));
-//   eulerAngleRatesTime = atTime;
    return eulerAngleRates;
 }
 
