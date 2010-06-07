@@ -65,7 +65,7 @@
 #else
    #define GUI_ACCEL_KEY ""
    #ifdef __WXMAC__
-     #define wxGMAT_FILTER_NUMERIC wxFILTER_ALPHANUMERIC
+     #define wxGMAT_FILTER_NUMERIC wxFILTER_NONE
    #else
       #define wxGMAT_FILTER_NUMERIC wxFILTER_NUMERIC
    #endif
