@@ -124,7 +124,7 @@ protected:
    bool MarkPoint();
    
    void DeletePlotCurves();
-   void TsPlot::WriteDeprecatedMessage(Integer id) const;
+   void WriteDeprecatedMessage(Integer id) const;
 
    Parameter *mXParam;
    std::vector<Parameter*> mYParams;
