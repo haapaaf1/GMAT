@@ -4067,7 +4067,7 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
             {
                // add default x,y parameter to XYPlot
                obj->SetStringParameter(TsPlot::XVARIABLE, GetDefaultX()->GetName());
-               obj->SetStringParameter(TsPlot::YVARIABLE, GetDefaultY()->GetName(), 0);
+               obj->SetStringParameter(TsPlot::YVARIABLES, GetDefaultY()->GetName(), 0);
                obj->Activate(true);
             }
             else if (type == "ReportFile")
