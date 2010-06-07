@@ -34,7 +34,7 @@
 //------------------------------------------------------------------------------
 // namespace to define attitude state types
 //------------------------------------------------------------------------------
- namespace GmatAttitude   // do I even need this?  for now, I'll leave it here
+ namespace GmatAttitude
  {
    enum AttitudeStateType
    {
@@ -162,9 +162,6 @@ public:
    virtual const UnsignedIntArray& 
                        GetUnsignedIntArrayParameter(
                        const std::string &label) const;
-   //virtual UnsignedInt SetUnsignedIntParameter(const Integer id,
-   //                                            const UnsignedInt value,
-   //                                            const Integer index);
                                                
    virtual const Rvector&    GetRvectorParameter(const Integer id) const;
    virtual const Rvector&    GetRvectorParameter(const std::string &label) const;
@@ -234,17 +231,13 @@ protected:
    
    enum OtherReps
    {
-       //REFERENCE_COORDINATE_SYSTEM_NAME = GmatBaseParamCount,
-       //INITIAL_EPOCH,                      // A1Mjd (Real)
        EULER_SEQUENCE_LIST = 7000,
-       //EULER_SEQUENCE_STRING,
        EULER_SEQUENCE,
        EULER_ANGLES,               // degrees
        EULER_ANGLE_RATES,          // degrees/second
        QUATERNION,
        DIRECTION_COSINE_MATRIX,
        ANGULAR_VELOCITY,           // degrees/second
-       //AttitudeParamCount
        EndOtherReps
    };
    
@@ -257,24 +250,19 @@ protected:
    static const Gmat::ParameterType OTHER_REP_TYPE[EndOtherReps - 7000]; // OTHER_REPS_OFFSET
  
    static const std::string EULER_SEQ_LIST[12];
-   //static StringArray eulerStrings;
-   
    static const Real TESTACCURACY;
-   
    static const Real QUAT_MIN_MAG;
-
    static const Real ATTITUDE_TIME_TOLERANCE;
-
+   static const Real EULER_ANGLE_TOLERANCE;
    static const Real DCM_ORTHONORMALITY_TOLERANCE;
-   
    static const Integer OTHER_REPS_OFFSET;
 
 
    
    GmatAttitude::AttitudeStateType
-                         inputAttType;
+                         inputAttitudeType;
    GmatAttitude::AttitudeRateStateType
-                         inputAttRateType;
+                         inputAttitudeRateType;
                          
    std::string           attitudeDisplayType; 
    std::string           attitudeRateDisplayType;
@@ -284,7 +272,7 @@ protected:
    StringArray eulerSequenceList;
    
    /// initial user-supplied epoch as an A1Mjd time (as Real)
-   Real                  epoch;   // was initialEpoch; 
+   Real                  epoch;
     
    /// the reference coordinate system name
    std::string           refCSName;
@@ -292,17 +280,7 @@ protected:
    CoordinateSystem      *refCS;
    std::string           eulerSequence;
    /// initial user-supplied euler sequence
-   UnsignedIntArray      eulerSequenceArray;     // was initialEulerSeq;
-   /// initial user-supplied euler angles (degrees) [defaults to zeros]
-   //Rvector3              initialEulerAng; 
-   /// initial user-supplied cosince matrix [defaults to identity matrix]
-   //Rmatrix33             initialDcm; 
-   /// initial user-supplied euler angle rates (deg/sec) [defaults to zeros]
-   //Rvector3              initialEulerAngRates; 
-   /// initial user-supplied angular velocity (deg/sec)  [defaults to zeros]
-   //Rvector3              initialAngVel;          // deg.sec 
-   /// initial user-supplied quaternion
-   //Rvector               initialQuaternion;
+   UnsignedIntArray      eulerSequenceArray;
    
    /// the input rotation matrix (from Fi to Fb) computed, on
    /// initialization (from quaternion or euler angles/sequence 
@@ -313,25 +291,19 @@ protected:
    Rvector3  wIBi;   
    
    /// the current rotation matrix (from inertial to body)
-   Rmatrix33 cosMat;   // was currentRBI;
+   Rmatrix33 cosMat;
    /// the current angular velocity, with respect to the inertial frame
    /// (radians/second)
-   Rvector3  angVel;   // was currentwIBB;
+   Rvector3  angVel;
    /// last time that the CosineMatrix and angular velocity
    /// were computed                     
-   Real      attitudeTime;   // was currentAttitudeTime; 
-   /// last time that the quaternion was computed
-   Real      quaternionTime;        // was lastQuaternionTime;
+   Real      attitudeTime;
    /// the last computed quaternion
-   Rvector   quaternion;            // was lastQuaternion;
-   /// last time that the euler angles were computed
-   Real      eulerAngleTime;        // was lastEulerAngleTime;
+   Rvector   quaternion;
    /// the last computed euler angles (radians)
-   Rvector3  eulerAngles;           // was lastEulerAngles;
-   /// last time that the euler angle rates were computed
-   Real      eulerAngleRatesTime;   // waslastEulerAngleRatesTime;
+   Rvector3  eulerAngles;
    /// the last computed euler angle rates  (radians/second)
-   Rvector3  eulerAngleRates;       // lastEulerAngleRates;
+   Rvector3  eulerAngleRates;
    
    std::string attitudeModelName;
  
@@ -342,13 +314,6 @@ protected:
    virtual void      DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat, 
                                             Rvector3 &eAxis, Real &eAngle);
 
-   // method to set the euler sequence string to match the input
-   // euler sequence array                        
-   //bool  SetEulerSequenceString(const UnsignedIntArray &eulerArray);
-   // method to set the euler sequence array to match the input
-   // euler sequence string; assumes string is of the form
-   // "NMP" where N, M, and P are Integers
-   
    
    //------------------------------------------------------------------------------
    //  virtual void ComputeCosineMatrixAndAngularVelocity(Real atTime)

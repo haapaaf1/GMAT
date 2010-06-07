@@ -148,7 +148,7 @@ GmatBase* CSFixed::Clone(void) const
 //------------------------------------------------------------------------------
 void CSFixed::ComputeCosineMatrixAndAngularVelocity(Real atTime)
 {
-   //if (!isInitialized)  Initialize();
+   if (!isInitialized)  Initialize();
    #ifdef DEBUG_CSFIXED
    MessageInterface::ShowMessage(
    "Entering CSFixed::Compute ... angVel = %.12f %.12f %.12f\n",
