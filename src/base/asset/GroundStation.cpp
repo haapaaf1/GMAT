@@ -15,10 +15,10 @@
 // Modified:
 //    2010.06.03 Tuan Nguyen
 //      - Add AddHardware parameter and verify added hardware
-//    2010.03.23 Steve Hughes/Thomas Grubb 
+//    2010.03.23 Steve Hughes/Thomas Grubb
 //      - Changed initialize method to use statetype = "Spherical" instead
 //        of deprecated "geographical" state type
-//    2010.03.19 Thomas Grubb 
+//    2010.03.19 Thomas Grubb
 //      - Overrode Copy method
 //
 /**
@@ -33,6 +33,7 @@
 
 //#define DEBUG_OBJECT_MAPPING
 //#define DEBUG_INIT
+//#define DEBUG_HARDWARE
 //#define TEST_GROUNDSTATION
 
 
@@ -61,7 +62,7 @@ GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount
 // public methods
 //---------------------------------
 
-   
+
 //---------------------------------------------------------------------------
 //  GroundStation(const std::string &itsName)
 //---------------------------------------------------------------------------
@@ -72,16 +73,13 @@ GroundStation::PARAMETER_TYPE[GroundStationParamCount - BodyFixedPointParamCount
  */
 //---------------------------------------------------------------------------
 GroundStation::GroundStation(const std::string &itsName) :
-   BodyFixedPoint    ("GroundStation", itsName),
+   BodyFixedPoint    ("GroundStation", itsName, Gmat::GROUND_STATION),
    stationId         ("StationId")
 {
-   // made this change by Tuan Nguyen
-   this->type = Gmat::GROUND_STATION;		// change type from Gmat::BODY_FIXED_POINT to Gmat::GROUND_STATION
-
    objectTypes.push_back(Gmat::GROUND_STATION);
    objectTypeNames.push_back("GroundStation");
    parameterCount = GroundStationParamCount;
-   
+
    bfcsName   = "EarthFixed";
    mj2kcsName = "EarthMJ2000Eq";
 }
@@ -104,7 +102,7 @@ GroundStation::~GroundStation()
 //  GroundStation(const GroundStation& gs)
 //---------------------------------------------------------------------------
 /**
- * Constructs a new GroundStation by copying the input instance (copy 
+ * Constructs a new GroundStation by copying the input instance (copy
  * constructor).
  *
  * @param gs  GroundStation instance to copy to create "this" instance.
@@ -115,7 +113,7 @@ GroundStation::GroundStation(const GroundStation& gs) :
    stationId             (gs.stationId)
 {
 	hardwareNames 		= gs.hardwareNames;		// made changes by Tuan Nguyen
-	hardwareList 		= gs.hardwareList;		// should it be cloned ????
+// hardwareList 		= gs.hardwareList;		// should it be cloned ????
 }
 
 
@@ -138,9 +136,9 @@ GroundStation& GroundStation::operator=(const GroundStation& gs)
 
       stationId 	= gs.stationId;
       hardwareNames = gs.hardwareNames;		// made changes by Tuan Nguyen
-      hardwareList	= gs.hardwareList;		// should it be cloned ????
+//      hardwareList	= gs.hardwareList;		// should it be cloned ????
    }
-   
+
    return *this;
 }
 
@@ -423,7 +421,7 @@ std::string GroundStation::GetStringParameter(const Integer id,
    {
       case ADD_HARDWARE:
          {
-            if ((0 <= index)&&(index < hardwareNames.size()))
+            if ((0 <= index)&&(index < (Integer)hardwareNames.size()))
 			   return hardwareNames[index];
 			else
 			   return "";
@@ -844,13 +842,13 @@ bool GroundStation::Initialize()
    #ifdef DEBUG_INIT
       MessageInterface::ShowMessage("GroundStation::Initializing %s\n", instanceName.c_str());
    #endif
-   
+
    std::string sphType;
-   
+
    if (theBody == NULL)
-      throw GmatBaseException("Unable to initialize ground station" + 
+      throw GmatBaseException("Unable to initialize ground station" +
             instanceName + "; its origin is not set\n");
-   
+
    // Calculate the body-fixed Cartesian position
    if (stateType == "Cartesian")
    {
@@ -872,53 +870,53 @@ bool GroundStation::Initialize()
          flattening = theBody->GetRealParameter("Flattening");
       }
       // What key goes with "Reduced"?
-      
+
       llh.SetLatitude(location[0], sphType);
       llh.SetLongitude(location[1]);
       llh.SetHeight(location[2]);
-      
+
       equatorialRadius = theBody->GetRealParameter("EquatorialRadius");
 
-      
+
       Rvector3 loc = llh.GetSitePosition(equatorialRadius, flattening);
       bfLocation[0] = loc[0];
       bfLocation[1] = loc[1];
       bfLocation[2] = loc[2];
    }
    else
-      throw GmatBaseException("Unable to initialize ground station \"" + 
+      throw GmatBaseException("Unable to initialize ground station \"" +
             instanceName + "\"; stateType is not a recognized type (known "
                   "types are either \"Cartesian\" or \"Spherical\")");
 
    #ifdef DEBUG_INIT
       MessageInterface::ShowMessage("...Initialized!\n", instanceName.c_str());
    #endif
-      
+
    #ifdef TEST_GROUNDSTATION
       MessageInterface::ShowMessage("For %s, %s %s location [%lf "
-            "%lf %lf] --> XYZ [%lf %lf %lf]\n", instanceName.c_str(), 
-            sphType.c_str(), stateType.c_str(), location[0], location[1], 
+            "%lf %lf] --> XYZ [%lf %lf %lf]\n", instanceName.c_str(),
+            sphType.c_str(), stateType.c_str(), location[0], location[1],
             location[2], bfLocation[0], bfLocation[1], bfLocation[2]);
 
       // Check the MJ2000 methods
       if (theBody == NULL)
       {
          MessageInterface::ShowMessage(
-               "Error initializing ground station %s: theBody is not set\n", 
+               "Error initializing ground station %s: theBody is not set\n",
                instanceName.c_str());
          return false;
       }
       if (bfcs == NULL)
       {
          MessageInterface::ShowMessage(
-               "Error initializing ground station %s: bfcs is not set\n", 
+               "Error initializing ground station %s: bfcs is not set\n",
                instanceName.c_str());
          return false;
       }
       if (mj2kcs == NULL)
       {
          MessageInterface::ShowMessage(
-               "Error initializing ground station %s: mj2kcs is not set\n", 
+               "Error initializing ground station %s: mj2kcs is not set\n",
                instanceName.c_str());
          return false;
       }
@@ -927,7 +925,48 @@ bool GroundStation::Initialize()
       MessageInterface::ShowMessage("The resulting MJ2000 Cartesian state is "
             "\n   [%s]\n", j2kState.ToString(16).c_str());
    #endif
-   
+
+#ifdef DEBUG_HARDWARE
+   MessageInterface::ShowMessage("Hardware list names:\n");
+   for (UnsignedInt i = 0; i < hardwareNames.size(); ++i)
+   {
+      MessageInterface::ShowMessage("   %s\n", hardwareNames[i].c_str());
+   }
+
+   MessageInterface::ShowMessage("Hardware list objects:\n");
+   for (UnsignedInt i = 0; i < hardwareList.size(); ++i)
+   {
+      MessageInterface::ShowMessage("   %s\n", hardwareList[i]->GetName().c_str());
+   }
+#endif
+
+// Set the hardware interconnections
+for (ObjectArray::iterator i=hardwareList.begin(); i!=hardwareList.end(); ++i)
+{
+   if ((*i)->IsOfType(Gmat::HARDWARE))
+   {
+      Hardware *current = (Hardware*)(*i);
+
+      // Get the hardware reference list
+      StringArray refs = current->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+      for (UnsignedInt j = 0; j < refs.size(); ++j)
+      {
+         #ifdef DEBUG_HARDWARE
+            MessageInterface::ShowMessage("Connecting up %s for %s\n",
+                  refs[j].c_str(), current->GetName().c_str());
+         #endif
+
+         for (UnsignedInt k = 0; k < hardwareList.size(); ++k)
+         {
+            if (hardwareList[k]->GetName() == refs[j])
+               current->SetRefObject(hardwareList[k],
+                     hardwareList[k]->GetType(), hardwareList[k]->GetName());
+         }
+      }
+   }
+}
+
+
    // made changes by Tuan Nguyen
    // verify GroundStation's referenced objects
    if (this->VerifyAddHardware() == false)	// verify add hardware
@@ -992,14 +1031,14 @@ Real* GroundStation::GetEstimationParameterValue(const Integer item)
 //------------------------------------------------------------------------------
 /**
  * Produces a string, containing the text that produces a GroundStation object.
- * 
- * This method overrides the base class method so that it can handle the 
+ *
+ * This method overrides the base class method so that it can handle the
  * changable names for the GS location vector.
- * 
+ *
  * @param mode Specifies the type of serialization requested.
  * @param prefix Optional prefix appended to the object's name
  * @param useName Name that replaces the object's name.
- * 
+ *
  * @return A string containing the text.
  */
 //------------------------------------------------------------------------------
@@ -1009,20 +1048,20 @@ const std::string& GroundStation::GetGeneratingString(Gmat::WriteMode mode,
    std::stringstream data;
 
    // Crank up data precision so we don't lose anything
-   data.precision(GetDataPrecision());   
+   data.precision(GetDataPrecision());
    std::string preface = "", nomme;
-   
+
    if ((mode == Gmat::SCRIPTING) || (mode == Gmat::OWNED_OBJECT) ||
        (mode == Gmat::SHOW_SCRIPT))
       inMatlabMode = false;
    if (mode == Gmat::MATLAB_STRUCT || mode == Gmat::EPHEM_HEADER)
       inMatlabMode = true;
-   
+
    if (useName != "")
       nomme = useName;
    else
       nomme = instanceName;
-   
+
    if ((mode == Gmat::SCRIPTING) || (mode == Gmat::SHOW_SCRIPT))
    {
       std::string tname = typeName;
@@ -1034,20 +1073,20 @@ const std::string& GroundStation::GetGeneratingString(Gmat::WriteMode mode,
       data << typeName << " = " << "'" << nomme << "';\n";
       preface = "";
    }
-   
+
    nomme += ".";
-   
-   if (mode == Gmat::OWNED_OBJECT) 
+
+   if (mode == Gmat::OWNED_OBJECT)
    {
       preface = prefix;
       nomme = "";
    }
-   
+
    preface += nomme;
    WriteParameters(mode, preface, data);
-   
+
    generatingString = data.str();
-   
+
    // Then call the parent class method for preface and inline comments
    return BodyFixedPoint::GetGeneratingString(mode, prefix, useName);
 }
@@ -1058,25 +1097,25 @@ const std::string& GroundStation::GetGeneratingString(Gmat::WriteMode mode,
 //------------------------------------------------------------------------------
 /**
  * Code that writes the parameter details for an object.
- * 
+ *
  * @param prefix Starting portion of the script string used for the parameter.
  * @param obj The object that is written.
  */
 //------------------------------------------------------------------------------
-void GroundStation::WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
+void GroundStation::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
                                  std::stringstream &stream)
 {
    Integer i;
    Gmat::ParameterType parmType;
    std::stringstream value;
-   value.precision(GetDataPrecision()); 
-   
+   value.precision(GetDataPrecision());
+
    for (i = 0; i < parameterCount; ++i)
    {
       if ((IsParameterReadOnly(i) == false))
       {
          parmType = GetParameterType(i);
-         
+
          // Skip unhandled types
          if ((parmType != Gmat::UNSIGNED_INTARRAY_TYPE) &&
              (parmType != Gmat::RVECTOR_TYPE) &&

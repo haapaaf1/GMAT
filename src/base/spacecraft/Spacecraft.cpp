@@ -57,6 +57,8 @@
 //#define DEBUG_SC_OWNED_OBJECT
 //#define DEBUG_MASS_FLOW
 //#define DEBUG_SPICE_KERNELS
+//#define DEBUG_HARDWARE
+
 
 #ifdef DEBUG_SPACECRAFT
 #include <iostream>
@@ -329,13 +331,13 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    // Initialize the covariance matrix
    covariance.AddCovarianceElement("CartesianState", this);
    covariance.ConstructLHS();
-   
+
    covariance(0,0) = covariance(1,1) = covariance(2,2) = 1.0e10;
    covariance(3,3) = covariance(4,4) = covariance(5,5) = 1.0e6;
-   
+
    // Set some negative value to naifId
 //   naifId = -123456789;   // wcs 2010.01.22 set at SpacePoint level
-   
+
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft() <%p>'%s' exiting\n", this, name.c_str());
@@ -361,7 +363,7 @@ Spacecraft::~Spacecraft()
    // Delete the attached hardware (it was set as clones in the ObjectInitializer)
    // It is not anymore setting the clone (LOJ: 2009.07.24)
    //@see ObjectInitializer::BuildAssociations()
-   DeleteOwnedObjects(true, true, true);
+   DeleteOwnedObjects(true, true, true, true);
 
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -438,7 +440,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    thrusterNames     = a.thrusterNames;
 
    hardwareNames     = a.hardwareNames;                     // made changes by Tuan Nguyen
-   hardwareList      = a.hardwareList;                      // made changes by Tuan Nguyen
+//   hardwareList      = a.hardwareList;                      // made changes by Tuan Nguyen
 
    // set cloned hardware
    CloneOwnedObjects(a.attitude, a.tanks, a.thrusters);
@@ -527,14 +529,14 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    thrusterNames     = a.thrusterNames;
 
    hardwareNames     = a.hardwareNames;                 // made changes by Tuan Nguyen
-   hardwareList      = a.hardwareList;                  // made changes by Tuan Nguyen
+//   hardwareList      = a.hardwareList;                  // made changes by Tuan Nguyen
 
    // delete attached hardware, such as tanks and thrusters
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft(=) about to delete all owned objects\n");
       #endif
-   DeleteOwnedObjects(true, true, true);
+   DeleteOwnedObjects(true, true, true, true);
 
    // then cloned owned objects
    #ifdef DEBUG_SPACECRAFT
@@ -1030,27 +1032,27 @@ Spacecraft::GetRefObjectNameArray(const Gmat::ObjectType type)
    #endif
    static StringArray fullList;  // Maintain scope if the full list is requested
    fullList.clear();
-   
+
    // If type is UNKNOWN_OBJECT, add only coordinate system and attitude.
    // Other objects are handled separately in the ObjectInitializer
    if (type == Gmat::UNKNOWN_OBJECT)
    {
       // Put in the SpaceObject origin
       fullList.push_back(originName);
-      
+
       // Add Spacecraft CS name
       fullList.push_back(coordSysName);
-      
+
       // Add Tank names
       fullList.insert(fullList.end(), tankNames.begin(), tankNames.end());
-      
+
       // Add Thruster names and it's ref. object names
       for (ObjectArray::iterator i = thrusters.begin(); i < thrusters.end(); ++i)
       {
          // Add Thruster name
          if ((*i)->GetName() != "")
             fullList.push_back((*i)->GetName());
-         
+
          // Add Thruster's ref. object name
          StringArray refObjNames = (*i)->GetRefObjectNameArray(type);
          for (StringArray::iterator j = refObjNames.begin(); j != refObjNames.end(); ++j)
@@ -1059,15 +1061,15 @@ Spacecraft::GetRefObjectNameArray(const Gmat::ObjectType type)
                fullList.push_back(*j);
          }
       }
-      
-      // Add other hardware names and it's ref. object names      
+
+      // Add other hardware names and it's ref. object names
       fullList.insert(fullList.end(), hardwareNames.begin(), hardwareNames.end());
-      
-      // Add Attitude's ref. object names      
+
+      // Add Attitude's ref. object names
       std::string attRefObjName = attitude->GetRefObjectName(type);
       if (find(fullList.begin(), fullList.end(), attRefObjName) == fullList.end())
          fullList.push_back(attRefObjName);
-      
+
       #ifdef DEBUG_SC_REF_OBJECT
       MessageInterface::ShowMessage
          ("Spacecraft::GetRefObjectNameArray() ALL, thrusters.size()=%d, "
@@ -1275,21 +1277,21 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          ("Spacecraft::SetRefObject() tanks.size()=%d, thrusters.size()=%d\n",
           tanks.size(), thrusters.size());
       #endif
-      
+
       // set fueltank
       if (objType == "FuelTank")
          return SetHardware(obj, tankNames, tanks);
-      
+
       // set thruster
       if (objType == "Thruster")
          return SetHardware(obj, thrusterNames, thrusters);
-      
+
       // set on hardware                // made changes by Tuan Nguyen
       if (obj->GetType() == Gmat::HARDWARE)             //(objType == "Hardware")
       {
          return SetHardware(obj, hardwareNames, hardwareList);
       }
-      
+
       return false;
    }
    else if (type == Gmat::COORDINATE_SYSTEM)
@@ -1523,11 +1525,11 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
       // handle AddHardware parameter:
       if (str == "AddHardware")                             // made changes by Tuan Nguyen
          return ADD_HARDWARE;
-      
+
       // handle special parameter to work in GmatFunction (loj: 2008.06.27)
       if (str == "UTCGregorian")
          return UTC_GREGORIAN;
-      
+
       // first check the multiple reps
       Integer sz = EndMultipleReps - CART_X;
       for (Integer ii = 0; ii < sz; ii++)
@@ -2287,7 +2289,7 @@ std::string Spacecraft::GetStringParameter(const Integer id,
             else
                return "";
          }
-         
+
       default:
          break;
    }
@@ -2400,7 +2402,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
       }
       return true;
    }
-   
+
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude)
       {
@@ -2619,7 +2621,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
             // Only add the hardware if it is not in the list already
             if (find(hardwareNames.begin(), hardwareNames.end(), value) == hardwareNames.end())
                hardwareNames.push_back(value);
-         
+
          return true;
       }
    case FUEL_TANK_ID:
@@ -2836,7 +2838,7 @@ bool Spacecraft::TakeAction(const std::string &action,
       {
          if (removeAll)
          {
-            DeleteOwnedObjects(false, false, true);
+            DeleteOwnedObjects(false, false, true, false);
             thrusters.clear();
             thrusterNames.clear();
          }
@@ -2866,7 +2868,7 @@ bool Spacecraft::TakeAction(const std::string &action,
       {
          if (removeAll)
          {
-            DeleteOwnedObjects(false, true, true);
+            DeleteOwnedObjects(false, true, true, false);
             tanks.clear();
             tankNames.clear();
          }
@@ -3098,9 +3100,50 @@ bool Spacecraft::Initialize()
       #endif
    }
 
+   #ifdef DEBUG_HARDWARE
+      MessageInterface::ShowMessage("Hardware list names:\n");
+      for (UnsignedInt i = 0; i < hardwareNames.size(); ++i)
+      {
+         MessageInterface::ShowMessage("   %s\n", hardwareNames[i].c_str());
+      }
+
+      MessageInterface::ShowMessage("Hardware list objects:\n");
+      for (UnsignedInt i = 0; i < hardwareList.size(); ++i)
+      {
+         MessageInterface::ShowMessage("   %s\n", hardwareList[i]->GetName().c_str());
+      }
+   #endif
+
+   // Set the hardware interconnections
+   for (ObjectArray::iterator i=hardwareList.begin(); i!=hardwareList.end(); ++i)
+   {
+      if ((*i)->IsOfType(Gmat::HARDWARE))
+      {
+         Hardware *current = (Hardware*)(*i);
+
+         // Get the hardware reference list
+         StringArray refs = current->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+         for (UnsignedInt j = 0; j < refs.size(); ++j)
+         {
+            #ifdef DEBUG_HARDWARE
+               MessageInterface::ShowMessage("Connecting up %s for %s\n",
+                     refs[j].c_str(), current->GetName().c_str());
+            #endif
+
+            for (UnsignedInt k = 0; k < hardwareList.size(); ++k)
+            {
+               if (hardwareList[k]->GetName() == refs[j])
+                  current->SetRefObject(hardwareList[k],
+                        hardwareList[k]->GetType(), hardwareList[k]->GetName());
+            }
+         }
+      }
+   }
+
+
    // made changes by Tuan Nguyen
    // Verify all Spacecarft's referenced objects:
-   if (this->VerifyAddHardware() == false)		// verify added hardware
+   if (VerifyAddHardware() == false)		// verify added hardware
 	   return false;
 
    #ifdef DEBUG_SPACECRAFT_CS
@@ -3608,13 +3651,14 @@ bool Spacecraft::ApplyTotalMass(Real newMass)
  */
 //------------------------------------------------------------------------------
 void Spacecraft::DeleteOwnedObjects(bool deleteAttitude, bool deleteTanks,
-                                    bool deleteThrusters)
+                                    bool deleteThrusters, bool otherHardware)
 {
    #ifdef DEBUG_DELETE_OWNED_OBJ
    MessageInterface::ShowMessage
       ("Spacecraft::DeleteOwnedObjects() <%p>'%s' entered, deleteAttitude=%d, "
-       "deleteTanks=%d, deleteThrusters=%d\n", this, GetName().c_str(),
-       deleteAttitude, deleteTanks, deleteThrusters);
+       "deleteTanks=%d, deleteThrusters=%d, otherHardware=%d\n", this,
+       GetName().c_str(), deleteAttitude, deleteTanks, deleteThrusters,
+       otherHardware);
    #endif
 
    // delete attitude
@@ -3667,10 +3711,27 @@ void Spacecraft::DeleteOwnedObjects(bool deleteAttitude, bool deleteTanks,
       thrusters.clear();
    }
 
+   // Delete other hardware
+   if (otherHardware)
+   {
+      for (ObjectArray::iterator i = hardwareList.begin();
+            i < hardwareList.end(); ++i)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (*i, (*i)->GetName(), "Spacecraft::DeleteOwnedObjects()",
+             "deleting cloned Hardware", this);
+         #endif
+         delete *i;
+      }
+      hardwareList.clear();
+   }
+
    #ifdef DEBUG_DELETE_OWNED_OBJ
    MessageInterface::ShowMessage
       ("Spacecraft::DeleteOwnedObjects() <%p>'%s' leaving, tanks.size()=%d, "
-       "thrusters.size()=%d\n", this, GetName().c_str(), tanks.size(), thrusters.size());
+       "thrusters.size()=%d, hardwareLise.size()=%d\n", this, GetName().c_str(),
+       tanks.size(), thrusters.size(), hardwareList.size());
    #endif
 }
 
@@ -3726,7 +3787,7 @@ void Spacecraft::CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
          #endif
       }
    }
-   
+
    // handle thrusters
    if (thrs.size() > 0)
    {
@@ -3740,24 +3801,24 @@ void Spacecraft::CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
             (clonedObj, clonedObj->GetName(), "Spacecraft::CloneOwnedObjects()",
              "clonedObj = (thrs[i])->Clone()", this);
          #endif
-         
+
          #ifdef DEBUG_OBJ_CLONE
          MessageInterface::ShowMessage
             ("Spacecraft::CloneOwnedObjects() Setting ref objects to "
              "thruster<%p>'%s'\n", clonedObj, clonedObj->GetName().c_str());
          #endif
-         
+
          // Set ref. objects to cloned Thruster
          clonedObj->SetSolarSystem(solarSystem);
          clonedObj->SetRefObject(this, Gmat::SPACECRAFT, GetName());
-         
+
          // Set Thruster's CoordinateSystem
          std::string thrCsName = clonedObj->GetRefObjectName(Gmat::COORDINATE_SYSTEM);
          if (coordSysMap.find(thrCsName) != coordSysMap.end())
             clonedObj->SetRefObject(coordSysMap[thrCsName], Gmat::COORDINATE_SYSTEM, thrCsName);
       }
    }
-   
+
    if (tnks.size() > 0 && thrs.size() > 0)
    {
       #ifdef DEBUG_OBJ_CLONE

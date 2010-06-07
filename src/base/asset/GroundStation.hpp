@@ -11,10 +11,10 @@
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2008/08/01
-// Modified: 
+// Modified:
 //    2010.06.03 Tuan Nguyen
 //      - Add AddHardware parameter and verify added hardware
-//    2010.03.15 Thomas Grubb 
+//    2010.03.15 Thomas Grubb
 //      - Changed visiblity of PARAMETER_TEXT, PARAMETER_TYPE, and enum from
 //        protected to public
 //      - Overrode Copy method
@@ -102,25 +102,25 @@ public:
    virtual bool            IsEstimationParameterValid(const Integer id);
    virtual Integer         GetEstimationParameterSize(const Integer id);
    virtual Real*           GetEstimationParameterValue(const Integer id);
-   
+
 protected:
    /// Ground station ID
    std::string          stationId;
-   
+
    // Added hardware of the ground station
-   StringArray			hardwareNames;			// made changes by Tuan Nguyen
-   ObjectArray 			hardwareList;			// made changes by Tuan Nguyen
+   StringArray	         hardwareNames;       // made changes by Tuan Nguyen
+   ObjectArray          hardwareList;        // made changes by Tuan Nguyen
 
 //   bool              	SetHardware(GmatBase *obj, StringArray &hwNames,
 //                                 ObjectArray &hwArray);		// made changes by Tuan Nguyen
 
    // Override GetGenString to handle the changeable names for the parameters
-   virtual const std::string&  
+   virtual const std::string&
                         GetGeneratingString(
                            Gmat::WriteMode mode = Gmat::SCRIPTING,
                            const std::string &prefix = "",
                            const std::string &useName = "");
-   virtual void         WriteParameters(Gmat::WriteMode mode, 
+   virtual void         WriteParameters(Gmat::WriteMode mode,
                            std::string &prefix, std::stringstream &stream);
 
 public:
@@ -131,7 +131,7 @@ public:
       ADD_HARDWARE,								// made changes by Tuan Nguyen
       GroundStationParamCount,
    };
-   
+
    static const std::string
       PARAMETER_TEXT[GroundStationParamCount - BodyFixedPointParamCount];
    static const Gmat::ParameterType
