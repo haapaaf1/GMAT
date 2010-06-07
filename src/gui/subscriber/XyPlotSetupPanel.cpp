@@ -383,7 +383,7 @@ void XyPlotSetupPanel::LoadData()
       mObject = mXyPlot;
       
       showPlotCheckBox->SetValue(mXyPlot->IsActive());
-      showGridCheckBox->SetValue(mXyPlot->GetOnOffParameter(TsPlot::SHOW_GRID) == "On");
+      showGridCheckBox->SetValue(mXyPlot->GetBooleanParameter(TsPlot::SHOW_GRID));
       mSolverIterComboBox->
          SetValue(mXyPlot->GetStringParameter(Subscriber::SOLVER_ITERATIONS).c_str());
       
@@ -405,7 +405,7 @@ void XyPlotSetupPanel::LoadData()
       }
       
       // get Y parameters
-      StringArray yParamList = mXyPlot->GetStringArrayParameter(TsPlot::YVARIABLE);
+      StringArray yParamList = mXyPlot->GetStringArrayParameter(TsPlot::YVARIABLES);
       mNumYParams = yParamList.size();
       //MessageInterface::ShowMessage("XyPlotSetupPanel::LoadData() mNumYParams = %d\n",
       //                              mNumYParams);
@@ -460,11 +460,8 @@ void XyPlotSetupPanel::SaveData()
    
    mXyPlot->Activate(showPlotCheckBox->IsChecked());
    
-   if (showGridCheckBox->IsChecked())
-      mXyPlot->SetOnOffParameter(TsPlot::SHOW_GRID, "On");
-   else
-      mXyPlot->SetOnOffParameter(TsPlot::SHOW_GRID, "Off");
-   
+   mXyPlot->SetBooleanParameter(TsPlot::SHOW_GRID, showGridCheckBox->IsChecked());
+
    mXyPlot->SetStringParameter(Subscriber::SOLVER_ITERATIONS,
                                mSolverIterComboBox->GetValue().c_str());
    
@@ -524,7 +521,7 @@ void XyPlotSetupPanel::SaveData()
                    mYSelectedListBox->GetString(i).c_str());
             #endif
             std::string selYName = std::string(mYSelectedListBox->GetString(i).c_str());
-            mXyPlot->SetStringParameter(TsPlot::YVARIABLE, selYName, i);
+            mXyPlot->SetStringParameter(TsPlot::YVARIABLES, selYName, i);
          }
       }
    }
