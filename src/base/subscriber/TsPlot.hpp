@@ -140,7 +140,7 @@ protected:
    std::string mPlotTitle;
    std::string mXAxisTitle;
    std::string mYAxisTitle;
-   std::string mDrawGrid;
+   bool mDrawGrid;
    bool mIsTsPlotWindowSet;
    
    Integer mDataCollectFrequency;
@@ -162,7 +162,7 @@ public:
    enum
    {
       XVARIABLE = SubscriberParamCount,
-      YVARIABLE,
+      YVARIABLES,
       PLOT_TITLE,
       X_AXIS_TITLE,
       Y_AXIS_TITLE,

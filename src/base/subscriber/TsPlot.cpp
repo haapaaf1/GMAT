@@ -37,7 +37,7 @@ const std::string
 TsPlot::PARAMETER_TEXT[TsPlotParamCount - SubscriberParamCount] =
 {
    "XVariable",
-   "YVariable",
+   "YVariables",
    "PlotTitle",
    "XAxisTitle",
    "YAxisTitle",
@@ -58,11 +58,11 @@ const Gmat::ParameterType
 TsPlot::PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount] =
 {
    Gmat::OBJECT_TYPE,      // "IndVar","XVariable"
-   Gmat::OBJECTARRAY_TYPE, // "Add","YVariable"
+   Gmat::OBJECTARRAY_TYPE, // "Add","YVariables"
    Gmat::STRING_TYPE,      // "PlotTitle",
    Gmat::STRING_TYPE,      // "XAxisTitle",
    Gmat::STRING_TYPE,      // "YAxisTitle",
-   Gmat::ON_OFF_TYPE,      // "Grid","ShowGrid"
+   Gmat::BOOLEAN_TYPE,     // "ShowGrid"
    Gmat::INTEGER_TYPE,     // "DataCollectFrequency",
    Gmat::INTEGER_TYPE,     // "UpdatePlotFrequency",
    Gmat::BOOLEAN_TYPE,     // "ShowPlot",
@@ -71,7 +71,7 @@ TsPlot::PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount] =
    Gmat::BOOLEAN_TYPE,     // "UseMarkers",
    Gmat::INTEGER_TYPE,     // "MarkerSize",
    Gmat::OBJECT_TYPE,      // "IndVar","XVariable"
-   Gmat::OBJECTARRAY_TYPE, // "Add","YVariable"
+   Gmat::OBJECTARRAY_TYPE, // "Add","YVariables"
    Gmat::ON_OFF_TYPE,      // "Grid","ShowGrid"
 };
 
@@ -95,7 +95,7 @@ TsPlot::TsPlot(const std::string &name, Parameter *xParam,
    objectTypeNames.push_back("XYPlot");
    parameterCount = TsPlotParamCount;
    
-   mDrawGrid = "On";
+   mDrawGrid = true;
    mNumYParams = 0;
    
    mXParamName = "";
@@ -312,7 +312,7 @@ bool TsPlot::Initialize()
       #endif
       
       PlotInterface::CreateTsPlotWindow(instanceName, mOldName, mPlotTitle,
-                                        mXAxisTitle, mYAxisTitle, (mDrawGrid == "On"));
+                                        mXAxisTitle, mYAxisTitle, mDrawGrid);
       
       PlotInterface::SetTsPlotTitle(instanceName, mPlotTitle);
       mIsTsPlotWindowSet = true;
@@ -696,8 +696,10 @@ std::string TsPlot::GetOnOffParameter(const Integer id) const
    {
    case DRAW_GRID:
       WriteDeprecatedMessage(id);
-   case SHOW_GRID:
-      return mDrawGrid;
+      if (mDrawGrid)
+         return "On";
+      else
+         return "Off";
    default:
       return Subscriber::GetOnOffParameter(id);
    }
@@ -722,8 +724,7 @@ bool TsPlot::SetOnOffParameter(const Integer id, const std::string &value)
    {
    case DRAW_GRID:
       WriteDeprecatedMessage(id);
-   case SHOW_GRID:
-      mDrawGrid = value;
+      mDrawGrid = value == "On";
       return true;
    default:
       return Subscriber::SetOnOffParameter(id, value);
@@ -795,7 +796,7 @@ bool TsPlot::SetStringParameter(const Integer id, const std::string &value)
       return SetXParameter(value);
    case ADD:
       WriteDeprecatedMessage(id);
-   case YVARIABLE:
+   case YVARIABLES:
       return AddYParameter(value, mNumYParams);
    case PLOT_TITLE:
       mPlotTitle = value;
@@ -839,7 +840,7 @@ bool TsPlot::SetStringParameter(const Integer id, const std::string &value,
    {
    case ADD:
       WriteDeprecatedMessage(id);
-   case YVARIABLE:
+   case YVARIABLES:
       return AddYParameter(value, index);
    default:
       return Subscriber::SetStringParameter(id, value, index);
@@ -875,7 +876,7 @@ const StringArray& TsPlot::GetStringArrayParameter(const Integer id) const
    {
    case ADD:
       WriteDeprecatedMessage(id);
-   case YVARIABLE:
+   case YVARIABLES:
       return mYParamNames;
    default:
       return Subscriber::GetStringArrayParameter(id);
@@ -900,6 +901,8 @@ bool TsPlot::GetBooleanParameter(const Integer id) const
       return useMarkers;
    if (id == USE_LINES)
       return useLines;
+   if (id == SHOW_GRID)
+      return mDrawGrid;
    return Subscriber::GetBooleanParameter(id);
 }
 
@@ -934,6 +937,11 @@ bool TsPlot::SetBooleanParameter(const Integer id, const bool value)
       if (useLines == false)
          useMarkers = true;
       return useLines;
+   }
+   if (id == SHOW_GRID)
+   {
+      mDrawGrid = value;
+      return true;
    }
    return Subscriber::SetBooleanParameter(id, value);
 }
@@ -1353,7 +1361,7 @@ bool TsPlot::Distribute(const Real * dat, Integer len)
                
                return PlotInterface::UpdateTsPlot(instanceName, mOldName, xval, yvals,
                                                   mPlotTitle, mXAxisTitle, mYAxisTitle,
-                                                  update, (mDrawGrid == "On"));
+                                                  update, mDrawGrid);
                if (update)
                   mNumCollected = 0;
             }
@@ -1373,7 +1381,7 @@ void TsPlot::WriteDeprecatedMessage(Integer id) const
 {
    // Write only one message per session
    static bool writeXVariable = true;
-   static bool writeYVariable = true;
+   static bool writeYVariables = true;
    static bool writeShowGrid = true;
    
    switch (id)
@@ -1388,12 +1396,12 @@ void TsPlot::WriteDeprecatedMessage(Integer id) const
       }
       break;
    case ADD:
-      if (writeYVariable)
+      if (writeYVariables)
       {
          MessageInterface::ShowMessage
             (deprecatedMessageFormat.c_str(), "Add", GetName().c_str(),
-             "YVariable");
-         writeYVariable = false;
+             "YVariables");
+         writeYVariables = false;
       }
       break;
    case DRAW_GRID:
