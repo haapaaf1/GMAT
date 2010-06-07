@@ -86,7 +86,7 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    #endif
    objectTypeNames.push_back("DifferentialCorrector");
    parameterCount = DifferentialCorrectorParamCount;
-   
+
    AllowScaleFactors = false;
 }
 
@@ -121,7 +121,7 @@ DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
       ("DifferentialCorrector::DC(COPY constructor) entered\n");
    #endif
    goalNames.clear();
-   
+
    parameterCount = dc.parameterCount;
 }
 
@@ -134,15 +134,15 @@ DifferentialCorrector::operator=(const DifferentialCorrector& dc)
 {
    if (&dc == this)
       return *this;
-   
+
    Solver::operator=(dc);
-   
+
    FreeArrays();
    goalNames.clear();
-   
+
    goalCount        = dc.goalCount;
-   derivativeMethod = dc.derivativeMethod; 
-   
+   derivativeMethod = dc.derivativeMethod;
+
    return *this;
 }
 
@@ -213,8 +213,8 @@ Integer DifferentialCorrector::GetParameterID(const std::string &str) const
 {
    // Write deprecated message per GMAT session
    static bool writeDeprecatedMsg = true;
-   
-   // 1. This part will be removed for a furure build: 
+
+   // 1. This part will be removed for a future build:
    if (str == "UseCentralDifferences")
    {
       if (writeDeprecatedMsg)
@@ -226,14 +226,14 @@ Integer DifferentialCorrector::GetParameterID(const std::string &str) const
       }
       return derivativeMethodID;
    }
-   
-   // 2. This part is kept for a future build:  
+
+   // 2. This part is kept for a future build:
    for (Integer i = SolverParamCount; i < DifferentialCorrectorParamCount; ++i)
    {
       if (str == PARAMETER_TEXT[i - SolverParamCount])
          return i;
    }
-   
+
    return Solver::GetParameterID(str);
 }
 
@@ -395,7 +395,7 @@ std::string DifferentialCorrector::GetStringParameter(const Integer id) const
 
    if (id == derivativeMethodID)
       return derivativeMethod;
-   
+
    return Solver::GetStringParameter(id);
 }
 
@@ -421,9 +421,9 @@ bool DifferentialCorrector::SetStringParameter(const Integer id,
       goalNames.push_back(value);
       return true;
    }
-   
+
    if (id == derivativeMethodID)
-   { 
+   {
       bool retval = true;
       //   This is to handle deprecated value UseCentralDifferences = true
       if (value == "true")
@@ -438,10 +438,10 @@ bool DifferentialCorrector::SetStringParameter(const Integer id,
       //  All other values are not allowed!
       else
          retval = false;
-      
+
       return retval;
    }
-   
+
    return Solver::SetStringParameter(id, value);
 }
 
@@ -496,13 +496,13 @@ bool DifferentialCorrector::TakeAction(const std::string &action,
       instanceNumber = 0;
       return true;
    }
-   
+
    if (action == "IncrementInstanceCount")
    {
       ++instanceNumber;
       return true;
    }
-   
+
    if (action == "Reset")
    {
       currentState = INITIALIZING;
@@ -1331,13 +1331,13 @@ void DifferentialCorrector::WriteToTextFile(SolverState stateToUse)
        "textFileOpen=%d, initialized=%d\n", stateToUse, solverTextFile.c_str(),
        textFile.is_open(), initialized);
    #endif
-   
+
    if (!showProgress)
       return;
-   
+
    if (!textFile.is_open())
       OpenSolverTextFile();
-   
+
    StringArray::iterator current;
    Integer i, j;
    if (initialized)
