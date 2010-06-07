@@ -298,7 +298,6 @@ const Rvector&   SpiceAttitude::GetQuaternion(Real atTime)
    ComputeCosineMatrixAndAngularVelocity(atTime);
    attitudeTime     = atTime;
    quaternion       = Attitude::ToQuaternion(cosMat);
-//   quaternionTime   = atTime;
    return quaternion;
 }
 
