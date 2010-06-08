@@ -20,6 +20,7 @@
 #include <wx/config.h>
 
 //#define DEBUG_COORD_PANEL 1
+//#define DEBUG_COORD_PANEL_SAVE
 
 //------------------------------------------------------------------------------
 // CoordPanel()
@@ -917,18 +918,18 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
       if (epochTextCtrl->IsEnabled())
       {     
          wxString newEpochFormat = formatComboBox->GetValue().Trim();
-         std::string epochStr = epochTextCtrl->GetValue().c_str();
+//         std::string epochStr = epochTextCtrl->GetValue().c_str();
          Real epoch, a1mjd;
          
          inputString = epochTextCtrl->GetValue();
          if ((GmatStringUtil::ToReal(inputString, &epoch)) && (epoch >= 0.0))
          {
             epochValue = epochTextCtrl->GetValue();
+            a1mjd      = epoch;
             if (epochFormat != newEpochFormat)
             {
                axis->SetEpochFormat(newEpochFormat.c_str());
                epochFormat = newEpochFormat;
-               a1mjd = epoch;
                
                //convert epoch to A1ModJulian if not in this format
                //if (newEpochFormat != "TAIModJulian")
@@ -946,7 +947,10 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
                   //    GmatTimeUtil::JD_JAN_5_1941);
                }
             }
-            
+            #ifdef DEBUG_COORD_PANEL_SAVE
+               MessageInterface::ShowMessage("In CoordPanel::SaveData, setting epoch to %12.10f\n",
+                     a1mjd);
+            #endif
             axis->SetEpoch(a1mjd);
          }
          else
