@@ -797,8 +797,7 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
 
    Rvector3 am = Cross(pos, vel).GetUnitVector();
 
-   Integer j = 1;
-   if (am[2] <= 0.0) j = -1;   // retrograde orbit
+   Integer j = 1;  // always 1, unless inclination is exactly 180 degrees
 
    // Define equinoctial coordinate system
    Rvector3 f;
@@ -875,7 +874,7 @@ Rvector6 StateConverter::EquinoctialToCartesian(const Rvector6& equinoctial, con
                 (h * k * beta * sinF));
 
    // assumption in conversion from equinoctial to cartesian
-   Integer j = 1;  // ******** how to determine if retrograde?  ***** TBD ********
+   Integer j = 1;  // always 1, unless inclination is exactly 180 degrees
 
    // Compute Q matrix
    Rmatrix33 Q(1.0 - (p * p) + (q * q),   2.0 * p * q * j,                2.0 * p,
