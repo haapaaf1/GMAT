@@ -3967,6 +3967,8 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
       objType = Gmat::SUBSCRIBER;
       break;
    case GmatTree::VARIABLE:
+   case GmatTree::ARRAY:
+   case GmatTree::STRING:
       objType = Gmat::PARAMETER;
       break;
    case GmatTree::MATLAB_FUNCTION:
