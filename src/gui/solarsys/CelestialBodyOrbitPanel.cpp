@@ -335,6 +335,28 @@ void CelestialBodyOrbitPanel::LoadData()
          ephemFileBrowseButton->Show();
          orbitDataFlexGridSizer->Layout();
       }
+      if (ephemSrc == "TwoBodyPropagation")
+      {
+         initialEpochTextCtrl->Enable();
+         SMATextCtrl->Enable();
+         ECCTextCtrl->Enable();
+         INCTextCtrl->Enable();
+         RAANTextCtrl->Enable();
+         AOPTextCtrl->Enable();
+         TATextCtrl->Enable();
+         mainBoxSizer->Layout();
+      }
+      else
+      {
+         initialEpochTextCtrl->Disable();
+         SMATextCtrl->Disable();
+         ECCTextCtrl->Disable();
+         INCTextCtrl->Disable();
+         RAANTextCtrl->Disable();
+         AOPTextCtrl->Disable();
+         TATextCtrl->Disable();
+         mainBoxSizer->Layout();
+      }
       if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable)
       {
          if (ephemSrc != "SPICE")
@@ -752,6 +774,29 @@ void CelestialBodyOrbitPanel::OnEphemSourceComboBoxChange(wxCommandEvent &event)
       orbitDataFlexGridSizer->Layout();
       mainBoxSizer->Layout();
    }
+   if (newEphemSrc == "TwoBodyPropagation")
+   {
+      initialEpochTextCtrl->Enable();
+      SMATextCtrl->Enable();
+      ECCTextCtrl->Enable();
+      INCTextCtrl->Enable();
+      RAANTextCtrl->Enable();
+      AOPTextCtrl->Enable();
+      TATextCtrl->Enable();
+      mainBoxSizer->Layout();
+   }
+   else
+   {
+      initialEpochTextCtrl->Disable();
+      SMATextCtrl->Disable();
+      ECCTextCtrl->Disable();
+      INCTextCtrl->Disable();
+      RAANTextCtrl->Disable();
+      AOPTextCtrl->Disable();
+      TATextCtrl->Disable();
+      mainBoxSizer->Layout();
+   }
+
    if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable)
    {
       if (newEphemSrc != "SPICE")
