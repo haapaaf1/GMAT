@@ -329,6 +329,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\base\command\BeginMissionSequence.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\command\BeginMissionSequence.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\base\command\BeginScript.cpp"
 						>
 					</File>
