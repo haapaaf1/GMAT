@@ -478,6 +478,8 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
       theGuiManager->UpdateCelestialPoint();
       break;
    case GmatTree::VARIABLE:
+   case GmatTree::ARRAY:
+   case GmatTree::STRING:
       theGuiManager->UpdateParameter();
       break;
    case GmatTree::MATLAB_FUNCTION:
@@ -1693,6 +1695,8 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::SOLVER) ||
         (itemType == GmatTree::BARYCENTER) ||
         (itemType == GmatTree::VARIABLE) ||
+        (itemType == GmatTree::ARRAY) ||
+        (itemType == GmatTree::STRING) ||
         (itemType == GmatTree::LIBRATION_POINT) )
    {
       const std::string stdName = name.c_str();
@@ -4028,6 +4032,8 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
    case GmatTree::EPHEMERIS_FILE:
       return mSubscriberItem;
    case GmatTree::VARIABLE:
+   case GmatTree::ARRAY:
+   case GmatTree::STRING:
       return mVariableItem;
    case GmatTree::MATLAB_FUNCTION:
    case GmatTree::GMAT_FUNCTION:
