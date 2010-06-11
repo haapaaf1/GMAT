@@ -111,7 +111,7 @@ XyPlotSetupPanel::XyPlotSetupPanel(wxWindow *parent,
 //------------------------------------------------------------------------------
 XyPlotSetupPanel::~XyPlotSetupPanel()
 {
-   mObjectTypeList.Clear();   
+   mObjectTypeList.Clear() ;   
    theGuiManager->RemoveFromResourceUpdateListeners(this);
 }
 
@@ -415,7 +415,6 @@ void XyPlotSetupPanel::LoadData()
       if (mNumYParams > 0)
       {
          wxString *yParamNames = new wxString[mNumYParams];
-         Parameter *param;
          
          for (int i=0; i<mNumYParams; i++)
          {
