@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              StringTokenizer
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -30,6 +30,8 @@ class GMAT_API StringTokenizer
 public:
    StringTokenizer();
    StringTokenizer(const std::string &str, const std::string &delim);
+   StringTokenizer(const std::string &str, const std::string &delim,
+                   bool insertDelim);
    ~StringTokenizer();
    
    // inline methods
@@ -41,6 +43,7 @@ public:
    std::vector<std::string> GetAllTokens() const;
    
    void Set(const std::string &str, const std::string &delim);
+   void Set(const std::string &str, const std::string &delim, bool insertDelim);
    
 private:
    
@@ -49,6 +52,7 @@ private:
    Integer                  countTokens;
    
    void Parse(const std::string &str);
+   void Parse(const std::string &str, bool insertDelim);
    
 };
 
