@@ -32,7 +32,7 @@
 //#define DEBUG_STRING_UTIL 1
 //#define DEBUG_ARRAY_INDEX 2
 //#define DEBUG_STRING_UTIL_ARRAY 1
-//#define DEBUG_STRING_UTIL_SEP 1
+//#define DEBUG_STRING_UTIL_SEP 2
 //#define DEBUG_NO_BRACKETS
 //#define DEBUG_BALANCED_BRACKETS
 //#define DEBUG_MATH_EQ 1
@@ -602,7 +602,7 @@ char GmatStringUtil::GetClosingBracket(const char &openBracket)
 
 //------------------------------------------------------------------------------
 // StringArray SeparateBy(const std::string &str, const std::string &delim,
-//                        bool putBracketsTogether = false)
+//                        bool putBracketsTogether, bool insertDelim)
 //------------------------------------------------------------------------------
 /*
  * Separates string by input delimiter.
@@ -610,29 +610,33 @@ char GmatStringUtil::GetClosingBracket(const char &openBracket)
  * @param  str  input string
  * @param  delim  input delimiter
  * @param  putBracketsTogether  true if putting brackets together (false)
+ * @param  insertDelim  true if inserting delimiter back if only 1 delimiter (false)
  *
  */
 //------------------------------------------------------------------------------
 StringArray GmatStringUtil::SeparateBy(const std::string &str,
                                        const std::string &delim,
-                                       bool putBracketsTogether)
+                                       bool putBracketsTogether,
+                                       bool insertDelim, bool insertComma)
 {
    #if DEBUG_STRING_UTIL_SEP
    MessageInterface::ShowMessage
-      ("GmatStringUtil::SeparateBy() str=<%s>, delim=<%s>, putBracketsTogether=%d\n",
-       str.c_str(), delim.c_str(), putBracketsTogether);
+      ("GmatStringUtil::SeparateBy() str='%s', delim='%s', putBracketsTogether=%d, "
+       "insertDelim=%d\n", str.c_str(), delim.c_str(), putBracketsTogether, insertDelim);
    #endif
-
-   bool insertDelimiter = false;
-   if (delim.size() == 1)
-      insertDelimiter = true;
-
-   StringTokenizer st(str, delim);
+   
+   StringTokenizer st;
+   if (insertDelim)
+      st.Set(str, delim, insertDelim);
+   else
+      st.Set(str, delim);
+   
+   //StringTokenizer st(str, delim);
    StringArray tempParts = st.GetAllTokens();
-
+   
    if (!putBracketsTogether)
       return tempParts;
-
+   
    //-----------------------------------------------------------------
    // now go through each part and put brackets together
    //-----------------------------------------------------------------
@@ -640,27 +644,35 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
    std::string openBrackets = "([{";
    std::string::size_type index1;
    int count = tempParts.size();
-
+   
    #if DEBUG_STRING_UTIL_SEP
+   MessageInterface::ShowMessage("There are %d parts to go through\n", count);
    for (int i=0; i<count; i++)
       MessageInterface::ShowMessage
-         ("   tempParts[%d]=%s\n", i, tempParts[i].c_str());
+         ("   tempParts[%d]='%s'\n", i, tempParts[i].c_str());
    #endif
-
+   
    Integer size = -1;
    bool append = false;
-
+   
    // go through each part and put brackets together, insert back delimiter if only one
    for (int i=0; i<count; i++)
-   {
+   {      
+      #if DEBUG_STRING_UTIL_SEP
+      MessageInterface::ShowMessage("   ==================== count = %d\n", i);
+      #endif
+      
       index1 = tempParts[i].find_first_of(openBrackets);
-
+      
       if (index1 != str.npos)
       {
+         #if DEBUG_STRING_UTIL_SEP
+         MessageInterface::ShowMessage("   one of open brackets ([{ found\n");
+         #endif
          if (append)
          {
             // if only one delimiter, insert it back in (loj: 2008.03.24)
-            if (delim.size() == 1)
+            if (delim.size() == 1 && !insertDelim)
                parts[size] = parts[size] + delim + tempParts[i];
             else
                parts[size] = parts[size] + " " + tempParts[i];
@@ -669,13 +681,13 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
          {
             #if DEBUG_STRING_UTIL_SEP > 1
             MessageInterface::ShowMessage
-               ("===> adding1 %s\n", tempParts[i].c_str());
+               ("   adding1 '%s'\n", tempParts[i].c_str());
             #endif
-
+            
             parts.push_back(tempParts[i]);
             size++;
          }
-
+         
          // if any bracket is not balanced, append
          if (!IsBracketBalanced(parts[size], "()") ||
              !IsBracketBalanced(parts[size], "[]") ||
@@ -683,11 +695,11 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
             append = true;
          else
             append = false;
-
+         
          #if DEBUG_STRING_UTIL_SEP > 1
          MessageInterface::ShowMessage
-            ("===> parts1[%d]=%s\n", size, parts[size].c_str());
-         MessageInterface::ShowMessage("===> append=%d\n", append);
+            ("   parts[%d]='%s'\n", size, parts[size].c_str());
+         MessageInterface::ShowMessage("   append=%d\n", append);
          #endif
       }
       else
@@ -696,22 +708,27 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
          {
             #if DEBUG_STRING_UTIL_SEP > 1
             MessageInterface::ShowMessage
-               ("===> appending %s\n", tempParts[i].c_str());
+               ("   appending '%s'\n", tempParts[i].c_str());
             #endif
-
+            
             // if only one delimitter, insert it back in (loj: 2008.03.24)
-            if (delim.size() == 1)
+            if (delim.size() == 1 && !insertDelim)
                parts[size] = parts[size] + delim + tempParts[i];
             else
-               parts[size] = parts[size] + "," + tempParts[i];
+            {
+               if (insertComma)
+                  parts[size] = parts[size] + "," + tempParts[i];
+               else
+                  parts[size] = parts[size] + tempParts[i];
+            }
          }
          else
          {
             #if DEBUG_STRING_UTIL_SEP > 1
             MessageInterface::ShowMessage
-               ("===> adding2 %s\n", tempParts[i].c_str());
+               ("   adding2 '%s'\n", tempParts[i].c_str());
             #endif
-
+            
             parts.push_back(tempParts[i]);
             size++;
          }
@@ -726,14 +743,14 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
 
          #if DEBUG_STRING_UTIL_SEP > 1
          MessageInterface::ShowMessage
-            ("===> parts2[%d]=%s\n", size, parts[size].c_str());
-         MessageInterface::ShowMessage("===> append=%d\n", append);
+            ("   parts2[%d]='%s'\n", size, parts[size].c_str());
+         MessageInterface::ShowMessage("   append=%d\n", append);
          #endif
       }
    }
-
+   
    StringArray parts1;
-
+   
    // add non-blank items
    for (unsigned int i=0; i<parts.size(); i++)
    {
@@ -741,14 +758,15 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
       if (parts[i] != "")
          parts1.push_back(parts[i]);
    }
-
+   
    #if DEBUG_STRING_UTIL_SEP
-   MessageInterface::ShowMessage("   Returning:\n");
+   MessageInterface::ShowMessage
+      ("GmatStringUtil::SeparateBy() str='%s' returning:\n", str.c_str());
    for (unsigned int i=0; i<parts1.size(); i++)
       MessageInterface::ShowMessage
-         ("   parts1[%d] = %s\n", i, parts1[i].c_str());
+         ("   parts1[%d] = '%s'\n", i, parts1[i].c_str());
    #endif
-
+   
    return parts1;
 }
 

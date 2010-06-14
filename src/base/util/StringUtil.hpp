@@ -71,7 +71,8 @@ namespace GmatStringUtil
    GMAT_API char GetClosingBracket(const char &openBracket);
    
    GMAT_API StringArray SeparateBy(const std::string &str, const std::string &delim,
-                          bool putBracketsTogether = false);
+                          bool putBracketsTogether = false, bool insertDelim = false,
+                          bool insertComma = true);
    GMAT_API StringArray SeparateByComma(const std::string &str);
    GMAT_API StringArray SeparateDots(const std::string &str);
    
