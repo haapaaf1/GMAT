@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              StopCondition
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -28,7 +28,7 @@
 #include "SolarSystem.hpp"
 #include "Spacecraft.hpp"
 #include "Variable.hpp"
-
+#include "ElementWrapper.hpp"
 
 class GMAT_API StopCondition : public GmatBase
 {
@@ -73,10 +73,18 @@ public:
    bool SetEpochParameter(Parameter *param);
    bool SetStopParameter(Parameter *param);
    bool SetGoalParameter(Parameter *param);
-   void SetGoalString(const std::string &str);
-
+   
+   void SetLhsString(const std::string &str);
+   void SetRhsString(const std::string &str);
+   
+   std::string GetLhsString();
+   std::string GetRhsString();
+   
+   bool SetLhsWrapper(ElementWrapper* toWrapper);
+   bool SetRhsWrapper(ElementWrapper* toWrapper);
+   
    virtual bool SetSpacecraft(SpaceObject *sc);
-
+   
    // methods inherited from GmatBase
    virtual GmatBase* Clone() const;
 
@@ -139,7 +147,8 @@ protected:
    std::string mStopParamType;
    std::string mStopParamName;
    std::string mEpochParamName;
-   std::string mGoalStr;
+   std::string lhsString;
+   std::string rhsString;
    
    Parameter *mStopParam;
    Parameter *mGoalParam;
@@ -147,10 +156,16 @@ protected:
    Parameter *mEccParam;
    Parameter *mRmagParam;
    
+   ElementWrapper *lhsWrapper;
+   ElementWrapper *rhsWrapper;
+   
    /// ring buffer for epochs
    RealArray mEpochBuffer;
-   /// ring buffer for associated values
-   RealArray mValueBuffer;
+   /// ring buffer for associated LHS values
+   RealArray lhsValueBuffer;
+   /// ring buffer for associated RHS values
+   RealArray rhsValueBuffer;
+   
    Integer mNumValidPoints;
    Integer mBufferSize;
    Real mStopEpoch;
@@ -160,6 +175,7 @@ protected:
    // a stopping condition triggers
    Real previousEpoch;
    Real previousValue;
+   Real previousGoalValue;
    
    bool mUseInternalEpoch;
    bool mInitialized;

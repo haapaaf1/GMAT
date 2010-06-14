@@ -37,6 +37,7 @@
 //#define DEBUG_BUFFER_FILLING
 //#define DEBUG_CYCLIC_PARAMETERS
 //#define DEBUG_STOPCOND_EPOCH
+//#define DEBUG_WRAPPERS
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -106,18 +107,22 @@ StopCondition::StopCondition(const std::string &name, const std::string &desc,
      mStopParamType     (""),
      mStopParamName     (""),
      mEpochParamName    (""),
-     mGoalStr           ("0.0"),
+     lhsString          (""),
+     rhsString          ("0.0"),
      mStopParam         (stopParam),
      mGoalParam         (NULL),
      mEpochParam        (epochParam),
      mEccParam          (NULL),
      mRmagParam         (NULL),
+     lhsWrapper         (NULL),
+     rhsWrapper         (NULL),
      mNumValidPoints    (0),
      mBufferSize        (0),
      mStopEpoch         (REAL_PARAMETER_UNDEFINED),
      mStopInterval      (0.0),
      previousEpoch      (-999999.999999),
      previousValue      (-999999.999999),
+     previousGoalValue  (-999999.999999),
      mUseInternalEpoch  (false),
      mInitialized       (false),
      mNeedInterpolator  (false),
@@ -175,18 +180,22 @@ StopCondition::StopCondition(const StopCondition &copy)
      mStopParamType     (copy.mStopParamType),
      mStopParamName     (copy.mStopParamName),
      mEpochParamName    (""),
-     mGoalStr           (copy.mGoalStr),
+     lhsString          (copy.lhsString),
+     rhsString          (copy.rhsString),
      mStopParam         (copy.mStopParam),
      mGoalParam         (copy.mGoalParam),
      mEpochParam        (copy.mEpochParam),
      mEccParam          (NULL),
      mRmagParam         (NULL),
+     lhsWrapper         (copy.lhsWrapper),
+     rhsWrapper         (copy.rhsWrapper),
      mNumValidPoints    (0),
      mBufferSize        (0),
      mStopEpoch         (copy.mStopEpoch),
      mStopInterval      (0.0),
      previousEpoch      (-999999.999999),
      previousValue      (-999999.999999),
+     previousGoalValue  (-999999.999999),
      mUseInternalEpoch  (copy.mUseInternalEpoch),
      mInitialized       (copy.mInitialized),
      mNeedInterpolator  (copy.mNeedInterpolator),
@@ -281,14 +290,16 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
       mDescription = right.mDescription;
       mStopParamType = right.mStopParamType;
       mStopParamName = right.mStopParamName;
-      mGoalStr = right.mGoalStr;
+      lhsString = right.lhsString;
+      rhsString = right.rhsString;
       
       mStopEpoch = right.mStopEpoch;
       mStopInterval = right.mStopInterval;
       mStopParam = right.mStopParam;
       mEpochParam = right.mEpochParam;
-      
-      mGoalParam = (Parameter*)right.mGoalParam;
+      mGoalParam = right.mGoalParam;
+      lhsWrapper = right.lhsWrapper;
+      rhsWrapper = right.rhsWrapper;
       
       if (mEccParam != NULL)
       {
@@ -343,6 +354,7 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
       
       previousEpoch = -999999.999999;
       previousValue = -999999.999999;
+      previousGoalValue = -999999.999999;
       
       isAngleParameter = right.isAngleParameter;
       isCyclicCondition = right.isCyclicCondition;
@@ -420,26 +432,43 @@ bool StopCondition::Evaluate()
    
    if (mStopParam == NULL || (mAllowGoalParam && mGoalParam == NULL))
       Initialize();
-      
+   
    #ifdef DEBUG_BUFFER_FILLING
       MessageInterface::ShowMessage(
-         "StopCondition::Evaluate called, mNumValidPoints=%d\n", mNumValidPoints);
+         "StopCondition::Evaluate called, mNumValidPoints=%d, mAllowGoalParam=%d\n",
+         mNumValidPoints, mAllowGoalParam);
    #endif
    
    // evaluate goal
    if (mAllowGoalParam)
-      mGoal = mGoalParam->EvaluateReal();
-
+   {
+      try
+      {
+         mGoal = mGoalParam->EvaluateReal();
+      }
+      catch (BaseException &be)
+      {
+         // try with rhsWrapper
+         if (rhsWrapper != NULL)
+            mGoal = rhsWrapper->EvaluateReal();
+         else
+            throw;
+      }
+   }
+   
+   
    // set current epoch
    if (mUseInternalEpoch)
       epoch = mEpoch;
    else
       epoch = mEpochParam->EvaluateReal();
-      
+   
+   // set current value
    currentParmValue = mStopParam->EvaluateReal();
    
    #ifdef DEBUG_BUFFER_FILLING
-   MessageInterface::ShowMessage("   currentParmValue=%.15f\n", currentParmValue);
+   MessageInterface::ShowMessage
+      ("   currentParmValue=%.15f, mGoal=%.15f\n", currentParmValue, mGoal);
    #endif
    
    if (isAngleParameter)
@@ -451,6 +480,7 @@ bool StopCondition::Evaluate()
       {
          previousValue = currentParmValue;
          previousEpoch = epoch;
+         previousGoalValue = mGoal;
       }
    }
    else if (isCyclicCondition)
@@ -461,6 +491,7 @@ bool StopCondition::Evaluate()
       {
          previousValue = currentParmValue;
          previousEpoch = epoch;
+         previousGoalValue = mGoal;
       }
    }
    
@@ -471,6 +502,7 @@ bool StopCondition::Evaluate()
       {
          previousValue = currentParmValue;
          previousEpoch = epoch;
+         previousGoalValue = mGoal;
       }
    }
    
@@ -481,6 +513,7 @@ bool StopCondition::Evaluate()
       {
          previousValue = currentParmValue;
          previousEpoch = epoch;
+         previousGoalValue = mGoal;
       }
    }
    
@@ -488,6 +521,7 @@ bool StopCondition::Evaluate()
    {
       previousValue = currentParmValue;
       previousEpoch = epoch;
+      previousGoalValue = mGoal;
       ++mNumValidPoints;
       
       #ifdef DEBUG_STOPCOND_EVAL
@@ -527,6 +561,7 @@ bool StopCondition::Evaluate()
             // Save the found values in for next time through
             previousEpoch = epoch;
             previousValue = currentParmValue;
+            previousGoalValue = mGoal;
          }
       }
    }
@@ -535,7 +570,7 @@ bool StopCondition::Evaluate()
    {
       Real prevGoalDiff = previousValue - mGoal,
            currGoalDiff = currentParmValue - mGoal;
-                       
+      
       Real direction = 
            (currGoalDiff - prevGoalDiff > 0.0 ? 1.0 : -1.0);
 
@@ -576,6 +611,7 @@ bool StopCondition::Evaluate()
       {
          previousValue = currentParmValue;
          previousEpoch = epoch;
+         previousGoalValue = mGoal;
       }
    }
    
@@ -641,21 +677,48 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
    bool retval = false;
 
    Real epoch;
-   Real currentParmValue;
+   Real currentParmValue, currentGoalValue;
    Real stopEpoch; //in A1Mjd
    
    // evaluate goal
    if (mAllowGoalParam)
-      mGoal = mGoalParam->EvaluateReal();
-   
+   {
+      try
+      {
+         mGoal = mGoalParam->EvaluateReal();
+      }
+      catch (BaseException &be)
+      {
+         // try with rhsWrapper
+         if (rhsWrapper != NULL)
+            mGoal = rhsWrapper->EvaluateReal();
+         else
+            throw;
+      }
+   }
+   currentGoalValue = mGoal;
+
    // set current epoch
    if (mUseInternalEpoch)
       epoch = mEpoch;
    else
       epoch = mEpochParam->EvaluateReal();
-      
+   
+   // set current LHS value
    currentParmValue = mStopParam->EvaluateReal();
-
+   try
+   {
+      currentParmValue = mStopParam->EvaluateReal();
+   }
+   catch (BaseException &be)
+   {
+      // try with rhsWrapper
+      if (lhsWrapper != NULL)
+         currentParmValue = lhsWrapper->EvaluateReal();
+      else
+         throw;
+   }
+   
    // Force anomalies to handle wrapping
    if (isAngleParameter)
    {
@@ -669,13 +732,13 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
       if (!CheckCyclicCondition(currentParmValue))
          return false;
    }
-
+   
    #ifdef DEBUG_BUFFER_FILLING
       MessageInterface::ShowMessage(
          "  New point: %.12lf, %.12lf\n",
          epoch, currentParmValue);
    #endif
-
+      
    // Actions taken to initialize the ring buffer
    if (isInitialPoint)
    {
@@ -684,12 +747,14 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
       
       for (int i = 0; i < mBufferSize; ++i)
       {
-         mValueBuffer[i] = 0.0;
          mEpochBuffer[i] = 0.0;
+         lhsValueBuffer[i] = 0.0;
+         rhsValueBuffer[i] = 0.0;
       }
       
       // Fill in the data for the first point
-      mValueBuffer[mBufferSize-1] = previousValue;
+      lhsValueBuffer[mBufferSize-1] = previousValue;
+      rhsValueBuffer[mBufferSize-1] = previousGoalValue;
       
       if (mUseInternalEpoch)
          mEpochBuffer[mBufferSize-1] = 0.0; 
@@ -700,25 +765,27 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
    // Roll values in the ring buffer to make room for newest value
    for (int i = 0; i < mBufferSize-1; ++i)
    {
-      mEpochBuffer[i] = mEpochBuffer[i+1];
-      mValueBuffer[i] = mValueBuffer[i+1];
+      mEpochBuffer[i]   = mEpochBuffer[i+1];
+      lhsValueBuffer[i] = lhsValueBuffer[i+1];
+      rhsValueBuffer[i] = rhsValueBuffer[i+1];
    }
-
+   
    // Fill in the next data point
-   mValueBuffer[mBufferSize-1] = currentParmValue;
-   mEpochBuffer[mBufferSize-1] = epoch;
+   mEpochBuffer[mBufferSize-1]   = epoch;
+   rhsValueBuffer[mBufferSize-1] = mGoal;
+   lhsValueBuffer[mBufferSize-1] = currentParmValue;
    ++mNumValidPoints;
    
    // Only start looking for a solution when the ring buffer is full   
    if (mNumValidPoints >= mBufferSize)
    {
-      Real minVal = mValueBuffer[0], maxVal = mValueBuffer[mBufferSize - 1];
+      Real minVal = lhsValueBuffer[0], maxVal = lhsValueBuffer[mBufferSize - 1];
       for (int i = 0; i < mBufferSize; ++i)
       {
-         if (minVal > mValueBuffer[i])
-            minVal = mValueBuffer[i];
-         if (maxVal < mValueBuffer[i])
-            maxVal = mValueBuffer[i];
+         if (minVal > lhsValueBuffer[i])
+            minVal = lhsValueBuffer[i];
+         if (maxVal < lhsValueBuffer[i])
+            maxVal = lhsValueBuffer[i];
       }
       
       #ifdef DEBUG_BUFFER_FILLING
@@ -735,10 +802,10 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
          {
             #ifdef DEBUG_STOPCOND_EVAL
             MessageInterface::ShowMessage
-               ("StopCondition::Evaluate() i=%d, mValueBuffer=%f, "
-                "mEpochBuffer=%f\n", i, mValueBuffer[i], mEpochBuffer[i]);
+               ("StopCondition::Evaluate() i=%d, lhsValueBuffer=%f, "
+                "mEpochBuffer=%f\n", i, lhsValueBuffer[i], mEpochBuffer[i]);
             #endif
-            mInterpolator->AddPoint(mValueBuffer[i], &mEpochBuffer[i]);
+            mInterpolator->AddPoint(lhsValueBuffer[i], &mEpochBuffer[i]);
          }
          
          // Finally, if we can interpolate an epoch, we have success!
@@ -761,7 +828,7 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
       for (int i=0; i<mBufferSize; i++)
       {
          MessageInterface::ShowMessage
-            ("   [%d]   %.12lf  %.12lf\n", i, mEpochBuffer[i], mValueBuffer[i]);
+            ("   [%d]   %.12lf  %.12lf\n", i, mEpochBuffer[i], lhsValueBuffer[i]);
       }
    #endif
 
@@ -807,11 +874,11 @@ Real StopCondition::GetStopEpoch()
    {
       #ifdef DEBUG_STOPCOND_EPOCH
          MessageInterface::ShowMessage
-            ("      i=%d, mValueBuffer=%.12lf, "
-             "mEpochBuffer=%.12lf\n", i, mValueBuffer[i], mEpochBuffer[i]);
+            ("      i=%d, lhsValueBuffer=%.12lf, "
+             "mEpochBuffer=%.12lf\n", i, lhsValueBuffer[i], mEpochBuffer[i]);
       #endif
       
-      mInterpolator->AddPoint(mValueBuffer[i], &mEpochBuffer[i]);
+      mInterpolator->AddPoint(lhsValueBuffer[i], &mEpochBuffer[i]);
    }
    
    if (mInterpolator->Interpolate(mGoal, &stopEpoch))
@@ -1064,12 +1131,14 @@ bool StopCondition::Initialize()
       {
          mBufferSize = mInterpolator->GetBufferSize();
          mEpochBuffer.reserve(mBufferSize);
-         mValueBuffer.reserve(mBufferSize);
+         lhsValueBuffer.reserve(mBufferSize);
+         rhsValueBuffer.reserve(mBufferSize);
          
          for (int i=0; i<mBufferSize; i++)
          {
             mEpochBuffer.push_back(0.0);
-            mValueBuffer.push_back(0.0);
+            lhsValueBuffer.push_back(0.0);
+            rhsValueBuffer.push_back(0.0);
          }
          
          mNumValidPoints = 0;
@@ -1103,7 +1172,7 @@ bool StopCondition::Validate()
 {   
    #ifdef DEBUG_STOPCOND_INIT   
    MessageInterface::ShowMessage
-      ("StopCondition::Validate() mUseInternalEpoch=%d, mEpochParam=<%p>, "
+      ("StopCondition::Validate() entered, mUseInternalEpoch=%d, mEpochParam=<%p>, "
        "mStopParam=<%p>, mAllowGoalParam=%d, mGoalParam=<%p>\n", mUseInternalEpoch,
        mEpochParam, mStopParam, mAllowGoalParam, mGoalParam);
    #endif
@@ -1119,9 +1188,25 @@ bool StopCondition::Validate()
    // check on stop parameter
    if (mStopParam == NULL)
    {
+      #ifdef DEBUG_STOPCOND_INIT
+      MessageInterface::ShowMessage
+         ("StopCondition::Validate() stop parameter '%s' is NULL\n",
+          mStopParamName.c_str());
+      #endif
+      //throw StopConditionException
+      //   ("StopCondition::Validate() stop parameter: " + mStopParamName +
+      //    " has NULL pointer.\n");
       throw StopConditionException
-         ("StopCondition::Validate() stop parameter: " + mStopParamName +
-          " has NULL pointer.\n");
+         ("Currently GMAT expects a Spacecraft Parameter to be on the LHS of "
+          "stopping condition");
+   }
+   
+   // check if stop parameter is a system Parameter such as Sat.X
+   if (mStopParam->GetKey() != GmatParam::SYSTEM_PARAM)
+   {
+      throw StopConditionException
+         ("Currently GMAT expects a Spacecraft Parameter to be on the LHS of "
+          "stopping condition");
    }
    
    // check on interpolator
@@ -1154,14 +1239,14 @@ bool StopCondition::Validate()
 //            ("StopCondition::Validate() Interpolator: " + mInterpolatorName +
 //             " has NULL pointer.\n");
       }
-         
+      
       mNeedInterpolator = true;
    }
    
    // check on goal parameter
    if (mAllowGoalParam && mGoalParam == NULL)
       throw StopConditionException
-         ("StopCondition::Validate() goal parameter: " + mGoalStr +
+         ("StopCondition::Validate() goal parameter: " + rhsString +
           " has NULL pointer.\n");
    
    // Apoapsis and Periapsis need additional parameters
@@ -1256,10 +1341,10 @@ bool StopCondition::Validate()
    
    #ifdef DEBUG_STOPCOND_INIT
    MessageInterface::ShowMessage
-      ("StopCondition::Validate() mUseInternalEpoch=%d, mEpochParam=%p, "
-       "mInterpolator=%p\n   mStopParamType=%s, mStopParamName=%s, mStopParam=%s<%p>\n",
-       mUseInternalEpoch, mEpochParam, mInterpolator, mStopParamType.c_str(),
-       mStopParamName.c_str(), mStopParam->GetTypeName().c_str(), mStopParam);
+      ("StopCondition::Validate() returning true, mUseInternalEpoch=%d, mEpochParam=<%p>, "
+       "mInterpolator=<%p>\n   mStopParamType=%s, mStopParamName=%s, mStopParam=<%p>, "
+       "mGoalParam=<%p>\n", mUseInternalEpoch, mEpochParam, mInterpolator, mStopParamType.c_str(),
+       mStopParamName.c_str(), mStopParam, mGoalParam);
    #endif
    
    return true;
@@ -1490,20 +1575,47 @@ bool StopCondition::SetGoalParameter(Parameter *param)
 
 
 //------------------------------------------------------------------------------
-// void SetGoalString(const std::string &str)
+// void SetLhsString(const std::string &str)
 //------------------------------------------------------------------------------
-void StopCondition::SetGoalString(const std::string &str)
+void StopCondition::SetLhsString(const std::string &str)
 {
-   mGoalStr = str;
+   #ifdef DEBUG_STOPCOND_SET
+   MessageInterface::ShowMessage
+      ("StopCondition::SetLhsString() this=<%p>'%s' entered, str='%s', "
+       "lhsString='%s'\n", this, GetName().c_str(), str.c_str(), lhsString.c_str());
+   #endif
+   
+   lhsString = str;
+   
+   #ifdef DEBUG_STOPCOND_SET
+   MessageInterface::ShowMessage
+      ("StopCondition::SetLhsString() this=<%p>'%s' leaving, str='%s', "
+       "lhsString='%s'\n", this, GetName().c_str(), str.c_str(), lhsString.c_str());
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void SetRhsString(const std::string &str)
+//------------------------------------------------------------------------------
+void StopCondition::SetRhsString(const std::string &str)
+{
+   #ifdef DEBUG_STOPCOND_SET
+   MessageInterface::ShowMessage
+      ("StopCondition::SetLhsString() this=<%p>'%s' entered, str='%s', "
+       "rhsString='%s'\n", this, GetName().c_str(), str.c_str(), rhsString.c_str());
+   #endif
+   
+   rhsString = str;
    
    // remove leading blanks
-   std::string::size_type pos = mGoalStr.find_first_not_of(' ');
-   mGoalStr.erase(0, pos);
+   std::string::size_type pos = rhsString.find_first_not_of(' ');
+   rhsString.erase(0, pos);
    
    // if str is just a number
-   if (isdigit(mGoalStr[0]) || mGoalStr[0] == '.' || mGoalStr[0] == '-')
+   if (isdigit(rhsString[0]) || rhsString[0] == '.' || rhsString[0] == '-')
    {
-      mGoal = atof(mGoalStr.c_str());
+      mGoal = atof(rhsString.c_str());
       mAllowGoalParam = false;
    }
    else
@@ -1513,10 +1625,66 @@ void StopCondition::SetGoalString(const std::string &str)
    
    #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
-      ("StopCondition::SetGoalString() mAllowGoalParam=%d, mGoalStr=<%s>, "
-       "mGoal=%le\n", mAllowGoalParam, mGoalStr.c_str(), mGoal);
+      ("StopCondition::SetRhsString() mAllowGoalParam=%d, rhsString=<%s>, "
+       "mGoal=%le\n", mAllowGoalParam, rhsString.c_str(), mGoal);
    #endif
    
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetLhsString()
+//------------------------------------------------------------------------------
+std::string StopCondition::GetLhsString()
+{
+   return lhsString;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetRhsString()
+//------------------------------------------------------------------------------
+std::string StopCondition::GetRhsString()
+{
+   return rhsString;
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetLhsWrapper(ElementWrapper *toWrapper)
+//------------------------------------------------------------------------------
+bool StopCondition::SetLhsWrapper(ElementWrapper *toWrapper)
+{
+   #ifdef DEBUG_WRAPPERS   
+   MessageInterface::ShowMessage
+      ("StopCondition::SetLhsWrapper() this=<%p>'%s' entered with toWrapper=<%p>\n",
+       this, GetName().c_str(), toWrapper);
+   #endif
+   
+   if (toWrapper == NULL)
+      return false;
+   
+   lhsWrapper = toWrapper;
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetRhsWrapper(ElementWrapper *toWrapper)
+//------------------------------------------------------------------------------
+bool StopCondition::SetRhsWrapper(ElementWrapper *toWrapper)
+{
+   #ifdef DEBUG_WRAPPERS   
+   MessageInterface::ShowMessage
+      ("StopCondition::SetRhsWrapper() this=<%p>'%s' entered with toWrapper=<%p>\n",
+       this, GetName().c_str(), toWrapper);
+   #endif
+   
+   if (toWrapper == NULL)
+      return false;
+   
+   rhsWrapper = toWrapper;
+   return true;
 }
 
 
@@ -1582,9 +1750,9 @@ bool StopCondition::RenameRefObject(const Gmat::ObjectType type,
       mStopParamName = GmatStringUtil::ReplaceName(mStopParamName, oldName, newName);
    
    //set new stop goal string
-   pos = mGoalStr.find(oldName);
+   pos = rhsString.find(oldName);
    if (pos != mStopParamName.npos)
-      mGoalStr = GmatStringUtil::ReplaceName(mGoalStr, oldName, newName);
+      rhsString = GmatStringUtil::ReplaceName(rhsString, oldName, newName);
    
    return true;
 }
@@ -1610,7 +1778,7 @@ StopCondition::GetRefObjectNameArray(const Gmat::ObjectType type)
    {
       mAllRefObjectNames.push_back(mStopParamName);
       if (mAllowGoalParam)
-         mAllRefObjectNames.push_back(mGoalStr);
+         mAllRefObjectNames.push_back(rhsString);
    }
    
    return mAllRefObjectNames;
@@ -1626,15 +1794,15 @@ bool StopCondition::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 {
    #ifdef DEBUG_STOPCOND_GET
    MessageInterface::ShowMessage
-      ("StopCondition::SetRefObject() Name=%s, mStopParamName=%s, mGoalStr=%s\n",
-       this->GetName().c_str(), mStopParamName.c_str(), mGoalStr.c_str());
+      ("StopCondition::SetRefObject() Name=%s, mStopParamName=%s, rhsString=%s\n",
+       this->GetName().c_str(), mStopParamName.c_str(), rhsString.c_str());
    #endif
    
    if (type == Gmat::PARAMETER)
    {
       if (name == mStopParamName)
          SetStopParameter((Parameter*)obj);
-      if (name == mGoalStr)
+      if (name == rhsString)
          SetGoalParameter((Parameter*)obj);
       if (name == mEpochParamName)
          SetEpochParameter((Parameter*)obj);
@@ -1847,7 +2015,7 @@ std::string StopCondition::GetStringParameter(const Integer id) const
    case STOP_VAR:
       return mStopParamName;
    case GOAL:
-      return mGoalStr;
+      return rhsString;
 //   case INTERPOLATOR:
 //      return mInterpolatorName;
    default:
@@ -1877,8 +2045,8 @@ bool StopCondition::SetStringParameter(const Integer id, const std::string &valu
 {
    #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
-      ("StopCondition::SetStringParameter() id = %d, value = %s \n",
-       id, value.c_str());
+      ("StopCondition::SetStringParameter() this=<%p>'%s' entered, id = %d, "
+       "value = %s \n", this, GetName().c_str(), id, value.c_str());
    #endif
    
    switch (id)
@@ -1890,7 +2058,7 @@ bool StopCondition::SetStringParameter(const Integer id, const std::string &valu
       mStopParamName = value;
       return true;
    case GOAL:
-      SetGoalString(value);
+      SetRhsString(value);
       return true;
 //   case INTERPOLATOR:
 //      mInterpolatorName = value;
@@ -1947,10 +2115,23 @@ Real StopCondition::GetStopDifference()
 {
    Real goalValue, achievedValue;
    if (mGoalParam)
-      goalValue = mGoalParam->EvaluateReal();
+   {
+      try
+      {
+         goalValue = mGoalParam->EvaluateReal();
+      }
+      catch (BaseException &be)
+      {
+         // try with rhsWrapper
+         if (rhsWrapper != NULL)
+            goalValue = rhsWrapper->EvaluateReal();
+         else
+            throw;
+      }      
+   }
    else
       goalValue = mGoal;
-      
+   
    #ifdef DEBUG_STOPCOND_EVAL
       MessageInterface::ShowMessage("%s goal (%s) = %16.9lf, value = %16.9lf\n", 
          instanceName.c_str(), 
@@ -1981,12 +2162,25 @@ Real StopCondition::GetStopDifference()
 //------------------------------------------------------------------------------
 Real StopCondition::GetStopGoal()
 {
-//   return mGoal;
    Real goalValue;
    if (mGoalParam)
-      goalValue = mGoalParam->EvaluateReal();
+   {
+      try
+      {
+         goalValue = mGoalParam->EvaluateReal();
+      }
+      catch (BaseException &be)
+      {
+         // try with rhsWrapper
+         if (rhsWrapper != NULL)
+            goalValue = rhsWrapper->EvaluateReal();
+         else
+            throw;
+      }      
+   }
    else
       goalValue = mGoal;
+   
    return goalValue;
 }
 
@@ -2186,7 +2380,20 @@ void StopCondition::UpdateBuffer()
 
    // evaluate goal in case needed for cyclics
    if (mAllowGoalParam)
-      mGoal = mGoalParam->EvaluateReal();
+   {
+      try
+      {
+         mGoal = mGoalParam->EvaluateReal();
+      }
+      catch (BaseException &be)
+      {
+         // try with rhsWrapper
+         if (rhsWrapper != NULL)
+            mGoal = rhsWrapper->EvaluateReal();
+         else
+            throw;
+      }
+   }
    
    // set current epoch
    Real epoch;
@@ -2231,13 +2438,17 @@ void StopCondition::CopyDynamicData(const StopCondition &stopCond)
 
    if ((Integer)mEpochBuffer.size() < mBufferSize)
       mEpochBuffer.reserve(mBufferSize);
-
-   if ((Integer)mValueBuffer.size() < mBufferSize)
-      mValueBuffer.reserve(mBufferSize);
-      
+   
+   if ((Integer)lhsValueBuffer.size() < mBufferSize)
+      lhsValueBuffer.reserve(mBufferSize);
+   
+   if ((Integer)rhsValueBuffer.size() < mBufferSize)
+      rhsValueBuffer.reserve(mBufferSize);
+   
    for (int i=0; i<mBufferSize; i++)
    {
       mEpochBuffer[i] = stopCond.mEpochBuffer[i];
-      mValueBuffer[i] = stopCond.mValueBuffer[i];
+      lhsValueBuffer[i] = stopCond.lhsValueBuffer[i];
+      rhsValueBuffer[i] = stopCond.rhsValueBuffer[i];
    }
 }
