@@ -24,6 +24,7 @@
 
 #include "Publisher.hpp"
 #include "Parameter.hpp"
+#include "TextParser.hpp" // for SeparateBrackets()
 #include "StringUtil.hpp" // for Trim()
 #include "AngleUtil.hpp"  // for PutAngleInDegRange()
 #include "MessageInterface.hpp"
@@ -31,7 +32,8 @@
 #include <sstream>
 #include <cmath>
 
-//#define DEBUG_PROPAGATE_ASSEMBLE 1
+//#define DEBUG_PROPAGATE_ASSEMBLE
+//#define DEBUG_PARSING 
 //#define DEBUG_PROPAGATE_OBJ 1
 //#define DEBUG_PROPAGATE_INIT 1
 //#define DEBUG_PROPAGATE_DIRECTION 1
@@ -550,7 +552,7 @@ const std::string& Propagate::GetGeneratingString(Gmat::WriteMode mode,
       gen += ")";
       ++index;
    }
-
+   
    // Now the stopping conditions.  Note that stopping conditions are shown at
    // the end of the Propagate line, rather than inside of the PropSetup 
    // delimiters.
@@ -1306,6 +1308,12 @@ Real Propagate::SetRealParameter(const std::string &label, const Real value)
 bool Propagate::TakeAction(const std::string &action,
                            const std::string &actionData)
 {
+   #ifdef DEBUG_TAKE_ACTION
+   MessageInterface::ShowMessage
+      ("Propagate::TakeAction() this=<%p> entered, action='%s', actionData='%s'\n",
+       this, action.c_str(), actionData.c_str());
+   #endif
+   
    if (action == "Clear")
    {
       if (actionData == "Propagator")
@@ -1487,8 +1495,14 @@ const StringArray& Propagate::GetRefObjectNameArray(const Gmat::ObjectType type)
    
    if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::PARAMETER)
    {
-      refObjectNames.insert(refObjectNames.end(), stopNames.begin(),
-                            stopNames.end());
+      // If LHS is a number, do not add to ref object names (LOJ: 2010.06.14) 
+      //refObjectNames.insert(refObjectNames.end(), stopNames.begin(),
+      //                      stopNames.end());
+      for (UnsignedInt i = 0; i < stopNames.size(); i++)
+      {
+         if (!GmatStringUtil::IsNumber(stopNames[i]))
+            refObjectNames.push_back(stopNames[i]);
+      }
    }
    
    return refObjectNames;
@@ -1614,8 +1628,12 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
             MessageInterface::ShowMessage
                ("   stopWhen[j]->GetName()='%s'\n", stopWhen[j]->GetName().c_str());
             #endif
-            if (stopWhen[j]->GetName() == ("StopOn" + withName))
+            //if (stopWhen[j]->GetName() == ("StopOn" + withName))
+            if (stopWhen[j]->GetLhsString() == withName)
+            {
                stopWhen[j]->SetStopParameter((Parameter*)toWrapper->GetRefObject());
+               stopWhen[j]->SetLhsWrapper(toWrapper);
+            }
          }
          
          if (stopWrappers.at(i) != NULL)
@@ -1628,8 +1646,9 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
                wrappersToDelete.push_back(ew);
          }
          else
+         {
             stopWrappers.at(i) = toWrapper;
-         
+         }
          retval = true;
       }
    }
@@ -1653,6 +1672,19 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
          MessageInterface::ShowMessage
             ("   Found wrapper name \"%s\" in goalNames\n", withName.c_str());
          #endif
+         
+         for (UnsignedInt j=0; j<stopWhen.size(); j++)
+         {
+            #ifdef DEBUG_WRAPPERS   
+            MessageInterface::ShowMessage
+               ("   stopWhen[j]->GetName()='%s'\n", stopWhen[j]->GetName().c_str());
+            #endif
+            if (stopWhen[j]->GetRhsString() == withName)
+            {
+               stopWhen[j]->SetRhsWrapper(toWrapper);
+            }
+         }
+         
          if (goalWrappers.at(i) != NULL)
          {
             ew = goalWrappers.at(i);
@@ -1663,7 +1695,9 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
                wrappersToDelete.push_back(ew);
          }
          else
+         {
             goalWrappers.at(i) = toWrapper;
+         }
          retval = true;
       }
    }
@@ -1866,11 +1900,14 @@ void Propagate::FindSetupsAndStops(Integer &loc,
    std::string& generatingString, StringArray &setupStrings, 
    StringArray &stopStrings)
 {
+   //=================================================================
+   #ifdef __NOT_USING_TEXTPARSER__
+   //=================================================================
    // First parse the pieces from the string, starting at loc
    std::string tempString, setupWithStop, oneStop;
    const char *str = generatingString.c_str();
    Integer currentLoc = loc, parmstart, end, commaLoc;
-
+   
    bool scanning = true;
    
    // First find the PropSetups
@@ -1983,6 +2020,86 @@ void Propagate::FindSetupsAndStops(Integer &loc,
       if (parmstart == (Integer)std::string::npos)
          scanning = false;
    }
+
+   //=================================================================
+   #else
+   //=================================================================
+   
+   TextParser tp;
+   StringArray chunks;
+   std::string str1 = generatingString.substr(loc);
+   std::string str2;
+   
+   #ifdef DEBUG_PARSING
+   MessageInterface::ShowMessage("str1 = '%s'\n", str1.c_str());
+   #endif
+   
+   chunks = GmatStringUtil::SeparateBy(str1, ")", true, true, false);
+   
+   for (UnsignedInt i = 0; i < chunks.size(); i++)
+   {
+      str2 = chunks[i];
+      #ifdef DEBUG_PARSING
+      MessageInterface::ShowMessage("str2 = '%s'\n", str2.c_str());
+      #endif
+      
+      std::string::size_type lastCloseParen = str2.find_last_of(")");
+      
+      // Remove last ) after }
+      if (lastCloseParen == (str2.size() - 1) && str2[lastCloseParen - 1] == '}')
+      {
+         // Remove last )
+         str2 = GmatStringUtil::RemoveLastString(str2, ")");
+         
+         // Replace last comma before { with )
+         std::string::size_type openBrace = str2.find("{");
+         std::string::size_type lastComma = str2.find_last_of(",", openBrace);
+         if (lastComma != str2.npos && str2[lastComma-1] != ')')
+            str2[lastComma] = ')';
+         else if (lastComma != str2.npos)
+            str2.erase(lastComma, 1);
+         
+         #ifdef DEBUG_PARSING
+         MessageInterface::ShowMessage("str2 = '%s'\n", str2.c_str());
+         #endif
+      }
+      
+      StringArray parts = tp.SeparateAllBrackets(str2, "{}");
+      
+      #ifdef DEBUG_PARSING
+      MessageInterface::ShowMessage
+         ("Now separate propagator setups and stop conditions\n");
+      #endif
+      
+      for (UnsignedInt i = 0; i < parts.size(); i++)
+      {
+         #ifdef DEBUG_PARSING
+         MessageInterface::ShowMessage("   parts[%d] = '%s'\n", i, parts[i].c_str());
+         #endif
+         
+         // If it does not starts with {, it is propagator and spacecrafts
+         if (parts[i][0] != '{')
+         {
+            #ifdef DEBUG_PARSING
+            MessageInterface::ShowMessage("   adding prop setups\n");
+            #endif
+            parts[i] = GmatStringUtil::Trim(parts[i]);
+            setupStrings.push_back(parts[i]);
+         }
+         else
+         {
+            #ifdef DEBUG_PARSING
+            MessageInterface::ShowMessage("   adding stop conditions\n");
+            #endif
+            StringArray tempStops = tp.SeparateBrackets(parts[i], "{}", ",", true);
+            copy(tempStops.begin(), tempStops.end(), back_inserter(stopStrings));
+         }
+      }
+   }
+   
+   //=================================================================
+   #endif
+   //=================================================================
 }
 
 
@@ -2107,7 +2224,8 @@ void Propagate::ConfigureStoppingCondition(std::string &stopDesc)
    // Create the stop parameter
    std::string paramName;
    if (paramSystem == "")
-      paramName = paramObj + "." + paramType;
+      //paramName = paramObj + "." + paramType;
+      paramName = lhs;
    else
       paramName = paramObj + "." + paramSystem + "." + paramType;
    
@@ -2144,7 +2262,13 @@ void Propagate::ConfigureStoppingCondition(std::string &stopDesc)
    stopCond->SetPropDirection(direction);  // Use direction of props
    stopCond->SetStringParameter(stopCondStopVarID, paramName);
    SetObject(stopCond, Gmat::STOP_CONDITION);
-   TakeAction("SetStopSpacecraft", paramObj);
+   
+   #ifdef DEBUG_PROPAGATE_ASSEMBLE
+   MessageInterface::ShowMessage("lhs paramObj='%s'\n", paramObj.c_str());
+   #endif
+   
+   if (paramObj != "" && !GmatStringUtil::IsNumber(paramObj))
+      TakeAction("SetStopSpacecraft", paramObj);
    
    
    if (paramType != "Apoapsis" && paramType != "Periapsis")
@@ -2156,6 +2280,14 @@ void Propagate::ConfigureStoppingCondition(std::string &stopDesc)
          
       // create goal parameter
       std::string component = rhs;
+      
+      GmatStringUtil::ParseParameter(rhs, paramType, paramObj, paramSystem);
+      #ifdef DEBUG_PROPAGATE_ASSEMBLE
+      MessageInterface::ShowMessage("rhs paramObj='%s'\n", paramObj.c_str());
+      #endif
+      
+      if (paramObj != "" && !GmatStringUtil::IsNumber(paramObj))
+         TakeAction("SetStopSpacecraft", paramObj);
       
       if (find(goalNames.begin(), goalNames.end(), component) == goalNames.end())
       {
@@ -2518,17 +2650,27 @@ bool Propagate::Initialize()
             stopWhen[i]->SetRefObject(mapObj,
                                       Gmat::PARAMETER, refNames[j]);
          }
-         
-         stopWhen[i]->Initialize();
-         stopWhen[i]->SetSpacecraft((SpaceObject*)sats[0]);
-         
-         if (!stopWhen[i]->IsInitialized())
+
+         try
          {
-            initialized = false;
-            MessageInterface::ShowMessage(
-               "Propagate::Initialize() StopCondition %s is not initialized.\n",
-               stopWhen[i]->GetName().c_str());
-            break;
+            stopWhen[i]->Initialize();
+            stopWhen[i]->SetSpacecraft((SpaceObject*)sats[0]);
+            
+            if (!stopWhen[i]->IsInitialized())
+            {
+               initialized = false;
+               MessageInterface::ShowMessage(
+                  "Propagate::Initialize() StopCondition %s is not initialized.\n",
+                  stopWhen[i]->GetName().c_str());
+               break;
+            }
+         }
+         catch (BaseException &be)
+         {
+            CommandException ce;
+            ce.SetDetails("%s in %s\n", be.GetFullMessage().c_str(),
+                          GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+            throw ce;
          }
       }
    }
@@ -3782,13 +3924,13 @@ bool Propagate::CheckFirstStepStop(Integer i)
 //------------------------------------------------------------------------------
 void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 {
-	#ifdef DEBUG_FINAL_STEP
-   	MessageInterface::ShowMessage("*** Start of TakeFinalStep\n");
-	   MessageInterface::ShowMessage("      State data:\n");
-   	MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
-		MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
-      	   p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
-	#endif
+        #ifdef DEBUG_FINAL_STEP
+        MessageInterface::ShowMessage("*** Start of TakeFinalStep\n");
+           MessageInterface::ShowMessage("      State data:\n");
+        MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+                MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+           p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+        #endif
       
    // We've passed a stop condition, so remember that step size.  Include a 10%
    // safety factor.
@@ -3842,11 +3984,11 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
    }
    BufferSatelliteStates(true);
    #ifdef DEBUG_FINAL_STEP
-		MessageInterface::ShowMessage("   Buffered state data\n");
-		MessageInterface::ShowMessage("      State data:\n");
-		MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
-		MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
-      		p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+                MessageInterface::ShowMessage("   Buffered state data\n");
+                MessageInterface::ShowMessage("      State data:\n");
+                MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+                MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+                p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
    #endif
    
    #ifdef DEBUG_EPOCH_SYNC
@@ -3898,12 +4040,12 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 
    #ifdef DEBUG_FINAL_STEP
       MessageInterface::ShowMessage("   First search -> dt = %.12lf\n", dt);
-		MessageInterface::ShowMessage("      State data:\n");
-		MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
-		MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
-      		p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
-	#endif
-	
+                MessageInterface::ShowMessage("      State data:\n");
+                MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+                MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+                p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+        #endif
+        
    #if DEBUG_PROPAGATE_EXE
       MessageInterface::ShowMessage(
          "Step = %.12lf sec, calculated off of %.12lf and  %.12lf\n", 
