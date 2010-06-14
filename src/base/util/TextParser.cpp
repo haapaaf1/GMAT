@@ -2,7 +2,7 @@
 //-------------------------------------------------------------------------------
 //                              TextParser
 //-------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -23,7 +23,7 @@
 #include "UtilityException.hpp"
 #include "MessageInterface.hpp"
 
-#include <algorithm>			// Required for GCC 4.3
+#include <algorithm>                    // Required for GCC 4.3
 
 //#define DEBUG_TP 1
 //#define DEBUG_TP_EVAL_BLOCK 2
@@ -31,6 +31,7 @@
 //#define DEBUG_TP_DECOMPOSE 2
 //#define DEBUG_TP_SEP_BRACKETS 2
 //#define DEBUG_TP_DECOMPOSE_BLOCK 1
+//#define GMAT_TP_SEPARATEBY
 
 using namespace GmatStringUtil;
 
@@ -709,10 +710,11 @@ StringArray TextParser::Decompose(const std::string &chunk,
 {
    #if DEBUG_TP_DECOMPOSE
    MessageInterface::ShowMessage
-      ("TextParser::Decompose() chunk='%s', bracketPair='%s', removeOuterBracket=%d\n",
-       chunk.c_str(), bracketPair.c_str(), removeOuterBracket);
+      ("TextParser::Decompose() chunk='%s', bracketPair='%s', checkForArray=%d, "
+       "removeOuterBracket=%d\n", chunk.c_str(), bracketPair.c_str(), checkForArray,
+       removeOuterBracket);
    #endif
-
+   
    std::string str1 = chunk;
 
    // If checking for array, first remove blank spaces inside array bracket
@@ -723,7 +725,7 @@ StringArray TextParser::Decompose(const std::string &chunk,
    std::string::size_type openBracketIndex;
    Integer open, close;
    bool isOuterBracket = false;
-
+   
    // Remove outer bracket if flag is set to true
    openBracketIndex = str1.find_first_of(bracketPair[0]);
    if (openBracketIndex == 0)
@@ -746,35 +748,40 @@ StringArray TextParser::Decompose(const std::string &chunk,
          #endif
       }
    }
-
+   
    StringArray parts;
    std::string::size_type openBrace = str1.find_first_of("{");
    std::string::size_type closeBrace = str1.find_last_of("}");
-
+   
    //-----------------------------------------------------------------
    // check for brace first to simplify decompose
    //-----------------------------------------------------------------
    if (openBrace != str1.npos && closeBrace != str1.npos)
    {
       UnsignedInt firstComma = str1.find_last_of(",", openBrace);
-
+      ////loj:UnsignedInt firstComma = str1.find_last_of(", ", openBrace);
+      
       if (closeBrace == str1.size()-1)
       {
+//          if (firstComma != str1.npos)
+//             parts.push_back(str1.substr(0, firstComma));
+//          else
+//             parts.push_back(str1.substr(0, openBrace));
          parts.push_back(str1.substr(0, firstComma));
          parts.push_back(str1.substr(openBrace));
-
+         
          #if DEBUG_TP_DECOMPOSE
          MessageInterface::ShowMessage("   Returning:\n");
          for (unsigned int i=0; i<parts.size(); i++)
             MessageInterface::ShowMessage
                ("   parts[%d] = %s\n", i, parts[i].c_str());
          #endif
-
+         
          return parts;
       }
    }
-
-
+   
+   
    //-----------------------------------------------------------------
    // now separate by space and comma and put brackets together
    //-----------------------------------------------------------------
@@ -885,25 +892,26 @@ StringArray TextParser::SeparateBrackets(const std::string &chunk,
 {
    #if DEBUG_TP_SEP_BRACKETS
    MessageInterface::ShowMessage
-      ("TextParser::SeparateBrackets() chunk='%s', bracketPair='%s', delim='%s'\n",
-       chunk.c_str(), bracketPair.c_str(), delim.c_str());
+      ("TextParser::SeparateBrackets() chunk='%s', bracketPair='%s', delim='%s', "
+       "checkOuterBracket=%d\n", chunk.c_str(), bracketPair.c_str(), delim.c_str(),
+       checkOuterBracket);
    #endif
-
+   
    std::string str1 = chunk;
-
+   
    // First remove blank spaces inside array bracket
    if (chunk[0] != bracketPair[0])
       str1 = RemoveSpaceInBrackets(chunk, bracketPair);
-
+   
    #if DEBUG_TP_SEP_BRACKETS
    MessageInterface::ShowMessage("   str1=%s\n", str1.c_str());
    #endif
-
+   
    UnsignedInt firstOpen, lastClose;
    firstOpen = str1.find_first_not_of(whiteSpace);
    lastClose = str1.find_last_not_of(whiteSpace);
    bool bracketFound = true;
-
+   
    if (str1[firstOpen] != bracketPair[0] || str1[lastClose] != bracketPair[1])
    {
       bracketFound = false;
@@ -921,31 +929,93 @@ StringArray TextParser::SeparateBrackets(const std::string &chunk,
          throw UtilityException(errorMsg);
       }
    }
-
+   
    std::string str;
-
+   
    if (bracketFound)
       str = str1.substr(firstOpen+1, lastClose-firstOpen-1);
    else
       str = str1.substr(firstOpen, lastClose-firstOpen+1);
-
+   
    #if DEBUG_TP_SEP_BRACKETS
    MessageInterface::ShowMessage("   str=%s\n", str.c_str());
    #endif
-
-
+   
+   
    StringArray parts;
    parts = GmatStringUtil::SeparateBy(str, delim, true);
-
+   
    #if DEBUG_TP_SEP_BRACKETS
    MessageInterface::ShowMessage("   Returning:\n");
    for (unsigned int i=0; i<parts.size(); i++)
       MessageInterface::ShowMessage
          ("   parts[%d] = %s\n", i, parts[i].c_str());
    #endif
-
+   
    return parts;
+}
 
+
+//-------------------------------------------------------------------------------
+// StringArray SeparateAllBrackets(const std::string &chunk)
+//-------------------------------------------------------------------------------
+StringArray TextParser::SeparateAllBrackets(const std::string &chunk,
+                                            const std::string &bracketPair)
+{
+   #if DEBUG_TP_SEP_BRACKETS
+   MessageInterface::ShowMessage
+      ("TextParser::SeparateAllBrackets() chunk='%s', bracketPair='%s'\n",
+       chunk.c_str(), bracketPair.c_str());
+   #endif
+   
+   std::string str1 = chunk;
+   std::string parenPair = "()";
+   std::string openBracket, closeBracket;
+   openBracket = bracketPair[0];
+   if (bracketPair.size() > 1)
+      closeBracket = bracketPair[1];
+   
+   // First remove blank spaces inside array bracket
+   if (chunk[0] != parenPair[0])
+      str1 = RemoveSpaceInBrackets(chunk, parenPair);
+   
+   #if DEBUG_TP_SEP_BRACKETS
+   MessageInterface::ShowMessage("   str1=%s\n", str1.c_str());
+   #endif
+   
+   StringArray parts, parts1, parts2;
+   parts1 = GmatStringUtil::SeparateBy(str1, "}", false, true);
+   
+   for (Integer i = 0; i < (Integer)parts1.size(); i++)
+   {
+      #if DEBUG_TP_SEP_BRACKETS
+      MessageInterface::ShowMessage
+         ("   parts1[%d] = %s\n", i, parts1[i].c_str());
+      #endif
+      parts2 = GmatStringUtil::SeparateBy(parts1[i], "{", false, false);
+      for (unsigned int j=0; j<parts2.size(); j++)
+      {
+         #if DEBUG_TP_SEP_BRACKETS
+         MessageInterface::ShowMessage
+            ("   parts2[%d] = %s\n", j, parts2[j].c_str());
+         #endif
+         // If closeBracket found at the end, insert openBracket back if not found
+         if ((parts2[j][0] != '{') &&
+             (parts2[j].find(closeBracket) == parts2[j].size()-1))
+            parts2[j].insert(0, openBracket);
+      }
+      copy(parts2.begin(), parts2.end(), back_inserter(parts));
+   }
+   
+   #if DEBUG_TP_SEP_BRACKETS
+   MessageInterface::ShowMessage
+      ("TextParser::SeparateAllBrackets() returning %d parts:\n", parts.size());
+   for (unsigned int i=0; i<parts.size(); i++)
+      MessageInterface::ShowMessage
+         ("   parts[%d]  = %s\n", i, parts[i].c_str());
+   #endif
+   
+   return parts;
 }
 
 
@@ -1026,19 +1096,26 @@ StringArray TextParser::SeparateDots(const std::string &chunk)
 //-------------------------------------------------------------------------------
 StringArray TextParser::SeparateBy(const std::string &chunk, const std::string &delim)
 {
+   #ifdef GMAT_TP_SEPARATEBY
+   MessageInterface::ShowMessage
+      ("TextParser::SeparateBy() chunk='%s', delim='%s'\n", chunk.c_str(), delim.c_str());
+   #endif
+   
    StringTokenizer st(chunk, delim);
    StringArray parts = st.GetAllTokens();
    int count = parts.size();
-
+   
    for (int i=0; i<count; i++)
       parts[i] = GmatStringUtil::Strip(parts[i], GmatStringUtil::BOTH);
-
-   #if DEBUG_TP > 1
+   
+   #ifdef GMAT_TP_SEPARATEBY
+   MessageInterface::ShowMessage
+      ("TextParser::SeparateBy() returning:\n");
    for (int i=0; i<count; i++)
       MessageInterface::ShowMessage
          ("   parts[%d]=%s\n", i, parts[i].c_str());
    #endif
-
+   
    return parts;
 }
 

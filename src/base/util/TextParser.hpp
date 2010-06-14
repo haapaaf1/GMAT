@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              TextParser
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -65,11 +65,12 @@ public:
                                 const std::string &bracketPair,
                                 const std::string &delim,
                                 bool checkOuterBracket = true);
-   
+   StringArray SeparateAllBrackets(const std::string &chunk,
+                                   const std::string &bracketPair);
    StringArray SeparateSpaces(const std::string &chunk);
    StringArray SeparateDots(const std::string &chunk);
    StringArray SeparateBy(const std::string &chunk, const std::string &delim);
-      
+   
    
 protected:
       
