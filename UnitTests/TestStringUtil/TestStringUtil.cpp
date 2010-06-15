@@ -1064,6 +1064,7 @@ int RunTest(TestOutput &out)
    out.Validate(rowStr, colStr, left, left);
    out.Put("");
    
+   out.Put("");
    out.Put("====================== Check error condition");
    out.Put("================= missing column");
    
@@ -1558,6 +1559,38 @@ int RunTest(TestOutput &out)
    out.Put(str);
    out.Validate(str1, "((3*a+4)-(9*b-20)*cos(c)^2)*(-a/b)*d-0.00267522370194881");
    out.Put("");
+   
+   out.Put("============================== test GmatStringUtil::ParseFunctionName(str)");
+   
+   //------------------------------
+   str = "[out] = Function1(in);";
+   name = ParseFunctionName(str);
+   out.Put(str);
+   out.Validate(name, "Function1");
+
+   //------------------------------
+   str = "[] = Function2(in);";
+   name = ParseFunctionName(str);
+   out.Put(str);
+   out.Validate(name, "Function2");
+
+   //------------------------------
+   str = "Function3 (in);";
+   name = ParseFunctionName(str);
+   out.Put(str);
+   out.Validate(name, "Function3");
+
+   //------------------------------
+   str = "Function4;";
+   name = ParseFunctionName(str);
+   out.Put(str);
+   out.Validate(name, "Function4");
+   
+   //------------------------------
+   str = " Function5;;;;;;";
+   name = ParseFunctionName(str);
+   out.Put(str);
+   out.Validate(name, "Function5");
    
    return 0;
 }

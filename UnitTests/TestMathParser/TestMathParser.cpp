@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  TestMathParser
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2006/04/24
@@ -202,8 +202,8 @@ void TestIsEquation(TestOutput &out, MathParser &mp)
    bool boolVal;
    bool expBoolVal;
    
-   out.Put("============================== test IsEquation()");
-   
+   out.Put("============================== Test IsEquation()");
+
    //------------------------------
    expstr = "123.456";
    expBoolVal = false;
@@ -266,6 +266,13 @@ void TestIsEquation(TestOutput &out, MathParser &mp)
    boolVal = mp.IsEquation(expstr);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
+
+   //------------------------------
+   expstr = "cross(vv, cross(rv, vv));";
+   expBoolVal = true;
+   boolVal = mp.IsEquation(expstr);
+   out.Put(expstr + " should return ", expBoolVal);
+   out.Validate(boolVal, expBoolVal);
    
 }
 
@@ -275,11 +282,11 @@ void TestIsEquation(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestFindLowestOperator(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test FindLowestOperator()");
+   out.Put("============================== Test FindLowestOperator()");
    std::string expstr;
    Integer opIndex;
    std::string str1;
-   
+
    //------------------------------
    expstr = "((3*a+4)-(9*b-20)*(cos(c)^2))*(-a/b)*d-x";
    str1 = mp.FindLowestOperator(expstr, opIndex);
@@ -503,6 +510,22 @@ void TestFindLowestOperator(TestOutput &out, MathParser &mp)
    out.Validate(str1, "*");
    out.Validate(opIndex, 1);
    out.Put("");
+   
+   //------------------------------
+   expstr = "M^(-1)";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "");
+   out.Validate(opIndex, std::string::npos);
+   out.Put("");
+   
+   //------------------------------
+   expstr = "sin(94*0.0174532925199433)^2;";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "^");
+   out.Validate(opIndex, 26);
+   out.Put("");
 }
 
 
@@ -511,7 +534,7 @@ void TestFindLowestOperator(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestOpsWithNumber(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test Math Operations with Number");
+   out.Put("============================== Test Math Operations with Number");
    
    std::string expstr;
    Real expRealVal;
@@ -652,7 +675,7 @@ void TestOpsWithNumber(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestOpsWithNumberWithParen(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test Math Operations with Number with Parenthesis");
+   out.Put("============================== Test Math Operations with Number with Parenthesis");
    
    std::string expstr;
    Real expRealVal;
@@ -812,6 +835,22 @@ void TestOpsWithNumberWithParen(TestOutput &out, MathParser &mp)
    delete node;
    
    //------------------------------
+   expstr = "(10)*5*6/2";
+   expRealVal = 150;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "200*1000^(-1)";
+   expRealVal = 0.2;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
    expstr = "(10)*5*6/2 - 200*1000^(-1)";
    expRealVal = 149.8;
    out.Put(expstr + " should return ", expRealVal);
@@ -939,12 +978,14 @@ void TestOpsWithNumberWithParen(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test Function with Number");
+   out.Put("============================== Test Function with Number");
    
    std::string expstr;
    Real expRealVal;
    Rmatrix unsetMat;
    MathNode *node = NULL;
+
+   #if 0
    
    //------------------------------
    expstr = "(cos(0.000134)^2)";
@@ -1114,6 +1155,48 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
    delete node;
+   
+   //------------------------------
+   expstr = "(sin(0.5)^2);";
+   expRealVal = 0.229848847;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+//    //------------------------------
+//    expstr = "sin(0.5 * 1.0)^2;";
+//    expRealVal = 0.229848847;
+//    out.Put(expstr + " should return ", expRealVal);
+//    node = mp.Parse(expstr);
+//    EvaluateNode(node, out, expRealVal, unsetMat);
+//    delete node;
+   
+//    //------------------------------
+//    expstr = "(sin(0.5 * 1.0)^2);";
+//    expRealVal = 0.229848847;
+//    out.Put(expstr + " should return ", expRealVal);
+//    node = mp.Parse(expstr);
+//    EvaluateNode(node, out, expRealVal, unsetMat);
+//    delete node;
+   
+   #endif
+   
+   //------------------------------
+   expstr = "(sin(94*0.0174532925199433))^2;";
+   node = mp.Parse(expstr);
+   expRealVal = 0.9951340343707851;
+   out.Put(expstr + " should return ", expRealVal);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "sin(94*0.0174532925199433)^2;";
+   node = mp.Parse(expstr);
+   expRealVal = 0.9951340343707851;
+   out.Put(expstr + " should return ", expRealVal);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
 }
 
 
@@ -1122,7 +1205,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestOpsWithMatrix(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test Math Operation with Matrix");
+   out.Put("============================== Test Math Operation with Matrix");
    
    std::string expstr;
    Real expRealVal;
@@ -1162,7 +1245,7 @@ void TestOpsWithMatrix(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestVariable(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test Math Operation and Function with Variable");
+   out.Put("============================== Test Math Operation and Function with Variable");
    
    std::string expstr;
    Real expRealVal;
@@ -1254,7 +1337,7 @@ void TestVariable(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestArray(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test Math Operation and Function with Array");
+   out.Put("============================== Test Math Operation and Function with Array");
    
    std::string expstr;
    Real expRealVal;
@@ -1436,7 +1519,7 @@ void TestArray(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
 void TestJustParsing(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test just Parsing");
+   out.Put("============================== Test just parsing");
    
    std::string expstr;
    bool boolVal;
@@ -1533,29 +1616,53 @@ void TestJustParsing(TestOutput &out, MathParser &mp)
    node = mp.Parse(expstr);
    
    //------------------------------
-   expstr = "cross(vv, cross(rv, vv));";
+   expstr = "sin(INC*d2r)^2;";
    expBoolVal = true;
    boolVal = mp.IsEquation(expstr);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    node = mp.Parse(expstr);
+   
+   //------------------------------
+   expstr = "(sin(INC*d2r))^2;";
+   expBoolVal = true;
+   boolVal = mp.IsEquation(expstr);
+   out.Put(expstr + " should return ", expBoolVal);
+   out.Validate(boolVal, expBoolVal);
+   node = mp.Parse(expstr);
+
+   //------------------------------
+   try
+   {
+      expstr = "cross(vv, cross(rv, vv));";
+      expBoolVal = true;
+      boolVal = mp.IsEquation(expstr);
+      out.Put(expstr + " should return ", expBoolVal);
+      out.Validate(boolVal, expBoolVal);
+      node = mp.Parse(expstr);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
+   
+   
 }
 
 
 //------------------------------------------------------------------------------
-// void TestSpecialCase(TestOutput &out, MathParser &mp)
+// void TestFunctionRunner(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
-void TestSpecialCase(TestOutput &out, MathParser &mp)
+void TestFunctionRunner(TestOutput &out, MathParser &mp)
 {
-   out.Put("============================== test just Parsing special case");
+   out.Put("============================== Test FunctionRunner");
    
    std::string expstr;
-   bool boolVal;
-   bool expBoolVal;
    Real expRealVal;
    Rmatrix unsetMat;
    MathNode *node = NULL;
-
+   
    /*
    //------------------------------
    expstr = "Sqrt(1+2+3)";
@@ -1584,66 +1691,119 @@ void TestSpecialCase(TestOutput &out, MathParser &mp)
    */
    
    //------------------------------
-   expstr = "Times(1, 2)";
-   expRealVal = 2;
-   out.Put(expstr + " should return ", expRealVal);
-   node = mp.Parse(expstr);
-   //EvaluateNode(node, out, expRealVal, unsetMat);
-   //delete node;
+   try
+   {
+      expstr = "Times(1, 2)";
+      expRealVal = 2;
+      out.Put(expstr + " should return ", expRealVal);
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage());
+   }
    
    //------------------------------
-   expstr = "Times(Sqrt(1), 10)";
-   expRealVal = 20;
-   out.Put(expstr + " should return ", expRealVal);
-   node = mp.Parse(expstr);
-   //EvaluateNode(node, out, expRealVal, unsetMat);
-   //delete node;
+   try
+   {
+      expstr = "Times(Sqrt(1), 10)";
+      expRealVal = 20;
+      out.Put(expstr + " should return ", expRealVal);
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage());
+   }
    
    //------------------------------
-   expstr = "FindMax3(a, b, c)";
-   expRealVal = 10;
-   out.Put(expstr + " should return ", expRealVal);
-   node = mp.Parse(expstr);
-   //EvaluateNode(node, out, expRealVal, unsetMat);
-   //delete node;
+   try
+   {
+      expstr = "FindMax3(a, b, c)";
+      expRealVal = 10;
+      out.Put(expstr + " should return ", expRealVal);
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage());
+   }
    
    //------------------------------
-   expstr = "FindMax3(Sqrt(1), 10, 5)";
-   expRealVal = 10;
-   out.Put(expstr + " should return ", expRealVal);
-   node = mp.Parse(expstr);
-   //EvaluateNode(node, out, expRealVal, unsetMat);
-   //delete node;
+   try
+   {
+      expstr = "FindMax3(Sqrt(1), 10, 5)";
+      expRealVal = 10;
+      out.Put(expstr + " should return ", expRealVal);
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage());
+   }
 }
 
+
+//------------------------------------------------------------------------------
+// void TestSpecialCase(TestOutput &out, MathParser &mp)
+//------------------------------------------------------------------------------
+void TestSpecialCase(TestOutput &out, MathParser &mp)
+{
+   out.Put("============================== Test special case");
+   
+   std::string expstr;
+   Integer opIndex;
+   std::string str1;
+   Real expRealVal;
+   Rmatrix unsetMat;
+   MathNode *node = NULL;
+
+   //------------------------------
+   expstr = "200*1000^(-1)";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "*");
+   out.Validate(opIndex, 3);
+   expRealVal = 0.2;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+}
 
 //------------------------------------------------------------------------------
 //int RunTest(TestOutput &out)
 //------------------------------------------------------------------------------
 int RunTest(TestOutput &out)
-{
-   ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
-   MessageInterface::SetMessageReceiver(consoleMsg);
-   MessageInterface::SetLogFile("../../TestMath/GmatLog.txt");
-   MessageInterface::ShowMessage("=========== TestMathParser\n");
-   
+{   
    //---------------------------------------------------------------------------
-   out.Put("======================================== test TestMathParser\n");
+   out.Put("======================================== Test TestMathParser\n");
    //---------------------------------------------------------------------------
    
    MathParser mp = MathParser();
    
    try
    {
-      //TestIsEquation(out, mp);
-      //TestFindLowestOperator(out, mp);
-      //TestOpsWithNumber(out, mp);
-      ////TestOpsWithNumberWithParen(out, mp); // currently not working
-      //TestFunctionWithNumber(out, mp);
-      //TestOpsWithMatrix(out, mp);
-      ////TestVariable(out, mp); // currently not working
-      //TestArray(out, mp);
-      //TestJustParsing(out, mp);
+      #if 1
+      TestIsEquation(out, mp);
+      TestFindLowestOperator(out, mp);
+      TestOpsWithNumber(out, mp);
+      TestOpsWithNumberWithParen(out, mp);
+      TestFunctionWithNumber(out, mp);
+      TestOpsWithMatrix(out, mp);
+      ////TestVariable(out, mp); // currently not working due to NULL ElementWrapper
+      ////TestArray(out, mp);    // currently not working due to NULL ElementWrapper
+      TestJustParsing(out, mp);
+      ////TestFunctionRunner(out, mp); // currently not working due to NULL Function
+      #endif
       
       TestSpecialCase(out, mp);
    }
@@ -1663,16 +1823,22 @@ int RunTest(TestOutput &out)
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-   TestOutput out("../../TestMath/TestMathParserOut.txt");
+   std::string startupFile = "gmat_startup_file.txt";
+   FileManager *fm = FileManager::Instance();
+   fm->ReadStartupFile(startupFile);
+   
+   ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
+   MessageInterface::SetMessageReceiver(consoleMsg);
+   std::string outPath = "../../TestMathParser/";
+   MessageInterface::SetLogFile(outPath + "GmatLog.txt");
+   std::string outFile = outPath + "TestMathParserOut.txt";
+   TestOutput out(outFile);
+   out.Put(GmatTimeUtil::FormatCurrentTime());
+   MessageInterface::ShowMessage("%s\n", GmatTimeUtil::FormatCurrentTime().c_str());
    
    // Set global format setting
    GmatGlobal *global = GmatGlobal::Instance();
    global->SetActualFormat(false, false, 16, 1, false);
-   
-   // Read gmat_startup_file.txt for GmatFunction paths
-   FileManager *fm = FileManager::Instance();
-   std::string startupFile = "gmat_startup_file.txt";
-   fm->ReadStartupFile(startupFile);
    
    try
    {

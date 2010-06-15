@@ -225,8 +225,11 @@ void TestOutput::Put(const std::string &str1, int ival1,
 //------------------------------------------------------------------------------
 void TestOutput::Put(const std::string &str, bool bval)
 {
-   mOutfile << str << bval << endl;
-   cout << str << bval << endl;
+   std::string sval;
+   bval ? sval = "true" : sval = "false";
+   
+   mOutfile << str << sval << endl;
+   cout << str << sval << endl;
 }
 
 
