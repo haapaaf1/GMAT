@@ -1,0 +1,222 @@
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Sat1;
+GMAT Sat1.DateFormat = TAIModJulian;
+GMAT Sat1.Epoch = '21545.000000000';
+GMAT Sat1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.X = 7100;
+GMAT Sat1.Y = 0;
+GMAT Sat1.Z = 1300;
+GMAT Sat1.VX = 0;
+GMAT Sat1.VY = 7.35;
+GMAT Sat1.VZ = 1;
+GMAT Sat1.DryMass = 850;
+GMAT Sat1.Cd = 2.2;
+GMAT Sat1.Cr = 1.8;
+GMAT Sat1.DragArea = 15;
+GMAT Sat1.SRPArea = 1;
+GMAT Sat1.NAIFId = -123456789;
+GMAT Sat1.NAIFIdReferenceFrame = -123456789;
+GMAT Sat1.Id = 'SatId';
+GMAT Sat1.Attitude = CoordinateSystemFixed;
+GMAT Sat1.AttitudeDisplayStateType = 'Quaternion';
+GMAT Sat1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Sat1.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT Sat1.Q1 = 0;
+GMAT Sat1.Q2 = 0;
+GMAT Sat1.Q3 = 0;
+GMAT Sat1.Q4 = 1;
+GMAT Sat1.EulerAngleSequence = '312';
+GMAT Sat1.AngularVelocityX = 0;
+GMAT Sat1.AngularVelocityY = 0;
+GMAT Sat1.AngularVelocityZ = 0;
+
+Create Spacecraft Sat2;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.CoordinateSystem = Local;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+GMAT DefaultIB.DecrementMass = false;
+GMAT DefaultIB.Isp = 300;
+GMAT DefaultIB.GravitationalAccel = 9.81;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create String msg;
+Create Variable StopVar diff passFlag;
+GMAT StopVar = 45;
+GMAT diff = 1;
+GMAT passFlag = 1;
+Create Array StopArray[3,3];
+GMAT StopArray(1, 1) = 90.0;
+GMAT StopArray(2, 2) = 160.0;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.SolverIterations = Current;
+GMAT DefaultOpenGL.Add = {Sat1, Earth};
+GMAT DefaultOpenGL.OrbitColor = [ 255 32768 ];
+GMAT DefaultOpenGL.TargetColor = [ 8421440 0 ];
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewPointReference = Earth;
+GMAT DefaultOpenGL.ViewPointVector = [ 0 0 30000 ];
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewScaleFactor = 1;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpAxis = Z;
+GMAT DefaultOpenGL.CelestialPlane = Off;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.Axes = On;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.SunLine = Off;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
+GMAT DefaultOpenGL.NumPointsToRedraw = 0;
+GMAT DefaultOpenGL.ShowPlot = true;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.Filename = 'Bug432-TestPropagate.report';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.WriteHeaders = Off;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.ColumnWidth = 20;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+msg = '----------  Test variable on RHS';
+Report ReportFile1 msg;
+StopVar = 45;
+Propagate DefaultProp(Sat1) {Sat1.TA = StopVar, StopTolerance = 1e-005};
+Report ReportFile1 Sat1.TA StopVar;
+GMAT diff = abs(Sat1.TA - StopVar);
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+msg = '----------  Test Array on RHS'
+Report ReportFile1 msg;
+StopArray(1,1) = 90;  %%% to be fixed: Why assignment does not work here?
+Propagate DefaultProp(Sat1) {Sat1.TA = StopArray(1,1), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.TA - StopArray(1,1));
+Report ReportFile1 Sat1.TA StopArray(1,1);
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+msg = '----------  Test number on RHS';
+Report ReportFile1 msg;
+Propagate DefaultProp(Sat1,{Sat1.TA = 180.0, StopTolerance = 1e-005}) ;
+Report ReportFile1 Sat1.TA;
+GMAT diff = abs(Sat1.TA - 180);
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+msg = '----------  Test Parameters on both sides but only LHS is changing';
+Report ReportFile1 msg;
+GMAT Sat2.X = 5000.0;
+Propagate DefaultProp(Sat1) {Sat1.X = Sat2.X, StopTolerance = 1e-005};
+Report ReportFile1 Sat1.X Sat2.X
+GMAT diff = abs(Sat1.X - Sat2.X);
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+%%%========================================================================
+%%%----- Currently not allowed
+%%%========================================================================
+%%%msg = '----------  Test number on LHS';
+%%%Report ReportFile1 msg;
+%%%Propagate DefaultProp(Sat1) {200.0 = Sat1.TA, StopTolerance = 1e-005};
+%%%Report ReportFile1 Sat1.TA;
+%%%GMAT diff = abs(Sat1.TA - 180.0);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report ReportFile1 passFlag;
+
+%%%msg = '----------  Test variable on LHS';
+%%%Report ReportFile1 msg;
+%%%StopVar = 90;
+%%%Propagate DefaultProp(Sat1,{StopVar = Sat1.TA, StopTolerance = 1e-005}) ;
+%%%Report ReportFile1 Sat1.TA StopVar;
+%%%GMAT diff = abs(Sat1.TA - StopVar);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report ReportFile1 passFlag;
+
+%%%msg = '----------  Test Array on LHS';
+%%%Report ReportFile1 msg;
+%%%StopArray(2,2) = 160;
+%%%Propagate DefaultProp(Sat1) {StopArray(2,2) = Sat1.TA, StopTolerance = 1e-005};
+%%%Report ReportFile1 Sat1.TA StopArray(2,2);
+%%%GMAT diff = abs(Sat1.TA - StopArray(2,2));
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report ReportFile1 passFlag;
+

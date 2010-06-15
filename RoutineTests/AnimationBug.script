@@ -338,16 +338,16 @@ GMAT OpenGLPlot1.NumPointsToRedraw = 0;
 GMAT OpenGLPlot1.ShowPlot = true;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = MPS1.A1ModJulian;
-GMAT XYPlot1.Add = {MPS1.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = MPS1.A1ModJulian;
+GMAT XYPlot1.YVariables = {MPS1.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
 Create XYPlot XYPlot2;
-GMAT XYPlot2.IndVar = MPS1.A1ModJulian;
-GMAT XYPlot2.Add = {MPS1.EarthMJ2000Eq.Y};
-GMAT XYPlot2.Grid = On;
+GMAT XYPlot2.XVariable = MPS1.A1ModJulian;
+GMAT XYPlot2.YVariables = {MPS1.EarthMJ2000Eq.Y};
+GMAT XYPlot2.ShowGrid = true;
 GMAT XYPlot2.SolverIterations = None;
 GMAT XYPlot2.ShowPlot = true;
 
@@ -358,7 +358,7 @@ GMAT XYPlot2.ShowPlot = true;
 
 
 %GMAT MarsBPlane.B      = -0.214972341605;
-Propagate MarsProp(MPS) {MPS1.Mars.Periapsis};
+Propagate MarsProp(MPS, {MPS1.Mars.Periapsis});
 Report rf MPS1.ElapsedSecs MPS1.MarsMJ2000Eq.X MPS1.MarsMJ2000Eq.Y MPS1.MarsMJ2000Eq.Z 
 Maneuver TOI(MarsSupply);
 Propagate MarsProp(MPS) {MPS1.ElapsedDays = 5};
