@@ -1199,9 +1199,22 @@ bool Propagate::SetBooleanParameter(const Integer id, const bool value)
          direction = 1.0;
       else
          direction = -1.0;
+      
+      for (UnsignedInt i=0; i<stopWhen.size(); i++)
+      {
+         if (stopWhen[i] != NULL)
+         {
+            #ifdef DEBUG_PROPAGATE_DIRECTION
+            MessageInterface::ShowMessage
+               ("Setting direction %f to StopCondition '%s'\n", direction,
+                stopWhen[i]->GetName().c_str());
+            #endif
+            stopWhen[i]->SetPropDirection(direction);  // Use direction of props
+         }
+      }
       return true;
    }
-
+   
    return GmatCommand::SetBooleanParameter(id, value);
 }
 
@@ -1807,11 +1820,11 @@ void Propagate::CheckForOptions(Integer &loc, std::string &generatingString)
       {
          if (modeStr == "BackProp ")
          {
-            #ifdef DEBUG_PROPAGATE_ASSEMBLE
-               MessageInterface::ShowMessage("\nDirection is now %d\n", currentMode);
-            #endif
-   
             direction = -1.0;
+            
+            #ifdef DEBUG_PROPAGATE_ASSEMBLE
+               MessageInterface::ShowMessage("\nDirection is now %d\n", direction);
+            #endif
          }
          else
          {
