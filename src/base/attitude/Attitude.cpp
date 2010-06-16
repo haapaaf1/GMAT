@@ -3096,8 +3096,9 @@ if (!mat.IsOrthonormal(DCM_ORTHONORMALITY_TOLERANCE)) //return false;
       errMsg += "\" for field \"" + OTHER_REP_TEXT[DIRECTION_COSINE_MATRIX - OTHER_REPS_OFFSET];
       errMsg += "\" on an object of type \"" + typeName;
       errMsg += "\" is not an allowed value.\n";
-      errMsg += "The allowed values are: [orthogonal matrix]. The tolerance on orthonormality is 1.0e-14.";
-
+      std::stringstream ortho;
+      ortho << "The allowed values are: [orthogonal matrix]. The tolerance on orthonormality is " << DCM_ORTHONORMALITY_TOLERANCE << ".";
+      errMsg += ortho.str();
       attex.SetDetails(errMsg);
       throw attex;
    }
