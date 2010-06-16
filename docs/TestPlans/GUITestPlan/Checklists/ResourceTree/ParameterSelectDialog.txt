@@ -1,7 +1,8 @@
 $Id: ParameterSelectDialog.txt,v 1.4 2006/11/22 21:32:33 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
+
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -22,13 +23,10 @@ Procedure:
 
 1. Create and open the appropriate object panel.
                                                                                    
-   Create other panel Resource               [ ] Pass  [ ] Fail  Bug# ______
+   Clcik on Mission Sequence and add Report,
+      click on Report1 and click on View     [ ] Pass  [ ] Fail  Bug# ______
 
-   Open other panel Resource                 [ ] Pass  [ ] Fail  Bug# ______
-
-   Open Create Action Button                 [ ] Pass  [ ] Fail  Bug# ______
    
-
 2. Evaluate the aesthetic qualities of the panel.
 
    Panel Aesthetics                          [ ] Pass  [ ] Fail  Bug# ______
@@ -36,22 +34,35 @@ Procedure:
 
 3. Evaluate the individual panel elements.
 
-   Create Action Button*                     [ ] Pass  [ ] Fail  Bug# ______
-   
    Object Type Combo Box                     [ ] Pass  [ ] Fail  Bug# ______
    
-   Object Combo Box                          [ ] Pass  [ ] Fail  Bug# ______
+   Select Entire Object Check Box            [ ] Pass  [ ] Fail  Bug# ______
    
-   Property Selection List                   [ ] Pass  [ ] Fail  Bug# ______
+   Object List Combo Box                     [ ] Pass  [ ] Fail  Bug# ______
    
-   Selected List                             [ ] Pass  [ ] Fail  Bug# ______
+   Object Property Selection List            [ ] Pass  [ ] Fail  Bug# ______
+   
+   Selected Values List                      [ ] Pass  [ ] Fail  Bug# ______
    
    -> (Add) Selection Button                 [ ] Pass  [ ] Fail  Bug# ______
    
    <- (Remove) Selection Button              [ ] Pass  [ ] Fail  Bug# ______
    
+   => (Add All) Selection Button             [ ] Pass  [ ] Fail  Bug# ______
+
    <= (Remove All) Selection Button          [ ] Pass  [ ] Fail  Bug# ______
-      
+    
+   -> (UP) Selection Button                  [ ] Pass  [ ] Fail  Bug# ______
+   
+   <- (DN) Selection Button                  [ ] Pass  [ ] Fail  Bug# ______ 
+
+   Central Body Combo Box 
+     (select spacecraft Altitude)            [ ] Pass  [ ] Fail  Bug# ______
+   
+   Coordinate System Combo Box 
+     (select spacecraft AOP)                [ ] Pass  [ ] Fail  Bug# ______
+   
+ 
    
 4. Evaluate panel-specific functionality.
 
