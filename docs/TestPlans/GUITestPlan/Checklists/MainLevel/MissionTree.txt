@@ -1,7 +1,7 @@
 $Id: MissionTree.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -34,8 +34,11 @@ Procedure:
    MissionSequence exists                    [ ] Pass  [ ] Fail  Bug# ______
 
    Subfolder Sequence1 exists                [ ] Pass  [ ] Fail  Bug# ______
+      Collapse                               [ ] Pass  [ ] Fail  Bug# ______
+      Expand                                 [ ] Pass  [ ] Fail  Bug# ______
       Append                                 [ ] Pass  [ ] Fail  Bug# ______
       Run                                    [ ] Pass  [ ] Fail  Bug# ______
+      Show Detail                            [ ] Pass  [ ] Fail  Bug# ______
       Show Script                            [ ] Pass  [ ] Fail  Bug# ______
 
       Propagate1 exists                      [ ] Pass  [ ] Fail  Bug# ______
@@ -48,6 +51,7 @@ Procedure:
       Maneuver                               [ ] Pass  [ ] Fail  Bug# ______
       BeginFiniteBurn                        [ ] Pass  [ ] Fail  Bug# ______
       EndFIniteBurn                          [ ] Pass  [ ] Fail  Bug# ______
+      Equation                               [ ] Pass  [ ] Fail  Bug# ______
       Target                                 [ ] Pass  [ ] Fail  Bug# ______
       Optimize                               [ ] Pass  [ ] Fail  Bug# ______
       CallFunction                           [ ] Pass  [ ] Fail  Bug# ______
@@ -55,7 +59,6 @@ Procedure:
       Toggle                                 [ ] Pass  [ ] Fail  Bug# ______
       Save                                   [ ] Pass  [ ] Fail  Bug# ______
       Stop                                   [ ] Pass  [ ] Fail  Bug# ______
-      GMAT (assignment)                      [ ] Pass  [ ] Fail  Bug# ______
       Script Event                           [ ] Pass  [ ] Fail  Bug# ______
       Control Logic -> If                    [ ] Pass  [ ] Fail  Bug# ______
       Control Logic -> If-Else               [ ] Pass  [ ] Fail  Bug# ______
@@ -69,13 +72,59 @@ Procedure:
    Append to Optimize:
       Vary                                   [ ] Pass  [ ] Fail  Bug# ______
       Minimize                               [ ] Pass  [ ] Fail  Bug# ______
-      NonlinearConstraint                               [ ] Pass  [ ] Fail  Bug# ______
+      NonlinearConstraint                    [ ] Pass  [ ] Fail  Bug# ______
       
    Select all created commands (e.g. Achieve, Save, etc.)
        Open                                  [ ] Pass  [ ] Fail  Bug# ______
        Close                                 [ ] Pass  [ ] Fail  Bug# ______
+       Insert After                          [ ] Pass  [ ] Fail  Bug# ______
        Insert Before                         [ ] Pass  [ ] Fail  Bug# ______
        Delete                                [ ] Pass  [ ] Fail  Bug# ______
+   
+   High Level List of Mission Tree Tests:
+
+    
+	Append for all allowable command types                   [ ] Pass  [ ] Fail  Bug# ______
+	Insert after for allowable command types                 [ ] Pass  [ ] Fail  Bug# ______
+	Insert before  for allowable command types               [ ] Pass  [ ] Fail  Bug# ______
+	Insert in Optimize command                               [ ] Pass  [ ] Fail  Bug# ______
+	Insert in Target command                                 [ ] Pass  [ ] Fail  Bug# ______
+	Insert in If command                                     [ ] Pass  [ ] Fail  Bug# ______
+	Delete all commands (no command nesting in 
+         branch commands)                                      [ ] Pass  [ ] Fail  Bug# ______
+	Delete all commands inside Target                        [ ] Pass  [ ] Fail  Bug# ______
+	Delete all commands inside Optimize                      [ ] Pass  [ ] Fail  Bug# ______
+	Delete all commands inside If                            [ ] Pass  [ ] Fail  Bug# ______
+	Delete all commands inside While                         [ ] Pass  [ ] Fail  Bug# ______
+	Delete all commands inside For                           [ ] Pass  [ ] Fail  Bug# ______
+	Delete all commands inside If/Else                       [ ] Pass  [ ] Fail  Bug# ______
+	Deleting Target deletes all internal commands            [ ] Pass  [ ] Fail  Bug# ______
+	Deleting Optimize deletes all internal commands          [ ] Pass  [ ] Fail  Bug# ______
+	Deleting If statement deletes all internal commands      [ ] Pass  [ ] Fail  Bug# ______
+	Deleting While statement deletes all internal commands   [ ] Pass  [ ] Fail  Bug# ______
+	Deleting For statement deletes all internal commands     [ ] Pass  [ ] Fail  Bug# ______
+	Deleting If/Else statement deletes all internal commands [ ] Pass  [ ] Fail  Bug# ______
+	Cannot delete End command for branch statements          [ ] Pass  [ ] Fail  Bug# ______
+	Vary command is only allowed in Target or Optimize       [ ] Pass  [ ] Fail  Bug# ______
+	Achieve command is only allowed in Target                [ ] Pass  [ ] Fail  Bug# ______
+	Nonlinear constraint command is only allowed in Optimize [ ] Pass  [ ] Fail  Bug# ______
+	Minimize command is only allowed in Optimize             [ ] Pass  [ ] Fail  Bug# ______
+	Only one minimize  command is allowed in Optimize        [ ] Pass  [ ] Fail  Bug# ______
+	Open dialog box for all allowable command types          [ ] Pass  [ ] Fail  Bug# ______
+	Close dialog box for all allowable command types         [ ] Pass  [ ] Fail  Bug# ______
+	Collapse all menu option closes all branch commands      [ ] Pass  [ ] Fail  Bug# ______
+	Open all menu option opens all branch commands           [ ] Pass  [ ] Fail  Bug# ______
+
+
+   Check Scroll Bar options (right click on the Scroll bar, if the Scroll bar is 
+   not visible, then shrink the GMAT sreen until the blue Scroll Bar shows up). 
+       Scroll Here                           [ ] Pass  [ ] Fail  Bug# ______
+       Top                                   [ ] Pass  [ ] Fail  Bug# ______
+       Bottom                                [ ] Pass  [ ] Fail  Bug# ______
+       Page Up                               [ ] Pass  [ ] Fail  Bug# ______
+       Page Down                             [ ] Pass  [ ] Fail  Bug# ______
+       Scroll Up                             [ ] Pass  [ ] Fail  Bug# ______
+       Scroll Down                           [ ] Pass  [ ] Fail  Bug# ______
    
    
 5. Evaluate data.

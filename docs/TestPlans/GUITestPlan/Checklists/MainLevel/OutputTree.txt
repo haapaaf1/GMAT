@@ -1,7 +1,8 @@
 $Id: OutputTree.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
+
 
 
 Platform:   ___ Windows, Version: ______________________

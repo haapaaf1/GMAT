@@ -45,6 +45,7 @@ Procedure:
       Add Formation                          [ ] Pass  [ ] Fail  Bug# ______
 
    d. Burn Folder                            [ ] Pass  [ ] Fail  Bug# ______
+      DefaultIB exists                       [ ] Pass  [ ] Fail  Bug# ______
       Add Impulsive Burn                     [ ] Pass  [ ] Fail  Bug# ______
       Add Finite Burn                        [ ] Pass  [ ] Fail  Bug# ______
 
@@ -106,11 +107,10 @@ Procedure:
       Add Coordinate System                  [ ] Pass  [ ] Fail  Bug# ______
  
    m. Functions Folder                       [ ] Pass  [ ] Fail  Bug# ______
-      Subfolder Predefined Functions         [ ] Pass  [ ] Fail  Bug# ______
       Add Matlab Function                    [ ] Pass  [ ] Fail  Bug# ______
       Add GMAT Function                      [ ] Pass  [ ] Fail  Bug# ______
   
-
+   
 4. Evaluate tree-specific functionality.
 
    Select all created items (e.g. Spacecraft, Burn, etc.)
@@ -119,8 +119,19 @@ Procedure:
        Rename                                [ ] Pass  [ ] Fail  Bug# ______
        Delete                                [ ] Pass  [ ] Fail  Bug# ______
        Clone                                 [ ] Pass  [ ] Fail  Bug# ______
+    
+
+   Check Scroll Bar options (right click on the Scroll bar, if the Scroll bar is 
+   not visible, then shrink the GMAT sreen until the blue Scroll Bar shows up). 
+       Scroll Here                           [ ] Pass  [ ] Fail  Bug# ______
+       Top                                   [ ] Pass  [ ] Fail  Bug# ______
+       Bottom                                [ ] Pass  [ ] Fail  Bug# ______
+       Page Up                               [ ] Pass  [ ] Fail  Bug# ______
+       Page Down                             [ ] Pass  [ ] Fail  Bug# ______
+       Scroll Up                             [ ] Pass  [ ] Fail  Bug# ______
+       Scroll Down                           [ ] Pass  [ ] Fail  Bug# ______
    
-   
+     
 5. Evaluate data.
    
    N/A

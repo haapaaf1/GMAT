@@ -1,4 +1,4 @@
-$Id: ScriptEditor.txt,v 1.5 2010/04/01 09:40:00 jbez Exp $ 
+$Id: FunctionEditor.txt,v 1.5 2010/05/05 09:40:00 jbez Exp $ 
 
 
 Tester: _____________  Date: ____________  Build: ____________
@@ -13,14 +13,14 @@ Platform:   ___ Windows, Version: ______________________
 
 Description:  
 
-This test validates the functionality of the Script editor.
+This test validates the functionality of the Function editor.
 
 Procedure:
 
 1. Create and open the appropriate element.
                                                                                    
-   Right Click on Scripts and add a script either by the Add
-   or Add Script Folder                                [ ] Pass  [ ] Fail  Bug# ______
+   Right Click on Functions and add a Function either by the New
+   or Open                                             [ ] Pass  [ ] Fail  Bug# ______
    
 
 2. Evaluate the aesthetic qualities of the tree.
@@ -46,12 +46,10 @@ Procedure:
       Expand FOR END sequence (click on "...")           [ ] Pass  [ ] Fail  Bug# ______
       Contract FOR END sequence (click on black triangle)[ ] Pass  [ ] Fail  Bug# ______
 
-      Build                                            [ ] Pass  [ ] Fail  Bug# ______
-      Build and Run                                    [ ] Pass  [ ] Fail  Bug# ______
       Save                                             [ ] Pass  [ ] Fail  Bug# ______
       Save As                                          [ ] Pass  [ ] Fail  Bug# ______
       Close                                            [ ] Pass  [ ] Fail  Bug# ______
-      Remove                                           [ ] Pass  [ ] Fail  Bug# ______
+      Show Script                                      [ ] Pass  [ ] Fail  Bug# ______
 
       Short Cut Keys --------------------
       (http://gmat.ed-pages.com/wiki/tiki-index.php?page=Ref-ScriptEditorShortcutKeys)
@@ -69,7 +67,7 @@ Procedure:
       Ctrl + R (Aligns highlighted text to the right)  [ ] Pass  [ ] Fail  Bug# ______
       Ctrl + J (Aligns highlighted text to the justified left)
                                                        [ ] Pass  [ ] Fail  Bug# ______
-      Ctrl + track mouse scroll (enlarge/Decrease text size in script editor)
+      Ctrl + track mouse scroll (enlarge/Decrease text size in function editor)
 
                                                        [ ] Pass  [ ] Fail  Bug# ______
 
@@ -82,9 +80,9 @@ Procedure:
 
    Open                                      [ ] Pass  [ ] Fail  Bug# ______
    Close                                     [ ] Pass  [ ] Fail  Bug# ______
-   Build                                     [ ] Pass  [ ] Fail  Bug# ______
-   Build and Run                             [ ] Pass  [ ] Fail  Bug# ______
-   Remove                                    [ ] Pass  [ ] Fail  Bug# ______
+   Rename                                    [ ] Pass  [ ] Fail  Bug# ______
+   Delete                                    [ ] Pass  [ ] Fail  Bug# ______
+   Clone                                     [ ] Pass  [ ] Fail  Bug# ______
    
   
 7. Evaluate rename functionality.

@@ -1,7 +1,7 @@
 $Id: ToolBar.txt,v 1.4 2006/11/22 21:32:34 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -34,7 +34,7 @@ Procedure:
    New Script                                [ ] Pass  [ ] Fail  Bug# ______
    Open Script                               [ ] Pass  [ ] Fail  Bug# ______
    Save To Script                            [ ] Pass  [ ] Fail  Bug# ______
-   Default Project                           [ ] Pass  [ ] Fail  Bug# ______
+   New (Default) Project                     [ ] Pass  [ ] Fail  Bug# ______
    Copy  [DEFERRED]
    Cut   [DEFERRED]
    Paste [DEFERRED]
@@ -44,8 +44,14 @@ Procedure:
    Stop                                      [ ] Pass  [ ] Fail  Bug# ______
    Close All                                 [ ] Pass  [ ] Fail  Bug# ______
    Close This Child                          [ ] Pass  [ ] Fail  Bug# ______
-   Help                                      [ ] Pass  [ ] Fail  Bug# ______
+   About GMAT                                [ ] Pass  [ ] Fail  Bug# ______
+   Online Help                               [ ] Pass  [ ] Fail  Bug# ______
+   Forward Animation                         [ ] Pass  [ ] Fail  Bug# ______
+   Stop Animation                            [ ] Pass  [ ] Fail  Bug# ______
+   Faster Animation                          [ ] Pass  [ ] Fail  Bug# ______
+   Slower Animation                          [ ] Pass  [ ] Fail  Bug# ______
  
+
 
 4. Evaluate bar-specific functionality.
 

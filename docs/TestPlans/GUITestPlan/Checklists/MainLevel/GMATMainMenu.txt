@@ -1,7 +1,7 @@
 $Id: GMATMainMenu.txt,v 1.5 2006/11/22 21:32:34 dconway Exp $ 
 
 
-Tester: ______________________________      Date: _________________________
+Tester: _____________  Date: ____________  Build: ____________
 
 
 Platform:   ___ Windows, Version: ______________________
@@ -33,31 +33,31 @@ Procedure:
 
    a. File Submenu:
       New Script                             [ ] Pass  [ ] Fail  Bug# ______
-      Open Script                            [ ] Pass  [ ] Fail  Bug# ______
-      Save To Script                         [ ] Pass  [ ] Fail  Bug# ______
-      Save To Script As                      [ ] Pass  [ ] Fail  Bug# ______
-      Close All                              [ ] Pass  [ ] Fail  Bug# ______
-      Close This Child                       [ ] Pass  [ ] Fail  Bug# ______
-      Default Project                        [ ] Pass  [ ] Fail  Bug# ______
-      Preferences                            [ ] Pass  [ ] Fail  Bug# ______
-         Font                                [ ] Pass  [ ] Fail  Bug# ______
-      Quit                                   [ ] Pass  [ ] Fail  Bug# ______
+      New Mission                            [ ] Pass  [ ] Fail  Bug# ______
+      Open                                   [ ] Pass  [ ] Fail  Bug# ______
+      Save                                   [ ] Pass  [ ] Fail  Bug# ______
+      Save As                                [ ] Pass  [ ] Fail  Bug# ______
+      Set File Paths                         [ ] Pass  [ ] Fail  Bug# ______
+      Exit                                   [ ] Pass  [ ] Fail  Bug# ______
 
    b. Edit Submenu:
       TBD
    
-   c. Tools Submenu:
-      TBD
-      
+   c. Window Submenu:
+      Close                                  [ ] Pass  [ ] Fail  Bug# ______
+      Close All                              [ ] Pass  [ ] Fail  Bug# ______
+      Cascade                                [ ] Pass  [ ] Fail  Bug# ______
+      Tile Horizontally                      [ ] Pass  [ ] Fail  Bug# ______
+      Tile Vertically                        [ ] Pass  [ ] Fail  Bug# ______
+      Arrange Icons                          [ ] Pass  [ ] Fail  Bug# ______
+      Next                                   [ ] Pass  [ ] Fail  Bug# ______
+      Previous                               [ ] Pass  [ ] Fail  Bug# ______
+
    d. Help Submenu:
-      [DEFERRED]
+      Online Help                            [ ] Pass  [ ] Fail  Bug# ______
+      About GMAT                             [ ] Pass  [ ] Fail  Bug# ______
 
-   e. Window Submenu:
-      Minimize                               [ ] Pass  [ ] Fail  Bug# ______
-      Zoom                                   [ ] Pass  [ ] Fail  Bug# ______
-      Bring All to Front                     [ ] Pass  [ ] Fail  Bug# ______
-
-
+   
 4. Evaluate menu-specific functionality.
 
    N/A
@@ -70,7 +70,7 @@ Procedure:
 
 6. Evaluate menu control.
 
-   Tab Key Navigation                        [ ] Pass  [ ] Fail  Bug# ______
+   Tab Key Navigation                        N/A
    
 
 7. Evaluate rename functionality.
