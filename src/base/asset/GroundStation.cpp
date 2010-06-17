@@ -598,6 +598,11 @@ bool GroundStation::RenameRefObject(const Gmat::ObjectType type,
 const StringArray&
 GroundStation::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
+   #ifdef DEBUG_INIT
+      MessageInterface::ShowMessage("GroundStation::GetRefObjectNameArray(%d)",
+            type);
+   #endif
+
    static StringArray retval;
    retval.clear();
 
@@ -617,6 +622,12 @@ GroundStation::GetRefObjectNameArray(const Gmat::ObjectType type)
    StringArray baseNames = BodyFixedPoint::GetRefObjectNameArray(type);
    for (UnsignedInt i = 0; i < baseNames.size(); ++i)
 	  retval.push_back(baseNames[i]);
+
+   #ifdef DEBUG_INIT
+      MessageInterface::ShowMessage("Groundstation Ref Object Name Array:\n");
+      for (UnsignedInt i = 0; i < retval.size(); ++i)
+         MessageInterface::ShowMessage("   %s\n", retval[i].c_str());
+   #endif
 
    return retval;
 }
@@ -846,7 +857,7 @@ bool GroundStation::Initialize()
    std::string sphType;
 
    if (theBody == NULL)
-      throw GmatBaseException("Unable to initialize ground station" +
+      throw GmatBaseException("Unable to initialize ground station " +
             instanceName + "; its origin is not set\n");
 
    // Calculate the body-fixed Cartesian position
