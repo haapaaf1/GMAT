@@ -470,7 +470,9 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("HZ");
       
       // Environmental parameters
+      #ifdef __ENABLE_ATMOS_DENSITY__
       creatables.push_back("AtmosDensity");
+      #endif
       
       // Planet parameters
       creatables.push_back("MHA");

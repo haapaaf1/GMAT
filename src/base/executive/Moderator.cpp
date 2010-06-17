@@ -6738,11 +6738,13 @@ void Moderator::CreateDefaultMission()
       #if DEBUG_DEFAULT_MISSION > 1
       MessageInterface::ShowMessage("-->default angular parameters created\n");
       #endif
-      
+
+      #ifdef __ENABLE_ATMOS_DENSITY__
       // Environmental parameters
       CreateParameter("AtmosDensity", "DefaultSC.Earth.AtmosDensity");
       #if DEBUG_DEFAULT_MISSION > 1
       MessageInterface::ShowMessage("-->default env parameters created\n");
+      #endif
       #endif
       
       // Planet parameters
