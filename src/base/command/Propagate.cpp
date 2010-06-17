@@ -2041,6 +2041,8 @@ void Propagate::FindSetupsAndStops(Integer &loc,
    TextParser tp;
    StringArray chunks;
    std::string str1 = generatingString.substr(loc);
+   // Remove all blank spaces
+   str1 = GmatStringUtil::RemoveAll(str1, ' ');
    std::string str2;
    
    #ifdef DEBUG_PARSING
