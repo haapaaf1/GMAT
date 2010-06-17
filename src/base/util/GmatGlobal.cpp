@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 GmatGlobal
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -50,6 +50,17 @@ GmatGlobal* GmatGlobal::Instance()
       theGmatGlobal = new GmatGlobal;
         
    return theGmatGlobal;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetRunMode(Integer mode)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetRunMode(Integer mode)
+{
+   runMode = mode;
+   if (runMode == EXIT_AFTER_RUN)
+      isBatchMode = true;
 }
 
 
@@ -174,7 +185,7 @@ void GmatGlobal::SetActualFormat(bool scientific, bool showPoint, Integer precis
 //------------------------------------------------------------------------------
 GmatGlobal::GmatGlobal()
 {
-   isBatchMdoe = false;
+   isBatchMode = false;
    runInterrupted = false;
    isMatlabAvailable = false;
    runMode = NORMAL;

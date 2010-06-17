@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 GmatGlobal
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -75,12 +75,12 @@ public:
    std::string GetMatlabFuncNameExt() { return matlabExt; }
    
    // Run mode
-   bool IsBatchMode() { return isBatchMdoe; }
-   void SetBatchMode(bool flag) { isBatchMdoe = flag; }
+   bool IsBatchMode() { return isBatchMode; }
+   void SetBatchMode(bool flag) { isBatchMode = flag; }
    bool GetRunInterrupted() { return runInterrupted; }
    void SetRunInterrupted(bool flag) { runInterrupted = flag; }
    Integer GetRunMode() { return runMode; }
-   void SetRunMode(Integer mode) { runMode = mode; }
+   void SetRunMode(Integer mode);
    Integer GetGuiMode() { return guiMode; }
    void SetGuiMode(Integer mode) { guiMode = mode; }
    Integer GetMatlabMode() { return matlabMode; }
@@ -188,7 +188,7 @@ private:
    Setting defaultSetting;
    Setting currentSetting;
    
-   bool isBatchMdoe;
+   bool isBatchMode;
    bool runInterrupted;
    bool isMatlabAvailable;
    
