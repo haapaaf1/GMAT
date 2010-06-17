@@ -1,0 +1,413 @@
+% Script Test Case for Simulation using a USNTrackingSystem
+Earth.NutationUpdateInterval = 0;
+%--------------------------------------------
+%---------- Spacecraft
+%--------------------------------------------
+Create Spacecraft AQUA InitSat1;
+GMAT AQUA.DateFormat = UTCGregorian;
+GMAT AQUA.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT AQUA.CoordinateSystem = EarthMJ2000Eq;
+GMAT AQUA.DisplayStateType = Cartesian;
+GMAT AQUA.X   = 1301.7911569424441000;
+GMAT AQUA.Y   = -6957.7686256239267000
+GMAT AQUA.Z   = -288.7080151269336200
+GMAT AQUA.VX  = -1.1121653537736800
+GMAT AQUA.VY  = 0.0907365703826921 
+GMAT AQUA.VZ  = -7.4188335652599884
+GMAT AQUA.DryMass = 821.1888;
+GMAT AQUA.Cd = 2.2;
+GMAT AQUA.Cr = 1.448009157951282;
+GMAT AQUA.DragArea = 15;
+GMAT AQUA.SRPArea = 20.438
+GMAT AQUA.Cd = 2.2;
+GMAT AQUA.Id = 'AQUA';
+
+Create Spacecraft TDRSS4 InitSat2;
+TDRSS4.DateFormat = UTCGregorian;
+TDRSS4.Epoch = '09 Jun 2004 00:00:00.000';
+TDRSS4.CoordinateSystem = EarthMJ2000Eq;
+TDRSS4.DisplayStateType = Cartesian;
+TDRSS4.X   = -33706.32486153131300;
+TDRSS4.Y   = -25220.9982290584700000;
+TDRSS4.Z   = 2557.3726408292800000;
+TDRSS4.VX  = 1.8200462985895349;
+TDRSS4.VY  = -2.4614667170907318;
+TDRSS4.VZ  = -0.2775481078198591;
+TDRSS4.DryMass = 821.1888;
+TDRSS4.Cd = 2.2;
+TDRSS4.Cr = 1.448009157951282;
+TDRSS4.DragArea = 15;
+TDRSS4.SRPArea = 20.438;
+TDRSS4.Id = 'TDRSS4';
+
+
+Create Spacecraft TDRSS5;
+GMAT TDRSS5.DateFormat = UTCGregorian;
+GMAT TDRSS5.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT TDRSS5.CoordinateSystem = EarthMJ2000Eq;
+GMAT TDRSS5.DisplayStateType = Cartesian;
+GMAT TDRSS5.X  = 4421.7271216569197000
+GMAT TDRSS5.Y  = 41917.626848489970000
+GMAT TDRSS5.Z  = 596.556114376500200
+GMAT TDRSS5.VX = -3.0453299842557420 	
+GMAT TDRSS5.VY = 0.3168982270839584
+GMAT TDRSS5.VZ = 0.2890083011048917 
+GMAT TDRSS5.DryMass = 821.1888;
+GMAT TDRSS5.Cd = 2.2;
+GMAT TDRSS5.Cr = 1.448009157951282;
+GMAT TDRSS5.DragArea = 15;
+GMAT TDRSS5.SRPArea = 20.438
+GMAT TDRSS5.Cd = 2.2;
+GMAT TDRSS5.Id = 'TDRSS5';
+
+
+Create Spacecraft topoSat47
+topoSat47.DateFormat = A1ModJulian;
+topoSat47.CoordinateSystem = EarthFixed
+topoSat47.X = -1538.981732;
+topoSat47.Y = -5158.435939;
+topoSat47.Z =  3412.151587;
+
+Create Spacecraft topoSat48
+topoSat48.DateFormat = A1ModJulian;
+topoSat48.CoordinateSystem = EarthFixed
+topoSat48.X = -1538.986895;
+topoSat48.Y = -5158.453244;
+topoSat48.Z =  3412.123344;
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+%Create GroundStation Maui;
+%Maui.CentralBody = Earth;
+%Maui.StateType = Cartesian;
+%Maui.HorizonReference = Sphere;
+%Maui.X = -4450.8;
+%Maui.Y = 2676.1;
+%Maui.Z = -3691.38;
+%Maui.Id = 'Maui';
+
+Create GroundStation ST2K_48
+ST2K_48.Id = ST2K_48
+ST2K_48.CentralBody = Earth;
+ST2K_48.StateType   = Spherical;
+ST2K_48.HorizonReference = Ellipsoid;
+ST2K_48.Latitude = 32.5429773611111130
+ST2K_48.Longitude= 253.3879110555556100
+ST2K_48.Altitude = 1.4523099999999999
+
+Create GroundStation ST2K_47
+ST2K_47.Id = ST2K_47
+ST2K_47.CentralBody = Earth;
+ST2K_47.StateType   = Spherical;
+ST2K_47.HorizonReference = Ellipsoid;
+ST2K_47.Latitude = 32.5432795833333300 
+ST2K_47.Longitude= 253.3879110555556100 
+ST2K_47.Altitude = 1.4522800000000
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+Create ForceModel ODProp_ForceModel;
+ODProp_ForceModel.CentralBody = Earth;
+%ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
+ODProp_ForceModel.PointMasses = {Earth};
+ODProp_ForceModel.Drag = None;
+ODProp_ForceModel.SRP = Off;
+ODProp_ForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+Create Propagator ODProp;
+ODProp.FM = ODProp_ForceModel;
+ODProp.Type = PrinceDormand78;
+ODProp.InitialStepSize = 60;
+ODProp.Accuracy = 1e-10;
+ODProp.MinStep = 0.0;
+ODProp.MaxStep = 86400;
+ODProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Datafiles
+%----------------------------------------
+Create DataFile MauiMeasData;
+MauiMeasData.Filename = 'AQUA_TDRSSTwoWayRange.gmd';
+MauiMeasData.Format = GMATInternal;
+
+%----------------------------------------
+%---------- MeasurementModels
+%----------------------------------------
+Create MeasurementModel RangeMeasurement;
+RangeMeasurement.ObservationData = {MauiMeasData};
+RangeMeasurement.Type = TDRSSTwoWayRange;
+RangeMeasurement.Participants = {ST2K_48, TDRSS4, AQUA};
+RangeMeasurement.Bias = 0;
+RangeMeasurement.NoiseSigma = 1e-05;
+RangeMeasurement.TimeConstant = 6000;
+RangeMeasurement.Covariance.Bias = [1000000];
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.SolverIterations = Current;
+GMAT OpenGLPlot1.Add = {AQUA, TDRSS4, TDRSS5, Earth};
+GMAT OpenGLPlot1.OrbitColor = [ 255 32768 ];
+GMAT OpenGLPlot1.TargetColor = [ 8421440 0 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000 ];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 1;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Tracking Systems
+%----------------------------------------
+Create USNTrackingSystem USNTracker
+USNTracker.Add = {RangeMeasurement}
+
+Create ReportFile rf
+rf.WriteHeaders = Off;
+rf.Filename = TDRSSTruthData.txt
+
+Create Variable measEpochA1 fixedEpoch stationX stationY stationZ diff tau speedOfLight timediff oldtau
+Create Variable oldRange propEpoch range downLinkRange transponderDelay upLinkRange twoWayRange backlinkRange forwardlinkRange
+Create Variable fixedX fixedY fixedZ
+Create String newIteration theSolution DownLinkSolution StartData ForwardLinkSolution BackLinkSolution
+Create String tdrss4 tdrss5 aqua toposat48 fixedpt
+DownLinkSolution    = '++++++ Downlink Solution +++++++'
+ForwardLinkSolution = '+++++ Forwardlink Solution +++++'
+BackLinkSolution    = '++++++ Backlink Solution +++++++'
+StartData           = '-------- Initial Data  ---------'
+newIteration        = '-------- new Iteration ---------'
+theSolution         = '========= The Solution ========='
+tdrss4     = 'TDRSS4' 
+tdrss5     = 'TDRSS5'
+aqua       = 'AQUA  '
+toposat48  = 'TOPO48'
+fixedpt    = 'FIXED '
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+BeginMissionSequence 
+
+measEpochA1      = 23165.50037076831;
+measEpochA1      = 23165.52328743459;
+measEpochA1      = 23165.64759298808;
+measEpochA1      = 23166.03787075935;
+%measEpochA1      = 23166.48925964072;
+
+speedOfLight     = 299792.458;
+transponderDelay = .0000013;
+
+Propagate ODProp(AQUA, TDRSS4, TDRSS5){AQUA.A1ModJulian = measEpochA1}
+topoSat48.Epoch = measEpochA1;
+
+%====  Light time solution for downlink leg
+diff = 1;
+timediff = 1;
+InitSat1 = AQUA;
+InitSat2 = TDRSS4;
+range = sqrt( (TDRSS4.X-topoSat48.EarthMJ2000Eq.X)^2 + ...
+      (TDRSS4.Y-topoSat48.EarthMJ2000Eq.Y)^2 + (TDRSS4.Z-topoSat48.EarthMJ2000Eq.Z)^2 );
+tau   = range/speedOfLight;
+oldtau = 0.0;
+
+Report rf StartData 
+Report rf toposat48 topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+Report rf tdrss4 TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+Report rf aqua AQUA.A1ModJulian AQUA.X AQUA.Y AQUA.Z
+Report rf diff timediff tau range
+
+While diff > 1e-5
+   oldRange = range;
+   oldtau = tau;
+   AQUA   = InitSat1;
+   TDRSS4 = InitSat2;
+   propEpoch = measEpochA1 - tau/86400;
+   If propEpoch > TDRSS4.A1ModJulian
+      Propagate ODProp(AQUA, TDRSS4, TDRSS5){TDRSS4.A1ModJulian = propEpoch}
+   EndIf
+   If propEpoch < TDRSS4.A1ModJulian
+      Propagate BackProp ODProp(AQUA, TDRSS4, TDRSS5){TDRSS4.A1ModJulian = propEpoch}
+   EndIf
+   range = sqrt( (TDRSS4.X-topoSat48.EarthMJ2000Eq.X)^2 + ...
+        (TDRSS4.Y-topoSat48.EarthMJ2000Eq.Y)^2 + (TDRSS4.Z-topoSat48.EarthMJ2000Eq.Z)^2 );
+   tau   = range/speedOfLight;
+   diff = abs(range - oldRange)*1000;
+   timediff = abs(oldtau - tau);
+   Report rf newIteration 
+   Report rf TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+   Report rf topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+   Report rf diff tau range
+EndWhile
+downLinkRange = range;
+
+Report rf DownLinkSolution 
+Report rf toposat48 topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+Report rf tdrss4 TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+Report rf aqua AQUA.A1ModJulian AQUA.X AQUA.Y AQUA.Z
+Report rf diff timediff tau range
+
+%==== Light time solution for the backlink leg
+diff = 1
+InitSat1 = AQUA;
+InitSat2 = TDRSS4;
+fixedEpoch = propEpoch
+fixedX = TDRSS4.X;
+fixedY = TDRSS4.Y;
+fixedZ = TDRSS4.Z;
+
+range = sqrt( (fixedX-AQUA.X)^2 + ...
+      (fixedY-AQUA.Y)^2 + (fixedZ-AQUA.Z)^2 );
+tau   = range/speedOfLight;
+oldtau = 0.0;
+
+StartData = '===== InitialData for BackLink ====='
+Report rf StartData 
+Report rf toposat48 topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+Report rf tdrss4 TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+Report rf fixedpt fixedEpoch fixedX fixedY fixedZ 
+Report rf aqua AQUA.A1ModJulian AQUA.X AQUA.Y AQUA.Z
+Report rf diff timediff tau range
+
+While diff > 1e-5
+   oldRange = range;
+   oldtau = tau;
+   AQUA   = InitSat1;
+   TDRSS4 = InitSat2;
+   propEpoch = fixedEpoch - tau/86400.0;
+   If propEpoch > AQUA.A1ModJulian
+      Propagate ODProp(AQUA, TDRSS4, TDRSS5){AQUA.A1ModJulian = propEpoch}
+   EndIf
+   If propEpoch < AQUA.A1ModJulian
+      Propagate BackProp ODProp(AQUA, TDRSS4, TDRSS5){AQUA.A1ModJulian = propEpoch}
+   EndIf
+   range = sqrt( (fixedX-AQUA.X)^2 + ...
+         (fixedY-AQUA.Y)^2 + (fixedZ-AQUA.Z)^2 );
+   tau   = range/speedOfLight;
+   diff = abs(range - oldRange)*1000;
+   timediff = abs(oldtau - tau);
+   Report rf newIteration 
+   Report rf fixedEpoch fixedX fixedY fixedZ 
+   Report rf AQUA.A1ModJulian AQUA.EarthMJ2000Eq.X AQUA.EarthMJ2000Eq.Y AQUA.EarthMJ2000Eq.Z
+   Report rf diff tau range
+EndWhile
+backlinkRange = range;
+
+Report rf BackLinkSolution 
+Report rf toposat48 topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+Report rf tdrss4 TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+Report rf fixedpt fixedEpoch fixedX fixedY fixedZ 
+Report rf aqua AQUA.A1ModJulian AQUA.X AQUA.Y AQUA.Z
+Report rf diff timediff tau range
+
+%==== Light time solution for the forwardlink leg
+diff = 1
+InitSat1 = AQUA;
+InitSat2 = TDRSS4;
+fixedEpoch = propEpoch
+fixedX = AQUA.X;
+fixedY = AQUA.Y;
+fixedZ = AQUA.Z;
+
+range = sqrt( (fixedX-TDRSS4.X)^2 + ...
+      (fixedY-TDRSS4.Y)^2 + (fixedZ-TDRSS4.Z)^2 );
+tau   = range/speedOfLight;
+oldtau = 0.0;
+
+StartData = '===== InitialData for ForwardLink ====='
+Report rf StartData 
+Report rf toposat48 topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+Report rf tdrss4 TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+Report rf fixedpt fixedEpoch fixedX fixedY fixedZ 
+Report rf aqua AQUA.A1ModJulian AQUA.X AQUA.Y AQUA.Z
+Report rf diff timediff tau range
+
+While diff > 1e-5
+   oldRange = range;
+   oldtau = tau;
+   AQUA   = InitSat1;
+   TDRSS4 = InitSat2;
+   propEpoch = fixedEpoch - tau/86400.0;
+   If propEpoch > AQUA.A1ModJulian
+      Propagate ODProp(AQUA, TDRSS4, TDRSS5){AQUA.A1ModJulian = propEpoch}
+   EndIf
+   If propEpoch < AQUA.A1ModJulian
+      Propagate BackProp ODProp(AQUA, TDRSS4, TDRSS5){AQUA.A1ModJulian = propEpoch}
+   EndIf
+   range = sqrt( (fixedX-TDRSS4.X)^2 + ...
+         (fixedY-TDRSS4.Y)^2 + (fixedZ-TDRSS4.Z)^2 );
+   tau   = range/speedOfLight;
+   diff = abs(range - oldRange)*1000;
+   timediff = abs(oldtau - tau);
+   Report rf newIteration 
+   Report rf fixedEpoch fixedX fixedY fixedZ 
+   Report rf TDRSS4.A1ModJulian TDRSS4.EarthMJ2000Eq.X TDRSS4.EarthMJ2000Eq.Y TDRSS4.EarthMJ2000Eq.Z
+   Report rf diff tau range
+EndWhile
+forwardlinkRange = range;
+
+Report rf ForwardLinkSolution 
+Report rf toposat48 topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+Report rf tdrss4 TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+Report rf fixedpt fixedEpoch fixedX fixedY fixedZ 
+Report rf aqua AQUA.A1ModJulian AQUA.X AQUA.Y AQUA.Z
+Report rf diff timediff tau range
+
+%====  Light time solution for uplink leg
+diff    = 1;
+timediff = 1;
+
+fixedEpoch = propEpoch
+fixedX = TDRSS4.X;
+fixedY = TDRSS4.Y;
+fixedZ = TDRSS4.Z;
+topoSat48.Epoch = fixedEpoch;
+range = sqrt( (fixedX-topoSat48.EarthMJ2000Eq.X)^2 + ...
+        (fixedY-topoSat48.EarthMJ2000Eq.Y)^2 + (fixedZ-topoSat48.EarthMJ2000Eq.Z)^2 );
+tau     = range/speedOfLight;
+
+StartData = '===== InitialData for UpLink ====='
+Report rf StartData 
+Report rf toposat48 topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+Report rf tdrss4 TDRSS4.A1ModJulian TDRSS4.X TDRSS4.Y TDRSS4.Z 
+Report rf fixedpt fixedEpoch fixedX fixedY fixedZ 
+Report rf aqua AQUA.A1ModJulian AQUA.X AQUA.Y AQUA.Z
+Report rf diff timediff tau range
+
+While diff > 0.00001   
+   oldRange = range;
+   oldtau = tau;
+   propEpoch = fixedEpoch - tau/86400;
+   topoSat48.Epoch = propEpoch;
+   range = sqrt( (fixedX-topoSat48.EarthMJ2000Eq.X)^2 + ...
+           (fixedY-topoSat48.EarthMJ2000Eq.Y)^2 + (fixedZ-topoSat48.EarthMJ2000Eq.Z)^2 );
+   tau   = range/speedOfLight;
+   diff = abs(range - oldRange)*1000;
+   timediff = abs(oldtau - tau);
+   Report rf newIteration 
+   Report rf fixedEpoch fixedX fixedY fixedZ 
+   Report rf topoSat48.A1ModJulian topoSat48.EarthMJ2000Eq.X topoSat48.EarthMJ2000Eq.Y topoSat48.EarthMJ2000Eq.Z
+   Report rf diff timediff tau range
+EndWhile
+upLinkRange = range;
+
+twoWayRange = ( upLinkRange + forwardlinkRange + speedOfLight*transponderDelay + backlinkRange + downLinkRange )/2;
+Report rf theSolution
+rf.WriteHeaders = On;
+Report rf upLinkRange forwardlinkRange backlinkRange downLinkRange twoWayRange
+

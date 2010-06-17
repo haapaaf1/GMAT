@@ -68,7 +68,7 @@ MauiMeasData.Format = GMATInternal;
 Create MeasurementModel RangeMeasurement;
 RangeMeasurement.ObservationData = {MauiMeasData};
 RangeMeasurement.Type = USNTwoWayRange;
-RangeMeasurement.Participants = {Maui, ODSat};
+RangeMeasurement.Participants = {Maui, ODSat.Transponder1};
 RangeMeasurement.Bias = 0;
 RangeMeasurement.NoiseSigma = 1e-05;
 RangeMeasurement.TimeConstant = 6000;
@@ -107,6 +107,7 @@ Transponder1.InputBandwidth = 250.0;
 Transponder1.OutputFrequencyModel = 'TurnAroundRatio';
 Transponder1.TurnAroundRatio = '240/221';
 Transponder1.PrimaryAntenna = Antenna1;
+Transponder1.HardwareDelay = 1.3e-6;
 
 Create Antenna Antenna2;
 Antenna2.PhaseCenterLocation1 = 4;

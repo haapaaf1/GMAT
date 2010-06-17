@@ -20,6 +20,14 @@ GMAT AQUA.SRPArea = 20.438
 GMAT AQUA.Cd = 2.2;
 GMAT AQUA.Id = 'AQUA';
 
+Create Antenna ant;
+Create Transponder trans;
+
+trans.PrimaryAntenna = ant;
+trans.HardwareDelay = 1.3e-6;
+
+AQUA.AddHardware = {trans, ant};
+
 Create Spacecraft TDRSS4;
 GMAT TDRSS4.DateFormat = UTCGregorian;
 GMAT TDRSS4.Epoch = '09 Jun 2004 00:00:00.000';
@@ -110,12 +118,12 @@ AQUA_TDRSS.Add = {AQUA_TDRSS4Range};
 Create MeasurementModel AQUA_TDRSS4Range
 AQUA_TDRSS4Range.ObservationData = AQUA_TDRSSData
 AQUA_TDRSS4Range.Type            = TDRSSTwoWayRange;
-AQUA_TDRSS4Range.Participants    = {ST2K_48, TDRSS4, AQUA};
+AQUA_TDRSS4Range.Participants    = {ST2K_48, TDRSS4, AQUA.trans};
 
 Create MeasurementModel AQUA_TDRSS5Range
 AQUA_TDRSS5Range.ObservationData = AQUA_TDRSSData
 AQUA_TDRSS5Range.Type            = TDRSSTwoWayRange;
-AQUA_TDRSS5Range.Participants    = {ST2K_48, TDRSS5, AQUA};
+AQUA_TDRSS5Range.Participants    = {ST2K_48, TDRSS5, AQUA.trans};
 
 Create DataFile AQUA_TDRSSData;
 AQUA_TDRSSData.Filename = 'AQUA_TDRSSData.gmd';

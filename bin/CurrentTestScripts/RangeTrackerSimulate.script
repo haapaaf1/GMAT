@@ -21,6 +21,13 @@ ODSat.DragArea = 15;
 ODSat.SRPArea = 1;
 ODSat.Id = 'ODSat01';
 
+Create Antenna ant;
+Create Transponder trans;
+trans.HardwareDelay = 1.3e-6;
+trans.PrimaryAntenna = ant;
+
+ODSat.AddHardware = {ant, trans}
+
 %----------------------------------------
 %---------- GroundStations
 %----------------------------------------
@@ -35,14 +42,19 @@ ODSat.Id = 'ODSat01';
 
 Create GroundStation Maui;
 Maui.CentralBody = Earth;
-Maui.StateType = Spherical;
-Maui.HorizonReference = Ellipsoid;
-Maui.Latitude = -35.586612725;
-Maui.Longitude = 148.983076735;
-Maui.Altitude = 0.675012
+%Maui.StateType = Spherical;
+%Maui.HorizonReference = Ellipsoid;
+%Maui.Latitude = -35.586612725;
+%Maui.Longitude = 148.983076735;
+%Maui.Altitude = 0.675012
+%Maui.Id = 'Maui';
+
+Maui.StateType = Cartesian;
+Maui.HorizonReference = Sphere;
+Maui.X = -4450.8;
+Maui.Y = 2676.1;
+Maui.Z = -3691.38;
 Maui.Id = 'Maui';
-
-
 
 %----------------------------------------
 %---------- ForceModels
@@ -80,7 +92,7 @@ MauiMeasData.Format = GMATInternal;
 Create MeasurementModel RangeMeasurement;
 RangeMeasurement.ObservationData = {MauiMeasData};
 RangeMeasurement.Type = USNTwoWayRange;
-RangeMeasurement.Participants = {Maui, ODSat};
+RangeMeasurement.Participants = {Maui, ODSat.trans};
 RangeMeasurement.Bias = 0;
 RangeMeasurement.NoiseSigma = 1e-05;
 RangeMeasurement.TimeConstant = 6000;
