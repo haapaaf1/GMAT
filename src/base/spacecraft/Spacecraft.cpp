@@ -1630,7 +1630,8 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
             MessageInterface::ShowMessage(
                "------ Now calling attitude to get id for label %s\n",
                str.c_str());
-               MessageInterface::ShowMessage(" ------ and the id = %d\n", attId);
+            MessageInterface::ShowMessage(" ------ and the id = %d\n", attId);
+            MessageInterface::ShowMessage(" ------ and the id with offset  = %d\n", attId + ATTITUDE_ID_OFFSET);
             #endif
             return attId + ATTITUDE_ID_OFFSET;
 
@@ -1841,7 +1842,14 @@ Gmat::ParameterType Spacecraft::GetParameterType(const Integer id) const
       return PARAMETER_TYPE[id - SpaceObjectParamCount];
    if (id >= ATTITUDE_ID_OFFSET)
       if (attitude)
+      {
+         #ifdef DEBUG_SC_ATTITUDE
+            MessageInterface::ShowMessage("Calling attitude to get parameter type ( for %d) - it is %d (%s)\n",
+               id, attitude->GetParameterType(id - ATTITUDE_ID_OFFSET),
+               (GmatBase::PARAM_TYPE_STRING[(Integer)(attitude->GetParameterType(id - ATTITUDE_ID_OFFSET))]).c_str());
+         #endif
          return attitude->GetParameterType(id - ATTITUDE_ID_OFFSET);
+      }
 
     return SpaceObject::GetParameterType(id);
 }
@@ -2783,6 +2791,46 @@ Real Spacecraft::SetRealParameter(const std::string &label,
    return SetRealParameter(GetParameterID(label), value, row, col);
 }
 
+//---------------------------------------------------------------------------
+//  Real SetRealParameter(const Integer id, const Real value, Integer index)
+//---------------------------------------------------------------------------
+/**
+ * Set the value for a Real parameter.
+ *
+ * @param id The integer ID for the parameter.
+ * @param value The new parameter value.
+ * @param index Index for parameters in arrays.  Use -1 or the index free
+ *              version to add the value to the end of the array.
+ *
+ * @return the parameter value at the end of this call, or
+ *         REAL_PARAMETER_UNDEFINED if the parameter id is invalid or the
+ *         parameter type is not Real.
+ */
+//------------------------------------------------------------------------------
+Real Spacecraft::SetRealParameter(const Integer id, const Real value,
+                                  const Integer index)
+{
+   try
+   {
+      if (id >= ATTITUDE_ID_OFFSET)
+      {
+         if (attitude)
+         {
+            #ifdef DEBUG_SC_ATTITUDE
+            MessageInterface::ShowMessage(
+               "------ Now calling attitude to SET real parameter for id =  %d"
+               ", index = %d,  and value = %12.10f\n", id, index, value);
+            #endif
+            return attitude->SetRealParameter(id - ATTITUDE_ID_OFFSET, value, index);
+         }
+      }
+   }
+   catch (BaseException &be)
+   {
+      return SpaceObject::SetRealParameter(id, value, index);
+   }
+   return SpaceObject::SetRealParameter(id, value, index);
+}
 
 //---------------------------------------------------------------------------
 //  bool TakeAction(const std::string &action, const std::string &actionData)

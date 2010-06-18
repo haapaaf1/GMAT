@@ -576,6 +576,27 @@ Real SpaceObject::SetRealParameter(const std::string &label,
    return SetRealParameter(GetParameterID(label), value, row, col);
 }
 
+//---------------------------------------------------------------------------
+//  Real SetRealParameter(const Integer id, const Real value, Integer index)
+//---------------------------------------------------------------------------
+/**
+ * Set the value for a Real parameter.
+ *
+ * @param id The integer ID for the parameter.
+ * @param value The new parameter value.
+ * @param index Index for parameters in arrays.  Use -1 or the index free
+ *              version to add the value to the end of the array.
+ *
+ * @return the parameter value at the end of this call, or
+ *         REAL_PARAMETER_UNDEFINED if the parameter id is invalid or the
+ *         parameter type is not Real.
+ */
+//------------------------------------------------------------------------------
+Real SpaceObject::SetRealParameter(const Integer id, const Real value,
+                                   const Integer index)
+{
+    return SpacePoint::SetRealParameter(id, value, index);
+}
 
 //------------------------------------------------------------------------------
 // void ClearLastStopTriggered()
