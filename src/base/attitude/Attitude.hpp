@@ -156,6 +156,9 @@ public:
                                         const Real value);
    virtual Real        SetRealParameter(const std::string &label,
                                         const Real value);
+   virtual Real        SetRealParameter(const Integer id,
+                                        const Real value,
+                                        const Integer index);
    virtual const UnsignedIntArray& 
                        GetUnsignedIntArrayParameter(
                        const Integer id) const; 
@@ -268,6 +271,7 @@ protected:
    std::string           attitudeRateDisplayType;
                          
    bool                  isInitialized;
+   bool                  needsReinit;
    /// the list of possible euler sequences
    StringArray eulerSequenceList;
    

@@ -211,7 +211,7 @@ void Spinner::ComputeCosineMatrixAndAngularVelocity(Real atTime)
    angVel[0] * GmatMathUtil::DEG_PER_RAD, angVel[1] * GmatMathUtil::DEG_PER_RAD, 
    angVel[2] * GmatMathUtil::DEG_PER_RAD);
    #endif
-   if (!isInitialized) Initialize();
+   if (isInitialized && needsReinit) Initialize();
    // now, RB0I and currentwIBB have been computed by Initialize
    
    // Calculate RBIt, where t = atTime
