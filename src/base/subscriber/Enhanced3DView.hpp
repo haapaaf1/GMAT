@@ -128,6 +128,7 @@ public:
                                           const std::string &value);
    
    virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
+   virtual bool         HasRefObjectTypeArray();
    virtual const ObjectTypeArray&
                         GetRefObjectTypeArray();
    virtual const StringArray&
@@ -158,6 +159,7 @@ protected:
    CoordinateSystem *mViewCoordSystem;
    CoordinateSystem *mViewUpCoordSystem;
    SpacePoint *mViewCoordSysOrigin;
+   SpacePoint *mViewUpCoordSysOrigin;
    SpacePoint *mViewPointRefObj;
    SpacePoint *mViewPointObj;
    SpacePoint *mViewDirectionObj;

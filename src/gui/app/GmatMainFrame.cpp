@@ -56,6 +56,7 @@
 #include "EndFiniteBurnPanel.hpp"
 #include "XyPlotSetupPanel.hpp"
 #include "OpenGlPlotSetupPanel.hpp"
+#include "Enhanced3DViewPanel.hpp"
 #include "ReportFileSetupPanel.hpp"
 #include "EphemerisFilePanel.hpp"                       // made a change
 #include "SubscriberSetupPanel.hpp"
@@ -2275,8 +2276,10 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new XyPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::OPENGL_PLOT:
-   case GmatTree::ENHANCED_3D_VIEW:
       sizer->Add(new OpenGlPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      break;
+   case GmatTree::ENHANCED_3D_VIEW:
+      sizer->Add(new Enhanced3DViewPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::EPHEMERIS_FILE:
       sizer->Add(new EphemerisFilePanel(scrolledWin, name), 0, wxGROW|wxALL, 0);

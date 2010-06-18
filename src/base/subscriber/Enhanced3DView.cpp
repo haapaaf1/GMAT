@@ -186,6 +186,7 @@ Enhanced3DView::Enhanced3DView(const std::string &name)
    mViewCoordSystem = NULL;
    mViewUpCoordSystem = NULL;
    mViewCoordSysOrigin = NULL;
+   mViewUpCoordSysOrigin = NULL;
    mViewPointRefObj = NULL;
    mViewPointObj = NULL;
    mViewDirectionObj = NULL;
@@ -283,6 +284,7 @@ Enhanced3DView::Enhanced3DView(const Enhanced3DView &ogl)
    mViewCoordSystem = ogl.mViewCoordSystem;
    mViewUpCoordSystem = ogl.mViewCoordSystem;
    mViewCoordSysOrigin = ogl.mViewCoordSysOrigin;
+   mViewUpCoordSysOrigin = ogl.mViewUpCoordSysOrigin;
    mViewPointRefObj = ogl.mViewPointRefObj;
    mViewPointObj = ogl.mViewPointObj;
    mViewDirectionObj = ogl.mViewDirectionObj;
@@ -371,6 +373,7 @@ Enhanced3DView& Enhanced3DView::operator=(const Enhanced3DView& ogl)
    mViewCoordSystem = ogl.mViewCoordSystem;
    mViewUpCoordSystem = ogl.mViewCoordSystem;
    mViewCoordSysOrigin = ogl.mViewCoordSysOrigin;
+   mViewUpCoordSysOrigin = ogl.mViewUpCoordSysOrigin;
    mViewPointRefObj = ogl.mViewPointRefObj;
    mViewPointObj = ogl.mViewPointObj;
    mViewDirectionObj = ogl.mViewDirectionObj;
@@ -608,6 +611,9 @@ void Enhanced3DView::SetVector(const std::string &which, const Rvector3 &value)
 //------------------------------------------------------------------------------
 bool Enhanced3DView::Initialize()
 {
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING_NO_PLOTS)
+      return true;
+   
    Subscriber::Initialize();
    
    // theInternalCoordSys is used only by 3DView so check. (2008.06.16)
@@ -770,18 +776,27 @@ bool Enhanced3DView::Initialize()
                ("Enhanced3DView::Initialize() CoordinateSystem: " + mViewUpCoordSysName +
                 " not set\n");               
          
-         // get CoordinateSystem Origin pointer
+         // Get View CoordinateSystem Origin pointer
          mViewCoordSysOrigin = mViewCoordSystem->GetOrigin();
          
          if (mViewCoordSysOrigin != NULL)
             UpdateObjectList(mViewCoordSysOrigin);
          
+         // Get View Up CoordinateSystem Origin pointer
+         mViewUpCoordSysOrigin = mViewUpCoordSystem->GetOrigin();
+         
+         if (mViewUpCoordSysOrigin != NULL)
+            UpdateObjectList(mViewUpCoordSysOrigin);
+         
+         // Get ViewPointRef object pointer from the current SolarSystem
          if (mViewPointRefObj != NULL)
             UpdateObjectList(mViewPointRefObj);
          
+         // Get ViewPoint object pointer from the current SolarSystem
          if (mViewPointObj != NULL)
             UpdateObjectList(mViewPointObj);
          
+         // Get ViewDirection object pointer from the current SolarSystem
          if (mViewDirectionObj != NULL)
             UpdateObjectList(mViewDirectionObj);
          
@@ -830,14 +845,28 @@ bool Enhanced3DView::Initialize()
          //--------------------------------------------------------
          #if DBGLVL_OPENGL_INIT
          MessageInterface::ShowMessage
-            ("   theInternalCoordSystem = <%p>, origin = %s\n"
-             "   theDataCoordSystem     = <%p>, origin = %s\n"
-             "   mViewCoordSystem       = <%p>, origin = %s\n"
-             "   mViewUpCoordSystem     = <%p>, origin = %s\n",
-             theInternalCoordSystem, theInternalCoordSystem->GetOriginName().c_str(),
-             theDataCoordSystem, theDataCoordSystem->GetOriginName().c_str(),
-             mViewCoordSystem, mViewCoordSystem->GetOriginName().c_str(),
-             mViewUpCoordSystem, mViewUpCoordSystem->GetOriginName().c_str());
+            ("   theInternalCoordSystem = <%p>, origin = <%p>'%s'\n"
+             "   theDataCoordSystem     = <%p>, origin = <%p>'%s'\n"
+             "   mViewCoordSystem       = <%p>, origin = <%p>'%s'\n"
+             "   mViewUpCoordSystem     = <%p>, origin = <%p>'%s'\n"
+             "   mViewPointRefObj       = <%p>'%s'\n"
+             "   mViewPointObj          = <%p>'%s'\n"
+             "   mViewDirectionObj      = <%p>'%s'\n",
+             theInternalCoordSystem, theInternalCoordSystem->GetOrigin(),
+             theInternalCoordSystem->GetOriginName().c_str(),
+             theDataCoordSystem, theDataCoordSystem->GetOrigin(),
+             theDataCoordSystem->GetOriginName().c_str(),
+             mViewCoordSystem, mViewCoordSystem->GetOrigin(),
+             mViewCoordSystem->GetOriginName().c_str(),
+             mViewUpCoordSystem, mViewUpCoordSystem->GetOrigin(),
+             mViewUpCoordSystem->GetOriginName().c_str(),
+             mViewPointRefObj,
+             mViewPointRefObj ? mViewPointRefObj->GetName().c_str() : "NULL",
+             mViewPointObj,
+             mViewPointObj ? mViewPointObj->GetName().c_str() : "NULL",
+             mViewDirectionObj,
+             mViewDirectionObj ? mViewDirectionObj->GetName().c_str() : "NULL");
+         
          MessageInterface::ShowMessage
             ("   calling PlotInterface::SetGlCoordSystem()\n");
          #endif
@@ -1569,6 +1598,12 @@ bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &val
    case VIEWPOINT_REF:
       WriteDeprecatedMessage(id);
       mViewPointRefName = value;
+      mViewPointRefType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewPointRefType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewPointRefVector, id, value);
@@ -1577,6 +1612,12 @@ bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &val
       return true;
    case VIEWPOINT_REFERENCE:
       mViewPointRefName = value;
+      mViewPointRefType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewPointRefType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewPointRefVector, id, value);
@@ -1587,6 +1628,12 @@ bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &val
       return true;
    case VIEWPOINT_VECTOR:
       mViewPointVecName = value;
+      mViewPointVecType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewPointVecType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewPointVecVector, id, value);
@@ -1598,6 +1645,12 @@ bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &val
       return true;
    case VIEW_DIRECTION:
       mViewDirectionName = value;
+      mViewDirectionType = "Object";
+      
+      // Handle deprecated value "Vector"
+      if (value == "Vector" || GmatStringUtil::IsNumber(value))
+         mViewDirectionType = "Vector";
+      
       if (value[0] == '[')
       {
          PutRvector3Value(mViewDirectionVector, id, value);
@@ -1950,6 +2003,19 @@ std::string Enhanced3DView::GetRefObjectName(const Gmat::ObjectType type) const
 
 
 //------------------------------------------------------------------------------
+// virtual bool HasRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool Enhanced3DView::HasRefObjectTypeArray()
+{
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
 // const ObjectTypeArray& GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 /**
@@ -2149,6 +2215,14 @@ bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          }
       }
       
+      #if DBGLVL_OPENGL_OBJ
+      MessageInterface::ShowMessage
+         ("OpenGlPlot::SetRefObject() realName='%s', mViewPointRefName='%s', "
+          "mViewPointVecName='%s', mViewDirectionName='%s'\n", realName.c_str(),
+          mViewPointRefName.c_str(), mViewPointVecName.c_str(),
+          mViewDirectionName.c_str());
+      #endif
+      
       // ViewPoint info
       if (realName == mViewPointRefName)
          mViewPointRefObj = (SpacePoint*)obj;
@@ -2156,12 +2230,18 @@ bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       if (realName == mViewPointVecName)
          mViewPointObj = (SpacePoint*)obj;
       
-      else if (realName == mViewDirectionName)
+      if (realName == mViewDirectionName)
          mViewDirectionObj = (SpacePoint*)obj;
       
+      #if DBGLVL_OPENGL_OBJ
+      MessageInterface::ShowMessage
+         ("OpenGlPlot::SetRefObject() mViewPointRefObj=<%p>, mViewPointObj=<%p>, "
+          "mViewDirectionObj=<%p>\n", mViewPointRefObj, mViewPointObj,
+          mViewDirectionObj);
+      #endif
       return true;
    }
-
+   
    return Subscriber::SetRefObject(obj, type, realName);
 }
 
@@ -2531,8 +2611,8 @@ void Enhanced3DView::UpdateObjectList(SpacePoint *sp, bool show)
    std::string name = sp->GetName();
    StringArray::iterator pos = 
       find(mObjectNameArray.begin(), mObjectNameArray.end(), name);
-
-   // if name not found
+   
+   // if name not found, add to arrays
    if (pos == mObjectNameArray.end())
    {
       mObjectNameArray.push_back(name);
@@ -2849,6 +2929,9 @@ bool Enhanced3DView::Distribute(const Real *dat, Integer len)
        mScCount, len, runstate);
    #endif
    
+   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING_NO_PLOTS)
+      return true;
+   
    if (!active || mScCount <= 0)
       return true;
    
@@ -2916,10 +2999,10 @@ bool Enhanced3DView::Distribute(const Real *dat, Integer len)
       
       #if DBGLVL_OPENGL_UPDATE > 1
       MessageInterface::ShowMessage
-         ("   currentProvider=<%p>, theDataLabels.size()=%d\n",
+         ("   currentProvider=%d, theDataLabels.size()=%d\n",
           currentProvider, theDataLabels.size());
       #endif
-            
+      
       #if DBGLVL_OPENGL_UPDATE > 2
       MessageInterface::ShowMessage
          ("Enhanced3DView::Distribute() Using new Publisher code\n");

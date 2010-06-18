@@ -257,6 +257,7 @@ OBJECTS = \
     subscriber/MdiTsPlotData.o \
     subscriber/OpenGlOptionDialog.o \
     subscriber/OpenGlPlotSetupPanel.o \
+    subscriber/Enhanced3DViewPanel.o \
     subscriber/ReportFileSetupPanel.o \
     subscriber/SubscriberSetupPanel.o \
     subscriber/ViewCanvas.o \
