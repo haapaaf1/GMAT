@@ -103,7 +103,11 @@ protected:
    // Control parameters
    /// Used to turn on central differencing.  Currently not implemented.
    //bool                        useCentralDifferences;
-   std::string                 derivativeMethod;   // made a change
+   std::string                 derivativeMethod;
+
+   /// Mode flag for differencing
+   Integer                     diffMode; // 1 for forward, -1 for backward,
+                                         // 0 for central
 
    /// List of goals
    StringArray                 goalNames;
@@ -112,8 +116,7 @@ protected:
    enum
    {
       goalNamesID = SolverParamCount,
-//      useCentralDifferencingID,
-          derivativeMethodID,         // made a change
+      derivativeMethodID,
       DifferentialCorrectorParamCount
    };
 

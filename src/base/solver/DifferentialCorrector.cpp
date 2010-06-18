@@ -78,7 +78,8 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   derivativeMethod        ("CentralDifference")
+   derivativeMethod        ("CentralDifference"),
+   diffMode                (0)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -114,7 +115,8 @@ DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   derivativeMethod        (dc.derivativeMethod)
+   derivativeMethod        (dc.derivativeMethod),
+   diffMode                (dc.diffMode)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -142,6 +144,7 @@ DifferentialCorrector::operator=(const DifferentialCorrector& dc)
 
    goalCount        = dc.goalCount;
    derivativeMethod = dc.derivativeMethod;
+   diffMode         = dc.diffMode;
 
    return *this;
 }
@@ -407,8 +410,8 @@ std::string DifferentialCorrector::GetStringParameter(const Integer id) const
  * This method sets a string or string array parameter value, given the input
  * parameter ID.
  *
- * @param <id>    ID for the requested parameter.
- * @param <value> string value for the parameter.
+ * @param id    ID for the requested parameter.
+ * @param value string value for the parameter.
  *
  * @return  The value of the parameter at the completion of the call.
  */
@@ -434,7 +437,21 @@ bool DifferentialCorrector::SetStringParameter(const Integer id,
       // Allowed values for DerivativeMethod
       else if (value == "ForwardDifference" || value == "CentralDifference" ||
                value == "BackwardDifference")
+      {
          derivativeMethod = value;
+         if (derivativeMethod == "ForwardDifference")
+         {
+            diffMode = 1;
+         }
+         else if(derivativeMethod == "CentralDifference")
+         {
+            diffMode = 0;
+         }
+         else if(derivativeMethod == "BackwardDifference")
+         {
+            diffMode = -1;
+         }
+      }
       //  All other values are not allowed!
       else
          retval = false;
@@ -859,8 +876,21 @@ void DifferentialCorrector::RunPerturbation()
    }
 
    lastUnperturbedValue = variable.at(pertNumber);
-   variable.at(pertNumber) += perturbation.at(pertNumber);
-   pertDirection.at(pertNumber) = 1.0;
+   if (diffMode == 1)
+   {
+      variable.at(pertNumber) += perturbation.at(pertNumber);
+      pertDirection.at(pertNumber) = 1.0;
+   }
+   else if (diffMode == 0)
+   {
+      variable.at(pertNumber) += perturbation.at(pertNumber);
+      pertDirection.at(pertNumber) = 1.0;
+   }
+   else
+   {
+      variable.at(pertNumber) -= perturbation.at(pertNumber);
+      pertDirection.at(pertNumber) = -1.0;
+   }
 
    if (variable[pertNumber] > variableMaximum[pertNumber])
    {
