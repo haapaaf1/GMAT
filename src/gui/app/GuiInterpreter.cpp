@@ -619,7 +619,7 @@ bool GuiInterpreter::LoadDefaultMission()
 //------------------------------------------------------------------------------
 bool GuiInterpreter::ClearCommandSeq(Integer sandboxNum)
 {
-   return theModerator->ClearCommandSeq(sandboxNum);
+   return theModerator->ClearCommandSeq(true, true, sandboxNum);
 }
 
 
