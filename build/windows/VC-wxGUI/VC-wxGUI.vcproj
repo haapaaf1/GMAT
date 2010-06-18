@@ -2833,11 +2833,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\base\subscriber\TsPlot.cpp"
+						RelativePath="..\..\..\src\base\subscriber\XyPlot.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\base\subscriber\TsPlot.hpp"
+						RelativePath="..\..\..\src\base\subscriber\XyPlot.hpp"
 						>
 					</File>
 				</Filter>
@@ -3898,6 +3898,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewCanvas.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewPanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewPanel.hpp"
 						>
 					</File>
 					<File

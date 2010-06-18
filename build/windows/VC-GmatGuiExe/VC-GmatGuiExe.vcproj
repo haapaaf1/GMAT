@@ -834,6 +834,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewPanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewPanel.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\gui\subscriber\EphemerisFilePanel.cpp"
 						>
 					</File>
