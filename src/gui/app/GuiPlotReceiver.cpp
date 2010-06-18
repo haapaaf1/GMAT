@@ -706,13 +706,13 @@ bool GuiPlotReceiver::TakeGlAction(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-//  bool CreateTsPlotWindow(const std::string &plotName,
+//  bool CreateXyPlotWindow(const std::string &plotName,
 //       const std::string &oldName, const std::string &plotTitle,
 //       const std::string &xAxisTitle, const std::string &yAxisTitle,
 //       bool drawGrid = false)
 //------------------------------------------------------------------------------
 /*
- * Creates a TsPlot window.
+ * Creates a XyPlot window.
  *
  * @param plotName Name of the plot
  * @param oldName Former name of the plot
@@ -724,7 +724,7 @@ bool GuiPlotReceiver::TakeGlAction(const std::string &plotName,
  * @return true on success, false on failure
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::CreateTsPlotWindow(const std::string &plotName,
+bool GuiPlotReceiver::CreateXyPlotWindow(const std::string &plotName,
                                        const std::string &oldName,
                                        const std::string &plotTitle,
                                        const std::string &xAxisTitle,
@@ -752,7 +752,7 @@ bool GuiPlotReceiver::CreateTsPlotWindow(const std::string &plotName,
       {
          #if DEBUG_RENAME
          MessageInterface::ShowMessage
-            ("GuiPlotReceiver::CreateTsPlotWindow() currPlotName=%s, "
+            ("GuiPlotReceiver::CreateXyPlotWindow() currPlotName=%s, "
                   "oldName=%s\n", currPlotName.c_str(), oldName.c_str());
          #endif
 
@@ -770,8 +770,8 @@ bool GuiPlotReceiver::CreateTsPlotWindow(const std::string &plotName,
    {
       #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::CreateTsPlotWindow() Creating new "
-          "MdiChildXyFrame\n   X Axis Title = %s  Y Axis Title = %s\n",
+         ("GuiPlotReceiver::CreateXyPlotWindow() Creating new "
+          "MdiChildTsFrame\n   X Axis Title = %s  Y Axis Title = %s\n",
           xAxisTitle.c_str(), yAxisTitle.c_str());
       #endif
 
@@ -817,29 +817,29 @@ bool GuiPlotReceiver::CreateTsPlotWindow(const std::string &plotName,
 
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::CreateTsPlotWindow() leaving\n");
+      ("GuiPlotReceiver::CreateXyPlotWindow() leaving\n");
    #endif
 
    return true;
 }
 
 //------------------------------------------------------------------------------
-//  bool DeleteTsPlot(const std::string &plotName)
+//  bool DeleteXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /*
- * Deletes TsPlot by plot name.
+ * Deletes XyPlot by plot name.
  *
  * @param plotName name of plot to be deleted
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::DeleteTsPlot(const std::string &plotName)
+bool GuiPlotReceiver::DeleteXyPlot(const std::string &plotName)
 {
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
    if (gmatAppData->GetMainFrame() != NULL)
    {
       #if DEBUG_PLOTIF_XY
-         MessageInterface::ShowMessage("GuiPlotReceiver::DeleteTsPlot()\n");
+         MessageInterface::ShowMessage("GuiPlotReceiver::DeleteXyPlot()\n");
       #endif
 
       wxString owner = wxString(plotName.c_str());
@@ -863,7 +863,7 @@ bool GuiPlotReceiver::DeleteTsPlot(const std::string &plotName)
 }
 
 //------------------------------------------------------------------------------
-// bool AddTsPlotCurve(const std::string &plotName, int curveIndex,
+// bool AddXyPlotCurve(const std::string &plotName, int curveIndex,
 //                     int yOffset, Real yMin, Real yMax,
 //                     const std::string &curveTitle,
 //                     UnsignedInt penColor)
@@ -882,7 +882,7 @@ bool GuiPlotReceiver::DeleteTsPlot(const std::string &plotName)
  * @return true on success, false is no curve was added
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::AddTsPlotCurve(const std::string &plotName,
+bool GuiPlotReceiver::AddXyPlotCurve(const std::string &plotName,
       int curveIndex, int yOffset, Real yMin, Real yMax,
       const std::string &curveTitle, UnsignedInt penColor)
 {
@@ -894,12 +894,12 @@ bool GuiPlotReceiver::AddTsPlotCurve(const std::string &plotName,
 
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::AddTsPlotCurve() entered."
+      ("GuiPlotReceiver::AddXyPlotCurve() entered."
        " plotName = " + plotName + " curveTitle = " +
        curveTitle + "\n");
 
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::AddTsPlotCurve() numChildren = %d\n",
+      ("GuiPlotReceiver::AddXyPlotCurve() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
 
@@ -920,7 +920,7 @@ bool GuiPlotReceiver::AddTsPlotCurve(const std::string &plotName,
 }
 
 //------------------------------------------------------------------------------
-// bool DeleteAllTsPlotCurves(const std::string &plotName,
+// bool DeleteAllXyPlotCurves(const std::string &plotName,
 //                            const std::string &oldName)
 //------------------------------------------------------------------------------
 /*
@@ -932,7 +932,7 @@ bool GuiPlotReceiver::AddTsPlotCurve(const std::string &plotName,
  * @return true on success, false if no action was taken
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::DeleteAllTsPlotCurves(const std::string &plotName,
+bool GuiPlotReceiver::DeleteAllXyPlotCurves(const std::string &plotName,
                                           const std::string &oldName)
 {
    #if DEBUG_PLOTIF_XY
@@ -958,7 +958,7 @@ bool GuiPlotReceiver::DeleteAllTsPlotCurves(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// bool DeleteTsPlotCurve(const std::string &plotName, int curveIndex)
+// bool DeleteXyPlotCurve(const std::string &plotName, int curveIndex)
 //------------------------------------------------------------------------------
 /*
  * Deletes a plot curve to XY plow window.
@@ -969,16 +969,16 @@ bool GuiPlotReceiver::DeleteAllTsPlotCurves(const std::string &plotName,
  * @return true on success, false if no curve was deleted
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::DeleteTsPlotCurve(const std::string &plotName,
+bool GuiPlotReceiver::DeleteXyPlotCurve(const std::string &plotName,
       int curveIndex)
 {
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::DeleteTsPlotCurve() entered plotName = %s "
+      ("GuiPlotReceiver::DeleteXyPlotCurve() entered plotName = %s "
        "curveIndex = %d\n", plotName.c_str(), curveIndex);
 
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::DeleteTsPlotCurve() numChildren = %d\n",
+      ("GuiPlotReceiver::DeleteXyPlotCurve() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
 
@@ -998,7 +998,7 @@ bool GuiPlotReceiver::DeleteTsPlotCurve(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// void ClearTsPlotData(const std::string &plotName))
+// void ClearXyPlotData(const std::string &plotName))
 //------------------------------------------------------------------------------
 /**
  * Removes all data from the plot curves, leaving the curve containers in place
@@ -1007,11 +1007,11 @@ bool GuiPlotReceiver::DeleteTsPlotCurve(const std::string &plotName,
  * @param plotName The name of the plot that is being cleared
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::ClearTsPlotData(const std::string &plotName)
+void GuiPlotReceiver::ClearXyPlotData(const std::string &plotName)
 {
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::ClearTsPlotData() numChildren = %d\n",
+      ("GuiPlotReceiver::ClearXyPlotData() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
 
@@ -1029,7 +1029,7 @@ void GuiPlotReceiver::ClearTsPlotData(const std::string &plotName)
 }
 
 //------------------------------------------------------------------------------
-// void TsPlotPenUp(const std::string &plotName))
+// void XyPlotPenUp(const std::string &plotName))
 //------------------------------------------------------------------------------
 /**
  * Tells a plot to stop drawing received data.  This method is idempotent.
@@ -1037,11 +1037,11 @@ void GuiPlotReceiver::ClearTsPlotData(const std::string &plotName)
  * @param plotName The name of the plot that is being cleared
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::TsPlotPenUp(const std::string &plotName)
+void GuiPlotReceiver::XyPlotPenUp(const std::string &plotName)
 {
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::TsPlotPenUp() numChildren = %d\n",
+         ("GuiPlotReceiver::XyPlotPenUp() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
 
@@ -1059,7 +1059,7 @@ void GuiPlotReceiver::TsPlotPenUp(const std::string &plotName)
 }
 
 //------------------------------------------------------------------------------
-// void TsPlotPenDown(const std::string &plotName))
+// void XyPlotPenDown(const std::string &plotName))
 //------------------------------------------------------------------------------
 /**
  * Tells a plot to resume drawing received data.  This method is idempotent.
@@ -1067,11 +1067,11 @@ void GuiPlotReceiver::TsPlotPenUp(const std::string &plotName)
  * @param plotName The name of the plot that is being cleared
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
+void GuiPlotReceiver::XyPlotPenDown(const std::string &plotName)
 {
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::TsPlotPenDown() numChildren = %d\n",
+         ("GuiPlotReceiver::XyPlotPenDown() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
 
@@ -1091,11 +1091,11 @@ void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
 
 
 //------------------------------------------------------------------------------
-// void TsPlotMarkPoint(const std::string &plotName, Integer index,
+// void XyPlotMarkPoint(const std::string &plotName, Integer index,
 //       Integer forCurve)
 //------------------------------------------------------------------------------
 /**
- * Marks a specific point on a specific curve of a TsPlot with an oversized X
+ * Marks a specific point on a specific curve of a XyPlot with an oversized X
  *
  * @param plotName The plot that contains the curve
  * @param index The index of the point that gets marked
@@ -1103,12 +1103,12 @@ void GuiPlotReceiver::TsPlotPenDown(const std::string &plotName)
  *                    curveNumber to -1 to mark all curves.
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::TsPlotMarkPoint(const std::string &plotName,
+void GuiPlotReceiver::XyPlotMarkPoint(const std::string &plotName,
       Integer index, Integer forCurve)
 {
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::TsPlotPenDown() numChildren = %d\n",
+         ("GuiPlotReceiver::XyPlotPenDown() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
 
@@ -1127,7 +1127,7 @@ void GuiPlotReceiver::TsPlotMarkPoint(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// void TsPlotChangeColor(const std::string &plotName, Integer index,
+// void XyPlotChangeColor(const std::string &plotName, Integer index,
 //       UnsignedInt newColor, Integer forCurve)
 //------------------------------------------------------------------------------
 /**
@@ -1139,12 +1139,12 @@ void GuiPlotReceiver::TsPlotMarkPoint(const std::string &plotName,
  * @param forCurve The index of the curve that is changing color.
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::TsPlotChangeColor(const std::string &plotName,
+void GuiPlotReceiver::XyPlotChangeColor(const std::string &plotName,
       Integer index, UnsignedInt newColor, Integer forCurve)
 {
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::TsPlotChangeColor() numChildren = %d\n",
+         ("GuiPlotReceiver::XyPlotChangeColor() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
 
@@ -1163,7 +1163,7 @@ void GuiPlotReceiver::TsPlotChangeColor(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// void TsPlotChangeMarker(const std::string &plotName, Integer index,
+// void XyPlotChangeMarker(const std::string &plotName, Integer index,
 //       Integer newMarker, Integer forCurve)
 //------------------------------------------------------------------------------
 /**
@@ -1175,12 +1175,12 @@ void GuiPlotReceiver::TsPlotChangeColor(const std::string &plotName,
  * @param forCurve The index of the curve that is changing color.
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::TsPlotChangeMarker(const std::string &plotName,
+void GuiPlotReceiver::XyPlotChangeMarker(const std::string &plotName,
       Integer index, Integer newMarker, Integer forCurve)
 {
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::TsPlotPenDown() numChildren = %d\n",
+         ("GuiPlotReceiver::XyPlotPenDown() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
 
@@ -1199,7 +1199,7 @@ void GuiPlotReceiver::TsPlotChangeMarker(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// void TsPlotRescale(const std::string &plotName)
+// void XyPlotRescale(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Sends a rescale message to the plot
@@ -1207,11 +1207,11 @@ void GuiPlotReceiver::TsPlotChangeMarker(const std::string &plotName,
  * @param plotName The plot that is to be rescaled
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::TsPlotRescale(const std::string &plotName)
+void GuiPlotReceiver::XyPlotRescale(const std::string &plotName)
 {
    #if DEBUG_PLOTIF_XY
       MessageInterface::ShowMessage
-         ("GuiPlotReceiver::TsPlotRescale() numChildren = %d\n",
+         ("GuiPlotReceiver::XyPlotRescale() numChildren = %d\n",
           MdiTsPlot::numChildren);
    #endif
 
@@ -1230,7 +1230,7 @@ void GuiPlotReceiver::TsPlotRescale(const std::string &plotName)
 
 
 //------------------------------------------------------------------------------
-// void TsPlotCurveSettings(const std::string &plotName, bool useLines,
+// void XyPlotCurveSettings(const std::string &plotName, bool useLines,
 //       Integer lineWidth, Integer lineStyle, bool useMarkers,
 //       Integer markerSize, Integer marker, bool useHiLow, Integer forCurve)
 //------------------------------------------------------------------------------
@@ -1249,7 +1249,7 @@ void GuiPlotReceiver::TsPlotRescale(const std::string &plotName)
  * @param forCurve The index of the curve receiving the settings
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::TsPlotCurveSettings(const std::string &plotName,
+void GuiPlotReceiver::XyPlotCurveSettings(const std::string &plotName,
       bool useLines, Integer lineWidth, Integer lineStyle, bool useMarkers,
       Integer markerSize, Integer marker, bool useHiLow, Integer forCurve)
 {
@@ -1268,7 +1268,7 @@ void GuiPlotReceiver::TsPlotCurveSettings(const std::string &plotName,
 }
 
 //------------------------------------------------------------------------------
-// void SetTsPlotTitle(const std::string &plotName,
+// void SetXyPlotTitle(const std::string &plotName,
 //       const std::string &plotTitle)
 //------------------------------------------------------------------------------
 /**
@@ -1278,12 +1278,12 @@ void GuiPlotReceiver::TsPlotCurveSettings(const std::string &plotName,
  * @param plotTitle The new title for the plot
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::SetTsPlotTitle(const std::string &plotName,
+void GuiPlotReceiver::SetXyPlotTitle(const std::string &plotName,
                                    const std::string &plotTitle)
 {
    #if DEBUG_PLOTIF_XY
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::SetTsPlotTitle() plotName = %s "
+      ("GuiPlotReceiver::SetXyPlotTitle() plotName = %s "
        "plotTitle = %s\n", plotName.c_str(), plotTitle.c_str());
    #endif
 
@@ -1296,7 +1296,7 @@ void GuiPlotReceiver::SetTsPlotTitle(const std::string &plotName,
       {
          #if DEBUG_PLOTIF_XY
             MessageInterface::ShowMessage
-               ("GuiPlotReceiver::SetTsPlotTitle() calling "
+               ("GuiPlotReceiver::SetXyPlotTitle() calling "
                 " frame->SetPlotTitle() \n");
          #endif
 
@@ -1307,7 +1307,7 @@ void GuiPlotReceiver::SetTsPlotTitle(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// void GuiPlotReceiver::ShowTsPlotLegend(const std::string &plotName)
+// void GuiPlotReceiver::ShowXyPlotLegend(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Turns on display of the plot legend
@@ -1317,18 +1317,18 @@ void GuiPlotReceiver::SetTsPlotTitle(const std::string &plotName,
  * @note This method is not yet implemented
  */
 //------------------------------------------------------------------------------
-void GuiPlotReceiver::ShowTsPlotLegend(const std::string &plotName)
+void GuiPlotReceiver::ShowXyPlotLegend(const std::string &plotName)
 {
-//   MdiChildXyFrame *frame = NULL;
+//   MdiChildTsFrame *frame = NULL;
 //   for (int i=0; i<MdiTsPlot::numChildren; i++)
 //   {
-//      frame = (MdiChildXyFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+//      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
 //
 //      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
 //      {
 //         #if DEBUG_PLOTIF_XY
 //            MessageInterface::ShowMessage
-//               ("GuiPlotReceiver::ShowTsPlotLegend() calling  frame->ShowPlotLegend() \n");
+//               ("GuiPlotReceiver::ShowXyPlotLegend() calling  frame->ShowPlotLegend() \n");
 //         #endif
 //
 //         frame->ShowPlotLegend();
@@ -1338,7 +1338,7 @@ void GuiPlotReceiver::ShowTsPlotLegend(const std::string &plotName)
 
 
 //------------------------------------------------------------------------------
-// bool RefreshTsPlot(const std::string &plotName)
+// bool RefreshXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /*
  * Refreshes the XY plot.
@@ -1346,13 +1346,13 @@ void GuiPlotReceiver::ShowTsPlotLegend(const std::string &plotName)
  * @param plotName name of xy plot
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::RefreshTsPlot(const std::string &plotName)
+bool GuiPlotReceiver::RefreshXyPlot(const std::string &plotName)
 {
    if (GmatAppData::Instance()->GetMainFrame() != NULL)
    {
       #if DEBUG_PLOTIF_XY_UPDATE
          MessageInterface::ShowMessage
-            ("GuiPlotReceiver::RefreshTsPlot() plotName=%s, numChildren=%d\n",
+            ("GuiPlotReceiver::RefreshXyPlot() plotName=%s, numChildren=%d\n",
              plotName.c_str(), MdiTsPlot::numChildren);
       #endif
 
@@ -1381,7 +1381,7 @@ bool GuiPlotReceiver::RefreshTsPlot(const std::string &plotName)
 
 
 //------------------------------------------------------------------------------
-// bool UpdateTsPlot(const std::string &plotName, const std::string &oldName,
+// bool UpdateXyPlot(const std::string &plotName, const std::string &oldName,
 //                   const Real &xval, const Rvector &yvals,
 //                   const std::string &plotTitle,
 //                   const std::string &xAxisTitle,
@@ -1389,7 +1389,7 @@ bool GuiPlotReceiver::RefreshTsPlot(const std::string &plotName)
 //                   bool drawGrid)
 //------------------------------------------------------------------------------
 /*
- * Updates a TsPlot window.
+ * Updates a XyPlot window.
  *
  * @param plotName name of xy plot
  * @param oldName Former name of the plot, or an empty string
@@ -1404,7 +1404,7 @@ bool GuiPlotReceiver::RefreshTsPlot(const std::string &plotName)
  * @return true if an update occurred, false otherwise
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
+bool GuiPlotReceiver::UpdateXyPlot(const std::string &plotName,
                                  const std::string &oldName,
                                  const Real &xval, const Rvector &yvals,
                                  const std::string &plotTitle,
@@ -1417,7 +1417,7 @@ bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
 
    #if DEBUG_PLOTIF_XY_UPDATE
    MessageInterface::ShowMessage
-      ("GuiPlotReceiver::UpdateTsPlot() numChildren = %d\n",
+      ("GuiPlotReceiver::UpdateXyPlot() numChildren = %d\n",
        MdiTsPlot::numChildren);
    #endif
 
@@ -1434,14 +1434,14 @@ bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
             int numCurves = frame->GetCurveCount();
             #if DEBUG_PLOTIF_XY_UPDATE
                MessageInterface::ShowMessage
-               ("GuiPlotReceiver::UpdateTsPlot() numCurves = %d\n", numCurves);
+               ("GuiPlotReceiver::UpdateXyPlot() numCurves = %d\n", numCurves);
             #endif
 
             for (int j=0; j<numCurves; j++)
             {
                #if DEBUG_PLOTIF_XY_UPDATE
                   MessageInterface::ShowMessage
-                  ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
+                  ("GuiPlotReceiver::UpdateXyPlot() yvals[%d] = %f\n", j, yvals(j));
                #endif
 
                frame->AddDataPoints(j, xval, yvals(j));
@@ -1459,7 +1459,7 @@ bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
 }
 
 //------------------------------------------------------------------------------
-// bool UpdateTsPlotData(const std::string &plotName, const Real &xval,
+// bool UpdateXyPlotData(const std::string &plotName, const Real &xval,
 //       const Rvector &yvals, const Rvector *yhis, const Rvector *ylows)
 //------------------------------------------------------------------------------
 /**
@@ -1477,7 +1477,7 @@ bool GuiPlotReceiver::UpdateTsPlot(const std::string &plotName,
  * @return true if the data was processed, false if not
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
+bool GuiPlotReceiver::UpdateXyPlotData(const std::string &plotName,
       const Real &xval, const Rvector &yvals, const Rvector *yhis,
       const Rvector *ylows)
 {
@@ -1497,14 +1497,14 @@ bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
             int numCurves = frame->GetCurveCount();
             #if DEBUG_PLOTIF_XY_UPDATE
                MessageInterface::ShowMessage
-               ("GuiPlotReceiver::UpdateTsPlot() numCurves = %d\n", numCurves);
+               ("GuiPlotReceiver::UpdateXyPlot() numCurves = %d\n", numCurves);
             #endif
 
             for (int j=0; j<numCurves; j++)
             {
                #if DEBUG_PLOTIF_XY_UPDATE
                   MessageInterface::ShowMessage
-                  ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
+                  ("GuiPlotReceiver::UpdateXyPlot() yvals[%d] = %f\n", j, yvals(j));
                #endif
 
                if (yhis != NULL)
@@ -1533,7 +1533,7 @@ bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// bool UpdateTsPlotCurve(const std::string &plotName, const Integer whichCurve,
+// bool UpdateXyPlotCurve(const std::string &plotName, const Integer whichCurve,
 //       const Real xval, const Real yval, const Real yhi, const Real ylow)
 //------------------------------------------------------------------------------
 /**
@@ -1550,7 +1550,7 @@ bool GuiPlotReceiver::UpdateTsPlotData(const std::string &plotName,
  * @return true if the data was processed, false if not
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
+bool GuiPlotReceiver::UpdateXyPlotCurve(const std::string &plotName,
                       const Integer whichCurve, const Real xval,
                       const Real yval, const Real yhi, const Real ylow)
 {
@@ -1572,7 +1572,7 @@ bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
                int numCurves = frame->GetCurveCount();
                #if DEBUG_PLOTIF_XY_UPDATE
                   MessageInterface::ShowMessage
-                        ("GuiPlotReceiver::UpdateTsPlotCurve() numCurves = %d\n",
+                        ("GuiPlotReceiver::UpdateXyPlotCurve() numCurves = %d\n",
                          numCurves);
                #endif
 
@@ -1580,7 +1580,7 @@ bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
                {
                   #if DEBUG_PLOTIF_XY_UPDATE
                      MessageInterface::ShowMessage
-                     ("GuiPlotReceiver::UpdateTsPlot() yvals[%d] = %f\n", j, yvals(j));
+                     ("GuiPlotReceiver::UpdateXyPlot() yvals[%d] = %f\n", j, yvals(j));
                   #endif
 
                   frame->AddDataPoints(whichCurve, xval, yval, yhi, ylow);
@@ -1600,7 +1600,7 @@ bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// bool DeactivateTsPlot(const std::string &plotName)
+// bool DeactivateXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Disables redrawing for a plot.  This method is used when a plot is receiving
@@ -1612,7 +1612,7 @@ bool GuiPlotReceiver::UpdateTsPlotCurve(const std::string &plotName,
  * @return true is a plot received the message, false if not
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::DeactivateTsPlot(const std::string &plotName)
+bool GuiPlotReceiver::DeactivateXyPlot(const std::string &plotName)
 {
    bool deactivated = false;
 
@@ -1638,7 +1638,7 @@ bool GuiPlotReceiver::DeactivateTsPlot(const std::string &plotName)
 
 
 //------------------------------------------------------------------------------
-// bool ActivateTsPlot(const std::string &plotName)
+// bool ActivateXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Enables redrawing for a plot, and forces an immediate update.  This method is
@@ -1650,7 +1650,7 @@ bool GuiPlotReceiver::DeactivateTsPlot(const std::string &plotName)
  * @return true is a plot received the message, false if not
  */
 //------------------------------------------------------------------------------
-bool GuiPlotReceiver::ActivateTsPlot(const std::string &plotName)
+bool GuiPlotReceiver::ActivateXyPlot(const std::string &plotName)
 {
    bool activated = false;
 

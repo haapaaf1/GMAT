@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                PenDown
 //------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 #define PenDown_hpp
 
 #include "GmatCommand.hpp"
-#include "TsPlot.hpp"
+#include "XyPlot.hpp"
 
 
 /**
@@ -30,8 +30,8 @@
 class PenDown : public GmatCommand
 {
 public:
-	PenDown();
-	virtual          ~PenDown();
+        PenDown();
+        virtual          ~PenDown();
    PenDown(const PenDown &c);
    PenDown&        operator=(const PenDown &c);
    
@@ -48,7 +48,7 @@ public:
 
 protected:
    StringArray          plotNameList;   
-   std::vector<TsPlot*> thePlotList;
+   std::vector<XyPlot*> thePlotList;
 };
 
 #endif /* PenDown_hpp */

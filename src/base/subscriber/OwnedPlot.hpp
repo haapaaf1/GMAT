@@ -9,7 +9,7 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CA54C
 //
-// Author: Darrel Conway, based on TsPlot code by Linda Jun
+// Author: Darrel Conway, based on XyPlot code by Linda Jun
 // Created: 2009/09/28
 //
 /**
@@ -32,7 +32,7 @@
  * OwnedPlot objects talk to the graphical components through the PlotInterface
  * and PlotReceiver classes.  The standard GMAT GUI interface for this
  * communication is the GuiPlotReceiver, which connects the plot messages to a
- * TsPlot object displayed on the GUI.
+ * XyPlot object displayed on the GUI.
  *
  * In spite of their location in GMAT's directory structure, OwnedPlots are not
  * Subscribers.  They are derived directly from GmatBase.

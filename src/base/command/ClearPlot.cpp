@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               ClearPlot
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2004/02/26
@@ -213,7 +213,7 @@ bool ClearPlot::Initialize()
       if ((xy = FindObject(plotNameList.at(ii))) != NULL) 
       {
          if (xy->GetTypeName() == "XYPlot") 
-            thePlotList.push_back((TsPlot*) xy);
+            thePlotList.push_back((XyPlot*) xy);
          else
             throw CommandException(
                "Object named \"" + plotNameList.at(ii) + "\" should be an XYPlot to use the "

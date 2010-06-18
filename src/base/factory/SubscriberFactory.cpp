@@ -24,7 +24,7 @@
 #include "TextEphemFile.hpp"
 #include "MessageWindow.hpp"
 #include "OpenGlPlot.hpp"
-#include "TsPlot.hpp"
+#include "XyPlot.hpp"
 #include "EphemerisFile.hpp"
 #include "Enhanced3DView.hpp"
 
@@ -76,9 +76,7 @@ Subscriber* SubscriberFactory::CreateSubscriber(const std::string &ofType,
    else if (ofType == "OpenGLPlot")
       return new OpenGlPlot(withName);
    else if (ofType == "XYPlot")
-      return new TsPlot(withName);
-   else if (ofType == "TSPlot")
-      return new TsPlot(withName);
+      return new XyPlot(withName);
    else if (ofType == "EphemerisFile")
       return new EphemerisFile(withName);
    else if (ofType == "Enhanced3DView")

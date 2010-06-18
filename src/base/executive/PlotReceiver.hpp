@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                             PlotInterface
+//                             PlotReceiver
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -102,34 +102,34 @@ public:
                      const std::string &action) = 0;
    
    // for XY plot
-   virtual bool CreateTsPlotWindow(const std::string &plotName,
+   virtual bool CreateXyPlotWindow(const std::string &plotName,
                            const std::string &oldName,
                            const std::string &plotTitle,
                            const std::string &xAxisTitle,
                            const std::string &yAxisTitle,
                            bool drawGrid = false) = 0;
-   virtual bool DeleteTsPlot(const std::string &plotName) = 0;
-   virtual bool AddTsPlotCurve(const std::string &plotName, int curveIndex,
+   virtual bool DeleteXyPlot(const std::string &plotName) = 0;
+   virtual bool AddXyPlotCurve(const std::string &plotName, int curveIndex,
                        int yOffset, Real yMin, Real yMax,
                        const std::string &curveTitle,
                        UnsignedInt penColor) = 0;
-   virtual bool DeleteAllTsPlotCurves(const std::string &plotName,
+   virtual bool DeleteAllXyPlotCurves(const std::string &plotName,
                               const std::string &oldName) = 0;
-   virtual bool DeleteTsPlotCurve(const std::string &plotName, 
+   virtual bool DeleteXyPlotCurve(const std::string &plotName, 
                        int curveIndex) = 0;
-   virtual void ClearTsPlotData(const std::string &plotName) = 0;
-   virtual void TsPlotPenUp(const std::string &plotName) = 0;
-   virtual void TsPlotPenDown(const std::string &plotName) = 0;
-   virtual void TsPlotMarkPoint(const std::string &plotName, Integer index = -1,
+   virtual void ClearXyPlotData(const std::string &plotName) = 0;
+   virtual void XyPlotPenUp(const std::string &plotName) = 0;
+   virtual void XyPlotPenDown(const std::string &plotName) = 0;
+   virtual void XyPlotMarkPoint(const std::string &plotName, Integer index = -1,
          Integer forCurve = -1) = 0;
-   virtual void TsPlotChangeColor(const std::string &plotName,
+   virtual void XyPlotChangeColor(const std::string &plotName,
          Integer index = -1, UnsignedInt newColor = 0xffffff,
          Integer forCurve = -1) = 0;
-   virtual void TsPlotChangeMarker(const std::string &plotName,
+   virtual void XyPlotChangeMarker(const std::string &plotName,
          Integer index = -1, Integer newMarker = -1, int forCurve = -1) = 0;
 
-   virtual void TsPlotRescale(const std::string &plotName) = 0;
-   virtual void TsPlotCurveSettings(const std::string &plotName,
+   virtual void XyPlotRescale(const std::string &plotName) = 0;
+   virtual void XyPlotCurveSettings(const std::string &plotName,
          bool useLines = true,
          Integer lineWidth = 1,
          Integer lineStyle = 100,
@@ -139,27 +139,27 @@ public:
          bool useHiLow = false,
          Integer forCurve = -1) = 0;
 
-   virtual void SetTsPlotTitle(const std::string &plotName,
+   virtual void SetXyPlotTitle(const std::string &plotName,
                        const std::string &plotTitle) = 0;
-   virtual void ShowTsPlotLegend(const std::string &plotName) = 0;
-   virtual bool RefreshTsPlot(const std::string &plotName) = 0;
-   virtual bool UpdateTsPlot(const std::string &plotName,
+   virtual void ShowXyPlotLegend(const std::string &plotName) = 0;
+   virtual bool RefreshXyPlot(const std::string &plotName) = 0;
+   virtual bool UpdateXyPlot(const std::string &plotName,
                      const std::string &oldName,
                      const Real &xval, const Rvector &yvals,
                      const std::string &plotTitle,
                      const std::string &xAxisTitle,
                      const std::string &yAxisTitle,
                      bool updateCanvas, bool drawGrid) = 0;
-   virtual bool UpdateTsPlotData(const std::string &plotName, const Real &xval,
+   virtual bool UpdateXyPlotData(const std::string &plotName, const Real &xval,
                      const Rvector &yvals, const Rvector *yhis = NULL,
                      const Rvector *ylows = NULL) = 0;
-   virtual bool UpdateTsPlotCurve(const std::string &plotName,
+   virtual bool UpdateXyPlotCurve(const std::string &plotName,
                      const Integer whichCurve, const Real xval,
                      const Real yval, const Real yhi = 0.0,
                      const Real ylow = 0.0) = 0;
 
-   virtual bool DeactivateTsPlot(const std::string &plotName) = 0;
-   virtual bool ActivateTsPlot(const std::string &plotName) = 0;
+   virtual bool DeactivateXyPlot(const std::string &plotName) = 0;
+   virtual bool ActivateXyPlot(const std::string &plotName) = 0;
 
 protected:
    GmatPlot::ViewType currentView;

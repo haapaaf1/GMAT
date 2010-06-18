@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 PenUp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2004/02/26
@@ -20,7 +20,7 @@
 #define PenUp_hpp
 
 #include "GmatCommand.hpp"
-#include "TsPlot.hpp"
+#include "XyPlot.hpp"
 
 
 /**
@@ -29,8 +29,8 @@
 class PenUp : public GmatCommand
 {
 public:
-	PenUp();
-	virtual          ~PenUp();
+        PenUp();
+        virtual          ~PenUp();
    PenUp(const PenUp &c);
    PenUp&        operator=(const PenUp &c);
    
@@ -47,9 +47,9 @@ public:
 
 protected:
    //std::string plotName;
-   //TsPlot      *thePlot;
+   //XyPlot      *thePlot;
    StringArray          plotNameList;   
-   std::vector<TsPlot*> thePlotList;
+   std::vector<XyPlot*> thePlotList;
 };
 
 #endif /* PenUp_hpp */

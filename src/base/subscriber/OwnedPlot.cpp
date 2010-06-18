@@ -9,7 +9,7 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CA54C
 //
-// Author: Darrel Conway, based on TsPlot code by Linda Jun
+// Author: Darrel Conway, based on XyPlot code by Linda Jun
 // Created: 2009/09/28
 //
 /**
@@ -268,10 +268,10 @@ bool OwnedPlot::Initialize()
                ("OwnedPlot::Initialize() calling CreateOwnedPlotWindow()\n");
       #endif
       
-      PlotInterface::CreateTsPlotWindow(instanceName, mOldName, mPlotTitle,
+      PlotInterface::CreateXyPlotWindow(instanceName, mOldName, mPlotTitle,
             mXAxisTitle, mYAxisTitle, (mDrawGrid == "On"));
       
-      PlotInterface::SetTsPlotTitle(instanceName, mPlotTitle);
+      PlotInterface::SetXyPlotTitle(instanceName, mPlotTitle);
       mIsOwnedPlotWindowSet = true;
       
       // add to Y params to OwnedPlotWindow
@@ -292,7 +292,7 @@ bool OwnedPlot::Initialize()
                   "curveTitle = %s\n", curveNames[i].c_str());
          #endif
          
-         PlotInterface::AddTsPlotCurve(instanceName, i, yOffset, yMin, yMax,
+         PlotInterface::AddXyPlotCurve(instanceName, i, yOffset, yMin, yMax,
                curveNames[i], curveColor[i]);
 
          #ifdef DEBUG_ERROR_BARS
@@ -301,12 +301,12 @@ bool OwnedPlot::Initialize()
                   (curveUseHiLow[i] == true ? "true" : "false"));
          #endif
 
-         PlotInterface::TsPlotCurveSettings(instanceName, curveUseLines[i],
+         PlotInterface::XyPlotCurveSettings(instanceName, curveUseLines[i],
                curveLineWidth[i], curveLineStyle[i], curveUseMarkers[i],
                curveMarkerSize[i], curveMarker[i], curveUseHiLow[i], i);
       }
       
-      PlotInterface::ShowTsPlotLegend(instanceName);
+      PlotInterface::ShowXyPlotLegend(instanceName);
       status = true;
       
       #if DEBUG_OwnedPlot_INIT
@@ -314,7 +314,7 @@ bool OwnedPlot::Initialize()
                "ClearOwnedPlotData()\n");
       #endif
       
-      PlotInterface::ClearTsPlotData(instanceName);
+      PlotInterface::ClearXyPlotData(instanceName);
    }
    else
    {
@@ -322,7 +322,7 @@ bool OwnedPlot::Initialize()
       MessageInterface::ShowMessage("OwnedPlot::Initialize() DeleteOwnedPlot()\n");
       #endif
       
-      status =  PlotInterface::DeleteTsPlot(instanceName);
+      status =  PlotInterface::DeleteXyPlot(instanceName);
    }
    
    #if DEBUG_OwnedPlot_INIT
@@ -1202,7 +1202,7 @@ bool OwnedPlot::SetBooleanParameter(const Integer id, const bool value)
 //------------------------------------------------------------------------------
 bool OwnedPlot::Activate()
 {
-   PlotInterface::ActivateTsPlot(instanceName);
+   PlotInterface::ActivateXyPlot(instanceName);
    return true;
 }
 
@@ -1222,7 +1222,7 @@ bool OwnedPlot::Activate()
 //------------------------------------------------------------------------------
 bool OwnedPlot::Deactivate()
 {
-   PlotInterface::DeactivateTsPlot(instanceName);
+   PlotInterface::DeactivateXyPlot(instanceName);
    return true;
 }
 
@@ -1287,7 +1287,7 @@ void OwnedPlot::SetData(std::vector<RealArray*> &dataBlast,
             lows[j] = his[j];
       }
 
-      PlotInterface::UpdateTsPlotData(instanceName, xval, yvals, his,
+      PlotInterface::UpdateXyPlotData(instanceName, xval, yvals, his,
             lows);
    }
 }
@@ -1333,7 +1333,7 @@ void OwnedPlot::SetCurveData(const Integer forCurve, RealArray *xData,
          }
       }
 
-      PlotInterface::UpdateTsPlotCurve(instanceName, forCurve, (*xData)[i],
+      PlotInterface::UpdateXyPlotCurve(instanceName, forCurve, (*xData)[i],
             (*yData)[i], hi, low);
    }
 }
@@ -1591,7 +1591,7 @@ bool OwnedPlot::RemoveYParameter(const std::string &name)
 //------------------------------------------------------------------------------
 bool OwnedPlot::ResetYParameters()
 {
-   PlotInterface::ClearTsPlotData(instanceName);
+   PlotInterface::ClearXyPlotData(instanceName);
    return true;
 }
 
@@ -1606,7 +1606,7 @@ bool OwnedPlot::ResetYParameters()
 //------------------------------------------------------------------------------
 bool OwnedPlot::PenUp()
 {
-   PlotInterface::TsPlotPenUp(instanceName);
+   PlotInterface::XyPlotPenUp(instanceName);
    return true;
 }
 
@@ -1621,7 +1621,7 @@ bool OwnedPlot::PenUp()
 //------------------------------------------------------------------------------
 bool OwnedPlot::PenDown()
 {
-   PlotInterface::TsPlotPenDown(instanceName);
+   PlotInterface::XyPlotPenDown(instanceName);
    return true;
 }
 
@@ -1637,7 +1637,7 @@ bool OwnedPlot::PenDown()
 //------------------------------------------------------------------------------
 bool OwnedPlot::RescaleData()
 {
-   PlotInterface::TsPlotRescale(instanceName);
+   PlotInterface::XyPlotRescale(instanceName);
    return true;
 }
 
@@ -1652,5 +1652,5 @@ bool OwnedPlot::RescaleData()
 void OwnedPlot::DeletePlotCurves()
 {
    // delete existing curves
-   PlotInterface::DeleteAllTsPlotCurves(instanceName, mOldName);
+   PlotInterface::DeleteAllXyPlotCurves(instanceName, mOldName);
 }

@@ -473,7 +473,7 @@ OBJECTS = \
     subscriber/OwnedPlot.o \
     subscriber/ReportFile.o \
     subscriber/Subscriber.o \
-    subscriber/TsPlot.o \
+    subscriber/XyPlot.o \
     util/A1Date.o \
     util/A1Mjd.o \
     util/AngleUtil.o \

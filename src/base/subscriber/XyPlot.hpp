@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  XyPlot
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -16,25 +16,25 @@
  * Declares XyPlot class.
  */
 //------------------------------------------------------------------------------
-#ifndef TsPlot_hpp
-#define TsPlot_hpp
+#ifndef XyPlot_hpp
+#define XyPlot_hpp
 
 #include "Subscriber.hpp"
 #include "Parameter.hpp"
 
 
 /**
- * Subscriber class used to drive the TsPlot components on the GUI
+ * Subscriber class used to drive the XyPlot components on the GUI
  */
-class TsPlot : public Subscriber 
+class XyPlot : public Subscriber 
 {
 public:
-   TsPlot(const std::string &name, Parameter *xParam = NULL,
+   XyPlot(const std::string &name, Parameter *xParam = NULL,
           Parameter *firstYParam = NULL, const std::string &plotTitle = "",
           const std::string &xAxisTitle = "", const std::string &yAxisTitle = "");
-   TsPlot(const TsPlot &orig);
-   TsPlot& operator=(const TsPlot& orig);
-   virtual ~TsPlot(void);
+   XyPlot(const XyPlot &orig);
+   XyPlot& operator=(const XyPlot& orig);
+   virtual ~XyPlot(void);
    
    // methods inherited from Subscriber
    virtual bool         Initialize();
@@ -141,7 +141,7 @@ protected:
    std::string mXAxisTitle;
    std::string mYAxisTitle;
    bool mDrawGrid;
-   bool mIsTsPlotWindowSet;
+   bool mIsXyPlotWindowSet;
    
    Integer mDataCollectFrequency;
    Integer mUpdatePlotFrequency;
@@ -177,13 +177,13 @@ public:
       IND_VAR,                 // deprecated
       ADD,                     // deprecated
       DRAW_GRID,               // deprecated
-      TsPlotParamCount
+      XyPlotParamCount
    };
    
    static const Gmat::ParameterType
-      PARAMETER_TYPE[TsPlotParamCount - SubscriberParamCount];
+      PARAMETER_TYPE[XyPlotParamCount - SubscriberParamCount];
    static const std::string
-      PARAMETER_TEXT[TsPlotParamCount - SubscriberParamCount];
+      PARAMETER_TEXT[XyPlotParamCount - SubscriberParamCount];
 
 };
 

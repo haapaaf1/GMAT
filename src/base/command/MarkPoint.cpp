@@ -211,8 +211,8 @@ bool MarkPoint::Initialize()
       if ((xy = FindObject(plotNameList.at(ii))) != NULL) 
       {
          if (xy->GetTypeName() == "XYPlot") 
-            thePlotList.push_back((TsPlot*) xy);
-            //thePlot = (TsPlot*)xy;
+            thePlotList.push_back((XyPlot*) xy);
+            //thePlot = (XyPlot*)xy;
          else
             throw CommandException(
                "Object named \"" + plotNameList.at(ii) + "\" should be an XYPlot to use the "

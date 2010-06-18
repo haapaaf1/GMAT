@@ -315,7 +315,7 @@ bool PlotInterface::TakeGlAction(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-//  bool CreateTsPlotWindow(const std::string &plotName,
+//  bool CreateXyPlotWindow(const std::string &plotName,
 //                          const std::string &oldName,
 //                          const std::string &plotTitle,
 //                          const std::string &xAxisTitle,
@@ -323,7 +323,7 @@ bool PlotInterface::TakeGlAction(const std::string &plotName,
 //                          bool drawGrid = false)
 //------------------------------------------------------------------------------
 /*
- * Creates a TsPlot window.
+ * Creates a XyPlot window.
  *
  * @param plotName Name of the plot
  * @param oldName Former name of the plot
@@ -335,7 +335,7 @@ bool PlotInterface::TakeGlAction(const std::string &plotName,
  * @return true on success, false is no plot was created
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
+bool PlotInterface::CreateXyPlotWindow(const std::string &plotName,
                                        const std::string &oldName,
                                        const std::string &plotTitle,
                                        const std::string &xAxisTitle,
@@ -343,7 +343,7 @@ bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
                                        bool drawGrid)
 {    
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->CreateTsPlotWindow(plotName, oldName, plotTitle, 
+      return thePlotReceiver->CreateXyPlotWindow(plotName, oldName, plotTitle, 
             xAxisTitle, yAxisTitle, drawGrid);
    
    return false;
@@ -351,27 +351,27 @@ bool PlotInterface::CreateTsPlotWindow(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-//  bool DeleteTsPlot(const std::string &plotName)
+//  bool DeleteXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /*
- * Deletes a TsPlot by plot name.
+ * Deletes a XyPlot by plot name.
  *
  * @param plotName name of plot to be deleted
  *
  * @return true on success, false is no plot was deleted
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeleteTsPlot(const std::string &plotName)
+bool PlotInterface::DeleteXyPlot(const std::string &plotName)
 {    
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->DeleteTsPlot(plotName);
+      return thePlotReceiver->DeleteXyPlot(plotName);
    
    return false;
 }
 
 
 //------------------------------------------------------------------------------
-// bool AddTsPlotCurve(const std::string &plotName, int curveIndex,
+// bool AddXyPlotCurve(const std::string &plotName, int curveIndex,
 //                     int yOffset, Real yMin, Real yMax,
 //                     const std::string &curveTitle,
 //                     UnsignedInt penColor)
@@ -390,20 +390,20 @@ bool PlotInterface::DeleteTsPlot(const std::string &plotName)
  * @return true on success, false is no curve was added
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::AddTsPlotCurve(const std::string &plotName, int curveIndex,
+bool PlotInterface::AddXyPlotCurve(const std::string &plotName, int curveIndex,
                                    int yOffset, Real yMin, Real yMax,
                                    const std::string &curveTitle,
                                    UnsignedInt penColor)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->AddTsPlotCurve(plotName, curveIndex, yOffset, 
+      return thePlotReceiver->AddXyPlotCurve(plotName, curveIndex, yOffset, 
             yMin, yMax, curveTitle, penColor);
    
    return false;
 }
 
 //------------------------------------------------------------------------------
-// bool DeleteAllTsPlotCurves(const std::string &plotName,
+// bool DeleteAllXyPlotCurves(const std::string &plotName,
 //                            const std::string &oldName)
 //------------------------------------------------------------------------------
 /*
@@ -415,18 +415,18 @@ bool PlotInterface::AddTsPlotCurve(const std::string &plotName, int curveIndex,
  * @return true on success, false if no action was taken
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeleteAllTsPlotCurves(const std::string &plotName,
+bool PlotInterface::DeleteAllXyPlotCurves(const std::string &plotName,
                                           const std::string &oldName)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->DeleteAllTsPlotCurves(plotName, oldName);
+      return thePlotReceiver->DeleteAllXyPlotCurves(plotName, oldName);
       
    return false;
 }
 
 
 //------------------------------------------------------------------------------
-// bool DeleteTsPlotCurve(const std::string &plotName, int curveIndex)
+// bool DeleteXyPlotCurve(const std::string &plotName, int curveIndex)
 //------------------------------------------------------------------------------
 /*
  * Deletes a plot curve to XY plow window.
@@ -437,17 +437,17 @@ bool PlotInterface::DeleteAllTsPlotCurves(const std::string &plotName,
  * @return true on success, false if no curve was deleted
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeleteTsPlotCurve(const std::string &plotName, int curveIndex)
+bool PlotInterface::DeleteXyPlotCurve(const std::string &plotName, int curveIndex)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->DeleteTsPlotCurve(plotName, curveIndex);
+      return thePlotReceiver->DeleteXyPlotCurve(plotName, curveIndex);
       
    return false;
 }
 
 
 //------------------------------------------------------------------------------
-// void ClearTsPlotData(const std::string &plotName)
+// void ClearXyPlotData(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Removes all data from the plot curves, leaving the curve containers in place
@@ -456,15 +456,15 @@ bool PlotInterface::DeleteTsPlotCurve(const std::string &plotName, int curveInde
  * @param plotName The name of the plot that is being cleared
  */
 //------------------------------------------------------------------------------
-void PlotInterface::ClearTsPlotData(const std::string &plotName)
+void PlotInterface::ClearXyPlotData(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->ClearTsPlotData(plotName);
+      thePlotReceiver->ClearXyPlotData(plotName);
 }
 
 
 //------------------------------------------------------------------------------
-// void TsPlotPenUp(const std::string &plotName)
+// void XyPlotPenUp(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Tells a plot to stop drawing received data.  This method is idempotent.
@@ -472,14 +472,14 @@ void PlotInterface::ClearTsPlotData(const std::string &plotName)
  * @param plotName The name of the plot that is being cleared
  */
 //------------------------------------------------------------------------------
-void PlotInterface::TsPlotPenUp(const std::string &plotName)
+void PlotInterface::XyPlotPenUp(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->TsPlotPenUp(plotName);
+      thePlotReceiver->XyPlotPenUp(plotName);
 }
 
 //------------------------------------------------------------------------------
-// void TsPlotPenDown(const std::string &plotName)
+// void XyPlotPenDown(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Tells a plot to resume drawing received data.  This method is idempotent.
@@ -487,19 +487,19 @@ void PlotInterface::TsPlotPenUp(const std::string &plotName)
  * @param plotName The name of the plot that is being cleared
  */
 //------------------------------------------------------------------------------
-void PlotInterface::TsPlotPenDown(const std::string &plotName)
+void PlotInterface::XyPlotPenDown(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->TsPlotPenDown(plotName);
+      thePlotReceiver->XyPlotPenDown(plotName);
 }
 
 
 //------------------------------------------------------------------------------
-// void TsPlotMarkPoint(const std::string &plotName, Integer index,
+// void XyPlotMarkPoint(const std::string &plotName, Integer index,
 //       Integer curveNumber)
 //------------------------------------------------------------------------------
 /**
- * Marks a specific point on a specific curve of a TsPlot with an oversized X
+ * Marks a specific point on a specific curve of a XyPlot with an oversized X
  *
  * @param plotName The plot that contains the curve
  * @param index The index of the point that gets marked
@@ -507,16 +507,16 @@ void PlotInterface::TsPlotPenDown(const std::string &plotName)
  *                    curveNumber to -1 to mark all curves.
  */
 //------------------------------------------------------------------------------
-void PlotInterface::TsPlotMarkPoint(const std::string &plotName, Integer index,
+void PlotInterface::XyPlotMarkPoint(const std::string &plotName, Integer index,
       Integer curveNumber)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->TsPlotMarkPoint(plotName, index, curveNumber);
+      thePlotReceiver->XyPlotMarkPoint(plotName, index, curveNumber);
 }
 
 
 //------------------------------------------------------------------------------
-// void TsPlotRescale(const std::string &plotName)
+// void XyPlotRescale(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Sends a rescale message to the plot
@@ -524,15 +524,15 @@ void PlotInterface::TsPlotMarkPoint(const std::string &plotName, Integer index,
  * @param plotName The plot that is to be rescaled
  */
 //------------------------------------------------------------------------------
-void PlotInterface::TsPlotRescale(const std::string &plotName)
+void PlotInterface::XyPlotRescale(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->TsPlotRescale(plotName);
+      thePlotReceiver->XyPlotRescale(plotName);
 }
 
 
 //------------------------------------------------------------------------------
-// void TsPlotCurveSettings(const std::string &plotName, bool useLines,
+// void XyPlotCurveSettings(const std::string &plotName, bool useLines,
 //       Integer lineWidth, Integer lineStyle, bool useMarkers,
 //       Integer markerSize, Integer marker, bool useHiLow, Integer forCurve)
 //------------------------------------------------------------------------------
@@ -551,18 +551,18 @@ void PlotInterface::TsPlotRescale(const std::string &plotName)
  * @param forCurve The index of the curve receiving the settings
  */
 //------------------------------------------------------------------------------
-void PlotInterface::TsPlotCurveSettings(const std::string &plotName,
+void PlotInterface::XyPlotCurveSettings(const std::string &plotName,
       bool useLines, Integer lineWidth, Integer lineStyle, bool useMarkers,
       Integer markerSize, Integer marker, bool useHiLow, Integer forCurve)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->TsPlotCurveSettings(plotName, useLines, lineWidth,
+      thePlotReceiver->XyPlotCurveSettings(plotName, useLines, lineWidth,
             lineStyle, useMarkers, markerSize, marker, useHiLow, forCurve);
 }
 
 
 //------------------------------------------------------------------------------
-// void SetTsPlotTitle(const std::string &plotName,
+// void SetXyPlotTitle(const std::string &plotName,
 //       const std::string &plotTitle)
 //------------------------------------------------------------------------------
 /**
@@ -572,16 +572,16 @@ void PlotInterface::TsPlotCurveSettings(const std::string &plotName,
  * @param plotTitle The new title for the plot
  */
 //------------------------------------------------------------------------------
-void PlotInterface::SetTsPlotTitle(const std::string &plotName,
+void PlotInterface::SetXyPlotTitle(const std::string &plotName,
                                    const std::string &plotTitle)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->SetTsPlotTitle(plotName, plotTitle);
+      thePlotReceiver->SetXyPlotTitle(plotName, plotTitle);
 }
 
 
 //------------------------------------------------------------------------------
-// void ShowTsPlotLegend(const std::string &plotName)
+// void ShowXyPlotLegend(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Turns on display of the plot legend
@@ -589,15 +589,15 @@ void PlotInterface::SetTsPlotTitle(const std::string &plotName,
  * @param plotName The name of the plot
  */
 //------------------------------------------------------------------------------
-void PlotInterface::ShowTsPlotLegend(const std::string &plotName)
+void PlotInterface::ShowXyPlotLegend(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->ShowTsPlotLegend(plotName);
+      thePlotReceiver->ShowXyPlotLegend(plotName);
 }
 
 
 //------------------------------------------------------------------------------
-// bool RefreshTsPlot(const std::string &plotName)
+// bool RefreshXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /*
  * Refreshes all plot curves on a plot
@@ -607,17 +607,17 @@ void PlotInterface::ShowTsPlotLegend(const std::string &plotName)
  * @return true on success, false if nothing was refreshed
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::RefreshTsPlot(const std::string &plotName)
+bool PlotInterface::RefreshXyPlot(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->RefreshTsPlot(plotName);
+      return thePlotReceiver->RefreshXyPlot(plotName);
       
    return false;
 }
 
 
 //------------------------------------------------------------------------------
-// bool UpdateTsPlot(const std::string &plotName, const std::string &oldName,
+// bool UpdateXyPlot(const std::string &plotName, const std::string &oldName,
 //                   const Real &xval, const Rvector &yvals,
 //                   const std::string &plotTitle,
 //                   const std::string &xAxisTitle,
@@ -640,7 +640,7 @@ bool PlotInterface::RefreshTsPlot(const std::string &plotName)
  * @return true if an update occurred, false otherwise
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::UpdateTsPlot(const std::string &plotName,
+bool PlotInterface::UpdateXyPlot(const std::string &plotName,
                                  const std::string &oldName,
                                  const Real &xval, const Rvector &yvals,
                                  const std::string &plotTitle,
@@ -649,7 +649,7 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
                                  bool updateCanvas, bool drawGrid)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->UpdateTsPlot(plotName, oldName, xval, yvals,
+      return thePlotReceiver->UpdateXyPlot(plotName, oldName, xval, yvals,
             plotTitle, xAxisTitle, yAxisTitle, updateCanvas, drawGrid);
       
    return false;
@@ -657,7 +657,7 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
 
 
 //------------------------------------------------------------------------------
-// bool UpdateTsPlotData(const std::string &plotName, const Real &xval,
+// bool UpdateXyPlotData(const std::string &plotName, const Real &xval,
 //       const Rvector &yvals, const Rvector &hiError, const Rvector &lowError)
 //------------------------------------------------------------------------------
 /**
@@ -676,19 +676,19 @@ bool PlotInterface::UpdateTsPlot(const std::string &plotName,
  * @return true if the data was processed, false if not
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::UpdateTsPlotData(const std::string &plotName,
+bool PlotInterface::UpdateXyPlotData(const std::string &plotName,
                              const Real &xval, const Rvector &yvals,
                              const Rvector &hiError, const Rvector &lowError)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->UpdateTsPlotData(plotName, xval, yvals, &hiError,
+      return thePlotReceiver->UpdateXyPlotData(plotName, xval, yvals, &hiError,
             &lowError);
 
    return false;
 }
 
 //------------------------------------------------------------------------------
-// bool UpdateTsPlotCurve(const std::string &plotName, Integer whichCurve,
+// bool UpdateXyPlotCurve(const std::string &plotName, Integer whichCurve,
 //       const Real &xval, const Real &yval, const Real hi, const Real low)
 //------------------------------------------------------------------------------
 /**
@@ -705,19 +705,19 @@ bool PlotInterface::UpdateTsPlotData(const std::string &plotName,
  * @return true if the data was processed, false if not
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::UpdateTsPlotCurve(const std::string &plotName,
+bool PlotInterface::UpdateXyPlotCurve(const std::string &plotName,
                              Integer whichCurve, const Real &xval,
                              const Real &yval, const Real hi, const Real low)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->UpdateTsPlotCurve(plotName, whichCurve, xval,
+      return thePlotReceiver->UpdateXyPlotCurve(plotName, whichCurve, xval,
             yval, hi, low);
 
    return false;
 }
 
 //------------------------------------------------------------------------------
-// bool DeactivateTsPlot(const std::string &plotName)
+// bool DeactivateXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Disables redrawing for a plot.  This method is used when a plot is receiving
@@ -729,17 +729,17 @@ bool PlotInterface::UpdateTsPlotCurve(const std::string &plotName,
  * @return true is a plot received the message, false if not
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::DeactivateTsPlot(const std::string &plotName)
+bool PlotInterface::DeactivateXyPlot(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->DeactivateTsPlot(plotName);
+      return thePlotReceiver->DeactivateXyPlot(plotName);
 
    return false;
 }
 
 
 //------------------------------------------------------------------------------
-// bool ActivateTsPlot(const std::string &plotName)
+// bool ActivateXyPlot(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
  * Enables redrawing for a plot, and forces an immediate update.  This method is
@@ -751,10 +751,10 @@ bool PlotInterface::DeactivateTsPlot(const std::string &plotName)
  * @return true is a plot received the message, false if not
  */
 //------------------------------------------------------------------------------
-bool PlotInterface::ActivateTsPlot(const std::string &plotName)
+bool PlotInterface::ActivateXyPlot(const std::string &plotName)
 {
    if (thePlotReceiver != NULL)
-      return thePlotReceiver->ActivateTsPlot(plotName);
+      return thePlotReceiver->ActivateXyPlot(plotName);
 
    return false;
 }

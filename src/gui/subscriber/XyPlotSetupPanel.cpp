@@ -72,7 +72,7 @@ XyPlotSetupPanel::XyPlotSetupPanel(wxWindow *parent,
    Subscriber *subscriber = (Subscriber*)
       theGuiInterpreter->GetConfiguredObject(std::string(subscriberName.c_str()));
    
-   mXyPlot = (TsPlot*)subscriber;
+   mXyPlot = (XyPlot*)subscriber;
    
    mXParamChanged = false;
    mYParamChanged = false;
@@ -383,13 +383,13 @@ void XyPlotSetupPanel::LoadData()
       mObject = mXyPlot;
       
       showPlotCheckBox->SetValue(mXyPlot->IsActive());
-      showGridCheckBox->SetValue(mXyPlot->GetBooleanParameter(TsPlot::SHOW_GRID));
+      showGridCheckBox->SetValue(mXyPlot->GetBooleanParameter(XyPlot::SHOW_GRID));
       mSolverIterComboBox->
          SetValue(mXyPlot->GetStringParameter(Subscriber::SOLVER_ITERATIONS).c_str());
       
       // get X parameter
       wxString *xParamNames = new wxString[1];
-      xParamNames[0] = mXyPlot->GetStringParameter(TsPlot::XVARIABLE).c_str();
+      xParamNames[0] = mXyPlot->GetStringParameter(XyPlot::XVARIABLE).c_str();
       mXvarWxStrings.Add(xParamNames[0]);
       
       #if DEBUG_XYPLOT_PANEL_LOAD
@@ -405,7 +405,7 @@ void XyPlotSetupPanel::LoadData()
       }
       
       // get Y parameters
-      StringArray yParamList = mXyPlot->GetStringArrayParameter(TsPlot::YVARIABLES);
+      StringArray yParamList = mXyPlot->GetStringArrayParameter(XyPlot::YVARIABLES);
       mNumYParams = yParamList.size();
       //MessageInterface::ShowMessage("XyPlotSetupPanel::LoadData() mNumYParams = %d\n",
       //                              mNumYParams);
@@ -459,7 +459,7 @@ void XyPlotSetupPanel::SaveData()
    
    mXyPlot->Activate(showPlotCheckBox->IsChecked());
    
-   mXyPlot->SetBooleanParameter(TsPlot::SHOW_GRID, showGridCheckBox->IsChecked());
+   mXyPlot->SetBooleanParameter(XyPlot::SHOW_GRID, showGridCheckBox->IsChecked());
 
    mXyPlot->SetStringParameter(Subscriber::SOLVER_ITERATIONS,
                                mSolverIterComboBox->GetValue().c_str());
@@ -477,7 +477,7 @@ void XyPlotSetupPanel::SaveData()
       else
       {
          std::string selXName = std::string(mXSelectedListBox->GetString(0).c_str());
-         mXyPlot->SetStringParameter(TsPlot::XVARIABLE, selXName);
+         mXyPlot->SetStringParameter(XyPlot::XVARIABLE, selXName);
          mXParamChanged = false;
       }
    }
@@ -520,7 +520,7 @@ void XyPlotSetupPanel::SaveData()
                    mYSelectedListBox->GetString(i).c_str());
             #endif
             std::string selYName = std::string(mYSelectedListBox->GetString(i).c_str());
-            mXyPlot->SetStringParameter(TsPlot::YVARIABLES, selYName, i);
+            mXyPlot->SetStringParameter(XyPlot::YVARIABLES, selYName, i);
          }
       }
    }

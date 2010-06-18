@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                MarkPoint
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2009/10/06
@@ -20,7 +20,7 @@
 #define MarkPoint_hpp
 
 #include "GmatCommand.hpp"
-#include "TsPlot.hpp"
+#include "XyPlot.hpp"
 
 
 /**
@@ -29,8 +29,8 @@
 class MarkPoint : public GmatCommand
 {
 public:
-	MarkPoint();
-	virtual          ~MarkPoint();
+   MarkPoint();
+   virtual          ~MarkPoint();
    MarkPoint(const MarkPoint &c);
    MarkPoint&        operator=(const MarkPoint &c);
    
@@ -47,7 +47,7 @@ public:
 
 protected:
    StringArray          plotNameList;   
-   std::vector<TsPlot*> thePlotList;
+   std::vector<XyPlot*> thePlotList;
 };
 
 #endif /* MarkPoint_hpp */

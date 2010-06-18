@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               ClearPlot
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2004/02/26
@@ -20,7 +20,7 @@
 #define ClearPlot_hpp
 
 #include "GmatCommand.hpp"
-#include "TsPlot.hpp"
+#include "XyPlot.hpp"
 
 
 /**
@@ -29,8 +29,8 @@
 class ClearPlot : public GmatCommand
 {
 public:
-	ClearPlot();
-	virtual          ~ClearPlot();
+        ClearPlot();
+        virtual          ~ClearPlot();
    ClearPlot(const ClearPlot &c);
    ClearPlot&        operator=(const ClearPlot &c);
    
@@ -47,7 +47,7 @@ public:
 
 protected:
    StringArray          plotNameList;   
-   std::vector<TsPlot*> thePlotList;
+   std::vector<XyPlot*> thePlotList;
 };
 
 #endif /* ClearPlot_hpp */

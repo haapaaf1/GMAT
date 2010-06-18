@@ -22,7 +22,7 @@
 #include "GmatPanel.hpp"
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
-#include "TsPlot.hpp"
+#include "XyPlot.hpp"
 
 class XyPlotSetupPanel: public GmatPanel
 {
@@ -35,7 +35,7 @@ public:
                                   const wxString &oldName,
                                   const wxString &newName);
 protected:
-   TsPlot *mXyPlot;
+   XyPlot *mXyPlot;
    
    int  mNumXParams;
    int  mNumYParams;

@@ -93,29 +93,29 @@ public:
                             const std::string &action);
    
    // for XY plot
-   static bool CreateTsPlotWindow(const std::string &plotName,
+   static bool CreateXyPlotWindow(const std::string &plotName,
                                   const std::string &oldName,
                                   const std::string &plotTitle,
                                   const std::string &xAxisTitle,
                                   const std::string &yAxisTitle,
                                   bool drawGrid = false);
-   static bool DeleteTsPlot(const std::string &plotName);
-   static bool AddTsPlotCurve(const std::string &plotName, int curveIndex,
+   static bool DeleteXyPlot(const std::string &plotName);
+   static bool AddXyPlotCurve(const std::string &plotName, int curveIndex,
                               int yOffset, Real yMin, Real yMax,
                               const std::string &curveTitle,
                               UnsignedInt penColor);
-   static bool DeleteAllTsPlotCurves(const std::string &plotName,
+   static bool DeleteAllXyPlotCurves(const std::string &plotName,
                                      const std::string &oldName);
-   static bool DeleteTsPlotCurve(const std::string &plotName, int curveIndex);
-   static void ClearTsPlotData(const std::string &plotName);
-   static void TsPlotPenUp(const std::string &plotName);
-   static void TsPlotPenDown(const std::string &plotName);
-   static void TsPlotMarkPoint(const std::string &plotName, Integer index = -1,
+   static bool DeleteXyPlotCurve(const std::string &plotName, int curveIndex);
+   static void ClearXyPlotData(const std::string &plotName);
+   static void XyPlotPenUp(const std::string &plotName);
+   static void XyPlotPenDown(const std::string &plotName);
+   static void XyPlotMarkPoint(const std::string &plotName, Integer index = -1,
          Integer curveNumber = -1);
 
-   static void TsPlotRescale(const std::string &plotName);
+   static void XyPlotRescale(const std::string &plotName);
 
-   static void TsPlotCurveSettings(const std::string &plotName,
+   static void XyPlotCurveSettings(const std::string &plotName,
                                    bool useLines = true,
                                    Integer lineWidth = 1,
                                    Integer lineStyle = 100,
@@ -125,28 +125,28 @@ public:
                                    bool useHiLow = false,
                                    Integer forCurve = -1);
 
-   static void SetTsPlotTitle(const std::string &plotName,
+   static void SetXyPlotTitle(const std::string &plotName,
                               const std::string &plotTitle);
-   static void ShowTsPlotLegend(const std::string &plotName);
-   static bool RefreshTsPlot(const std::string &plotName);
-   static bool UpdateTsPlot(const std::string &plotName,
+   static void ShowXyPlotLegend(const std::string &plotName);
+   static bool RefreshXyPlot(const std::string &plotName);
+   static bool UpdateXyPlot(const std::string &plotName,
                             const std::string &oldName,
                             const Real &xval, const Rvector &yvals,
                             const std::string &plotTitle,
                             const std::string &xAxisTitle,
                             const std::string &yAxisTitle,
                             bool updateCanvas, bool drawGrid);
-   static bool UpdateTsPlotData(const std::string &plotName,
+   static bool UpdateXyPlotData(const std::string &plotName,
                                 const Real &xval, const Rvector &yvals,
                                 const Rvector &hiError,
                                 const Rvector &lowError);
    
-   static bool UpdateTsPlotCurve(const std::string &plotName,
+   static bool UpdateXyPlotCurve(const std::string &plotName,
                      Integer whichCurve, const Real &xval, const Real &yval,
                      const Real hi = 0.0, const Real low = 0.0);
 
-   static bool DeactivateTsPlot(const std::string &plotName);
-   static bool ActivateTsPlot(const std::string &plotName);
+   static bool DeactivateXyPlot(const std::string &plotName);
+   static bool ActivateXyPlot(const std::string &plotName);
 
 
 private:
