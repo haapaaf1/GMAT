@@ -201,7 +201,7 @@ void ParameterSelectDialog::Create()
    #endif
    
    //------------------------------------------------------
-   // create paramter sizer
+   // create parameter sizer
    //------------------------------------------------------
    
    mParameterSizer = theGuiManager->
@@ -226,7 +226,8 @@ void ParameterSelectDialog::Create()
                                mObjectTypeList, mShowOption,
                                mAllowMultiSelect, mAllowString,
                                mAllowWholeObject, mAllowSysParam,
-                               mAllowVariable, mAllowArray, mObjectType);
+                               mAllowVariable, mAllowArray, mObjectType,
+                               "Parameter Select");
    
    //------------------------------------------------------
    // add to parent sizer
@@ -679,7 +680,7 @@ void ParameterSelectDialog::OnComboBoxChange(wxCommandEvent& event)
       ShowArrayInfo(false);
    
    // fire ObjectListBox select event if single selection
-   if (!mAllowMultiSelect)
+   if ((!mAllowMultiSelect) && (obj != mCoordSysComboBox))
    {
       mObjectListBox->SetSelection(0);
       wxCommandEvent tempEvent;
@@ -1194,7 +1195,7 @@ void ParameterSelectDialog::ShowCoordSystem()
    if (depObj == GmatParam::COORD_SYS)
    {
       mCoordSysLabel->Show();
-      mCoordSysLabel->SetLabel("Coordinate System");
+      mCoordSysLabel->SetLabel("Coordinate "GUI_ACCEL_KEY"System");
       
       mCoordSysComboBox->SetStringSelection(mLastCoordSysName);
       
@@ -1208,7 +1209,7 @@ void ParameterSelectDialog::ShowCoordSystem()
    else if (depObj == GmatParam::ORIGIN)
    {
       mCoordSysLabel->Show();
-      mCoordSysLabel->SetLabel("Central Body");
+      mCoordSysLabel->SetLabel("Central "GUI_ACCEL_KEY"Body");
       
       // I had to remove mCoordSysComboBox first and then mCentralBodyComboBox,
       // otherwise, mCentralBodyComboBox shows too far to right
