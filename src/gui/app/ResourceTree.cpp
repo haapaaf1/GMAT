@@ -1697,7 +1697,9 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::VARIABLE) ||
         (itemType == GmatTree::ARRAY) ||
         (itemType == GmatTree::STRING) ||
-        (itemType == GmatTree::LIBRATION_POINT) )
+        (itemType == GmatTree::LIBRATION_POINT) ||
+        (itemType == GmatTree::MATLAB_FUNCTION) || 
+        (itemType == GmatTree::GMAT_FUNCTION))
    {
       const std::string stdName = name.c_str();
       std::string newName = theGuiInterpreter->AddClone(stdName);
