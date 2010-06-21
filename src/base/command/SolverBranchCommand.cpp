@@ -25,6 +25,9 @@
 #include "Vary.hpp"                // For SetInitialValue() method
 #include "MessageInterface.hpp"
 
+//#define DEBUG_PARSING
+//#define DEBUG_OPTIONS
+
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
@@ -491,36 +494,21 @@ void SolverBranchCommand::CheckForOptions(std::string &opts)
 
 std::string SolverBranchCommand::GetSolverOptionText()
 {
+   #ifdef DEBUG_OPTIONS
+      MessageInterface::ShowMessage("Entering GetSolverOptionText with startMode = %d, and exitMode = %d\n",
+            (Integer) startMode, (Integer) exitMode);
+   #endif
    std::string optionString = "";
-   
-   if (!((startMode == RUN_AND_SOLVE) && (exitMode == DISCARD_AND_CONTINUE)))
-   {
-      bool startModeSet = false;
-      optionString += " {";
-      
-      // Handle the SolveMode options
-      if (startMode == RUN_INITIAL_GUESS)
-      {
-         optionString += "SolveMode = RunInitialGuess";
-         startModeSet = true;
-      }
-      
-      // Next handle the ExitMode options
-      if (exitMode == SAVE_AND_CONTINUE)
-      {
-         if (startModeSet)
-            optionString += ", ";
-         optionString += "ExitMode = SaveAndContinue";
-      }
-      if (exitMode == STOP)
-      {
-         if (startModeSet)
-            optionString += ", ";
-         optionString += "ExitMode = Stop";
-      }
-      
-      optionString += "}";
-   }
+   optionString += " {SolveMode = ";
+   optionString += GetStringParameter(SOLVER_SOLVE_MODE);
+   optionString += ", ExitMode = ";
+   optionString += GetStringParameter(SOLVER_EXIT_MODE);
+   optionString += "}";
+
+   #ifdef DEBUG_OPTIONS
+      MessageInterface::ShowMessage("Exiting GetSolverOptionText and optionString = %s\n",
+            optionString.c_str());
+   #endif
    
    return optionString;
 }
