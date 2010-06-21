@@ -289,7 +289,7 @@ void GroundStationPanel::LoadData()
       horizonReferenceComboBox->SetValue(wxVariant(localGroundStation->GetStringParameter(BodyFixedPoint::HORIZON_REFERENCE).c_str()));
       location1TextCtrl->SetValue(wxVariant(localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_1)));
       location2TextCtrl->SetValue(wxVariant(localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_2)));
-      location3TextCtrl->SetValue(wxVariant(localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_2)));
+      location3TextCtrl->SetValue(wxVariant(localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_3)));
       //hardwareTextCtrl->SetValue(wxVariant(localGroundStation->GetStringParameter(GroundStation::HARDWARE).c_str()));
       
       // update labels and tooltips based on statetype
