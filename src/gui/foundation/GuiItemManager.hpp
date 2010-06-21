@@ -302,7 +302,8 @@ public:
           bool allowMultiSelect = false, bool showString = false,
           bool allowWholeObject = false, bool showSysParam = true,
           bool showVariable = false, bool showArray = false,
-          const wxString &onwer = "Spacecraft");
+          const wxString &onwer = "Spacecraft",
+          const wxString configSection = "Parameter Select");
    
    wxSizer*
    CreateUserVarSizer(wxWindow *parent,
