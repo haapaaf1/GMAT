@@ -46,7 +46,7 @@
 #include "CommandUtil.hpp"         // for GetNextCommand()
 
 // For testing new code for adding commands in a generic way
-// has not fully implemented yet (LOJ: 2009.08.26)
+// has not been fully implemented yet (LOJ: 2009.08.26)
 //#define __AUTO_ADD_NEW_COMMANDS__
 
 // Should we sort the command list?
@@ -170,9 +170,43 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    #ifdef __AUTO_ADD_NEW_COMMANDS__
    //-----------------------------------------------------------------
    
-   //StringArray cmdList = theGuiInterpreter->GetCreatableList(Gmat::COMMAND);
+   StringArray excludeList;
+   excludeList.push_back("NoOp");
+   excludeList.push_back("BeginMissionSequence");
+   excludeList.push_back("For");
+   excludeList.push_back("EndFor");
+   excludeList.push_back("If");
+   excludeList.push_back("EndIf");
+   excludeList.push_back("Else");
+   excludeList.push_back("While");
+   excludeList.push_back("EndWhile");
+   excludeList.push_back("CallFunction");
+   excludeList.push_back("Assignment");
+   excludeList.push_back("BeginScript");
+   excludeList.push_back("EndScript");
+   excludeList.push_back("Achieve");
+   excludeList.push_back("Vary");
+   excludeList.push_back("EndTarget");
+   excludeList.push_back("EndOptimize");
+   excludeList.push_back("Minimize");
+   excludeList.push_back("NonlinearConstraint");
+   
+   StringArray cmdList = theGuiInterpreter->GetCreatableList(Gmat::COMMAND);
+   MessageInterface::ShowMessage("===> Here is the command list:\n");
+   std::string cmdStr;
+   for (UnsignedInt i = 0; i < cmdList.size(); i++)
+   {
+      cmdStr = cmdList[i];
+      MessageInterface::ShowMessage(" %2d  %s\n", i, cmdStr.c_str());
+      if (find(excludeList.begin(), excludeList.end(), cmdStr) == excludeList.end())
+         mCommandList.Add(cmdStr.c_str());
+   }
+   
    //mCommandList = theGuiManager->ToWxArrayString(cmdList);
    
+   mCommandList.Add("Equation");
+   
+   #if 0
    mCommandList.Clear();
    mCommandList.Add("Propagate");
    mCommandList.Add("Maneuver");
@@ -180,7 +214,9 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    mCommandList.Add("EndFiniteBurn");
    mCommandList.Add("Target");
    mCommandList.Add("Optimize");
-   mCommandList.Add("CallFunction");
+   mCommandList.Add("CallGmatFunction");
+   if (GmatGlobal::Instance()->IsMatlabAvailable())
+      mCommandList.Add("CallMatlabFunction");
    mCommandList.Add("Report");
    mCommandList.Add("Toggle");
    mCommandList.Add("Save");
@@ -188,6 +224,7 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    //mCommandList.Add("GMAT");
    mCommandList.Add("Equation");
    mCommandList.Add("ScriptEvent");
+   #endif
    
    CreateMenuIds();
    
@@ -202,7 +239,9 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    mCommandList.Add("EndFiniteBurn");
    mCommandList.Add("Target");
    mCommandList.Add("Optimize");
-   mCommandList.Add("CallFunction");
+   mCommandList.Add("CallGmatFunction");
+   if (GmatGlobal::Instance()->IsMatlabAvailable())
+      mCommandList.Add("CallMatlabFunction");
    mCommandList.Add("Report");
    mCommandList.Add("Toggle");
    mCommandList.Add("Save");
@@ -462,12 +501,20 @@ void MissionTree::UpdateCommand()
 //------------------------------------------------------------------------------
 GmatCommand* MissionTree::CreateCommand(const wxString &cmdName)
 {
-   if (cmdName == "IfElse")
-      return theGuiInterpreter->CreateDefaultCommand("If");
-   else if (cmdName == "Equation")
-      return theGuiInterpreter->CreateDefaultCommand("GMAT");
-   else
-      return theGuiInterpreter->CreateDefaultCommand(cmdName.c_str());
+   try
+   {
+      if (cmdName == "IfElse")
+         return theGuiInterpreter->CreateDefaultCommand("If");
+      else if (cmdName == "Equation")
+         return theGuiInterpreter->CreateDefaultCommand("GMAT");
+      else
+         return theGuiInterpreter->CreateDefaultCommand(cmdName.c_str());
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::PopupMessage(Gmat::ERROR_, be.GetFullMessage());
+      return NULL;
+   }
 }
 
 
@@ -2130,8 +2177,11 @@ void MissionTree::OnAppend(wxCommandEvent &event)
    case POPUP_APPEND_NON_LINEAR_CONSTRAINT:
       Append("NonlinearConstraint");
       break;
-   case POPUP_APPEND_CALL_FUNCTION:
-      Append("CallFunction");
+   case POPUP_APPEND_CALL_GMAT_FUNCTION:
+      Append("CallGmatFunction");
+      break;
+   case POPUP_APPEND_CALL_MATLAB_FUNCTION:
+      Append("CallMatlabFunction");
       break;
    case POPUP_APPEND_ASSIGNMENT:
       //Append("GMAT");
@@ -2223,8 +2273,11 @@ void MissionTree::OnInsertBefore(wxCommandEvent &event)
    case POPUP_INSERT_BEFORE_NON_LINEAR_CONSTRAINT:
       InsertBefore("NonlinearConstraint");
       break;
-   case POPUP_INSERT_BEFORE_CALL_FUNCTION:
-      InsertBefore("CallFunction");
+   case POPUP_INSERT_BEFORE_CALL_GMAT_FUNCTION:
+      InsertBefore("CallGmatFunction");
+      break;
+   case POPUP_INSERT_BEFORE_CALL_MATLAB_FUNCTION:
+      InsertBefore("CallMatlabFunction");
       break;
    case POPUP_INSERT_BEFORE_ASSIGNMENT:
       //InsertBefore("GMAT");
@@ -2312,8 +2365,11 @@ void MissionTree::OnInsertAfter(wxCommandEvent &event)
    case POPUP_INSERT_AFTER_NON_LINEAR_CONSTRAINT:
       InsertAfter("NonlinearConstraint");
       break;
-   case POPUP_INSERT_AFTER_CALL_FUNCTION:
-      InsertAfter("CallFunction");
+   case POPUP_INSERT_AFTER_CALL_GMAT_FUNCTION:
+      InsertAfter("CallGmatFunction");
+      break;
+   case POPUP_INSERT_AFTER_CALL_MATLAB_FUNCTION:
+      InsertAfter("CallMatlabFunction");
       break;
    case POPUP_INSERT_AFTER_ASSIGNMENT:
       //InsertAfter("GMAT");
@@ -2891,7 +2947,9 @@ GmatTree::MissionIconType MissionTree::GetIconId(const wxString &cmd)
       return GmatTree::MISSION_ICON_WHILE;
    if (cmd == "EndWhile")
       return GmatTree::MISSION_ICON_NEST_RETURN;
-   if (cmd == "CallFunction")
+   if (cmd == "CallGmatFunction")
+      return GmatTree::MISSION_ICON_CALL_FUNCTION;
+   if (cmd == "CallMatlabFunction")
       return GmatTree::MISSION_ICON_CALL_FUNCTION;
    if (cmd == "Stop")
       return GmatTree::MISSION_ICON_STOP;
@@ -2980,7 +3038,9 @@ GmatTree::ItemType MissionTree::GetCommandId(const wxString &cmd)
       return GmatTree::WHILE_CONTROL;
    if (cmd == "EndWhile")
       return GmatTree::END_WHILE_CONTROL;
-   if (cmd == "CallFunction")
+   if (cmd == "CallGmatFunction")
+      return GmatTree::CALL_FUNCTION;
+   if (cmd == "CallMatlabFunction")
       return GmatTree::CALL_FUNCTION;
    if (cmd == "Stop")
       return GmatTree::STOP;
@@ -3071,8 +3131,10 @@ int MissionTree::GetMenuId(const wxString &cmd, ActionType action)
             return POPUP_APPEND_TARGET;
          else if (cmd == "Optimize")
             return POPUP_APPEND_OPTIMIZE;
-         else if (cmd == "CallFunction")
-            return POPUP_APPEND_CALL_FUNCTION;
+         else if (cmd == "CallGmatFunction")
+            return POPUP_APPEND_CALL_GMAT_FUNCTION;
+         else if (cmd == "CallMatlabFunction")
+            return POPUP_APPEND_CALL_MATLAB_FUNCTION;
          else if (cmd == "GMAT")
             return POPUP_APPEND_ASSIGNMENT;
          else if (cmd == "Equation")
@@ -3108,8 +3170,10 @@ int MissionTree::GetMenuId(const wxString &cmd, ActionType action)
             return POPUP_INSERT_BEFORE_TARGET;
          else if (cmd == "Optimize")
             return POPUP_INSERT_BEFORE_OPTIMIZE;
-         else if (cmd == "CallFunction")
-            return POPUP_INSERT_BEFORE_CALL_FUNCTION;
+         else if (cmd == "CallGmatFunction")
+            return POPUP_INSERT_BEFORE_CALL_GMAT_FUNCTION;
+         else if (cmd == "CallMatlabFunction")
+            return POPUP_INSERT_BEFORE_CALL_MATLAB_FUNCTION;
          else if (cmd == "GMAT")
             return POPUP_INSERT_BEFORE_ASSIGNMENT;
          else if (cmd == "Equation")
@@ -3145,8 +3209,10 @@ int MissionTree::GetMenuId(const wxString &cmd, ActionType action)
             return POPUP_INSERT_AFTER_TARGET;
          else if (cmd == "Optimize")
             return POPUP_INSERT_AFTER_OPTIMIZE;
-         else if (cmd == "CallFunction")
-            return POPUP_INSERT_AFTER_CALL_FUNCTION;
+         else if (cmd == "CallGmatFunction")
+            return POPUP_INSERT_AFTER_CALL_GMAT_FUNCTION;
+         else if (cmd == "CallMatlabFunction")
+            return POPUP_INSERT_AFTER_CALL_MATLAB_FUNCTION;
          else if (cmd == "GMAT")
             return POPUP_INSERT_AFTER_ASSIGNMENT;
          else if (cmd == "Equation")
@@ -3224,7 +3290,9 @@ int* MissionTree::GetCommandCounter(const wxString &cmd)
       return &mNumWhileLoop;
    if (cmd == "EndWhile")
       return &mNumWhileLoop;
-   if (cmd == "CallFunction")
+   if (cmd == "CallGmatFunction")
+      return &mNumFunct;
+   if (cmd == "CallMatlabFunction")
       return &mNumFunct;
    if (cmd == "GMAT")
       return &mNumAssign;
