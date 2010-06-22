@@ -38,12 +38,6 @@ GMAT v4(1,1) = 5.436081;
 GMAT v4(1,2) = 3.74267;
 GMAT v4(1,3) = -0.211975;
 
-
-% Create variable theta1 for trig function testing.
-%%%Create Variable theta1;
-%%%GMAT theta1 = 45;
-
-
 %  Create Array M1
 Create Array M1[3,3];
 GMAT M1(1,1) = -0.321135520517664;
@@ -148,7 +142,6 @@ Report rf TestNum Array3by1(1,1) Array3by1(2,1) Array3by1(3,1);
 % test addition of two row vectors
 %%% 6
 GMAT TestNum = TestNum + 1;
-%%%GMAT Array3by1 =  v3 + v4;
 GMAT Array1by3 =  v3+v4;
 Report rf TestNum Array1by3;
 Report rf TestNum Array1by3(1,1) Array1by3(1,2) Array1by3(1,3);
@@ -201,7 +194,6 @@ Report rf TestNum Array3by1(1,1) Array3by1(2,1) Array3by1(3,1);
 % test subtraction of two row vectors
 %%% 12
 GMAT TestNum = TestNum + 1;
-%%%GMAT Array3by1 =  v3 - v4;
 GMAT Array1by3 =  v3 - v4;
 Report rf TestNum Array1by3;
 Report rf TestNum Array1by3(1,1) Array1by3(1,2) Array1by3(1,3);
@@ -275,7 +267,6 @@ Report rf TestNum Array3by3(3,1) Array3by3(3,2) Array3by3(3,3);
 % test multiplication of 1x3 times 3x3
 %%% 20
 GMAT TestNum = TestNum + 1;
-%%%GMAT Array3by1 =  v3*M1;
 GMAT Array1by3 =  v3*M1;
 Report rf TestNum Array1by3;
 Report rf TestNum Array3by1(1,1) Array3by1(2,1) Array3by1(3,1);
@@ -284,7 +275,6 @@ Report rf TestNum Array3by1(1,1) Array3by1(2,1) Array3by1(3,1);
 % test multiplication of 3x3 times 3x1
 %%% 21
 GMAT TestNum = TestNum + 1;
-%%%GMAT Array1by3 =  M1*v1;
 GMAT Array3by1 =  M1*v1;
 Report rf TestNum Array3by1;
 Report rf TestNum Array1by3(1,1) Array1by3(1,2) Array1by3(1,3);
