@@ -202,13 +202,12 @@ void MathElement::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCo
          if (type == Gmat::RMATRIX_TYPE)
          {
             // Handle array index
-            Integer row, col;
-            std::string newName;
-            GmatStringUtil::GetArrayIndex(refObjectName, row, col, newName);
-            
+            std::string newName, rowStr, colStr;
+            GmatStringUtil::GetArrayIndexVar(refObjectName, rowStr, colStr, newName, "()");
             #ifdef DEBUG_INPUT_OUTPUT
             MessageInterface::ShowMessage
-               ("   row=%d, col=%d, newName=%s\n", row, col, newName.c_str());
+               ("   rowStr='%s', colStr='%s', newName=%s\n", rowStr.c_str(),
+                colStr.c_str(), newName.c_str());
             #endif
             
             // Are we going to allow row/column slicing for future? such as:
@@ -216,8 +215,12 @@ void MathElement::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCo
             // a(1,:)   -> first row vector
             // a(1:2,1) -> first and second row, fisrt column vector
             
+            bool wholeArray = false;
+            if (rowStr == "-1" && colStr == "-1")
+               wholeArray = true;
+            
             // if whole array, row and colum count is actual dimension
-            if (row == -1 && col == -1)
+            if (wholeArray)
             {
                rowCount = ((Array*)refObject)->GetRowCount();
                colCount = ((Array*)refObject)->GetColCount();

@@ -1647,13 +1647,26 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
                // check if LHS is a parameter
                GmatBase *tempObj = FindObject(lhs);
                if (tempObj && tempObj->GetType() == Gmat::PARAMETER)
-                  if (((Parameter*)tempObj)->GetReturnType() == Gmat::REAL_TYPE)
+               {
+                  Parameter *tempParam = (Parameter*)tempObj;
+                  #ifdef DEBUG_PARSE
+                  MessageInterface::ShowMessage
+                     ("   LHS return type = %d, Gmat::RMATRIX_TYPE = %d, "
+                      "inRealCommandMode = %d\n", tempParam->GetReturnType(),
+                      Gmat::RMATRIX_TYPE, inRealCommandMode);
+                  #endif
+                  
+                  if (tempParam->GetReturnType() == Gmat::REAL_TYPE ||
+                      tempParam->GetReturnType() == Gmat::RMATRIX_TYPE)
                   {
                      if (inRealCommandMode)
+                        inCommandMode = true;
+                     else if (tempParam->GetTypeName() == "Array")
                         inCommandMode = true;
                      else
                         inCommandMode = false;
                   }
+               }
             }
          }
       }
