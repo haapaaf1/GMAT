@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            File: CartesianParameters.hpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -43,6 +43,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -70,6 +71,7 @@ public:
 
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -97,6 +99,7 @@ public:
 
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -124,6 +127,7 @@ public:
 
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -151,6 +155,7 @@ public:
 
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -178,6 +183,7 @@ public:
    
    // methods inherited from Parameter
    virtual bool Evaluate();
+   virtual void SetReal(Real val);
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
@@ -203,10 +209,11 @@ public:
    CartState(const CartState &copy);
    CartState& operator=(const CartState &right);
    virtual ~CartState();
-
+   
    // methods inherited from Parameter
    virtual bool Evaluate();
-
+   virtual void SetRvector6(const Rvector6 &val);
+   
    // methods inherited from GmatBase
    virtual GmatBase* Clone(void) const;
    

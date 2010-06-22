@@ -180,6 +180,77 @@ OrbitData::~OrbitData()
 
 
 //------------------------------------------------------------------------------
+// void SetReal(Integer item, Real rval)
+//------------------------------------------------------------------------------
+void OrbitData::SetReal(Integer item, Real rval)
+{
+   #if DEBUG_ORBITDATA_SET
+   MessageInterface::ShowMessage
+      ("OrbitData::SetReal() item=%d, rval=%f\n", item, rval);
+   #endif
+   
+   if (mSpacecraft == NULL)
+      InitializeRefObjects();
+   
+   if (mSpacecraft == NULL)
+   {
+      MessageInterface::ShowMessage
+         ("*** INTERNAL ERROR *** Cannot find Spacecraft object so returning %f\n",
+          GmatOrbit::ORBIT_REAL_UNDEFINED);
+   }
+   
+   switch (item)
+   {
+   case PX:
+      mSpacecraft->SetRealParameter(mSpacecraft->GetParameterID("X"), rval);
+      break;
+   case PY:
+      mSpacecraft->SetRealParameter(mSpacecraft->GetParameterID("Y"), rval);
+      break;
+   case PZ:
+      mSpacecraft->SetRealParameter(mSpacecraft->GetParameterID("Z"), rval);
+      break;
+   case VX:
+      mSpacecraft->SetRealParameter(mSpacecraft->GetParameterID("VX"), rval);
+      break;
+   case VY:
+      mSpacecraft->SetRealParameter(mSpacecraft->GetParameterID("VY"), rval);
+      break;
+   case VZ:
+      mSpacecraft->SetRealParameter(mSpacecraft->GetParameterID("VZ"), rval);
+      break;
+   default:
+      throw ParameterException("OrbitData::SetReal() Unknown parameter id: " +
+                               GmatRealUtil::ToString(item));
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void SetRvector6(const Rvector6 &val)
+//------------------------------------------------------------------------------
+void OrbitData::SetRvector6(const Rvector6 &val)
+{
+   #if DEBUG_ORBITDATA_SET
+   MessageInterface::ShowMessage
+      ("OrbitData::SetRvector6() entered, rval=[%s]\n", rval.ToString().c_str());
+   #endif
+   
+   if (mSpacecraft == NULL)
+      InitializeRefObjects();
+   
+   if (mSpacecraft == NULL)
+   {
+      MessageInterface::ShowMessage
+         ("*** INTERNAL ERROR *** Cannot find Spacecraft object so returning %f\n",
+          GmatOrbit::ORBIT_REAL_UNDEFINED);
+   }
+   
+   mSpacecraft->SetState(val);
+}
+
+
+//------------------------------------------------------------------------------
 // Rvector6 GetCartState()
 //------------------------------------------------------------------------------
 Rvector6 OrbitData::GetCartState()

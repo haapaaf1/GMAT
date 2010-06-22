@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  OrbitData
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -46,7 +46,10 @@ public:
    Rvector6 GetSphRaDecState();
    Rvector6 GetSphAzFpaState();
    Rvector6 GetEquinState();
-
+   
+   void SetReal(Integer item, Real rval);
+   void SetRvector6(const Rvector6 &val);
+   
    Real GetCartReal(Integer item);
    Real GetCartReal(const std::string &str);
    

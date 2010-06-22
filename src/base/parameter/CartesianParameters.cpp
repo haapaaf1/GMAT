@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            File: CartesianParameters.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -121,6 +121,21 @@ bool CartX::Evaluate()
 }
 
 
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+void CartX::SetReal(Real val)
+{
+   OrbitData::SetReal(PX, val);
+   RealVar::SetReal(val);
+}
+
+
 //-------------------------------------
 // methods inherited from GmatBase
 //-------------------------------------
@@ -234,6 +249,21 @@ bool CartY::Evaluate()
 }
 
 
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+void CartY::SetReal(Real val)
+{
+   OrbitData::SetReal(PY, val);
+   RealVar::SetReal(val);
+}
+
+
 //-------------------------------------
 // methods inherited from GmatBase
 //-------------------------------------
@@ -343,6 +373,21 @@ bool CartZ::Evaluate()
       return false;
    else
       return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+void CartZ::SetReal(Real val)
+{
+   OrbitData::SetReal(PZ, val);
+   RealVar::SetReal(val);
 }
 
 
@@ -459,6 +504,21 @@ bool CartVx::Evaluate()
 }
 
 
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+void CartVx::SetReal(Real val)
+{
+   OrbitData::SetReal(VX, val);
+   RealVar::SetReal(val);
+}
+
+
 //-------------------------------------
 // methods inherited from GmatBase
 //-------------------------------------
@@ -572,6 +632,21 @@ bool CartVy::Evaluate()
 }
 
 
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+void CartVy::SetReal(Real val)
+{
+   OrbitData::SetReal(VY, val);
+   RealVar::SetReal(val);
+}
+
+
 //-------------------------------------
 // methods inherited from GmatBase
 //-------------------------------------
@@ -682,6 +757,21 @@ bool CartVz::Evaluate()
       return false;
    else
       return true;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetReal(Real val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+void CartVz::SetReal(Real val)
+{
+   OrbitData::SetReal(VZ, val);
+   RealVar::SetReal(val);
 }
 
 
@@ -802,6 +892,21 @@ bool CartState::Evaluate()
    #endif
    
    return mRvec6Value.IsValid(GmatOrbit::ORBIT_REAL_UNDEFINED);
+}
+
+
+//------------------------------------------------------------------------------
+// virtual void SetRvector6(const Rvector6 &val)
+//------------------------------------------------------------------------------
+/**
+ * Sets value to the owner of the parameter.
+ *
+ */
+//------------------------------------------------------------------------------
+void CartState::SetRvector6(const Rvector6 &val)
+{
+   OrbitData::SetRvector6(val);
+   Rvec6Var::SetRvector6(val);
 }
 
 
