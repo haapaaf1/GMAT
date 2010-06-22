@@ -1955,7 +1955,7 @@ bool PropagationConfigPanel::SaveIntegratorData()
    CheckReal(initStep, str, "InitialStepSize", "Real Number");
    
    str = accuracyTextCtrl->GetValue();      
-   CheckReal(accuracy, str, "Accuracy", "Real Number >= 0", false, true, true, true);
+   CheckReal(accuracy, str, "Accuracy", "Real Number > 0", false, true, true);
    
    str = minStepTextCtrl->GetValue();            
    CheckReal(minStep, str, "Min Step Size", "Real Number > 0, MinStep <= MaxStep",
