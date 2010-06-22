@@ -365,76 +365,42 @@ Real Integrator::SetRealParameter(const Integer id, const Real value)
    switch (id)
    {
    case ACCURACY:
-//      if (value <= 0.0)
-//         throw PropagatorException(
-//         "Integrator::SetRealParameter -- Accuracy value is set to <= 0.0");
-//      tolerance = value;
-//      return value;
-      if (value >= 0.0)
+      if (value > 0.0)
          tolerance = value;
       else
       {
          std::stringstream buffer;
          buffer << value;
-//         throw PropagatorException(
-//            "The value of " + buffer.str() + " for the integrator accuracy is not"
-//            " an allowed value. The allowed values are [Real Number >= 0.0].");
             throw PropagatorException(
                "The value of \"" + buffer.str() + "\" for field \"Accuracy\""
                " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+               "The allowed values are: [ Real Number > 0.0 ]. ");
       }
       return value;
    case MIN_STEP:
-//      if (value == 0.0)
-//         throw PropagatorException(
-//                   "Integrator::SetRealParameter --Minimum step is set to 0.0");
-//      minimumStep = fabs(value);
-//      return value;
       if (value >= 0.0)
          minimumStep = value;
       else
       {
          std::stringstream buffer;
          buffer << value;
-//         throw PropagatorException(
-//            "The value of " + buffer.str() + " for the integrator minimum step size "
-//            "is not an allowed value. The allowed values are "
-//            "[Real Number >= 0, MinStep <= MaxStep].");
-            throw PropagatorException(
-               "The value of \"" + buffer.str() + "\" for field \"Min Step\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0, MinStep <= MaxStep ].");
+         throw PropagatorException(
+            "The value of \"" + buffer.str() + "\" for field \"Min Step\""
+            " on object \"" + instanceName + "\" is not an allowed value.\n"
+            "The allowed values are: [ Real Number >= 0.0, MinStep <= MaxStep ].");
       }
       return value;
    case MAX_STEP:
-      // @todo waw: temporarily commented out, to be uncommented 
-      // once Edwin updates his scripts to support this
-      // if (fabs(value) <= minimumStep)
-//      if (fabs(value) < minimumStep)
-//         throw PropagatorException(
-//      "Integrator::SetRealParameter -- Maximum step is set less than minimum step.");
-//      maximumStep = fabs(value);
-//      return value;
-      if (value >= 0.0)
-//       if (fabs(value) <= minimumStep)
-         if (fabs(value) < minimumStep)
-            throw PropagatorException(
-               "Integrator::SetRealParameter -- Maximum step is set less than minimum step.");
-         else
+      if ((value > 0.0) && fabs(value) >= minimumStep)
             maximumStep = value;
       else
       {
          std::stringstream buffer;
          buffer << value;
-//         throw PropagatorException(
-//            "The value of " + buffer.str() + " for the integrator minimum step size "
-//            "is not an allowed value. The allowed values are "
-//            "[Real Number >= 0, MinStep <= MaxStep].");
-            throw PropagatorException(
-               "The value of \"" + buffer.str() + "\" for field \"Max Step\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0, MinStep <= MaxStep ].");
+         throw PropagatorException(
+            "The value of \"" + buffer.str() + "\" for field \"Max Step\""
+            " on object \"" + instanceName + "\" is not an allowed value.\n"
+            "The allowed values are: [ Real Number > 0.0, MinStep <= MaxStep ].");
       }
       return value;
    case ERROR_THRESHOLD:
