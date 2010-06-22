@@ -1231,17 +1231,18 @@ void AttitudePanel::OnCoordinateSystemSelection(wxCommandEvent &event)
    toCS   = (CoordinateSystem*)theGuiInterpreter->
              GetConfiguredObject(newCS);
              
-   // convert things here *****
+   // convert things here ***** TBD ********
    
-   //csModified     = true; // uncomment when completed .... (see below)
-   //dataChanged    = true;
-   //attCoordSystem = newCS;
-   //attCS          = toCS;
+   csModified     = true;
+   dataChanged    = true;
+   attCoordSystem = newCS;
+   attCS          = toCS;
+   theScPanel->EnableUpdate(true);
    
    // until know how to convert to new reference coordinate system .........
-   config2ComboBox->SetValue(wxT(attCoordSystem.c_str()));
-   MessageInterface::PopupMessage(Gmat::WARNING_, +
-      "Conversion of Attitude to a new Reference Coordinate System not yet implemented\n");
+//   config2ComboBox->SetValue(wxT(attCoordSystem.c_str()));
+//   MessageInterface::PopupMessage(Gmat::WARNING_, +
+//      "Conversion of Attitude to a new Reference Coordinate System not yet implemented\n");
    return;
 }
 
