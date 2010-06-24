@@ -925,7 +925,7 @@ StringArray MathParser::ParseParenthesis(const std::string &str)
       
       #if DEBUG_PARENTHESIS
       MessageInterface::ShowMessage
-         ("   ParseParenthesis() Parenthesis is Part of Function. str=%s, size=%u, "
+         ("   ParseParenthesis() Parenthesis is part of function. str=%s, size=%u, "
           "index1=%u, index2=%u\n", str.c_str(), str.size(), index1, index2);
       #endif
       
@@ -2104,11 +2104,16 @@ std::string MathParser::GetFunctionName(UnsignedInt functionType,
 {
    #if DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathParser::GetFunctionName() functionType=%u, str=%s\n", functionType,
-       str.c_str());
+      ("MathParser::GetFunctionName() entered, functionType=%u, str='%s'\n",
+       functionType, str.c_str());
    #endif
-   
+
+   left = "";
    std::string fnName = "";
+   
+   // if string does not start with letter, just return
+   if (!isalpha(str[0]))
+      return fnName;
    
    switch (functionType)
    {
@@ -2138,8 +2143,8 @@ std::string MathParser::GetFunctionName(UnsignedInt functionType,
    
    #if DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathParser::GetFunctionName() fnName=%s, left=%s\n", fnName.c_str(),
-       left.c_str());
+      ("MathParser::GetFunctionName() leaving, fnName='%s', left='%s'\n",
+       fnName.c_str(), left.c_str());
    #endif
    
    return fnName;
@@ -2198,14 +2203,68 @@ void MathParser::BuildFunction(const std::string &str, const StringArray &fnList
                                std::string &fnName, std::string &left)
 {
    UnsignedInt count = fnList.size();
+   fnName = "";
+   left = "";
    
    #if DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathParser::BuildFunction() str='%s', function count=%d\n", str.c_str(), count);
+      ("MathParser::BuildFunction() entered, str='%s', function count=%d\n",
+       str.c_str(), count);
    #endif
+   
+   if (count == 0)
+      return;
    
    std::string::size_type functionIndex = str.npos;
    
+   // This new code need more testing (LOJ: 2010.06.23)
+   // All routine test scripts worked.
+   //=================================================================
+   #if 1
+   //=================================================================
+   // Check if function name is in the function list
+   std::string fname = GmatStringUtil::ParseFunctionName(str);
+   
+   #if DEBUG_FUNCTION > 1
+   MessageInterface::ShowMessage("==> fname = '%s'\n", fname.c_str());
+   #endif
+   
+   if (find(fnList.begin(), fnList.end(), fname) != fnList.end())
+   {
+      fnName = fname;
+      functionIndex = str.find(fname + "(");
+   }
+   else
+   {
+      // Let's try lower case of the first letter
+      if (isalpha(fname[0]) && isupper(fname[0]))
+      {
+         // MSVC++ failes to do: fname[0] = tolower(fname[0])
+         std::string fname1 = fname;
+         fname1[0] = tolower(fname[0]);
+         
+         #if DEBUG_FUNCTION > 1
+         MessageInterface::ShowMessage
+            ("   function name '%s' not found so trying lower case '%s'\n",
+             fname.c_str(), fname1.c_str());
+         #endif
+         
+         if (find(fnList.begin(), fnList.end(), fname1) != fnList.end())
+         {
+            fnName = fname1;
+            functionIndex = str.find(fname + "(");
+         }
+      }
+   }
+   //=================================================================
+   #endif
+   //=================================================================
+   
+   
+   // This old code will be removed later (LOJ: 2010.06.23)
+   //=================================================================
+   #if 0
+   //=================================================================
    for (UnsignedInt i=0; i<count; i++)
    {
       #if DEBUG_FUNCTION > 1
@@ -2213,6 +2272,10 @@ void MathParser::BuildFunction(const std::string &str, const StringArray &fnList
       #endif
       
       functionIndex = str.find(fnList[i] + "(");
+      
+      #if DEBUG_FUNCTION > 1
+      MessageInterface::ShowMessage("   functionIndex=%d\n", functionIndex);
+      #endif
       
       // Try function name with first letter capitalized
       if (functionIndex == str.npos)
@@ -2224,15 +2287,31 @@ void MathParser::BuildFunction(const std::string &str, const StringArray &fnList
          break;
       }
    }
+   //=================================================================
+   #endif
+   //=================================================================
+   
+   #if DEBUG_FUNCTION
+   MessageInterface::ShowMessage
+      ("MathParser::BuildFunction() fnName='%s', functionIndex=%u\n",
+       fnName.c_str(), functionIndex);
+   #endif
    
    if (fnName != "")
    {
-      UnsignedInt index1 = str.find("(", functionIndex);
+      std::string::size_type index1 = str.find("(", functionIndex);
+      
+      #if DEBUG_FUNCTION
+      MessageInterface::ShowMessage
+         ("MathParser::BuildFunction() calling FindMatchingParen() with start "
+          "index=%u\n", index1);
+      #endif
+      
       UnsignedInt index2 = FindMatchingParen(str, index1);
       
       #if DEBUG_FUNCTION
       MessageInterface::ShowMessage
-         ("MathParser::BuildFunction() index1=%u, index2=%u\n", index1, index2);
+         ("MathParser::BuildFunction() matching ) found at %u\n", index2);
       #endif
       
       left = str.substr(index1+1, index2-index1-1);
@@ -2240,7 +2319,8 @@ void MathParser::BuildFunction(const std::string &str, const StringArray &fnList
    
    #if DEBUG_FUNCTION
    MessageInterface::ShowMessage
-      ("MathParser::BuildFunction() fnName=%s, left=%s\n", fnName.c_str(), left.c_str());
+      ("MathParser::BuildFunction() leaving, fnName=%s, left=%s\n",
+       fnName.c_str(), left.c_str());
    #endif
 }
 
@@ -2253,7 +2333,8 @@ std::string::size_type MathParser::FindMatchingParen(const std::string &str,
 {
    #if DEBUG_MATH_PARSER > 1
    MessageInterface::ShowMessage
-      ("MathParser::FindMatchingParen() str=%s, start=%u\n", str.c_str(), start);
+      ("MathParser::FindMatchingParen() entered, str=%s, start=%u\n",
+       str.c_str(), start);
    #endif
    
    int leftCounter = 0;
@@ -2270,6 +2351,11 @@ std::string::size_type MathParser::FindMatchingParen(const std::string &str,
       if (leftCounter == rightCounter)
          return i;
    }
+   
+   #if DEBUG_MATH_PARSER
+   MessageInterface::ShowMessage
+      ("**** ERROR ****  MathParser::FindMatchingParen() Unmatching parenthesis found\n");
+   #endif
    
    throw MathException("Unmatching parenthesis found");
 }
@@ -2410,3 +2496,4 @@ void MathParser::BuildAllFunctionList()
    unitConvList.push_back("degToRad");
    unitConvList.push_back("radToDeg");
 }
+
