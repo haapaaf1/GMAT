@@ -38,6 +38,7 @@ Optimizer::PARAMETER_TEXT[OptimizerParamCount -SolverParamCount] =
    "Tolerance",
    "EqualityConstraintNames",
    "InequalityConstraintNames",
+   "PlotCost",
 };
 
 const Gmat::ParameterType
@@ -47,6 +48,7 @@ Optimizer::PARAMETER_TYPE[OptimizerParamCount - SolverParamCount] =
    Gmat::REAL_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
+   Gmat::BOOLEAN_TYPE,
 };
 
 const Integer Optimizer::EQ_CONST_START   = 1000;
@@ -130,7 +132,8 @@ bool Optimizer::IsParameterReadOnly(const Integer id) const
 {
    if ((id == OBJECTIVE_FUNCTION) ||
        (id == EQUALITY_CONSTRAINT_NAMES) ||
-       (id == INEQUALITY_CONSTRAINT_NAMES))
+       (id == INEQUALITY_CONSTRAINT_NAMES) ||
+       (id == PLOT_COST_FUNCTION))
       return true;
       
    return Solver::IsParameterReadOnly(id);

@@ -39,16 +39,14 @@
 #include "Hardware.hpp"
 #include "CoordinateSystem.hpp"
 #include "CalculatedPoint.hpp"
-
-//#include "MeasurementModel.hpp"
-//#include "GeometricMeasurement.hpp"  // Will be "CoreMeasurement.hpp"
-//#include "DataFile.hpp"
-//#include "ObType.hpp"
+#include "DataFile.hpp"
 
 class MeasurementModel;
 class CoreMeasurement;
-class DataFile;
+//class DataFile;
 class ObType;
+class TrackingSystem;
+class TrackingData;
 
 
 /**
@@ -86,8 +84,10 @@ public:
 
    void                AddMeasurementModel(MeasurementModel *mModel);
    void                AddMeasurement(CoreMeasurement *meas);
-   void                AddDataFile(DataFile *meas);
+   void                AddDataStream(DataFile *df);
    void                AddObType(ObType *meas);
+   void                AddTrackingSystem(TrackingSystem *ts);
+   void                AddTrackingData(TrackingData *td);
 
    const StringArray&  GetListOfAllItems();
    const StringArray&  GetListOfItems(Gmat::ObjectType itemType);
@@ -128,7 +128,10 @@ public:
    CoordinateSystem*   GetCoordinateSystem(const std::string &name);
    CalculatedPoint*    GetCalculatedPoint(const std::string &name);
    MeasurementModel*   GetMeasurementModel(const std::string &name);
-   DataFile *          GetDataStream(const std::string &name);
+   TrackingSystem*     GetTrackingSystem(const std::string &name);
+   TrackingData*       GetTrackingData(const std::string &name);
+
+   DataFile*           GetDataStream(const std::string &name);
 
    bool                HasConfigurationChanged();
    void                ConfigurationChanged(bool tf);
@@ -140,6 +143,7 @@ private:
    static ConfigManager*               theConfigManager;
    /// The managed objects
    std::vector<GmatBase*>              objects;
+   std::vector<GmatBase*>              newObjects;
    /// A list of the names of the managed objects
    StringArray                         listOfItems;
    /// Mapping between the object names and their pointers

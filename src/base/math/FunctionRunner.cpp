@@ -828,6 +828,13 @@ void FunctionRunner::HandlePassingMathExp(Function *function)
                ("***> Cannot set value to input wrapper, different data type\n");
             MessageInterface::ShowMessage("..... Creating new NumberWrapper\n");
             ElementWrapper *newWrapper = new NumberWrapper();
+            
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Add
+               (newWrapper, newWrapper->GetDescription(), "FunctionRunner::HandlePassingMathExp()",
+                "*newWrapper = new NumberWrapper()");
+            #endif
+            
             newWrapper->SetReal(result);
             theFunctionManager.SetInputWrapper(i, newWrapper);
          }
@@ -836,6 +843,13 @@ void FunctionRunner::HandlePassingMathExp(Function *function)
       {
          MessageInterface::ShowMessage("..... Creating new NumberWrapper\n");
          ew = new NumberWrapper();
+         
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Add
+            (ew, ew->GetDescription(), "FunctionRunner::HandlePassingMathExp()",
+             "ew = new NumberWrapper()");
+         #endif
+         
          ew->SetReal(result);
          theFunctionManager.SetInputWrapper(i, ew);
       }
@@ -845,6 +859,13 @@ void FunctionRunner::HandlePassingMathExp(Function *function)
       MessageInterface::ShowMessage
          ("..... Creating Variable with '%s'\n", theInputNodes[i]->GetName().c_str());
       Variable *passingInput = new Variable(theInputNodes[i]->GetName());
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Add
+         (passingInput, passingInput->GetName(), "FunctionRunner::HandlePassingMathExp()",
+          "*passingInput = new Variable(theInputNodes[i]->GetName())");
+      #endif
+      
       passingInput->SetReal(result);
       MessageInterface::ShowMessage("..... Calling FunctionManager::SetPassedInput()\n");
       theFunctionManager.SetPassedInput(i, (GmatBase*)passingInput, inputAdded);

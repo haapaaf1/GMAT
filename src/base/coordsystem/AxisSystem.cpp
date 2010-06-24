@@ -609,7 +609,7 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Rvector &inState,
       if ((firstCallFired == false) || (epoch.Get() == 21545.0))
       {
          MessageInterface::ShowMessage(
-            "RotateToMJ2000Eq check for %s\n", typeName.c_str());
+            "AxisSystem::RotateToMJ2000Eq check for %s\n", typeName.c_str());
          MessageInterface::ShowMessage(
             "   Rotation matrix = |%20.10lf %20.10lf %20.10lf|\n"
             "                     |%20.10lf %20.10lf %20.10lf|\n"
@@ -620,11 +620,11 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Rvector &inState,
          MessageInterface::ShowMessage(
             "   Epoch: %.12lf\n", epoch.Get());
          MessageInterface::ShowMessage(
-            "   input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+            "   AxisSystem::input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
             inState[0], inState[1], inState[2], inState[3], inState[4], 
             inState[5]);
          MessageInterface::ShowMessage(
-            "   outpt State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+            "   AxisSystem::output State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
             outPos[0], outPos[1], outPos[2], outVel[0], outVel[1], 
             outVel[2]);
       }
@@ -829,7 +829,7 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
       if ((firstCallFired == false) || (epoch.Get() == 21545.0))
       {
          MessageInterface::ShowMessage(
-            "RotateFromMJ2000Eq check for %s\n", typeName.c_str());
+            "AxisSystem::RotateFromMJ2000Eq check for %s\n", typeName.c_str());
          MessageInterface::ShowMessage(
             "   Rotation matrix = |%20.10lf %20.10lf %20.10lf|\n"
             "                     |%20.10lf %20.10lf %20.10lf|\n"
@@ -840,11 +840,11 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
          MessageInterface::ShowMessage(
             "   Epoch: %.12lf\n", epoch.Get());
          MessageInterface::ShowMessage(
-            "   input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+            "   AxisSystem::input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
             inState[0], inState[1], inState[2], inState[3], inState[4], 
             inState[5]);
          MessageInterface::ShowMessage(
-            "   outpt State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
+            "   AxisSystem::output State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
             outPos[0], outPos[1], outPos[2], outVel[0], outVel[1], 
             outVel[2]);
          firstCallFired = true;
@@ -865,7 +865,7 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
    Real vel[3] = {inState[3], inState[4], inState[5]};   
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Input vector to FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Input vector to AxisSystem::FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          inState[0], inState[1], inState[2], inState[3], inState[4], inState[5]);
       MessageInterface::ShowMessage(
       "the rotation matrix is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
@@ -900,14 +900,14 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
    }     
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Output vector from FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Output vector from AxisSystem::FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
    #ifdef DEBUG_FIRST_CALL
       if ((firstCallFired == false) || (epoch.Get() == 21545.0))
       {
          MessageInterface::ShowMessage(
-            "RotateFromMJ2000Eq check for %s\n", typeName.c_str());
+            "AxisSystem::RotateFromMJ2000Eq check for %s\n", typeName.c_str());
          MessageInterface::ShowMessage(
             "   Rotation matrix = |%20.10lf %20.10lf %20.10lf|\n"
             "                     |%20.10lf %20.10lf %20.10lf|\n"

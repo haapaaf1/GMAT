@@ -31,6 +31,12 @@ public:
       TESTING
    };
    
+   enum MatlabMode
+   {
+      SINGLE_USE = 20,
+      SHARED
+   };
+   
    static GmatGlobal* Instance();
    
    // Real to string conversion precison
@@ -65,6 +71,8 @@ public:
    void SetRunInterrupted(bool flag) { runInterrupted = flag; }
    Integer GetRunMode() { return runMode; }
    void SetRunMode(Integer mode) { runMode = mode; }
+   Integer GetMatlabMode() { return matlabMode; }
+   void SetMatlabMode(Integer mode) { matlabMode = mode; }
    
    // IO formatting
    bool IsScientific() { return actualFormat.mScientific; }
@@ -167,7 +175,7 @@ private:
    bool isBatchMdoe;
    bool runInterrupted;
    Integer runMode;
-   
+   Integer matlabMode;
    IoFormat defaultFormat;
    IoFormat currentFormat;
    IoFormat actualFormat;

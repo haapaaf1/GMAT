@@ -165,6 +165,7 @@ GmatGlobal::GmatGlobal()
 {
    isBatchMdoe = false;
    runMode = NORMAL;
+   matlabMode = SHARED;
    matlabExt = "__m__";
 }
 

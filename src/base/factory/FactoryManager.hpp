@@ -45,12 +45,14 @@
 #include "CoordinateSystem.hpp"
 #include "MathNode.hpp"
 #include "Attitude.hpp"
-#include "DataFile.hpp"
 
 class MeasurementModel;
 class CoreMeasurement;
+class DataFile;
 class ObType;
-
+class TrackingSystem;
+class TrackingData;
+class EphemerisFile;
 
 /**
  * GMAT Factory Manager Class, the interface between the Moderator and the
@@ -95,6 +97,8 @@ public:
    Subscriber*            CreateSubscriber(const std::string &ofType,
                                            const std::string &withName = "",
                                            const std::string &fileName = "");
+   EphemerisFile*         CreateEphemerisFile(const std::string &ofType,
+                                              const std::string &withName = "");
    GmatCommand*           CreateCommand(const std::string &ofType,
                                         const std::string &withName = "");
    Burn*                  CreateBurn(const std::string &ofType,
@@ -129,8 +133,11 @@ public:
    CoordinateSystem*      CreateCoordinateSystem(const std::string &withName = "");
 
    MeasurementModel*      CreateMeasurementModel(const std::string &withName);
-   DataFile*              CreateDataFile(const std::string &ofType,
-                                         const std::string &withName = "");
+   DataFile*              CreateDataStream(const std::string &ofType,
+                                           const std::string &withName);
+   TrackingSystem*        CreateTrackingSystem(const std::string &ofType,
+                                               const std::string &withName);
+   TrackingData*          CreateTrackingData(const std::string &withName = "");
 
    // method to return a list of strings representing the objects of the input
    // type that may be created in the system

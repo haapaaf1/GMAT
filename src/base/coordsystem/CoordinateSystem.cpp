@@ -957,11 +957,13 @@ Real CoordinateSystem::SetRealParameter(const std::string &label, const Real val
 std::string CoordinateSystem::GetStringParameter(const Integer id) const
 {
    if (id == AXES)
+   {
       if (axes)
          return axes->GetTypeName();
       else
          throw CoordinateSystemException("Axis system not set for "
                                          + instanceName);
+   }
       
    return CoordinateBase::GetStringParameter(id);
 }
@@ -1087,6 +1089,16 @@ GmatBase* CoordinateSystem::GetRefObject(const Gmat::ObjectType type,
    {
       case Gmat::AXIS_SYSTEM:
          return axes;
+      // This is a way to get origin, primary and secondary from GmatFunction
+      // without casting CoordinateSystem * (LOJ: 2009.12.18)
+      // @see GmatFunction::BuildUnusedGlobalObjectList()
+      case Gmat::SPACE_POINT:
+         if (name == "_GFOrigin_")
+            return origin;
+         if (name == "_GFPrimary_")
+            return GetPrimaryObject();
+         if (name == "_GFSecondary_")
+            return GetSecondaryObject();
       default:
          break;
    }

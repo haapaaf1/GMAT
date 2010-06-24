@@ -20,8 +20,9 @@
 #include "BaseException.hpp"
 #include <stdarg.h>                // for va_start(), va_end()
 
-#include <cstdlib>                      // Required for GCC 4.3
-#include <string.h>                     // Required for GCC 4.3
+#include <cstdlib>                 // Required for GCC 4.3
+#include <string.h>                // Required for GCC 4.3
+#include <stdio.h>                 // Fix for header rearrangement in gcc 4.4
 
 
 //------------------------------------------------------------------------------

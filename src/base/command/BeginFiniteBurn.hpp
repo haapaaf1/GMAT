@@ -57,10 +57,11 @@ public:
                                         const std::string &oldName,
                                         const std::string &newName);
    virtual const std::string&
-                        GetGeneratingString(Gmat::WriteMode mode,
-                                            const std::string &prefix,
-                                            const std::string &useName);
-
+                        GetGeneratingString(
+                           Gmat::WriteMode mode = Gmat::SCRIPTING,
+                           const std::string &prefix = "",
+                           const std::string &useName = "");
+   
    virtual void         SetTransientForces(std::vector<PhysicalModel*> *tf);
    
    virtual bool         Initialize();

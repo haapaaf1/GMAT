@@ -20,11 +20,6 @@
 #define HARDWARE_HPP
 
 #include "GmatBase.hpp"
-#include "CoordinateSystem.hpp"
-#include "CelestialBody.hpp"
-#include "HardwareException.hpp"
-
-class Spacecraft;
 
 /**
  * Base class used for spacecraft hardware.
@@ -40,19 +35,13 @@ class Spacecraft;
 class GMAT_API Hardware : public GmatBase 
 {
 public:
-
-   static const Integer AXES_COUNT = 4;
-
-   Hardware(Gmat::ObjectType typeId, const std::string &typeStr,
+   Hardware(Gmat::ObjectType typeId, const std::string &typeStr, 
             const std::string &nomme = "");
    virtual ~Hardware();
    Hardware(const Hardware& hw);
    Hardware&               operator=(const Hardware& hw);
    
    // Parameter access methods - overridden from GmatBase
-
-   virtual bool         IsParameterReadOnly(const Integer id) const;
-
    virtual std::string        GetParameterText(const Integer id) const;
    virtual Integer            GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
@@ -63,33 +52,6 @@ public:
    virtual Real               GetRealParameter(const Integer id) const;
    virtual Real               SetRealParameter(const Integer id,
                                                const Real value);
-   virtual std::string  GetStringParameter(const Integer id) const;
-   virtual bool         SetStringParameter(const Integer id,
-                                           const std::string &value);
-   virtual const StringArray&
-                        GetStringArrayParameter(const Integer id) const;
-
-   // for enumerated strings
-   virtual const StringArray&
-                        GetPropertyEnumStrings(const Integer id) const;
-   virtual const StringArray&
-                        GetPropertyEnumStrings(const std::string &label) const;
-
-   // Ref. object access methods - overridden from GmatBase
-   virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
-   virtual const ObjectTypeArray&
-                        GetRefObjectTypeArray();
-   virtual const StringArray&
-                        GetRefObjectNameArray(const Gmat::ObjectType type);
-   virtual bool         SetRefObject(GmatBase *obj,
-                                     const Gmat::ObjectType type,
-                                     const std::string &name = "");
-   virtual ObjectArray& GetRefObjectArray(const Gmat::ObjectType type);
-   virtual ObjectArray& GetRefObjectArray(const std::string& typeString);
-
-   virtual void         SetSolarSystem(SolarSystem *ss);
-
-   virtual bool         Initialize();
    
 protected:
    /// Location of center of the hardware element on the spacecraft, in meters.
@@ -98,40 +60,6 @@ protected:
    Real                    direction[3];
    /// Secondary direction, to complete the orientation.
    Real                    secondDirection[3];
-
-   /// Solar system used to find the J2000 body, etc.
-   SolarSystem                *solarSystem;
-   /// Local Coordinate system
-   CoordinateSystem           *localCoordSystem;
-   /// Coordinate system
-   CoordinateSystem           *coordSystem;
-   /// Origin object pointer if coordinate system is set to Local
-   CelestialBody              *localOrigin;
-   /// J2000body pointer
-   CelestialBody              *j2000Body;
-   /// Secondary Spacecraft object if coordinate system is set to Local
-   Spacecraft                 *spacecraft;
-   /// Coordinate system name
-   std::string                coordSystemName;
-   /// Origin name if coordinate system is set to Local
-   std::string                localOriginName;
-   /// Axes name if coordinate system is set to Local
-   std::string                localAxesName;
-   /// Name of the J2000 body
-   std::string                j2000BodyName;
-   /// Name of the Spacecraft that has hardware
-   std::string                satName;
-   /// Principal direction projected into the inertial coordinate system
-   Real                       inertialDirection[3];
-   /// Available local axes labels
-   static  StringArray        localAxesLabels;
-   /// Flag indicating if local coordinate system is used
-   bool                       usingLocalCoordSys;
-   /// Flag indicating if axes is MJ2000Eq
-   bool                       isMJ2000EqAxes;
-   /// Flag indicating if axes is SpacecrftBody
-   bool                       isSpacecraftBodyAxes;
-   
 
    /// Enumeration defining user accessible parameters for Hardware elements.
    enum
@@ -146,9 +74,6 @@ protected:
 //      BCS_X,
 //      BCS_Y,
 //      BCS_Z,
-      COORDINATE_SYSTEM,
-      ORIGIN,
-      AXES,
       HardwareParamCount
    };
    
@@ -158,16 +83,6 @@ protected:
    /// Hardware Parameter types
    static const Gmat::ParameterType 
                         PARAMETER_TYPE[HardwareParamCount - GmatBaseParamCount];
-
-   bool                 SetSpacecraft(Spacecraft *sat);
-
-   CoordinateSystem*    CreateLocalCoordinateSystem();
-   void                 ConvertDirectionToInertial(Real *dv, Real *dvInertial,
-                                                   Real epoch);
-   void                 ComputeInertialDirection(Real epoch);
-   void                 WriteDeprecatedMessage(const std::string &oldProp,
-                                               const std::string &newProp) const;
-
 };
 
 #endif // HARDWARE_HPP

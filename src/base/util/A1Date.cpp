@@ -155,7 +155,7 @@ A1Date A1Date::operator= (const A1Date &a1date)
 //------------------------------------------------------------------------------
 bool A1Date::operator> (const A1Date &a1date) const
 {
-    return Date::operator>(a1date);
+   return Date::operator>(a1date);
 }
 
 
@@ -168,7 +168,7 @@ bool A1Date::operator> (const A1Date &a1date) const
 //------------------------------------------------------------------------------
 bool A1Date::operator< (const A1Date &a1date) const
 {
-    return Date::operator<(a1date);   
+   return Date::operator<(a1date);
 }
 
 //------------------------------------------------------------------------------

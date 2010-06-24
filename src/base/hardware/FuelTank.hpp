@@ -20,7 +20,6 @@
 #define FUELTANK_HPP
 
 #include "Hardware.hpp"
-#include "MessageInterface.hpp"
 
 
 /**

@@ -963,7 +963,14 @@ void Formation::BuildState()
    #endif
    
    if (!state.SetState(data, dimension))
+   {
+      delete [] data;
       throw SpaceObjectException("Error building Formation state");
+   }
+   
+   // as per kw report
+   // Shouldn't we delete data here since GmatState::SetState() copies the data
+   delete [] data;
 }
 
 
@@ -1176,7 +1183,7 @@ bool Formation::RemoveSpacecraft(const std::string &name)
 }
 
 
-Integer Formation::SetPropItem(std::string propItem)
+Integer Formation::SetPropItem(const std::string &propItem)
 {
    if (propItem == "CartesianState")
       return Gmat::CARTESIAN_STATE;
@@ -1195,7 +1202,7 @@ StringArray Formation::GetDefaultPropItems()
 }
 
 
-Real* Formation::GetPropItem(Integer item)
+Real* Formation::GetPropItem(const Integer item)
 {
    Real* retval = NULL;
    switch (item)
@@ -1220,7 +1227,7 @@ Real* Formation::GetPropItem(Integer item)
    return retval;
 }
 
-Integer Formation::GetPropItemSize(Integer item)
+Integer Formation::GetPropItemSize(const Integer item)
 {
    Integer retval = -1;
    switch (item)

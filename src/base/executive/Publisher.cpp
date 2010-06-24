@@ -60,8 +60,8 @@ Publisher* Publisher::Instance()
 // Publisher(void)
 //------------------------------------------------------------------------------
 Publisher::Publisher() :
-   providerID          (-1),
-   currentProvider     (-1),
+   providerId          (-1),
+   currProviderId      (-1),
    runState            (Gmat::IDLE),
    maneuvering         (false),
    internalCoordSystem (NULL),
@@ -105,7 +105,7 @@ bool Publisher::Subscribe(Subscriber *s)
    if (find(subscriberList.begin(), subscriberList.end(), s) == subscriberList.end())
    {
       subscriberList.push_back(s);
-      s->SetProviderId(currentProvider);
+      s->SetProviderId(currProviderId);
       #if DBGLVL_PUBLISHER_SUBSCRIBE
       MessageInterface::ShowMessage
          ("   Adding <%p>'%s' to subscriber list\n", s, s->GetName().c_str());
@@ -203,8 +203,8 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    #if DBGLVL_PUBLISHER_PUBLISH
    MessageInterface::ShowMessage
       ("Publisher::Publish(Real) entered, provider=<%p><%s>, id=%d, "
-       "currentProvider=%d, count=%d\n", provider, provider->GetTypeName().c_str(),
-       id, currentProvider, count);
+       "currProviderId=%d, count=%d\n", provider, provider->GetTypeName().c_str(),
+       id, currProviderId, count);
    MessageInterface::ShowMessage("   providerMap.size()=%d\n", providerMap.size());
    #endif
    
@@ -231,11 +231,12 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
       return false;
    }
    
-   if (id != currentProvider)
+   if (id != currProviderId)
    {
-      currentProvider = id;
-      UpdateProviderID(id);
+      currProviderId = id;
+      UpdateProviderId(id);
    }
+   
    
    // Get data lebels
    std::vector<DataType>* dataList = iter->second;
@@ -258,7 +259,7 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    
    #if DBGLVL_PUBLISHER_PUBLISH
    MessageInterface::ShowMessage
-      ("Publisher::Publish() calling ReceiveData() number of sub = %d\n",
+      ("Publisher::Publish() calling ReceiveData() number of subsbribers = %d\n",
        subscriberList.size());
    #endif
    
@@ -267,90 +268,15 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    {
       #if DBGLVL_PUBLISHER_PUBLISH > 1
       MessageInterface::ShowMessage
-         ("Publisher::Publish() sub = <%p>'%s'\n", (*current),
-          (*current)->GetName().c_str());
+         ("Publisher::Publish() sub = <%p><%p>'%s'\n", (*current),
+          (*current)->GetTypeName().c_str(), (*current)->GetName().c_str());
       #endif
       
       // Set labels
       (*current)->SetDataLabels((*dataList)[id].labels);
       
-      if (!(*current)->ReceiveData(stream))
-         return false;
-      if (!(*current)->ReceiveData(data, count))
-         return false;
-      current++;
-   }
-   return true;
-}
-
-
-//------------------------------------------------------------------------------
-// bool Publish(Real *data, Integer count = false)
-//------------------------------------------------------------------------------
-bool Publisher::Publish(Integer id, Real *data, Integer count)
-{
-   #if DBGLVL_PUBLISHER_PUBLISH
-   MessageInterface::ShowMessage
-      ("Publisher::Publish(Real) entered, id=%d, providerID=%d, currentProvider=%d, "
-       "count=%d\n", id, providerID, currentProvider, count);
-   #endif
-   
-   // No subscribers
-   if (subscriberList.empty())
-   {
-      #if DBGLVL_PUBLISHER_PUBLISH
-      MessageInterface::ShowMessage
-         ("*** WARNING *** Publisher::Publish() There are no subscribers, "
-          "so just returning false\n");
-      #endif      
-      return false;
-   }
-   
-   if ((id < 0) || (id > providerID))
-   {
-      //throw PublisherException
-      //   ("Real data provider has not registered with the Publisher.");
-      //#if DBGLVL_PUBLISHER_PUBLISH
-      MessageInterface::ShowMessage
-         ("*** WARNING *** Publisher::Publish() Real data provider has not "
-          "registered with the Publisher, so just returning false\n");
-      //#endif
-      return false;
-   }
-   
-   if (id != currentProvider)
-   {
-      currentProvider = id;
-      UpdateProviderID(id);
-   }
-   
-   // Convert the data into a string for distribution
-   char stream[4334] = "";
-   
-   for (Integer i = 0; i < count; ++i)
-   {
-      sprintf(stream, "%s%12lf", stream, data[i]);
-      if (i < count - 1)
-         strcat(stream, ", ");
-      else
-         strcat(stream, "\n");
-   }
-   
-   
-   #if DBGLVL_PUBLISHER_PUBLISH
-   MessageInterface::ShowMessage
-      ("Publisher::Publish() calling ReceiveData() number of sub = %d\n",
-       subscriberList.size());
-   #endif
-   
-   std::list<Subscriber*>::iterator current = subscriberList.begin();
-   while (current != subscriberList.end())
-   {
-      #if DBGLVL_PUBLISHER_PUBLISH > 1
-      MessageInterface::ShowMessage
-         ("Publisher::Publish() sub = <%p>'%s'\n", (*current),
-          (*current)->GetName().c_str());
-      #endif
+      // Set provider
+      (*current)->SetProvider(provider);
       
       if (!(*current)->ReceiveData(stream))
          return false;
@@ -358,6 +284,10 @@ bool Publisher::Publish(Integer id, Real *data, Integer count)
          return false;
       current++;
    }
+   
+   #if DBGLVL_PUBLISHER_PUBLISH
+   MessageInterface::ShowMessage("Publisher::Publish() returning true\n");
+   #endif
    return true;
 }
 
@@ -377,15 +307,16 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    MessageInterface::ShowMessage("Publisher::Publish(char) id = %d\n", id);
    #endif
    
-   if ((id < 0) || (id > providerID))
+   if ((id < 0) || (id > providerId))
    {
       throw PublisherException
          ("Character data provider has not registered with the Publisher.");
    }
    
-   if (id != currentProvider) {
-      currentProvider = id;
-      UpdateProviderID(id);
+   if (id != currProviderId)
+   {
+      currProviderId = id;
+      UpdateProviderId(id);
    }
    
    // Convert the data into a string for distribution
@@ -428,18 +359,19 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
    MessageInterface::ShowMessage("Publisher::Publish(Integer) id = %d\n", id);
    #endif
    
-   if ((id < 0) || (id > providerID))
+   if ((id < 0) || (id > providerId))
       throw PublisherException
          ("Integer data provider has not registered with the Publisher.");
-
-   if (id != currentProvider) {
-      currentProvider = id;
-      UpdateProviderID(id);
+   
+   if (id != currProviderId)
+   {
+      currProviderId = id;
+      UpdateProviderId(id);
    }
-
+   
    // Convert the data into a string for distribution
    char stream[4334];
-
+   
    for(Integer i = 0; i < count; ++i)
    {
       sprintf(stream, "%s%d", stream, data[i]);
@@ -448,7 +380,7 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
       else
          strcat(stream, "\n");
    }
-
+   
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
@@ -456,7 +388,7 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
          return false;
       current++;
    }
-
+   
    return true;
 }
 
@@ -516,8 +448,8 @@ void Publisher::ClearPublishedData()
    
    objectArray.clear();
    elementArray.clear();
-   providerID = -1;
-   currentProvider = -1;
+   providerId = -1;
+   currProviderId = -1;
    
    // Clear subscriber's data
    std::list<Subscriber*>::iterator current = subscriberList.begin();
@@ -603,7 +535,7 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
    for (unsigned int i=0; i<elements.size(); i++)
       MessageInterface::ShowMessage("   elements[%d]=%s\n", i, elements[i].c_str());   
    MessageInterface::ShowMessage
-      ("   providerID=%d, subscriberList.size()=%d\n", providerID, subscriberList.size());
+      ("   providerId=%d, subscriberList.size()=%d\n", providerId, subscriberList.size());
    #endif
    
    if (subscriberList.empty())
@@ -615,9 +547,9 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
          ("*** WARNING *** Publisher::RegisterPublishedData() There are no "
           "subscribers to register data\n");
       MessageInterface::ShowMessage
-         ("Publisher::RegisterPublishedData() returning %d\n", providerID);
+         ("Publisher::RegisterPublishedData() returning %d\n", providerId);
       #endif
-      return providerID;
+      return providerId;
    }
    
    Integer actualId = -1;
@@ -628,8 +560,8 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
    
    objectArray.push_back(StringArray(owners));
    elementArray.push_back(StringArray(elements));
-   ++providerID;
-   actualId = providerID;
+   ++providerId;
+   actualId = providerId;
    
    //============================================================
    #else
@@ -661,7 +593,7 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
    }
    
    // @note
-   // New Publisher code doesn't use global providerID anymore. It keeps
+   // New Publisher code doesn't use global providerId anymore. It keeps
    // track of provider's data labels and ids and copies corresponding
    // labels to current data labels before distributing the data in Publish().
    // There was an issue with provider id being kept incrementing if data is
@@ -708,7 +640,7 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
       ("   actualId=%d, tempList->size() = %d\n", actualId, tempList->size());
    #endif
    
-   providerID = actualId;
+   providerId = actualId;
    
    //============================================================
    #endif
@@ -784,14 +716,14 @@ void Publisher::UnregisterPublishedData(GmatBase *provider)
 //------------------------------------------------------------------------------
 const StringArray& Publisher::GetStringArrayParameter(const std::string& type)
 {
-   if ((currentProvider < 0) || (currentProvider > providerID))
+   if ((currProviderId < 0) || (currProviderId > providerId))
       throw PublisherException("Data provider id out of range.");
    
    if (type == "SpaceObjectMap")
-      return objectArray[currentProvider];
+      return objectArray[currProviderId];
    
    if (type == "PublishedDataMap")
-      return elementArray[currentProvider];
+      return elementArray[currProviderId];
    
    throw PublisherException("Unknown StringArray type requested.");
 }
@@ -943,52 +875,56 @@ void Publisher::SetRunState(const Gmat::RunState state)
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const std::string &satName,
-//                     const std::string &desc)
+// void SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+//                     const std::string &satName, const std::string &desc)
 //------------------------------------------------------------------------------
 /**
- * Sets spacecraft maneuvering flag.
- * 
- * @param flag Set to true if maneuvering
- * @param epoch Epoch of maneuver
- * @param satName Name of the maneuvering spacecraft
- * @param desc Description of maneuver (e.g. impulsive or finite)
+ * Sets single spacecraft maneuvering flag.
+ *
+ * @param originator  The maneuver command pointer who is maneuvering
+ * @param flag  Set to true if maneuvering
+ * @param epoch  Epoch of maneuver
+ * @param satName  Name of the maneuvering spacecraft
+ * @param desc  Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Publisher::SetManeuvering(bool flag, Real epoch, const std::string &satName,
+void Publisher::SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+                               const std::string &satName,
                                const std::string &desc)
 {
    maneuvering = flag;
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
-      (*current)->SetManeuvering(flag, epoch, satName, desc);
+      (*current)->SetManeuvering(originator, flag, epoch, satName, desc);
       current++;
    }
 }
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
-//                     const std::string &desc)
+// void SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+//                     const StringArray &satNames, const std::string &desc)
 //------------------------------------------------------------------------------
 /**
- * Sets spacecraft maneuvering flag.
+ * Sets multiple spacecrafts maneuvering flag.
  * 
- * @param flag Set to true if maneuvering
- * @param epoch Epoch of maneuver
- * @param satNames Names of the maneuvering spacecraft
- * @param desc Description of maneuver (e.g. impulsive or finite)
+ * @param originator  The maneuver command pointer who is maneuvering
+ * @param flag  Set to true if maneuvering
+ * @param epoch  Epoch of maneuver
+ * @param satNames  Names of the maneuvering spacecraft
+ * @param desc  Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Publisher::SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+void Publisher::SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+                               const StringArray &satNames,
                                const std::string &desc)
 {
    maneuvering = flag;
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
-      (*current)->SetManeuvering(flag, epoch, satNames, desc);
+      (*current)->SetManeuvering(originator, flag, epoch, satNames, desc);
       current++;
    }
 }
@@ -1004,9 +940,35 @@ bool Publisher::GetManeuvering()
 
 
 //------------------------------------------------------------------------------
-// void UpdateProviderID(Integer newId)
+// void SetScPropertyChanged(GmatBase *originator, Real epoch,
+//                           const std::string &satName, const std::string &desc)
 //------------------------------------------------------------------------------
-void Publisher::UpdateProviderID(Integer newId)
+/**
+ * Sets spacecraft property change so that subscribers can handle appropriately.
+ * 
+ * @param originator  The assignment command pointer who is setting
+ * @param epoch  Epoch of spacecraft at property change
+ * @param satName  Name of the spacecraft
+ * @param desc  Description of property change
+ */
+//------------------------------------------------------------------------------
+void Publisher::SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                     const std::string &satName,
+                                     const std::string &desc)
+{
+   std::list<Subscriber*>::iterator current = subscriberList.begin();
+   while (current != subscriberList.end())
+   {
+      (*current)->SetScPropertyChanged(originator, epoch, satName, desc);
+      current++;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateProviderId(Integer newId)
+//------------------------------------------------------------------------------
+void Publisher::UpdateProviderId(Integer newId)
 {
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())

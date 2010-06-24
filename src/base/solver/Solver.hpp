@@ -13,7 +13,7 @@
 // Created: 2003/12/29
 //
 /**
- * Base class for Targeters, Optimizers, and other parametric scanning tools.
+ * Base class for Targeters, Optimizers, and other parametric scanning tools. 
  */
 //------------------------------------------------------------------------------
 
@@ -26,15 +26,17 @@
 #include "GmatBase.hpp"
 #include "SolverException.hpp"
 
+#include "OwnedPlot.hpp"      // Need to make a Subscriber instead?
+
 
 /**
  * @brief Base class for targeters, optimizers, and parameter scanning tools.
- *
- * The Solver subsystem provides the numerical engines that adjust input
- * parameters (the "variables") and measure the results of these perturbations.
- * The system works as a state machine.  The specific path through the state
- * machine depends on the solver implementation.  This class defines the state
- * values used, and the core methods that use these states and that report on
+ * 
+ * The Solver subsystem provides the numerical engines that adjust input 
+ * parameters (the "variables") and measure the results of these perturbations.  
+ * The system works as a state machine.  The specific path through the state 
+ * machine depends on the solver implementation.  This class defines the state 
+ * values used, and the core methods that use these states and that report on 
  * the results of the states.
  */
 class GMAT_API Solver : public GmatBase
@@ -45,18 +47,21 @@ public:
    {
       INITIALIZING = 10001,
       NOMINAL,
-      PROPAGATING = NOMINAL,
       PERTURBING,
       ITERATING,
-      ESTIMATING,
       CALCULATING,
+      ACCUMULATING,
+      ESTIMATING,
+      SIMULATING,
+      PROPAGATING,
+      LOCATING,
       CHECKINGRUN,
       RUNEXTERNAL,
       RUNSPECIAL,             // Run initial state or solution w/o solving
       FINISHED,
       UNDEFINED_STATE         // This one should stay at the end of the list.
    };
-
+   
    /// Enumeration for solver progress report formats
    enum Report_Style
    {
@@ -84,7 +89,7 @@ public:
       HALT,
       UNKNOWN_EXIT_MODE
    };
-
+   
    /// Current status of the Solver
    enum SolverStatus
    {
@@ -105,13 +110,13 @@ public:
 
    bool                IsSolverInternal()
    {  return isInternal; }
-
+   
    virtual SolverState GetState();
    virtual SolverState GetNestedState();
    virtual SolverState AdvanceState();
    virtual StringArray AdvanceNestedState(std::vector<Real> vars);
    virtual bool        UpdateSolverGoal(Integer id, Real newValue);
-
+   
    // Access methods overriden from the base class
    virtual std::string GetParameterText(const Integer id) const;
    virtual Integer     GetParameterID(const std::string &str) const;
@@ -126,19 +131,19 @@ public:
                                            const Integer value);
    virtual std::string GetStringParameter(const Integer id) const;
    virtual std::string GetStringParameter(const std::string &label) const;
-   virtual bool        SetStringParameter(const Integer id,
+   virtual bool        SetStringParameter(const Integer id, 
                                           const std::string &value);
-   virtual bool        SetStringParameter(const std::string &label,
+   virtual bool        SetStringParameter(const std::string &label, 
                                           const std::string &value);
    // compiler complained again - so here they are ....
    virtual std::string GetStringParameter(const Integer id,
                                           const Integer index) const;
-   virtual bool        SetStringParameter(const Integer id,
+   virtual bool        SetStringParameter(const Integer id, 
                                           const std::string &value,
                                           const Integer index);
    virtual std::string GetStringParameter(const std::string &label,
                                           const Integer index) const;
-   virtual bool        SetStringParameter(const std::string &label,
+   virtual bool        SetStringParameter(const std::string &label, 
                                           const std::string &value,
                                           const Integer index);
 
@@ -147,19 +152,19 @@ public:
    virtual bool        GetBooleanParameter(const Integer id) const;
    virtual bool        SetBooleanParameter(const Integer id,
                                            const bool value);
-
+                                           
    virtual void        ReportProgress();
    virtual void        SetDebugString(const std::string &str);
-
+    
    virtual bool        Initialize();
    virtual bool        Finalize();
-
-
+   
+    
    virtual Integer     SetSolverVariables(Real *data,
                                           const std::string &name);
 
    virtual Real        GetSolverVariable(Integer id);
-
+    
    //---------------------------------------------------------------------------
    //  Integer SetSolverResults(Real *data, std::string name)
    //---------------------------------------------------------------------------
@@ -177,7 +182,7 @@ public:
    virtual Integer     SetSolverResults(Real *data,
                                         const std::string &name,
                                         const std::string &type = "") = 0;
-
+    
    //---------------------------------------------------------------------------
    //  void SetResultValue(Integer id, Real value)
    //---------------------------------------------------------------------------
@@ -195,7 +200,7 @@ protected:
    /// Flag indicating if this Solver runs integrated into GMAT, or through
    /// an external controller like MATLAB
    bool                isInternal;
-
+   
    /// Current state for the state machine
    SolverState         currentState;
    /// current nested state
@@ -204,7 +209,7 @@ protected:
    std::string         textFileMode;
    /// Toggle for showing solver status
    bool                showProgress;
-   /// Flag used to adjust targeter progress reports
+   /// Flag used to adjust targeter progress reports 
    Integer             progressStyle;
    /// String for debug information in debug mode
    std::string         debugString;
@@ -249,26 +254,26 @@ protected:
    Integer              instanceNumber;
    /// The solver text file
    std::ofstream        textFile;
-
-   // Counters for the numbers of elements sued -- these are a convenience, and
+   
+   // Counters for the numbers of elements sued -- these are a convenience, and 
    // might not be used in all Solvers
    /// The (optional) count of the variables set using a Vary command
    Integer              registeredVariableCount;
    /// The (optional) count of the elements used as goals or constraints
    Integer              registeredComponentCount;
-
+   
    // Options for the Vary command
    /// Determines if can control absolute range
    bool                 AllowScaleFactors;
    /// Determines if can control absolute range
    bool                 AllowRangeLimits;
-   /// Determines if can control step limiting
+   /// Determines if can control step limiting 
    bool                 AllowStepsizeLimit;
    /// Determines if individual variables can set perts
    bool                 AllowIndependentPerts;
    /// Solver mode used for this instance
    std::string          solverMode;
-   /// State macjhine setting for the solver mode
+   /// State machine setting for the solver mode
    MachineMode          currentMode;
    /// String specifying the exit mode
    std::string          exitModeText;
@@ -277,6 +282,11 @@ protected:
    /// The most recent results of using this solver
    SolverStatus         status;
 
+   /// Number of plot subscribers that are used
+   Integer              plotCount;
+   /// Plot subscriber used for graphical progress elements
+   OwnedPlot               *plotter;
+      
    /// Generic solver parameters.
    enum
    {
@@ -297,7 +307,7 @@ protected:
       SolverStatusID,
       SolverParamCount
    };
-
+   
    static const std::string    PARAMETER_TEXT[SolverParamCount -
                                               GmatBaseParamCount];
    static const Gmat::ParameterType
@@ -314,28 +324,27 @@ protected:
    virtual void        RunNominal();
    virtual void        RunPerturbation();
    virtual void        RunIteration();
-   virtual void        Estimate();
    virtual void        CalculateParameters();
    virtual void        CheckCompletion();
    virtual void        RunExternal();
    virtual void        RunComplete();
-
+   
    void                ResetVariables();
-
+   
    virtual std::string GetProgressString();
    virtual void        FreeArrays();
    void                OpenSolverTextFile();
-
+   
    //---------------------------------------------------------------------------
    //  void WriteToTextFile()
    //---------------------------------------------------------------------------
    /**
     * Utility function used by the solvers to generate a progress file.
-    *
-    * @param <stateToUse> SolverState used for the report; if this parameter is
-    *                     different from the default value (UNDEFINED_STATE),
-    *                     it is used.  If the value is UNDEFINED_STATE, then the
-    *                     value of currentState is used.
+    * 
+    * @param <stateToUse> SolverState used for the report; if this parameter is 
+    *                     different from the default value (UNDEFINED_STATE), 
+    *                     it is used.  If the value is UNDEFINED_STATE, then the 
+    *                     value of currentState is used. 
     */
    //---------------------------------------------------------------------------
    virtual void        WriteToTextFile(SolverState stateToUse = UNDEFINED_STATE) = 0;

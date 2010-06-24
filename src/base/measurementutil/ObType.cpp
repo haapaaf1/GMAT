@@ -282,7 +282,7 @@ Integer ObType::GetObTypeID(const std::string keyword)
         }
     }
 
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ std::string ObType::GetObType(Integer myID)
     }
     else
     {
-	return GmatBase::STRING_PARAMETER_UNDEFINED;;
+	return GmatBase::STRING_PARAMETER_UNDEFINED;
     }
 }
 
@@ -488,7 +488,7 @@ std::string Cospar2Ilrs(std::string cosparSatnum)
 //------------------------------------------------------------------------------
 std::string ObType::GetDataParameterText(const Integer id) const
 {
-   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -504,7 +504,7 @@ std::string ObType::GetDataParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 std::string ObType::GetDataUnits(const Integer id) const
 {
-   return GmatBase::STRING_PARAMETER_UNDEFINED;;
+   return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -520,7 +520,7 @@ std::string ObType::GetDataUnits(const Integer id) const
 //------------------------------------------------------------------------------
 Integer ObType::GetDataParameterID(const std::string &str) const
 {
-   return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
+   return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -570,7 +570,7 @@ std::string ObType::GetDataParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 Integer ObType::GetIntegerDataParameter(const Integer id) const
 {
-    return GmatBase::INTEGER_PARAMETER_UNDEFINED;;
+    return GmatBase::INTEGER_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -626,7 +626,7 @@ IntegerArray ObType::GetIntegerArrayDataParameter(const std::string &label) cons
 //------------------------------------------------------------------------------
 Real ObType::GetRealDataParameter(const Integer id) const
 {
-    return GmatBase::REAL_PARAMETER_UNDEFINED;;
+    return GmatBase::REAL_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------
@@ -694,7 +694,7 @@ bool ObType::GetBoolDataParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 std::string ObType::GetStringDataParameter(const Integer id) const
 {
-    return GmatBase::STRING_PARAMETER_UNDEFINED;;
+    return GmatBase::STRING_PARAMETER_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-//$Id: EphemerisFile.hpp 7563 2010-01-06 18:43:56Z lindajun $
+//$Id: EphemerisFile.hpp 7685 2010-03-09 18:19:17Z lindajun $
 //------------------------------------------------------------------------------
 //                                  EphemerisFile
 //------------------------------------------------------------------------------
@@ -29,24 +29,10 @@
 #include "SpiceKernelWriter.hpp"
 #endif
 
-#ifdef __USE_CCSDS_FILE__
-// CCSDS header
-#include "CCSDSHeader.hpp"
-// CCSDS Orbit Ephemeris Message
-#include "OEMCCSDSObType.hpp"
-#include "OEMCCSDSMetaData.hpp"
-#include "OEMStateVectorCCSDSData.hpp"
-//#include "ProcessCCSDSOEMDataFile.hpp"
-// CCSDS Attitude Ephemeris Message (future work)
-//#include "AEMCCSDSObType.hpp"
-//#include "AEMCCSDSMetaData.hpp"
-//#include "AEMQuaternionCCSDSData.hpp"
-#endif
-
 class EphemerisFile : public Subscriber
 {
 public:
-   EphemerisFile(const std::string &name);
+   EphemerisFile(const std::string &name, const std::string &type = "EphemerisFile");
    virtual ~EphemerisFile();
    EphemerisFile(const EphemerisFile &);
    EphemerisFile& operator=(const EphemerisFile&);
@@ -57,6 +43,7 @@ public:
    
    // methods inherited from Subscriber
    virtual bool         Initialize();
+   virtual void         SetProvider(GmatBase *provider);
    
    // methods inherited from GmatBase
    virtual GmatBase*    Clone(void) const;
@@ -80,6 +67,10 @@ public:
    virtual const StringArray&
                         GetPropertyEnumStrings(const Integer id) const;
    
+   virtual bool         GetBooleanParameter(const Integer id) const;
+   virtual bool         SetBooleanParameter(const Integer id,
+                                            const bool value);
+
    virtual Integer      GetIntegerParameter(const Integer id) const;
    virtual Integer      SetIntegerParameter(const Integer id,
                                             const Integer value);
@@ -119,17 +110,10 @@ protected:
    void              *spkWriter;
 #endif
    
-#ifdef __USE_CCSDS_FILE__
-   /// CCSDS file
-   CCSDSHeader             ccsdsHeader;
-   OEMCCSDSMetaData        ccsdsOemMetaData;
-   OEMCCSDSObType          ccsdsOemData;
-   //ProcessCCSDSOEMDataFile ccsdsOutFile;
-#endif
    
-   // for SPK file
-   EpochArray  spkEpochArray;
-   StateArray  spkStateArray;
+   // for buffering ephemeris data
+   EpochArray  a1MjdArray;
+   StateArray  stateArray;
    
    /// ephemeris output path from the startup file
    std::string oututPath;
@@ -145,7 +129,15 @@ protected:
    std::string interpolatorName;
    std::string stateType;
    std::string coordSystemName;
-   std::string writeEphemeris;
+   // std::string writeEphemeris;               made a change
+   bool writeEphemeris;                                 // made a change
+   /// for propagator change
+   std::string prevPropName;
+   std::string currPropName;
+   /// for meta data
+   std::string metaDataStartStr;
+   std::string metaDataStopStr;
+   
    Integer     interpolationOrder;
    Integer     initialCount;
    Integer     waitCount;
@@ -158,10 +150,12 @@ protected:
    Real        nextReqEpoch;
    Real        currEpochInDays;
    Real        currEpochInSecs;
-   Real        currState[6];
    Real        prevEpoch;
    Real        prevProcTime;
+   Real        lastEpochWrote;
    Real        attEpoch;
+   Real        maneuverEpochInDays;
+   Real        currState[6];
    Real        attQuat[4];
    RealArray   epochsOnWaiting;
    
@@ -172,11 +166,17 @@ protected:
    bool        writeAttitude;
    bool        writeDataInDataCS;
    bool        processingLargeStep;
+   bool        spkWriteFailed;
+   
+   Gmat::RunState prevRunState;
    
    CoordinateConverter coordConverter;
    
    FileType    fileType;
    
+   /// for maneuver handling
+   ObjectArray maneuversHandled;
+      
    /// output data stream
    std::ofstream      dstream;
    
@@ -198,67 +198,90 @@ protected:
    static StringArray interpolatorTypeList;
    
    // Initialization
-   void        CreateInterpolator();
-   void        CreateSpiceKernelWriter();
-   bool        OpenEphemerisFile();
+   void         InitializeData();
+   void         CreateInterpolator();
+   void         CreateSpiceKernelWriter();
+   bool         OpenEphemerisFile();
    
    // Time and data
-   bool        CheckInitialAndFinalEpoch();
-   void        HandleCcsdsOrbitData(bool writeData);
-   void        HandleSpkOrbitData(bool writeData);
+   bool         CheckInitialAndFinalEpoch();
+   void         HandleCcsdsOrbitData(bool writeData);
+   void         HandleSpkOrbitData(bool writeData);
    
    // Interpolation
-   void        RestartInterpolation(const std::string &comments = "");
-   bool        IsTimeToWrite(Real epochInSecs, Real state[6]);
-   void        WriteCcsdsOrbit(Real reqEpochInSecs, Real state[6]);
-   void        WriteCcsdsOrbitAt(Real reqEpochInSecs, Real state[6]);
-   void        GetAttitude();
-   void        WriteCcsdsAttitude();
-   void        FinishUpWriting();
-   void        ProcessEpochsOnWaiting(bool checkFinalEpoch = false);
-   bool        SetEpoch(Integer id, const std::string &value,
-                        const StringArray &allowedValues);
-   bool        SetStepSize(Integer id, const std::string &value,
-                           const StringArray &allowedValues);
-   void        HandleError(Integer id, const std::string &value,
-                           const StringArray &allowedValues,
-                           const std::string &additionalMsg = "");
-   std::string ToString(const StringArray &strList);
+   void         RestartInterpolation(const std::string &comments = "");
+   bool         IsTimeToWrite(Real epochInSecs, const Real state[6]);
+   void         WriteOrbit(Real reqEpochInSecs, const Real state[6]);
+   void         WriteOrbitAt(Real reqEpochInSecs, const Real state[6]);
+   void         GetAttitude();
+   void         WriteAttitude();
+   void         FinishUpWriting();
+   void         ProcessEpochsOnWaiting(bool checkFinalEpoch = false);
+   bool         SetEpoch(Integer id, const std::string &value,
+                         const StringArray &allowedValues);
+   bool         SetStepSize(Integer id, const std::string &value,
+                            const StringArray &allowedValues);
+   void         HandleError(Integer id, const std::string &value,
+                            const StringArray &allowedValues,
+                            const std::string &additionalMsg = "");
+   std::string  ToString(const StringArray &strList);
    
    // General writing
-   void        WriteString(const std::string &str);
-   void        WriteHeader();
-   void        WriteMetadata();
-   void        WriteComments(const std::string &comments);
+   void         WriteString(const std::string &str);
+   void         WriteHeader();
+   void         WriteMetaData();
+   void         WriteComments(const std::string &comments);
    
-   // CCSDS file writing
-   void        WriteCcsdsHeader();
-   void        WriteCcsdsOemMetadata();
-   void        WriteCcsdsAemMetadata();
-   void        WriteCcsdsOem(const std::string &epoch, Real state[6]);
-   void        WriteCcsdsAem(const std::string &epoch, Real quat[4]);
-   void        WriteCcsdsComments(const std::string &comments);
+   // General data buffering
+   void         BufferOrbitData(Real epochInDays, const Real state[6]);
+   void         DeleteOrbitData();
+   
+   // CCSDS file writing for debug and actual
+   bool         OpenCcsdsEphemerisFile();
+   void         WriteCcsdsHeader();
+   void         WriteCcsdsOrbitDataSegment();
+   void         WriteCcsdsOemMetaData();
+   void         WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6]);
+   void         WriteCcsdsAemMetaData();
+   void         WriteCcsdsAemData(Real reqEpochInSecs, const Real quat[4]);
+   void         WriteCcsdsComments(const std::string &comments);
+   
+   // CCSDS file actual writing (subclass should overwrite this methods)
+   virtual bool OpenRealCcsdsEphemerisFile();
+   virtual void WriteRealCcsdsHeader();
+   virtual void WriteRealCcsdsOrbitDataSegment();
+   virtual void WriteRealCcsdsOemMetaData();
+   virtual void WriteRealCcsdsAemMetaData();
+   virtual void WriteRealCcsdsAemData(Real reqEpochInSecs, const Real quat[4]);
+   virtual void WriteRealCcsdsComments(const std::string &comments);
    
    // SPK file writing
-   void        WriteSpkHeader(); // This is for debug
-   void        BufferSpkOrbitData(Real reqEpoch, Real state[6]);
-   void        DeleteSpkOrbitData();
-   void        WriteSpkOrbitDataSegment();
-   void        WriteSpkOrbitMetaData();
-   void        WriteSpkComments(const std::string &comments);
-   void        FinalizeSpkFile();
+   void         WriteSpkHeader(); // This is for debug
+   void         WriteSpkOrbitDataSegment();
+   void         WriteSpkOrbitMetaData();
+   void         WriteSpkComments(const std::string &comments);
+   void         FinalizeSpkFile();
+   
+   // for time formatting
+   std::string  ToUtcGregorian(Real epoch, bool inDays = false, Integer format = 1);
    
    // for debugging
-   void        DebugWriteTime(const std::string &msg, Real epoch);
-   void        DebugWriteOrbit(Real reqEpochInSecs, Real state[6]);
+   void         DebugWriteTime(const std::string &msg, Real epoch, bool inDays = false,
+                               Integer format = 2);
+   void         DebugWriteOrbit(Real epoch, const Real state[6], bool inDays = false,
+                                bool logOnly = false);
+   void         DebugWriteOrbit(A1Mjd *epochInDays, Rvector6 *state, bool logOnly = false);
    
    // methods inherited from Subscriber
-   virtual bool         Distribute(Integer len);
-   virtual bool         Distribute(const Real * dat, Integer len);
-   virtual void         HandleManeuvering(bool flag, Real epoch,
-                                          const StringArray &satNames,
-                                          const std::string &desc);
-   
+   virtual bool Distribute(Integer len);
+   virtual bool Distribute(const Real * dat, Integer len);
+   virtual void HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
+                                  const StringArray &satNames,
+                                  const std::string &desc);
+   virtual void HandlePropagatorChange(GmatBase *provider);
+   virtual void HandleScPropertyChange(GmatBase *originator, Real epoch,
+                                       const std::string &satName,
+                                       const std::string &desc);
    enum
    {
       SPACECRAFT = SubscriberParamCount,

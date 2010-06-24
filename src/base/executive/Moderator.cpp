@@ -42,12 +42,7 @@
 #include "SubscriberFactory.hpp"
 #include "CalculatedPointFactory.hpp"
 #include "MathFactory.hpp"
-
-#define __USE_CCSDS_FILE__
-
-#ifdef __USE_CCSDS_FILE__
 #include "DataFileFactory.hpp"
-#endif
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
@@ -63,7 +58,7 @@
 //#define DEBUG_INITIALIZE 1
 //#define DEBUG_FINALIZE 1
 //#define DEBUG_INTERPRET 1
-//#define DEBUG_RUN 1
+#define DEBUG_RUN 2
 //#define DEBUG_CREATE_COORDSYS 1
 //#define DEBUG_CREATE_RESOURCE 2
 //#define DEBUG_CREATE_PARAMETER 1
@@ -187,14 +182,11 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theFactoryManager->RegisterFactory(new SpacecraftFactory());
       theFactoryManager->RegisterFactory(new StopConditionFactory());
       theFactoryManager->RegisterFactory(new SubscriberFactory());
+      theFactoryManager->RegisterFactory(new DataFileFactory());
 
       theFactoryManager->RegisterFactory(new CelestialBodyFactory());
       theFactoryManager->RegisterFactory(new AssetFactory());
-      
-#ifdef __USE_CCSDS_FILE__
-      theFactoryManager->RegisterFactory(new DataFileFactory());
-#endif
-      
+            
       // Create publisher
       thePublisher = Publisher::Instance();
       
@@ -537,18 +529,18 @@ void Moderator::LoadPlugins()
 
       #ifndef __WIN32__
    
-         #ifdef DEBUG_PLUGIN_REGISTRATION
+         //#ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
                i->c_str());
-         #endif
+         //#endif
          LoadAPlugin(*i);
 
       #else
          
-         #ifdef DEBUG_PLUGIN_REGISTRATION
+         //#ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage("Loading dynamic library \"%s\": ", 
                i->c_str());
-         #endif
+         //#endif
          LoadAPlugin(*i);
         
       #endif
@@ -580,12 +572,12 @@ void Moderator::LoadAPlugin(std::string pluginName)
       if (fc > 0)
       {
          // Do the GMAT factory dance
-         #ifdef DEBUG_PLUGIN_REGISTRATION
+         //#ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage(
                "Library %s contains %d %s.\n", pluginName.c_str(), fc,
                ( fc==1 ? "factory" : "factories"));
-         #endif
-               
+         //#endif
+            
          // Now pass factories to the FactoryManager
          Factory *newFactory = NULL;
          for (Integer i = 0; i < fc; ++i)
@@ -1380,8 +1372,8 @@ SolarSystem* Moderator::CreateSolarSystem(const std::string &name)
 /*
  * Returns SolarSystem in use from configuration or object map in use
  *
- * @param  manage  1, return SolarSystem from the configuration
- * @param  manage  2, return SolarSystem from the object map in use
+ * @param  manage  If value is 1 it will return SolarSystem from the configuration
+ *                 if value is 2 it will return SolarSystem from the object map in use
  */
 //------------------------------------------------------------------------------
 SolarSystem* Moderator::GetSolarSystemInUse(Integer manage)
@@ -3191,6 +3183,175 @@ MeasurementModel* Moderator::GetMeasurementModel(const std::string &name)
       return (MeasurementModel*)FindObject(name);
 }
 
+// TrackingSystem
+//------------------------------------------------------------------------------
+// TrackingSystem* CreateTrackingSystem(const std::string &type,
+//       const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a new named TrackingSystem and adds it to the configuration
+ *
+ * @param type The type of the new TrackingSystem
+ * @param name The name of the new TrackingSystem
+ *
+ * @return The new TrackingSystem
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* Moderator::CreateTrackingSystem(const std::string &type,
+         const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::CreateTrackingSystem() type=%s, "
+            "name='%s'\n", type.c_str(), name.c_str());
+   #endif
+
+   if (GetTrackingSystem(name) == NULL)
+   {
+      TrackingSystem *obj = theFactoryManager->CreateTrackingSystem(type, name);
+
+      if (obj == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a TrackingSystem.\n"
+             "Make sure TrackingSystem is correct type and registered to "
+             "TrackingSystemFactory.\n");
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (obj)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (obj, name, "Moderator::CreateTrackingSystem()", funcName);
+      }
+      #endif
+
+      theConfigManager->AddTrackingSystem(obj);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingSystem() returning new TrackingSystem "
+               "<%p>\n", obj);
+      #endif
+
+      return obj;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingSystem() Unable to create "
+          "TrackingSystem name: %s already exists\n", name.c_str());
+      #endif
+      return GetTrackingSystem(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// TrackingSystem* GetTrackingSystem(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingSystem from the configuration
+ *
+ * @param name The name of the TrackingSystem object
+ *
+ * @return The named TrackingSystem
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* Moderator::GetTrackingSystem(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (TrackingSystem*)FindObject(name);
+}
+
+// TrackingData
+//------------------------------------------------------------------------------
+// TrackingData* CreateTrackingData(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a new named TrackingData object and adds it to the configuration
+ *
+ * @param name The name of the new TrackingData object
+ *
+ * @return The new TrackingData object
+ */
+//------------------------------------------------------------------------------
+TrackingData* Moderator::CreateTrackingData(const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage("====================\n");
+   MessageInterface::ShowMessage("Moderator::CreateTrackingData() name='%s'\n",
+                                 name.c_str());
+   #endif
+
+   if (GetTrackingData(name) == NULL)
+   {
+      TrackingData *obj = theFactoryManager->CreateTrackingData(name);
+
+      if (obj == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "The Moderator cannot create a TrackingData object."
+             "\nMake sure TrackingData is correct type and registered to "
+             "TrackingDataFactory.\n");
+         return NULL;
+      }
+
+      #ifdef DEBUG_MEMORY
+      if (obj)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (obj, name, "Moderator::CreateTrackingData()", funcName);
+      }
+      #endif
+
+      theConfigManager->AddTrackingData(obj);
+
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingData() returning new TrackingData "
+               "<%p>\n", obj);
+      #endif
+
+      return obj;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateTrackingData() Unable to create "
+          "TrackingData name: %s already exists\n", name.c_str());
+      #endif
+      return GetTrackingData(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// TrackingData* GetTrackingData(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingData object from the configuration
+ *
+ * @param name The name of the TrackingData object
+ *
+ * @return The named TrackingData object
+ */
+//------------------------------------------------------------------------------
+TrackingData* Moderator::GetTrackingData(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (TrackingData*)FindObject(name);
+}
+
 
 //------------------------------------------------------------------------------
 // CoreMeasurement* CreateMeasurement(const std::string &type,
@@ -3282,89 +3443,86 @@ CoreMeasurement* Moderator::GetMeasurement(const std::string &type,
 }
 
 
-// DataFile
+// DataStream
 //------------------------------------------------------------------------------
-// DataFile* CreateDataFile(const std::string &type,
-//                          const std::string &name)
+// DataFile* CreateDataStream(const std::string &type, const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Creates a new named DataFile and adds it to the configuration
+ * Creates a new named DataStream and adds it to the configuration
  *
- * @param type The type of data file object needed
- * @param name The name of the new DataFile
+ * @param type The type of the DataStream object
+ * @param name The name of the new DataStream
  *
- * @return The new DataFile
+ * @return The new DataStream
  */
 //------------------------------------------------------------------------------
-DataFile* Moderator::CreateDataFile(const std::string &type,
-                                    const std::string &name)
+DataFile* Moderator::CreateDataStream(const std::string &type,
+                                     const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage("====================\n");
-   MessageInterface::ShowMessage("Moderator::CreateDataFile() name='%s'\n",
-                                 name.c_str());
+   MessageInterface::ShowMessage
+      ("Moderator::CreateDataStream() type='%s', name='%s'\n", type.c_str(),
+       name.c_str());
    #endif
-
-   if (GetDataFile(type,name) == NULL)
+   
+   if (GetDataStream(name) == NULL)
    {
-      DataFile *df = theFactoryManager->CreateDataFile(type,name);
-
+      DataFile *df = theFactoryManager->CreateDataStream(type, name);
+      
       if (df == NULL)
       {
          MessageInterface::PopupMessage
-            (Gmat::ERROR_, "The Moderator cannot create a DataFile.\n"
-             "Make sure DataFile is correct type and registered to "
+            (Gmat::ERROR_, "The Moderator cannot create a DataStream.\n"
+             "Make sure DataStream is correct type and registered to "
              "DataFileFactory.\n");
          return NULL;
       }
-
+      
       #ifdef DEBUG_MEMORY
       if (df)
       {
          std::string funcName;
          funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
          MemoryTracker::Instance()->Add
-            (df, name, "Moderator::CreateDataFile()", funcName);
+            (df, name, "Moderator::CreateDataStream()", funcName);
       }
       #endif
-
-      theConfigManager->AddDataFile(df);
-
+      
+      theConfigManager->AddDataStream(df);
+      
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateDataFile() returning new DataFile "
+         ("Moderator::CreateDataStream() returning new DataFile "
                "<%p>\n", df);
       #endif
-
+      
       return df;
    }
    else
    {
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
-         ("Moderator::CreateDataFile() Unable to create "
+         ("Moderator::CreateDataStream() Unable to create "
           "DataFile name: %s already exists\n", name.c_str());
       #endif
-      return GetDataFile(type,name);
+      return GetDataStream(name);
    }
 }
 
 
 //------------------------------------------------------------------------------
-// DataFile* GetDataFile(const std::string &type,
-//                       const std::string &name)
+// DataFile* GetDataStream(const std::string &name)
 //------------------------------------------------------------------------------
 /**
- * Retrieves a measurement DataFile from the configuration
+ * Retrieves a measurement DataStream from the configuration
  *
- * @param type The type of data file object needed
- * @param name The name of the DataFile object
+ * @param name The name of the DataStream object
  *
- * @return The named DataFile
+ * @return The named DataStream
  */
 //------------------------------------------------------------------------------
-DataFile* Moderator::GetDataFile(const std::string &type,
-                                 const std::string &name)
+DataFile* Moderator::GetDataStream(const std::string &name)
 {
    if (name == "")
       return NULL;
@@ -3374,8 +3532,10 @@ DataFile* Moderator::GetDataFile(const std::string &type,
 
 
 // ObType
-ObType* Moderator::CreateObType(const std::string &type,
-      const std::string &name)
+//------------------------------------------------------------------------------
+// ObType* CreateObType(const std::string &type, const std::string &name)
+//------------------------------------------------------------------------------
+ObType* Moderator::CreateObType(const std::string &type, const std::string &name)
 {
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage("====================\n");
@@ -3412,7 +3572,7 @@ ObType* Moderator::CreateObType(const std::string &type,
       #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
          ("Moderator::CreateObType() returning new ObType "
-               "<%p>\n", df);
+               "<%p>\n", ot);
       #endif
 
       return ot;
@@ -3488,6 +3648,17 @@ Interpolator* Moderator::GetInterpolator(const std::string &name)
 // CoordinateSystem* CreateCoordinateSystem(const std::string &name,
 //                   bool createDefault = false, bool internal = false,
 //                   Integer manage = 1)
+//------------------------------------------------------------------------------
+/**
+ * Creates coordinate system
+ *
+ * @param  name  Name of the coordinate system to create
+ * @param  createDefault  If this flag is set, it will create MJ2000Eq system
+ * @param  internal  If this flag is set, it will not configure the CS
+ * @param  manage  The value to use for managing the newly created CS
+ *                 0 = do not add to configuration
+ *                 1 = add to configuration
+ */
 //------------------------------------------------------------------------------
 CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
                                                     bool createDefault,
@@ -3759,6 +3930,100 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
  */
 //------------------------------------------------------------------------------
 Subscriber* Moderator::GetSubscriber(const std::string &name)
+{
+   if (name == "")
+      return NULL;
+   else
+      return (Subscriber*)FindObject(name);
+}
+
+//------------------------------------------------------------------------------
+// Subscriber* CreateEphemerisFile(const std::string &type,
+//                                 const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a subscriber object by given type and name if not already created.
+ *
+ * @param <type> object type
+ * @param <name> object name
+ *
+ * @return a subscriber object pointer
+ */
+//------------------------------------------------------------------------------
+Subscriber* Moderator::CreateEphemerisFile(const std::string &type,
+                                           const std::string &name)
+{
+   #if DEBUG_CREATE_RESOURCE
+   MessageInterface::ShowMessage
+      ("Moderator::CreateEphemerisFile() type='%s', name='%s'\n",
+       type.c_str(), name.c_str());
+   MessageInterface::ShowMessage
+      ("   in function = <%p>'%s'\n", currentFunction,
+       currentFunction ? currentFunction->GetName().c_str() : "NULL");
+   #endif
+   
+   if (GetEphemerisFile(name) == NULL)
+   {      
+      Subscriber *eph = (Subscriber*)(theFactoryManager->CreateEphemerisFile(type, name));
+      
+      if (eph == NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "**** ERROR **** Cannot create a EphemerisFile type: %s.\n"
+             "Make sure to specify PLUGIN = libDataFile and PLUGIN = libCcsdsEphemerisFile\n"
+             "in the gmat_start_file and make sure such dlls exist.\n",
+             type.c_str(), type.c_str());
+         
+         return NULL;
+      }
+      
+      #ifdef DEBUG_MEMORY
+      if (eph)
+      {
+         std::string funcName;
+         funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+         MemoryTracker::Instance()->Add
+            (eph, name, "Moderator::CreateEphemerisFile()", funcName);
+      }
+      #endif
+      
+      try
+      {
+         if (eph->GetName() != "")
+            theConfigManager->AddSubscriber(eph);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage("Moderator::CreateEphemerisFile()\n" +
+                                       e.GetFullMessage());
+      }
+      
+      return eph;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreateEphemerisFile() Unable to create EphemerisFile "
+          "name: %s already exist\n", name.c_str());
+      #endif
+      
+      return GetEphemerisFile(name);
+   }
+}
+
+//------------------------------------------------------------------------------
+// Subscriber* GetEphemerisFile(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a subscriber object pointer by given name.
+ *
+ * @param <name> object name
+ *
+ * @return a subscriber object pointer, return null if name not found
+ */
+//------------------------------------------------------------------------------
+Subscriber* Moderator::GetEphemerisFile(const std::string &name)
 {
    if (name == "")
       return NULL;
@@ -4396,6 +4661,9 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
                                        GetDefaultSolver()->GetName());
          id = cmd->GetParameterID("SolverName");
          cmd->SetStringParameter(id, solver->GetName());
+         
+         // set sover pointer, so that GetGeneratingString() can write correctly
+         cmd->SetRefObject(solver, Gmat::SOLVER);
          
          // set variable parameter
          id = cmd->GetParameterID("Variable");
@@ -7393,6 +7661,61 @@ void Moderator::AddSubscriberToSandbox(Integer index)
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetSubscriber(names[i]);
+      
+      //==============================================================
+      // Special handling for CcsdsEphemerisFile plug-in
+      //==============================================================
+      // This is needed since we create EphemerisFile object first
+      // from the script "Create EphemerisFile". And if file format
+      // contains CCSDS, it will create CcsdsEphemerisFile object via
+      // plug-in factory and replace the object pointer.
+      //==============================================================
+      // Create CcsdsEphemerisFile if file format is CCSDS
+      if (obj->IsOfType(Gmat::EPHEMERIS_FILE))
+      {
+         std::string name = obj->GetName();
+         std::string format = obj->GetStringParameter("FileFormat");
+         
+         #if DEBUG_RUN
+         MessageInterface::ShowMessage
+            ("==> format of the object<%p><%s>'%s' is '%s'\n", obj, obj->GetTypeName().c_str(),
+             name.c_str(), format.c_str());
+         #endif
+         
+         if (format.find("CCSDS") != format.npos)
+         {
+            // Check type name to avoid recreating a CcsdsEphemerisFile object for re-runs
+            if (obj->GetTypeName() != "CcsdsEphemerisFile")
+            {
+               #if DEBUG_RUN
+               MessageInterface::ShowMessage("==> about to create new CcsdsEphemerisFile\n");
+               #endif
+               
+               GmatBase *newObj = CreateEphemerisFile("CcsdsEphemerisFile", "");
+               if (newObj == NULL)
+               {
+                  throw GmatBaseException
+                     ("Moderator::AddSubscriberToSandbox() Cannot continue due to missing "
+                      "CcsdsEphemerisFile plugin dll\n");
+               }
+               
+               newObj->SetName(name);
+               ReconfigureItem(newObj, name);
+               newObj->Copy(obj);
+               newObj->TakeAction("ChangeTypeName", "CcsdsEphemerisFile");
+               
+               #if DEBUG_RUN
+               MessageInterface::ShowMessage
+                  ("==> new obj <%p><%s>'%s' created\n", newObj, newObj->GetTypeName().c_str(),
+                   name.c_str());
+               #endif
+               
+               obj = (Subscriber*)newObj;
+            }
+         }
+      }
+      //=========================================================
+      
       sandboxes[index]->AddSubscriber(obj);
       
       #if DEBUG_RUN > 1
@@ -7420,19 +7743,44 @@ void Moderator::AddMeasurementToSandbox(Integer index)
 
    #if DEBUG_RUN
    MessageInterface::ShowMessage
-      ("Moderator::AddMeasurementToSandbox() count = %d\n", names.size());
+      ("Moderator::AddMeasurementToSandbox() measurement count = %d\n",
+               names.size());
    #endif
 
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetMeasurementModel(names[i]);
       sandboxes[index]->AddObject((GmatBase*)obj);
-
+/*
       #if DEBUG_RUN > 1
       MessageInterface::ShowMessage
          ("   Adding <%p><%s>'%s'\n", obj, obj->GetTypeName().c_str(),
           obj->GetName().c_str());
       #endif
+
+ */
+   }
+
+   TrackingSystem *ts;
+   names = theConfigManager->GetListOfItems(Gmat::TRACKING_SYSTEM);
+
+   #if DEBUG_RUN
+   MessageInterface::ShowMessage
+      ("Moderator::AddMeasurementToSandbox() tracking system count = %d\n",
+               names.size());
+   #endif
+
+   for (Integer i=0; i<(Integer)names.size(); i++)
+   {
+      ts = theConfigManager->GetTrackingSystem(names[i]);
+      sandboxes[index]->AddObject((GmatBase*)ts);
+/*
+      #if DEBUG_RUN > 1
+      MessageInterface::ShowMessage
+         ("   Adding <%p><%s>'%s'\n", ts, ts->GetTypeName().c_str(),
+          ts->GetName().c_str());
+      #endif
+*/
    }
 }
 

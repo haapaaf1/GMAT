@@ -156,7 +156,7 @@ void Interpreter::Initialize()
 {
    #ifdef DEBUG_INIT
    MessageInterface::ShowMessage
-      ("Interpreter::Initialize() initialized=%d\n", initialized);
+      ("Interpreter::Initialize() entered, initialized=%d\n", initialized);
    #endif
    
    errorList.clear();
@@ -185,6 +185,10 @@ void Interpreter::Initialize()
    theTextParser.Initialize(commandList);
    
    initialized = true;
+   
+   #ifdef DEBUG_INIT
+   MessageInterface::ShowMessage("Interpreter::Initialize() leaving\n");
+   #endif
 }
 
 
@@ -251,13 +255,13 @@ void Interpreter::BuildCreatableObjectMaps()
    copy(cals.begin(), cals.end(), back_inserter(calculatedPointList));
    
    dataStreamList.clear();
-   StringArray pdf = theModerator->GetListOfFactoryItems(Gmat::DATASTREAM);
-   copy(pdf.begin(), pdf.end(), back_inserter(dataStreamList));
-
-   estimatorList.clear();
-   StringArray est = theModerator->GetListOfFactoryItems(Gmat::ESTIMATOR);
-   copy(est.begin(), est.end(), back_inserter(estimatorList));
-
+   StringArray dsl = theModerator->GetListOfFactoryItems(Gmat::DATASTREAM);
+   copy(dsl.begin(), dsl.end(), back_inserter(dataStreamList));
+   
+   ephemFileList.clear();
+   StringArray ephems = theModerator->GetListOfFactoryItems(Gmat::EPHEMERIS_FILE);
+   copy(ephems.begin(), ephems.end(), back_inserter(ephemFileList));
+   
    functionList.clear();
    StringArray fns = theModerator->GetListOfFactoryItems(Gmat::FUNCTION);
    copy(fns.begin(), fns.end(), back_inserter(functionList));
@@ -306,6 +310,9 @@ void Interpreter::BuildCreatableObjectMaps()
    StringArray spl = theModerator->GetListOfFactoryItems(Gmat::SPACE_POINT);
    copy(spl.begin(), spl.end(), back_inserter(spacePointList));
 
+   trackingSystemList.clear();
+   StringArray tsl = theModerator->GetListOfFactoryItems(Gmat::TRACKING_SYSTEM);
+   copy(tsl.begin(), tsl.end(), back_inserter(trackingSystemList));
    
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
@@ -328,6 +335,14 @@ void Interpreter::BuildCreatableObjectMaps()
       
       MessageInterface::ShowMessage("\nCalculatedPoints:\n   ");
       for (pos = cals.begin(); pos != cals.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+      
+      MessageInterface::ShowMessage("\nDataFiles:\n   ");
+      for (pos = dfs.begin(); pos != dfs.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+      
+      MessageInterface::ShowMessage("\nEphemerisFiles:\n   ");
+      for (pos = ephems.begin(); pos != ephems.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
       
       MessageInterface::ShowMessage("\nFunctions:\n   ");
@@ -354,33 +369,37 @@ void Interpreter::BuildCreatableObjectMaps()
       for (std::vector<std::string>::iterator pos = props.begin();
            pos != props.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nMeasurements:\n   ");
-      for (pos = mmIndex = measurements.begin();
+      for (pos = measurements.begin();
             pos != measurements.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nObservations:\n   ");
-      for (pos = mmIndex = obs.begin();
+      for (pos = obs.begin();
             pos != obs.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nSolvers:\n   ");
       for (pos = solvers.begin(); pos != solvers.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nStopConds:\n   ");
       for (pos = stops.begin(); pos != stops.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\nSubscribers:\n   ");
       for (pos = subs.begin(); pos != subs.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
+      MessageInterface::ShowMessage("\nTrackingSystems:\n   ");
+      for (pos = tsl.begin(); pos != tsl.end(); ++pos)
+         MessageInterface::ShowMessage(*pos + "\n   ");
+      
       MessageInterface::ShowMessage("\nOther SpacePoints:\n   ");
       for (pos = spl.begin(); pos != spl.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
-
+      
       MessageInterface::ShowMessage("\n");
    #endif
    
@@ -447,11 +466,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::DATASTREAM:
          clist = dataStreamList;
          break;
-
-      case Gmat::ESTIMATOR:
-         clist = estimatorList;
-         break;
-
+         
       case Gmat::FUNCTION:
          clist = functionList;
          break;
@@ -500,6 +515,10 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          clist = spacePointList;
          break;
          
+      case Gmat::TRACKING_SYSTEM:
+         clist = trackingSystemList;
+         break;
+
       // These are all intentional fall-throughs:
       case Gmat::SPACECRAFT:
       case Gmat::FORMATION:
@@ -520,6 +539,7 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
       case Gmat::MATH_NODE:
       case Gmat::MATH_TREE:
       case Gmat::MEASUREMENT_MODEL:
+      case Gmat::TRACKING_DATA:
       case Gmat::UNKNOWN_OBJECT:
       default:
          break;
@@ -747,7 +767,7 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
 #ifdef DEBUG_CREATE_CELESTIAL_BODY
       MessageInterface::ShowMessage("In CreateObject, about to set Object manager option\n");
 #endif
-   
+
    // Set manage option to Moderator
    theModerator->SetObjectManageOption(manage);
    
@@ -763,9 +783,12 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
    else if (type == "MeasurementModel")
       obj = (GmatBase*)theModerator->CreateMeasurementModel(name);
 
-   else if (type == "DataFile")
-      obj = (GmatBase*)theModerator->CreateDataFile(type,name);
-
+   else if (type == "TrackingData")
+      obj = (GmatBase*)theModerator->CreateTrackingData(name);
+   
+//   else if (type == "DataStream")
+//      obj = (GmatBase*)theModerator->CreateDataFile(type, name);
+   
 //   else if (type == "ForceModel") 
 //      obj = (GmatBase*)theModerator->CreateODEModel(type, name);
    
@@ -821,6 +844,10 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
                calculatedPointList.end())
          obj =(GmatBase*) theModerator->CreateCalculatedPoint(type, name, true);
       
+      // Handle DataFiles
+      else if (find(dataStreamList.begin(), dataStreamList.end(), type) !=
+               dataStreamList.end())
+         obj = (GmatBase*)theModerator->CreateDataStream(type, name);
       // Handle Functions
       else if (find(functionList.begin(), functionList.end(), type) != 
                functionList.end())
@@ -856,34 +883,25 @@ GmatBase* Interpreter::CreateObject(const std::string &type,
                solverList.end())
          obj = (GmatBase*)theModerator->CreateSolver(type, name);
       
-      // Handle Data Files
-      else if (find(dataStreamList.begin(), dataStreamList.end(), type) !=
-         dataStreamList.end())
-      {
-         MessageInterface::ShowMessage("Object is a Data File\n");
-         obj = (GmatBase*)theModerator->CreateDataFile(type, name);
-      }
-
-      /* @TODO: Do we need this here?
-      // Handle Estimators
-      else if (find(estimatorList.begin(), estimatorList.end(), type) !=
-         estimatorList.end())
-      {
-         MessageInterface::ShowMessage("Object is an Estimator\n");
-         obj = (GmatBase*)theModerator->CreateEstimator(type, name);
-      }
-      */
-
       // Handle Subscribers
       else if (find(subscriberList.begin(), subscriberList.end(), type) != 
                subscriberList.end())
          obj = (GmatBase*)theModerator->CreateSubscriber(type, name);
+      
+      // Handle EphemerisFile
+      else if (find(ephemFileList.begin(), ephemFileList.end(), type) != 
+               ephemFileList.end())
+         obj = (GmatBase*)theModerator->CreateEphemerisFile(type, name);
       
       // Handle other SpacePoints
       else if (find(spacePointList.begin(), spacePointList.end(), type) != 
                spacePointList.end())
          obj = (GmatBase*)theModerator->CreateSpacePoint(type, name);
    
+      // Handle TrackingSystems
+      else if (find(trackingSystemList.begin(), trackingSystemList.end(), type) !=
+               trackingSystemList.end())
+         obj = (GmatBase*)theModerator->CreateTrackingSystem(type, name);
    }
    
    //@note
@@ -1167,7 +1185,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    // Now continue validation
    #ifdef DEBUG_WRAPPERS
    MessageInterface::ShowMessage
-      ("Interpreter::ValidateSubscriber() obj=<%p><%s>\n", obj,
+      ("Interpreter::ValidateSubscriber() entered, obj=<%p><%s>\n", obj,
        obj->GetName().c_str());
    #endif
    
@@ -1175,7 +1193,8 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    
    // This method can be called from other than Interpreter, so check if
    // object is SUBSCRIBER type
-   if (obj->GetType() != Gmat::SUBSCRIBER)
+   //if (obj->GetType() != Gmat::SUBSCRIBER)
+   if (!obj->IsOfType(Gmat::SUBSCRIBER))
    {
       InterpreterException ex
          ("ElementWrapper for \"" + obj->GetName() + "\" of type \"" +
@@ -1185,6 +1204,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
    }
    
    Subscriber *sub = (Subscriber*)obj;
+   
    // We don't want to clear wrappers since Subscriber::ClearWrappers() changed to
    // also empty wrappers.  (LOJ: 2009.03.12)
    //sub->ClearWrappers();
@@ -1219,7 +1239,7 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
          return false;
       }
    }
-      
+   
    return true;
    
 } // ValidateSubscriber()
@@ -3930,6 +3950,16 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
          
          FindPropertyID(toOwner, toProp, &toObj, toId, toType);
          
+         if (toId == Gmat::PARAMETER_REMOVED)
+         {
+            InterpreterException ex
+               ("The field name \"" + toProp + "\" on object " + "\"" +
+                toOwner->GetName() + "\" will no longer be permitted in the future");
+            HandleError(ex, true, true);
+            ignoreError = true;
+            return false;
+         }
+         
          if (toObj == NULL)
          {
             if (parsingDelayedBlock)
@@ -4305,7 +4335,7 @@ bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
          {
             #ifdef DEBUG_SET
             std::string rvalStr =
-               GmatStringUtil::ToString(rval, false, false, 17, 16);
+               GmatStringUtil::ToString(rval, false, false, true, 17, 16);
             MessageInterface::ShowMessage
                ("   Calling <%s>'%s'->SetRealParameter(%d, %s)\n", obj->GetTypeName().c_str(),
                 obj->GetName().c_str(), id, rvalStr.c_str());
@@ -5375,6 +5405,166 @@ bool Interpreter::SetMeasurementModelProperty(GmatBase *obj,
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// bool SetTrackingDataProperty(GmatBase *obj, const std::string &prop,
+//                              const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+bool Interpreter::SetTrackingDataProperty(GmatBase *obj,
+         const std::string &property, const std::string &value)
+{
+   debugMsg = "In SetTrackingDataProperty()";
+   bool retval = false;
+   StringArray parts = theTextParser.SeparateDots(property);
+   Integer count = parts.size();
+   std::string propName = parts[count-1];
+
+   #ifdef DEBUG_SET_MEASUREMENT_MODEL
+      MessageInterface::ShowMessage
+         ("Interpreter::SetTrackingDataProperty() mModel=%s, prop=%s, "
+          "value=%s\n", obj->GetName().c_str(), propName.c_str(),
+          value.c_str());
+   #endif
+
+   if (propName == "Type")
+   {
+      GmatBase* model = CreateObject(value, "", 0, false);
+      if (model != NULL)
+      {
+         if (model->IsOfType(Gmat::CORE_MEASUREMENT))
+            retval = obj->SetRefObject(model, Gmat::CORE_MEASUREMENT, "");
+      }
+      else
+         throw InterpreterException("Failed to create a " + value +
+               " core measurement");
+   }
+   else
+   {
+      Integer id;
+      Gmat::ParameterType type;
+
+      StringArray parts = theTextParser.SeparateDots(property);
+      // if property has multiple dots, handle separately
+      if (parts.size() > 1)
+      {
+         retval = SetComplexProperty(obj, property, value);
+         if (retval)
+            return retval;
+      }
+
+      id = obj->GetParameterID(property);
+      type = obj->GetParameterType(id);
+      if (property == "Covariance")
+      {
+         // Check the size of the inputs -- MUST be a square matrix
+         StringArray rhsRows;
+         if ((value.find("[") == value.npos) || (value.find("]") == value.npos))
+            throw GmatBaseException("Covariance matrix definition is missing "
+                  "square brackets");
+
+         rhsRows = theTextParser.SeparateBrackets(value, "[]", ";");
+         UnsignedInt rowCount = rhsRows.size();
+
+         StringArray cells = theTextParser.SeparateSpaces(rhsRows[0]);
+         UnsignedInt colCount = cells.size();
+
+         Covariance *covariance = obj->GetCovariance();
+
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("%s covariance has dim %d, "
+                  "row count = %d, colCount = %d\n", obj->GetName().c_str(),
+                  covariance->GetDimension(), rowCount, colCount);
+         #endif
+
+         if ((Integer)colCount > covariance->GetDimension())
+            throw GmatBaseException("Input covariance matrix is larger than the "
+                  "matrix built from the input array");
+
+         for (UnsignedInt i = 1; i < rowCount; ++i)
+         {
+            cells = theTextParser.SeparateSpaces(rhsRows[i]);
+          #ifdef DEBUG_SET
+               MessageInterface::ShowMessage("   Found  %d columns in row %d\n",
+                     cells.size(), i+1);
+          #endif
+
+            if (cells.size() != rowCount)
+               throw InterpreterException("Row/Column mismatch in the Covariance "
+                     "matrix for " + obj->GetName());
+         }
+
+         #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("Found %d rows and %d columns\n",
+                  rowCount, colCount);
+         #endif
+
+         for (UnsignedInt i = 0; i < colCount; ++i)
+         {
+            if (rowCount != 1)
+               cells = theTextParser.SeparateSpaces(rhsRows[i]);
+            for (UnsignedInt j = 0; j < colCount; ++j)
+               if (i == j)
+                  SetPropertyValue(obj, id, type, cells[j], i, j);
+               else
+                  // If a single row, it's the diagonal
+                  if (rowCount == 1)
+                     SetPropertyValue(obj, id, type, "0.0", i, j);
+                  // Otherwise it's cell[j]
+                  else
+                     SetPropertyValue(obj, id, type, cells[j], i, j);
+         }
+
+         retval = true;
+      }
+      else
+         retval = SetProperty(obj, id, type, value);
+   }
+
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetTrackingSystemProperty(GmatBase *obj, const std::string &prop,
+//          const std::string &value)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+bool Interpreter::SetTrackingSystemProperty(GmatBase *obj,
+         const std::string &prop, const std::string &value)
+{
+   debugMsg = "In SetTrackingSystemProperty()";
+   bool retval = false;
+   StringArray parts = theTextParser.SeparateDots(prop);
+
+   // if property has multiple dots, handle separately
+   if (parts.size() > 1)
+   {
+      retval = SetComplexProperty(obj, prop, value);
+      if (retval)
+         return retval;
+   }
+
+   Integer id;
+   Gmat::ParameterType type;
+   id = obj->GetParameterID(prop);
+   type = obj->GetParameterType(id);
+   retval = SetProperty(obj, id, type, value);
+   return retval;
+}
 
 
 //------------------------------------------------------------------------------
@@ -6037,7 +6227,7 @@ bool Interpreter::FinalPass()
           obj->GetName().c_str());
       #endif
       
-      // check System Parameters seperately since it follows certain naming
+      // check System Parameters separately since it follows certain naming
       // convention.  "owner.dep.type" where owner can be either Spacecraft
       // or Burn for now
       
@@ -6339,11 +6529,194 @@ bool Interpreter::FinalPass()
       }
    }
    
+   //-------------------------------------------------------------------
+   // Special case for BodyFixedPoints, we need to set CoordinateSyatem
+   // pointers for the BodyFixed and the MJ2000Eq coordinate systems.  In
+   // addition, we need to pass the pointer to the central body.
+   //-------------------------------------------------------------------
+   objList = theModerator->GetListOfObjects(Gmat::BODY_FIXED_POINT);
+
+   #if DBGLVL_FINAL_PASS > 1
+   MessageInterface::ShowMessage("FinalPass:: BodyFixedPoint list =\n");
+   for (Integer ii = 0; ii < (Integer) objList.size(); ii++)
+   MessageInterface::ShowMessage("   %s\n", (objList.at(ii)).c_str());
+   #endif
+
+   for (StringArray::iterator i = objList.begin(); i != objList.end(); ++i)
+   {
+      obj = FindObject(*i);
+
+      StringArray csNames = obj->GetRefObjectNameArray(Gmat::COORDINATE_SYSTEM);
+      for (StringArray::iterator csName = csNames.begin();
+           csName != csNames.end(); ++csName)
+      {
+         GmatBase *csObj = FindObject(*csName);
+
+         // To catch as many errors we can, continue with next object
+         if (csObj == NULL)
+            continue;
+
+         #if DBGLVL_FINAL_PASS > 1
+               MessageInterface::ShowMessage
+               ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
+                csObj->GetName().c_str(), csObj, csObj->GetType());
+         #endif
+
+         if (csObj->GetType() != Gmat::COORDINATE_SYSTEM)
+         {
+            InterpreterException ex
+            ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+             "\"CoordinateSystem\" to \"" + *csName + "\"");
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
+
+         try
+         {
+            obj->SetRefObject(csObj, Gmat::COORDINATE_SYSTEM, csObj->GetName());
+         }
+         catch (BaseException &e)
+         {
+            InterpreterException ex
+            ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+             "CoordinateSystem: " + e.GetFullMessage());
+            HandleError(ex, false);
+            retval = false;
+            continue;
+         }
+      }
+      std::string cbName = obj->GetRefObjectName(Gmat::CELESTIAL_BODY);
+      GmatBase *cbObj = FindObject(cbName);
+
+      #if DBGLVL_FINAL_PASS > 1
+         MessageInterface::ShowMessage
+         ("   Calling '%s'->SetRefObject(%s(%p), %d)\n", obj->GetName().c_str(),
+          cbObj->GetName().c_str(), cbObj, cbObj->GetType());
+      #endif
+
+      if (cbObj->GetType() != Gmat::CELESTIAL_BODY)
+      {
+         InterpreterException ex
+         ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+          "\"CelestialBody\" to \"" + cbName + "\"");
+         HandleError(ex, false);
+         retval = false;
+         continue;
+      }
+
+      try
+      {
+         obj->SetRefObject(cbObj, Gmat::CELESTIAL_BODY, cbObj->GetName());
+      }
+      catch (BaseException &e)
+      {
+         InterpreterException ex
+         ("The BodyFixedPoint \"" + obj->GetName() + "\" failed to set "
+          "CelestialBody: " + e.GetFullMessage());
+         HandleError(ex, false);
+         retval = false;
+         continue;
+      }
+   }
+   
+   //-------------------------------------------------------------------
+   // Special case for SolverBranchCommand such as Optimize, Target,
+   // we need to set Solver object to SolverBranchCommand and then
+   // to all Vary commands inside. Since Vary command's parameters are
+   // different depends on the type of the Solver, such as
+   // DifferentialCorrector or Optimizer. When user saves the script
+   // without running, it will not write correctly since the Solve is
+   // not set, so set it here.
+   //-------------------------------------------------------------------
+   GmatCommand *current = theModerator->GetFirstCommand();
+   while (current != NULL)
+   {
+      if ((current->GetChildCommand(0)) != NULL)
+         SetObjectInBranchCommand(current, "SolverBranchCommand", "Vary",
+                                  "SolverName");
+      
+      current = current->GetNext();
+   }
+   
    #if DBGLVL_FINAL_PASS
    MessageInterface::ShowMessage("Interpreter::FinalPass() returning %d\n", retval);
    #endif
    
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetObjectInBranchCommand(GmatCommand *brCmd, const std::string &branchType,
+//                      const std::string childType, const std::string &objName)
+//------------------------------------------------------------------------------
+void Interpreter::SetObjectInBranchCommand(GmatCommand *brCmd,
+                                           const std::string &branchType,
+                                           const std::string &childType,
+                                           const std::string &objName)
+{
+   #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+   MessageInterface::ShowMessage
+      ("Interpreter::SetObjectInBranchCommand() entered, brCmd=<%p><%s>, branchType='%s', "
+       "childType='%s'\n", brCmd, brCmd->GetTypeName().c_str(), branchType.c_str(),
+       childType.c_str());
+   #endif
+   
+   GmatCommand* current = brCmd;
+   Integer childNo = 0;
+   GmatCommand* nextInBranch;
+   GmatCommand* child;
+   GmatBase *solver = NULL;
+   std::string solverName;
+   
+   if (brCmd->IsOfType(branchType))
+   {
+      #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+      MessageInterface::ShowMessage
+         ("==> found type of '%s'\n", brCmd, brCmd->GetTypeName().c_str());
+      #endif
+      
+      solverName = brCmd->GetStringParameter(objName);
+      solver = FindObject(solverName);
+      
+      #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+      MessageInterface::ShowMessage
+         ("   Found solver <%p><%s>'%s'\n", solver, solver ? solver->GetTypeName().c_str() :
+          "NULL", solver ? solver->GetName().c_str() : "NULL");
+      #endif
+   }
+   
+   while((child = current->GetChildCommand(childNo)) != NULL)
+   {
+      nextInBranch = child;
+      
+      while ((nextInBranch != NULL) && (nextInBranch != current))
+      {
+         #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+         MessageInterface::ShowMessage
+            ("   nextInBranch=<%p><%s>\n", nextInBranch, nextInBranch->GetTypeName().c_str());
+         #endif
+         
+         if (nextInBranch->GetTypeName() == childType)
+         {
+            #ifdef DEBUG_BRANCH_COMMAND_OBJECT
+            MessageInterface::ShowMessage
+               ("   found '%s', setting <%p>'%s' to <%p><%s>\n", childType.c_str(),
+                solver, solver->GetName().c_str(), nextInBranch,
+                nextInBranch->GetTypeName().c_str());
+            #endif
+            nextInBranch->SetRefObject(solver, Gmat::SOLVER, solver->GetName());
+         }
+         
+         if (nextInBranch->GetChildCommand() != NULL)
+            SetObjectInBranchCommand(nextInBranch, branchType, childType, objName);
+         
+         nextInBranch = nextInBranch->GetNext();
+      }
+      
+      ++childNo;
+   }
 }
 
 
@@ -6375,6 +6748,9 @@ bool Interpreter::IsObjectType(const std::string &type)
    if (type == "CoordinateSystem") 
       return true;
    
+   if (type == "TrackingData")
+      return true;
+
    if (theSolarSystem->IsBodyInUse(type))
       return true;
    
@@ -6405,6 +6781,10 @@ bool Interpreter::IsObjectType(const std::string &type)
        calculatedPointList.end()) 
       return true;
    
+   if (find(ephemFileList.begin(), ephemFileList.end(), type) != 
+       ephemFileList.end())
+      return true;
+   
    if (find(functionList.begin(), functionList.end(), type) != 
        functionList.end())
       return true;
@@ -6433,6 +6813,10 @@ bool Interpreter::IsObjectType(const std::string &type)
        subscriberList.end())
       return true;
    
+   if (find(trackingSystemList.begin(), trackingSystemList.end(), type) !=
+       trackingSystemList.end())
+      return true;
+
    return false;
 }
 

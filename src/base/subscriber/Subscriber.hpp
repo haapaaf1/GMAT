@@ -55,13 +55,15 @@ public:
    virtual bool         FlushData();
    virtual bool         SetEndOfRun();
    virtual void         SetRunState(Gmat::RunState rs);
-   virtual void         SetManeuvering(bool flag, Real epoch,
+   void                 SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
                                        const std::string &satName,
                                        const std::string &desc);
-   virtual void         SetManeuvering(bool flag, Real epoch,
+   void                 SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
                                        const StringArray &satNames,
                                        const std::string &desc);
-   
+   void                 SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                             const std::string &satName,
+                                             const std::string &desc);
    Subscriber*          Next();
    bool                 Add(Subscriber *s);
    bool                 Remove(Subscriber *s, const bool del);
@@ -71,6 +73,8 @@ public:
    
    virtual void         SetProviderId(Integer id);
    virtual Integer      GetProviderId();
+   
+   virtual void         SetProvider(GmatBase *provider);
    virtual void         SetDataLabels(const StringArray& elements);
    virtual void         ClearDataLabels();
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
@@ -143,6 +147,7 @@ protected:
    CoordinateSystem     *theDataCoordSystem;
    CelestialBody        *theDataMJ2000EqOrigin;
    SolarSystem          *theSolarSystem;
+   GmatBase             *currentProvider;
    
    bool                 active;
    bool                 isManeuvering;
@@ -153,7 +158,7 @@ protected:
    
    /// The current run state, so actions based on state can be taken
    Gmat::RunState       runstate;
-   Integer              currentProvider;
+   Integer              currProviderId;
    
    /// The list of names of Wrapper objects
    StringArray          wrapperObjectNames;
@@ -170,9 +175,13 @@ protected:
    // Methods that derived classes can override
    virtual bool         Distribute(Integer len) = 0;
    virtual bool         Distribute(const Real *dat, Integer len);
-   virtual void         HandleManeuvering(bool flag, Real epoch,
+   virtual void         HandleManeuvering(GmatBase *originator,
+                                          bool flag, Real epoch,
                                           const StringArray &satNames,
                                           const std::string &desc);
+   virtual void         HandleScPropertyChange(GmatBase *originator, Real epoch,
+                                               const std::string &satName,
+                                               const std::string &desc);
    
    enum
    {

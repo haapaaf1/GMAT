@@ -25,18 +25,20 @@
 #include "B3DataFile.hpp"
 #include "SLRDataFile.hpp"
 #include "TLEDataFile.hpp"
-#include "TDMCCSDSDataFile.hpp"
-#include "OPMCCSDSDataFile.hpp"
-#include "OEMCCSDSDataFile.hpp"
-#include "APMCCSDSDataFile.hpp"
-#include "AEMCCSDSDataFile.hpp"
+#include "UTDFDataFile.hpp"
+#include "TRK234DataFile.hpp"
+//#include "TDMCCSDSDataFile.hpp"
+//#include "OPMCCSDSDataFile.hpp"
+//#include "OEMCCSDSDataFile.hpp"
+//#include "APMCCSDSDataFile.hpp"
+//#include "AEMCCSDSDataFile.hpp"
 
 //---------------------------------
 //  public methods
 //---------------------------------
 
 //------------------------------------------------------------------------------
-//  DataFile* CreateDataFile(const std::string &ofType, const std::string &withName)
+//  DataFile* CreateDataStream(const std::string &ofType, const std::string &withName)
 //------------------------------------------------------------------------------
 /**
  * This method creates and returns an object of the requested DataFile class.
@@ -47,17 +49,22 @@
  * @return A pointer to the created object.
  */
 //------------------------------------------------------------------------------
-DataFile* DataFileFactory::CreateDataFile(const std::string &ofType,
+DataFile* DataFileFactory::CreateDataStream(const std::string &ofType,
                                     const std::string &withName)
 {
-MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
-      ofType.c_str(), withName.c_str());
+
    if (ofType == "B3DataFile")
       return new B3DataFile(withName);
    if (ofType == "SLRDataFile")
       return new SLRDataFile(withName);
    if (ofType == "TLEDataFile")
       return new TLEDataFile(withName);
+   if (ofType == "UTDFDataFile")
+      return new UTDFDataFile(withName);
+   if (ofType == "TRK234DataFile")
+      return new TRK234DataFile(withName);
+
+/*
    if (ofType == "TDMCCSDSDataFile")
       return new TDMCCSDSDataFile(withName);
    if (ofType == "OPMCCSDSDataFile")
@@ -68,6 +75,7 @@ MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
       return new APMCCSDSDataFile(withName);
    if (ofType == "AEMCCSDSDataFile")
       return new AEMCCSDSDataFile(withName);
+*/
 
    return NULL;
 }
@@ -83,13 +91,14 @@ MessageInterface::ShowMessage("DataFileFactory is creating a %s named %s\n",
 //------------------------------------------------------------------------------
 DataFileFactory::DataFileFactory() :
    Factory     (Gmat::DATASTREAM)
-//   Factory     (Gmat::DATASTREAM)
 {
    if (creatables.empty())
    {
       creatables.push_back("B3DataFile");
       creatables.push_back("SLRDataFile");
       creatables.push_back("TLEDataFile");
+      creatables.push_back("UTDFDataFile");
+      creatables.push_back("TRK234DataFile");
       creatables.push_back("TDMCCSDSDataFile");
       creatables.push_back("OPMCCSDSDataFile");
       creatables.push_back("OEMCCSDSDataFile");
@@ -131,6 +140,8 @@ DataFileFactory::DataFileFactory(const DataFileFactory& fact) :
       creatables.push_back("B3DataFile");
       creatables.push_back("SLRDataFile");
       creatables.push_back("TLEDataFile");
+      creatables.push_back("UTDFDataFile");
+      creatables.push_back("TRK324DataFile");
       creatables.push_back("TDMCCSDSDataFile");
       creatables.push_back("OPMCCSDSDataFile");
       creatables.push_back("OEMCCSDSDataFile");

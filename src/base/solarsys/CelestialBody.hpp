@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  CelestialBody
 //------------------------------------------------------------------------------
@@ -246,6 +246,8 @@ public:
    virtual bool           SetRotationDataSource(Gmat::RotationDataSource src);
    virtual bool           SetUserDefined(bool userDefinedBody);
    
+   virtual void           RemoveSpiceKernelName(const std::string &fileName);
+
    // methods inherited from SpacePoint, that must be implemented here (and/or
    // in the derived classes
    virtual const Rvector6 GetMJ2000State(const A1Mjd &atTime);
@@ -613,7 +615,7 @@ protected:
    virtual Real     GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const;
    virtual Rvector6 ComputeTwoBody(const A1Mjd &forTime);
    virtual Rvector6 KeplersProblem(const A1Mjd &forTime);
-   virtual bool     SetUpSPICE();
+   virtual bool     SetUpSPICE(); // @todo - move this to SpacePoint?
    
 private:
 

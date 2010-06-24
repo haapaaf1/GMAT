@@ -24,6 +24,7 @@
 //#define DEBUG_CONFIG_SS 1
 //#define DEBUG_CONFIG_ADD_CLONE 1
 //#define DEBUG_CONFIG_REMOVE
+//#define DEBUG_CONFIG_REMOVE_MORE
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -557,6 +558,52 @@ void ConfigManager::AddMeasurementModel(MeasurementModel *mModel)
    AddObject(obj);
 }
 
+//------------------------------------------------------------------------------
+// void AddTrackingSystem(TrackingSystem *ts)
+//------------------------------------------------------------------------------
+/**
+ * Adds a TrackingSystem to the configuration.
+ *
+ * @param ts Pointer to the TrackingSystem instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddTrackingSystem(TrackingSystem *ts)
+{
+   GmatBase *obj = (GmatBase*)ts;
+
+   std::string name = obj->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!obj->IsOfType(Gmat::TRACKING_SYSTEM))
+      throw ConfigManagerException(name + " is not a TrackingSystem");
+
+   AddObject(obj);
+}
+
+//------------------------------------------------------------------------------
+// void AddTrackingData(TrackingData *td)
+//------------------------------------------------------------------------------
+/**
+ * Adds a TrackingData object to the configuration.
+ *
+ * @param td Pointer to the TrackingData instance.
+ */
+//------------------------------------------------------------------------------
+void ConfigManager::AddTrackingData(TrackingData *td)
+{
+   GmatBase *obj = (GmatBase*)td;
+
+   std::string name = obj->GetName();
+   if (name == "")
+      throw ConfigManagerException("Unnamed objects cannot be managed");
+
+   if (!obj->IsOfType(Gmat::TRACKING_DATA))
+      throw ConfigManagerException(name + " is not a TrackingData object");
+
+   AddObject(obj);
+}
+
 
 //------------------------------------------------------------------------------
 // void AddMeasurementModel(MeasurementModel *mModel)
@@ -583,18 +630,18 @@ void ConfigManager::AddMeasurement(CoreMeasurement *meas)
 }
 
 
-void ConfigManager::AddDataFile(DataFile *df)
+void ConfigManager::AddDataStream(DataFile *df)
 {
-   GmatBase *obj = (GmatBase*)df;
+   //GmatBase *obj = (GmatBase*)df;
 
-   std::string name = obj->GetName();
+   std::string name = df->GetName();
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!obj->IsOfType(Gmat::DATASTREAM))
+   if (!df->IsOfType(Gmat::DATASTREAM))
       throw ConfigManagerException(name + " is not a DataFile");
 
-   AddObject(obj);
+   AddObject(df);
 }
 
 
@@ -1130,6 +1177,12 @@ bool ConfigManager::RemoveAllItems()
    {
       std::string objName = objects[i]->GetName();
       
+      #ifdef DEBUG_CONFIG_REMOVE_MORE
+      MessageInterface::ShowMessage
+         ("   deleting <%p><%s>'%s'\n", objects[i], objects[i]->GetTypeName().c_str(),
+          objects[i]->GetName().c_str());
+      #endif
+      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Remove
          (objects[i], objects[i]->GetName(), "ConfigManager::RemoveAllItems()",
@@ -1140,7 +1193,32 @@ bool ConfigManager::RemoveAllItems()
       objects[i] = NULL;
    }
    
+   #ifdef DEBUG_CONFIG_REMOVE
+   MessageInterface::ShowMessage("Deleting %d new objects\n", newObjects.size());
+   #endif
+   // delete objects that were reconfigured, ie, just object pointer reset in the map
+   for (unsigned int i=0; i<newObjects.size(); i++)
+   {
+      std::string objName = newObjects[i]->GetName();
+      
+      #ifdef DEBUG_CONFIG_REMOVE_MORE
+      MessageInterface::ShowMessage
+         ("   deleting <%p><%s>'%s'\n", newObjects[i], newObjects[i]->GetTypeName().c_str(),
+          newObjects[i]->GetName().c_str());
+      #endif
+      
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (newObjects[i], newObjects[i]->GetName(), "ConfigManager::RemoveAllItems()",
+          " deleting configured obj");
+      #endif
+      
+      delete newObjects[i];
+      newObjects[i] = NULL;
+   }
+   
    objects.clear();
+   newObjects.clear();
    mapping.clear();
    
    return true;
@@ -1275,9 +1353,12 @@ bool ConfigManager::ReconfigureItem(GmatBase *newobj, const std::string &name)
              newobj);
          #endif
          
-         if (obj->GetTypeName() == newobj->GetTypeName())
+         //if (obj->GetTypeName() == newobj->GetTypeName())
+         // We want to replace if classsified as the same sub type
+         if (newobj->IsOfType(obj->GetTypeName()))
          {
             mapping[name] = newobj;
+            newObjects.push_back(newobj);
             return true;
          }
       }
@@ -1765,7 +1846,65 @@ MeasurementModel* ConfigManager::GetMeasurementModel(const std::string &name)
    return mm;
 }
 
+//------------------------------------------------------------------------------
+// TrackingSystem* GetTrackingSystem(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingSystem from the configuration
+ *
+ * @param name The name of the TrackingSystem
+ *
+ * @return A pointer to the TrackingSystem, or NULL if it was not found
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* ConfigManager::GetTrackingSystem(const std::string &name)
+{
+   TrackingSystem *obj = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::TRACKING_SYSTEM))
+      {
+         obj = (TrackingSystem *)mapping[name];
+      }
+   }
+   return obj;
+}
 
+//------------------------------------------------------------------------------
+// TrackingData* GetTrackingData(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a TrackingData object from the configuration
+ *
+ * @param name The name of the TrackingData object
+ *
+ * @return A pointer to the TrackingData object, or NULL if it was not found
+ */
+//------------------------------------------------------------------------------
+TrackingData* ConfigManager::GetTrackingData(const std::string &name)
+{
+   TrackingData *obj = NULL;
+   if (mapping.find(name) != mapping.end())
+   {
+      if (mapping[name]->IsOfType(Gmat::TRACKING_DATA))
+      {
+         obj = (TrackingData *)mapping[name];
+      }
+   }
+   return obj;
+}
+
+//------------------------------------------------------------------------------
+// DataFile* GetDataStream(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a DataFile object.
+ *
+ * @param name The name of the object.
+ *
+ * @return A pointer to the object.
+ */
+//------------------------------------------------------------------------------
 DataFile* ConfigManager::GetDataStream(const std::string &name)
 {
    DataFile *df = NULL;

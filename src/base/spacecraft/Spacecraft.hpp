@@ -46,23 +46,15 @@ public:
    // Destructor
    virtual              ~Spacecraft();
 
-   CoordinateSystem*    GetInternalCoordSystem();
+   virtual void         SetSolarSystem(SolarSystem *ss);
    void                 SetInternalCoordSystem(CoordinateSystem *cs);
+   CoordinateSystem*    GetInternalCoordSystem();
    
    void                 SetState(const Rvector6 &cartState);
    void                 SetState(const std::string &elementType, Real *instate);
    void                 SetState(const Real s1, const Real s2, const Real s3, 
                                  const Real s4, const Real s5, const Real s6);
-
-   //void	SetCovariance(const Rvector6 &diagCovar);
-   //void	SetCovariance(const Real &c11, const Real &c22, const Real &c33,
-   //		      const Real &c44, const Real &c55, const Real &c66);
-   //void	SetCovariance(const LaGenMatDouble &cov);
-   //void	SetCovariance(Real* &cov, const Integer &m, const Integer &n);
- 
    
-   //virtual PropCovar&   GetCovariance();
-      
    virtual GmatState&   GetState();
    virtual Rvector6     GetState(std::string rep);
    virtual Rvector6     GetState(Integer rep);
@@ -72,9 +64,10 @@ public:
    
    Anomaly              GetAnomaly() const;
    
-   Rmatrix33            GetAttitude(Real a1mjdTime) const;
-   Rvector3             GetAngularVelocity(Real a1mjdTime) const;
-   UnsignedIntArray     GetEulerAngleSequence() const;
+   const Rmatrix33&     GetAttitude(Real a1mjdTime) const;
+   const Rvector3&      GetAngularVelocity(Real a1mjdTime) const;
+   const UnsignedIntArray&
+                        GetEulerAngleSequence() const;
    
    // inherited from GmatBase
    virtual GmatBase*    Clone(void) const;
@@ -103,6 +96,7 @@ public:
    
    virtual bool         IsParameterReadOnly(const Integer id) const;
    virtual bool         IsParameterReadOnly(const std::string &label) const;
+   virtual bool         ParameterAffectsDynamics(const Integer id) const;
    
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         GetRealParameter(const std::string &label) const;
@@ -120,7 +114,7 @@ public:
    virtual bool         SetStringParameter(const std::string &label, 
                                            const std::string &value,
                                            const Integer index);
-   
+
    virtual const Rmatrix&
                         GetRmatrixParameter(const Integer id) const;
    virtual const Rmatrix&
@@ -133,8 +127,8 @@ public:
                                             const Rmatrix &value);
    virtual Real         GetRealParameter(const Integer id, const Integer row,
                                          const Integer col) const;
-   virtual Real         GetRealParameter(const std::string &label,
-                                         const Integer row,
+   virtual Real         GetRealParameter(const std::string &label, 
+                                         const Integer row, 
                                          const Integer col) const;
    virtual Real         SetRealParameter(const Integer id, const Real value,
                                          const Integer row, const Integer col);
@@ -169,11 +163,20 @@ public:
    void SetState(const std::string &type, const Rvector6 &cartState);
    void SetAnomaly(const std::string &type, const Anomaly &ta);
    
-   virtual Integer         SetPropItem(std::string propItem);
+   virtual Integer         GetPropItemID(const std::string &whichItem);
+   virtual Integer         SetPropItem(const std::string &propItem);
    virtual StringArray     GetDefaultPropItems();
-   virtual Real*           GetPropItem(Integer item);
-   virtual Integer         GetPropItemSize(Integer item);
+   virtual Real*           GetPropItem(const Integer item);
+   virtual Integer         GetPropItemSize(const Integer item);
 
+   virtual bool            IsEstimationParameterValid(const Integer id);
+   virtual Integer         GetEstimationParameterSize(const Integer id);
+   virtual Real*           GetEstimationParameterValue(const Integer id);
+
+   virtual bool            HasDynamicParameterSTM(Integer parameterId);
+   virtual Rmatrix*        GetParameterSTM(Integer parameterId);
+   virtual Integer         HasParameterCovariances(Integer parameterId);
+//   virtual Rmatrix*        GetParameterCovariances(Integer parameterId);
 
 protected:
    enum SC_Param_ID 
@@ -203,10 +206,12 @@ protected:
       SRP_AREA_ID,
       FUEL_TANK_ID, 
       THRUSTER_ID, 
-      TOTAL_MASS_ID, 
+      TOTAL_MASS_ID,
+      SPACECRAFT_ID,
       ATTITUDE,
       ORBIT_STM,
-
+//      ORBIT_COVARIANCE,
+      
       // special parameter to handle in GmatFunction
       UTC_GREGORIAN,
 
@@ -217,28 +222,7 @@ protected:
       CARTESIAN_VX,
       CARTESIAN_VY,
       CARTESIAN_VZ,
-
-      COVARIANCE11_ID,
-      COVARIANCE22_ID,
-      COVARIANCE33_ID,
-      COVARIANCE44_ID,
-      COVARIANCE55_ID,
-      COVARIANCE66_ID,
-      COVARIANCE12_ID,
-      COVARIANCE13_ID,
-      COVARIANCE14_ID,
-      COVARIANCE15_ID,
-      COVARIANCE16_ID,
-      COVARIANCE23_ID,
-      COVARIANCE24_ID,
-      COVARIANCE25_ID,
-      COVARIANCE26_ID,
-      COVARIANCE34_ID,
-      COVARIANCE35_ID,
-      COVARIANCE36_ID,
-      COVARIANCE45_ID,
-      COVARIANCE46_ID,
-      COVARIANCE56_ID,
+      MASS_FLOW,
 
       SpacecraftParamCount
    };
@@ -275,7 +259,7 @@ protected:
       EQ_PNY,
       EQ_PNX,
       EQ_MLONG, 
-      EndMultipleReps    
+      EndMultipleReps
    };
    // these are the corresponding strings
    static const std::string MULT_REP_STRINGS[EndMultipleReps - CART_X];
@@ -325,12 +309,20 @@ protected:
    std::string       anomalyType;
    Anomaly           trueAnomaly;
    
+   /// Solar system now needed to set to cloned Thruster
+   SolarSystem       *solarSystem;
    /// Base coordinate system for the Spacecraft
    CoordinateSystem  *internalCoordSystem;
    /// Coordinate system used for the input and output to the GUI
    CoordinateSystem  *coordinateSystem;
    
    std::string       coordSysName;
+
+   /// coordinate system map to be used for Thrusters for now
+   std::map<std::string, CoordinateSystem*> coordSysMap;
+   
+   /// Spacecraft ID Used in estimation, measuremetn data files, etc
+   std::string       spacecraftId;
    
    /// Pointer to the object that manages the attitude of the spacecraft
    Attitude          *attitude;
@@ -351,19 +343,30 @@ protected:
    /// Dry mass plus fuel masses, a calculated parameter
    Real              totalMass;
    
-   // New constructs needed to preserve interfaces
+   /// New constructs needed to preserve interfaces
    Rvector6          rvState;
-
+   
    bool              initialDisplay;
    bool              csSet;
+   bool              isThrusterSettingMode;
 
    /// The orbit State Transition Matrix
    Rmatrix           orbitSTM;
 
-   // protected methods
+   /// Toggle to making Cart state dynamic; Integer to handle multiple includes
+   Integer           includeCartesianState;
+
+   // Hardware 
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
-   
+   bool              ApplyTotalMass(Real newMass);
+   void              DeleteOwnedObjects(bool deleteAttitude, bool deleteTanks,
+                                        bool deleteThrusters);
+   void              CloneOwnedObjects(Attitude *att, const ObjectArray &tnks,
+                                       const ObjectArray &thrs);
+   void              AttachTanksToThrusters();
+   bool              SetHardware(GmatBase *obj, StringArray &hwNames,
+                                 ObjectArray &hwArray);
    virtual void      WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
                         std::stringstream &stream);
                                 
@@ -377,6 +380,7 @@ protected:
    Integer           LookUpLabel(const std::string &label, std::string &rep);
    Integer           LookUpID(const Integer id, std::string &label, std::string &rep);
    void              BuildElementLabelMap();
+   void              RecomputeStateAtEpoch(const GmatEpoch &toEpoch);
 };
 
 #endif // Spacecraft_hpp

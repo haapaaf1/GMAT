@@ -52,8 +52,7 @@ public:
 //      A1Date& operator+= (const Real seconds);
 //      A1Date  operator-  (const Real seconds) const;
 //      A1Date& operator-= (const Real seconds);
-
-    
+   
 //     GmatTimeUtil::CalDate ToUtcDate() const;
 
 protected:

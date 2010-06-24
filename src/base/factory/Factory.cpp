@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            Factory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -43,30 +43,6 @@ GmatBase* Factory::CreateObject(const std::string &ofType,
                                 const std::string &withName)
 {
    throw FactoryException("Generic factory creation method not implemented");
-}
-
-//------------------------------------------------------------------------------
-//  Sensor* CreateSensor(const std::string &ofType, const std::string &withName)
-//------------------------------------------------------------------------------
-/**
- * Must be implemented by derived classes that create Sensor objects -
- * in that case, it returns a new Sensor object.  Otherwise, it
- * throws an exception indicating that the class does not create objects of
- * type Sensor.
- *
- * @param <ofType>   specific type of Sensor object to create.
- * @param <withName> name to give to the newly created Sensor object.
- *
- * @return pointer to a new Sensor object.
- *
- * @exception <FactoryException> thrown if the factory does not create
- * objects of type Spacecraft.
- */
-//------------------------------------------------------------------------------
-Sensor* Factory::CreateSensor(const std::string &ofType,
-                                   const std::string &withName)
-{
-   throw FactoryException("requested object must be of type Sensor");
 }
 
 //------------------------------------------------------------------------------
@@ -475,6 +451,31 @@ Subscriber* Factory::CreateSubscriber(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
+//  EphemerisFile* CreateEphemerisFile(const std::string &ofType, 
+//                                     const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Must be implemented by derived classes that create  EphemerisFile objects -
+ * in that case, it returns a new  EphemerisFile object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type  EphemerisFile.
+ *
+ * @param <ofType>   specific type of  EphemerisFile object to create.
+ * @param <withName> name to give to the newly created  EphemerisFile object.
+ *
+ * @return pointer to a new  EphemerisFile object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ * objects of type  EphemerisFile.
+ */
+//------------------------------------------------------------------------------
+EphemerisFile* Factory::CreateEphemerisFile(const std::string &ofType,
+                                            const std::string &withName)
+{
+   throw FactoryException("requested object must be of type EphemerisFile");
+}
+
+//------------------------------------------------------------------------------
 //  GmatCommand* CreateCommand(const std::string &ofType,
 //                             const std::string &withName)
 //------------------------------------------------------------------------------
@@ -760,11 +761,11 @@ CoreMeasurement* Factory::CreateMeasurement(const std::string & ofType,
 
 
 //------------------------------------------------------------------------------
-// DataFile* Factory::CreateDataFile(const std::string & ofType,
+// DataFile* Factory::CreateDataStream(const std::string & ofType,
 //                                   const std::string & withName)
 //------------------------------------------------------------------------------
 /**
- * Creates a DataFile object.
+ * Creates a DataStream object.
  *
  * Must be implemented by derived classes that create DataFile objects -
  * in that case, it returns a new DataFile object.  Otherwise, it
@@ -780,11 +781,11 @@ CoreMeasurement* Factory::CreateMeasurement(const std::string & ofType,
  *                               objects of type DataFile.
  */
 //------------------------------------------------------------------------------
-DataFile* Factory::CreateDataFile(const std::string & ofType,
+DataFile* Factory::CreateDataStream(const std::string & ofType,
                                   const std::string & withName)
 {
    throw FactoryException
-      ("Factory::CreateDataFile() must be implemented by a DataFileFactory\n");
+      ("Factory::CreateDataStream() must be implemented by a DataFileFactory\n");
 }
 
 
@@ -843,6 +844,64 @@ Event* Factory::CreateEvent(const std::string &ofType, const std::string &withNa
 }
 
 
+//------------------------------------------------------------------------------
+// TrackingSystem* Factory::CreateTrackingSystem(const std::string &ofType,
+//                                         const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a TrackingSystem object.
+ *
+ * Must be implemented by derived classes that create TrackingSystem objects -
+ * in that case, it returns a new TrackingSystem object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type TrackingSystem.
+ *
+ * @param <ofType>   specific type of TrackingSystem object to create.
+ * @param <withName> name to give to the newly created TrackingSystem object.
+ *
+ * @return pointer to a new TrackingSystem object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type TrackingSystem.
+ */
+//------------------------------------------------------------------------------
+TrackingSystem* Factory::CreateTrackingSystem(const std::string &ofType,
+         const std::string &withName)
+{
+   throw FactoryException
+      ("Factory::CreateTrackingSystem() must be implemented by a "
+               "TrackingSystemFactory\n");
+}
+
+
+//------------------------------------------------------------------------------
+// TrackingData* Factory::CreateTrackingData(const std::string &ofType,
+//                                         const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Creates a TrackingData object.
+ *
+ * Must be implemented by derived classes that create TrackingData objects -
+ * in that case, it returns a new TrackingData object.  Otherwise, it
+ * throws an exception indicating that the class does not create objects of
+ * type TrackingData.
+ *
+ * @param <ofType>   specific type of TrackingData object to create.
+ * @param <withName> name to give to the newly created TrackingData object.
+ *
+ * @return pointer to a new TrackingData object.
+ *
+ * @exception <FactoryException> thrown if the factory does not create
+ *                               objects of type TrackingData.
+ */
+//------------------------------------------------------------------------------
+TrackingData* Factory::CreateTrackingData(const std::string &ofType,
+         const std::string &withName)
+{
+   throw FactoryException
+      ("Factory::CreateTrackingData() must be implemented by a "
+               "TrackingDataFactory\n");
+}
 
 //------------------------------------------------------------------------------
 //  StringArray GetListOfCreatableObjects(void) const

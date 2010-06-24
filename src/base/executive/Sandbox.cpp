@@ -349,11 +349,11 @@ bool Sandbox::AddTriggerManagers(const std::vector<TriggerManager*> *trigs)
       delete triggerManagers[i];
    triggerManagers.clear();
 
-//   #ifdef DEBUG_INITIALIZATION
+   #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("Sandbox received %d trigger managers\n",
             trigs->size());
-//   #endif
-
+   #endif
+   
    for (UnsignedInt i = 0; i < trigs->size(); ++i)
    {
       TriggerManager *trigMan = (*trigs)[i]->Clone();

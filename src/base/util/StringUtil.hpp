@@ -49,6 +49,7 @@ namespace GmatStringUtil
    std::string ReplaceName(const std::string &str, const std::string &from,
                            const std::string &to);
    
+   std::string ToString(const bool &val);
    std::string ToString(const Real &val, Integer precision, bool showPoint = false,
                         Integer width = 1);
    std::string ToString(const Integer &val, Integer width);

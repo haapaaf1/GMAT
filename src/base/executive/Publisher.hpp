@@ -35,7 +35,6 @@ public:
    bool UnsubscribeAll();
    
    bool Publish(GmatBase *provider, Integer id, Real *data, Integer count);
-   bool Publish(Integer id, Real *data, Integer count);
    bool Publish(Integer id, char *data, Integer count = 0);
    bool Publish(Integer id, Integer *data, Integer count);
    
@@ -56,13 +55,20 @@ public:
    
    // Interfaces used to update the state of the running system
    void                 SetRunState(const Gmat::RunState state);
-   void                 SetManeuvering(bool flag, Real epoch,
+   
+   void                 SetManeuvering(GmatBase *originator,
+                                       bool flag, Real epoch,
                                        const std::string &satNames,
                                        const std::string &desc);
-   void                 SetManeuvering(bool flag, Real epoch,
+   void                 SetManeuvering(GmatBase *originator,
+                                       bool flag, Real epoch,
                                        const StringArray &satNames,
                                        const std::string &desc);
    bool                 GetManeuvering();
+   
+   void                 SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                             const std::string &satName,
+                                             const std::string &desc);
    
    CoordinateSystem* GetInternalCoordSystem() { return internalCoordSystem; }
    CoordinateSystem* GetDataCoordSystem() { return dataCoordSystem; }
@@ -75,9 +81,9 @@ private:
    /// List of the subscribers
    std::list<Subscriber*>   subscriberList;
    /// Index used to identify number of registered data providers
-   Integer                  providerID;
+   Integer                  providerId;
    /// ID for the current data provider
-   Integer                  currentProvider;
+   Integer                  currProviderId;
    /// Arrays used to track objects for published data
    std::vector<StringArray> objectArray;
    /// Arrays used to track elements for published data
@@ -111,7 +117,7 @@ private:
    /// published data map
    std::map<GmatBase*, std::vector<DataType>* > providerMap;
    
-   void                 UpdateProviderID(Integer newId);
+   void                 UpdateProviderId(Integer newId);
    
    // for debug
    void                 ShowSubscribers();

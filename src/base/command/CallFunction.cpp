@@ -936,7 +936,7 @@ bool CallFunction::Initialize()
       // Open Matlab engine first
       matlabIf = MatlabInterface::Instance();
       if (!matlabIf->IsOpen())
-         matlabIf->Open();
+         matlabIf->Open("GmatMatlab");
       
       #ifdef DEBUG_CALL_FUNCTION_INIT
       MessageInterface::ShowMessage("   Found %d matlab path\n", paths.size());
@@ -1089,7 +1089,8 @@ bool CallFunction::Execute()
          BuildCommandSummary(true);
          
          #ifdef DEBUG_CALL_FUNCTION_EXEC
-         MessageInterface::ShowMessage("CallFunction::Execute() exiting with %d\n", status);
+         MessageInterface::ShowMessage
+            ("CallFunction::Execute() MatlabFunction exiting with %d\n", status);
             #ifdef DEBUG_OBJECT_MAP
             ShowObjectMaps("object maps at the end");
             #endif
@@ -1116,7 +1117,8 @@ bool CallFunction::Execute()
    BuildCommandSummary(true);
    
    #ifdef DEBUG_CALL_FUNCTION_EXEC
-      MessageInterface::ShowMessage("CallFunction::Execute() exiting with %d\n", status);
+      MessageInterface::ShowMessage
+         ("CallFunction::Execute() GmatFunction exiting with %d\n", status);
       #ifdef DEBUG_OBJECT_MAP
       ShowObjectMaps("object maps at the end");
       #endif
@@ -1174,7 +1176,7 @@ bool CallFunction::ExecuteMatlabFunction()
    #ifdef DEBUG_MATLAB_EXEC
    MessageInterface::ShowMessage(".....Opening Matlab Engine\n");
    #endif
-   matlabIf->Open();
+   matlabIf->Open("GmatMatlab");
    
    // set format long so that we don't loose precision between string transmission
    #ifdef DEBUG_MATLAB_EXEC

@@ -28,7 +28,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include <algorithm>			// Required for GCC 4.3
+#include <algorithm>                    // Required for GCC 4.3
 
 #ifndef _MSC_VER  // if not Microsoft Visual C++
 #include <dirent.h>
@@ -402,6 +402,8 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       {
          if (type == "RUN_MODE" && name == "TESTING")
             GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
+         else if (type == "MATLAB_MODE" && name == "SINGLE")
+            GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SINGLE_USE);
          else
             AddFileType(type, name);
       }
@@ -410,14 +412,14 @@ void FileManager::ReadStartupFile(const std::string &fileName)
             ("FileManager::ReadStartupFile() the VERSION not found.\n"
              "It no longer can read old startup file.\n");
    } // end While()
-
+   
    // add potential files by type names
    AddAvailablePotentialFiles();
-
+   
    // save good startup file
    mStartupFileDir = tmpStartupDir;
    mStartupFileName = tmpStartupFile;
-
+   
    // now use log file from the startup file
    MessageInterface::SetLogFile(GetAbsPathname("LOG_FILE"));
    MessageInterface::SetLogEnable(true);

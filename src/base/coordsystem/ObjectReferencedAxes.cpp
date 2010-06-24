@@ -17,7 +17,9 @@
  *
  */
 //------------------------------------------------------------------------------
-
+#include <sstream>
+#include <iomanip>
+#include <algorithm>                    // Required by GCC 4.3
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
 #include "ObjectReferencedAxes.hpp"
@@ -25,8 +27,6 @@
 #include "CoordinateSystemException.hpp"
 
 #include "MessageInterface.hpp"
-
-#include <algorithm>                    // Required by GCC 4.3
 
 //#define DEBUG_OR_AXES
 //#define DEBUG_ROT_MATRIX
@@ -805,23 +805,23 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    if (!useAsSecondary)  useAsSecondary = origin;
    Rvector6 rv     = useAsSecondary->GetMJ2000State(atEpoch) -
                      primary->GetMJ2000State(atEpoch);
-#ifdef DEBUG_ROT_MATRIX
-   if (visitCount == 0)
-   {
-      MessageInterface::ShowMessage(" ------------ rv Primary to Secondary = %s\n",
-            rv.ToString().c_str());
-      visitCount++;
-   }
-#endif
+   #ifdef DEBUG_ROT_MATRIX
+      if (visitCount == 0)
+      {
+         MessageInterface::ShowMessage(" ------------ rv Primary to Secondary = %s\n",
+               rv.ToString().c_str());
+         visitCount++;
+      }
+   #endif
 
-#ifdef DEBUG_ROT_MATRIX
-   if (visitCount == 0)
-   {
-      cout.precision(30);
-      cout << " ----------------- rv Earth to Moon (truncated)    = " << rv << endl;
-      visitCount++;
-   }
-#endif
+   #ifdef DEBUG_ROT_MATRIX
+      if (visitCount == 0)
+      {
+         cout.precision(30);
+         cout << " ----------------- rv Earth to Moon (truncated)    = " << rv << endl;
+         visitCount++;
+      }
+   #endif
 
    Rvector3 a     =  useAsSecondary->GetMJ2000Acceleration(atEpoch) -
                      primary->GetMJ2000Acceleration(atEpoch);
@@ -989,21 +989,23 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    rotDotMatrix(2,1) = yDot(2);
    rotDotMatrix(2,2) = zDot(2);
 
-#ifdef DEBUG_ROT_MATRIX
-   MessageInterface::ShowMessage
-      ("rotMatrix=%s\n", rotMatrix.ToString().c_str());
-   cout.setf(ios::fixed);
-   cout.precision(30);
-   cout << " ----------------- rotMatrix    = " << rotMatrix << endl;
-   cout.setf(ios::scientific);
-   cout << " ----------------- rotDotMatrix = " << rotDotMatrix << endl;
-#endif
+   #ifdef DEBUG_ROT_MATRIX
+      MessageInterface::ShowMessage
+         ("rotMatrix=%s\n", rotMatrix.ToString().c_str());
+      cout.setf(ios::fixed);
+      cout.precision(30);
+      cout << " ----------------- rotMatrix    = " << rotMatrix << endl;
+      cout.setf(ios::scientific);
+      cout << " ----------------- rotDotMatrix = " << rotDotMatrix << endl;
+   #endif
 
-   // Check for orthogonality - is this correct?
-   // orthonormal instead? accuracy (tolerance)?
-   //if (!rotMatrix.IsOrthogonal(1.0e-15))
-   if (!rotMatrix.IsOrthogonal(1.0e-14))
-      throw CoordinateSystemException(
-         "Object referenced axes definition does not result in an "
-         "orthogonal system\n\nrotMatrix =\n" + rotMatrix.ToString(16, 20));
+//      if (!rotMatrix.IsOrthogonal(1.0e-14))
+   if (!rotMatrix.IsOrthonormal(1.0e-14))   // switch to orthonormal per S. Hughes 2010.02.12 wcs
+   {
+      std::stringstream errmsg("");
+      errmsg << "Object referenced axes definition does not result in an orthonormal system ";
+      errmsg << "(tolerance on orthonormality is 1e-14).  " << std::endl;
+      errmsg << "The rotation matrix is : " <<std::endl << rotMatrix.ToString(16, 20) << std::endl;
+      throw CoordinateSystemException(errmsg.str());
+   }
 }

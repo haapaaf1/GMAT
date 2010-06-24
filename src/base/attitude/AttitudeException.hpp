@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              AttitudeException
 //------------------------------------------------------------------------------
@@ -20,16 +20,13 @@
 #define AttitudeException_hpp
 
 #include "gmatdefs.hpp"
-#include "BaseException.hpp"
+#include "BaseException.hpp" // inheriting class's header file
 
-class GMAT_API AttitudeException : public BaseException
+class AttitudeException : public BaseException
 {
 public:
 
    AttitudeException(std::string details = "");
-
-protected:
-
-private:
+   ~AttitudeException();
 };
 #endif /*AttitudeException_hpp*/

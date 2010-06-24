@@ -69,6 +69,7 @@ Integer TimeConverterUtil::GetTimeTypeID(std::string &str)
  *
  * @return Converted time from the specific data format 
  */
+//---------------------------------------------------------------------------
 Real TimeConverterUtil::Convert(const Real origValue,
                                 const Integer fromType,
                                 const Integer toType,
@@ -174,11 +175,10 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
     case TimeConverterUtil::UT1:
     {
         if (theEopFile == NULL)
-           throw TimeFileException(
-                 "EopFile is unknown\n");
-   
+           throw TimeFileException("EopFile is unknown\n");
+        
         Real offsetValue = 0;
-  
+        
         if (refJd != GmatTimeUtil::JD_NOV_17_1858)
         {
            offsetValue = GmatTimeUtil::JD_NOV_17_1858 - refJd;
@@ -187,7 +187,7 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
         Real ut1Offset = theEopFile->GetUt1UtcOffset(origValue + offsetValue);
         Real utcOffset = theEopFile->GetUt1UtcOffset((origValue + offsetValue)
             - (ut1Offset/GmatTimeUtil::SECS_PER_DAY));
-    
+        
         return (TimeConverterUtil::ConvertToTaiMjd(TimeConverterUtil::UTCMJD,
                  (origValue - (utcOffset/GmatTimeUtil::SECS_PER_DAY)), refJd));
     }
@@ -445,27 +445,35 @@ void TimeConverterUtil::GetTimeSystemAndFormat(const std::string &type,
 
 
 //---------------------------------------------------------------------------
-// std::string TimeConverterUtil::ConvertMjdToGregorian(const Real mjd)
+// std::string ConvertMjdToGregorian(const Real mjd, Integer format = 1)
 //---------------------------------------------------------------------------
-std::string TimeConverterUtil::ConvertMjdToGregorian(const Real mjd)
+/**
+ * Converts MJD to Gregorian date format.
+ *
+ * @param  format    1 = "01 Jan 2000 11:59:28.000"
+ *                   2 = "2000-01-01T11:59:28.000"
+ */
+//---------------------------------------------------------------------------
+std::string TimeConverterUtil::ConvertMjdToGregorian(const Real mjd,
+                                                     Integer format)
 {
    A1Mjd a1Mjd(mjd);
    A1Date a1Date = a1Mjd.ToA1Date();
-   GregorianDate gregorianDate(&a1Date);
-    #ifdef DEBUG_GREGORIAN
+   GregorianDate gregorianDate(&a1Date, format);
+   #ifdef DEBUG_GREGORIAN
        MessageInterface::ShowMessage("------ In ConvertMjdToGregorian\n");
        MessageInterface::ShowMessage("------ input mjd     = %.18lf\n", mjd);
        MessageInterface::ShowMessage("------ A1Date        = %s\n", 
           (a1Date.ToPackedCalendarString()).c_str());
        MessageInterface::ShowMessage("------ GregorianDate = %s\n", 
           (gregorianDate.GetDate()).c_str());
-    #endif
+   #endif
    return gregorianDate.GetDate();
 }
 
 
 //---------------------------------------------------------------------------
-// Real TimeConverterUtil::ConvertGregorianToMjd(const std::string &greg)
+// Real ConvertGregorianToMjd(const std::string &greg)
 //---------------------------------------------------------------------------
 Real TimeConverterUtil::ConvertGregorianToMjd(const std::string &greg)
 {
@@ -526,7 +534,7 @@ Real TimeConverterUtil::ConvertGregorianToMjd(const std::string &greg)
 //---------------------------------------------------------------------------
 // void Convert(const std::string &fromType, Real fromMjd,
 //              const std::string &fromStr, const std::string &toType,
-//              Real &toMjd, std::string &toStr)
+//              Real &toMjd, std::string &toStr, Integer format = 1)
 //---------------------------------------------------------------------------
 /*
  * Converts input time and time format to output format. If input fromMjd
@@ -537,13 +545,15 @@ Real TimeConverterUtil::ConvertGregorianToMjd(const std::string &greg)
  * @param  fromStr   input time in string to be used if fromMjd is -999.999
  * @param  toType    output time system and format (A1ModJulian, etc)
  * @param  toMjd     output time in mjd Real if toType is ModJulian, -999.999 otherwise
- * @param  toStr     output time string in toType format
+ * @param  toStr     output time string in toType format (1)
+ * @param  format    1 = "01 Jan 2000 11:59:28.000"
+ *                   2 = "2000-01-01T11:59:28.000"
  */
 //---------------------------------------------------------------------------
 void TimeConverterUtil::Convert(const std::string &fromType, Real fromMjd, 
                                 const std::string &fromStr,
                                 const std::string &toType, Real &toMjd,
-                                std::string &toStr)
+                                std::string &toStr, Integer format)
 {
    #ifdef DEBUG_TIME_CONVERT
    MessageInterface::ShowMessage
@@ -638,7 +648,7 @@ void TimeConverterUtil::Convert(const std::string &fromType, Real fromMjd,
    if (toFormat == "ModJulian")
       toStr = GmatStringUtil::ToString(toMjd, timePrecision);
    else
-      toStr = TimeConverterUtil::ConvertMjdToGregorian(toMjd);
+      toStr = TimeConverterUtil::ConvertMjdToGregorian(toMjd, format);
    
    #ifdef DEBUG_TIME_CONVERT
    MessageInterface::ShowMessage
@@ -653,7 +663,6 @@ void TimeConverterUtil::Convert(const std::string &fromType, Real fromMjd,
 //---------------------------------------------------------------------------
 bool TimeConverterUtil::ValidateTimeSystem(std::string sys)
 {
-   //for (Integer i = 0; i < 13; ++i)
    for (Integer i = 0; i < TimeSystemCount; ++i)
       if (TIME_SYSTEM_TEXT[i] == sys)
          return true;
@@ -688,14 +697,6 @@ bool TimeConverterUtil::ValidateTimeFormat(const std::string &format,
       if (!retval)
           throw TimeFormatException
              ("Gregorian date \"" + value + "\" is not valid.");
-      
-//       GregorianDate gregorianDate(value);
-      
-//       if (!gregorianDate.IsValid())
-//          throw TimeFormatException
-//             ("Gregorian date \"" + value + "\" is not valid.");
-      
-//       retval = true;
    }
    else if (timeFormat == "ModJulian")
    {
@@ -710,7 +711,6 @@ bool TimeConverterUtil::ValidateTimeFormat(const std::string &format,
       if (!retval)
          throw InvalidTimeException
             ("ModJulian Time \"" + value + "\" is not valid.");
-      
    }
    else
    {

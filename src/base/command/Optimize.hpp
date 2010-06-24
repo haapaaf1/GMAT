@@ -72,6 +72,9 @@ public:
 
 protected:
 
+   bool RunInternalSolver(Solver::SolverState state);
+   bool RunExternalSolver(Solver::SolverState state);
+   
    enum
    {
       OPTIMIZER_NAME = SolverBranchCommandParamCount,

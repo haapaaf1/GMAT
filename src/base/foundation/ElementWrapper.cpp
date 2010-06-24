@@ -458,7 +458,9 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
    
    Gmat::ParameterType lhsDataType = lhsWrapper->GetDataType();
    Gmat::ParameterType rhsDataType = Gmat::UNKNOWN_PARAMETER_TYPE;
-   std::string lhsTypeStr = GmatBase::PARAM_TYPE_STRING[lhsDataType];
+   std::string lhsTypeStr = "UnknownDataType";
+   if (lhsDataType != Gmat::UNKNOWN_PARAMETER_TYPE)
+      lhsTypeStr = GmatBase::PARAM_TYPE_STRING[lhsDataType];
    std::string rhsTypeStr = "UnknownDataType";
    Gmat::WrapperDataType lhsWrapperType = lhsWrapper->GetWrapperType();
    Gmat::WrapperDataType rhsWrapperType = Gmat::UNKNOWN_WRAPPER_TYPE;
@@ -606,6 +608,27 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                #ifdef DEBUG_EW_SET_VALUE
                MessageInterface::ShowMessage
                   ("   %f converted to string '%s'\n", rval, sval.c_str());
+               #endif
+               lhsWrapper->SetString(sval);
+               break;
+            }
+            else if (rhsDataType == Gmat::INTEGER_TYPE)
+            {
+               sval = GmatStringUtil::ToString(ival);
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage
+                  ("   %d converted to string '%s'\n", ival, sval.c_str());
+               #endif
+               lhsWrapper->SetString(sval);
+               break;
+            }
+            else if (rhsDataType == Gmat::BOOLEAN_TYPE)
+            {
+               sval = GmatStringUtil::ToString(bval);
+               #ifdef DEBUG_EW_SET_VALUE
+               MessageInterface::ShowMessage
+                  ("   %s converted to string '%s'\n", bval ? "true" : "false",
+                   sval.c_str());
                #endif
                lhsWrapper->SetString(sval);
                break;

@@ -55,6 +55,8 @@ StateManager::~StateManager()
          i != elements.end(); ++i)
       delete i->second;
 
+   for (UnsignedInt i = 0; i < stateMap.size(); ++i)
+      delete stateMap[i];
 }
 
 //------------------------------------------------------------------------------

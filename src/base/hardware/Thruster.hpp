@@ -19,8 +19,13 @@
 #ifndef THRUSTER_HPP
 #define THRUSTER_HPP
 
-#include "FuelTank.hpp"
 #include "Hardware.hpp"
+#include "FuelTank.hpp"
+#include "CoordinateSystem.hpp"
+#include "CelestialBody.hpp"
+
+// Declare forward reference since Spacecraft ownes Thruster
+class Spacecraft;
 
 /**
  * Thruster model used for finite maneuvers
@@ -30,6 +35,7 @@ class GMAT_API Thruster : public Hardware
 public:
    
    static const Integer COEFFICIENT_COUNT = 16;
+   static const Integer AXES_COUNT = 4;
    
    Thruster(std::string nomme);
    virtual ~Thruster();
@@ -51,8 +57,14 @@ public:
    virtual Real         GetRealParameter(const Integer id) const;
    virtual Real         SetRealParameter(const Integer id,
                                          const Real value);
+   virtual std::string  GetStringParameter(const Integer id) const;
    virtual bool         SetStringParameter(const Integer id, 
                                            const std::string &value);
+   virtual std::string  GetStringParameter(const Integer id,
+                                           const Integer index) const;
+   virtual bool         SetStringParameter(const Integer id,
+                                           const std::string &value,
+                                           const Integer index);
    virtual bool         GetBooleanParameter(const Integer id) const;
    virtual bool         SetBooleanParameter(const Integer id,
                                             const bool value);
@@ -60,7 +72,18 @@ public:
    virtual const StringArray&
                         GetStringArrayParameter(const Integer id) const; 
    
+   // for enumerated strings
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const Integer id) const;
+   virtual const StringArray&
+                        GetPropertyEnumStrings(const std::string &label) const;
+   
    // Ref. object access methods - overridden from GmatBase
+   virtual std::string  GetRefObjectName(const Gmat::ObjectType type) const;
+   virtual const ObjectTypeArray&
+                        GetRefObjectTypeArray();
+   virtual const StringArray&
+                        GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         RenameRefObject(const Gmat::ObjectType type,
                                         const std::string &oldName,
                                         const std::string &newName);
@@ -73,15 +96,36 @@ public:
    
    virtual bool         TakeAction(const std::string &action,  
                                    const std::string &actionData = "");
-
+   virtual void         SetSolarSystem(SolarSystem *ss);
    virtual bool         Initialize();
-
    Real                 CalculateMassFlow();
    
 protected:
    /// Finite burn instances access thruster data directly
    friend class FiniteBurn;
    
+   /// Solar system used to find the J2000 body, etc.
+   SolarSystem                *solarSystem;
+   /// Local Coordinate system
+   CoordinateSystem           *localCoordSystem;
+   /// Coordinate system
+   CoordinateSystem           *coordSystem;
+   /// Origin object pointer if coordinate system is set to Local
+   CelestialBody              *localOrigin;
+   /// J2000body pointer
+   CelestialBody              *j2000Body;
+   /// Secondary Spacecraft object if coordinate system is set to Local
+   Spacecraft                 *spacecraft;
+   /// Coordinate system name
+   std::string                coordSystemName;
+   /// Origin name if coordinate system is set to Local
+   std::string                localOriginName;
+   /// Axes name if coordinate system is set to Local
+   std::string                localAxesName;
+   /// Name of the J2000 body
+   std::string                j2000BodyName;
+   /// Name of the Spacecraft that has thruster
+   std::string                satName;
    /// Acceleration due to gravity, used to specify Isp in seconds
    Real                       gravityAccel;   
    /// Thrust duty cycle for this thruster
@@ -98,6 +142,8 @@ protected:
    Real                       impulse;
    /// Most recently calculated mass flow rate
    Real                       mDot;
+   /// Thrust direction projected into the inertial coordinate system
+   Real                       inertialDirection[3];
    /// Array of thrust coefficients
    Real                       cCoefficients[COEFFICIENT_COUNT];
    /// Array of specific impulse coefficients
@@ -110,6 +156,12 @@ protected:
    bool                       constantExpressions;
    /// Flag used for thrust and Isp that only use the first 3 coefficients
    bool                       simpleExpressions;
+   /// Flag indicating if local coordinate system is used
+   bool                       usingLocalCoordSys;
+   /// Flag indicating if axes is MJ2000Eq
+   bool                       isMJ2000EqAxes;
+   /// Flag indicating if axes is SpacecrftBody
+   bool                       isSpacecraftBodyAxes;
    /// Flag used to determine if the configuration needs updating
    bool                       initialized;
    /// Tank names
@@ -119,6 +171,8 @@ protected:
    /// Temporary buffer used to get ref objects
    ObjectArray                tempArray;
    
+   /// Available local axes labels
+   static  StringArray        localAxesLabels;
    /// C-coefficient units
    static  StringArray        cCoefUnits;
    /// K-coefficient units
@@ -128,6 +182,9 @@ protected:
    enum
    {
       THRUSTER_FIRING = HardwareParamCount, 
+      COORDINATE_SYSTEM,
+      ORIGIN,
+      AXES,
       DUTY_CYCLE,
       THRUST_SCALE_FACTOR,
       DECREMENT_MASS,
@@ -150,7 +207,15 @@ protected:
                         PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount];
    
    bool                 CalculateThrustAndIsp();
-     
+   bool                 SetSpacecraft(Spacecraft *sat);
+   
+   CoordinateSystem*    CreateLocalCoordinateSystem();
+   void                 ConvertDirectionToInertial(Real *dv, Real *dvInertial,
+                                                   Real epoch);
+   void                 ComputeInertialDirection(Real epoch);
+   void                 WriteDeprecatedMessage(const std::string &oldProp,
+                                               const std::string &newProp) const;
+   
 };
 
 #endif // THRUSTER_HPP

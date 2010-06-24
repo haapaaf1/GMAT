@@ -147,29 +147,23 @@ namespace Gmat
       THRUSTER,
       
       HARDWARE,            // Tanks, Thrusters, Antennae, Sensors, etc.
-      SENSOR,
-      ANTENNA,
-      RETROREFLECTOR,
-      RECEIVER,
-      TRANSMITTER,
-      TRANSCEIVER,
       COORDINATE_SYSTEM,
       AXIS_SYSTEM,
       ATTITUDE,
       MATH_NODE,
       
       MATH_TREE,
-      ESTIMATOR,
       BODY_FIXED_POINT,
-
       EVENT,
-
       // Estimation types
-      MEASUREMENT_MODEL,
+      MEASUREMENT_MODEL,   // May be replaced by TrackingSystem
       CORE_MEASUREMENT,    // For the measurement primitives
-      DATASTREAM,          // For Datafle container objects
-
+      
+      TRACKING_DATA,
+      TRACKING_SYSTEM,
+      DATASTREAM,          // For DataFile container objects      
       OBTYPE,              // For the specific observation types
+      
       UNKNOWN_OBJECT
    };
 
@@ -199,7 +193,8 @@ namespace Gmat
       ON_OFF_TYPE,
       ENUMERATION_TYPE,
       TypeCount,
-      UNKNOWN_PARAMETER_TYPE = -1
+      UNKNOWN_PARAMETER_TYPE = -1,
+      PARAMETER_REMOVED = -3,   // For parameters will be removed in the future
    };
 
    enum WrapperDataType

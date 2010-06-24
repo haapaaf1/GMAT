@@ -873,19 +873,33 @@ bool For::SetElementWrapper(ElementWrapper *toWrapper,
    }
    if (startName == withName)
    {
-      if ((startWrapper != NULL) &&
-          (find(wrappersToDelete.begin(), wrappersToDelete.end(), startWrapper) ==
-           wrappersToDelete.end()))
-         wrappersToDelete.push_back(startWrapper);
+      if (startWrapper != NULL && (startWrapper != endWrapper && startWrapper != incrWrapper))
+      {
+         if (find(wrappersToDelete.begin(), wrappersToDelete.end(), startWrapper) ==
+             wrappersToDelete.end())
+         {
+            wrappersToDelete.push_back(startWrapper);
+            #ifdef DEBUG_WRAPPER_CODE   
+            MessageInterface::ShowMessage
+               ("   Added startWrapper<%p> to delete list\n", startWrapper);
+            #endif
+         }
+      }
       startWrapper = toWrapper;
       retval = true;
    }
    if (endName == withName)
    {
-      if ((endWrapper != NULL) &&
+      if (endWrapper != NULL && endWrapper != incrWrapper &&
           (find(wrappersToDelete.begin(), wrappersToDelete.end(), endWrapper) ==
            wrappersToDelete.end()))
+      {
          wrappersToDelete.push_back(endWrapper);
+         #ifdef DEBUG_WRAPPER_CODE   
+         MessageInterface::ShowMessage
+            ("   Added endWrapper<%p> to delete list\n", endWrapper);
+         #endif
+      }
       endWrapper = toWrapper;
       retval = true;
    }
@@ -894,7 +908,13 @@ bool For::SetElementWrapper(ElementWrapper *toWrapper,
       if ((incrWrapper != NULL) &&
           (find(wrappersToDelete.begin(), wrappersToDelete.end(), incrWrapper) ==
            wrappersToDelete.end()))
+      {
          wrappersToDelete.push_back(incrWrapper);
+         #ifdef DEBUG_WRAPPER_CODE   
+         MessageInterface::ShowMessage
+            ("   Added incrWrapper<%p> to delete list\n", incrWrapper);
+         #endif
+      }
       incrWrapper = toWrapper;
       retval = true;
    }
@@ -905,6 +925,9 @@ bool For::SetElementWrapper(ElementWrapper *toWrapper,
       for (std::vector<ElementWrapper*>::iterator ewi = wrappersToDelete.begin();
            ewi < wrappersToDelete.end(); ewi++)
       {
+         #ifdef DEBUG_WRAPPER_CODE   
+         MessageInterface::ShowMessage("   About to delete wrapper<%p>\n", *ewi);
+         #endif
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             ((*ewi), (*ewi)->GetDescription(), "For::SetElementWrapper()", "deleting wrapper");
@@ -912,6 +935,15 @@ bool For::SetElementWrapper(ElementWrapper *toWrapper,
          delete (*ewi);
       }
    }
+   
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("   indexWrapper=<%p>, startWrapper=<%p>, endWrapper=<%p>, incrWrapper=<%p>\n",
+       indexWrapper, startWrapper, endWrapper, incrWrapper);
+   MessageInterface::ShowMessage
+      ("For::SetElementWrapper() this=<%p> '%s' returning %d\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str(), retval);
+   #endif
    
    return retval;
 }
@@ -928,6 +960,9 @@ void For::ClearWrappers()
        "   callingFunction=<%p> '%s'\n", this, GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
        currentFunction, currentFunction ? currentFunction->GetFunctionPathAndName().c_str() : "NULL",
        callingFunction, callingFunction ? callingFunction->GetFunctionName().c_str() : "NULL");
+   MessageInterface::ShowMessage
+      ("   indexWrapper=<%p>, startWrapper=<%p>, endWrapper=<%p>, incrWrapper=<%p>\n",
+       indexWrapper, startWrapper, endWrapper, incrWrapper);
    #endif
    
    std::vector<ElementWrapper*> temp;
@@ -939,26 +974,20 @@ void For::ClearWrappers()
    if (startWrapper)
    {
       if (find(temp.begin(), temp.end(), startWrapper) == temp.end())
-      {
          temp.push_back(startWrapper);
-         startWrapper = NULL;
-      }
+      startWrapper = NULL;
    }
    if (endWrapper)
    {
       if (find(temp.begin(), temp.end(), endWrapper) == temp.end())
-      {
          temp.push_back(endWrapper);
-         endWrapper = NULL;
-      }
+      endWrapper = NULL;
    }
    if (incrWrapper)
    {
       if (find(temp.begin(), temp.end(), incrWrapper) == temp.end())
-      {
          temp.push_back(incrWrapper);
-         incrWrapper = NULL;
-      }
+      incrWrapper = NULL;
    }
    
    ElementWrapper *wrapper;
@@ -967,6 +996,9 @@ void For::ClearWrappers()
       wrapper = temp[i];
       if (wrapper)
       {
+         #ifdef DEBUG_WRAPPER_CODE   
+         MessageInterface::ShowMessage("   About to delete wrapper<%p>\n", wrapper);
+         #endif
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (wrapper, wrapper->GetDescription(), "For::ClearWrappers()",
@@ -976,6 +1008,15 @@ void For::ClearWrappers()
          wrapper = NULL;
       }
    }
+   
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("   indexWrapper=<%p>, startWrapper=<%p>, endWrapper=<%p>, incrWrapper=<%p>\n",
+       indexWrapper, startWrapper, endWrapper, incrWrapper);
+   MessageInterface::ShowMessage
+      ("For::ClearWrappers() this=<%p> '%s' leaving\n", this,
+       GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+   #endif
 }
 
 

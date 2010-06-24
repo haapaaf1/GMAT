@@ -17,7 +17,9 @@
 
 
 #include "FuelTank.hpp"
-#include "StringUtil.hpp"     // for GmatStringUtil
+#include "StringUtil.hpp"          // for GmatStringUtil
+#include "HardwareException.hpp"
+#include "MessageInterface.hpp"
 #include <sstream>
 
 

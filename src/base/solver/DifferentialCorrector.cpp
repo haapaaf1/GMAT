@@ -47,22 +47,16 @@ const std::string
 DifferentialCorrector::PARAMETER_TEXT[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
-   //"TargeterTextFile",
-   //"Variables",
    "Goals",
-   //"MaximumIterations",
-   "UseCentralDifferences"
+   "DerivativeMethod"           //"UseCentralDifferences"
 };
 
 const Gmat::ParameterType
 DifferentialCorrector::PARAMETER_TYPE[DifferentialCorrectorParamCount -
                                       SolverParamCount] =
 {
-   //Gmat::STRING_TYPE,
-   //Gmat::STRINGARRAY_TYPE,
    Gmat::STRINGARRAY_TYPE,
-   // Gmat::INTEGER_TYPE,
-   Gmat::BOOLEAN_TYPE
+   Gmat::STRING_TYPE            //Gmat::BOOLEAN_TYPE
 };
 
 
@@ -70,17 +64,12 @@ DifferentialCorrector::PARAMETER_TYPE[DifferentialCorrectorParamCount -
 // public methods
 //---------------------------------
 
+//------------------------------------------------------------------------------
+// DifferentialCorrector(std::string name)
+//------------------------------------------------------------------------------
 DifferentialCorrector::DifferentialCorrector(std::string name) :
    Solver                  ("DifferentialCorrector", name),
-   //variableCount           (0),
    goalCount               (0),
-   //iterationsTaken         (0),
-   //maxIterations           (25),
-   //variable                (NULL),
-   //perturbation            (NULL),
-   //variableMinimum         (NULL),
-   //variableMaximum         (NULL),
-   //variableMaximumStep     (NULL),
    goal                    (NULL),
    tolerance               (NULL),
    nominal                 (NULL),
@@ -89,88 +78,72 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   useCentralDifferences   (false)  //,
-   //initialized             (false),
-   //instanceNumber          (0)       // 0 indicates 1st instance w/ this name
+   derivativeMethod                ("CentralDifference")   // useCentralDifferences   (false)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
       ("DifferentialCorrector::DC(constructor) entered\n");
    #endif
    objectTypeNames.push_back("DifferentialCorrector");
-   objectTypeNames.push_back("Targeter");  // should go in a Targeter class ...
    parameterCount = DifferentialCorrectorParamCount;
-   // textFileMode = "Verbose";
-   //solverTextFile = "targeter_";
-   //solverTextFile += instanceName;
-   //solverTextFile += ".data";
+   
+   AllowScaleFactors = false;
 }
 
 
+//------------------------------------------------------------------------------
+// DifferentialCorrector::~DifferentialCorrector()
+//------------------------------------------------------------------------------
 DifferentialCorrector::~DifferentialCorrector()
 {
    FreeArrays();
 }
 
 
+//------------------------------------------------------------------------------
+// DifferentialCorrector(const DifferentialCorrector &dc) :
+//------------------------------------------------------------------------------
 DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
    Solver                  (dc),
-   //variableCount           (dc.variableCount),
    goalCount               (dc.goalCount),
-   //iterationsTaken         (0),
-   //maxIterations           (dc.maxIterations),
-   //variable                (NULL),
-   //perturbation            (NULL),
-   //variableMinimum         (NULL),
-   //variableMaximum         (NULL),
-   //variableMaximumStep     (NULL),
    goal                    (NULL),
    tolerance               (NULL),
    nominal                 (NULL),
    achieved                (NULL),
    jacobian                (NULL),
    inverseJacobian         (NULL),
-   //pertNumber              (dc.pertNumber),
    indx                    (NULL),
    b                       (NULL),
-   useCentralDifferences   (dc.useCentralDifferences)  //,
-   //initialized             (false),
-   //solverTextFile          (dc.solverTextFile),
-   //instanceNumber          (dc.instanceNumber)
+   derivativeMethod        (dc.derivativeMethod)   // useCentralDifferences
+   //(dc.useCentralDifferences)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
       ("DifferentialCorrector::DC(COPY constructor) entered\n");
    #endif
-  //variableNames.clear(); -> Solver
-  goalNames.clear();
-
+   goalNames.clear();
+   
    parameterCount = dc.parameterCount;
 }
 
 
+//------------------------------------------------------------------------------
+// operator=(const DifferentialCorrector& dc)
+//------------------------------------------------------------------------------
 DifferentialCorrector&
-    DifferentialCorrector::operator=(const DifferentialCorrector& dc)
+   DifferentialCorrector::operator=(const DifferentialCorrector& dc)
 {
     if (&dc == this)
         return *this;
-
+    
    Solver::operator=(dc);
-
+   
    FreeArrays();
-
-   //variableNames.clear();
    goalNames.clear();
-
-   //variableCount         = dc.variableCount;
+   
    goalCount             = dc.goalCount;
-   //iterationsTaken       = 0;
-   //maxIterations         = dc.maxIterations;
-   useCentralDifferences = dc.useCentralDifferences;
-   //initialized           = false;
-   //solverTextFile        = dc.solverTextFile;
-   //instanceNumber        = dc.instanceNumber;
-   //pertNumber            = dc.pertNumber;
+   derivativeMethod        = dc.derivativeMethod;   // made a change
+   // useCentralDifferences = dc.useCentralDifferences;
 
    return *this;
 }
@@ -240,6 +213,17 @@ std::string DifferentialCorrector::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer DifferentialCorrector::GetParameterID(const std::string &str) const
 {
+   // 1. This part will be removed for a furure build: 
+   if (str == "UseCentralDifferences")
+   {
+      MessageInterface::ShowMessage
+         ("***WARNING*** \"UseCentralDifferences\" field of Differential Corrector "
+          "is deprecated and will be removed from a future build; please use "
+          "\"DerivativeMethod\" instead.\n");
+      return derivativeMethodID;
+   }
+   
+   // 2. This part is kept for a future build:  
    for (Integer i = SolverParamCount; i < DifferentialCorrectorParamCount; ++i)
    {
       if (str == PARAMETER_TEXT[i - SolverParamCount])
@@ -355,8 +339,8 @@ Integer DifferentialCorrector::SetIntegerParameter(const Integer id,
 //------------------------------------------------------------------------------
 bool DifferentialCorrector::GetBooleanParameter(const Integer id) const
 {
-    if (id == useCentralDifferencingID)
-        return useCentralDifferences;
+//    if (id == useCentralDifferencingID)
+//        return useCentralDifferences;
 
     return Solver::GetBooleanParameter(id);
 }
@@ -378,11 +362,11 @@ bool DifferentialCorrector::GetBooleanParameter(const Integer id) const
 bool DifferentialCorrector::SetBooleanParameter(const Integer id,
                                                 const bool value)
 {
-   if (id == useCentralDifferencingID)
-   {
-      useCentralDifferences = value;
-      return useCentralDifferences;
-   }
+//   if (id == useCentralDifferencingID)
+//   {
+//      useCentralDifferences = value;
+//      return useCentralDifferences;
+//   }
 
    return Solver::SetBooleanParameter(id, value);
 }
@@ -405,7 +389,10 @@ std::string DifferentialCorrector::GetStringParameter(const Integer id) const
     //if (id == solverTextFileID)
     //    return solverTextFile;
 
-    return Solver::GetStringParameter(id);
+   if (id == derivativeMethodID)
+      return derivativeMethod;
+   
+   return Solver::GetStringParameter(id);
 }
 
 
@@ -440,6 +427,18 @@ bool DifferentialCorrector::SetStringParameter(const Integer id,
         return true;
     }
 
+    if (id == derivativeMethodID)
+    {
+       if (value == "true")
+          derivativeMethod = "CentralDifference";
+       else if (value == "false")
+          derivativeMethod = "ForwardDifference";
+       else
+          derivativeMethod = value;
+       
+       return true;
+    }
+    
     return Solver::SetStringParameter(id, value);
 }
 

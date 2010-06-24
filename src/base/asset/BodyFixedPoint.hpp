@@ -1,4 +1,4 @@
-//$Id: $
+//$Id$
 //------------------------------------------------------------------------------
 //                            BodyFixedPoint
 //------------------------------------------------------------------------------
@@ -9,7 +9,7 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CA54C
 //
-// Author: Wendy C. Shoan, NASA/GSFC (moved from GroundStation code,
+// Author: Wendy C. Shoan, NASA/GSFC (moved from GroundStation code, 
 //         original author: Darrel J. Conway, Thinking Systems, Inc.)
 // Created: 2008.09.18
 //
@@ -35,32 +35,37 @@ public:
    BodyFixedPoint(const BodyFixedPoint& bfp);
    BodyFixedPoint& operator=(const BodyFixedPoint& bfp);
 
-   // Parameter access methods - overridden from GmatBase
-   virtual std::string     GetParameterText(const Integer id) const;
-   virtual Integer         GetParameterID(const std::string &str) const;
+   // Parameter access methods - overridden from GmatBase 
+   virtual std::string     GetParameterText(const Integer id) const;     
+   virtual Integer         GetParameterID(const std::string &str) const; 
    virtual Gmat::ParameterType
                            GetParameterType(const Integer id) const;
    virtual std::string     GetParameterTypeString(const Integer id) const;
 
    virtual bool            IsParameterReadOnly(const Integer id) const;
    virtual bool            IsParameterReadOnly(const std::string &label) const;
-
+   
+   virtual Gmat::ObjectType
+                           GetPropertyObjectType(const Integer id) const;
+   virtual const StringArray&
+                           GetPropertyEnumStrings(const Integer id) const;
+   
    virtual std::string     GetStringParameter(const Integer id) const;
-   virtual bool            SetStringParameter(const Integer id,
+   virtual bool            SetStringParameter(const Integer id, 
                                               const std::string &value);
    virtual std::string     GetStringParameter(const std::string &label) const;
-   virtual bool            SetStringParameter(const std::string &label,
+   virtual bool            SetStringParameter(const std::string &label, 
                                               const std::string &value);
-
-   virtual std::string     GetStringParameter(const Integer id,
+   
+   virtual std::string     GetStringParameter(const Integer id, 
                                               const Integer index) const;
-   virtual bool            SetStringParameter(const Integer id,
-                                              const std::string &value,
+   virtual bool            SetStringParameter(const Integer id, 
+                                              const std::string &value, 
                                               const Integer index);
-   virtual std::string     GetStringParameter(const std::string &label,
+   virtual std::string     GetStringParameter(const std::string &label, 
                                               const Integer index) const;
-   virtual bool            SetStringParameter(const std::string &label,
-                                              const std::string &value,
+   virtual bool            SetStringParameter(const std::string &label, 
+                                              const std::string &value, 
                                               const Integer index);
 
    virtual Real            GetRealParameter(const Integer id) const;
@@ -83,8 +88,8 @@ public:
 //   virtual Real            SetRealParameter(const std::string &label,
 //                                         const Real value,
 //                                         const Integer index);
-//   virtual Real            GetRealParameter(const std::string &label,
-//                                         const Integer row,
+//   virtual Real            GetRealParameter(const std::string &label, 
+//                                         const Integer row, 
 //                                         const Integer col) const;
 //   virtual Real            SetRealParameter(const std::string &label,
 //                                         const Real value, const Integer row,
@@ -95,26 +100,28 @@ public:
    virtual bool            SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                         const std::string &name = "");
    virtual GmatBase*       GetRefObject(const Gmat::ObjectType type,
-                                        const std::string &name,
+                                        const std::string &name, 
                                         const Integer index);
    virtual bool            SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                                        const std::string &name,
+                                        const std::string &name, 
                                         const Integer index);
 
    virtual std::string     GetRefObjectName(const Gmat::ObjectType type) const;
    virtual const StringArray&
                            GetRefObjectNameArray(const Gmat::ObjectType type);
-
+   virtual const ObjectTypeArray&
+                           GetRefObjectTypeArray();
+   
    virtual const Rvector6  GetMJ2000State(const A1Mjd &atTime);
    virtual const Rvector3  GetMJ2000Position(const A1Mjd &atTime);
    virtual const Rvector3  GetMJ2000Velocity(const A1Mjd &atTime);
-
+   
    virtual const Rvector3  GetBodyFixedLocation(const A1Mjd &atTime) const;
-   virtual CoordinateSystem*
+   virtual CoordinateSystem* 
                            GetBodyFixedCoordinateSystem() const;
 
    virtual void            SetSolarSystem(SolarSystem *ss);
-
+   
 protected:
    /// The point is attached to this body
    std::string       cBodyName;
@@ -126,9 +133,6 @@ protected:
    std::string       stateType;
    /// For geographic states, the horizon type
    std::string       horizon;
-   /// For geographic states, how the latitude angle is defined
-   /// Geodetic, geocentric, reduced
-   std::string	     latitudeGeometry;
    /// The location, in the stateType-horizon system
    Real              location[3];
    /// The Cartesian body-fixed location
@@ -147,21 +151,20 @@ protected:
    /// Converter helper
    CoordinateConverter ccvtr;
 
-
+   
    /// Conversion code used to transform from lat-long-height to body fixed
    LatLonHgt      llh;
-
+   
    Rvector3       j2000Pos;
    Rvector3       j2000Vel;
    Rvector6       j2000PosVel;
-
+   
    /// Published parameters for body-fixed points
    enum
    {
       CENTRAL_BODY = SpacePointParamCount,
       STATE_TYPE,          // Cartesian or Geographical
       HORIZON_REFERENCE,   // Sphere or Ellipsoid
-      LATITUDE_GEOMETRY,   // Geodectic, Geocentric, or Reduced
       LOCATION_1,          // X or Latitude
       LOCATION_2,          // Y or Longitude
       LOCATION_3,          // Z or Height
@@ -170,12 +173,12 @@ protected:
       LOCATION_LABEL_3,
       BodyFixedPointParamCount
    };
-
+   
    /// burn parameter labels
-   static const std::string
+   static const std::string 
       PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount];
    /// burn parameter types
-   static const Gmat::ParameterType
+   static const Gmat::ParameterType 
       PARAMETER_TYPE[BodyFixedPointParamCount - SpacePointParamCount];
 
 };

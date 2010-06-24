@@ -23,6 +23,7 @@
 #include "Linear.hpp"         // for operator<<, operator >>
 #include <stdarg.h>
 #include <sstream>
+#include <stdio.h>                 // Fix for header rearrangement in gcc 4.4
 
 //---------------------------------
 //  public

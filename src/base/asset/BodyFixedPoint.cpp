@@ -9,7 +9,7 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CA54C
 //
-// Author: Wendy C. Shoan, NASA/GSFC (moved from GroundStation code,
+// Author: Wendy C. Shoan, NASA/GSFC (moved from GroundStation code, 
 //         original author: Darrel J. Conway, Thinking Systems, Inc.)
 // Created: 2008.08.22
 //
@@ -35,13 +35,12 @@
 //---------------------------------
 
 /// Labels used for the ground station parameters.
-const std::string
+const std::string 
 BodyFixedPoint::PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount] =
    {
          "CentralBody",
          "StateType",         // Cartesian or Geographical
-         "HorizonReference",  // Sphere, Ellipsoid, or Geoid
-	 "LatitudeGeometry",  // Geodetic, Geocentric, or Reduced
+         "HorizonReference",  // Sphere or Ellipsoid
          "Location1",         // X or Latitude value
          "Location2",         // Y or Longitude value
          "Location3",         // Z or Height value
@@ -50,13 +49,12 @@ BodyFixedPoint::PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount] 
          "LOCATION_LABEL_3"   // "Z" or "Height"
    };
 
-const Gmat::ParameterType
+const Gmat::ParameterType 
 BodyFixedPoint::PARAMETER_TYPE[BodyFixedPointParamCount - SpacePointParamCount] =
    {
          Gmat::OBJECT_TYPE,
-         Gmat::STRING_TYPE,
-         Gmat::STRING_TYPE,
-	 Gmat::STRING_TYPE,
+         Gmat::ENUMERATION_TYPE,
+         Gmat::ENUMERATION_TYPE,
          Gmat::REAL_TYPE,
          Gmat::REAL_TYPE,
          Gmat::REAL_TYPE,
@@ -71,7 +69,7 @@ BodyFixedPoint::PARAMETER_TYPE[BodyFixedPointParamCount - SpacePointParamCount] 
 // public methods
 //---------------------------------
 
-
+   
 //---------------------------------------------------------------------------
 //  BodyFixedPoint(const std::string &itsName)
 //---------------------------------------------------------------------------
@@ -86,25 +84,25 @@ BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &it
    cBodyName         ("Earth"),
    theBody           (NULL),
    stateType         ("Cartesian"),
-   horizon           ("Ellipsoid"),
-   latitudeGeometry  ("Geodetic"),
+   horizon           ("Sphere"),
    solarSystem       (NULL),
    bfcsName          (""),
    bfcs              (NULL),
    mj2kcsName        (""),
    mj2kcs            (NULL)
 {
+   objectTypes.push_back(Gmat::BODY_FIXED_POINT);
    objectTypeNames.push_back("BodyFixedPoint");
    parameterCount = BodyFixedPointParamCount;
-
+   
    locationLabels.push_back("X");
    locationLabels.push_back("Y");
    locationLabels.push_back("Z");
-
+   
    location[0] = 6378.14;
    location[1] = 0.0;
    location[2] = 0.0;
-
+   
    bfLocation[0] = 6378.14;
    bfLocation[1] = 0.0;
    bfLocation[2] = 0.0;
@@ -125,7 +123,7 @@ BodyFixedPoint::~BodyFixedPoint()
 //  BodyFixedPoint(const BodyFixedPoint& bfp)
 //---------------------------------------------------------------------------
 /**
- * Constructs a new BodyFixedPoint by copying the input instance (copy
+ * Constructs a new BodyFixedPoint by copying the input instance (copy 
  * constructor).
  *
  * @param bfp  BodyFixedPoint instance to copy to create "this" instance.
@@ -138,7 +136,6 @@ BodyFixedPoint::BodyFixedPoint(const BodyFixedPoint& bfp) :
    locationLabels    (bfp.locationLabels),
    stateType         (bfp.stateType),
    horizon           (bfp.horizon),
-   latitudeGeometry  (bfp.latitudeGeometry),
    solarSystem       (NULL),
    bfcsName          (bfp.bfcsName),
    bfcs              (NULL),
@@ -148,7 +145,7 @@ BodyFixedPoint::BodyFixedPoint(const BodyFixedPoint& bfp) :
    location[0] = bfp.location[0];
    location[1] = bfp.location[1];
    location[2] = bfp.location[2];;
-
+   
    bfLocation[0] = bfp.bfLocation[0];
    bfLocation[1] = bfp.bfLocation[1];
    bfLocation[2] = bfp.bfLocation[2];
@@ -171,32 +168,33 @@ BodyFixedPoint& BodyFixedPoint::operator=(const BodyFixedPoint& bfp)
    if (&bfp != this)
    {
       SpacePoint::operator=(*this);
-
+      
       theBody        = bfp.theBody;
       locationLabels = bfp.locationLabels;
       stateType      = bfp.stateType;
       horizon        = bfp.horizon;
-      latitudeGeometry = bfp.latitudeGeometry;
       solarSystem    = bfp.solarSystem;
-      //bfcsName       = bfp.bfcsName;   // yes or no?
+      bfcsName       = bfp.bfcsName;
       //bfcs           = bfp.bfcs;       // yes or no?
-      //mj2kcsName     = bfp.mj2kcsName; // yes or no?
+      bfcs           = NULL;
+      mj2kcsName     = bfp.mj2kcsName;
       //mj2kcs         = bfp.mj2kcs;     // yes or no?
+      mj2kcs         = NULL;
 
       location[0]    = bfp.location[0];
       location[1]    = bfp.location[1];
       location[2]    = bfp.location[2];;
-
+      
       bfLocation[0]  = bfp.bfLocation[0];
       bfLocation[1]  = bfp.bfLocation[1];
       bfLocation[2]  = bfp.bfLocation[2];
    }
-
+   
    return *this;
 }
 
 
-// Parameter access methods - overridden from GmatBase
+// Parameter access methods - overridden from GmatBase 
 
 //------------------------------------------------------------------------------
 //  std::string  GetParameterText(const Integer id) const
@@ -232,19 +230,19 @@ Integer BodyFixedPoint::GetParameterID(const std::string &str) const
    // Handle 3 special cases
    if (str == locationLabels[0])
       return LOCATION_1;
-
+   
    if (str == locationLabels[1])
       return LOCATION_2;
-
+   
    if (str == locationLabels[2])
       return LOCATION_3;
-
+   
    for (Integer i = SpacePointParamCount; i < BodyFixedPointParamCount; i++)
    {
       if (str == PARAMETER_TEXT[i - SpacePointParamCount])
          return i;
    }
-
+   
    return SpacePoint::GetParameterID(str);
 }
 
@@ -263,7 +261,7 @@ Gmat::ParameterType BodyFixedPoint::GetParameterType(const Integer id) const
 {
    if (id >= SpacePointParamCount && id < BodyFixedPointParamCount)
       return PARAMETER_TYPE[id - SpacePointParamCount];
-
+   
    return SpacePoint::GetParameterType(id);
 }
 
@@ -297,8 +295,8 @@ std::string BodyFixedPoint::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool BodyFixedPoint::IsParameterReadOnly(const Integer id) const
 {
-   if ((id == LOCATION_LABEL_1) ||
-       (id == LOCATION_LABEL_2) ||
+   if ((id == LOCATION_LABEL_1) || 
+       (id == LOCATION_LABEL_2) || 
        (id == LOCATION_LABEL_3) )
       return true;
 
@@ -321,6 +319,62 @@ bool BodyFixedPoint::IsParameterReadOnly(const std::string &label) const
    return IsParameterReadOnly(GetParameterID(label));
 }
 
+//---------------------------------------------------------------------------
+// Gmat::ObjectType GetPropertyObjectType(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieves object type of parameter of given id.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return parameter ObjectType
+ */
+//---------------------------------------------------------------------------
+Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
+{
+   switch (id)
+   {
+   case CENTRAL_BODY:
+      return Gmat::CELESTIAL_BODY;
+//      return Gmat::SPACE_POINT;
+   default:
+      return SpacePoint::GetPropertyObjectType(id);
+   }
+}
+
+
+//---------------------------------------------------------------------------
+// const StringArray& GetPropertyEnumStrings(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieves eumeration symbols of parameter of given id.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return list of enumeration symbols
+ */
+//---------------------------------------------------------------------------
+const StringArray& BodyFixedPoint::GetPropertyEnumStrings(const Integer id) const
+{
+   static StringArray enumStrings;
+   switch (id)
+   {
+   case STATE_TYPE:
+      enumStrings.clear();
+      enumStrings.push_back("Cartesian");
+      enumStrings.push_back("Geographical");      
+      return enumStrings;
+   case HORIZON_REFERENCE:
+      enumStrings.clear();
+      enumStrings.push_back("Sphere");
+      enumStrings.push_back("Ellipsoid");      
+      return enumStrings;
+   default:
+      return SpacePoint::GetPropertyEnumStrings(id);
+   }
+}
+
+
 //------------------------------------------------------------------------------
 //  std::string  GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
@@ -335,22 +389,19 @@ bool BodyFixedPoint::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 std::string BodyFixedPoint::GetStringParameter(const Integer id) const
 {
-   if (id == CENTRAL_BODY)
+   if (id == CENTRAL_BODY)   
    {
-      if (theBody)
+      if (theBody) 
          return theBody->GetName();
       else
          return cBodyName;
    }
-
+   
    if (id == STATE_TYPE)
       return stateType;
 
    if (id == HORIZON_REFERENCE)
       return horizon;
-
-   if (id == LATITUDE_GEOMETRY)
-      return latitudeGeometry;
 
    if (id == LOCATION_LABEL_1)
       return locationLabels[0];
@@ -377,18 +428,18 @@ std::string BodyFixedPoint::GetStringParameter(const Integer id) const
  * @return  success flag.
  */
 //------------------------------------------------------------------------------
-bool BodyFixedPoint::SetStringParameter(const Integer id,
+bool BodyFixedPoint::SetStringParameter(const Integer id, 
                                        const std::string &value)
 {
    bool retval = false;
-
-   if (id == CENTRAL_BODY)
+   
+   if (id == CENTRAL_BODY)   
    {
-      if (theBody)
+      if (theBody) 
          theBody = NULL;
       cBodyName = value;
       retval = true;
-   }
+   }   
    else if (id == STATE_TYPE)
    {
       if ((value == "Cartesian") || (value == "Geographical"))
@@ -417,23 +468,15 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
          retval = true;
       }
    }
-   else if (id == LATITUDE_GEOMETRY)
-   {
-      if ((value == "Geodetic") || (value == "Geocentric") || (value == "Reduced"))
-      {
-         latitudeGeometry = value;
-         retval = true;
-      }
-   }
    else if (id == LOCATION_LABEL_1)
       retval = false;
    else if (id == LOCATION_LABEL_2)
       retval = false;
    else if (id == LOCATION_LABEL_3)
       retval = false;
-   else
+   else 
       retval = SpacePoint::SetStringParameter(id, value);
-
+   
    return retval;
 }
 
@@ -463,7 +506,7 @@ std::string BodyFixedPoint::GetStringParameter(const std::string &label) const
  * @param    value The new value for the parameter
  */
 //------------------------------------------------------------------------------
-bool BodyFixedPoint::SetStringParameter(const std::string &label,
+bool BodyFixedPoint::SetStringParameter(const std::string &label, 
                                            const std::string &value)
 {
    return SetStringParameter(GetParameterID(label), value);
@@ -495,7 +538,7 @@ GmatBase* BodyFixedPoint::GetRefObject(const Gmat::ObjectType type,
    if ((type == Gmat::SPACE_POINT) || (type == Gmat::CELESTIAL_BODY))
       if (name == cBodyName)
          return theBody;
-
+   
    // Not handled here -- invoke the next higher GetRefObject call
    return SpacePoint::GetRefObject(type, name);
 }
@@ -508,7 +551,7 @@ GmatBase* BodyFixedPoint::GetRefObject(const Gmat::ObjectType type,
  * This method sets a reference object for the SpacePoint class.
  *
  * @param <obj>   pointer to the reference object
- * @param <type>  type of the reference object
+ * @param <type>  type of the reference object 
  * @param <name>  name of the reference object
  *
  * @return true if successful; otherwise, false.
@@ -522,8 +565,9 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
    #ifdef DEBUG_OBJECT_MAPPING
       MessageInterface::ShowMessage
-         ("BodyFixedPoint::SetRefObject() this=%s, obj=<%p><%s> entered\n",
-          GetName().c_str(), obj, obj->GetName().c_str());
+         ("BodyFixedPoint::SetRefObject() this=%s, obj=<%p><%s>, type=<%d><%s> entered\n",
+          GetName().c_str(), obj, obj->GetName().c_str(), (Integer) type,
+          GetObjectTypeString(type).c_str());
    #endif
 
    switch (type)
@@ -537,15 +581,15 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
             #ifdef DEBUG_OBJECT_MAPPING
                MessageInterface::ShowMessage
-                  ("BodyFixedPoint::Set theBody to %s\n",
+                  ("BodyFixedPoint::Setting theBody to %s\n",
                    theBody->GetName().c_str());
             #endif
-
-            SpacePoint::SetRefObject(obj, type, name);
+            
+//            SpacePoint::SetRefObject(obj, type, name);
             return true;
          }
          break;
-
+         
       case Gmat::COORDINATE_SYSTEM:
          {
             if (!(obj->IsOfType("CoordinateSystem")))
@@ -554,16 +598,26 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             if ((name == bfcsName) &&
                 (tmpCS->GetOriginName() == cBodyName))
             {
+               #ifdef DEBUG_OBJECT_MAPPING
+                  MessageInterface::ShowMessage
+                     ("BodyFixedPoint::Setting bfcs to %s\n",
+                      tmpCS->GetName().c_str());
+               #endif
                bfcs = tmpCS;
                return true;
             }
             if ((name == mj2kcsName) &&
                 (tmpCS->GetOriginName() == cBodyName))
             {
+               #ifdef DEBUG_OBJECT_MAPPING
+                  MessageInterface::ShowMessage
+                     ("BodyFixedPoint::Setting mj2kcs to %s\n",
+                      tmpCS->GetName().c_str());
+               #endif
                mj2kcs = tmpCS;
                return true;
             }
-
+            
             break;
          }
       default:
@@ -583,13 +637,13 @@ Real BodyFixedPoint::GetRealParameter(const Integer id) const
 {
    if (id == LOCATION_1)
       return location[0];
-
+   
    if (id == LOCATION_2)
       return location[1];
-
+   
    if (id == LOCATION_3)
       return location[2];
-
+   
    return SpacePoint::GetRealParameter(id);
 }
 
@@ -602,19 +656,19 @@ Real BodyFixedPoint::SetRealParameter(const Integer id,
       location[0] = value;
       return location[0];
    }
-
+   
    if (id == LOCATION_2)
    {
       location[1] = value;
       return location[1];
    }
-
+   
    if (id == LOCATION_3)
    {
       location[2] = value;
       return location[2];
    }
-
+   
    return SpacePoint::SetRealParameter(id, value);
 }
 
@@ -641,89 +695,89 @@ Real BodyFixedPoint::SetRealParameter(const std::string &label,
    return SetRealParameter(GetParameterID(label), value);
 }
 
-// These indexed methods seem like they should NOT be needed, but GCC gets
+// These indexed methods seem like they should NOT be needed, but GCC gets 
 // confused about the overloaded versions of the following six methods:
 
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id, const Integer index) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the string parameter value from a vector of strings,
- * given the input parameter ID and the index into the vector.
+ * This method returns the string parameter value from a vector of strings, 
+ * given the input parameter ID and the index into the vector. 
  *
  * @param id ID for the requested parameter.
  * @param index index for the particular string requested.
- *
+ * 
  * @return The requested string.
  */
 //------------------------------------------------------------------------------
-std::string BodyFixedPoint::GetStringParameter(const Integer id,
+std::string BodyFixedPoint::GetStringParameter(const Integer id, 
                                               const Integer index) const
 {
    return SpacePoint::GetStringParameter(id, index);
 }
 
 //------------------------------------------------------------------------------
-// bool SetStringParameter(const Integer id, const std::string &value,
+// bool SetStringParameter(const Integer id, const std::string &value, 
 //                         const Integer index)
 //------------------------------------------------------------------------------
 /**
- * This method sets a value on a string parameter value in a vector of strings,
- * given the input parameter ID, the value, and the index into the vector.
+ * This method sets a value on a string parameter value in a vector of strings, 
+ * given the input parameter ID, the value, and the index into the vector. 
  *
  * @param id ID for the requested parameter.
  * @param value The new string.
  * @param index index for the particular string requested.
- *
+ * 
  * @return true if successful; otherwise, false.
  */
 //------------------------------------------------------------------------------
-bool BodyFixedPoint::SetStringParameter(const Integer id,
-                                       const std::string &value,
+bool BodyFixedPoint::SetStringParameter(const Integer id, 
+                                       const std::string &value, 
                                        const Integer index)
 {
    return SetStringParameter(id, value, index);
 }
 
 //------------------------------------------------------------------------------
-// std::string GetStringParameter(const std::string &label,
+// std::string GetStringParameter(const std::string &label, 
 //                                const Integer index) const
 //------------------------------------------------------------------------------
 /**
- * This method returns the string parameter value from a vector of strings,
- * given the label associated with the input parameter and the index into the
- * vector.
+ * This method returns the string parameter value from a vector of strings, 
+ * given the label associated with the input parameter and the index into the 
+ * vector. 
  *
  * @param label String identifier for the requested parameter.
  * @param index index for the particular string requested.
- *
+ * 
  * @return The requested string.
  */
 //------------------------------------------------------------------------------
-std::string BodyFixedPoint::GetStringParameter(const std::string &label,
+std::string BodyFixedPoint::GetStringParameter(const std::string &label, 
                                            const Integer index) const
 {
    return SpacePoint::GetStringParameter(label,  index);
 }
 
 //------------------------------------------------------------------------------
-// bool SetStringParameter(const std::string &label, const std::string &value,
+// bool SetStringParameter(const std::string &label, const std::string &value, 
 //                         const Integer index)
 //------------------------------------------------------------------------------
 /**
- * This method sets a value on a string parameter value in a vector of strings,
- * given the label associated with the input parameter and the index into the
- * vector.
+ * This method sets a value on a string parameter value in a vector of strings, 
+ * given the label associated with the input parameter and the index into the 
+ * vector. 
  *
  * @param label String identifier for the requested parameter.
  * @param value The new string.
  * @param index index for the particular string requested.
- *
+ * 
  * @return true if successful; otherwise, false.
  */
 //------------------------------------------------------------------------------
-bool BodyFixedPoint::SetStringParameter(const std::string &label,
-                                       const std::string &value,
+bool BodyFixedPoint::SetStringParameter(const std::string &label, 
+                                       const std::string &value, 
                                        const Integer index)
 {
    return SpacePoint::SetStringParameter(label, value, index);
@@ -731,7 +785,7 @@ bool BodyFixedPoint::SetStringParameter(const std::string &label,
 
 
 //------------------------------------------------------------------------------
-// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name,
+// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name, 
 //                        const Integer index)
 //------------------------------------------------------------------------------
 /**
@@ -746,7 +800,7 @@ bool BodyFixedPoint::SetStringParameter(const std::string &label,
  */
 //------------------------------------------------------------------------------
 GmatBase* BodyFixedPoint::GetRefObject(const Gmat::ObjectType type,
-                                     const std::string &name,
+                                     const std::string &name, 
                                      const Integer index)
 {
    return SpacePoint::GetRefObject(type, name, index);
@@ -757,7 +811,7 @@ GmatBase* BodyFixedPoint::GetRefObject(const Gmat::ObjectType type,
 //                   const std::string &name, const Integer index)
 //------------------------------------------------------------------------------
 /**
- * This method sets a pointer to a reference object in a vector of objects in
+ * This method sets a pointer to a reference object in a vector of objects in 
  * the BodyFixedPoint class.
  *
  * @param obj The reference object.
@@ -769,7 +823,7 @@ GmatBase* BodyFixedPoint::GetRefObject(const Gmat::ObjectType type,
  */
 //------------------------------------------------------------------------------
 bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                                     const std::string &name,
+                                     const std::string &name, 
                                      const Integer index)
 {
    // Call parent class to add objects to bodyList
@@ -778,7 +832,7 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 
 
 //------------------------------------------------------------------------------
-//
+// 
 //------------------------------------------------------------------------------
 /**
  */
@@ -790,11 +844,15 @@ std::string BodyFixedPoint::GetRefObjectName(const Gmat::ObjectType type) const
 
 const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
+   #ifdef DEBUG_BF_REF
+      MessageInterface::ShowMessage("In BFP::GetRefObjectNameArray, requesting type %d\n",
+            (Integer) type);
+   #endif
    // This is a hack assuming Earth-centered coordinates for everything
    static StringArray csNames;
-
+   
    csNames.clear();
-
+   
    if ((type == Gmat::COORDINATE_SYSTEM) || (type == Gmat::UNKNOWN_OBJECT))
    {
       csNames.push_back(bfcsName);
@@ -802,8 +860,25 @@ const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType 
 //      csNames.push_back("EarthFixed");
 //      csNames.push_back("EarthMJ2000Eq");
    }
-
+   
    return csNames;
+}
+
+//------------------------------------------------------------------------------
+// const ObjectTypeArray& GetRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the list of ref object types used by this class.
+ *
+ * @return the list of object types.
+ *
+ */
+//------------------------------------------------------------------------------
+const ObjectTypeArray& BodyFixedPoint::GetRefObjectTypeArray()
+{
+   refObjectTypes.clear();
+   refObjectTypes.push_back(Gmat::COORDINATE_SYSTEM);
+   return refObjectTypes;
 }
 
 // Handle the J2000Body methods
@@ -817,7 +892,7 @@ const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType 
  *
  * @return state of the SpacePoint at time atTime.
  *
- * @note This method is pure virtual and must be implemented by the
+ * @note This method is pure virtual and must be implemented by the 
  *       'leaf' (non-abstract derived) classes.
  */
 //------------------------------------------------------------------------------
@@ -829,14 +904,21 @@ const Rvector6 BodyFixedPoint::GetMJ2000State(const A1Mjd &atTime)
    #endif
    Real epoch = atTime.Get();
    Rvector6 bfState;
-
+   
    // For now I'm ignoring velocity
    bfState.Set(bfLocation[0], bfLocation[1], bfLocation[2], 0.0, 0.0, 0.0);
 
-   // Assuming you have pointer to coordinate systems mj2k and topo,
-   // where mj2k is a J2000 system and topo is Topocentric
+   // Convert from the body-fixed location to a J2000 location,
+   // assuming you have pointer to coordinate systems mj2k and bfcs,
+   // where mj2k is a J2000 system and bfcs is BodyFixed
+   #ifdef DEBUG_BODYFIXED_STATE
+      MessageInterface::ShowMessage("... before call to Convert, epoch = %12.10f\n",
+            epoch);
+      MessageInterface::ShowMessage(" ... bfcs = %s  and mj2kcs = %s\n",
+            (bfcs? "NOT NULL" : "NULL"), (mj2kcs? "NOT NULL" : "NULL"));
+   #endif
    ccvtr.Convert(epoch, bfState, bfcs, j2000PosVel, mj2kcs);
-
+   
    return j2000PosVel;
 }
 
@@ -850,7 +932,7 @@ const Rvector6 BodyFixedPoint::GetMJ2000State(const A1Mjd &atTime)
  *
  * @return position of the SpacePoint at time atTime.
  *
- * @note This method is pure virtual and must be implemented by the
+ * @note This method is pure virtual and must be implemented by the 
  *       'leaf' (non-abstract derived) classes.
  */
 //------------------------------------------------------------------------------
@@ -871,7 +953,7 @@ const Rvector3 BodyFixedPoint::GetMJ2000Position(const A1Mjd &atTime)
  *
  * @return velocity of the SpacePoint at time atTime.
  *
- * @note This method is pure virtual and must be implemented by the
+ * @note This method is pure virtual and must be implemented by the 
  *       'leaf' (non-abstract derived) classes.
  */
 //------------------------------------------------------------------------------
@@ -903,7 +985,7 @@ const Rvector3 BodyFixedPoint::GetBodyFixedLocation(const A1Mjd &atTime) const
    locBodyFixed[0] = bfLocation[0];
    locBodyFixed[1] = bfLocation[1];
    locBodyFixed[2] = bfLocation[2];
-
+   
    return locBodyFixed;
 }
 

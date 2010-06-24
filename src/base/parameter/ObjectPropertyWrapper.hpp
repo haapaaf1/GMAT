@@ -44,6 +44,7 @@ public:
    virtual const StringArray&  GetRefObjectNames();
    virtual bool                SetRefObjectName(const std::string &name,
                                             Integer index);
+   virtual GmatBase*           GetRefObject(const std::string &name = "");
    virtual bool                SetRefObject(GmatBase *obj);
    virtual bool                RenameObject(const std::string &oldName, 
                                         const std::string &newName);

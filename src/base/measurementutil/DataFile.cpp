@@ -51,6 +51,7 @@ const std::string DataFile::FILEFORMAT_DESCRIPTIONS[EndFileFormatReps] =
     "SP3c Data",
     "RINEX Data",
     "UTDF Data",
+    "TDRSS UTDF Data",
     "TRK-2-34 Data",
     "CCSDS Tracking Data Message"
     "CCSDS Orbit Parameter Message"
@@ -248,14 +249,18 @@ bool DataFile::SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
 Integer DataFile::GetIntegerParameter(const Integer id) const
 {
+    
     if (id == NUMLINES_ID)
-      return numLines;
+        return numLines;
 
     if (id == FILEFORMAT_ID)
-      return fileFormatID;
+        return fileFormatID;
 
     if (id == PRECISION_ID)
-      return precision;
+        return precision;
+
+    if (id == RECORDLENGTH_ID)
+        return recordLength;
     
     return GmatBase::GetIntegerParameter(id);
 }
@@ -293,6 +298,12 @@ Integer DataFile::SetIntegerParameter(const Integer id, const Integer value)
    if (id == PRECISION_ID)
    {
          precision = value;
+         return value;
+   }
+
+   if (id == RECORDLENGTH_ID)
+   {
+         recordLength = value;
          return value;
    }
 
@@ -405,7 +416,8 @@ DataFile::DataFile(const std::string &itsType,
     commentsAllowed (false),
     sortedBy (0),
     readWriteMode ("read"),
-    isBinary(false)
+    isBinary(false),
+    recordLength(0)
 {
    objectTypes.push_back(Gmat::DATASTREAM);
    objectTypeNames.push_back("DataFile");
@@ -432,6 +444,7 @@ DataFile::DataFile(const DataFile &pdf) :
     sortedBy (pdf.sortedBy),
     readWriteMode(pdf.readWriteMode),
     isBinary(pdf.isBinary),
+    recordLength(pdf.recordLength),
     theFile (pdf.theFile)
 {
 }
@@ -459,6 +472,7 @@ const DataFile& DataFile::operator=(const DataFile &pdf)
     sortedBy = pdf.sortedBy;
     readWriteMode = pdf.readWriteMode;
     isBinary = pdf.isBinary;
+    recordLength = pdf.recordLength;
     theFile = pdf.theFile;
     
     return *this;
@@ -499,7 +513,7 @@ bool DataFile::OpenFile()
     else if (pcrecpp::RE("^[Ww].*").FullMatch(readWriteMode))
     {
         if (isBinary)
-            theFile->open(dataFileName.c_str(),ios::out | ios::binary);
+            theFile->open(dataFileName.c_str(),ios::out | ios::binary | ios::app);
         else
             theFile->open(dataFileName.c_str(),ios::out);
     }
@@ -602,6 +616,10 @@ Integer DataFile::GetFileFormatID(const std::string &label)
     {
        return UTDF_ID;
     }
+    else if (label == "TDRSSUTDF")
+    {
+       return TDRSSUTDF_ID;
+    }
     else if (label == "TRK234")
     {
        return TRK234_ID;
@@ -669,6 +687,10 @@ void DataFile::SetFileFormatID(const std::string &label)
     else if (label == "UTDF")
     {
        fileFormatID = UTDF_ID;
+    }
+    else if (label == "TDRSSUTDF")
+    {
+       fileFormatID = TDRSSUTDF_ID;
     }
     else if (label == "TRK234")
     {
@@ -949,6 +971,35 @@ std::string DataFile::ReadLineFromFile()
         lff = Trim(lff);
     }
     return lff;
+}
+
+//------------------------------------------------------------------------------
+// std::string DataFile::ReadRecordFromFile(Integer reclen)
+//------------------------------------------------------------------------------
+/**
+ * Read a single record of binary data from a file.
+ *
+ * @param <reclen> the number of bytes of data to read
+ * @return Line from file
+ */
+//------------------------------------------------------------------------------
+std::string DataFile::ReadRecordFromFile(Integer reclen)
+{
+    std::string record = "";
+
+    char buffer[reclen];
+
+    if (!IsEOF() && record == "")
+    {
+
+        theFile->read(buffer,reclen);
+
+        for (int i=0; i < reclen; i++)
+            record += buffer[i];
+
+    }
+
+    return record;
 }
 
 //------------------------------------------------------------------------------
@@ -1467,4 +1518,24 @@ bool DataFile::WriteComment(const StringArray myComments)
     }
     else
         return false;
+}
+
+//------------------------------------------------------------------------------
+// Integer ByteToInt(const string b)
+//------------------------------------------------------------------------------
+/**
+ * Converts an array of bytes sampled from a binary file to Integer 
+ * 
+ * @param <b> String representing bytes of binary data
+ * @return The integer representation of the binary bytes 
+ */
+//------------------------------------------------------------------------------
+Integer DataFile::ByteToInt(const string b)
+{
+    int val=0;
+    for (int i=b.length()-1, j = 0; i >= 0; i--,j++)
+    {
+        val += (b[i] & 0xff) << (8*j);
+    }
+    return val;
 }

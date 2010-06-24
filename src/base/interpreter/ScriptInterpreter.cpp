@@ -1199,17 +1199,31 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    MessageInterface::ShowMessage("   Found %d Datafiles\n", objs.size());
    #endif
    if (objs.size() > 0)
-      WriteObjects(objs, "DataFiles", mode);
+      WriteObjects(objs, "Datafiles", mode);
 
-   //-----------------------------------
-   // Measurement Models
-   //-----------------------------------
+   //---------------------------------------------
+   // Measurement Models and Tracking Data/Systems
+   //---------------------------------------------
    objs = theModerator->GetListOfObjects(Gmat::MEASUREMENT_MODEL);
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Measurement Models\n", objs.size());
    #endif
    if (objs.size() > 0)
       WriteObjects(objs, "MeasurementModels", mode);
+
+   objs = theModerator->GetListOfObjects(Gmat::TRACKING_DATA);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d TrackingData Objects\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "TrackingData", mode);
+
+   objs = theModerator->GetListOfObjects(Gmat::TRACKING_SYSTEM);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d Tracking Systems\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "TrackingSystems", mode);
 
    //-----------------------------------
    // Solver
@@ -1710,9 +1724,14 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
    if (obj == NULL)
    {
       #ifdef DEBUG_PARSE
-      MessageInterface::ShowMessage("   obj is NULL, so just return false\n");
+      MessageInterface::ShowMessage
+         ("   obj is NULL, and %singoring the error, so returning %s\n",
+          ignoreError ? "" : "NOT ", ignoreError ? "true" : "false");
       #endif
-      return false;
+      if (ignoreError)
+         return true;
+      else
+         return false;
    }
    
    // paramID will be assigned from call to Interpreter::FindPropertyID()
@@ -2058,6 +2077,21 @@ void ScriptInterpreter::WriteHardwares(StringArray &objs, Gmat::WriteMode mode)
             theReadWriter->WriteText(object->GetGeneratingString(mode));
          }
    }
+
+   // Other Hardware
+   for (current = objs.begin(); current != objs.end(); ++current)
+   {
+      object = FindObject(*current);
+      if (object != NULL)
+         if ((object->GetTypeName() != "FuelTank") &&
+                  (object->GetTypeName() != "Thruster"))
+         {
+            if (object->GetCommentLine() == "")
+               theReadWriter->WriteText("\n");
+            theReadWriter->WriteText(object->GetGeneratingString(mode));
+         }
+   }
+
 }
 
 

@@ -245,9 +245,9 @@ const B3ObType& B3ObType::operator=(const B3ObType &b3Ob)
 //  GmatBase* Clone() const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the B3DataFile.
+ * This method returns a clone of the B3ObType.
  *
- * @return clone of the B3DataFile.
+ * @return clone of the B3ObType.
  */
 //------------------------------------------------------------------------------
 GmatBase* B3ObType::Clone() const

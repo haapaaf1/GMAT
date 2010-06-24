@@ -97,11 +97,11 @@ public:
    // virtual void SetLastStopTriggered(const std::string &stopCondName);
    // virtual bool WasLastStopTriggered(const std::string &stopCondName);
    
-   virtual Integer         SetPropItem(std::string propItem);
+//   virtual Integer         GetPropItemID(const std::string &whichItem);
+   virtual Integer         SetPropItem(const std::string &propItem);
    virtual StringArray     GetDefaultPropItems();
-   virtual Real*           GetPropItem(Integer item);
-   virtual Integer         GetPropItemSize(Integer item);
-
+   virtual Real*           GetPropItem(const Integer item);
+   virtual Integer         GetPropItemSize(const Integer item);
    
 protected:
    /// List of the object names used in the formation

@@ -7,6 +7,7 @@
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG06CA54C
 //
 // Author: Darrel J. Conway, Thinking Systems, Inc.
 // Created: 2009/ /
@@ -283,9 +284,9 @@ bool RunSimulator::Initialize()
       GmatBase *obj = FindObject(streamList[ms]);
       if (obj != NULL)
       {
-         if (obj->IsOfType(Gmat::DATA_FILE))
+         if (obj->IsOfType(Gmat::DATASTREAM))
          {
-            DataFile *df = (DataFile*)obj;
+            Datafile *df = (Datafile*)obj;
             measman->SetStreamObject(df);
          }
       }

@@ -315,8 +315,39 @@ Subscriber* FactoryManager::CreateSubscriber(const std::string &ofType,
 
    if (f != NULL)
       return f->CreateSubscriber(ofType, withName, fileName);
+   
+   #ifdef DEBUG_FACTORY_MANAGER
+   MessageInterface::ShowMessage("Could not find Factory for %s\n", ofType.c_str());
+   #endif
+   
+   return NULL;
+}
 
-   MessageInterface::ShowMessage("      Could not find Factory for %s\n", ofType.c_str());
+//------------------------------------------------------------------------------
+//  EphemerisFile* CreateEphemerisFile(const std::string &ofType,
+//                                     const std::string &withName)
+//------------------------------------------------------------------------------
+/**
+ * Create an object of type EphemerisFile, with the name withName.
+ *
+ * @param <ofType>   type name of the new EphemerisFile object.
+ * @param <withName> name of the new EphemerisFile object.
+ *
+ * @return pointer to the newly-created EphemerisFile object
+ */
+//------------------------------------------------------------------------------
+EphemerisFile* FactoryManager::CreateEphemerisFile(const std::string &ofType,
+                                                   const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::EPHEMERIS_FILE, ofType);
+   
+   if (f != NULL)
+      return f->CreateEphemerisFile(ofType, withName);
+   
+   #ifdef DEBUG_FACTORY_MANAGER
+   MessageInterface::ShowMessage("Could not find Factory for %s\n", ofType.c_str());
+   #endif
+   
    return NULL;
 }
 
@@ -591,6 +622,24 @@ CoreMeasurement* FactoryManager::CreateMeasurement(const std::string &ofType,
    return NULL;
 }
 
+TrackingSystem* FactoryManager::CreateTrackingSystem(const std::string &ofType,
+         const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::TRACKING_SYSTEM, ofType);
+   if (f != NULL)
+      return f->CreateTrackingSystem(ofType, withName);
+   return NULL;
+}
+
+TrackingData* FactoryManager::CreateTrackingData(const std::string &withName)
+{
+   Factory* f = FindFactory(Gmat::TRACKING_DATA, "TrackingData");
+   if (f != NULL)
+      return f->CreateTrackingData("TrackingData", withName);
+   return NULL;
+}
+
+
 //------------------------------------------------------------------------------
 // ObType* FactoryManager::CreateObType(const std::string &ofType,
 //                                      const std::string &withName)
@@ -634,22 +683,45 @@ MeasurementModel* FactoryManager::CreateMeasurementModel(const std::string &with
 }
 
 //------------------------------------------------------------------------------
-// DataFile* FactoryManager::CreateDataFile(const std::string &withName)
+// DataFile* FactoryManager::CreateDataStream(const std::string &ofType,
+//                                           const std::string &withName)
 //------------------------------------------------------------------------------
 /**
  * Create an object of type DataFile, with the name withName.
  *
+ * @param ofType   type of the new DataFile object.
  * @param withName name of the new DataFile object.
  *
  * @return pointer to the newly-created DataFile object
  */
 //------------------------------------------------------------------------------
-DataFile* FactoryManager::CreateDataFile(const std::string &ofType,
-                                         const std::string &withName)
+DataFile* FactoryManager::CreateDataStream(const std::string &ofType,
+                                          const std::string &withName)
 {
    Factory* f = FindFactory(Gmat::DATASTREAM, ofType);
+   DataFile* retObj = NULL;
    if (f != NULL)
-      return f->CreateDataFile(ofType, withName);
+   {
+      MessageInterface::ShowMessage("Found a factory that builds %s DataFiles\n",
+            ofType.c_str());
+      try
+      {
+         retObj = f->CreateDataStream(ofType, withName);
+      }
+      catch (BaseException &ex)
+      {
+         Factory* f = FindFactory(Gmat::DATASTREAM, ofType);
+         if (f != NULL)
+         {
+            MessageInterface::ShowMessage(
+                  "Found a factory that builds %s DataFiles\n",
+                  ofType.c_str());
+            retObj = (DataFile*)(f->CreateDataStream(ofType, withName));
+         }
+      }
+      return retObj;
+   }
+
    return NULL;
 }
 
@@ -743,6 +815,7 @@ const StringArray& FactoryManager::GetListOfAllItems()
    GetList(Gmat::STOP_CONDITION);
    GetList(Gmat::SUBSCRIBER);
    GetList(Gmat::CELESTIAL_BODY);
+   GetList(Gmat::DATASTREAM);
    
    return entireList;
 }
@@ -859,6 +932,13 @@ Factory* FactoryManager::FindFactory(Gmat::ObjectType ofType,
          {
             StringArray::iterator s = listObj.begin();
             std::string objType = forType;
+            
+            // Make sure that all type name begins with upper case if
+            // factory expects case sensitive type names since all GMAT type names
+            // begin with upper case.
+            // Currently only math types are NOT case sensitive, so we can
+            // have for example, both Transpose and transpose, Inverse and inverse
+            // for compatibility with MATLAB.
             if (isCaseSensitive)
                objType = GmatStringUtil::Capitalize(objType);
             
@@ -907,7 +987,6 @@ Factory* FactoryManager::FindFactory(Gmat::ObjectType ofType,
 const StringArray& FactoryManager::GetList(Gmat::ObjectType ofType)
 {
    //entireList.clear();
-   
    std::list<Factory*>::iterator f = factoryList.begin();
    while (f != factoryList.end())
    {
@@ -915,6 +994,9 @@ const StringArray& FactoryManager::GetList(Gmat::ObjectType ofType)
       {
          // Add the name(s) to the list 
          StringArray objs = (*f)->GetListOfCreatableObjects();
+         //if (ofType == Gmat::DATASTREAM)
+         //     for (unsigned int i=0; i < objs.size(); i++)
+         //       MessageInterface::ShowMessage("Factory Manager Get List creatables = %s\n",objs[i].c_str());
          if (!objs.empty())
             entireList.insert(entireList.end(), objs.begin(), objs.end());
             

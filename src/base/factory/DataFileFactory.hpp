@@ -28,16 +28,18 @@ class DataFile;
 class B3DataFile;
 class TLEDataFile;
 class SLRDataFile;
-class TDMCCSDSDataFile;
-class OPMCCSDSDataFile;
-class OEMCCSDSDataFile;
-class APMCCSDSDataFile;
-class AEMCCSDSDataFile;
+class TRK234DataFile;
+class UTDFDataFile;
+//class TDMCCSDSDataFile;
+//class OPMCCSDSDataFile;
+//class OEMCCSDSDataFile;
+//class APMCCSDSDataFile;
+//class AEMCCSDSDataFile;
 
-class DataFileFactory : public Factory
+class GMAT_API DataFileFactory : public Factory
 {
 public:
-   virtual DataFile* CreateDataFile(const std::string &ofType,
+   virtual DataFile* CreateDataStream(const std::string &ofType,
                                 const std::string &withName /* = "" */);
 
    // default constructor

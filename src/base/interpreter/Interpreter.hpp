@@ -46,7 +46,6 @@ class Burn;
 class Function;
 class Moderator;
 class Validator;
-class DataFile;
 
 /**
  * Interpreter is the base class for the GMAT Interpreter subsystem.  
@@ -121,6 +120,10 @@ public:
                               const std::string &value, GmatBase *fromObj);
    
    bool SetMeasurementModelProperty(GmatBase *obj, const std::string &prop,
+                              const std::string &value);
+   bool SetTrackingDataProperty(GmatBase *obj, const std::string &prop,
+                              const std::string &value);
+   bool SetTrackingSystemProperty(GmatBase *obj, const std::string &prop,
                               const std::string &value);
    bool SetDataStreamProperty(GmatBase *obj, const std::string &property,
                               const std::string &value);
@@ -286,6 +289,11 @@ protected:
    bool CheckBranchCommands(const IntegerArray &lineNumbers,
                             const StringArray &lines);
    
+   // for setting object inside branch command
+   void SetObjectInBranchCommand(GmatCommand *brCmd, const std::string &branchType,
+                                 const std::string &childType,
+                                 const std::string &objName);
+   
    // Final setting of reference object pointers needed by the GUI
    bool FinalPass();
    
@@ -307,15 +315,16 @@ private:
    StringArray   axisSystemList;
    StringArray   burnList;
    StringArray   calculatedPointList;
-   StringArray   estimatorList;
+   StringArray   dataStreamList;
+   StringArray   ephemFileList;
    StringArray   functionList;
    StringArray   hardwareList;
    StringArray   measurementList;
+   StringArray   trackingSystemList;
    StringArray   obtypeList;
    StringArray   odeModelList;
    StringArray   parameterList;
    StringArray   physicalModelList;
-   StringArray   dataStreamList;
    StringArray   propagatorList;
    StringArray   solverList;
    StringArray   stopcondList;

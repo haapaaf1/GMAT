@@ -107,6 +107,7 @@ protected:
       OPTIMIZER_TOLERANCE,
       EQUALITY_CONSTRAINT_NAMES,
       INEQUALITY_CONSTRAINT_NAMES,
+      PLOT_COST_FUNCTION,
       OptimizerParamCount
    };
    

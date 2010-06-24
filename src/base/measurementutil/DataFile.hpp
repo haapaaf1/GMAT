@@ -39,6 +39,7 @@
 #include "A1Mjd.hpp"
 #include "UtcDate.hpp"
 #include "DateUtil.hpp"
+#include "RealUtilities.hpp"
 
 using namespace std; // so we don't have to type std::cout and std::endl
 
@@ -74,9 +75,14 @@ public:
     std::string Trim(std::string s);
     bool ReverseOverpunch(std::string code, Integer &digit, Integer &sign );
 
-    // functions to extract a line from file
-    bool ReadLineFromFile(std::string &line);
+    // functions to extract a line from ASCII file
     std::string ReadLineFromFile();
+
+    // Functions to extract a binary record
+    std::string ReadRecordFromFile(const Integer reclen);
+
+    // Binary utility functions
+    Integer ByteToInt(const string b);
     
     // methods to get/set DataFile object parameters
     void SetNumLines(const Integer &nl);
@@ -244,6 +250,7 @@ public:
         SP3C_ID,
         RINEX_ID,
         UTDF_ID,
+        TDRSSUTDF_ID,
 	TRK234_ID,
 	CCSDS_TDM_ID,
 	CCSDS_OPM_ID,
@@ -256,8 +263,16 @@ public:
 private:
     
     static const std::string FILEFORMAT_DESCRIPTIONS[EndFileFormatReps];
-    
+
 protected:
+
+    // Used for reading in binary data and converting to the various data types
+    unsigned int myUInt;
+    unsigned long int myULongInt;
+    unsigned short int myUShortInt;
+    long int myLongInt;
+    short int myShortInt;
+    int myInt;
 
     /// Published parameters for data files
     enum
@@ -269,6 +284,7 @@ protected:
         SCIENTIFICMODE_ID,
         SHOWPOINTMODE_ID,
         PRECISION_ID,
+        RECORDLENGTH_ID,
         DataFileParamCount
     };
 
@@ -337,6 +353,9 @@ protected:
 
     // Flag to indicate if the data file is binary or ASCII
     bool isBinary;
+
+    // For binary files, the length of each record
+    Integer recordLength;
 
     // This is the pointer to the input/output file stream
     // A new fstream is created at construction but the actual

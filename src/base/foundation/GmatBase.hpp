@@ -167,7 +167,6 @@ public:
    // Access methods derived classes can override
    virtual std::string  GetParameterText(const Integer id) const;
    virtual std::string  GetParameterUnit(const Integer id) const;
-   virtual StringArray  GetParameterUnits(const Integer id) const;
    virtual Integer      GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
                         GetParameterType(const Integer id) const;
@@ -397,7 +396,6 @@ public:
    static Integer          GetTimePrecision();
 
    virtual Integer         GetPropItemID(const std::string &whichItem);
-   virtual Integer         SetPropItem(std::string propItem);
    virtual Integer         SetPropItem(const std::string &propItem);
    virtual StringArray     GetDefaultPropItems();
    virtual Real*           GetPropItem(const Integer item);

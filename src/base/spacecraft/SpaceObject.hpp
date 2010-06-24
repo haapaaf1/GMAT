@@ -24,9 +24,6 @@
 #include "GmatBase.hpp"
 #include "SpacePoint.hpp"
 #include "GmatState.hpp"
-// For matrix and vector definitions
-#include "lapackpp.h"
-
 #include "SpaceObjectException.hpp"
 
 class GMAT_API SpaceObject : public SpacePoint
@@ -39,7 +36,6 @@ public:
    SpaceObject&         operator=(const SpaceObject& so);
    
    virtual GmatState&   GetState();
-//   virtual PropCovar&   GetCovariance();
    virtual Real         GetEpoch();
    virtual Real         SetEpoch(const Real ep);
    virtual bool         IsManeuvering();
@@ -52,11 +48,11 @@ public:
    virtual Real GetRealParameter(const std::string &label) const;
    virtual Real SetRealParameter(const Integer id, const Real value);
    virtual Real SetRealParameter(const std::string &label, const Real value);
-
+   
    virtual Real         GetRealParameter(const Integer id, const Integer row,
                                          const Integer col) const;
-   virtual Real         GetRealParameter(const std::string &label,
-                                         const Integer row,
+   virtual Real         GetRealParameter(const std::string &label, 
+                                         const Integer row, 
                                          const Integer col) const;
    virtual Real         SetRealParameter(const Integer id, const Real value,
                                          const Integer row, const Integer col);
@@ -68,6 +64,7 @@ public:
    virtual void SetOriginName(std::string cbName);
    virtual const std::string GetOriginName();
    virtual void SetOrigin(SpacePoint *cb);
+   virtual SpacePoint* GetOrigin();
    
    virtual const Rvector6 GetMJ2000State(const A1Mjd &atTime);
    virtual const Rvector3 GetMJ2000Position(const A1Mjd &atTime);
@@ -85,8 +82,6 @@ public:
 protected:
    /// The spacecraft state
    GmatState         state;
-   /// The spacecraft covariance
-   //PropCovar	     covariance;
    /// true when a finite burn needs to be applied to this SpaceObject
    bool              isManeuvering;
    /// Reference SpacePoint for the data

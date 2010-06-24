@@ -107,7 +107,7 @@ B3DataFile::B3DataFile(const std::string &itsName) :
 {
    objectTypeNames.push_back("B3DataFile");
    fileFormatName = "B3";
-   fileFormatID = 0;
+   fileFormatID = DataFile::B3_ID;
    numLines = 1;
 }
 

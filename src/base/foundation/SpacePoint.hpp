@@ -173,6 +173,8 @@ protected:
    
    static const Gmat::ParameterType PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount];
    
+   static const Integer UNDEFINED_NAIF_ID;
+
    
    /// Origin for the return coordinate system (aligned with the MJ2000 Earth
    /// Equatorial coordinate system)

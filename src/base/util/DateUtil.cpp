@@ -155,6 +155,7 @@ Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
 //   Real jd =  JulianDate(year, month, day, hour, minute, second);
 //   return (jd - GmatTimeUtil::JULIAN_DATE_OF_010541);
 
+   //Integer computeYearMon = ( 7*(year + (Integer)(month + 9)/12 ) )/4;
    Integer computeYearMon = ( 7*(year + (Integer)((month + 9)/12)) )/4;
    Integer computeMonth = (275 * month)/9;
    Real fractionalDay = ((second/60.0 + minute)/60.0 + hour)/24.0;

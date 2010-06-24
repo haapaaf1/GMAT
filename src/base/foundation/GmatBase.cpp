@@ -49,20 +49,20 @@
 //#define DEBUG_CLOAKING
 
 /// Set the static "undefined" parameters
-const Real              GmatBase::REAL_PARAMETER_UNDEFINED = -987654321.0123e-45;
-const Integer           GmatBase::INTEGER_PARAMETER_UNDEFINED = -987654321;
-const UnsignedInt       GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED = 987654321;
-const std::string       GmatBase::STRING_PARAMETER_UNDEFINED = "STRING_PARAMETER_UNDEFINED";
+const Real        GmatBase::REAL_PARAMETER_UNDEFINED = -987654321.0123e-45;
+const Integer     GmatBase::INTEGER_PARAMETER_UNDEFINED = -987654321;
+const UnsignedInt GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED = 987654321;
+const std::string GmatBase::STRING_PARAMETER_UNDEFINED = "STRING_PARAMETER_UNDEFINED";
 const StringArray       GmatBase::STRINGARRAY_PARAMETER_UNDEFINED = StringArray(1,
                         GmatBase::STRING_PARAMETER_UNDEFINED);
 const IntegerArray      GmatBase::INTEGERARRAY_PARAMETER_UNDEFINED = IntegerArray(1,
                         GmatBase::INTEGER_PARAMETER_UNDEFINED);
 const UnsignedIntArray  GmatBase::UNSIGNED_INTARRAY_PARAMETER_UNDEFINED = UnsignedIntArray(1,
                         GmatBase::UNSIGNED_INT_PARAMETER_UNDEFINED);
-const Rvector           GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
-                        GmatBase::REAL_PARAMETER_UNDEFINED);
-const Rmatrix           GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
-                        GmatBase::REAL_PARAMETER_UNDEFINED);
+const Rvector     GmatBase::RVECTOR_PARAMETER_UNDEFINED = Rvector(1,
+                  GmatBase::REAL_PARAMETER_UNDEFINED);
+const Rmatrix     GmatBase::RMATRIX_PARAMETER_UNDEFINED = Rmatrix(1,1,
+                  GmatBase::REAL_PARAMETER_UNDEFINED);
 
 
 const Gmat::ParameterType GmatBase::PARAMETER_TYPE[GmatBaseParamCount] =
@@ -88,9 +88,9 @@ const std::string
 GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 {
    "Integer",     "UnsignedInt", "UnsignedIntArray", "IntegerArray", "Real",
-   "RealElement", "String",      "StringArray",      "Boolean",
-   "Rvector",     "Rmatrix",     "Time",             "Object",
-   "ObjectArray", "OnOff",       "Enumeration",
+   "RealElement", "String",      "StringArray",      "Boolean",      "Rvector",
+   "Rmatrix",     "Time",        "Object",           "ObjectArray",  "OnOff",
+   "Enumeration",
 };
 
 /**
@@ -102,16 +102,16 @@ GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 const std::string
 GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
 {
-   "Spacecraft",    "Formation",        "SpaceObject",      "GroundStation",   "Burn",
-   "ImpulsiveBurn", "FiniteBurn",       "Command",          "Propagator",      "ODEModel",
-   "PhysicalModel", "TransientForce",   "Interpolator",     "SolarSystem",     "SpacePoint",
-   "CelestialBody", "CalculatedPoint",  "LibrationPoint",   "Barycenter",      "Atmosphere",
-   "Parameter",     "Variable",         "Array",            "String",          "StopCondition",
-   "Solver",        "Subscriber",       "ReportFile",       "XYPlot",          "OpenGLPlot",
-   "EphemerisFile", "PropSetup",        "Function",         "FuelTank",        "Thruster",
-   "Hardware",      "CoordinateSystem", "AxisSystem",       "Attitude",        "MathNode",
-   "MathTree",      "BodyFixedPoint",   "MeasurementModel", "CoreMeasurement", "DataStream",
-   "ObType",        "UnknownObject"
+   "Spacecraft",    "Formation",        "SpaceObject",      "GroundStation",    "Burn",
+   "ImpulsiveBurn", "FiniteBurn",       "Command",          "Propagator",       "ODEModel",
+   "PhysicalModel", "TransientForce",   "Interpolator",     "SolarSystem",      "SpacePoint",
+   "CelestialBody", "CalculatedPoint",  "LibrationPoint",   "Barycenter",       "Atmosphere",
+   "Parameter",     "Variable",         "Array",            "String",           "StopCondition",
+   "Solver",        "Subscriber",       "ReportFile",       "XYPlot",           "OpenGLPlot",
+   "EphemerisFile", "PropSetup",        "Function",         "FuelTank",         "Thruster",
+   "Hardware",      "CoordinateSystem", "AxisSystem",       "Attitude",         "MathNode",
+   "MathTree",      "BodyFixedPoint",   "Event",            "MeasurementModel", "CoreMeasurement",
+   "TrackingData",  "TrackingSystem",   "DataStream",       "ObType",           "UnknownObject"
 };
 /**
  * Build the list of automatic global settings
@@ -134,7 +134,7 @@ GmatBase::AUTOMATIC_GLOBAL_FLAGS[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    false,     true,      true,      false,     false,
    false,     true,      false,     false,     false,
    false,     false,     false,     false,     false,
-   false,     false
+   false,     false,     false,     false,     false
 };
 
 
@@ -1085,6 +1085,7 @@ std::string GmatBase::GetParameterText(const Integer id) const
                            " not defined on object " + instanceName);
 }
 
+
 //---------------------------------------------------------------------------
 //  std::string GetParameterUnit(const Integer id) const
 //---------------------------------------------------------------------------
@@ -1098,23 +1099,7 @@ std::string GmatBase::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 std::string GmatBase::GetParameterUnit(const Integer id) const
 {
-   return GmatBase::STRING_PARAMETER_UNDEFINED;
-}
-
-//---------------------------------------------------------------------------
-//  StringArray GetParameterUnits(const Integer id) const
-//---------------------------------------------------------------------------
-/**
- * Retrieve the unit for the parameter.
- *
- * @param <id> The integer ID for the parameter.
- *
- * @return unit for the requested parameter.
- */
-//------------------------------------------------------------------------------
-StringArray GmatBase::GetParameterUnits(const Integer id) const
-{
-   return GmatBase::STRINGARRAY_PARAMETER_UNDEFINED;
+   return "";
 }
 
 
@@ -3188,11 +3173,6 @@ Integer GmatBase::GetPropItemID(const std::string &whichItem)
    return -1;
 }
 
-
-Integer GmatBase::SetPropItem(std::string propItem)
-{
-   return Gmat::UNKNOWN_STATE;
-}
 
 Integer GmatBase::SetPropItem(const std::string &propItem)
 {

@@ -130,7 +130,7 @@ Integer GmatMathUtil::GCD(Integer a, Integer b)
     {
         a = Mod(a,b);
         if( a == 0 ) return b;
-	b = Mod(b,a);
+        b = Mod(b,a);
         if( b == 0 ) return a;
     }
 }
@@ -139,30 +139,31 @@ Integer GmatMathUtil::GCD(Integer a, Integer b)
 //  void EGCD(Integer a, Integer b, Integer &x, Integer &y)
 //------------------------------------------------------------------------------
 //
-// Computes the Extended Greatest Common Divisor by solving Bézout's Identity
+// Computes the Extended Greatest Common Divisor by solving B??zout's Identity
 // which is a linear diophantine equation.
 // If a and b are nonzero integers with greatest common divisor d, then there
-// exist integers x and y (called Bézout numbers or Bézout coefficients)
+// exist integers x and y (called B??zout numbers or B??zout coefficients)
 // such that ax + by = d. Additionally, d is the smallest positive integer
 // for which there are integer solutions x and y for the preceding equation.
 //
 // @param <a> The first of two integers we wish to compare.
 // @param <b> The second of two integers we wish to compare.
 // @param <d> gcd(a,b)
-// @param <x> The first of two resulting Bézout numbers.
-// @param <y> The second of two resulting Bézout numbers.
+// @param <x> The first of two resulting B??zout numbers.
+// @param <y> The second of two resulting B??zout numbers.
 //
 //------------------------------------------------------------------------------
 void GmatMathUtil::EGCD(Integer a, Integer b, Integer &d, Integer &x, Integer &y)
 {
-    Integer xp = 0, x = 1;
-    Integer yp = 1, y = 0;
+    Integer xp = 0; x = 1;
+    Integer yp = 1; y = 0;
 
     while ( b != 0 )
     {
 
         // Use Euclid's algorithm
-        Integer quotient = Quotient(a,b);
+        Integer quotient;
+        Quotient(a,b,quotient);
 
         Integer temp = b;
         b = Mod(a,b);
@@ -182,7 +183,6 @@ void GmatMathUtil::EGCD(Integer a, Integer b, Integer &d, Integer &x, Integer &y
     // a now contains gcd(a,b)
     d = a;
 
-    return true;
 }
 
 //------------------------------------------------------------------------------

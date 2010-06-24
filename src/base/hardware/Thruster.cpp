@@ -17,6 +17,8 @@
 
 
 #include "Thruster.hpp"
+#include "ObjectReferencedAxes.hpp"
+#include "Spacecraft.hpp"
 #include "StringUtil.hpp"
 #include "HardwareException.hpp"
 #include "MessageInterface.hpp"
@@ -43,6 +45,8 @@
 // static data
 //---------------------------------
 
+/// Available local axes labels
+StringArray Thruster::localAxesLabels;
 /// C-coefficient units
 StringArray Thruster::cCoefUnits;
 /// K-coefficient units
@@ -53,6 +57,9 @@ const std::string
 Thruster::PARAMETER_TEXT[ThrusterParamCount - HardwareParamCount] =
 {
    "IsFiring",
+   "CoordinateSystem",
+   "Origin",
+   "Axes",
    "DutyCycle",
    "ThrustScaleFactor",
    "DecrementMass",
@@ -72,6 +79,9 @@ const Gmat::ParameterType
 Thruster::PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount] =
 {
    Gmat::BOOLEAN_TYPE,     // "IsFiring"
+   Gmat::OBJECT_TYPE,      // "CoordinateSystem"
+   Gmat::OBJECT_TYPE,      // "Origin"
+   Gmat::ENUMERATION_TYPE, // "Axes"
    Gmat::REAL_TYPE,        // "DutyCycle"
    Gmat::REAL_TYPE,        // "ThrustScaleFactor"
    Gmat::BOOLEAN_TYPE,     // "DecrementMass"
@@ -107,7 +117,18 @@ Thruster::PARAMETER_TYPE[ThrusterParamCount - HardwareParamCount] =
  */
 //------------------------------------------------------------------------------
 Thruster::Thruster(std::string nomme) :
-   Hardware             (Gmat::HARDWARE, "Thruster", nomme),
+   Hardware             (Gmat::THRUSTER, "Thruster", nomme),
+   solarSystem          (NULL),
+   localCoordSystem     (NULL),
+   coordSystem          (NULL),
+   localOrigin          (NULL),
+   j2000Body            (NULL),
+   spacecraft           (NULL),
+   coordSystemName      ("Local"),
+   localOriginName      ("Earth"),
+   localAxesName        ("VNB"),
+   j2000BodyName        ("Earth"),
+   satName              (""),
    gravityAccel         (9.81),
    dutyCycle            (1.0),
    thrustScaleFactor    (1.0),
@@ -120,29 +141,37 @@ Thruster::Thruster(std::string nomme) :
    thrusterFiring       (false),
    constantExpressions  (true),
    simpleExpressions    (true),
+   usingLocalCoordSys   (true),
+   isMJ2000EqAxes       (false),
+   isSpacecraftBodyAxes (false),
    initialized          (false)
 {
    objectTypes.push_back(Gmat::THRUSTER);
    objectTypeNames.push_back("Thruster");
    parameterCount = ThrusterParamCount;
    
-   cCoefficients[2]  = 500.0;
-   cCoefficients[12] = 1.0;
-   cCoefficients[0]  = cCoefficients[1]  = cCoefficients[3] =
-   cCoefficients[4]  = cCoefficients[5]  = cCoefficients[6] =
-   cCoefficients[7]  = cCoefficients[8]  = cCoefficients[9] =
-   cCoefficients[10] = cCoefficients[11] = cCoefficients[13] =
-   cCoefficients[14] = cCoefficients[15] = 0.0;
-
-   kCoefficients[2]  = 2150.0;
-   kCoefficients[12] = 1.0;
-   kCoefficients[0]  = kCoefficients[1]  = kCoefficients[3] =
-   kCoefficients[4]  = kCoefficients[5]  = kCoefficients[6] =
-   kCoefficients[7]  = kCoefficients[8]  = kCoefficients[9] =
-   kCoefficients[10] = kCoefficients[11] = kCoefficients[13] =
-   kCoefficients[14] = kCoefficients[15] = 0.0;
+   inertialDirection[0] = 1.0;
+   inertialDirection[1] = 0.0;
+   inertialDirection[2] = 0.0;
+   
+   cCoefficients[0]  = 10.0;
+   for (int i=1; i<COEFFICIENT_COUNT; i++)
+      cCoefficients[i] = 0.0;
+   
+   kCoefficients[0]  = 300.0;
+   for (int i=1; i<COEFFICIENT_COUNT; i++)
+      kCoefficients[i] = 0.0;
+   
+   // Available local axes labels
+   // Since it is static data, clear it first
+   localAxesLabels.clear();
+   localAxesLabels.push_back("VNB");
+   localAxesLabels.push_back("LVLH");
+   localAxesLabels.push_back("MJ2000Eq");
+   localAxesLabels.push_back("SpacecraftBody");
    
    // C coefficient units
+   cCoefUnits.clear();
    cCoefUnits.push_back("N");
    cCoefUnits.push_back("N/Pa");
    cCoefUnits.push_back("N");
@@ -161,6 +190,7 @@ Thruster::Thruster(std::string nomme) :
    cCoefUnits.push_back("1/Pa");
    
    // K coefficient units
+   kCoefUnits.clear();
    kCoefUnits.push_back("s");
    kCoefUnits.push_back("s/Pa");
    kCoefUnits.push_back("s");
@@ -177,7 +207,15 @@ Thruster::Thruster(std::string nomme) :
    kCoefUnits.push_back("1/Pa");
    kCoefUnits.push_back("None");
    kCoefUnits.push_back("1/Pa");
-      
+   
+   // set parameter write order
+   for (Integer i=HardwareParamCount; i <= AXES; i++)
+      parameterWriteOrder.push_back(i);
+   
+   parameterWriteOrder.push_back(DIRECTION_X);
+   parameterWriteOrder.push_back(DIRECTION_Y);
+   parameterWriteOrder.push_back(DIRECTION_Z);
+   
    for (Integer i=DUTY_CYCLE; i < ThrusterParamCount; i++)
       parameterWriteOrder.push_back(i);
    
@@ -193,6 +231,17 @@ Thruster::Thruster(std::string nomme) :
 //------------------------------------------------------------------------------
 Thruster::~Thruster()
 {
+   // delete local coordiante system
+   if (usingLocalCoordSys && localCoordSystem)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (localCoordSystem, "localCS", "Thruster::~Thruster()",
+          "deleting localCoordSystem");
+      #endif
+      delete localCoordSystem;
+      localCoordSystem = NULL;
+   }
 }
 
 
@@ -204,14 +253,25 @@ Thruster::~Thruster()
  *
  * @param th The object being copied.
  *
- * @Note coordSystem and spacecraft are set through SetRefObject() during
- *       Sandbox initialization. localOrigin and j2000Body are set when
+ * @note coordSystem and spacecraft are set through SetRefObject() during
+ *       Sandbox initialization. localOrigin and j2000Body are reset when
  *       solarSystem is set. localCoordSystem is created during initialization
  *       or when new spacecraft is set
  */
 //------------------------------------------------------------------------------
 Thruster::Thruster(const Thruster& th) :
-   Hardware             (th),
+   Hardware             (th),   
+   solarSystem          (th.solarSystem), // copy
+   localCoordSystem     (NULL),
+   coordSystem          (th.coordSystem), // copy
+   localOrigin          (th.localOrigin), // copy
+   j2000Body            (th.j2000Body),   // copy
+   spacecraft           (NULL),
+   coordSystemName      (th.coordSystemName),
+   localOriginName      (th.localOriginName),
+   localAxesName        (th.localAxesName),
+   j2000BodyName        (th.j2000BodyName),
+   satName              (th.satName),
    gravityAccel         (th.gravityAccel),
    dutyCycle            (th.dutyCycle),
    thrustScaleFactor    (th.thrustScaleFactor),
@@ -224,15 +284,42 @@ Thruster::Thruster(const Thruster& th) :
    thrusterFiring       (th.thrusterFiring),
    constantExpressions  (th.constantExpressions),
    simpleExpressions    (th.simpleExpressions),
+   usingLocalCoordSys   (th.usingLocalCoordSys),
+   isMJ2000EqAxes       (th.isMJ2000EqAxes),
+   isSpacecraftBodyAxes (th.isSpacecraftBodyAxes),
    initialized          (false),
    tankNames            (th.tankNames)
 {
+   #ifdef DEBUG_THRUSTER_CONSTRUCTOR
+   MessageInterface::ShowMessage
+      ("Thruster::Thruster(copy) entered, this = <%p>'%s', copying from <%p>'%s'\n",
+       this, GetName().c_str(), &th, th.GetName().c_str());
+   #endif
+   
    parameterCount = th.parameterCount;
-
+   localAxesLabels = th.localAxesLabels;
+   
+   inertialDirection[0] = th.inertialDirection[0];
+   inertialDirection[1] = th.inertialDirection[1];
+   inertialDirection[2] = th.inertialDirection[2];
+   
    memcpy(cCoefficients, th.cCoefficients, COEFFICIENT_COUNT * sizeof(Real));
    memcpy(kCoefficients, th.kCoefficients, COEFFICIENT_COUNT * sizeof(Real));
    
-   tanks.clear();
+   #ifdef DEBUG_THRUSTER_CONSTRUCTOR
+   MessageInterface::ShowMessage
+      ("   copying tanks. There are %d tank(s) to copy from <%p>\n", th.tanks.size(), &th);
+   MessageInterface::ShowMessage
+      ("   solarSystem=<%p>, usingLocalCoordSys=%d, coordSystem=<%p>\n",
+       solarSystem, usingLocalCoordSys, coordSystem);
+   #endif
+   
+   // copy tanks
+   tanks = th.tanks;
+   
+   #ifdef DEBUG_THRUSTER_CONSTRUCTOR
+   MessageInterface::ShowMessage("Thruster::Thruster(copy) exiting\n");
+   #endif
 }
 
 
@@ -246,8 +333,8 @@ Thruster::Thruster(const Thruster& th) :
  *
  * @return this object, with parameters set to the input object's parameters.
  *
- * @Note coordSystem and spacecraft are set through SetRefObject() during
- *       Sandbox initialization. localOrigin and j2000Body are set when
+ * @note coordSystem and spacecraft are set through SetRefObject() during
+ *       Sandbox initialization. localOrigin and j2000Body are reset when
  *       solarSystem is set. localCoordSystem is created during initialization
  *       or when new spacecraft is set
  */
@@ -257,7 +344,23 @@ Thruster& Thruster::operator=(const Thruster& th)
    if (&th == this)
       return *this;
    
+   #ifdef DEBUG_THRUSTER_CONSTRUCTOR
+   MessageInterface::ShowMessage("Thruster::operator= entered\n");
+   #endif
+   
    Hardware::operator=(th);
+   
+   solarSystem         = th.solarSystem; // copy
+   localCoordSystem    = NULL;
+   coordSystem         = th.coordSystem; // copy
+   localOrigin         = th.localOrigin; // copy
+   j2000Body           = th.j2000Body;   // copy
+   spacecraft          = NULL;
+   coordSystemName     = th.coordSystemName;
+   localOriginName     = th.localOriginName;
+   localAxesName       = th.localAxesName;
+   j2000BodyName       = th.j2000BodyName;
+   satName             = th.satName;
    
    gravityAccel        = th.gravityAccel;
    dutyCycle           = th.dutyCycle;
@@ -268,6 +371,10 @@ Thruster& Thruster::operator=(const Thruster& th)
    impulse             = th.impulse;
    mDot                = th.mDot;
    
+   inertialDirection[0]  = th.inertialDirection[0];
+   inertialDirection[1]  = th.inertialDirection[1];
+   inertialDirection[2]  = th.inertialDirection[2];
+   
    memcpy(cCoefficients, th.cCoefficients, COEFFICIENT_COUNT * sizeof(Real));
    memcpy(kCoefficients, th.kCoefficients, COEFFICIENT_COUNT * sizeof(Real));
    
@@ -276,11 +383,19 @@ Thruster& Thruster::operator=(const Thruster& th)
    constantExpressions = th.constantExpressions;
    simpleExpressions   = th.simpleExpressions;
    usingLocalCoordSys  = th.usingLocalCoordSys;
+   usingLocalCoordSys  = th.usingLocalCoordSys;
+   localAxesLabels     = th.localAxesLabels;
    initialized         = false;
-
+   
+   localAxesLabels     = th.localAxesLabels;
    tankNames           = th.tankNames;
    
-   tanks.clear();
+   // copy tanks
+   tanks               = th.tanks;
+   
+   #ifdef DEBUG_THRUSTER_CONSTRUCTOR
+   MessageInterface::ShowMessage("Thruster::operator= exiting\n");
+   #endif
    
    return *this;
 }
@@ -333,14 +448,14 @@ std::string Thruster::GetParameterText(const Integer id) const
 {
    if (id >= HardwareParamCount && id < ThrusterParamCount)
       return PARAMETER_TEXT[id - HardwareParamCount];
-
+   
    if (id == DIRECTION_X)
       return "ThrustDirection1";
    if (id == DIRECTION_Y)
       return "ThrustDirection2";
    if (id == DIRECTION_Z)
       return "ThrustDirection3";
-
+   
    return Hardware::GetParameterText(id);
 }
 
@@ -363,14 +478,14 @@ Integer Thruster::GetParameterID(const std::string &str) const
       if (str == PARAMETER_TEXT[i - HardwareParamCount])
          return i;
    }
-
+   
    if (str == "ThrustDirection1")
       return DIRECTION_X;
    if (str == "ThrustDirection2")
       return DIRECTION_Y;
    if (str == "ThrustDirection3")
       return DIRECTION_Z;
-
+   
    if (str == "X_Direction" || str == "Element1")
    {
       WriteDeprecatedMessage(str, "ThrustDirection1");
@@ -386,9 +501,10 @@ Integer Thruster::GetParameterID(const std::string &str) const
       WriteDeprecatedMessage(str, "ThrustDirection3");
       return DIRECTION_Z;
    }
-
+   
    return Hardware::GetParameterID(str);
 }
+
 
 //------------------------------------------------------------------------------
 //  Gmat::ParameterType  GetParameterType(const Integer id) const
@@ -441,10 +557,12 @@ std::string Thruster::GetParameterTypeString(const Integer id) const
 //---------------------------------------------------------------------------
 bool Thruster::IsParameterReadOnly(const Integer id) const
 {
-   //Temporary change until we decide some tank/thruster issues.
-   // if ((id == THRUSTER_FIRING) || (id == TANK))
    if ((id == THRUSTER_FIRING) || id == C_UNITS || id == K_UNITS)
       return true;
+   
+   if ((id == ORIGIN || id == AXES))
+      if (coordSystemName != "Local")
+         return true;
    
    return Hardware::IsParameterReadOnly(id);
 }
@@ -463,7 +581,8 @@ bool Thruster::IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
 Real Thruster::GetRealParameter(const Integer id) const
 {
-   switch (id) {
+   switch (id)
+   {
       case C1:
          return cCoefficients[0];
       case C2:
@@ -778,6 +897,32 @@ Real Thruster::SetRealParameter(const Integer id, const Real value)
    return Hardware::SetRealParameter(id, value);
 }
 
+
+//---------------------------------------------------------------------------
+//  std::string GetStringParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve a string parameter.
+ *
+ * @param id The integer ID for the parameter.
+ *
+ * @return The string stored for this parameter, or throw ab=n exception if
+ *         there is no string association.
+ */
+//---------------------------------------------------------------------------
+std::string Thruster::GetStringParameter(const Integer id) const
+{
+   if (id == COORDINATE_SYSTEM)
+      return coordSystemName;
+   if (id == ORIGIN)
+      return localOriginName;
+   if (id == AXES)
+      return localAxesName;
+   
+   return Hardware::GetStringParameter(id);
+}
+
+
 //---------------------------------------------------------------------------
 //  bool SetStringParameter(const Integer id, const std::string &value)
 //---------------------------------------------------------------------------
@@ -792,20 +937,108 @@ Real Thruster::SetRealParameter(const Integer id, const Real value)
 //---------------------------------------------------------------------------
 bool Thruster::SetStringParameter(const Integer id, const std::string &value)
 {
-    #ifdef DEBUG_THRUSTER_SET
-    MessageInterface::ShowMessage
-       ("Thruster::SetStringParameter() '%s' entered, id=%d, value='%s'\n",
+   #ifdef DEBUG_THRUSTER_SET
+   MessageInterface::ShowMessage
+      ("Thruster::SetStringParameter() '%s' entered, id=%d, value='%s'\n",
        GetName().c_str(), id, value.c_str());
-    #endif
+   #endif
    
-    switch (id)
-    {
-        case TANK:
-            tankNames.push_back(value);
-            return true;
-        default:
-            return Hardware::SetStringParameter(id, value);
-    }
+   switch (id)
+   {
+   case COORDINATE_SYSTEM:
+      coordSystemName = value;
+      if (value == "Local")
+         usingLocalCoordSys = true;
+      else
+         usingLocalCoordSys = false;
+      return true;
+   case ORIGIN:
+      localOriginName = value;
+      return true;
+   case AXES:
+      {
+         localAxesName = value;
+         if (find(localAxesLabels.begin(), localAxesLabels.end(), localAxesName)
+             == localAxesLabels.end())
+         {
+            std::string framelist = localAxesLabels[0];
+            for (UnsignedInt n = 1; n < localAxesLabels.size(); ++n)
+               framelist += ", " + localAxesLabels[n];
+            
+            std::string msg =
+               "The value of \"" + value + "\" for field \"Axes\""
+               " on object \"" + instanceName + "\" is not an allowed value.\n"
+               "The allowed values are: [ " + framelist + " ]. ";
+            
+            throw HardwareException(msg);
+         }
+         return true;
+      }
+   case TANK:
+      // if not the same name push back
+      if (find(tankNames.begin(), tankNames.end(), value) == tankNames.end())
+         tankNames.push_back(value);
+      return true;
+   default:
+      return Hardware::SetStringParameter(id, value);
+   }
+}
+
+
+//---------------------------------------------------------------------------
+//  std::string GetStringParameter(const Integer id, const Integer index) const
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+std::string Thruster::GetStringParameter(const Integer id,
+                                         const Integer index) const
+{
+   switch (id)
+   {
+   case TANK:
+      {
+         if (index >= 0 && index < (Integer)tankNames.size())
+            return tankNames[index];
+         else
+            throw HardwareException
+               ("Thruster::GetStringParameter() \"" + instanceName + ", " + 
+                GmatStringUtil::ToString(index) +  " is invalid Tank index");
+      }
+   default:
+      return Hardware::GetStringParameter(id, index);
+   }
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetStringParameter(const Integer id, const std::string &value,
+//                          const Integer index)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool Thruster::SetStringParameter(const Integer id, const std::string &value,
+                                  const Integer index)
+{
+   switch (id)
+   {
+   case TANK:
+      {
+         if (index < (Integer)tankNames.size())
+            tankNames[index] = value;
+         else
+            // Only add the tank if it is not in the list already
+            if (find(tankNames.begin(), tankNames.end(), value) == tankNames.end()) 
+               tankNames.push_back(value);
+         
+         return true;
+      }
+   default:
+      return Hardware::SetStringParameter(id, value, index);
+   }
 }
 
 
@@ -895,6 +1128,141 @@ bool Thruster::SetBooleanParameter(const Integer id, const bool value)
 }
 
 
+//------------------------------------------------------------------------------
+//  const StringArray& GetPropertyEnumStrings(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Access an array of enumerated string data.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return The requested StringArray; throws if the parameter is not a 
+ *         StringArray.
+ */
+//------------------------------------------------------------------------------
+const StringArray& Thruster::GetPropertyEnumStrings(const Integer id) const
+{
+   if (id == AXES)
+      return localAxesLabels;
+   
+   return GmatBase::GetPropertyEnumStrings(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  const StringArray& GetPropertyEnumStrings(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Access an array of enumerated string data.
+ *
+ * @param <label> The parameter name.
+ *
+ * @return The requested StringArray
+ */
+//------------------------------------------------------------------------------
+const StringArray& Thruster::GetPropertyEnumStrings(const std::string &label) const
+{
+   return GetPropertyEnumStrings(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetRefObjectName(const Gmat::ObjectType type) const
+//------------------------------------------------------------------------------
+std::string Thruster::GetRefObjectName(const Gmat::ObjectType type) const
+{
+   #ifdef DEBUG_THRUSTER_REF_OBJ
+   MessageInterface::ShowMessage
+      ("Thruster::GetRefObjectName() <%p>'%s' entered, type=%d\n", this,
+       GetName().c_str(), type);
+   #endif
+   
+   std::string refObjName;
+   if (type == Gmat::COORDINATE_SYSTEM)
+   {
+      std::string refObjName;
+      if (!usingLocalCoordSys)
+         refObjName = coordSystemName;
+      
+      #ifdef DEBUG_THRUSTER_REF_OBJ
+      MessageInterface::ShowMessage
+         ("Thruster::GetRefObjectName() <%p>'%s' returning '%s'\n", this,
+          GetName().c_str(), refObjName.c_str());
+      #endif
+      
+      return refObjName;
+   }
+   
+   return Hardware::GetRefObjectName(type);
+}
+
+
+//------------------------------------------------------------------------------
+// const ObjectTypeArray& GetRefObjectTypeArray()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the list of ref object types used by this class.
+ *
+ * @return the list of object types.
+ * 
+ */
+//------------------------------------------------------------------------------
+const ObjectTypeArray& Thruster::GetRefObjectTypeArray()
+{
+   refObjectTypes.clear();
+   refObjectTypes.push_back(Gmat::COORDINATE_SYSTEM);
+   refObjectTypes.push_back(Gmat::CELESTIAL_BODY);
+   refObjectTypes.push_back(Gmat::SPACECRAFT);
+   return refObjectTypes;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+const StringArray& Thruster::GetRefObjectNameArray(const Gmat::ObjectType type)
+{
+   #ifdef DEBUG_THRUSTER_REF_OBJ
+   MessageInterface::ShowMessage
+      ("Thruster::GetRefObjectNameArray() <%p>'%s' entered, type=%d\n",
+       this, GetName().c_str(), type);
+   #endif
+   
+   refObjectNames.clear();
+   if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::COORDINATE_SYSTEM)
+   {
+      if (!usingLocalCoordSys)
+         refObjectNames.push_back(coordSystemName);
+   }
+   
+   if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::CELESTIAL_BODY)
+   {
+      if (usingLocalCoordSys)
+      {
+         refObjectNames.push_back(j2000BodyName);
+         if (localOriginName != j2000BodyName)
+            refObjectNames.push_back(localOriginName);
+      }
+   }
+   
+   if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::SPACECRAFT)
+   {
+      if (satName != "")
+         refObjectNames.push_back(satName);
+   }
+   
+   #ifdef DEBUG_THRUSTER_REF_OBJ
+   MessageInterface::ShowMessage
+      ("Thruster::GetRefObjectNameArray(), refObjectNames.size()=%d\n",
+       refObjectNames.size());
+   for (UnsignedInt i=0; i<refObjectNames.size(); i++)
+      MessageInterface::ShowMessage("   '%s'\n", refObjectNames[i].c_str());
+   #endif
+   
+   return refObjectNames;
+}
+
+
 //---------------------------------------------------------------------------
 //  bool RenameRefObject(const Gmat::ObjectType type,
 //                       const std::string &oldName, const std::string &newName)
@@ -942,18 +1310,82 @@ bool Thruster::RenameRefObject(const Gmat::ObjectType type,
 bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                             const std::string &name)
 {
+   #ifdef DEBUG_THRUSTER_REF_OBJ
+   MessageInterface::ShowMessage
+      ("Thruster::SetRefObject() <%p>'%s' entered, obj=<%p>, type=%d, name='%s'\n",
+       this, GetName().c_str(), obj, type, name.c_str());
+   #endif
+   
    if (obj == NULL)
       return false;
    
+   if (type == Gmat::COORDINATE_SYSTEM && obj->GetType() == Gmat::COORDINATE_SYSTEM)
+   {
+      if (coordSystemName == name)
+      {
+         coordSystem = (CoordinateSystem*)obj;
+         #ifdef DEBUG_THRUSTER_REF_OBJ
+         MessageInterface::ShowMessage
+            ("Thruster::SetRefObject() leaving, the CoordinateSystem set to <%p>\n",
+             coordSystem);
+         #endif
+      }
+      return true;
+   }
+   
+   if (type == Gmat::CELESTIAL_BODY && obj->GetType() == Gmat::CELESTIAL_BODY &&
+       localOriginName == name)
+   {
+      localOrigin = (CelestialBody*)obj;
+      return true;
+   }
+   
+   if (type == Gmat::CELESTIAL_BODY && obj->GetType() == Gmat::CELESTIAL_BODY &&
+       j2000BodyName == name)
+   {
+      j2000Body = (CelestialBody*)obj;
+      return true;
+   }
+   
+   if (obj->GetType() == Gmat::SPACECRAFT)
+   {
+      return SetSpacecraft((Spacecraft*)obj);
+   }
+   
    if (obj->GetTypeName() == "FuelTank")
    {
-      #ifdef DEBUG_THRUSTER
-         MessageInterface::ShowMessage("Setting tank \"%s\" on thruster \"%s\"\n",
+      #ifdef DEBUG_THRUSTER_REF_OBJ
+         MessageInterface::ShowMessage("   Setting tank \"%s\" on thruster \"%s\"\n",
                                        name.c_str(), instanceName.c_str());
       #endif
-         
-      if (find(tanks.begin(), tanks.end(), obj) == tanks.end())
+      
+      if (tanks.empty())
+      {
          tanks.push_back((FuelTank*)obj);
+         #ifdef DEBUG_THRUSTER_REF_OBJ
+         MessageInterface::ShowMessage
+            ("   <%p>'%s' added to tank list, now size is %d\n",
+             obj, obj->GetName().c_str(), tanks.size());
+         #endif
+      }
+      else if (find(tanks.begin(), tanks.end(), obj) == tanks.end())
+      {
+         // Replace old tank with new one. We don't want to delete the
+         // old tank here since Spacecraft owns it (tank is not cloned in the
+         // copy constructor)
+         for (UnsignedInt i=0; i<tanks.size(); i++)
+         {
+            if (tanks[i]->GetName() == name)
+            {
+               #ifdef DEBUG_THRUSTER_REF_OBJ
+               MessageInterface::ShowMessage
+                  ("   <%p>'%s' will replace the old tank <%p>'%s'\n", obj,
+                   obj->GetName().c_str(), tanks[i], tanks[i]->GetName().c_str());
+               #endif
+               tanks[i] = (FuelTank*)obj;
+            }
+         }
+      }
       
       #ifdef DEBUG_THRUSTER
          // Peek at the mass flow data
@@ -963,9 +1395,13 @@ bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          thrusterFiring = temp;
       #endif
       
+      #ifdef DEBUG_THRUSTER_REF_OBJ
+      MessageInterface::ShowMessage
+         ("Thruster::SetRefObject() <%p>'%s' returning true\n", this, GetName().c_str());
+      #endif
       return true;
    }
-
+   
    return Hardware::SetRefObject(obj, type, name);
 }
 
@@ -983,8 +1419,13 @@ bool Thruster::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //---------------------------------------------------------------------------
 ObjectArray& Thruster::GetRefObjectArray(const Gmat::ObjectType type)
 {
-//   if (type == Gmat::HARDWARE)
-//      return tanks;
+   if (type == Gmat::HARDWARE)
+   {
+      tempArray.clear();
+      for (UnsignedInt i = 0; i < tanks.size(); ++i)
+         tempArray.push_back(tanks[i]);
+      return tempArray;
+   }
 
    return Hardware::GetRefObjectArray(type);
 }
@@ -1042,6 +1483,36 @@ bool Thruster::TakeAction(const std::string &action,
    return Hardware::TakeAction(action, actionData);
 }
 
+
+//------------------------------------------------------------------------------
+//  void SetSolarSystem(SolarSystem *ss)
+//------------------------------------------------------------------------------
+/**
+ * Sets the internal solar system pointer for objects that have one.
+ *
+ * @param ss   The solar system.
+ */
+//------------------------------------------------------------------------------
+void Thruster::SetSolarSystem(SolarSystem *ss)
+{
+   #ifdef DEBUG_THRUSTER_REF_OBJ
+   MessageInterface::ShowMessage
+      ("Thruster::SetSolarSystem() ss=<%p> '%s'\n", ss, ss->GetName().c_str());
+   #endif
+   
+   if (solarSystem != ss)
+   {
+      solarSystem = ss;
+      
+      if (usingLocalCoordSys)
+      {
+         localOrigin = solarSystem->GetBody(localOriginName);
+         j2000Body = solarSystem->GetBody(j2000BodyName);
+      }
+   }
+}
+
+
 //------------------------------------------------------------------------------
 //  bool Initialize()
 //------------------------------------------------------------------------------
@@ -1053,14 +1524,94 @@ bool Thruster::Initialize()
 {
    #ifdef DEBUG_THRUSTER_INIT
    MessageInterface::ShowMessage
-      ("Thruster::Initialize() <%p>'%s' entered, spacecraft=<%p>\n", this,
-       GetName().c_str(), spacecraft);
+      ("Thruster::Initialize() <%p>'%s' entered, spacecraft=<%p>, "
+       "usingLocalCoordSys=%d, coordSystem=<%p>, localCoordSystem=<%p>\n",
+       this, GetName().c_str(), spacecraft, usingLocalCoordSys,
+       coordSystem, localCoordSystem);
    #endif
    
    bool retval = Hardware::Initialize();
-
+   if (!retval)
+      return false;
+   
+   if (!usingLocalCoordSys)
+   {
+      if (coordSystem == NULL)
+         throw HardwareException
+            ("Thruster::Initialize() the Coordinate System \"" + coordSystemName +
+             "\" has not been set.");
+      
+      // If spacecraft is not set this time, just return true
+      // This instance of Thruster may be just cloned one from the Sandbox
+      if (spacecraft == NULL)
+         return true;
+   }
+   else
+   {
+      if (solarSystem == NULL)
+         throw HardwareException
+            ("Unable to initialize the Thruster object \"" + 
+             instanceName + "\"; " + "\"SolarSystem\" was not set.");
+      
+      if (!j2000Body)
+         throw HardwareException
+            ("Unable to initialize the thruster object \"" + 
+             instanceName + "\"; \"" + j2000BodyName + "\" was not set.");
+      
+      if (!localOrigin)
+         throw HardwareException
+            ("Unable to initialize the thruster object \"" + 
+             instanceName + "\"; \"" + localOriginName + "\" \" was not set.");
+      
+      // delete old local coordinate system
+      if (localCoordSystem != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (localCoordSystem, "localCS", "Thruster::Initialize()",
+             "deleting localCoordSystem");
+         #endif
+         delete localCoordSystem;
+         localCoordSystem = NULL;
+      }
+      
+      // If spacecraft is available, create new local coordinate system
+      if (spacecraft != NULL)
+         localCoordSystem = CreateLocalCoordinateSystem();
+      
+      // localCoordSystem is still NULL, just return
+      if (localCoordSystem == NULL)
+      {
+         #ifdef DEBUG_THRUSTER_INIT
+         MessageInterface::ShowMessage
+            ("Thruster::Initialize() <%p>'%s' returning false, localCoordSystem is NULL\n",
+             this, GetName().c_str());
+         #endif
+         return false;
+      }
+   }
+   
+   // Convert direction to inertial coord system
+   Real epoch = spacecraft->GetRealParameter("A1Epoch");
+   ConvertDirectionToInertial(direction, inertialDirection, epoch);
+   
+   #ifdef DEBUG_THRUSTER_INIT
+   MessageInterface::ShowMessage
+      ("   Inertial thrust direction:  %18le  %18le  %18le\n",
+       inertialDirection[0], inertialDirection[1], inertialDirection[2]);
+   MessageInterface::ShowMessage
+      ("   %s tank mass computation\n", decrementMass ? "Continue with " : "Skipping");
+   #endif
+   
+   #ifdef DEBUG_THRUSTER_INIT
+   MessageInterface::ShowMessage
+      ("Thruster::Initialize() <%p>'%s' returning %s\n", this, GetName().c_str(),
+       retval ? "true" : "false");
+   #endif
+   
    return retval;
 }
+
 
 //---------------------------------------------------------------------------
 //  bool CalculateThrustAndIsp()
@@ -1100,12 +1651,12 @@ bool Thruster::Initialize()
 //---------------------------------------------------------------------------
 bool Thruster::CalculateThrustAndIsp()
 {
-   if (!thrusterFiring)
+   if (!thrusterFiring) 
    {
       thrust  = 0.0;
       impulse = 0.0;
    }
-   else
+   else 
    {
       if (tanks.empty())
          throw HardwareException("Thruster \"" + instanceName +
@@ -1123,7 +1674,7 @@ bool Thruster::CalculateThrustAndIsp()
       thrust = cCoefficients[2];
       impulse = kCoefficients[2];
 
-      if (!constantExpressions)
+      if (!constantExpressions) 
       {
 
          thrust  += pressure*(cCoefficients[3] + pressure*cCoefficients[4]);
@@ -1145,21 +1696,22 @@ bool Thruster::CalculateThrustAndIsp()
                                               pressure * kCoefficients[13]);
          }
       }
-
+      
 //       thrust  *= pow(temperatureRatio, (1.0 + cCoefficients[14] +
 //                      pressure*cCoefficients[15])) * thrustScaleFactor * dutyCycle;
       thrust  *= pow(temperatureRatio, (1.0 + cCoefficients[14] +
                      pressure*cCoefficients[15]));
       impulse *= pow(temperatureRatio, (1.0 + kCoefficients[14] +
                      pressure*kCoefficients[15]));
-
+      
       // Now add the temperature independent pieces
       thrust  += cCoefficients[0] + cCoefficients[1] * pressure;
       impulse += kCoefficients[0] + kCoefficients[1] * pressure;
    }
-
+   
    return true;
 }
+
 
 //---------------------------------------------------------------------------
 //  Real CalculateMassFlow()
@@ -1176,7 +1728,7 @@ Real Thruster::CalculateMassFlow()
 {
    if (!thrusterFiring)
       return 0.0;
-   else
+   else 
    {
       if (tanks.empty())
          throw HardwareException("Thruster \"" + instanceName +
@@ -1203,11 +1755,318 @@ Real Thruster::CalculateMassFlow()
       MessageInterface::ShowMessage(
             "   Thrust = %15lf, Isp = %15lf, gravity accel = %lf, TSF = %lf, "
             "dutyCycle = %15lf, MassFlow = %15lf T/Isp =  %lf\n",
-            thrust, impulse, gravityAccel, thrustScaleFactor, dutyCycle, mDot,
+            thrust, impulse, gravityAccel, thrustScaleFactor, dutyCycle, mDot, 
             thrust/impulse);
    #endif
 
-
+   
    return mDot * dutyCycle;
+}
+
+
+//------------------------------------------------------------------------------
+//  bool SetSpacecraft(Spacecraft *sat)
+//------------------------------------------------------------------------------
+/**
+ * Accessor method to pass in the spacecraft pointer. This method is usually
+ * called during the Sandbox initialization when building Spacecraft owned
+ * objects such as tanks and thrusters. The spacecraft passes itself to this
+ * class instance using Thruster::SetRefObject() in Spacecraft::SetRefObject().
+ *
+ * This method creates new local coordinate system if current spacecraft is not
+ * the same as old spacecraft.
+ * 
+ * @param <sat> the Spacecraft
+ */
+//------------------------------------------------------------------------------
+bool Thruster::SetSpacecraft(Spacecraft *sat)
+{
+   if (sat == NULL)
+      return false;
+   
+   #ifdef DEBUG_THRUSTER_REF_OBJ
+   MessageInterface::ShowMessage
+      ("Thruster::SetSpacecraft() sat=<%p>'%s', usingLocalCoordSys=%d, "
+       "localCoordSystem=<%p>\n", sat, sat->GetName().c_str(), usingLocalCoordSys,
+       localCoordSystem);
+   #endif
+   
+   // If spcecraft is different
+   if (spacecraft != sat)
+   {
+      spacecraft = sat;
+      satName = spacecraft->GetName();
+      
+      // create new local coordinate system
+      if (usingLocalCoordSys)
+      {
+         if (localCoordSystem)
+         {
+            #ifdef DEBUG_MEMORY
+            MemoryTracker::Instance()->Remove
+               (localCoordSystem, "localCS", "Thruster::SetSpacecraft()",
+                "deleting localCoordSystem");
+            #endif
+            delete localCoordSystem;
+            localCoordSystem = NULL;
+         }
+         localCoordSystem = CreateLocalCoordinateSystem();
+         
+         #ifdef DEBUG_THRUSTER_REF_OBJ
+         MessageInterface::ShowMessage
+            ("   new localCoordSystem <%p> created\n", localCoordSystem);
+         #endif
+      }
+   }
+   
+   #ifdef DEBUG_THRUSTER_REF_OBJ
+   MessageInterface::ShowMessage("Thruster::SetSpacecraft() returning true\n");
+   #endif
+   
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
+// CoordinateSystem* CreateLocalCoordinateSystem()
+//------------------------------------------------------------------------------
+CoordinateSystem* Thruster::CreateLocalCoordinateSystem()
+{
+   #ifdef DEBUG_THRUSTER_INIT
+   MessageInterface::ShowMessage
+      ("Thruster::CreateLocalCoordinateSystem() <%p>'%s' entered, usingLocalCoordSys=%d, "
+       "spacecraft=<%p>\n", this, GetName().c_str(), usingLocalCoordSys, spacecraft);
+   #endif
+   
+   CoordinateSystem *localCS = NULL;
+   
+   // If coordinate system being used is local, then create
+   if (usingLocalCoordSys)
+   {
+      if (solarSystem == NULL)
+      {
+         // Since SolarSystem may be set later, just return NULL for now
+         #ifdef DEBUG_THRUSTER_INIT
+         MessageInterface::ShowMessage
+            ("Thruster::CreateLocalCoordinateSystem() SolarSystem is not set so, "
+             "returning NULL\n");
+         #endif
+         return NULL;
+         
+         //throw HardwareException
+         //   ("Unable to initialize the Thruster object " + 
+         //    instanceName + " " + "\"SolarSystem\" was not set for the thruster.");
+      }
+      
+      if (spacecraft == NULL)
+      {
+         // Since spacecraft may be set later, just return NULL for now
+         #ifdef DEBUG_THRUSTER_INIT
+         MessageInterface::ShowMessage
+            ("Thruster::CreateLocalCoordinateSystem() spacecraft is not set so, "
+             "returning NULL\n");
+         #endif
+         return NULL;
+         
+         //throw HardwareException("Unable to initialize the Thruster object " + 
+         //   instanceName + " " + satName + " was not set for the thruster.");
+      }
+            
+      // Call CoordinateSystem static method to create a local coordinate system
+      localOrigin = solarSystem->GetBody(localOriginName);
+      localCS = CoordinateSystem::CreateLocalCoordinateSystem
+         ("Local", localAxesName, spacecraft, localOrigin, spacecraft,
+          j2000Body, solarSystem);
+      
+      if (localCS == NULL)
+         return NULL;
+      
+      if (localAxesName == "MJ2000Eq")
+         isMJ2000EqAxes = true;
+      else if (localAxesName == "SpacecraftBody")
+         isSpacecraftBodyAxes = true;
+      
+   }
+   else
+   {
+      // If not using local cooordinate system, then it is using configured CS and
+      // it should have been set by this time
+      if (coordSystem == NULL)
+      {
+         throw HardwareException
+            ("Unable to initialize the Thruster object " + 
+             instanceName + " " + coordSystemName + " was not set for the thruster.");
+      }
+      localCS = coordSystem;
+   }
+   
+   #ifdef DEBUG_THRUSTER_INIT
+   MessageInterface::ShowMessage
+      ("Thruster::CreateLocalCoordinateSystem() <%p>'%s' returning <%p>\n",
+       this, GetName().c_str(), localCS);
+   #endif
+   
+   return localCS;
+}
+
+
+//------------------------------------------------------------------------------
+// void ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epoch)
+//------------------------------------------------------------------------------
+/*
+ * Converts thruster direction to inertial frame
+ *
+ * @param dir  Thruster direction in thruster frame
+ * @param dirInertial  Thruster direction in inertial frame
+ * @param epoch  Epoch to be used for conversion
+ */
+//------------------------------------------------------------------------------
+void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epoch)
+{
+   #ifdef DEBUG_THRUSTER_CONVERT
+   MessageInterface::ShowMessage
+      ("Thruster::ConvertDirectionToInertial() <%p>'%s' entered, epoch=%.15f\n   "
+       "dir=%.15f %.15f %.15f\n", this, GetName().c_str(), epoch, dir[0], dir[1], dir[1]);
+   MessageInterface::ShowMessage
+      ("   usingLocalCoordSys=%d, coordSystemName='%s', coordSystem=<%p>, "
+       "localCoordSystem=<%p>\n", usingLocalCoordSys, coordSystemName.c_str(),
+       coordSystem, localCoordSystem);
+   #endif
+   
+   if (usingLocalCoordSys && localCoordSystem == NULL)
+   {      
+      // try creating localCoordSystem
+      //localCoordSystem = CreateLocalCoordinateSystem();
+      // try Initialize again (LOJ: 2009.07.28)
+      Initialize();
+      if (!localCoordSystem)
+         throw HardwareException
+            ("Unable to convert thrust direction to Inertial, the local Coordinate "
+             "System has not been created.");
+   }
+   else if (!usingLocalCoordSys && coordSystem == NULL)
+   {
+      throw HardwareException
+         ("Unable to convert thrust direction to Inertial, the Coordinate "
+          "System \"" + coordSystemName + "\" has not been set.");      
+   }
+   
+   Real inDir[6], outDir[6];
+   for (Integer i=0; i<3; i++)
+      inDir[i] = dir[i];
+   for (Integer i=3; i<6; i++)
+      inDir[i] = 0.0;
+   
+   // if not using local CS, use ref CoordinateSystem
+   if (!usingLocalCoordSys)
+   {     
+      // Now rotate to MJ2000Eq axes, we don't want to translate so
+      // set coincident to true
+      coordSystem->ToMJ2000Eq(epoch, inDir, outDir, true);
+      
+      #ifdef DEBUG_BURN_CONVERT_ROTMAT
+      Rmatrix33 rotMat = coordSystem->GetLastRotationMatrix();
+      MessageInterface::ShowMessage
+         ("rotMat=\n%s\n", rotMat.ToString(16, 20).c_str());
+      #endif
+      
+      dirInertial[0] = outDir[0];
+      dirInertial[1] = outDir[1];
+      dirInertial[2] = outDir[2];
+   }
+   else
+   {
+      // if MJ2000Eq axes rotation matrix is alway identity matrix
+      if (isMJ2000EqAxes)
+      {
+         dirInertial[0] = dir[0];
+         dirInertial[1] = dir[1];
+         dirInertial[2] = dir[2];
+      }
+      else if (isSpacecraftBodyAxes)
+      {
+         Rvector3 inDir(dir[0], dir[1], dir[2]);
+         Rvector3 outDir;
+         // Get attitude matrix from Spacecraft and transpose since
+         // attitide matrix from spacecraft gives rotation matrix from
+         // inertial to body
+         Rmatrix33 inertialToBody = spacecraft->GetAttitude(epoch);
+         Rmatrix33 rotMat = inertialToBody.Transpose();
+         outDir = inDir * rotMat;
+         for (Integer i=0; i<3; i++)
+            dirInertial[i] = outDir[i];
+      }
+      else
+      {         
+         // Now rotate to MJ2000Eq axes
+         localCoordSystem->ToMJ2000Eq(epoch, inDir, outDir, true);
+         
+         dirInertial[0] = outDir[0];
+         dirInertial[1] = outDir[1];
+         dirInertial[2] = outDir[2];
+      }
+   }
+   
+   #ifdef DEBUG_THRUSTER_CONVERT
+   MessageInterface::ShowMessage
+      ("Thruster::ConvertDirectionToInertial() returning\n   "
+       "  direction = %.15f %.15f %.15f\n   "
+       "dirInertial = %.15f %.15f %.15f\n",
+       direction[0], direction[1], direction[2],
+       dirInertial[0], dirInertial[1], dirInertial[2]);
+   #endif
+}
+
+
+//---------------------------------------------------------------------------
+// void ComputeInertialDirection(Real epoch)
+//---------------------------------------------------------------------------
+void Thruster::ComputeInertialDirection(Real epoch)
+{
+   ConvertDirectionToInertial(direction, inertialDirection, epoch);
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteDeprecatedMessage(const std::string &oldProp,
+//                             const std::string &newProp) const
+//------------------------------------------------------------------------------
+void Thruster::WriteDeprecatedMessage(const std::string &oldProp,
+                                      const std::string &newProp) const
+{
+   // Write only one message per session
+   static bool writeXDirection = true;
+   static bool writeYDirection = true;
+   static bool writeZDirection = true;
+   static bool writeElement1 = true;
+   static bool writeElement2 = true;
+   static bool writeElement3 = true;
+   
+   if ((oldProp == "X_Direction" && writeXDirection) ||
+       (oldProp == "Y_Direction" && writeYDirection) ||
+       (oldProp == "Z_Direction" && writeZDirection) ||
+       (oldProp == "Element1" && writeElement1) ||
+       (oldProp == "Element2" && writeElement2) ||
+       (oldProp == "Element3" && writeElement3))
+   {
+      MessageInterface::ShowMessage
+         ("*** WARNING *** \"" + oldProp + "\" of Thruster orientation is "
+          "deprecated and will be removed from a future build; please use \"" +
+          newProp + "\" instead.\n");
+   }
+   
+   if (oldProp == "X_Direction")
+      writeXDirection = false;
+   else if (oldProp == "Y_Direction")
+      writeYDirection = false;
+   else if (oldProp == "Z_Direction")
+      writeYDirection = false;
+   else if (oldProp == "Element1")
+      writeElement1 = false;
+   else if (oldProp == "Element2")
+      writeElement2 = false;
+   else if (oldProp == "Element3")
+      writeElement3 = false;
+   
 }
 

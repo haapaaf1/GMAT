@@ -256,6 +256,8 @@ protected:
    
    static const Real TESTACCURACY;
    
+   static const Real QUAT_MIN_MAG;
+
    static const Real ATTITUDE_TIME_TOLERANCE;
    
    static const Integer OTHER_REPS_OFFSET;
@@ -331,7 +333,7 @@ protected:
    // method to convert a cosine matrix to an euler axis and angle
    virtual void      DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat, 
                                             Rvector3 &eAxis, Real &eAngle);
-                                            
+
    // method to set the euler sequence string to match the input
    // euler sequence array                        
    //bool  SetEulerSequenceString(const UnsignedIntArray &eulerArray);
@@ -361,7 +363,8 @@ private:
    Attitude(); 
    bool      ValidateCosineMatrix(const Rmatrix33 &mat);
    bool      ValidateEulerSequence(const std::string &seq);
-   bool      ValidateEulerSequence(const UnsignedIntArray &eulAng); 
+   bool      ValidateEulerSequence(const UnsignedIntArray &eulAng);
+   bool      ValidateQuaternion(const Rvector &quat);
    void      UpdateState(const std::string &rep);
 };
 #endif /*Attitude_hpp*/

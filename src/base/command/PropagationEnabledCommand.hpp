@@ -1,4 +1,4 @@
-//$Id: PropagationEnabledCommand.hpp 7090 2009-08-10 23:42:17Z djcinsb $
+//$Id: PropagationEnabledCommand.hpp 7679 2010-03-05 21:20:50Z djcinsb $
 //------------------------------------------------------------------------------
 //                       PropagationEnabledCommand
 //------------------------------------------------------------------------------
@@ -25,8 +25,15 @@
 #include "PropSetup.hpp"
 #include "Propagator.hpp"
 
+#include "Spacecraft.hpp"
+#include "Formation.hpp"
+
 /// A convenient typedef used in this code
 typedef std::vector<SpaceObject*> PropObjectArray;
+
+
+#define TIME_ROUNDOFF 1.0e-6
+#define DEFAULT_STOP_TOLERANCE 1.0e-7
 
 
 /**
@@ -47,6 +54,8 @@ public:
    virtual bool         Initialize();
 
 protected:
+   // todo: Merge the propagator objects in the Propagate command into this code
+
    /// Names of the PropSetups used by this command, as set in a derived class
    StringArray                   propagatorNames;
    /// The PropSetup used by this command, as set in a derived class
@@ -86,11 +95,22 @@ protected:
    /// The Mean-of-J2000 propagation state vector data
    Real                         *j2kState;
    /// Data sent to the Publisher
-   Real                    *pubdata;
+   Real                         *pubdata;
+
+   /// Stopping condition evaluation requires propagation; the satBuffer and
+   /// formBuffer let us restore the Spacecraft and Formations to the state
+   /// needed for the last step
+   std::vector<Spacecraft *>    satBuffer;
+   std::vector<Formation *>     formBuffer;
+
 
    bool                 PrepareToPropagate();
    bool                 AssemblePropagators();
    bool                 Step(Real dt);
+
+   virtual void         AddToBuffer(SpaceObject *so);
+   virtual void         EmptyBuffer();
+   virtual void         BufferSatelliteStates(bool fillingBuffer = true);
 
    virtual void         SetPropagationProperties(PropagationStateManager *psm);
 };

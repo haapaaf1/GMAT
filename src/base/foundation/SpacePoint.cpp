@@ -53,6 +53,8 @@ SpacePoint::PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount] =
    Gmat::INTEGER_TYPE,  // "NAIFId"
 };
 
+const Integer SpacePoint::UNDEFINED_NAIF_ID = -123456789;
+
 
 //------------------------------------------------------------------------------
 // public methods
@@ -79,7 +81,7 @@ SpacePoint::SpacePoint(Gmat::ObjectType ofType, const std::string &itsType,
 GmatBase(ofType,itsType,itsName),
 j2000Body      (NULL),
 j2000BodyName  ("Earth"),
-naifId         (0)        // 0 means unset
+naifId         (UNDEFINED_NAIF_ID)
 {
    objectTypes.push_back(Gmat::SPACE_POINT);
    objectTypeNames.push_back("SpacePoint");
@@ -355,6 +357,8 @@ std::string SpacePoint::GetParameterTypeString(const Integer id) const
 bool SpacePoint::IsParameterReadOnly(const Integer id) const
 {
    if (id == J2000_BODY_NAME)
+      return true;
+   if (id == NAIF_ID) // set to false in appropriate derived classes
       return true;
 
    return GmatBase::IsParameterReadOnly(id);

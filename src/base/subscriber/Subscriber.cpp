@@ -49,6 +49,7 @@
 //#define DEBUG_WRAPPER_CODE
 //#define DEBUG_SUBSCRIBER
 //#define DEBUG_SUBSCRIBER_PARAM
+//#define DEBUG_RECEIVE_DATA
 //#define DEBUG_RENAME
 
 //#ifndef DEBUG_MEMORY
@@ -97,7 +98,9 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    next(NULL),
    theInternalCoordSystem(NULL),
    theDataCoordSystem(NULL),
+   theDataMJ2000EqOrigin(NULL),
    theSolarSystem(NULL),
+   currentProvider(NULL),
    active(true),
    isManeuvering(false),
    isEndOfReceive(false),
@@ -105,7 +108,7 @@ Subscriber::Subscriber(std::string typeStr, std::string nomme) :
    isInitialized(false),
    isFinalized(false),
    runstate(Gmat::IDLE),
-   currentProvider(0)
+   currProviderId(0)
 {
    objectTypes.push_back(Gmat::SUBSCRIBER);
    objectTypeNames.push_back("Subscriber");
@@ -124,9 +127,11 @@ Subscriber::Subscriber(const Subscriber &copy) :
    GmatBase(copy),
    data(NULL),
    next(NULL),
-   theInternalCoordSystem(NULL),
-   theDataCoordSystem(NULL),
-   theSolarSystem(NULL),
+   theInternalCoordSystem(copy.theInternalCoordSystem),
+   theDataCoordSystem(copy.theDataCoordSystem),
+   theDataMJ2000EqOrigin(copy.theDataMJ2000EqOrigin),
+   theSolarSystem(copy.theSolarSystem),
+   currentProvider(NULL),
    active(copy.active),
    isManeuvering(copy.isManeuvering),
    isEndOfReceive(copy.isEndOfReceive),
@@ -134,7 +139,7 @@ Subscriber::Subscriber(const Subscriber &copy) :
    isInitialized(copy.isInitialized),
    isFinalized(copy.isFinalized),
    runstate(copy.runstate),
-   currentProvider(copy.currentProvider),
+   currProviderId(copy.currProviderId),
    wrapperObjectNames(copy.wrapperObjectNames)
 {
    mSolverIterations = copy.mSolverIterations;
@@ -173,6 +178,13 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    
    data = rhs.data;
    next = rhs.next;
+   
+   theInternalCoordSystem = rhs.theInternalCoordSystem;
+   theDataCoordSystem = rhs.theDataCoordSystem;
+   theDataMJ2000EqOrigin = rhs.theDataMJ2000EqOrigin;
+   theSolarSystem = rhs.theSolarSystem;
+   currentProvider = NULL;
+   
    active = rhs.active;
    active = rhs.active;
    isManeuvering = rhs.isManeuvering;
@@ -180,9 +192,8 @@ Subscriber& Subscriber::operator=(const Subscriber& rhs)
    isInitialized = rhs.isInitialized;
    isFinalized = rhs.isFinalized;
    runstate = rhs.runstate;
-   currentProvider = rhs.currentProvider;
-   theInternalCoordSystem = NULL;
-   theDataCoordSystem = NULL;
+   currProviderId = rhs.currProviderId;
+   
    wrapperObjectNames = rhs.wrapperObjectNames;
    mSolverIterations = rhs.mSolverIterations;
    mSolverIterOption = rhs.mSolverIterOption;
@@ -397,47 +408,72 @@ void Subscriber::SetRunState(Gmat::RunState rs)
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const std::string &satName,
-//                     const std::string &desc)
+// void SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+//                     const std::string &satName, const std::string &desc)
 //------------------------------------------------------------------------------
 /**
  * Sets spacecraft maneuvering flag.
  * 
- * @param flag Set to true if maneuvering
- * @param epoch Epoch of maneuver
- * @param satName Name of the maneuvering spacecraft
- * @param desc Description of maneuver (e.g. impulsive or finite)
+ * @param originator  The maneuver command pointer who is maneuvering
+ * @param flag  Set to true if maneuvering
+ * @param epoch  Epoch of maneuver
+ * @param satName  Name of the maneuvering spacecraft
+ * @param desc  Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Subscriber::SetManeuvering(bool flag, Real epoch, const std::string &satName,
+void Subscriber::SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+                                const std::string &satName,
                                 const std::string &desc)
 {
    static StringArray satNames;
    satNames.clear();
    isManeuvering = flag;
    satNames.push_back(satName);
-   HandleManeuvering(flag, epoch, satNames, desc);
+   HandleManeuvering(originator, flag, epoch, satNames, desc);
 }
 
 
 //------------------------------------------------------------------------------
-// void SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
-//                    const std::string &desc)
+// void SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+//                     const StringArray &satNames, const std::string &desc)
 //------------------------------------------------------------------------------
 /**
  * Sets spacecraft maneuvering flag.
  * 
+ * @param originator  The maneuver command pointer who is maneuvering
  * @param flag Set to true if maneuvering
  * @param epoch Epoch of maneuver
  * @param satNames Names of the maneuvering spacecraft
  * @param desc Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Subscriber::SetManeuvering(bool flag, Real epoch, const StringArray &satNames,
+void Subscriber::SetManeuvering(GmatBase *originator, bool flag, Real epoch,
+                                const StringArray &satNames,
                                 const std::string &desc)
 {
    isManeuvering = flag;
-   HandleManeuvering(flag, epoch, satNames, desc);
+   HandleManeuvering(originator, flag, epoch, satNames, desc);
+}
+
+
+//------------------------------------------------------------------------------
+// void SetScPropertyChanged(GmatBase *originator, Real epoch,
+//                           const std::string &satName, const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Sets spacecraft property change.
+ * 
+ * @param originator  The assignment command pointer who is setting
+ * @param epoch  Epoch of spacecraft at property change
+ * @param satName  Name of the spacecraft
+ * @param desc  Description of property change
+ */
+//------------------------------------------------------------------------------
+void Subscriber::SetScPropertyChanged(GmatBase *originator, Real epoch,
+                                      const std::string &satName,
+                                      const std::string &desc)
+{
+   HandleScPropertyChange(originator, epoch, satName, desc);
 }
 
 
@@ -515,7 +551,7 @@ void Subscriber::SetProviderId(Integer id)
       ("Subscriber::SetProviderId() <%s> entered, id=%d\n", GetName().c_str(), id);
    #endif
    
-   currentProvider = id;
+   currProviderId = id;
 }
 
 
@@ -524,9 +560,16 @@ void Subscriber::SetProviderId(Integer id)
 //------------------------------------------------------------------------------
 Integer Subscriber::GetProviderId()
 {
-   return currentProvider;
+   return currProviderId;
 }
 
+//------------------------------------------------------------------------------
+// virtual void SetProvider(GmatBase *provider);
+//------------------------------------------------------------------------------
+void Subscriber::SetProvider(GmatBase *provider)
+{
+   currentProvider = provider;
+}
 
 //------------------------------------------------------------------------------
 // void SetDataLabels(const StringArray& elements)
@@ -1300,20 +1343,44 @@ bool Subscriber::Distribute(const double *dat, int len)
 
 
 //------------------------------------------------------------------------------
-// virtual void HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
-//                               const std::string &desc)
+// virtual void HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
+//                                const StringArray &satNames,
+//                                const std::string &desc)
 //------------------------------------------------------------------------------
 /**
  * Handles maneuvering on or off.
  * 
- * @param flag Set to true if maneuvering
- * @param epoch Epoch of maneuver on or off
- * @param satNames Names of the maneuvering spacecraft
- * @param desc Description of maneuver (e.g. impulsive or finite)
+ * @param originator  The maneuver command pointer who is maneuvering
+ * @param flag  Set to true if maneuvering
+ * @param epoch  Epoch of maneuver on or off
+ * @param satNames  Names of the maneuvering spacecraft
+ * @param desc  Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Subscriber::HandleManeuvering(bool flag, Real epoch, const StringArray &satNames,
+void Subscriber::HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
+                                   const StringArray &satNames,
                                    const std::string &desc)
+{
+   // do nothing here
+}
+
+
+//------------------------------------------------------------------------------
+// void HandleScPropertyChange(GmatBase *originator, Real epoch,
+//                             const std::string &satName, const std::string &desc)
+//------------------------------------------------------------------------------
+/**
+ * Handles spacecraft property change.
+ * 
+ * @param originator  The assignment command pointer who is setting
+ * @param epoch  Epoch of spacecraft at property change
+ * @param satName  Name of the spacecraft
+ * @param desc  Description of property change
+ */
+//------------------------------------------------------------------------------
+void Subscriber::HandleScPropertyChange(GmatBase *originator, Real epoch,
+                                        const std::string &satName,
+                                        const std::string &desc)
 {
    // do nothing here
 }

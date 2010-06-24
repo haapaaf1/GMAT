@@ -23,6 +23,7 @@
 //#define DEBUG_BEGIN_MANEUVER
 //#define DEBUG_BEGIN_MANEUVER_EXE
 //#define DEBUG_TRANSIENT_FORCES
+//#define DEBUG_BFB_THRUSTER
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -504,6 +505,17 @@ bool BeginFiniteBurn::Initialize()
       // Validate that the spacecraft have the thrusters they need
       ValidateThrusters();
       
+      // Delete old burnForce
+      if (burnForce != NULL)
+      {
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (burnForce, burnForce->GetName(), "BeginFiniteBurn::Initialize()",
+             "deleting burn force");
+         #endif
+         delete burnForce;
+      }
+      
       // If all is okay, create the FiniteThrust object and configure it.
       std::string thrustName = burnName + "_FiniteThrust";
       burnForce = new FiniteThrust(thrustName);
@@ -513,7 +525,7 @@ bool BeginFiniteBurn::Initialize()
           "burnForce = new FiniteThrust()");
       #endif
       
-      burnForce->SetRefObject(maneuver, maneuver->GetType(), 
+      burnForce->SetRefObject(maneuver, maneuver->GetType(),
                               maneuver->GetName());
       Gmat::ObjectType type = Gmat::SPACECRAFT;
       StringArray::iterator iter;
@@ -555,27 +567,36 @@ bool BeginFiniteBurn::Execute()
    {
       // Get updated thruster pointers from the spacecraft since spacecraft
       // clones them
-      ValidateThrusters();
+      //ValidateThrusters(); // commented out (LOJ: 2010.01.25)
       firstTimeExecution = false;
    }
    
+   // Let's validate thrusters all the time (LOJ: 2010.01.25)
+   ValidateThrusters();
+   
    // Turn on all of the referenced thrusters
+   #ifdef DEBUG_BEGIN_MANEUVER_EXE
+   MessageInterface::ShowMessage
+      ("BeginFiniteBurn::Execute() <%p>'%s' entered, firstTimeExecution=%d, \n   "
+       "There are %d thruster(s) in use\n", this, GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+       firstTimeExecution, thrusters.size());
+   #endif
    for (std::vector<Thruster*>::iterator i = thrusters.begin(); 
         i != thrusters.end(); ++i)
    {
+      Thruster *th = *i;
       #ifdef DEBUG_BEGIN_MANEUVER_EXE
          MessageInterface::ShowMessage
-            ("Activating engine %s\n", 
-             (*i)->GetName().c_str());
+            ("Activating engine <%p>'%s'\n", th, th->GetName().c_str());
       #endif
-      (*i)->SetBooleanParameter((*i)->GetParameterID("IsFiring"), true);
-
+      th->SetBooleanParameter(th->GetParameterID("IsFiring"), true);
+      
       #ifdef DEBUG_BEGIN_MANEUVER_EXE
          MessageInterface::ShowMessage
             ("Checking to see if engine is active: returned %s\n", 
-             ((*i)->GetBooleanParameter((*i)->GetParameterID("IsFiring")) ? 
+             (th->GetBooleanParameter(th->GetParameterID("IsFiring")) ? 
               "true" : "false"));
-      #endif      
+      #endif
    }
    
    // Tell active spacecraft that they are now firing
@@ -604,10 +625,12 @@ bool BeginFiniteBurn::Execute()
    if (!sats.empty())
    {
       Real epoch = sats[0]->GetEpoch();
-      publisher->SetManeuvering(true, epoch, satNames, "begin of finite maneuver");
+      publisher->SetManeuvering(this, true, epoch, satNames, "begin of finite maneuver");
    }
    
    #ifdef DEBUG_BEGIN_MANEUVER_EXE
+      MessageInterface::ShowMessage
+         ("There are %d transient force(s)\n", transientForces->size());
       MessageInterface::ShowMessage("Current TransientForces list:\n");
       for (std::vector<PhysicalModel*>::iterator j = transientForces->begin();
            j != transientForces->end(); ++j)

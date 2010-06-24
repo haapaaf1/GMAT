@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                         DifferentialCorrector
 //------------------------------------------------------------------------------
@@ -102,7 +102,8 @@ protected:
     
    // Control parameters
    /// Used to turn on central differencing.  Currently not implemented.
-   bool                        useCentralDifferences;
+   //bool                        useCentralDifferences;
+   std::string                 derivativeMethod;   // made a change
 
    /// List of goals
    StringArray                 goalNames;
@@ -111,7 +112,8 @@ protected:
    enum
    {
       goalNamesID = SolverParamCount,
-      useCentralDifferencingID,
+//      useCentralDifferencingID,
+          derivativeMethodID,         // made a change
       DifferentialCorrectorParamCount
    };
 

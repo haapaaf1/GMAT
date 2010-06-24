@@ -18,14 +18,10 @@
 //------------------------------------------------------------------------------
 
 #include "EndFiniteBurn.hpp"
-
+#include "MessageInterface.hpp"
 
 //#define DEBUG_END_MANEUVER
 //#define DEBUG_END_MANEUVER_EXE
-
-#ifdef DEBUG_END_MANEUVER
-  #include "MessageInterface.hpp"
-#endif
 
 
 //------------------------------------------------------------------------------
@@ -504,25 +500,29 @@ bool EndFiniteBurn::Execute()
    {
       // Get updated thruster pointers from the spacecraft since spacecraft
       // clones them
-      ValidateThrusters();
+      //ValidateThrusters(); // commented out (LOJ: 2010.01.25)
       firstTimeExecution = false;
    }
+   
+   // Let's validate thrusters all the time (LOJ: 2010.01.25)
+   ValidateThrusters();
    
    // Turn off all of the referenced thrusters
    for (std::vector<Thruster*>::iterator i = thrusters.begin(); 
         i != thrusters.end(); ++i)
    {
+      Thruster *th = *i;
       #ifdef DEBUG_END_MANEUVER_EXE
          MessageInterface::ShowMessage
-            ("EndFiniteBurn::Execute() Deactivating engine %s\n", 
-             (*i)->GetName().c_str());
+            ("EndFiniteBurn::Execute() Deactivating engine <%p>'%s'\n", th,
+             th->GetName().c_str());
       #endif
-      (*i)->SetBooleanParameter((*i)->GetParameterID("IsFiring"), false);
+      th->SetBooleanParameter(th->GetParameterID("IsFiring"), false);
 
       #ifdef DEBUG_END_MANEUVER_EXE
          MessageInterface::ShowMessage
             ("Checking to see if engine is inactive: returned %s\n", 
-             ((*i)->GetBooleanParameter((*i)->GetParameterID("IsFiring")) ? 
+             (th->GetBooleanParameter(th->GetParameterID("IsFiring")) ? 
               "true" : "false"));
       #endif      
    }
@@ -556,7 +556,7 @@ bool EndFiniteBurn::Execute()
    if (!sats.empty())
    {
       Real epoch = sats[0]->GetEpoch();
-      publisher->SetManeuvering(false, epoch, satNames, "end of finite maneuver");
+      publisher->SetManeuvering(this, false, epoch, satNames, "end of finite maneuver");
    }
    
    #ifdef DEBUG_END_MANEUVER_EXE

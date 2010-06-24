@@ -64,39 +64,39 @@ FminconOptimizer::PARAMETER_TYPE[
 // made to the Optimize command (where it is adding single quotes to
 // string options) and to the IsAllowedValue method; the 
 // NUM_MATLAB_OPTIONS parameter may also need to be changed
-const std::string FminconOptimizer::ALLOWED_OPTIONS[12] = 
+const std::string FminconOptimizer::ALLOWED_OPTIONS[6] = // [12] = // made a change here
 {
    "DiffMaxChange",
    "DiffMinChange",
    "MaxFunEvals",
-   "MaxIter",
+//   "MaxIter",                         // This parameter is no longer in use
    "TolX",
    "TolFun",
    "TolCon",
-   "DerivativeCheck",
-   "Diagnostics",
-   "Display",
-   "GradObj",
-   "GradConstr",
+//   "DerivativeCheck",         // These parameters are no longer in use
+//   "Diagnostics",
+//   "Display",
+//   "GradObj",
+//   "GradConstr",
 };
 
-const std::string FminconOptimizer::DEFAULT_OPTION_VALUES[12] = 
+const std::string FminconOptimizer::DEFAULT_OPTION_VALUES[6] = // [12] = // made a change here
 {
    "0.1000",
    "1.0000e-08",
    "1000",
-   "400",
+//   "400",
    "1.0000e-04",
    "1.0000e-04",
    "1.0000e-04",
-   "off",
-   "off",
-   "iter",
-   "off",
-   "off",
+//   "off",
+//   "off",
+//   "iter",
+//   "off",
+//   "off",
 };
 
-const Integer FminconOptimizer::NUM_MATLAB_OPTIONS    = 12;
+const Integer FminconOptimizer::NUM_MATLAB_OPTIONS    = 6; // = 12; // made a change here
 const Integer FminconOptimizer::MATLAB_OPTIONS_OFFSET = 1000;
 
 //------------------------------------------------------------------------------
@@ -535,6 +535,15 @@ std::string FminconOptimizer::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer FminconOptimizer::GetParameterID(const std::string &str) const
 {
+   // part 1: this part will be removed in future build // made a change here
+   if ((str == "DerivativeCheck")||(str == "Diagnostics")||
+       (str == "Display")||(str == "GradObj")||
+       (str == "GradConstr")||(str == "MaxIter"))
+   {
+      return Gmat::PARAMETER_REMOVED; // return the id of the fields no longer in use
+   }
+   
+   // part 2:
    for (Integer i = ExternalOptimizerParamCount; i < FminconOptimizerParamCount; ++i)
    {
       if (str == PARAMETER_TEXT[i - ExternalOptimizerParamCount])
@@ -543,7 +552,7 @@ Integer FminconOptimizer::GetParameterID(const std::string &str) const
    for (Integer j =0; j < NUM_MATLAB_OPTIONS; j++)
       if (str == ALLOWED_OPTIONS[j])
          return (MATLAB_OPTIONS_OFFSET + j);
-
+   
    return ExternalOptimizer::GetParameterID(str);
 }
 
@@ -608,7 +617,7 @@ bool FminconOptimizer::SetStringParameter(const Integer id,
       MessageInterface::ShowMessage("Fmincon::setting id %d value to %s\n",
       id, value.c_str());
    #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-   
+
    if ((id >= MATLAB_OPTIONS_OFFSET) &&
        (id <  (MATLAB_OPTIONS_OFFSET + NUM_MATLAB_OPTIONS)))
    {
@@ -638,6 +647,7 @@ std::string  FminconOptimizer::GetStringParameter(const std::string &label) cons
 bool FminconOptimizer::SetStringParameter(const std::string &label,
                                           const std::string &value)
 {
+        
    #ifdef DEBUG_FMINCON_OPTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
       MessageInterface::ShowMessage("Fmincon::setting param %s value to %s\n",
       label.c_str(), value.c_str());
@@ -1016,8 +1026,8 @@ bool FminconOptimizer::OpenConnection()
 #if defined __USE_MATLAB__
    matlabIf = MatlabInterface::Instance();
       
-   // open the MatlabInterface (which is currently a static class)
-   if (!matlabIf->Open())
+   // open the MatlabInterface
+   if (!matlabIf->Open("GmatMatlab"))
       throw SolverException("Error attempting to access interface to MATLAB");
    
    // clear the last error message
@@ -1318,9 +1328,9 @@ bool FminconOptimizer::IsAllowedValue(const std::string &opt,
 {
    if ((opt == ALLOWED_OPTIONS[0]) ||
        (opt == ALLOWED_OPTIONS[1]) || // need to check for this being <= DiffMaxChange
-       (opt == ALLOWED_OPTIONS[4]) ||
-       (opt == ALLOWED_OPTIONS[5]) ||
-       (opt == ALLOWED_OPTIONS[6]))
+       (opt == ALLOWED_OPTIONS[3]) ||           //(opt == ALLOWED_OPTIONS[4]) ||
+       (opt == ALLOWED_OPTIONS[4]) ||           //(opt == ALLOWED_OPTIONS[5]) ||
+       (opt == ALLOWED_OPTIONS[5]))             //(opt == ALLOWED_OPTIONS[6]))
    {
       //if (atof(val.c_str()) > 0.0)  return true;
       //return false;
@@ -1328,32 +1338,36 @@ bool FminconOptimizer::IsAllowedValue(const std::string &opt,
       if (!GmatStringUtil::ToReal(val.c_str(), &tmpVal)) return false;
       return true;
    }
-   else if ((opt == ALLOWED_OPTIONS[2]) || 
-            (opt == ALLOWED_OPTIONS[3]))
+   else if (opt == ALLOWED_OPTIONS[2])  //((opt == ALLOWED_OPTIONS[2]) || 
+      // (opt == ALLOWED_OPTIONS[3]))
    {
       if (atoi(val.c_str()) > 0) return true;
       return false;
    }
-   else if ((opt == ALLOWED_OPTIONS[7]) ||
-            (opt == ALLOWED_OPTIONS[8]) ||
-            (opt == ALLOWED_OPTIONS[10]) ||
-            (opt == ALLOWED_OPTIONS[11]))
-   {
-      if ((val == "On") || (val == "Off") ||
-          (val == "ON") || (val == "OFF") ||
-          (val == "on") || (val == "off")) return true;
-      return false;
-   }
-   else if (opt == ALLOWED_OPTIONS[9])
-   {
-      if ((val == "Iter")   || (val == "Off")   ||
-          (val == "Notify") || (val == "Final") ||
-          (val == "ITER")   || (val == "OFF")   ||
-          (val == "NOTIFY") || (val == "FINAL") ||
-          (val == "iter")   || (val == "off")   ||
-          (val == "notify") || (val == "final")) return true;
-      return false;
-   }
-   else
-      return false;
+   
+   return false;
+   
+//   else if ((opt == ALLOWED_OPTIONS[7]) ||
+//            (opt == ALLOWED_OPTIONS[8]) ||
+//            (opt == ALLOWED_OPTIONS[10]) ||
+//            (opt == ALLOWED_OPTIONS[11]))
+//   {
+//      if ((val == "On") || (val == "Off") ||
+//          (val == "ON") || (val == "OFF") ||
+//          (val == "on") || (val == "off")) return true;
+//      return false;
+//   }
+//   else if (opt == ALLOWED_OPTIONS[9])
+//   {
+//      if ((val == "Iter")   || (val == "Off")   ||
+//          (val == "Notify") || (val == "Final") ||
+//          (val == "ITER")   || (val == "OFF")   ||
+//          (val == "NOTIFY") || (val == "FINAL") ||
+//          (val == "iter")   || (val == "off")   ||
+//          (val == "notify") || (val == "final")) return true;
+//      return false;
+//   }
+//   else
+//      return false;
+
 }
