@@ -116,6 +116,7 @@ public:
    virtual SolverState AdvanceState();
    virtual StringArray AdvanceNestedState(std::vector<Real> vars);
    virtual bool        UpdateSolverGoal(Integer id, Real newValue);
+   virtual bool        UpdateSolverTolerance(Integer id, Real newValue);
    
    // Access methods overriden from the base class
    virtual std::string GetParameterText(const Integer id) const;

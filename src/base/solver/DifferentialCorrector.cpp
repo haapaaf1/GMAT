@@ -601,6 +601,33 @@ bool DifferentialCorrector::UpdateSolverGoal(Integer id, Real newValue)
 
 
 //------------------------------------------------------------------------------
+// bool UpdateSolverTolerance(Integer id, Real newValue)
+//------------------------------------------------------------------------------
+/**
+ * Updates the targeter tolerances, for floating end point targeting.
+ *
+ * @param <id>       Id for the tolerance that is being reset.
+ * @param <newValue> The new tolerance value.
+ *
+ * @return true on success, throws on failure.
+ */
+//------------------------------------------------------------------------------
+bool DifferentialCorrector::UpdateSolverTolerance(Integer id, Real newValue)
+{
+   // Only update during nominal runs
+   if (currentState == NOMINAL) {
+      if (id >= goalCount)
+         throw SolverException(
+            "DifferentialCorrector member requested a parameter outside the "
+            "range of the configured goals.");
+
+      tolerance[id] = newValue;
+   }
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
 // void SetResultValue(Integer id, Real value)
 //------------------------------------------------------------------------------
 /**

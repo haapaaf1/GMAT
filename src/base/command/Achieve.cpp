@@ -19,16 +19,14 @@
 
 
 #include "Achieve.hpp"
-/// @todo Rework command so it doesn't need the Moderator!!!
-///#include "Moderator.hpp" 
 #include "StringUtil.hpp"  // for ToReal()
 #include <sstream>
 #include "MessageInterface.hpp"
 
-//#define DEBUG_ACHIEVE_PARSE 1
-//#define DEBUG_ACHIEVE_INIT 1
-//#define DEBUG_ACHIEVE_EXEC 1
+//#define DEBUG_ACHIEVE_PARSE
 //#define DEBUG_ACHIEVE_PARAMS
+//#define DEBUG_ACHIEVE_INIT
+//#define DEBUG_ACHIEVE_EXEC
 //#define DEBUG_WRAPPER_CODE
 
 
@@ -59,7 +57,6 @@ const Gmat::ParameterType
       Gmat::STRING_TYPE,
       Gmat::STRING_TYPE,
       Gmat::STRING_TYPE,
-      //Gmat::REAL_TYPE
    };
 
 
@@ -80,24 +77,12 @@ Achieve::Achieve() :
    goalName                (""),
    goal                    (NULL),
    achieveName             (""),
-   //achieveArrName          (""),
-   //achieveArrRowStr        (""),
-   //achieveArrColStr        (""),
-   //achieveArrRow           (-1),
-   //achieveArrCol           (-1),
-   //achieveArrRowParm       (NULL),
-   //achieveArrColParm       (NULL),   
    achieve                 (NULL),
    toleranceName           ("0.1"),
    tolerance               (NULL),
-   //goalObject              (NULL),
-   //parmId                  (-1),
    goalId                  (-1),
    targeter                (NULL),
-   targeterDataFinalized   (false)//,
-   //isAchieveParm           (false),
-   //isAchieveArray          (false),
-   //goalParm                (NULL)
+   targeterDataFinalized   (false)
 {
    settables.push_back("Tolerance"); 
    parameterCount = AchieveParamCount;
@@ -132,24 +117,12 @@ Achieve::Achieve(const Achieve& t) :
    goalName                (t.goalName),
    goal                    (NULL),
    achieveName             (t.achieveName),
-   //achieveArrName          (t.achieveArrName),
-   //achieveArrRowStr        (t.achieveArrRowStr),
-   //achieveArrColStr        (t.achieveArrColStr),
-   //achieveArrRow           (t.achieveArrRow),
-   //achieveArrCol           (t.achieveArrCol),
-   //achieveArrRowParm       (NULL),
-   //achieveArrColParm       (NULL),   
    achieve                 (NULL),
    toleranceName           (t.toleranceName),
    tolerance               (NULL),
-   //goalObject              (NULL),
-   //parmId                  (t.parmId),
    goalId                  (t.goalId),
    targeter                (NULL),
    targeterDataFinalized   (false)//,
-   //isAchieveParm           (t.isAchieveParm),
-   //isAchieveArray          (t.isAchieveArray),
-   //goalParm                (NULL)
 {
    parameterCount = AchieveParamCount;
 }
@@ -182,19 +155,6 @@ Achieve& Achieve::operator=(const Achieve& t)
    goalId                = t.goalId;
    targeter              = NULL;
    targeterDataFinalized = false;
-   //achieveArrName = t.achieveArrName;
-   //achieveArrRowStr = t.achieveArrRowStr;
-   //achieveArrColStr = t.achieveArrColStr;
-   //achieveArrRow = t.achieveArrRow;
-   //achieveArrCol = t.achieveArrCol;
-   //achieveArrRowParm = NULL;
-   //achieveArrColParm = NULL;
-   //achieveParm = NULL;
-   //goalObject = NULL;
-   //parmId = t.parmId;
-   //isAchieveParm = t.isAchieveParm;
-   //isAchieveArray = t.isAchieveArray;
-   //goalParm = NULL;
 
    return *this;
 }
@@ -239,47 +199,21 @@ bool Achieve::RenameRefObject(const Gmat::ObjectType type,
       if (targeterName == oldName)
          targeterName = newName;
    }
-   //else if (type == Gmat::SPACECRAFT)
-   //{
-   //   // set new goal name using object and property
-   //   std::string::size_type pos = goalName.find(oldName);
-   //   if (pos != goalName.npos)
-   //      goalName.replace(pos, oldName.size(), newName);
-   //
-   //   // achieve name
-   //   if (isAchieveParm)
-   //   {
-   //      pos = achieveName.find(oldName);
-   //      if (pos != goalName.npos)
-   //         achieveName.replace(pos, oldName.size(), newName);
-   //   }
-   //}
-   //else if (type == Gmat::PARAMETER)
-   //{
-   //   if (goalName == oldName)
-   //      goalName = newName;
-   //
-   //   if (achieveName == oldName)
-   //      achieveName = newName;
-   //
-   //   if (achieveArrName == oldName)
-   //      achieveArrName = newName;
-   //}
    // make sure the wrappers know to rename any objects they may be using
    if (goal)
    {
       goal->RenameObject(oldName, newName);
-      goalName           = goal->GetDescription();
+      goalName = goal->GetDescription();
    }
    if (achieve)
    {
       achieve->RenameObject(oldName, newName);
-      achieveName           = achieve->GetDescription();
+      achieveName = achieve->GetDescription();
    }
    if (tolerance)
    {
       tolerance->RenameObject(oldName, newName);
-      toleranceName           = tolerance->GetDescription();
+      toleranceName = tolerance->GetDescription();
    }
    
    return true;
@@ -300,7 +234,6 @@ const ObjectTypeArray& Achieve::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::SOLVER);
-   //refObjectTypes.push_back(Gmat::PARAMETER);
    return refObjectTypes;
 }
 
@@ -327,29 +260,7 @@ const StringArray& Achieve::GetRefObjectNameArray(const Gmat::ObjectType type)
    {
       refObjectNames.push_back(targeterName);
    }
-   
-   //if (type == Gmat::UNKNOWN_OBJECT ||
-   //    type == Gmat::PARAMETER)
-   //{
-   //   refObjectNames.push_back(goalName);
-   //   
-   //   if (isAchieveParm)
-   //   {
-   //      if (isAchieveArray)
-   //      {
-   //         refObjectNames.push_back(achieveArrName);
-   //         if (achieveArrRow == -1)
-   //            refObjectNames.push_back(achieveArrRowStr);
-   //         if (achieveArrCol == -1)
-   //            refObjectNames.push_back(achieveArrColStr);
-   //      }
-   //      else
-   //      {
-   //         refObjectNames.push_back(achieveName);
-   //      }
-   //   }
-   //}
-   
+     
    return refObjectNames;
 }
 
@@ -473,26 +384,6 @@ Real Achieve::GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
 Real Achieve::SetRealParameter(const Integer id, const Real value)
 {
-   //note this code will not be entered since all parameter types are STRING_TYPE
-   // so moved this range check to SetTolerance()
-   // SetTolerance() is called from SetStringParameter()
-   
-   //if (id == toleranceID) 
-   //{
-   //   if (value > 0.0)
-   //      if (tolerance)
-   //         if (tolerance->SetReal(value)) return value;
-   //   else
-   //   {
-   //      std::stringstream buffer;
-   //      buffer << value;
-   //      throw CommandException(
-   //         "The value of \"" + buffer.str() + "\" for field \"Tolerance\""
-   //         " on object \"" + instanceName + "\" is not an allowed value.\n"
-   //         "The allowed values are: [ Real > 0.0 ].");
-   //   }
-   //}
-   
    return GmatCommand::SetRealParameter(id, value);
 }
 
@@ -565,28 +456,7 @@ bool Achieve::SetStringParameter(const Integer id, const std::string &value)
    if (id == goalValueID) 
    {
       achieveName = value;
-      // Goal value can be either a parameter or a number; ConstructGoal determines this.
-      //Real realValue;
-      //if (ConstructGoal(value.c_str()))
-      //{
-      //   // It's a parameter; just set dummy value here -- gets reset on execution
-      //   realValue = 54321.0;
-      //   isAchieveParm = true;
-      //}
-      //else
-      //{
-      //   realValue = atof(achieveName.c_str());
-      //   isAchieveParm = false;
-      //}
       
-      //#ifdef DEBUG_ACHIEVE_PARAMS
-      //   MessageInterface::ShowMessage
-      //      ("Achieve::SetStringParameter() GoalString = '%s', realValue=%f\n",
-      //       achieveName.c_str(), realValue);
-      //#endif
-         
-      //goal = realValue;
-   
       if (find(wrapperObjectNames.begin(), wrapperObjectNames.end(), value) == 
           wrapperObjectNames.end())
          wrapperObjectNames.push_back(value);
@@ -688,7 +558,7 @@ bool Achieve::InterpretAction()
       throw CommandException("Missing solver name for Achieve command.\n");
       
    if ((chunks[1].find("[") != chunks[1].npos) || (chunks[1].find("]") != chunks[1].npos))
-      throw CommandException("Brackets not allowed in Vary command");
+      throw CommandException("Brackets not allowed in Achieve command");
 
    if (!GmatStringUtil::AreAllBracketsBalanced(chunks[1], "({)}"))
    {
@@ -707,19 +577,12 @@ bool Achieve::InterpretAction()
       MessageInterface::ShowMessage("\n");
    #endif
    
-   // The remaining text in the instruction is the variable definition and 
-   // parameters, all contained in currentChunks[1].  Deal with those next.
-   //currentChunks = parser.SeparateBrackets(currentChunks[1], "()", ", ");
-   //std::string noLeftBrace  = GmatStringUtil::RemoveAll(currentChunks[1],'{');
-   //std::string noRightBrace = GmatStringUtil::RemoveAll(noLeftBrace,'}');
-   //std::string noSpaces     = GmatStringUtil::RemoveAll(noRightBrace,' ');
    std::string noSpaces2     = GmatStringUtil::RemoveAll(currentChunks[1],' ');
    #ifdef DEBUG_ACHIEVE_PARSE
       MessageInterface::ShowMessage(
          "Achieve: noSpaces2 = %s\n", noSpaces2.c_str());
    #endif   
    currentChunks = parser.Decompose(noSpaces2, "()", true, true);
-   //currentChunks = parser.Decompose(currentChunks[1], "()", true, true);
    
    #ifdef DEBUG_ACHIEVE_PARSE
       MessageInterface::ShowMessage(
@@ -732,8 +595,6 @@ bool Achieve::InterpretAction()
    // First chunk is the goal and achieve (target) value
    std::string lhs, rhs;
    if (!SeparateEquals(currentChunks[0], lhs, rhs, true))
-      // Variable takes default initial value
-      //rhs = "0.0";
    {
       throw CommandException("The goal \"" + lhs + 
          "\" is missing the \"=\" operator or a goal value required for an " + typeName + 
@@ -741,9 +602,6 @@ bool Achieve::InterpretAction()
    }
       
    goalName = lhs;
-   //variableID = -1;
-
-   //variableValueString = rhs;
    achieveName = rhs;
    
    #ifdef DEBUG_ACHIEVE_PARSE
@@ -758,7 +616,6 @@ bool Achieve::InterpretAction()
    
    std::string noSpaces     = GmatStringUtil::RemoveAll(currentChunks[1],' ');
    // Now deal with the settable parameters
-   //currentChunks = parser.SeparateBrackets(currentChunks[1], "{}", ",", false);
    currentChunks = parser.SeparateBrackets(noSpaces, "{}", ",", true);
    
    #ifdef DEBUG_ACHIEVE_PARSE
@@ -794,114 +651,12 @@ bool Achieve::InterpretAction()
    }
    
    return true;
-/* old code
-   /// @todo: Clean up this hack for the Achieve::InterpretAction method
-   // Sample string:  "Achieve myDC(Sat1.SMA = 21545.0, {Tolerance = 0.1});"
-   
-   // Set starting location to the space following the command string
-   Integer loc = generatingString.find("Achieve", 0) + 7, end, strend;
-   const char *str = generatingString.c_str();
-   
-   // Skip white space
-   while (str[loc] == ' ')
-      ++loc;
-   
-   // Stop at the opening paren
-   end = generatingString.find("(", loc);
-   
-   std::string component = generatingString.substr(loc, end-loc);
-   if (component == "")
-      throw CommandException("Achieve string does not specify the targeter");
-   
-   SetStringParameter(targeterNameID, component);
-   
-   // Find the goal
-   loc = end + 1;
-   // Skip white space
-   while (str[loc] == ' ')
-      ++loc;
-   // Stop at the opening paren
-   end = generatingString.find("=", loc);
-   strend = end-1;
-   // Drop trailing white space
-   while (str[strend] == ' ')
-      --strend;
-    
-   component = generatingString.substr(loc, strend-loc+1);
-   goalName = component;
-
-   // Get an instance if this is a Parameter
-   Moderator *mod = Moderator::Instance();
-
-   #if DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("Achieve::InterpretAction() goalName = \"%s\"\n", goalName.c_str());
-   #endif
-
-   std::string parmObj, parmType, parmSystem;
-   InterpretParameter(goalName, parmType, parmObj, parmSystem);
-
-   #if DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("Achieve::InterpretAction() parmObj=%s, parmType=%s, "
-          "parmSystem = \"%s\"\n", parmObj.c_str(),
-          parmType.c_str(), parmSystem.c_str());
-   #endif
-
-   goalParm = mod->CreateParameter(parmType, goalName, parmObj, parmSystem);
-
-   if (!goalParm)
-      throw CommandException("Unable to create parameter " + goalName);
-         
-
-   // Find the value
-   loc = end + 1;
-   
-   // Goal can be either a parameter or array or a number;
-   // ConstructGoal determines this.
-   Real value;
-   if (ConstructGoal(&str[loc]))
-   {
-      // It's a parameter; just set dummy value here -- gets reset on execution
-      value = 54321.0;
-      isAchieveParm = true;
-   }
-   else
-   {
-      value = atof(achieveName.c_str());
-      isAchieveParm = false;
-   }
-   
-   #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("Achieve::InterpretAction() GoalString = '%s'\n", achieveName.c_str());
-   #endif
-   
-   goal = value;
-
-   // Find tolerance
-   loc = generatingString.find("Tolerance", strend);
-   if (loc == (Integer)generatingString.npos)
-   {
-      // Set default tolerance
-      value = 0.0001;
-   }
-   else
-   {
-      end = generatingString.find("=", loc);
-      value = atof(&str[end+1]);
-   }
-   
-   SetRealParameter(toleranceID, value);
-    
-   #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage("Achieve::InterpretAction() exiting\n");
-   #endif
-      
-   return true;
-   */
 }
 
+
+//------------------------------------------------------------------------------
+// const StringArray& GetWrapperObjectNameArray()
+//------------------------------------------------------------------------------
 const StringArray& Achieve::GetWrapperObjectNameArray()
 {
    wrapperObjectNames.clear();
@@ -920,6 +675,9 @@ const StringArray& Achieve::GetWrapperObjectNameArray()
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetElementWrapper(ElementWrapper *toWrapper, const std::string &withName)
+//------------------------------------------------------------------------------
 bool Achieve::SetElementWrapper(ElementWrapper *toWrapper, 
               const std::string &withName)
 {
@@ -954,8 +712,12 @@ bool Achieve::SetElementWrapper(ElementWrapper *toWrapper,
          errmsg            += "[ Object Property, Array Element, Variable, ";
          errmsg            += "or Parameter, excluding numbers].";
          throw CommandException(errmsg);
-       }
+      }
       goal = toWrapper;
+      #ifdef DEBUG_WRAPPER_CODE   
+      MessageInterface::ShowMessage
+         ("   goal set to wrapper <%p>'%s'\n", toWrapper, withName.c_str());
+      #endif
       retval = true;
    }
    
@@ -973,6 +735,10 @@ bool Achieve::SetElementWrapper(ElementWrapper *toWrapper,
          delete achieve;
       }
       achieve = toWrapper;
+      #ifdef DEBUG_WRAPPER_CODE   
+      MessageInterface::ShowMessage
+         ("   achieve set to wrapper <%p>'%s'\n", toWrapper, withName.c_str());
+      #endif
       retval = true;
    }
    
@@ -990,6 +756,10 @@ bool Achieve::SetElementWrapper(ElementWrapper *toWrapper,
          delete tolerance;
       }
       tolerance = toWrapper;
+      #ifdef DEBUG_WRAPPER_CODE   
+      MessageInterface::ShowMessage
+         ("   tolerance set to wrapper <%p>'%s'\n", toWrapper, withName.c_str());
+      #endif
       retval = true;
    }
    
@@ -1040,234 +810,6 @@ void Achieve::ClearWrappers()
 
 
 //------------------------------------------------------------------------------
-// bool ConstructGoal(const char* str)
-//------------------------------------------------------------------------------
-/**
- * Builds goals -- either as a parameter or as a numerc value, depending on the
- * script contents.
- * 
- * @return true on success, false on failure.
- * @return true if it is a parameter, false otherwise.
- */
-//------------------------------------------------------------------------------
-/*
-bool Achieve::ConstructGoal(const char* str)
-{
-   #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage("%s%s\"\n",
-         "Achieve::ConstructGoal() called with string \"", str);
-   #endif
-
-   Moderator *mod = Moderator::Instance();
-   
-   Real rval = 54321.12345;
-   // check to see if it is a number first
-   if (GmatStringUtil::ToReal(str, &rval))
-      return false;
-   
-   // Skip white space
-   Integer start = 0, dot, end;
-   while (str[start] == ' ')
-      ++start;
-   // Find last character in this piece
-   end = dot = start;
-   while ((str[end] != ' ') && (str[end] != ',') && (str[end] != '{')) {
-      if ((str[end] == '.') && (dot == start))
-         dot = end;
-      ++end;
-   }
-   
-   #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("   start=%d, dot=%d, end=%d\n", start, dot, end);
-   #endif
-
-   std::string sstr = str;
-   achieveName = sstr.substr(start, end-start);
-   
-   // Search for 2nd comma for array index
-   UnsignedInt index1;
-   if (str[end] == ',')
-   {
-      index1 = sstr.find(',', end+1);
-      if (index1 != sstr.npos)
-      {
-         achieveName = sstr.substr(start, index1-start);
-         isAchieveArray = true;
-      }
-      else 
-      {
-         // check for tolerance
-         if (sstr.find('{', end+1) == sstr.npos)
-         {
-            if (sstr.find(')', end+1) != sstr.npos)
-            {
-               achieveName = sstr.substr(start, sstr.size()-start-1);
-               end = sstr.size()-1;
-               isAchieveArray = true;
-            }
-         }
-      }
-   }
-   
-   #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("%s%s\", isAchieveArray=%d\n", "   achieveName is \"",
-          achieveName.c_str(), isAchieveArray);
-      MessageInterface::ShowMessage
-         ("%s%s\"\n", "   Examining the substring \"",
-          sstr.substr(start, end-start).c_str());
-   #endif
-
-   if (isAchieveArray)
-   {
-      GmatStringUtil::GetArrayIndex(achieveName, achieveArrRowStr,
-                                    achieveArrColStr, achieveArrRow,
-                                    achieveArrCol, achieveArrName);
-
-      //loj: 9/20/06 Commented out to show array index in the GUI and show script
-      //achieveName = achieveArrName;
-      
-      #if DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("   achieveArrRowStr=%s, achieveArrColStr=%s, achieveArrRow=%d, "
-          "achieveArrCol=%d, achieveArrName=%s\n", achieveArrRowStr.c_str(),
-          achieveArrColStr.c_str(), achieveArrRow, achieveArrCol,
-          achieveArrName.c_str());
-      #endif
-      
-      // if variable index is used, make sure the variable is created
-      if (achieveArrRow == -1)
-         if (mod->GetParameter(achieveArrRowStr) == NULL)
-            throw CommandException("Cannot find array row index variable: " +
-                                   achieveArrRowStr);
-      
-      if (achieveArrCol == -1)
-         if (mod->GetParameter(achieveArrColStr) == NULL)
-            throw CommandException("Cannot find array column index variable: " +
-                                   achieveArrColStr);
-      
-      return true;
-   }
-   else if ((dot > start) && (dot < end)) // Could be a system parameter
-   {
-      
-      // try if Tolerance is missing
-      UnsignedInt index = achieveName.find(")");
-      if (index != achieveName.npos)
-         achieveName = achieveName.substr(0, index);
-      
-      std::string parmType, parmObj, parmSystem;
-      InterpretParameter(achieveName, parmType, parmObj, parmSystem);
-
-      #if DEBUG_ACHIEVE_PARSE
-         MessageInterface::ShowMessage
-            ("   parmObj=%s, parmType=%s, parmSystem = \"%s\"\n",
-             parmObj.c_str(), parmType.c_str(), parmSystem.c_str());
-      #endif
-
-         //Moderator *mod = Moderator::Instance();
-
-      if (mod->IsParameter(parmType))
-      {
-         achieveParm =
-            mod->CreateParameter(parmType, achieveName, parmObj, parmSystem);
-        
-         if (!achieveParm)
-            throw CommandException("Unable to create parameter " + achieveName);
-
-         return true;
-      }
-      else
-      {
-         #ifdef DEBUG_ACHIEVE_PARSE
-         MessageInterface::ShowMessage
-            ("   \"%s\" is not a parameter\n", achieveName.c_str());
-         #endif
-      }
-   }
-
-   if (GmatStringUtil::ToReal(achieveName, &rval))
-   {
-      #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("   \"%s\" is a number\n", achieveName.c_str());
-      #endif
-      return false;
-   }
-   else
-   {
-      #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage
-         ("   \"%s\" is a variable\n", achieveName.c_str());
-      #endif
-      return true;
-   }
-   
-   
-   //return false;
-}
-*/
-
-//------------------------------------------------------------------------------
-//  bool InterpretParameter(const std::string text, std::string &paramType,
-//                          std::string &paramObj, std::string &parmSystem)
-//------------------------------------------------------------------------------
-/**
- * Breaks apart a parameter declaration into its component pieces
- *
- * @param text The string that gets decomposed.
- * @param paramType Type of parameter that is needed.
- * @param paramObj The Object used for the parameter calculations.
- * @param parmSystem The coordinate system or body used for the parameter
- *                   calculations (or the empty string if this piece is
- *                   unspecified).
- *
- * @return true if the decomposition worked.
- */
-//------------------------------------------------------------------------------
-/*
-bool Achieve::InterpretParameter(const std::string text,
-                                 std::string &paramType, 
-                                 std::string &paramObj, 
-                                 std::string &parmSystem)
-{
-   
-   Real rval = 54321.12345;
-   // check to see if it is a number first
-   if (GmatStringUtil::ToReal(text, &rval))
-      return true;
-   
-   Integer start = 0, dotLoc = text.find(".", 0);
-   if (dotLoc == (Integer)std::string::npos)
-      throw CommandException("Achieve::InterpretParameter: Unable to "
-               "interpret parameter object in the string " +
-               text);
-   
-   paramObj = text.substr(start, dotLoc - start);
-   start = dotLoc + 1;
-   dotLoc = text.find(".", start);
-   if (dotLoc != (Integer)std::string::npos) {
-      parmSystem = text.substr(start, dotLoc - start);
-      start = dotLoc + 1;
-   }
-   else {
-      parmSystem = "";
-   }
-   
-   paramType = text.substr(start);
-   
-   #ifdef DEBUG_ACHIEVE_PARSE
-      MessageInterface::ShowMessage(
-         "Achieve::InterpretParameter() Built parameter %s for object %s "
-         "with CS %s\n", paramType.c_str(), paramObj.c_str(), parmSystem.c_str());
-   #endif
-      
-   return true;
-}
-
-*/
-//------------------------------------------------------------------------------
 //  bool Initialize()
 //------------------------------------------------------------------------------
 /**
@@ -1278,10 +820,9 @@ bool Achieve::InterpretParameter(const std::string text,
 //------------------------------------------------------------------------------
 bool Achieve::Initialize()
 {
-   #if DEBUG_ACHIEVE_INIT
-   //MessageInterface::ShowMessage
-   //   ("Achieve::Initialize() entered. targeter=%p, goalParm=%p, goalObject=%p, "
-   //    "parmId=%d\n", targeter, goalParm, goalObject, parmId);
+   #ifdef DEBUG_ACHIEVE_INIT
+   MessageInterface::ShowMessage
+      ("Achieve::Initialize() entered, targeter=<%p>\n", targeter);
    #endif
    
    bool retval = GmatCommand::Initialize();
@@ -1290,85 +831,37 @@ bool Achieve::Initialize()
       throw CommandException(
          "Targeter not initialized for Achieve command\n  \""
          + generatingString + "\"\n");
-
+   
    Integer id = targeter->GetParameterID("Goals");
    targeter->SetStringParameter(id, goalName);
-
+   
    // Set references for the wrappers   
-   #ifdef DEBUG_ACHIEVE_PARAMS
+   #ifdef DEBUG_ACHIEVE_INIT
       MessageInterface::ShowMessage("Setting refs for goal\n");
    #endif
    if (SetWrapperReferences(*goal) == false)
       return false;
    CheckDataType(goal, Gmat::REAL_TYPE, "Achieve");
-   #ifdef DEBUG_ACHIEVE_PARAMS
+   #ifdef DEBUG_ACHIEVE_INIT
       MessageInterface::ShowMessage("Setting refs for achieve\n");
    #endif
    if (SetWrapperReferences(*achieve) == false)
       return false;
    CheckDataType(achieve, Gmat::REAL_TYPE, "Achieve");
-   #ifdef DEBUG_ACHIEVE_PARAMS
+   #ifdef DEBUG_ACHIEVE_INIT
       MessageInterface::ShowMessage("Setting refs for tolerance\n");
    #endif
    if (SetWrapperReferences(*tolerance) == false)
       return false;
    CheckDataType(tolerance, Gmat::REAL_TYPE, "Achieve");
-
-   // find goalName
-   //GmatBase *obj = (*objectMap)[goalName];
    
-   //if (obj == NULL) {
-   //   std::string errorstr = "Could not find goal parameter ";
-   //   errorstr += goalName;
-   //   throw CommandException(errorstr);
-   //}
-
-   //goalParm = (Parameter*)obj;
-   
-   //goalObject = obj;
-   //parmId = id;
-
-   // find achieveParm
-   /*
-   if (isAchieveParm)
-   {
-      #if DEBUG_ACHIEVE_INIT
-      MessageInterface::ShowMessage
-         ("Achieve::Initialize() Find achieveParm=%s from objectMap\n",
-          achieveName.c_str());
-      #endif
-      
-      if (objectMap->find(achieveName) != objectMap->end())
-         achieveParm = (Parameter*)((*objectMap)[achieveName]);
-      
-      if (isAchieveArray)
-      {
-         if (objectMap->find(achieveArrName) != objectMap->end())
-            achieveParm = (Parameter*)((*objectMap)[achieveArrName]);
-         
-         // if variable index is used, get variable from the objectMap
-         if (achieveArrRow == -1)
-            if (objectMap->find(achieveArrRowStr) != objectMap->end())
-               achieveArrRowParm = (Parameter*)((*objectMap)[achieveArrRowStr]);
-            else
-               throw CommandException("Cannot find array row index variable\n");
-
-         if (achieveArrCol == -1)
-            if (objectMap->find(achieveArrColStr) != objectMap->end())
-               achieveArrColParm = (Parameter*)((*objectMap)[achieveArrColStr]);
-            else
-               throw CommandException("Cannot find array column index variable\n");
-      }
-   }
-  */ 
    // The targeter cannot be finalized until all of the loop is initialized
    targeterDataFinalized = false;
    
-   //#if DEBUG_ACHIEVE_INIT
-   //MessageInterface::ShowMessage
-   //   ("Achieve::Initialize() exiting. targeter=%p, goalParm=%p, goalObject=%p, "
-   //    "parmId=%d\n", targeter, goalParm, goalObject, parmId);
-   //#endif
+   #ifdef DEBUG_ACHIEVE_INIT
+   MessageInterface::ShowMessage
+      ("Achieve::Initialize() exiting. targeter=<%p>\n", targeter);
+   #endif
    
    return retval;
 }
@@ -1391,19 +884,15 @@ bool Achieve::Initialize()
 bool Achieve::Execute()
 {
    #ifdef DEBUG_ACHIEVE_EXEC
-   //MessageInterface::ShowMessage
-   //   ("Achieve::Execute() targeterDataFinalized=%d\n   targeter=%s, addr=%p, "
-   //    "achieveParm=%p, goalParm=%p, goalObject=%p\n", targeterDataFinalized,
-   //    targeter->GetName().c_str(), targeter, achieveParm, goalParm, goalObject);
+   MessageInterface::ShowMessage
+      ("Achieve::Execute() targeterDataFinalized=%d\n   targeter=<%p>'%s'\n",
+       targeterDataFinalized, targeter, targeter->GetName().c_str());
    MessageInterface::ShowMessage
       ("   goalName=%s, achieveName=%s\n", goalName.c_str(), achieveName.c_str());
-   //if (achieveParm)
-   //   MessageInterface::ShowMessage("   achieveParm=%s\n", achieveParm->GetName().c_str());
-   //if (goalParm)
-   //   MessageInterface::ShowMessage("   goalParm=%s\n", goalParm->GetName().c_str());
-   //if (goalObject)
-   //   MessageInterface::ShowMessage("   goalObject=%s\n", goalObject->GetName().c_str());
    #endif
+
+   if (goal == NULL || achieve == NULL || tolerance == NULL)
+      throw CommandException("NULL element wrappers found in Achieve command\n");
    
    bool retval = true;
    if (!targeterDataFinalized) 
@@ -1413,78 +902,43 @@ bool Achieve::Execute()
       goalData[0] = goal->EvaluateReal();
       goalData[1] = tolerance->EvaluateReal();
       goalId = targeter->SetSolverResults(goalData, goalName);
-
       targeterDataFinalized = true;
+      
+      #ifdef DEBUG_ACHIEVE_EXEC
+      MessageInterface::ShowMessage
+         ("   Set goal data '%s' [%f, %f] to targeter<%p>'%s'\n", goalName.c_str(),
+          goalData[0], goalData[1], targeter, targeter->GetName().c_str());
+      #endif
+      
       return retval;
    }
    
    Real val = -999.999;
+   
    // Evaluate the floating target (if there is one) and set it on the targeter
-
-   if (achieve != NULL)
-   {
-   //if (achieveParm != NULL)
-   //{
-   //   if (achieveParm->GetReturnType() == Gmat::REAL_TYPE)
-   //   {
-   //      val = achieveParm->EvaluateReal();
-   //   }
-   //   else if (achieveParm->GetReturnType() == Gmat::RMATRIX_TYPE)
-   //   {
-   //      Integer row = achieveArrRow;
-   //      Integer col = achieveArrCol;
-   //      
-   //      if (achieveArrRow == -1)
-   //         row = (Integer)(achieveArrRowParm->EvaluateReal()) - 1; // index starts at 0
-   //
-   //      if (achieveArrCol == -1)
-   //         col = (Integer)(achieveArrColParm->EvaluateReal()) - 1; // index starts at 0
-   //
-   //      #ifdef DEBUG_ACHIEVE_EXEC
-   //      MessageInterface::ShowMessage("   row=%d, col=%d\n", row, col);
-   //      #endif
-   //      
-   //      if (row >= 0 || col >= 0)
-   //         val = achieveParm->EvaluateRmatrix().GetElement(row, col);
-   //      else
-   //         throw CommandException("Invalid row and column in Achieve\n");
-   //   }
-      
-      val = achieve->EvaluateReal();
-      
-      #ifdef DEBUG_ACHIEVE_EXEC
-      MessageInterface::ShowMessage("   Floating target: val = %lf\n", val);
-      #endif
-      
-      targeter->UpdateSolverGoal(goalId, val);
-   }
-
+   val = achieve->EvaluateReal();
+   #ifdef DEBUG_ACHIEVE_EXEC
+   MessageInterface::ShowMessage
+      ("   Setting achieve = %f to targeter<%p>\n", val, targeter);
+   #endif
+   targeter->UpdateSolverGoal(goalId, val);
+   
    // Evaluate goal and pass it to the targeter
-   //if (goalParm != NULL)
-   if (goal != NULL)
-   {
-      //val = goalParm->EvaluateReal();
-      val = goal->EvaluateReal();
-      targeter->SetResultValue(goalId, val);
-      #ifdef DEBUG_ACHIEVE_EXEC
-      //   MessageInterface::ShowMessage
-      //      ("   goalParm=%s, %p\n", goalParm->GetTypeName().c_str(), goalParm);
-      //   MessageInterface::ShowMessage("   Parameter target: %s val = %lf\n",
-      //      goalParm->GetTypeName().c_str(), val);
-      #endif
-   }
-   else // isn't this an error?
-   {
-      val = -999.999;
-      targeter->SetResultValue(goalId, val);
-      //val = goalObject->GetRealParameter(parmId);
-      //targeter->SetResultValue(goalId, val);
-      //#ifdef DEBUG_ACHIEVE_EXEC
-      //   MessageInterface::ShowMessage("   Object target: val = %lf\n", val);
-      //#endif
-   }
-
-   //targeter->SetResultValue(goalId, val);
+   val = goal->EvaluateReal();
+   #ifdef DEBUG_ACHIEVE_EXEC
+   MessageInterface::ShowMessage
+      ("   Setting goal = %f to targeter<%p>\n", val, targeter);
+   #endif
+   targeter->SetResultValue(goalId, val);
+   
+   // Evaluate tolerance pass it to the targeter
+   val = tolerance->EvaluateReal();
+   #ifdef DEBUG_ACHIEVE_EXEC
+   MessageInterface::ShowMessage
+      ("   Setting tolerance = %f to targeter<%p>\n", val, targeter);
+   #endif
+   targeter->UpdateSolverTolerance(goalId, val);
+   
    BuildCommandSummary(true);
    
    return retval;
@@ -1548,10 +1002,22 @@ void Achieve::RunComplete()
 //------------------------------------------------------------------------------
 void Achieve::SetTolerance(Real value)
 {
+   #ifdef DEBUG_ACHIEVE_PARAM
+   MessageInterface::ShowMessage
+      ("Achieve::SetTolerance() entered, value=%f, tolerance=<%p>\n", value,
+       tolerance);
+   #endif
+   
    if (value > 0.0)
    {
       if (tolerance)
+      {
          tolerance->SetReal(value);
+         #ifdef DEBUG_ACHIEVE_PARAM
+         MessageInterface::ShowMessage
+            ("   value=%f set to tolerance<%p>\n", value, tolerance);
+         #endif
+      }
    }
    else
    {
@@ -1562,5 +1028,9 @@ void Achieve::SetTolerance(Real value)
                     "Real Number, Array element, Variable, or Parameter > 0.0");
       throw ce;
    }
+   
+   #ifdef DEBUG_ACHIEVE_PARAM
+   MessageInterface::ShowMessage("Achieve::SetTolerance() leaving\n");
+   #endif
 }
 

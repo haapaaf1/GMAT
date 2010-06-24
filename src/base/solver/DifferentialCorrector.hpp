@@ -75,6 +75,7 @@ public:
    virtual Integer     SetSolverResults(Real *data, const std::string &name,
                                         const std::string &type = "");
    virtual bool        UpdateSolverGoal(Integer id, Real newValue);
+   virtual bool        UpdateSolverTolerance(Integer id, Real newValue);
    virtual void        SetResultValue(Integer id, Real value,
                                       const std::string &resultType = "");
 

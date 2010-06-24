@@ -549,6 +549,25 @@ bool Solver::UpdateSolverGoal(Integer id, Real newValue)
    return false;
 }
 
+//------------------------------------------------------------------------------
+//  bool UpdateSolverTolerance(Integer id, Real newValue)
+//------------------------------------------------------------------------------
+/**
+ * Updates the targeter tolerances, for floating end point problems.
+ * 
+ * This default method just returns false.
+ * 
+ * @param id Id for the tolerance that is being reset.
+ * @param newValue The new tolerance value.
+ * 
+ * @return The ID used for this variable.
+ */
+//------------------------------------------------------------------------------
+bool Solver::UpdateSolverTolerance(Integer id, Real newValue)
+{
+   return false;
+}
+
 
 // Access methods overriden from the base class
 
