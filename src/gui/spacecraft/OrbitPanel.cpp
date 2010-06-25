@@ -27,7 +27,7 @@
  * state is converted to the coordinate system and representation desired for
  * display, and then used to fill in the elements on the panel.  The OrbitPanel
  * maintains the state in the internal MJ2000 equatorial Cartesian coordinates,
- * in the mCartState member.  All conversiona and transformations return to this 
+ * in the mCartState member.  All conversions and transformations return to this
  * representation internally.
  *
  * Steps taken on ComboBoxChange()
@@ -293,7 +293,7 @@ void OrbitPanel::LoadData()
       mAnomalyType = theSpacecraft->GetStringParameter("AnomalyType");
       
       #ifdef DEBUG_ORBIT_PANEL_LOAD
-      MessageInterface::ShowMessage("   mAnomalyType = %s \n", mAnomalyType.c_str());   
+      MessageInterface::ShowMessage("   mAnomalyType (from SC) = %s \n", mAnomalyType.c_str());
       #endif
       
       // Get anomaly type list from the base code (Anomaly)
@@ -328,20 +328,20 @@ void OrbitPanel::LoadData()
          ("   mCartState=\n   [%s]\n", mCartState.ToString(16).c_str());
       #endif
       
-      // if state type is Cartesin, compute true anomaly
-      if (mFromStateTypeStr == "Cartesian")
-      {
-         Rvector6 st = stateConverter.FromCartesian(mCartState, "Keplerian", "TA");
-         mTrueAnomaly.Set(st[0], st[1], st[5], Anomaly::TA);
-         mAnomaly = mTrueAnomaly;
-         mAnomalyType = mAnomalyTypeNames[Anomaly::TA];
-         mFromAnomalyTypeStr = mAnomalyType;
-         
-         #ifdef DEBUG_ORBIT_PANEL_LOAD
-         MessageInterface::ShowMessage
-            ("   Computed TrueAnomaly =\n   [%s]\n", mTrueAnomaly.ToString(16).c_str());
-         #endif
-      }
+      // if state type is Cartesian, compute true anomaly
+//      if (mFromStateTypeStr == "Cartesian")
+//      {
+//         Rvector6 st = stateConverter.FromCartesian(mCartState, "Keplerian", "TA");
+//         mTrueAnomaly.Set(st[0], st[1], st[5], Anomaly::TA);
+//         mAnomaly = mTrueAnomaly;
+//         mAnomalyType = mAnomalyTypeNames[Anomaly::TA];
+//         mFromAnomalyTypeStr = mAnomalyType;
+//
+//         #ifdef DEBUG_ORBIT_PANEL_LOAD
+//         MessageInterface::ShowMessage
+//            ("   Computed TrueAnomaly =\n   [%s]\n", mTrueAnomaly.ToString(16).c_str());
+//         #endif
+//      }
       
       DisplayState();
       
