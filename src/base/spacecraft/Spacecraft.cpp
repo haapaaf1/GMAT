@@ -4525,14 +4525,14 @@ void Spacecraft::UpdateElementLabels()
    if (displayStateType == "Equinoctial")
    {
       stateElementLabel[0] = "SMA";
-//      stateElementLabel[1] = "EquinoctialH";
-//      stateElementLabel[2] = "EquinoctialK";
-//      stateElementLabel[3] = "EquinoctialP";
-//      stateElementLabel[4] = "EquinoctialQ";
-      stateElementLabel[1] = "h";
-      stateElementLabel[2] = "k";
-      stateElementLabel[3] = "p";
-      stateElementLabel[4] = "q";
+      stateElementLabel[1] = "EquinoctialH";
+      stateElementLabel[2] = "EquinoctialK";
+      stateElementLabel[3] = "EquinoctialP";
+      stateElementLabel[4] = "EquinoctialQ";
+//      stateElementLabel[1] = "h";
+//      stateElementLabel[2] = "k";
+//      stateElementLabel[3] = "p";
+//      stateElementLabel[4] = "q";
       stateElementLabel[5] = "MLONG";
 
       stateElementUnits[0] = "km";
