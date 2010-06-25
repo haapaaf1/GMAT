@@ -274,11 +274,22 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    
    // eqn 4.2
    Real h = angMomentum.GetMagnitude();
+   #ifdef DEBUG_CART_TO_KEPL
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, pos = %12.10f  %12.10f  %12.10f \n", pos[0], pos[1], pos[2]);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, vel = %12.10f  %12.10f  %12.10f \n", vel[0], vel[1], vel[2]);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, angMomentum = %12.10f  %12.10f  %12.10f\n",
+            angMomentum[0], angMomentum[1], angMomentum[2]);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, h = %12.10f\n", h);
+   #endif
    
-   if (h < 1E-30)
-   {
-      return 1;
-   }
+//   if (h < 1E-30)
+//   {
+//      return 1;
+//   }
    
    // eqn 4.3
    Rvector3 nodeVec = Cross(Rvector3(0,0,1), angMomentum);
@@ -296,20 +307,37 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    
    // eqn 4.9
    Real zeta = 0.5*velMag*velMag - grav/posMag;
+   #ifdef DEBUG_CART_TO_KEPL
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, nodeVec = %12.10f  %12.10f  %12.10f \n",
+            nodeVec[0], nodeVec[1], nodeVec[2]);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, n = %12.10f\n", n);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, posMag = %12.10f\n", posMag);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, velMag = %12.10f\n", velMag);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, eccVec = %12.10f  %12.10f  %12.10f \n", eccVec[0], eccVec[1], eccVec[2]);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, e = %12.10f\n", e);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, zeta = %12.10f\n", zeta);
+   #endif
    
    if (Abs(1 - e) < 1E-7)
    {
       throw UtilityException
       ("Error in conversion from Cartesian to Keplerian state: "
        "The state results in an orbit that is nearly parabolic.\n");
-//         ("CoordUtil::CartesianToKeplerian() "
-//          "Warning: A nearly parabolic orbit was encountered while converting "
-//          "from the Cartesian state to the Keplerian elements.  The Keplerian elements "
-//          "are undefined for a parabolic orbit.\n");
    }
    
    // eqn 4.10
    Real sma = -grav/(2*zeta);
+   #ifdef DEBUG_CART_TO_KEPL
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, sma = %12.10f\n", sma);
+   #endif
 
    if (Abs(sma*(1 - e)) < .001)
    {
