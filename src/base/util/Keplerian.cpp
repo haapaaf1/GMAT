@@ -367,15 +367,9 @@ Real Keplerian::CartesianToSMA(Real mu, const Rvector3 &pos,
 
    // check if the orbit is near parabolic
    Real ecc = CartesianToECC(mu, pos, vel);
-   if ((Abs(1.0 - ecc)) <= GmatOrbit::KEP_ZERO_TOL)
+   if ((Abs(1.0 - ecc)) <= GmatOrbit::KEP_ECC_TOL)
    {
-      Rvector3 r = pos;
-      Rvector3 v = vel;
-      
-      MessageInterface::ShowMessage
-         ("CartesianToSMA() divide-by-zero occurred. pos: " +
-          r.ToString() + " vel: " + v.ToString());
-      
+     
       throw UtilityException
          ("Error in conversion from Cartesian to Keplerian state: "
           "The state results in an orbit that is nearly parabolic.\n");
@@ -458,12 +452,6 @@ Real Keplerian::CartesianToINC(Real mu, const Rvector3 &pos,
    Real eMag = CartesianToECC(mu, pos, vel);
    if ((Abs(1.0 - eMag)) <= GmatOrbit::KEP_ZERO_TOL)
    {
-      Rvector3 r = pos;
-      Rvector3 v = vel;
-      
-      MessageInterface::ShowMessage
-         ("CartesianToSMA() divide-by-zero occurred. pos: " +
-          r.ToString() + " vel: " + v.ToString());
       
       throw UtilityException
       ("Error in conversion from Cartesian to Keplerian state: "

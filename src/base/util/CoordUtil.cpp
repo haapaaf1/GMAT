@@ -24,6 +24,7 @@
 #include "MessageInterface.hpp"
 #include <sstream>               // for stringstream
 #include <math.h>
+#include "OrbitTypes.hpp"
 
 using namespace GmatMathUtil;
 
@@ -325,12 +326,12 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
             "   in ComputeCartToKepl, zeta = %12.10f\n", zeta);
    #endif
    
-   if (Abs(1 - e) < 1E-7)
+   if ((Abs(1.0 - e)) <= GmatOrbit::KEP_ECC_TOL)
    {
       throw UtilityException
-      ("Error in conversion from Cartesian to Keplerian state: "
-       "The state results in an orbit that is nearly parabolic.\n");
-   }
+         ("Error in conversion to Keplerian state: "
+          "The state results in an orbit that is nearly parabolic.\n");
+   } 
    
    // eqn 4.10
    Real sma = -grav/(2*zeta);
@@ -338,6 +339,7 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
       MessageInterface::ShowMessage(
             "   in ComputeCartToKepl, sma = %12.10f\n", sma);
    #endif
+
 
    if (Abs(sma*(1 - e)) < .001)
    {
@@ -425,6 +427,13 @@ Integer CoordUtil::ComputeKeplToCart(Real grav, Real elem[6], Real r[3],
        raan = elem[3]*RAD_PER_DEG,
         per = elem[4]*RAD_PER_DEG,
        anom = elem[5]*RAD_PER_DEG;
+
+   if ((Abs(1.0 - ecc)) <= GmatOrbit::KEP_ECC_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion from Keplerian state: "
+          "The state results in an orbit that is nearly parabolic.\n");
+   } 
    
    // **************
    // taken from old code above; necessary to avoid crash, but not in spec

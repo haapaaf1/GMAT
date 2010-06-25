@@ -33,6 +33,7 @@ namespace GmatOrbit
    const static Real KEP_TOL = 1.0e-11;
    const static Real KEP_ANOMALY_TOL = 1.0e-12;
    const static Real KEP_ZERO_TOL = 1.0e-30;
-   
+   const static Real KEP_ECC_TOL  = 1.0e-7;  // Determined to using numerical experiments
+                                             // after multiple transformations
 }
 #endif // OrbitTypes_hpp

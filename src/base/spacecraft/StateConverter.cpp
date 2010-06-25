@@ -30,6 +30,7 @@
 #include "UtilityException.hpp"
 #include "RealTypes.hpp"
 #include "RealUtilities.hpp"
+#include "OrbitTypes.hpp"
 
 using namespace GmatMathUtil;
 
@@ -767,15 +768,11 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
    Rvector3 eVec = ( ((v*v - mu/r) * pos) - ((pos * vel) * vel) ) / mu;
    Real e = eVec.GetMagnitude();
 
-   // Check for a near parabolic orbit
-   if (Abs(1.0 - e) < 1.0e-7)
+   // Check for a near parabolic or hyperbolic orbit.
+   if ( e > 1.0 - GmatOrbit::KEP_ECC_TOL)
    {
-      #ifdef DEBUG_EQUINOCTIAL
-         MessageInterface::ShowMessage("Equinoctial ... failing check for parabolic orbit  ... e = %12.10f\n",
-               e);
-      #endif
-      std::string errmsg =
-            "Error: The state results in an orbit that is nearly parabolic.\n";
+      std::string errmsg = 
+            "Error: Cannot convert to Equinoctial elements because the orbit is either parabolic or hyperbolic.\n";
       throw UtilityException(errmsg);
    }
 
