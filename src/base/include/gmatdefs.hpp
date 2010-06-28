@@ -166,6 +166,7 @@ namespace Gmat
       OBTYPE,              // For the specific observation types
       
       INTERFACE,           // MatlabInterface
+      MEDIA_CORRECTION,	   // For media correction model
       UNKNOWN_OBJECT
    };
 
