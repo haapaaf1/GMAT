@@ -27,6 +27,7 @@
 #include "AttitudeException.hpp"
 #include "RealUtilities.hpp"
 #include "MessageInterface.hpp"
+#include "StringUtil.hpp"
 
 //#define DEBUG_REF_SETTING
 //#define DEBUG_ATTITUDE_GEN_STRING
@@ -2424,6 +2425,10 @@ Real Attitude::SetRealParameter(const std::string &label,
 Real Attitude::SetRealParameter(const Integer id, const Real value,
                                 const Integer index)
 {
+   #ifdef DEBUG_ATTITUDE_SET_REAL
+      MessageInterface::ShowMessage("Entering SetReal with id = %d (%s), value = %12.10f, index= %d\n",
+            id, GetParameterText(id).c_str(), value, index);
+   #endif
    if (id == EULER_ANGLES)
    {
       if ((index < 0) || (index > 2))
@@ -2471,6 +2476,12 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
       }
       quaternion(index) = value;
       inputAttitudeType = GmatAttitude::QUATERNION_TYPE;
+      #ifdef DEBUG_ATTITUDE_SET_REAL
+         MessageInterface::ShowMessage(" ... set quaternion[%d] = %12.10f\n",
+               index, value);
+         MessageInterface::ShowMessage(" ...     quaternion = %s\n",
+               quaternion.ToString().c_str());
+      #endif
       if (isInitialized) needsReinit = true;
       return quaternion(index);
    }
@@ -2953,6 +2964,14 @@ bool Attitude::SetStringParameter(const Integer id,
 
       return true;
    }
+
+   // now, handle the array values
+   if ((id == QUATERNION) || (id == EULER_ANGLES) || (id == DIRECTION_COSINE_MATRIX) ||
+       (id == ANGULAR_VELOCITY) || (id == EULER_ANGLE_RATES))
+   {
+      SetRealArrayFromString(id, value);
+      return true;
+   }
    return GmatBase::SetStringParameter(id, value);
 }
 
@@ -3381,3 +3400,35 @@ void Attitude::UpdateState(const std::string &rep)
 //   else
 //      ; // do nothing - cosMat and angVel are kept up-to-date
 }
+
+void Attitude::SetRealArrayFromString(Integer id, const std::string &sval)
+{
+   #ifdef DEBUG_ATTITUDE_SET_REAL
+      MessageInterface::ShowMessage("Entering SetRealArrayFromString with id = %d (%s) and string = %s\n",
+            id, GetParameterText(id).c_str(), sval.c_str());
+   #endif
+   if (id == DIRECTION_COSINE_MATRIX)
+   {
+      std::string errmsg = "ERROR - setting DCM from string not yet implemented \n";
+      throw AttitudeException(errmsg);
+   }
+   try
+   {
+      RealArray vals = GmatStringUtil::ToRealArray(sval);
+      if (vals.empty())
+      {
+         std::string errmsg = "ERROR attempting to set Attitude or Angular Velocity from string \"";
+         errmsg += sval + "\"\n";
+         throw AttitudeException(errmsg);
+      }
+      for (UnsignedInt i=0; i<vals.size(); i++)
+         SetRealParameter(id, vals[i], i);
+   }
+   catch (BaseException &be)
+   {
+      std::string errmsg = "ERROR attempting to set Attitude or Angular Velocity from string \"";
+      errmsg += sval + "\"\n";
+      throw AttitudeException(errmsg);
+   }
+}
+

@@ -63,7 +63,7 @@ class GMAT_API Attitude : public GmatBase
 {
 public:
 
-   // static methods for conversion
+   // BEGIN static methods for conversion
    static Rmatrix33 ToCosineMatrix(const Rvector &quat1);
    static Rmatrix33 ToCosineMatrix(const Rvector3 &eulerAngles, 
                                    Integer seq1, Integer seq2, 
@@ -90,7 +90,8 @@ public:
                                       
    static StringArray       GetEulerSequenceStrings();
    static UnsignedIntArray  ExtractEulerSequence(const std::string &seqStr);
-   
+   // END static methods for conversion
+
 
    // Constructor
    Attitude(const std::string &typeStr, const std::string &itsName = "");
@@ -343,5 +344,6 @@ private:
    bool      ValidateEulerSequence(const UnsignedIntArray &eulAng);
    bool      ValidateQuaternion(const Rvector &quat);
    void      UpdateState(const std::string &rep);
+   void      SetRealArrayFromString(Integer id, const std::string &sval);
 };
 #endif /*Attitude_hpp*/
