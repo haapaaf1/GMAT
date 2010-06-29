@@ -410,6 +410,8 @@ bool ObjectPropertyWrapper::SetString(const std::string &toValue)
       return object->SetStringParameter(propID, toValue);
    else if (propType == Gmat::UNSIGNED_INTARRAY_TYPE)
       return object->SetStringParameter(propID, toValue);
+   else if (propType == Gmat::RVECTOR_TYPE)  // added to handle Rvectors with brackets
+      return object->SetStringParameter(propID, toValue);
    else
       throw GmatBaseException
          ("SetString() method not valid for wrapper of non-String type.\n");
