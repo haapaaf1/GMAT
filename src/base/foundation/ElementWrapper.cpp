@@ -565,6 +565,16 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                    "UnsignedInt Array");
             break;
          }
+      case Gmat::RVECTOR_TYPE:
+         {
+            if (rhsDataType == Gmat::STRING_TYPE)
+               lhsWrapper->SetString(rhs);
+            else
+               throw GmatBaseException
+                  ("ElementWrapper::SetValue() Cannot set Non-Rvector value to "
+                   "Rvector");
+            break;
+         }
       case Gmat::REAL_TYPE:
          #ifdef DEBUG_EW_SET_VALUE
          MessageInterface::ShowMessage("   setting rhs rval=%f to lhs\n", rval);
