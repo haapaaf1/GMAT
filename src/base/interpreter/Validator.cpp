@@ -618,7 +618,7 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    else 
    {
       Parameter *p;
-      // check to see if it is an array
+      // check to see if it is an array element
       bool isOuterParen;
       Integer openParen, closeParen;
       GmatStringUtil::FindParenMatch(theDescription, openParen, closeParen, isOuterParen);
@@ -664,8 +664,10 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
             }
          }
       }
-      // check to see if it is an object property or a Parameter
-      else if (theDescription.find(".") != std::string::npos)
+      // check to see if it is an object property or a Parameter - but make sure it is not
+      // an array of Reals (which can and usually do contain '.')
+      else if ((theDescription.find(".") != std::string::npos) &&
+              !(GmatStringUtil::IsEnclosedWithBrackets(theDescription)))
       {
          ew = CreateWrapperWithDot(parametersFirst, manage);
       }
