@@ -1127,7 +1127,7 @@ bool GmatStringUtil::ToBoolean(const std::string &str, bool &value, bool trimPar
 //------------------------------------------------------------------------------
 RealArray GmatStringUtil::ToRealArray(const std::string &str)
 {
-   MessageInterface::ShowMessage("ToRealArray() str='%s'\n", str.c_str());
+//   MessageInterface::ShowMessage("ToRealArray() str='%s'\n", str.c_str());
 
    RealArray realArray;
 
@@ -1143,7 +1143,7 @@ RealArray GmatStringUtil::ToRealArray(const std::string &str)
    StringArray vals = SeparateBy(str1, " ,");
    Real rval;
 
-   MessageInterface::ShowMessage("   vals.size()=%d\n", vals.size());
+//   MessageInterface::ShowMessage("   vals.size()=%d\n", vals.size());
 
    for (UnsignedInt i=0; i<vals.size(); i++)
    {
@@ -1999,6 +1999,21 @@ bool GmatStringUtil::IsEnclosedWithBraces(const std::string &str)
 {
    return (StartsWith(str, "{") && EndsWith(str, "}"));
 }
+
+//------------------------------------------------------------------------------
+// bool IsEnclosedWithBrackets(const std::string &str)
+//------------------------------------------------------------------------------
+/*
+ * return true if entire string is enclosed with brackets (in cases of
+ * arrays of Real numbers, e.g.)
+ *
+ */
+//------------------------------------------------------------------------------
+bool GmatStringUtil::IsEnclosedWithBrackets(const std::string &str)
+{
+   return (StartsWith(str, "[") && EndsWith(str, "]"));
+}
+
 //------------------------------------------------------------------------------
 // bool IsParenBalanced(const std::string &str)
 //------------------------------------------------------------------------------

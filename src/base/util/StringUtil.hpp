@@ -117,6 +117,7 @@ namespace GmatStringUtil
    GMAT_API bool IsEnclosedWith(const std::string &str, const std::string &enclosingStr);
    GMAT_API bool IsEnclosedWithExtraParen(const std::string &str, bool checkOps = true);
    GMAT_API bool IsEnclosedWithBraces(const std::string &str);
+   GMAT_API bool IsEnclosedWithBrackets(const std::string &str);
    GMAT_API bool IsBracketBalanced(const std::string &str, const std::string &bracketPair);
    GMAT_API bool IsParenBalanced(const std::string &str);
    GMAT_API bool AreAllBracketsBalanced(const std::string &str, const std::string &allPairs);
