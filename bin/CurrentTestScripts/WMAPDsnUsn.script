@@ -115,7 +115,8 @@ WMAPsim.AddData             = {DSN_WMAP, USN_WMAP};
 WMAPsim.InitialEpochFormat  = UTCGregorian;
 WMAPsim.InitialEpoch        = '18 Nov 2009 00:00:00.000';
 WMAPsim.FinalEpochFormat    = UTCGregorian;
-WMAPsim.FinalEpoch          = '25 Nov 2009 00:00:00.000';
+WMAPsim.FinalEpoch          = '18 Nov 2009 03:00:10.000';
+%WMAPsim.FinalEpoch          = '25 Nov 2009 00:00:00.000';
 WMAPsim.MeasurementTimeStep = 600;
 WMAPsim.Propagator          = SunEarthL2Prop;
 

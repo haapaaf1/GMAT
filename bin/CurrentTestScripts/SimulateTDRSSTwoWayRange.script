@@ -137,7 +137,8 @@ AQUAsim.AddData             = {AQUA_TDRSS};
 AQUAsim.InitialEpochFormat  = UTCGregorian;
 AQUAsim.InitialEpoch        = '09 Jun 2004 00:00:00.000';
 AQUAsim.FinalEpochFormat    = UTCGregorian;
-AQUAsim.FinalEpoch          = '10 Jun 2004 00:00:00.000';
+AQUAsim.FinalEpoch          = '09 Jun 2004 00:01:00.000';
+%AQUAsim.FinalEpoch          = '10 Jun 2004 00:00:00.000';
 AQUAsim.MeasurementTimeStep = 60;
 AQUAsim.Propagator          = TwoBodyProp;
 
