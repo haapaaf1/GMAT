@@ -63,12 +63,19 @@ OBJECTS = \
     command/CallMatlabFunction.o \
 	 $(MEX_OBJECTS)
 
+ifeq ($(LINUX_MAC), 1)
 ifeq ($(MAC_SPECIFIC), 1)
 $(TARGET) : $(OBJECTS)
 	mkdir -p ../../lib
 	$(CPP) $(OBJECTS) -o $(TARGET) $(SHARED_LIB_FLAGS)
 	install_name_tool -change lib/lib$(BASE_LIBRARY).dylib $(BASE_LIB_LOCATION)lib$(BASE_LIBRARY).dylib $(TARGET)
 	cp $(TARGET) $(GMAT_BIN_LOCATION)
+else
+$(TARGET) : $(OBJECTS)
+	mkdir -p ../../lib
+	$(CPP) $(OBJECTS) -o $(TARGET) $(SHARED_LIB_FLAGS) $(MATLAB_LIB_DIR) $(MATLAB_LIBRARIES)
+	cp $(TARGET) $(GMAT_BIN_LOCATION)
+endif	
 else
 $(TARGET) : $(OBJECTS)
 	mkdir -p ../../lib
