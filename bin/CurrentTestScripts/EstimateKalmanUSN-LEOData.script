@@ -89,17 +89,18 @@ USN_ODSat.Add = {USNRange}
 %--------------------------------------------------------------
 %===== Create the Estimator
 %--------------------------------------------------------------
-Create BatchEstimatorInv BatchEst;
-GMAT BatchEst.ShowProgress = true;
-GMAT BatchEst.ReportStyle = 'Normal';
-GMAT BatchEst.ReportFile = 'BatchEstimateUSN-LEO.data';
-GMAT BatchEst.MaximumIterations = 15;
-GMAT BatchEst.Measurements = {USNRange};
-GMAT BatchEst.AddSolveFor = {'ODSat.CartesianState'};
-GMAT BatchEst.AbsoluteTol = 1e-06;
-GMAT BatchEst.RelativeTol = 1e-07;
-GMAT BatchEst.Propagator = ODProp;
-GMAT BatchEst.EstimationEpochFormat = 'FromParticipants';
+Create ExtendedKalmanInv EKF;
+GMAT EKF.ShowProgress = true;
+GMAT EKF.ReportStyle = 'Normal';
+GMAT EKF.ReportFile = 'KalmanEstimateUSN-LEO.data';
+GMAT EKF.MaximumIterations = 15;
+GMAT EKF.Measurements = {USNRange};
+GMAT EKF.AddSolveFor = {'ODSat.CartesianState'};
+GMAT EKF.AbsoluteTol = 0.1;
+GMAT EKF.RelativeTol = 0.001;
+GMAT EKF.Propagator = ODProp;
+GMAT EKF.ShowAllResiduals = On;
+
 
 %--------------------------------------------------------------
 %===== Plot the process
@@ -114,5 +115,5 @@ GMAT XYPlot1.ShowPlot = true;
 %--------------------------------------------------------------
 %===== Run the simulator
 %--------------------------------------------------------------
-RunEstimator BatchEst
+RunEstimator EKF
 
