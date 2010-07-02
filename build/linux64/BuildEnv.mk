@@ -1,4 +1,4 @@
-# $Id: BuildEnv.mk 6502 2009-04-16 00:01:13Z djcinsb $
+# $Id$
 # Build environment file for Linux
 
 # Flags used to control the build
