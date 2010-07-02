@@ -3612,7 +3612,17 @@ void GmatMainFrame::OnCopy(wxCommandEvent& event)
    if (editor)
       editor->OnCopy(event);
 #else
-   child->GetScriptTextCtrl()->Copy();
+   if (child != NULL)
+   {
+      if (child->GetScriptTextCtrl() != NULL)
+         child->GetScriptTextCtrl()->Copy();
+      else
+         GmatAppData::Instance()->GetMessageTextCtrl()->Copy();
+   }
+   else
+   {
+      GmatAppData::Instance()->GetMessageTextCtrl()->Copy();
+   }
 #endif
 }
 
