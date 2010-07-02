@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                         DifferentialCorrector
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -74,12 +74,15 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    tolerance               (NULL),
    nominal                 (NULL),
    achieved                (NULL),
+   backAchieved            (NULL),
    jacobian                (NULL),
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
-   derivativeMethod        ("CentralDifference"),
-   diffMode                (0)
+   derivativeMethod        ("ForwardDifference"),
+   diffMode                (1),
+   firstPert               (true),
+   incrementPert           (true)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -111,12 +114,15 @@ DifferentialCorrector::DifferentialCorrector(const DifferentialCorrector &dc) :
    tolerance               (NULL),
    nominal                 (NULL),
    achieved                (NULL),
+   backAchieved            (NULL),
    jacobian                (NULL),
    inverseJacobian         (NULL),
    indx                    (NULL),
    b                       (NULL),
    derivativeMethod        (dc.derivativeMethod),
-   diffMode                (dc.diffMode)
+   diffMode                (dc.diffMode),
+   firstPert               (dc.firstPert),
+   incrementPert           (dc.incrementPert)
 {
    #if DEBUG_DC_INIT
    MessageInterface::ShowMessage
@@ -145,6 +151,8 @@ DifferentialCorrector::operator=(const DifferentialCorrector& dc)
    goalCount        = dc.goalCount;
    derivativeMethod = dc.derivativeMethod;
    diffMode         = dc.diffMode;
+   firstPert        = dc.firstPert;
+   incrementPert    = dc.incrementPert;
 
    return *this;
 }
@@ -645,12 +653,17 @@ void DifferentialCorrector::SetResultValue(Integer id, Real value,
             "   State %d received id %d    value = %.12lf\n", currentState, id,
             value);
    #endif
-    if (currentState == NOMINAL) {
+    if (currentState == NOMINAL)
+    {
         nominal[id] = value;
     }
 
-    if (currentState == PERTURBING) {
-        achieved[pertNumber][id] = value;
+    if (currentState == PERTURBING)
+    {
+       if (firstPert)
+          achieved[pertNumber][id] = value;
+       else
+          backAchieved[pertNumber][id] = value;
     }
 }
 
@@ -691,11 +704,13 @@ bool DifferentialCorrector::Initialize()
    // And the sensitivity matrix
    Integer i;
    achieved        = new Real*[localVariableCount];
+   backAchieved    = new Real*[localVariableCount];
    jacobian        = new Real*[localVariableCount];
    for (i = 0; i < localVariableCount; ++i)
    {
       jacobian[i]        = new Real[localGoalCount];
       achieved[i]        = new Real[localGoalCount];
+      backAchieved[i]    = new Real[localGoalCount];
    }
 
    inverseJacobian = new Real*[localGoalCount];
@@ -893,7 +908,8 @@ void DifferentialCorrector::RunPerturbation()
    if (pertNumber != -1)
       // Back out the last pert applied
       variable.at(pertNumber) = lastUnperturbedValue;
-   ++pertNumber;
+   if (incrementPert)
+      ++pertNumber;
 
    if (pertNumber == variableCount)  // Current set of perts have been run
    {
@@ -903,31 +919,68 @@ void DifferentialCorrector::RunPerturbation()
    }
 
    lastUnperturbedValue = variable.at(pertNumber);
-   if (diffMode == 1)
+   if (diffMode == 1)      // Forward difference
    {
+      firstPert = true;
       variable.at(pertNumber) += perturbation.at(pertNumber);
       pertDirection.at(pertNumber) = 1.0;
    }
-   else if (diffMode == 0)
+   else if (diffMode == 0) // Central difference
    {
-      variable.at(pertNumber) += perturbation.at(pertNumber);
-      pertDirection.at(pertNumber) = 1.0;
+      if (incrementPert)
+      {
+         firstPert = true;
+         incrementPert = false;
+         variable.at(pertNumber) += perturbation.at(pertNumber);
+         pertDirection.at(pertNumber) = 1.0;
+      }
+      else
+      {
+         firstPert = false;
+         incrementPert = true;
+         variable.at(pertNumber) -= perturbation.at(pertNumber);
+         pertDirection.at(pertNumber) = -1.0;
+      }
    }
-   else
+   else                    // Backward difference
    {
+      firstPert = true;
       variable.at(pertNumber) -= perturbation.at(pertNumber);
       pertDirection.at(pertNumber) = -1.0;
    }
 
    if (variable[pertNumber] > variableMaximum[pertNumber])
    {
-      pertDirection.at(pertNumber) = -1.0;
-      variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+      if (diffMode == 0)
+      {
+         // Warn user that central differencing violates constraint and continue
+         MessageInterface::ShowMessage("Warning!  Perturbation violates the "
+               "maximum value for variable %s, but is being applied anyway to "
+               "perform central differencing in the differential corrector "
+               "%s\n", variableNames[pertNumber].c_str(), instanceName.c_str());
+      }
+      else
+      {
+         pertDirection.at(pertNumber) = -1.0;
+         variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+      }
    }
+
    if (variable[pertNumber] < variableMinimum[pertNumber])
    {
-      pertDirection.at(pertNumber) = -1.0;
-      variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+      if (diffMode == 0)
+      {
+         // Warn user that central differencing violates constraint and continue
+         MessageInterface::ShowMessage("Warning!  Perturbation violates the "
+               "minimum value for variable %s, but is being applied anyway to "
+               "perform central differencing in the differential corrector "
+               "%s\n", variableNames[pertNumber].c_str(), instanceName.c_str());
+      }
+      else
+      {
+         pertDirection.at(pertNumber) = -1.0;
+         variable[pertNumber] -= 2.0 * perturbation[pertNumber];
+      }
    }
 
    WriteToTextFile();
@@ -1070,12 +1123,26 @@ void DifferentialCorrector::CalculateJacobian()
 {
    Integer i, j;
 
-   for (i = 0; i < variableCount; ++i)
+   if (diffMode != 0)
    {
-      for (j = 0; j < goalCount; ++j)
+      for (i = 0; i < variableCount; ++i)
       {
-          jacobian[i][j] = achieved[i][j] - nominal[j];
-          jacobian[i][j] /= (pertDirection.at(i) * perturbation.at(i));
+         for (j = 0; j < goalCount; ++j)
+         {
+             jacobian[i][j] = achieved[i][j] - nominal[j];
+             jacobian[i][j] /= (pertDirection.at(i) * perturbation.at(i));
+         }
+      }
+   }
+   else        // Central differencing
+   {
+      for (i = 0; i < variableCount; ++i)
+      {
+         for (j = 0; j < goalCount; ++j)
+         {
+             jacobian[i][j] = achieved[i][j] - backAchieved[i][j]; // nominal[j];
+             jacobian[i][j] /= (2.0 * perturbation.at(i));
+         }
       }
    }
 }
@@ -1177,6 +1244,14 @@ void DifferentialCorrector::FreeArrays()
          delete [] achieved[i];
       delete [] achieved;
       achieved = NULL;
+   }
+
+   if (backAchieved)
+   {
+      for (Integer i = 0; i < variableCount; ++i)
+         delete [] backAchieved[i];
+      delete [] backAchieved;
+      backAchieved = NULL;
    }
 
    if (jacobian)

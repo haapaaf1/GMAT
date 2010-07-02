@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                         DifferentialCorrector
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -29,9 +29,9 @@
  * This class implements the first targeter in GMAT.
  * 
  * @todo refactor this class with the Solver class so that elements common to
- *       targeting, scanning, and optimizing are all in the base class.  This 
- *       task should be done when the first instance of one of the other 
- *       approaches is implemented.
+ *       targeting, scanning, estimating and optimizing are all in the base
+ *       class.  This task should be done when the first instance of one of the
+ *       other approaches is implemented.
  */
 class GMAT_API DifferentialCorrector : public Solver
 {
@@ -91,6 +91,8 @@ protected:
    Real                        *nominal;
    /// Array used to track the achieved values when variables are perturbed
    Real                        **achieved;
+   /// Array used to track the backwards perts for central differencing
+   Real                        **backAchieved;
    /// The sensitivity matrix
    Real                        **jacobian;
    /// The inverted sensitivity matrix
@@ -102,13 +104,16 @@ protected:
    Real                        *b;
     
    // Control parameters
-   /// Used to turn on central differencing.  Currently not implemented.
-   //bool                        useCentralDifferences;
-   std::string                 derivativeMethod;
 
+   /// Text describing how differences should be generated
+   std::string                 derivativeMethod;
    /// Mode flag for differencing
    Integer                     diffMode; // 1 for forward, -1 for backward,
                                          // 0 for central
+   /// Flag used to track place in central differencing
+   bool                        firstPert;
+   /// Flag used to indicate if it is time to move to next pert
+   bool                        incrementPert;
 
    /// List of goals
    StringArray                 goalNames;
