@@ -698,7 +698,7 @@ bool Solver::IsParameterReadOnly(const Integer id) const
        (id == SolverStatusID))
       return true;
 
-   return false;//GmatBase::IsParameterReadOnly(id);
+   return GmatBase::IsParameterReadOnly(id);
 }
 
 
