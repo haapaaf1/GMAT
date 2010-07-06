@@ -23,9 +23,9 @@ MATLAB_LIBRARIES = $(MATLAB_LIB_DIR) -leng -lmx -lmat -lut -lz -lstdc++ -lc $(MA
 MEX_OBJECTS =	../matlab/gmat_mex/src/MatlabClient.o \
 				../matlab/gmat_mex/src/MatlabConnection.o
 				
-# Set to 0 for Windows, 1 for Linux or Mac
-LINUX_MAC = 1   
-
+# Set to 0 for Windows, 1 for Linux and Mac
+LINUX_MAC = 1
+				
 # Set to 0 for Linux, 1 for Mac 
 MAC_SPECIFIC = 1
 
