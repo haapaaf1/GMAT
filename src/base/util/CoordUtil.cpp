@@ -354,7 +354,12 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    }
    // eqn 4.11
    Real i = ACos( angMomentum.Get(2)/h );
-   
+   if (i >= PI - GmatOrbit::KEP_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion to Keplerian state: "
+          "GMAT does not currently support orbits with inclination of 180 degrees.\n");
+   } 
    Real raan, argPeriapsis, trueAnom;
    raan=argPeriapsis=trueAnom=0;
    if ( e >= 1E-11 && i >= 1E-11 )  // CASE 1: Non-circular, Inclined Orbit

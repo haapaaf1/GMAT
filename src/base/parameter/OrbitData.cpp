@@ -549,34 +549,48 @@ Real OrbitData::GetOtherKepReal(Integer item)
    Real sma = Keplerian::CartesianToSMA(mGravConst, pos, vel);   
    Real ecc = Keplerian::CartesianToECC(mGravConst, pos, vel);
    
+if (abs(1 - ecc) <= GmatOrbit::KEP_ECC_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion to Keplerian state: "
+          "The state results in an orbit that is nearly parabolic.\n");
+   } 
+
+  if (sma*(1 - ecc) < .001)
+   {
+      throw UtilityException
+         ("Error in conversion to Keplerian state: "
+          "The state results in a singular conic section with radius of periapsis less than 1 m.\n");
+   } 
+   
    Real grav = mGravConst;
    
    switch (item)
    {
    case MM:
-      if (ecc < (1.0 + 1E-10))      // Ellipse
+      if (ecc < (1.0 - GmatOrbit::KEP_ECC_TOL))      // Ellipse
          return Sqrt(grav / (sma*sma*sma));
-      else if (ecc > (1.0 - 1E-10)) // Hyperbola 
+      else if (ecc > (1.0 + GmatOrbit::KEP_ECC_TOL)) // Hyperbola 
          return Sqrt(-(grav / (sma*sma*sma)));
-      else                          // Parabola
-         return 2.0 * Sqrt(grav);
+      else                         
+         return 2.0 * Sqrt(grav); // Parabola
    case VEL_APOAPSIS:
-      if (ecc > (1.0 - 1E-12))
-         return 0.0;
+      if ( (ecc < 1.0 - GmatOrbit::KEP_ECC_TOL) || (ecc > 1.0 + GmatOrbit::KEP_ECC_TOL))  //Ellipse and Hyperbola
+         return Sqrt( (grav/sma)*((1-ecc)/(1+ecc)) );  
       else
-         return Sqrt( (grav/sma)*((1-ecc)/(1+ecc)) );
+         return 0.0; // Parabola  
    case VEL_PERIAPSIS:
       return Sqrt( (grav/sma)*((1+ecc)/(1-ecc)) );
    case ORBIT_PERIOD:
-      if (sma < 0)
-         return 0;
+      if (sma < 0.0)
+         return 0.0;
       else
          return GmatMathUtil::TWO_PI * Sqrt((sma * sma * sma)/ grav);
    case RAD_APOAPSIS:
-      if (ecc > (1.0 - 1E-12)) // 2007.05.15 wcs - added - Bugs 192/224
-         return 0.0;
-      else
+	   if ( (ecc < 1.0 - GmatOrbit::KEP_ECC_TOL) || (ecc > 1.0 + GmatOrbit::KEP_ECC_TOL)) //Ellipse and Hyperbola
          return sma * (1.0 + ecc);
+	  else
+		 return 0.0;   // Parabola
    case RAD_PERIAPSIS:
       return sma * (1.0 - ecc);
    case C3_ENERGY:

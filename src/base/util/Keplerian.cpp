@@ -463,6 +463,12 @@ Real Keplerian::CartesianToINC(Real mu, const Rvector3 &pos,
    
    //Real inc = ACos(hVec[2] / hMag);
    Real inc = ACos((hVec[2] / hMag), GmatOrbit::KEP_TOL);
+   if (inc >= PI - GmatOrbit::KEP_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion to Keplerian state: "
+          "GMAT does not currently support orbits with inclination of 180 degrees.\n");
+   } 
    
    #if DEBUG_KEPLERIAN_INC
    MessageInterface::ShowMessage("returning %f\n", inc);
@@ -499,6 +505,12 @@ Real Keplerian::CartesianToRAAN(Real mu, const Rvector3 &pos,
    
    Real ecc = CartesianToECC(mu, pos, vel);
    Real inc = CartesianToINC(mu, pos, vel, true);
+   if (inc >= PI - GmatOrbit::KEP_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion to Keplerian state: "
+          "GMAT does not currently support orbits with inclination of 180 degrees.\n");
+   } 
    Real raan = 0.0;
    
    // Case 1:  Non-circular, Inclined Orbit
@@ -564,6 +576,12 @@ Real Keplerian::CartesianToAOP(Real mu, const Rvector3 &pos,
    
    Rvector3 eVec = CartesianToEccVector(mu, pos, vel);
    Real inc = CartesianToINC(mu, pos, vel, true);
+   if (inc >= PI - GmatOrbit::KEP_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion to Keplerian state: "
+          "GMAT does not currently support orbits with inclination of 180 degrees.\n");
+   } 
    Real ecc = eVec.GetMagnitude();
    Real aop = 0.0;
    
@@ -629,6 +647,12 @@ Real Keplerian::CartesianToTA(Real mu, const Rvector3 &pos,
    
    Rvector3 eVec = CartesianToEccVector(mu, pos, vel);
    Real inc = CartesianToINC(mu, pos, vel, true);
+   if (inc >= PI - GmatOrbit::KEP_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion to Keplerian state: "
+          "GMAT does not currently support orbits with inclination of 180 degrees.\n");
+   } 
    Real ecc = eVec.GetMagnitude();
    Real rMag = pos.GetMagnitude();
    Real ta = 0.0;

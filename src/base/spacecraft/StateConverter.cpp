@@ -793,6 +793,13 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
    }
 
    Rvector3 am = Cross(pos, vel).GetUnitVector();
+   Real inc = ACos((am[2]), GmatOrbit::KEP_TOL);
+   if (inc >= PI - GmatOrbit::KEP_TOL)
+   {
+      throw UtilityException
+         ("Error in conversion to Equinoctial elements: "
+          "GMAT does not currently support orbits with inclination of 180 degrees.\n");
+   } 
 
    Integer j = 1;  // always 1, unless inclination is exactly 180 degrees
 
