@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Interpreter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/08/28
@@ -1456,9 +1456,9 @@ bool Interpreter::ValidateSubscriber(GmatBase *obj)
 //------------------------------------------------------------------------------
 /*
  * Finds property ID for given property. If property not found in the obj,
- * it tries to find proerty from the owned objects.
+ * it tries to find property from the owned objects.
  *
- * @param  obj    Object to find proerty
+ * @param  obj    Object to find property
  * @param  chunk  String contains property
  * @param  owner  Address of new owner pointer to be returned
  * @param  id     Property ID to return (-1 if property not found)
