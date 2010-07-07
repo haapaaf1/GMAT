@@ -1,5 +1,5 @@
 /* XPM */
-static char * DefaultMission_xpm[] = {
+static const char * DefaultMission_xpm[] = {
 "16 16 107 2",
 "  	c None",
 ". 	c #6B6BCB",

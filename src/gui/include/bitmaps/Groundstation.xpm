@@ -1,5 +1,5 @@
 /* XPM */
-static char * Groundstation_xpm[] = {
+static const char * Groundstation_xpm[] = {
 "16 16 121 2",
 "  	c None",
 ". 	c #BDD9F3",

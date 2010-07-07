@@ -1,5 +1,5 @@
 /* XPM */
-static char * PauseMission_xpm[] = {
+static const char * PauseMission_xpm[] = {
 "16 16 45 1",
 " 	c None",
 ".	c #5D97DE",

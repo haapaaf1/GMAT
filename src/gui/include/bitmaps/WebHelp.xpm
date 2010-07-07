@@ -1,5 +1,5 @@
 /* XPM */
-static char * WebHelp_xpm[] = {
+static const char * WebHelp_xpm[] = {
 "16 16 198 2",
 "  	c None",
 ". 	c #4261BA",

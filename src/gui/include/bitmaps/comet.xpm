@@ -1,5 +1,5 @@
 /* XPM */
-static char *comet_xpm[] = {
+static const char *comet_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 10 1",
 /* colors */

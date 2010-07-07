@@ -1,5 +1,5 @@
 /* XPM */
-static char *planet_generic_xpm[] = {
+static const char *planet_generic_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 25 1",
 /* colors */

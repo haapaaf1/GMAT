@@ -1,5 +1,5 @@
 /* XPM */
-static char * OpenScript_xpm[] = {
+static const char * OpenScript_xpm[] = {
 "16 16 142 2",
 "  	c None",
 ". 	c #4E669F",

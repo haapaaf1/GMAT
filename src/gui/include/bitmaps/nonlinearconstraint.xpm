@@ -1,5 +1,5 @@
 /* XPM */
-static char * nonlinearconstraint_xpm[] = {
+static const char * nonlinearconstraint_xpm[] = {
 "16 16 54 1",
 " 	c #FFFFFF",
 ".	c #2481DE",
