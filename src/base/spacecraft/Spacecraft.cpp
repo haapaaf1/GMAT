@@ -1666,6 +1666,12 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
       if (attitude)
          return attitude->IsParameterReadOnly(id - ATTITUDE_ID_OFFSET);
    }
+   // We are currently not allowing users to set anomaly other than the True Anomaly ****** to be modified in the future ******
+   if ((id == ELEMENT6_ID) &&
+       ((stateElementLabel[5] == "MA") || (stateElementLabel[5] == "EA") || (stateElementLabel[5] == "HA")))
+   {
+      return true;
+   }
    if ((id >= ELEMENT1UNIT_ID) && (id <= ELEMENT6UNIT_ID))
    {
       return true;
@@ -2098,6 +2104,10 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
    if (GetParameterID(label) >= ATTITUDE_ID_OFFSET)
       if (attitude)
          return attitude->SetRealParameter(label, value);
+
+   // We are currently not allowing users to set anomaly other than the True Anomaly ****** to be modified in the future ******
+   if ((label == "MA") || (label == "EA") || (label == "HA"))
+      throw SpaceObjectException("ERROR - setting of anomaly of type other than True Anomaly not currently allowed.");
 
    // First try to set as a state element
    if (SetElement(label, value))
