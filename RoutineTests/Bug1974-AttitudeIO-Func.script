@@ -1,0 +1,45 @@
+% Created from the following script: AttitudeIO_GMAT_CSFixed_CS1_121_testscript.m
+%
+% Functions used: Func_AttitudeIO_GMAT_CSFixed_CS1_121_testscript.gmf, Func_AttitudeIO_GMAT_CSFixed_CS1_121_testscript_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = 'Bug1974-AttitudeIO-Func.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Bug1974-AttitudeIO-Func-Nested.report';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginScript;
+EndScript;
+ 
+% Call function
+Bug1974_Func_AttitudeIO(reportLoc1)
+Bug1974_Func_AttitudeIO_Nested(reportLoc1_nested)

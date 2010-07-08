@@ -6,15 +6,17 @@
 Create Spacecraft DefaultSC;
 
 %----------------------------------------
-%---------- Subscribers
+%---------- Variables
 %----------------------------------------
-
-Create ReportFile rf;
-GMAT rf.Filename = Bug1820_1862-MathBug.report
-GMAT rf.ColumnWidth = 12;
 
 Create Variable I J
 Create Array A[2,2] B[2,2] C[2,2] D[2,2] E[2,2] F[2,2]
+Create Variable varIn varOut pi;
+Create Array ArrayIn33[3,3] ArrayOut22[2,2] Array31[3,1] Array13[1,3]
+Create Spacecraft SatIn SatOut
+Create Variable matlabResult diff;
+
+%===== Define some constants
 GMAT A(1,1) = 11;
 GMAT A(1,2) = 12;
 GMAT A(2,1) = 21;
@@ -23,6 +25,21 @@ GMAT B(1,1) = .11;
 GMAT B(1,2) = .12;
 GMAT B(2,1) = .21;
 GMAT B(2,2) = .22;
+
+pi = 3.14159265358979;
+ArrayOut22(1,1) = .1;
+ArrayOut22(2,2) = .3;
+Array31(3,1) = 1; 
+Array31(3,1) = 4;
+matlabResult = -0.117756545136962;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile rf;
+GMAT rf.Filename = MathOperators1.report
+GMAT rf.ColumnWidth = 12;
 
 
 %----------------------------------------
@@ -58,7 +75,7 @@ DefaultSC.VX = 0.1;
 DefaultSC.VY = 0.2;
 DefaultSC.VZ = 0.3;
 
-Report rf DefaultSC.X DefaultSC.Y DefaultSC.Z DefaultSC.VX DefaultSC.VY DefaultSC.VZ
+Report rf DefaultSC.X DefaultSC.Y DefaultSC.Z DefaultSC.VX DefaultSC.VY DefaultSC.VZ;
 
 DefaultSC.X = DefaultSC.X + 1000;
 DefaultSC.Y = DefaultSC.Y + 1000;
@@ -67,4 +84,13 @@ DefaultSC.VX = DefaultSC.VX + 0.1;
 DefaultSC.VY = DefaultSC.VY + 0.1;
 DefaultSC.VZ = DefaultSC.VZ + 0.1;
 
-Report rf DefaultSC.X DefaultSC.Y DefaultSC.Z DefaultSC.VX DefaultSC.VY DefaultSC.VZ
+Report rf DefaultSC.X DefaultSC.Y DefaultSC.Z DefaultSC.VX DefaultSC.VY DefaultSC.VZ;
+
+%----- Math equation with functions
+
+varOut = sin(  abs(-.5 )+ acos(.5 ) -  asin(.5 )*atan(.5 )*atan2(.5,.5)...
+              - cos( .02 )/ DegToRad(45) - det(ArrayOut22)^exp(.5 )...
+           + log(.5 ) - norm(Array31 )- RadToDeg( pi/4 ) + sqrt(2) + tan(2) );
+
+diff = varOut - matlabResult;
+Report rf varOut matlabResult diff;

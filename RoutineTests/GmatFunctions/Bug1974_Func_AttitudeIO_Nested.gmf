@@ -1,0 +1,4 @@
+function Bug1974_Func_AttitudeIO_Nested(reportLoc1)
+ 
+% Call function
+Bug1974_Func_AttitudeIO(reportLoc1)

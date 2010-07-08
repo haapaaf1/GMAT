@@ -1,0 +1,1553 @@
+Create Spacecraft DefaultSC InitSat AOPSat RAANSat InitRANDSat InitAOPSat;
+GMAT DefaultSC.DateFormat = UTCGregorian;
+GMAT DefaultSC.Epoch = 01 Jun 2004 12:00:00.000;
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = -8043.9600382977915;
+GMAT DefaultSC.Y = -1564.9950345568864;
+GMAT DefaultSC.Z = 3750.9601677510364;
+GMAT DefaultSC.VX = 0.99861303787927636;
+GMAT DefaultSC.VY = -6.8834168529193462;
+GMAT DefaultSC.VZ = -0.46566090709653452;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.Attitude = Spinner;
+GMAT DefaultSC.AttitudeDisplayStateType = 'EulerAngles';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.EulerAngleSequence = '312';
+GMAT DefaultSC.EulerAngle1 = 44.99999999999999;
+GMAT DefaultSC.EulerAngle2 = 44.99999999999999;
+GMAT DefaultSC.EulerAngle3 = 44.99999999999999;
+GMAT DefaultSC.AngularVelocityX = .03;
+GMAT DefaultSC.AngularVelocityY = .03;
+GMAT DefaultSC.AngularVelocityZ = .03;
+
+Create Spacecraft AttTestSC;
+GMAT AttTestSC.DateFormat = TAIModJulian;
+GMAT AttTestSC.Epoch = '21545';
+GMAT AttTestSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT AttTestSC.DisplayStateType = Cartesian;
+GMAT AttTestSC.X = 7100;
+GMAT AttTestSC.Y = 0;
+GMAT AttTestSC.Z = 1300;
+GMAT AttTestSC.VX = 0;
+GMAT AttTestSC.VY = 7.35;
+GMAT AttTestSC.VZ = 1;
+GMAT AttTestSC.DryMass = 850;
+GMAT AttTestSC.Cd = 2.2;
+GMAT AttTestSC.Cr = 1.8;
+GMAT AttTestSC.DragArea = 15;
+GMAT AttTestSC.SRPArea = 1;
+GMAT AttTestSC.NAIFId = -123456789;
+GMAT AttTestSC.NAIFIdReferenceFrame = -123456789;
+GMAT AttTestSC.Id = 'SatId';
+GMAT AttTestSC.Attitude = Spinner;
+GMAT AttTestSC.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT AttTestSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT AttTestSC.AttitudeCoordinateSystem = 'EarthMJ2000Ec';
+GMAT AttTestSC.EulerAngleSequence = '321';
+GMAT AttTestSC.DCM11 = 0.8137976813493745;
+GMAT AttTestSC.DCM12 = 0.4698463103929528;
+GMAT AttTestSC.DCM13 = -0.3420201433256687;
+GMAT AttTestSC.DCM21 = -0.440969610529881;
+GMAT AttTestSC.DCM22 = 0.8825641192593863;
+GMAT AttTestSC.DCM23 = 0.1631759111665345;
+GMAT AttTestSC.DCM31 = 0.3785223063697923;
+GMAT AttTestSC.DCM32 = 0.01802831123629691;
+GMAT AttTestSC.DCM33 = 0.9254165783983235;
+GMAT AttTestSC.AngularVelocityX = 5;
+GMAT AttTestSC.AngularVelocityY = 5;
+GMAT AttTestSC.AngularVelocityZ = 5;
+
+Create ForceModel AttTestProp_ForceModel;
+GMAT AttTestProp_ForceModel.CentralBody = Earth;
+GMAT AttTestProp_ForceModel.PrimaryBodies = {Earth};
+GMAT AttTestProp_ForceModel.Drag = None;
+GMAT AttTestProp_ForceModel.SRP = Off;
+GMAT AttTestProp_ForceModel.ErrorControl = RSSStep;
+GMAT AttTestProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT AttTestProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT AttTestProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+Create Propagator AttTestProp;
+GMAT AttTestProp.FM = AttTestProp_ForceModel;
+GMAT AttTestProp.Type = RungeKutta89;
+GMAT AttTestProp.InitialStepSize = 60;
+GMAT AttTestProp.Accuracy = 9.999999999999999e-012;
+GMAT AttTestProp.MinStep = 0.001;
+GMAT AttTestProp.MaxStep = 2700;
+GMAT AttTestProp.MaxStepAttempts = 50;
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PointMasses = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 1.0e-013;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+Create ForceModel Propagator1_ForceModel;
+GMAT Propagator1_ForceModel.CentralBody = Earth;
+GMAT Propagator1_ForceModel.PrimaryBodies = {Earth};
+GMAT Propagator1_ForceModel.Drag = None;
+GMAT Propagator1_ForceModel.SRP = Off;
+GMAT Propagator1_ForceModel.ErrorControl = RSSStep;
+GMAT Propagator1_ForceModel.GravityField.Earth.Degree = 2;
+GMAT Propagator1_ForceModel.GravityField.Earth.Order = 0;
+GMAT Propagator1_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+Create Propagator J2Prop;
+GMAT J2Prop.FM = Propagator1_ForceModel;
+GMAT J2Prop.Type = RungeKutta89;
+GMAT J2Prop.InitialStepSize = 60;
+GMAT J2Prop.Accuracy = 9.999999999999999e-012;
+GMAT J2Prop.MinStep = 0.001;
+GMAT J2Prop.MaxStep = 2700;
+GMAT J2Prop.MaxStepAttempts = 50;
+
+Create ReportFile StopCond_Report
+GMAT StopCond_Report.Filename = Bug998-StopCondTest.report;
+GMAT StopCond_Report.Precision = 16;
+GMAT StopCond_Report.WriteHeaders = Off;
+GMAT StopCond_Report.ColumnWidth = 20;
+
+Create Variable stopGoal passFlag diff achievedValue oldEpoch;
+Create String msg;
+
+%=============================================================
+%===== Initializations and begin mission sequence
+%=============================================================
+
+BeginScript
+EndScript
+InitSat = DefaultSC;
+RAANSat = DefaultSC;
+AOPSat  = DefaultSC;
+AOPSat.AOP   = 355;
+RAANSat.RAAN = 3;
+InitRANDSat = RAANSat;
+InitAOPSat  = AOPSat;
+
+msg = '======================================== Forward Propation starts here';
+Report StopCond_Report msg;
+
+%=============================================================
+%===== Epoch-based stopping conditions
+%=============================================================
+msg = '==================== Epoch Tests Start Here';
+Report StopCond_Report msg;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.A1ModJulian = 23158.042037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.A1ModJulian - 23158.042037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.TAIModJulian = 23158.042037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TAIModJulian - 23158.042037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.TCBModJulian = 23158.042037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TCBModJulian - 23158.042037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.TDBModJulian = 23158.042037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TDBModJulian - 23158.042037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.TTModJulian = 23158.042037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TTModJulian - 23158.042037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.UTCModJulian = 23158.042037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.UTCModJulian - 23158.042037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%=============================================================
+%===== Elapsed-Time based stopping conditions
+%=============================================================
+msg = '==================== Elapsed Time Tests Start Here'
+Report StopCond_Report msg;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.ElapsedDays = 0.25, StopTolerance = 1e-5});
+diff = abs(DefaultSC.ElapsedDays - 0.25);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.ElapsedSecs = 3600.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.ElapsedSecs - 3600.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%=============================================================
+%===== Cyclic stopping conditions  (Have modulo)
+%=============================================================
+msg = '==================== Cyclic Tests Start Here'
+Report StopCond_Report msg;
+
+%---------- AOP - Argument of periapsis
+msg = '---------- AOP'
+Report StopCond_Report msg;
+
+AOPSat = InitAOPSat;
+Propagate J2Prop(AOPSat, {AOPSat.AOP = 0, StopTolerance = 1e-5});
+achievedValue = AOPSat.AOP;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+AOPSat = InitAOPSat;
+Propagate J2Prop(AOPSat, {AOPSat.AOP = 360, StopTolerance = 1e-5});
+achievedValue = AOPSat.AOP;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- AZI
+msg = '---------- AZI'
+Report StopCond_Report msg;
+%  Can't test limits (-180 and 180)  because orbit doesn't hit the limits
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.AZI = 88, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.AZI - 88);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- DEC  - Declination
+msg = '---------- DEC'
+Report StopCond_Report msg;
+%  Can't test limits (-90 and 90)  because an orbit never crosses the limits
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.DEC = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.DEC - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- DECV  - Declination of Velocity
+msg = '---------- DECV'
+Report StopCond_Report msg;
+%  Can't test limits (-90 and 90)  because an orbit never crosses the limits
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.DECV = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.DECV - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report passFlag;
+
+%---------- Eccentric Anomaly
+msg = '---------- EA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.EA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.EA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.EA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.EA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.EA = 90, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.EA - 90);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- EulerAngle1
+msg = '---------- EulerAngle1'
+Report StopCond_Report msg;
+stopGoal = -29.51461468647142;
+Propagate AttTestProp(AttTestSC) {AttTestSC.EulerAngle1 = stopGoal, StopTolerance = 1e-005};
+GMAT achievedValue = AttTestSC.EulerAngle1;
+GMAT diff = abs(achievedValue - stopGoal);
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report StopCond_Report achievedValue stopGoal passFlag;
+
+
+%---------- EulerAngle3
+msg = '---------- EulerAngle3 = 180 goes into infinite loop so commented out'
+Report StopCond_Report msg;
+%%%GMAT DefaultSC = InitSat;
+%%%Propagate DefaultProp(DefaultSC) {DefaultSC.EulerAngle3 = 180, StopTolerance = 1e-005};
+%%%GMAT achievedValue = DefaultSC.EulerAngle3;
+% put in range 0 to 360;
+%%%While achievedValue < 0
+%%%   GMAT achievedValue = achievedValue + 360;
+%%%EndWhile;
+%%%GMAT diff = abs(achievedValue - 180);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+
+%---------- EulerAngle3
+msg = '---------- EulerAngle3 = 45 cannot be tested due to previous infinite loop'
+Report StopCond_Report msg;
+%%%GMAT DefaultSC = InitSat;
+%%%Propagate DefaultProp(DefaultSC) {DefaultSC.EulerAngle3 = 45, StopTolerance = 1e-005};
+%%%GMAT diff = abs(DefaultSC.EulerAngle3 - 45);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report StopCond_Report passFlag;
+
+%---------- EulerAngle3
+msg = '---------- EulerAngle3 = 180 cannot be tested due to previous infinite loop'
+Report StopCond_Report msg;
+%%%GMAT DefaultSC = InitSat;
+%%%Propagate DefaultProp(DefaultSC) {DefaultSC.EulerAngle3 = 180, StopTolerance = 1e-005};
+%%%GMAT achievedValue = DefaultSC.EulerAngle3;
+% put in range 0 to 360;
+%%%While achievedValue < 0
+%%%   GMAT achievedValue = achievedValue + 360;
+%%%EndWhile;
+%%%GMAT diff = abs(achievedValue - 180);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report StopCond_Report passFlag;
+
+
+%---------- Latitude
+msg = '---------- Latitude'
+Report StopCond_Report msg;
+%  Can't test limits (-90 and 90)  because an orbit never crosses the limits
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.Latitude = 3, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.Latitude - 3);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Longitude
+msg = '---------- Longitude'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.Longitude = -180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.Longitude;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.Longitude = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.Longitude -0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.Longitude = 180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.Longitude;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- LST - Local Sideral Time
+msg = '---------- LST'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.LST = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.LST;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.LST = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.LST;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.LST = 45, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.LST - 45);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- MA  - Mean anomaly
+msg = '---------- MA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.MA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.MA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.MA = 180, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.MA - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- MHA - Mean hour angle
+msg = '---------- MHA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.MHA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MHA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.MHA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MHA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.MHA = 270, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.MHA - 270);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RA  - Right Ascension
+msg = '---------- RA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = -180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RA;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.RA - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RA;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RAAN - Right Ascencion of the ascending node
+msg = '---------- RAAN'
+Report StopCond_Report msg;
+RAANSat = InitRANDSat;
+Propagate J2Prop(RAANSat, {RAANSat.RAAN = 0, StopTolerance = 1e-5});
+achievedValue = RAANSat.RAAN;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+RAANSat = InitRANDSat;
+Propagate J2Prop(RAANSat, {RAANSat.RAAN = 360, StopTolerance = 1e-5});
+achievedValue = RAANSat.RAAN;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RAV - Right Ascention of Velocity
+msg = '---------- RAV'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = -180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RAV;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.RAV - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RAV;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- TA  - True anomaly
+msg = '---------- RAV'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.TA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.TA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.TA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.TA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.TA = 270, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.TA - 270);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+
+%=============================================================
+%===== Periodic stopping conditions (Don't Have modulo)
+%=============================================================
+msg = '==================== Periodic Tests Start Here'
+Report StopCond_Report msg;
+
+%---------- Z
+msg = '---------- Z'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.Z = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.Z - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- VZ
+msg = '---------- VZ'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.VZ = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.VZ - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Z
+msg = '---------- Z'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Ec.Z = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Ec.Z - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- VZ
+msg = '---------- VZ'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Ec.VZ = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Ec.VZ - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Altitude
+msg = '---------- Altitude'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.Altitude = 3834, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.Altitude - 3834);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RMAG
+msg = '---------- RMAG'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RMAG = 9792, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.RMAG - 9792);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- VMAG
+msg = '---------- VMAG'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.VMAG = 6.21, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.VMAG - 6.21);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%=============================================================
+%===== Other types
+%=============================================================
+msg = '==================== Other Tests Start Here'
+Report StopCond_Report msg;
+
+%---------- Apoapsis
+msg = '---------- Apoapsis'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.Apoapsis, StopTolerance = 1e-5});
+diff = DefaultSC.X*DefaultSC.VX + DefaultSC.Y*DefaultSC.VY + DefaultSC.Z*DefaultSC.VZ
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Periapsis
+msg = '---------- Periapsis'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.Periapsis, StopTolerance = 1e-5});
+diff = DefaultSC.X*DefaultSC.VX + DefaultSC.Y*DefaultSC.VY + DefaultSC.Z*DefaultSC.VZ
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+
+
+msg = '======================================== Backward Propation starts here';
+Report StopCond_Report msg;
+
+
+%=============================================================
+%===== Epoch-based stopping conditions
+%=============================================================
+msg = '==================== Epoch Tests Start Here';
+Report StopCond_Report msg;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.A1ModJulian = 23157.942037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.A1ModJulian - 23157.942037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.TAIModJulian = 23157.942037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TAIModJulian - 23157.942037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.TCBModJulian = 23157.942037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TCBModJulian - 23157.942037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.TDBModJulian = 23157.942037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TDBModJulian - 23157.942037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.TTModJulian = 23157.942037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.TTModJulian - 23157.942037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.UTCModJulian = 23157.942037434974, StopTolerance = 1e-5});
+diff = abs(DefaultSC.UTCModJulian - 23157.942037434974);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%=============================================================
+%===== Elapsed-Time based stopping conditions
+%=============================================================
+msg = '==================== Elapsed Time Tests Start Here'
+Report StopCond_Report msg;
+
+DefaultSC = InitSat;
+oldEpoch = DefaultSC.TAIModJulian;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.ElapsedDays = -0.25, StopTolerance = 1e-5});
+diff = abs((DefaultSC.TAIModJulian - oldEpoch) + 0.25);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report passFlag diff oldEpoch DefaultSC.TAIModJulian;
+
+DefaultSC = InitSat;
+oldEpoch = DefaultSC.TAIModJulian;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.ElapsedSecs = -3600.0, StopTolerance = 1e-5});
+diff = abs((DefaultSC.TAIModJulian - oldEpoch)*86400 + 3600);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%=============================================================
+%===== Cyclic stopping conditions  (Have modulo)
+%=============================================================
+msg = '==================== Cyclic Tests Start Here'
+Report StopCond_Report msg;
+
+%---------- AOP - Argument of periapsis
+msg = '---------- AOP'
+Report StopCond_Report msg;
+AOPSat = InitAOPSat;
+AOPSat.AOP = 2;
+Propagate BackProp J2Prop(AOPSat, {AOPSat.AOP = 0, StopTolerance = 1e-5});
+achievedValue = AOPSat.AOP;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+AOPSat = InitAOPSat;
+AOPSat.AOP = 2;
+Propagate BackProp J2Prop(AOPSat, {AOPSat.AOP = 360, StopTolerance = 1e-5});
+achievedValue = AOPSat.AOP;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- AZI
+msg = '---------- AZI'
+Report StopCond_Report msg;
+%  Can't test limits (-180 and 180)  because orbit doesn't hit the limits
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.AZI = 88, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.AZI - 88);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- DEC  - Declination
+msg = '---------- DEC'
+Report StopCond_Report msg;
+%  Can't test limits (-90 and 90)  because an orbit never crosses the limits
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.DEC = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.DEC - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- DECV  - Declination of Velocity
+msg = '---------- DECV'
+Report StopCond_Report msg;
+%  Can't test limits (-90 and 90)  because an orbit never crosses the limits
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.DECV = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.DECV - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report passFlag;
+
+%---------- Eccentric Anomaly
+msg = '---------- EA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.EA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.EA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.EA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.EA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.EA = 90, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.EA - 90);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- EulerAngle3
+msg = '---------- EulerAngle3'
+%%%Report StopCond_Report msg;
+%%%GMAT DefaultSC = InitSat;
+%%%Propagate BackProp DefaultProp(DefaultSC) {DefaultSC.EulerAngle3 = 180, StopTolerance = 1e-005};
+%%%GMAT achievedValue = DefaultSC.EulerAngle3;
+% put in range 0 to 360;
+%%%While achievedValue < 0
+%%%   GMAT achievedValue = achievedValue + 360;
+%%%EndWhile;
+%%%GMAT diff = abs(achievedValue - 180);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report StopCond_Report passFlag;
+
+
+%%%GMAT DefaultSC = InitSat;
+%%%Propagate BackProp DefaultProp(DefaultSC) {DefaultSC.EulerAngle3 = 45, StopTolerance = 1e-005};
+%%%GMAT diff = abs(DefaultSC.EulerAngle3 - 45);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report StopCond_Report passFlag;
+
+%%%GMAT DefaultSC = InitSat;
+%%%Propagate BackProp DefaultProp(DefaultSC) {DefaultSC.EulerAngle3 = 180, StopTolerance = 1e-005};
+%%%GMAT achievedValue = DefaultSC.EulerAngle3;
+% put in range 0 to 360;
+%%%While achievedValue < 0
+%%%   GMAT achievedValue = achievedValue + 360;
+%%%EndWhile;
+%%%GMAT diff = abs(achievedValue - 180);
+%%%GMAT passFlag = 1;
+%%%If diff > 1e-5
+%%%   GMAT passFlag = 0;
+%%%EndIf;
+%%%Report StopCond_Report passFlag;
+
+
+%---------- Latitude
+msg = '---------- Latitude'
+Report StopCond_Report msg;
+%  Can't test limits (-90 and 90)  because an orbit never crosses the limits
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.Latitude = 3, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.Latitude - 3);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Longitude
+msg = '---------- Longitude'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.Longitude = -180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.Longitude;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.Longitude = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.Longitude -0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.Longitude = 180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.Longitude;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- LST - Local Sideral Time
+msg = '---------- LST'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.LST = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.LST;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.LST = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.LST;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.LST = 45, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.LST - 45);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- MA  - Mean anomaly
+msg = '---------- MA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.MA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.MA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.MA = 180, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.MA - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- MHA - Mean hour angle
+msg = '---------- MHA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.MHA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MHA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.MHA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.MHA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.MHA = 270, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.MHA - 270);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RA  - Right Ascension
+msg = '---------- RA'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = -180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RA;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.RA - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RA;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RAAN - Right Ascencion of the ascending node
+msg = '---------- RAAN'
+Report StopCond_Report msg;
+RAANSat = InitRANDSat;
+RAANSat.RAAN = 357;
+Propagate BackProp J2Prop(RAANSat, {RAANSat.RAAN = 0, StopTolerance = 1e-5});
+achievedValue = RAANSat.RAAN;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+RAANSat = InitRANDSat;
+RAANSat.RAAN = 357;
+Propagate BackProp J2Prop(RAANSat, {RAANSat.RAAN = 360, StopTolerance = 1e-5});
+achievedValue = RAANSat.RAAN;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RAV - Right Ascention of Velocity
+msg = '---------- RAV'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = -180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RAV;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.RAV - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 180, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.RAV;
+% put in range 0 to 360;
+While achievedValue < 0
+  achievedValue = achievedValue + 360;
+EndWhile
+diff = abs(achievedValue - 180);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- TA  - True anomaly
+msg = '---------- RAV'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.TA = 0, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.TA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.TA = 360, StopTolerance = 1e-5});
+achievedValue = DefaultSC.Earth.TA;
+% put in range -180 to 180;
+While achievedValue > 180
+  achievedValue = achievedValue - 360;
+EndWhile
+diff = abs(achievedValue - 0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.TA = 270, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.TA - 270);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+
+%=============================================================
+%===== Periodic stopping conditions (Don't Have modulo)
+%=============================================================
+msg = '==================== Periodic Tests Start Here'
+Report StopCond_Report msg;
+
+%---------- Z
+msg = '---------- Z'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.Z = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.Z - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- VZ
+msg = '---------- VZ'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.VZ = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.VZ - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Z
+msg = '---------- Z'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Ec.Z = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Ec.Z - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- VZ
+msg = '---------- VZ'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Ec.VZ = 0.0, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Ec.VZ - 0.0);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Altitude
+msg = '---------- Altitude'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.Altitude = 3834, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.Altitude - 3834);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- RMAG
+msg = '---------- RMAG'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RMAG = 9792, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.RMAG - 9792);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- VMAG
+msg = '---------- VMAG'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.VMAG = 6.21, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.VMAG - 6.21);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%=============================================================
+%===== Other types
+%=============================================================
+msg = '==================== Other Tests Start Here'
+Report StopCond_Report msg;
+
+%---------- Apoapsis
+msg = '---------- Apoapsis'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.Apoapsis, StopTolerance = 1e-5});
+diff = DefaultSC.X*DefaultSC.VX + DefaultSC.Y*DefaultSC.VY + DefaultSC.Z*DefaultSC.VZ
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+%---------- Periapsis
+msg = '---------- Periapsis'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.Periapsis, StopTolerance = 1e-5});
+diff = DefaultSC.X*DefaultSC.VX + DefaultSC.Y*DefaultSC.VY + DefaultSC.Z*DefaultSC.VZ
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
+
+msg = '======================================== End of Tests'
+Report StopCond_Report msg;

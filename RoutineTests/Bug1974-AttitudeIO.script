@@ -1,0 +1,781 @@
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csSun;
+GMAT csSun.Origin = Sun;
+GMAT csSun.Axes = MJ2000Eq;
+GMAT csSun.UpdateInterval = 60;
+GMAT csSun.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csMercury;
+GMAT csMercury.Origin = Mercury;
+GMAT csMercury.Axes = MJ2000Eq;
+GMAT csMercury.UpdateInterval = 60;
+GMAT csMercury.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csVenus;
+GMAT csVenus.Origin = Venus;
+GMAT csVenus.Axes = MJ2000Eq;
+GMAT csVenus.UpdateInterval = 60;
+GMAT csVenus.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csEarth;
+GMAT csEarth.Origin = Earth;
+GMAT csEarth.Axes = MJ2000Eq;
+GMAT csEarth.UpdateInterval = 60;
+GMAT csEarth.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csMars;
+GMAT csMars.Origin = Mars;
+GMAT csMars.Axes = MJ2000Eq;
+GMAT csMars.UpdateInterval = 60;
+GMAT csMars.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csJupiter;
+GMAT csJupiter.Origin = Jupiter;
+GMAT csJupiter.Axes = MJ2000Eq;
+GMAT csJupiter.UpdateInterval = 60;
+GMAT csJupiter.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csSaturn;
+GMAT csSaturn.Origin = Saturn;
+GMAT csSaturn.Axes = MJ2000Eq;
+GMAT csSaturn.UpdateInterval = 60;
+GMAT csSaturn.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csUranus;
+GMAT csUranus.Origin = Uranus;
+GMAT csUranus.Axes = MJ2000Eq;
+GMAT csUranus.UpdateInterval = 60;
+GMAT csUranus.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csNeptune;
+GMAT csNeptune.Origin = Neptune;
+GMAT csNeptune.Axes = MJ2000Eq;
+GMAT csNeptune.UpdateInterval = 60;
+GMAT csNeptune.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csPluto;
+GMAT csPluto.Origin = Pluto;
+GMAT csPluto.Axes = MJ2000Eq;
+GMAT csPluto.UpdateInterval = 60;
+GMAT csPluto.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Coordinate System
+%----------------------------------------
+Create CoordinateSystem csLuna;
+GMAT csLuna.Origin = Luna;
+GMAT csLuna.Axes = MJ2000Eq;
+GMAT csLuna.UpdateInterval = 60;
+GMAT csLuna.OverrideOriginInterval = false;
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+Create Spacecraft quatSat;
+Create Spacecraft eulerSat121;
+Create Spacecraft dcmSat;
+
+%----------------------------------------
+%---------- Report File
+%----------------------------------------
+Create ReportFile rf;
+GMAT rf.Filename = 'Bug1974-AttitudeIO.report';
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = Off;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 25;
+
+Create String quatHeader;
+Create String eulerHeader;
+Create String dcmHeader;
+
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csSun';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csSun';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csSun';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Sun----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Sun----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Sun----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csMercury';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csMercury';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csMercury';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Mercury----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Mercury----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Mercury----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csVenus';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csVenus';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csVenus';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Venus----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Venus----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Venus----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csEarth';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csEarth';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csEarth';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Earth----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Earth----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Earth----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csMars';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csMars';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csMars';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Mars----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Mars----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Mars----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csJupiter';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csJupiter';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csJupiter';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Jupiter----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Jupiter----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Jupiter----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csSaturn';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csSaturn';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csSaturn';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Saturn----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Saturn----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Saturn----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csUranus';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csUranus';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csUranus';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Uranus----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Uranus----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Uranus----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csNeptune';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csNeptune';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csNeptune';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Neptune----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Neptune----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Neptune----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csPluto';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csPluto';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csPluto';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Pluto----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Pluto----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Pluto----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;
+GMAT quatSat.DateFormat = TAIModJulian;
+GMAT quatSat.Epoch = '21545.000000000';
+GMAT quatSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT quatSat.DisplayStateType = Cartesian;
+GMAT quatSat.Attitude = CoordinateSystemFixed;
+GMAT quatSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT quatSat.AttitudeCoordinateSystem = 'csLuna';
+GMAT quatSat.EulerAngleSequence = '121';
+GMAT quatSat.Q1 = 0.653281482;
+GMAT quatSat.Q2 = 0.382683432;
+GMAT quatSat.Q3 = 0;
+GMAT quatSat.Q4 = 0.653281482;
+
+GMAT eulerSat121.DateFormat = TAIModJulian;
+GMAT eulerSat121.CoordinateSystem = EarthMJ2000Eq;
+GMAT eulerSat121.DisplayStateType = Cartesian;
+GMAT eulerSat121.Attitude = CoordinateSystemFixed;
+GMAT eulerSat121.AttitudeDisplayStateType = 'EulerAngles';
+GMAT eulerSat121.AttitudeCoordinateSystem = 'csLuna';
+GMAT eulerSat121.EulerAngleSequence = '121';
+GMAT eulerSat121.EulerAngle1 = 45;
+GMAT eulerSat121.EulerAngle2 = 45;
+GMAT eulerSat121.EulerAngle3 = 45;
+
+% DCM Sat as of 9-28 Build will cause an orthogonality error, when error is fixed scripts will run
+GMAT dcmSat.DateFormat = TAIModJulian;
+GMAT dcmSat.Epoch = '21545.000000000';
+GMAT dcmSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT dcmSat.DisplayStateType = Cartesian;
+GMAT dcmSat.Attitude = CoordinateSystemFixed;
+GMAT dcmSat.AttitudeDisplayStateType = 'DirectionCosineMatrix';
+GMAT dcmSat.AttitudeCoordinateSystem = 'csLuna';
+GMAT dcmSat.EulerAngleSequence = '121';
+GMAT dcmSat.DCM11 = 0.707106781;
+GMAT dcmSat.DCM12 = 0.5;
+GMAT dcmSat.DCM13 = -0.5;
+GMAT dcmSat.DCM21 = 0.5;
+GMAT dcmSat.DCM22 = 0.146446609;
+GMAT dcmSat.DCM23 = 0.853553391;
+GMAT dcmSat.DCM31 = 0.5;
+GMAT dcmSat.DCM32 = -0.853553391;
+GMAT dcmSat.DCM33 = -0.146446609;
+quatHeader = '----Attitude States in Quaternions - Luna----';
+eulerHeader = '----Attitude States in 121 Euler Angles - Luna----';
+dcmHeader = '----Attitude States in Direction Cosine Matrix - Luna----';
+
+Report rf quatHeader;
+Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
+Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;
+Report rf dcmSat.Q1 dcmSat.Q2 dcmSat.Q3 dcmSat.Q4;
+
+Report rf eulerHeader;
+Report rf quatSat.EulerAngle1 quatSat.EulerAngle2 quatSat.EulerAngle3;
+Report rf eulerSat121.EulerAngle1 eulerSat121.EulerAngle2 eulerSat121.EulerAngle3;
+Report rf dcmSat.EulerAngle1 dcmSat.EulerAngle2 dcmSat.EulerAngle3;
+
+Report rf dcmHeader;
+Report rf quatSat.DCM11 quatSat.DCM12 quatSat.DCM13 quatSat.DCM21 quatSat.DCM22 quatSat.DCM23 quatSat.DCM31 quatSat.DCM32 quatSat.DCM33;
+Report rf eulerSat121.DCM11 eulerSat121.DCM12 eulerSat121.DCM13 eulerSat121.DCM21 eulerSat121.DCM22 eulerSat121.DCM23 eulerSat121.DCM31 eulerSat121.DCM32 eulerSat121.DCM33;
+Report rf dcmSat.DCM11 dcmSat.DCM12 dcmSat.DCM13 dcmSat.DCM21 dcmSat.DCM22 dcmSat.DCM23 dcmSat.DCM31 dcmSat.DCM32 dcmSat.DCM33;

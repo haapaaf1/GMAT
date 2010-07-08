@@ -129,23 +129,24 @@ GMAT IntegratorRpt.ColumnWidth = 20;
 
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
 GMAT IntegratorRpt.WriteHeaders = Off;
-Propagate  RungeKutta56(Sat1, {Sat1.ElapsedDays = 1.0});
 
+Propagate  RungeKutta56( Sat1, {Sat1.ElapsedDays = 1.0});
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
-Propagate  RungeKutta68(Sat1, {Sat1.ElapsedDays = 1.0});
 
+Propagate  RungeKutta68(Sat1, {Sat1.ElapsedDays = 1.0 });
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
-Propagate  RungeKutta89(Sat1, {Sat1.ElapsedDays = 1.0});
 
+Propagate  RungeKutta89(Sat1, { Sat1.ElapsedDays = 1.0});
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
-Propagate  PrinceDormand45(Sat1, {Sat1.ElapsedDays = 1.0});
 
+Propagate  PrinceDormand45(Sat1, {Sat1.ElapsedDays = 1.0} );
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
-Propagate  PrinceDormand78(Sat1, {Sat1.ElapsedDays = 1.0});
 
+Propagate  PrinceDormand78(Sat1,{Sat1.ElapsedDays = 1.0});
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
-Propagate  BulirschStoer(Sat1, {Sat1.ElapsedDays = 1.0});
 
+Propagate  BulirschStoer(Sat1, {Sat1.ElapsedDays=1.0});
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
-Propagate  AdamsBashfourthMoulton(Sat1, {Sat1.ElapsedDays = 1.0});
+
+Propagate  AdamsBashfourthMoulton( Sat1, { Sat1.ElapsedDays = 1.0 } );
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
