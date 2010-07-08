@@ -655,6 +655,15 @@ void ConfigManager::AddMeasurement(CoreMeasurement *meas)
 }
 
 
+//------------------------------------------------------------------------------
+// void AddDataFile(DataFile *df)
+//------------------------------------------------------------------------------
+/**
+ * Adds a DataFile to the configuration
+ *
+ * @param df The DataFile object that is being added to the configuration
+ */
+//------------------------------------------------------------------------------
 void ConfigManager::AddDataFile(DataFile *df)
 {
    GmatBase *obj = (GmatBase*)df;
@@ -670,6 +679,15 @@ void ConfigManager::AddDataFile(DataFile *df)
 }
 
 
+//------------------------------------------------------------------------------
+// void AddObType(ObType *ot)
+//------------------------------------------------------------------------------
+/**
+ * Adds a named ObType to the configuration
+ *
+ * @param ot The ObType that is being added
+ */
+//------------------------------------------------------------------------------
 void ConfigManager::AddObType(ObType *ot)
 {
    GmatBase *obj = (GmatBase*)ot;
