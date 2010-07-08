@@ -1238,7 +1238,7 @@ void ODEModel::ClearForceList(bool deleteTransient)
       #endif
       
       // Transient forces are managed in the Sandbox.
-      if (!pm->IsTransient() || deleteTransient && pm->IsTransient())
+      if (!pm->IsTransient() || (deleteTransient && pm->IsTransient()))
       {
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
