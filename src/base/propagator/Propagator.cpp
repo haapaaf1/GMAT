@@ -332,12 +332,14 @@ Real Propagator::GetRealParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 Real Propagator::SetRealParameter(const Integer id, const Real value)
 {
-    if (id == INITIAL_STEP_SIZE)
-    {
-        stepSizeBuffer = value;
-        return stepSize;
-    }
-    return GmatBase::SetRealParameter(id, value);
+   if (id == INITIAL_STEP_SIZE)
+   {
+      if (value <= 0.0)
+          throw PropagatorException("Initial Step Size must be positive.\n");
+      stepSizeBuffer = value;
+      return stepSize;
+   }
+   return GmatBase::SetRealParameter(id, value);
 }
 
 //------------------------------------------------------------------------------
