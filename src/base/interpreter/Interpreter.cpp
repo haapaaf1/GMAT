@@ -402,7 +402,7 @@ void Interpreter::BuildCreatableObjectMaps()
    #ifdef DEBUG_OBJECT_LIST
       std::vector<std::string>::iterator pos;
       
-      MessageInterface::ShowMessage("\Spacecraft:\n   ");
+      MessageInterface::ShowMessage("\nSpacecraft:\n   ");
       for (pos = scs.begin(); pos != scs.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
       

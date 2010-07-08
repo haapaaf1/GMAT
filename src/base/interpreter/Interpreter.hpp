@@ -339,6 +339,7 @@ private:
    StringArray   subscriberList;
    StringArray   spacePointList;
    StringArray   celestialBodyList;
+
    static StringArray   allObjectTypeList;
    static std::map<std::string, Gmat::ObjectType> objectTypeMap;
    bool IsParameterType(const std::string &desc);
