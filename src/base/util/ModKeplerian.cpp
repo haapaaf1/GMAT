@@ -24,6 +24,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_MOD_KEPLERIAN 1
+//#define DEBUG_MODKEP_TO_KEP
 
 //---------------------------------
 //  static data
@@ -228,13 +229,18 @@ Rvector6 KeplerianToModKeplerian(const Rvector6& keplerian)
 //------------------------------------------------------------------------------
 Rvector6 ModKeplerianToKeplerian(const Rvector6& modKeplerian)
 {
+   #ifdef DEBUG_MODKEP_TO_KEP
+      MessageInterface::ShowMessage("Entering ModKepToKep, radPer = %12.10f, radApo = %12.10f\n",
+            modKeplerian[0], modKeplerian[1]);
+   #endif
    Real radPer = modKeplerian[0];     // Radius of Periapsis
    Real radApo = modKeplerian[1];     // Radius of Apoapsis 
 
    // Check validity
    if (radApo < radPer && radApo > 0)
       throw UtilityException("ModKeplerian::ModKeplerianToKeplerian: " 
-                             "If RadApo < RadPer then RadApo must be negative");
+                             "If RadApo < RadPer then RadApo must be negative.  "
+                             "If setting Modified Keplerian State, set RadApo before RadPer to avoid this issue.");
 
    if (radPer <= 0)
       throw UtilityException("ModKeplerian::ModKeplerianToKeplerian: " 
