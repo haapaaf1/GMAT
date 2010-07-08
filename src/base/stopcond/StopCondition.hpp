@@ -26,6 +26,7 @@
 #include "GmatBase.hpp"
 #include "Interpolator.hpp"
 #include "SolarSystem.hpp"
+#include "Parameter.hpp"
 #include "Spacecraft.hpp"
 #include "Variable.hpp"
 #include "ElementWrapper.hpp"
@@ -47,7 +48,7 @@ public:
    StopCondition(const StopCondition &copy);
    StopCondition& operator= (const StopCondition &right); 
    virtual ~StopCondition();
-
+   
    bool Initialize();
    virtual bool Validate();
    virtual bool Evaluate();
@@ -56,7 +57,7 @@ public:
    virtual Real GetStopEpoch();
    void Reset();
    virtual Real GetStopInterval();
-
+   
    bool IsInitialized();
    Integer GetBufferSize();
    std::string& GetDescription();
@@ -64,8 +65,7 @@ public:
    Parameter* GetStopParameter();
    Parameter* GetGoalParameter();
    Interpolator* GetInterpolator();
-
-
+   
    void SetDescription(const std::string &desc);
    void SetPropDirection(Real dir);
    void SetSolarSystem(SolarSystem *solarSystem);
@@ -87,15 +87,15 @@ public:
    
    // methods inherited from GmatBase
    virtual GmatBase* Clone() const;
-
+   
    virtual bool RenameRefObject(const Gmat::ObjectType type,
                                 const std::string &oldName,
                                 const std::string &newName);
-
+   
    virtual const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                              const std::string &name = "");
-
+   
    virtual std::string GetParameterText(const Integer id) const;
    virtual Integer GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType GetParameterType(const Integer id) const;
@@ -107,18 +107,18 @@ public:
                                        const Integer value);
    virtual Integer SetIntegerParameter(const std::string &label,
                                        const Integer value);
-
+   
    virtual Real GetRealParameter(const Integer id) const;
    virtual Real GetRealParameter(const std::string &label) const;
    virtual Real SetRealParameter(const Integer id, const Real value);
    virtual Real SetRealParameter(const std::string &label, const Real value);
-
+   
    virtual std::string GetStringParameter(const Integer id) const;
    virtual std::string GetStringParameter(const std::string &label) const;
    virtual bool SetStringParameter(const Integer id, const std::string &value);
    virtual bool SetStringParameter(const std::string &label,
                                    const std::string &value);
-
+   
    // Accessors for the last condition evaluated
    virtual Real GetStopValue();
    virtual Real GetStopDifference();
@@ -131,14 +131,14 @@ public:
                            const  bool isReflection = false);
    virtual void SkipEvaluation(bool shouldSkip);
    virtual void UpdateBuffer();
-
+   
 protected:
-
+   
    StringArray mAllRefObjectNames;
    
    Real mBaseEpoch;
-   Real mEpoch;
-   Real mGoal;
+   Real internalEpoch;
+   Real currentGoalValue;
    Integer mRepeatCount;
    SolarSystem *mSolarSystem;
    
@@ -150,7 +150,9 @@ protected:
    std::string lhsString;
    std::string rhsString;
    
+   /// left hand side Parameter of stopping condition
    Parameter *mStopParam;
+   /// right hand side Parameter of stopping condition
    Parameter *mGoalParam;
    Parameter *mEpochParam;
    Parameter *mEccParam;
@@ -170,11 +172,11 @@ protected:
    Integer mBufferSize;
    Real mStopEpoch;
    Real mStopInterval;
-
+   
    // History data used instead of ring buffer for general propagation (before
    // a stopping condition triggers
    Real previousEpoch;
-   Real previousValue;
+   Real previousAchievedValue;
    Real previousGoalValue;
    
    bool mUseInternalEpoch;
@@ -185,24 +187,28 @@ protected:
    bool activated;
    
    // Flags used to mark special cases
-   bool isAngleParameter;
-   bool isCyclicCondition;
+   bool isLhsCyclicCondition;
+   bool isRhsCyclicCondition;
    bool isPeriapse;
    bool isApoapse;
    
-   enum CycleType
-   {
-      NOT_CYCLIC,
-      ZERO_90,
-      ZERO_180,
-      ZERO_360,
-      PLUS_MINUS_90,
-      PLUS_MINUS_180,
-      OTHER_CYCLIC
-   };
+   // The CycleType moved to GmatParam namespace defined in Parameter.hpp
+   //enum CycleType
+   //{
+   //   NOT_CYCLIC,
+   //   ZERO_90,
+   //   ZERO_180,
+   //   ZERO_360,
+   //   PLUS_MINUS_90,
+   //   PLUS_MINUS_180,
+   //   OTHER_CYCLIC
+   //};
    
-   CycleType scCycleType;
-
+   // To handle stopping condition of Parameters in both sides
+   // such as Sat1.TA = Sat2.TA (future implementation)
+   GmatParam::CycleType lhsCycleType;
+   GmatParam::CycleType rhsCycleType;
+   
    enum TimeType
    {
       NOT_TIME_PARAM,
@@ -226,7 +232,7 @@ protected:
       REPEAT_COUNT,
       StopConditionParamCount,
    };
-
+   
    static const Gmat::ParameterType
       PARAMETER_TYPE[StopConditionParamCount - GmatBaseParamCount];
    static const std::string
@@ -234,7 +240,6 @@ protected:
 
    bool CheckOnPeriapsis();
    bool CheckOnApoapsis();
-   bool CheckOnAnomaly(Real &anomaly);
    bool CheckCyclicCondition(Real &value);
 
 private:

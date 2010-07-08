@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Parameter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -134,8 +134,8 @@ Parameter::Parameter(const std::string &name, const std::string &typeStr,
    mIsCommentFromCreate = true;
    mOwnerType = ownerType;
    mDepObj = depObj;
+   mCycleType = GmatParam::NOT_CYCLIC;
    mColor = 0; // black
-   
    mNeedCoordSystem = false;
    mIsCoordSysDependent = false;
    mIsOriginDependent = false;
@@ -145,6 +145,7 @@ Parameter::Parameter(const std::string &name, const std::string &typeStr,
    else if (depObj == GmatParam::ORIGIN)
       mIsOriginDependent = true;
    
+   mIsAngleParam = false;
    mIsTimeParam = isTimeParam;
    mIsSettable = isSettable;
    mIsPlottable = isPlottable;
@@ -182,7 +183,9 @@ Parameter::Parameter(const Parameter &copy)
    mOwnerType = copy.mOwnerType;
    mReturnType = copy.mReturnType;
    mDepObj = copy.mDepObj;
+   mCycleType = copy.mCycleType;
    mColor = copy.mColor;
+   mIsAngleParam = copy.mIsAngleParam;
    mIsTimeParam = copy.mIsTimeParam;
    mIsSettable = copy.mIsSettable;
    mIsPlottable = copy.mIsPlottable;
@@ -222,7 +225,9 @@ Parameter& Parameter::operator= (const Parameter& right)
    mOwnerType = right.mOwnerType;
    mReturnType = right.mReturnType;
    mDepObj = right.mDepObj;
+   mCycleType = right.mCycleType;
    mColor = right.mColor;
+   mIsAngleParam = right.mIsAngleParam;
    mIsTimeParam = right.mIsTimeParam;
    mIsSettable = right.mIsSettable;
    mIsPlottable = right.mIsPlottable;
@@ -281,6 +286,32 @@ Gmat::ObjectType Parameter::GetOwnerType() const
 Gmat::ParameterType Parameter::GetReturnType() const
 {
    return mReturnType;
+}
+
+
+//------------------------------------------------------------------------------
+// GmatParam::CycleType GetCycleType() const
+//------------------------------------------------------------------------------
+/**
+ * @return enumeration value of return parameter type.
+ */
+//------------------------------------------------------------------------------
+GmatParam::CycleType  Parameter::GetCycleType() const
+{
+   return mCycleType;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsAngleParameter() const
+//------------------------------------------------------------------------------
+/**
+ * @return true if parameter outputs angle value
+ */
+//------------------------------------------------------------------------------
+bool Parameter::IsAngleParameter() const
+{
+   return mIsAngleParam;
 }
 
 

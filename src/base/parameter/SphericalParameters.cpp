@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              SphericalParameters
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -14,7 +14,7 @@
 //
 /**
  * Implements Spacecraft Spehrical parameter classes.
- *   SphRMag, SphRA, SphDec, SphVMag, SphRAV, SphDecV, SphElem
+ *   SphRMag, SphRA, SphDec, SphVMag, SphRAV, SphDecV, SphAzi, SphElem
  */
 //------------------------------------------------------------------------------
 
@@ -159,6 +159,8 @@ SphRA::SphRA(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_180;
 }
 
 
@@ -272,6 +274,8 @@ SphDec::SphDec(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_90;
 }
 
 
@@ -498,6 +502,8 @@ SphRAV::SphRAV(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_180;
 }
 
 
@@ -611,6 +617,8 @@ SphDecV::SphDecV(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_90;
 }
 
 
@@ -722,6 +730,8 @@ SphAzi::SphAzi(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_180;
 }
 
 

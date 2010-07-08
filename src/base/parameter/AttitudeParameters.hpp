@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  AttitudeParameters
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -13,8 +13,10 @@
 // Created: 2006/6/26
 //
 /**
- * Implements Attitude related parameter classes.
- *    Quat1, Quat2, Quat3, Quat4
+ * Declares Attitude related parameter classes.
+ *    DEC11, DEC12, DEC13, DEC21, DEC22, DEC23, DEC31, DEC32, DEC33,
+ *    Quat1, Quat2, Quat3, Quat4, EulerAngle1, EulerAngle2, EulerAngle3,
+ *    AngVelX, AngVelY, AngVelZ, EulerAngleRate1, EulerAngleRate2, EulerAngleRate3
  */
 //------------------------------------------------------------------------------
 #ifndef AttitudeParameters_hpp

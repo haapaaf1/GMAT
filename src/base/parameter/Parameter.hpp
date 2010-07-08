@@ -37,6 +37,17 @@ namespace GmatParam
    {
       COORD_SYS, ORIGIN, NO_DEP, OWNED_OBJ, DepObjectCount
    };
+   
+   enum CycleType
+   {
+      NOT_CYCLIC,
+      ZERO_90,
+      ZERO_180,
+      ZERO_360,
+      PLUS_MINUS_90,
+      PLUS_MINUS_180,
+      OTHER_CYCLIC
+   };
 };
 
 class GMAT_API Parameter : public GmatBase
@@ -56,9 +67,11 @@ public:
    GmatParam::ParameterKey  GetKey() const;
    Gmat::ObjectType         GetOwnerType() const;
    Gmat::ParameterType      GetReturnType() const;
+   GmatParam::CycleType     GetCycleType() const;
    
    void  SetKey(const GmatParam::ParameterKey &key);
    
+   bool  IsAngleParameter() const;
    bool  IsTimeParameter() const;
    bool  IsPlottable() const;
    bool  IsReportable() const;
@@ -150,11 +163,13 @@ protected:
    std::string   mDepObjectName;
    std::string   mCommentLine2;
    
-   Gmat::ObjectType   mOwnerType;
-   Gmat::ParameterType mReturnType;
+   Gmat::ObjectType     mOwnerType;
+   Gmat::ParameterType  mReturnType;
    GmatParam::DepObject mDepObj;
-   UnsignedInt   mColor;
+   GmatParam::CycleType mCycleType;
+   UnsignedInt          mColor;
    
+   bool mIsAngleParam;
    bool mIsTimeParam;
    bool mIsPlottable;
    bool mIsReportable;

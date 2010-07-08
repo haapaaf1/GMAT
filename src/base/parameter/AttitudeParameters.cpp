@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  AttitudeParameters
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -14,7 +14,9 @@
 //
 /**
  * Implements Attitude related parameter classes.
- *    Quat1, Quat2, Quat3, Quat4
+ *    DEC11, DEC12, DEC13, DEC21, DEC22, DEC23, DEC31, DEC32, DEC33,
+ *    Quat1, Quat2, Quat3, Quat4, EulerAngle1, EulerAngle2, EulerAngle3,
+ *    AngVelX, AngVelY, AngVelZ, EulerAngleRate1, EulerAngleRate2, EulerAngleRate3
  */
 //------------------------------------------------------------------------------
 
@@ -529,6 +531,8 @@ EulerAngle1::EulerAngle1(const std::string &name, GmatBase *obj)
    : AttitudeReal(name, "EulerAngle1", obj, "Euler Angle 1", "deg")
 {
    mColor = GmatColor::RED32;
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_180;
 }
 //------------------------------------------------------------------------------
 // EulerAngle1(const EulerAngle1 &copy)
@@ -583,6 +587,8 @@ EulerAngle2::EulerAngle2(const std::string &name, GmatBase *obj)
    : AttitudeReal(name, "EulerAngle2", obj, "Euler Angle 2", "deg")
 {
    mColor = GmatColor::YELLOW32;
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_180;
 }
 //------------------------------------------------------------------------------
 // EulerAngle2(const EulerAngle2 &copy)
@@ -637,6 +643,8 @@ EulerAngle3::EulerAngle3(const std::string &name, GmatBase *obj)
    : AttitudeReal(name, "EulerAngle3", obj, "Euler Angle 3", "deg")
 {
    mColor = GmatColor::BLUE32;
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_180;
 }
 //------------------------------------------------------------------------------
 // EulerAngle3(const EulerAngle3 &copy)

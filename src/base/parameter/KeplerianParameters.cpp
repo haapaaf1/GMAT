@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             File: KeplerianParameters.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -271,6 +271,8 @@ KepInc::KepInc(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_180;
 }
 
 
@@ -384,6 +386,8 @@ KepAOP::KepAOP(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
@@ -497,6 +501,8 @@ KepRAAN::KepRAAN(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
@@ -722,6 +728,8 @@ KepTA::KepTA(const std::string &name, GmatBase *obj)
    mDepObjectName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthMJ2000Eq");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
@@ -835,6 +843,8 @@ KepMA::KepMA(const std::string &name, GmatBase *obj)
    mDepObjectName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthMJ2000Eq");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
@@ -948,6 +958,8 @@ KepEA::KepEA(const std::string &name, GmatBase *obj)
    mDepObjectName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthMJ2000Eq");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
@@ -1061,6 +1073,8 @@ KepHA::KepHA(const std::string &name, GmatBase *obj)
    mDepObjectName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthMJ2000Eq");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 

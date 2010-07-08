@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             File: PlanetParameters.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -47,6 +47,8 @@ MHA::MHA(const std::string &name, GmatBase *obj)
    PlanetData::mCentralBodyName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthFixed");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
@@ -164,6 +166,8 @@ Longitude::Longitude(const std::string &name, GmatBase *obj)
    PlanetData::mCentralBodyName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthFixed");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::PLUS_MINUS_180;
 }
 
 
@@ -398,6 +402,8 @@ Latitude::Latitude(const std::string &name, GmatBase *obj)
    PlanetData::mCentralBodyName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthFixed");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
@@ -515,6 +521,8 @@ LST::LST(const std::string &name, GmatBase *obj)
    PlanetData::mCentralBodyName = "Earth";
    SetRefObjectName(Gmat::SPACE_POINT, "Earth");
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, "EarthFixed");
+   mIsAngleParam = true;
+   mCycleType = GmatParam::ZERO_360;
 }
 
 
