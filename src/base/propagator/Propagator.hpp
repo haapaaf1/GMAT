@@ -182,6 +182,8 @@ protected:
    static const Gmat::ParameterType
       PARAMETER_TYPE[PropagatorParamCount - GmatBaseParamCount];
    
+   static const Real STEP_SIZE_TOLERANCE;
+
    /// Size of the default time step
    Real stepSize;
    /// Buffer for the stepsize.

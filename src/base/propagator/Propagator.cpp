@@ -68,6 +68,7 @@
 //
 // **************************************************************************
 
+#include <sstream>
 #include "Propagator.hpp"
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
@@ -94,6 +95,7 @@ Propagator::PARAMETER_TYPE[PropagatorParamCount - GmatBaseParamCount] =
     Gmat::REAL_TYPE
 };
 
+const Real Propagator::STEP_SIZE_TOLERANCE = 0.0001;   // 0.1 millisec
 //---------------------------------
 // public
 //---------------------------------
@@ -334,10 +336,14 @@ Real Propagator::SetRealParameter(const Integer id, const Real value)
 {
    if (id == INITIAL_STEP_SIZE)
    {
-      if (value <= 0.0)
-          throw PropagatorException("Initial Step Size must be positive.\n");
+      if (GmatMathUtil::IsEqual(value, 0.0, STEP_SIZE_TOLERANCE))
+      {
+         std::stringstream ss;
+         ss << "Initial Step Size must not be zero (tolerance = " << STEP_SIZE_TOLERANCE << " seconds).";
+         throw PropagatorException(ss.str());
+      }
       stepSizeBuffer = value;
-      return stepSize;
+      return stepSizeBuffer;
    }
    return GmatBase::SetRealParameter(id, value);
 }
