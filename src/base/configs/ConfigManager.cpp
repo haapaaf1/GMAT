@@ -663,8 +663,8 @@ void ConfigManager::AddDataFile(DataFile *df)
    if (name == "")
       throw ConfigManagerException("Unnamed objects cannot be managed");
 
-   if (!obj->IsOfType(Gmat::DATASTREAM))
-      throw ConfigManagerException(name + " is not a DataFile");
+   if ((!obj->IsOfType(Gmat::DATA_FILE)) && (!obj->IsOfType(Gmat::DATASTREAM)))
+      throw ConfigManagerException(name + " is not a DataFile or DataStream");
 
    AddObject(obj);
 }

@@ -721,9 +721,9 @@ MeasurementModel* FactoryManager::CreateMeasurementModel(const std::string &with
 DataFile* FactoryManager::CreateDataFile(const std::string &ofType,
                                          const std::string &withName)
 {
-   Factory* f = FindFactory(Gmat::DATA_FILE, "DataFile");
+   Factory* f = FindFactory(Gmat::DATA_FILE, ofType);
    if (f != NULL)
-      return f->CreateDataFile("DataFile", withName);
+      return f->CreateDataFile(ofType, withName);
    return NULL;
 }
 
