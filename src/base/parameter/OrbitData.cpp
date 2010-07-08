@@ -26,7 +26,6 @@
 #include "Linear.hpp"
 #include "Keplerian.hpp"         // for Cartesian to Keplerian elements
 #include "AngleUtil.hpp"
-#include "UtilityException.hpp"
 //#include "SphericalRADEC.hpp"    // for friend CartesianToSphericalRADEC/AZFPA()
 #include "ModKeplerian.hpp"      // for friend KeplerianToModKeplerian()
 //#include "Equinoctial.hpp"
@@ -549,17 +548,17 @@ Real OrbitData::GetOtherKepReal(Integer item)
    Real sma = Keplerian::CartesianToSMA(mGravConst, pos, vel);   
    Real ecc = Keplerian::CartesianToECC(mGravConst, pos, vel);
    
-if (abs(1 - ecc) <= GmatOrbit::KEP_ECC_TOL)
+   if (GmatMathUtil::Abs(1.0 - ecc) <= GmatOrbit::KEP_ECC_TOL)
    {
-      throw UtilityException
-         ("Error in conversion to Keplerian state: "
+      throw ParameterException
+         ("In OrbitData, Error in conversion to Keplerian state: "
           "The state results in an orbit that is nearly parabolic.\n");
    } 
 
   if (sma*(1 - ecc) < .001)
    {
-      throw UtilityException
-         ("Error in conversion to Keplerian state: "
+      throw ParameterException
+         ("In OrbitData, Error in conversion to Keplerian state: "
           "The state results in a singular conic section with radius of periapsis less than 1 m.\n");
    } 
    
