@@ -1196,10 +1196,17 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::DATASTREAM);
    #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d Datastreams\n", objs.size());
+   #endif
+   if (objs.size() > 0)
+      WriteObjects(objs, "DataStreams", mode);
+
+   objs = theModerator->GetListOfObjects(Gmat::DATA_FILE);
+   #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Datafiles\n", objs.size());
    #endif
    if (objs.size() > 0)
-      WriteObjects(objs, "Datafiles", mode);
+      WriteObjects(objs, "DataFiles", mode);
 
    //---------------------------------------------
    // Measurement Models and Tracking Data/Systems
