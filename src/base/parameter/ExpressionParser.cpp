@@ -38,7 +38,6 @@
 
 #include <cstdlib>			// Required for GCC 4.3
 
-using namespace std;
 
 //#define DEBUG_EXP_PARSER 1
 

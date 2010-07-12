@@ -53,7 +53,7 @@
 #include <ctype.h>
 
 #include <iostream>
-using namespace std;  //********************
+
 
 #ifndef TRUE
 #define TRUE 1

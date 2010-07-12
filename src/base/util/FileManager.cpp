@@ -95,7 +95,6 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
 FileManager* FileManager::theInstance = NULL;
 const std::string FileManager::VERSION_DATE = "2005-07-13";
 
-using namespace std;
 
 //---------------------------------
 // public methods
@@ -502,7 +501,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing ROOT_PATH path\n");
    #endif
-   outStream << setw(20) << "ROOT_PATH" << " = " << mPathMap["ROOT_PATH"] << "\n";
+   outStream << std::setw(20) << "ROOT_PATH" << " = " << mPathMap["ROOT_PATH"] << "\n";
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
@@ -511,7 +510,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing OUTPUT_PATH paths\n");
    #endif
-   outStream << setw(20) << "OUTPUT_PATH" << " = " << mPathMap["OUTPUT_PATH"] << "\n";
+   outStream << std::setw(20) << "OUTPUT_PATH" << " = " << mPathMap["OUTPUT_PATH"] << "\n";
    WriteFiles(outStream, "LOG");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -530,7 +529,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
          std::list<std::string>::iterator listpos = mGmatFunctionPaths.begin();
          while (listpos != mGmatFunctionPaths.end())
          {
-            outStream << setw(20) << pos->first << " = " << *listpos << "\n";
+            outStream << std::setw(20) << pos->first << " = " << *listpos << "\n";
             ++listpos;
          }
          break;
@@ -544,7 +543,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing MEASUREMENT_PATH paths\n");
    #endif
-   outStream << setw(20) << "MEASUREMENT_PATH" << " = "
+   outStream << std::setw(20) << "MEASUREMENT_PATH" << " = "
              << mPathMap["MEASUREMENT_PATH"] << "\n";
    WriteFiles(outStream, "LOG");
    outStream << "#-----------------------------------------------------------\n";
@@ -564,7 +563,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
          std::list<std::string>::iterator listpos = mMatlabFunctionPaths.begin();
          while (listpos != mMatlabFunctionPaths.end())
          {
-            outStream << setw(20) << pos->first << " = " << *listpos << "\n";
+            outStream << std::setw(20) << pos->first << " = " << *listpos << "\n";
             ++listpos;
          }
          break;
@@ -578,7 +577,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing SPK path\n");
    #endif
-   outStream << setw(20) << "SPK_PATH" << " = " << mPathMap["SPK_PATH"] << "\n";
+   outStream << std::setw(20) << "SPK_PATH" << " = " << mPathMap["SPK_PATH"] << "\n";
    WriteFiles(outStream, "SPK");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -588,7 +587,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing DE path\n");
    #endif
-   outStream << setw(20) << "DE_PATH" << " = " << mPathMap["DE_PATH"] << "\n";
+   outStream << std::setw(20) << "DE_PATH" << " = " << mPathMap["DE_PATH"] << "\n";
    WriteFiles(outStream, "DE");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -598,7 +597,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing SLP path\n");
    #endif
-   outStream << setw(20) << "SLP_PATH" << " = " << mPathMap["SLP_PATH"] << "\n";
+   outStream << std::setw(20) << "SLP_PATH" << " = " << mPathMap["SLP_PATH"] << "\n";
    WriteFiles(outStream, "SLP");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -608,7 +607,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing PLANETARY_COEFF_PATH path\n");
    #endif
-   outStream << setw(20) << "PLANETARY_COEFF_PATH" << " = "
+   outStream << std::setw(20) << "PLANETARY_COEFF_PATH" << " = "
              << mPathMap["PLANETARY_COEFF_PATH"] << "\n";
    WriteFiles(outStream, "EOP_FILE_");
    WriteFiles(outStream, "PLANETARY_COEFF_FILE");
@@ -621,7 +620,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing TIME path\n");
    #endif
-   outStream << setw(20) << "TIME_PATH" << " = " << mPathMap["TIME_PATH"] << "\n";
+   outStream << std::setw(20) << "TIME_PATH" << " = " << mPathMap["TIME_PATH"] << "\n";
    WriteFiles(outStream, "LEAP_");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -636,7 +635,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    {
       if (pos->first.find("_POT_") != std::string::npos)
       {
-         outStream << setw(20) << pos->first << " = " << pos->second << "\n";
+         outStream << std::setw(20) << pos->first << " = " << pos->second << "\n";
       }
    }
    outStream << "#-----------------------------------------------------------\n";
@@ -649,7 +648,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing TEXTURE_PATH path\n");
    #endif
-   outStream << setw(20) << "TEXTURE_PATH" << " = " << mPathMap["TEXTURE_PATH"] << "\n";
+   outStream << std::setw(20) << "TEXTURE_PATH" << " = " << mPathMap["TEXTURE_PATH"] << "\n";
    WriteFiles(outStream, "TEXTURE_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -659,7 +658,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing SPLASH_PATH path\n");
    #endif
-   outStream << setw(20) << "SPLASH_PATH" << " = " << mPathMap["SPLASH_PATH"] << "\n";
+   outStream << std::setw(20) << "SPLASH_PATH" << " = " << mPathMap["SPLASH_PATH"] << "\n";
    WriteFiles(outStream, "SPLASH_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -669,7 +668,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing ICON_PATH path\n");
    #endif
-   outStream << setw(20) << "ICON_PATH" << " = " << mPathMap["ICON_PATH"] << "\n";
+   outStream << std::setw(20) << "ICON_PATH" << " = " << mPathMap["ICON_PATH"] << "\n";
    WriteFiles(outStream, "ICON_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
@@ -681,7 +680,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
       #ifdef DEBUG_WRITE_STARTUP_FILE
       MessageInterface::ShowMessage("   .....Writing EPHEM_PATH path\n");
       #endif
-      outStream << setw(20) << "EPHEM_PATH" << " = " << mPathMap["EPHEM_PATH"];
+      outStream << std::setw(20) << "EPHEM_PATH" << " = " << mPathMap["EPHEM_PATH"];
       outStream << "\n#---------------------------------------------"
             "--------------\n";
    }
@@ -1568,7 +1567,7 @@ void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
       {
          if (pos->second)
          {
-            outStream << setw(20) << pos->first << " = " << pos->second->mPath << "/"
+            outStream << std::setw(20) << pos->first << " = " << pos->second->mPath << "/"
                       << pos->second->mFile << "\n";
          }
       }

@@ -39,7 +39,7 @@
 #include "MessageInterface.hpp"
 
 #include <iostream>
-using namespace std; // *********************
+
 
 using namespace GmatMathUtil;      // for trig functions, etc.
 using namespace GmatTimeUtil;      // for JD offsets, etc.

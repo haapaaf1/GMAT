@@ -35,7 +35,7 @@
 #include "SolarSystem.hpp"
 
 #include <iostream>
-using namespace std; //***************************** for debug only 
+
 
 using namespace GmatMathUtil;      // for trig functions, etc.
 using namespace GmatTimeUtil;      // for SECS_PER_DAY

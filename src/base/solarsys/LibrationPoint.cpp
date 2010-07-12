@@ -28,7 +28,7 @@
 #include "MessageInterface.hpp"
 
 #include <iostream>
-using namespace std;
+
 
 //#define DEBUG_CHECK_BODIES
 //#define DEBUG_LP_OBJECT

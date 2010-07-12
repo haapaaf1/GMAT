@@ -31,7 +31,6 @@
 
 #include <cstdlib>			// Required for GCC 4.3
 
-using namespace std;
 
 //---------------------------------
 // static data

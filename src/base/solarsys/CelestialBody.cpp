@@ -74,7 +74,7 @@
 #endif
 
 using namespace GmatMathUtil;
-using namespace std; 
+
 
 //---------------------------------
 // static data

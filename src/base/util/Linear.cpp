@@ -250,8 +250,6 @@ std::istream& GmatRealUtil::operator>> (std::istream &input, Rvector &a)
 //------------------------------------------------------------------------------
 std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rvector &a) 
 {
-   using namespace std;
-   
    GmatGlobal *global = GmatGlobal::Instance();
    Integer size = a.GetSize();
    Integer p, w, spacing;
@@ -359,7 +357,7 @@ std::istream& GmatRealUtil::operator>> (std::istream &input, Rmatrix &a)
 //------------------------------------------------------------------------------
 std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rmatrix &a) 
 {
-   using namespace std;
+//   using namespace std;
    
    GmatGlobal *global = GmatGlobal::Instance();
    int row = a.GetNumRows();

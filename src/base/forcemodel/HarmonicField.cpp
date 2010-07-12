@@ -60,7 +60,6 @@
 
 /*
 #include <iostream>
- using namespace std; // ***************************** for debug only
  
 #define DEBUG_REFERENCE_SETTING
 */

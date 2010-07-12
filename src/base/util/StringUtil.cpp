@@ -37,8 +37,6 @@
 //#define DEBUG_BALANCED_BRACKETS
 //#define DEBUG_MATH_EQ 1
 
-using namespace std;
-
 
 //------------------------------------------------------------------------------
 // std::string RemoveAll(const std::string &str, char ch, Integer start = 0)
@@ -1875,7 +1873,7 @@ void GmatStringUtil::FindLastParenMatch(const std::string &str, Integer &openPar
  */
 //------------------------------------------------------------------------------
 bool GmatStringUtil::IsEnclosedWith(const std::string &str,
-                                    const string &enclosingStr)
+                                    const std::string &enclosingStr)
 {
    return (StartsWith(str, enclosingStr) && EndsWith(str, enclosingStr));
 }

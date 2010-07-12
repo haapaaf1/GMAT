@@ -34,7 +34,7 @@
 #include <windows.h>
 #endif
 
-using namespace std;
+
 using namespace GmatStringUtil;
 
 //#define DBGLVL_COMPARE_REPORT 1
@@ -806,8 +806,8 @@ StringArray& GmatFileUtil::Compare(const std::string &filename1,
    #endif
    
    // open file
-   ifstream in1(filename1.c_str());
-   ifstream in2(filename2.c_str());
+   std::ifstream in1(filename1.c_str());
+   std::ifstream in2(filename2.c_str());
    
    if (!in1)
    {
@@ -1073,12 +1073,12 @@ StringArray& GmatFileUtil::Compare(Integer numDirsToCompare, const std::string &
    #endif
    
    // open base file
-   ifstream baseIn(basefilename.c_str());
+   std::ifstream baseIn(basefilename.c_str());
 
    // open compare files
-   ifstream in1(filename1.c_str());
-   ifstream in2(filename2.c_str());
-   ifstream in3(filename3.c_str());
+   std::ifstream in1(filename1.c_str());
+   std::ifstream in2(filename2.c_str());
+   std::ifstream in3(filename3.c_str());
    
    if (!baseIn)
    {
@@ -1440,12 +1440,12 @@ StringArray& GmatFileUtil::CompareLines(Integer numDirsToCompare,
    #endif
    
    // open base file
-   ifstream baseIn(basefilename.c_str());
+   std::ifstream baseIn(basefilename.c_str());
 
    // open compare files
-   ifstream in1(filename1.c_str());
-   ifstream in2(filename2.c_str());
-   ifstream in3(filename3.c_str());
+   std::ifstream in1(filename1.c_str());
+   std::ifstream in2(filename2.c_str());
+   std::ifstream in3(filename3.c_str());
    
    if (!baseIn)
    {
@@ -1607,7 +1607,7 @@ StringArray& GmatFileUtil::CompareLines(Integer numDirsToCompare,
 //------------------------------------------------------------------------------
 // bool SkipHeaderLines(ifstream &in, StringArray &tokens)
 //------------------------------------------------------------------------------
-bool GmatFileUtil::SkipHeaderLines(ifstream &in, StringArray &tokens)
+bool GmatFileUtil::SkipHeaderLines(std::ifstream &in, StringArray &tokens)
 {
    char buffer[BUFFER_SIZE];
    bool dataFound = false;

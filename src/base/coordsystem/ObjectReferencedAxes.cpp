@@ -34,7 +34,7 @@
 
 #ifdef DEBUG_OR_AXES
 #include <iostream>
-using namespace std; // ***************************** for debug only
+
 
 #define DEBUG_ROT_MATRIX 1
 #define DEBUG_REFERENCE_SETTING
