@@ -1,3 +1,4 @@
+% $Id: EstimateBatchUSN-LEOData.script 8245 2010-07-02 00:19:18Z djcinsb $
 GMAT Earth.NutationUpdateInterval = 0;
 
 %--------------------------------------------------------------
@@ -8,7 +9,7 @@ GMAT ODSat.DateFormat = UTCGregorian;
 GMAT ODSat.Epoch = '01 Mar 2005 00:00:00.000';
 GMAT ODSat.CoordinateSystem = EarthMJ2000Eq;
 GMAT ODSat.DisplayStateType = Cartesian;
-GMAT ODSat.X = 6648.937;
+GMAT ODSat.X = 6648.537;
 GMAT ODSat.Y = -335.169;
 GMAT ODSat.Z = 2789.137;
 GMAT ODSat.VX = -0.34697109;
@@ -73,34 +74,45 @@ Maui.Id = 'Maui';
 %--------------------------------------------------------------
 %===== Create the Tracking System
 %--------------------------------------------------------------
-Create DataFile USNData;
-USNData.Filename = 'USN_LEO_EstimationData.gmd';
-USNData.Format = GMATInternal;
+Create DataFile DSNData;
+DSNData.Filename = 'DSN_LEO_EstimationData.gmd';
+DSNData.Format = GMATInternal;
 
-Create MeasurementModel USNRange;
-USNRange.ObservationData   = USNData;
-USNRange.Type              = USNTwoWayRange;
-USNRange.Bias              = [0.0];
-USNRange.Participants      = {Maui,ODSat};
+Create MeasurementModel DSNRange;
+DSNRange.ObservationData   = DSNData;
+DSNRange.Type              = DSNTwoWayRange;
+DSNRange.Participants      = {Maui,ODSat};
 
-Create USNTrackingSystem USN_ODSat
-USN_ODSat.Add = {USNRange}
-
+Create DSNTrackingSystem DSN_ODSat
+DSN_ODSat.Add = {DSNRange}
 
 %--------------------------------------------------------------
-%===== Create and configure the simulator
+%===== Create the Estimator
 %--------------------------------------------------------------
-Create Simulator ODSatsim;
-ODSatsim.AddData             = {USN_ODSat};
-ODSatsim.InitialEpochFormat  = UTCGregorian;
-ODSatsim.InitialEpoch        = '01 Mar 2005 00:00:00.000';
-ODSatsim.FinalEpochFormat    = UTCGregorian;
-ODSatsim.FinalEpoch          = '04 Mar 2005 00:00:00.000';
-%ODSatsim.FinalEpoch          = '02 Mar 2005 00:00:00.000';
-ODSatsim.MeasurementTimeStep = 60;
-ODSatsim.Propagator          = ODProp;
+Create BatchEstimatorInv BatchEst;
+GMAT BatchEst.ShowProgress = true;
+GMAT BatchEst.ReportStyle = 'Normal';
+GMAT BatchEst.ReportFile = 'BatchEstimateDSN-LEO.data';
+GMAT BatchEst.MaximumIterations = 15;
+GMAT BatchEst.Measurements = {DSNRange};
+GMAT BatchEst.AddSolveFor = {'ODSat.CartesianState'};
+GMAT BatchEst.AbsoluteTol = 1e-06;
+GMAT BatchEst.RelativeTol = 1e-07;
+GMAT BatchEst.Propagator = ODProp;
+GMAT BatchEst.EstimationEpochFormat = 'FromParticipants';
+
+%--------------------------------------------------------------
+%===== Plot the process
+%--------------------------------------------------------------
+Create XYPlot XYPlot1;
+GMAT XYPlot1.SolverIterations = Current;
+GMAT XYPlot1.XVariable = ODSat.A1ModJulian;
+GMAT XYPlot1.YVariables = {ODSat.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
+GMAT XYPlot1.ShowPlot = true;
 
 %--------------------------------------------------------------
 %===== Run the simulator
 %--------------------------------------------------------------
-RunSimulator ODSatsim
+RunEstimator BatchEst
+

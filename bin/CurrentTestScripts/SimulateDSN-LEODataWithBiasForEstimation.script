@@ -73,25 +73,25 @@ Maui.Id = 'Maui';
 %--------------------------------------------------------------
 %===== Create the Tracking System
 %--------------------------------------------------------------
-Create DataFile USNData;
-USNData.Filename = 'USN_LEO_EstimationData.gmd';
-USNData.Format = GMATInternal;
+Create DataFile DSNData;
+DSNData.Filename = 'DSN_LEO_BiasedEstimationData.gmd';
+DSNData.Format = GMATInternal;
 
-Create MeasurementModel USNRange;
-USNRange.ObservationData   = USNData;
-USNRange.Type              = USNTwoWayRange;
-USNRange.Bias              = [0.0];
-USNRange.Participants      = {Maui,ODSat};
+Create MeasurementModel DSNRange;
+DSNRange.ObservationData   = DSNData;
+DSNRange.Type              = DSNTwoWayRange;
+DSNRange.Bias              = [5.0];        % 5 range unit bias
+DSNRange.Participants      = {Maui,ODSat};
 
-Create USNTrackingSystem USN_ODSat
-USN_ODSat.Add = {USNRange}
+Create DSNTrackingSystem DSN_ODSat
+DSN_ODSat.Add = {DSNRange}
 
 
 %--------------------------------------------------------------
 %===== Create and configure the simulator
 %--------------------------------------------------------------
 Create Simulator ODSatsim;
-ODSatsim.AddData             = {USN_ODSat};
+ODSatsim.AddData             = {DSN_ODSat};
 ODSatsim.InitialEpochFormat  = UTCGregorian;
 ODSatsim.InitialEpoch        = '01 Mar 2005 00:00:00.000';
 ODSatsim.FinalEpochFormat    = UTCGregorian;

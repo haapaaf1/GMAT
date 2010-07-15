@@ -74,13 +74,13 @@ Maui.Id = 'Maui';
 %===== Create the Tracking System
 %--------------------------------------------------------------
 Create DataFile USNData;
-USNData.Filename = 'USN_LEO_EstimationData.gmd';
+USNData.Filename = 'USN_LEO_BiasedEstimationData.gmd';
 USNData.Format = GMATInternal;
 
 Create MeasurementModel USNRange;
 USNRange.ObservationData   = USNData;
 USNRange.Type              = USNTwoWayRange;
-USNRange.Bias              = [0.0];
+USNRange.Bias              = [0.01];        % 10 m bias
 USNRange.Participants      = {Maui,ODSat};
 
 Create USNTrackingSystem USN_ODSat

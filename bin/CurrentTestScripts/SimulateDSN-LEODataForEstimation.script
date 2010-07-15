@@ -68,7 +68,7 @@ Maui.HorizonReference = Sphere;
 Maui.X = -4450.8;
 Maui.Y = 2676.1;
 Maui.Z = -3691.38;
-Maui.Id = 'MockMauiID';
+Maui.Id = 'Maui';
 
 %--------------------------------------------------------------
 %===== Create the Tracking System
