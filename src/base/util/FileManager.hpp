@@ -53,6 +53,7 @@ public:
       TEXTURE_PATH, //Notes: TEXTURE_PATH is used in SetPathname()
       MEASUREMENT_PATH,
       EPHEM_PATH,
+      GUI_CONFIG_PATH,
       END_OF_PATH,
       
       // general file name
