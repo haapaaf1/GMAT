@@ -20,6 +20,9 @@
 #define GmatBaseSetupPanel_hpp
 
 #include "GmatPanel.hpp"
+#include <wx/confbase.h>
+#include <wx/fileconf.h>
+#include <wx/config.h>
 
 /**
  * Generic configuration panel for GmatBase derived objects
@@ -28,20 +31,30 @@
  * custom panel has not been coded.  It provides access to all of the object's
  * writable parameters using text controls and comboboxes.
  */
+typedef std::map<wxString, wxSizer*> SizerMapType;
+typedef std::map<wxString, int> SizerSizeType;
 class GmatBaseSetupPanel : public GmatPanel
 {
 public:
    GmatBaseSetupPanel(wxWindow *parent, const wxString &name);
    virtual ~GmatBaseSetupPanel();
-   
 protected:
    
    virtual void         Create();
    virtual void         LoadData();
    virtual void         SaveData();
-   wxControl *          BuildControl(wxWindow *parent, Integer index);
+   wxControl *          BuildControl(wxWindow *parent, Integer index, const std::string &label, wxFileConfig *config);
    void                 LoadControl(const std::string &label);
    void                 SaveControl(const std::string &label);
+   virtual std::string  GetLabelName(std::string text, wxFileConfig *config) const;
+   std::string  		   AssignAcceleratorKey(std::string text, std::vector<char> *accelKeys);
+   SizerMapType *       CreateGroups(wxFlexGridSizer *mainSizer, wxFileConfig *config);
+   virtual void         SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config);
+   virtual void         NormalizeLabels( std::vector<std::string> propertyNames, 
+                                         std::vector<wxString> propertyGroups, 
+                                         std::vector<wxStaticText*> propertyDescriptors, 
+                                         std::vector<wxControl*> propertyControls, 
+                                         std::vector<wxStaticText*> propertyUnits );
    
    // Text control event method
    void OnTextUpdate(wxCommandEvent& event);
@@ -68,9 +81,11 @@ protected:
    {
       ID_TEXT = 55000,
       ID_TEXTCTRL,
-      ID_COMBOBOX
+      ID_COMBOBOX,
+      ID_CHECKBOX
    };
    
+   static const Integer border = 3;
    /// True-false strings (just a convenience here)
    static const wxString TF_SCHEMES[2];
    
