@@ -27,6 +27,7 @@
 #include "FileUtil.hpp"
 #include <map>
 #include <utility> // make_pair
+#include "UtilityException.hpp"
 
 //#define DEBUG_BASEPANEL_LOAD
 
@@ -117,6 +118,7 @@ void GmatBaseSetupPanel::Create()
    std::vector<std::string> propertyNames;
    std::vector<wxString> propertyGroups;
    wxStaticText *aLabel;
+   std::string configPath;
    
    #ifdef DEBUG_BASEPANEL_CREATE
    MessageInterface::ShowMessage
@@ -131,7 +133,24 @@ void GmatBaseSetupPanel::Create()
    
    // get the GUI_CONFIG_PATH
    FileManager *fm = FileManager::Instance();
-   std::string configPath = fm->GetAbsPathname(FileManager::GUI_CONFIG_PATH);
+   try
+   {
+      configPath = fm->GetAbsPathname(FileManager::SPLASH_PATH);
+      MessageInterface::ShowMessage
+         ("Splash Path:\n%s\n",
+          configPath.c_str());
+      configPath = fm->GetAbsPathname(FileManager::GUI_CONFIG_PATH);
+      MessageInterface::ShowMessage
+         ("GUI Config Path:\n%s\n",
+          configPath.c_str());
+   }
+   catch (UtilityException &e)
+   {
+      MessageInterface::ShowMessage
+         ("GmatBaseSetupPanel:Create() error occurred!\n%s\n",
+          e.GetFullMessage().c_str());
+      configPath = "";
+   }
    bool configFileExists = GmatFileUtil::DoesFileExist(configPath+mObject->GetTypeName()+".ini");
    wxFileConfig *pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, configPath+mObject->GetTypeName()+".ini",
 	           wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
@@ -861,7 +880,6 @@ void GmatBaseSetupPanel::NormalizeLabels( std::vector<std::string> propertyNames
    SizerSizeType::iterator sizeItem;
    std::vector<wxStaticText*>::iterator item;
    unsigned int j;
-   int minLabelSize;
 
    // initialize the sizes first
    for (j = 0; j < propertyGroups.size(); j++)
@@ -879,12 +897,12 @@ void GmatBaseSetupPanel::NormalizeLabels( std::vector<std::string> propertyNames
    {
       // get the label size so far for the group
       sizeItem = labelSizes.find(propertyGroups[j].Lower());
-      if (((int) sizeItem->second) < (*item)->GetBestSize().x) 
-         ((int) sizeItem->second) = (*item)->GetBestSize().x;
+      if (((int) sizeItem->second) < (*item)->GetBestSize().GetWidth())
+         sizeItem->second = (*item)->GetBestSize().GetWidth();
       // get the unit size so far for the group
       sizeItem = unitSizes.find(propertyGroups[j].Lower());
-      if (((int) sizeItem->second) < propertyUnits[j]->GetBestSize().x) 
-         ((int) sizeItem->second) = propertyUnits[j]->GetBestSize().x;
+      if (((int) sizeItem->second) < propertyUnits[j]->GetBestSize().GetWidth())
+         sizeItem->second = propertyUnits[j]->GetBestSize().GetWidth();
    }
 
    // adjust grouplabels and groupunits
