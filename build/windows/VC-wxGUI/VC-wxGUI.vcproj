@@ -3497,6 +3497,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\gui\command\GmatCommandPanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\command\GmatCommandPanel.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\gui\command\ManeuverPanel.cpp"
 						>
 					</File>
