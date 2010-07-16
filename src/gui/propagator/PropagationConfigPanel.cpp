@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              PropagationConfigPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -22,6 +22,7 @@
 #include "DragInputsDialog.hpp"
 #include "PropagationConfigPanel.hpp"
 #include "GmatStaticBoxSizer.hpp"
+#include "StringUtil.hpp"               // for GmatStringUtil::ToUpper()
 #include "MessageInterface.hpp"
 #include "bitmaps/OpenFolder.xpm"
 

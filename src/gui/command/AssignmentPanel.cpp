@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              AssignmentPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -16,6 +16,7 @@
 //------------------------------------------------------------------------------
 
 #include "AssignmentPanel.hpp"
+#include "StringUtil.hpp"           // for GmatStringUtil::
 #include "MessageInterface.hpp"
 #include <wx/config.h>
 

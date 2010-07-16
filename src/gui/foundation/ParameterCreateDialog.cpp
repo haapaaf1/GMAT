@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              ParameterCreateDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/02/25
@@ -19,6 +19,7 @@
 #include "GmatStaticBoxSizer.hpp"
 #include "RgbColor.hpp"
 #include "ParameterInfo.hpp"            // for GetDepObjectType()
+#include "StringUtil.hpp"               // for GmatStringUtil::
 #include "MessageInterface.hpp"
 #include "StringTokenizer.hpp"
 #include "Array.hpp"

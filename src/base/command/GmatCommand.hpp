@@ -23,20 +23,17 @@
 
 
 #include <map>              // for mapping between object names and types
-#include <algorithm>        // for find()
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
 #include "CommandException.hpp"
 
 // Headers used by commands that override InterpretAction
-#include "StringUtil.hpp"
 #include "TextParser.hpp"
 #include "ElementWrapper.hpp"
 
 // Headers for the referenced classes
 #include "SolarSystem.hpp"    // for SolarSystem
 #include "Publisher.hpp"      // For the Publisher and ...
-#include "Subscriber.hpp"     // ... base of the Subscribers
 #include "SpaceObject.hpp"    // for SpaceObjects
 #include "TriggerManager.hpp" // Trigger managers, usually from a plugin
 
@@ -216,13 +213,12 @@ protected:
                      PARAMETER_TYPE[GmatCommandParamCount - GmatBaseParamCount];
    
    
-   /// Map containing names and associated types
-   std::map<std::string, Gmat::ObjectType> 
-                        association;
-   /// List of the associated objects
-   StringArray          objects;
    /// Flag used to determine if associations have been made
    bool                 initialized;
+   /// Map containing names and associated types
+   ObjectTypeMap        association;
+   /// List of the associated objects
+   StringArray          objects;
    // pointer to the function that contains this command
    Function            *currentFunction;
    // pointer to the function that is calling this command (ignored for all but
@@ -235,11 +231,10 @@ protected:
    /// Indicator of the current nesting level
    Integer              level;
    /// Object store obtained from the Sandbox
-   std::map<std::string, GmatBase *>
-                        *objectMap;
+   ObjectMap            *objectMap;
    /// Object store obtained from the Sandbox
-   std::map<std::string, GmatBase *>
-                        *globalObjectMap;
+   ////std::map<std::string, GmatBase *> *globalObjectMap;
+   ObjectMap            *globalObjectMap;
    /// Solar System, set by the local Sandbox
    SolarSystem          *solarSys;
    /// Trigger managers, set by the local Sandbox
@@ -272,7 +267,7 @@ protected:
    StringArray          wrapperObjectNames;
    /// List used to initialize the local TextParser
    StringArray          commandNameList;
-      
+   
    virtual bool         AssignObjects();
    virtual bool         ClearObjects();
    virtual void         BuildCommandSummary(bool commandCompleted = true);

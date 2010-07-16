@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              OpenGlOptionDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/12/20
@@ -20,6 +20,7 @@
 #include "ColorTypes.hpp"           // for GmatColor::
 #include "RgbColor.hpp"
 #include "GmatAppData.hpp"
+#include "StringUtil.hpp"           // for GmatStringUtil::ToInteger()
 #include "MessageInterface.hpp"
 
 #include "wx/colordlg.h"            // for wxColourDialog

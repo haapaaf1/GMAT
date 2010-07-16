@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  GmatCommand
 //------------------------------------------------------------------------------
-// GMAT: Goddard MiHeaderssion Analysis Tool.
+// GMAT: General MiHeaderssion Analysis Tool.
 //
 // **Legal**
 //
@@ -19,10 +19,11 @@
 
 
 #include "GmatCommand.hpp"       // class's header file
+#include "CommandException.hpp"
+#include "StateConverter.hpp"
 #include "MessageInterface.hpp"  // MessageInterface
-#include "Spacecraft.hpp"
-#include "StringUtil.hpp"        // for ToString
 
+#include <algorithm>             // for find()
 #include <sstream>               // for command summary generation
 #include <cmath>                 // for Cartesian to Keplerian conversion; 
                                  // remove it when the real conversions are
@@ -247,7 +248,6 @@ GmatCommand::GmatCommand(const GmatCommand &c) :
    parmData             (NULL)
 {
    generatingString = c.generatingString;
-   //parameterCount = GmatCommandParamCount;  // wrong!
 }
 
 

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                   Function
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -18,7 +18,8 @@
 //------------------------------------------------------------------------------
 
 #include "Function.hpp"
-#include "FunctionException.hpp" // for exception
+#include "FunctionException.hpp"    // for exception
+#include "StringUtil.hpp"           // for GmatStringUtil::
 #include "MessageInterface.hpp"
 
 //#define DEBUG_FUNCTION_SET

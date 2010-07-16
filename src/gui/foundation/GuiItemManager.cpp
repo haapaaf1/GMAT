@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GuiItemManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -24,6 +24,7 @@
 #include "ParameterInfo.hpp"
 #include "Hardware.hpp"
 #include "GmatGlobal.hpp"         // for GetDataPrecision()
+#include "StringUtil.hpp"         // for GmatStringUtil::
 #include "MessageInterface.hpp"
 #include <algorithm>              // for sort(), set_difference()
 #include <sstream>

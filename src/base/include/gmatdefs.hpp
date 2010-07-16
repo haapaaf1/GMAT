@@ -166,7 +166,7 @@ namespace Gmat
       OBTYPE,              // For the specific observation types
       
       INTERFACE,           // MatlabInterface
-      MEDIA_CORRECTION,	   // For media correction model
+      MEDIA_CORRECTION,    // For media correction model
       UNKNOWN_OBJECT
    };
 
@@ -256,7 +256,8 @@ namespace Gmat
    };
 }
 
-typedef std::vector<Gmat::ObjectType>      ObjectTypeArray;
-typedef std::vector<Gmat::WrapperDataType> WrapperTypeArray;
+typedef std::vector<Gmat::ObjectType>           ObjectTypeArray;
+typedef std::vector<Gmat::WrapperDataType>      WrapperTypeArray;
+typedef std::map<std::string, Gmat::ObjectType> ObjectTypeMap;
 
 #endif //GMATDEFS_HPP

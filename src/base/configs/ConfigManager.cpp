@@ -18,6 +18,7 @@
 
 #include "ConfigManager.hpp"
 #include "ConfigManagerException.hpp"
+#include "StringUtil.hpp"               // for GmatStringUtil::
 
 //#define DEBUG_RENAME 1
 //#define DEBUG_CONFIG 1
