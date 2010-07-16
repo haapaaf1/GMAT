@@ -823,6 +823,40 @@ const StringArray& FactoryManager::GetListOfAllItems()
 }
 
 //------------------------------------------------------------------------------
+// const StringArray& GetListOfViewableItems(Gmat::ObjectType byType)
+//------------------------------------------------------------------------------
+/**
+ * Return a list of items of type byType that can be viewed via GUI.
+ *
+ * @param <byType> type of items of which to return a list.
+ *
+ * @return list of viewable items of type byType.
+ */
+//------------------------------------------------------------------------------
+const StringArray& FactoryManager::GetListOfViewableItems(Gmat::ObjectType byType)
+{
+   entireList.clear();
+   return GetListOfViewables(byType);
+}
+
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfUnviewableItems(Gmat::ObjectType byType)
+//------------------------------------------------------------------------------
+/**
+ * Return a list of items of type byType that cannot be viewed via GUI.
+ *
+ * @param <byType> type of items of which to return a list.
+ *
+ * @return list of unviewable items of type byType.
+ */
+//------------------------------------------------------------------------------
+const StringArray& FactoryManager::GetListOfUnviewableItems(Gmat::ObjectType byType)
+{
+   entireList.clear();
+   return GetListOfUnviewables(byType);
+}
+
+//------------------------------------------------------------------------------
 // Gmat::ObjectType GetBaseTypeOf(const std::string &typeName)
 //------------------------------------------------------------------------------
 /**
@@ -999,6 +1033,68 @@ const StringArray& FactoryManager::GetList(Gmat::ObjectType ofType)
          if (!objs.empty())
             entireList.insert(entireList.end(), objs.begin(), objs.end());
             
+         // There may be multiple factories of a given type, so keep looking
+         //break;
+      }
+      ++f;
+   }
+   return entireList;
+}
+
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfViewables(Gmat::ObjectType ofType) const
+//------------------------------------------------------------------------------
+/**
+ * Return a list of items of type ofType that can be viewed via GUI.
+ *
+ * @param <ofType> type of viewable objects of which to return a list.
+ *
+ * @return list of viewable items of type ofType.
+ */
+//------------------------------------------------------------------------------
+const StringArray& FactoryManager::GetListOfViewables(Gmat::ObjectType ofType)
+{
+   std::list<Factory*>::iterator f = factoryList.begin();
+   while (f != factoryList.end())
+   {
+      if ((*f)->GetFactoryType() == ofType)
+      {
+         // Add the name(s) to the list 
+         StringArray objs = (*f)->GetListOfViewableObjects();
+         if (!objs.empty())
+            entireList.insert(entireList.end(), objs.begin(), objs.end());
+         
+         // There may be multiple factories of a given type, so keep looking
+         //break;
+      }
+      ++f;
+   }
+   return entireList;
+}
+
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfUnviewables(Gmat::ObjectType ofType) const
+//------------------------------------------------------------------------------
+/**
+ * Return a list of items of type ofType that can be viewed via GUI.
+ *
+ * @param <ofType> type of viewable objects of which to return a list.
+ *
+ * @return list of viewable items of type ofType.
+ */
+//------------------------------------------------------------------------------
+const StringArray& FactoryManager::GetListOfUnviewables(Gmat::ObjectType ofType)
+{
+   std::list<Factory*>::iterator f = factoryList.begin();
+   while (f != factoryList.end())
+   {
+      if ((*f)->GetFactoryType() == ofType)
+      {
+         // Add the name(s) to the list 
+         StringArray objs = (*f)->GetListOfUnviewableObjects();
+         if (!objs.empty())
+            entireList.insert(entireList.end(), objs.begin(), objs.end());
+         
          // There may be multiple factories of a given type, so keep looking
          //break;
       }

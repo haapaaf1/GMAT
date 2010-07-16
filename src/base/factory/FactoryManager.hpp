@@ -147,6 +147,8 @@ public:
    // type that may be created in the system
    const StringArray&     GetListOfItems(Gmat::ObjectType byType);
    const StringArray&     GetListOfAllItems();
+   const StringArray&     GetListOfViewableItems(Gmat::ObjectType byType);
+   const StringArray&     GetListOfUnviewableItems(Gmat::ObjectType byType);
    
    // method to return the base type for the input string
    Gmat::ObjectType       GetBaseTypeOf(const std::string &typeName);
@@ -166,6 +168,8 @@ private:
    // private methods 
    Factory*               FindFactory(Gmat::ObjectType ofType, const std::string &forType);
    const StringArray&     GetList(Gmat::ObjectType ofType);
+   const StringArray&     GetListOfViewables(Gmat::ObjectType ofType);
+   const StringArray&     GetListOfUnviewables(Gmat::ObjectType ofType);
    
    // Hide the default constructor and destructor to preserve singleton status
    // default constructor

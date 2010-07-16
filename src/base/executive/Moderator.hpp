@@ -111,6 +111,8 @@ public:
    //----- factory
    const StringArray& GetListOfFactoryItems(Gmat::ObjectType type);
    const StringArray& GetListOfAllFactoryItems();
+   const StringArray& GetListOfViewableItems(Gmat::ObjectType type);
+   const StringArray& GetListOfUnviewableItems(Gmat::ObjectType type);
    
    //----- configuration
    ObjectMap* GetConfiguredObjectMap();

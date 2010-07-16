@@ -136,12 +136,16 @@ public:
                                             const std::string &withName = "");
    
    // method to return list of types of objects that this factory can create
-   StringArray              GetListOfCreatableObjects(void) const;
+   StringArray              GetListOfCreatableObjects() const;
+   // method to return list of objects that can be viewed via GUI of this factory
+   StringArray              GetListOfViewableObjects();
+   // method to return list of objects that cannot be viewed via GUI of this factory
+   StringArray              GetListOfUnviewableObjects() const;
    // method to set the types of objects that this factory can create
    bool                     SetListOfCreatableObjects(StringArray newList);
    // method to add types of objects that this factory can create
    bool                     AddCreatableObjects(StringArray newList);
-
+   
    // method to return the type of factory this is
    Gmat::ObjectType         GetFactoryType() const;  
    bool                     IsTypeCaseSensitive() const;
@@ -166,6 +170,11 @@ protected:
    // a list of all of the specific types of objects (of type itsType) that
    // can be created by this factory.
    StringArray              creatables;
+   // a list of all of the types of objects that can be viewed from the GUI
+   // (This is automacally generated)
+   StringArray              viewables;
+   // a list of all of the types of objects that cannot be viewed from the GUI
+   StringArray              unviewables;
    // is type name case sensitive
    bool                     isCaseSensitive;
 
@@ -174,7 +183,3 @@ private:
 };
 
 #endif // Factory_hpp
-
-
-
-

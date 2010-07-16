@@ -19,6 +19,8 @@
 //------------------------------------------------------------------------------
 #include "Factory.hpp"
 #include "FactoryException.hpp"
+#include "MessageInterface.hpp"
+#include <algorithm>              // for find()
 
 //---------------------------------
 //  public methods
@@ -932,7 +934,7 @@ TrackingData* Factory::CreateTrackingData(const std::string &ofType,
 }
 
 //------------------------------------------------------------------------------
-//  StringArray GetListOfCreatableObjects(void) const
+//  StringArray GetListOfCreatableObjects() const
 //------------------------------------------------------------------------------
 /**
 * This method returns the list of creatable objects for the factory.
@@ -941,13 +943,66 @@ TrackingData* Factory::CreateTrackingData(const std::string &ofType,
  *
  */
 //------------------------------------------------------------------------------
-StringArray Factory::GetListOfCreatableObjects(void) const
+StringArray Factory::GetListOfCreatableObjects() const
 {
    return creatables;
 }
 
 //------------------------------------------------------------------------------
-//  bool SetListOfCreatableObjects(void) const
+//  StringArray GetListOfViewableObjects()
+//------------------------------------------------------------------------------
+/**
+* This method creates and returns the list of viewable objects via GUI.
+ *
+ * @return list of viewable objects of this factory.
+ *
+ */
+//------------------------------------------------------------------------------
+StringArray Factory::GetListOfViewableObjects()
+{
+   #ifdef DEBUG_FACTORY_VIEWABLES
+   MessageInterface::ShowMessage
+      ("Factory::GetListOfViewableObjects() entered, there are %d creatables, %d unviewables, "
+       "%d viewables\n", creatables.size(), unviewables.size(), viewables.size());
+   #endif
+   
+   if (viewables.empty())
+   {
+      // Add all creatable objects types not in the unviewables to viewables
+      StringArray::iterator pos;
+      for (pos = creatables.begin(); pos != creatables.end(); ++pos)
+      {
+         if (find(unviewables.begin(), unviewables.end(), *pos) == unviewables.end())
+            viewables.push_back(*pos);
+      }
+   }
+   
+   #ifdef DEBUG_FACTORY_VIEWABLES
+   MessageInterface::ShowMessage
+      ("Factory::GetListOfViewableObjects() leaving, there are %d creatables, %d unviewables, "
+       "%d viewables\n", creatables.size(), unviewables.size(), viewables.size());
+   #endif
+   
+   return viewables;
+}
+
+//------------------------------------------------------------------------------
+//  StringArray GetListOfUnviewableObjects() const
+//------------------------------------------------------------------------------
+/**
+* This method returns the list of unviewable objects via GUI.
+ *
+ * @return list of unviewable objects of this factory.
+ *
+ */
+//------------------------------------------------------------------------------
+StringArray Factory::GetListOfUnviewableObjects() const
+{
+   return unviewables;
+}
+
+//------------------------------------------------------------------------------
+//  bool SetListOfCreatableObjects(StringArray itsList)
 //------------------------------------------------------------------------------
 /**
 * This method sets the list of creatable objects for the factory.
@@ -1084,6 +1139,9 @@ Factory::Factory(const Factory& fact) :
    if (!creatables.empty())
       creatables.clear();
    creatables = fact.creatables;
+   if (!unviewables.empty())
+      unviewables.clear();
+   unviewables = fact.unviewables;
 }
 
 //------------------------------------------------------------------------------

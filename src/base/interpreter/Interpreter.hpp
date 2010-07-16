@@ -95,6 +95,7 @@ public:
                                       const std::string &depName = "");
    
    const StringArray& GetListOfObjects(Gmat::ObjectType type);
+   const StringArray& GetListOfViewableCommands();
    GmatBase* GetConfiguredObject(const std::string &name);
    GmatBase* FindObject(const std::string &name, const std::string &ofType = "");
    GmatBase* CreateObject(const std::string &type, const std::string &name,
@@ -339,8 +340,9 @@ private:
    StringArray   subscriberList;
    StringArray   spacePointList;
    StringArray   celestialBodyList;
-
+   
    static StringArray   allObjectTypeList;
+   static StringArray   viewableCommandList;
    static std::map<std::string, Gmat::ObjectType> objectTypeMap;
    bool IsParameterType(const std::string &desc);
    bool CheckForSpecialCase(GmatBase *obj, Integer id, std::string &value);

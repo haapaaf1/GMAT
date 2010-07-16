@@ -92,6 +92,7 @@
 //---------------------------------
 
 StringArray Interpreter::allObjectTypeList = StringArray(1, "");
+StringArray Interpreter::viewableCommandList = StringArray(1, "");
 std::map<std::string, Gmat::ObjectType> Interpreter::objectTypeMap;
 
 //------------------------------------------------------------------------------
@@ -225,22 +226,36 @@ void Interpreter::BuildCreatableObjectMaps()
    copy(cmds.begin(), cmds.end(), back_inserter(commandList));
    
    #ifdef DEBUG_INIT
-   MessageInterface::ShowMessage("Number of commands = %d\n", cmds.size());
+   MessageInterface::ShowMessage("\nNumber of commands = %d\n", cmds.size());
    #endif
    
    #ifdef DEBUG_COMMAND_LIST
       std::vector<std::string>::iterator pos1;
-      
-      MessageInterface::ShowMessage("\nCommands:\n   ");      
+      MessageInterface::ShowMessage("Commands:\n");      
       for (pos1 = cmds.begin(); pos1 != cmds.end(); ++pos1)
-         MessageInterface::ShowMessage(*pos1 + "\n   ");
-      
+         MessageInterface::ShowMessage("   " + *pos1 + "\n");
    #endif
       
    if (cmds.size() == 0)
    {
       throw InterpreterException("Command list is empty.");
    }
+   
+   // Build a mapping for all viewable commands via GUI
+   viewableCommandList.clear();
+   cmds = theModerator->GetListOfViewableItems(Gmat::COMMAND);
+   copy(cmds.begin(), cmds.end(), back_inserter(viewableCommandList));
+   
+   #ifdef DEBUG_INIT
+   MessageInterface::ShowMessage("\nNumber of viewable commands = %d\n", cmds.size());
+   #endif
+   
+   #ifdef DEBUG_COMMAND_LIST
+   std::vector<std::string>::iterator pos;
+   MessageInterface::ShowMessage("Viewable Commands:\n");      
+   for (pos = cmds.begin(); pos != cmds.end(); ++pos)
+      MessageInterface::ShowMessage("   " + *pos + "\n");   
+   #endif
    
    // Build a mapping for all of the defined objects
    allObjectTypeList.clear();
@@ -766,6 +781,20 @@ void Interpreter::RegisterAliases()
 const StringArray& Interpreter::GetListOfObjects(Gmat::ObjectType type)
 {
    return theModerator->GetListOfObjects(type);
+}
+
+
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfViewableCommands();
+//------------------------------------------------------------------------------
+/**
+ * Returns names of all viewable commands via GUI
+ * @return array of item names; return empty array if none
+ */
+//------------------------------------------------------------------------------
+const StringArray& Interpreter::GetListOfViewableCommands()
+{
+   return Interpreter::viewableCommandList;
 }
 
 

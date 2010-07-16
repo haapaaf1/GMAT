@@ -53,6 +53,7 @@
 #include "MessageInterface.hpp"
 #include "CommandUtil.hpp"          // for GetCommandSeq()
 #include "StringTokenizer.hpp"      // for StringTokenizer
+#include "StringUtil.hpp"           // for GmatStringUtil::
 #include "FileUtil.hpp"             // for GmatFileUtil::
 #include <algorithm>                // for sort(), set_difference()
 #include <ctime>                    // for clock()
@@ -230,7 +231,7 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       CreatePlanetaryCoeffFile();
       CreateTimeFile();
       
-      // create at least 1 Sandbox and NoOp Command
+      // Create at least 1 Sandbox and NoOp Command
       Sandbox *sandbox = new Sandbox();
       GmatCommand *noOp = new NoOp();
       
@@ -1028,7 +1029,7 @@ const StringArray& Moderator::GetListOfFactoryItems(Gmat::ObjectType type)
 }
 
 //------------------------------------------------------------------------------
-// const StringArray& GetListOfAllItems()
+// const StringArray& GetListOfAllFactoryItems()
 //------------------------------------------------------------------------------
 /**
  * Return a list of all items that can be created.
@@ -1041,6 +1042,33 @@ const StringArray& Moderator::GetListOfAllFactoryItems()
    return theFactoryManager->GetListOfAllItems();
 }
 
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfViewableItems(Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * Return a list of all viewable objets via the GUI
+ *
+ * @return list of all viewable objects
+ */
+//------------------------------------------------------------------------------
+const StringArray& Moderator::GetListOfViewableItems(Gmat::ObjectType type)
+{
+   return theFactoryManager->GetListOfViewableItems(type);
+}
+
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfUnviewableItems(Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+/**
+ * Return a list of all unviewable objects via the GUI
+ *
+ * @return list of all viewable objects
+ */
+//------------------------------------------------------------------------------
+const StringArray& Moderator::GetListOfUnviewableItems(Gmat::ObjectType type)
+{
+   return theFactoryManager->GetListOfUnviewableItems(type);
+}
 
 //----- configuration
 //------------------------------------------------------------------------------
@@ -4712,7 +4740,8 @@ GmatCommand* Moderator::CreateCommand(const std::string &type,
 //------------------------------------------------------------------------------
 /*
  * Creates a command with default settings. The input refCmd is only used for
- * EndFiniteBurn to match with BeginFiniteBurn.
+ * EndFiniteBurn to match with BeginFiniteBurn. This method is usually called
+ * from the GUI.
  *
  * @param  type  Command type
  * @param  name  Command name
@@ -4916,6 +4945,15 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
          
          id = cmd->GetParameterID("Tolerance");
          cmd->SetStringParameter(id, "0.1");
+      }
+      else
+      {
+         // We need to set actual command string so that it can be saved to script
+         std::string typeName = cmd->GetTypeName();
+         std::string genStr = cmd->GetGeneratingString();
+         // If there is comment only, prepend command string
+         if (GmatStringUtil::StartsWith(genStr, "%"))
+            cmd->SetGeneratingString(typeName + "; " + genStr);
       }
       
       // for creating ElementWrapper
@@ -5941,6 +5979,28 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
    ResetConfigurationChanged();
    endOfInterpreter = true;
    
+   // Append BeginMissionSequence command if not there (New since 2010.07.09)
+   GmatCommand *first = GetFirstCommand();
+   GmatCommand *second = first->GetNext();
+   
+   #if DEBUG_INTERPRET
+   ShowCommand("first cmd = ", first, " second cmd = ", second);
+   #endif
+   
+   if (second != NULL && second->GetTypeName() != "BeginMissionSequence")
+   {
+      // Show warning message for now (LOJ: 2010.07.15)
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "*** WARNING *** BeginMissionSequence is missing. "
+          "It will be required in the future build.");
+      #if DEBUG_INTERPRET
+      MessageInterface::ShowMessage("==> Inserting BeginMissionSequence\n");
+      #endif
+      bool retval;
+      GmatCommand *bms = CreateCommand("BeginMissionSequence", "", retval);
+      InsertCommand(bms, first);
+   }
+   
    #if DEBUG_INTERPRET > 1
    MessageInterface::ShowMessage(GetScript());
    #endif
@@ -6214,7 +6274,6 @@ void Moderator::PrepareNextScriptReading(bool clearObjs)
       MessageInterface::ShowMessage(".....Clearing both resource and command sequence...\n");
       #endif
       
-      //ClearCommandSeq(true, false);
       ClearCommandSeq(true, true);
       ClearResource();
    }
@@ -6888,6 +6947,10 @@ void Moderator::CreateDefaultMission()
       //----------------------------------------------------
       bool retval;
       
+      // Append BeginMissionSequence command (New since 2010.07.09)
+      //GmatCommand *cmd = AppendCommand("BeginMissionSequence", "", retval);
+      AppendCommand("BeginMissionSequence", "", retval);
+      
       // Propagate Command
       GmatCommand *propCommand = CreateCommand("Propagate", "", retval);
       propCommand->SetObject("DefaultProp", Gmat::PROP_SETUP);
@@ -6920,7 +6983,7 @@ void Moderator::CreateDefaultMission()
       MessageInterface::ShowMessage("-->default Propagate command created\n");
       #endif
       
-      // Add propagate command
+      // Append Propagate command
       AppendCommand(propCommand);
       
       #if DEBUG_DEFAULT_MISSION
@@ -7816,19 +7879,19 @@ void Moderator::ShowCommand(const std::string &title1, GmatCommand *cmd1,
    if (title2 == "")
    {
       if (cmd1 == NULL)
-         MessageInterface::ShowMessage("%s(%p)NULL\n", title1.c_str(), cmd1);
+         MessageInterface::ShowMessage("%s<%p><NULL>\n", title1.c_str(), cmd1);
       else
          MessageInterface::ShowMessage
-            ("%s(%p)%s\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str());
+            ("%s<%p><%s>\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str());
    }
    else
    {
       if (cmd2 == NULL)
          MessageInterface::ShowMessage
-            ("%s(%p)NULL%s(%p)NULL\n", title1.c_str(), cmd1, title2.c_str(), cmd2);
+            ("%s<%p><NULL>%s<%p><NULL>\n", title1.c_str(), cmd1, title2.c_str(), cmd2);
       else
          MessageInterface::ShowMessage
-            ("%s(%p)%s%s(%p)%s\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str(),
+            ("%s<%p><%s>%s<%p><%s>\n", title1.c_str(), cmd1, cmd1->GetTypeName().c_str(),
              title2.c_str(), cmd2, cmd2->GetTypeName().c_str());
    }
 }
