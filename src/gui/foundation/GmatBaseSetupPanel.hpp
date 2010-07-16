@@ -55,6 +55,7 @@ protected:
                                          std::vector<wxStaticText*> propertyDescriptors, 
                                          std::vector<wxControl*> propertyControls, 
                                          std::vector<wxStaticText*> propertyUnits );
+   wxWindow             *FixTabOrder( wxWindow *lastControl, wxSizer *sizer );
    
    // Text control event method
    void OnTextUpdate(wxCommandEvent& event);

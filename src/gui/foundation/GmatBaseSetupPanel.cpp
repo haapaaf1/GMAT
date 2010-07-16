@@ -46,7 +46,7 @@ BEGIN_EVENT_TABLE(GmatBaseSetupPanel, GmatPanel)
    EVT_COMBOBOX(ID_COMBOBOX, GmatBaseSetupPanel::OnComboBoxChange)
    EVT_TEXT(ID_COMBOBOX, GmatBaseSetupPanel::OnComboBoxTextChange)
    EVT_TEXT(ID_TEXTCTRL, GmatBaseSetupPanel::OnTextChange)
-   EVT_TEXT(ID_CHECKBOX, GmatBaseSetupPanel::OnComboBoxChange)
+   EVT_CHECKBOX(ID_CHECKBOX, GmatBaseSetupPanel::OnComboBoxChange)
 END_EVENT_TABLE()
 
 
@@ -136,14 +136,7 @@ void GmatBaseSetupPanel::Create()
    FileManager *fm = FileManager::Instance();
    try
    {
-      configPath = fm->GetAbsPathname(FileManager::SPLASH_PATH);
-      MessageInterface::ShowMessage
-         ("Splash Path:\n%s\n",
-          configPath.c_str());
       configPath = fm->GetAbsPathname(FileManager::GUI_CONFIG_PATH);
-      MessageInterface::ShowMessage
-         ("GUI Config Path:\n%s\n",
-          configPath.c_str());
    }
    catch (UtilityException &e)
    {
@@ -177,8 +170,8 @@ void GmatBaseSetupPanel::Create()
 
    // now go through the properties and create their controls
    std::vector<std::string>::iterator propertyItem;
-   for(propertyItem = propertyNames.begin(); 
-       propertyItem != propertyNames.end(); ++propertyItem) 
+   for(propertyItem = propertyNames.begin(), j=0;
+       propertyItem != propertyNames.end(); ++propertyItem, ++j)
    {
       i = mObject->GetParameterID(*propertyItem);
       // set the path to the section that contains the parameter's items
@@ -192,7 +185,7 @@ void GmatBaseSetupPanel::Create()
          aLabel = new wxStaticText(this, ID_TEXT,
              "");
       propertyDescriptors.push_back(aLabel);
-      controlMap[mObject->GetParameterText(i)] = j++;
+      controlMap[mObject->GetParameterText(i)] = j;
 
       wxControl* control = BuildControl(this, i, labelText, pConfig);
       propertyControls.push_back(control);
@@ -246,6 +239,7 @@ void GmatBaseSetupPanel::Create()
    }
 
    NormalizeLabels( propertyNames, propertyGroups, propertyDescriptors, propertyControls, propertyUnits );
+   FixTabOrder( NULL, mainSizer );
    delete pConfig;
    delete groups;
    theMiddleSizer->Add(mainSizer, 0, wxALL|wxALIGN_CENTER, 5);
@@ -919,3 +913,23 @@ void GmatBaseSetupPanel::NormalizeLabels( std::vector<std::string> propertyNames
       propertyUnits[j]->SetMinSize(wxSize(((int) sizeItem->second), propertyUnits[j]->GetMinHeight()));
    }
 }
+
+wxWindow *GmatBaseSetupPanel::FixTabOrder( wxWindow *lastControl, wxSizer *sizer )
+{
+   wxSizerItemList list = sizer->GetChildren();
+   wxSizerItemList::iterator iter;
+   for (iter = list.begin(); iter != list.end(); ++iter)
+   {
+      if ((*iter)->IsSizer())
+         lastControl = FixTabOrder( lastControl, (*iter)->GetSizer() );
+      else 
+      {
+         if (lastControl != NULL)
+            (*iter)->GetWindow()->MoveAfterInTabOrder(lastControl);
+         lastControl = (*iter)->GetWindow();
+      }
+   }
+   return lastControl;
+
+}
+
