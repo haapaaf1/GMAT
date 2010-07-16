@@ -32,15 +32,20 @@ public:
    virtual ~BeginMissionSequence();
    BeginMissionSequence(const BeginMissionSequence& BeginMissionSequence);
    BeginMissionSequence& operator=(const BeginMissionSequence &bms);
-
-   bool                    Execute();
-
+   
+   bool                 Execute();
+   
    // inherited from GmatBase
-   virtual GmatBase* Clone() const;
-
-   const std::string& GetGeneratingString(Gmat::WriteMode mode,
-                                          const std::string &prefix,
-                                          const std::string &useName);
+   virtual GmatBase*    Clone() const;
+   virtual bool         RenameRefObject(const Gmat::ObjectType type,
+                                        const std::string &oldName,
+                                        const std::string &newName);
+   
+   virtual const std::string&  
+                        GetGeneratingString(
+                           Gmat::WriteMode mode = Gmat::SCRIPTING,
+                           const std::string &prefix = "",
+                           const std::string &useName = "");
 };
 
 

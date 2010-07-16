@@ -101,7 +101,7 @@ bool BeginMissionSequence::Execute()
 
 
 //------------------------------------------------------------------------------
-//  GmatBase* Clone(void) const
+//  GmatBase* Clone() const
 //------------------------------------------------------------------------------
 /**
  * This method returns a clone of the BeginMissionSequence.
@@ -112,6 +112,18 @@ bool BeginMissionSequence::Execute()
 GmatBase* BeginMissionSequence::Clone() const
 {
    return (new BeginMissionSequence(*this));
+}
+
+
+//------------------------------------------------------------------------------
+//  bool RenameRefObject(const Gmat::ObjectType type,
+//                       const std::string &oldName, const std::string &newName)
+//------------------------------------------------------------------------------
+bool BeginMissionSequence::RenameRefObject(const Gmat::ObjectType type,
+                                           const std::string &oldName,
+                                           const std::string &newName)
+{
+   return true;
 }
 
 
@@ -128,3 +140,4 @@ const std::string& BeginMissionSequence::GetGeneratingString(
    generatingString = prefix + "BeginMissionSequence;";
    return GmatCommand::GetGeneratingString(mode, prefix, useName);
 }
+
