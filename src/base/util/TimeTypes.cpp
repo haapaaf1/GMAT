@@ -108,7 +108,7 @@ Integer GmatTimeUtil::GetMonth(const std::string &monthName)
  * @param  format  Used in formating current time (1)
  *                 1 = "Wed Apr 16 12:30:22 2008"
  *                 2 = "2008-04-16T12:30:22"
- *                 3 = "2008-04-16-12-30-22"
+ *                 3 = "2008-04-16 12:30:22"
  *
  */
 //------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ std::string GmatTimeUtil::FormatCurrentTime(Integer format)
       if (format == 2)
          strftime(timeBuf, 20, "%Y-%m-%dT%I:%M:%S", loctime);
       else
-         strftime(timeBuf, 20, "%Y-%m-%d_%I%M%S", loctime);
+         strftime(timeBuf, 20, "%Y-%m-%d %I:%M:%S", loctime);
       return timeBuf;
    }
 }

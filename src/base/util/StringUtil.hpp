@@ -141,6 +141,10 @@ namespace GmatStringUtil
    GMAT_API Integer NumberOfOccurrences(const std::string &str, const char c);
    
    GMAT_API StringArray GetVarNames(const std::string &str);
+   GMAT_API void WriteStringArray(const StringArray &strArray,
+                                  const std::string &desc = "",
+                                  const std::string &prefix = "");
+   
 }
 
 #endif // StringUtil_hpp

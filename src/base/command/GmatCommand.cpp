@@ -225,9 +225,9 @@ GmatCommand::~GmatCommand()
 //------------------------------------------------------------------------------
 GmatCommand::GmatCommand(const GmatCommand &c) :
    GmatBase             (c),
+   initialized          (false),
    association          (c.association),
    objects              (c.objects),
-   initialized          (false),
    currentFunction      (c.currentFunction),
    callingFunction      (c.callingFunction),
    next                 (NULL),

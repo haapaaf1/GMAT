@@ -3289,3 +3289,20 @@ StringArray GmatStringUtil::GetVarNames(const std::string &str)
 }
 
 
+//------------------------------------------------------------------------------
+// void WriteStringArray(const StringArray &strArray, const std::string &desc = "",
+//                       const std::string &prefix = "")
+//------------------------------------------------------------------------------
+void GmatStringUtil::WriteStringArray(const StringArray &strArray,
+                                      const std::string &desc,
+                                      const std::string &prefix)
+{
+   Integer arrSize = strArray.size();
+   MessageInterface::ShowMessage("%s\n", desc.c_str());
+   MessageInterface::ShowMessage("%sThere are %d strings:\n", prefix.c_str(), arrSize);
+   for (Integer i = 0; i < arrSize; i++)
+   {
+      MessageInterface::ShowMessage("%s'%s'\n", prefix.c_str(), strArray[i].c_str());
+   }
+}
+

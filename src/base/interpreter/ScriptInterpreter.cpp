@@ -21,6 +21,7 @@
 #include "NoOp.hpp"
 #include "CommandUtil.hpp"     // for GmatCommandUtil::GetCommandSeqString()
 #include "StringUtil.hpp"      // for GmatStringUtil::
+#include "TimeTypes.hpp"       // for GmatTimeUtil::FormatCurrentTime()
 
 // to allow object creation in command mode, such as inside ScriptEvent
 //#define __ALLOW_OBJECT_CREATION_IN_COMMAND_MODE__
@@ -32,6 +33,7 @@
 //#define DEBUG_PARSE_FOOTER
 //#define DEBUG_SET_COMMENTS
 //#define DEBUG_SCRIPT_WRITING
+//#define DEBUG_SCRIPT_WRITING_COMMANDS
 //#define DBGLVL_SCRIPT_READING 1
 //#define DBGLVL_GMAT_FUNCTION 1
 
@@ -990,7 +992,8 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
 {
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
-      ("ScriptInterpreter::WriteScript() entered\n");
+      ("ScriptInterpreter::WriteScript() entered, headerComment='%s'\n",
+       headerComment.c_str());
    #endif
    
    if (outStream == NULL)
@@ -999,7 +1002,12 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    //-----------------------------------
    // Header Comment
    //-----------------------------------
-   if (headerComment != "")
+   //if (headerComment == "")
+   if (GmatStringUtil::IsBlank(headerComment, true))
+      theReadWriter->WriteText
+         ("%General Mission Analysis Tool(GMAT) Script\n%Created: " +
+          GmatTimeUtil::FormatCurrentTime(3) + "\n\n");
+   else
       theReadWriter->WriteText(headerComment);
    
    StringArray::iterator current;
@@ -1013,9 +1021,13 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found Solar Systems In Use\n");
    #endif
-   objs.clear();
-   objs.push_back("SolarSystem");
-   WriteObjects(objs, "Solar System User-Modified Values", mode);
+   // Write if not modified by user
+   if (!theSolarSystem->IsObjectCloaked())
+   {
+      objs.clear();
+      objs.push_back("SolarSystem");
+      WriteObjects(objs, "Solar System User-Modified Values", mode);
+   }
    
    //-----------------------------------
    // Celestial Bodies (for now, only user-defined or modified ones)
@@ -1118,9 +1130,6 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Force Models\n", objs.size());
    #endif
-   // Special handling is needed for writing ODEModels (LOJ: 2009.11.23)
-   //if (objs.size() > 0)
-   //   WriteObjects(objs, "ForceModels", mode);
    WriteODEModels(objs, mode);
    
    //-----------------------------------
@@ -1790,6 +1799,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
 bool ScriptInterpreter::IsOneWordCommand(const std::string &str)
 {
    // Note: The interpreter really should ask the command this!
+   // but this information is needed before a command is created
    bool retval = false;
    
    if ((str.find("End")                  != str.npos  &&
@@ -1872,7 +1882,7 @@ void ScriptInterpreter::WriteSectionDelimiter(const GmatBase *firstObj,
    #endif
    
    // Write if section delimiter not found
-   if (comment.find("----------------------------------------") == comment.npos)
+   if (comment.find(sectionDelimiterString[0]) == comment.npos)
    {
       theReadWriter->WriteText(sectionDelimiterString[0]);
       theReadWriter->WriteText(sectionDelimiterString[1] + objDesc);
@@ -1888,29 +1898,18 @@ void ScriptInterpreter::WriteSectionDelimiter(const GmatBase *firstObj,
 void ScriptInterpreter::WriteSectionDelimiter(const std::string &firstObj,
                                               const std::string &objDesc)
 {
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("WriteSectionDelimiter() entered, firstObj='%s', objDesc='%s'\n",
+       firstObj.c_str(), objDesc.c_str());
+   #endif
+   
    GmatBase *object;
    object = FindObject(firstObj);
    if (object == NULL)
       return;
-
+   
    WriteSectionDelimiter(object, objDesc);
-
-   
-//    std::string comment = object->GetCommentLine();
-   
-//    #ifdef DEBUG_SCRIPT_WRITING
-//    MessageInterface::ShowMessage
-//       ("WriteSectionDelimiter() PrefaceComment of %s=<%s>\n",
-//        object->GetName().c_str(), comment.c_str());
-//    #endif
-   
-//    // Write if section delimiter not found
-//    if (comment.find("----------------------------------------") == comment.npos)
-//    {
-//       theReadWriter->WriteText(sectionDelimiterString[0]);
-//       theReadWriter->WriteText(sectionDelimiterString[1] + objDesc);
-//       theReadWriter->WriteText(sectionDelimiterString[2]);
-//    }
 }
 
 
@@ -1925,6 +1924,15 @@ void ScriptInterpreter::WriteSectionDelimiter(const std::string &firstObj,
 void ScriptInterpreter::WriteObjects(StringArray &objs, const std::string &objDesc,
                                      Gmat::WriteMode mode)
 {
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("SI::WriteObjects() entered, objs.size=%d, objDesc='%s', mode=%d\n",
+       objs.size(), objDesc.c_str(), mode);
+   #endif
+   
+   if (objs.empty())
+      return;
+   
    StringArray::iterator current;
    GmatBase *object =  NULL;
    
@@ -1941,6 +1949,11 @@ void ScriptInterpreter::WriteObjects(StringArray &objs, const std::string &objDe
          theReadWriter->WriteText(object->GetGeneratingString(mode));
       }
    }
+   
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("SI::WriteObjects() returning for '%s'\n", objDesc.c_str());
+   #endif
 }
 
 
@@ -1953,6 +1966,11 @@ void ScriptInterpreter::WriteObjects(StringArray &objs, const std::string &objDe
 //------------------------------------------------------------------------------
 void ScriptInterpreter::WriteODEModels(StringArray &objs, Gmat::WriteMode mode)
 {
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("SI::WriteODEModels() entered, objs.size=%d\n", objs.size());
+   #endif
+   
    StringArray propOdes;
    ObjectArray props;
    
@@ -1978,11 +1996,16 @@ void ScriptInterpreter::WriteODEModels(StringArray &objs, Gmat::WriteMode mode)
       }
    }
    
-   // Make a list of configured odes not in PropSetups
+   // Make a list of configured ODEs not in PropSetups
    StringArray odes;
    set_difference(objs.begin(), objs.end(), propOdes.begin(),
                   propOdes.end(), back_inserter(odes));
    
+   #ifdef DEBUG_SCRIPT_WRITING
+   GmatStringUtil::WriteStringArray(objs, "   Input objects", "      ");
+   GmatStringUtil::WriteStringArray(propOdes, "   Propagator ODEs", "      ");
+   GmatStringUtil::WriteStringArray(odes, "   Configured ODEs", "      ");
+   #endif
    // Write configured ODEModels not in PropSetups
    if (odes.size() > 0)
       WriteObjects(odes, "ForceModels", mode);
@@ -1992,7 +2015,8 @@ void ScriptInterpreter::WriteODEModels(StringArray &objs, Gmat::WriteMode mode)
    {
       if (odes.empty())
       {
-         WriteSectionDelimiter(props[0], "ForceModels");
+         ///WriteSectionDelimiter(props[0], "ForceModels");
+         WriteSectionDelimiter(propOdes[0], "ForceModels");
       }
       
       for (ObjectArray::iterator i = props.begin(); i != props.end(); ++i)
@@ -2522,22 +2546,59 @@ void ScriptInterpreter::WriteCommandSequence(Gmat::WriteMode mode)
    if (cmd == NULL)
       return;
    
-   #ifdef DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING_COMMANDS
    MessageInterface::ShowMessage
       ("WriteCommandSequence() Writing Command Sequence\nPrefaceComment of %s=%s\n",
        cmd->GetTypeName().c_str(), cmd->GetCommentLine().c_str());
    #endif
    
-   if (GmatStringUtil::IsBlank(cmd->GetCommentLine(), true))
+   GmatCommand *nextCmd = cmd->GetNext();
+   bool writeMissionSeqDelim = false;
+   
+   // Since second command should be BeginMissionSequence, check for the next one for comment
+   if (GmatStringUtil::IsBlank(cmd->GetCommentLine(), true) &&
+       GmatStringUtil::IsBlank(nextCmd->GetCommentLine(), true))
+   {
+      theReadWriter->WriteText("\n");
+      writeMissionSeqDelim = true;
+   }
+   else
+   {
+      std::string comment1 = cmd->GetCommentLine();
+      std::string comment2 = nextCmd->GetCommentLine();
+      
+      #ifdef DEBUG_SCRIPT_WRITING_COMMANDS
+      MessageInterface::ShowMessage("==> curr comment = '%s'\n", comment1.c_str());
+      MessageInterface::ShowMessage("==> next comment = '%s'\n", comment2.c_str());
+      #endif
+      
+      // Swap comments if second comment has Mission Sequence
+      if (comment2.find("Mission Sequence") != comment2.npos)
+      {
+         cmd->SetCommentLine(comment2);
+         nextCmd->SetCommentLine(comment1);
+      }
+      
+      // We don't want to write section delimiter multiple times, so check for it
+      if (comment1.find("Mission Sequence") == comment1.npos &&
+          comment2.find("Mission Sequence") == comment2.npos)
+      {
+         writeMissionSeqDelim = true;
+      }
+   }
+   
+   // Write section delimiter
+   if (writeMissionSeqDelim)
    {
       theReadWriter->WriteText(sectionDelimiterString[0]);
       theReadWriter->WriteText(sectionDelimiterString[1] + "Mission Sequence");
       theReadWriter->WriteText(sectionDelimiterString[2]);
+      theReadWriter->WriteText("\n");      
    }
    
    while (cmd != NULL) 
    {
-      #ifdef DEBUG_SCRIPT_WRITING
+      #ifdef DEBUG_SCRIPT_WRITING_COMMANDS
       MessageInterface::ShowMessage
          ("ScriptInterpreter::WriteCommandSequence() before write cmd=%s, mode=%d, "
           "inTextMode=%d\n", cmd->GetTypeName().c_str(), mode, inTextMode);
