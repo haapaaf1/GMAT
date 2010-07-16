@@ -185,7 +185,8 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    GmatStringUtil::WriteStringArray
       (cmds, "===> Here is the viewable command list", "   ");
    #endif
-   copy(cmds.begin(), cmds.end(), std::back_inserter(mCommandList));
+   for (unsigned int i = 0; i < cmds.size(); i++)
+      mCommandList.Add(cmds[i].c_str());
    
    CreateCommandIdMap();
    
@@ -3083,8 +3084,9 @@ GmatTree::ItemType MissionTree::GetCommandId(const wxString &cmd)
       return GmatTree::ASSIGNMENT;
    if (cmd == "Equation")
       return GmatTree::ASSIGNMENT;
+   if (cmd == "BeginScript")
+      return GmatTree::SCRIPT_EVENT;
    
-   //return GmatTree::SCRIPT_EVENT;
    return GmatTree::OTHER_COMMAND;
 }
 
