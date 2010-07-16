@@ -202,6 +202,7 @@ OBJECTS = \
     command/BeginFiniteBurnPanel.o \
     command/CallFunctionPanel.o \
     command/EndFiniteBurnPanel.o \
+    command/GmatCommandPanel.o \
     command/ManeuverPanel.o \
     command/MinimizePanel.o \
     command/NonlinearConstraintPanel.o \

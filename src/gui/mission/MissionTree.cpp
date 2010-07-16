@@ -44,10 +44,13 @@
 #include "GmatMainFrame.hpp"
 #include "MessageInterface.hpp"
 #include "CommandUtil.hpp"         // for GetNextCommand()
+#include "StringUtil.hpp"          // for GmatStringUtil::
 
-// For testing new code for adding commands in a generic way
-// has not been fully implemented yet (LOJ: 2009.08.26)
-//#define __AUTO_ADD_NEW_COMMANDS__
+// This will automatically add all viewable commands including plugin commands.
+// It uses new array called viewables in the CommandFactory.
+// If plugin commands need to be shown in the popup menu, just add them to
+// viewables in a plugin factory constructors(LOJ: 2010.07.13)
+#define __AUTO_ADD_NEW_COMMANDS__
 
 // Should we sort the command list?
 #define __SORT_COMMAND_LIST__
@@ -118,6 +121,13 @@ BEGIN_EVENT_TABLE(MissionTree, wxTreeCtrl)
    EVT_MENU_RANGE(POPUP_INSERT_AFTER_PROPAGATE, POPUP_INSERT_AFTER_SWITCH,
                   MissionTree::OnInsertAfter)
    
+   EVT_MENU_RANGE(AUTO_APPEND_COMMAND, AUTO_INSERT_BEFORE_COMMAND - 1,
+                  MissionTree::OnAutoAppend)
+   EVT_MENU_RANGE(AUTO_INSERT_BEFORE_COMMAND, AUTO_INSERT_AFTER_COMMAND - 1,
+                  MissionTree::OnAutoInsertBefore)
+   EVT_MENU_RANGE(AUTO_INSERT_AFTER_COMMAND, AUTO_END - 1,
+                  MissionTree::OnAutoInsertAfter)
+   
    EVT_MENU(POPUP_COLLAPSE, MissionTree::OnCollapse)
    EVT_MENU(POPUP_EXPAND, MissionTree::OnExpand)
    
@@ -170,63 +180,14 @@ MissionTree::MissionTree(wxWindow *parent, const wxWindowID id,
    #ifdef __AUTO_ADD_NEW_COMMANDS__
    //-----------------------------------------------------------------
    
-   StringArray excludeList;
-   excludeList.push_back("NoOp");
-   excludeList.push_back("BeginMissionSequence");
-   excludeList.push_back("For");
-   excludeList.push_back("EndFor");
-   excludeList.push_back("If");
-   excludeList.push_back("EndIf");
-   excludeList.push_back("Else");
-   excludeList.push_back("While");
-   excludeList.push_back("EndWhile");
-   excludeList.push_back("CallFunction");
-   excludeList.push_back("Assignment");
-   excludeList.push_back("BeginScript");
-   excludeList.push_back("EndScript");
-   excludeList.push_back("Achieve");
-   excludeList.push_back("Vary");
-   excludeList.push_back("EndTarget");
-   excludeList.push_back("EndOptimize");
-   excludeList.push_back("Minimize");
-   excludeList.push_back("NonlinearConstraint");
-   
-   StringArray cmdList = theGuiInterpreter->GetCreatableList(Gmat::COMMAND);
-   MessageInterface::ShowMessage("===> Here is the command list:\n");
-   std::string cmdStr;
-   for (UnsignedInt i = 0; i < cmdList.size(); i++)
-   {
-      cmdStr = cmdList[i];
-      MessageInterface::ShowMessage(" %2d  %s\n", i, cmdStr.c_str());
-      if (find(excludeList.begin(), excludeList.end(), cmdStr) == excludeList.end())
-         mCommandList.Add(cmdStr.c_str());
-   }
-   
-   //mCommandList = theGuiManager->ToWxArrayString(cmdList);
-   
-   mCommandList.Add("Equation");
-   
-   #if 0
-   mCommandList.Clear();
-   mCommandList.Add("Propagate");
-   mCommandList.Add("Maneuver");
-   mCommandList.Add("BeginFiniteBurn");
-   mCommandList.Add("EndFiniteBurn");
-   mCommandList.Add("Target");
-   mCommandList.Add("Optimize");
-   mCommandList.Add("CallGmatFunction");
-   if (GmatGlobal::Instance()->IsMatlabAvailable())
-      mCommandList.Add("CallMatlabFunction");
-   mCommandList.Add("Report");
-   mCommandList.Add("Toggle");
-   mCommandList.Add("Save");
-   mCommandList.Add("Stop");
-   //mCommandList.Add("GMAT");
-   mCommandList.Add("Equation");
-   mCommandList.Add("ScriptEvent");
+   StringArray cmds = theGuiInterpreter->GetListOfViewableCommands();
+   #ifdef DEBUG_COMMAND_LIST
+   GmatStringUtil::WriteStringArray
+      (cmds, "===> Here is the viewable command list", "   ");
    #endif
+   copy(cmds.begin(), cmds.end(), std::back_inserter(mCommandList));
    
-   CreateMenuIds();
+   CreateCommandIdMap();
    
    //-----------------------------------------------------------------
    #else
@@ -468,7 +429,7 @@ void MissionTree::UpdateCommand()
       seqItemData->SetCommand(cmd);
    
    while (cmd != NULL)
-   {
+   {      
       node = UpdateCommandTree(mMissionSeqSubId, cmd);
       
       if (cmd->GetTypeName() == "BeginScript")
@@ -530,26 +491,39 @@ wxTreeItemId& MissionTree::UpdateCommandTree(wxTreeItemId parent,
 {
    #if DEBUG_MISSION_TREE
    MessageInterface::ShowMessage
-      ("MissionTree::UpdateCommandTree() inScriptEvent=%d, cmd=(%p)%s\n",
+      ("MissionTree::UpdateCommandTree() entered, inScriptEvent=%d, cmd=(%p)%s\n",
        inScriptEvent, cmd, cmd->GetTypeName().c_str());
    #endif
    
    wxString cmdTypeName = cmd->GetTypeName().c_str();
    wxTreeItemId currId;
+   mNewTreeId = currId;
    
-   // if ScriptEvent mode, we don't want to add to tree
-   if (inScriptEvent)
+   // if ScriptEvent mode, we don't want to add it to tree
+   // if NoOp or BeginMissionSequence, we don't watn to add it to tree
+   if (inScriptEvent ||
+       cmdTypeName == "NoOp" || cmdTypeName == "BeginMissionSequence")
+   {
+      #if DEBUG_MISSION_TREE
+      MessageInterface::ShowMessage
+         ("MissionTree::UpdateCommandTree() leaving, command '%s' ignored\n",
+          cmdTypeName.c_str());
+      #endif
       return mNewTreeId;
-      
-   if (cmdTypeName != "NoOp")
-   {      
-      mNewTreeId = AppendCommand(parent, GetIconId(cmdTypeName),
-                                 GetCommandId(cmdTypeName), cmd,
-                                 GetCommandCounter(cmdTypeName),
-                                 *GetCommandCounter(cmdTypeName));
-      
-      Expand(parent);
    }
+   
+   mNewTreeId = AppendCommand(parent, GetIconId(cmdTypeName),
+                              GetCommandId(cmdTypeName), cmd,
+                              GetCommandCounter(cmdTypeName),
+                              *GetCommandCounter(cmdTypeName));
+   
+   Expand(parent);
+   
+   #if DEBUG_MISSION_TREE
+   MessageInterface::ShowMessage
+      ("MissionTree::UpdateCommandTree() leaving, command '%s' added to tree\n",
+       cmdTypeName.c_str());
+   #endif
    
    return mNewTreeId;
 }
@@ -874,7 +848,8 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
                 cmd->GetPrevious());
    #endif
    
-   if (currCmd->GetTypeName() == "NoOp")
+   if (currCmd->GetTypeName() == "NoOp" ||
+       currCmd->GetTypeName() == "BeginMissionSequence")
    {
       #if DEBUG_MISSION_TREE_INSERT
       MessageInterface::ShowMessage("   ==> Calling gui->AppendCommand()\n");
@@ -919,15 +894,16 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
    //------------------------------------------------------------
    if (cmdAdded)
    {
-      if (currCmd->GetTypeName() == "NoOp")
+      if (currCmd->GetTypeName() == "NoOp" ||
+          currCmd->GetTypeName() == "BeginMissionSequence")
       {
          node = AppendItem(currId, nodeName, icon, -1,
                            new MissionTreeItemData(nodeName, type, nodeName, cmd));
       }
-      else if (prevTypeName == "NoOp"  || prevTypeName == "Target" ||
-               prevTypeName == "For"   || prevTypeName == "While"  ||
-               prevTypeName == "If"    || prevTypeName == "Optimize" ||
-               prevTypeName == "Else")
+      else if (prevTypeName == "NoOp"     || prevTypeName == "BeginMissionSequence" ||
+               prevTypeName == "Target"   || prevTypeName == "For"    ||
+               prevTypeName == "While"    || prevTypeName == "If"     ||
+               prevTypeName == "Optimize" || prevTypeName == "Else")
       {
          wxTreeItemId realParentId = parentId;
          
@@ -1231,7 +1207,8 @@ void MissionTree::Append(const wxString &cmdName)
    {
       UpdateGuiManager(cmdName);
       
-      if (currCmd->GetTypeName() == "NoOp")
+      if (currCmd->GetTypeName() == "NoOp" ||
+          currCmd->GetTypeName() == "BeginMissionSequence")
       {
          // Use GetLastCommand() to get last command since some command
          // doesn't appear on the tree, such as EndScript
@@ -2142,7 +2119,8 @@ void MissionTree::OnAppend(wxCommandEvent &event)
 {
    #ifdef DEBUG_MISSION_TREE_APPEND
    MessageInterface::ShowMessage
-      ("MissionTree::OnAppend() entered, event id = %d\n", event.GetId());
+      ("MissionTree::OnAppend() entered, event id = %d, itemStr = '%s'\n",
+       event.GetId(), event.GetString().c_str());
    #endif
    
    switch (event.GetId())
@@ -2184,7 +2162,6 @@ void MissionTree::OnAppend(wxCommandEvent &event)
       Append("CallMatlabFunction");
       break;
    case POPUP_APPEND_ASSIGNMENT:
-      //Append("GMAT");
       Append("Equation");
       break;
    case POPUP_APPEND_REPORT:
@@ -2417,6 +2394,64 @@ void MissionTree::OnInsertAfter(wxCommandEvent &event)
    default:
       break;
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAutoAppend(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void MissionTree::OnAutoAppend(wxCommandEvent &event)
+{
+   #ifdef DEBUG_MISSION_TREE_APPEND
+   MessageInterface::ShowMessage
+      ("=====> MissionTree::OnAutoAppend() entered, event id = %d\n", event.GetId());
+   #endif
+   
+   int menuId = event.GetId();   
+   Append(idCmdMap[menuId]);
+   
+   #ifdef DEBUG_MISSION_TREE_APPEND
+   MessageInterface::ShowMessage("=====> MissionTree::OnAutoAppend() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAutoInsertBefore(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void MissionTree::OnAutoInsertBefore(wxCommandEvent &event)
+{
+   #ifdef DEBUG_MISSION_TREE_INSERT
+   MessageInterface::ShowMessage
+      ("MissionTree::OnAutoInsertBefore() entered, event id = %d\n", event.GetId());
+   #endif
+   
+   int menuId = event.GetId();   
+   InsertBefore(idCmdMap[menuId]);
+   
+   #ifdef DEBUG_MISSION_TREE_INSERT
+   MessageInterface::ShowMessage("MissionTree::OnAutoInsertBefore() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAutoInsertAfter(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void MissionTree::OnAutoInsertAfter(wxCommandEvent &event)
+{
+   #ifdef DEBUG_MISSION_TREE_INSERT
+   MessageInterface::ShowMessage
+      ("MissionTree::OnAutoInsertAfter() entered, event id = %d\n", event.GetId());
+   #endif
+   
+   wxString cmdString = event.GetString();
+   int menuId = event.GetId();
+   InsertAfter(idCmdMap[menuId]);
+   
+   #ifdef DEBUG_MISSION_TREE_INSERT
+   MessageInterface::ShowMessage("MissionTree::OnAutoInsertAfter() leaving\n");
+   #endif
 }
 
 
@@ -3049,17 +3084,58 @@ GmatTree::ItemType MissionTree::GetCommandId(const wxString &cmd)
    if (cmd == "Equation")
       return GmatTree::ASSIGNMENT;
    
-   return GmatTree::SCRIPT_EVENT;
+   //return GmatTree::SCRIPT_EVENT;
+   return GmatTree::OTHER_COMMAND;
 }
 
 
 //------------------------------------------------------------------------------
-// void CreateMenuIds()
+// void CreateCommandIdMap()
 //------------------------------------------------------------------------------
-void MissionTree::CreateMenuIds()
+void MissionTree::CreateCommandIdMap()
 {
+   wxString cmd;
+   int cmdIndex = 0;
+   
    for (unsigned int i=0; i<mCommandList.size(); i++)
-      commandIdMap.insert(std::make_pair(mCommandList[i], i + POPUP_APPEND_COMMAND + 1));
+   {
+      cmd = mCommandList[i];
+      CreateMenuIds(cmd, i);
+      cmdIndex++;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void CreateMenuIds(const wxString &cmd, int index)
+//------------------------------------------------------------------------------
+void MissionTree::CreateMenuIds(const wxString &cmd, int index)
+{
+   wxString str, realCmd;
+   int id;
+
+   realCmd = cmd;
+   // if command to show is ScriptEvent, we want to create BeginScript
+   if (cmd == "ScriptEvent")
+      realCmd = "BeginScript";
+   
+   // Create id for append
+   str = "AP*" + cmd;
+   id = index + AUTO_APPEND_COMMAND + 1;
+   cmdIdMap.insert(std::make_pair(str, id));
+   idCmdMap.insert(std::make_pair(id, realCmd));
+   
+   // Create id for insert before
+   str = "IB*" + cmd;
+   id = index + AUTO_INSERT_BEFORE_COMMAND + 1;
+   cmdIdMap.insert(std::make_pair(str, id));
+   idCmdMap.insert(std::make_pair(id, realCmd));
+   
+   // Create id for insert after
+   str = "IA*" + cmd;
+   id = index + AUTO_INSERT_AFTER_COMMAND + 1;
+   cmdIdMap.insert(std::make_pair(str, id));
+   idCmdMap.insert(std::make_pair(id, realCmd));
 }
 
 
@@ -3073,37 +3149,32 @@ int MissionTree::GetMenuId(const wxString &cmd, ActionType action)
       ("MissionTree::GetMenuId() cmd='%s', action=%d\n", cmd.c_str(), action);
    #endif
    
-   int id = 0;
+   int id = -1;
    
    //-----------------------------------------------------------------
    #ifdef __AUTO_ADD_NEW_COMMANDS__
    //-----------------------------------------------------------------
-   std::string cmdStr = cmd.c_str();
+   wxString cmdStr = cmd;
+   
+   // Add prefix to command string
+   if (action == APPEND)
+      cmdStr = "AP*" + cmdStr;
+   else if (action == INSERT_BEFORE)
+      cmdStr = "IB*" + cmdStr;
+   else if (action == INSERT_AFTER)
+      cmdStr = "IA*" + cmdStr;
    
    // check if command string is valid
-   if (commandIdMap.find(cmdStr) == commandIdMap.end())
+   if (cmdIdMap.find(cmdStr) == cmdIdMap.end())
    {
       #if DEBUG_MISSION_TREE_MENU
       MessageInterface::ShowMessage
-         ("MissionTree::GetMenuId() The '%s' is not recognized command\n", cmd.c_str());
+         ("MissionTree::GetMenuId() The '%s' is not recognized command\n", cmdStr.c_str());
       #endif
       return id;
    }
    
-   // @note Command menu id is created based on APPEND action.
-   // need to add appropriate offset to get id
-   if (action == APPEND)
-   {
-      id = commandIdMap[cmdStr];
-   }
-   else if (action == INSERT_BEFORE)
-   {
-      id = commandIdMap[cmdStr] + 100;
-   }
-   else if (action == INSERT_AFTER)
-   {
-      id = commandIdMap[cmdStr] + 200;
-   }
+   id = cmdIdMap[cmdStr];
    
    #if DEBUG_MISSION_TREE_MENU
    MessageInterface::ShowMessage("MissionTree::GetMenuId() returning %d\n", id);

@@ -94,6 +94,7 @@
 #include "LibrationPointPanel.hpp"
 #include "CelestialBodyPanel.hpp"
 #include "CompareReportPanel.hpp"
+#include "GmatCommandPanel.hpp"
 // dialogs
 #include "CompareFilesDialog.hpp"
 #include "CompareTextDialog.hpp"
@@ -2462,6 +2463,10 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    case GmatTree::ASSIGNMENT:
       sizer->Add(new AssignmentPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
+   case GmatTree::OTHER_COMMAND:
+      sizer->Add(new GmatCommandPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
+      break;
+   
    default:
       #ifdef DEBUG_CREATE_CHILD
       MessageInterface::ShowMessage

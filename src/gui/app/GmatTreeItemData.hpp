@@ -226,6 +226,7 @@ namespace GmatTree
       ASSIGNMENT,
       FREE_FORM_SCRIPT,
       SCRIPT_EVENT,
+      OTHER_COMMAND,
       END_OF_COMMAND,
 
       // control logic
@@ -255,6 +256,7 @@ namespace GmatTree
 
       //---------- NO panels will be created
       BEGIN_NO_PANEL = 47000,
+      BEGIN_MISSION_SEQUENCE,
       STOP,
       ADDED_SCRIPT_FOLDER,
       END_TARGET,
