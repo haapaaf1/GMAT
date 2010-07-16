@@ -130,6 +130,10 @@ protected:
    Real         stepSize;
    /// Current value for the For loop counter
    Real         currentValue;
+   /// Number of passes to be made through the loop
+   int         numPasses;
+   /// Current pass number
+   int         currentPass;
    
    ElementWrapper *indexWrapper;
    ElementWrapper *startWrapper;
