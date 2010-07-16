@@ -26,6 +26,7 @@
 #include "GmatStaticBoxSizer.hpp"
 #include "FileUtil.hpp"
 #include <map>
+#include <algorithm>
 #include <utility> // make_pair
 #include "UtilityException.hpp"
 
@@ -152,8 +153,9 @@ void GmatBaseSetupPanel::Create()
       configPath = "";
    }
    bool configFileExists = GmatFileUtil::DoesFileExist(configPath+mObject->GetTypeName()+".ini");
-   wxFileConfig *pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, configPath+mObject->GetTypeName()+".ini",
-	           wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
+   wxFileConfig *pConfig = new wxFileConfig(wxEmptyString, wxEmptyString,
+                (configPath+mObject->GetTypeName()+".ini").c_str(),
+	             wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
    
    // create the groups
    groups = CreateGroups(mainSizer, pConfig);
@@ -180,7 +182,7 @@ void GmatBaseSetupPanel::Create()
    {
       i = mObject->GetParameterID(*propertyItem);
       // set the path to the section that contains the parameter's items
-      pConfig->SetPath(wxT("/"+mObject->GetParameterText(i)));
+      pConfig->SetPath(wxT(("/"+mObject->GetParameterText(i)).c_str()));
       labelText = GetLabelName(mObject->GetParameterText(i), pConfig);
       labelText = AssignAcceleratorKey(labelText, &accelKeys);
       if (mObject->GetParameterType(i) != Gmat::BOOLEAN_TYPE)
@@ -213,7 +215,7 @@ void GmatBaseSetupPanel::Create()
        item != propertyDescriptors.end(); ++item, ++j) 
    {
       // set the path to the section that contains the parameter's items
-      pConfig->SetPath(wxT("/"+propertyNames[j]));
+      pConfig->SetPath(wxT(("/"+propertyNames[j])).c_str());
       groupProp = "Parent";
       doDefaultAction = !(pConfig->Read(groupProp, &groupProp));
       if (!doDefaultAction)
@@ -410,7 +412,7 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
    {
    case Gmat::BOOLEAN_TYPE:
       {
-         wxCheckBox *cbControl = new wxCheckBox( this, ID_CHECKBOX, wxT(label));
+         wxCheckBox *cbControl = new wxCheckBox( this, ID_CHECKBOX, wxT(label.c_str()));
          cbControl->SetToolTip(config->Read(_T("Hint")));
          control = cbControl;
       }
@@ -742,7 +744,7 @@ std::string GmatBaseSetupPanel::GetLabelName(std::string text, wxFileConfig *con
 
 	// first, see if the parameter is in the object's INI file
    // set the path to the section that contains the parameter's items
-   config->SetPath(wxT("/"+text));
+   config->SetPath(wxT(("/"+text).c_str()));
    if (config->Read(wxT("Label"), &str))
    {
    	titleText = str.c_str();
@@ -848,16 +850,16 @@ void GmatBaseSetupPanel::SortProperties(std::vector<std::string> *propertyNames,
    for (unsigned int i = 0; i < origOrder.size(); i++)
    {
       // see if position defined
-      if (config->Read("/"+origOrder[i]+"/Position Before", &position))
+      if (config->Read(("/"+origOrder[i]+"/Position Before").c_str(), &position))
       {
          // find the property to move before
          if (position != "")
          {
-            beforeItem = find(propertyNames->begin(), propertyNames->end(), position);
+            beforeItem = find(propertyNames->begin(), propertyNames->end(), position.c_str());
             if (beforeItem == propertyNames->end()) continue;
          }
          // find the property to move
-         item = find(propertyNames->begin(), propertyNames->end(), origOrder[i]);
+         item = find(propertyNames->begin(), propertyNames->end(), origOrder[i].c_str());
          propertyNames->erase(item);
          // if no position before specified, move to the end
          if (position == "")
