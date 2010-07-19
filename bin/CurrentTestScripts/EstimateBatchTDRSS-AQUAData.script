@@ -9,13 +9,18 @@ GMAT AQUA.DateFormat = UTCGregorian;
 GMAT AQUA.Epoch = '09 Jun 2004 00:00:00.000';
 GMAT AQUA.CoordinateSystem = EarthMJ2000Eq;
 GMAT AQUA.DisplayStateType = Cartesian;
-GMAT AQUA.X   = 1301.7911569424441000;
-GMAT AQUA.X   = 1300.1911569424441000;
-GMAT AQUA.Y   = -6957.7686256239267000
-GMAT AQUA.Z   = -288.7080151269336200
-GMAT AQUA.VX  = -1.1121653537736800
-GMAT AQUA.VY  = 0.0907365703826921 
-GMAT AQUA.VZ  = -7.4188335652599884
+%GMAT AQUA.X   = 1301.7911569424441000;
+GMAT AQUA.X   = 1275.0;
+%GMAT AQUA.Y   = -6957.7686256239267000
+GMAT AQUA.Y   = -6935.0
+%GMAT AQUA.Z   = -288.7080151269336200
+GMAT AQUA.Z   = -300.0
+%GMAT AQUA.VX  = -1.1121653537736800
+%GMAT AQUA.VY  = 0.0907365703826921 
+%GMAT AQUA.VZ  = -7.4188335652599884
+GMAT AQUA.VX  = -1.113
+GMAT AQUA.VY  = 0.090 
+GMAT AQUA.VZ  = -7.418
 GMAT AQUA.DryMass = 821.1888;
 GMAT AQUA.Cd = 2.2;
 GMAT AQUA.Cr = 1.448009157951282;
@@ -140,7 +145,7 @@ Create BatchEstimatorInv BatchEst;
 GMAT BatchEst.ShowProgress = true;
 GMAT BatchEst.ReportStyle = 'Normal';
 GMAT BatchEst.ReportFile = 'BatchEstimateTDRSS-AQUA.data';
-GMAT BatchEst.MaximumIterations = 15;
+GMAT BatchEst.MaximumIterations = 45;
 GMAT BatchEst.Measurements = {AQUA_TDRSS4Range};
 GMAT BatchEst.AddSolveFor = {'AQUA.CartesianState'};
 GMAT BatchEst.AbsoluteTol = 1e-06;
@@ -164,5 +169,5 @@ GMAT XYPlot1.ShowPlot = true;
 %--------------------------------------------------------------
 %===== Run the simulator
 %--------------------------------------------------------------
+BeginMissionSequence
 RunEstimator BatchEst
-
