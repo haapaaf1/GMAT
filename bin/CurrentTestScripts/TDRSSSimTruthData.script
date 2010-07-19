@@ -175,7 +175,7 @@ GMAT OpenGLPlot1.ShowPlot = true;
 %----------------------------------------
 %---------- Tracking Systems
 %----------------------------------------
-Create USNTrackingSystem USNTracker
+Create TDRSSTrackingSystem USNTracker
 USNTracker.Add = {RangeMeasurement}
 
 Create ReportFile rf
@@ -202,16 +202,24 @@ fixedpt    = 'FIXED '
 %----------------------------------------
 %---------- Solvers
 %----------------------------------------
-BeginMissionSequence 
+BeginMissionSequence
+
+% Lines used to finite difference by hand
+%AQUA.X  = AQUA.X + .001; 
+%AQUA.Y  = AQUA.Y + .001; 
+%AQUA.Z  = AQUA.Z + .001; 
+%AQUA.VX = AQUA.VX + .000001; 
+%AQUA.VY = AQUA.VY + .000001; 
+%AQUA.VZ = AQUA.VZ + .000001; 
 
 measEpochA1      = 23165.50037076831;
-measEpochA1      = 23165.52328743459;
-measEpochA1      = 23165.64759298808;
-measEpochA1      = 23166.03787075935;
+%measEpochA1      = 23165.52328743459;
+%measEpochA1      = 23165.64759298808;
+%measEpochA1      = 23166.03787075935;
 %measEpochA1      = 23166.48925964072;
 
 speedOfLight     = 299792.458;
-transponderDelay = .0000013;
+transponderDelay = 0.0; %.0000013;
 
 Propagate ODProp(AQUA, TDRSS4, TDRSS5){AQUA.A1ModJulian = measEpochA1}
 topoSat48.Epoch = measEpochA1;
