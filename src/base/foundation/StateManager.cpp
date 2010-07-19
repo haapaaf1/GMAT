@@ -168,13 +168,18 @@ Integer StateManager::GetStateSize()
 
 
 //------------------------------------------------------------------------------
-//
+// bool GetStateObjects(ObjectArray& pObjects, Gmat::ObjectType type)
 //------------------------------------------------------------------------------
 /**
+ * Fills in the pointers to the objects
+ *
+ * @param pObjects Array that will receive the object pointers
+ * @param type The type of objects requested
+ *
+ * @return true if at least one object pointer was set
  */
 //------------------------------------------------------------------------------
-bool StateManager::GetStateObjects(ObjectArray& pObjects, 
-      Gmat::ObjectType type)
+bool StateManager::GetStateObjects(ObjectArray& pObjects, Gmat::ObjectType type)
 {
    bool retval = false;
    
