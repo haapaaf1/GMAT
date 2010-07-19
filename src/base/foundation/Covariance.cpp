@@ -284,8 +284,10 @@ Rmatrix *Covariance::GetCovariance(Integer forParameterID)
 
    for (UnsignedInt i = 0; i < elementIndices.size(); ++i)
    {
-      MessageInterface::ShowMessage("Checking if index %d == %d\n",
-            elementIndices[i], forParameterID);
+      #ifdef DEBUG_ACCESS
+         MessageInterface::ShowMessage("Checking if index %d == %d\n",
+               elementIndices[i], forParameterID);
+      #endif
 
       if (elementIndices[i] == forParameterID)
       {
