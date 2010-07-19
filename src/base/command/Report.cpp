@@ -943,8 +943,9 @@ bool Report::AddParameter(const std::string &paramName, Integer index,
    }
    
    // Since numParam is incremented after adding to arrays, index range varies
-   // dependens on whether parameter ponter is NULL or not
-   if (param == NULL && index > numParams || param != NULL && index >= numParams)
+   // depends on whether parameter pointer is NULL or not
+   if ((param == NULL && index > numParams) ||
+       (param != NULL && index >= numParams))
    {
       #ifdef DEBUG_REPORT_SET
       MessageInterface::ShowMessage

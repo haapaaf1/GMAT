@@ -534,10 +534,12 @@ void DragForce::SetSatelliteParameter(const Integer i,
    unsigned parmNumber = (unsigned)(i+1);
     
    if (parmName == "ReferenceBody")
+   {
       if (parmNumber < mass.size())
          dragBody[i] = parm;
       else
          dragBody.push_back(parm);
+   }
 }
 
 

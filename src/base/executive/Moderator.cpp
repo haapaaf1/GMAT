@@ -5992,7 +5992,7 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
       // Show warning message for now (LOJ: 2010.07.15)
       MessageInterface::PopupMessage
          (Gmat::WARNING_, "*** WARNING *** BeginMissionSequence is missing. "
-          "It will be required in the future build.");
+          "It will be required in future builds.");
       #if DEBUG_INTERPRET
       MessageInterface::ShowMessage("==> Inserting BeginMissionSequence\n");
       #endif

@@ -1133,20 +1133,26 @@ void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
    #endif
 
    if (parmID == massID)
+   {
        if (parmNumber < mass.size())
            mass[i] = parm;
        else
            mass.push_back(parm);
+   }
    if (parmID == crID)
-       if (parmNumber < cr.size())
-           cr[i] = parm;
-       else
-           cr.push_back(parm);
+   {
+      if (parmNumber < cr.size())
+         cr[i] = parm;
+      else
+         cr.push_back(parm);
+   }
    if (parmID == areaID)
-       if (parmNumber < area.size())
-           area[i] = parm;
-       else
-           area.push_back(parm);
+   {
+      if (parmNumber < area.size())
+         area[i] = parm;
+      else
+         area.push_back(parm);
+   }
 }
 
 

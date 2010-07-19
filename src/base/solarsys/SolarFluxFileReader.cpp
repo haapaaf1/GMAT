@@ -162,7 +162,7 @@ Integer SolarFluxFileReader::LoadSolarFluxFile(Real a1_time, FILE *tkptr,
                      {
                         for(j = 0; j < 4; ++j)      // Read words in column-major
                            for (i = 0; i < 21; ++i)
-                              fread((void *)&kp1[i][j], sizeof(Integer), (size_t)1, tkptr);
+                              size_t len = fread((void *)&kp1[i][j], sizeof(Integer), (size_t)1, tkptr);
                         if(fread((void *)tc, sizeof(Real), (size_t)20, tkptr) == 20)
                         {
                            for (i = 0; i < 21; ++i)     // Copy into 21 by 8 buffer to

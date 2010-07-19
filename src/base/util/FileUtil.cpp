@@ -88,7 +88,7 @@ std::string GmatFileUtil::GetCurrentPath()
    
 #ifndef _MSC_VER  // if not Microsoft Visual C++
    char buffer[GmatFile::MAX_PATH_LEN];
-   getcwd(buffer, GmatFile::MAX_PATH_LEN);
+   char *ch = getcwd(buffer, GmatFile::MAX_PATH_LEN);
    currPath = buffer;
 #else
    MessageInterface::ShowMessage

@@ -112,7 +112,7 @@ protected:
 
    #ifdef __USE_SPICE__
       SpiceAttitudeKernelReader *reader;
-   #endif;
+   #endif
 
    /// name of the object whose attitude is to be retrieved from the SPICE kernel(s)
    std::string scName;

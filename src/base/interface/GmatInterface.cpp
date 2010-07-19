@@ -225,8 +225,8 @@ char* GmatInterface::GetCallbackStatus()
       "GmatInterface::GetCallbackStatus being called ...\n");
    #endif
    static char dataString[MAX_PARAM_VAL_STRING];
-   static char *executingStr = "Executing\0";
-   static char *completedStr = "Completed\0";
+   static const char *executingStr = "Executing\0";
+   static const char *completedStr = "Completed\0";
    if (!callbackObj) // not running a callback - why are you asking?
    {
       sprintf(dataString, "%s", completedStr);
@@ -279,7 +279,7 @@ char* GmatInterface::GetCallbackResults()
       "GmatInterface::GetCallbackResults being called ...\n");
    #endif
    static char dataString[MAX_CALLBACK_DATA_VAL_STRING];
-   static char *errorStr = "ERROR!!\0";
+   static const char *errorStr = "ERROR!!\0";
    if (!callbackObj) // not running a callback - why are you asking?
    {
       sprintf(dataString, "%s", errorStr);
@@ -306,9 +306,9 @@ char* GmatInterface::GetCallbackResults()
 char* GmatInterface::GetRunState()
 {
    static char dataString[MAX_PARAM_VAL_STRING];
-   static char *runningStr = "Running\0";
-   static char *pausedStr = "Paused\0";
-   static char *idleStr = "Idle\0";
+   static const char *runningStr = "Running\0";
+   static const char *pausedStr = "Paused\0";
+   static const char *idleStr = "Idle\0";
    strcpy(dataString, idleStr);
    
    Gmat::RunState state = Moderator::Instance()->GetRunState();
@@ -350,7 +350,7 @@ char* GmatInterface::GetParameter(const std::string &name)
    #endif
    
    static char dataString[MAX_PARAM_VAL_STRING];
-   static char *undefindString = "-123456789.123456789\0";
+   static const char *undefindString = "-123456789.123456789\0";
    strcpy(dataString, undefindString);
    Parameter *param = NULL;
    GmatBase *obj = NULL;
@@ -426,7 +426,7 @@ char* GmatInterface::GetGmatObject(const std::string &name)
    #endif
    
    static char dataString[MAX_OBJECT_VAL_STRING];
-   static char *undefindString = "-123456789.123456789\0";
+   static const char *undefindString = "-123456789.123456789\0";
    strcpy(dataString, undefindString);
    GmatBase *obj = NULL;
    

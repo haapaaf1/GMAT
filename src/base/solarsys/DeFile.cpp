@@ -640,7 +640,7 @@ void DeFile::Read_Coefficients( double Time )
   if (Time > mFileBeg) //loj: 9/15/05 Added
   {
      fseek(Ephemeris_File,(Offset-1)*arraySize*sizeof(double),SEEK_CUR); // wcs
-     fread(&Coeff_Array,sizeof(double),arraySize,Ephemeris_File);        // wcs
+     size_t len = fread(&Coeff_Array,sizeof(double),arraySize,Ephemeris_File);
 
      T_beg  = Coeff_Array[0];
      T_end  = Coeff_Array[1];
@@ -712,9 +712,9 @@ int DeFile::Initialize_Ephemeris( char *fileName )
        //fread(&H1,sizeof(double),ARRAY_SIZE,Ephemeris_File);
        //fread(&H2,sizeof(double),ARRAY_SIZE,Ephemeris_File);
        //fread(&Coeff_Array,sizeof(double),ARRAY_SIZE,Ephemeris_File);
-       fread(&H1,sizeof(double),arraySize,Ephemeris_File);           // wcs
-       fread(&H2,sizeof(double),arraySize,Ephemeris_File);           // wcs
-       fread(&Coeff_Array,sizeof(double),arraySize,Ephemeris_File);  // wcs
+       size_t len = fread(&H1,sizeof(double),arraySize,Ephemeris_File);
+       len += fread(&H2,sizeof(double),arraySize,Ephemeris_File);
+       len += fread(&Coeff_Array,sizeof(double),arraySize,Ephemeris_File);
 
 
             
@@ -1663,7 +1663,7 @@ int DeFile::Read_File_Line( FILE *inFile, int filter, char lineBuffer[82])
 
   if ( (strlen(lineBuffer) == 81) && (lineBuffer[80] != '\n') )
      {
-       fgets(ignore,40,inFile);                 /* Read past next end of line */
+       char* ch = fgets(ignore,40,inFile);      /* Read past next end of line */
        lineBuffer[81] = '\0';
      }
 

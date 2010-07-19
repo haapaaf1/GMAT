@@ -1561,18 +1561,26 @@ void GmatStringUtil::GetArrayIndex(const std::string &str, Integer &row,
    GetArrayIndexVar(str, rowStr, colStr, name, bracketPair);
 
    if (rowStr != "-1")
+   {
       if (ToInteger(rowStr, intVal))
+      {
          if (bracketPair == "()")
             row = intVal - 1; // array index start at 0
          else
             row = intVal;
+      }
+   }
 
    if (colStr != "-1")
+   {
       if (ToInteger(colStr, intVal))
+      {
          if (bracketPair == "()")
             col = intVal - 1; // array index start at 0
          else
             col = intVal;
+      }
+   }
 
    #if DEBUG_ARRAY_INDEX
    MessageInterface::ShowMessage

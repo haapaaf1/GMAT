@@ -380,8 +380,8 @@ const std::string& StringVar::GetGeneratingString(Gmat::WriteMode mode,
    // the ScriptInterpreter
       
    // Write value if it is not blank or blank and SHOW_SCRIPT mode
-   if (mExpr != "" ||
-       mExpr == "" && mode == Gmat::SHOW_SCRIPT)
+   if ( mExpr != "" ||
+       (mExpr == "" && mode == Gmat::SHOW_SCRIPT))
    {
       // if value is other StringVar object, do not put quotes
       if (mExpr != "" && mExpr == mDepObjectName)

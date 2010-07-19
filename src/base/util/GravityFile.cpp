@@ -423,7 +423,7 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
       rtn = fgetc( fp );
       if ( (char)rtn == '#' )
       {
-         fgets( buf, maxLen, fp );
+         char* ch = fgets( buf, maxLen, fp );
       }
       else
       {
@@ -432,8 +432,8 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
       }
    }
 
-   fscanf(fp, "%lg\n", &mu ); mu = (Real)mu;
-   fscanf(fp, "%lg\n", &radius ); radius = (Real)radius;
+   int len = fscanf(fp, "%lg\n", &mu ); mu = (Real)mu;
+   len += fscanf(fp, "%lg\n", &radius ); radius = (Real)radius;
    radius  = radius / 1000.0;  // -> Km
    mu = mu / 1.0e09;           // -> Km^3/sec^2
 
@@ -481,11 +481,11 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
    //-------------------------------------------------------
    // read coefficient drift rate
    //-------------------------------------------------------
-   fgets( buf, maxLen, fp );
+   char* ch = fgets( buf, maxLen, fp );
    while ( ( (char)(rtn=fgetc(fp)) != '#' ) && (rtn != EOF) )
    {
       ungetc( rtn, fp );
-      fscanf( fp, "%i %i %le %le\n", &n, &m, &dCnm, &dSnm );
+      int len = fscanf( fp, "%i %i %le %le\n", &n, &m, &dCnm, &dSnm );
       if ( n <= maxDriftDegree  && m <= n )
       {
          dcbar[n][m] = (Real)dCnm;
@@ -496,7 +496,7 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
    //-------------------------------------------------------
    // read coefficients and store
    //-------------------------------------------------------
-   fgets( buf, maxLen, fp );
+   ch = fgets( buf, maxLen, fp );
 
    fileDegree = 0;
    fileOrder  = 0;

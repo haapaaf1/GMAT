@@ -830,7 +830,7 @@ bool GmatFunction::InitializeLocalObjects(ObjectInitializer *objInit,
       // created after it is used, such as
       // GMAT DefaultOpenGL.ViewPointReference = EarthSunL1;
       // Create LibrationPoint EarthSunL1;
-      if (!ignoreException || ignoreException && e.IsFatal())
+      if (!ignoreException || (ignoreException && e.IsFatal()))
       {
          throw;
       }

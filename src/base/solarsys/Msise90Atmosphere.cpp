@@ -238,8 +238,8 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
 
       Integer j;
       for (j = 0; j < 7; j++)  xap[j] = ap[j];
-      for (j = 0; j < 8; j++)  xden[j] = den[j];
-      for (j = 0; j < 2; j++)   xtemp[j] = temp[j];
+      for (j = 0; j < 8; j++)  xden[j] = den[j] = 0.0;
+      for (j = 0; j < 2; j++)   xtemp[j] = temp[j] = 0.0;
 
       #ifdef DEBUG_MSISE90_ATMOSPHERE
       fprintf(logFile, "Pre-GTDS6() \n");

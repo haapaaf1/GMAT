@@ -244,7 +244,7 @@ void ExpressionParser::EvalUnary(Real &result)
 
    op = 0;
 
-   if ((mTokenType == DELIMITER) && *mToken == '+' || *mToken == '-')
+   if (((mTokenType == DELIMITER) && *mToken == '+') || *mToken == '-')
    {
       op = *mToken;
       GetToken();
@@ -427,7 +427,7 @@ bool ExpressionParser::IsDelimiter(char c)
 //------------------------------------------------------------------------------
 void ExpressionParser::HandleSyntaxError(int error)
 {
-   static char *errMsg[] =
+   static const char *errMsg[] =
    {
       "Syntax Error\n",
       "Unbalanced Parentheses\n",
