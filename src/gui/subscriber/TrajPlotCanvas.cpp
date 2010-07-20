@@ -3567,13 +3567,21 @@ void TrajPlotCanvas::DrawOrbitLines(int i, const wxString &objName, int obj,
          
          glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
          
-         glVertex3f((-mObjectViewPos[index1+0]),
-                    (-mObjectViewPos[index1+1]),
-                    ( mObjectViewPos[index1+2]));
+         // Dunn recommends removing these minus signs to correct attitude!
+         //glVertex3f((-mObjectViewPos[index1+0]),
+         //           (-mObjectViewPos[index1+1]),
+         //           ( mObjectViewPos[index1+2]));
+         glVertex3f((mObjectViewPos[index1+0]),
+                    (mObjectViewPos[index1+1]),
+                    (mObjectViewPos[index1+2]));
          
-         glVertex3f((-mObjectViewPos[index2+0]),
-                    (-mObjectViewPos[index2+1]),
-                    ( mObjectViewPos[index2+2]));
+         // Dunn recommends removing these minus signs to correct attitude!
+         //glVertex3f((-mObjectViewPos[index2+0]),
+         //           (-mObjectViewPos[index2+1]),
+         //           ( mObjectViewPos[index2+2]));
+         glVertex3f((mObjectViewPos[index2+0]),
+                    (mObjectViewPos[index2+1]),
+                    (mObjectViewPos[index2+2]));
          
          #ifdef DEBUG_ORBIT_LINES
          MessageInterface::ShowMessage
@@ -3655,8 +3663,12 @@ void TrajPlotCanvas::DrawOrbitNormalLines(int i, const wxString &objName,
       // move to origin
       index3 = mOriginId * MAX_DATA * 3 + i * 3;
       
-      glTranslatef(-mObjectViewPos[index3+0],
-                   -mObjectViewPos[index3+1],
+      // Dunn recommends removing these minus signs to correct attitude!
+      //glTranslatef(-mObjectViewPos[index3+0],
+      //             -mObjectViewPos[index3+1],
+      //              mObjectViewPos[index3+2]);
+      glTranslatef(mObjectViewPos[index3+0],
+                   mObjectViewPos[index3+1],
                    mObjectViewPos[index3+2]);
       
       if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
@@ -3693,9 +3705,13 @@ void TrajPlotCanvas::DrawObjectTexture(const wxString &objName, int obj, int obj
    glPushMatrix();
    
    // put object at final position
-   glTranslatef(-mObjectViewPos[index1+0],
-                -mObjectViewPos[index1+1],
-                 mObjectViewPos[index1+2]);
+   // Dunn recommends removing these minus signs to correct attitude!
+   //glTranslatef(-mObjectViewPos[index1+0],
+   //             -mObjectViewPos[index1+1],
+   //              mObjectViewPos[index1+2]);
+   glTranslatef(mObjectViewPos[index1+0],
+                mObjectViewPos[index1+1],
+                mObjectViewPos[index1+2]);
    
    // first disable GL_TEXTURE_2D to show lines clearly
    // without this, lines are drawn dim (loj: 2007.06.11)
@@ -3743,8 +3759,11 @@ void TrajPlotCanvas::DrawSolverData()
          *sIntColor = mSolverIterColorArray[sc];         
          glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
          
-         glVertex3f(-mSolverAllPosX[i-1][sc], -mSolverAllPosY[i-1][sc], mSolverAllPosZ[i-1][sc]); 
-         glVertex3f(-mSolverAllPosX[i][sc], -mSolverAllPosY[i][sc], mSolverAllPosZ[i][sc]);
+         // Dunn recommends removing these minus signs to correct attitude!
+         //glVertex3f(-mSolverAllPosX[i-1][sc], -mSolverAllPosY[i-1][sc], mSolverAllPosZ[i-1][sc]); 
+         //glVertex3f(-mSolverAllPosX[i][sc], -mSolverAllPosY[i][sc], mSolverAllPosZ[i][sc]);
+         glVertex3f(mSolverAllPosX[i-1][sc], mSolverAllPosY[i-1][sc], mSolverAllPosZ[i-1][sc]); 
+         glVertex3f(mSolverAllPosX[i][sc], mSolverAllPosY[i][sc], mSolverAllPosZ[i][sc]);
       }
    }
    
@@ -3785,9 +3804,14 @@ void TrajPlotCanvas::DrawObjectOrbitNormal(int objId, int frame, UnsignedInt col
    
    // get orbit normal unit vector and multiply by distance
    // Add minus sign to x, y
-   endPos[0] = -normV[0] * distance;
-   endPos[1] = -normV[1] * distance;
-   endPos[2] =  normV[2] * distance;
+   // Dunn recommends removing these minus signs to correct attitude!
+   // Also multiply by 1.2 to get end of normal a little above earth surface.
+   //endPos[0] = -normV[0] * distance;
+   //endPos[1] = -normV[1] * distance;
+   //endPos[2] =  normV[2] * distance;
+   endPos[0] = normV[0] * distance * 1.2;
+   endPos[1] = normV[1] * distance * 1.2;
+   endPos[2] = normV[2] * distance * 1.2;
    
    glVertex3f(0.0, 0.0, 0.0);
    glVertex3f(endPos[0], endPos[1], endPos[2]);
@@ -4024,7 +4048,13 @@ void TrajPlotCanvas::DrawEclipticPlane(UnsignedInt color)
    // (23.5) and draw equatorial plane
    
    glPushMatrix();
-   glRotatef(23.5, -1, 0, 0);
+
+   // Dunn recommends changing 23.5 to -23.5.  When he changed -1 to 1 or +1 he 
+   // got an RVector3 error.  This negative obliquity of the ecliptic around the
+   // negative ECI X-Axis aligns the plane of the ecliptic with the sun line
+   // after all minus signs for position have been removed.
+   //glRotatef(23.5, -1, 0, 0);
+   glRotatef(-23.5, -1, 0, 0);
    DrawEquatorialPlane(color);
    glPopMatrix();
 } // end DrawEclipticPlane()
@@ -4066,21 +4096,33 @@ void TrajPlotCanvas::DrawSunLine()
    int index = 0;
    
    // draw one line from origin to Sun
+   // Dunn recommends setting originPos to zero.  Have sun line only come out
+   // the side of the earth in the direction of the sun.
    index = mOriginId * MAX_DATA * 3 + frame * 3;
-   originPos[0] = -mObjectViewPos[index+0];
-   originPos[1] = -mObjectViewPos[index+1];
-   originPos[2] =  mObjectViewPos[index+2];
+   //originPos[0] = -mObjectViewPos[index+0];
+   //originPos[1] = -mObjectViewPos[index+1];
+   //originPos[2] =  mObjectViewPos[index+2];
+   //originPos[0] = 0.0;
+   //originPos[1] = 0.0;
+   //originPos[2] = 0.0;
    
    index = sunId * MAX_DATA * 3 + frame * 3;
-   sunPos[0] = -mObjectViewPos[index+0];
-   sunPos[1] = -mObjectViewPos[index+1];
-   sunPos[2] =  mObjectViewPos[index+2];
+   // Dunn recommends removing these minus signs to correct attitude!
+   //sunPos[0] = -mObjectViewPos[index+0];
+   //sunPos[1] = -mObjectViewPos[index+1];
+   //sunPos[2] =  mObjectViewPos[index+2];
+   sunPos[0] = mObjectViewPos[index+0];
+   sunPos[1] = mObjectViewPos[index+1];
+   sunPos[2] = mObjectViewPos[index+2];
    
    // show lines between Sun and Earth and to -Sun
    glVertex3f(originPos[0], originPos[1], originPos[2]);
    glVertex3f(sunPos[0], sunPos[1], sunPos[2]);
-   glVertex3f(originPos[0], originPos[1], originPos[2]);
-   glVertex3f(-sunPos[0], -sunPos[1], -sunPos[2]);
+
+   // Dunn recommends removing following two lines if we decide we don't need
+   // negative sunline.
+   //glVertex3f(originPos[0], originPos[1], originPos[2]);
+   //glVertex3f(-sunPos[0], -sunPos[1], -sunPos[2]);
    
    glEnd();
    
@@ -4114,15 +4156,20 @@ void TrajPlotCanvas::DrawAxes()
    viewDist = mAxisLength/2.2; // stays the same
    glBegin(GL_LINES);
    
-   glColor3f(0, 1, 0);   // x
+   // Dunn recommends changing colors as follows.
+   // X=red, Y=green, Z=blue
+   //glColor3f(0, 1, 0);   // x
+   glColor3f(1, 0, 0);   // x (red)
    glVertex3f(-viewDist, 0, 0);
    glVertex3f( viewDist, 0, 0);
    
-   glColor3f(0, 0, 1);   // y
+   //glColor3f(0, 0, 1);   // y
+   glColor3f(0, 1, 0);   // y (green)
    glVertex3f(0, -viewDist, 0);
    glVertex3f(0,  viewDist, 0);
    
-   glColor3f(1, 1, 0);   // z
+   //glColor3f(1, 1, 0);   // z
+   glColor3f(0, 0, 1);   // z (blue)
    glVertex3f(0, 0, -viewDist);
    glVertex3f(0, 0, viewDist);
    
@@ -4131,15 +4178,24 @@ void TrajPlotCanvas::DrawAxes()
    //-----------------------------------
    // throw some text out...
    //-----------------------------------
-   glColor3f(0, 1, 0);   // green
+   // Dunn recommends changing colors as follows.
+   // X=red, Y=green, Z=blue
+   // Dunn recommends making "viewDist" positive in all calls below.  This will
+   // get axis labels on the correct, positive, end of each axis.
+   //glColor3f(0, 1, 0);   // green
+   glColor3f(1, 0, 0);   // red
    axisLabel = "+X " + mViewCoordSysName;
-   DrawStringAt(axisLabel, -viewDist, 0.0, 0.0);
+   //DrawStringAt(axisLabel, -viewDist, 0.0, 0.0);
+   DrawStringAt(axisLabel, viewDist, 0.0, 0.0);
    
-   glColor3f(0, 0, 1);   // blue
+   //glColor3f(0, 0, 1);   // blue
+   glColor3f(0, 1, 0);   // green
    axisLabel = "+Y " + mViewCoordSysName;
-   DrawStringAt(axisLabel, 0.0, -viewDist, 0.0);
+   //DrawStringAt(axisLabel, 0.0, -viewDist, 0.0);
+   DrawStringAt(axisLabel, 0.0, viewDist, 0.0);
    
-   glColor3f(1, 1, 0);   // yellow
+   //glColor3f(1, 1, 0);   // yellow
+   glColor3f(0, 0, 1);   // blue
    axisLabel = "+Z " + mViewCoordSysName;
    DrawStringAt(axisLabel, 0.0, 0.0, viewDist);
    

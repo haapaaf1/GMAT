@@ -4810,13 +4810,14 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
              GmatStringUtil::ToInteger(valueToUse, ival, true))
          {
             #ifdef DEBUG_SET
-            MessageInterface::ShowMessage("   It is a Real or Integer value\n");
+            MessageInterface::ShowMessage
+               ("   '%s' is a Real or Integer value\n", valueToUse.c_str());
             #endif
             
             // Handle special case for OpenGlPlot.
             // ViewPointReference, ViewPointVector, and ViewDirection can have 
             // both vector and object name.
-            if (obj->GetTypeName() == "OpenGLPlot")
+            if (obj->IsOfType(Gmat::OPENGL_PLOT))
             {
                obj->SetStringParameter(id, valueToUse, index);
             }
@@ -4830,7 +4831,7 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
          
          // check if value is an object name
          GmatBase *configObj = FindObject(valueToUse);
-
+         
          // check if object name is the same as property type name (loj: 2008.11.06)
          // if so, we need to set configObj to NULL so that owned object can be
          // created if needed.
