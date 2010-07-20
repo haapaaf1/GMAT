@@ -716,6 +716,32 @@ bool GroundStation::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    return BodyFixedPoint::SetRefObject(obj, type, name);
 }
 
+ObjectArray& GroundStation::GetRefObjectArray(const Gmat::ObjectType type)
+{
+	switch(type)
+	{
+	case Gmat::HARDWARE:
+		return hardwareList;
+
+	default:
+		break;
+	}
+
+	BodyFixedPoint::GetRefObjectArray(type);
+}
+
+
+ObjectArray& GroundStation::GetRefObjectArray(const std::string& typeString)
+{
+	if (typeString == "Hardware")
+	{
+		return hardwareList;
+	}
+
+	BodyFixedPoint::GetRefObjectArray(typeString);
+}
+
+
 
 //------------------------------------------------------------------------------
 // virtual bool HasRefObjectTypeArray()
