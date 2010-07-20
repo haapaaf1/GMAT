@@ -574,6 +574,19 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
          ("Publisher::RegisterPublishedData() returning %d, provider already has "
           "registered with data\n", id);
       #endif
+      
+      // Just set current run state
+      std::list<Subscriber*>::iterator current = subscriberList.begin();
+      while (current != subscriberList.end())
+      {
+         #if DBGLVL_PUBLISHER_REGISTER > 1
+         MessageInterface::ShowMessage
+            ("   calling <%s>->SetRunState()\n", (*current)->GetName().c_str());
+         #endif
+         
+         (*current)->SetRunState(runState);
+         current++;
+      }
       return id;
    }
    
@@ -646,6 +659,7 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
       #endif
       
       (*current)->SetDataLabels(elements);
+      (*current)->SetRunState(runState);
       current++;
    }
    

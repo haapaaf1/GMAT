@@ -98,7 +98,7 @@
 #endif
 
 // @note If this is enabled, Bug1430-Func_GFuncInsideCFlow.script leaves
-// no memory trcks but AssigningWholeObjects.script crashes when exiting
+// no memory tracks but AssigningWholeObjects.script crashes when exiting
 //#define __ENABLE_CLEAR_UNMANAGED_FUNCTIONS__
 //#define __CREATE_DEFAULT_BC__
 //#define __SHOW_FINAL_STATE__
@@ -1011,6 +1011,50 @@ Integer Moderator::GetObjectManageOption()
 }
 
 
+//------------------------------------------------------------------------------
+// bool ResetObjectPointer(GmatBase *newObj, const std::string &name)
+//------------------------------------------------------------------------------
+/*
+ * Sets configured object pointer with new pointer.
+ *
+ * @param  newObj  New object pointer
+ * @param  name  Name of the configured object to be reset
+ *
+ * @return  true if pointer was reset, false otherwise
+ */
+//------------------------------------------------------------------------------
+void Moderator::ResetObjectPointer(ObjectMap *objMap, GmatBase *newObj,
+                                   const std::string &name)
+{
+   #if DEBUG_RESET_OBJECT
+   MessageInterface::ShowMessage
+      ("Moderator::ResetObjectPointer() entered, objMap=<%p>, newObj=<%p>, "
+       "name='%s'\n", objMap, obj, newObj, name.c_str());
+   #endif
+   
+   if (objMap->find(name) != objMap->end())
+   {
+      GmatBase *mapObj = (*objMap)[name];
+      if (mapObj->GetName() == name)
+      {
+         // We want to replace if it has the same sub type
+         if (newObj->IsOfType(mapObj->GetTypeName()))
+         {
+            #if DEBUG_RESET_OBJECT
+            MessageInterface::ShowMessage
+               ("   Replacing mapObj=<%p> with newObj=<%p>\n", mapObj, newObj);
+            #endif
+            (*objMap)[name] = newObj;
+         }
+      }
+   }
+   
+   #if DEBUG_RESET_OBJECT
+   MessageInterface::ShowMessage("Moderator::ResetObjectPointer() leaving\n");
+   #endif
+}
+
+
 //----- factory
 //------------------------------------------------------------------------------
 // const StringArray& GetListOfFactoryItems(Gmat::ObjectType type)
@@ -1216,6 +1260,29 @@ GmatBase* Moderator::GetConfiguredObject(const std::string &name)
    #endif
    
    return obj;
+}
+
+
+//------------------------------------------------------------------------------
+// bool ReconfigureItem(GmatBase *newobj, const std::string &name)
+//------------------------------------------------------------------------------
+/*
+ * Sets configured object pointer with new pointer.
+ *
+ * @param  newobj  New object pointer
+ * @param  name  Name of the configured object to be reset
+ *
+ * @return  true if pointer was reset, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool Moderator::ReconfigureItem(GmatBase *newobj, const std::string &name)
+{
+   // Reconfigure item only if name found in the configuration.
+   // Changed due to GmatFunction implementation (loj: 2008.06.25)
+   if (GetConfiguredObject(name))
+      return theConfigManager->ReconfigureItem(newobj, name);
+   else
+      return true;
 }
 
 
@@ -3073,29 +3140,6 @@ bool Moderator::AddToODEModel(const std::string &odeModelName,
 }
 
 
-//------------------------------------------------------------------------------
-// bool ReconfigureItem(GmatBase *newobj, const std::string &name)
-//------------------------------------------------------------------------------
-/*
- * Sets configured object pointer with new pointer.
- *
- * @param  newobj  New object pointer
- * @param  name  Name of the configured object to be reset
- *
- * @return  true if pointer was reset, false otherwise
- */
-//------------------------------------------------------------------------------
-bool Moderator::ReconfigureItem(GmatBase *newobj, const std::string &name)
-{
-   // Reconfigure item only if name found in the configuration.
-   // Changed due to GmatFunction implementation (loj: 2008.06.25)
-   if (GetConfiguredObject(name))
-      return theConfigManager->ReconfigureItem(newobj, name);
-   else
-      return true;
-}
-
-
 // Solver
 //------------------------------------------------------------------------------
 // Solver* CreateSolver(const std::string &type, const std::string &name)
@@ -4190,7 +4234,8 @@ Subscriber* Moderator::CreateEphemerisFile(const std::string &type,
          MessageInterface::PopupMessage
             (Gmat::ERROR_, "**** ERROR **** Cannot create a EphemerisFile type: %s.\n"
              "Make sure to specify PLUGIN = libDataFile and PLUGIN = libCcsdsEphemerisFile\n"
-             "in the gmat_start_file and make sure such dlls exist.\n",
+             "in the gmat_start_file and make sure such dlls exist.  "
+             "Make sure that libpcre-0 and libpcrecpp-0 also exist in the path\n",
              type.c_str(), type.c_str());
          
          return NULL;
@@ -7713,10 +7758,95 @@ void Moderator::AddPublisherToSandbox(Integer index)
 
 
 //------------------------------------------------------------------------------
+// void HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld = false)
+//------------------------------------------------------------------------------
+void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
+{
+   #if DEBUG_CCSDS_EPHEMERIS
+   MessageInterface::ShowMessage
+      ("Moderator::HandleCcsdsEphemerisFile() entered, objMap=<%p>\n", objMap);
+   #endif
+   
+   GmatBase *obj;
+   
+   for (ObjectMap::iterator i = objMap->begin(); i != objMap->end(); ++i)
+   {
+      obj = i->second;
+      
+      //==============================================================
+      // Special handling for CcsdsEphemerisFile plug-in
+      //==============================================================
+      // This is needed since we create EphemerisFile object first
+      // from the script "Create EphemerisFile" and then create
+      // CcsdsEphemerisFile if file format contains CCSDS.
+      // It will create CcsdsEphemerisFile object via
+      // plug-in factory and replace the object pointer.
+      //==============================================================
+      // Create CcsdsEphemerisFile if file format is CCSDS
+      if (obj->IsOfType(Gmat::EPHEMERIS_FILE))
+      {
+         std::string name = obj->GetName();
+         std::string format = obj->GetStringParameter("FileFormat");
+         
+         #if DEBUG_CCSDS_EPHEMERIS
+         MessageInterface::ShowMessage
+            ("   Format of the object<%p><%s>'%s' is '%s'\n",
+             obj, obj->GetTypeName().c_str(), name.c_str(), format.c_str());
+         #endif
+         
+         if (format.find("CCSDS") != format.npos)
+         {
+            // Check type name to avoid recreating a CcsdsEphemerisFile object for re-runs
+            if (obj->GetTypeName() != "CcsdsEphemerisFile")
+            {
+               #if DEBUG_CCSDS_EPHEMERIS
+               MessageInterface::ShowMessage("   About to create new CcsdsEphemerisFile\n");
+               #endif
+
+               // Create unnamed CcsdsEphemerisFile
+               GmatBase *newObj = CreateEphemerisFile("CcsdsEphemerisFile", "");
+               if (newObj == NULL)
+               {
+                  throw GmatBaseException
+                     ("Moderator::AddSubscriberToSandbox() Cannot continue due to missing "
+                      "CcsdsEphemerisFile plugin dll\n");
+               }
+               
+               newObj->SetName(name);
+               ResetObjectPointer(objMap, newObj, name);
+               newObj->Copy(obj);
+               newObj->TakeAction("ChangeTypeName", "CcsdsEphemerisFile");
+               
+               #if DEBUG_CCSDS_EPHEMERIS
+               MessageInterface::ShowMessage
+                  ("   New object <%p><%s>'%s' created\n", newObj, newObj->GetTypeName().c_str(),
+                   name.c_str());
+               #endif
+               
+               GmatBase *oldObj = obj;
+               obj = newObj;
+               // Delete old object on option
+               if (deleteOld)
+                  delete oldObj;
+            }
+         }
+      }
+   }
+   
+   #if DEBUG_CCSDS_EPHEMERIS
+   MessageInterface::ShowMessage
+      ("Moderator::HandleCcsdsEphemerisFile() leaving\n");
+   #endif
+}
+
+//------------------------------------------------------------------------------
 // void AddSuscriberToSandbox(Integer index)
 //------------------------------------------------------------------------------
 void Moderator::AddSubscriberToSandbox(Integer index)
 {
+   // Handle CcsdsEphemerisFile first
+   HandleCcsdsEphemerisFile(objectMapInUse, false);
+   
    Subscriber *obj;
    StringArray names = theConfigManager->GetListOfItems(Gmat::SUBSCRIBER);
    
@@ -7728,61 +7858,6 @@ void Moderator::AddSubscriberToSandbox(Integer index)
    for (Integer i=0; i<(Integer)names.size(); i++)
    {
       obj = theConfigManager->GetSubscriber(names[i]);
-      
-      //==============================================================
-      // Special handling for CcsdsEphemerisFile plug-in
-      //==============================================================
-      // This is needed since we create EphemerisFile object first
-      // from the script "Create EphemerisFile". And if file format
-      // contains CCSDS, it will create CcsdsEphemerisFile object via
-      // plug-in factory and replace the object pointer.
-      //==============================================================
-      // Create CcsdsEphemerisFile if file format is CCSDS
-      if (obj->IsOfType(Gmat::EPHEMERIS_FILE))
-      {
-         std::string name = obj->GetName();
-         std::string format = obj->GetStringParameter("FileFormat");
-         
-         #if DEBUG_RUN
-         MessageInterface::ShowMessage
-            ("==> format of the object<%p><%s>'%s' is '%s'\n", obj, obj->GetTypeName().c_str(),
-             name.c_str(), format.c_str());
-         #endif
-         
-         if (format.find("CCSDS") != format.npos)
-         {
-            // Check type name to avoid recreating a CcsdsEphemerisFile object for re-runs
-            if (obj->GetTypeName() != "CcsdsEphemerisFile")
-            {
-               #if DEBUG_RUN
-               MessageInterface::ShowMessage("==> about to create new CcsdsEphemerisFile\n");
-               #endif
-               
-               GmatBase *newObj = CreateEphemerisFile("CcsdsEphemerisFile", "");
-               if (newObj == NULL)
-               {
-                  throw GmatBaseException
-                     ("Moderator::AddSubscriberToSandbox() Cannot continue due to missing "
-                      "CcsdsEphemerisFile plugin dll\n");
-               }
-               
-               newObj->SetName(name);
-               ReconfigureItem(newObj, name);
-               newObj->Copy(obj);
-               newObj->TakeAction("ChangeTypeName", "CcsdsEphemerisFile");
-               
-               #if DEBUG_RUN
-               MessageInterface::ShowMessage
-                  ("==> new obj <%p><%s>'%s' created\n", newObj, newObj->GetTypeName().c_str(),
-                   name.c_str());
-               #endif
-               
-               obj = (Subscriber*)newObj;
-            }
-         }
-      }
-      //=========================================================
-      
       sandboxes[index]->AddSubscriber(obj);
       
       #if DEBUG_RUN > 1
@@ -7911,7 +7986,7 @@ void Moderator::ShowObjectMap(const std::string &title)
    
    MessageInterface::ShowMessage
       (" <%p>, it has %d objects\n", objectMapInUse, objectMapInUse->size());
-   for (std::map<std::string, GmatBase *>::iterator i = objectMapInUse->begin();
+   for (ObjectMap::iterator i = objectMapInUse->begin();
         i != objectMapInUse->end(); ++i)
    {
       MessageInterface::ShowMessage

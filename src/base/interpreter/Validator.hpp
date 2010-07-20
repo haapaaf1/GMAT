@@ -52,6 +52,8 @@ public:
    bool ValidateCommand(GmatCommand *cmd, bool contOnError = true,
                         Integer manage = 1);
    
+   void HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld = false);
+   
    ElementWrapper* CreateElementWrapper(const std::string &desc,
                                         bool parametersFirst = false,
                                         Integer manage = 1);

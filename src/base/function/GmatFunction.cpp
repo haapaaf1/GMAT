@@ -442,6 +442,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
          // that is not NoOp, Create, Global, and GMAT with equation.
          // Can we have simple command indicating beginning of the sequence,
          // such as BeginSequence? (loj: 2008.06.19)
+         // @todo: Now we have BeginMissionSequence, but not all functions have it,
+         // so check it first otherwise do in the old way. (loj: 2010.07.16)
          Function *func = current->GetCurrentFunction();
          bool isEquation = false;
          std::string cmdType = current->GetTypeName();
@@ -458,6 +460,7 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
             if (beginInit)
             {
                objectsInitialized = true;
+               validator->HandleCcsdsEphemerisFile(objectStore, true);
                InitializeLocalObjects(objInit, current, true);
             }
          }

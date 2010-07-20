@@ -1404,6 +1404,11 @@ bool EphemerisFile::OpenEphemerisFile()
 //------------------------------------------------------------------------------
 bool EphemerisFile::CheckInitialAndFinalEpoch()
 {
+   #ifdef DEBUG_EPHEMFILE_WRITE
+   MessageInterface::ShowMessage
+      ("EphemerisFile::CheckInitialAndFinalEpoch() entered\n");
+   #endif
+   
    // Check initial and final epoch for writing, dat[0] is epoch
    bool writeData = false;
    
@@ -1430,6 +1435,11 @@ bool EphemerisFile::CheckInitialAndFinalEpoch()
       if (currEpochInDays >= initialEpochA1Mjd && currEpochInDays <= finalEpochA1Mjd)
          writeData = true;
    }
+   
+   #ifdef DEBUG_EPHEMFILE_WRITE
+   MessageInterface::ShowMessage
+      ("EphemerisFile::CheckInitialAndFinalEpoch() returning %d\n", writeData);
+   #endif
    
    return writeData;
 }
@@ -2291,7 +2301,7 @@ void EphemerisFile::WriteRealCcsdsComments(const std::string &comments)
 //------------------------------------------------------------------------------
 bool EphemerisFile::OpenCcsdsEphemerisFile()
 {
-   #ifdef DEBUG_CCSDS_EPHEMFILE_OPEN
+   #ifdef DEBUG_EPHEMFILE_OPEN
    MessageInterface::ShowMessage
       ("CcsdsEphemerisFile::EphemerisFile() entered, fileName = %s\n", fileName.c_str());
    #endif
@@ -2299,7 +2309,7 @@ bool EphemerisFile::OpenCcsdsEphemerisFile()
    // Open CCSDS output file
    bool retval = OpenRealCcsdsEphemerisFile();
    
-   #ifdef DEBUG_CCSDS_EPHEMFILE_OPEN
+   #ifdef DEBUG_EPHEMFILE_OPEN
    MessageInterface::ShowMessage
       ("CcsdsEphemerisFile::OpenCcsdsEphemerisFile() returning %d\n", retval);
    #endif
@@ -2313,7 +2323,10 @@ bool EphemerisFile::OpenCcsdsEphemerisFile()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsHeader()
 {
-   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
+   #ifdef DEBUG_EPHEMFILE_TEXT
+   std::string creationTime = GmatTimeUtil::FormatCurrentTime(2);
+   std::string originator = "GMAT USER";
+   
    std::stringstream ss("");
    
    if (fileType == CCSDS_OEM)
@@ -2352,9 +2365,9 @@ void EphemerisFile::WriteCcsdsOrbitDataSegment()
    
    WriteCcsdsOemMetaData();
    
-   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
+   #ifdef DEBUG_EPHEMFILE_TEXT
    for (UnsignedInt i = 0; i < a1MjdArray.size(); i++)
-         DebugWriteOrbit(a1MjdArray[i], stateArray[i]);
+      DebugWriteOrbit(a1MjdArray[i], stateArray[i]);
    #endif
    
    WriteRealCcsdsOrbitDataSegment();
@@ -2366,7 +2379,7 @@ void EphemerisFile::WriteCcsdsOrbitDataSegment()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsOemMetaData()
 {
-   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
+   #ifdef DEBUG_EPHEMFILE_TEXT
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -2412,7 +2425,7 @@ void EphemerisFile::WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6])
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsAemMetaData()
 {
-   #ifdef DEBUG_CCSDS_EPHEMFILE_TEXT
+   #ifdef DEBUG_EPHEMFILE_TEXT
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -2711,7 +2724,7 @@ void EphemerisFile::DebugWriteOrbit(Real epoch, const Real state[6], bool inDays
    
    Rvector6 inState(state);
    Rvector6 outState(state);
-      
+   
    std::string epochStr = ToUtcGregorian(reqEpochInDays, true, 2);
    
    // Convert orbit data to output coordinate system
@@ -2786,6 +2799,7 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
       ("   len=%d, active=%d, isEndOfReceive=%d, runstate=%d, isManeuvering=%d, "
        "firstTimeWriting=%d\n", len, active, isEndOfReceive, runstate, isManeuvering,
        firstTimeWriting);
+   MessageInterface::ShowMessage("   dat[0]=%f\n", len == 0 ? -999.999 : dat[0]);
    #endif
    #if DBGLVL_EPHEMFILE_DATA > 1
    MessageInterface::ShowMessage("   fileName='%s'\n", fileName.c_str());
@@ -2870,6 +2884,11 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
          HandleCcsdsOrbitData(writeData);
    }
    
+   #if DBGLVL_EPHEMFILE_DATA > 0
+   MessageInterface::ShowMessage
+      ("EphemerisFile::Distribute() this=<%p>'%s' returning true\n", this,
+       GetName().c_str());
+   #endif
    return true;
 }
 

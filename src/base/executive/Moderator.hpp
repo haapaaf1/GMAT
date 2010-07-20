@@ -107,6 +107,8 @@ public:
    void SetObjectMap(ObjectMap *objMap);
    void SetObjectManageOption(Integer option);
    Integer GetObjectManageOption();
+   void ResetObjectPointer(ObjectMap *objMap, GmatBase *newobj,
+                           const std::string &name);
    
    //----- factory
    const StringArray& GetListOfFactoryItems(Gmat::ObjectType type);
@@ -119,6 +121,7 @@ public:
    const StringArray& GetListOfObjects(Gmat::ObjectType type,
                                        bool excludeDefaultObjects = false);
    GmatBase* GetConfiguredObject(const std::string &name);
+   bool ReconfigureItem(GmatBase *newobj, const std::string &name);
    std::string GetNewName(const std::string &name, Integer startCount);
    std::string AddClone(const std::string &name);
    bool RenameObject(Gmat::ObjectType type, const std::string &oldName,
@@ -211,7 +214,6 @@ public:
    ODEModel* GetODEModel(const std::string &name);
    bool AddToODEModel(const std::string &odeModelName,
                         const std::string &forceName);
-   bool ReconfigureItem(GmatBase *newobj, const std::string &name);
    
    // Solver
    Solver* CreateSolver(const std::string &type,
@@ -274,8 +276,8 @@ public:
    // EphemerisFile
    Subscriber* CreateEphemerisFile(const std::string &type,
                                    const std::string &name);
-   
    Subscriber* GetEphemerisFile(const std::string &name);
+   void        HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld = false);
    
    // Function
    Function* CreateFunction(const std::string &type,

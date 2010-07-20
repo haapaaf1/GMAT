@@ -541,6 +541,15 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
 
 
 //------------------------------------------------------------------------------
+// void HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld = false)
+//------------------------------------------------------------------------------
+void Validator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
+{
+   theModerator->HandleCcsdsEphemerisFile(objMap, deleteOld);
+}
+
+
+//------------------------------------------------------------------------------
 // ElementWrapper* CreateElementWrapper(const std::string &desc,
 //                                      bool parametersFirst, Integer manage)
 //------------------------------------------------------------------------------
