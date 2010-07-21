@@ -91,6 +91,7 @@ public:
 
    const StringArray&  GetListOfAllItems();
    const StringArray&  GetListOfItems(Gmat::ObjectType itemType);
+   const StringArray&  GetListOfItems(const std::string &typeName);
    const StringArray&  GetListOfItemsHas(Gmat::ObjectType type,
                                          const std::string &name,
                                          bool includeSysParam = true);

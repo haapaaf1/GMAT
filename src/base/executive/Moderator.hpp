@@ -120,6 +120,8 @@ public:
    ObjectMap* GetConfiguredObjectMap();
    const StringArray& GetListOfObjects(Gmat::ObjectType type,
                                        bool excludeDefaultObjects = false);
+   const StringArray& GetListOfObjects(const std::string &typeName,
+                                       bool excludeDefaultObjects = false);
    GmatBase* GetConfiguredObject(const std::string &name);
    bool ReconfigureItem(GmatBase *newobj, const std::string &name);
    std::string GetNewName(const std::string &name, Integer startCount);

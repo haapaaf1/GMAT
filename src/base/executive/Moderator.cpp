@@ -1203,6 +1203,80 @@ const StringArray& Moderator::GetListOfObjects(Gmat::ObjectType type,
 
 
 //------------------------------------------------------------------------------
+// const StringArray& GetListOfObjects(const std::string &typeName,
+//                                     bool excludeDefaultObjects)
+//------------------------------------------------------------------------------
+/**
+ * Returns names of all configured items of object type name
+ *
+ * @param <typeName> object type name
+ * @param <excludeDefaultObjects> set this flag to true if default objects
+ *           should be execluded, such as  default coordinate systems
+ *
+ * @return array of configured item names of the type; return empty array if none
+ *  return all configured item if type is UNKNOWN_OBJECT
+ */
+//------------------------------------------------------------------------------
+const StringArray& Moderator::GetListOfObjects(const std::string &typeName,
+                                               bool excludeDefaultObjects)
+{
+   if (typeName == "UnknownObject")
+      return theConfigManager->GetListOfAllItems();
+   
+   if (typeName == "CelestialBody" || typeName == "SpacePoint")
+   {
+      tempObjectNames.clear();
+      
+      if (theSolarSystemInUse == NULL)
+         return tempObjectNames;
+      
+      if (typeName == "CelestialBody")
+      {
+         // add bodies to the list
+         tempObjectNames = theSolarSystemInUse->GetBodiesInUse();
+      }
+      else if (typeName == "SpacePoint")
+      {
+         // add Spacecraft to the list
+         tempObjectNames = theConfigManager->GetListOfItems(Gmat::SPACECRAFT);
+         
+         // add bodies to the list
+         StringArray bodyList = theSolarSystemInUse->GetBodiesInUse();
+         for (UnsignedInt i=0; i<bodyList.size(); i++)
+            tempObjectNames.push_back(bodyList[i]);
+         
+         // add CalculatedPoint to the list
+         StringArray calptList =
+            theConfigManager->GetListOfItems(Gmat::CALCULATED_POINT);
+         for (UnsignedInt i=0; i<calptList.size(); i++)
+            tempObjectNames.push_back(calptList[i]);
+         
+         StringArray osptList =
+            theConfigManager->GetListOfItems(Gmat::SPACE_POINT);
+         for (UnsignedInt i=0; i<osptList.size(); i++)
+            tempObjectNames.push_back(osptList[i]);
+      }
+      
+      return tempObjectNames;
+   }
+   
+   // Do not add default coordinate systems on option
+   if (typeName == "CoordinateSystem" && excludeDefaultObjects)
+   {
+      tempObjectNames.clear();
+      StringArray csObjNames = theConfigManager->GetListOfItems(typeName);
+      for (UnsignedInt i=0; i<csObjNames.size(); i++)
+         if (csObjNames[i] != "EarthMJ2000Eq" && csObjNames[i] != "EarthMJ2000Ec" &&
+             csObjNames[i] != "EarthFixed")
+            tempObjectNames.push_back(csObjNames[i]);
+      return tempObjectNames;
+   }
+   
+   return theConfigManager->GetListOfItems(typeName);
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* GetConfiguredObject(const std::string &name)
 //------------------------------------------------------------------------------
 GmatBase* Moderator::GetConfiguredObject(const std::string &name)

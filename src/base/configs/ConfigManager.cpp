@@ -932,6 +932,33 @@ const StringArray& ConfigManager::GetListOfItems(Gmat::ObjectType itemType)
 
 
 //------------------------------------------------------------------------------
+// const StringArray& GetListOfItems(const std::string &typeName)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a list of all configured objects of a given type name.
+ *
+ * @param typeName The type name of object requested.
+ *
+ * @return The list of objects.
+ */
+//------------------------------------------------------------------------------
+const StringArray& ConfigManager::GetListOfItems(const std::string &typeName)
+{
+   listOfItems.clear();
+   
+   std::vector<GmatBase*>::iterator current =
+      (std::vector<GmatBase*>::iterator)(objects.begin());
+   while (current != (std::vector<GmatBase*>::iterator)(objects.end()))
+   {
+      if ((*current)->IsOfType(typeName))
+         listOfItems.push_back((*current)->GetName());
+      ++current;
+   }
+   return listOfItems;
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* GetFirstItemUsing(Gmat::ObjectType type, const std::string &name,
 //                            bool includeSysParam = true);
 //------------------------------------------------------------------------------

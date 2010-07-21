@@ -95,6 +95,7 @@ public:
                                       const std::string &depName = "");
    
    const StringArray& GetListOfObjects(Gmat::ObjectType type);
+   const StringArray& GetListOfObjects(const std::string &typeName);
    const StringArray& GetListOfViewableCommands();
    GmatBase* GetConfiguredObject(const std::string &name);
    GmatBase* FindObject(const std::string &name, const std::string &ofType = "");

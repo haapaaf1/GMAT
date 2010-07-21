@@ -785,6 +785,23 @@ const StringArray& Interpreter::GetListOfObjects(Gmat::ObjectType type)
 
 
 //------------------------------------------------------------------------------
+// const StringArray& GetListOfObjects(const std::string &typeName)
+//------------------------------------------------------------------------------
+/**
+ * Returns names of all configured items of given object type name.
+ *
+ * @param  typeName  object type name
+ *
+ * @return array of configured item names; return empty array if none
+ */
+//------------------------------------------------------------------------------
+const StringArray& Interpreter::GetListOfObjects(const std::string &typeName)
+{
+   return theModerator->GetListOfObjects(typeName);
+}
+
+
+//------------------------------------------------------------------------------
 // const StringArray& GetListOfViewableCommands();
 //------------------------------------------------------------------------------
 /**
