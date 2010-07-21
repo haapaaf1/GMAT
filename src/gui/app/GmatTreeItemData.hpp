@@ -149,9 +149,11 @@ namespace GmatTree
       BEGIN_OF_RESOURCE = 41000,
       GROUND_STATION,
       SPACECRAFT,
+      
       FUELTANK,
       THRUSTER,
-
+      SENSOR,
+      
       FORMATION,
       FORMATION_SPACECRAFT,
       CONSTELLATION_SATELLITE,
@@ -221,6 +223,7 @@ namespace GmatTree
       NON_LINEAR_CONSTRAINT,
       SAVE,
       TOGGLE,
+      XY_PLOT_ACTION,
       REPORT,
       CALL_FUNCTION,
       ASSIGNMENT,

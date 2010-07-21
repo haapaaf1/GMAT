@@ -2387,13 +2387,13 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    wxString title = item->GetTitle();
    wxString name = item->GetName();
    GmatCommand *cmd = item->GetCommand();
-
+   
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CreateNewCommand() title=%s, name=%s, itemType=%d\n",
-       title.c_str(), name.c_str(), itemType);
+      ("GmatMainFrame::CreateNewCommand() title=%s, name=%s, itemType=%d, cmd=<%p><%s>\n",
+       title.c_str(), name.c_str(), itemType, cmd, cmd ? cmd->GetTypeName().c_str() : "NULL");
    #endif
-
+   
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
 
    GmatMdiChildFrame *newChild =
@@ -2438,6 +2438,9 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
       break;
    case GmatTree::TOGGLE:
       sizer->Add(new TogglePanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
+      break;
+   case GmatTree::XY_PLOT_ACTION:
+      sizer->Add(new TogglePanel(scrolledWin, cmd, true), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::CALL_FUNCTION:
       sizer->Add(new CallFunctionPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);

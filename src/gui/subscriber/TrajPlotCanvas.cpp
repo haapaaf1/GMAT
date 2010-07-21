@@ -4102,9 +4102,9 @@ void TrajPlotCanvas::DrawSunLine()
    //originPos[0] = -mObjectViewPos[index+0];
    //originPos[1] = -mObjectViewPos[index+1];
    //originPos[2] =  mObjectViewPos[index+2];
-   //originPos[0] = 0.0;
-   //originPos[1] = 0.0;
-   //originPos[2] = 0.0;
+   originPos[0] = 0.0;
+   originPos[1] = 0.0;
+   originPos[2] = 0.0;
    
    index = sunId * MAX_DATA * 3 + frame * 3;
    // Dunn recommends removing these minus signs to correct attitude!

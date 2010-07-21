@@ -3086,6 +3086,8 @@ GmatTree::ItemType MissionTree::GetCommandId(const wxString &cmd)
       return GmatTree::ASSIGNMENT;
    if (cmd == "BeginScript")
       return GmatTree::SCRIPT_EVENT;
+   if (cmd == "ClearPlot" || cmd == "MarkPoint" || cmd == "PenUp" || cmd == "PenDown")
+      return GmatTree::XY_PLOT_ACTION;
    
    return GmatTree::OTHER_COMMAND;
 }

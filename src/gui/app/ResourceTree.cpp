@@ -3983,6 +3983,7 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
       break;
    case GmatTree::FUELTANK:
    case GmatTree::THRUSTER:
+   case GmatTree::SENSOR:
       objType = Gmat::HARDWARE;
       break;
    case GmatTree::BARYCENTER:
