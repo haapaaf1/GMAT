@@ -112,7 +112,7 @@ GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.ShowPlot = true;
 
 %--------------------------------------------------------------
-%===== Run the simulator
+%===== Run the estimator
 %--------------------------------------------------------------
 BeginMissionSequence
 RunEstimator BatchEst
