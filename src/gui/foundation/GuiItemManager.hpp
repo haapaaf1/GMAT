@@ -62,6 +62,7 @@ public:
    void UpdateFunction(bool updateObjectArray = true);
    void UpdateFuelTank(bool updateObjectArray = true);
    void UpdateThruster(bool updateObjectArray = true);
+   void UpdateSensor(bool updateObjectArray = true);
    void UpdateParameter(bool updateObjectArray = true);
    void UpdatePropagator(bool updateObjectArray = true);
    void UpdateSolarSystem(bool updateObjectArray = true);
@@ -90,6 +91,8 @@ public:
    int GetNumFiniteBurn() { return theNumFiniteBurn; }
    int GetNumFuelTank() { return theNumFuelTank; }
    int GetNumThruster() { return theNumThruster; }
+   int GetNumSensor() { return theNumSensor; }
+   int GetNumAntenna() { return theNumAntenna; }
    int GetNumConfigBody() { return theNumCelesBody; }
    int GetNumCoordSystem() { return theNumCoordSys; }
    int GetNumFunction() { return theNumFunction; }
@@ -166,14 +169,18 @@ public:
    
    wxComboBox* GetFuelTankComboBox(wxWindow *parent, wxWindowID id,
                                    const wxSize &size);
-   
    wxComboBox* GetThrusterComboBox(wxWindow *parent, wxWindowID id,
                                    const wxSize &size);
+   wxComboBox* GetSensorComboBox(wxWindow *parent, wxWindowID id,
+                                 const wxSize &size);
+   wxComboBox* GetAntennaComboBox(wxWindow *parent, wxWindowID id,
+                                  const wxSize &size);
    
    wxComboBox* GetSubscriberComboBox(wxWindow *parent, wxWindowID id,
                                      const wxSize &size);
    wxComboBox* GetReportFileComboBox(wxWindow *parent, wxWindowID id,
                                      const wxSize &size);
+   
    wxComboBox* GetSolverComboBox(wxWindow *parent, wxWindowID id,
                                      const wxSize &size);
    wxComboBox* GetBoundarySolverComboBox(wxWindow *parent, wxWindowID id,
@@ -186,11 +193,13 @@ public:
    wxCheckListBox* GetSubscriberCheckListBox(wxWindow *parent, wxWindowID id,
                                              const wxSize &size,
                                              wxArrayString *excList = NULL);
+   wxCheckListBox* GetXyPlotCheckListBox(wxWindow *parent, wxWindowID id,
+                                         const wxSize &size,
+                                         wxArrayString *excList = NULL);
+   
    wxCheckListBox* GetSpacecraftCheckListBox(wxWindow *parent, wxWindowID id,
                                              const wxSize &size,
-                                             wxArrayString *excList = NULL);
-   
-   
+                                             wxArrayString *excList = NULL);      
    wxCheckListBox* GetAllObjectCheckListBox(wxWindow *parent, wxWindowID id,
                                             const wxSize &size,
                                             wxArrayString *excList = NULL);
@@ -262,6 +271,9 @@ public:
    wxListBox* GetThrusterListBox(wxWindow *parent, wxWindowID id,
                                  const wxSize &size,
                                  wxArrayString *excList);
+   wxListBox* GetSensorListBox(wxWindow *parent, wxWindowID id,
+                               const wxSize &size,
+                               wxArrayString *excList);
    
    wxBoxSizer* CreateParameterSizer
          (wxWindow *parent,
@@ -332,8 +344,11 @@ private:
    void UpdateCoordSystemList();
    void UpdateFuelTankList();
    void UpdateThrusterList();
+   void UpdateSensorList();
+   void UpdateAntennaList();
    void UpdateFunctionList();
    void UpdateSubscriberList();
+   void UpdateXyPlotList();
    void UpdateSolverList();
    void UpdatePropagatorList();
    void UpdateForceModelList();
@@ -353,10 +368,12 @@ private:
    std::vector<wxListBox*> mSpacecraftLBList;
    std::vector<wxListBox*> mImpBurnLBList;
    std::vector<wxCheckListBox*> mSubscriberCLBList;
+   std::vector<wxCheckListBox*> mXyPlotCLBList;
    std::vector<wxCheckListBox*> mSpacecraftCLBList;
    std::vector<wxCheckListBox*> mAllObjectCLBList;
    std::vector<wxListBox*> mFuelTankLBList;
    std::vector<wxListBox*> mThrusterLBList;
+   std::vector<wxListBox*> mSensorLBList;
    
    std::vector<wxComboBox*> mSpacePointCBList;
    std::vector<wxComboBox*> mCelestialBodyCBList;
@@ -367,6 +384,8 @@ private:
    std::vector<wxComboBox*> mFunctionCBList;
    std::vector<wxComboBox*> mFuelTankCBList;
    std::vector<wxComboBox*> mThrusterCBList;
+   std::vector<wxComboBox*> mSensorCBList;
+   std::vector<wxComboBox*> mAntennaCBList;
    std::vector<wxComboBox*> mSubscriberCBList;
    std::vector<wxComboBox*> mReportFileCBList;
    std::vector<wxComboBox*> mSolverCBList;
@@ -379,40 +398,69 @@ private:
    std::vector<wxArrayString*> mAllObjectExcList;
    std::vector<wxArrayString*> mFuelTankExcList;
    std::vector<wxArrayString*> mThrusterExcList;
+   std::vector<wxArrayString*> mSensorExcList;
+   std::vector<wxArrayString*> mAntennaExcList;
    std::vector<wxArrayString*> mSubscriberExcList;
    std::vector<wxArrayString*> mReportFileExcList;
+   std::vector<wxArrayString*> mXyPlotExcList;
    
+   // Spacecraft property
    int theNumScProperty;
+   
+   // Burn Properties
    int theNumImpBurnProperty;
    int theNumFiniteBurnProperty;
-   int theNumSpaceObject;
-   int theNumFormation;
-   int theNumForceModel;
-   int theNumSpacecraft;
-   int theNumCalPoint;
-   int theNumCelesBody;
-   int theNumCelesPoint;
+   
+   // All Objects
+   int theNumAllObject;
+   
+   // SpacePoint
    int theNumSpacePoint;
+   int theNumCelesPoint;
+   int theNumCelesBody;
+   int theNumCalPoint;
+   int theNumSpaceObject;
+   int theNumSpacecraft;
+   int theNumFormation;
+   int theNumGroundStation;
+   
+   // CoordinateSystem
+   int theNumCoordSys;
+   
+   // Propagator, ForceModel
+   int theNumPropagator;
+   int theNumForceModel;
+   
+   // Burn
    int theNumImpBurn;
    int theNumFiniteBurn;
-   int theNumCoordSys;
-   int theNumFunction;
-   int theNumFuelTank;
-   int theNumGroundStation;
-   int theNumThruster;
-   int theNumSubscriber;
-   int theNumReportFile;
+   
+   // Solver
    int theNumSolver;
    int theNumBoundarySolver;
    int theNumOptimizer;
-   int theNumPropagator;
+   
+   // Hardware
+   int theNumFuelTank;
+   int theNumThruster;
+   int theNumSensor;
+   int theNumAntenna;
+   
+   // Function
+   int theNumFunction;
+   
+   // Subscriber
+   int theNumSubscriber;
+   int theNumReportFile;
+   int theNumXyPlot;
+   
+   // Parameter
    int theNumPlottableParam;
    int theNumSystemParam;
    int theNumUserVariable;
    int theNumUserString;
    int theNumUserArray;
    int theNumUserParam;
-   int theNumAllObject;
    
    // Spacecraft Properties
    wxArrayString theScPropertyList;
@@ -444,22 +492,25 @@ private:
    wxArrayString theOptimizerList;
    
    // SpacePoint
-   wxArrayString theCelesBodyList;
-   wxArrayString theCelesPointList;
-   wxArrayString theCalPointList;
    wxArrayString theSpacePointList;
-   wxArrayString theSpacecraftList;
+   wxArrayString theCelesPointList;
+   wxArrayString theCelesBodyList;
+   wxArrayString theCalPointList;
    wxArrayString theSpaceObjectList;
+   wxArrayString theSpacecraftList;
    wxArrayString theFormationList;
    wxArrayString theGroundStationList;
    
    // Subscriber
    wxArrayString theSubscriberList;
    wxArrayString theReportFileList;
+   wxArrayString theXyPlotList;
    
    // Hardware
    wxArrayString theFuelTankList;
    wxArrayString theThrusterList;
+   wxArrayString theSensorList;
+   wxArrayString theAntennaList;
    
    // Parameter
    wxArrayString thePlottableParamList;

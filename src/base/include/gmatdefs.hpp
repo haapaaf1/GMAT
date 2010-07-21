@@ -167,6 +167,10 @@ namespace Gmat
       
       INTERFACE,           // MatlabInterface
       MEDIA_CORRECTION,    // For media correction model
+      SENSOR,              // For RFHardwares and Antennas
+      RF_HARDWARE,
+      ANTENNA,
+      
       UNKNOWN_OBJECT
    };
 

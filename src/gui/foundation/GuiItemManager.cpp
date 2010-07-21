@@ -266,6 +266,8 @@ void GuiItemManager::UpdateAll(Gmat::ObjectType objType)
       case Gmat::THRUSTER:
          UpdateFuelTank(false);
          UpdateThruster(false);
+      case Gmat::SENSOR:
+         UpdateSensor(false);
          break;
       case Gmat::BURN:
       case Gmat::IMPULSIVE_BURN:
@@ -359,6 +361,11 @@ void GuiItemManager::UpdateAll(Gmat::ObjectType objType)
    UpdateThruster(false);
    #if DBGLVL_GUI_ITEM_UPDATE
    MessageInterface::ShowMessage("======> after UpdateThruster()\n");
+   #endif
+   
+   UpdateSensor(false);
+   #if DBGLVL_GUI_ITEM_UPDATE
+   MessageInterface::ShowMessage("======> after UpdateSensor()\n");
    #endif
    
    UpdateFunction(false);
@@ -595,6 +602,27 @@ void GuiItemManager::UpdateThruster(bool updateObjectArray)
    #endif
    
    UpdateThrusterList();
+   if (updateObjectArray)
+      AddToAllObjectArray();
+}
+
+
+//------------------------------------------------------------------------------
+//  void UpdateSensor(bool updateObjectArray = true)
+//------------------------------------------------------------------------------
+/**
+ * Updates Sensor gui components.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateSensor(bool updateObjectArray)
+{
+   #if DBGLVL_GUI_ITEM_UPDATE
+   MessageInterface::ShowMessage("===> UpdateSensor\n");
+   #endif
+
+   // Always update antenna first, since sensor includes Antennas and RFHardwares
+   UpdateAntennaList();
+   UpdateSensorList();
    if (updateObjectArray)
       AddToAllObjectArray();
 }
@@ -861,7 +889,21 @@ void GuiItemManager::UnregisterCheckListBox(const wxString &type, wxCheckListBox
       if (pos2 != mSubscriberExcList.end())
          mSubscriberExcList.erase(pos2);
    }
-   if (type == "Spacecraft")
+   else if (type == "XYPlot")
+   {
+      std::vector<wxCheckListBox*>::iterator pos1 =
+         find(mXyPlotCLBList.begin(), mXyPlotCLBList.end(), clb);
+      
+      if (pos1 != mXyPlotCLBList.end())
+         mXyPlotCLBList.erase(pos1);
+      
+      std::vector<wxArrayString*>::iterator pos2 =
+         find(mXyPlotExcList.begin(), mXyPlotExcList.end(), excList);
+      
+      if (pos2 != mXyPlotExcList.end())
+         mXyPlotExcList.erase(pos2);
+   }
+   else if (type == "Spacecraft")
    {
       std::vector<wxCheckListBox*>::iterator pos1 =
          find(mSpacecraftCLBList.begin(), mSpacecraftCLBList.end(), clb);
@@ -968,6 +1010,22 @@ void GuiItemManager::UnregisterComboBox(const wxString &type, wxComboBox *cb)
       
       if (pos != mThrusterCBList.end())
          mThrusterCBList.erase(pos);
+   }
+   else if (type == "Sensor")
+   {
+      std::vector<wxComboBox*>::iterator pos =
+         find(mSensorCBList.begin(), mSensorCBList.end(), cb);
+      
+      if (pos != mSensorCBList.end())
+         mSensorCBList.erase(pos);
+   }
+   else if (type == "Antenna")
+   {
+      std::vector<wxComboBox*>::iterator pos =
+         find(mAntennaCBList.begin(), mAntennaCBList.end(), cb);
+      
+      if (pos != mAntennaCBList.end())
+         mAntennaCBList.erase(pos);
    }
    else if (type == "Subscriber")
    {
@@ -1520,6 +1578,66 @@ wxComboBox* GuiItemManager::GetThrusterComboBox(wxWindow *parent, wxWindowID id,
 
 
 //------------------------------------------------------------------------------
+// wxComboBox* GetSensorComboBox(wxWindow *parent, wxWindowID id,
+//                                 const wxSize &size)
+//------------------------------------------------------------------------------
+/**
+ * @return Sensor combo box pointer
+ */
+//------------------------------------------------------------------------------
+wxComboBox* GuiItemManager::GetSensorComboBox(wxWindow *parent, wxWindowID id,
+                                              const wxSize &size)
+{
+   wxComboBox *sensorComboBox =
+      new wxComboBox(parent, id, wxT(""), wxDefaultPosition, size,
+                     theSensorList, wxCB_READONLY);
+   
+   if (theNumSensor == 0)
+      sensorComboBox->Append("No Sensors Available");
+   
+   // show first Sensor
+   sensorComboBox->SetSelection(0);
+   
+   //---------------------------------------------
+   // register for update
+   //---------------------------------------------
+   mSensorCBList.push_back(sensorComboBox);
+   
+   return sensorComboBox;
+}
+
+
+//------------------------------------------------------------------------------
+// wxComboBox* GetAntennaComboBox(wxWindow *parent, wxWindowID id,
+//                                const wxSize &size)
+//------------------------------------------------------------------------------
+/**
+ * @return Antenna combo box pointer
+ */
+//------------------------------------------------------------------------------
+wxComboBox* GuiItemManager::GetAntennaComboBox(wxWindow *parent, wxWindowID id,
+                                               const wxSize &size)
+{
+   wxComboBox *antennaComboBox =
+      new wxComboBox(parent, id, wxT(""), wxDefaultPosition, size,
+                     theAntennaList, wxCB_READONLY);
+   
+   if (theNumAntenna == 0)
+      antennaComboBox->Append("No Antennas Available");
+   
+   // show first Antenna
+   antennaComboBox->SetSelection(0);
+   
+   //---------------------------------------------
+   // register for update
+   //---------------------------------------------
+   mAntennaCBList.push_back(antennaComboBox);
+   
+   return antennaComboBox;
+}
+
+
+//------------------------------------------------------------------------------
 // wxComboBox* GetSubscriberComboBox(wxWindow *parent, wxWindowID id,
 //                                   const wxSize &size)
 //------------------------------------------------------------------------------
@@ -1676,7 +1794,7 @@ wxComboBox* GuiItemManager::GetOptimizerComboBox(wxWindow *parent, wxWindowID id
 // CheckListBox
 //------------------------------------------------------------------------------
 // wxCheckListBox* GetSubscriberCheckListBox(wxWindow *parent, wxWindowID id,
-//                                           const wxSize &size, wxArrayString &excList)
+//                 const wxSize &size, wxArrayString &excList = NULL)
 //------------------------------------------------------------------------------
 /**
  * @return Available Subscriber ListBox pointer
@@ -1710,6 +1828,48 @@ wxCheckListBox* GuiItemManager::GetSubscriberCheckListBox(wxWindow *parent, wxWi
    //---------------------------------------------
    mSubscriberCLBList.push_back(checkListBox);
    mSubscriberExcList.push_back(excList);
+   
+   checkListBox->SetSelection(0);
+   return checkListBox;
+}
+
+
+//------------------------------------------------------------------------------
+// wxCheckListBox* GetXyPlotCheckListBox(wxWindow *parent, wxWindowID id,
+//                 const wxSize &size, wxArrayString &excList = NULL)
+//------------------------------------------------------------------------------
+/**
+ * @return Available XyPlot ListBox pointer
+ */
+//------------------------------------------------------------------------------
+wxCheckListBox* GuiItemManager::GetXyPlotCheckListBox(wxWindow *parent, wxWindowID id,
+                                                      const wxSize &size,
+                                                      wxArrayString *excList)
+{
+   wxArrayString emptyList;
+   wxCheckListBox *checkListBox =
+      new wxCheckListBox(parent, id, wxDefaultPosition, size, emptyList,
+                         wxLB_SINGLE|wxLB_SORT);
+   
+   if (excList != NULL && excList->GetCount() > 0)
+   {
+      for (int i=0; i<theNumXyPlot; i++)
+      {
+         if (excList->Index(theXyPlotList[i]) == wxNOT_FOUND)
+            checkListBox->Append(theXyPlotList[i]);
+      }
+   }
+   else
+   {
+      for (int i=0; i<theNumXyPlot; i++)
+         checkListBox->Append(theXyPlotList[i]);
+   }
+   
+   //---------------------------------------------
+   // register to update list
+   //---------------------------------------------
+   mXyPlotCLBList.push_back(checkListBox);
+   mXyPlotExcList.push_back(excList);
    
    checkListBox->SetSelection(0);
    return checkListBox;
@@ -2580,6 +2740,44 @@ wxListBox* GuiItemManager::GetThrusterListBox(wxWindow *parent, wxWindowID id,
    mThrusterExcList.push_back(excList);
    
    return thrusterListBox;
+}
+
+
+//------------------------------------------------------------------------------
+// wxListBox* GetSensorListBox(wxWindow *parent, wxWindowID id, ...)
+//------------------------------------------------------------------------------
+wxListBox* GuiItemManager::GetSensorListBox(wxWindow *parent, wxWindowID id,
+                                            const wxSize &size,
+                                            wxArrayString *excList)
+{
+   wxArrayString emptyList;
+   wxListBox *sensorListBox =
+      new wxListBox(parent, id, wxDefaultPosition, size, emptyList,
+                    wxLB_SINGLE|wxLB_SORT);
+   
+   // It's ok to have the same Sensor in more than one spacecraft isince
+   // the Sandbox will clone it
+   if (excList != NULL && excList->GetCount() > 0)
+   {
+      for (int i=0; i<theNumSensor; i++)
+         if (excList->Index(theSensorList[i].c_str()) == wxNOT_FOUND)
+            sensorListBox->Append(theSensorList[i]);
+   }
+   else
+   {
+      for (int i=0; i<theNumSensor; i++)
+         sensorListBox->Append(theSensorList[i]);
+   }
+   
+   sensorListBox->SetSelection(0);
+   
+   //---------------------------------------------
+   // register for update
+   //---------------------------------------------
+   mSensorLBList.push_back(sensorListBox);
+   mSensorExcList.push_back(excList);
+   
+   return sensorListBox;
 }
 
 
@@ -4081,6 +4279,173 @@ void GuiItemManager::UpdateThrusterList()
 
 
 //------------------------------------------------------------------------------
+// void UpdateAntennaList()
+//------------------------------------------------------------------------------
+/**
+ * Updates configured Antenna list. This list includes Sensors and Antennas.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateAntennaList()
+{
+   StringArray antennas =
+      theGuiInterpreter->GetListOfObjects(Gmat::ANTENNA);
+   int numAntenna = antennas.size();
+   
+   #if DBGLVL_GUI_ITEM_HW
+   MessageInterface::ShowMessage
+      ("GuiItemManager::UpdateSensorList() numAntenna=%d, numAntenna=%d\n", ,
+       numSensor, numAntenna);
+   #endif
+   
+   theNumAntenna = 0;
+   theAntennaList.Clear();
+   
+   for (int i=0; i<numAntenna; i++)
+   {
+      theAntennaList.Add(antennas[i].c_str());
+      
+      #if DBGLVL_GUI_ITEM_HW > 1
+      MessageInterface::ShowMessage
+         ("GuiItemManager::UpdateAntennaList() " + antennas[i] + "\n");
+      #endif
+   }
+   
+   theNumAntenna = theAntennaList.GetCount();
+   
+   //-------------------------------------------------------
+   // update registered Antenna ComboBox
+   //-------------------------------------------------------
+   int sel;
+   wxString selStr;
+   for (std::vector<wxComboBox*>::iterator pos = mAntennaCBList.begin();
+        pos != mAntennaCBList.end(); ++pos)
+   {
+      sel = (*pos)->GetSelection();
+      selStr = (*pos)->GetValue();
+      
+      if (theNumAntenna > 0)
+      {
+         (*pos)->Clear();
+         (*pos)->Append(theAntennaList);
+         
+         // Insert first item as "No Antenna Selected"
+         if (theAntennaList[0] != selStr)
+         {
+            (*pos)->Insert("No Antenna Selected", 0);
+            (*pos)->SetSelection(0);
+         }
+         else
+         {
+            (*pos)->SetSelection(sel);
+         }
+      }
+   }
+   
+} // end UpdateAntennaList()
+
+
+//------------------------------------------------------------------------------
+// void UpdateSensorList()
+//------------------------------------------------------------------------------
+/**
+ * Updates configured Sensor list. This list includes Sensors and Antennas.
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::UpdateSensorList()
+{
+   StringArray sensors =
+      theGuiInterpreter->GetListOfObjects(Gmat::SENSOR);
+   int numSensor = sensors.size();
+   StringArray antennas =
+      theGuiInterpreter->GetListOfObjects(Gmat::ANTENNA);
+   int numAntenna = antennas.size();
+   
+   #if DBGLVL_GUI_ITEM_HW
+   MessageInterface::ShowMessage
+      ("GuiItemManager::UpdateSensorList() numSensor=%d, numAntenna=%d\n", ,
+       numSensor, numAntenna);
+   #endif
+   
+   theNumSensor = 0;
+   theSensorList.Clear();
+   
+   for (int i=0; i<numSensor; i++)
+   {
+      theSensorList.Add(sensors[i].c_str());
+      
+      #if DBGLVL_GUI_ITEM_HW > 1
+      MessageInterface::ShowMessage
+         ("GuiItemManager::UpdateSensorList() " + sensors[i] + "\n");
+      #endif
+   }
+   
+   for (int i=0; i<numAntenna; i++)
+   {
+      theSensorList.Add(antennas[i].c_str());
+      
+      #if DBGLVL_GUI_ITEM_HW > 1
+      MessageInterface::ShowMessage
+         ("GuiItemManager::UpdateSensorList() " + antennas[i] + "\n");
+      #endif
+   }
+   
+   theNumSensor = theSensorList.GetCount();
+   
+   //-------------------------------------------------------
+   // update registered Sensor ListBox
+   //-------------------------------------------------------
+   // It's ok to have the same Sensor in more than one spacecraft since
+   // the Sandbox will clone it.
+   std::vector<wxArrayString*>::iterator exPos = mSensorExcList.begin();
+   
+   for (std::vector<wxListBox*>::iterator pos = mSensorLBList.begin();
+        pos != mSensorLBList.end(); ++pos)
+   {
+      wxArrayString *excList = *exPos++;
+      (*pos)->Clear();
+      
+      for (int i=0; i<theNumSensor; i++)
+      {
+         if (excList->Index(theSensorList[i].c_str()) == wxNOT_FOUND)
+            (*pos)->Append(theSensorList[i]);
+      }
+      
+      (*pos)->SetSelection((*pos)->GetCount() - 1);
+   }
+   
+   //-------------------------------------------------------
+   // update registered Sensor ComboBox
+   //-------------------------------------------------------
+   int sel;
+   wxString selStr;
+   for (std::vector<wxComboBox*>::iterator pos = mSensorCBList.begin();
+        pos != mSensorCBList.end(); ++pos)
+   {
+      sel = (*pos)->GetSelection();
+      selStr = (*pos)->GetValue();
+      
+      if (theNumSensor > 0)
+      {
+         (*pos)->Clear();
+         (*pos)->Append(theSensorList);
+         
+         // Insert first item as "No Sensor Selected"
+         if (theSensorList[0] != selStr)
+         {
+            (*pos)->Insert("No Sensor Selected", 0);
+            (*pos)->SetSelection(0);
+         }
+         else
+         {
+            (*pos)->SetSelection(sel);
+         }
+      }
+   }
+   
+} // end UpdateSensorList()
+
+
+//------------------------------------------------------------------------------
 // void UpdateFunctionList()
 //------------------------------------------------------------------------------
 /**
@@ -4144,8 +4509,10 @@ void GuiItemManager::UpdateSubscriberList()
       theGuiInterpreter->GetListOfObjects(Gmat::SUBSCRIBER);
    theNumSubscriber = items.size();
    theNumReportFile = 0;
+   theNumXyPlot = 0;
    theSubscriberList.Clear();
    theReportFileList.Clear();
+   theXyPlotList.Clear();
    
    #if DBGLVL_GUI_ITEM_SUBS
    MessageInterface::ShowMessage
@@ -4154,6 +4521,7 @@ void GuiItemManager::UpdateSubscriberList()
    
    wxArrayString subsNames;
    wxArrayString rfNames;
+   wxArrayString xyPlotNames;
    GmatBase *obj;
    
    // Update Subscriber list
@@ -4172,13 +4540,26 @@ void GuiItemManager::UpdateSubscriberList()
    {
       // check for ReportFile
       obj = theGuiInterpreter->GetConfiguredObject(items[i]);
-      if (obj->GetTypeName() == "ReportFile")
+      if (obj->IsOfType("ReportFile"))
       {
          theReportFileList.Add(items[i].c_str());         
       }
    }
    
    theNumReportFile = theReportFileList.GetCount();
+   
+   // Update ReportFile list
+   for (int i=0; i<theNumSubscriber; i++)
+   {
+      // check for ReportFile
+      obj = theGuiInterpreter->GetConfiguredObject(items[i]);
+      if (obj->IsOfType("XYPlot"))
+      {
+         theXyPlotList.Add(items[i].c_str());         
+      }
+   }
+   
+   theNumXyPlot = theXyPlotList.GetCount();
    
    //-------------------------------------------------------
    // update registered Subscriber ComboBox
@@ -4242,6 +4623,44 @@ void GuiItemManager::UpdateSubscriberList()
       for (int i=0; i<theNumSubscriber; i++)
          if ((*pos)->FindString(theSubscriberList[i]) == wxNOT_FOUND)
             (*pos)->Append(theSubscriberList[i]);
+      
+   }
+   
+   //-------------------------------------------------------
+   // update registered XYPlot CheckListBox
+   //-------------------------------------------------------
+   for (std::vector<wxCheckListBox*>::iterator pos = mXyPlotCLBList.begin();
+        pos != mXyPlotCLBList.end(); ++pos)
+   {
+      int guiCount = (*pos)->GetCount();
+      bool found = false;
+      wxString item;
+      
+      // if deleted item remove from the list
+      for (int i=0; i<guiCount; i++)
+      {
+         found = false;
+         for (int j=0; j<theNumXyPlot; j++)
+         {
+            item = (*pos)->GetString(i);
+            if (item == theXyPlotList[j])
+            {
+               found = true;
+               break;
+            }
+         }
+         
+         if (!found)
+         {
+            (*pos)->Delete(i);
+            guiCount--;
+         }
+      }
+      
+      // if new item add to the list
+      for (int i=0; i<theNumXyPlot; i++)
+         if ((*pos)->FindString(theXyPlotList[i]) == wxNOT_FOUND)
+            (*pos)->Append(theXyPlotList[i]);
       
    }
    
@@ -4675,31 +5094,37 @@ GuiItemManager::GuiItemManager()
    theNumScProperty = 0;
    theNumImpBurnProperty = 0;
    theNumFiniteBurnProperty = 0;
+   theNumAllObject = 0;
+   theNumSpacePoint = 0;
+   theNumCelesPoint = 0;
+   theNumCelesBody = 0;
+   theNumCalPoint = 0;
    theNumSpaceObject = 0;
-   theNumFormation = 0;
    theNumSpacecraft = 0;
+   theNumFormation = 0;
+   theNumGroundStation = 0;
+   theNumCoordSys = 0;
+   theNumPropagator = 0;
+   theNumForceModel = 0;
    theNumImpBurn = 0;
    theNumFiniteBurn = 0;
-   theNumCoordSys = 0;
-   theNumFunction = 0;
+   theNumSolver = 0;
+   theNumBoundarySolver = 0;
+   theNumOptimizer = 0;
    theNumFuelTank = 0;
    theNumThruster = 0;
+   theNumSensor = 0;
+   theNumAntenna = 0;
+   theNumFunction = 0;
+   theNumSubscriber = 0;
+   theNumReportFile = 0;
+   theNumXyPlot = 0;
    theNumPlottableParam = 0;
    theNumSystemParam = 0;
    theNumUserVariable = 0;
    theNumUserString = 0;
    theNumUserArray = 0;
    theNumUserParam = 0;
-   theNumCelesBody = 0;
-   theNumCelesPoint = 0;
-   theNumCalPoint = 0;
-   theNumSubscriber = 0;
-   theNumSolver = 0;
-   theNumBoundarySolver = 0;
-   theNumOptimizer = 0;
-   theNumSpacePoint = 0;
-   theNumPropagator = 0;
-   theNumForceModel = 0;
    
    // update property list
    UpdatePropertyList();
