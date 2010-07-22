@@ -727,7 +727,7 @@ ObjectArray& GroundStation::GetRefObjectArray(const Gmat::ObjectType type)
 		break;
 	}
 
-	BodyFixedPoint::GetRefObjectArray(type);
+	return BodyFixedPoint::GetRefObjectArray(type);
 }
 
 
@@ -738,7 +738,7 @@ ObjectArray& GroundStation::GetRefObjectArray(const std::string& typeString)
 		return hardwareList;
 	}
 
-	BodyFixedPoint::GetRefObjectArray(typeString);
+	return BodyFixedPoint::GetRefObjectArray(typeString);
 }
 
 
