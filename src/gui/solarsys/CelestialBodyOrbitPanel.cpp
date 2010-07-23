@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  CelestialBodyOrbitPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -337,25 +337,31 @@ void CelestialBodyOrbitPanel::LoadData()
       }
       if (ephemSrc == "TwoBodyPropagation")
       {
-         initialEpochTextCtrl->Enable();
-         SMATextCtrl->Enable();
-         ECCTextCtrl->Enable();
-         INCTextCtrl->Enable();
-         RAANTextCtrl->Enable();
-         AOPTextCtrl->Enable();
-         TATextCtrl->Enable();
-         mainBoxSizer->Layout();
+         if (!isSun)
+         {
+            initialEpochTextCtrl->Enable();
+            SMATextCtrl->Enable();
+            ECCTextCtrl->Enable();
+            INCTextCtrl->Enable();
+            RAANTextCtrl->Enable();
+            AOPTextCtrl->Enable();
+            TATextCtrl->Enable();
+            mainBoxSizer->Layout();
+         }
       }
       else
       {
-         initialEpochTextCtrl->Disable();
-         SMATextCtrl->Disable();
-         ECCTextCtrl->Disable();
-         INCTextCtrl->Disable();
-         RAANTextCtrl->Disable();
-         AOPTextCtrl->Disable();
-         TATextCtrl->Disable();
-         mainBoxSizer->Layout();
+         if (!isSun)
+         {
+            initialEpochTextCtrl->Disable();
+            SMATextCtrl->Disable();
+            ECCTextCtrl->Disable();
+            INCTextCtrl->Disable();
+            RAANTextCtrl->Disable();
+            AOPTextCtrl->Disable();
+            TATextCtrl->Disable();
+            mainBoxSizer->Layout();
+         }
       }
       if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable)
       {
@@ -776,25 +782,31 @@ void CelestialBodyOrbitPanel::OnEphemSourceComboBoxChange(wxCommandEvent &event)
    }
    if (newEphemSrc == "TwoBodyPropagation")
    {
-      initialEpochTextCtrl->Enable();
-      SMATextCtrl->Enable();
-      ECCTextCtrl->Enable();
-      INCTextCtrl->Enable();
-      RAANTextCtrl->Enable();
-      AOPTextCtrl->Enable();
-      TATextCtrl->Enable();
-      mainBoxSizer->Layout();
+      if (!isSun)
+      {
+         initialEpochTextCtrl->Enable();
+         SMATextCtrl->Enable();
+         ECCTextCtrl->Enable();
+         INCTextCtrl->Enable();
+         RAANTextCtrl->Enable();
+         AOPTextCtrl->Enable();
+         TATextCtrl->Enable();
+         mainBoxSizer->Layout();
+      }
    }
    else
    {
-      initialEpochTextCtrl->Disable();
-      SMATextCtrl->Disable();
-      ECCTextCtrl->Disable();
-      INCTextCtrl->Disable();
-      RAANTextCtrl->Disable();
-      AOPTextCtrl->Disable();
-      TATextCtrl->Disable();
-      mainBoxSizer->Layout();
+      if (!isSun)
+      {
+         initialEpochTextCtrl->Disable();
+         SMATextCtrl->Disable();
+         ECCTextCtrl->Disable();
+         INCTextCtrl->Disable();
+         RAANTextCtrl->Disable();
+         AOPTextCtrl->Disable();
+         TATextCtrl->Disable();
+         mainBoxSizer->Layout();
+      }
    }
 
    if ((userDef || allowSpiceForDefaultBodies) && spiceAvailable)
