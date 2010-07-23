@@ -46,9 +46,11 @@ protected:
    wxControl *          BuildControl(wxWindow *parent, Integer index, const std::string &label, wxFileConfig *config);
    void                 LoadControl(const std::string &label);
    void                 SaveControl(const std::string &label);
-   virtual std::string  GetLabelName(std::string text, wxFileConfig *config) const;
+   virtual std::string  GetParameterLabel(Integer index, wxFileConfig *config) const;
+   virtual std::string  GetParameterUnit(Integer index, wxFileConfig *config) const;
    std::string  		   AssignAcceleratorKey(std::string text, std::vector<char> *accelKeys);
    SizerMapType *       CreateGroups(wxFlexGridSizer *mainSizer, wxFileConfig *config);
+   virtual void         SortGroups(std::vector<std::string> *groupNames, wxFileConfig *config);
    virtual void         SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config);
    virtual void         NormalizeLabels( std::vector<std::string> propertyNames, 
                                          std::vector<wxString> propertyGroups, 

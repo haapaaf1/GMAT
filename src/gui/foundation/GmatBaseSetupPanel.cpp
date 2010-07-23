@@ -176,7 +176,7 @@ void GmatBaseSetupPanel::Create()
       i = mObject->GetParameterID(*propertyItem);
       // set the path to the section that contains the parameter's items
       pConfig->SetPath(wxT(("/"+mObject->GetParameterText(i)).c_str()));
-      labelText = GetLabelName(mObject->GetParameterText(i), pConfig);
+      labelText = GetParameterLabel(i, pConfig);
       labelText = AssignAcceleratorKey(labelText, &accelKeys);
       if (mObject->GetParameterType(i) != Gmat::BOOLEAN_TYPE)
          aLabel = new wxStaticText(this, ID_TEXT,
@@ -191,7 +191,7 @@ void GmatBaseSetupPanel::Create()
       propertyControls.push_back(control);
 
       aLabel = new wxStaticText(this, ID_TEXT, 
-         wxT(mObject->GetParameterUnit(i).c_str()));
+         wxT(GetParameterUnit(i, pConfig).c_str()));
       propertyUnits.push_back(aLabel);
    }
    
@@ -292,9 +292,20 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
       bCont = config->GetNextGroup(groupName, dummy);
    }
 
-   // now, for all the groups, add them to their parent
+   // create an ordered list of groups
+   std::vector<std::string> groupNames;
    for (item = groups->begin(); item != groups->end(); ++item)
    {
+	   groupName = item->first;
+	   groupNames.push_back(groupName.Lower().c_str());
+   }
+   SortGroups(&groupNames, config);
+
+   // now, for all the groups, add them to their parent
+//   for (item = groups->begin(); item != groups->end(); ++item)
+   for (unsigned int i = 0; i < groupNames.size(); i++)
+   {
+      item = groups->find(groupNames[i]);
       groupName = item->first;
       sizer = (wxSizer *) item->second;
       // set the parent of the sizer, if doesn't exist, then it is the main sizer
@@ -315,6 +326,7 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
    }
    return groups;
 }
+
 
 //------------------------------------------------------------------------------
 // void LoadData()
@@ -458,6 +470,28 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
             managedComboBoxMap.insert(std::make_pair("CoordinateSystem", cbControl));
             control = cbControl;
          }
+         else if (type == Gmat::ANTENNA)
+         {
+            // The GuiItemManager automatically registers wxComboBox in order to
+            // listen for any SpacePoint updates, so need to unregister
+            // in the destructor
+            wxComboBox *cbControl =
+               theGuiManager->GetAntennaComboBox(this, ID_COMBOBOX,
+                                                  wxSize(180,-1));
+            managedComboBoxMap.insert(std::make_pair("Antenna", cbControl));
+            control = cbControl;
+         }
+         else if (type == Gmat::SENSOR)
+         {
+            // The GuiItemManager automatically registers wxComboBox in order to
+            // listen for any SpacePoint updates, so need to unregister
+            // in the destructor
+            wxComboBox *cbControl =
+               theGuiManager->GetSensorComboBox(this, ID_COMBOBOX,
+                                                  wxSize(180,-1));
+            managedComboBoxMap.insert(std::make_pair("Sensor", cbControl));
+            control = cbControl;
+         }
          else
          {
             // Check if enumeration strings available for owned object types
@@ -544,10 +578,6 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
    {
       case Gmat::BOOLEAN_TYPE:
     	  ((wxCheckBox*) theControl)->SetValue(mObject->GetBooleanParameter(mObject->GetParameterID(label)));
-//         if (mObject->GetBooleanParameter(mObject->GetParameterID(label)))
-//            ((wxComboBox*)(theControl))->SetValue(wxT("true"));
-//         else
-//            ((wxComboBox*)(theControl))->SetValue(wxT("false"));
          break;
          
       case Gmat::REAL_TYPE:
@@ -617,10 +647,6 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
       case Gmat::BOOLEAN_TYPE:
          {
         	  mObject->SetBooleanParameter(index, ((wxCheckBox*)theControl)->GetValue());
-//            bool val = true;
-//            if (((wxComboBox*)theControl)->GetValue() == "false")
-//               val = false;
-//            mObject->SetBooleanParameter(index, val);
          }
          break;
       
@@ -723,16 +749,18 @@ std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text, std::vect
 }
 
 //------------------------------------------------------------------------------
-// wxString GetLabelName(std::string text)
+// wxString GetParameterLabel(Integer i, wxFileConfig *config)
 //------------------------------------------------------------------------------
 /**
- * Creates a label from a TitleCase string
+ * Creates a label for a parameter text.  It uses INI (if available) or
+ * just a TitleCase string representation of the parameter text
  *
  * @param text input text
  */
 //------------------------------------------------------------------------------
-std::string GmatBaseSetupPanel::GetLabelName(std::string text, wxFileConfig *config) const
+std::string GmatBaseSetupPanel::GetParameterLabel(Integer i, wxFileConfig *config) const
 {
+	std::string text = mObject->GetParameterText(i);
 	std::string titleText;
     wxString str;
 
@@ -770,6 +798,31 @@ std::string GmatBaseSetupPanel::GetLabelName(std::string text, wxFileConfig *con
 		titleText += text[i];
 	}
 	return titleText;
+}
+
+
+//------------------------------------------------------------------------------
+// wxString GetParameterUnit(Integer i, wxFileConfig *config)
+//------------------------------------------------------------------------------
+/**
+ * Creates a label for a parameter text.  It uses INI (if available) or
+ * just a TitleCase string representation of the parameter text
+ *
+ * @param text input text
+ */
+//------------------------------------------------------------------------------
+std::string GmatBaseSetupPanel::GetParameterUnit(Integer i, wxFileConfig *config) const
+{
+	std::string text = mObject->GetParameterText(i);
+    wxString str;
+
+	// first, see if the parameter is in the object's INI file
+   // set the path to the section that contains the parameter's items
+   config->SetPath(wxT(("/"+text).c_str()));
+   if (config->Read(wxT("Unit"), &str))
+	   return str.c_str();
+   else
+	   return mObject->GetParameterUnit(i);
 }
 
 
@@ -825,6 +878,15 @@ void GmatBaseSetupPanel::OnTextChange(wxCommandEvent& event)
    EnableUpdate(true);
 }
 
+
+//------------------------------------------------------------------------------
+// void SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config)
+//------------------------------------------------------------------------------
+/**
+ * Sort properties based on INI PositionBefore statements
+ *
+ */
+//------------------------------------------------------------------------------
 void GmatBaseSetupPanel::SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config)
 {
    // first, see if the INI file wants properties alphabetically sorted
@@ -860,6 +922,46 @@ void GmatBaseSetupPanel::SortProperties(std::vector<std::string> *propertyNames,
             propertyNames->push_back(origOrder[i]);
          else
             propertyNames->insert(beforeItem, origOrder[i]);
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void SortGroups(std::vector<std::string> *groupNames, wxFileConfig *config)
+//------------------------------------------------------------------------------
+/**
+ * Sort groups based on INI PositionBefore statements
+ *
+ */
+//------------------------------------------------------------------------------
+void GmatBaseSetupPanel::SortGroups(std::vector<std::string> *groupNames, wxFileConfig *config)
+{
+   // go through all the groups and order them according to "Position before"
+   wxString position;
+   std::vector<std::string>::iterator item;
+   std::vector<std::string>::iterator beforeItem;
+   std::vector<std::string> origOrder = *groupNames;
+
+   for (unsigned int i = 0; i < origOrder.size(); i++)
+   {
+      // see if position defined
+      if (config->Read(("/"+origOrder[i]+"/Position Before").c_str(), &position))
+      {
+         // find the group to move before
+         if (position != "")
+         {
+            beforeItem = find(groupNames->begin(), groupNames->end(), position.c_str());
+            if (beforeItem == groupNames->end()) continue;
+         }
+         // find the group to move
+         item = find(groupNames->begin(), groupNames->end(), origOrder[i].c_str());
+         groupNames->erase(item);
+         // if no position before specified, move to the end
+         if (position == "")
+            groupNames->push_back(origOrder[i]);
+         else
+            groupNames->insert(beforeItem, origOrder[i]);
       }
    }
 }
