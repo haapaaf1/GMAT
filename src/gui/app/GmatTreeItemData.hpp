@@ -153,6 +153,7 @@ namespace GmatTree
       FUELTANK,
       THRUSTER,
       SENSOR,
+      HARDWARE,
       
       FORMATION,
       FORMATION_SPACECRAFT,
