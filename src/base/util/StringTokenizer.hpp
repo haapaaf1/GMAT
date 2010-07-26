@@ -20,9 +20,6 @@
 #ifndef StringTokenizer_hpp
 #define StringTokenizer_hpp
 
-#include <string>
-#include <vector>
-#include <iterator>
 #include "gmatdefs.hpp"
 
 class GMAT_API StringTokenizer
@@ -40,16 +37,16 @@ public:
    
    Integer CountTokens() const; 
    std::string GetToken(const Integer loc) const;
-   std::vector<std::string> GetAllTokens() const;
+   const StringArray& GetAllTokens() const;
    
    void Set(const std::string &str, const std::string &delim);
    void Set(const std::string &str, const std::string &delim, bool insertDelim);
    
 private:
    
-   std::vector<std::string> stringTokens;
-   std::string              delimiters;
-   Integer                  countTokens;
+   StringArray  stringTokens;
+   std::string  delimiters;
+   Integer      countTokens;
    
    void Parse(const std::string &str);
    void Parse(const std::string &str, bool insertDelim);

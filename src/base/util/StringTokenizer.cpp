@@ -156,7 +156,7 @@ std::string StringTokenizer::GetToken(const Integer loc)  const
  * 
  */
 //-------------------------------------------------------------------------------
-std::vector<std::string> StringTokenizer::GetAllTokens() const 
+const StringArray& StringTokenizer::GetAllTokens() const 
 {
    return stringTokens; 
 }
