@@ -146,6 +146,7 @@ protected:
    void OnAddSubscriber(wxCommandEvent &event);
    void OnAddDiffCorr(wxCommandEvent &event);
    void OnAddSqp(wxCommandEvent &event);
+   void OnAddHardware(wxCommandEvent &event);
    void OnAddSolver(wxCommandEvent &event);
    void OnAddVariable(wxCommandEvent &event);
    void OnAddArray(wxCommandEvent &event);

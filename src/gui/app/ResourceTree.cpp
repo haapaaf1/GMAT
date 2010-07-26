@@ -98,6 +98,8 @@
 // ID macros for plug-ins
 #define SOLVER_BEGIN 150
 #define SOLVER_END 200
+#define HARDWARE_BEGIN 250
+#define HARDWARE_END 300
 
 #define SUBSCRIBER_BEGIN SOLVER_END + 1
 #define SUBSCRIBER_END SUBSCRIBER_BEGIN + 50
@@ -134,6 +136,8 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_BODY, ResourceTree::OnAddBody)
    EVT_MENU(POPUP_ADD_DIFF_CORR, ResourceTree::OnAddDiffCorr)
    EVT_MENU(POPUP_ADD_SQP, ResourceTree::OnAddSqp)
+   EVT_MENU_RANGE(POPUP_ADD_HARDWARE + HARDWARE_BEGIN,        // Other Hardware
+                  POPUP_ADD_HARDWARE + HARDWARE_END, ResourceTree::OnAddHardware)
    EVT_MENU_RANGE(POPUP_ADD_SOLVER + SOLVER_BEGIN,        // Other Solvers
                   POPUP_ADD_SOLVER + SOLVER_END, ResourceTree::OnAddSolver)
    EVT_MENU(POPUP_ADD_REPORT_FILE, ResourceTree::OnAddReportFile)
@@ -456,6 +460,9 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
       break;
    case GmatTree::THRUSTER:
       theGuiManager->UpdateThruster();
+      break;
+   case GmatTree::HARDWARE:
+      theGuiManager->UpdateSensor();
       break;
    case GmatTree::IMPULSIVE_BURN:
    case GmatTree::FINITE_BURN:
@@ -1692,6 +1699,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::EPHEMERIS_FILE) ||
         (itemType == GmatTree::DIFF_CORR) ||
         (itemType == GmatTree::SQP) ||
+        (itemType == GmatTree::HARDWARE) ||
         (itemType == GmatTree::SOLVER) ||
         (itemType == GmatTree::BARYCENTER) ||
         (itemType == GmatTree::VARIABLE) ||
@@ -2329,6 +2337,40 @@ void ResourceTree::OnAddSqp(wxCommandEvent &event)
       Expand(item);
 
       theGuiManager->UpdateSolver();
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnAddHardware(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Add a generic hardware to hardware folder
+ *
+ * The code used here should be generalizable for other plugin elements as well.
+ *
+ * @param <event> command event
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::OnAddHardware(wxCommandEvent &event)
+{
+   // Look up the plugin type based on the ID built with menu that selected it
+   std::string selected = pluginMap[event.GetId()];
+
+   // The rest is like the other tree additions
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName(selected, 1);
+
+   GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
+
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(name, GmatTree::HARDWARE));
+      Expand(item);
+
+      theGuiManager->UpdateSensor();
    }
 }
 
@@ -3824,6 +3866,21 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
    case GmatTree::HARDWARE_FOLDER:
       menu->Append(POPUP_ADD_FUELTANK, wxT("Fuel Tank"));
       menu->Append(POPUP_ADD_THRUSTER, wxT("Thruster"));
+      listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::HARDWARE);
+      newId = HARDWARE_BEGIN;
+      for (StringArray::iterator i = listOfObjects.begin();
+           i != listOfObjects.end(); ++i, ++newId)
+      {
+         // Drop the ones that are already there for now
+         std::string hardwareType = (*i);
+         if ((hardwareType != "FuelTank") &&
+             (hardwareType != "Thruster"))
+         {
+            // Save the ID and type name for event handling
+            pluginMap[POPUP_ADD_HARDWARE + newId] = hardwareType;
+            menu->Append(POPUP_ADD_HARDWARE + newId, wxT(hardwareType.c_str()));
+         }
+      }
       break;
    case GmatTree::BURN_FOLDER:
       menu->Append(POPUP_ADD_IMPULSIVE_BURN, wxT("ImpulsiveBurn"));
@@ -3983,6 +4040,7 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
       break;
    case GmatTree::FUELTANK:
    case GmatTree::THRUSTER:
+   case GmatTree::HARDWARE:
    case GmatTree::SENSOR:
       objType = Gmat::HARDWARE;
       break;
@@ -4043,6 +4101,7 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
       return mFunctionItem;
    case GmatTree::FUELTANK:
    case GmatTree::THRUSTER:
+   case GmatTree::HARDWARE:
       return mHardwareItem;
    case GmatTree::BARYCENTER:
    case GmatTree::LIBRATION_POINT:
