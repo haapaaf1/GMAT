@@ -99,7 +99,7 @@ protected:
    };
    
    Spacecraft             *spacecraft;
-   CoordinateSystem       *coordSystem;
+   CoordinateSystem       *outCoordSystem;
    Interpolator           *interpolator; // owned object
    SpiceOrbitKernelWriter *spkWriter;    // owned object
    
@@ -120,7 +120,7 @@ protected:
    std::string stepSize;
    std::string interpolatorName;
    std::string stateType;
-   std::string coordSystemName;
+   std::string outCoordSystemName;
    bool writeEphemeris;
    /// for propagator change
    std::string prevPropName;
@@ -198,7 +198,7 @@ protected:
    bool         CheckInitialAndFinalEpoch();
    void         HandleCcsdsOrbitData(bool writeData);
    void         HandleSpkOrbitData(bool writeData);
-   
+
    // Interpolation
    void         RestartInterpolation(const std::string &comments = "");
    bool         IsTimeToWrite(Real epochInSecs, const Real state[6]);
@@ -253,15 +253,20 @@ protected:
    void         WriteSpkComments(const std::string &comments);
    void         FinalizeSpkFile();
    
+   // CoordinateSystem conversion
+   void         ConvertState(Real epochInDays, const Real inState[6],
+                             Real outState[6]);
+   
    // for time formatting
    std::string  ToUtcGregorian(Real epoch, bool inDays = false, Integer format = 1);
    
    // for debugging
    void         DebugWriteTime(const std::string &msg, Real epoch, bool inDays = false,
                                Integer format = 2);
-   void         DebugWriteOrbit(Real epoch, const Real state[6], bool inDays = false,
-                                bool logOnly = false);
-   void         DebugWriteOrbit(A1Mjd *epochInDays, Rvector6 *state, bool logOnly = false);
+   void         DebugWriteOrbit(const std::string &msg, Real epoch, const Real state[6],
+                                bool inDays = false, bool logOnly = false);
+   void         DebugWriteOrbit(const std::string &msg, A1Mjd *epochInDays,
+                                Rvector6 *state, bool logOnly = false);
    
    // methods inherited from Subscriber
    virtual bool Distribute(Integer len);

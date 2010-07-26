@@ -43,9 +43,10 @@
 //#define DEBUG_EPHEMFILE_WRITE
 //#define DEBUG_EPHEMFILE_RESTART
 //#define DEBUG_EPHEMFILE_FINISH
-//#define DEBUG_EPHEMFILE_SOLVER_DATA
 //#define DEBUG_EPHEMFILE_TEXT
+//#define DEBUG_EPHEMFILE_SOLVER_DATA
 //#define DBGLVL_EPHEMFILE_DATA 1
+//#define DBGLVL_EPHEMFILE_DATA_LABELS 1
 //#define DBGLVL_EPHEMFILE_MANEUVER 1
 //#define DBGLVL_EPHEMFILE_PROP_CHANGE 1
 
@@ -110,7 +111,7 @@ EphemerisFile::PARAMETER_TYPE[EphemerisFileParamCount - SubscriberParamCount] =
 EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
    Subscriber          (type, name),
    spacecraft          (NULL),
-   coordSystem         (NULL),
+   outCoordSystem      (NULL),
    interpolator        (NULL),
    spkWriter           (NULL),
    oututPath           (""),
@@ -124,7 +125,7 @@ EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
    stepSize            ("IntegratorSteps"),
    interpolatorName    ("Lagrange"),
    stateType           ("Cartesian"),
-   coordSystemName     ("EarthMJ2000Eq"),
+   outCoordSystemName  ("EarthMJ2000Eq"),
    writeEphemeris      (true),
    prevPropName        (""),
    currPropName        (""),
@@ -268,7 +269,7 @@ EphemerisFile::~EphemerisFile()
 EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    Subscriber          (ef),
    spacecraft          (ef.spacecraft),
-   coordSystem         (ef.coordSystem),
+   outCoordSystem      (ef.outCoordSystem),
    interpolator        (NULL),
    spkWriter           (NULL),
    oututPath           (ef.oututPath),
@@ -282,7 +283,7 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    stepSize            (ef.stepSize),
    interpolatorName    (ef.interpolatorName),
    stateType           (ef.stateType),
-   coordSystemName     (ef.coordSystemName),
+   outCoordSystemName  (ef.outCoordSystemName),
    writeEphemeris      (ef.writeEphemeris),
    prevPropName        (ef.prevPropName),
    currPropName        (ef.currPropName),
@@ -331,7 +332,7 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    Subscriber::operator=(ef);
    
    spacecraft          = ef.spacecraft;
-   coordSystem         = ef.coordSystem;
+   outCoordSystem      = ef.outCoordSystem;
    interpolator        = NULL;
    spkWriter           = NULL;
    oututPath           = ef.oututPath;
@@ -345,7 +346,7 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    stepSize            = ef.stepSize;
    interpolatorName    = ef.interpolatorName;
    stateType           = ef.stateType;
-   coordSystemName     = ef.coordSystemName;
+   outCoordSystemName  = ef.outCoordSystemName;
    writeEphemeris      = ef.writeEphemeris;
    prevPropName        = ef.prevPropName;
    currPropName        = ef.currPropName;
@@ -501,9 +502,9 @@ void EphemerisFile::ValidateParameters()
          ("The Spacecraft \"" + spacecraftName + "\" has not been set for "
           "the EphemerisFile \"" + GetName() + "\"");
    
-   if (coordSystem == NULL)
+   if (outCoordSystem == NULL)
       throw SubscriberException
-         ("The CoordinateSystem \"" + coordSystemName + "\" has not been set for "
+         ("The CoordinateSystem \"" + outCoordSystemName + "\" has not been set for "
           "the EphemerisFile \"" + GetName() + "\"");
    
    if (theDataCoordSystem == NULL)
@@ -511,6 +512,14 @@ void EphemerisFile::ValidateParameters()
          ("The internal CoordinateSystem which orbit data represents has not been set for "
           "the EphemerisFile \"" + GetName() + "\"");
    
+   #ifdef DEBUG_EPHEMFILE_INIT
+   MessageInterface::ShowMessage
+      ("EphemerisFile::ValidateParameters() leaving, spacecraft=<%p>'%s'\n"
+       "outCoordSystem=<%p>'%s', theDataCoordSystem=<%p>'%s'\n",
+       spacecraft, spacecraft->GetName().c_str(), outCoordSystem,
+       outCoordSystem->GetName().c_str(), theDataCoordSystem,
+       theDataCoordSystem->GetName().c_str());
+   #endif
 }
 
 
@@ -556,9 +565,9 @@ bool EphemerisFile::Initialize()
    
    #ifdef DEBUG_EPHEMFILE_INIT
    MessageInterface::ShowMessage
-      ("   fileType=%d, spacecraft=<%p>'%s', coordSystem=<%p>'%s'\n", fileType,
-       spacecraft, spacecraft->GetName().c_str(), coordSystem,
-       coordSystem->GetName().c_str());
+      ("   fileType=%d, spacecraft=<%p>'%s', outCoordSystem=<%p>'%s'\n", fileType,
+       spacecraft, spacecraft->GetName().c_str(), outCoordSystem,
+       outCoordSystem->GetName().c_str());
    #endif
    
    // If active and not initialized already, open report file
@@ -590,7 +599,7 @@ bool EphemerisFile::Initialize()
    // We don't need conversion for SPK_ORBIT. SpiceOrbitKernelWriter assumes it is in
    // J2000Eq frame for now
    if (fileType == CCSDS_OEM &&
-       theDataCoordSystem->GetName() != coordSystemName)
+       theDataCoordSystem->GetName() != outCoordSystemName)
       writeDataInDataCS = false;
    
    // Determine initial and final epoch in A1ModJulian, this format is what spacecraft
@@ -960,7 +969,7 @@ std::string EphemerisFile::GetStringParameter(const Integer id) const
    case STATE_TYPE:
       return stateType;
    case COORDINATE_SYSTEM:
-      return coordSystemName;
+      return outCoordSystemName;
 //   case WRITE_EPHEMERIS:
 //      return writeEphemeris;
    default:
@@ -1085,7 +1094,7 @@ bool EphemerisFile::SetStringParameter(const Integer id, const std::string &valu
          HandleError(STATE_TYPE, value, stateTypeList);
       }
    case COORDINATE_SYSTEM:
-      coordSystemName = value;
+      outCoordSystemName = value;
       return true;
 //   case WRITE_EPHEMERIS:
 //      if (find(writeEphemerisList.begin(), writeEphemerisList.end(), value) !=
@@ -1126,7 +1135,7 @@ GmatBase* EphemerisFile::GetRefObject(const Gmat::ObjectType type,
       return spacecraft;
    
    if (type == Gmat::COORDINATE_SYSTEM)
-      return coordSystem;
+      return outCoordSystem;
    
    return Subscriber::GetRefObject(type, name);
 }
@@ -1151,9 +1160,9 @@ bool EphemerisFile::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       spacecraft = (Spacecraft*)obj;
       return true;
    }
-   else if (type == Gmat::COORDINATE_SYSTEM && name == coordSystemName)
+   else if (type == Gmat::COORDINATE_SYSTEM && name == outCoordSystemName)
    {
-      coordSystem = (CoordinateSystem*)obj;
+      outCoordSystem = (CoordinateSystem*)obj;
       return true;
    }
    
@@ -1172,7 +1181,7 @@ const StringArray& EphemerisFile::GetRefObjectNameArray(const Gmat::ObjectType t
       refObjectNames.push_back(spacecraftName);
    
    if (type == Gmat::COORDINATE_SYSTEM || type == Gmat::UNKNOWN_OBJECT)
-      refObjectNames.push_back(coordSystemName);
+      refObjectNames.push_back(outCoordSystemName);
    
    return refObjectNames;
 }
@@ -1449,7 +1458,12 @@ bool EphemerisFile::CheckInitialAndFinalEpoch()
 // void HandleCcsdsOrbitData(bool writeData)
 //------------------------------------------------------------------------------
 void EphemerisFile::HandleCcsdsOrbitData(bool writeData)
-{   
+{
+   #ifdef DEBUG_EPHEMFILE_CCSDS
+   MessageInterface::ShowMessage
+      ("EphemerisFile::HandleCcsdsOrbitData() entered, writeData=%d\n", writeData);
+   #endif
+   
    // Check if it is time to write
    bool timeToWrite = IsTimeToWrite(currEpochInSecs, currState);
    
@@ -1499,6 +1513,10 @@ void EphemerisFile::HandleCcsdsOrbitData(bool writeData)
       if (writingNewSegment)
          writingNewSegment = false;
    }
+   
+   #ifdef DEBUG_EPHEMFILE_CCSDS
+   MessageInterface::ShowMessage("EphemerisFile::HandleCcsdsOrbitData() leaving\n");
+   #endif
 }
 
 
@@ -1512,7 +1530,7 @@ void EphemerisFile::HandleSpkOrbitData(bool writeData)
       BufferOrbitData(currEpochInDays, currState);
       
       #ifdef DEBUG_EPHEMFILE_TEXT
-      DebugWriteOrbit(currEpochInSecs, currState, true);
+      DebugWriteOrbit("In HandleSpkOrbitData:", currEpochInSecs, currState, true);
       #endif
    }
 }
@@ -1555,8 +1573,8 @@ bool EphemerisFile::IsTimeToWrite(Real epochInSecs, const Real state[6])
 {
    #ifdef DEBUG_EPHEMFILE_TIME
    MessageInterface::ShowMessage
-      ("EphemerisFile::IsTimeToWrite() entered, epochInSecs=%.16f, writingNewSegment=%d\n",
-       epochInSecs, writingNewSegment);
+      ("EphemerisFile::IsTimeToWrite() entered, epochInSecs=%.16f, state[0]=%f, "
+       "writingNewSegment=%d\n", epochInSecs, state[0], writingNewSegment);
    DebugWriteTime("current ", epochInSecs);
    #endif
    bool retval = true;
@@ -1718,8 +1736,8 @@ void EphemerisFile::WriteOrbitAt(Real reqEpochInSecs, const Real state[6])
 {
    #ifdef DEBUG_EPHEMFILE_ORBIT
    MessageInterface::ShowMessage
-      ("EphemerisFile::WriteOrbitAt() entered, reqEpochInSecs=%f\n",
-       reqEpochInSecs);
+      ("EphemerisFile::WriteOrbitAt() entered, reqEpochInSecs=%f, state[0]=%f\n",
+       reqEpochInSecs, state[0]);
    #endif
    
    if (writingNewSegment)
@@ -2367,7 +2385,7 @@ void EphemerisFile::WriteCcsdsOrbitDataSegment()
    
    #ifdef DEBUG_EPHEMFILE_TEXT
    for (UnsignedInt i = 0; i < a1MjdArray.size(); i++)
-      DebugWriteOrbit(a1MjdArray[i], stateArray[i]);
+      DebugWriteOrbit("In WriteCcsdsOrbitDataSegment:", a1MjdArray[i], stateArray[i]);
    #endif
    
    WriteRealCcsdsOrbitDataSegment();
@@ -2416,7 +2434,26 @@ void EphemerisFile::WriteCcsdsOemMetaData()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6])
 {
-   BufferOrbitData(reqEpochInSecs/86400.0, state);
+   #ifdef DEBUG_EPHEMFILE_CCSDS
+   MessageInterface::ShowMessage
+      ("EphemerisFile::WriteCcsdsOemData() entered, reqEpochInSecs=%f, "
+       "state[0]=%f\n", reqEpochInSecs, state[0]);
+   #endif
+   
+   Real outState[6];
+   for (int i = 0; i < 6; i++)
+      outState[i] = state[i];
+   
+   // Since CCSDS utilities do no convert to desired CoordinateSystem,
+   // convert it here
+   if (!writeDataInDataCS)
+      ConvertState(reqEpochInSecs/86400.0, state, outState);
+   
+   BufferOrbitData(reqEpochInSecs/86400.0, outState);
+   
+   #ifdef DEBUG_EPHEMFILE_CCSDS
+   MessageInterface::ShowMessage("EphemerisFile::WriteCcsdsOemData() leaving\n");
+   #endif
 }
 
 
@@ -2674,6 +2711,25 @@ void EphemerisFile::FinalizeSpkFile()
 
 
 //------------------------------------------------------------------------------
+// void ConvertState(Real epochInDays, const Real inState[6], Real outState[6])
+//------------------------------------------------------------------------------
+void EphemerisFile::ConvertState(Real epochInDays, const Real inState[6],
+                                 Real outState[6])
+{
+   #ifdef DEBUG_EPHEMFILE_CONVERT_STATE   
+   DebugWriteOrbit("In ConvertState(in):", epochInDays, inState, true, true);
+   #endif
+   
+   coordConverter.Convert(A1Mjd(epochInDays), inState, theDataCoordSystem,
+                          outState, outCoordSystem, true);
+   
+   #ifdef DEBUG_EPHEMFILE_CONVERT_STATE   
+   DebugWriteOrbit("In ConvertState(out):", epochInDays, outState, true, true);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 // std::string ToUtcGregorian(Real epoch, bool inDays = false, Integer format = 1)
 //------------------------------------------------------------------------------
 std::string EphemerisFile::ToUtcGregorian(Real epoch, bool inDays, Integer format)
@@ -2688,6 +2744,16 @@ std::string EphemerisFile::ToUtcGregorian(Real epoch, bool inDays, Integer forma
    // Convert current epoch to specified format
    TimeConverterUtil::Convert("A1ModJulian", epochInDays, "", epochFormat,
                               toMjd, epochStr, format);
+   
+   if (epochStr == "")
+   {
+      MessageInterface::ShowMessage
+         ("**** ERROR **** EphemerisFile::ToUtcGregorian() Cannot convert epoch %.10f %s "
+          "to UTCGregorian\n", epoch, inDays ? "days" : "secs");
+      
+      epochStr = "EpochError";
+   }
+   
    return epochStr;
 }
 
@@ -2712,11 +2778,11 @@ void EphemerisFile::DebugWriteTime(const std::string &msg, Real epoch, bool inDa
 
 
 //------------------------------------------------------------------------------
-// void DebugWriteOrbit(Real epoch, const Real state[6], bool inDays = false,
-//                      bool logOnly = false)
+// void DebugWriteOrbit(const std::string &msg, Real epoch, const Real state[6],
+//                      bool inDays = false, bool logOnly = false)
 //------------------------------------------------------------------------------
-void EphemerisFile::DebugWriteOrbit(Real epoch, const Real state[6], bool inDays,
-                                    bool logOnly)
+void EphemerisFile::DebugWriteOrbit(const std::string &msg, Real epoch,
+                                    const Real state[6], bool inDays, bool logOnly)
 {
    Real reqEpochInDays = epoch;
    if (!inDays)
@@ -2727,23 +2793,12 @@ void EphemerisFile::DebugWriteOrbit(Real epoch, const Real state[6], bool inDays
    
    std::string epochStr = ToUtcGregorian(reqEpochInDays, true, 2);
    
-   // Convert orbit data to output coordinate system
-   if (writeDataInDataCS)
-   {
-      outState = inState;
-   }
-   else
-   {
-      coordConverter.Convert(A1Mjd(reqEpochInDays), inState, theDataCoordSystem,
-                             outState, coordSystem, true);
-   }
-   
    if (logOnly)
    {
       MessageInterface::ShowMessage
-         ("%s  %24.10f  %24.10f  %24.10f  %20.16f  %20.16f  %20.16f\n",
-          epochStr.c_str(), outState[0], outState[1], outState[2], outState[3],
-          outState[4], outState[5]);
+         ("%s\n%s\n%24.10f  %24.10f  %24.10f\n%24.16f  %24.16f  %24.16f\n",
+          msg.c_str(), epochStr.c_str(), outState[0], outState[1], outState[2],
+          outState[3], outState[4], outState[5]);
    }
    else
    {
@@ -2759,11 +2814,13 @@ void EphemerisFile::DebugWriteOrbit(Real epoch, const Real state[6], bool inDays
 
 
 //------------------------------------------------------------------------------
-// void DebugWriteOrbit(A1Mjd *epochInDays, Rvector6 *state, bool logOnly = false)
+// void DebugWriteOrbit(const std::string &msg, A1Mjd *epochInDays, Rvector6 *state,
+//                      bool logOnly = false)
 //------------------------------------------------------------------------------
-void EphemerisFile::DebugWriteOrbit(A1Mjd *epochInDays, Rvector6 *state, bool logOnly)
+void EphemerisFile::DebugWriteOrbit(const std::string &msg, A1Mjd *epochInDays,
+                                    Rvector6 *state, bool logOnly)
 {
-   DebugWriteOrbit(epochInDays->GetReal(), state->GetDataVector(), true, logOnly);
+   DebugWriteOrbit(msg, epochInDays->GetReal(), state->GetDataVector(), true, logOnly);
 }
 
 
@@ -2799,7 +2856,8 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
       ("   len=%d, active=%d, isEndOfReceive=%d, runstate=%d, isManeuvering=%d, "
        "firstTimeWriting=%d\n", len, active, isEndOfReceive, runstate, isManeuvering,
        firstTimeWriting);
-   MessageInterface::ShowMessage("   dat[0]=%f\n", len == 0 ? -999.999 : dat[0]);
+   if (len > 0)
+      MessageInterface::ShowMessage("   dat[0]=%f, dat[1]=%f\n", dat[0], dat[1]);
    #endif
    #if DBGLVL_EPHEMFILE_DATA > 1
    MessageInterface::ShowMessage("   fileName='%s'\n", fileName.c_str());
@@ -2835,9 +2893,60 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
       return true;
    }
    
+   // Get proper id with data label
+   if (theDataLabels.empty())
+      return true;
+   
+   StringArray dataLabels = theDataLabels[0];
+   
+   #if DBGLVL_EPHEMFILE_DATA_LABELS
+   MessageInterface::ShowMessage("   Data labels for %s =\n   ", GetName().c_str());
+   for (int j=0; j<(int)dataLabels.size(); j++)
+      MessageInterface::ShowMessage("%s ", dataLabels[j].c_str());
+   MessageInterface::ShowMessage("\n");
+   #endif
+   
+   Integer idX, idY, idZ;
+   Integer idVx, idVy, idVz;
+   
+   idX  = FindIndexOfElement(dataLabels, spacecraftName + ".X");
+   idY  = FindIndexOfElement(dataLabels, spacecraftName + ".Y");
+   idZ  = FindIndexOfElement(dataLabels, spacecraftName + ".Z");
+   idVx = FindIndexOfElement(dataLabels, spacecraftName + ".Vx");
+   idVy = FindIndexOfElement(dataLabels, spacecraftName + ".Vy");
+   idVz = FindIndexOfElement(dataLabels, spacecraftName + ".Vz");
+   
+   #if DBGLVL_EPHEMFILE_DATA_LABELS
+   MessageInterface::ShowMessage
+      ("   spacecraft='%s', idX=%d, idY=%d, idZ=%d, idVx=%d, idVy=%d, idVz=%d\n",
+       spacecraftName.c_str(), idX, idY, idZ, idVx, idVy, idVz);
+   #endif
+   
+   // if any of index not found, just return true
+   if (idX  == -1 || idY  == -1 || idZ  == -1 ||
+       idVx == -1 || idVy == -1 || idVz == -1)
+      return true;
+   
+   #if DBGLVL_EPHEMFILE_DATA
+   MessageInterface::ShowMessage
+      ("   %s, %.11f, X,Y,Z = %f, %f, %f\n", GetName().c_str(), dat[0],
+       dat[idX], dat[idY], dat[idZ]);
+   #endif
+   
+   // Now copy distributed data to data member
    currEpochInDays = dat[0];
-   for (int i=0; i<6; i++)
-      currState[i] = dat[i+1];
+   currState[0] = dat[idX];
+   currState[1] = dat[idY];
+   currState[2] = dat[idZ];
+   currState[3] = dat[idVx];
+   currState[4] = dat[idVy];
+   currState[5] = dat[idVz];
+   
+   // old code
+   //currEpochInDays = dat[0];
+   //for (int i=0; i<6; i++)
+   //   currState[i] = dat[i+1];
+   
    
    // Internally all epochs are in seconds to avoid epoch drifting.
    // For long run epochs to process drifts behind the actual.
@@ -2853,7 +2962,7 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
          ("EphemerisFile::Distribute() Writing out state with solver's final "
           "solution, runstate=%d, maneuverEpochInDays=%f\n", runstate,
           maneuverEpochInDays);
-      DebugWriteOrbit(currEpochInSecs, currState, true, true);
+      DebugWriteOrbit("In Distribute:", currEpochInDays, currState, true, true);
       #endif
       
       // Check for epoch before maneuver epoch

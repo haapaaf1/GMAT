@@ -2552,28 +2552,6 @@ bool OpenGlPlot::RemoveSpacePoint(const std::string &name)
 
 
 //------------------------------------------------------------------------------
-// Integer FindIndexOfElement(StringArray &labelArray, const std::string &label)
-//------------------------------------------------------------------------------
-/*
- * Finds the index of the element label from the element label array.
- *
- * Typical element label array contains:
- *    All.epoch, scName.X, scName.Y, scName.Z, scName.Vx, scName.Vy, scName.Vz.
- */
-//------------------------------------------------------------------------------
-Integer OpenGlPlot::FindIndexOfElement(StringArray &labelArray,
-                                       const std::string &label)
-{
-   std::vector<std::string>::iterator pos;
-   pos = find(labelArray.begin(), labelArray.end(),  label);
-   if (pos == labelArray.end())
-      return -1;
-   else
-      return distance(labelArray.begin(), pos);
-}
-
-
-//------------------------------------------------------------------------------
 // void ClearDynamicArrays()
 //------------------------------------------------------------------------------
 void OpenGlPlot::ClearDynamicArrays()

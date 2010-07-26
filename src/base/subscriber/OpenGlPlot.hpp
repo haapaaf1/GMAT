@@ -145,9 +145,6 @@ protected:
                           bool show = true);
    bool     ClearSpacePointList();
    bool     RemoveSpacePoint(const std::string &name);
-   Integer  FindIndexOfElement(StringArray &labelArray,
-                               const std::string &label);
-   
    void     ClearDynamicArrays();
    void     UpdateObjectList(SpacePoint *sp, bool show = false);
    void     PutRvector3Value(Rvector3 &rvec3, Integer id,

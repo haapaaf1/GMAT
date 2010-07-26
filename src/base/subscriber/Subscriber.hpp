@@ -171,6 +171,8 @@ protected:
                                       const WrapperArray &fromWrappers);
    bool                 SetWrapperReference(GmatBase *obj, const std::string &name);
    void                 WriteWrappers();
+   Integer              FindIndexOfElement(StringArray &labelArray,
+                                           const std::string &label);
    
    // Methods that derived classes can override
    virtual bool         Distribute(Integer len) = 0;
