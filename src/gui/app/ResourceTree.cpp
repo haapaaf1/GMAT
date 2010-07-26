@@ -1628,7 +1628,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    // Bug 547 fix (loj: 2008.11.25)
    if (theMainFrame->IsChildOpen(selItemData))
    {
-      wxLogWarning(selItemData->GetName() + " cannot be deleted "
+      wxLogWarning("%s %s", selItemData->GetName().c_str(), "cannot be deleted "
                    "while panel is opened");
       wxLog::FlushActive();
       return;
@@ -1662,8 +1662,9 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    }
    else
    {
-      wxLogWarning("\"" + selItemData->GetName() + "\" cannot be deleted.\n"
-                   "It is currently used in other resource or command sequence");
+      wxLogWarning("\"%s\" %s", selItemData->GetName().c_str(), "cannot be "
+            "deleted.\nIt is currently used in other resource or command "
+            "sequence");
       wxLog::FlushActive();
    }
 }
