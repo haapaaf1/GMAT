@@ -609,19 +609,19 @@ GroundStation::GetRefObjectNameArray(const Gmat::ObjectType type)
    switch(type)
    {
       case Gmat::UNKNOWN_OBJECT:
-	  case Gmat::HARDWARE:
-		 retval = hardwareNames;
-		 if (type == Gmat::HARDWARE)
-			 break;
+      case Gmat::HARDWARE:
+         retval = hardwareNames;
+         if (type == Gmat::HARDWARE)
+            break;
 
-	  default:
-		 break;
+      default:
+         break;
    }
 
    // Now pick up the objects that the base classes need
    StringArray baseNames = BodyFixedPoint::GetRefObjectNameArray(type);
    for (UnsignedInt i = 0; i < baseNames.size(); ++i)
-	  retval.push_back(baseNames[i]);
+      retval.push_back(baseNames[i]);
 
    #ifdef DEBUG_INIT
       MessageInterface::ShowMessage("Groundstation Ref Object Name Array:\n");
@@ -684,7 +684,11 @@ GmatBase* GroundStation::GetRefObject(const Gmat::ObjectType type,
 bool GroundStation::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name)
 {
-//   MessageInterface::ShowMessage("GroundStation::SetRefObject(obj, type, name )obj.name = %s  type = %d  name = %s\n", obj->GetName().c_str(), type, name.c_str());
+   #ifdef DEBUG_INIT
+      MessageInterface::ShowMessage("GroundStation::SetRefObject(obj, "
+            "type, name):  obj.name = %s  type = %d  name = %s\n",
+            obj->GetName().c_str(), type, name.c_str());
+   #endif
 
    if (obj == NULL)
 	  return false;
