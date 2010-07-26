@@ -305,7 +305,7 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
 //   for (item = groups->begin(); item != groups->end(); ++item)
    for (unsigned int i = 0; i < groupNames.size(); i++)
    {
-      item = groups->find(groupNames[i]);
+      item = groups->find(groupNames[i].c_str());
       groupName = item->first;
       sizer = (wxSizer *) item->second;
       // set the parent of the sizer, if doesn't exist, then it is the main sizer
