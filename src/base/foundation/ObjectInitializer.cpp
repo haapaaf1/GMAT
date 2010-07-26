@@ -247,7 +247,10 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
    // The initialization order is:
    //
    //  1. CoordinateSystems
-   //  2. Spacecraft
+   //  2. Spacecraft and Ground Stations
+   //  NOTE: Measurement participant pointers must initialize before models.
+   //        In the current code, that means spacecraft and ground stations, but
+   //        the list might grow
    //  3. Measurement Models
    //  4. System Parameters
    //  5. Parameters
@@ -272,19 +275,21 @@ bool ObjectInitializer::InitializeObjects(bool registerSubs,
    }
    
    // Spacecraft
-   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::SPACECRAFT)
+   if (objType == Gmat::UNKNOWN_OBJECT || objType == Gmat::SPACECRAFT ||
+       objType == Gmat::GROUND_STATION)
    {
       #ifdef DEBUG_INITIALIZE_OBJ
       MessageInterface::ShowMessage("--- Initialize Spacecrafts in LOS\n");
       #endif
       InitializeObjectsInTheMap(LOS, Gmat::SPACECRAFT);
-      
+      InitializeObjectsInTheMap(LOS, Gmat::GROUND_STATION);
       if (includeGOS)
       {
          #ifdef DEBUG_INITIALIZE_OBJ
          MessageInterface::ShowMessage("--- Initialize Spacecrafts in GOS\n");
          #endif
          InitializeObjectsInTheMap(GOS, Gmat::SPACECRAFT);
+         InitializeObjectsInTheMap(GOS, Gmat::GROUND_STATION);
       }
    }
    
@@ -645,6 +650,7 @@ void ObjectInitializer::InitializeAllOtherObjects(ObjectMap *objMap)
       
       if ((obj->GetType() != Gmat::COORDINATE_SYSTEM) &&
           (obj->GetType() != Gmat::SPACECRAFT) &&
+          (obj->GetType() != Gmat::GROUND_STATION) &&
           (obj->GetType() != Gmat::MEASUREMENT_MODEL) &&
           (obj->GetType() != Gmat::PARAMETER) &&
           (obj->GetType() != Gmat::SUBSCRIBER))
