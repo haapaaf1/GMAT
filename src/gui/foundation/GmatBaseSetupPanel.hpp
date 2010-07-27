@@ -44,11 +44,12 @@ protected:
    virtual void         LoadData();
    virtual void         SaveData();
    wxControl *          BuildControl(wxWindow *parent, Integer index, const std::string &label, wxFileConfig *config);
+   void          		CreateControls(Integer index, wxStaticText **aLabel, wxControl **aControl, wxStaticText **aUnit, std::vector<char> *accelKeys, wxFileConfig *config);
    void                 LoadControl(const std::string &label);
    void                 SaveControl(const std::string &label);
    virtual std::string  GetParameterLabel(Integer index, wxFileConfig *config) const;
    virtual std::string  GetParameterUnit(Integer index, wxFileConfig *config) const;
-   std::string  		   AssignAcceleratorKey(std::string text, std::vector<char> *accelKeys);
+   std::string  		AssignAcceleratorKey(std::string text, std::vector<char> *accelKeys);
    SizerMapType *       CreateGroups(wxFlexGridSizer *mainSizer, wxFileConfig *config);
    virtual void         SortGroups(std::vector<std::string> *groupNames, wxFileConfig *config);
    virtual void         SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config);
@@ -58,6 +59,7 @@ protected:
                                          std::vector<wxControl*> propertyControls, 
                                          std::vector<wxStaticText*> propertyUnits );
    wxWindow             *FixTabOrder( wxWindow *lastControl, wxSizer *sizer );
+   virtual bool         GetLayoutConfig(wxFileConfig **config);
    
    // Text control event method
    void OnTextUpdate(wxCommandEvent& event);
@@ -91,6 +93,7 @@ protected:
    static const Integer border = 3;
    /// True-false strings (just a convenience here)
    static const wxString TF_SCHEMES[2];
+   GmatBase *localObject;
    
 };
 

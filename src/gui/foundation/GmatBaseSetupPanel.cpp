@@ -107,10 +107,11 @@ GmatBaseSetupPanel::~GmatBaseSetupPanel()
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::Create()
 {
+   // create local copy of mObject
+//   localObject = mObject->Clone();
    Integer propertyCount = mObject->GetParameterCount();
    Integer j = 0;
    Integer i = 0;
-   std::string labelText;
    std::vector<char> accelKeys;
    wxString groupProp;
    wxFlexGridSizer *itemSizer;
@@ -119,7 +120,9 @@ void GmatBaseSetupPanel::Create()
    std::vector<std::string> propertyNames;
    std::vector<wxString> propertyGroups;
    wxStaticText *aLabel;
-   std::string configPath;
+   wxControl *aControl;
+   wxStaticText *aUnit;
+   wxFileConfig *pConfig;
    
    #ifdef DEBUG_BASEPANEL_CREATE
    MessageInterface::ShowMessage
@@ -129,26 +132,10 @@ void GmatBaseSetupPanel::Create()
    #endif
 
    wxFlexGridSizer *mainSizer = new wxFlexGridSizer(1);
-   wxFlexGridSizer *mainItemSizer = new wxFlexGridSizer(3); // for properties that don't have parents
-   mainSizer->Add(mainItemSizer, 0, wxALL|wxALIGN_CENTER, border);
+   wxFlexGridSizer *mainItemSizer = new wxFlexGridSizer(1); // for properties that don't have parents
+   mainSizer->Add(mainItemSizer, 0, wxALL|wxALIGN_LEFT, border);
    
-   // get the GUI_CONFIG_PATH
-   FileManager *fm = FileManager::Instance();
-   try
-   {
-      configPath = fm->GetAbsPathname(FileManager::GUI_CONFIG_PATH);
-   }
-   catch (UtilityException &e)
-   {
-      MessageInterface::ShowMessage
-         ("GmatBaseSetupPanel:Create() error occurred!\n%s\n",
-          e.GetFullMessage().c_str());
-      configPath = "";
-   }
-   bool configFileExists = GmatFileUtil::DoesFileExist(configPath+mObject->GetTypeName()+".ini");
-   wxFileConfig *pConfig = new wxFileConfig(wxEmptyString, wxEmptyString,
-                (configPath+mObject->GetTypeName()+".ini").c_str(),
-	             wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
+   bool configFileExists = GetLayoutConfig( &pConfig );
    
    // create the groups
    groups = CreateGroups(mainSizer, pConfig);
@@ -174,25 +161,11 @@ void GmatBaseSetupPanel::Create()
        propertyItem != propertyNames.end(); ++propertyItem, ++j)
    {
       i = mObject->GetParameterID(*propertyItem);
-      // set the path to the section that contains the parameter's items
-      pConfig->SetPath(wxT(("/"+mObject->GetParameterText(i)).c_str()));
-      labelText = GetParameterLabel(i, pConfig);
-      labelText = AssignAcceleratorKey(labelText, &accelKeys);
-      if (mObject->GetParameterType(i) != Gmat::BOOLEAN_TYPE)
-         aLabel = new wxStaticText(this, ID_TEXT,
-             labelText.c_str());
-      else
-         aLabel = new wxStaticText(this, ID_TEXT,
-             "");
+      CreateControls(i, &aLabel, &aControl, &aUnit, &accelKeys, pConfig);
       propertyDescriptors.push_back(aLabel);
       controlMap[mObject->GetParameterText(i)] = j;
-
-      wxControl* control = BuildControl(this, i, labelText, pConfig);
-      propertyControls.push_back(control);
-
-      aLabel = new wxStaticText(this, ID_TEXT, 
-         wxT(GetParameterUnit(i, pConfig).c_str()));
-      propertyUnits.push_back(aLabel);
+      propertyControls.push_back(aControl);
+      propertyUnits.push_back(aUnit);
    }
    
    // three columns: description, control, unit
@@ -207,6 +180,10 @@ void GmatBaseSetupPanel::Create()
    for(item = propertyDescriptors.begin(), j = 0; 
        item != propertyDescriptors.end(); ++item, ++j) 
    {
+      itemSizer = new wxFlexGridSizer(3);
+      itemSizer->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
+      itemSizer->Add(propertyControls[j], 0, wxALL|wxALIGN_LEFT, border);
+      itemSizer->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
       // set the path to the section that contains the parameter's items
       pConfig->SetPath(wxT(("/"+propertyNames[j])).c_str());
       groupProp = "Parent";
@@ -221,20 +198,14 @@ void GmatBaseSetupPanel::Create()
          if (!doDefaultAction)
          {
             sizer = ((wxSizer *) sizerItem->second);
-            itemSizer = new wxFlexGridSizer(3);
             sizer->Add(itemSizer, 0, wxALL|wxALIGN_LEFT, 0);
-            itemSizer->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
-            itemSizer->Add(propertyControls[j], 0, wxALL|wxALIGN_LEFT, border);
-            itemSizer->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
          }
       }
       if (doDefaultAction)
       {
          // save the group for normalizing labels later
          propertyGroups.push_back("Main");
-         mainItemSizer->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
-         mainItemSizer->Add(propertyControls[j], 0, wxALL|wxALIGN_LEFT, border);
-         mainItemSizer->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
+         mainItemSizer->Add(itemSizer, 0, wxALL|wxALIGN_LEFT, 0);
       }
    }
 
@@ -375,7 +346,7 @@ void GmatBaseSetupPanel::LoadData()
 void GmatBaseSetupPanel::SaveData()
 {
    canClose = true;
-   
+
    try
    {
       for (std::map<std::string, Integer>::iterator i = controlMap.begin();
@@ -392,6 +363,38 @@ void GmatBaseSetupPanel::SaveData()
       canClose = false;
       return;
    }
+   EnableUpdate(false);
+}
+
+
+//------------------------------------------------------------------------------
+// wxControl* BuildControl(wxWindow *parent, Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Creates label, control, and unit widgets for a property
+ *
+ * @param index The index for the property that the constructed control
+ *              represents
+ *
+ */
+//------------------------------------------------------------------------------
+void GmatBaseSetupPanel::CreateControls(Integer index, wxStaticText **aLabel, wxControl **aControl, wxStaticText **aUnit, std::vector<char> *accelKeys, wxFileConfig *config)
+{
+    std::string labelText;
+    // set the path to the section that contains the parameter's items
+    config->SetPath(wxT(("/"+mObject->GetParameterText(index)).c_str()));
+    labelText = GetParameterLabel(index, config);
+    labelText = AssignAcceleratorKey(labelText, accelKeys);
+    if (mObject->GetParameterType(index) != Gmat::BOOLEAN_TYPE)
+       *aLabel = new wxStaticText(this, ID_TEXT,
+           labelText.c_str());
+    else
+       *aLabel = new wxStaticText(this, ID_TEXT,
+           "");
+    *aControl = BuildControl(this, index, labelText, config);
+    *aUnit = new wxStaticText(this, ID_TEXT,
+       wxT(GetParameterUnit(index, config).c_str()));
+
 }
 
 
@@ -414,6 +417,8 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
    
    Gmat::ParameterType type = mObject->GetParameterType(index);
    
+//   MessageInterface::ShowMessage
+//      ("Building control %s\ (type=%s)\n", label.c_str(), mObject->GetParameterTypeString(index).c_str());
    switch (type)
    {
    case Gmat::BOOLEAN_TYPE:
@@ -426,6 +431,8 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
    case Gmat::OBJECT_TYPE:
       {
          Gmat::ObjectType type = mObject->GetPropertyObjectType(index);
+         MessageInterface::ShowMessage
+            ("object type is %s\n", GmatBase::GetObjectTypeString(type).c_str());
          if (type == Gmat::SPACE_POINT)
          {
             // The GuiItemManager automatically registers wxComboBox in order to
@@ -494,6 +501,9 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
          }
          else
          {
+//             MessageInterface::ShowMessage
+//                ("Unrecognized object type: %s.  Building default combo box\n", GmatBase::GetObjectTypeString(type).c_str());
+
             // Check if enumeration strings available for owned object types
             wxArrayString enumList;
             StringArray enumStrings = mObject->GetPropertyEnumStrings(index);
@@ -748,6 +758,40 @@ std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text, std::vect
 	return titleText;
 }
 
+
+//------------------------------------------------------------------------------
+// bool GetLayoutConfig(wxConfigBase *config)
+//------------------------------------------------------------------------------
+/**
+ * Creates the configuration object that provides layout data
+ *
+ */
+//------------------------------------------------------------------------------
+bool GmatBaseSetupPanel::GetLayoutConfig(wxFileConfig **config)
+{
+    std::string configPath;
+	// get the GUI_CONFIG_PATH
+	FileManager *fm = FileManager::Instance();
+	try
+	{
+	  configPath = fm->GetAbsPathname(FileManager::GUI_CONFIG_PATH);
+	}
+	catch (UtilityException &e)
+	{
+	  MessageInterface::ShowMessage
+		 ("GmatBaseSetupPanel:Create() error occurred!\n%s\n",
+		  e.GetFullMessage().c_str());
+	  configPath = "";
+	}
+	bool configFileExists = GmatFileUtil::DoesFileExist(configPath+mObject->GetTypeName()+".ini");
+	*config = new wxFileConfig(wxEmptyString, wxEmptyString,
+	                (configPath+mObject->GetTypeName()+".ini").c_str(),
+		             wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
+	return configFileExists;
+
+}
+
+
 //------------------------------------------------------------------------------
 // wxString GetParameterLabel(Integer i, wxFileConfig *config)
 //------------------------------------------------------------------------------
@@ -784,12 +828,12 @@ std::string GmatBaseSetupPanel::GetParameterLabel(Integer i, wxFileConfig *confi
 			// if not finding a word and is not uppercase, find the next word
 			// e.g., NASATextFile -> NASAT (find word (next upper case char))
 			//       Text File -> T (Find word (next upper case char))
-			if (!isupper(text[i]))
+			if (!((isupper(text[i])) || (isdigit(text[i]))))
 				findword = true;
 		}
 		else
 		{
-			if (isupper(text[i]))
+			if ((isupper(text[i])) || (isdigit(text[i])))
 			{
 				findword = false;
 				titleText += " ";
