@@ -1034,6 +1034,34 @@ const StringArray& Solver::GetStringArrayParameter(const Integer id) const
 
 
 //------------------------------------------------------------------------------
+// const StringArray& GetPropertyEnumStrings(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Returns the list of allowable settings for the enumerated parameters
+ *
+ * @param id The ID of the parameter
+ *
+ * @return A const string array with teh allowed settings.
+ */
+//------------------------------------------------------------------------------
+const StringArray& Solver::GetPropertyEnumStrings(const Integer id) const
+{
+   static StringArray enumStrings;
+   enumStrings.clear();
+
+   if (id == ReportStyle)
+   {
+      enumStrings.push_back("Normal");
+      enumStrings.push_back("Concise");
+      enumStrings.push_back("Verbose");
+      enumStrings.push_back("Debug");
+   }
+
+   return enumStrings;
+}
+
+
+//------------------------------------------------------------------------------
 //  void ReportProgress()
 //------------------------------------------------------------------------------
 /**

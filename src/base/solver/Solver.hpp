@@ -150,6 +150,8 @@ public:
 
    virtual const StringArray&
                        GetStringArrayParameter(const Integer id) const;
+   virtual const StringArray&
+                       GetPropertyEnumStrings(const Integer id) const;
    virtual bool        GetBooleanParameter(const Integer id) const;
    virtual bool        SetBooleanParameter(const Integer id,
                                            const bool value);
