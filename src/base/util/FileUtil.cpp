@@ -88,6 +88,9 @@ std::string GmatFileUtil::GetCurrentPath()
    
 #ifndef _MSC_VER  // if not Microsoft Visual C++
    char buffer[GmatFile::MAX_PATH_LEN];
+   // Intentionally get the return and then ignore it to move warning from
+   // system libraries to GMAT code base.  The "unused variable" warning
+   // here can be safely ignored.
    char *ch = getcwd(buffer, GmatFile::MAX_PATH_LEN);
    currPath = buffer;
 #else

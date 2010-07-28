@@ -162,6 +162,10 @@ Integer SolarFluxFileReader::LoadSolarFluxFile(Real a1_time, FILE *tkptr,
                      {
                         for(j = 0; j < 4; ++j)      // Read words in column-major
                            for (i = 0; i < 21; ++i)
+                              // Intentionally get the return and then ignore it
+                              // to move warning from system libraries to GMAT
+                              // code base.  The "unused variable" warning here
+                              // can be safely ignored.
                               size_t len = fread((void *)&kp1[i][j], sizeof(Integer), (size_t)1, tkptr);
                         if(fread((void *)tc, sizeof(Real), (size_t)20, tkptr) == 20)
                         {

@@ -640,6 +640,10 @@ void DeFile::Read_Coefficients( double Time )
   if (Time > mFileBeg) //loj: 9/15/05 Added
   {
      fseek(Ephemeris_File,(Offset-1)*arraySize*sizeof(double),SEEK_CUR); // wcs
+
+     // Intentionally get the return and then ignore it to move warning from
+     // system libraries to GMAT code base.  The "unused variable" warning here
+     // can be safely ignored.
      size_t len = fread(&Coeff_Array,sizeof(double),arraySize,Ephemeris_File);
 
      T_beg  = Coeff_Array[0];
@@ -1663,6 +1667,9 @@ int DeFile::Read_File_Line( FILE *inFile, int filter, char lineBuffer[82])
 
   if ( (strlen(lineBuffer) == 81) && (lineBuffer[80] != '\n') )
      {
+       // Intentionally get the return and then ignore it to move warning from
+       // system libraries to GMAT code base.  The "unused variable" warning
+       // here can be safely ignored.
        char* ch = fgets(ignore,40,inFile);      /* Read past next end of line */
        lineBuffer[81] = '\0';
      }

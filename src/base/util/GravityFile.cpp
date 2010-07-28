@@ -423,6 +423,9 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
       rtn = fgetc( fp );
       if ( (char)rtn == '#' )
       {
+         // Intentionally get the return and then ignore it to move warning from
+         // system libraries to GMAT code base.  The "unused variable" warning
+         // here can be safely ignored.
          char* ch = fgets( buf, maxLen, fp );
       }
       else
@@ -485,6 +488,9 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
    while ( ( (char)(rtn=fgetc(fp)) != '#' ) && (rtn != EOF) )
    {
       ungetc( rtn, fp );
+      // Intentionally get the return and then ignore it to move warning from
+      // system libraries to GMAT code base.  The "unused variable" warning
+      // here can be safely ignored.
       int len = fscanf( fp, "%i %i %le %le\n", &n, &m, &dCnm, &dSnm );
       if ( n <= maxDriftDegree  && m <= n )
       {
