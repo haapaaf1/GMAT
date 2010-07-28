@@ -2216,7 +2216,10 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
 std::string Spacecraft::GetStringParameter(const Integer id) const
 {
     if (id == SC_EPOCH_ID)
-       return scEpochStr;
+    {
+       return (const_cast<Spacecraft*>(this))->GetEpochString();
+//       return scEpochStr;
+    }
 
     if (id == DATE_FORMAT_ID)
        return epochType;
