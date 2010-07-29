@@ -24,6 +24,8 @@
 #include <wx/fileconf.h>
 #include <wx/config.h>
 
+typedef std::map<wxString, wxSizer*> SizerMapType;
+typedef std::map<wxString, int> SizerSizeType;
 /**
  * Generic configuration panel for GmatBase derived objects
  * 
@@ -31,8 +33,6 @@
  * custom panel has not been coded.  It provides access to all of the object's
  * writable parameters using text controls and comboboxes.
  */
-typedef std::map<wxString, wxSizer*> SizerMapType;
-typedef std::map<wxString, int> SizerSizeType;
 class GmatBaseSetupPanel : public GmatPanel
 {
 public:
@@ -44,16 +44,17 @@ protected:
    virtual void         LoadData();
    virtual void         SaveData();
    wxControl *          BuildControl(wxWindow *parent, Integer index, const std::string &label, wxFileConfig *config);
-   void          		CreateControls(Integer index, wxStaticText **aLabel, wxControl **aControl, wxStaticText **aUnit, std::vector<char> *accelKeys, wxFileConfig *config);
+   void          		CreateControls(Integer index, wxStaticText **aLabel, wxControl **aControl, wxStaticText **aUnit, wxFileConfig *config);
    void                 LoadControl(const std::string &label);
    void                 SaveControl(const std::string &label);
    virtual std::string  GetParameterLabel(Integer index, wxFileConfig *config) const;
    virtual std::string  GetParameterUnit(Integer index, wxFileConfig *config) const;
-   std::string  		AssignAcceleratorKey(std::string text, std::vector<char> *accelKeys);
-   SizerMapType *       CreateGroups(wxFlexGridSizer *mainSizer, wxFileConfig *config);
-   virtual void         SortGroups(std::vector<std::string> *groupNames, wxFileConfig *config);
-   virtual void         SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config);
-   virtual void         NormalizeLabels( std::vector<std::string> propertyNames, 
+   std::string  		AssignAcceleratorKey(std::string text);
+   virtual SizerMapType *       CreateGroups(wxFlexGridSizer *mainSizer, wxFileConfig *config);
+   virtual void         CreateProperties(wxFlexGridSizer *mainSizer, StringArray *propertyNames, SizerMapType *groups, wxFileConfig *config);
+   virtual void         SortGroups(StringArray *groupNames, wxFileConfig *config);
+   virtual void         SortProperties(StringArray *propertyNames, wxFileConfig *config);
+   virtual void         NormalizeLabels( StringArray propertyNames,
                                          std::vector<wxString> propertyGroups, 
                                          std::vector<wxStaticText*> propertyDescriptors, 
                                          std::vector<wxControl*> propertyControls, 
@@ -71,6 +72,8 @@ protected:
    void OnComboBoxTextChange(wxCommandEvent& event);
    void OnTextChange(wxCommandEvent& event);
    
+   /// List of used accelerator keys
+   std::vector<char> accelKeys;
    /// Labels used for the configurable properties
    std::vector<wxStaticText*>       propertyDescriptors;
    /// GUI controls that are used to configure the properties

@@ -109,19 +109,9 @@ void GmatBaseSetupPanel::Create()
 {
    // create local copy of mObject
 //   localObject = mObject->Clone();
-   Integer propertyCount = mObject->GetParameterCount();
-   Integer j = 0;
-   Integer i = 0;
-   std::vector<char> accelKeys;
-   wxString groupProp;
-   wxFlexGridSizer *itemSizer;
-   wxSizer *sizer;
    SizerMapType *groups;
-   std::vector<std::string> propertyNames;
+   StringArray propertyNames;
    std::vector<wxString> propertyGroups;
-   wxStaticText *aLabel;
-   wxControl *aControl;
-   wxStaticText *aUnit;
    wxFileConfig *pConfig;
    
    #ifdef DEBUG_BASEPANEL_CREATE
@@ -135,12 +125,13 @@ void GmatBaseSetupPanel::Create()
    wxFlexGridSizer *mainItemSizer = new wxFlexGridSizer(1); // for properties that don't have parents
    mainSizer->Add(mainItemSizer, 0, wxALL|wxALIGN_LEFT, border);
    
-   bool configFileExists = GetLayoutConfig( &pConfig );
+   GetLayoutConfig( &pConfig );
    
    // create the groups
    groups = CreateGroups(mainSizer, pConfig);
 
-   // get the properties
+   // get the property names
+   Integer propertyCount = mObject->GetParameterCount();
    for (Integer i = 0; i < propertyCount; ++i)
    {
       #ifdef DEBUG_BASEPANEL_CREATE
@@ -151,69 +142,14 @@ void GmatBaseSetupPanel::Create()
          propertyNames.push_back(mObject->GetParameterText(i));
    }
 
-   // sort the properties per the config file
-   if (configFileExists)
-      SortProperties( &propertyNames, pConfig );
-
-   // now go through the properties and create their controls
-   std::vector<std::string>::iterator propertyItem;
-   for(propertyItem = propertyNames.begin(), j=0;
-       propertyItem != propertyNames.end(); ++propertyItem, ++j)
-   {
-      i = mObject->GetParameterID(*propertyItem);
-      CreateControls(i, &aLabel, &aControl, &aUnit, &accelKeys, pConfig);
-      propertyDescriptors.push_back(aLabel);
-      controlMap[mObject->GetParameterText(i)] = j;
-      propertyControls.push_back(aControl);
-      propertyUnits.push_back(aUnit);
-   }
+   // Create the properties
+   CreateProperties(mainItemSizer, &propertyNames, groups, pConfig);
    
-   // three columns: description, control, unit
-   std::vector<wxStaticText*>::iterator item;
-
-   // find the best minimum size for the description/unit for each sizer/group
-
-   // Add the 3 columns to a sizer
-   SizerMapType::iterator sizerItem;
-   bool doDefaultAction;
-   
-   for(item = propertyDescriptors.begin(), j = 0; 
-       item != propertyDescriptors.end(); ++item, ++j) 
-   {
-      itemSizer = new wxFlexGridSizer(3);
-      itemSizer->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
-      itemSizer->Add(propertyControls[j], 0, wxALL|wxALIGN_LEFT, border);
-      itemSizer->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
-      // set the path to the section that contains the parameter's items
-      pConfig->SetPath(wxT(("/"+propertyNames[j])).c_str());
-      groupProp = "Parent";
-      doDefaultAction = !(pConfig->Read(groupProp, &groupProp));
-      if (!doDefaultAction)
-      {
-         // save the group for normalizing labels later
-         propertyGroups.push_back(groupProp);
-         // get the group and its itemsizer inside
-         sizerItem = groups->find(groupProp.Lower());
-         doDefaultAction = sizerItem == groups->end();
-         if (!doDefaultAction)
-         {
-            sizer = ((wxSizer *) sizerItem->second);
-            sizer->Add(itemSizer, 0, wxALL|wxALIGN_LEFT, 0);
-         }
-      }
-      if (doDefaultAction)
-      {
-         // save the group for normalizing labels later
-         propertyGroups.push_back("Main");
-         mainItemSizer->Add(itemSizer, 0, wxALL|wxALIGN_LEFT, 0);
-      }
-   }
-
-   NormalizeLabels( propertyNames, propertyGroups, propertyDescriptors, propertyControls, propertyUnits );
+   // fix tab order
    FixTabOrder( NULL, mainSizer );
    delete pConfig;
    delete groups;
-   theMiddleSizer->Add(mainSizer, 0, wxALL|wxALIGN_CENTER, 5);
+   theMiddleSizer->Add(mainSizer, 0, wxALL|wxALIGN_LEFT, 5);
 }
 
 SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFileConfig *config)
@@ -235,7 +171,7 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
       // if not Main group, then it is a group/sizer
       if ((groupName != "main") && (config->Read("/"+groupName+"/Type", &groupProp)))
       {
-         // "Type" can be VERTICAL, HORIZONTAL, FLEX
+         // "Type" can be VERTICAL, HORIZONTAL, FLEX, or GRID
          groupProp = groupProp.Lower();
          if (groupProp == "vertical")
            sizer = new GmatStaticBoxSizer( wxVERTICAL, this, config->Read("/"+groupName+"/Label") );
@@ -264,16 +200,16 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
    }
 
    // create an ordered list of groups
-   std::vector<std::string> groupNames;
+   StringArray groupNames;
    for (item = groups->begin(); item != groups->end(); ++item)
    {
 	   groupName = item->first;
 	   groupNames.push_back(groupName.Lower().c_str());
+
    }
    SortGroups(&groupNames, config);
 
    // now, for all the groups, add them to their parent
-//   for (item = groups->begin(); item != groups->end(); ++item)
    for (unsigned int i = 0; i < groupNames.size(); i++)
    {
       item = groups->find(groupNames[i].c_str());
@@ -287,13 +223,13 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
          if (!doDefaultAction)
          {
             parentSizer = ((wxSizer *) sizerItem->second);
-            parentSizer->Add(sizer, 0, wxALL|wxALIGN_CENTER|wxEXPAND, border);
+            parentSizer->Add(sizer, 0, wxALL|wxALIGN_LEFT|wxEXPAND, border);
          }
          else
-            mainSizer->Add(sizer, 0, wxALL|wxALIGN_CENTER|wxEXPAND, border);
+            mainSizer->Add(sizer, 0, wxALL|wxALIGN_LEFT|wxEXPAND, border);
       }
       else
-         mainSizer->Add(sizer, 0, wxALL|wxALIGN_CENTER|wxEXPAND, border);
+         mainSizer->Add(sizer, 0, wxALL|wxALIGN_LEFT|wxEXPAND, border);
    }
    return groups;
 }
@@ -368,7 +304,7 @@ void GmatBaseSetupPanel::SaveData()
 
 
 //------------------------------------------------------------------------------
-// wxControl* BuildControl(wxWindow *parent, Integer index)
+// wxControl* CreateControls(wxWindow *parent, Integer index)
 //------------------------------------------------------------------------------
 /**
  * Creates label, control, and unit widgets for a property
@@ -378,13 +314,13 @@ void GmatBaseSetupPanel::SaveData()
  *
  */
 //------------------------------------------------------------------------------
-void GmatBaseSetupPanel::CreateControls(Integer index, wxStaticText **aLabel, wxControl **aControl, wxStaticText **aUnit, std::vector<char> *accelKeys, wxFileConfig *config)
+void GmatBaseSetupPanel::CreateControls(Integer index, wxStaticText **aLabel, wxControl **aControl, wxStaticText **aUnit, wxFileConfig *config)
 {
     std::string labelText;
     // set the path to the section that contains the parameter's items
     config->SetPath(wxT(("/"+mObject->GetParameterText(index)).c_str()));
     labelText = GetParameterLabel(index, config);
-    labelText = AssignAcceleratorKey(labelText, accelKeys);
+    labelText = AssignAcceleratorKey(labelText);
     if (mObject->GetParameterType(index) != Gmat::BOOLEAN_TYPE)
        *aLabel = new wxStaticText(this, ID_TEXT,
            labelText.c_str());
@@ -397,6 +333,88 @@ void GmatBaseSetupPanel::CreateControls(Integer index, wxStaticText **aLabel, wx
 
 }
 
+
+//------------------------------------------------------------------------------
+// wxControl* CreateProperties(wxFlexGridSizer *mainSizer, StringArray propertyNames, SizerMapType *groups, wxFileConfig *config)
+//------------------------------------------------------------------------------
+/**
+ * Creates controls for all the properties and puts them in the right groups
+ *
+ *
+ */
+//------------------------------------------------------------------------------
+void GmatBaseSetupPanel::CreateProperties(wxFlexGridSizer *mainSizer, StringArray *propertyNames, SizerMapType *groups, wxFileConfig *config)
+{
+	   Integer j = 0;
+	   Integer i = 0;
+	   wxString groupProp;
+	   wxFlexGridSizer *itemSizer;
+	   wxSizer *sizer;
+	   std::vector<wxString> propertyGroups;
+	   wxStaticText *aLabel;
+	   wxControl *aControl;
+	   wxStaticText *aUnit;
+
+	   // sort the properties per the config file
+       SortProperties( propertyNames, config );
+
+	   // now go through the properties and create their controls
+	   StringArray::iterator propertyItem;
+	   for(propertyItem = propertyNames->begin(), j=0;
+	       propertyItem != propertyNames->end(); ++propertyItem, ++j)
+	   {
+	      i = mObject->GetParameterID(*propertyItem);
+	      CreateControls(i, &aLabel, &aControl, &aUnit, config);
+	      propertyDescriptors.push_back(aLabel);
+	      controlMap[mObject->GetParameterText(i)] = j;
+	      propertyControls.push_back(aControl);
+	      propertyUnits.push_back(aUnit);
+	   }
+
+	   // three columns: description, control, unit
+	   std::vector<wxStaticText*>::iterator item;
+
+	   // find the best minimum size for the description/unit for each sizer/group
+
+	   // Add the 3 columns to a sizer
+	   SizerMapType::iterator sizerItem;
+	   bool doDefaultAction;
+
+	   for(item = propertyDescriptors.begin(), j = 0;
+	       item != propertyDescriptors.end(); ++item, ++j)
+	   {
+	      itemSizer = new wxFlexGridSizer(3);
+	      itemSizer->Add(*item, 0, wxALL|wxALIGN_RIGHT, border);
+	      itemSizer->Add(propertyControls[j], 0, wxALL|wxALIGN_LEFT, border);
+	      itemSizer->Add(propertyUnits[j], 0, wxALL|wxALIGN_LEFT, border);
+	      // set the path to the section that contains the parameter's items
+	      config->SetPath(wxT(("/"+(*propertyNames)[j])).c_str());
+	      groupProp = "Parent";
+	      doDefaultAction = !(config->Read(groupProp, &groupProp));
+	      if (!doDefaultAction)
+	      {
+	         // save the group for normalizing labels later
+	         propertyGroups.push_back(groupProp);
+	         // get the group and its itemsizer inside
+	         sizerItem = groups->find(groupProp.Lower());
+	         doDefaultAction = sizerItem == groups->end();
+	         if (!doDefaultAction)
+	         {
+	            sizer = ((wxSizer *) sizerItem->second);
+	            sizer->Add(itemSizer, 0, wxALL|wxALIGN_LEFT, 0);
+	         }
+	      }
+	      if (doDefaultAction)
+	      {
+	         // save the group for normalizing labels later
+	         propertyGroups.push_back("Main");
+	         mainSizer->Add(itemSizer, 0, wxALL|wxALIGN_LEFT, 0);
+	      }
+	   }
+
+	   NormalizeLabels( *propertyNames, propertyGroups, propertyDescriptors, propertyControls, propertyUnits );
+
+}
 
 //------------------------------------------------------------------------------
 // wxControl* BuildControl(wxWindow *parent, Integer index)
@@ -417,8 +435,8 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
    
    Gmat::ParameterType type = mObject->GetParameterType(index);
    
-//   MessageInterface::ShowMessage
-//      ("Building control %s\ (type=%s)\n", label.c_str(), mObject->GetParameterTypeString(index).c_str());
+   MessageInterface::ShowMessage
+      ("Building control %s\ (type=%s)\n", label.c_str(), mObject->GetParameterTypeString(index).c_str());
    switch (type)
    {
    case Gmat::BOOLEAN_TYPE:
@@ -698,7 +716,7 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
    }
 }
 
-std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text, std::vector<char> *accelKeys)
+std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text)
 {
 	// find best candidate
 	// 1) Beginning of word
@@ -716,20 +734,20 @@ std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text, std::vect
 	if ( found != std::string::npos)
 	{
 		// add to accel keys
-		accelKeys->push_back(tolower(text[found+1]));
+		accelKeys.push_back(tolower(text[found+1]));
 		return text;
 	}
 
 	for (iText=0;iText<text.length();iText++)
 	{
       // if character has not already been used
-      if (find (accelKeys->begin(), accelKeys->end(), tolower(text[iText])) == accelKeys->end())
+      if (find (accelKeys.begin(), accelKeys.end(), tolower(text[iText])) == accelKeys.end())
       {
 		   // if it is the beginning of a word alphanumeric 
 		   if ((findWord) && (isalnum(text[iText])))
 		   {
 			   accelIndex = iText;
-			   accelKeys->push_back(tolower(text[iText]));
+			   accelKeys.push_back(tolower(text[iText]));
             if (accelIndex > 0)
 			      titleText.append(text, 0, accelIndex);
 			   titleText += GUI_ACCEL_KEY;
@@ -750,7 +768,7 @@ std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text, std::vect
 	}
 	if (haveCandidate)
 	{
-		accelKeys->push_back(tolower(text[accelIndex]));
+		accelKeys.push_back(tolower(text[accelIndex]));
 		titleText.append(text, 0, accelIndex);
 		titleText += GUI_ACCEL_KEY;
 		titleText.append(text, accelIndex, text.length());
@@ -924,14 +942,14 @@ void GmatBaseSetupPanel::OnTextChange(wxCommandEvent& event)
 
 
 //------------------------------------------------------------------------------
-// void SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config)
+// void SortProperties(StringArray *propertyNames, wxFileConfig *config)
 //------------------------------------------------------------------------------
 /**
  * Sort properties based on INI PositionBefore statements
  *
  */
 //------------------------------------------------------------------------------
-void GmatBaseSetupPanel::SortProperties(std::vector<std::string> *propertyNames, wxFileConfig *config)
+void GmatBaseSetupPanel::SortProperties(StringArray *propertyNames, wxFileConfig *config)
 {
    // first, see if the INI file wants properties alphabetically sorted
    wxString alpha_sort;
@@ -943,15 +961,17 @@ void GmatBaseSetupPanel::SortProperties(std::vector<std::string> *propertyNames,
 
    // Now, go through all the properties and order them according to "Position before"
    wxString position;
-   std::vector<std::string>::iterator item;
-   std::vector<std::string>::iterator beforeItem;
-   std::vector<std::string> origOrder = *propertyNames;
+   StringArray::iterator item;
+   StringArray::iterator beforeItem;
+   StringArray origOrder = *propertyNames;
 
    for (unsigned int i = 0; i < origOrder.size(); i++)
    {
       // see if position defined
       if (config->Read(("/"+origOrder[i]+"/Position Before").c_str(), &position))
       {
+//     	   MessageInterface::ShowMessage
+//     	      ("Sorting %s before %s\n", origOrder[i].c_str(), position.c_str());
          // find the property to move before
          if (position != "")
          {
@@ -965,27 +985,37 @@ void GmatBaseSetupPanel::SortProperties(std::vector<std::string> *propertyNames,
          if (position == "")
             propertyNames->push_back(origOrder[i]);
          else
-            propertyNames->insert(beforeItem, origOrder[i]);
+         {
+        	 // beforeItem is now wrong because of the erase...find it again
+             beforeItem = find(propertyNames->begin(), propertyNames->end(), position.c_str());
+             propertyNames->insert(beforeItem, origOrder[i]);
+         }
+
+//  	   MessageInterface::ShowMessage
+//  	      ("Sort is now...\n");
+//         for (unsigned int j = 0; j < propertyNames->size(); j++)
+//        	   MessageInterface::ShowMessage
+//        	      ("  %s\n",(*propertyNames)[j].c_str());
       }
    }
 }
 
 
 //------------------------------------------------------------------------------
-// void SortGroups(std::vector<std::string> *groupNames, wxFileConfig *config)
+// void SortGroups(StringArray *groupNames, wxFileConfig *config)
 //------------------------------------------------------------------------------
 /**
  * Sort groups based on INI PositionBefore statements
  *
  */
 //------------------------------------------------------------------------------
-void GmatBaseSetupPanel::SortGroups(std::vector<std::string> *groupNames, wxFileConfig *config)
+void GmatBaseSetupPanel::SortGroups(StringArray *groupNames, wxFileConfig *config)
 {
    // go through all the groups and order them according to "Position before"
    wxString position;
-   std::vector<std::string>::iterator item;
-   std::vector<std::string>::iterator beforeItem;
-   std::vector<std::string> origOrder = *groupNames;
+   StringArray::iterator item;
+   StringArray::iterator beforeItem;
+   StringArray origOrder = *groupNames;
 
    for (unsigned int i = 0; i < origOrder.size(); i++)
    {
@@ -995,7 +1025,7 @@ void GmatBaseSetupPanel::SortGroups(std::vector<std::string> *groupNames, wxFile
          // find the group to move before
          if (position != "")
          {
-            beforeItem = find(groupNames->begin(), groupNames->end(), position.c_str());
+            beforeItem = find(groupNames->begin(), groupNames->end(), position.Lower().c_str());
             if (beforeItem == groupNames->end()) continue;
          }
          // find the group to move
@@ -1005,13 +1035,29 @@ void GmatBaseSetupPanel::SortGroups(std::vector<std::string> *groupNames, wxFile
          if (position == "")
             groupNames->push_back(origOrder[i]);
          else
-            groupNames->insert(beforeItem, origOrder[i]);
+         {
+        	 // beforeItem is now wrong because of the erase...find it again
+             beforeItem = find(groupNames->begin(), groupNames->end(), position.Lower().c_str());
+             groupNames->insert(beforeItem, origOrder[i]);
+         }
       }
    }
 }
 
 
-void GmatBaseSetupPanel::NormalizeLabels( std::vector<std::string> propertyNames, 
+//------------------------------------------------------------------------------
+// void NormalizeLabels( StringArray propertyNames,
+//						std::vector<wxString> propertyGroups,
+//						std::vector<wxStaticText*> propertyDescriptors,
+//						std::vector<wxControl*> propertyControls,
+//						std::vector<wxStaticText*> propertyUnits )
+//------------------------------------------------------------------------------
+/**
+ * Make all labels in each group the same size
+ *
+ */
+//------------------------------------------------------------------------------
+void GmatBaseSetupPanel::NormalizeLabels( StringArray propertyNames,
                       std::vector<wxString> propertyGroups, 
                       std::vector<wxStaticText*> propertyDescriptors, 
                       std::vector<wxControl*> propertyControls, 
