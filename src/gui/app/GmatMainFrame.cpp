@@ -2241,8 +2241,8 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new CelestialBodyPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::FUELTANK:
-//	      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+	  sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+//      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::THRUSTER:
       sizer->Add(new ThrusterConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
@@ -2273,8 +2273,8 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new SQPSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::SOLVER:
-//	      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-     sizer->Add(new SolverSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+	      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+//     sizer->Add(new SolverSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::REPORT_FILE:
       sizer->Add(new ReportFileSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
