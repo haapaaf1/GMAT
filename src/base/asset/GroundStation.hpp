@@ -77,7 +77,7 @@ public:
 
    // made changes by Tuan Nguyen
    virtual const StringArray&
-					    GetStringArrayParameter(const Integer id) const;
+                        GetStringArrayParameter(const Integer id) const;
    virtual const StringArray&
                         GetStringArrayParameter(const std::string &label) const;
 
