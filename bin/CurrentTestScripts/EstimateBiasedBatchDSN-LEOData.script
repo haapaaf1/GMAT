@@ -85,6 +85,7 @@ DSNRange.Participants      = {Maui,ODSat};
 
 Create DSNTrackingSystem DSN_ODSat
 DSN_ODSat.Add = {DSNRange}
+DSN_ODSat.TroposphereModel = HopfieldSaastamoinen.
 
 %--------------------------------------------------------------
 %===== Create the Estimator

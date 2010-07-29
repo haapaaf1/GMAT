@@ -74,16 +74,16 @@ Maui.Id = 'Maui';
 %===== Create the Tracking System
 %--------------------------------------------------------------
 Create DataFile DSNData;
-DSNData.Filename = 'DSN_LEO_EstimationData.gmd';
+DSNData.Filename = 'DSNDoppler_LEO_EstimationData.gmd';
 DSNData.Format = GMATInternal;
 
-Create MeasurementModel DSNRange;
-DSNRange.ObservationData   = DSNData;
-DSNRange.Type              = DSNTwoWayRange;
-DSNRange.Participants      = {Maui,ODSat};
+Create MeasurementModel DSNDoppler;
+DSNDoppler.ObservationData   = DSNData;
+DSNDoppler.Type              = DSNTwoWayDoppler;
+DSNDoppler.Participants      = {Maui,ODSat};
 
 Create DSNTrackingSystem DSN_ODSat
-DSN_ODSat.Add = {DSNRange}
+DSN_ODSat.Add = {DSNDoppler}
 
 
 %--------------------------------------------------------------
@@ -95,7 +95,7 @@ ODSatsim.InitialEpochFormat  = UTCGregorian;
 ODSatsim.InitialEpoch        = '01 Mar 2005 00:00:00.000';
 ODSatsim.FinalEpochFormat    = UTCGregorian;
 ODSatsim.FinalEpoch          = '04 Mar 2005 00:00:00.000';
-%ODSatsim.FinalEpoch          = '02 Mar 2005 00:00:00.000';
+ODSatsim.FinalEpoch          = '02 Mar 2005 00:00:00.000';
 ODSatsim.MeasurementTimeStep = 60;
 ODSatsim.Propagator          = ODProp;
 
@@ -103,4 +103,5 @@ ODSatsim.Propagator          = ODProp;
 %===== Run the simulator
 %--------------------------------------------------------------
 BeginMissionSequence
+Save DSNDoppler
 RunSimulator ODSatsim

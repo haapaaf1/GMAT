@@ -162,6 +162,7 @@ GMAT XYPlot1.ShowPlot = true;
 
 
 %----- Run the estimator
+BeginMissionSequence
 Save BatchEst;
 
 RunEstimator BatchEst;
