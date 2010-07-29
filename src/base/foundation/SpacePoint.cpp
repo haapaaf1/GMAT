@@ -428,6 +428,20 @@ bool SpacePoint::IsParameterReadOnly(const Integer id) const
    if (id == NAIF_ID_REFERENCE_FRAME) // set to false in appropriate derived classes
       return true;
 
+   // Turn off parameters for string arrays if they are empty
+   if (id == ORBIT_SPICE_KERNEL_NAME)
+      if (orbitSpiceKernelNames.size() == 0)
+         return true;
+   if (id == ATTITUDE_SPICE_KERNEL_NAME)
+      if (attitudeSpiceKernelNames.size() == 0)
+         return true;
+   if (id == SC_CLOCK_SPICE_KERNEL_NAME)
+      if (scClockSpiceKernelNames.size() == 0)
+         return true;
+   if (id == FRAME_SPICE_KERNEL_NAME)
+      if (frameSpiceKernelNames.size() == 0)
+         return true;
+
    return GmatBase::IsParameterReadOnly(id);
 }
 
