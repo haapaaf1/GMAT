@@ -83,6 +83,8 @@ GMAT Cart2KeptConvert.ZeroFill = On;
 GMAT Cart2KeptConvert.ColumnWidth = 20;
 GMAT Cart2KeptConvert.SolverIterations = None;
 
+BeginMissionSequence;
+
 BeginScript
 
    %  Define constants

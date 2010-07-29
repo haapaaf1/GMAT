@@ -190,9 +190,9 @@ Create GmatFunction GMATFuncCallDup;
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-% Using BeginEndScript forces GMAT to change to command mode
-BeginScript;
-EndScript;
+
+BeginMissionSequence;
+
 
 GMAT SCdup = SCorig;
 GMAT FuelTankDup = FuelTankOrig;

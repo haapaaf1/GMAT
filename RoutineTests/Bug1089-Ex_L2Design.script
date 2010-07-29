@@ -210,6 +210,8 @@ GMAT rf.Add = {Sat.L2Centered.X, Sat.L2Centered.Y, Sat.L2Centered.Z, Sat.L2Cente
 % --------------------------- Mission Sequence-----------------------------
 % -------------------------------------------------------------------------
 
+BeginMissionSequence;
+
 BeginScript;
     Save Sat;
     GMAT LaunchSat = Sat;

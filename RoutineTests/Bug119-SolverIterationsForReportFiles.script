@@ -164,7 +164,7 @@ GMAT None.SolverIterations = None;
 %---------- Mission Sequence
 %----------------------------------------
 
-
+BeginMissionSequence;
 
 % Burn in the velocity direction to reach an alternate Apoapsis point
 Target DC;

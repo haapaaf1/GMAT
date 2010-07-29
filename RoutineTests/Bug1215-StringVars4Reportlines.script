@@ -16,6 +16,8 @@ GMAT ReportFile1.Filename = ReportFilename;
 GMAT ReportFile1.Add = {DefaultSC.A1ModJulian, DefaultSC.EarthMJ2000Eq.X};
 
 %----- Command Mode
+BeginMissionSequence;
+
 Propagate DefaultProp(DefaultSC);
 
 %Test use of setting string to directory in command mode w/ and w/o quotes

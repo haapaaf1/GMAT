@@ -75,6 +75,9 @@ GMAT StopCond_Report.Precision = 16;
 GMAT StopCond_Report.WriteHeaders = On;
 GMAT StopCond_Report.ColumnWidth = 20;
 
+
+BeginMissionSequence;
+
 Propagate Synchronized DefaultProp(SC1, SC2, {SC1.ElapsedDays = 0.2}) DefaultProp(SC3, {SC3.ElapsedDays = 0.25});
 Report StopCond_Report SC1.A1ModJulian SC1.A1ModJulian SC2.A1ModJulian SC3.A1ModJulian;
 

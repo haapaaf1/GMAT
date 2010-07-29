@@ -81,8 +81,7 @@ GMAT TestReport.ColumnWidth = 25;
 %%GMAT Sat.FuelTank1.FuelMass = 730;
 %%GMAT Sat.Thruster1.DutyCycle = 0.8;
 
-BeginScript;
-EndScript;
+BeginMissionSequence;
 
 Report TestReport Sat.FuelTank1.FuelMass
 Report TestReport Sat.FuelTank1.Pressure

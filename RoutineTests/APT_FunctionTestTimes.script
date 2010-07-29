@@ -13,6 +13,8 @@ GMAT rf.Filename = 'APT_FunctionTestTimes.report';
 GMAT rf.ZeroFill = Off;
 GMAT rf.WriteHeaders = Off;
 
+BeginMissionSequence;
+
 x = 10;
 y = 20;
 

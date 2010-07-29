@@ -28,6 +28,8 @@ GMAT mu = 398600.4415;
 GMAT pi2 = 6.283185307179586232;
 GMAT d2r = 0.01745329251994329509;
 
+BeginMissionSequence;
+
 Global pi2 Sat;
 
 While Sat.ElapsedDays < 1

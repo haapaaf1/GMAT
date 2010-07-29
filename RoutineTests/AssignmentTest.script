@@ -36,6 +36,8 @@ Create String separator1;
 Create String separator2;
 separator1 = '+ ------------- +';
 
+BeginMissionSequence;
+
 BeginScript
    GMAT Sat1.Epoch = epochStr;
    GMAT separator2 = separator1;

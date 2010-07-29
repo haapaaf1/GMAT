@@ -42,6 +42,7 @@ separator1 = '+ ------------- +';
 
 
 %===================== Mission Sequence
+BeginMissionSequence;
 Report rf State1;
 GMAT Sat1.Epoch = epochStr;
 GMAT separator2 = separator1;

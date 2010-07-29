@@ -35,6 +35,8 @@ GMAT reportLoc_nested = 'APT_Func_IfWhile_nested.report';
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 % Begin/EndScript used to force GMAT to go into command mode. Might
 % Not be necessary but I've included it just in case.
  

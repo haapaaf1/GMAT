@@ -125,6 +125,9 @@ GMAT IntegratorRpt.ColumnWidth = 20;
 % -------------------------------------------------------------------------
 % ---------------------------  Begin Mission Sequence
 % -------------------------------------------------------------------------
+
+BeginMissionSequence;
+
 %  Propagate using each of the propagators created above
 
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;

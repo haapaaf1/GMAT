@@ -31,6 +31,8 @@ Create GmatFunction Bug1686_ReturnInputValue;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 Global RF;
 
 %%I = 0;

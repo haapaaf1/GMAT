@@ -11,6 +11,8 @@ GMAT RF.WriteHeaders = Off;
 msg = 'In TestFactorial_CF.script';
 var = 6;
 
+BeginMissionSequence;
+
 Global RF;
 
 Report RF msg;

@@ -101,6 +101,8 @@ GMAT Moon_Report.ColumnWidth = 20;
 
 Create Variable OutputStepSize;
 
+BeginMissionSequence;
+
 %-----------Begin Propagation and Report Generation--------
 % Propagate based on preset propagation parameters
 % and current stop conditions.

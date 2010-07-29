@@ -356,6 +356,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 %GMAT MarsBPlane.B      = -0.214972341605;
 Propagate MarsProp(MPS, {MPS1.Mars.Periapsis});

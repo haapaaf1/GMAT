@@ -9,6 +9,8 @@ GMAT RF.Filename = APT_func_TestFactorial_FR.report;
 GMAT RF.ZeroFill = Off;
 GMAT RF.WriteHeaders = Off;
 
+BeginMissionSequence;
+
 Global RF;
 
 For var = 1: 10;

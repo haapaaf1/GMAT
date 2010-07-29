@@ -175,6 +175,7 @@ GMAT XYPlot1.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Propagate prop(forward) {forward.ElapsedSecs = 86400};
 GMAT backward = forward;

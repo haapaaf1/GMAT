@@ -140,6 +140,9 @@ Data.Filename = 'APT_LVLHManeuverTest.report';
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
+
+BeginMissionSequence;
+
 Maneuver dvLVLH(EarthSat);
 Maneuver dvLVLH(MoonSat);
 

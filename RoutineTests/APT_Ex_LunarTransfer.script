@@ -218,6 +218,8 @@ GMAT EarthMoonRot.Secondary = Luna;
 %**************************The Mission Sequence****************************
 %**************************************************************************
 
+BeginMissionSequence;
+
 Toggle RadApoPlot Off;
 
 %------------------------------

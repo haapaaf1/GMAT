@@ -230,10 +230,8 @@ GMAT XYPlot1.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
-% -------------------------------------------------------------------------
-% -------------------- Begin Mission Sequence -----------------------------
-% -------------------------------------------------------------------------
 % Turn plots on
 Toggle SatOpenGL On;
 Toggle MMS1XYZvsTime On;

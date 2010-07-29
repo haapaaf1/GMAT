@@ -233,10 +233,8 @@ GMAT XYPlot1.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
-% -------------------------------------------------------------------------
-% --------------------------- Mission Sequence ----------------------------
-% -------------------------------------------------------------------------
 Report rf sat.A1ModJulian sat.MoonMJ2000Ec.X sat.MoonMJ2000Ec.Y sat.MoonMJ2000Ec.Z 
 
 For i = 1:1:4;

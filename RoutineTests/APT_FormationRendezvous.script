@@ -167,6 +167,8 @@ Toggle Sat2InSat1LVLH On;
 % --------------------------- Mission Sequence-----------------------------
 % -------------------------------------------------------------------------
 
+BeginMissionSequence;
+
 %  Propagate and watch cool plots!!
 
 Report rf Sat2.A1ModJulian Sat2.Sat1LVLH.X Sat2.Sat1LVLH.Y Sat2.Sat1LVLH.Z;

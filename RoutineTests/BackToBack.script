@@ -156,6 +156,7 @@ GMAT XYPlot1.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 %----- commands
 Toggle TimeVsX On;

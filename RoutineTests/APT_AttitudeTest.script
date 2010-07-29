@@ -91,4 +91,6 @@ GMAT rf1.ColumnWidth = 20;
 GMAT rf1.Add = {DefaultSC.A1ModJulian, DefaultSC.EarthMJ2000Eq.X, DefaultSC.EarthMJ2000Eq.Y, DefaultSC.EarthMJ2000Eq.Z, DefaultSC.Q1, DefaultSC.Q2, DefaultSC.Q3, DefaultSC.Q4};
 
 
+BeginMissionSequence;
+
 Propagate DefaultProp(DefaultSC, {DefaultSC.ElapsedSecs = 8640.0});

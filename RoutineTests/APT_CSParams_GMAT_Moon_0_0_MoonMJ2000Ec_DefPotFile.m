@@ -175,6 +175,7 @@ GMAT OpenGLPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 % Propagate based on preset propagation parameters
 % and current stop conditions.

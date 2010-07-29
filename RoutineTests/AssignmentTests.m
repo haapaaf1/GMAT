@@ -226,6 +226,7 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 BeginScript
    % Parm = ... tests

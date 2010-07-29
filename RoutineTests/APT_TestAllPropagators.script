@@ -81,6 +81,8 @@ GMAT DefaultProp.MinStep = 60;
 GMAT DefaultProp.MaxStep = 60;
 GMAT DefaultProp.MaxStepAttempts = 50;
 
+BeginMissionSequence;
+
 Propagate DefaultProp(Sat,'STM') {Sat.ElapsedSecs = TOFinSeconds};
 
 Report dataReport Sat.EarthMJ2000Eq.OrbitSTM;

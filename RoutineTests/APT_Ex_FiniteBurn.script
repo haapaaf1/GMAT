@@ -108,6 +108,8 @@ GMAT SatOpenGL.ViewPointVectorVector = [ 10000 10000 10000];
 % --------------------------- Mission Sequence ----------------------------
 % -------------------------------------------------------------------------
 
+BeginMissionSequence;
+
 %  Propagate for 1/10 of a day, without thrusters on.
 Propagate prop(Sc, {Sc.ElapsedSecs = 8640});
 

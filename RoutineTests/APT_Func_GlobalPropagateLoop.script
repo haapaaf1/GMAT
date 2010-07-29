@@ -26,6 +26,8 @@ GMAT rf.WriteHeaders = Off;
 Create OpenGLPlot GLPlot;
 GMAT GLPlot.Add = {Sat, Earth};
 
+BeginMissionSequence;
+
 Global Sat GLPlot;
 
 While Sat.ElapsedDays < 1

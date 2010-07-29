@@ -120,4 +120,7 @@ GMAT XYPlot1.ShowPlot = true;
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
+
+BeginMissionSequence;
+
 Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};

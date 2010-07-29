@@ -132,7 +132,9 @@ GMAT rf.LeftJustify = On;
 % -------------------------------------------------------------------------
 % --------------------------- Mission Sequence ----------------------------
 % -------------------------------------------------------------------------
- 
+
+BeginMissionSequence;
+
 %  Turn on thrusters....they will remain on through all events until the
 %  "EndFiniteBurn fb(Sc)" command is executed.
 BeginFiniteBurn fb(Sc);

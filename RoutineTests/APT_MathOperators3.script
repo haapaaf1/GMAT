@@ -94,6 +94,8 @@ GMAT rf.ColumnWidth = 20;
 Create Spacecraft Sat1;
 Create Array M3[3,3];
 
+BeginMissionSequence;
+
 BeginScript;
 
 %%%GMAT sat1 = sat2;

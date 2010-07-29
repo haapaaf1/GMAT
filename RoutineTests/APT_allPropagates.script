@@ -199,6 +199,8 @@ GMAT ReportFile1.Precision = 15;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 % ====================================
 % Case 1
 % Forward propagate 1 SC by initial step size

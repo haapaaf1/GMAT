@@ -16,8 +16,8 @@ GMAT mmsThruster.Tank = {mmsTank};
 GMAT fileName = 'APT_WriteParametersFunction.report';
 GMAT fileNameNested = 'APT_WriteParametersNestedFunction.report';
 
-BeginScript;
-EndScript;
+BeginMissionSequence;
+
 
 GMAT MMS.mmsThruster.ThrustDirection3 = 0.333;
 

@@ -159,6 +159,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report rf Sat.ElapsedSecs Sat.X Sat.Y Sat.Z Sat.VX Sat.VY Sat.VZ 
 Propagate BackProp DefaultProp(Sat) {Sat.Earth.Periapsis};
