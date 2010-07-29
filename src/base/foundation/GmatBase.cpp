@@ -3421,6 +3421,10 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
          if (parmType == Gmat::STRINGARRAY_TYPE ||
              parmType == Gmat::OBJECTARRAY_TYPE)
          {
+            #ifdef DEBUG_ARRAY_TYPE_PARAMETER_WRITING
+               MessageInterface::ShowMessage("String array management for %s\n",
+                     GetParameterText(id).c_str());
+            #endif
             bool writeQuotes = inMatlabMode || parmType == Gmat::STRINGARRAY_TYPE;
 
             StringArray sar = GetStringArrayParameter(id);
@@ -3684,6 +3688,25 @@ void GmatBase::WriteParameterValue(Integer id, std::stringstream &stream)
    case Gmat::BOOLEAN_TYPE:
       stream << ((GetBooleanParameter(id)) ? "true" : "false");
       break;
+
+   case Gmat::STRINGARRAY_TYPE:
+      #ifdef DEBUG_ARRAY_TYPE_PARAMETER_WRITING
+         MessageInterface::ShowMessage("String array management:WriteParmValue "
+               "for %s\n", GetParameterText(id).c_str());
+      #endif
+
+//      {
+//         StringArray sa = GetStringArrayParameter(id);
+//         stream << "{ ";
+//         for (UnsignedInt i = 0; i < sa.size(); ++i)
+//         {
+//            stream << "'" << sa[i] << "'";
+//            if (i < sa.size() - 1)
+//               stream << ", ";
+//         }
+//         stream << " }";
+//      }
+//      break;
 
    default:
       MessageInterface::ShowMessage
