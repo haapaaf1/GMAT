@@ -2191,7 +2191,7 @@ bool Interpreter::AssembleConditionalCommand(GmatCommand *cmd,
    std::string type = cmd->GetTypeName();
    std::string opStr = "~<=>&|";
    
-   // conditional commands, for compatability with MATLAB, should not have
+   // conditional commands, for compatibility with MATLAB, should not have
    // parentheses (except to indicate array elements), brackets, or braces
    if (!GmatStringUtil::HasNoBrackets(desc))
    {
