@@ -37,8 +37,8 @@
 //-----------------------------------------
 const wxString GmatBaseSetupPanel::TF_SCHEMES[2] = 
    {
-      wxT("false"),
-      wxT("true")
+      wxT("Off"),
+      wxT("On")
    };
 
 /// wxWidget event mappings for the panel
@@ -95,6 +95,7 @@ GmatBaseSetupPanel::~GmatBaseSetupPanel()
    std::map<wxString, wxComboBox *>::iterator iter;
    for (iter = managedComboBoxMap.begin(); iter != managedComboBoxMap.end(); ++iter)
       theGuiManager->UnregisterComboBox(iter->first, iter->second);
+   delete localObject;
 }
 
 
@@ -108,7 +109,7 @@ GmatBaseSetupPanel::~GmatBaseSetupPanel()
 void GmatBaseSetupPanel::Create()
 {
    // create local copy of mObject
-//   localObject = mObject->Clone();
+   localObject = mObject->Clone();
    SizerMapType *groups;
    StringArray propertyNames;
    std::vector<wxString> propertyGroups;
@@ -116,8 +117,8 @@ void GmatBaseSetupPanel::Create()
    
    #ifdef DEBUG_BASEPANEL_CREATE
    MessageInterface::ShowMessage
-      ("GmatBaseSetupPanel::Create() entered, name='%s', mObject=<%p><%s> '%s'\n",
-       name.c_str(), mObject, mObject->GetTypeName().c_str(), mObject->GetName().c_str());
+      ("GmatBaseSetupPanel::Create() entered, name='%s', localObject=<%p><%s> '%s'\n",
+       name.c_str(), localObject, localObject->GetTypeName().c_str(), localObject->GetName().c_str());
    MessageInterface::ShowMessage("   It has %d properties\n", propertyCount);
    #endif
 
@@ -131,15 +132,15 @@ void GmatBaseSetupPanel::Create()
    groups = CreateGroups(mainSizer, pConfig);
 
    // get the property names
-   Integer propertyCount = mObject->GetParameterCount();
+   Integer propertyCount = localObject->GetParameterCount();
    for (Integer i = 0; i < propertyCount; ++i)
    {
       #ifdef DEBUG_BASEPANEL_CREATE
       MessageInterface::ShowMessage
-         ("   ParameterText(%d)='%s'\n", i, mObject->GetParameterText(i).c_str());
+         ("   ParameterText(%d)='%s'\n", i, localObject->GetParameterText(i).c_str());
       #endif
-      if (mObject->IsParameterReadOnly(i) == false)
-         propertyNames.push_back(mObject->GetParameterText(i));
+      if (localObject->IsParameterReadOnly(i) == false)
+         propertyNames.push_back(localObject->GetParameterText(i));
    }
 
    // Create the properties
@@ -248,13 +249,13 @@ void GmatBaseSetupPanel::LoadData()
    try
    {
       std::string label;
-      Integer propertyCount = mObject->GetParameterCount();
+      Integer propertyCount = localObject->GetParameterCount();
       
       for (Integer i = 0; i < propertyCount; ++i)
       {
-         if (mObject->IsParameterReadOnly(i) == false)
+         if (localObject->IsParameterReadOnly(i) == false)
          {
-            label = mObject->GetParameterText(i);
+            label = localObject->GetParameterText(i);
             LoadControl(label);
          }
       }
@@ -292,6 +293,10 @@ void GmatBaseSetupPanel::SaveData()
          if (!canClose)
             return;
       }
+      // copy the local object twice (sometimes, the copy causes a validation error)
+      GmatBase *mLocalObject = mObject->Clone();
+      mLocalObject->Copy(localObject);
+      mObject->Copy(mLocalObject);
    }
    catch (BaseException &e)
    {
@@ -318,10 +323,10 @@ void GmatBaseSetupPanel::CreateControls(Integer index, wxStaticText **aLabel, wx
 {
     std::string labelText;
     // set the path to the section that contains the parameter's items
-    config->SetPath(wxT(("/"+mObject->GetParameterText(index)).c_str()));
+    config->SetPath(wxT(("/"+localObject->GetParameterText(index)).c_str()));
     labelText = GetParameterLabel(index, config);
     labelText = AssignAcceleratorKey(labelText);
-    if (mObject->GetParameterType(index) != Gmat::BOOLEAN_TYPE)
+    if (localObject->GetParameterType(index) != Gmat::BOOLEAN_TYPE)
        *aLabel = new wxStaticText(this, ID_TEXT,
            labelText.c_str());
     else
@@ -363,10 +368,10 @@ void GmatBaseSetupPanel::CreateProperties(wxFlexGridSizer *mainSizer, StringArra
 	   for(propertyItem = propertyNames->begin(), j=0;
 	       propertyItem != propertyNames->end(); ++propertyItem, ++j)
 	   {
-	      i = mObject->GetParameterID(*propertyItem);
+	      i = localObject->GetParameterID(*propertyItem);
 	      CreateControls(i, &aLabel, &aControl, &aUnit, config);
 	      propertyDescriptors.push_back(aLabel);
-	      controlMap[mObject->GetParameterText(i)] = j;
+	      controlMap[localObject->GetParameterText(i)] = j;
 	      propertyControls.push_back(aControl);
 	      propertyUnits.push_back(aUnit);
 	   }
@@ -433,12 +438,22 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
 {
    wxControl *control = NULL;
    
-   Gmat::ParameterType type = mObject->GetParameterType(index);
+   Gmat::ParameterType type = localObject->GetParameterType(index);
    
    MessageInterface::ShowMessage
-      ("Building control %s\ (type=%s)\n", label.c_str(), mObject->GetParameterTypeString(index).c_str());
+      ("Building control %s (type=%s)\n", label.c_str(), localObject->GetParameterTypeString(index).c_str());
    switch (type)
    {
+   case Gmat::ON_OFF_TYPE:
+	  {
+         wxComboBox *cbControl =
+             new wxComboBox(parent, ID_COMBOBOX, "true",
+                            wxDefaultPosition, wxDefaultSize, 2, TF_SCHEMES,
+                            wxCB_READONLY);
+
+         control = cbControl;
+	  }
+	  break;
    case Gmat::BOOLEAN_TYPE:
       {
          wxCheckBox *cbControl = new wxCheckBox( this, ID_CHECKBOX, wxT(label.c_str()));
@@ -448,9 +463,9 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
       break;
    case Gmat::OBJECT_TYPE:
       {
-         Gmat::ObjectType type = mObject->GetPropertyObjectType(index);
+         Gmat::ObjectType type = localObject->GetPropertyObjectType(index);
          MessageInterface::ShowMessage
-            ("object type is %s\n", GmatBase::GetObjectTypeString(type).c_str());
+            ("    object type is %s\n", GmatBase::GetObjectTypeString(type).c_str());
          if (type == Gmat::SPACE_POINT)
          {
             // The GuiItemManager automatically registers wxComboBox in order to
@@ -519,14 +534,15 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
          }
          else
          {
-//             MessageInterface::ShowMessage
-//                ("Unrecognized object type: %s.  Building default combo box\n", GmatBase::GetObjectTypeString(type).c_str());
 
             // Check if enumeration strings available for owned object types
             wxArrayString enumList;
-            StringArray enumStrings = mObject->GetPropertyEnumStrings(index);
+            StringArray enumStrings = theGuiInterpreter->GetListOfObjects(type);
+//            StringArray enumStrings = localObject->GetPropertyEnumStrings(index);
             for (UnsignedInt i=0; i<enumStrings.size(); i++)
                enumList.Add(enumStrings[i].c_str());
+       	   MessageInterface::ShowMessage
+       	      ("     enumeration size is %d\n", enumStrings.size());
             
             control = new wxComboBox(parent, ID_COMBOBOX, wxT(""),
                                      wxDefaultPosition, wxSize(180,-1), enumList,
@@ -536,10 +552,12 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
       break;
    case Gmat::ENUMERATION_TYPE:
       {
-         StringArray enumStrings = mObject->GetPropertyEnumStrings(index);
+         StringArray enumStrings = localObject->GetPropertyEnumStrings(index);
          wxArrayString enumList;
          for (UnsignedInt i=0; i<enumStrings.size(); i++)
             enumList.Add(enumStrings[i].c_str());
+  	   MessageInterface::ShowMessage
+  	      ("     enumeration size is %d\n", enumStrings.size());
          
          wxComboBox *cbControl = NULL;
          if (enumStrings.size() == 1)
@@ -596,22 +614,26 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
       ("GmatBaseSetupPanel::LoadControl() label='%s'\n", label.c_str());
    #endif
    
-   Integer index = mObject->GetParameterID(label);
-   Gmat::ParameterType type = mObject->GetParameterType(index);
+   Integer index = localObject->GetParameterID(label);
+   Gmat::ParameterType type = localObject->GetParameterType(index);
    
    wxControl *theControl = propertyControls[controlMap[label]];
    wxString valueString;
    
    switch (type)
    {
-      case Gmat::BOOLEAN_TYPE:
-    	  ((wxCheckBox*) theControl)->SetValue(mObject->GetBooleanParameter(mObject->GetParameterID(label)));
+   	  case Gmat::ON_OFF_TYPE:
+   	     {
+   	    	((wxComboBox*)(theControl))->SetValue(wxT(localObject->GetOnOffParameter(localObject->GetParameterID(label))));
+		 }
          break;
-         
+      case Gmat::BOOLEAN_TYPE:
+          ((wxCheckBox*) theControl)->SetValue(localObject->GetBooleanParameter(localObject->GetParameterID(label)));
+         break;
       case Gmat::REAL_TYPE:
          {
-            Real val = mObject->GetRealParameter(
-                  mObject->GetParameterID(label));
+            Real val = localObject->GetRealParameter(
+                  localObject->GetParameterID(label));
             valueString << val;
             ((wxTextCtrl*)theControl)->ChangeValue(valueString);
          }
@@ -619,26 +641,26 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
          
       case Gmat::INTEGER_TYPE:
          {
-            Integer val = mObject->GetIntegerParameter(
-                  mObject->GetParameterID(label));
+            Integer val = localObject->GetIntegerParameter(
+                  localObject->GetParameterID(label));
             valueString << val;
             ((wxTextCtrl*)theControl)->ChangeValue(valueString);
          }
          break;
          
       case Gmat::STRING_TYPE:
-         valueString = wxT(mObject->GetStringParameter(label).c_str());
+         valueString = wxT(localObject->GetStringParameter(label).c_str());
          ((wxTextCtrl*)theControl)->ChangeValue(valueString);
          break;
          
       case Gmat::OBJECT_TYPE:
-         valueString = (mObject->GetStringParameter(mObject->GetParameterID(label))).c_str();
+         valueString = (localObject->GetStringParameter(localObject->GetParameterID(label))).c_str();
          ((wxComboBox*)theControl)->SetStringSelection(valueString);
 //         ((wxComboBox*)theControl)->Append(valueString); // removed for Bug 1621 wcs 2009.11.10
          
       case Gmat::ENUMERATION_TYPE:
          {
-            valueString = (mObject->GetStringParameter(mObject->GetParameterID(label))).c_str();
+            valueString = (localObject->GetStringParameter(localObject->GetParameterID(label))).c_str();
             wxComboBox *cb = (wxComboBox*)theControl;
             cb->SetValue(valueString);
             
@@ -664,20 +686,30 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::SaveControl(const std::string &label)
 {
-   Integer index = mObject->GetParameterID(label);
-   Gmat::ParameterType type = mObject->GetParameterType(index);
+   GmatBase *mLocalObject;
+   // change mLocalObject to mObject if you want to set the object directly.
+   // otherwise use localObject to be able to back out of changes
+   mLocalObject = localObject;
+   Integer index = mLocalObject->GetParameterID(label);
+   Gmat::ParameterType type = mLocalObject->GetParameterType(index);
 
    wxControl *theControl = propertyControls[controlMap[label]];
    std::string valueString;
    
    switch (type)
    {
-      case Gmat::BOOLEAN_TYPE:
+   	  case Gmat::ON_OFF_TYPE:
          {
-        	  mObject->SetBooleanParameter(index, ((wxCheckBox*)theControl)->GetValue());
+        	 valueString = ((wxComboBox*)theControl)->GetValue();
+          	 mLocalObject->SetOnOffParameter(index, valueString);
          }
          break;
-      
+      case Gmat::BOOLEAN_TYPE:
+         {
+        	mLocalObject->SetBooleanParameter(index, ((wxCheckBox*)theControl)->GetValue());
+         }
+         break;
+
       case Gmat::REAL_TYPE:
          {
             Real val; 
@@ -685,7 +717,7 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
             CheckReal(val, valueString, label, "Real Number");
             if (!canClose)
                return;
-            mObject->SetRealParameter(index, val);
+            mLocalObject->SetRealParameter(index, val);
          }
          break;
          
@@ -696,19 +728,19 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
             CheckInteger(val, valueString, label, "Integer");
             if (!canClose)
                return;
-            mObject->SetIntegerParameter(index, val);
+            mLocalObject->SetIntegerParameter(index, val);
          }
          break;
       
       case Gmat::STRING_TYPE:
          valueString = ((wxTextCtrl*)theControl)->GetValue();
-         mObject->SetStringParameter(index, valueString.c_str());
+         mLocalObject->SetStringParameter(index, valueString.c_str());
          break;
 
       case Gmat::OBJECT_TYPE:
       case Gmat::ENUMERATION_TYPE:
          valueString = ((wxComboBox*)theControl)->GetValue();
-         mObject->SetStringParameter(index, valueString);
+         mLocalObject->SetStringParameter(index, valueString);
          break;
          
       default:
@@ -801,9 +833,9 @@ bool GmatBaseSetupPanel::GetLayoutConfig(wxFileConfig **config)
 		  e.GetFullMessage().c_str());
 	  configPath = "";
 	}
-	bool configFileExists = GmatFileUtil::DoesFileExist(configPath+mObject->GetTypeName()+".ini");
+	bool configFileExists = GmatFileUtil::DoesFileExist(configPath+localObject->GetTypeName()+".ini");
 	*config = new wxFileConfig(wxEmptyString, wxEmptyString,
-	                (configPath+mObject->GetTypeName()+".ini").c_str(),
+	                (configPath+localObject->GetTypeName()+".ini").c_str(),
 		             wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
 	return configFileExists;
 
@@ -822,7 +854,7 @@ bool GmatBaseSetupPanel::GetLayoutConfig(wxFileConfig **config)
 //------------------------------------------------------------------------------
 std::string GmatBaseSetupPanel::GetParameterLabel(Integer i, wxFileConfig *config) const
 {
-	std::string text = mObject->GetParameterText(i);
+	std::string text = localObject->GetParameterText(i);
 	std::string titleText;
     wxString str;
 
@@ -875,7 +907,7 @@ std::string GmatBaseSetupPanel::GetParameterLabel(Integer i, wxFileConfig *confi
 //------------------------------------------------------------------------------
 std::string GmatBaseSetupPanel::GetParameterUnit(Integer i, wxFileConfig *config) const
 {
-	std::string text = mObject->GetParameterText(i);
+	std::string text = localObject->GetParameterText(i);
     wxString str;
 
 	// first, see if the parameter is in the object's INI file
@@ -884,7 +916,7 @@ std::string GmatBaseSetupPanel::GetParameterUnit(Integer i, wxFileConfig *config
    if (config->Read(wxT("Unit"), &str))
 	   return str.c_str();
    else
-	   return mObject->GetParameterUnit(i);
+	   return localObject->GetParameterUnit(i);
 }
 
 
