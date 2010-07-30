@@ -1290,7 +1290,7 @@ bool ConditionalBranch::EvaluateAllConditions()
 {
    #ifdef DEBUG_CONDITIONS
       MessageInterface::ShowMessage(
-         "   Entering EvaluateAllConditions with number of conditons = %d\n", 
+         "   Entering EvaluateAllConditions with number of conditons = %d\n",
          numberOfConditions);
    #endif
    if (numberOfConditions == 0)
@@ -1301,30 +1301,66 @@ bool ConditionalBranch::EvaluateAllConditions()
       throw CommandException(
          "conditional statement incorrect - too few/many logical operators");
    
-   bool soFar = EvaluateCondition(0);
-   #ifdef DEBUG_CONDITIONS
-      MessageInterface::ShowMessage(
-         "   After EvaluateCondition, soFar = %s\n", (soFar? "true" : "false"));
-   #endif
-   
-   
-   Integer i = 1;
-   for (i=1; i < numberOfConditions; i++)
+   // divide into sets of higher-precedence AND operators, then OR them
+   // @todo Create a LogicTree for this type, allowing use of parentheses as well
+   bool         done            = false;
+   Integer      current         = 0;
+   bool         soFar           = false;
+   bool         setOfCmdsFound  = false;
+   bool         evalAnds        = true;
+   IntegerArray andConditions;
+   while (!done)
    {
-      switch (logicalOpList.at(i-1))
+      andConditions.clear();
+      setOfCmdsFound  = false;
+      evalAnds        = true;
+      while (!setOfCmdsFound)
       {
-         case AND:
-            soFar = soFar && EvaluateCondition(i);
-            break;
-         case OR:
-            soFar = soFar || EvaluateCondition(i);
-            break;
-         default:
-            throw CommandException(
-                  "Unknown logical operator in conditional statement.");
-            break;
+         andConditions.push_back(current);
+         if (current == (numberOfConditions-1)) // are we at the end of the list of conditions?
+         {
+            setOfCmdsFound = true;
+            done           = true;
+         }
+         else
+         {
+            if (logicalOpList.at(current) == OR) setOfCmdsFound = true; // or is the operator an OR?
+            current++;
+         }
       }
-   }
+      // found an OR, so evaluate the AND conditions
+      for (Integer ii = 0; ii < (Integer) andConditions.size(); ii++)
+      {
+         evalAnds = evalAnds && EvaluateCondition(andConditions.at(ii));
+      }
+      // previous result OR current result from group of AND conditions
+      soFar = soFar || evalAnds;
+   } // not done
+   andConditions.clear();
+//   bool soFar = EvaluateCondition(0);
+//   #ifdef DEBUG_CONDITIONS
+//      MessageInterface::ShowMessage(
+//         "   After EvaluateCondition, soFar = %s\n", (soFar? "true" : "false"));
+//   #endif
+//
+//
+//   Integer i = 1;
+//   for (i=1; i < numberOfConditions; i++)
+//   {
+//      switch (logicalOpList.at(i-1))
+//      {
+//         case AND:
+//            soFar = soFar && EvaluateCondition(i);
+//            break;
+//         case OR:
+//            soFar = soFar || EvaluateCondition(i);
+//            break;
+//         default:
+//            throw CommandException(
+//                  "Unknown logical operator in conditional statement.");
+//            break;
+//      }
+//   }
    
    #ifdef DEBUG_CONDITIONS
    if (soFar)
