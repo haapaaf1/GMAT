@@ -1041,7 +1041,7 @@ const StringArray& Solver::GetStringArrayParameter(const Integer id) const
  *
  * @param id The ID of the parameter
  *
- * @return A const string array with teh allowed settings.
+ * @return A const string array with the allowed settings.
  */
 //------------------------------------------------------------------------------
 const StringArray& Solver::GetPropertyEnumStrings(const Integer id) const

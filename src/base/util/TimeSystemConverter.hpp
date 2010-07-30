@@ -100,7 +100,7 @@ namespace TimeConverterUtil
       "TdbMjd",
       "TcbMjd",
       "TtMjd",
-      // New entried added by DJC
+      // New entries added by DJC
       "A1",
       "TAI",
       "UTC",
