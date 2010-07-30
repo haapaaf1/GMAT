@@ -1055,9 +1055,9 @@ const StringArray& Solver::GetPropertyEnumStrings(const Integer id) const
       enumStrings.push_back("Concise");
       enumStrings.push_back("Verbose");
       enumStrings.push_back("Debug");
+      return enumStrings;
    }
-
-   return enumStrings;
+   return GmatBase::GetPropertyEnumStrings(id);
 }
 
 
