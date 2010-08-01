@@ -35,7 +35,7 @@
 //-----------------------------------------
 // static members
 //-----------------------------------------
-const wxString GmatBaseSetupPanel::TF_SCHEMES[2] = 
+const wxString GmatBaseSetupPanel::TF_SCHEMES[2] =
    {
       wxT("Off"),
       wxT("On")
@@ -59,16 +59,16 @@ END_EVENT_TABLE()
 //------------------------------------------------------------------------------
 /**
  * Panel constructor
- * 
+ *
  * @param parent Owner for this panel
- * @param name Name of the object that is to be configured 
+ * @param name Name of the object that is to be configured
  */
 //------------------------------------------------------------------------------
 GmatBaseSetupPanel::GmatBaseSetupPanel(wxWindow *parent, const wxString &name)
    : GmatPanel(parent)
 {
    mObject = theGuiInterpreter->GetConfiguredObject(name.c_str());
-   
+
    if (mObject != NULL)
    {
       Create();
@@ -77,7 +77,7 @@ GmatBaseSetupPanel::GmatBaseSetupPanel(wxWindow *parent, const wxString &name)
    else
    {
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "The object named \"%s\" does not exist\n", name.c_str());      
+         (Gmat::WARNING_, "The object named \"%s\" does not exist\n", name.c_str());
    }
 }
 
@@ -114,7 +114,7 @@ void GmatBaseSetupPanel::Create()
    StringArray propertyNames;
    std::vector<wxString> propertyGroups;
    wxFileConfig *pConfig;
-   
+
    #ifdef DEBUG_BASEPANEL_CREATE
    MessageInterface::ShowMessage
       ("GmatBaseSetupPanel::Create() entered, name='%s', localObject=<%p><%s> '%s'\n",
@@ -125,9 +125,9 @@ void GmatBaseSetupPanel::Create()
    wxFlexGridSizer *mainSizer = new wxFlexGridSizer(1);
    wxFlexGridSizer *mainItemSizer = new wxFlexGridSizer(1); // for properties that don't have parents
    mainSizer->Add(mainItemSizer, 0, wxALL|wxALIGN_LEFT, border);
-   
+
    GetLayoutConfig( &pConfig );
-   
+
    // create the groups
    groups = CreateGroups(mainSizer, pConfig);
 
@@ -145,7 +145,7 @@ void GmatBaseSetupPanel::Create()
 
    // Create the properties
    CreateProperties(mainItemSizer, &propertyNames, groups, pConfig);
-   
+
    // fix tab order
    FixTabOrder( NULL, mainSizer );
    delete pConfig;
@@ -180,14 +180,14 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
            sizer = new GmatStaticBoxSizer( wxHORIZONTAL, this, config->Read("/"+groupName+"/Label") );
          else if (groupProp == "flex")
          {
-           sizer = new wxFlexGridSizer( config->Read("/"+groupName+"/Rows", (long) 0), 
+           sizer = new wxFlexGridSizer( config->Read("/"+groupName+"/Rows", (long) 0),
                            config->Read("/"+groupName+"/Columns", (long) 0),
                            config->Read("/"+groupName+"/VerticalGap", (long) 0),
                            config->Read("/"+groupName+"/HorizontalGap", (long) 0));
          }
          else if (groupProp == "grid")
          {
-           sizer = new wxGridSizer( config->Read("/"+groupName+"/Rows", (long) 0), 
+           sizer = new wxGridSizer( config->Read("/"+groupName+"/Rows", (long) 0),
                            config->Read("/"+groupName+"/Columns", (long) 0),
                            config->Read("/"+groupName+"/VerticalGap", (long) 0),
                            config->Read("/"+groupName+"/HorizontalGap", (long) 0));
@@ -240,7 +240,7 @@ SizerMapType *GmatBaseSetupPanel::CreateGroups(wxFlexGridSizer *mainSizer, wxFil
 // void LoadData()
 //------------------------------------------------------------------------------
 /**
- * Populates the panel with the configurable property data in the Solver 
+ * Populates the panel with the configurable property data in the Solver
  */
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::LoadData()
@@ -250,7 +250,7 @@ void GmatBaseSetupPanel::LoadData()
    {
       std::string label;
       Integer propertyCount = localObject->GetParameterCount();
-      
+
       for (Integer i = 0; i < propertyCount; ++i)
       {
          if (localObject->IsParameterReadOnly(i) == false)
@@ -266,7 +266,7 @@ void GmatBaseSetupPanel::LoadData()
          ("GmatBaseSetupPanel:LoadData() error occurred!\n%s\n",
           e.GetFullMessage().c_str());
    }
-   
+
    // explicitly disable apply button
    // it is turned on in each of the panels
    EnableUpdate(false);
@@ -426,20 +426,20 @@ void GmatBaseSetupPanel::CreateProperties(wxFlexGridSizer *mainSizer, StringArra
 //------------------------------------------------------------------------------
 /**
  * Builds a wxWidget control for an object property
- * 
+ *
  * @param parent The window that owns the control
  * @param index The index for the property that the constructed control
  *              represents
- * 
+ *
  * @return The new control
  */
 //------------------------------------------------------------------------------
 wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, const std::string &label, wxFileConfig *config)
 {
    wxControl *control = NULL;
-   
+
    Gmat::ParameterType type = localObject->GetParameterType(index);
-   
+
    MessageInterface::ShowMessage
       ("Building control %s (type=%s)\n", label.c_str(), localObject->GetParameterTypeString(index).c_str());
    switch (type)
@@ -543,7 +543,7 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
                enumList.Add(enumStrings[i].c_str());
        	   MessageInterface::ShowMessage
        	      ("     enumeration size is %d\n", enumStrings.size());
-            
+
             control = new wxComboBox(parent, ID_COMBOBOX, wxT(""),
                                      wxDefaultPosition, wxSize(180,-1), enumList,
                                      wxCB_READONLY);
@@ -558,7 +558,7 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
             enumList.Add(enumStrings[i].c_str());
   	   MessageInterface::ShowMessage
   	      ("     enumeration size is %d\n", enumStrings.size());
-         
+
          wxComboBox *cbControl = NULL;
          if (enumStrings.size() == 1)
          {
@@ -574,7 +574,7 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
                new wxComboBox(parent, ID_COMBOBOX, "", wxDefaultPosition,
                               wxSize(180,-1), enumList, wxCB_READONLY);
          }
-         
+
          control = cbControl;
       }
       break;
@@ -588,11 +588,11 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
       break;
    case Gmat::STRING_TYPE:
    default:
-      control = new wxTextCtrl(parent, ID_TEXTCTRL, 
+      control = new wxTextCtrl(parent, ID_TEXTCTRL,
                                wxT(""), wxDefaultPosition, wxSize(180,-1));
       break;
    }
-   
+
    control->SetToolTip(config->Read(_T("Hint")));
    return control;
 }
@@ -603,7 +603,7 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, Integer index, con
 //------------------------------------------------------------------------------
 /**
  * Sets the data for a control
- * 
+ *
  * @param label The control's label
  */
 //------------------------------------------------------------------------------
@@ -613,19 +613,21 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
    MessageInterface::ShowMessage
       ("GmatBaseSetupPanel::LoadControl() label='%s'\n", label.c_str());
    #endif
-   
+
    Integer index = localObject->GetParameterID(label);
    Gmat::ParameterType type = localObject->GetParameterType(index);
-   
+
    wxControl *theControl = propertyControls[controlMap[label]];
    wxString valueString;
-   
+
    switch (type)
    {
    	  case Gmat::ON_OFF_TYPE:
    	     {
-   	    	((wxComboBox*)(theControl))->SetValue(wxT(localObject->GetOnOffParameter(localObject->GetParameterID(label))));
-		 }
+              ((wxComboBox*)(theControl))->SetValue(wxT(
+                    localObject->GetOnOffParameter(localObject->GetParameterID(
+                          label))).c_str());
+           }
          break;
       case Gmat::BOOLEAN_TYPE:
           ((wxCheckBox*) theControl)->SetValue(localObject->GetBooleanParameter(localObject->GetParameterID(label)));
@@ -638,7 +640,7 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
             ((wxTextCtrl*)theControl)->ChangeValue(valueString);
          }
          break;
-         
+
       case Gmat::INTEGER_TYPE:
          {
             Integer val = localObject->GetIntegerParameter(
@@ -647,23 +649,23 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
             ((wxTextCtrl*)theControl)->ChangeValue(valueString);
          }
          break;
-         
+
       case Gmat::STRING_TYPE:
          valueString = wxT(localObject->GetStringParameter(label).c_str());
          ((wxTextCtrl*)theControl)->ChangeValue(valueString);
          break;
-         
+
       case Gmat::OBJECT_TYPE:
          valueString = (localObject->GetStringParameter(localObject->GetParameterID(label))).c_str();
          ((wxComboBox*)theControl)->SetStringSelection(valueString);
 //         ((wxComboBox*)theControl)->Append(valueString); // removed for Bug 1621 wcs 2009.11.10
-         
+
       case Gmat::ENUMERATION_TYPE:
          {
             valueString = (localObject->GetStringParameter(localObject->GetParameterID(label))).c_str();
             wxComboBox *cb = (wxComboBox*)theControl;
             cb->SetValue(valueString);
-            
+
             // if ComboBox is not read only, add value to list
             if (cb->GetWindowStyleFlag() != wxCB_READONLY)
                cb->Append(valueString);
@@ -680,7 +682,7 @@ void GmatBaseSetupPanel::LoadControl(const std::string &label)
 //------------------------------------------------------------------------------
 /**
  * Passes a control's data to the Solver
- * 
+ *
  * @param label The string associated with the control.
  */
 //------------------------------------------------------------------------------
@@ -695,7 +697,7 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
 
    wxControl *theControl = propertyControls[controlMap[label]];
    std::string valueString;
-   
+
    switch (type)
    {
    	  case Gmat::ON_OFF_TYPE:
@@ -712,7 +714,7 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
 
       case Gmat::REAL_TYPE:
          {
-            Real val; 
+            Real val;
             valueString = ((wxTextCtrl*)theControl)->GetValue();
             CheckReal(val, valueString, label, "Real Number");
             if (!canClose)
@@ -720,7 +722,7 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
             mLocalObject->SetRealParameter(index, val);
          }
          break;
-         
+
       case Gmat::INTEGER_TYPE:
          {
             Integer val;
@@ -731,7 +733,7 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
             mLocalObject->SetIntegerParameter(index, val);
          }
          break;
-      
+
       case Gmat::STRING_TYPE:
          valueString = ((wxTextCtrl*)theControl)->GetValue();
          mLocalObject->SetStringParameter(index, valueString.c_str());
@@ -742,7 +744,7 @@ void GmatBaseSetupPanel::SaveControl(const std::string &label)
          valueString = ((wxComboBox*)theControl)->GetValue();
          mLocalObject->SetStringParameter(index, valueString);
          break;
-         
+
       default:
          break;
    }
@@ -775,7 +777,7 @@ std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text)
       // if character has not already been used
       if (find (accelKeys.begin(), accelKeys.end(), tolower(text[iText])) == accelKeys.end())
       {
-		   // if it is the beginning of a word alphanumeric 
+		   // if it is the beginning of a word alphanumeric
 		   if ((findWord) && (isalnum(text[iText])))
 		   {
 			   accelIndex = iText;
@@ -793,7 +795,7 @@ std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text)
 			   haveCandidate = true;
 		   }
       }
-      if ((!findWord) && (!isalnum(text[iText]))) 
+      if ((!findWord) && (!isalnum(text[iText])))
          findWord = true;
       if ((findWord) && (isalnum(text[iText])))
          findWord = false;
@@ -925,9 +927,9 @@ std::string GmatBaseSetupPanel::GetParameterUnit(Integer i, wxFileConfig *config
 //------------------------------------------------------------------------------
 /**
  * Event handler for comboboxes
- * 
+ *
  * Activates the Apply button when selection is changed.
- * 
+ *
  * @param event The triggering event.
  */
 //------------------------------------------------------------------------------
@@ -943,9 +945,9 @@ void GmatBaseSetupPanel::OnComboBoxChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 /**
  * Event handler for ComboBox text change
- * 
+ *
  * Activates the Apply button when selection is changed.
- * 
+ *
  * @param event The triggering event.
  */
 //------------------------------------------------------------------------------
@@ -961,9 +963,9 @@ void GmatBaseSetupPanel::OnComboBoxTextChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 /**
  * Event handler for text boxes
- * 
+ *
  * Activates the Apply button when text is changed.
- * 
+ *
  * @param event The triggering event.
  */
 //------------------------------------------------------------------------------
@@ -1090,9 +1092,9 @@ void GmatBaseSetupPanel::SortGroups(StringArray *groupNames, wxFileConfig *confi
  */
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::NormalizeLabels( StringArray propertyNames,
-                      std::vector<wxString> propertyGroups, 
-                      std::vector<wxStaticText*> propertyDescriptors, 
-                      std::vector<wxControl*> propertyControls, 
+                      std::vector<wxString> propertyGroups,
+                      std::vector<wxStaticText*> propertyDescriptors,
+                      std::vector<wxControl*> propertyControls,
                       std::vector<wxStaticText*> propertyUnits )
 {
    // initialize all groups with a max size
@@ -1112,8 +1114,8 @@ void GmatBaseSetupPanel::NormalizeLabels( StringArray propertyNames,
    }
 
    // now find the minimums for the descriptions and units
-   for(item = propertyDescriptors.begin(), j = 0; 
-       item != propertyDescriptors.end(); ++item, ++j) 
+   for(item = propertyDescriptors.begin(), j = 0;
+       item != propertyDescriptors.end(); ++item, ++j)
    {
       // get the label size so far for the group
       sizeItem = labelSizes.find(propertyGroups[j].Lower());
@@ -1126,13 +1128,13 @@ void GmatBaseSetupPanel::NormalizeLabels( StringArray propertyNames,
    }
 
    // adjust grouplabels and groupunits
-   for(item = propertyDescriptors.begin(), j = 0; 
-       item != propertyDescriptors.end(); ++item, ++j) 
+   for(item = propertyDescriptors.begin(), j = 0;
+       item != propertyDescriptors.end(); ++item, ++j)
    {
-      // set the label min size 
+      // set the label min size
       sizeItem = labelSizes.find(propertyGroups[j].Lower());
       (*item)->SetMinSize(wxSize(((int) sizeItem->second), (*item)->GetMinHeight()));
-      // set the unit min size 
+      // set the unit min size
       sizeItem = unitSizes.find(propertyGroups[j].Lower());
       propertyUnits[j]->SetMinSize(wxSize(((int) sizeItem->second), propertyUnits[j]->GetMinHeight()));
    }
@@ -1146,7 +1148,7 @@ wxWindow *GmatBaseSetupPanel::FixTabOrder( wxWindow *lastControl, wxSizer *sizer
    {
       if ((*iter)->IsSizer())
          lastControl = FixTabOrder( lastControl, (*iter)->GetSizer() );
-      else 
+      else
       {
          if (lastControl != NULL)
             (*iter)->GetWindow()->MoveAfterInTabOrder(lastControl);
