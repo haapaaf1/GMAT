@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ArrayWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -259,10 +259,13 @@ bool ArrayWrapper::RenameObject(const std::string &oldName,
 //---------------------------------------------------------------------------
 Real ArrayWrapper::EvaluateReal() const
 {
-   throw GmatBaseException(
-      "EvaluateReal() method not valid for wrapper of Array type.\n");
+   if (array->GetRowCount() == 1 && array->GetColCount() == 1)
+      return array->GetRealParameter("SingleValue", 0, 0);
+   else
+      throw GmatBaseException(
+         "ArrayWrapper::EvaluateReal() method not valid for wrapper of Array type.\n");
 }
-   
+
 //---------------------------------------------------------------------------
 //  bool SetReal(const Real toValue)
 //---------------------------------------------------------------------------

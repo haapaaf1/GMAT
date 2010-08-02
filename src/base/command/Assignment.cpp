@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                Assignment
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -1377,12 +1377,20 @@ ElementWrapper* Assignment::RunMathTree()
       
       if (lhsDataType != returnType)
       {
-         std::string lhsTypeStr = GmatBase::PARAM_TYPE_STRING[lhsDataType];
-         CommandException ce;
-         ce.SetDetails("Cannot set type \"%s\" to type \"%s\"",
-                       GmatBase::PARAM_TYPE_STRING[returnType].c_str(),
-                       lhsTypeStr.c_str());
-         throw ce;
+         if (lhsDataType == Gmat::REAL_TYPE && returnType == Gmat::RMATRIX_TYPE &&
+             numRow == 1 && numCol == 1)
+         {
+            // It's ok to assign 1x1 matrix to scalar
+         }
+         else
+         {
+            std::string lhsTypeStr = GmatBase::PARAM_TYPE_STRING[lhsDataType];
+            CommandException ce;
+            ce.SetDetails("Cannot set type \"%s\" to type \"%s\"",
+                          GmatBase::PARAM_TYPE_STRING[returnType].c_str(),
+                          lhsTypeStr.c_str());
+            throw ce;
+         }
       }
       
       // @note We need to set description before setting the value to output wrapper

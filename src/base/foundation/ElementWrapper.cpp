@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ElementWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -576,15 +576,33 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             break;
          }
       case Gmat::REAL_TYPE:
-         #ifdef DEBUG_EW_SET_VALUE
-         MessageInterface::ShowMessage("   setting rhs rval=%f to lhs\n", rval);
-         #endif
-         if (rval != -99999.999)
-            lhsWrapper->SetReal(rval);
-         else
-            throw GmatBaseException
-               ("ElementWrapper::SetValue() Cannot set Non-Real value to Real");
-         break;
+         {
+            #ifdef DEBUG_EW_SET_VALUE
+            MessageInterface::ShowMessage("   setting rhs rval=%f to lhs\n", rval);
+            #endif
+            bool valueSet = false;
+            if (rval != -99999.999)
+            {
+               lhsWrapper->SetReal(rval);
+               valueSet = true;
+            }
+            else if (rhsDataType == Gmat::RMATRIX_TYPE)
+            {
+               if (rmat.GetNumRows() == 1 && rmat.GetNumColumns() == 1)
+               {
+                  Real val = rmat.GetElement(0, 0);
+                  lhsWrapper->SetReal(val);
+                  valueSet = true;
+               }
+            }
+            
+            if (!valueSet)
+            {
+               throw GmatBaseException
+                  ("ElementWrapper::SetValue() Cannot set Non-Real value to Real");
+            }
+            break;
+         }
       case Gmat::RMATRIX_TYPE:
          lhsWrapper->SetArray(rmat);
          break;

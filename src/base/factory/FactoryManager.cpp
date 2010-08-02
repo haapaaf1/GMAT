@@ -978,27 +978,9 @@ Factory* FactoryManager::FindFactory(Gmat::ObjectType ofType,
             if (isCaseSensitive)
                objType = GmatStringUtil::Capitalize(objType);
             
-            while (s != listObj.end())
-            {
-               #ifdef DEBUG_FACTORY_CREATE
-               MessageInterface::ShowMessage(
-               "    -> now comparing \"%s\" with \"%s\"\n",
-               (*s).c_str(), objType.c_str());
-               #endif
-               
-               if ((*s).compare(objType) == 0)
-               {
-                  #ifdef DEBUG_FACTORY_CREATE
-                     MessageInterface::ShowMessage
-                        ("FactoryManager::FindFactory() Found factory:%s\n", 
-                         forType.c_str());
-                  #endif
-                  return (*f);
-               }
-               ++s;
-            }
+            if (find(listObj.begin(), listObj.end(), objType) != listObj.end())
+               return (*f);
          }
-
       }
       ++f;
    }

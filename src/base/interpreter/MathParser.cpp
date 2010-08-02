@@ -46,7 +46,7 @@
 //#define DEBUG_INVERSE_OP 1
 //#define DEBUG_POWER 1
 //#define DEBUG_UNARY 1
-//#define DEBUG_CREATE_NODE 2
+//#define DEBUG_CREATE_NODE 1
 //#define DEBUG_GMAT_FUNCTION 1
 
 //#ifndef DEBUG_MEMORY
@@ -204,7 +204,7 @@ bool MathParser::IsEquation(const std::string &str)
 //------------------------------------------------------------------------------
 /*
  * Finds lowest operator from the input string.
- * Single operators are +, -, *, /, ^.
+ * Single operators are +, -, *, /, ^, '.
  *
  * @param  str  Input string
  * @param  opIndex  Index of operator
@@ -341,6 +341,7 @@ std::string MathParser::FindLowestOperator(const std::string &str,
    }
    
    #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage("   There are %d operators\n", opIndexMap.size());
    for (pos = opIndexMap.begin(); pos != opIndexMap.end(); ++pos)
       MessageInterface::ShowMessage
          ("      op=%s, index=%d\n", pos->first.c_str(), pos->second);
@@ -368,12 +369,15 @@ std::string MathParser::FindLowestOperator(const std::string &str,
       }
       else
       {
-         // find ^ and not ^(-1) which is inverse matrix
+         // find ^ and not ^(-1) which is inverse of matrix
+         // find ' which is transpose of matrix (LOJ: 2010.07.29)
          pos1 = opIndexMap.find("^");
-         if (pos1 != opIndexMap.end())
+         pos2 = opIndexMap.find("'");
+         if (pos1 != opIndexMap.end() || pos2 != opIndexMap.end())
          {
-            opStr = pos1->first;
-            index = pos1->second;
+            //opStr = pos1->first;
+            opStr = GetOperator(pos1, pos2, opIndexMap, index);
+            //index = pos1->second;
          }
       }
    }
@@ -497,12 +501,20 @@ MathNode* MathParser::ParseNode(const std::string &str)
       #endif
       
       // check for surrounding parenthesis
-      Integer open, close;
-      bool isOuterParen;
-      std::string str1 = str;
-      GmatStringUtil::FindMatchingParen(str1, open, close, isOuterParen);
-      if (isOuterParen)
-         str1 = str.substr(open+1, close-open-1);
+      //Integer open, close;
+      //bool isOuterParen;
+      //std::string str1 = str;
+      //GmatStringUtil::FindMatchingParen(str1, open, close, isOuterParen);
+      //if (isOuterParen)
+      //   str1 = str.substr(open+1, close-open-1);
+      
+      // Remove extra parenthesis before creating a node (LOJ: 2010.07.29)
+      std::string str1 = GmatStringUtil::RemoveExtraParen(str);
+      
+      #if DEBUG_CREATE_NODE
+      MessageInterface::ShowMessage
+         ("       Creating MathElement with %s\n", str1.c_str());
+      #endif
       
       mathNode = CreateNode("MathElement", str1);
    }
@@ -857,6 +869,9 @@ StringArray MathParser::ParseParenthesis(const std::string &str)
    //-----------------------------------------------------------------
    Integer index;
    std::string opStr1 = FindLowestOperator(str, index);
+   #if DEBUG_PARENTHESIS
+   MessageInterface::ShowMessage("   lowestOperator found =[%s]\n", opStr1.c_str());
+   #endif
    if ((opStr1 == "+" || opStr1 == "-") && index != 0)
    {
       FillItems(items, op, left, right);
@@ -910,12 +925,33 @@ StringArray MathParser::ParseParenthesis(const std::string &str)
    }
    
    //-----------------------------------------------------------------
+   // if lowest operator is ', just return with operator
+   //-----------------------------------------------------------------
+   if (opStr1 == "'")
+   {      
+      bool opFound1;      
+      op = GetOperatorName(opStr1, opFound1);
+      
+      left = str.substr(0, index);
+      right = str.substr(index+1, str.npos);
+      FillItems(items, op, left, right);
+      
+      #if DEBUG_PARENTHESIS
+      WriteItems("MathParser::ParseParenthesis(): lowest ' found."
+                 " returning ", items);
+      #endif
+      
+      return items;
+   }
+   
+   //-----------------------------------------------------------------
    // if ( is part of fuction, just return first parenthesis
    //-----------------------------------------------------------------
    std::string strBeforeParen = str.substr(0, index1);
    
    #if DEBUG_PARENTHESIS
-   MessageInterface::ShowMessage("   ParseParenthesis() strBeforeParen=%s\n", strBeforeParen.c_str());
+   MessageInterface::ShowMessage
+      ("   ParseParenthesis() strBeforeParen=%s\n", strBeforeParen.c_str());
    #endif
    
    if (IsParenPartOfFunction(strBeforeParen))
@@ -932,6 +968,10 @@ StringArray MathParser::ParseParenthesis(const std::string &str)
       // if last char is ')'
       if (index2 == str.size()-1)
       {
+         #if DEBUG_PARENTHESIS
+         MessageInterface::ShowMessage
+            ("   ParseParenthesis() last char is ) so find function name\n");
+         #endif
          // find math function
          op = GetFunctionName(GMAT_FUNCTION, str, left);
          if (op == "")
@@ -1007,7 +1047,7 @@ StringArray MathParser::ParseParenthesis(const std::string &str)
       
       return items;
    }
-
+   
    
    //-----------------------------------------------------------------
    // if enclosed with parenthesis
@@ -1181,6 +1221,8 @@ std::string MathParser::GetOperatorName(const std::string &op, bool &opFound)
       opName = "Divide";
    else if (op == "^")
       opName = "Power";
+   else if (op == "'")
+      opName = "Transpose";
    else
       opFound = false;
    
@@ -1199,7 +1241,7 @@ std::string MathParser::GetOperatorName(const std::string &op, bool &opFound)
 //------------------------------------------------------------------------------
 /*
  * Finds operator from the input string.
- * Single operators are +, -, *, /, ^.
+ * Single operators are +, -, *, /, ^, '
  * Double operators are ++, --, +-, -+, *-, /-, ^+, ^-
  *
  * @param  str  Input string
@@ -1214,7 +1256,7 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
 {
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
-      ("MathParser::FindOperator() entered, str=%s\n", str.c_str());
+      ("MathParser::FindOperator() entered, str=[ %s ]\n", str.c_str());
    #endif
    
    StringArray items;
@@ -1267,11 +1309,24 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
          }
          else
          {
-            #if DEBUG_FIND_OPERATOR
-            MessageInterface::ShowMessage
-               ("MathParser::FindOperator() returning \"\"\n");
-            #endif
-            return "";
+            // Find ' for transpose
+            index1 = str.find_last_of("'");
+            
+            if (index1 != str.npos)
+            {
+               #if DEBUG_FIND_OPERATOR
+               MessageInterface::ShowMessage
+                  ("FindOperator() found ' str=%s, index1=%u\n", str.c_str(), index1);
+               #endif
+            }
+            else
+            {
+               #if DEBUG_FIND_OPERATOR
+               MessageInterface::ShowMessage
+                  ("MathParser::FindOperator() returning \"\"\n");
+               #endif
+               return "";
+            }
          }
       }
    }
@@ -1318,7 +1373,7 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
    MessageInterface::ShowMessage
       ("MathParser::FindOperator() returning op=%s, opIndex=%u\n", op.c_str(), opIndex);
    #endif
-
+   
    return op;
    
 }
@@ -1366,7 +1421,7 @@ std::string MathParser::GetOperator(const IntegerMap::iterator &pos1,
          }
       }
    }
-
+   
    opIndex = index;
    return opStr;
 }
@@ -1923,7 +1978,7 @@ StringArray MathParser::ParseMatrixOps(const std::string &str)
       else // ' found
       {
          left = str.substr(0, index1);
-         fnName = "transpose";
+         fnName = "Transpose";
          FillItems(items, fnName, left, "");
       }
    }
@@ -1979,24 +2034,27 @@ bool MathParser::HasFunctionName(const std::string &str, const StringArray &fnLi
       ("MathParser::HasFunctionName() str=%s\n", str.c_str());
    #endif
    
-   UnsignedInt count = fnList.size();
-   
-   // Find name as is first
+   // Find name from the input function list as is
    if (find(fnList.begin(), fnList.end(), str) != fnList.end())
       return true;
    
-   // Try Capitalized function name
-   for (UnsignedInt i=0; i<count; i++)
-   {
-      if (str == GmatStringUtil::Capitalize(fnList[i]))
-      {
-         #if DEBUG_FUNCTION
-         MessageInterface::ShowMessage
-            ("MathParser::HasFunctionName() returning true\n");
-         #endif
-         return true;
-      }
-   }
+   // Try Capitalize input string and find
+   std::string str1 = GmatStringUtil::Capitalize(str);
+   if (find(fnList.begin(), fnList.end(), str1) != fnList.end())
+      return true;
+   
+//    UnsignedInt count = fnList.size();
+//    for (UnsignedInt i=0; i<count; i++)
+//    {
+//       if (str == GmatStringUtil::Capitalize(fnList[i]))
+//       {
+//          #if DEBUG_FUNCTION
+//          MessageInterface::ShowMessage
+//             ("MathParser::HasFunctionName() returning true\n");
+//          #endif
+//          return true;
+//       }
+//    }
    
    #if DEBUG_FUNCTION
    MessageInterface::ShowMessage
@@ -2217,11 +2275,6 @@ void MathParser::BuildFunction(const std::string &str, const StringArray &fnList
    
    std::string::size_type functionIndex = str.npos;
    
-   // This new code need more testing (LOJ: 2010.06.23)
-   // All routine test scripts worked.
-   //=================================================================
-   #if 1
-   //=================================================================
    // Check if function name is in the function list
    std::string fname = GmatStringUtil::ParseFunctionName(str);
    
@@ -2256,40 +2309,6 @@ void MathParser::BuildFunction(const std::string &str, const StringArray &fnList
          }
       }
    }
-   //=================================================================
-   #endif
-   //=================================================================
-   
-   
-   // This old code will be removed later (LOJ: 2010.06.23)
-   //=================================================================
-   #if 0
-   //=================================================================
-   for (UnsignedInt i=0; i<count; i++)
-   {
-      #if DEBUG_FUNCTION > 1
-      MessageInterface::ShowMessage("   fnList[%d]='%s'\n", i, fnList[i].c_str());
-      #endif
-      
-      functionIndex = str.find(fnList[i] + "(");
-      
-      #if DEBUG_FUNCTION > 1
-      MessageInterface::ShowMessage("   functionIndex=%d\n", functionIndex);
-      #endif
-      
-      // Try function name with first letter capitalized
-      if (functionIndex == str.npos)
-         functionIndex = str.find(GmatStringUtil::Capitalize(fnList[i]) + "(");
-      
-      if (functionIndex != str.npos)
-      {
-         fnName = fnList[i];
-         break;
-      }
-   }
-   //=================================================================
-   #endif
-   //=================================================================
    
    #if DEBUG_FUNCTION
    MessageInterface::ShowMessage

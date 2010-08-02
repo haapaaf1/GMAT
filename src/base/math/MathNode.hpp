@@ -48,6 +48,9 @@ public:
    void                 SetRealValue(Real val);
    virtual void         SetMatrixValue(const Rmatrix &mat);
    
+   // for math elemement wrappers
+   virtual void         SetMathWrappers(WrapperMap *wrapperMap);
+   
    // abstract methods
    virtual bool         ValidateInputs() = 0;
    virtual void         GetOutputInfo(Integer &type, Integer &rowCount,

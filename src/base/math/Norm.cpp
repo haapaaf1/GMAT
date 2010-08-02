@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Norm
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -19,7 +20,7 @@
 #include "Norm.hpp"
 #include "MessageInterface.hpp"
 
-//#define DEBUG_NORM 1
+//#define DEBUG_NORM
 
 //---------------------------------
 // public methods
@@ -90,7 +91,7 @@ void Norm::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
    rowCount = 1;
    colCount = 1;
 
-   #if DEBUG_NORM
+   #ifdef DEBUG_NORM
    MessageInterface::ShowMessage
       ("Norm::GetOutputInfo() type=%d, rowCount=%d, colCount=%d\n",
        type, rowCount, colCount);
@@ -109,21 +110,24 @@ void Norm::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 bool Norm::ValidateInputs()
 {
    Integer type1, row1, col1; // Left node
-
-   #if DEBUG_NORM
+   
+   #ifdef DEBUG_NORM
    MessageInterface::ShowMessage
       ("Norm::ValidateInputs() left=%s, %s\n",
        leftNode->GetTypeName().c_str(), leftNode->GetName().c_str());
    #endif
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
+   // Input can be a scalar or matrix, so just call leftNode (LOJ: 2010.07.28)
    leftNode->GetOutputInfo(type1, row1, col1);
+      
+   #ifdef DEBUG_NORM
+   MessageInterface::ShowMessage
+      ("Norm::ValidateInputs() returning true, type=%d, row=%d, col=%d\n", 
+       type1, row1, col1);
+   #endif
    
-   if (type1 == Gmat::RMATRIX_TYPE)
-      return true;
-   else
-      return false;
-
+   return true;
 }
 
 
@@ -139,7 +143,7 @@ Real Norm::Evaluate()
 {
    Integer type, rowCount, colCount;
    leftNode->GetOutputInfo(type, rowCount, colCount);
-
+   
    if(type == Gmat::RMATRIX_TYPE)
    {
       if (rowCount == 1)
@@ -152,9 +156,11 @@ Real Norm::Evaluate()
       }
       else
          throw MathException(
-            "Norm::Evaluate()::Can only be done on a vector.  This is a matrix.\n");
+            "Norm::Evaluate()::Can only be done on a vector or a scalar.  "
+            "This is a matrix.\n");
    }
    else
-      throw MathException("Norm::Evaluate()::Left Node is not RMatrix type.\n");
-
+   {
+      return leftNode->Evaluate();
+   }
 }

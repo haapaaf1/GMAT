@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Multiply
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -20,7 +20,7 @@
 #include "Multiply.hpp"
 #include "MessageInterface.hpp"
 
-//#if DEBUG_MULTIPLY 1
+//#define DEBUG_MULTIPLY 1
 
 //---------------------------------
 // public methods
@@ -95,8 +95,8 @@ void Multiply::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount
    
    // Get the type(Real or Matrix), # rows and # columns of the right node
    rightNode->GetOutputInfo(type2, row2, col2);
-
-   #if DEBUG_MULTIPLY
+   
+   #ifdef DEBUG_MULTIPLY
    MessageInterface::ShowMessage
       ("Multiply::GetOutputInfo() type1=%d, row1=%d, col1=%d, type2=%d, "
        "row2=%d, col2=%d\n", type1, row1, col1, type2, row2, col2);
@@ -112,8 +112,6 @@ void Multiply::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount
       {
          rowCount = row1;
          colCount = col2;
-         if (rowCount == 1 && colCount == 1)
-            type = Gmat::REAL_TYPE;
       }
       else
       {
@@ -127,8 +125,8 @@ void Multiply::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount
       rowCount = row2;
       colCount = col2;
    }
-
-   #if DEBUG_MULTIPLY
+   
+   #ifdef DEBUG_MULTIPLY
    MessageInterface::ShowMessage
       ("Multiply::GetOutputInfo() type=%d, rowCount=%d, colCount=%d\n",
        type, rowCount, colCount);
@@ -146,8 +144,13 @@ void Multiply::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount
 //------------------------------------------------------------------------------
 bool Multiply::ValidateInputs()
 {
+   #ifdef DEBUG_MULTIPLY
+   MessageInterface::ShowMessage("Multiply::ValidateInputs() entered\n");
+   #endif
+   
    Integer type1, row1, col1; // Left node
    Integer type2, row2, col2; // Right node
+   bool retval = false;
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
    leftNode->GetOutputInfo(type1, row1, col1);
@@ -156,14 +159,20 @@ bool Multiply::ValidateInputs()
    rightNode->GetOutputInfo(type2, row2, col2);
    
    if ((type1 == Gmat::REAL_TYPE) && (type2 == Gmat::REAL_TYPE))
-      return true;
+      retval = true;
    else if ((type1 == Gmat::RMATRIX_TYPE) && (type2 == Gmat::RMATRIX_TYPE))
       if (col1 == row2)
-         return true;
+         retval = true;
       else
-         return false; 
+         retval = false;
    else
-      return true;
+      retval = true;
+   
+   #ifdef DEBUG_MULTIPLY
+   MessageInterface::ShowMessage("Multiply::ValidateInputs() returning %d\n", retval);
+   #endif
+   
+   return retval;
 }
 
 

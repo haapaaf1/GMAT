@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Inverse
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -91,7 +91,6 @@ GmatBase* Inverse::Clone() const
 Real Inverse::Evaluate()
 {
    return GmatMathUtil::Pow(leftNode->Evaluate(), -1.0);
-   ////throw MathException("Evaluate()::Inverse returns a matrix value.\n");    
 }
 
 //------------------------------------------------------------------------------
@@ -107,28 +106,13 @@ bool Inverse::ValidateInputs()
    Integer type, row, col;
    
    GetOutputInfo(type, row, col);
-
+   
    // Only Real type and Matrix are valid. Vector is not a valid input
    if ((type == Gmat::REAL_TYPE) ||
        (type == Gmat::RMATRIX_TYPE && row == col))
       return true;
-
-   return false;
    
-//    if ( leftNode->ValidateInputs() )
-//    {
-//       try
-//       {
-//          leftNode->MatrixEvaluate();
-//          return true;
-//       }
-//       catch (MathException &e)
-//       {
-//          return false;
-//       } 
-//    }
-//    else
-//       return false;
+   return false;
 }
 
 //------------------------------------------------------------------------------
@@ -137,8 +121,6 @@ bool Inverse::ValidateInputs()
 void Inverse::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 {
    type = Gmat::RMATRIX_TYPE;
-//    rowCount = (leftNode->MatrixEvaluate()).GetNumRows();;
-//    colCount = (leftNode->MatrixEvaluate()).GetNumColumns();
    
    leftNode->GetOutputInfo(type, rowCount, colCount);
 
@@ -157,7 +139,37 @@ void Inverse::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 Rmatrix Inverse::MatrixEvaluate()
 {
+   //=======================================================
+   #ifdef DEBUG_EVALUATE
+   //=======================================================
+   
+   Rmatrix rmat = leftNode->MatrixEvaluate();
+   MessageInterface::ShowMessage
+      ("Inverse::MatrixEvaluate() left node =\n%s\n", rmat.ToString(12).c_str());
+   try
+   {
+      Rmatrix result = rmat.Inverse();
+      MessageInterface::ShowMessage
+         ("Inverse::MatrixEvaluate() returning\n%s\n", result.ToString(12).c_str());
+      return result;
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage
+         ("Inverse::MatrixEvaluate() %s for %s\n", be.GetFullMessage().c_str(),
+          GetName().c_str());
+      throw;
+   }
+   
+   //=======================================================
+   #else
+   //=======================================================
+   
    return (leftNode->MatrixEvaluate()).Inverse();
+   
+   //=======================================================
+   #endif
+   //=======================================================
 }
 
 

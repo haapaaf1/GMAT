@@ -298,11 +298,16 @@ Real MathElement::Evaluate()
       
       ElementWrapper *wrapper = FindWrapper(refObjectName);
       
-      if (elementType == Gmat::REAL_TYPE)
+      if (elementType == Gmat::REAL_TYPE || elementType == Gmat::RMATRIX_TYPE)
+      {
          realValue = wrapper->EvaluateReal();
-      else if (elementType == Gmat::RMATRIX_TYPE)
-         throw MathException("MathElement::Evaluate() Cannot Evaluate MathElementType of \"" +
-                             refObjectName + "\"");
+      }
+      else
+      {
+         throw MathException
+            ("MathElement::Evaluate() Cannot Evaluate MathElementType of \"" +
+             refObjectName + "\"");
+      }
       
       #ifdef DEBUG_EVALUATE
       MessageInterface::ShowMessage

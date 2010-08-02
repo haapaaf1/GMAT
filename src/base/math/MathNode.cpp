@@ -143,6 +143,15 @@ void MathNode::SetMatrixValue(const Rmatrix &mat)
 
 
 //---------------------------------------------------------------------------
+// virtual void SetMathWrappers(WrapperMap *wrapperMap)
+//---------------------------------------------------------------------------
+void MathNode::SetMathWrappers(WrapperMap *wrapperMap)
+{
+   // do nothing here
+}
+
+
+//---------------------------------------------------------------------------
 //  bool RenameRefObject(const Gmat::ObjectType type,
 //                       const std::string &oldName, const std::string &newName)
 //---------------------------------------------------------------------------

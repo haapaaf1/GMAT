@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Determinant
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -118,12 +119,8 @@ bool Determinant::ValidateInputs()
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
    leftNode->GetOutputInfo(type1, row1, col1);
-      
-   if (type1 == Gmat::RMATRIX_TYPE)
-      return true;
-   else
-      return false;
    
+   return true;
 }
 
 
@@ -137,6 +134,17 @@ bool Determinant::ValidateInputs()
 //------------------------------------------------------------------------------
 Real Determinant::Evaluate()
 {
-   return (leftNode->MatrixEvaluate()).Determinant();
+   Integer type, rowCount, colCount;
+   leftNode->GetOutputInfo(type, rowCount, colCount);
+   
+   if (type == Gmat::RMATRIX_TYPE)
+   {
+      return (leftNode->MatrixEvaluate()).Determinant();
+   }
+   else
+   {
+      return leftNode->Evaluate();
+   }
 }
+
 

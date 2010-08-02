@@ -38,7 +38,8 @@ public:
    MathElement& operator=(const MathElement &me);
    
    // for math elemement wrappers
-   void                 SetMathWrappers(std::map<std::string, ElementWrapper*> *wrapperMap);
+   ////void                 SetMathWrappers(std::map<std::string, ElementWrapper*> *wrapperMap);
+   virtual void         SetMathWrappers(WrapperMap *wrapperMap);
    
    // Inherited (MathNode) methods
    virtual void         SetMatrixValue(const Rmatrix &mat);
@@ -80,7 +81,8 @@ protected:
    /// The list of names of Wrapper objects
    StringArray wrapperObjectNames;
    /// Wrapper name and ElementWrapper pointer Map for RHS math element
-   std::map<std::string, ElementWrapper*> *theWrapperMap;
+   //std::map<std::string, ElementWrapper*> *theWrapperMap;
+   WrapperMap *theWrapperMap;
    
    void SetWrapperObjectNames(const std::string &name);
    void SetWrapperObject(GmatBase *obj, const std::string &name);

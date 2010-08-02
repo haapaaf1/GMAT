@@ -130,7 +130,8 @@ void Transpose::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCoun
 bool Transpose::ValidateInputs()
 {
    Integer type1, row1, col1; // Left node
-
+   bool retval = false;
+   
    #ifdef DEBUG_INPUT_OUTPUT
    MessageInterface::ShowMessage
       ("Transpose::ValidateInputs() left=%s, %s\n",
@@ -141,10 +142,18 @@ bool Transpose::ValidateInputs()
    leftNode->GetOutputInfo(type1, row1, col1);
    
    if (type1 == Gmat::RMATRIX_TYPE)
-      return true;
+      retval = true;
+   else if (type1 == Gmat::REAL_TYPE && row1 == 1 && col1 == 1)
+      retval = true;
    else
-      return false;
+      retval = false;
    
+   #ifdef DEBUG_INPUT_OUTPUT
+   MessageInterface::ShowMessage
+      ("Transpose::ValidateInputs() returning %d\n", retval);
+   #endif
+   
+   return retval;
 }
 
 
@@ -158,7 +167,37 @@ bool Transpose::ValidateInputs()
 //------------------------------------------------------------------------------
 Rmatrix Transpose::MatrixEvaluate()
 {
+   //=======================================================
+   #ifdef DEBUG_EVALUATE
+   //=======================================================
+
+   Rmatrix rmat = leftNode->MatrixEvaluate();
+   MessageInterface::ShowMessage
+      ("Transpose::MatrixEvaluate() = %s\n", rmat.ToString(12).c_str());
+   try
+   {
+      Rmatrix result = rmat.Transpose();
+      MessageInterface::ShowMessage
+         ("Transpose::MatrixEvaluate() returning\n%s\n", result.ToString(12).c_str());
+      return result;
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage
+         ("Transpose::MatrixEvaluate() %s for %s\n", be.GetFullMessage().c_str(),
+          GetName().c_str());
+      throw;
+   }
+   
+   //=======================================================
+   #else
+   //=======================================================
+   
    return (leftNode->MatrixEvaluate()).Transpose();
+   
+   //=======================================================
+   #endif
+   //=======================================================
 }
 
 
