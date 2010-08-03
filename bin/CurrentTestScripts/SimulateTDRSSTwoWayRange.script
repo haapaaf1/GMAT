@@ -148,4 +148,5 @@ AQUAsim.Propagator          = TwoBodyProp;
 %--------------------------------------------------------------
 %===== Run the simulator
 %--------------------------------------------------------------
+BeginMissionSequence
 RunSimulator AQUAsim

@@ -70,18 +70,34 @@ Maui.Y = 2676.1;
 Maui.Z = -3691.38;
 Maui.Id = 'Maui';
 
+Create Antenna satAnt groundAnt
+Create Transponder apond1
+Create Transmitter gtrans
+Create Receiver grec
+
+apond1.PrimaryAntenna = satAnt;
+apond1.HardwareDelay = 1.3e-6;
+ODSat.AddHardware = {apond1, satAnt};
+
+gtrans.PrimaryAntenna = groundAnt
+grec.PrimaryAntenna = groundAnt
+gtrans.HardwareDelay = 2e-7
+grec.HardwareDelay = 3e-7
+
+Maui.AddHardware = {gtrans, grec, groundAnt}
+
 %--------------------------------------------------------------
 %===== Create the Tracking System
 %--------------------------------------------------------------
 Create DataFile USNData;
-USNData.Filename = 'USN_LEO_EstimationData.gmd';
+USNData.Filename = 'USN_LEO_EstimationHardwareData.gmd';
 USNData.Format = GMATInternal;
 
 Create MeasurementModel USNRange;
 USNRange.ObservationData   = USNData;
 USNRange.Type              = USNTwoWayRange;
 USNRange.Bias              = [0.0];
-USNRange.Participants      = {Maui,ODSat};
+USNRange.Participants      = {Maui.gtrans, Maui.grec, ODSat.apond1};
 
 Create USNTrackingSystem USN_ODSat
 USN_ODSat.Add = {USNRange}
