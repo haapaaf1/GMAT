@@ -996,6 +996,20 @@ void GmatBase::Copy(const GmatBase*)
 
 
 //------------------------------------------------------------------------------
+//  bool Validate()
+//------------------------------------------------------------------------------
+/**
+ * Performs any pre-run validation that the object needs.
+ *
+ * @return true unless validation fails.
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::Validate()
+{
+   return true;
+}
+
+//------------------------------------------------------------------------------
 //  bool Initialize()
 //------------------------------------------------------------------------------
 /**
@@ -1213,21 +1227,98 @@ bool GmatBase::IsParameterReadOnly(const std::string &label) const
    return IsParameterReadOnly(GetParameterID(label));
 }
 
+//---------------------------------------------------------------------------
+//  bool IsParameterEnabled(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is enabled for GUI access.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return true if the parameter is enabled, false if not
+ */
+//---------------------------------------------------------------------------
+bool GmatBase::IsParameterEnabled(const Integer id) const
+{
+   return true;
+}
+
+
+//---------------------------------------------------------------------------
+//  bool IsParameterEnabled(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is enabled for GUI access.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is enabled, false if not
+ */
+//---------------------------------------------------------------------------
+bool GmatBase::IsParameterEnabled(const std::string &label) const
+{
+   return IsParameterEnabled(GetParameterID(label));
+}
+
+//---------------------------------------------------------------------------
+//  bool IsParameterCloaked(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is cloaked.
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return true if the parameter is cloaked, false if not
+ */
+//---------------------------------------------------------------------------
 bool GmatBase::IsParameterCloaked(const Integer id) const
 {
    return false;
 }
 
+//---------------------------------------------------------------------------
+//  bool IsParameterCloaked(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is cloaked.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is cloaked, false if not
+ */
+//---------------------------------------------------------------------------
 bool GmatBase::IsParameterCloaked(const std::string &label) const
 {
    return IsParameterCloaked(GetParameterID(label));
 }
 
+//---------------------------------------------------------------------------
+//  bool IsParameterEqualToDefault(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is equal to default
+ *
+ * @param <id> ID for the parameter.
+ *
+ * @return true if the parameter is equal to default, false if not
+ */
+//---------------------------------------------------------------------------
 bool GmatBase::IsParameterEqualToDefault(const Integer id) const
 {
    return false;
 }
 
+//---------------------------------------------------------------------------
+//  bool IsParameterEqualToDefault(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is equal to default
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is equal to default, false if not
+ */
+//---------------------------------------------------------------------------
 bool GmatBase::IsParameterEqualToDefault(const std::string &label) const
 {
    return IsParameterEqualToDefault(GetParameterID(label));

@@ -159,6 +159,7 @@ public:
    // required method for all subclasses that can be copied in a script
    virtual void         Copy(const GmatBase*);
 
+   virtual bool         Validate();
    virtual bool         Initialize();
    virtual void         SetSolarSystem(SolarSystem *ss);
    virtual void         SetInternalCoordSystem(CoordinateSystem *cs);
@@ -175,7 +176,8 @@ public:
 
    virtual bool         IsParameterReadOnly(const Integer id) const;
    virtual bool         IsParameterReadOnly(const std::string &label) const;
-
+   virtual bool         IsParameterEnabled(const Integer id) const;
+   virtual bool         IsParameterEnabled(const std::string &label) const;
    virtual bool         IsParameterCloaked(const Integer id) const;
    virtual bool         IsParameterCloaked(const std::string &label) const;
    virtual bool         IsParameterEqualToDefault(const Integer id) const;
