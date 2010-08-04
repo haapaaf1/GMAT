@@ -278,43 +278,63 @@ std::string GmatStringUtil::Strip(const std::string &str, StripType stype)
 
 
 //------------------------------------------------------------------------------
-// std::string ToUpper(const std::string &str)
+// std::string ToUpper(const std::string &str, bool firstLetterOnly = false)
 //------------------------------------------------------------------------------
-std::string GmatStringUtil::ToUpper(const std::string &str)
+/**
+ * Makes whole string or first letter upper case.
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::ToUpper(const std::string &str, bool firstLetterOnly)
 {
    Integer len = str.length();
-
+   
    if (len == 0)
       return str;
-
+   
    std::string upper = str;
-   for (int i=0; i<len; i++)
-      upper[i] = toupper(str[i]);
-
+   
+   if (firstLetterOnly)
+      upper[0] = toupper(str[0]);
+   else
+      for (int i=0; i<len; i++)
+         upper[i] = toupper(str[i]);
+   
    return upper;
 }
 
 
 //------------------------------------------------------------------------------
-// std::string ToLower(const std::string &str)
+// std::string ToLower(const std::string &str, bool firstLetterOnly = false)
 //------------------------------------------------------------------------------
-std::string GmatStringUtil::ToLower(const std::string &str)
+/**
+ * Makes whole string or first letter lower case.
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::ToLower(const std::string &str, bool firstLetterOnly)
 {
    Integer len = str.length();
-
+   
    if (len == 0)
       return str;
-
+   
    std::string lower = str;
-   for (int i=0; i<len; i++)
-      lower[i] = tolower(str[i]);
-
+   
+   if (firstLetterOnly)
+      lower[0] = tolower(str[0]);
+   else
+      for (int i=0; i<len; i++)
+         lower[i] = tolower(str[i]);
+   
    return lower;
 }
 
 
 //------------------------------------------------------------------------------
 // std::string Capitalize(const std::string &str)
+//------------------------------------------------------------------------------
+/**
+ * Capitialize the first letter of the string
+ */
 //------------------------------------------------------------------------------
 std::string GmatStringUtil::Capitalize(const std::string &str)
 {

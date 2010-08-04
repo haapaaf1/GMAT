@@ -1971,7 +1971,7 @@ StringArray MathParser::ParseMatrixOps(const std::string &str)
          else // ^(-1) found
          {
             left = str.substr(0, index1);
-            fnName = "inv";
+            fnName = "Inv";
             FillItems(items, fnName, left, "");
          }
       }
@@ -2038,23 +2038,10 @@ bool MathParser::HasFunctionName(const std::string &str, const StringArray &fnLi
    if (find(fnList.begin(), fnList.end(), str) != fnList.end())
       return true;
    
-   // Try Capitalize input string and find
-   std::string str1 = GmatStringUtil::Capitalize(str);
+   // Try lower the first letter and find
+   std::string str1 = GmatStringUtil::ToLower(str, true);
    if (find(fnList.begin(), fnList.end(), str1) != fnList.end())
       return true;
-   
-//    UnsignedInt count = fnList.size();
-//    for (UnsignedInt i=0; i<count; i++)
-//    {
-//       if (str == GmatStringUtil::Capitalize(fnList[i]))
-//       {
-//          #if DEBUG_FUNCTION
-//          MessageInterface::ShowMessage
-//             ("MathParser::HasFunctionName() returning true\n");
-//          #endif
-//          return true;
-//       }
-//    }
    
    #if DEBUG_FUNCTION
    MessageInterface::ShowMessage

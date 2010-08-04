@@ -41,8 +41,8 @@ namespace GmatStringUtil
    GMAT_API std::string Trim(const std::string &str, StripType stype = BOTH,
                     bool removeSemicolon = false, bool removeEol = false);
    GMAT_API std::string Strip(const std::string &str, StripType stype = BOTH);
-   GMAT_API std::string ToUpper(const std::string &str);
-   GMAT_API std::string ToLower(const std::string &str);
+   GMAT_API std::string ToUpper(const std::string &str, bool firstLetterOnly = false);
+   GMAT_API std::string ToLower(const std::string &str, bool firstLetterOnly = false);
    GMAT_API std::string Capitalize(const std::string &str);
    GMAT_API std::string Replace(const std::string &str, const std::string &from,
                        const std::string &to);
