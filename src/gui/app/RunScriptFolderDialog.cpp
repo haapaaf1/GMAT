@@ -177,7 +177,10 @@ void RunScriptFolderDialog::Create()
    runStaticSizer->Add(currOutDir2, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runStaticSizer->Add(mCurrOutDirTextCtrl, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runStaticSizer->Add(mChangeCurrOutDirButton, 0, wxALIGN_CENTER|wxALL, bsize);
-   
+
+   //=================================================================
+   #ifdef __ENABLE_COMPARE__
+   //=================================================================
    //------------------------------------------------------
    // compare results
    //------------------------------------------------------
@@ -258,13 +261,19 @@ void RunScriptFolderDialog::Create()
    compareStaticSizer->Add(mSaveResultCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
    compareStaticSizer->Add(saveDirSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    compareStaticSizer->Add(mSaveFileTextCtrl, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize+2);
+   //=================================================================
+   #endif
+   //=================================================================
    
    //------------------------------------------------------
    // add to page sizer
    //------------------------------------------------------
    wxBoxSizer *pageBoxSizer = new wxBoxSizer(wxVERTICAL);
    pageBoxSizer->Add(runStaticSizer, 0, wxALIGN_CENTRE|wxGROW|wxALL, bsize);
+   
+   #ifdef __ENABLE_COMPARE__
    pageBoxSizer->Add(compareStaticSizer, 0, wxALIGN_CENTRE|wxGROW|wxALL, bsize);
+   #endif
    
    theMiddleSizer->Add(pageBoxSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
 }
@@ -279,23 +288,29 @@ void RunScriptFolderDialog::LoadData()
    str.Printf("%d", mNumScriptsToRun);
    mNumScriptsToRunTextCtrl->SetValue(str);
    
-   str.Printf("%g", mAbsTol);
-   mAbsTolTextCtrl->SetValue(str);
-   
    FileManager *fm = FileManager::Instance();
    wxString sep = fm->GetPathSeparator().c_str();
    
    mCurrOutDir = fm->GetFullPathname(FileManager::OUTPUT_PATH).c_str();
    mSaveScriptsDirTextCtrl->SetValue(mCurrOutDir + "AutoSave");
    mCurrOutDirTextCtrl->SetValue(mCurrOutDir);
+
+   //=======================================================
+   #ifdef __ENABLE_COMPARE__
+   //=======================================================
+   str.Printf("%g", mAbsTol);
+   mAbsTolTextCtrl->SetValue(str);
    mCompareDirTextCtrl->SetValue(mCompareDir);
    mSaveFileTextCtrl->SetValue(mCompareDir + sep + "CompareNumericResults.txt");
-   
    mSaveResultCheckBox->Disable();
    mSaveFileTextCtrl->Disable();
    mSaveBrowseButton->Disable();
    mSaveScriptsDirTextCtrl->Disable();
    mChangeSaveScriptsDirButton->Disable();
+   //=======================================================
+   #endif
+   //=======================================================
+   
    theOkButton->Enable();
 }
 
@@ -330,13 +345,19 @@ void RunScriptFolderDialog::SaveData()
       canClose = false;
       return;
    }
-   
+
+   //=======================================================
+   #ifdef __ENABLE_COMPARE__
+   //=======================================================
    if (!mAbsTolTextCtrl->GetValue().ToDouble(&mAbsTol))
    {
       wxMessageBox("Invalid tolerance entered.");
       canClose = false;
       return;
    }
+   //=======================================================
+   #endif
+   //=======================================================
    
    if (mCurrOutDirTextCtrl->GetValue() == "")
    {
@@ -366,16 +387,29 @@ void RunScriptFolderDialog::SaveData()
    
    mSaveScriptsDir = mSaveScriptsDirTextCtrl->GetValue();
    mCurrOutDir = mCurrOutDirTextCtrl->GetValue();
+   
+   //=======================================================
+   #ifdef __ENABLE_COMPARE__
+   //=======================================================
    mReplaceString = mReplaceTextCtrl->GetValue();
    mCompareDir = mCompareDirTextCtrl->GetValue();
    mSaveFilename = mSaveFileTextCtrl->GetValue();
+   //=======================================================
+   #endif
+   //=======================================================
    
    mRunScripts = true;
    if (mNumScriptsToRun <= 0)
       mRunScripts = false;
    
+   //=======================================================
+   #ifdef __ENABLE_COMPARE__
+   //=======================================================
    mCompareResults = mCompareCheckBox->GetValue();
    mSaveCompareResults = mSaveResultCheckBox->GetValue();
+   //=======================================================
+   #endif
+   //=======================================================
    
    #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
    MessageInterface::ShowMessage
@@ -431,7 +465,14 @@ void RunScriptFolderDialog::OnButtonClick(wxCommandEvent& event)
          
          mCurrOutDir = dialog.GetPath();
          mCurrOutDirTextCtrl->SetValue(mCurrOutDir);
+         //=================================================================
+         #ifdef __ENABLE_COMPARE__
+         //------------------------------------------------------
          mSaveFileTextCtrl->SetValue(mCurrOutDir + sep + "CompareNumericResults.txt");
+         //=================================================================
+         #endif
+         //------------------------------------------------------
+         
          mOutDirChanged = true;
          
          #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
@@ -441,6 +482,9 @@ void RunScriptFolderDialog::OnButtonClick(wxCommandEvent& event)
          #endif
       }
    }
+   //=================================================================
+   #ifdef __ENABLE_COMPARE__
+   //------------------------------------------------------
    else if (event.GetEventObject() == mDirBrowseButton)
    {
       wxDirDialog dialog(this, "Select a directory to compare", mCompareDir);
@@ -471,8 +515,11 @@ void RunScriptFolderDialog::OnButtonClick(wxCommandEvent& event)
             ("RunScriptFolderDialog::OnButtonClick() savefile=%s\n",
              filename.c_str());
       }
-      
    }
+   //=================================================================
+   #endif
+   //=================================================================
+   
 }
 
 
