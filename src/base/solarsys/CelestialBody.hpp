@@ -46,9 +46,6 @@ namespace Gmat
    // possible sources of position and velocity data for celestial bodies
    enum PosVelSource
    {
-//      ANALYTIC = 0,
-//      SLP,
-//      DE_200,
       TWO_BODY_PROPAGATION,
       DE405,
       SPICE,
@@ -57,28 +54,11 @@ namespace Gmat
    
    const std::string POS_VEL_SOURCE_STRINGS[PosVelSourceCount] = 
    {
-//      "Analytic",
-//      "SLP",
-//      "DE_200", 
       "TwoBodyPropagation",
       "DE405",
       "SPICE"
    };
 
-   // if using an analytical method, which one?
-//   enum AnalyticMethod
-//   {
-//      NO_ANALYTIC_METHOD = 0,
-//      LOW_FIDELITY,
-//      AnalyticMethodCount
-//   };
-
-//   const std::string ANALYTIC_METHOD_STRINGS[AnalyticMethodCount] = 
-//   {
-//      "NoAnalyticMethod",
-//      "LowFidelity",
-//   };
-   
    // possible types of celestial bodies
    enum BodyType
    {
@@ -348,8 +328,7 @@ public:
    // strings representing the possible celestial body types
    //static const std::string BODY_TYPE_STRINGS[Gmat::BodyTypeCount];
    //static const std::string POS_VEL_STRINGS[Gmat::PosVelSourceCount];
-   //static const std::string ANALYTIC_METHOD_STRINGS[Gmat::AnalyticMethodCount];
-   
+
    // local constants
    static const Integer BUFSIZE               = 256;
    
@@ -368,7 +347,6 @@ protected:
       POLAR_RADIUS,
       MU,
       POS_VEL_SOURCE,
-//      ANALYTIC_METHOD,
       STATE,
       STATE_TIME,
       CENTRAL_BODY,
@@ -376,11 +354,9 @@ protected:
       REF_BODY_NUMBER,
       SOURCE_FILENAME,
       SOURCE_FILE,
-//      SPICE_KERNEL_NAME,
       USE_POTENTIAL_FILE_FLAG,
       POTENTIAL_FILE_NAME,
       ANGULAR_VELOCITY,
-      //COEFFICIENT_SIZE,
       HOUR_ANGLE,
       ATMOS_MODEL_NAME,
       //SUPPORTED_ATMOS_MODELS,
@@ -418,8 +394,6 @@ protected:
    static const Gmat::ParameterType PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount];
    static const Real    JD_EPOCH_2000_TCB;
    static const Real    JD_EPOCH_2000_TT;
-   //static const Real dDot              = 1.0 / GmatTimeUtil::SECS_PER_DAY;
-   //static const Real TDot              = dDot / 36525.0;
    static const Real    dDot;
    static const Real    TDot;
    static const Real    KEPLER_TOL;
@@ -439,8 +413,6 @@ protected:
    Real                     mu;
    /// source for position and velocity
    Gmat::PosVelSource       posVelSrc;
-   /// analytic method to use
-   //Gmat::AnalyticMethod   analyticMethod;
    /// state of the body 0-2 position 3-5 velocity
    Rvector6                 state ;
    // time of the state
@@ -462,10 +434,6 @@ protected:
    std::string              sourceFilename;
    /// the source file (DE)
    PlanetaryEphem           *theSourceFile;
-   /// the name(s) of the SPK file(s)
-//   StringArray              orbitSpiceKernelNames; // now from SpacePoint
-   /// name of the leap scond kernel
-//   std::string              lskKernelName;
    #ifdef __USE_SPICE__
       /// the SPICE file (kernel) reader
       SpiceOrbitKernelReader      *kernelReader;
@@ -529,8 +497,6 @@ protected:
    /// SpinAxisRAConstant, SpinAxisRARate, SpinAxisDECConstant, 
    /// SpinAxisDECRate, RotationConstant, RotationRate
    Rvector6                 default_orientation;
-   /// default value for NAIF ID
- //  Integer                  default_naifId;  // moved to SpacePoint wcs  2009.12.28
    /// default value for texture map file name
    std::string              default_textureMapFileName;
 
@@ -590,8 +556,6 @@ protected:
    /// orientation parameters for the body in the order: 
    /// SpinAxisRAConstant, SpinAxisRARate, SpinAxisDECConstant, SpinAxisDECRate, RotationConstant, RotationRate
    Rvector6               orientation;   
-   /// NAIF Id (for SPICE)
-//   Integer                naifId;   // moved to SpacePoint   wcs 2009.12.28
    // has the naifID been set (figured out from SPK file(s))
    bool                   naifIdSet;
    /// Name of the texture map file to use when plotting

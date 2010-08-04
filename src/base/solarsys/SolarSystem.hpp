@@ -78,6 +78,10 @@ public:
    std::string GetCurrentPlanetarySource();
    void        SetIsSpiceAllowedForDefaultBodies(const bool allowSpice);
    bool        IsSpiceAllowedForDefaultBodies() const;
+#ifdef __USE_SPICE__
+   void        LoadSpiceKernels();
+#endif
+
    
    void ResetToDefaults();
    

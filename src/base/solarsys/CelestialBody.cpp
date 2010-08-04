@@ -761,21 +761,6 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
    Real*     posVel = NULL;
    switch (posVelSrc)
    {
-//      case Gmat::ANALYTIC :
-//         switch (analyticMethod)
-//         {
-//            case Gmat::NO_ANALYTIC_METHOD :
-//               throw SolarSystemException(
-//                      "No analytic method specified for body " +instanceName);
-//            case Gmat::LOW_FIDELITY :
-//               state = ComputeTwoBody(atTime);
-//               break;
-//            default:
-//               break;
-//         }
-//         break;
-//      case Gmat::SLP :
-//      case Gmat::DE_200 :
       case Gmat::TWO_BODY_PROPAGATION :
          state = ComputeTwoBody(atTime);
          break;
@@ -3315,7 +3300,7 @@ const StringArray& CelestialBody::GetRefObjectNameArray(
        (type == Gmat::CELESTIAL_BODY) ||
        (type == Gmat::SPACE_POINT) )
    {
-//      static StringArray refs = SpacePoint::GetRefObjectNameArray(type);
+
       static StringArray refs;
       refs.clear();
 
@@ -3468,25 +3453,16 @@ bool CelestialBody::IsParameterReadOnly(const Integer id) const
    if (id == FRAME_SPICE_KERNEL_NAME)     return true;  // for now
 
    // leap second file is set on the Solar System, not on each celestial body
-//   if (id == LSK_KERNEL_NAME) return true;
 
    return SpacePoint::IsParameterReadOnly(id);
 }
 
-//------------------------------------------------------------------------------
-// bool CelestialBody::IsParameterReadOnly(const std::string &label) const
-//------------------------------------------------------------------------------
-//bool CelestialBody::IsParameterReadOnly(const std::string &label) const
-//{
-//   return IsParameterReadOnly(GetParameterID(label));
-//}
 
+//------------------------------------------------------------------------------
+// bool CelestialBody::IsParameterCloaked(const Integer id) const
+//------------------------------------------------------------------------------
 bool CelestialBody::IsParameterCloaked(const Integer id) const
 {
-//   #ifdef DEBUG_CB_CLOAKING
-//      MessageInterface::ShowMessage("In CelestialBody:IsParameterCloaked with id = %d (%s)\n",
-//            id, (GetParameterText(id)).c_str());
-//   #endif
    if (!cloaking) return false;
    // if it's read-only, we'll cloak it
    if (IsParameterReadOnly(id)) return true;
@@ -3497,14 +3473,6 @@ bool CelestialBody::IsParameterCloaked(const Integer id) const
    return SpacePoint::IsParameterCloaked(id);
 }
 
-//bool CelestialBody::IsParameterCloaked(const std::string &label) const
-//{
-//   #ifdef DEBUG_CB_CLOAKING
-//      MessageInterface::ShowMessage("In CelestialBody :IsParameterCloaked with label = %s\n",
-//            label.c_str());
-//   #endif
-//   return IsParameterCloaked(GetParameterID(label));
-//}
 
 bool CelestialBody::IsParameterEqualToDefault(const Integer id) const
 {
@@ -3623,10 +3591,6 @@ bool CelestialBody::IsParameterEqualToDefault(const Integer id) const
    {
       return (default_orientation == orientation);
    }
-//   if (id == NAIF_ID)
-//   {
-//      return (default_naifId == naifId);
-//   }
    if (id == TEXTURE_MAP_FILE_NAME)
    {
       return (default_textureMapFileName == textureMapFileName);
@@ -3769,11 +3733,6 @@ bool CelestialBody::SaveParameterAsDefault(const Integer id)
       default_orientation = orientation;
       return true;
    }
-//   if (id == NAIF_ID)
-//   {
-//      default_naifId = naifId;
-//      return true;
-//   }
    if (id == TEXTURE_MAP_FILE_NAME)
    {
       default_textureMapFileName = textureMapFileName;
@@ -4028,22 +3987,11 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    if ((!newTwoBody) && 
        (Abs(forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY) <= KEPLER_TOL))
       return prevTwoBodyState;
-//   if (newTwoBody)
-//   {
       cart  = CoordUtil::KeplerianToCartesian(twoBodyKepler, cbMu, CoordUtil::TA);  // or MA???
       dTime = forTime.Subtract(twoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
-//   }
-//   else
-//   {
-//      cart  = prevTwoBodyState;
-//      dTime = forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
-//   }
    #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage("cbMu = %12.14f    dTime = %12.14f\n", cbMu, dTime);
    #endif
-//   // if it hasn't been much time since the last call, just pass back the current (last
-//   // computed) state
-//   if (Abs(dTime) <= KEPLER_TOL) return cart;
 
    //   // check for number of revs and reduce dTime if necessary (this does not work for the Sun)
    if (instanceName != SolarSystem::SUN_NAME)
@@ -4082,7 +4030,7 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    if (alpha > KEPLER_TOL)  
    {
       x0 = Sqrt(cbMu) * dTime * alpha;
-//      if (alpha == 1.0) 
+
       #ifdef DEBUG_TWO_BODY
       //   MessageInterface::ShowMessage("alpha = %12.14f    dTime = %12.14f,  cbMu = %12.14f\n", alpha, dTime, cbMu);
          MessageInterface::ShowMessage("x0 = %12.14f\n", x0);
@@ -4091,8 +4039,6 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
       {
          // match Vallado matlab code 
          x0 = x0 * 0.97;
-//         throw SolarSystemException("Two body model error for body "
-//                                    + instanceName);
       }
    }
    // for a parabola
@@ -4127,7 +4073,7 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Real    c2      = -999.99;
    Real    c3      = -999.99;
    Integer counter = 0;
-//   Real    dtNew   = -10;  // see Vallado matlab code 
+
    while (!done)
    {
       psi = xn * xn * alpha;
@@ -4157,9 +4103,6 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
          MessageInterface::ShowMessage("                  c2 = %12.14f and c3 = %12.14f\n",  c2, c3);
          MessageInterface::ShowMessage("                  rVal = %12.14ff\n",  rVal);
       #endif
-//      dtNew = (xn * xn * xn * c3) + (rDotv / Sqrt(cbMu)) * (xn * xn * c2) +
-//                rMag0 * xn * (1.0 - psi *c3);
-//      xNew  = xn + ((Sqrt(cbMu) * dTime) - dtNew) / rVal;
                 
       xNew = xn + ((Sqrt(cbMu) * dTime) - (xn * xn * xn * c3) - 
                    (rDotv / Sqrt(cbMu)) * (xn * xn * c2) -
@@ -4186,23 +4129,19 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Rvector3 r = f * r0 + g * v0;
    // recompute magnitude, etc. (per Vallado matlab code)
    Real rMagNew = r.GetMagnitude();
-//   Real gDot  = 1.0 - ((xn * xn) / rVal) * c2;
-//   Real fDot  = (Sqrt(cbMu) / (rVal * rMag0)) * xn * (psi * c3 - 1.0);
    // Mods to this computation per Vallado matlab code
    Real gDot  = 1.0 - ((xn * xn) / rMagNew) * c2;
    Real fDot  = (Sqrt(cbMu) / (rMagNew * rMag0)) * xn * (psi * c3 - 1.0);
    Rvector3 v = fDot * r0 + gDot * v0;
-//   Real     fg = f*gDot - fDot * g;
+
    
    #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage("f    = %12.14f, g    = %12.14f\n", f, g);
       MessageInterface::ShowMessage("fDot = %12.14f, gDot = %12.14f\n", fDot, gDot);
       MessageInterface::ShowMessage("Computed quantity (f*gDot - fDot * g) = %12.14f\n", (Abs(f * gDot - g * fDot)));
    #endif
-//   if (!IsEqual((f * gDot - g * fDot), 1.0, 1.0e-9))
+
    if (!IsEqual(Abs(f * gDot - g * fDot), 1.0, 1.0e-5))  // e-5 per S. Hughes 2009.02.19
-//   if (Abs((f*gDot-fDot*g) - 1.0) > (KEPLER_TOL * 100)) // mods per Vallado matlab code
-//   if (Abs(fg - 1.0) > 1.0e-5) // mods per Vallado matlab code
       throw SolarSystemException(
             "Error performing two body propagation for body "
             + instanceName);
@@ -4235,7 +4174,6 @@ bool CelestialBody::SetUpSPICE()
          MessageInterface::ShowMessage("   kernelReader is NULL\n");
    #endif
    if (posVelSrc != Gmat::SPICE) return false;
-//   if (kernelReader == NULL) kernelReader = SpiceKernelReader::Instance();
    if (kernelReader == NULL)
    {
       std::string errmsg = "ERROR - SpiceKernelReader not set for body \"";
@@ -4253,6 +4191,9 @@ bool CelestialBody::SetUpSPICE()
       errmsg += instanceName + "\", but no SPK file(s) specified.\n";
       throw SolarSystemException(errmsg);
    }
+   // make sure the "main" Solar System Kernel(s) are loaded first
+   theSolarSystem->LoadSpiceKernels();
+   // now load the spice kernels specified for this body
    for (unsigned int ii = 0; ii < orbitSpiceKernelNames.size(); ii++)
    {
       if (!(kernelReader->IsLoaded(orbitSpiceKernelNames.at(ii))))
@@ -4291,7 +4232,6 @@ bool CelestialBody::SetUpSPICE()
             }
          }
    }
-//   if (lskKernelName != "") kernelReader->SetLeapSecondKernel(lskKernelName);
    // get the NAIF Id from the Spice Kernel(s)   @todo - should this be moved to SpacePoint?
    if (!naifIdSet)
    {

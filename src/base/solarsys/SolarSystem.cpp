@@ -36,6 +36,7 @@
 //#define DEBUG_SS_SPICE
 //#define DEBUG_SS_CLOAKING
 //#define DEBUG_SS_PARAM_EQUAL
+//#define DEBUG_SS_INIT
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -1216,79 +1217,13 @@ bool SolarSystem::Initialize()
    }
    #endif
 
-   #ifdef __USE_SPICE__
-      try
-      {
-         planetarySPK->LoadKernel(theSPKFilename);
-      }
-      catch (UtilityException& ue)
-      {
-         // try again with path name if no path found
-         std::string spkName = theSPKFilename;
-         if (spkName.find("/") == spkName.npos &&
-             spkName.find("\\") == spkName.npos)
-         {
-            std::string spkPath =
-               FileManager::Instance()->GetFullPathname(FileManager::SPK_PATH);
-            spkName = spkPath + spkName;
-            try
-            {
-               planetarySPK->LoadKernel(spkName);
-               #ifdef DEBUG_SS_SPICE
-               MessageInterface::ShowMessage
-                  ("   kernelReader has loaded file %s\n", spkName.c_str());
-               #endif
-            }
-            catch (UtilityException& ue)
-            {
-               MessageInterface::ShowMessage("ERROR loading kernel %s\n",
-                  spkName.c_str());
-               throw; // rethrow the exception, for now
-            }
-         }
-      }
-
-      // Load the Leap Second Kernel
-      try
-      {
-         planetarySPK->SetLeapSecondKernel(lskKernelName);
-      }
-      catch (UtilityException& ue)
-      {
-         // try again with path name if no path found
-         std::string lskName = lskKernelName;
-         if (lskName.find("/") == lskName.npos &&
-             lskName.find("\\") == lskName.npos)
-         {
-            std::string lskPath =
-               FileManager::Instance()->GetFullPathname(FileManager::TIME_PATH);
-            lskName = lskPath + lskName;
-            try
-            {
-               planetarySPK->LoadKernel(lskName);
-               #ifdef DEBUG_SS_SPICE
-               MessageInterface::ShowMessage
-                  ("   kernelReader has loaded file %s\n", lskName.c_str());
-               #endif
-            }
-            catch (UtilityException& ue)
-            {
-               MessageInterface::ShowMessage("ERROR loading kernel %s\n",
-                  lskName.c_str());
-               throw; // rethrow the exception, for now
-            }
-         }
-      }
-   #endif
+#ifdef __USE_SPICE__
+   LoadSpiceKernels();
+#endif
    // Initialize bodies in use
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
    while (cbi != bodiesInUse.end())
    {
-      #ifdef __USE_SPICE__
-         // Set the kernel reader on the celestial bodies
-         (*cbi)->SetSpiceOrbitKernelReader(planetarySPK);
-         // Load the Planetary SPK Kernel
-      #endif
       (*cbi)->Initialize();
       ++cbi;
    }
@@ -1710,6 +1645,77 @@ bool SolarSystem::IsSpiceAllowedForDefaultBodies() const
    return allowSpiceForDefaultBodies;
 }
 
+#ifdef __USE_SPICE__
+//------------------------------------------------------------------------------
+// void LoadSpiceKernels()
+//------------------------------------------------------------------------------
+void SolarSystem::LoadSpiceKernels()
+{
+   try
+   {
+      planetarySPK->LoadKernel(theSPKFilename);
+   }
+   catch (UtilityException& ue)
+   {
+      // try again with path name if no path found
+      std::string spkName = theSPKFilename;
+      if (spkName.find("/") == spkName.npos &&
+          spkName.find("\\") == spkName.npos)
+      {
+         std::string spkPath =
+            FileManager::Instance()->GetFullPathname(FileManager::SPK_PATH);
+         spkName = spkPath + spkName;
+         try
+         {
+            planetarySPK->LoadKernel(spkName);
+            #ifdef DEBUG_SS_SPICE
+            MessageInterface::ShowMessage
+               ("   kernelReader has loaded file %s\n", spkName.c_str());
+            #endif
+         }
+         catch (UtilityException& ue)
+         {
+            MessageInterface::ShowMessage("ERROR loading kernel %s\n",
+               spkName.c_str());
+            throw; // rethrow the exception, for now
+         }
+      }
+   }
+
+   // Load the Leap Second Kernel
+   try
+   {
+      planetarySPK->SetLeapSecondKernel(lskKernelName);
+   }
+   catch (UtilityException& ue)
+   {
+      // try again with path name if no path found
+      std::string lskName = lskKernelName;
+      if (lskName.find("/") == lskName.npos &&
+          lskName.find("\\") == lskName.npos)
+      {
+         std::string lskPath =
+            FileManager::Instance()->GetFullPathname(FileManager::TIME_PATH);
+         lskName = lskPath + lskName;
+         try
+         {
+            planetarySPK->LoadKernel(lskName);
+            #ifdef DEBUG_SS_SPICE
+            MessageInterface::ShowMessage
+               ("   kernelReader has loaded file %s\n", lskName.c_str());
+            #endif
+         }
+         catch (UtilityException& ue)
+         {
+            MessageInterface::ShowMessage("ERROR loading kernel %s\n",
+               lskName.c_str());
+            throw; // rethrow the exception, for now
+         }
+      }
+   }
+}
+#endif
+
 
 //------------------------------------------------------------------------------
 // void ResetToDefaults()
@@ -1783,20 +1789,17 @@ bool SolarSystem::AddBody(CelestialBody* cb)
          if (thePlanetaryEphem)
             if (!cb->SetSourceFile(thePlanetaryEphem))  return false;
       }
-      else if (pvSrcForAll == Gmat::SPICE)
-      {
-//         if (theSPKFilename != "")
-//            if (!cb->SetStringParameter(cb->GetParameterID("OrbitSpiceKernelName"), theSPKFilename)) return false;
-//         if (lskKernelName != "")
-//            if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
-      }
-   }
-   else // set main SPICE file for all added bodies
-   {
-//     if (!cb->SetStringParameter(cb->GetParameterID("OrbitSpiceKernelName"), theSPKFilename)) return false;
-//      if (!cb->SetStringParameter(cb->GetParameterID("LeapSecondKernelName"), lskKernelName)) return false;
    }
    if (!cb->SetOverrideTimeSystem(overrideTimeForAll))  return false;
+   // Set the SpiceKernelReader for the new body
+   #ifdef __USE_SPICE__
+      #ifdef DEBUG_SS_INIT
+         MessageInterface::ShowMessage("Now about to set SPKreader on user-defined body %s\n",
+               (cb->GetName()).c_str());
+      #endif
+     // Set the kernel reader on the celestial bodies
+      cb->SetSpiceOrbitKernelReader(planetarySPK);
+   #endif
 
    return true;
 }
@@ -2073,16 +2076,6 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
 bool SolarSystem::SetSPKFile(const std::string &spkFile)
 {
    theSPKFilename = spkFile;
-//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-//   while (cbi != bodiesInUse.end())
-//   {
-//      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
-//      if (!userDef)
-//      {
-//         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("OrbitSpiceKernelName"), theSPKFilename) == false) return false;
-//      }
-//      ++cbi;
-//   }
    return true;
 }
 
@@ -2091,16 +2084,6 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
 bool SolarSystem::SetLSKFile(const std::string &lskFile)
 {
    lskKernelName = lskFile;
-//   std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
-//   while (cbi != bodiesInUse.end())
-//   {
-//      bool userDef = (*cbi)->IsUserDefined(); // @todo - or to all of them?
-//      if (!userDef)
-//      {
-//         if ((*cbi)->SetStringParameter((*cbi)->GetParameterID("LeapSecondKernelName"), lskKernelName) == false) return false;
-//      }
-//      ++cbi;
-//   }
    return true;
 }
 
