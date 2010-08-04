@@ -22,7 +22,7 @@
 #include "MdiGlPlotData.hpp"
 #include "MessageInterface.hpp"
 #include "SubscriberException.hpp"
-#include "TimeSystemConverter.hpp" // for ConvertMjdToGregorian()
+#include "TimeSystemConverter.hpp" // for Convert()
 #include <string.h>                // for strlen()
 
 #ifdef __WXMAC__
@@ -4227,19 +4227,30 @@ void TrajPlotCanvas::DrawStatus(const wxString &label1, int frame,
    gluOrtho2D(0.0, (GLfloat)mCanvasSize.x, 0.0, (GLfloat)mCanvasSize.y);
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
-   wxString str;
+   wxString str, str1;
    wxString text;
+   
+   #ifdef DEBUG_DRAW_STATUS
    str.Printf("%d", frame);
    text = label1 + str;
-   str.Printf("%f", time);
-   //str = TimeConverterUtil::ConvertMjdToGregorian(time).c_str();
+   str1.Printf("%f - ", time);
+   #endif
    
-   text = text + label2 + str;
+   if (time > 0)
+   {
+      Real toMjd = -999;
+      std::string utcGregorian;
+      TimeConverterUtil::Convert("A1ModJulian", time, "", "UTCGregorian",
+                                 toMjd, utcGregorian, 1);
+      str = utcGregorian.c_str();
+   }
+   
+   text = text + label2 + str1 + str;
    
    glColor3f(1, 1, 0); //yellow
    glRasterPos2i(xpos, ypos);
    glCallLists(strlen(text.c_str()), GL_BYTE, (GLubyte*)text.c_str());
-
+   
    if (label3 != "")
    {
       glRasterPos2i(xpos, 50);
