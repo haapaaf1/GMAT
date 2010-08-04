@@ -1,0 +1,1299 @@
+%Id%
+
+Create Variable count varOut varExp diff;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile rf;
+GMAT rf.SolverIterations = Current;
+GMAT rf.Precision = 15;
+GMAT rf.WriteHeaders = On;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 20;
+GMAT rf.Filename = Bug1987-MathTest.report;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+count = 0;
+
+%----- 1
+count = count + 1;
+varExp = 0.141120008059867
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff;
+
+GMAT rf.WriteHeaders = Off;
+
+%----- 2
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff;
+
+%----- 3
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 4
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 5
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 6
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 7
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 8
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 9
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 10
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 11
+count = count + 1;
+varExp = 1.374192020424485
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 12
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 13
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 14
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 15
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 16
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 17
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 18
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 19
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 20
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 21
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 22
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 23
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 24
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 25
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 26
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 27
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 28
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 29
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 30
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 31
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 32
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 33
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 34
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 35
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 36
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 37
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 38
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 39
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+Report rf count varExp varOut diff
+
+%----- 40
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 41
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 42
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 43
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 44
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 45
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 46
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 47
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 48
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 49
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 50
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 51
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 52
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 53
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 54
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 55
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 56
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 57
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 58
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 59
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 60
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 61
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 62
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 63
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 64
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 65
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 66
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 67
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 68
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 69
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 70
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 71
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 72
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 73
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 74
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 75
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 76
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 77
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 78
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 79
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 80
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 81
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 82
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 83
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 84
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 85
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 86
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 87
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 88
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 89
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 90
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 91
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 92
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 93
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 94
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 95
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 96
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 97
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 98
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 99
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 100
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 101
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 102
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 103
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 104
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 105
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 106
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 107
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 108
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 109
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 110
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 111
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 112
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 113
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 114
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 115
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 116
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 117
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 118
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 119
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 120
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 121
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 122
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 123
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 124
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 125
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 126
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 127
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 128
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 129
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 130
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 131
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 132
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 133
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 134
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 135
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 136
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 137
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 138
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 139
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 140
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 141
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 142
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 143
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 144
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 145
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 146
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 147
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 148
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 149
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 150
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 151
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 152
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 153
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 154
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 155
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 156
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 157
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 158
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 159
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 160
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+Report rf count varExp varOut diff
+diff = varOut - varExp;
+
+%----- 161
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 162
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 163
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 164
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 165
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 166
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 167
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 168
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 169
+count = count + 1;
+varExp = 0.141120008059867;
+varOut = sin(3);
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 170
+count = count + 1;
+varExp = 0.990059085759865;
+varOut = cos(sin(3));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 171
+count = count + 1;
+varExp = 1.523873017405459;
+varOut = tan(cos(sin(3)));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 172
+count = count + 1;
+varExp = 0.132624327641868;
+varOut = asin(tan(cos(sin(3)))/( 1.5239+ 10 ));
+Report rf count varExp varOut diff
+
+%----- 173
+count = count + 1;
+varExp = 1.437780096281878;
+varOut = acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 174
+count = count + 1;
+varExp = 0.125048351928485;
+varOut = atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 175
+count = count + 1;
+varExp = -2.079054801045753;
+varOut = log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 176
+count = count + 1;
+varExp = 0.317865936891885;
+varOut = log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 177
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 178
+count = count + 1;
+varExp = 0.023984175311040;
+varOut = DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 179
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 180
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 181
+count = count + 1;
+varExp = 1.374192020424485;
+varOut = det(norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 )))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
+%----- 182
+count = count + 1;
+varExp = 1.172259365680004;
+varOut = sqrt(det(norm(radToDeg(degToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))));
+diff = varOut - varExp;
+Report rf count varExp varOut diff
+
