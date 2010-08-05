@@ -201,15 +201,28 @@ std::string GmatFileUtil::ParseFileExtension(const std::string &fullPath,
    
    std::string::size_type lastDot = fullPath.find_last_of(".");
    if (lastDot != fullPath.npos)
-      fileExt = fullPath.substr(lastDot+1);
+   {
+      if (lastDot < fullPath.size())
+      {
+         fileExt = fullPath.substr(lastDot+1);
+         
+         #ifdef DEBUG_PARSE_FILENAME
+         MessageInterface::ShowMessage("   fileExt='%s'\n", fileExt.c_str());
+         #endif
+         
+         // Check for path separator
+         if (fileExt[0] == '/' || fileExt[0] == '\\')
+            fileExt = "";
+      }
+   }
+   
+   if (fileExt != "" && prependDot)
+      fileExt = "." + fileExt;
    
    #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParseFileExtension() returning <%s>\n", fileExt.c_str());
    #endif
-
-   if (prependDot)
-      fileExt = "." + fileExt;
    
    return fileExt;
 }
@@ -1383,15 +1396,15 @@ StringArray& GmatFileUtil::Compare(Integer numDirsToCompare, const std::string &
       if (numDirsToCompare == 2)
       {
          outLine = ToString(i+1) + "     " +
-            ToString(maxDiffs1[i], false, true, 7, 6) + "      " + maxGtTol1 + "       " +
-            ToString(maxDiffs2[i], false, true, 7, 6) + "      " + maxGtTol2 + "\n";
+            ToString(maxDiffs1[i], false, true, true, 7, 6) + "      " + maxGtTol1 + "       " +
+            ToString(maxDiffs2[i], false, true, true, 7, 6) + "      " + maxGtTol2 + "\n";
       }
       else if (numDirsToCompare == 3)
       {
          outLine = ToString(i+1) + "     " +
-            ToString(maxDiffs1[i], false, true, 7, 6) + "      " + maxGtTol1 + "       " +
-            ToString(maxDiffs2[i], false, true, 7, 6) + "      " + maxGtTol2 + "       " +
-            ToString(maxDiffs3[i], false, true, 7, 6) + "      " + maxGtTol3 + "\n";
+            ToString(maxDiffs1[i], false, true, true, 7, 6) + "      " + maxGtTol1 + "       " +
+            ToString(maxDiffs2[i], false, true, true, 7, 6) + "      " + maxGtTol2 + "       " +
+            ToString(maxDiffs3[i], false, true, true, 7, 6) + "      " + maxGtTol3 + "\n";
       }
       
       textBuffer.push_back(outLine);

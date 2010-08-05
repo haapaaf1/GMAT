@@ -619,6 +619,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\base\command\SaveMission.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\command\SaveMission.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\base\command\SolverBranchCommand.cpp"
 						>
 					</File>

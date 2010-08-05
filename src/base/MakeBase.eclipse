@@ -206,6 +206,7 @@ OBJECTS = \
     command/Report.o \
     command/RunSolver.o \
     command/Save.o \
+    command/SaveMission.o \
     command/SolverBranchCommand.o \
     command/Stop.o \
     command/Target.o \

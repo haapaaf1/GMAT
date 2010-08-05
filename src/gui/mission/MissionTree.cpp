@@ -499,11 +499,14 @@ wxTreeItemId& MissionTree::UpdateCommandTree(wxTreeItemId parent,
    wxString cmdTypeName = cmd->GetTypeName().c_str();
    wxTreeItemId currId;
    mNewTreeId = currId;
+
+   // Check if command type is viewable
+   bool isUnviewableCommand = false;
+   int index = mCommandList.Index(cmdTypeName);
+   isUnviewableCommand = (index == wxNOT_FOUND ? true : false);
    
-   // if ScriptEvent mode, we don't want to add it to tree
-   // if NoOp or BeginMissionSequence, we don't watn to add it to tree
-   if (inScriptEvent ||
-       cmdTypeName == "NoOp" || cmdTypeName == "BeginMissionSequence")
+   // if ScriptEvent mode or unviewable command, we don't want to add it to tree
+   if (inScriptEvent || isUnviewableCommand)
    {
       #if DEBUG_MISSION_TREE
       MessageInterface::ShowMessage

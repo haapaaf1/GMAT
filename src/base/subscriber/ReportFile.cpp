@@ -1332,9 +1332,10 @@ Integer ReportFile::WriteMatrix(StringArray *output, Integer param,
 //------------------------------------------------------------------------------
 bool ReportFile::Distribute(int len)
 {
-   #if DBGLVL_REPORTFILE_DATA > 0
+   #if DBGLVL_REPORTFILE_DATA > 1
    MessageInterface::ShowMessage("ReportFile::Distribute(int len) called len=%d\n", len);
-   MessageInterface::ShowMessage("   data = '%s'\n", data);
+   if (len > 0)
+      MessageInterface::ShowMessage("   data = '%s'\n", data);
    MessageInterface::ShowMessage("   usedByReport = %s, calledByReport = %s\n",
       (usedByReport ? "true" : "false"), (calledByReport ? "true" : "false"));
    #endif
@@ -1358,7 +1359,7 @@ bool ReportFile::Distribute(int len)
          if (!dstream.good())
             dstream.clear();
          
-         #if DBGLVL_REPORTFILE_DATA > 0
+         #if DBGLVL_REPORTFILE_DATA > 1
          MessageInterface::ShowMessage("   Writing data to '%s'\n", filename.c_str());
          #endif
          
@@ -1390,6 +1391,8 @@ bool ReportFile::Distribute(const Real * dat, Integer len)
    MessageInterface::ShowMessage
       ("   active=%d, isEndOfReceive=%d, mSolverIterOption=%d, runstate=%d\n",
        active, isEndOfReceive, mSolverIterOption, runstate);
+   if (len > 0)
+      MessageInterface::ShowMessage("   dat[0]=%f, dat[1]=%f\n", dat[0], dat[1]);
    #endif
    
    if (!active)

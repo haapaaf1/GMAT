@@ -30,7 +30,7 @@
 #include "Vary.hpp"           // for Vary command
 #include "Achieve.hpp"        // for Achieve command
 #include "EndTarget.hpp"      // for EndTarget command
-#include "For.hpp"            // for FOR command
+#include "For.hpp"            // for For command
 #include "EndFor.hpp"         // for EndFor command
 #include "If.hpp"             // for IF command
 #include "Else.hpp"           // for Else command
@@ -40,6 +40,7 @@
 #include "Assignment.hpp"     // for Assignment (GMAT) command  
 #include "Report.hpp"         // for Report command
 #include "Save.hpp"           // for Save command  
+#include "SaveMission.hpp"    // for SaveMission command  
 #include "Stop.hpp"           // for Save command  
 #include "CallGmatFunction.hpp"   // for CallGmatFunction command
 #include "BeginFiniteBurn.hpp"// for BeginFiniteBurn command
@@ -132,6 +133,8 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
         return new Report;
     else if (ofType == "Save")
         return new Save;
+    else if (ofType == "SaveMission")
+        return new SaveMission;
     // Actual creating of CallFunction is not allowed, but it should
     // be added to allowed creatables so that Interpreter can continue
     // with creating proper CallGmatFunction
@@ -228,6 +231,7 @@ CommandFactory::CommandFactory() :
       creatables.push_back("Propagate");
       creatables.push_back("Report");
       creatables.push_back("Save");
+      creatables.push_back("SaveMission");
       creatables.push_back("ScriptEvent");
       creatables.push_back("Stop");
       creatables.push_back("Target");
@@ -248,6 +252,7 @@ CommandFactory::CommandFactory() :
       unviewables.push_back("BeginScript");
       unviewables.push_back("Assignment");
       unviewables.push_back("GMAT");
+      unviewables.push_back("SaveMission");
       
       // These commans are only viewable under Target or Optimize
       unviewables.push_back("Achieve");
@@ -328,12 +333,4 @@ CommandFactory::~CommandFactory()
 {
    // deletes handled by Factory destructor
 }
-
-//---------------------------------
-//  protected methods
-//---------------------------------
-
-//---------------------------------
-//  private methods
-//---------------------------------
 
