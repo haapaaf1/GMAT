@@ -207,6 +207,7 @@ private:
    wxButton *theMagModelSearchButton;
    
    wxCheckBox *theSrpCheckBox;
+   wxCheckBox *theStopCheckBox;
    
    wxString integratorString;
    wxString primaryBodyString;
@@ -256,6 +257,7 @@ private:
    
    bool useDragForce;
    bool usePropOriginForSrp;
+   bool stopOnAccViolation;
    bool isForceModelChanged;
    bool isAtmosChanged;
    bool isDegOrderChanged;
@@ -322,6 +324,7 @@ private:
    
    // Checkbox event method
    void OnSRPCheckBoxChange(wxCommandEvent &event);
+   void OnStopCheckBoxChange(wxCommandEvent &event);
    
    // Combobox event method
    void OnIntegratorComboBox(wxCommandEvent &event);
@@ -364,7 +367,8 @@ private:
       ID_TEXTCTRL_PROP,
       ID_TEXTCTRL_GRAV,
       ID_TEXTCTRL_MAGF,
-      ID_CHECKBOX,
+      ID_SRP_CHECKBOX,
+      ID_STOP_CHECKBOX,
       ID_CB_INTGR,
       ID_CB_BODY,
       ID_CB_ORIGIN,

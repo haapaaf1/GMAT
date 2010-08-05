@@ -60,7 +60,8 @@ BEGIN_EVENT_TABLE(PropagationConfigPanel, GmatPanel)
    EVT_COMBOBOX(ID_CB_ORIGIN, PropagationConfigPanel::OnOriginComboBox)
    EVT_COMBOBOX(ID_CB_GRAV, PropagationConfigPanel::OnGravityModelComboBox)
    EVT_COMBOBOX(ID_CB_ATMOS, PropagationConfigPanel::OnAtmosphereModelComboBox)
-   EVT_CHECKBOX(ID_CHECKBOX, PropagationConfigPanel::OnSRPCheckBoxChange)
+   EVT_CHECKBOX(ID_SRP_CHECKBOX, PropagationConfigPanel::OnSRPCheckBoxChange)
+   EVT_CHECKBOX(ID_STOP_CHECKBOX, PropagationConfigPanel::OnStopCheckBoxChange)
    EVT_COMBOBOX(ID_CB_ERROR, PropagationConfigPanel::OnErrorControlComboBox)
 END_EVENT_TABLE()
 
@@ -246,6 +247,15 @@ void PropagationConfigPanel::Create()
                       wxDefaultPosition, wxSize(160,-1), 0, wxTextValidator(wxGMAT_FILTER_NUMERIC) );
    nomIntErrorTextCtrl->SetToolTip(pConfig->Read(_T("IntegratorNominalIntegrationErrorHint")));
    
+   //-----------------------------------------------------------------
+   // StopOnAccuracyViolation
+   //-----------------------------------------------------------------
+   theStopCheckBox =
+      new wxCheckBox( this, ID_STOP_CHECKBOX, wxT(GUI_ACCEL_KEY"Stop If Accuracy Is Violated"),
+                      wxDefaultPosition, wxDefaultSize, 0 );
+   theStopCheckBox->SetToolTip(pConfig->Read(_T("IntegratorStopOnAccuracyViolationHint")));
+
+
    wxFlexGridSizer *intFlexGridSizer = new wxFlexGridSizer( 3, 0, 0 );
    intFlexGridSizer->AddGrowableCol(1);
    intFlexGridSizer->Add( integratorStaticText, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
@@ -271,6 +281,8 @@ void PropagationConfigPanel::Create()
    intFlexGridSizer->Add( 20, 20, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    intFlexGridSizer->Add( nomIntErrorStaticText, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    intFlexGridSizer->Add( nomIntErrorTextCtrl, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
+   intFlexGridSizer->Add( 20, 20, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
+   intFlexGridSizer->Add( theStopCheckBox, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    intFlexGridSizer->Add( 20, 20, 0, wxGROW|wxALIGN_LEFT|wxALL, bsize);
    // define minimum size for the integrator labels
    int minLabelSize;
@@ -489,7 +501,7 @@ void PropagationConfigPanel::Create()
    // SRP
    //-----------------------------------------------------------------
    theSrpCheckBox =
-      new wxCheckBox( this, ID_CHECKBOX, wxT(GUI_ACCEL_KEY"Use Solar Radiation Pressure"),
+      new wxCheckBox( this, ID_SRP_CHECKBOX, wxT(GUI_ACCEL_KEY"Use Solar Radiation Pressure"),
                       wxDefaultPosition, wxDefaultSize, 0 );
    theSrpCheckBox->SetToolTip(pConfig->Read(_T("ForceModelUseSolarRadiationPressureHint")));
    
@@ -811,7 +823,7 @@ void PropagationConfigPanel::LoadData()
          else if (wxForceType == "SolarRadiationPressure")
          {
             // Currently SRP can only be applied to force model central body,
-            // so we don't need to set to promary body list (loj:2007.10.19)
+            // so we don't need to set to primary body list (loj:2007.10.19)
             //currentBodyId = FindPrimaryBody(wxBodyName);
             //primaryBodyList[currentBodyId]->useSrp = true;
             //primaryBodyList[currentBodyId]->bodyName = wxBodyName;
@@ -1529,17 +1541,17 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
       #endif
    }
 
-   
+
 #ifdef __WXMAC__
    if (integratorString.IsSameAs(integratorArray[ABM]))
-   {   
+   {
       minIntErrorStaticText->Enable(true);
       nomIntErrorStaticText->Enable(true);
       minIntErrorTextCtrl->Enable(true);
       nomIntErrorTextCtrl->Enable(true);
    }
    else
-   {   
+   {
       minIntErrorStaticText->Enable(false);
       nomIntErrorStaticText->Enable(false);
       minIntErrorTextCtrl->Enable(false);
@@ -1561,6 +1573,23 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
       nomIntErrorTextCtrl->Show(false);
    }
 #endif
+   if ((integratorString.IsSameAs(integratorArray[ABM])) ||
+       (integratorString.IsSameAs(integratorArray[RKV89])) ||
+       (integratorString.IsSameAs(integratorArray[RKN68])) ||
+       (integratorString.IsSameAs(integratorArray[RKF56])) ||
+       (integratorString.IsSameAs(integratorArray[BS])))
+   {
+      Integer stopId     = thePropagator->GetParameterID("StopIfAccuracyIsViolated");
+      stopOnAccViolation = thePropagator->GetBooleanParameter(stopId);
+      theStopCheckBox->SetValue(stopOnAccViolation);
+      theStopCheckBox->Show(true);
+      theStopCheckBox->Enable(true);
+   }
+   else
+   {
+      theStopCheckBox->Show(false);
+      theStopCheckBox->Enable(false);
+   }
 
    leftBoxSizer->Layout();
     
@@ -2015,6 +2044,12 @@ bool PropagationConfigPanel::SaveIntegratorData()
          thePropagator->SetRealParameter(id, nomError);
       }
       
+      if (thePropagator->IsOfType("Integrator"))
+      {
+         id = thePropagator->GetParameterID("StopIfAccuracyIsViolated");
+         thePropagator->SetBooleanParameter(id, stopOnAccViolation);
+      }
+
       #ifdef DEBUG_PROP_PANEL_SAVE
       ShowPropData("SaveData() AFTER  saving Integrator");
       #endif
@@ -2748,22 +2783,17 @@ void PropagationConfigPanel::OnSRPCheckBoxChange(wxCommandEvent &event)
    usePropOriginForSrp = theSrpCheckBox->GetValue();
    isForceModelChanged = true;
    EnableUpdate(true);
-   
-   // Since SRP can be applied to any force model central body,
-   // we don't need to check for primary bodies (loj:2007.10.19)
-   //if (FindPrimaryBody(currentBodyName, false) != -1)
-   //{
-   //   primaryBodyList[currentBodyId]->useSrp = theSrpCheckBox->GetValue();
-   //   isForceModelChanged = true;
-   //   EnableUpdate(true);
-   //}
-   //else
-   //{      
-   //   MessageInterface::PopupMessage
-   //      (Gmat::WARNING_, "Solar radiation pressure force can be only applied to"
-   //       " primary bodies.");
-   //   theSrpCheckBox->SetValue(false);
-   //}
+}
+
+
+//------------------------------------------------------------------------------
+// void OnSRPCheckBoxChange(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void PropagationConfigPanel::OnStopCheckBoxChange(wxCommandEvent &event)
+{
+   stopOnAccViolation      = theStopCheckBox->GetValue();
+   isIntegratorDataChanged = true;
+   EnableUpdate(true);
 }
 
 
