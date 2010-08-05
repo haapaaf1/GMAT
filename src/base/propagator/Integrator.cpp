@@ -90,6 +90,7 @@ Integrator::PARAMETER_TEXT[IntegratorParamCount - PropagatorParamCount] =
     "MinStep",
     "MaxStep",
     "MaxStepAttempts",
+    "StopIfAccuracyIsViolated",
 };
 
 const Gmat::ParameterType
@@ -100,7 +101,8 @@ Integrator::PARAMETER_TYPE[IntegratorParamCount - PropagatorParamCount] =
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
     Gmat::REAL_TYPE,
-    Gmat::INTEGER_TYPE
+    Gmat::INTEGER_TYPE,
+    Gmat::BOOLEAN_TYPE,
 };
 
 //---------------------------------
@@ -127,6 +129,8 @@ Integrator::Integrator(const std::string &typeStr, const std::string &nomme)
       smallestTime            (1.0e-6),
       stepAttempts            (0),
       maxStepAttempts         (50),
+      stopIfAccuracyViolated  (true),
+      accuracyWarningTriggered (false),
       stepTaken               (0.0),
       timeleft                (stepSize),    
       ddt                     (NULL),
@@ -134,7 +138,8 @@ Integrator::Integrator(const std::string &typeStr, const std::string &nomme)
       errorThreshold          (0.10),
       derivativeOrder         (1)
 {
-    parameterCount = IntegratorParamCount;
+   objectTypeNames.push_back("Integrator");
+   parameterCount = IntegratorParamCount;
 }
 
 //------------------------------------------------------------------------------
@@ -156,6 +161,8 @@ Integrator::Integrator(const Integrator& i) :
     smallestTime            (i.smallestTime),
     stepAttempts            (0),
     maxStepAttempts         (i.maxStepAttempts),
+    stopIfAccuracyViolated  (i.stopIfAccuracyViolated),
+    accuracyWarningTriggered (false),
     stepTaken               (0.0),
     timeleft                (i.timeleft),    
     ddt                     (NULL),
@@ -163,7 +170,7 @@ Integrator::Integrator(const Integrator& i) :
     errorThreshold          (i.errorThreshold),
     derivativeOrder         (i.derivativeOrder)
 {
-    parameterCount = IntegratorParamCount;
+   parameterCount = IntegratorParamCount;
 }
 
 //------------------------------------------------------------------------------
@@ -181,23 +188,25 @@ Integrator& Integrator::operator=(const Integrator& i)
         return *this;
 
     Propagator::operator=(i);
-    tolerance = i.tolerance;
-    fixedStep = i.fixedStep;
-    fixedStepsize = i.fixedStepsize;
-    stepTaken = 0.0;
-    timeleft = i.timeleft;
+    tolerance              = i.tolerance;
+    fixedStep              = i.fixedStep;
+    fixedStepsize          = i.fixedStepsize;
+    stepTaken              = 0.0;
+    timeleft               = i.timeleft;
 
-    minimumStep = i.minimumStep;
-    maximumStep = i.maximumStep;
-    stepAttempts = 0;
-    maxStepAttempts = i.maxStepAttempts;
+    minimumStep            = i.minimumStep;
+    maximumStep            = i.maximumStep;
+    stepAttempts           = 0;
+    maxStepAttempts        = i.maxStepAttempts;
+    stopIfAccuracyViolated = i.stopIfAccuracyViolated;
+    accuracyWarningTriggered = i.accuracyWarningTriggered;
     
-    derivativeOrder = i.derivativeOrder;
+    derivativeOrder        = i.derivativeOrder;
     
-    smallestTime = i.smallestTime;  
-    ddt = NULL;
-    errorEstimates = NULL;
-    errorThreshold = i.errorThreshold;
+    smallestTime           = i.smallestTime;
+    ddt                    = NULL;
+    errorEstimates         = NULL;
+    errorThreshold         = i.errorThreshold;
 
     return *this;
 }
@@ -505,6 +514,52 @@ Integer Integrator::SetIntegerParameter(const std::string &label, const Integer 
 {
     return SetIntegerParameter(GetParameterID(label), value);
 }
+
+//---------------------------------------------------------------------------
+//  bool GetBooleanParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve a boolean parameter.
+ *
+ * @param <id> The integer ID for the parameter.
+ *
+ * @return the boolean value for this parameter, or throw an exception if the
+ *         parameter access in invalid.
+ */
+//------------------------------------------------------------------------------
+bool Integrator::GetBooleanParameter(const Integer id) const
+{
+   if (id == STOP_IF_ACCURACY_VIOLATED)  return stopIfAccuracyViolated;
+
+   return Integrator::GetBooleanParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetBooleanParameter(const Integer id, const bool value)
+//---------------------------------------------------------------------------
+/**
+ * Sets the value for a boolean parameter.
+ *
+ * @param id The integer ID for the parameter.
+ * @param value The new value.
+ *
+ * @return the boolean value for this parameter, or throw an exception if the
+ *         parameter is invalid or not boolean.
+ */
+//------------------------------------------------------------------------------
+bool Integrator::SetBooleanParameter(const Integer id, const bool value)
+{
+   if (id == STOP_IF_ACCURACY_VIOLATED)
+   {
+      stopIfAccuracyViolated = value;
+      return true;
+   }
+
+   return Integrator::SetBooleanParameter(id, value);
+}
+
+
 
 //------------------------------------------------------------------------------
 // void SetPhysicalModel(PhysicalModel *pPhyscialModel)

@@ -137,6 +137,9 @@ public:
     virtual Integer GetIntegerParameter(const std::string &label) const;
     virtual Integer SetIntegerParameter(const Integer id, const Integer value);
     virtual Integer SetIntegerParameter(const std::string &label, const Integer value);
+    virtual bool    GetBooleanParameter(const Integer id) const;
+    virtual bool    SetBooleanParameter(const Integer id, const bool value);
+
 
     virtual void SetPhysicalModel(PhysicalModel *pPhysicalModel);
     
@@ -218,6 +221,7 @@ protected:
         MIN_STEP,          // Minimum stepsize for the Integrator -- smaller steps fail
         MAX_STEP,          // Maximum stepsize for the Integrator -- larger steps get truncated
         MAX_STEP_ATTEMPTS, // Number of attempts to take before giving up
+        STOP_IF_ACCURACY_VIOLATED,
         IntegratorParamCount
     };
     
@@ -243,6 +247,11 @@ protected:
     Integer stepAttempts;
     /// Number of failed attempts allowed before reporting failure
     Integer maxStepAttempts;
+    /// Flag indicating whether or not execution should stop if/when the accuracy is violated
+    bool    stopIfAccuracyViolated;
+    /// Flag indicating whether or not the warning for the accuracy violation has already been
+    /// written, for this integrator, for this run
+    bool    accuracyWarningTriggered;
     /// Actual interval taken by the step
     Real stepTaken;
     /// Remaining time for a specified or fixed timestep
