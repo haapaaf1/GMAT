@@ -81,6 +81,7 @@ Create MeasurementModel DSNDoppler;
 DSNDoppler.ObservationData   = DSNData;
 DSNDoppler.Type              = DSNTwoWayDoppler;
 DSNDoppler.Participants      = {Maui,ODSat};
+DSNDoppler.AveragingInterval = 0.5;
 
 Create DSNTrackingSystem DSN_ODSat
 DSN_ODSat.Add = {DSNDoppler}
@@ -103,5 +104,5 @@ ODSatsim.Propagator          = ODProp;
 %===== Run the simulator
 %--------------------------------------------------------------
 BeginMissionSequence
-Save DSNDoppler
 RunSimulator ODSatsim
+Save DSNDoppler
