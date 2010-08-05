@@ -296,6 +296,46 @@ Real Hardware::SetRealParameter(const Integer id, const Real value)
    return GmatBase::SetRealParameter(id, value);
 }
 
+
+// Required so derived classes work correctly:
+
+//------------------------------------------------------------------------------
+//  Real GetRealParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieve the value for a Real parameter.
+ *
+ * @param label The script label for the parameter.
+ *
+ * @return The parameter's value.
+ */
+//------------------------------------------------------------------------------
+Real Hardware::GetRealParameter(const std::string &label) const
+{
+   return GetRealParameter(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+//  Real SetRealParameter(const Integer id, const Real value)
+//------------------------------------------------------------------------------
+/**
+ * Set the value for a Real parameter.
+ *
+ * @param label The script label for the parameter.
+ * @param value The new parameter value.
+ *
+ * @return the parameter value at the end of this call, or throw an exception
+ *         if the parameter id is invalid or the parameter type is not Real.
+ */
+//------------------------------------------------------------------------------
+Real Hardware::SetRealParameter(const std::string &label, const Real value)
+{
+   return SetRealParameter(GetParameterID(label), value);
+}
+
+
+
 //------------------------------------------------------------------------
 // This function is used to verify a referenced object is properly set up
 // or not.

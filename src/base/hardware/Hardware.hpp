@@ -52,7 +52,10 @@ public:
    virtual Real               GetRealParameter(const Integer id) const;
    virtual Real               SetRealParameter(const Integer id,
                                                const Real value);
-   
+   virtual Real               GetRealParameter(const std::string &label) const;
+   virtual Real               SetRealParameter(const std::string &label,
+                                         const Real value);
+
 //   virtual bool	 VerifyRefObject(std::string subTypeName, GmatBase* obj); // made changes by Tuan Nguyen
 
 protected:
