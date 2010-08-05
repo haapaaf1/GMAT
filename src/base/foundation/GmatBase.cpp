@@ -3462,21 +3462,24 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
    std::stringstream value;
    value.precision(GetDataPrecision());
    
+   // Allow objects to muck with parameter counts, and use the mucked up value
+   Integer paramCount = GetParameterCount();
+
    // Create parameter write order if it is empty (LOJ: 2009.02.13)
    if (parameterWriteOrder.empty())
    {
-      for (i = 0; i < parameterCount; ++i)
+      for (i = 0; i < paramCount; ++i)
          parameterWriteOrder.push_back(i);
    }
    else
    {
-      if ((Integer)parameterWriteOrder.size() < parameterCount)
+      if ((Integer)parameterWriteOrder.size() < paramCount)
       {
          // Add GmatBase parameters since it's count is no longer 0 (LOJ: 2009.11.20)
          for (i = 0; i < GmatBaseParamCount; ++i)
             parameterWriteOrder.push_back(i);
          
-         if ((Integer)parameterWriteOrder.size() != parameterCount)
+         if ((Integer)parameterWriteOrder.size() != paramCount)
          {
             GmatBaseException gbe;
             gbe.SetDetails("GmatBase::WriteParameters(), there are more actual "
@@ -3487,7 +3490,7 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
    }
    
    Integer id;
-   for (i = 0; i < parameterCount; ++i)
+   for (i = 0; i < paramCount; ++i)
    {
       id = parameterWriteOrder[i];
       
@@ -3502,7 +3505,8 @@ void GmatBase::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
       // in SHOW_SCRIPT, we write cloaked parameters; otherwise, we don't
       bool parameterIsToBeWritten = !IsParameterReadOnly(id);
       if (mode != Gmat::SHOW_SCRIPT) 
-         parameterIsToBeWritten = parameterIsToBeWritten && (!IsParameterCloaked(id));
+         parameterIsToBeWritten = parameterIsToBeWritten &&
+                                  (!IsParameterCloaked(id));
       
       if (parameterIsToBeWritten)
       {
