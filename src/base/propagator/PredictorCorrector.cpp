@@ -44,6 +44,7 @@
 
 
 #include "PredictorCorrector.hpp"
+#include "MessageInterface.hpp"
 #include <fstream>
 
 //---------------------------------
@@ -130,7 +131,8 @@ PredictorCorrector::PredictorCorrector(Integer sc, Integer order,
 //------------------------------------------------------------------------------
 PredictorCorrector::~PredictorCorrector(void)
 {
-    if (history) {
+    if (history)
+    {
         for (int i = 0; i < stepCount; i++)
             if (history[i])
                 delete [] history[i];
@@ -253,10 +255,12 @@ bool PredictorCorrector::Initialize()
     if (stepCount <= 0)
         return initialized;
 
-    if (physicalModel) {
+    if (physicalModel)
+    {
         dimension = physicalModel->GetDimension();
 
-        if (history) {
+        if (history)
+        {
             for (int i = 0; i < stepCount; i++)
                 if (history[i])
                     delete [] history[i];
@@ -264,45 +268,53 @@ bool PredictorCorrector::Initialize()
             history = NULL;
         }
 
-        if (pweights) {
+        if (pweights)
+        {
             delete [] pweights;
             pweights = NULL;
         }
 
-        if (cweights) {
+        if (cweights)
+        {
             delete [] cweights;
             cweights = NULL;
         }
 
-        if (predictorState) {
+        if (predictorState)
+        {
             delete [] predictorState;
             predictorState = NULL;
         }
 
-        if (correctorState) {
+        if (correctorState)
+        {
             delete [] correctorState;
             correctorState = NULL;
         }
 
-        if (errorEstimates) {
+        if (errorEstimates)
+        {
             delete [] errorEstimates;
             errorEstimates = NULL;
         }
 
         predictorState = new Real[dimension];
-        if (!predictorState) {
+        if (!predictorState)
+        {
             return initialized;
         }
 
         correctorState = new Real[dimension];
-        if (!correctorState) {
+        if (!correctorState)
+        {
             delete [] predictorState;
             predictorState = NULL;
             return initialized;
         }
 
         errorEstimates = new Real[dimension];
-        if (!errorEstimates) {
+        if (!errorEstimates)
+        {
             delete [] predictorState;
             predictorState = NULL;
             delete [] correctorState;
@@ -311,7 +323,8 @@ bool PredictorCorrector::Initialize()
         }
 
         pweights = new Real[stepCount];
-        if (!pweights) {
+        if (!pweights)
+        {
             delete [] predictorState;
             predictorState = NULL;
             delete [] correctorState;
@@ -322,7 +335,8 @@ bool PredictorCorrector::Initialize()
         }
 
         cweights = new Real[stepCount];
-        if (!cweights) {
+        if (!cweights)
+        {
             delete [] pweights;
             pweights = NULL;
             delete [] predictorState;
@@ -335,11 +349,15 @@ bool PredictorCorrector::Initialize()
         }
 
         history = new Real*[stepCount];
-        if (history) {
-            for (int i = 0; i < stepCount; i++) {
+        if (history)
+        {
+            for (int i = 0; i < stepCount; i++)
+            {
                 history[i] = new Real[dimension];
-                if (!history[i]) {
-                    for (int j = 0; j < i; j++) {
+                if (!history[i])
+                {
+                    for (int j = 0; j < i; j++)
+                    {
                         delete [] history[j];
                     }
                     delete [] history;
@@ -356,13 +374,15 @@ bool PredictorCorrector::Initialize()
                     errorEstimates = NULL;
                     return initialized;
                 }
-                if (SetWeights()) {
+                if (SetWeights())
+                {
                     ddt = physicalModel->GetDerivativeArray();
                     initialized = true;
                 }
             }
         }
-        else {
+        else
+        {
             delete [] pweights;
             pweights = NULL;
             delete [] cweights;
@@ -386,6 +406,8 @@ bool PredictorCorrector::Initialize()
         outState = physicalModel->GetState();
     }
     
+    accuracyWarningTriggered = false;
+
     return initialized;
 }
 
@@ -403,14 +425,18 @@ bool PredictorCorrector::Step(Real dt)
 //    bool stepFinished = false;
     timeleft = dt;
 
-    if (fabs(dt) != fabs(stepSize)) {
-        if (fabs(dt) < fabs(stepSize)) {
+    if (fabs(dt) != fabs(stepSize))
+    {
+        if (fabs(dt) < fabs(stepSize))
+        {
             stepSize = dt;
             Reset();
         }
-        else {
+        else
+        {
             Real ss = fabs(dt / stepSize);
-            if (fabs(ss - int(ss)) > smallestTime) {
+            if (fabs(ss - int(ss)) > smallestTime)
+            {
                 stepSize = dt / ((int)(ss+1));
                 Reset();
             }
@@ -420,7 +446,8 @@ bool PredictorCorrector::Step(Real dt)
     bool fixed = fixedStep;
     fixedStep = true;
     Real stepsign = ((stepSize > 0.0) ? 1.0 : -1.0);
-    do {
+    do
+    {
         if (!Step())
             return false;
     } while (timeleft * stepsign > smallestTime);
@@ -444,9 +471,12 @@ bool PredictorCorrector::Step(void)
     if (physicalModel->StateChanged())
         Reset();
 
-    do {
-        if (!startupComplete) {
-            if (ddt == NULL) {
+    do
+    {
+        if (!startupComplete)
+        {
+            if (ddt == NULL)
+            {
                 ddt = physicalModel->GetDerivativeArray();
                 if (ddt == NULL)
                     return false;
@@ -465,14 +495,16 @@ bool PredictorCorrector::Step(void)
             // enough for startup purposes
             maxError = 0.0;
         }
-        else {
+        else
+        {
             if (!Predict())
                 return false;
             if (!Correct())
                 return false;
             if (EstimateError() < 0.0)
                 return false;
-            if (maxError <= tolerance) {
+            if (maxError <= tolerance)
+            {
                 memcpy(outState, correctorState, dimension * sizeof(Real));
                 physicalModel->IncrementTime(stepSize);
                 stepTaken = stepSize;
@@ -524,16 +556,35 @@ bool PredictorCorrector::AdaptStep(Real maxError)
     if (fabs(newStep) > maximumStep)
         newStep = maximumStep * stepSign;
 
-    if (!fixedStep) {
+    if (!fixedStep)
+    {
         // Variable step mode
-        if (maxError > tolerance) {
+        if (maxError > tolerance)
+        {
             // Tried and failed at the minimum stepsize
-            if (fabs(stepSize) == minimumStep)
-                return false;
+            if (GmatMathUtil::IsEqual(GmatMathUtil::Abs(stepSize),minimumStep))
+            {
+               if (stopIfAccuracyViolated)
+               {
+                  throw PropagatorException(
+                        "PredictorCorrector: Accuracy settings will be violated with current step size values.\n");
+               }
+               else
+               {
+                  if (!accuracyWarningTriggered) // so only write the warning once per propagation command
+                  {
+                     accuracyWarningTriggered = true;
+                     MessageInterface::PopupMessage(Gmat::WARNING_,
+                        "PredictorCorrector: Accuracy settings will be violated with current step size values.\n");
+                  }
+                  return false;
+               }
+            }
             stepSize = newStep;
             ++stepAttempts;
         }
-        else {
+        else
+        {
             // Step can be "safely" increased -- but only up to twice old value
             if (newStep >= 2.0 * stepSize)
                 stepSize *= 2.0;
@@ -543,17 +594,21 @@ bool PredictorCorrector::AdaptStep(Real maxError)
             stepAttempts = 0;
         }
     }
-    else {
+    else
+    {
         // Fixed step mode: Adjust newStep to be a power of 2 different from
         // the current step
         Real twoStep = stepSize;
-        if (fabs(newStep) < fabs(stepSize)) {
-            do {
+        if (fabs(newStep) < fabs(stepSize))
+        {
+            do
+            {
                 twoStep /= 2.0;
             } while (fabs(twoStep) > fabs(newStep));
             stepSize = twoStep;
         }
-        else if (fabs(newStep) >= fabs(2.0 * stepSize)) {
+        else if (fabs(newStep) >= fabs(2.0 * stepSize))
+        {
             // Check to see if the step can safely be Reald, given the
             // remaining interval
             Real stepsToGo = timeleft / (2.0 * stepSize);
@@ -686,11 +741,11 @@ bool PredictorCorrector::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 Real PredictorCorrector::GetRealParameter(const Integer id) const
 {
-	if (id == MAXIMUM_ERROR)					return maxError;
-	else if (id == LOWEVER_ERROR)				return lowerError;
+	if (id == MAXIMUM_ERROR)		return maxError;
+	else if (id == LOWEVER_ERROR)	return lowerError;
 	else if (id == TARGET_ERROR)	return targetError;
-	else if (id == STEP_SIGN)	return stepSign;
-	else if (id == INV_ORDER)				return invOrder;
+	else if (id == STEP_SIGN)	   return stepSign;
+	else if (id == INV_ORDER)		return invOrder;
 
    return Integrator::GetRealParameter(id);
 }
@@ -780,7 +835,7 @@ Real PredictorCorrector::SetRealParameter(const std::string &label, const Real v
 Integer PredictorCorrector::GetIntegerParameter(const Integer id) const
 {
    if (id == STEP_COUNT)			     	return stepCount;
-	else if (id == STARTUP_COUNT)				return startupCount;
+	else if (id == STARTUP_COUNT)			return startupCount;
 
 	return Integrator::GetIntegerParameter(id);
 }
@@ -800,7 +855,7 @@ Integer PredictorCorrector::GetIntegerParameter(const Integer id) const
  */
 //------------------------------------------------------------------------------
 Integer PredictorCorrector::SetIntegerParameter(const Integer id,
-											   const Integer value) // const?
+											               const Integer value) // const?
 {
 	if (id == STEP_COUNT)
 	{

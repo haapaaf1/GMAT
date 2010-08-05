@@ -257,6 +257,7 @@ bool RungeKutta::Initialize()
        SetupAccumulator();
     }
 
+    accuracyWarningTriggered = false;
     return true;
 }
 
@@ -530,12 +531,26 @@ bool RungeKutta::AdaptStep(Real maxerror)
         // The following code is in place to omit error control for steps
         // at the minimum stepsize.  See the note above for more
         // information.  Remove this block if the issue gets resolved.
-        if (fabs(stepSize) == minimumStep)
+        if (GmatMathUtil::Abs(stepSize) == minimumStep)
         {
-            // Do this if the step was at the minimum stepSize
-            memcpy(outState, candidateState, dimension*sizeof(Real));
-            stepAttempts = 0;
-            return true;
+           if (stopIfAccuracyViolated)
+           {
+              throw PropagatorException(
+                    "RungeKutta: Accuracy settings will be violated with current step size values.\n");
+           }
+           else
+           {
+              if (!accuracyWarningTriggered) // so only write the warning once per propagation command
+              {
+                 accuracyWarningTriggered = true;
+                 MessageInterface::PopupMessage(Gmat::WARNING_,
+                    "RungeKutta: Accuracy settings will be violated with current step size values.\n");
+              }
+               // Do this if the step was at the minimum stepSize
+              memcpy(outState, candidateState, dimension*sizeof(Real));
+              stepAttempts = 0;
+              return true;
+           }
         }
 
         stepSize = sigma * stepSize * pow(tolerance/maxerror, decPower);
