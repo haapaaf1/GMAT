@@ -36,6 +36,18 @@ GMAT ODSat.AngularVelocityY = 0;
 GMAT ODSat.AngularVelocityZ = 0;
 
 %----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+Create GroundStation Maui;
+Maui.CentralBody = Earth;
+Maui.StateType = Cartesian;
+Maui.HorizonReference = Sphere;
+Maui.X = -4450.8;
+Maui.Y = 2676.1;
+Maui.Z = -3691.38;
+Maui.Id = 'Maui';
+
+%----------------------------------------
 %---------- ForceModels
 %----------------------------------------
 Create ForceModel ODProp_ForceModel;
@@ -57,18 +69,6 @@ GMAT ODProp.Accuracy = 1e-13;
 GMAT ODProp.MinStep = 0;
 GMAT ODProp.MaxStep = 2700;
 GMAT ODProp.MaxStepAttempts = 50;
-
-%----------------------------------------
-%---------- GroundStations
-%----------------------------------------
-Create GroundStation Maui;
-Maui.CentralBody = Earth;
-Maui.StateType = Cartesian;
-Maui.HorizonReference = Sphere;
-Maui.X = -4450.8;
-Maui.Y = 2676.1;
-Maui.Z = -3691.38;
-Maui.Id = 'Maui';
 
 %--------------------------------------------------------------
 %===== Create the Tracking System
