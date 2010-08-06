@@ -1,5 +1,13 @@
 function [Mat] = Bug1686_ReturnInputValue(Mat)
 
+Global RF;
 Create Array Mat[3,3];
+Create String debugMsg;
+
+debugMsg = '       ReturnInputValue() entered';
+Report RF debugMsg;
 
 Mat = Mat;
+
+debugMsg = '       ReturnInputValue() leaving';
+Report RF debugMsg;

@@ -3,7 +3,8 @@
 %----------------------------------------
 
 Create Variable I J mainLoop result;
-Create String debugMsg;
+Create String debugMsg blankLine;
+blankLine = '   ';
 GMAT I = 1;
 Create Array Mat[3,3];
 
@@ -43,21 +44,22 @@ Global RF;
 
 mainLoop = 1;
 
-GMAT debugMsg = '==================== In main, before While mainLoop = ';
+GMAT debugMsg = '==================================== In main, before While mainLoop = ';
 Report RF debugMsg mainLoop;
 
 While mainLoop <= 5
-   GMAT debugMsg = '========== In main, mainLoop = ';
+   Report RF blankLine;
+   GMAT debugMsg = '=========================== In main, mainLoop = ';
    Report RF debugMsg mainLoop;
    GMAT [I] = Bug1686_FunctionWithWhileLoop(I, Mat);
-   GMAT debugMsg = '========== After calling FunctionWithWhileLoop I = ';
+   GMAT debugMsg = '========== After calling FunctionWithWhileLoop() I = ';
    Report RF debugMsg I;
    GMAT [result] = Factorial_CF(mainLoop);
-   GMAT debugMsg = '========== After calling Factorial_CF result = ';
+   GMAT debugMsg = '========== After calling Factorial_CF() result = ';
    Report RF debugMsg result;
    mainLoop = mainLoop + 1;
 EndWhile
 
-GMAT debugMsg = '==================== In main, after  While mainLoop = ';
+GMAT debugMsg = '==================================== In main, after  While mainLoop = ';
 Report RF debugMsg mainLoop;
 

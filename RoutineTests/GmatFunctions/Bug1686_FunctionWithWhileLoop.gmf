@@ -5,16 +5,19 @@ Create Variable I J;
 Create Array Mat[3,3];
 Create String debugMsg;
 
+debugMsg = '====== FunctionWithWhileLoop() entered, I = ';
+Report RF debugMsg I;
+
 I = 0;
 While I < 3
     I = I + 1;
-    debugMsg = 'In FunctionWithWhileLoop, before calling ReturnInputValue  I = ';
+    debugMsg = '       Before calling ReturnInputValue()  I = ';
     Report RF debugMsg I;
     [Mat] = Bug1686_ReturnInputValue(Mat);
     J = I
-    debugMsg = 'In FunctionWithWhileLoop, after  calling ReturnInputValue  J = ';
+    debugMsg = '       After  calling ReturnInputValue()  J = ';
     Report RF debugMsg J;
 EndWhile
 
-debugMsg = 'Leaving FunctionWithWhileLoop  J = ';
+debugMsg = '====== FunctionWithWhileLoop() leaving, J = ';
 Report RF debugMsg J;
