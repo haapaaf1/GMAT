@@ -680,11 +680,9 @@ void FuelTank::Copy(const GmatBase* orig)
 //------------------------------------------------------------------------------
 bool FuelTank::Initialize()
 {
-   if (density <= 0.0)
-      return false;
+   if (!Validate())
+	   return false;
    gasVolume = volume - fuelMass / density;
-   if (gasVolume < 0.0)
-      throw HardwareException("Fuel volume exceeds tank capacity\n");
    pvBase = pressure * gasVolume;
    
    initialized = true;   
@@ -761,3 +759,13 @@ void FuelTank::DepleteFuel(Real dm)
       throw HardwareException("Fuel in tank " + instanceName + 
                               " completely exhausted.\n");
 }
+
+bool FuelTank::Validate()
+{
+   if (density <= 0.0)
+	  return false;
+   if ((volume - fuelMass / density) < 0.0)
+	  throw HardwareException("Fuel volume exceeds tank capacity\n");
+   return true;
+}
+

@@ -75,6 +75,7 @@ public:
    virtual void         Copy(const GmatBase* orig);
    
    virtual bool         Initialize();
+   virtual bool         Validate();
    
 protected:
    /// Mass of the fuel in the tank
