@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                               BranchCommand
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -1122,8 +1122,8 @@ bool BranchCommand::ExecuteBranch(Integer which)
          
          // Check for NULL pointer here (loj: 2008.09.25 Added)
          // Why current pointer is reset to NULL running recursive function?
-         // Is this error condition or can be ignored?
-         // Without this, Factorial_FR testing will not work.
+         // Is this an error or can it be ignored?
+         // Without this change, Factorial_FR testing will not work.
          if (current == NULL)
          {
             #ifdef __THROW_EXCEPTION__            
@@ -1136,6 +1136,8 @@ bool BranchCommand::ExecuteBranch(Integer which)
             current = current->GetNext();
          
          branchExecuting = true;
+         // Set commandExecuting to true if branch is executing (LOJ: 2010.08.06)
+         commandExecuting = true;
       }
       catch (BaseException &e)
       {
@@ -1150,6 +1152,9 @@ bool BranchCommand::ExecuteBranch(Integer which)
    
    #ifdef DEBUG_BRANCHCOMMAND_EXECUTION
    ShowCommand("Exiting ExecuteBranch:", "current = ", current, "this    = ", this);
+   MessageInterface::ShowMessage
+      ("   branchExecuting=%d, commandExecuting=%d, commandComplete=%d\n",
+       branchExecuting, commandExecuting, commandComplete);
    #endif
    
    return retval;
