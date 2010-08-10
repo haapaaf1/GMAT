@@ -22,6 +22,9 @@
 #include "StringUtil.hpp"          // ToString()
 #include "MessageInterface.hpp"
 
+//#define DEBUG_SPACECRAFTDATA_INIT
+//#define DEBUG_SC_OWNED_OBJ
+
 
 const std::string
 SpacecraftData::VALID_OBJECT_TYPE_LIST[SpacecraftDataObjectCount] =
@@ -386,9 +389,9 @@ bool SpacecraftData::ValidateRefObjects(GmatBase *param)
 //------------------------------------------------------------------------------
 void SpacecraftData::InitializeRefObjects()
 {
-   #if DEBUG_SPACECRAFTDATA_INIT
+   #ifdef DEBUG_SPACECRAFTDATA_INIT
    MessageInterface::ShowMessage
-      ("SpacecraftData::InitializeRefObjects() entered.\n");
+      ("SpacecraftData::InitializeRefObjects() '%s' entered.\n", mName.c_str());
    #endif
    
    mSpacecraft = (Spacecraft*)FindFirstObject(VALID_OBJECT_TYPE_LIST[SPACECRAFT]);
@@ -397,7 +400,7 @@ void SpacecraftData::InitializeRefObjects()
    {
       // Just write a message since Parameters in GmatFunction may not have ref. object
       // set until execution
-      #if DEBUG_SPACECRAFTDATA_INIT
+      #ifdef DEBUG_SPACECRAFTDATA_INIT
       MessageInterface::ShowMessage
          ("SpacecraftData::InitializeRefObjects() Cannot find Spacecraft object.\n");
       #endif
@@ -406,10 +409,10 @@ void SpacecraftData::InitializeRefObjects()
       //   ("SpacecraftData::InitializeRefObjects() Cannot find Spacecraft object.\n");
    }
    
-   #if DEBUG_SPACECRAFTDATA_INIT
+   #ifdef DEBUG_SPACECRAFTDATA_INIT
    MessageInterface::ShowMessage
-      ("SpacecraftData::InitializeRefObjects() mSpacecraft=%s\n",
-       mSpacecraft->GetName().c_str())
+      ("SpacecraftData::InitializeRefObjects() '%s' leaving, mSpacecraft=<%p>'%s'\n",
+       mName.c_str(), mSpacecraft, mSpacecraft->GetName().c_str());
    #endif
 }
 

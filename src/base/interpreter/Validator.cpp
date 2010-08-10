@@ -1659,6 +1659,17 @@ Parameter* Validator::CreateSystemParameter(bool &paramCreated,
       return NULL;
    }
    
+   // Check if string enclosed with single quotes (LOJ: 2010.08.09)
+   if (GmatStringUtil::IsEnclosedWith(str, "'"))
+   {
+      #ifdef DEBUG_CREATE_PARAM
+      MessageInterface::ShowMessage
+         ("Validator::CreateSystemParameter() returning NULL, input string is is "
+          "enclosed with single quotes\n");
+      #endif
+      return NULL;
+   }
+   
    StringArray names;
    // If { found add comma to delimiter to handle "GMAT XYPlot.Add = {sat.X, sat.Y}"
    // otherwise just use space to catch invalid Parameter type

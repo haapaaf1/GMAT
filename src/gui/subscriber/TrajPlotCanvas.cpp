@@ -111,14 +111,14 @@ using namespace FloatAttUtil;
 //#define DEBUG_TRAJCANVAS_UPDATE_OBJECT 2
 //#define DEBUG_TRAJCANVAS_ACTION 1
 //#define DEBUG_TRAJCANVAS_CONVERT 1
-//#define DEBUG_TRAJCANVAS_DRAW 1
+//#define DEBUG_TRAJCANVAS_DRAW 2
 //#define DEBUG_TRAJCANVAS_ZOOM 1
 //#define DEBUG_TRAJCANVAS_OBJECT 2
 //#define DEBUG_TRAJCANVAS_TEXTURE 2
 //#define DEBUG_TRAJCANVAS_PERSPECTIVE 1
 //#define DEBUG_TRAJCANVAS_PROJ 1
 //#define DEBUG_TRAJCANVAS_CS 1
-//#define DEBUG_TRAJCANVAS_ANIMATION 1
+//#define DEBUG_ANIMATION 1
 //#define DEBUG_TRAJCANVAS_LONGITUDE 1
 //#define DEBUG_SHOW_SKIP 1
 //#define DEBUG_ROTATE 1
@@ -655,7 +655,7 @@ void TrajPlotCanvas::ResetPlotInfo()
 //------------------------------------------------------------------------------
 void TrajPlotCanvas::RedrawPlot(bool viewAnimation)
 {
-   #ifdef DEBUG_REDRAW
+   #ifdef DEBUG_ANIMATION
    MessageInterface::ShowMessage
       ("TrajPlotCanvas::RedrawPlot() entered, viewAnimation=%d\n", viewAnimation);
    #endif
@@ -673,6 +673,9 @@ void TrajPlotCanvas::RedrawPlot(bool viewAnimation)
    else
       Refresh(false);
    
+   #ifdef DEBUG_ANIMATION
+   MessageInterface::ShowMessage("TrajPlotCanvas::RedrawPlot() leaving\n");
+   #endif
 }
 
 
@@ -997,7 +1000,7 @@ void TrajPlotCanvas::GotoOtherBody(const wxString &body)
 //---------------------------------------------------------------------------
 void TrajPlotCanvas::ViewAnimation(int interval, int frameInc)
 {
-   #ifdef DEBUG_TRAJCANVAS_ANIMATION
+   #ifdef DEBUG_ANIMATION
    MessageInterface::ShowMessage
       ("TrajPlotCanvas::ViewAnimation() interval=%d, frameInc=%d\n",
        interval, frameInc);
@@ -1840,7 +1843,7 @@ void TrajPlotCanvas::OnPaint(wxPaintEvent& event)
    #ifdef __WXGTK__
       hasBeenPainted = true;
    #endif
-
+   
    DrawPlot();
 }
 
@@ -3028,16 +3031,15 @@ void TrajPlotCanvas::TransformView()
 //------------------------------------------------------------------------------
 void TrajPlotCanvas::DrawFrame()
 {
-   #if DEBUG_TRAJCANVAS_ANIMATION
+   #if DEBUG_ANIMATION
    MessageInterface::ShowMessage
       ("TrajPlotCanvas::DrawFrame() mNumData=%d, mUsenitialViewPoint=%d\n"
-       "   mViewCoordSysName=%s, mInitialCoordSysName=%s\n", mNumData,
-       mUseInitialViewPoint, mViewCoordSysName.c_str(), mInitialCoordSysName.c_str());
+       "   mViewCoordSysName=%s, mInternalCoordSysName=%s\n", mNumData,
+       mUseInitialViewPoint, mViewCoordSysName.c_str(), mInternalCoordSysName.c_str());
    #endif
    
    if (mUseInitialViewPoint)
    {
-      
       #ifdef USE_TRACKBALL
          ToQuat(mQuat, 0.0f, 0.0f, 0.0f, 0.0);
       #endif
@@ -3052,12 +3054,14 @@ void TrajPlotCanvas::DrawFrame()
       mViewObjName = mOriginName;
       GotoObject(mViewObjName);
    }
-   
+
+   // Save mNumData since it is updated inside a loop
    int numberOfData = mNumData;
    mIsEndOfData = false;
    mIsEndOfRun = false;
+   mCurrIndex = 0;
    
-   // refresh every 50 points (Allow user to set frame this increment?)
+   // Go through number of data points, incrementng mFrameInc
    for (int frame=1; frame<numberOfData; frame+=mFrameInc)
    {
       mIsAnimationRunning = true;
@@ -3077,6 +3081,26 @@ void TrajPlotCanvas::DrawFrame()
       Sleep(mUpdateInterval);
       
       mNumData = frame;
+      mCurrIndex++;
+      
+      if (mCurrIndex < MAX_DATA)
+      {
+         mEndIndex1 = mNumData - 1;
+         if (mEndIndex2 != -1)
+         {
+            mBeginIndex1++;
+            if (mBeginIndex1 + 1 > MAX_DATA)
+               mBeginIndex1 = 0;
+            
+            mEndIndex2++;
+            if (mEndIndex2 + 1 > MAX_DATA)
+               mEndIndex2 = 0;
+         }
+      }
+      
+      mLastIndex = mEndIndex1;
+      if (mEndIndex2 != -1)
+         mLastIndex = mEndIndex2;
       
       // Set projection here, because DrawPlot() is called in OnPaint()
       if (mUseInitialViewPoint)
@@ -3090,10 +3114,14 @@ void TrajPlotCanvas::DrawFrame()
    // final refresh, in case number of points is less than 50
    Refresh(false);
    
+   // Reset values
    mNumData = numberOfData;
    mIsEndOfData = true;
    mIsEndOfRun = true;
    
+   #if DEBUG_ANIMATION
+   MessageInterface::ShowMessage("TrajPlotCanvas::DrawFrame() leaving\n");
+   #endif
 } // end DrawFrame()
 
 
