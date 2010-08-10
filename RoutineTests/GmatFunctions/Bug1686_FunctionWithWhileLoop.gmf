@@ -9,6 +9,8 @@ debugMsg = '====== FunctionWithWhileLoop() entered, I = ';
 Report RF debugMsg I;
 
 I = 0;
+debugMsg = '====== Testing While I < 3';
+Report RF debugMsg;
 While I < 3
     I = I + 1;
     debugMsg = '       Before calling ReturnInputValue()  I = ';
@@ -18,6 +20,19 @@ While I < 3
     debugMsg = '       After  calling ReturnInputValue()  J = ';
     Report RF debugMsg J;
 EndWhile
+
+
+debugMsg = '====== Testing For I = 1:1:3';
+Report RF debugMsg;
+For I = 1:1:3
+    debugMsg = '       Before calling ReturnInputValue()  I = ';
+    Report RF debugMsg I;
+    [Mat] = Bug1686_ReturnInputValue(Mat);
+    J = I
+    debugMsg = '       After  calling ReturnInputValue()  J = ';
+    Report RF debugMsg J;
+EndFor
+
 
 debugMsg = '====== FunctionWithWhileLoop() leaving, J = ';
 Report RF debugMsg J;
