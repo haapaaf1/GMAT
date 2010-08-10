@@ -1,3 +1,4 @@
+% $Id$
 % Script Test Case for Simulation using a USNTrackingSystem
 
 %--------------------------------------------
@@ -8,12 +9,20 @@ ODSat.DateFormat = UTCGregorian;
 ODSat.Epoch = '01 Mar 2005 00:00:00.000';
 ODSat.CoordinateSystem = EarthMJ2000Eq;
 ODSat.DisplayStateType = Cartesian;
-ODSat.X = 6648.937;
-ODSat.Y = -335.169;
-ODSat.Z = 2789.137;
-ODSat.VX = -0.34697109;
-ODSat.VY = 7.092177415;
-ODSat.VZ = 2.14549075;
+%ODSat.X = 6648.937;
+%ODSat.Y = -335.169;
+%ODSat.Z = 2789.137;
+%ODSat.VX = -0.34697109;
+%ODSat.VY = 7.092177415;
+%ODSat.VZ = 2.14549075;
+
+ODSat.X = 6648;
+ODSat.Y = -335;
+ODSat.Z = 2789;
+ODSat.VX = -0.347;
+ODSat.VY = 7.092;
+ODSat.VZ = 2.145;
+
 ODSat.DryMass = 850;
 ODSat.Cd = 2.2;
 ODSat.Cr = 1.8;
@@ -83,15 +92,6 @@ AEMeasurement.Bias = 0;
 AEMeasurement.NoiseSigma = 1e-05;
 AEMeasurement.TimeConstant = 6000;
 AEMeasurement.Covariance.Bias = [1000000 1000000];
-
-Create MeasurementModel RangeMeasurement;
-RangeMeasurement.ObservationData = {MauiMeasData};
-RangeMeasurement.Type = DSNTwoWayRange;
-RangeMeasurement.Participants = {Maui, ODSat};
-RangeMeasurement.Bias = 0;
-RangeMeasurement.NoiseSigma = 1e-05;
-RangeMeasurement.TimeConstant = 6000;
-RangeMeasurement.Covariance.Bias = [1000000];
 
 %----------------------------------------
 %---------- Tracking Systems
