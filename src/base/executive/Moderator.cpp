@@ -399,6 +399,11 @@ void Moderator::Finalize()
       ClearCommandSeq(false, false);
       ClearResource();
       
+      // Delete the plugin resource data
+      for (UnsignedInt i = 0; i < userResources.size(); ++i)
+         delete userResources[i];
+      userResources.clear();
+
       // Close out the plug-in libraries
       std::map<std::string, DynamicLibrary*>::iterator i;
       for (i = userLibraries.begin(); i != userLibraries.end(); ++i)
@@ -650,18 +655,18 @@ void Moderator::LoadPlugins()
 
       #ifndef __WIN32__
    
-         //#ifdef DEBUG_PLUGIN_REGISTRATION
-            MessageInterface::ShowMessage("*** Loading dynamic library \"%s\": ", 
-               i->c_str());
-         //#endif
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage(
+                  "*** Loading dynamic library \"%s\": ", i->c_str());
+         #endif
          LoadAPlugin(*i);
 
       #else
          
-         //#ifdef DEBUG_PLUGIN_REGISTRATION
-            MessageInterface::ShowMessage("*** Loading dynamic library \"%s\": ", 
-               i->c_str());
-         //#endif
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage(
+                  "*** Loading dynamic library \"%s\": ", i->c_str());
+         #endif
          LoadAPlugin(*i);
         
       #endif
@@ -670,7 +675,6 @@ void Moderator::LoadPlugins()
    if (theUiInterpreter != NULL)
       theUiInterpreter->BuildCreatableObjectMaps();
    theScriptInterpreter->BuildCreatableObjectMaps();
-
 }
 
 //------------------------------------------------------------------------------
@@ -698,11 +702,11 @@ void Moderator::LoadAPlugin(std::string pluginName)
       if (fc > 0)
       {
          // Do the GMAT factory dance
-         //#ifdef DEBUG_PLUGIN_REGISTRATION
+         #ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage(
                "Library %s contains %d %s.\n", pluginName.c_str(), fc,
                ( fc==1 ? "factory" : "factories"));
-         //#endif
+         #endif
             
          // Now pass factories to the FactoryManager
          Factory *newFactory = NULL;
@@ -760,6 +764,27 @@ void Moderator::LoadAPlugin(std::string pluginName)
             MessageInterface::ShowMessage(
                "   TriggerManager %d of type %s is now registered.\n", i,
                tm->GetTriggerTypeString().c_str());
+         #endif
+      }
+
+      // Check for new GUI elements
+      Integer menuCount = theLib->GetMenuEntryCount();
+      #ifdef DEBUG_PLUGIN_REGISTRATION
+         MessageInterface::ShowMessage(
+            "Library %s contains %d %s.\n", pluginName.c_str(), menuCount,
+            ( menuCount == 1 ? "menu entry" : "menu entries"));
+      #endif
+
+      for (Integer i = 0; i < menuCount; ++i)
+      {
+         Gmat::PluginResource* res = theLib->GetMenuEntry(i);
+         if (res != NULL)
+            userResources.push_back(res);
+
+         #ifdef DEBUG_PLUGIN_REGISTRATION
+            MessageInterface::ShowMessage(
+               "   Menu entry %d for node %s is now registered.\n", i,
+               res->nodeName.c_str());
          #endif
       }
    }
@@ -6306,6 +6331,20 @@ bool Moderator::StartMatlabServer()
       return true;
    }
    return false;
+}
+
+//------------------------------------------------------------------------------
+// std::vector<Gmat::PluginResources*> *Moderator::GetPluginResourceList()
+//------------------------------------------------------------------------------
+/**
+ * Passes the list of plugin resources to the GUI
+ *
+ * @return The resource list parsed during initialization
+ */
+//------------------------------------------------------------------------------
+std::vector<Gmat::PluginResource*> *Moderator::GetPluginResourceList()
+{
+   return &userResources;
 }
 
 //---------------------------------

@@ -1300,9 +1300,9 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    bool success = false;
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
-   // Always refresh the gui before new scritpes are read
+   // Always refresh the gui before new scripts are read
    CloseAllChildren(closeScript, true, true);
-   gmatAppData->GetResourceTree()->ClearResource(false);
+   gmatAppData->GetResourceTree()->ClearResource(true);
    gmatAppData->GetMissionTree()->ClearMission();
    gmatAppData->GetOutputTree()->UpdateOutput(true, true);
 
@@ -1356,7 +1356,7 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    }
    catch (BaseException &e)
    {
-      wxLogError(e.GetFullMessage().c_str());
+      wxLogError("%s", e.GetFullMessage().c_str());
       wxLog::FlushActive();
       MessageInterface::ShowMessage(e.GetFullMessage());
    }

@@ -135,6 +135,8 @@ namespace GmatTree
       PREDEFINED_FUNCTION_FOLDER,
       SCRIPT_FOLDER,
       CONSTELLATION_FOLDER,
+      // Added for user modules
+      PLUGIN_FOLDER,
       END_OF_RESOURCE_FOLDER,
 
       // not openable

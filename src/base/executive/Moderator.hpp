@@ -382,6 +382,9 @@ public:
    // MATLAB Server Startup Interface
    bool StartMatlabServer();
    
+   // Plugin GUI data
+   std::vector<Gmat::PluginResource*> *GetPluginResourceList();
+
 private:
    
    // initialization
@@ -475,6 +478,7 @@ private:
 
    // Dynamic library data table
    std::map<std::string, DynamicLibrary*>   userLibraries;
+   std::vector<Gmat::PluginResource*>  userResources;
 };
 
 #endif // Moderator_hpp

@@ -58,6 +58,43 @@
  * If these functions are not implemented, the library will load but no
  * TriggerManager will be loaded.  In other words, if your code does not need a
  * TriggerManager, there is no need to implement these functions.
+ *
+ * Plugin libraries that include resources that should appear on a ResourceTree
+ * should implement the following function:
+ *
+ *    Integer               GetMenuEntryCount();
+ *    Gmat::PluginResource* GetMenuEntry(Integer index);
+ *
+ * The parameter, index, for the 2nd function is the index of the new entry that
+ * should be placed to the tree.  Factories that supply resources that already
+ * have tree nodes should not implement this method; it is used to register
+ * new types of objects with the resource tree.
+ *
+ * The PluginResource returned from this function provides four pieces of
+ * information used to manage objects in the user interface:
+ *
+ *      std::string nodeName;         // Identifier for the resource
+ *      std::string parentNodeName;   // Optional owning type identifier
+ *      Gmat::ObjectType type;        // Core type
+ *      std::string subtype;          // Optional subtype off of the core
+ *
+ * The nodeName and type enumeration are required parameters.  If the new tree
+ * node should appear at the resource level in the tree, the parentNodeName
+ * should be set to the empty string.  If the new node should appear as a
+ * subnode of an existing node, the name of the existing node should be set in
+ * the parentNodeName string.  If the new object type is derived from an
+ * extendible object type, the subtype name is passed in in the subtype field.
+ * For example, GMAT has two subtypes of built in Solvers as of this writing:
+ * Boundary Value Solvers and Optimizers.  If a new type of solver is added
+ * through a plugin, the scripted subtype parameter is set in the subtype
+ * field.  So, for example, a simulator subtype would set this field to the
+ * string "Simulator".  The subtype field should be set to the empty string if
+ * it is not needed.
+ *
+ * If these functions are not implemented, the library will load but no
+ * ResourceTree updates will be loaded.  In other words, if your code does not
+ * need any new ResourceTree items, there is no need to implement these
+ * functions.
  */
 class DynamicLibrary
 {
@@ -76,10 +113,8 @@ public:
    TriggerManager*      GetTriggerManager(Integer index = 0);
 
    // GUI elements
-   Integer              GetMenuEntryCount();
-   std::string          GetMenuEntry(Integer index, std::string &forMenu);
-   StringArray          GetGuiComponentList();
-   void*                GetGUIFor(const std::string &componentName);
+   Integer               GetMenuEntryCount();
+   Gmat::PluginResource* GetMenuEntry(Integer index);
 
 protected:
    std::string          libName;

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              ResourceTree
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -205,6 +205,7 @@ ResourceTree::ResourceTree(wxWindow *parent, const wxWindowID id,
    
    AddIcons();
    AddDefaultResources();
+   AddUserResources(theGuiInterpreter->GetUserResources());
 
    theGuiManager->UpdateAll();
 }
@@ -240,18 +241,20 @@ void ResourceTree::ClearResource(bool leaveScripts)
       Collapse(mSpecialPointsItem);
    #endif
 
-   DeleteChildren(mGroundStationItem);
-   DeleteChildren(mSpacecraftItem);
-   DeleteChildren(mUniverseItem);
-   DeleteChildren(mFormationItem);
-   DeleteChildren(mPropagatorItem);
-   DeleteChildren(mBurnItem);
-   DeleteChildren(mSolverItem);
-   DeleteChildren(mSubscriberItem);
-   DeleteChildren(mVariableItem);
-   DeleteChildren(mFunctionItem);
-   DeleteChildren(mCoordSysItem);
-   
+   // Delete children for all but interface and, optionally, script
+   wxTreeItemId root = GetRootItem();
+   wxTreeItemIdValue cookie;
+   wxTreeItemId cf = GetFirstChild(root, cookie);
+   for(UnsignedInt i = 0; i < GetChildrenCount(root, false); ++i)
+   {
+      if (cf != interfaceItem)
+      {
+         if (leaveScripts && cf == mScriptItem)
+            continue;
+         DeleteChildren(cf);
+      }
+      cf = GetNextChild(root, cookie);
+   }
    
    //----- Hardware is child of spacecraft
    AddItemFolder(mSpacecraftItem, mHardwareItem, "Hardware",
@@ -261,7 +264,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
    AddItemFolder(mUniverseItem, mSpecialPointsItem, "Special Points",
                  GmatTree::SPECIAL_POINT_FOLDER);
    
-   //--------------- Boundry Value Solvers is a child of solvers
+   //--------------- Boundary Value Solvers is a child of solvers
    AddItemFolder(mSolverItem, mBoundarySolverItem, "Boundary Value Solvers",
                  GmatTree::BOUNDARY_SOLVER_FOLDER);
    
@@ -269,6 +272,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
    AddItemFolder(mSolverItem, mOptimizerItem, "Optimizers",
                  GmatTree::OPTIMIZER_FOLDER);
    
+   AddUserResources(theGuiInterpreter->GetUserResources(), true);
 }
 
 
@@ -645,7 +649,7 @@ void ResourceTree::AddDefaultResources()
                 wxTreeItemIcon_Expanded);
 
    //----- Interfaces
-   wxTreeItemId interfaceItem =
+   interfaceItem =
       AppendItem(resource, wxT("Interfaces"), GmatTree::ICON_FOLDER, -1,
                  new GmatTreeItemData(wxT("Interfaces"),
                                       GmatTree::INTERFACE_FOLDER));
@@ -4344,3 +4348,106 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
    }
 }
 
+
+// Code added to support plugins
+
+//------------------------------------------------------------------------------
+// void AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
+//       bool onlyChildNodes)
+//------------------------------------------------------------------------------
+/**
+ * Updates the resource tree with new nodes provided by a plugin.
+ *
+ * @param rcs The raw data used to update the resource tree
+ * @param onlyChildNodes Flag used to indicate that the top level nodes do not
+ *                       need to be updated.
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
+      bool onlyChildNodes)
+{
+   for (UnsignedInt i = 0; i < rcs->size(); ++i)
+   {
+      Gmat::PluginResource *r = (*rcs)[i];
+      if (onlyChildNodes && (r->parentNodeName == ""))
+         return;
+      AddTreeNode(r->nodeName, r->parentNodeName);
+//      ObjectType type;
+//      std::string subtype;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void AddTreeNode(const std::string &newNodeName, const std::string &parent)
+//------------------------------------------------------------------------------
+/**
+ * Adds a folder node into the resource tree
+ *
+ * @param newNodeName The label for the new node
+ * @param parent The parent node's label, or an empty string if the parent is
+ *               the root node.
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::AddTreeNode(const std::string &newNodeName,
+      const std::string &parent)
+{
+   wxTreeItemId parentId = GetRootItem();
+
+   if (parent != "")
+   {
+      // Find the ID of the parent node
+      parentId = FindIdOfNode(parent.c_str(), parentId);
+   }
+
+   wxTreeItemId newTreeItem;
+   AddItemFolder(parentId, newTreeItem, newNodeName.c_str(),
+                 GmatTree::PLUGIN_FOLDER);
+}
+
+
+//------------------------------------------------------------------------------
+// wxTreeItemId FindIdOfNode(const wxString &txt, wxTreeItemId start)
+//------------------------------------------------------------------------------
+/**
+ * Finds the tree item ID of a node given the node's text string.
+ *
+ * This method call is set to re recursive, but the recursion is not yet hooked
+ * up.  Currently, only the children of the start node are searched, but not
+ * grandchildren and below.
+ *
+ * @param txt The node label that is being sought
+ * @param The id of the initial node
+ *
+ * @return The id of the found node, to the start node if a child was not found
+ *         with the text label.
+ */
+//------------------------------------------------------------------------------
+wxTreeItemId ResourceTree::FindIdOfNode(const wxString &txt, wxTreeItemId start)
+{
+   wxTreeItemId retval = start;
+   bool located = false;
+
+   // Traverse the tree, looking for a node with the input name
+   if (GetItemText(start) != txt)
+   {
+      if (GetChildrenCount(start, false) > 0)
+      {
+         // Check the node's children
+         wxTreeItemIdValue cookie;
+         wxTreeItemId cf = GetFirstChild(start, cookie);
+         for(UnsignedInt i = 0; i < GetChildrenCount(start, false); ++i)
+         {
+            if (GetItemText(cf) == txt)
+            {
+               retval = cf;
+               located = true;
+               break;
+            }
+            cf = GetNextChild(start, cookie);
+         }
+      }
+   }
+
+   return retval;
+}

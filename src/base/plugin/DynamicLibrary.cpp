@@ -320,25 +320,73 @@ TriggerManager* DynamicLibrary::GetTriggerManager(Integer index)
 }
 
 
+//------------------------------------------------------------------------------
+// Integer GetMenuEntryCount()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the number of new resource tree menu entries in the plugin.
+ *
+ * @return The number of new entries.
+ */
+//------------------------------------------------------------------------------
 Integer DynamicLibrary::GetMenuEntryCount()
 {
-   return 0;
+   Integer menuEntryCount = 0;
+
+   // Test to see if there is a menu entry count function
+   try
+   {
+      Integer (*meCount)() = NULL;
+      meCount = (Integer (*)())GetFunction("GetMenuEntryCount");
+      if (meCount != NULL)  // There may be TriggerManagers
+         menuEntryCount = meCount();
+   }
+   catch (GmatBaseException &ex)
+   {
+      // Ignored -- Just indicates that there are no menu entry interfaces
+   }
+
+   return menuEntryCount;
 }
 
 
-std::string DynamicLibrary::GetMenuEntry(Integer index, std::string &forMenu)
+//------------------------------------------------------------------------------
+// Gmat::PluginResource *GetMenuEntry(Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a PluginResource structure pointer from the plugin containing the
+ * data needed to update the GUI for a new resource type.
+ *
+ * @param index Zero based index into the list of PluginResources
+ *
+ * @return The pointer to the PluginResource structure that the Moderator needs.
+ */
+//------------------------------------------------------------------------------
+Gmat::PluginResource *DynamicLibrary::GetMenuEntry(Integer index)
 {
-   return "";
-}
+   if (libHandle == NULL)
+      throw GmatBaseException("Library " + libName + " has not been opened "
+            "successfully; cannot search for GUI menu entries\n");
 
+   // Test to see if there is a TriggerManager count function
+   try
+   {
+      Gmat::PluginResource* (*GetMenuEntry)(Integer) = NULL;
+      GetMenuEntry = (Gmat::PluginResource* (*)(Integer))
+            GetFunction("GetMenuEntry");
 
-StringArray DynamicLibrary::GetGuiComponentList()
-{
-   throw GmatBaseException("GetGuiComponentList not yet implemented.");
-}
+      Gmat::PluginResource *res = GetMenuEntry(index);
+      if (res == NULL)
+         MessageInterface::ShowMessage(
+               "Cannot access PluginResource #%d in the \"%s\" library\n",
+               index, libName.c_str());
 
+      return res;
+   }
+   catch (GmatBaseException &ex)
+   {
+      // Ignored -- Just indicates that there are no menu entries
+   }
 
-void* DynamicLibrary::GetGUIFor(const std::string &componentName)
-{
    return NULL;
 }

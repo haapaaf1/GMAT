@@ -42,6 +42,12 @@ public:
    void OnAddScript(wxCommandEvent &event);
    void UpdateMatlabServerItem(bool start);
    bool WasScriptAdded() { return mScriptAdded; }
+
+   // Added so plugin code can update the tree structure
+   void AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
+         bool onlyChildNodes = false);
+   void AddTreeNode(const std::string &newNodeName,
+         const std::string &parent = "");
    
 protected:
    GmatMainFrame  *theMainFrame;
@@ -76,9 +82,13 @@ protected:
    wxTreeItemId mScriptItem;
    wxTreeItemId mScriptFolderItem;
    wxTreeItemId mUniverseItem;
+   wxTreeItemId interfaceItem;
 
    // Mapping for plug-in objects
    std::map<Integer, std::string> pluginMap;
+
+   /// Plugin tree item IDs
+   std::vector<wxTreeItemId> mPluginItems;
 
    // MSVC compiler will not accept a non-constant size for std::vector
    static const Integer MAX_SUN_ORBITERS;
@@ -193,6 +203,8 @@ protected:
    void CompareScriptRunResult(Real absTol, const wxString &replaceStr,
                                const wxString &dir1, const wxString &dir2,
                                wxTextCtrl *textCtrl);
+
+   wxTreeItemId FindIdOfNode(const wxString &txt, wxTreeItemId start);
 
    DECLARE_EVENT_TABLE();
 

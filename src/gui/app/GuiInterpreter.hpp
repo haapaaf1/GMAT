@@ -140,6 +140,8 @@ public:
    void UpdateOutputTree();
    virtual void StartMatlabServer();
    
+   std::vector<Gmat::PluginResource*> *GetUserResources();
+
 private:
 
    GuiInterpreter();

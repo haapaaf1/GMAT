@@ -866,3 +866,8 @@ GuiInterpreter& GuiInterpreter::operator=(const GuiInterpreter &guiInterpreter)
 {
    return *this;
 }
+
+std::vector<Gmat::PluginResource*> *GuiInterpreter::GetUserResources()
+{
+   return theModerator->GetPluginResourceList();
+}

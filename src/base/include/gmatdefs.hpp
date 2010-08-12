@@ -89,7 +89,6 @@ typedef struct geoparms
 
 } GEOPARMS;
 
-
 /// GMAT's epoch representation; eventually a struct holding MJ day & sec of day
 typedef Real GmatEpoch;
 
@@ -258,6 +257,15 @@ namespace Gmat
       USER_DEFINED_BEGIN = 3800,
       USER_DEFINED_END = 3999          // Allow up to 200 dynamic entries
    };
+
+   typedef struct PluginResource
+   {
+      std::string nodeName;         // Identifier for the resource
+      std::string parentNodeName;   // Owning type identifier, if any
+      ObjectType  type;             // Core type
+      std::string subtype;          // Subtype off of the core
+   } PLUGIN_RESOURCE;
+
 }
 
 typedef std::vector<Gmat::ObjectType>           ObjectTypeArray;
