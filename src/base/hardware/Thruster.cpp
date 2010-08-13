@@ -1276,19 +1276,28 @@ bool Thruster::RenameRefObject(const Gmat::ObjectType type,
       ("Thruster::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
-
-   if (type != Gmat::HARDWARE)
+   
+   if (type != Gmat::HARDWARE && type != Gmat::COORDINATE_SYSTEM)
       return true;
-
-   for (UnsignedInt i=0; i<tankNames.size(); i++)
+   
+   if (type == Gmat::COORDINATE_SYSTEM)
    {
-      if (tankNames[i] == oldName)
-      {
-         tankNames[i] = newName;
-         break;
-      }
+      if (coordSystemName == oldName)
+         coordSystemName = newName;
    }
 
+   if (type == Gmat::HARDWARE)
+   {
+      for (UnsignedInt i=0; i<tankNames.size(); i++)
+      {
+         if (tankNames[i] == oldName)
+         {
+            tankNames[i] = newName;
+            break;
+         }
+      }
+   }
+   
    return true;
 }
 

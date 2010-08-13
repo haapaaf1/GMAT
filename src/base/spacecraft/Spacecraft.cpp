@@ -438,8 +438,8 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
 
-   hardwareNames     = a.hardwareNames;                     // made changes by Tuan Nguyen
-//   hardwareList      = a.hardwareList;                      // made changes by Tuan Nguyen
+   hardwareNames     = a.hardwareNames; // made changes by Tuan Nguyen
+//   hardwareList      = a.hardwareList; // made changes by Tuan Nguyen
 
    // set cloned hardware
    CloneOwnedObjects(a.attitude, a.tanks, a.thrusters);
@@ -527,8 +527,8 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    tankNames         = a.tankNames;
    thrusterNames     = a.thrusterNames;
 
-   hardwareNames     = a.hardwareNames;                 // made changes by Tuan Nguyen
-//   hardwareList      = a.hardwareList;                  // made changes by Tuan Nguyen
+   hardwareNames     = a.hardwareNames; // made changes by Tuan Nguyen
+//   hardwareList      = a.hardwareList; // made changes by Tuan Nguyen
 
    // delete attached hardware, such as tanks and thrusters
    #ifdef DEBUG_SPACECRAFT
@@ -922,38 +922,47 @@ bool Spacecraft::RenameRefObject(const Gmat::ObjectType type,
       ("Spacecraft::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
-
-   if (type != Gmat::HARDWARE)
+   
+   if (type != Gmat::HARDWARE && type != Gmat::COORDINATE_SYSTEM)
       return true;
-
+   
+   if (type == Gmat::COORDINATE_SYSTEM)
+   {
+      if (coordSysName == oldName)
+         coordSysName = newName;
+   }
+   
    // made changes by Tuan Nguyen
-   for (UnsignedInt i=0; i<hardwareNames.size(); i++)
+   if (type == Gmat::HARDWARE)
    {
-      if (hardwareNames[i] == oldName)
+      for (UnsignedInt i=0; i<hardwareNames.size(); i++)
       {
-         hardwareNames[i] = newName;
-         break;
+         if (hardwareNames[i] == oldName)
+         {
+            hardwareNames[i] = newName;
+            break;
+         }
+      }
+      
+      for (UnsignedInt i=0; i<thrusterNames.size(); i++)
+      {
+         if (thrusterNames[i] == oldName)
+         {
+            thrusterNames[i] = newName;
+            break;
+         }
+      }
+      
+      for (UnsignedInt i=0; i<tankNames.size(); i++)
+      {
+         if (tankNames[i] == oldName)
+         {
+            tankNames[i] = newName;
+            break;
+         }
       }
    }
-
-   for (UnsignedInt i=0; i<thrusterNames.size(); i++)
-   {
-      if (thrusterNames[i] == oldName)
-      {
-         thrusterNames[i] = newName;
-         break;
-      }
-   }
-
-   for (UnsignedInt i=0; i<tankNames.size(); i++)
-   {
-      if (tankNames[i] == oldName)
-      {
-         tankNames[i] = newName;
-         break;
-      }
-   }
-
+   
    return true;
 }
 
@@ -1439,7 +1448,8 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          instanceName.c_str());
       #endif
       attitude->SetEpoch(state.GetEpoch());
-      if (attitude->IsOfType("SpiceAttitude")) ((SpiceAttitude*) attitude)->SetObjectID(instanceName, naifId, naifIdRefFrame);
+      if (attitude->IsOfType("SpiceAttitude"))
+         ((SpiceAttitude*) attitude)->SetObjectID(instanceName, naifId, naifIdRefFrame);
       return true;
    }
 
@@ -1522,7 +1532,7 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
    try
    {
       // handle AddHardware parameter:
-      if (str == "AddHardware")                             // made changes by Tuan Nguyen
+      if (str == "AddHardware") // made changes by Tuan Nguyen
          return ADD_HARDWARE;
 
       // handle special parameter to work in GmatFunction (loj: 2008.06.27)
@@ -1630,7 +1640,8 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
                "------ Now calling attitude to get id for label %s\n",
                str.c_str());
             MessageInterface::ShowMessage(" ------ and the id = %d\n", attId);
-            MessageInterface::ShowMessage(" ------ and the id with offset  = %d\n", attId + ATTITUDE_ID_OFFSET);
+            MessageInterface::ShowMessage(" ------ and the id with offset  = %d\n",
+                                          attId + ATTITUDE_ID_OFFSET);
             #endif
             return attId + ATTITUDE_ID_OFFSET;
 
@@ -1665,9 +1676,11 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
       if (attitude)
          return attitude->IsParameterReadOnly(id - ATTITUDE_ID_OFFSET);
    }
-   // We are currently not allowing users to set anomaly other than the True Anomaly ****** to be modified in the future ******
+   // We are currently not allowing users to set anomaly other than the
+   // True Anomaly ****** to be modified in the future ******
    if ((id == ELEMENT6_ID) &&
-       ((stateElementLabel[5] == "MA") || (stateElementLabel[5] == "EA") || (stateElementLabel[5] == "HA")))
+       ((stateElementLabel[5] == "MA") || (stateElementLabel[5] == "EA") ||
+        (stateElementLabel[5] == "HA")))
    {
       return true;
    }
@@ -1849,7 +1862,8 @@ Gmat::ParameterType Spacecraft::GetParameterType(const Integer id) const
       if (attitude)
       {
          #ifdef DEBUG_SC_ATTITUDE
-            MessageInterface::ShowMessage("Calling attitude to get parameter type ( for %d) - it is %d (%s)\n",
+            MessageInterface::ShowMessage
+               ("Calling attitude to get parameter type ( for %d) - it is %d (%s)\n",
                id, attitude->GetParameterType(id - ATTITUDE_ID_OFFSET),
                (GmatBase::PARAM_TYPE_STRING[(Integer)(attitude->GetParameterType(id - ATTITUDE_ID_OFFSET))]).c_str());
          #endif
@@ -2104,9 +2118,12 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
       if (attitude)
          return attitude->SetRealParameter(label, value);
 
-   // We are currently not allowing users to set anomaly other than the True Anomaly ****** to be modified in the future ******
+   // We are currently not allowing users to set anomaly other than the True
+   // Anomaly ****** to be modified in the future ******
    if ((label == "MA") || (label == "EA") || (label == "HA"))
-      throw SpaceObjectException("ERROR - setting of anomaly of type other than True Anomaly not currently allowed.");
+      throw SpaceObjectException
+         ("ERROR - setting of anomaly of type other than True Anomaly not "
+          "currently allowed.");
 
    // First try to set as a state element
    if (SetElement(label, value))
@@ -2350,7 +2367,7 @@ std::string Spacecraft::GetStringParameter(const std::string & label,
 //---------------------------------------------------------------------------
 const StringArray& Spacecraft::GetStringArrayParameter(const Integer id) const
 {
-   if (id == ADD_HARDWARE)                      // make changes by Tuan Nguyen
+   if (id == ADD_HARDWARE) // make changes by Tuan Nguyen
       return hardwareNames;
    if (id == FUEL_TANK_ID)
       return tankNames;
@@ -2633,7 +2650,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value,
 
    switch (id)
    {
-   case ADD_HARDWARE:                                                           // made changes by Tuan nguyen
+   case ADD_HARDWARE: // made changes by Tuan nguyen
       {
          if (index < (Integer)hardwareNames.size())
             hardwareNames[index] = value;
@@ -2747,7 +2764,7 @@ const Rmatrix& Spacecraft::GetRmatrixParameter(const std::string &label) const
 //                                    const Rmatrix &value)
 //---------------------------------------------------------------------------
 const Rmatrix& Spacecraft::SetRmatrixParameter(const std::string &label,
-                                         const Rmatrix &value)
+                                               const Rmatrix &value)
 {
    return SetRmatrixParameter(GetParameterID(label), value);
 }
@@ -2757,7 +2774,7 @@ const Rmatrix& Spacecraft::SetRmatrixParameter(const std::string &label,
 //                       const Integer col) const
 //---------------------------------------------------------------------------
 Real Spacecraft::GetRealParameter(const Integer id, const Integer row,
-                                       const Integer col) const
+                                  const Integer col) const
 {
    if (id == ORBIT_STM)
       return orbitSTM(row, col);
@@ -2770,8 +2787,8 @@ Real Spacecraft::GetRealParameter(const Integer id, const Integer row,
 //                       const Integer col) const
 //---------------------------------------------------------------------------
 Real Spacecraft::GetRealParameter(const std::string &label,
-                                      const Integer row,
-                                      const Integer col) const
+                                  const Integer row,
+                                  const Integer col) const
 {
    return GetRealParameter(GetParameterID(label), row, col);
 }
@@ -2781,7 +2798,7 @@ Real Spacecraft::GetRealParameter(const std::string &label,
 //                       const Integer row, const Integer col)
 //---------------------------------------------------------------------------
 Real Spacecraft::SetRealParameter(const Integer id, const Real value,
-                                      const Integer row, const Integer col)
+                                  const Integer row, const Integer col)
 {
    if (id == ORBIT_STM)
    {
@@ -2964,7 +2981,8 @@ bool Spacecraft::TakeAction(const std::string &action,
    {
       #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage
-         ("Spacecraft::TakeAction(ApplyCoordinateSystem) Calling StateConverter::SetMu(%p)\n", coordinateSystem);
+         ("Spacecraft::TakeAction(ApplyCoordinateSystem) Calling StateConverter::SetMu(%p)\n",
+          coordinateSystem);
       #endif
 
       if (!stateConverter.SetMu(coordinateSystem))
@@ -2980,7 +2998,8 @@ bool Spacecraft::TakeAction(const std::string &action,
          MessageInterface::ShowMessage
             ("Spacecraft::TakeAction() Calling SetStateFromRepresentation(%s, cartesianstate), "
              "since CS was not set()\n", stateType.c_str());
-         MessageInterface::ShowMessage(" ... at this point, the state = %s\n", (st.ToString()).c_str());
+         MessageInterface::ShowMessage
+            (" ... at this point, the state = %s\n", (st.ToString()).c_str());
          #endif
          SetStateFromRepresentation(stateType, st);
 
@@ -3203,8 +3222,8 @@ bool Spacecraft::Initialize()
 
    // made changes by Tuan Nguyen
    // Verify all Spacecarft's referenced objects:
-   if (VerifyAddHardware() == false)		// verify added hardware
-	   return false;
+   if (VerifyAddHardware() == false)            // verify added hardware
+           return false;
 
    #ifdef DEBUG_SPACECRAFT_CS
       MessageInterface::ShowMessage("Spacecraft::Initialize() exiting ----------\n");
@@ -3264,8 +3283,9 @@ void Spacecraft::SetDateFormat(const std::string &dateType)
 void Spacecraft::SetEpoch(const std::string &ep)
 {
    #ifdef DEBUG_DATE_FORMAT
-   MessageInterface::ShowMessage("Spacecraft::SetEpoch() Setting epoch  for spacecraft %s to %s\n",
-                                 instanceName.c_str(), ep.c_str());
+   MessageInterface::ShowMessage
+      ("Spacecraft::SetEpoch() Setting epoch  for spacecraft %s to %s\n",
+       instanceName.c_str(), ep.c_str());
    #endif
 
    scEpochStr = ep;
@@ -3379,6 +3399,9 @@ void Spacecraft::SetAnomaly(const std::string &type, const Anomaly &ta)
 }
 
 // todo: comment methods
+//------------------------------------------------------------------------------
+// Integer Spacecraft::GetPropItemID(const std::string &whichItem)
+//------------------------------------------------------------------------------
 Integer Spacecraft::GetPropItemID(const std::string &whichItem)
 {
    if (whichItem == "CartesianState")
@@ -3389,6 +3412,9 @@ Integer Spacecraft::GetPropItemID(const std::string &whichItem)
    return SpaceObject::GetPropItemID(whichItem);
 }
 
+//------------------------------------------------------------------------------
+// Integer SetPropItem(const std::string &propItem)
+//------------------------------------------------------------------------------
 Integer Spacecraft::SetPropItem(const std::string &propItem)
 {
    if (propItem == "CartesianState")
@@ -3403,6 +3429,9 @@ Integer Spacecraft::SetPropItem(const std::string &propItem)
 }
 
 
+//------------------------------------------------------------------------------
+// StringArray GetDefaultPropItems()
+//------------------------------------------------------------------------------
 StringArray Spacecraft::GetDefaultPropItems()
 {
    StringArray defaults = SpaceObject::GetDefaultPropItems();
@@ -3411,6 +3440,9 @@ StringArray Spacecraft::GetDefaultPropItems()
 }
 
 
+//------------------------------------------------------------------------------
+// Real* GetPropItem(const Integer item)
+//------------------------------------------------------------------------------
 Real* Spacecraft::GetPropItem(const Integer item)
 {
    Real* retval = NULL;
@@ -3436,6 +3468,9 @@ Real* Spacecraft::GetPropItem(const Integer item)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// Integer GetPropItemSize(const Integer item)
+//------------------------------------------------------------------------------
 Integer Spacecraft::GetPropItemSize(const Integer item)
 {
    Integer retval = -1;
@@ -3464,6 +3499,9 @@ Integer Spacecraft::GetPropItemSize(const Integer item)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// bool IsEstimationParameterValid(const Integer item)
+//------------------------------------------------------------------------------
 bool Spacecraft::IsEstimationParameterValid(const Integer item)
 {
    bool retval = false;
@@ -3488,6 +3526,9 @@ bool Spacecraft::IsEstimationParameterValid(const Integer item)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// Integer GetEstimationParameterSize(const Integer item)
+//------------------------------------------------------------------------------
 Integer Spacecraft::GetEstimationParameterSize(const Integer item)
 {
    Integer retval = 1;
@@ -3519,6 +3560,9 @@ Integer Spacecraft::GetEstimationParameterSize(const Integer item)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// Real* GetEstimationParameterValue(const Integer item)
+//------------------------------------------------------------------------------
 Real* Spacecraft::GetEstimationParameterValue(const Integer item)
 {
    Real* retval = NULL;
@@ -3615,7 +3659,6 @@ Real Spacecraft::UpdateTotalMass() const
 
    return tmass;
 }
-
 
 
 //------------------------------------------------------------------------------
@@ -4993,16 +5036,20 @@ Integer Spacecraft::LookUpLabel(const std::string &label, std::string &rep)
    if (label == "X" || label == "SMA" || label == "RadPer" || label == "RMAG")
       retval = ELEMENT1_ID;
 
-   else if (label == "Y" || label == "ECC" || label == "RadApo" || label == "RA" || label == "PEY" || label == "EquinoctialH")
+   else if (label == "Y" || label == "ECC" || label == "RadApo" || label == "RA" ||
+            label == "PEY" || label == "EquinoctialH")
       retval = ELEMENT2_ID;
 
-   else if (label == "Z" || label == "INC" || label == "DEC" || label == "PEX" || label == "EquinoctialK")
+   else if (label == "Z" || label == "INC" || label == "DEC" || label == "PEX" ||
+            label == "EquinoctialK")
       retval = ELEMENT3_ID;
 
-   else if (label == "VX" || label == "RAAN" || label == "VMAG" || label == "PNY" || label == "EquinoctialP")
+   else if (label == "VX" || label == "RAAN" || label == "VMAG" || label == "PNY" ||
+            label == "EquinoctialP")
       retval = ELEMENT4_ID;
 
-   else if (label == "VY" || label == "AOP" || label == "AZI" || label == "RAV" || label == "PNX" || label == "EquinoctialQ")
+   else if (label == "VY" || label == "AOP" || label == "AZI" || label == "RAV" ||
+            label == "PNX" || label == "EquinoctialQ")
       retval = ELEMENT5_ID;
 
    else if (label == "VZ" || !trueAnomaly.IsInvalid(label) ||
@@ -5019,6 +5066,9 @@ Integer Spacecraft::LookUpLabel(const std::string &label, std::string &rep)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// Integer LookUpID(const Integer id, std::string &label, std::string &rep)
+//------------------------------------------------------------------------------
 Integer Spacecraft::LookUpID(const Integer id, std::string &label, std::string &rep)
 {
    label = GetParameterText(id);
@@ -5085,6 +5135,9 @@ void Spacecraft::BuildElementLabelMap()
    }
 }
 
+//-------------------------------------------------------------------------
+// bool HasDynamicParameterSTM(Integer parameterId)
+//-------------------------------------------------------------------------
 bool Spacecraft::HasDynamicParameterSTM(Integer parameterId)
 {
    if (parameterId == CARTESIAN_X)
@@ -5092,6 +5145,9 @@ bool Spacecraft::HasDynamicParameterSTM(Integer parameterId)
    return SpaceObject::HasDynamicParameterSTM(parameterId);
 }
 
+//-------------------------------------------------------------------------
+// Rmatrix* GetParameterSTM(Integer parameterId)
+//-------------------------------------------------------------------------
 Rmatrix* Spacecraft::GetParameterSTM(Integer parameterId)
 {
    if (parameterId == CARTESIAN_X)
@@ -5099,6 +5155,9 @@ Rmatrix* Spacecraft::GetParameterSTM(Integer parameterId)
    return SpaceObject::GetParameterSTM(parameterId);
 }
 
+//-------------------------------------------------------------------------
+// Integer Spacecraft::HasParameterCovariances(Integer parameterId)
+//-------------------------------------------------------------------------
 Integer Spacecraft::HasParameterCovariances(Integer parameterId)
 {
    if (parameterId == CARTESIAN_X)
@@ -5113,6 +5172,9 @@ Integer Spacecraft::HasParameterCovariances(Integer parameterId)
 
 // Additions for the propagation rework
 
+//-------------------------------------------------------------------------
+// void Spacecraft::RecomputeStateAtEpoch(const GmatEpoch &toEpoch)
+//-------------------------------------------------------------------------
 void Spacecraft::RecomputeStateAtEpoch(const GmatEpoch &toEpoch)
 {
    if (internalCoordSystem != coordinateSystem)
@@ -5150,30 +5212,30 @@ bool Spacecraft::VerifyAddHardware()
    Gmat::ObjectType type;
    std::string subTypeName;
    GmatBase* obj;
-
+   
    // 1. Verify all hardware in hardwareList are not NULL:
    for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
    {
-	   obj = (*i);
-	   if (obj == NULL)
-	   {
-		   MessageInterface::ShowMessage("***Error***:One element of hardwareList = NULL\n");
-		   return false;
-	   }
+      obj = (*i);
+      if (obj == NULL)
+      {
+         MessageInterface::ShowMessage("***Error***:One element of hardwareList = NULL\n");
+         return false;
+      }
    }
-
+   
    // 2. Verify primary antenna to be in hardwareList:
    // 2.1. Create antenna list from hardwareList for searching:
    // extract all antenna from hardwareList and store to antennaList
    ObjectArray antennaList;
    for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
    {
-	  obj = (*i);
+      obj = (*i);
       subTypeName = obj->GetTypeName();
-	  if (subTypeName == "Antenna")
-		 antennaList.push_back(obj);
+      if (subTypeName == "Antenna")
+         antennaList.push_back(obj);
    }
-
+   
    // 2.2. Verify primary antenna of Receiver, Transmitter, and Transponder:
    GmatBase* antenna;
    GmatBase* primaryAntenna;
@@ -5181,55 +5243,61 @@ bool Spacecraft::VerifyAddHardware()
    bool verify = true;
    for(ObjectArray::iterator i= hardwareList.begin(); i != hardwareList.end(); ++i)
    {
-	  obj = (*i);
-	  type = obj->GetType();
-	  if (type == Gmat::HARDWARE)
-	  {
+      obj = (*i);
+      type = obj->GetType();
+      if (type == Gmat::HARDWARE)
+      {
          subTypeName = obj->GetTypeName();
          if ((subTypeName == "Transmitter")||
-        	 (subTypeName == "Receiver")||
-        	 (subTypeName == "Transponder"))
+             (subTypeName == "Receiver")||
+             (subTypeName == "Transponder"))
          {
-    		 // Get primary antenna:
-    		 primaryAntennaName = obj->GetRefObjectName(Gmat::HARDWARE);
-    		 primaryAntenna = obj->GetRefObject(Gmat::HARDWARE,primaryAntennaName);
-
-    		 bool check;
-    		 if (primaryAntenna == NULL)
-    		 {
-    			 MessageInterface::ShowMessage("***Error***:primary antenna of %s in %s's AddHardware list is NULL \n",obj->GetName().c_str(), this->GetName().c_str());
-    			 check = false;
-    		 }
-    		 else
-    		 {
-    			 // Check primary antenna of transmitter, receiver, or transponder is in antenna list:
-    			 check = false;
-    			 for(ObjectArray::iterator j= antennaList.begin(); j != antennaList.end(); ++j)
-    			 {
-    				 antenna = (*j);
-    				 if (antenna == primaryAntenna)
-    				 {
-    					 check = true;
-    					 break;
-    				 }
-    				 else if (antenna->GetName() == primaryAntenna->GetName())
-    				 {
-    					 MessageInterface::ShowMessage("Primary antenna %s of %s is a clone of an antenna in %s's AddHardware\n",primaryAntenna->GetName().c_str(), obj->GetName().c_str(), this->GetName().c_str());
-    				 }
-    			 }
-            	 if (check == false)
-            	 {
-            		 // Display error message:
-            		 MessageInterface::ShowMessage("***Error***:primary antenna of %s is not in %s's AddHardware\n", obj->GetName().c_str(), this->GetName().c_str());
-            	 }
-
-        	 }
-
-        	 verify = verify && check;
+            // Get primary antenna:
+            primaryAntennaName = obj->GetRefObjectName(Gmat::HARDWARE);
+            primaryAntenna = obj->GetRefObject(Gmat::HARDWARE,primaryAntennaName);
+            
+            bool check;
+            if (primaryAntenna == NULL)
+            {
+               MessageInterface::ShowMessage
+                  ("***Error***:primary antenna of %s in %s's AddHardware list is NULL \n",
+                   obj->GetName().c_str(), this->GetName().c_str());
+               check = false;
+            }
+            else
+            {
+               // Check primary antenna of transmitter, receiver, or transponder is in antenna list:
+               check = false;
+               for(ObjectArray::iterator j= antennaList.begin(); j != antennaList.end(); ++j)
+               {
+                  antenna = (*j);
+                  if (antenna == primaryAntenna)
+                  {
+                     check = true;
+                     break;
+                  }
+                  else if (antenna->GetName() == primaryAntenna->GetName())
+                  {
+                     MessageInterface::ShowMessage
+                        ("Primary antenna %s of %s is a clone of an antenna in %s's AddHardware\n",
+                         primaryAntenna->GetName().c_str(), obj->GetName().c_str(),
+                         this->GetName().c_str());
+                  }
+               }
+               if (check == false)
+               {
+                  // Display error message:
+                  MessageInterface::ShowMessage
+                     ("***Error***:primary antenna of %s is not in %s's AddHardware\n",
+                      obj->GetName().c_str(), this->GetName().c_str());
+               }
+            }
+            
+            verify = verify && check;
          }
-	  }
+      }
    }
-
+   
    return verify;
 }
 

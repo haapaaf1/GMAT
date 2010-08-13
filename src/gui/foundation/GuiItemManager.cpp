@@ -771,10 +771,21 @@ void GuiItemManager::NotifyObjectNameChange(Gmat::ObjectType type,
                                             const wxString &oldName,
                                             const wxString &newName)
 {
+   #ifdef DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("GuiItemManager::NotifyObjectNameChange() entered, type=%d, oldName='%s', "
+       "newName='%s'\n", type, oldName.c_str(), newName.c_str());
+   #endif
+   
    for (UnsignedInt i=0; i<mResourceUpdateListeners.size(); i++)
    {
       mResourceUpdateListeners[i]->ObjectNameChanged(type, oldName, newName);
    }
+   
+   #ifdef DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("GuiItemManager::NotifyObjectNameChange() leaving\n");
+   #endif
 }
 
 
@@ -1332,10 +1343,26 @@ wxComboBox* GuiItemManager::GetFiniteBurnComboBox(wxWindow *parent, wxWindowID i
 //------------------------------------------------------------------------------
 /**
  * @return coordinate system combo box pointer
+ *
+ * @note This method will be removed in a future build
  */
 //------------------------------------------------------------------------------
 wxComboBox* GuiItemManager::GetCoordSysComboBox(wxWindow *parent, wxWindowID id,
                                                 const wxSize &size)
+{
+   return GetCoordSystemComboBox(parent, id, size);
+}
+
+
+//------------------------------------------------------------------------------
+//  wxComboBox* GetCoordSystemComboBox(wxWindow *parent, const wxSize &size)
+//------------------------------------------------------------------------------
+/**
+ * @return coordinate system combo box pointer
+ */
+//------------------------------------------------------------------------------
+wxComboBox* GuiItemManager::GetCoordSystemComboBox(wxWindow *parent, wxWindowID id,
+                                                   const wxSize &size)
 {
    // combo box for avaliable coordinate system
    

@@ -469,8 +469,17 @@ GmatBase* ResourceTree::GetObject(const std::string &name)
 //------------------------------------------------------------------------------
 void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
 {
+   #ifdef DEBUG_UPDATE
+   MessageInterface::ShowMessage
+      ("ResourceTree::UpdateGuiItem() entered, itemType=%d\n", itemType);
+   #endif
+   
    switch (itemType)
    {
+   case GmatTree::COORD_SYSTEM:
+   case GmatTree::USER_COORD_SYSTEM:
+      theGuiManager->UpdateCoordSystem();
+      break;
    case GmatTree::SPACECRAFT:
       theGuiManager->UpdateSpacecraft();
       break;
@@ -515,6 +524,11 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
    default:
       break;
    }
+
+   #ifdef DEBUG_UPDATE
+   MessageInterface::ShowMessage
+      ("ResourceTree::UpdateGuiItem() leaving, itemType=%d\n", itemType);
+   #endif
 }
 
 
@@ -1607,12 +1621,13 @@ void ResourceTree::OnRename(wxCommandEvent &event)
 
       #ifdef DEBUG_RENAME
       MessageInterface::ShowMessage
-         ("ResourceTree::OnRename() objType = %d\n", objType);
+         ("ResourceTree::OnRename() itemType = %d, objType = %d\n",
+          itemType, objType);
       #endif
 
       if (objType == Gmat::UNKNOWN_OBJECT)
          return;
-
+      
       // If user wants to save data from the currently opened panels
       if (theMainFrame->GetNumberOfChildOpen() > 0)
       {
@@ -1634,7 +1649,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
             return;
          }
       }
-
+      
       // update item only if successful
       if (theGuiInterpreter->
           RenameObject(objType, oldName.c_str(), newName.c_str()))
@@ -1642,22 +1657,22 @@ void ResourceTree::OnRename(wxCommandEvent &event)
          SetItemText(itemId, newName);
          theMainFrame->RenameChild(selItemData, newName);
          GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
-
+         
          // Set item name to new name and title to "" so that GmatMainFrame::CreateChild()
          // can append object type name to title (loj: 2009.06.08, Bug fix: 1478, 1479)
          selItemData->SetTitle("");
          selItemData->SetName(newName);
-
+         
          // notify object name changed to panels which listens to resource update
          UpdateGuiItem(itemType);
          theGuiManager->NotifyObjectNameChange(objType, oldName, newName);
-
+         
          // update formation which may use new spacecraft name
          if (objType == Gmat::SPACECRAFT)
          {
             Collapse(mSpacecraftItem);
             DeleteChildren(mSpacecraftItem);
-
+            
             //----- Hardware is child of spacecraft, so create a folder
             AddItemFolder(mSpacecraftItem, mHardwareItem, "Hardware",
                           GmatTree::HARDWARE_FOLDER);
@@ -1671,12 +1686,12 @@ void ResourceTree::OnRename(wxCommandEvent &event)
             DeleteChildren(mFormationItem);
             AddDefaultFormations(mFormationItem);
          }
-
+         
          // update variables which may use new object name
          Collapse(mVariableItem);
          DeleteChildren(mVariableItem);
          AddDefaultVariables(mVariableItem);
-
+         
          // update MissionTree for resource rename
          GmatAppData::Instance()->GetMissionTree()->UpdateMissionForRename();
       }
@@ -1687,7 +1702,7 @@ void ResourceTree::OnRename(wxCommandEvent &event)
              oldName.c_str(), newName.c_str());
       }
    }
-
+   
    #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage("ResourceTree::OnRename() rename leavinig\n");
    #endif
@@ -2085,29 +2100,26 @@ void ResourceTree::OnAddBody(wxCommandEvent &event)
    name = wxGetTextFromUser(wxT("Name: "), wxT("Celestial Body"), name, this);
    prompt = "Central Body for " + name;
    centralBody = wxGetTextFromUser(wxT(prompt), wxT("Central Body"), centralBody, this);
-
+   
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
       const std::string newCentralBody = centralBody.c_str();
       GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName); // ************
       ((CelestialBody*) obj)->SetCentralBody(newCentralBody);
-
+      
       if (obj != NULL)
       {
          // need to get teh sub-item for the appropriate central body here ...
          AppendItem(item, name, GmatTree::ICON_MOON, -1,
                     new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY));
          Expand(item);
-
-//         theGuiManager->UpdateFunction();
+         
+         theGuiManager->UpdateCelestialPoint();
       }
-
+      
       SelectItem(GetLastChild(item));
    }
-//   wxTreeItemId item = GetSelection();
-//   AppendItem(item, wxT("New Body"), GmatTree::ICON_EARTH, -1,
-//              new GmatTreeItemData(wxT("New Body"), GmatTree::CELESTIAL_BODY));
 }
 
 

@@ -149,8 +149,12 @@ public:
    wxComboBox* GetFiniteBurnComboBox(wxWindow *parent, wxWindowID id,
                                      const wxSize &size);
    
+   // This method will be deprecated in the future
    wxComboBox* GetCoordSysComboBox(wxWindow *parent, wxWindowID id,
                                    const wxSize &size);
+   
+   wxComboBox* GetCoordSystemComboBox(wxWindow *parent, wxWindowID id,
+                                      const wxSize &size);
    
    wxComboBox* GetCelestialBodyComboBox(wxWindow *parent, wxWindowID id,
                                         const wxSize &size);
