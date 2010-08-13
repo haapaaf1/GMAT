@@ -779,7 +779,16 @@ void Moderator::LoadAPlugin(std::string pluginName)
       {
          Gmat::PluginResource* res = theLib->GetMenuEntry(i);
          if (res != NULL)
+         {
+            #ifdef DEBUG_PLUGIN_REGISTRATION
+               MessageInterface::ShowMessage("Adding user resource node:\n"
+                     "   Name: %s\n   Parent: %s\n   type: %d\n"
+                     "   subtype: %s\n", res->nodeName.c_str(),
+                     res->parentNodeName.c_str(), res->type,
+                     res->subtype.c_str());
+            #endif
             userResources.push_back(res);
+         }
 
          #ifdef DEBUG_PLUGIN_REGISTRATION
             MessageInterface::ShowMessage(
