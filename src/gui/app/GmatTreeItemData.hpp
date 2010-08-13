@@ -198,6 +198,8 @@ namespace GmatTree
       COORD_SYSTEM,
       USER_COORD_SYSTEM,
 
+      USER_DEFINED_OBJECT = 41750,
+
       // scripts
       SCRIPT_FILE = 41800,
       END_OF_RESOURCE,
