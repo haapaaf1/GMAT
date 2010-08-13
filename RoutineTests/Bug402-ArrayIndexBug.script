@@ -45,6 +45,8 @@ Create Variable testVar;
 
 GMAT count = 1;
 
+BeginMissionSequence;
+
 BeginScript;
    For I = 1:5;
       GMAT testVar = I;

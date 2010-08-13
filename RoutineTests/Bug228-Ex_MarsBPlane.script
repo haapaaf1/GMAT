@@ -311,12 +311,12 @@ GMAT MarsOI.Axes = VNB;
 GMAT MarsOI.Origin = Mars;
 GMAT MarsOI.Element1 = -4;
 
+
+BeginMissionSequence;
+
 Toggle MarsMJ2KView On;
 
-
-
 %Propagate MarsProp(MPS, MarsOrbiter, {MPS1.ElapsedDays = 45});
-
 
 Propagate EarthProp(MarsSupply, {MarsSupply.Periapsis});
 Maneuver TOI(MarsSupply);

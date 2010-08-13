@@ -9,6 +9,8 @@ Create Variable a b c d Test TestNum;
 Create Array vec[4,1];
 
 
+BeginMissionSequence;
+
 %  Set up values for certain parameters
 BeginScript
 

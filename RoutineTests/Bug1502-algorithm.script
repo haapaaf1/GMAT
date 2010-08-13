@@ -169,6 +169,9 @@ RBoundary = Boundaries(1, 2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Lets get started
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+BeginMissionSequence;
+
 Report my_output sc.UTCGregorian burnBaby.Element1 in_reg sc.L2RLP.X burnBaby_A burnBaby_B burnBaby_T;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

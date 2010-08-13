@@ -320,12 +320,14 @@ GMAT Data.ColumnWidth = 20;
 Create GmatFunction QualityFactor Bug1328_SetTargetStates Bug1328_GetInitialGuess Bug1328_TargetFirstManeuver
 Create MatlabFunction Bug1328_DesignFormationGMAT 
 
-Toggle EarthView Off;
- 
 % %**************************************************************************
 % %**************************The Mission Sequence****************************
 % %**************************************************************************
-% 
+
+BeginMissionSequence;
+
+Toggle EarthView Off;
+
 % %  Define constants
 BeginScript
    GMAT flag = 1;

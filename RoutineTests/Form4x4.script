@@ -422,6 +422,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Toggle Plot3D On;
 %Propagate prop(form, {Sat11.ElapsedSecs = 86400.0});

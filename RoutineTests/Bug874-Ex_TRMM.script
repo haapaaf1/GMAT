@@ -190,6 +190,7 @@ GMAT OpenGLPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
 GMAT Data.WriteHeaders = Off;

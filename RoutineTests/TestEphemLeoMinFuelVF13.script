@@ -137,6 +137,8 @@ Create Variable TOF dV1Time Cost Constraint1 Constraint2 Constraint3 dV1mag dV2m
 %-----------------------------------------------------------------
 %*****************************************************************
 
+BeginMissionSequence;
+
 %  This can be removed when Plot Command is implemented.
 %%Toggle CostPlot Off;
 %%Toggle SMAPlot  Off;

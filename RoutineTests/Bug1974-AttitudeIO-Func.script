@@ -33,12 +33,8 @@ GMAT reportLoc1_nested = 'Bug1974-AttitudeIO-Func-Nested.report';
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
- 
-% Begin/EndScript used to force GMAT to go into command mode. Might
-% not be necessary but I've included it just in case.
- 
-BeginScript;
-EndScript;
+
+BeginMissionSequence;
  
 % Call function
 Bug1974_Func_AttitudeIO(reportLoc1)

@@ -183,6 +183,8 @@ GMAT EphemData.Filename = Bug1526_AttitudeBurnTest.report;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 BeginFiniteBurn AttitudeBurn(AttitudeSat);
 BeginFiniteBurn VNBBurn(VNBSat);
 

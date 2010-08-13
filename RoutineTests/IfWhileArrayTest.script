@@ -186,6 +186,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 % Mission Sequence
 Propagate prop(sat) {sat.ElapsedDays = 1.500};

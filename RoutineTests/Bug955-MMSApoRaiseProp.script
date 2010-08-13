@@ -225,6 +225,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Propagate DefaultProp(MMS) {MMS.ElapsedSecs = 86400.0};
 

@@ -76,6 +76,8 @@ out.LeftJustify                   = On;
 out.ZeroFill                      = Off;
 out.ColumnWidth                   = 20;
 
+BeginMissionSequence;
+
 BeginScript;
 launch_date         = '10 Aug 2014 12:00:00.000';
 sc.DateFormat       = UTCGregorian;

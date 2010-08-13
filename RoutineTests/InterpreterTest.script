@@ -101,8 +101,10 @@ GMAT rf.Filename = InterpreterTest.report;
 %---------------------------------------------------------------------
 % Mission Sequence
 %---------------------------------------------------------------------
-Report rf var1 sat1.A1ModJulian a1EpochStr1 a1Epoch1 satX1;
 
+BeginMissionSequence;
+
+Report rf var1 sat1.A1ModJulian a1EpochStr1 a1Epoch1 satX1;
 
 Propagate prop(sat1, {sat1.ElapsedDays = 0.100});
 

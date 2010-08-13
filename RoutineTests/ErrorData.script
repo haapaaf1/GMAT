@@ -75,6 +75,9 @@ Sol(3,3) =  1;
 Create Array E[3,3];
 
 %------------------------------------ Mission Sequence
+
+BeginMissionSequence;
+
 Report ErrorData E;
 
 %  Peform the Euler Axis/Angle calculation

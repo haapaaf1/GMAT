@@ -243,6 +243,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Propagate MarsProp(MarsL1Sat) {MarsL1Sat.SunMarsL1CS.Y = 0};
 GMAT TotaldV = 0.0;

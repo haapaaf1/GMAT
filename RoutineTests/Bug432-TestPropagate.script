@@ -135,6 +135,8 @@ GMAT ReportFile1.ColumnWidth = 20;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 msg = '----------  Test variable on RHS';
 Report ReportFile1 msg;
 StopVar = 45;

@@ -24,11 +24,7 @@ Create Variable MathOutput;
 %---------- Mission Sequence
 %----------------------------------------
 
-% Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
- 
-BeginScript;
-EndScript;
+BeginMissionSequence;
 
 OptionFlag = 1
 

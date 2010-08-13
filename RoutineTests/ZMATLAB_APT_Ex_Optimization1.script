@@ -118,6 +118,8 @@ Create Variable TOF Cost Constraint1 Constraint2 Constraint3 dV1mag dV2mag;
 %-----------------------------------------------------------------
 %*****************************************************************
 
+BeginMissionSequence;
+
 Propagate DefaultProp(Sat, {Sat.ElapsedSecs = Sat.OrbitPeriod});
 
 %  The optimization sequence below demonstrates how to use an SQP 

@@ -130,8 +130,8 @@ Create String msg;
 %===== Initializations and begin mission sequence
 %=============================================================
 
-BeginScript
-EndScript
+BeginMissionSequence;
+
 InitSat = DefaultSC;
 RAANSat = DefaultSC;
 AOPSat  = DefaultSC;

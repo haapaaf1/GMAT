@@ -244,13 +244,13 @@ GMAT GSE.ZAxis = N;
 GMAT GSE.Primary = Sun;
 GMAT GSE.Secondary = Earth;
 
-
-
 Create Variable I;
 
 %**************************************************************************
 %**************************The Mission Sequence****************************
 %**************************************************************************
+
+BeginMissionSequence;
 
 BeginScript
    Toggle OGL_EarthMoonRot Off

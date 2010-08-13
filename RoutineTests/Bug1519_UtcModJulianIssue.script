@@ -136,6 +136,7 @@ looptime = 99;
 %%%Lets get started
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+BeginMissionSequence;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%First propagate our spacecraft to the injection point

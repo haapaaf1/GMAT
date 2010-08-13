@@ -35,11 +35,7 @@ GMAT reportLoc1_nested = 'ZMATLAB_Func_BasicOptimizerTest_nested.report';
 %---------- Mission Sequence
 %----------------------------------------
 
-% Begin/EndScript used to force GMAT to go into command mode. Might
-% not be necessary but I've included it just in case.
-
-BeginScript;
-EndScript;
+BeginMissionSequence;
 
 % Call function
 Func_BasicOptimizerTest(reportLoc1)

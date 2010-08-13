@@ -169,15 +169,12 @@ GMAT XYPlot2.SolverIterations = None;
 GMAT XYPlot2.ShowPlot = true;
 
 
-%----------------------------------------
-%---------- Mission Sequence
-%----------------------------------------
-
-
-
 % -------------------------------------------------------------------------
 % ---------------------------  Begin Mission Sequence ---------------------
 % -------------------------------------------------------------------------
+
+BeginMissionSequence;
+
 % %  Prop for 20 orbits and save ephem at every apogee
 For I = 1:1:20;
    %Propagate to next apoapsis

@@ -143,6 +143,6 @@ GMAT OpenGLPlot1.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
-
+BeginMissionSequence;
 Propagate prop(sat) {sat.ElapsedDays = 0.1};
 

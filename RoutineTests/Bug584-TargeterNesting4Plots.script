@@ -328,7 +328,7 @@ GMAT OpenGLPlot_None_ZUp.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
-
+BeginMissionSequence;
 
 BeginScript
    GMAT BeginState = DefaultSC;

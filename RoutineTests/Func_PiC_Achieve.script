@@ -37,11 +37,7 @@ GMAT reportLoc_nested = 'Func_PiC_Achieve_nested.report';
 %---------- Mission Sequence
 %----------------------------------------
 
-% Begin/EndScript used to force GMAT to go into command mode. Might
-% Not be necessary but I've included it just in case.
- 
-BeginScript;
-EndScript;
+BeginMissionSequence;
 
 % Call function
 Func_PiC_Achieve(reportLoc);

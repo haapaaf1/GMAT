@@ -102,5 +102,6 @@ Create Reportfile Data;   %%% Error - should be ReportFile
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};

@@ -83,6 +83,8 @@ Create MatlabFunction Bug1441_Gmat2Matlab_SC
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 Propagate DefaultProp(SCgregorian) {SCgregorian.ElapsedDays = 5};
 Propagate DefaultProp(SCmodjulian) {SCmodjulian.ElapsedDays = 5};
 

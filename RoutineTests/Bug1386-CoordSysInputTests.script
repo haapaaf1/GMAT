@@ -189,7 +189,9 @@ SunMJ2000EcState = ------ State Values in SunMJ2000Ec System ----
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
- 
+
+BeginMissionSequence;
+
 % ---- Ouput all spacecraft in EarthMJ2000Eq
 Report CoordSysInputTests EarthMJ2000EqState
 Report CoordSysInputTests SatEarthMJ2000Eq.EarthMJ2000Eq.X SatEarthMJ2000Eq.EarthMJ2000Eq.Y SatEarthMJ2000Eq.EarthMJ2000Eq.Z ...

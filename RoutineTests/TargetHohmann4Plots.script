@@ -150,6 +150,8 @@ GMAT rf.Filename = 'TargetHohmann4Plots.report';
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 Report rf sat.X sat.Y sat.Z;
 
 Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};

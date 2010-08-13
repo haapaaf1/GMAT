@@ -155,6 +155,8 @@ GMAT OpenGLPlot2.UpdatePlotFrequency = 50;
 GMAT OpenGLPlot2.NumPointsToRedraw = 0;
 GMAT OpenGLPlot2.ShowPlot = true;
 
+BeginMissionSequence;
+
 GMAT msg1 = '============================== before Propagate';
 Report rf msg1;
 Report rf sat1.A1ModJulian  str1  sat1.OrbitSTMA  array3x3  sat1.EarthMJ2000Eq.X  sat1.OrbitSTM;

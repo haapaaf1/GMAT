@@ -214,6 +214,7 @@ GMAT OpenGLPlot3.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report rf stopVar stopArr1(1,1) stopArr2(1,1) I J 
 Report rf DefaultSC.A1ModJulian DefaultSC.X DefaultSC.Y DefaultSC.Z 

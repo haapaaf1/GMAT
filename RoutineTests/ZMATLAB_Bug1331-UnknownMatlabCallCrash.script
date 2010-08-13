@@ -121,6 +121,8 @@ GMAT RF.Filename = 'ZMATLAB_Bug1331-UnknownMatlabCallCrash.report';
 % %**************************The Mission Sequence****************************
 % %**************************************************************************
 
+BeginMissionSequence;
+
 % Set Main Script variables
 BeginScript;
 	GMAT numStateSaves    = 3;

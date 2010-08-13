@@ -156,18 +156,17 @@ GMAT Sat2InSat1LVLH.NumPointsToRedraw = 0;
 
 Create Array arr1[1,1]
 
-%  Toggle plots
-%%%Toggle Sat2wrtSat1RBN On;
-Toggle Sat1wrtSat2VNB On;
-Toggle Sat1wrtSat2VNB2 On;
-Toggle Sat2InSat1LVLH On;
-
-
 % -------------------------------------------------------------------------
 % --------------------------- Mission Sequence-----------------------------
 % -------------------------------------------------------------------------
 
 BeginMissionSequence;
+
+%  Toggle plots
+%%%Toggle Sat2wrtSat1RBN On;
+Toggle Sat1wrtSat2VNB On;
+Toggle Sat1wrtSat2VNB2 On;
+Toggle Sat2InSat1LVLH On;
 
 %  Propagate and watch cool plots!!
 

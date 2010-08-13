@@ -253,33 +253,31 @@ GMAT SatMJ2000State.SolverIterations = All;
 
 Create Variable I J;
 
+
+BeginMissionSequence;
+
 BeginScript;
     Save Sat;
     GMAT LaunchSat = Sat;
 EndScript
 
 
+Target DC
+
+  %%% 2006/02/16 LOJ: "-0.0003;" throws an exception now, so fixed it.
+  %%%Vary DC(dV.V =  -0.0003;  , {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
+  Vary DC(dV.V =  -0.0003, {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
 
 
+  Maneuver dV(Sat);
 
-   Target DC
+  Report SatMJ2000State Sat.A1ModJulian Sat.X Sat.Y Sat.Z Sat.VX Sat.VY Sat.VZ;
 
-     %%% 2006/02/16 LOJ: "-0.0003;" throws an exception now, so fixed it.
-     %%%Vary DC(dV.V =  -0.0003;  , {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
-     Vary DC(dV.V =  -0.0003, {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
-    
+  For I = 1:2
+    Propagate EarthMoonL2Prop(Sat, {Sat.L2Centered.Y = 0});
+  EndFor
 
-     Maneuver dV(Sat);
+  Achieve DC(Sat.L2Centered.VX = 0.00, {Tolerance = 0.002});
 
-     Report SatMJ2000State Sat.A1ModJulian Sat.X Sat.Y Sat.Z Sat.VX Sat.VY Sat.VZ;
-     
-     For I = 1:2
-       Propagate EarthMoonL2Prop(Sat, {Sat.L2Centered.Y = 0});
-     EndFor
-
-     Achieve DC(Sat.L2Centered.VX = 0.00, {Tolerance = 0.002});
-
-   EndTarget
-
-
+EndTarget
 

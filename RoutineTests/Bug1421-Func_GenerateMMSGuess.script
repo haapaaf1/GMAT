@@ -198,6 +198,8 @@ Create GmatFunction QualityFactor;
 %------------------------------------------------------------
 %============================================================
 
+BeginMissionSequence;
+
 BeginScript
    
    % Set the initial state of the MMS formation

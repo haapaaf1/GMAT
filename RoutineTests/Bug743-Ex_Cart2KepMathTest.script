@@ -194,7 +194,7 @@ GMAT OpenGLPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
-
+BeginMissionSequence;
 
 BeginScript
    %  Define constants

@@ -149,6 +149,7 @@ GMAT OpenGLPlot1.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Propagate MolyProp(Moly) {Moly.Periapsis};
 

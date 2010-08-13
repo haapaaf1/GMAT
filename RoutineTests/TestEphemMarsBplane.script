@@ -374,6 +374,8 @@ GMAT SPK.WriteEphemeris      = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 Toggle MarsMJ2KView On;
 
 Propagate EarthProp(MarsSupply, {MarsSupply.Periapsis});

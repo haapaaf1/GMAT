@@ -165,6 +165,9 @@ quatHeader = '----Attitude States in Quaternions - Sun----';
 eulerHeader = '----Attitude States in 121 Euler Angles - Sun----';
 dcmHeader = '----Attitude States in Direction Cosine Matrix - Sun----';
 
+
+BeginMissionSequence;
+
 Report rf quatHeader;
 Report rf quatSat.Q1 quatSat.Q2 quatSat.Q3 quatSat.Q4;
 Report rf eulerSat121.Q1 eulerSat121.Q2 eulerSat121.Q3 eulerSat121.Q4;

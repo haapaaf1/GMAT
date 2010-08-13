@@ -135,6 +135,8 @@ GMAT dataReport.ColumnWidth = 20;
 
 %------------------------------Begin script---------------------------------
 
+BeginMissionSequence;
+
 % Propagate the satellite
 Propagate propModel(Sat1) {Sat1.ElapsedSecs = 8640.0};
 

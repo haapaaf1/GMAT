@@ -140,4 +140,6 @@ GMAT SPK.WriteEphemeris = true;
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
+
+BeginMissionSequence;
 Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 86400.0};

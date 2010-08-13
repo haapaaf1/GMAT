@@ -33,11 +33,7 @@ GMAT reportLoc1_nested = 'Func_TargeterNesting_nested.report';
 %---------- Mission Sequence
 %----------------------------------------
  
-% Begin/EndScript used to force GMAT to go into command mode. Might
-% not be necessary but I've included it just in case.
- 
-BeginScript;
-EndScript;
+BeginMissionSequence;
  
 % Call function
 Func_TargeterNesting(reportLoc1)

@@ -34,11 +34,7 @@ GMAT reportLoc1_nested = 'Bug1889-Func_SPK_GMAT_AsteroidCeres_nested.report';
 %---------- Mission Sequence
 %----------------------------------------
  
-% Begin/EndScript used to force GMAT to go into command mode. Might
-% not be necessary but I've included it just in case.
- 
-BeginScript;
-EndScript;
+BeginMissionSequence;
  
 % Call function
 Func_SPK_GMAT_AsteroidCeres(reportLoc1)

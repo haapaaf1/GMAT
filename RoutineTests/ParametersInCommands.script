@@ -101,6 +101,8 @@ GMAT Data.WriteHeaders = Off;
 %---- Test different types of variables in stopping conditions -----
 %-------------------------------------------------------------------
 
+BeginMissionSequence;
+
 %  Test variable on RHS
 Propagate LowEarth(Sat, {Sat.EarthMJ2000Eq.Z = One});
 Report Data Sat.EarthMJ2000Eq.Z

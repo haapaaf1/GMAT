@@ -351,6 +351,9 @@ GMAT MoonReport.ColumnWidth = 30;
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
+
+BeginMissionSequence;
+
 % ==============
 % Earth
 % ==============

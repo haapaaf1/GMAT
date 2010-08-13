@@ -189,6 +189,7 @@ GMAT AddErrorTodV.FunctionPath = c:/projects/gmat/files/MatlabFunctions/;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 %  This is here to ensure we are operating in command mode!!!!
 Propagate DefaultProp(Sat) {Sat.ElapsedDays = .01};

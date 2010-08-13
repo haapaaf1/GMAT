@@ -46,6 +46,7 @@ GMAT Tank1.PressureModel = PressureRegulated;
 Create ReportFile ReportMass;
 GMAT ReportMass.Filename = Bug1503-Mass.report
 
+BeginMissionSequence;
 Global ReportMass;
 
 Report ReportMass Spacecraft1.TotalMass Spacecraft1.DryMass;

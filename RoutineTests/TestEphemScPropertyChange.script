@@ -235,6 +235,7 @@ SPK.WriteEphemeris           = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Toggle report On;
 Toggle Plot3D On;

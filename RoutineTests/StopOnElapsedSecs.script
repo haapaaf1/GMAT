@@ -149,6 +149,7 @@ GMAT XYPlot1.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Toggle MolyEphem On;
 Toggle Plot3D On;

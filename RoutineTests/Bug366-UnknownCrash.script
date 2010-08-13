@@ -50,6 +50,9 @@ GMAT SC1.TA = 145;
 % LHS: S/C non-time Param 
 % RHS: number
 % ********
+
+BeginMissionSequence;
+
 BeginScript;
     % ===== 1 ======
     GMAT type = type + 1;

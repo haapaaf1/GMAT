@@ -54,6 +54,8 @@ Create CoordinateSystem LunaFixed;
 GMAT LunaFixed.Axes   = BodyFixed;
 GMAT LunaFixed.Origin = Luna; 
 
+BeginMissionSequence;
+
 Report Data MoonSat.UTCGregorian MoonSat.LunaFK5.X MoonSat.LunaFK5.Y MoonSat.LunaFK5.Z MoonSat.LunaFK5.VX MoonSat.LunaFK5.VY MoonSat.LunaFK5.VZ
 %%%Report Data MoonSat.UTCGregorian MoonSat.LunaEquator.X MoonSat.LunaEquator.Y MoonSat.LunaEquator.Z MoonSat.LunaEquator.VX MoonSat.LunaEquator.VY MoonSat.LunaEquator.VZ
 Report Data MoonSat.UTCGregorian MoonSat.LunaFixed.X MoonSat.LunaFixed.Y MoonSat.LunaFixed.Z MoonSat.LunaFixed.VX MoonSat.LunaFixed.VY MoonSat.LunaFixed.VZ

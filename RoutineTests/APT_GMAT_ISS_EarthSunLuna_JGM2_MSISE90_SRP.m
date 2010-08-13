@@ -55,6 +55,8 @@ Create Variable OutputStepSize;
 % Propagate based on preset propagation parameters
 % and current stop conditions.
 
+BeginMissionSequence;
+
 % Output Report file data for each propagation set in the FOR loop
 Report ISS_Report ISS.A1ModJulian ISS.X ISS.Y ISS.Z ISS.VX ISS.VY ISS.VZ;
 %%%For OutputStepSize = 1:1440;

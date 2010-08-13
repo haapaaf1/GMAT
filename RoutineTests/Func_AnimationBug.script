@@ -14,8 +14,7 @@ GMAT targetFile2 = 'Func_AnimationBug_Nested_Target.data';
 %---------- Mission Sequence
 %----------------------------------------
 
-BeginScript;
-EndScript;
+BeginMissionSequence;
 
 Func_AnimationBug(reportFile1, targetFile1)
 %%Func_AnimationBug_Nested(reportFile2, targetFile2);

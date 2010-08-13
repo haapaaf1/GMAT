@@ -123,5 +123,6 @@ GMAT EarthFixed.UpdateInterval = 60;
 GMAT EarthFixed.OverrideOriginInterval = false;
 
 
-
+BeginMissionSequence;
 Propagate DefaultProp(DefaultSC, {DefaultSC.ElapsedSecs = 8640.0});
+

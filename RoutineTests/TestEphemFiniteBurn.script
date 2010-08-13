@@ -3,10 +3,6 @@
 
 
 %----------------------------------------
-%---------- Solar System User-Modified Values
-%----------------------------------------
-
-%----------------------------------------
 %---------- Spacecraft
 %----------------------------------------
 
@@ -62,7 +58,11 @@ GMAT tank2.Pressure = 1500;
 GMAT tank2.Temperature = 20;
 %GMAT tank2 = tank1;
 GMAT tank2.RefTemperature = 32;
-GMAT tank2.Volume = 0.75;
+GMAT tank2.Volume = 0.75;%----------------------------------------
+%---------- Solar System User-Modified Values
+%----------------------------------------
+
+
 GMAT tank2.FuelDensity = 1260;
 GMAT tank2.PressureModel = PressureRegulated;
 
@@ -315,6 +315,7 @@ GMAT SPK.WriteEphemeris           = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 % Mission sequence
 Propagate prop(Sc) {Sc.ElapsedSecs = 8640};

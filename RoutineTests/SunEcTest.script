@@ -160,6 +160,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report rf DefaultSC.A1ModJulian DefaultSC.SunEc.X DefaultSC.SunEc.Y DefaultSC.SunEc.Z 
 Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedDays = 100};

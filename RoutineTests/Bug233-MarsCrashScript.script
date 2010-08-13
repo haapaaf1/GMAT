@@ -173,6 +173,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report DeltaV_Report DefaultSC.A1ModJulian DefaultSC.X DefaultSC.Y DefaultSC.Z DefaultSC.VX DefaultSC.VY DefaultSC.VZ 
 Maneuver ImpulsiveBurn1(DefaultSC);

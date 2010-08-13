@@ -186,6 +186,8 @@ GMAT ReportFile1.SolverIterations = None;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 BeginScript
    GMAT BeginState = DefaultSC;
    GMAT StartEpoch = DefaultSC.A1ModJulian;

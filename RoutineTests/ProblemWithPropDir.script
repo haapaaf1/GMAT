@@ -218,6 +218,9 @@ Create Variable i;
 % -------------------------------------------------------------------------
 % --------------------------- Mission Sequence ----------------------------
 % -------------------------------------------------------------------------
+
+BeginMissionSequence;
+
 Toggle EarthFixedPlot On;
 Toggle OrbitingLuna Off;
 Toggle TargetTOI Off;

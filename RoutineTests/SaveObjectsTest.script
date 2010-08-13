@@ -4,6 +4,8 @@ GMAT MMS.Add = {Sat1, Sat2};
 
 Create ImpulsiveBurn ImpBurn1;
 
+BeginMissionSequence;
+
 Save Sat1;
 Save Sat2 Sat3;
 Save MMS;

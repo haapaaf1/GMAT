@@ -222,6 +222,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report ESL1Ephem ACE.EarthSunL1CS.X ACE.EarthSunL1CS.Y ACE.EarthSunL1CS.Z ACE.EarthSunL1CS.VX ACE.EarthSunL1CS.VY ACE.EarthSunL1CS.VZ 
 GMAT TotaldV.Expression = 0;

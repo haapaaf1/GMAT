@@ -159,6 +159,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report ORSystemTest1 Sat.X Sat.Y Sat.Z Sat.VX Sat.VY Sat.VZ 
 Propagate DefaultProp(Sat) {Sat.ElapsedDays = 0.0};

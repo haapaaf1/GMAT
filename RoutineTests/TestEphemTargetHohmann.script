@@ -178,6 +178,8 @@ SPK.WriteEphemeris           = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
+
 Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
 Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
 Propagate DefaultProp(sat) {sat.Periapsis};

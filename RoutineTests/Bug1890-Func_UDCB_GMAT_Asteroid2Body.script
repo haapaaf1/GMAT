@@ -35,12 +35,8 @@ GMAT reportLoc1_nested = 'Bug1890-Func_UDCB_GMAT_Asteroid2Body_nested.report';
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
- 
-% Begin/EndScript used to force GMAT to go into command mode. Might
-% not be necessary but I've included it just in case.
- 
-BeginScript;
-EndScript;
+
+BeginMissionSequence;
  
 % Call function
 Func_UDCB_GMAT_Asteroid2Body(reportLoc1)

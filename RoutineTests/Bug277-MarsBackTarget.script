@@ -331,6 +331,7 @@ GMAT XYPlot2.ShowPlot = true;
 %---------- Mission Sequence
 %----------------------------------------
 
+BeginMissionSequence;
 
 Report rf MarsSupply.A1ModJulian MarsSupply.MarsMJ2000Eq.X MarsSupply.MarsMJ2000Eq.Y MarsSupply.MarsMJ2000Eq.Z 
 Propagate EarthProp(MarsSupply) {MarsSupply.Periapsis};
