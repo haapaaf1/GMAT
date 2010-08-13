@@ -18,8 +18,8 @@
 //------------------------------------------------------------------------------
 
 
-#ifndef DYNAMICLIBRARY_HPP_
-#define DYNAMICLIBRARY_HPP_
+#ifndef DynamicLibrary_hpp
+#define DynamicLibrary_hpp
 
 
 #include "gmatdefs.hpp"
@@ -122,4 +122,4 @@ protected:
    void *               libHandle;
 };
 
-#endif /*DYNAMICLIBRARY_HPP_*/
+#endif /*DynamicLibrary_hpp*/
