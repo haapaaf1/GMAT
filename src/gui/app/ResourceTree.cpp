@@ -249,9 +249,22 @@ void ResourceTree::ClearResource(bool leaveScripts)
    {
       if (cf != interfaceItem)
       {
-         if (leaveScripts && cf == mScriptItem)
-            continue;
-         DeleteChildren(cf);
+         if (cf != mScriptItem)
+         {
+            #ifdef DEBUG_USER_GUI
+               MessageInterface::ShowMessage("Clearing %s\n",
+                     GetItemText(cf).c_str());
+            #endif
+            DeleteChildren(cf);
+         }
+         if (!leaveScripts && cf == mScriptItem)
+         {
+            #ifdef DEBUG_USER_GUI
+               MessageInterface::ShowMessage("Clearing %s\n",
+                     GetItemText(cf).c_str());
+            #endif
+            DeleteChildren(cf);
+         }
       }
       cf = GetNextChild(root, cookie);
    }
@@ -309,6 +322,8 @@ void ResourceTree::UpdateResource(bool restartCounter)
    AddDefaultVariables(mVariableItem);
    AddDefaultFunctions(mFunctionItem);
    AddDefaultCoordSys(mCoordSysItem);
+
+   AddUserObjects();
 
    theGuiManager->UpdateAll();
    ScrollTo(mSpacecraftItem);
@@ -709,6 +724,8 @@ void ResourceTree::AddDefaultResources()
    AddDefaultVariables(mVariableItem);
    AddDefaultFunctions(mFunctionItem);
    AddDefaultCoordSys(mCoordSysItem);
+
+   AddUserObjects();
 
    theGuiInterpreter->ResetConfigurationChanged(true, false);
 }
@@ -1393,6 +1410,73 @@ void ResourceTree::AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCount
 
 }
 
+
+//------------------------------------------------------------------------------
+// void ResourceTree::AddUserObjects()
+//------------------------------------------------------------------------------
+/**
+ * Handle the objects not covered by the defaults
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::AddUserObjects()
+{
+   StringArray itemNames;
+   Gmat::ObjectType type;
+   std::string subtype;
+   wxString objName;
+   wxString objTypeName;
+   wxTreeItemId itemId;
+
+   #ifdef DEBUG_USER_GUI
+      MessageInterface::ShowMessage("Found %d user nodes\n",
+            mPluginItems.size());
+   #endif
+   for (UnsignedInt j = 0; j < mPluginItems.size(); ++j)
+   {
+      itemId = mPluginItems[j];
+      type = nodeTypeMap[GetItemText(itemId).c_str()];
+      subtype = nodeSubtypeMap[GetItemText(itemId).c_str()];
+
+      itemNames =
+            GmatAppData::Instance()->GetGuiInterpreter()->GetListOfObjects(type);
+      int size = itemNames.size();
+
+      #ifdef DEBUG_USER_GUI
+         MessageInterface::ShowMessage("Adding %d type %d subtype \"%s\" "
+               "objects\n", size, type, subtype.c_str());
+      #endif
+
+      for (int i = 0; i < size; i++)
+      {
+         #ifdef DEBUG_USER_GUI
+            MessageInterface::ShowMessage("   Object \"%s\"\n",
+                  itemNames[i].c_str());
+         #endif
+         GmatBase *cp = GetObject(itemNames[i]);
+         if (subtype == "")
+         {
+            objName = wxString(itemNames[i].c_str());
+            objTypeName = wxString(cp->GetTypeName().c_str());
+
+            AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+                  new GmatTreeItemData(wxT(objName),
+                        GmatTree::USER_DEFINED_OBJECT));
+         }
+         else if(cp->IsOfType(subtype))
+         {
+            objName = wxString(itemNames[i].c_str());
+            objTypeName = wxString(cp->GetTypeName().c_str());
+
+            AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+                  new GmatTreeItemData(wxT(objName),
+                        GmatTree::USER_DEFINED_OBJECT));
+         }
+      }
+
+      if (size > 0)
+         Expand(itemId);
+   }
+}
 
 //==============================================================================
 //                         On Action Events
@@ -4366,20 +4450,46 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
 void ResourceTree::AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
       bool onlyChildNodes)
 {
+   mPluginItems.clear();
+   nodeTypeMap.clear();
+   nodeSubtypeMap.clear();
+
    for (UnsignedInt i = 0; i < rcs->size(); ++i)
    {
       Gmat::PluginResource *r = (*rcs)[i];
+
+      wxTreeItemId id;
+
+      #ifdef DEBUG_USER_GUI
+         MessageInterface::ShowMessage("Tree resource node:\n"
+               "   Name: %s\n   Parent: %s\n   type: %d\n   subtype: %s\n",
+               r->nodeName.c_str(), r->parentNodeName.c_str(), t, sub.c_str());
+      #endif
+
       if (onlyChildNodes && (r->parentNodeName == ""))
-         return;
-      AddTreeNode(r->nodeName, r->parentNodeName);
-//      ObjectType type;
-//      std::string subtype;
+         id = FindIdOfNode(r->nodeName.c_str(), GetRootItem());
+      else
+         id = AddUserTreeNode(r->nodeName, r->parentNodeName);
+
+      mPluginItems.push_back(id);
+      nodeTypeMap[GetItemText(id).c_str()] = ((*rcs)[i])->type;
+      nodeSubtypeMap[GetItemText(id).c_str()] = ((*rcs)[i])->subtype;
+
+      #ifdef DEBUG_USER_GUI
+         MessageInterface::ShowMessage("Node list:\n");
+         for (UnsignedInt k = 0; k < mPluginItems.size(); ++k)
+            MessageInterface::ShowMessage("   %d: %s %d %s\n", k,
+                  GetItemText(mPluginItems[k]).c_str(),
+                  nodeTypeMap[GetItemText(mPluginItems[k]).c_str()],
+                  nodeSubtypeMap[GetItemText(mPluginItems[k]).c_str()].c_str());
+      #endif
    }
 }
 
 
 //------------------------------------------------------------------------------
-// void AddTreeNode(const std::string &newNodeName, const std::string &parent)
+// void AddUserTreeNode(const std::string &newNodeName,
+//       const std::string &parent)
 //------------------------------------------------------------------------------
 /**
  * Adds a folder node into the resource tree
@@ -4389,7 +4499,7 @@ void ResourceTree::AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
  *               the root node.
  */
 //------------------------------------------------------------------------------
-void ResourceTree::AddTreeNode(const std::string &newNodeName,
+wxTreeItemId ResourceTree::AddUserTreeNode(const std::string &newNodeName,
       const std::string &parent)
 {
    wxTreeItemId parentId = GetRootItem();
@@ -4403,6 +4513,8 @@ void ResourceTree::AddTreeNode(const std::string &newNodeName,
    wxTreeItemId newTreeItem;
    AddItemFolder(parentId, newTreeItem, newNodeName.c_str(),
                  GmatTree::PLUGIN_FOLDER);
+
+   return newTreeItem;
 }
 
 
@@ -4412,7 +4524,7 @@ void ResourceTree::AddTreeNode(const std::string &newNodeName,
 /**
  * Finds the tree item ID of a node given the node's text string.
  *
- * This method call is set to re recursive, but the recursion is not yet hooked
+ * This method call is set to be recursive, but the recursion is not yet hooked
  * up.  Currently, only the children of the start node are searched, but not
  * grandchildren and below.
  *

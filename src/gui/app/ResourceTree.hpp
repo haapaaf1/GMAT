@@ -46,7 +46,7 @@ public:
    // Added so plugin code can update the tree structure
    void AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
          bool onlyChildNodes = false);
-   void AddTreeNode(const std::string &newNodeName,
+   wxTreeItemId AddUserTreeNode(const std::string &newNodeName,
          const std::string &parent = "");
    
 protected:
@@ -89,6 +89,10 @@ protected:
 
    /// Plugin tree item IDs
    std::vector<wxTreeItemId> mPluginItems;
+   /// node Id -> Type mapping
+   std::map<std::string, Gmat::ObjectType> nodeTypeMap;
+   /// nodeId -> subtype mapping
+   std::map<std::string, std::string> nodeSubtypeMap;
 
    // MSVC compiler will not accept a non-constant size for std::vector
    static const Integer MAX_SUN_ORBITERS;
@@ -121,7 +125,8 @@ protected:
    void AddDefaultScripts(wxTreeItemId itemId);
    void AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCounter = true,
                                 bool resetCounter = true);
-   
+   void AddUserObjects();
+
    // event handlers
    void OnItemRightClick(wxTreeEvent& event);
    void OnItemActivated(wxTreeEvent &event);
