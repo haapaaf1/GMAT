@@ -115,6 +115,10 @@ public:
    const StringArray& GetListOfAllFactoryItems();
    const StringArray& GetListOfViewableItems(Gmat::ObjectType type);
    const StringArray& GetListOfUnviewableItems(Gmat::ObjectType type);
+   bool               DoesObjectTypeMatchSubtype(
+                            const Gmat::ObjectType coreType,
+                            const std::string &theType,
+                            const std::string &theSubtype);
    
    //----- configuration
    ObjectMap* GetConfiguredObjectMap();

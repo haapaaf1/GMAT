@@ -533,7 +533,7 @@ void Interpreter::BuildCreatableObjectMaps()
  */
 //------------------------------------------------------------------------------
 StringArray Interpreter::GetCreatableList(Gmat::ObjectType type, 
-      Integer subType)
+      const std::string subType)
 {
    StringArray clist;
    
@@ -650,6 +650,30 @@ StringArray Interpreter::GetCreatableList(Gmat::ObjectType type,
          break;
    }
    
+   if (subType != "")
+   {
+      #ifdef DEBUG_SUBTYPES
+         MessageInterface::ShowMessage("List has %d members:\n", clist.size());
+         for (UnsignedInt j = 0; j < clist.size(); ++j)
+            MessageInterface::ShowMessage("   %s\n", clist[j].c_str());
+      #endif
+
+      StringArray temp;
+      // Throw away objects that do not match the subtype
+      for (UnsignedInt i = 0; i < clist.size(); ++i)
+      {
+         if (theModerator->DoesObjectTypeMatchSubtype(type, clist[i], subType))
+            temp.push_back(clist[i]);
+      }
+      clist = temp;
+
+      #ifdef DEBUG_SUBTYPES
+         MessageInterface::ShowMessage("Revised list has %d members:\n", clist.size());
+         for (UnsignedInt j = 0; j < clist.size(); ++j)
+            MessageInterface::ShowMessage("   %s\n", clist[j].c_str());
+      #endif
+   }
+
    return clist;
 }
 

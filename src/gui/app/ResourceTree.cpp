@@ -100,6 +100,8 @@
 #define SOLVER_END 200
 #define HARDWARE_BEGIN 250
 #define HARDWARE_END 300
+#define PLUGIN_BEGIN 400
+#define PLUGIN_END 600
 
 #define SUBSCRIBER_BEGIN SOLVER_END + 1
 #define SUBSCRIBER_END SUBSCRIBER_BEGIN + 50
@@ -161,6 +163,8 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_MOON, ResourceTree::OnAddMoon)
    EVT_MENU(POPUP_ADD_COMET, ResourceTree::OnAddComet)
    EVT_MENU(POPUP_ADD_ASTEROID, ResourceTree::OnAddAsteroid)
+   EVT_MENU_RANGE(POPUP_ADD_PLUGIN + PLUGIN_BEGIN,        // Plugin objects
+                  POPUP_ADD_PLUGIN + PLUGIN_END, ResourceTree::OnAddUserObject)
    EVT_MENU(POPUP_OPEN, ResourceTree::OnOpen)
    EVT_MENU(POPUP_CLOSE, ResourceTree::OnClose)
    EVT_MENU(POPUP_RENAME, ResourceTree::OnRename)
@@ -3137,6 +3141,38 @@ void ResourceTree::OnAddScript(wxCommandEvent &event)
 
 
 //------------------------------------------------------------------------------
+// void OnAddUserObject(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Add a generic solver to solvers folder
+ *
+ * The code used here should be generalizable for other plugin elements as well.
+ *
+ * @param event command event
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::OnAddUserObject(wxCommandEvent &event)
+{
+   // Look up the plugin type based on the ID built with menu that selected it
+   std::string selected = pluginMap[event.GetId()];
+
+   // The rest is like the other tree additions
+   wxTreeItemId item = GetSelection();
+   std::string newName = theGuiInterpreter->GetNewName(selected, 1);
+
+   GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
+
+   if (obj != NULL)
+   {
+      wxString name = newName.c_str();
+      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+                 new GmatTreeItemData(name, GmatTree::USER_DEFINED_OBJECT));
+      Expand(item);
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // void UpdateMatlabServerItem(bool start)
 //------------------------------------------------------------------------------
 void ResourceTree::UpdateMatlabServerItem(bool started)
@@ -3869,6 +3905,15 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    case GmatTree::COORD_SYSTEM_FOLDER:
       menu.Append(POPUP_ADD_COORD_SYS, wxT("Add Coordinate System"));
       break;
+   case GmatTree::PLUGIN_FOLDER:
+      {
+         // Get type from itemId
+         Gmat::ObjectType gmatType = nodeTypeMap[GetItemText(itemId).c_str()];
+         std::string subtype = nodeSubtypeMap[GetItemText(itemId).c_str()];
+         menu.Append(POPUP_ADD_SPECIAL_POINT, _T("Add"),
+               CreatePopupMenu(itemType, gmatType, subtype));
+      }
+      break;
    default:
       break;
    }
@@ -3946,18 +3991,27 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
 
 
 //------------------------------------------------------------------------------
-// wxMenu* CreatePopupMenu(GmatTree::ItemType itemType)
+// wxMenu* CreatePopupMenu(GmatTree::ItemType itemType,
+//       const Gmat::ObjectType gmatType, const std::string &subtype)
 //------------------------------------------------------------------------------
 /**
  * Create the popup menu
  *
- * @param <itemType> Type of object to create and add to tree
+ * @param itemType Type of object to create and add to tree
+ * @param gmatType Gmat::ObjectType of object being created (used for plugin
+ *                 objects)
+ * @param subtype  Identifier for objects that are a subtype of a core type
+ *                 (used for plugin objects)
+ *
  * @return <wxMenu> Return popup menu
  */
 //------------------------------------------------------------------------------
-wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
+wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType,
+      const Gmat::ObjectType gmatType, const std::string &subtype)
 {
    wxMenu *menu = new wxMenu;
+
+   MessageInterface::ShowMessage("CreatePopupMenu(%d) called\n", itemType);
 
    StringArray listOfObjects;
    Integer newId;
@@ -3997,16 +4051,18 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
       menu->Append(POPUP_ADD_SQP, wxT("SQP (fmincon)"));
       menu->Enable(POPUP_ADD_QUASI_NEWTON, false);
 
-      listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SOLVER);
+      listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SOLVER,
+            "Optimizer");
       newId = SOLVER_BEGIN;
       for (StringArray::iterator i = listOfObjects.begin();
            i != listOfObjects.end(); ++i, ++newId)
       {
          // Drop the ones that are already there for now
          std::string solverType = (*i);
-         if ((solverType != "DifferentialCorrector") &&
-             (solverType != "FminconOptimizer") &&
-             (solverType != "Quasi-Newton"))
+//         if ((solverType != "DifferentialCorrector") &&
+//             (solverType != "FminconOptimizer") &&
+//             (solverType != "Quasi-Newton"))
+         if (solverType != "FminconOptimizer")
          {
             // Save the ID and type name for event handling
             pluginMap[POPUP_ADD_SOLVER + newId] = solverType;
@@ -4082,6 +4138,32 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType)
    case GmatTree::SPECIAL_POINT_FOLDER:
       menu->Append(POPUP_ADD_BARYCENTER, wxT("Barycenter"));
       menu->Append(POPUP_ADD_LIBRATION, wxT("Libration Point"));
+      break;
+   case GmatTree::PLUGIN_FOLDER:
+      {
+         listOfObjects = theGuiInterpreter->GetCreatableList(gmatType, subtype);
+
+         if (listOfObjects.size() > 0)
+         {
+            newId = PLUGIN_BEGIN;
+            for (StringArray::iterator i = listOfObjects.begin();
+                 i != listOfObjects.end(); ++i, ++newId)
+            {
+               // Drop the ones that are already there for now
+               std::string itemType = (*i);
+               // Save the ID and type name for event handling
+               pluginMap[POPUP_ADD_PLUGIN + newId] = itemType;
+               menu->Append(POPUP_ADD_PLUGIN + newId, wxT(itemType.c_str()));
+            }
+         }
+         else
+         {
+            pluginMap[POPUP_ADD_PLUGIN + PLUGIN_BEGIN] =
+                  GmatBase::GetObjectTypeString(gmatType);
+            menu->Append(POPUP_ADD_PLUGIN + PLUGIN_BEGIN,
+                  wxT(GmatBase::GetObjectTypeString(gmatType).c_str()));
+         }
+      }
       break;
    default:
       break;

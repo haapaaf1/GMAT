@@ -150,6 +150,11 @@ public:
    const StringArray&     GetListOfViewableItems(Gmat::ObjectType byType);
    const StringArray&     GetListOfUnviewableItems(Gmat::ObjectType byType);
    
+   bool                   DoesObjectTypeMatchSubtype(
+                                const Gmat::ObjectType coreType,
+                                const std::string &theType,
+                                const std::string &theSubtype);
+
    // method to return the base type for the input string
    Gmat::ObjectType       GetBaseTypeOf(const std::string &typeName);
    

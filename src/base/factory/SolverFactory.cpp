@@ -161,6 +161,37 @@ SolverFactory::~SolverFactory()
 {
 }
 
+
+//------------------------------------------------------------------------------
+// bool DoesObjectTypeMatchSubtype(const std::string &theType,
+//       const std::string &theSubtype)
+//------------------------------------------------------------------------------
+/**
+ * Checks if a creatable solver type matches a subtype.
+ *
+ * @param theType The script identifier for the object type
+ * @param theSubtype The subtype being checked
+ *
+ * @return true if the scripted type and subtype match, false if the type does
+ *         not match the subtype
+ */
+//------------------------------------------------------------------------------
+bool SolverFactory::DoesObjectTypeMatchSubtype(const std::string &theType,
+      const std::string &theSubtype)
+{
+   bool retval = false;
+
+   if ((theType == "Boundary Value Solvers") || (theType == "Targeter"))
+   {
+      if (theSubtype == "DifferentialCorrector")
+         retval = true;
+   }
+
+   return retval;
+}
+
+
+
 //---------------------------------
 //  protected methods
 //---------------------------------

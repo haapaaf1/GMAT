@@ -1148,6 +1148,30 @@ const StringArray& Moderator::GetListOfUnviewableItems(Gmat::ObjectType type)
    return theFactoryManager->GetListOfUnviewableItems(type);
 }
 
+
+//------------------------------------------------------------------------------
+// bool DoesObjectTypeMatchSubtype(const std::string &theType,
+//       const std::string &theSubtype)
+//------------------------------------------------------------------------------
+/**
+ * Checks if a creatable object type matches a subtype.
+ *
+ * @param coreType The ObjectType of the candidate object
+ * @param theType The script identifier for the object type
+ * @param theSubtype The subtype being checked
+ *
+ * @return true if the scripted type and subtype match, false if the type does
+ *         not match the subtype
+ */
+//------------------------------------------------------------------------------
+bool Moderator::DoesObjectTypeMatchSubtype(const Gmat::ObjectType coreType,
+      const std::string &theType, const std::string &theSubtype)
+{
+   return theFactoryManager->DoesObjectTypeMatchSubtype(coreType, theType,
+         theSubtype);
+}
+
+
 //----- configuration
 //------------------------------------------------------------------------------
 // ObjectMap* GetConfiguredObjectMap()

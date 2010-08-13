@@ -948,6 +948,37 @@ StringArray Factory::GetListOfCreatableObjects() const
    return creatables;
 }
 
+
+//------------------------------------------------------------------------------
+// bool DoesObjectTypeMatchSubtype(const std::string &theType,
+//       const std::string &theSubtype)
+//------------------------------------------------------------------------------
+/**
+ * Checks if a creatable object type matches a subtype.
+ *
+ * Occasionally GMAT factories will build types that are subtyped at a
+ * granularity finer than is supported in the Gmat::ObjectType enumeration.
+ * This method allows detection of the fine grained subtyping.  An example is
+ * the Solver subsystem, which provides for targeters and related boundary value
+ * solvers, optimizers, estimators, simulators, and parametric scanners.  This
+ * method, when overridden in solver factories, can be used to distinguish these
+ * subtypes.
+ *
+ * @param theType The script identifier for the object type
+ * @param theSubtype The subtype being checked
+ *
+ * @return true if the scripted type and subtype match, false if the type does
+ *         not match the subtype
+ */
+//------------------------------------------------------------------------------
+bool Factory::DoesObjectTypeMatchSubtype(const std::string &theType,
+      const std::string &theSubtype)
+{
+   // Default is to return false, meaning objects are not subtyped
+   return false;
+}
+
+
 //------------------------------------------------------------------------------
 //  StringArray GetListOfViewableObjects()
 //------------------------------------------------------------------------------

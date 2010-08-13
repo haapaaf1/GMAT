@@ -43,6 +43,8 @@ public:
 
    virtual ~SolverFactory();
    
+   virtual bool DoesObjectTypeMatchSubtype(const std::string &theType,
+                                           const std::string &theSubtype);
 };
 
 #endif // SolverFactory_hpp

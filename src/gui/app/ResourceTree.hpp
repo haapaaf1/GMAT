@@ -175,6 +175,7 @@ protected:
    void OnAddMoon(wxCommandEvent &event);
    void OnAddComet(wxCommandEvent &event);
    void OnAddAsteroid(wxCommandEvent &event);
+   void OnAddUserObject(wxCommandEvent &event);
 
    //void OnAddScript(wxCommandEvent &event);
    //void OnNewScript(wxCommandEvent &event);
@@ -195,7 +196,9 @@ protected:
 
    // menu
    void ShowMenu(wxTreeItemId id, const wxPoint& pt);
-   wxMenu* CreatePopupMenu(GmatTree::ItemType type);
+   wxMenu* CreatePopupMenu(GmatTree::ItemType type,
+         const Gmat::ObjectType gmatType = Gmat::UNKNOWN_OBJECT,
+         const std::string &subtype = "");
    Gmat::ObjectType GetObjectType(GmatTree::ItemType itemType);
    wxTreeItemId GetTreeItemId(GmatTree::ItemType type);
    GmatTree::ResourceIconType GetTreeItemIcon(GmatTree::ItemType type);
@@ -276,6 +279,8 @@ protected:
       POPUP_ADD_MOON,
       POPUP_ADD_COMET,
       POPUP_ADD_ASTEROID,
+
+      POPUP_ADD_PLUGIN,
 
       POPUP_OPEN,
       POPUP_CLOSE,

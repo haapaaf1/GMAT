@@ -137,6 +137,10 @@ public:
    
    // method to return list of types of objects that this factory can create
    StringArray              GetListOfCreatableObjects() const;
+   // method to check if a createable object type matches a subtype
+   virtual bool             DoesObjectTypeMatchSubtype(
+                                  const std::string &theType,
+                                  const std::string &theSubtype);
    // method to return list of objects that can be viewed via GUI of this factory
    StringArray              GetListOfViewableObjects();
    // method to return list of objects that cannot be viewed via GUI of this factory

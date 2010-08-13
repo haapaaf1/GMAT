@@ -140,7 +140,8 @@ public:
                        Integer &id, Gmat::ParameterType &type);
    
    void BuildCreatableObjectMaps();
-   StringArray GetCreatableList(Gmat::ObjectType type, Integer subType = 0);
+   StringArray GetCreatableList(Gmat::ObjectType type,
+                                const std::string subType = "");
    
    virtual void SetInputFocus();
    virtual void NotifyRunCompleted();
