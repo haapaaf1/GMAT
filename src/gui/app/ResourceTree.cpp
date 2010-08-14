@@ -4011,8 +4011,6 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType,
 {
    wxMenu *menu = new wxMenu;
 
-   MessageInterface::ShowMessage("CreatePopupMenu(%d) called\n", itemType);
-
    StringArray listOfObjects;
    Integer newId;
 
