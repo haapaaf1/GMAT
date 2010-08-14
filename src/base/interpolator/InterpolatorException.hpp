@@ -22,7 +22,7 @@
 /**
  * Exceptions thrown by the Interpolators
  */
-class InterpolatorException : public BaseException
+class GMAT_API InterpolatorException : public BaseException
 {
 public:
    // class constructor

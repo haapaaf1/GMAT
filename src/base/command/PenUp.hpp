@@ -26,7 +26,7 @@
 /**
  * Command used to stop drawing data on an XY plot during a run.
  */
-class PenUp : public GmatCommand
+class GMAT_API PenUp : public GmatCommand
 {
 public:
         PenUp();

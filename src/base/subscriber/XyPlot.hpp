@@ -26,7 +26,7 @@
 /**
  * Subscriber class used to drive the XyPlot components on the GUI
  */
-class XyPlot : public Subscriber 
+class GMAT_API XyPlot : public Subscriber 
 {
 public:
    XyPlot(const std::string &name, Parameter *xParam = NULL,

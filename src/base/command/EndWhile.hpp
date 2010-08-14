@@ -25,7 +25,7 @@
 #include "GmatCommand.hpp"
 
 
-class EndWhile : public GmatCommand
+class GMAT_API EndWhile : public GmatCommand
 {
 public:
    EndWhile();

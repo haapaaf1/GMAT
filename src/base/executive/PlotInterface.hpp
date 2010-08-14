@@ -29,7 +29,7 @@
 /**
  * Interface functions for the OpenGL and XY plot classes.
  */
-class PlotInterface
+class GMAT_API PlotInterface
 {
 
 public:

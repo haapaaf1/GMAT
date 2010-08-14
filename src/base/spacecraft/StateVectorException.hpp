@@ -21,7 +21,7 @@
 
 #include "BaseException.hpp"
 
-class StateVectorException : public BaseException
+class GMAT_API StateVectorException : public BaseException
 {
 public:
    StateVectorException(const std::string& message = 

@@ -1030,16 +1030,16 @@ Integer GroundStation::GetEstimationParameterSize(const Integer item)
 
    Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
 
-   switch (id)
-   {
+//   switch (id)
+//   {
 //      case Gmat::STATION_LOCATION:
 //         retval = 6;
 //         break;
-
-      // All other values call up the hierarchy
-      default:
+//
+//      // All other values call up the hierarchy
+//      default:
          retval = BodyFixedPoint::GetEstimationParameterSize(item);
-   }
+//   }
 
    return retval;
 }
@@ -1051,16 +1051,16 @@ Real* GroundStation::GetEstimationParameterValue(const Integer item)
 
    Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
 
-   switch (id)
-   {
+//   switch (id)
+//   {
 //      case Gmat::STATION_LOCATION:
 //         retval = 6;
 //         break;
-
-      // All other values call up the hierarchy
-      default:
+//
+//      // All other values call up the hierarchy
+//      default:
          retval = BodyFixedPoint::GetEstimationParameterValue(item);
-   }
+//   }
 
    return retval;
 }

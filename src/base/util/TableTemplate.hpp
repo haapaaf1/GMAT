@@ -25,7 +25,7 @@
 #include "BaseException.hpp"
 
 //  exceptions
-class TableTemplateExceptions
+class GMAT_API TableTemplateExceptions
 {
 public:
 

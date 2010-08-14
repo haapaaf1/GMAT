@@ -21,7 +21,7 @@
 
 #include "CallFunction.hpp"
 
-class CallGmatFunction : public CallFunction
+class GMAT_API CallGmatFunction : public CallFunction
 {
 public:
    CallGmatFunction();

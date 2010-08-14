@@ -22,7 +22,7 @@
 
 #include "gmatdefs.hpp"
 
-class RgbColor
+class GMAT_API RgbColor
 {
 public:
    RgbColor();

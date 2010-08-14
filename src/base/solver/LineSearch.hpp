@@ -19,10 +19,12 @@
 #ifndef LineSearch_hpp
 #define LineSearch_hpp
 
+#include "gmatdefs.hpp"
+
 /**
  * Definition for the line search class.  This class is not yet implemented.
  */
-class LineSearch
+class GMAT_API LineSearch
 {
 public:
 	LineSearch();

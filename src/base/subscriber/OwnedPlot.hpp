@@ -37,7 +37,7 @@
  * In spite of their location in GMAT's directory structure, OwnedPlots are not
  * Subscribers.  They are derived directly from GmatBase.
  */
-class OwnedPlot : public GmatBase
+class GMAT_API OwnedPlot : public GmatBase
 {
 public:
    OwnedPlot(const std::string &name, const std::string &plotTitle = "",

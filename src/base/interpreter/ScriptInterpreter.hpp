@@ -24,7 +24,7 @@
 /**
  * The ScriptInterpreter class manages the script reading and writing process.
  */
-class ScriptInterpreter : public Interpreter
+class GMAT_API ScriptInterpreter : public Interpreter
 {
 public:        
    static ScriptInterpreter*   Instance();

@@ -27,7 +27,7 @@
 
 class Anomaly; 
 
-class CoordUtil
+class GMAT_API CoordUtil
 {
 public:
    static const Real ORBIT_TOL;// = 1.0E-10;

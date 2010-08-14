@@ -27,7 +27,7 @@
 #include "PlanetaryEphem.hpp"
 #include "A1Mjd.hpp"
 
-class SlpFile : public PlanetaryEphem
+class GMAT_API SlpFile : public PlanetaryEphem
 {
 public:
 

@@ -30,7 +30,7 @@
 /**
  * Command that manages processing for targeter goals.
  */
-class NonlinearConstraint : public GmatCommand
+class GMAT_API NonlinearConstraint : public GmatCommand
 {
 public:
    NonlinearConstraint();

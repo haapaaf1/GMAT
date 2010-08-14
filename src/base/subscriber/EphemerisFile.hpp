@@ -27,7 +27,7 @@
 
 class SpiceOrbitKernelWriter;
 
-class EphemerisFile : public Subscriber
+class GMAT_API EphemerisFile : public Subscriber
 {
 public:
    EphemerisFile(const std::string &name, const std::string &type = "EphemerisFile");

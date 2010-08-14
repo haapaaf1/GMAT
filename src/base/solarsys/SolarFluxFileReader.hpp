@@ -20,7 +20,7 @@
 #include "gmatdefs.hpp"
 #include "A1Mjd.hpp"  
    
-class SolarFluxFileReader
+class GMAT_API SolarFluxFileReader
 {
 public:
    SolarFluxFileReader();

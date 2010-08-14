@@ -26,7 +26,7 @@
 /**
  * Base class for Create and Global commands
  */
-class ManageObject : public GmatCommand
+class GMAT_API ManageObject : public GmatCommand
 {
 public:
    ManageObject(const std::string &typeStr);

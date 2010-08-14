@@ -22,7 +22,7 @@
 #include "Subscriber.hpp"
 #include <sstream>
 
-class MessageWindow : public Subscriber
+class GMAT_API MessageWindow : public Subscriber
 {
 public:
    MessageWindow(const std::string &name);

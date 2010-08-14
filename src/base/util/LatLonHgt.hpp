@@ -29,7 +29,7 @@
 #include "RealUtilities.hpp"
 #include "Rvector3.hpp"
 
-class LatLonHgt 
+class GMAT_API LatLonHgt 
 {
 public:
 

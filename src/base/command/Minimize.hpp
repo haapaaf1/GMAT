@@ -30,7 +30,7 @@
 /**
  * Command that manages processing for optimizer variables.
  */
-class Minimize : public GmatCommand
+class GMAT_API Minimize : public GmatCommand
 {
 public:
    Minimize();

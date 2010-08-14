@@ -36,7 +36,7 @@
  * @note The steepest descent optimizer is not yet implemented; once a line 
  * search utility exists, it can be completed.
  */
-class SteepestDescent : public InternalOptimizer
+class GMAT_API SteepestDescent : public InternalOptimizer
 {
 public:
 	SteepestDescent(const std::string &name);

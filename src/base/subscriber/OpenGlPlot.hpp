@@ -24,7 +24,7 @@
 #include "CoordinateSystem.hpp"
 #include <map>
 
-class OpenGlPlot : public Subscriber
+class GMAT_API OpenGlPlot : public Subscriber
 {
 public:
    OpenGlPlot(const std::string &name);

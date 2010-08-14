@@ -25,7 +25,7 @@
 /**
  * Declaration of the Global command
  */
-class Global : public ManageObject
+class GMAT_API Global : public ManageObject
 {
 public:
    Global();

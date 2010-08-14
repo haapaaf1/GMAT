@@ -28,7 +28,7 @@
 #include "Rvector6.hpp"
 #include "Anomaly.hpp"
 
-class Keplerian            
+class GMAT_API Keplerian            
 {
 public :
    

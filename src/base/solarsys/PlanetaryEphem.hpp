@@ -45,7 +45,7 @@ namespace Gmat  // does this belong in DeFile.hpp???????????????
    };
 };
 
-class PlanetaryEphem
+class GMAT_API PlanetaryEphem
 {
 public:
 

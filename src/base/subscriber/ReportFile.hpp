@@ -32,7 +32,7 @@
 #include <iostream>
 #include <iomanip>
 
-class ReportFile : public Subscriber
+class GMAT_API ReportFile : public Subscriber
 {
 public:
    ReportFile(const std::string &typeName, const std::string &name,

@@ -52,7 +52,7 @@ namespace Gmat
  * 
  * The derived classes are best implemented as singletons.
  */
-class MessageReceiver
+class GMAT_API MessageReceiver
 {
 public:
    // Derived classes should implement a singleton accessor, like this:

@@ -30,7 +30,7 @@
 /**
  * Command that manages processing for targeter goals.
  */
-class Achieve : public GmatCommand
+class GMAT_API Achieve : public GmatCommand
 {
 public:
    Achieve(void);

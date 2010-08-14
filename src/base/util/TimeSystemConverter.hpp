@@ -29,28 +29,28 @@
 
 // struct TimeSystemConverterExceptions
 // {
-   class UnimplementedException : public BaseException
+   class GMAT_API UnimplementedException : public BaseException
    {
       public:
          UnimplementedException(const std::string &message =
          "TimeSystemConverter: Conversion not implemented: ")
          : BaseException(message) {};
    };
-   class TimeFileException : public BaseException
+   class GMAT_API TimeFileException : public BaseException
    {
       public:
          TimeFileException(const std::string &message =
          "TimeSystemConverter: File is unknown: ")
          : BaseException(message) {};
    };
-   class TimeFormatException : public BaseException
+   class GMAT_API TimeFormatException : public BaseException
    {
       public:
          TimeFormatException(const std::string &message =
          "TimeSystemConverter: Requested format not implemented: ")
          : BaseException(message) {};
    };
-   class InvalidTimeException : public BaseException
+   class GMAT_API InvalidTimeException : public BaseException
    {
       public:
          InvalidTimeException(const std::string &message =

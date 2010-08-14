@@ -37,7 +37,7 @@ namespace GmatPlot
    };
 };
 
-class PlotReceiver
+class GMAT_API PlotReceiver
 {
 public:
 

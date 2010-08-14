@@ -30,7 +30,7 @@
  * machine commands.  The SolverBranchCommand class handles the solver commands
  * that use a solver control sequence.
  */
-class RunSolver : public PropagationEnabledCommand
+class GMAT_API RunSolver : public PropagationEnabledCommand
 {
 public:
    RunSolver(const std::string &typeStr);

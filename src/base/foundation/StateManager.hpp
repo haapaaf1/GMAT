@@ -26,7 +26,7 @@
 #include <map>
 #include <vector>
 
-struct ListItem
+struct GMAT_API ListItem
 {
    std::string objectName;
    std::string elementName;
@@ -48,7 +48,7 @@ struct ListItem
 /**
  * The state manager base class.
  */
-class StateManager
+class GMAT_API StateManager
 {
 public:
 	StateManager(Integer size = 0);

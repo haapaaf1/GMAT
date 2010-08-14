@@ -30,7 +30,7 @@
  * This class defines the core data set used in GMAT's propagation and solver 
  * subsystems when state data at a defined epoch is needed.
  */
-class GmatState
+class GMAT_API GmatState
 {
 public:
 	GmatState(Integer size = 0);

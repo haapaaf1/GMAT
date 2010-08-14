@@ -25,7 +25,7 @@
  * EphemerisPropagator is the base class for objects that model orbit evolution
  * through interpolation of data in an ephemeris file.
  */
-class EphemerisPropagator : public Propagator
+class GMAT_API EphemerisPropagator : public Propagator
 {
 public:
    EphemerisPropagator(const std::string &typeStr, const std::string &name = "");

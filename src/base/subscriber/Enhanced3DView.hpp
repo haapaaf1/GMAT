@@ -24,7 +24,7 @@
 #include "CoordinateSystem.hpp"
 #include <map>
 
-class Enhanced3DView : public Subscriber
+class GMAT_API Enhanced3DView : public Subscriber
 {
 public:
    Enhanced3DView(const std::string &name);

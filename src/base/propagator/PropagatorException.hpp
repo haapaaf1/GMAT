@@ -21,7 +21,7 @@
 
 #include "BaseException.hpp"
 
-class PropagatorException : public BaseException
+class GMAT_API PropagatorException : public BaseException
 {
    public:
       PropagatorException(const std::string& message = "Unspecified") 

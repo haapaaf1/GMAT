@@ -28,7 +28,7 @@
 
 
 
-class BeginFunction : public GmatCommand
+class GMAT_API BeginFunction : public GmatCommand
 {
 public:
    BeginFunction();

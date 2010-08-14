@@ -25,7 +25,7 @@
 /**
  * Declaration of the Create command
  */
-class Create : public ManageObject
+class GMAT_API Create : public ManageObject
 {
 public:
    Create();

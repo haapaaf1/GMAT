@@ -35,7 +35,7 @@ typedef Integer  MinuteOfHour;
 
 namespace GmatTimeUtil
 {
-   class CalDate
+   class GMAT_API CalDate
    {
       public:
       CalDate(YearNumber y, MonthOfYear mo, DayOfMonth d,
@@ -53,7 +53,7 @@ namespace GmatTimeUtil
       Real         second;
    };
    
-   class ElapsedDate
+   class GMAT_API ElapsedDate
    {
       public:
       ElapsedDate(Integer d, Integer h, Integer m, Real s)

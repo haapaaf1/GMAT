@@ -28,7 +28,7 @@
 #include "StringTokenizer.hpp"
 #include "MessageInterface.hpp"
 
-class GregorianDate
+class GMAT_API GregorianDate
 {
 public:
    // Implement exception

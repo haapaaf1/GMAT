@@ -45,7 +45,7 @@
  * 
  *
  */
-class Vary : public GmatCommand
+class GMAT_API Vary : public GmatCommand
 {
 public:
    Vary();

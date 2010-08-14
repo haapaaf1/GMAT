@@ -25,7 +25,7 @@
 #include "BaseException.hpp"
 #include "TimeTypes.hpp"
 
-class Date
+class GMAT_API Date
 {
 public:
    

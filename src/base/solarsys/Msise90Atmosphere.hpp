@@ -26,7 +26,7 @@
  * Wraps the MSISE90 atmosphere code, ported by a.i. Solutions from the FORTRAN,
  * into the GMAT atmosphere model format.
  */
-class Msise90Atmosphere : public AtmosphereModel
+class GMAT_API Msise90Atmosphere : public AtmosphereModel
 {
 public:
    Msise90Atmosphere(const std::string &name = "");

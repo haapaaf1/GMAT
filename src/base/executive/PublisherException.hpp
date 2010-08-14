@@ -25,7 +25,7 @@
 /**
  * Publisher Exception class
  */
-class PublisherException : public BaseException
+class GMAT_API PublisherException : public BaseException
 {
 	public:
 		// class constructor

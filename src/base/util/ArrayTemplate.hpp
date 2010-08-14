@@ -25,7 +25,7 @@
 #include "gmatdefs.hpp"
 #include "BaseException.hpp"
 
-class ArrayTemplateExceptions
+class GMAT_API ArrayTemplateExceptions
 {
 public:
     class OutOfBounds : public BaseException

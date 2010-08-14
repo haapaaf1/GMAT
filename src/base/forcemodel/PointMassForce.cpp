@@ -814,13 +814,13 @@ Real PointMassForce::SetRealParameter(const Integer id, const Real value)
 //------------------------------------------------------------------------------
 std::string PointMassForce::GetStringParameter(const Integer id) const
 {
-   switch (id)
-   {
-  // case BODY:
-  //    return bodyName;
-   default:
+//   switch (id)
+//   {
+//   case BODY:
+//      return bodyName;
+//   default:
       return PhysicalModel::GetStringParameter(id);
-   }
+//   }
 }
 
 //------------------------------------------------------------------------------
@@ -841,14 +841,14 @@ bool PointMassForce::SetStringParameter(const Integer id,
    //   "PointMassForce::SetStringParameter() id = %d, value = %s\n",
    //   id, value.c_str());
 
-   switch (id)
-   {
-   //case BODY:
-   //   SetBodyName(value);
-   //   return true;
-   default:
+//   switch (id)
+//   {
+//   case BODY:
+//      SetBodyName(value);
+//      return true;
+//   default:
       return PhysicalModel::SetStringParameter(id, value);
-   }
+//   }
 }
 
 //------------------------------------------------------------------------------

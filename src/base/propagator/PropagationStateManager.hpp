@@ -26,7 +26,7 @@
 /**
  * The state manager used in the propagation subsystem.
  */
-class PropagationStateManager : public StateManager
+class GMAT_API PropagationStateManager : public StateManager
 {
 public:
 	PropagationStateManager(Integer size = 0);

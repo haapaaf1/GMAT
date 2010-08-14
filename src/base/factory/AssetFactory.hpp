@@ -24,7 +24,7 @@
 #include "Factory.hpp"
 
 
-class AssetFactory : public Factory
+class GMAT_API AssetFactory : public Factory
 {
 public:
    AssetFactory();

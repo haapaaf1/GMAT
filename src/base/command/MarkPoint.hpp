@@ -26,7 +26,7 @@
 /**
  * Command used to restore plotting on an XY plot during a run.
  */
-class MarkPoint : public GmatCommand
+class GMAT_API MarkPoint : public GmatCommand
 {
 public:
    MarkPoint();

@@ -26,7 +26,7 @@
 /**
  * Command used to remove data from an XY plot during a run
  */
-class ClearPlot : public GmatCommand
+class GMAT_API ClearPlot : public GmatCommand
 {
 public:
         ClearPlot();

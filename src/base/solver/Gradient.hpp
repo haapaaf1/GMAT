@@ -26,7 +26,7 @@
  * modes: forward differenced, central differenced, or backwards differenced.
  * The class also makes provision for a user specified gradient.
  */
-class Gradient : public DerivativeModel
+class GMAT_API Gradient : public DerivativeModel
 {
 public:
    Gradient();

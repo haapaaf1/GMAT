@@ -23,7 +23,7 @@
 #include "Parameter.hpp"
 #include <map>
 
-class ParameterInfo
+class GMAT_API ParameterInfo
 {
 
 public:

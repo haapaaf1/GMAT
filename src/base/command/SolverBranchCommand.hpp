@@ -25,7 +25,7 @@
 #include "BranchCommand.hpp"
 #include "Solver.hpp"
 
-class SolverBranchCommand : public BranchCommand
+class GMAT_API SolverBranchCommand : public BranchCommand
 {
 public:
         SolverBranchCommand(const std::string &typeStr);

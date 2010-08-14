@@ -34,7 +34,7 @@
  * The For command manages the for loop.  
  *
  */
-class For : public BranchCommand
+class GMAT_API For : public BranchCommand
 {
 public:
   // default constructor

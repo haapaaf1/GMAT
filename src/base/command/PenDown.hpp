@@ -27,7 +27,7 @@
  * Command used to restore plotting on an XY plot during a run; see also the 
  * PenUp command.
  */
-class PenDown : public GmatCommand
+class GMAT_API PenDown : public GmatCommand
 {
 public:
         PenDown();

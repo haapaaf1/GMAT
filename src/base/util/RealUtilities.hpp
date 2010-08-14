@@ -26,14 +26,14 @@
 #include "BaseException.hpp"
 #include "RealTypes.hpp"
 
-struct RealUtilitiesExceptions
+struct GMAT_API RealUtilitiesExceptions
 {
-   class ArgumentError : public BaseException
+   class GMAT_API ArgumentError : public BaseException
    {public : ArgumentError(const std::string& message = "")
        //: BaseException("Real Utilities Argument Error: ", message) {};  };
        : BaseException("", message) {};  };
    
-   class IllegalTime   : public BaseException
+   class GMAT_API IllegalTime   : public BaseException
    {public : IllegalTime(const std::string& message = "")
        //: BaseException("Real Utilities Illegal Time: ", message) {};  };
        : BaseException("", message) {};  };

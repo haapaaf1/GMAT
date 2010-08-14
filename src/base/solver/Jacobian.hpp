@@ -26,7 +26,7 @@
  * modes: forward differenced, central differenced, or backwards differenced.
  * The class also makes provision for a user specified Jacobian.
  */
-class Jacobian : public DerivativeModel
+class GMAT_API Jacobian : public DerivativeModel
 {
 public:
 	Jacobian();

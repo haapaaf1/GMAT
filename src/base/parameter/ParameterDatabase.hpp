@@ -23,7 +23,7 @@
 #include "paramdefs.hpp"
 #include "Parameter.hpp"
 
-class ParameterDatabase
+class GMAT_API ParameterDatabase
 {
 
 public:

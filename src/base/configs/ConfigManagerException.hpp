@@ -24,7 +24,7 @@
 /**
  * Exceptions thrown by the Configuration Manager.
  */
-class ConfigManagerException : public BaseException
+class GMAT_API ConfigManagerException : public BaseException
 {
 	public:
 		// class constructor

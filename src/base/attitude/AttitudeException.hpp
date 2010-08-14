@@ -22,7 +22,7 @@
 #include "gmatdefs.hpp"
 #include "BaseException.hpp" // inheriting class's header file
 
-class AttitudeException : public BaseException
+class GMAT_API AttitudeException : public BaseException
 {
 public:
 

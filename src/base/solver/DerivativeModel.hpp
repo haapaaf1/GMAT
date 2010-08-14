@@ -25,7 +25,7 @@
 /**
  * Base class for gradients, Jacobians, Hessians, and so forth.
  */
-class DerivativeModel
+class GMAT_API DerivativeModel
 {
 public:
    /// Enumerated mode options used when calculating derivatives 

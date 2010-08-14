@@ -21,7 +21,7 @@
 
 #include "BaseException.hpp"
 
-class ParameterException : public BaseException
+class GMAT_API ParameterException : public BaseException
 {
    public:
       ParameterException(const std::string& message = "") 

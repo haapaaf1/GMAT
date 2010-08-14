@@ -21,7 +21,7 @@
 
 #include "BaseException.hpp"
 
-class StopConditionException : public BaseException
+class GMAT_API StopConditionException : public BaseException
 {
    public:
       StopConditionException(const std::string& message = 

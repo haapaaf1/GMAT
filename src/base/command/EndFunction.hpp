@@ -26,7 +26,7 @@
 #include "GmatCommand.hpp"
 
 
-class EndFunction : public GmatCommand
+class GMAT_API EndFunction : public GmatCommand
 {
 public:
    EndFunction();

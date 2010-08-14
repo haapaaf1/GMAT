@@ -21,7 +21,7 @@
 
 #include "BaseException.hpp"
 
-class PropSetupException : public BaseException
+class GMAT_API PropSetupException : public BaseException
 {
 public:
    PropSetupException(const std::string& details = "") 

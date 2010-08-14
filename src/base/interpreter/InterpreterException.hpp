@@ -25,7 +25,7 @@
 /**
  * Exceptions thrown by the interpereters
  */
-class InterpreterException : public BaseException
+class GMAT_API InterpreterException : public BaseException
 {
 public:
    // class constructor

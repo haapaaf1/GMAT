@@ -25,7 +25,7 @@
 #include "Factory.hpp"
 #include "Function.hpp"
 
-class FunctionFactory : public Factory
+class GMAT_API FunctionFactory : public Factory
 {
 public:
    Function* CreateFunction(const std::string &ofType, const std::string &withName = "");

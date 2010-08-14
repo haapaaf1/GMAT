@@ -32,7 +32,7 @@
  class DateUtil;
 //class A1Date;
 
-class UtcDate : public Date
+class GMAT_API UtcDate : public Date
 {
 public:
     UtcDate();

@@ -24,7 +24,7 @@
 #include "MathNode.hpp"
 #include "MathException.hpp"
 
-class MathFunction : public MathNode
+class GMAT_API MathFunction : public MathNode
 {
 public:
    MathFunction(const std::string &typeStr, const std::string &nomme);

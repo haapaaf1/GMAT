@@ -42,7 +42,7 @@ typedef std::vector<SpaceObject*> PropObjectArray;
  * time-based propagation.  It does not provide interfaces for more complicated
  * stopping conditions; derived classes provide those interfaces.
  */
-class PropagationEnabledCommand : public GmatCommand
+class GMAT_API PropagationEnabledCommand : public GmatCommand
 {
 public:
    PropagationEnabledCommand(const std::string &typeStr);

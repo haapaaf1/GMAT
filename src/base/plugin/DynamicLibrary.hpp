@@ -96,7 +96,7 @@
  * need any new ResourceTree items, there is no need to implement these
  * functions.
  */
-class DynamicLibrary
+class GMAT_API DynamicLibrary
 {
 public:
    DynamicLibrary(const std::string &name, const std::string &path = "./");

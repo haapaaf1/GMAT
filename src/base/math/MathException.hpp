@@ -19,7 +19,7 @@
 
 #include "BaseException.hpp"
 
-class MathException : public BaseException
+class GMAT_API MathException : public BaseException
 {
 public:
    

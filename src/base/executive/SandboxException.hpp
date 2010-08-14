@@ -30,7 +30,7 @@
 /**
  * Sandbox Exception class
  */
-class SandboxException : public BaseException
+class GMAT_API SandboxException : public BaseException
 {
 	public:
 		// class constructor

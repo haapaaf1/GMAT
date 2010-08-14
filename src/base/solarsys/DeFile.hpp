@@ -38,7 +38,7 @@
 
 #include <stdio.h> // for FILE, etc. (for JPL/JSC code (Hoffman))
 
-class DeFile : public PlanetaryEphem
+class GMAT_API DeFile : public PlanetaryEphem
 {
 public:
 

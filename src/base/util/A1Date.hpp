@@ -29,7 +29,7 @@
 
 class UtcDate;
 
-class A1Date : public Date
+class GMAT_API A1Date : public Date
 {
 public:
     A1Date ();

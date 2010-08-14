@@ -19,7 +19,7 @@
 
 #include "BaseException.hpp"
 
-class FunctionException : public BaseException
+class GMAT_API FunctionException : public BaseException
 {
 public:
    FunctionException(std::string details = "");

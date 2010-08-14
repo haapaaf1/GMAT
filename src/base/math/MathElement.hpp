@@ -29,7 +29,7 @@
 #include "ElementWrapper.hpp"
 #include <map>
 
-class MathElement : public MathNode
+class GMAT_API MathElement : public MathNode
 {
 public:
    MathElement(const std::string &typeStr, const std::string &nomme);

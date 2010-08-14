@@ -22,7 +22,7 @@
 
 #include "TimeTypes.hpp" // for ElapsedDays, YearNumber, MonthOfYear, DayOfMonth
 
-class DateUtil
+class GMAT_API DateUtil
 {
 public:
    static Integer JulianDay(YearNumber year, MonthOfYear month,

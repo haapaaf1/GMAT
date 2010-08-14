@@ -31,7 +31,7 @@
 #include "CoordUtil.hpp"
 #include "UtilityException.hpp"
 
-class ModKeplerian
+class GMAT_API ModKeplerian
 {
 public:
    ModKeplerian();

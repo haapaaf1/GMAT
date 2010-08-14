@@ -22,7 +22,7 @@
 #include "gmatdefs.hpp"
 #include "Rvector3.hpp"
 
-class AngleUtil
+class GMAT_API AngleUtil
 {
 public:
    

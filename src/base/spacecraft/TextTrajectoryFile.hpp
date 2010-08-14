@@ -38,7 +38,7 @@ namespace GmatTraj
 
 typedef std::vector<GmatTraj::DataType> TrajectoryArray;
 
-class TextTrajectoryFile
+class GMAT_API TextTrajectoryFile
 {
 public:
     TextTrajectoryFile(const std::string &fileName = "");

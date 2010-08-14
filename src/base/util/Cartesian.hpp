@@ -30,7 +30,7 @@
 // Forward declaration
 class Keplerian;       
 
-class Cartesian
+class GMAT_API Cartesian
 {
 /**
  *  The position and velocity will be stored in whatever units they are 

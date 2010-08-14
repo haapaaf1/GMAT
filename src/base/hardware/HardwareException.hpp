@@ -21,7 +21,7 @@
 
 #include "BaseException.hpp"
 
-class HardwareException : public BaseException{
+class GMAT_API HardwareException : public BaseException{
 public:
 
 	HardwareException(std::string details);

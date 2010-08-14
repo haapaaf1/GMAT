@@ -19,7 +19,7 @@
 #include "CelestialBody.hpp"
 #include "A1Mjd.hpp"
 
-class JacchiaRobertsAtmosphere : public AtmosphereModel
+class GMAT_API JacchiaRobertsAtmosphere : public AtmosphereModel
 {
 public:
    JacchiaRobertsAtmosphere(const std::string &name = "");
