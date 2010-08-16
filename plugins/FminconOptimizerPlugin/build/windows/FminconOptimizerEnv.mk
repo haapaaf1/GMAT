@@ -5,6 +5,8 @@ GMAT_CODE_LOCATION = ../../../../src
 GMAT_BIN_LOCATION = ../../../../bin
 
 # location of MATLAB headers and libraries
+MATLAB_DIR = C:/Program\ Files/MATLAB/R2009B
+MATLAB_CPP_FLAGS = -I$(MATLAB_DIR)/extern/include
 MATLAB_IF_CODE_LOCATION = ../../../MatlabInterfacePlugin/src
 MATLAB_IF_LIBRARY = -L$(GMAT_BIN_LOCATION) -lMatlabInterface
 
@@ -14,21 +16,13 @@ LINUX_MAC = 0
 # Set to 0 for Linux, 1 for Mac 
 MAC_SPECIFIC = 0
 
-# Set to 1 to build against the MATLAB version, 0 for no MATLAB
-USE_MATLAB = 1
-
 DEBUG_BUILD = 0
 
 # Select the base library
-ifeq ($(USE_MATLAB), 0)
-BASE_LIBRARY = GmatBaseNoMatlab
-# BASE_LIB_LOCATION is only used on Mac
-BASE_LIB_LOCATION = GMATNoMatlab.app/Contents/Frameworks/
-else
 BASE_LIBRARY = GmatBase
+
 # BASE_LIB_LOCATION is only used on Mac
 BASE_LIB_LOCATION = GMAT.app/Contents/Frameworks/
-endif
 
 # Compiler options
 CPP = g++
@@ -80,6 +74,6 @@ WXCPPFLAGS = `/usr/local/bin/wx-config --cppflags`
 
 # Do not edit below this line -- here we build up longer compile/link strings
 CPP_BASE = $(OPTIMIZATIONS) -Wall \
-           $(WXCPPFLAGS) $(PROFILE_FLAGS) $(DEBUG_FLAGS)
+           $(MATLAB_CPP_FLAGS) $(WXCPPFLAGS) $(PROFILE_FLAGS) $(DEBUG_FLAGS)
 
 CPPFLAGS = $(CPP_BASE)
