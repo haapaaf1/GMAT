@@ -54,6 +54,7 @@ GMAT RK89.Accuracy = 9.999999999999999e-012;
 GMAT RK89.MinStep = 0.001;
 GMAT RK89.MaxStep = 2700;
 GMAT RK89.MaxStepAttempts = 50;
+GMAT RK89.StopIfAccuracyIsViolated = false;
 
 
 %----------------------------------------

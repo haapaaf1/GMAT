@@ -46,6 +46,7 @@ GMAT DefaultProp.Accuracy = 2e-013;
 GMAT DefaultProp.MinStep = 0.0;
 GMAT DefaultProp.MaxStep = 2700;
 GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = false;
 
 %-----------------------------------------------------------------
 %------------------------------OutPut-----------------------------

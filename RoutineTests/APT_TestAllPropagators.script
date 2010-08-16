@@ -80,6 +80,7 @@ GMAT DefaultProp.Accuracy = 9.999999999999999e-12;
 GMAT DefaultProp.MinStep = 60;
 GMAT DefaultProp.MaxStep = 60;
 GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = false;
 
 BeginMissionSequence;
 

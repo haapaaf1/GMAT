@@ -183,6 +183,7 @@ GMAT prop.Accuracy = 9.999999999999999e-012;
 GMAT prop.MinStep = 0.001;
 GMAT prop.MaxStep = 2700;
 GMAT prop.MaxStepAttempts = 50;
+GMAT prop.StopIfAccuracyIsViolated = false;
 
 
 %----------------------------------------

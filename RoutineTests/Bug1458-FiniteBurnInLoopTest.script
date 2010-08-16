@@ -53,16 +53,16 @@ GMAT tank1.Temperature = 20;
 GMAT tank1.RefTemperature = 12;
 GMAT tank1.Volume = 0.8;
 GMAT tank1.FuelDensity = 1029;
-GMAT tank1.PressureRegulated = true;
+GMAT tank1.PressureModel = PressureRegulated;
 
 %-----  Create a thruster
 Create Thruster engine1;
 GMAT engine1.CoordinateSystem = Local;
 GMAT engine1.Origin = Earth;
 GMAT engine1.Axes = VNB;
-GMAT engine1.Element1 = 1;
-GMAT engine1.Element2 = 0;
-GMAT engine1.Element3 = 0;
+GMAT engine1.ThrustDirection1 = 1;
+GMAT engine1.ThrustDirection2 = 0;
+GMAT engine1.ThrustDirection3 = 0;
 GMAT engine1.DutyCycle = 1;
 GMAT engine1.ThrustScaleFactor = 1;
 GMAT engine1.DecrementMass = false;
@@ -124,6 +124,7 @@ GMAT prop.Accuracy = 9.999999999999999e-12;
 GMAT prop.MinStep = 0.001;
 GMAT prop.MaxStep = 2700;
 GMAT prop.MaxStepAttempts = 50;
+GMAT prop.StopIfAccuracyIsViolated = false;
 
 %  Create a report file
 Create ReportFile rf;
@@ -144,6 +145,7 @@ GMAT SatInLoop.ViewScaleFactor = 4;
 GMAT SatInLoop.XYPlane = On;
 GMAT SatInLoop.ViewPointVector = [ 10000 10000 10000];
 
+%%GMAT Sc2 = Sc1;
 
 % -------------------------------------------------------------------------
 % --------------------------- Mission Sequence ----------------------------

@@ -38,7 +38,8 @@ GMAT RKV89.Accuracy = 1e-013;
 GMAT RKV89.MinStep = 5;
 GMAT RKV89.MaxStep = 5;
 GMAT RKV89.MaxStepAttempts = 50; 
- 
+GMAT RKV89.StopIfAccuracyIsViolated = false;
+
 GMAT SolarSystem.EphemerisUpdateInterval = 0.0;
 GMAT SolarSystem.Earth.NutationUpdateInterval = 60.0; 
 
