@@ -503,7 +503,9 @@ bool BeginFiniteBurn::Initialize()
       }
       
       // Validate that the spacecraft have the thrusters they need
-      ValidateThrusters();
+      // We cannot validate thrusters until execution time(LOJ: 2010.08.13)
+      // A script can have sc2 = sc1 before running BeginFiniteBurn
+      //ValidateThrusters();
       
       // Delete old burnForce
       if (burnForce != NULL)
@@ -678,7 +680,7 @@ void BeginFiniteBurn::ValidateThrusters()
              thrusterNames.end())
          {
             thrusters.clear();
-            throw CommandException("Spacecraft " + (*current)->GetName() +
+            throw CommandException("BeginFiniteBurn: Spacecraft " + (*current)->GetName() +
                                    " does not have a thruster named \"" +
                                    (*i) + "\"");
          }

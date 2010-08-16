@@ -411,9 +411,9 @@ bool EndFiniteBurn::Initialize()
    {
       // Look up the maneuver object
       if ((mapObj = FindObject(burnName)) == NULL) 
-         throw CommandException("Unknown finite burn \"" + burnName + "\"");
+         throw CommandException("EndFiniteBurn: Unknown finite burn \"" + burnName + "\"");
       if (mapObj->GetTypeName() != "FiniteBurn")
-         throw CommandException((burnName) + " is not a FiniteBurn");
+         throw CommandException("EndFiniteBurn: " + (burnName) + " is not a FiniteBurn");
       maneuver = (FiniteBurn*)mapObj;
       
       // find all of the spacecraft
@@ -424,53 +424,17 @@ bool EndFiniteBurn::Initialize()
       for (scName = satNames.begin(); scName != satNames.end(); ++scName)
       {
          if ((mapObj = FindObject(*scName)) == NULL) 
-            throw CommandException("Unknown SpaceObject \"" + (*scName) + "\"");
+            throw CommandException("EndFiniteBurn: Unknown SpaceObject \"" + (*scName) + "\"");
          
          if (mapObj->GetType() != Gmat::SPACECRAFT)
-            throw CommandException((*scName) + " is not a Spacecraft");
+            throw CommandException("EndFiniteBurn: " + (*scName) + " is not a Spacecraft");
          sc = (Spacecraft*)mapObj;
          sats.push_back(sc);
       }
       
-      
-      ValidateThrusters();
-      
-      #if 0
-      // Validate that the spacecraft have the thrusters they need
-      thrusters.clear();
-      for (std::vector<Spacecraft*>::iterator current = sats.begin(); 
-           current != sats.end(); ++current)
-      {
-         StringArray thrusterNames = (*current)->GetStringArrayParameter(
-                                     (*current)->GetParameterID("Thrusters"));
-         StringArray engines = (maneuver)->GetStringArrayParameter(
-                               (maneuver)->GetParameterID("Thrusters"));
-         for (StringArray::iterator i = engines.begin(); 
-              i != engines.end(); ++i) {
-            if (find(thrusterNames.begin(), thrusterNames.end(), *i) == 
-                     thrusterNames.end())
-            {
-               thrusters.clear();
-               throw CommandException("Spacecraft " + (*current)->GetName() +
-                                      " does not have a thruster named \"" +
-                                      (*i) + "\"");
-            }
-      
-            Thruster* th = 
-               (Thruster*)((*current)->GetRefObject(Gmat::THRUSTER, *i));
-            if (th)
-               thrusters.push_back(th);
-            else
-            {
-               thrusters.clear();
-               throw CommandException("Thruster object \"" + (*i) +
-                                      "\" was not set on Spacecraft \"" 
-                                      + (*current)->GetName() + "\"");
-            }
-         }
-      }
-      #endif
-      
+      // We cannot validate thrusters until execution time(LOJ: 2010.08.13)
+      // A script can have sc2 = sc1 before running BeginFiniteBurn
+      //ValidateThrusters();
    }
    
    thrustName = burnName + "_FiniteThrust";
@@ -607,7 +571,7 @@ void EndFiniteBurn::ValidateThrusters()
              thrusterNames.end())
          {
             thrusters.clear();
-            throw CommandException("Spacecraft " + (*current)->GetName() +
+            throw CommandException("EndFiniteBurn: Spacecraft " + (*current)->GetName() +
                                    " does not have a thruster named \"" +
                                    (*i) + "\"");
          }
@@ -627,7 +591,7 @@ void EndFiniteBurn::ValidateThrusters()
          else
          {
             thrusters.clear();
-            throw CommandException("Thruster object \"" + (*i) +
+            throw CommandException("EndFiniteBurn: Thruster object \"" + (*i) +
                                    "\" was not set on Spacecraft \"" 
                                    + (*current)->GetName() + "\"");
          }
