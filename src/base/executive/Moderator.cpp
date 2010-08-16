@@ -331,9 +331,14 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
          MessageInterface::ShowMessage(be.GetFullMessage());
       }
    }
-   
+
+   // Set MatlabInterface run mode, that is SINGLE_USE or SHARED MATLAB engine.
    if (theMatlabInterface == NULL)
       GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::NO_MATLAB);
+   else
+      theMatlabInterface->
+         SetIntegerParameter("MatlabMode",
+                             GmatGlobal::Instance()->GetMatlabMode());
    
    return true;;
 } // Initialize()
@@ -6167,11 +6172,16 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
    if (second != NULL && second->GetTypeName() != "BeginMissionSequence")
    {
       // Show warning message for now (LOJ: 2010.07.15)
+      std::string firstCmd = "The first command detected is '";
+      firstCmd = firstCmd + second->GetGeneratingString(Gmat::NO_COMMENTS) + "'";
       MessageInterface::PopupMessage
          (Gmat::WARNING_, "*** WARNING *** BeginMissionSequence is missing. "
-          "It will be required in future builds.");
+          "It will be required in future builds.\n" + firstCmd);
+      
       #if DEBUG_INTERPRET
-      MessageInterface::ShowMessage("==> Inserting BeginMissionSequence\n");
+      MessageInterface::ShowMessage
+         ("==> Inserting 'BeginMissionSequence' after '%s'\n",
+          first->GetTypeName().c_str());
       #endif
       bool retval;
       GmatCommand *bms = CreateCommand("BeginMissionSequence", "", retval);
