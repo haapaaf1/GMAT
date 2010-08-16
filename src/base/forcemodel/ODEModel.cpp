@@ -1209,6 +1209,10 @@ bool ODEModel::Initialize()
 
 //   modelState = state->GetState();
 
+   if (forceList.size() == 0)
+      throw ODEModelException("The ODE model " + instanceName +
+            " is empty, so it cannot be used for propagation.");
+
    initialized = true;
 
    return true;

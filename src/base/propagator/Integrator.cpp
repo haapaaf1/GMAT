@@ -573,14 +573,14 @@ bool Integrator::SetBooleanParameter(const Integer id, const bool value)
  * @param pPhyscialModel Pointer to the physical model
  */
 //------------------------------------------------------------------------------
-void Integrator::SetPhysicalModel(PhysicalModel *pPhyscialModel)
+void Integrator::SetPhysicalModel(PhysicalModel *pPhysicalModel)
 {
-    Propagator::SetPhysicalModel(pPhyscialModel);
+    Propagator::SetPhysicalModel(pPhysicalModel);
     if (physicalModel != NULL) 
         physicalModel->SetErrorThreshold(errorThreshold);
 	else
 	   throw PropagatorException(
-                      "Integrator::SetPhysicalModel -- PhyscialModel is NULL.");
+	         "Integrator::SetPhysicalModel -- PhyscialModel is NULL.");
 }
 
 

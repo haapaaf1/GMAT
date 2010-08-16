@@ -6764,6 +6764,22 @@ bool Interpreter::FinalPass()
       }
    }
    
+   // Update the owned ODE models based on the fully scripted original
+   objList = theModerator->GetListOfObjects(Gmat::PROP_SETUP);
+   for (StringArray::iterator i = objList.begin(); i != objList.end(); ++i)
+   {
+      obj = FindObject(*i);
+      if (obj != NULL)
+      {
+         ODEModel *ode = ((PropSetup*)obj)->GetODEModel();
+         std::string refName = ode->GetName();
+
+         GmatBase *configuredOde = FindObject(refName);
+         if ((configuredOde != NULL) &&
+             (configuredOde->IsOfType(Gmat::ODE_MODEL)))
+            *ode = *((ODEModel*)configuredOde);
+      }
+   }
    
    //----------------------------------------------------------------------
    // Initialize CoordinateSystem
