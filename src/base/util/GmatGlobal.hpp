@@ -39,7 +39,7 @@ public:
       MINIMIZED_GUI,
    };
    
-   ///@note MatlabEngine uses the same enum
+   ///@note MatlabInterface uses the same enum
    enum MatlabMode
    {
       SINGLE_USE = 30,
@@ -56,56 +56,59 @@ public:
    static const Integer TIME_WIDTH;
    static const Integer INTEGER_WIDTH;
    
-   Integer GetDataPrecision() { return currentSetting.mDataPrecision; }
-   Integer GetTimePrecision() { return currentSetting.mTimePrecision; }
-   Integer GetDataWidth() { return currentSetting.mDataWidth; }
-   Integer GetTimeWidth() { return currentSetting.mTimeWidth; }
-   Integer GetIntegerWidth() { return currentSetting.mIntegerWidth; }
-   std::string GetOutputPath() { return currentSetting.mOutputPath; }
-   
-   void SetDataPrecision(Integer p) { currentSetting.mDataPrecision = p; }
-   void SetTimePrecision(Integer p) { currentSetting.mTimePrecision = p; }
-   void SetDataWidth(Integer w) { currentSetting.mDataWidth = w; }
-   void SetTimeWidth(Integer w) { currentSetting.mTimeWidth = w; }
-   void SetIntegerWidth(Integer w) { currentSetting.mIntegerWidth = w; }
-   void SetOutputPath(const std::string &path) { currentSetting.mOutputPath = path; }
+   Integer GetDataPrecision();
+   Integer GetTimePrecision();
+   Integer GetDataWidth();
+   Integer GetTimeWidth();
+   Integer GetIntegerWidth();
+   std::string GetOutputPath();
+
+   // Data Precision and Width
+   void SetDataPrecision(Integer p);
+   void SetTimePrecision(Integer p);
+   void SetDataWidth(Integer w);
+   void SetTimeWidth(Integer w);
+   void SetIntegerWidth(Integer w);
+   void SetOutputPath(const std::string &path);
    
    // MatlabFunction name extension
-   void SetMatlabFuncNameExt(const std::string &ext) { matlabExt = ext; }
-   std::string GetMatlabFuncNameExt() { return matlabExt; }
+   void SetMatlabFuncNameExt(const std::string &ext);
+   std::string GetMatlabFuncNameExt();
    
    // Run mode
-   bool IsBatchMode() { return isBatchMode; }
-   void SetBatchMode(bool flag) { isBatchMode = flag; }
-   bool GetRunInterrupted() { return runInterrupted; }
-   void SetRunInterrupted(bool flag) { runInterrupted = flag; }
-   Integer GetRunMode() { return runMode; }
+   bool IsBatchMode();
+   void SetBatchMode(bool flag);
+   bool GetRunInterrupted();
+   void SetRunInterrupted(bool flag);
+   Integer GetRunMode();
    void SetRunMode(Integer mode);
-   Integer GetGuiMode() { return guiMode; }
-   void SetGuiMode(Integer mode) { guiMode = mode; }
-   Integer GetMatlabMode() { return matlabMode; }
-   void SetMatlabMode(Integer mode);
+   Integer GetGuiMode();
+   void SetGuiMode(Integer mode);
    
-   // MATLAB availablity query
-   bool IsMatlabAvailable() { return isMatlabAvailable; }
-   void SetMatlabAvailable(bool flag) { isMatlabAvailable = flag; }
+   // MATLAB
+   Integer GetMatlabMode();
+   void SetMatlabMode(Integer mode);
+   bool IsMatlabAvailable();
+   void SetMatlabAvailable(bool flag);
+   bool IsMatlabDebugOn();
+   void SetMatlabDebug(bool flag);
    
    // IO formatting
-   bool IsScientific() { return actualFormat.mScientific; }
-   bool ShowPoint() { return actualFormat.mShowPoint; }
-   bool IsHorizontal() { return actualFormat.mHorizontal; }
-   bool IsBinaryIn() { return actualFormat.mBinaryIn; }
-   bool IsBinaryOut() { return actualFormat.mBinaryOut; }
-   Integer GetSpacing() { return currentFormat.mSpacing; }
+   bool IsScientific();
+   bool ShowPoint();
+   bool IsHorizontal();
+   bool IsBinaryIn();
+   bool IsBinaryOut();
+   Integer GetSpacing();
    
-   void SetScientific(bool flag) { actualFormat.mScientific = flag; }
-   void SetShowPoint(bool flag) { actualFormat.mShowPoint = flag; }
-   void SetHorizontal(bool flag) { actualFormat.mHorizontal = flag; }
-   void SetBinaryIn(bool flag) { actualFormat.mBinaryIn = flag; }
-   void SetBinaryOut(bool flag) { actualFormat.mBinaryOut = flag; }
-   void SetSpacing(Integer sp) { actualFormat.mSpacing = sp; }
-   void SetPrefix(const std::string &prefix) { actualFormat.mPrefix = prefix; }
-   void SetAppendEol(bool flag) { actualFormat.mAppendEol = flag; }
+   void SetScientific(bool flag);
+   void SetShowPoint(bool flag);
+   void SetHorizontal(bool flag);
+   void SetBinaryIn(bool flag);
+   void SetBinaryOut(bool flag);
+   void SetSpacing(Integer sp);
+   void SetPrefix(const std::string &prefix);
+   void SetAppendEol(bool flag);
    
    void SetDefaultFormat();
    void SetCurrentFormat(bool scientific = false, bool showPoint = false,
@@ -123,8 +126,8 @@ public:
                         Integer width, bool horizontal = true, Integer spacing = 1,
                         const std::string &prefix = "", bool appendEol = true);
    
-   void SetToDefaultFormat() { actualFormat = defaultFormat; }
-   void SetToCurrentFormat() { actualFormat = currentFormat; }
+   void SetToDefaultFormat();
+   void SetToCurrentFormat();
       
 private:
 
@@ -191,6 +194,7 @@ private:
    bool isBatchMode;
    bool runInterrupted;
    bool isMatlabAvailable;
+   bool isMatlabDebugOn;
    
    Integer runMode;
    Integer guiMode;

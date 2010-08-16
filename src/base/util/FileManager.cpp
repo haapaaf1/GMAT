@@ -423,6 +423,11 @@ void FileManager::ReadStartupFile(const std::string &fileName)
             else if (name == "NO_MATLAB")
                GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::NO_MATLAB);
          }
+         else if (type == "DEBUG_MATLAB")
+         {
+            if (name == "ON")
+               GmatGlobal::Instance()->SetMatlabDebug(true);
+         }
          else
             AddFileType(type, name);
       }

@@ -31,6 +31,12 @@ public:
    virtual Integer      Open(const std::string &name = "");
    virtual Integer      Close(const std::string &name = "");
    
+   // Parameter IDs
+   enum
+   {
+      InterfaceParamCount = GmatBaseParamCount
+   };
+   
 protected:
    
 };

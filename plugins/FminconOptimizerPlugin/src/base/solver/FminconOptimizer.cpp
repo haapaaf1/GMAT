@@ -13,7 +13,7 @@
 // Created: 2006.07.14
 //
 /**
- * Implementation for the external optimizer base class. 
+ * Implementation for the FminconOptimizer class. 
  *
  */
 //------------------------------------------------------------------------------
@@ -28,6 +28,8 @@
 #include "GmatInterface.hpp"
 #include "MessageInterface.hpp"
 #include "MatlabInterface.hpp"     // for Matlab Engine functions
+#include "GmatGlobal.hpp"          // for IsMatlabDebugOn()
+#include "FileUtil.hpp"            // for GetPathName()
 
 //#define DEBUG_STATE_MACHINE
 //#define DEBUG_ML_CONNECTIONS
@@ -193,11 +195,15 @@ bool FminconOptimizer::Initialize()
    ExternalOptimizer::Initialize();
    
    // open connection(s) to the external source
-   if (!OpenConnection())
-      throw SolverException(
-            "Fmincon - Unable to connect to external interface");
+   //if (!OpenConnection())
+   //   throw SolverException(
+   //         "Fmincon - Unable to connect to external interface");
    
-   return true;
+   // Open Matlab engine and find fmincon related files
+   if (OpenConnection())
+      return true;
+   else
+      return false;
 }
 
 
@@ -380,15 +386,17 @@ bool FminconOptimizer::Optimize()
    std::string optionsStr     = "GMAToptions = optimset(";
    std::string defaultOptions = optionsStr +"\'fmincon\');";
    std::ostringstream optS;
+   bool debugMatlabIF = GmatGlobal::Instance()->IsMatlabDebugOn();
    
-   #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   {
       MessageInterface::ShowMessage(
       "In Optimize method, the number of options is %d ....\n", 
       (Integer)options.size());
       MessageInterface::ShowMessage(
       "In Optimize method, the number of option values is %d ....\n", 
       (Integer)optionValues.size());
-   #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+   } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    
    for (Integer i=0; i < (Integer) options.size(); i++)
    {
@@ -404,10 +412,11 @@ bool FminconOptimizer::Optimize()
             optS << optionValues.at(i);         }
    }
    optionsStr += optS.str() + ");";
-   #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   {
       MessageInterface::ShowMessage(
       "In Optimize method, the options are: %s ....\n", optionsStr.c_str());
-   #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+   } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    // call OPTIMSET (using EvalStr) to set up options for fmincon
    if (allEmpty) // if none were set, set options to be default for fmincon
       matlabIf->RunMatlabString(defaultOptions);
@@ -423,10 +432,11 @@ bool FminconOptimizer::Optimize()
    for (Integer i=0;i<(Integer)variable.size();i++)
       mlS << variable.at(i) << ";";
    inParm = "X0 = [" + mlS.str() + "];";
-   #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   {
       MessageInterface::ShowMessage(
       "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
-   #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+   } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    matlabIf->RunMatlabString(inParm);
    
    // pass to MATLAB the Lower column vector
@@ -434,10 +444,11 @@ bool FminconOptimizer::Optimize()
    for (Integer i=0;i<(Integer)variableMinimum.size();i++)
       mlS << variableMinimum.at(i) << ";";
    inParm = "Lower = [" + mlS.str() + "];";
-   #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   {
       MessageInterface::ShowMessage(
       "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
-   #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+   } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    matlabIf->RunMatlabString(inParm);
    
    // pass to MATLAB the Upper column vector
@@ -446,10 +457,11 @@ bool FminconOptimizer::Optimize()
       mlS << variableMaximum.at(i) << ";";
    
    inParm = "Upper = [" + mlS.str() + "];";
-   #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   {
       MessageInterface::ShowMessage(
       "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
-   #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+   } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    matlabIf->RunMatlabString(inParm);
       
    // clear last errormsg
@@ -1021,11 +1033,13 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
 //------------------------------------------------------------------------------
 bool FminconOptimizer::OpenConnection()
 {
+   bool debugMatlabIF = GmatGlobal::Instance()->IsMatlabDebugOn();
    
-   #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
-      MessageInterface::ShowMessage("Entering FminconOptimizer::OpenConnection");
-   #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-
+   if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+   {
+      MessageInterface::ShowMessage("\nFminconOptimizer::OpenConnection() entered\n");
+   } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+   
    if (!GmatGlobal::Instance()->IsMatlabAvailable())
    {
       throw SolverException
@@ -1035,10 +1049,11 @@ bool FminconOptimizer::OpenConnection()
    
    matlabIf = MatlabInterface::Instance();
    
-   #ifdef DEBUG_ML_CONNECTIONS
-   MessageInterface::ShowMessage
-      ("FminconOptimizer::OpenConnection() matlabIf=<%p>\n", matlabIf);
-   #endif
+   if (debugMatlabIF)
+   {
+      MessageInterface::ShowMessage
+      ("Got MatlabInterface pointer = %p\n", matlabIf);
+   }
    
    // open the MatlabInterface
    if (!matlabIf->Open("GmatMatlab"))
@@ -1048,6 +1063,14 @@ bool FminconOptimizer::OpenConnection()
    
    // clear the last error message
    matlabIf->EvalString("clear errormsg");
+   
+   // Get current path and cd (LOJ: 2010.08.11)
+   std::string evalStr;
+   std::string resStr;
+   std::string currPath = FileManager::Instance()->GetCurrentPath();
+   
+   // Shoud I cd to current path before adding relative path?
+   RunCdCommand(currPath);
    
    // Add path to the top of the Matlab path in reverse order(loj: 2008.10.16)
    // since FileManager::GetAllMatlabFunctionPaths() returns in top to bottom order
@@ -1060,10 +1083,11 @@ bool FminconOptimizer::OpenConnection()
       pathName = *rpos;
       if (pathName != "")
       {
-         #ifdef DEBUG_ML_CONNECTIONS
-         MessageInterface::ShowMessage
-            ("Adding matlab path '%s' to the top\n", pathName.c_str());
-         #endif
+         if (debugMatlabIF)
+         {
+            MessageInterface::ShowMessage
+               ("Adding matlab path '%s' to the top\n", pathName.c_str());
+         }
          std::string addPath = "path('" + pathName + "', path)";
          matlabIf->EvalString(addPath);
       }
@@ -1075,10 +1099,11 @@ bool FminconOptimizer::OpenConnection()
    {
       std::string setPath = "path('" + functionPath + "', path)";
       matlabIf->RunMatlabString(setPath);
-      #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+      if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+      {
          MessageInterface::ShowMessage("MATLAB path set to %s\n", 
          functionPath.c_str());
-      #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+      } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    }
    
    // check for availability of Optimization Toolbox (well, really
@@ -1087,34 +1112,59 @@ bool FminconOptimizer::OpenConnection()
    double      outArr[1], outArr2[1];
    double      out1[1], out2[1], out3[1], out4[1];
    int         OKint = 0;
-   std::string evalStr   = "fminconexist = exist(\'fmincon\');";
-   std::string resStr    = "fminconexist";
+   evalStr   = "fminconexist = exist(\'fmincon\');";
+   resStr    = "fminconexist";
    matlabIf->RunMatlabString(evalStr);
-   OKint                 = matlabIf->GetRealArray(resStr, 1, outArr);
-
+   OKint = matlabIf->GetRealArray(resStr, 1, outArr);
+   
    if (!OKint)
       throw SolverException(
             "Error determining existence of Optimization Toolbox");
+   
    if (outArr[0] > 0.0) // 2 means it is in the MATLAB path
    {
-      #ifdef DEBUG_ML_CONNECTIONS
-         MessageInterface::ShowMessage(
+      if (debugMatlabIF)
+      {   MessageInterface::ShowMessage(
          "fmincon exists (code = %.4f)\n", outArr[0]);
-      #endif
+      }
       evalStr   = "startupexist = exist(\'gmat_startup\');";
       resStr    = "startupexist";
       matlabIf->RunMatlabString(evalStr);
-      OKint                 = matlabIf->GetRealArray(resStr, 1, outArr2); 
+      OKint     = matlabIf->GetRealArray(resStr, 1, outArr2); 
       if (!OKint)
          throw SolverException(
                "Error determining existence of MATLAB gmat_startup");
+      
       if (outArr2[0] > 0.0) // 2 means it is in the MATLAB path
       {
-         #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+         if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+         {
             MessageInterface::ShowMessage(
             "gmat_startup exists (code = %.4f), running gmat_startup\n", 
             outArr2[0]);
-         #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+         } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+         
+         // Find directory that has gmat_startup.m and cd to that directory
+         // before running gmat_startup.m
+         evalStr = "whichStr = which('gmat_startup');";
+         matlabIf->RunMatlabString(evalStr);
+         if (matlabIf->GetString("whichStr", resStr) == 1)
+         {
+            if (debugMatlabIF)
+               MessageInterface::ShowMessage
+                  ("Here is the path of gmat_startup:\n%s\n", resStr.c_str());
+            
+            std::string startupPath = GmatFileUtil::ParsePathName(resStr);
+            
+            // cd to directory has gmat_startup.m
+            RunCdCommand(startupPath);
+         }
+         else
+         {
+            MessageInterface::ShowMessage
+               ("Unable to get whichStr from MATLAB workspace.\n");
+         }
+         
          // run the startup file to add to the MATLAB path correctly
          evalStr = "gmat_startup;";
          matlabIf->RunMatlabString(evalStr);
@@ -1122,36 +1172,53 @@ bool FminconOptimizer::OpenConnection()
          evalStr = "driverexist = exist(\'GmatFminconOptimizationDriver\');"; 
          resStr  = "driverexist";  
          matlabIf->RunMatlabString(evalStr);
-         OKint                 = matlabIf->GetRealArray(resStr, 1, out1); 
+         OKint   = matlabIf->GetRealArray(resStr, 1, out1); 
          evalStr = "objectiveexist = exist(\'EvaluateGMATObjective\');"; 
          resStr  = "objectiveexist";  
          matlabIf->RunMatlabString(evalStr);
-         OKint                 = matlabIf->GetRealArray(resStr, 1, out2); 
+         OKint   = matlabIf->GetRealArray(resStr, 1, out2); 
          evalStr = "constraintexist = exist(\'EvaluateGMATConstraints\');"; 
          resStr  = "constraintexist";  
          matlabIf->RunMatlabString(evalStr);
-         OKint                 = matlabIf->GetRealArray(resStr, 1, out3); 
+         OKint   = matlabIf->GetRealArray(resStr, 1, out3); 
          evalStr = "callbackexist = exist(\'CallGMATfminconSolver\');"; 
          resStr  = "callbackexist";  
          matlabIf->RunMatlabString(evalStr);
          OKint                 = matlabIf->GetRealArray(resStr, 1, out4); 
-         #ifdef DEBUG_ML_CONNECTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+         if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
+         {
             MessageInterface::ShowMessage(
             "existence codes for support files  = %.4f  %.4f  %.4f  %.4f\n", 
             out1[0], out2[0], out3[0], out4[0]);
-         #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+         } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
          
          if ((out1[0] <= 0.0) || (out2[0] <= 0.0) ||
              (out3[0] <= 0.0) || (out4[0] <= 0.0))
          {
-            MessageInterface::ShowMessage("ERROR - MATLAB support files not in MATLAB path");
-            sourceReady = false;
-            return false;
+            std::string missingFiles;
+            if (out1[0] <= 0.0)
+               missingFiles = missingFiles + "GmatFminconOptimizationDriver, ";
+            if (out2[0] <= 0.0)
+               missingFiles = missingFiles + "EvaluateGMATObjective, ";
+            if (out3[0] <= 0.0)
+               missingFiles = missingFiles + "EvaluateGMATConstraints, ";
+            if (out4[0] <= 0.0)
+               missingFiles = missingFiles + "CallGMATfminconSolver, ";
+            
+            if (debugMatlabIF)
+               WriteSearchPath("In FminconOptimizer::OpenConnection():");
+            
+            throw SolverException
+               ("MATLAB support files: " + missingFiles + " not in the MATLAB search path\n");
          }
          if (inSource == NULL) inSource = GmatInterface::Instance();
          if (inSource == NULL)  
             throw SolverException(
             "Error attempting to access GMAT server (to MATLAB)");
+         
+         // Shoue I cd to initial directory?
+         //RunCdCommand(currPath);
+         
          // ********* BEGIN temporary prototype, testing, etc. *****************************//
          //inSource->RegisterCallbackServer(this);
          //evalStr = "bogusFunction;";
@@ -1161,20 +1228,27 @@ bool FminconOptimizer::OpenConnection()
          //   MessageInterface::ShowMessage("ERROR calling EvalString\n");
          //MessageInterface::ShowMessage("Done executing bogusFunction\n");
          // ********* END temporary prototype, testing, etc. *****************************//
-         sourceReady = true;
       }
       else
       {
-         MessageInterface::ShowMessage("ERROR - gmat_startup.m not in MATLAB path");
-         sourceReady = false;
+         if (debugMatlabIF)
+            WriteSearchPath("In FminconOptimizer::OpenConnection():");
+         
+         throw SolverException("gmat_startup.m not in the MATLAB search path\n");
       }
    }
    else
    {
-      MessageInterface::ShowMessage("fmincon not in MATLAB path");
-      sourceReady = false;
+      if (debugMatlabIF)
+         WriteSearchPath("In FminconOptimizer::OpenConnection():");
+      
+      throw SolverException("fmincon.m not in the MATLAB search path\n");
    }
-   return sourceReady; 
+   
+   if (debugMatlabIF) 
+      MessageInterface::ShowMessage("FminconOptimizer::OpenConnection() leaving\n\n");
+   
+   return true;
 }
 
 
@@ -1360,5 +1434,55 @@ bool FminconOptimizer::IsAllowedValue(const std::string &opt,
    }
    
    return false;
-   
 }
+
+
+//------------------------------------------------------------------------------
+// void RunCdCommand(const std::string &pathName)
+//------------------------------------------------------------------------------
+void FminconOptimizer::RunCdCommand(const std::string &pathName)
+{
+   std::string evalStr, resStr;
+   bool debugMatlabIF = GmatGlobal::Instance()->IsMatlabDebugOn();
+   
+   evalStr = "cd ", 
+   evalStr = evalStr + pathName;
+   matlabIf->RunMatlabString(evalStr);
+   
+   if (debugMatlabIF)
+   {
+      MessageInterface::ShowMessage
+         ("Changed directory to: %s\n", pathName.c_str());
+      
+      evalStr = "pwdStr = pwd";
+      matlabIf->RunMatlabString(evalStr);
+      
+      if (matlabIf->GetString("pwdStr", resStr) == 1)
+         MessageInterface::ShowMessage
+            ("The current path is:\n%s\n", resStr.c_str());
+      else
+         MessageInterface::ShowMessage
+            ("Unable to get pwdStr from MATLAB workspace.\n");
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteSearchPath(const std::string &msg)
+//------------------------------------------------------------------------------
+void FminconOptimizer::WriteSearchPath(const std::string &msg)
+{
+   std::string evalStr, resStr;
+   
+   MessageInterface::ShowMessage("%s\n", msg.c_str());
+   evalStr = "pathStr = path; pathStr = regexprep(pathStr, ';', '\\n');";
+   matlabIf->RunMatlabString(evalStr);
+   
+   if (matlabIf->GetString("pathStr", resStr) == 1)
+      MessageInterface::ShowMessage
+         ("The current path is:\n%s\n", resStr.c_str());
+   else
+      MessageInterface::ShowMessage
+         ("Unable to get pathStr from MATLAB workspace.\n");
+}
+

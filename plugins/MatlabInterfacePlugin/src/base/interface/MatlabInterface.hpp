@@ -23,10 +23,7 @@
 #define MatlabInterface_hpp
 
 #include "Interface.hpp"
-
-#ifdef __USE_MATLAB__
 #include "engine.h"           // for Matlab Engine
-#endif
 
 #include <string>
 #include <map>
@@ -39,7 +36,7 @@ public:
    ///@note GmatGlobal uses the same enum
    enum MatlabMode
    {
-      SINGLE_USE = 20,
+      SINGLE_USE = 30,
       SHARED,
       NO_MATLAB,  // MATLAB is not installed
    };
@@ -62,8 +59,40 @@ public:
    void          SetMatlabMode(Integer mode);
    Integer       GetMatlabMode();
    
+   // Access methods overriden from GmatBase
+   virtual Integer      GetParameterID(const std::string &str) const;
+   virtual bool         IsParameterReadOnly(const Integer id) const;
+   virtual Integer      GetIntegerParameter(const Integer id) const;
+   virtual Integer      SetIntegerParameter(const Integer id,
+                                            const Integer value);
+   virtual Integer      GetIntegerParameter(const std::string &label) const;
+   virtual Integer      SetIntegerParameter(const std::string &label,
+                                            const Integer value);
+   
+   // Parameter IDs
+   enum
+   {
+      MATLAB_MODE = InterfaceParamCount,
+      MatlabInterfaceParamCount
+   };
+   
+   static const std::string
+      PARAMETER_TEXT[MatlabInterfaceParamCount - InterfaceParamCount];
+   static const Gmat::ParameterType
+      PARAMETER_TYPE[MatlabInterfaceParamCount - InterfaceParamCount];
    
 private:
+   
+   static MatlabInterface *instance;
+   static const Integer MAX_OUT_SIZE;
+   Engine *enginePtr;   
+   std::map<std::string, Engine*> matlabEngineMap;
+   std::string lastEngineName;
+   std::string message;
+   Integer accessCount;
+   Integer matlabMode;
+   char *outBuffer;
+   bool debugMatlabEngine;
    
    // inherited from GmatBase
    virtual GmatBase*    Clone() const;
@@ -74,24 +103,12 @@ private:
    MatlabInterface(const MatlabInterface &mi);
    MatlabInterface& operator=(const MatlabInterface& mi);
    
-#ifdef __USE_MATLAB__
-   static MatlabInterface *instance;
-   static const Integer MAX_OUT_SIZE;
-   Engine *enginePtr;   
-   std::map<std::string, Engine*> matlabEngineMap;
-   std::string lastEngineName;
-   std::string message;
-   Integer accessCount;
-   Integer matlabMode;
-   char *outBuffer;
-   
    Integer OpenEngineOnMac();
    Integer CloseEngineOnMac();
    Integer OpenSharedEngine();
    Integer CloseSharedEngine();
    Integer OpenSingleEngine(const std::string &engineName);
    Integer CloseSingleEngine(const std::string &engineName);
-#endif
 };
 
 #endif // MatlabInterface_hpp

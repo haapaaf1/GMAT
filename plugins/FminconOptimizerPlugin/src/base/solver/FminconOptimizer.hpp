@@ -30,46 +30,46 @@ public:
    FminconOptimizer(const std::string &name);
    virtual ~FminconOptimizer();
    FminconOptimizer(const FminconOptimizer &opt);
-   FminconOptimizer&   operator=(const FminconOptimizer& opt);
+   FminconOptimizer&    operator=(const FminconOptimizer& opt);
    
-   virtual bool        Initialize();
-   virtual SolverState AdvanceState();
-   virtual StringArray AdvanceNestedState(std::vector<Real> vars);
-   virtual bool        Optimize();
-      
+   virtual bool         Initialize();
+   virtual SolverState  AdvanceState();
+   virtual StringArray  AdvanceNestedState(std::vector<Real> vars);
+   virtual bool         Optimize();
+   
    // inherited from GmatBase
-   virtual GmatBase*   Clone() const;
-   virtual void        Copy(const GmatBase* orig);
-
+   virtual GmatBase*    Clone() const;
+   virtual void         Copy(const GmatBase* orig);
+   
    // Access methods overriden from the base class
    
-   virtual std::string GetParameterText(const Integer id) const;
-   virtual Integer     GetParameterID(const std::string &str) const;
+   virtual std::string  GetParameterText(const Integer id) const;
+   virtual Integer      GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType
-                       GetParameterType(const Integer id) const;
-   virtual std::string GetParameterTypeString(const Integer id) const;
-
-   virtual std::string GetStringParameter(const Integer id) const;
-   virtual bool        SetStringParameter(const Integer id,
-                                          const std::string &value);
-   virtual std::string GetStringParameter(const std::string &label) const;
-   virtual bool        SetStringParameter(const std::string &label,
-                                          const std::string &value);
-   virtual std::string GetStringParameter(const Integer id,
-                                          const Integer index) const;
-   virtual bool        SetStringParameter(const Integer id, 
-                                          const std::string &value,
-                                          const Integer index);
-   virtual std::string GetStringParameter(const std::string &label,
-                                          const Integer index) const;
-   virtual bool        SetStringParameter(const std::string &label, 
-                                          const std::string &value,
-                                          const Integer index);
-   virtual const StringArray&
-                       GetStringArrayParameter(const Integer id) const;
+                        GetParameterType(const Integer id) const;
+   virtual std::string  GetParameterTypeString(const Integer id) const;
    
-   virtual void        WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
-                                       std::stringstream &stream);
+   virtual std::string  GetStringParameter(const Integer id) const;
+   virtual bool         SetStringParameter(const Integer id,
+                                           const std::string &value);
+   virtual std::string  GetStringParameter(const std::string &label) const;
+   virtual bool         SetStringParameter(const std::string &label,
+                                           const std::string &value);
+   virtual std::string  GetStringParameter(const Integer id,
+                                           const Integer index) const;
+   virtual bool         SetStringParameter(const Integer id, 
+                                           const std::string &value,
+                                           const Integer index);
+   virtual std::string  GetStringParameter(const std::string &label,
+                                           const Integer index) const;
+   virtual bool         SetStringParameter(const std::string &label, 
+                                           const std::string &value,
+                                           const Integer index);
+   virtual const StringArray&
+                        GetStringArrayParameter(const Integer id) const;
+   
+   virtual void         WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
+                                        std::stringstream &stream);
    
 protected:
    StringArray  options;
@@ -85,23 +85,25 @@ protected:
    static const Integer        MATLAB_OPTIONS_OFFSET;
    
    // Methods from Solver
-   virtual void                CompleteInitialization();
-   virtual void                RunExternal();
-   virtual void                RunNominal();
-   virtual void                CalculateParameters();
-   virtual void                RunComplete();
+   virtual void         CompleteInitialization();
+   virtual void         RunExternal();
+   virtual void         RunNominal();
+   virtual void         CalculateParameters();
+   virtual void         RunComplete();
    
-   virtual void                FreeArrays();
-   virtual void                WriteToTextFile(
-                                  SolverState stateToUse = UNDEFINED_STATE);
+   virtual void         FreeArrays();
+   virtual void         WriteToTextFile(SolverState stateToUse = UNDEFINED_STATE);
    
-   virtual bool                OpenConnection();
-   virtual void                CloseConnection();
+   virtual bool         OpenConnection();
+   virtual void         CloseConnection();
    
-   virtual bool                IsAllowedOption(const std::string &str);
-   virtual bool                IsAllowedValue(const std::string &opt,
-                                              const std::string &val);
-
+   virtual bool         IsAllowedOption(const std::string &str);
+   virtual bool         IsAllowedValue(const std::string &opt,
+                                       const std::string &val);
+   
+   void                 RunCdCommand(const std::string &pathName);
+   void                 WriteSearchPath(const std::string &msg);
+   
 public:
    // Parameter IDs
    enum

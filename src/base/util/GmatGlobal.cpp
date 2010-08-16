@@ -52,6 +52,328 @@ GmatGlobal* GmatGlobal::Instance()
    return theGmatGlobal;
 }
 
+//------------------------------------------------------------------------------
+// Integer GetDataPrecision()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetDataPrecision()
+{
+   return currentSetting.mDataPrecision;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetTimePrecision()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetTimePrecision()
+{
+   return currentSetting.mTimePrecision;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetDataWidth()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetDataWidth()
+{
+   return currentSetting.mDataWidth;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetTimeWidth()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetTimeWidth()
+{
+   return currentSetting.mTimeWidth;
+}
+
+
+//------------------------------------------------------------------------------
+// Integer GetIntegerWidth()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetIntegerWidth()
+{
+   return currentSetting.mIntegerWidth;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetOutputPath()
+//------------------------------------------------------------------------------
+std::string GmatGlobal::GetOutputPath()
+{
+   return currentSetting.mOutputPath;
+}
+
+//------------------------------------------------------------------------------
+// void SetDataPrecision(Integer p)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetDataPrecision(Integer p)
+{
+   currentSetting.mDataPrecision = p;
+}
+
+//------------------------------------------------------------------------------
+// void SetTimePrecision(Integer p)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetTimePrecision(Integer p)
+{
+   currentSetting.mTimePrecision = p;
+}
+
+//------------------------------------------------------------------------------
+// void SetDataWidth(Integer w)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetDataWidth(Integer w)
+{
+   currentSetting.mDataWidth = w;
+}
+
+//------------------------------------------------------------------------------
+// void SetTimeWidth(Integer w)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetTimeWidth(Integer w)
+{
+   currentSetting.mTimeWidth = w;
+}
+
+//------------------------------------------------------------------------------
+// void SetIntegerWidth(Integer w)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetIntegerWidth(Integer w)
+{
+   currentSetting.mIntegerWidth = w;
+}
+
+//------------------------------------------------------------------------------
+// void SetOutputPath(const std::string &path)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetOutputPath(const std::string &path)
+{
+   currentSetting.mOutputPath = path;
+}
+
+//------------------------------------------------------------------------------
+// void SetMatlabFuncNameExt(const std::string &ext)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetMatlabFuncNameExt(const std::string &ext)
+{
+   matlabExt = ext;
+}
+
+//------------------------------------------------------------------------------
+// std::string GetMatlabFuncNameExt()
+//------------------------------------------------------------------------------
+std::string GmatGlobal::GetMatlabFuncNameExt()
+{
+   return matlabExt;
+}
+
+//------------------------------------------------------------------------------
+// bool IsBatchMode()
+//------------------------------------------------------------------------------
+bool GmatGlobal::IsBatchMode()
+{
+   return isBatchMode;
+}
+
+//------------------------------------------------------------------------------
+// void SetBatchMode(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetBatchMode(bool flag)
+{
+   isBatchMode = flag;
+}
+
+//------------------------------------------------------------------------------
+// bool GetRunInterrupted()
+//------------------------------------------------------------------------------
+bool GmatGlobal::GetRunInterrupted()
+{
+   return runInterrupted;
+}
+
+//------------------------------------------------------------------------------
+// void SetRunInterrupted(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetRunInterrupted(bool flag)
+{
+   runInterrupted = flag;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetRunMode()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetRunMode()
+{
+   return runMode;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetGuiMode()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetGuiMode()
+{
+   return guiMode;
+}
+
+//------------------------------------------------------------------------------
+// void SetGuiMode(Integer mode)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetGuiMode(Integer mode)
+{
+   guiMode = mode;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetMatlabMode()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetMatlabMode()
+{
+   return matlabMode;
+}
+
+//------------------------------------------------------------------------------
+// bool IsMatlabAvailable()
+//------------------------------------------------------------------------------
+bool GmatGlobal::IsMatlabAvailable()
+{
+   return isMatlabAvailable;
+}
+
+//------------------------------------------------------------------------------
+// void SetMatlabAvailable(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetMatlabAvailable(bool flag)
+{
+   isMatlabAvailable = flag;
+}
+
+//------------------------------------------------------------------------------
+// bool IsMatlabDebugOn()
+//------------------------------------------------------------------------------
+bool GmatGlobal::IsMatlabDebugOn()
+{
+   return isMatlabDebugOn;
+}
+
+//------------------------------------------------------------------------------
+// void SetMatlabDebug(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetMatlabDebug(bool flag)
+{
+   isMatlabDebugOn = flag;
+}
+
+//------------------------------------------------------------------------------
+// bool IsScientific()
+//------------------------------------------------------------------------------
+bool GmatGlobal::IsScientific()
+{
+   return actualFormat.mScientific;
+}
+
+//------------------------------------------------------------------------------
+// bool ShowPoint()
+//------------------------------------------------------------------------------
+bool GmatGlobal::ShowPoint()
+{
+   return actualFormat.mShowPoint;
+}
+
+//------------------------------------------------------------------------------
+// bool IsHorizontal()
+//------------------------------------------------------------------------------
+bool GmatGlobal::IsHorizontal()
+{
+   return actualFormat.mHorizontal;
+}
+
+//------------------------------------------------------------------------------
+// bool IsBinaryIn()
+//------------------------------------------------------------------------------
+bool GmatGlobal::IsBinaryIn()
+{
+   return actualFormat.mBinaryIn;
+}
+
+//------------------------------------------------------------------------------
+// bool IsBinaryOut()
+//------------------------------------------------------------------------------
+bool GmatGlobal::IsBinaryOut()
+{
+   return actualFormat.mBinaryOut;
+}
+
+//------------------------------------------------------------------------------
+// Integer GetSpacing()
+//------------------------------------------------------------------------------
+Integer GmatGlobal::GetSpacing()
+{
+   return currentFormat.mSpacing;
+}
+
+//------------------------------------------------------------------------------
+// void SetScientific(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetScientific(bool flag)
+{
+   actualFormat.mScientific = flag;
+}
+
+//------------------------------------------------------------------------------
+// void SetShowPoint(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetShowPoint(bool flag)
+{
+   actualFormat.mShowPoint = flag;
+}
+
+//------------------------------------------------------------------------------
+// void SetHorizontal(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetHorizontal(bool flag)
+{
+   actualFormat.mHorizontal = flag;
+}
+
+//------------------------------------------------------------------------------
+// void SetBinaryIn(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetBinaryIn(bool flag)
+{
+   actualFormat.mBinaryIn = flag;
+}
+
+//------------------------------------------------------------------------------
+// void SetBinaryOut(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetBinaryOut(bool flag)
+{
+   actualFormat.mBinaryOut = flag;
+}
+
+//------------------------------------------------------------------------------
+// void SetSpacing(Integer sp)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetSpacing(Integer sp)
+{
+   actualFormat.mSpacing = sp;
+}
+
+//------------------------------------------------------------------------------
+// void SetPrefix(const std::string &prefix)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetPrefix(const std::string &prefix)
+{
+   actualFormat.mPrefix = prefix;
+}
+
+//------------------------------------------------------------------------------
+// void SetAppendEol(bool flag)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetAppendEol(bool flag)
+{
+   actualFormat.mAppendEol = flag;
+}
 
 //------------------------------------------------------------------------------
 // void SetRunMode(Integer mode)
@@ -62,7 +384,6 @@ void GmatGlobal::SetRunMode(Integer mode)
    if (runMode == EXIT_AFTER_RUN)
       isBatchMode = true;
 }
-
 
 //------------------------------------------------------------------------------
 // void SetMatlabMode(Integer mode)
@@ -171,6 +492,21 @@ void GmatGlobal::SetActualFormat(bool scientific, bool showPoint, Integer precis
    actualFormat.mAppendEol = appendEol;
 }
 
+//------------------------------------------------------------------------------
+// void SetToDefaultFormat()
+//------------------------------------------------------------------------------
+void GmatGlobal::SetToDefaultFormat()
+{
+   actualFormat = defaultFormat;
+}
+
+//------------------------------------------------------------------------------
+// void SetToCurrentFormat()
+//------------------------------------------------------------------------------
+void GmatGlobal::SetToCurrentFormat()
+{
+   actualFormat = currentFormat;
+}
 
 //---------------------------------
 // private methods
@@ -188,6 +524,7 @@ GmatGlobal::GmatGlobal()
    isBatchMode = false;
    runInterrupted = false;
    isMatlabAvailable = false;
+   isMatlabDebugOn = false;
    runMode = NORMAL;
    guiMode = NORMAL_GUI;
    matlabMode = SHARED;
