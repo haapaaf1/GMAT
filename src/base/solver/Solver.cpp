@@ -406,6 +406,85 @@ Integer Solver::SetSolverVariables(Real *data, const std::string &name)
 
 
 //------------------------------------------------------------------------------
+// bool Solver::RefreshSolverVariables(Real *data, const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Refreshes Variable data to the current Mission Control Sequence values.
+ *
+ * Updates the solver's variable parameters for elements that change as the
+ * result of previous commands -- for instance, Variable updates in a script,
+ * where the Variable is used to set a parameter on the Solver's variable data.
+ *
+ * @param <data> An array of data appropriate to the variables used in the
+ *               algorithm.
+ * @param <name> A label for the data parameter.
+ *
+ * @return true is the data was updated, false if not.
+ */
+//------------------------------------------------------------------------------
+bool Solver::RefreshSolverVariables(Real *data, const std::string &name)
+{
+   bool retval = false;
+
+   // Find index of the variable
+   for (UnsignedInt n = 0; n < variableNames.size(); ++n)
+   {
+      std::string varName = variableNames[n];
+      if (varName == name)
+      {
+         try
+         {
+            variable.at(n) = data[0];
+            variableInitialValues.at(n) = data[0];
+            perturbation.at(n) = data[1];
+         }
+         catch(const std::exception &re)
+         {
+            throw SolverException(
+                    "Range error setting variable or perturbation in "
+                    "SetSolverVariables\n");
+         }
+         // Sanity check min and max
+         if (data[2] >= data[3])
+         {
+            std::stringstream errMsg;
+            errMsg << "Minimum allowed variable value (received " << data[2]
+                   << ") must be less than maximum (received " << data[3] << ")";
+            throw SolverException(errMsg.str());
+         }
+         if (data[4] <= 0.0)
+         {
+            std::stringstream errMsg;
+            errMsg << "Largest allowed step must be positive! (received "
+                   << data[4] << ")";
+            throw SolverException(errMsg.str());
+         }
+
+         //variableMinimum[variableCount] = data[2];
+         //variableMaximum[variableCount] = data[3];
+         //variableMaximumStep[variableCount] = data[4];
+         try
+         {
+            variableMinimum.at(n)           = data[2];
+            variableMaximum.at(n)           = data[3];
+            variableMaximumStep.at(n)       = data[4];
+         }
+         catch(const std::exception &re)
+         {
+            throw SolverException(
+                  "Range error setting variable min/max in "
+                  "RefreshSolverVariables\n");
+         }
+
+         retval = true;
+      }
+   }
+
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
 //  Real GetSolverVariable(Integer id)
 //------------------------------------------------------------------------------
 /**

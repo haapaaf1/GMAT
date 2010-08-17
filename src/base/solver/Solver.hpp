@@ -165,6 +165,8 @@ public:
     
    virtual Integer     SetSolverVariables(Real *data,
                                           const std::string &name);
+   virtual bool        RefreshSolverVariables(Real *data,
+                                          const std::string &name);
 
    virtual Real        GetSolverVariable(Integer id);
     

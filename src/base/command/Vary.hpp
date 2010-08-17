@@ -101,6 +101,9 @@ public:
    virtual bool         Initialize();
    virtual bool         Execute();
    virtual void         RunComplete();
+   virtual bool         TakeAction(const std::string &action,
+                                   const std::string &actionData = "");
+
    
    // Used to apply corrections to the command
    virtual void         SetInitialValue(Solver *theSolver);
@@ -178,6 +181,8 @@ protected:
    
    /// Used for wrapper name checking, wrapper name can be a number
    bool IsThereSameWrapperName(int param, const std::string &wrapperName);
+   /// Method to refresh values of data from variables
+   void RefreshData();
 };
 
 

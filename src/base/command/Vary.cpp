@@ -1233,7 +1233,7 @@ bool Vary::Execute()
 
       solverDataFinalized = true;
       BuildCommandSummary(true);
-      #if DEBUG_VARY_EXECUTE
+      #ifdef DEBUG_VARY_EXECUTE
          MessageInterface::ShowMessage
             ("Vary::Execute - exiting with retval = %s\n",
             (retval? "true" : "False"));
@@ -1279,11 +1279,38 @@ void Vary::RunComplete()
    GmatCommand::RunComplete();
 }
 
+
+//------------------------------------------------------------------------------
+// bool TakeAction(const std::string &action, const std::string &actionData)
+//------------------------------------------------------------------------------
+/**
+ * Performs an action specific to Vary commands
+ *
+ * @param action Text trigger for the requested action
+ * @param actionData Additional data needed to perform the action (defaults to
+ *                   the empty string)
+ *
+ * @return true if an action was performed, false if not
+ */
+//------------------------------------------------------------------------------
+bool Vary::TakeAction(const std::string &action, const std::string &actionData)
+{
+   if (action == "SolverReset")
+   {
+      // Prep to refresh the solver data if called again
+      RefreshData();
+      return true;
+   }
+
+   return GmatCommand::TakeAction(action, actionData);
+}
+
+
 //------------------------------------------------------------------------------
 // void SetInitialValue(Solver *theSolver)
 //------------------------------------------------------------------------------
 /**
- * Updates intial variable values from a solver control sequence.  
+ * Updates initial variable values from a solver control sequence.
  * 
  * This method is used to change the initial value of the variable -- for 
  * example, once a targeter has found a solution, a call to this method sets the 
@@ -1357,3 +1384,36 @@ bool Vary::IsThereSameWrapperName(int param, const std::string &wrapperName)
    return retval;
 }
 
+
+//------------------------------------------------------------------------------
+// void RefreshData()
+//------------------------------------------------------------------------------
+/**
+ * Updates the variable data with the current values from the Mission Control
+ * Sequence.
+ */
+//------------------------------------------------------------------------------
+void Vary::RefreshData()
+{
+   Real varData[5], asf, msf;
+   asf = additiveScaleFactor->EvaluateReal();
+   msf = multiplicativeScaleFactor->EvaluateReal();
+
+   varData[0] = initialValue->EvaluateReal();                // Initial value
+
+   // scale by using Eq. 13.5 of Architecture document
+   varData[0] = (varData[0] + asf) / msf;
+   varData[1] = (perturbation->EvaluateReal()) / msf;         // pert
+   varData[2] = (variableLower->EvaluateReal() + asf) / msf;  // minimum
+   varData[3] = (variableUpper->EvaluateReal() + asf) / msf;  // maximum
+   varData[4] = (variableMaximumStep->EvaluateReal()) / msf;  // largest step
+
+   #ifdef DEBUG_VARY_EXECUTE
+      MessageInterface::ShowMessage(
+         "For variable \"%s\", data is [%15.9lf %15.9lf %15.9lf %15.9lf "
+         "%15.9lf]\n", variableName.c_str(), varData[0], varData[1], varData[2],
+         varData[3], varData[4]);
+   #endif
+
+   solver->RefreshSolverVariables(varData, variableName);
+}

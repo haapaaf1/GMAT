@@ -47,6 +47,7 @@ Target::Target() :
 //   targeterName       (""),
    targeterConverged  (false),
    targeterInFunctionInitialized (false),
+   targeterRunOnce(false),
    TargeterConvergedID(parameterCount),
    targeterInDebugMode(false)
 {
@@ -80,6 +81,7 @@ Target::Target(const Target& t) :
    SolverBranchCommand (t),
    targeterConverged   (false),
    targeterInFunctionInitialized (false),
+   targeterRunOnce (false),
    TargeterConvergedID (t.TargeterConvergedID),
    targeterInDebugMode (t.targeterInDebugMode)
 {
@@ -108,6 +110,7 @@ Target& Target::operator=(const Target& t)
 
    targeterConverged   = false;
    targeterInFunctionInitialized = false;
+   targeterRunOnce = false;
    TargeterConvergedID = t.TargeterConvergedID;
    targeterInDebugMode = t.targeterInDebugMode;
    localStore.clear();
@@ -751,7 +754,11 @@ bool Target::Execute()
                      std::string type = currentCmd->GetTypeName();
                      if ((type == "Target") || (type == "Vary") ||
                          (type == "Achieve"))
+                     {
                         currentCmd->Execute();
+                        if ((type == "Vary") && (targeterRunOnce))
+                           currentCmd->TakeAction("SolverReset");
+                     }
                      currentCmd = currentCmd->GetNext();
                   }
                   StoreLoopData();
@@ -784,6 +791,7 @@ bool Target::Execute()
                case Solver::FINISHED:
                   // Final clean-up
                   targeterConverged = true;
+                  targeterRunOnce = true;
                   
                   // Run once more to publish the data from the converged state
                   if (!commandComplete)
