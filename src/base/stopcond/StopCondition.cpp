@@ -2125,6 +2125,20 @@ Real StopCondition::GetStopGoal()
    else
       goalValue = currentGoalValue;
    
+   if (isLhsCyclicCondition)
+   {
+      #ifdef DEBUG_CYCLIC_PARAMETERS
+         MessageInterface::ShowMessage("Goal: %.12lf is cyclic; ", goalValue);
+      #endif
+      Real min, max;
+      GetRange(min, max);
+      goalValue = PutInRange(goalValue, min, max);
+      #ifdef DEBUG_CYCLIC_PARAMETERS
+         MessageInterface::ShowMessage("adjusted to [%lf, %lf] gives: %.12lf\n",
+               min, max, goalValue);
+      #endif
+   }
+
    return goalValue;
 }
 
