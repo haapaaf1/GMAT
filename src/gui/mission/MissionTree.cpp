@@ -499,14 +499,10 @@ wxTreeItemId& MissionTree::UpdateCommandTree(wxTreeItemId parent,
    wxString cmdTypeName = cmd->GetTypeName().c_str();
    wxTreeItemId currId;
    mNewTreeId = currId;
-
-   // Check if command type is viewable
-   bool isUnviewableCommand = false;
-   int index = mCommandList.Index(cmdTypeName);
-   isUnviewableCommand = (index == wxNOT_FOUND ? true : false);
    
-   // if ScriptEvent mode or unviewable command, we don't want to add it to tree
-   if (inScriptEvent || isUnviewableCommand)
+   // If ScriptEvent mode or command is NoOp or BeginMissionSequence, don't add it 
+   // This is different from command unviewable list
+   if (inScriptEvent || cmdTypeName == "NoOp" || cmdTypeName == "BeginMissionSequence")
    {
       #if DEBUG_MISSION_TREE
       MessageInterface::ShowMessage
@@ -1746,7 +1742,7 @@ void MissionTree::AddDefaultMissionSeq(wxTreeItemId item)
    
    #ifdef __ENABLE_MULTIPLE_SEQUENCE
    StringArray itemNames = theGuiInterpreter->GetListOfConfiguredItems(Gmat::MISSION_SEQ);
-    
+   
    int size = itemNames.size();
    for (int i = 0; i<size; i++)
    {
@@ -3118,11 +3114,11 @@ void MissionTree::CreateCommandIdMap()
 //------------------------------------------------------------------------------
 void MissionTree::CreateMenuIds(const wxString &cmd, int index)
 {
-   wxString str, realCmd;
    int id;
-
+   wxString str, realCmd;
    realCmd = cmd;
-   // if command to show is ScriptEvent, we want to create BeginScript
+   
+   // If command to show is ScriptEvent, we want to create BeginScript
    if (cmd == "ScriptEvent")
       realCmd = "BeginScript";
    

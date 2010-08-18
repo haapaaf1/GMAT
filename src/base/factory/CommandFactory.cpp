@@ -241,20 +241,27 @@ CommandFactory::CommandFactory() :
    }
    
    // Now fill in unviewable commands
-   // We don't want to show these commands
+   // We don't want to show these commands in the MissionTree menu
    if (unviewables.empty())
    {
+      // These commands do nothing
       unviewables.push_back("NoOp");
       unviewables.push_back("BeginMissionSequence");
-      unviewables.push_back("Create");
-      unviewables.push_back("Global");
-      unviewables.push_back("CallFunction");
-      unviewables.push_back("BeginScript");
+      
+      // These commands show as Equation in the MissionTree menu
       unviewables.push_back("Assignment");
       unviewables.push_back("GMAT");
-      unviewables.push_back("SaveMission");
       
-      // These commans are only viewable under Target or Optimize
+      // These commands show as ScriptEvent in the MissionTree menu
+      unviewables.push_back("BeginScript");
+      
+      // These commands only works in object setup mode and inside a GmatFunction
+      unviewables.push_back("Create");
+      
+      // CallFunction is parent command of CallGmatFunction and CallMatlabFunction
+      unviewables.push_back("CallFunction");
+      
+      // These commands are only viewable under Target or Optimize
       unviewables.push_back("Achieve");
       unviewables.push_back("Minimize");
       unviewables.push_back("NonlinearConstraint");
