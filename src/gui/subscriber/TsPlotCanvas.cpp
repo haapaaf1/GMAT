@@ -1026,7 +1026,7 @@ void TsPlotCanvas::SetOptions(wxCommandEvent& event)
       dlg.SetWidth(1);
 
    dlg.SetXPrecision(xLabelPrecision);
-   dlg.SetXPrecision(yLabelPrecision);
+   dlg.SetYPrecision(yLabelPrecision);
 
    dlg.SetXMin(userXMin);
    dlg.SetXMax(userXMax);
@@ -1056,7 +1056,7 @@ void TsPlotCanvas::SetOptions(wxCommandEvent& event)
       SetLineWidth(dlg.GetWidth());
 
       xLabelPrecision = dlg.GetXPrecision();
-      yLabelPrecision = dlg.GetXPrecision();
+      yLabelPrecision = dlg.GetYPrecision();
 
       overrideXMin = dlg.GetXMinState();
       overrideXMax = dlg.GetXMaxState();

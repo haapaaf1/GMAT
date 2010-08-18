@@ -19,6 +19,8 @@
 
 #include "MessageInterface.hpp"
 
+//#define DEBUG_INTERFACE
+
 
 TsPlotXYCanvas::TsPlotXYCanvas(wxWindow* parent, wxWindowID id, 
      const wxPoint& pos, const wxSize& size, long style, const wxString& name) :

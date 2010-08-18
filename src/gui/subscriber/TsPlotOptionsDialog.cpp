@@ -401,7 +401,7 @@ double TsPlotOptionsDialog::GetXMax()
 double TsPlotOptionsDialog::GetYMin()
 {
    std::stringstream str;
-   str.precision(xPrecision->GetValue());
+   str.precision(yPrecision->GetValue());
    double rv;
    str << yMinimum->GetValue().c_str();
    str >> rv;
@@ -411,7 +411,7 @@ double TsPlotOptionsDialog::GetYMin()
 double TsPlotOptionsDialog::GetYMax()
 {
    std::stringstream str;
-   str.precision(xPrecision->GetValue());
+   str.precision(yPrecision->GetValue());
    double rv;
    str << yMaximum->GetValue().c_str();
    str >> rv;
