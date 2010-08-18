@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 Propagate
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -2544,6 +2544,24 @@ bool Propagate::Initialize()
             if (so->IsManeuvering())
                finiteBurnActive = true;
             sats.push_back(so);
+            if (sats.size() > 1)
+               if (so->GetRealParameter(epochID) !=
+                     sats[0]->GetRealParameter(epochID))
+               {
+                  std::stringstream errorString;
+                  errorString.precision(16);
+                  errorString << "Coupled propagation epoch mismatch between "
+                              << sats[0]->GetName()
+                              << " (epoch = "
+                              << sats[0]->GetRealParameter(epochID)
+                              << ") and "
+                              << so->GetName()
+                              << " (epoch = "
+                              << so->GetRealParameter(epochID)
+                              << ")";
+                  throw CommandException(errorString.str());
+               }
+
             AddToBuffer(so);
    
             if (so->GetType() == Gmat::FORMATION)
@@ -2868,7 +2886,6 @@ void Propagate::PrepareToPropagate()
                               (*i)->GetName().c_str());
                      #endif
                      prop[index]->GetODEModel()->AddForce(*i);
-                     // todo: Rebuild ODEModel by calling BuildModelFromMap()
                   }
                }
             }
@@ -2889,7 +2906,6 @@ void Propagate::PrepareToPropagate()
          else
          {
             p[n]->SetPropStateManager(prop[n]->GetPropStateManager());
-//            p[n]->
             dim = p[n]->GetDimension();
          }
 
