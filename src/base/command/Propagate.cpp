@@ -150,8 +150,7 @@ Propagate::Propagate() :
    stepBrackets[0] = stepBrackets[1] = 0.0;
    parameterCount = PropagateCommandParamCount;
    
-   // First step tolerance is one order of magnitude above stop accuracy.
-   firstStepTolerance = stopAccuracy * 10.0;
+   firstStepTolerance = DEFAULT_STOP_TOLERANCE * 10.0;
 
    #ifdef DUMP_PLANET_DATA
       if (!planetData.is_open())
@@ -624,7 +623,6 @@ GmatBase* Propagate::Clone() const
 //------------------------------------------------------------------------------
 std::string Propagate::GetRefObjectName(const Gmat::ObjectType type) const
 {
-   /// @todo Figure out how to send back the arrays of names
    switch (type) {
       // Propagator setups
       case Gmat::PROP_SETUP:
@@ -3259,7 +3257,6 @@ void Propagate::PrepareToPropagate()
           "pubdata = new Real[dim+1]");
    #endif
 
-   // @todo Somehow the epoch doesn't get updated after maneuver. (LOJ: 2010.01.12)
    // Publish the data
    pubdata[0] = currEpoch[0];
    memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
@@ -3326,6 +3323,7 @@ bool Propagate::Execute()
             // remove any old stop conditions that may have reported valid
             triggers.clear();
             stopTrigger = -1;
+
             // Evaluate Stop conditions to set initial values
             for (UnsignedInt i=0; i<stopWhen.size(); i++)
             {
@@ -3437,8 +3435,7 @@ bool Propagate::Execute()
                   ("Propagate::Breaking for Single Step\n");
             #endif
 
-/** @todo: Determine if we should publish here.
- *
+/**
  *         We are not publishing the final point when running in single step
  *         mode; this code does that, but then we end up with repeated points
  *         because the last point from one step is the first point in the next.
@@ -3446,7 +3443,6 @@ bool Propagate::Execute()
  *         to handle the repeated point issues.
  */
 
-//            // todo: Publish the data here?
 //            pubdata[0] = currEpoch[0];
 //            memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
 //            #ifdef DEBUG_PUBLISH_DATA
@@ -3593,6 +3589,7 @@ bool Propagate::Execute()
       }
 
       TakeFinalStep(epochID, trigger);
+
       // reset the stopping conditions so that scanning starts over
       for (UnsignedInt i=0; i<stopWhen.size(); i++)
          stopWhen[i]->Reset(); 
@@ -3895,8 +3892,6 @@ void Propagate::CheckStopConditions(Integer epochID)
  * 
  * @return true is the stop is a valid stop -- that is, if it is not a repeat of
  * the last stop -- and false if it is a repeat.
- * 
- * @note: Not yet implemented; the method always returns true for now.
  */
 //------------------------------------------------------------------------------
 bool Propagate::CheckFirstStepStop(Integer i)
@@ -4239,7 +4234,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
                 GetGeneratingString(Gmat::NO_COMMENTS).c_str(), dim+1, streamID,
                 pubdata[0]);
       #endif
-      
+
       publisher->Publish(this, streamID, pubdata, dim+1);
       
       #if DEBUG_PROPAGATE_EXE
@@ -4256,7 +4251,6 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
             ("Propagate::TakeFinalStep complete; epoch = %16.10lf\n",
              (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
       #endif
-
    }
 
    // Clear previous stop conditions from the spacecraft, and then store the 
@@ -4269,7 +4263,20 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
    {
       // Save the stop condition and reset for next pass
       Integer stopperIndex = 0;
-      for (std::vector<StopCondition*>::iterator i = stopWhen.begin(); i != stopWhen.end(); ++i)
+
+      Real howClose = fabs(stopper->GetStopDifference());
+      // First step tolerance is one order of magnitude above stop accuracy.
+      firstStepTolerance = (howClose > DEFAULT_STOP_TOLERANCE ?
+            howClose : DEFAULT_STOP_TOLERANCE) * 10.0;
+
+      #ifdef DEBUG_FIRST_STEP_STOP
+         MessageInterface::ShowMessage("First step tolerance = %le,    "
+               "achieved = %le, default = %le\n", firstStepTolerance, howClose,
+               DEFAULT_STOP_TOLERANCE);
+      #endif
+
+      for (std::vector<StopCondition*>::iterator i = stopWhen.begin();
+            i != stopWhen.end(); ++i)
       {
          if ((*i == stopper) || (fabs((*i)->GetStopDifference()) <= accuracy))
          {
@@ -5031,7 +5038,6 @@ void Propagate::AddTransientForce(StringArray *sats, ODEModel *p,
       for (std::vector<PropSetup*>::iterator p = prop.begin(); 
            p != prop.end(); ++p)
       {
-         // todo: fix calls in the debug messages
          fm = (*p)->GetODEModel();
          if (!fm)
             throw CommandException("ODEModel not set in PropSetup \"" +
