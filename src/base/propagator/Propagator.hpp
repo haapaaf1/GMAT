@@ -93,6 +93,9 @@ public:
    virtual Integer GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType GetParameterType(const Integer id) const;
    virtual std::string GetParameterTypeString(const Integer id) const;
+   virtual bool IsParameterReadOnly(const Integer id) const;
+   virtual bool IsParameterReadOnly(const std::string &label) const;
+
    virtual Real GetRealParameter(const Integer id) const;
    virtual Real GetRealParameter(const std::string &label) const;
    virtual Real SetRealParameter(const Integer id, const Real value);
@@ -106,6 +109,17 @@ public:
    virtual Real SetRealParameter(const Integer id, const Real value,
          const Integer row, const Integer col);
 
+   virtual bool GetBooleanParameter(const Integer id) const;
+   virtual bool SetBooleanParameter(const Integer id, const bool value);
+   virtual bool GetBooleanParameter(const Integer id, const Integer index) const;
+   virtual bool SetBooleanParameter(const Integer id, const bool value,
+                                    const Integer index);
+   virtual bool GetBooleanParameter(const std::string &label) const;
+   virtual bool SetBooleanParameter(const std::string &label, const bool value);
+   virtual bool GetBooleanParameter(const std::string &label,
+                                    const Integer index) const;
+   virtual bool SetBooleanParameter(const std::string &label, const bool value,
+                                    const Integer index);
 
    virtual bool Initialize();
    virtual void SetPhysicalModel(PhysicalModel *pPhysicalModel);
@@ -171,6 +185,7 @@ public:
    enum
    {
       INITIAL_STEP_SIZE = GmatBaseParamCount, /// Stepsize for the propagation
+      AlwaysUpdateStepsize,
       PropagatorParamCount                    /// Count of the parameters for this class
    };
    
@@ -192,6 +207,8 @@ protected:
    bool initialized;
    /// Flag used to determine if the propagator need to reset the initial step
    bool resetInitialData;
+   /// Flag to force stepsize initialization whenever the propagator initializes
+   bool alwaysUpdateStepsize;
    /// Pointer to the input state vector
    Real *inState;
    /// Pointer to the location for the propagated state

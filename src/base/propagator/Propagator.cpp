@@ -86,13 +86,15 @@
 const std::string
 Propagator::PARAMETER_TEXT[PropagatorParamCount - GmatBaseParamCount] =
 {
-    "InitialStepSize"
+    "InitialStepSize",
+    "AlwaysUpdateStepsize"
 };
 
 const Gmat::ParameterType
 Propagator::PARAMETER_TYPE[PropagatorParamCount - GmatBaseParamCount] =
 {
-    Gmat::REAL_TYPE
+    Gmat::REAL_TYPE,
+    Gmat::BOOLEAN_TYPE
 };
 
 const Real Propagator::STEP_SIZE_TOLERANCE = 0.0001;   // 0.1 millisec
@@ -122,6 +124,7 @@ Propagator::Propagator(const std::string &typeStr,
       stepSizeBuffer      (60.0),
       initialized         (false),
       resetInitialData    (true),
+      alwaysUpdateStepsize(false),
       inState             (NULL),
       outState            (NULL),
       dimension           (0),
@@ -165,6 +168,7 @@ Propagator::Propagator(const Propagator& p)
       stepSizeBuffer      (p.stepSizeBuffer),
       initialized         (false),
       resetInitialData    (true),
+      alwaysUpdateStepsize(p.alwaysUpdateStepsize),
       inState             (NULL),
       outState            (NULL),
       dimension           (p.dimension),
@@ -204,6 +208,7 @@ Propagator& Propagator::operator=(const Propagator& p)
 
     initialized = false;
     resetInitialData = true;
+    alwaysUpdateStepsize = p.alwaysUpdateStepsize;
     finalStep = false;    
 
     j2kBodyName = p.j2kBodyName;
@@ -261,13 +266,11 @@ std::string Propagator::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 Integer Propagator::GetParameterID(const std::string &str) const
 {
-    for (Integer i = GmatBaseParamCount; i < PropagatorParamCount; i++)
-    {
-        if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
-            return i;
-    }
+   for (Integer i = GmatBaseParamCount; i < PropagatorParamCount; ++i)
+      if (str == PARAMETER_TEXT[i - GmatBaseParamCount])
+         return i;
         
-    return GmatBase::GetParameterID(str);
+   return GmatBase::GetParameterID(str);
 }
 
 //------------------------------------------------------------------------------
@@ -299,6 +302,46 @@ std::string Propagator::GetParameterTypeString(const Integer id) const
     else
         return GmatBase::GetParameterTypeString(id);
 }
+
+
+//------------------------------------------------------------------------------
+// bool Propagator::IsParameterReadOnly(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Identifies parameters that are or are not scripted
+ *
+ * @param id ID of the parameter in question
+ *
+ * @return true if the parameter is not scripted, false if it is scripted
+ */
+//------------------------------------------------------------------------------
+bool Propagator::IsParameterReadOnly(const Integer id) const
+{
+   if (id == AlwaysUpdateStepsize)
+      return true;
+
+   return GmatBase::IsParameterReadOnly(id);
+}
+
+
+//------------------------------------------------------------------------------
+// bool Propagator::IsParameterReadOnly(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Identifies parameters that are or are not scripted
+ *
+ * @param label The script string of the parameter in question
+ *
+ * @return true if the parameter is not scripted, false if it is scripted
+ */
+//------------------------------------------------------------------------------
+bool Propagator::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+
+
 
 //------------------------------------------------------------------------------
 // Real Propagator::GetRealParameter(const Integer id) const
@@ -440,6 +483,165 @@ Real Propagator::SetRealParameter(const Integer id, const Real value,
 
 
 //------------------------------------------------------------------------------
+// bool GetBooleanParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves Boolean parameters
+ *
+ * @param id ID of the parameter
+ *
+ * @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::GetBooleanParameter(const Integer id) const
+{
+   if (id == AlwaysUpdateStepsize)
+      return alwaysUpdateStepsize;
+
+   return GmatBase::GetBooleanParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * Sets Boolean parameters
+ *
+ * @param id ID of the parameter
+ * @param value The new parameter value
+ *
+ * @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::SetBooleanParameter(const Integer id, const bool value)
+{
+   MessageInterface::ShowMessage("Setting ID %d to %s\n", id,
+         (value ? "true" : "false"));
+
+   if (id == AlwaysUpdateStepsize)
+   {
+      alwaysUpdateStepsize = value;
+      return alwaysUpdateStepsize;
+   }
+
+   return GmatBase::SetBooleanParameter(id, value);
+}
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const Integer id, const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves Boolean parameters from an array of Booleans
+ *
+ * @param id ID of the parameter
+ * @param index The parameter's index in the array
+ *
+ * @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::GetBooleanParameter(const Integer id, const Integer index) const
+{
+   return GmatBase::GetBooleanParameter(id, index);
+}
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets Boolean parameters in an array of Booleans
+ *
+ * @param id ID of the parameter
+ * @param value The new parameter value
+ * @param index The parameter's index in the array
+ *
+ * @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::SetBooleanParameter(const Integer id, const bool value,
+                                 const Integer index)
+{
+   return GmatBase::SetBooleanParameter(id, value, index);
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+* Retrieves Boolean parameters
+*
+* @param label Script label for the parameter
+*
+* @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::GetBooleanParameter(const std::string &label) const
+{
+   return GetBooleanParameter(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const std::string &label, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * Sets Boolean parameters
+ *
+ * @param label Script label for the parameter
+ * @param value The new parameter value
+ *
+ * @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::SetBooleanParameter(const std::string &label, const bool value)
+{
+   return SetBooleanParameter(GetParameterID(label), value);
+}
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const std::string &label, const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves Boolean parameters from an array of Booleans
+ *
+ * @param label Script label for the parameter
+ * @param index The parameter's index in the array
+ *
+ * @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::GetBooleanParameter(const std::string &label,
+                                 const Integer index) const
+{
+   return GetBooleanParameter(GetParameterID(label), index);
+}
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const std::string &label, const bool value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets Boolean parameters in an array of Booleans
+ *
+ * @param label Script label for the parameter
+ * @param value The new parameter value
+ * @param index The parameter's index in the array
+ *
+ * @return The parameter value
+ */
+//------------------------------------------------------------------------------
+bool Propagator::SetBooleanParameter(const std::string &label, const bool value,
+                                     const Integer index)
+{
+   return SetBooleanParameter(GetParameterID(label), value, index);
+}
+
+
+
+
+//------------------------------------------------------------------------------
 // bool Propagator::Initialize()
 //------------------------------------------------------------------------------
 /**
@@ -473,7 +675,7 @@ bool Propagator::Initialize()
          inState  = physicalModel->GetState();
          outState = physicalModel->GetState();
 
-         if (resetInitialData)
+         if ((resetInitialData) || (alwaysUpdateStepsize))
          {
             stepSize = stepSizeBuffer;
             resetInitialData = false;
