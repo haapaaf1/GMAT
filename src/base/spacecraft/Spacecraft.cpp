@@ -29,7 +29,9 @@
 #include "SpaceObjectException.hpp"
 #include "StringUtil.hpp"
 #include "CSFixed.hpp"               // for default attitude creation
+#ifdef __USE_SPICE__
 #include "SpiceAttitude.hpp"         // for SpiceAttitude - to set object name and ID
+#endif
 
 // Do we want to write anomaly type?
 //#define __WRITE_ANOMALY_TYPE__
@@ -1448,8 +1450,10 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          instanceName.c_str());
       #endif
       attitude->SetEpoch(state.GetEpoch());
-      if (attitude->IsOfType("SpiceAttitude"))
-         ((SpiceAttitude*) attitude)->SetObjectID(instanceName, naifId, naifIdRefFrame);
+      #ifdef __USE_SPICE__
+         if (attitude->IsOfType("SpiceAttitude"))
+            ((SpiceAttitude*) attitude)->SetObjectID(instanceName, naifId, naifIdRefFrame);
+      #endif
       return true;
    }
 
@@ -3152,6 +3156,8 @@ bool Spacecraft::Initialize()
          "Initializing attitude object for spacecraft %s\n",
          instanceName.c_str());
       #endif
+
+#ifdef __USE_SPICE__
       if (attitude->IsOfType("SpiceAttitude"))
       {
          #ifdef DEBUG_SPICE_KERNELS
@@ -3171,6 +3177,7 @@ bool Spacecraft::Initialize()
          for (Integer ii = 0; ii < (Integer) frameSpiceKernelNames.size(); ii++)
             spiceAttitude->SetStringParameter("FrameKernelName", frameSpiceKernelNames[ii], ii);
       }
+#endif
       attitude->Initialize();
       #ifdef DEBUG_SC_ATTITUDE
          MessageInterface::ShowMessage(
