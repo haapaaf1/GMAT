@@ -551,7 +551,7 @@ Real TimeConverterUtil::ConvertGregorianToMjd(const std::string &greg)
           jules);
     #endif
    }
-   catch (Date::TimeRangeError& e)
+   catch (Date::TimeRangeError& )
    {
       throw TimeFormatException(
          "Gregorian date '" + greg +"' appears to be out of range.");
