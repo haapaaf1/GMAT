@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              Integrator
 //------------------------------------------------------------------------------
@@ -531,7 +531,7 @@ bool Integrator::GetBooleanParameter(const Integer id) const
 {
    if (id == STOP_IF_ACCURACY_VIOLATED)  return stopIfAccuracyViolated;
 
-   return Integrator::GetBooleanParameter(id);
+   return Propagator::GetBooleanParameter(id);
 }
 
 
@@ -556,7 +556,7 @@ bool Integrator::SetBooleanParameter(const Integer id, const bool value)
       return true;
    }
 
-   return Integrator::SetBooleanParameter(id, value);
+   return Propagator::SetBooleanParameter(id, value);
 }
 
 
