@@ -122,7 +122,7 @@ protected:
 
    // structs representing the state date (positiona nd velocity)
    // (from JPL/JSC code - Hoffman)
-   struct stateData{
+   struct GMAT_API stateData{
          double Position[3];
          double Velocity[3];
       };
@@ -133,7 +133,7 @@ protected:
    // (from JPL/JSC code - Hoffman)
    // wcs - added constructors, and operator=
 #pragma pack(push, 1)
-   struct recOneData {
+   struct GMAT_API recOneData {
       recOneData()  // default constructor
    {
          int i, j;
@@ -211,7 +211,7 @@ protected:
       #endif
    };
 
-   struct recTwoData {
+   struct GMAT_API recTwoData {
       // default constructor
       recTwoData()
    {
@@ -240,12 +240,12 @@ protected:
    typedef struct recTwoData recTwoType;
 
    // structs representing the formats of the header records - need ARRAY_SIZE?
-   struct headerOne {
+   struct GMAT_API headerOne {
          recOneType data;
          char pad[MAX_ARRAY_SIZE*sizeof(double) - sizeof(recOneType)];  // MAX
       };
 
-   struct headerTwo {
+   struct GMAT_API headerTwo {
       recTwoType data;
       char pad[MAX_ARRAY_SIZE*sizeof(double) - sizeof(recTwoType)];  // MAX
    };

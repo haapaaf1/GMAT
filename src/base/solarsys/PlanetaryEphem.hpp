@@ -108,7 +108,7 @@ public:
 
 protected:
    // file type (from Swingby - added constructors, operator=, destructor
-   struct dcb_type
+   struct GMAT_API dcb_type
    {
       dcb_type()
    {
