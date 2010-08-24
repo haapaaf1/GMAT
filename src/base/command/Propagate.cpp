@@ -3374,8 +3374,9 @@ bool Propagate::Execute()
 //               p[i]->LoadInitialData();
          }
          #ifdef DEBUG_EPOCH_UPDATES
-            if (fm[0])
-               fm[0]->ReportEpochData();
+            for (UnsignedInt i = 0; i < fm.size(); ++i)
+               if (fm[i])
+                  fm[i]->ReportEpochData();
          #endif
 
          for (UnsignedInt i = 0; i < fm.size(); ++i)
@@ -3586,6 +3587,16 @@ bool Propagate::Execute()
             fm[i]->RevertSpaceObject();
          else
             p[i]->RevertSpaceObject();
+
+         // For synchronized propagation, the epochs can get out of sync here
+         // if the stopping condition was applied to a later PropSetup.  The
+         // Cartesian state is okay; it's just an issue with the epoch because
+         // of the initial pass through the cubic spline.  Reset the epochs to
+         // correct this issue.
+         if (currentMode == SYNCHRONIZED)
+            for (UnsignedInt i = 1; i < fm.size(); ++i)
+               if (fm[i] != NULL)
+                  fm[i]->SetTime(fm[0]->GetTime());
       }
 
       TakeFinalStep(epochID, trigger);
@@ -3950,13 +3961,13 @@ bool Propagate::CheckFirstStepStop(Integer i)
 //------------------------------------------------------------------------------
 void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 {
-        #ifdef DEBUG_FINAL_STEP
-        MessageInterface::ShowMessage("*** Start of TakeFinalStep\n");
-           MessageInterface::ShowMessage("      State data:\n");
-        MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
-                MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
-           p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
-        #endif
+   #ifdef DEBUG_FINAL_STEP
+     MessageInterface::ShowMessage("*** Start of TakeFinalStep\n");
+        MessageInterface::ShowMessage("      State data:\n");
+     MessageInterface::ShowMessage("         time: %.12lf\n", p[0]->GetTime());
+             MessageInterface::ShowMessage("         r:    [%.12lf %.12lf %.12lf]\n",
+        p[0]->GetState()[0], p[0]->GetState()[1], p[0]->GetState()[2]);
+   #endif
       
    // We've passed a stop condition, so remember that step size.  Include a 10%
    // safety factor.
@@ -3968,7 +3979,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          "elapsedTime = %f\n", currEpoch[0], stopEpoch, elapsedTime[0]);
    #endif
 
-   Real secsToStep = 1.0e99 * direction, dt;
+   Real secsToStep = 1.0e99 * direction, dt = 0.0;
    StopCondition *stopper = NULL;
 
    #ifdef DEBUG_EPOCH_SYNC
@@ -4118,7 +4129,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
                i, baseEpoch[i], fm[i]->GetTime());
          MessageInterface::ShowMessage("   step by time %.11lf\n", secsToStep);
       #endif
-         
+
       if (!TakeAStep(secsToStep))
          throw CommandException("Propagator Failed to Step fixed interval\n");
 
@@ -4196,7 +4207,8 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          // Note that this code makes the final propagated state match the 
          // granularity given by other software (aka STK)
          if (TIME_ROUNDOFF != 0.0)
-            secsToStep = std::floor(secsToStep / TIME_ROUNDOFF + 0.5) * TIME_ROUNDOFF;
+            secsToStep = std::floor(secsToStep / TIME_ROUNDOFF + 0.5) *
+                  TIME_ROUNDOFF;
       
          // If a refined step was needed, we still need to take it; 
          // RefineFinalStep returns with the interpolated step backed out
@@ -4899,7 +4911,9 @@ Real Propagate::BisectToStop(StopCondition *stopper)
       previousValue = currentValue;
       currentValue = stopParam->EvaluateReal();
       if (stopper->IsCyclicParameter())
+      {
          currentValue = GetRangedAngle(currentValue, target);
+      }
 
       #ifdef DEBUG_BISECTION_DETAILS
          if (attempts == 0)
