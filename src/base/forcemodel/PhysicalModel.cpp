@@ -689,9 +689,18 @@ const Real* PhysicalModel::GetDerivativeArray()
 //------------------------------------------------------------------------------
 void PhysicalModel::IncrementTime(Real dt)
 {
+   #ifdef DEBUG_TIME_INCREMENT
+      MessageInterface::ShowMessage("Increment time called; prevElapsedTime = "
+            "%.12lf, elapsed time = %.12lf  ==> ", prevElapsedTime,
+            elapsedTime);
+   #endif
    prevElapsedTime = elapsedTime;
    elapsedTime += dt;
    stateChanged = true;
+   #ifdef DEBUG_TIME_INCREMENT
+      MessageInterface::ShowMessage("prevElapsedTime = %.12lf, elapsed time = "
+            "%.12lf\n", prevElapsedTime, elapsedTime);
+   #endif
 }
 
 //------------------------------------------------------------------------------
