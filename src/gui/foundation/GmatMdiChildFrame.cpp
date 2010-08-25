@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GmatMdiChildFrame
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -68,7 +68,7 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
    
    theParent = parent;
    mDirty = false;
-   mOverrideDirty = true;
+   mOverrideDirty = false;
    mCanClose = true;
    mItemType = type;
    theScriptTextCtrl = NULL;
