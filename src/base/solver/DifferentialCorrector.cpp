@@ -845,7 +845,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                #endif
               CheckCompletion();
                ++iterationsTaken;
-               if (iterationsTaken > maxIterations)
+               if (iterationsTaken >= maxIterations)
                {
                   MessageInterface::ShowMessage(
                         "Differential corrector %s %s\n", instanceName.c_str(),
