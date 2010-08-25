@@ -147,6 +147,7 @@ public:
    // type that may be created in the system
    const StringArray&     GetListOfItems(Gmat::ObjectType byType);
    const StringArray&     GetListOfAllItems();
+   const StringArray&     GetListOfAllItemsExcept(const ObjectTypeArray &types);
    const StringArray&     GetListOfViewableItems(Gmat::ObjectType byType);
    const StringArray&     GetListOfUnviewableItems(Gmat::ObjectType byType);
    
@@ -167,6 +168,8 @@ private:
    /// the list of factories that have been registered and which are available
    /// to create objects
    std::list<Factory*> factoryList;
+   /// the list of object types that factory can create
+   std::list<Gmat::ObjectType> factoryTypeList;
    /// pointer to the only instance allowed for this singleton class
    static FactoryManager* onlyInstance;
    

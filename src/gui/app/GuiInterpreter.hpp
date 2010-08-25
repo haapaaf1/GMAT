@@ -39,6 +39,8 @@ public:
    
    //----- factory
    const StringArray& GetListOfFactoryItems(Gmat::ObjectType type);
+   const StringArray& GetListOfAllFactoryItems();
+   std::string GetStringOfAllFactoryItemsExcept(const ObjectTypeArray &types);
    
    //----- configuration
    std::string GetNewName(const std::string &name, Integer startCount);

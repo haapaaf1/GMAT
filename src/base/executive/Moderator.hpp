@@ -113,6 +113,7 @@ public:
    //----- factory
    const StringArray& GetListOfFactoryItems(Gmat::ObjectType type);
    const StringArray& GetListOfAllFactoryItems();
+   const StringArray& GetListOfAllFactoryItemsExcept(const ObjectTypeArray &types);
    const StringArray& GetListOfViewableItems(Gmat::ObjectType type);
    const StringArray& GetListOfUnviewableItems(Gmat::ObjectType type);
    bool               DoesObjectTypeMatchSubtype(
@@ -332,6 +333,7 @@ public:
    bool InsertCommand(GmatCommand *cmd, GmatCommand *prevCmd,
                       Integer sandboxNum = 1);
    void SetCommandsUnchanged(Integer whichList = 0); 
+   void ValidateCommand(GmatCommand *cmd);
    
    // CoordinateSystem
    CoordinateSystem* GetInternalCoordinateSystem();

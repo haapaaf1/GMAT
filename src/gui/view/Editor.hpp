@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                   Editor
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2009/01/05
@@ -25,7 +25,7 @@ class Editor: public wxStyledTextCtrl
    friend class EditorPrint;
    
 public:
-   Editor(wxWindow *parent, wxWindowID id = wxID_ANY,
+   Editor(wxWindow *parent, bool notifyChange = false, wxWindowID id = wxID_ANY,
           const wxPoint &pos = wxDefaultPosition,
           const wxSize &size = wxDefaultSize,
           long style = wxSUNKEN_BORDER|wxVSCROLL);
@@ -79,11 +79,16 @@ public:
    void OnConvertEOL(wxCommandEvent &event);
    // stc
    void OnMarginClick(wxStyledTextEvent &event);
-   void OnCharAdded (wxStyledTextEvent &event);
+   void OnTextChange(wxStyledTextEvent &event);
+   void OnCharAdded(wxStyledTextEvent &event);
    
    // language/lexer
    bool UserSettings(const wxString &filename);
    GmatEditor::LanguageInfoType const* GetLanguageInfo() {return mLanguage;};
+   
+   // text
+   wxString GetLine(int lineNumber);
+   wxString GetText();
    
    // load/save file
    bool LoadFile();
@@ -95,6 +100,9 @@ public:
    void SetFilename(const wxString &filename) {mFileName = filename;};
    
 private:
+
+   wxWindow *mParent;
+   bool     mNotifyChange;
    
    // language/lexer
    wxString DeterminePrefs(const wxString &filename);
@@ -109,6 +117,7 @@ private:
    
    // file
    wxString mFileName;
+   wxString mGmatKeywords;
    
    // lanugage properties
    GmatEditor::LanguageInfoType const* mLanguage;

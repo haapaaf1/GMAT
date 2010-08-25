@@ -57,9 +57,11 @@ GuiInterpreter::~GuiInterpreter()
 bool GuiInterpreter::Interpret(GmatCommand *inCmd, std::istringstream *ss)
 {   
    SetInStream(ss);
-
+   inScriptEvent = true;
    // We don't want parse first comment as header, so set skipHeader to true.
-   return ScriptInterpreter::Interpret(inCmd, true);
+   bool retval = ScriptInterpreter::Interpret(inCmd, true);
+   inScriptEvent = false;
+   return retval;
 }
 
 
@@ -95,6 +97,44 @@ GmatBase* GuiInterpreter::GetRunningObject(const std::string &name)
 const StringArray& GuiInterpreter::GetListOfFactoryItems(Gmat::ObjectType type)
 {
    return theModerator->GetListOfFactoryItems(type);
+}
+
+
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfAllFactoryItems()
+//------------------------------------------------------------------------------
+/**
+ * Return a list of all items that can be created.
+ *
+ * @return list of all creatable items.
+ */
+//------------------------------------------------------------------------------
+const StringArray& GuiInterpreter::GetListOfAllFactoryItems()
+{
+   return theModerator->GetListOfAllFactoryItems();
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetStringOfAllFactoryItemsExcept(const ObjectTypeArray &types)
+//------------------------------------------------------------------------------
+/**
+ * Return a std::string of all items that can be created except input object types
+ *
+ * @param <type> object types to be excluded
+ *
+ * @return list of all creatable items.
+ */
+//------------------------------------------------------------------------------
+std::string GuiInterpreter::GetStringOfAllFactoryItemsExcept(const ObjectTypeArray &types)
+{
+   StringArray creatables = theModerator->GetListOfAllFactoryItemsExcept(types);
+   std::string str;
+   
+   for (UnsignedInt i = 0; i < creatables.size(); i++)
+      str = str + creatables[i] + " ";
+   
+   return str;
 }
 
 

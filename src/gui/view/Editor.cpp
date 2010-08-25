@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                     Editor
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2009/01/05
@@ -13,6 +13,7 @@
 //------------------------------------------------------------------------------
 
 #include "Editor.hpp"
+#include "GmatPanel.hpp"
 #include "EditorPreferences.hpp"
 #include "FindReplaceDialog.hpp"
 #include "MessageInterface.hpp"
@@ -67,21 +68,25 @@ BEGIN_EVENT_TABLE (Editor, wxStyledTextCtrl)
    EVT_MENU (STC_ID_CONVERTLF,        Editor::OnConvertEOL)
    // stc
    EVT_STC_MARGINCLICK (wxID_ANY,     Editor::OnMarginClick)
-   EVT_STC_CHARADDED (wxID_ANY,       Editor::OnCharAdded)
+   EVT_STC_CHANGE      (wxID_ANY,     Editor::OnTextChange)
+   EVT_STC_CHARADDED   (wxID_ANY,     Editor::OnCharAdded)
 END_EVENT_TABLE()
 
 //------------------------------------------------------------------------------
 // Editor::Editor(wxWindow *parent, wxWindowID id,
 //                const wxPoint &pos, const wxSize &size, long style)
 //------------------------------------------------------------------------------
-Editor::Editor(wxWindow *parent, wxWindowID id,
+Editor::Editor(wxWindow *parent, bool notifyChange, wxWindowID id,
                const wxPoint &pos, const wxSize &size, long style)
    : wxStyledTextCtrl(parent, id, pos, size, style)
 {
    #ifdef DEBUG_EDITOR
-   MessageInterface::ShowMessage("Editor::Editor() entered\n");
+   MessageInterface::ShowMessage
+      ("Editor::Editor() entered, parent = <%p>\n", parent);
    #endif
    
+   mParent = parent;
+   mNotifyChange = notifyChange;
    mFileName = wxEmptyString;
    mFindReplaceDialog = NULL;
    
@@ -94,6 +99,10 @@ Editor::Editor(wxWindow *parent, wxWindowID id,
    
    // initialize language
    mLanguage = NULL;
+   
+   // Set EOL mode to wxSTC_EOL_LF. Why wxSTC_EOL_CRLF keep adding blank line?
+   // wxSTC_EOL_CRLF (Windows), wxSTC_EOL_CR (Macintosh) and wxSTC_EOL_LF (Linux)
+   SetEOLMode(wxSTC_EOL_LF);
    
    // default font for all styles
    SetViewEOL(GmatEditor::globalCommonPrefs.displayEOLEnable);
@@ -133,6 +142,52 @@ Editor::Editor(wxWindow *parent, wxWindowID id,
    mFoldingMargin = 16;
    CmdKeyClear(wxSTC_KEY_TAB, 0); // this is done by the menu accelerator key
    SetLayoutCache(wxSTC_CACHE_PAGE);
+   
+   // Get object type namses to be used as keywords
+   GuiInterpreter *guiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
+   ObjectTypeArray excList;
+   excList.push_back(Gmat::PARAMETER);
+   excList.push_back(Gmat::MATH_NODE);
+   
+   std::string creatables = guiInterpreter->GetStringOfAllFactoryItemsExcept(excList);
+   mGmatKeywords = creatables.c_str();
+
+   #ifdef DEBUG_GMAT_KEYWORDS
+   MessageInterface::ShowMessage
+      ("Editor::Editor():: Here is the list of keywords:\n%s\n",
+       mGmatKeywords.c_str());
+   #endif
+   
+   // set GMAT language keywords
+   bool found = false;
+   GmatEditor::LanguageInfoType *curInfo;
+   
+   #ifdef DEBUG_GMAT_KEYWORDS
+   MessageInterface::ShowMessage
+      ("There are %d languages defined\n", GmatEditor::globalLanguagePrefsSize);
+   #endif
+   
+   for (int index = 0; index < GmatEditor::globalLanguagePrefsSize; index++)
+   {
+      curInfo = (GmatEditor::LanguageInfoType*)&GmatEditor::globalLanguagePrefs[index];
+      wxString name = curInfo->name;
+      
+      if (name == "GMAT")
+      {
+         #ifdef DEBUG_GMAT_KEYWORDS
+         MessageInterface::ShowMessage
+            ("   ==> Found GMAT language, so setting new keywords\n");
+         #endif
+         curInfo->styles[4].words = mGmatKeywords.c_str();
+         found = true;
+         break;
+      }
+   }
+   
+   #ifdef DEBUG_GMAT_KEYWORDS
+   if (!found)
+      MessageInterface::ShowMessage("==> GMAT language not found!!\n");
+   #endif
    
    // Let's set it to GMAT preference
    InitializePrefs("GMAT");
@@ -182,7 +237,7 @@ void Editor::OnSize(wxSizeEvent& event)
      (GmatEditor::globalCommonPrefs.lineNumberEnable? mLineNumberMargin: 0) +
      (GmatEditor::globalCommonPrefs.foldEnable? mFoldingMargin: 0);
    
-   if(x > 0)
+   if (x > 0)
       SetScrollWidth(x);
    
    event.Skip();
@@ -204,7 +259,7 @@ void Editor::OnFont(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void Editor::OnRedo(wxCommandEvent &WXUNUSED(event))
 {
-   if(!CanRedo())
+   if (!CanRedo())
       return;
    
    Redo();
@@ -216,7 +271,7 @@ void Editor::OnRedo(wxCommandEvent &WXUNUSED(event))
 //------------------------------------------------------------------------------
 void Editor::OnUndo(wxCommandEvent &WXUNUSED(event))
 {
-   if(!CanUndo())
+   if (!CanUndo())
       return;
    Undo();
 }
@@ -226,7 +281,7 @@ void Editor::OnUndo(wxCommandEvent &WXUNUSED(event))
 //------------------------------------------------------------------------------
 void Editor::OnClear(wxCommandEvent &WXUNUSED(event))
 {
-   if(GetReadOnly())
+   if (GetReadOnly())
       return;
    
    Clear();
@@ -238,7 +293,7 @@ void Editor::OnClear(wxCommandEvent &WXUNUSED(event))
 //------------------------------------------------------------------------------
 void Editor::OnCut(wxCommandEvent &WXUNUSED(event))
 {
-   if(GetReadOnly() ||(GetSelectionEnd()-GetSelectionStart() <= 0))
+   if (GetReadOnly() ||(GetSelectionEnd()-GetSelectionStart() <= 0))
       return;
    
    Cut();
@@ -250,7 +305,7 @@ void Editor::OnCut(wxCommandEvent &WXUNUSED(event))
 //------------------------------------------------------------------------------
 void Editor::OnCopy(wxCommandEvent &WXUNUSED(event))
 {
-   if(GetSelectionEnd()-GetSelectionStart() <= 0)
+   if (GetSelectionEnd()-GetSelectionStart() <= 0)
       return;
    
    Copy();
@@ -262,7 +317,7 @@ void Editor::OnCopy(wxCommandEvent &WXUNUSED(event))
 //------------------------------------------------------------------------------
 void Editor::OnPaste(wxCommandEvent &WXUNUSED(event))
 {
-   if(!CanPaste())
+   if (!CanPaste())
       return;
    
    Paste();
@@ -427,7 +482,7 @@ void Editor::OnBraceMatch(wxCommandEvent &WXUNUSED(event))
 {
    int min = GetCurrentPos();
    int max = BraceMatch(min);
-   if(max >(min+1))
+   if (max >(min+1))
    {
       BraceHighlight(min+1, max);
       SetSelection(min+1, max);
@@ -656,7 +711,7 @@ void Editor::OnUseCharset(wxCommandEvent &event)
 //       break;
 //    }
    
-   for(Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++)
+   for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++)
       StyleSetCharacterSet(Nr, charset);
    
    SetCodePage(charset);
@@ -719,6 +774,16 @@ void Editor::OnMarginClick (wxStyledTextEvent &event)
 
 
 //------------------------------------------------------------------------------
+// void OnTextChange (wxStyledTextEvent &event)
+//------------------------------------------------------------------------------
+void Editor::OnTextChange (wxStyledTextEvent &event)
+{
+   if (mNotifyChange)
+      ((GmatPanel*)mParent)->EnableUpdate(true);
+}
+
+
+//------------------------------------------------------------------------------
 // void OnCharAdded (wxStyledTextEvent &event)
 //------------------------------------------------------------------------------
 void Editor::OnCharAdded (wxStyledTextEvent &event)
@@ -756,14 +821,14 @@ wxString Editor::DeterminePrefs(const wxString &filename)
    
    // determine language from filepatterns
    int index;
-   for(index = 0; index < GmatEditor::globalLanguagePrefsSize; index++)
+   for (index = 0; index < GmatEditor::globalLanguagePrefsSize; index++)
    {
       curInfo = &GmatEditor::globalLanguagePrefs [index];
       wxString filepattern = curInfo->filepattern;
       filepattern.Lower();
       while(!filepattern.empty()) {
          wxString cur = filepattern.BeforeFirst(';');
-         if((cur == filename) ||
+         if ((cur == filename) ||
             (cur ==(filename.BeforeLast('.') + _T(".*"))) ||
             (cur ==(_T("*.") + filename.AfterLast('.'))))
          {
@@ -802,17 +867,17 @@ bool Editor::InitializePrefs(const wxString &name)
    
    // determine language
    bool found = false;
-   for(int index = 0; index < GmatEditor::globalLanguagePrefsSize; index++)
+   for (int index = 0; index < GmatEditor::globalLanguagePrefsSize; index++)
    {
       curInfo = &GmatEditor::globalLanguagePrefs[index];
-      if(curInfo->name == name)
+      if (curInfo->name == name)
       {
          found = true;
          break;
       }
    }
    
-   if(!found)
+   if (!found)
    {
       #ifdef DEBUG_EDITOR_PREF
       MessageInterface::ShowMessage("Editor::InitializePrefs() returning false\n");
@@ -834,7 +899,7 @@ bool Editor::InitializePrefs(const wxString &name)
    
    // default fonts for all styles!
    int index;
-   for(index = 0; index < wxSTC_STYLE_LASTPREDEFINED; index++)
+   for (index = 0; index < wxSTC_STYLE_LASTPREDEFINED; index++)
    {
       wxFont font(10, wxMODERN, wxNORMAL, wxNORMAL);
       StyleSetFont(index, font);
@@ -892,7 +957,7 @@ bool Editor::InitializePrefs(const wxString &name)
    StyleSetBackground(mFoldingID, *wxWHITE);
    SetMarginWidth(mFoldingID, 0);
    SetMarginSensitive(mFoldingID, false);
-   if(GmatEditor::globalCommonPrefs.foldEnable)
+   if (GmatEditor::globalCommonPrefs.foldEnable)
    {
       SetMarginWidth(mFoldingID, curInfo->folds != 0? mFoldingMargin: 0);
       SetMarginSensitive(mFoldingID, curInfo->folds != 0);
@@ -942,16 +1007,34 @@ bool Editor::InitializePrefs(const wxString &name)
 
 
 //------------------------------------------------------------------------------
+// wxString GetLine(int lineNumber)
+//------------------------------------------------------------------------------
+wxString Editor::GetLine(int lineNumber)
+{
+   return wxStyledTextCtrl::GetLine(lineNumber);
+}
+
+
+//------------------------------------------------------------------------------
+// wxString GetText()
+//------------------------------------------------------------------------------
+wxString Editor::GetText()
+{
+   return wxStyledTextCtrl::GetText();
+}
+
+
+//------------------------------------------------------------------------------
 // bool LoadFile()
 //------------------------------------------------------------------------------
 bool Editor::LoadFile()
 {
 #if wxUSE_FILEDLG
    // get filname
-   if(!mFileName) {
+   if (!mFileName) {
       wxFileDialog dlg(this, _T("Open file"), wxEmptyString, wxEmptyString,
                         _T("Any file(*)|*"), wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
-      if(dlg.ShowModal() != wxID_OK) return false;
+      if (dlg.ShowModal() != wxID_OK) return false;
       mFileName = dlg.GetPath();
    }
    
@@ -986,7 +1069,7 @@ bool Editor::LoadFile(const wxString &filename)
 
    // No file reading
    //long lng = file.Length();
-   //if(lng > 0)
+   //if (lng > 0)
    //{
    //   wxString buf;
    //   wxChar *buff = buf.GetWriteBuf(lng);
@@ -1018,14 +1101,14 @@ bool Editor::SaveFile()
 {
 #if wxUSE_FILEDLG
    // return if no change
-   if(!IsModified()) return true;
+   if (!IsModified()) return true;
 
    // get filname
-   if(!mFileName)
+   if (!mFileName)
    {
       wxFileDialog dlg(this, _T("Save file"), wxEmptyString, wxEmptyString,
                         _T("Any file(*)|*"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-      if(dlg.ShowModal() != wxID_OK) return false;
+      if (dlg.ShowModal() != wxID_OK) return false;
       mFileName = dlg.GetPath();
    }
    
@@ -1047,13 +1130,13 @@ bool Editor::SaveFile(const wxString &filename)
    //if (!IsModified()) return true;
    
    //     // save edit in file and clear undo
-   //     if(!filename.empty()) mFileName = filename;
+   //     if (!filename.empty()) mFileName = filename;
    //     wxFile file(mFileName, wxFile::write);
-   //     if(!file.IsOpened()) return false;
+   //     if (!file.IsOpened()) return false;
    //     wxString buf = GetText();
    //     bool okay = file.Write(buf);
    //     file.Close();
-   //     if(!okay) return false;
+   //     if (!okay) return false;
    //     EmptyUndoBuffer();
    //     SetSavePoint();
    

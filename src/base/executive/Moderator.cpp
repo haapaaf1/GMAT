@@ -1126,6 +1126,23 @@ const StringArray& Moderator::GetListOfAllFactoryItems()
 }
 
 //------------------------------------------------------------------------------
+// const StringArray& GetListOfAllFactoryItemsExcept(const ObjectTypeArray &types)
+//------------------------------------------------------------------------------
+/**
+ * Returns names of all configurable items of object type except given type
+ *
+ * @param <type> object types to be excluded
+ *
+ * @return array of configurable item names excluding types;
+ *         return empty array if none
+ */
+//------------------------------------------------------------------------------
+const StringArray& Moderator::GetListOfAllFactoryItemsExcept(const ObjectTypeArray &types)
+{
+   return theFactoryManager->GetListOfAllItemsExcept(types);
+}
+
+//------------------------------------------------------------------------------
 // const StringArray& GetListOfViewableItems(Gmat::ObjectType type)
 //------------------------------------------------------------------------------
 /**
@@ -5450,6 +5467,19 @@ GmatCommand* Moderator::GetFirstCommand(Integer sandboxNum)
 void Moderator::SetCommandsUnchanged(Integer whichList)
 {
    commands[whichList]->ConfigurationChanged(false, true);
+}
+
+
+//------------------------------------------------------------------------------
+// void ValidateCommand(GmatCommand *cmd)
+//------------------------------------------------------------------------------
+/**
+ * Validates the command.
+ */
+//------------------------------------------------------------------------------
+void Moderator::ValidateCommand(GmatCommand *cmd)
+{
+   theScriptInterpreter->ValidateCommand(cmd);
 }
 
 

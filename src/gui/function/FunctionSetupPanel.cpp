@@ -97,7 +97,7 @@ void FunctionSetupPanel::Create()
    //------------------------------------------------------
    
 #ifdef __USE_STC_EDITOR__
-   mEditor = new Editor(this, -1, wxDefaultPosition, wxSize(700,400));
+   mEditor = new Editor(this, false, -1, wxDefaultPosition, wxSize(700,400));
 #else
    mFileContentsTextCtrl = 
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, 

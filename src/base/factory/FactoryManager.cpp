@@ -80,6 +80,8 @@ bool FactoryManager::RegisterFactory(Factory* fact)
    //   ("FactoryManager::RegisterFactory() adding factory %d\n", fact->GetFactoryType());
    
    factoryList.push_back(fact);  // better to put it at the back of the list?
+   factoryTypeList.push_back(fact->GetFactoryType());
+   
    return true;
 }
 
@@ -799,25 +801,63 @@ const StringArray& FactoryManager::GetListOfItems(Gmat::ObjectType byType)
 const StringArray& FactoryManager::GetListOfAllItems()
 {
    entireList.clear();
-   
+
    // Build all creatable object list
-   GetList(Gmat::COMMAND);
-   GetList(Gmat::ATMOSPHERE);
-   GetList(Gmat::ATTITUDE);
-   GetList(Gmat::AXIS_SYSTEM);
-   GetList(Gmat::BURN);
-   GetList(Gmat::CALCULATED_POINT);
-   GetList(Gmat::FUNCTION);
-   GetList(Gmat::HARDWARE);
-   GetList(Gmat::PARAMETER);
-   GetList(Gmat::PROPAGATOR);
-   GetList(Gmat::PHYSICAL_MODEL);
-   GetList(Gmat::SOLVER);
-   GetList(Gmat::SPACE_POINT);
-   GetList(Gmat::STOP_CONDITION);
-   GetList(Gmat::SUBSCRIBER);
-   GetList(Gmat::CELESTIAL_BODY);
-   GetList(Gmat::DATA_FILE);
+   // Now we can do this since data member factoryTypeList was added (LOJ: 2010.08.19)
+   // factoryTypeList is filled when factory is registered in the Moderator
+   std::list<Gmat::ObjectType>::iterator ftype = factoryTypeList.begin();
+   while (ftype != factoryTypeList.end())
+   {
+      GetList(*ftype);
+      ftype++;
+   }
+   
+//    // Build all creatable object list
+//    GetList(Gmat::COMMAND);
+//    GetList(Gmat::ATMOSPHERE);
+//    GetList(Gmat::ATTITUDE);
+//    GetList(Gmat::AXIS_SYSTEM);
+//    GetList(Gmat::BURN);
+//    GetList(Gmat::CALCULATED_POINT);
+//    GetList(Gmat::FUNCTION);
+//    GetList(Gmat::HARDWARE);
+//    GetList(Gmat::PARAMETER);
+//    GetList(Gmat::PROPAGATOR);
+//    GetList(Gmat::PHYSICAL_MODEL);
+//    GetList(Gmat::SOLVER);
+//    GetList(Gmat::SPACE_POINT);
+//    GetList(Gmat::STOP_CONDITION);
+//    GetList(Gmat::SUBSCRIBER);
+//    GetList(Gmat::CELESTIAL_BODY);
+//    GetList(Gmat::DATA_FILE);
+   
+   return entireList;
+}
+
+//------------------------------------------------------------------------------
+// const StringArray& GetListOfAllItemsExcept(const ObjectTypeArray &types)
+//------------------------------------------------------------------------------
+/**
+ * Return a list of all items that can be created except input types
+ *
+ * @param <type> object types to be excluded
+ *
+ * @return list of all creatable items excluding input types
+ */
+//------------------------------------------------------------------------------
+const StringArray& FactoryManager::GetListOfAllItemsExcept(const ObjectTypeArray &types)
+{
+   entireList.clear();
+   
+   // Build all creatable object list except given types
+   std::list<Gmat::ObjectType>::iterator ftype = factoryTypeList.begin();
+   while (ftype != factoryTypeList.end())
+   {
+      if (find(types.begin(), types.end(), *ftype) == types.end())
+         GetList((*ftype));
+      
+      ftype++;
+   }
    
    return entireList;
 }
