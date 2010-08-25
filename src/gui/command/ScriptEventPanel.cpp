@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              ScriptEventPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Allison Greene
 // Created: 2005/1/12
@@ -13,15 +13,12 @@
 //------------------------------------------------------------------------------
 
 #include "ScriptEventPanel.hpp"
+#include "GmatAppData.hpp"
 #include "MessageInterface.hpp"
 #include "CommandUtil.hpp"       // for GetCommandSeqString()
-#include "ShowScriptDialog.hpp"
 #include "NoOp.hpp"
 #include <algorithm>             // for sort(), set_difference()
 #include <sstream>               // for std::stringstream
-
-// to add BeginScript and EndScript outside of textbox
-#define __ADD_BEGIN_END_SCRIPT__
 
 //#define DBGLVL_SCRIPTEVENTPANEL_LOAD 1
 //#define DBGLVL_SCRIPTEVENTPANEL_SAVE 1
@@ -32,12 +29,8 @@
 //------------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(ScriptEventPanel, GmatPanel)
-   EVT_BUTTON(ID_BUTTON_OK, ScriptEventPanel::OnOK)
-   EVT_BUTTON(ID_BUTTON_APPLY, ScriptEventPanel::OnApply)
-   EVT_BUTTON(ID_BUTTON_CANCEL, GmatPanel::OnCancel)
-   EVT_BUTTON(ID_BUTTON_SCRIPT, GmatPanel::OnScript)
-   //Removed this since OnOK and OnApply is implemented here (loj: 2009.02.03)
-   //EVT_TEXT(ID_TEXTCTRL, ScriptEventPanel::OnTextUpdate)
+   EVT_TEXT(ID_COMMENT_CTRL, ScriptEventPanel::OnCommentChange)
+   EVT_TEXT(ID_SCRIPT_CTRL, ScriptEventPanel::OnCommentChange)
 END_EVENT_TABLE()
 
 //------------------------------------------------------------------------------
@@ -97,60 +90,19 @@ ScriptEventPanel::~ScriptEventPanel()
 
 
 //------------------------------------------------------------------------------
-// virtual void OnApply()
-//------------------------------------------------------------------------------
-/**
- * Saves the data and remain unclosed.
- */
-//------------------------------------------------------------------------------
-void ScriptEventPanel::OnApply(wxCommandEvent &event)
-{
-   #ifdef __USE_STC_EDITOR__
-   if (mEditor->IsModified() || mCommentTextCtrl->IsModified())
-   #else
-   if (mFileContentsTextCtrl->IsModified() || mCommentTextCtrl->IsModified())
-   #endif
-      EnableUpdate(true);
-   
-   GmatPanel::OnApply(event);
-}
-
-
-//------------------------------------------------------------------------------
-// virtual void OnOk()
-//------------------------------------------------------------------------------
-/**
- * Saves the data and closes the page
- */
-//------------------------------------------------------------------------------
-void ScriptEventPanel::OnOK(wxCommandEvent &event)
-{
-   #ifdef __USE_STC_EDITOR__
-   if (mEditor->IsModified() || mCommentTextCtrl->IsModified())
-   #else
-   if (mFileContentsTextCtrl->IsModified() || mCommentTextCtrl->IsModified())
-   #endif
-      EnableUpdate(true);
-   
-   GmatPanel::OnOK(event);
-}
-
-
-//------------------------------------------------------------------------------
 // void Create()
 //------------------------------------------------------------------------------
 void ScriptEventPanel::Create()
 {
    int bsize = 3; // border size
    
-   #ifdef __ADD_BEGIN_END_SCRIPT__
    // Comment label
    wxStaticText *commentText =
       new wxStaticText(this, ID_TEXT,
                        wxT("Comments"), wxDefaultPosition, wxDefaultSize, 0);
    // Comment text
    mCommentTextCtrl =
-      new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), wxDefaultPosition,
+      new wxTextCtrl(this, ID_COMMENT_CTRL, wxT(""), wxDefaultPosition,
                      wxSize(-1, 50), wxTE_MULTILINE | wxTE_DONTWRAP);
    
    // BeginScript label
@@ -164,15 +116,17 @@ void ScriptEventPanel::Create()
    // Change font color to blue
    beginScriptText->SetForegroundColour(*wxBLUE);
    endScriptText->SetForegroundColour(*wxBLUE);
-   #endif
    
 #ifdef __USE_STC_EDITOR__
-   //mEditor = new Editor(this, -1, wxDefaultPosition, wxSize(700,400));
-   mEditor = new Editor(this, -1, wxDefaultPosition, wxDefaultSize);
+   #ifdef DEBUG_CREATE
+   MessageInterface::ShowMessage
+      ("ScriptEventPanel::Create(), creating Editor from parent = <%p>\n", this);
+   #endif
+   mEditor = new Editor(this, true, ID_STC);
 #else
    // We don't want TextCtrl to wrap text, so add wxTE_DONTWRAP to style
    mFileContentsTextCtrl =
-      new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), wxDefaultPosition,
+      new wxTextCtrl(this, ID_SCRIPT_CTRL, wxT(""), wxDefaultPosition,
                      wxDefaultSize, wxTE_MULTILINE | wxTE_DONTWRAP);
    
    mFileContentsTextCtrl->SetFont( GmatAppData::Instance()->GetFont() );
@@ -195,15 +149,11 @@ void ScriptEventPanel::Create()
    // add to parent sizer
    //------------------------------------------------------
    mPageSizer = new wxBoxSizer(wxVERTICAL);
-   #ifdef __ADD_BEGIN_END_SCRIPT__
    mPageSizer->Add(commentText, 0, wxALIGN_LEFT | wxALL, bsize);
    mPageSizer->Add(mCommentTextCtrl, 0, wxALIGN_LEFT | wxGROW | wxALL, bsize);
    mPageSizer->Add(beginScriptText, 0, wxALIGN_LEFT | wxALL, bsize);
-   #endif
    mPageSizer->Add(mBottomSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
-   #ifdef __ADD_BEGIN_END_SCRIPT__
    mPageSizer->Add(endScriptText, 0, wxALIGN_LEFT | wxALL, bsize);
-   #endif
    theMiddleSizer->Add(mPageSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
 }
 
@@ -235,23 +185,19 @@ void ScriptEventPanel::LoadData()
    
    // We don't want to include Begin/EndScript,
    // so pass Gmat::GUI_EDITOR to GetGeneratingString()
-   #ifdef __ADD_BEGIN_END_SCRIPT__
    text << theCommand->GetGeneratingString(Gmat::GUI_EDITOR);
    mCommentTextCtrl->AppendText(theCommand->GetCommentLine().c_str());
    mCommentTextCtrl->SetModified(false);
-   #else
-   text << theCommand->GetGeneratingString();
-   #endif
    
    wxString scriptText = text.str().c_str();
    
    #ifdef __USE_STC_EDITOR__
-   mEditor->AppendText(scriptText);
-   mEditor->EmptyUndoBuffer();
-   mEditor->SetSavePoint();
+      mEditor->AppendText(scriptText);
+      mEditor->EmptyUndoBuffer();
+      mEditor->SetSavePoint();
    #else
-   mFileContentsTextCtrl->AppendText(scriptText);
-   mFileContentsTextCtrl->SetModified(false);
+      mFileContentsTextCtrl->AppendText(scriptText);
+      mFileContentsTextCtrl->SetModified(false);
    #endif
    
    EnableUpdate(false);
@@ -298,92 +244,47 @@ void ScriptEventPanel::SaveData()
    //-----------------------------------------------------------------
    // Add lines to stringstream
    //-----------------------------------------------------------------
-   #ifdef __ADD_BEGIN_END_SCRIPT__
-      scriptText1 << "BeginScript;" << "\n";
-      #ifdef __USE_STC_EDITOR__
-         int numLines = mEditor->GetLineCount();
-         #if DBGLVL_SCRIPTEVENTPANEL_SAVE
-         MessageInterface::ShowMessage("   number of lines=%d\n", numLines);
-         #endif
-         wxString line;
-         for (int i=0; i<numLines; i++)
-         {      
-            line = mEditor->GetLine(i);
-            scriptText1 << line << "\n";
-         }
-         #else
-         int numLines = mFileContentsTextCtrl->GetNumberOfLines();
-         wxString line;
-         for (int i=0; i<numLines; i++)
-         {      
-            line = mFileContentsTextCtrl->GetLineText(i);
-            scriptText1 << line << "\n";
-            // Since GmatMdiChildFrame uses this TextCtrl for checking
-            // modified flag, set the flag to false
-            mFileContentsTextCtrl->SetModified(false);
-         }
-      #endif
-      scriptText1 << "EndScript;" << "\n";
-   #else
-   //-----------------------------------------------------------------
-   // Get text lines and do some sanity checking
-   //-----------------------------------------------------------------
-   int numLines = mFileContentsTextCtrl->GetNumberOfLines();
-   int beginCount = 0;
-   int endCount = 0;
-   std::string::size_type commentIndex = std::string::npos;
-   std::string::size_type beginIndex = std::string::npos;
-   std::string::size_type endIndex = std::string::npos;
-   wxString line;
+   scriptText1 << "BeginScript;" << "\n";
+   //=======================================================
+   #ifdef __USE_STC_EDITOR__
+   //=======================================================
    
-   for (int i=0; i<numLines; i++)
-   {
-      line = mFileContentsTextCtrl->GetLineText(i);
-      scriptText1 << line << "\n";
-      commentIndex = line.Find("%");
-      beginIndex = line.Find("BeginScript");
-      endIndex = line.Find("EndScript");
-      
-      #if DBGLVL_SCRIPTEVENTPANEL_SAVE > 1
-      MessageInterface::ShowMessage
-         ("   line=<%s>, commentIndex=%u, beginIndex=%u, endIndex=%u\n",
-          line.c_str(), commentIndex, beginIndex, endIndex);
-      #endif
-      
-      if (beginIndex == line.npos && endIndex == line.npos)
-         continue;
-      
-      if (commentIndex == line.npos)
-      {
-         if (beginIndex != line.npos)
-            beginCount++;
-         else if (endIndex != line.npos)
-            endCount++;
-      }
-      else
-      {
-         if (beginIndex < commentIndex)
-            beginCount++;
-         else if (endIndex < commentIndex)
-            endCount++;            
-      }
-   }
-   
-   #if DBGLVL_SCRIPTEVENTPANEL_SAVE > 1
-   MessageInterface::ShowMessage
-      ("   beginCount=%d, endCount=%d\n", beginCount, endCount);
+   #if DBGLVL_SCRIPTEVENTPANEL_SAVE
+   int numLines = mEditor->GetLineCount();
+   MessageInterface::ShowMessage("   number of lines=%d\n", numLines);
    #endif
    
-   // Check for Begin/EndScript keyword
-   if (beginCount != endCount)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::WARNING_, "Unbalanced \"Begin/EndScript\" found in this "
-          "script block.\nScript not saved.\n");
-      
-      return;
+   wxString text = mEditor->GetText();
+   
+   // Add EOL if not there.
+   size_t length = text.Len();
+   wxChar lastChar = text[length-1];
+   
+   if (lastChar != '\n' && lastChar != '\r' && lastChar != '\0')
+      text = text + "\n";
+   
+   scriptText1 << text;
+   
+   //=======================================================
+   #else
+   //=======================================================
+   
+   int numLines = mFileContentsTextCtrl->GetNumberOfLines();
+   wxString line;
+   for (int i=0; i<numLines; i++)
+   {      
+      line = mFileContentsTextCtrl->GetLineText(i);
+      scriptText1 << line << "\n";
+      // Since GmatMdiChildFrame uses this TextCtrl for checking
+      // modified flag, set the flag to false
+      mFileContentsTextCtrl->SetModified(false);
    }
-   #endif // __ADD_BEGIN_END_SCRIPT__
+   
+   //=======================================================
+   #endif
+   //=======================================================
+   
+   scriptText1 << "EndScript;" << "\n";
    
    
    //-----------------------------------------------------------------
@@ -459,24 +360,35 @@ void ScriptEventPanel::SaveData()
       
       canClose = theGuiInterpreter->Interpret(inCommand, inStringStream);
       
-      
       #if DBGLVL_SCRIPTEVENTPANEL_SAVE
       ShowCommand("   inCommand = ", inCommand);
       cmdString = GmatCommandUtil::GetCommandSeqString(inCommand);
       MessageInterface::ShowMessage
          ("   ==> temp noOp seuqence=%s\n", cmdString.c_str());
+      MessageInterface::ShowMessage("   canClose = %d\n", canClose);
       #endif
       
       //--------------------------------------------------------------
       // If error occurred during interpretation, handle and return
       //--------------------------------------------------------------
+      bool ignoreErrors = true;
       if (!canClose)
       {         
-         MessageInterface::PopupMessage
-            (Gmat::ERROR_,
-             "Error parsing the ScriptEvent; Script not saved.\n"
-             "Please correct the text.\n");
+         wxMessageDialog *msgDlg = new wxMessageDialog
+            (this, "Errors were found in the ScriptEvent; Do you want to save it anyway?", "",
+             wxYES_NO | wxICON_QUESTION, wxDefaultPosition);
+         int result = msgDlg->ShowModal();
          
+         ignoreErrors = false;
+         if (result == wxID_YES)
+         {
+            ignoreErrors = true;
+            canClose = true;
+         }
+      }
+      
+      if (!ignoreErrors)
+      {
          #if DBGLVL_SCRIPTEVENTPANEL_SAVE
          MessageInterface::ShowMessage
             ("   Deleting tempNoOp->GetNext()=%p\n", tempNoOp->GetNext());
@@ -585,9 +497,18 @@ void ScriptEventPanel::SaveData()
 
 
 //------------------------------------------------------------------------------
-// void OnTextUpdate(wxCommandEvent& event)
+// void OnCommentChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
-void ScriptEventPanel::OnTextUpdate(wxCommandEvent& event)
+void ScriptEventPanel::OnCommentChange(wxCommandEvent& event)
+{
+   EnableUpdate(true);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnScriptChange(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void ScriptEventPanel::OnScriptChange(wxCommandEvent& event)
 {
    EnableUpdate(true);
 }
@@ -768,7 +689,7 @@ void ScriptEventPanel::ReplaceScriptEvent()
             if (mNextCommand != NULL)
                mNextCommand->ForceSetPrevious(endScript);
             
-            endScript->ForceSetNext(mNextCommand);            
+            endScript->ForceSetNext(mNextCommand);
          }
          
          //-----------------------------------------------------------

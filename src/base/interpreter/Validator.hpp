@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Validator
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -129,6 +129,9 @@ private:
    StringArray     theParameterList;
    
    std::string     theDescription;
+   /// If object not found, it will automatically create StringWrapper
+   /// This flag indicates whether or not to create default StringWrapper
+   bool            createDefaultStringWrapper;
    
    /// Error handling data
    bool            continueOnError;

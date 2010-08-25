@@ -481,8 +481,8 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          ("   rhsWrapperType=%2d, rhsDataType=%s\n", rhsWrapperType, rhsTypeStr.c_str());
       #endif
       
-      // If lhs is String, it must be String Object, so check it first
-      // ex) UnknownObj1 = str1
+      // If lhs is a String, it must be String Object and STRING_OBJECT_WT,
+      // so check it first for error condition. ex) UnknownObj1 = str1
       if (lhsDataType == Gmat::STRING_TYPE && lhsWrapperType == Gmat::STRING_WT)
       {
          GmatBaseException ex;

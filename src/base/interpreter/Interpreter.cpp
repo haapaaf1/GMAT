@@ -111,6 +111,7 @@ Interpreter::Interpreter(SolarSystem *ss, ObjectMap *objMap)
    continueOnError = true;
    parsingDelayedBlock = false;
    ignoreError = false;
+   inScriptEvent = false;
    inFunctionMode = false;
    hasFunctionDefinition = false;
    currentFunction = NULL;
@@ -6349,7 +6350,17 @@ void Interpreter::HandleError(const BaseException &e, bool writeLine, bool warni
 {
    if (writeLine)
    {
-      lineNumber = GmatStringUtil::ToString(theReadWriter->GetLineNumber());
+      Integer lineNum = theReadWriter->GetLineNumber();
+      if (inScriptEvent)
+         lineNum = lineNum - 1;
+
+      #ifdef DEBUG_HANDLE_ERROR
+      MessageInterface::ShowMessage
+         ("Interpreter::HandleError(), inScriptEvent=%d, lineNum=%d\n",
+          inScriptEvent, lineNum);
+      #endif
+      
+      lineNumber = GmatStringUtil::ToString(lineNum);
       currentLine = theReadWriter->GetCurrentLine();
       
       HandleErrorMessage(e, lineNumber, currentLine, writeLine, warning);

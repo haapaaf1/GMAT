@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 Sandbox
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -691,13 +691,25 @@ bool Sandbox::Initialize()
             (cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
          }
       }
-      
-      rv = current->Initialize();
-      if (!rv)
-         throw SandboxException("The Mission Control Sequence command\n\n" +
-               current->GetGeneratingString(Gmat::SCRIPTING, "   ") +
-               "\n\nfailed to initialize correctly.  Please correct the error "
-               "and try again.");
+
+      try
+      {
+         rv = current->Initialize();
+         if (!rv)
+            throw SandboxException("The Mission Control Sequence command\n\n" +
+                  current->GetGeneratingString(Gmat::SCRIPTING, "   ") +
+                  "\n\nfailed to initialize correctly.  Please correct the error "
+                  "and try again.");
+      }
+      catch (BaseException &be)
+      {
+         // Call ValidateCommand to create wrappers and Initialize.(LOJ: 2010.08.24)
+         // This will fix bug 1918 for the following senario in ScriptEvent.
+         // In ScriptEvent, x = 1 where x is undefined, save it.
+         // Add x from the ResourceTree and run the mission.
+         moderator->ValidateCommand(current);
+         rv = current->Initialize();
+      }
       
       // Check to see if the command needs a server startup
       if (current->NeedsServerStartup())

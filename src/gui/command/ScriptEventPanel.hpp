@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              ScriptEventPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Allison Greene
 // Created: 2005/1/12
@@ -27,13 +27,10 @@ class ScriptEventPanel: public GmatPanel
 {
 public:
    // constructors
-   //ScriptEventPanel(wxWindow *parent, GmatCommand *cmd);
    ScriptEventPanel(wxWindow *parent, MissionTreeItemData *item);
    ~ScriptEventPanel();
    
    wxTextCtrl *mFileContentsTextCtrl;
-   virtual void OnApply(wxCommandEvent &event);
-   virtual void OnOK(wxCommandEvent &event);
    
 #ifdef __USE_STC_EDITOR__
    Editor* GetEditor() { return mEditor; };
@@ -54,7 +51,7 @@ private:
    wxTextCtrl  *mCommentTextCtrl;
    wxGridSizer *mBottomSizer;
    wxBoxSizer  *mPageSizer;
-
+   
    void ReplaceScriptEvent();
    
    // for Debug
@@ -67,15 +64,18 @@ private:
    virtual void SaveData();
    
    // event handling
-   void OnTextUpdate(wxCommandEvent& event);
+   void OnCommentChange(wxCommandEvent& event);
+   void OnScriptChange(wxCommandEvent& event);
    
    DECLARE_EVENT_TABLE();
-
+   
    // IDs for the controls and the menu commands
    enum
    {     
       ID_TEXT = 9000,
-      ID_TEXTCTRL
+      ID_COMMENT_CTRL,
+      ID_SCRIPT_CTRL,
+      ID_STC,
    };
 };
 

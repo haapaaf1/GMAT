@@ -574,6 +574,7 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    Gmat::WrapperDataType itsType = Gmat::NUMBER_WT;
    ElementWrapper *ew = NULL;
    Real           rval;
+   
    // remove extra parens and blank spaces at either end of string
    theDescription = GmatStringUtil::Trim(desc);
    theDescription = GmatStringUtil::RemoveExtraParen(theDescription);
@@ -714,7 +715,11 @@ Validator::CreateElementWrapper(const std::string &desc, bool parametersFirst,
    }
    else
    {
+      createDefaultStringWrapper = true;
+      
       #if DBGLVL_WRAPPERS
+      MessageInterface::ShowMessage
+         ("Validator::CreateElementWrapper() createDefaultStringWrapper set to true\n");
       MessageInterface::ShowMessage
          ("Validator::CreateElementWrapper() returning NULL, could not create an "
           "ElementWrapper for \"" + theDescription + "\"\n");
@@ -744,6 +749,12 @@ const StringArray& Validator::GetErrorList()
 //------------------------------------------------------------------------------
 bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
 {
+   #if DBGLVL_WRAPPERS > 1
+   MessageInterface::ShowMessage
+      ("Validator::CreateAssignmentWrappers() entered, cmd=<%p>, theDescription='%s', "
+       "manage=%d\n", cmd, theDescription.c_str(), manage);
+   #endif
+   
    std::string typeName = cmd->GetTypeName();
    const StringArray wrapperNames = cmd->GetWrapperObjectNameArray();
    
@@ -819,8 +830,10 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    {         
       #if DBGLVL_WRAPPERS > 1
       MessageInterface::ShowMessage("==========> Create Assignment LHS wrapper\n");
+      MessageInterface::ShowMessage("   createDefaultStringWrapper set to false\n");
       #endif
       
+      createDefaultStringWrapper = false;
       std::string type, owner, dep;
       GmatStringUtil::ParseParameter(lhs, type, owner, dep);
       
@@ -891,6 +904,17 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    #if DBGLVL_WRAPPERS > 1
    MessageInterface::ShowMessage("==========> Create Assignment RHS wrapper\n");
    MessageInterface::ShowMessage("   Has %d wrapper names\n", wrapperNames.size());
+   #endif
+   
+   createDefaultStringWrapper = true;
+   if (leftEw->GetWrapperType() == Gmat::VARIABLE_WT ||
+       leftEw->GetWrapperType() == Gmat::ARRAY_ELEMENT_WT)
+      createDefaultStringWrapper = false;
+   
+   #if DBGLVL_WRAPPERS > 1
+   MessageInterface::ShowMessage
+      ("   createDefaultStringWrapper set to %s\n",
+       createDefaultStringWrapper ? "true" : "false");
    #endif
    
    // check if there is missing single quote in RHS if LHS is string type(loj: 2008.07.22)
@@ -1005,6 +1029,11 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
          return HandleError();
       }
    }
+   
+   #if DBGLVL_WRAPPERS > 1
+   MessageInterface::ShowMessage
+      ("Validator::CreateAssignmentWrappers() returning true\n");
+   #endif
    
    return true;
 }
@@ -1446,7 +1475,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
                 theDescription.c_str(), "\"\n");
             #endif
          }
+         //===========================================================
          #ifdef __ALLOW_MATH_EXP_IN_FUNCTION__
+         //===========================================================
          // check if it is math equation or single undefined variable
          // so that number wrapper can be created for "2+2" or "x" for 
          // GmatFunction input value (loj: 2008.08.27)
@@ -1468,23 +1499,41 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
                 theDescription.c_str(), "\"\n");
             #endif
          }
+         //===========================================================
          #endif
+         //===========================================================
          else
          {
-            ew = new StringWrapper();
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Add
-               (ew, theDescription, "Validator::CreateOtherWrapper()",
-                "ew = new StringWrapper()");
-            #endif
-            ew->SetDescription(theDescription);
-            itsType = Gmat::STRING_WT;
-            
+            // For bug fix 1918, if not creating default StringWrapper 
+            // throw an exception instead (LOJ: 2010.08.24)
             #if DBGLVL_WRAPPERS
             MessageInterface::ShowMessage
-               (">>> In Validator, it's not an On/Off type so created a StringWrapper "
-                "<%p> for \"%s\"\n", ew, theDescription.c_str(), "\"\n");
+               ("   createDefaultStringWrapper = %d\n", createDefaultStringWrapper);
             #endif
+            if (createDefaultStringWrapper)
+            {
+               // Create default StringWrapper
+               ew = new StringWrapper();
+               #ifdef DEBUG_MEMORY
+               MemoryTracker::Instance()->Add
+                  (ew, theDescription, "Validator::CreateOtherWrapper()",
+                   "ew = new StringWrapper()");
+               #endif
+               ew->SetDescription(theDescription);
+               itsType = Gmat::STRING_WT;
+               
+               #if DBGLVL_WRAPPERS
+               MessageInterface::ShowMessage
+                  (">>> In Validator, it's not an On/Off type so created a StringWrapper "
+                   "<%p> for \"%s\"\n", ew, theDescription.c_str(), "\"\n");
+               #endif
+            }
+            else
+            {            
+               theErrorMsg = "Nonexistent object \"" + theDescription + "\" referenced ";
+               continueOnError = false;
+               HandleError();
+            }
          }
       }
    }
@@ -2834,6 +2883,7 @@ Validator::Validator()
    theCommand = NULL;
    theFunction = NULL;
    theObjectMap = NULL;
+   createDefaultStringWrapper = true;
    continueOnError = true;
 }
 

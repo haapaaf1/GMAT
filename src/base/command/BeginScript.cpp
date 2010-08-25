@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              BeginScript
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2004/02/25
@@ -175,7 +175,11 @@ const std::string& BeginScript::GetGeneratingString(Gmat::WriteMode mode,
        useName.c_str());
    #endif
    
-   indent = "   ";
+   if (mode == Gmat::GUI_EDITOR)
+      indent = "";
+   else
+      indent = "   ";
+   
    GmatCommand *current = next;
    while (current != NULL)
    {      

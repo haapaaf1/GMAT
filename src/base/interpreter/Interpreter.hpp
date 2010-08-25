@@ -173,6 +173,7 @@ protected:
    bool         initialized;
    bool         parsingDelayedBlock;
    bool         ignoreError;
+   bool         inScriptEvent;
    
    /// For handling GmatFunction
    bool         inFunctionMode;
