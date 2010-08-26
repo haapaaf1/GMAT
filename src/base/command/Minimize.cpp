@@ -578,8 +578,7 @@ bool Minimize::InterpretAction()
 const StringArray& Minimize::GetWrapperObjectNameArray()
 {
    wrapperObjectNames.clear();
-
-   wrapperObjectNames.push_back(objectiveName);  
+   wrapperObjectNames.push_back(objectiveName);
       
    return wrapperObjectNames;
 }
@@ -619,6 +618,8 @@ bool Minimize::SetElementWrapper(ElementWrapper *toWrapper, const std::string &w
    if (objectiveName == withName)
    {
       objective = toWrapper;
+      // Reset the generating string so initialization works correctly
+      GetGeneratingString(Gmat::SCRIPTING, "", "");
       retval = true;
    }
    
