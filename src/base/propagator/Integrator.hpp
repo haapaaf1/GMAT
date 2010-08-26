@@ -146,7 +146,7 @@ public:
     virtual Real GetStepTaken();
     
     //--------------------------------------------------------------------------
-    // virtual void Initialize(void)
+    // virtual void Initialize()
     //--------------------------------------------------------------------------
     /**
      * Method used to initialize the integrator

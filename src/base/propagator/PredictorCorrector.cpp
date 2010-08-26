@@ -400,6 +400,13 @@ bool PredictorCorrector::Initialize()
             starter = new RungeKutta89;
 
         starter->SetPhysicalModel(physicalModel);
+
+        if (fabs(stepSizeBuffer) < minimumStep)
+           stepSizeBuffer = minimumStep * stepSign;
+        if (fabs(stepSizeBuffer) > maximumStep)
+           stepSizeBuffer = maximumStep * stepSign;
+
+        starter->SetRealParameter("InitialStepSize", stepSize);
         starter->Initialize();
 
         inState  = physicalModel->GetState();

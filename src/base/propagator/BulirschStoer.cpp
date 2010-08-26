@@ -264,6 +264,12 @@ bool BulirschStoer::Initialize(void)
 {
    Integer i, j;
 
+   Real stepSign = (stepSizeBuffer >= 0.0 ? 1.0 : -1.0);
+   if (fabs(stepSizeBuffer) < minimumStep)
+      stepSizeBuffer = minimumStep * stepSign;
+   if (fabs(stepSizeBuffer) > maximumStep)
+      stepSizeBuffer = maximumStep * stepSign;
+
    Propagator::Initialize();
    initialized = false;
     
