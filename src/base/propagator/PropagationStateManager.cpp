@@ -219,7 +219,21 @@ bool PropagationStateManager::SetProperty(std::string propName, Integer index)
 }
 
 
-bool PropagationStateManager::SetProperty(std::string propName, GmatBase *forObject)
+//------------------------------------------------------------------------------
+// bool SetProperty(std::string propName, GmatBase *forObject)
+//------------------------------------------------------------------------------
+/**
+ * Adds a propagation parameter associated with an object to the state
+ * definition
+ *
+ * @param propName The name of the parameter
+ * @param forObject The associated object
+ *
+ * @return true on success
+ */
+//------------------------------------------------------------------------------
+bool PropagationStateManager::SetProperty(std::string propName,
+      GmatBase *forObject)
 {
    #ifdef DEBUG_STATE_CONSTRUCTION
       MessageInterface::ShowMessage("Entered SetProperty(%s, %s)\n",
@@ -227,8 +241,8 @@ bool PropagationStateManager::SetProperty(std::string propName, GmatBase *forObj
    #endif
 
    if (find(objects.begin(), objects.end(), forObject) == objects.end())
-      throw PropagatorException("Prop object not found in a propagation "
-            "state manager\n");
+      throw PropagatorException("Prop object " + forObject->GetName() +
+            " not found in a propagation state manager\n");
 
    if (forObject)
    {
