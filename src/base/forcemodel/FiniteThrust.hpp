@@ -48,11 +48,20 @@ public:
    virtual bool            SetRefObject(GmatBase *obj, 
                               const Gmat::ObjectType type, 
                               const std::string &name = "");
-//   virtual bool            SetRefObject(GmatBase *obj, 
-//                              const Gmat::ObjectType type,
-//                              const std::string &name, const Integer index);
+   virtual bool            SetRefObject(GmatBase *obj,
+                              const Gmat::ObjectType type,
+                              const std::string &name, const Integer index);
+   virtual bool            RenameRefObject(const Gmat::ObjectType type,
+                                           const std::string &oldName,
+                                           const std::string &newName);
+   virtual GmatBase*       GetRefObject(const Gmat::ObjectType type,
+                                        const std::string &name);
+   virtual GmatBase*       GetRefObject(const Gmat::ObjectType type,
+                                        const std::string &name,
+                                        const Integer index);
+
    virtual bool            IsTransient();
-   virtual bool            DepeletesMass();
+   virtual bool            DepletesMass();
    virtual void            SetPropList(ObjectArray *soList);
    virtual bool            Initialize();
    virtual bool            GetDerivatives(Real * state, Real dt, Integer order, 

@@ -228,7 +228,7 @@ const StringArray& FiniteThrust::GetRefObjectNameArray(
 /**
  * Sets referenced object pointers.
  * 
- * @param obj The onject.
+ * @param obj The object.
  * @param type The type of the object.
  * @param name The object's name.
  * 
@@ -252,12 +252,132 @@ bool FiniteThrust::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    return PhysicalModel::SetRefObject(obj, type, name);
 }
 
-// In case it's needed later
-// bool FiniteThrust::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-//                                 const std::string &name, const Integer index)
-// {
-//    return PhysicalModel::SetRefObject(obj, type, name, index);
-// }
+//------------------------------------------------------------------------------
+// bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//       const std::string &name, const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets referenced object pointers in an object array.
+ *
+ * @param obj The object.
+ * @param type The type of the object.
+ * @param name The object's name.
+ * @param index The index of the object in the array
+ *
+ * @return true if the object is set, false if not.
+ */
+//------------------------------------------------------------------------------
+bool FiniteThrust::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+      const std::string &name, const Integer index)
+{
+   return PhysicalModel::SetRefObject(obj, type, name, index);
+}
+
+
+//------------------------------------------------------------------------------
+// bool RenameRefObject(const Gmat::ObjectType type, const std::string &oldName,
+//       const std::string &newName)
+//------------------------------------------------------------------------------
+/**
+ * Changes the name for reference objects
+ *
+ * @param type The type of the object.
+ * @param oldName The object's name before the change.
+ * @param newName The object's proposed name after the change.
+ *
+ * @return true if a change was made, false if not
+ */
+//------------------------------------------------------------------------------
+bool FiniteThrust::RenameRefObject(const Gmat::ObjectType type,
+      const std::string &oldName, const std::string &newName)
+{
+   if (type == Gmat::FINITE_BURN)
+   {
+      for (UnsignedInt i = 0; i < burnNames.size(); ++i)
+      {
+         if (burnNames[i] == oldName)
+            burnNames[i] = newName;
+      }
+      for (UnsignedInt i = 0; i < burns.size(); ++i)
+      {
+         if (burns[i] != NULL)
+            if (burns[i]->GetName() == oldName)
+               burns[i]->SetName(newName);
+      }
+      return true;
+   }
+
+   return PhysicalModel::RenameRefObject(type, oldName, newName);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a pointer to a reference object
+ *
+ * @param type The type of the object
+ * @param name The object's name
+ *
+ * @return The object pointer
+ */
+//------------------------------------------------------------------------------
+GmatBase* FiniteThrust::GetRefObject(const Gmat::ObjectType type,
+      const std::string &name)
+{
+   if (type == Gmat::FINITE_BURN)
+   {
+      if ((name == "") && (burns.size() > 0))
+         return burns[0];
+
+      for (UnsignedInt i = 0; i < burns.size(); ++i)
+      {
+         if (burns[i] != NULL)
+            if (burns[i]->GetName() == name)
+               return burns[i];
+      }
+
+      return NULL;
+   }
+
+   if (type == Gmat::SPACECRAFT)
+   {
+      MessageInterface::ShowMessage("Returning spacecrft\n");
+
+      if (name == "")
+         if (spacecraft.size() > 0)
+            return spacecraft[0];
+      for (UnsignedInt i = 0; i < spacecraft.size(); ++i)
+         if (spacecraft[i]->GetName() == name)
+            return spacecraft[i];
+      return NULL;
+   }
+
+   return PhysicalModel::GetRefObject(type, name);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* GetRefObject(const Gmat::ObjectType type, const std::string &name,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a pointer to a reference object from an array
+ *
+ * @param type The type of the object
+ * @param name The object's name
+ * @param index The index of the object in the array
+ *
+ * @return The object pointer
+ */
+//------------------------------------------------------------------------------
+GmatBase* FiniteThrust::GetRefObject(const Gmat::ObjectType type,
+      const std::string &name, const Integer index)
+{
+   return PhysicalModel::GetRefObject(type, name, index);
+}
+
 
 //------------------------------------------------------------------------------
 // bool IsTransient()
@@ -274,7 +394,7 @@ bool FiniteThrust::IsTransient()
 }
 
 //------------------------------------------------------------------------------
-// bool DepeletesMass()
+// bool DepletesMass()
 //------------------------------------------------------------------------------
 /**
  * Detects mass depletion from a PhysicalModel
@@ -282,7 +402,7 @@ bool FiniteThrust::IsTransient()
  * @return true if the model depletes mass, false if it does not
  */
 //------------------------------------------------------------------------------
-bool FiniteThrust::DepeletesMass()
+bool FiniteThrust::DepletesMass()
 {
    return depleteMass;
 }
@@ -522,7 +642,9 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                deriv[5 + i6] = accel[2];
 
                if (mloc >= 0)
-                  deriv[mloc]   = mDot;
+               {
+                  deriv[mloc+i]   = mDot;  // Is this right???
+               }
             } 
             else  
             {
