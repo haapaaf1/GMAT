@@ -1802,6 +1802,14 @@ void Propagate::CheckForOptions(Integer &loc, std::string &generatingString)
    std::string modeStr;
    currentMode = INDEPENDENT;
    
+   #ifdef DEBUG_PROPAGATE_ASSEMBLE
+      MessageInterface::ShowMessage("Propagate::CheckForOptions(%d, %s) "
+            "entered\n", loc, generatingString.c_str());
+   #endif
+
+   Integer maxLoc = loc;
+
+
    for (Integer modeId = INDEPENDENT+1; modeId != PropModeCount; ++modeId) 
    {
       modeStr = PropModeList[modeId];
@@ -1834,8 +1842,8 @@ void Propagate::CheckForOptions(Integer &loc, std::string &generatingString)
             #endif
          }
    
-         if (end >= loc)
-            loc = end + modeStr.length();
+         if (end >= maxLoc)
+            maxLoc = end + modeStr.length();
       }
       else
       {
@@ -1844,6 +1852,8 @@ void Propagate::CheckForOptions(Integer &loc, std::string &generatingString)
          #endif
       }
    }
+
+   loc = maxLoc;
 }
 
 
