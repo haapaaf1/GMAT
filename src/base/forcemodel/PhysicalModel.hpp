@@ -178,7 +178,7 @@ public:
    virtual bool StateChanged(bool reset = true);
    
    virtual bool IsTransient();
-   virtual bool DepeletesMass();
+   virtual bool DepletesMass();
    virtual bool IsUserForce();
    virtual void SetPropList(ObjectArray *soList);
    
@@ -209,6 +209,11 @@ public:
    const StringArray&  GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool        SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                     const std::string &name = "");
+   virtual bool        SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                              const std::string &name, const Integer index);
+   virtual GmatBase*   GetRefObject(const Gmat::ObjectType type,
+                              const std::string &name, const Integer index);
+
 protected:
       
    /// pointer to the body for which this force is computed

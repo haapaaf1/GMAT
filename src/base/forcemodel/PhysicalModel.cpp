@@ -1013,7 +1013,7 @@ bool PhysicalModel::IsTransient()
 
 
 //------------------------------------------------------------------------------
-// bool DepeletesMass()
+// bool DepletesMass()
 //------------------------------------------------------------------------------
 /**
  * Detects mass depletion ffrom a PhysicalModel
@@ -1021,7 +1021,7 @@ bool PhysicalModel::IsTransient()
  * @return true if the model depletes mass, false if it does not
  */
 //------------------------------------------------------------------------------
-bool PhysicalModel::DepeletesMass()
+bool PhysicalModel::DepletesMass()
 {
    return false;
 }
@@ -1417,6 +1417,19 @@ bool PhysicalModel::SetRefObject(GmatBase *obj,
    // Not handled here -- invoke the next higher SetRefObject call
    return GmatBase::SetRefObject(obj, type, name);
 }
+
+bool PhysicalModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                           const std::string &name, const Integer index)
+{
+   return GmatBase::SetRefObject(obj, type, name, index);
+}
+
+GmatBase* PhysicalModel::GetRefObject(const Gmat::ObjectType type,
+                           const std::string &name, const Integer index)
+{
+   return GmatBase::GetRefObject(type, name, index);
+}
+
 
 // Support for extra derivative calcs
 
