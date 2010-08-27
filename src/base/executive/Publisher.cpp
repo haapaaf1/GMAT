@@ -220,7 +220,7 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
        id, currProviderId, count);
    MessageInterface::ShowMessage("   providerMap.size()=%d\n", providerMap.size());
    #endif
-   
+
    // No subscribers
    if (subscriberList.empty())
    {
@@ -251,7 +251,7 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    }
    
    
-   // Get data lebels
+   // Get data labels
    std::vector<DataType>* dataList = iter->second;
 
    #if DBGLVL_PUBLISHER_PUBLISH > 1
@@ -259,7 +259,9 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    #endif
    
    // Convert the data into a string for distribution
-   char stream[4334] = "";
+   char *stream = new char[count*19 + 1];  // Allow 16 digits, decimal, + ", "
+                                           // + \0 terminator
+   stream[0] = '\0';    // Init to empty string
    
    for (Integer i = 0; i < count; ++i)
    {
@@ -298,6 +300,8 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
       current++;
    }
    
+   delete [] stream;
+
    #if DBGLVL_PUBLISHER_PUBLISH
    MessageInterface::ShowMessage("Publisher::Publish() returning true\n");
    #endif
