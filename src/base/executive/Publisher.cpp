@@ -337,7 +337,13 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    }
    
    // Convert the data into a string for distribution
-   char *stream = new char[count + 1];
+   Integer length;
+   if (count)
+   	length = count + 1;
+   else
+   	length = strlen(data) + 1;
+   	
+   char *stream = new char[length];
 
    if (count)
    {
@@ -359,8 +365,8 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
          return false;
       current++;
    }
-   delete [] stream;
 
+   delete [] stream;
    return true;
 }
 
@@ -407,8 +413,8 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
          return false;
       current++;
    }
+
    delete [] stream;
-   
    return true;
 }
 
