@@ -47,7 +47,7 @@ protected:
    void          		CreateControls(wxFlexGridSizer *mainSizer, GmatBase *theObject);
    void          		CreateControls(GmatBase *theObject, Integer index, wxStaticText **aLabel, wxControl **aControl, wxControl **aUnit, wxFileConfig *config);
    void                 LoadControl(GmatBase *theObject, const std::string &label);
-   void                 SaveControl(GmatBase *theObject, const std::string &label);
+   bool                 SaveControl(GmatBase *theObject, const std::string &label, bool showErrorMsgs = false);
    virtual std::string  GetParameterLabel(GmatBase *theObject, Integer index, wxFileConfig *config) const;
    virtual std::string  GetParameterUnit(GmatBase *theObject, Integer index, wxFileConfig *config) const;
    std::string  		AssignAcceleratorKey(std::string text);
@@ -62,6 +62,8 @@ protected:
                                          std::vector<wxControl*> propertyUnits );
    wxWindow             *FixTabOrder( wxWindow *lastControl, wxSizer *sizer );
    virtual bool         GetLayoutConfig(GmatBase *theObject, wxFileConfig **config);
+   virtual void         RefreshProperties(GmatBase *theObject);
+   virtual void         RefreshProperty(GmatBase *theObject, Integer index, wxControl *control, wxFileConfig *config);
    
    // Text control event method
    void OnTextUpdate(wxCommandEvent& event);
@@ -76,8 +78,10 @@ protected:
    
    /// List of used accelerator keys
    std::vector<char> accelKeys;
-   /// Mapping between text strings and the index for the associated control
-   std::map<std::string, wxControl *>   controlMap;
+   /// Mapping between text strings and the associated control
+   std::map<Integer, wxControl *> controlMap;
+   /// Mapping between the associated control and text strings
+   std::map<wxControl *, Integer> inverseControlMap;
    /// Managed wxComboBox map used by GuiItemManager
    std::map<wxString, wxComboBox*>  managedComboBoxMap;
    /// IDs used for event management

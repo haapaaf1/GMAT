@@ -269,10 +269,10 @@ void GmatBaseSetupPanel::SaveData()
    {
 	  // copy the input to a local variable first to see if there are
 	  // any errors
-      for (std::map<std::string, wxControl *>::iterator i = controlMap.begin();
+      for (std::map<Integer, wxControl *>::iterator i = controlMap.begin();
             i != controlMap.end(); ++i)
       {
-         SaveControl(localObject, i->first);
+         SaveControl(localObject, localObject->GetParameterText(i->first), true);
          if (!canClose)
             return;
       }
@@ -280,10 +280,10 @@ void GmatBaseSetupPanel::SaveData()
     	  throw GmatBaseException("Invalid input\n");
 
       // if no errors, copy the object again
-      for (std::map<std::string, wxControl *>::iterator i = controlMap.begin();
+      for (std::map<Integer, wxControl *>::iterator i = controlMap.begin();
             i != controlMap.end(); ++i)
       {
-         SaveControl(mObject, i->first);
+         SaveControl(mObject, localObject->GetParameterText(i->first), false);
          if (!canClose)
             return;
       }
@@ -368,13 +368,14 @@ void GmatBaseSetupPanel::CreateControls(GmatBase *theObject, Integer index, wxSt
        *aLabel = new wxStaticText(this, ID_TEXT,
            "");
     *aControl = BuildControl(this, theObject, index, labelText, config);
-//    if (theObject->GetParameterType(index) == Gmat::FILENAME_TYPE)
-//    {
-//	      *aUnit =
-//	         new wxBitmapButton(this, ID_BUTTON_BROWSE, openBitmap, wxDefaultPosition,
-//	                            wxSize(buttonWidth, 20));
-//    }
-//    else
+    (*aControl)->Enable(theObject->IsParameterEnabled(index));
+    if (theObject->GetParameterType(index) == Gmat::FILENAME_TYPE)
+    {
+	      *aUnit =
+	         new wxBitmapButton(this, ID_BUTTON_BROWSE, openBitmap, wxDefaultPosition,
+	                            wxSize(buttonWidth, 20));
+    }
+    else
     	*aUnit = new wxStaticText(this, ID_TEXT,
     				wxT(GetParameterUnit(theObject, index, config).c_str()));
 
@@ -422,7 +423,8 @@ void GmatBaseSetupPanel::CreateProperties(wxFlexGridSizer *mainSizer, GmatBase *
 	      i = theObject->GetParameterID(*propertyItem);
 	      CreateControls(theObject, i, &aLabel, &aControl, &aUnit, config);
 	      propertyDescriptors.push_back(aLabel);
-	      controlMap[theObject->GetParameterText(i)] = aControl;
+	      controlMap[i] = aControl;
+	      inverseControlMap[aControl] = i;
 	      propertyControls.push_back(aControl);
           propertyUnits.push_back(aUnit);
 	   }
@@ -687,6 +689,7 @@ wxControl *GmatBaseSetupPanel::BuildControl(wxWindow *parent, GmatBase *theObjec
 	                               wxTextValidator(wxGMAT_FILTER_NUMERIC));
       }
       break;
+   case Gmat::FILENAME_TYPE:
    case Gmat::STRING_TYPE:
    default:
       control = new wxTextCtrl(parent, ID_TEXTCTRL,
@@ -718,7 +721,7 @@ void GmatBaseSetupPanel::LoadControl(GmatBase *theObject, const std::string &lab
    Integer index = theObject->GetParameterID(label);
    Gmat::ParameterType type = theObject->GetParameterType(index);
 
-   wxControl *theControl = controlMap[label];
+   wxControl *theControl = controlMap[index];
    wxString valueString;
 
    switch (type)
@@ -752,6 +755,7 @@ void GmatBaseSetupPanel::LoadControl(GmatBase *theObject, const std::string &lab
          }
          break;
 
+      case Gmat::FILENAME_TYPE:
       case Gmat::STRING_TYPE:
          valueString = wxT(theObject->GetStringParameter(label).c_str());
          ((wxTextCtrl*)theControl)->ChangeValue(valueString);
@@ -783,17 +787,18 @@ void GmatBaseSetupPanel::LoadControl(GmatBase *theObject, const std::string &lab
 // void SaveControl(const std::string &label)
 //------------------------------------------------------------------------------
 /**
- * Passes a control's data to the Solver
+ * Passes a control's data to the object.  Returns true if parameter was saved to
+ * object
  *
  * @param label The string associated with the control.
  */
 //------------------------------------------------------------------------------
-void GmatBaseSetupPanel::SaveControl(GmatBase *theObject, const std::string &label)
+bool GmatBaseSetupPanel::SaveControl(GmatBase *theObject, const std::string &label, bool showErrorMsgs)
 {
    Integer index = theObject->GetParameterID(label);
    Gmat::ParameterType type = theObject->GetParameterType(index);
 
-   wxControl *theControl = controlMap[label];
+   wxControl *theControl = controlMap[index];
    std::string valueString;
 
    switch (type)
@@ -809,14 +814,19 @@ void GmatBaseSetupPanel::SaveControl(GmatBase *theObject, const std::string &lab
         	theObject->SetBooleanParameter(index, ((wxCheckBox*)theControl)->GetValue());
          }
          break;
-
       case Gmat::REAL_TYPE:
          {
             Real val;
             valueString = ((wxTextCtrl*)theControl)->GetValue();
-            CheckReal(val, valueString, label, "Real Number");
-            if (!canClose)
-               return;
+            if (showErrorMsgs)
+            {
+				CheckReal(val, valueString, label, "Real Number", false);
+				if (!canClose)
+				   return false;
+
+            }
+            else if (!GmatStringUtil::ToReal(valueString, &val))
+            	return false;
             theObject->SetRealParameter(index, val);
          }
          break;
@@ -825,13 +835,20 @@ void GmatBaseSetupPanel::SaveControl(GmatBase *theObject, const std::string &lab
          {
             Integer val;
             valueString = ((wxTextCtrl*)theControl)->GetValue();
-            CheckInteger(val, valueString, label, "Integer");
-            if (!canClose)
-               return;
+            if (showErrorMsgs)
+            {
+				CheckInteger(val, valueString, label, "Integer", false);
+				if (!canClose)
+				   return false;
+
+            }
+            else if (!GmatStringUtil::ToInteger(valueString, &val))
+            	return false;
             theObject->SetIntegerParameter(index, val);
          }
          break;
 
+      case Gmat::FILENAME_TYPE:
       case Gmat::STRING_TYPE:
          valueString = ((wxTextCtrl*)theControl)->GetValue();
          theObject->SetStringParameter(index, valueString.c_str());
@@ -846,6 +863,7 @@ void GmatBaseSetupPanel::SaveControl(GmatBase *theObject, const std::string &lab
       default:
          break;
    }
+   return true;
 }
 
 std::string GmatBaseSetupPanel::AssignAcceleratorKey(std::string text)
@@ -1064,8 +1082,16 @@ void GmatBaseSetupPanel::OnBrowseButton(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::OnComboBoxChange(wxCommandEvent& event)
 {
-   if (theApplyButton != NULL)
-      EnableUpdate(true);
+	std::string label = localObject->GetParameterText(inverseControlMap[(wxControl *) event.GetEventObject()]);
+	try
+	{
+		if (SaveControl(localObject, label))
+			RefreshProperties(localObject);
+	}
+	catch (BaseException &e)
+	{
+	}
+	EnableUpdate(true);
 }
 
 
@@ -1082,8 +1108,16 @@ void GmatBaseSetupPanel::OnComboBoxChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::OnComboBoxTextChange(wxCommandEvent& event)
 {
-   if (theApplyButton != NULL)
-      EnableUpdate(true);
+	std::string label = localObject->GetParameterText(inverseControlMap[(wxControl *) event.GetEventObject()]);
+	try
+	{
+		if (SaveControl(localObject, label))
+			RefreshProperties(localObject);
+	}
+	catch (BaseException &e)
+	{
+	}
+	EnableUpdate(true);
 }
 
 
@@ -1100,7 +1134,16 @@ void GmatBaseSetupPanel::OnComboBoxTextChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatBaseSetupPanel::OnTextChange(wxCommandEvent& event)
 {
-   EnableUpdate(true);
+	std::string label = localObject->GetParameterText(inverseControlMap[(wxControl *) event.GetEventObject()]);
+	try
+	{
+		if (SaveControl(localObject, label))
+			RefreshProperties(localObject);
+	}
+	catch (BaseException &e)
+	{
+	}
+	EnableUpdate(true);
 }
 
 
@@ -1280,5 +1323,55 @@ wxWindow *GmatBaseSetupPanel::FixTabOrder( wxWindow *lastControl, wxSizer *sizer
    }
    return lastControl;
 
+}
+
+void GmatBaseSetupPanel::RefreshProperties(GmatBase *theObject)
+{
+	#ifdef DEBUG_BASEPANEL_CREATE
+	MessageInterface::ShowMessage
+	   ("GmatBaseSetupPanel::RefreshProperties() entered\n");
+	#endif
+
+    wxFileConfig *pConfig;
+    GetLayoutConfig( theObject, &pConfig );
+	// iterate through the map
+    for (std::map<Integer, wxControl *>::iterator i = controlMap.begin();
+          i != controlMap.end(); ++i)
+    {
+       RefreshProperty(theObject, i->first, i->second, pConfig);
+    }
+
+}
+
+
+void GmatBaseSetupPanel::RefreshProperty(GmatBase *theObject, Integer index, wxControl *control, wxFileConfig *config)
+{
+    wxControl *aSibling;
+
+    // refresh the label, the value, and the unit
+    std::string labelText = theObject->GetParameterText(index);
+
+    // set the path to the section that contains the parameter's items
+    config->SetPath(wxT(("/"+labelText).c_str()));
+
+    // refresh value
+    LoadControl(theObject, labelText);
+    control->Enable(theObject->IsParameterEnabled(index));
+
+    // refresh label
+    if (theObject->GetParameterType(index) != Gmat::BOOLEAN_TYPE)
+    	aSibling = (wxControl *) control->GetPrevSibling();
+    else
+    	aSibling = control;
+
+    labelText = GetParameterLabel(theObject, index, config);
+    if (aSibling->GetLabelText() != labelText)
+    {
+    	labelText = AssignAcceleratorKey(labelText);
+    	aSibling->SetLabel(labelText.c_str());
+    }
+
+    // refresh units
+	control->GetNextSibling()->SetLabel(wxT(GetParameterUnit(theObject, index, config).c_str()));
 }
 
