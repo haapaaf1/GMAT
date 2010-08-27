@@ -90,7 +90,7 @@ GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
    "Integer",     "UnsignedInt", "UnsignedIntArray", "IntegerArray", "Real",
    "RealElement", "String",      "StringArray",      "Boolean",      "Rvector",
    "Rmatrix",     "Time",        "Object",           "ObjectArray",  "OnOff",
-   "Enumeration",
+   "Enumeration", "Filename"
 };
 
 /**
@@ -3422,7 +3422,7 @@ void GmatBase::CopyParameters(const GmatBase &a)
          SetIntegerParameter(i, iVal);
       }
 
-      if (parmType == Gmat::STRING_TYPE)
+      if ((parmType == Gmat::STRING_TYPE) || (parmType == Gmat::FILENAME_TYPE))
       {
          sVal = a.GetStringParameter(i);
          SetStringParameter(i, sVal);
@@ -3696,6 +3696,7 @@ void GmatBase::WriteParameterValue(Integer id, std::stringstream &stream)
 
    // Strings write out a string with quotes (loj: 2008.03.26)
    // Do not write blank string (loj: 2009.09.22)
+   case Gmat::FILENAME_TYPE:
    case Gmat::STRING_TYPE:
       {
          std::string strVal = GetStringParameter(id);
