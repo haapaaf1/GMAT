@@ -3653,7 +3653,8 @@ bool Interpreter::SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
       if (fromId == -1)
       {
          // LHS is a Variable or String, RHS is a Parameter
-         if (toType == Gmat::STRING_TYPE || toType == Gmat::ENUMERATION_TYPE)
+         if (toType == Gmat::STRING_TYPE || toType == Gmat::ENUMERATION_TYPE ||
+             toType == Gmat::FILENAME_TYPE)
             toObj->SetStringParameter("Value", rhsParam->GetString());
          else if (toType == Gmat::REAL_TYPE)
             ParseVariableExpression(toParam, rhs);
@@ -3661,7 +3662,8 @@ bool Interpreter::SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
       else
       {
          // LHS is a Variable or String, RHS is an ObjectProperty
-         if (toType == Gmat::STRING_TYPE || toType == Gmat::ENUMERATION_TYPE)
+         if (toType == Gmat::STRING_TYPE || toType == Gmat::ENUMERATION_TYPE ||
+             toType == Gmat::FILENAME_TYPE)
             toObj->SetStringParameter("Value", fromOwner->GetStringParameter(fromId));
          else if (toType == Gmat::REAL_TYPE)
          {
@@ -3916,8 +3918,8 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
    
    toType = toObj->GetParameterType(toId);
    
-   // Let's treat enumeration type as string type
-   if (toType == Gmat::ENUMERATION_TYPE)
+   // Let's treat enumeration and filename type as string type
+   if (toType == Gmat::ENUMERATION_TYPE || toType == Gmat::FILENAME_TYPE)
       toType = Gmat::STRING_TYPE;
    
    try
@@ -4136,7 +4138,8 @@ bool Interpreter::SetPropertyToProperty(GmatBase *toOwner, const std::string &to
    {
       if (toType == fromType)
       {
-         if (toType == Gmat::STRING_TYPE || toType == Gmat::ENUMERATION_TYPE)
+         if (toType == Gmat::STRING_TYPE || toType == Gmat::ENUMERATION_TYPE ||
+             toType == Gmat::FILENAME_TYPE)
          {
             if (isRhsProperty)
             {
@@ -4627,6 +4630,7 @@ bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
          return SetPropertyObjectValue(obj, id, type, valueToUse, index);
       }
    case Gmat::ENUMERATION_TYPE:
+   case Gmat::FILENAME_TYPE:
    case Gmat::STRING_TYPE:
    case Gmat::STRINGARRAY_TYPE:
       {
@@ -5043,6 +5047,7 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
    switch (type)
    {
    case Gmat::ENUMERATION_TYPE:
+   case Gmat::FILENAME_TYPE:
    case Gmat::STRING_TYPE:
       {
          // remove enclosing quotes if used
@@ -5149,7 +5154,8 @@ std::string Interpreter::GetPropertyValue(GmatBase *obj, const Integer id)
    {
       sval = GmatStringUtil::ToString(obj->GetRealParameter(id));
    }
-   else if (type == Gmat::STRING_TYPE || type == Gmat::ENUMERATION_TYPE)
+   else if (type == Gmat::STRING_TYPE || type == Gmat::ENUMERATION_TYPE ||
+            type == Gmat::FILENAME_TYPE)
    {
       sval = obj->GetStringParameter(id);
    }
