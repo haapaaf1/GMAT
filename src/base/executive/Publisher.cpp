@@ -259,8 +259,8 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    #endif
    
    // Convert the data into a string for distribution
-   char *stream = new char[count*19 + 1];  // Allow 16 digits, decimal, + ", "
-                                           // + \0 terminator
+   char *stream = new char[count*25 + 1];
+
    stream[0] = '\0';    // Init to empty string
    
    for (Integer i = 0; i < count; ++i)
@@ -337,7 +337,7 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    }
    
    // Convert the data into a string for distribution
-   char stream[4334];
+   char *stream = new char[count + 1];
 
    if (count)
    {
@@ -359,6 +359,7 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
          return false;
       current++;
    }
+   delete [] stream;
 
    return true;
 }
@@ -387,7 +388,8 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
    }
    
    // Convert the data into a string for distribution
-   char stream[4334];
+   char *stream = new char[count*25 + 1];
+   stream[0] = '\0';
    
    for(Integer i = 0; i < count; ++i)
    {
@@ -405,6 +407,7 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
          return false;
       current++;
    }
+   delete [] stream;
    
    return true;
 }
