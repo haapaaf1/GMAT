@@ -51,6 +51,7 @@ ReportFile::PARAMETER_TEXT[ReportFileParamCount - SubscriberParamCount] =
    "LeftJustify",
    "ZeroFill",
    "ColumnWidth",
+   "WriteReport",
 };
 
 const Gmat::ParameterType
@@ -63,6 +64,7 @@ ReportFile::PARAMETER_TYPE[ReportFileParamCount - SubscriberParamCount] =
    Gmat::ON_OFF_TYPE,        //"LeftJustify",
    Gmat::ON_OFF_TYPE,        //"ZeroFill",
    Gmat::INTEGER_TYPE,       //"ColumnWidth",
+   Gmat::BOOLEAN_TYPE,       //"WriteReport",
 };
 
 
@@ -750,7 +752,76 @@ bool ReportFile::IsParameterReadOnly(const Integer id) const
 
 
 //------------------------------------------------------------------------------
+// bool GetBooleanParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ReportFile::GetBooleanParameter(const Integer id) const
+{
+   if (id == WRITE_REPORT)
+      return active;
+   return Subscriber::GetBooleanParameter(id);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ReportFile::SetBooleanParameter(const Integer id, const bool value)
+{
+   #if DBGLVL_OPENGL_PARAM
+   MessageInterface::ShowMessage
+      ("ReportFile::SetBooleanParameter()<%s> id=%d, value=%d\n",
+       instanceName.c_str(), id, value);
+   #endif
+   
+   if (id == WRITE_REPORT)
+   {
+      active = value;
+      return active;
+   }
+   return Subscriber::SetBooleanParameter(id, value);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool GetBooleanParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ReportFile::GetBooleanParameter(const std::string &label) const
+{
+   return GetBooleanParameter(GetParameterID(label));
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetBooleanParameter(const std::string &label, const bool value)
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+bool ReportFile::SetBooleanParameter(const std::string &label, const bool value)
+{
+   return SetBooleanParameter(GetParameterID(label), value);
+}
+
+
+//------------------------------------------------------------------------------
 // Integer GetIntegerParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
 //------------------------------------------------------------------------------
 Integer ReportFile::GetIntegerParameter(const Integer id) const
 {
@@ -764,6 +835,10 @@ Integer ReportFile::GetIntegerParameter(const Integer id) const
 
 //------------------------------------------------------------------------------
 // Integer SetIntegerParameter(const Integer id, const Integer value)
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
 //------------------------------------------------------------------------------
 Integer ReportFile::SetIntegerParameter(const Integer id, const Integer value)
 {

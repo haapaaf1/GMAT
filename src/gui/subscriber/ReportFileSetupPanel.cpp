@@ -318,7 +318,8 @@ void ReportFileSetupPanel::LoadData()
    mObject = reportFile;
    
    // load data from the core engine
-   writeCheckBox->SetValue(reportFile->IsActive());
+   //writeCheckBox->SetValue(reportFile->IsActive());
+   writeCheckBox->SetValue(reportFile->GetBooleanParameter("WriteReport"));
    
    try
    {
@@ -440,7 +441,8 @@ void ReportFileSetupPanel::SaveData()
    {
       Integer id;
       
-      reportFile->Activate(writeCheckBox->IsChecked());
+      //reportFile->Activate(writeCheckBox->IsChecked());
+      reportFile->SetBooleanParameter("WriteReport", writeCheckBox->IsChecked());
       
       #if DEBUG_RF_PANEL_SAVE
       if (theSubscriber->IsActive())

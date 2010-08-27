@@ -72,10 +72,15 @@ public:
    virtual std::string  GetParameterTypeString(const Integer id) const;
    virtual bool         IsParameterReadOnly(const Integer id) const;
    
+   virtual bool         GetBooleanParameter(const Integer id) const;
+   virtual bool         SetBooleanParameter(const Integer id,
+                                            const bool value);
+   virtual bool         GetBooleanParameter(const std::string &label) const;
+   virtual bool         SetBooleanParameter(const std::string &label,
+                                            const bool value);
    virtual Integer      GetIntegerParameter(const Integer id) const;
    virtual Integer      SetIntegerParameter(const Integer id,
                                             const Integer value);
-   
    virtual std::string  GetStringParameter(const Integer id) const;
    virtual std::string  GetStringParameter(const std::string &label) const;
    virtual bool         SetStringParameter(const Integer id,
@@ -166,6 +171,7 @@ protected:
       LEFT_JUSTIFY,
       ZERO_FILL,
       COL_WIDTH,
+      WRITE_REPORT,
       ReportFileParamCount  /// Count of the parameters for this class
    };
 
