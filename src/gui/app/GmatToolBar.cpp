@@ -229,11 +229,13 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
       *bitmaps[i] = wxBitmap(image);
    }
    
+   #ifndef __WXMAC__
    // Add Animation text
    wxStaticText *aniLabel =
       new wxStaticText(this, -1, wxT("                Animation"));
    
    toolBar->AddControl(aniLabel);
+   #endif
    toolBar->AddTool(TOOL_ANIMATION_PLAY, _T("AnimationPlay"), *bitmaps[0],
                     _T("Start Animation"), wxITEM_CHECK);
    toolBar->AddTool(TOOL_ANIMATION_STOP, _T("AnimationStop"), *bitmaps[1],
