@@ -128,6 +128,10 @@ DSNDoppler.Participants      = {Maui.Transmitter1,Maui.Receiver1,ODSat.Transpond
 
 Create DSNTrackingSystem DSN_ODSat
 DSN_ODSat.Add = {DSNDoppler}
+DSN_ODSat.TroposphereModel = HopfieldSaastamoinen;
+% DSN_ODSat.TroposphereModel = None;
+DSN_ODSat.IonosphereModel = IRI2007;
+% DSN_ODSat.IonosphereModel = None;
 
 
 %--------------------------------------------------------------
