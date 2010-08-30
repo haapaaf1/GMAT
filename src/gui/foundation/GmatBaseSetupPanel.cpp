@@ -1365,7 +1365,7 @@ void GmatBaseSetupPanel::RefreshProperty(GmatBase *theObject, Integer index, wxC
     	aSibling = control;
 
     labelText = GetParameterLabel(theObject, index, config);
-    if (aSibling->GetLabelText() != labelText)
+    if ((aSibling->GetLabelText()).c_str() != labelText)
     {
     	labelText = AssignAcceleratorKey(labelText);
     	aSibling->SetLabel(labelText.c_str());
