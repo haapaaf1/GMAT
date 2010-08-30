@@ -3269,7 +3269,25 @@ void Propagate::PrepareToPropagate()
 
    // Publish the data
    pubdata[0] = currEpoch[0];
-   memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
+
+   // Walk the PropSetups to load the pubdata array
+   Integer index = 1, size;
+   Real *js;
+   for (UnsignedInt i = 0; i < prop.size(); ++i)
+   {
+      if (p[i]->UsesODEModel())
+      {
+         js = fm[i]->GetJ2KState();
+         size = fm[i]->GetDimension();
+      }
+      else
+      {
+         js   = p[i]->GetJ2KState();
+         size = p[i]->GetDimension();
+      }
+      memcpy(&pubdata[index], js, size*sizeof(Real));
+      index += size;
+   }
    
    #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage

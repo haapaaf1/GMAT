@@ -30,6 +30,8 @@
 //#define DBGLVL_PUBLISHER_PUBLISH 1
 //#define DBGLVL_PUBLISHER_CLEAR 1
 //#define DEBUG_PUBLISHER_RUN_STATE
+//#define DEBUG_PUBLISHER_BUFFERS
+
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -259,19 +261,35 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    #endif
    
    // Convert the data into a string for distribution
-   char *stream = new char[count*25 + 1];
+   Integer length = count*25 + 1;
+   char *stream = new char[length];
+
+   #ifdef DEBUG_PUBLISHER_BUFFERS
+      MessageInterface::ShowMessage("Allocated %d chars at %p\n", length,
+            stream);
+   #endif
 
    stream[0] = '\0';    // Init to empty string
    
    for (Integer i = 0; i < count; ++i)
    {
+      #ifdef DEBUG_PUBLISHER_BUFFERS
+         MessageInterface::ShowMessage("   %d: %12lf\n", i, data[i]);
+      #endif
       sprintf(stream, "%s%12lf", stream, data[i]);
       if (i < count - 1)
          strcat(stream, ", ");
       else
          strcat(stream, "\n");
+      #ifdef DEBUG_PUBLISHER_BUFFERS
+            MessageInterface::ShowMessage("   used %d\n", strlen(stream));
+      #endif
    }   
-   
+
+   #ifdef DEBUG_PUBLISHER_BUFFERS
+      MessageInterface::ShowMessage("   Data:  %s\n", stream);
+   #endif
+
    #if DBGLVL_PUBLISHER_PUBLISH
    MessageInterface::ShowMessage
       ("Publisher::Publish() calling ReceiveData() number of subsbribers = %d\n",
@@ -281,6 +299,11 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
+      #ifdef DEBUG_PUBLISHER_BUFFERS
+         MessageInterface::ShowMessage("   Publishing to %s\n",
+               (*current)->GetName().c_str());
+      #endif
+
       #if DBGLVL_PUBLISHER_PUBLISH > 1
       MessageInterface::ShowMessage
          ("Publisher::Publish() sub = <%p><%p>'%s'\n", (*current),
@@ -300,6 +323,9 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
       current++;
    }
    
+   #ifdef DEBUG_PUBLISHER_BUFFERS
+      MessageInterface::ShowMessage("   Cleaning up\n");
+   #endif
    delete [] stream;
 
    #if DBGLVL_PUBLISHER_PUBLISH
