@@ -110,29 +110,29 @@ prep:
 HEADERS = -I../base/include \
           -I../base/asset \
           -I../base/attitude \
-          -I../base/foundation \
-          -I../base/executive \
-          -I../base/hardware \
-          -I../base/spacecraft \
-          -I../base/forcemodel \
-          -I../base/propagator \
-          -I../base/subscriber \
-          -I../base/command \
-          -I../base/solarsys \
-          -I../base/factory \
-          -I../base/stopcond \
-          -I../base/interpreter \
-          -I../base/util \
-          -I../base/interpolator \
-          -I../base/interface \
-          -I../base/parameter \
-          -I../base/configs \
           -I../base/burn \
-          -I../base/solver \
-          -I../base/function \
-          -I../base/math \
+          -I../base/command \
+          -I../base/configs \
           -I../base/coordsystem \
+          -I../base/executive \
+          -I../base/factory \
+          -I../base/forcemodel \
+          -I../base/foundation \
+          -I../base/function \
+          -I../base/hardware \
+          -I../base/interface \
+          -I../base/interpolator \
+          -I../base/interpreter \
+          -I../base/math \
+          -I../base/parameter \
           -I../base/plugin \
+          -I../base/propagator \
+          -I../base/solarsys \
+          -I../base/solver \
+          -I../base/spacecraft \
+          -I../base/stopcond \
+          -I../base/subscriber \
+          -I../base/util \
           -Iinclude \
           -Iinclude/bitmaps \
           -Iinclude/il \
@@ -148,11 +148,12 @@ HEADERS = -I../base/include \
           -Ihardware \
           -Imission \
           -Ioutput \
-          -Isubscriber \
           -Ipropagator \
+          -Irendering \
           -Isolarsys \
           -Isolver \
           -Ispacecraft \
+          -Isubscriber \
           -Iview
 
 clean : $(CLEANTARGET)
@@ -249,28 +250,9 @@ OBJECTS = \
     output/CompareReportPanel.o \
     output/OutputTree.o \
     output/ReportFilePanel.o \
-    subscriber/EphemerisFilePanel.o \
-    subscriber/MdiChild3DViewFrame.o \
-    subscriber/MdiChildViewFrame.o \
-    subscriber/MdiChildTrajFrame.o \
-    subscriber/MdiChildTsFrame.o \
-    subscriber/MdiGlPlotData.o \
-    subscriber/MdiTsPlotData.o \
-    subscriber/OpenGlOptionDialog.o \
-    subscriber/OpenGlPlotSetupPanel.o \
-    subscriber/Enhanced3DViewPanel.o \
-    subscriber/ReportFileSetupPanel.o \
-    subscriber/SubscriberSetupPanel.o \
-    subscriber/ViewCanvas.o \
-    subscriber/Enhanced3DViewCanvas.o \
-    subscriber/TrajPlotCanvas.o \
-    subscriber/TsPlotCanvas.o \
-    subscriber/TsPlotXYCanvas.o \
-    subscriber/TsPlotCurve.o \
-    subscriber/TsPlotOptionsDialog.o \
-    subscriber/XyPlotSetupPanel.o \
     propagator/PropagationConfigPanel.o \
     propagator/PropagatorSelectDialog.o \
+    rendering/gmatOpenGLSupport.o \
     solarsys/BarycenterPanel.o \
     solarsys/CelesBodySelectDialog.o \
     solarsys/CelestialBodyOrbitPanel.o \
@@ -294,6 +276,26 @@ OBJECTS = \
     spacecraft/SpaceObjectSelectDialog.o \
     spacecraft/TankPanel.o \
     spacecraft/ThrusterPanel.o \
+    subscriber/EphemerisFilePanel.o \
+    subscriber/MdiChild3DViewFrame.o \
+    subscriber/MdiChildViewFrame.o \
+    subscriber/MdiChildTrajFrame.o \
+    subscriber/MdiChildTsFrame.o \
+    subscriber/MdiGlPlotData.o \
+    subscriber/MdiTsPlotData.o \
+    subscriber/OpenGlOptionDialog.o \
+    subscriber/OpenGlPlotSetupPanel.o \
+    subscriber/Enhanced3DViewPanel.o \
+    subscriber/ReportFileSetupPanel.o \
+    subscriber/SubscriberSetupPanel.o \
+    subscriber/ViewCanvas.o \
+    subscriber/Enhanced3DViewCanvas.o \
+    subscriber/TrajPlotCanvas.o \
+    subscriber/TsPlotCanvas.o \
+    subscriber/TsPlotXYCanvas.o \
+    subscriber/TsPlotCurve.o \
+    subscriber/TsPlotOptionsDialog.o \
+    subscriber/XyPlotSetupPanel.o \
     view/ViewTextDialog.o \
     view/ViewTextFrame.o \
     $(STC_EDITOR_OBJECTS) \

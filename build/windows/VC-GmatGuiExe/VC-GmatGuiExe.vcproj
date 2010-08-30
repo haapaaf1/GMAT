@@ -1238,6 +1238,18 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="rendering"
+					>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\gmatOpenGLSupport.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\gmatOpenGLSupport.hpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
