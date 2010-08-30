@@ -88,6 +88,8 @@ namespace GmatMenu
       TOOL_CLOSE_CHILDREN,
       TOOL_CLOSE_CURRENT,
       TOOL_SCRIPT,
+	  
+		TOOL_SCREENSHOT,
       
       TOOL_ANIMATION_PLAY = 15000,
       TOOL_ANIMATION_STOP,

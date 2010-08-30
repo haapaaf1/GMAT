@@ -20,7 +20,7 @@
 //
 //         : 2003/10/03 - Allison Greene
 //         : Updated to include tabs for right side of window and left side.
-//    2010.03.16 Thomas Grubb
+//    2010.03.16 Thomas Grubb 
 //      - Modified code to use new GroundStationPanel class instead of default panel
 //
 /**
@@ -94,7 +94,6 @@
 #include "LibrationPointPanel.hpp"
 #include "CelestialBodyPanel.hpp"
 #include "CompareReportPanel.hpp"
-#include "GmatCommandPanel.hpp"
 // dialogs
 #include "CompareFilesDialog.hpp"
 #include "CompareTextDialog.hpp"
@@ -104,6 +103,8 @@
 
 #include "FileManager.hpp"
 #include "FileUtil.hpp"               // for Compare()
+#include "gmatOpenGLSupport.hpp"      // for ScreenShotSave
+
 
 #include <wx/dir.h>
 #include <wx/filename.h>
@@ -174,6 +175,8 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU (TOOL_CLOSE_CHILDREN, GmatMainFrame::OnCloseAll)
    EVT_MENU (TOOL_CLOSE_CURRENT, GmatMainFrame::OnCloseActive)
 
+   EVT_MENU (TOOL_SCREENSHOT, GmatMainFrame::OnScreenshot)
+
    EVT_MENU (MENU_HELP_ABOUT, GmatMainFrame::OnHelpAbout)
    EVT_MENU (MENU_HELP_ONLINE, GmatMainFrame::OnHelpOnline)
 
@@ -199,12 +202,12 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU (MENU_EDIT_LINE_NUMBER, GmatMainFrame::OnLineNumber)
    EVT_MENU (MENU_EDIT_INDENT_MORE, GmatMainFrame::OnIndentMore)
    EVT_MENU (MENU_EDIT_INDENT_LESS, GmatMainFrame::OnIndentLess)
-
+   
    EVT_MENU (MENU_MATLAB_OPEN, GmatMainFrame::OnOpenMatlab)
    EVT_MENU (MENU_MATLAB_CLOSE, GmatMainFrame::OnCloseMatlab)
    EVT_MENU (MENU_MATLAB_SERVER_START, GmatMainFrame::OnMatlabServerStart)
    EVT_MENU (MENU_MATLAB_SERVER_STOP, GmatMainFrame::OnMatlabServerStop)
-
+   
    EVT_MENU (MENU_TOOLS_FILE_COMPARE_NUMERIC, GmatMainFrame::OnFileCompareNumeric)
    EVT_MENU (MENU_TOOLS_FILE_COMPARE_TEXT, GmatMainFrame::OnFileCompareText)
    EVT_MENU (MENU_TOOLS_GEN_TEXT_EPHEM_FILE, GmatMainFrame::OnGenerateTextEphemFile)
@@ -330,8 +333,7 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    // Why I need to set wxTB_FLAT to show separators? (loj: 2008.11.14)
 #ifdef __WXMAC__
 //   theToolBar = new GmatToolBar(NULL, wxTB_FLAT);
-//   theToolBar = new GmatToolBar(this);
-   theToolBar = new GmatToolBar(this, wxTB_VERTICAL);
+   theToolBar = new GmatToolBar(this);
 #else
    theToolBar = new GmatToolBar(this, wxTB_FLAT);
 #endif
@@ -476,12 +478,12 @@ GmatMainFrame::~GmatMainFrame()
       ("GmatMainFrame::~GmatMainFrame() entered. mMatlabServer=%p, theGuiInterpreter=%p\n",
        mMatlabServer, theGuiInterpreter);
    #endif
-
+   
    theGuiInterpreter->CloseMatlabEngine();
-
+   
    if (mMatlabServer)
       delete mMatlabServer;
-
+   
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
    if (gmatAppData->GetMessageWindow() != NULL)
@@ -824,13 +826,13 @@ bool GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
       childName = child->GetName();
       childTitle = child->GetTitle();
       childItemType = child->GetItemType();
-
+      
       #ifdef DEBUG_REMOVE_CHILD_DETAIL
       MessageInterface::ShowMessage
          ("   childName='%s', childTitle='%s', childItemType=%d\n",
           childName.c_str(), childTitle.c_str(), childItemType);
       #endif
-
+      
       if ((childItemType == itemType) && (childName.IsSameAs(name)))
       {
          //------------------------------------------------------
@@ -883,7 +885,7 @@ bool GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
       // Change MissionTree node label (loj: 2007.11.15)
       gmatAppData->GetMissionTree()->ChangeNodeLabel(childName);
    }
-
+   
    #ifdef DEBUG_REMOVE_CHILD
    MessageInterface::ShowMessage
       ("GmatMainFrame::RemoveChild() returning %d\n", childRemoved);
@@ -1049,20 +1051,20 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
             canDelete = true;
          }
       }
-
+      
       //--------------------------------------------------------------
       // delete chilren by child->OnClose() on Windows
       //--------------------------------------------------------------
       #ifdef __WXMSW__
-
+      
       bool childDeleted = false;
-
+      
       if (canDelete)
       {
          #ifdef DEBUG_MAINFRAME_CLOSE
          MessageInterface::ShowMessage("   ==> closing child = %s\n", name.c_str());
          #endif
-
+         
          //-------------------------------------------------
          // delete child if frame can be closed
          // Note: GmatMdiChildFrame::OnClose() calls RemoveChild()
@@ -1071,11 +1073,11 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
          //-------------------------------------------------
          if (mExitWithoutConfirm)
             child->SetDirty(false);
-
+         
          #ifdef DEBUG_MAINFRAME_CLOSE
          MessageInterface::ShowMessage("   ==> calling child->OnClose()\n");
          #endif
-
+         
          // If it is output frame it is not needed to check for dirty
          if (type > GmatTree::BEGIN_OF_OUTPUT && type < GmatTree::END_OF_OUTPUT)
          {
@@ -1109,7 +1111,7 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
             }
          }
       }
-
+      
       //-------------------------------------------------
       // Note: The node is deleted from RemoveChild()
       //-------------------------------------------------
@@ -1301,9 +1303,9 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    bool success = false;
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
-   // Always refresh the gui before new scripts are read
+   // Always refresh the gui before new scritpes are read
    CloseAllChildren(closeScript, true, true);
-   gmatAppData->GetResourceTree()->ClearResource(true);
+   gmatAppData->GetResourceTree()->ClearResource(false);
    gmatAppData->GetMissionTree()->ClearMission();
    gmatAppData->GetOutputTree()->UpdateOutput(true, true);
 
@@ -1357,7 +1359,7 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    }
    catch (BaseException &e)
    {
-      wxLogError("%s", e.GetFullMessage().c_str());
+      wxLogError(e.GetFullMessage().c_str());
       wxLog::FlushActive();
       MessageInterface::ShowMessage(e.GetFullMessage());
    }
@@ -1379,12 +1381,12 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
 void GmatMainFrame::BuildAndRunScript(const wxString &filename)
 {
    CloseCurrentProject();
-
+   
    // Check if file exist first
    if (wxFileName::FileExists(filename))
    {
       mScriptFilename = filename.c_str();
-
+      
       if (InterpretScript(filename, GmatGui::DO_NOT_OPEN_SCRIPT))
          mRunStatus = RunCurrentMission();
    }
@@ -1433,7 +1435,7 @@ Integer GmatMainFrame::RunCurrentMission()
       return 0;
    }
    #endif
-
+   
    EnableMenuAndToolBar(false, true);
 
    wxYield();
@@ -1535,23 +1537,23 @@ void GmatMainFrame::StartMatlabServer()
    #ifdef DEBUG_SERVER
    MessageInterface::ShowMessage("GmatMainFrame::StartMatlabServer() entered.\n");
    #endif
-
+   
    if (!mMatlabServer)
    {
       // service name (DDE classes) or port number (TCP/IP based classes)
       wxString service = IPC_SERVICE;
-
+      
       // Create a new server
       mMatlabServer = new GmatServer;
       mMatlabServer->Create(service);
-
+      
       MessageInterface::ShowMessage("Server started.\n");
-
+      
       #ifdef DEBUG_SERVER
       MessageInterface::ShowMessage
          ("   service='%s', mMatlabServer=%p\n", service.c_str(), mMatlabServer);
       #endif
-
+      
       // Disable ResourceTree Matlab Server Start popup menu
       GmatAppData::Instance()->GetResourceTree()->UpdateMatlabServerItem(true);
    }
@@ -1596,7 +1598,7 @@ void GmatMainFrame::StopMatlabServer()
       }
       #endif
       //==============================================================
-
+      
       // Disable ResourceTree Matlab Server Stop popup menu
       GmatAppData::Instance()->GetResourceTree()->UpdateMatlabServerItem(false);
    }
@@ -1639,7 +1641,7 @@ void GmatMainFrame::OnClose(wxCloseEvent& event)
    {
       event.Veto();
    }
-
+   
    // stop server if running
    if (mMatlabServer)
       StopMatlabServer();
@@ -2141,6 +2143,9 @@ void GmatMainFrame::OnCloseAll(wxCommandEvent& WXUNUSED(event))
 {
    CloseAllChildren(true, true, false);
    wxSafeYield();
+
+   wxToolBar* toolBar = GetToolBar();
+   toolBar->EnableTool(TOOL_SCREENSHOT, false);
 }
 
 
@@ -2157,6 +2162,11 @@ void GmatMainFrame::OnCloseActive(wxCommandEvent& WXUNUSED(event))
 {
    CloseActiveChild();
    wxSafeYield();
+
+   if (theMdiChildren->GetCount() <= 0){
+      wxToolBar* toolBar = GetToolBar();
+      toolBar->EnableTool(TOOL_SCREENSHOT, false);
+   }
 }
 
 
@@ -2220,7 +2230,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    default:
       break;
    }
-
+   
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
    GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
@@ -2242,15 +2252,10 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new CelestialBodyPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::FUELTANK:
-	  sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-//      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::THRUSTER:
       sizer->Add(new ThrusterConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      break;
-   case GmatTree::HARDWARE:
-	      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-//      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::FORMATION:
       sizer->Add(new FormationSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
@@ -2274,8 +2279,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new SQPSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::SOLVER:
-	      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-//     sizer->Add(new SolverSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      sizer->Add(new SolverSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::REPORT_FILE:
       sizer->Add(new ReportFileSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
@@ -2295,6 +2299,23 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::SUBSCRIBER:
       sizer->Add(new SubscriberSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
+   //case GmatTree::VARIABLE:
+   //   {
+   //      ParameterCreateDialog paramDlg(this, ParameterCreateDialog::VARIABLE);
+   //      paramDlg.ShowModal();
+   //      //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+   //      break;
+   //   }
+   //case GmatTree::STRING:
+   //   {
+   //      ParameterCreateDialog paramDlg(this, ParameterCreateDialog::STRING);
+   //      paramDlg.ShowModal();
+   //      //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+   //      break;
+   //   }
+   //case GmatTree::ARRAY:
+   //   sizer->Add(new ArraySetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+   //   break;
    case GmatTree::MATLAB_FUNCTION:
       sizer->Add(new MatlabFunctionSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
@@ -2332,9 +2353,6 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::LIBRATION_POINT:
       sizer->Add(new LibrationPointPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
-   case GmatTree::USER_DEFINED_OBJECT:
-     sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-     break;
    default:
       return NULL;
    }
@@ -2383,8 +2401,8 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
 
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CreateNewCommand() title=%s, name=%s, itemType=%d, cmd=<%p><%s>\n",
-       title.c_str(), name.c_str(), itemType, cmd, cmd ? cmd->GetTypeName().c_str() : "NULL");
+      ("GmatMainFrame::CreateNewCommand() title=%s, name=%s, itemType=%d\n",
+       title.c_str(), name.c_str(), itemType);
    #endif
 
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
@@ -2432,9 +2450,6 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    case GmatTree::TOGGLE:
       sizer->Add(new TogglePanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
-   case GmatTree::XY_PLOT_ACTION:
-      sizer->Add(new TogglePanel(scrolledWin, cmd, true), 0, wxGROW|wxALL, 0);
-      break;
    case GmatTree::CALL_FUNCTION:
       sizer->Add(new CallFunctionPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
@@ -2459,10 +2474,6 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    case GmatTree::ASSIGNMENT:
       sizer->Add(new AssignmentPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
-   case GmatTree::OTHER_COMMAND:
-      sizer->Add(new GmatCommandPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
-      break;
-
    default:
       #ifdef DEBUG_CREATE_CHILD
       MessageInterface::ShowMessage
@@ -3423,6 +3434,7 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
    {
       toolBar->EnableTool(TOOL_PAUSE, !enable);
       toolBar->EnableTool(TOOL_STOP, !enable);
+      toolBar->EnableTool(TOOL_SCREENSHOT, true);
       toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, false);
       toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, false);
       toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, false);
@@ -3489,6 +3501,35 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
    theMenuBar->EnableTop(editIndex, false);
 }
 
+//------------------------------------------------------------------------------
+// void OnScreenShot(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnScreenshot(wxCommandEvent& WXUNUSED(event))
+{
+   char BaseFilename[255] = {0};
+   char ImageFilename[255] = {0};
+   char ImagePath[255] = {0};
+   char VerNum[] = {"_%03d.png"};
+   char NameVer[12] = {0};
+   // Retrieve an instance of the file manager
+   FileManager *fm = FileManager::Instance();
+
+   // Keep looking until we do not find an existing file
+   for (int ii = 1; ii < 1000; ii++){
+      strcpy(ImagePath, fm->GetPathname(FileManager::OUTPUT_PATH).c_str());
+      if (!wxDirExists(ImagePath))
+         wxMkdir(ImagePath);
+      strcpy(ImageFilename, fm->GetFilename("SCREENSHOT_FILE").c_str());
+     // Look in the output path for the screenshot file with the current version number
+      sprintf(NameVer, VerNum, ii);
+      strncat(ImageFilename, NameVer, strlen(NameVer));
+      strcat(ImagePath, ImageFilename);
+      // If the file isn't there, we've found the next file index and break
+      if (!wxFileExists(ImagePath))
+         break;
+   }
+   ScreenShotSave(ImagePath);
+}
 
 //------------------------------------------------------------------------------
 // void OnScriptBuildObject(wxCommandEvent& WXUNUSED(event))
@@ -3496,7 +3537,7 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
 void GmatMainFrame::OnScriptBuildObject(wxCommandEvent& WXUNUSED(event))
 {
    wxString filename = mScriptFilename.c_str();
-
+   
    InterpretScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT);
 }
 
@@ -3507,7 +3548,7 @@ void GmatMainFrame::OnScriptBuildObject(wxCommandEvent& WXUNUSED(event))
 void GmatMainFrame::OnScriptBuildAndRun(wxCommandEvent& event)
 {
    wxString filename = mScriptFilename.c_str();
-
+   
    if (InterpretScript(filename, GmatGui::ALWAYS_OPEN_SCRIPT))
       mRunStatus = RunCurrentMission();
 }
@@ -3613,17 +3654,7 @@ void GmatMainFrame::OnCopy(wxCommandEvent& event)
    if (editor)
       editor->OnCopy(event);
 #else
-   if (child != NULL)
-   {
-      if (child->GetScriptTextCtrl() != NULL)
-         child->GetScriptTextCtrl()->Copy();
-      else
-         GmatAppData::Instance()->GetMessageTextCtrl()->Copy();
-   }
-   else
-   {
-      GmatAppData::Instance()->GetMessageTextCtrl()->Copy();
-   }
+   child->GetScriptTextCtrl()->Copy();
 #endif
 }
 
@@ -3868,7 +3899,7 @@ void GmatMainFrame::OnAnimation(wxCommandEvent& event)
       toolBar->ToggleTool(TOOL_ANIMATION_PLAY, false);
       return;
    }
-
+   
    // active child is not OpenGL, just return
    if (child->GetItemType() != GmatTree::OUTPUT_OPENGL_PLOT &&
        child->GetItemType() != GmatTree::OUTPUT_3D_VIEW)
@@ -3876,7 +3907,7 @@ void GmatMainFrame::OnAnimation(wxCommandEvent& event)
       toolBar->ToggleTool(TOOL_ANIMATION_PLAY, false);
       return;
    }
-
+   
    wxString title = child->GetTitle();
    MdiChildTrajFrame *frame = NULL;
    bool frameFound = false;

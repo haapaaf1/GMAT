@@ -1,0 +1,26 @@
+/* XPM */
+static char *screenshot_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 15 5 1",
+"  c None",
+". c Gray",
+"X c Yellow",
+"o c Green",
+"O c Cyan",
+/* pixels */
+"                ",
+" .............. ",
+" .OOOOOOOOOOOO. ",
+" .OO..OOOOOOOO. ",
+" .O.XX.OOOOOOO. ",
+" .O.XX.OOOOOOO. ",
+" .OO..OOOOOOOO. ",
+" .OOOOOOOOOOOO. ",
+" .OOOOOOOOOOOO. ",
+" .............. ",
+" .oooooooooooo. ",
+" .oooooooooooo. ",
+" .oooooooooooo. ",
+" .............. ",
+"                "
+};
