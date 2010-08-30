@@ -103,7 +103,7 @@
 
 #include "FileManager.hpp"
 #include "FileUtil.hpp"               // for Compare()
-#include "gmatOpenGLSupport.hpp"      // for ScreenShotSave
+#include "GmatOpenGLSupport.hpp"      // for ScreenShotSave
 
 
 #include <wx/dir.h>
