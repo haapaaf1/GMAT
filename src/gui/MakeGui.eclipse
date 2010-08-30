@@ -252,7 +252,7 @@ OBJECTS = \
     output/ReportFilePanel.o \
     propagator/PropagationConfigPanel.o \
     propagator/PropagatorSelectDialog.o \
-    rendering/gmatOpenGLSupport.o \
+    rendering/GmatOpenGLSupport.o \
     solarsys/BarycenterPanel.o \
     solarsys/CelesBodySelectDialog.o \
     solarsys/CelestialBodyOrbitPanel.o \
