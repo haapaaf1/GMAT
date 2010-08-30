@@ -75,7 +75,7 @@
 //#define DEBUG_MATH_TREE
 //#define DEBUG_FUNCTION
 //#define DBGLVL_FUNCTION_DEF 2
-//#define DBGLVL_FINAL_PASS 2
+#define DBGLVL_FINAL_PASS 2
 //#define DEBUG_AXIS_SYSTEM
 //#define DEBUG_SET_MEASUREMENT_MODEL
 
@@ -6788,13 +6788,16 @@ bool Interpreter::FinalPass()
       obj = FindObject(*i);
       if (obj != NULL)
       {
-         ODEModel *ode = ((PropSetup*)obj)->GetODEModel();
-         std::string refName = ode->GetName();
+         if (((PropSetup*)obj)->GetPropagator()->UsesODEModel())
+         {
+            ODEModel *ode = ((PropSetup*)obj)->GetODEModel();
+            std::string refName = ode->GetName();
 
-         GmatBase *configuredOde = FindObject(refName);
-         if ((configuredOde != NULL) &&
-             (configuredOde->IsOfType(Gmat::ODE_MODEL)))
-            *ode = *((ODEModel*)configuredOde);
+            GmatBase *configuredOde = FindObject(refName);
+            if ((configuredOde != NULL) &&
+                (configuredOde->IsOfType(Gmat::ODE_MODEL)))
+               *ode = *((ODEModel*)configuredOde);
+         }
       }
    }
    
