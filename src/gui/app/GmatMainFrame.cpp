@@ -94,6 +94,7 @@
 #include "LibrationPointPanel.hpp"
 #include "CelestialBodyPanel.hpp"
 #include "CompareReportPanel.hpp"
+#include "GmatCommandPanel.hpp"
 // dialogs
 #include "CompareFilesDialog.hpp"
 #include "CompareTextDialog.hpp"
@@ -333,7 +334,8 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    // Why I need to set wxTB_FLAT to show separators? (loj: 2008.11.14)
 #ifdef __WXMAC__
 //   theToolBar = new GmatToolBar(NULL, wxTB_FLAT);
-   theToolBar = new GmatToolBar(this);
+//   theToolBar = new GmatToolBar(this);
+   theToolBar = new GmatToolBar(this, wxTB_VERTICAL);
 #else
    theToolBar = new GmatToolBar(this, wxTB_FLAT);
 #endif
@@ -1303,9 +1305,9 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    bool success = false;
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
-   // Always refresh the gui before new scritpes are read
+   // Always refresh the gui before new scripts are read
    CloseAllChildren(closeScript, true, true);
-   gmatAppData->GetResourceTree()->ClearResource(false);
+   gmatAppData->GetResourceTree()->ClearResource(true);
    gmatAppData->GetMissionTree()->ClearMission();
    gmatAppData->GetOutputTree()->UpdateOutput(true, true);
 
@@ -1359,7 +1361,7 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    }
    catch (BaseException &e)
    {
-      wxLogError(e.GetFullMessage().c_str());
+      wxLogError("%s", e.GetFullMessage().c_str());
       wxLog::FlushActive();
       MessageInterface::ShowMessage(e.GetFullMessage());
    }
@@ -2252,10 +2254,15 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new CelestialBodyPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::FUELTANK:
-      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+//      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::THRUSTER:
       sizer->Add(new ThrusterConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      break;
+   case GmatTree::HARDWARE:
+      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+//      sizer->Add(new TankConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::FORMATION:
       sizer->Add(new FormationSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
@@ -2279,7 +2286,8 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       sizer->Add(new SQPSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::SOLVER:
-      sizer->Add(new SolverSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+//     sizer->Add(new SolverSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::REPORT_FILE:
       sizer->Add(new ReportFileSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
@@ -2299,23 +2307,6 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::SUBSCRIBER:
       sizer->Add(new SubscriberSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
-   //case GmatTree::VARIABLE:
-   //   {
-   //      ParameterCreateDialog paramDlg(this, ParameterCreateDialog::VARIABLE);
-   //      paramDlg.ShowModal();
-   //      //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-   //      break;
-   //   }
-   //case GmatTree::STRING:
-   //   {
-   //      ParameterCreateDialog paramDlg(this, ParameterCreateDialog::STRING);
-   //      paramDlg.ShowModal();
-   //      //sizer->Add(new ParameterSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-   //      break;
-   //   }
-   //case GmatTree::ARRAY:
-   //   sizer->Add(new ArraySetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-   //   break;
    case GmatTree::MATLAB_FUNCTION:
       sizer->Add(new MatlabFunctionSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
@@ -2353,6 +2344,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::LIBRATION_POINT:
       sizer->Add(new LibrationPointPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
+   case GmatTree::USER_DEFINED_OBJECT:
+     sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+     break;
    default:
       return NULL;
    }
@@ -2401,8 +2395,8 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
 
    #ifdef DEBUG_CREATE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CreateNewCommand() title=%s, name=%s, itemType=%d\n",
-       title.c_str(), name.c_str(), itemType);
+      ("GmatMainFrame::CreateNewCommand() title=%s, name=%s, itemType=%d, cmd=<%p><%s>\n",
+       title.c_str(), name.c_str(), itemType, cmd, cmd ? cmd->GetTypeName().c_str() : "NULL");
    #endif
 
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
@@ -2450,6 +2444,9 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    case GmatTree::TOGGLE:
       sizer->Add(new TogglePanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
+   case GmatTree::XY_PLOT_ACTION:
+      sizer->Add(new TogglePanel(scrolledWin, cmd, true), 0, wxGROW|wxALL, 0);
+      break;
    case GmatTree::CALL_FUNCTION:
       sizer->Add(new CallFunctionPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
@@ -2474,6 +2471,10 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    case GmatTree::ASSIGNMENT:
       sizer->Add(new AssignmentPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
+   case GmatTree::OTHER_COMMAND:
+      sizer->Add(new GmatCommandPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
+      break;
+
    default:
       #ifdef DEBUG_CREATE_CHILD
       MessageInterface::ShowMessage
@@ -3506,7 +3507,6 @@ void GmatMainFrame::EnableMenuAndToolBar(bool enable, bool missionRunning,
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnScreenshot(wxCommandEvent& WXUNUSED(event))
 {
-   char BaseFilename[255] = {0};
    char ImageFilename[255] = {0};
    char ImagePath[255] = {0};
    char VerNum[] = {"_%03d.png"};
@@ -3654,7 +3654,17 @@ void GmatMainFrame::OnCopy(wxCommandEvent& event)
    if (editor)
       editor->OnCopy(event);
 #else
-   child->GetScriptTextCtrl()->Copy();
+   if (child != NULL)
+   {
+      if (child->GetScriptTextCtrl() != NULL)
+         child->GetScriptTextCtrl()->Copy();
+      else
+         GmatAppData::Instance()->GetMessageTextCtrl()->Copy();
+   }
+   else
+   {
+      GmatAppData::Instance()->GetMessageTextCtrl()->Copy();
+   }
 #endif
 }
 

@@ -67,6 +67,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "TEXTURE_PATH",
    "MEASUREMENT_PATH",
    "EPHEM_PATH",
+   "GUI_CONFIG_PATH",
    "END_OF_PATH",
    // file name
    "LOG_FILE",
@@ -421,6 +422,11 @@ void FileManager::ReadStartupFile(const std::string &fileName)
             else if (name == "NO_MATLAB")
                GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::NO_MATLAB);
          }
+         else if (type == "DEBUG_MATLAB")
+         {
+            if (name == "ON")
+               GmatGlobal::Instance()->SetMatlabDebug(true);
+         }
          else
             AddFileType(type, name);
       }
@@ -695,6 +701,16 @@ void FileManager::WriteStartupFile(const std::string &fileName)
       outStream << "\n#---------------------------------------------"
             "--------------\n";
    }
+
+   //---------------------------------------------
+   // write the GUI_CONFIG_PATH  next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing GUI_CONFIG_PATH path\n");
+   #endif
+   outStream << std::setw(20) << "GUI_CONFIG_PATH" << " = " << mPathMap["GUI_CONFIG_PATH"] << "\n";
+   outStream << "#-----------------------------------------------------------\n";
+
 
    //---------------------------------------------
    // write saved comments
@@ -1686,6 +1702,10 @@ void FileManager::RefreshFiles()
    // time files
    AddFileType("TIME_PATH", "./files/time/");
    AddFileType("LEAP_SECS_FILE", "TIME_PATH/tai-utc.dat");
+
+   // gui config file path
+   AddFileType("GUI_CONFIG_PATH", "./files/gui_config/");
+
 
 #endif
 
