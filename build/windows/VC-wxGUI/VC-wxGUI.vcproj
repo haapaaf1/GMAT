@@ -4325,11 +4325,11 @@
 					Name="rendering"
 					>
 					<File
-						RelativePath="..\..\..\src\gui\rendering\gmatOpenGLSupport.cpp"
+						RelativePath="..\..\..\src\gui\rendering\GmatOpenGLSupport.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\gui\rendering\gmatOpenGLSupport.hpp"
+						RelativePath="..\..\..\src\gui\rendering\GmatOpenGLSupport.hpp"
 						>
 					</File>
 				</Filter>
