@@ -2513,15 +2513,15 @@ void PropagationConfigPanel::OnAddBodyButton(wxCommandEvent &event)
          
          // Set default gravity model file for display
          if (bodyName == "Earth")
-            currentBodyId = FindPrimaryBody(bodyName, earthGravModelArray[JGM2]);
+            currentBodyId = FindPrimaryBody(bodyName, true, earthGravModelArray[JGM2]);
          else if (bodyName == "Luna")
-            currentBodyId = FindPrimaryBody(bodyName, lunaGravModelArray[LP165]);
+            currentBodyId = FindPrimaryBody(bodyName, true, lunaGravModelArray[LP165]);
          else if (bodyName == "Venus")
-            currentBodyId = FindPrimaryBody(bodyName, venusGravModelArray[MGNP180U]);
+            currentBodyId = FindPrimaryBody(bodyName, true, venusGravModelArray[MGNP180U]);
          else if (bodyName == "Mars")
-            currentBodyId = FindPrimaryBody(bodyName, marsGravModelArray[MARS50C]);
+            currentBodyId = FindPrimaryBody(bodyName, true, marsGravModelArray[MARS50C]);
          else
-            currentBodyId = FindPrimaryBody(bodyName,othersGravModelArray[O_NONE_GM]);
+            currentBodyId = FindPrimaryBody(bodyName, true, othersGravModelArray[O_NONE_GM]);
          
          
          // Copy old body force model

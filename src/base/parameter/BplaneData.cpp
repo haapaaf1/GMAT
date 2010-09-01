@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  BplaneData
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -152,7 +152,7 @@ Real BplaneData::GetBplaneReal(Integer item)
    if (item <= BplaneParamBegin || item >= BplaneParamEnd)
       throw ParameterException
          ("BplaneData::GetBplaneReal() Unknown parameter ID: " +
-          GmatRealUtil::ToString(item, 2));
+          GmatRealUtil::ToString(item, false, 2));
    
    if (mSpacecraft == NULL || mSolarSystem == NULL || mOrigin == NULL ||
        mInternalCoordSystem == NULL || mOutCoordSystem == NULL)
@@ -192,7 +192,7 @@ Real BplaneData::GetBplaneReal(Integer item)
    // if eMag <= 1, then the method fails, orbit should be hyperbolic
    if (eMag <= 1.0)
       throw ParameterException
-         ("BplaneData::GetBplaneReal() ParamID: " + GmatRealUtil::ToString(item, 2) +
+         ("BplaneData::GetBplaneReal() ParamID: " + GmatRealUtil::ToString(item, false, 2) +
           "\n     eccentricity magnitude is <= 1.0. eMag: " +
           GmatRealUtil::ToString(eMag));
    
@@ -261,7 +261,7 @@ Real BplaneData::GetBplaneReal(Integer item)
    default:
       throw ParameterException
          ("BplaneData::GetBplaneReal() Unknown parameter ID: " +
-          GmatRealUtil::ToString(item, 2));
+          GmatRealUtil::ToString(item, false, 2));
    }
 }
 
