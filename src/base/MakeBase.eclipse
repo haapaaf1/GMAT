@@ -481,6 +481,7 @@ OBJECTS = \
     util/Anomaly.o \
     util/AttitudeUtil.o \
     util/BaseException.o \
+	 util/BodyFixedStateConverter.o \
     util/Cartesian.o \
     util/CoordUtil.o \
     util/Date.o \
