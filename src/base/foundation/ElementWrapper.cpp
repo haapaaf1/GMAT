@@ -510,6 +510,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          break;
       case Gmat::STRING_TYPE:
       case Gmat::ENUMERATION_TYPE:
+      case Gmat::FILENAME_TYPE:
          sval = rhsWrapper->EvaluateString();
          sval = GmatStringUtil::RemoveEnclosingString(sval, "'");
          break;
@@ -520,7 +521,8 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          rhsObj = rhsWrapper->EvaluateObject();
          break;
       default:
-         throw GmatBaseException("Unknown RHS data type");
+         throw GmatBaseException
+            ("ElementWrapper::SetValue() RHS type is unknown for \"" + rhs + "\"");
       }
       
       #ifdef DEBUG_EW_SET_VALUE
@@ -608,6 +610,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          break;
       case Gmat::STRING_TYPE:
       case Gmat::ENUMERATION_TYPE:
+      case Gmat::FILENAME_TYPE:
          // Object to String is needed for Remove for Formation
          if (rhsObj != NULL)
          {
@@ -615,6 +618,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          }
          else if ((rhsDataType == Gmat::STRING_TYPE ||
                    rhsDataType == Gmat::ENUMERATION_TYPE ||
+                   rhsDataType == Gmat::FILENAME_TYPE ||
                    rhsDataType == Gmat::ON_OFF_TYPE))
          {
             lhsWrapper->SetString(sval);
@@ -810,7 +814,8 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
          }
          break;
       default:
-         throw GmatBaseException("Unknown LHS type");
+         throw GmatBaseException
+            ("ElementWrapper::SetValue() LHS type is unknown for \"" + lhs + "\"");
       }
       
       #ifdef DEBUG_EW_SET_VALUE
