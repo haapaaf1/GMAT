@@ -2130,6 +2130,44 @@ Real ODEModel::EstimateError(Real *diffs, Real *answer) const
 
 
 //---------------------------------------------------------------------------
+// bool TakeAction(const std::string &action, const std::string &actionData = "")
+//---------------------------------------------------------------------------
+bool ODEModel::TakeAction(const std::string &action, const std::string &actionData)
+{
+   if (action == "ClearDefaultForce")
+   {
+      std::vector<PhysicalModel*>::iterator oldIter = forceList.end();
+      for (std::vector<PhysicalModel*>::iterator i =  forceList.begin(); 
+           i != forceList.end(); ++i)
+      {
+         std::string pmName = (*i)->GetName();
+         if (pmName == "_DefaultInternalForce_")
+            oldIter = i;
+      }
+      
+      if (oldIter != forceList.end())
+      {
+         PhysicalModel *oldForce = *oldIter;
+         forceList.erase(oldIter);
+         
+         #ifdef DEBUG_DEFAULT_FORCE
+         MessageInterface::ShowMessage
+            ("ODEModel::TakeAction() deleting default force <%p>\n", oldForce);
+         #endif
+         #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (oldForce, oldForce->GetName(), "ODEModel::DeleteForce()",
+             "deleting non-transient force of " + oldForce->GetTypeName(), this);
+         #endif
+         delete oldForce;
+      }
+   }
+   
+   return true;
+}
+
+
+//---------------------------------------------------------------------------
 //  bool RenameRefObject(const Gmat::ObjectType type,
 //                       const std::string &oldName, const std::string &newName)
 //---------------------------------------------------------------------------

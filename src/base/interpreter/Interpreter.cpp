@@ -5480,7 +5480,10 @@ bool Interpreter::SetForceModelProperty(GmatBase *obj, const std::string &prop,
                 forceModel->GetName().c_str());
             #endif
             
+            // Since default GravityField is created when ForceModel is created
+            // We need to empty the ForceModel before adding new force. (LOJ: 2010.09.01)
             // Add force to ForceModel
+            forceModel->TakeAction("ClearDefaultForce");
             forceModel->AddForce(pm);
             
             // Use JGM2 for default Earth gravity file, in case it is not

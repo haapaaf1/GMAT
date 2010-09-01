@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 Moderator
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -2585,6 +2585,71 @@ Propagator* Moderator::GetPropagator(const std::string &name)
 
 // PhysicalModel
 //------------------------------------------------------------------------------
+// PhysicalModel* CreateDefaultPhysicalModel(const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * Creates a default physical model of full Earth gravity force with JGM2 file.
+ *
+ * @param <name> object name
+ *
+ * @return a physical model object pointer
+ */
+//------------------------------------------------------------------------------
+PhysicalModel* Moderator::CreateDefaultPhysicalModel(const std::string &name)
+{
+   std::string type = "GravityField";
+   
+   if (GetPhysicalModel(name) == NULL)
+   {
+      PhysicalModel *obj =
+         theFactoryManager->CreatePhysicalModel(type, name);
+      
+      if (obj ==  NULL)
+         throw GmatBaseException
+            ("The Moderator cannot create a PhysicalModel type \"" + type + "\"\n");
+      
+      #ifdef DEBUG_MEMORY
+      std::string funcName;
+      funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+      MemoryTracker::Instance()->Add
+         (obj, name, "Moderator::CreateDefaultPhysicalModel()", funcName);
+      #endif
+      
+      SolarSystem *ss = GetSolarSystemInUse(objectManageOption);
+      obj->SetName("Earth");
+      obj->SetSolarSystem(ss);
+      obj->SetBody("Earth");
+      obj->SetBodyName("Earth");
+      
+      if (type == "GravityField")
+         obj->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));
+      
+      // Manage it if it is a named PhysicalModel
+      try
+      {
+         if (name != "" && objectManageOption == 1)
+            theConfigManager->AddPhysicalModel(obj);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage("Moderator::CreatePhysicalModel()\n" +
+                                       e.GetFullMessage());
+      }
+      
+      return obj;
+   }
+   else
+   {
+      #if DEBUG_CREATE_RESOURCE
+      MessageInterface::ShowMessage
+         ("Moderator::CreatePhysicalModel() Unable to create PhysicalModel "
+          "name: %s already exist\n", name.c_str());
+      #endif
+      return GetPhysicalModel(name);
+   }
+}
+
+//------------------------------------------------------------------------------
 // PhysicalModel* CreatePhysicalModel(const std::string &type,
 //                                    const std::string &name)
 //------------------------------------------------------------------------------
@@ -3200,20 +3265,10 @@ ODEModel* Moderator::CreateODEModel(const std::string &type,
       }
       #endif
       
-      // Create default force model of PointMassForce if name is blank or
-      // InternalODEModel. (loj: 2008.11.06)
-      // PropSetup no longer creates InternalODEModel
-      if (name == "InternalODEModel")
-      {
-         PhysicalModel *pmf = CreatePhysicalModel("PointMassForce", "");
-         obj->AddForce(pmf);
-         #if DEBUG_CREATE_RESOURCE
-         MessageInterface::ShowMessage
-            ("Moderator::CreateODEModel() returning new ODEModel, <%p> '%s'\n",
-             obj, obj->GetName().c_str());
-         #endif
-         return obj;
-      }
+      // Create default physical model
+      PhysicalModel *pm = CreateDefaultPhysicalModel("");
+      pm->SetName("_DefaultInternalForce_");
+      obj->AddForce(pm);
       
       // Manage it if it is a named ODEModel
       try
@@ -3399,8 +3454,12 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    // create default force model with Earth primary body with JGM2
    // Create unnamed ODEModel when creating default PropSetup (LOJ: 2009.11.23)
    //ODEModel *fm= CreateODEModel("ForceModel", name + "_ForceModel");
-   ODEModel *fm= CreateODEModel("ForceModel", "");
+   ODEModel *fm = CreateODEModel("ForceModel", "");
    fm->SetName(name + "_ForceModel");
+   
+   //=======================================================
+   #if 0
+   //=======================================================
    GravityField *gravForce = new GravityField("", "Earth");
    
    #ifdef DEBUG_MEMORY
@@ -3415,13 +3474,16 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    gravForce->SetSolarSystem(theSolarSystemInUse);
    gravForce->SetBody("Earth");
    gravForce->SetBodyName("Earth");
-   gravForce->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));  
-   fm->AddForce(gravForce);   
+   gravForce->SetStringParameter("PotentialFile", GetFileName("JGM2_FILE"));
+   //=======================================================
+   #endif
+   //=======================================================
+   
    propSetup->SetODEModel(fm);
    
    // PropSetup::SetODEModel() clones the ODEModel, so delete it from here (LOJ: 2009.11.23)
    #ifdef DEBUG_MEMORY
-   funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+   std::string funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
    MemoryTracker::Instance()->Remove
       (fm, fm->GetName(), "Moderator::CreateDefaultPropSetup()"
        "deleting fm", funcName);

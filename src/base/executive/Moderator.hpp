@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 Moderator
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -182,6 +182,7 @@ public:
    Propagator* GetPropagator(const std::string &name);
    
    // PhysicalModel
+   PhysicalModel* CreateDefaultPhysicalModel(const std::string &name);
    PhysicalModel* CreatePhysicalModel(const std::string &type,
                                       const std::string &name);
    PhysicalModel* GetPhysicalModel(const std::string &name);
@@ -217,6 +218,7 @@ public:
                               const std::string &depName, Integer manage);
    
    // ODEModel
+   ODEModel* CreateDefaultODEModel(const std::string &name);
    ODEModel* CreateODEModel(const std::string &type, const std::string &name);
    ODEModel* GetODEModel(const std::string &name);
    bool AddToODEModel(const std::string &odeModelName,
