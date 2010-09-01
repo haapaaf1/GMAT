@@ -28,7 +28,7 @@
 
 #include "GroundStation.hpp"
 #include "MessageInterface.hpp"
-#include "GmatBaseException.hpp"
+#include "AssetException.hpp"
 
 
 //#define DEBUG_OBJECT_MAPPING
@@ -410,7 +410,7 @@ std::string GroundStation::GetStringParameter(const Integer id,
 //   MessageInterface::PopupMessage(Gmat::WARNING_, "GroundStation::GetStringParameter(id, index)");
    if (index < 0)
    {
-      GmatBaseException ex;
+      AssetException ex;
       ex.SetDetails("The index %d is out-of-range for field \"%s\"", index,
                     GetParameterText(id).c_str());
       throw ex;
@@ -427,7 +427,7 @@ std::string GroundStation::GetStringParameter(const Integer id,
 			   return "";
 		 }
       default:
-    	 break;			// intentional drop through
+         break;      // intentional drop through
    }
 
    return BodyFixedPoint::GetStringParameter(id, index);
@@ -491,7 +491,7 @@ bool GroundStation::SetStringParameter(const Integer id,
 {
    if (index < 0)
    {
-      GmatBaseException ex;
+      AssetException ex;
       ex.SetDetails("The index %d is out-of-range for field \"%s\"", index,
                     GetParameterText(id).c_str());
       throw ex;
@@ -884,133 +884,54 @@ bool GroundStation::Initialize()
       MessageInterface::ShowMessage("GroundStation::Initializing %s\n", instanceName.c_str());
    #endif
 
-   std::string sphType;
+   // Call the parent class to initialize its data
+   BodyFixedPoint::Initialize();
 
-   if (theBody == NULL)
-      throw GmatBaseException("Unable to initialize ground station " +
-            instanceName + "; its origin is not set\n");
-
-   // Calculate the body-fixed Cartesian position
-   if (stateType == "Cartesian")
-   {
-      bfLocation[0] = location[0];
-      bfLocation[1] = location[1];
-      bfLocation[2] = location[2];
-   }
-   else if (stateType == "Spherical")
-   {
-      Real equatorialRadius, flattening;
-      sphType = "Geodetic";
-      if (horizon == "Sphere")
+   // Initialize hardware data
+   #ifdef DEBUG_HARDWARE
+      MessageInterface::ShowMessage("Hardware list names:\n");
+      for (UnsignedInt i = 0; i < hardwareNames.size(); ++i)
       {
-         sphType    = "Geocentric";
-         flattening = 0.0;              // WCS 2010.05.25 - temporary fix ***
+         MessageInterface::ShowMessage("   %s\n", hardwareNames[i].c_str());
       }
-      else
+
+      MessageInterface::ShowMessage("Hardware list objects:\n");
+      for (UnsignedInt i = 0; i < hardwareList.size(); ++i)
       {
-         flattening = theBody->GetRealParameter("Flattening");
+         MessageInterface::ShowMessage("   %s\n", hardwareList[i]->GetName().c_str());
       }
-      // What key goes with "Reduced"?
-
-      llh.SetLatitude(location[0], sphType);
-      llh.SetLongitude(location[1]);
-      llh.SetHeight(location[2]);
-
-      equatorialRadius = theBody->GetRealParameter("EquatorialRadius");
-
-
-      Rvector3 loc = llh.GetSitePosition(equatorialRadius, flattening);
-      bfLocation[0] = loc[0];
-      bfLocation[1] = loc[1];
-      bfLocation[2] = loc[2];
-   }
-   else
-      throw GmatBaseException("Unable to initialize ground station \"" +
-            instanceName + "\"; stateType is not a recognized type (known "
-                  "types are either \"Cartesian\" or \"Spherical\")");
-
-   #ifdef DEBUG_INIT
-      MessageInterface::ShowMessage("...Initialized!\n", instanceName.c_str());
    #endif
 
-   #ifdef TEST_GROUNDSTATION
-      MessageInterface::ShowMessage("For %s, %s %s location [%lf "
-            "%lf %lf] --> XYZ [%lf %lf %lf]\n", instanceName.c_str(),
-            sphType.c_str(), stateType.c_str(), location[0], location[1],
-            location[2], bfLocation[0], bfLocation[1], bfLocation[2]);
-
-      // Check the MJ2000 methods
-      if (theBody == NULL)
-      {
-         MessageInterface::ShowMessage(
-               "Error initializing ground station %s: theBody is not set\n",
-               instanceName.c_str());
-         return false;
-      }
-      if (bfcs == NULL)
-      {
-         MessageInterface::ShowMessage(
-               "Error initializing ground station %s: bfcs is not set\n",
-               instanceName.c_str());
-         return false;
-      }
-      if (mj2kcs == NULL)
-      {
-         MessageInterface::ShowMessage(
-               "Error initializing ground station %s: mj2kcs is not set\n",
-               instanceName.c_str());
-         return false;
-      }
-
-      Rvector6 j2kState = GetMJ2000State(21545.0);
-      MessageInterface::ShowMessage("The resulting MJ2000 Cartesian state is "
-            "\n   [%s]\n", j2kState.ToString(16).c_str());
-   #endif
-
-#ifdef DEBUG_HARDWARE
-   MessageInterface::ShowMessage("Hardware list names:\n");
-   for (UnsignedInt i = 0; i < hardwareNames.size(); ++i)
+   // Set the hardware interconnections
+   for (ObjectArray::iterator i=hardwareList.begin(); i!=hardwareList.end(); ++i)
    {
-      MessageInterface::ShowMessage("   %s\n", hardwareNames[i].c_str());
-   }
-
-   MessageInterface::ShowMessage("Hardware list objects:\n");
-   for (UnsignedInt i = 0; i < hardwareList.size(); ++i)
-   {
-      MessageInterface::ShowMessage("   %s\n", hardwareList[i]->GetName().c_str());
-   }
-#endif
-
-// Set the hardware interconnections
-for (ObjectArray::iterator i=hardwareList.begin(); i!=hardwareList.end(); ++i)
-{
-   if ((*i)->IsOfType(Gmat::HARDWARE))
-   {
-      Hardware *current = (Hardware*)(*i);
-
-      // Get the hardware reference list
-      StringArray refs = current->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
-      for (UnsignedInt j = 0; j < refs.size(); ++j)
+      if ((*i)->IsOfType(Gmat::HARDWARE))
       {
-         #ifdef DEBUG_HARDWARE
-            MessageInterface::ShowMessage("Connecting up %s for %s\n",
-                  refs[j].c_str(), current->GetName().c_str());
-         #endif
+         Hardware *current = (Hardware*)(*i);
 
-         for (UnsignedInt k = 0; k < hardwareList.size(); ++k)
+         // Get the hardware reference list
+         StringArray refs = current->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+         for (UnsignedInt j = 0; j < refs.size(); ++j)
          {
-            if (hardwareList[k]->GetName() == refs[j])
-               current->SetRefObject(hardwareList[k],
-                     hardwareList[k]->GetType(), hardwareList[k]->GetName());
+            #ifdef DEBUG_HARDWARE
+               MessageInterface::ShowMessage("Connecting up %s for %s\n",
+                     refs[j].c_str(), current->GetName().c_str());
+            #endif
+
+            for (UnsignedInt k = 0; k < hardwareList.size(); ++k)
+            {
+               if (hardwareList[k]->GetName() == refs[j])
+                  current->SetRefObject(hardwareList[k],
+                        hardwareList[k]->GetType(), hardwareList[k]->GetName());
+            }
          }
       }
    }
-}
 
 
    // made changes by Tuan Nguyen
    // verify GroundStation's referenced objects
-   if (this->VerifyAddHardware() == false)	// verify add hardware
+   if (VerifyAddHardware() == false)	// verify add hardware
 	  return false;
 
    return true;
@@ -1028,18 +949,9 @@ Integer GroundStation::GetEstimationParameterSize(const Integer item)
 {
    Integer retval = 1;
 
-   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
+//   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
 
-//   switch (id)
-//   {
-//      case Gmat::STATION_LOCATION:
-//         retval = 6;
-//         break;
-//
-//      // All other values call up the hierarchy
-//      default:
-         retval = BodyFixedPoint::GetEstimationParameterSize(item);
-//   }
+   retval = BodyFixedPoint::GetEstimationParameterSize(item);
 
    return retval;
 }
@@ -1049,18 +961,9 @@ Real* GroundStation::GetEstimationParameterValue(const Integer item)
 {
    Real *retval = NULL;
 
-   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
+//   Integer id = item - type * ESTIMATION_TYPE_ALLOCATION;
 
-//   switch (id)
-//   {
-//      case Gmat::STATION_LOCATION:
-//         retval = 6;
-//         break;
-//
-//      // All other values call up the hierarchy
-//      default:
-         retval = BodyFixedPoint::GetEstimationParameterValue(item);
-//   }
+   retval = BodyFixedPoint::GetEstimationParameterValue(item);
 
    return retval;
 }
