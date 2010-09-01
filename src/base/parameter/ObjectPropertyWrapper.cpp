@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ObjectPropertyWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -405,6 +405,7 @@ bool ObjectPropertyWrapper::SetString(const std::string &toValue)
    Gmat::ParameterType propType = GetDataType();
    if (propType == Gmat::STRING_TYPE ||
        propType == Gmat::ENUMERATION_TYPE ||
+       propType == Gmat::FILENAME_TYPE ||
        propType == Gmat::STRINGARRAY_TYPE ||
        propType == Gmat::OBJECT_TYPE) // Added OBJECT_TYPE to handle "DefaultFM.Drag = None;"
       return object->SetStringParameter(propID, toValue);
@@ -489,7 +490,10 @@ bool ObjectPropertyWrapper::SetInteger(const Integer toValue)
 {
    Gmat::ParameterType propType = GetDataType();
    if (propType == Gmat::INTEGER_TYPE)
-      return object->SetIntegerParameter(propID, toValue);
+   {
+      Integer retval = object->SetIntegerParameter(propID, toValue);
+      return true;
+   }
    else
       throw GmatBaseException
          ("SetInteger() method not valid for wrapper of non-Integer type.\n");
