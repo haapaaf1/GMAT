@@ -70,7 +70,7 @@
 //------------------------------------------------------------------------------
 Assignment::Assignment  () :
    GmatCommand          ("GMAT"),
-   lhs                  (""),
+   lhs                  ("Not_Set"),
    rhs                  ("Not_Set"),
    lhsWrapper           (NULL),
    rhsWrapper           (NULL),
@@ -938,7 +938,7 @@ void Assignment::SetCallingFunction(FunctionManager *fm)
 
 
 //------------------------------------------------------------------------------
-// const StringArray& Vary::GetWrapperObjectNameArray()
+// const StringArray& GetWrapperObjectNameArray()
 //------------------------------------------------------------------------------
 /*
  * Returns wrapper object names.
@@ -957,12 +957,15 @@ const StringArray& Assignment::GetWrapperObjectNameArray()
    // If rhs is not an equation, just add rhs
    if (mathTree == NULL)
    {
-      // If LHS has more than 1 dot add to the list and Interpreter::ValidateCommand()
-      // will figure out if it is settable Parameter or not.(LOJ: 2009.12.22)
-      if (GmatStringUtil::NumberOfOccurrences(lhs, '.') > 1)
-         wrapperObjectNames.push_back(lhs);
+      if (lhs != "" && rhs != "Not_Set")
+      {
+         // If LHS has more than 1 dot add to the list and Interpreter::ValidateCommand()
+         // will figure out if it is settable Parameter or not.(LOJ: 2009.12.22)
+         if (GmatStringUtil::NumberOfOccurrences(lhs, '.') > 1)
+            wrapperObjectNames.push_back(lhs);
+      }
       
-      if (rhs != "")
+      if (rhs != "" && rhs != "Not_Set")
       {
          wrapperObjectNames.push_back(rhs);
       }

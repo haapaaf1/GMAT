@@ -865,6 +865,10 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
       MessageInterface::ShowMessage
          ("   ==> '%s' is%ssettable\n", newType.c_str(), isLhsSettable ? " " : " NOT ");
       #endif
+      
+      if (lhs == "" || lhs == "Not_Set")
+         createDefaultStringWrapper = true;
+      
       if (lhs.find_first_of(".") != lhs.find_last_of(".") && isLhsSettable)
          leftEw = CreateElementWrapper(lhs, true, manage);
       else
