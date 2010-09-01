@@ -2905,6 +2905,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\base\util\BodyFixedStateConverter.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\util\BodyFixedStateConverter.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\base\util\Cartesian.cpp"
 						>
 					</File>
