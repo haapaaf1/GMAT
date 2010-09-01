@@ -28,7 +28,8 @@
 #define BodyFixedPoint_hpp
 
 #include "SpacePoint.hpp"
-#include "LatLonHgt.hpp"
+//#include "LatLonHgt.hpp"
+#include "BodyFixedStateConverter.hpp"
 #include "CoordinateSystem.hpp"
 #include "CoordinateConverter.hpp"
 
@@ -41,6 +42,9 @@ public:
    virtual ~BodyFixedPoint();
    BodyFixedPoint(const BodyFixedPoint& bfp);
    BodyFixedPoint& operator=(const BodyFixedPoint& bfp);
+
+   virtual bool            Initialize();
+
 
    // Parameter access methods - overridden from GmatBase
    virtual void            Copy(const GmatBase* orig);
@@ -136,6 +140,10 @@ protected:
    std::string       cBodyName;
    /// The point is attached to this body
    SpacePoint        *theBody;
+   /// Mean Radius of the body
+   Real              meanEquatorialRadius;
+   /// Flattening coefficient of the body
+   Real              flattening;
    /// Strings that identify the location parameters
    StringArray       locationLabels;
    /// Strings that identify the location units
@@ -164,7 +172,7 @@ protected:
 
 
    /// Conversion code used to transform from lat-long-height to body fixed
-   LatLonHgt      llh;
+//   LatLonHgt      llh;
 
    Rvector3       j2000Pos;
    Rvector3       j2000Vel;
@@ -175,7 +183,7 @@ public:
    enum
    {
       CENTRAL_BODY = SpacePointParamCount,
-      STATE_TYPE,          // Cartesian or Geographical
+      STATE_TYPE,          // Cartesian or Spherical
       HORIZON_REFERENCE,   // Sphere or Ellipsoid
       LOCATION_1,          // X or Latitude
       LOCATION_2,          // Y or Longitude

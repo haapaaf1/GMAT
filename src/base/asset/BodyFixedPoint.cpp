@@ -34,7 +34,6 @@
 #include "BodyFixedPoint.hpp"
 #include "AssetException.hpp"
 #include "MessageInterface.hpp"
-#include "GmatBaseException.hpp"
 #include "RealUtilities.hpp"
 #include "StringUtil.hpp"
 
@@ -59,10 +58,10 @@ BodyFixedPoint::PARAMETER_TEXT[BodyFixedPointParamCount - SpacePointParamCount] 
          "HorizonReference",  // Sphere or Ellipsoid
          "Location1",         // X or Latitude value
          "Location2",         // Y or Longitude value
-         "Location3",         // Z or Height value
+         "Location3",         // Z or Altitude value
          "LOCATION_LABEL_1",  // "X" or "Latitude"
          "LOCATION_LABEL_2",  // "Y" or "Longitude"
-         "LOCATION_LABEL_3"   // "Z" or "Height"
+         "LOCATION_LABEL_3"   // "Z" or "Altitude"
          "LOCATION_UNITS_1",  // "km" or "deg"
          "LOCATION_UNITS_2",  // "km" or "deg"
          "LOCATION_UNITS_3"   // "km" or "km"
@@ -100,16 +99,18 @@ BodyFixedPoint::PARAMETER_TYPE[BodyFixedPointParamCount - SpacePointParamCount] 
 //---------------------------------------------------------------------------
 BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &itsName,
       const Gmat::ObjectType objType) :
-   SpacePoint        (objType, itsType, itsName),
-   cBodyName         ("Earth"),
-   theBody           (NULL),
-   stateType         ("Cartesian"),
-   horizon           ("Sphere"),
-   solarSystem       (NULL),
-   bfcsName          (""),
-   bfcs              (NULL),
-   mj2kcsName        (""),
-   mj2kcs            (NULL)
+   SpacePoint           (objType, itsType, itsName),
+   cBodyName            ("Earth"),
+   theBody              (NULL),
+   meanEquatorialRadius (6378.137),
+   flattening           (0.0033528106647474807198455),
+   stateType            ("Cartesian"),
+   horizon              ("Sphere"),
+   solarSystem          (NULL),
+   bfcsName             (""),
+   bfcs                 (NULL),
+   mj2kcsName           (""),
+   mj2kcs               (NULL)
 {
    objectTypes.push_back(Gmat::BODY_FIXED_POINT);
    objectTypeNames.push_back("BodyFixedPoint");
@@ -156,22 +157,24 @@ BodyFixedPoint::~BodyFixedPoint()
  */
 //---------------------------------------------------------------------------
 BodyFixedPoint::BodyFixedPoint(const BodyFixedPoint& bfp) :
-   SpacePoint        (bfp),
-   cBodyName         (bfp.cBodyName),
-   theBody           (NULL),
-   locationLabels    (bfp.locationLabels),
-   locationUnits     (bfp.locationUnits),
-   stateType         (bfp.stateType),
-   horizon           (bfp.horizon),
-   solarSystem       (NULL),
-   bfcsName          (bfp.bfcsName),
-   bfcs              (NULL),
-   mj2kcsName        (bfp.mj2kcsName),
-   mj2kcs            (NULL)
+   SpacePoint           (bfp),
+   cBodyName            (bfp.cBodyName),
+   theBody              (NULL),
+   meanEquatorialRadius (bfp.meanEquatorialRadius),
+   flattening           (bfp.flattening),
+   locationLabels       (bfp.locationLabels),
+   locationUnits        (bfp.locationUnits),
+   stateType            (bfp.stateType),
+   horizon              (bfp.horizon),
+   solarSystem          (NULL),
+   bfcsName             (bfp.bfcsName),
+   bfcs                 (NULL),
+   mj2kcsName           (bfp.mj2kcsName),
+   mj2kcs               (NULL)
 {
-   location[0] = bfp.location[0];
-   location[1] = bfp.location[1];
-   location[2] = bfp.location[2];;
+   location[0]   = bfp.location[0];
+   location[1]   = bfp.location[1];
+   location[2]   = bfp.location[2];;
 
    bfLocation[0] = bfp.bfLocation[0];
    bfLocation[1] = bfp.bfLocation[1];
@@ -196,31 +199,130 @@ BodyFixedPoint& BodyFixedPoint::operator=(const BodyFixedPoint& bfp)
    {
       SpacePoint::operator=(bfp);
 
-      theBody        = bfp.theBody;
-      locationLabels = bfp.locationLabels;
-      locationUnits  = bfp.locationUnits;
-      stateType      = bfp.stateType;
-      horizon        = bfp.horizon;
-      solarSystem    = bfp.solarSystem;
-      bfcsName       = bfp.bfcsName;
-      //bfcs           = bfp.bfcs;       // yes or no?
-      bfcs           = NULL;
-      mj2kcsName     = bfp.mj2kcsName;
-      //mj2kcs         = bfp.mj2kcs;     // yes or no?
-      mj2kcs         = NULL;
+      theBody              = bfp.theBody;
+      meanEquatorialRadius = bfp.meanEquatorialRadius;
+      flattening           = bfp.flattening;
+      locationLabels       = bfp.locationLabels;
+      locationUnits        = bfp.locationUnits;
+      stateType            = bfp.stateType;
+      horizon              = bfp.horizon;
+      solarSystem          = bfp.solarSystem;
+      bfcsName             = bfp.bfcsName;
+      //bfcs                 = bfp.bfcs;       // yes or no?
+      bfcs                 = NULL;
+      mj2kcsName           = bfp.mj2kcsName;
+      //mj2kcs               = bfp.mj2kcs;     // yes or no?
+      mj2kcs               = NULL;
 
-      location[0]    = bfp.location[0];
-      location[1]    = bfp.location[1];
-      location[2]    = bfp.location[2];;
+      location[0]          = bfp.location[0];
+      location[1]          = bfp.location[1];
+      location[2]          = bfp.location[2];;
 
-      bfLocation[0]  = bfp.bfLocation[0];
-      bfLocation[1]  = bfp.bfLocation[1];
-      bfLocation[2]  = bfp.bfLocation[2];
+      bfLocation[0]        = bfp.bfLocation[0];
+      bfLocation[1]        = bfp.bfLocation[1];
+      bfLocation[2]        = bfp.bfLocation[2];
    }
 
    return *this;
 }
 
+//---------------------------------------------------------------------------
+//  bool Initialize()
+//---------------------------------------------------------------------------
+/**
+ * Initializes this object.
+ *
+ */
+//---------------------------------------------------------------------------
+bool BodyFixedPoint::Initialize()
+{
+   // Initialize the body data
+   if (!theBody)
+      throw AssetException("Unable to initialize ground station " +
+            instanceName + "; its origin is not set\n");
+
+   // Get required data from the body
+   flattening            = theBody->GetRealParameter("Flattening");
+   meanEquatorialRadius  = theBody->GetRealParameter("EquatorialRadius");
+
+
+   // Calculate the body-fixed Cartesian position
+   // If it was input in Cartesian, we're done
+   if (stateType == "Cartesian")
+   {
+      bfLocation[0] = location[0];
+      bfLocation[1] = location[1];
+      bfLocation[2] = location[2];
+   }
+   // Otherwise, convert form input type to Cartesian
+   else if (stateType == "Spherical")
+   {
+      Rvector3 spherical(location[0], location[1], location[2]);
+      Rvector3 cart;
+      if (horizon == "Sphere")
+      {
+         cart = BodyFixedStateConverterUtil::SphericalToCartesian(spherical,
+                flattening, meanEquatorialRadius);
+         bfLocation[0] = cart[0];
+         bfLocation[1] = cart[1];
+         bfLocation[2] = cart[2];
+      }
+      else if (horizon == "Ellipsoid")
+      {
+         cart = BodyFixedStateConverterUtil::SphericalEllipsoidToCartesian(spherical,
+                flattening, meanEquatorialRadius);
+         bfLocation[0] = cart[0];
+         bfLocation[1] = cart[1];
+         bfLocation[2] = cart[2];
+      }
+      else
+         throw AssetException("Unable to initialize ground station \"" +
+               instanceName + "\"; horizon reference is not a recognized type (known "
+                     "types are either \"Sphere\" or \"Ellipsoid\")");
+   }
+   else
+      throw AssetException("Unable to initialize ground station \"" +
+            instanceName + "\"; stateType is not a recognized type (known "
+                  "types are either \"Cartesian\" or \"Spherical\")");
+
+   #ifdef DEBUG_INIT
+      MessageInterface::ShowMessage("...BodyFixedPoint %s Initialized!\n", instanceName.c_str());
+   #endif
+
+   #ifdef TEST_BODYFIXED_POINT
+      MessageInterface::ShowMessage("For %s, %s %s location [%lf "
+            "%lf %lf] --> XYZ [%lf %lf %lf]\n", instanceName.c_str(),
+            stateType.c_str(), horizon.c_str(), location[0], location[1],
+            location[2], bfLocation[0], bfLocation[1], bfLocation[2]);
+      // Check the MJ2000 methods
+      if (theBody == NULL)
+      {
+         MessageInterface::ShowMessage(
+               "Error initializing ground station %s: theBody is not set\n",
+               instanceName.c_str());
+         return false;
+      }
+      if (bfcs == NULL)
+      {
+         MessageInterface::ShowMessage(
+               "Error initializing ground station %s: bfcs is not set\n",
+               instanceName.c_str());
+         return false;
+      }
+      if (mj2kcs == NULL)
+      {
+         MessageInterface::ShowMessage(
+               "Error initializing ground station %s: mj2kcs is not set\n",
+               instanceName.c_str());
+         return false;
+      }
+
+      Rvector6 j2kState = GetMJ2000State(21545.0);
+      MessageInterface::ShowMessage("The resulting MJ2000 Cartesian state is "
+            "\n   [%s]\n", j2kState.ToString(16).c_str());
+   #endif
+   return true;
+}
 
 // Parameter access methods - overridden from GmatBase
 
@@ -377,7 +479,6 @@ Gmat::ObjectType BodyFixedPoint::GetPropertyObjectType(const Integer id) const
    {
    case CENTRAL_BODY:
       return Gmat::CELESTIAL_BODY;
-//      return Gmat::SPACE_POINT;
    default:
       return SpacePoint::GetPropertyObjectType(id);
    }
@@ -469,9 +570,13 @@ std::string BodyFixedPoint::GetStringParameter(const Integer id) const
 bool BodyFixedPoint::SetStringParameter(const Integer id,
                                        const std::string &value)
 {
-   bool retval = false;
    if (IsParameterReadOnly(id))
-       return retval;
+       return false;
+
+   static bool firstTimeWarning = true;
+   bool        retval           = false;
+   std::string stateTypeList    = "Cartesian, Spherical";
+   std::string horizonList      = "Sphere, Ellipsoid";
 
    if (id == CENTRAL_BODY)
    {
@@ -487,18 +592,14 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
       {
         v = "Spherical";
         // write one warning per GMAT session
-        static bool firstTimeWarning = true;
-        std::string framelist = "Cartesian, Spherical";
-
-        std::string msg =
-           "The value of \"" + value + "\" for field \"StateType\""
-           " on object \"" + instanceName + "\" is not an allowed value.\n"
-           "The allowed values are: [ " + framelist + " ]. ";
-
         if (firstTimeWarning)
         {
-           firstTimeWarning = false;
+           std::string msg =
+              "The value of \"" + value + "\" for field \"StateType\""
+              " on object \"" + instanceName + "\" is not an allowed value.\n"
+              "The allowed values are: [ " + stateTypeList + " ]. ";
            MessageInterface::ShowMessage("*** WARNING *** " + msg + "\n");
+           firstTimeWarning = false;
         }
       }
 
@@ -525,6 +626,14 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
          }
          retval = true;
       }
+      else
+      {
+         std::string errmsg =
+            "The value of \"" + value + "\" for field \"StateType\""
+            " on object \"" + instanceName + "\" is not an allowed value.\n"
+            "The allowed values are: [ " + stateTypeList + " ]. ";
+         throw AssetException(errmsg);
+      }
    }
    else if (id == HORIZON_REFERENCE)
    {
@@ -532,6 +641,14 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
       {
          horizon = value;
          retval = true;
+      }
+      else
+      {
+         std::string errmsg =
+            "The value of \"" + value + "\" for field \"HorizonReference\""
+            " on object \"" + instanceName + "\" is not an allowed value.\n"
+            "The allowed values are: [ " + horizonList + " ]. ";
+         throw AssetException(errmsg);
       }
    }
    else
@@ -694,7 +811,13 @@ bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 Real BodyFixedPoint::GetRealParameter(const Integer id) const
 {
    if ((id >= LOCATION_1) && (id <= LOCATION_3))
-      return location[id-LOCATION_1];
+   {
+      if ((stateType == "Cartesian") || (id == LOCATION_3))  // all units are km
+         return location[id - LOCATION_1];
+      // need to return units of degrees for Spherical state latitude and longitude
+      else
+         return location[id - LOCATION_1] * GmatMathUtil::DEG_PER_RAD;
+   }
 
    return SpacePoint::GetRealParameter(id);
 }
@@ -703,13 +826,13 @@ Real BodyFixedPoint::GetRealParameter(const Integer id) const
 Real BodyFixedPoint::SetRealParameter(const Integer id,
                                       const Real value)
 {
-   if (((id == LOCATION_1) || (id == LOCATION_2)) && (stateType != "Cartesian"))
+   if (((id == LOCATION_1) || (id == LOCATION_2)) && stateType == "Spherical")
    {
-      // if statetype <> cartesian, then check if Latitude/Longitude >= 0
+      // if Spherical statetype, then check if Latitude/Longitude are in the correct range
       if (id == LOCATION_1) // latitude
       {
          if ((value >= -90.0) && (value <= 90))
-            location[id-LOCATION_1] = value;
+            location[id-LOCATION_1] = value * GmatMathUtil::RAD_PER_DEG;
          else
          {
             AssetException aException("");
@@ -720,11 +843,10 @@ Real BodyFixedPoint::SetRealParameter(const Integer id,
          }
       }
       else // longitude (0-360)
-         location[id-LOCATION_1] = GmatMathUtil::Mod(value,360);
+         location[id-LOCATION_1] = (GmatMathUtil::Mod(value,360)) * GmatMathUtil::RAD_PER_DEG;
       return location[id-LOCATION_1];
    }
-
-   if ((id >= LOCATION_1) && (id <= LOCATION_3))
+   else if ((id >= LOCATION_1) && (id <= LOCATION_3)) // not Spherical
    {
       location[id-LOCATION_1] = value;
       return location[id-LOCATION_1];
@@ -884,8 +1006,8 @@ GmatBase* BodyFixedPoint::GetRefObject(const Gmat::ObjectType type,
  */
 //------------------------------------------------------------------------------
 bool BodyFixedPoint::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                                     const std::string &name,
-                                     const Integer index)
+                                  const std::string &name,
+                                  const Integer index)
 {
    // Call parent class to add objects to bodyList
    return SpacePoint::SetRefObject(obj, type, name, index);
@@ -922,7 +1044,7 @@ const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType 
       MessageInterface::ShowMessage("In BFP::GetRefObjectNameArray, requesting type %d (%s)\n",
             (Integer) type, (GmatBase::OBJECT_TYPE_STRING[type]).c_str());
    #endif
-   // This is a hack assuming Earth-centered coordinates for everything
+
    static StringArray csNames;
 
    csNames.clear();
@@ -931,8 +1053,6 @@ const StringArray& BodyFixedPoint::GetRefObjectNameArray(const Gmat::ObjectType 
    {
       csNames.push_back(bfcsName);
       csNames.push_back(mj2kcsName);
-//      csNames.push_back("EarthFixed");
-//      csNames.push_back("EarthMJ2000Eq");
    }
 
    return csNames;
@@ -976,10 +1096,10 @@ const Rvector6 BodyFixedPoint::GetMJ2000State(const A1Mjd &atTime)
       MessageInterface::ShowMessage("In GetMJ2000State for BodyFixedPoint %s\n",
             instanceName.c_str());
    #endif
-   Real epoch = atTime.Get();
+   Real     epoch = atTime.Get();
    Rvector6 bfState;
 
-   // For now I'm ignoring velocity
+   // For now I'm ignoring velocity; this assumes bfLocation is kept up-to-date
    bfState.Set(bfLocation[0], bfLocation[1], bfLocation[2], 0.0, 0.0, 0.0);
 
    // Convert from the body-fixed location to a J2000 location,
@@ -1055,6 +1175,7 @@ const Rvector3 BodyFixedPoint::GetMJ2000Velocity(const A1Mjd &atTime)
 //------------------------------------------------------------------------------
 const Rvector3 BodyFixedPoint::GetBodyFixedLocation(const A1Mjd &atTime) const
 {
+   // Assumes bfLocation is kept up-to-date
    Rvector3 locBodyFixed;
    locBodyFixed[0] = bfLocation[0];
    locBodyFixed[1] = bfLocation[1];
