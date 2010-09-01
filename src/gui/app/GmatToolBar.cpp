@@ -99,7 +99,11 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    for (int i=0; i<NUM_ICONS; i++)
    {
       wxImage image = bitmaps[i]->ConvertToImage();
-      image = image.Rescale(18, 15);
+      #ifdef __WXMAC__
+         image = image.Rescale(16, 15);
+      #else
+         image = image.Rescale(18, 15);
+      #endif
       *bitmaps[i] = wxBitmap(image);
    }
    
