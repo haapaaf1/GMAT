@@ -29,6 +29,10 @@
 #include "GmatStaticBoxSizer.hpp"
 #include "GroundStation.hpp"
 #include "BodyFixedPoint.hpp"
+#include "GmatAppData.hpp"
+#include "GuiItemManager.hpp"
+#include "GuiInterpreter.hpp"
+#include "SolarSystem.hpp"
 
 class GroundStationPanel: public GmatPanel
 {
@@ -45,6 +49,14 @@ private:
    virtual void LoadData();
    virtual void SaveData();
    
+   GuiItemManager *guiManager;
+   GuiInterpreter *guiInterpreter;
+   SolarSystem    *ss;
+   // object data
+   std::string currentStateType;
+   std::string currentHorizonReference;
+   Real        location1, location2, location3;
+
    // Event Handling
    DECLARE_EVENT_TABLE();
    void OnLocationTextChange(wxCommandEvent &event);
@@ -52,6 +64,7 @@ private:
    void OnHardwareTextChange(wxCommandEvent &event);
    void OnComboBoxChange(wxCommandEvent &event);
    void OnStateTypeComboBoxChange(wxCommandEvent &event);
+   void OnHorizonReferenceComboBoxChange(wxCommandEvent &event);
    
    GroundStation* theGroundStation;
    GroundStation* localGroundStation;
@@ -83,7 +96,8 @@ private:
       ID_HARDWARE_TEXTCTRL,
       ID_BUTTON,
       ID_COMBOBOX,
-      ID_STATE_TYPE_COMBOBOX
+      ID_STATE_TYPE_COMBOBOX,
+      ID_HORIZON_REFERENCE_COMBOBOX
    };
 };
 

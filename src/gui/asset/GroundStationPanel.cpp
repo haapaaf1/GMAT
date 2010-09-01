@@ -23,6 +23,9 @@
 #include "GroundStationPanel.hpp"
 #include "MessageInterface.hpp"
 #include "GmatStaticBoxSizer.hpp"
+#include "BodyFixedStateConverter.hpp"
+#include "CelestialBody.hpp"
+#include "GuiInterpreter.hpp"
 #include <wx/config.h>
 #include "StringUtil.hpp"
 #include <wx/variant.h>
@@ -40,6 +43,7 @@ BEGIN_EVENT_TABLE(GroundStationPanel, wxPanel)
    EVT_TEXT(ID_HARDWARE_TEXTCTRL, GroundStationPanel::OnHardwareTextChange)
    EVT_COMBOBOX(ID_COMBOBOX, GroundStationPanel::OnComboBoxChange)
    EVT_COMBOBOX(ID_STATE_TYPE_COMBOBOX, GroundStationPanel::OnStateTypeComboBoxChange)
+   EVT_COMBOBOX(ID_HORIZON_REFERENCE_COMBOBOX, GroundStationPanel::OnHorizonReferenceComboBoxChange)
 #ifdef __SHOW_HELP_BUTTON__
    EVT_BUTTON(ID_BUTTON_HELP, GmatPanel::OnHelp)
 #endif
@@ -61,7 +65,11 @@ GroundStationPanel::GroundStationPanel(wxWindow *parent, const wxString &name)
 {           
    std::string groundName = std::string(name.c_str());
    theGroundStation = (GroundStation*)theGuiInterpreter->GetConfiguredObject(groundName);
-   
+
+   guiManager     = GuiItemManager::GetInstance();
+   guiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
+   ss             = guiInterpreter->GetSolarSystemInUse();
+
    if (theGroundStation)
    {
       Create();
@@ -145,7 +153,7 @@ void GroundStationPanel::Create()
        localGroundStation->GetPropertyEnumStrings(BodyFixedPoint::HORIZON_REFERENCE);
    wxArrayString wxHorizonReferenceLabels = ToWxArrayString(horizonReferenceList);
    horizonReferenceComboBox = 
-      new wxComboBox( this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(120,-1),
+      new wxComboBox( this, ID_HORIZON_REFERENCE_COMBOBOX, wxT(""), wxDefaultPosition, wxSize(120,-1),
                       wxHorizonReferenceLabels, wxCB_DROPDOWN|wxCB_READONLY);
    horizonReferenceComboBox->SetToolTip(pConfig->Read(_T((BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::HORIZON_REFERENCE-BodyFixedPoint::CENTRAL_BODY]+"Hint").c_str())));
    
@@ -285,11 +293,16 @@ void GroundStationPanel::LoadData()
    {
       stationIDTextCtrl->SetValue(wxVariant(localGroundStation->GetStringParameter(GroundStation::STATION_ID).c_str()));
       centralBodyComboBox->SetValue(wxVariant(localGroundStation->GetStringParameter(BodyFixedPoint::CENTRAL_BODY).c_str()));
-      stateTypeComboBox->SetValue(wxVariant(localGroundStation->GetStringParameter(BodyFixedPoint::STATE_TYPE).c_str()));
-      horizonReferenceComboBox->SetValue(wxVariant(localGroundStation->GetStringParameter(BodyFixedPoint::HORIZON_REFERENCE).c_str()));
-      location1TextCtrl->SetValue(wxVariant(localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_1)));
-      location2TextCtrl->SetValue(wxVariant(localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_2)));
-      location3TextCtrl->SetValue(wxVariant(localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_3)));
+      currentStateType = localGroundStation->GetStringParameter(BodyFixedPoint::STATE_TYPE);
+      stateTypeComboBox->SetValue(wxVariant(currentStateType.c_str()));
+      currentHorizonReference = localGroundStation->GetStringParameter(BodyFixedPoint::HORIZON_REFERENCE);
+      horizonReferenceComboBox->SetValue(wxVariant(currentHorizonReference.c_str()));
+      location1 = localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_1);
+      location1TextCtrl->SetValue(wxVariant(location1));
+      location2 = localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_2);
+      location2TextCtrl->SetValue(wxVariant(location2));
+      location3 = localGroundStation->GetRealParameter(BodyFixedPoint::LOCATION_3);
+      location3TextCtrl->SetValue(wxVariant(location3));
       //hardwareTextCtrl->SetValue(wxVariant(localGroundStation->GetStringParameter(GroundStation::HARDWARE).c_str()));
       
       // update labels and tooltips based on statetype
@@ -309,14 +322,16 @@ void GroundStationPanel::SaveData()
 {
    canClose = true;
    
-   Real location1, location2, location3;
+//   Real location1, location2, location3;
    std::string inputString;
    std::string text;
    
    //-----------------------------------------------------------------
    // validate user input for locations if state type is not cartesian
    //   X,Y,Z May be any real
-   //   Latitude Longitude 0 to 360, Altitude is anything (for now)
+   //   Latitude is -90 to 90, Longitude 0 to 360, Altitude is any Real
+   // NOTE - we are just checking for Real or non-negative real here;
+   //        base code checks for actual ranges on SetrealParameter call
    //-----------------------------------------------------------------
    try
    {
@@ -330,18 +345,18 @@ void GroundStationPanel::SaveData()
       canClose = false;
    }
 
-   // Location 1 (Latitude)
+   // Location 1 (X or Latitude)
    inputString = location1TextCtrl->GetValue();
    CheckReal(location1, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1), "Real Number");
    
-   // Location 2 (Longitude)
+   // Location 2 (Y or Longitude)
    inputString = location2TextCtrl->GetValue();
    if (text != "Cartesian")
       CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number >= 0.0", false, true, true, true);
    else
       CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number");
    
-   // Location 3 (Altitude)
+   // Location 3 (Z or Altitude)
    inputString = location3TextCtrl->GetValue();
    CheckReal(location3, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3), "Real Number");
 
@@ -439,7 +454,8 @@ void GroundStationPanel::SaveData()
 //------------------------------------------------------------------------------
 void GroundStationPanel::UpdateControls()
 {
-   bool enableHorizon = localGroundStation->GetStringParameter(BodyFixedPoint::STATE_TYPE) != "Cartesian";
+//   bool enableHorizon = localGroundStation->GetStringParameter(BodyFixedPoint::STATE_TYPE) != "Cartesian";
+   bool enableHorizon = currentStateType != "Cartesian";
    horizonReferenceComboBox->Enable(enableHorizon);
 
    // get the config object
@@ -464,7 +480,7 @@ void GroundStationPanel::UpdateControls()
 //------------------------------------------------------------------------------
 void GroundStationPanel::OnLocationTextChange(wxCommandEvent &event)
 {
-    EnableUpdate(true);
+   EnableUpdate(true);
 }    
 
 
@@ -473,7 +489,7 @@ void GroundStationPanel::OnLocationTextChange(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GroundStationPanel::OnStationIDTextChange(wxCommandEvent &event)
 {
-    EnableUpdate(true);
+   EnableUpdate(true);
 }    
 
 
@@ -482,7 +498,7 @@ void GroundStationPanel::OnStationIDTextChange(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GroundStationPanel::OnHardwareTextChange(wxCommandEvent &event)
 {
-    EnableUpdate(true);
+   EnableUpdate(true);
 }    
 
 
@@ -491,7 +507,7 @@ void GroundStationPanel::OnHardwareTextChange(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GroundStationPanel::OnComboBoxChange(wxCommandEvent &event)
 {
-    EnableUpdate(true);
+   EnableUpdate(true);
 }    
 
 
@@ -500,9 +516,137 @@ void GroundStationPanel::OnComboBoxChange(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GroundStationPanel::OnStateTypeComboBoxChange(wxCommandEvent &event)
 {
-    localGroundStation->SetStringParameter(BodyFixedPoint::STATE_TYPE, stateTypeComboBox->GetValue().c_str());
-    UpdateControls();
-    EnableUpdate(true);
+   std::string sttype       = stateTypeComboBox->GetValue().c_str();
+   std::string inputString;
+   Real        location1, location2, location3;
+   if (sttype != currentStateType)
+   {
+      std::string bodyName = centralBodyComboBox->GetValue().c_str();
+      // get a pointer to the celestial body
+      CelestialBody *body = ss->GetBody(bodyName);
+      if (!body)
+      {
+         std::string errmsg = "Cannot find body ";
+         errmsg += bodyName + " needed for GroundStation panel update.\n";
+         throw GmatBaseException(errmsg);
+      }
+      Real meanRadius = body->GetRealParameter(body->GetParameterID("EquatorialRadius"));
+      Real flattening = body->GetRealParameter(body->GetParameterID("Flattening"));
+      // Convert location values to the appropriate values
+      // Location 1 (Latitude)
+      inputString = location1TextCtrl->GetValue();
+      CheckReal(location1, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1), "Real Number");
+
+      // Location 2 (Longitude)
+      inputString = location2TextCtrl->GetValue();
+      if (currentStateType != "Cartesian")
+         CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number >= 0.0", false, true, true, true);
+      else
+         CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number");
+
+      // Location 3 (Altitude)
+      inputString = location3TextCtrl->GetValue();
+      CheckReal(location3, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3), "Real Number");
+
+      Rvector3 locInCurrent(location1, location2, location3);
+      if (currentStateType == "Spherical") // latitude and longitude need to be passed in as radians
+      {
+         locInCurrent[0] *= GmatMathUtil::RAD_PER_DEG;
+         locInCurrent[1] *= GmatMathUtil::RAD_PER_DEG;
+      }
+      Rvector3 locInNew = BodyFixedStateConverterUtil::Convert(locInCurrent, currentStateType,
+                          currentHorizonReference, sttype, currentHorizonReference,
+                          flattening, meanRadius);
+      location1 = locInNew[0];
+      location2 = locInNew[1];
+      location3 = locInNew[2];
+      if (sttype == "Spherical") // need to display DEGREES for latitude and longitude
+      {
+         location1 *= GmatMathUtil::DEG_PER_RAD;
+         location2 *= GmatMathUtil::DEG_PER_RAD;
+      }
+      localGroundStation->SetStringParameter(BodyFixedPoint::STATE_TYPE, sttype);
+      localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_1, location1);
+      localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_2, location2);
+      localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_3, location3);
+      location1TextCtrl->SetValue(wxVariant(location1));
+      location2TextCtrl->SetValue(wxVariant(location2));
+      location3TextCtrl->SetValue(wxVariant(location3));
+      currentStateType = sttype;
+   }
+   UpdateControls();
+   EnableUpdate(true);
+}
+
+//------------------------------------------------------------------------------
+// void OnHorizonReferenceComboBoxChange()
+//------------------------------------------------------------------------------
+void GroundStationPanel::OnHorizonReferenceComboBoxChange(wxCommandEvent &event)
+{
+   std::string horizon       = horizonReferenceComboBox->GetValue().c_str();
+   std::string inputString;
+   Real        location1, location2, location3;
+   if (horizon != currentHorizonReference)
+   {
+      std::string bodyName = centralBodyComboBox->GetValue().c_str();
+      // get a pointer to the celestial body
+      CelestialBody *body = ss->GetBody(bodyName);
+      if (!body)
+      {
+         std::string errmsg = "Cannot find body ";
+         errmsg += bodyName + " needed for GroundStation panel update.\n";
+         throw GmatBaseException(errmsg);
+      }
+      Real meanRadius = body->GetRealParameter(body->GetParameterID("EquatorialRadius"));
+      Real flattening = body->GetRealParameter(body->GetParameterID("Flattening"));
+      // Convert location values to the appropriate values
+      // Location 1 (Latitude)
+      inputString = location1TextCtrl->GetValue();
+      CheckReal(location1, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_1), "Real Number");
+
+      // Location 2 (Longitude)
+      inputString = location2TextCtrl->GetValue();
+      if (currentStateType != "Cartesian")
+         CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number >= 0.0", false, true, true, true);
+      else
+         CheckReal(location2, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_2), "Real Number");
+
+      // Location 3 (Altitude)
+      inputString = location3TextCtrl->GetValue();
+      CheckReal(location3, inputString, localGroundStation->GetStringParameter(BodyFixedPoint::LOCATION_LABEL_3), "Real Number");
+
+      Rvector3 locInCurrent(location1, location2, location3);
+      if (currentStateType == "Spherical") // latitude and longitude need to be passed in as radians
+      {
+         locInCurrent[0] *= GmatMathUtil::RAD_PER_DEG;
+         locInCurrent[1] *= GmatMathUtil::RAD_PER_DEG;
+      }
+      MessageInterface::ShowMessage(" ... Spherical to new horizon ... loc = %12.10f  %12.10f  %12.10f\n",
+            locInCurrent[0], locInCurrent[1], locInCurrent[2]); // *************************
+      Rvector3 locInNew = BodyFixedStateConverterUtil::Convert(locInCurrent, currentStateType,
+                          currentHorizonReference, currentStateType, horizon,
+                          flattening, meanRadius);
+      MessageInterface::ShowMessage(" ... result =  %12.10f  %12.10f  %12.10f\n",
+            locInNew[0], locInNew[1], locInNew[2]); // *************************
+      location1 = locInNew[0];
+      location2 = locInNew[1];
+      location3 = locInNew[2];
+      if (currentStateType == "Spherical") // need to display DEGREES for latitude and longitude
+      {
+         location1 *= GmatMathUtil::DEG_PER_RAD;
+         location2 *= GmatMathUtil::DEG_PER_RAD;
+      }
+      localGroundStation->SetStringParameter(BodyFixedPoint::HORIZON_REFERENCE, horizon);
+      localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_1, location1);
+      localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_2, location2);
+      localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_3, location3);
+      location1TextCtrl->SetValue(wxVariant(location1));
+      location2TextCtrl->SetValue(wxVariant(location2));
+      location3TextCtrl->SetValue(wxVariant(location3));
+      currentHorizonReference = horizon;
+   }
+   UpdateControls();
+   EnableUpdate(true);
 }    
 
 
