@@ -3021,7 +3021,7 @@ void Propagate::PrepareToPropagate()
       
       try
       {
-         for (UnsignedInt i = 0; i<stopWhen.size(); i++)
+         for (UnsignedInt i = 0; i < stopWhen.size(); ++i)
          {
             if (i >= stopSats.size())
                throw CommandException("Stopping condition " + 
@@ -3037,14 +3037,15 @@ void Propagate::PrepareToPropagate()
             
             // StopCondition need new base epoch
             stopWhen[i]->SetRealParameter(stopCondBaseEpochID, stopEpochBase);
-      
-            // ElapsedTime parameters need new initial epoch
-            stopVar = stopWhen[i]->GetStringParameter(stopCondStopVarID);
-            if (stopVar.find("Elapsed") != stopVar.npos)
-            {
-               stopWhen[i]->GetStopParameter()->
-                  SetRealParameter("InitialEpoch", stopEpochBase);
-            }
+
+//            // Move this part into StopCond rather than using Parameter to do it
+//            // ElapsedTime parameters need new initial epoch
+//            stopVar = stopWhen[i]->GetStringParameter(stopCondStopVarID);
+//            if (stopVar.find("Elapsed") != stopVar.npos)
+//            {
+//               stopWhen[i]->GetStopParameter()->
+//                  SetRealParameter("InitialEpoch", stopEpochBase);
+//            }
          }
       }
       catch (BaseException &ex)
@@ -3211,13 +3212,14 @@ void Propagate::PrepareToPropagate()
                // StopCondition need new base epoch
                stopWhen[i]->SetRealParameter(stopCondBaseEpochID, stopEpochBase);
          
-               // ElapsedTime parameters need new initial epoch
-               stopVar = stopWhen[i]->GetStringParameter(stopCondStopVarID);
-               if (stopVar.find("Elapsed") != stopVar.npos)
-               {
-                  stopWhen[i]->GetStopParameter()->
-                     SetRealParameter("InitialEpoch", stopEpochBase);
-               }
+//               // Move this part into StopCond rather than using Parameter to do it
+//               // ElapsedTime parameters need new initial epoch
+//               stopVar = stopWhen[i]->GetStringParameter(stopCondStopVarID);
+//               if (stopVar.find("Elapsed") != stopVar.npos)
+//               {
+//                  stopWhen[i]->GetStopParameter()->
+//                     SetRealParameter("InitialEpoch", stopEpochBase);
+//               }
             }
          }
          catch (BaseException &ex)
@@ -4089,10 +4091,10 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       {
          dt = InterpolateToStop(*i);
          
-         #ifdef DEBUG_PROPAGATE_STEPSIZE         
+         #ifdef DEBUG_PROPAGATE_STEPSIZE
             MessageInterface::ShowMessage(
                "Interpolated stop time = %.14lf\n", dt); 
-         #endif      
+         #endif
       }
 
       // If dt is closer to current epoch, save this stop condition as trigger

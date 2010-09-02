@@ -38,6 +38,7 @@
 //#define DEBUG_CYCLIC_PARAMETERS
 //#define DEBUG_STOPCOND_EPOCH
 //#define DEBUG_WRAPPERS
+//#define DEBUG_CYCLIC_TIME
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -133,6 +134,7 @@ StopCondition::StopCondition(const std::string &name, const std::string &desc,
      isRhsCyclicCondition (false),
      isPeriapse           (false),
      isApoapse            (false),
+     isCyclicTimeCondition(false),
      lhsCycleType         (GmatParam::NOT_CYCLIC),
      rhsCycleType         (GmatParam::NOT_CYCLIC)
 {
@@ -207,6 +209,7 @@ StopCondition::StopCondition(const StopCondition &copy)
      isRhsCyclicCondition (copy.isRhsCyclicCondition),
      isPeriapse           (copy.isPeriapse),
      isApoapse            (copy.isApoapse),
+     isCyclicTimeCondition(copy.isCyclicTimeCondition),
      lhsCycleType         (copy.lhsCycleType),
      rhsCycleType         (copy.rhsCycleType)
 {
@@ -265,6 +268,7 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
       mBaseEpoch = right.mBaseEpoch;
       internalEpoch = right.internalEpoch;
       currentGoalValue = right.currentGoalValue;
+      initialGoalValue = right.initialGoalValue;
       mRepeatCount = right.mRepeatCount;
       
       if (mInterpolator != NULL)
@@ -358,11 +362,12 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
       previousAchievedValue = -999999.999999;
       previousGoalValue = -999999.999999;
       
-      isLhsCyclicCondition = right.isLhsCyclicCondition;
-      isPeriapse        = right.isPeriapse;
-      isApoapse         = right.isApoapse;
-      lhsCycleType      = right.lhsCycleType;
-      rhsCycleType      = right.rhsCycleType;
+      isLhsCyclicCondition  = right.isLhsCyclicCondition;
+      isPeriapse            = right.isPeriapse;
+      isApoapse             = right.isApoapse;
+      isCyclicTimeCondition = right.isCyclicTimeCondition;
+      lhsCycleType          = right.lhsCycleType;
+      rhsCycleType          = right.rhsCycleType;
       
       CopyDynamicData(right);
    }
@@ -447,18 +452,23 @@ bool StopCondition::Evaluate()
    {
       try
       {
-         currentGoalValue = mGoalParam->EvaluateReal();
+         initialGoalValue = mGoalParam->EvaluateReal();
+         currentGoalValue = initialGoalValue;
       }
       catch (BaseException &be)
       {
          // try with rhsWrapper
          if (rhsWrapper != NULL)
-            currentGoalValue = rhsWrapper->EvaluateReal();
+         {
+            initialGoalValue = rhsWrapper->EvaluateReal();
+            currentGoalValue = initialGoalValue;
+         }
          else
             throw;
       }
+      if (isCyclicTimeCondition)
+         currentGoalValue += startValue;
    }
-   
    
    // set current epoch
    if (mUseInternalEpoch)
@@ -560,9 +570,24 @@ bool StopCondition::Evaluate()
    else
    // for time data we don't need to interpolate
    {
+      #ifdef DEBUG_CYCLIC_TIME
+         MessageInterface::ShowMessage("Parameter %s is time based and %s\n",
+               mStopParam->GetTypeName().c_str(),
+               isCyclicTimeCondition ? "cyclic" : "not cyclic");
+         if (isCyclicTimeCondition)
+         {
+            MessageInterface::ShowMessage("   Current goal value: %lf\n",
+                  currentGoalValue);
+            MessageInterface::ShowMessage("   Previous achieved value: %lf\n",
+                  previousAchievedValue);
+            MessageInterface::ShowMessage("   Current parm value: %lf\n",
+                  currentParmValue);
+         }
+      #endif
+
       Real prevGoalDiff = previousAchievedValue - currentGoalValue,
            currGoalDiff = currentParmValue - currentGoalValue;
-      
+
       Real direction = 
            (currGoalDiff - prevGoalDiff > 0.0 ? 1.0 : -1.0);
 
@@ -627,7 +652,7 @@ bool StopCondition::Evaluate()
 // bool IsTimeCondition()
 //------------------------------------------------------------------------------
 /**
- * Checks to see if teh stopping condition is a time based condition.
+ * Checks to see if the stopping condition is a time based condition.
  * 
  * @return true if this is a time based stopping condition, false otherwise.
  */
@@ -677,16 +702,22 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
    {
       try
       {
-         currentGoalValue = mGoalParam->EvaluateReal();
+         initialGoalValue = mGoalParam->EvaluateReal();
       }
       catch (BaseException &be)
       {
          // try with rhsWrapper
          if (rhsWrapper != NULL)
-            currentGoalValue = rhsWrapper->EvaluateReal();
+         {
+            initialGoalValue = rhsWrapper->EvaluateReal();
+         }
          else
             throw;
       }
+      if (isCyclicTimeCondition)
+         currentGoalValue = initialGoalValue + startValue;
+      else
+         currentGoalValue = initialGoalValue;
    }
    goalValue = currentGoalValue;
 
@@ -1056,6 +1087,7 @@ bool StopCondition::Initialize()
    mRmagParam = NULL;
    
    std::string paramTypeName = mStopParam->GetTypeName();
+   startValue = mStopParam->EvaluateReal();
    
    if (Validate())
    {
@@ -1063,6 +1095,7 @@ bool StopCondition::Initialize()
           mStopParamType == "Periapsis")
       {
          currentGoalValue = 0.0;
+         initialGoalValue = 0.0;
          mAllowGoalParam = false;
          if (mStopParamType == "Apoapsis")
             isApoapse = true;
@@ -1176,9 +1209,15 @@ bool StopCondition::Validate()
       // Set time parameter type
       std::string timeTypeName = mStopParam->GetTypeName();
       if (timeTypeName == "ElapsedSecs")
+      {
          stopParamTimeType = SECOND_PARAM;
+         isCyclicTimeCondition = true;
+      }
       else if (timeTypeName == "ElapsedDays")
+      {
          stopParamTimeType = DAY_PARAM;
+         isCyclicTimeCondition = true;
+      }
       else if (timeTypeName.find("ModJulian") != std::string::npos)
          stopParamTimeType = EPOCH_PARAM;
       else
@@ -1507,6 +1546,9 @@ bool StopCondition::SetStopParameter(Parameter *param)
       mStopParam = param;
       mStopParamType = mStopParam->GetTypeName();
       
+      if (mStopParamType.find("Elapsed") != mStopParamType.npos)
+         isCyclicTimeCondition = true;
+
       if (param->IsTimeParameter())
          mInitialized = true;
       
@@ -1566,7 +1608,7 @@ void StopCondition::SetRhsString(const std::string &str)
 {
    #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
-      ("StopCondition::SetLhsString() this=<%p>'%s' entered, str='%s', "
+      ("StopCondition::SetRhsString() this=<%p>'%s' entered, str='%s', "
        "rhsString='%s'\n", this, GetName().c_str(), str.c_str(), rhsString.c_str());
    #endif
    
@@ -1580,6 +1622,7 @@ void StopCondition::SetRhsString(const std::string &str)
    if (isdigit(rhsString[0]) || rhsString[0] == '.' || rhsString[0] == '-')
    {
       currentGoalValue = atof(rhsString.c_str());
+      initialGoalValue = currentGoalValue;
       mAllowGoalParam = false;
    }
    else
@@ -1927,6 +1970,38 @@ Real StopCondition::SetRealParameter(const Integer id, const Real value)
    {
    case BASE_EPOCH:
       mBaseEpoch = value;
+
+      if (mAllowGoalParam)
+      {
+         try
+         {
+            initialGoalValue = mGoalParam->EvaluateReal();
+         }
+         catch (BaseException &be)
+         {
+            // try with rhsWrapper
+            if (rhsWrapper != NULL)
+            {
+               initialGoalValue = rhsWrapper->EvaluateReal();
+            }
+            else
+               throw;
+         }
+      }
+
+      startValue = mStopParam->EvaluateReal();
+
+      // Update target for cyclic time conditions
+      if (isCyclicTimeCondition)
+      {
+         currentGoalValue = startValue + initialGoalValue;
+         #ifdef DEBUG_CYCLIC_TIME
+            MessageInterface::ShowMessage("  Current value: %12lf  "
+                  "New Stop: %12lf\n", startValue, currentGoalValue);
+         #endif
+      }
+      else
+         currentGoalValue = initialGoalValue;
       return mBaseEpoch;
    case EPOCH:
       internalEpoch = value;
@@ -2072,6 +2147,8 @@ Real StopCondition::GetStopDifference()
          else
             throw;
       }      
+      if (isCyclicTimeCondition)
+         goalValue += startValue;
    }
    else
       goalValue = currentGoalValue;
@@ -2138,6 +2215,9 @@ Real StopCondition::GetStopGoal()
                min, max, goalValue);
       #endif
    }
+
+   if (isCyclicTimeCondition)
+      goalValue += startValue;
 
    return goalValue;
 }
@@ -2343,16 +2423,22 @@ void StopCondition::UpdateBuffer()
    {
       try
       {
-         currentGoalValue = mGoalParam->EvaluateReal();
+         initialGoalValue = mGoalParam->EvaluateReal();
       }
       catch (BaseException &be)
       {
          // try with rhsWrapper
          if (rhsWrapper != NULL)
-            currentGoalValue = rhsWrapper->EvaluateReal();
+         {
+            initialGoalValue = rhsWrapper->EvaluateReal();
+         }
          else
             throw;
       }
+      if (isCyclicTimeCondition)
+         currentGoalValue = startValue + initialGoalValue;
+      else
+         currentGoalValue = initialGoalValue;
    }
    
    // set current epoch

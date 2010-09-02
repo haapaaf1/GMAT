@@ -191,6 +191,9 @@ protected:
    bool isRhsCyclicCondition;
    bool isPeriapse;
    bool isApoapse;
+   bool isCyclicTimeCondition;      // Used for Elapsed... time conditions
+   Real startValue;
+   Real initialGoalValue;
    
    // The CycleType moved to GmatParam namespace defined in Parameter.hpp
    //enum CycleType

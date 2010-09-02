@@ -276,7 +276,7 @@ bool Publisher::Publish(GmatBase *provider, Integer id, Real *data, Integer coun
       #ifdef DEBUG_PUBLISHER_BUFFERS
          MessageInterface::ShowMessage("   %d: %12lf\n", i, data[i]);
       #endif
-      sprintf(stream, "%s%12lf", stream, data[i]);
+      sprintf(stream, "%s%16le", stream, data[i]);
       if (i < count - 1)
          strcat(stream, ", ");
       else
