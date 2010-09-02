@@ -93,7 +93,6 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn DefaultIB;
 GMAT DefaultIB.Origin = Earth;
 GMAT DefaultIB.Axes = VNB;
-GMAT DefaultIB.VectorFormat = Cartesian;
 GMAT DefaultIB.Element1 = 0;
 GMAT DefaultIB.Element2 = 0;
 GMAT DefaultIB.Element3 = 0;
@@ -130,16 +129,16 @@ Create Variable varMod11;
 Create DifferentialCorrector DC1;
 GMAT DC1.ShowProgress = true;
 GMAT DC1.ReportStyle = Normal;
-GMAT DC1.TargeterTextFile = 'DifferentialCorrectorDC1.data';
+GMAT DC1.ReportFile = 'Func_TargeterCheckDC1.data';
 GMAT DC1.MaximumIterations = 25;
-GMAT DC1.UseCentralDifferences = false;
+GMAT DC1.DerivativeMethod = CentralDifferences;
 
 Create DifferentialCorrector DC2;
 GMAT DC2.ShowProgress = true;
 GMAT DC2.ReportStyle = Normal;
-GMAT DC2.TargeterTextFile = 'DifferentialCorrectorDC2.data';
+GMAT DC2.ReportFile = 'Func_TargeterCheckDC2.data';
 GMAT DC2.MaximumIterations = 25;
-GMAT DC2.UseCentralDifferences = false;
+GMAT DC1.DerivativeMethod = CentralDifferences;
 
 
 %----------------------------------------

@@ -63,7 +63,7 @@ GMAT GOI.Element3 = 0;
 
 
 Create DifferentialCorrector DC DC2;
-GMAT DC.TargeterTextFile = 'targeter_DefaultDC.data';
+GMAT DC.TargeterTextFile = 'Func_PiC_Achieve_DC.data';
 GMAT DC.MaximumIterations = 25;
 GMAT DC.UseCentralDifferences = false;
 GMAT DC.ReportStyle = Debug;

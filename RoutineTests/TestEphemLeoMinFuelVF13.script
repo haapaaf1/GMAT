@@ -117,6 +117,7 @@ Create String msg;
 Create VF13ad vf13
 GMAT vf13.MaximumIterations   = 1000;    % Real number
 GMAT vf13.Tolerance = 1e-10;
+GMAT vf13.ReportFile = 'TestEphemLeoMinFuelVF13.data'
 
 %-----------------------------------------------------------------
 %--------------------------Create Maneuvers-----------------------

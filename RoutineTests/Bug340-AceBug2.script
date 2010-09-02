@@ -132,7 +132,7 @@ GMAT EarthSunRotCS.Secondary = Earth;
 Create DifferentialCorrector DefaultDC;
 GMAT DefaultDC.ShowProgress = true;
 GMAT DefaultDC.ReportStyle = Normal;
-GMAT DefaultDC.TargeterTextFile = targeter_DefaultDC.data;
+GMAT DefaultDC.TargeterTextFile = Bug340_DC.data;
 GMAT DefaultDC.Variables = {dV.V, dV.N};
 GMAT DefaultDC.MaximumIterations = 25;
 GMAT DefaultDC.UseCentralDifferences = false;
