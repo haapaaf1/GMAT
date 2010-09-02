@@ -1,3 +1,4 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                              Light
 //------------------------------------------------------------------------------
@@ -15,8 +16,8 @@
 #define _LIGHT_H
 
 #include "Rvector3.hpp"
-#include <gl/gl.h>
-#include <gl/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 class Light{
 private:
@@ -42,4 +43,4 @@ public:
    void SetPosition(float x, float y, float z);
 };
 
-#endif _LIGHT_H
+#endif // _LIGHT_H
