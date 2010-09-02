@@ -82,6 +82,12 @@ Enhanced3DView::PARAMETER_TEXT[Enhanced3DViewParamCount - SubscriberParamCount] 
    "UpdatePlotFrequency",
    "NumPointsToRedraw",
    "ShowPlot",
+	"StarCount",
+	"EnableStars",
+	"EnableConstellations",
+	"MinFOV",
+	"MaxFOV",
+	"InitialFOV",
 }; 
 
 
@@ -125,6 +131,13 @@ Enhanced3DView::PARAMETER_TYPE[Enhanced3DViewParamCount - SubscriberParamCount] 
    Gmat::INTEGER_TYPE,           //"NumPointsToRedraw"
    
    Gmat::BOOLEAN_TYPE,           //"ShowPlot"
+
+	Gmat::INTEGER_TYPE,				//"StarCount"
+	Gmat::ON_OFF_TYPE,				//"EnableStars"
+	Gmat::ON_OFF_TYPE,				//"EnableConstellations"
+	Gmat::INTEGER_TYPE,				//"MinFOV"
+	Gmat::INTEGER_TYPE,				//"MaxFOV"
+	Gmat::INTEGER_TYPE,				//"InitialFOV"
 };
 
 
@@ -164,6 +177,16 @@ Enhanced3DView::Enhanced3DView(const std::string &name)
    mUseInitialView = "On";
    mPerspectiveMode = "Off";
    mUseFixedFov = "Off";
+
+	// stars
+	mEnableStars = "On";
+	mEnableConstellations = "On";
+	mStarCount = 7000;
+
+	// FOV
+	mMinFOV = 0;
+	mMaxFOV = 90;
+	mInitialFOV = 45;
    
    mOldName = instanceName;
    mViewCoordSysName = "EarthMJ2000Eq";
@@ -262,6 +285,16 @@ Enhanced3DView::Enhanced3DView(const Enhanced3DView &ogl)
    mUseInitialView = ogl.mUseInitialView;
    mPerspectiveMode = ogl.mPerspectiveMode;
    mUseFixedFov = ogl.mUseFixedFov;
+
+	// stars
+	mEnableStars = ogl.mEnableStars;
+	mEnableConstellations = ogl.mEnableConstellations;
+	mStarCount = ogl.mStarCount;
+	
+	// FOV
+	mMinFOV = ogl.mMinFOV;
+	mMaxFOV = ogl.mMaxFOV;
+	mInitialFOV = ogl.mInitialFOV;
    
    mOldName = ogl.mOldName;;
    mViewCoordSysName = ogl.mViewCoordSysName;
@@ -351,6 +384,16 @@ Enhanced3DView& Enhanced3DView::operator=(const Enhanced3DView& ogl)
    mUseInitialView = ogl.mUseInitialView;
    mPerspectiveMode = ogl.mPerspectiveMode;
    mUseFixedFov = ogl.mUseFixedFov;
+
+	// stars
+	mEnableStars = ogl.mEnableStars;
+	mEnableConstellations = ogl.mEnableConstellations;
+	mStarCount = ogl.mStarCount;
+
+	// FOV
+	mMinFOV = ogl.mMinFOV;
+	mMaxFOV = ogl.mMaxFOV;
+	mInitialFOV = ogl.mInitialFOV;
    
    mOldName = ogl.mOldName;;
    mViewCoordSysName = ogl.mViewCoordSysName;
@@ -1209,6 +1252,14 @@ Integer Enhanced3DView::GetIntegerParameter(const Integer id) const
       return mUpdatePlotFrequency;
    case NUM_POINTS_TO_REDRAW:
       return mNumPointsToRedraw;
+	case STAR_COUNT:
+		return mStarCount;
+	case MIN_FOV:
+		return mMinFOV;
+	case MAX_FOV:
+		return mMaxFOV;
+	case INITIAL_FOV:
+		return mInitialFOV;
    default:
       return Subscriber::GetIntegerParameter(id);
    }
@@ -1273,6 +1324,28 @@ Integer Enhanced3DView::SetIntegerParameter(const Integer id, const Integer valu
                        "NumPointsToRedraw", "Integer Number >= 0");
          throw se;
       }
+	case STAR_COUNT:
+		if (value >= 0)
+		{
+			mStarCount = value;
+			return value;
+		}
+		else
+		{
+			SubscriberException se;
+			se.SetDetails(errorMessageFormat.c_str(),
+							GmatStringUtil::ToString(value, 1).c_str(),
+							"StarCount", "Integer Value >= 0");
+		}
+	case MIN_FOV:
+		mMinFOV = value;
+		return value;
+	case MAX_FOV:
+		mMaxFOV = value;
+		return value;
+	case INITIAL_FOV:
+		mInitialFOV = value;
+		return value;
    default:
       return Subscriber::SetIntegerParameter(id, value);
    }
@@ -1904,6 +1977,10 @@ std::string Enhanced3DView::GetOnOffParameter(const Integer id) const
       return mPerspectiveMode;
    case USE_FIXED_FOV:
       return mUseFixedFov;
+	case ENABLE_STARS:
+		return mEnableStars;
+	case ENABLE_CONSTELLATIONS:
+		return mEnableConstellations;
    default:
       return Subscriber::GetOnOffParameter(id);
    }
@@ -1960,6 +2037,12 @@ bool Enhanced3DView::SetOnOffParameter(const Integer id, const std::string &valu
    case USE_FIXED_FOV:
       mUseFixedFov = value;
       return true;
+	case ENABLE_STARS:
+		mEnableStars = value;
+		return true;
+	case ENABLE_CONSTELLATIONS:
+		mEnableConstellations = value;
+		return true;
    default:
       return Subscriber::SetOnOffParameter(id, value);
    }

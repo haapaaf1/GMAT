@@ -208,6 +208,14 @@ protected:
    Integer mObjectCount;
    Integer mNonStdBodyCount;
    
+	std::string mEnableStars;
+	std::string mEnableConstellations;
+	Integer mStarCount;
+
+	Integer mMinFOV;
+	Integer mMaxFOV;
+	Integer mInitialFOV;
+   
    StringArray mScNameArray;
    StringArray mObjectNameArray;
    StringArray mAllSpNameArray;
@@ -275,6 +283,12 @@ protected:
       UPDATE_PLOT_FREQUENCY,
       NUM_POINTS_TO_REDRAW,
       SHOW_PLOT,
+		STAR_COUNT,
+		ENABLE_STARS,
+		ENABLE_CONSTELLATIONS,
+		MIN_FOV,
+		MAX_FOV,
+		INITIAL_FOV,
       Enhanced3DViewParamCount
    };
    

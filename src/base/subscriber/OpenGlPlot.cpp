@@ -83,6 +83,12 @@ OpenGlPlot::PARAMETER_TEXT[OpenGlPlotParamCount - SubscriberParamCount] =
    "UpdatePlotFrequency",
    "NumPointsToRedraw",
    "ShowPlot",
+	"StarCount",
+	"EnableStars",
+	"EnableConstellations",
+	"MinFOV",
+	"MaxFOV",
+	"InitialFOV",
 }; 
 
 
@@ -126,6 +132,13 @@ OpenGlPlot::PARAMETER_TYPE[OpenGlPlotParamCount - SubscriberParamCount] =
    Gmat::INTEGER_TYPE,           //"NumPointsToRedraw"
    
    Gmat::BOOLEAN_TYPE,           //"ShowPlot"
+
+	Gmat::INTEGER_TYPE,				//"StarCount"
+	Gmat::ON_OFF_TYPE,				//"EnableStars"
+	Gmat::ON_OFF_TYPE,				//"EnableConstellations"
+	Gmat::INTEGER_TYPE,				//"MinFOV"
+	Gmat::INTEGER_TYPE,				//"MaxFOV"
+	Gmat::INTEGER_TYPE,				//"InitialFOV"
 };
 
 
@@ -165,6 +178,16 @@ OpenGlPlot::OpenGlPlot(const std::string &name)
    mUseInitialView = "On";
    mPerspectiveMode = "Off";
    mUseFixedFov = "Off";
+
+	// stars
+	mEnableStars = "On";
+	mEnableConstellations = "On";
+	mStarCount = 46000;
+
+	// FOV
+	mMinFOV = 0;
+	mMaxFOV = 90;
+	mInitialFOV = 45;
    
    mOldName = instanceName;
    mViewCoordSysName = "EarthMJ2000Eq";
@@ -289,6 +312,16 @@ OpenGlPlot::OpenGlPlot(const OpenGlPlot &ogl)
    mViewPointRefObj = ogl.mViewPointRefObj;
    mViewPointObj = ogl.mViewPointObj;
    mViewDirectionObj = ogl.mViewDirectionObj;
+
+	// stars
+	mStarCount = ogl.mStarCount;
+	mEnableStars = ogl.mEnableStars;
+	mEnableConstellations = ogl.mEnableConstellations;
+
+	// FOV
+	mMinFOV = ogl.mMinFOV;
+	mMaxFOV = ogl.mMaxFOV;
+	mInitialFOV = ogl.mInitialFOV;
    
    mDataCollectFrequency = ogl.mDataCollectFrequency;
    mUpdatePlotFrequency = ogl.mUpdatePlotFrequency;
@@ -1207,6 +1240,14 @@ Integer OpenGlPlot::GetIntegerParameter(const Integer id) const
       return mUpdatePlotFrequency;
    case NUM_POINTS_TO_REDRAW:
       return mNumPointsToRedraw;
+	case STAR_COUNT:
+		return mStarCount;
+	case MIN_FOV:
+		return mMinFOV;
+	case MAX_FOV:
+		return mMaxFOV;
+	case INITIAL_FOV:
+		return mInitialFOV;
    default:
       return Subscriber::GetIntegerParameter(id);
    }
@@ -1271,6 +1312,28 @@ Integer OpenGlPlot::SetIntegerParameter(const Integer id, const Integer value)
                        "NumPointsToRedraw", "Integer Number >= 0");
          throw se;
       }
+	case STAR_COUNT:
+		if (value >= 0)
+		{
+			mStarCount = value;
+			return value;
+		}
+		else
+		{
+			SubscriberException se;
+			se.SetDetails(errorMessageFormat.c_str(),
+							GmatStringUtil::ToString(value, 1).c_str(),
+							"StarCount", "Integer Value >= 0");
+		}
+	case MIN_FOV:
+		mMinFOV = value;
+		return value;
+	case MAX_FOV:
+		mMaxFOV = value;
+		return value;
+	case INITIAL_FOV:
+		mInitialFOV = value;
+		return value;
    default:
       return Subscriber::SetIntegerParameter(id, value);
    }
@@ -1902,6 +1965,10 @@ std::string OpenGlPlot::GetOnOffParameter(const Integer id) const
       return mPerspectiveMode;
    case USE_FIXED_FOV:
       return mUseFixedFov;
+	case ENABLE_STARS:
+		return mEnableStars;
+	case ENABLE_CONSTELLATIONS:
+		return mEnableConstellations;
    default:
       return Subscriber::GetOnOffParameter(id);
    }
@@ -1958,6 +2025,12 @@ bool OpenGlPlot::SetOnOffParameter(const Integer id, const std::string &value)
    case USE_FIXED_FOV:
       mUseFixedFov = value;
       return true;
+	case ENABLE_STARS:
+		mEnableStars = value;
+		return true;
+	case ENABLE_CONSTELLATIONS:
+		mEnableConstellations = value;
+		return true;
    default:
       return Subscriber::SetOnOffParameter(id, value);
    }

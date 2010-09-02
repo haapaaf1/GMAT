@@ -75,6 +75,9 @@ public:
    void SetAnimationUpdateInterval(int value) { mUpdateInterval = value; }
    void SetAnimationFrameIncrement(int value) { mFrameInc = value; }
    void SetDrawWireFrame(bool flag) { mDrawWireFrame = flag; }
+	void SetDrawStars(bool flag) {}
+	void SetDrawConstellations(bool flag) {}
+	void SetStarCount(int count) {}
    void SetDrawXyPlane(bool flag) { mDrawXyPlane = flag; }
    void SetDrawEcPlane(bool flag) { mDrawEcPlane = flag; }
    void SetDrawSunLine(bool flag) { mDrawSunLine = flag; }

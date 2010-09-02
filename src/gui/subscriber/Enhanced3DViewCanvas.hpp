@@ -2,14 +2,14 @@
 //------------------------------------------------------------------------------
 //                              Enhanced3DViewCanvas
 //------------------------------------------------------------------------------
-// GMAT: General Mission Analysis Tool
+// GMAT: Goddard Mission Analysis Tool
 //
 // ** Legal **
 //
-// Author: 
-// Created: 2010/04/19
+// Author: Linda Jun
+// Created: 2003/11/25
 /**
- * Declares Enhanced3DViewCanvas for 3D visualization.
+ * Declares Enhanced3DViewCanvas for opengl plot.
  */
 //------------------------------------------------------------------------------
 #ifndef Enhanced3DViewCanvas_hpp
@@ -17,6 +17,8 @@
 
 #include "ViewCanvas.hpp"
 #include "gmatwxdefs.hpp"
+#include "Camera.hpp"
+#include "Light.hpp"
 #include "MdiGlPlotData.hpp"
 #include "GuiInterpreter.hpp"
 #include "TextTrajectoryFile.hpp"
@@ -39,7 +41,7 @@ public:
    virtual ~Enhanced3DViewCanvas();
    
    // initialization
-   bool InitGL();
+   bool InitOpenGL();
    
    // getters
    bool  GetUseViewPointInfo() { return mUseInitialViewPoint; }
@@ -75,6 +77,9 @@ public:
    void SetAnimationUpdateInterval(int value) { mUpdateInterval = value; }
    void SetAnimationFrameIncrement(int value) { mFrameInc = value; }
    void SetDrawWireFrame(bool flag) { mDrawWireFrame = flag; }
+	void SetDrawStars(bool flag) {  }
+	void SetDrawConstellations(bool flag) {  }
+	void SetStarCount(int count) {  }
    void SetDrawXyPlane(bool flag) { mDrawXyPlane = flag; }
    void SetDrawEcPlane(bool flag) { mDrawEcPlane = flag; }
    void SetDrawSunLine(bool flag) { mDrawSunLine = flag; }
@@ -96,7 +101,6 @@ public:
    void ResetPlotInfo();
    void RedrawPlot(bool viewAnimation);
    void ShowDefaultView();
-   void RotatePlot(int width, int height, int mouseX, int mouseY);
    void ZoomIn();
    void ZoomOut();
    void DrawWireFrame(bool flag);
@@ -172,15 +176,22 @@ private:
    static const int LAST_STD_BODY_ID;// = 10;
    static const int MAX_COORD_SYS;// = 10;
    static const std::string BODY_NAME[GmatPlot::MAX_BODIES];
-   static const float MAX_ZOOM_IN;// = 3700.0;
-   static const float RADIUS_ZOOM_RATIO;// = 2.2;
-   static const float DEFAULT_DIST;// = 30000.0;
+   static const Real MAX_ZOOM_IN;// = 3700.0;
+   static const Real RADIUS_ZOOM_RATIO;// = 2.2;
+   static const Real DEFAULT_DIST;// = 30000.0;
    static const int UNKNOWN_OBJ_ID;// = -999;
+
+   wxGLContext *theContext;
    
    // initialization
    wxWindow *mParent;
    bool mGlInitialized;
    wxString mPlotName;
+   
+   // camera
+   Camera mCamera;
+   // light source
+   Light mLight;
    
    GuiInterpreter *theGuiInterpreter;
    wxStatusBar *theStatusBar;
@@ -253,6 +264,10 @@ private:
    // projection
    bool mUsePerspectiveMode;
    Real mFovDeg;
+   
+   // Control Modes
+   int mControlMode;  // 0 = rotate around center, 1 = 6DOF movement, 2 = 6DOF movement NASA/Dunn style
+   int mInversion;    // 1 is true movement, -1 is inverted
    
    // initial viewpoint
    StringArray mScNameArray;
@@ -437,19 +452,16 @@ private:
    // drawing objects
    void DrawFrame();
    void DrawPlot();
-   void DrawSphere(GLdouble radius, GLint slices, GLint stacks, GLenum style,
-                   GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_SMOOTH,
-                   GLenum textureCoords = GL_TRUE);
    void DrawObject(const wxString &objName);
-   void DrawObjectOrbit();
+   void DrawObjectOrbit(int frame);
    void DrawOrbit(const wxString &objName, int obj, int objId);
    void DrawOrbitLines(int i, const wxString &objName, int obj, int objId);
    void DrawOrbitNormal(const wxString &objName, int obj, int objId);
    void DrawOrbitNormalLines(int i, const wxString &objName, int obj, int objId);
-   void DrawObjectTexture(const wxString &objName, int obj, int objId);
+   void DrawObjectTexture(const wxString &objName, int obj, int objId, int frame);
    void DrawSolverData();
    void DrawObjectOrbitNormal(int objId, int frame, UnsignedInt color);
-   void DrawSpacecraft(UnsignedInt scColor);
+   //void DrawSpacecraft(UnsignedInt scColor);
    void DrawEquatorialPlane(UnsignedInt color);
    void DrawEclipticPlane(UnsignedInt color);
    void DrawSunLine();
@@ -457,13 +469,9 @@ private:
    void DrawStatus(const wxString &label1, int frame, const wxString &label2,
                    double time, int xpos = 0, int ypos = 0,
                    const wxString &label3 = "");
-   
+
    // for rotation
    void ApplyEulerAngles();
-   
-   // drawing primative objects
-   void DrawStringAt(const wxString &str, GLfloat x, GLfloat y, GLfloat z);
-   void DrawCircle(GLUquadricObj *qobj, Real radius);
    
    // for object
    int  GetObjectId(const wxString &name);

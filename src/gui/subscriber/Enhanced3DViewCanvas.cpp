@@ -6,13 +6,26 @@
 //
 // ** Legal **
 //
-// Author: 
-// Created: 2010/04/19
+// Developed jointly by NASA/GSFC, Thinking Systems, Inc., and Schafer Corp.,
+// under AFRL NOVA Contract #FA945104D03990003
+//
+// Author:   Linda Jun (wrote TrajPlotCanvas)
+// Created:  2003/11/25
+// Modified: Phillip Silvia, Jr. and Dunning Idle 5th - Schafer Corp.
+// Date:     Summer 2010
+// Changes:  Took out all minus signs from trajectories and vectors so attitude
+//           would work correctly.  Added attitude calls to draw spacecraft in
+//           the proper orientation.  Changed the ECI axis color convention to
+//           Red-Green-Blue.
 /**
- * Implements Enhanced3DViewCanvas for 3D visualization.
+* These classes and methods implement OpenGL display of the earth and
+* orbit trajectories.  The upgrade by Schafer allows 3D spacecraft
+* models to be drawn in the correct position and attitude.
  */
 //------------------------------------------------------------------------------
+
 #include "Enhanced3DViewCanvas.hpp"
+#include "Camera.hpp"
 #include "GmatAppData.hpp"         // for GetGuiInterpreter()
 #include "FileManager.hpp"         // for texture files
 #include "ColorTypes.hpp"          // for namespace GmatColor::
@@ -23,7 +36,9 @@
 #include "MessageInterface.hpp"
 #include "SubscriberException.hpp"
 #include "TimeSystemConverter.hpp" // for ConvertMjdToGregorian()
-#include <string.h>                // for strlen()
+#include "Rendering.hpp"
+#include "GmatOpenGLSupport.hpp"   // for OpenGL support
+#include <string.h>                // for strlen( )
 
 #ifdef __WXMAC__
 #  ifdef __DARWIN__
@@ -66,8 +81,8 @@ using namespace FloatAttUtil;
 #endif
 
 
-// currently lighting is not working
-//#define ENABLE_LIGHT_SOURCE
+// currently lighting is not working    - PS, working on it!
+#define ENABLE_LIGHT_SOURCE
 #define USE_MHA_TO_ROTATE_EARTH
 
 
@@ -124,6 +139,9 @@ using namespace FloatAttUtil;
 //#define DEBUG_ROTATE 1
 //#define DEBUG_DATA_BUFFERRING
 //#define DEBUG_ORBIT_LINES
+#define MODE_CENTERED_VIEW 0
+#define MODE_FREE_FLYING 1
+#define MODE_ASTRONAUT_6DOF 2
 
 BEGIN_EVENT_TABLE(Enhanced3DViewCanvas, wxGLCanvas)
    EVT_SIZE(Enhanced3DViewCanvas::OnTrajSize)
@@ -140,19 +158,15 @@ using namespace GmatMathUtil;
 //---------------------------------
 const int Enhanced3DViewCanvas::LAST_STD_BODY_ID = 10;
 const int Enhanced3DViewCanvas::MAX_COORD_SYS = 10;
-const float Enhanced3DViewCanvas::MAX_ZOOM_IN = 3700.0;
-const float Enhanced3DViewCanvas::RADIUS_ZOOM_RATIO = 2.2;
-const float Enhanced3DViewCanvas::DEFAULT_DIST = 30000.0;
+const Real Enhanced3DViewCanvas::MAX_ZOOM_IN = 3700.0;
+const Real Enhanced3DViewCanvas::RADIUS_ZOOM_RATIO = 2.2;
+const Real Enhanced3DViewCanvas::DEFAULT_DIST = 30000.0;
 const int Enhanced3DViewCanvas::UNKNOWN_OBJ_ID = -999;
 
-struct GlColorType
-{
-   Byte red;
-   Byte green;
-   Byte blue;
-   Byte not_used;
-};
-
+bool openGLInitialized = false,
+	viewPointInitialized = false;
+int current_model = 0;
+//ModelObject object[MAX_OBJECTS];
 
 // color
 static int *sIntColor = new int;
@@ -178,10 +192,10 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
                                const wxString& name, long style)
    : ViewCanvas(parent, id, pos, size, name, style)
 {
-   mGlInitialized = false;
+	mGlInitialized = false;
    mPlotName = name;
    mParent = parent;
-
+   
    // Linux specific
    #ifdef __WXGTK__
       hasBeenPainted = false;
@@ -196,10 +210,15 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    #ifdef __USE_WX280_GL__
    // Note:
    // Use wxGLCanvas::m_glContext, otherwise resize will not work
-   m_glContext = new wxGLContext(this);
+   //m_glContext = new wxGLContext(this);
    #endif
+
+   theContext = new wxGLContext(this);
+
+	mCamera.Reset();
+   mCamera.Relocate(DEFAULT_DIST, 0.0, 0.0, 0.0, 0.0, 0.0);
    
-   // initalize data members
+   // initialize data members
    GmatAppData *gmatAppData = GmatAppData::Instance();   
    theGuiInterpreter = gmatAppData->GetGuiInterpreter();
    theStatusBar = gmatAppData->GetMainFrame()->GetStatusBar();
@@ -210,13 +229,14 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    ResetPlotInfo();
    
    // projection
-   mUsePerspectiveMode = false;
+   mControlMode = MODE_CENTERED_VIEW;
+   mInversion = 1;
    mUseInitialViewPoint = true;
    
    // viewpoint
    InitializeViewPoint();
    
-   // devault view
+   // default view
    mCanvasSize = size;
    mDefaultRotXAngle = 90.0;
    mDefaultRotYAngle = 0.0;
@@ -255,7 +275,11 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    // projection
    ChangeProjection(size.x, size.y, mAxisLength);
    
-   mEarthRadius = 6378.14; //km
+   // Note from Dunn.  Size of earth vs. spacecraft models will take lots of
+   // work in the future.  Models need to be drawn in meters.  Cameras need to
+   // be placed near models to "make big enough to see", and if camera is beyond
+   // about 2000 meters, model should be drawn as dot.  More discussion to follow!
+   mEarthRadius = 6378.14f; //km
    mScRadius = 200;        //km: make big enough to see
    
    // light source
@@ -269,9 +293,13 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    mDrawAxes = false;
    mDrawGrid = false;
    mDrawOrbitNormal = true;
-   mXyPlaneColor = GmatColor::SKYBLUE;
-   mEcPlaneColor = GmatColor::CHESTNUT;
-   mSunLineColor = GmatColor::GOLDTAN;
+
+   // Dunn chose new colors for the equatorial and ecliptic planes.
+   mXyPlaneColor = GmatColor::L_BLUE32;
+   //mXyPlaneColor = GmatColor::SKYBLUE;
+   //mEcPlaneColor = GmatColor::CHESTNUT;
+   mEcPlaneColor = GmatColor::YELLOW32;
+   mSunLineColor = GmatColor::YELLOW32;
    
    // animation
    mIsAnimationRunning = false;
@@ -325,7 +353,6 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
          ("   pViewCoordSystem=%s\n", pViewCoordSystem->GetName().c_str());
    MessageInterface::ShowMessage("Enhanced3DViewCanvas() constructor exiting\n");
    #endif
-   
 }
 
 
@@ -359,13 +386,13 @@ Enhanced3DViewCanvas::~Enhanced3DViewCanvas()
 
 
 //------------------------------------------------------------------------------
-// bool Enhanced3DViewCanvas::InitGL()
+// bool Enhanced3DViewCanvas::InitOpenGL()
 //------------------------------------------------------------------------------
 /**
  * Initializes GL and IL.
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::InitGL()
+bool Enhanced3DViewCanvas::InitOpenGL()
 {
    // get GL version
    #ifdef __GET_GL_INFO__
@@ -381,8 +408,10 @@ bool Enhanced3DViewCanvas::InitGL()
    MessageInterface::ShowMessage("GLU extensions = '%s'\n", (char*)str);
    #endif
    
+	InitGL();
+
    // remove back faces
-   glDisable(GL_CULL_FACE);
+   /*glDisable(GL_CULL_FACE);
    
    // enable depth testing, so that objects further away from the
    // viewer aren't drawn over closer objects
@@ -400,7 +429,7 @@ bool Enhanced3DViewCanvas::InitGL()
    glShadeModel(GL_SMOOTH);
    
    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-   glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+   glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);*/
    
 #ifndef SKIP_DEVIL
    
@@ -410,7 +439,7 @@ bool Enhanced3DViewCanvas::InitGL()
    ilutRenderer(ILUT_OPENGL);
    
 #endif
-   
+
    if (!LoadGLTextures())
       return false;
    
@@ -425,6 +454,8 @@ bool Enhanced3DViewCanvas::InitGL()
 
    mShowMaxWarning = true;
    mIsAnimationRunning = false;
+
+	openGLInitialized = true;
    
    return true;
 }
@@ -448,7 +479,7 @@ wxString Enhanced3DViewCanvas::GetGotoObjectName()
 //------------------------------------------------------------------------------
 wxGLContext* Enhanced3DViewCanvas::GetGLContext()
 {
-   return m_glContext;
+   return theContext;
 }
 
 
@@ -498,18 +529,22 @@ void Enhanced3DViewCanvas::SetEndOfRun(bool flag)
       Real time = mTime[mLastIndex];
       Real x = mObjectViewPos[index+0];
       Real y = mObjectViewPos[index+1];;
-      Real lst, longitude, mha;
+
+      // Dunn notes the variable "longitude" below is declared elsewhere in this
+      // file.  Even if the other "longitude" is protected, it should probably
+      // have a different name.  This is the FIRST place longitude is declared.
+      Real lst, longitudeFinal, mha;
       
-      ComputeLongitudeLst(time, x, y, &mha, &longitude, &lst);
+      ComputeLongitudeLst(time, x, y, &mha, &longitudeFinal, &lst);
       mFinalMha = mha;
-      mFinalLongitude = longitude;
+      mFinalLongitude = longitudeFinal;
       mFinalLst = lst;
       
       #if DEBUG_TRAJCANVAS_LONGITUDE
       MessageInterface::ShowMessage
          ("Enhanced3DViewCanvas::SetEndOfRun() mInitialLongitude=%f, time=%f, x=%f,\n   "
           "y=%f, mFinalMha=%f, mFinalLongitude=%f, mFinalLst=%f\n",
-          mInitialLongitude, time, x, y, mha, longitude, lst);
+          mInitialLongitude, time, x, y, mha, longitudeFinal, lst);
       #endif
 
    }
@@ -527,24 +562,6 @@ void Enhanced3DViewCanvas::SetUsePerspectiveMode(bool perspMode)
    #endif
    
    mUsePerspectiveMode = perspMode;
-   
-   if (mUsePerspectiveMode)
-   {
-      mfCamTransX = -mVpLocVec[0];
-      mfCamTransY = -mVpLocVec[1];
-      mfCamTransZ = -mVpLocVec[2];
-      mUseGluLookAt = true; //loj: 12/7/05 try gluLookAt()
-   }
-   else
-   {
-      mfCamTransX = 0;
-      mfCamTransY = 0;
-      mfCamTransZ = 0;
-      
-      //loj: 12/27/07 set to use gluLookAt, it works for up direction
-      //mUseGluLookAt = false;
-      mUseGluLookAt = true;
-   }
 }
 
 
@@ -582,7 +599,7 @@ void Enhanced3DViewCanvas::SetGLContext(wxGLContext *glContext)
 {
    #ifdef __USE_WX280_GL__
    if (glContext == NULL)
-      SetCurrent(*m_glContext);
+      SetCurrent(*theContext);
    else
       SetCurrent(*glContext);
    #else
@@ -616,7 +633,7 @@ void Enhanced3DViewCanvas::ClearPlot()
 // void ResetPlotInfo()
 //------------------------------------------------------------------------------
 /**
- * Resets ploting infomation.
+ * Resets plotting information.
  */
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::ResetPlotInfo()
@@ -693,133 +710,6 @@ void Enhanced3DViewCanvas::ShowDefaultView()
    ChangeProjection(clientWidth, clientHeight, mAxisLength);
    Refresh(false);
 }
-
-
-//------------------------------------------------------------------------------
-// void RotatePlot(int width, int height, int mouseX, int mouseY)
-//------------------------------------------------------------------------------
-/**
- * Rotates plot
- */
-//------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::RotatePlot(int width, int height, int mouseX, int mouseY)
-{
-   //=======================================================
-   #ifdef USE_TRACKBALL
-   //=======================================================
-   
-   // drag in progress, simulate trackball
-   float spinQuat[4];
-   
-   ToQuat(spinQuat,
-          (2.0*mLastMouseX - width) / width,
-          (     height - 2.0*mLastMouseY) / height,
-          (     2.0*mouseX - width) / width,
-          (     height - 2.0*mouseY) / height);
-   
-   AddQuats(spinQuat, mQuat, mQuat);
-   
-   #if DEBUG_ROTATE
-   MessageInterface::ShowMessage
-      ("OnMouse() w=%d, h=%d, mLastMouseX=%d, mLastMouseY=%d, "
-       "mouseX=%d, mouseY=%d\n", width, height, mLastMouseX,
-       mLastMouseY, mouseX, mouseY);
-   MessageInterface::ShowMessage
-      ("OnMouse=% f, % f, % f, % f\n", mQuat[0], mQuat[1], mQuat[2],
-       mQuat[3]);
-   #endif
-   
-   //=======================================================
-   #else
-   //=======================================================
-   
-   #if DEBUG_ROTATE
-   MessageInterface::ShowMessage
-      ("   event.LeftIsDown() mCurrRotXYZAngle=%f, %f, %f\n",
-       mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
-   #endif
-   
-   // if end-of-run compute new mfCamRotXYZAngle by calling ChangeView()
-   if (mIsEndOfRun)
-      ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
-   
-   ComputeView(fEndX, fEndY);
-   ChangeView(mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
-   
-   //MessageInterface::ShowMessage
-   //   ("===> after ChangeView() mfCamRotXYZAngle=%f, %f, %f\n",
-   //    mfCamRotXAngle, mfCamRotYAngle, mfCamRotZAngle);
-   
-   //=======================================================
-   #endif
-   //=======================================================
-}
-
-
-//------------------------------------------------------------------------------
-// void ZoomIn()
-//------------------------------------------------------------------------------
-/**
- * Zoom in the picture.
- */
-//------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ZoomIn()
-{
-   #if DEBUG_TRAJCANVAS_ZOOM
-   MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::ZoomIn() mAxisLength=%f, mMaxZoomIn=%f\n",
-       mAxisLength, mMaxZoomIn);
-   #endif
-
-   Real realDist = (mAxisLength - mZoomAmount) / log(mAxisLength);
-
-   if (mUsePerspectiveMode)
-   {
-      if (mAxisLength > mMaxZoomIn/mFovDeg*4)
-      {
-         mAxisLength = mAxisLength - realDist;
-         
-         if (mAxisLength < mObjectRadius[mOriginId]/2.0)
-            mAxisLength = mObjectRadius[mOriginId]/2.0;
-         
-         ChangeProjection(mCanvasSize.x, mCanvasSize.y, mAxisLength);
-      }
-   }
-   else
-   {
-      if (mAxisLength > mMaxZoomIn)
-      {
-         mAxisLength = mAxisLength - realDist;
-
-         if (mAxisLength < mMaxZoomIn)
-            mAxisLength = mMaxZoomIn;
-   
-         ChangeProjection(mCanvasSize.x, mCanvasSize.y, mAxisLength);
-      }
-   }
-   
-   Refresh(false);
-}
-
-
-//------------------------------------------------------------------------------
-// void ZoomOut()
-//------------------------------------------------------------------------------
-/**
- * Zoom out the picture.
- */
-//------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ZoomOut()
-{
-   // the further object is the faster zoom out
-   Real realDist = (mAxisLength + mZoomAmount) / log(mAxisLength);
-   mAxisLength = mAxisLength + realDist;
-
-   ChangeProjection(mCanvasSize.x, mCanvasSize.y, mAxisLength);
-    
-   Refresh(false);
-}
-
 
 //------------------------------------------------------------------------------
 // void DrawWireFrame(bool flag)
@@ -958,6 +848,7 @@ void Enhanced3DViewCanvas::GotoObject(const wxString &objName)
    {
       //int index = objId * MAX_DATA * 3 + (mNumData-1) * 3;
       int index = objId * MAX_DATA * 3 + mLastIndex * 3;
+
       // compute mAxisLength
       Rvector3 pos(mObjectViewPos[index+0], mObjectViewPos[index+1],
                    mObjectViewPos[index+2]);
@@ -1062,7 +953,7 @@ void Enhanced3DViewCanvas::SetGlObject(const StringArray &objNames,
    else
    {
       MessageInterface::ShowMessage("Enhanced3DViewCanvas::SetGlObject() object sizes "
-                                    "are not the same. No ojbects added.\n");
+                                    "are not the same. No objects added.\n");
    }
    
    #if DEBUG_TRAJCANVAS_OBJECT
@@ -1123,8 +1014,8 @@ void Enhanced3DViewCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
    mViewObjId = mOriginId;
    
    // if view coordinate system origin is spacecraft, make spacecraft radius smaller.
-   // So that spapcecraft won't overlap each other.
-   //@todo: need better way to scale spacecraft size.
+   // So that spacecraft won't overlap each other.
+   //@todo: need better way to scale spacecraft size.  See Dunn's comments above.
    if (viewCs->GetOrigin()->IsOfType(Gmat::SPACECRAFT))
       mScRadius = 30;
    else if (viewCs->GetOrigin()->IsOfType(Gmat::CELESTIAL_BODY))
@@ -1290,20 +1181,6 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
              "so will use default Vector instead.\n");
    }
    
-   // Set view up direction
-   if (mViewUpAxisName == "X")
-      mUpState.Set(-1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-   else if (mViewUpAxisName == "-X")
-      mUpState.Set(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-   else if (mViewUpAxisName == "Y")
-      mUpState.Set(0.0, -1.0, 0.0, 0.0, 0.0, 0.0);
-   else if (mViewUpAxisName == "-Y")
-      mUpState.Set(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
-   else if (mViewUpAxisName == "Z")
-      mUpState.Set(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-   else if (mViewUpAxisName == "-Z")
-      mUpState.Set(0.0, 0.0, -1.0, 0.0, 0.0, 0.0);
-   
 } //end SetGlViewOption()
 
 
@@ -1345,7 +1222,7 @@ void Enhanced3DViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArra
    #endif
    
    bool show;
-   mSunPresent = false;
+   mSunPresent = true;//false;
    
    for (int i=0; i<mObjectCount; i++)
    {
@@ -1378,14 +1255,14 @@ void Enhanced3DViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArra
       glFrontFace(GL_CCW);
       
       // enable face culling, so that polygons facing away (defines by front face)
-      // from the viewer aren't drawn (for efficieny).
+      // from the viewer aren't drawn (for efficiency).
       glEnable(GL_CULL_FACE);
 
       // create a light:
       float lightColor[4]={1.0f, 1.0f, 1.0f, 1.0f};
       
-      glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, lightColor);
-      glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor);
+      //glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, lightColor);
+      //glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor);
       
       // enable the light
       glEnable(GL_LIGHTING);
@@ -1396,10 +1273,13 @@ void Enhanced3DViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArra
       
       // ..the front face's ambient and diffuse components
       glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+		// Set the ambient lighting
+		GLfloat ambient[4] = {0.4f, 0.4f, 0.4f, 1.0f};
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
       //----------------------------------------------------------------------
    }
    #endif
-   
 }
 
 
@@ -1491,7 +1371,7 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
       UpdateSolverData(posX, posY, posZ, scColors, solving);
    
    // If drawing solver's current iteration and no run data has been
-   // bufferred up, save up to 2 points so that it will still go through
+   // buffered up, save up to 2 points so that it will still go through
    // view projection transformation to show other objects.
    if (solverOption == 1 && solving && mNumData > 1)
       return;
@@ -1554,19 +1434,28 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
    #endif
    
    mTime[mLastIndex] = time;
-   Real mha, longitude, lst;
-   ComputeLongitudeLst(mTime[mLastIndex], posX[0], posY[0], &mha, &longitude, &lst);
+
+   // Dunn notes the variable "longitude" below is declared elsewhere in this
+   // file.  Even if the other "longitude" is protected, it should probably
+   // have a different name.  This is the SECOND place longitude is declared.
+   Real mha, longitude2, lst;
+
+   // Dunn notes that "longitude2" which is his new name for a variable that was
+   // declared with the same name multiple places, is set below to mInitialLongitude.
+   // In ComputerLongitudeLst, this variable is a function of BOTH earth orientation
+   // and the location in ECI space of the spacecraft.
+   ComputeLongitudeLst(mTime[mLastIndex], posX[0], posY[0], &mha, &longitude2, &lst);
    
    #if DEBUG_TRAJCANVAS_LONGITUDE
    MessageInterface::ShowMessage
-      ("   time=%f, mLastIndex=%d, mha=%f, longitude=%f, lst = %f\n",
-       mTime[mLastIndex], mLastIndex, mha, longitude, lst);
+      ("   time=%f, mLastIndex=%d, mha=%f, longitude2=%f, lst = %f\n",
+       mTime[mLastIndex], mLastIndex, mha, longitude2, lst);
    #endif
    
    // if beginning of the plot
    if (mNumData == 0)
    {
-      mInitialLongitude = longitude;
+      mInitialLongitude = longitude2;
       mInitialMha = mha;
       #if DEBUG_TRAJCANVAS_LONGITUDE
       MessageInterface::ShowMessage
@@ -1582,9 +1471,66 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
    // update non-spacecraft objects position
    UpdateOtherData(time);
    
+   // Dunn took out minus signs below to position vectors correctly in the 
+   // ECI reference frame.
+   //
 //    if (mNumData < MAX_DATA)
 //       mNumData++;
-   
+	if (!viewPointInitialized || mUseInitialViewPoint){
+		wxString name;
+		int objId;
+		int index;
+		Rvector3 reference, viewpoint, direction;
+
+		if (mUseViewPointRefVector){
+			reference = mViewPointRefVector;
+		}
+		else{
+			name = pViewPointRefObj->GetName().c_str();
+			objId = GetObjectId(name);
+			index = objId * MAX_DATA * 3 + (mLastIndex*3);
+			reference = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
+		}
+
+		if (mUseViewPointVector){
+			viewpoint = mViewPointVector;
+		}
+		else{
+			name = pViewPointVectorObj->GetName().c_str();
+			objId = GetObjectId(name);
+			index = objId * MAX_DATA * 3 + (mLastIndex*3);
+			viewpoint = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
+		}
+
+		if (mUseViewDirectionVector){
+			direction = mViewDirectionVector;
+		}
+		else{
+			name = pViewDirectionObj->GetName().c_str();
+			objId = GetObjectId(name);
+			index = objId * MAX_DATA * 3 + (mLastIndex*3);
+			direction = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
+		}
+
+		mCamera.Reset();
+		if (mViewUpAxisName == "X")
+			mCamera.up = Rvector3(1.0, 0.0, 0.0);
+		else if (mViewUpAxisName == "-X")
+			mCamera.up = Rvector3(-1.0, 0.0, 0.0);
+		else if (mViewUpAxisName == "Y")
+			mCamera.up = Rvector3(0.0, 1.0, 0.0);
+		else if (mViewUpAxisName == "-Y")
+			mCamera.up = Rvector3(0.0, -1.0, 0.0);
+		else if (mViewUpAxisName == "Z")
+			mCamera.up = Rvector3(0.0, 0.0, 1.0);
+		else if (mViewUpAxisName == "-Z")
+			mCamera.up = Rvector3(0.0, 0.0, -1.0);
+		mCamera.Relocate(reference+viewpoint, direction);
+		mCamera.ReorthogonalizeVectors();
+
+		viewPointInitialized = true;
+	}
+
 }
 
 
@@ -1654,7 +1600,11 @@ void Enhanced3DViewCanvas::AddObjectList(const wxArrayString &objNames,
       
       // initialize show object
       mShowObjectMap[objNames[i]] = true;
-      mShowOrbitNormalMap[objNames[i]] = false;
+
+      // This variable can be set to true to show Orbit Normals.  There is no way 
+      // as of July 2010 to call for Orbit Normals from the GUI.  This is a hard 
+      // wired flag.  Dunn set it to true.
+      mShowOrbitNormalMap[objNames[i]] = false;//true;
       
       // initialize object color
       rgb.Set(objColors[i]);
@@ -1763,9 +1713,9 @@ int Enhanced3DViewCanvas::ReadTextTrajectory(const wxString &filename)
    }
    
    // initialize GL
-   if (!InitGL())
+   if (!InitOpenGL())
    {
-      wxMessageDialog msgDialog(this, _T("InitGL() failed"),
+      wxMessageDialog msgDialog(this, _T("InitOpenGL() failed"),
                                 _T("ReadTextTrajectory File"));
       msgDialog.ShowModal();
       return false;
@@ -1794,7 +1744,8 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
    #endif
    
    #ifdef __USE_WX280_GL__
-   SetCurrent(*m_glContext);
+   theContext->SetCurrent(*this);
+   SetCurrent(*theContext);
    #else
    SetCurrent();
    #endif
@@ -1802,11 +1753,37 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
    #ifdef __USE_WX280_GL__
    if (!mGlInitialized)
    {
-      InitGL();
+      InitOpenGL();
       mGlInitialized = true;
    }
    #endif
    
+   // set OpenGL to recognize the counter clockwise defined side of a polygon
+   // as its 'front' for lighting and culling purposes
+   glFrontFace(GL_CCW);
+      
+   // enable face culling, so that polygons facing away (defines by front face)
+   // from the viewer aren't drawn (for efficiency).
+   glEnable(GL_CULL_FACE);
+
+   // tell OpenGL to use glColor() to get material properties for..
+   glEnable(GL_COLOR_MATERIAL);
+
+   // ..the front face's ambient and diffuse components
+   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+	// Set the ambient lighting
+	GLfloat ambient[4] = {0.4f, 0.4f, 0.4f, 1.0f};
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+
+   int nWidth, nHeight;
+   GetClientSize(&nWidth, &nHeight);
+   glViewport(0, 0, nWidth, nHeight);
+   
+	GLUquadricObj *qobj = gluNewQuadric();
+	for (int i = 10; i < 110; i  += 10)
+		DrawCircle(qobj, i);
+
    if (mDrawWireFrame)
    {
       glPolygonMode(GL_FRONT, GL_LINE);
@@ -1858,7 +1835,8 @@ void Enhanced3DViewCanvas::OnTrajSize(wxSizeEvent& event)
       ChangeProjection(nWidth, nHeight, mAxisLength);
       
       #ifdef __USE_WX280_GL__
-      SetCurrent(*m_glContext);
+      theContext->SetCurrent(*this);
+      SetCurrent(*theContext);
       #else
       SetCurrent();
       #endif
@@ -1930,57 +1908,29 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
              mfCamRotXAngle, mfCamRotYAngle, mfCamRotZAngle);
          #endif
          
-         if (mUsePerspectiveMode)
-         {
+         
             // always look at from Z for rotation and zooming
             mfCamTransX = 0.0;
             mfCamTransY = 0.0;
             mfCamTransZ = -mVpLocVec.GetMagnitude();
          }
-      }
-      #endif
-      
-      
-      //loj: 3/22/06
-      // When USE_TRACKBALL: This code is trying to compute quaternion of last
-      // plot transformation so that the plot can stay in the same orientation
-      // when user clicks it after run completes.
-      #ifdef USE_TRACKBALL
-      if (!mUseSingleRotAngle)
-      {
-         // Get last modelview matrix and compute quat
-         GLfloat mvMat[16];//, mvQ[4];
-         glGetFloatv(GL_MODELVIEW_MATRIX, mvMat);
-         FloatAttUtil::ToQuat(mQuat, mvMat);
-         
-         #if DEBUG_ROTATE
-         MessageInterface::ShowMessage
-            ("OnMouse() Final mvMat=\n%f, %f, %f, %f\n%f, %f, %f, %f\n"
-             "%f, %f, %f, %f\n%f, %f, %f, %f\n",
-             mvMat[0], mvMat[1], mvMat[2], mvMat[3], mvMat[4], mvMat[5],
-             mvMat[6], mvMat[8], mvMat[8], mvMat[9], mvMat[10], mvMat[11],
-             mvMat[12], mvMat[13], mvMat[14], mvMat[15]);
-         MessageInterface::ShowMessage
-            ("OnMouse=% f, % f, % f, % f\n", mQuat[0], mQuat[1], mQuat[2],
-             mQuat[3]);
-         #endif
-         
-      }
       #endif
       
    }
-   
    //if mouse dragging
    if (event.Dragging())
    {
       //------------------------------
       // translating
       //------------------------------
-      if (event.ShiftDown() && event.LeftIsDown())
+      if ((mControlMode != MODE_ASTRONAUT_6DOF && event.ShiftDown() && event.LeftIsDown()) ||
+         (mControlMode == MODE_ASTRONAUT_6DOF && event.LeftIsDown()))
       {
          // Do a X/Y Translate of the camera
-         mfCamTransX += (fEndX - mfStartX);
-         mfCamTransY += (fEndY - mfStartY);
+         mfCamTransX = (fEndX - mfStartX) * mInversion;
+         mfCamTransY = (fEndY - mfStartY) * mInversion;
+
+         mCamera.Translate(mfCamTransX, mfCamTransY, 0.0, true);
          
          // repaint
          Refresh(false);
@@ -1988,17 +1938,61 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
       //------------------------------
       // rotating
       //------------------------------
-      else if (event.LeftIsDown())
+      else if ((mControlMode != MODE_ASTRONAUT_6DOF && event.LeftIsDown()) ||
+         (mControlMode == MODE_ASTRONAUT_6DOF && event.RightIsDown()))
       {
-         RotatePlot(width, height, mouseX, mouseY);
+         // PS - Attempting a new form of view rotation
+         //   Rather than apply a rotation based on quaternions and all of that
+         //   complication, we move the camera position based
+         //   on the mouse movement. 
+         // The angles used are based on how far the mouse moved
+         float angleX = (mLastMouseX - mouseX) / 400.0 * mInversion,
+            angleY = (mLastMouseY - mouseY) / 400.0 * mInversion;
+         if (mControlMode == 0){
+            mCamera.Rotate(angleX, angleY, 0.0, false, true);
+         }
+         else{
+            mCamera.Rotate(angleX, angleY, 0.0, false, false);
+         }
          
          // repaint
          Refresh(false); 
+         
       }
       //------------------------------
-      // zooming
+      // translating forward and backward
       //------------------------------
-      else if (event.RightIsDown())
+      /*else if (mControlMode != MODE_ASTRONAUT_6DOF && event.ShiftDown() && event.RightIsDown())
+      {
+         // find the length
+         Real length = mLastMouseY - mouseY;
+         length *= 100;
+         mCamera.Translate(0.0, 0.0, length, true);
+
+         Refresh(false);
+      }*/
+      //------------------------------
+		// FOV Zoom
+      //------------------------------
+		else if (event.ShiftDown() && event.RightIsDown()){
+			Real x2 = Pow(mLastMouseX - mouseX, 2);
+         Real y2 = Pow(mouseY - mLastMouseY, 2);
+         Real length = sqrt(x2 + y2);
+
+			Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
+
+         mZoomAmount = length * distance / 1000000;
+			if (mouseY > mLastMouseY)
+				mCamera.ZoomOut(mZoomAmount);
+			else
+				mCamera.ZoomIn(mZoomAmount);
+
+			Refresh(false);
+		}
+      //------------------------------
+      // "zooming"
+      //------------------------------
+      else if (mControlMode != MODE_ASTRONAUT_6DOF && event.RightIsDown())
       {            
          // if end-of-run compute new mfCamRotXYZAngle by calling ChangeView()
          if (mIsEndOfRun)
@@ -2009,31 +2003,75 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
          // Changed pow to GmatMathUtil::Pow();
          
          // find the length
-         Real x2 = Pow(mouseX - mLastMouseX, 2);
+         Real x2 = Pow(mLastMouseX - mouseX, 2);
          Real y2 = Pow(mouseY - mLastMouseY, 2);
          Real length = sqrt(x2 + y2);
-         mZoomAmount = length * 100;
+
+			Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
+
+         mZoomAmount = length * distance / 500;
          
          if (mouseX < mLastMouseX && mouseY > mLastMouseY)
          {
             // dragging from upper right corner to lower left corner
-            ZoomIn();
+				mCamera.Translate(0, 0, mZoomAmount, false);
+            //mCamera.ZoomIn(mZoomAmount);
          }
          else if (mouseX > mLastMouseX && mouseY < mLastMouseY)
          {
             // dragging from lower left corner to upper right corner
-            ZoomOut();
+				mCamera.Translate(0, 0, -mZoomAmount, false);
+            //mCamera.ZoomOut(mZoomAmount);
          }
          else
          {
             // if mouse moves toward left then zoom in
             if (mouseX < mLastMouseX || mouseY < mLastMouseY)
-               ZoomIn();
+					mCamera.Translate(0, 0, mZoomAmount, false);
+               //mCamera.ZoomIn(mZoomAmount);
             else
-               ZoomOut();
-         }         
+					mCamera.Translate(0, 0, -mZoomAmount, false);
+               //mCamera.ZoomOut(mZoomAmount);
+         }
+
+         Refresh(false);
       }
+      //------------------------------
+      // roll
+      //------------------------------
+      else if (event.MiddleIsDown()){
+         float roll = (mouseY - mLastMouseY) / 400.0 * mInversion;
+         if (mControlMode == MODE_CENTERED_VIEW){
+            mCamera.Rotate(0.0, 0.0, roll, false, true);
+         }
+         else
+            mCamera.Rotate(0.0, 0.0, roll, false, false);
+         Refresh(false);
+      }
+   }
+   // Mousewheel movements
+   else if (event.GetWheelRotation() != 0 && mControlMode == MODE_ASTRONAUT_6DOF){
+      float rot = event.GetWheelRotation();
+		Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
+      Real movement = rot * distance / 3000;
+
+      if (event.ShiftDown() && rot > 0){
+         mCamera.ZoomIn(1);
+      }
+      else if (event.ShiftDown() && rot < 0){
+         mCamera.ZoomOut(1);
+      }
+      else if (rot > 0){
+         mCamera.Translate(0.0, 0.0, movement, true);
+      }
+      else if (rot < 0){
+         mCamera.Translate(0.0, 0.0, movement, true);
+      }
+      Refresh(false);
    } // end if (event.Dragging())
+   
+   // ensures the directional vectors for the viewpoint are still orthogonal
+   mCamera.ReorthogonalizeVectors();
    
    // save last position
    mLastMouseX = mouseX;
@@ -2042,16 +2080,14 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
    mfStartX = fEndX;
    mfStartY = fEndY;
    
-   #ifdef __WRITE_GL_MOUSE_POS__
    wxString mousePosStr;
+   //mousePosStr.Printf("X = %g Y = %g", fEndX, fEndY);
    mousePosStr.Printf("X = %g Y = %g mouseX = %d, mouseY = %d",
                       fEndX, fEndY, mouseX, mouseY);   
    theStatusBar->SetStatusText(mousePosStr, 2);
    //wxLogStatus(MdiGlPlot::mdiParentGlFrame,
    //            wxT("X = %d Y = %d lastX = %f lastY = %f Zoom amount = %f Distance = %f"),
    //            event.GetX(), event.GetY(), mfStartX, mfStartY, mZoomAmount, mAxisLength);
-   #endif
-   
    event.Skip();
 }
 
@@ -2066,8 +2102,51 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
 void Enhanced3DViewCanvas::OnKeyDown(wxKeyEvent &event)
 {
    int keyDown = event.GetKeyCode();
-   if (keyDown == WXK_ESCAPE)
+   if (keyDown == 'w' || keyDown == 'W'){
+      mCamera.Translate(0.0, 0.0, 300, true);
+   }
+   else if (keyDown == 's' || keyDown == 'S'){
+      mCamera.Translate(0.0, 0.0, -300, true);
+   }
+   else if (keyDown == 'a' || keyDown == 'A'){
+      mCamera.Translate(-300, 0.0, 0.0, true);
+   }
+   else if (keyDown == 'd' || keyDown == 'D'){
+      mCamera.Translate(300, 0.0, 0.0, true);
+   }
+   else if (keyDown == 'z' || keyDown == 'Z'){
+      if (event.ShiftDown()){
+         mControlMode = MODE_ASTRONAUT_6DOF;
+      }
+      else{
+         if (mControlMode == MODE_ASTRONAUT_6DOF)
+            mControlMode = MODE_FREE_FLYING;
+         else {
+            mControlMode = 1 - mControlMode;
+         }
+      }
+   }
+   else if (keyDown == 'i' || keyDown == 'I'){
+      mInversion *= -1;
+   }
+   /*else if (keyDown == 't' || keyDown == 'T'){
+      if (mCamera.TrackingMode() == 1)
+         mCamera.Untrack();
+      else
+         mCamera.TrackStill(0);
+   }
+   else if (keyDown == 'f' || keyDown == 'F'){
+      if (mCamera.TrackingMode() == 2)
+         mCamera.Untrack();
+      else
+         mCamera.TrackFollow(0);
+   }*/
+   else if (keyDown == WXK_ESCAPE)
       mHasUserInterrupted = true;
+   
+   // ensures the directional vectors for the viewpoint are still orthogonal
+   mCamera.ReorthogonalizeVectors();
+   Refresh(false);
 }
 
 
@@ -2178,9 +2257,11 @@ void Enhanced3DViewCanvas::InitializeViewPoint()
    pViewDirectionObj = NULL;
    
    mViewPointRefVector.Set(0.0, 0.0, 0.0);
-   mViewPointVector.Set(0.0, 0.0, 30000.0);
+   mViewPointVector.Set(DEFAULT_DIST, 0.0, 0.0);
    mViewDirectionVector.Set(0.0, 0.0, -1.0);
-   mVpLocVec.Set(0.0, 0.0, 30000.0);
+   //mCamera.Reset();
+   //mCamera.Relocate(DEFAULT_DIST, 0.0, 0.0, 0.0, 0.0, 0.0);
+
    mViewScaleFactor = 1.0;
    mUseViewPointRefVector = true;
    mUseViewPointVector = true;
@@ -2398,8 +2479,8 @@ void Enhanced3DViewCanvas::SetProjection()
 //------------------------------------------------------------------------------
 /**
  * Sets world view as orthographic projection. With an orthographic projection,
- * the viewing volumn is a rectangular parallelepiped. Unlike perspective
- * projection, the size of the viewing volumn doesn't change from one end to the
+ * the viewing volume is a rectangular parallelepiped. Unlike perspective
+ * projection, the size of the viewing volume doesn't change from one end to the
  * other, so distance from the camera doesn't affect how large a object appears.
  */
 //------------------------------------------------------------------------------
@@ -2420,59 +2501,28 @@ void Enhanced3DViewCanvas::SetupWorld()
           "mfTopPos=%f\n   mfViewNear=%f, mfViewFar=%f\n", mfLeftPos, mfRightPos,
           mfBottomPos, mfTopPos, mfViewNear, mfViewFar);
    }
-   #endif
+   #endif 
+      
+	// Setup how we view the world
+   GLfloat aspect = (GLfloat)mCanvasSize.x / (GLfloat)mCanvasSize.y;
    
-   if (mUsePerspectiveMode)
+   #if DEBUG_TRAJCANVAS_PERSPECTIVE
+   if (mUseSingleRotAngle)
    {
-      
-      // Setup how we view the world
-      GLfloat aspect = (GLfloat)mCanvasSize.x / (GLfloat)mCanvasSize.y;
-      
-      Real size = GmatMathUtil::Sqrt(mfRightPos * mfRightPos +
-                                     mfTopPos   * mfTopPos);
-      
-      Real dist = mVpLocVec.GetMagnitude();      
-      mViewObjRadius = mObjectDefaultRadius;
-      
-      if (mUseFixedFov && mUseSingleRotAngle)
-      {
-         mFovDeg = mFixedFovAngle;
-      }
-      else
-      {
-         if (!mUseViewDirectionVector && pViewDirectionObj != NULL)
-         {
-            // if showing view object
-            if (mShowObjectMap[mViewObjName])
-               mViewObjRadius = mObjectRadius[mViewObjId];
-         }
-         
-         // compute fov angle
-         mFovDeg = 2.0 * ATan(size/2.0, dist + mViewObjRadius) * DEG_PER_RAD;
-      }
-      
-      Real ratio = dist / mAxisLength;
-      
-      #if DEBUG_TRAJCANVAS_PERSPECTIVE
-      if (mUseSingleRotAngle)
-      {
-         MessageInterface::ShowMessage
-            ("   mAxisLength=%f, size=%f, dist=%f, mViewObjRadius=%f\n   "
-             "mFovDeg=%f, ratio=%f, \n", mAxisLength, size, dist, mViewObjRadius,
-             mFovDeg, ratio);
-      }
-      #endif
-      
-      //Add ratio to prevent near side clipping
-      gluPerspective(mFovDeg, aspect, mAxisLength/(mFovDeg*15), mAxisLength * mFovDeg * ratio);
-      
-      //glFrustum(mfLeftPos, mfRightPos, mfViewBottom, mfTopPos, mAxisLength, mfViewFar*mAxisLength);
+		MessageInterface::ShowMessage
+      ("   mAxisLength=%f, size=%f, dist=%f, mViewObjRadius=%f\n   "
+			"mFovDeg=%f, ratio=%f, \n", mAxisLength, size, dist, mViewObjRadius,
+         mFovDeg, ratio);
    }
-   else
-   {
-      // Setup how we view the world
-      glOrtho(mfLeftPos, mfRightPos, mfBottomPos, mfTopPos, mfViewNear, mfViewFar);
-   }
+   #endif
+      
+   // PS - Greatly simplified. Uses the FOV from the active camera, the aspect ratio of the screen,
+   //       and a constant near-far plane
+	float distance = (mCamera.position - mCamera.view_center).GetMagnitude() * 2;
+	if (500000000.0f > distance)
+		distance = 500000000.0f;
+
+   gluPerspective(mCamera.fovDeg, aspect, 50.0f, distance);
    
    //-----------------------------------------------------------------
    // Note: mouse rotation is applied in TransformView as MODELVIEW mode
@@ -2571,7 +2621,7 @@ void Enhanced3DViewCanvas::ChangeView(float viewX, float viewY, float viewZ)
 //------------------------------------------------------------------------------
 /**
  * Changes view projection by viewing area in pixel and axis length in
- * orghographic projection.
+ * orthographic projection.
  */
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::ChangeProjection(int width, int height, float axisLength)
@@ -2625,6 +2675,9 @@ void Enhanced3DViewCanvas::ChangeProjection(int width, int height, float axisLen
 //------------------------------------------------------------------------------
 /**
  * Computes viewing vectors using viewing options.
+ * PS - Much of this is deprecated, since most of the vector usage is in the
+ *       Camera class, which is external
+ *      Consider removing quite a bit
  */
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::ComputeViewVectors()
@@ -2672,7 +2725,7 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
    //-----------------------------------------------------------------
    // get viewpoint vector
    //-----------------------------------------------------------------
-   mVpVec = mViewPointVector;
+   //mVpVec = mViewPointVector;
    
    if (!mUseViewPointVector && pViewPointVectorObj != NULL)
    {
@@ -2691,21 +2744,21 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
             index = mVpVecObjId * MAX_DATA * 3 + frame * 3;
             
             // if look at from object, negate it so that we can see the object
-            mVpVec.Set(-mObjectViewPos[index+0],
+            /*mVpVec.Set(-mObjectViewPos[index+0],
                        -mObjectViewPos[index+1],
                        -mObjectViewPos[index+2]);
 
             // set z component to zero so that plane doesn't move up and down
-            mVpVec[2] = 0.0;
+            mVpVec[2] = 0.0;*/
             
          }
          else
          {
             index = mVpVecObjId * MAX_DATA * 3 + frame * 3;
             
-            mVpVec.Set(mObjectViewPos[index+0],
+            /*mVpVec.Set(mObjectViewPos[index+0],
                        mObjectViewPos[index+1],
-                       mObjectViewPos[index+2]);
+                       mObjectViewPos[index+2]);*/
          }
       }
       else
@@ -2719,12 +2772,12 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
    //-----------------------------------------------------------------
    // get viewpoint location
    //-----------------------------------------------------------------
-   mVpLocVec = mVpRefVec + (mViewScaleFactor * mVpVec);
+   //mVpLocVec = mVpRefVec + (mViewScaleFactor * mVpVec);
    
    //-----------------------------------------------------------------
    // get view direction and view center vector
    //-----------------------------------------------------------------
-   mVdVec = mViewDirectionVector;
+   //mVdVec = mViewDirectionVector;
    
    if (!mUseViewDirectionVector && pViewDirectionObj != NULL)
    {
@@ -2738,20 +2791,20 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
       // just look opposite side
       if (pViewDirectionObj->GetName() == mViewPointRefObjName)
       {
-         mVdVec = -mVpLocVec;
+         //mVdVec = -mVpLocVec;
       }
       else if (mVdirObjId != UNKNOWN_OBJ_ID)
       {
          index = mVdirObjId * MAX_DATA * 3 + frame * 3;
          
          // for efficiency, body data are computed in UpdatePlot() once.
-         mVdVec.Set(mObjectViewPos[index+0],
+         /*mVdVec.Set(mObjectViewPos[index+0],
                     mObjectViewPos[index+1],
                     mObjectViewPos[index+2]);
          
          // check for 0.0 direction 
          if (mVdVec.GetMagnitude() == 0.0)
-            mVdVec = mViewDirectionVector;
+            mVdVec = mViewDirectionVector;*/
       }
       else
       {
@@ -2762,7 +2815,7 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
    }
    
    // set view center vector for gluLookAt()
-   mVcVec = mVdVec;
+   //mVcVec = mVdVec;
    
    #if DEBUG_TRAJCANVAS_PROJ
    MessageInterface::ShowMessage
@@ -2782,22 +2835,22 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
    // Initially use mVpLocVec and later use changed value by mouse zoom-in/out.
    // This will use scale factor correctly for data points are less than
    // update frequency.
-   if (mNumData <= mUpdateFrequency)
-      mAxisLength = mVpLocVec.GetMagnitude();
+   //if (mNumData <= mUpdateFrequency)
+      //mAxisLength = mVpLocVec.GetMagnitude();
    
    // if mAxisLength is too small, set to max zoom in value
    if (mAxisLength < mMaxZoomIn)
       mAxisLength = mMaxZoomIn;
    
    // compute camera rotation angle
-   Real vdMag = mVdVec.GetMagnitude();
+   //Real vdMag = mVdVec.GetMagnitude();
    
-   mfCamSingleRotAngle = ACos(-(mVdVec[2]/vdMag)) * DEG_PER_RAD;
+   //mfCamSingleRotAngle = ACos(-(mVdVec[2]/vdMag)) * DEG_PER_RAD;
    
    // compute axis of rotation
-   mfCamRotXAxis =  mVdVec[1];
-   mfCamRotYAxis = -mVdVec[0];
-   mfCamRotZAxis = 0.0;
+   //mfCamRotXAxis =  mVdVec[1];
+   //mfCamRotYAxis = -mVdVec[0];
+   //mfCamRotZAxis = 0.0;
    mUseSingleRotAngle = true;
    
    ComputeUpAngleAxis();
@@ -2814,6 +2867,7 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
 
 //------------------------------------------------------------------------------
 // void ComputeUpAngleAxis()
+//    PS - Also pretty deprecated
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::ComputeUpAngleAxis()
 {
@@ -2828,39 +2882,6 @@ void Enhanced3DViewCanvas::ComputeUpAngleAxis()
       mCoordConverter.Convert(mTime[frame], mUpState, pViewUpCoordSystem,
                               upOutState, pViewCoordSystem);
    }
-   
-   mUpVec.Set(upOutState(0), upOutState(1), upOutState(2));
-   
-   // If view up and view direction is the same axis, change view direction,
-   // so it can show up direction correctly even for gluLookAt.
-   
-   Rvector3 vdUnit = mVdVec.GetUnitVector();
-   Real upDotView = mUpVec * vdUnit;
-   //MessageInterface::ShowMessage("===> upDotView = %f\n", upDotView);
-   
-   if (Abs(upDotView) == 1.0)
-   {
-      //MessageInterface::ShowMessage("===> mUpVec and mVdVec are on the same axis.\n");
-      
-      if (Abs(mUpVec[0]) > 0.0)
-         mVcVec = Cross(mUpVec, Rvector3(0.0, -1.0, 0.0));
-      else if (Abs(mUpVec[1]) > 0.0)
-         mVcVec = Cross(mUpVec, Rvector3(0.0, 0.0, -1.0));
-      else
-         mVcVec = Cross(mUpVec, Rvector3(-1.0, 0.0, 0.0));
-
-      mVdVec = Cross(mVdVec, mVcVec);
-
-      // if using gluLookAt, we don't want view point and view up direction line up
-      if (mUseGluLookAt)
-         mVpLocVec = -mVdVec;
-   }
-   
-   // DJC added for "Up"   
-   mfUpAngle = atan2(mVdVec[1],mVdVec[0]) * DEG_PER_RAD + 90.0;
-   mfUpXAxis = mVdVec[0];
-   mfUpYAxis = mVdVec[1];
-   mfUpZAxis = mVdVec[2];
    
    #if DEBUG_TRAJCANVAS_PROJ
    MessageInterface::ShowMessage
@@ -2880,7 +2901,7 @@ void Enhanced3DViewCanvas::ComputeUpAngleAxis()
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::TransformView()
 {
-   #if DEBUG_TRAJPLOTCANVAS_DRAW
+   #if DEBUG_Enhanced3DViewCanvas_DRAW
    MessageInterface::ShowMessage
       ("==> Enhanced3DViewCanvas::TransformView() mUseSingleRotAngle=%d, "
        "mUseGluLookAt=%d, mIsEndOfData=%d, mIsEndOfRun=%d\n", mUseSingleRotAngle,
@@ -2889,50 +2910,14 @@ void Enhanced3DViewCanvas::TransformView()
    
    glLoadIdentity();
    
-   if (mUseSingleRotAngle)
-   {
       //MessageInterface::ShowMessage("==> TransformView() call gluLookAt()\n");
       
-      //glLoadIdentity();
       
       if (mUseGluLookAt)
       {
-         //-----------------------------------------------------------
-         // To fix Earth Z-axis flipping when looking at from SC
-         //-----------------------------------------------------------         
-         if (mViewUpAxisName == "X")
-         {
-            if (mVpLocVec[1] < 0)
-               mUpVec.Set(1.0, 0.0, 0.0);
-         }
-         else if (mViewUpAxisName == "-X")
-         {
-            if (mVpLocVec[1] < 0)
-               mUpVec.Set(-1.0, 0.0, 0.0);
-         }
-         else if (mViewUpAxisName == "Y")
-         {
-            if (mVpLocVec[0] < 0)
-               mUpVec.Set(0.0, 1.0, 0.0);
-         }
-         else if (mViewUpAxisName == "-Y")
-         {
-            if (mVpLocVec[0] < 0)
-               mUpVec.Set(0.0, -1.0, 0.0);
-         }
-         
-         //MessageInterface::ShowMessage
-         //   ("===> mVpLocVec=%s, mVcVec=%s, mUpVec=%s\n",
-         //    mVpLocVec.ToString().c_str(), mVcVec.ToString().c_str(),
-         //    mUpVec.ToString().c_str());
-         
-         //-------------------------------------------------
-         // use gluLookAt()
-         //-------------------------------------------------
-         gluLookAt(mVpLocVec[0], mVpLocVec[1], mVpLocVec[2],
-                   mVcVec[0], mVcVec[1], mVcVec[2],
-                   mUpVec[0], mUpVec[1], mUpVec[2]);
-
+			gluLookAt(mCamera.position[0], mCamera.position[1], mCamera.position[2],
+            mCamera.view_center[0], mCamera.view_center[1], mCamera.view_center[2],
+            mCamera.up[0], mCamera.up[1], mCamera.up[2]);
       }
       else
       {
@@ -2945,19 +2930,6 @@ void Enhanced3DViewCanvas::TransformView()
                            
       } //if (mUseGluLookAt)
 
-   } //if (mUseSingleRotAngle)
-   
-   //-------------------------------------------------
-   // add current user mouse rotation
-   //-------------------------------------------------
-   #ifdef USE_TRACKBALL      
-      GLfloat m[4][4];
-      BuildRotMatrix(m, mQuat);
-      glMultMatrixf(&m[0][0]);      
-   #else      
-      ApplyEulerAngles();      
-   #endif
-      
 } // end TransformView()
 
 
@@ -2998,6 +2970,7 @@ void Enhanced3DViewCanvas::DrawFrame()
    int numberOfData = mNumData;
    mIsEndOfData = false;
    mIsEndOfRun = false;
+	mCurrIndex = 0;
    
    // refresh every 50 points (Allow user to set frame this increment?)
    for (int frame=1; frame<numberOfData; frame+=mFrameInc)
@@ -3019,6 +2992,26 @@ void Enhanced3DViewCanvas::DrawFrame()
       Sleep(mUpdateInterval);
       
       mNumData = frame;
+		mCurrIndex++;
+      
+      if (mCurrIndex < MAX_DATA)
+      {
+         mEndIndex1 = mNumData - 1;
+         if (mEndIndex2 != -1)
+         {
+            mBeginIndex1++;
+            if (mBeginIndex1 + 1 > MAX_DATA)
+               mBeginIndex1 = 0;
+            
+            mEndIndex2++;
+            if (mEndIndex2 + 1 > MAX_DATA)
+               mEndIndex2 = 0;
+         }
+      }
+      
+      mLastIndex = mEndIndex1;
+      if (mEndIndex2 != -1)
+         mLastIndex = mEndIndex2;
       
       // Set projection here, because DrawPlot() is called in OnPaint()
       if (mUseInitialViewPoint)
@@ -3064,7 +3057,7 @@ void Enhanced3DViewCanvas::DrawPlot()
       ("   mUseInitialViewPoint=%d, mIsEndOfData=%d, mIsEndOfRun=%d, mDrawSolverData=%d\n",
        mUseInitialViewPoint, mIsEndOfData, mIsEndOfRun, mDrawSolverData);
    #endif
-   
+
    if (mRedrawLastPointsOnly || mNumPointsToRedraw == 0)
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    else
@@ -3091,10 +3084,6 @@ void Enhanced3DViewCanvas::DrawPlot()
    
    ChangeProjection(mCanvasSize.x, mCanvasSize.y, mAxisLength);
    
-   // change back to view projection
-   SetProjection();
-   TransformView();
-   
    #ifdef __TILT_ORIGIN__
    // tilt Origin rotation axis if needed
    if (mNeedOriginConversion)
@@ -3104,18 +3093,23 @@ void Enhanced3DViewCanvas::DrawPlot()
    }
    #endif
    
-   // draw equatorial plane
-   if (mDrawXyPlane)
-      DrawEquatorialPlane(mXyPlaneColor);
+   glDisable(GL_LIGHTING);
+
+	SetProjection();
+   TransformView();
    
    // draw axes
    if (mDrawAxes)
       if (!mCanRotateAxes)
          DrawAxes();
-   
-   // draw ecliptic plane
-   if (mDrawEcPlane)
-      DrawEclipticPlane(mEcPlaneColor);
+
+	// draw equatorial plane
+	if (mDrawXyPlane)
+		DrawEquatorialPlane(mXyPlaneColor);
+		
+	// draw ecliptic plane
+	if (mDrawEcPlane)
+		DrawEclipticPlane(mEcPlaneColor);
    
    #ifdef __TILT_ORIGIN__
    if (mNeedOriginConversion)
@@ -3123,7 +3117,7 @@ void Enhanced3DViewCanvas::DrawPlot()
    #endif
    
    // draw object orbit
-   DrawObjectOrbit();
+   DrawObjectOrbit(mNumData-1);
    
    if (mDrawSolverData)
       DrawSolverData();
@@ -3134,35 +3128,12 @@ void Enhanced3DViewCanvas::DrawPlot()
    
    glFlush();
    SwapBuffers();
-   
+
 } // end DrawPlot()
 
 
 //------------------------------------------------------------------------------
-// void DrawSphere(GLdouble radius, GLint slices, GLint stacks, GLenum style,
-//                 GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_NONE,
-//                 GLenum textureCoords = GL_FALSE)
-//------------------------------------------------------------------------------
-/**
- * Draws sphere.
- */
-//------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawSphere(GLdouble radius, GLint slices, GLint stacks,
-                                GLenum style, GLenum orientation, GLenum normals,
-                                GLenum textureCoords)
-{
-   GLUquadricObj* qobj = gluNewQuadric();
-   gluQuadricDrawStyle(qobj, style);
-   gluQuadricNormals(qobj, normals);
-   gluQuadricTexture(qobj, textureCoords);
-   gluSphere(qobj, radius, slices, stacks);
-   gluQuadricOrientation(qobj, orientation);
-   gluDeleteQuadric(qobj);
-}
-
-
-//------------------------------------------------------------------------------
-//  void DrawObject(const wxString &objName)
+//  void DrawObject(const wxString &objName, int frame)
 //------------------------------------------------------------------------------
 /**
  * Draws object sphere and maps texture image.
@@ -3192,22 +3163,40 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
       int sunId = GetObjectId("Sun");
       int index = sunId * MAX_DATA * 3 + frame * 3;
       
-      lightPos[0] = -mObjectViewPos[index+0];
-      lightPos[1] = -mObjectViewPos[index+1];
-      lightPos[2] = -mObjectViewPos[index+2];
+      if (sunId == UNKNOWN_OBJ_ID){
+         mLight.SetPosition(0.01f, 1.0f, 0.3f);
+         lightPos[0] = 0.01f;
+         lightPos[1] = 1.0f;
+         lightPos[2] = 0.3f;
+      }
+      else{
+         index = sunId * MAX_DATA * 3 + frame * 3;
+         // Dunn took minus signs out so sunlight could come from correct location.
+			//mLight.SetPosition(-mObjectViewPos[index+0], -mObjectViewPos[index+1], -mObjectViewPos[index+2]);
+         mLight.SetPosition(mObjectViewPos[index+0],mObjectViewPos[index+1],mObjectViewPos[index+2]);
+			lightPos[0] = mObjectViewPos[index+0];
+			lightPos[1] = mObjectViewPos[index+1];
+			lightPos[2] = mObjectViewPos[index+2];
+      }
       // opposite direction with  sun earth line
       //lightPos[0] = mObjectViewPos[index+0];
       //lightPos[1] = mObjectViewPos[index+1];
       //lightPos[2] = mObjectViewPos[index+2];
-      lightPos[3] = 1.0;
+      mLight.SetDirectional(true);
+
+      // Dunn is setting sun level a little dimmer to avoid washing out the models.
+      mLight.SetColor(0.8f,0.8f,0.8f,1.0f);  
+      lightPos[3] = 0.0;
       // If 4th value is zero, the light source is directional one, and
       // (x,y,z) values describes its direction.
       // If 4th value is nonzero, the light is positional, and the (x,y,z) values
       // specify the location of the light in homogeneous object coordinates.
       // By default, a positional light radiates in all directions.
       
-      // reset the light position to reflect the transformations
-      glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+      float lpos[4];
+      mLight.GetPositionf(lpos);
+      glLightfv(GL_LIGHT0, GL_POSITION, lpos);
+      glLightfv(GL_LIGHT0, GL_SPECULAR, mLight.GetColor());
       
       // enable the lighting
       glEnable(GL_LIGHTING);
@@ -3226,8 +3215,17 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
    if (objName == "Earth" && mCanRotateBody)
    {
       Real earthRotAngle = 0.0;
+
+      // Dunn would like to note that the mInitialLongitude being used to initialize
+      // the variable "initialLong" was calculated in ComputeLongitudeLst and is
+      // a function of spacecraft position.  Its value comes from the following
+      // equation - "lon = raDeg - mha;"
       Real initialLong = mInitialLongitude;
-      Real offset = 40.0; // need this to line up earth texture with longitude
+
+      // Dunn will try different offsets.  Need to understand where initialLong
+      // comes from.
+      //Real offset = 40.0; // need this to line up earth texture with longitude
+      Real offset = 90.0;
       
       //========== #ifdef
       #ifdef USE_MHA_TO_ROTATE_EARTH
@@ -3243,7 +3241,14 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
          if (earth)
             mha = earth->GetHourAngle(mTime[frame]);
          
-         earthRotAngle = mha + initialLong + offset;
+         // Dunn would like to note that in the equation below, initialLong has
+         // the value "-mha" in it which was calculated in ComputeLongitudeLst.
+         // The variable earthRotAngle does continue to grow because initialLong
+         // is a constant while mha continues to grow.  But really this equation
+         // should be a function of GMST and nothing to do with spacecraft
+         // longitude.
+         //earthRotAngle = mha + initialLong + offset;
+         earthRotAngle = mha + offset;
          
          #if DEBUG_TRAJCANVAS_DRAW > 1
          if (!mIsEndOfRun)
@@ -3280,9 +3285,80 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
    //-------------------------------------------------------
    // draw axes if it rotates with the body
    //-------------------------------------------------------
+   // Note from Dunn.  This is for earth fixed axes that rotate with the earth.
+   // If this is true, you do get axes that rotate with the earth, but you also
+   // get +X and +Y ECI axis labels.  The DrawAxes function needs to be told
+   // which labels to use, so it can show Earth Fixed labels.
    if (mDrawAxes && objId == mOriginId && mCanRotateAxes)
+   //if(true)
    {
+      // Before debugging the Earth Rotation Angle, and getting the texture map
+      // to be correctly oriented in ECI space, Dunn has noticed that the ECF
+      // axes seem to be rotated 90 degrees to the east.  To fix this we will
+      // call an OpenGL rotate command here before and after drawing the axes in
+      // order to get them correctly oriented wrt the prime meridian.
+      glRotatef(-90.0, 0.0, 0.0, 1.0);
+
+
+      // This next line is the NASA call that draws the ECF axes with ECI labels.
+      // Dunn has commented it out and added the code to draw with correct labels.
+      // This is a kludge that needs to be fixed.
       DrawAxes();
+
+      //// Here is Dunn's temporary kludge.
+      //glDisable(GL_LIGHTING);
+      //glDisable(GL_LIGHT0);
+      //wxString axisLabel;
+      //GLfloat viewDist;
+
+      //glLineWidth(2.5); // Thicker for ECF
+
+      ////-----------------------------------
+      //// draw axes
+      ////-----------------------------------
+
+      ////viewDist = mCurrViewDist/2; //zooms in and out
+      //viewDist = mAxisLength;///1.8; // stays the same
+      //Rvector3 axis;
+      //Rvector3 origin;
+      //origin.Set(0, 0, 0);
+
+      //// PS - See Rendering.cpp
+      //axis.Set(viewDist, 0, 0);
+      //DrawLine(1, 0, 0, origin, axis);
+
+      //axis.Set(0, viewDist, 0);
+      //DrawLine(0, 1, 0, origin, axis);
+
+      //axis.Set(0, 0, viewDist);
+      //DrawLine(0, 0, 1, origin, axis);
+
+      ////-----------------------------------
+      //// throw some text out...
+      ////-----------------------------------
+      //// Dunn took out old minus signs to get axis labels at the correct end of
+      //// each axis and thus make attitude correct.
+      //glColor3f(1, 0, 0);	// red
+      //axisLabel = "+X Earth Fixed";
+      //DrawStringAt(axisLabel, +viewDist, 0.0, 0.0, 1.0);
+
+      //glColor3f(0, 1, 0);	// green
+      //axisLabel = "+Y Earth Fixed";
+      //DrawStringAt(axisLabel, 0.0, +viewDist, 0.0, 1.0);
+
+      //glColor3f(0, 0, 1);	// blue
+      //axisLabel = "+Z Earth Fixed";
+      //// 0.82 multiplier below so this label doesn't sit on top of ECI
+      //DrawStringAt(axisLabel, 0.0, 0.0, +viewDist*0.82, 1.0); 
+
+      //glLineWidth(1.0);
+
+      //glEnable(GL_LIGHTING);
+      //glEnable(GL_LIGHT0);
+
+      // After rotating -90 to get the axes lined up wrt the texture map, it is
+      // time to rotate back +90.  This is from Dunn.
+      glRotatef(90.0, 0.0, 0.0, 1.0);
    }
    
    //-------------------------------------------------------
@@ -3293,13 +3369,17 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
       //glColor4f(1.0, 1.0, 1.0, 1.0);
       glColor3f(1.0, 1.0, 1.0);
       
+      GLuint id = mObjectTextureIdMap[objName];
       glBindTexture(GL_TEXTURE_2D, mObjectTextureIdMap[objName]);
       glEnable(GL_TEXTURE_2D);
       
-      if (objName == "Sun")
+		if (objName == "Sun"){
+			glDisable(GL_LIGHTING);
          DrawSphere(mObjectRadius[objId], 50, 50, GLU_FILL, GLU_INSIDE);
+			glEnable(GL_LIGHTING);
+		}
       else
-         DrawSphere(mObjectRadius[objId], 50, 50, GLU_FILL);
+         DrawSphere(mObjectRadius[objId], 50, 50, GLU_FILL);     
       
       glDisable(GL_TEXTURE_2D);
       
@@ -3329,7 +3409,7 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
       #endif
       
       // Just draw a wireframe sphere if we get here
-      glColor3f(0.20, 0.20, 0.50);
+      glColor3f(0.20f, 0.20f, 0.50f);
       DrawSphere(mObjectRadius[objId], 50, 50, GLU_LINE);      
       glDisable(GL_TEXTURE_2D);
    }
@@ -3354,11 +3434,12 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
  * @param  frame  Frame number to be used for drawing
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawObjectOrbit()
+void Enhanced3DViewCanvas::DrawObjectOrbit(int frame)
 {
    int endFrame = mLastIndex;
    int objId;
    wxString objName;
+   bool isLit;
    
    #ifdef ENABLE_LIGHT_SOURCE
    if (mEnableLightSource && mSunPresent)
@@ -3404,7 +3485,7 @@ void Enhanced3DViewCanvas::DrawObjectOrbit()
       //---------------------------------------------------------      
       if (mShowObjectMap[objName])
       {            
-         DrawObjectTexture(objName, obj, objId);
+         DrawObjectTexture(objName, obj, objId, frame);
       }
    }
 } // end DrawObjectOrbit()
@@ -3502,27 +3583,15 @@ void Enhanced3DViewCanvas::DrawOrbitLines(int i, const wxString &objName, int ob
       int colorIndex = objId * MAX_DATA + i;
       if (mDrawOrbitFlag[colorIndex])
       {
-         if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
-            *sIntColor = mObjectOrbitColor[colorIndex];
-         else
-            *sIntColor = mObjectColorMap[objName].GetIntColor();
-         
-         glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
-         
-         glVertex3f((-mObjectViewPos[index1+0]),
-                    (-mObjectViewPos[index1+1]),
-                    ( mObjectViewPos[index1+2]));
-         
-         glVertex3f((-mObjectViewPos[index2+0]),
-                    (-mObjectViewPos[index2+1]),
-                    ( mObjectViewPos[index2+2]));
-         
-         #ifdef DEBUG_ORBIT_LINES
-         MessageInterface::ShowMessage
-            ("==> index2=%d, color=%u, %f, %f, %f\n", index2, *sIntColor,
-             mObjectViewPos[index2+0], mObjectViewPos[index2+1],
-             mObjectViewPos[index2+2]);
-         #endif
+         if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT)){
+            // We are drawing a spacecraft orbit.  This includes solver passes.
+            *sIntColor = mObjectOrbitColor[colorIndex];}
+         else {
+            // We are drawing some other trajectory, say for a planet.
+            *sIntColor = mObjectColorMap[objName].GetIntColor();}
+
+         // PS - Rendering.cpp
+			DrawLine(sGlColor, r1, r2);
       }
       
       // save last valid frame to show object at final frame
@@ -3597,8 +3666,9 @@ void Enhanced3DViewCanvas::DrawOrbitNormalLines(int i, const wxString &objName,
       // move to origin
       index3 = mOriginId * MAX_DATA * 3 + i * 3;
       
-      glTranslatef(-mObjectViewPos[index3+0],
-                   -mObjectViewPos[index3+1],
+      // Dunn took out old minus signs to make attitude correct.
+      glTranslatef(mObjectViewPos[index3+0],
+                   mObjectViewPos[index3+1],
                    mObjectViewPos[index3+2]);
       
       if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
@@ -3615,11 +3685,12 @@ void Enhanced3DViewCanvas::DrawOrbitNormalLines(int i, const wxString &objName,
 //------------------------------------------------------------------------------
 // void DrawObjectTexture(const wxString &objName, int obj, int objId)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, int objId)
+void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, int objId, int frame)
 {
+	bool isLit = false;
    if (mNumData < 1)
       return;
-   
+
    int index1 = objId * MAX_DATA * 3 + mObjLastFrame[objId] * 3;
    
    #if DEBUG_TRAJCANVAS_DRAW
@@ -3635,18 +3706,95 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
    glPushMatrix();
    
    // put object at final position
-   glTranslatef(-mObjectViewPos[index1+0],
-                -mObjectViewPos[index1+1],
-                 mObjectViewPos[index1+2]);
+   // Dunn took out old minus signs to make attitude correct.  Even though this
+   // section was already commented out.  Just in case someone comments it back
+   // in!
+            //glTranslatef(mObjectViewPos[index1+0],
+            //             mObjectViewPos[index1+1],
+            //              mObjectViewPos[index1+2]);
    
    // first disable GL_TEXTURE_2D to show lines clearly
    // without this, lines are drawn dim (loj: 2007.06.11)
    glDisable(GL_TEXTURE_2D);
+
+	#ifdef ENABLE_LIGHT_SOURCE
+		float lightPos[4];
+      //-------------------------------------------------------
+      // enable light source on option
+      //-------------------------------------------------------
+      if (mEnableLightSource && mSunPresent)
+      {
+			//Why whole Sun is not lit?
+         float lightPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+         int sunId = GetObjectId("Sun");
+         int index;
+         if (sunId == UNKNOWN_OBJ_ID){
+				mLight.SetPosition(0.01f, 1.0f, 0.3f);
+            mLight.SetDirectional(true);
+            //mLight.SetPosition(0.01*300000, 1.0*300000, 0.3*300000);
+            //mLight.SetDirectional(false);
+            lightPos[0] = 0.01*300000;
+            lightPos[1] = 1.0*300000;
+            lightPos[2] = 0.3*300000;
+            lightPos[3] = 1.0;
+			}
+         else{
+				index = sunId * MAX_DATA * 3 + frame * 3;
+            //mLight.SetPosition(-mObjectViewPos[index+0], -mObjectViewPos[index+1], -mObjectViewPos[index+2]);
+            //mLight.SetDirectional(false);
+            // Dunn took minus signs out to get sunlight from correct direction.
+            lightPos[0] = mObjectViewPos[index+0];
+            lightPos[1] = mObjectViewPos[index+1];
+            lightPos[2] = mObjectViewPos[index+2];
+            lightPos[3] = 1.0;
+         }
+
+         // Dunn is setting sunlight to be a little dimmer.
+         mLight.SetColor(0.8f,0.8f,0.8f,1.0f);
+
+         // opposite direction with  sun earth line
+         //lightPos[0] = mObjectViewPos[index+0];
+         //lightPos[1] = mObjectViewPos[index+1];
+         //lightPos[2] = mObjectViewPos[index+2];
+         // If 4th value is zero, the light source is directional one, and
+         // (x,y,z) values describes its direction.
+         // If 4th value is nonzero, the light is positional, and the (x,y,z) values
+         // specify the location of the light in homogeneous object coordinates.
+         // By default, a positional light radiates in all directions.
+         
+         // reset the light position to reflect the transformations
+         float lpos[4], *color = mLight.GetColor();
+         mLight.GetPositionf(lpos);
+         glLightfv(GL_LIGHT0, GL_POSITION, lpos);
+         glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+         //glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+			
+			// enable the lighting
+         glEnable(GL_LIGHTING);
+         glEnable(GL_LIGHT0);
+      }
+   #endif
    
-   if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
-      DrawSpacecraft(mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
-   else
+	if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT)){
+		glTranslatef(mObjectViewPos[index1+0],
+			mObjectViewPos[index1+1],
+         mObjectViewPos[index1+2]);
+      GlColorType *yellow = (GlColorType*)&GmatColor::YELLOW32,
+			*red = (GlColorType*)&GmatColor::RED32;
+      DrawSpacecraft(mScRadius, yellow, red);//mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
+	}
+	else
+	{
+		//put object at final position
+      //
+      // Dunn took out minus signs
+      glTranslatef(mObjectViewPos[index1+0],mObjectViewPos[index1+1],mObjectViewPos[index1+2]);
       DrawObject(objName);
+	}
+
+	if (mEnableLightSource && mSunPresent){
+		glDisable(GL_LIGHTING);
+   }
    
    glPopMatrix();
 }
@@ -3657,20 +3805,18 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
 //------------------------------------------------------------------------------
 /**
  * Draws solver iteration data
+ * This is only called when drawing "current" solver data.  For drawing all
+ * solver passes at the same time, see TrajPlotCanvas::UpdatePlot()
  */
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::DrawSolverData()
 {
-
+   Rvector3 start, end;
    int numPoints = mSolverAllPosX.size();
    //MessageInterface::ShowMessage("==========> solver points = %d\n", numPoints);
    
    if (numPoints == 0)
       return;
-   
-   
-   glPushMatrix();
-   glBegin(GL_LINES);
    
    for (int i=1; i<numPoints; i++)
    {
@@ -3683,16 +3829,17 @@ void Enhanced3DViewCanvas::DrawSolverData()
       for (int sc=0; sc<numSc; sc++)
       {
          *sIntColor = mSolverIterColorArray[sc];         
-         glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
-         
-         glVertex3f(-mSolverAllPosX[i-1][sc], -mSolverAllPosY[i-1][sc], mSolverAllPosZ[i-1][sc]); 
-         glVertex3f(-mSolverAllPosX[i][sc], -mSolverAllPosY[i][sc], mSolverAllPosZ[i][sc]);
+         // Dunn took out old minus signs to make attitude correct.
+         // Examining GMAT functionality in the debugger, this is only to show
+         // the current solver iteration.  Somewhere else the multiple iterations 
+         // are drawn.
+         start.Set(mSolverAllPosX[i-1][sc],mSolverAllPosY[i-1][sc],mSolverAllPosZ[i-1][sc]);
+         end.Set  (mSolverAllPosX[i]  [sc],mSolverAllPosY[i]  [sc],mSolverAllPosZ[i]  [sc]);
+
+         // PS - See Rendering.cpp
+         DrawLine(sGlColor, start, end);
       }
    }
-   
-   glEnd();
-   glPopMatrix();
-   
 }
 
 
@@ -3706,7 +3853,7 @@ void Enhanced3DViewCanvas::DrawSolverData()
 void Enhanced3DViewCanvas::DrawObjectOrbitNormal(int objId, int frame, UnsignedInt color)
 {
    Real distance = (Real)mAxisLength/2.2;
-   float endPos[3];
+   Rvector3 origin, endPos;
    
    int index = objId * MAX_DATA * 3 + frame * 3;
    Rvector3 r(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);            
@@ -3721,23 +3868,20 @@ void Enhanced3DViewCanvas::DrawObjectOrbitNormal(int objId, int frame, UnsignedI
    
    // set color
    *sIntColor = color;
-   glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
    
-   glBegin(GL_LINES);
-   
-   // get orbit normal unit vector and multiply by distance
-   // Add minus sign to x, y
-   endPos[0] = -normV[0] * distance;
-   endPos[1] = -normV[1] * distance;
-   endPos[2] =  normV[2] * distance;
-   
-   glVertex3f(0.0, 0.0, 0.0);
-   glVertex3f(endPos[0], endPos[1], endPos[2]);
-   
-   glEnd();
+   // Dunn took out old minus signs to make attitude correct.  Also added a 
+   // multiplying factor so the normal axis and its label can stick up a little 
+   // bit higher than the surface of the earth.
+   origin.Set(0,0,0);
+   endPos.Set(normV[0] * distance * 1.2, 
+              normV[1] * distance * 1.2, 
+              normV[2] * distance * 1.2);
+
+   // PS - See Rendering.cpp
+   DrawLine(sGlColor, origin, endPos);
    
    // Show Orbit Normal direction text
-   DrawStringAt(" +N", endPos[0], endPos[1], endPos[2]);
+   DrawStringAt(" +N", endPos[0], endPos[1], endPos[2], 1.0);
 }
 
 
@@ -3748,49 +3892,13 @@ void Enhanced3DViewCanvas::DrawObjectOrbitNormal(int objId, int frame, UnsignedI
  * Draws spacecraft.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawSpacecraft(UnsignedInt scColor)
+/*void Enhanced3DViewCanvas::DrawSpacecraft(UnsignedInt scColor)
 {
    // draw six faces of a long cube
-   glBegin(GL_QUADS);
    *sIntColor = scColor;
-   glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
-        
-   glNormal3f( 0.0F, 0.0F, 1.0F);
-   glVertex3f( mScRadius, mScRadius, mScRadius*2);
-   glVertex3f(-mScRadius, mScRadius, mScRadius*2);
-   glVertex3f(-mScRadius,-mScRadius, mScRadius*2);
-   glVertex3f( mScRadius,-mScRadius, mScRadius*2);
-
-   glNormal3f( 0.0F, 0.0F,-1.0F);
-   glVertex3f(-mScRadius,-mScRadius,-mScRadius*2);
-   glVertex3f(-mScRadius, mScRadius,-mScRadius*2);
-   glVertex3f( mScRadius, mScRadius,-mScRadius*2);
-   glVertex3f( mScRadius,-mScRadius,-mScRadius*2);
-
-   glNormal3f( 0.0F, 1.0F, 0.0F);
-   glVertex3f( mScRadius, mScRadius, mScRadius*2);
-   glVertex3f( mScRadius, mScRadius,-mScRadius*2);
-   glVertex3f(-mScRadius, mScRadius,-mScRadius*2);
-   glVertex3f(-mScRadius, mScRadius, mScRadius*2);
-
-   glNormal3f( 0.0F,-1.0F, 0.0F);
-   glVertex3f(-mScRadius,-mScRadius,-mScRadius*2);
-   glVertex3f( mScRadius,-mScRadius,-mScRadius*2);
-   glVertex3f( mScRadius,-mScRadius, mScRadius*2);
-   glVertex3f(-mScRadius,-mScRadius, mScRadius*2);
-
-   glNormal3f( 1.0F, 0.0F, 0.0F);
-   glVertex3f( mScRadius, mScRadius, mScRadius*2);
-   glVertex3f( mScRadius,-mScRadius, mScRadius*2);
-   glVertex3f( mScRadius,-mScRadius,-mScRadius*2);
-   glVertex3f( mScRadius, mScRadius,-mScRadius*2);
-
-   glNormal3f(-1.0F, 0.0F, 0.0F);
-   glVertex3f(-mScRadius,-mScRadius,-mScRadius*2);
-   glVertex3f(-mScRadius,-mScRadius, mScRadius*2);
-   glVertex3f(-mScRadius, mScRadius, mScRadius*2);
-   glVertex3f(-mScRadius, mScRadius,-mScRadius*2);
-   glEnd();
+   // draw six faces of a long cube
+   // PS - See Rendering.cpp
+   DrawSpaceCraft(mScRadius, mScRadius, mScRadius*2, sGlColor);
 
    // spacecraft with same color, use Display List
    if (mGlList == 0)
@@ -3798,47 +3906,9 @@ void Enhanced3DViewCanvas::DrawSpacecraft(UnsignedInt scColor)
       mGlList = glGenLists( 1 );
       glNewList( mGlList, GL_COMPILE_AND_EXECUTE );
       
-      // draw six faces of a thin wide cube
-      glBegin(GL_QUADS);
       *sIntColor = GmatColor::YELLOW32;
-      glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
-
-      glNormal3f( 0.0F, 0.0F, 1.0F);
-      glVertex3f( mScRadius/4, mScRadius*4, mScRadius*1.5);
-      glVertex3f(-mScRadius/4, mScRadius*4, mScRadius*1.5);
-      glVertex3f(-mScRadius/4,-mScRadius*4, mScRadius*1.5);
-      glVertex3f( mScRadius/4,-mScRadius*4, mScRadius*1.5);
-
-      glNormal3f( 0.0F, 0.0F,-1.0F);
-      glVertex3f(-mScRadius/4,-mScRadius*4,-mScRadius*1.5);
-      glVertex3f(-mScRadius/4, mScRadius*4,-mScRadius*1.5);
-      glVertex3f( mScRadius/4, mScRadius*4,-mScRadius*1.5);
-      glVertex3f( mScRadius/4,-mScRadius*4,-mScRadius*1.5);
-
-      glNormal3f( 0.0F, 1.0F, 0.0F);
-      glVertex3f( mScRadius/4, mScRadius*4, mScRadius*1.5);
-      glVertex3f( mScRadius/4, mScRadius*4,-mScRadius*1.5);
-      glVertex3f(-mScRadius/4, mScRadius*4,-mScRadius*1.5);
-      glVertex3f(-mScRadius/4, mScRadius*4, mScRadius*1.5);
-
-      glNormal3f( 0.0F,-1.0F, 0.0F);
-      glVertex3f(-mScRadius/4,-mScRadius*4,-mScRadius*1.5);
-      glVertex3f( mScRadius/4,-mScRadius*4,-mScRadius*1.5);
-      glVertex3f( mScRadius/4,-mScRadius*4, mScRadius*1.5);
-      glVertex3f(-mScRadius/4,-mScRadius*4, mScRadius*1.5);
-
-      glNormal3f( 1.0F, 0.0F, 0.0F);
-      glVertex3f( mScRadius/4, mScRadius*4, mScRadius*1.5);
-      glVertex3f( mScRadius/4,-mScRadius*4, mScRadius*1.5);
-      glVertex3f( mScRadius/4,-mScRadius*4,-mScRadius*1.5);
-      glVertex3f( mScRadius/4, mScRadius*4,-mScRadius*1.5);
-
-      glNormal3f(-1.0F, 0.0F, 0.0F);
-      glVertex3f(-mScRadius/4,-mScRadius*4,-mScRadius*1.5);
-      glVertex3f(-mScRadius/4,-mScRadius*4, mScRadius*1.5);
-      glVertex3f(-mScRadius/4, mScRadius*4, mScRadius*1.5);
-      glVertex3f(-mScRadius/4, mScRadius*4,-mScRadius*1.5);
-      glEnd();
+      // PS - See Rendering.cpp
+      DrawSpaceCraft(mScRadius/4, mScRadius*4, mScRadius*1.5, sGlColor);
       glEndList();
    }
    else
@@ -3846,7 +3916,7 @@ void Enhanced3DViewCanvas::DrawSpacecraft(UnsignedInt scColor)
       glCallList( mGlList );
    }
 
-} // end DrawSpacecraft()
+} */// end DrawSpacecraft()
 
 
 //------------------------------------------------------------------------------
@@ -3862,18 +3932,19 @@ void Enhanced3DViewCanvas::DrawEquatorialPlane(UnsignedInt color)
    float endPos[3];
    float distance;
    Real angle;
+
+	glDisable(GL_LIGHTING);
    
    static const Real RAD_PER_DEG =
       3.14159265358979323846264338327950288419716939937511 / 180.0;
    
-   distance = (Real)mAxisLength;
+   //distance = (Real)mAxisLength;
+	distance = (mCamera.position - mCamera.view_center).GetMagnitude();
 
-   glPushMatrix();
-   glBegin(GL_LINES);
-   
    // set color
    *sIntColor = color;
-   glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
+   Rvector3 start, end;
+   start.Set(0, 0, 0);
 
    //-----------------------------------
    // draw lines
@@ -3881,17 +3952,15 @@ void Enhanced3DViewCanvas::DrawEquatorialPlane(UnsignedInt color)
    for (i=0; i<360; i+=15)
    {
       angle = RAD_PER_DEG * ((Real)i);
-      
+
       endPos[0] = distance * cos(angle);
       endPos[1] = distance * sin(angle);
       endPos[2] = 0.0;
-      
-      glVertex3f(0.0, 0.0, 0.0);
-      glVertex3f(endPos[0], endPos[1], endPos[2]);
+
+      end.Set(endPos[0], endPos[1], endPos[2]);
+      // PS - See Rendering.cpp
+      DrawLine(sGlColor, start, end); 
    }
-   
-   glEnd();
-   glPopMatrix();
 
    //-----------------------------------
    // draw circles
@@ -3905,10 +3974,6 @@ void Enhanced3DViewCanvas::DrawEquatorialPlane(UnsignedInt color)
    //==============================================================
    Real orthoDepth = distance;
    
-   //orthoDepth = (half-size-of-image)*60/(half-FOV-degrees)
-   if (mUsePerspectiveMode)
-      orthoDepth = (mAxisLength*60) / (mFovDeg/2.0);
-
    Real ort = orthoDepth * 8;
    Real pwr = Floor(Log10(ort));
    Real size = Exp10(pwr)/100;
@@ -3964,9 +4029,13 @@ void Enhanced3DViewCanvas::DrawEclipticPlane(UnsignedInt color)
 {
    // First rotate the grand coordinate system to obliquity of the ecliptic
    // (23.5) and draw equatorial plane
-   
    glPushMatrix();
-   glRotatef(23.5, -1, 0, 0);
+
+   // Dunn changed 23.5 to -23.5.  When he changed -1 to 1 or +1 he got an 
+   // RVector3 error.  This negative obliquity of the ecliptic around the
+   // negative ECI X-Axis aligns the plane of the ecliptic with the sunline
+   // after all minus signs for position have been removed.
+   glRotatef(-23.5, -1, 0, 0);
    DrawEquatorialPlane(color);
    glPopMatrix();
 } // end DrawEclipticPlane()
@@ -3992,7 +4061,7 @@ void Enhanced3DViewCanvas::DrawSunLine()
    if (sunId == UNKNOWN_OBJ_ID)
       return;
    
-   Real originPos[3], sunPos[3];
+   Rvector3 originPos, sunPos;
    Real distance = (Real)mAxisLength;
    Real mag;
    
@@ -4002,38 +4071,37 @@ void Enhanced3DViewCanvas::DrawSunLine()
    
    // set color
    *sIntColor = mSunLineColor;
-   glColor3ub(sGlColor->red, sGlColor->green, sGlColor->blue);
-   
-   glBegin(GL_LINES);
    int index = 0;
    
    // draw one line from origin to Sun
+   // Dunn took out old minus signs to make attitude correct.
    index = mOriginId * MAX_DATA * 3 + frame * 3;
-   originPos[0] = -mObjectViewPos[index+0];
-   originPos[1] = -mObjectViewPos[index+1];
-   originPos[2] =  mObjectViewPos[index+2];
+   originPos.Set(mObjectViewPos[index+0], 
+                 mObjectViewPos[index+1], 
+      mObjectViewPos[index+2]);
    
    index = sunId * MAX_DATA * 3 + frame * 3;
-   sunPos[0] = -mObjectViewPos[index+0];
-   sunPos[1] = -mObjectViewPos[index+1];
-   sunPos[2] =  mObjectViewPos[index+2];
+   sunPos.Set(mObjectViewPos[index+0], 
+              mObjectViewPos[index+1], 
+      mObjectViewPos[index+2]);
    
    // show lines between Sun and Earth and to -Sun
-   glVertex3f(originPos[0], originPos[1], originPos[2]);
-   glVertex3f(sunPos[0], sunPos[1], sunPos[2]);
-   glVertex3f(originPos[0], originPos[1], originPos[2]);
-   glVertex3f(-sunPos[0], -sunPos[1], -sunPos[2]);
-   
-   glEnd();
+   // Dunn set it so sunline is only from origin out from earth in direction of
+   // sun.
+   // PS - See Rendering.cpp
+   DrawLine(sGlColor, originPos, sunPos);
+   //DrawLine(sGlColor, originPos, -sunPos);
    
    // Show Sun direction text
    glColor3f(1.0, 1.0, 0.0); // yellow
    
    // get sun unit vector and multiply by distance
+   // Dunn changed the division factor from 2.2 to 2.0
    mag = sqrt(sunPos[0]*sunPos[0] + sunPos[1]*sunPos[1] + sunPos[2]*sunPos[2]);
-   DrawStringAt(" +S", sunPos[0]/mag*distance/2.2,
-                sunPos[1]/mag*distance/2.2,
-                sunPos[2]/mag*distance/2.2);
+   DrawStringAt(" +S", sunPos[0]/mag*distance/2.0,
+                       sunPos[1]/mag*distance/2.0,
+                       sunPos[2]/mag*distance/2.0,
+					 1.0);
    
 } // end DrawSunLine()
 
@@ -4043,6 +4111,8 @@ void Enhanced3DViewCanvas::DrawSunLine()
 //---------------------------------------------------------------------------
 void Enhanced3DViewCanvas::DrawAxes()
 {
+   glDisable(GL_LIGHTING);
+   glDisable(GL_LIGHT0);
    wxString axisLabel;
    GLfloat viewDist;
 
@@ -4053,40 +4123,42 @@ void Enhanced3DViewCanvas::DrawAxes()
    //-----------------------------------
    
    //viewDist = mCurrViewDist/2; //zooms in and out
-   viewDist = mAxisLength/2.2; // stays the same
-   glBegin(GL_LINES);
-   
-   glColor3f(0, 1, 0);   // x
-   glVertex3f(-viewDist, 0, 0);
-   glVertex3f( viewDist, 0, 0);
-   
-   glColor3f(0, 0, 1);   // y
-   glVertex3f(0, -viewDist, 0);
-   glVertex3f(0,  viewDist, 0);
-   
-   glColor3f(1, 1, 0);   // z
-   glVertex3f(0, 0, -viewDist);
-   glVertex3f(0, 0, viewDist);
-   
-   glEnd();
+   viewDist = mAxisLength;///1.8; // stays the same
+   Rvector3 axis;
+	Rvector3 origin;
+	origin.Set(0, 0, 0);
+
+   // PS - See Rendering.cpp
+   axis.Set(viewDist, 0, 0);
+	DrawLine(1, 0, 0, origin, axis);
+
+   axis.Set(0, viewDist, 0);
+	DrawLine(0, 1, 0, origin, axis);
+
+   axis.Set(0, 0, viewDist);
+	DrawLine(0, 0, 1, origin, axis);
    
    //-----------------------------------
    // throw some text out...
    //-----------------------------------
-   glColor3f(0, 1, 0);   // green
+   // Dunn took out old minus signs to get axis labels at the correct end of
+   // each axis and thus make attitude correct.
+	glColor3f(1, 0, 0);	// red
    axisLabel = "+X " + mViewCoordSysName;
-   DrawStringAt(axisLabel, -viewDist, 0.0, 0.0);
+	DrawStringAt(axisLabel, +viewDist, 0.0, 0.0, 1.0);
    
-   glColor3f(0, 0, 1);   // blue
+	glColor3f(0, 1, 0);	// green
    axisLabel = "+Y " + mViewCoordSysName;
-   DrawStringAt(axisLabel, 0.0, -viewDist, 0.0);
+	DrawStringAt(axisLabel, 0.0, +viewDist, 0.0, 1.0);
    
-   glColor3f(1, 1, 0);   // yellow
+	glColor3f(0, 0, 1);	// blue
    axisLabel = "+Z " + mViewCoordSysName;
-   DrawStringAt(axisLabel, 0.0, 0.0, viewDist);
+	DrawStringAt(axisLabel, 0.0, 0.0, +viewDist, 1.0);
    
    glLineWidth(1.0);
    
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT0);
 }
 
 
@@ -4108,21 +4180,34 @@ void Enhanced3DViewCanvas::DrawStatus(const wxString &label1, int frame,
    //----------------------------------------------------
    //loj: 5/23/05 I want to use glWindowPos2f but it is available in version 1.4
    // then I'll not need to set GL_PROJECTION mode
+   glDisable(GL_LIGHTING);
+   glDisable(GL_LIGHT0);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
    gluOrtho2D(0.0, (GLfloat)mCanvasSize.x, 0.0, (GLfloat)mCanvasSize.y);
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
-   wxString str;
+  wxString str, str1;
    wxString text;
+   
+   #ifdef DEBUG_DRAW_STATUS
    str.Printf("%d", frame);
    text = label1 + str;
-   str.Printf("%f", time);
-   //str = TimeConverterUtil::ConvertMjdToGregorian(time).c_str();
+   str1.Printf("%f - ", time);
+   #endif
    
-   text = text + label2 + str;
+   if (time > 0)
+   {
+      Real toMjd = -999;
+      std::string utcGregorian;
+      TimeConverterUtil::Convert("A1ModJulian", time, "", "UTCGregorian",
+                                 toMjd, utcGregorian, 1);
+      str = utcGregorian.c_str();
+   }
    
-   glColor3f(1, 1, 0); //yellow
+   text = text + label2 + str1 + str;
+   
+   /*glColor3f(1, 1, 0); //yellow
    glRasterPos2i(xpos, ypos);
    glCallLists(strlen(text.c_str()), GL_BYTE, (GLubyte*)text.c_str());
 
@@ -4132,9 +4217,32 @@ void Enhanced3DViewCanvas::DrawStatus(const wxString &label1, int frame,
       glCallLists(strlen(label3.c_str()), GL_BYTE, (GLubyte*)label3.c_str());
    }
    
+   text.Printf("Current Control Mode: ");
+   switch (mControlMode) {
+      case MODE_CENTERED_VIEW:
+         str.Printf("Centered View ");
+         break;
+      case MODE_FREE_FLYING:
+         str.Printf("Free-Flying ");
+         break;
+      case MODE_ASTRONAUT_6DOF:
+         str.Printf("Astronaut 6DOF ");
+         break;
+   };
+   text+=str;
+
+   if (mInversion < 0)
+      str.Printf("Inverted");
+   else
+      str.Printf("");
+   text+=str;
+   glRasterPos2i(xpos, ypos+20);
+   glCallLists(strlen(text.c_str()), GL_BYTE, (GLubyte*)text.c_str());*/
+   
    //wxLogStatus(GmatAppData::Instance()->GetMainFrame(), wxT("Frame#: %d, Time: %f"), frame,
    //            mTime[frame]);
-   
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT0);
 }
 
 
@@ -4164,30 +4272,6 @@ void Enhanced3DViewCanvas::ApplyEulerAngles()
       glRotatef(mfCamRotZAngle, 0.0, 0.0, 1.0);
    }
 }
-
-
-//---------------------------------------------------------------------------
-// void DrawStringAt(const wxString &str, GLfloat x, GLfloat y, GLfloat z)
-//---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawStringAt(const wxString &str, GLfloat x, GLfloat y,
-                                  GLfloat z)
-{
-   glRasterPos3f(x, y, z);
-   glCallLists(strlen(str.c_str()), GL_BYTE, (GLubyte*)str.c_str());
-}
-
-
-//---------------------------------------------------------------------------
-// void DrawCircle(GLUquadricObj *qobj, Real radius)
-//---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawCircle(GLUquadricObj *qobj, Real radius)
-{
-   gluQuadricDrawStyle(qobj, GLU_LINE  );
-   gluQuadricNormals  (qobj, GLU_SMOOTH);
-   gluQuadricTexture  (qobj, GL_FALSE  );
-   gluDisk(qobj, radius, radius, 50, 1);
-}
-
 
 //---------------------------------------------------------------------------
 // int GetObjectId(const wxString &name)
@@ -4394,7 +4478,7 @@ void Enhanced3DViewCanvas
       if (satId != UNKNOWN_OBJ_ID)
       {
          int colorIndex = satId * MAX_DATA + mLastIndex;
-         
+			         
          if (!mDrawOrbitArray[satId])
          {
             mDrawOrbitFlag[colorIndex] = false;
@@ -4410,7 +4494,7 @@ void Enhanced3DViewCanvas
             mDrawOrbitFlag[colorIndex] = false;
          
          mObjectOrbitColor[colorIndex] = scColors[sc];
-         
+
          int posIndex = satId * MAX_DATA * 3 + (mLastIndex*3);
          mObjectViewPos[posIndex+0] = posX[sc];
          mObjectViewPos[posIndex+1] = posY[sc];
@@ -4432,7 +4516,7 @@ void Enhanced3DViewCanvas
          }
          #endif
          
-         // if need to convert to internal coordiante system (EarthMJ2000Eq)
+         // if need to convert to internal coordinate system (EarthMJ2000Eq)
          if (mViewCsIsInternalCs)
          {
             CopyVector3(&mObjectGciPos[posIndex], &mObjectViewPos[posIndex]);
@@ -4499,11 +4583,13 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
          // if object id found
          if (objId != UNKNOWN_OBJ_ID)
          {
+				// Commented out continue since we still need to get object's
+            // position for viewpoint or view direction object (LOJ: 2010.05.11)
             if (!mDrawOrbitArray[objId])
             {
                //mDrawOrbitFlag[objId*MAX_DATA+mNumData] = false;
                mDrawOrbitFlag[objId * MAX_DATA + mLastIndex] = false;
-               continue;
+               //continue;
             }
             
             int colorIndex = objId * MAX_DATA + mLastIndex;
@@ -4998,6 +5084,16 @@ void Enhanced3DViewCanvas::ComputeLongitudeLst(Real time, Real x, Real y,
       return;
    
    // compute longitude of the first spacecraft
+   //
+   // Dunn would like to note that in the code below, the variable "lon" is 
+   // calculated using the position of the spacecraft combined with the hour
+   // angle of the earth.  This is then used to computer "lst" which likely 
+   // stands for "Local Sidereal Time".  Local Sidereal Time has to do with
+   // longitude of a ground site and is not related at all to the location of
+   // a spacecraft.  Dunn thinks this code is used here to figure out how much
+   // to rotate the earth.  What really should be used is GMST or Greenwhich
+   // Mean Sidereal Time, which only has to do with the epoch time being used
+   // by the sim.  It has NOTHING to do with spacecraft location.
    if (pSolarSystem)
    {
       Real raRad = ATan(y, x);
@@ -5065,7 +5161,7 @@ bool Enhanced3DViewCanvas::LoadImage(const std::string &fileName)
    #endif
    
    // Why is image upside down?
-   // Get vertial mirror
+   // Get virtual mirror
    wxImage mirror = image.Mirror(false);
    GLubyte *data1 = mirror.GetData();
    
@@ -5073,7 +5169,7 @@ bool Enhanced3DViewCanvas::LoadImage(const std::string &fileName)
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    
-   //pass image to opengl
+   //pass image to OpenGL
    #ifndef __WXGTK__
       // This call crashes GMAT on Linux, so it is excluded here. 
       gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB,

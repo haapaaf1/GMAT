@@ -38,7 +38,7 @@ public:
    virtual ~ViewCanvas();
    
    // initialization
-   virtual bool InitGL() = 0;
+   //virtual bool InitGL() = 0;
    
    // getters
    virtual bool  GetUseViewPointInfo() = 0;
@@ -74,6 +74,9 @@ public:
    virtual void SetAnimationUpdateInterval(int value) = 0;
    virtual void SetAnimationFrameIncrement(int value) = 0;
    virtual void SetDrawWireFrame(bool flag) = 0;
+	virtual void SetDrawStars(bool flag) = 0;
+	virtual void SetDrawConstellations(bool flag) = 0;
+	virtual void SetStarCount(int count) = 0;
    virtual void SetDrawXyPlane(bool flag) = 0;
    virtual void SetDrawEcPlane(bool flag) = 0;
    virtual void SetDrawSunLine(bool flag) = 0;
@@ -95,9 +98,9 @@ public:
    virtual void ResetPlotInfo() = 0;
    virtual void RedrawPlot(bool viewAnimation) = 0;
    virtual void ShowDefaultView() = 0;
-   virtual void RotatePlot(int width, int height, int mouseX, int mouseY) = 0;
-   virtual void ZoomIn() = 0;
-   virtual void ZoomOut() = 0;
+   //virtual void RotatePlot(int width, int height, int mouseX, int mouseY) = 0;
+   //virtual void ZoomIn() = 0;
+   //virtual void ZoomOut() = 0;
    virtual void DrawWireFrame(bool flag) = 0;
    virtual void DrawXyPlane(bool flag) = 0;
    virtual void DrawEcPlane(bool flag) = 0;
@@ -190,19 +193,19 @@ protected:
    // drawing objects
    virtual void DrawFrame() = 0;
    virtual void DrawPlot() = 0;
-   virtual void DrawSphere(GLdouble radius, GLint slices, GLint stacks, GLenum style,
-                   GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_SMOOTH,
-                   GLenum textureCoords = GL_TRUE) = 0;
+   //virtual void DrawSphere(GLdouble radius, GLint slices, GLint stacks, GLenum style,
+   //                GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_SMOOTH,
+   //                GLenum textureCoords = GL_TRUE) = 0;
    virtual void DrawObject(const wxString &objName) = 0;
-   virtual void DrawObjectOrbit() = 0;
+   //virtual void DrawObjectOrbit() = 0;
    virtual void DrawOrbit(const wxString &objName, int obj, int objId) = 0;
    virtual void DrawOrbitLines(int i, const wxString &objName, int obj, int objId) = 0;
    virtual void DrawOrbitNormal(const wxString &objName, int obj, int objId) = 0;
    virtual void DrawOrbitNormalLines(int i, const wxString &objName, int obj, int objId) = 0;
-   virtual void DrawObjectTexture(const wxString &objName, int obj, int objId) = 0;
+   //virtual void DrawObjectTexture(const wxString &objName, int obj, int objId) = 0;
    virtual void DrawSolverData() = 0;
    virtual void DrawObjectOrbitNormal(int objId, int frame, UnsignedInt color) = 0;
-   virtual void DrawSpacecraft(UnsignedInt scColor) = 0;
+   //virtual void DrawSpacecraft(UnsignedInt scColor) = 0;
    virtual void DrawEquatorialPlane(UnsignedInt color) = 0;
    virtual void DrawEclipticPlane(UnsignedInt color) = 0;
    virtual void DrawSunLine() = 0;
@@ -215,8 +218,8 @@ protected:
    virtual void ApplyEulerAngles() = 0;
    
    // drawing primative objects
-   virtual void DrawStringAt(const wxString &str, GLfloat x, GLfloat y, GLfloat z) = 0;
-   virtual void DrawCircle(GLUquadricObj *qobj, Real radius) = 0;
+   //virtual void DrawStringAt(const wxString &str, GLfloat x, GLfloat y, GLfloat z) = 0;
+   //virtual void DrawCircle(GLUquadricObj *qobj, Real radius) = 0;
    
    // for object
    virtual int  GetObjectId(const wxString &name) = 0;

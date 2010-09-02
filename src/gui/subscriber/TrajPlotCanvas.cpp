@@ -142,7 +142,7 @@ const int TrajPlotCanvas::LAST_STD_BODY_ID = 10;
 const int TrajPlotCanvas::MAX_COORD_SYS = 10;
 const float TrajPlotCanvas::MAX_ZOOM_IN = 3700.0;
 const float TrajPlotCanvas::RADIUS_ZOOM_RATIO = 2.2;
-const float TrajPlotCanvas::DEFAULT_DIST = 30000.0;
+const float TrajPlotCanvas::DEFAULT_DIST = -30000.0;
 const int TrajPlotCanvas::UNKNOWN_OBJ_ID = -999;
 
 struct GlColorType
@@ -498,6 +498,10 @@ void TrajPlotCanvas::SetEndOfRun(bool flag)
       Real time = mTime[mLastIndex];
       Real x = mObjectViewPos[index+0];
       Real y = mObjectViewPos[index+1];;
+
+      // Dunn notes the variable "longitude" below is declared elsewhere in this
+      // file.  Even if the other "longitude" is protected, it should probably
+      // have a different name.  This is the FIRST place longitude is declared.
       Real lst, longitude, mha;
       
       ComputeLongitudeLst(time, x, y, &mha, &longitude, &lst);
@@ -1575,6 +1579,10 @@ void TrajPlotCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
    #endif
    
    mTime[mLastIndex] = time;
+
+   // Dunn notes the variable "longitude" below is declared elsewhere in this
+   // file.  Even if the other "longitude" is protected, it should probably
+   // have a different name.  This is the SECOND place longitude is declared.
    Real mha, longitude, lst;
    ComputeLongitudeLst(mTime[mLastIndex], posX[0], posY[0], &mha, &longitude, &lst);
    

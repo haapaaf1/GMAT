@@ -4333,11 +4333,35 @@
 					Name="rendering"
 					>
 					<File
+						RelativePath="..\..\..\src\gui\rendering\Camera.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\Camera.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\gui\rendering\GmatOpenGLSupport.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\rendering\GmatOpenGLSupport.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\Light.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\Light.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\Rendering.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\Rendering.hpp"
 						>
 					</File>
 				</Filter>
