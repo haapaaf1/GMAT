@@ -254,7 +254,7 @@ bool BodyFixedPoint::Initialize()
       bfLocation[1] = location[1];
       bfLocation[2] = location[2];
    }
-   // Otherwise, convert form input type to Cartesian
+   // Otherwise, convert from input type to Cartesian
    else if (stateType == "Spherical")
    {
       Rvector3 spherical(location[0], location[1], location[2]);
@@ -577,6 +577,8 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
    bool        retval           = false;
    std::string stateTypeList    = "Cartesian, Spherical";
    std::string horizonList      = "Sphere, Ellipsoid";
+   std::string currentStateType = stateType;
+   std::string currentHorizon   = horizon;
 
    if (id == CENTRAL_BODY)
    {
@@ -624,6 +626,15 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
             locationUnits[1] = "deg";
             locationUnits[2] = "km";
          }
+         if (currentStateType != stateType)
+         {
+            Rvector3 locIn(location[0], location[1], location[2]);
+            Rvector3 locOut = BodyFixedStateConverterUtil::Convert(locIn, currentStateType, horizon, stateType, horizon,
+                                                           flattening, meanEquatorialRadius);
+            location[0] = locOut[0];
+            location[1] = locOut[1];
+            location[2] = locOut[2];
+         }
          retval = true;
       }
       else
@@ -640,6 +651,15 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
       if ((value == "Sphere") || (value == "Ellipsoid"))
       {
          horizon = value;
+         if (currentHorizon != horizon)
+         {
+            Rvector3 locIn(location[0], location[1], location[2]);
+            Rvector3 locOut = BodyFixedStateConverterUtil::Convert(locIn, stateType, currentHorizon, stateType, horizon,
+                                                       flattening, meanEquatorialRadius);
+            location[0] = locOut[0];
+            location[1] = locOut[1];
+            location[2] = locOut[2];
+         }
          retval = true;
       }
       else
@@ -1159,7 +1179,7 @@ const Rvector3 BodyFixedPoint::GetMJ2000Velocity(const A1Mjd &atTime)
 }
 
 //------------------------------------------------------------------------------
-//  bool GetBodyFixedLocation(const A1Mjd &atTime) const
+//  bool GetBodyFixedLocation(const A1Mjd &atTime)
 //------------------------------------------------------------------------------
 /**
  * Method returning the BodyFixed location of the BodyFixedPoint
@@ -1173,9 +1193,41 @@ const Rvector3 BodyFixedPoint::GetMJ2000Velocity(const A1Mjd &atTime)
  * class, if/when appropriate.
  */
 //------------------------------------------------------------------------------
-const Rvector3 BodyFixedPoint::GetBodyFixedLocation(const A1Mjd &atTime) const
+const Rvector3 BodyFixedPoint::GetBodyFixedLocation(const A1Mjd &atTime)
 {
-   // Assumes bfLocation is kept up-to-date
+   if (stateType == "Cartesian")
+   {
+      bfLocation[0] = location[0];
+      bfLocation[1] = location[1];
+      bfLocation[2] = location[2];
+   }
+   // Otherwise, convert from input type to Cartesian
+   else if (stateType == "Spherical")
+   {
+      Rvector3 spherical(location[0], location[1], location[2]);
+      Rvector3 cart;
+      if (horizon == "Sphere")
+      {
+         cart = BodyFixedStateConverterUtil::SphericalToCartesian(spherical,
+                flattening, meanEquatorialRadius);
+         bfLocation[0] = cart[0];
+         bfLocation[1] = cart[1];
+         bfLocation[2] = cart[2];
+      }
+      else if (horizon == "Ellipsoid")
+      {
+         cart = BodyFixedStateConverterUtil::SphericalEllipsoidToCartesian(spherical,
+                flattening, meanEquatorialRadius);
+         bfLocation[0] = cart[0];
+         bfLocation[1] = cart[1];
+         bfLocation[2] = cart[2];
+      }
+      else
+         throw AssetException("Unable to initialize ground station \"" +
+               instanceName + "\"; horizon reference is not a recognized type (known "
+                     "types are either \"Sphere\" or \"Ellipsoid\")");
+   }
+
    Rvector3 locBodyFixed;
    locBodyFixed[0] = bfLocation[0];
    locBodyFixed[1] = bfLocation[1];
