@@ -681,9 +681,34 @@ void ScriptEventPanel::ReplaceScriptEvent()
          //-----------------------------------------------------------
          else
          {
+            #if DBGLVL_SCRIPTEVENTPANEL_REPLACE_CMDS
+            MessageInterface::ShowMessage
+               ("   Set previous/next command of BeginScript\n");
+            #endif
             // Set previous/next command of BeginScript
-            mPrevCommand->ForceSetNext(mNewCommand);
-            mNewCommand->ForceSetPrevious(mPrevCommand);
+            if (mPrevCommand->IsOfType("BranchEnd"))
+            {
+               // If previous command is BranchEnd, find matching parent of
+               // BranchEnd and set BranchEnd's next command to matching parent, then
+               // set next command of matching parent to new command
+               GmatCommand *subParent =
+                  GmatCommandUtil::GetParentCommand(first, mPrevCommand);
+               
+               #if DBGLVL_SCRIPTEVENTPANEL_REPLACE_CMDS
+               ShowCommand("   Setting ", subParent, " as next of ", mPrevCommand);
+               #endif
+               mPrevCommand->ForceSetNext(subParent);
+               
+               #if DBGLVL_SCRIPTEVENTPANEL_REPLACE_CMDS
+               ShowCommand("   Setting ", mNewCommand, " as next of ", subParent);
+               #endif
+               subParent->ForceSetNext(mNewCommand);
+            }
+            else
+            {
+               mPrevCommand->ForceSetNext(mNewCommand);
+               mNewCommand->ForceSetPrevious(mPrevCommand);
+            }
             
             // Set previous/next command of EndScript
             if (mNextCommand != NULL)
@@ -702,12 +727,14 @@ void ScriptEventPanel::ReplaceScriptEvent()
          //-----------------------------------------------------------
          if (mNewCommand->GetPrevious() != mPrevCommand)
          {
-            MessageInterface::PopupMessage
-               (Gmat::ERROR_, "ScriptEventPanel::ReplaceScriptEvent() "
-                "*** INTERNAL ERROR ***  \nmNewCommand->GetPrevious() != "
-                "mPrevCommand\n");
-            //ShowCommand("mNewCommand->GetPrevious() = ", mNewCommand->GetPrevious());
-            ShowCommand("mPrevCommand = ", mPrevCommand);
+            if (!mPrevCommand->IsOfType("BranchEnd"))
+            {
+               MessageInterface::PopupMessage
+                  (Gmat::ERROR_, "ScriptEventPanel::ReplaceScriptEvent() "
+                   "*** INTERNAL ERROR ***  \nmNewCommand->GetPrevious() != "
+                   "mPrevCommand\n");
+               //ShowCommand("mPrevCommand = ", mPrevCommand);
+            }
          }
          
          if (mNewCommand->GetNext() == NULL)
