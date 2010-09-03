@@ -18,6 +18,7 @@
  */
 //------------------------------------------------------------------------------
 
+#include <sstream>
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
 //#include "ODEModel.hpp"             // for GetScriptAlias()
@@ -341,11 +342,13 @@ Real ObjectPropertyWrapper::EvaluateReal() const
    }
    catch (BaseException &be)
    {
-      std::string errmsg = "Cannot return Real value for id \"" + propID; 
-      errmsg += "\" for object \"" + object->GetName();
-      errmsg += "\" - exception thrown: " + be.GetFullMessage();
-      throw ParameterException(errmsg);
-   }
+      std::stringstream errmsg;
+//      errmsg << "Cannot return Real value for id \"" << propID;
+//      errmsg << "\" for object \"" << object->GetName();
+//      errmsg << "\" - exception thrown: "<< be.GetFullMessage() << std::endl;
+      errmsg << be.GetFullMessage() << std::endl;
+      throw ParameterException(errmsg.str());
+  }
    
    return itsValue;
 }
@@ -367,6 +370,10 @@ bool ObjectPropertyWrapper::SetReal(const Real toValue)
 
    try
    {
+      #ifdef DEBUG_OPW
+         MessageInterface::ShowMessage(
+         "In ObjPropWrapper::SetReal, about to set value to %.12f\n", toValue);
+      #endif
       object->SetRealParameter(propID, toValue);
       #ifdef DEBUG_OPW
          MessageInterface::ShowMessage(
@@ -375,10 +382,16 @@ bool ObjectPropertyWrapper::SetReal(const Real toValue)
    }
    catch (BaseException &be)
    {
-      std::string errmsg = "Cannot set Real value for id \"" + propID; 
-      errmsg += "\" for object \"" + object->GetName();
-      errmsg += "\" - exception thrown: " + be.GetFullMessage();
-      throw ParameterException(errmsg);
+      #ifdef DEBUG_OPW
+         MessageInterface::ShowMessage(
+         "   exception thrown!  msg = %s\n", (be.GetFullMessage()).c_str());
+      #endif
+      std::stringstream errmsg;
+//      errmsg << "Cannot set Real value for id \"" << propID;
+//      errmsg << "\" for object \"" << object->GetName();
+//      errmsg << "\" - exception thrown: "<< be.GetFullMessage() << std::endl;
+      errmsg << be.GetFullMessage() << std::endl;
+      throw ParameterException(errmsg.str());
    }
    
    return true;
@@ -492,7 +505,8 @@ bool ObjectPropertyWrapper::SetInteger(const Integer toValue)
    if (propType == Gmat::INTEGER_TYPE)
    {
       Integer retval = object->SetIntegerParameter(propID, toValue);
-      return true;
+      return retval;
+//      return true;
    }
    else
       throw GmatBaseException
