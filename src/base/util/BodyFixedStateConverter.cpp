@@ -229,6 +229,8 @@ Rvector3 BodyFixedStateConverterUtil::CartesianToSpherical(const Rvector3 &cart,
 {
    // Calculate the longitude
    Real longitude = GmatMathUtil::ATan2(cart[1], cart[0]);
+   // constrain it to be 0 - 360 degrees
+   while (longitude < 0.0)  longitude += GmatMathUtil::TWO_PI;
 
    // Calculate the latitude
    Real rMag      = cart.GetMagnitude();
@@ -338,6 +340,8 @@ Rvector3 BodyFixedStateConverterUtil::CartesianToSphericalEllipsoid(const Rvecto
    #endif
    // Calculate the longitude
    Real longitude = GmatMathUtil::ATan2(cart[1], cart[0]);
+   // constrain it to be 0 - 360 degrees
+   while (longitude < 0.0)  longitude += GmatMathUtil::TWO_PI;
 
    // Calculate intermediate variables
 //   Real rMag      = cart.GetMagnitude();
