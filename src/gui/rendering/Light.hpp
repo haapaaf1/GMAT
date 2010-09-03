@@ -16,8 +16,19 @@
 #define _LIGHT_H
 
 #include "Rvector3.hpp"
-#include <GL/gl.h>
-#include <GL/glu.h>
+
+#ifdef __WXMAC__
+#  ifdef __DARWIN__
+#    include <OpenGL/gl.h>
+#    include <OpenGL/glu.h>
+#  else
+#    include <gl.h>
+#    include <glu.h>
+#  endif
+#else
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#endif
 
 class Light{
 private:
