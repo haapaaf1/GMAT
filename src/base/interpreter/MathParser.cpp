@@ -180,6 +180,14 @@ bool MathParser::IsEquation(const std::string &str)
           GetFunctionName(GMAT_FUNCTION, str, left) != "")
       {
          isEq = true;
+         
+         // Check for - sign used as string
+         if (GmatStringUtil::NumberOfOccurrences(str, '-') == 1 &&
+             GmatStringUtil::StartsWith(str, "-") &&
+             GmatStringUtil::IsSingleItem(str))
+         {
+            isEq = false;
+         }
       }
       else
       {

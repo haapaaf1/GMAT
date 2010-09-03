@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ObjectReferencedAxes
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -59,9 +59,9 @@ ObjectReferencedAxes::PARAMETER_TEXT[ObjectReferencedAxesParamCount - DynamicAxe
 const Gmat::ParameterType
 ObjectReferencedAxes::PARAMETER_TYPE[ObjectReferencedAxesParamCount - DynamicAxesParamCount] =
 {
-   Gmat::STRING_TYPE,
-   Gmat::STRING_TYPE,
-   Gmat::STRING_TYPE,
+   Gmat::ENUMERATION_TYPE,
+   Gmat::ENUMERATION_TYPE,
+   Gmat::ENUMERATION_TYPE,
    Gmat::OBJECT_TYPE,
    Gmat::OBJECT_TYPE,
 };
