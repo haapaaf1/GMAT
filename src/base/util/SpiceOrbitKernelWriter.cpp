@@ -86,6 +86,10 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
    fileOpen        (false),
    tmpTxtFile      (NULL)
 {
+   #ifdef DEBUG_SPK_WRITING
+      MessageInterface::ShowMessage("Entering constructor for SKOrbitWriter with fileName = %s\n",
+            fileName.c_str());
+   #endif
    if (GmatMathUtil::IsEven(deg)) // degree must be odd for Data Type 13
    {
       std::string errmsg = "Error creating SpiceOrbitKernelWriter: degree must be odd for Data Type 13\n";
@@ -108,6 +112,10 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
    SpiceInt        maxChar = MAX_CHAR_COMMENT;
    std::string     internalFileName = "GMAT-generated SPK file for " + objectName;
    ConstSpiceChar  *internalSPKName  = internalFileName.c_str();
+   #ifdef DEBUG_SPK_WRITING
+      MessageInterface::ShowMessage("... attempting to open SPK file with  fileName = %s\n",
+            fileName.c_str());
+   #endif
    spkopn_c(kernelNameSPICE, internalSPKName, maxChar, &handle); // CSPICE method to create and open an SPK kernel
    if (failed_c()) // CSPICE method to detect failure of previous call to CSPICE
    {
@@ -277,11 +285,17 @@ void SpiceOrbitKernelWriter::WriteSegment(const A1Mjd &start, const A1Mjd &end,
 
    SpiceDouble  endSPICE = A1ToSpiceTime(end.Get());
 
+   #ifdef DEBUG_SPK_WRITING
+      MessageInterface::ShowMessage("In WriteSegment, epochs are:\n");
+   #endif
    SpiceDouble  *epochArray;     // (deleted at end of method)
    epochArray = new SpiceDouble[numStates];
    for (Integer ii = 0; ii < numStates; ii++)
    {
       epochArray[ii] = A1ToSpiceTime(epochs.at(ii)->Get());
+      #ifdef DEBUG_SPK_WRITING
+         MessageInterface::ShowMessage("epochArray[%d] = %12.10f\n", ii, (Real) epochArray[ii]);
+      #endif
    }
 
    // put states into SpiceDouble arrays
@@ -481,7 +495,7 @@ void SpiceOrbitKernelWriter::WriteMetaData()
    tmpTxt[txtLength] = '\0';
    integer     unit;
    ftnlen      txtLen = txtLength + 1;
-   txtopr_(tmpTxt, &unit, txtLen);         // CSPICE method to open test file for reading
+   txtopr_(tmpTxt, &unit, txtLen);         // CSPICE method to open text file for reading
    spcac_(&handle, &unit, " ", " ", 1, 1); // CSPICE method to write comments to kernel
    if (failed_c())
    {
