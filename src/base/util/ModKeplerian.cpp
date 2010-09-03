@@ -238,8 +238,7 @@ Rvector6 ModKeplerianToKeplerian(const Rvector6& modKeplerian)
 
    // Check validity
    if (radApo < radPer && radApo > 0)
-      throw UtilityException("ModKeplerian::ModKeplerianToKeplerian: " 
-                             "If RadApo < RadPer then RadApo must be negative.  "
+      throw UtilityException("ModKeplerian::ModKeplerianToKeplerian: If RadApo < RadPer then RadApo must be negative.  "
                              "If setting Modified Keplerian State, set RadApo before RadPer to avoid this issue.");
 
    if (radPer <= 0)
