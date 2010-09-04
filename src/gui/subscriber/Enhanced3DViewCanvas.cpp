@@ -216,10 +216,7 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    #ifndef __WXMAC__
       theContext = new wxGLContext(this);
    #else
-      AGLPixelFormat fmt;
-      wxPalette palette;
-
-      // theContext = new wxGLContext(fmt, this, palette, NULL);
+      theContext = GetContext();
    #endif
 
 	mCamera.Reset();

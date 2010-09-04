@@ -15,6 +15,7 @@
 #ifndef _LIGHT_H
 #define _LIGHT_H
 
+#include "GmatAppData.hpp"   // for defines needed to compile on Mac
 #include "Rvector3.hpp"
 
 #ifdef __WXMAC__
