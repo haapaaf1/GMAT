@@ -28,7 +28,7 @@ HEADERS = -I../base/include -I../base/foundation \
           -I../base/solarsys -I../base/propagator \
           -I../base/interpreter -I../base/parameter \
           -I../base/interpolator -I../base/util \
-          -I../base/stopcond \
+          -I../base/stopcond -I../base/hardware \
           -I../base/configs -I../base/burn \
           -I../base/solver -I../base/function \
           -I../base/coordsystem -I../base/attitude \
@@ -50,7 +50,7 @@ archclean :
 	$(CPP) $(CPPFLAGS) $(HEADERS) $(OPTIMIZATIONS) -c $<
 
 $(TARGET): $(OBJECTS)
-	$(CPP) $(OBJECTS) $(CONSOLE_LINK_FLAGS) $(LIBRARIES) $(OPTIMIZATIONS) \
+	$(CPP) $(OBJECTS) $(CONSOLE_LINK_FLAGS) $(LIBRARIES) $(OPTIMIZATIONS) $(SPICE_LIBRARIES) \
 	$(FORTRAN_LIB) -o $(TARGET)
 	mkdir -p ../../bin
 	cp $(TARGET) ../../bin/$(TARGET)

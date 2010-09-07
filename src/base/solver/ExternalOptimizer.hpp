@@ -24,7 +24,13 @@
 #include "Optimizer.hpp"
 //#include "GmatServer.hpp"  
 #include "GmatInterface.hpp"  // a singleton
+
+#if __CONSOLE_APP__
+class GmatServer;
+#else
 #include "GmatServer.hpp"
+#endif
+
 
 class GMAT_API ExternalOptimizer : public Optimizer
 {
