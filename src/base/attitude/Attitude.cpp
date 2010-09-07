@@ -35,10 +35,12 @@
 //#define DEBUG_ATTITUDE_GET
 //#define DEBUG_ATTITUDE_SET_REAL
 //#define DEBUG_ATTITUDE_SET
+//#define DEBUG_ATT_GET_EULER_ANGLES
 //#define DEBUG_ATTITUDE_READ_ONLY
 //#define DEBUG_EULER_ANGLE_RATES
 //#define DEBUG_TO_DCM
 //#define DEBUG_ATTITUDE_PARAM_TYPE
+//#define DEBUG_ATTITUDE_INIT
 
 //---------------------------------
 // static data
@@ -1131,8 +1133,8 @@ Attitude::Attitude(const Attitude& att) :
    inputAttitudeRateType   (att.inputAttitudeRateType),
    attitudeDisplayType     (att.attitudeDisplayType),
    attitudeRateDisplayType (att.attitudeRateDisplayType),
-   isInitialized           (false),
-   needsReinit             (false),
+   isInitialized           (att.isInitialized),
+   needsReinit             (att.needsReinit),
    eulerSequenceList       (att.eulerSequenceList),
    epoch                   (att.epoch),
    refCSName               (att.refCSName),
@@ -1170,8 +1172,8 @@ Attitude& Attitude::operator=(const Attitude& att)
    inputAttitudeRateType   = att.inputAttitudeRateType;
    attitudeDisplayType     = att.attitudeDisplayType;
    attitudeRateDisplayType = att.attitudeRateDisplayType;
-   isInitialized           = false;
-   needsReinit             = false;
+   isInitialized           = att.isInitialized;
+   needsReinit             = att.needsReinit;
    eulerSequenceList       = att.eulerSequenceList;
    epoch                   = att.epoch;
    refCSName               = att.refCSName;
@@ -1388,7 +1390,20 @@ const Rvector&   Attitude::GetQuaternion(Real atTime)
 //---------------------------------------------------------------------------
 const Rvector3&  Attitude::GetEulerAngles(Real atTime)
 {
-   if (isInitialized && needsReinit) Initialize();
+   if (isInitialized && needsReinit)
+   {
+      #ifdef DEBUG_ATT_GET_EULER_ANGLES
+         MessageInterface::ShowMessage("In GetEulerAngles, about to call Initialize\n");
+      #endif
+      Initialize();
+   }
+   #ifdef DEBUG_ATT_GET_EULER_ANGLES
+   else
+   {
+      MessageInterface::ShowMessage("In GetEulerAngles, NOT about to call Initialize\n");
+   }
+   #endif
+
    if (GmatMathUtil::Abs(atTime - attitudeTime) >
        ATTITUDE_TIME_TOLERANCE)
    {
@@ -1463,6 +1478,10 @@ const Rmatrix33& Attitude::GetCosineMatrix(Real atTime)
       ComputeCosineMatrixAndAngularVelocity(atTime);
       attitudeTime = atTime;
    }
+   #ifdef DEBUG_ATTITUDE_GET
+      MessageInterface::ShowMessage(" ... returning cosine matrix: %s\n",
+            (cosMat.ToString()).c_str());
+   #endif
 
    return cosMat;
 }
