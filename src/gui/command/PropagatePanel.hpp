@@ -42,7 +42,7 @@ public:
    
 private:
    
-   static const Integer MAX_PROP_ROW     = 5;
+   static const Integer MAX_PROP_ROW     = 15;
    static const Integer MAX_STOPCOND_ROW = 10;
    static const Integer PROP_NAME_COL = 0;
    static const Integer PROP_SOS_COL  = 1;
@@ -65,7 +65,6 @@ private:
       wxString       name;
       wxString       desc;
       wxString       varName;
-      //wxString       typeName;
       wxString       relOpStr;
       wxString       goalStr;
       StopCondition *stopCondPtr;
@@ -86,6 +85,7 @@ private:
    bool mStopTolChanged;
    bool mPropGridSelected;
    bool mStopCondGridSelected;
+   bool isPropGridDisabled;
    
    Integer mPropModeCount;
    Integer mPropCount;

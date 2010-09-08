@@ -61,6 +61,7 @@ PropagatePanel::PropagatePanel(wxWindow *parent, GmatCommand *cmd)
    mPropSatChanged = false;
    mStopCondChanged = false;
    mStopTolChanged = false;
+   isPropGridDisabled = false;
    canClose = true;
 
    InitializeData();   
@@ -511,7 +512,7 @@ void PropagatePanel::OnComboBoxChange(wxCommandEvent& event)
 // void OnCellRightClick(wxGridEvent& event)
 //------------------------------------------------------------------------------
 void PropagatePanel::OnCellRightClick(wxGridEvent& event)
-{    
+{
    Integer row = event.GetRow();
    Integer col = event.GetCol();
    
@@ -523,6 +524,10 @@ void PropagatePanel::OnCellRightClick(wxGridEvent& event)
    // Propagate grid
    if (event.GetEventObject() == propGrid)
    {
+      if (isPropGridDisabled)
+         return;
+      
+      propGrid->SelectBlock(row, col, row, col);
       propGrid->SetGridCursor(row, col);
       
       if (col == 0)
@@ -614,6 +619,7 @@ void PropagatePanel::OnCellRightClick(wxGridEvent& event)
    // Stopping Condition grid
    else if (event.GetEventObject() == stopCondGrid)
    {
+      stopCondGrid->SelectBlock(row, col, row, col);
       stopCondGrid->SetGridCursor(row, col);
       
       if (col == 0)
@@ -787,6 +793,17 @@ void PropagatePanel::LoadData()
    
    Integer soCount = 0;
    
+   if (mPropCount > MAX_PROP_ROW)
+   {
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "There are more propagators (%d) than GMAT can manage "
+          "to show (%d).\nSo the propagator grid is set to uneditable.\n",
+          mPropCount, MAX_PROP_ROW);
+      mPropCount = MAX_PROP_ROW;
+      propGrid->EnableEditing(false);
+      isPropGridDisabled = true;
+   }
+   
    for (Integer i=0; i<mPropCount; i++)
    {
       mTempProp[i].propName = wxT(propNames[i].c_str());
@@ -823,6 +840,10 @@ void PropagatePanel::LoadData()
                 "so removed from the display list\n", soList[j].c_str());
          }
       }
+      
+      #ifdef DEBUG_PROPAGATE_PANEL_LOAD
+      MessageInterface::ShowMessage("   actualSoCount=%d\n", actualSoCount);
+      #endif
       
       soCount = actualSoCount;
       mTempProp[i].soCount = actualSoCount;
