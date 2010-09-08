@@ -18,6 +18,7 @@
 #include "GmatPanel.hpp"
 #include "Parameter.hpp"
 #include "MissionTreeItemData.hpp"
+#include <wx/laywin.h>
 
 #ifdef __USE_STC_EDITOR__
 #include "Editor.hpp"
@@ -48,6 +49,9 @@ private:
    GmatCommand *mNextCommand;
    GmatCommand *mNewCommand;
    
+   wxSashLayoutWindow* theCommentsWin;
+   wxSashLayoutWindow* theScriptsWin;
+   
    wxTextCtrl  *mCommentTextCtrl;
    wxGridSizer *mBottomSizer;
    wxBoxSizer  *mPageSizer;
@@ -66,13 +70,16 @@ private:
    // event handling
    void OnCommentChange(wxCommandEvent& event);
    void OnScriptChange(wxCommandEvent& event);
+   void OnSashDrag(wxSashEvent &event);
+   void OnSize(wxSizeEvent &event);
    
    DECLARE_EVENT_TABLE();
    
    // IDs for the controls and the menu commands
    enum
-   {     
-      ID_TEXT = 9000,
+   {
+      ID_SASH_WINDOW = 9000,
+      ID_TEXT,
       ID_COMMENT_CTRL,
       ID_SCRIPT_CTRL,
       ID_STC,
