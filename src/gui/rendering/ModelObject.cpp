@@ -21,12 +21,25 @@
  */
 //------------------------------------------------------------------------------
 
-#include <windows.h>
+#include "gmatdefs.hpp"
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <gl/gl.h>
-#include <gl/glu.h>
+
+
+#ifdef __WXMAC__
+#  ifdef __DARWIN__
+#    include <OpenGL/gl.h>
+#    include <OpenGL/glu.h>
+#  else
+#    include <gl.h>
+#    include <glu.h>
+#  endif
+#else
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#endif
+
 #include "ModelObject.hpp"
 #include "Load3ds.hpp"
 #include "LoadPOV.hpp"

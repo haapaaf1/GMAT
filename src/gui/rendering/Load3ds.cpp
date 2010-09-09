@@ -14,8 +14,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
-#include <io.h>
+//#include <conio.h>
+//#include <io.h>
 #include "ModelObject.hpp"
 #include "Load3ds.hpp"
 
@@ -52,7 +52,7 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
    int i, chunk; // Index
    int vert_index[MAX_LISTS]; // The starting index of a particular list of vertices
    int poly_index[MAX_LISTS]; // The starting index of a particular list of polygons
-   int vert_list = 0, poly_list = 0, map_list = 0;
+   int vert_list = 0, poly_list = 0, uv_list = 0, map_list = 0;
    FILE *l_file; // File pointer
    unsigned short l_chunk_id; // Chunk id
    unsigned int l_chunk_length; // Chunk length
@@ -60,6 +60,7 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
    unsigned char r,g,b;
    unsigned short l_qty; // Numbers of elements in each chunk
    unsigned short l_face_flags; // Flag storing some face info
+	long size; // length of the file
 
    // Make we have a file name
    if (p_filename[0] == '\0') 
@@ -67,17 +68,21 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
    fprintf(stdout, "Loading 3ds object: %s\n", p_filename.mb_str());
 
    // Load the file, print an error message if we couldn't find the file or it failed for any reason
-   if ((l_file = fopen(p_filename.mb_str(), "rb")) == NULL){
+	if ((l_file = fopen(p_filename.mb_str(), "rb")) == NULL){ 
       fprintf(stdout, "File %s not found!", p_filename.mb_str());
       return 0;
    }
+
+	fseek(l_file, 0, SEEK_END); // seek to end of file
+	size = ftell(l_file); // get current file pointer
+	fseek(l_file, 0, SEEK_SET); // seek back to beginning of file
 
    p_object->num_vertices = 0;
    p_object->num_polygons = 0;
    p_object->num_materials = 0;
 
    // Loop through the whole file
-   while(ftell(l_file) < filelength(fileno(l_file))){
+	while(ftell(l_file) < size){//filelength(fileno(l_file))){
       // Read in chunk header
       fread(&l_chunk_id, 2, 1, l_file); 
       if (LOAD3DS_DEBUG)
@@ -278,9 +283,9 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
          case CHUNK_MATSHINE:
             break;
          case CHUNK_SUBSHINE:
-            unsigned char s;
+            unsigned short s;
             fread(&s, sizeof(unsigned short), 1, l_file);
-            p_object->material[p_object->num_materials-1].mat_shininess = (float)s/255;
+            p_object->material[p_object->num_materials-1].mat_shininess = (float)s/255.0f;
             break;
          // The header chunk containing the material's texture. Skip it. 
          case CHUNK_TEXMAP:

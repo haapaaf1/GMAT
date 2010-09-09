@@ -18,6 +18,7 @@
 #include "GmatAppData.hpp"   // for defines needed to compile on Mac
 #include "Rvector3.hpp"
 
+#include "gmatwxdefs.hpp"    // Makes Mac happier to see this
 #ifdef __WXMAC__
 #  ifdef __DARWIN__
 #    include <OpenGL/gl.h>

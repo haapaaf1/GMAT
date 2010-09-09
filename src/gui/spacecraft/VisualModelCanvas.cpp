@@ -22,8 +22,8 @@
 //------------------------------------------------------------------------------
 
 #include "gmatwxdefs.hpp"
-#include "camera.hpp"
-#include "light.hpp"
+#include "Camera.hpp"
+#include "Light.hpp"
 #include "GmatOpenGLSupport.hpp"   // for OpenGL support
 #include "VisualModelCanvas.hpp"
 #include "MessageInterface.hpp"
