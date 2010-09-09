@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  DeFile
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -116,6 +116,8 @@ PlanetaryEphem(fileName)
    theFileFormat = fmt;
    theFileName = fileName;
    
+   baseEpoch = GmatTimeUtil::JD_JAN_5_1941;
+
    Initialize();
 }
 
@@ -149,6 +151,7 @@ PlanetaryEphem(def)
    T_beg          = def.T_beg;
    T_end          = def.T_end;
    T_span         = def.T_span;
+   baseEpoch      = def.baseEpoch;
    
    theFileName    = def.theFileName;
 
@@ -188,6 +191,7 @@ DeFile& DeFile::operator=(const DeFile& def)
    T_beg          = def.T_beg;
    T_end          = def.T_end;
    T_span         = def.T_span;
+   baseEpoch      = def.baseEpoch;
 
    theFileName    = def.theFileName;
 
@@ -304,7 +308,9 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
       double mjdTT = (double) TimeConverterUtil::Convert(atTime.Get(),
                       TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
                       GmatTimeUtil::JD_JAN_5_1941);
-      absJD = mjdTT + GmatTimeUtil::JD_JAN_5_1941;
+
+      absJD = mjdTT;
+
       #ifdef DEBUG_DEFILE_GET
          MessageInterface::ShowMessage
             ("DeFile::GetPosVel() : mjdTT = %12.10f\n", mjdTT);
@@ -317,7 +323,9 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
       double mjdTDB = (double) TimeConverterUtil::Convert(atTime.Get(),
                       TimeConverterUtil::A1MJD, TimeConverterUtil::TDBMJD, 
                       GmatTimeUtil::JD_JAN_5_1941);
-      absJD = mjdTDB + GmatTimeUtil::JD_JAN_5_1941;
+
+      absJD = mjdTDB;
+
       #ifdef DEBUG_DEFILE_GET
          MessageInterface::ShowMessage
             ("DeFile::GetPosVel() : mjdTDB = %12.10f\n", mjdTDB);
@@ -395,14 +403,14 @@ void  DeFile::GetAnglesAndRates(A1Mjd atTime, Real* angles, Real* rates,
        double mjdTT = (double) TimeConverterUtil::Convert(atTime.Get(),
                        TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
                        GmatTimeUtil::JD_JAN_5_1941);
-      absJD        = mjdTT + GmatTimeUtil::JD_JAN_5_1941;
+       absJD        = mjdTT;
    }
    else
    {
        double mjdTDB = (double) TimeConverterUtil::Convert(atTime.Get(),
                        TimeConverterUtil::A1MJD, TimeConverterUtil::TDBMJD, 
                        GmatTimeUtil::JD_JAN_5_1941);
-      absJD         = mjdTDB + GmatTimeUtil::JD_JAN_5_1941;
+       absJD         = mjdTDB;
    }
 
    #ifdef DEBUG_DEFILE_LIB
@@ -533,7 +541,7 @@ void DeFile::InitializeDeFile(std::string fName, Gmat::DeFileFormat fileFmt)
    jdMjdOffset          = (double) DeFile::JD_MJD_OFFSET;
    
    // store file begin time (loj: 9/15/05 Added)
-   mFileBeg = T_beg;
+   mFileBeg = T_beg - baseEpoch;
 
    #ifdef DEBUG_DEFILE_INIT
    MessageInterface::ShowMessage("   T_beg=%.9f, addr=%p\n", T_beg, &T_beg);
@@ -615,7 +623,7 @@ void DeFile::Read_Coefficients( double Time )
   if ( Time < T_beg )                    /* Compute backwards location offset */
      {
        T_delta = T_beg - Time;
-       Offset  = (int) -ceil(T_delta/T_span); 
+       Offset  = (int) - ceil(T_delta/T_span);
      }
 
   if ( Time > T_end )                    /* Compute forewards location offset */
@@ -646,8 +654,8 @@ void DeFile::Read_Coefficients( double Time )
      // can be safely ignored.
      size_t len = fread(&Coeff_Array,sizeof(double),arraySize,Ephemeris_File);
 
-     T_beg  = Coeff_Array[0];
-     T_end  = Coeff_Array[1];
+     T_beg  = Coeff_Array[0] - baseEpoch;
+     T_end  = Coeff_Array[1] - baseEpoch;
      T_span = T_end - T_beg;
   }
   
@@ -728,8 +736,8 @@ int DeFile::Initialize_Ephemeris( char *fileName )
               
        /*..........................................Set current time variables */
 
-       T_beg  = Coeff_Array[0];
-       T_end  = Coeff_Array[1];
+       T_beg  = Coeff_Array[0] - baseEpoch;
+       T_end  = Coeff_Array[1] - baseEpoch;
        T_span = T_end - T_beg;
 
        /*..............................Convert header ephemeris ID to integer */
@@ -1364,9 +1372,9 @@ void DeFile::Interpolate_State(double Time , int Target, stateType *p)
   //   {
   //     printf("\n  In: Interpolate_State\n");
   //     printf("\n  Target = %2d",Target);
-  //     printf("\n  C      = %4d (before)",C);
-  //     printf("\n  N      = %4d",N);
-  //     printf("\n  G      = %4d\n",G);
+  //     printf("\n  C      = %4ld (before)",C);
+  //     printf("\n  N      = %4ld",N);
+  //     printf("\n  G      = %4ld\n",G);
   //   }
 
   /*--------------------------------------------------------------------------*/

@@ -279,6 +279,8 @@ private:
    FILE        *Ephemeris_File;
    double       Coeff_Array[MAX_ARRAY_SIZE];   // MAX
    double       T_beg , T_end , T_span;
+   /// The base epoch for internal time calculations
+   double       baseEpoch;
    double       mFileBeg;
       #if (USE_64_BIT_LONGS == 1)
          int numConst;
