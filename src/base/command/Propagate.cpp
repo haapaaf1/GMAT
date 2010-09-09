@@ -2919,16 +2919,16 @@ void Propagate::PrepareToPropagate()
 
          p[n]->Initialize();
          p[n]->Update(direction > 0.0);
-         if (prop[n]->GetPropagator()->UsesODEModel())
-         {
-            state = fm[n]->GetState();
-            j2kState = fm[n]->GetJ2KState();
-         }
-         else
-         {
-            state = p[n]->GetState();
-            j2kState = p[n]->GetJ2KState();
-         }
+//         if (prop[n]->GetPropagator()->UsesODEModel())
+//         {
+//            state = fm[n]->GetState();
+//            j2kState = fm[n]->GetJ2KState();
+//         }
+//         else
+//         {
+//            state = p[n]->GetState();
+//            j2kState = p[n]->GetJ2KState();
+//         }
       }   
 
       baseEpoch.clear();
@@ -3017,7 +3017,6 @@ void Propagate::PrepareToPropagate()
                "Stopping condition IDs are [%d, %d, %d]\n",
                stopCondEpochID, stopCondBaseEpochID, stopCondStopVarID);
       #endif
-      
       
       try
       {
@@ -3958,6 +3957,15 @@ bool Propagate::CheckFirstStepStop(Integer i)
          max = temp;
       }
       goal = stopWhen[i]->GetStopGoal(); 
+
+      if (stopWhen[i]->IsCyclicParameter())
+      {
+         Real rangemin, rangemax;
+         stopWhen[i]->GetRange(rangemin, rangemax);
+         Real halfrange = (rangemax - rangemin)/2.0;
+         min = stopWhen[i]->PutInRange(min, goal-halfrange, goal+halfrange);
+         max = stopWhen[i]->PutInRange(max, goal-halfrange, goal+halfrange);
+      }
       
       temp = fabs(goal - min);
       if (fabs(goal - max) < temp)
