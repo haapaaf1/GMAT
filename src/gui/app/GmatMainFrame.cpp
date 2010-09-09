@@ -183,6 +183,11 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
 
    EVT_MENU (MENU_FILE_NEW_SCRIPT, GmatMainFrame::OnNewScript)
    EVT_MENU (MENU_FILE_OPEN_SCRIPT, GmatMainFrame::OnOpenScript)
+   EVT_MENU (MENU_FILE_OPEN_RECENT_SCRIPT1, GmatMainFrame::OnOpenRecentScript1)
+   EVT_MENU (MENU_FILE_OPEN_RECENT_SCRIPT2, GmatMainFrame::OnOpenRecentScript2)
+   EVT_MENU (MENU_FILE_OPEN_RECENT_SCRIPT3, GmatMainFrame::OnOpenRecentScript3)
+   EVT_MENU (MENU_FILE_OPEN_RECENT_SCRIPT4, GmatMainFrame::OnOpenRecentScript4)
+   EVT_MENU (MENU_FILE_OPEN_RECENT_SCRIPT5, GmatMainFrame::OnOpenRecentScript5)
 
    EVT_MENU (MENU_SET_PATH_AND_LOG, GmatMainFrame::OnSetPath)
 
@@ -1842,6 +1847,72 @@ void GmatMainFrame::OpenScript(bool restore)
 
 
 //------------------------------------------------------------------------------
+// void OpenRecentScript(size_t index)
+//------------------------------------------------------------------------------
+/**
+ * open recent script file from the menu bar.
+ *
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OpenRecentScript(size_t index, wxCommandEvent &event)
+{
+   wxArrayString files;
+   wxString aFilename;
+   wxString aKey;
+   std::string s;
+   long dummy;
+
+   // get the files from the config
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   pConfig->SetPath(wxT("/RecentFiles"));
+
+   // read filenames from config object
+   if (pConfig->GetFirstEntry(aKey, dummy))
+   {
+      files.Add(pConfig->Read(aKey));
+      while (pConfig->GetNextEntry(aKey, dummy))
+      {
+         files.Add(pConfig->Read(aKey));
+      }
+   }
+
+
+   GmatAppData *gmatAppData = GmatAppData::Instance();
+   gmatAppData->GetResourceTree()->AddScript(files[index]);
+
+   if (gmatAppData->GetResourceTree()->WasScriptAdded())
+   {
+      #ifdef DEBUG_MAINFRAME_OPEN
+      MessageInterface::ShowMessage
+         ("GmatMainFrame::OnOpenRecentScript() mInterpretFailed=%d, "
+          "HasConfigurationChanged=%d\n", mInterpretFailed,
+          theGuiInterpreter->HasConfigurationChanged());
+      #endif
+
+      if (!mInterpretFailed && theGuiInterpreter->HasConfigurationChanged())
+      {
+          // need to save new file name because it gets overwritten in save
+          std::string tmpFilename = mScriptFilename;
+
+          // ask user to continue because changes will be lost
+          if (wxMessageBox(_T("Changes will be lost.\nDo you want to save the current script?"),
+             _T("Please confirm"),
+             wxICON_QUESTION | wxYES_NO) == wxYES)
+          {
+             OnSaveScriptAs(event);
+          }
+
+          mScriptFilename = tmpFilename;
+      }
+
+      SetStatusText("", 2);
+      InterpretScript(mScriptFilename.c_str(), GmatGui::OPEN_SCRIPT_ON_ERROR, true);
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // void UpdateTitle(const wxString &filename)
 //------------------------------------------------------------------------------
 void GmatMainFrame::UpdateTitle(const wxString &filename)
@@ -1981,7 +2052,7 @@ void GmatMainFrame::OnSaveScript(wxCommandEvent& event)
 
       #ifdef __CONFIRM_SAVE__
       MessageInterface::PopupMessage
-         (Gmat::INFO_, "Scrpt saved to \"%s\"\n", mScriptFilename.c_str());
+         (Gmat::INFO_, "Script saved to \"%s\"\n", mScriptFilename.c_str());
       #endif
 
       #ifdef __CLOSE_CHILDREN_AFTER_SAVE__
@@ -2738,6 +2809,81 @@ void GmatMainFrame::OnOpenScript(wxCommandEvent& event)
 
 
 //------------------------------------------------------------------------------
+// void OnOpenRecentScript1(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles opening script file from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnOpenRecentScript1(wxCommandEvent& event)
+{
+   OpenRecentScript(0, event);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnOpenRecentScript2(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles opening script file from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnOpenRecentScript2(wxCommandEvent& event)
+{
+   OpenRecentScript(1, event);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnOpenRecentScript3(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles opening script file from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnOpenRecentScript3(wxCommandEvent& event)
+{
+   OpenRecentScript(2, event);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnOpenRecentScript4(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles opening script file from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnOpenRecentScript4(wxCommandEvent& event)
+{
+   OpenRecentScript(3, event);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnOpenRecentScript5(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles opening script file from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnOpenRecentScript5(wxCommandEvent& event)
+{
+   OpenRecentScript(4, event);
+}
+
+
+//------------------------------------------------------------------------------
 // void OnSetPath(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 /**
@@ -3385,10 +3531,23 @@ void GmatMainFrame::OnKeyDown(wxKeyEvent &event)
 
 
 //------------------------------------------------------------------------------
+// void UpdateRecentMenu(bool openOn)
+//------------------------------------------------------------------------------
+/*
+ * Enables or disables menu File->Open item
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::UpdateRecentMenu(wxArrayString files)
+{
+   ((GmatMenuBar *) theMenuBar)->UpdateRecentMenu(files);
+}
+
+
+//------------------------------------------------------------------------------
 // void UpdateMenus(bool openOn)
 //------------------------------------------------------------------------------
 /*
- * Enanbles or disables menu File->Open item
+ * Enables or disables menu File->Open item
  */
 //------------------------------------------------------------------------------
 void GmatMainFrame::UpdateMenus(bool openOn)
