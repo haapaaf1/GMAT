@@ -36,9 +36,11 @@ public:
    void SetMainFrame(GmatMainFrame *gmf);
    void ClearResource(bool leaveScripts);
    void UpdateResource(bool resetCounter);
+   void AddScript(wxString path);
    bool AddScriptItem(wxString path);
    void UpdateFormation();
    void UpdateVariable();
+   void UpdateRecentFiles(wxString filename);
    void OnAddScript(wxCommandEvent &event);
    void UpdateMatlabServerItem(bool start);
    bool WasScriptAdded() { return mScriptAdded; }

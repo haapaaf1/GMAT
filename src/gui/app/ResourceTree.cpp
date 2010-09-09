@@ -82,6 +82,7 @@
 #include <wx/filename.h>
 #include <wx/filedlg.h>
 #include <wx/dirdlg.h>
+#include <wx/config.h>
 
 // If we are ready to handle Constellations, enable this
 //define __ENABLE_CONSTELLATIONS__
@@ -339,6 +340,27 @@ void ResourceTree::UpdateResource(bool restartCounter)
 
 
 //------------------------------------------------------------------------------
+// void AddScript(wxString path)
+//------------------------------------------------------------------------------
+/*
+ * Add script file path and name to resource tree and sets main frame title
+ *
+ * @param  path  script full path name
+ *
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::AddScript(wxString path)
+{
+   mScriptAdded = AddScriptItem(path);
+   if (mScriptAdded)
+   {
+      // need to set the filename to MainFrame
+      theMainFrame->SetScriptFileName(path.c_str());
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // bool AddScriptItem(wxString path)
 //------------------------------------------------------------------------------
 /*
@@ -417,6 +439,7 @@ bool ResourceTree::AddScriptItem(wxString path)
 
       Expand(mScriptItem);
       SelectItem(scriptId);
+      UpdateRecentFiles(path);
       scriptAdded = true;
    }
    else
@@ -442,6 +465,59 @@ void ResourceTree::UpdateFormation()
 {
    DeleteChildren(mFormationItem);
    AddDefaultFormations(mFormationItem);
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateVariable()
+//------------------------------------------------------------------------------
+/**
+ * Updates Variable node.
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::UpdateRecentFiles(wxString filename)
+{
+   wxArrayString files;
+   wxString aFilename;
+   wxString aKey;
+   std::string s;
+   long dummy;
+
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   pConfig->SetPath(wxT("/RecentFiles"));
+
+   // read filenames from config object
+   if (pConfig->GetFirstEntry(aKey, dummy))
+   {
+      files.Add(pConfig->Read(aKey));
+      while (pConfig->GetNextEntry(aKey, dummy))
+      {
+         files.Add(pConfig->Read(aKey));
+      }
+   }
+
+   if (files.Index(filename.c_str()) != wxNOT_FOUND) return;
+
+   // add latest filename to end of list
+   files.Add(filename);
+
+   // remove files from beginning of list
+   while (files.GetCount() > 5)
+      files.RemoveAt(0);
+
+   // save filenames back to config
+   pConfig->SetPath(wxT("/"));
+   pConfig->DeleteGroup("/RecentFiles");
+   pConfig->SetPath(wxT("/RecentFiles"));
+   for (size_t i = 0; i < files.GetCount(); i++)
+   {
+      s = "File"+GmatStringUtil::ToString((Integer) i, false, 1);
+      pConfig->Write(wxT(s.c_str()), files[i]);
+   }
+
+   theMainFrame->UpdateRecentMenu(files);
+
 }
 
 
@@ -3119,7 +3195,6 @@ void ResourceTree::OnAddScript(wxCommandEvent &event)
    //}
    //---------------- debug
 
-   mScriptAdded = false;
 
    wxFileDialog dialog(this, _T("Choose a file"), _T(""), _T(""),
          _T("Script files (*.script, *.m)|*.script;*.m|"\
@@ -3130,12 +3205,7 @@ void ResourceTree::OnAddScript(wxCommandEvent &event)
    if (dialog.ShowModal() == wxID_OK)
    {
       wxString path = dialog.GetPath().c_str();
-      mScriptAdded = AddScriptItem(path);
-      if (mScriptAdded)
-      {
-         // need to set the filename to MainFrame
-         theMainFrame->SetScriptFileName(path.c_str());
-      }
+      AddScript(path);
    }
 }
 
