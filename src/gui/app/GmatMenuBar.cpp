@@ -16,6 +16,7 @@
 #include "GmatTreeItemData.hpp"
 #include "GmatGlobal.hpp"        // for GetRunMode()
 #include "MessageInterface.hpp"
+#include <wx/config.h>
 
 #define __ADD_CLOSE_TO_WINDOW_MENU__
 //#define __SHOW_EPHEM_FILE__
@@ -76,7 +77,10 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    newMenu->Append(MENU_FILE_NEW_SCRIPT, wxT("Script"));
    newMenu->Append(MENU_LOAD_DEFAULT_MISSION, wxT("Mission"));
    fileMenu->Append(MENU_FILE_NEW, wxT("New"), newMenu, wxT(""));
+   fileMenu->AppendSeparator();
    fileMenu->Append(MENU_FILE_OPEN_SCRIPT, wxT("&Open"), wxT(""));   
+   fileMenu->Append(MENU_FILE_OPEN_RECENT_SCRIPT1, wxT("Open &Recent"), wxT(""));
+   fileMenu->AppendSeparator();
    fileMenu->Append(MENU_FILE_SAVE_SCRIPT, wxT("&Save"), wxT(""));
    fileMenu->Append(MENU_FILE_SAVE_SCRIPT_AS, wxT("Save As"), wxT(""));
    
@@ -219,8 +223,65 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    }
    #endif
    
+   wxArrayString files;
+   wxString aKey;
+   long dummy;
+
+   // get the config object
+   wxConfigBase *pConfig = wxConfigBase::Get();
+   pConfig->SetPath(wxT("/RecentFiles"));
+
+   // read filenames from config object
+   if (pConfig->GetFirstEntry(aKey, dummy))
+   {
+      files.Add(pConfig->Read(aKey));
+      while (pConfig->GetNextEntry(aKey, dummy))
+      {
+         files.Add(pConfig->Read(aKey));
+      }
+   }
+   UpdateRecentMenu(files);
+
    #ifdef DEBUG_MENUBAR
    MessageInterface::ShowMessage("GmatMenuBar::CreateMenu() exiting\n");
    #endif
 }
+
+
+//------------------------------------------------------------------------------
+// void UpdateRecentMenu(wxArrayString files)
+//------------------------------------------------------------------------------
+/*
+ * Updates the File->Open Recent-> menu
+ */
+//------------------------------------------------------------------------------
+void GmatMenuBar::UpdateRecentMenu(wxArrayString files)
+{
+#ifdef DEBUG_MENUBAR
+   MessageInterface::ShowMessage("===> updating recent files menu, number of files = %d\n", files.GetCount());
+#endif
+   // get the Recent menu
+   wxMenu *fileMenu = GetMenu(0);
+   size_t recentIndex = fileMenu->FindItem(wxT("Open Recent"));
+   // clear the Recent menu
+   fileMenu->Destroy(recentIndex);
+
+   // create a new recent menu
+   wxMenu *recentMenu = new wxMenu;
+   if (files.GetCount() > 0)
+      recentMenu->Append(MENU_FILE_OPEN_RECENT_SCRIPT1, files[0]);
+   if (files.GetCount() > 1)
+      recentMenu->Append(MENU_FILE_OPEN_RECENT_SCRIPT2, files[1]);
+   if (files.GetCount() > 2)
+      recentMenu->Append(MENU_FILE_OPEN_RECENT_SCRIPT3, files[2]);
+   if (files.GetCount() > 3)
+      recentMenu->Append(MENU_FILE_OPEN_RECENT_SCRIPT4, files[3]);
+   if (files.GetCount() > 4)
+      recentMenu->Append(MENU_FILE_OPEN_RECENT_SCRIPT5, files[4]);
+
+   wxMenuItem *recentMenuItem = fileMenu->Insert(3, MENU_FILE_OPEN_RECENT_SCRIPT1, wxT("Open Recent"), recentMenu, wxT(""));
+   if (recentMenu->GetMenuItemCount() == 0)
+      recentMenuItem->Enable(false);
+}
+
 

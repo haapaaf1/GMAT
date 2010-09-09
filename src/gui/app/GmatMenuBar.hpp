@@ -23,6 +23,7 @@ class GmatMenuBar : public wxMenuBar
 public:
    // constructors
    GmatMenuBar(GmatTree::ItemType itemType, wxMenu *windowMenu, long style = 0);
+   void UpdateRecentMenu(wxArrayString files);
    
 protected:
 private:
@@ -41,6 +42,11 @@ namespace GmatMenu
       MENU_FILE_NEW = 10000,
       MENU_FILE_NEW_SCRIPT,
       MENU_FILE_OPEN_SCRIPT,
+      MENU_FILE_OPEN_RECENT_SCRIPT1,
+      MENU_FILE_OPEN_RECENT_SCRIPT2,
+      MENU_FILE_OPEN_RECENT_SCRIPT3,
+      MENU_FILE_OPEN_RECENT_SCRIPT4,
+      MENU_FILE_OPEN_RECENT_SCRIPT5,
       MENU_FILE_SAVE_SCRIPT,
       MENU_FILE_SAVE_SCRIPT_AS,
       MENU_LOAD_DEFAULT_MISSION,
