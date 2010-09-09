@@ -409,6 +409,60 @@ void TestSyncModeAccess(std::string filwwename)
 
 
 //------------------------------------------------------------------------------
+// void DumpDEData(double secsToStep)
+//------------------------------------------------------------------------------
+/**
+ * Writes out the Earth and Moon position and velocity data for a set span to
+ * the file EarthMoonDe.txt
+ *
+ * @param secsToStep The timestep to use
+ * @param spanInSecs The time span in seconds
+ */
+//------------------------------------------------------------------------------
+void DumpDEData(double secsToStep, double spanInSecs)
+{
+   double baseEpoch = 21545.0, currentEpoch = 21545.0;
+   long step = 0;
+   std::ofstream data("EarthMoonDe.txt");
+
+   Moderator *mod = Moderator::Instance();
+   if (!mod->Initialize()) {
+      throw ConsoleAppException("Moderator failed to initialize!");
+   }
+
+   SolarSystem *sol = mod->GetSolarSystemInUse();
+   if (sol == NULL)
+      MessageInterface::ShowMessage("Oh no, the solar system is NULL!");
+
+   CelestialBody *earth = sol->GetBody("Earth");
+   CelestialBody *moon  = sol->GetBody("Luna");
+
+   data << "Earth and Moon Position and Velocity from the DE file\n\n";
+
+   data.precision(17);
+   double targetEpoch = currentEpoch + spanInSecs / 86400.0;
+   while (currentEpoch <= targetEpoch)
+   {
+      currentEpoch = baseEpoch + step * secsToStep / 86400.0;
+
+      Rvector6 earthRV = earth->GetMJ2000State(currentEpoch);
+      Rvector6 moonRV  = moon->GetMJ2000State(currentEpoch);
+      Rvector3 moonAcc = moon->GetMJ2000Acceleration(currentEpoch);
+
+      data << currentEpoch << " " << (step * secsToStep) << " "
+//           << earthRV[0] << " " << earthRV[1] << " " << earthRV[2] << " "
+//           << earthRV[3] << " " << earthRV[4] << " " << earthRV[5] << " | "
+           << moonRV[0] << " " << moonRV[1] << " " << moonRV[2] << " "
+           << moonRV[3] << " " << moonRV[4] << " " << moonRV[5]
+           << moonAcc[0] << " " << moonAcc[1] << " " << moonAcc[2]
+           << "\n";
+
+      ++step;
+   }
+   data << std::endl;
+}
+
+//------------------------------------------------------------------------------
 // int main(int argc, char *argv[])
 //------------------------------------------------------------------------------
 /**
@@ -490,6 +544,11 @@ int main(int argc, char *argv[])
                          << (verbosity == 0 ? "off" : "on")
                          << "\n";
                argc = 1;
+            }
+            // Options used for some detailed tests but hidden from casual users
+            // (i.e. missing from the help messages)
+            else if (!strcmp(scriptfile, "--DumpDEData")) {
+               DumpDEData(0.001, 0.2);
             }
             else {
                std::cout << "Unrecognized option.\n\n";

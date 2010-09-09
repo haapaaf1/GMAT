@@ -40,6 +40,7 @@ Integer RunBatch(std::string& batchfilename);
 void SaveScript(std::string filename = "Output.script");
 void ShowCommandSummary(std::string filename = "");
 void TestSyncModeAccess(std::string filename = "Output.script");
+void DumpDEData(double secsToStep, double spanInSecs = 86400.0);
 int main(int argc, char *argv[]);
 
 #endif /* driver_hpp */
