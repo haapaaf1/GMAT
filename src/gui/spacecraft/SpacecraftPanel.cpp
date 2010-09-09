@@ -165,7 +165,8 @@ void SpacecraftPanel::Create()
    MessageInterface::ShowMessage("   SpicePanel created\n");
    #endif
 
-   // visuals = new wxPanel( mainNotebook, -1 );
+   theVisualModelPanel = new VisualModelPanel
+      (this, spacecraftNotebook, currentSpacecraft, theSolarSystem);
    
    // Adding panels to notebook
    actuatorNotebook->AddPage( theThrusterPanel, wxT("Thruster") );
@@ -178,7 +179,7 @@ void SpacecraftPanel::Create()
       spacecraftNotebook->AddPage( theSpicePanel, wxT("SPICE") );
    #endif
    spacecraftNotebook->AddPage( actuatorNotebook, wxT("Actuators") );
-   //spacecraftNotebook->AddPage( visuals , wxT("Visualization") );
+   spacecraftNotebook->AddPage( theVisualModelPanel , wxT("Visualization") );
    
    // theGridSizer->Add(spacecraftNotebook, 1, wxGROW, 5);
    theMiddleSizer->Add(spacecraftNotebook, 1, wxGROW, 5);

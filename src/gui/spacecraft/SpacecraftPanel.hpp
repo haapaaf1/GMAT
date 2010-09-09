@@ -31,6 +31,7 @@
 #include "ThrusterPanel.hpp"
 #include "SpicePanel.hpp"
 #include "GuiInterpreter.hpp"
+#include "VisualModelPanel.hpp"
 
 #include "gmatdefs.hpp"
 #include "Spacecraft.hpp"
@@ -81,13 +82,13 @@ private:
    
    wxPanel *actuators;
    wxPanel *sensors;
-   wxPanel *visuals;
    
    BallisticsMassPanel *theBallisticMassPanel;
    OrbitPanel *theOrbitPanel;
    TankPanel *theTankPanel;
    ThrusterPanel *theThrusterPanel;
    AttitudePanel *theAttitudePanel;
+   VisualModelPanel *theVisualModelPanel;
    SpicePanel    *theSpicePanel;
    
    // IDs for the controls and the menu commands

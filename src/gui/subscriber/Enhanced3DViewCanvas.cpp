@@ -26,6 +26,8 @@
 
 #include "Enhanced3DViewCanvas.hpp"
 #include "Camera.hpp"
+#include "ModelObject.hpp"
+#include "ModelManager.hpp"
 #include "GmatAppData.hpp"         // for GetGuiInterpreter()
 #include "FileManager.hpp"         // for texture files
 #include "ColorTypes.hpp"          // for namespace GmatColor::
@@ -212,12 +214,11 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    // Use wxGLCanvas::m_glContext, otherwise resize will not work
    //m_glContext = new wxGLContext(this);
    #endif
+   ModelManager *mm = ModelManager::Instance();
+   if (!mm->modelContext)
+      mm->modelContext = new wxGLContext(this);
 
-   #ifndef __WXMAC__
-      theContext = new wxGLContext(this);
-   #else
-      theContext = GetContext();
-   #endif
+   theContext = mm->modelContext;//new wxGLContext(this);
 
 	mCamera.Reset();
    mCamera.Relocate(DEFAULT_DIST, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -300,7 +301,6 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
 
    // Dunn chose new colors for the equatorial and ecliptic planes.
    mXyPlaneColor = GmatColor::L_BLUE32;
-   //mXyPlaneColor = GmatColor::SKYBLUE;
    //mEcPlaneColor = GmatColor::CHESTNUT;
    mEcPlaneColor = GmatColor::YELLOW32;
    mSunLineColor = GmatColor::YELLOW32;
@@ -443,6 +443,12 @@ bool Enhanced3DViewCanvas::InitOpenGL()
    ilutRenderer(ILUT_OPENGL);
 
 #endif
+
+	#ifdef __USE_WX280_GL__
+   SetCurrent(*theContext);
+   #else
+   SetCurrent();
+   #endif
 
    if (!LoadGLTextures())
       return false;
@@ -3780,12 +3786,101 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
    #endif
 
 	if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT)){
-		glTranslatef(mObjectViewPos[index1+0],
-			mObjectViewPos[index1+1],
-         mObjectViewPos[index1+2]);
-      GlColorType *yellow = (GlColorType*)&GmatColor::YELLOW32,
-			*red = (GlColorType*)&GmatColor::RED32;
-      DrawSpacecraft(mScRadius, yellow, red);//mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
+		Spacecraft *spac = (Spacecraft*)mObjectArray[obj];
+		ModelManager *mm = ModelManager::Instance();
+      ModelObject *model = mm->GetModel(spac->modelID);
+		// This was to darken the model when it is behind the Earth,
+		// but was not pleasing visually and caused more problems
+		// than it solved
+      /*#ifdef ENABLE_LIGHT_SOURCE
+			Rvector3 toCenter, cardinal;   
+
+         // Calculate whether or not the craft is in darkness
+         toCenter = mLight.GetPosition();
+
+         //toCenter.Set(lightPos[0], lightPos[1], lightPos[2]);
+         if (toCenter.GetMagnitude() < (model->position[frame] - toCenter).GetMagnitude())
+				isLit = true;
+         else {
+            cardinal = Cross(toCenter, Cross(model->position[frame], toCenter) / toCenter.GetMagnitude())
+					/ toCenter.GetMagnitude();
+            isLit = cardinal.GetMagnitude() > mObjectRadius[GetObjectId("Earth")];
+         }
+      #endif*/
+      if (spac->modelID != -1){
+         // Set conversion factor until we know GMAT utility that does this
+         float     RTD         = 180.0f/3.14159265f;
+
+         // Extract spacecraft attitude from saved data files using subscriber
+         Attitude  *scAttitude  = (Attitude*) spac->GetRefObject(Gmat::ATTITUDE, "");
+         Rmatrix33 AMat         = scAttitude->GetCosineMatrix(mTime[frame]);
+         Rvector3  EARad        = Attitude::ToEulerAngles(AMat,1,2,3);
+         float     EAng1Deg     = float(EARad(0))*RTD;
+         float     EAng2Deg     = float(EARad(1))*RTD;
+         float     EAng3Deg     = float(EARad(2))*RTD;
+
+         // Get offset rotation and scale from Spacecraft Visualization Tab in GUI.
+			float     offset[3]; 
+         float     rotation[3]; 
+         float     scale;
+			offset[0] = spac->GetRealParameter(spac->GetParameterID("ModelOffsetX"));
+			offset[1] = spac->GetRealParameter(spac->GetParameterID("ModelOffsetY"));
+			offset[2] = spac->GetRealParameter(spac->GetParameterID("ModelOffsetZ"));
+			rotation[0] = spac->GetRealParameter(spac->GetParameterID("ModelRotationX"));
+			rotation[1] = spac->GetRealParameter(spac->GetParameterID("ModelRotationY"));
+			rotation[2] = spac->GetRealParameter(spac->GetParameterID("ModelRotationZ"));
+			scale = spac->GetRealParameter(spac->GetParameterID("ModelScale"));
+			model->SetBaseOffset(offset[0], offset[1], offset[2]);
+			model->SetBaseRotation(true, rotation[0], rotation[1], rotation[2]);
+			model->SetBaseScale(scale, scale, scale);
+
+         // Dunn's new attitude call.  Need to change to quaternions.  Also need
+         // to concatenate with BaseRotation.  Also need this to work for replay
+         // animation buttons.
+         model->Rotate(true, EAng1Deg, EAng2Deg, EAng3Deg);
+
+         // The line above is where the object model gets its orientation.  This
+         // also seems to be a good place to give the model its ECI position. 
+         // That call is actually in ModelObject.cpp on line 682.
+
+         // Draw model
+			glTranslatef(mObjectViewPos[index1+0],
+                      mObjectViewPos[index1+1],
+                      mObjectViewPos[index1+2]);
+         model->Draw(frame, true); //isLit
+
+         // Old code that may be worth saving
+         //SetCurrent(*theContext);
+         // ModelManager *mm = ModelManager::Instance();
+         // SetCurrent(*mm->modelContext);
+         // mm->modelContext->SetCurrent(*this);
+
+         // Maybe delete this
+         // Rvector3  eulersRad   = scAttitude->GetEulerAngles(mTime[frame],1,2,3);  // Uses the 123 Euler Sequence
+
+
+         // Save line below for when Phil modifies model->Rotate to accept quats
+         // Rvector   quaternion  = scAttitude->GetQuaternion(mTime[frame]);
+
+         // Save line below for when I need to transpose a matrix.
+         // Rmatrix33 TMat        = AMat.Transpose();
+
+         // Neither of the calls below works.  The model is being positioned somewhere else!
+         // PosX = 0.0;
+         // PosY = 0.0;
+         // PosZ = 15000.0;
+         // model->Reposition(PosX,PosY,PosZ);
+         // model->TranslateW(PosX,PosY,PosZ);
+		}
+      else{
+         // Dunn took out old minus signs to make attitude correct.
+         glTranslatef(mObjectViewPos[index1+0],
+                      mObjectViewPos[index1+1],
+                      mObjectViewPos[index1+2]);
+         GlColorType *yellow = (GlColorType*)&GmatColor::YELLOW32,
+				*red = (GlColorType*)&GmatColor::RED32;
+         DrawSpacecraft(mScRadius, yellow, red);//mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
+      }
 	}
 	else
 	{
@@ -4482,7 +4577,18 @@ void Enhanced3DViewCanvas
       if (satId != UNKNOWN_OBJ_ID)
       {
          int colorIndex = satId * MAX_DATA + mLastIndex;
+			if (openGLInitialized){
+				Spacecraft *spac = (Spacecraft*)mObjectArray[satId];
+				ModelManager *mm = ModelManager::Instance();
+				if (spac->modelFile != "" && spac->modelID == -1){
+					wxString modelPath(spac->modelFile.c_str());
+					spac->modelID = mm->LoadModel(modelPath);
+				}
+				ModelObject *model = mm->GetModel(spac->modelID);
 
+//				model->position[mNumData].Set(posX[sc], posY[sc], posZ[sc]);
+			}
+         
          if (!mDrawOrbitArray[satId])
          {
             mDrawOrbitFlag[colorIndex] = false;

@@ -69,6 +69,11 @@ public:
    const UnsignedIntArray&
                         GetEulerAngleSequence() const;
 
+   // The ID of the model that the spacecraft uses, and the filename as well
+   std::string          modelFile;
+   int                  modelID;
+
+   
    // inherited from GmatBase
    virtual GmatBase*    Clone(void) const;
    virtual void         Copy(const GmatBase* orig);
@@ -236,8 +241,19 @@ protected:
       CARTESIAN_VZ,
       MASS_FLOW,
 
-      // Hardware for spacecraft
-      ADD_HARDWARE,					// made changes by Tuan Nguyen
+		// Hardware for spacecraft
+		ADD_HARDWARE,					// made changes by Tuan Nguyen
+      // The filename used for the spacecraft's model 
+      MODEL_FILE,
+
+      // The Offset, rotation, and scale values for the spacecraft's model
+      MODEL_OFFSET_X,
+      MODEL_OFFSET_Y,
+      MODEL_OFFSET_Z,
+      MODEL_ROTATION_X,
+      MODEL_ROTATION_Y,
+      MODEL_ROTATION_Z,
+      MODEL_SCALE,
 
       SpacecraftParamCount
    };
@@ -324,6 +340,16 @@ protected:
    std::string       anomalyType;
    Anomaly           trueAnomaly;
 
+   
+   // The Offset, Rotation, and Scale values for the model
+   Real                 modelOffsetX;
+   Real                 modelOffsetY;
+   Real                 modelOffsetZ;
+   Real                 modelRotationX;
+   Real                 modelRotationY;
+   Real                 modelRotationZ;
+   Real                 modelScale;
+   
    /// Solar system now needed to set to cloned Thruster
    SolarSystem       *solarSystem;
    /// Base coordinate system for the Spacecraft

@@ -48,7 +48,7 @@
 				RuntimeLibrary="0"
 				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4267;4996;4101;4005"
 			/>
@@ -4300,6 +4300,22 @@
 						RelativePath="..\..\..\src\gui\spacecraft\ThrusterPanel.hpp"
 						>
 					</File>
+					<File
+						RelativePath="..\..\..\src\gui\spacecraft\VisualModelCanvas.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\spacecraft\VisualModelCanvas.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\spacecraft\VisualModelPanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\spacecraft\VisualModelPanel.hpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="view"
@@ -4354,6 +4370,38 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\rendering\Light.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\Load3ds.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\Load3ds.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\LoadPOV.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\LoadPOV.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\ModelManager.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\ModelManager.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\ModelObject.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\ModelObject.hpp"
 						>
 					</File>
 					<File

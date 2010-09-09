@@ -74,6 +74,8 @@
 #include "MemoryTracker.hpp"
 #endif
 
+const int NO_MODEL = -1;
+
 // Spacecraft parameter types
 const Gmat::ParameterType
 Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
@@ -118,8 +120,16 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // CartesianVX
       Gmat::REAL_TYPE,        // CartesianVY
       Gmat::REAL_TYPE,        // CartesianVZ
-      Gmat::REAL_TYPE,        // MASS_FLOW,
-      Gmat::OBJECTARRAY_TYPE, // AddHardware    // made changes by Tuan Nguyen
+      Gmat::REAL_TYPE,        // Mass Flow
+		Gmat::OBJECTARRAY_TYPE, // AddHardware    // made changes by Tuan Nguyen
+      Gmat::STRING_TYPE,      // Model File
+      Gmat::REAL_TYPE,        // Model Offset X
+      Gmat::REAL_TYPE,        // Model Offset Y
+      Gmat::REAL_TYPE,        // Model Offset Z
+      Gmat::REAL_TYPE,        // Model Rotation X
+      Gmat::REAL_TYPE,        // Model Rotation Y
+      Gmat::REAL_TYPE,        // Model Rotation Z
+      Gmat::REAL_TYPE,        // Model Scale Factor
    };
 
 const std::string
@@ -167,7 +177,15 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "CartesianVZ",
       "MassFlow",
       "AddHardware",                            // made changes by Tuan Nguyen
-   };
+	  "ModelFile",
+	  "ModelOffsetX",
+	  "ModelOffsetY",
+	  "ModelOffsetZ",
+	  "ModelRotationX",
+	  "ModelRotationY",
+	  "ModelRotationZ",
+	  "ModelScale",
+};
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] =
 {
@@ -254,7 +272,16 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    csSet                (false),
    isThrusterSettingMode(false),
    orbitSTM             (6,6),
-   includeCartesianState(0)
+   includeCartesianState(0),
+   modelID              (NO_MODEL),
+   modelFile            (""),
+   modelOffsetX         (0),
+   modelOffsetY         (0),
+   modelOffsetZ         (0),
+   modelRotationX       (0),
+   modelRotationY       (0),
+   modelRotationZ       (0),
+   modelScale           (1)
 {
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -336,6 +363,8 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    covariance(0,0) = covariance(1,1) = covariance(2,2) = 1.0e10;
    covariance(3,3) = covariance(4,4) = covariance(5,5) = 1.0e6;
 
+   modelID = NO_MODEL;
+   
    // Set some negative value to naifId
 //   naifId = -123456789;   // wcs 2010.01.22 set at SpacePoint level
 
@@ -413,7 +442,16 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    csSet                (a.csSet),
    isThrusterSettingMode(a.isThrusterSettingMode),
    orbitSTM             (a.orbitSTM),
-   includeCartesianState(a.includeCartesianState)
+   includeCartesianState(a.includeCartesianState),
+   modelID              (a.modelID),
+   modelFile            (a.modelFile),
+   modelOffsetX         (a.modelOffsetX),
+   modelOffsetY         (a.modelOffsetY),
+   modelOffsetZ         (a.modelOffsetZ),
+   modelRotationX       (a.modelRotationX),
+   modelRotationY       (a.modelRotationY),
+   modelRotationZ       (a.modelRotationZ),
+   modelScale           (a.modelScale)
 {
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -508,6 +546,15 @@ Spacecraft& Spacecraft::operator=(const Spacecraft &a)
    csSet                = a.csSet;
    isThrusterSettingMode= a.isThrusterSettingMode;
    trueAnomaly          = a.trueAnomaly;
+   modelID              = a.modelID;
+   modelFile            = a.modelFile;
+   modelOffsetX         = a.modelOffsetX;
+   modelOffsetY         = a.modelOffsetY;
+   modelOffsetZ         = a.modelOffsetZ;
+   modelRotationX       = a.modelRotationX;
+   modelRotationY       = a.modelRotationY;
+   modelRotationZ       = a.modelRotationZ;
+   modelScale           = a.modelScale;
 
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -1954,6 +2001,14 @@ Real Spacecraft::GetRealParameter(const Integer id) const
          return attitude->GetRealParameter(id - ATTITUDE_ID_OFFSET);
       }
 
+   if (id == MODEL_OFFSET_X)     return modelOffsetX;
+   if (id == MODEL_OFFSET_Y)     return modelOffsetY;
+   if (id == MODEL_OFFSET_Z)     return modelOffsetZ;
+   if (id == MODEL_ROTATION_X)   return modelRotationX;
+   if (id == MODEL_ROTATION_Y)   return modelRotationY;
+   if (id == MODEL_ROTATION_Z)   return modelRotationZ;
+   if (id == MODEL_SCALE)        return modelScale;
+
    return SpaceObject::GetRealParameter(id);
 }
 
@@ -2090,6 +2145,48 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value)
    if (id == MASS_FLOW)
    {
       return ApplyTotalMass(value);
+   }
+
+   if (id == MODEL_OFFSET_X)
+   {
+      modelOffsetX = value;
+      return modelOffsetX;
+   }
+
+   if (id == MODEL_OFFSET_Y)
+   {
+      modelOffsetY = value;
+      return modelOffsetY;
+   }
+
+   if (id == MODEL_OFFSET_Z)
+   {
+      modelOffsetZ = value;
+      return modelOffsetZ;
+   }
+
+   if (id == MODEL_ROTATION_X)
+   {
+      modelRotationX = value;
+      return modelRotationX;
+   }
+
+   if (id == MODEL_ROTATION_Y)
+   {
+      modelRotationY = value;
+      return modelRotationY;
+   }
+
+   if (id == MODEL_ROTATION_Z)
+   {
+      modelRotationZ = value;
+      return modelRotationZ;
+   }
+
+   if (id == MODEL_SCALE)
+   {
+      modelScale = value;
+      return modelScale;
    }
 
 
@@ -2282,6 +2379,9 @@ std::string Spacecraft::GetStringParameter(const Integer id) const
          #endif
           return attitude->GetStringParameter(id - ATTITUDE_ID_OFFSET);
        }
+
+    if (id == MODEL_FILE)
+       return modelFile;
 
     return SpaceObject::GetStringParameter(id);
 }
@@ -2568,7 +2668,7 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
          thrusterNames.push_back(value);
       }
    }
-//   else if (id == ORBIT_SPICE_KERNEL_NAME)
+// else if (id == ORBIT_SPICE_KERNEL_NAME)
 //   {
 //      // Only add the thruster if it is not in the list already
 //      if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
@@ -2577,6 +2677,19 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
 //         orbitSpiceKernelNames.push_back(value);
 //      }
 //   }
+	else if (id == MODEL_FILE)
+   {
+    	modelFile = value;
+   }
+   else if (id == ORBIT_SPICE_KERNEL_NAME)
+   {
+      // Only add the thruster if it is not in the list already
+      if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
+            value) == orbitSpiceKernelNames.end())
+      {
+         orbitSpiceKernelNames.push_back(value);
+      }
+   }
 
    #ifdef DEBUG_SC_SET_STRING
    MessageInterface::ShowMessage

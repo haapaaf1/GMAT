@@ -22,4 +22,3 @@ bool SetPixelFormatDescriptor();
 void SetDefaultGLFont();
 void ScreenShotSave(char* ImagePath);
 #endif
-

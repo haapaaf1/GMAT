@@ -142,6 +142,7 @@ void InitGL()
    glShadeModel(GL_SMOOTH);
    glFrontFace(GL_CCW);
 
+	glEnable(GL_LINE_SMOOTH);
    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
    glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
 

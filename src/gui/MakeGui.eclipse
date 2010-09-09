@@ -255,6 +255,10 @@ OBJECTS = \
     rendering/Camera.o \
     rendering/GmatOpenGLSupport.o \
     rendering/Light.o \
+    rendering/Load3ds.o \
+    rendering/LoadPOV.o \
+    rendering/ModelManager.o \
+    rendering/ModelObject.o \
     rendering/Rendering.o \
     solarsys/BarycenterPanel.o \
     solarsys/CelesBodySelectDialog.o \
@@ -279,6 +283,8 @@ OBJECTS = \
     spacecraft/SpaceObjectSelectDialog.o \
     spacecraft/TankPanel.o \
     spacecraft/ThrusterPanel.o \
+	spacecraft/VisualModelCanvas.o \
+	spacecraft/VisualModelPanel.o \
     subscriber/EphemerisFilePanel.o \
     subscriber/MdiChild3DViewFrame.o \
     subscriber/MdiChildViewFrame.o \
