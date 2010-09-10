@@ -749,7 +749,7 @@ void Moderator::LoadAPlugin(std::string pluginName)
          }
       }
       else
-         MessageInterface::ShowMessage(
+         MessageInterface::PopupMessage(Gmat::WARNING_,
                "Library %s does not contain a factory\n", pluginName.c_str());
 
       // Test to see if there might be TriggerManagers
@@ -803,7 +803,7 @@ void Moderator::LoadAPlugin(std::string pluginName)
       }
    }
    else
-      MessageInterface::ShowMessage(
+      MessageInterface::PopupMessage(Gmat::WARNING_,
             "*** Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
 }
 
