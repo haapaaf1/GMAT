@@ -130,7 +130,8 @@ Integrator::Integrator(const std::string &typeStr, const std::string &nomme)
       stepAttempts            (0),
       maxStepAttempts         (50),
       stopIfAccuracyViolated  (true),
-      accuracyWarningTriggered (false),
+      accuracyWarningTriggered(false),
+      typeSource              (typeStr),
       stepTaken               (0.0),
       timeleft                (stepSize),    
       ddt                     (NULL),
@@ -162,7 +163,8 @@ Integrator::Integrator(const Integrator& i) :
     stepAttempts            (0),
     maxStepAttempts         (i.maxStepAttempts),
     stopIfAccuracyViolated  (i.stopIfAccuracyViolated),
-    accuracyWarningTriggered (false),
+    accuracyWarningTriggered(false),
+    typeSource              (i.typeSource),
     stepTaken               (0.0),
     timeleft                (i.timeleft),    
     ddt                     (NULL),
@@ -200,6 +202,7 @@ Integrator& Integrator::operator=(const Integrator& i)
     maxStepAttempts        = i.maxStepAttempts;
     stopIfAccuracyViolated = i.stopIfAccuracyViolated;
     accuracyWarningTriggered = i.accuracyWarningTriggered;
+    typeSource             = i.typeSource;
     
     derivativeOrder        = i.derivativeOrder;
     
@@ -560,6 +563,42 @@ bool Integrator::SetBooleanParameter(const Integer id, const bool value)
 }
 
 
+//------------------------------------------------------------------------------
+// bool TakeAction(const std::string &action, const std::string &actionData)
+//------------------------------------------------------------------------------
+/**
+ * Performs custom actions
+ *
+ * For Integrators, this call resets the flag used to test the propagation
+ * accuracy
+ *
+ * @param action The specific action requested
+ * @param actionData Data associated with that action, if any
+ *
+ * @return true if an action was taken, false if not
+ */
+//------------------------------------------------------------------------------
+bool Integrator::TakeAction(const std::string &action,
+      const std::string &actionData)
+{
+   bool retval = false;
+
+   if (action == "PrepareForRun")
+   {
+      accuracyWarningTriggered = false;
+      retval = true;
+   }
+
+   if (action == "ChangeTypeSourceString")
+   {
+      typeSource = actionData;
+      retval = true;
+   }
+
+   retval = retval & Propagator::TakeAction(action, actionData);
+
+   return retval;
+}
 
 //------------------------------------------------------------------------------
 // void SetPhysicalModel(PhysicalModel *pPhyscialModel)

@@ -210,7 +210,6 @@ PredictorCorrector& PredictorCorrector::operator=(const PredictorCorrector& pc)
     invOrder = pc.invOrder;
     initialized = false;
     
-    // ag: Added - is this right?
     ddt = NULL;
     history = NULL;
     pweights = NULL;
@@ -407,6 +406,13 @@ bool PredictorCorrector::Initialize()
            stepSizeBuffer = maximumStep * stepSign;
 
         starter->SetRealParameter("InitialStepSize", stepSize);
+        starter->SetBooleanParameter(STOP_IF_ACCURACY_VIOLATED,
+                 stopIfAccuracyViolated);
+        starter->SetRealParameter(ACCURACY, tolerance);
+        starter->SetRealParameter(MIN_STEP, minimumStep);
+        starter->SetRealParameter(MAX_STEP, maximumStep);
+        starter->TakeAction("ChangeTypeSourceString",
+              "Starter for Predictor-Corrector");
         starter->Initialize();
 
         inState  = physicalModel->GetState();
@@ -464,13 +470,13 @@ bool PredictorCorrector::Step(Real dt)
 }
 
 //------------------------------------------------------------------------------
-// bool PredictorCorrector::Step(void)
+// bool PredictorCorrector::Step()
 //------------------------------------------------------------------------------
 /**
  * Method used to advance the Predictor-Corrector one step
  */
 //------------------------------------------------------------------------------
-bool PredictorCorrector::Step(void)
+bool PredictorCorrector::Step()
 {
     if (!initialized)
         return false;
@@ -524,7 +530,7 @@ bool PredictorCorrector::Step(void)
         }
 
         if (stepAttempts >= maxStepAttempts)
-            return false;
+              return false;
     } while (maxError > tolerance);
 
     return true;
@@ -556,6 +562,29 @@ bool PredictorCorrector::RawStep(void)
 bool PredictorCorrector::AdaptStep(Real maxError)
 {
     Real newStep = stepSize * pow(targetError / maxError, invOrder);
+
+    // The following code is in place to omit error control for steps
+    // at the minimum stepsize.  See the note above for more
+    // information.  Remove this block if the issue gets resolved.
+    if (GmatMathUtil::Abs(stepSize) == minimumStep)
+    {
+       if (stopIfAccuracyViolated)
+       {
+          throw PropagatorException(typeSource + ": Accuracy settings will be "
+                "violated with current step size values.\n");
+       }
+       else
+       {
+          if (!accuracyWarningTriggered)
+          {
+             accuracyWarningTriggered = true;
+             MessageInterface::ShowMessage("**** Warning **** %s: Accuracy "
+                   "settings will be violated with current step size values.\n",
+                   typeSource.c_str());
+          }
+          return true;
+       }
+    }
 
     // Make sure new step is in the accepted range
     if (fabs(newStep) < minimumStep)

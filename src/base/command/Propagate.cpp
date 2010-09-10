@@ -2502,9 +2502,9 @@ bool Propagate::Initialize()
       Propagator *p = prop[index]->GetPropagator();
       if (!p)
          throw CommandException("Propagator not set in PropSetup\n");
+      p->TakeAction("PrepareForRun");
    
       // Toss the spacecraft into the prop state manager
-
       ODEModel *odem = prop[index]->GetODEModel();
       if ((!odem) && p->UsesODEModel())
          throw CommandException("ForceModel not set in PropSetup\n");

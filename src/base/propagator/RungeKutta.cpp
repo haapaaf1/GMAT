@@ -257,7 +257,6 @@ bool RungeKutta::Initialize()
        SetupAccumulator();
     }
 
-    accuracyWarningTriggered = false;
     return true;
 }
 
@@ -443,8 +442,8 @@ bool RungeKutta::Step(Real dt)
         if (attemptsTaken > maxStepAttempts)
         {
            MessageInterface::ShowMessage(
-              "   Integrator attempted too many steps! (%d attempts taken)\n",
-              attemptsTaken);
+              "    Integrator attempted too many steps! (%d attempts "
+              "taken)\n", attemptsTaken);
            return false;
         }
         if (!Propagator::Step(timeleft))
@@ -535,16 +534,17 @@ bool RungeKutta::AdaptStep(Real maxerror)
         {
            if (stopIfAccuracyViolated)
            {
-              throw PropagatorException(
-                    "RungeKutta: Accuracy settings will be violated with current step size values.\n");
+              throw PropagatorException(typeSource + ": Accuracy settings will "
+                    "be violated with current step size values.\n");
            }
            else
            {
               if (!accuracyWarningTriggered) // so only write the warning once per propagation command
               {
                  accuracyWarningTriggered = true;
-                 MessageInterface::PopupMessage(Gmat::WARNING_,
-                    "RungeKutta: Accuracy settings will be violated with current step size values.\n");
+                 MessageInterface::ShowMessage("**** Warning **** %s: Accuracy "
+                       "settings will be violated with current step size "
+                       "values.\n", typeSource.c_str());
               }
                // Do this if the step was at the minimum stepSize
               memcpy(outState, candidateState, dimension*sizeof(Real));

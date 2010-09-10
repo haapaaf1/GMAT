@@ -140,6 +140,8 @@ public:
     virtual bool    GetBooleanParameter(const Integer id) const;
     virtual bool    SetBooleanParameter(const Integer id, const bool value);
 
+    virtual bool         TakeAction(const std::string &action,
+                                    const std::string &actionData = "");
 
     virtual void SetPhysicalModel(PhysicalModel *pPhysicalModel);
     
@@ -252,6 +254,8 @@ protected:
     /// Flag indicating whether or not the warning for the accuracy violation has already been
     /// written, for this integrator, for this run
     bool    accuracyWarningTriggered;
+    /// String used to indicate object type in some warning messages
+    std::string typeSource;
     /// Actual interval taken by the step
     Real stepTaken;
     /// Remaining time for a specified or fixed timestep
