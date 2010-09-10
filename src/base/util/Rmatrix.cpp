@@ -20,12 +20,18 @@
 #include "Rvector.hpp"
 #include "Rvector3.hpp"
 #include "RealUtilities.hpp"
+#include "UtilityException.hpp"
 #include "Linear.hpp"         // for operator<<, operator >>
 #include "StringUtil.hpp"     // for Replace()
 #include <stdarg.h>
 #include <sstream>
 #include <stdio.h>            // Fix for header rearrangement in gcc 4.4
 
+//#define DEBUG_DETERMINANT
+
+#ifdef DEBUG_DETERMINANT
+   #include "MessageInterface.hpp"
+#endif
 //---------------------------------
 //  public
 //---------------------------------
@@ -597,6 +603,9 @@ Real Rmatrix::Trace() const
 //------------------------------------------------------------------------------
 Real Rmatrix::Determinant() const
 {
+   #ifdef DEBUG_DETERMINANT
+      MessageInterface::ShowMessage("Entering Determinant with rowsD = %d and colsD = %d\n", rowsD, colsD);
+   #endif
    if (isSizedD == false)
    {
       throw TableTemplateExceptions::UnsizedTable();
@@ -607,23 +616,59 @@ Real Rmatrix::Determinant() const
    Real D;
 
    if (rowsD == 1)
+   {
+      #ifdef DEBUG_DETERMINANT
+         MessageInterface::ShowMessage("Entering Determinant rowsD == 1 clause\n");
+      #endif
       D = elementD[0];
+   }
    else if (rowsD == 2)
+   {
+      #ifdef DEBUG_DETERMINANT
+         MessageInterface::ShowMessage("Entering Determinant rowsD == 2 clause\n");
+      #endif
       D = elementD[0]*elementD[3] - elementD[1]*elementD[2];
+   }
    else if (rowsD == 3)
-      D = elementD[0]*elementD[4]*elementD[8] + 
-         elementD[1]*elementD[5]*elementD[6] + 
-         elementD[2]*elementD[3]*elementD[7] - 
-         elementD[0]*elementD[5]*elementD[7] - 
+   {
+      #ifdef DEBUG_DETERMINANT
+         MessageInterface::ShowMessage("Entering Determinant rowsD == 3 clause\n");
+      #endif
+      D = elementD[0]*elementD[4]*elementD[8] +
+         elementD[1]*elementD[5]*elementD[6] +
+         elementD[2]*elementD[3]*elementD[7] -
+         elementD[0]*elementD[5]*elementD[7] -
          elementD[1]*elementD[3]*elementD[8] -
          elementD[2]*elementD[4]*elementD[6];
-   else {
+   }
+   else
+   {
+      // Currently limited by inefficiencies in the algorithm
+      if (rowsD > 9)
+      {
+         std::string errmsg = "GMAT Determinant method not yet optimized.  ";
+         errmsg += "Currently limited to matrices of size 9x9 or smaller.";
+         throw UtilityException(errmsg);
+      }
+      #ifdef DEBUG_DETERMINANT
+         MessageInterface::ShowMessage("Entering Determinant else clause\n");
+      #endif
       D = 0.0;
       int i;
       for (i = 0; i < colsD; i++)
       {
-         D += elementD[i]*Cofactor(0,i);
+         Real c = Cofactor(0,i);
+         #ifdef DEBUG_DETERMINANT
+            MessageInterface::ShowMessage("Cofactor(0,%d) = %12.10f\n", (Integer) i, c);
+            MessageInterface::ShowMessage("   now multiplying by element[%d] (%12.10f) to get %12.10f\n",
+                  (Integer) i, elementD[i], (elementD[i] * c));
+         #endif
+         D += elementD[i] * c;
+//         D += elementD[i]*Cofactor(0,i);
       }
+      #ifdef DEBUG_DETERMINANT
+         MessageInterface::ShowMessage("... at end of summation, D = %12.10f\n", D);
+      #endif
    }
    
    return D;
@@ -633,8 +678,12 @@ Real Rmatrix::Determinant() const
 //------------------------------------------------------------------------------
 //  virtual Real Cofactor(int r, int c) const
 //------------------------------------------------------------------------------
-Real Rmatrix::Cofactor(int r, int c)const 
+Real Rmatrix::Cofactor(int r, int c) const
 {
+   #ifdef DEBUG_DETERMINANT
+      MessageInterface::ShowMessage("Entering Cofactor with r     = %d and c     = %d\n", r, c);
+      MessageInterface::ShowMessage("                   and rowsD = %d and colsD = %d\n", rowsD, colsD);
+   #endif
    if (isSizedD == false)
    {
       throw TableTemplateExceptions::UnsizedTable();
@@ -642,6 +691,12 @@ Real Rmatrix::Cofactor(int r, int c)const
 
    if (rowsD != colsD)
       throw Rmatrix::NotSquare();
+   if (rowsD > 9)
+   {
+      std::string errmsg = "GMAT Cofactor method not yet optimized.  ";
+      errmsg += "Currently limited to matrices of size 9x9 or smaller.";
+      throw UtilityException(errmsg);
+   }
    Rmatrix Minor(rowsD - 1, colsD - 1);
    Real Cof;
   
@@ -662,6 +717,9 @@ Real Rmatrix::Cofactor(int r, int c)const
          } // for (j = ...
       } // if (i != r)
    } // for (i = ...
+   #ifdef DEBUG_DETERMINANT
+      MessageInterface::ShowMessage("about to call Determinant on minor: \n%s\n", (Minor.ToString()).c_str());
+   #endif
 
    Cof = Minor.Determinant();
 
