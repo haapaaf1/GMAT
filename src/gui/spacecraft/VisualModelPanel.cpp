@@ -78,7 +78,7 @@ VisualModelPanel::VisualModelPanel(GmatPanel *scPanel, wxWindow *parent,
 
    FileManager *fm = FileManager::Instance();
    modelPath = wxT(fm->GetPathname("MODEL_PATH").c_str());
-   
+
    Create();
 }
 
@@ -88,7 +88,7 @@ VisualModelPanel::VisualModelPanel(GmatPanel *scPanel, wxWindow *parent,
 //------------------------------------------------------------------------------
 VisualModelPanel::~VisualModelPanel()
 {
-   
+
 }
 
 //-------------------------------
@@ -113,68 +113,68 @@ void VisualModelPanel::Create()
 
    //causing VC++ error => wxString emptyList[] = {};
    wxArrayString emptyList;
-   
+
    // Creates the sizer for the overall panel
    wxBoxSizer *visSizer = new wxBoxSizer(wxHORIZONTAL);
-  
+
    // Sizer for the left side, which has all the sliders
-   wxBoxSizer *leftSizer = 
+   wxBoxSizer *leftSizer =
       new wxBoxSizer(wxVERTICAL);
 
    // A box containing the file loader
    wxStaticBox *filenameBox =
       new wxStaticBox(this, ID_STATIC_ELEMENT, wxT("File Name"));
-   wxStaticBoxSizer *filenameSizer = 
+   wxStaticBoxSizer *filenameSizer =
       new wxStaticBoxSizer(filenameBox, wxVERTICAL);
-   
+
    // Sizer for the file loader
-   wxFlexGridSizer *flexFileSizer = 
+   wxFlexGridSizer *flexFileSizer =
       new wxFlexGridSizer(1, 2, bsize, bsize);
    // Sizer for the rotation sliders
-   wxFlexGridSizer *rotationSizer = 
+   wxFlexGridSizer *rotationSizer =
       new wxFlexGridSizer(3, 6, bsize, bsize);
    // Sizer for the translation sliders
-   wxFlexGridSizer *translationSizer = 
+   wxFlexGridSizer *translationSizer =
       new wxFlexGridSizer(3, 5, bsize, bsize);
    // Sizer for the scale slider
-   wxFlexGridSizer *scaleSizer = 
+   wxFlexGridSizer *scaleSizer =
       new wxFlexGridSizer(1, 4, bsize, bsize);
 
    // Box and sizer containing the rotation sizer
    wxStaticBox *rotationBox =
       new wxStaticBox(this, ID_STATIC_ELEMENT, wxT("Rotation"));
-   wxStaticBoxSizer *rotationOuterSizer = 
+   wxStaticBoxSizer *rotationOuterSizer =
       new wxStaticBoxSizer(rotationBox, wxVERTICAL);
    // Box and sizer containing the translation sizer
-   wxStaticBox *translationBox = 
+   wxStaticBox *translationBox =
       new wxStaticBox(this, ID_STATIC_ELEMENT, wxT("Translation"));
-   wxStaticBoxSizer *translationOuterSizer = 
+   wxStaticBoxSizer *translationOuterSizer =
       new wxStaticBoxSizer(translationBox, wxVERTICAL);
    // Box and sizer containing the scale sizer
    wxStaticBox *scaleBox =
       new wxStaticBox(this, ID_STATIC_ELEMENT, wxT("Scale"));
-   wxStaticBoxSizer *scaleOuterSizer = 
+   wxStaticBoxSizer *scaleOuterSizer =
       new wxStaticBoxSizer(scaleBox, wxVERTICAL);
 
    // Box, panel, and sizers for the canvas on the right
-   wxStaticBox *canvasBox = 
+   wxStaticBox *canvasBox =
       new wxStaticBox(this, ID_STATIC_ELEMENT, wxT("Display"));
-   wxStaticBoxSizer *rightSizer = 
+   wxStaticBoxSizer *rightSizer =
       new wxStaticBoxSizer(canvasBox, wxVERTICAL);
-   wxPanel *canvasPanel = 
+   wxPanel *canvasPanel =
       new wxPanel(this, ID_FRAME);
-   wxSizer *canvasSizer = 
+   wxSizer *canvasSizer =
       new wxBoxSizer(wxVERTICAL);
    // Set up the canvas with the correct sizer
    canvasPanel->SetSizer(canvasSizer);
-   modelCanvas = 
+   modelCanvas =
       new VisualModelCanvas(canvasPanel, currentSpacecraft, ID_CANVAS, wxDefaultPosition, wxDefaultSize,
       wxT("Visual Model Canvas"), WX_GL_DOUBLEBUFFER);
    // Add the canvas to the sizer and set its size
    modelCanvas->SetSizeHints(300, 350);
 
    // The "Show Earth" button
-   showEarthButton = 
+   showEarthButton =
       new wxButton(this, ID_EARTH_BUTTON, wxT("Show Earth"));
 	showEarthButton->SetToolTip(wxT("Show a wireframe Earth for size reference"));
 
@@ -184,112 +184,112 @@ void VisualModelPanel::Create()
    wxButton *browseButton =
       new wxButton(this, ID_BROWSE_BUTTON, wxT("Browse..."));
 	browseButton->SetToolTip(wxT("Find a model file to attach to the spacecraft"));
-   
+
    // Labels and slider for x rotation
    wxStaticText *xRotText =
       new wxStaticText(this, ID_TEXT, wxT("X"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *xRotMin = 
+   wxStaticText *xRotMin =
       new wxStaticText(this, ID_TEXT, wxT("-180"), wxDefaultPosition, wxDefaultSize, 0);
-   xRotSlider = 
+   xRotSlider =
       new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(180, 40),
       wxSL_HORIZONTAL);
-   wxStaticText *xRotMax = 
+   wxStaticText *xRotMax =
       new wxStaticText(this, ID_TEXT, wxT("180"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *xRotDegrees = 
+   wxStaticText *xRotDegrees =
       new wxStaticText(this, ID_TEXT, wxT("Degrees"), wxDefaultPosition, wxDefaultSize, 0);
-   xRotValueText = 
+   xRotValueText =
 	  new wxTextCtrl(this, ID_ROT_TEXT, wxT("0.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
-   
+
 
    // Labels and slider for y rotation
-   wxStaticText *yRotText = 
+   wxStaticText *yRotText =
       new wxStaticText(this, ID_TEXT, wxT("Y"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *yRotMin = 
+   wxStaticText *yRotMin =
       new wxStaticText(this, ID_TEXT, wxT("-180"), wxDefaultPosition, wxDefaultSize, 0);
-   yRotSlider = 
-      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(180, 40), 
+   yRotSlider =
+      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(180, 40),
       wxSL_HORIZONTAL);
    wxStaticText *yRotMax =
       new wxStaticText(this, ID_TEXT, wxT("180"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *yRotDegrees = 
+   wxStaticText *yRotDegrees =
       new wxStaticText(this, ID_TEXT, wxT("Degrees"), wxDefaultPosition, wxDefaultSize, 0);
-   yRotValueText = 
+   yRotValueText =
 	  new wxTextCtrl(this, ID_ROT_TEXT, wxT("0.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
 
    // Labels and slider for z rotation
-   wxStaticText *zRotText = 
+   wxStaticText *zRotText =
       new wxStaticText(this, ID_TEXT, wxT("Z"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *zRotMin = 
+   wxStaticText *zRotMin =
       new wxStaticText(this, ID_TEXT, wxT("-180"), wxDefaultPosition, wxDefaultSize, 0);
-   zRotSlider = 
+   zRotSlider =
       new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(180, 40),
       wxSL_HORIZONTAL);
-   wxStaticText *zRotMax = 
+   wxStaticText *zRotMax =
       new wxStaticText(this, ID_TEXT, wxT("180"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *zRotDegrees = 
+   wxStaticText *zRotDegrees =
       new wxStaticText(this, ID_TEXT, wxT("Degrees"), wxDefaultPosition, wxDefaultSize, 0);
-   zRotValueText = 
+   zRotValueText =
 	  new wxTextCtrl(this, ID_ROT_TEXT, wxT("0.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
 
    // Label and slider for x translation
-   wxStaticText *xTranText = 
+   wxStaticText *xTranText =
       new wxStaticText(this, ID_TEXT, wxT("X"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *xTranMin = 
+   wxStaticText *xTranMin =
       new wxStaticText(this, ID_TEXT, wxT("-3.5"), wxDefaultPosition, wxDefaultSize, 0);
    xTranSlider =
       new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(180, 40),
       wxSL_HORIZONTAL);
    wxStaticText *xTranMax =
       new wxStaticText(this, ID_TEXT, wxT("3.5"), wxDefaultPosition, wxDefaultSize, 0);
-   xTranValueText = 
+   xTranValueText =
 	  new wxTextCtrl(this, ID_TRAN_TEXT, wxT("0.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
 
    // Label and slider for y translation
-   wxStaticText *yTranMin = 
+   wxStaticText *yTranMin =
       new wxStaticText(this, ID_TEXT, wxT("-3.5"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *yTranText = 
+   wxStaticText *yTranText =
       new wxStaticText(this, ID_TEXT, wxT("Y"), wxDefaultPosition, wxDefaultSize, 0);
    yTranSlider =
       new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(180, 40),
       wxSL_HORIZONTAL);
-   wxStaticText *yTranMax = 
+   wxStaticText *yTranMax =
       new wxStaticText(this, ID_TEXT, wxT("3.5"), wxDefaultPosition, wxDefaultSize, 0);
-   yTranValueText = 
+   yTranValueText =
 	  new wxTextCtrl(this, ID_TRAN_TEXT, wxT("0.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
 
    // Label and slider for z translation
    wxStaticText *zTranMin =
       new wxStaticText(this, ID_TEXT, wxT("-3.5"), wxDefaultPosition, wxDefaultSize, 0);
-   wxStaticText *zTranText = 
+   wxStaticText *zTranText =
       new wxStaticText(this, ID_TEXT, wxT("Z"), wxDefaultPosition, wxDefaultSize, 0);
-   zTranSlider = 
+   zTranSlider =
       new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(180, 40),
       wxSL_HORIZONTAL);
-   wxStaticText *zTranMax = 
+   wxStaticText *zTranMax =
       new wxStaticText(this, ID_TEXT, wxT("3.5"), wxDefaultPosition, wxDefaultSize, 0);
-   zTranValueText = 
+   zTranValueText =
 		new wxTextCtrl(this, ID_TRAN_TEXT, wxT("0.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
 
    // Slider for scale
-   wxStaticText *scaleMinLabel = 
+   wxStaticText *scaleMinLabel =
       new wxStaticText(this, ID_TEXT, wxT("0.001"), wxDefaultPosition, wxDefaultSize, 0);
-   scaleSlider = 
+   scaleSlider =
       new wxSlider(this, ID_SCALE_SLIDER, 0, -1000, 1000, wxDefaultPosition, wxSize(180, 40),
       wxSL_HORIZONTAL);
-   wxStaticText *scaleMaxLabel = 
+   wxStaticText *scaleMaxLabel =
       new wxStaticText(this, ID_TEXT, wxT("1000.0"), wxDefaultPosition, wxDefaultSize, 0);
-   scaleValueText = 
+   scaleValueText =
 		new wxTextCtrl(this, ID_SCALE_TEXT, wxT("1.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
 
    // The recentering button
-   wxButton *recenterButton = 
+   wxButton *recenterButton =
       new wxButton(this, ID_RECENTER_BUTTON, wxT("Recenter Model"));
 	recenterButton->SetToolTip(wxT("Automatically center the model on its center mass"));
    // The autoscaling button
-   wxButton *autoscaleButton = 
+   wxButton *autoscaleButton =
 	   new wxButton(this, ID_AUTOSCALE_BUTTON, wxT("Autoscale Model"));
 	autoscaleButton->SetToolTip(wxT("Automatically scale the model to a visible size"));
-   
+
    // Add all components to their appropriate sizers
    flexFileSizer->Add(modelTextCtrl, 0, wxALIGN_LEFT | wxALL, bsize);
    flexFileSizer->Add(browseButton, 0, wxALIGN_LEFT | wxALL, bsize);
@@ -348,7 +348,7 @@ void VisualModelPanel::Create()
    rightSizer->Add(canvasPanel, 0, wxEXPAND | wxALIGN_CENTER, bsize);
    rightSizer->Add(showEarthButton, 0, wxALL | wxALIGN_CENTER, bsize);
    canvasPanel->SetSizer(canvasSizer);
-   
+
    // Add the left and right halves together
    visSizer->Add(leftSizer, 1, wxGROW | wxALIGN_CENTER, bsize);
    visSizer->Add(rightSizer, 1, wxGROW | wxALIGN_CENTER, bsize);
@@ -361,7 +361,7 @@ void VisualModelPanel::Create()
 void VisualModelPanel::InitializeCanvas(){
    Real x,y,z;
    if (currentSpacecraft->modelFile != ""){
-      modelCanvas->LoadModel(currentSpacecraft->modelFile);
+      modelCanvas->LoadModel(currentSpacecraft->modelFile.c_str());
       x = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetX"));
       y = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetY"));
       z = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetZ"));
@@ -389,7 +389,7 @@ void VisualModelPanel::InitializeCanvas(){
 	  scaleValueText->SetLabel(wxString::Format(wxT("%f"), x));
       //modelCanvas->Scale(x, x, x);
 
-      modelTextCtrl->ChangeValue(wxT(currentSpacecraft->modelFile));
+      modelTextCtrl->ChangeValue(wxT(currentSpacecraft->modelFile.c_str()));
 	  modelCanvas->Refresh(false);
    }
 }
@@ -398,8 +398,8 @@ void VisualModelPanel::InitializeCanvas(){
 // void ResetSliders()
 //------------------------------------------------------------------------------
 /**
- * Resets the rotation, translation, and scale sizers back to their starting 
- * values. 
+ * Resets the rotation, translation, and scale sizers back to their starting
+ * values.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::ResetSliders(){
@@ -430,7 +430,7 @@ void VisualModelPanel::ResetSliders(){
 // void OnPaint(wxPaintEvent& event)
 //------------------------------------------------------------------------------
 /**
- * Paints the panel each cycle. 
+ * Paints the panel each cycle.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnPaint(wxPaintEvent& event){
@@ -442,7 +442,7 @@ void VisualModelPanel::OnPaint(wxPaintEvent& event){
 //------------------------------------------------------------------------------
 /**
  * Processes the events where one of the sliders move. It rotates, translates,
- * or scales the loaded model appropriately. 
+ * or scales the loaded model appropriately.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnSlide(wxCommandEvent &event){
@@ -499,7 +499,7 @@ void VisualModelPanel::OnSlide(wxCommandEvent &event){
 //------------------------------------------------------------------------------
 /**
  * Processes the the events where the filename text ctrl changes.
- * @note At the moment, nothing happens. 
+ * @note At the moment, nothing happens.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event){
@@ -566,8 +566,8 @@ void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event){
 // void OnBrowseButton(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 /**
- * This function occurs when the Browse button is pushed by the user. 
- * It opens up a file dialog that allows the user to select a model. 
+ * This function occurs when the Browse button is pushed by the user.
+ * It opens up a file dialog that allows the user to select a model.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnBrowseButton(wxCommandEvent& event){
@@ -599,9 +599,9 @@ void VisualModelPanel::OnBrowseButton(wxCommandEvent& event){
 // void OnRecenterButton(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 /**
- * This function triggers when the recenter button is pushed. 
+ * This function triggers when the recenter button is pushed.
  * It resets the translation sliders and recenters the model based on its
- * axis-aligned bounding box. 
+ * axis-aligned bounding box.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnRecenterButton(wxCommandEvent& event){
@@ -636,7 +636,7 @@ void VisualModelPanel::OnAutoscaleButton(wxCommandEvent& event){
 //------------------------------------------------------------------------------
 /**
  * When the Show Earth button is pushed, it toggles whether or not the wireframe
- * Earth is painted or not. 
+ * Earth is painted or not.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnEarthButton(wxCommandEvent& event){

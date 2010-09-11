@@ -215,8 +215,11 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    //m_glContext = new wxGLContext(this);
    #endif
    ModelManager *mm = ModelManager::Instance();
-   if (!mm->modelContext)
-      mm->modelContext = new wxGLContext(this);
+
+   #ifndef __WXMAC__
+      if (!mm->modelContext)
+         mm->modelContext = new wxGLContext(this);
+   #endif
 
    theContext = mm->modelContext;//new wxGLContext(this);
 
@@ -3793,7 +3796,7 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
 		// but was not pleasing visually and caused more problems
 		// than it solved
       /*#ifdef ENABLE_LIGHT_SOURCE
-			Rvector3 toCenter, cardinal;   
+			Rvector3 toCenter, cardinal;
 
          // Calculate whether or not the craft is in darkness
          toCenter = mLight.GetPosition();
@@ -3820,8 +3823,8 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
          float     EAng3Deg     = float(EARad(2))*RTD;
 
          // Get offset rotation and scale from Spacecraft Visualization Tab in GUI.
-			float     offset[3]; 
-         float     rotation[3]; 
+			float     offset[3];
+         float     rotation[3];
          float     scale;
 			offset[0] = spac->GetRealParameter(spac->GetParameterID("ModelOffsetX"));
 			offset[1] = spac->GetRealParameter(spac->GetParameterID("ModelOffsetY"));
@@ -3840,7 +3843,7 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
          model->Rotate(true, EAng1Deg, EAng2Deg, EAng3Deg);
 
          // The line above is where the object model gets its orientation.  This
-         // also seems to be a good place to give the model its ECI position. 
+         // also seems to be a good place to give the model its ECI position.
          // That call is actually in ModelObject.cpp on line 682.
 
          // Draw model
@@ -4588,7 +4591,7 @@ void Enhanced3DViewCanvas
 
 //				model->position[mNumData].Set(posX[sc], posY[sc], posZ[sc]);
 			}
-         
+
          if (!mDrawOrbitArray[satId])
          {
             mDrawOrbitFlag[colorIndex] = false;

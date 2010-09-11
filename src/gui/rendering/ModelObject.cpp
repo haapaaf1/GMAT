@@ -13,7 +13,7 @@
 // Created: 2009/06/24
 // Modified: Dunning Idle 5th
 // Date:     Summer 2010
-// Changes:  Took out all minus signs from spacecraft position to correct 
+// Changes:  Took out all minus signs from spacecraft position to correct
 //           attitude.
 //
 /**
@@ -26,7 +26,7 @@
 #include <math.h>
 #include <string.h>
 
-
+#include "gmatwxdefs.hpp"
 #ifdef __WXMAC__
 #  ifdef __DARWIN__
 #    include <OpenGL/gl.h>
@@ -58,7 +58,7 @@ ModelObject::ModelObject(){}
 //
 // objectName: the filename of the model to be loaded
 // path: the directory path containing the model and its textures. Assumed
-//       to be within MODEL_PATH as defined by the default or startup file. 
+//       to be within MODEL_PATH as defined by the default or startup file.
 // posX: starting position x coordinate
 // posY: starting position y coordinate
 // posZ: starting position z coordinate
@@ -68,7 +68,7 @@ ModelObject::ModelObject(){}
 //
 // Return value: 1 if the object loaded correctly, 0 otherwise (char)
 char ModelObject::Load(const wxString &objectName, const wxString &path, float posX, float posY, float posZ,
-             int rotX, int rotY, int rotZ){ 
+             int rotX, int rotY, int rotZ){
    filename = objectName;
    //   WIREFRAME_MODE = 0;
    wxString thepath, string;
@@ -163,7 +163,7 @@ void ModelObject::LoadTextures(){
 int ModelObject::LoadTexture(const wxString &filename){
    GLuint id;
 	GLenum error;
-   wxImage img; 
+   wxImage img;
 	bool result = false;
    int i = 0;
    wxString ext;
@@ -205,7 +205,7 @@ int ModelObject::LoadTexture(const wxString &filename){
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.GetWidth(), img.GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, img.GetData());
    // Create the 2D mipmaps for minification
    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, img.GetWidth(), img.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.GetData());
-   
+
    return id;
 }
 
@@ -402,7 +402,7 @@ void ModelObject::FindNeighbors(){
                         break;
                      }
                   }
-               }   
+               }
             }
          }
       }
@@ -423,7 +423,7 @@ void ModelObject::Reposition(float x, float y, float z){
    Translate(baseOffset[0], baseOffset[1], baseOffset[2]);
 }
 
-// Translate the object using the local axis 
+// Translate the object using the local axis
 //
 // x: x coordinate
 // y: y coordinate
@@ -550,7 +550,7 @@ void ModelObject::Reset(){
 // offset is used to correct the centering of the model. The base
 // offset is not cleared when the model's matrix is reset. Use
 // Translate, TranslateW, and Reposition to adjust the models's
-// position in most cases. 
+// position in most cases.
 //
 // x: The base x offset
 // y: The base y offset
@@ -565,7 +565,7 @@ void ModelObject::SetBaseOffset(float x, float y, float z){
 // Sets the base rotation of the model to the given values. The
 // base rotation is used to determine the starting angle of the
 // model. The base rotation is not cleared when the model's matrix
-// is reset. Use Rotate to rotate the model in most cases. 
+// is reset. Use Rotate to rotate the model in most cases.
 //
 // x: The base x offset
 // y: The base y rotation
@@ -583,7 +583,7 @@ void ModelObject::SetBaseRotation(bool useDegrees, float x, float y, float z){
 // Sets the base scale of the model to the given values. The
 // base scale is used to determine the starting size of the
 // mode. The base scale is not cleared when the model's matrix
-// is reset. Use Scale to scale the model in most cases. 
+// is reset. Use Scale to scale the model in most cases.
 //
 // x: The base x scale
 // y: The base y scale
@@ -661,7 +661,7 @@ void ModelObject::Force(char axis_system, float ix, float iy, float iz){
 //                                 = mr^2W
 //                Moment of inertia = I = mr^2
 //                Moment of inertia is approximated for an axis through the center of mass to be
-//                                  = I = 1/12*ML^2, where M is the mass and L the radius of the 
+//                                  = I = 1/12*ML^2, where M is the mass and L the radius of the
 //                                     object from center of mass
 //                Angular momentum = IW
 //                Torque = dI/dT x dW/dt = I x Angular acceleration
@@ -679,12 +679,12 @@ void ModelObject::Torque(float mx, float my, float mz){
 // Applies a Drag force to the object, which will decrease the speed until it stops
 void ModelObject::Drag(){
    // Linear Drag
-   Force(0, -lin_speed.x*100, 
-      -lin_speed.y*100, 
+   Force(0, -lin_speed.x*100,
+      -lin_speed.y*100,
       -lin_speed.z*100);
    // Angular Drag
-   Torque(-rot_speed.x*5000, 
-      -rot_speed.y*5000, 
+   Torque(-rot_speed.x*5000,
+      -rot_speed.y*5000,
       -rot_speed.z*5000);
 }
 
@@ -770,28 +770,28 @@ void ModelObject::Draw(bool isLit){
          // Apply the normals for the first vertex
          glNormal3fv(&normal[polygon[k].a].x);
          // Apply the texture coordinates for the first vertex
-         glTexCoord2fv(&mapcoord[polygon[k].a].u); 
+         glTexCoord2fv(&mapcoord[polygon[k].a].u);
          // Draw the first vertex
          glVertex3fv(&vertex[polygon[k].a].x);
-         
+
          // Apply the normals for the second vertex
          glNormal3fv(&normal[polygon[k].b].x);
          // Apply the texture coordinates for the second vertex
-         glTexCoord2fv(&mapcoord[polygon[k].b].u); 
+         glTexCoord2fv(&mapcoord[polygon[k].b].u);
          // Draw the second vertex
          glVertex3fv(&vertex[polygon[k].b].x);
 
          // Apply the normals for the third vertex
          glNormal3fv(&normal[polygon[k].c].x);
          // Apply the texture coordinates for the third vertex
-         glTexCoord2fv(&mapcoord[polygon[k].c].u); 
+         glTexCoord2fv(&mapcoord[polygon[k].c].u);
          // Draw the third vertex
          glVertex3fv(&vertex[polygon[k].c].x);
       }
       // Finish drawing for this material
       glEnd();
    }
-   
+
 //   }
 #endif
 
@@ -815,7 +815,7 @@ void ModelObject::Draw(bool isLit){
    for (j = 0; j < num_materials; j++){
       for (i = 0; i < material[j].num_faces; i++){
          glVertex3f(vertex[polygon[i].a].x, vertex[polygon[i].a].y, vertex[polygon[i].a].z);
-         glVertex3f(vertex[polygon[i].a].x + normal[polygon[i].a].x * normalLength, 
+         glVertex3f(vertex[polygon[i].a].x + normal[polygon[i].a].x * normalLength,
             vertex[polygon[i].a].y + normal[polygon[i].a].y * normalLength,
             vertex[polygon[i].a].z + normal[polygon[i].a].z * normalLength);
       }
@@ -844,7 +844,7 @@ void ModelObject::Draw(bool isLit){
    glEnd();
 
    glPointSize(3.0);
-   glBegin(GL_POINTS);   
+   glBegin(GL_POINTS);
    glColor3f(1.0, 1.0, 1.0);
    for (i = 0; i < num_vertices; i++){
       glVertex3fv(&vertex[i].x);
@@ -914,7 +914,7 @@ void ModelObject::SetMatrix(){
 }
 
 // Adds two vectors together, storing the result in result
-// 
+//
 // vector1: The first vector to be added
 // vector2: The second vector to be added
 // result: The sum vector
@@ -935,7 +935,7 @@ void ModelObject::VectorCreate(vector_type_ptr start, vector_type_ptr end, vecto
    result->z = end->z - start->z;
 }
 
-// Generates the cross product of the two vectors. 
+// Generates the cross product of the two vectors.
 // Calculates vector1 x vector2 and stores the result in normal
 //
 // vector1: The first vector
@@ -952,7 +952,7 @@ void ModelObject::VectorCross(vector_type_ptr vector1, vector_type_ptr vector2, 
 //
 // vector1: The first vector
 // vector2: The second vector
-// 
+//
 // Return value: Returns the dot product (float)
 float ModelObject::VectorDot(vector_type_ptr vector1, vector_type_ptr vector2){
    return (vector1->x*vector2->x + vector1->y*vector2->y + vector1->z*vector2->z);
@@ -976,7 +976,7 @@ void ModelObject::VectorNormalize(vector_type_ptr vector){
       len = 1;
    vector->x /= len;
    vector->y /= len;
-   vector->z /= len; 
+   vector->z /= len;
 }
 
 // Calculates one vector minus the other. Functionally equivalent to VectorCreate
@@ -1006,7 +1006,7 @@ void ModelObject::MatrixSetElement(matrix_type_ptr matrix, int r, int c, float v
 // matrix: The matrix whose element we are getting
 // r: The row location of the element
 // c: The column location of the element
-// 
+//
 // Return value: The value of the element at the given location (float)
 float ModelObject::MatrixGetElement(matrix_type_ptr matrix, int r, int c){
    return matrix->element[4*r+c];

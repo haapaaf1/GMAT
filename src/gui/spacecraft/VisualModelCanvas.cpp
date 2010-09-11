@@ -58,8 +58,11 @@ VisualModelCanvas::VisualModelCanvas(wxWindow *parent, Spacecraft *spacecraft,
    lastMouseX = 0; lastMouseY = 0;
 
    ModelManager *mm = ModelManager::Instance();
-   if (!mm->modelContext)
-      mm->modelContext = new wxGLContext(this);
+
+   #ifndef __WXMAC__
+      if (!mm->modelContext)
+         mm->modelContext = new wxGLContext(this);
+   #endif
 
 	#ifndef __WXMAC__
       theContext = mm->modelContext;
@@ -73,11 +76,11 @@ VisualModelCanvas::VisualModelCanvas(wxWindow *parent, Spacecraft *spacecraft,
    mLight.SetDirectional(true);
 
    glLightfv(GL_LIGHT0, GL_SPECULAR, mLight.GetColor());
-      
+
    // enable the light
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
-   
+
    showEarth = false;
    needToLoadModel = false;
    glInitialized = false;
@@ -91,14 +94,18 @@ VisualModelCanvas::~VisualModelCanvas(){
 // void OnPaint(wxPaintEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Paints the canvas. Has A LOT of work. 
+ * Paints the canvas. Has A LOT of work.
  */
 //------------------------------------------------------------------------------
 void VisualModelCanvas::OnPaint(wxPaintEvent &event){
 	float offset[3] = {0.0f, 0.0f, 0.0f}, rotation[3] = {0.0f, 0.0f, 0.0f}, scale;
-   // Set the context
-   theContext->SetCurrent(*this);
-   SetCurrent(*theContext);
+
+	#ifndef __WXMAC__
+      // Set the context
+      theContext->SetCurrent(*this);
+      SetCurrent(*theContext);
+   #endif
+
    // Set the drawing context
    wxPaintDC dc(this);
    // Initialize OpenGL if it hasn't been initialized yet
@@ -112,7 +119,7 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
    // set OpenGL to recognize the counter clockwise defined side of a polygon
    // as its 'front' for lighting and culling purposes
    glFrontFace(GL_CCW);
-      
+
    // enable face culling, so that polygons facing away (defines by front face)
    // from the viewer aren't drawn (for efficieny).
    // tell OpenGL to use glColor() to get material properties for..
@@ -136,7 +143,7 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
    gluLookAt(mCamera.position[0], mCamera.position[1], mCamera.position[2],
-      0, 0, 0, 
+      0, 0, 0,
       mCamera.up[0], mCamera.up[1], mCamera.up[2]);
    // Set up the light and enable lighting
    float lpos[4];
@@ -171,7 +178,7 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
    if (showEarth){
       // Draw a wireframe earth for size and location reference
       glColor3f(0.20f, 0.20f, 0.50f);
-      DrawSphere(6378, 15, 15, GLU_LINE);      
+      DrawSphere(6378, 15, 15, GLU_LINE);
       glDisable(GL_TEXTURE_2D);
    }
    // Complete the call
@@ -183,7 +190,7 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
 // void OnMouse(wxMouseEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Processes all mouse controls. The mouse controls can move the camera around. 
+ * Processes all mouse controls. The mouse controls can move the camera around.
  */
 //------------------------------------------------------------------------------
 void VisualModelCanvas::OnMouse(wxMouseEvent &event){
@@ -227,8 +234,8 @@ void VisualModelCanvas::OnMouse(wxMouseEvent &event){
 // void OnKeyDown(wxKeyEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Processes keyboard events. 
- * @note No keyboard commands are implemented. 
+ * Processes keyboard events.
+ * @note No keyboard commands are implemented.
  */
 //------------------------------------------------------------------------------
 void VisualModelCanvas::OnKeyDown(wxKeyEvent &event){
@@ -238,7 +245,7 @@ void VisualModelCanvas::OnKeyDown(wxKeyEvent &event){
 // void DrawAxes()
 //---------------------------------------------------------------------------
 /**
- * Draws the axes. 
+ * Draws the axes.
  */
 //---------------------------------------------------------------------------
 void VisualModelCanvas::DrawAxes()
@@ -247,16 +254,16 @@ void VisualModelCanvas::DrawAxes()
    GLfloat viewDist;
 
    glLineWidth(2.0);
-   
+
    //------------------------------------------------------------------------
-   // Draw Desired Model Body Axes - Note from Dunn.  The rendered model will 
-   // rotate with respect to these axes.  These are the axes that are used to 
-   // define an attitude offset in the Spacecraft Attitude tab using CSFixed 
+   // Draw Desired Model Body Axes - Note from Dunn.  The rendered model will
+   // rotate with respect to these axes.  These are the axes that are used to
+   // define an attitude offset in the Spacecraft Attitude tab using CSFixed
    // mode.
    //------------------------------------------------------------------------
-   
+
    viewDist = 6378.0f; // stays the same
-   
+
    Rvector3 axis;
 	Rvector3 origin;
 	origin.Set(0, 0, 0);
@@ -264,7 +271,7 @@ void VisualModelCanvas::DrawAxes()
    // PS - See Rendering.cpp
    // Note from Dunn.  The signs for these axes were changed after the big fix
    // in Enhanced3DViewCanvas where we removed all the minus signs from X and Y
-   // trajectory, sun-line, and orbit normal location variables.  Also the 
+   // trajectory, sun-line, and orbit normal location variables.  Also the
    // color convention for the three ECI axes was changed to RGB after the
    // development team reached consensus.
    //
@@ -279,7 +286,7 @@ void VisualModelCanvas::DrawAxes()
    // Set Z-Axis
    axis.Set(0, 0, viewDist);
 	DrawLine(0, 0, 1, origin, axis);
-   
+
    //-----------------------------------
    // throw some text out...
    //-----------------------------------
@@ -288,25 +295,25 @@ void VisualModelCanvas::DrawAxes()
 	glColor3f(1, 0, 0);	// red
    axisLabel = "+X ";
 	DrawStringAt(axisLabel, +viewDist, 0.0, 0.0, 1.0);
-   
+
    // Label Y-Axis
 	glColor3f(0, 1, 0);	// green
    axisLabel = "+Y ";
 	DrawStringAt(axisLabel, 0.0, +viewDist, 0.0, 1.0);
-   
+
    // Label Z-Axis
 	glColor3f(0, 0, 1);	// blue
    axisLabel = "+Z ";
 	DrawStringAt(axisLabel, 0.0, 0.0, +viewDist, 1.0);
-   
-   glLineWidth(1.0); 
+
+   glLineWidth(1.0);
 }
 
 //------------------------------------------------------------------------------
 // void LoadModel(const wxString &filePath)
 //------------------------------------------------------------------------------
 /**
- * Sets up the flags to loaded the given model. 
+ * Sets up the flags to loaded the given model.
  */
 //------------------------------------------------------------------------------
 bool VisualModelCanvas::LoadModel(const wxString &filePath){
@@ -320,7 +327,7 @@ bool VisualModelCanvas::LoadModel(const wxString &filePath){
 // void Rotate(bool useDegrees, float xAngle, float yAngle, float zAngle)
 //------------------------------------------------------------------------------
 /**
- * Rotates the model around the given axis. 
+ * Rotates the model around the given axis.
  *
  * @param useDegrees True if the values are degrees, false if they are radians
  * @param xAngle The x rotation
@@ -342,7 +349,7 @@ void VisualModelCanvas::Rotate(bool useDegrees, float xAngle, float yAngle, floa
 //------------------------------------------------------------------------------
 /**
  * Translate the model along the given axes.
- * 
+ *
  * @param x Translation along the x-axis
  * @param y Translation along the y-axis
  * @param z Translation along the z-axis
@@ -361,8 +368,8 @@ void VisualModelCanvas::Translate(float x, float y, float z){
 //------------------------------------------------------------------------------
 /**
  * Scales the model along the given axes. Tends to be given a universal value,
- * but you never know what people might want. 
- * 
+ * but you never know what people might want.
+ *
  * @param xScale The scale factor along the x-axis
  * @param yScale The scale factor along the y-axis
  * @param zScale The scale factor along the z-axis
@@ -381,7 +388,7 @@ void VisualModelCanvas::Scale(float xScale, float yScale, float zScale){
 // void RecenterModel()
 //------------------------------------------------------------------------------
 /**
- * Recenters the model based on its axis-aligned bounding box. 
+ * Recenters the model based on its axis-aligned bounding box.
  */
 //------------------------------------------------------------------------------
 void VisualModelCanvas::RecenterModel(float *offset){
@@ -404,7 +411,7 @@ void VisualModelCanvas::RecenterModel(float *offset){
 // void RecenterModel()
 //------------------------------------------------------------------------------
 /**
- * Recenters the model based on its axis-aligned bounding box. 
+ * Recenters the model based on its axis-aligned bounding box.
  */
 //------------------------------------------------------------------------------
 float VisualModelCanvas::AutoscaleModel(){
