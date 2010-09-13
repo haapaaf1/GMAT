@@ -5155,7 +5155,7 @@ void Propagate::ClearTransientForces()
                MessageInterface::ShowMessage("   calling fm->DeleteForce()\n");
                #endif
                fm->DeleteForce(pm->GetName());
-               i--;  // Since fm->DeleteForce() resets the size (loj: 2/15/07)
+               --i;
             }
          }
       }

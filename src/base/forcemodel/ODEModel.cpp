@@ -168,7 +168,8 @@ ODEModel::ODEModel(const std::string &modelName, const std::string typeName) :
    j2kBodyName       ("Earth"),
    j2kBody           (NULL),
    earthEq           (NULL),
-   earthFixed        (NULL)
+   earthFixed        (NULL),
+   transientCount    (0)
 {
    satIds[0] = satIds[1] = satIds[2] = satIds[3] = satIds[4] = 
    satIds[5] = satIds[6] = -1;
@@ -253,7 +254,8 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    ///assignment works
    j2kBody                    (fdf.j2kBody),
    earthEq                    (fdf.earthEq),
-   earthFixed                 (fdf.earthFixed)
+   earthFixed                 (fdf.earthFixed),
+   transientCount             (fdf.transientCount)
 {
    #ifdef DEBUG_ODEMODEL
    MessageInterface::ShowMessage("ODEModel copy constructor entered\n");
@@ -350,6 +352,7 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    earthEq             = fdf.earthEq;
    earthFixed          = fdf.earthFixed; 
    forceMembersNotInitialized = fdf.forceMembersNotInitialized;
+   transientCount      = fdf.transientCount;
 
    // Clear owned objects before clone
    ClearForceList();
@@ -411,7 +414,7 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
          "ODEModel::AddForce() <%p>'%s' entered, adding force = <%p><%s>'%s'\n", this,
          GetName().c_str(), pPhysicalModel, pPhysicalModel->GetTypeName().c_str(),
          pPhysicalModel->GetName().c_str());
-   #endif       
+   #endif
    
    pPhysicalModel->SetDimension(dimension);
    initialized = false;
@@ -466,7 +469,31 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
    
    // Add if new PhysicalModel pointer if not found in the forceList
    if (find(forceList.begin(), forceList.end(), pPhysicalModel) == forceList.end())
+   {
+      if (pPhysicalModel->IsTransient())
+      {
+         #ifdef DEBUG_ODEMODEL_INIT
+            MessageInterface::ShowMessage("Adding a %s to this list:\n",
+                  pPhysicalModel->GetTypeName().c_str());
+            for (UnsignedInt i = 0; i < forceList.size(); ++i)
+               MessageInterface::ShowMessage("   %s\n",
+                     forceList[i]->GetTypeName().c_str());
+            MessageInterface::ShowMessage("Transient count before "
+                  "addition = %d\n", transientCount);
+         #endif
+
+         ++transientCount;
+
+         // Temporary code: prevent multiple finite burns in single force model
+         if (transientCount > 1)
+            throw ODEModelException("Multiple Finite burns are not allowed in "
+                  "a single propagator; try breaking commands of the form"
+                  "\"Propagate prop(sat1, sat2)\" into two synchronized "
+                  "propagators; e.g. \"Propagate Synchronized prop(sat1) "
+                  "prop(sat2)\"\nexiting");
+      }
       forceList.push_back(pPhysicalModel);
+   }
    numForces = forceList.size();
    
    // Update owned object count
@@ -499,7 +526,6 @@ void ODEModel::DeleteForce(const std::string &name)
          forceList.erase(force);
          numForces = forceList.size();
          
-         // Shouldn't we also delete force? (loj: 2008.11.05)
          if (!pm->IsTransient())
          {
             #ifdef DEBUG_MEMORY
@@ -509,6 +535,8 @@ void ODEModel::DeleteForce(const std::string &name)
             #endif
             delete pm;
          }
+         else
+            --transientCount;
 
          ownedObjectCount = numForces;
          return;
@@ -537,7 +565,6 @@ void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
          forceList.erase(force);
          numForces = forceList.size();
          
-         // Shouldn't we also delete force? (loj: 2008.11.05)
          if (!pm->IsTransient())
          {
             #ifdef DEBUG_MEMORY
@@ -547,6 +574,8 @@ void ODEModel::DeleteForce(PhysicalModel *pPhysicalModel)
             #endif
             delete pm;
          }
+         else
+            --transientCount;
 
          ownedObjectCount = numForces;
          return;
@@ -1245,6 +1274,9 @@ void ODEModel::ClearForceList(bool deleteTransient)
       #endif
       
       // Transient forces are managed in the Sandbox.
+      if (pm->IsTransient())
+         --transientCount;
+
       if (!pm->IsTransient() || (deleteTransient && pm->IsTransient()))
       {
          #ifdef DEBUG_MEMORY
@@ -1486,7 +1518,7 @@ void ODEModel::UpdateInitialData(bool dynamicOnly)
  * Tells the transient forces in the model about the propagated SpaceObjects.
  *
  * In GMAT, a "transient force" is a force that is applied based on state
- * changes made to the elements that are propagated during a run.  In otehr
+ * changes made to the elements that are propagated during a run.  In other
  * words, a transient force is a force that gets applied when needed, but not
  * typically throughout the mission.  An example is a finite burn: the
  * acceleration for a finite burn is calculated and applied only when a
@@ -1536,11 +1568,13 @@ void ODEModel::UpdateTransientForces()
       }
    }
    
+   transientCount = 0;
    for (std::vector<PhysicalModel *>::iterator tf = forceList.begin();
         tf != forceList.end(); ++tf) 
    {
       if ((*tf)->IsTransient())
       {
+         ++transientCount;
          #ifdef DEBUG_INITIALIZATION
             MessageInterface::ShowMessage("Updating transient force %s\n",
                (*tf)->GetName().c_str());

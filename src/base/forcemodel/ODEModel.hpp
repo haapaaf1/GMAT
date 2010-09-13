@@ -313,6 +313,8 @@ protected:
    
    std::vector<StateStructure> sstruct;
    
+   Integer transientCount;
+
    bool                      BuildModelElement(Gmat::StateElementId id, 
                                                Integer start, 
                                                Integer objectCount);
