@@ -90,6 +90,8 @@ public:
    std::string GetCurrentPath();
    bool DoesDirectoryExist(const std::string &dirPath);
    bool DoesFileExist(const std::string &filename);
+   bool RenameFile(const std::string &oldName, const std::string &newName,
+                   Integer           &retCode, bool              overwriteIfExists = false);
    
    std::string GetStartupFileDir();
    std::string GetStartupFileName();

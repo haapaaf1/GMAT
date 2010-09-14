@@ -44,6 +44,7 @@
 //#define DEBUG_READ_STARTUP_FILE
 //#define DEBUG_WRITE_STARTUP_FILE
 //#define DEBUG_PLUGIN_DETECTION
+//#define DEBUG_FILE_RENAME
 
 //---------------------------------
 // static data
@@ -240,6 +241,57 @@ bool FileManager::DoesFileExist(const std::string &filename)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// bool RenameFile(const std::string &oldName, const std::string &newName,
+//                 Integer           &retCode,
+//                 bool              overwriteIfExists = false)
+//------------------------------------------------------------------------------
+bool FileManager::RenameFile(const std::string &oldName,
+                                const std::string &newName,
+                                Integer           &retCode,
+                                bool              overwriteIfExists)
+{
+   retCode = 0;
+   bool oldExists = DoesFileExist(oldName);
+   bool newExists = DoesFileExist(newName);
+   #ifdef DEBUG_FILE_RENAME
+      MessageInterface::ShowMessage("FM::Rename, old file (%s) exists = %s\n",
+            oldName.c_str(), (oldExists? "true" : "false"));
+      MessageInterface::ShowMessage("FM::Rename, new file (%s) exists = %s\n",
+            newName.c_str(), (newExists? "true" : "false"));
+   #endif
+   // if a file with the old name does not exist, we cannot do anything
+   if (!oldExists)
+   {
+      std::string errmsg = "Error renaming file \"";
+      errmsg += oldName + "\" to \"";
+      errmsg += newName + "\": file \"";
+      errmsg += oldName + "\" does not exist.\n";
+      throw UtilityException(errmsg);
+   }
+
+   // if a file with the new name does not exist, or exists but we are
+   // supposed to overwrite it, try to do the rename
+   if ((!newExists) || (newExists && overwriteIfExists))
+   {
+      #ifdef DEBUG_FILE_RENAME
+         MessageInterface::ShowMessage("FM::Rename, attempting to rename %s to %s\n",
+               oldName.c_str(), newName.c_str());
+      #endif
+      retCode = rename(oldName.c_str(), newName.c_str()); // overwriting is platform-dependent!!!!
+      if (retCode == 0)
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
+   }
+   else // it exists but we are not to overwrite it
+      return false;
+}
 
 //------------------------------------------------------------------------------
 // std::string GetStartupFileDir()
