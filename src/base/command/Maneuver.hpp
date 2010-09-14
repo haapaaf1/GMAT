@@ -105,6 +105,8 @@ protected:
    Integer                 burnNameID;
    /// ID for the spacecraft name
    Integer                 satNameID;
+
+   virtual void            BuildCommandSummaryString(bool commandCompleted = true);
 };
 
 #endif // Maneuver_hpp

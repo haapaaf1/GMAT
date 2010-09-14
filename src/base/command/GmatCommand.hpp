@@ -274,6 +274,8 @@ protected:
    virtual void         BuildCommandSummaryString(bool commandCompleted = true);
    virtual const std::string 
                         BuildMissionSummaryString(const GmatCommand* head = NULL);
+   virtual const std::string
+                        BuildNumber(Real value, Integer length = 17);
 
    // for Debug
    virtual void         ShowCommand(const std::string &prefix,

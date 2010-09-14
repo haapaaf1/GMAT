@@ -613,3 +613,99 @@ bool Maneuver::Execute()
 
    return retval;
 }
+
+
+//-------------------------------------------
+// Protected Methods
+//-------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// void BuildCommandSummary(bool commandCompleted)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+void Maneuver::BuildCommandSummaryString(bool commandCompleted)
+{
+   GmatCommand::BuildCommandSummaryString(commandCompleted);
+
+   if (commandCompleted)
+   {
+      std::stringstream data;
+
+      data << "\n"
+           << "\n        Maneuver Summary:"
+           << "\n        -----------------"
+           << "\n           Impulsive Burn:     " << burnName
+           << "\n           Spacecraft:         "
+           << burn->GetStringParameter(burn->GetParameterID("SpacecraftName"))
+           << "\n           Coordinate System:  "
+           << burn->GetStringParameter(burn->GetParameterID("CoordinateSystem"))
+           << "\n           Origin:             "
+           << burn->GetStringParameter(burn->GetParameterID("Origin"))
+           << "\n           Axes:               "
+           << burn->GetStringParameter(burn->GetParameterID("Axes"))
+
+           << "\n           Burn Vector:"
+           << "\n              Element 1:  "
+           << BuildNumber(burn->GetRealParameter(
+                 burn->GetParameterID("Element1")))
+           << "\n              Element 2:  "
+           << BuildNumber(burn->GetRealParameter(
+                 burn->GetParameterID("Element2")))
+           << "\n              Element 3:  "
+           << BuildNumber(burn->GetRealParameter(
+                 burn->GetParameterID("Element3")))
+           << "\n";
+
+      if (burn->GetBooleanParameter(burn->GetParameterID("DecrementMass")))
+      {
+         Real thrust, tx, ty, tz;
+         tx = burn->GetRealParameter(burn->GetParameterID("Element1"));
+         ty = burn->GetRealParameter(burn->GetParameterID("Element2"));
+         tz = burn->GetRealParameter(burn->GetParameterID("Element3"));
+         thrust = GmatMathUtil::Sqrt(tx*tx + ty*ty + tz*tz);
+
+         StringArray tanks =
+               burn->GetStringArrayParameter(burn->GetParameterID("Tank"));
+         std::string tanklist;
+
+         if (tanks.size() == 1)
+            tanklist = tanks[0];
+         else
+         {
+            for (UnsignedInt i = 0; i < tanks.size(); ++i)
+            {
+               tanklist += tanks[i];
+               tanklist += ", ";
+               if (i == (tanks.size() - 2))
+                  tanklist += "and ";
+            }
+         }
+
+         data << "\n        Mass depletion from " << tanklist <<":  "
+              << "\n           Thrust:       "
+              << BuildNumber(thrust) << " N"
+              << "\n           Isp:          "
+              << BuildNumber(burn->GetRealParameter(
+                    burn->GetParameterID("Isp"))) << " s"
+              << "\n           Mass change:  "
+              << BuildNumber(burn->GetRealParameter(
+                    burn->GetParameterID("DeltaTankMass"))) << " kg"
+              << "\n";
+
+      }
+      else
+         data << "\n"
+              << "\n        No mass depletion\n";
+
+
+      commandSummary = commandSummary + data.str();
+   }
+}

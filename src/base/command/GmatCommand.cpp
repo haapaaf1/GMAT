@@ -22,14 +22,16 @@
 #include "CommandException.hpp"
 #include "StateConverter.hpp"
 #include "MessageInterface.hpp"  // MessageInterface
+#include "TimeSystemConverter.hpp"
 
 #include <algorithm>             // for find()
 #include <sstream>               // for command summary generation
 #include <cmath>                 // for Cartesian to Keplerian conversion; 
                                  // remove it when the real conversions are
                                  // used.
-
-
+#include <iostream>
+#include <iomanip>
+#include "OrbitalParameters.hpp"
 //#define DEBUG_COMMAND_DEALLOCATION
 //#define DEBUG_COMMAND_SUMMARY_LIST
 //#define DEBUG_COMMAND_INIT 1
@@ -1728,8 +1730,8 @@ void GmatCommand::BuildCommandSummary(bool commandCompleted)
       {
          // Build summary data for each spacecraft in the object list
          GmatBase *obj;
-         for (std::map<std::string, GmatBase *>::iterator i = objectMap->begin();
-              i != objectMap->end(); ++i)
+         for (std::map<std::string, GmatBase *>::iterator i =
+               objectMap->begin(); i != objectMap->end(); ++i)
          {
             #ifdef DEBUG_COMMAND_SUMMARY_LIST
                MessageInterface::ShowMessage("Examining %s\n", i->first.c_str());
@@ -1763,8 +1765,8 @@ void GmatCommand::BuildCommandSummary(bool commandCompleted)
       {
          // Add summary data for each spacecraft in the global object list
          GmatBase *obj;
-         for (std::map<std::string, GmatBase *>::iterator i = globalObjectMap->begin();
-              i != globalObjectMap->end(); ++i)
+         for (std::map<std::string, GmatBase *>::iterator i =
+               globalObjectMap->begin(); i != globalObjectMap->end(); ++i)
          {
             #ifdef DEBUG_COMMAND_SUMMARY_LIST
                MessageInterface::ShowMessage("Examining %s\n", i->first.c_str());
@@ -1852,7 +1854,8 @@ void GmatCommand::BuildCommandSummary(bool commandCompleted)
    {
       i6 = i * 6;
       epochData[i] = satVector[i]->GetRealParameter(satEpochID);
-      memcpy(&stateData[i6], satVector[i]->GetState().GetState(), 6*sizeof(Real));
+      memcpy(&stateData[i6], satVector[i]->GetState().GetState(),
+            6*sizeof(Real));
       parmData[i6] = satVector[i]->GetRealParameter(satCdID);
       parmData[i6+1] = satVector[i]->GetRealParameter(satDragAreaID);
       parmData[i6+2] = satVector[i]->GetRealParameter(satCrID);
@@ -1879,20 +1882,21 @@ void GmatCommand::BuildCommandSummaryString(bool commandCompleted)
    std::stringstream data;
    StateConverter    stateConverter;
 
-   if (((objectMap == NULL) && (globalObjectMap == NULL))|| (satVector.size() == 0))
+   if (((objectMap == NULL) && (globalObjectMap == NULL)) ||
+       (satVector.size() == 0))
    {
       data << "Command Summary: " << typeName << " Command\n"
            << "Execute the script to generate command summary data\n";
    }
    else
    {
-      data << "Command Summary: " << typeName << " Command\n";
+      //data << "Command Summary: " << typeName << " Command\n";
       if (!commandCompleted)
          data << "Execute the script to generate command summary data\n";
       else
       {
-         data << "-------------------------------------------"
-              << "-------------------------------------------\n";
+        // data << "-------------------------------------------"
+        //      << "-------------------------------------------\n";
    
          GmatBase *obj;
          // Build summary data for each spacecraft in the object list
@@ -1900,61 +1904,126 @@ void GmatCommand::BuildCommandSummaryString(bool commandCompleted)
          {
             obj = satVector[i];
 
-            Rvector6 rawState = &stateData[i*6];
-            Rvector6 newState = rawState;
-                                   
-            data.precision(16);
-            data << "  Spacecraft " << obj->GetName() << "\n"
-                 << "     A.1 Modified Julian Epoch: "
-                 << epochData[i] << "\n\n"
-                 << "    Coordinate System: EarthMJ2000Eq \n\n"
-                 << "    Cartesian State:\n"
-                 << "        X  = " << newState[0] << " km\n"
-                 << "        Y  = " << newState[1] << " km\n"
-                 << "        Z  = " << newState[2] << " km\n"
-                 << "        VX = " << newState[3] << " km/s\n"
-                 << "        VY = " << newState[4] << " km/s\n"
-                 << "        VZ = " << newState[5] << " km/s\n";
-   
-            //obj->SetStringParameter("StateType", "Keplerian");
-               
-            CartToKep(rawState, newState);
+            Rvector6 rawState  = &stateData[i*6];
+            Rvector6 cartState = rawState;
+            Rvector6 kepState      = stateConverter.FromCartesian(rawState,
+                  "Keplerian");
+            Rvector6 sphStateAZFPA = stateConverter.FromCartesian(rawState,
+                  "SphericalAZFPA");
+            Rvector6 sphStateRADEC = stateConverter.FromCartesian(rawState,
+                  "SphericalRADEC");
 
-            data << "\n    Keplerian State:\n"
-                 << "        SMA  = " << newState[0] << " km\n"
-                 << "        ECC  = " << newState[1] << "\n"
-                 << "        INC  = " << newState[2] << " deg\n"
-                 << "        RAAN = " << newState[3] << " deg\n"
-                 << "        AOP  = " << newState[4] << " deg\n"
-                 << "        TA   = " << newState[5] << " deg\n";
+            //TimeConverterUtil::Convert
+            Real utcModJulEpoch = TimeConverterUtil::Convert(epochData[i],
+                  TimeConverterUtil::A1MJD, TimeConverterUtil::UTCMJD,
+                  GmatTimeUtil::JD_JAN_5_1941);
+            Real taiModJulEpoch = TimeConverterUtil::Convert(epochData[i],
+                  TimeConverterUtil::A1MJD, TimeConverterUtil::TAIMJD,
+                  GmatTimeUtil::JD_JAN_5_1941);
+            Real ttModJulEpoch = TimeConverterUtil::Convert(epochData[i],
+                  TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD,
+                  GmatTimeUtil::JD_JAN_5_1941);
+            Real tdbModJulEpoch = TimeConverterUtil::Convert(epochData[i],
+                  TimeConverterUtil::A1MJD, TimeConverterUtil::TDBMJD,
+                  GmatTimeUtil::JD_JAN_5_1941);
+            std::string utcString =
+                  TimeConverterUtil::ConvertMjdToGregorian(utcModJulEpoch);
+            std::string taiString =
+                  TimeConverterUtil::ConvertMjdToGregorian(taiModJulEpoch);
+            std::string ttString =
+                  TimeConverterUtil::ConvertMjdToGregorian(ttModJulEpoch);
+            std::string tdbString =
+                  TimeConverterUtil::ConvertMjdToGregorian(tdbModJulEpoch);
 
-            data << "\n\n    Spacecraft properties:\n"
-                 << "        Cd = " 
-                 << parmData[i*6] << "\n"
-                 << "        Drag area = " 
-                 << parmData[i*6+1] << " m^2\n"
-                 << "        Cr = " 
-                 << parmData[i*6+2] << "\n"
+            data.flags(std::ios::left);
+            data.precision(10);
+            data.setf(std::ios::fixed,std::ios::floatfield);
+            data.fill('0');
+            data.width(20);
+
+            //  Write the epoch data
+            data << "        Spacecraft       : " << obj->GetName() << "\n"
+                 << "        Coordinate System: EarthMJ2000Eq \n\n"
+
+                 << "        Time System   Gregorian                     "
+                 << "Modified Julian  \n"
+                 << "        --------------------------------------------"
+                 << "--------------------------    \n"
+                 << "        UTC Epoch:    " << utcString << "      "
+                 << utcModJulEpoch <<"\n"
+                 << "        TAI Epoch:    " << taiString << "      "
+                 << taiModJulEpoch <<"\n"
+                 << "        TT  Epoch:    " << ttString  << "      "
+                 << ttModJulEpoch  <<"\n"
+                 << "        TDB Epoch:    " << tdbString << "      "
+                 << tdbModJulEpoch <<"\n\n";
+
+            data.unsetf(std::ios::fixed);
+            data.unsetf(std::ios::floatfield);
+            data.precision(15);
+            data.width(20);
+
+            data << "        Cartesian State                       "
+                 << "Keplerian State\n"
+				     << "        ---------------------------           "
+				     << "-------------------------------- \n"
+                 << "        X  = " << BuildNumber(cartState[0]) << " km     "
+                 << "        SMA  = " << BuildNumber(kepState[0]) << " km\n"
+                 << "        Y  = " << BuildNumber(cartState[1]) << " km     "
+                 << "        ECC  = " << BuildNumber(kepState[1]) << "\n"
+                 << "        Z  = " << BuildNumber(cartState[2]) << " km     "
+                 << "        INC  = " << BuildNumber(kepState[2]) << " deg\n"
+                 << "        VX = " << BuildNumber(cartState[3]) << " km/sec "
+                 << "        RAAN = " << BuildNumber(kepState[3]) << " deg\n"
+                 << "        VY = " << BuildNumber(cartState[4]) << " km/sec "
+                 << "        INC  = " << BuildNumber(kepState[4]) << " deg\n"
+                 << "        VZ = " << BuildNumber(cartState[5]) << " km/sec "
+                 << "        RAAN = " << BuildNumber(kepState[5]) << " deg\n"
+                 << "\n        Spherical State:\n"
+                 << "        ---------------------------       \n"
+                 << "        RMAG = " << BuildNumber(sphStateAZFPA[0])
+                 << " km\n"
+                 << "        RA   = " << BuildNumber(sphStateAZFPA[1])
+                 << " deg\n"
+                 << "        DEC  = " << BuildNumber(sphStateAZFPA[2])
+                 << " deg\n"
+                 << "        VMAG = " << BuildNumber(sphStateAZFPA[3])
+                 << " km/s\n"
+                 << "        AZI  = " << BuildNumber(sphStateAZFPA[4])
+                 << " deg\n"
+                 << "        VFPA = " << BuildNumber(sphStateAZFPA[5])
+                 << " deg\n"
+                 << "        RAV  = " << BuildNumber(sphStateRADEC[4])
+                 << " deg\n"
+                 << "        DECV = " << BuildNumber(sphStateRADEC[5])
+                 << " deg\n"
+                 << "\n\n        Spacecraft properties:\n"
+                 << "        ------------------------------\n"
+                 << "        Cd =                    "
+                 << BuildNumber(parmData[i*6], 10) << "\n"
+                 << "        Drag area =             "
+                 << BuildNumber(parmData[i*6+1], 10) << " m^2\n"
+                 << "        Cr =                    "
+                 << BuildNumber(parmData[i*6+2], 10) << "\n"
                  << "        Reflective (SRP) area = " 
-                 << parmData[i*6+3] << " m^2\n";
-                 
-            data << "        Dry mass = "
-                 << parmData[i*6+4] << " kg\n";
+                 << BuildNumber(parmData[i*6+3], 10) << " m^2\n";
+
+            data << "        Dry mass =              "
+                 << BuildNumber(parmData[i*6+4]) << " kg\n";
+            data << "        Total mass =            "
+                 << BuildNumber(parmData[i*6+5]) << " kg\n";
 
             StringArray tanks = obj->GetStringArrayParameter(satTankID);
             if (tanks.size() > 0)
             {
-               data << "        Tanks:\n";
+               data << "\n        Tank masses:\n";
                for (StringArray::iterator i = tanks.begin();
                     i != tanks.end(); ++i)
-                  data << "           " << (*i) << "\n";
+                  data << "           " << (*i) << ":   "
+                       << BuildNumber(obj->GetRefObject(Gmat::HARDWARE, (*i))->
+                             GetRealParameter("FuelMass")) << " kg\n";
             }
                  
-            data << "        Total mass = " 
-                 << parmData[i*6+5] << " kg\n";
-
-            data << "-------------------------------------------"
-                 << "-------------------------------------------\n";
          }
       }
    }
@@ -1987,6 +2056,46 @@ const std::string GmatCommand::BuildMissionSummaryString(const GmatCommand* head
    }
    
    return missionSummary;
+}
+
+
+//------------------------------------------------------------------------------
+// const std::string BuildNumber(Real value, Integer length)
+//------------------------------------------------------------------------------
+/**
+ * Builds a formatted string containing a Real, so the Real can be serialized to
+ * the display
+ *
+ * @param value The Real that needs to be serialized
+ * @param length The size of the desired string
+ *
+ * @return The formatted string
+ */
+//------------------------------------------------------------------------------
+const std::string GmatCommand::BuildNumber(Real value, Integer length)
+{
+   std::string retval = "Invalid number";
+
+   if (length < 100)
+   {
+      char temp[100], defstr[40];
+      Integer fraction = 1;
+
+      Real shift = GmatMathUtil::Abs(value);
+      while (shift > 10.0)
+      {
+         ++fraction;
+         shift *= 0.1;
+      }
+      fraction = length - 3 - fraction;
+
+      sprintf(defstr, "%%%d.%dlf", length, fraction);
+      sprintf(temp, defstr, value);
+
+      retval = temp;
+   }
+
+   return retval;
 }
 
 
