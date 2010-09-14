@@ -50,6 +50,7 @@
 #include "A1Mjd.hpp"
 #include "Rvector6.hpp"
 #include "Rmatrix33.hpp"
+#include "FileManager.hpp"
 #include "SpiceKernelWriter.hpp"
 // include the appropriate SPICE C header(s)
 extern "C"
@@ -106,8 +107,11 @@ protected:
    bool            fileOpen;
    /// the temporary text file
    FILE            *tmpTxtFile;
+   /// an instance of the FileManager to handle renaming, etc.
+   FileManager     *fm;
 
-   static   std::string TMP_TXT_FILE_NAME;
+   static       std::string TMP_TXT_FILE_NAME;
+   static const Integer     MAX_FILE_RENAMES;
 
    void     SetBasicMetaData();
    /// method used to create the temporary text file, to use to set metadata (comments)
@@ -117,7 +121,6 @@ protected:
 private:
    // default constructor
    SpiceOrbitKernelWriter();
-
 
 };
 

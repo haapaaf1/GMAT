@@ -45,9 +45,8 @@
 //---------------------------------
 
 
-std::string SpiceOrbitKernelWriter::TMP_TXT_FILE_NAME = "./GMATtmpSPKcmmnt";
-
-
+std::string   SpiceOrbitKernelWriter::TMP_TXT_FILE_NAME = "./GMATtmpSPKcmmnt";
+const Integer SpiceOrbitKernelWriter::MAX_FILE_RENAMES  = 1000; // currently unused
 //---------------------------------
 // public methods
 //---------------------------------
@@ -84,7 +83,8 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
    kernelFileName  (fileName),
    frameName       (frame),
    fileOpen        (false),
-   tmpTxtFile      (NULL)
+   tmpTxtFile      (NULL),
+   fm              (NULL)
 {
    #ifdef DEBUG_SPK_WRITING
       MessageInterface::ShowMessage("Entering constructor for SKOrbitWriter with fileName = %s\n",
@@ -95,6 +95,8 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
       std::string errmsg = "Error creating SpiceOrbitKernelWriter: degree must be odd for Data Type 13\n";
       throw UtilityException(errmsg);
    }
+
+   fm = FileManager::Instance();
    /// set up CSPICE data
    objectNAIFId      = objNAIFId;
    if (centerNAIFId == 0) // need to find the NAIF Id for the central body  @todo - for object too??
@@ -119,18 +121,65 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
    spkopn_c(kernelNameSPICE, internalSPKName, maxChar, &handle); // CSPICE method to create and open an SPK kernel
    if (failed_c()) // CSPICE method to detect failure of previous call to CSPICE
    {
-      ConstSpiceChar option[]   = "LONG"; // retrieve long error message
-      SpiceInt       numErrChar = MAX_LONG_MESSAGE;
-      //SpiceChar      err[MAX_LONG_MESSAGE];
-      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
-      getmsg_c(option, numErrChar, err);
-      std::string errStr(err);
-      std::string errmsg = "Error getting file handle for SPK file \"";
-      errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
-      errmsg += errStr + "\n";
-      reset_c();
-      delete [] err;
-      throw UtilityException(errmsg);
+      // first, try to rename the existing file, as SPICE will not overwrite or
+      // append to an existing file - this is the most common error returned from spkopn
+      Integer     fileCounter = 0;
+      bool        done        = false;
+      std::string fileWithBSP = fileName;
+      std::string fileNoBSP   = fileWithBSP.erase(fileWithBSP.rfind(".bsp"));
+      std::stringstream fileRename("");
+      Integer     retCode = 0;
+      while (!done)
+      {
+         fileRename.str("");
+         fileRename << fileNoBSP << "__" << fileCounter << ".bsp";
+         if (fm->RenameFile(kernelFileName, fileRename.str(), retCode))
+         {
+            done = true;
+         }
+         else
+         {
+            if (retCode == 0) // if no error from system, but not allowed to overwrite
+            {
+//               if (fileCounter < MAX_FILE_RENAMES) // no MAX for now
+                  fileCounter++;
+//               else
+//               {
+//                  reset_c(); // reset failure flag in SPICE
+//                  std::string errmsg = "Error renaming existing SPK file  \"";
+//                  errmsg += kernelFileName + "\".  Maximum number of renames exceeded.\n";
+//                  throw UtilityException(errmsg);
+//               }
+            }
+            else
+            {
+               reset_c(); // reset failure flag in SPICE
+               std::string errmsg =
+                     "Unknown system error occurred when attempting to rename existing SPK file \"";
+               errmsg += kernelFileName + "\".\n";
+               throw UtilityException(errmsg);
+            }
+         }
+
+      }
+      reset_c(); // reset failure flag in SPICE
+      // then try to open the file again (should create a new one)
+      spkopn_c(kernelNameSPICE, internalSPKName, maxChar, &handle); // CSPICE method to create and open an SPK kernel
+      if (failed_c()) // CSPICE method to detect failure of previous call to CSPICE
+      {
+         ConstSpiceChar option[]   = "LONG"; // retrieve long error message
+         SpiceInt       numErrChar = MAX_LONG_MESSAGE;
+         //SpiceChar      err[MAX_LONG_MESSAGE];
+         SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
+         getmsg_c(option, numErrChar, err);
+         std::string errStr(err);
+         std::string errmsg = "Error getting file handle for SPK file \"";
+         errmsg += kernelFileName + "\".  Message received from CSPICE is: ";
+         errmsg += errStr + "\n";
+         reset_c();
+         delete [] err;
+         throw UtilityException(errmsg);
+      }
    }
    fileOpen = true;
    // set up the "basic" meta data here ...
@@ -182,7 +231,8 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const SpiceOrbitKernelWriter &cop
    basicMetaData     (copy.basicMetaData),
    addedMetaData     (copy.addedMetaData),
    fileOpen          (copy.fileOpen),    // ??
-   tmpTxtFile        (copy.tmpTxtFile)   // ??
+   tmpTxtFile        (copy.tmpTxtFile),
+   fm                (copy.fm)// ??
 {
    kernelNameSPICE  = kernelFileName.c_str();
    referenceFrame   = frameName.c_str();
@@ -216,6 +266,7 @@ SpiceOrbitKernelWriter& SpiceOrbitKernelWriter::operator=(const SpiceOrbitKernel
       addedMetaData     = copy.addedMetaData;
       fileOpen          = copy.fileOpen; // ??
       tmpTxtFile        = copy.tmpTxtFile; // ??
+      fm                = copy.fm;
 
       kernelNameSPICE   = kernelFileName.c_str();
       referenceFrame    = frameName.c_str();
