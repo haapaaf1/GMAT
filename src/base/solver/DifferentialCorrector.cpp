@@ -843,7 +843,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                   MessageInterface::ShowMessage(
                         "Entered state machine; CHECKINGRUN\n");
                #endif
-              CheckCompletion();
+               CheckCompletion();
                ++iterationsTaken;
                if (iterationsTaken >= maxIterations)
                {
@@ -1075,19 +1075,25 @@ void DifferentialCorrector::CheckCompletion()
    // check for lack of convergence
    for (Integer i = 0; i < goalCount; ++i)
    {
-      //if (fabs(nominal[i] - goal[i]) > tolerance[i])
-      //loj: 4/4/05 Changed to use GmatMathUtil::Abs()
       if (GmatMathUtil::Abs(nominal[i] - goal[i]) > tolerance[i])
          converged = false;
    }
 
    if (!converged)
    {
-      // Set to run perts if not converged
-      pertNumber = -1;
-      // Build the first perturbation
-      currentState = PERTURBING;
-      RunPerturbation();
+      if (iterationsTaken < maxIterations-1)
+      {
+         // Set to run perts if not converged
+         pertNumber = -1;
+         // Build the first perturbation
+         currentState = PERTURBING;
+         RunPerturbation();
+      }
+      else
+      {
+         currentState = FINISHED;
+         status = EXCEEDED_ITERATIONS;
+      }
    }
    else
    {
