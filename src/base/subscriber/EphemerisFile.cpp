@@ -437,7 +437,7 @@ std::string EphemerisFile::GetFileName()
       }
       
       #ifdef DEBUG_EPHEMFILE_OPEN
-      // Add current time to file in debug mode, SpiceOrbitKernelWriter throws an exceptin
+      // Add current time to file in debug mode, SpiceOrbitKernelWriter throws an exception
       // if writing to exiting file
       std::string currTime = GmatTimeUtil::FormatCurrentTime(3);
       MessageInterface::ShowMessage("   currTime='%s'\n", currTime.c_str());
@@ -622,7 +622,7 @@ bool EphemerisFile::Initialize()
    if (fileType == SPK_ORBIT)
       CreateSpiceKernelWriter();
    
-   // Clear manuvers handled array
+   // Clear maneuvers handled array
    maneuversHandled.clear();
    
    #ifdef DEBUG_EPHEMFILE_INIT
@@ -1328,7 +1328,8 @@ void EphemerisFile::CreateSpiceKernelWriter()
    catch (BaseException &e)
    {
       #ifdef DEBUG_EPHEMFILE_SPICE
-      MessageInterface::ShowMessage(e.GetFullMessage());
+      MessageInterface::ShowMessage(
+            "  Error creating SpiceOrbitKernelWriter: %s", (e.GetFullMessage()).c_str());
       #endif
       throw;
    }
@@ -2189,7 +2190,7 @@ void EphemerisFile::BufferOrbitData(Real epochInDays, const Real state[6])
    MessageInterface::ShowMessage
       ("BufferOrbitData() entered, epochInDays=%f, state[0]=%f\n", epochInDays,
        state[0]);
-   DebugWriteTime("   ", epochInDays, true, 2);
+//   DebugWriteTime("   ", epochInDays, true, 2);
    #endif
    
    // if buffer is full, dump the data
@@ -2551,7 +2552,7 @@ void EphemerisFile::WriteSpkOrbitDataSegment()
    {
       if (spkWriter == NULL)
          throw SubscriberException
-            ("*** INTERNANL ERROR *** SPK Writer is NULL in "
+            ("*** INTERNAL ERROR *** SPK Writer is NULL in "
              "EphemerisFile::WriteSpkOrbitDataSegment()\n");
       
       A1Mjd *start = a1MjdArray.front();
@@ -2560,6 +2561,18 @@ void EphemerisFile::WriteSpkOrbitDataSegment()
       #ifdef DEBUG_EPHEMFILE_SPICE
       MessageInterface::ShowMessage
          ("   Writing start=%f, end=%f\n", start->GetReal(), end->GetReal());
+      MessageInterface::ShowMessage("times are:\n");
+      for (unsigned int ii = 0; ii < a1MjdArray.size(); ii++)
+      {
+         A1Mjd *t = a1MjdArray[ii];
+         MessageInterface::ShowMessage(" ... [%d] %12.10f\n", ii, t->Get());
+      }
+      MessageInterface::ShowMessage("states are:\n");
+      for (unsigned int ii = 0; ii < stateArray.size(); ii++)
+      {
+         Rvector6 *st = stateArray[ii];
+         MessageInterface::ShowMessage(" ... [%d] %s\n", ii, (st->ToString()).c_str());
+      }
       #endif
       
       spkWriteFailed = false;
