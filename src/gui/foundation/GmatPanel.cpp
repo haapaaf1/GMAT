@@ -373,7 +373,10 @@ void GmatPanel::OnSummary(wxCommandEvent &event)
    // open separate window to show scripts?
    if (mObject != NULL) {
       title = "Command Summary for ";
-      title += mObject->GetName().c_str();
+      if (mObject->GetName() != "")
+         title += mObject->GetName().c_str();
+      else
+         title += mObject->GetTypeName().c_str();
    }
    ShowSummaryDialog ssd(this, -1, title, (GmatCommand*)mObject);
    ssd.ShowModal();
