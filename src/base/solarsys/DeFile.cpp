@@ -626,7 +626,7 @@ void DeFile::Read_Coefficients( double Time )
        Offset  = (int) - ceil(T_delta/T_span);
      }
 
-  if ( Time > T_end )                    /* Compute forewards location offset */
+  if ( Time > T_end )                    /* Compute forwards location offset */
      {
        T_delta = Time - T_end;
        Offset  = (int) ceil(T_delta/T_span);
@@ -647,12 +647,14 @@ void DeFile::Read_Coefficients( double Time )
   // if time is less than file begin time, do not update time info.
   if (Time > mFileBeg) //loj: 9/15/05 Added
   {
-     fseek(Ephemeris_File,(Offset-1)*arraySize*sizeof(double),SEEK_CUR); // wcs
+     fseek(Ephemeris_File,(Offset-1)*arraySize*sizeof(double),SEEK_CUR);
 
      // Intentionally get the return and then ignore it to move warning from
      // system libraries to GMAT code base.  The "unused variable" warning here
      // can be safely ignored.
      size_t len = fread(&Coeff_Array,sizeof(double),arraySize,Ephemeris_File);
+     if ((Integer)len != arraySize)
+        throw PlanetaryEphemException("Requested epoch is not on the DE file");
 
      T_beg  = Coeff_Array[0] - baseEpoch;
      T_end  = Coeff_Array[1] - baseEpoch;
@@ -1679,6 +1681,8 @@ int DeFile::Read_File_Line( FILE *inFile, int filter, char lineBuffer[82])
        // system libraries to GMAT code base.  The "unused variable" warning
        // here can be safely ignored.
        char* ch = fgets(ignore,40,inFile);      /* Read past next end of line */
+       if (ch == NULL)
+          throw PlanetaryEphemException("Unable to read line from the DE file");
        lineBuffer[81] = '\0';
      }
 
