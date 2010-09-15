@@ -265,13 +265,13 @@ void BallisticsMassPanel::SaveData()
       // greater than or equal to 0.0
       inputString = reflectCoeffTextCtrl->GetValue();      
       if ((GmatStringUtil::ToReal(inputString,&rvalue)) && 
-          (rvalue >= 0.0))
+          (rvalue >= 0.0) && (rvalue <= 2.0))
          theSpacecraft->SetRealParameter(reflectCoeffID, rvalue);
       else
       {
          MessageInterface::PopupMessage(Gmat::ERROR_, msg.c_str(), 
             inputString.c_str(),"Coefficient of Reflectivity",
-            "Real Number >= 0.0");
+            "0.0 <= Real Number <= 2.0");
          canClose = false;
       }
 

@@ -2299,14 +2299,14 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
    }
    if (label == "Cr")
    {
-      if (value >= 0.0)
+      if ((value >= 0.0) && (value <= 2.0))
          reflectCoeff = value;
       else
       {
          SpaceObjectException soe("");
          soe.SetDetails(errorMessageFormat.c_str(),
                         GmatStringUtil::ToString(value, 16).c_str(),
-                        "Cr", "Real Number >= 0.0");
+                        "Cr", "0.0 <= Real Number <= 2.0");
          throw soe;
       }
       parmsChanged = true;
