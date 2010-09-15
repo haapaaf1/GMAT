@@ -793,17 +793,11 @@ void TsPlotCanvas::AddData(TsPlotCurve *curve, wxColour startColor)
    unsigned int varCount = (unsigned int)data.size();
    wxPen *newPens = new wxPen[varCount];
 
-   MessageInterface::ShowMessage("TsPlotCanvas::AddData(%p, %s)\n", curve,
-         startColor.GetAsString(wxC2S_CSS_SYNTAX).c_str());
-   MessageInterface::ShowMessage("   Current var count = %d\n", varCount);
-
    for (unsigned int i = 0; i < varCount-1; ++i)
       newPens[i] = plotPens[i];
 
    // Defaults for the first 6 (if there are that many)
    int penID = varCount - 1;
-
-   MessageInterface::ShowMessage("   penID = %d\n", penID);
 
    switch (penID)
    {
