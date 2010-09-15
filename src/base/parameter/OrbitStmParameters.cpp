@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            File: OrbitStmParameters
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -21,6 +21,9 @@
 #include "ColorTypes.hpp"
 
 
+// To use preset colors, uncomment this line:
+//#define USE_PREDEFINED_COLORS
+
 //==============================================================================
 //                              OrbitStm
 //==============================================================================
@@ -37,7 +40,9 @@ OrbitStm::OrbitStm(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::RED32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::RED32;
+   #endif
 }
 
 
@@ -105,7 +110,9 @@ OrbitStmA::OrbitStmA(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::YELLOW32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::YELLOW32;
+   #endif
 }
 
 
@@ -173,7 +180,9 @@ OrbitStmB::OrbitStmB(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 
@@ -241,7 +250,9 @@ OrbitStmC::OrbitStmC(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::GREEN32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::GREEN32;
+   #endif
 }
 
 
@@ -309,7 +320,9 @@ OrbitStmD::OrbitStmD(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::ORANGE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::ORANGE32;
+   #endif
 }
 
 

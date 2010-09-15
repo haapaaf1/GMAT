@@ -24,6 +24,8 @@
 
 //#define DEBUG_CARTESIAN_PARAM 1
 
+// To use preset colors, uncomment this line:
+//#define USE_PREDEFINED_COLORS
 
 //==============================================================================
 //                              CartX
@@ -48,7 +50,9 @@ CartX::CartX(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::RED32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::RED32;
+   #endif
 }
 
 
@@ -176,7 +180,9 @@ CartY::CartY(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::GREEN32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::GREEN32;
+   #endif
 }
 
 
@@ -304,7 +310,9 @@ CartZ::CartZ(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 
@@ -431,7 +439,9 @@ CartVx::CartVx(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::RED32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::RED32;
+   #endif
 }
 
 
@@ -559,7 +569,9 @@ CartVy::CartVy(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::GREEN32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::GREEN32;
+   #endif
 }
 
 
@@ -687,7 +699,9 @@ CartVz::CartVz(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 

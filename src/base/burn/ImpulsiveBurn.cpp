@@ -929,7 +929,6 @@ void ImpulsiveBurn::DecrementMass()
       ("ImpulsiveBurn::DecrementMass() <%p>'%s' entered. There are %d tank(s)\n",
        this, instanceName.c_str(), tankMap.size());
    #endif
-   
    totalTankMass = spacecraft->GetRealParameter("TotalMass");
    
    #ifdef DEBUG_IMPBURN_DECMASS
@@ -960,6 +959,7 @@ void ImpulsiveBurn::DecrementMass()
            tankPos != tankMap.end(); ++tankPos)
       {
          GmatBase *currTank = tankPos->second;
+
          #ifdef DEBUG_IMPBURN_DECMASS
          MessageInterface::ShowMessage
             ("       Decrementing tank mass for <%p>'%s'\n", currTank,
@@ -976,7 +976,6 @@ void ImpulsiveBurn::DecrementMass()
          currTank->SetRealParameter(paramID, currTankMass);
       }
    }
-   
    #ifdef DEBUG_IMPBURN_DECMASS
    MessageInterface::ShowMessage
       ("ImpulsiveBurn::DecrementMass() <%p>'%s' returning\n", this, GetName().c_str());

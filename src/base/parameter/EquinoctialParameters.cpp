@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
-//                            File: EquinoctialParameters.cpp
+//                            EquinoctialParameters.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -24,12 +24,18 @@
 
 //#define DEBUG_CARTESIAN_PARAM 1
 
+
+// To use preset colors, uncomment this line:
+//#define USE_PREDEFINED_COLORS
+
 EquinSma::EquinSma(const std::string &name, GmatBase *obj)
    : OrbitReal(name, "Sma", obj, "Equinoctial Sma", "?", GmatParam::COORD_SYS, true)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::RED32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::RED32;
+   #endif
 }
 
 EquinSma::EquinSma(const EquinSma &copy)
@@ -72,7 +78,9 @@ EquinEy::EquinEy(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::GREEN32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::GREEN32;
+   #endif
 }
 
 EquinEy::EquinEy(const EquinEy&copy)
@@ -115,7 +123,9 @@ EquinEx::EquinEx(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 EquinEx::EquinEx(const EquinEx &copy)
@@ -158,7 +168,9 @@ EquinNy::EquinNy(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::YELLOW32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::YELLOW32;
+   #endif
 }
 
 EquinNy::EquinNy(const EquinNy &copy)
@@ -201,7 +213,9 @@ EquinNx::EquinNx(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::GREEN32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::GREEN32;
+   #endif
 }
 
 EquinNx::EquinNx(const EquinNx &copy)
@@ -244,7 +258,9 @@ EquinMlong::EquinMlong(const std::string &name, GmatBase *obj)
 {
    mDepObjectName = "EarthMJ2000Eq";
    SetRefObjectName(Gmat::COORDINATE_SYSTEM, mDepObjectName);
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 EquinMlong::EquinMlong(const EquinMlong &copy)

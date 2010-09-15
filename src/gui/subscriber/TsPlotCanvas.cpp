@@ -793,37 +793,116 @@ void TsPlotCanvas::AddData(TsPlotCurve *curve, wxColour startColor)
    unsigned int varCount = (unsigned int)data.size();
    wxPen *newPens = new wxPen[varCount];
 
+   MessageInterface::ShowMessage("TsPlotCanvas::AddData(%p, %s)\n", curve,
+         startColor.GetAsString(wxC2S_CSS_SYNTAX).c_str());
+   MessageInterface::ShowMessage("   Current var count = %d\n", varCount);
+
    for (unsigned int i = 0; i < varCount-1; ++i)
       newPens[i] = plotPens[i];
 
    // Defaults for the first 6 (if there are that many)
    int penID = varCount - 1;
 
+   MessageInterface::ShowMessage("   penID = %d\n", penID);
+
    switch (penID)
    {
-      case 0:
+      case 0:     // Red
          newPens[0].SetColour(220, 0, 0);
          break;
 
-      case 1:
+      case 1:     // Green
          newPens[1].SetColour(0, 220, 0);
          break;
 
-      case 2:
+      case 2:     // Blue
          newPens[2].SetColour(0, 0, 220);
          break;
 
-      case 3:
+      case 3:     // Yellow
          newPens[3].SetColour(220, 220, 0);
          break;
 
-      case 4:
+      case 4:     // Fuchsia
          newPens[4].SetColour(220, 0, 220);
          break;
 
-      case 5:
+      case 5:     // Aqua
          newPens[5].SetColour(0, 220, 220);
          break;
+
+      case 6:     // Maroon
+         newPens[0].SetColour(110, 0, 0);
+         break;
+
+      case 7:     // Dk Green
+         newPens[1].SetColour(0, 110, 0);
+         break;
+
+      case 8:     // Dk Blue
+         newPens[2].SetColour(0, 0, 110);
+         break;
+
+      case 9:     // Gray
+         newPens[3].SetColour(128, 128, 128);
+         break;
+
+      case 10:    // Brown
+         newPens[4].SetColour(139, 88, 27);
+         break;
+
+      case 11:    // Dk Gray
+         newPens[5].SetColour(64, 64, 64);
+         break;
+
+// More slots if needed
+//      case 12:
+//         newPens[0].SetColour(220, 0, 0);
+//         break;
+//
+//      case 13:
+//         newPens[1].SetColour(0, 220, 0);
+//         break;
+//
+//      case 14:
+//         newPens[2].SetColour(0, 0, 220);
+//         break;
+//
+//      case 15:
+//         newPens[3].SetColour(220, 220, 0);
+//         break;
+//
+//      case 16:
+//         newPens[4].SetColour(220, 0, 220);
+//         break;
+//
+//      case 17:
+//         newPens[5].SetColour(0, 220, 220);
+//         break;
+//
+//      case 18:
+//         newPens[0].SetColour(220, 0, 0);
+//         break;
+//
+//      case 19:
+//         newPens[1].SetColour(0, 220, 0);
+//         break;
+//
+//      case 20:
+//         newPens[2].SetColour(0, 0, 220);
+//         break;
+//
+//      case 21:
+//         newPens[3].SetColour(220, 220, 0);
+//         break;
+//
+//      case 22:
+//         newPens[4].SetColour(220, 0, 220);
+//         break;
+//
+//      case 23:
+//         newPens[5].SetColour(0, 220, 220);
+//         break;
 
       default:
          newPens[penID].SetColour(0, 0, 0);  // Black for the rest
@@ -835,7 +914,25 @@ void TsPlotCanvas::AddData(TsPlotCurve *curve, wxColour startColor)
       delete [] plotPens;
 
    if (startColor != *wxWHITE)
+   {
+      #ifdef ENABLE_AUTODARKEN
+         // Check for a color match and is there, darken the new one
+         for (UnsignedInt i = 0; i < varCount-1; ++i)
+         {
+            if (startColor == newPens[i].GetColour())
+            {
+               unsigned char r, g, b;
+               r = startColor.Red() / 2;
+               g = startColor.Green() / 2;
+               b = startColor.Blue() / 2;
+
+
+            }
+         }
+      #endif
+
       newPens[penID].SetColour(startColor);
+   }
 
    plotPens = newPens;
 

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            File: HardwareParameters
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -22,6 +22,10 @@
 #include "ColorTypes.hpp"
 #include "ParameterInfo.hpp"
 
+
+// To use preset colors, uncomment this line:
+//#define USE_PREDEFINED_COLORS
+
 //==============================================================================
 //                              FuelMass
 //==============================================================================
@@ -36,7 +40,9 @@
 FuelMass::FuelMass(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "FuelMass", obj, "Fuel Mass", "")
 {
-   mColor = GmatColor::RED32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::RED32;
+   #endif
 }
 
 
@@ -120,7 +126,9 @@ GmatBase* FuelMass::Clone(void) const
 Pressure::Pressure(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "Pressure", obj, "Pressure", "")
 {
-   mColor = GmatColor::YELLOW32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::YELLOW32;
+   #endif
 }
 
 
@@ -204,7 +212,9 @@ GmatBase* Pressure::Clone(void) const
 Temperature::Temperature(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "Temperature", obj, "Temperature", "")
 {
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 
@@ -288,7 +298,9 @@ GmatBase* Temperature::Clone(void) const
 RefTemperature::RefTemperature(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "RefTemperature", obj, "RefTemperature", "")
 {
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 
@@ -372,7 +384,9 @@ GmatBase* RefTemperature::Clone(void) const
 Volume::Volume(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "Volume", obj, "Volume", "")
 {
-   mColor = GmatColor::GREEN32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::GREEN32;
+   #endif
 }
 
 
@@ -456,7 +470,9 @@ GmatBase* Volume::Clone(void) const
 FuelDensity::FuelDensity(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "FuelDensity", obj, "FuelDensity", "")
 {
-   mColor = GmatColor::ORANGE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::ORANGE32;
+   #endif
 }
 
 
@@ -540,7 +556,9 @@ GmatBase* FuelDensity::Clone(void) const
 DutyCycle::DutyCycle(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "DutyCycle", obj, "DutyCycle", "")
 {
-   mColor = GmatColor::CHESTNUT; 
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::CHESTNUT;
+   #endif
 }
 
 
@@ -624,7 +642,9 @@ GmatBase* DutyCycle::Clone(void) const
 ThrustScaleFactor::ThrustScaleFactor(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "ThrustScaleFactor", obj, "ThrustScaleFactor", "")
 {
-   mColor = GmatColor::CHESTNUT; 
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::CHESTNUT;
+   #endif
 }
 
 
@@ -708,7 +728,9 @@ GmatBase* ThrustScaleFactor::Clone(void) const
 GravitationalAccel::GravitationalAccel(const std::string &name, GmatBase *obj)
    : HardwareReal(name, "GravitationalAccel", obj, "GravitationalAccel", "")
 {
-   mColor = GmatColor::CHESTNUT; 
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::CHESTNUT;
+   #endif
 }
 
 
@@ -793,8 +815,10 @@ ThrustCoefficients::ThrustCoefficients(const std::string &type,
                                        const std::string &name, GmatBase *obj)
    : HardwareReal(name, "ThrustCoefficients", obj, "ThrustCoefficients", "")
 {
-   mColor = GmatColor::CHESTNUT;
-   
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::CHESTNUT;
+   #endif
+
    // Add type to ParameterInfo so that we can get information without an instance
    ParameterInfo::Instance()->Add(type, mOwnerType, instanceName, mDepObj,
                                   mIsPlottable, mIsReportable, mIsSettable);
@@ -911,7 +935,9 @@ ImpulseCoefficients::ImpulseCoefficients(const std::string &type,
                                          const std::string &name, GmatBase *obj)
    : HardwareReal(name, "ImpulseCoefficients", obj, "ImpulseCoefficients", "")
 {
-   mColor = GmatColor::CHESTNUT;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::CHESTNUT;
+   #endif
 
    // Add type to ParameterInfo so that we can get information without an instance
    ParameterInfo::Instance()->Add(type, mOwnerType, instanceName, mDepObj,
@@ -1029,8 +1055,10 @@ ThrustDirections::ThrustDirections(const std::string &type,
                                    const std::string &name, GmatBase *obj)
    : HardwareReal(name, "ThrustDirection", obj, "ThrustDirection", "")
 {
-   mColor = GmatColor::CHESTNUT;
-   
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::CHESTNUT;
+   #endif
+
    // Add type to ParameterInfo so that we can get information without an instance
    ParameterInfo::Instance()->Add(type, mOwnerType, instanceName, mDepObj,
                                   mIsPlottable, mIsReportable, mIsSettable);

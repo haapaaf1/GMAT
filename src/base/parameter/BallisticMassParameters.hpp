@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  BallisticMassParameters
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -21,6 +21,7 @@
 
 #include "gmatdefs.hpp"
 #include "BallisticMassReal.hpp"
+
 
 //------------------------------------------------------------------------------
 //  DryMass, DragCoeff, ReflectCoeff, DragArea, SRPArea, TotalMass

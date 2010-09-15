@@ -373,11 +373,11 @@ Real ArrayElementWrapper::EvaluateReal() const
 //---------------------------------------------------------------------------
 bool ArrayElementWrapper::SetReal(const Real toValue)
 {
-   #ifdef DEBUG_AE_WRAPPER
+//   #ifdef DEBUG_AE_WRAPPER
       MessageInterface::ShowMessage(
          "AEWrapper::SetReal called on array %s with input %.12f\n", 
          arrayName.c_str(), toValue);
-   #endif
+//   #endif
    if (array == NULL)
       throw ParameterException(
       "Cannot set value of ArrayElement - object pointer is NULL\n");
@@ -392,11 +392,11 @@ bool ArrayElementWrapper::SetReal(const Real toValue)
       // get the row value
       Real rowVal        = row->EvaluateReal();
       Real rowNearestInt = GmatMathUtil::NearestInt(rowVal);
-      #ifdef DEBUG_AE_WRAPPER
+//      #ifdef DEBUG_AE_WRAPPER
          MessageInterface::ShowMessage(
             "AEWrapper::SetReal(%s) - row evaluates to %d\n", 
             arrayName.c_str(),(Integer) rowNearestInt);
-      #endif
+//      #endif
       if ((GmatMathUtil::Mod(rowVal, rowNearestInt) != 0.0))
       {
          std::string errmsg = "Cannot evaluate ArrayElement - ";
@@ -407,11 +407,11 @@ bool ArrayElementWrapper::SetReal(const Real toValue)
       // get the column value
       Real colVal        = column->EvaluateReal();
       Real colNearestInt = GmatMathUtil::NearestInt(colVal);
-      #ifdef DEBUG_AE_WRAPPER
+//      #ifdef DEBUG_AE_WRAPPER
          MessageInterface::ShowMessage(
             "AEWrapper::SetReal(%s) - col evaluates to %d\n", 
             arrayName.c_str(),(Integer) colNearestInt);
-      #endif
+//      #endif
       if ((GmatMathUtil::Mod(colVal, colNearestInt) != 0.0))
       {
          std::string errmsg = "Cannot evaluate ArrayElement - ";

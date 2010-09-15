@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            File: BurnParameters.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -23,6 +23,9 @@
 
 //#define DEBUG_BURN_PARAM 1
 
+
+// To use preset colors, uncomment this line:
+//#define USE_PREDEFINED_COLORS
 
 //==============================================================================
 //                              ImpBurnElements
@@ -49,7 +52,9 @@ ImpBurnElements::ImpBurnElements(const std::string &type, const std::string &nam
    : BurnReal(name, type, Gmat::IMPULSIVE_BURN, obj,
               "ImpulsiveBurn Element", "Km/s", GmatParam::NO_DEP, false)
 {
-   mColor = GmatColor::RED32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::RED32;
+   #endif
    
    if (type == "Element1" || type == "V")
       mElementId = ELEMENT1;

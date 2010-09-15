@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            File: BallisticMassParameters
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -21,6 +21,9 @@
 #include "ColorTypes.hpp"
 
 
+// To use preset colors, uncomment this line:
+//#define USE_PREDEFINED_COLORS
+
 //==============================================================================
 //                              DryMass
 //==============================================================================
@@ -35,7 +38,9 @@
 DryMass::DryMass(const std::string &name, GmatBase *obj)
    : BallisticMassReal(name, "DryMass", obj, "Dry Mass", "")
 {
-   mColor = GmatColor::RED32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::RED32;
+   #endif
 }
 
 
@@ -106,7 +111,9 @@ GmatBase* DryMass::Clone(void) const
 DragCoeff::DragCoeff(const std::string &name, GmatBase *obj)
    : BallisticMassReal(name, "Cd", obj, "Drag Coefficient", "")
 {
-   mColor = GmatColor::YELLOW32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::YELLOW32;
+   #endif
 }
 
 
@@ -176,7 +183,9 @@ GmatBase* DragCoeff::Clone(void) const
 ReflectCoeff::ReflectCoeff(const std::string &name, GmatBase *obj)
    : BallisticMassReal(name, "Cr", obj, "Reflectivity Coefficient", "")
 {
-   mColor = GmatColor::BLUE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::BLUE32;
+   #endif
 }
 
 
@@ -246,7 +255,9 @@ GmatBase* ReflectCoeff::Clone(void) const
 DragArea::DragArea(const std::string &name, GmatBase *obj)
    : BallisticMassReal(name, "DragArea", obj, "Drag Area", "")
 {
-   mColor = GmatColor::GREEN32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::GREEN32;
+   #endif
 }
 
 
@@ -316,7 +327,9 @@ GmatBase* DragArea::Clone(void) const
 SRPArea::SRPArea(const std::string &name, GmatBase *obj)
    : BallisticMassReal(name, "SRPArea", obj, "SRP Area", "")
 {
-   mColor = GmatColor::ORANGE32;
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::ORANGE32;
+   #endif
 }
 
 
@@ -386,7 +399,9 @@ GmatBase* SRPArea::Clone(void) const
 TotalMass::TotalMass(const std::string &name, GmatBase *obj)
    : BallisticMassReal(name, "TotalMass", obj, "Total Mass", "")
 {
-   mColor = GmatColor::CHESTNUT; 
+   #ifdef USE_PREDEFINED_COLORS
+      mColor = GmatColor::CHESTNUT;
+   #endif
 }
 
 
