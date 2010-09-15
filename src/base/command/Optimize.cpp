@@ -67,10 +67,11 @@ Optimize::PARAMETER_TYPE[OptimizeParamCount - SolverBranchCommandParamCount] =
 // constructor
 //------------------------------------------------------------------------------
 Optimize::Optimize() :
-   SolverBranchCommand ("Optimize"),
-   optimizerConverged  (false),
-   optimizerInFunctionInitialized(false),
-   optimizerInDebugMode(false)
+   SolverBranchCommand              ("Optimize"),
+   optimizerConverged               (false),
+   optimizerInFunctionInitialized   (false),
+   optimizerInDebugMode             (false),
+   minimizeCount                    (0)
 {
    #ifdef DEBUG_OPTIMIZE_CONSTRUCTION
       MessageInterface::ShowMessage("NOW creating Optimize command ...");
@@ -83,10 +84,11 @@ Optimize::Optimize() :
 // copy constructor
 //------------------------------------------------------------------------------
 Optimize::Optimize(const Optimize& o) :
-   SolverBranchCommand  (o),
-   optimizerConverged   (false),
-   optimizerInFunctionInitialized(false),
-   optimizerInDebugMode (o.optimizerInDebugMode)
+   SolverBranchCommand              (o),
+   optimizerConverged               (false),
+   optimizerInFunctionInitialized   (false),
+   optimizerInDebugMode             (o.optimizerInDebugMode),
+   minimizeCount                    (0)
 {
    //parameterCount = OptimizeParamCount;  // this is set in GmatBase copy constructor
    #ifdef DEBUG_OPTIMIZE_CONSTRUCTION
@@ -109,6 +111,7 @@ Optimize& Optimize::operator=(const Optimize& o)
    optimizerInFunctionInitialized = false;
    optimizerInDebugMode = o.optimizerInDebugMode;
    localStore.clear();
+   minimizeCount = 0;
 
    return *this;
 }
@@ -134,7 +137,7 @@ bool Optimize::Append(GmatCommand *cmd)
    if (!SolverBranchCommand::Append(cmd))
         return false;
     
-   // If at the end of a optimizer branch, point that end back to this comand.
+   // If at the end of a optimizer branch, point that end back to this command.
    if (cmd->GetTypeName() == "EndOptimize") 
    {
       if ((nestLevel == 0) && (branchToFill != -1))  
@@ -155,6 +158,18 @@ bool Optimize::Append(GmatCommand *cmd)
    // 2006.09.13 wcs - as of today, nested optimizers are not allowed
    if (cmd->GetTypeName() == "Optimize")
       ++nestLevel;
+
+   if (cmd->GetTypeName() == "Minimize")
+   {
+      MessageInterface::ShowMessage("'%s' == '%s'?\n", solverName.c_str(), cmd->GetStringParameter("OptimizerName").c_str());
+      // if (solverName == cmd->GetStringParameter("OptimizerName"))
+      {
+         ++minimizeCount;
+         if (minimizeCount > 1)
+            throw CommandException("Optimization control sequences are only "
+                  "allowed one Minimize command");
+      }
+   }
 
    #ifdef DEBUG_OPTIMIZE_PARSING
        MessageInterface::ShowMessage("\nOptimize::Append for \"%s\" nest level = %d",

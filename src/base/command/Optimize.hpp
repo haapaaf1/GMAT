@@ -91,16 +91,15 @@ protected:
    
    /// Flag indicating is the optimizer has converged
    bool                optimizerConverged;
-   /// Flag indicating optimpzer in function initialized
+   /// Flag indicating optimizer in function initialized
    bool                optimizerInFunctionInitialized;
    
    StringArray         callbackResults;
    std::string         callbackData;
     
-   // Parameter IDs 
-   //Integer             optimizerNameID;
-   //Integer             OptimizerConvergedID;
    bool                optimizerInDebugMode;
+
+   Integer             minimizeCount;
 };
 
 #endif /*Optimize_hpp*/
