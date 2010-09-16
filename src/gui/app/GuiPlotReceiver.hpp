@@ -110,6 +110,11 @@ public:
    virtual void XyPlotPenDown(const std::string &plotName);
    virtual void XyPlotMarkPoint(const std::string &plotName, Integer index = -1,
          Integer forCurve = -1);
+   virtual void XyPlotMarkBreak(const std::string &plotName, Integer index = -1,
+         Integer curveNumber = -1);
+   virtual void XyPlotClearFromBreak(const std::string &plotName,
+         Integer breakNumber, Integer index = -1, Integer curveNumber = -1);
+
    virtual void XyPlotChangeColor(const std::string &plotName,
          Integer index = -1, UnsignedInt newColor = 0xffffff,
          Integer forCurve = -1);

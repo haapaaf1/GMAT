@@ -49,6 +49,7 @@ XyPlot::PARAMETER_TEXT[XyPlotParamCount - SubscriberParamCount] =
    "LineWidth",
    "UseMarkers",
    "MarkerSize",
+   "Drawing",
    "IndVar",
    "Add",
    "Grid",
@@ -70,6 +71,7 @@ XyPlot::PARAMETER_TYPE[XyPlotParamCount - SubscriberParamCount] =
    Gmat::INTEGER_TYPE,     // "LineWidth",
    Gmat::BOOLEAN_TYPE,     // "UseMarkers",
    Gmat::INTEGER_TYPE,     // "MarkerSize",
+   Gmat::BOOLEAN_TYPE,     // "Drawing"
    Gmat::OBJECT_TYPE,      // "IndVar","XVariable"
    Gmat::OBJECTARRAY_TYPE, // "Add","YVariables"
    Gmat::ON_OFF_TYPE,      // "Grid","ShowGrid"
@@ -119,6 +121,8 @@ XyPlot::XyPlot(const std::string &name, Parameter *xParam,
    lineWidth = 1;
    useMarkers = false;
    markerSize = 3;
+   drawing = true;
+   breakCount = 0;
 }
 
 
@@ -156,6 +160,8 @@ XyPlot::XyPlot(const XyPlot &orig) :
    lineWidth  = orig.lineWidth;
    useMarkers = orig.useMarkers;
    markerSize = orig.markerSize;
+   drawing    = orig.drawing;
+   breakCount = orig.breakCount;
 }
 
 
@@ -198,6 +204,8 @@ XyPlot& XyPlot::operator=(const XyPlot& orig)
    mNumCollected = orig.mNumCollected;
    
    useMarkers = orig.useMarkers;
+   drawing = orig.drawing;
+   breakCount = orig.breakCount;
 
    return *this;
 }
@@ -474,6 +482,14 @@ bool XyPlot::TakeAction(const std::string &action,
    {
       return MarkPoint();
    }
+   else if (action == "MarkBreak")
+   {
+      return MarkBreak();
+   }
+   else if (action == "ClearFromBreak")
+   {
+      return ClearFromBreak();
+   }
    // Add color change and marker change here(?)
    
    return false;
@@ -613,6 +629,7 @@ bool XyPlot::IsParameterReadOnly(const Integer id) const
        (id == LINE_WIDTH)             ||
        (id == USE_MARKERS)            ||
        (id == MARKER_SIZE)            ||
+       (id == DRAWING)                ||
        (id == IND_VAR)                ||
        (id == ADD)                    ||
        (id == DRAW_GRID)            
@@ -903,6 +920,8 @@ bool XyPlot::GetBooleanParameter(const Integer id) const
       return useLines;
    if (id == SHOW_GRID)
       return mDrawGrid;
+   if (id == DRAWING)
+      return drawing;
    return Subscriber::GetBooleanParameter(id);
 }
 
@@ -1228,6 +1247,7 @@ bool XyPlot::ResetYParameters()
 bool XyPlot::PenUp()
 {
    PlotInterface::XyPlotPenUp(instanceName);
+   drawing = false;
    return true;
 }
 
@@ -1237,6 +1257,7 @@ bool XyPlot::PenUp()
 bool XyPlot::PenDown()
 {
    PlotInterface::XyPlotPenDown(instanceName);
+   drawing = true;
    return true;
 }
 
@@ -1251,6 +1272,23 @@ bool XyPlot::PenDown()
 bool XyPlot::MarkPoint()
 {
    PlotInterface::XyPlotMarkPoint(instanceName);
+   return true;
+}
+
+bool XyPlot::MarkBreak()
+{
+   PlotInterface::XyPlotMarkBreak(instanceName);
+   ++breakCount;
+   return true;
+}
+
+bool XyPlot::ClearFromBreak()
+{
+   if (breakCount > 0)
+   {
+      PlotInterface::XyPlotClearFromBreak(instanceName);
+      --breakCount;
+   }
    return true;
 }
 
@@ -1359,9 +1397,9 @@ bool XyPlot::Distribute(const Real * dat, Integer len)
                   ("XyPlot::Distribute() calling PlotInterface::UpdateXyPlot()\n");
                #endif
                
-               return PlotInterface::UpdateXyPlot(instanceName, mOldName, xval, yvals,
-                                                  mPlotTitle, mXAxisTitle, mYAxisTitle,
-                                                  update, mDrawGrid);
+               return PlotInterface::UpdateXyPlot(instanceName, mOldName, xval,
+                     yvals, mPlotTitle, mXAxisTitle, mYAxisTitle,
+                     mSolverIterOption, update, mDrawGrid);
                if (update)
                   mNumCollected = 0;
             }

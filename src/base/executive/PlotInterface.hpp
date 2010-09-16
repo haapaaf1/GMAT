@@ -112,6 +112,11 @@ public:
    static void XyPlotPenDown(const std::string &plotName);
    static void XyPlotMarkPoint(const std::string &plotName, Integer index = -1,
          Integer curveNumber = -1);
+   static void XyPlotMarkBreak(const std::string &plotName, Integer index = -1,
+         Integer curveNumber = -1);
+   static void XyPlotClearFromBreak(const std::string &plotName,
+         Integer breakNumber = -1, Integer index = -1,
+         Integer curveNumber = -1);
 
    static void XyPlotRescale(const std::string &plotName);
 
@@ -135,6 +140,7 @@ public:
                             const std::string &plotTitle,
                             const std::string &xAxisTitle,
                             const std::string &yAxisTitle,
+                            Integer solverOption,
                             bool updateCanvas, bool drawGrid);
    static bool UpdateXyPlotData(const std::string &plotName,
                                 const Real &xval, const Rvector &yvals,

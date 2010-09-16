@@ -23,6 +23,7 @@
 #include "Spacecraft.hpp"
 #include "Formation.hpp"
 #include "Vary.hpp"                // For SetInitialValue() method
+#include "Subscriber.hpp"
 #include "MessageInterface.hpp"
 
 //#define DEBUG_PARSING
@@ -812,4 +813,89 @@ void SolverBranchCommand::ApplySolution()
          current = current->GetNext();
       }
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void GetActiveSubscribers()
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+void SolverBranchCommand::GetActiveSubscribers()
+{
+   // Builds a table of Subscribers that are currently receiving data
+   // Currently only set to work with XY Plots
+
+   activeSubscribers.clear();
+
+   for (ObjectMap::iterator i = objectMap->begin(); i != objectMap->end(); ++i)
+   {
+      GmatBase *obj = i->second;
+      if (obj->IsOfType(Gmat::SUBSCRIBER))
+      {
+         // Here's where we go XY specific
+         if (obj->IsOfType("XYPlot"))
+         {
+            if (obj->GetBooleanParameter("Drawing"))
+               activeSubscribers.push_back((Subscriber*)(obj));
+         }
+      }
+   }
+
+   for (ObjectMap::iterator i = globalObjectMap->begin();
+         i != globalObjectMap->end(); ++i)
+   {
+      GmatBase *obj = i->second;
+      if (obj->IsOfType(Gmat::SUBSCRIBER))
+      {
+         // Here's where we go XY specific
+         if (obj->IsOfType("XYPlot"))
+         {
+            if (obj->GetBooleanParameter("Drawing"))
+               activeSubscribers.push_back((Subscriber*)(obj));
+         }
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void PenUpSubscribers()
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+void SolverBranchCommand::PenUpSubscribers()
+{
+   for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
+      activeSubscribers[i]->TakeAction("PenUp");
+}
+
+
+//------------------------------------------------------------------------------
+// void PenDownSubscribers()
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+void SolverBranchCommand::PenDownSubscribers()
+{
+   for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
+      activeSubscribers[i]->TakeAction("PenDown");
 }

@@ -654,11 +654,18 @@ bool Target::Execute()
    if (branchExecuting)
    {
       retval = ExecuteBranch();
-      if (!branchExecuting && 
-          ((state == Solver::FINISHED) || (specialState == Solver::FINISHED)))
+      if (!branchExecuting)
       {
-         commandComplete = true;
-      }  
+         if ((state == Solver::FINISHED) || (specialState == Solver::FINISHED))
+         {
+            PenDownSubscribers();
+            commandComplete = true;
+         }
+         else
+         {
+            PenUpSubscribers();
+         }
+      }
    }
    else
    {
@@ -762,6 +769,7 @@ bool Target::Execute()
                      currentCmd = currentCmd->GetNext();
                   }
                   StoreLoopData();
+                  GetActiveSubscribers();
                   break;
                      
                case Solver::NOMINAL:
@@ -769,6 +777,7 @@ bool Target::Execute()
                   if (!commandComplete) 
                   {
                      branchExecuting = true;
+                     PenDownSubscribers();
                      ResetLoopData();
                   }
                   break;
@@ -780,6 +789,7 @@ bool Target::Execute()
          
                case Solver::PERTURBING:
                   branchExecuting = true;
+                  PenDownSubscribers();
                   ResetLoopData();
                   break;
                      
@@ -798,6 +808,7 @@ bool Target::Execute()
                   {
                      ResetLoopData();
                      branchExecuting = true;
+                     PenDownSubscribers();
                      publisher->SetRunState(Gmat::SOLVEDPASS);
                   }
                   break;

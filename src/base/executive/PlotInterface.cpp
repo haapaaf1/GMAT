@@ -516,6 +516,47 @@ void PlotInterface::XyPlotMarkPoint(const std::string &plotName, Integer index,
 
 
 //------------------------------------------------------------------------------
+// void XyPlotMarkBreak(const std::string &plotName, Integer index = -1,
+//          Integer curveNumber = -1)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+void PlotInterface::XyPlotMarkBreak(const std::string &plotName, Integer index,
+         Integer curveNumber)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->XyPlotMarkBreak(plotName, index, curveNumber);
+}
+
+
+//------------------------------------------------------------------------------
+// void XyPlotClearFromBreak(const std::string &plotName,
+//          Integer breakNumber, Integer index = -1, Integer curveNumber = -1)
+//------------------------------------------------------------------------------
+/**
+ * This method...
+ *
+ * @param
+ *
+ * @return
+ */
+//------------------------------------------------------------------------------
+void PlotInterface::XyPlotClearFromBreak(const std::string &plotName,
+      Integer breakNumber, Integer index, Integer curveNumber)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->XyPlotClearFromBreak(plotName, breakNumber, index,
+            curveNumber);
+}
+
+
+//------------------------------------------------------------------------------
 // void XyPlotRescale(const std::string &plotName)
 //------------------------------------------------------------------------------
 /**
@@ -646,7 +687,8 @@ bool PlotInterface::UpdateXyPlot(const std::string &plotName,
                                  const std::string &plotTitle,
                                  const std::string &xAxisTitle,
                                  const std::string &yAxisTitle,
-                                 bool updateCanvas, bool drawGrid)
+                                 Integer solverOption, bool updateCanvas,
+                                 bool drawGrid)
 {
    if (thePlotReceiver != NULL)
       return thePlotReceiver->UpdateXyPlot(plotName, oldName, xval, yvals,

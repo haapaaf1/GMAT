@@ -122,6 +122,8 @@ protected:
    bool PenUp();
    bool PenDown();
    bool MarkPoint();
+   bool MarkBreak();
+   bool ClearFromBreak();
    
    void DeletePlotCurves();
    void WriteDeprecatedMessage(Integer id) const;
@@ -153,6 +155,8 @@ protected:
    Integer lineWidth;
    bool useMarkers;
    Integer markerSize;
+   bool drawing;
+   Integer breakCount;
 
    // methods inherited from Subscriber
    virtual bool Distribute(Integer len);
@@ -174,6 +178,7 @@ public:
       LINE_WIDTH,
       USE_MARKERS,
       MARKER_SIZE,
+      DRAWING,
       IND_VAR,                 // deprecated
       ADD,                     // deprecated
       DRAW_GRID,               // deprecated

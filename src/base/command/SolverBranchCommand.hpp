@@ -25,6 +25,8 @@
 #include "BranchCommand.hpp"
 #include "Solver.hpp"
 
+class Subscriber;
+
 class GMAT_API SolverBranchCommand : public BranchCommand
 {
 public:
@@ -90,10 +92,13 @@ protected:
    /// Local store of the objects that we'll need to reset
    ObjectArray         localStore;
 
+   /// Active subscribers (only XY plots for now) so the penups can be managed
+   std::vector<Subscriber*> activeSubscribers;
+
    /// Parsing function for SolveMode and ExitMode
    void                CheckForOptions(std::string &opts);
    /// Returns the text for options that are not set to the default values
-   std::string GetSolverOptionText();
+   std::string         GetSolverOptionText();
    
    // Methods used to save the starting point for the loops
    virtual void        StoreLoopData();
@@ -102,6 +107,10 @@ protected:
    
    virtual void        ApplySolution();
    
+   virtual void        GetActiveSubscribers();
+   virtual void        PenUpSubscribers();
+   virtual void        PenDownSubscribers();
+
    enum
    {
       SOLVER_NAME_ID  = BranchCommandParamCount,

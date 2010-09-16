@@ -1125,6 +1125,19 @@ void GuiPlotReceiver::XyPlotMarkPoint(const std::string &plotName,
    }
 }
 
+void GuiPlotReceiver::XyPlotMarkBreak(const std::string &plotName,
+      Integer index, Integer curveNumber)
+{
+
+}
+
+
+void GuiPlotReceiver::XyPlotClearFromBreak(const std::string &plotName,
+         Integer breakNumber, Integer index, Integer curveNumber)
+{
+
+}
+
 
 //------------------------------------------------------------------------------
 // void XyPlotChangeColor(const std::string &plotName, Integer index,
