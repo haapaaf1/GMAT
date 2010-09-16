@@ -3815,14 +3815,15 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
          }
          else
          {
-            if (!ParseVariableExpression((Parameter*)toObj, value))
-            {
+            // For bug 2025 fix, commented out (LOJ: 2010.09.16)
+            //if (!ParseVariableExpression((Parameter*)toObj, value))
+            //{
                InterpreterException ex
                   ("Setting \"" + value + "\" to a Variable \"" + toObj->GetName() +
                    "\" is not allowed");
                HandleError(ex);
                return false;
-            }
+            //}
          }
       }
       catch (BaseException &e)
