@@ -183,6 +183,10 @@ SpiceInterface::~SpiceInterface()
 //------------------------------------------------------------------------------
 bool SpiceInterface::LoadKernel(const std::string &fileName)
 {
+   #ifdef DEBUG_SPK_LOADING
+         MessageInterface::ShowMessage("SpiceInterface: Attempting to load kernel %s <---------\n",
+               fileName.c_str());
+   #endif
    for (StringArray::iterator jj = loadedKernels.begin();
         jj != loadedKernels.end(); ++jj)
       if ((*jj) == fileName)
@@ -198,6 +202,10 @@ bool SpiceInterface::LoadKernel(const std::string &fileName)
 //      ConstSpiceChar option[] = "SHORT"; // retrieve short error message, for now
 //      SpiceInt       numChar  = MAX_SHORT_MESSAGE;
 //      SpiceChar      err[MAX_SHORT_MESSAGE];
+      #ifdef DEBUG_SPK_LOADING
+            MessageInterface::ShowMessage("SpiceInterface: Error loading kernel %s <---------\n",
+                  fileName.c_str());
+      #endif
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
       SpiceInt       numChar  = MAX_LONG_MESSAGE;
       SpiceChar      err[MAX_LONG_MESSAGE];
@@ -387,6 +395,9 @@ bool SpiceInterface::IsLoaded(const std::string &fileName)
    {
       if ((*jj) == fileName) return true;
    }
+   #ifdef DEBUG_SPK_LOADING
+      MessageInterface::ShowMessage("IsLoaded::kernel name %s NOT ALREADY LOADED\n", fileName.c_str());
+   #endif
    return false;
 }
 
