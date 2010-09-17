@@ -1218,7 +1218,15 @@ bool SolarSystem::Initialize()
    #endif
 
 #ifdef __USE_SPICE__
-   LoadSpiceKernels();
+   try
+   {
+      LoadSpiceKernels();
+   }
+   catch (UtilityException &ue)
+   {
+      std::string errmsg = "ERROR loading the main Solar System ephemeris (SPK) or leap second (LSK) kernel.\n";
+      throw SolarSystemException(errmsg);
+   }
 #endif
    // Initialize bodies in use
    std::vector<CelestialBody*>::iterator cbi = bodiesInUse.begin();
@@ -1654,6 +1662,10 @@ void SolarSystem::LoadSpiceKernels()
    try
    {
       planetarySPK->LoadKernel(theSPKFilename);
+      #ifdef DEBUG_SS_SPICE
+      MessageInterface::ShowMessage
+         ("   kernelReader has successfully loaded the SPK file %s\n", theSPKFilename.c_str());
+      #endif
    }
    catch (UtilityException& ue)
    {
@@ -1680,15 +1692,29 @@ void SolarSystem::LoadSpiceKernels()
             throw; // rethrow the exception, for now
          }
       }
+      else
+      {
+         std::string errmsg = "Error loading the SPICE Planetary Ephemeris (SPK) Kernel \"";
+         errmsg += theSPKFilename + "\"\n";
+         throw SolarSystemException(errmsg);
+      }
    }
 
    // Load the Leap Second Kernel
    try
    {
       planetarySPK->SetLeapSecondKernel(lskKernelName);
+      #ifdef DEBUG_SS_SPICE
+      MessageInterface::ShowMessage
+         ("   kernelReader has successfully loaded the LSK file %s\n", lskKernelName.c_str());
+      #endif
    }
    catch (UtilityException& ue)
    {
+      #ifdef DEBUG_SS_SPICE
+      MessageInterface::ShowMessage
+         ("   kernelReader has NOT successfully loaded the LSK file %s - exception thrown\n", lskKernelName.c_str());
+      #endif
       // try again with path name if no path found
       std::string lskName = lskKernelName;
       if (lskName.find("/") == lskName.npos &&
@@ -1699,18 +1725,29 @@ void SolarSystem::LoadSpiceKernels()
          lskName = lskPath + lskName;
          try
          {
-            planetarySPK->LoadKernel(lskName);
             #ifdef DEBUG_SS_SPICE
             MessageInterface::ShowMessage
-               ("   kernelReader has loaded file %s\n", lskName.c_str());
+               ("   kernelReader now trying to load the LSK file %s\n", lskName.c_str());
+            #endif
+            planetarySPK->SetLeapSecondKernel(lskName);
+//            planetarySPK->LoadKernel(lskName);
+            #ifdef DEBUG_SS_SPICE
+            MessageInterface::ShowMessage
+               ("   kernelReader has loaded LSK file %s\n", lskName.c_str());
             #endif
          }
          catch (UtilityException& ue)
          {
-            MessageInterface::ShowMessage("ERROR loading kernel %s\n",
+            MessageInterface::ShowMessage("ERROR loading kernel %s - rethrowing exception\n",
                lskName.c_str());
             throw; // rethrow the exception, for now
          }
+      }
+      else
+      {
+         std::string errmsg = "Error loading the SPICE Leap Second Kernel \"";
+         errmsg += lskKernelName + "\"\n";
+         throw SolarSystemException(errmsg);
       }
    }
 }
