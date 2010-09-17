@@ -122,6 +122,8 @@ protected:
    bool PenUp();
    bool PenDown();
    bool MarkPoint();
+   bool Darken(Integer factor);
+   bool Lighten(Integer factor);
    bool MarkBreak();
    bool ClearFromBreak();
    

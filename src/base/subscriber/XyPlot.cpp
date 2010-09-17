@@ -490,6 +490,22 @@ bool XyPlot::TakeAction(const std::string &action,
    {
       return ClearFromBreak();
    }
+   else if (action == "Darken")
+   {
+      std::stringstream data;
+      data << actionData;
+      Integer factor;
+      data >> factor;
+      return Darken(factor);
+   }
+   else if (action == "Lighten")
+   {
+      std::stringstream data;
+      data << actionData;
+      Integer factor;
+      data >> factor;
+      return Lighten(factor);
+   }
    // Add color change and marker change here(?)
    
    return false;
@@ -1275,6 +1291,50 @@ bool XyPlot::MarkPoint()
    return true;
 }
 
+//------------------------------------------------------------------------------
+// bool Darken(Integer factor)
+//------------------------------------------------------------------------------
+/**
+ * Darkens the curves on a plot starting at the current position
+ *
+ * @param factor The darkening factor
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool XyPlot::Darken(Integer factor)
+{
+   PlotInterface::XyPlotDarken(instanceName, factor);
+   return true;
+}
+
+//------------------------------------------------------------------------------
+// bool Lighten(Integer factor)
+//------------------------------------------------------------------------------
+/**
+ * Lightens the curves on a plot starting at the current position
+ *
+ * @param factor The lightening factor
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
+bool XyPlot::Lighten(Integer factor)
+{
+   PlotInterface::XyPlotLighten(instanceName, factor);
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool MarkBreak()
+//------------------------------------------------------------------------------
+/**
+ * Sets a break point on all active curves
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool XyPlot::MarkBreak()
 {
    PlotInterface::XyPlotMarkBreak(instanceName);
@@ -1282,6 +1342,15 @@ bool XyPlot::MarkBreak()
    return true;
 }
 
+//------------------------------------------------------------------------------
+// bool ClearFromBreak()
+//------------------------------------------------------------------------------
+/**
+ * Deletes all data after the most recent break point 
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool XyPlot::ClearFromBreak()
 {
    if (breakCount > 0)

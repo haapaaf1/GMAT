@@ -899,3 +899,47 @@ void SolverBranchCommand::PenDownSubscribers()
    for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
       activeSubscribers[i]->TakeAction("PenDown");
 }
+
+
+//------------------------------------------------------------------------------
+// void DarkenSubscribers(Integer denominator = 1)
+//------------------------------------------------------------------------------
+/**
+ * Darkens subscribers by a specified amount
+ *
+ * This method darkens by 1 / denominator
+ *
+ * @param denominator The darkening factor
+ */
+//------------------------------------------------------------------------------
+void SolverBranchCommand::DarkenSubscribers(Integer denominator)
+{
+//   MessageInterface::ShowMessage("Darkening by %d\n", denominator);
+
+   std::stringstream factor;
+   factor << denominator;
+   for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
+      activeSubscribers[i]->TakeAction("Darken", factor.str().c_str());
+}
+
+
+//------------------------------------------------------------------------------
+// void LightenSubscribers(Integer denominator = 1)
+//------------------------------------------------------------------------------
+/**
+ * Lightens subscribers by a specified amount
+ *
+ * This method lightens by 1 / denominator
+ *
+ * @param denominator The lightening factor
+ */
+//------------------------------------------------------------------------------
+void SolverBranchCommand::LightenSubscribers(Integer denominator)
+{
+//   MessageInterface::ShowMessage("Darkening by %d\n", denominator);
+
+   std::stringstream factor;
+   factor << denominator;
+   for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
+      activeSubscribers[i]->TakeAction("Lighten", factor.str().c_str());
+}

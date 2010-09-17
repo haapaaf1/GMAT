@@ -37,6 +37,8 @@ public:
    void AddData(double x, double y, double high = 0.0, double low = 0.0);
    void SetColour(wxColour rgb, int where = 0);
    wxColour GetColour(int whichOne = 0);
+   void DarkenColour(int darkeningFactor = 1);
+   void LightenColour(int lighteningFactor = 1);
    void SetWidth(int w);
    int  GetWidth();
    void SetStyle(int ls);
@@ -45,6 +47,8 @@ public:
    
    bool UseLine();
    bool UseLine(bool tf);
+   bool AddBreak(int where);
+   void BreakAndDiscard(int startBreakIndex, int endBreakIndex = -1);
    bool UseMarker();
    bool UseMarker(bool tf);
    int  GetMarker(int whichOne = 0);
@@ -104,6 +108,8 @@ protected:
    std::vector<wxColour> linecolor;
    /// Location for color changes
    std::vector<int>     colorIndex;
+   /// Location for line breaks (points where data my be discarded)
+   std::vector<int>     breakIndex;
    /// List of marker styles used; first entry is style on the legend
    std::vector<MarkerType> markerStyles;
    /// Location for marker style changes

@@ -659,6 +659,7 @@ bool Target::Execute()
          if ((state == Solver::FINISHED) || (specialState == Solver::FINISHED))
          {
             PenDownSubscribers();
+            LightenSubscribers(1);
             commandComplete = true;
          }
          else
@@ -778,6 +779,7 @@ bool Target::Execute()
                   {
                      branchExecuting = true;
                      PenDownSubscribers();
+                     LightenSubscribers(1);
                      ResetLoopData();
                   }
                   break;
@@ -790,6 +792,7 @@ bool Target::Execute()
                case Solver::PERTURBING:
                   branchExecuting = true;
                   PenDownSubscribers();
+                  LightenSubscribers(4);
                   ResetLoopData();
                   break;
                      
@@ -809,6 +812,7 @@ bool Target::Execute()
                      ResetLoopData();
                      branchExecuting = true;
                      PenDownSubscribers();
+                     LightenSubscribers(1);
                      publisher->SetRunState(Gmat::SOLVEDPASS);
                   }
                   break;

@@ -110,13 +110,23 @@ public:
    static void ClearXyPlotData(const std::string &plotName);
    static void XyPlotPenUp(const std::string &plotName);
    static void XyPlotPenDown(const std::string &plotName);
+   static void XyPlotDarken(const std::string &plotName, Integer factor,
+         Integer index = -1, Integer curveNumber = -1);
+   static void XyPlotLighten(const std::string &plotName, Integer factor,
+         Integer index = -1, Integer curveNumber = -1);
    static void XyPlotMarkPoint(const std::string &plotName, Integer index = -1,
          Integer curveNumber = -1);
    static void XyPlotMarkBreak(const std::string &plotName, Integer index = -1,
          Integer curveNumber = -1);
    static void XyPlotClearFromBreak(const std::string &plotName,
-         Integer breakNumber = -1, Integer index = -1,
+         Integer startBreakNumber = -1, Integer endBreakNumber = -1,
          Integer curveNumber = -1);
+
+   static void XyPlotChangeWidth(const std::string &plotName,
+         Integer index = -1, Integer newWidth = 1, int forCurve = -1);
+   static void XyPlotChangeStyle(const std::string &plotName,
+         Integer index = -1, Integer newStyle = 100, int forCurve = -1);
+
 
    static void XyPlotRescale(const std::string &plotName);
 

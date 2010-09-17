@@ -110,6 +110,8 @@ protected:
    virtual void        GetActiveSubscribers();
    virtual void        PenUpSubscribers();
    virtual void        PenDownSubscribers();
+   virtual void        DarkenSubscribers(Integer denominator = 1);
+   virtual void        LightenSubscribers(Integer denominator = 1);
 
    enum
    {

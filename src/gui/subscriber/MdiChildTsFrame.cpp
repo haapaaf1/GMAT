@@ -482,6 +482,43 @@ void MdiChildTsFrame::PenDown()
    }
 }
 
+//------------------------------------------------------------------------------
+// void Darken(int factor, int index, int forCurve = -1)
+//------------------------------------------------------------------------------
+/**
+ * Darkens a curve or plot by a user specified factor
+ *
+ * @param factor The darkening factor
+ * @param index Index of the starting point
+ * @param forCurve Index of the curve that received the color change
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::Darken(int factor, int index, int forCurve)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->Darken(factor, index, forCurve);
+   }
+}
+
+//------------------------------------------------------------------------------
+// void Lighten(int factor, int index, int forCurve = -1)
+//------------------------------------------------------------------------------
+/**
+ * Lightens a curve or plot by a user specified factor
+ *
+ * @param factor The darkening factor
+ * @param index Index of the starting point
+ * @param forCurve Index of the curve that received the color change
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::Lighten(int factor, int index, int forCurve)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->Lighten(factor, index, forCurve);
+   }
+}
 
 //------------------------------------------------------------------------------
 // void MarkPoint(Integer index, Integer forCurve)
@@ -498,6 +535,45 @@ void MdiChildTsFrame::MarkPoint(Integer index, Integer forCurve)
    if (mXyPlot)
    {
       mXyPlot->MarkPoint(index, forCurve);
+   }
+}
+
+//------------------------------------------------------------------------------
+// void MarkBreak(int index, int forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Sets a marker for a possible break and discard point on a curve or plot
+ *
+ * @param index Index of the point where the break occurs
+ * @param forCurve Index of the curve that received the color change
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::MarkBreak(int index, int forCurve)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->MarkBreak(index, forCurve);
+   }
+}
+
+//------------------------------------------------------------------------------
+// void ClearFromBreak(int startBreakNumber, int endBreakNumber, int forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Discard data on a curve or plot between 2 break points
+ *
+ * @param startBreakNumber Index of the point where the break occurs
+ * @param endBreakNumber Index of the end of the break, or -1 to discard the
+ *                       rest of the curve data
+ * @param forCurve Index of the curve that received the color change
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::ClearFromBreak(int startBreakNumber, int endBreakNumber,
+      int forCurve)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->ClearFromBreak(startBreakNumber, endBreakNumber, forCurve);
    }
 }
 
@@ -538,6 +614,44 @@ void MdiChildTsFrame::ChangeMarker(Integer index, Integer newMarker,
    if (mXyPlot)
    {
       mXyPlot->ChangeMarker(index, newMarker, forCurve);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void SetLineWidth(int w, int lineId)
+//------------------------------------------------------------------------------
+/**
+ * Sets the line width for a curve or plot
+ *
+ * @param w The new width
+ * @param lineId The ID of the curve (-1 for all)
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::SetLineWidth(int w, int lineId)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->SetLineWidth(w, lineId);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void SetLineStyle(int ls, int lineId)
+//------------------------------------------------------------------------------
+/**
+ * Sets the line style for a curve or plot
+ *
+ * @param ls The new line style
+ * @param lineId The ID of the curve (-1 for all)
+ */
+//------------------------------------------------------------------------------
+void MdiChildTsFrame::SetLineStyle(int ls, int lineId)
+{
+   if (mXyPlot)
+   {
+      mXyPlot->SetLineStyle(ls, lineId);
    }
 }
 

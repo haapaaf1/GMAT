@@ -65,10 +65,18 @@ public:
    void ClearPlotData();
    void PenUp();
    void PenDown();
+   void Darken(int factor, int index, int forCurve = -1);
+   void Lighten(int factor, int index, int forCurve = -1);
    void MarkPoint(int index, int forCurve = -1);
+   void MarkBreak(int index, int forCurve = -1);
+   void ClearFromBreak(int startBreakNumber, int endBreakNumber = -1,
+         int forCurve = -1);
    void ChangeColor(int index, unsigned long newColor = 0xffffff,
          int forCurve = -1);
    void ChangeMarker(int index, int newMarker, int forCurve = -1);
+   void SetLineWidth(int w,  int lineId = -1);
+   void SetLineStyle(int ls, int lineId = -1);
+
    void Rescale();
    bool IsActive();
    void IsActive(bool yesno);

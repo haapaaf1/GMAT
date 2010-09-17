@@ -1301,6 +1301,47 @@ void TsPlotCanvas::PenDown(int index)
    Refresh(dc, true);
 }
 
+void TsPlotCanvas::Darken(int factor, int index, int forCurve)
+{
+   if (forCurve >= 0)
+   {
+      if (forCurve < (int)data.size())
+      {
+         data[forCurve]->DarkenColour(factor);
+         data[forCurve]->lastPointPlotted = 0;
+      }
+   }
+   else // Mark the point on all curves
+   {
+      for (std::vector<TsPlotCurve *>::iterator curve = data.begin();
+           curve != data.end(); ++curve)
+      {
+         (*curve)->DarkenColour(factor);
+         (*curve)->lastPointPlotted = 0;
+      }
+   }
+}
+
+void TsPlotCanvas::Lighten(int factor, int index, int forCurve)
+{
+   if (forCurve >= 0)
+   {
+      if (forCurve < (int)data.size())
+      {
+         data[forCurve]->LightenColour(factor);
+         data[forCurve]->lastPointPlotted = 0;
+      }
+   }
+   else // Mark the point on all curves
+   {
+      for (std::vector<TsPlotCurve *>::iterator curve = data.begin();
+           curve != data.end(); ++curve)
+      {
+         (*curve)->LightenColour(factor);
+         (*curve)->lastPointPlotted = 0;
+      }
+   }
+}
 
 void TsPlotCanvas::MarkPoint(int index, int forCurve)
 {
@@ -1323,6 +1364,16 @@ void TsPlotCanvas::MarkPoint(int index, int forCurve)
    }
 }
 
+
+void TsPlotCanvas::MarkBreak(int index, int forCurve)
+{
+
+}
+
+void TsPlotCanvas::ClearFromBreak(int breakNumber, int index, int forCurve)
+{
+
+}
 
 void TsPlotCanvas::ChangeColor(int index, unsigned long newColor, int forCurve)
 {

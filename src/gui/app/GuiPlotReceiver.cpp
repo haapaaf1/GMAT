@@ -1089,6 +1089,39 @@ void GuiPlotReceiver::XyPlotPenDown(const std::string &plotName)
 }
 
 
+void GuiPlotReceiver::XyPlotDarken(const std::string &plotName, Integer factor,
+         Integer index, Integer forCurve)
+{
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->Darken(factor, index, forCurve);
+      }
+   }
+}
+
+
+void GuiPlotReceiver::XyPlotLighten(const std::string &plotName, Integer factor,
+         Integer index, Integer forCurve)
+{
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->Lighten(factor, index, forCurve);
+      }
+   }
+}
+
 
 //------------------------------------------------------------------------------
 // void XyPlotMarkPoint(const std::string &plotName, Integer index,
@@ -1125,17 +1158,63 @@ void GuiPlotReceiver::XyPlotMarkPoint(const std::string &plotName,
    }
 }
 
+//------------------------------------------------------------------------------
+// void XyPlotMarkBreak(const std::string &plotName, Integer index, 
+//       Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Marks a break point on a curve or plot
+ * 
+ * @param plotName The plot that contains the curve
+ * @param index The index of the point where the break occurs
+ * @param forCurve The index of the curve that contains the break (-1 for all)
+ */
+//------------------------------------------------------------------------------
 void GuiPlotReceiver::XyPlotMarkBreak(const std::string &plotName,
-      Integer index, Integer curveNumber)
+      Integer index, Integer forCurve)
 {
+   MdiChildTsFrame *frame = NULL;
 
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->MarkBreak(index, forCurve);
+      }
+   }
 }
 
 
+//------------------------------------------------------------------------------
+// void GuiPlotReceiver::XyPlotClearFromBreak(const std::string &plotName,
+//       Integer startBreakNumber, Integer endBreakNumber, Integer forCurve)
+//------------------------------------------------------------------------------
+/**
+ * Removes a range of data from a curve or plot
+ * 
+ * @param plotName The plot that contains the curve
+ * @param startBreakNumber The index of the breakpoint where the break occurs
+ * @param endBreakNumber The index of the breakpoint where the break ends (-1
+ *                       to remove to the end of the data)
+ * @param forCurve The index of the curve that contains the break (-1 for all)
+ */
+//------------------------------------------------------------------------------
 void GuiPlotReceiver::XyPlotClearFromBreak(const std::string &plotName,
-         Integer breakNumber, Integer index, Integer curveNumber)
+      Integer startBreakNumber, Integer endBreakNumber, Integer forCurve)
 {
+   MdiChildTsFrame *frame = NULL;
 
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->ClearFromBreak(startBreakNumber, endBreakNumber, forCurve);
+      }
+   }
 }
 
 
@@ -1206,6 +1285,74 @@ void GuiPlotReceiver::XyPlotChangeMarker(const std::string &plotName,
       if (frame->GetPlotName().IsSameAs(plotName.c_str()))
       {
          frame->ChangeMarker(index, newMarker, forCurve);
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void XyPlotChangeWidth(const std::string &plotName, Integer index = -1,
+//       Integer newWidth = 1, int forCurve = -1)
+//------------------------------------------------------------------------------
+/**
+ * Changes the line width for a curve.
+ *
+ * Note that this is currently a setting for the entire curve; the index
+ * parameter is not yet used.
+ *
+ * @param plotName The plot that contains the curve
+ * @param index The index of the first point that gets the new width (currently
+ *              not used)
+ * @param newWidth The new width
+ * @param forCurve The index of the curve that is changing width.
+ */
+//------------------------------------------------------------------------------
+void GuiPlotReceiver::XyPlotChangeWidth(const std::string &plotName,
+      Integer index, Integer newWidth, int forCurve)
+{
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->SetLineWidth(newWidth, forCurve);
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void XyPlotChangeStyle(const std::string &plotName, Integer index = -1,
+//       Integer newStyle = 100, int forCurve = -1)
+//------------------------------------------------------------------------------
+/**
+ * Changes the drawing style for a curve.
+ *
+ * Note that this is currently a setting for the entire curve; the index
+ * parameter is not yet used.
+ *
+ * @param plotName The plot that contains the curve
+ * @param index The index of the first point that gets the new style (currently
+ *              not used)
+ * @param newStyle The new line style
+ * @param forCurve The index of the curve that is changing style.
+ */
+//------------------------------------------------------------------------------
+void GuiPlotReceiver::XyPlotChangeStyle(const std::string &plotName,
+      Integer index, Integer newStyle, int forCurve)
+{
+   MdiChildTsFrame *frame = NULL;
+
+   for (int i=0; i<MdiTsPlot::numChildren; i++)
+   {
+      frame = (MdiChildTsFrame*)(MdiTsPlot::mdiChildren.Item(i)->GetData());
+
+      if (frame->GetPlotName().IsSameAs(plotName.c_str()))
+      {
+         frame->SetLineStyle(newStyle, forCurve);
       }
    }
 }

@@ -71,7 +71,11 @@ public:
    
    void PenUp(int index = -1);
    void PenDown(int index = -1);
+   void Darken(int factor, int index, int forCurve = -1);
+   void Lighten(int factor, int index, int forCurve);
    void MarkPoint(int index, int forCurve = -1);
+   void MarkBreak(int index, int forCurve);
+   void ClearFromBreak(int breakNumber, int index, int forCurve);
    void ChangeColor(int index, unsigned long newColor = 0xffffff,
          int forCurve = -1);
    void ChangeMarker(int index, int newMarker = -1, int forCurve = -1);

@@ -495,6 +495,102 @@ void PlotInterface::XyPlotPenDown(const std::string &plotName)
 
 
 //------------------------------------------------------------------------------
+// void XyPlotDarken(const std::string &plotName, Integer factor,
+//          Integer index = -1, Integer curveNumber = -1)
+//------------------------------------------------------------------------------
+/**
+ * Darkens a curve or plot by a specified amount
+ *
+ * @param plotName The plot that has the curves that need to darken
+ * @param factor The darkening factor
+ * @param index The starting point on the curve or curves that need darkening
+ *              (-1 for the next point)
+ * @param curveNumber When darkening a single curve, its index (-1 for all
+ *                    curves on the plot)
+ */
+//------------------------------------------------------------------------------
+void PlotInterface::XyPlotDarken(const std::string &plotName, Integer factor,
+         Integer index, Integer curveNumber)
+{
+   #ifdef DEBUG_XYSTYLE_CHANGES
+         MessageInterface::ShowMessage("XyPlotDarken(%s, %d, %d, %d) called\n",
+               plotName.c_str(), factor, index, curveNumber);
+   #endif
+
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->XyPlotDarken(plotName, factor, index, curveNumber);
+}
+
+//------------------------------------------------------------------------------
+// void XyPlotLighten(const std::string &plotName, Integer factor,
+//          Integer index = -1, Integer curveNumber = -1)
+//------------------------------------------------------------------------------
+/**
+ * Lightens a curve or plot by a specified amount
+ *
+ * @param plotName The plot that has the curves that need to lighten
+ * @param factor The lightening factor
+ * @param index The starting point on the curve or curves that need lightening
+ *              (-1 for the next point)
+ * @param curveNumber When lightening a single curve, its index (-1 for all
+ *                    curves on the plot)
+ */
+//------------------------------------------------------------------------------
+void PlotInterface::XyPlotLighten(const std::string &plotName, Integer factor,
+         Integer index, Integer curveNumber)
+{
+   #ifdef DEBUG_XYSTYLE_CHANGES
+         MessageInterface::ShowMessage("XyPlotLighten(%s, %d, %d, %d) called\n",
+               plotName.c_str(), factor, index, curveNumber);
+   #endif
+
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->XyPlotLighten(plotName, factor, index, curveNumber);
+}
+
+//------------------------------------------------------------------------------
+// void XyPlotChangeWidth(const std::string &plotName, Integer index = -1,
+//       Integer newWidth = 1, int forCurve = -1)
+//------------------------------------------------------------------------------
+/**
+ * Changes the line width for a curve.
+ *
+ * @param plotName The plot that contains the curve
+ * @param index The index of the first point that gets the new width (currently
+ *              not used)
+ * @param newWidth The new width
+ * @param forCurve The index of the curve that is changing width.
+ */
+//------------------------------------------------------------------------------
+void PlotInterface::XyPlotChangeWidth(const std::string &plotName,
+      Integer index, Integer newWidth, int forCurve)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->XyPlotChangeWidth(plotName, index, newWidth, forCurve);
+}
+
+//------------------------------------------------------------------------------
+// void XyPlotChangeStyle(const std::string &plotName, Integer index = -1,
+//       Integer newStyle = 100, int forCurve = -1)
+//------------------------------------------------------------------------------
+/**
+ * Changes the line style for a curve.
+ *
+ * @param plotName The plot that contains the curve
+ * @param index The index of the first point that gets the new width (currently
+ *              not used)
+ * @param newStyle The new line style
+ * @param forCurve The index of the curve that is changing style.
+ */
+//------------------------------------------------------------------------------
+void PlotInterface::XyPlotChangeStyle(const std::string &plotName,
+      Integer index, Integer newStyle, int forCurve)
+{
+   if (thePlotReceiver != NULL)
+      thePlotReceiver->XyPlotChangeStyle(plotName, index, newStyle, forCurve);
+}
+
+//------------------------------------------------------------------------------
 // void XyPlotMarkPoint(const std::string &plotName, Integer index,
 //       Integer curveNumber)
 //------------------------------------------------------------------------------
@@ -520,11 +616,13 @@ void PlotInterface::XyPlotMarkPoint(const std::string &plotName, Integer index,
 //          Integer curveNumber = -1)
 //------------------------------------------------------------------------------
 /**
- * This method...
+ * Marks a specific point on a specific curve as a point where the curve may be
+ * broken
  *
- * @param
- *
- * @return
+ * @param plotName The plot that contains the curve
+ * @param index The index of the break point (-1 for the current point)
+ * @param curveNumber The index of the curve containing the point to break
+ *                    (-1 to mark all curves)
  */
 //------------------------------------------------------------------------------
 void PlotInterface::XyPlotMarkBreak(const std::string &plotName, Integer index,
@@ -537,22 +635,28 @@ void PlotInterface::XyPlotMarkBreak(const std::string &plotName, Integer index,
 
 //------------------------------------------------------------------------------
 // void XyPlotClearFromBreak(const std::string &plotName,
-//          Integer breakNumber, Integer index = -1, Integer curveNumber = -1)
+//          Integer startBreakNumber, Integer endBreakNumber = -1,
+//          Integer curveNumber = -1)
 //------------------------------------------------------------------------------
 /**
- * This method...
+ * Breaks a curve at a break point, discarding the data between that break point
+ * and a subsequent break point
  *
- * @param
- *
- * @return
+ * @param plotName The plot that contains the curve
+ * @param startBreakNumber The index of the starting break point (-1 to start at
+ *                         the current point)
+ * @param endBreakNumber The index of the end break point (-1 to break to the
+ *                       end of the curve)
+ * @param curveNumber The index of the curve containing the point to break
+ *                    (-1 to mark all curves)
  */
 //------------------------------------------------------------------------------
 void PlotInterface::XyPlotClearFromBreak(const std::string &plotName,
-      Integer breakNumber, Integer index, Integer curveNumber)
+      Integer startBreakNumber, Integer endBreakNumber, Integer curveNumber)
 {
    if (thePlotReceiver != NULL)
-      thePlotReceiver->XyPlotClearFromBreak(plotName, breakNumber, index,
-            curveNumber);
+      thePlotReceiver->XyPlotClearFromBreak(plotName, startBreakNumber,
+            endBreakNumber, curveNumber);
 }
 
 

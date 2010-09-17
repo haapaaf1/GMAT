@@ -428,6 +428,41 @@ wxColour TsPlotCurve::GetColour(int whichOne)
    return linecolor[0];
 }
 
+void TsPlotCurve::DarkenColour(int darkeningFactor)
+{
+   if (darkeningFactor < 1)
+      darkeningFactor = 1;
+
+   wxColour startColor = linecolor[0];
+   unsigned char r,g,b;
+
+   r = startColor.Red() / darkeningFactor;
+   g = startColor.Green() / darkeningFactor;
+   b = startColor.Blue() / darkeningFactor;
+
+   wxColour theColor(r, g, b);
+   SetColour(theColor, -1);
+}
+
+void TsPlotCurve::LightenColour(int lighteningFactor)
+{
+   if (lighteningFactor < 1)
+      lighteningFactor = 1;
+
+   wxColour startColor = linecolor[0];
+   unsigned char r,g,b, rdiff, gdiff, bdiff;
+
+   rdiff = 255 - startColor.Red();
+   gdiff = 255 - startColor.Green();
+   bdiff = 255 - startColor.Blue();
+
+   r = startColor.Red() + (int)(rdiff * (1.0 - 1.0 / lighteningFactor));
+   g = startColor.Green() + (int)(gdiff * (1.0 - 1.0 / lighteningFactor));
+   b = startColor.Blue() + (int)(bdiff * (1.0 - 1.0 / lighteningFactor));
+
+   wxColour theColor(r, g, b);
+   SetColour(theColor, -1);
+}
 
 void TsPlotCurve::SetWidth(int w)
 {
@@ -480,6 +515,30 @@ bool TsPlotCurve::UseLine(bool tf)
    return useLines = tf;
 }
 
+bool TsPlotCurve::AddBreak(int where)
+{
+   breakIndex.push_back(where);
+   return true;
+}
+
+void TsPlotCurve::BreakAndDiscard(int startBreakIndex, int endBreakIndex)
+{
+   if (startBreakIndex < 0)
+      return;
+   if (startBreakIndex < (int)breakIndex.size())
+   {
+      // Remove points from here to endBreakIndex, or to end
+      if (endBreakIndex == -1)
+      {
+
+      }
+      else
+      {
+
+      }
+   }
+
+}
 
 bool TsPlotCurve::UseMarker()
 {

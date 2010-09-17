@@ -108,18 +108,27 @@ public:
    virtual void ClearXyPlotData(const std::string &plotName);
    virtual void XyPlotPenUp(const std::string &plotName);
    virtual void XyPlotPenDown(const std::string &plotName);
+   virtual void XyPlotDarken(const std::string &plotName, Integer factor,
+            Integer index = -1, Integer forCurve = -1);
+   virtual void XyPlotLighten(const std::string &plotName, Integer factor,
+            Integer index = -1, Integer forCurve = -1);
    virtual void XyPlotMarkPoint(const std::string &plotName, Integer index = -1,
          Integer forCurve = -1);
    virtual void XyPlotMarkBreak(const std::string &plotName, Integer index = -1,
-         Integer curveNumber = -1);
+         Integer forCurve = -1);
    virtual void XyPlotClearFromBreak(const std::string &plotName,
-         Integer breakNumber, Integer index = -1, Integer curveNumber = -1);
+         Integer startBreakNumber, Integer endBreakNumber = -1,
+         Integer forCurve = -1);
 
    virtual void XyPlotChangeColor(const std::string &plotName,
          Integer index = -1, UnsignedInt newColor = 0xffffff,
          Integer forCurve = -1);
    virtual void XyPlotChangeMarker(const std::string &plotName,
          Integer index = -1, Integer newMarker = -1, Integer forCurve = -1);
+   virtual void XyPlotChangeWidth(const std::string &plotName,
+         Integer index = -1, Integer newWidth = 1, int forCurve = -1);
+   virtual void XyPlotChangeStyle(const std::string &plotName,
+         Integer index = -1, Integer newStyle = 100, int forCurve = -1);
 
    virtual void XyPlotRescale(const std::string &plotName);
    virtual void XyPlotCurveSettings(const std::string &plotName,
