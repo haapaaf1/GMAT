@@ -951,9 +951,25 @@ bool GmatBaseSetupPanel::GetLayoutConfig(GmatBase *theObject, wxFileConfig **con
 		  e.GetFullMessage().c_str());
 	  configPath = "";
 	}
-	bool configFileExists = GmatFileUtil::DoesFileExist(configPath+theObject->GetTypeName()+".ini");
+
+   static bool loadMessageWritten = false;
+   std::string filename = configPath+theObject->GetTypeName()+".ini";
+   bool configFileExists = GmatFileUtil::DoesFileExist(filename);
+
+   if (!loadMessageWritten)
+   {
+      if (configFileExists)
+         MessageInterface::ShowMessage
+           ("GmatBaseSetupPanel:Attempting to load layout from file: %s\n",
+            filename.c_str());
+      else
+         MessageInterface::ShowMessage
+           ("GmatBaseSetupPanel:Unable to find layout file: %s\n",
+            filename.c_str());
+      loadMessageWritten = true;
+   }
 	*config = new wxFileConfig(wxEmptyString, wxEmptyString,
-	                (configPath+theObject->GetTypeName()+".ini").c_str(),
+	                (filename).c_str(),
 		             wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
 	return configFileExists;
 
