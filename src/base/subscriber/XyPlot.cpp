@@ -1337,8 +1337,8 @@ bool XyPlot::Lighten(Integer factor)
 //------------------------------------------------------------------------------
 bool XyPlot::MarkBreak()
 {
-   PlotInterface::XyPlotMarkBreak(instanceName);
-   ++breakCount;
+   if (mSolverIterOption == SI_CURRENT)
+      PlotInterface::XyPlotMarkBreak(instanceName);
    return true;
 }
 
@@ -1353,11 +1353,8 @@ bool XyPlot::MarkBreak()
 //------------------------------------------------------------------------------
 bool XyPlot::ClearFromBreak()
 {
-   if (breakCount > 0)
-   {
+   if (mSolverIterOption == SI_CURRENT)
       PlotInterface::XyPlotClearFromBreak(instanceName);
-      --breakCount;
-   }
    return true;
 }
 

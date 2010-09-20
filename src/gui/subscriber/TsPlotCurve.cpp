@@ -17,6 +17,7 @@
 #include "TsPlotCurve.hpp"
 //#include "LinearInterpolator.hpp"
 #include "MessageInterface.hpp"
+#include <algorithm>
 
 
 // #define DEBUG_PENUP_PENDOWN
@@ -38,6 +39,7 @@ TsPlotCurve::TsPlotCurve(int offsetY, double startY, double endY,
    currentMarkerStyle(unsetMarker),
    markerSize        (3),
    showHiLow         (true), //false),
+   baseColor         (0xff,0x00,0x00),
    lineWidth         (1),
    lineStyle         (wxSOLID),
    penIsDown         (true),
@@ -400,6 +402,8 @@ void TsPlotCurve::SetColour(wxColour rgb, int where)
    {
       linecolor[0] = rgb;
    }
+
+   baseColor = rgb;
 }
 
 
@@ -433,7 +437,7 @@ void TsPlotCurve::DarkenColour(int darkeningFactor)
    if (darkeningFactor < 1)
       darkeningFactor = 1;
 
-   wxColour startColor = linecolor[0];
+   wxColour startColor = baseColor;
    unsigned char r,g,b;
 
    r = startColor.Red() / darkeningFactor;
@@ -442,6 +446,7 @@ void TsPlotCurve::DarkenColour(int darkeningFactor)
 
    wxColour theColor(r, g, b);
    SetColour(theColor, -1);
+   baseColor = startColor;
 }
 
 void TsPlotCurve::LightenColour(int lighteningFactor)
@@ -449,7 +454,7 @@ void TsPlotCurve::LightenColour(int lighteningFactor)
    if (lighteningFactor < 1)
       lighteningFactor = 1;
 
-   wxColour startColor = linecolor[0];
+   wxColour startColor = baseColor;
    unsigned char r,g,b, rdiff, gdiff, bdiff;
 
    rdiff = 255 - startColor.Red();
@@ -462,6 +467,7 @@ void TsPlotCurve::LightenColour(int lighteningFactor)
 
    wxColour theColor(r, g, b);
    SetColour(theColor, -1);
+   baseColor = startColor;
 }
 
 void TsPlotCurve::SetWidth(int w)
@@ -517,20 +523,55 @@ bool TsPlotCurve::UseLine(bool tf)
 
 bool TsPlotCurve::AddBreak(int where)
 {
-   breakIndex.push_back(where);
+   #ifdef DEBUG_MESSSAGE_FLOW
+      MessageInterface::ShowMessage("Adding breakpoint; input location: %d\n",
+            where);
+   #endif
+   if (where == -1)
+      where = abscissa.size();
+   // Make it idempotent
+   if (find(breakIndex.begin(), breakIndex.end(), where) == breakIndex.end())
+      breakIndex.push_back(where);
+
+   #ifdef DEBUG_MESSSAGE_FLOW
+      MessageInterface::ShowMessage("   Breakpoint list: \n");
+      for (UnsignedInt i = 0; i < breakIndex.size(); ++i)
+         MessageInterface::ShowMessage("      %d: %d\n", i, breakIndex[i]);
+   #endif
+
    return true;
 }
 
 void TsPlotCurve::BreakAndDiscard(int startBreakIndex, int endBreakIndex)
 {
-   if (startBreakIndex < 0)
+   #ifdef DEBUG_MESSSAGE_FLOW
+      MessageInterface::ShowMessage("Discarding data for break %d through %d\n",
+            startBreakIndex, endBreakIndex);
+      MessageInterface::ShowMessage("   Pre-discard ordinate size: %d  "
+            "abscissa: %d\n", ordinate.size(), abscissa.size());
+   #endif
+
+   if (breakIndex.size() == 0)
       return;
+
+   if (startBreakIndex == -1)
+      startBreakIndex = breakIndex.size()-1;
+
+   #ifdef DEBUG_MESSSAGE_FLOW
+      MessageInterface::ShowMessage("StartBreakIndex is now %d; index size "
+            "is %d", startBreakIndex, breakIndex.size());
+   #endif
    if (startBreakIndex < (int)breakIndex.size())
    {
       // Remove points from here to endBreakIndex, or to end
       if (endBreakIndex == -1)
       {
-
+         std::vector<double>::iterator start = ordinate.begin();
+         advance(start, breakIndex[startBreakIndex]);
+         ordinate.erase(start, ordinate.end());
+         start = abscissa.begin();
+         advance(start, breakIndex[startBreakIndex]);
+         abscissa.erase(start, abscissa.end());
       }
       else
       {
@@ -538,6 +579,10 @@ void TsPlotCurve::BreakAndDiscard(int startBreakIndex, int endBreakIndex)
       }
    }
 
+   #ifdef DEBUG_MESSSAGE_FLOW
+      MessageInterface::ShowMessage("   Postdiscard ordinate size: %d  "
+            "abscissa: %d\n", ordinate.size(), abscissa.size());
+   #endif
 }
 
 bool TsPlotCurve::UseMarker()

@@ -826,76 +826,76 @@ void TsPlotCanvas::AddData(TsPlotCurve *curve, wxColour startColor)
          break;
 
       case 6:     // Maroon
-         newPens[0].SetColour(110, 0, 0);
+         newPens[6].SetColour(110, 0, 0);
          break;
 
       case 7:     // Dk Green
-         newPens[1].SetColour(0, 110, 0);
+         newPens[7].SetColour(0, 110, 0);
          break;
 
       case 8:     // Dk Blue
-         newPens[2].SetColour(0, 0, 110);
+         newPens[8].SetColour(0, 0, 110);
          break;
 
       case 9:     // Gray
-         newPens[3].SetColour(128, 128, 128);
+         newPens[9].SetColour(128, 128, 128);
          break;
 
       case 10:    // Brown
-         newPens[4].SetColour(139, 88, 27);
+         newPens[10].SetColour(139, 88, 27);
          break;
 
       case 11:    // Dk Gray
-         newPens[5].SetColour(64, 64, 64);
+         newPens[11].SetColour(64, 64, 64);
          break;
 
 // More slots if needed
 //      case 12:
-//         newPens[0].SetColour(220, 0, 0);
+//         newPens[12].SetColour(220, 0, 0);
 //         break;
 //
 //      case 13:
-//         newPens[1].SetColour(0, 220, 0);
+//         newPens[13].SetColour(0, 220, 0);
 //         break;
 //
 //      case 14:
-//         newPens[2].SetColour(0, 0, 220);
+//         newPens[14].SetColour(0, 0, 220);
 //         break;
 //
 //      case 15:
-//         newPens[3].SetColour(220, 220, 0);
+//         newPens[15].SetColour(220, 220, 0);
 //         break;
 //
 //      case 16:
-//         newPens[4].SetColour(220, 0, 220);
+//         newPens[16].SetColour(220, 0, 220);
 //         break;
 //
 //      case 17:
-//         newPens[5].SetColour(0, 220, 220);
+//         newPens[17].SetColour(0, 220, 220);
 //         break;
 //
 //      case 18:
-//         newPens[0].SetColour(220, 0, 0);
+//         newPens[18].SetColour(220, 0, 0);
 //         break;
 //
 //      case 19:
-//         newPens[1].SetColour(0, 220, 0);
+//         newPens[19].SetColour(0, 220, 0);
 //         break;
 //
 //      case 20:
-//         newPens[2].SetColour(0, 0, 220);
+//         newPens[20].SetColour(0, 0, 220);
 //         break;
 //
 //      case 21:
-//         newPens[3].SetColour(220, 220, 0);
+//         newPens[21].SetColour(220, 220, 0);
 //         break;
 //
 //      case 22:
-//         newPens[4].SetColour(220, 0, 220);
+//         newPens[22].SetColour(220, 0, 220);
 //         break;
 //
 //      case 23:
-//         newPens[5].SetColour(0, 220, 220);
+//         newPens[].SetColour(0, 220, 220);
 //         break;
 
       default:
@@ -910,7 +910,7 @@ void TsPlotCanvas::AddData(TsPlotCurve *curve, wxColour startColor)
    if (startColor != *wxWHITE)
    {
       #ifdef ENABLE_AUTODARKEN
-         // Check for a color match and is there, darken the new one
+         // Check for a color match and if there, darken the new one
          for (UnsignedInt i = 0; i < varCount-1; ++i)
          {
             if (startColor == newPens[i].GetColour())
@@ -1367,12 +1367,41 @@ void TsPlotCanvas::MarkPoint(int index, int forCurve)
 
 void TsPlotCanvas::MarkBreak(int index, int forCurve)
 {
-
+   if (forCurve >= 0)
+   {
+      if (forCurve < (int)data.size())
+      {
+         data[forCurve]->AddBreak(index);
+      }
+   }
+   else // Mark the point on all curves
+   {
+      for (std::vector<TsPlotCurve *>::iterator curve = data.begin();
+           curve != data.end(); ++curve)
+      {
+         (*curve)->AddBreak(index);
+      }
+   }
 }
 
-void TsPlotCanvas::ClearFromBreak(int breakNumber, int index, int forCurve)
+void TsPlotCanvas::ClearFromBreak(int startBreakNumber, int endBreakNumber,
+      int forCurve)
 {
-
+   if (forCurve >= 0)
+   {
+      if (forCurve < (int)data.size())
+      {
+         data[forCurve]->BreakAndDiscard(startBreakNumber, endBreakNumber);
+      }
+   }
+   else // Discard points from all curves
+   {
+      for (std::vector<TsPlotCurve *>::iterator curve = data.begin();
+           curve != data.end(); ++curve)
+      {
+         (*curve)->BreakAndDiscard(startBreakNumber, endBreakNumber);
+      }
+   }
 }
 
 void TsPlotCanvas::ChangeColor(int index, unsigned long newColor, int forCurve)

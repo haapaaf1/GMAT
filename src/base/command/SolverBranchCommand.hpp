@@ -112,6 +112,8 @@ protected:
    virtual void        PenDownSubscribers();
    virtual void        DarkenSubscribers(Integer denominator = 1);
    virtual void        LightenSubscribers(Integer denominator = 1);
+   virtual void        SetSubscriberBreakpoint();
+   virtual void        ApplySubscriberBreakpoint(Integer bp = -1);
 
    enum
    {

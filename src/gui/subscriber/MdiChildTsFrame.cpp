@@ -550,6 +550,10 @@ void MdiChildTsFrame::MarkPoint(Integer index, Integer forCurve)
 //------------------------------------------------------------------------------
 void MdiChildTsFrame::MarkBreak(int index, int forCurve)
 {
+   #ifdef DEBUG_MESSSAGE_FLOW
+      MessageInterface::ShowMessage("MdiChildTsFrame::MarkBreak(%d, %d) called "
+            "for %s\n", index, forCurve, mPlotName.c_str());
+   #endif
    if (mXyPlot)
    {
       mXyPlot->MarkBreak(index, forCurve);

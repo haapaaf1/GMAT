@@ -771,6 +771,7 @@ bool Target::Execute()
                   }
                   StoreLoopData();
                   GetActiveSubscribers();
+                  SetSubscriberBreakpoint();
                   break;
                      
                case Solver::NOMINAL:
@@ -778,6 +779,7 @@ bool Target::Execute()
                   if (!commandComplete) 
                   {
                      branchExecuting = true;
+                     ApplySubscriberBreakpoint();
                      PenDownSubscribers();
                      LightenSubscribers(1);
                      ResetLoopData();
@@ -791,6 +793,7 @@ bool Target::Execute()
          
                case Solver::PERTURBING:
                   branchExecuting = true;
+                  ApplySubscriberBreakpoint();
                   PenDownSubscribers();
                   LightenSubscribers(4);
                   ResetLoopData();
@@ -811,6 +814,7 @@ bool Target::Execute()
                   {
                      ResetLoopData();
                      branchExecuting = true;
+                     ApplySubscriberBreakpoint();
                      PenDownSubscribers();
                      LightenSubscribers(1);
                      publisher->SetRunState(Gmat::SOLVEDPASS);

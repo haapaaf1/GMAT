@@ -936,10 +936,40 @@ void SolverBranchCommand::DarkenSubscribers(Integer denominator)
 //------------------------------------------------------------------------------
 void SolverBranchCommand::LightenSubscribers(Integer denominator)
 {
-//   MessageInterface::ShowMessage("Darkening by %d\n", denominator);
-
    std::stringstream factor;
    factor << denominator;
    for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
       activeSubscribers[i]->TakeAction("Lighten", factor.str().c_str());
+}
+
+
+//------------------------------------------------------------------------------
+// void SetSubscriberBreakpoint()
+//------------------------------------------------------------------------------
+/**
+ * Marks a break point on a plot
+ */
+//------------------------------------------------------------------------------
+void SolverBranchCommand::SetSubscriberBreakpoint()
+{
+   for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
+      activeSubscribers[i]->TakeAction("MarkBreak");
+}
+
+//------------------------------------------------------------------------------
+// void ApplySubscriberBreakpoint(Integer bp = -1)
+//------------------------------------------------------------------------------
+/**
+ * Breaks the curves on the subscribers, throwing away data beyond the break
+ * point
+ *
+ * @param bp The index of the breakpoint
+ */
+//------------------------------------------------------------------------------
+void SolverBranchCommand::ApplySubscriberBreakpoint(Integer bp)
+{
+   std::stringstream breakpoint;
+   breakpoint << bp;
+   for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
+      activeSubscribers[i]->TakeAction("ClearFromBreak", breakpoint.str());
 }

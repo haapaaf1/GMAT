@@ -1173,6 +1173,10 @@ void GuiPlotReceiver::XyPlotMarkPoint(const std::string &plotName,
 void GuiPlotReceiver::XyPlotMarkBreak(const std::string &plotName,
       Integer index, Integer forCurve)
 {
+   #ifdef DEBUG_MESSSAGE_FLOW
+      MessageInterface::ShowMessage("GuiPlotReceiver::XyPlotMarkBreak(%s, %d, "
+            "%d) called\n", plotName.c_str(), index, forCurve);
+   #endif
    MdiChildTsFrame *frame = NULL;
 
    for (int i=0; i<MdiTsPlot::numChildren; i++)

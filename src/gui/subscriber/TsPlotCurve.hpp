@@ -104,6 +104,8 @@ protected:
    std::vector<double>  lowError;
    /// Location for "pen up" commands
    std::vector<int>     penUpIndex;
+   /// Current base line color (for darkening and lightening)
+   wxColour             baseColor;
    /// vector of line colors
    std::vector<wxColour> linecolor;
    /// Location for color changes
@@ -121,10 +123,10 @@ protected:
    /// Line style.  This parameter is set for the entire line
    int                  lineStyle;
    /// Flag indicating that the curve is accepting data
-   bool penIsDown;
+   bool                 penIsDown;
 
    /// Index of the last point that was plotted
-   unsigned int lastPointPlotted;
+   unsigned int         lastPointPlotted;
    
    friend class TsPlotCanvas; 
    friend class TsPlotXYCanvas; 
