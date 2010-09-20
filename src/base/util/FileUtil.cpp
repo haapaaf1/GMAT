@@ -439,6 +439,7 @@ bool GmatFileUtil::IsAppInstalled(const std::string &appName, std::string &appLo
  * the order of outputs.
  *
  * @param  inStream  the input function stream
+ * @param  inputs    the input name list
  * @param  outputs   the output name list
  * @param  errMsg    the error message to be set if any
  * @param  outputRows  the array of row count to be set
@@ -448,7 +449,7 @@ bool GmatFileUtil::IsAppInstalled(const std::string &appName, std::string &appLo
  */
 //------------------------------------------------------------------------------
 WrapperTypeArray
-GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
+GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream, const StringArray &inputs,
                                      const StringArray &outputs, std::string &errMsg,
                                      IntegerArray &outputRows, IntegerArray &outputCols)
 {
@@ -456,19 +457,22 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
    
    #if DBGLVL_FUNCTION_OUTPUT
    MessageInterface::ShowMessage
-      ("GmatFileUtil::GetFunctionOutputTypes() outputSize = %d\n", outputSize);
+      ("GmatFileUtil::GetFunctionOutputTypes() inputSize = %d, outputSize = %d\n",
+       inputs.size(), outputSize);
+   for (UnsignedInt i=0; i<inputs.size(); i++)
+      MessageInterface::ShowMessage("   inputs[%d]='%s'\n", i, inputs[i].c_str());
    for (UnsignedInt i=0; i<outputs.size(); i++)
       MessageInterface::ShowMessage("   outputs[%d]='%s'\n", i, outputs[i].c_str());
    #endif
    
    WrapperTypeArray outputWrapperTypes;
    std::string line;
-   StringArray outputTypes, outputNames, outputDefs, multiples;
+   StringArray outputTypes, outputNames, outputDefs, multiples, globals;
    errMsg = "";
    std::string errMsg1, errMsg2;
    std::string name;
    Integer row, col;
-
+   
    // if no output, just return
    if (outputSize == 0)
       return outputWrapperTypes;
@@ -519,35 +523,47 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
             continue;
          
          StringArray parts = GmatStringUtil::SeparateBy(line, " ,", true);
-         if (parts[0] != "Create")
-            continue;
          
-         #if DBGLVL_FUNCTION_OUTPUT > 1
-         for (UnsignedInt i=0; i<parts.size(); i++)
-            MessageInterface::ShowMessage("   parts[%d]='%s'\n", i, parts[i].c_str());
-         #endif
-         
-         for (UnsignedInt i=0; i<outputSize; i++)
+         if (parts[0] == "Global")
          {
-            for (UnsignedInt j=2; j<parts.size(); j++)
+            #if DBGLVL_FUNCTION_OUTPUT > 1
+            for (UnsignedInt i=0; i<parts.size(); i++)
+               MessageInterface::ShowMessage("   parts[%d]='%s'\n", i, parts[i].c_str());
+            #endif
+            
+            for (UnsignedInt j=1; j<parts.size(); j++)
+               globals.push_back(parts[j]);
+            
+         }
+         else if (parts[0] == "Create")
+         {
+            #if DBGLVL_FUNCTION_OUTPUT > 1
+            for (UnsignedInt i=0; i<parts.size(); i++)
+               MessageInterface::ShowMessage("   parts[%d]='%s'\n", i, parts[i].c_str());
+            #endif
+         
+            for (UnsignedInt i=0; i<outputSize; i++)
             {
-               GmatStringUtil::GetArrayIndex(parts[j], row, col, name, "[]");
-               
-               if (name == outputs[i])
+               for (UnsignedInt j=2; j<parts.size(); j++)
                {
-                  // add multiple output defs
-                  if (find(outputNames.begin(), outputNames.end(), name) != outputNames.end())
-                     multiples.push_back(name);
+                  GmatStringUtil::GetArrayIndex(parts[j], row, col, name, "[]");
                   
-                  outputNames[i] = name;
-                  outputTypes[i] = parts[1];
-                  outputDefs[i] = parts[j];
-                  
-                  #if DBGLVL_FUNCTION_OUTPUT > 1
-                  MessageInterface::ShowMessage
-                     ("   i=%d, type='%s', name='%s', def='%s'\n", i, parts[1].c_str(),
-                      name.c_str(), parts[j].c_str());
-                  #endif                  
+                  if (name == outputs[i])
+                  {
+                     // add multiple output defs
+                     if (find(outputNames.begin(), outputNames.end(), name) != outputNames.end())
+                        multiples.push_back(name);
+                     
+                     outputNames[i] = name;
+                     outputTypes[i] = parts[1];
+                     outputDefs[i] = parts[j];
+                     
+                     #if DBGLVL_FUNCTION_OUTPUT > 1
+                     MessageInterface::ShowMessage
+                        ("   i=%d, type='%s', name='%s', def='%s'\n", i, parts[1].c_str(),
+                         name.c_str(), parts[j].c_str());
+                     #endif                  
+                  }
                }
             }
          }
@@ -566,7 +582,10 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
    
    #if DBGLVL_FUNCTION_OUTPUT
    MessageInterface::ShowMessage
-      ("   missing.size()=%d, multiples.size()=%d\n", missing.size(), multiples.size());
+      ("   missing.size()=%d, multiples.size()=%d, globals.size()=%d\n",
+       missing.size(), multiples.size(), globals.size());
+   for (UnsignedInt i=0; i<globals.size(); i++)
+      MessageInterface::ShowMessage("   globals[%d] = '%s'\n", i, globals[i].c_str());
    #endif
    
    if (missing.size() == 0 && multiples.size() == 0)
@@ -599,9 +618,23 @@ GmatFileUtil::GetFunctionOutputTypes(std::istream *inStream,
    {
       if (missing.size() > 0)
       {
-         errMsg1 = "Missing output declaration of";
+         StringArray reallyMissing;
          for (UnsignedInt i=0; i<missing.size(); i++)
-            errMsg1 = errMsg1 + " \"" + missing[i] + "\"";
+         {
+            // Check if missing output declarations are in the input names or
+            // globals. If output names are not in the inputs or globals, it is an
+            // error condition as in the GMAT Function requirements 1.6, 1.7, 1.8
+            if (find(inputs.begin(), inputs.end(), missing[i]) == inputs.end() &&
+                find(globals.begin(), globals.end(), missing[i]) == globals.end())
+               reallyMissing.push_back(missing[i]);
+         }
+         
+         if (reallyMissing.size() > 0)
+         {
+            errMsg1 = "Missing output declaration of";
+            for (UnsignedInt i=0; i<reallyMissing.size(); i++)
+               errMsg1 = errMsg1 + " \"" + reallyMissing[i] + "\"";
+         }
       }
       
       if (multiples.size() > 0)

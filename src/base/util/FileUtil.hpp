@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 FileUtil
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -39,9 +39,9 @@ namespace GmatFileUtil
    bool IsAppInstalled(const std::string &appName, std::string &appLoc);
    
    WrapperTypeArray
-      GetFunctionOutputTypes(std::istream *is, const StringArray &outputs,
-                             std::string &errMsg, IntegerArray &outputRows,
-                             IntegerArray &outputCols);
+      GetFunctionOutputTypes(std::istream *is, const StringArray &inputs,
+                             const StringArray &outputs, std::string &errMsg,
+                             IntegerArray &outputRows, IntegerArray &outputCols);
    
    StringArray GetFileListFromDirectory(const std::string &dirName,
                                         bool addPath = false);

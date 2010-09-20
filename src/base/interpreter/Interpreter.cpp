@@ -7319,6 +7319,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
    // check function declaration
    std::ifstream inStream(funcPath.c_str());
    std::string line;
+   StringArray inputArgs;
    StringArray outputArgs;
    
    while (!inStream.eof())
@@ -7364,7 +7365,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       #endif
          
       StringArray lhsParts;
-        
+      
       try
       {
          lhsParts = theTextParser.Decompose(parts[0], "[]", false);
@@ -7520,7 +7521,6 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       #endif
       if (rhsParts.size() > 1)
       {
-         StringArray inputArgs;
          try
          {
             inputArgs =
@@ -7609,7 +7609,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       std::string errMsg;
       IntegerArray rowCounts, colCounts;
       WrapperTypeArray outputTypes =
-         GmatFileUtil::GetFunctionOutputTypes(&inStream, outputArgs, errMsg,
+         GmatFileUtil::GetFunctionOutputTypes(&inStream, inputArgs, outputArgs, errMsg,
                                               rowCounts, colCounts);
       
       if (errMsg != "")
