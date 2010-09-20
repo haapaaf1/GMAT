@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                               ScriptInterpreter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Waka Waktola
 // Created: 2006/08/25
@@ -74,11 +74,15 @@ ScriptInterpreter* ScriptInterpreter::Instance()
 ScriptInterpreter::ScriptInterpreter() : Interpreter()
 {
    logicalBlockCount = 0;
+   functionDefined = false;
+   ignoreRest = false;
    
-   scriptFilename = "";
-   currentBlock   = "";
-   headerComment  = "";
-   footerComment  = "";
+   functionDef      = "";
+   functionFilename = "";
+   scriptFilename   = "";
+   currentBlock     = "";
+   headerComment    = "";
+   footerComment    = "";
    
    inCommandMode = false;
    inRealCommandMode = false;
@@ -184,6 +188,8 @@ bool ScriptInterpreter::Interpret(GmatCommand *inCmd, bool skipHeader,
    inFunctionMode = functionMode;
    inCommandMode = true;
    inRealCommandMode = true;
+   functionDefined = false;
+   ignoreRest = false;
    
    // Before parsing script, check for unmatching control logic
    bool retval0 = ReadFirstPass();
@@ -292,6 +298,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    }
    
    // Now function file is ready to parse
+   functionFilename = fileName;
    continueOnError = true;
    bool retval = false;
    std::ifstream funcFile(fileName.c_str());
@@ -695,6 +702,7 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
          MessageInterface::ShowMessage
             ("===> currentBlockType:%d, retval1=%d\n", currentBlockType, retval1);
          #endif
+         
       }
       catch (BaseException &e)
       {
@@ -713,6 +721,9 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
          
          return false;
       }
+      
+      if (ignoreRest)
+         break;
       
       #if DBGLVL_SCRIPT_READING
       MessageInterface::ShowMessage("===> Read next logical block\n");
@@ -750,6 +761,11 @@ bool ScriptInterpreter::ReadScript(GmatCommand *inCmd, bool skipHeader)
       lineNumber = delayedBlockLineNumbers[i];
       currentBlock = delayedBlocks[i];
       currentBlockType = theTextParser.EvaluateBlock(currentBlock);
+      
+      #ifdef DEBUG_DELAYED_BLOCK
+      MessageInterface::ShowMessage
+         ("==========> Calling Parse() currentBlockType=%d\n", currentBlockType);
+      #endif
       
       // Keep previous retval1 value
       retval2 = Parse(inCmd) && retval2;
@@ -824,10 +840,33 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
    // check for function definition line
    if (currentBlockType == Gmat::FUNCTION_BLOCK)
    {
-      if (BuildFunctionDefinition(sarray[count-1]))
+      // Check if function already defined
+      // GMAT function test criteria states:
+      // 2.11 The system must only allow one function to be defined inside of a function file. 
+      // 2.12 If more than one function is present in a file, a warning shall be thrown
+      //      and only the first function in the file shall be used.
+      if (functionDefined)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::WARNING_, "*** WARNING *** There are more than one function "
+             "defined in the function file \"%s\". \nOnly the first function \"%s\" "
+             "will be used and \"%s\" and the rest of the file will be ignored.\n",
+             functionFilename.c_str(), functionDef.c_str(), sarray[2].c_str());
+         ignoreRest = true;
          return true;
+      }
       else
-         throw InterpreterException("Failed to interpret function definition");
+      {
+         functionDef = sarray[2];
+         
+         if (BuildFunctionDefinition(sarray[count-1]))
+         {
+            functionDefined = true;
+            return true;
+         }
+         else
+            throw InterpreterException("Failed to interpret function definition");
+      }
    }
    
    // Decompose by block type

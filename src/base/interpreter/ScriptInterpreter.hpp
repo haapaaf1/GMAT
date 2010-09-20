@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                               ScriptInterpreter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Waka Waktola
 // Created: 2006/08/25
@@ -66,6 +66,14 @@ private:
    
    /// A counter that counts the logical blocks of script as they are read.
    Integer logicalBlockCount; 
+   /// Flag indicating function file has function definition
+   bool functionDefined;
+   /// Flag indicating function file has more than one function definition, so ignoring the rest
+   bool ignoreRest;
+   /// Function definition line
+   std::string functionDef;
+   /// Function file name
+   std::string functionFilename;
    /// Name of the current script file
    std::string scriptFilename;
    /// Section delimiter comment
