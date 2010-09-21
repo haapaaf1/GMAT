@@ -116,6 +116,7 @@ GmatCommand::GmatCommand(const std::string &typeStr) :
    commandChangedState  (false),
 //   comment              (""),
    commandChanged       (false),
+   cloneCount           (0),
    epochData            (NULL),
    stateData            (NULL),
    parmData             (NULL)
@@ -245,6 +246,7 @@ GmatCommand::GmatCommand(const GmatCommand &c) :
 //   comment              (c.comment),
    commandChanged       (c.commandChanged),
    settables            (c.settables),
+   cloneCount           (0),
    epochData            (NULL),
    stateData            (NULL),
    parmData             (NULL)
@@ -296,6 +298,7 @@ GmatCommand& GmatCommand::operator=(const GmatCommand &c)
    streamID = c.streamID;
 //   comment = c.comment;
    commandChanged = c.commandChanged;
+   cloneCount     = 0;
    settables      = c.settables;
    
    epochData = NULL;
@@ -2177,6 +2180,41 @@ bool GmatCommand::IsExecuting()
 {
    return false;
 }
+
+
+//------------------------------------------------------------------------------
+// Integer GetCloneCount()
+//------------------------------------------------------------------------------
+/**
+ * Returns the number of clones the object created, so the Assignment command
+ * can change their attributes
+ *
+ * @return The clone count
+ */
+//------------------------------------------------------------------------------
+Integer GmatCommand::GetCloneCount()
+{
+   return cloneCount;
+}
+
+
+//------------------------------------------------------------------------------
+// Gmat* GetClone(Integer cloneIndex = 0)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a pointer to a clone
+ *
+ * @param cloneIndex The index of the clone used by objects that have more than
+ *                   one clone
+ *
+ * @return The pointer
+ */
+//------------------------------------------------------------------------------
+GmatBase* GmatCommand::GetClone(Integer cloneIndex)
+{
+   return NULL;
+}
+
 
 //------------------------------------------------------------------------------
 // void ShowCommand(const std::string &prefix = "",

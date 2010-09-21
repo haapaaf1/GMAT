@@ -2438,6 +2438,7 @@ bool Propagate::Initialize()
 
    // Ensure that we are using fresh objects when buffering stops
    EmptyBuffer();
+   cloneCount = 0;
    
    // Remove old PropSetups
    for (std::vector<PropSetup*>::iterator ps = prop.begin(); ps != prop.end(); 
@@ -2496,6 +2497,7 @@ bool Propagate::Initialize()
       #endif
       //prop.push_back((PropSetup *)(mapObj->Clone()));
       prop.push_back(clonedProp);
+      ++cloneCount;
       if (!prop[index])
          return false;
       
@@ -5026,6 +5028,33 @@ void Propagate::RunComplete()
    ClearTransientForces();
    
    GmatCommand::RunComplete();
+}
+
+//------------------------------------------------------------------------------
+// GmatBase* GetClone(Integer cloneIndex = 0)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a pointer to a clone so its attributes can be accessed
+ *
+ * @param cloneIndex The index into the clone array
+ *
+ * @return The clone pointer, or NULL if no clone exists
+ */
+//------------------------------------------------------------------------------
+GmatBase* Propagate::GetClone(Integer cloneIndex)
+{
+   #ifdef DEBUG_CLONE_UPDATES
+      MessageInterface::ShowMessage("Entered Propagate::GetClone(%d)\n",
+            cloneIndex);
+   #endif
+
+   GmatBase *retPtr = NULL;
+
+   /// todo: Handle the ancestor classes
+   if ((cloneIndex >= 0) && (cloneIndex < (Integer)prop.size()))
+      retPtr = prop[cloneIndex];
+
+   return retPtr;
 }
 
 

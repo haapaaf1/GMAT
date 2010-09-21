@@ -973,3 +973,25 @@ void SolverBranchCommand::ApplySubscriberBreakpoint(Integer bp)
    for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
       activeSubscribers[i]->TakeAction("ClearFromBreak", breakpoint.str());
 }
+
+
+//------------------------------------------------------------------------------
+// GmatBase* GetClone(Integer cloneIndex = 0)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a pointer to a clone so its attributes can be accessed
+ *
+ * @param cloneIndex The index into the clone array
+ *
+ * @return The clone pointer, or NULL if no clone exists
+ */
+//------------------------------------------------------------------------------
+GmatBase* SolverBranchCommand::GetClone(Integer cloneIndex)
+{
+   GmatBase *retPtr = NULL;
+
+   /// todo: Handle the ancestor classes
+   retPtr = theSolver;
+
+   return retPtr;
+}

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Target
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -77,7 +77,6 @@ public:
    virtual bool        Initialize();
    virtual bool        Execute();
    virtual void        RunComplete();
-   
 
 protected:
    /// Flag indicating is the targeter has converged

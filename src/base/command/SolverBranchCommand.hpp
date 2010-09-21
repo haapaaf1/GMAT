@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            SolverBranchCommand
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -60,7 +60,8 @@ public:
                        GetStringArrayParameter(const std::string &label) const;
 
    virtual bool        NeedsServerStartup();
-   
+   virtual GmatBase*   GetClone(Integer cloneIndex = 0);
+
 protected:
    // Mode definitions for the state machine overrrides
    enum solverStartMode

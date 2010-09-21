@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Target
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -19,7 +19,7 @@
 
  
 #include "Target.hpp"
-
+#include "MessageInterface.hpp"
 
 //#define DEBUG_TARGETER_PARSING
 //#define DEBUG_TARGETER
@@ -473,6 +473,8 @@ bool Target::SetRefObjectName(const Gmat::ObjectType type,
 bool Target::Initialize()
 {
    GmatBase *mapObj = NULL;
+   cloneCount = 0;
+
    if ((mapObj = FindObject(solverName)) == NULL) 
    {
       std::string errorString = "Target command cannot find targeter \"";
@@ -503,6 +505,9 @@ bool Target::Initialize()
    }
    
    theSolver = (Solver *)(mapObj->Clone());
+   if (theSolver != NULL)
+      ++cloneCount;
+
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (theSolver, theSolver->GetName(), "Target::Initialize()",
@@ -564,7 +569,6 @@ bool Target::Initialize()
    }
    
    targeterInFunctionInitialized = false;
-   
    return retval;
 }
 

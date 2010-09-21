@@ -156,6 +156,7 @@ public:
    virtual GmatCommand* GetNext();
    virtual bool         Execute();
    virtual void         RunComplete();
+   virtual GmatBase*    GetClone(Integer cloneIndex = 0);
    
 protected:
    /// Name of the propagator setup(s) used in this command

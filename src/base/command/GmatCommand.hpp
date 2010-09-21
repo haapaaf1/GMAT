@@ -196,6 +196,9 @@ public:
    virtual bool        NeedsServerStartup();
    virtual bool        IsExecuting();
    
+   virtual Integer     GetCloneCount();
+   virtual GmatBase*   GetClone(Integer cloneIndex = 0);
+
 protected:
    enum
    {
@@ -268,6 +271,9 @@ protected:
    /// List used to initialize the local TextParser
    StringArray          commandNameList;
    
+   /// Count of owned objects created through cloning
+   Integer              cloneCount;
+
    virtual bool         AssignObjects();
    virtual bool         ClearObjects();
    virtual void         BuildCommandSummary(bool commandCompleted = true);
