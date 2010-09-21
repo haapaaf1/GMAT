@@ -2313,7 +2313,9 @@ Real Spacecraft::SetRealParameter(const std::string &label, const Real value)
       return reflectCoeff;
    }
 
-   if (label == "TotalMass") return totalMass;    // Don't change the total mass
+   if (label == "TotalMass")// return totalMass;    // Don't change the total mass
+      throw SpaceObjectException("The parameter \"TotalMass\" is a calculated "
+            "parameter and cannot be set on the spacecraft " + instanceName);
 
    return SpaceObject::SetRealParameter(label, value);
 }
