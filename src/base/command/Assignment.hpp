@@ -98,10 +98,18 @@ protected:
    MathTree             *mathTree;
    /// Wrapper name and ElementWrapper pointer Map for RHS math element
    WrapperMap           mathWrapperMap;
+
+   /// Object pointer for clone management
+   GmatBase             *lhsOwner;
+   /// Object parameter ID if lhs is an attribute
+   Integer              lhsOwnerID;
    
    // methods
    ElementWrapper* RunMathTree();
    void HandleScPropertyChange(ElementWrapper *lhsWrapper);
+
+   void PassToClones();
+   void MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver);
 };
 
 #endif // Assignment_hpp

@@ -34,6 +34,7 @@
 #include "ArrayWrapper.hpp"
 #include "FunctionManager.hpp"
 #include "MessageInterface.hpp"
+#include "ObjectPropertyWrapper.hpp"
 
 //#define DEBUG_RENAME
 //#define DEBUG_EVAL_RHS
@@ -74,7 +75,9 @@ Assignment::Assignment  () :
    rhs                  ("Not_Set"),
    lhsWrapper           (NULL),
    rhsWrapper           (NULL),
-   mathTree             (NULL)
+   mathTree             (NULL),
+   lhsOwner             (NULL),
+   lhsOwnerID           (-1)
 {
    objectTypeNames.push_back("GMAT");
    objectTypeNames.push_back("Assignment");
@@ -119,7 +122,9 @@ Assignment::Assignment  (const Assignment& a) :
    rhs                  (a.rhs),
    lhsWrapper           (NULL),
    rhsWrapper           (NULL),
-   mathTree             (a.mathTree)
+   mathTree             (a.mathTree),
+   lhsOwner             (NULL),
+   lhsOwnerID           (a.lhsOwnerID)
 {
 }
 
@@ -145,6 +150,8 @@ Assignment& Assignment::operator=(const Assignment& a)
    lhsWrapper = NULL;
    rhsWrapper = NULL;
    mathTree   = a.mathTree;
+   lhsOwner   = NULL;
+   lhsOwnerID = a.lhsOwnerID;
    
    return *this;
 }
@@ -673,6 +680,10 @@ bool Assignment::Initialize()
       }
    }
    
+   lhsOwner = lhsWrapper->GetRefObject();
+   if (lhsWrapper->GetWrapperType() == Gmat::OBJECT_PROPERTY_WT)
+      lhsOwnerID = ((ObjectPropertyWrapper*)(lhsWrapper))->GetPropertyId();
+
    #ifdef DEBUG_ASSIGNMENT_INIT
    MessageInterface::ShowMessage("Assignment::Initialize() returning true\n");
    #endif
@@ -719,7 +730,8 @@ bool Assignment::Execute()
    {
       CommandException ce;
       ce.SetMessage("");
-      std::string msg = "Assignment::Execute() failed, LHS or/and RHS wrappers are NULL";
+      std::string msg = "Assignment::Execute() failed, LHS or/and RHS wrappers "
+            "are NULL";
       ce.SetDetails("%s in\n   \"%s\"\n", msg.c_str(), generatingString.c_str());
       throw ce;
    }
@@ -876,7 +888,10 @@ bool Assignment::Execute()
       delete outWrapper;
       outWrapper = NULL;
    }
-   
+
+   // Update clones
+   PassToClones();
+
    #ifdef DEBUG_TRACE
    clock_t t2 = clock();
    MessageInterface::ShowMessage
@@ -1491,3 +1506,88 @@ void Assignment::HandleScPropertyChange(ElementWrapper *lhsWrapper)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// void PassToClones()
+//------------------------------------------------------------------------------
+/**
+ * Passes assignment data to cloned objects
+ *
+ * This method walks the mission control sequence, locating commands that use
+ * clones and setting the data to the clones as needed
+ */
+//------------------------------------------------------------------------------
+void Assignment::PassToClones()
+{
+   if (lhsOwner == NULL)
+      return;
+
+   GmatCommand *current = GetNext();
+
+   while ((current != NULL) && (current != this))
+   {
+      #ifdef DEBUG_CLONE_UPDATES
+         MessageInterface::ShowMessage("%s: %d clones\n",
+               current->GetTypeName().c_str(), current->GetCloneCount());
+      #endif
+      for (Integer i = 0; i < current->GetCloneCount(); ++i)
+      {
+         GmatBase *theClone = current->GetClone(i);
+         #ifdef DEBUG_CLONE_UPDATES
+            MessageInterface::ShowMessage("Clone %d: %s\n", i, (theClone == NULL ?
+                  "is NULL" : theClone->GetName().c_str()));
+         #endif
+         if (theClone == NULL)
+            continue;
+
+         if (theClone->GetName() == lhsOwner->GetName())
+         {
+            if (lhsOwnerID < 0)
+               (*theClone) = (*lhsOwner);
+            else
+               MatchAttribute(lhsOwnerID, lhsOwner, theClone);
+         }
+      }
+      current = current->GetNext();
+
+      #ifdef DEBUG_CLONE_UPDATES
+         MessageInterface::ShowMessage("current: %p this: %p\n", current, this);
+      #endif
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver)
+//------------------------------------------------------------------------------
+/**
+ * Passes assignment data to a specific (usually cloned) object parameter
+ *
+ * @param id The parameter ID for the parameter
+ * @param owner The object that has the parameter setting already applied
+ * @param receiver The oblect that is receiving the new parameter value
+ */
+//------------------------------------------------------------------------------
+void Assignment::MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver)
+{
+   #ifdef DEBUG_CLONE_UPDATES
+      MessageInterface::ShowMessage("   MatchAttribute(%d, %s, %s) called\n", id,
+            owner->GetName().c_str(), receiver->GetName().c_str());
+   #endif
+
+   Gmat::ParameterType theType = owner->GetParameterType(id);
+
+   switch (theType)
+   {
+      case Gmat::REAL_TYPE:
+         receiver->SetRealParameter(id, owner->GetRealParameter(id));
+         break;
+
+      case Gmat::INTEGER_TYPE:
+         receiver->SetIntegerParameter(id, owner->GetIntegerParameter(id));
+         break;
+
+      default:
+         break;
+   }
+}
