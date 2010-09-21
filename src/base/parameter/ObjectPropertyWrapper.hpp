@@ -1,8 +1,8 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  ObjectPropertyWrapper
+//                          ObjectPropertyWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -61,6 +61,8 @@ public:
    virtual bool                SetInteger(const Integer toValue); 
    virtual bool                SetObject(GmatBase* obj);
    
+   const Integer               GetPropertyId();
+
 protected:  
 
    /// pointer to the base object
