@@ -1569,7 +1569,7 @@ void Assignment::PassToClones()
  *
  * @param id The parameter ID for the parameter
  * @param owner The object that has the parameter setting already applied
- * @param receiver The oblect that is receiving the new parameter value
+ * @param receiver The object that is receiving the new parameter value
  */
 //------------------------------------------------------------------------------
 void Assignment::MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver)
@@ -1588,7 +1588,6 @@ void Assignment::MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver)
          break;
 
       case Gmat::INTEGER_TYPE:
-      case Gmat::ENUMERATION_TYPE:
          receiver->SetIntegerParameter(id, owner->GetIntegerParameter(id));
          break;
 
@@ -1601,6 +1600,7 @@ void Assignment::MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver)
          break;
 
       case Gmat::STRING_TYPE:
+      case Gmat::ENUMERATION_TYPE:
          receiver->SetStringParameter(id, owner->GetStringParameter(id));
          break;
 
