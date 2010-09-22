@@ -149,9 +149,9 @@ GMAT rf.SolverIterations = None;
 
 %  Create XYPlot  
 Create XYPlot Sat1XYZvsTime;
-GMAT Sat1XYZvsTime.IndVar = Sat1.ElapsedDays;
-GMAT Sat1XYZvsTime.Add = {Sat1.X, Sat1.Y, Sat1.Z};
-GMAT Sat1XYZvsTime.Grid = On;
+GMAT Sat1XYZvsTime.XVariable = Sat1.ElapsedDays;
+GMAT Sat1XYZvsTime.YVariables = {Sat1.X, Sat1.Y, Sat1.Z};
+GMAT Sat1XYZvsTime.ShowGrid = true;
 GMAT Sat1XYZvsTime.SolverIterations = None;
 GMAT Sat1XYZvsTime.ShowPlot = true;
 
@@ -209,9 +209,9 @@ GMAT OpenGLPlot1.NumPointsToRedraw = 0;
 GMAT OpenGLPlot1.ShowPlot = true;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = Sat1.A1ModJulian;
-GMAT XYPlot1.Add = {Sat1.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = Sat1.A1ModJulian;
+GMAT XYPlot1.YVariables = {Sat1.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 

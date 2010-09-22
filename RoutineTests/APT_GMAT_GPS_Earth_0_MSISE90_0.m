@@ -17,7 +17,6 @@
  GMAT GPS.DragArea = 20;
  GMAT GPS.SRPArea = 20;
  GMAT GPS.DryMass = 1000;
- GMAT GPS.TotalMass = 1000;
 
 Create ForceModel Earth2Body;
 GMAT Earth2Body.PrimaryBodies = {Earth};

@@ -119,7 +119,9 @@ burnBaby_B                        = 4;
 BA                                =  400000;
 BB                                = -400000;
 BC                                = -2000000;
-BD                                = BA +1;
+%%Due to Bug 2025 Fix, math operators are no longer allowed
+%%BD                                = BA + 1; 
+BD                                = 400001;
 T                                 = 25;
 stopDiff                          = T;
 

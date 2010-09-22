@@ -111,7 +111,7 @@ GMAT LunarSB.MaxStepAttempts = 50;
 
 
 Create DifferentialCorrector DC1;
-GMAT DC1.TargeterTextFile = Bplane-DC1.data;
+GMAT DC1.ReportFile = APT_BplaneTargeterDecMass_DC1.data;
 
 
 

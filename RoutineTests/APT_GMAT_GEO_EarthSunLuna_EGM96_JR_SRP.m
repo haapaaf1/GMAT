@@ -17,7 +17,6 @@
  GMAT GEO.DragArea = 20;
  GMAT GEO.SRPArea = 20;
  GMAT GEO.DryMass = 1000;
- GMAT GEO.TotalMass = 1000;
 
 Create ForceModel EarthEGM96;
 GMAT EarthEGM96.PrimaryBodies = {Earth};

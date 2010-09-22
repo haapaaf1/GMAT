@@ -65,9 +65,12 @@ GMAT Var1 = DefaultSC.A1ModJulian;
 GMAT Var2 = 0.0;
 GMAT Var3 = 123.0;
 GMAT Var4 = 0.123;
-GMAT Var5 = 1 + 2 + 3;
+%%Due to Bug 2025 Fix, math operators are no longer allowed
+%%GMAT Var5 = 1 + 2 + 3;
+GMAT Var5 = 6;
 GMAT Var6 = DefaultSC.A1ModJulian - 21545;
-GMAT Var7 = Var3 + Var4;
+%%GMAT Var7 = Var3 + Var4;
+GMAT Var7 = 123.123;
 %%%GMAT Var8 = UnknownVar + 100;
 
 %----------------------------------------

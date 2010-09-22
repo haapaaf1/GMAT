@@ -18,7 +18,6 @@ GMAT Sat.Cd = 2.2000000000000002;
 GMAT Sat.Cr = 1.8;
 GMAT Sat.DragArea = 15;
 GMAT Sat.SRPArea = 1;
-GMAT Sat.TotalMass = 850;
 
 Create Spacecraft LaunchSat;
 

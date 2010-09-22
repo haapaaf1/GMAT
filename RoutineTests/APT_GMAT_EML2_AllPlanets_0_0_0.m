@@ -16,7 +16,6 @@ GMAT EML2.Cr = 1.2;
 GMAT EML2.DragArea = 20;
 GMAT EML2.SRPArea = 20;
 GMAT EML2.DryMass = 1000;
-GMAT EML2.TotalMass = 1000;
 
 Create ForceModel Earth2Body;
 GMAT Earth2Body.CentralBody = Earth;

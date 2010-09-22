@@ -26,7 +26,8 @@ GMAT av(3,1) = 0.577350269189626;
 
 %  Define the Euler Angle
 GMAT pi2 = 6.28318530717959;
-GMAT phi = 45 * pi2;
+%%Due to Bug 2025 Fix, math operators are no longer allowed, so moved to after BeginMissionSequence
+%%GMAT phi = 45 * pi2;
 
 
 %  Define the skew symmetric matrix
@@ -77,6 +78,8 @@ Create Array E[3,3];
 %------------------------------------ Mission Sequence
 
 BeginMissionSequence;
+
+GMAT phi = 45 * pi2;
 
 Report ErrorData E;
 

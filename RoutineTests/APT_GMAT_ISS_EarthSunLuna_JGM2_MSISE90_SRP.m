@@ -17,7 +17,6 @@
  GMAT ISS.DragArea = 20;
  GMAT ISS.SRPArea = 20;
  GMAT ISS.DryMass = 1000;
- GMAT ISS.TotalMass = 1000;
 
 Create ForceModel EarthJGM2;
 GMAT EarthJGM2.PrimaryBodies = {Earth};

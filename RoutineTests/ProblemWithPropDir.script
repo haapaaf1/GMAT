@@ -30,7 +30,6 @@ GMAT sat.Cd = 2.2;
 GMAT sat.Cr = 1.8;
 GMAT sat.DragArea = 5;
 GMAT sat.SRPArea = 2.5;
-GMAT sat.TotalMass = 1850;
 
 
 Create Spacecraft clone;

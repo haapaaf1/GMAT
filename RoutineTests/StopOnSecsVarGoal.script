@@ -66,6 +66,7 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 %----------------------------------------
 
 %----- Varibles
+Create Variable timeToStop;
 Create TAIModJulian Time
 GMAT Time.Object = Moly;
 
@@ -77,7 +78,7 @@ GMAT Time.Object = Moly;
 Create ReportFile MolyEphem;
 GMAT MolyEphem.Filename = StopOnSecsVarGoal.report;
 GMAT MolyEphem.Precision = 12;
-GMAT MolyEphem.Add = {Time, Moly.ElapsedSecs, Moly.X};
+GMAT MolyEphem.Add = {Time, Moly.ElapsedDays, Moly.ElapsedSecs, Moly.X, Moly.Y, Moly.Z};
 GMAT MolyEphem.WriteHeaders = On;
 GMAT MolyEphem.LeftJustify = On;
 GMAT MolyEphem.ZeroFill = Off;
@@ -113,16 +114,16 @@ GMAT Plot3D.ShowPlot = true;
 
 %----- XY plot
 Create XYPlot TimeVsMA;
-GMAT TimeVsMA.IndVar = Time;
-GMAT TimeVsMA.Add = {Moly.ElapsedSecs, Moly.X};
-GMAT TimeVsMA.Grid = On;
+GMAT TimeVsMA.XVariable = Time;
+GMAT TimeVsMA.YVariables = {Moly.ElapsedSecs, Moly.X};
+GMAT TimeVsMA.ShowGrid = true;
 GMAT TimeVsMA.SolverIterations = None;
 GMAT TimeVsMA.ShowPlot = true;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = Moly.A1ModJulian;
-GMAT XYPlot1.Add = {Moly.EarthMJ2000Eq.Z};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = Moly.A1ModJulian;
+GMAT XYPlot1.YVariables = {Moly.EarthMJ2000Eq.Z};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
@@ -163,10 +164,16 @@ Toggle MolyEphem On;
 Toggle Plot3D On;
 Toggle TimeVsMA Off;
 
+Report MolyEphem Time Moly.ElapsedDays Moly.ElapsedSecs Moly.X Moly.Y Moly.Z;
 While Moly.X < 500.0
    Propagate MolyProp(Moly);
 EndWhile;
+Report MolyEphem Time Moly.ElapsedDays Moly.ElapsedSecs Moly.X Moly.Y Moly.Z;
 
 Toggle TimeVsMA On;
-Propagate MolyProp(Moly) {Moly.ElapsedSecs = Moly.X};
+timeToStop = 86400;
+
+%Propagate MolyProp(Moly) {Moly.ElapsedSecs = Moly.X};
+Propagate MolyProp(Moly) {Moly.ElapsedSecs = timeToStop};
 %Propagate MolyProp(Moly, {Moly.ElapsedSecs = 86400});
+Report MolyEphem Time Moly.ElapsedDays Moly.ElapsedSecs Moly.X Moly.Y Moly.Z;

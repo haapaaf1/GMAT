@@ -78,9 +78,9 @@ GMAT AttitudeThruster.CoordinateSystem = Local;
 GMAT AttitudeThruster.Origin = Earth;
 GMAT AttitudeThruster.Axes = SpacecraftBody;
 GMAT AttitudeThruster.Tank = {FuelTank1};
-GMAT AttitudeThruster.Element1 = 1;
-GMAT AttitudeThruster.Element2 = 0;
-GMAT AttitudeThruster.Element3 = 0;
+GMAT AttitudeThruster.ThrustDirection1 = 1;
+GMAT AttitudeThruster.ThrustDirection2 = 0;
+GMAT AttitudeThruster.ThrustDirection3 = 0;
 GMAT AttitudeThruster.DutyCycle = 1;
 GMAT AttitudeThruster.ThrustScaleFactor = 1;
 GMAT AttitudeThruster.DecrementMass = false;
@@ -91,9 +91,9 @@ GMAT VNBThruster.CoordinateSystem = Local;
 GMAT VNBThruster.Origin = Earth;
 GMAT VNBThruster.Axes = VNB;
 GMAT VNBThruster.Tank = {FuelTank2};
-GMAT VNBThruster.Element1 = 1;
-GMAT VNBThruster.Element2 = 0;
-GMAT VNBThruster.Element3 = 0;
+GMAT VNBThruster.ThrustDirection1 = 1;
+GMAT VNBThruster.ThrustDirection2 = 0;
+GMAT VNBThruster.ThrustDirection3 = 0;
 GMAT VNBThruster.DutyCycle = 1;
 GMAT VNBThruster.ThrustScaleFactor = 1;
 GMAT VNBThruster.DecrementMass = false;
@@ -188,8 +188,9 @@ BeginMissionSequence;
 BeginFiniteBurn AttitudeBurn(AttitudeSat);
 BeginFiniteBurn VNBBurn(VNBSat);
 
-%%Propagate DefaultProp(AttitudeSat,VNBSat) {AttitudeSat.ElapsedSecs = 8640.0};
-Propagate DefaultProp(AttitudeSat,VNBSat) {AttitudeSat.ElapsedSecs = 864.0};
+%%Propagate DefaultProp(AttitudeSat,VNBSat) {AttitudeSat.ElapsedSecs = 864.0};
+%% Due to partial bug 1675 fix, changed the syntax to following
+Propagate Synchronized DefaultProp(AttitudeSat) DefaultProp(VNBSat) {AttitudeSat.ElapsedSecs = 864.0};
 
 Report EphemData AttitudeSat.X AttitudeSat.Y AttitudeSat.Z
 Report EphemData VNBSat.X VNBSat.Y VNBSat.Z

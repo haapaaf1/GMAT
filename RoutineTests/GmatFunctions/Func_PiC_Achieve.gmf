@@ -19,7 +19,6 @@ GMAT sat.Cd = 2.2000000000000002;
 GMAT sat.Cr = 1.8;
 GMAT sat.DragArea = 15;
 GMAT sat.SRPArea = 1;
-GMAT sat.TotalMass = 850;
 
 Create Spacecraft SaveSat RHSSat TolSat LHSSat;
 
@@ -63,7 +62,7 @@ GMAT GOI.Element3 = 0;
 
 
 Create DifferentialCorrector DC DC2;
-GMAT DC.TargeterTextFile = 'Func_PiC_Achieve_DC.data';
+GMAT DC.ReportFile = 'Func_PiC_Achieve_DC.data';
 GMAT DC.MaximumIterations = 25;
 GMAT DC.UseCentralDifferences = false;
 GMAT DC.ReportStyle = Debug;
