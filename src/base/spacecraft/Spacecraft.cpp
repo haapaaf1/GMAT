@@ -249,6 +249,8 @@ const Integer Spacecraft::ATTITUDE_ID_OFFSET = 20000;
 //---------------------------------------------------------------------------
 Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    SpaceObject          (Gmat::SPACECRAFT, typeStr, name),
+   modelFile            (""),
+   modelID              (NO_MODEL),
    scEpochStr           ("21545.000000000"),
    dryMass              (850.0),
    coeffDrag            (2.2),
@@ -261,6 +263,13 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    stateType            ("Cartesian"),
    displayStateType     ("Cartesian"),
    anomalyType          ("TA"),
+   modelOffsetX         (0),
+   modelOffsetY         (0),
+   modelOffsetZ         (0),
+   modelRotationX       (0),
+   modelRotationY       (0),
+   modelRotationZ       (0),
+   modelScale           (1),
    solarSystem          (NULL),
    internalCoordSystem  (NULL),
    coordinateSystem     (NULL),
@@ -272,16 +281,7 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    csSet                (false),
    isThrusterSettingMode(false),
    orbitSTM             (6,6),
-   includeCartesianState(0),
-   modelID              (NO_MODEL),
-   modelFile            (""),
-   modelOffsetX         (0),
-   modelOffsetY         (0),
-   modelOffsetZ         (0),
-   modelRotationX       (0),
-   modelRotationY       (0),
-   modelRotationZ       (0),
-   modelScale           (1)
+   includeCartesianState(0)
 {
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -416,6 +416,8 @@ Spacecraft::~Spacecraft()
 //---------------------------------------------------------------------------
 Spacecraft::Spacecraft(const Spacecraft &a) :
    SpaceObject          (a),
+   modelFile            (a.modelFile),
+   modelID              (a.modelID),
    scEpochStr           (a.scEpochStr),
    dryMass              (a.dryMass),
    coeffDrag            (a.coeffDrag),
@@ -428,6 +430,13 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    stateType            (a.stateType),
    displayStateType     (a.displayStateType),
    anomalyType          (a.anomalyType),
+   modelOffsetX         (a.modelOffsetX),
+   modelOffsetY         (a.modelOffsetY),
+   modelOffsetZ         (a.modelOffsetZ),
+   modelRotationX       (a.modelRotationX),
+   modelRotationY       (a.modelRotationY),
+   modelRotationZ       (a.modelRotationZ),
+   modelScale           (a.modelScale),
    solarSystem          (a.solarSystem),           // need to copy
    internalCoordSystem  (a.internalCoordSystem),   // need to copy
    coordinateSystem     (a.coordinateSystem),      // need to copy
@@ -442,16 +451,7 @@ Spacecraft::Spacecraft(const Spacecraft &a) :
    csSet                (a.csSet),
    isThrusterSettingMode(a.isThrusterSettingMode),
    orbitSTM             (a.orbitSTM),
-   includeCartesianState(a.includeCartesianState),
-   modelID              (a.modelID),
-   modelFile            (a.modelFile),
-   modelOffsetX         (a.modelOffsetX),
-   modelOffsetY         (a.modelOffsetY),
-   modelOffsetZ         (a.modelOffsetZ),
-   modelRotationX       (a.modelRotationX),
-   modelRotationY       (a.modelRotationY),
-   modelRotationZ       (a.modelRotationZ),
-   modelScale           (a.modelScale)
+   includeCartesianState(a.includeCartesianState)
 {
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
@@ -1770,6 +1770,14 @@ bool Spacecraft::IsParameterReadOnly(const Integer id) const
    if (id == MASS_FLOW)
    {
       return true;
+   }
+
+   if ((id > MODEL_FILE) && (id < MODEL_MAX))
+   {
+      if (modelFile == "")
+         return true;
+      else
+         return false;
    }
 
    // NAIF ID is not read-only for spacecraft

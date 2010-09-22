@@ -254,8 +254,9 @@ protected:
       MODEL_ROTATION_Y,
       MODEL_ROTATION_Z,
       MODEL_SCALE,
+      MODEL_MAX,
 
-      SpacecraftParamCount
+      SpacecraftParamCount = MODEL_MAX  // Assumes model params at the end
    };
 
    enum MultipleReps  // these are IDs for the different representations
