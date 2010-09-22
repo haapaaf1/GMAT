@@ -75,6 +75,8 @@ public:
    virtual void            SetCallingFunction(FunctionManager *fm);
    virtual bool            IsExecuting();
 
+   virtual Integer         GetCloneCount();
+   virtual GmatBase*       GetClone(Integer cloneIndex);
 
 protected:
       

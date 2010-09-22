@@ -1548,8 +1548,12 @@ void Assignment::PassToClones()
                MatchAttribute(lhsOwnerID, lhsOwner, theClone);
          }
       }
-      current = current->GetNext();
 
+      // Prevent infinite looping!
+      if (current == current->GetNext())
+         break;
+
+      current = current->GetNext();
       #ifdef DEBUG_CLONE_UPDATES
          MessageInterface::ShowMessage("current: %p this: %p\n", current, this);
       #endif

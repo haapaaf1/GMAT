@@ -60,6 +60,7 @@ public:
                        GetStringArrayParameter(const std::string &label) const;
 
    virtual bool        NeedsServerStartup();
+   virtual Integer     GetCloneCount();
    virtual GmatBase*   GetClone(Integer cloneIndex = 0);
 
 protected:

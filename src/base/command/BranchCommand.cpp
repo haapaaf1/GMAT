@@ -1393,3 +1393,87 @@ bool BranchCommand::IsExecuting()
    return branchExecuting;
 }
 
+
+//------------------------------------------------------------------------------
+// Integer GetCloneCount()
+//------------------------------------------------------------------------------
+/**
+ * Determines how many clones are available in the branch command
+ *
+ * @return The number of clones
+ */
+//------------------------------------------------------------------------------
+Integer BranchCommand::GetCloneCount()
+{
+   cloneCount = 0;
+
+   // Count 'em up from the branch control sequence(s)
+   std::vector<GmatCommand*>::iterator node;
+   GmatCommand *currentPtr;
+
+   for (node = branch.begin(); node != branch.end(); ++node)
+   {
+      currentPtr = *node;
+      while (currentPtr != this)
+      {
+         cloneCount += currentPtr->GetCloneCount();
+         currentPtr = currentPtr->GetNext();
+         if (currentPtr == NULL)
+            throw CommandException("Branch command \"" + generatingString +
+                                   "\" was not terminated!");
+      }
+   }
+
+   #ifdef DEBUG_CLONE_UPDATES
+      MessageInterface::ShowMessage("CloneCount for branch command %s = %d\n",
+            typeName.c_str(), cloneCount);
+   #endif
+
+   return cloneCount;
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* GetClone(Integer cloneIndex)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a clone pointer from the branch command
+ *
+ * @param cloneIndex Index to the desired clone
+ *
+ * @return The pointer to the clone
+ */
+//------------------------------------------------------------------------------
+GmatBase* BranchCommand::GetClone(Integer cloneIndex)
+{
+   GmatBase *retptr = NULL;
+   Integer currentCount = 0, nodeCount;
+   std::vector<GmatCommand*>::iterator node;
+   GmatCommand *currentPtr;
+
+   if ((cloneIndex < cloneCount) && (cloneIndex >= 0))
+   {
+      for (node = branch.begin(); node != branch.end(); ++node)
+      {
+         currentPtr = *node;
+         while (currentPtr != this)
+         {
+            nodeCount = currentPtr->GetCloneCount();
+
+            if (cloneIndex < currentCount + nodeCount)
+            {
+               retptr = currentPtr->GetClone(cloneIndex - currentCount);
+               break;
+            }
+
+            currentCount += nodeCount;
+            currentPtr = currentPtr->GetNext();
+            if (currentPtr == NULL)
+               throw CommandException("Branch command \"" + generatingString +
+                                      "\" was not terminated!");
+         }
+      }
+   }
+
+   return retptr;
+}

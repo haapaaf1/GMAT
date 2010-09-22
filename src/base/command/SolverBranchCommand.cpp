@@ -976,6 +976,25 @@ void SolverBranchCommand::ApplySubscriberBreakpoint(Integer bp)
 
 
 //------------------------------------------------------------------------------
+// Integer GetCloneCount()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the clone count for the members of the solver control sequence
+ *
+ * @return The count
+ */
+//------------------------------------------------------------------------------
+Integer SolverBranchCommand::GetCloneCount()
+{
+   cloneCount = BranchCommand::GetCloneCount();
+   if (theSolver != NULL)
+      ++cloneCount;
+
+   return cloneCount;
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* GetClone(Integer cloneIndex = 0)
 //------------------------------------------------------------------------------
 /**
@@ -990,8 +1009,10 @@ GmatBase* SolverBranchCommand::GetClone(Integer cloneIndex)
 {
    GmatBase *retPtr = NULL;
 
-   /// todo: Handle the ancestor classes
-   retPtr = theSolver;
+   if (cloneIndex == 0)
+      retPtr = theSolver;
+   else
+      retPtr = BranchCommand::GetClone(cloneIndex - 1);
 
    return retPtr;
 }
