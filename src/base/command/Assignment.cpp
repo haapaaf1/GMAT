@@ -1588,9 +1588,43 @@ void Assignment::MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver)
          break;
 
       case Gmat::INTEGER_TYPE:
+      case Gmat::ENUMERATION_TYPE:
          receiver->SetIntegerParameter(id, owner->GetIntegerParameter(id));
          break;
 
+      case Gmat::BOOLEAN_TYPE:
+         receiver->SetBooleanParameter(id, owner->GetBooleanParameter(id));
+         break;
+
+      case Gmat::ON_OFF_TYPE:
+         receiver->SetOnOffParameter(id, owner->GetOnOffParameter(id));
+         break;
+
+      case Gmat::STRING_TYPE:
+         receiver->SetStringParameter(id, owner->GetStringParameter(id));
+         break;
+
+      case Gmat::UNSIGNED_INT_TYPE:
+         receiver->SetUnsignedIntParameter(id,
+               owner->GetUnsignedIntParameter(id));
+         break;
+
+      case Gmat::RVECTOR_TYPE:
+         receiver->SetRvectorParameter(id, owner->GetRvectorParameter(id));
+         break;
+
+      case Gmat::RMATRIX_TYPE:
+         receiver->SetRmatrixParameter(id, owner->GetRmatrixParameter(id));
+         break;
+
+
+      // Types not yet covered
+      case Gmat::UNSIGNED_INTARRAY_TYPE:
+      case Gmat::INTARRAY_TYPE:
+      case Gmat::STRINGARRAY_TYPE:
+      case Gmat::TIME_TYPE:
+      case Gmat::OBJECTARRAY_TYPE:
+      case Gmat::FILENAME_TYPE:
       default:
          break;
    }
