@@ -262,6 +262,8 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
 {
    #ifdef DEBUG_CART_TO_KEPL
       MessageInterface::ShowMessage("CoordUtil::ComputeCartToKepl called ... \n");
+      MessageInterface::ShowMessage("   grav = %12.10f\n", grav);
+      MessageInterface::ShowMessage("   KEP_ECC_TOL = %12.10f\n", GmatOrbit::KEP_ECC_TOL);
    #endif
 
    if (Abs(grav) < 1E-30)
@@ -324,13 +326,15 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
             "   in ComputeCartToKepl, e = %12.10f\n", e);
       MessageInterface::ShowMessage(
             "   in ComputeCartToKepl, zeta = %12.10f\n", zeta);
+      MessageInterface::ShowMessage(
+            "   in ComputeCartToKepl, Abs(1.0 - e) = %12.10f\n", Abs(1.0 - e));
    #endif
    
    if ((Abs(1.0 - e)) <= GmatOrbit::KEP_ECC_TOL)
    {
-      throw UtilityException
-         ("Error in conversion to Keplerian state: "
-          "The state results in an orbit that is nearly parabolic.\n");
+      std::string errmsg = "Error in conversion to Keplerian state: ";
+      errmsg += "The state results in an orbit that is nearly parabolic.\n";
+      throw UtilityException(errmsg);
    } 
    
    // eqn 4.10
