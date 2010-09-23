@@ -748,13 +748,13 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
       {
          if (state == Solver::FINISHED)
          {
-            PenDownSubscribers();
-            LightenSubscribers(1);
+//            PenDownSubscribers();
+//            LightenSubscribers(1);
             commandComplete = true;
          }
          else
          {
-            PenUpSubscribers();
+//            PenUpSubscribers();
          }
       }
    }
@@ -876,8 +876,8 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
                currentCmd = currentCmd->GetNext();
             }
             StoreLoopData();
-            GetActiveSubscribers();
-            SetSubscriberBreakpoint();
+//            GetActiveSubscribers();
+//            SetSubscriberBreakpoint();
             break;
             
          case Solver::NOMINAL:
@@ -889,9 +889,9 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
             if (!commandComplete)
             {
                branchExecuting = true;
-               ApplySubscriberBreakpoint();
-               PenDownSubscribers();
-               LightenSubscribers(1);
+//               ApplySubscriberBreakpoint();
+//               PenDownSubscribers();
+//               LightenSubscribers(1);
                ResetLoopData();
             }
             break;
@@ -902,9 +902,9 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
                ("Optimize::Execute - internal solver in PERTURBING state\n");
             #endif
             branchExecuting = true;
-            ApplySubscriberBreakpoint();
-            PenDownSubscribers();
-            LightenSubscribers(4);
+//            ApplySubscriberBreakpoint();
+//            PenDownSubscribers();
+//            LightenSubscribers(4);
             ResetLoopData();
             break;
             
@@ -941,9 +941,9 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
                #endif
                ResetLoopData();
                branchExecuting = true;
-               ApplySubscriberBreakpoint();
-               PenDownSubscribers();
-               LightenSubscribers(1);
+//               ApplySubscriberBreakpoint();
+//               PenDownSubscribers();
+//               LightenSubscribers(1);
                publisher->SetRunState(Gmat::SOLVEDPASS);
             }
             break;
