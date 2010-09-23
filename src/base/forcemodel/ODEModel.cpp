@@ -435,7 +435,7 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
            i != forceList.end(); ++i)
       {
          compType = (*i)->GetTypeName();
-         if ((compType == "GravityField"))
+         if ((compType == "GravityField") || (compType == "PointMassForce"))
          {
             if ((*i)->GetBodyName() == forceBody && (*i) != pPhysicalModel)
                throw ODEModelException(
