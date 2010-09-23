@@ -162,6 +162,7 @@ protected:
    std::string   mExpr;
    std::string   mDepObjectName;
    std::string   mCommentLine2;
+   std::string   mInitialValue;
    
    Gmat::ObjectType     mOwnerType;
    Gmat::ParameterType  mReturnType;
@@ -182,6 +183,7 @@ protected:
    enum
    {
       OBJECT = GmatBaseParamCount,
+      INITIAL_VALUE,
       EXPRESSION,
       DESCRIPTION,
       UNIT,

@@ -594,7 +594,7 @@ const std::string& Variable::GetGeneratingString(Gmat::WriteMode mode,
 {
    #ifdef DEBUG_GEN_STRING
    MessageInterface::ShowMessage
-      ("Variable::GetGeneratingString() this=<%s>'%s', mode=%d, prefix='%s', "
+      ("Variable::GetGeneratingString() this=<%p>'%s', mode=%d, prefix='%s', "
        "useName='%s'\n   mExpr='%s', mRealValue=%f, mIsNumber=%d, mValueSet=%d\n",
        this, GetName().c_str(), mode, prefix.c_str(), useName.c_str(),
        mExpr.c_str(), mRealValue, mIsNumber, mValueSet);
@@ -638,7 +638,8 @@ const std::string& Variable::GetGeneratingString(Gmat::WriteMode mode,
    
    if (generateStr)
    {
-      generatingString = "GMAT " + GetName() + " = " + mExpr + ";";
+      //generatingString = "GMAT " + GetName() + " = " + mExpr + ";";
+      generatingString = "GMAT " + GetName() + " = " + mInitialValue + ";";
       generatingString = generatingString + inlineComment + "\n";
    }
    

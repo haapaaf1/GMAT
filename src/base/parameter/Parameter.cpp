@@ -40,6 +40,7 @@ const std::string
 Parameter::PARAMETER_TEXT[ParameterParamCount - GmatBaseParamCount] =
 {
    "Object",
+   "InitialValue",
    "Expression",
    "Description",
    "Unit",
@@ -51,6 +52,7 @@ const Gmat::ParameterType
 Parameter::PARAMETER_TYPE[ParameterParamCount - GmatBaseParamCount] =
 {
    Gmat::OBJECT_TYPE,          //"Object",
+   Gmat::STRING_TYPE,          //"InitialValue"
    Gmat::STRING_TYPE,          //"Expression",
    Gmat::STRING_TYPE,          //"Description",
    Gmat::STRING_TYPE,          //"Unit",
@@ -131,6 +133,7 @@ Parameter::Parameter(const std::string &name, const std::string &typeStr,
    mUnit = unit;
    mDepObjectName = "";
    mCommentLine2 = "";
+   mInitialValue = "";
    mIsCommentFromCreate = true;
    mOwnerType = ownerType;
    mDepObj = depObj;
@@ -179,6 +182,7 @@ Parameter::Parameter(const Parameter &copy)
    mUnit = copy.mUnit;
    mDepObjectName = copy.mDepObjectName;
    mCommentLine2 = copy.mCommentLine2;
+   mInitialValue = copy.mInitialValue;
    mIsCommentFromCreate = copy.mIsCommentFromCreate;
    mOwnerType = copy.mOwnerType;
    mReturnType = copy.mReturnType;
@@ -221,6 +225,7 @@ Parameter& Parameter::operator= (const Parameter& right)
    mUnit = right.mUnit;
    mDepObjectName = right.mDepObjectName;
    mCommentLine2 = right.mCommentLine2;
+   mInitialValue = right.mInitialValue;
    mIsCommentFromCreate = right.mIsCommentFromCreate;
    mOwnerType = right.mOwnerType;
    mReturnType = right.mReturnType;
@@ -999,7 +1004,7 @@ std::string Parameter::GetParameterTypeString(const Integer id) const
 bool Parameter::IsParameterReadOnly(const Integer id) const
 {
    if ((id == DESCRIPTION) || (id == UNIT) || (id == DEP_OBJECT) ||
-       (id == COLOR) || (id == EXPRESSION))
+       (id == COLOR) || (id == EXPRESSION) || id == INITIAL_VALUE)
       return true;
    
    return GmatBase::IsParameterReadOnly(id);
@@ -1079,6 +1084,8 @@ std::string Parameter::GetStringParameter(const Integer id) const
          return GetRefObjectName(mOwnerType);
       else
          return "";
+   case INITIAL_VALUE:
+      return mInitialValue;
    case EXPRESSION:
       return mExpr;
    case DESCRIPTION:
@@ -1107,7 +1114,7 @@ std::string Parameter::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 bool Parameter::SetStringParameter(const Integer id, const std::string &value)
 {
-   #ifdef DEBUG_PARAMETER
+   #ifdef DEBUG_SET_STRING
    MessageInterface::ShowMessage("Parameter::SetStringParameter() id=%d, value=%s\n",
                                  id, value.c_str());
    #endif
@@ -1116,6 +1123,12 @@ bool Parameter::SetStringParameter(const Integer id, const std::string &value)
    {
    case OBJECT:
       return SetRefObjectName(mOwnerType, value);
+   case INITIAL_VALUE:
+      #ifdef DEBUG_SET_STRING
+      MessageInterface::ShowMessage("   InitialValue = '%s'\n", value.c_str());
+      #endif
+      mInitialValue = value;
+      return true;
    case EXPRESSION:
       mExpr = value;
       return true;

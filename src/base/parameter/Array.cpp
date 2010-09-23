@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Array
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -20,6 +20,7 @@
 #include "gmatdefs.hpp"
 #include "Array.hpp"
 #include "ParameterException.hpp"
+#include "StringUtil.hpp"          // for SeparateBy(), GetArrayIndexVar()
 #include "MessageInterface.hpp"
 #include <sstream>
 
@@ -40,6 +41,7 @@ Array::PARAMETER_TEXT[ArrayParamCount - ParameterParamCount] =
    "RowValue",
    "ColValue",
    "InitialValue",
+   "InitialValueType",
 }; 
 
 const Gmat::ParameterType
@@ -52,6 +54,7 @@ Array::PARAMETER_TYPE[ArrayParamCount - ParameterParamCount] =
    Gmat::RVECTOR_TYPE,
    Gmat::RVECTOR_TYPE,
    Gmat::STRING_TYPE,
+   Gmat::INTEGER_TYPE,
 };
 
 //---------------------------------
@@ -77,6 +80,7 @@ Array::Array(const std::string &name, const std::string &desc,
 {
    mNumRows = 0;
    mNumCols = 0;
+   mInitialValueType = 1;
    mSizeSet = false;
    
    // GmatBase data
@@ -104,6 +108,7 @@ Array::Array(const Array &copy)
    
    mNumRows = copy.mNumRows;
    mNumCols = copy.mNumCols;
+   mInitialValueType = copy.mInitialValueType;
    mSizeSet = copy.mSizeSet;
    mRmatValue = copy.mRmatValue;
    
@@ -132,6 +137,7 @@ Array& Array::operator= (const Array& right)
       Parameter::operator=(right);
       mNumRows = right.mNumRows;
       mNumCols = right.mNumCols;
+      mInitialValueType = right.mInitialValueType;
       mSizeSet = right.mSizeSet;
       mRmatValue = right.mRmatValue;
       
@@ -345,7 +351,8 @@ bool Array::IsParameterReadOnly(const Integer id) const
    //   return true;
    
    if ((id == NUM_ROWS) || (id == NUM_COLS) || (id == RMAT_VALUE) ||
-       (id == ROW_VALUE) || (id == COL_VALUE) || id == INITIAL_VALUE)
+       (id == ROW_VALUE) || (id == COL_VALUE) || (id == INITIAL_VALUE) ||
+       (id == INITIAL_VALUE_TYPE))
       return true;
    
    return Parameter::IsParameterReadOnly(id);
@@ -366,6 +373,8 @@ Integer Array::GetIntegerParameter(const Integer id) const
       return mNumRows;
    case NUM_COLS:
       return mNumCols;
+   case INITIAL_VALUE_TYPE:
+      return mInitialValueType;
    default:
       return Parameter::GetIntegerParameter(id);
    }
@@ -415,12 +424,15 @@ Integer Array::SetIntegerParameter(const Integer id, const Integer value)
          mNumCols = value;
       else
          throw ParameterException("Column alrealy has been set for " + GetName());
-
+      
       if (mNumRows > 0 && !mSizeSet)
       {
          mRmatValue.SetSize(mNumRows, mNumCols);
          mSizeSet = true;
       }
+      return value;
+   case INITIAL_VALUE_TYPE:
+      mInitialValueType = value;
       return value;
    default:
       return Parameter::SetIntegerParameter(id, value);
@@ -757,7 +769,9 @@ std::string Array::GetStringParameter(const Integer id) const
    case DESCRIPTION:
       return GetArrayDefString();
    case INITIAL_VALUE:
-      return GetInitialValueString();
+      // Use const_cast to remove the const,
+      // since GetInitialValueString() is no longer a const method
+      return (const_cast<Array*>(this))->GetInitialValueString();
    default:
       return Parameter::GetStringParameter(id);
    }
@@ -770,6 +784,47 @@ std::string Array::GetStringParameter(const Integer id) const
 std::string Array::GetStringParameter(const std::string &label) const
 {
    return GetStringParameter(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const Integer id, const std::string &value)
+//------------------------------------------------------------------------------
+bool Array::SetStringParameter(const Integer id, const std::string &value)
+{
+   switch (id)
+   {
+   case INITIAL_VALUE:
+      {
+         // Sets initial value of array elements (LOJ: 2010.09.21)
+         // value should be in format of Arr(I,J)=Value, so it can be parsed
+         StringArray parts = GmatStringUtil::SeparateBy(value, "=", true);
+         if (parts.size() == 2)
+         {
+            std::string name, rowStr, colStr;
+            // parse array name and index
+            GmatStringUtil::GetArrayIndexVar(parts[0], rowStr, colStr, name);
+            std::string mapstr = rowStr + "," + colStr;
+            #ifdef DEBUG_STRING_SET
+            MessageInterface::ShowMessage
+               ("Array::SetStringParameter() mapstr='%s'\n", mapstr.c_str());
+            #endif
+            initialValueMap[mapstr] = parts[1];
+         }
+         return true;
+      }
+   default:
+      return Parameter::SetStringParameter(id, value);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetStringParameter(const std::string &label, const std::string &value)
+//------------------------------------------------------------------------------
+bool Array::SetStringParameter(const std::string &label, const std::string &value)
+{
+   return SetStringParameter(GetParameterID(label), value);
 }
 
 
@@ -792,16 +847,15 @@ const std::string& Array::GetGeneratingString(Gmat::WriteMode mode,
                                               const std::string &prefix,
                                               const std::string &useName)
 {
+   #ifdef DEBUG_GEN_STRING
+   MessageInterface::ShowMessage("Array::GetGeneratingString() entered\n");
+   #endif
+   
    std::stringstream data;
-   //std::stringstream value;
    
    // Crank up data precision so we don't lose anything
-   //data.precision(18);
    data.precision(GetDataPrecision()); 
    std::string preface = "", nomme;
-   
-   //value.str("");
-   //value.precision(18);
    
    if ((mode == Gmat::SCRIPTING) || (mode == Gmat::OWNED_OBJECT) ||
        (mode == Gmat::SHOW_SCRIPT))
@@ -830,7 +884,8 @@ const std::string& Array::GetGeneratingString(Gmat::WriteMode mode,
    
    nomme += ".";
    
-   if (mode == Gmat::OWNED_OBJECT) {
+   if (mode == Gmat::OWNED_OBJECT)
+   {
       preface = prefix;
       nomme = "";
    }
@@ -838,10 +893,12 @@ const std::string& Array::GetGeneratingString(Gmat::WriteMode mode,
    preface += nomme;
    
    WriteParameters(mode, preface, data);
-   generatingString = data.str();   
+   generatingString = data.str();
    
-   //MessageInterface::ShowMessage
-   //   ("===> Array::GetGeneratingString() return\n%s\n", generatingString.c_str());
+   #ifdef DEBUG_GEN_STRING
+   MessageInterface::ShowMessage
+      ("Array::GetGeneratingString() return\n%s\n", generatingString.c_str());
+   #endif
    
    return generatingString;
 }
@@ -864,7 +921,7 @@ std::string Array::GetArrayDefString() const
 
 
 //------------------------------------------------------------------------------
-// std::string GetInitialValueString()
+// std::string GetInitialValueString(const std::string &prefix)
 //------------------------------------------------------------------------------
 /*
  * Returns array initial value string including inline comments.
@@ -872,13 +929,13 @@ std::string Array::GetArrayDefString() const
  * Such as GMAT Arr1[1,1] = 13.34; %% initialize
  */
 //------------------------------------------------------------------------------
-std::string Array::GetInitialValueString() const
+std::string Array::GetInitialValueString(const std::string &prefix)
 {
    std::stringstream data;
    
    Integer row = GetIntegerParameter("NumRows");
    Integer col = GetIntegerParameter("NumCols");
-
+   
    for (Integer i = 0; i < row; ++i)
    {
       //loj: Do not write if value is zero since default is zero(03/27/07)
@@ -886,9 +943,43 @@ std::string Array::GetInitialValueString() const
       {
          if (GetRealParameter(SINGLE_VALUE, i, j) != 0.0)
          {
-            data << "GMAT " << instanceName << "(" << i+1 << ", " << j+1 <<
-               ") = " << GetRealParameter(SINGLE_VALUE, i, j) << ";";
-            data << GetInlineComment() + "\n";
+            // Write initial value string (LOJ: 2010.09.21)
+            std::string mapstr = GmatStringUtil::ToString(i+1, 1) + "," +
+               GmatStringUtil::ToString(j+1, 1);
+            
+            #ifdef DEBUG_INITIAL_VALUE
+            MessageInterface::ShowMessage
+               ("Array::GetInitialValueString() mapstr='%s'\n", mapstr.c_str());
+            #endif
+            
+            std::string initialVal = "No Initial Value";
+            bool writeData = false;
+            
+            if (initialValueMap.find(mapstr) != initialValueMap.end())
+               initialVal = initialValueMap[mapstr];
+            
+            if (GmatStringUtil::IsNumber(initialVal))
+               if (mInitialValueType == 1)
+                  writeData = true;
+               else
+                  writeData = false;
+            else
+               if (mInitialValueType == 1)
+                  writeData = false;
+               else
+                  writeData = true;
+            
+            if (writeData)
+            {
+               data << prefix << "GMAT " << instanceName << "(" << i+1 << ", " << j+1 << ") = "
+                    << initialVal;
+               
+               // This is old code that writing out actual value
+               //data << "GMAT " << instanceName << "(" << i+1 << ", " << j+1 <<
+               //   ") = " << GetRealParameter(SINGLE_VALUE, i, j) << ";";
+               
+               data << GetInlineComment() + "\n";
+            }
          }
       }
    }
