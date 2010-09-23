@@ -12,7 +12,7 @@
 //      - Fixed FinalPass method to gracefully print error message instead of 
 //        access violation when celestial body is not set properly
 //    2010.03.23 Thomas Grubb/Steve Hughes
-//      - Fixed error message in SetValueToProperty for invalid field values
+//      - Fixed error message in SetPropertyToValue for invalid field values
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -1674,7 +1674,6 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
 
       type1 = "CallFunction";
       
-      #if 1
       // Figure out if which CallFunction to be created.
       std::string funcName = GmatStringUtil::ParseFunctionName(desc);
       if (funcName != "")
@@ -1685,7 +1684,6 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
          else
             type1 = "CallGmatFunction";
       }
-      #endif
       
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
@@ -1725,7 +1723,6 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
       {
          type1 = "CallFunction";
          
-         #if 1
          std::string funcName = GmatStringUtil::ParseFunctionName(desc);
          if (funcName != "")
          {
@@ -1735,7 +1732,6 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
             else
                type1 = "CallGmatFunction";
          }
-         #endif
          
          #ifdef DEBUG_CREATE_COMMAND
          MessageInterface::ShowMessage
@@ -1744,14 +1740,12 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
          #endif
          cmd = AppendCommand(type1, retFlag, inCmd);
          desc1 = "[] =" + type1 + desc;
-         //desc1 = "[] =" + type + desc;
          if (cmd != NULL)
             cmd->SetGeneratingString(desc1);
       }
    }
    else
    {
-      #if 1
       if (type1 == "CallFunction")
       {
          std::string funcName = GmatStringUtil::ParseFunctionName(desc);
@@ -1765,7 +1759,6 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
                type1 = "CallGmatFunction";
          }
       }      
-      #endif
       
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
@@ -3331,6 +3324,12 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
    bool isRhsObject = false;
    bool isLhsArray = false;
    bool isRhsArray = false;
+   bool isLhsVariable = false;
+   bool isRhsVariable = false;
+   bool isLhsString = false;
+   bool isRhsString = false;
+   bool isRhsNumber = false;
+   
    currentBlock = lhs + " = " + rhs;
    
    #ifdef DEBUG_MAKE_ASSIGNMENT
@@ -3376,6 +3375,11 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
             isLhsArray = true;
          else
             isLhsObject = true;
+         
+         if (lhsObj->IsOfType("Variable"))
+            isLhsVariable = true;
+         else if (lhsObj->IsOfType("String"))
+            isLhsString = true;
       }
       else
       {
@@ -3395,8 +3399,9 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
    
    #ifdef DEBUG_MAKE_ASSIGNMENT
    MessageInterface::ShowMessage
-      ("   isLhsObject=%d, isLhsArray=%d, lhsPropName=<%s>, lhsObj=<%p><%s>\n",
-       isLhsObject, isLhsArray, lhsPropName.c_str(), lhsObj,
+      ("   isLhsObject=%d, isLhsArray=%d, isLhsVariable=%d, isLhsString=%d, "
+       "lhsPropName=<%s>, lhsObj=<%p><%s>\n", isLhsObject, isLhsArray,
+       isLhsVariable, isLhsString, lhsPropName.c_str(), lhsObj,
        (lhsObj == NULL) ? "NULL" : lhsObj->GetName().c_str() );
    #endif
    
@@ -3474,6 +3479,11 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
       
       if (rhsObj)
       {
+         if (rhsObj->IsOfType("Variable"))
+            isRhsVariable = true;
+         else if (rhsObj->IsOfType("String"))
+            isRhsString = true;
+         
          if (IsArrayElement(rhs))
             isRhsArray = true;
          else
@@ -3489,47 +3499,107 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
                isRhsObject = true;
          }
       }
+      else
+      {
+         if (GmatStringUtil::IsNumber(rhs))
+            isRhsNumber = true;
+      }
    }
    
    #ifdef DEBUG_MAKE_ASSIGNMENT
    MessageInterface::ShowMessage
-      ("   isRhsObject=%d, isRhsArray=%d, rhsPropName=<%s>, rhsObj=<%p><%s>\n",
-       isRhsObject, isRhsArray, rhsPropName.c_str(), rhsObj,
+      ("   isRhsObject=%d, isRhsArray=%d, isRhsVariable=%d, isRhsString=%d, "
+       "isRhsNumber=%d, rhsPropName=<%s>, rhsObj=<%p><%s>\n",
+       isRhsObject, isRhsArray, isRhsVariable, isRhsString, isRhsNumber,
+       rhsPropName.c_str(), rhsObj,
        (rhsObj == NULL) ? "NULL" : rhsObj->GetName().c_str() );
    #endif
    
    if (isLhsObject)
    {
+      bool isAllowed = true;
+      
+      // We don't want to allow Variable setting to other than numbers (Bug 2043)
+      if (isLhsVariable && !isRhsNumber)
+         isAllowed = false;
+      
+      // We don't want to allow String setting to other than string literals (Bug 2043)
+      if (isAllowed && isLhsString && isRhsString)
+         isAllowed = false;
+      
+      if (!isAllowed)
+      {
+         InterpreterException ex
+            ("Setting \"" + lhs + "\" to \"" + rhs + "\" is not allowed in object setting mode");
+         HandleError(ex);
+         return false;
+      }
+      
       if (isRhsObject)
-         retval = SetObjectToObject(lhsObj, rhsObj);
+         retval = SetObjectToObject(lhsObj, rhsObj, rhs);
       else if (rhsPropName != "")
-         retval = SetPropertyToObject(lhsObj, rhsObj, rhsPropName);
+         retval = SetObjectToProperty(lhsObj, rhsObj, rhsPropName);
       else if (isRhsArray)
-         retval = SetArrayToObject(lhsObj, rhs);
+         retval = SetObjectToArray(lhsObj, rhs);
       else
-         retval = SetValueToObject(lhsObj, rhs);
+         retval = SetObjectToValue(lhsObj, rhs);
    }
    else if (lhsPropName != "")
    {
+      bool isAllowed = true;
+      
+      // We don't want to allow object property setting to Variable or Array (Bug 2043)
+      if (isRhsArray || isRhsVariable || isRhsString)
+         isAllowed = false;
+      
+      // We don't want to allow object property of Real type settting to other property(Bug 2043)
+      if (isAllowed && rhsPropName != "")
+      {
+         GmatBase *toObj = NULL;
+         Integer toId = -1;
+         Gmat::ParameterType toType;
+         
+         // Check LHS property type
+         FindPropertyID(lhsObj, lhsPropName, &toObj, toId, toType);
+         if (toType == Gmat::REAL_TYPE || toType == Gmat::INTEGER_TYPE)
+            isAllowed = false;
+      }
+      
+      if (!isAllowed)
+      {
+         InterpreterException ex
+            ("Setting \"" + lhs + "\" to \"" + rhs + "\" is not allowed before BeginMissionSequence");
+         HandleError(ex);
+         return false;
+      }
+      
       if (isRhsObject)
-         retval = SetObjectToProperty(lhsObj, lhsPropName, rhsObj);
+         retval = SetPropertyToObject(lhsObj, lhsPropName, rhsObj);
       else if (rhsPropName != "")
          retval = SetPropertyToProperty(lhsObj, lhsPropName, rhsObj, rhsPropName);
       else if (isRhsArray)
-         retval = SetArrayToProperty(lhsObj, lhsPropName, rhs);
+         retval = SetPropertyToArray(lhsObj, lhsPropName, rhs);
       else
-         retval = SetValueToProperty(lhsObj, lhsPropName, rhs);
+         retval = SetPropertyToValue(lhsObj, lhsPropName, rhs);
    }
    else if (isLhsArray)
    {
+      if (!isRhsNumber)
+      {
+         InterpreterException ex
+            ("Setting \"" + lhs + "\" to \"" + rhs + "\" is not allowed before BeginMissionSequence");
+         HandleError(ex);
+         return false;
+      }
+      
       if (isRhsObject)
-         retval = SetObjectToArray(lhsObj, lhs, rhsObj);
+         retval = SetArrayToObject(lhsObj, lhs, rhsObj);
       else if (rhsPropName != "")
-         retval = SetPropertyToArray(lhsObj, lhs, rhsObj, rhsPropName);
+         retval = SetArrayToProperty(lhsObj, lhs, rhsObj, rhsPropName);
       else if (isRhsArray)
          retval = SetArrayToArray(lhsObj, lhs, rhsObj, rhs);
       else
-         retval = SetValueToArray(lhsObj, lhs, rhs);
+         retval = SetArrayToValue(lhsObj, lhs, rhs);
    }
    else
    {
@@ -3551,14 +3621,15 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
 
 
 //-------------------------------------------------------------------------------
-// bool SetObjectToObject(GmatBase *toObj, GmatBase *fromObj)
+// bool SetObjectToObject(GmatBase *toObj, GmatBase *fromObj, const std::string &rhs)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetObjectToObject(GmatBase *toObj, GmatBase *fromObj)
+bool Interpreter::SetObjectToObject(GmatBase *toObj, GmatBase *fromObj,
+                                    const std::string &rhs)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetObjectToObject() to=%s, from=%s\n",
-       toObj->GetName().c_str(), fromObj->GetName().c_str());
+      ("Interpreter::SetObjectToObject() to=%s, from=%s, rhs='%s'\n",
+       toObj->GetName().c_str(), fromObj->GetName().c_str(), rhs.c_str());
    #endif
    
    debugMsg = "In SetObjectToObject()";
@@ -3575,6 +3646,19 @@ bool Interpreter::SetObjectToObject(GmatBase *toObj, GmatBase *fromObj)
       return false;
    }
    
+   // More handling for Variable
+   if (toObj->IsOfType("Variable"))
+   {
+      // If first char is - sign, negate the value
+      if (rhs[0] == '-')
+      {
+         Real rval = toObj->GetRealParameter("Value") * -1;
+         toObj->SetRealParameter("Value", rval);
+      }
+      // Set Variable's InitialValue so when it is written out, it will have original string value (LOJ: 2010.09.21)
+      toObj->SetStringParameter("InitialValue", rhs);
+   }
+   
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
       ("Interpreter::SetObjectToObject() returning true\n");
@@ -3585,19 +3669,19 @@ bool Interpreter::SetObjectToObject(GmatBase *toObj, GmatBase *fromObj)
 
 
 //-------------------------------------------------------------------------------
-// bool SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
+// bool SetObjectToProperty(GmatBase *toObj, GmatBase *fromOwner,
 //                          const std::string &fromProp)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
+bool Interpreter::SetObjectToProperty(GmatBase *toObj, GmatBase *fromOwner,
                                       const std::string &fromProp)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("SetPropertyToObject() toObj=%s, fromOwner=%s, fromProp=%s\n",
+      ("SetObjectToProperty() toObj=%s, fromOwner=%s, fromProp=%s\n",
        toObj->GetName().c_str(), fromOwner->GetName().c_str(), fromProp.c_str());
    #endif
    
-   debugMsg = "In SetPropertyToObject()";
+   debugMsg = "In SetObjectToProperty()";
    std::string rhs = fromOwner->GetName() + "." + fromProp;
    Integer fromId = -1;
    Gmat::ParameterType fromType = Gmat::UNKNOWN_PARAMETER_TYPE;
@@ -3605,8 +3689,11 @@ bool Interpreter::SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
    
    if (toObj->GetTypeName() != "Variable" && toObj->GetTypeName() != "String")
    {
+      //InterpreterException ex
+      //   ("Setting \"" + fromProp + "\" to an object \"" + toObj->GetName() +
+      //    "\" is not allowed");
       InterpreterException ex
-         ("Setting \"" + fromProp + "\" to an object \"" + toObj->GetName() +
+         ("Setting an object \"" + toObj->GetName() + "\" to " + fromProp +
           "\" is not allowed");
       HandleError(ex);
       return false;
@@ -3641,7 +3728,7 @@ bool Interpreter::SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
       
       #ifdef DEBUG_SET
       MessageInterface::ShowMessage
-         ("SetPropertyToObject() rhs:%s is a parameter\n", rhs.c_str());
+         ("SetObjectToProperty() rhs:%s is a parameter\n", rhs.c_str());
       #endif
    }
    
@@ -3681,6 +3768,9 @@ bool Interpreter::SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
    }
    else
    {
+      //InterpreterException ex
+      //   ("Setting an object \"" + toObj->GetName() + "\" to " + fromProp +
+      //    "\" is not allowed");
       InterpreterException ex
          ("Setting \"" + fromProp + "\" to an object \"" + toObj->GetName() +
           "\" is not allowed");
@@ -3693,22 +3783,25 @@ bool Interpreter::SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
 
 
 //-------------------------------------------------------------------------------
-// bool SetArrayToObject(GmatBase *toObj, const std::string &fromArray)
+// bool SetObjectToArray(GmatBase *toObj, const std::string &fromArray)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetArrayToObject(GmatBase *toObj, const std::string &fromArray)
+bool Interpreter::SetObjectToArray(GmatBase *toObj, const std::string &fromArray)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetArrayToObject() toObj=%s, fromArray=%s\n",
+      ("Interpreter::SetObjectToArray() toObj=%s, fromArray=%s\n",
        toObj->GetName().c_str(), fromArray.c_str());
    #endif
-
-   debugMsg = "In SetArrayToObject()";
+   
+   debugMsg = "In SetObjectToArray()";
    
    if (toObj->GetTypeName() != "Variable")
    {
+      //InterpreterException ex
+      //   ("Setting \"" + fromArray + "\" to an object \"" + toObj->GetName() +
+      //    "\" is not allowed");
       InterpreterException ex
-         ("Setting \"" + fromArray + "\" to an object \"" + toObj->GetName() +
+         ("Setting \"" + toObj->GetName() + "\" to an array \"" + fromArray +
           "\" is not allowed");
       HandleError(ex);
       return false;
@@ -3721,7 +3814,7 @@ bool Interpreter::SetArrayToObject(GmatBase *toObj, const std::string &fromArray
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("   SetArrayToObject() row=%d, col=%d\n", row, col);
+      ("   SetObjectToArray() row=%d, col=%d\n", row, col);
    #endif
    
    // Check for array index
@@ -3735,11 +3828,14 @@ bool Interpreter::SetArrayToObject(GmatBase *toObj, const std::string &fromArray
    Real rval = GetArrayValue(fromArray, row, col);
    
    #ifdef DEBUG_SET
-   MessageInterface::ShowMessage("   SetArrayToObject() rval=%f\n", rval);
+   MessageInterface::ShowMessage("   SetObjectToArray() rval=%f\n", rval);
    #endif
 
    try
    {
+      // Handle minus sign
+      if (fromArray[0] == '-')
+         rval = -rval;
       toObj->SetRealParameter("Value", rval);
    }
    catch (BaseException &e)
@@ -3748,29 +3844,35 @@ bool Interpreter::SetArrayToObject(GmatBase *toObj, const std::string &fromArray
       return false;
    }
    
+   // Set Variable's InitialValue so when it is written out, it will have original string value (LOJ: 2010.09.21)
+   toObj->SetStringParameter("InitialValue", fromArray);
+   
    return true;
 }
 
 
 //-------------------------------------------------------------------------------
-// bool SetValueToObject(GmatBase *toObj, const std::string &value)
+// bool SetObjectToValue(GmatBase *toObj, const std::string &value)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
+bool Interpreter::SetObjectToValue(GmatBase *toObj, const std::string &value)
 {
-   debugMsg = "In SetValueToObject()";
+   debugMsg = "In SetObjectToValue()";
    std::string toObjType = toObj->GetTypeName();
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetValueToObject() toObjType=<%s>, toObjName=%s, value=<%s>\n",
+      ("Interpreter::SetObjectToValue() toObjType=<%s>, toObjName=%s, value=<%s>\n",
        toObjType.c_str(), toObj->GetName().c_str(), value.c_str());
    #endif
    
    if (toObjType != "Variable" && toObjType != "String")
    {
+      //InterpreterException ex
+      //   ("Setting a String value \"" + value + "\" to an object \"" + toObj->GetName() +
+      //    "\" of type \"" + toObjType + "\" is not allowed");
       InterpreterException ex
-         ("Setting a String value \"" + value + "\" to an object \"" + toObj->GetName() +
-          "\" of type \"" + toObjType + "\" is not allowed");
+         ("Setting an object \"" + toObj->GetName() + "\" of type \"" + toObjType +
+          "\" to a value \"" + value + "\" is not allowed");
       HandleError(ex);
       return false;
    }
@@ -3780,7 +3882,7 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
       // check for unpaired single quotes
       if (GmatStringUtil::HasMissingQuote(value, "'"))
       {
-         InterpreterException ex("The String \"" + value + "\" has missing single quote");
+         InterpreterException ex("The string \"" + value + "\" has missing single quote");
          HandleError(ex);
          return false;
       }
@@ -3808,7 +3910,7 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
          if (GmatStringUtil::ToReal(value, rval, true))
          {      
             #ifdef DEBUG_SET
-            MessageInterface::ShowMessage("   SetValueToObject() rval=%f\n", rval);
+            MessageInterface::ShowMessage("   SetObjectToValue() rval=%f\n", rval);
             #endif
             
             toObj->SetRealParameter("Value", rval);
@@ -3818,11 +3920,14 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
             // For bug 2025 fix, commented out (LOJ: 2010.09.16)
             //if (!ParseVariableExpression((Parameter*)toObj, value))
             //{
-               InterpreterException ex
-                  ("Setting \"" + value + "\" to a Variable \"" + toObj->GetName() +
-                   "\" is not allowed");
-               HandleError(ex);
-               return false;
+            //InterpreterException ex
+            //("Setting \"" + value + "\" to a Variable \"" + toObj->GetName() +
+            //"\" is not allowed");
+            InterpreterException ex
+               ("Setting an object \"" + toObj->GetName() + "\" of type \"" + toObjType +
+                "\" to a value \"" + value + "\" is not allowed");
+            HandleError(ex);
+            return false;
             //}
          }
       }
@@ -3833,25 +3938,27 @@ bool Interpreter::SetValueToObject(GmatBase *toObj, const std::string &value)
       }
    }
    
+   // Set Variable's InitialValue so when it is written out, it will have original string value (LOJ: 2010.09.21)
+   toObj->SetStringParameter("InitialValue", value);
    return true;
 }
 
 
 //-------------------------------------------------------------------------------
-// bool SetObjectToProperty(GmatBase *toOwner, const std::string &toProp,
+// bool SetPropertyToObject(GmatBase *toOwner, const std::string &toProp,
 //                          GmatBase *fromObj)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toProp,
+bool Interpreter::SetPropertyToObject(GmatBase *toOwner, const std::string &toProp,
                                       GmatBase *fromObj)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetObjectToProperty() ownerType=%s, toOwner=%s, toProp=%s, "
+      ("Interpreter::SetPropertyToObject() ownerType=%s, toOwner=%s, toProp=%s, "
        "fromObj=%s\n", toOwner->GetTypeName().c_str(), toOwner->GetName().c_str(),
        toProp.c_str(), fromObj->GetName().c_str());
    #endif
    
-   debugMsg = "In SetObjectToProperty()";
+   debugMsg = "In SetPropertyToObject()";
    
    if (toOwner->GetType() == Gmat::ODE_MODEL)
    {
@@ -4003,7 +4110,7 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
             {
                #ifdef DEBUG_MEMORY
                MemoryTracker::Instance()->Remove
-                  (fromObj, "oldLocalAxes", "Interpreter::SetObjectToProperty()",
+                  (fromObj, "oldLocalAxes", "Interpreter::SetPropertyToObject()",
                    "deleting oldLocalAxes");
                #endif
                delete fromObj;
@@ -4020,7 +4127,7 @@ bool Interpreter::SetObjectToProperty(GmatBase *toOwner, const std::string &toPr
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetObjectToProperty() returning true\n");
+      ("Interpreter::SetPropertyToObject() returning true\n");
    #endif
    
    return true;
@@ -4112,7 +4219,7 @@ bool Interpreter::SetPropertyToProperty(GmatBase *toOwner, const std::string &to
    
    if (lhsParam != NULL && rhsParam != NULL)
    {
-      SetObjectToObject(lhsParam, rhsParam);
+      SetObjectToObject(lhsParam, rhsParam, fromProp);
    }
    else if (lhsParam == NULL && rhsParam != NULL)
    {
@@ -4187,19 +4294,19 @@ bool Interpreter::SetPropertyToProperty(GmatBase *toOwner, const std::string &to
 
 
 //-------------------------------------------------------------------------------
-// bool SetArrayToProperty(GmatBase *toOwner, const std::string &toProp,
+// bool SetPropertyToArray(GmatBase *toOwner, const std::string &toProp,
 //                         const std::string &fromArray)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetArrayToProperty(GmatBase *toOwner, const std::string &toProp,
+bool Interpreter::SetPropertyToArray(GmatBase *toOwner, const std::string &toProp,
                                      const std::string &fromArray)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetArrayToProperty() toOwner=%s, toProp=%s, fromArray=%s\n",
+      ("Interpreter::SetPropertyToArray() toOwner=%s, toProp=%s, fromArray=%s\n",
        toOwner->GetName().c_str(), toProp.c_str(), fromArray.c_str());
    #endif
    
-   debugMsg = "In SetArrayToProperty()";
+   debugMsg = "In SetPropertyToArray()";
    Integer toId = -1;
    Gmat::ParameterType toType = Gmat::UNKNOWN_PARAMETER_TYPE;
    
@@ -4241,7 +4348,7 @@ bool Interpreter::SetArrayToProperty(GmatBase *toOwner, const std::string &toPro
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetArrayToProperty() exiting. rval=%f, row=%d, col=%d, \n",
+      ("Interpreter::SetPropertyToArray() exiting. rval=%f, row=%d, col=%d, \n",
        rval, row, col);
    #endif
    
@@ -4250,20 +4357,20 @@ bool Interpreter::SetArrayToProperty(GmatBase *toOwner, const std::string &toPro
 
 
 //-------------------------------------------------------------------------------
-// bool SetValueToProperty(GmatBase *toOwner, const std::string &toProp,
+// bool SetPropertyToValue(GmatBase *toOwner, const std::string &toProp,
 //                         const std::string &value)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toProp,
+bool Interpreter::SetPropertyToValue(GmatBase *toOwner, const std::string &toProp,
                                      const std::string &value)
 {
-   debugMsg = "In SetValueToProperty()";
+   debugMsg = "In SetPropertyToValue()";
    bool retval = false;
    errorMsg1 = "";
    errorMsg2 = "";
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetValueToProperty() objType=%s, objName=%s, toProp=%s, "
+      ("Interpreter::SetPropertyToValue() objType=%s, objName=%s, toProp=%s, "
        "value=%s\n", toOwner->GetTypeName().c_str(), toOwner->GetName().c_str(),
        toProp.c_str(), value.c_str());
    #endif
@@ -4363,7 +4470,7 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetValueToProperty() returning retval=%d\n", retval);
+      ("Interpreter::SetPropertyToValue() returning retval=%d\n", retval);
    #endif
    
    return retval;
@@ -4371,26 +4478,29 @@ bool Interpreter::SetValueToProperty(GmatBase *toOwner, const std::string &toPro
 
 
 //-------------------------------------------------------------------------------
-// bool SetObjectToArray(GmatBase *toArrObj, const std::string &toArray,
+// bool SetArrayToObject(GmatBase *toArrObj, const std::string &toArray,
 //                       GmatBase *fromObj)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetObjectToArray(GmatBase *toArrObj, const std::string &toArray,
+bool Interpreter::SetArrayToObject(GmatBase *toArrObj, const std::string &toArray,
                                    GmatBase *fromObj)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetObjectToArray() toArrObj=%s, toArray=%s, fromObj=%s\n",
+      ("Interpreter::SetArrayToObject() toArrObj=%s, toArray=%s, fromObj=%s\n",
        toArrObj->GetName().c_str(), toArray.c_str(), fromObj->GetName().c_str());
    #endif
    
-   debugMsg = "In SetObjectToArray()";
+   debugMsg = "In SetArrayToObject()";
    
    if (fromObj->GetTypeName() != "Variable")
    {
       //InterpreterException ex
       //   ("Cannot set object other than Variable or Array element.");
+      //InterpreterException ex
+      //   ("Setting object \"" + fromObj->GetName() + "\" to an array \"" + toArray +
+      //    "\" is not permitted.");
       InterpreterException ex
-         ("Setting object \"" + fromObj->GetName() + "\" to an array \"" + toArray +
+         ("Setting an array \"" + toArray + "\" to an object \"" + fromObj->GetName() + 
           "\" is not permitted.");
       HandleError(ex);
       return false;
@@ -4405,9 +4515,9 @@ bool Interpreter::SetObjectToArray(GmatBase *toArrObj, const std::string &toArra
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("   SetObjectToArray()rval=%f, row=%d, col=%d\n", rval, row, col);
+      ("   SetArrayToObject()rval=%f, row=%d, col=%d\n", rval, row, col);
    #endif
-
+   
    try
    {
       toArrObj->SetRealParameter("SingleValue", rval, row, col);
@@ -4417,35 +4527,40 @@ bool Interpreter::SetObjectToArray(GmatBase *toArrObj, const std::string &toArra
       HandleError(e);
       return false;
    }
-
+   
+   // Set InitialValue so when it is written out, it will have original string value (LOJ: 2010.09.21)
+   toArrObj->SetStringParameter("InitialValue", toArray + "=" + fromObj->GetName());
    return true;
 }
 
 
 //-------------------------------------------------------------------------------
-// bool SetPropertyToArray(GmatBase *toArrObj, const std::string &toArray,
+// bool SetArrayToProperty(GmatBase *toArrObj, const std::string &toArray,
 //                         GmatBase *fromOwner, const std::string &fromProp)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetPropertyToArray(GmatBase *toArrObj, const std::string &toArray,
+bool Interpreter::SetArrayToProperty(GmatBase *toArrObj, const std::string &toArray,
                                      GmatBase *fromOwner, const std::string &fromProp)
 {
    #ifdef DEBGU_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetPropertyToArray() toArrObj=%s, toArray=%s, fromOwner=%s, "
+      ("Interpreter::SetArrayToProperty() toArrObj=%s, toArray=%s, fromOwner=%s, "
        "fromProp=%s\n", toArrObj->GetName().c_str(), toArray.c_str(),
        fromOwner->GetName().c_str(), fromProp.c_str());
    #endif
    
-   debugMsg = "In SetPropertyToArray()";
+   debugMsg = "In SetArrayToProperty()";
    
    // get object parameter id
    Integer fromId = fromOwner->GetParameterID(fromProp);
    
    if (fromOwner->GetParameterType(fromId) != Gmat::REAL_TYPE)
    {
+      //InterpreterException ex
+      //   ("Setting non-Real type of \"" + fromProp + "\" to an Array element \"" +
+      //    toArray + "\" is not allowed");
       InterpreterException ex
-         ("Setting non-Real type of \"" + fromProp + "\" to an Array element \"" +
-          toArray + "\" is not allowed");
+         ("Setting an array element \"" + toArray + "\" to \"" + fromProp +
+          "\" is not allowed");
       HandleError(ex);
       return false;
    }
@@ -4459,7 +4574,7 @@ bool Interpreter::SetPropertyToArray(GmatBase *toArrObj, const std::string &toAr
    
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("   SetPropertyToArray()rval=%f, row=%d, col=%d\n", rval, row, col);
+      ("   SetArrayToProperty()rval=%f, row=%d, col=%d\n", rval, row, col);
    #endif
 
    try
@@ -4471,7 +4586,9 @@ bool Interpreter::SetPropertyToArray(GmatBase *toArrObj, const std::string &toAr
       HandleError(e);
       return false;
    }
-
+   
+   // Set InitialValue so when it is written out, it will have original string value (LOJ: 2010.09.21)
+   toArrObj->SetStringParameter("InitialValue", toArray + "=" + fromProp);
    return true;
 }
 
@@ -4479,6 +4596,10 @@ bool Interpreter::SetPropertyToArray(GmatBase *toArrObj, const std::string &toAr
 //-------------------------------------------------------------------------------
 // bool SetArrayToArray(GmatBase *toArrObj, const std::string &toArray,
 //                      GmatBase *fromArrObj, const std::string &fromArray)
+//-------------------------------------------------------------------------------
+/**
+ * Sets Array to Array, such as toArray = fromArray
+ */
 //-------------------------------------------------------------------------------
 bool Interpreter::SetArrayToArray(GmatBase *toArrObj, const std::string &toArray,
                                   GmatBase *fromArrObj, const std::string &fromArray)
@@ -4509,43 +4630,45 @@ bool Interpreter::SetArrayToArray(GmatBase *toArrObj, const std::string &toArray
       ("   SetArrayToArray() rval=%f, rowFrom=%d, colFrom=%d, \n",
        rval, rowFrom, colFrom);
    MessageInterface::ShowMessage
-      ("   SetArrayToArray()rowTo=%d, colTo=%d\n", rowTo, colTo);
+      ("   SetArrayToArray() rowTo=%d, colTo=%d\n", rowTo, colTo);
    #endif
-
+   
    try
    {
       if (fromArray[0] == '-')
-         toArrObj->SetRealParameter("SingleValue", rval, rowTo, colTo);
-      else   
          toArrObj->SetRealParameter("SingleValue", -rval, rowTo, colTo);
+      else   
+         toArrObj->SetRealParameter("SingleValue", rval, rowTo, colTo);
    }
    catch (BaseException &e)
    {
       HandleError(e);
       return false;
    }
-
+   
+   // Set InitialValue so when it is written out, it will have original string value (LOJ: 2010.09.21)
+   toArrObj->SetStringParameter("InitialValue", toArray + "=" + fromArray);
    return true;
 }
 
 
 //-------------------------------------------------------------------------------
-// bool SetValueToArray(GmatBase *array, const std::string &toArray,
+// bool SetArrayToValue(GmatBase *array, const std::string &toArray,
 //                      const std::string &value)
 //-------------------------------------------------------------------------------
-bool Interpreter::SetValueToArray(GmatBase *array, const std::string &toArray,
+bool Interpreter::SetArrayToValue(GmatBase *array, const std::string &toArray,
                                   const std::string &value)
 {
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage
-      ("Interpreter::SetValueToArray() array=%s, toArray=%s, value=%s\n",
+      ("Interpreter::SetArrayToValue() array=%s, toArray=%s, value=%s\n",
        array->GetName().c_str(), toArray.c_str(), value.c_str());
    #endif
    
-   debugMsg = "In SetValueToArray()";
+   debugMsg = "In SetArrayToValue()";
    Integer row, col;
    Real rval;
-
+   
    Parameter *param = GetArrayIndex(toArray, row, col);
    if (param == NULL)
       return false;
@@ -4554,7 +4677,7 @@ bool Interpreter::SetValueToArray(GmatBase *array, const std::string &toArray,
    {
       #ifdef DEBUG_SET
       MessageInterface::ShowMessage
-         ("   SetValueToArray() rval=%f, row=%d, col=%d\n", rval, row, col);
+         ("   SetArrayToValue() rval=%f, row=%d, col=%d\n", rval, row, col);
       #endif
 
       try
@@ -4570,13 +4693,18 @@ bool Interpreter::SetValueToArray(GmatBase *array, const std::string &toArray,
    }
    else
    {
+      //InterpreterException ex
+      //   ("Setting \"" + value + "\" to an object \"" + toArray +
+      //    "\" is not allowed");
       InterpreterException ex
-         ("Setting \"" + value + "\" to an object \"" + toArray +
+         ("Setting an object \"" + toArray + "\" to \"" + value +
           "\" is not allowed");
       HandleError(ex);
       return false;
    }
    
+   // Set InitialValue so when it is written out, it will have original string value (LOJ: 2010.09.21)
+   array->SetStringParameter("InitialValue", toArray + "=" + value);
    return true;
 }
 

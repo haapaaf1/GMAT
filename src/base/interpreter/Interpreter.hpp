@@ -233,30 +233,30 @@ protected:
    GmatBase* MakeAssignment(const std::string &lhs, const std::string &rhs);
    
    // for setting whole object
-   bool SetObjectToObject(GmatBase *toObj, GmatBase *fromObj);
-   bool SetPropertyToObject(GmatBase *toObj, GmatBase *fromOwner,
+   bool SetObjectToObject(GmatBase *toObj, GmatBase *fromObj, const std::string &rhs);
+   bool SetObjectToProperty(GmatBase *toObj, GmatBase *fromOwner,
                             const std::string &fromProp);
-   bool SetArrayToObject(GmatBase *toObj, const std::string &fromArray);
-   bool SetValueToObject(GmatBase *toObj, const std::string &value);
+   bool SetObjectToArray(GmatBase *toObj, const std::string &fromArray);
+   bool SetObjectToValue(GmatBase *toObj, const std::string &value);
    
    // for setting property
-   bool SetObjectToProperty(GmatBase *toOwner, const std::string &toProp,
+   bool SetPropertyToObject(GmatBase *toOwner, const std::string &toProp,
                             GmatBase *fromObj);
    bool SetPropertyToProperty(GmatBase *toOwner, const std::string &toProp,
                               GmatBase *fromOwner, const std::string &fromProp);
-   bool SetArrayToProperty(GmatBase *toOwner, const std::string &toProp,
+   bool SetPropertyToArray(GmatBase *toOwner, const std::string &toProp,
                            const std::string &fromArray);
-   bool SetValueToProperty(GmatBase *toOwner, const std::string &toProp,
+   bool SetPropertyToValue(GmatBase *toOwner, const std::string &toProp,
                            const std::string &value);
    
    // for setting array
-   bool SetObjectToArray(GmatBase *toArrObj, const std::string &toArray,
+   bool SetArrayToObject(GmatBase *toArrObj, const std::string &toArray,
                          GmatBase *fromObj);
-   bool SetPropertyToArray(GmatBase *toArrObj, const std::string &toArray,
+   bool SetArrayToProperty(GmatBase *toArrObj, const std::string &toArray,
                            GmatBase *fromOwner, const std::string &fromProp);
    bool SetArrayToArray(GmatBase *toArrObj, const std::string &toArray,
                         GmatBase *fromArrObj, const std::string &fromArray);
-   bool SetValueToArray(GmatBase *toArrObj, const std::string &toArray,
+   bool SetArrayToValue(GmatBase *toArrObj, const std::string &toArray,
                         const std::string &value);
    
    // for setting/getting property value
