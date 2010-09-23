@@ -27,6 +27,7 @@
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_EXECUTION
 //#define DEBUG_STATE_BUFFERING
+//#define DEBUG_PUBLISH_DATA
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -585,7 +586,7 @@ bool PropagationEnabledCommand::PrepareToPropagate()
 
    #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::PrepareToPropagate() '%s' publishing initial %d data to "
+         ("PropagationEnabledCommand::PrepareToPropagate() '%s' publishing initial %d data to "
           "stream %d, 1st data = %f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
           dim+1, streamID, pubdata[0]);
    #endif
@@ -704,7 +705,7 @@ bool PropagationEnabledCommand::Step(Real dt)
    
    #ifdef DEBUG_PUBLISH_DATA
       MessageInterface::ShowMessage
-         ("Propagate::Step() '%s' publishing %d data to stream %d, 1st data = "
+         ("PropagationEnabledCommand::Step() '%s' publishing %d data to stream %d, 1st data = "
           "%f\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
           dim+1, streamID, pubdata[0]);
    #endif
