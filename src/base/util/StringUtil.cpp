@@ -254,7 +254,7 @@ std::string GmatStringUtil::Trim(const std::string &str, StripType stype,
          }
 
          // remove trailing semicolns
-         while (str2[str2.size()-1] == ';')
+         while (str2.size() > 0 && str2[str2.size()-1] == ';')
             str2.erase(str2.size()-1, 1);
       }
    }
