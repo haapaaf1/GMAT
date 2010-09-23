@@ -2008,16 +2008,17 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
          if (addDefaultBodies)
          {
             obj->SetStringParameter("BodyNames", "Earth");
-            obj->SetStringParameter("BodyNames", "Luna");
             
             // Set body and J2000Body pointer, so that GUI can create LibrationPoint
             // and use it in Coord.System conversion
             SpacePoint *earth = (SpacePoint*)FindObject("Earth");
-            SpacePoint *luna = (SpacePoint*)FindObject("Luna");
             obj->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
-            if (luna->GetJ2000Body() == NULL)
-               luna->SetJ2000Body(earth);
-            obj->SetRefObject(luna, Gmat::SPACE_POINT, "Luna");
+
+            // obj->SetStringParameter("BodyNames", "Luna");
+            // SpacePoint *luna = (SpacePoint*)FindObject("Luna");
+            // if (luna->GetJ2000Body() == NULL)
+            //    luna->SetJ2000Body(earth);
+            // obj->SetRefObject(luna, Gmat::SPACE_POINT, "Luna");
          }
       }
       
