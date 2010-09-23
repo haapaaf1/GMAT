@@ -328,7 +328,7 @@ void OrbitPanel::LoadData()
          ("   mCartState=\n   [%s]\n", mCartState.ToString(16).c_str());
       #endif
       
-      // if state type is Cartesian, compute true anomaly
+      // if state type is Cartesian, compute true anomaly - ****
 //      if (mFromStateTypeStr == "Cartesian")
 //      {
 //         Rvector6 st = stateConverter.FromCartesian(mCartState, "Keplerian", "TA");
@@ -872,6 +872,32 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
                return;
             }
          }
+         // make sure to compute the true anomaly if the state is converted form Cartesian
+         if (mFromStateTypeStr == "Cartesian")
+         {
+            try
+            {
+               Rvector6 st = stateConverter.FromCartesian(mCartState, "Keplerian", "TA");
+               mTrueAnomaly.Set(st[0], st[1], st[5], Anomaly::TA);
+               mAnomaly = mTrueAnomaly;
+               mAnomalyType = mAnomalyTypeNames[Anomaly::TA];
+               mFromAnomalyTypeStr = mAnomalyType;
+
+               #ifdef DEBUG_ORBIT_PANEL_COMBOBOX
+               MessageInterface::ShowMessage
+                  ("   Computed TrueAnomaly =\n   [%s]\n", mTrueAnomaly.ToString(16).c_str());
+               #endif
+            }
+            catch (BaseException& be)
+            {
+               #ifdef DEBUG_ORBIT_PANEL_COMBOBOX
+               MessageInterface::ShowMessage
+                  ("ERROR computing True Anomaly - message: %s\n", (be.GetFullMessage()).c_str());
+               #endif
+               //throw; // GMAT crashes if I put this in here ... ???
+            }
+         }
+
          BuildValidCoordinateSystemList(stateTypeStr);
       }
       
