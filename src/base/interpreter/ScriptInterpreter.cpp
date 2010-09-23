@@ -1036,7 +1036,7 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       ("ScriptInterpreter::WriteScript() entered, headerComment='%s'\n",
        headerComment.c_str());
    #endif
-   
+
    if (outStream == NULL)
       return false;
    
@@ -2049,8 +2049,22 @@ void ScriptInterpreter::WriteODEModels(StringArray &objs, Gmat::WriteMode mode)
    
    // Make a list of configured ODEs not in PropSetups
    StringArray odes;
-   set_difference(objs.begin(), objs.end(), propOdes.begin(),
-                  propOdes.end(), back_inserter(odes));
+
+   // set_difference requires SORTED sets, so this does not work:
+   // set_difference(objs.begin(), objs.end(), propOdes.begin(),
+   //               propOdes.end(), back_inserter(odes));
+
+   // Instead, we'll difference "by hand":
+   for (UnsignedInt i = 0; i < objs.size(); ++i)
+   {
+      bool matchFound = false;
+      for (UnsignedInt j = 0; j < propOdes.size(); ++j)
+         if (objs[i] == propOdes[j])
+            matchFound = true;
+      if (!matchFound)
+         odes.push_back(objs[i]);
+   }
+
    
    #ifdef DEBUG_SCRIPT_WRITING
    GmatStringUtil::WriteStringArray(objs, "   Input objects", "      ");
