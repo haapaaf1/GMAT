@@ -161,7 +161,7 @@ bool Optimize::Append(GmatCommand *cmd)
 
    if (cmd->GetTypeName() == "Minimize")
    {
-      MessageInterface::ShowMessage("'%s' == '%s'?\n", solverName.c_str(), cmd->GetStringParameter("OptimizerName").c_str());
+      // Code for nesting, currently disabled
       // if (solverName == cmd->GetStringParameter("OptimizerName"))
       {
          ++minimizeCount;
