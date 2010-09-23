@@ -78,6 +78,8 @@ private:
    std::string scriptFilename;
    /// Section delimiter comment
    StringArray sectionDelimiterString;
+   /// Script lines with Variable, Array, and String
+   StringArray userParameterLines;
    
    bool ParseDefinitionBlock(const StringArray &chunks, GmatCommand *inCmd,
                              GmatBase *obj);
