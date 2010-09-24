@@ -235,6 +235,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
    #ifdef __WXMSW__
       Collapse(mGroundStationItem);
       Collapse(mSpacecraftItem);
+      Collapse(mHardwareItem);
       Collapse(mFormationItem);
       Collapse(mPropagatorItem);
       Collapse(mBurnItem);
@@ -273,10 +274,6 @@ void ResourceTree::ClearResource(bool leaveScripts)
       }
       cf = GetNextChild(root, cookie);
    }
-   
-   //----- Hardware is child of spacecraft
-   AddItemFolder(mSpacecraftItem, mHardwareItem, "Hardware",
-                 GmatTree::HARDWARE_FOLDER);
    
    //----- SpecialPoint is child of Universe
    AddItemFolder(mUniverseItem, mSpecialPointsItem, "Special Points",
@@ -699,6 +696,15 @@ void ResourceTree::AddDefaultResources()
    SetItemImage(mGroundStationItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
    
+   //----- Hardware
+   mHardwareItem = 
+      AppendItem(resource, wxT("Hardware"), GmatTree::ICON_FOLDER, -1,
+                 new GmatTreeItemData(wxT("Hardware"),
+                                      GmatTree::HARDWARE_FOLDER));
+
+   SetItemImage(mHardwareItem, GmatTree::ICON_OPENFOLDER,
+                wxTreeItemIcon_Expanded);
+
    #ifdef __ENABLE_CONSTELLATIONS__
    //----- Constellations
    wxTreeItemId constellationItem =
@@ -1753,10 +1759,10 @@ void ResourceTree::OnRename(wxCommandEvent &event)
             Collapse(mSpacecraftItem);
             DeleteChildren(mSpacecraftItem);
             
-            //----- Hardware is child of spacecraft, so create a folder
-            AddItemFolder(mSpacecraftItem, mHardwareItem, "Hardware",
-                          GmatTree::HARDWARE_FOLDER);
-            AddDefaultHardware(mHardwareItem);
+            ////----- Hardware is child of spacecraft, so create a folder
+            //AddItemFolder(mSpacecraftItem, mHardwareItem, "Hardware",
+            //              GmatTree::HARDWARE_FOLDER);
+            //AddDefaultHardware(mHardwareItem);
             AddDefaultSpacecraft(mSpacecraftItem);
             
             //@todo Select the item just renamed, currently it selects Spacecraft folder
@@ -2266,7 +2272,7 @@ void ResourceTree::OnAddSpacecraft(wxCommandEvent &event)
 // void OnAddFuelTank(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Add a spacecraft to spacecraft folder
+ * Add a fuel tank to hardware folder
  *
  * @param <event> command event
  */
@@ -2293,7 +2299,7 @@ void ResourceTree::OnAddFuelTank(wxCommandEvent &event)
 // void OnAddThruster(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Add a spacecraft to spacecraft folder
+ * Add a thruster to hardware folder
  *
  * @param <event> command event
  */
