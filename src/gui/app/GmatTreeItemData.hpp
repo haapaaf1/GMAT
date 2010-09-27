@@ -162,6 +162,7 @@ namespace GmatTree
       CONSTELLATION_SATELLITE,
 
       PROPAGATOR = 41100,
+      SPK_PROPAGATOR,
 
       IMPULSIVE_BURN = 41200,
       FINITE_BURN,
