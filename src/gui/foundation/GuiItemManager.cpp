@@ -4827,17 +4827,38 @@ void GuiItemManager::UpdateSolverList()
 //------------------------------------------------------------------------------
 void GuiItemManager::UpdatePropagatorList()
 {
-   StringArray listProp = theGuiInterpreter->GetListOfObjects(Gmat::PROP_SETUP);
-   int numProp = listProp.size();
+   StringArray listProp;
+   int numProp;
+
+   thePropagatorList.Clear();
    
+   listProp = theGuiInterpreter->GetListOfObjects(Gmat::PROP_SETUP);
+   numProp = listProp.size();
    #if DBGLVL_GUI_ITEM_PROP
    MessageInterface::ShowMessage
       ("GuiItemManager::UpdatePropagatorList() numProp=%d\n", numProp);
    #endif
    
-   thePropagatorList.Clear();
+   // check to see if any propagators exist
+   for (int i=0; i<numProp; i++)
+   {
+      thePropagatorList.Add(listProp[i].c_str());
+
+      #if DBGLVL_GUI_ITEM_PROP > 1
+      MessageInterface::ShowMessage
+         ("   %s added to thePropagatorList\n", thePropagatorList[i].c_str());
+      #endif
+   }
+
+   #ifdef __USE_SPICE__
+   listProp = theGuiInterpreter->GetListOfObjects("SPK");
+   numProp = listProp.size();
+   #if DBGLVL_GUI_ITEM_PROP
+   MessageInterface::ShowMessage
+      ("GuiItemManager::UpdatePropagatorList() SPK numProp=%d\n", numProp);
+   #endif
    
-   // check to see if any spacecrafts exist
+    // check to see if any SPK propagators exist
    for (int i=0; i<numProp; i++)
    {
       thePropagatorList.Add(listProp[i].c_str());
@@ -4847,7 +4868,8 @@ void GuiItemManager::UpdatePropagatorList()
          ("   %s added to thePropagatorList\n", thePropagatorList[i].c_str());
       #endif
    }
-   
+   #endif
+
    theNumPropagator = thePropagatorList.GetCount();
    
 }
