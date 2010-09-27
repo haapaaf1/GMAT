@@ -56,7 +56,7 @@ Solver::PARAMETER_TYPE[SolverParamCount - GmatBaseParamCount] =
 {
    Gmat::BOOLEAN_TYPE,
    Gmat::ENUMERATION_TYPE,
-   Gmat::STRING_TYPE,
+   Gmat::FILENAME_TYPE,
    Gmat::STRINGARRAY_TYPE,
    Gmat::INTEGER_TYPE,
    Gmat::INTEGER_TYPE,
