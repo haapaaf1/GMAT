@@ -16,6 +16,7 @@
 #include "GmatTreeItemData.hpp"
 #include "GmatGlobal.hpp"        // for GetRunMode()
 #include "MessageInterface.hpp"
+#include "GmatAppData.hpp"
 #include <wx/config.h>
 
 #define __ADD_CLOSE_TO_WINDOW_MENU__
@@ -163,6 +164,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    //-----------------------------------------------------------------
    
    wxMenu *helpMenu = new wxMenu;
+   helpMenu->Append(MENU_HELP_WELCOME, wxT("Welcome Page"), wxT(""));
    helpMenu->Append(MENU_HELP_ONLINE, wxT("Online Help"), wxT(""));
    helpMenu->Append(MENU_HELP_ABOUT, wxT("About GMAT"), wxT(""));
    this->Append(helpMenu, wxT("Help"));
@@ -228,7 +230,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    long dummy;
 
    // get the config object
-   wxConfigBase *pConfig = wxConfigBase::Get();
+   wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
    pConfig->SetPath(wxT("/RecentFiles"));
 
    // read filenames from config object

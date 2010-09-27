@@ -114,6 +114,7 @@ namespace GmatMenu
       
       MENU_HELP_TOPICS = 17000,
       MENU_HELP_ONLINE,
+      MENU_HELP_WELCOME,
       
       // it is important for the id corresponding to the "About" command to have
       // this standard value as otherwise it won't be handled properly under Mac
