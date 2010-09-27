@@ -80,6 +80,7 @@ public:
       PLANETARY_COEFF_FILE,
       NUTATION_COEFF_FILE,
       LEAP_SECS_FILE,
+      PERSONALIZATION_FILE,
       FileTypeCount,
    };
    

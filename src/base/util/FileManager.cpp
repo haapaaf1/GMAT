@@ -91,6 +91,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "PLANETARY_COEFF_FILE",
    "NUTATION_COEFF_FILE",
    "LEAP_SECS_FILE",
+   "PERSONALIZATION_FILE",
 };
 
 FileManager* FileManager::theInstance = NULL;
@@ -1757,6 +1758,9 @@ void FileManager::RefreshFiles()
 
    // gui config file path
    AddFileType("GUI_CONFIG_PATH", "./files/gui_config/");
+
+   // personalization file
+   AddFileType("PERSONALIZATION_FILE", "./files/gui_config/MyGmat.ini");
 
 
 #endif
