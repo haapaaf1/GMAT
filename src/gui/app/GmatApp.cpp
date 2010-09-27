@@ -309,10 +309,6 @@ int GmatApp::OnExit()
    wxString wxNowStr = now.FormatISODate() + " " + now.FormatISOTime() + " ";
    std::string nowStr = wxNowStr.c_str();
 
-   // get the config object
-   wxConfigBase *pConfig = wxConfigBase::Get();
-   pConfig->Flush(true);
-   
    MessageInterface::LogMessage(nowStr + "GMAT GUI exiting.\n");
    
    return 0;
