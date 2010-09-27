@@ -101,6 +101,7 @@
 #include "TextEphemFileDialog.hpp"
 #include "AboutDialog.hpp"
 #include "SetPathDialog.hpp"
+//#include "WelcomePanel.hpp"
 
 #include "FileManager.hpp"
 #include "FileUtil.hpp"               // for Compare()
@@ -179,6 +180,7 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU (TOOL_SCREENSHOT, GmatMainFrame::OnScreenshot)
 
    EVT_MENU (MENU_HELP_ABOUT, GmatMainFrame::OnHelpAbout)
+   EVT_MENU (MENU_HELP_WELCOME, GmatMainFrame::OnHelpWelcome)
    EVT_MENU (MENU_HELP_ONLINE, GmatMainFrame::OnHelpOnline)
 
    EVT_MENU (MENU_FILE_NEW_SCRIPT, GmatMainFrame::OnNewScript)
@@ -493,6 +495,7 @@ GmatMainFrame::~GmatMainFrame()
    
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
+   gmatAppData->GetPersonalizationConfig()->Flush(true);
    if (gmatAppData->GetMessageWindow() != NULL)
       gmatAppData->GetMessageWindow()->Close();
 
@@ -506,7 +509,6 @@ GmatMainFrame::~GmatMainFrame()
    gmatAppData->SetResourceTree(NULL);
    gmatAppData->SetMissionTree(NULL);
    gmatAppData->SetOutputTree(NULL);
-
    #ifdef DEBUG_MAINFRAME_CLOSE
    MessageInterface::ShowMessage("GmatMainFrame::~GmatMainFrame() exiting.\n");
    #endif
@@ -1862,9 +1864,9 @@ void GmatMainFrame::OpenRecentScript(size_t index, wxCommandEvent &event)
    std::string s;
    long dummy;
 
-   // get the files from the config
+   // get the files from the personalization config
    // get the config object
-   wxConfigBase *pConfig = wxConfigBase::Get();
+   wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
    pConfig->SetPath(wxT("/RecentFiles"));
 
    // read filenames from config object
@@ -1877,9 +1879,22 @@ void GmatMainFrame::OpenRecentScript(size_t index, wxCommandEvent &event)
       }
    }
 
+   OpenRecentScript(files[index], event);
+}
 
+
+//------------------------------------------------------------------------------
+// void OpenRecentScript(size_t index)
+//------------------------------------------------------------------------------
+/**
+ * open recent script file from the menu bar.
+ *
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OpenRecentScript(wxString filename, wxCommandEvent &event)
+{
    GmatAppData *gmatAppData = GmatAppData::Instance();
-   gmatAppData->GetResourceTree()->AddScript(files[index]);
+   gmatAppData->GetResourceTree()->AddScript(filename);
 
    if (gmatAppData->GetResourceTree()->WasScriptAdded())
    {
@@ -2260,6 +2275,21 @@ void GmatMainFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event))
 
 
 //------------------------------------------------------------------------------
+// void OnHelpWelcome(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles display Welcome page command from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnHelpWelcome(wxCommandEvent& WXUNUSED(event))
+{
+//   WelcomePanel pnl(this, "Welcome to GMAT");
+}
+
+
+//------------------------------------------------------------------------------
 // void OnHelpOnline(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 /**
@@ -2349,6 +2379,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       break;
    case GmatTree::PROPAGATOR:
       sizer->Add(new PropagationConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+      break;
+   case GmatTree::SPK_PROPAGATOR:
+      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::DIFF_CORR:
       sizer->Add(new DCSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);

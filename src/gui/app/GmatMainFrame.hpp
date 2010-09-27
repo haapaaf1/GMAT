@@ -108,12 +108,14 @@ public:
    void OnPause(wxCommandEvent &event);
    void OnStop(wxCommandEvent &event);
    void OnHelpAbout(wxCommandEvent &event);
+   void OnHelpWelcome(wxCommandEvent &event);
    void OnHelpOnline(wxCommandEvent &event);
    void OnHyperLinkClick(wxHyperlinkEvent &event);
    
    void OnNewScript(wxCommandEvent &event);
    void OnOpenScript(wxCommandEvent &event);
    void OpenRecentScript(size_t index, wxCommandEvent &event);
+   void OpenRecentScript(wxString filename, wxCommandEvent &event);
    void OnOpenRecentScript1(wxCommandEvent &event);  // I know this is retarded but the event returns the MDI frame
    void OnOpenRecentScript2(wxCommandEvent &event);  // as its event object.  There doesn't seem to be a way
    void OnOpenRecentScript3(wxCommandEvent &event);  // to figure out which menu item called an event handler
