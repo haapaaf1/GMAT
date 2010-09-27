@@ -69,6 +69,15 @@ END_EVENT_TABLE()
 GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButton)
    : wxPanel(parent)
 {
+   theOkButton = NULL;
+   theApplyButton = NULL;
+   theCancelButton = NULL;
+   #ifdef __SHOW_HELP_BUTTON__
+   theHelpButton = NULL;
+   #endif
+   theScriptButton = NULL;
+   theSummaryButton = NULL;
+
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
    UserInputValidator::SetGuiManager(theGuiManager);
