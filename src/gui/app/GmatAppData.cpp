@@ -21,6 +21,8 @@
 //------------------------------------------------------------------------------
 #include "GmatAppData.hpp"
 #include "GuiInterpreter.hpp"
+#include "FileManager.hpp"
+#include "MessageInterface.hpp"
 #include <wx/confbase.h>
 #include <wx/fileconf.h>
 
@@ -97,6 +99,21 @@ void GmatAppData::SetResourceTree(ResourceTree *resourceTree)
 ResourceTree* GmatAppData::GetResourceTree()
 {
    return theResourceTree;
+}
+
+
+//------------------------------------------------------------------------------
+// wxConfigBase* GetPersonalizationConfig()
+//------------------------------------------------------------------------------
+wxConfigBase* GmatAppData::GetPersonalizationConfig()
+{
+   if (thePersonalizationConfig == NULL)
+   {
+//      MessageInterface::PopupMessage(Gmat::INFO_, "Setting up Personalization file: %s\n",FileManager::Instance()->GetFilename(FileManager::PERSONALIZATION_FILE).c_str());
+      thePersonalizationConfig = new wxFileConfig(wxEmptyString, wxEmptyString, FileManager::Instance()->GetFullPathname(FileManager::PERSONALIZATION_FILE),
+              wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
+   }
+   return thePersonalizationConfig;
 }
 
 
@@ -245,6 +262,8 @@ GmatAppData::GmatAppData()
    theCompareWindow = NULL;
    theMessageTextCtrl = NULL;
    theTempScriptName = "$gmattempscript$.script";
+   thePersonalizationConfig = NULL;
+
    
    #ifdef __USE_EDITOR__
    thePageSetupDialogData = NULL;

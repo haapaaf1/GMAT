@@ -27,6 +27,9 @@
 #include "GmatMainFrame.hpp"
 #include <wx/print.h>         // for wxPrintData
 #include <wx/printdlg.h>      // for wxPageSetupDialogData
+#include <wx/confbase.h>
+#include <wx/config.h>
+
 
 #ifdef __USE_STC_EDITOR__
 #include <wx/cmndata.h>
@@ -73,6 +76,8 @@ public:
 
    void SetTempScriptName(const wxString &tempName);
    wxString GetTempScriptName();
+
+   wxConfigBase* GetPersonalizationConfig();
 #endif
     
 private:
@@ -95,6 +100,7 @@ private:
    wxTextCtrl    *theMessageTextCtrl;
    wxFont        theFont;
    wxString      theTempScriptName;
+   wxConfigBase  *thePersonalizationConfig;
    
    #ifdef __USE_STC_EDITOR__
    wxPageSetupDialogData *thePageSetupDialogData;
