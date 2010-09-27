@@ -322,10 +322,14 @@ void GmatBaseSetupPanel::CreateControls(wxFlexGridSizer *mainSizer, GmatBase *th
    for (Integer i = 0; i < propertyCount; ++i)
    {
 	  #ifdef DEBUG_BASEPANEL_CREATE
-	  MessageInterface::ShowMessage
-		 ("   ParameterText(%d)='%s'\n", i, theObject->GetParameterText(i).c_str());
+      if (theObject->IsParameterReadOnly(i))
+         MessageInterface::ShowMessage
+           ("   ParameterText(%d)='%s' (ReadOnly=True)\n", i, theObject->GetParameterText(i).c_str());
+      else
+        MessageInterface::ShowMessage
+          ("   ParameterText(%d)='%s' ReadOnly=False\n", i, theObject->GetParameterText(i).c_str());
 	  #endif
-	  if (theObject->IsParameterReadOnly(i) == false)
+	  if (!theObject->IsParameterReadOnly(i))
 		 propertyNames.push_back(theObject->GetParameterText(i));
    }
 
