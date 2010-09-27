@@ -149,6 +149,7 @@ protected:
    void OnAddImpulsiveBurn(wxCommandEvent &event);
    void OnAddFiniteBurn(wxCommandEvent &event);
    void OnAddPropagator(wxCommandEvent &event);
+   void OnAddSPKPropagator(wxCommandEvent &event);
    void OnAddConstellation(wxCommandEvent &event);
    void OnAddFormation(wxCommandEvent &event);
    void OnAddGroundStation(wxCommandEvent &event);
@@ -231,6 +232,7 @@ protected:
       POPUP_ADD_FUELTANK,
 
       POPUP_ADD_PROPAGATOR,
+      POPUP_ADD_SPK_PROPAGATOR,
       POPUP_ADD_BODY,
 
       POPUP_ADD_BURN,
