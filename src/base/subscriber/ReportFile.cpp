@@ -57,7 +57,7 @@ ReportFile::PARAMETER_TEXT[ReportFileParamCount - SubscriberParamCount] =
 const Gmat::ParameterType
 ReportFile::PARAMETER_TYPE[ReportFileParamCount - SubscriberParamCount] =
 {
-   Gmat::STRING_TYPE,        //"Filename",
+   Gmat::FILENAME_TYPE,      //"Filename",
    Gmat::INTEGER_TYPE,       //"Precision",
    Gmat::OBJECTARRAY_TYPE,   //"Add",
    Gmat::ON_OFF_TYPE,        //"WriteHeaders",
