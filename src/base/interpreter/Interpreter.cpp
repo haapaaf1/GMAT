@@ -3519,18 +3519,18 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
    {
       bool isAllowed = true;
       
-      // We don't want to allow Variable setting to other than numbers (Bug 2043)
+      // Variable is allowed to set to only numbers (Bug 2043)
       if (isLhsVariable && !isRhsNumber)
          isAllowed = false;
       
-      // We don't want to allow String setting to other than string literals (Bug 2043)
+      // String is allowed to set to only literals (Bug 2043)
       if (isAllowed && isLhsString && isRhsString)
          isAllowed = false;
       
       if (!isAllowed)
       {
          InterpreterException ex
-            ("Setting \"" + lhs + "\" to \"" + rhs + "\" is not allowed in object setting mode");
+            ("Setting \"" + lhs + "\" to \"" + rhs + "\" is not allowed in before BeginMissionSequence");
          HandleError(ex);
          return false;
       }
@@ -3544,25 +3544,29 @@ GmatBase* Interpreter::MakeAssignment(const std::string &lhs, const std::string 
       else
          retval = SetObjectToValue(lhsObj, rhs);
    }
-   else if (lhsPropName != "")
+   else if (lhsPropName != "") // LHS is object property
    {
       bool isAllowed = true;
+      GmatBase *toObj = NULL;
+      Integer toId = -1;
+      Gmat::ParameterType toType;
       
-      // We don't want to allow object property setting to Variable or Array (Bug 2043)
-      if (isRhsArray || isRhsVariable || isRhsString)
-         isAllowed = false;
+      // Check LHS property type
+      FindPropertyID(lhsObj, lhsPropName, &toObj, toId, toType);
       
-      // We don't want to allow object property of Real type settting to other property(Bug 2043)
-      if (isAllowed && rhsPropName != "")
+      // Only object type of property is allowed to set to another object
+      if (toType != Gmat::OBJECT_TYPE && toType != Gmat::OBJECTARRAY_TYPE)
       {
-         GmatBase *toObj = NULL;
-         Integer toId = -1;
-         Gmat::ParameterType toType;
-         
-         // Check LHS property type
-         FindPropertyID(lhsObj, lhsPropName, &toObj, toId, toType);
-         if (toType == Gmat::REAL_TYPE || toType == Gmat::INTEGER_TYPE)
+         // Setting object property to Variable, Array and String are not allowd(Bug 2043)
+         if (isRhsArray || isRhsVariable || isRhsString)
             isAllowed = false;
+         
+         // Setting object property to other property is not allowed(Bug 2043)
+         // excluding FILENAME_TYPE which can have dots.
+         if (isAllowed && rhsPropName != "" && toType != Gmat::FILENAME_TYPE)
+         {
+            isAllowed = false;
+         }
       }
       
       if (!isAllowed)
