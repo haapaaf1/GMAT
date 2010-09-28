@@ -125,7 +125,8 @@ void SpacecraftPanel::Create()
    actuatorNotebook->SetForegroundColour(GetBackgroundColour());
    
    //wx*Panel
-   sensors = new wxPanel( spacecraftNotebook, -1 );
+   sensors = NULL;
+//   sensors = new wxPanel( spacecraftNotebook, -1 );
    
    theOrbitPanel = new OrbitPanel
       (this, spacecraftNotebook, currentSpacecraft, theSolarSystem);
@@ -173,7 +174,7 @@ void SpacecraftPanel::Create()
    spacecraftNotebook->AddPage( theOrbitPanel, wxT("Orbit") );
    spacecraftNotebook->AddPage( theAttitudePanel, wxT("Attitude") );
    spacecraftNotebook->AddPage( theBallisticMassPanel, wxT("Ballistic/Mass") );
-   spacecraftNotebook->AddPage( sensors, wxT("Sensors") );
+//   spacecraftNotebook->AddPage( sensors, wxT("Sensors") );
    spacecraftNotebook->AddPage( theTankPanel, wxT("Tanks") );
    #ifdef __USE_SPICE__
       spacecraftNotebook->AddPage( theSpicePanel, wxT("SPICE") );
