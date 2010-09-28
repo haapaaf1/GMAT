@@ -704,12 +704,12 @@ void ParameterCreateDialog::OnSelectButtonClick(wxCommandEvent& event)
       
       if (paramDlg.HasSelectionChanged())
       {
-         mSelectVarStrings = paramDlg.GetParamNameArray();
-         if (mSelectVarStrings.Count() > 0)
+         wxArrayString selectVarStrings = paramDlg.GetParamNameArray();
+         if (selectVarStrings.Count() > 0)
          {
             mExprTextCtrl->Clear();
-            for (unsigned int i=0; i<mSelectVarStrings.Count(); i++)
-               mExprTextCtrl->AppendText(mSelectVarStrings[i]);
+            for (unsigned int i=0; i<selectVarStrings.Count(); i++)
+               mExprTextCtrl->AppendText(selectVarStrings[i]);
          }
          else // no selections
          {
