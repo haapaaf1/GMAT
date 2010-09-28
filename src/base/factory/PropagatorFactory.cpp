@@ -74,29 +74,29 @@ Propagator* PropagatorFactory::CreatePropagator(const std::string &ofType,
 {
    if (ofType == "RungeKutta89")
       return new RungeKutta89(withName);
-   if (ofType == "PrinceDormand45")
-      return new PrinceDormand45(withName);
    if (ofType == "PrinceDormand78")
       return new PrinceDormand78(withName);
+   if (ofType == "PrinceDormand45")
+      return new PrinceDormand45(withName);
+//   if (ofType == "DormandElMikkawyPrince68")
+//      return new DormandElMikkawyPrince68(withName);
+   if (ofType == "RungeKutta68")
+      return new DormandElMikkawyPrince68(withName);
+//   if (ofType == "RungeKuttaFehlberg56")
+//      return new RungeKuttaFehlberg56(withName);
+   if (ofType == "RungeKutta56")
+      return new RungeKuttaFehlberg56(withName);
    if (ofType == "BulirschStoer")
       return new BulirschStoer(withName);
    if (ofType == "AdamsBashforthMoulton")
       return new AdamsBashforthMoulton(withName);
-   if (ofType == "DormandElMikkawyPrince68")
-      return new DormandElMikkawyPrince68(withName);
-   if (ofType == "RungeKutta68")
-      return new DormandElMikkawyPrince68(withName);
-   if (ofType == "RungeKuttaFehlberg56")
-      return new RungeKuttaFehlberg56(withName);
-   if (ofType == "RungeKutta56")
-      return new RungeKuttaFehlberg56(withName);
 //   if (ofType == "Cowell")
 //      return new Cowell(withName);
    // EphemerisPropagators
-#ifdef __USE_SPICE__
-   if (ofType == "SPK")
-      return new SPKPropagator(withName);
-#endif
+   #ifdef __USE_SPICE__
+      if (ofType == "SPK")
+         return new SPKPropagator(withName);
+   #endif
 
    /// @todo add others here as needed
    else
@@ -121,19 +121,19 @@ PropagatorFactory::PropagatorFactory()
    if (creatables.empty())
    {
       creatables.push_back("RungeKutta89");
-      creatables.push_back("PrinceDormand45");
       creatables.push_back("PrinceDormand78");
+      creatables.push_back("PrinceDormand45");
+//      creatables.push_back("DormandElMikkawyPrince68");
+            creatables.push_back("RungeKutta68");
+//      creatables.push_back("RungeKuttaFehlberg56");
+            creatables.push_back("RungeKutta56");
       creatables.push_back("BulirschStoer");
       creatables.push_back("AdamsBashforthMoulton");
-      creatables.push_back("DormandElMikkawyPrince68");
-      creatables.push_back("RungeKutta68");
-      creatables.push_back("RungeKuttaFehlberg56");
-      creatables.push_back("RungeKutta56");
 //      creatables.push_back("Cowell");
       
-#ifdef __USE_SPICE__
-      creatables.push_back("SPK");
-#endif
+      #ifdef __USE_SPICE__
+         creatables.push_back("SPK");
+      #endif
    }
 }
 

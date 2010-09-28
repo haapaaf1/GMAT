@@ -117,8 +117,9 @@ PredictorCorrector::PredictorCorrector(Integer sc, Integer order,
     starter                         (NULL),
     invOrder                        (1.0/order)
 {
-    parameterCount = PredictorCorrectorParamCount;
-    tolerance = 1.0e-10;
+   objectTypeNames.push_back("PredictorCorrector");
+   parameterCount = PredictorCorrectorParamCount;
+   tolerance = 1.0e-10;
 }
 
 
