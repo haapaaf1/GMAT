@@ -815,7 +815,7 @@ void ParameterCreateDialog::CreateVariable()
    {
       MessageInterface::PopupMessage
          (Gmat::ERROR_, "Invalid variable name: \"%s.\" Variable name must "
-          "start with an alphabet letter", varName.c_str());
+          "follow GMAT variable name rules (start with an alphabetic character, only alphanumerics and underscores, no reserved words)", varName.c_str());
       canClose = false;
       return;
    }
@@ -954,6 +954,26 @@ void ParameterCreateDialog::CreateString()
       // if new user string to create
       if (theGuiInterpreter->GetParameter(strName) == NULL)
       {
+
+         // check if it has blank variable name
+         if (strName == "")
+         {
+            MessageInterface::PopupMessage
+               (Gmat::ERROR_, "String name cannot be blank");
+            canClose = false;
+            return;
+         }
+
+         // check if it has valid variable name
+         if (!GmatStringUtil::IsValidName(strName))
+         {
+            MessageInterface::PopupMessage
+               (Gmat::ERROR_, "Invalid string name: \"%s.\" String name must "
+                "follow GMAT variable name rules (start with an alphabetic character, only alphanumerics and underscores, no reserved words)", strName.c_str());
+            canClose = false;
+            return;
+         }
+
          Parameter *param;
       
          param = theGuiInterpreter->CreateParameter("String", strName);
@@ -1035,6 +1055,25 @@ void ParameterCreateDialog::CreateArray()
       // if new user array to create
       if (theGuiInterpreter->GetParameter(arrName) == NULL)
       {
+         // check if it has blank variable name or expression
+         if (arrName == "")
+         {
+            MessageInterface::PopupMessage
+               (Gmat::ERROR_, "Array name cannot be blank");
+            canClose = false;
+            return;
+         }
+
+         // check if it has valid variable name
+         if (!GmatStringUtil::IsValidName(arrName))
+         {
+            MessageInterface::PopupMessage
+               (Gmat::ERROR_, "Invalid array name: \"%s.\" Array name must "
+                "follow GMAT variable name rules (start with an alphabetic character, only alphanumerics and underscores, no reserved words)", arrName.c_str());
+            canClose = false;
+            return;
+         }
+
          Parameter *param;
          
          param = theGuiInterpreter->CreateParameter("Array", arrName);
