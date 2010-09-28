@@ -12,7 +12,7 @@ GMAT ReportFilename = 'Bug1215-MyNewReportName1.txt';
 
 Create ReportFile ReportFile1;
 GMAT ReportFile1.SolverIterations = Current;
-GMAT ReportFile1.Filename = ReportFilename;
+GMAT ReportFile1.Filename = 'Bug1215-MyNewReportName1'; %% = ReportFilename; (Due to bug 2043 fix)
 GMAT ReportFile1.Add = {DefaultSC.A1ModJulian, DefaultSC.EarthMJ2000Eq.X};
 
 %----- Command Mode

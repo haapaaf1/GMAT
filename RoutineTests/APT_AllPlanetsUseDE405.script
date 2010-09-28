@@ -1,4 +1,4 @@
-GMAT SolarSystem.Ephemeris = {DE405};
+GMAT SolarSystem.EphemerisSource = DE405;
 
 %----------------------------------------
 %---------- Spacecraft
@@ -121,16 +121,16 @@ GMAT OpenGLPlot2.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT OpenGLPlot2.ViewUpAxis = X;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = DeepSpace.A1ModJulian;
-GMAT XYPlot1.Add = {DeepSpace.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = DeepSpace.A1ModJulian;
+GMAT XYPlot1.YVariables = {DeepSpace.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
 Create XYPlot XYPlot2;
-GMAT XYPlot2.IndVar = DeepSpace.A1ModJulian;
-GMAT XYPlot2.Add = {DeepSpace.EarthMJ2000Eq.Y};
-GMAT XYPlot2.Grid = On;
+GMAT XYPlot2.XVariable = DeepSpace.A1ModJulian;
+GMAT XYPlot2.YVariables = {DeepSpace.EarthMJ2000Eq.Y};
+GMAT XYPlot2.ShowGrid = true;
 GMAT XYPlot2.SolverIterations = None;
 GMAT XYPlot2.ShowPlot = true;
 

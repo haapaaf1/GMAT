@@ -1,6 +1,4 @@
-% GMAT Script File
-% Updated:
-%    2004/06/08 - OpenGLPlot takes spacecraft. format: GMAT 3DPlot.Add = Moly;
+% StopOnApoapsis.script
 
 %----------------------------------------
 %---------- Spacecraft

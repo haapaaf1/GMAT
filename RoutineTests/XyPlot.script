@@ -1,6 +1,8 @@
 % GMAT Script File
 % GMAT Release Build 5.0, August 2005
 
+Create Variable Loop;
+
 Create Spacecraft DefaultSC;
 GMAT DefaultSC.DateFormat = TAIModJulian;
 GMAT DefaultSC.Epoch = 21545;
@@ -73,24 +75,31 @@ GMAT DefaultOpenGL.NumPointsToRedraw = 0;
 
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = DefaultSC.A1ModJulian;
+GMAT XYPlot1.XVariable = DefaultSC.A1ModJulian;
 GMAT XYPlot1.Add = {DefaultSC.EarthMJ2000Eq.X, DefaultSC.EarthMJ2000Eq.Y, DefaultSC.EarthMJ2000Eq.Z};
 GMAT XYPlot1.Grid = Off;
 GMAT XYPlot1.SolverIterations = None;
 
 
 Create XYPlot XYPlot2;
-GMAT XYPlot2.IndVar = DefaultSC.A1ModJulian;
+GMAT XYPlot2.XVariable = DefaultSC.A1ModJulian;
 GMAT XYPlot2.Add = {DefaultSC.Earth.Altitude};
 GMAT XYPlot2.Grid = Off;
 GMAT XYPlot2.SolverIterations = None;
 
 
 Create XYPlot XYPlot3;
-GMAT XYPlot3.IndVar = DefaultSC.A1ModJulian;
+GMAT XYPlot3.XVariable = DefaultSC.A1ModJulian;
 GMAT XYPlot3.Add = {DefaultSC.Earth.Longitude};
 GMAT XYPlot3.Grid = Off;
 GMAT XYPlot3.SolverIterations = None;
+
+
+Create XYPlot XYPlot4;
+GMAT XYPlot4.XVariable = Loop;
+GMAT XYPlot4.Add = {Loop};
+GMAT XYPlot4.Grid = Off;
+GMAT XYPlot4.SolverIterations = None;
 
 
 Create CoordinateSystem EarthMJ2000Eq;
@@ -122,7 +131,8 @@ GMAT EarthFixed.Epoch = 21545;
 GMAT EarthFixed.UpdateInterval = 60;
 GMAT EarthFixed.OverrideOriginInterval = false;
 
-
 BeginMissionSequence;
-Propagate DefaultProp(DefaultSC, {DefaultSC.ElapsedSecs = 8640.0});
 
+For Loop = 1:10;
+   Propagate DefaultProp(DefaultSC, {DefaultSC.ElapsedSecs = 8640.0});
+EndFor

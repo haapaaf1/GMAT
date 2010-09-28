@@ -123,15 +123,15 @@ BC                                = -2000000;
 %%BD                                = BA + 1; 
 BD                                = 400001;
 T                                 = 25;
-stopDiff                          = T;
+stopDiff                          = 25; %% = T; (Due to bug 2043 fix)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Define the array
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Boundaries(1, 1) = BC;
-Boundaries(1, 2) = BB;
-LBoundary = Boundaries(1, 1);
-RBoundary = Boundaries(1, 2);
+Boundaries(1, 1) = -2000000; %% = BC; (Due to bug 2043 fix)
+Boundaries(1, 2) =  -400000; %% = BB; (Due to bug 2043 fix)
+LBoundary = -2000000; %% = Boundaries(1, 1); (Due to bug 2043 fix)
+RBoundary =  -400000; %% = Boundaries(1, 2); (Due to bug 2043 fix)
 looptime = 99;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

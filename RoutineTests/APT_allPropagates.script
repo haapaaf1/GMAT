@@ -161,7 +161,8 @@ GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
 Create Variable case;
 GMAT case = 0;
 Create Variable initialEpoch;
-GMAT initialEpoch = DefaultSC.A1ModJulian;
+%%GMAT initialEpoch = DefaultSC.A1ModJulian;
+GMAT initialEpoch = 21545;
 
 %----------------------------------------
 %---------- Propagators

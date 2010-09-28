@@ -7,7 +7,6 @@
 Create Spacecraft MMS1;
 GMAT MMS1.DateFormat = TAIModJulian;
 GMAT MMS1.Epoch = 21545.000000000;
-%%%GMAT MMS1.Epoch = 21545.0;
 GMAT MMS1.CoordinateSystem = EarthMJ2000Eq;
 GMAT MMS1.DisplayStateType = Keplerian;
 GMAT MMS1.SMA =   42095.69958;
@@ -27,9 +26,9 @@ Create Spacecraft MMS3;
 Create Spacecraft MMS4;
 
 %===> LOJ: Added to give the same results with old script interpreter
-GMAT MMS2.Epoch = MMS1.Epoch;
-GMAT MMS3.Epoch = MMS1.Epoch;
-GMAT MMS4.Epoch = MMS1.Epoch;
+GMAT MMS2.Epoch = 21545.000000000; %% = MMS1.Epoch;  %% Due to bug 2043 fix
+GMAT MMS3.Epoch = 21545.000000000; %% = MMS1.Epoch;  %% Due to bug 2043 fix
+GMAT MMS4.Epoch = 21545.000000000; %% = MMS1.Epoch;  %% Due to bug 2043 fix
 
 Create Formation MMS;
 GMAT MMS.Add = {MMS1, MMS2, MMS3, MMS4};
@@ -42,7 +41,6 @@ GMAT MMS.Add = {MMS1, MMS2, MMS3, MMS4};
 Create ImpulsiveBurn ApodV1;
 GMAT ApodV1.Origin = Earth;
 GMAT ApodV1.Axes = VNB;
-GMAT ApodV1.VectorFormat = Cartesian;
 GMAT ApodV1.Element1 = 0;
 GMAT ApodV1.Element2 = 0;
 GMAT ApodV1.Element3 = 0;
@@ -50,7 +48,6 @@ GMAT ApodV1.Element3 = 0;
 Create ImpulsiveBurn ApodV2;
 GMAT ApodV2.Origin = Earth;
 GMAT ApodV2.Axes = VNB;
-GMAT ApodV2.VectorFormat = Cartesian;
 GMAT ApodV2.Element1 = 0
 GMAT ApodV2.Element2 = 0;
 GMAT ApodV2.Element3 = 0;
@@ -58,7 +55,6 @@ GMAT ApodV2.Element3 = 0;
 Create ImpulsiveBurn ApodV3;
 GMAT ApodV3.Origin = Earth;
 GMAT ApodV3.Axes = VNB;
-GMAT ApodV3.VectorFormat = Cartesian;
 GMAT ApodV3.Element1 = 0;
 GMAT ApodV3.Element2 = 0;
 GMAT ApodV3.Element3 = 0;
@@ -66,7 +62,6 @@ GMAT ApodV3.Element3 = 0;
 Create ImpulsiveBurn ApodV4;
 GMAT ApodV4.Origin = Earth;
 GMAT ApodV4.Axes = VNB;
-GMAT ApodV4.VectorFormat = Cartesian;
 GMAT ApodV4.Element1 = 0;
 GMAT ApodV4.Element2 = 0;
 GMAT ApodV4.Element3 = 0;
@@ -74,7 +69,6 @@ GMAT ApodV4.Element3 = 0;
 Create ImpulsiveBurn ApodV5;
 GMAT ApodV5.Origin = Earth;
 GMAT ApodV5.Axes = VNB;
-GMAT ApodV5.VectorFormat = Cartesian;
 GMAT ApodV5.Element1 = 0;
 GMAT ApodV5.Element2 = 0;
 GMAT ApodV5.Element3 = 0;
@@ -82,7 +76,6 @@ GMAT ApodV5.Element3 = 0;
 Create ImpulsiveBurn ApodV6;
 GMAT ApodV6.Origin = Earth;
 GMAT ApodV6.Axes = VNB;
-GMAT ApodV6.VectorFormat = Cartesian;
 GMAT ApodV6.Element1 = 0;
 GMAT ApodV6.Element2 = 0;
 GMAT ApodV6.Element3 = 0;
@@ -90,7 +83,6 @@ GMAT ApodV6.Element3 = 0;
 Create ImpulsiveBurn ApodV7;
 GMAT ApodV7.Origin = Earth;
 GMAT ApodV7.Axes = VNB;
-GMAT ApodV7.VectorFormat = Cartesian;
 GMAT ApodV7.Element1 = 0;
 GMAT ApodV7.Element2 = 0;
 GMAT ApodV7.Element3 = 0;
@@ -101,7 +93,7 @@ GMAT ApodV7.Element3 = 0;
 %----------------------------------------------------------------------
 
 Create DifferentialCorrector DC1;
-GMAT DC1.TargeterTextFile = Bug182-DC1.data;
+GMAT DC1.ReportFile = Bug182-DC1.data;
 
 %----------------------------------------------------------------------
 %--------------------------- Create Propagators------------------------

@@ -50,7 +50,6 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn DefaultIB;
 GMAT DefaultIB.Origin = Earth;
 GMAT DefaultIB.Axes = VNB;
-GMAT DefaultIB.VectorFormat = Cartesian;
 GMAT DefaultIB.Element1 = 0;
 GMAT DefaultIB.Element2 = 0;
 GMAT DefaultIB.Element3 = 0;
@@ -61,14 +60,14 @@ GMAT DefaultIB.Element3 = 0;
 
 Create Variable Var1 Var2 Var3 Var4 Var5 Var6 Var7;
 Create Variable Var8 Var9 Var10;
-GMAT Var1 = DefaultSC.A1ModJulian;
+%%GMAT Var1 = DefaultSC.A1ModJulian; (Due to bug 2043 fix - moved after BeginMissionSequence)
 GMAT Var2 = 0.0;
 GMAT Var3 = 123.0;
 GMAT Var4 = 0.123;
 %%Due to Bug 2025 Fix, math operators are no longer allowed
 %%GMAT Var5 = 1 + 2 + 3;
 GMAT Var5 = 6;
-GMAT Var6 = DefaultSC.A1ModJulian - 21545;
+%%GMAT Var6 = DefaultSC.A1ModJulian - 21545; (Due to bug 2043 fix - moved after BeginMissionSequence)
 %%GMAT Var7 = Var3 + Var4;
 GMAT Var7 = 123.123;
 %%%GMAT Var8 = UnknownVar + 100;
@@ -132,4 +131,13 @@ GMAT rf.Add = {Var1, Var2, Var3, Var4, Var5, Var6, Var7};
 %----------------------------------------
 
 BeginMissionSequence;
+GMAT Var1 = DefaultSC.A1ModJulian; %% (Due to bug 2043 fix, moved from above)
+GMAT Var6 = DefaultSC.A1ModJulian - 21545; %% (Due to bug 2043 fix, moved from above)
+Report rf Var1 Var2 Var3 Var4 Var5 Var6 Var7;
+
 Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 8640.0};
+
+GMAT Var1 = DefaultSC.A1ModJulian; %% (Due to bug 2043 fix, moved from above)
+GMAT Var6 = DefaultSC.A1ModJulian - 21545; %% (Due to bug 2043 fix, moved from above)
+Report rf Var1 Var2 Var3 Var4 Var5 Var6 Var7;
+

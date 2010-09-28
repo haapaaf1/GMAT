@@ -79,12 +79,12 @@ Create String a1EpochStr1, a1EpochStr2;
 GMAT var1 = 10;
 
 %--- Set Property to Variable
-GMAT a1EpochStr1 = sat1.Epoch;
-GMAT satX1 = sat1.X;
-GMAT a1Epoch1 = sat1.A1Epoch;
+GMAT a1EpochStr1 = '21600'; %% = sat1.Epoch; (Due to bug 2043 fix)
+GMAT satX1 = 7000; %% = sat1.X;
+GMAT a1Epoch1 = 21600.00000039794; %% = sat1.A1Epoch; (Due to bug 2043 fix)
 
 %--- Set Parameter to Variable
-GMAT a1Epoch1 = sat1.A1ModJulian;
+GMAT a1Epoch1 = 21600.00000039794; %% = sat1.A1ModJulian; (Due to bug 2043 fix)
 
 %--- Set Parameter to Property
 %%% not allowed in definition mode
