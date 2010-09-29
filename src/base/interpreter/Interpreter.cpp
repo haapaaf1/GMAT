@@ -2097,14 +2097,26 @@ bool Interpreter::AssembleCallFunctionCommand(GmatCommand *cmd,
       #endif
       //==============================================================
       
-      // if input parameter is a system Parameter then create
-      validInput = false;      
-      if (GmatStringUtil::IsEnclosedWith(inArray[i], "'")) // String literal
+      // Check for valid input parameter
+      validInput = false;
+      
+      // Check for number before object property.
+      // This fixes Bug1903 (Failed to pass number and literal to a function)
+      
+      // String literal
+      if (GmatStringUtil::IsEnclosedWith(inArray[i], "'"))
       {
          validInput = true;
       }
-      else if (inArray[i].find('.') != std::string::npos)  // Parameter or Object property
+      // Number
+      else if (GmatStringUtil::ToReal(inArray[i], rval))
       {
+         validInput = true;
+      }
+      // Parameter or object property
+      else if (inArray[i].find('.') != std::string::npos)
+      {
+         // if input parameter is a system Parameter then create
          if (IsParameterType(inArray[i]))
          {
             Parameter *param = CreateSystemParameter(inArray[i]);
@@ -2112,12 +2124,8 @@ bool Interpreter::AssembleCallFunctionCommand(GmatCommand *cmd,
                validInput = true;
          }
       }
-      // Numbers will be allowed later
-      else if (GmatStringUtil::ToReal(inArray[i], rval)) // Number
-      {
-         validInput = true;
-      }
-      else // whole object
+      // Whole object
+      else
       {
          GmatBase *obj = FindObject(inArray[i]);
          if (obj != NULL)
