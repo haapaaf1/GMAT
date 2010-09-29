@@ -486,8 +486,10 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       if (lhsDataType == Gmat::STRING_TYPE && lhsWrapperType == Gmat::STRING_WT)
       {
          GmatBaseException ex;
-         ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to unknown "
-                       "object \"%s\"", rhs.c_str(), lhs.c_str());
+         //ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to unknown "
+         //              "object \"%s\"", rhs.c_str(), lhs.c_str());
+         ex.SetDetails("ElementWrapper::SetValue() Cannot set unknown object \"%s\" to "
+                       "\"%s\"", lhs.c_str(), rhs.c_str());
          throw ex;
       }
       
@@ -552,8 +554,10 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                if (GmatStringUtil::ToInteger(desc, itempval))
                   lhsWrapper->SetInteger(itempval);
                else
+                  //throw GmatBaseException
+                  //   ("ElementWrapper::SetValue() Cannot set Real number to Integer");
                   throw GmatBaseException
-                     ("ElementWrapper::SetValue() Cannot set Real number to Integer");
+                     ("ElementWrapper::SetValue() Cannot set \"" + lhs + "\" to " + rhs + "\"");
             }
             break;
          }
@@ -562,9 +566,11 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             if (rhsDataType == Gmat::STRING_TYPE)
                lhsWrapper->SetString(rhs);
             else
+               //throw GmatBaseException
+               //   ("ElementWrapper::SetValue() Cannot set Non-Integer value to "
+               //    "UnsignedInt Array");
                throw GmatBaseException
-                  ("ElementWrapper::SetValue() Cannot set Non-Integer value to "
-                   "UnsignedInt Array");
+                  ("ElementWrapper::SetValue() Cannot set \"" + lhs + "\" to " + rhs + "\"");
             break;
          }
       case Gmat::RVECTOR_TYPE:
@@ -572,9 +578,11 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             if (rhsDataType == Gmat::STRING_TYPE)
                lhsWrapper->SetString(rhs);
             else
+               //throw GmatBaseException
+               //   ("ElementWrapper::SetValue() Cannot set Non-Rvector value to "
+               //    "Rvector");
                throw GmatBaseException
-                  ("ElementWrapper::SetValue() Cannot set Non-Rvector value to "
-                   "Rvector");
+                  ("ElementWrapper::SetValue() Cannot set \"" + lhs + "\" to " + rhs + "\"");
             break;
          }
       case Gmat::REAL_TYPE:
@@ -600,8 +608,10 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             
             if (!valueSet)
             {
+               //throw GmatBaseException
+               //   ("ElementWrapper::SetValue() Cannot set Non-Real value to Real");
                throw GmatBaseException
-                  ("ElementWrapper::SetValue() Cannot set Non-Real value to Real");
+                  ("ElementWrapper::SetValue() Cannot set \"" + lhs + "\" to " + rhs + "\"");
             }
             break;
          }
@@ -669,16 +679,23 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
             {
                GmatBaseException ex;
                if (rhsObj != NULL)
-                  ex.SetDetails("ElementWrapper::SetValue() Cannot set object of "
-                                "type \"%s\" to an undefined object \"%s\"",
-                                rhsObj->GetTypeName().c_str(), lhs.c_str());
+                  //ex.SetDetails("ElementWrapper::SetValue() Cannot set object of "
+                  //              "type \"%s\" to an undefined object \"%s\"",
+                  //              rhsObj->GetTypeName().c_str(), lhs.c_str());
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set undefined object "
+                                "\"%s\" to object \"%s\"", lhs.c_str(),
+                                rhsObj->GetTypeName().c_str());
                else if (lhsWrapperType == Gmat::STRING_OBJECT_WT &&
                         rhsWrapperType == Gmat::VARIABLE_WT)
-                  ex.SetDetails("ElementWrapper::SetValue() Cannot set objet of "
-                                "type \"Variable\" to object of type \"String\"");
+                  //ex.SetDetails("ElementWrapper::SetValue() Cannot set objet of "
+                  //              "type \"Variable\" to object of type \"String\"");
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set String \"%s\" to "
+                                "Variable \"%s\"", lhs.c_str(), rhs.c_str());
                else
-                  ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to "
-                                "an undefined object \"%s\"", rhs.c_str(), lhs.c_str());
+                  //ex.SetDetails("ElementWrapper::SetValue() Cannot set \"%s\" to "
+                  //              "an undefined object \"%s\"", rhs.c_str(), lhs.c_str());
+                  ex.SetDetails("ElementWrapper::SetValue() Cannot set undefined object "
+                                "\"%s\" to \"%s\"", lhs.c_str(), rhs.c_str());
                throw ex;
             }
          }
@@ -696,7 +713,20 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                MessageInterface::ShowMessage("   calling lhsWrapper->SetString(rhs)\n");
                #endif
                
-               lhsWrapper->SetString(rhs);
+               // Show more meaningful message
+               try
+               {
+                  lhsWrapper->SetString(rhs);
+               }
+               catch (BaseException &be)
+               {
+                  //throw GmatBaseException
+                  //   ("ElementWrapper::SetValue() Cannot set object \"" + lhs +
+                  //    "\" to non-object type \"" + rhs + "\"");
+                  throw GmatBaseException
+                     ("ElementWrapper::SetValue() Cannot set object \"" + lhs +
+                      "\" to non-object type \"" + rhs + "\"");
+               }
             }
             // Handle case like "XYPlot1.IndVar = sat.A1ModJulian;"
             else if (rhsWrapperType == Gmat::PARAMETER_WT)
@@ -704,8 +734,11 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                lhsWrapper->SetObject(rhsWrapper->GetRefObject());
             }
             else
+               //throw GmatBaseException
+               //   ("ElementWrapper::SetValue() Cannot set Non-Object type to object");
                throw GmatBaseException
-                  ("ElementWrapper::SetValue() Cannot set Non-Object type to object");
+                  ("ElementWrapper::SetValue() Cannot set object \"" + lhs +
+                   "\" to non-object type \"" + rhs + "\"");
          }
          else
          {            
@@ -808,7 +841,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                GmatBaseException ex;
                ex.SetDetails
                   ("ElementWrapper::SetValue() Cannot set \"%s\" to \"%s\"",
-                   rhs.c_str(), lhs.c_str());
+                   lhs.c_str(), rhs.c_str());
                throw ex;
             }
          }
