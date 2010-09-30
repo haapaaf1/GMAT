@@ -377,11 +377,8 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
        "odeModel=<%p>\n", this, GetName().c_str(), mODEModel, odeModel);
    #endif
    
-   if (odeModel == NULL)
-      throw PropSetupException("SetODEModel() failed: ODEModel is NULL");
-   
    DeleteOwnedObject(ODE_MODEL, true);
-   CloneODEModel(odeModel);
+   CloneODEModel(odeModel);      // Makes clone or sets pointer to NULL
    
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage

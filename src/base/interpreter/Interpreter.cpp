@@ -6935,12 +6935,15 @@ bool Interpreter::FinalPass()
          if (((PropSetup*)obj)->GetPropagator()->UsesODEModel())
          {
             ODEModel *ode = ((PropSetup*)obj)->GetODEModel();
-            std::string refName = ode->GetName();
+            if (ode != NULL)
+            {
+               std::string refName = ode->GetName();
 
-            GmatBase *configuredOde = FindObject(refName);
-            if ((configuredOde != NULL) &&
-                (configuredOde->IsOfType(Gmat::ODE_MODEL)))
-               *ode = *((ODEModel*)configuredOde);
+               GmatBase *configuredOde = FindObject(refName);
+               if ((configuredOde != NULL) &&
+                   (configuredOde->IsOfType(Gmat::ODE_MODEL)))
+                  *ode = *((ODEModel*)configuredOde);
+            }
          }
       }
    }
