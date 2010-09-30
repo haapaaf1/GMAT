@@ -39,6 +39,7 @@
 //#define DBGLVL_GUI_ITEM_PROPERTY 2
 //#define DBGLVL_GUI_ITEM_FN 2
 //#define DBGLVL_GUI_ITEM_SP 2
+//#define DBGLVL_GUI_ITEM 2
 //#define DBGLVL_GUI_ITEM_SO 2
 //#define DBGLVL_GUI_ITEM_SC 2
 //#define DBGLVL_GUI_ITEM_SP 2
@@ -3870,7 +3871,6 @@ void GuiItemManager::UpdateCelestialBodyList()
    
    StringArray items = theGuiInterpreter->GetListOfObjects(Gmat::CELESTIAL_BODY);
    theNumCelesBody = items.size();
-   
    theCelesBodyList.Clear();
    
    for (int i=0; i<theNumCelesBody; i++)
