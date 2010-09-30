@@ -16,7 +16,7 @@
 #define PropagationConfigPanel_hpp
 
 // gui includes
-#include "gmatwxdefs.hpp"
+#include "GmatStaticBoxSizer.hpp"
 
 // base includes
 #include "gmatdefs.hpp"
@@ -33,6 +33,7 @@
 #include "AtmosphereModel.hpp"
 #include "MessageInterface.hpp"
 #include "GmatPanel.hpp"
+#include "gmatwxdefs.hpp"
 
 class PropagationConfigPanel : public GmatPanel
 {
@@ -43,19 +44,20 @@ public:
 
 private:
    
-   // Integrator types
-   enum IntegratorType
-   {
-      RKV89 = 0,
-      RKN68,
-      RKF56,
-      PD45,
-      PD78,
-      BS,
-      ABM,
-//      CW,
-      IntegratorCount,
-   };
+   // Integrator types -- No longer hard coded
+//   enum IntegratorType
+//   {
+//      RKV89 = 0,
+//      RKN68,
+//      RKF56,
+//      PD45,
+//      PD78,
+//      BS,
+//      ABM,
+////      CW,
+//      IntegratorCount,
+//   };
+   Integer IntegratorCount;
 
    // Earth gravity field model
    enum EarthGravModelType
@@ -175,10 +177,24 @@ private:
          }
    };
    
+   wxFlexGridSizer *intFlexGridSizer;
+   GmatStaticBoxSizer *intStaticSizer;
+   GmatStaticBoxSizer *fmStaticSizer;
+
    wxStaticText *minIntErrorStaticText;
    wxStaticText *nomIntErrorStaticText;
    wxStaticText *potFileStaticText;
    
+   wxStaticText *initialStepSizeStaticText;
+   wxStaticText *unitsInitStepSizeStaticText;
+   wxStaticText *accuracyStaticText;
+   wxStaticText *minStepStaticText;
+   wxStaticText *unitsMinStepStaticText;
+   wxStaticText *maxStepStaticText;
+   wxStaticText *unitsMaxStepStaticText;
+   wxStaticText *maxStepAttemptStaticText;
+
+
    wxTextCtrl *initialStepSizeTextCtrl;
    wxTextCtrl *accuracyTextCtrl;
    wxTextCtrl *minStepTextCtrl;
@@ -209,6 +225,17 @@ private:
    wxCheckBox *theSrpCheckBox;
    wxCheckBox *theStopCheckBox;
    
+   // Controls used by Propagators that aren't Integrators (SPK for now)
+   wxStaticText *propagatorStepSizeStaticText;
+   wxTextCtrl *propagatorStepSizeTextCtrl;
+   wxStaticText *unitsPropagatorStepSizeStaticText;
+   wxStaticText *propCentralBodyStaticText;
+   wxComboBox *propCentralBodyComboBox;
+   wxStaticText *propagatorEpochFormatStaticText;
+   wxComboBox *propagatorEpochFormatComboBox;
+   wxStaticText *startEpochStaticText;
+   wxTextCtrl *startEpochTextCtrl;
+
    wxString integratorString;
    wxString primaryBodyString;
    wxString gravityFieldString;
@@ -218,6 +245,7 @@ private:
    
    std::string propSetupName;
    std::string thePropagatorName;
+   std::string theForceModelName;
    std::string mFmPrefaceComment;
    
    wxString currentBodyName;
@@ -310,6 +338,7 @@ private:
    
    // Saving data
    bool SaveIntegratorData();
+   bool SavePropagatorData();
    bool SaveDegOrder();
    bool SavePotFile();
    bool SaveAtmosModel();
@@ -356,6 +385,10 @@ private:
    // Strictly for reading gravity files
    static const Integer GRAV_MAX_DRIFT_DEGREE = 2;
    
+   void ShowIntegratorLayout(bool isIntegrator = true, bool isEphem = true);
+
+   void PopulateForces();
+
    // any class wishing to process wxWindows events must use this macro
    DECLARE_EVENT_TABLE();
    
@@ -375,6 +408,7 @@ private:
       ID_CB_GRAV,
       ID_CB_ATMOS,
       ID_CB_MAG,
+      ID_CB_EPOCHFORMAT,
       ID_CB_ERROR,
       ID_BUTTON_ADD_BODY,
       ID_BUTTON_GRAV_SEARCH,
