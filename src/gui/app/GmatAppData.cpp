@@ -110,7 +110,7 @@ wxConfigBase* GmatAppData::GetPersonalizationConfig()
    if (thePersonalizationConfig == NULL)
    {
 //      MessageInterface::PopupMessage(Gmat::INFO_, "Setting up Personalization file: %s\n",FileManager::Instance()->GetFilename(FileManager::PERSONALIZATION_FILE).c_str());
-      thePersonalizationConfig = new wxFileConfig(wxEmptyString, wxEmptyString, FileManager::Instance()->GetFullPathname(FileManager::PERSONALIZATION_FILE),
+      thePersonalizationConfig = new wxFileConfig(wxEmptyString, wxEmptyString, (FileManager::Instance()->GetFullPathname(FileManager::PERSONALIZATION_FILE)).c_str(),
               wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
    }
    return thePersonalizationConfig;

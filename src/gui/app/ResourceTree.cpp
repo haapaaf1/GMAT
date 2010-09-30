@@ -509,7 +509,7 @@ void ResourceTree::UpdateRecentFiles(wxString filename)
    pConfig->SetPath(wxT("/RecentFiles"));
    for (size_t i = 0; i < files.GetCount(); i++)
    {
-      pConfig->Write(GmatFileUtil::ParseFileName(files[i].c_str()), files[i]);
+      pConfig->Write((GmatFileUtil::ParseFileName(files[i].c_str())).c_str(), files[i].c_str());
    }
 
    theMainFrame->UpdateRecentMenu(files);
