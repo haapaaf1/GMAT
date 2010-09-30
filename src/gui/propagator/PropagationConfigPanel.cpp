@@ -1610,7 +1610,7 @@ void PropagationConfigPanel::Initialize()
    
    // initialize drag model type array
    dragModelArray.Add("None");
-   dragModelArray.Add("Exponential");
+//   dragModelArray.Add("Exponential");
    dragModelArray.Add("MSISE90");
    dragModelArray.Add("JacchiaRoberts");
    
@@ -1956,11 +1956,11 @@ void PropagationConfigPanel::DisplayAtmosphereModelData()
       theAtmosModelComboBox->SetSelection(NONE_DM);
       theDragSetupButton->Enable(false);
    }
-   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
-   {
-      theAtmosModelComboBox->SetSelection(EXPONENTIAL);
-      theDragSetupButton->Enable(false);
-   }
+//   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
+//   {
+//      theAtmosModelComboBox->SetSelection(EXPONENTIAL);
+//      theDragSetupButton->Enable(false);
+//   }
    else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[MSISE90])
    {
       theAtmosModelComboBox->SetSelection(MSISE90);
@@ -2056,8 +2056,9 @@ void PropagationConfigPanel::EnablePrimaryBodyItems(bool enable, bool clear)
       if (thePrimaryBodyComboBox->GetValue() == "Earth")
       {
          theAtmosModelComboBox->Enable(true);
-         if (theAtmosModelComboBox->GetValue() == dragModelArray[NONE_DM] ||
-             theAtmosModelComboBox->GetValue() == dragModelArray[EXPONENTIAL])
+         if (theAtmosModelComboBox->GetValue() == dragModelArray[NONE_DM] //||
+             //theAtmosModelComboBox->GetValue() == dragModelArray[EXPONENTIAL]
+             )
             theDragSetupButton->Enable(false);
          else
             theDragSetupButton->Enable(true);         
@@ -2858,13 +2859,14 @@ void PropagationConfigPanel::OnSetupButton(wxCommandEvent &event)
    dragForce = primaryBodyList[currentBodyId]->dragf;
    if (dragForce != NULL)
    {      
-      if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
-      {
-         // TBD by Code 595
-         //DragInputsDialog dragDlg(this, dragForce, "ExponentialDragDialog");
-         //dragDlg.ShowModal();
-      }
-      else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[MSISE90])
+//      if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
+//      {
+//         // TBD by Code 595
+//         //DragInputsDialog dragDlg(this, dragForce, "ExponentialDragDialog");
+//         //dragDlg.ShowModal();
+//      }
+//      else
+      if (primaryBodyList[currentBodyId]->dragType == dragModelArray[MSISE90])
       {
          DragInputsDialog dragDlg(this, dragForce, "MSISE90DragDialog");
          dragDlg.ShowModal();

@@ -109,7 +109,7 @@ private:
    enum EarthDragModelType
    {
       NONE_DM = 0,
-      EXPONENTIAL,
+//      EXPONENTIAL,
       MSISE90,
       JR,
       EarthDragModelCount,
