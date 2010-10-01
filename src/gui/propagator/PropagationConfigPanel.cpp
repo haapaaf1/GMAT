@@ -64,6 +64,8 @@ BEGIN_EVENT_TABLE(PropagationConfigPanel, GmatPanel)
    EVT_CHECKBOX(ID_SRP_CHECKBOX, PropagationConfigPanel::OnSRPCheckBoxChange)
    EVT_CHECKBOX(ID_STOP_CHECKBOX, PropagationConfigPanel::OnStopCheckBoxChange)
    EVT_COMBOBOX(ID_CB_ERROR, PropagationConfigPanel::OnErrorControlComboBox)
+   EVT_COMBOBOX(ID_CB_PROP_ORIGIN, PropagationConfigPanel::OnPropOriginComboBox)
+   EVT_COMBOBOX(ID_CB_PROP_EPOCHFORMAT, PropagationConfigPanel::OnPropEpochComboBox)
 END_EVENT_TABLE()
 
 
@@ -275,28 +277,22 @@ void PropagationConfigPanel::Create()
    unitsPropagatorStepSizeStaticText =
          new wxStaticText( this, ID_TEXT, wxT("sec"), wxDefaultPosition,
                wxDefaultSize );
-
-   //CentralBody = Earth;
    propCentralBodyStaticText =
          new wxStaticText( this, ID_TEXT, wxT("Central Body"),
                            wxDefaultPosition, wxDefaultSize );
    propCentralBodyComboBox=
-         theGuiManager->GetCelestialBodyComboBox(this, ID_CB_ORIGIN, wxSize(100,-1));
-
-   //EpochFormat = 'UTCGregorian';
+         theGuiManager->GetCelestialBodyComboBox(this, ID_CB_PROP_ORIGIN, wxSize(100,-1));
    propagatorEpochFormatStaticText =
          new wxStaticText( this, ID_TEXT, wxT("Epoch Format"),
                            wxDefaultPosition, wxDefaultSize );
-
    wxArrayString emptyList;
-
    propagatorEpochFormatComboBox = new wxComboBox
-      ( this, ID_CB_EPOCHFORMAT, wxT(""), wxDefaultPosition, wxSize(150,-1), //0,
+      ( this, ID_CB_PROP_EPOCHFORMAT, wxT(""), wxDefaultPosition, wxSize(150,-1), //0,
         emptyList, wxCB_DROPDOWN | wxCB_READONLY );
    propagatorEpochFormatComboBox->SetToolTip(pConfig->Read(_T("EpochFormatHint")));
-
-
-   //StartEpoch = '01 Jan 2000 12:00:00.000';
+   StringArray reps = TimeConverterUtil::GetValidTimeRepresentations();
+   for (unsigned int i = 0; i < reps.size(); i++)
+      propagatorEpochFormatComboBox->Append(reps[i].c_str());
    startEpochStaticText =
          new wxStaticText( this, ID_TEXT, wxT("Start Epoch"),
                            wxDefaultPosition, wxDefaultSize );
@@ -714,11 +710,6 @@ void PropagationConfigPanel::LoadData()
       EnablePrimaryBodyItems(false, false);
    else
       EnablePrimaryBodyItems(true);
-
-   // Load the epoch formats
-   StringArray reps = TimeConverterUtil::GetValidTimeRepresentations();
-   for (unsigned int i = 0; i < reps.size(); i++)
-      propagatorEpochFormatComboBox->Append(reps[i].c_str());
 
    if ((thePropagator == NULL) || (thePropagator->IsOfType("Integrator")))
    {
@@ -1779,7 +1770,7 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
       propagatorStepSizeTextCtrl->SetValue(ToString(ss));
       Integer cbIndex = propCentralBodyComboBox->FindString(cbSetting);
       propCentralBodyComboBox->SetSelection(cbIndex);
-      Integer epIndex = propCentralBodyComboBox->FindString(epFormatSetting);
+      Integer epIndex = propagatorEpochFormatComboBox->FindString(epFormatSetting);
       propagatorEpochFormatComboBox->SetSelection(epIndex);
       startEpochTextCtrl->SetValue(thePropagator->GetStringParameter(
             "StartEpoch").c_str());
@@ -2718,6 +2709,55 @@ void PropagationConfigPanel::OnErrorControlComboBox(wxCommandEvent &event)
       EnableUpdate(true);
    }
 }
+
+
+//------------------------------------------------------------------------------
+// void OnPropOriginComboBox(wxCommandEvent &)
+//------------------------------------------------------------------------------
+void PropagationConfigPanel::OnPropOriginComboBox(wxCommandEvent &)
+{
+   if (thePropagator->IsOfType("Integrator"))
+      return;
+
+   wxString propOrigin = thePropagator->GetStringParameter("CentralBody").c_str();
+   wxString propSelection = propCentralBodyComboBox->GetStringSelection();
+
+   if (!propOrigin.IsSameAs(propSelection))
+   {
+      isIntegratorDataChanged = true;
+      thePropagator->SetStringParameter("CentralBody", propSelection.c_str());
+      Integer cbIndex = propCentralBodyComboBox->FindString(propSelection);
+      propCentralBodyComboBox->SetSelection(cbIndex);
+      DisplayIntegratorData(false);
+      isIntegratorDataChanged = false;
+      EnableUpdate(true);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnPropEpochComboBox(wxCommandEvent &)
+//------------------------------------------------------------------------------
+void PropagationConfigPanel::OnPropEpochComboBox(wxCommandEvent &)
+{
+   if (thePropagator->IsOfType("Integrator"))
+      return;
+
+   wxString propEpoch = thePropagator->GetStringParameter("EpochFormat").c_str();
+   wxString epochSelection = propagatorEpochFormatComboBox->GetStringSelection();
+
+   if (!propEpoch.IsSameAs(epochSelection))
+   {
+      isIntegratorDataChanged = true;
+      thePropagator->SetStringParameter("EpochFormat", epochSelection.c_str());
+      Integer epIndex = propagatorEpochFormatComboBox->FindString(epochSelection);
+      propagatorEpochFormatComboBox->SetSelection(epIndex);
+      DisplayIntegratorData(false);
+      isIntegratorDataChanged = false;
+      EnableUpdate(true);
+   }
+}
+
 
 // wxButton events
 //------------------------------------------------------------------------------

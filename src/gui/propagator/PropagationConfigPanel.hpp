@@ -362,6 +362,9 @@ private:
    void OnGravityModelComboBox(wxCommandEvent &event);
    void OnAtmosphereModelComboBox(wxCommandEvent &event);
    void OnErrorControlComboBox(wxCommandEvent &event);
+   void OnPropOriginComboBox(wxCommandEvent &);
+   void OnPropEpochComboBox(wxCommandEvent &);
+
    
    // Button event methods
    void OnAddBodyButton(wxCommandEvent &event);
@@ -408,14 +411,15 @@ private:
       ID_CB_GRAV,
       ID_CB_ATMOS,
       ID_CB_MAG,
-      ID_CB_EPOCHFORMAT,
       ID_CB_ERROR,
       ID_BUTTON_ADD_BODY,
       ID_BUTTON_GRAV_SEARCH,
       ID_BUTTON_SETUP,
       ID_BUTTON_MAG_SEARCH,
       ID_BUTTON_PM_EDIT,
-      ID_BUTTON_SRP_EDIT 
+      ID_BUTTON_SRP_EDIT,
+      ID_CB_PROP_ORIGIN,
+      ID_CB_PROP_EPOCHFORMAT
    };
 };
 
