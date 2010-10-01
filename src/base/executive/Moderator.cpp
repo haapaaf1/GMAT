@@ -88,6 +88,7 @@
 //#define DEBUG_CREATE_BODY
 //#define DEBUG_PLUGIN_REGISTRATION
 //#define DEBUG_MATLAB
+//#define DEBUG_CCSDS_EPHEMERIS
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -8009,9 +8010,14 @@ void Moderator::AddPublisherToSandbox(Integer index)
 //------------------------------------------------------------------------------
 // void HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld = false)
 //------------------------------------------------------------------------------
+/**
+ * Creates plug-in CcsdsEphemerisFile object if EphemerisFile type is CCSDS
+ * and replaces the old one.
+ */
+//------------------------------------------------------------------------------
 void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
 {
-   #if DEBUG_CCSDS_EPHEMERIS
+   #ifdef DEBUG_CCSDS_EPHEMERIS
    MessageInterface::ShowMessage
       ("Moderator::HandleCcsdsEphemerisFile() entered, objMap=<%p>\n", objMap);
    #endif
@@ -8037,7 +8043,7 @@ void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
          std::string name = obj->GetName();
          std::string format = obj->GetStringParameter("FileFormat");
          
-         #if DEBUG_CCSDS_EPHEMERIS
+         #ifdef DEBUG_CCSDS_EPHEMERIS
          MessageInterface::ShowMessage
             ("   Format of the object<%p><%s>'%s' is '%s'\n",
              obj, obj->GetTypeName().c_str(), name.c_str(), format.c_str());
@@ -8048,10 +8054,10 @@ void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
             // Check type name to avoid recreating a CcsdsEphemerisFile object for re-runs
             if (obj->GetTypeName() != "CcsdsEphemerisFile")
             {
-               #if DEBUG_CCSDS_EPHEMERIS
+               #ifdef DEBUG_CCSDS_EPHEMERIS
                MessageInterface::ShowMessage("   About to create new CcsdsEphemerisFile\n");
                #endif
-
+               
                // Create unnamed CcsdsEphemerisFile
                GmatBase *newObj = CreateEphemerisFile("CcsdsEphemerisFile", "");
                if (newObj == NULL)
@@ -8063,10 +8069,11 @@ void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
                
                newObj->SetName(name);
                ResetObjectPointer(objMap, newObj, name);
+               ResetObjectPointer(objectMapInUse, newObj, name);
                newObj->Copy(obj);
                newObj->TakeAction("ChangeTypeName", "CcsdsEphemerisFile");
                
-               #if DEBUG_CCSDS_EPHEMERIS
+               #ifdef DEBUG_CCSDS_EPHEMERIS
                MessageInterface::ShowMessage
                   ("   New object <%p><%s>'%s' created\n", newObj, newObj->GetTypeName().c_str(),
                    name.c_str());
@@ -8074,15 +8081,28 @@ void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
                
                GmatBase *oldObj = obj;
                obj = newObj;
+               
                // Delete old object on option
                if (deleteOld)
+               {
+                  #ifdef DEBUG_CCSDS_EPHEMERIS
+                  MessageInterface::ShowMessage
+                     ("   Deleting old object <%p><%s>'%s'\n", oldObj, oldObj->GetTypeName().c_str(),
+                      name.c_str());
+                  #endif
+                  #ifdef DEBUG_MEMORY
+                  MemoryTracker::Instance()->Remove
+                     (oldObj, oldObj->GetName(), "Moderator::HandleCcsdsEphemerisFile()");
+                  #endif
                   delete oldObj;
+               }
             }
          }
       }
    }
    
-   #if DEBUG_CCSDS_EPHEMERIS
+   #ifdef DEBUG_CCSDS_EPHEMERIS
+   ShowObjectMap("In Moderator::HandleCcsdsEphemerisFile()", objMap);
    MessageInterface::ShowMessage
       ("Moderator::HandleCcsdsEphemerisFile() leaving\n");
    #endif
@@ -8222,11 +8242,23 @@ void Moderator::ShowCommand(const std::string &title1, GmatCommand *cmd1,
 
 
 //------------------------------------------------------------------------------
-// void ShowObjectMap(const std::string &title)
+// void ShowObjectMap(const std::string &title, ObjectMap *objMap = NULL)
 //------------------------------------------------------------------------------
-void Moderator::ShowObjectMap(const std::string &title)
+void Moderator::ShowObjectMap(const std::string &title, ObjectMap *objMap)
 {
-   MessageInterface::ShowMessage(title);
+   MessageInterface::ShowMessage(title + "\n");
+   if (objMap != NULL)
+   {
+      MessageInterface::ShowMessage
+         (" passedObjectMap = <%p>, it has %d objects\n", objMap, objMap->size());
+      for (ObjectMap::iterator i = objMap->begin(); i != objMap->end(); ++i)
+      {
+         MessageInterface::ShowMessage
+            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
+             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+      }
+   }
+   
    if (objectMapInUse == NULL)
    {
       MessageInterface::ShowMessage("\nThe objectMapInUse is NULL\n");
@@ -8234,7 +8266,7 @@ void Moderator::ShowObjectMap(const std::string &title)
    }
    
    MessageInterface::ShowMessage
-      (" <%p>, it has %d objects\n", objectMapInUse, objectMapInUse->size());
+      (" objectMapInUse = <%p>, it has %d objects\n", objectMapInUse, objectMapInUse->size());
    for (ObjectMap::iterator i = objectMapInUse->begin();
         i != objectMapInUse->end(); ++i)
    {
