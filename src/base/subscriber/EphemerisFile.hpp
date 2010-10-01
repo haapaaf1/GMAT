@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  EphemerisFile
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -268,6 +268,9 @@ protected:
    void         DebugWriteOrbit(const std::string &msg, A1Mjd *epochInDays,
                                 Rvector6 *state, bool logOnly = false);
    
+   // for deprecated field
+   void         WriteDeprecatedMessage(Integer id) const;
+   
    // methods inherited from Subscriber
    virtual bool Distribute(Integer len);
    virtual bool Distribute(const Real * dat, Integer len);
@@ -281,7 +284,7 @@ protected:
    enum
    {
       SPACECRAFT = SubscriberParamCount,
-      FILE_NAME,
+      FILENAME,
       FILE_FORMAT,
       EPOCH_FORMAT,
       INITIAL_EPOCH,
@@ -292,7 +295,8 @@ protected:
       STATE_TYPE,
       COORDINATE_SYSTEM,
       WRITE_EPHEMERIS,
-      EphemerisFileParamCount  /// Count of the parameters for this class
+      FILE_NAME,                // deprecated
+      EphemerisFileParamCount   // Count of the parameters for this class
    };
    
    static const std::string
