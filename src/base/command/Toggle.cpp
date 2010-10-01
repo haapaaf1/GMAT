@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Toggle
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/mm/dd
@@ -25,8 +25,11 @@
 #include "MessageInterface.hpp"
 #include "StringUtil.hpp"
 
-//#define DEBUG_RENAME 1
-//#define DEBUG_TOGGLE
+//#define DEBUG_RENAME
+//#define DEBUG_TOGGLE_IA
+//#define DEBUG_TOGGLE_SET
+//#define DEBUG_TOGGLE_INIT
+//#define DEBUG_TOGGLE_EXE
 
 // class constructor
 //------------------------------------------------------------------------------
@@ -58,7 +61,7 @@ Toggle::Toggle(const Toggle& t) :
    GmatCommand        (t),
    toggleState        (t.toggleState),
    subscriberID       (t.subscriberID),
-   toggleStateID      (t.toggleStateID) //loj: 4/405 Added
+   toggleStateID      (t.toggleStateID)
 {
    parameterCount = t.parameterCount;
    subNames.clear();
@@ -101,7 +104,7 @@ bool Toggle::InterpretAction()
    else 
       subEnd = (Integer) generatingString.size();
    std::string str1 = generatingString.substr(loc, subEnd-loc);
-   #ifdef DEBUG_TOGGLE
+   #ifdef DEBUG_TOGGLE_IA
       MessageInterface::ShowMessage("In InterpretAction, str1 = \n");
       MessageInterface::ShowMessage("   %s\n", str1.c_str());
    #endif
@@ -117,7 +120,7 @@ bool Toggle::InterpretAction()
    }
    StringArray parts = GmatStringUtil::SeparateBy(str1," ", false);
    Integer partsSz = (Integer) parts.size();
-   #ifdef DEBUG_TOGGLE
+   #ifdef DEBUG_TOGGLE_IA
       MessageInterface::ShowMessage("In InterpretAction, parts = \n");
       for (Integer jj = 0; jj < partsSz; jj++)
          MessageInterface::ShowMessage("   %s\n", parts.at(jj).c_str());
@@ -132,7 +135,7 @@ bool Toggle::InterpretAction()
    {
       if ((parts.at(ii) == "On") || (parts.at(ii) == "Off"))
          throw CommandException("Too many 'On's or 'Off's in Toggle command");
-      #ifdef DEBUG_TOGGLE
+      #ifdef DEBUG_TOGGLE_IA
          MessageInterface::ShowMessage("Adding subName %s \n", parts.at(ii).c_str());
       #endif
                
@@ -148,7 +151,7 @@ bool Toggle::InterpretAction()
 //------------------------------------------------------------------------------
 bool Toggle::Initialize()
 {
-   #ifdef DEBUG_TOGGLE
+   #ifdef DEBUG_TOGGLE_INIT
       MessageInterface::ShowMessage("Toggle::Initialize() entered\n");
    #endif
       
@@ -164,11 +167,13 @@ bool Toggle::Initialize()
       if ((mapObj = FindObject(*s)) != NULL) 
       {
          sub = (Subscriber *)mapObj;
-         if (sub) {
+         if (sub)
+         {
             subs.push_back(sub);
          }
       }
-      else {
+      else
+      {
          MessageInterface::ShowMessage
             ("Toggle command cannot find subscriber %s; command has no effect for that object\n",
              s->c_str());
@@ -180,6 +185,17 @@ bool Toggle::Initialize()
    //   publisher = Publisher::Instance();
    //streamID = publisher->RegisterPublishedData(this, subNames, subNames);
    
+   #ifdef DEBUG_TOGGLE_INIT
+   MessageInterface::ShowMessage("There are %d subscriber(s)\n", subs.size());
+   for (std::list<Subscriber *>::iterator s = subs.begin(); s != subs.end(); ++s)
+   {
+      MessageInterface::ShowMessage
+         ("   subscriber = <%p><%s>'%s'\n", *s,
+          (*s)->GetTypeName().c_str(), (*s)->GetName().c_str());
+   }
+   MessageInterface::ShowMessage("Toggle::Initialize() leaving\n");
+   #endif
+   
    return true;
 }
 
@@ -189,14 +205,58 @@ bool Toggle::Initialize()
 //------------------------------------------------------------------------------
 bool Toggle::Execute()
 {
-   #ifdef DEBUG_TOGGLE
-      MessageInterface::ShowMessage
-         ("Toggle::Execute() entered, has %d subscriber(s)\n", subs.size());
+   #ifdef DEBUG_TOGGLE_EXE
+   MessageInterface::ShowMessage
+      ("Toggle::Execute() entered, There are %d subscriber(s)\n", subNames.size());
+   ShowObjectMaps("In Toggle::Execute()");
    #endif
+   
+   if (currentFunction != NULL)
+   {
+      #ifdef DEBUG_TOGGLE_EXE
+      MessageInterface::ShowMessage
+         ("   Inside a function, so about to refresh subscriber pointers...\n");
+      #endif
       
+      Subscriber *sub;
+      GmatBase *mapObj = NULL;
+      
+      // We need to refresh subscriber pointers here, since the CcsdsEphemerisFile
+      // is created and replaces old EphemerisFile in the object map (LOJ: 2010.09.30)
+      subs.clear();
+      for (StringArray::iterator s = subNames.begin(); s != subNames.end(); ++s) 
+      {
+         if ((mapObj = FindObject(*s)) != NULL) 
+         {
+            sub = (Subscriber *)mapObj;
+            if (sub)
+            {
+               subs.push_back(sub);
+            }
+         }
+         else
+         {
+            MessageInterface::ShowMessage
+               ("Toggle command cannot find subscriber %s; command has no effect for that object\n",
+                s->c_str());
+         }
+      }
+   }
+   
+   #ifdef DEBUG_TOGGLE_EXE
+   MessageInterface::ShowMessage("There are %d subscriber(s)\n", subs.size());
    for (std::list<Subscriber *>::iterator s = subs.begin(); s != subs.end(); ++s)
-   {      
-      #ifdef DEBUG_TOGGLE
+   {
+      MessageInterface::ShowMessage
+         ("   subscriber = <%p><%s>'%s'\n", *s,
+          (*s)->GetTypeName().c_str(), (*s)->GetName().c_str());
+   }
+   #endif
+   
+   for (std::list<Subscriber *>::iterator s = subs.begin(); s != subs.end(); ++s)
+   {
+      
+      #ifdef DEBUG_TOGGLE_EXE
       MessageInterface::ShowMessage
          ("Toggle::Execute() calling %s->Activate(%s)\n", (*s)->GetName().c_str(),
           toggleState ? "true" : "false");
@@ -212,6 +272,11 @@ bool Toggle::Execute()
    //publisher->Publish(streamID, data, strlen(data));
    
    BuildCommandSummary(true);
+   
+   #ifdef DEBUG_TOGGLE_EXE
+      MessageInterface::ShowMessage("Toggle::Execute() leaving\n");
+   #endif
+   
    return true;
 }
 
@@ -341,7 +406,7 @@ bool Toggle::RenameRefObject(const Gmat::ObjectType type,
                              const std::string &oldName,
                              const std::string &newName)
 {
-   #if DEBUG_RENAME
+   #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
       ("Toggle::RenameConfiguredItem() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
@@ -436,7 +501,7 @@ std::string Toggle::GetStringParameter(const Integer id) const
 bool Toggle::SetStringParameter(const Integer id, const std::string &value)
 {
 
-   #ifdef DEBUG_TOGGLE
+   #ifdef DEBUG_TOGGLE_SET
    MessageInterface::ShowMessage
       ("Toggle::SetStringParameter() id=%d, value=%s\n", id, value.c_str());
    #endif
