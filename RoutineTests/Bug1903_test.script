@@ -1,0 +1,44 @@
+%----------------------------------------
+%Test literals input Bug1903_main.script
+
+
+Create Variable halfPie, pie;
+Create String stringName1, stringName2;
+Create ReportFile Bug1903_output;
+
+Create String stringVar;
+
+%-------------------------------------------------
+% Mission Sequence
+%-------------------------------------------------
+BeginMissionSequence;
+
+Global Bug1903_output;
+
+halfPie = 0;
+pie = 0.0;
+stringName1 = 'Blank1';
+stringName2 = 'Blank2';
+
+% Initial state of variables
+
+stringVar = 'Main script initial input variable values are ';
+Report Bug1903_output stringVar;
+Report Bug1903_output halfPie pie stringName1 stringName2;
+
+
+% Call Function
+% Test literal real number input and literal string input and see if values are passed back to main script
+
+stringVar = 'Main script calling Bug1903_func(halfPie, stringName1, 3.14159 , 'Hello World!')';
+Report Bug1903_output stringVar;
+
+[halfPie, pie, stringName1, stringName2]=Bug1903_func(halfPie, stringName1, 3.14159 , 'Hello World!');
+
+% Report Spacecraft variables after function call with literals
+
+stringVar = 'Main script final output variable values with passed literals are ';
+Report Bug1903_output stringVar;
+Report Bug1903_output halfPie pie stringName1 stringName2;
+
+%End Bug1903_main.script

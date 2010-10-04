@@ -1,0 +1,187 @@
+function Bug1997_Func_EphemToggleCrash(reportLoc1)
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545.000000000';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.Tanks = {tank1}
+GMAT DefaultSC.Thrusters = {engine1};
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '312';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+
+
+%-----  Thruster A;
+Create Thruster engine1;
+GMAT engine1.CoordinateSystem = EarthMJ2000Eq;
+
+GMAT engine1.ThrustDirection1 = 1;
+GMAT engine1.ThrustDirection2 = 0;
+GMAT engine1.ThrustDirection3 = 0;
+GMAT engine1.DutyCycle = 1;
+GMAT engine1.ThrustScaleFactor = 1;
+GMAT engine1.DecrementMass = true;
+GMAT engine1.Tank = {tank1};
+GMAT engine1.GravitationalAccel = 9.81;
+GMAT engine1.C1 = 10;
+GMAT engine1.C2 = 0;
+GMAT engine1.C3 = 0;
+GMAT engine1.C4 = 0;
+GMAT engine1.C5 = 0;
+GMAT engine1.C6 = 0;
+GMAT engine1.C7 = 0;
+GMAT engine1.C8 = 0;
+GMAT engine1.C9 = 0;
+GMAT engine1.C10 = 0;
+GMAT engine1.C11 = 0;
+GMAT engine1.C12 = 0;
+GMAT engine1.C13 = 0;
+GMAT engine1.C14 = 0;
+GMAT engine1.C15 = 0;
+GMAT engine1.C16 = 0;
+GMAT engine1.K1 = 300;
+GMAT engine1.K2 = 0;
+GMAT engine1.K3 = 0;
+GMAT engine1.K4 = 0;
+GMAT engine1.K5 = 0;
+GMAT engine1.K6 = 0;
+GMAT engine1.K7 = 0;
+GMAT engine1.K8 = 0;
+GMAT engine1.K9 = 0;
+GMAT engine1.K10 = 0;
+GMAT engine1.K11 = 0;
+GMAT engine1.K12 = 0;
+GMAT engine1.K13 = 0;
+GMAT engine1.K14 = 0;
+GMAT engine1.K15 = 0;
+GMAT engine1.K16 = 0;
+
+%-----  Fuel Tank A
+Create FuelTank tank1;
+GMAT tank1.FuelMass = 725;
+GMAT tank1.Pressure = 1200;
+GMAT tank1.Temperature = 20;
+GMAT tank1.RefTemperature = 12;
+GMAT tank1.Volume = 0.8;
+GMAT tank1.FuelDensity = 1029;
+GMAT tank1.PressureModel = PressureRegulated;
+
+
+% -------------------------------------------------------------------------
+% --------------------------- Create Finite Burn  -------------------------
+% -------------------------------------------------------------------------
+Create FiniteBurn fb;
+GMAT fb.Thrusters = {engine1};
+
+%  Create a force model
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PointMasses = {Earth};
+GMAT fm.Drag = None;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+
+%  Create a propagator
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = fm;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 1e-9;
+GMAT DefaultProp.MinStep = 60;
+GMAT DefaultProp.MaxStep = 60;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile rf;
+GMAT rf.Filename = 'Bug1997_Func_EphemToggleCrash.report';
+GMAT rf.WriteHeaders = Off;
+GMAT rf.ColumnWidth = 25;
+
+Create EphemerisFile Leo_Ephem_60sec;
+GMAT Leo_Ephem_60sec.Spacecraft = DefaultSC;
+GMAT Leo_Ephem_60sec.FileName = reportLoc1;
+GMAT Leo_Ephem_60sec.FileFormat = 'CCSDS-OEM';
+GMAT Leo_Ephem_60sec.EpochFormat = UTCGregorian;
+GMAT Leo_Ephem_60sec.InitialEpoch = InitialSpacecraftEpoch;
+GMAT Leo_Ephem_60sec.FinalEpoch = FinalSpacecraftEpoch;
+GMAT Leo_Ephem_60sec.StepSize = 60;
+GMAT Leo_Ephem_60sec.Interpolator = Lagrange;
+GMAT Leo_Ephem_60sec.InterpolationOrder = 7;
+GMAT Leo_Ephem_60sec.StateType = Cartesian;
+GMAT Leo_Ephem_60sec.CoordinateSystem = EarthMJ2000Eq;
+GMAT Leo_Ephem_60sec.WriteEphemeris = True;
+
+Create Variable ElapsedSecsA;
+ElapsedSecsA = 600;
+Create Variable ElapsedSecsB;
+ElapsedSecsB = 300;
+Create Variable ElapsedSecsC;
+ElapsedSecsC = 600;
+Create Variable savingEpoch;
+Create String msg;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+msg = '============================================= Initial epoch';
+Report rf msg;
+Report rf DefaultSC.A1ModJulian DefaultSC.UTCGregorian DefaultSC.X;
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = ElapsedSecsA};
+savingEpoch = DefaultSC.TAIModJulian;
+msg = '============================================= After propagating for 600 sec';
+Report rf msg;
+Report rf DefaultSC.A1ModJulian DefaultSC.UTCGregorian DefaultSC.X;
+
+Toggle Leo_Ephem_60sec Off;
+msg = '============================================= EphemerisFile is turned off';
+Report rf msg;
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = ElapsedSecsB};
+msg = '============================================= After propagating for 300 sec';
+Report rf msg;
+Report rf DefaultSC.A1ModJulian DefaultSC.UTCGregorian DefaultSC.X;
+
+Propagate BackProp DefaultProp(DefaultSC) {DefaultSC.TAIModJulian = savingEpoch};
+msg = '============================================= After back propagating to ';
+Report rf msg savingEpoch;
+Report rf DefaultSC.A1ModJulian DefaultSC.UTCGregorian DefaultSC.X;
+
+Toggle Leo_Ephem_60sec On;
+msg = '============================================= EphemerisFile is turned on';
+Report rf msg;
+Report rf DefaultSC.A1ModJulian DefaultSC.UTCGregorian DefaultSC.X;
+
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = ElapsedSecsC};
+msg = '============================================= After propagating for 600 sec';
+Report rf msg;
+Report rf DefaultSC.A1ModJulian DefaultSC.UTCGregorian DefaultSC.X;

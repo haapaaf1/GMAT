@@ -1,0 +1,37 @@
+%$Id$
+
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = 'Bug1997_Func_EphemToggleCrash.eph';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Bug1997_Func_EphemToggleCrash_nested.eph';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+BeginMissionSequence;
+
+% Call function
+Bug1997_Func_EphemToggleCrash(reportLoc1)
+Bug1997_Func_EphemToggleCrash_nested(reportLoc1_nested)

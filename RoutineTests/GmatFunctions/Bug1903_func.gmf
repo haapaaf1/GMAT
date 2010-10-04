@@ -1,0 +1,25 @@
+%Test literals in function
+function [varOutput1, varOutput2, stringOutput1, stringOutput2] =Bug1903_func(varInput1, stringInput1, varInput2 ,stringInput2);
+
+Global Bug1903_output;
+
+%%Create Variable varInput2, varOutput1, varOutput2;
+Create Variable varOutput1, varOutput2;
+%%Create String stringInput2, stringOutput1, stringOutput2;
+Create String stringOutput1, stringOutput2;
+
+Create String stringVar;
+stringVar = 'Inside Bug1903_func1, before assignment';
+
+Report Bug1903_output stringVar;
+Report Bug1903_output varInput1 varInput2 stringInput1 stringInput2;
+
+stringOutput1 = stringInput1;
+stringOutput2 = stringInput2;
+varOutput1 = varInput2 / 2.0;
+varOutput2 = varInput2;
+
+stringVar = 'Inside Bug1903_func1, after  assignment';
+Report Bug1903_output stringVar;
+Report Bug1903_output varOutput1 varOutput2 stringOutput1 stringOutput2;
+

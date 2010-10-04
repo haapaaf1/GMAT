@@ -1,0 +1,4 @@
+function Bug1997_Func_EphemToggleCrash_nested(reportLoc1)
+ 
+% Call function
+Bug1997_Func_EphemToggleCrash(reportLoc1)
