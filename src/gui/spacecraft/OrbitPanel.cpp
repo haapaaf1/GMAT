@@ -83,6 +83,7 @@
 //#define DEBUG_ORBIT_PANEL_COMBOBOX
 //#define DEBUG_ORBIT_PANEL_STATE_TYPE
 //#define DEBUG_ORBIT_PANEL_STATE_CHANGE
+//#define DEBUG_ORBIT_PANEL_TEXT_CHANGE
 //#define DEBUG_ORBIT_PANEL_SAVE
 //#define DEBUG_ORBIT_PANEL_CHECK_RANGE
 
@@ -847,6 +848,9 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
       MessageInterface::ShowMessage
          ("   OnComboBoxChange() mFromCoordSysStr=%s, mFromStateTypeStr=%s\n",
           mFromCoordSysStr.c_str(), mFromStateTypeStr.c_str());
+      MessageInterface::ShowMessage("------ epochChanged = %s, epochModified = %s, stateModified = %s\n",
+           (mIsEpochChanged? "true" : "false"), (mIsEpochModified? "true" : "false"),
+           (IsStateModified()? "true" : "false"));
       #endif
       
       if (event.GetEventObject() == mCoordSysComboBox)
@@ -868,7 +872,7 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
                stateTypeComboBox->SetValue(mFromStateTypeStr.c_str());
                MessageInterface::PopupMessage
                   (Gmat::ERROR_, +
-                   "Please enter valid value before changing the State Type\n");
+                   "Please enter valid state before changing the State Type\n");  // *****
                return;
             }
          }
@@ -897,6 +901,7 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
                //throw; // GMAT crashes if I put this in here ... ???
             }
          }
+
 
          BuildValidCoordinateSystemList(stateTypeStr);
       }
@@ -1011,6 +1016,9 @@ void OrbitPanel::OnTextChange(wxCommandEvent& event)
 
       if (IsStateModified())
       {
+         #ifdef DEBUG_ORBIT_PANEL_TEXT_CHANGE
+            MessageInterface::ShowMessage("--- The state has been modified\n");
+         #endif
          mIsStateChanged = true;
          dataChanged = true;
          theScPanel->EnableUpdate(true);
@@ -1018,6 +1026,10 @@ void OrbitPanel::OnTextChange(wxCommandEvent& event)
    }
    else if (obj == epochValue && epochValue->IsModified())
    {
+      #ifdef DEBUG_ORBIT_PANEL_TEXT_CHANGE
+         MessageInterface::ShowMessage("--- The epoch has been changed to: %s\n",
+               (epochValue->GetValue()).c_str());
+      #endif
       mIsEpochChanged = true;
       mIsEpochModified = true;
       dataChanged = true;
@@ -1147,7 +1159,8 @@ void OrbitPanel::DisplayState()
    Rvector6 midState;
    bool isInternal = false;
    
-   if (IsStateModified())
+   if ((IsStateModified()) || mIsEpochChanged)
+//   if (IsStateModified())
    {      
       // User has typed in new state data
       for (int i=0; i<6; i++)
@@ -1200,6 +1213,34 @@ void OrbitPanel::DisplayState()
       #endif
    }
    
+   //-----------------------------------------------------------
+   // check and save epoch
+   //-----------------------------------------------------------
+   if (mIsEpochChanged)
+   {
+      std::string newEpoch = epochValue->GetValue().c_str();
+      std::string epochFormat = epochFormatComboBox->GetValue().c_str();
+      Real fromMjd = -999.999;
+      Real a1mjd = -999.999;
+      std::string outStr;
+
+      try
+      {
+         TimeConverterUtil::Convert(epochFormat, fromMjd, newEpoch,
+                                    "A1ModJulian", a1mjd, outStr);
+
+         theSpacecraft->SetEpoch(epochFormat, newEpoch, a1mjd);
+         mEpochStr = outStr;
+         mEpoch = a1mjd;
+         mIsEpochChanged = false;
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+         canClose = false;
+      }
+   }
+
    BuildState(midState, isInternal);
    
    #ifdef DEBUG_ORBIT_PANEL_CONVERT
@@ -1408,6 +1449,9 @@ void OrbitPanel::BuildState(const Rvector6 &inputState, bool isInternal)
          #ifdef DEBUG_ORBIT_PANEL_CONVERT
          MessageInterface::ShowMessage
             ("   mAnomaly = [%s]\n", mAnomaly.ToString(16).c_str());
+         MessageInterface::ShowMessage("before Coordinate Conversion, mEpoch = %12.10f\n", mEpoch);
+         MessageInterface::ShowMessage("  mFromCoord = %s, mInternalCoord = %s\n",
+               mFromCoord->GetName().c_str(), mInternalCoord->GetName().c_str());
          #endif
          
          // Convert input state to the Cartesian representation
@@ -1426,6 +1470,11 @@ void OrbitPanel::BuildState(const Rvector6 &inputState, bool isInternal)
           mCartState.ToString(16).c_str());
       #endif
       
+      #ifdef DEBUG_ORBIT_PANEL_CONVERT
+      MessageInterface::ShowMessage("before Coordinate Conversion, mEpoch = %12.10f\n", mEpoch);
+      MessageInterface::ShowMessage("  mInternalCoord = %s, mOutCoord = %s\n",
+            mInternalCoord->GetName().c_str(), mOutCoord->GetName().c_str());
+      #endif
       // Transform to the desired coordinate system
       mCoordConverter.Convert(A1Mjd(mEpoch), mCartState, mInternalCoord, midState, 
                               mOutCoord);
@@ -1910,6 +1959,9 @@ bool OrbitPanel::ComputeTrueAnomaly(Rvector6 &state, const std::string &stateTyp
    
    if (stateTypeStr == mStateTypeNames[StateConverter::CARTESIAN])
    {
+      #ifdef DEBUG_ORBIT_PANEL_CONVERT
+      MessageInterface::ShowMessage("before Coordinate Conversion in ComputeTrueAnomaly, mEpoch = %12.10f\n", mEpoch);
+      #endif
       // Transform to the desired coordinate system
       mCoordConverter.Convert(A1Mjd(mEpoch), mCartState, mInternalCoord, midState, 
                               mOutCoord);
