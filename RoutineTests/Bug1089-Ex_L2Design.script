@@ -44,7 +44,7 @@ GMAT EarthMoonL2Prop_ForceModel.ErrorControl = RSSStep;
 
 Create Propagator EarthMoonL2Prop;
 GMAT EarthMoonL2Prop.FM = EarthMoonL2Prop_ForceModel;
-GMAT EarthMoonL2Prop.Type = DormandElMikkawyPrince68;
+GMAT EarthMoonL2Prop.Type = RungeKutta68;
 GMAT EarthMoonL2Prop.InitialStepSize = 130;
 GMAT EarthMoonL2Prop.Accuracy = 1e-010;
 GMAT EarthMoonL2Prop.MinStep = 0.001;
@@ -71,15 +71,15 @@ GMAT EarthProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn dV
 GMAT dV.Axes = VNB;
 GMAT dV.Origin = Earth;
-GMAT dV.V = -0.00003;
+GMAT dV.Element1 = -0.00003;
 
 Create ImpulsiveBurn dVCirc
 GMAT dVCirc.Axes = VNB;
 GMAT dVCirc.Origin = Earth;
-GMAT dVCirc.V = -0.00003;
+GMAT dVCirc.Element1 = -0.00003;
 
 Create DifferentialCorrector DC;
-GMAT DC.TargeterTextFile = Bug1089-DC.data;
+GMAT DC.ReportFile = Bug1089-DC.data;
 
 Create LibrationPoint EarthMoonL2
 GMAT EarthMoonL2.Primary = Earth;
@@ -192,9 +192,9 @@ GMAT L2View.NumPointsToRedraw = 0;
 % ------------------------------XYPlots--------------------------------------
 
 Create XYPlot ERRot_YZ;
-GMAT ERRot_YZ.IndVar = Sat.CSEarthMoonRot.Y;
-GMAT ERRot_YZ.Add = { Sat.CSEarthMoonRot.Z};
-GMAT ERRot_YZ.Grid = On;
+GMAT ERRot_YZ.XVariable = Sat.CSEarthMoonRot.Y;
+GMAT ERRot_YZ.YVariables = { Sat.CSEarthMoonRot.Z};
+GMAT ERRot_YZ.ShowGrid = true;
 GMAT ERRot_YZ.SolverIterations = None;
 
 % ------------------------------ Reports --------------------------------------
@@ -226,7 +226,7 @@ For J = 1:1
       
      ClearPlot ERRot_YZ
      PenDown ERRot_YZ
-     Vary DC(dV.V =  0.0005, {Perturbation = 1e-6, MaxStep = 0.0005, Lower = -0.04 , Upper =  0.0297});
+     Vary DC(dV.Element1 =  0.0005, {Perturbation = 1e-6, MaxStep = 0.0005, Lower = -0.04 , Upper =  0.0297});
      Maneuver dV(Sat);
      
      For I = 1:2

@@ -102,7 +102,7 @@ GMAT RKV_LowEarth_JR.MaxStepAttempts = 50;
 % Create Propagator
 Create Propagator RKF_HighEarth;
 GMAT RKF_HighEarth.FM = HighEarth;
-GMAT RKF_HighEarth.Type = RungeKuttaFehlberg56;
+GMAT RKF_HighEarth.Type = RungeKutta56;
 GMAT RKF_HighEarth.InitialStepSize = 60;
 GMAT RKF_HighEarth.Accuracy = 9.999999999999999e-012;
 GMAT RKF_HighEarth.MinStep = 0.01;

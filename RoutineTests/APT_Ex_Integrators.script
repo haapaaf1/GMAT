@@ -39,7 +39,6 @@ GMAT PointMass.Gravity.Earth.Order  = 0;
 
 %Create a Runge Kutta Fehlburg (56) Propagator
 Create Propagator RungeKutta56;
-GMAT  RungeKutta56.Type     = RungeKuttaFehlberg56;
 GMAT  RungeKutta56.Type     = RungeKutta56;
 GMAT  RungeKutta56.InitialStepSize = 30;;
 GMAT  RungeKutta56.Accuracy = 1e-12;
@@ -49,7 +48,6 @@ GMAT  RungeKutta56.FM       =  PointMass;
 
 %Create a Runge Kutta Nystrom (68) Propagator
 Create Propagator RungeKutta68;
-GMAT  RungeKutta68.Type     = DormandElMikkawyPrince68;
 GMAT  RungeKutta68.Type     = RungeKutta68;
 GMAT  RungeKutta68.InitialStepSize = 30;;
 GMAT  RungeKutta68.Accuracy = 1e-12;
@@ -106,7 +104,7 @@ GMAT  AdamsBashfourthMoulton.FM       =  PointMass;
 Create OpenGLPlot GLPlot;
 GMAT GLPlot.Add = {Sat1, Earth};
 GMAT GLPlot.CoordinateSystem = EarthMJ2000Eq;
-GMAT GLPlot.ViewPointRef = Earth;
+GMAT GLPlot.ViewPointReference = Earth;
 GMAT GLPlot.ViewPointVector = Vector;
 GMAT GLPlot.ViewDirection = Earth;
 GMAT GLPlot.ViewScaleFactor = 3;
