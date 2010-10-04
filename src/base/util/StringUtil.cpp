@@ -2979,6 +2979,22 @@ bool GmatStringUtil::EndsWith(const std::string &str, const std::string &value)
 
 
 //------------------------------------------------------------------------------
+// bool EndsWithPathSeparator(const std::string &str)
+//------------------------------------------------------------------------------
+/*
+ * Returns true if string ends with path separator (/ or \\) and false if it does not.
+ */
+//------------------------------------------------------------------------------
+bool GmatStringUtil::EndsWithPathSeparator(const std::string &str)
+{
+   if (EndsWith(str, "/") || EndsWith(str, "\\"))
+      return true;
+   else
+      return false;
+}
+
+
+//------------------------------------------------------------------------------
 // bool IsValidName(const std::string &str, bool ignoreBracket, bool stripBlanks)
 //------------------------------------------------------------------------------
 /*

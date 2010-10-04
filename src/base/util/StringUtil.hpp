@@ -132,6 +132,7 @@ namespace GmatStringUtil
    GMAT_API bool IsSingleItem(const std::string &str);
    GMAT_API bool StartsWith(const std::string &str, const std::string &value);
    GMAT_API bool EndsWith(const std::string &str, const std::string &value);
+   GMAT_API bool EndsWithPathSeparator(const std::string &str); 
    GMAT_API bool IsValidNumber(const std::string &str);
    GMAT_API bool IsValidName(const std::string &str, bool ignoreBracket = false);
    GMAT_API bool IsBlank(const std::string &str, bool ignoreEol = false);
