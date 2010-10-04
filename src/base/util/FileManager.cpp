@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            FileManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -23,6 +23,7 @@
 #include "StringUtil.hpp"
 #include "FileTypes.hpp"          // for GmatFile::MAX_PATH_LEN
 #include "FileUtil.hpp"           // for GmatFileUtil::
+#include "StringTokenizer.hpp"    // for StringTokenizer()
 #include "GmatGlobal.hpp"         // for SetTestingMode()
 #include <fstream>
 #include <sstream>
@@ -39,12 +40,14 @@
 
 //#define DEBUG_FILE_MANAGER
 //#define DEBUG_FUNCTION_PATH
+//#define DEBUG_ADD_FILETYPE
 //#define DEBUG_FILE_PATH
 //#define DEBUG_SET_PATH
 //#define DEBUG_READ_STARTUP_FILE
 //#define DEBUG_WRITE_STARTUP_FILE
 //#define DEBUG_PLUGIN_DETECTION
 //#define DEBUG_FILE_RENAME
+//#define DEBUG_MAPPING
 
 //---------------------------------
 // static data
@@ -459,6 +462,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       {
          if (type == "RUN_MODE")
          {
+            mRunMode = name;
             if (name == "TESTING")
                GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
             else if (name == "TESTING_NO_PLOTS")
@@ -468,6 +472,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
          }
          else if (type == "MATLAB_MODE")
          {
+            mMatlabMode = name;
             if (name == "SINGLE")
                GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SINGLE_USE);
             else if (name == "SHARED")
@@ -478,7 +483,10 @@ void FileManager::ReadStartupFile(const std::string &fileName)
          else if (type == "DEBUG_MATLAB")
          {
             if (name == "ON")
+            {
+               mDebugMatlab = name;
                GmatGlobal::Instance()->SetMatlabDebug(true);
+            }
          }
          else
             AddFileType(type, name);
@@ -503,6 +511,10 @@ void FileManager::ReadStartupFile(const std::string &fileName)
    
    // add potential files by type names
    AddAvailablePotentialFiles();
+   
+   #ifdef DEBUG_MAPPING
+   ShowMaps("In ReadStartupFile()");
+   #endif
    
    // save good startup file
    mStartupFileDir = tmpStartupDir;
@@ -549,12 +561,48 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    // write header
    //---------------------------------------------
    WriteHeader(outStream);
-
+   
    // set left justified
    outStream.setf(std::ios::left);
-
+   
    //---------------------------------------------
-   // write ROOT_PATH first
+   // write RUN_MODE if not blank
+   //---------------------------------------------
+   if (mRunMode != "")
+   {
+      #ifdef DEBUG_WRITE_STARTUP_FILE
+      MessageInterface::ShowMessage("   .....Writing RUN_MODE\n");
+      #endif
+      outStream << std::setw(20) << "RUN_MODE" << " = " << mRunMode << "\n";
+   }
+   
+   //---------------------------------------------
+   // write MATLAB_MODE if not blank
+   //---------------------------------------------
+   if (mMatlabMode != "")
+   {
+      #ifdef DEBUG_WRITE_STARTUP_FILE
+      MessageInterface::ShowMessage("   .....Writing RUN_MODE\n");
+      #endif
+      outStream << std::setw(20) << "MATLAB_MODE" << " = " << mMatlabMode << "\n";
+   }
+   
+   //---------------------------------------------
+   // write DEBUG_MATLAB if not blank
+   //---------------------------------------------
+   if (mDebugMatlab != "")
+   {
+      #ifdef DEBUG_WRITE_STARTUP_FILE
+      MessageInterface::ShowMessage("   .....Writing RUN_MODE\n");
+      #endif
+      outStream << std::setw(20) << "DEBUG_MATLAB" << " = " << mDebugMatlab << "\n";
+   }
+   
+   if (mRunMode != "" || mMatlabMode != "" || mDebugMatlab != "")
+      outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write ROOT_PATH next
    //---------------------------------------------
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing ROOT_PATH path\n");
@@ -562,7 +610,23 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    outStream << std::setw(20) << "ROOT_PATH" << " = " << mPathMap["ROOT_PATH"]
              << "\n";
    outStream << "#-----------------------------------------------------------\n";
-
+   
+   //---------------------------------------------
+   // write PLUGIN next 
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing PLUGIN\n");
+   #endif
+   if (mPluginList.size() > 0)
+   {
+      for (UnsignedInt i = 0; i < mPluginList.size(); ++i)
+      {
+         outStream << std::setw(20) << "PLUGIN" << " = " << mPluginList[i]
+                   << "\n";
+      }
+      outStream << "#-----------------------------------------------------------\n";
+   }
+   
    //---------------------------------------------
    // write OUTPUT_PATH and LOG file next
    //---------------------------------------------
@@ -573,7 +637,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
              << mPathMap["OUTPUT_PATH"] << "\n";
    WriteFiles(outStream, "LOG");
    outStream << "#-----------------------------------------------------------\n";
-
+   
    //---------------------------------------------
    // write GMAT_FUNCTION_PATH next
    //---------------------------------------------
@@ -606,7 +670,6 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #endif
    outStream << std::setw(20) << "MEASUREMENT_PATH" << " = "
              << mPathMap["MEASUREMENT_PATH"] << "\n";
-   WriteFiles(outStream, "LOG");
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
@@ -653,7 +716,9 @@ void FileManager::WriteStartupFile(const std::string &fileName)
              << mPathMap["DE_PATH"] << "\n";
    WriteFiles(outStream, "DE");
    outStream << "#-----------------------------------------------------------\n";
-
+   
+   // Do not write SLP file it is no longer used (LOJ: 2010.10.01)
+   #if 0
    //---------------------------------------------
    // write the SLP_PATH and SLP file next
    //---------------------------------------------
@@ -663,9 +728,9 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    outStream << std::setw(20) << "SLP_PATH" << " = "
              << mPathMap["SLP_PATH"] << "\n";
    WriteFiles(outStream, "SLP");
-   outStream << "#--------------------------------"
-         "---------------------------\n";
-
+   outStream << "#-----------------------------------------------------------\n";
+   #endif
+   
    //---------------------------------------------
    // write the PLANETARY_COEFF_PATH and files next
    //---------------------------------------------
@@ -756,12 +821,13 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    }
 
    //---------------------------------------------
-   // write the GUI_CONFIG_PATH  next
+   // write the GUI_CONFIG_PATH and files next
    //---------------------------------------------
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing GUI_CONFIG_PATH path\n");
    #endif
    outStream << std::setw(20) << "GUI_CONFIG_PATH" << " = " << mPathMap["GUI_CONFIG_PATH"] << "\n";
+   WriteFiles(outStream, "PERSONALIZATION_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
 
@@ -808,9 +874,9 @@ std::string FileManager::GetRootPath()
 // std::string GetPathname(const FileType type)
 //------------------------------------------------------------------------------
 /**
- * Retrives file pathname for the type.
+ * Retrives absolute path for the type without filename.
  *
- * @param <type> enum file type of which pathname to be returned.
+ * @param <type> enum file type of which path to be returned.
  *
  * @return file pathname if path type found.
  * @exception thrown if enum type is out of bounds.
@@ -820,11 +886,11 @@ std::string FileManager::GetPathname(const FileType type)
 {
    if (type >=0 && type < FileTypeCount)
       return GetPathname(FILE_TYPE_STRING[type]);
-
+   
    std::stringstream ss("");
    ss << "FileManager::GetPathname() enum type: " << type
       << " is out of bounds\n";
-
+   
    throw UtilityException(ss.str());
 }
 
@@ -833,7 +899,7 @@ std::string FileManager::GetPathname(const FileType type)
 // std::string GetPathname(const std::string &typeName)
 //------------------------------------------------------------------------------
 /**
- * Retrives file pathname for the type name.
+ * Retrives absolute pathname for the type name without filename.
  *
  * @param <typeName> file type name of which pathname to be returned.
  *
@@ -844,36 +910,51 @@ std::string FileManager::GetPathname(const FileType type)
 std::string FileManager::GetPathname(const std::string &typeName)
 {
    std::string fileType = GmatStringUtil::ToUpper(typeName);
+   
+   #ifdef DEBUG_FILE_PATH
+   MessageInterface::ShowMessage
+      ("FileManager::GetPathname() entered, flleType='%s'\n", fileType.c_str());
+   #endif
 
-   // typeName contains _PATH
+   std::string pathname;
+   bool nameFound = false;
+   
+   // if typeName contains _PATH
    if (fileType.find("_PATH") != fileType.npos)
    {
       if (mPathMap.find(fileType) != mPathMap.end())
-         return mPathMap[fileType];
+      {
+         pathname = mPathMap[fileType];
+         nameFound = true;
+      }
    }
    else
    {
+      // typeName contains _FILE      
       if (mFileMap.find(fileType) != mFileMap.end())
       {
-         // Replace ROOT_PATH with abs path
-         std::string pathname = mPathMap[mFileMap[fileType]->mPath];
-         if (pathname.find("ROOT_PATH") != pathname.npos)
-         {
-            std::string pathname2 = mPathMap["ROOT_PATH"] +
-               mPathMap[mFileMap[fileType]->mPath];
-            std::string::size_type pos1 = pathname2.find("ROOT_PATH");
-            pathname2.replace(pos1, 10, "");
-            return pathname2;
-         }
-         else
-         {
-            return mPathMap[mFileMap[fileType]->mPath];
-         }
+         pathname = mFileMap[fileType]->mPath;
+         nameFound = true;
       }
    }
-
-   throw UtilityException("FileManager::GetPathname() file type: " + typeName +
-                           " is unknown\n");
+   
+   if (nameFound)
+   {
+      // Replace relative path with absolute path
+      std::string abspath = ConvertToAbsPath(pathname);
+      
+      #ifdef DEBUG_FILE_PATH
+      MessageInterface::ShowMessage
+         ("FileManager::GetPathname() returning '%s'\n", abspath.c_str());
+      #endif
+      
+      return abspath;
+   }
+   else
+   {
+      throw UtilityException("FileManager::GetPathname() file type: " + typeName +
+                             " is unknown\n");
+   }
 }
 
 
@@ -881,7 +962,7 @@ std::string FileManager::GetPathname(const std::string &typeName)
 // std::string GetFilename(const FileType type)
 //------------------------------------------------------------------------------
 /**
- * Retrives filename for the type.
+ * Retrives filename for the type without path.
  *
  * @param <type> enum file type of which filename to be returned.
  *
@@ -891,9 +972,20 @@ std::string FileManager::GetPathname(const std::string &typeName)
 //------------------------------------------------------------------------------
 std::string FileManager::GetFilename(const FileType type)
 {
+   bool nameFound = false;
+   std::string name;
    if (type >=0 && type < FileTypeCount)
-      return GetFilename(FILE_TYPE_STRING[type]);
-
+   {
+      name = GetFilename(FILE_TYPE_STRING[type]);
+      nameFound = true;
+   }
+   
+   if (nameFound)
+   {
+      name = GmatFileUtil::ParseFileName(name);
+      return name;
+   }
+   
    std::stringstream ss("");
    ss << "FileManager::GetFilename() enum type: " << type
       << " is out of bounds\n";
@@ -906,7 +998,7 @@ std::string FileManager::GetFilename(const FileType type)
 // std::string GetFilename(const std::string &typeName)
 //------------------------------------------------------------------------------
 /**
- * Retrives filename for the type name.
+ * Retrives filename for the type name without path.
  *
  * @param <type> file type name of which filename to be returned.
  *
@@ -916,14 +1008,20 @@ std::string FileManager::GetFilename(const FileType type)
 //------------------------------------------------------------------------------
 std::string FileManager::GetFilename(const std::string &typeName)
 {
+   bool nameFound = false;
+   std::string name;
    if (mFileMap.find(typeName) != mFileMap.end())
-      return mFileMap[typeName]->mFile;
-
-   //MessageInterface::ShowMessage
-   //   ("FileManager::GetFilename() file type: %s is unknown\n", typeName.c_str());
-
-   //return "UNKNOWN_FILE_TYPE";
-
+   {
+      name = mFileMap[typeName]->mFile;
+      nameFound = true;
+   }
+   
+   if (nameFound)
+   {
+      name = GmatFileUtil::ParseFileName(name);
+      return name;
+   }
+   
    throw UtilityException("FileManager::GetFilename() file type: " + typeName +
                            " is unknown\n");
 }
@@ -931,6 +1029,15 @@ std::string FileManager::GetFilename(const std::string &typeName)
 
 //------------------------------------------------------------------------------
 // std::string GetFullPathname(const FileType type)
+//------------------------------------------------------------------------------
+/**
+ * Retrieves full pathname for the type.
+ *
+ * @param <type> file type of which filename to be returned.
+ *
+ * @return file pathname if file type found
+ * @exception thrown if enum type is out of bounds
+ */
 //------------------------------------------------------------------------------
 std::string FileManager::GetFullPathname(const FileType type)
 {
@@ -940,6 +1047,15 @@ std::string FileManager::GetFullPathname(const FileType type)
 
 //------------------------------------------------------------------------------
 // std::string GetFullPathname(const std::string &typeName)
+//------------------------------------------------------------------------------
+/**
+ * Retrives full pathname for the type name.
+ *
+ * @param <type> file type name of which filename to be returned.
+ *
+ * @return file pathname if file type name found
+ * @exception thrown if type cannot be found.
+ */
 //------------------------------------------------------------------------------
 std::string FileManager::GetFullPathname(const std::string &typeName)
 {
@@ -1049,41 +1165,75 @@ std::string FileManager::GetAbsPathname(const std::string &typeName)
 //------------------------------------------------------------------------------
 // std::string ConvertToAbsPath(const std::string &relPath)
 //------------------------------------------------------------------------------
+/**
+ * Converts relative path to absolute path
+ */
+//------------------------------------------------------------------------------
 std::string FileManager::ConvertToAbsPath(const std::string &relPath)
 {
    #ifdef DEBUG_FILE_PATH
    MessageInterface::ShowMessage
       ("FileManager::ConvertToAbsPath() relPath='%s'\n", relPath.c_str());
    #endif
-
-   std::string absPath = relPath;
-
-   // relPath contains _PATH
-   std::string::size_type index = absPath.find("_PATH");
-   if (index != absPath.npos)
+   
+   //std::string absPath = relPath;
+   std::string absPath;
+   StringTokenizer st(relPath, "/\\");
+   StringArray allNames = st.GetAllTokens();
+   StringArray pathNames;
+   
+   for (UnsignedInt i = 0; i < allNames.size(); i++)
    {
-      std::string pathSymbol = absPath.substr(0, index+5);
-      std::string remPath = absPath.substr(index+6);
-
+      std::string name = allNames[i];
+      
       #ifdef DEBUG_FILE_PATH
-      MessageInterface::ShowMessage("   pathSymbol='%s'\n", pathSymbol.c_str());
-      MessageInterface::ShowMessage("   remPath='%s'\n", remPath.c_str());
+      MessageInterface::ShowMessage("   name = '%s'\n", name.c_str());
       #endif
-
-      if (mPathMap.find(pathSymbol) != mPathMap.end())
+      
+      absPath = name;
+      if (GmatStringUtil::EndsWith(name, "_PATH"))
       {
-         // Replace *_PATH with abs path
-         std::string pathname = mPathMap[pathSymbol];
-         absPath = pathname + remPath;
-         absPath = ConvertToAbsPath(absPath);
+         #ifdef DEBUG_FILE_PATH
+         MessageInterface::ShowMessage("   _PATH found\n");
+         #endif
+         
+         if (mPathMap.find(name) != mPathMap.end())
+            absPath = mPathMap[name];
+         
+         if (absPath.find("_PATH") != absPath.npos)
+            absPath = ConvertToAbsPath(absPath);
+         
+         #ifdef DEBUG_FILE_PATH
+         MessageInterface::ShowMessage("   absPath = '%s'\n", absPath.c_str());
+         #endif
+         
+         pathNames.push_back(absPath);
+      }
+      else
+      {
+         #ifdef DEBUG_FILE_PATH
+         MessageInterface::ShowMessage("   _PATH not found\n");
+         MessageInterface::ShowMessage("   absPath = '%s'\n", absPath.c_str());
+         #endif
+         
+         pathNames.push_back(absPath);
       }
    }
-
+   
+   absPath = "";
+   for (UnsignedInt i = 0; i < pathNames.size(); i++)
+   {
+      if (GmatStringUtil::EndsWithPathSeparator(pathNames[i]))
+         absPath = absPath + pathNames[i];
+      else
+         absPath = absPath + pathNames[i] + "/";
+   }
+      
    #ifdef DEBUG_FILE_PATH
    MessageInterface::ShowMessage
       ("FileManager::ConvertToAbsPath() returning '%s'\n", absPath.c_str());
    #endif
-
+   
    return absPath;
 }
 
@@ -1141,12 +1291,12 @@ void FileManager::SetAbsPathname(const std::string &type, const std::string &new
          std::string::size_type index = str2.find_last_of("/\\");
          if (index != str2.length() - 1)
          {
-            str2 = str2 + "/";
+            str2 = str2 + mPathSeparator;
          }
          else
          {
             index = str2.find_last_not_of("/\\");
-            str2 = str2.substr(0, index+1) + "/";
+            str2 = str2.substr(0, index+1) + mPathSeparator;
          }
 
          mPathMap[type] = str2;
@@ -1492,21 +1642,26 @@ std::string FileManager::GetFunctionPath(FunctionType type,
 //------------------------------------------------------------------------------
 void FileManager::AddFileType(const std::string &type, const std::string &name)
 {
-   #ifdef DEBUG_FILE_MANAGER
+   #ifdef DEBUG_ADD_FILETYPE
    MessageInterface::ShowMessage
-      ("FileManager::AddFileType() type=%s, name=%s\n", type.c_str(), name.c_str());
+      ("FileManager::AddFileType() entered, type=%s, name=%s\n", type.c_str(), name.c_str());
    #endif
 
    if (type.find("_PATH") != type.npos)
    {
       std::string str2 = name;
-
-      // append '/' if not there
-      if (str2.find_last_of('/') != str2.length()-1)
-         str2 = str2 + "/";
-
+      
+      // append '/' if '\\' or '/' not there
+      if (!GmatStringUtil::EndsWithPathSeparator(str2))
+         str2 = str2 + mPathSeparator;
+      
       mPathMap[type] = str2;
 
+      #ifdef DEBUG_ADD_FILETYPE
+      MessageInterface::ShowMessage
+         ("   Adding %s = %s to mPathMap\n", type.c_str(), str2.c_str());
+      #endif
+      
       // Handle Gmat and Matlab Function path
       if (type == "GMAT_FUNCTION_PATH")
          AddGmatFunctionPath(str2, false);
@@ -1522,14 +1677,22 @@ void FileManager::AddFileType(const std::string &type, const std::string &name)
    {
       std::string pathName;
       std::string fileName;
-
+      
       // file name
-      std::string::size_type pos = name.find("/");
+      std::string::size_type pos = name.find_last_of("/");
+      if (pos == name.npos)
+         pos = name.find_last_of("\\");
+      
       if (pos != name.npos)
       {
          std::string pathName = name.substr(0, pos);
          std::string fileName = name.substr(pos+1, name.npos);
          mFileMap[type] = new FileInfo(pathName, fileName);
+         
+         #ifdef DEBUG_ADD_FILETYPE
+         MessageInterface::ShowMessage
+            ("   Adding %s and %s to mFileMap\n", pathName.c_str(), fileName.c_str());
+         #endif
       }
       else
       {
@@ -1538,11 +1701,16 @@ void FileManager::AddFileType(const std::string &type, const std::string &name)
          mPathMap[pathName] = "./";
          std::string fileName = name;
          mFileMap[type] = new FileInfo(pathName, fileName);
-
+         
+         #ifdef DEBUG_ADD_FILETYPE
          MessageInterface::ShowMessage
-            ("FileManager::AddFileType() 'PATH/' not found in line:\n% = % \n"
+            ("   Adding %s and %s to mFileMap\n", pathName.c_str(), fileName.c_str());
+         #endif
+         
+         MessageInterface::ShowMessage
+            ("FileManager::AddFileType() 'PATH/' not found in line:\n%s = %s \n"
              "So adding CURRENT_PATH = ./\n", type.c_str(), name.c_str());
-
+         
          //loj: Should we just throw an exception?
          //mInStream.close();
          //throw UtilityException
@@ -1564,6 +1732,10 @@ void FileManager::AddFileType(const std::string &type, const std::string &name)
          ("FileManager::AddFileType() file type should have '_PATH' or '_FILE'"
           " in:\n" + type);
    }
+   
+   #ifdef DEBUG_ADD_FILETYPE
+   MessageInterface::ShowMessage("FileManager::AddFileType() leaving\n");
+   #endif
 }
 
 
@@ -1618,14 +1790,29 @@ void FileManager::WriteHeader(std::ofstream &outStream)
    outStream << "#   - File name should end with _FILE\n";
    outStream << "#   - Path/File names are case sensative\n";
    outStream << "#\n";
-   outStream << "# You can add potential file and texture file by following the naming\n";
-   outStream << "# convention.\n";
+   outStream << "# You can add potential and texture files by following the naming convention.\n";
    outStream << "#   - Potential file should begin with planet name and end with _POT_FILE\n";
    outStream << "#   - Texture file should begin with planet name and end with _TEXTURE_FILE\n";
    outStream << "#\n";
    outStream << "# If same _FILE is specified multiple times, it will use the last one.\n";
    outStream << "#\n";
-   outStream << "# All comment lines starting ## will be written last when saving this file.\n";
+   outStream << "# You can have more than one line containing GMAT_FUNCTION_PATH. GMAT will store \n";
+   outStream << "# the multiple paths you specify and scan for GMAT Functions using the paths \n";
+   outStream << "# in top to bottom order and use the first function found from the search paths.\n";
+   outStream << "#\n";
+   outStream << "# In order for an object plugin to work inside GMAT, the plugin dll must be placed \n";
+   outStream << "# in the folder containing the GMAT executable. Once placed in the correct folder \n";
+   outStream << "# the PLUGIN line below must be set equal to the plugin name without the dll \n";
+   outStream << "# extension with the comment (#) removed from the front of the line.\n";
+   outStream << "#\n";
+   outStream << "# Availabe PLUGINs are:\n";
+   outStream << "# PLUGIN = libMatlabInterface\n";
+   outStream << "# PLUGIN = libFminconOptimizer\n";
+   outStream << "# PLUGIN = libVF13Optimizer\n";
+   outStream << "# PLUGIN = libDataFile\n";
+   outStream << "# PLUGIN = libGmatEstimation\n";
+   outStream << "#\n";
+   outStream << "# All comment lines starting ## will be saved when saving startup file.\n";
    outStream << "#\n";
    outStream << "#============================================================="
       "==================\n";
@@ -1639,7 +1826,8 @@ void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage("   .....Writing %s file\n", type.c_str());
    #endif
-
+   
+   std::string realPath;
    for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
         pos != mFileMap.end(); ++pos)
    {
@@ -1647,9 +1835,14 @@ void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
       {
          if (pos->second)
          {
+            realPath = pos->second->mPath;
+            if (realPath == "CURRENT_PATH")
+               realPath = "";
+            else
+               realPath = realPath + mPathSeparator;
+            
             outStream << std::setw(20) << pos->first << " = "
-                      << pos->second->mPath << "/"
-                      << pos->second->mFile << "\n";
+                      << realPath << pos->second->mFile << "\n";
          }
       }
    }
@@ -1661,6 +1854,9 @@ void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
 //------------------------------------------------------------------------------
 void FileManager::RefreshFiles()
 {
+   mRunMode = "";
+   mMatlabMode = "";
+   mDebugMatlab = "";
    mPathMap.clear();
    mGmatFunctionPaths.clear();
    mMatlabFunctionPaths.clear();
@@ -1765,6 +1961,29 @@ void FileManager::RefreshFiles()
 
 #endif
 
+}
+
+
+//------------------------------------------------------------------------------
+// void ShowMaps(const std::string &msg)
+//------------------------------------------------------------------------------
+void FileManager::ShowMaps(const std::string &msg)
+{
+   MessageInterface::ShowMessage("%s\n", msg.c_str());
+   MessageInterface::ShowMessage("Here is path map, there are %d items\n", mPathMap.size());
+   for (std::map<std::string, std::string>::iterator pos = mPathMap.begin();
+        pos != mPathMap.end(); ++pos)
+   {
+      MessageInterface::ShowMessage("%20s: %s\n", (pos->first).c_str(), (pos->second).c_str());
+   }
+   
+   MessageInterface::ShowMessage("Here is file map, there are %d items\n", mFileMap.size());
+   for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
+        pos != mFileMap.end(); ++pos)
+   {
+      MessageInterface::ShowMessage
+         ("%20s: %20s  %s\n", (pos->first).c_str(), (pos->second)->mPath.c_str(), (pos->second)->mFile.c_str());
+   }
 }
 
 

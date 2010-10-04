@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  FileManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -102,12 +102,15 @@ public:
    
    std::string GetRootPath();
    
+   // Methods returning path
    std::string GetPathname(const FileType type);
    std::string GetPathname(const std::string &typeName);
    
+   // Methods returning filename
    std::string GetFilename(const FileType type);
    std::string GetFilename(const std::string &typeName);
    
+   // Methods returning full path and filename
    //loj: Why the name "GetFullPathName()" doesn't work? Reserved word?
    // I'm getting unresolved ref on GetFullPathNameA()
    std::string GetFullPathname(const FileType type);
@@ -155,6 +158,9 @@ private:
    std::string mPathSeparator;
    std::string mStartupFileDir;
    std::string mStartupFileName;
+   std::string mRunMode;
+   std::string mMatlabMode;
+   std::string mDebugMatlab;
    std::ifstream mInStream;
    std::map<std::string, std::string> mPathMap;
    std::map<std::string, FileInfo*> mFileMap;
@@ -173,6 +179,9 @@ private:
    void WriteHeader(std::ofstream &outStream);
    void WriteFiles(std::ofstream &outStream, const std::string &type);
    void RefreshFiles();
+   
+   // For debugging
+   void ShowMaps(const std::string &msg);
    
    static FileManager *theInstance;
    static const std::string FILE_TYPE_STRING[FileTypeCount];
