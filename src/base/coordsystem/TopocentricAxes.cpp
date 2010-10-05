@@ -1,4 +1,4 @@
-//$Header$
+//$Id: $
 //------------------------------------------------------------------------------
 //                                  TopocentricAxes
 //------------------------------------------------------------------------------
@@ -336,7 +336,8 @@ void TopocentricAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
  * to the body fixed frame.  This only needs to be recalculated if the 
  * BodyFixedPoint's location changes.
  *
- * @param atEpoch  epoch at which to compute the rotation matrix
+ * @param atEpoch      epoch at which to compute the rotation matrix
+ * @param newLocation  location in body-fixed coordinates
  *
  * @note  
  */
@@ -354,6 +355,13 @@ void TopocentricAxes::CalculateRFT(const A1Mjd &atEpoch, const Rvector3 newLocat
    y = newLocation[1];
    z = newLocation[2];
    Real rxy      = GmatMathUtil::Sqrt(x*x + y*y);
+   // Check for proximity to a pole
+   if (rxy < 1.0e-3)
+   {
+      std::string errmsg = "Topocentric Coordinate System ";
+      errmsg += "is undefined due to numerical singularity at the poles\n";
+      throw CoordinateSystemException(errmsg);
+   }
    // Calculate the geocentric latitude to use as an initial guess
    // to find the geodetic latitude
    Real phigd    = atan2(z, rxy);
@@ -398,8 +406,19 @@ void TopocentricAxes::CalculateRFT(const A1Mjd &atEpoch, const Rvector3 newLocat
    zUnit[1]    = GmatMathUtil::Cos(phigd) * GmatMathUtil::Sin(bfLong);
    zUnit[2]    = GmatMathUtil::Sin(phigd);
 
+   #ifdef DEBUG_TOPOCENTRIC_AXES
+      MessageInterface::ShowMessage(
+            " ... computed zUnit = %12.17f  %12.17f  %12.17f  \n",
+            zUnit[0], zUnit[1], zUnit[2]);
+   #endif
+
    // Complete the computation of x, y, and RFT
    yUnit          = Cross(kUnit, zUnit);
+   #ifdef DEBUG_TOPOCENTRIC_AXES
+      MessageInterface::ShowMessage(
+            " ... computed yUnit = %12.17f  %12.17f  %12.17f  \n",
+            yUnit[0], yUnit[1], yUnit[2]);
+   #endif
    yUnit          = yUnit.GetUnitVector();
    xUnit          = Cross(yUnit, zUnit);
    #ifdef DEBUG_TOPOCENTRIC_AXES
