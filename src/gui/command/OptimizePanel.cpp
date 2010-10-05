@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                           OptimizePanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -24,6 +24,7 @@
 //------------------------------------------------------------------------------
 BEGIN_EVENT_TABLE(OptimizePanel, GmatPanel)
    EVT_COMBOBOX(ID_COMBO, OptimizePanel::OnComboBoxChange)
+   EVT_BUTTON(ID_APPLYBUTTON, OptimizePanel::OnApplyButtonPress)
 END_EVENT_TABLE()
 
 //------------------------------------------------------------------------------
@@ -93,12 +94,16 @@ void OptimizePanel::Create()
       new wxComboBox(this, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(180,-1),
                      theOptions, wxCB_READONLY);
    
+   mApplyCorrectionsButton = new wxButton(this, ID_APPLYBUTTON,
+         wxT("Apply Corrections"));
+
    wxFlexGridSizer *pageSizer = new wxFlexGridSizer(2);
    
    pageSizer->Add(solverNameStaticText, 0, wxALIGN_CENTER|wxALL, bsize);
    pageSizer->Add(mSolverComboBox, 0, wxALIGN_CENTER|wxALL, bsize);
    pageSizer->Add(solverModeStaticText, 0, wxALIGN_CENTER|wxALL, bsize);
    pageSizer->Add(mSolverModeComboBox, 0, wxALIGN_CENTER|wxALL, bsize);
+   pageSizer->Add(mApplyCorrectionsButton, 0, wxALIGN_CENTER|wxALL, bsize);
    
    theMiddleSizer->Add(pageSizer, 0, wxGROW, bsize);
 
@@ -161,4 +166,17 @@ void OptimizePanel::SaveData()
 void OptimizePanel::OnComboBoxChange(wxCommandEvent& event)
 {
    EnableUpdate(true);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnApplyButtonPress(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+/**
+ * Method that updates variables with solution values.
+ */
+//------------------------------------------------------------------------------
+void OptimizePanel::OnApplyButtonPress(wxCommandEvent& event)
+{
+   theCommand->TakeAction("ApplyCorrections");
 }

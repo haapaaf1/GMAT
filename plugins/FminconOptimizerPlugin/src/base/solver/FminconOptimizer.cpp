@@ -911,6 +911,8 @@ void FminconOptimizer::CalculateParameters()
 void FminconOptimizer::RunComplete()
 {
    ExternalOptimizer::RunComplete();
+   status = RUN;  // Enables "Apply corrections"
+
    WriteToTextFile();
 }
 
