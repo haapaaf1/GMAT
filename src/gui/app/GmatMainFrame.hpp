@@ -35,6 +35,7 @@
 #include "GmatServer.hpp"
 #include "MdiChildTrajFrame.hpp"
 #include "MdiChildTsFrame.hpp"
+#include "WelcomePanel.hpp"
 
 #include <wx/notebook.h>
 #include <wx/toolbar.h>
@@ -72,6 +73,7 @@ public:
                     bool deleteChild = true);
    void CloseChild(const wxString &name, GmatTree::ItemType itemType);
    void CloseChild(GmatMdiChildFrame *child);
+   void CloseWelcomePanel();
    void CloseActiveChild();
    bool CloseAllChildren(bool closeScriptWindow = true, bool closePlots = true,
                          bool closeReports = true);
@@ -198,6 +200,7 @@ private:
    wxSashLayoutWindow* theMessageWin;
    
    ViewTextFrame *mTextFrame;
+   WelcomePanel *mWelcomePanel;
    wxStatusBar *theStatusBar;
    wxMenuBar *theMenuBar;
    wxToolBar *theToolBar;

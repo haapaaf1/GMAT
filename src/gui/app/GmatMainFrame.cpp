@@ -101,7 +101,7 @@
 #include "TextEphemFileDialog.hpp"
 #include "AboutDialog.hpp"
 #include "SetPathDialog.hpp"
-//#include "WelcomePanel.hpp"
+#include "WelcomePanel.hpp"
 
 #include "FileManager.hpp"
 #include "FileUtil.hpp"               // for Compare()
@@ -268,6 +268,7 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
 
    theMessageWin = NULL;
    theMainWin = NULL;
+   mWelcomePanel = NULL;
 
    // set the script name
    mTempScriptName = "$gmattempscript$.script";
@@ -471,6 +472,14 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
       MessageInterface::ShowMessage(e.GetFullMessage());
    }
 
+   // show welcome panel
+   wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
+   wxCommandEvent WXUNUSED; 
+   wxString showWelcomePanel;
+   pConfig->Read("/Main/ShowWelcomeOnStart", &showWelcomePanel, "true");
+   if (showWelcomePanel.Lower() == "true")
+      OnHelpWelcome(WXUNUSED);
+
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage("GmatMainFrame::GmatMainFrame() exiting\n");
    #endif
@@ -495,7 +504,9 @@ GmatMainFrame::~GmatMainFrame()
    
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
-   gmatAppData->GetPersonalizationConfig()->Flush(true);
+   wxConfigBase *pConfig = gmatAppData->GetPersonalizationConfig();
+   pConfig->Flush(true);
+
    if (gmatAppData->GetMessageWindow() != NULL)
       gmatAppData->GetMessageWindow()->Close();
 
@@ -914,6 +925,21 @@ bool GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
  * @param <itemType> Item type of the child frame
  */
 //------------------------------------------------------------------------------
+void GmatMainFrame::CloseWelcomePanel()
+{
+   mWelcomePanel = NULL;
+}
+
+//------------------------------------------------------------------------------
+// void CloseChild(const wxString &name, GmatTree::ItemType itemType)
+//------------------------------------------------------------------------------
+/*
+ * Closes child frame of given item name and type.
+ *
+ * @param <name> Name of the child frame
+ * @param <itemType> Item type of the child frame
+ */
+//------------------------------------------------------------------------------
 void GmatMainFrame::CloseChild(const wxString &name, GmatTree::ItemType itemType)
 {
    #ifdef DEBUG_REMOVE_CHILD
@@ -1016,6 +1042,9 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
    wxNode *node = theMdiChildren->GetFirst();
    wxCloseEvent event;
    GmatAppData *gmatAppData = GmatAppData::Instance();
+
+   if (mWelcomePanel != NULL)
+      mWelcomePanel->Close();
 
    //-------------------------------------------------------
    // delete child frames
@@ -1877,7 +1906,6 @@ void GmatMainFrame::OpenRecentScript(size_t index, wxCommandEvent &event)
          files.Add(pConfig->Read(aKey));
       }
    }
-
    OpenRecentScript(files[index], event);
 }
 
@@ -2284,7 +2312,13 @@ void GmatMainFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnHelpWelcome(wxCommandEvent& WXUNUSED(event))
 {
-//   WelcomePanel pnl(this, "Welcome to GMAT");
+   if (mWelcomePanel == NULL)
+   {
+      mWelcomePanel =
+               new WelcomePanel(this, _T("Welcome to GMAT"),
+                              20, 20, 600, 350);
+   }
+   mWelcomePanel->Show(true);
 }
 
 
