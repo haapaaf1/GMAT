@@ -92,7 +92,8 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    toolBar->SetToolBitmapSize(wxSize(18,15));
    
    #ifdef DEBUG_TOOLBAR
-   MessageInterface::ShowMessage("   Rescaling to default size of 16x15\n");
+   MessageInterface::ShowMessage
+      ("   Rescaling to default size of 16x15 (Mac), 16x16 (Other)\n");
    #endif
    
    // recale to default size of 18x15
@@ -102,7 +103,7 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
       #ifdef __WXMAC__
          image = image.Rescale(16, 15);
       #else
-         image = image.Rescale(18, 15);
+         image = image.Rescale(16, 16);
       #endif
       *bitmaps[i] = wxBitmap(image);
    }
