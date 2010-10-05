@@ -976,6 +976,20 @@ bool Thruster::SetStringParameter(const Integer id, const std::string &value)
          return true;
       }
    case TANK:
+      if ((tankNames.size() > 0) && (value != tankNames[0]))
+      {
+         std::string errmsg;
+         errmsg =  "The value of \"";
+         errmsg += value;
+         errmsg += "\" on Thruster \"";
+         errmsg += instanceName;
+         errmsg += "\" is not an allowed value.  GMAT does not currently "
+               "support more than one tank per thruster; the thruster is "
+               "already associated with tank \"";
+         errmsg += tankNames[0];
+         errmsg += "\".";
+         throw HardwareException(errmsg);
+      }
       // if not the same name push back
       if (find(tankNames.begin(), tankNames.end(), value) == tankNames.end())
          tankNames.push_back(value);
@@ -1028,6 +1042,18 @@ bool Thruster::SetStringParameter(const Integer id, const std::string &value,
    {
    case TANK:
       {
+         if (index > 0)
+         {
+            std::string errmsg;
+            errmsg =  "The value of \"";
+            errmsg += value;
+            errmsg += "\" on Thruster \"";
+            errmsg += instanceName;
+            errmsg += "\" is not an allowed value.  GMAT does not currently "
+                  "support more than one tank per thruster";
+            throw HardwareException(errmsg);
+         }
+
          if (index < (Integer)tankNames.size())
             tankNames[index] = value;
          else
