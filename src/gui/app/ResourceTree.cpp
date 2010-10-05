@@ -1126,10 +1126,11 @@ void ResourceTree::AddDefaultPropagators(wxTreeItemId itemId, bool restartCounte
                  new GmatTreeItemData(wxT(objName), GmatTree::PROPAGATOR));
    };
 
+   int spkSize = 0;
    #ifdef __USE_SPICE__
    itemNames = theGuiInterpreter->GetListOfObjects("SPK");
-   size = itemNames.size();
-   for (int i = 0; i<size; i++)
+   spkSize = itemNames.size();
+   for (int i = 0; i<spkSize; i++)
    {
       objName = wxString(itemNames[i].c_str());
       AppendItem(itemId, wxT(objName), GmatTree::ICON_PROPAGATOR, -1,
@@ -1137,7 +1138,7 @@ void ResourceTree::AddDefaultPropagators(wxTreeItemId itemId, bool restartCounte
    };
    #endif
 
-   if (size > 0)
+   if (size > 0 || spkSize > 0)
       Expand(itemId);
 }
 
@@ -4171,9 +4172,10 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType,
       break;
    case GmatTree::OPTIMIZER_FOLDER:
       //menu->Append(POPUP_ADD_QUASI_NEWTON, wxT("Quasi-Newton"));
-      menu->Append(POPUP_ADD_SQP, wxT("SQP (fmincon)"));
+      if (GmatGlobal::Instance()->IsMatlabAvailable())
+         menu->Append(POPUP_ADD_SQP, wxT("SQP (fmincon)"));
       menu->Enable(POPUP_ADD_QUASI_NEWTON, false);
-
+      
       listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SOLVER,
             "Optimizer");
       newId = SOLVER_BEGIN;
