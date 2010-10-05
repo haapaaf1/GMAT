@@ -858,14 +858,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\gui\subscriber\MdiChildTrajFrame.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\MdiChildTrajFrame.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\gui\subscriber\MdiChildTsFrame.cpp"
 						>
 					</File>
@@ -898,22 +890,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\gui\subscriber\OpenGlOptionDialog.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\OpenGlOptionDialog.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\OpenGlPlotSetupPanel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\OpenGlPlotSetupPanel.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\gui\subscriber\PlotTypes.hpp"
 						>
 					</File>
@@ -931,14 +907,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\subscriber\SubscriberSetupPanel.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\TrajPlotCanvas.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\TrajPlotCanvas.hpp"
 						>
 					</File>
 					<File

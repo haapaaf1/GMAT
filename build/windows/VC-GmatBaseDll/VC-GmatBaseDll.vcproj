@@ -2032,7 +2032,7 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="propgagator"
+					Name="propagator"
 					>
 					<File
 						RelativePath="..\..\..\src\base\propagator\AdamsBashforthMoulton.cpp"
@@ -2780,14 +2780,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\subscriber\MessageWindow.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\subscriber\OpenGlPlot.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\subscriber\OpenGlPlot.hpp"
 						>
 					</File>
 					<File
