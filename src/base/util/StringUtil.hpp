@@ -67,6 +67,7 @@ namespace GmatStringUtil
    GMAT_API std::string RemoveEnclosingString(const std::string &str, const std::string &enStr);
    GMAT_API std::string RemoveInlineComment(const std::string &str, const std::string &cmStr);
    GMAT_API std::string ParseFunctionName(const std::string &str);
+   GMAT_API std::string AddEnclosingString(const std::string &str, const std::string &enStr);
    
    GMAT_API char GetClosingBracket(const char &openBracket);
    

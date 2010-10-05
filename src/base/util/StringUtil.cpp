@@ -2951,6 +2951,29 @@ std::string GmatStringUtil::ParseFunctionName(const std::string &str)
 
 
 //------------------------------------------------------------------------------
+// std::string AddEnclosingString(const std::string &str, const std::string &enStr)
+//------------------------------------------------------------------------------
+/**
+ * Put string in enclosing string
+ *
+ * @param  str  Input string
+ * @param  enStr Enclosing string
+ * @return  Function name or blank if name not found
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::AddEnclosingString(const std::string &str,
+                                               const std::string &enStr)
+{
+   if (str == "")
+      return "";
+   
+   std::string str1 = str;
+   str1 = enStr + str + enStr;
+   return str1;
+}
+
+
+//------------------------------------------------------------------------------
 // bool StartsWith(const std::string &str, const std::string &value)
 //------------------------------------------------------------------------------
 /*
