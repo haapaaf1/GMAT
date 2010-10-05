@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              MissionTree
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -463,20 +463,32 @@ void MissionTree::UpdateCommand()
 //------------------------------------------------------------------------------
 GmatCommand* MissionTree::CreateCommand(const wxString &cmdName)
 {
+   #ifdef DEBUG_CREATE_COMMAND
+   MessageInterface::ShowMessage
+      ("MissionTree::CreateCommand() entered, cmdName='%s'\n", cmdName.c_str());
+   #endif
+   
+   GmatCommand *cmd = NULL;
    try
    {
       if (cmdName == "IfElse")
-         return theGuiInterpreter->CreateDefaultCommand("If");
+         cmd = theGuiInterpreter->CreateDefaultCommand("If");
       else if (cmdName == "Equation")
-         return theGuiInterpreter->CreateDefaultCommand("GMAT");
+         cmd = theGuiInterpreter->CreateDefaultCommand("GMAT");
       else
-         return theGuiInterpreter->CreateDefaultCommand(cmdName.c_str());
+         cmd = theGuiInterpreter->CreateDefaultCommand(cmdName.c_str());
    }
    catch (BaseException &be)
    {
       MessageInterface::PopupMessage(Gmat::ERROR_, be.GetFullMessage());
-      return NULL;
    }
+   
+   #ifdef DEBUG_CREATE_COMMAND
+   MessageInterface::ShowMessage
+      ("MissionTree::CreateCommand() returning <%p>\n", cmd);
+   #endif
+   
+   return cmd;
 }
 
 
