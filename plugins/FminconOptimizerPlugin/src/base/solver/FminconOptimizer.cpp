@@ -600,8 +600,46 @@ Gmat::ParameterType FminconOptimizer::GetParameterType(const Integer id) const
 }
 
 
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <id> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not,
+ *         throws if the parameter is out of the valid range of values.
+ */
+//---------------------------------------------------------------------------
+bool FminconOptimizer::IsParameterReadOnly(const Integer id) const
+{
+   if (id == OPTIMIZER_TOLERANCE || id == SOURCE_TYPE)
+      return true;
+   
+   return ExternalOptimizer::IsParameterReadOnly(id);
+}
+
+
+//---------------------------------------------------------------------------
+// bool IsParameterReadOnly(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Checks to see if the requested parameter is read only.
+ *
+ * @param <label> Description for the parameter.
+ *
+ * @return true if the parameter is read only, false (the default) if not.
+ */
+//---------------------------------------------------------------------------
+bool FminconOptimizer::IsParameterReadOnly(const std::string &label) const
+{
+   return IsParameterReadOnly(GetParameterID(label));
+}
+
+
 //------------------------------------------------------------------------------
-//  std::string  GetParameterTypeString(const Integer id) const
+// std::string  GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
 /**
  * This method returns the parameter type string, given the input parameter ID.
