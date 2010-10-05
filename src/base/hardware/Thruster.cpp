@@ -32,6 +32,7 @@
 //#define DEBUG_THRUSTER_INIT
 //#define DEBUG_THRUSTER_CONVERT
 //#define DEBUG_THRUSTER_CONVERT_ROTMAT
+//#define DEBUG_BURN_CONVERT_ROTMAT
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -1937,9 +1938,9 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
       ("Thruster::ConvertDirectionToInertial() <%p>'%s' entered, epoch=%.15f\n   "
        "dir=%.15f %.15f %.15f\n", this, GetName().c_str(), epoch, dir[0], dir[1], dir[1]);
    MessageInterface::ShowMessage
-      ("   usingLocalCoordSys=%d, coordSystemName='%s', coordSystem=<%p>, "
-       "localCoordSystem=<%p>\n", usingLocalCoordSys, coordSystemName.c_str(),
-       coordSystem, localCoordSystem);
+      ("   usingLocalCoordSys=%s, coordSystemName='%s', coordSystem=<%p>, "
+       "localCoordSystem=<%p>\n", (usingLocalCoordSys?"true":"false"),
+       coordSystemName.c_str(), coordSystem, localCoordSystem);
    #endif
    
    if (usingLocalCoordSys && localCoordSystem == NULL)
@@ -1985,9 +1986,10 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
    }
    else
    {
-      // if MJ2000Eq axes rotation matrix is alway identity matrix
+      // if MJ2000Eq axes rotation matrix is always identity matrix
       if (isMJ2000EqAxes)
       {
+
          dirInertial[0] = dir[0];
          dirInertial[1] = dir[1];
          dirInertial[2] = dir[2];
@@ -1997,7 +1999,7 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
          Rvector3 inDir(dir[0], dir[1], dir[2]);
          Rvector3 outDir;
          // Get attitude matrix from Spacecraft and transpose since
-         // attitide matrix from spacecraft gives rotation matrix from
+         // attitude matrix from spacecraft gives rotation matrix from
          // inertial to body
          Rmatrix33 inertialToBody = spacecraft->GetAttitude(epoch);
          Rmatrix33 rotMat = inertialToBody.Transpose();

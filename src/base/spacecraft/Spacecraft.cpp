@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Spacecraft
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -1440,6 +1440,9 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
          // in case of exception thrown (loj: 2008.10.23)
          CoordinateSystem *oldCS = coordinateSystem;
          coordinateSystem = cs;
+
+         originName = coordinateSystem->GetOriginName();
+         origin     = coordinateSystem->GetOrigin();
 
          try
          {
