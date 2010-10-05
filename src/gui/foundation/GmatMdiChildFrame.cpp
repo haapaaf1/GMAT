@@ -439,7 +439,7 @@ void GmatMdiChildFrame::UpdateGuiItem(int updateEdit, int updateAnimation)
    // update animation icons from toolbar
    //------------------------------------------------------------
    // If mission is running, ignore   
-   if (updateAnimation == 1 && mItemType == GmatTree::OUTPUT_OPENGL_PLOT)
+   if (updateAnimation == 1 && mItemType == GmatTree::OUTPUT_ORBIT_VIEW)
    {
       // If Play button is enabled, mission is not running
       if (toolBar->GetToolEnabled(GmatMenu::TOOL_RUN))

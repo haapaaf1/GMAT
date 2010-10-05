@@ -99,7 +99,7 @@ void OutputTree::RemoveItem(GmatTree::ItemType type, const wxString &name)
    
    wxTreeItemId parentId;
    
-   if (type == GmatTree::OUTPUT_OPENGL_PLOT)
+   if (type == GmatTree::OUTPUT_ORBIT_VIEW)
       parentId = mOpenGlItem;
    else if (type == GmatTree::OUTPUT_XY_PLOT)
       parentId = mXyPlotItem;
@@ -221,11 +221,11 @@ void OutputTree::UpdateOutput(bool resetTree, bool removeReports)
          AppendItem(mReportItem, objName, GmatTree::ICON_FILE, -1,
                     new GmatTreeItemData(objName, GmatTree::OUTPUT_REPORT));
       }
-      else if (objTypeName.Trim() == "OpenGLPlot" &&
+      else if (objTypeName.Trim() == "OrbitView" &&
                sub->GetBooleanParameter("ShowPlot"))
       {
          AppendItem(mOpenGlItem, objName, GmatTree::ICON_FILE, -1,
-                    new GmatTreeItemData(objName, GmatTree::OUTPUT_OPENGL_PLOT));
+                    new GmatTreeItemData(objName, GmatTree::OUTPUT_ORBIT_VIEW));
       }
       else if (objTypeName.Trim() == "XYPlot" &&
                sub->GetBooleanParameter("ShowPlot"))
@@ -262,11 +262,11 @@ void OutputTree::AddDefaultResources()
    SetItemImage(mReportItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
    
-   //----- OpenGL Plots
+   //----- Orbit Views
    mOpenGlItem =
-      AppendItem(output, wxT("OpenGL Plots"), GmatTree::ICON_FOLDER, -1,
-                 new GmatTreeItemData(wxT("OpenGL PLOTS"),
-                                      GmatTree::OPENGL_PLOTS_FOLDER));
+      AppendItem(output, wxT("Orbit Views"), GmatTree::ICON_FOLDER, -1,
+                 new GmatTreeItemData(wxT("Orbit Views"),
+                                      GmatTree::ORBIT_VIEWS_FOLDER));
    
    SetItemImage(mOpenGlItem, GmatTree::ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
@@ -587,7 +587,7 @@ void OutputTree::OnAddXyPlot(wxCommandEvent &event)
 
 
 //------------------------------------------------------------------------------
-// void OnAddOpenGlPlot(wxCommandEvent &event)
+// void OnAddOrbitView(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
  * Add an opengl plot to plots folder
@@ -595,18 +595,18 @@ void OutputTree::OnAddXyPlot(wxCommandEvent &event)
  * @param <event> command event
  */
 //------------------------------------------------------------------------------
-void OutputTree::OnAddOpenGlPlot(wxCommandEvent &event)
+void OutputTree::OnAddOrbitView(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-  
+   
    wxString name;
-   name.Printf("OpenGLPlot");
-
+   name.Printf("OrbitView");
+   
    if (theGuiInterpreter->CreateSubscriber
-       ("OpenGLPlot", std::string(name.c_str())) != NULL)
+       ("OrbitView", std::string(name.c_str())) != NULL)
    {
-      AppendItem(item, name, GmatTree::ICON_OPEN_GL_PLOT, -1,
-                 new GmatTreeItemData(name, GmatTree::OPENGL_PLOT));
+      AppendItem(item, name, GmatTree::ICON_ORBIT_VIEW, -1,
+                 new GmatTreeItemData(name, GmatTree::ORBIT_VIEW));
 
       Expand(item);
    }

@@ -140,14 +140,13 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_BODY, ResourceTree::OnAddBody)
    EVT_MENU(POPUP_ADD_DIFF_CORR, ResourceTree::OnAddDiffCorr)
    EVT_MENU(POPUP_ADD_SQP, ResourceTree::OnAddSqp)
-   EVT_MENU_RANGE(POPUP_ADD_HARDWARE + HARDWARE_BEGIN,        // Other Hardware
+   EVT_MENU_RANGE(POPUP_ADD_HARDWARE + HARDWARE_BEGIN,    // Other Hardware
                   POPUP_ADD_HARDWARE + HARDWARE_END, ResourceTree::OnAddHardware)
    EVT_MENU_RANGE(POPUP_ADD_SOLVER + SOLVER_BEGIN,        // Other Solvers
                   POPUP_ADD_SOLVER + SOLVER_END, ResourceTree::OnAddSolver)
    EVT_MENU(POPUP_ADD_REPORT_FILE, ResourceTree::OnAddReportFile)
    EVT_MENU(POPUP_ADD_XY_PLOT, ResourceTree::OnAddXyPlot)
-   EVT_MENU(POPUP_ADD_OPENGL_PLOT, ResourceTree::OnAddOpenGlPlot)
-   EVT_MENU(POPUP_ADD_ENHANCED_3D_VIEW, ResourceTree::OnAddEnhanced3DView)
+   EVT_MENU(POPUP_ADD_ORBIT_VIEW, ResourceTree::OnAddOrbitView)
    EVT_MENU(POPUP_ADD_EPHEMERIS_FILE, ResourceTree::OnAddEphemerisFile)
    EVT_MENU_RANGE(POPUP_ADD_SUBSCRIBER + SUBSCRIBER_BEGIN, // Other Subscribers
                   POPUP_ADD_SUBSCRIBER + SUBSCRIBER_END, ResourceTree::OnAddSubscriber)
@@ -574,8 +573,7 @@ void ResourceTree::UpdateGuiItem(GmatTree::ItemType itemType)
       break;
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
-   case GmatTree::OPENGL_PLOT:
-   case GmatTree::ENHANCED_3D_VIEW:
+   case GmatTree::ORBIT_VIEW:
    case GmatTree::EPHEMERIS_FILE:
       theGuiManager->UpdateSubscriber();
       break;
@@ -1288,17 +1286,11 @@ void ResourceTree::AddDefaultSubscribers(wxTreeItemId itemId, bool restartCounte
                     new GmatTreeItemData(wxT(objName),
                                          GmatTree::XY_PLOT));
       }
-      else if (objTypeName == "OpenGLPlot")
+      else if (objTypeName == "OrbitView")
       {
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_OPEN_GL_PLOT, -1,
+         AppendItem(itemId, wxT(objName), GmatTree::ICON_ORBIT_VIEW, -1,
                     new GmatTreeItemData(wxT(objName),
-                                         GmatTree::OPENGL_PLOT));
-      }
-      else if (objTypeName == "Enhanced3DView")
-      {
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_OPEN_GL_PLOT, -1,
-                    new GmatTreeItemData(wxT(objName),
-                                         GmatTree::ENHANCED_3D_VIEW));
+                                         GmatTree::ORBIT_VIEW));
       }
       else if (objTypeName == "EphemerisFile")
       {
@@ -1898,8 +1890,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::SPK_PROPAGATOR) ||
         (itemType == GmatTree::REPORT_FILE) ||
         (itemType == GmatTree::XY_PLOT) ||
-        (itemType == GmatTree::OPENGL_PLOT) ||
-        (itemType == GmatTree::ENHANCED_3D_VIEW) ||
+        (itemType == GmatTree::ORBIT_VIEW) ||
         (itemType == GmatTree::EPHEMERIS_FILE) ||
         (itemType == GmatTree::DIFF_CORR) ||
         (itemType == GmatTree::SQP) ||
@@ -1965,13 +1956,12 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                            (itemType == GmatTree::VARIABLE_FOLDER));
 
    bool isDefaultItem = ((itemType == GmatTree::PROPAGATOR)       ||
-                         (itemType == GmatTree::SPK_PROPAGATOR)       ||
+                         (itemType == GmatTree::SPK_PROPAGATOR)   ||
                          (itemType == GmatTree::CELESTIAL_BODY)   ||
                          (itemType == GmatTree::DIFF_CORR)        ||
                          (itemType == GmatTree::REPORT_FILE)      ||
                          (itemType == GmatTree::XY_PLOT)          ||
-                         (itemType == GmatTree::OPENGL_PLOT)      ||
-                         (itemType == GmatTree::ENHANCED_3D_VIEW) ||
+                         (itemType == GmatTree::ORBIT_VIEW)       ||
                          (itemType == GmatTree::EPHEMERIS_FILE)   ||
                          (itemType == GmatTree::INTERFACE));
 
@@ -2673,7 +2663,7 @@ void ResourceTree::OnAddReportFile(wxCommandEvent &event)
 // void OnAddXyPlot(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Add an xy plot to plots folder
+ * Add an xy plot to output folder
  *
  * @param <event> command event
  */
@@ -2697,52 +2687,25 @@ void ResourceTree::OnAddXyPlot(wxCommandEvent &event)
 
 
 //------------------------------------------------------------------------------
-// void OnAddOpenGlPlot(wxCommandEvent &event)
+// void OnAddOrbitView(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Add an opengl plot to plots folder
+ * Add an OrbitView plot to output folder
  *
  * @param <event> command event
  */
 //------------------------------------------------------------------------------
-void ResourceTree::OnAddOpenGlPlot(wxCommandEvent &event)
+void ResourceTree::OnAddOrbitView(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("OpenGLPlot", 1);
-   GmatBase *obj = theGuiInterpreter->CreateSubscriber("OpenGLPlot", newName);
+   std::string newName = theGuiInterpreter->GetNewName("OrbitView", 1);
+   GmatBase *obj = theGuiInterpreter->CreateSubscriber("OrbitView", newName);
    
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_OPEN_GL_PLOT, -1,
-                 new GmatTreeItemData(name, GmatTree::OPENGL_PLOT));
-      Expand(item);
-      
-      theGuiManager->UpdateSubscriber();
-   }
-}
-
-
-//------------------------------------------------------------------------------
-// void OnAddEnhanced3DView(wxCommandEvent &event)
-//------------------------------------------------------------------------------
-/**
- * Add an opengl plot to plots folder
- *
- * @param <event> command event
- */
-//------------------------------------------------------------------------------
-void ResourceTree::OnAddEnhanced3DView(wxCommandEvent &event)
-{
-   wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("Enhanced3DView", 1);
-   GmatBase *obj = theGuiInterpreter->CreateSubscriber("Enhanced3DView", newName);
-   
-   if (obj != NULL)
-   {
-      wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_OPEN_GL_PLOT, -1,
-                 new GmatTreeItemData(name, GmatTree::ENHANCED_3D_VIEW));
+      AppendItem(item, name, GmatTree::ICON_ORBIT_VIEW, -1,
+                 new GmatTreeItemData(name, GmatTree::ORBIT_VIEW));
       Expand(item);
       
       theGuiManager->UpdateSubscriber();
@@ -2754,7 +2717,7 @@ void ResourceTree::OnAddEnhanced3DView(wxCommandEvent &event)
 // void OnAddEphemerisFile(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
- * Add an opengl plot to plots folder
+ * Add an EphemerisFile to output folder
  *
  * @param <event> command event
  */
@@ -4198,11 +4161,11 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType,
    case GmatTree::SUBSCRIBER_FOLDER:
       menu->Append(POPUP_ADD_REPORT_FILE, wxT("ReportFile"));
       menu->Append(POPUP_ADD_XY_PLOT, wxT("XYPlot"));
-      menu->Append(POPUP_ADD_OPENGL_PLOT, wxT("OpenGLPlot"));
-      menu->Append(POPUP_ADD_ENHANCED_3D_VIEW, wxT("Enhanced3DView"));
+      menu->Append(POPUP_ADD_ORBIT_VIEW, wxT("OrbitView"));
       menu->Append(POPUP_ADD_EPHEMERIS_FILE, wxT("EphemerisFile"));
-
-      listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SUBSCRIBER);
+      
+      //listOfObjects = theGuiInterpreter->GetCreatableList(Gmat::SUBSCRIBER);
+      listOfObjects = theGuiInterpreter->GetListOfViewableSubtypesOf(Gmat::SUBSCRIBER);
       newId = SUBSCRIBER_BEGIN;
       for (StringArray::iterator i = listOfObjects.begin();
            i != listOfObjects.end(); ++i, ++newId)
@@ -4211,8 +4174,7 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType,
          std::string subscriberType = (*i);
          if ((subscriberType != "ReportFile") &&
              (subscriberType != "XYPlot") &&
-             (subscriberType != "OpenGLPlot") &&
-             (subscriberType != "Enhanced3DView") &&
+             (subscriberType != "OrbitView") &&
              (subscriberType != "EphemerisFile") &&
              (subscriberType != "TextEphemFile") &&
              (subscriberType != "MessageWindow") &&
@@ -4224,7 +4186,7 @@ wxMenu* ResourceTree::CreatePopupMenu(GmatTree::ItemType itemType,
                      wxT(subscriberType.c_str()));
          }
       }
-
+      
       break;
    case GmatTree::VARIABLE_FOLDER:
       menu->Append(POPUP_ADD_VARIABLE, wxT("Variable"));
@@ -4333,8 +4295,7 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
       break;
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
-   case GmatTree::OPENGL_PLOT:
-   case GmatTree::ENHANCED_3D_VIEW:
+   case GmatTree::ORBIT_VIEW:
    case GmatTree::EPHEMERIS_FILE:
       objType = Gmat::SUBSCRIBER;
       break;
@@ -4398,8 +4359,7 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
       return mOptimizerItem;
    case GmatTree::REPORT_FILE:
    case GmatTree::XY_PLOT:
-   case GmatTree::OPENGL_PLOT:
-   case GmatTree::ENHANCED_3D_VIEW:
+   case GmatTree::ORBIT_VIEW:
    case GmatTree::EPHEMERIS_FILE:
       return mSubscriberItem;
    case GmatTree::VARIABLE:
@@ -4452,10 +4412,8 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
       return GmatTree::ICON_REPORT_FILE;
    case GmatTree::XY_PLOT:
       return GmatTree::ICON_XY_PLOT;
-   case GmatTree::OPENGL_PLOT:
-      return GmatTree::ICON_OPEN_GL_PLOT;
-   case GmatTree::ENHANCED_3D_VIEW:
-      return GmatTree::ICON_OPEN_GL_PLOT;
+   case GmatTree::ORBIT_VIEW:
+      return GmatTree::ICON_ORBIT_VIEW;
    case GmatTree::EPHEMERIS_FILE:
       return GmatTree::ICON_REPORT_FILE;
    case GmatTree::VARIABLE:

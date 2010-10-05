@@ -469,7 +469,6 @@ OBJECTS = \
     subscriber/EphemerisFile.o \
     subscriber/MessageWindow.o \
     subscriber/TextEphemFile.o \
-    subscriber/OpenGlPlot.o \
     subscriber/Enhanced3DView.o \
     subscriber/OwnedPlot.o \
     subscriber/ReportFile.o \

@@ -115,7 +115,9 @@ public:
    const StringArray& GetListOfAllFactoryItems();
    const StringArray& GetListOfAllFactoryItemsExcept(const ObjectTypeArray &types);
    const StringArray& GetListOfViewableItems(Gmat::ObjectType type);
+   const StringArray& GetListOfViewableItems(const std::string &typeName);
    const StringArray& GetListOfUnviewableItems(Gmat::ObjectType type);
+   const StringArray& GetListOfUnviewableItems(const std::string &typeName);
    bool               DoesObjectTypeMatchSubtype(
                             const Gmat::ObjectType coreType,
                             const std::string &theType,

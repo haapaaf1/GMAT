@@ -12,7 +12,7 @@
 // Author: Linda Jun
 // Created: 2010/06/18
 /**
- * Declares Enhanced3DViewPanel class. This class allows user to setup OpenGL Plot.
+ * Declares Enhanced3DViewPanel class. This class allows user to setup OrbitView.
  */
 //------------------------------------------------------------------------------
 #ifndef Enhanced3DViewPanel_hpp
@@ -22,7 +22,7 @@
 #include "GmatPanel.hpp"
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
-#include "OpenGlPlot.hpp"
+#include "Enhanced3DView.hpp"
 #include "RgbColor.hpp"
 #include "ColorTypes.hpp"
 
@@ -37,7 +37,7 @@ public:
                                   const wxString &oldName,
                                   const wxString &newName);
 protected:
-   OpenGlPlot *mOpenGlPlot;
+   Enhanced3DView *mEnhanced3DView;
    
    bool mHasIntegerDataChanged;
    bool mHasRealDataChanged;

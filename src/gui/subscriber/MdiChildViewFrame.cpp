@@ -32,7 +32,7 @@ MdiChildViewFrame::MdiChildViewFrame(wxMDIParentFrame *parent,
                                      const wxString& plotName, const wxString& title,
                                      const wxPoint& pos, const wxSize& size,
                                      const long style)
-   : GmatMdiChildFrame(parent, plotName, title, GmatTree::OUTPUT_OPENGL_PLOT, -1,
+   : GmatMdiChildFrame(parent, plotName, title, GmatTree::OUTPUT_ORBIT_VIEW, -1,
                        pos, size, style | wxNO_FULL_REPAINT_ON_RESIZE)
 {
    mCanvas = (ViewCanvas *) NULL;

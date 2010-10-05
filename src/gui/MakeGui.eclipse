@@ -283,23 +283,19 @@ OBJECTS = \
     spacecraft/SpaceObjectSelectDialog.o \
     spacecraft/TankPanel.o \
     spacecraft/ThrusterPanel.o \
-	spacecraft/VisualModelCanvas.o \
-	spacecraft/VisualModelPanel.o \
+    spacecraft/VisualModelCanvas.o \
+    spacecraft/VisualModelPanel.o \
     subscriber/EphemerisFilePanel.o \
     subscriber/MdiChild3DViewFrame.o \
     subscriber/MdiChildViewFrame.o \
-    subscriber/MdiChildTrajFrame.o \
     subscriber/MdiChildTsFrame.o \
     subscriber/MdiGlPlotData.o \
     subscriber/MdiTsPlotData.o \
-    subscriber/OpenGlOptionDialog.o \
-    subscriber/OpenGlPlotSetupPanel.o \
     subscriber/Enhanced3DViewPanel.o \
     subscriber/ReportFileSetupPanel.o \
     subscriber/SubscriberSetupPanel.o \
     subscriber/ViewCanvas.o \
     subscriber/Enhanced3DViewCanvas.o \
-    subscriber/TrajPlotCanvas.o \
     subscriber/TsPlotCanvas.o \
     subscriber/TsPlotXYCanvas.o \
     subscriber/TsPlotCurve.o \

@@ -73,13 +73,15 @@ Subscriber* SubscriberFactory::CreateSubscriber(const std::string &ofType,
       return new TextEphemFile(ofType, withName, fileName);
    else if (ofType == "MessageWindow")
       return new MessageWindow(withName);
-   else if (ofType == "OpenGLPlot")
-      return new OpenGlPlot(withName);
    else if (ofType == "XYPlot")
       return new XyPlot(withName);
    else if (ofType == "EphemerisFile")
       return new EphemerisFile(withName);
+   else if (ofType == "OpenGLPlot")
+      return new Enhanced3DView(withName);
    else if (ofType == "Enhanced3DView")
+      return new Enhanced3DView(withName);
+   else if (ofType == "OrbitView")
       return new Enhanced3DView(withName);
    
    return NULL;
@@ -104,10 +106,20 @@ Factory(Gmat::SUBSCRIBER)
       creatables.push_back("ReportFile");
       creatables.push_back("TextEphemFile");
       creatables.push_back("MessageWindow");
-      creatables.push_back("OpenGLPlot");
       creatables.push_back("XYPlot");
       creatables.push_back("EphemerisFile");
+      creatables.push_back("OpenGLPlot");
       creatables.push_back("Enhanced3DView");
+      creatables.push_back("OrbitView");
+   }
+   
+   // Now fill in unviewable subscribers
+   // We don't want to show these items in the ResourceTree menu
+   if (unviewables.empty())
+   {
+      // These commands do nothing
+      unviewables.push_back("OpenGLPlot");
+      unviewables.push_back("Enhanced3DView");
    }
 }
 

@@ -96,7 +96,9 @@ public:
    
    const StringArray& GetListOfObjects(Gmat::ObjectType type);
    const StringArray& GetListOfObjects(const std::string &typeName);
+   const StringArray& GetListOfViewableSubtypesOf(Gmat::ObjectType type);
    const StringArray& GetListOfViewableCommands();
+   
    GmatBase* GetConfiguredObject(const std::string &name);
    GmatBase* FindObject(const std::string &name, const std::string &ofType = "");
    GmatBase* CreateObject(const std::string &type, const std::string &name,

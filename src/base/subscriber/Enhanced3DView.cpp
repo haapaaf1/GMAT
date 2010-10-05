@@ -82,12 +82,12 @@ Enhanced3DView::PARAMETER_TEXT[Enhanced3DViewParamCount - SubscriberParamCount] 
    "UpdatePlotFrequency",
    "NumPointsToRedraw",
    "ShowPlot",
-	"StarCount",
-	"EnableStars",
-	"EnableConstellations",
-	"MinFOV",
-	"MaxFOV",
-	"InitialFOV",
+   "StarCount",
+   "EnableStars",
+   "EnableConstellations",
+   "MinFOV",
+   "MaxFOV",
+   "InitialFOV",
 }; 
 
 
@@ -131,13 +131,13 @@ Enhanced3DView::PARAMETER_TYPE[Enhanced3DViewParamCount - SubscriberParamCount] 
    Gmat::INTEGER_TYPE,           //"NumPointsToRedraw"
    
    Gmat::BOOLEAN_TYPE,           //"ShowPlot"
-
-	Gmat::INTEGER_TYPE,				//"StarCount"
-	Gmat::ON_OFF_TYPE,				//"EnableStars"
-	Gmat::ON_OFF_TYPE,				//"EnableConstellations"
-	Gmat::INTEGER_TYPE,				//"MinFOV"
-	Gmat::INTEGER_TYPE,				//"MaxFOV"
-	Gmat::INTEGER_TYPE,				//"InitialFOV"
+   
+   Gmat::INTEGER_TYPE,                             //"StarCount"
+   Gmat::ON_OFF_TYPE,                              //"EnableStars"
+   Gmat::ON_OFF_TYPE,                              //"EnableConstellations"
+   Gmat::INTEGER_TYPE,                             //"MinFOV"
+   Gmat::INTEGER_TYPE,                             //"MaxFOV"
+   Gmat::INTEGER_TYPE,                             //"InitialFOV"
 };
 
 
@@ -160,12 +160,14 @@ Enhanced3DView::DEFAULT_ORBIT_COLOR[MAX_SP_COLOR] =
  */
 //------------------------------------------------------------------------------
 Enhanced3DView::Enhanced3DView(const std::string &name)
-   : Subscriber("Enhanced3DView", name)
+   //: Subscriber("Enhanced3DView", name)
+   : Subscriber("OrbitView", name)
 {
    // GmatBase data
    parameterCount = Enhanced3DViewParamCount;
-   objectTypes.push_back(Gmat::OPENGL_PLOT);
-   objectTypeNames.push_back("Enhanced3DView");
+   objectTypes.push_back(Gmat::ORBIT_VIEW);
+   //objectTypeNames.push_back("Enhanced3DView");
+   objectTypeNames.push_back("OrbitView");
    
    mEclipticPlane = "Off";
    mXYPlane = "On";
@@ -178,15 +180,15 @@ Enhanced3DView::Enhanced3DView(const std::string &name)
    mPerspectiveMode = "Off";
    mUseFixedFov = "Off";
 
-	// stars
-	mEnableStars = "On";
-	mEnableConstellations = "On";
-	mStarCount = 7000;
-
-	// FOV
-	mMinFOV = 0;
-	mMaxFOV = 90;
-	mInitialFOV = 45;
+   // stars
+   mEnableStars = "On";
+   mEnableConstellations = "On";
+   mStarCount = 7000;
+   
+   // FOV
+   mMinFOV = 0;
+   mMaxFOV = 90;
+   mInitialFOV = 45;
    
    mOldName = instanceName;
    mViewCoordSysName = "EarthMJ2000Eq";
@@ -286,15 +288,15 @@ Enhanced3DView::Enhanced3DView(const Enhanced3DView &ogl)
    mPerspectiveMode = ogl.mPerspectiveMode;
    mUseFixedFov = ogl.mUseFixedFov;
 
-	// stars
-	mEnableStars = ogl.mEnableStars;
-	mEnableConstellations = ogl.mEnableConstellations;
-	mStarCount = ogl.mStarCount;
-	
-	// FOV
-	mMinFOV = ogl.mMinFOV;
-	mMaxFOV = ogl.mMaxFOV;
-	mInitialFOV = ogl.mInitialFOV;
+        // stars
+        mEnableStars = ogl.mEnableStars;
+        mEnableConstellations = ogl.mEnableConstellations;
+        mStarCount = ogl.mStarCount;
+        
+        // FOV
+        mMinFOV = ogl.mMinFOV;
+        mMaxFOV = ogl.mMaxFOV;
+        mInitialFOV = ogl.mInitialFOV;
    
    mOldName = ogl.mOldName;;
    mViewCoordSysName = ogl.mViewCoordSysName;
@@ -385,15 +387,15 @@ Enhanced3DView& Enhanced3DView::operator=(const Enhanced3DView& ogl)
    mPerspectiveMode = ogl.mPerspectiveMode;
    mUseFixedFov = ogl.mUseFixedFov;
 
-	// stars
-	mEnableStars = ogl.mEnableStars;
-	mEnableConstellations = ogl.mEnableConstellations;
-	mStarCount = ogl.mStarCount;
+        // stars
+        mEnableStars = ogl.mEnableStars;
+        mEnableConstellations = ogl.mEnableConstellations;
+        mStarCount = ogl.mStarCount;
 
-	// FOV
-	mMinFOV = ogl.mMinFOV;
-	mMaxFOV = ogl.mMaxFOV;
-	mInitialFOV = ogl.mInitialFOV;
+        // FOV
+        mMinFOV = ogl.mMinFOV;
+        mMaxFOV = ogl.mMaxFOV;
+        mInitialFOV = ogl.mInitialFOV;
    
    mOldName = ogl.mOldName;;
    mViewCoordSysName = ogl.mViewCoordSysName;
@@ -1252,14 +1254,14 @@ Integer Enhanced3DView::GetIntegerParameter(const Integer id) const
       return mUpdatePlotFrequency;
    case NUM_POINTS_TO_REDRAW:
       return mNumPointsToRedraw;
-	case STAR_COUNT:
-		return mStarCount;
-	case MIN_FOV:
-		return mMinFOV;
-	case MAX_FOV:
-		return mMaxFOV;
-	case INITIAL_FOV:
-		return mInitialFOV;
+        case STAR_COUNT:
+                return mStarCount;
+        case MIN_FOV:
+                return mMinFOV;
+        case MAX_FOV:
+                return mMaxFOV;
+        case INITIAL_FOV:
+                return mInitialFOV;
    default:
       return Subscriber::GetIntegerParameter(id);
    }
@@ -1324,28 +1326,28 @@ Integer Enhanced3DView::SetIntegerParameter(const Integer id, const Integer valu
                        "NumPointsToRedraw", "Integer Number >= 0");
          throw se;
       }
-	case STAR_COUNT:
-		if (value >= 0)
-		{
-			mStarCount = value;
-			return value;
-		}
-		else
-		{
-			SubscriberException se;
-			se.SetDetails(errorMessageFormat.c_str(),
-							GmatStringUtil::ToString(value, 1).c_str(),
-							"StarCount", "Integer Value >= 0");
-		}
-	case MIN_FOV:
-		mMinFOV = value;
-		return value;
-	case MAX_FOV:
-		mMaxFOV = value;
-		return value;
-	case INITIAL_FOV:
-		mInitialFOV = value;
-		return value;
+        case STAR_COUNT:
+                if (value >= 0)
+                {
+                        mStarCount = value;
+                        return value;
+                }
+                else
+                {
+                        SubscriberException se;
+                        se.SetDetails(errorMessageFormat.c_str(),
+                                                        GmatStringUtil::ToString(value, 1).c_str(),
+                                                        "StarCount", "Integer Value >= 0");
+                }
+        case MIN_FOV:
+                mMinFOV = value;
+                return value;
+        case MAX_FOV:
+                mMaxFOV = value;
+                return value;
+        case INITIAL_FOV:
+                mInitialFOV = value;
+                return value;
    default:
       return Subscriber::SetIntegerParameter(id, value);
    }
@@ -1977,10 +1979,10 @@ std::string Enhanced3DView::GetOnOffParameter(const Integer id) const
       return mPerspectiveMode;
    case USE_FIXED_FOV:
       return mUseFixedFov;
-	case ENABLE_STARS:
-		return mEnableStars;
-	case ENABLE_CONSTELLATIONS:
-		return mEnableConstellations;
+        case ENABLE_STARS:
+                return mEnableStars;
+        case ENABLE_CONSTELLATIONS:
+                return mEnableConstellations;
    default:
       return Subscriber::GetOnOffParameter(id);
    }
@@ -2037,12 +2039,12 @@ bool Enhanced3DView::SetOnOffParameter(const Integer id, const std::string &valu
    case USE_FIXED_FOV:
       mUseFixedFov = value;
       return true;
-	case ENABLE_STARS:
-		mEnableStars = value;
-		return true;
-	case ENABLE_CONSTELLATIONS:
-		mEnableConstellations = value;
-		return true;
+        case ENABLE_STARS:
+                mEnableStars = value;
+                return true;
+        case ENABLE_CONSTELLATIONS:
+                mEnableConstellations = value;
+                return true;
    default:
       return Subscriber::SetOnOffParameter(id, value);
    }
@@ -2300,7 +2302,7 @@ bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       
       #if DBGLVL_OPENGL_OBJ
       MessageInterface::ShowMessage
-         ("OpenGlPlot::SetRefObject() realName='%s', mViewPointRefName='%s', "
+         ("Enhanced3DView::SetRefObject() realName='%s', mViewPointRefName='%s', "
           "mViewPointVecName='%s', mViewDirectionName='%s'\n", realName.c_str(),
           mViewPointRefName.c_str(), mViewPointVecName.c_str(),
           mViewDirectionName.c_str());
@@ -2318,7 +2320,7 @@ bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       
       #if DBGLVL_OPENGL_OBJ
       MessageInterface::ShowMessage
-         ("OpenGlPlot::SetRefObject() mViewPointRefObj=<%p>, mViewPointObj=<%p>, "
+         ("Enhanced3DView::SetRefObject() mViewPointRefObj=<%p>, mViewPointObj=<%p>, "
           "mViewDirectionObj=<%p>\n", mViewPointRefObj, mViewPointObj,
           mViewDirectionObj);
       #endif

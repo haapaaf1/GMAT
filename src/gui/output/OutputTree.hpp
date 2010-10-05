@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              OutputTree
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Allison Greene
 // Created: 2005/04/11
@@ -62,7 +62,7 @@ private:
    void AddIcons();   
    void OnAddReportFile(wxCommandEvent &event);
    void OnAddXyPlot(wxCommandEvent &event);
-   void OnAddOpenGlPlot(wxCommandEvent &event);
+   void OnAddOrbitView(wxCommandEvent &event);
    
    void OnCompareNumericValues(wxCommandEvent &event);
    void OnCompareTextLines(wxCommandEvent &event);

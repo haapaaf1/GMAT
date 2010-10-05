@@ -1149,6 +1149,8 @@ const StringArray& Moderator::GetListOfAllFactoryItemsExcept(const ObjectTypeArr
 /**
  * Return a list of all viewable objets via the GUI
  *
+ * @param  type  The enumerated ObjectType defined in gmatdef.hpp
+ *
  * @return list of all viewable objects
  */
 //------------------------------------------------------------------------------
@@ -4346,7 +4348,7 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
          
          if (createDefault)
          {
-            if (type == "OpenGLPlot" || type == "Enhanced3DView")
+            if (type == "OrbitView")
             {
                // add default spacecraft and coordinate system
                obj->SetStringParameter("Add", GetDefaultSpacecraft()->GetName());
@@ -5063,7 +5065,7 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
       else if (type == "Toggle")
       {
          cmd->SetStringParameter(cmd->GetParameterID("Subscriber"),
-                                 GetDefaultSubscriber("OpenGLPlot")->GetName());
+                                 GetDefaultSubscriber("OrbitView")->GetName());
       }
       else if (type == "Report")
       {
@@ -7230,9 +7232,9 @@ void Moderator::CreateDefaultMission()
       #endif
       
       // Subscribers
-      // OpenGLPlot
-      GetDefaultSubscriber("OpenGLPlot");
-
+      // OrbitView
+      GetDefaultSubscriber("OrbitView");
+      
       #if DEBUG_DEFAULT_MISSION
       MessageInterface::ShowMessage("-->default Subscribers created\n");
       #endif
@@ -7783,10 +7785,10 @@ Subscriber* Moderator::GetDefaultSubscriber(const std::string &type, bool addObj
          return sub;
    }
    
-   if (type == "OpenGLPlot")
+   if (type == "OrbitView")
    {
-      // create default OpenGL
-      sub = CreateSubscriber("OpenGLPlot", "DefaultOpenGL");
+      // create default OrbitView
+      sub = CreateSubscriber("OrbitView", "DefaultOrbitView");
       sub->SetStringParameter("Add", "DefaultSC");
       sub->SetStringParameter("Add", "Earth");
       sub->SetStringParameter("CoordinateSystem", "EarthMJ2000Eq");

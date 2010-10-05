@@ -846,7 +846,7 @@ bool GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
       {
          //------------------------------------------------------
          // Notes:
-         // OpenGL and XYPlot is added to theMdiChildren list
+         // OrbitView and XYPlot is added to theMdiChildren list
          // in this main frame and to it's own list of
          // MdiGlPlot::mdiChildren and MdiTsPlot::mdiChildren.
          // These lists are used in the PlotInterface.
@@ -1200,8 +1200,7 @@ void GmatMainFrame::MinimizeChildren()
    while (node)
    {
       GmatMdiChildFrame *child = (GmatMdiChildFrame *)node->GetData();
-      if (child->GetItemType() != GmatTree::OUTPUT_OPENGL_PLOT &&
-          child->GetItemType() != GmatTree::OUTPUT_3D_VIEW &&
+      if (child->GetItemType() != GmatTree::OUTPUT_ORBIT_VIEW &&
           child->GetItemType() != GmatTree::OUTPUT_XY_PLOT &&
           child->GetItemType() != GmatTree::COMPARE_REPORT)
          child->Iconize(TRUE);
@@ -2399,10 +2398,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::XY_PLOT:
       sizer->Add(new XyPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
-   case GmatTree::OPENGL_PLOT:
-      sizer->Add(new OpenGlPlotSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      break;
-   case GmatTree::ENHANCED_3D_VIEW:
+   case GmatTree::ORBIT_VIEW:
       sizer->Add(new Enhanced3DViewPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
    case GmatTree::EPHEMERIS_FILE:
@@ -4102,9 +4098,8 @@ void GmatMainFrame::OnAnimation(wxCommandEvent& event)
       return;
    }
    
-   // active child is not OpenGL, just return
-   if (child->GetItemType() != GmatTree::OUTPUT_OPENGL_PLOT &&
-       child->GetItemType() != GmatTree::OUTPUT_3D_VIEW)
+   // active child is not OrbitView, just return
+   if (child->GetItemType() != GmatTree::OUTPUT_ORBIT_VIEW)
    {
       toolBar->ToggleTool(TOOL_ANIMATION_PLAY, false);
       return;

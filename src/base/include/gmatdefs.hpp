@@ -137,7 +137,7 @@ namespace Gmat
       SUBSCRIBER,
       REPORT_FILE,
       XY_PLOT,
-      OPENGL_PLOT,
+      ORBIT_VIEW,
       
       EPHEMERIS_FILE,
       PROP_SETUP,

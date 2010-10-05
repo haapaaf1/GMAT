@@ -85,10 +85,10 @@ Enhanced3DViewPanel::Enhanced3DViewPanel(wxWindow *parent,
    Subscriber *subscriber = (Subscriber*)
       theGuiInterpreter->GetConfiguredObject(subscriberName.c_str());
    
-   mOpenGlPlot = (OpenGlPlot*)subscriber;
+   mEnhanced3DView = (Enhanced3DView*)subscriber;
    
    // Set the pointer for the "Show Script" button
-   mObject = mOpenGlPlot;
+   mObject = mEnhanced3DView;
    
    InitializeData();
    
@@ -152,7 +152,7 @@ void Enhanced3DViewPanel::ObjectNameChanged(Gmat::ObjectType type,
 {
    #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
-      ("OpenGlPlotPanel::ObjectNameChanged() type=%d, oldName=<%s>, "
+      ("Enhanced3DViewPanel::ObjectNameChanged() type=%d, oldName=<%s>, "
        "newName=<%s>, mDataChanged=%d\n", type, oldName.c_str(), newName.c_str(),
        mDataChanged);
    #endif
@@ -669,78 +669,78 @@ void Enhanced3DViewPanel::LoadData()
       wxString str;
       Real rval;
       
-      str.Printf("%d", mOpenGlPlot->GetIntegerParameter("DataCollectFrequency"));
+      str.Printf("%d", mEnhanced3DView->GetIntegerParameter("DataCollectFrequency"));
       mDataCollectFreqTextCtrl->SetValue(str);
-      str.Printf("%d", mOpenGlPlot->GetIntegerParameter("UpdatePlotFrequency"));
+      str.Printf("%d", mEnhanced3DView->GetIntegerParameter("UpdatePlotFrequency"));
       mUpdatePlotFreqTextCtrl->SetValue(str);
-      str.Printf("%d", mOpenGlPlot->GetIntegerParameter("NumPointsToRedraw"));
+      str.Printf("%d", mEnhanced3DView->GetIntegerParameter("NumPointsToRedraw"));
       mNumPointsToRedrawTextCtrl->SetValue(str);
       
-      mShowPlotCheckBox->SetValue(mOpenGlPlot->IsActive());
+      mShowPlotCheckBox->SetValue(mEnhanced3DView->IsActive());
       mXYPlaneCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("XYPlane") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("XYPlane") == "On");
       mEclipticPlaneCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("CelestialPlane") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("CelestialPlane") == "On");
       mWireFrameCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("WireFrame") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("WireFrame") == "On");
       mAxesCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("Axes") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("Axes") == "On");
       mGridCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("Grid") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("Grid") == "On");
       mOriginSunLineCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("SunLine") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("SunLine") == "On");
       mUseInitialViewCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("UseInitialView") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("UseInitialView") == "On");
       mSolverIterComboBox->
-         SetValue(mOpenGlPlot->GetStringParameter("SolverIterations").c_str());
+         SetValue(mEnhanced3DView->GetStringParameter("SolverIterations").c_str());
       
       #ifdef __ENABLE_GL_PERSPECTIVE__
       mPerspectiveModeCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("PerspectiveMode") == "On");
+         SetValue(mEnhanced3DView->GetOnOffParameter("PerspectiveMode") == "On");
       mUseFixedFovCheckBox->
-         SetValue(mOpenGlPlot->GetOnOffParameter("UseFixedFov") == "On");
-      rval = mOpenGlPlot->GetRealParameter("FixedFovAngle");
+         SetValue(mEnhanced3DView->GetOnOffParameter("UseFixedFov") == "On");
+      rval = mEnhanced3DView->GetRealParameter("FixedFovAngle");
       mFixedFovTextCtrl->SetValue(theGuiManager->ToWxString(rval));
       #endif
       
       mCoordSysComboBox->SetStringSelection
-         (mOpenGlPlot->GetStringParameter("CoordinateSystem").c_str());
+         (mEnhanced3DView->GetStringParameter("CoordinateSystem").c_str());
       
       //--------------------------------------------------------------
       // load view up direction info
       //--------------------------------------------------------------
       mViewUpAxisComboBox->
-         SetStringSelection(mOpenGlPlot->GetStringParameter("ViewUpAxis").c_str());
+         SetStringSelection(mEnhanced3DView->GetStringParameter("ViewUpAxis").c_str());
       mViewUpCsComboBox->
-         SetStringSelection(mOpenGlPlot->GetStringParameter("ViewUpCoordinateSystem").c_str());
+         SetStringSelection(mEnhanced3DView->GetStringParameter("ViewUpCoordinateSystem").c_str());
       
       //--------------------------------------------------------------
       // load ViewPoint info
       //--------------------------------------------------------------
       wxString viewObj;
-      viewObj = mOpenGlPlot->GetStringParameter("ViewPointRefType").c_str();
+      viewObj = mEnhanced3DView->GetStringParameter("ViewPointRefType").c_str();
       if (viewObj != "Vector")
-         viewObj = mOpenGlPlot->GetStringParameter("ViewPointReference").c_str();
+         viewObj = mEnhanced3DView->GetStringParameter("ViewPointReference").c_str();
       mViewPointRefComboBox->SetStringSelection(viewObj);
       
-      viewObj = mOpenGlPlot->GetStringParameter("ViewPointVectorType").c_str();
+      viewObj = mEnhanced3DView->GetStringParameter("ViewPointVectorType").c_str();
       if (viewObj != "Vector")
-         viewObj = mOpenGlPlot->GetStringParameter("ViewPointVector").c_str();
+         viewObj = mEnhanced3DView->GetStringParameter("ViewPointVector").c_str();
       mViewPointVectorComboBox->SetStringSelection(viewObj);
       
-      viewObj = mOpenGlPlot->GetStringParameter("ViewDirectionType").c_str();
+      viewObj = mEnhanced3DView->GetStringParameter("ViewDirectionType").c_str();
       
       if (viewObj != "Vector")
-         viewObj = mOpenGlPlot->GetStringParameter("ViewDirection").c_str();
+         viewObj = mEnhanced3DView->GetStringParameter("ViewDirection").c_str();
       mViewDirectionComboBox->SetStringSelection(viewObj);
       
-      rval = mOpenGlPlot->GetRealParameter("ViewScaleFactor");
+      rval = mEnhanced3DView->GetRealParameter("ViewScaleFactor");
       mViewScaleFactorTextCtrl->SetValue(theGuiManager->ToWxString(rval));
       
       // show vector if viewpoint vector name is Vector
       if (mViewPointRefComboBox->GetStringSelection() == "Vector")
       {
-         Rvector3 vec = mOpenGlPlot->GetVector("ViewPointReference");
+         Rvector3 vec = mEnhanced3DView->GetVector("ViewPointReference");
          
          #if DEBUG_3DVIEW_PANEL_LOAD
          MessageInterface::ShowMessage
@@ -761,7 +761,7 @@ void Enhanced3DViewPanel::LoadData()
       // show vector if viewpoint vector name is Vector
       if (mViewPointVectorComboBox->GetStringSelection() == "Vector")
       {
-         Rvector3 vec = mOpenGlPlot->GetVector("ViewPointVector");
+         Rvector3 vec = mEnhanced3DView->GetVector("ViewPointVector");
          
          #if DEBUG_3DVIEW_PANEL_LOAD
          MessageInterface::ShowMessage
@@ -782,7 +782,7 @@ void Enhanced3DViewPanel::LoadData()
       // show vector if view direction name is Vector
       if (mViewDirectionComboBox->GetStringSelection() == "Vector")
       {
-         Rvector3 vec = mOpenGlPlot->GetVector("ViewDirection");
+         Rvector3 vec = mEnhanced3DView->GetVector("ViewDirection");
          
          #if DEBUG_3DVIEW_PANEL_LOAD
          MessageInterface::ShowMessage
@@ -803,7 +803,7 @@ void Enhanced3DViewPanel::LoadData()
       //--------------------------------------------------------------
       // get SpacePoint list to plot
       //--------------------------------------------------------------
-      StringArray spNameList = mOpenGlPlot->GetSpacePointList();
+      StringArray spNameList = mEnhanced3DView->GetSpacePointList();
       int spCount = spNameList.size();
       
       #if DEBUG_3DVIEW_PANEL_LOAD
@@ -850,11 +850,11 @@ void Enhanced3DViewPanel::LoadData()
             scNames[i] = scNameArray[i].c_str();
             
             mDrawObjectMap[scNameArray[i]] =
-               mOpenGlPlot->GetShowObject(scNameArray[i]);
+               mEnhanced3DView->GetShowObject(scNameArray[i]);
             mOrbitColorMap[scNameArray[i]]
-               = RgbColor(mOpenGlPlot->GetColor("Orbit", scNameArray[i]));
+               = RgbColor(mEnhanced3DView->GetColor("Orbit", scNameArray[i]));
             mTargetColorMap[scNameArray[i]]
-               = RgbColor(mOpenGlPlot->GetColor("Target", scNameArray[i]));
+               = RgbColor(mEnhanced3DView->GetColor("Target", scNameArray[i]));
             
             #if DEBUG_3DVIEW_PANEL_LOAD > 1
             MessageInterface::ShowMessage
@@ -877,11 +877,11 @@ void Enhanced3DViewPanel::LoadData()
             nonScNames[i] = nonScNameArray[i].c_str();
          
             mDrawObjectMap[nonScNameArray[i]] =
-               mOpenGlPlot->GetShowObject(nonScNameArray[i]);
+               mEnhanced3DView->GetShowObject(nonScNameArray[i]);
             mOrbitColorMap[nonScNameArray[i]]
-               = RgbColor(mOpenGlPlot->GetColor("Orbit", nonScNameArray[i]));
+               = RgbColor(mEnhanced3DView->GetColor("Orbit", nonScNameArray[i]));
             mTargetColorMap[nonScNameArray[i]]
-               = RgbColor(mOpenGlPlot->GetColor("Target", nonScNameArray[i]));
+               = RgbColor(mEnhanced3DView->GetColor("Target", nonScNameArray[i]));
          }
          
          mSelectedObjListBox->Set(mNonScCount, nonScNames);
@@ -1036,9 +1036,9 @@ void Enhanced3DViewPanel::SaveData()
          #endif
          
          mHasIntegerDataChanged = false;
-         mOpenGlPlot->SetIntegerParameter("DataCollectFrequency", collectFreq);
-         mOpenGlPlot->SetIntegerParameter("UpdatePlotFrequency", updateFreq);
-         mOpenGlPlot->SetIntegerParameter("NumPointsToRedraw", pointsToRedraw);
+         mEnhanced3DView->SetIntegerParameter("DataCollectFrequency", collectFreq);
+         mEnhanced3DView->SetIntegerParameter("UpdatePlotFrequency", updateFreq);
+         mEnhanced3DView->SetIntegerParameter("NumPointsToRedraw", pointsToRedraw);
       }
       
       //--------------------------------------------------------------
@@ -1051,13 +1051,13 @@ void Enhanced3DViewPanel::SaveData()
          #endif
          mHasViewInfoChanged = false;
          
-         mOpenGlPlot->SetStringParameter
+         mEnhanced3DView->SetStringParameter
             ("ViewPointReference",
              std::string(mViewPointRefComboBox->GetStringSelection().c_str()));
-         mOpenGlPlot->SetStringParameter
+         mEnhanced3DView->SetStringParameter
             ("ViewPointVector",
              std::string(mViewPointVectorComboBox->GetStringSelection().c_str()));
-         mOpenGlPlot->SetStringParameter
+         mEnhanced3DView->SetStringParameter
             ("ViewDirection",
              std::string(mViewDirectionComboBox->GetStringSelection().c_str()));
       } // end if ( mHasViewInfoChanged)
@@ -1074,27 +1074,27 @@ void Enhanced3DViewPanel::SaveData()
          
          mHasViewInfoChanged = false;
          mHasRealDataChanged = false;
-         mOpenGlPlot->SetRealParameter("ViewScaleFactor", scaleFactor);
+         mEnhanced3DView->SetRealParameter("ViewScaleFactor", scaleFactor);
          
          if (mViewPointRefComboBox->GetStringSelection() == "Vector")
          {
             vec.Set(viewRef[0], viewRef[1], viewRef[2]);
-            mOpenGlPlot->SetStringParameter("ViewPointRefType", "Vector");
-            mOpenGlPlot->SetVector("ViewPointReference", vec);
+            mEnhanced3DView->SetStringParameter("ViewPointRefType", "Vector");
+            mEnhanced3DView->SetVector("ViewPointReference", vec);
          }
          
          if (mViewPointVectorComboBox->GetStringSelection() == "Vector")
          {
             vec.Set(viewVec[0], viewVec[1], viewVec[2]);
-            mOpenGlPlot->SetStringParameter("ViewPointVectorType", "Vector");
-            mOpenGlPlot->SetVector("ViewPointVector", vec);
+            mEnhanced3DView->SetStringParameter("ViewPointVectorType", "Vector");
+            mEnhanced3DView->SetVector("ViewPointVector", vec);
          }
          
          if (mViewDirectionComboBox->GetStringSelection() == "Vector")
          {
             vec.Set(viewDir[0], viewDir[1], viewDir[2]);
-            mOpenGlPlot->SetStringParameter("ViewDirectionType", "Vector");
-            mOpenGlPlot->SetVector("ViewDirection", vec);
+            mEnhanced3DView->SetStringParameter("ViewDirectionType", "Vector");
+            mEnhanced3DView->SetVector("ViewDirection", vec);
          }
       }
       
@@ -1109,49 +1109,49 @@ void Enhanced3DViewPanel::SaveData()
          #endif
          mHasDrawingOptionChanged = false;
          
-         mOpenGlPlot->Activate(mShowPlotCheckBox->IsChecked());
+         mEnhanced3DView->Activate(mShowPlotCheckBox->IsChecked());
          
          if (mXYPlaneCheckBox->IsChecked())
-            mOpenGlPlot->SetOnOffParameter("XYPlane", "On");
+            mEnhanced3DView->SetOnOffParameter("XYPlane", "On");
          else
-            mOpenGlPlot->SetOnOffParameter("XYPlane", "Off");
+            mEnhanced3DView->SetOnOffParameter("XYPlane", "Off");
          
          if (mEclipticPlaneCheckBox->IsChecked())
-            mOpenGlPlot->SetOnOffParameter("CelestialPlane", "On");
+            mEnhanced3DView->SetOnOffParameter("CelestialPlane", "On");
          else
-            mOpenGlPlot->SetOnOffParameter("CelestialPlane", "Off");
+            mEnhanced3DView->SetOnOffParameter("CelestialPlane", "Off");
          
          if (mWireFrameCheckBox->IsChecked())
-            mOpenGlPlot->SetOnOffParameter("WireFrame", "On");
+            mEnhanced3DView->SetOnOffParameter("WireFrame", "On");
          else
-            mOpenGlPlot->SetOnOffParameter("WireFrame", "Off");
+            mEnhanced3DView->SetOnOffParameter("WireFrame", "Off");
          
          if (mAxesCheckBox->IsChecked())
-            mOpenGlPlot->SetOnOffParameter("Axes", "On");
+            mEnhanced3DView->SetOnOffParameter("Axes", "On");
          else
-            mOpenGlPlot->SetOnOffParameter("Axes", "Off");
+            mEnhanced3DView->SetOnOffParameter("Axes", "Off");
          
          if (mGridCheckBox->IsChecked())
-            mOpenGlPlot->SetOnOffParameter("Grid", "On");
+            mEnhanced3DView->SetOnOffParameter("Grid", "On");
          else
-            mOpenGlPlot->SetOnOffParameter("Grid", "Off");
+            mEnhanced3DView->SetOnOffParameter("Grid", "Off");
          
          if (mOriginSunLineCheckBox->IsChecked())
-            mOpenGlPlot->SetOnOffParameter("SunLine", "On");
+            mEnhanced3DView->SetOnOffParameter("SunLine", "On");
          else
-            mOpenGlPlot->SetOnOffParameter("SunLine", "Off");
+            mEnhanced3DView->SetOnOffParameter("SunLine", "Off");
          
          //if (mOverlapCheckBox->IsChecked())
-         //   mOpenGlPlot->SetOnOffParameter("Overlap", "On");
+         //   mEnhanced3DView->SetOnOffParameter("Overlap", "On");
          //else
-         //   mOpenGlPlot->SetOnOffParameter("Overlap", "Off");
+         //   mEnhanced3DView->SetOnOffParameter("Overlap", "Off");
          
          if (mUseInitialViewCheckBox->IsChecked())
-            mOpenGlPlot->SetOnOffParameter("UseInitialView", "On");
+            mEnhanced3DView->SetOnOffParameter("UseInitialView", "On");
          else
-            mOpenGlPlot->SetOnOffParameter("UseInitialView", "Off");
+            mEnhanced3DView->SetOnOffParameter("UseInitialView", "Off");
          
-         mOpenGlPlot->SetStringParameter("SolverIterations",
+         mEnhanced3DView->SetStringParameter("SolverIterations",
                                          mSolverIterComboBox->GetValue().c_str());
       }
       
@@ -1165,14 +1165,14 @@ void Enhanced3DViewPanel::SaveData()
       #endif
       
       if (mPerspectiveModeCheckBox->IsChecked())
-         mOpenGlPlot->SetOnOffParameter("PerspectiveMode", "On");
+         mEnhanced3DView->SetOnOffParameter("PerspectiveMode", "On");
       else
-         mOpenGlPlot->SetOnOffParameter("PerspectiveMode", "Off");
+         mEnhanced3DView->SetOnOffParameter("PerspectiveMode", "Off");
       
       if (mUseFixedFovCheckBox->IsChecked())
-         mOpenGlPlot->SetOnOffParameter("UseFixedFov", "On");
+         mEnhanced3DView->SetOnOffParameter("UseFixedFov", "On");
       else
-         mOpenGlPlot->SetOnOffParameter("UseFixedFov", "Off");
+         mEnhanced3DView->SetOnOffParameter("UseFixedFov", "Off");
       
       Real fov;
       std::string fovStr = mFixedFovTextCtrl->GetValue();
@@ -1182,7 +1182,7 @@ void Enhanced3DViewPanel::SaveData()
                  inputString[0].c_str(), "FixedFovAngle", "Real Number >= 1");
          return;
       }
-      mOpenGlPlot->SetRealParameter("FixedFovAngle", fov);
+      mEnhanced3DView->SetRealParameter("FixedFovAngle", fov);
       #endif
       
       
@@ -1208,7 +1208,7 @@ void Enhanced3DViewPanel::SaveData()
          #endif
          
          // clear the list first
-         mOpenGlPlot->TakeAction("Clear");
+         mEnhanced3DView->TakeAction("Clear");
          
          // add spacecraft
          for (int i=0; i<mScCount; i++)
@@ -1219,7 +1219,7 @@ void Enhanced3DViewPanel::SaveData()
             MessageInterface::ShowMessage("   Sc[%d] = %s\n", i, mSelSpName.c_str());
             #endif
             
-            mOpenGlPlot->
+            mEnhanced3DView->
                SetStringParameter("Add", mSelSpName, i);
          }         
          
@@ -1235,7 +1235,7 @@ void Enhanced3DViewPanel::SaveData()
             #endif
             
             
-            mOpenGlPlot->
+            mEnhanced3DView->
                SetStringParameter("Add", mSelSpName, mScCount+i);
          }
       }
@@ -1256,7 +1256,7 @@ void Enhanced3DViewPanel::SaveData()
          {
             mSelSpName = std::string(mSelectedScListBox->GetString(i).c_str());
          
-            mOpenGlPlot->
+            mEnhanced3DView->
                SetShowObject( mSelSpName, mDrawObjectMap[mSelSpName]);
          }
          
@@ -1265,7 +1265,7 @@ void Enhanced3DViewPanel::SaveData()
          {
             mSelSpName = std::string(mSelectedObjListBox->GetString(i).c_str());
          
-            mOpenGlPlot->
+            mEnhanced3DView->
                SetShowObject(mSelSpName, mDrawObjectMap[mSelSpName]);
          }
       }
@@ -1292,7 +1292,7 @@ void Enhanced3DViewPanel::SaveData()
                 mSelSpName.c_str(), mOrbitColorMap[mSelSpName].GetIntColor());
             #endif
             
-            mOpenGlPlot->
+            mEnhanced3DView->
                SetColor("Orbit", mSelSpName,
                         mOrbitColorMap[mSelSpName].GetIntColor());
          }
@@ -1302,7 +1302,7 @@ void Enhanced3DViewPanel::SaveData()
          {
             mSelSpName = std::string(mSelectedObjListBox->GetString(i).c_str());
          
-            mOpenGlPlot->
+            mEnhanced3DView->
                SetColor("Orbit", mSelSpName,
                         mOrbitColorMap[mSelSpName].GetIntColor());
          }
@@ -1330,7 +1330,7 @@ void Enhanced3DViewPanel::SaveData()
                 mSelSpName.c_str(), mTargetColorMap[mSelSpName].GetIntColor());
             #endif
             
-            mOpenGlPlot->
+            mEnhanced3DView->
                SetColor("Target", mSelSpName,
                         mTargetColorMap[mSelSpName].GetIntColor());
          }
@@ -1346,7 +1346,7 @@ void Enhanced3DViewPanel::SaveData()
          #endif
          
          mHasCoordSysChanged = false;
-         mOpenGlPlot->SetStringParameter
+         mEnhanced3DView->SetStringParameter
             ("CoordinateSystem",
              std::string(mCoordSysComboBox->GetStringSelection().c_str()));
       }
@@ -1361,10 +1361,10 @@ void Enhanced3DViewPanel::SaveData()
          #endif
          
          mHasViewUpInfoChanged = false;
-         mOpenGlPlot->SetStringParameter
+         mEnhanced3DView->SetStringParameter
             ("ViewUpCoordinateSystem",
              std::string(mViewUpCsComboBox->GetStringSelection().c_str()));
-         mOpenGlPlot->SetStringParameter
+         mEnhanced3DView->SetStringParameter
             ("ViewUpAxis",
              std::string(mViewUpAxisComboBox->GetStringSelection().c_str()));
       }

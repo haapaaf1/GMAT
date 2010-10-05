@@ -24,7 +24,6 @@
 #include "GmatAppData.hpp"
 #include "MdiGlPlotData.hpp"         // for 3D Visualization
 #include "MdiChildViewFrame.hpp"     // for 3D Visualization
-#include "MdiChildTrajFrame.hpp"     // for 3D Visualization
 #include "MdiChild3DViewFrame.hpp"   // for 3D Visualization
 #include "MdiTsPlotData.hpp"         // for XY plot
 #include "MdiChildTsFrame.hpp"       // for XY plot
@@ -191,19 +190,7 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
          h = -1;
       #endif
 
-      if (currentView == GmatPlot::TRAJECTORY_PLOT)
-      {
-         #if DEBUG_PLOTIF_GL_CREATE
-         MessageInterface::ShowMessage("   Creating MdiChildTrajFrame...\n");
-         #endif
-         frame = new MdiChildTrajFrame
-            (GmatAppData::Instance()->GetMainFrame(),
-             wxString(plotName.c_str()),
-             wxString(plotName.c_str()),
-             wxPoint(x, y), wxSize(w, h),
-             wxDEFAULT_FRAME_STYLE);
-      }
-      else if (currentView == GmatPlot::ENHANCED_3D_VIEW)
+      if (currentView == GmatPlot::ENHANCED_3D_VIEW)
       {
          #if DEBUG_PLOTIF_GL_CREATE
          MessageInterface::ShowMessage("   Creating MdiChild3DViewFrame...\n");
@@ -529,7 +516,7 @@ bool GuiPlotReceiver::DeleteGlPlot(const std::string &plotName)
 
          if (frame->GetPlotName().IsSameAs(owner.c_str()))
          {
-            gmatAppData->GetMainFrame()->CloseChild(owner, GmatTree::OUTPUT_OPENGL_PLOT);
+            gmatAppData->GetMainFrame()->CloseChild(owner, GmatTree::OUTPUT_ORBIT_VIEW);
             gmatAppData->GetMainFrame()->Tile();
             break;
          }

@@ -841,6 +841,15 @@ const StringArray& Interpreter::GetListOfViewableCommands()
 
 
 //------------------------------------------------------------------------------
+// const StringArray& GetListOfViewableSubtypesOf(Gmat::ObjectType type)
+//------------------------------------------------------------------------------
+const StringArray& Interpreter::GetListOfViewableSubtypesOf(Gmat::ObjectType type)
+{
+   return theModerator->GetListOfViewableItems(type);
+}
+
+
+//------------------------------------------------------------------------------
 // GmatBase* GetConfiguredObject(const std::string &name)
 //------------------------------------------------------------------------------
 GmatBase* Interpreter::GetConfiguredObject(const std::string &name)
@@ -2890,9 +2899,11 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    }
    
    std::string objTypeStrToUse = objTypeStr;
-   // Special case for Propagator
+   // Special case for Propagator and OpenGLPlot
    if (objTypeStr == "Propagator")
       objTypeStrToUse = "PropSetup";
+   else if (objTypeStr == "OpenGLPlot")
+      objTypeStrToUse = "OrbitView";
    
    try
    {
@@ -5001,10 +5012,10 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                ("   '%s' is a Real or Integer value\n", valueToUse.c_str());
             #endif
             
-            // Handle special case for OpenGlPlot.
+            // Handle special case for OrbitView.
             // ViewPointReference, ViewPointVector, and ViewDirection can have 
             // both vector and object name.
-            if (obj->IsOfType(Gmat::OPENGL_PLOT))
+            if (obj->IsOfType(Gmat::ORBIT_VIEW))
             {
                obj->SetStringParameter(id, valueToUse, index);
             }
@@ -7471,7 +7482,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       if (!GmatFileUtil::GetLine(&inStream, line))
       {
          InterpreterException ex
-            ("Error reading the GamtFunction file \"" +
+            ("Error reading the GmatFunction file \"" +
              funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
          HandleError(ex, false);
          retval = false;
@@ -7516,7 +7527,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       catch (BaseException &e)
       {
          InterpreterException ex
-            ("Invalid output argument list found in the GamtFunction file \"" +
+            ("Invalid output argument list found in the GmatFunction file \"" +
              funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
          HandleError(ex, false);
          retval = false;
@@ -7539,7 +7550,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       if (numLeft > 0 && lhsParts[0] != "function")
       {
          InterpreterException ex
-            ("The \"function\" is missing in the GamtFunction file \"" +
+            ("The \"function\" is missing in the GmatFunction file \"" +
              funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
          HandleError(ex, false);
          retval = false;
@@ -7567,7 +7578,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
          catch (BaseException &e)
          {
             InterpreterException ex
-               ("Invalid output argument list found in the GamtFunction file \"" +
+               ("Invalid output argument list found in the GmatFunction file \"" +
                 funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
             HandleError(ex, false);
             retval = false;
@@ -7578,7 +7589,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
          if (outputArgs.size() == 0)
          {
             InterpreterException ex
-               ("The output argument list is empty in the GamtFunction file \"" +
+               ("The output argument list is empty in the GmatFunction file \"" +
                 funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
             HandleError(ex, false);
             retval = false;
@@ -7598,7 +7609,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       if (numParts <= 1)
       {
          InterpreterException ex
-            ("The function name not found in the GamtFunction file \"" +
+            ("The function name not found in the GmatFunction file \"" +
              funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
          HandleError(ex, false);
          retval = false;
@@ -7676,7 +7687,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
          catch (BaseException &e)
          {
             InterpreterException ex
-               ("Invalid input argument list found in the GamtFunction file \"" +
+               ("Invalid input argument list found in the GmatFunction file \"" +
                 funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
             HandleError(ex, false);
             retval = false;
@@ -7686,7 +7697,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
          if (inputArgs.size() == 0)
          {
             InterpreterException ex
-               ("The input argument list is empty in the GamtFunction file \"" +
+               ("The input argument list is empty in the GmatFunction file \"" +
                 funcPath + "\" referenced in \"" + function->GetName() + "\"\n");
             HandleError(ex, false);
             retval = false;

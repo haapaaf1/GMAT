@@ -58,7 +58,7 @@ namespace GmatTree
       ICON_MATLAB_FUNCTION,
       ICON_FUNCTION,
       ICON_COORDINATE_SYSTEM,
-      ICON_OPEN_GL_PLOT,
+      ICON_ORBIT_VIEW,
 
       ICON_PROPAGATOR,
       ICON_VARIABLE,
@@ -186,8 +186,7 @@ namespace GmatTree
       SUBSCRIBER = 41500,
       REPORT_FILE,
       XY_PLOT,
-      OPENGL_PLOT,
-      ENHANCED_3D_VIEW,
+      ORBIT_VIEW,
       EPHEMERIS_FILE,
       
       VARIABLE = 41600,
@@ -251,14 +250,13 @@ namespace GmatTree
       //---------- Output Tree
       OUTPUT_FOLDER = 45000,
       REPORTS_FOLDER,
-      OPENGL_PLOTS_FOLDER,
+      ORBIT_VIEWS_FOLDER,
       XY_PLOTS_FOLDER,
 
       // for output
       BEGIN_OF_OUTPUT = 46000,
       OUTPUT_REPORT,
-      OUTPUT_OPENGL_PLOT,
-      OUTPUT_3D_VIEW,
+      OUTPUT_ORBIT_VIEW,
       OUTPUT_XY_PLOT,
       COMPARE_REPORT,
       END_OF_OUTPUT,
