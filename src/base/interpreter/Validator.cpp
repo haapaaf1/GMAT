@@ -407,9 +407,9 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    if (cmd->GetTypeName() != "BeginScript")
       genStr = cmd-> GetGeneratingString(Gmat::NO_COMMENTS);
    MessageInterface::ShowMessage
-      ("Validator::ValidateCommand() cmd=<%p><%s>\"%s\"\n   continueOnError=%d, "
-       "manage=%d\n", cmd, cmd->GetTypeName().c_str(), genStr.c_str(),
-       continueOnError, manage);
+      ("====================> Validator::ValidateCommand() cmd=<%p><%s>\"%s\"\n"
+       "   continueOnError=%d, manage=%d\n", cmd, cmd->GetTypeName().c_str(),
+       genStr.c_str(), continueOnError, manage);
    MessageInterface::ShowMessage
       ("   theFunction=<%p>'%s'\n", theFunction,
        theFunction ? theFunction->GetName().c_str() : "NULL");
@@ -770,6 +770,9 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    
    std::string lhs = acmd->GetLHS();
    std::string rhs = acmd->GetRHS();
+   bool isMathTree = false;
+   if (acmd->GetMathTree() != NULL)
+      isMathTree = true;
    
    StringArray parts = GmatStringUtil::SeparateDots(lhs);
    GmatBase *theObj = FindObject(parts[0]);
@@ -908,6 +911,8 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    #if DBGLVL_WRAPPERS > 1
    MessageInterface::ShowMessage("==========> Create Assignment RHS wrapper\n");
    MessageInterface::ShowMessage("   Has %d wrapper names\n", wrapperNames.size());
+   for (Integer ii=0; ii < (Integer) wrapperNames.size(); ii++)
+      MessageInterface::ShowMessage("      %s\n", wrapperNames[ii].c_str());
    #endif
    
    createDefaultStringWrapper = true;
@@ -947,9 +952,36 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    for (StringArray::const_iterator i = wrapperNames.begin();
         i != wrapperNames.end(); ++i)
    {
-      std::string name = (*i);
+      std::string origVal = (*i);
+      
+      // Since wrapperNames includes wrapper name for LHS, skip if same as LHS
+      if (!isMathTree && origVal == lhs)
+         continue;
+      
+      std::string name = origVal;
+      bool addedQuotes = false;
+      
+      // Special handling for FILENAME_TYPE which doesn't require enclosing with quotes
+      // Bug 2063 fix
+      if (createDefaultStringWrapper)
+      {
+         if (leftEw->GetDataType() == Gmat::FILENAME_TYPE &&
+             !GmatStringUtil::IsEnclosedWith(name, "'"))
+         {
+            name = GmatStringUtil::AddEnclosingString(origVal, "'");
+            addedQuotes = true;
+            #if DBGLVL_WRAPPERS > 1
+            MessageInterface::ShowMessage
+               ("   ===> It is FILENAME_TYPE, so added quotes, name='%s'\n", name.c_str());
+            #endif
+         }
+      }
       if (name != "")
       {
+         #if DBGLVL_WRAPPERS > 1
+         MessageInterface::ShowMessage("   Passing '%s' to CreateElementWrapper()\n", name.c_str());
+         #endif
+         
          try
          {                  
             ElementWrapper *ew = NULL;
@@ -967,9 +999,17 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
                    ew->GetWrapperType(), ew->GetDescription().c_str(), typeName.c_str());
             #endif
             
-            if (cmd->SetElementWrapper(ew, name) == false)
+            std::string strToUse = name;
+            if (addedQuotes)
+               strToUse = origVal;
+            
+            #if DBGLVL_WRAPPERS > 1
+            MessageInterface::ShowMessage
+               ("   Calling cmd->SetElementWrapper(<%p>, '%s')\n", ew, strToUse.c_str());
+            #endif
+            if (cmd->SetElementWrapper(ew, strToUse) == false)
             {
-               theErrorMsg = "Failed to set ElementWrapper for RHS object \"" + name +
+               theErrorMsg = "Failed to set ElementWrapper for RHS object \"" + strToUse +
                   "\" in Assignment";
                return HandleError();
             }
