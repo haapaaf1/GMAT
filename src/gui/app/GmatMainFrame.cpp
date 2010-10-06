@@ -527,6 +527,30 @@ GmatMainFrame::~GmatMainFrame()
 
 
 //------------------------------------------------------------------------------
+// bool GmatMainFrame::Show(bool show)
+//------------------------------------------------------------------------------
+/**
+ * Provides a connection point for updating panels owned by GMAT's MainFrame
+ * after the MainFrame is displayed.
+ *
+ * @param show Indicates in the frame should be displayed
+ *
+ * @return The success or failure of the MainFrame display.
+ */
+//------------------------------------------------------------------------------
+bool GmatMainFrame::Show(bool show)
+{
+   bool retval = wxMDIParentFrame::Show(show);
+   if (retval)
+      // Only show the Welcome panel is it exists and if the MainFrame is shown
+      if ((mWelcomePanel != NULL) && show)
+         mWelcomePanel->Raise();
+
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
 // GmatMdiChildFrame* CreateChild(GmatTreeItemData *item, bool restore)
 //------------------------------------------------------------------------------
 /**

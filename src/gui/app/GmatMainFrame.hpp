@@ -177,6 +177,8 @@ public:
    
    bool SetScriptFileName(const std::string &filename);
    
+   virtual bool Show(bool show = true);
+
    MdiChildTrajFrame *trajSubframe;
    MdiChildTsFrame *tsSubframe;
    wxList *theMdiChildren;

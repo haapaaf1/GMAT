@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                         ShowSummaryDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -13,7 +13,8 @@
 // Created: 2005/03/08
 //
 /**
- * Implements the dialog used to show scripting for individual components. 
+ * Implements the dialog used to show the command summary for individual
+ * components.
  */
 //------------------------------------------------------------------------------
 
