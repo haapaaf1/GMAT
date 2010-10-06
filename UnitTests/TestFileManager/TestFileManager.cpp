@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  TestFileManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2005/05/27
@@ -68,6 +68,46 @@ int RunTest(TestOutput &out)
    
    out.Put("\n------------------------- test GetFilename(JGM2_FILE)");
    result = fm->GetFilename("JGM2_FILE");
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetPathname(FilaManager::GUI_CONFIG_PATH)");
+   result = fm->GetPathname(FileManager::GUI_CONFIG_PATH);
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetPathname(GUI_CONFIG_PATH)");
+   result = fm->GetPathname("GUI_CONFIG_PATH");
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetFullPathname(FileManager::GUI_CONFIG_PATH)");
+   result = fm->GetFullPathname(FileManager::GUI_CONFIG_PATH);
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetFullPathname(GUI_CONFIG_PATH)");
+   result = fm->GetFullPathname("GUI_CONFIG_PATH");
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetPathname(FileManager::PERSONALIZATION_FILE)");
+   result = fm->GetPathname(FileManager::PERSONALIZATION_FILE);
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetPathname(PERSONALIZATION_FILE)");
+   result = fm->GetPathname("PERSONALIZATION_FILE");
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetFilename(FileManager::PERSONALIZATION_FILE)");
+   result = fm->GetFilename(FileManager::PERSONALIZATION_FILE);
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetFilename(PERSONALIZATION_FILE)");
+   result = fm->GetFilename("PERSONALIZATION_FILE");
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetFullPathname(FileManager::PERSONALIZATION_FILE)");
+   result = fm->GetFullPathname(FileManager::PERSONALIZATION_FILE);
+   out.Put(result);
+   
+   out.Put("\n------------------------- test GetFullPathname(PERSONALIZATION_FILE)");
+   result = fm->GetFullPathname("PERSONALIZATION_FILE");
    out.Put(result);
    
    out.Put("\n------------------------- test GetFullPathname(JGM2_FILE)");
@@ -261,7 +301,7 @@ int main(int argc, char *argv[])
    MessageInterface::SetLogFile("../../TestFileManager/GmatLog.txt");
    
    TestOutput out("../../TestFileManager/TestFileManagerOut.txt");
-   out.Put(GmatTimeUtil::GetCurrentTime());
+   out.Put(GmatTimeUtil::FormatCurrentTime());
    
    try
    {

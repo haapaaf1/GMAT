@@ -1091,11 +1091,13 @@ void ParsePropagateCommand(TestOutput &out, TextParser &tp, const std::string &s
    StringArray chunks, parts;
    
    out.Put(str);
-   std::string str1 = str;
+   // Remove blank spaces
+   std::string str1 = GmatStringUtil::RemoveAll(str, ' ');
+   out.Put(str1);
    std::string str2;
    StringArray props, stops;
    
-   out.Put("========== GmatStringUtil::SeparateBy( ) ) => ", str);
+   out.Put("========== GmatStringUtil::SeparateBy( ) ) => ", str1);
    chunks = GmatStringUtil::SeparateBy(str1, ")", true, true, false);
    WriteStringArray(out, chunks);
    
@@ -1168,7 +1170,7 @@ void TestParsePropagateCommand(TextParser &tp, TestOutput &out)
    out.Put("---------------------------------------- ParsePropagate 1");
    prop1 = "Prop1(Sat1";
    expProp1 = prop1 + ")";
-   expStop1 = "Sat1.ElapsedSecs = 8640.0";
+   expStop1 = "Sat1.ElapsedSecs=8640.0";
    stop1 = "{" + expStop1 + "}";
    str = prop1 + ", " + stop1 + ")";
    ParsePropagateCommand(out, tp, str, expProp1, expStop1);
@@ -1183,17 +1185,17 @@ void TestParsePropagateCommand(TextParser &tp, TestOutput &out)
    
    out.Put("---------------------------------------- ParsePropagate 4");
    ParsePropagateCommand(out, tp, "Prop1(Sat1, Sat2, {Sat1.ElapsedSecs = 8640.0, Sat2.MA=90.0})",
-                         "Prop1(Sat1,Sat2)", "Sat1.ElapsedSecs = 8640.0");
+                         "Prop1(Sat1,Sat2)", "Sat1.ElapsedSecs=8640.0", "Sat2.MA=90.0");
    
    out.Put("---------------------------------------- ParsePropagate 5");
-   ParsePropagateCommand(out, tp, "Prop1(Sat1, Sat2) {Sat1.ElapsedSecs = 8640.0, Sat2.MA=90.0}",
-                         "Prop1(Sat1,Sat2)", "Sat1.ElapsedSecs = 8640.0");
+   ParsePropagateCommand(out, tp, "Prop1(Sat1, Sat2) {Sat1.ElapsedSecs = 8640.0, Sat2.MA = 90.0}",
+                         "Prop1(Sat1,Sat2)", "Sat1.ElapsedSecs=8640.0", "Sat2.MA=90.0");
    
    out.Put("---------------------------------------- ParsePropagate 6");
    prop1 = "Prop1(Sat1)";
    expProp1 = prop1;
-   expStop1 = "Sat1.TA = stopArray(1,1)";
-   expStop2 = "StopTolerance = 1e-005";
+   expStop1 = "Sat1.TA=stopArray(1,1)";
+   expStop2 = "StopTolerance=1e-005";
    stop1 = "{" + expStop1 + ", " + expStop2 + "}";
    str = prop1 + stop1;
    ParsePropagateCommand(out, tp, str, expProp1, expStop1);
@@ -1203,10 +1205,10 @@ void TestParsePropagateCommand(TextParser &tp, TestOutput &out)
    expProp1 = prop1;
    prop2 = "Prop2(Sat3, Sat4)";
    expProp2 = prop2;
-   expStop1 = "Sat1.TA = stopArray(1,1)";
-   expStop2 = "StopTolerance = A(1,1)";
+   expStop1 = "Sat1.TA=stopArray(1,1)";
+   expStop2 = "StopTolerance=A(1,1)";
    expStop3 = "Sat3.TA=B(a,b)";
-   expStop4 = "A(a,b) = B(c,d)";
+   expStop4 = "A(a,b)=B(c,d)";
    str1 = prop1 + " " + "{" + expStop1 + ", " + expStop2 + "}";
    str2 = prop2 + " " + "{" + expStop3 + ", " + expStop4 + "}";
    str  = str1 + str2;
@@ -1217,12 +1219,12 @@ void TestParsePropagateCommand(TextParser &tp, TestOutput &out)
    
    out.Put("---------------------------------------- ParsePropagate 9");
    str = "Prop1(SC1, SC2, {SC1.ElapsedDays = 0.2}) Prop2(SC3, {SC3.ElapsedDays = 0.25})";
-   ParsePropagateCommand(out, tp, str, "Prop1(SC1,SC2)", "SC1.ElapsedDays = 0.2",
-                         "Prop2(SC3)", "SC3.ElapsedDays = 0.25");
+   ParsePropagateCommand(out, tp, str, "Prop1(SC1,SC2)", "SC1.ElapsedDays=0.2",
+                         "Prop2(SC3)", "SC3.ElapsedDays=0.25");
    
    out.Put("---------------------------------------- ParsePropagate 10");
    str = "Prop1(Sat1, {One = Sat.EarthMJ2000Eq.Z})";
-   ParsePropagateCommand(out, tp, str, "Prop1(Sat1)", "One = Sat.EarthMJ2000Eq.Z");
+   ParsePropagateCommand(out, tp, str, "Prop1(Sat1)", "One=Sat.EarthMJ2000Eq.Z");
    
    #endif
    
@@ -1231,8 +1233,8 @@ void TestParsePropagateCommand(TextParser &tp, TestOutput &out)
    expProp1 = prop1;
    prop2 = "";
    expProp2 = prop2;
-   expStop1 = "stopArray(1,1) = Sat1.TA";
-   expStop2 = "StopTolerance = 1e-005";
+   expStop1 = "stopArray(1,1)=Sat1.TA";
+   expStop2 = "StopTolerance=1e-005";
    expStop3 = "";
    expStop4 = "";
    str1 = prop1 + " " + "{" + expStop1 + ", " + expStop2 + "}";
@@ -1244,11 +1246,24 @@ void TestParsePropagateCommand(TextParser &tp, TestOutput &out)
    expProp1 = prop1;
    prop2 = "";
    expProp2 = prop2;
-   expStop1 = "Sat1.Luna.RMAG = 65000.0";
+   expStop1 = "Sat1.Luna.RMAG=65000.0";
    expStop2 = "";
    expStop3 = "";
    expStop4 = "";
    str1 = prop1 + " " + "{" + expStop1 + ", " + expStop2 + "}";
+   str  = str1;
+   ParsePropagateCommand(out, tp, str, expProp1, expStop1, expStop2);
+   
+   out.Put("---------------------------------------- ParsePropagate 13");
+   prop1 = "Prop1(Sat1";
+   expProp1 = prop1 + ")";
+   prop2 = "";
+   expProp2 = prop2;
+   expStop1 = "Sat1.Apoapsis";
+   expStop2 = "";
+   expStop3 = "";
+   expStop4 = "";
+   str1 = prop1 + ", " + " {" + expStop1 + "} )";
    str  = str1;
    ParsePropagateCommand(out, tp, str, expProp1, expStop1, expStop2);
 }

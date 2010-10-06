@@ -1,4 +1,4 @@
-//$Header: /cygdrive/p/dev/cvs/test/TestMath/TestMathParser.cpp,v 1.11 2008/08/22 14:48:58 lojun Exp $
+//$Id$
 //------------------------------------------------------------------------------
 //                                  TestMathParser
 //------------------------------------------------------------------------------
@@ -46,6 +46,7 @@
 #include "StringVar.hpp"
 #include "BaseException.hpp"
 #include "Rmatrix33.hpp"
+#include "ArrayWrapper.hpp"
 #include "FileManager.hpp"         // for ReadStartupFile()
 #include "MessageInterface.hpp"
 #include "ConsoleMessageReceiver.hpp"
@@ -53,7 +54,13 @@
 
 #include <iostream>
 
-#define DEBUG_TEST_MATH_PARSER 1
+namespace GmatTest
+{
+   WrapperMap testWrapper;
+   ElementWrapper *ewI;
+}
+
+#define DEBUG_TEST_MATH_PARSER 2
 
 using namespace std;
 
@@ -94,7 +101,10 @@ void SetParameters(MathNode *node, const std::string &leftName, Parameter *leftP
                    const std::string &rightName, Parameter *rightParam)
 {
    #if DEBUG_TEST_MATH_PARSER
-   MessageInterface::ShowMessage("==========> SetParameters() entered\n");
+   MessageInterface::ShowMessage
+      ("==========> SetParameters() entered\n   node=<%p>, leftName='%s', leftParam=<%p>, "
+       "rightName='%s', rightParam=<%p>\n", node, leftName.c_str(), leftParam,
+       rightName.c_str(), rightParam);
    #endif
    
    MathNode *left = NULL;
@@ -102,13 +112,28 @@ void SetParameters(MathNode *node, const std::string &leftName, Parameter *leftP
    
    if (node->IsFunction())
       GetNodes(node, &left, &right);
-
+   
+   #if DEBUG_TEST_MATH_PARSER
+   MessageInterface::ShowMessage("   left=<%p>, right=<%p>\n", left, right);
+   #endif
+   
    if (left)
    {
       if (!left->IsFunction())
       {
          if (left->GetName() == "arrI")
+         {
+            #if DEBUG_TEST_MATH_PARSER > 1
+            MessageInterface::ShowMessage("   Calling left->SetRefObject()\n");
+            #endif
+            
+            GmatTest::ewI->SetDescription("arrI");
+            GmatTest::ewI->SetRefObject(leftParam);
+            GmatTest::testWrapper.clear();
+            GmatTest::testWrapper.insert(make_pair("arrI", GmatTest::ewI));
+            left->SetMathWrappers(&GmatTest::testWrapper);
             left->SetRefObject(rightParam, Gmat::PARAMETER, rightName);
+         }
          else
             left->SetRefObject(leftParam, Gmat::PARAMETER, leftName);
          
@@ -145,6 +170,10 @@ void SetParameters(MathNode *node, const std::string &leftName, Parameter *leftP
          SetParameters(right, leftName, leftParam, rightName, rightParam);
       }
    }
+   
+   #if DEBUG_TEST_MATH_PARSER
+   MessageInterface::ShowMessage("==========> SetParameters() leaving\n");
+   #endif
 }
 
 
@@ -189,8 +218,14 @@ void EvaluateNode(MathNode *node, TestOutput &out, Real expVal, Rmatrix &expMat)
    }
    else
    {
-      throw MathException("*** EvaluateNode(): ValidateInputs() returned false\n");
+      throw MathException
+         ("*** TestMathParser::EvaluateNode() " + nodeType +
+          "->ValidateInputs() returned false\n");
    }
+   
+   #if DEBUG_TEST_MATH_PARSER
+   MessageInterface::ShowMessage("==========> EvaluateNode() leaving\n");
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -1399,6 +1434,7 @@ void TestArray(TestOutput &out, MathParser &mp)
    delete node;
    
    //------------------------------
+   //@note SetParameters() assumes input matrix is arrI
    expstr = "det(arrI)";
    Array *arrI = new Array("arrI");
    arrI->SetSize(3,3);
@@ -1474,6 +1510,7 @@ void TestArray(TestOutput &out, MathParser &mp)
    node = mp.Parse(expstr);
    SetParameters(node, "arrC", arrC, "", NULL);
    EvaluateNode(node, out, expRealVal, unsetMat);
+   delete arrC;
    delete node;
    
    //------------------------------
@@ -1511,6 +1548,34 @@ void TestArray(TestOutput &out, MathParser &mp)
    node = mp.Parse(expstr);
    SetParameters(node, "arrA", arrA, "arrB", arrB);      
    EvaluateNode(node, out, expRealVal, expMat5);
+}
+
+
+//------------------------------------------------------------------------------
+// void TestLongEquations(TestOutput &out, MathParser &mp)
+//------------------------------------------------------------------------------
+void TestLongEquations(TestOutput &out, MathParser &mp)
+{
+   out.Put("============================== Test long equations");
+   
+   std::string expstr;
+   bool boolVal;
+   bool expBoolVal;
+   MathNode *node = NULL;
+   
+   //------------------------------
+   expstr = "sin(  abs(-.5) + acos(.5) - asin(.5)*atan(.5)*atan2(.5, .5) - "
+      "cos(.02) / DegToRad(45) - det(ArrayOut22)^exp(.5 ) + log(.5) - "
+      "norm(Array31) - RadToDeg(pi/4) + sqrt(2) + tan(2) );";
+   //expstr = "sin(  abs(-.5) + acos(.5) - asin(.5)*atan(.5)*atan2(.5, .5) );";
+   //expstr = "sin(  abs(-.5) + acos(.5) );"; // OK
+   //expstr = "sin(  abs(-.5) + acos(.5) - acos(.5) );"; // OK
+   //expstr = "sin(  abs(-.5) + acos(.5) - asin(.5) );";
+   expBoolVal = true;
+   boolVal = mp.IsEquation(expstr);
+   out.Put(expstr + " should return ", expBoolVal);
+   out.Validate(boolVal, expBoolVal);
+   node = mp.Parse(expstr);
 }
 
 
@@ -1624,14 +1689,6 @@ void TestJustParsing(TestOutput &out, MathParser &mp)
    node = mp.Parse(expstr);
    
    //------------------------------
-   expstr = "(sin(INC*d2r))^2;";
-   expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
-   out.Put(expstr + " should return ", expBoolVal);
-   out.Validate(boolVal, expBoolVal);
-   node = mp.Parse(expstr);
-
-   //------------------------------
    try
    {
       expstr = "cross(vv, cross(rv, vv));";
@@ -1646,8 +1703,6 @@ void TestJustParsing(TestOutput &out, MathParser &mp)
       MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
       out.Put(be.GetFullMessage() + "\n");
    }
-   
-   
 }
 
 
@@ -1765,7 +1820,7 @@ void TestSpecialCase(TestOutput &out, MathParser &mp)
    Real expRealVal;
    Rmatrix unsetMat;
    MathNode *node = NULL;
-
+   
    //------------------------------
    expstr = "200*1000^(-1)";
    str1 = mp.FindLowestOperator(expstr, opIndex);
@@ -1778,6 +1833,142 @@ void TestSpecialCase(TestOutput &out, MathParser &mp)
    EvaluateNode(node, out, expRealVal, unsetMat);
    delete node;
 }
+
+
+//------------------------------------------------------------------------------
+// void TestSpecialParsing(TestOutput &out, MathParser &mp)
+//------------------------------------------------------------------------------
+void TestSpecialParsing(TestOutput &out, MathParser &mp)
+{
+   out.Put("============================== Test special parsing");
+   
+   std::string expstr;
+   Real expRealVal;
+   bool boolVal;
+   bool expBoolVal;
+   MathNode *node = NULL;
+   Rmatrix unsetMat;
+   
+   //------------------------------
+   //@note SetParameters() assumes input matrix is arrI
+   #if 0
+   expstr = "norm(arrI)";
+   Array *arrI = new Array("arrI");   
+   arrI->SetSize(1,4);
+   Rmatrix matI(1, 4, 0.0, 1.0, 2.0, 3.0);
+   arrI->SetRmatrixParameter("RmatValue", matI);
+   out.Put("arrI =\n", arrI->GetRmatrixParameter("RmatValue"));
+   expRealVal = 3.74165738677394;
+   out.Put("IsEquation(" + expstr + ") should return ", expRealVal);
+   node = mp.Parse(expstr);
+   SetParameters(node, "arrI", arrI, "arrI", arrI);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete arrI;
+   delete node;
+   #endif
+   
+   #if 0
+   //------------------------------
+   expstr = "norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))";
+   expBoolVal = true;
+   boolVal = mp.IsEquation(expstr);
+   out.Put("IsEquation(" + expstr + "} should return ", expBoolVal);
+   out.Validate(boolVal, expBoolVal);
+   node = mp.Parse(expstr);
+   expRealVal = 1.374192020424485;
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   #endif
+   
+   #if 0
+   //------------------------------
+   expstr = "norm(2.3)";
+   expBoolVal = true;
+   boolVal = mp.IsEquation(expstr);
+   out.Put("IsEquation(" + expstr + ") should return ", expBoolVal);
+   out.Validate(boolVal, expBoolVal);
+   node = mp.Parse(expstr);
+   expRealVal = 2.3;
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   #endif
+
+   #if 0
+   //------------------------------
+   expstr = "det(3.5)";
+   expBoolVal = true;
+   boolVal = mp.IsEquation(expstr);
+   out.Put("IsEquation(" + expstr + ") should return ", expBoolVal);
+   out.Validate(boolVal, expBoolVal);
+   node = mp.Parse(expstr);
+   expRealVal = 3.5;
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   #endif
+   
+   #if 0
+   //------------------------------
+   expstr = "inv(((arrI)))";
+   Array *arrI = new Array("arrI");
+   arrI->SetSize(3,3);
+   Rmatrix matI(3, 3, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+   arrI->SetRmatrixParameter("RmatValue", matI);
+   out.Put("arrI =\n", arrI->GetRmatrixParameter("RmatValue"));
+   out.Put(expstr + " should return\n", matI);
+   node = mp.Parse(expstr);
+   SetParameters(node, "arrI", arrI, "arrI", arrI);
+   EvaluateNode(node, out, expRealVal, matI);
+   delete arrI;
+   delete node;
+   #endif
+   
+   #if 0
+   //------------------------------
+   expstr = "(inv(arrI))^2"; // works!
+   node = mp.Parse(expstr);
+   delete node;
+   expstr = "(inv(arrI))'";  // works!
+   node = mp.Parse(expstr);
+   delete node;
+   expstr = "inv(  (inv(arrI))' )"; // works!
+   node = mp.Parse(expstr);
+   delete node;
+   expstr = "inv(((arr_22*arr_22)+(inv((arr_22*arr_23*arr_32))' ))' -inv(((arr_23*arr_32)' )))"; // works!
+   node = mp.Parse(expstr);
+   delete node;
+   #endif
+   
+   #if 0
+   //------------------------------
+   expstr = "inv(arr_55 - arr_51*arr_15)'";
+   node = mp.Parse(expstr);
+   delete node;
+   #endif
+   
+   #if 1
+   //------------------------------
+   expstr = "degToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))));";
+   node = mp.Parse(expstr);
+   delete node;
+   #endif
+   
+   #if 0
+   expstr = "inv(((arr_22*arr_22)+(inv((arr_22*arr_23*arr_32))' ))' -inv(((arr_23*arr_32)' )))";
+   Array *arrI = new Array("arrI");
+   arrI->SetSize(3,3);
+   Rmatrix matI(3, 3, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+   arrI->SetRmatrixParameter("RmatValue", matI);
+   out.Put("arrI =\n", arrI->GetRmatrixParameter("RmatValue"));
+   out.Put(expstr + " should return\n", matI);
+   node = mp.Parse(expstr);
+   SetParameters(node, "arrI", arrI, "arrI", arrI);
+   EvaluateNode(node, out, expRealVal, matI);
+   delete arrI;
+   delete node;
+   #endif
+   
+}
+
 
 //------------------------------------------------------------------------------
 //int RunTest(TestOutput &out)
@@ -1792,20 +1983,47 @@ int RunTest(TestOutput &out)
    
    try
    {
-      #if 1
+      #if 0
       TestIsEquation(out, mp);
       TestFindLowestOperator(out, mp);
       TestOpsWithNumber(out, mp);
       TestOpsWithNumberWithParen(out, mp);
       TestFunctionWithNumber(out, mp);
       TestOpsWithMatrix(out, mp);
+      TestLongEquations(out, mp);
+      TestJustParsing(out, mp);
+      TestSpecialCase(out, mp);
       ////TestVariable(out, mp); // currently not working due to NULL ElementWrapper
       ////TestArray(out, mp);    // currently not working due to NULL ElementWrapper
-      TestJustParsing(out, mp);
       ////TestFunctionRunner(out, mp); // currently not working due to NULL Function
       #endif
       
-      TestSpecialCase(out, mp);
+      TestSpecialParsing(out, mp);
+      
+      // Just testing StringArray
+      #if 0
+      StringArray names1;
+      StringArray names12;
+      names1.push_back("aaa");
+      names1.push_back("bbb");
+      names1.push_back("ccc");
+      names1.push_back("ddd");
+      
+      StringArray::iterator pos;
+      MessageInterface::ShowMessage("========== original names\n");
+      for (pos = names1.begin(); pos != names1.end(); ++pos)
+         MessageInterface::ShowMessage("  pos='%s'\n", (*pos).c_str());
+      
+      names12 = names1;
+      pos = find(names1.begin(), names1.end(), "ccc");
+      if (pos != names1.end())
+      {
+         names1.insert(pos, names12[0]);
+         MessageInterface::ShowMessage("========== names after inserting aaa before ccc\n");
+         for (pos = names1.begin(); pos != names1.end(); ++pos)
+            MessageInterface::ShowMessage("  pos='%s'\n", (*pos).c_str());
+      }
+      #endif
    }
    catch (BaseException &e)
    {
@@ -1840,6 +2058,9 @@ int main(int argc, char *argv[])
    GmatGlobal *global = GmatGlobal::Instance();
    global->SetActualFormat(false, false, 16, 1, false);
    
+   // Initialize global variable
+   GmatTest::ewI = new ArrayWrapper();
+   
    try
    {
       RunTest(out);
@@ -1853,9 +2074,10 @@ int main(int argc, char *argv[])
    {
       out.Put("Unknown error occurred\n");
    }
-   
+
+   // clean up
+   delete GmatTest::ewI;
    out.Close();
-   
    
    cout << endl;
    cout << "Hit enter to end" << endl;

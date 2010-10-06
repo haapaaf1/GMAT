@@ -1,7 +1,7 @@
 # Project: TestTextParser
 # Compiler: Default GCC compiler
 # Compiler Type: MingW 3
-# Makefile created by wxDev-C++ 7.3 on 14/06/10 10:28
+# Makefile created by wxDev-C++ 7.3 on 17/06/10 13:13
 
 WXLIBNAME = wxmsw28
 CPP       = g++.exe
