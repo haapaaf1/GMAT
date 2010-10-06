@@ -1132,7 +1132,7 @@ void GmatBaseSetupPanel::OnComboBoxTextChange(wxCommandEvent& event)
 	try
 	{
 		if (SaveControl(localObject, label))
-			RefreshProperties(localObject);
+			RefreshProperties(localObject, label);
 	}
 	catch (BaseException &e)
 	{
@@ -1158,7 +1158,7 @@ void GmatBaseSetupPanel::OnTextChange(wxCommandEvent& event)
 	try
 	{
 		if (SaveControl(localObject, label))
-			RefreshProperties(localObject);
+			RefreshProperties(localObject, label);
 	}
 	catch (BaseException &e)
 	{
@@ -1326,6 +1326,19 @@ void GmatBaseSetupPanel::NormalizeLabels( StringArray propertyNames,
    }
 }
 
+//------------------------------------------------------------------------------
+// void FixTabOrder( wxWindow *lastControl, wxSizer *sizer )
+//------------------------------------------------------------------------------
+/**
+ * Fixes the tab order so that tab button follows the visual order of the controls
+ *
+ *
+ * @param lastControl the control that is BEFORE in the tab order for every control
+ *                   in the sizer.  lastControl is NULL if no control is before any
+ *                   of these controls
+ * @param sizer the sizer that contains the controls to fix tab order for
+ */
+//------------------------------------------------------------------------------
 wxWindow *GmatBaseSetupPanel::FixTabOrder( wxWindow *lastControl, wxSizer *sizer )
 {
    wxSizerItemList list = sizer->GetChildren();
@@ -1345,11 +1358,25 @@ wxWindow *GmatBaseSetupPanel::FixTabOrder( wxWindow *lastControl, wxSizer *sizer
 
 }
 
-void GmatBaseSetupPanel::RefreshProperties(GmatBase *theObject)
+
+//------------------------------------------------------------------------------
+// RefreshProperties(GmatBase *theObject, std::string ignoreControl)
+//------------------------------------------------------------------------------
+/**
+ * Refreshes the Parameters/Properties controls (label, control, and unit) by
+ * re-inspecting the object
+ *
+ *
+ * @param theObject the object to re-inspect
+ * @param ignoreControl if not "", then ignore the controls for that parameter (user
+ *                      is probably currently typing in them
+ */
+//------------------------------------------------------------------------------
+void GmatBaseSetupPanel::RefreshProperties(GmatBase *theObject, std::string ignoreControl)
 {
 	#ifdef DEBUG_BASEPANEL_CREATE
 	MessageInterface::ShowMessage
-	   ("GmatBaseSetupPanel::RefreshProperties() entered\n");
+	   ("GmatBaseSetupPanel::RefreshProperties() entered. Ignore=%s\n", ignoreControl.c_str());
 	#endif
 
     wxFileConfig *pConfig;
@@ -1358,12 +1385,25 @@ void GmatBaseSetupPanel::RefreshProperties(GmatBase *theObject)
     for (std::map<Integer, wxControl *>::iterator i = controlMap.begin();
           i != controlMap.end(); ++i)
     {
-       RefreshProperty(theObject, i->first, i->second, pConfig);
+       if ((ignoreControl == "") || (theObject->GetParameterText(i->first) != ignoreControl))
+         RefreshProperty(theObject, i->first, i->second, pConfig);
     }
 
 }
 
 
+//------------------------------------------------------------------------------
+// RefreshProperty(GmatBase *theObject, Integer index, wxControl *control, wxFileConfig *config)
+//------------------------------------------------------------------------------
+/**
+ * Refreshes the Parameter/Property controls (label, control, and unit) for one parameter
+ *
+ *
+ * @param theObject the object to re-inspect
+ * @param index the index of the parameter in the object
+ * @param control the edit control to refresh
+ */
+//------------------------------------------------------------------------------
 void GmatBaseSetupPanel::RefreshProperty(GmatBase *theObject, Integer index, wxControl *control, wxFileConfig *config)
 {
     wxControl *aSibling;

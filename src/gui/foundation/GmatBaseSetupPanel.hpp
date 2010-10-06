@@ -62,7 +62,7 @@ protected:
                                          std::vector<wxControl*> propertyUnits );
    wxWindow             *FixTabOrder( wxWindow *lastControl, wxSizer *sizer );
    virtual bool         GetLayoutConfig(GmatBase *theObject, wxFileConfig **config);
-   virtual void         RefreshProperties(GmatBase *theObject);
+   virtual void         RefreshProperties(GmatBase *theObject, std::string ignoreControl = "");
    virtual void         RefreshProperty(GmatBase *theObject, Integer index, wxControl *control, wxFileConfig *config);
    
    // Text control event method
