@@ -50,6 +50,7 @@ using namespace GmatTimeUtil;      // for SECS_PER_DAY
 //#define DEBUG_CALCS
 //#define DEBUG_DESTRUCTION
 //#define DEBUG_AXIS_SYSTEM_INIT
+//#define DEBUG_AXIS_SYSTEM_EOP
 
 
 //#ifndef DEBUG_MEMORY
@@ -563,6 +564,11 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Rvector &inState,
       rotMatrix(0,0),rotMatrix(0,1),rotMatrix(0,2),
       rotMatrix(1,0),rotMatrix(1,1),rotMatrix(1,2),
       rotMatrix(2,0),rotMatrix(2,1),rotMatrix(2,2));
+      MessageInterface::ShowMessage(
+      "the rotation dot matrix is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
+      rotDotMatrix(0,0),rotDotMatrix(0,1),rotDotMatrix(0,2),
+      rotDotMatrix(1,0),rotDotMatrix(1,1),rotDotMatrix(1,2),
+      rotDotMatrix(2,0),rotDotMatrix(2,1),rotDotMatrix(2,2));
       //MessageInterface::ShowMessage(
       //   "Input vector as datavec = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
       //   tmpPosTo[0], tmpPosTo[1], tmpPosTo[2], tmpVelTo[0], tmpVelTo[1], tmpVelTo[2]);
@@ -642,9 +648,14 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Real *inState,
       rotMatrix(1,0),rotMatrix(1,1),rotMatrix(1,2),
       rotMatrix(2,0),rotMatrix(2,1),rotMatrix(2,2));
       MessageInterface::ShowMessage(
-      "the rotation matrix (as array) is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
-      rotData[0],rotData[1],rotData[2],rotData[3],rotData[4],
-      rotData[5],rotData[6],rotData[7],rotData[8]);
+      "the rotation dot matrix is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
+      rotDotMatrix(0,0),rotDotMatrix(0,1),rotDotMatrix(0,2),
+      rotDotMatrix(1,0),rotDotMatrix(1,1),rotDotMatrix(1,2),
+      rotDotMatrix(2,0),rotDotMatrix(2,1),rotDotMatrix(2,2));
+//      MessageInterface::ShowMessage(
+//      "the rotation matrix (as array) is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
+//      rotData[0],rotData[1],rotData[2],rotData[3],rotData[4],
+//      rotData[5],rotData[6],rotData[7],rotData[8]);
       //MessageInterface::ShowMessage(
       //   "Input vector as datavec = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
       //   tmpPosTo[0], tmpPosTo[1], tmpPosTo[2], tmpVelTo[0], tmpVelTo[1], tmpVelTo[2]);
@@ -1368,7 +1379,7 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    if (( dt < updateIntervalToUse) && (!forceComputation))
    {
       #ifdef DEBUG_UPDATE
-         MessageInterface::ShowMessage(">>> Using previously saved values ......\n");
+         MessageInterface::ShowMessage(">>> In ComputeNutationMatrix, using previously saved values ......\n");
       #endif
       dPsi = lastDPsi;
 
@@ -1383,7 +1394,8 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    }
 
    #ifdef DEBUG_UPDATE
-      MessageInterface::ShowMessage(">>> Computing brand new values ......\n");
+      MessageInterface::ShowMessage("----> Computing NEW NUT matrix at time %12.10f\n",
+         atEpoch.Get());
    #endif
    // otherwise, need to recompute all the nutation data
    dPsi      = 0.0;
@@ -1771,21 +1783,32 @@ void AxisSystem::ComputeSiderealTimeDotRotation(const Real mjdUTC,
             cosAst, sinAst);
    #endif
 
-   Real dt = fabs(atEpoch.Subtract(lastSTDerivEpoch)) * SECS_PER_DAY;
-   if (( dt < updateIntervalToUse) && (!forceComputation))
-   {
-      #ifdef DEBUG_UPDATE
-         MessageInterface::ShowMessage(">>> Using previous saved STDeriv values ......\n");
-         MessageInterface::ShowMessage("lastSTDeriv = %s\n", (lastSTDeriv.ToString()).c_str());
-      #endif
-      return;
-   }
+//   Real dt = fabs(atEpoch.Subtract(lastSTDerivEpoch)) * SECS_PER_DAY;
+//   if (( dt < updateIntervalToUse) && (!forceComputation))
+//   {
+//      #ifdef DEBUG_UPDATE
+//         MessageInterface::ShowMessage(">>> In ComputeSiderealTimeDotRotation, using previous saved STDeriv values ......\n");
+//         MessageInterface::ShowMessage("lastSTderiv = %s\n", (lastSTDeriv.ToString()).c_str());
+//      #endif
+//      return;
+//   }
+   #ifdef DEBUG_UPDATE
+      MessageInterface::ShowMessage("----> Computing NEW STderiv matrix at time %12.10f\n",
+         atEpoch.Get());
+   #endif
    // Convert to MJD UTC to use for polar motion  and LOD 
    // interpolations
    // Get the polar motion and lod data
    Real lod = 0.0;
    Real x, y;
    eop->GetPolarMotionAndLod(mjdUTC,x,y,lod);
+   #ifdef DEBUG_AXIS_SYSTEM_EOP
+      MessageInterface::ShowMessage("in STderiv calc, mjdUtc     = %12.10f\n", mjdUTC);
+      MessageInterface::ShowMessage("                 atEpoch    = %12.10f\n", atEpoch.Get());
+      MessageInterface::ShowMessage("                 lod        = %12.10f\n", lod);
+      MessageInterface::ShowMessage("                 x          = %12.10f\n", x);
+      MessageInterface::ShowMessage("                 y          = %12.10f\n", y);
+   #endif
    
    // Compute the portion that has a significant time derivative
    Real omegaE = 7.29211514670698e-05 * (1.0 - (lod / SECS_PER_DAY));
@@ -1813,19 +1836,30 @@ void AxisSystem::ComputePolarMotionRotation(const Real mjdUTC, A1Mjd atEpoch,
             mjdUTC, atEpoch.Get());
    #endif
 
-   Real dt = fabs(atEpoch.Subtract(lastPMEpoch)) * SECS_PER_DAY;
-   if (( dt < updateIntervalToUse) && (!forceComputation))
-   {
-      #ifdef DEBUG_UPDATE
-         MessageInterface::ShowMessage(">>> Using previous saved PM values ......\n");
-         MessageInterface::ShowMessage("lastPM = %s\n", (lastPM.ToString()).c_str());
-      #endif
-      return;
-   }
+//   Real dt = fabs(atEpoch.Subtract(lastPMEpoch)) * SECS_PER_DAY;
+//   if (( dt < updateIntervalToUse) && (!forceComputation))
+//   {
+//      #ifdef DEBUG_UPDATE
+//         MessageInterface::ShowMessage(">>> In ComputePolarMotionRotation, using previous saved PM values ......\n");
+//         MessageInterface::ShowMessage("lastPM = %s\n", (lastPM.ToString()).c_str());
+//      #endif
+//      return;
+//   }
+   #ifdef DEBUG_UPDATE
+      MessageInterface::ShowMessage("----> Computing NEW PM matrix at time %12.10f\n",
+         atEpoch.Get());
+   #endif
    // Get the polar motion and lod data
    Real lod = 0.0;
    Real x, y;
    eop->GetPolarMotionAndLod(mjdUTC,x,y,lod);
+   #ifdef DEBUG_AXIS_SYSTEM_EOP
+      MessageInterface::ShowMessage("in PM calc,      mjdUtc     = %12.10f\n", mjdUTC);
+      MessageInterface::ShowMessage("                 atEpoch    = %12.10f\n", atEpoch.Get());
+      MessageInterface::ShowMessage("                 lod        = %12.10f\n", lod);
+      MessageInterface::ShowMessage("                 x          = %12.10f\n", x);
+      MessageInterface::ShowMessage("                 y          = %12.10f\n", y);
+   #endif
    
    // Compute useful trigonometric quantities
    Real cosX = cos(-x * RAD_PER_ARCSEC);
