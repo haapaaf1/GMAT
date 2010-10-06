@@ -1293,7 +1293,7 @@ void SolarSystem::CreatePlanetarySource(bool setDefault)
                throw SolarSystemException("Unable to set LSK file on the Solar System.\n");
          }
          else
-            throw SolarSystemException("Unable to obtain Leap Second Kernel (SLK) full path name.\n");
+            throw SolarSystemException("Unable to obtain Leap Second Kernel (LSK) full path name.  Please set LSK_FILE in start-up file.\n");
       }
    }
    // Set planetary ephemeris source
