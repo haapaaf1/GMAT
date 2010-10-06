@@ -43,6 +43,8 @@ using namespace GmatTimeUtil;      // for JD offsets, etc.
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_TIME_CALC
 //#define DEBUG_MOON_MATRIX
+//#define DEBUG_BF_MATRICES
+//#define DEBUG_BF_CHECK_DETERMINANT
 
 #ifdef DEBUG_FIRST_CALL
    static bool firstCallFired = false;
@@ -470,6 +472,13 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                                      forceComputation);
       ComputePolarMotionRotation(mjdUTC, atEpoch, forceComputation);
       
+   #ifdef DEBUG_BF_MATRICES
+      MessageInterface::ShowMessage("atEpoch = %12.10f\n", atEpoch.Get());
+      MessageInterface::ShowMessage("NUT = %s\n", NUT.ToString().c_str());
+      MessageInterface::ShowMessage("STderiv = %s\n", STderiv.ToString().c_str());
+      MessageInterface::ShowMessage("PM = %s\n", PM.ToString().c_str());
+   #endif
+
       Real np[3][3], rot[3][3], tmp[3][3];
       Integer p3;
       
@@ -513,13 +522,15 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                     rot[0][1], rot[1][1], rot[2][1],
                     rot[0][2], rot[1][2], rot[2][2]);
 
-      Real determinant = 
-              rot[0][0] * (rot[1][1] * rot[2][2] - rot[1][2]*rot[2][1]) +
-              rot[0][1] * (rot[1][2] * rot[2][0] - rot[1][0]*rot[2][2]) +
-              rot[0][2] * (rot[1][0] * rot[2][1] - rot[1][1]*rot[2][0]);
-      if (Abs(determinant - 1.0) > DETERMINANT_TOLERANCE)
-         throw CoordinateSystemException(
-               "Computed rotation matrix has a determinant not equal to 1.0");
+      #ifdef DEBUG_BF_CHECK_DETERMINANT
+         Real determinant =
+                 rot[0][0] * (rot[1][1] * rot[2][2] - rot[1][2]*rot[2][1]) +
+                 rot[0][1] * (rot[1][2] * rot[2][0] - rot[1][0]*rot[2][2]) +
+                 rot[0][2] * (rot[1][0] * rot[2][1] - rot[1][1]*rot[2][0]);
+         if (Abs(determinant - 1.0) > DETERMINANT_TOLERANCE)
+            throw CoordinateSystemException(
+                  "Computed rotation matrix has a determinant not equal to 1.0");
+      #endif
 
       // NUT * PREC calculated above
       // STderiv * (NUT * PREC)
