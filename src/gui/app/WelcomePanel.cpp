@@ -49,11 +49,12 @@ END_EVENT_TABLE()
 WelcomePanel::WelcomePanel(wxFrame *frame, const wxString& title,
       int x, int y, int w, int h)
 : wxFrame(frame, -1, title, wxPoint(x, y), wxSize(w, h),
-      wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxRESIZE_BOX | wxMAXIMIZE_BOX) | wxFRAME_FLOAT_ON_PARENT)
+      (wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxRESIZE_BOX | wxMAXIMIZE_BOX)) | wxFRAME_FLOAT_ON_PARENT)
 {           
    SetBackgroundColour(wxNullColour);
    Create();
    CenterOnScreen(wxBOTH);
+   SetFocus();
 }
 
 //-------------------------------
@@ -67,6 +68,8 @@ void WelcomePanel::Create()
 {
 
    wxStaticLine *line1;
+   wxBitmap bitmap;
+   wxBitmapButton *aboutButton;
    // Border size
    bsize = 4;
    
@@ -77,9 +80,14 @@ void WelcomePanel::Create()
    
    // Load GMAT ICON
    FileManager *fm = FileManager::Instance();
-   wxBitmap bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+"GMATIcon.jpg").c_str(), 200, 200 );
-   wxBitmapButton *aboutButton
-      = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
+   if (GmatFileUtil::DoesFileExist(fm->GetFullPathname("ICON_PATH")+"GMATIcon.jpg"))
+   {
+      bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+"GMATIcon.jpg").c_str(), 200, 200 );
+      aboutButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
+                          wxSize(200,200));
+   }
+   else
+      aboutButton = new wxBitmapButton(this, -1, NULL, wxDefaultPosition,
                            wxSize(200,200));
 
    wxColourDatabase cdb;
@@ -298,10 +306,14 @@ wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGro
          if (linkIcons.size() > 0)
          {
             aIconNTextSizer = new wxFlexGridSizer(2, 20, 20);
-            wxBitmap bitmap = LoadBitmap((fm->GetFullPathname("ICON_PATH") + linkIcons[i].c_str()).c_str(), 50, 50 );
-            abitmapButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
-                                    wxSize(50,50));
-
+            if (GmatFileUtil::DoesFileExist((fm->GetFullPathname("ICON_PATH")+linkIcons[i].c_str())))
+            {
+               wxBitmap bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+linkIcons[i]).c_str(), 50, 50 );
+               abitmapButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
+                                       wxSize(50,50));
+            }
+            else 
+               abitmapButton = NULL;
             aIconNTextSizer->Add(abitmapButton, 0, wxALIGN_LEFT, bsize);
             aIconNTextSizer->Add(aButton, 0, wxALIGN_LEFT, bsize);
             aSizer->Add(aIconNTextSizer, 0, wxALIGN_LEFT, bsize*2);
@@ -341,9 +353,9 @@ void WelcomePanel::OnOpenRecentScript(wxHyperlinkEvent& event)
 // wxBitmap *LoadBitmap( wxString filename )
 //------------------------------------------------------------------------------
 /**
- * Loads a TIF bitmap from a file
+ * Loads a JPG bitmap from a file
  *
- * @param filename name of the TIF tile
+ * @param filename name of the image file
  */
 //------------------------------------------------------------------------------
 wxBitmap WelcomePanel::LoadBitmap( wxString filename, int width, int height )
