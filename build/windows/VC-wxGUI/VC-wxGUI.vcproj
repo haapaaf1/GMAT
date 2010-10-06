@@ -3440,6 +3440,14 @@
 						RelativePath="..\..\..\src\gui\app\TextEphemFileDialog.hpp"
 						>
 					</File>
+					<File
+						RelativePath="..\..\..\src\gui\app\WelcomePanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\app\WelcomePanel.hpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="burn"

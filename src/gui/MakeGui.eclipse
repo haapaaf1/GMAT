@@ -195,6 +195,7 @@ OBJECTS = \
     app/ScriptPanel.o \
     app/SetPathDialog.o \
     app/TextEphemFileDialog.o \
+    app/WelcomePanel.o \
     asset/GroundStationPanel.o \
     burn/FiniteBurnSetupPanel.o \
     burn/ImpulsiveBurnSetupPanel.o \
