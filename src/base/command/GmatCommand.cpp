@@ -1944,6 +1944,11 @@ void GmatCommand::BuildCommandSummaryString(bool commandCompleted)
             data.fill('0');
             data.width(20);
 
+            // Add a between-spacecraft break
+            if (i > 0)
+               data << "\n   ================================================="
+                     "=======================\n\n";
+
             //  Write the epoch data
             data << "        Spacecraft       : " << obj->GetName() << "\n"
                  << "        Coordinate System: EarthMJ2000Eq \n\n"
@@ -1979,9 +1984,9 @@ void GmatCommand::BuildCommandSummaryString(bool commandCompleted)
                  << "        VX = " << BuildNumber(cartState[3]) << " km/sec "
                  << "        RAAN = " << BuildNumber(kepState[3]) << " deg\n"
                  << "        VY = " << BuildNumber(cartState[4]) << " km/sec "
-                 << "        INC  = " << BuildNumber(kepState[4]) << " deg\n"
+                 << "        AOP  = " << BuildNumber(kepState[4]) << " deg\n"
                  << "        VZ = " << BuildNumber(cartState[5]) << " km/sec "
-                 << "        RAAN = " << BuildNumber(kepState[5]) << " deg\n"
+                 << "        TA   = " << BuildNumber(kepState[5]) << " deg\n"
                  << "\n        Spherical State:\n"
                  << "        ---------------------------       \n"
                  << "        RMAG = " << BuildNumber(sphStateAZFPA[0])
