@@ -25,8 +25,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <gl/gl.h>
-#include <gl/glu.h>
+#include "GmatOpenGLSupport.hpp"   // for OpenGL support
 #include "ModelObject.hpp"
 #include "Load3ds.hpp"
 #include "LoadPOV.hpp"
