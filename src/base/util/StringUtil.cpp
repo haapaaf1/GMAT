@@ -1903,6 +1903,9 @@ void GmatStringUtil::FindLastParenMatch(const std::string &str, Integer &openPar
 bool GmatStringUtil::IsEnclosedWith(const std::string &str,
                                     const std::string &enclosingStr)
 {
+   if (str == "")
+      return false;
+   
    return (StartsWith(str, enclosingStr) && EndsWith(str, enclosingStr));
 }
 
@@ -2958,7 +2961,7 @@ std::string GmatStringUtil::ParseFunctionName(const std::string &str)
  *
  * @param  str  Input string
  * @param  enStr Enclosing string
- * @return  Function name or blank if name not found
+ * @return  String with enclosing string
  */
 //------------------------------------------------------------------------------
 std::string GmatStringUtil::AddEnclosingString(const std::string &str,
@@ -2970,6 +2973,41 @@ std::string GmatStringUtil::AddEnclosingString(const std::string &str,
    std::string str1 = str;
    str1 = enStr + str + enStr;
    return str1;
+}
+
+
+//------------------------------------------------------------------------------
+// StringArray DecomposeBy(const std::string &str, const std::string &delim)
+//------------------------------------------------------------------------------
+/**
+ * Returns the first token and the rest
+ * e.g) "cd c:/my test directory" returns if delimiter is " ".
+ *   cd
+ *   c:/my test directory
+ *
+ * @param  str  Input string
+ * @param  delim Delimiter
+ * @return  First token and the rest or empty string array if token not found
+ */
+//------------------------------------------------------------------------------
+StringArray GmatStringUtil::DecomposeBy(const std::string &str,
+                                        const std::string &delim)
+{
+   StringArray parts;
+   if (str == "")
+      return parts;
+   
+   std::string::size_type index1 = str.find_first_of(delim);
+   if (index1 != str.npos)
+   {
+      parts.push_back(str.substr(0, index1));
+      parts.push_back(str.substr(index1 + 1));
+      return parts;
+   }
+   else
+   {
+      return parts;
+   }
 }
 
 

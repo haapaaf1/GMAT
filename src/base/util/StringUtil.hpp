@@ -76,6 +76,7 @@ namespace GmatStringUtil
                           bool insertComma = true);
    GMAT_API StringArray SeparateByComma(const std::string &str);
    GMAT_API StringArray SeparateDots(const std::string &str);
+   GMAT_API StringArray DecomposeBy(const std::string &str, const std::string &delim);
    
    GMAT_API bool IsNumber(const std::string &str);
    GMAT_API bool ToReal(const std::string &str, Real *value, bool trimParens = false);
