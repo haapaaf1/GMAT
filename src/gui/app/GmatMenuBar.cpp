@@ -226,21 +226,18 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    #endif
    
    wxArrayString files;
-   wxString aKey;
-   long dummy;
+   wxString aFilename;
 
    // get the config object
    wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
    pConfig->SetPath(wxT("/RecentFiles"));
 
    // read filenames from config object
-   if (pConfig->GetFirstEntry(aKey, dummy))
+   size_t i=0;
+   while (pConfig->Read(wxString::Format(wxT("%d"), (int)i), &aFilename)) 
    {
-      files.Add(pConfig->Read(aKey));
-      while (pConfig->GetNextEntry(aKey, dummy))
-      {
-         files.Add(pConfig->Read(aKey));
-      }
+      files.Add(aFilename);
+      i++;
    }
    UpdateRecentMenu(files);
 
