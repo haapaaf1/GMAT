@@ -477,23 +477,24 @@ void ResourceTree::UpdateRecentFiles(wxString filename)
    wxArrayString files;
    wxString aFilename;
    wxString aKey;
-   long dummy;
+   size_t i = 0;
 
    // get the config object
    wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
    pConfig->SetPath(wxT("/RecentFiles"));
 
    // read filenames from config object
-   if (pConfig->GetFirstEntry(aKey, dummy))
+   while (pConfig->Read(wxString::Format(wxT("%d"), (int)i), &aFilename)) 
    {
-      files.Add(pConfig->Read(aKey));
-      while (pConfig->GetNextEntry(aKey, dummy))
-      {
-         files.Add(pConfig->Read(aKey));
-      }
+      files.Add(aFilename);
+      i++;
    }
 
-   if (files.Index(filename.c_str()) != wxNOT_FOUND) return;
+   // if filename already in list, delete it (we will add on end)
+   if (files.Index(filename.c_str()) != wxNOT_FOUND) 
+   {
+      files.Remove(filename.c_str());
+   }
 
    // add latest filename to end of list
    files.Add(filename);
@@ -506,9 +507,13 @@ void ResourceTree::UpdateRecentFiles(wxString filename)
    pConfig->SetPath(wxT("/"));
    pConfig->DeleteGroup("/RecentFiles");
    pConfig->SetPath(wxT("/RecentFiles"));
-   for (size_t i = 0; i < files.GetCount(); i++)
+   for (i = 0; i < files.GetCount(); i++)
    {
-      pConfig->Write((GmatFileUtil::ParseFileName(files[i].c_str())).c_str(), files[i].c_str());
+      aFilename = files[i];
+      aKey = wxString::Format(wxT("%d"), (int) i);
+
+      pConfig->Write(aKey, aFilename.c_str());
+      //pConfig->Write((GmatFileUtil::ParseFileName(aFilename.c_str())).c_str(), aFilename.c_str());
    }
 
    theMainFrame->UpdateRecentMenu(files);
