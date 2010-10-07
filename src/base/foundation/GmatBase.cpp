@@ -107,7 +107,7 @@ GmatBase::OBJECT_TYPE_STRING[Gmat::UNKNOWN_OBJECT - Gmat::SPACECRAFT+1] =
    "PhysicalModel", "TransientForce",   "Interpolator",     "SolarSystem",      "SpacePoint",
    "CelestialBody", "CalculatedPoint",  "LibrationPoint",   "Barycenter",       "Atmosphere",
    "Parameter",     "Variable",         "Array",            "String",           "StopCondition",
-   "Solver",        "Subscriber",       "ReportFile",       "XYPlot",           "OpenGLPlot",
+   "Solver",        "Subscriber",       "ReportFile",       "XYPlot",           "OrbitView",
    "EphemerisFile", "PropSetup",        "Function",         "FuelTank",         "Thruster",
    "Hardware",      "CoordinateSystem", "AxisSystem",       "Attitude",         "MathNode",
    "MathTree",      "BodyFixedPoint",   "Event",            "MeasurementModel", "CoreMeasurement",
