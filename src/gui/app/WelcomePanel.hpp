@@ -37,7 +37,7 @@ public:
    ~WelcomePanel();
    void OnOpenRecentScript(wxHyperlinkEvent &event);
    void OnShowWelcomePanelClicked(wxCommandEvent &event);
-   wxFlexGridSizer *FillGroup( wxString INIGroup, wxString INIIconGroup, int maxCols, wxWindowID id, wxFileConfig *config );
+   wxFlexGridSizer *FillGroup( wxString INIGroup, wxString INIIconGroup, int maxCols, wxWindowID id, bool isFileList, wxFileConfig *config );
    
 protected:
    wxBitmap LoadBitmap( wxString filename, int width, int height );

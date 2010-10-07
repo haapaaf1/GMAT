@@ -142,7 +142,7 @@ void WelcomePanel::Create()
    // add the recent scripts
    pConfig = (wxFileConfig *) wxConfigBase::Get();
 //   MessageInterface::PopupMessage(Gmat::INFO_, "Getting Welcome Links");
-   resourcesSizer->Add(FillGroup("/Welcome/Links", "", 3, ID_URL, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
+   resourcesSizer->Add(FillGroup("/Welcome/Links", "", 3, ID_URL, false, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
 //   MessageInterface::PopupMessage(Gmat::INFO_, "Got Welcome Links");
 
    //-----------------------------------------------------------------
@@ -155,7 +155,7 @@ void WelcomePanel::Create()
    wxBoxSizer *gettingStartedSizer = new wxBoxSizer(wxVERTICAL);
    gettingStartedSizer->Add(getStartedText, 0, wxALIGN_LEFT|wxALL, bsize);
    gettingStartedSizer->AddSpacer(bsize*2);
-   gettingStartedSizer->Add(FillGroup("/GettingStarted/Tutorials", "/GettingStarted/Tutorials/Icons", 1, ID_URL, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
+   gettingStartedSizer->Add(FillGroup("/GettingStarted/Tutorials", "/GettingStarted/Tutorials/Icons", 1, ID_URL, false, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
    //gettingStartedSizer->AddSpacer(bsize*2);
 
    //-----------------------------------------------------------------
@@ -170,7 +170,7 @@ void WelcomePanel::Create()
    recentSizer->AddSpacer(bsize*2);
    // add the recent scripts
    pConfig = (wxFileConfig *) GmatAppData::Instance()->GetPersonalizationConfig();
-   recentSizer->Add(FillGroup("/RecentFiles", "", 1, ID_BUTTON_RECENT, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
+   recentSizer->Add(FillGroup("/RecentFiles", "", 1, ID_BUTTON_RECENT, true, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
 
 
    //-----------------------------------------------------------------
@@ -249,7 +249,7 @@ void WelcomePanel::OnShowWelcomePanelClicked(wxCommandEvent& event)
  * @param config configuration file to read
  */
 //------------------------------------------------------------------------------
-wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGroup, int maxCols, wxWindowID id, wxFileConfig *config )
+wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGroup, int maxCols, wxWindowID id, bool isFileList, wxFileConfig *config )
 {
    wxFlexGridSizer *aSizer;
    wxFlexGridSizer *aIconNTextSizer;
@@ -271,11 +271,17 @@ wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGro
    // read filenames from config object
    if (config->GetFirstEntry(aKey, dummy))
    {
-      linkLabels.Add(aKey);
+      if (isFileList)
+         linkLabels.Add(GmatFileUtil::ParseFileName(config->Read(aKey).c_str()));
+      else
+         linkLabels.Add(aKey);
       linkURLs.Add(config->Read(aKey));
       while (config->GetNextEntry(aKey, dummy))
       {
-         linkLabels.Add(aKey);
+         if (isFileList)
+            linkLabels.Add(GmatFileUtil::ParseFileName(config->Read(aKey).c_str()));
+         else
+            linkLabels.Add(aKey);
          linkURLs.Add(config->Read(aKey));
       }
    }
