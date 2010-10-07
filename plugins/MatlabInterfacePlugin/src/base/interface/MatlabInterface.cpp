@@ -30,7 +30,8 @@
 
 #include "MatlabInterface.hpp"
 #include "InterfaceException.hpp"
-#include "GmatGlobal.hpp"          // for IsMatlabDebugOn();
+#include "GmatGlobal.hpp"          // for IsMatlabDebugOn()
+#include "StringUtil.hpp"          // for DecomposeBy()
 #include "MessageInterface.hpp"
 
 //#define DEBUG_MATLAB_OPEN_CLOSE
@@ -425,12 +426,12 @@ int MatlabInterface::EvalString(const std::string &evalString)
        "======================================================================\n"
        "%s\n\n", evalString.c_str());
    #endif
-
+   
    // return value is 0 if the command was evaluated by the MATLAB engine,
    // and a nonzero value if unsuccessful. Possible reasons for failure include
    // the engine session is no longer running or the engine pointer is invalid or NULL.
    int retval = engEvalString(enginePtr, evalString.c_str());
-
+   
    #ifdef DEBUG_MATLAB_EVAL
    MessageInterface::ShowMessage("MatlabInterface::EvalString() exiting with %d\n", retval);
    #endif
@@ -531,13 +532,38 @@ void MatlabInterface::RunMatlabString(std::string evalString)
          throw InterfaceException("**** ERROR **** Failed to open MATLAB engine\n");
    }
    
+   std::string newEvalStr = evalString;
+   
+   // To handle special case of 'cd' with directory with blank spaces, cd c:\my test directory,
+   // used the functional form of cd, such as cd('directory-spec'),
+   // since Matlab cannot handle cd to directory name with blanks (LOJ: 2010.10.07)
+   // This will fix bug 2032
+   StringArray parts = GmatStringUtil::DecomposeBy(newEvalStr, " ");
+   if (parts.size() > 1)
+   {      
+      std::string firstToken = GmatStringUtil::ToLower(parts[0]);
+      
+      #ifdef DEBUG_MATLAB_EVAL
+      MessageInterface::ShowMessage("   firstToken='%s'\n", firstToken.c_str());
+      #endif
+      
+      if (firstToken == "cd")
+         newEvalStr = "cd(" + GmatStringUtil::AddEnclosingString(parts[1], "'") + ")";
+      
+      #ifdef DEBUG_MATLAB_EVAL
+      MessageInterface::ShowMessage
+         ("   String starts with 'cd' so changed to function form\n"
+          "   old name = '%s'\n   new name = '%s'\n", evalString.c_str(), newEvalStr.c_str());
+      #endif
+   }
+   
    // add try/catch to string to evaluate
-   evalString = "try,\n  " + evalString + "\ncatch\n  errormsg = lasterr;\nend";
-
+   newEvalStr = "try,\n  " + newEvalStr + "\ncatch\n  errormsg = lasterr;\nend";
+   
    bool errorReturned = false;
    std::string errorStr;
    // call to evaluate string
-   if (EvalString(evalString) == 0)
+   if (EvalString(newEvalStr) == 0)
    {
       // if there was an error throw an exception
       #ifdef DEBUG_MATLAB_EVAL
@@ -819,7 +845,7 @@ int MatlabInterface::OpenSharedEngine()
       {
          MessageInterface::ShowMessage("Connecting to current MATLAB engine\n");
          MessageInterface::ShowMessage
-            ("MatlabInterface::OpenSharedEngine() returning 0\n");;
+            ("MatlabInterface::OpenSharedEngine() returning 1\n");;
       }
       
       return 1;
