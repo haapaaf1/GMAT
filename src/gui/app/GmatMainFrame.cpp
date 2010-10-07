@@ -1922,15 +1922,9 @@ void GmatMainFrame::OpenRecentScript(size_t index, wxCommandEvent &event)
    pConfig->SetPath(wxT("/RecentFiles"));
 
    // read filenames from config object
-   if (pConfig->GetFirstEntry(aKey, dummy))
-   {
-      files.Add(pConfig->Read(aKey));
-      while (pConfig->GetNextEntry(aKey, dummy))
-      {
-         files.Add(pConfig->Read(aKey));
-      }
-   }
-   OpenRecentScript(files[index], event);
+   aKey = wxString::Format(wxT("%d"), (int) index);
+   aFilename = pConfig->Read(aKey);
+   OpenRecentScript(aFilename, event);
 }
 
 
