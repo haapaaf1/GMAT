@@ -66,7 +66,8 @@ SpaceObject::SpaceObject(Gmat::ObjectType typeId, const std::string &typeStr,
    isManeuvering     (false),
    originName        ("Earth"),
    origin            (NULL),
-   parmsChanged      (true)
+   parmsChanged      (true),
+   hasPublished      (false)
 {
    objectTypes.push_back(Gmat::SPACEOBJECT);
    objectTypeNames.push_back("SpaceObject");
@@ -101,7 +102,8 @@ SpaceObject::SpaceObject(const SpaceObject& so) :
    originName        (so.originName),
    origin            (so.origin),
    parmsChanged      (true),
-   lastStopTriggered (so.lastStopTriggered)
+   lastStopTriggered (so.lastStopTriggered),
+   hasPublished      (so.hasPublished)
 {
    j2000Body = so.j2000Body;
 }
@@ -130,6 +132,7 @@ SpaceObject& SpaceObject::operator=(const SpaceObject& so)
    origin        = so.origin;
    parmsChanged  = true;       // Always update after using assignment
    lastStopTriggered = so.lastStopTriggered;
+   hasPublished  = so.hasPublished;
    return *this;
 }
 
@@ -661,4 +664,17 @@ bool SpaceObject::WasLastStopTriggered(const std::string &stopCondName)
          lastStopTriggered.end())
       return true;
    return false;
+}
+
+
+// Start on a fix for bug 648; these methods are not currently used, but are in 
+// place for use when the single step publishing issues are ready to be worked.
+bool SpaceObject::HasPublished(bool tf)
+{
+   hasPublished = tf;
+}
+
+bool SpaceObject::HasPublished()
+{
+   return hasPublished;
 }

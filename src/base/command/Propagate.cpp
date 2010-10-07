@@ -3307,7 +3307,31 @@ void Propagate::PrepareToPropagate()
       }
    #endif
    
-   publisher->Publish(this, streamID, pubdata, dim+1);
+// Start on a fix for bug 648; also uncomment the execute block for single 
+// step to work on this approach
+//   // Only publish if there is an unpublished SpaceObject in the data
+//   bool unpublishedObjectExists = false;
+//   for (UnsignedInt i = 0; i < sats.size(); ++i)
+//   {
+//      SpaceObject *sc = (SpaceObject *)sats[i];
+//      if (!sc->HasPublished())
+//         unpublishedObjectExists = true;
+//   }
+//   if (unpublishedObjectExists)
+//   {
+//      #ifdef DEBUG_PUBLISH_DATA
+//         MessageInterface::ShowMessage("Unpublished Object Found\n");
+//      #endif
+      publisher->Publish(this, streamID, pubdata, dim+1);
+//   }
+//   if (unpublishedObjectExists == true)
+//   {
+//      for (UnsignedInt i = 0; i < sats.size(); ++i)
+//      {
+//         SpaceObject *sc = (SpaceObject *)sats[i];
+//         sc->HasPublished(true);
+//      }
+//   }
 }
 
 

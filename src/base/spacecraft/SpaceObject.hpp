@@ -82,6 +82,14 @@ public:
    virtual void SetLastStopTriggered(const std::string &stopCondName);
    virtual bool WasLastStopTriggered(const std::string &stopCondName);
    
+   /** 
+    * Start on a fix for bug 648; these methods are not currently used, but
+    * are in place for use when the single step publishing issues are ready 
+    * to be worked.
+    */
+   bool         HasPublished(bool tf);
+   bool         HasPublished();
+
 protected:
    /// The spacecraft state
    GmatState         state;
@@ -95,6 +103,8 @@ protected:
    bool              parmsChanged;
    /// The names of the last set of stopping conditions met
    StringArray       lastStopTriggered;
+   /// Flag indicating if object has published data - not currently used
+   bool              hasPublished;
 
    /// Enumerated parameter IDs   
    enum
