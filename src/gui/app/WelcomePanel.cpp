@@ -308,7 +308,7 @@ wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGro
             aIconNTextSizer = new wxFlexGridSizer(2, 20, 20);
             if (GmatFileUtil::DoesFileExist((fm->GetFullPathname("ICON_PATH")+linkIcons[i].c_str())))
             {
-               wxBitmap bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+linkIcons[i]).c_str(), 50, 50 );
+               wxBitmap bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+(linkIcons[i]).c_str()).c_str(), 50, 50 );
                abitmapButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
                                        wxSize(50,50));
             }
