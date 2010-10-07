@@ -973,7 +973,7 @@ void OpenGlPlotSetupPanel::SaveData()
 
    canClose = true;
    std::string str1, str2;
-   Integer collectFreq, updateFreq, pointsToRedraw;
+   Integer collectFreq = 0, updateFreq = 0, pointsToRedraw = 0;
    Real scaleFactor;
    Real viewRef[3], viewVec[3], viewDir[3];
    Rvector3 vec;

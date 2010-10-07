@@ -254,6 +254,7 @@ OBJECTS = \
     propagator/PropagationConfigPanel.o \
     propagator/PropagatorSelectDialog.o \
     rendering/Camera.o \
+    rendering/GLStars.o \
     rendering/GmatOpenGLSupport.o \
     rendering/Light.o \
     rendering/Load3ds.o \

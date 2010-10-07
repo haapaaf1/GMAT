@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//
+//                              
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -8,28 +8,16 @@
 // Author: Phillip Silvia, Jr.
 // Created: 2009/06/17
 /**
- *
+ * 
  */
 //------------------------------------------------------------------------------
 
 #ifndef _RENDERING_H
 #define _RENDERING_H
 
+#include "gmatwxdefs.hpp"
 #include "GmatAppData.hpp"         // for GetGuiInterpreter()
 #include "GmatOpenGLSupport.hpp"   // for OpenGL support
-
-#ifdef __WXMAC__
-#  ifdef __DARWIN__
-#    include <OpenGL/gl.h>
-#    include <OpenGL/glu.h>
-#  else
-#    include <gl.h>
-#    include <glu.h>
-#  endif
-#else
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#endif
 
 struct GlColorType
 {

@@ -62,9 +62,6 @@ VisualModelCanvas::VisualModelCanvas(wxWindow *parent, Spacecraft *spacecraft,
    #ifndef __WXMAC__
       if (!mm->modelContext)
          mm->modelContext = new wxGLContext(this);
-   #endif
-
-	#ifndef __WXMAC__
       theContext = mm->modelContext;
    #else
       theContext = GetContext();
@@ -81,10 +78,15 @@ VisualModelCanvas::VisualModelCanvas(wxWindow *parent, Spacecraft *spacecraft,
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
 
+
    showEarth = false;
    needToLoadModel = false;
    glInitialized = false;
    recentered = false;
+
+	glClearColor(0.0, 0.0, 0.0, 1);
+   // Clear the color and depth bits
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 VisualModelCanvas::~VisualModelCanvas(){

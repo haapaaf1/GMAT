@@ -9,14 +9,21 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
+// Developed further jointly by NASA/GSFC, Thinking Systems, Inc., and 
+// Schafer Corp., under AFRL NOVA Contract #FA945104D03990003
+//
+//
 // Author: Daniel Hunter
 // Created: 2006/6/26
+// Modified:  Dunn Idle (added MRPs)
+// Date:      2010/08/24
 //
 /**
  * Declares Attitude related parameter classes.
- *    DEC11, DEC12, DEC13, DEC21, DEC22, DEC23, DEC31, DEC32, DEC33,
+ *    DCM11, DCM12, DCM13, DCM21, DCM22, DCM23, DCM31, DCM32, DCM33,
  *    Quat1, Quat2, Quat3, Quat4, EulerAngle1, EulerAngle2, EulerAngle3,
- *    AngVelX, AngVelY, AngVelZ, EulerAngleRate1, EulerAngleRate2, EulerAngleRate3
+ *    MRP1 , MRP2 , MRP3 , AngVelX, AngVelY, AngVelZ, 
+ *    EulerAngleRate1, EulerAngleRate2, EulerAngleRate3
  */
 //------------------------------------------------------------------------------
 #ifndef AttitudeParameters_hpp
@@ -332,6 +339,67 @@ public:
    EulerAngle3(const EulerAngle3 &copy);
    EulerAngle3& operator=(const EulerAngle3 &right);
    virtual ~EulerAngle3();
+   
+   // methods inherited from Parameter
+   virtual bool Evaluate();
+   
+   // methods inherited from GmatBase
+   virtual GmatBase* Clone(void) const;
+   
+protected:
+
+};
+
+//------------------------------------------------------------------------------
+//  Modified Rodrigues Parameters - Added by Dunn
+//------------------------------------------------------------------------------
+
+class GMAT_API MRP1 : public AttitudeReal
+{
+public:
+
+   MRP1(const std::string &name = "", GmatBase *obj = NULL);
+   MRP1(const MRP1 &copy);
+   MRP1& operator=(const MRP1 &right);
+   virtual ~MRP1();
+
+   // methods inherited from Parameter
+   virtual bool Evaluate();
+
+   // methods inherited from GmatBase
+   virtual GmatBase* Clone(void) const;
+
+protected:
+
+};
+
+class GMAT_API MRP2 : public AttitudeReal
+{
+public:
+
+   MRP2(const std::string &name = "", GmatBase *obj = NULL);
+   MRP2(const MRP2 &copy);
+   MRP2& operator=(const MRP2 &right);
+   virtual ~MRP2();
+
+   // methods inherited from Parameter
+   virtual bool Evaluate();
+
+   // methods inherited from GmatBase
+   virtual GmatBase* Clone(void) const;
+
+protected:
+
+};
+
+class GMAT_API MRP3 : public AttitudeReal
+{
+public:
+
+   MRP3(const std::string &name = "", GmatBase *obj = NULL);
+   MRP3(const MRP3 &copy);
+   MRP3& operator=(const MRP3 &right);
+   virtual ~MRP3();
    
    // methods inherited from Parameter
    virtual bool Evaluate();

@@ -7,6 +7,7 @@
 // ** Legal **
 //
 // Author: Linda Jun, refactored and extracted from TrajPlotCanvas.cpp by Gene Stillman
+//				Adjustments made by Phil Silvia
 // Created: 2003/11/25
 // Refactored here for visualization purposes
 /**

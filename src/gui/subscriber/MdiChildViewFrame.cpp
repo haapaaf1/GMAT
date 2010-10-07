@@ -371,6 +371,38 @@ void MdiChildViewFrame::SetDrawWireFrame(bool flag)
    }
 }
 
+//------------------------------------------------------------------------------
+// void SetDrawStars(bool flag)
+//------------------------------------------------------------------------------
+void MdiChildViewFrame::SetDrawStars(bool flag)
+{
+	if (mCanvas)
+	{
+		mCanvas->SetDrawStars(flag);
+	}
+}
+
+//------------------------------------------------------------------------------
+// void SetDrawConstellations(bool flag)
+//------------------------------------------------------------------------------
+void MdiChildViewFrame::SetDrawConstellations(bool flag)
+{
+	if (mCanvas)
+	{
+		mCanvas->SetDrawConstellations(flag);
+	}
+}
+
+//------------------------------------------------------------------------------
+// void SetStarCount(bool flag)
+//------------------------------------------------------------------------------
+void MdiChildViewFrame::SetStarCount(int count)
+{
+	if (mCanvas)
+	{
+		mCanvas->SetStarCount(count);
+	}
+}
 
 //------------------------------------------------------------------------------
 // void SetDrawXyPlane(bool flag)

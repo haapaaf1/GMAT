@@ -51,7 +51,8 @@ public:
                            bool drawWireFrame, bool drawAxes, bool drawGrid,
                            bool drawESLines, bool overlapPlot,
                            bool usevpInfo, bool usepm,
-                           Integer numPtsToRedraw) = 0;
+                           Integer numPtsToRedraw,
+									bool drawStars, bool drawConstellations, Integer starCount) = 0;
    
    virtual void SetGlSolarSystem(const std::string &plotName,
                                  SolarSystem *ss) = 0;

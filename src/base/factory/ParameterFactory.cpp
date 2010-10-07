@@ -2,15 +2,20 @@
 //------------------------------------------------------------------------------
 //                            ParameterFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
+// Developed further jointly by NASA/GSFC, Thinking Systems, Inc., and 
+// Schafer Corp., under AFRL NOVA Contract #FA945104D03990003
+//
 // Author: Darrel Conway
 // Created: 2003/10/28
+// Modified:  Dunn Idle (added MRPs)
+// Date:      2010/08/24
 //
 /**
  *  Implementation code for the ParameterFactory class, responsible
@@ -269,6 +274,12 @@ Parameter* ParameterFactory::CreateParameter(const std::string &ofType,
       return new EulerAngle2(withName);
    if (ofType == "EulerAngle3")
       return new EulerAngle3(withName);
+   if (ofType == "MRP1")  // Dunn Added
+      return new MRP1(withName);
+   if (ofType == "MRP2")  // Dunn Added
+      return new MRP2(withName);
+   if (ofType == "MRP3")  // Dunn Added
+      return new MRP3(withName);
    if (ofType == "Q1" || ofType == "q1")
       return new Quat1(withName);
    if (ofType == "Q2" || ofType == "q2")
@@ -508,6 +519,9 @@ ParameterFactory::ParameterFactory()
       creatables.push_back("EulerAngle1");
       creatables.push_back("EulerAngle2");
       creatables.push_back("EulerAngle3");
+      creatables.push_back("MRP1");  // Dunn Added
+      creatables.push_back("MRP2");  // Dunn Added
+      creatables.push_back("MRP3");  // Dunn Added
       creatables.push_back("Q1");
       creatables.push_back("Q2");
       creatables.push_back("Q3");

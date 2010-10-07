@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//
+//                              
 //------------------------------------------------------------------------------
 // GMAT: Goddard Mission Analysis Tool
 //
@@ -8,26 +8,16 @@
 // Author: Phillip Silvia, Jr.
 // Created: 2009/06/17
 /**
- *
+ * 
  */
 //------------------------------------------------------------------------------
 
+#include "gmatwxdefs.hpp"
 #include "Rendering.hpp"
 #include "GmatAppData.hpp"         // for GetGuiInterpreter()
 #include "GmatOpenGLSupport.hpp"   // for OpenGL support
-
-#ifdef __WXMAC__
-#  ifdef __DARWIN__
-#    include <OpenGL/gl.h>
-#    include <OpenGL/glu.h>
-#  else
-#    include <gl.h>
-#    include <glu.h>
-#  endif
-#else
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#endif
+//#include <GL/gl.h>
+//#include <GL/glu.h>
 
 // Sets the color values for a GlColorType. Purely for convenience
 void SetColor(GlColorType color, Byte red, Byte green, Byte blue){
@@ -41,21 +31,21 @@ void DrawSphere(GLdouble radius, GLint slices, GLint stacks,
                                 GLenum style, GLenum orientation, GLenum normals,
                                 GLenum textureCoords)
 {
-	GLenum error = glGetError();
+	GLenum error = glGetError(); 
    GLUquadricObj* qobj = gluNewQuadric();
-	error = glGetError();
+	error = glGetError(); 
    gluQuadricDrawStyle(qobj, style);
-	error = glGetError();
+	error = glGetError(); 
    gluQuadricNormals(qobj, normals);
-	error = glGetError();
+	error = glGetError(); 
    gluQuadricTexture(qobj, textureCoords);
-	error = glGetError();
+	error = glGetError(); 
    gluSphere(qobj, radius, slices, stacks);
-	error = glGetError();
+	error = glGetError(); 
    gluQuadricOrientation(qobj, orientation);
-	error = glGetError();
+	error = glGetError(); 
    gluDeleteQuadric(qobj);
-	error = glGetError();
+	error = glGetError(); 
 }
 
 // Draw a line of the given color from start to end
@@ -63,10 +53,10 @@ void DrawLine(GlColorType *color, Rvector3 start, Rvector3 end){
    glPushMatrix();
    glBegin(GL_LINES);
 
-   glColor3ub(color->red, color->green, color->blue);
-
+	glColor3ub(color->red, color->green, color->blue);
+               
    glVertex3f(start[0], start[1], start[2]);
-
+               
    glVertex3f(end[0], end[1], end[2]);
 
    glEnd();
@@ -79,9 +69,9 @@ void DrawLine(float red, float green, float blue, Rvector3 start, Rvector3 end){
    glBegin(GL_LINES);
 
    glColor3f(red, green, blue);
-
+               
    glVertex3f(start[0], start[1], start[2]);
-
+               
    glVertex3f(end[0], end[1], end[2]);
 
    glEnd();
@@ -90,7 +80,7 @@ void DrawLine(float red, float green, float blue, Rvector3 start, Rvector3 end){
 
 void DrawCube(float x, float y, float z){
    glBegin(GL_QUADS);
-
+        
    glNormal3f( 0.0F, 0.0F, 1.0F);
    glVertex3f( x, y, z);
    glVertex3f(-x, y, z);

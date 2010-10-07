@@ -28,12 +28,12 @@
 // To enable perspective mode
 //#define __ENABLE_GL_PERSPECTIVE__
 
-//#define DEBUG_3DVIEW_PANEL 1
-//#define DEBUG_3DVIEW_PANEL_CREATE 1
-//#define DEBUG_3DVIEW_PANEL_LOAD 1
-//#define DEBUG_3DVIEW_PANEL_SAVE 1
-//#define DEBUG_3DVIEW_PANEL_CHECKBOX 1
-//#define DEBUG_3DVIEW_PANEL_SHOW 1
+//#define DEBUG_OPENGL_PANEL 1
+//#define DEBUG_OPENGL_PANEL_CREATE 1
+//#define DEBUG_OPENGL_PANEL_LOAD 1
+//#define DEBUG_OPENGL_PANEL_SAVE 1
+//#define DEBUG_OPENGL_PANEL_CHECKBOX 1
+//#define DEBUG_OPENGL_PANEL_SHOW 1
 
 //------------------------------
 // event tables for wxWindows
@@ -76,7 +76,7 @@ Enhanced3DViewPanel::Enhanced3DViewPanel(wxWindow *parent,
                                            const wxString &subscriberName)
    : GmatPanel(parent)
 {
-   #if DEBUG_3DVIEW_PANEL
+   #if DEBUG_OPENGL_PANEL
    MessageInterface::ShowMessage("Enhanced3DViewPanel() entering...\n");
    MessageInterface::ShowMessage("Enhanced3DViewPanel() subscriberName = " +
                                  std::string(subscriberName.c_str()) + "\n");
@@ -89,8 +89,23 @@ Enhanced3DViewPanel::Enhanced3DViewPanel(wxWindow *parent,
    
    // Set the pointer for the "Show Script" button
    mObject = mEnhanced3DView;
-   
+
    InitializeData();
+   
+//    mHasIntegerDataChanged = false;
+//    mHasRealDataChanged = false;
+//    mHasDrawingOptionChanged = false;
+//    mHasSpChanged = false;
+//    mHasOrbitColorChanged = false;
+//    mHasTargetColorChanged = false;
+//    mHasShowObjectChanged = false;
+//    mHasCoordSysChanged = false;
+//    mHasViewInfoChanged = false;
+//    mScCount = 0;
+//    mNonScCount = 0;
+   
+//    mOrbitColorMap.clear();
+//    mTargetColorMap.clear();
    
    Create();
    Show();
@@ -105,7 +120,7 @@ Enhanced3DViewPanel::Enhanced3DViewPanel(wxWindow *parent,
 //------------------------------------------------------------------------------
 Enhanced3DViewPanel::~Enhanced3DViewPanel()
 {
-   #if DEBUG_3DVIEW_PANEL
+   #if DEBUG_OPENGL_PANEL
    MessageInterface::ShowMessage
       ("Enhanced3DViewPanel::~Enhanced3DViewPanel() unregistering mSpacecraftListBox:%d\n",
        mSpacecraftListBox);
@@ -147,8 +162,8 @@ bool Enhanced3DViewPanel::PrepareObjectNameChange()
  */
 //------------------------------------------------------------------------------
 void Enhanced3DViewPanel::ObjectNameChanged(Gmat::ObjectType type,
-                                            const wxString &oldName,
-                                            const wxString &newName)
+                                             const wxString &oldName,
+                                             const wxString &newName)
 {
    #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
@@ -201,7 +216,7 @@ void Enhanced3DViewPanel::InitializeData()
 //------------------------------------------------------------------------------
 void Enhanced3DViewPanel::Create()
 {
-   #if DEBUG_3DVIEW_PANEL_CREATE
+   #if DEBUG_OPENGL_PANEL_CREATE
       MessageInterface::ShowMessage("Enhanced3DViewPanel::Create() entered\n");
    #endif
    
@@ -243,12 +258,25 @@ void Enhanced3DViewPanel::Create()
    wxStaticText *updatePlotFreqLabel2 =
       new wxStaticText(this, -1, wxT("cycle"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
-   
+	 
    mDataCollectFreqTextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(35, 20), 0);
    
    mUpdatePlotFreqTextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(35, 20), 0);
+
+	mStarCountStaticText =
+		new wxStaticText(this, -1, wxT("Number of stars "), 
+								wxDefaultPosition, wxSize(-1,-1), 0);
+	mStarCountTextCtrl = 
+		new wxTextCtrl(this, ID_TEXTCTRL, wxT("7000"), wxDefaultPosition, wxSize(50, 20), 0);
+	//mStarCountTextCtrl->Disable();
+
+	mEnableStarsCheckBox = 
+		new wxCheckBox(this, CHECKBOX, wxT("Enable Stars"), wxDefaultPosition, wxSize(100, 20), 0);
+	mEnableConstellationsCheckBox = 
+		new wxCheckBox(this, CHECKBOX, wxT("Enable Constellations"), wxDefaultPosition, wxSize(160, 20), 0);
+	//mEnableConstellationsCheckBox->Disable();
    
    wxBoxSizer *colFreqSizer = new wxBoxSizer(wxHORIZONTAL);
    colFreqSizer->Add(dataCollectFreqLabel1, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -259,10 +287,17 @@ void Enhanced3DViewPanel::Create()
    updFreqSizer->Add(updatePlotFreqLabel1, 0, wxALIGN_LEFT|wxALL, bsize);
    updFreqSizer->Add(mUpdatePlotFreqTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
    updFreqSizer->Add(updatePlotFreqLabel2, 0, wxALIGN_LEFT|wxALL, bsize);
+
+	wxBoxSizer *starOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+	starOptionSizer->Add(mStarCountStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+	starOptionSizer->Add(mStarCountTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
    
    wxBoxSizer *plotOptionSizer = new wxBoxSizer(wxVERTICAL);   
    plotOptionSizer->Add(colFreqSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    plotOptionSizer->Add(updFreqSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+	plotOptionSizer->Add(mEnableStarsCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
+	plotOptionSizer->Add(mEnableConstellationsCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
+	plotOptionSizer->Add(starOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    
    wxStaticText *numPointsToRedrawLabel1 =
       new wxStaticText(this, -1, wxT("Number of points to redraw\n"
@@ -351,6 +386,34 @@ void Enhanced3DViewPanel::Create()
    mOriginSunLineCheckBox =
       new wxCheckBox(this, CHECKBOX, wxT("Draw Sun Line"),
                      wxDefaultPosition, wxSize(-1, -1), 0);
+
+	// Field of View Options
+	/*wxBoxSizer *fovOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+	mFovStaticText = 
+		new wxStaticText(this, -1, wxT("Starting FOV "),
+								wxDefaultPosition, wxSize(-1, -1), 0);
+	mFovTextCtrl = 
+		new wxTextCtrl(this, ID_TEXTCTRL, wxT("45"), wxDefaultPosition, wxSize(50, -1), 0);
+	fovOptionSizer->Add(mFovStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+	fovOptionSizer->Add(mFovTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);
+
+	wxBoxSizer *fovMinOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+	mFovMinStaticText =
+		new wxStaticText(this, -1, wxT("Min FOV        "),
+								wxDefaultPosition, wxSize(-1, -1), 0);
+	mFovMinTextCtrl =
+		new wxTextCtrl(this, ID_TEXTCTRL, wxT("0"), wxDefaultPosition, wxSize(50, -1), 0);
+	fovMinOptionSizer->Add(mFovMinStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+	fovMinOptionSizer->Add(mFovMinTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);
+
+	wxBoxSizer *fovMaxOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+	mFovMaxStaticText = 
+		new wxStaticText(this, -1, wxT("Max FOV       "),
+								wxDefaultPosition, wxSize(-1, -1), 0);
+	mFovMaxTextCtrl =
+		new wxTextCtrl(this, ID_TEXTCTRL, wxT("90"), wxDefaultPosition, wxSize(50, -1), 0);
+	fovMaxOptionSizer->Add(mFovMaxStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+	fovMaxOptionSizer->Add(mFovMaxTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);*/
    
    // Solver Iteration ComboBox
    wxStaticText *solverIterLabel =
@@ -378,6 +441,9 @@ void Enhanced3DViewPanel::Create()
    drawOptionSizer->Add(mGridCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
    drawOptionSizer->Add(mOriginSunLineCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
    drawOptionSizer->Add(solverIterOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+	//drawOptionSizer->Add(fovOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+	//drawOptionSizer->Add(fovMinOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+	//drawOptionSizer->Add(fovMaxOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    drawOptionSizer->Add(20, 2, 0, wxALIGN_LEFT|wxALL, bsize);
    
    GmatStaticBoxSizer *drawOptionStaticSizer =
@@ -643,12 +709,12 @@ void Enhanced3DViewPanel::Create()
    
    theMiddleSizer->Add(pageSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
    
-   #if DEBUG_3DVIEW_PANEL_CREATE
+   #if DEBUG_OPENGL_PANEL_CREATE
    MessageInterface::ShowMessage
       ("Enhanced3DViewPanel::Create() Exiting sizers for Windows\n");
    #endif
    
-   #if DEBUG_3DVIEW_PANEL_CREATE
+   #if DEBUG_OPENGL_PANEL_CREATE
    MessageInterface::ShowMessage("Enhanced3DViewPanel::Create() exiting...\n");
    #endif
 }
@@ -659,7 +725,7 @@ void Enhanced3DViewPanel::Create()
 //------------------------------------------------------------------------------
 void Enhanced3DViewPanel::LoadData()
 {
-   #if DEBUG_3DVIEW_PANEL_LOAD
+   #if DEBUG_OPENGL_PANEL_LOAD
    MessageInterface::ShowMessage("Enhanced3DViewPanel::LoadData() entered.\n");
    #endif
    
@@ -693,6 +759,10 @@ void Enhanced3DViewPanel::LoadData()
          SetValue(mEnhanced3DView->GetOnOffParameter("UseInitialView") == "On");
       mSolverIterComboBox->
          SetValue(mEnhanced3DView->GetStringParameter("SolverIterations").c_str());
+		mEnableStarsCheckBox->
+			SetValue(mEnhanced3DView->GetOnOffParameter("EnableStars") == "On");
+		mEnableConstellationsCheckBox->
+			SetValue(mEnhanced3DView->GetOnOffParameter("EnableConstellations") == "On");
       
       #ifdef __ENABLE_GL_PERSPECTIVE__
       mPerspectiveModeCheckBox->
@@ -742,7 +812,7 @@ void Enhanced3DViewPanel::LoadData()
       {
          Rvector3 vec = mEnhanced3DView->GetVector("ViewPointReference");
          
-         #if DEBUG_3DVIEW_PANEL_LOAD
+         #if DEBUG_OPENGL_PANEL_LOAD
          MessageInterface::ShowMessage
             ("   ViewPointReference = %s\n", vec.ToString().c_str());
          #endif
@@ -763,7 +833,7 @@ void Enhanced3DViewPanel::LoadData()
       {
          Rvector3 vec = mEnhanced3DView->GetVector("ViewPointVector");
          
-         #if DEBUG_3DVIEW_PANEL_LOAD
+         #if DEBUG_OPENGL_PANEL_LOAD
          MessageInterface::ShowMessage
             ("   ViewPointVector = %s\n", vec.ToString().c_str());
          #endif
@@ -784,7 +854,7 @@ void Enhanced3DViewPanel::LoadData()
       {
          Rvector3 vec = mEnhanced3DView->GetVector("ViewDirection");
          
-         #if DEBUG_3DVIEW_PANEL_LOAD
+         #if DEBUG_OPENGL_PANEL_LOAD
          MessageInterface::ShowMessage
             ("   ViewDirector = %s\n", vec.ToString().c_str());
          #endif
@@ -806,7 +876,7 @@ void Enhanced3DViewPanel::LoadData()
       StringArray spNameList = mEnhanced3DView->GetSpacePointList();
       int spCount = spNameList.size();
       
-      #if DEBUG_3DVIEW_PANEL_LOAD
+      #if DEBUG_OPENGL_PANEL_LOAD
       MessageInterface::ShowMessage
          ("Enhanced3DViewPanel::LoadData() spCount=%d\n", spCount);
       
@@ -833,7 +903,7 @@ void Enhanced3DViewPanel::LoadData()
       mScCount = scNameArray.size();
       mNonScCount = nonScNameArray.size();
 
-      #if DEBUG_3DVIEW_PANEL_LOAD
+      #if DEBUG_OPENGL_PANEL_LOAD
       MessageInterface::ShowMessage
          ("Enhanced3DViewPanel::LoadData() mScCount=%d, mNonScCount=%d\n",
           mScCount, mNonScCount);
@@ -856,7 +926,7 @@ void Enhanced3DViewPanel::LoadData()
             mTargetColorMap[scNameArray[i]]
                = RgbColor(mEnhanced3DView->GetColor("Target", scNameArray[i]));
             
-            #if DEBUG_3DVIEW_PANEL_LOAD > 1
+            #if DEBUG_OPENGL_PANEL_LOAD > 1
             MessageInterface::ShowMessage
                ("Enhanced3DViewPanel::LoadData() scName=%s, orbColor=%u, "
                 "targetColor=%u\n", scNameArray[i].c_str(),
@@ -940,7 +1010,7 @@ void Enhanced3DViewPanel::LoadData()
    #endif
    
    
-   #if DEBUG_3DVIEW_PANEL_LOAD
+   #if DEBUG_OPENGL_PANEL_LOAD
    MessageInterface::ShowMessage("Enhanced3DViewPanel::LoadData() exiting.\n");
    #endif
 }
@@ -952,13 +1022,14 @@ void Enhanced3DViewPanel::LoadData()
 void Enhanced3DViewPanel::SaveData()
 {
 
-   #if DEBUG_3DVIEW_PANEL_SAVE
+   #if DEBUG_OPENGL_PANEL_SAVE
    MessageInterface::ShowMessage("Enhanced3DViewPanel::SaveData() entered.\n");
    #endif
 
    canClose = true;
    std::string str1, str2;
-   Integer collectFreq, updateFreq, pointsToRedraw;
+   Integer collectFreq = 0, updateFreq = 0, pointsToRedraw = 0, starCount = 0,
+		initialFOV = 0, minFOV = 0, maxFOV = 0;
    Real scaleFactor;
    Real viewRef[3], viewVec[3], viewDir[3];
    Rvector3 vec;
@@ -978,6 +1049,15 @@ void Enhanced3DViewPanel::SaveData()
       
       CheckInteger(pointsToRedraw, mNumPointsToRedrawTextCtrl->GetValue().c_str(),
                    "NumPointsToRedraw", "Integer Number >= 0", false, true, true, true);
+
+		CheckInteger(starCount, mStarCountTextCtrl->GetValue().c_str(),
+						 "StarCount", "Integer Number >= 0", false, true);
+		CheckInteger(initialFOV, mFovTextCtrl->GetValue().c_str(),
+						 "InitialFOV", "");
+		CheckInteger(minFOV, mFovMinTextCtrl->GetValue().c_str(),
+						 "MinFOV", "");
+		CheckInteger(maxFOV, mFovMaxTextCtrl->GetValue().c_str(),
+						 "MaxFOV", "");
    }
    
    if ((mViewPointRefComboBox->GetStringSelection() == "Vector")||
@@ -1031,7 +1111,7 @@ void Enhanced3DViewPanel::SaveData()
    {
       if (mHasIntegerDataChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving Integer data\n");
          #endif
          
@@ -1039,6 +1119,10 @@ void Enhanced3DViewPanel::SaveData()
          mEnhanced3DView->SetIntegerParameter("DataCollectFrequency", collectFreq);
          mEnhanced3DView->SetIntegerParameter("UpdatePlotFrequency", updateFreq);
          mEnhanced3DView->SetIntegerParameter("NumPointsToRedraw", pointsToRedraw);
+			mEnhanced3DView->SetIntegerParameter("StarCount", starCount);
+			mEnhanced3DView->SetIntegerParameter("MinFOV", minFOV);
+			mEnhanced3DView->SetIntegerParameter("MaxFOV", maxFOV);
+			mEnhanced3DView->SetIntegerParameter("InitialFOV", initialFOV);
       }
       
       //--------------------------------------------------------------
@@ -1046,7 +1130,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasViewInfoChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving View definition\n");
          #endif
          mHasViewInfoChanged = false;
@@ -1068,7 +1152,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (setVector || mHasRealDataChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving Real data\n");
          #endif
          
@@ -1104,7 +1188,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasDrawingOptionChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving drawing options\n");
          #endif
          mHasDrawingOptionChanged = false;
@@ -1154,13 +1238,29 @@ void Enhanced3DViewPanel::SaveData()
          mEnhanced3DView->SetStringParameter("SolverIterations",
                                          mSolverIterComboBox->GetValue().c_str());
       }
+
+		//--------------------------------------------------------------
+		// save star options
+		//--------------------------------------------------------------
+		if (mHasStarOptionChanged){
+			mHasStarOptionChanged = false;
+			if (mEnableStarsCheckBox->IsChecked())
+				mEnhanced3DView->SetOnOffParameter("EnableStars", "On");
+			else
+				mEnhanced3DView->SetOnOffParameter("EnableStars", "Off");
+
+			if (mEnableConstellationsCheckBox->IsChecked())
+				mEnhanced3DView->SetOnOffParameter("EnableConstellations", "On");
+			else
+				mEnhanced3DView->SetOnOffParameter("EnableConstellations", "Off");
+		}
       
       
       //--------------------------------------------------------------
       // save perspective info
       //--------------------------------------------------------------
       #ifdef __ENABLE_GL_PERSPECTIVE__
-      #if DEBUG_3DVIEW_PANEL_SAVE
+      #if DEBUG_OPENGL_PANEL_SAVE
       MessageInterface::ShowMessage("   Saving perspective mode data\n");
       #endif
       
@@ -1191,7 +1291,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasSpChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving spacecraft and body list\n");
          #endif
          
@@ -1202,7 +1302,7 @@ void Enhanced3DViewPanel::SaveData()
          mScCount = mSelectedScListBox->GetCount();
          mNonScCount = mSelectedObjListBox->GetCount();
          
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage
             ("   mScCount=%d, mNonScCount=%d\n", mScCount, mNonScCount);
          #endif
@@ -1215,7 +1315,7 @@ void Enhanced3DViewPanel::SaveData()
          {
             mSelSpName = std::string(mSelectedScListBox->GetString(i).c_str());
             
-            #if DEBUG_3DVIEW_PANEL_SAVE
+            #if DEBUG_OPENGL_PANEL_SAVE
             MessageInterface::ShowMessage("   Sc[%d] = %s\n", i, mSelSpName.c_str());
             #endif
             
@@ -1228,7 +1328,7 @@ void Enhanced3DViewPanel::SaveData()
          {
             mSelSpName = std::string(mSelectedObjListBox->GetString(i).c_str());
             
-            #if DEBUG_3DVIEW_PANEL_SAVE
+            #if DEBUG_OPENGL_PANEL_SAVE
             MessageInterface::ShowMessage
                ("Enhanced3DViewPanel::SaveData() NonSc[%d] = %s\n", i,
                 mSelSpName.c_str());
@@ -1245,7 +1345,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasShowObjectChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving show object flags\n");
          #endif
          
@@ -1275,7 +1375,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasOrbitColorChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving orbit colors\n");
          #endif
          
@@ -1286,7 +1386,7 @@ void Enhanced3DViewPanel::SaveData()
          {
             mSelSpName = std::string(mSelectedScListBox->GetString(i).c_str());
             
-            #if DEBUG_3DVIEW_PANEL_SAVE
+            #if DEBUG_OPENGL_PANEL_SAVE
             MessageInterface::ShowMessage
                ("Enhanced3DViewPanel::SaveData() objName=%s, orbColor=%u\n",
                 mSelSpName.c_str(), mOrbitColorMap[mSelSpName].GetIntColor());
@@ -1313,7 +1413,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasTargetColorChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving target colors\n");
          #endif
          
@@ -1324,7 +1424,7 @@ void Enhanced3DViewPanel::SaveData()
          {
             mSelSpName = std::string(mSelectedScListBox->GetString(i).c_str());
             
-            #if DEBUG_3DVIEW_PANEL_SAVE
+            #if DEBUG_OPENGL_PANEL_SAVE
             MessageInterface::ShowMessage
                ("Enhanced3DViewPanel::SaveData() objName=%s targetColor=%u\n",
                 mSelSpName.c_str(), mTargetColorMap[mSelSpName].GetIntColor());
@@ -1341,7 +1441,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasCoordSysChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving view coordinate system\n");
          #endif
          
@@ -1356,7 +1456,7 @@ void Enhanced3DViewPanel::SaveData()
       //--------------------------------------------------------------
       if (mHasViewUpInfoChanged)
       {
-         #if DEBUG_3DVIEW_PANEL_SAVE
+         #if DEBUG_OPENGL_PANEL_SAVE
          MessageInterface::ShowMessage("   Saving view up coordinate system\n");
          #endif
          
@@ -1387,7 +1487,7 @@ void Enhanced3DViewPanel::SaveData()
       MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage().c_str());
    }
    
-   #if DEBUG_3DVIEW_PANEL_SAVE
+   #if DEBUG_OPENGL_PANEL_SAVE
    MessageInterface::ShowMessage("Enhanced3DViewPanel::SaveData() exiting.\n");
    #endif
 }
@@ -1612,12 +1712,29 @@ void Enhanced3DViewPanel::OnCheckBoxChange(wxCommandEvent& event)
          mHasShowObjectChanged = true;
       }
       
-      #if DEBUG_3DVIEW_PANEL_CHECKBOX
+      #if DEBUG_OPENGL_PANEL_CHECKBOX
       MessageInterface::ShowMessage
          ("Enhanced3DViewPanel::OnCheckBoxChange() mSelSpName=%s, show=%d\n",
           mSelSpName.c_str(), mDrawObjectMap[mSelSpName]);
       #endif
    }
+	else if (event.GetEventObject() == mEnableStarsCheckBox)
+	{
+		if (mEnableStarsCheckBox->GetValue()){
+			mEnableConstellationsCheckBox->Enable();
+			mStarCountTextCtrl->Enable();
+		}
+		else {
+			mEnableConstellationsCheckBox->Disable();
+			mEnableConstellationsCheckBox->SetValue(false);
+			mStarCountTextCtrl->Disable();
+		}
+		mHasStarOptionChanged = true;
+	}
+	else if (event.GetEventObject() == mEnableConstellationsCheckBox)
+	{
+		mHasStarOptionChanged = true;
+	}
    else
    {
       mHasDrawingOptionChanged = true;
@@ -1652,7 +1769,7 @@ void Enhanced3DViewPanel::OnOrbitColorClick(wxCommandEvent& event)
                                         mOrbitColor.Green(),
                                         mOrbitColor.Blue());
 
-         #if DEBUG_3DVIEW_PANEL
+         #if DEBUG_OPENGL_PANEL
          MessageInterface::ShowMessage("OnOrbitColorClick() r=%d g=%d b=%d\n",
                                        mOrbitColor.Red(), mOrbitColor.Green(),
                                        mOrbitColor.Blue());
@@ -1674,7 +1791,7 @@ void Enhanced3DViewPanel::OnOrbitColorClick(wxCommandEvent& event)
                                         mOrbitColor.Green(),
                                         mOrbitColor.Blue());
          
-         #if DEBUG_3DVIEW_PANEL
+         #if DEBUG_OPENGL_PANEL
          MessageInterface::ShowMessage
             ("OnOrbitColorClick() r=%d g=%d b=%d\n", mOrbitColor.Red(),
              mOrbitColor.Green(), mOrbitColor.Blue());
@@ -1714,7 +1831,7 @@ void Enhanced3DViewPanel::OnTargetColorClick(wxCommandEvent& event)
                                       mTargetColor.Green(),
                                       mTargetColor.Blue());
       
-      #if DEBUG_3DVIEW_PANEL
+      #if DEBUG_OPENGL_PANEL
       MessageInterface::ShowMessage
          ("OnTargetColorClick() r=%d g=%d b=%d\n", mTargetColor.Red(),
           mTargetColor.Green(), mTargetColor.Blue());
@@ -1803,7 +1920,11 @@ void Enhanced3DViewPanel::OnTextChange(wxCommandEvent& event)
    {
       if (obj == mDataCollectFreqTextCtrl ||
           obj == mUpdatePlotFreqTextCtrl ||
-          obj == mNumPointsToRedrawTextCtrl)
+          obj == mNumPointsToRedrawTextCtrl ||
+			 obj == mStarCountTextCtrl ||
+			 obj == mFovTextCtrl ||
+			 obj == mFovMinTextCtrl ||
+			 obj == mFovMaxTextCtrl)
       {
          mHasIntegerDataChanged = true;
       }
@@ -1837,7 +1958,7 @@ void Enhanced3DViewPanel::OnTextChange(wxCommandEvent& event)
 void Enhanced3DViewPanel::ShowSpacePointOption(const wxString &name, bool show,
                                                 bool isSc, UnsignedInt color)
 {
-   #if DEBUG_3DVIEW_PANEL_SHOW
+   #if DEBUG_OPENGL_PANEL_SHOW
    MessageInterface::ShowMessage
       ("Enhanced3DViewPanel::ShowSpacePointOption() name=%s, show=%d, isSc=%d, "
        "color=%u\n", name.c_str(), show, isSc, color);
@@ -1850,7 +1971,7 @@ void Enhanced3DViewPanel::ShowSpacePointOption(const wxString &name, bool show,
       // if object name not found, insert
       if (mOrbitColorMap.find(mSelSpName) == mOrbitColorMap.end())
       {
-         #if DEBUG_3DVIEW_PANEL
+         #if DEBUG_OPENGL_PANEL
          MessageInterface::ShowMessage
             ("ShowSpacePointOption() name not found, so adding it to color map\n");
          #endif
@@ -1862,7 +1983,7 @@ void Enhanced3DViewPanel::ShowSpacePointOption(const wxString &name, bool show,
       RgbColor orbColor = mOrbitColorMap[mSelSpName];
       RgbColor targColor = mTargetColorMap[mSelSpName];
       
-      #if DEBUG_3DVIEW_PANEL_SHOW
+      #if DEBUG_OPENGL_PANEL_SHOW
       MessageInterface::ShowMessage
          ("Enhanced3DViewPanel::ShowSpacePointOption() orbColor=%u, targColor=%u\n",
           orbColor.GetIntColor(), targColor.GetIntColor());
@@ -1895,5 +2016,32 @@ void Enhanced3DViewPanel::ShowSpacePointOption(const wxString &name, bool show,
    {
       mObjectSizer->Show(mScOptionSizer, false);
    }
+}
+
+//--------------------------------------------------------------
+// void ValidateFovValues()
+// Just a helper function to make sure the Initial, Minimum, and
+// Maximum FOV values make sense
+//--------------------------------------------------------------
+void Enhanced3DViewPanel::ValidateFovValues(){
+	wxString fov = mFovTextCtrl->GetValue(), 
+				minFov = mFovMinTextCtrl->GetValue(),
+				maxFov = mFovMaxTextCtrl->GetValue();
+	double fovValue, minFovValue,	maxFovValue;
+	fov.ToDouble(&fovValue); 
+	minFov.ToDouble(&minFovValue);
+	maxFov.ToDouble(&maxFovValue);
+	if (minFovValue > maxFovValue)
+		mFovMinTextCtrl->SetValue(maxFov);
+	if (maxFovValue < minFovValue)
+		mFovMaxTextCtrl->SetValue(minFov);
+	if (minFovValue > fovValue)
+		mFovMinTextCtrl->SetValue(fov);
+	if (maxFovValue < fovValue)
+		mFovMaxTextCtrl->SetValue(fov);
+	if (fovValue < minFovValue)
+		mFovTextCtrl->SetValue(minFov);
+	if (fovValue > maxFovValue)
+		mFovTextCtrl->SetValue(maxFov);
 }
 

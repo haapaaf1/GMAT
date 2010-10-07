@@ -129,6 +129,7 @@ private:
    wxString *cosineMatrix[9];
    wxString *quaternion[4];
    wxString *eulerAngles[3];
+   wxString *MRPs[3]; // Dunn Added
    wxString *angVel[3];
    wxString *eulerAngleRates[3];
    
@@ -148,9 +149,10 @@ private:
    // NOTE - only currently-displayed representations will be up-to-date;
    // conversions occur on state (or state rate) type changes
    UnsignedIntArray seq;
-   Rmatrix33        mat;
+   Rmatrix33        dcmat; // Dunn renamed to dcmat
    Rvector          q;
    Rvector3         ea;
+   Rvector3         mrp; // Dunn Added
    Rvector3         av;
    Rvector3         ear;
    Real             epoch;
@@ -164,9 +166,10 @@ private:
    bool             seqModified;
    bool             modelModified;
 
-   bool             matModified[9];
+   bool             dcmatModified[9]; // Dunn renamed to dcmatModified
    bool             qModified[4];
    bool             eaModified[3];
+   bool             mrpModified[3];   // Dunn Added
    bool             avModified[3];
    bool             earModified[3];
 
@@ -174,12 +177,14 @@ private:
    void DisplayEulerAngles();
    void DisplayQuaternion();
    void DisplayDCM();
+   void DisplayMRPs();  // Dunn Added
    void DisplayEulerAngleRates();
    void DisplayAngularVelocity();
    
    void UpdateEulerAngles();
    void UpdateQuaternion();
    void UpdateCosineMatrix();
+   void UpdateMRPs();   // Dunn Added
    void UpdateEulerAngleRates();
    void UpdateAngularVelocity();
       
@@ -228,12 +233,16 @@ private:
    };
    
    // IDs for state type
+   // Dunn added a new enumeration, "MRPs", and changed the name of the count
+   // variable at the bottom from StateTypeCount, which shows up for OrbitState
+   // as well, to attStateTypeCount.
    enum StateType
    {
       EULER_ANGLES = 0,
       QUATERNION,
       DCM,
-      StateTypeCount,
+      MRPS,
+      attStateTypeCount,
    };
    
    // IDs for state rate type
@@ -241,11 +250,11 @@ private:
    {
       EULER_ANGLE_RATES = 0,
       ANGULAR_VELOCITY,
-      StateRateTypeCount,
+      attStateRateTypeCount,  // Dunn renamed from StateRateTypeCount
    };
    
-   static const std::string STATE_TEXT[StateTypeCount];
-   static const std::string STATE_RATE_TEXT[StateRateTypeCount];
+   static const std::string STATE_TEXT[attStateTypeCount];
+   static const std::string STATE_RATE_TEXT[attStateRateTypeCount];
    
    static const Integer STARTUP_STATE_TYPE_SELECTION;
    static const Integer STARTUP_RATE_STATE_TYPE_SELECTION;

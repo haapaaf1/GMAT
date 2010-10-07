@@ -109,6 +109,9 @@ GuiPlotReceiver::~GuiPlotReceiver()
  * @param <usevpInfo>  true if use viewpoint info to draw plot
  * @param <usepm>  true if use perspective projection mode
  * @param <numPtsToRedraw>  number of points to redraw during the run
+ * @param <drawStars> true if we want to draw the stars
+ * @param <drawConstellations> true if we want to the draw the constellation lines
+ * @param <starCount> the approximate maximum stars we want drawn
  */
 //------------------------------------------------------------------------------
 bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
@@ -117,7 +120,8 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
                                        bool drawWireFrame, bool drawAxes,
                                        bool drawGrid, bool drawSunLine,
                                        bool overlapPlot, bool usevpInfo, bool usepm,
-                                       Integer numPtsToRedraw)
+                                       Integer numPtsToRedraw,
+													bool drawStars, bool drawConstellations, Integer starCount)
 {
    //-------------------------------------------------------
    // check if new MDI child frame is needed
@@ -249,6 +253,10 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
    frame->SetDrawAxes(drawAxes);
    frame->SetDrawGrid(drawGrid);
    frame->SetDrawSunLine(drawSunLine);
+
+	frame->SetDrawStars(drawStars);
+	frame->SetDrawConstellations(drawConstellations);
+	frame->SetStarCount(starCount);
 
    frame->SetOverlapPlot(overlapPlot);
    frame->SetUseInitialViewDef(usevpInfo);

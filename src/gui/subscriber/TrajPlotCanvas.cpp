@@ -140,9 +140,9 @@ using namespace GmatMathUtil;
 //---------------------------------
 const int TrajPlotCanvas::LAST_STD_BODY_ID = 10;
 const int TrajPlotCanvas::MAX_COORD_SYS = 10;
-const float TrajPlotCanvas::MAX_ZOOM_IN = 3700.0;
-const float TrajPlotCanvas::RADIUS_ZOOM_RATIO = 2.2;
-const float TrajPlotCanvas::DEFAULT_DIST = -30000.0;
+const float TrajPlotCanvas::MAX_ZOOM_IN = 3700.0f;
+const float TrajPlotCanvas::RADIUS_ZOOM_RATIO = 2.2f;
+const float TrajPlotCanvas::DEFAULT_DIST = -30000.0f;
 const int TrajPlotCanvas::UNKNOWN_OBJ_ID = -999;
 
 struct GlColorType
@@ -255,7 +255,7 @@ TrajPlotCanvas::TrajPlotCanvas(wxWindow *parent, wxWindowID id,
    // projection
    ChangeProjection(size.x, size.y, mAxisLength);
    
-   mEarthRadius = 6378.14; //km
+   mEarthRadius = 6378.14f; //km
    mScRadius = 200;        //km: make big enough to see
    
    // light source
@@ -3423,7 +3423,7 @@ void TrajPlotCanvas::DrawObject(const wxString &objName)
       #endif
       
       // Just draw a wireframe sphere if we get here
-      glColor3f(0.20, 0.20, 0.50);
+      glColor3f(0.20f, 0.20f, 0.50f);
       DrawSphere(mObjectRadius[objId], 50, 50, GLU_LINE);      
       glDisable(GL_TEXTURE_2D);
    }

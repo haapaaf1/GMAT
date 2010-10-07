@@ -23,6 +23,7 @@
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
 #include "Enhanced3DView.hpp"
+#include "Enhanced3DView.hpp"
 #include "RgbColor.hpp"
 #include "ColorTypes.hpp"
 
@@ -49,6 +50,7 @@ protected:
    bool mHasCoordSysChanged;
    bool mHasViewInfoChanged;
    bool mHasViewUpInfoChanged;
+	bool mHasStarOptionChanged;
    
    int  mScCount;
    int  mNonScCount;
@@ -68,6 +70,10 @@ protected:
    wxStaticText *mViewPointRefStaticText;
    wxStaticText *mViewPointVecStaticText;
    wxStaticText *mViewDirStaticText;
+	wxStaticText *mStarCountStaticText;
+	wxStaticText *mFovStaticText;
+	wxStaticText *mFovMinStaticText;
+	wxStaticText *mFovMaxStaticText;
    
    wxCheckBox *mShowPlotCheckBox;
    wxCheckBox *mWireFrameCheckBox;
@@ -80,6 +86,8 @@ protected:
    wxCheckBox *mGridCheckBox;
    wxCheckBox *mOriginSunLineCheckBox;
    wxCheckBox *mDrawObjectCheckBox;
+	wxCheckBox *mEnableStarsCheckBox;
+	wxCheckBox *mEnableConstellationsCheckBox;
    
    wxTextCtrl *mDataCollectFreqTextCtrl;
    wxTextCtrl *mUpdatePlotFreqTextCtrl;
@@ -95,6 +103,10 @@ protected:
    wxTextCtrl *mViewDir1TextCtrl;
    wxTextCtrl *mViewDir2TextCtrl;
    wxTextCtrl *mViewDir3TextCtrl;
+	wxTextCtrl *mStarCountTextCtrl;
+	wxTextCtrl *mFovTextCtrl;
+	wxTextCtrl *mFovMinTextCtrl;
+	wxTextCtrl *mFovMaxTextCtrl;
    
    wxListBox *mSpacecraftListBox;
    wxListBox *mCelesObjectListBox;
@@ -142,6 +154,9 @@ protected:
    void OnTargetColorClick(wxCommandEvent& event);
    void OnComboBoxChange(wxCommandEvent& event);
    void OnTextChange(wxCommandEvent& event);
+
+	// Support Function
+	void ValidateFovValues();
    
    DECLARE_EVENT_TABLE();
    

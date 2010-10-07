@@ -2,15 +2,20 @@
 //------------------------------------------------------------------------------
 //                                  AttitudeData
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
+// Developed further jointly by NASA/GSFC, Thinking Systems, Inc., and 
+// Schafer Corp., under AFRL NOVA Contract #FA945104D03990003
+//
 // Author: Daniel Hunter
 // Created: 2006/6/26
+// Modified:  Dunn Idle (added MRPs)
+// Date:      2010/08/24
 //
 /**
  * Implements Attitude related data class.
@@ -81,7 +86,7 @@ AttitudeData::~AttitudeData()
 // Real GetAttitudeReal(Integer item)
 //------------------------------------------------------------------------------
 /**
- * Retrives Attitude element.
+ * Retrieves Attitude element.
  */
 //------------------------------------------------------------------------------
 Real AttitudeData::GetAttitudeReal(Integer item)
@@ -124,6 +129,15 @@ Real AttitudeData::GetAttitudeReal(Integer item)
               (Integer) seq[1], 
               (Integer) seq[2]) * GmatMathUtil::DEG_PER_RAD;
       return euler[item - EULERANGLE1];
+   }
+   // Dunn added conversion below with the comment that this
+   // is slightly hacked!  We might want to change to a more
+   // obvious method of index control.
+   if ((item >= MRP_1) && (item <= MRP_3))
+   {
+      Rvector  quat = Attitude::ToQuaternion(cosMat);
+      Rvector3 mrp  = Attitude::ToMRPs(quat);
+      return mrp[item - MRP_1];
    }           
    if ((item >= EULERANGLERATE1) && (item <= EULERANGLERATE3))
    {

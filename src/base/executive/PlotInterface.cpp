@@ -90,7 +90,8 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
                                        bool drawWireFrame, bool drawAxes,
                                        bool drawGrid, bool drawSunLine,
                                        bool overlapPlot, bool usevpInfo, bool usepm,
-                                       Integer numPtsToRedraw)
+                                       Integer numPtsToRedraw,
+													bool drawStars, bool drawConstellations, Integer starCount)
 {
    #if DEBUG_PLOTIF_GL_CREATE
    MessageInterface::ShowMessage
@@ -101,7 +102,8 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
    if (thePlotReceiver != NULL)
       return thePlotReceiver->CreateGlPlotWindow(plotName, oldName, drawEcPlane, 
                    drawXyPlane, drawWireFrame, drawAxes, drawGrid, drawSunLine,
-                   overlapPlot, usevpInfo, usepm, numPtsToRedraw);
+                   overlapPlot, usevpInfo, usepm, numPtsToRedraw,
+						 drawStars, drawConstellations, starCount);
    return false;
 }
 

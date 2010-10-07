@@ -735,7 +735,8 @@ bool OpenGlPlot::Initialize()
           (instanceName, mOldName, (mEclipticPlane == "On"), (mXYPlane == "On"),
            (mWireFrame == "On"), (mAxes == "On"), (mGrid == "On"),
            (mSunLine == "On"), (mOverlapPlot == "On"), (mUseInitialView == "On"),
-           (mPerspectiveMode == "On"), mNumPointsToRedraw))
+           (mPerspectiveMode == "On"), mNumPointsToRedraw, 
+			  (mEnableStars == "On"), (mEnableConstellations == "On"), mStarCount))
       {
          #if DBGLVL_OPENGL_INIT
          MessageInterface::ShowMessage

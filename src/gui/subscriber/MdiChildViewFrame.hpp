@@ -71,6 +71,9 @@ public:
    virtual void SetAnimationUpdateInterval(Integer value);
    virtual void SetAnimationFrameIncrement(Integer value);
    virtual void SetDrawWireFrame(bool flag);
+	virtual void SetDrawStars(bool flag);
+	virtual void SetDrawConstellations(bool flag);
+	virtual void SetStarCount(int count);
    virtual void SetDrawXyPlane(bool flag);
    virtual void SetDrawEcPlane(bool flag);
    virtual void SetDrawSunLine(bool flag);

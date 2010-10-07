@@ -49,10 +49,11 @@
 // Return value: 1 if the object loaded correctly, 0 otherwise (char)
 
 char Load3DS(ModelObject *p_object, const wxString &p_filename){
-   int i, chunk; // Index
+   int i, chunk = 0; // Index
    int vert_index[MAX_LISTS]; // The starting index of a particular list of vertices
    int poly_index[MAX_LISTS]; // The starting index of a particular list of polygons
-   int vert_list = 0, poly_list = 0, uv_list = 0, map_list = 0;
+   int vert_list = 0, poly_list = 0, map_list = 0;
+	int index = 0;
    FILE *l_file; // File pointer
    unsigned short l_chunk_id; // Chunk id
    unsigned int l_chunk_length; // Chunk length
@@ -184,7 +185,6 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
          // use this information to build our mat_map that maps a polygon index to
          // a material index
          case CHUNK_FACEMAT:
-            int index;
             unsigned short value;
             char str[255];
             i = 0;
@@ -201,7 +201,7 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
                else if (i == p_object->num_materials-1){
                   fprintf(stdout, "Material %s not found!\n", str);
                   index = -1;
-                  //return 0;
+                  return 0;
                }
             }
             fread(&l_qty, sizeof(unsigned short), 1, l_file);
@@ -223,7 +223,7 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
             for (i = p_object->num_vertices-l_qty; i < p_object->num_vertices; i++){
                fread(&p_object->mapcoord[i], sizeof(float), 2, l_file);
 					p_object->mapcoord[i].u = p_object->mapcoord[i].u;
-					p_object->mapcoord[i].v = -p_object->mapcoord[i].v;
+					p_object->mapcoord[i].v = p_object->mapcoord[i].v;
                if (LOAD3DS_DEBUG)
                {
                   fprintf(stdout, "Mapping list u,v: %f,%f\n", p_object->mapcoord[i].u, p_object->mapcoord[i].v);

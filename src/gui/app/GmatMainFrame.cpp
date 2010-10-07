@@ -2284,6 +2284,7 @@ void GmatMainFrame::OnCloseAll(wxCommandEvent& WXUNUSED(event))
    wxSafeYield();
 
    wxToolBar* toolBar = GetToolBar();
+	// enable screen capture when the simulation is run
    toolBar->EnableTool(TOOL_SCREENSHOT, false);
 }
 
@@ -2304,6 +2305,7 @@ void GmatMainFrame::OnCloseActive(wxCommandEvent& WXUNUSED(event))
 
    if (theMdiChildren->GetCount() <= 0){
       wxToolBar* toolBar = GetToolBar();
+		// deactivate screen capture when not running
       toolBar->EnableTool(TOOL_SCREENSHOT, false);
    }
 }

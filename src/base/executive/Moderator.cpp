@@ -9,8 +9,13 @@
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
+// Developed further jointly by NASA/GSFC, Thinking Systems, Inc., and 
+// Schafer Corp., under AFRL NOVA Contract #FA945104D03990003
+//
 // Author: Linda Jun
 // Created: 2003/08/25
+// Modified:  Dunn Idle (added MRPs)
+// Date:      2010/08/24
 //
 /**
  * Implements operations of the GMAT executive.  It is a singleton class -
@@ -5986,6 +5991,9 @@ Integer Moderator::RunMission(Integer sandboxNum)
          {
             status = -3;
             msg = "**** ERROR **** " + msg;
+            // Dunn would like to note that this is the popup message we were
+            // getting that only said "ERROR" and did not provide a message.
+            // We might want to debug that some day.
             MessageInterface::PopupMessage(Gmat::ERROR_, msg + "\n");
          }
       }
@@ -7136,6 +7144,9 @@ void Moderator::CreateDefaultMission()
       CreateParameter("EulerAngle1", "DefaultSC.EulerAngle1");
       CreateParameter("EulerAngle2", "DefaultSC.EulerAngle2");
       CreateParameter("EulerAngle3", "DefaultSC.EulerAngle3");
+      CreateParameter("MRP1", "DefaultSC.MRP1");  // Dunn Added
+      CreateParameter("MRP2", "DefaultSC.MRP2");  // Dunn Added
+      CreateParameter("MRP3", "DefaultSC.MRP3");  // Dunn Added
       CreateParameter("Q1", "DefaultSC.Q1");
       CreateParameter("Q2", "DefaultSC.Q2");
       CreateParameter("Q3", "DefaultSC.Q3");
@@ -7225,7 +7236,11 @@ void Moderator::CreateDefaultMission()
          CreateStopCondition("StopCondition", "StopOnDefaultSC.ElapsedSecs");
       stopOnElapsedSecs->SetStringParameter("EpochVar", "DefaultSC.A1ModJulian");
       stopOnElapsedSecs->SetStringParameter("StopVar", "DefaultSC.ElapsedSecs");
-      stopOnElapsedSecs->SetStringParameter("Goal", "8640.0");
+      // Dunn changed ElapsedSecs for default mission to 12000.0 so the spacecraft
+      // icon will stop on the near side of the earth where we can see it.  This
+      // was required in two locations, so look for it again below.
+      stopOnElapsedSecs->SetStringParameter("Goal", "12000.0");
+      //stopOnElapsedSecs->SetStringParameter("Goal", "8640.0");
       
       #if DEBUG_DEFAULT_MISSION
       MessageInterface::ShowMessage("-->default StopCondition created\n");
@@ -7894,7 +7909,10 @@ StopCondition* Moderator::CreateDefaultStopCondition()
    
    stopCond->SetStringParameter("EpochVar", epochVar);
    stopCond->SetStringParameter("StopVar", stopVar);
-   stopCond->SetStringParameter("Goal", "8640.0");
+   // Dunn changed ElapsedSecs for default mission to 12000.0 so the spacecraft
+   // icon will stop on the near side of the earth where we can see it.
+   stopCond->SetStringParameter("Goal", "12000.0");
+   //stopCond->SetStringParameter("Goal", "8640.0");
    return stopCond;
 }
 

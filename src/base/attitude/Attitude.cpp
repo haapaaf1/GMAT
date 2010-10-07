@@ -2,21 +2,30 @@
 //------------------------------------------------------------------------------
 //                               Attitude
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
-// Author: Wendy C. Shoan/GSFC
-// Created: 2006.03.02
+//
+// **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under MOMS Task
 // Order 124.
+//
+// Developed further jointly by NASA/GSFC, Thinking Systems, Inc., and 
+// Schafer Corp., under AFRL NOVA Contract #FA945104D03990003
+//
+// Author:   Wendy C. Shoan/GSFC
+// Created:  2006.03.02
+// Modified: Dunn Idle/Schafer - Added Modified Rodrigues Parameters
+//                               Cleaned up code, added comments, improved
+//                               variable names for clarity.
+// Date:     2010.08.15 
 //
 /**
  * Class implementation for the Attitude base class.
  * 
  * @note  The attitude is stored and maintained as a direction cosine matrix,
- *        and the angular velocity.
- *        Other representations are computed from that and returned when
- *        requested.
+ *        and the angular velocity.  Other representations are computed from 
+ *        that and returned when requested.
  */
 //------------------------------------------------------------------------------
 
@@ -35,12 +44,10 @@
 //#define DEBUG_ATTITUDE_GET
 //#define DEBUG_ATTITUDE_SET_REAL
 //#define DEBUG_ATTITUDE_SET
-//#define DEBUG_ATT_GET_EULER_ANGLES
 //#define DEBUG_ATTITUDE_READ_ONLY
 //#define DEBUG_EULER_ANGLE_RATES
 //#define DEBUG_TO_DCM
 //#define DEBUG_ATTITUDE_PARAM_TYPE
-//#define DEBUG_ATTITUDE_INIT
 
 //---------------------------------
 // static data
@@ -69,6 +76,9 @@ Attitude::PARAMETER_TEXT[AttitudeParamCount - GmatBaseParamCount] =
    "DCM31",
    "DCM32",
    "DCM33",
+   "MRP1",  // Dunn Added
+   "MRP2",  // Dunn Added
+   "MRP3",  // Dunn Added
    "EulerAngleRate1",
    "EulerAngleRate2",
    "EulerAngleRate3",
@@ -101,6 +111,9 @@ Attitude::PARAMETER_TYPE[AttitudeParamCount - GmatBaseParamCount] =
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE,  // Dunn Added
+   Gmat::REAL_TYPE,  // Dunn Added
+   Gmat::REAL_TYPE,  // Dunn Added
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
@@ -117,6 +130,7 @@ Attitude::OTHER_REP_TEXT[EndOtherReps - 7000] =
    "EulerAngles",            // was "InitialEulerAngles",
    "EulerAngleRates",        // was "InitialEulerAngleRates",
    "Quaternion",             // was "InitialQuaternion",
+   "MRPs",                   // Dunn Added
    "DirectionCosineMatrix",  // was "InitialDirectionCosineMatrix",
    "AngularVelocity",        // was "InitialAngularVelocity",
 };
@@ -129,6 +143,7 @@ Attitude::OTHER_REP_TYPE[EndOtherReps - 7000] =
    Gmat::RVECTOR_TYPE,
    Gmat::RVECTOR_TYPE,
    Gmat::RVECTOR_TYPE,
+   Gmat::RVECTOR_TYPE,  // Dunn Added
    Gmat::RMATRIX_TYPE,
    Gmat::RVECTOR_TYPE,
 };
@@ -192,7 +207,6 @@ Rmatrix33 Attitude::ToCosineMatrix(const Rvector &quat1)
       throw AttitudeException(errmsg.str());
    }
 
-
    Rmatrix33 I3;  // identity matrix, by default
    Rvector3  q1_3(quat1(0), quat1(1), quat1(2));
    Rmatrix33 q_x(     0.0, -q1_3(2),  q1_3(1), 
@@ -221,7 +235,8 @@ Rmatrix33 Attitude::ToCosineMatrix(const Rvector &quat1)
  */
 //------------------------------------------------------------------------------
 Rmatrix33 Attitude::ToCosineMatrix(const Rvector3 &eulerAngles, 
-                                   Integer seq1, Integer seq2, 
+                                   Integer        seq1, 
+                                   Integer        seq2, 
                                    Integer seq3)
 {
    #ifdef DEBUG_TO_DCM
@@ -360,7 +375,8 @@ Rmatrix33 Attitude::ToCosineMatrix(const Rvector3 &eulerAngles,
  */
 //------------------------------------------------------------------------------
 Rmatrix33 Attitude::ToCosineMatrix(const Real *eulerAngles, 
-                                   Integer seq1, Integer seq2, 
+                                   Integer    seq1, 
+                                   Integer    seq2, 
                                    Integer seq3)
 {
    if ((seq1 == 0) | (seq2 == 0) | (seq3 == 0))
@@ -505,7 +521,7 @@ Rvector3 Attitude::ToEulerAngles(const Rvector &quat1, Integer seq1,
 //                           Integer seq2,            Integer seq3)
 //------------------------------------------------------------------------------
  /**
- * Converts the input quaternion to a set of euler angles, using the euler
+ * Converts the input cosine matrix to a set of euler angles, using the euler
  * sequence provided.
  *
  * @param cosMat  the input cosine matrix.
@@ -516,8 +532,10 @@ Rvector3 Attitude::ToEulerAngles(const Rvector &quat1, Integer seq1,
  * @return the euler angles representation (radians) of the input attitude.  
  */
 //------------------------------------------------------------------------------
-Rvector3 Attitude::ToEulerAngles(const Rmatrix33 &cosMat, Integer seq1,
-                                 Integer seq2,            Integer seq3)
+Rvector3 Attitude::ToEulerAngles(const Rmatrix33 &cosMat, 
+                                 Integer         seq1,
+                                 Integer         seq2,            
+                                 Integer         seq3)
 {
    Real theta1, theta2, sin1, cos1;
 
@@ -670,7 +688,7 @@ Rvector Attitude::ToQuaternion(const Rvector3 &eulerAngles,
 //  Rvector   ToQuaternion(const Rmatrix33 &cosMat)             [static]
 //------------------------------------------------------------------------------
  /**
- * Converts the input cosince matrix to a quaternion.
+ * Converts the input cosine matrix to a quaternion.
  *
  * @param cosMat  the input cosine matrix.
  *
@@ -735,6 +753,75 @@ Rvector Attitude::ToQuaternion(const Rmatrix33 &cosMat)
 
    
 //------------------------------------------------------------------------------
+//  Rvector   ToQuaternion(const Rvector3 &MRPs)             [static]
+//------------------------------------------------------------------------------
+//
+// New method written by Dunn
+//
+/**
+* Converts the input Modified Rodriguez Parameters to a quaternion vector.  Note
+* that we are now using the CCSDS definition of quaternions where qc = q4.
+*
+* @param MRPs  the input MRP vector.
+*
+* @return the quaternion representation of the input attitude.  
+*/
+//------------------------------------------------------------------------------
+Rvector Attitude::ToQuaternion(const Rvector3 &MRPs)
+{
+   Real MRP1  = MRPs(0);
+   Real MRP2  = MRPs(1);
+   Real MRP3  = MRPs(2);
+
+   Real PTP   = MRP1*MRP1 + MRP2*MRP2 + MRP3*MRP3;
+
+   Real q1;
+   Real q2; 
+   Real q3; 
+   Real qc;
+
+   // Convert MRPs to Quats Following Formula from Math Spec
+   q1 = 2.0 * MRP1  / ( 1 + PTP );
+   q2 = 2.0 * MRP2  / ( 1 + PTP );
+   q3 = 2.0 * MRP3  / ( 1 + PTP );
+   qc = ( 1 - PTP ) / ( 1 + PTP );
+
+   return (Rvector(4,q1,q2,q3,qc)).Normalize();
+}
+
+//------------------------------------------------------------------------------
+//  Rvector   ToMRPs(const Rvector &quat1)             [static]
+//------------------------------------------------------------------------------
+//
+// New method written by Dunn
+//
+/**
+* Converts the input quaternion vector into the Modified Rodriguez Parameters.
+* Note that we are now using the CCSDS definition of quaternions where qc = q4.
+*
+* @param quat1  the input quaternion
+*
+* @return the MRP representation of the input attitude.  
+*/
+//------------------------------------------------------------------------------
+Rvector3 Attitude::ToMRPs(const Rvector &quat1)
+{
+   Real q1  = quat1(0);
+   Real q2  = quat1(1);
+   Real q3  = quat1(2);
+   Real qc  = quat1(3);
+
+   Real MRP1,MRP2,MRP3;
+
+   // Convert Quats to MRPs Following Formula from Math Spec
+   MRP1 = q1 / ( 1.0 + qc );
+   MRP2 = q2 / ( 1.0 + qc );
+   MRP3 = q3 / ( 1.0 + qc );
+
+   return Rvector3( MRP1, MRP2, MRP3 );
+}
+   
+//------------------------------------------------------------------------------
 //  Rvector3   ToEulerAngleRates(const Rvector3 &angVel,         [static]
 //                               const Rvector3 &eulerAngles,
 //                               Integer seq1, Integer seq2, 
@@ -757,7 +844,8 @@ Rvector Attitude::ToQuaternion(const Rmatrix33 &cosMat)
 //------------------------------------------------------------------------------
 Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel, 
                                      const Rvector3 &eulerAngles,
-                                     Integer seq1, Integer seq2, 
+                                     Integer        seq1, 
+                                     Integer        seq2, 
                                      Integer seq3)
 {
    #ifdef DEBUG_EULER_ANGLE_RATES
@@ -939,7 +1027,8 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
 //------------------------------------------------------------------------------
 Rvector3 Attitude::ToAngularVelocity(const Rvector3 &eulerRates, 
                                      const Rvector3 &eulerAngles,
-                                     Integer seq1, Integer seq2, 
+                                     Integer        seq1, 
+                                     Integer        seq2, 
                                      Integer seq3)
 {
    Real s2 = GmatMathUtil::Sin(eulerAngles(1));
@@ -1098,7 +1187,7 @@ Attitude::Attitude(const std::string &typeStr, const std::string &itsName) :
    epoch                   (0.0),
    refCSName               ("EarthMJ2000Eq"),
    refCS                   (NULL),
-   eulerSequence           ("312"),
+   eulerSequence           ("321"),  // Dunn Changed from 312 to 321
    attitudeTime            (0.0),
    quaternion              (Rvector(4,0.0,0.0,0.0,1.0)),
    attitudeModelName       ("")
@@ -1108,7 +1197,7 @@ Attitude::Attitude(const std::string &typeStr, const std::string &itsName) :
    objectTypeNames.push_back("Attitude");
    
    // push the default sequence to the array
-   unsigned int defSeq[3] = {3, 1, 2};
+   unsigned int defSeq[3] = {3, 2, 1};  // Dunn Changed from 312 to 321
    eulerSequenceArray.push_back(defSeq[0]);
    eulerSequenceArray.push_back(defSeq[1]);
    eulerSequenceArray.push_back(defSeq[2]);
@@ -1133,8 +1222,8 @@ Attitude::Attitude(const Attitude& att) :
    inputAttitudeRateType   (att.inputAttitudeRateType),
    attitudeDisplayType     (att.attitudeDisplayType),
    attitudeRateDisplayType (att.attitudeRateDisplayType),
-   isInitialized           (att.isInitialized),
-   needsReinit             (att.needsReinit),
+   isInitialized           (false),
+   needsReinit             (false),
    eulerSequenceList       (att.eulerSequenceList),
    epoch                   (att.epoch),
    refCSName               (att.refCSName),
@@ -1147,6 +1236,7 @@ Attitude::Attitude(const Attitude& att) :
    angVel                  (att.angVel),
    attitudeTime            (att.attitudeTime),
    quaternion              (att.quaternion),
+   mrps                    (att.mrps),		   // Dunn Added
    eulerAngles             (att.eulerAngles),
    eulerAngleRates         (att.eulerAngleRates),
    attitudeModelName       (att.attitudeModelName)
@@ -1172,8 +1262,8 @@ Attitude& Attitude::operator=(const Attitude& att)
    inputAttitudeRateType   = att.inputAttitudeRateType;
    attitudeDisplayType     = att.attitudeDisplayType;
    attitudeRateDisplayType = att.attitudeRateDisplayType;
-   isInitialized           = att.isInitialized;
-   needsReinit             = att.needsReinit;
+   isInitialized           = false;
+   needsReinit             = false;
    eulerSequenceList       = att.eulerSequenceList;
    epoch                   = att.epoch;
    refCSName               = att.refCSName;
@@ -1186,6 +1276,7 @@ Attitude& Attitude::operator=(const Attitude& att)
    angVel                  = att.angVel;
    attitudeTime            = att.attitudeTime;
    quaternion              = att.quaternion;
+   mrps                    = att.mrps;			// Dunn Added
    eulerAngles             = att.eulerAngles;
    eulerAngleRates         = att.eulerAngleRates;
    attitudeModelName       = att.attitudeModelName;
@@ -1231,9 +1322,8 @@ bool Attitude::Initialize()
    attEx             += typeName + "\"";
    if (!refCS) throw AttitudeException(attEx);
     
-   // compute cosine matrix and angular velocity from inputs and
-   // synchronize all the values at the epoch time; DCM and angVel are kept up-to-date
-
+   // compute cosine matrix and angular velocity from inputs and synchronize all 
+   // the values at the epoch time; DCM and angVel are kept up-to-date
    switch (inputAttitudeType)
    {
       case GmatAttitude::QUATERNION_TYPE:
@@ -1243,10 +1333,15 @@ bool Attitude::Initialize()
       case GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE: 
          ValidateCosineMatrix(cosMat);
          break;
+      // Dunn added case below
+      case GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE: 
+         ValidateMRPs(mrps);
+         quaternion = Attitude::ToQuaternion(mrps);
+         cosMat = Attitude::ToCosineMatrix(quaternion);
+         break;
       case GmatAttitude::EULER_ANGLES_AND_SEQUENCE_TYPE:
          ValidateEulerSequence(eulerSequence);
-         cosMat = Attitude::ToCosineMatrix(
-                            eulerAngles, 
+         cosMat = Attitude::ToCosineMatrix(eulerAngles, 
                             (Integer) eulerSequenceArray.at(0),
                             (Integer) eulerSequenceArray.at(1), 
                             (Integer) eulerSequenceArray.at(2));
@@ -1261,9 +1356,7 @@ bool Attitude::Initialize()
          break;
       case GmatAttitude::EULER_ANGLE_RATES_TYPE:
          ValidateEulerSequence(eulerSequence);
-         angVel = Attitude::ToAngularVelocity(
-                            eulerAngleRates, 
-                            eulerAngles, 
+         angVel = Attitude::ToAngularVelocity(eulerAngleRates, eulerAngles, 
                             (Integer) eulerSequenceArray.at(0), 
                             (Integer) eulerSequenceArray.at(1),
                             (Integer) eulerSequenceArray.at(2));
@@ -1539,8 +1632,7 @@ const Rvector3& Attitude::GetEulerAngleRates(Real atTime)
       attitudeTime = atTime;
    }
    eulerAngles       = GetEulerAngles(atTime);
-   eulerAngleRates   = Attitude::ToEulerAngleRates(angVel,
-                       eulerAngles,
+   eulerAngleRates = Attitude::ToEulerAngleRates(angVel,eulerAngles,
                        (Integer) eulerSequenceArray.at(0),
                        (Integer) eulerSequenceArray.at(1),
                        (Integer) eulerSequenceArray.at(2));
@@ -1881,14 +1973,15 @@ bool Attitude::IsParameterReadOnly(const Integer id) const
    MessageInterface::ShowMessage(
    " ....... Attitude::ReadOnly in quaternion section\n");
    #endif
-      if ((id == EULER_ANGLE_1) || (id == EULER_ANGLE_2) ||
-          (id == EULER_ANGLE_3) || (id == DCM_11)        || (id == DCM_12) ||
-          (id == DCM_13)        || (id == DCM_21)        || (id == DCM_22) ||
-          (id == DCM_23)        || (id == DCM_31)        || (id == DCM_32) ||
-          (id == DCM_33))
+      if ((id == EULER_ANGLE_1) || 
+          (id == EULER_ANGLE_2) ||
+          (id == EULER_ANGLE_3) || 
+          (id == MRP_1)         || (id == MRP_2)    || (id == MRP_3)  || // Dunn Added
+          (id == DCM_11)        || (id == DCM_12)   || (id == DCM_13) ||
+          (id == DCM_21)        || (id == DCM_22)   || (id == DCM_23) || 
+          (id == DCM_31)        || (id == DCM_32)   || (id == DCM_33))
          return true;
    }
-
    else if (attitudeDisplayType == "DirectionCosineMatrix")
    {
    #ifdef DEBUG_ATTITUDE_READ_ONLY
@@ -1896,8 +1989,24 @@ bool Attitude::IsParameterReadOnly(const Integer id) const
    " ....... Attitude::ReadOnly in cosMat section\n");
    #endif
       if ((id == Q_1) || (id == Q_2) || (id == Q_3) || (id == Q_4)    ||
+          (id == MRP_1)         || (id == MRP_2)    || (id == MRP_3)  || // Dunn Added
           (id == EULER_ANGLE_1) || (id == EULER_ANGLE_2) ||
           (id == EULER_ANGLE_3))
+         return true;
+   }
+   else if (attitudeDisplayType == "MRPs") // Dunn Added
+   {
+   #ifdef DEBUG_ATTITUDE_READ_ONLY
+         MessageInterface::ShowMessage(
+            " ....... Attitude::ReadOnly in MRPs section\n");
+   #endif
+      if ((id == EULER_ANGLE_1) || 
+          (id == EULER_ANGLE_2) ||
+          (id == EULER_ANGLE_3) || 
+          (id == Q_1) || (id == Q_2) || (id == Q_3) || (id == Q_4)    ||
+          (id == DCM_11)        || (id == DCM_12)   || (id == DCM_13) ||
+          (id == DCM_21)        || (id == DCM_22)   || (id == DCM_23) || 
+          (id == DCM_31)        || (id == DCM_32)   || (id == DCM_33))
          return true;
    }
    else  // "EulerAngles
@@ -1907,6 +2016,7 @@ bool Attitude::IsParameterReadOnly(const Integer id) const
    " ....... Attitude::ReadOnly in euler angles section\n");
    #endif
       if ((id == Q_1) || (id == Q_2) || (id == Q_3) || (id == Q_4)    ||
+          (id == MRP_1)         || (id == MRP_2)    || (id == MRP_3)  || // Dunn Added
           (id == DCM_11)        || (id == DCM_12)   || (id == DCM_13) || 
           (id == DCM_21)        || (id == DCM_22)   || (id == DCM_23) || 
           (id == DCM_31)        || (id == DCM_32)   || (id == DCM_33))
@@ -2021,6 +2131,23 @@ Real Attitude::GetRealParameter(const Integer id) const
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
       return eulerAngles(2) * GmatMathUtil::DEG_PER_RAD;
    }
+   // Dunn Added MRPs Here
+   if (id == MRP_1)
+   {              
+      (const_cast<Attitude*>(this))->UpdateState("MRPs");
+      return mrps(0);
+   }
+   if (id == MRP_2)
+   {              
+      (const_cast<Attitude*>(this))->UpdateState("MRPs");
+      return mrps(1);
+   }
+   if (id == MRP_3)
+   {              
+      (const_cast<Attitude*>(this))->UpdateState("MRPs");
+      return mrps(2);
+   }
+
    // cosMat is always kept up-to-date, after initialization
    if (id == DCM_11)             return cosMat(0,0);
    if (id == DCM_12)             return cosMat(0,1);
@@ -2112,8 +2239,9 @@ Real Attitude::SetRealParameter(const Integer id,
    {
       if (isInitialized)
       {
-         std::string errmsg = "Error: Quaternion must be input as entire vector inside the mission sequence ";
-         errmsg += "to avoid normalization and/or conversion errors.\n";
+         std::string errmsg = "Error: Quaternion must be input as entire vector ";
+         errmsg += "inside the mission sequence to avoid ";
+         errmsg += "normalization and/or conversion errors.\n";
          throw AttitudeException(errmsg);
       }
       // Set the value, but quaternion is not verified or normalized until initialization
@@ -2135,8 +2263,9 @@ Real Attitude::SetRealParameter(const Integer id,
    {
       if (isInitialized)
       {
-         std::string errmsg = "Error: Quaternion must be input as entire vector inside the mission sequence ";
-         errmsg += "to avoid normalization and/or conversion errors.\n";
+         std::string errmsg = "Error: Quaternion must be input as entire vector ";
+         errmsg += "inside the mission sequence to avoid ";
+         errmsg += "normalization and/or conversion errors.\n";
          throw AttitudeException(errmsg);
       }
       // Set the value, but quaternion is not verified or normalized until initialization
@@ -2158,8 +2287,9 @@ Real Attitude::SetRealParameter(const Integer id,
    {
       if (isInitialized)
       {
-         std::string errmsg = "Error: Quaternion must be input as entire vector inside the mission sequence ";
-         errmsg += "to avoid normalization and/or conversion errors.\n";
+         std::string errmsg = "Error: Quaternion must be input as entire vector ";
+         errmsg += "inside the mission sequence to avoid ";
+         errmsg += "normalization and/or conversion errors.\n";
          throw AttitudeException(errmsg);
       }
       // Set the value, but quaternion is not verified or normalized until initialization
@@ -2181,8 +2311,9 @@ Real Attitude::SetRealParameter(const Integer id,
    {
       if (isInitialized)
       {
-         std::string errmsg = "Error: Quaternion must be input as entire vector inside the mission sequence ";
-         errmsg += "to avoid normalization and/or conversion errors.\n";
+         std::string errmsg = "Error: Quaternion must be input as entire vector ";
+                     errmsg += "inside the mission sequence to avoid ";
+                     errmsg += "normalization and/or conversion errors.\n";
          throw AttitudeException(errmsg);
       }
       // Set the value, but quaternion is not verified or normalized until initialization
@@ -2225,7 +2356,8 @@ Real Attitude::SetRealParameter(const Integer id,
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
-         errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", " << value << ", " << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
+         errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", " 
+                << value << ", " << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
          errmsg << ") is near a singularity." << std::endl;
          throw AttitudeException(errmsg.str());
       }
@@ -2235,7 +2367,8 @@ Real Attitude::SetRealParameter(const Integer id,
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
-         errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", " << value << ", " << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
+         errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", " 
+                << value << ", " << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
          errmsg << ") is near a singularity." << std::endl;
          throw AttitudeException(errmsg.str());
       }
@@ -2268,6 +2401,31 @@ Real Attitude::SetRealParameter(const Integer id,
       "   and now euler angles = %.12f   %.12f   %.12f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
       #endif
       return eulerAngles(2) * GmatMathUtil::DEG_PER_RAD;
+   }
+   // Dunn Added MRPs
+   if (id == MRP_1)
+   {
+      (const_cast<Attitude*>(this))->UpdateState("MRPs");
+      mrps(0) = value;
+      inputAttitudeType = GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE;
+      if (isInitialized) needsReinit = true;
+      return mrps(0);
+   }
+   if (id == MRP_2)
+   {
+      (const_cast<Attitude*>(this))->UpdateState("MRPs");
+      mrps(1) = value;
+      inputAttitudeType = GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE;
+      if (isInitialized) needsReinit = true;
+      return mrps(1);
+   }
+   if (id == MRP_3)
+   {
+      (const_cast<Attitude*>(this))->UpdateState("MRPs");
+      mrps(2) = value;
+      inputAttitudeType = GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE;
+      if (isInitialized) needsReinit = true;
+      return mrps(2);
    }
    if (id == DCM_11)
    {
@@ -2345,8 +2503,7 @@ Real Attitude::SetRealParameter(const Integer id,
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
       eulerAngleRates(0) = value * GmatMathUtil::RAD_PER_DEG;
-      angVel          = Attitude::ToAngularVelocity(eulerAngleRates,
-                        eulerAngles,
+      angVel = Attitude::ToAngularVelocity(eulerAngleRates,eulerAngles,
                         eulerSequenceArray.at(0),
                         eulerSequenceArray.at(1),
                         eulerSequenceArray.at(2));
@@ -2358,8 +2515,7 @@ Real Attitude::SetRealParameter(const Integer id,
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
       eulerAngleRates(1) = value * GmatMathUtil::RAD_PER_DEG;
-      angVel          = Attitude::ToAngularVelocity(eulerAngleRates,
-                        eulerAngles,
+      angVel = Attitude::ToAngularVelocity(eulerAngleRates,eulerAngles,
                         eulerSequenceArray.at(0),
                         eulerSequenceArray.at(1),
                         eulerSequenceArray.at(2));
@@ -2371,8 +2527,7 @@ Real Attitude::SetRealParameter(const Integer id,
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
       eulerAngleRates(2) = value * GmatMathUtil::RAD_PER_DEG;
-      angVel          = Attitude::ToAngularVelocity(eulerAngleRates,
-                        eulerAngles,
+      angVel = Attitude::ToAngularVelocity(eulerAngleRates,eulerAngles,
                         eulerSequenceArray.at(0),
                         eulerSequenceArray.at(1),
                         eulerSequenceArray.at(2));
@@ -2504,6 +2659,26 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
       if (isInitialized) needsReinit = true;
       return quaternion(index);
    }
+
+   // Dunn added MRPs
+   if (id == MRPS)
+   {
+      if ((index < 0) || (index > 2))
+      {
+         throw AttitudeException("Error: the MRPs index is out-of-range\n");
+      }
+      mrps(index) = value;
+      inputAttitudeType = GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE;
+      #ifdef DEBUG_ATTITUDE_SET_REAL
+            MessageInterface::ShowMessage(" ... set MRP[%d] = %12.10f\n",
+               index, value);
+            MessageInterface::ShowMessage(" ...     MRP = %s\n",
+               quaternion.ToString().c_str());
+      #endif
+      if (isInitialized) needsReinit = true;
+      return mrps(index);
+   }
+
    if (id == EULER_ANGLE_RATES)
    {
       if ((index < 0) || (index > 2))
@@ -2599,6 +2774,12 @@ const Rvector&    Attitude::GetRvectorParameter(const Integer id) const
       (const_cast<Attitude*>(this))->UpdateState("Quaternion");
       vec4 = quaternion;
       return vec4;
+   }
+   if (id == MRPS) // Dunn Added
+   {     
+      (const_cast<Attitude*>(this))->UpdateState("MRPs");
+      vec3 = mrps;
+      return vec3;
    }
    if (id == EULER_ANGLES)   
    {     
@@ -2718,6 +2899,22 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
       inputAttitudeType = GmatAttitude::QUATERNION_TYPE;
       if (isInitialized) needsReinit = true;
       return quaternion;
+   }
+   if (id == MRPS) // Dunn Added
+   {
+      #ifdef DEBUG_ATTITUDE_SET
+            MessageInterface::ShowMessage("In Attitude::SetRvector, setting MRPs\n");
+      #endif
+      if (sz != 3) throw AttitudeException(
+         "Incorrectly sized Rvector passed in for MRPs.");
+      ValidateMRPs(value);
+      for (i=0;i<3;i++) 
+         mrps(i) = value(i);
+      quaternion = Attitude::ToQuaternion(mrps);
+      cosMat = Attitude::ToCosineMatrix(quaternion);
+      inputAttitudeType = GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE;
+      if (isInitialized) needsReinit = true;
+      return mrps;
    }
    if (id == EULER_ANGLE_RATES)
    {
@@ -2881,8 +3078,7 @@ const Rmatrix&    Attitude::SetRmatrixParameter(const std::string &label,
 std::string Attitude::GetStringParameter(const Integer id) const
 {
    if (id == ATTITUDE_DISPLAY_STATE_TYPE)      return attitudeDisplayType;
-   if (id == ATTITUDE_RATE_DISPLAY_STATE_TYPE)      
-                                               return attitudeRateDisplayType;
+   if (id == ATTITUDE_RATE_DISPLAY_STATE_TYPE) return attitudeRateDisplayType;
    if (id == REFERENCE_COORDINATE_SYSTEM)      return refCSName;
    if (id == EULER_ANGLE_SEQUENCE)             return eulerSequence;
    return GmatBase::GetStringParameter(id);
@@ -2929,12 +3125,12 @@ bool Attitude::SetStringParameter(const Integer id,
    if (id == ATTITUDE_DISPLAY_STATE_TYPE)
    {
       if ((value != "Quaternion") && (value != "DirectionCosineMatrix") &&
-          (value != "EulerAngles"))
+          (value != "EulerAngles") && (value != "MRPs")) // Dunn Added MRPs
       {
          AttitudeException ae;
          ae.SetDetails(errorMessageFormatUnnamed.c_str(),
             value.c_str(), GetParameterText(id).c_str(),
-            "\"Quaternion\" \"DirectionCosineMatrix\" \"EulerAngles\"");
+            "\"Quaternion\" \"DirectionCosineMatrix\" \"EulerAngles\" \"MRPs\""); // Dunn Added MRPs
          throw ae;
       }
       attitudeDisplayType = value;
@@ -2984,9 +3180,9 @@ bool Attitude::SetStringParameter(const Integer id,
       return true;
    }
 
-   // now, handle the array values
+   // now, handle the array values - Dunn added MRPs
    if ((id == QUATERNION) || (id == EULER_ANGLES) || (id == DIRECTION_COSINE_MATRIX) ||
-       (id == ANGULAR_VELOCITY) || (id == EULER_ANGLE_RATES))
+       (id == MRPS) || (id == ANGULAR_VELOCITY) || (id == EULER_ANGLE_RATES))
    {
       SetRealArrayFromString(id, value);
       return true;
@@ -3342,6 +3538,30 @@ bool Attitude::ValidateQuaternion(const Rvector &quat)
    return true;
 }
 
+//------------------------------------------------------------------------------
+//  bool  ValidateMRPs(const Rvector &mrps)
+//------------------------------------------------------------------------------
+/**
+* This method validates the MRPs.
+*
+* @param <quat>  quaternion to validate
+*
+* @return  flag indicating whether or not the input is a valid quaternion
+*
+*/
+//------------------------------------------------------------------------------
+bool Attitude::ValidateMRPs(const Rvector &mrps)
+{
+   // Note from Dunn.  There may be some more qualities of MRPs we can check
+   // here.
+   if (mrps.GetSize() != 3)
+   {
+      throw AttitudeException(
+         "The MRP vector must have 3 elements.\n");
+   }
+   return true;
+}
+
 
 //------------------------------------------------------------------------------
 //  void  UpdateState(const std::string &rep)
@@ -3359,6 +3579,8 @@ void Attitude::UpdateState(const std::string &rep)
    {
       if (inputAttitudeType == GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE)
          quaternion       = Attitude::ToQuaternion(cosMat);
+      else if (inputAttitudeType == GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE)
+         quaternion       = Attitude::ToQuaternion(mrps);  // Dunn Added
       else if (inputAttitudeType == GmatAttitude::EULER_ANGLES_AND_SEQUENCE_TYPE)
          quaternion       = Attitude::ToQuaternion(eulerAngles,
                             (Integer) eulerSequenceArray.at(0),
@@ -3373,6 +3595,12 @@ void Attitude::UpdateState(const std::string &rep)
                                  (Integer) eulerSequenceArray.at(0),
                                  (Integer) eulerSequenceArray.at(1),
                                  (Integer) eulerSequenceArray.at(2));
+      else if (inputAttitudeType == GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE){
+         quaternion       = Attitude::ToQuaternion(mrps);  // Dunn Added
+         eulerAngles = Attitude::ToEulerAngles(quaternion,
+                                               (Integer) eulerSequenceArray.at(0),
+                                               (Integer) eulerSequenceArray.at(1),
+                                               (Integer) eulerSequenceArray.at(2));}
       else if (inputAttitudeType == GmatAttitude::QUATERNION_TYPE)
          eulerAngles = Attitude::ToEulerAngles(quaternion,
                        (Integer) eulerSequenceArray.at(0),
@@ -3384,12 +3612,31 @@ void Attitude::UpdateState(const std::string &rep)
    {
       if (inputAttitudeType == GmatAttitude::QUATERNION_TYPE)
          cosMat = ToCosineMatrix(quaternion);
+      else if (inputAttitudeType == GmatAttitude::MODIFIED_RODRIGUES_PARAMETERS_TYPE){
+         quaternion = Attitude::ToQuaternion(mrps);  // Dunn Added
+         cosMat     = ToCosineMatrix(quaternion);}
       else if (inputAttitudeType == GmatAttitude::EULER_ANGLES_AND_SEQUENCE_TYPE)
          cosMat = ToCosineMatrix(eulerAngles,
                   (Integer) eulerSequenceArray.at(0),
                   (Integer) eulerSequenceArray.at(1),
                   (Integer) eulerSequenceArray.at(2));
       // else it is already the up-to-date DCM (as input OR as kept up-to-date internally)
+   }
+   else if (rep == "MRPs") // Dunn Added
+   {
+      if (inputAttitudeType == GmatAttitude::QUATERNION_TYPE)
+         mrps = ToMRPs(quaternion);
+      else if (inputAttitudeType == GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE){
+         quaternion = Attitude::ToQuaternion(cosMat);
+         mrps       = ToMRPs(quaternion);}
+      else if (inputAttitudeType == GmatAttitude::EULER_ANGLES_AND_SEQUENCE_TYPE){
+         cosMat = ToCosineMatrix(eulerAngles,
+                                 (Integer) eulerSequenceArray.at(0),
+                                 (Integer) eulerSequenceArray.at(1),
+                                 (Integer) eulerSequenceArray.at(2));
+         quaternion = ToQuaternion(cosMat);
+         mrps = ToMRPs(quaternion); }
+
    }
    else if (rep == "EulerAngleRates")
    {

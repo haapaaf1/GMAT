@@ -40,7 +40,8 @@
    {
       QUATERNION_TYPE = 0,
       DIRECTION_COSINE_MATRIX_TYPE,
-      EULER_ANGLES_AND_SEQUENCE_TYPE
+      EULER_ANGLES_AND_SEQUENCE_TYPE,
+      MODIFIED_RODRIGUES_PARAMETERS_TYPE
    };
    
    enum AttitudeRateStateType
@@ -48,7 +49,6 @@
       ANGULAR_VELOCITY_TYPE = 0,
       EULER_ANGLE_RATES_TYPE
    };
-   
  };
  
 /**
@@ -78,6 +78,8 @@ public:
    static Rvector   ToQuaternion(const Rvector3 &eulerAngles, 
                                  Integer seq1, Integer seq2, Integer seq3);
    static Rvector   ToQuaternion(const Rmatrix33 &cosMat);
+   static Rvector   ToQuaternion(const Rvector3 &MRPs);
+   static Rvector3  ToMRPs(const Rvector &quat1);
    
    static Rvector3  ToEulerAngleRates(const Rvector3 &angularVel, 
                                       const Rvector3 &eulerAngles,
@@ -224,6 +226,9 @@ protected:
        DCM_31,
        DCM_32,
        DCM_33,
+       MRP_1,    // Dunn Added
+       MRP_2,
+       MRP_3,
        EULER_ANGLE_RATE_1,
        EULER_ANGLE_RATE_2,
        EULER_ANGLE_RATE_3,
@@ -240,6 +245,7 @@ protected:
        EULER_ANGLES,               // degrees
        EULER_ANGLE_RATES,          // degrees/second
        QUATERNION,
+       MRPS,					   // Dunn Added
        DIRECTION_COSINE_MATRIX,
        ANGULAR_VELOCITY,           // degrees/second
        EndOtherReps
@@ -305,6 +311,8 @@ protected:
    Real      attitudeTime;
    /// the last computed quaternion
    Rvector   quaternion;
+   /// the last computed MRPs - Dunn Added
+   Rvector3  mrps;
    /// the last computed euler angles (radians)
    Rvector3  eulerAngles;
    /// the last computed euler angle rates  (radians/second)
@@ -343,6 +351,7 @@ private:
    bool      ValidateEulerSequence(const std::string &seq);
    bool      ValidateEulerSequence(const UnsignedIntArray &eulAng);
    bool      ValidateQuaternion(const Rvector &quat);
+   bool      ValidateMRPs(const Rvector &mrps);		// Dunn Added
    void      UpdateState(const std::string &rep);
    void      SetRealArrayFromString(Integer id, const std::string &sval);
 };

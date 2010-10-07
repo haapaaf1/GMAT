@@ -27,6 +27,7 @@
 #include "CoordinateConverter.hpp"
 #include "Rvector3.hpp"
 #include "Rvector6.hpp"
+#include "GLStars.hpp"
 
 #include <map>
 
@@ -77,9 +78,9 @@ public:
    void SetAnimationUpdateInterval(int value) { mUpdateInterval = value; }
    void SetAnimationFrameIncrement(int value) { mFrameInc = value; }
    void SetDrawWireFrame(bool flag) { mDrawWireFrame = flag; }
-	void SetDrawStars(bool flag) { }
-	void SetDrawConstellations(bool flag) { }
-	void SetStarCount(int count) { }
+	void SetDrawStars(bool flag) { mDrawStars = flag; }
+	void SetDrawConstellations(bool flag) { mDrawConstellations = flag; }
+	void SetStarCount(int count) { mStarCount = count; }
    void SetDrawXyPlane(bool flag) { mDrawXyPlane = flag; }
    void SetDrawEcPlane(bool flag) { mDrawEcPlane = flag; }
    void SetDrawSunLine(bool flag) { mDrawSunLine = flag; }
@@ -180,6 +181,13 @@ private:
    static const Real RADIUS_ZOOM_RATIO;// = 2.2;
    static const Real DEFAULT_DIST;// = 30000.0;
    static const int UNKNOWN_OBJ_ID;// = -999;
+   
+	// stars
+   GLStars *mStars;
+	// star options
+	int mStarCount;
+	bool mDrawStars;
+	bool mDrawConstellations;
 
    wxGLContext *theContext;
    
@@ -348,7 +356,10 @@ private:
    
    // earth
    float mEarthRadius;
-   
+
+	// Matrices for coordinate system tranformations
+	Rmatrix mCoordMatrix;
+
    // objects
    wxArrayString mObjectNames;
    wxArrayString mShowObjectNames;

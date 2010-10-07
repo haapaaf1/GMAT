@@ -63,10 +63,10 @@ Light::Light(Rvector3 initialPosition, bool isDirectional){
 //
 // pos: The float array into which the position will be placed
 void Light::GetPositionf(float *pos){
-   pos[0] = position[0];
-   pos[1] = position[1];
-   pos[2] = position[2];
-   pos[3] = directional? 0 : 1;
+   pos[0] = (float)position[0];
+   pos[1] = (float)position[1];
+   pos[2] = (float)position[2];
+   pos[3] = directional? 0.0f : 1.0f;
 }
 
 Rvector3 Light::GetPosition(){

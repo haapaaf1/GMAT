@@ -43,7 +43,8 @@ public:
                                   bool drawWireFrame, bool drawAxes, bool drawGrid,
                                   bool drawESLines, bool overlapPlot,
                                   bool usevpInfo, bool usepm,
-                                  Integer numPtsToRedraw);
+                                  Integer numPtsToRedraw,
+											 bool drawStars, bool drawConstellations, Integer starCount);
 
    static void SetViewType(GmatPlot::ViewType view);
    static void SetGlSolarSystem(const std::string &plotName, SolarSystem *ss);

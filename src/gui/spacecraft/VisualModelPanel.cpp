@@ -282,11 +282,11 @@ void VisualModelPanel::Create()
 		new wxTextCtrl(this, ID_SCALE_TEXT, wxT("1.000000"), wxDefaultPosition, wxSize(70, 20), wxTE_PROCESS_ENTER);
 
    // The recentering button
-   wxButton *recenterButton =
+   recenterButton =
       new wxButton(this, ID_RECENTER_BUTTON, wxT("Recenter Model"));
 	recenterButton->SetToolTip(wxT("Automatically center the model on its center mass"));
    // The autoscaling button
-   wxButton *autoscaleButton =
+   autoscaleButton =
 	   new wxButton(this, ID_AUTOSCALE_BUTTON, wxT("Autoscale Model"));
 	autoscaleButton->SetToolTip(wxT("Automatically scale the model to a visible size"));
 
@@ -354,8 +354,59 @@ void VisualModelPanel::Create()
    visSizer->Add(rightSizer, 1, wxGROW | wxALIGN_CENTER, bsize);
 
    InitializeCanvas();
+	if (currentSpacecraft->modelFile == ""){
+		ToggleInterface(false);
+		interfaceEnabled = false;
+	}
+	else
+		interfaceEnabled = true;
    // Set the sizer to the overall sizer
    this->SetSizer( visSizer );
+}
+
+void VisualModelPanel::ToggleInterface(bool enable){
+	if (enable){
+		xRotSlider->Enable();
+		yRotSlider->Enable();
+		zRotSlider->Enable();
+		xRotValueText->Enable();
+		yRotValueText->Enable();
+		zRotValueText->Enable();
+
+		xTranSlider->Enable();
+		yTranSlider->Enable();
+		zTranSlider->Enable();
+		xTranValueText->Enable();
+		yTranValueText->Enable();
+		zTranValueText->Enable();
+
+		scaleSlider->Enable();
+		scaleValueText->Enable();
+
+		autoscaleButton->Enable();
+		recenterButton->Enable();
+	}
+	else{
+		xRotSlider->Disable();
+		yRotSlider->Disable();
+		zRotSlider->Disable();
+		xRotValueText->Disable();
+		yRotValueText->Disable();
+		zRotValueText->Disable();
+
+		xTranSlider->Disable();
+		yTranSlider->Disable();
+		zTranSlider->Disable();
+		xTranValueText->Disable();
+		yTranValueText->Disable();
+		zTranValueText->Disable();
+
+		scaleSlider->Disable();
+		scaleValueText->Disable();
+
+		autoscaleButton->Disable();
+		recenterButton->Disable();	
+	}
 }
 
 void VisualModelPanel::InitializeCanvas(){
@@ -434,6 +485,14 @@ void VisualModelPanel::ResetSliders(){
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnPaint(wxPaintEvent& event){
+	if (interfaceEnabled && currentSpacecraft->modelFile == ""){
+		interfaceEnabled = false;
+		ToggleInterface(false);
+	}
+	if (!interfaceEnabled && currentSpacecraft->modelFile != ""){
+		interfaceEnabled = true;
+		ToggleInterface(true);
+	}
    wxPaintDC(this);
 }
 
@@ -593,6 +652,7 @@ void VisualModelPanel::OnBrowseButton(wxCommandEvent& event){
    modelTextCtrl->ChangeValue(wxT(filename));
 	dataChanged = true;
 	theScPanel->EnableUpdate(true);
+	ToggleInterface(true);
 }
 
 //------------------------------------------------------------------------------

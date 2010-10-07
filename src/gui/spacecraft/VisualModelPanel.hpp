@@ -57,6 +57,7 @@ private:
 
    bool dataChanged;
    bool canClose;
+	bool interfaceEnabled;
    
    wxString modelPath;
    
@@ -106,11 +107,18 @@ private:
 
    // Button for toggling the Earth
    wxButton *showEarthButton;
+
+	// Button that automatically scales the model
+	wxButton *autoscaleButton;
+
+	// Button that automatically centers the model
+	wxButton *recenterButton;
    
    // The spacecraft panel that this panel belongs to
    GmatPanel *theScPanel;
 
    void InitializeCanvas();
+	void ToggleInterface(bool enable);
 
    // IDs for the controls and the menu commands
    enum

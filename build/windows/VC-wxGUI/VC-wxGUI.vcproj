@@ -4325,6 +4325,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\src\gui\rendering\GLStars.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\rendering\GLStars.hpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\src\gui\rendering\GmatOpenGLSupport.cpp"
 						>
 					</File>

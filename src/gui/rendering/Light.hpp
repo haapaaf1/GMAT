@@ -1,4 +1,3 @@
-//$Id$
 //------------------------------------------------------------------------------
 //                              Light
 //------------------------------------------------------------------------------
@@ -15,7 +14,6 @@
 #ifndef _LIGHT_H
 #define _LIGHT_H
 
-#include "GmatAppData.hpp"   // for defines needed to compile on Mac
 #include "Rvector3.hpp"
 
 #include "gmatwxdefs.hpp"    // Makes Mac happier to see this
@@ -56,4 +54,4 @@ public:
    void SetPosition(float x, float y, float z);
 };
 
-#endif // _LIGHT_H
+#endif
