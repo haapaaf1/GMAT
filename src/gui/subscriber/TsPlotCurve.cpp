@@ -38,7 +38,7 @@ TsPlotCurve::TsPlotCurve(int offsetY, double startY, double endY,
    useMarkers        (false),
    currentMarkerStyle(unsetMarker),
    markerSize        (3),
-   showHiLow         (true), //false),
+   showHiLow         (false),
    baseColor         (0xff,0x00,0x00),
    lineWidth         (1),
    lineStyle         (wxSOLID),
@@ -650,7 +650,7 @@ void TsPlotCurve::SetMarkerSize(int newSize)
 
 bool TsPlotCurve::UseHiLow()
 {
-   return true; //showHiLow;
+   return showHiLow;
 }
 
 bool TsPlotCurve::UseHiLow(bool useHiLow)
