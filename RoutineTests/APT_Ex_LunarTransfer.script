@@ -140,7 +140,7 @@ GMAT OGL_EarthMJ2K.UpdatePlotFrequency = 50;
 GMAT OGL_EarthMJ2K.NumPointsToRedraw = 0;
 GMAT OGL_EarthMJ2K.UseInitialView = On;
 
-Create OpenGLPlot OGL_MoonMJ2K;
+Create Enhanced3DView OGL_MoonMJ2K;
 GMAT OGL_MoonMJ2K.Add = {MMSRef, Earth, Luna};
 GMAT OGL_MoonMJ2K.CoordinateSystem = MoonMJ2000Eq;
 GMAT OGL_MoonMJ2K.ViewPointRef = Luna;
@@ -163,7 +163,7 @@ GMAT OGL_MoonMJ2K.UpdatePlotFrequency = 50;
 GMAT OGL_MoonMJ2K.NumPointsToRedraw = 0;
 
 
-Create OpenGLPlot OGL_EarthMoonRot;
+Create OrbitView OGL_EarthMoonRot;
 GMAT OGL_EarthMoonRot.Add = {MMSRef, Earth, Luna};
 GMAT OGL_EarthMoonRot.CoordinateSystem = EarthMoonRot;
 GMAT OGL_EarthMoonRot.ViewPointRef = Luna;

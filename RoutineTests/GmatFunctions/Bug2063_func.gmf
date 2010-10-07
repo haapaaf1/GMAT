@@ -1,0 +1,33 @@
+%Test literals in function
+function [varOutput1, varOutput2, stringOutput1, stringOutput2] =Bug2063_func(varInput1, stringInput1, varInput2 ,stringInput2);
+
+Global Bug2063_output;
+
+Create ReportFile localRf;
+GMAT localRf.Filename = Bug2063_func_output.report
+GMAT localRf.Filename = 'Bug2063_func_output.report'
+
+%%Create Variable varInput2, varOutput1, varOutput2;
+Create Variable varOutput1, varOutput2;
+%%Create String stringInput2, stringOutput1, stringOutput2;
+Create String stringOutput1, stringOutput2;
+
+Create String stringVar;
+stringVar = 'Inside Bug2063_func1, before assignment';
+
+Report Bug2063_output stringVar;
+Report Bug2063_output varInput1 varInput2 stringInput1 stringInput2;
+Report localRf stringVar;
+Report localRf varInput1 varInput2 stringInput1 stringInput2;
+
+stringOutput1 = stringInput1;
+stringOutput2 = stringInput2;
+varOutput1 = varInput2 / 2.0;
+varOutput2 = varInput2;
+
+stringVar = 'Inside Bug2063_func1, after  assignment';
+Report Bug2063_output stringVar;
+Report Bug2063_output varOutput1 varOutput2 stringOutput1 stringOutput2;
+
+Report localRf stringVar;
+Report localRf varOutput1 varOutput2 stringOutput1 stringOutput2;
