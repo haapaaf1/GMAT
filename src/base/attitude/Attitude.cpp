@@ -237,7 +237,7 @@ Rmatrix33 Attitude::ToCosineMatrix(const Rvector &quat1)
 Rmatrix33 Attitude::ToCosineMatrix(const Rvector3 &eulerAngles, 
                                    Integer        seq1, 
                                    Integer        seq2, 
-                                   Integer seq3)
+                                   Integer        seq3)
 {
    #ifdef DEBUG_TO_DCM
    MessageInterface::ShowMessage("ENTERING ToDCM(eulerangles) ... %.12f  %.12f  %.12f\n",
@@ -377,7 +377,7 @@ Rmatrix33 Attitude::ToCosineMatrix(const Rvector3 &eulerAngles,
 Rmatrix33 Attitude::ToCosineMatrix(const Real *eulerAngles, 
                                    Integer    seq1, 
                                    Integer    seq2, 
-                                   Integer seq3)
+                                   Integer    seq3)
 {
    if ((seq1 == 0) | (seq2 == 0) | (seq3 == 0))
       throw AttitudeException(
@@ -679,7 +679,9 @@ Rvector3 Attitude::ToEulerAngles(const Rmatrix33 &cosMat,
  */
 //------------------------------------------------------------------------------
 Rvector Attitude::ToQuaternion(const Rvector3 &eulerAngles, 
-                               Integer seq1, Integer seq2, Integer seq3)
+                               Integer seq1,
+                               Integer seq2,
+                               Integer seq3)
 {
    return ToQuaternion(ToCosineMatrix(eulerAngles, seq1, seq2, seq3));
 }
@@ -846,7 +848,7 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
                                      const Rvector3 &eulerAngles,
                                      Integer        seq1, 
                                      Integer        seq2, 
-                                     Integer seq3)
+                                     Integer        seq3)
 {
    #ifdef DEBUG_EULER_ANGLE_RATES
       MessageInterface::ShowMessage(
@@ -1029,7 +1031,7 @@ Rvector3 Attitude::ToAngularVelocity(const Rvector3 &eulerRates,
                                      const Rvector3 &eulerAngles,
                                      Integer        seq1, 
                                      Integer        seq2, 
-                                     Integer seq3)
+                                     Integer        seq3)
 {
    Real s2 = GmatMathUtil::Sin(eulerAngles(1));
    Real c2 = GmatMathUtil::Cos(eulerAngles(1));
@@ -1356,7 +1358,8 @@ bool Attitude::Initialize()
          break;
       case GmatAttitude::EULER_ANGLE_RATES_TYPE:
          ValidateEulerSequence(eulerSequence);
-         angVel = Attitude::ToAngularVelocity(eulerAngleRates, eulerAngles, 
+         angVel = Attitude::ToAngularVelocity(eulerAngleRates,
+                            eulerAngles,
                             (Integer) eulerSequenceArray.at(0), 
                             (Integer) eulerSequenceArray.at(1),
                             (Integer) eulerSequenceArray.at(2));
@@ -1421,8 +1424,7 @@ void Attitude::SetEpoch(Real toEpoch)
  * @return success flag.  
  */
 //---------------------------------------------------------------------------
-bool Attitude::SetReferenceCoordinateSystemName(
-                            const std::string &refName)
+bool Attitude::SetReferenceCoordinateSystemName(const std::string &refName)
 {
    refCSName     = refName;
    needsReinit   = true;
@@ -1632,10 +1634,11 @@ const Rvector3& Attitude::GetEulerAngleRates(Real atTime)
       attitudeTime = atTime;
    }
    eulerAngles       = GetEulerAngles(atTime);
-   eulerAngleRates = Attitude::ToEulerAngleRates(angVel,eulerAngles,
-                       (Integer) eulerSequenceArray.at(0),
-                       (Integer) eulerSequenceArray.at(1),
-                       (Integer) eulerSequenceArray.at(2));
+   eulerAngleRates = Attitude::ToEulerAngleRates(angVel,
+                               eulerAngles,
+                               (Integer) eulerSequenceArray.at(0),
+                               (Integer) eulerSequenceArray.at(1),
+                               (Integer) eulerSequenceArray.at(2));
    return eulerAngleRates;
 }
 
@@ -1742,7 +1745,7 @@ bool Attitude::RenameRefObject(const Gmat::ObjectType type,
                                
 //------------------------------------------------------------------------------
 //  GmatBase* GetRefObject(const Gmat::ObjectType type,
-//                       const std::string &name)
+//                         const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Returns a pointer to a reference object with the input name. 
@@ -1754,7 +1757,7 @@ bool Attitude::RenameRefObject(const Gmat::ObjectType type,
  */
 //------------------------------------------------------------------------------
 GmatBase* Attitude::GetRefObject(const Gmat::ObjectType type,
-                                 const std::string &name)
+                                 const std::string      &name)
 {
    switch (type)
    {
@@ -1771,7 +1774,7 @@ GmatBase* Attitude::GetRefObject(const Gmat::ObjectType type,
                                     
 //------------------------------------------------------------------------------
 //  bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-//                       const std::string &name)
+//                    const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * Returns a pointer to a reference object with the input name. 
@@ -1783,7 +1786,8 @@ GmatBase* Attitude::GetRefObject(const Gmat::ObjectType type,
  * @return Success flag.
  */
 //------------------------------------------------------------------------------
-bool Attitude::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+bool Attitude::SetRefObject(GmatBase *obj,
+                            const Gmat::ObjectType type,
                             const std::string &name)
 {
    #ifdef DEBUG_REF_SETTING
@@ -2219,7 +2223,7 @@ Real Attitude::GetRealParameter(const std::string &label) const
  */
 //------------------------------------------------------------------------------
 Real Attitude::SetRealParameter(const Integer id,
-                                const Real value)
+                                const Real    value)
 {
    #ifdef DEBUG_ATTITUDE_SET_REAL
    MessageInterface::ShowMessage(
@@ -2429,6 +2433,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_11)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM11", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(0,0) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2437,6 +2449,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_12)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM12", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(0,1) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2445,6 +2465,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_13)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM13", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(0,2) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2453,6 +2481,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_21)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM21", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(1,0) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2461,6 +2497,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_22)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM22", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(1,1) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2469,6 +2513,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_23)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM23", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(1,2) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2477,6 +2529,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_31)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM31", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(2,0) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2485,6 +2545,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_32)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM32", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(2,1) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2493,6 +2561,14 @@ Real Attitude::SetRealParameter(const Integer id,
    }
    if (id == DCM_33)
    {
+      if ((value < -1.0) || (value > 1.0))
+      {
+         AttitudeException ae("");
+         ae.SetDetails(errorMessageFormatUnnamed.c_str(),
+                       GmatStringUtil::ToString(value, 16).c_str(),
+                       "DCM33", "-1.0 <= Real Number <= 1.0");
+         throw ae;
+      }
       (const_cast<Attitude*>(this))->UpdateState("DirectionCosineMatrix");
       cosMat(2,2) = value;
       inputAttitudeType = GmatAttitude::DIRECTION_COSINE_MATRIX_TYPE;
@@ -2575,7 +2651,7 @@ Real Attitude::SetRealParameter(const Integer id,
  */
 //------------------------------------------------------------------------------
 Real Attitude::SetRealParameter(const std::string &label,
-                                const Real value)
+                                const Real        value)
 {
    return SetRealParameter(GetParameterID(label), value);
 }
@@ -2922,7 +2998,8 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
                   "Incorrectly sized Rvector passed in for euler angle rates.");
       for (i=0;i<3;i++) 
          eulerAngleRates(i) = value(i) * GmatMathUtil::RAD_PER_DEG;
-      angVel = Attitude::ToAngularVelocity(eulerAngleRates, eulerAngles, 
+      angVel = Attitude::ToAngularVelocity(eulerAngleRates,
+                         eulerAngles,
                          eulerSequenceArray.at(0),
                          eulerSequenceArray.at(1),
                          eulerSequenceArray.at(2));                         
@@ -2961,7 +3038,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
  */
 //------------------------------------------------------------------------------
 const Rvector& Attitude::SetRvectorParameter(const std::string &label,
-                                             const Rvector &value)
+                                             const Rvector     &value)
 {
    return SetRvectorParameter(GetParameterID(label), value);
 }
@@ -3114,7 +3191,7 @@ std::string Attitude::GetStringParameter(const std::string &label) const
  * @return true if successful; otherwise, false.
  */
 //------------------------------------------------------------------------------
-bool Attitude::SetStringParameter(const Integer id, 
+bool Attitude::SetStringParameter(const Integer     id,
                                   const std::string &value)
 {
    #ifdef DEBUG_ATTITUDE_SET
@@ -3181,8 +3258,8 @@ bool Attitude::SetStringParameter(const Integer id,
    }
 
    // now, handle the array values - Dunn added MRPs
-   if ((id == QUATERNION) || (id == EULER_ANGLES) || (id == DIRECTION_COSINE_MATRIX) ||
-       (id == MRPS) || (id == ANGULAR_VELOCITY) || (id == EULER_ANGLE_RATES))
+   if ((id == QUATERNION) || (id == EULER_ANGLES)     || (id == DIRECTION_COSINE_MATRIX) ||
+       (id == MRPS)       || (id == ANGULAR_VELOCITY) || (id == EULER_ANGLE_RATES))
    {
       SetRealArrayFromString(id, value);
       return true;
@@ -3222,7 +3299,7 @@ bool Attitude::SetStringParameter(const std::string &label,
  */
 //------------------------------------------------------------------------------
 std::string  Attitude::GetStringParameter(const Integer id,
-                                        const Integer index) const
+                                          const Integer index) const
 {
    return GmatBase::GetStringParameter(id, index);
 }
@@ -3241,9 +3318,9 @@ std::string  Attitude::GetStringParameter(const Integer id,
  * @return flag indicating success or failure
  */
 //------------------------------------------------------------------------------
-bool Attitude::SetStringParameter(const Integer id,
-                                        const std::string &value,
-                                        const Integer index)
+bool Attitude::SetStringParameter(const Integer     id,
+                                  const std::string &value,
+                                  const Integer     index)
 {
    return GmatBase::SetStringParameter(id, value, index);
 }
@@ -3299,7 +3376,7 @@ const StringArray&
  *
  */
 //------------------------------------------------------------------------------
-const std::string& Attitude::GetGeneratingString(Gmat::WriteMode mode,
+const std::string& Attitude::GetGeneratingString(Gmat::WriteMode   mode,
                                                  const std::string &prefix,
                                                  const std::string &useName)
 {
@@ -3365,8 +3442,7 @@ const std::string& Attitude::GetGeneratingString(Gmat::WriteMode mode,
  *
  */
 //------------------------------------------------------------------------------
-Rmatrix33 Attitude::EulerAxisAndAngleToDCM(
-                    const Rvector3 &eAxis, Real eAngle)
+Rmatrix33 Attitude::EulerAxisAndAngleToDCM(const Rvector3 &eAxis, Real eAngle)
 {
    Rmatrix33 a_x(      0.0, -eAxis(2),  eAxis(1),
                   eAxis(2),       0.0, -eAxis(0),
@@ -3395,7 +3471,7 @@ Rmatrix33 Attitude::EulerAxisAndAngleToDCM(
  */
 //------------------------------------------------------------------------------
 void Attitude::DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat, 
-                            Rvector3 &eAxis, Real &eAngle)
+                                      Rvector3 &eAxis, Real &eAngle)
 {
    static Real TOL = 1.0E-14;
    Real R12  = cosMat(0,1);
@@ -3433,7 +3509,19 @@ void Attitude::DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat,
 //------------------------------------------------------------------------------
 bool Attitude::ValidateCosineMatrix(const Rmatrix33 &mat)
 {
-if (!mat.IsOrthonormal(DCM_ORTHONORMALITY_TOLERANCE)) //return false;
+   // Check to see that all values meet range checks first
+   bool elementOutOfRange = false;
+   bool notOrthonormal    = false;
+
+   // check for an element out of range
+   for (Integer ii = 0; ii < 3; ii++)
+      for (Integer jj = 0; jj < 3; jj++)
+         if ((mat(ii,jj) < -1.0 || mat(ii,jj) > 1.0)) elementOutOfRange = true;
+
+   // check for orthonormality
+   if (!mat.IsOrthonormal(DCM_ORTHONORMALITY_TOLERANCE)) notOrthonormal = true;
+
+   if (elementOutOfRange || notOrthonormal)
    {
       AttitudeException attex;
       std::ostringstream matS;
@@ -3450,9 +3538,19 @@ if (!mat.IsOrthonormal(DCM_ORTHONORMALITY_TOLERANCE)) //return false;
       errMsg += "\" for field \"" + OTHER_REP_TEXT[DIRECTION_COSINE_MATRIX - OTHER_REPS_OFFSET];
       errMsg += "\" on an object of type \"" + typeName;
       errMsg += "\" is not an allowed value.\n";
-      std::stringstream ortho;
-      ortho << "The allowed values are: [orthogonal matrix]. The tolerance on orthonormality is " << DCM_ORTHONORMALITY_TOLERANCE << ".";
-      errMsg += ortho.str();
+      if (elementOutOfRange)
+      {
+         std::stringstream outofrange;
+         outofrange << "The allowed values are: [-1.0 <= each element <= 1.0].";
+         errMsg += outofrange.str();
+      }
+      else // not orthonormal
+      {
+         std::stringstream ortho;
+         ortho << "The allowed values are: [orthogonal matrix]. The tolerance on orthonormality is "
+               << DCM_ORTHONORMALITY_TOLERANCE << ".";
+         errMsg += ortho.str();
+      }
       attex.SetDetails(errMsg);
       throw attex;
    }
