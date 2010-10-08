@@ -35,6 +35,7 @@
 using namespace GmatMathUtil;
 
 //#define DEBUG_STATE_CONVERTER 1
+//#define DEBUG_STATE_CONVERTER_SQRT
 
 //------------------------------------------------------------------------------
 // static data
@@ -821,6 +822,10 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
    // First, calculate true longitude
    Real X1      = pos * f;
    Real Y1      = pos * g;
+   #ifdef DEBUG_STATE_CONVERTER_SQRT
+      MessageInterface::ShowMessage("About to call Sqrt from CartesianToEquinoctial\n");
+      MessageInterface::ShowMessage("h = %12.10f,  k = %12.10f\n", h, k);
+   #endif
    Real tmpSqrt = Sqrt(1.0 - (h * h) - (k * k));
    Real beta    = 1.0 / (1.0 + tmpSqrt);
    Real cosF    = k + ((1.0 - k*k*beta) * X1 - (h * k * beta * Y1)) /
@@ -860,9 +865,27 @@ Rvector6 StateConverter::EquinoctialToCartesian(const Rvector6& equinoctial, con
    // Adjust true longitude to be between 0 and two-pi
    while (F < 0) F += TWO_PI;
 
-   Real tmpSqrt = Sqrt(1.0 - (h * h) - (k * k));
+   #ifdef DEBUG_STATE_CONVERTER_SQRT
+      MessageInterface::ShowMessage("About to call Sqrt from EquinoctialToCartesian\n");
+      MessageInterface::ShowMessage("h = %12.10f,  k = %12.10f\n", h, k);
+   #endif
+      Real tmpSqrt;
+   try
+   {
+      tmpSqrt = Sqrt(1.0 - (h * h) - (k * k));
+   }
+   catch (UtilityException &ue)
+   {
+      std::string errmsg = "Error converting from Equinoctial to Cartesian.  Message received from Utility is: ";
+      errmsg += ue.GetFullMessage() + "\n";
+      throw UtilityException(errmsg);
+   }
    Real beta    = 1.0 / (1.0 + tmpSqrt);
 
+   #ifdef DEBUG_STATE_CONVERTER_SQRT
+      MessageInterface::ShowMessage("About to call Sqrt from EquinoctialToCartesian (2)\n");
+      MessageInterface::ShowMessage("mu = %12.10f,  sma = %12.10f\n", mu, sma);
+   #endif
    Real n    = Sqrt(mu/(sma * sma * sma));
    Real cosF = Cos(F);
    Real sinF = Sin(F);
