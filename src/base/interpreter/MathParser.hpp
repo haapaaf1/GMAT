@@ -40,7 +40,7 @@ public:
    MathParser& operator=(const MathParser &right);
    virtual ~MathParser();
    
-   bool         IsEquation(const std::string &str);
+   bool         IsEquation(const std::string &str, bool checkMinusSign);
    std::string  FindLowestOperator(const std::string &str, Integer &opIndex,
                                    Integer start = 0);
    MathNode*    Parse(const std::string &str);

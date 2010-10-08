@@ -129,18 +129,21 @@ MathParser::~MathParser()
 
 
 //------------------------------------------------------------------------------
-// bool IsEquation(const std::string &str)
+// bool IsEquation(const std::string &str, bool checkMinusSign)
 //------------------------------------------------------------------------------
 /*
- * Examines if given string is an equation.
+ * Examines if given string is a math equation.
  * Call this method with RHS of assignement.
  *
  * @param str The string to be examined for an equation
+ * @param checkMinusSign Check for leading minus sign.
+ *        Set this flag to true if minus sign is a part of string and is not considered
+ *        math unary operator
  * @return  true if string is an equation, means has math operators and/or functions
  *
  */
 //------------------------------------------------------------------------------
-bool MathParser::IsEquation(const std::string &str)
+bool MathParser::IsEquation(const std::string &str, bool checkMinusSign)
 {
    theEquation = str;
    
@@ -180,13 +183,16 @@ bool MathParser::IsEquation(const std::string &str)
           GetFunctionName(GMAT_FUNCTION, str, left) != "")
       {
          isEq = true;
-         
-         // Check for - sign used as string
-         if (GmatStringUtil::NumberOfOccurrences(str, '-') == 1 &&
-             GmatStringUtil::StartsWith(str, "-") &&
-             GmatStringUtil::IsSingleItem(str))
+
+         if (checkMinusSign)
          {
-            isEq = false;
+            // Check for - sign used as string
+            if (GmatStringUtil::NumberOfOccurrences(str, '-') == 1 &&
+                GmatStringUtil::StartsWith(str, "-") &&
+                GmatStringUtil::IsSingleItem(str))
+            {
+               isEq = false;
+            }
          }
       }
       else
@@ -682,7 +688,7 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
          
          // If input is GmatFunction or math equation, set "" (loj: 2008.08.22)
          // Should we do this here? Just hold off for now
-         if (IsGmatFunction(inputs[i]) || IsEquation(inputs[i]))
+         if (IsGmatFunction(inputs[i]) || IsEquation(inputs[i], false))
          {
             Integer type1, row1, col1;
             node->GetOutputInfo(type1, row1, col1);
@@ -706,7 +712,7 @@ MathNode* MathParser::CreateNode(const std::string &type, const std::string &exp
          //================================================================
          
          // check if input is math expression
-         if (IsGmatFunction(inputs[i]) || IsEquation(inputs[i]))
+         if (IsGmatFunction(inputs[i]) || IsEquation(inputs[i], false))
             throw MathException
                ("*** WARNING *** Currently passing math expression to a "
                 "function is not allowed in \"" + originalEquation + "\"");

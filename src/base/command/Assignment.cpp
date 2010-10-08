@@ -492,7 +492,7 @@ bool Assignment::InterpretAction()
    if (!isRhsString)
    {
       MathParser mp = MathParser();
-      if (mp.IsEquation(rhs))
+      if (mp.IsEquation(rhs, false))
       {
          // Parse RHS if equation
          #ifdef DEBUG_EQUATION

@@ -774,6 +774,10 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    if (acmd->GetMathTree() != NULL)
       isMathTree = true;
    
+   #if DBGLVL_WRAPPERS > 1
+   MessageInterface::ShowMessage("   =====> It is %sa math equation\n", isMathTree ? "" : "not ");
+   #endif
+   
    StringArray parts = GmatStringUtil::SeparateDots(lhs);
    GmatBase *theObj = FindObject(parts[0]);
    

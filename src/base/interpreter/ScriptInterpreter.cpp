@@ -1686,7 +1686,7 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       
       try
       {
-         if (mp.IsEquation(rhs))
+         if (mp.IsEquation(rhs, true))
          {
             #ifdef DEBUG_PARSE
             MessageInterface::ShowMessage("   It is a math equation\n");
