@@ -433,8 +433,15 @@ void FileManager::ReadStartupFile(const std::string &fileName)
              std::string(line) + "\n");
       }
 
-      ss >> name;
-
+      // To fix bug 1916 (LOJ: 2010.10.08)
+      // Since >> uses space as deliminter, we cannot use it.
+      // So use GmatStringUtil::DecomposeBy() instead.
+      //ss >> name;
+      
+      StringArray parts = GmatStringUtil::DecomposeBy(line, "=");
+      name = parts[1];
+      name = GmatStringUtil::Trim(name);
+      
       #ifdef DEBUG_READ_STARTUP_FILE
       MessageInterface::ShowMessage("type=%s, name=%s\n", type.c_str(), name.c_str());
       #endif
