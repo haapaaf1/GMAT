@@ -672,6 +672,7 @@ bool SpaceObject::WasLastStopTriggered(const std::string &stopCondName)
 bool SpaceObject::HasPublished(bool tf)
 {
    hasPublished = tf;
+   return hasPublished;
 }
 
 bool SpaceObject::HasPublished()
