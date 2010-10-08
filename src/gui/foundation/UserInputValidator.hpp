@@ -48,6 +48,10 @@ public:
    
    bool IsValidName(const wxString &name);
    
+   bool CheckRealRange(const std::string &sValue, Real value, const std::string &field,
+                       Real lower, Real upper, bool includeLower = false,
+                       bool includeUpper = false);
+
    wxArrayString ToWxArrayString(const StringArray &array);
    wxString ToWxString(const wxArrayString &names);
    

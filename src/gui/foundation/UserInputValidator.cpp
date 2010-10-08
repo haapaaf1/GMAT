@@ -12,11 +12,13 @@
  */
 //------------------------------------------------------------------------------
 
+#include <sstream>
 #include "UserInputValidator.hpp"
 #include "GmatPanel.hpp"
 #include "GmatDialog.hpp"
 #include "StringUtil.hpp"           // for GmatStringUtil::
 #include "MessageInterface.hpp"
+#include "RealUtilities.hpp"
 
 //------------------------------------------------------------------------------
 // UserInputValidator()
@@ -342,6 +344,45 @@ bool UserInputValidator::IsValidName(const wxString &name)
    }
    
    return true;
+}
+
+//------------------------------------------------------------------------------
+// bool CheckRealRange(Real value, Real lower, Real upper,
+//                     bool includeLower, bool includeUpper)
+//------------------------------------------------------------------------------
+/*
+ * Checks a real number against a lower and upper bound.
+ *
+ *@param   sValue      string representaiton of the real value
+ * @param  value       real value to be checked
+ * @param  lower       lower bound against which to check the value
+ * @param  upper       upper bound against which to check the value
+ * @param includeLower flag indicating whether or not the range check is inclusive of the
+ *                     lower bound
+ * @param includeUpper flag indicating whether or not the range check is inclusive of the
+ *                     upper bound
+ *
+ * @return true if input name is valid, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool UserInputValidator::CheckRealRange(const std::string &sValue,
+                                        Real value,        const std::string &field,
+                                        Real lower,        Real upper,
+                                        bool includeLower, bool includeUpper)
+{
+   if ((value > lower) && (value < upper))                  return true;
+   if (includeLower && GmatMathUtil::IsEqual(value, lower)) return true;
+   if (includeUpper && GmatMathUtil::IsEqual(value, upper)) return true;
+
+   std::stringstream ss("");
+   ss << lower << " <= Real Number <= " << upper;
+   std::string expRange = ss.str();
+   MessageInterface::PopupMessage
+      (Gmat::ERROR_, mMsgFormat.c_str(), sValue.c_str(), field.c_str(),
+       expRange.c_str());
+
+   SetErrorFlag();
+   return false;
 }
 
 
