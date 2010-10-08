@@ -272,14 +272,14 @@ wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGro
    if (config->GetFirstEntry(aKey, dummy))
    {
       if (isFileList)
-         linkLabels.Add(GmatFileUtil::ParseFileName(config->Read(aKey).c_str()));
+         linkLabels.Add(GmatFileUtil::ParseFileName(config->Read(aKey).c_str()).c_str());
       else
          linkLabels.Add(aKey);
       linkURLs.Add(config->Read(aKey));
       while (config->GetNextEntry(aKey, dummy))
       {
          if (isFileList)
-            linkLabels.Add(GmatFileUtil::ParseFileName(config->Read(aKey).c_str()));
+            linkLabels.Add(GmatFileUtil::ParseFileName(config->Read(aKey).c_str()).c_str());
          else
             linkLabels.Add(aKey);
          linkURLs.Add(config->Read(aKey));

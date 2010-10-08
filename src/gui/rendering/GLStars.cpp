@@ -62,7 +62,7 @@ void GLStars::ReadTextStars(){
 	const GLfloat RangeFactor = 0.0;
 
    FileManager *fm = FileManager::Instance();
-	TxtFilename = fm->GetFullPathname("STAR_FILE");
+	TxtFilename = (fm->GetFullPathname("STAR_FILE")).c_str();
 
    // Try opening the file
    wxTextFile StarsFile;
@@ -193,7 +193,7 @@ void GLStars::ReadTextConstellations(){
    int i;
 
    FileManager *fm = FileManager::Instance();
-   TxtFilename = fm->GetFullPathname("CONSTELLATION_FILE");
+   TxtFilename = (fm->GetFullPathname("CONSTELLATION_FILE")).c_str();
    
    // Attempt to open the constellation file
    wxTextFile ConstellationFile;
