@@ -3131,7 +3131,16 @@ bool Spacecraft::TakeAction(const std::string &action,
          MessageInterface::ShowMessage
             (" ... at this point, the state = %s\n", (st.ToString()).c_str());
          #endif
-         SetStateFromRepresentation(stateType, st);
+         try
+         {
+            SetStateFromRepresentation(stateType, st);
+         }
+         catch (BaseException &be)
+         {
+            std::string errmsg = "Error applying coordinate system due to errors in spacecraft state. ";
+            errmsg += be.GetFullMessage() + "\n";
+            throw SpaceObjectException(errmsg);
+         }
 
          #ifdef DEBUG_SPACECRAFT_CS
          MessageInterface::ShowMessage
@@ -5066,6 +5075,9 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
          ("In SC::SetElement, after LookUpLabel, id+ELEMENT1_ID = %d, its "
           "string = \"%s\",  and rep = \"%s\"\n", id+ELEMENT1_ID,
           (GetParameterText(id+ELEMENT1_ID)).c_str(), rep.c_str());
+      MessageInterface::ShowMessage
+         ("In SC::SetElement, after LookUpLabel, its label = \"%s\" and its value = %12.10f\n",
+               label.c_str(), value);
 
    #endif
 
@@ -5076,6 +5088,21 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
       se.SetDetails(errorMessageFormat.c_str(),
                     GmatStringUtil::ToString(value, GetDataPrecision()).c_str(),
                     "Eccentricity", "Real Number != 1.0");
+      throw se;
+   }
+   // Equinoctial elements must be within bounds
+   if (((label == "EquinoctialH") || (label == "EquinoctialK") ||
+       (label == "EquinoctialP") || (label == "EquinoctialQ")) &&
+       ((value < -1.0) || (value > 1.0)))
+   {
+      #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
+         MessageInterface::ShowMessage
+            ("In SC::SetElement, reached where the exception should be thrown!!!!\n");
+      #endif
+      SpaceObjectException se;
+      se.SetDetails(errorMessageFormat.c_str(),
+                    GmatStringUtil::ToString(value, GetDataPrecision()).c_str(),
+                    label.c_str(), "-1.0 <= Real Number <= 1.0");
       throw se;
    }
 
