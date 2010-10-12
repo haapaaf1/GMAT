@@ -2929,7 +2929,18 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
        "firstTimeWriting=%d\n", len, active, isEndOfReceive, runstate, isManeuvering,
        firstTimeWriting);
    if (len > 0)
-      MessageInterface::ShowMessage("   dat[0]=%.15f, dat[1]=%.15f\n", dat[0], dat[1]);
+   {
+      MessageInterface::ShowMessage("   dat[0]=%15f, dat[1]=%15f\n", dat[0], dat[1]);
+      MessageInterface::ShowMessage("   dat[] = [");
+      for (Integer i = 0; i < len; ++i)
+      {
+         MessageInterface::ShowMessage("%15le", dat[i]);
+         if (i == len-1)
+            MessageInterface::ShowMessage("]\n");
+         else
+            MessageInterface::ShowMessage(", ");
+      }
+   }
    #endif
    #if DBGLVL_EPHEMFILE_DATA > 1
    MessageInterface::ShowMessage("   fileName='%s'\n", fileName.c_str());
