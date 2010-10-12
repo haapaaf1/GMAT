@@ -477,10 +477,13 @@ bool Assignment::InterpretAction()
           GmatStringUtil::StartsWith(rhs, "'") || GmatStringUtil::EndsWith(rhs, "'"))
       {
          isRhsString = true;
-         if (currentFunction != NULL &&
-             (!GmatStringUtil::IsEnclosedWith(rhs, "'")))
-            throw CommandException("The string literal \"" + rhs + "\" must be "
-                                   "enclosed with single quotes");
+         
+         // Since FILENAME_TYPE is used for path or filename,
+         // these lines can be comment this out (LOJ: 2010.10.08)
+         //if (currentFunction != NULL &&
+         //    (!GmatStringUtil::IsEnclosedWith(rhs, "'")))
+         //   throw CommandException("The string literal \"" + rhs + "\" must be "
+         //                          "enclosed with single quotes");
       }
    }
    
