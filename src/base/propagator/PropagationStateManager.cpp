@@ -32,12 +32,26 @@
 //#define DEBUG_OBJECT_UPDATES
 
 
+//------------------------------------------------------------------------------
+// PropagationStateManager(Integer size)
+//------------------------------------------------------------------------------
+/**
+ * Default constructor
+ */
+//------------------------------------------------------------------------------
 PropagationStateManager::PropagationStateManager(Integer size) :
    StateManager         (size)
 {
 }
 
 
+//------------------------------------------------------------------------------
+// ~PropagationStateManager()
+//------------------------------------------------------------------------------
+/**
+ * Destructor
+ */
+//------------------------------------------------------------------------------
 PropagationStateManager::~PropagationStateManager()
 {
 //   for (StringArray::iterator i = elements.begin(); i != elements.end(); ++i)
@@ -45,6 +59,15 @@ PropagationStateManager::~PropagationStateManager()
 }
 
 
+//------------------------------------------------------------------------------
+// PropagationStateManager(const PropagationStateManager& psm)
+//------------------------------------------------------------------------------
+/**
+ * Copy constructor
+ *
+ * @param psm The state manager that is copied to the new one
+ */
+//------------------------------------------------------------------------------
 PropagationStateManager::
          PropagationStateManager(const PropagationStateManager& psm) :
    StateManager         (psm)
@@ -52,6 +75,17 @@ PropagationStateManager::
 }
 
 
+//------------------------------------------------------------------------------
+// PropagationStateManager& operator=(const PropagationStateManager& psm)
+//------------------------------------------------------------------------------
+/**
+ * Assignment operator
+ *
+ * @param psm The state manager that is copied to this one
+ *
+ * @return This PSM configured to match psm
+ */
+//------------------------------------------------------------------------------
 PropagationStateManager& 
          PropagationStateManager::operator=(const PropagationStateManager& psm)
 {
@@ -107,6 +141,18 @@ Integer PropagationStateManager::GetCount(Gmat::StateElementId elementType)
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetObject(GmatBase* theObject)
+//------------------------------------------------------------------------------
+/**
+ * Adds an object to the prop state manager
+ *
+ * @param theObject The reference to the object
+ *
+ * @return true on success, false on failure or if the object is already in the
+ *         list
+ */
+//------------------------------------------------------------------------------
 bool PropagationStateManager::SetObject(GmatBase* theObject)
 {
    #ifdef DEBUG_STATE_CONSTRUCTION
@@ -142,12 +188,28 @@ bool PropagationStateManager::SetObject(GmatBase* theObject)
    #ifdef DEBUG_STATE_CONSTRUCTION
       MessageInterface::ShowMessage("Object set; current points to %s\n", 
          current->GetName().c_str());
+      MessageInterface::ShowMessage("Managing %d objects:\n", objects.size());
+      for (UnsignedInt i = 0; i < objects.size(); ++i)
+         MessageInterface::ShowMessage("   %2d: %s\n", i,
+               objects[i]->GetName().c_str());
    #endif
 
    return true;
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetProperty(std::string propName)
+//------------------------------------------------------------------------------
+/**
+ * Identifies a propagation property for the current object
+ *
+ * @param propName The name of the property
+ *
+ * @return true if the property was saved for the current object; false if not
+ *         (or if there is no current object)
+ */
+//------------------------------------------------------------------------------
 bool PropagationStateManager::SetProperty(std::string propName)
 {
    #ifdef DEBUG_STATE_CONSTRUCTION
@@ -181,6 +243,19 @@ bool PropagationStateManager::SetProperty(std::string propName)
 }
 
 
+//------------------------------------------------------------------------------
+// bool SetProperty(std::string propName, Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Identifies a propagation property for an object referenced by index
+ *
+ * @param propName The name of the property
+ * @param index The index of the object that has the property
+ *
+ * @return true if the property was saved for the current object; false if not
+ *         (or if there is no current object)
+ */
+//------------------------------------------------------------------------------
 bool PropagationStateManager::SetProperty(std::string propName, Integer index)
 {
    #ifdef DEBUG_STATE_CONSTRUCTION
@@ -270,10 +345,27 @@ bool PropagationStateManager::SetProperty(std::string propName,
 
 
 
+//------------------------------------------------------------------------------
+// bool BuildState()
+//------------------------------------------------------------------------------
+/**
+ * Collects the data needed and fills in state data
+ *
+ * @return true on success
+ */
+//------------------------------------------------------------------------------
 bool PropagationStateManager::BuildState()
 {
    #ifdef DEBUG_STATE_CONSTRUCTION
       MessageInterface::ShowMessage("Entered BuildState()\n");
+
+      MessageInterface::ShowMessage("StateMap:\n");
+      for (Integer index = 0; index < stateSize; ++index)
+      {
+         MessageInterface::ShowMessage("   %s.%s",
+               stateMap[index]->objectName.c_str(),
+               stateMap[index]->elementName.c_str());
+      }
    #endif
    
    // Determine the size of the propagation state vector
@@ -320,6 +412,16 @@ bool PropagationStateManager::BuildState()
 }
 
 
+//------------------------------------------------------------------------------
+// bool MapObjectsToVector()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves data from the objects that are to be propagated, and sets those
+ * data in the propagation state vector
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool PropagationStateManager::MapObjectsToVector()
 {
    #ifdef DEBUG_OBJECT_UPDATES
@@ -384,6 +486,17 @@ bool PropagationStateManager::MapObjectsToVector()
    return true;
 }
 
+
+//------------------------------------------------------------------------------
+// bool PropagationStateManager::MapVectorToObjects()
+//------------------------------------------------------------------------------
+/**
+ * Sets data from the propagation state vector into the objects that manage
+ * those data
+ *
+ * @return true on success, false on failure
+ */
+//------------------------------------------------------------------------------
 bool PropagationStateManager::MapVectorToObjects()
 {
    #ifdef DEBUG_OBJECT_UPDATES
@@ -434,12 +547,23 @@ bool PropagationStateManager::MapVectorToObjects()
 }
 
 
+//------------------------------------------------------------------------------
+// Integer PropagationStateManager::SortVector()
+//------------------------------------------------------------------------------
+/**
+ * Arranges the propagation state vector for use, and determines the size of the
+ * vector
+ *
+ * @return The size of the state vector
+ */
+//------------------------------------------------------------------------------
 Integer PropagationStateManager::SortVector()
 {
    #ifdef DEBUG_STATE_CONSTRUCTION
       MessageInterface::ShowMessage(
             "Entered PropagationStateManager::SortVector()\n");
    #endif
+
    StringArray *propList;
    std::vector<Integer> order;
    std::vector<Gmat::StateElementId> idList;
@@ -450,14 +574,30 @@ Integer PropagationStateManager::SortVector()
    Gmat::StateElementId id;
    Integer size, loc = 0, val;
    stateSize = 0;
-   
+
+   #ifdef DEBUG_STATE_CONSTRUCTION
+      MessageInterface::ShowMessage("Element list:\n");
+      Integer k = 0;
+      for (std::map<GmatBase*, StringArray*>::iterator i = elements.begin();
+            i != elements.end(); ++i)
+      {
+         current  = i->first;
+         propList = i->second;
+         MessageInterface::ShowMessage("   %d: %s ->\n", ++k,
+               current->GetName().c_str());
+         for (UnsignedInt j = 0; j < propList->size(); ++j)
+         {
+            MessageInterface::ShowMessage("      %s\n", (*propList)[j].c_str());
+         }
+      }
+   #endif
+
    // First build a list of the property IDs and objects, measuring state size 
    // at the same time
-   for (std::map<GmatBase*, StringArray*>::iterator i = elements.begin(); 
-         i != elements.end(); ++i)
+   for (UnsignedInt q = 0; q < objects.size(); ++q)
    {
-      current  = i->first;
-      propList = i->second;
+      current  = objects[q];
+      propList = elements[current];
       
       for (StringArray::iterator j = propList->begin(); 
             j != propList->end(); ++j)
