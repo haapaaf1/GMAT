@@ -55,7 +55,7 @@ Function::PARAMETER_TEXT[FunctionParamCount - GmatBaseParamCount] =
 const Gmat::ParameterType
 Function::PARAMETER_TYPE[FunctionParamCount - GmatBaseParamCount] =
 {
-   Gmat::STRING_TYPE,         // "FunctionPath",
+   Gmat::FILENAME_TYPE,       // "FunctionPath",
    Gmat::STRING_TYPE,         // "FunctionName",
    Gmat::STRINGARRAY_TYPE,    // "Input",
    Gmat::STRINGARRAY_TYPE,    // "Output"
