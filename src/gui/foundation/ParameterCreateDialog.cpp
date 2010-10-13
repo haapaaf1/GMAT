@@ -451,10 +451,6 @@ void ParameterCreateDialog::SaveData()
    Integer mNumCols;
    Integer mNumRows;
 
-   EnableUpdate( mCreateVariableButton->IsEnabled() || 
-                 mCreateArrayButton->IsEnabled() || 
-                 mCreateStringButton->IsEnabled() );
-   
    canClose = true;
    
    #if DEBUG_PARAM_CREATE_SAVE
@@ -508,6 +504,12 @@ void ParameterCreateDialog::SaveData()
          }
          break;
    }
+   if (!canClose) return;
+
+   EnableUpdate( mCreateVariableButton->IsEnabled() || 
+                 mCreateArrayButton->IsEnabled() || 
+                 mCreateStringButton->IsEnabled() );
+   
      
 }
 
