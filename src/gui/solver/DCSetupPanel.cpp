@@ -24,6 +24,7 @@
 #include "DifferentialCorrector.hpp"
 #include "StringUtil.hpp"  // for ToInteger()
 #include "MessageInterface.hpp"
+#include "bitmaps/OpenFolder.xpm"
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -192,7 +193,14 @@ void DCSetupPanel::Setup( wxWindow *parent)
    derivativeMethodArray[2] = "BackwardDifference";
    
    
-   Integer bsize = 2;                      // box size
+    wxBitmap openBitmap = wxBitmap(OpenFolder_xpm);
+    #if __WXMAC__
+    int buttonWidth = 40;
+    #else
+    int buttonWidth = 25;
+    #endif
+
+    Integer bsize = 2;                      // box size
    // 1. Create Options Box:
    wxStaticBoxSizer *optionsStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Options");
    wxFlexGridSizer *grid1 = new wxFlexGridSizer( 2, 0, 0 );
@@ -232,7 +240,8 @@ void DCSetupPanel::Setup( wxWindow *parent)
    reportfileTextCtrl =
       new wxTextCtrl( parent, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(200,-1), 0 );
    
-   browseButton = new wxButton(parent, ID_BUTTON_BROWSE, wxT("Browse"));
+   browseButton = new wxBitmapButton(this, ID_BUTTON_BROWSE, openBitmap, wxDefaultPosition,
+	                            wxSize(buttonWidth, 20));
    
    grid2->Add( showProgressCheckBox, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add( 0, 0, wxALIGN_CENTRE|wxALL, bsize);
@@ -372,7 +381,7 @@ void DCSetupPanel::OnBrowse(wxCommandEvent &event)
    if (fileDialog->ShowModal() == wxID_OK)
    {
       // change reportFile when a new file is chosen
-      wxString filename = fileDialog->GetFilename();
+      wxString filename = fileDialog->GetPath().c_str();
       reportfileTextCtrl->SetValue(filename);
       isTextModified = true;
    }

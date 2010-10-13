@@ -53,7 +53,7 @@ private:
    wxComboBox *styleComboBox;
    wxComboBox *derivativeMethodComboBox;
          
-   wxButton       *browseButton;
+   wxBitmapButton       *browseButton;
    
    wxFileDialog *fileDialog;
 
