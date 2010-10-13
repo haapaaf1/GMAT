@@ -91,6 +91,7 @@ void ForPanel::Setup( wxWindow *parent)
    
    conditionGrid->CreateGrid(1, 4, wxGrid::wxGridSelectCells);
    conditionGrid->SetSelectionMode(wxGrid::wxGridSelectCells);
+   conditionGrid->SetDefaultCellAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
    
    //loj: 03/21/07 conditionGrid->EnableEditing(false);
    
