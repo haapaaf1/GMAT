@@ -67,7 +67,8 @@ SpaceObject::SpaceObject(Gmat::ObjectType typeId, const std::string &typeStr,
    originName        ("Earth"),
    origin            (NULL),
    parmsChanged      (true),
-   hasPublished      (false)
+   hasPublished      (false),
+   hasEphemPropagated(false)
 {
    objectTypes.push_back(Gmat::SPACEOBJECT);
    objectTypeNames.push_back("SpaceObject");
@@ -103,7 +104,8 @@ SpaceObject::SpaceObject(const SpaceObject& so) :
    origin            (so.origin),
    parmsChanged      (true),
    lastStopTriggered (so.lastStopTriggered),
-   hasPublished      (so.hasPublished)
+   hasPublished      (so.hasPublished),
+   hasEphemPropagated(so.hasEphemPropagated)
 {
    j2000Body = so.j2000Body;
 }
@@ -133,6 +135,7 @@ SpaceObject& SpaceObject::operator=(const SpaceObject& so)
    parmsChanged  = true;       // Always update after using assignment
    lastStopTriggered = so.lastStopTriggered;
    hasPublished  = so.hasPublished;
+   hasEphemPropagated = so.hasEphemPropagated;
    return *this;
 }
 
@@ -667,12 +670,46 @@ bool SpaceObject::WasLastStopTriggered(const std::string &stopCondName)
 }
 
 
+//------------------------------------------------------------------------------
+// bool HasEphemPropagated()
+//------------------------------------------------------------------------------
+/**
+ * Queries to see if the object has been propagated using an EphemerisPropagator
+ *
+ * This method is accessed from EphemerisPropagators so that epoch/state data
+ * can be managed by that class of propagators.
+ *
+ * @return true if an ephem propagator has been used, false if not
+ */
+//------------------------------------------------------------------------------
+bool SpaceObject::HasEphemPropagated()
+{
+   return hasEphemPropagated;
+}
+
+
+//------------------------------------------------------------------------------
+// void HasEphemPropagated(bool tf)
+//------------------------------------------------------------------------------
+/**
+ * Tells the object it has been propagated using an EphemerisPropagator.
+ *
+ * This method is accessed from EphemerisPropagators so that epoch/state data
+ * can be managed by that class of propagators.
+ *
+ * @param tf true if an ephem propagator has been used, false if not
+ */
+//------------------------------------------------------------------------------
+void SpaceObject::HasEphemPropagated(bool tf)
+{
+   hasEphemPropagated = tf;
+}
+
 // Start on a fix for bug 648; these methods are not currently used, but are in 
 // place for use when the single step publishing issues are ready to be worked.
-bool SpaceObject::HasPublished(bool tf)
+void SpaceObject::HasPublished(bool tf)
 {
    hasPublished = tf;
-   return hasPublished;
 }
 
 bool SpaceObject::HasPublished()

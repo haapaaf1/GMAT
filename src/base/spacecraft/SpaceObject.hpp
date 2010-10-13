@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              SpaceObject
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -82,12 +82,15 @@ public:
    virtual void SetLastStopTriggered(const std::string &stopCondName);
    virtual bool WasLastStopTriggered(const std::string &stopCondName);
    
+   bool HasEphemPropagated();
+   void HasEphemPropagated(bool tf);
+   
    /** 
     * Start on a fix for bug 648; these methods are not currently used, but
     * are in place for use when the single step publishing issues are ready 
     * to be worked.
     */
-   bool         HasPublished(bool tf);
+   void         HasPublished(bool tf);
    bool         HasPublished();
 
 protected:
@@ -105,6 +108,8 @@ protected:
    StringArray       lastStopTriggered;
    /// Flag indicating if object has published data - not currently used
    bool              hasPublished;
+   /// Flag indicating if the object has been propagated via an ephem
+   bool					hasEphemPropagated;
 
    /// Enumerated parameter IDs   
    enum

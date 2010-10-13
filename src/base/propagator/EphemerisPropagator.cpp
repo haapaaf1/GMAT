@@ -1082,19 +1082,35 @@ bool EphemerisPropagator::Initialize()
                // timeFromEpoch for this case
                initialEpoch = ((SpaceObject*)(propObjects[0]))->GetEpoch();
                timeFromEpoch = 0.0;
+               #ifdef DEBUG_INITIALIZATION
+                  MessageInterface::ShowMessage("From spacecraft epoch = %lf, "
+                        "elapsed time = %lf\n", initialEpoch, timeFromEpoch);
+               #endif
             }
             break;
 
          case FROM_EPHEM:
-            if (ephemStart > 0)
+            if (((SpaceObject*)(propObjects[0]))->HasEphemPropagated())
             {
-               initialEpoch = ephemStart;
+               initialEpoch = ((SpaceObject*)(propObjects[0]))->GetEpoch();
+               timeFromEpoch = 0.0;
             }
+            else
+               if (ephemStart > 0)
+               {
+                  initialEpoch = ephemStart;
+               }
             break;
 
          case FROM_SCRIPT:
          default:
-            initialEpoch = ConvertToRealEpoch(startEpoch, epochFormat);
+            if (((SpaceObject*)(propObjects[0]))->HasEphemPropagated())
+            {
+               initialEpoch = ((SpaceObject*)(propObjects[0]))->GetEpoch();
+               timeFromEpoch = 0.0;
+            }
+            else
+               initialEpoch = ConvertToRealEpoch(startEpoch, epochFormat);
             break;
       }
 
@@ -1144,6 +1160,8 @@ bool EphemerisPropagator::Step(Real dt)
       Real tempStep = ephemStep;
       ephemStep = dt;
       retval = Step();
+      if (retval)
+         ((SpaceObject*)(propObjects[0]))->HasEphemPropagated(true);
       ephemStep = tempStep;
    }
 
