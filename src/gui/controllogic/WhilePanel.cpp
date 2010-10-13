@@ -101,7 +101,7 @@ void WhilePanel::Setup(wxWindow *parent)
         
     conditionGrid->SetColLabelValue(0, _T(""));
     conditionGrid->SetColSize(0, 60);
-    conditionGrid->SetColLabelValue(1, _T("LHS"));
+    conditionGrid->SetColLabelValue(1, _T("Left Hand Side"));
     conditionGrid->SetColSize(1, 165);
     conditionGrid->SetColLabelValue(2, _T("Condition"));
 #ifdef __WXMAC__
@@ -109,7 +109,7 @@ void WhilePanel::Setup(wxWindow *parent)
 #else
     conditionGrid->SetColSize(2, 60);
 #endif
-    conditionGrid->SetColLabelValue(3, _T("RHS"));
+    conditionGrid->SetColLabelValue(3, _T("Right Hand Side"));
     conditionGrid->SetColSize(3, 165);
     conditionGrid->SetCellValue(0, COMMAND_COL, "While");
         
