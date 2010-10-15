@@ -3,12 +3,16 @@ function Bug1441_Gmat2Matlab_SC(SCgregorian, SCmodjulian)
 format long g
 
 %%@todo - figure out how to locate report files without using output/SystemTest subfolder.
-%%        Two reports are generated prior to this function call.
+%%        Two reports are generated prior to this function call. (LOJ: 2010.10.12)
 %%        The main script sends reports to OUTPUT_PATH from the startup file.
-%%cd ('d:/projects/gmat/output/dev');
+%%cd ('c:/projects/gmat/output/dev');
+%% For now GMAT will throw **** ERROR **** Interface Exception Thrown: Error using ==> textscan
+%% Invalid file identifier.  Use fopen to generate a valid file identifier.
+%% We need Get() command in a future build to resolve this issue. 
+%% ex) outPath = Get(OutputPath); cd (outPath);
 
 % Process SC save using Gregorian for DateFormat
-SCgregRptName = 'Bug1441-CheckData2Matlab_SCgreg.report';
+SCgregRptName = 'ZMATLAB_Bug1441-CheckData2Matlab_SCgreg.report';
 
 % Load contents of report file into Matlab as a cell array
 fid1 = fopen([SCgregRptName]);
@@ -33,7 +37,7 @@ fclose(fid1);
 
 
 % Process SC save using Modified Julian for DateFormat
-SCmodJulRptName = 'Bug1441-CheckData2Matlab_SCmodJul.report';
+SCmodJulRptName = 'ZMATLAB_Bug1441-CheckData2Matlab_SCmodJul.report';
 
 % Load contents of report file into Matlab as a cell array
 fid2 = fopen([SCmodJulRptName]);

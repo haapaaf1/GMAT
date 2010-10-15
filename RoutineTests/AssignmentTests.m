@@ -84,12 +84,12 @@ GMAT FuelTank1.Temperature = 20;
 GMAT FuelTank1.RefTemperature = 20;
 GMAT FuelTank1.Volume = 0.75;
 GMAT FuelTank1.FuelDensity = 1260;
-GMAT FuelTank1.PressureRegulated = true;
+GMAT FuelTank1.PressureModel = PressureRegulated;
 
 Create Thruster Thruster1;
-GMAT Thruster1.Element1 = 1;
-GMAT Thruster1.Element2 = 0;
-GMAT Thruster1.Element3 = 0;
+GMAT Thruster1.ThrustDirection1 = 1;
+GMAT Thruster1.ThrustDirection2 = 0;
+GMAT Thruster1.ThrustDirection3 = 0;
 GMAT Thruster1.C1 = 500;
 GMAT Thruster1.C2 = 0;
 GMAT Thruster1.C3 = 0;
@@ -153,7 +153,6 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn DefaultIB;
 GMAT DefaultIB.Origin = Earth;
 GMAT DefaultIB.Axes = VNB;
-GMAT DefaultIB.VectorFormat = Cartesian;
 GMAT DefaultIB.Element1 = 0;
 GMAT DefaultIB.Element2 = 0;
 GMAT DefaultIB.Element3 = 0;
@@ -230,7 +229,7 @@ BeginMissionSequence;
 
 BeginScript
    % Parm = ... tests
-   GMAT Sat2.Cr = 4.5;
+   GMAT Sat2.Cr = 2.0;
    GMAT Sat1.Cd = Sat2.Cr; % This line causes problems with scripts that run after it
    GMAT hwSat1.Cd = array1(1,1);
    GMAT Sat1.DateFormat = string2;

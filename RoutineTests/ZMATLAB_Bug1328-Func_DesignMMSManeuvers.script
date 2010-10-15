@@ -95,7 +95,6 @@ GMAT TwoBodyProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn dV1;
 GMAT dV1.Origin = Earth;
 GMAT dV1.Axes = VNB;
-GMAT dV1.VectorFormat = Cartesian;
 GMAT dV1.Element1 = 1e-007;
 GMAT dV1.Element2 = 1e-006;
 GMAT dV1.Element3 = 1e-006;
@@ -103,7 +102,6 @@ GMAT dV1.Element3 = 1e-006;
 Create ImpulsiveBurn dV2;
 GMAT dV2.Origin = Earth;
 GMAT dV2.Axes = VNB;
-GMAT dV2.VectorFormat = Cartesian;
 GMAT dV2.Element1 = 1e-007;
 GMAT dV2.Element2 = 1e-007;
 GMAT dV2.Element3 = 1e-007; 
@@ -111,7 +109,6 @@ GMAT dV2.Element3 = 1e-007;
 Create ImpulsiveBurn dV3;
 GMAT dV3.Origin = Earth;
 GMAT dV3.Axes = VNB;
-GMAT dV3.VectorFormat = Cartesian;
 GMAT dV3.Element1 = 1e-007;
 GMAT dV3.Element2 = 1e-007;
 GMAT dV3.Element3 = 1e-007;
@@ -119,7 +116,6 @@ GMAT dV3.Element3 = 1e-007;
 Create ImpulsiveBurn dV4;
 GMAT dV4.Origin = Earth;
 GMAT dV4.Axes = VNB;
-GMAT dV4.VectorFormat = Cartesian;
 GMAT dV4.Element1 = 1e-007;
 GMAT dV4.Element2 = 1e-007;
 GMAT dV4.Element3 = 1e-007;
@@ -276,32 +272,32 @@ GMAT EarthView.ShowPlot = true;
 %  This is a plot of the formation quality factor
 Create XYPlot Qvst;
 GMAT Qvst.SolverIterations = Current;
-GMAT Qvst.IndVar = MMS1.ElapsedDays;
-GMAT Qvst.Add = {Q, Point7Line};
-GMAT Qvst.Grid = On;
+GMAT Qvst.XVariable = MMS1.ElapsedDays;
+GMAT Qvst.YVariables = {Q, Point7Line};
+GMAT Qvst.ShowGrid = true;
 GMAT Qvst.ShowPlot = false;
  
 Create XYPlot ECCvst;
 GMAT ECCvst.SolverIterations = Current;
-GMAT ECCvst.IndVar = MMS1.ElapsedDays;
-GMAT ECCvst.Add = {MMS1.ECC};
-GMAT ECCvst.Grid = On;
+GMAT ECCvst.XVariable = MMS1.ElapsedDays;
+GMAT ECCvst.YVariables = {MMS1.ECC};
+GMAT ECCvst.ShowGrid = true;
 GMAT ECCvst.ShowPlot = false;
  
 %  This is a plot of the formation quality factor
 Create XYPlot Qdatavst;
 GMAT Qdatavst.SolverIterations = Current;
-GMAT Qdatavst.IndVar = MMS1.ElapsedDays;
-GMAT Qdatavst.Add = {PercentTime, Q, QMean, Point7Line};
-GMAT Qdatavst.Grid = On;
+GMAT Qdatavst.XVariable = MMS1.ElapsedDays;
+GMAT Qdatavst.YVariables = {PercentTime, Q, QMean, Point7Line};
+GMAT Qdatavst.ShowGrid = true;
 GMAT Qdatavst.ShowPlot = true;
  
 %  This is a plot of the side lengths
 Create XYPlot CartPos;
 GMAT CartPos.SolverIterations = Current;
-GMAT CartPos.IndVar = MMS1.ElapsedDays;
-GMAT CartPos.Add = {side1, side2, side3, side4, side5, side6};
-GMAT CartPos.Grid = On;
+GMAT CartPos.XVariable = MMS1.ElapsedDays;
+GMAT CartPos.YVariables = {side1, side2, side3, side4, side5, side6};
+GMAT CartPos.ShowGrid = true;
 GMAT CartPos.ShowPlot = true;
  
 %  Generic report file for debugging and testing

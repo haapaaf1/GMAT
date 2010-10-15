@@ -186,24 +186,24 @@ GMAT SunProp.MaxStepAttempts = 500;
 Create ImpulsiveBurn TOI;
 GMAT TOI.Axes = VNB;
 GMAT TOI.Origin = Earth;
-GMAT TOI.V    = 2.85;
-GMAT TOI.N    = 0;
-GMAT TOI.B    = 0;
+GMAT TOI.Element1    = 2.85;
+GMAT TOI.Element2    = 0;
+GMAT TOI.Element3    = 0;
 
 Create ImpulsiveBurn MarsTOI;
 GMAT MarsTOI.Axes = VNB;
 GMAT MarsTOI.Origin = Earth;
-GMAT MarsTOI.V      = 0;
+GMAT MarsTOI.Element1      = 0;
 
 Create ImpulsiveBurn MarsMCC;
 GMAT MarsMCC.Axes = VNB;
 GMAT MarsMCC.Origin = Sun;
-GMAT MarsMCC.V      = 0;
+GMAT MarsMCC.Element1      = 0;
 
 Create ImpulsiveBurn MarsBPlane;
 GMAT MarsBPlane.Axes = VNB;
 GMAT MarsBPlane.Origin = Sun;
-GMAT MarsBPlane.V      = 0;
+GMAT MarsBPlane.Element1      = 0;
 
 Create ImpulsiveBurn MarsOI;
 GMAT MarsOI.Axes = VNB;
@@ -338,13 +338,13 @@ GMAT EarthMJ2kview.NumPointsToRedraw = 0;
 
 Create ReportFile MarsReport
 GMAT MarsReport.Filename =  TestEphemMarsBPlane.report;
-GMAT MarsReport.Precision = 16;
+GMAT MarsReport.Precision = 18;
 GMAT MarsReport.WriteHeaders = Off;
-GMAT MarsReport.ColumnWidth = 20;
+GMAT MarsReport.ColumnWidth = 25;
 
 Create EphemerisFile CCSDS_OEM;
 CCSDS_OEM.Spacecraft         = MarsSupply;
-CCSDS_OEM.FileName           = TestEphemMarsBPlane-CCSDS-OEM.eph;
+CCSDS_OEM.Filename           = TestEphemMarsBPlane-CCSDS-OEM.eph;
 CCSDS_OEM.FileFormat         = CCSDS-OEM;
 CCSDS_OEM.EpochFormat        = UTCGregorian;
 CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
@@ -358,7 +358,7 @@ CCSDS_OEM.WriteEphemeris     = true;
 
 Create EphemerisFile SPK;
 GMAT SPK.Spacecraft          = MarsSupply;
-GMAT SPK.FileName            = 'TestEphemMarsBplane-SPK.bsp';
+GMAT SPK.Filename            = 'TestEphemMarsBplane-SPK.bsp';
 GMAT SPK.FileFormat          = SPK;
 GMAT SPK.EpochFormat         = UTCGregorian;
 GMAT SPK.InitialEpoch        = InitialSpacecraftEpoch;
@@ -378,28 +378,34 @@ BeginMissionSequence;
 
 Toggle MarsMJ2KView On;
 
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;
+
 Propagate EarthProp(MarsSupply, {MarsSupply.Periapsis});
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;
+
 Maneuver TOI(MarsSupply);
 
 Propagate EarthProp(MarsSupply, {MarsSupply.ElapsedDays = 25});
-Propagate SunProp(MarsSupply, {MarsSupply.ElapsedDays = 135});
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;
 
-Report MarsReport MarsSupply.A1ModJulian MarsSupply.Mars.ECC;
+Propagate SunProp(MarsSupply, {MarsSupply.ElapsedDays = 135});
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;
+
 
 Target MarsTOIDC;
-   Vary MarsTOIDC(MarsMCC.N = 0, {Perturbation = 0.1, MaxStep = 0.5, Lower = -8, Upper = 8});
+   Vary MarsTOIDC(MarsMCC.Element2 = 0, {Perturbation = 0.1, MaxStep = 0.5, Lower = -8, Upper = 8});
    Maneuver MarsMCC(MarsSupply); 
    Achieve MarsTOIDC(MarsSupply.SunMJ2kEq.INC = 24.677090, {Tolerance = .001});
 EndTarget;
 
-Report MarsReport MarsSupply.A1ModJulian MarsSupply.Mars.ECC;
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;
 
 Target MarsTOIDC;
 
    %  The first initial guess.  Run this and the targeter should converge to what 
    %  appears as the initial guess in the vary commands below, that are commented out.
-   Vary MarsTOIDC(MarsBPlane.V = -0.233833866951, {Perturbation = 0.001, MaxStep = 0.1, Lower = -3, Upper = 3});
-   Vary MarsTOIDC(MarsBPlane.B = 0.668261114346, {Perturbation = 0.001, MaxStep = 0.12, Lower = -3, Upper = 3});
+   Vary MarsTOIDC(MarsBPlane.Element1 = -0.233833866951, {Perturbation = 0.001, MaxStep = 0.1, Lower = -3, Upper = 3});
+   Vary MarsTOIDC(MarsBPlane.Element3 = 0.668261114346, {Perturbation = 0.001, MaxStep = 0.12, Lower = -3, Upper = 3});
 
    Maneuver MarsBPlane(MarsSupply); 
    Propagate SunProp(MarsSupply, {MarsSupply.ElapsedDays = 50});
@@ -410,8 +416,7 @@ Target MarsTOIDC;
 
 EndTarget;
 
-
-Report MarsReport MarsSupply.A1ModJulian MarsSupply.Mars.ECC;
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;
 
 %  When you untarget this targeting loop and run the mission, notice
 %  that the ECC value in the first targeter iteration is 179160.529233.  
@@ -432,6 +437,7 @@ Target MarsTOIDC
 
 EndTarget
 
-Report MarsReport MarsSupply.A1ModJulian MarsSupply.Mars.ECC;
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;
+
 Propagate MarsProp(MarsSupply, {MarsSupply.ElapsedSecs = 60});
-Report MarsReport MarsSupply.A1ModJulian MarsSupply.Mars.ECC;
+Report MarsReport MarsSupply.A1ModJulian MarsSupply.UTCGregorian MarsSupply.X MarsSupply.Mars.ECC;

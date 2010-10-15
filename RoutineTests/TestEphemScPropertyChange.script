@@ -64,7 +64,6 @@ GMAT RK89.StopIfAccuracyIsViolated = false;
 Create ImpulsiveBurn burn1;
 GMAT burn1.Origin = Earth;
 GMAT burn1.Axes = VNB;
-GMAT burn1.VectorFormat = Cartesian;
 GMAT burn1.Element1 = 1.125;
 GMAT burn1.Element2 = -1;
 GMAT burn1.Element3 = 0;
@@ -72,7 +71,6 @@ GMAT burn1.Element3 = 0;
 Create ImpulsiveBurn burn2;
 GMAT burn2.Origin = Earth;
 GMAT burn2.Axes = VNB;
-GMAT burn2.VectorFormat = Cartesian;
 GMAT burn2.Element1 = 1;
 GMAT burn2.Element2 = 1;
 GMAT burn2.Element3 = 0;
@@ -127,13 +125,6 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 %---------- Plots and Reports
 %----------------------------------------
 
-Create XYPlot TimeVsXYZ;
-GMAT TimeVsXYZ.IndVar = Time;
-GMAT TimeVsXYZ.Add = {PosX, PosY, PosZ};
-GMAT TimeVsXYZ.Grid = On;
-GMAT TimeVsXYZ.SolverIterations = None;
-GMAT TimeVsXYZ.ShowPlot = true;
-
 Create ReportFile report;
 GMAT report.Filename = TestEphemScPropertyChange.report;
 GMAT report.Precision = 12;
@@ -149,7 +140,7 @@ GMAT Plot3D.Add = {Sat1};
 GMAT Plot3D.OrbitColor = [ 255 ];
 GMAT Plot3D.CoordinateSystem = EarthMJ2000Eq;
 GMAT Plot3D.ViewPointReference = Earth;
-GMAT Plot3D.ViewPointVector = [ 0 0 30000];
+GMAT Plot3D.ViewPointVector = [ 0 0 50000];
 GMAT Plot3D.ViewDirection = Earth;
 GMAT Plot3D.ViewScaleFactor = 1;
 GMAT Plot3D.FixedFovAngle = 45;
@@ -170,43 +161,9 @@ GMAT Plot3D.UpdatePlotFrequency = 50;
 GMAT Plot3D.NumPointsToRedraw = 0;
 GMAT Plot3D.ShowPlot = true;
 
-Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = Sat1.A1ModJulian;
-GMAT XYPlot1.Add = {Sat1.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
-GMAT XYPlot1.SolverIterations = None;
-GMAT XYPlot1.ShowPlot = true;
-
-Create OpenGLPlot OpenGLPlot1;
-GMAT OpenGLPlot1.Add = {Sat1};
-GMAT OpenGLPlot1.OrbitColor = [ 255 ];
-GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
-GMAT OpenGLPlot1.ViewPointReference = Earth;
-GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000];
-GMAT OpenGLPlot1.ViewDirection = Earth;
-GMAT OpenGLPlot1.ViewScaleFactor = 1;
-GMAT OpenGLPlot1.FixedFovAngle = 45;
-GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
-GMAT OpenGLPlot1.ViewUpAxis = X;
-GMAT OpenGLPlot1.CelestialPlane = Off;
-GMAT OpenGLPlot1.XYPlane = On;
-GMAT OpenGLPlot1.WireFrame = Off;
-GMAT OpenGLPlot1.SolverIterations = None;
-GMAT OpenGLPlot1.Axes = On;
-GMAT OpenGLPlot1.Grid = Off;
-GMAT OpenGLPlot1.SunLine = Off;
-GMAT OpenGLPlot1.UseInitialView = On;
-GMAT OpenGLPlot1.PerspectiveMode = Off;
-GMAT OpenGLPlot1.UseFixedFov = Off;
-GMAT OpenGLPlot1.DataCollectFrequency = 1;
-GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
-GMAT OpenGLPlot1.NumPointsToRedraw = 0;
-GMAT OpenGLPlot1.ShowPlot = true;
-
-
 Create EphemerisFile CCSDS_OEM;
 CCSDS_OEM.Spacecraft         = Sat1;
-CCSDS_OEM.FileName           = TestEphemScPropertyChange-CCSDS-OEM.eph;
+CCSDS_OEM.Filename           = TestEphemScPropertyChange-CCSDS-OEM.eph;
 CCSDS_OEM.FileFormat         = CCSDS-OEM;
 CCSDS_OEM.EpochFormat        = UTCGregorian;
 CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
@@ -238,9 +195,6 @@ SPK.WriteEphemeris           = true;
 
 BeginMissionSequence;
 
-Toggle report On;
-Toggle Plot3D On;
-Toggle TimeVsXYZ On;
 Propagate RK89(Sat1) {Sat1.ElapsedSecs = 48299.134666};
 Maneuver burn1(Sat1);
 Propagate RK89(Sat1) {Sat1.ElapsedSecs = 28650.0};

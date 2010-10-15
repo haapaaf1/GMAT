@@ -1,6 +1,24 @@
 %$Id%
 
+Create Spacecraft DefaultSC;
+
+Create GroundStation theGroundStation;
+GMAT theGroundStation.CentralBody = Earth;
+GMAT theGroundStation.StateType = Spherical;
+GMAT theGroundStation.HorizonReference = Ellipsoid;
+GMAT theGroundStation.Latitude = 35;
+GMAT theGroundStation.Longitude = 250;
+GMAT theGroundStation.Altitude = 0.0037000000002081;
+GMAT theGroundStation.Id = 'StationId';
+
+Create CoordinateSystem gsTopo;
+GMAT gsTopo.Origin = theGroundStation;
+GMAT gsTopo.Axes = MJ2000Eq;
+GMAT gsTopo.UpdateInterval = 60;
+GMAT gsTopo.OverrideOriginInterval = false;
+
 Create Variable var1, var2, var3, var4
+Create Variable lat long height X Y Z;
 
 Create ReportFile rf;
 GMAT rf.Filename = SimpleMathTest.report;
@@ -16,3 +34,15 @@ EndScript
 
 GMAT var4 = var2 / var1;
 Report rf var1 var2 var3 var4;
+
+For lat = -88:5:88;
+   For long = 0:10:360;
+      GMAT theGroundStation.Longitude = long;
+      GMAT theGroundStation.Latitude = lat;
+      GMAT theGroundStation.Altitude = height;
+      GMAT X = -(DefaultSC.gsTopo.X);
+      GMAT Y = -DefaultSC.gsTopo.Y;
+      GMAT Z = -DefaultSC.gsTopo.Z;
+      Report rf X Y Z;
+   EndFor;
+EndFor;

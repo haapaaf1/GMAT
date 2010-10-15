@@ -18,7 +18,7 @@ GMAT SCgregorian.VY = 7.35;
 GMAT SCgregorian.VZ = 1;
 GMAT SCgregorian.DryMass = 746;
 GMAT SCgregorian.Cd = 1.2;
-GMAT SCgregorian.Cr = 2.3;
+GMAT SCgregorian.Cr = 2.0;
 GMAT SCgregorian.DragArea = 67;
 GMAT SCgregorian.SRPArea = 22;
 

@@ -98,7 +98,6 @@ Create LibrationPoint LibDup;
 Create ImpulsiveBurn IBorig;
 GMAT IBorig.Origin = Mars;
 GMAT IBorig.Axes = VNB;
-GMAT IBorig.VectorFormat = Cartesian;
 GMAT IBorig.Element1 = 1;
 GMAT IBorig.Element2 = 2;
 GMAT IBorig.Element3 = 3;
@@ -147,12 +146,13 @@ GMAT OpenGLorig.Add = {SCorig, Sun, Earth};
 GMAT OpenGLorig.ViewUpAxis = X;
 GMAT OpenGLorig.WireFrame = On;
 GMAT OpenGLorig.Grid = On;
+GMAT OpenGLorig.ShowPlot = true;
 
 Create OpenGLPlot OpenGLdup;
 
 Create ReportFile ReportFileOrig;
 GMAT ReportFileOrig.SolverIterations = All;
-GMAT ReportFileOrig.Filename = ReporFileOrig.txt;
+GMAT ReportFileOrig.Filename = 'ReporFileOrig.txt';
 GMAT ReportFileOrig.Precision = 18;
 GMAT ReportFileOrig.Add = {SCorig.A1ModJulian, SCorig.EarthMJ2000Eq.X};
 GMAT ReportFileOrig.WriteHeaders = Off;
@@ -165,9 +165,9 @@ Create ReportFile ReportFileDup;
 
 Create XYPlot XYPlotOrig;
 GMAT XYPlotOrig.SolverIterations = All;
-GMAT XYPlotOrig.IndVar = SCorig.A1ModJulian;
-GMAT XYPlotOrig.Add = {SCorig.EarthMJ2000Eq.Z};
-GMAT XYPlotOrig.Grid = On;
+GMAT XYPlotOrig.XVariable = SCorig.A1ModJulian;
+GMAT XYPlotOrig.YVariables = {SCorig.EarthMJ2000Eq.Z};
+GMAT XYPlotOrig.ShowGrid = true;
 GMAT XYPlotOrig.ShowPlot = true;
 
 Create XYPlot XYPlotDup;
@@ -181,11 +181,11 @@ GMAT MatlabFuncCallOrig.FunctionPath = ./output/SystemTest;
 
 Create MatlabFunction MatlabFuncCallDup;
 
+%%% Commented out assignming GmatFunction since it requires function file (2010.10.08)
+%%%Create GmatFunction GMATFuncCallOrig;
+%%%Create GmatFunction GMATFuncCallDup;
 
-Create GmatFunction GMATFuncCallOrig;
 % Need to change some of the default values
-
-Create GmatFunction GMATFuncCallDup;
 
 %----------------------------------------
 %---------- Mission Sequence
@@ -211,7 +211,8 @@ GMAT OpenGLdup = OpenGLorig;
 GMAT ReportFileDup = ReportFileOrig;
 GMAT XYPlotDup = XYPlotOrig;
 GMAT MatlabFuncCallOrig = MatlabFuncCallDup;
-GMAT GMATFuncCallDup = GMATFuncCallOrig;
+%%% Commented out assignming GmatFunction since it requires function file (2010.10.08)
+%%%GMAT GMATFuncCallDup = GMATFuncCallOrig;
 
 Save SCorig;
 Save SCdup;

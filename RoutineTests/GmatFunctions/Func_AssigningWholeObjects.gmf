@@ -99,7 +99,6 @@ Create LibrationPoint LibDup;
 Create ImpulsiveBurn IBorig;
 GMAT IBorig.Origin = Mars;
 GMAT IBorig.Axes = VNB;
-GMAT IBorig.VectorFormat = Cartesian;
 GMAT IBorig.Element1 = 1;
 GMAT IBorig.Element2 = 2;
 GMAT IBorig.Element3 = 3;
@@ -136,7 +135,8 @@ GMAT CSorig.Axes = MJ2000Eq;
 GMAT CSorig.UpdateInterval = 30;
 GMAT CSorig.OverrideOriginInterval = true;
 
-Create CoordinateSystem CSdup;
+%%%GmatBase Exception Thrown: Cannot initialize NULL axes of CoordinateSystem "CSdup"
+%%%Create CoordinateSystem CSdup;
 
 %----------------------------------------
 %---------- Plots and Reports
@@ -167,9 +167,9 @@ Create ReportFile ReportFileDup;
 
 Create XYPlot XYPlotOrig;
 GMAT XYPlotOrig.SolverIterations = All;
-GMAT XYPlotOrig.IndVar = SCorig.A1ModJulian;
-GMAT XYPlotOrig.Add = {SCorig.EarthMJ2000Eq.Z};
-GMAT XYPlotOrig.Grid = On;
+GMAT XYPlotOrig.XVariable = SCorig.A1ModJulian;
+GMAT XYPlotOrig.YVariables = {SCorig.EarthMJ2000Eq.Z};
+GMAT XYPlotOrig.ShowGrid = true;
 GMAT XYPlotOrig.ShowPlot = true;
 
 Create XYPlot XYPlotDup;
@@ -179,22 +179,22 @@ Create XYPlot XYPlotDup;
 %----------------------------------------
 
 Create MatlabFunction MatlabFuncCallOrig;
-GMAT MatlabFuncCallOrig.FunctionPath = './output/SystemTest';
+GMAT MatlabFuncCallOrig.FunctionPath = ./output/SystemTest;
 
 Create MatlabFunction MatlabFuncCallDup;
 
+%%% Commented out assignming GmatFunction since it requires function file (2010.10.08)
+%%%Create GmatFunction GMATFuncCallOrig;
+%%%Create GmatFunction GMATFuncCallDup;
 
-Create GmatFunction GMATFuncCallOrig;
 % Need to change some of the default values
-
-Create GmatFunction GMATFuncCallDup;
 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
-% Using BeginEndScript forces GMAT to change to command mode
-BeginScript;
-EndScript;
+
+BeginMissionSequence;
+
 
 GMAT SCdup = SCorig;
 GMAT FuelTankDup = FuelTankOrig;
@@ -208,12 +208,14 @@ GMAT IBdup = IBorig;
 GMAT FBdup = FBorig;
 GMAT DCdup = DCorig;
 GMAT SQPdup = SQPorig;
-GMAT CSdup = CSorig;
+%%%GmatBase Exception Thrown: Cannot initialize NULL axes of CoordinateSystem "CSdup"
+%%%GMAT CSdup = CSorig;
 GMAT OpenGLdup = OpenGLorig;
 GMAT ReportFileDup = ReportFileOrig;
 GMAT XYPlotDup = XYPlotOrig;
 GMAT MatlabFuncCallOrig = MatlabFuncCallDup;
-GMAT GMATFuncCallDup = GMATFuncCallOrig;
+%%% Commented out assignming GmatFunction since it requires function file (2010.10.08)
+%%%GMAT GMATFuncCallDup = GMATFuncCallOrig;
 
 Save SCorig;
 Save SCdup;
@@ -245,5 +247,3 @@ Save OpenGLorig;
 Save OpenGLdup;
 Save XYPlotOrig;
 Save XYPlotDup;
-Save MatlabFuncCallOrig;
-Save MatlabFuncCallDup;
