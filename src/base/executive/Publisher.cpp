@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            Publisher
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -644,7 +644,7 @@ Integer Publisher::RegisterPublishedData(GmatBase *provider, Integer id,
    // track of provider's data labels and ids and copies corresponding
    // labels to current data labels before distributing the data in Publish().
    // There was an issue with provider id being kept incrementing if data is
-   // regisgered and published inside a GmatFunction
+   // registered and published inside a GmatFunction
    if (!elements.empty())
    {
       if (iter == providerMap.end())
