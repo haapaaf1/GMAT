@@ -89,18 +89,18 @@ void CoordSysCreateDialog::LoadData()
       originComboBox = mCoordPanel->GetOriginComboBox();
       typeComboBox = mCoordPanel->GetTypeComboBox();
       primaryComboBox = mCoordPanel->GetPrimaryComboBox();
-      formatComboBox = mCoordPanel->GetFormatComboBox();
+//      formatComboBox = mCoordPanel->GetFormatComboBox();
       secondaryComboBox = mCoordPanel->GetSecondaryComboBox();
 
       xComboBox = mCoordPanel->GetXComboBox();
       yComboBox = mCoordPanel->GetYComboBox();
       zComboBox = mCoordPanel->GetZComboBox();
 
-      intervalTextCtrl = mCoordPanel->GetIntervalTextCtrl();
+//      intervalTextCtrl = mCoordPanel->GetIntervalTextCtrl();
 
       mCoordPanel->SetDefaultAxis();
             
-      wxFormatName = formatComboBox->GetValue().Trim();
+//      wxFormatName = formatComboBox->GetValue().Trim();
       mCoordPanel->EnableOptions();
    }
    catch (BaseException &e)
@@ -224,8 +224,9 @@ void CoordSysCreateDialog::OnTextUpdate(wxCommandEvent& event)
       EnableUpdate(true);
    }
    
-   if (mCoordPanel->GetEpochTextCtrl()->IsModified() ||
-       mCoordPanel->GetIntervalTextCtrl()->IsModified())
+   if (mCoordPanel->GetEpochTextCtrl()->IsModified() )
+//      if (mCoordPanel->GetEpochTextCtrl()->IsModified() ||
+//          mCoordPanel->GetIntervalTextCtrl()->IsModified())
    {
       EnableUpdate(true);
       mIsTextModified = true;
@@ -245,10 +246,10 @@ void CoordSysCreateDialog::OnComboBoxChange(wxCommandEvent& event)
    {
       mCoordPanel->EnableOptions();
    }
-   else if (event.GetEventObject() == formatComboBox)
-   {
-      mCoordPanel->ChangeEpoch(wxFormatName);
-   }
+//   else if (event.GetEventObject() == formatComboBox)
+//   {
+//      mCoordPanel->ChangeEpoch(wxFormatName);
+//   }
    
    if (nameTextCtrl->GetValue().Trim() != "")
       EnableUpdate(true);

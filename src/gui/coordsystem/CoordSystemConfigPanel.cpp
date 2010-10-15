@@ -95,12 +95,12 @@ void CoordSystemConfigPanel::LoadData()
    mObject = theCoordSys;
    
    epochTextCtrl = mCoordPanel->GetEpochTextCtrl();
-   intervalTextCtrl = mCoordPanel->GetIntervalTextCtrl();
+//   intervalTextCtrl = mCoordPanel->GetIntervalTextCtrl();
    
    originComboBox = mCoordPanel->GetOriginComboBox();
    typeComboBox = mCoordPanel->GetTypeComboBox();
    primaryComboBox = mCoordPanel->GetPrimaryComboBox();
-   formatComboBox = mCoordPanel->GetFormatComboBox();
+//   formatComboBox = mCoordPanel->GetFormatComboBox();
    secondaryComboBox = mCoordPanel->GetSecondaryComboBox();
    
    xComboBox = mCoordPanel->GetXComboBox();
@@ -246,10 +246,10 @@ void CoordSystemConfigPanel::OnComboUpdate(wxCommandEvent& event)
       mCoordPanel->EnableOptions();
       mObjRefChanged = true;
    }
-   else if (event.GetEventObject() == formatComboBox)
-   {
-      mCoordPanel->ChangeEpoch(mEpochFormat);
-   }
+//   else if (event.GetEventObject() == formatComboBox)
+//   {
+//      mCoordPanel->ChangeEpoch(mEpochFormat);
+//   }
    else if (event.GetEventObject() == primaryComboBox ||
             event.GetEventObject() == secondaryComboBox)
    {
