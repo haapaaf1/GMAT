@@ -136,7 +136,7 @@ BEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
    EVT_MENU(POPUP_ADD_IMPULSIVE_BURN, ResourceTree::OnAddImpulsiveBurn)
    EVT_MENU(POPUP_ADD_FINITE_BURN, ResourceTree::OnAddFiniteBurn)
    EVT_MENU(POPUP_ADD_PROPAGATOR, ResourceTree::OnAddPropagator)
-   EVT_MENU(POPUP_ADD_SPK_PROPAGATOR, ResourceTree::OnAddSPKPropagator)
+//   EVT_MENU(POPUP_ADD_SPK_PROPAGATOR, ResourceTree::OnAddSPKPropagator)
    EVT_MENU(POPUP_ADD_BODY, ResourceTree::OnAddBody)
    EVT_MENU(POPUP_ADD_DIFF_CORR, ResourceTree::OnAddDiffCorr)
    EVT_MENU(POPUP_ADD_SQP, ResourceTree::OnAddSqp)
@@ -1129,19 +1129,19 @@ void ResourceTree::AddDefaultPropagators(wxTreeItemId itemId, bool restartCounte
                  new GmatTreeItemData(wxT(objName), GmatTree::PROPAGATOR));
    };
 
-   int spkSize = 0;
-   #ifdef __USE_SPICE__
-   itemNames = theGuiInterpreter->GetListOfObjects("SPK");
-   spkSize = itemNames.size();
-   for (int i = 0; i<spkSize; i++)
-   {
-      objName = wxString(itemNames[i].c_str());
-      AppendItem(itemId, wxT(objName), GmatTree::ICON_PROPAGATOR, -1,
-                 new GmatTreeItemData(wxT(objName), GmatTree::SPK_PROPAGATOR));
-   };
-   #endif
+//   int spkSize = 0;
+//   #ifdef __USE_SPICE__
+//   itemNames = theGuiInterpreter->GetListOfObjects("SPK");
+//   spkSize = itemNames.size();
+//   for (int i = 0; i<spkSize; i++)
+//   {
+//      objName = wxString(itemNames[i].c_str());
+//      AppendItem(itemId, wxT(objName), GmatTree::ICON_PROPAGATOR, -1,
+//                 new GmatTreeItemData(wxT(objName), GmatTree::SPK_PROPAGATOR));
+//   };
+//   #endif
 
-   if (size > 0 || spkSize > 0)
+   if (size > 0) // || spkSize > 0)
       Expand(itemId);
 }
 
@@ -1892,7 +1892,7 @@ void ResourceTree::OnClone(wxCommandEvent &event)
         (itemType == GmatTree::IMPULSIVE_BURN) ||
         (itemType == GmatTree::FINITE_BURN) ||
         (itemType == GmatTree::PROPAGATOR) ||
-        (itemType == GmatTree::SPK_PROPAGATOR) ||
+//        (itemType == GmatTree::SPK_PROPAGATOR) ||
         (itemType == GmatTree::REPORT_FILE) ||
         (itemType == GmatTree::XY_PLOT) ||
         (itemType == GmatTree::ORBIT_VIEW) ||
@@ -1961,7 +1961,7 @@ void ResourceTree::OnBeginLabelEdit(wxTreeEvent &event)
                            (itemType == GmatTree::VARIABLE_FOLDER));
 
    bool isDefaultItem = ((itemType == GmatTree::PROPAGATOR)       ||
-                         (itemType == GmatTree::SPK_PROPAGATOR)   ||
+//                         (itemType == GmatTree::SPK_PROPAGATOR)   ||
                          (itemType == GmatTree::CELESTIAL_BODY)   ||
                          (itemType == GmatTree::DIFF_CORR)        ||
                          (itemType == GmatTree::REPORT_FILE)      ||
@@ -2422,36 +2422,36 @@ void ResourceTree::OnAddPropagator(wxCommandEvent &event)
 }
 
 
-//------------------------------------------------------------------------------
-// void OnAddSPKPropagator(wxCommandEvent &event)
-//------------------------------------------------------------------------------
-/**
- * Add a SPK propagator to propagator folder
- *
- * @param <event> command event
- */
-//------------------------------------------------------------------------------
-void ResourceTree::OnAddSPKPropagator(wxCommandEvent &event)
-{
-   wxTreeItemId item = GetSelection();
-   std::string newName = theGuiInterpreter->GetNewName("SPKPropagator", 1);
-   GmatBase *obj = theGuiInterpreter->CreateDefaultPropSetup(newName);
-
-   if (obj != NULL)
-   {
-      wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_PROPAGATOR, -1,
-                 new GmatTreeItemData(name, GmatTree::SPK_PROPAGATOR));
-      Expand(item);
-
-      theGuiManager->UpdatePropagator();
-   }
-   else
-   {
-      MessageInterface::ShowMessage
-         ("ResourceTree::OnAddSPKPropagator() propSetup is NULL\n");
-   }
-}
+////------------------------------------------------------------------------------
+//// void OnAddSPKPropagator(wxCommandEvent &event)
+////------------------------------------------------------------------------------
+///**
+// * Add a SPK propagator to propagator folder
+// *
+// * @param <event> command event
+// */
+////------------------------------------------------------------------------------
+//void ResourceTree::OnAddSPKPropagator(wxCommandEvent &event)
+//{
+//   wxTreeItemId item = GetSelection();
+//   std::string newName = theGuiInterpreter->GetNewName("SPKPropagator", 1);
+//   GmatBase *obj = theGuiInterpreter->CreateDefaultPropSetup(newName);
+//
+//   if (obj != NULL)
+//   {
+//      wxString name = newName.c_str();
+//      AppendItem(item, name, GmatTree::ICON_PROPAGATOR, -1,
+//                 new GmatTreeItemData(name, GmatTree::SPK_PROPAGATOR));
+//      Expand(item);
+//
+//      theGuiManager->UpdatePropagator();
+//   }
+//   else
+//   {
+//      MessageInterface::ShowMessage
+//         ("ResourceTree::OnAddSPKPropagator() propSetup is NULL\n");
+//   }
+//}
 
 
 //------------------------------------------------------------------------------
@@ -3930,9 +3930,9 @@ void ResourceTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
       break;
    case GmatTree::PROPAGATOR_FOLDER:
       menu.Append(POPUP_ADD_PROPAGATOR, wxT("Add Propagator"));
-      #ifdef __USE_SPICE__
-      menu.Append(POPUP_ADD_SPK_PROPAGATOR, wxT("Add SPK Propagator"));
-      #endif
+//      #ifdef __USE_SPICE__
+//      menu.Append(POPUP_ADD_SPK_PROPAGATOR, wxT("Add SPK Propagator"));
+//      #endif
       break;
    case GmatTree::BOUNDARY_SOLVER_FOLDER:
       menu.Append(POPUP_ADD_BOUNDARY_SOLVER, wxT("Add"), CreatePopupMenu(itemType));
@@ -4290,7 +4290,7 @@ Gmat::ObjectType ResourceTree::GetObjectType(GmatTree::ItemType itemType)
       objType = Gmat::FINITE_BURN;
       break;
    case GmatTree::PROPAGATOR:
-   case GmatTree::SPK_PROPAGATOR:
+//   case GmatTree::SPK_PROPAGATOR:
       objType = Gmat::PROP_SETUP;
       break;
    case GmatTree::DIFF_CORR:
@@ -4355,7 +4355,7 @@ wxTreeItemId ResourceTree::GetTreeItemId(GmatTree::ItemType itemType)
    case GmatTree::FINITE_BURN:
       return mBurnItem;
    case GmatTree::PROPAGATOR:
-   case GmatTree::SPK_PROPAGATOR:
+//   case GmatTree::SPK_PROPAGATOR:
       return mPropagatorItem;
    case GmatTree::DIFF_CORR:
       return mBoundarySolverItem;
@@ -4411,7 +4411,7 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
    case GmatTree::FINITE_BURN:
       return GmatTree::ICON_BURN;
    case GmatTree::PROPAGATOR:
-   case GmatTree::SPK_PROPAGATOR:
+//   case GmatTree::SPK_PROPAGATOR:
       return GmatTree::ICON_PROPAGATOR;
    case GmatTree::REPORT_FILE:
       return GmatTree::ICON_REPORT_FILE;

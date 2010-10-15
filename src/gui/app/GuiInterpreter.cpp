@@ -400,6 +400,10 @@ GmatBase* GuiInterpreter::CreateDefaultPropSetup(const std::string &name)
    return (GmatBase*)theModerator->CreateDefaultPropSetup(name);
 }
 
+GmatBase* GuiInterpreter::CreateNewODEModel(const std::string &name)
+{
+   return theModerator->CreateODEModel("ODEModel", name);
+}
 
 //------------------------------------------------------------------------------
 // CoordinateSystem* GetInternalCoordinateSystem()

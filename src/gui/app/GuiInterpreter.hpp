@@ -76,6 +76,7 @@ public:
                                 bool createDefault = true);
    
    GmatBase* CreateDefaultPropSetup(const std::string &name);
+   GmatBase* CreateNewODEModel(const std::string &name);
    
    // Planetary source
    const StringArray& GetPlanetarySourceTypes();

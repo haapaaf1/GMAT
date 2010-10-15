@@ -2433,9 +2433,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::PROPAGATOR:
       sizer->Add(new PropagationConfigPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
-   case GmatTree::SPK_PROPAGATOR:
-      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
-      break;
+//   case GmatTree::SPK_PROPAGATOR:
+//      sizer->Add(new GmatBaseSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
+//      break;
    case GmatTree::DIFF_CORR:
       sizer->Add(new DCSetupPanel(scrolledWin, name), 0, wxGROW|wxALL, 0);
       break;
