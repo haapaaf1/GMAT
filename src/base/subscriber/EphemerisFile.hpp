@@ -125,6 +125,9 @@ protected:
    /// for propagator change
    std::string prevPropName;
    std::string currPropName;
+   /// for comments
+   std::string currComments;
+   
    /// for meta data
    std::string metaDataStartStr;
    std::string metaDataStopStr;
@@ -158,6 +161,7 @@ protected:
    bool        writeDataInDataCS;
    bool        processingLargeStep;
    bool        spkWriteFailed;
+   bool        writeCommentAfterData;
    
    Gmat::RunState prevRunState;
    
@@ -198,9 +202,9 @@ protected:
    bool         CheckInitialAndFinalEpoch();
    void         HandleCcsdsOrbitData(bool writeData);
    void         HandleSpkOrbitData(bool writeData);
-
+   
    // Interpolation
-   void         RestartInterpolation(const std::string &comments = "");
+   void         RestartInterpolation(const std::string &comments = "", bool writeAfterData = true);
    bool         IsTimeToWrite(Real epochInSecs, const Real state[6]);
    void         WriteOrbit(Real reqEpochInSecs, const Real state[6]);
    void         WriteOrbitAt(Real reqEpochInSecs, const Real state[6]);
@@ -258,7 +262,7 @@ protected:
                              Real outState[6]);
    
    // for time formatting
-   std::string  ToUtcGregorian(Real epoch, bool inDays = false, Integer format = 1);
+   std::string  ToUtcGregorian(Real epoch, bool inDays = false, Integer format = 2);
    
    // for debugging
    void         DebugWriteTime(const std::string &msg, Real epoch, bool inDays = false,
