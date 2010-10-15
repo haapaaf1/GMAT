@@ -532,7 +532,7 @@ void PropagationConfigPanel::Create()
    magfSizer->Add( magneticOrderTextCtrl, 0, wxALIGN_CENTRE|wxALL, bsize);
    magfSizer->Add( theMagModelSearchButton, 0, wxALIGN_CENTRE|wxALL, bsize);
 
-   GmatStaticBoxSizer *magfStaticSizer =
+   magfStaticSizer =
       new GmatStaticBoxSizer(wxVERTICAL, this, "Magnetic Field");
    magfStaticSizer->Add( magfSizer, 0, wxALIGN_LEFT|wxALL, bsize);
 
@@ -888,7 +888,7 @@ void PropagationConfigPanel::PopulateForces()
 
                primaryBodyList[currentBodyId]->gravf = theGravForce;
 
-               // Set actual full potenential file path (loj: 2007.10.26)
+               // Set actual full potential file path (loj: 2007.10.26)
                wxString gravTypeName = primaryBodyList[currentBodyId]->gravType;
                std::string fileType = theFileMap[gravTypeName].c_str();
                if (gravTypeName != "None" && gravTypeName != "Other")
@@ -1651,26 +1651,57 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
       thePropagatorName = integratorType;
       thePropagator = (Propagator*)theGuiInterpreter->GetConfiguredObject(thePropagatorName);
       if (thePropagator == NULL)
+      {
          thePropagator = (Propagator*)
             theGuiInterpreter->CreateObject(integratorType, thePropagatorName);
+      }
 
       if (theForceModel == NULL)    // Switched from an ODE-model free propagator
       {
-         if ((thePropSetup->GetStringParameter("FM") != "UndefinedODEModel") &&
-             (thePropSetup->GetStringParameter("FM") != ""))
-            theForceModelName = thePropSetup->GetStringParameter("FM");
+         theForceModelName = thePropSetup->GetStringParameter("FM");
+         if ((theForceModelName == "UndefinedODEModel") ||
+             (theForceModelName == ""))
+            theForceModelName = thePropSetup->GetName() + "_ForceModel";
 
          theForceModel = (ODEModel*)theGuiInterpreter->GetConfiguredObject(theForceModelName);
+
          if (theForceModel == NULL)
          {
-            theForceModel = (ODEModel*)theGuiInterpreter->CreateObject(
-                  "ODEModel", theForceModelName);
+            theForceModel = (ODEModel*)theGuiInterpreter->CreateNewODEModel(theForceModelName);
          }
 
          // Load the panel with the force model data
          numOfForces   = theForceModel->GetNumForces();
+
          PopulateForces();
+         // Display the force model origin (central body)
+         theOriginComboBox->SetValue(propOriginName);
+
+         if (!primaryBodiesArray.IsEmpty())
+         {
+            primaryBodyString = primaryBodiesArray.Item(0).c_str();
+            currentBodyName = primaryBodyString;
+            currentBodyId = FindPrimaryBody(currentBodyName);
+         }
+
+         numOfBodies = (Integer)primaryBodiesArray.GetCount();
+         thePrimaryBodyComboBox->Clear();
+         if (numOfBodies > 0)
+         {
+            for (Integer index = 0; index < numOfBodies; ++index)
+               thePrimaryBodyComboBox->Append(primaryBodiesArray[index].c_str());
+            thePrimaryBodyComboBox->SetSelection(0);
+         }
+
+         if (numOfBodies == 0)
+            EnablePrimaryBodyItems(false, false);
+         else
+            EnablePrimaryBodyItems(true);
+
+         DisplayForceData();
+         isForceModelChanged = true;
       }
+
       #ifdef DEBUG_PROP_INTEGRATOR
       MessageInterface::ShowMessage
          ("   integratorType='%s', thePropagatorName='%s'\n   thePropagator=<%p>'%s'\n",
@@ -1820,6 +1851,8 @@ void PropagationConfigPanel::DisplayForceData()
 void PropagationConfigPanel::DisplayPrimaryBodyData()
 {
    Integer bodyIndex = 0;
+
+   bodyTextCtrl->Clear();
 
    for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
    {
@@ -3416,6 +3449,7 @@ void PropagationConfigPanel::ShowIntegratorLayout(bool isIntegrator,
    if (isIntegrator)
    {
       fmStaticSizer->Show(true);
+      fmStaticSizer->Hide( magfStaticSizer, true );
 
       initialStepSizeStaticText->Show(true);
       unitsInitStepSizeStaticText->Show(true);

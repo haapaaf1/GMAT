@@ -180,6 +180,7 @@ private:
    wxFlexGridSizer *intFlexGridSizer;
    GmatStaticBoxSizer *intStaticSizer;
    GmatStaticBoxSizer *fmStaticSizer;
+   GmatStaticBoxSizer *magfStaticSizer;      // So it can be hidden
 
    wxStaticText *minIntErrorStaticText;
    wxStaticText *nomIntErrorStaticText;
