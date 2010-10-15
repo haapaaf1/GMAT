@@ -739,7 +739,8 @@ bool CoordinateSystem::RenameRefObject(const Gmat::ObjectType type,
 //---------------------------------------------------------------------------
 bool CoordinateSystem::IsParameterReadOnly(const Integer id) const
 {
-   if (id == EPOCH)
+   if ((id == EPOCH) || (id == UPDATE_INTERVAL) ||
+       (id == OVERRIDE_ORIGIN_INTERVAL))
       return true;
    
    return CoordinateBase::IsParameterReadOnly(id);
