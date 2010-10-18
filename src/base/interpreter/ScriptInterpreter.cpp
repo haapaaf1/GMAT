@@ -319,7 +319,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(const std::string &fileNam
    hasFunctionDefinition = true;
    currentFunction->SetScriptErrorFound(false);
    
-   // Clear temporay object names which currently holding MatlabFunction names
+   // Clear temporary object names which currently holding MatlabFunction names
    ClearTempObjectNames();
    
    // We don't want parse first comment as header, so set skipHeader to true.
@@ -397,7 +397,7 @@ GmatCommand* ScriptInterpreter::InterpretGmatFunction(Function *funct)
        "filename = %s\n", funct, fileName.c_str());
    #endif
    
-   // Set urrent function
+   // Set current function
    SetFunction(funct);
    
    #if DBGLVL_GMAT_FUNCTION
