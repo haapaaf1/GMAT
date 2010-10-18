@@ -39,7 +39,7 @@
 
 /** \brief Constructor for the Fehlberg's 4(5) Runge-Kutta integrator */
 RungeKuttaFehlberg56::RungeKuttaFehlberg56(const std::string &nomme) :
-    RungeKutta      (8, 6, "RungeKuttaFehlberg56", nomme)
+    RungeKutta      (8, 6, "RungeKutta56" /*"RungeKuttaFehlberg56"*/, nomme)
 //    RungeKutta      (8, 6)
 {
 }

@@ -35,7 +35,8 @@
 
 /** \brief The default constructor */
 DormandElMikkawyPrince68::DormandElMikkawyPrince68(const std::string &nomme) :
-    RungeKuttaNystrom           (9, 8, "DormandElMikkawyPrince68", nomme)
+    RungeKuttaNystrom           (9, 8, "RungeKutta68"
+          /*"DormandElMikkawyPrince68"*/, nomme)
 {
     derivativeError = true;
 }
