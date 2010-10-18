@@ -40,7 +40,7 @@ BEGIN_EVENT_TABLE(GroundStationPanel, wxPanel)
    EVT_BUTTON(ID_BUTTON_SCRIPT, GmatPanel::OnScript)
    EVT_TEXT(ID_LOCATION_TEXTCTRL, GroundStationPanel::OnLocationTextChange)
    EVT_TEXT(ID_STATION_ID_TEXTCTRL, GroundStationPanel::OnStationIDTextChange)
-   EVT_TEXT(ID_HARDWARE_TEXTCTRL, GroundStationPanel::OnHardwareTextChange)
+//   EVT_TEXT(ID_HARDWARE_TEXTCTRL, GroundStationPanel::OnHardwareTextChange)
    EVT_COMBOBOX(ID_COMBOBOX, GroundStationPanel::OnComboBoxChange)
    EVT_COMBOBOX(ID_STATE_TYPE_COMBOBOX, GroundStationPanel::OnStateTypeComboBoxChange)
    EVT_COMBOBOX(ID_HORIZON_REFERENCE_COMBOBOX, GroundStationPanel::OnHorizonReferenceComboBoxChange)
@@ -194,12 +194,12 @@ void GroundStationPanel::Create()
    // Hardware
    //hardwareLabel =
    //    new wxStaticText( this, ID_TEXT, wxT(localGroundStation->GetStringParameter(BodyFixedPoint::HARDWARE)));
-   wxStaticText *hardwareLabel =
-       new wxStaticText( this, ID_TEXT, wxT("Hardware"));
-   hardwareTextCtrl =
-      new wxTextCtrl( this, ID_HARDWARE_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
-   //hardwareTextCtrl->SetToolTip(pConfig->Read(_T(BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::HARDWARE-BodyFixedPoint::CENTRAL_BODY]"Hint")));
-   hardwareTextCtrl->SetToolTip(pConfig->Read(_T("HardwareHint")));
+//   wxStaticText *hardwareLabel =
+//       new wxStaticText( this, ID_TEXT, wxT("Hardware"));
+//   hardwareTextCtrl =
+//      new wxTextCtrl( this, ID_HARDWARE_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(120,-1), 0 );
+//   //hardwareTextCtrl->SetToolTip(pConfig->Read(_T(BodyFixedPoint::PARAMETER_TEXT[BodyFixedPoint::HARDWARE-BodyFixedPoint::CENTRAL_BODY]"Hint")));
+//   hardwareTextCtrl->SetToolTip(pConfig->Read(_T("HardwareHint")));
    
    // update labels and tooltips based on statetype
    UpdateControls();
@@ -212,11 +212,11 @@ void GroundStationPanel::Create()
    minLabelSize = (minLabelSize < location1Label->GetBestSize().x) ? location1Label->GetBestSize().x : minLabelSize;
    minLabelSize = (minLabelSize < location2Label->GetBestSize().x) ? location2Label->GetBestSize().x : minLabelSize;
    minLabelSize = (minLabelSize < location3Label->GetBestSize().x) ? location3Label->GetBestSize().x : minLabelSize;
-   minLabelSize = (minLabelSize < hardwareLabel->GetBestSize().x) ? hardwareLabel->GetBestSize().x : minLabelSize;
+//   minLabelSize = (minLabelSize < hardwareLabel->GetBestSize().x) ? hardwareLabel->GetBestSize().x : minLabelSize;
 
    stationIDLabel->SetMinSize(wxSize(minLabelSize, stationIDLabel->GetMinHeight()));
    centralBodyLabel->SetMinSize(wxSize(minLabelSize, centralBodyLabel->GetMinHeight()));
-   hardwareLabel->SetMinSize(wxSize(minLabelSize, hardwareLabel->GetMinHeight()));
+//   hardwareLabel->SetMinSize(wxSize(minLabelSize, hardwareLabel->GetMinHeight()));
 
    //-----------------------------------------------------------------
    // Add to Station ID sizer
@@ -266,21 +266,21 @@ void GroundStationPanel::Create()
    //-----------------------------------------------------------------
    // Add to hardware properties sizer
    //-----------------------------------------------------------------
-   wxFlexGridSizer *flexGridSizer3 = new wxFlexGridSizer( 3, 0, 0 );
-   //flexGridSizer2->AddGrowableCol(1);
-   
-   flexGridSizer3->Add(hardwareLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
-   flexGridSizer3->Add(hardwareTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
-
-   // create the hardware Properties group box
-   hardwarePropertiesSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Hardware" );
-   hardwarePropertiesSizer->Add(flexGridSizer3, 0, wxEXPAND|wxALL, bsize);
+//   wxFlexGridSizer *flexGridSizer3 = new wxFlexGridSizer( 3, 0, 0 );
+//   //flexGridSizer2->AddGrowableCol(1);
+//
+//   flexGridSizer3->Add(hardwareLabel, labelSizeProportion, wxALIGN_LEFT|wxALL, bsize);
+//   flexGridSizer3->Add(hardwareTextCtrl, ctrlSizeProportion, wxGROW|wxALL, bsize);
+//
+//   // create the hardware Properties group box
+//   hardwarePropertiesSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Hardware" );
+//   hardwarePropertiesSizer->Add(flexGridSizer3, 0, wxEXPAND|wxALL, bsize);
 
    //-----------------------------------------------------------------
    // Now put ground & fuel properties sizers into the middle sizer
    //-----------------------------------------------------------------
    theMiddleSizer->Add(locationPropertiesSizer, 1, wxEXPAND|wxALL, bsize);
-   theMiddleSizer->Add(hardwarePropertiesSizer, 0, wxEXPAND|wxALL, bsize);
+//   theMiddleSizer->Add(hardwarePropertiesSizer, 0, wxEXPAND|wxALL, bsize);
    theMiddleSizer->SetSizeHints(this);
 
 }
@@ -439,7 +439,7 @@ void GroundStationPanel::SaveData()
    try
    {
       // Hardware
-      text = hardwareTextCtrl->GetValue().c_str();
+//      text = hardwareTextCtrl->GetValue().c_str();
       //localGroundStation->SetStringParameter(GroundStation::HARDWARE, text);
    }
    catch (BaseException &ex)
