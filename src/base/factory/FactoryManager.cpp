@@ -173,14 +173,25 @@ Parameter* FactoryManager::CreateParameter(const std::string &ofType,
 Propagator* FactoryManager::CreatePropagator(const std::string &ofType,
                                              const std::string &withName)
 {
+   #ifdef DEBUG_CREATION
+      MessageInterface::ShowMessage("Creating an integrator of type %s with "
+            "name %s\n", ofType.c_str(), withName.c_str());
+   #endif
+
    Factory* f = FindFactory(Gmat::PROPAGATOR, ofType);
+
+   #ifdef DEBUG_CREATION
+      MessageInterface::ShowMessage("Factory pointer: %p\n", f);
+   #endif
+
    if (f != NULL)
       return f->CreatePropagator(ofType, withName);
    return NULL;
 }
 
 //------------------------------------------------------------------------------
-//  Force* CreatePhysicalModel(const std::string &ofType, const std::string &withName)
+//  Force* CreatePhysicalModel(const std::string &ofType,
+//       const std::string &withName)
 //------------------------------------------------------------------------------
 /**
  * Create an object of type PhysicalModel, with the name withName, and of the
