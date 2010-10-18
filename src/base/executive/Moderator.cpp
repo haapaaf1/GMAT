@@ -2524,15 +2524,15 @@ Propagator* Moderator::CreatePropagator(const std::string &type,
        type.c_str(), name.c_str());
    #endif
    
-   if (GetPropagator(name) == NULL)
-   {
-      Propagator *obj = theFactoryManager->CreatePropagator(type, name);
+   // GMAT doesn't name propagators, so we don't need to check the configuration
+   // for them.  PropSetups are the only things that get named for propagation.
+   Propagator *obj = theFactoryManager->CreatePropagator(type, name);
       
-      if (obj ==  NULL)
-         throw GmatBaseException
-            ("The Moderator cannot create a Propagator type \"" + type + "\"\n");
+   if (obj ==  NULL)
+      throw GmatBaseException
+         ("The Moderator cannot create a Propagator type \"" + type + "\"\n");
       
-      #ifdef DEBUG_MEMORY
+   #ifdef DEBUG_MEMORY
       if (obj)
       {
          std::string funcName;
@@ -2540,37 +2540,15 @@ Propagator* Moderator::CreatePropagator(const std::string &type,
          MemoryTracker::Instance()->Add
             (obj, name, "Moderator::CreatePropagator()", funcName);
       }
-      #endif
+   #endif
       
-      // Manage it if it is a named Propagator
-      try
-      {
-         if (name != "" && objectManageOption == 1)
-            theConfigManager->AddPropagator(obj);
-      }
-      catch (BaseException &e)
-      {
-         MessageInterface::ShowMessage("Moderator::CreatePropagator()\n" +
-                                       e.GetFullMessage());
-      }
-      
-      #if DEBUG_CREATE_RESOURCE
+   #if DEBUG_CREATE_RESOURCE
       MessageInterface::ShowMessage
          ("Moderator::CreatePropagator() returning new Propagator <%p>'%s'\n",
           obj, obj->GetName().c_str());
       #endif
       
       return obj;
-   }
-   else
-   {
-      #if DEBUG_CREATE_RESOURCE
-      MessageInterface::ShowMessage
-         ("Moderator::CreatePropagator() Unable to create Propagator "
-          "name: %s already exist\n", name.c_str());
-      #endif
-      return GetPropagator(name);
-   }
 }
 
 //------------------------------------------------------------------------------
