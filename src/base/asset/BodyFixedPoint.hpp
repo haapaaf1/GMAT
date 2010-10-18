@@ -170,6 +170,8 @@ protected:
    /// Converter helper
    CoordinateConverter ccvtr;
 
+   void UpdateBodyFixedLocation();
+
 
    /// Conversion code used to transform from lat-long-height to body fixed
 //   LatLonHgt      llh;

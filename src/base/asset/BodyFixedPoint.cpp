@@ -43,6 +43,7 @@
 //#define DEBUG_BF_REF
 //#define TEST_BODYFIXED_POINT
 //#define DEBUG_BODYFIXED_STATE
+//#define DEBUG_BODYFIXED_SET_REAL
 
 
 //---------------------------------
@@ -248,42 +249,43 @@ bool BodyFixedPoint::Initialize()
 
    // Calculate the body-fixed Cartesian position
    // If it was input in Cartesian, we're done
-   if (stateType == "Cartesian")
-   {
-      bfLocation[0] = location[0];
-      bfLocation[1] = location[1];
-      bfLocation[2] = location[2];
-   }
-   // Otherwise, convert from input type to Cartesian
-   else if (stateType == "Spherical")
-   {
-      Rvector3 spherical(location[0], location[1], location[2]);
-      Rvector3 cart;
-      if (horizon == "Sphere")
-      {
-         cart = BodyFixedStateConverterUtil::SphericalToCartesian(spherical,
-                flattening, meanEquatorialRadius);
-         bfLocation[0] = cart[0];
-         bfLocation[1] = cart[1];
-         bfLocation[2] = cart[2];
-      }
-      else if (horizon == "Ellipsoid")
-      {
-         cart = BodyFixedStateConverterUtil::SphericalEllipsoidToCartesian(spherical,
-                flattening, meanEquatorialRadius);
-         bfLocation[0] = cart[0];
-         bfLocation[1] = cart[1];
-         bfLocation[2] = cart[2];
-      }
-      else
-         throw AssetException("Unable to initialize ground station \"" +
-               instanceName + "\"; horizon reference is not a recognized type (known "
-                     "types are either \"Sphere\" or \"Ellipsoid\")");
-   }
-   else
-      throw AssetException("Unable to initialize ground station \"" +
-            instanceName + "\"; stateType is not a recognized type (known "
-                  "types are either \"Cartesian\" or \"Spherical\")");
+   UpdateBodyFixedLocation();
+//   if (stateType == "Cartesian")
+//   {
+//      bfLocation[0] = location[0];
+//      bfLocation[1] = location[1];
+//      bfLocation[2] = location[2];
+//   }
+//   // Otherwise, convert from input type to Cartesian
+//   else if (stateType == "Spherical")
+//   {
+//      Rvector3 spherical(location[0], location[1], location[2]);
+//      Rvector3 cart;
+//      if (horizon == "Sphere")
+//      {
+//         cart = BodyFixedStateConverterUtil::SphericalToCartesian(spherical,
+//                flattening, meanEquatorialRadius);
+//         bfLocation[0] = cart[0];
+//         bfLocation[1] = cart[1];
+//         bfLocation[2] = cart[2];
+//      }
+//      else if (horizon == "Ellipsoid")
+//      {
+//         cart = BodyFixedStateConverterUtil::SphericalEllipsoidToCartesian(spherical,
+//                flattening, meanEquatorialRadius);
+//         bfLocation[0] = cart[0];
+//         bfLocation[1] = cart[1];
+//         bfLocation[2] = cart[2];
+//      }
+//      else
+//         throw AssetException("Unable to initialize ground station \"" +
+//               instanceName + "\"; horizon reference is not a recognized type (known "
+//                     "types are either \"Sphere\" or \"Ellipsoid\")");
+//   }
+//   else
+//      throw AssetException("Unable to initialize ground station \"" +
+//            instanceName + "\"; stateType is not a recognized type (known "
+//                  "types are either \"Cartesian\" or \"Spherical\")");
 
    #ifdef DEBUG_INIT
       MessageInterface::ShowMessage("...BodyFixedPoint %s Initialized!\n", instanceName.c_str());
@@ -582,6 +584,14 @@ bool BodyFixedPoint::SetStringParameter(const Integer id,
 
    if (id == CENTRAL_BODY)
    {
+      if (value != SolarSystem::EARTH_NAME)
+      {
+         std::string errmsg =
+            "The value of \"" + value + "\" for field \"CentralBody\""
+            " on object \"" + instanceName + "\" is not an allowed value.\n"
+            "The allowed values are: [ " + SolarSystem::EARTH_NAME + " ]. ";
+         throw AssetException(errmsg);
+      }
       if (theBody)
          theBody = NULL;
       cBodyName = value;
@@ -846,6 +856,12 @@ Real BodyFixedPoint::GetRealParameter(const Integer id) const
 Real BodyFixedPoint::SetRealParameter(const Integer id,
                                       const Real value)
 {
+   #ifdef DEBUG_BODYFIXED_SET_REAL
+      MessageInterface::ShowMessage("Entering BFP::SetRealParameter with id = %d (%s) and value = %12.10f\n",
+            id, (GetParameterText(id)).c_str(), value);
+//      MessageInterface::ShowMessage("stateType = %s and horizon = %s\n",
+//            stateType.c_str(), horizon.c_str());
+   #endif
    if (((id == LOCATION_1) || (id == LOCATION_2)) && stateType == "Spherical")
    {
       // if Spherical statetype, then check if Latitude/Longitude are in the correct range
@@ -1116,6 +1132,8 @@ const Rvector6 BodyFixedPoint::GetMJ2000State(const A1Mjd &atTime)
       MessageInterface::ShowMessage("In GetMJ2000State for BodyFixedPoint %s\n",
             instanceName.c_str());
    #endif
+
+   UpdateBodyFixedLocation();
    Real     epoch = atTime.Get();
    Rvector6 bfState;
 
@@ -1130,8 +1148,14 @@ const Rvector6 BodyFixedPoint::GetMJ2000State(const A1Mjd &atTime)
             epoch);
       MessageInterface::ShowMessage(" ... bfcs = %s  and mj2kcs = %s\n",
             (bfcs? "NOT NULL" : "NULL"), (mj2kcs? "NOT NULL" : "NULL"));
+      MessageInterface::ShowMessage("bf state (in bfcs, cartesian) = %s\n",
+            (bfState.ToString()).c_str());
    #endif
    ccvtr.Convert(epoch, bfState, bfcs, j2000PosVel, mj2kcs);
+   #ifdef DEBUG_BODYFIXED_STATE
+      MessageInterface::ShowMessage("bf state (in mj2kcs, cartesian) = %s\n",
+            (j2000PosVel.ToString()).c_str());
+   #endif
 
    return j2000PosVel;
 }
@@ -1191,42 +1215,12 @@ const Rvector3 BodyFixedPoint::GetMJ2000Velocity(const A1Mjd &atTime)
  *
  * @note This method may be moved to an intermediate BodyFixedPoint
  * class, if/when appropriate.
+ * @note time is ignored as the body-fixed-point is assumed not to move
  */
 //------------------------------------------------------------------------------
 const Rvector3 BodyFixedPoint::GetBodyFixedLocation(const A1Mjd &atTime)
 {
-   if (stateType == "Cartesian")
-   {
-      bfLocation[0] = location[0];
-      bfLocation[1] = location[1];
-      bfLocation[2] = location[2];
-   }
-   // Otherwise, convert from input type to Cartesian
-   else if (stateType == "Spherical")
-   {
-      Rvector3 spherical(location[0], location[1], location[2]);
-      Rvector3 cart;
-      if (horizon == "Sphere")
-      {
-         cart = BodyFixedStateConverterUtil::SphericalToCartesian(spherical,
-                flattening, meanEquatorialRadius);
-         bfLocation[0] = cart[0];
-         bfLocation[1] = cart[1];
-         bfLocation[2] = cart[2];
-      }
-      else if (horizon == "Ellipsoid")
-      {
-         cart = BodyFixedStateConverterUtil::SphericalEllipsoidToCartesian(spherical,
-                flattening, meanEquatorialRadius);
-         bfLocation[0] = cart[0];
-         bfLocation[1] = cart[1];
-         bfLocation[2] = cart[2];
-      }
-      else
-         throw AssetException("Unable to initialize ground station \"" +
-               instanceName + "\"; horizon reference is not a recognized type (known "
-                     "types are either \"Sphere\" or \"Ellipsoid\")");
-   }
+   UpdateBodyFixedLocation();
 
    Rvector3 locBodyFixed;
    locBodyFixed[0] = bfLocation[0];
@@ -1265,4 +1259,54 @@ void BodyFixedPoint::SetSolarSystem(SolarSystem *ss)
    solarSystem = ss;
 }
 
+//------------------------------------------------------------------------------
+//  void UpdateBodyFixedLocation()
+//------------------------------------------------------------------------------
+/**
+ * This method makes sure that the bfLocation is up-to-date (as new location
+ * data may have been input)
+ *
+ */
+//------------------------------------------------------------------------------
+void BodyFixedPoint::UpdateBodyFixedLocation()
+{
+   if (stateType == "Cartesian")
+   {
+      bfLocation[0] = location[0];
+      bfLocation[1] = location[1];
+      bfLocation[2] = location[2];
+   }
+   // Otherwise, convert from input type to Cartesian
+   else if (stateType == "Spherical")
+   {
+      Rvector3 spherical(location[0], location[1], location[2]);
+      Rvector3 cart;
+      if (horizon == "Sphere")
+      {
+         cart = BodyFixedStateConverterUtil::SphericalToCartesian(spherical,
+                flattening, meanEquatorialRadius);
+         bfLocation[0] = cart[0];
+         bfLocation[1] = cart[1];
+         bfLocation[2] = cart[2];
+      }
+      else if (horizon == "Ellipsoid")
+      {
+         cart = BodyFixedStateConverterUtil::SphericalEllipsoidToCartesian(spherical,
+                flattening, meanEquatorialRadius);
+         bfLocation[0] = cart[0];
+         bfLocation[1] = cart[1];
+         bfLocation[2] = cart[2];
+      }
+      else
+         throw AssetException("Unable to set body fixed location for BodyFixedPoint \"" +
+               instanceName + "\"; horizon reference is not a recognized type (known "
+                     "types are either \"Sphere\" or \"Ellipsoid\")");
+   }
+   else
+   {
+      throw AssetException("Unable to set body fixed location for BodyFixedPoint \"" +
+            instanceName + "\"; state type is not a recognized type (known "
+                  "types are either \"Cartesian\" or \"Spherical\")");
+   }
 
+}
