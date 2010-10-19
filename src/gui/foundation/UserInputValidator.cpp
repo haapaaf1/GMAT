@@ -20,6 +20,8 @@
 #include "MessageInterface.hpp"
 #include "RealUtilities.hpp"
 
+//#define DEBUG_CHECK_REAL
+
 //------------------------------------------------------------------------------
 // UserInputValidator()
 //------------------------------------------------------------------------------
@@ -145,6 +147,10 @@ bool UserInputValidator::CheckReal(Real &rvalue, const std::string &str,
    if (GmatStringUtil::ToReal(str, &rval))
    {
       rvalue = rval;
+      #ifdef DEBUG_CHECK_REAL
+      MessageInterface::ShowMessage
+         ("UserInputValidator::CheckReal() rval = %12.10f\n", rval);
+      #endif
       
       if (checkRange)
       {
@@ -155,6 +161,10 @@ bool UserInputValidator::CheckReal(Real &rvalue, const std::string &str,
          return true;
    }
    
+   #ifdef DEBUG_CHECK_REAL
+   MessageInterface::ShowMessage
+      ("UserInputValidator::CheckReal() NOT a valid real number\n");
+   #endif
    MessageInterface::PopupMessage
       (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
        expRange.c_str());
