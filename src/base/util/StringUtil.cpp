@@ -3056,7 +3056,7 @@ bool GmatStringUtil::EndsWithPathSeparator(const std::string &str)
 
 
 //------------------------------------------------------------------------------
-// bool IsValidName(const std::string &str, bool ignoreBracket, bool stripBlanks)
+// bool IsValidName(const std::string &str, bool ignoreBracket)
 //------------------------------------------------------------------------------
 /*
  * Checks for valid name.
