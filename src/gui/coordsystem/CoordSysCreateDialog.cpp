@@ -143,20 +143,32 @@ void CoordSysCreateDialog::SaveData()
    //-----------------------------------------------------------------
    if (mIsTextModified)
    {
-      Real epoch, interval;
+      Real epoch;
+//      Real interval;
       std::string str = mCoordPanel->GetEpochTextCtrl()->GetValue().c_str();
+      #if DEBUG_COORD_DIALOG_SAVE
+      MessageInterface::ShowMessage
+         ("CoordSysCreateDialog::SaveData() epoch value = %s\n",
+          str.c_str());
+      #endif
       bool isValid = CheckReal(epoch, str, "Epoch", "Real Number >= 0");
+      #if DEBUG_COORD_DIALOG_SAVE
+      MessageInterface::ShowMessage
+         ("CoordSysCreateDialog::SaveData() isValid = %s, and epoch real value = %12.10f\n",
+          (isValid? "true" : "false"), epoch);
+      #endif
       
       // check range here, since there is no CoordinateSystem created yet
       
       if (isValid && epoch < 0.0)
          CheckReal(epoch, str, "Epoch", "Real Number >= 0", true);
       
-      str = mCoordPanel->GetIntervalTextCtrl()->GetValue();
-      isValid = CheckReal(interval, str, "UpdateInterval", "Real Number >= 0");
-      
-      if (isValid && epoch < 0.0)
-         CheckReal(interval, str, "UpdateInterval", "Real Number >= 0", true);
+//      str = mCoordPanel->GetIntervalTextCtrl()->GetValue();
+//      isValid = CheckReal(interval, str, "UpdateInterval", "Real Number >= 0");
+//
+////      if (isValid && epoch < 0.0)
+//      if (isValid && interval < 0.0)
+//         CheckReal(interval, str, "UpdateInterval", "Real Number >= 0", true);
       
    }
    
