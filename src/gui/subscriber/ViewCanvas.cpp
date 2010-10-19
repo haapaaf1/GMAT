@@ -31,8 +31,8 @@
  */
 //------------------------------------------------------------------------------
 ViewCanvas::ViewCanvas(wxWindow *parent, wxWindowID id,
-                               const wxPoint& pos, const wxSize& size,
-                               const wxString& name, long style)
+                       const wxPoint& pos, const wxSize& size,
+                       const wxString& name, long style)
    #ifdef __USE_WX280_GL__
    : wxGLCanvas(parent, id, 0, pos, size, style, name)
    #else

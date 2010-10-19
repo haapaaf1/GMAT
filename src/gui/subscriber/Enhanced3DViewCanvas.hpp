@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              Enhanced3DViewCanvas
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -78,9 +78,9 @@ public:
    void SetAnimationUpdateInterval(int value) { mUpdateInterval = value; }
    void SetAnimationFrameIncrement(int value) { mFrameInc = value; }
    void SetDrawWireFrame(bool flag) { mDrawWireFrame = flag; }
-	void SetDrawStars(bool flag) { mDrawStars = flag; }
-	void SetDrawConstellations(bool flag) { mDrawConstellations = flag; }
-	void SetStarCount(int count) { mStarCount = count; }
+   void SetDrawStars(bool flag) { mDrawStars = flag; }
+   void SetDrawConstellations(bool flag) { mDrawConstellations = flag; }
+   void SetStarCount(int count) { mStarCount = count; }
    void SetDrawXyPlane(bool flag) { mDrawXyPlane = flag; }
    void SetDrawEcPlane(bool flag) { mDrawEcPlane = flag; }
    void SetDrawSunLine(bool flag) { mDrawSunLine = flag; }
@@ -93,7 +93,6 @@ public:
    void SetUsePerspectiveMode(bool perspMode);
    void SetObjectColors(const wxStringColorMap &objectColorMap);
    void SetShowObjects(const wxStringBoolMap &showObjMap);
-   void SetShowOrbitNormals(const wxStringBoolMap &showOrbitNormalMap);
    void SetGLContext(wxGLContext *glContext = NULL);
    void SetUserInterrupt() { mHasUserInterrupted = true; }
    
@@ -182,13 +181,13 @@ private:
    static const Real DEFAULT_DIST;// = 30000.0;
    static const int UNKNOWN_OBJ_ID;// = -999;
    
-	// stars
+   // stars
    GLStars *mStars;
-	// star options
-	int mStarCount;
-	bool mDrawStars;
-	bool mDrawConstellations;
-
+   // star options
+   int mStarCount;
+   bool mDrawStars;
+   bool mDrawConstellations;
+   
    wxGLContext *theContext;
    
    // initialization
@@ -240,8 +239,7 @@ private:
    bool mDrawSunLine;
    bool mDrawAxes;
    bool mDrawGrid;
-   bool mDrawOrbitNormal;
-   
+      
    // color
    unsigned int mXyPlaneColor;
    unsigned int mEcPlaneColor;
@@ -357,16 +355,15 @@ private:
    // earth
    float mEarthRadius;
 
-	// Matrices for coordinate system tranformations
-	Rmatrix mCoordMatrix;
-
+   // Matrices for coordinate system tranformations
+   Rmatrix mCoordMatrix;
+   
    // objects
    wxArrayString mObjectNames;
    wxArrayString mShowObjectNames;
    wxArrayString mValidCSNames;
    wxStringColorMap mObjectColorMap;
    wxStringBoolMap  mShowObjectMap;
-   wxStringBoolMap  mShowOrbitNormalMap;
    std::vector<SpacePoint*> mObjectArray;
    std::vector<bool> mDrawOrbitArray;
    std::vector<bool> mShowObjectArray;
@@ -378,13 +375,14 @@ private:
    Real *mObjMaxZoomIn;            // [mObjectCount]
    int  *mObjLastFrame;            // [mObjectCount]
    bool *mDrawOrbitFlag;           // [mObjectCount][MAX_DATA]
-   UnsignedInt *mObjectOrbitColor; // [mObjectCount][MAX_DATA];
+   UnsignedInt *mObjectOrbitColor; // [mObjectCount][MAX_DATA]
    
-   // run data
-   Real *mObjectGciPos;            // [mObjectCount][MAX_DATA][3];
-   Real *mObjectGciVel;            // [mObjectCount][MAX_DATA][3];
-   Real *mObjectViewPos;           // [mObjectCount][MAX_DATA][3];
-   Real *mObjectViewVel;           // [mObjectCount][MAX_DATA][3];
+   // object positions
+   Real *mObjectGciPos;            // [mObjectCount][MAX_DATA][3]
+   Real *mObjectViewPos;           // [mObjectCount][MAX_DATA][3]
+   
+   // object attitude
+   Real *mObjectQuat;              // [mObjectCount][MAX_DATA][4]
    
    // solver data
    bool mDrawSolverData;
@@ -466,12 +464,9 @@ private:
    void DrawObject(const wxString &objName);
    void DrawObjectOrbit(int frame);
    void DrawOrbit(const wxString &objName, int obj, int objId);
-   void DrawOrbitLines(int i, const wxString &objName, int obj, int objId);
-   void DrawOrbitNormal(const wxString &objName, int obj, int objId);
-   void DrawOrbitNormalLines(int i, const wxString &objName, int obj, int objId);
+   void DrawOrbitLines(int i, const wxString &objName, int obj, int objId);   
    void DrawObjectTexture(const wxString &objName, int obj, int objId, int frame);
    void DrawSolverData();
-   void DrawObjectOrbitNormal(int objId, int frame, UnsignedInt color);
    //void DrawSpacecraft(UnsignedInt scColor);
    void DrawEquatorialPlane(UnsignedInt color);
    void DrawEclipticPlane(UnsignedInt color);
@@ -498,7 +493,10 @@ private:
                              const RealArray &posZ, const RealArray &velX,
                              const RealArray &velY, const RealArray &velZ,
                              const UnsignedIntArray &scColors, Integer solverOption);
+   void UpdateSpacecraftAttitude(Real time, Spacecraft *sat, int satId);
+   
    void UpdateOtherData(const Real &time);
+   void UpdateOtherObjectAttitude(Real time, SpacePoint *sp, int objId);
    
    // for coordinate system
    bool TiltOriginZAxis();

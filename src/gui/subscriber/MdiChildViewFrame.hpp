@@ -71,9 +71,9 @@ public:
    virtual void SetAnimationUpdateInterval(Integer value);
    virtual void SetAnimationFrameIncrement(Integer value);
    virtual void SetDrawWireFrame(bool flag);
-	virtual void SetDrawStars(bool flag);
-	virtual void SetDrawConstellations(bool flag);
-	virtual void SetStarCount(int count);
+   virtual void SetDrawStars(bool flag);
+   virtual void SetDrawConstellations(bool flag);
+   virtual void SetStarCount(int count);
    virtual void SetDrawXyPlane(bool flag);
    virtual void SetDrawEcPlane(bool flag);
    virtual void SetDrawSunLine(bool flag);
@@ -83,7 +83,6 @@ public:
    virtual void SetSunLineColor(UnsignedInt color);
    virtual void SetObjectColors(const wxStringColorMap &objectColorMap);
    virtual void SetShowObjects(const wxStringBoolMap &showObjMap);
-   virtual void SetShowOrbitNormals(const wxStringBoolMap &showOrbNormMap);
    virtual void SetNumPointsToRedraw(Integer numPoints);
    
    // actions

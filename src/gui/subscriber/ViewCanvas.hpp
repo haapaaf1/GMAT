@@ -74,9 +74,9 @@ public:
    virtual void SetAnimationUpdateInterval(int value) = 0;
    virtual void SetAnimationFrameIncrement(int value) = 0;
    virtual void SetDrawWireFrame(bool flag) = 0;
-	virtual void SetDrawStars(bool flag) = 0;
-	virtual void SetDrawConstellations(bool flag) = 0;
-	virtual void SetStarCount(int count) = 0;
+   virtual void SetDrawStars(bool flag) = 0;
+   virtual void SetDrawConstellations(bool flag) = 0;
+   virtual void SetStarCount(int count) = 0;
    virtual void SetDrawXyPlane(bool flag) = 0;
    virtual void SetDrawEcPlane(bool flag) = 0;
    virtual void SetDrawSunLine(bool flag) = 0;
@@ -88,8 +88,7 @@ public:
    virtual void SetSunLineColor(unsigned int color) = 0;
    virtual void SetUsePerspectiveMode(bool perspMode) = 0;
    virtual void SetObjectColors(const wxStringColorMap &objectColorMap) = 0;
-   virtual void SetShowObjects(const wxStringBoolMap &showObjMap) = 0;
-   virtual void SetShowOrbitNormals(const wxStringBoolMap &showOrbitNormalMap) = 0;
+   virtual void SetShowObjects(const wxStringBoolMap &showObjMap) = 0;   
    virtual void SetGLContext(wxGLContext *glContext = NULL) = 0;
    virtual void SetUserInterrupt()  = 0;
    
@@ -200,11 +199,9 @@ protected:
    //virtual void DrawObjectOrbit() = 0;
    virtual void DrawOrbit(const wxString &objName, int obj, int objId) = 0;
    virtual void DrawOrbitLines(int i, const wxString &objName, int obj, int objId) = 0;
-   virtual void DrawOrbitNormal(const wxString &objName, int obj, int objId) = 0;
-   virtual void DrawOrbitNormalLines(int i, const wxString &objName, int obj, int objId) = 0;
+   
    //virtual void DrawObjectTexture(const wxString &objName, int obj, int objId) = 0;
    virtual void DrawSolverData() = 0;
-   virtual void DrawObjectOrbitNormal(int objId, int frame, UnsignedInt color) = 0;
    //virtual void DrawSpacecraft(UnsignedInt scColor) = 0;
    virtual void DrawEquatorialPlane(UnsignedInt color) = 0;
    virtual void DrawEclipticPlane(UnsignedInt color) = 0;

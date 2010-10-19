@@ -376,10 +376,10 @@ void MdiChildViewFrame::SetDrawWireFrame(bool flag)
 //------------------------------------------------------------------------------
 void MdiChildViewFrame::SetDrawStars(bool flag)
 {
-	if (mCanvas)
-	{
-		mCanvas->SetDrawStars(flag);
-	}
+        if (mCanvas)
+        {
+                mCanvas->SetDrawStars(flag);
+        }
 }
 
 //------------------------------------------------------------------------------
@@ -387,10 +387,10 @@ void MdiChildViewFrame::SetDrawStars(bool flag)
 //------------------------------------------------------------------------------
 void MdiChildViewFrame::SetDrawConstellations(bool flag)
 {
-	if (mCanvas)
-	{
-		mCanvas->SetDrawConstellations(flag);
-	}
+        if (mCanvas)
+        {
+                mCanvas->SetDrawConstellations(flag);
+        }
 }
 
 //------------------------------------------------------------------------------
@@ -398,10 +398,10 @@ void MdiChildViewFrame::SetDrawConstellations(bool flag)
 //------------------------------------------------------------------------------
 void MdiChildViewFrame::SetStarCount(int count)
 {
-	if (mCanvas)
-	{
-		mCanvas->SetStarCount(count);
-	}
+        if (mCanvas)
+        {
+                mCanvas->SetStarCount(count);
+        }
 }
 
 //------------------------------------------------------------------------------
@@ -504,16 +504,6 @@ void MdiChildViewFrame::SetShowObjects(const wxStringBoolMap &showObjMap)
 {
    if (mCanvas)
       mCanvas->SetShowObjects(showObjMap);
-}
-
-
-//------------------------------------------------------------------------------
-// void SetShowOrbitNormals(const wxStringBoolMap &showOrbNormMap)
-//------------------------------------------------------------------------------
-void MdiChildViewFrame::SetShowOrbitNormals(const wxStringBoolMap &showOrbNormMap)
-{
-   if (mCanvas)
-      mCanvas->SetShowOrbitNormals(showOrbNormMap);
 }
 
 
