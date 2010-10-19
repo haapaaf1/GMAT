@@ -95,6 +95,7 @@
 //#define DEBUG_RUN_SCRIPT_FOLDER 1
 //#define DEBUG_RESOURCE_TREE_UPDATE 1
 //#define DEBUG_ADD_ICONS
+//#define DEBUG_ADD_COMET
 
 // ID macros for plug-ins
 #define SOLVER_BEGIN 150
@@ -3047,6 +3048,16 @@ void ResourceTree::OnAddPlanet(wxCommandEvent &event)
 
    //Get name from the user first
    name = wxGetTextFromUser(wxT("Name: "), wxT("Planet"), name, this);
+   std::string planetName = name.c_str();
+
+   if (!GmatStringUtil::IsValidName(planetName, false))
+   {
+      std::string errmsg = "Error creating new planet: \"";
+      errmsg += planetName + "\" is not a valid object name.";
+      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+      return;
+   }
+
 
    if (!name.IsEmpty())
    {
@@ -3087,6 +3098,15 @@ void ResourceTree::OnAddMoon(wxCommandEvent &event)
 
    //Get name from the user first
    name = wxGetTextFromUser(wxT("Name: "), wxT("Moon"), name, this);
+   std::string moonName = name.c_str();
+
+   if (!GmatStringUtil::IsValidName(moonName, false))
+   {
+      std::string errmsg = "Error creating new moon: \"";
+      errmsg += moonName + "\" is not a valid object name.";
+      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+      return;
+   }
 
    if (!name.IsEmpty())
    {
@@ -3128,11 +3148,30 @@ void ResourceTree::OnAddComet(wxCommandEvent &event)
 
    //Get name from the user first
    name = wxGetTextFromUser(wxT("Name: "), wxT("Comet"), name, this);
+   std::string cometName = name.c_str();
+
+   if (!GmatStringUtil::IsValidName(cometName, false))
+   {
+      std::string errmsg = "Error creating new comet: \"";
+      errmsg += cometName + "\" is not a valid object name.";
+      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+      return;
+   }
+
+   #ifdef DEBUG_ADD_COMET
+      MessageInterface::ShowMessage("Attempting to add comet %s around body %s\n", name.c_str(), cBody.c_str());
+   #endif
 
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
       GmatBase *obj = theGuiInterpreter->CreateObject("Comet", newName);
+      #ifdef DEBUG_ADD_COMET
+         if (obj == NULL)
+            MessageInterface::ShowMessage("ERROR creating body!!\n");
+         else
+            MessageInterface::ShowMessage("Body %s created!!\n", name.c_str());
+      #endif
       ((CelestialBody*)obj)->SetCentralBody(cBody);
       // For now, we only have one solar system with one star ...
       if (cBody == SolarSystem::SUN_NAME)
@@ -3168,6 +3207,15 @@ void ResourceTree::OnAddAsteroid(wxCommandEvent &event)
 
    //Get name from the user first
    name = wxGetTextFromUser(wxT("Name: "), wxT("Asteroid"), name, this);
+   std::string asteroidName = name.c_str();
+
+   if (!GmatStringUtil::IsValidName(asteroidName, false))
+   {
+      std::string errmsg = "Error creating new asteroid: \"";
+      errmsg += asteroidName + "\" is not a valid object name.";
+      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+      return;
+   }
 
    if (!name.IsEmpty())
    {
