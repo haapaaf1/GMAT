@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  OrbitData
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -88,6 +88,8 @@ OrbitData::OrbitData(const std::string &name)
    mOrigin = NULL;
    mInternalCoordSystem = NULL;
    mOutCoordSystem = NULL;
+
+   firstTimeEpochWarning = false;
 }
 
 
@@ -122,6 +124,8 @@ OrbitData::OrbitData(const OrbitData &data)
    mOrigin = data.mOrigin;
    mInternalCoordSystem = data.mInternalCoordSystem;
    mOutCoordSystem = data.mOutCoordSystem;
+
+   firstTimeEpochWarning = data.firstTimeEpochWarning;
 }
 
 
@@ -159,6 +163,8 @@ OrbitData& OrbitData::operator= (const OrbitData &right)
    
    stateTypeId = right.stateTypeId;
    
+   firstTimeEpochWarning = right.firstTimeEpochWarning;
+
    return *this;
 }
 
@@ -287,13 +293,40 @@ Rvector6 OrbitData::GetCartState()
    {
       #ifdef DEBUG_ORBITDATA_CONVERT
          MessageInterface::ShowMessage
-            ("OrbitData::GetCartState() mOutCoordSystem:%s, Axis addr=%d\n",
+            ("OrbitData::GetCartState() mOutCoordSystem:%s(%s), Axis addr=%d\n",
              mOutCoordSystem->GetName().c_str(),
+             mOutCoordSystem->GetTypeName().c_str(),
              mOutCoordSystem->GetRefObject(Gmat::AXIS_SYSTEM, ""));
+         if (mOutCoordSystem->AreAxesOfType("ObjectReferencedAxes"))
+               MessageInterface::ShowMessage("OrbitData::GetCartState() <-- mOutCoordSystem IS of type ObjectReferencedAxes!!!\n");
+         else
+            MessageInterface::ShowMessage("OrbitData::GetCartState() <-- mOutCoordSystem IS NOT of type ObjectReferencedAxes!!!\n");
          MessageInterface::ShowMessage
             ("OrbitData::GetCartState() <-- Before convert: mCartEpoch=%f\nstate = %s\n", 
              mCartEpoch, mCartState.ToString().c_str());
+         MessageInterface::ShowMessage
+            ("OrbitData::GetCartState() <-- firstTimeEpochWarning = %s\n",
+             (firstTimeEpochWarning? "true" : "false"));
+
       #endif
+
+      if ((mOutCoordSystem->AreAxesOfType("ObjectReferencedAxes")) && !firstTimeEpochWarning)
+      {
+         GmatBase *objRefOrigin = mOutCoordSystem->GetOrigin();
+         if (objRefOrigin->IsOfType("Spacecraft"))
+         {
+            std::string scName = ((Spacecraft*) objRefOrigin)->GetName();
+            if (scName != mSpacecraft->GetName())
+            {
+               std::string errmsg = "Warning:  In Coordinate System \"";
+               errmsg += mOutCoordSystem->GetName() + "\", \"";
+               errmsg += mSpacecraft->GetName() + "\" and \"";
+               errmsg += objRefOrigin->GetName() + "\" may have different epochs.\n";
+               MessageInterface::PopupMessage(Gmat::WARNING_, errmsg);
+               firstTimeEpochWarning = true;
+            }
+         }
+      }
       
       try
       {
@@ -314,9 +347,6 @@ Rvector6 OrbitData::GetCartState()
          errmsg += mOutCoordSystem->GetName() + " coordinate system.\n";
          errmsg += "Message: " + e.GetFullMessage() + "\n";
          throw ParameterException(errmsg);
-//         throw ParameterException
-//            ("OrbitData::GetCartState() Failed to convert to " +
-//             mOutCoordSystem->GetName() + " coordinate system.\n");
       }
    }
    

@@ -117,6 +117,8 @@ protected:
    
    StateConverter   stateConverter;
 
+   bool        firstTimeEpochWarning;
+
    // only one CoordinateConverter needed
    static CoordinateConverter mCoordConverter;
    
