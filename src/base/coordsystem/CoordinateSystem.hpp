@@ -78,6 +78,7 @@ public:
    virtual void                  GetLastRotationMatrix(Real *mat) const;
    virtual Rmatrix33             GetLastRotationDotMatrix() const;
    virtual void                  GetLastRotationDotMatrix(Real *mat) const;
+   virtual bool                  AreAxesOfType(const std::string &ofType) const;
    
    
    // initializes the CoordinateSystem

@@ -413,6 +413,13 @@ void CoordinateSystem::GetLastRotationDotMatrix(Real *mat) const
    axes->GetLastRotationDotMatrix(mat);
 }
 
+bool CoordinateSystem::AreAxesOfType(const std::string &ofType) const
+{
+   if (!axes) return false;
+   return axes->IsOfType(ofType);
+}
+
+
 //---------------------------------------------------------------------------
 //  bool CoordinateSystem::Initialize()
 //---------------------------------------------------------------------------
