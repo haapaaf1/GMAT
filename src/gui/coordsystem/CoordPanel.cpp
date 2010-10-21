@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              CoordPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Allison Greene
 // Created: 2005/03/11
@@ -112,7 +112,12 @@ void CoordPanel::EnableOptions(AxisSystem *axis)
       Real epoch = tmpAxis->GetEpoch().Get();
       epochValue = theGuiManager->ToWxString(epoch);
 //      epochFormatValue = wxString(tmpAxis->GetEpochFormat().c_str());
-      
+
+      #if DEBUG_COORD_PANEL
+      MessageInterface::ShowMessage
+         ("CoordPanel::EnableOptions() about to set epoch value to %12.10f (string = %s)\n",
+               epoch, epochValue.c_str());
+      #endif
       // set the text ctrl
       epochTextCtrl->SetValue(epochValue);
 //      formatComboBox->SetValue(epochFormatValue);
@@ -290,6 +295,10 @@ void CoordPanel::ShowAxisData(AxisSystem *axis)
 //         formatComboBox->SetStringSelection(epochFormat.c_str());
          
          Real epoch = axis->GetEpoch().Get();
+         #if DEBUG_COORD_PANEL
+            MessageInterface::ShowMessage
+               ("CoordPanel::ShowAxisData() about to set the value of epoch to %12.10f\n", epoch);
+         #endif
          epochTextCtrl->SetValue(theGuiManager->ToWxString(epoch));
       }
       
@@ -397,6 +406,11 @@ AxisSystem* CoordPanel::CreateAxis()
 //               //    GmatTimeUtil::JD_JAN_5_1941);
 //            }
             
+            #if DEBUG_COORD_PANEL
+               MessageInterface::ShowMessage
+                  ("CoordPanel::CreateAxis() about to set the value of epoch on axis to %12.10f\n",
+                        a1mjd);
+            #endif
             axis->SetEpoch(a1mjd);
             
          }
@@ -810,8 +824,8 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
 {
    #if DEBUG_COORD_PANEL
    MessageInterface::ShowMessage
-      ("oordPanel::SaveData() coordName=%s, epochFormat=%s\n",
-       coordName.c_str(), epochFormat.c_str());
+      ("oordPanel::SaveData() coordName=%s, epochFormat=%s, epoch = %s\n",
+       coordName.c_str(), epochFormat.c_str(), epochValue.c_str());
    #endif
    
    bool canClose = true;
@@ -917,12 +931,15 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
       //-------------------------------------------------------
       if (epochTextCtrl->IsEnabled())
       {     
-//         wxString newEpochFormat = formatComboBox->GetValue().Trim();
-//         std::string epochStr = epochTextCtrl->GetValue().c_str();
          Real epoch, a1mjd;
+         std::string savedEpoch = epochValue.c_str();
+         #ifdef DEBUG_COORD_PANEL_SAVE
+            MessageInterface::ShowMessage("In CoordPanel::SaveData, saving current epoch value (%s)\n",
+                  savedEpoch.c_str());
+         #endif
          
          inputString = epochTextCtrl->GetValue();
-         if ((GmatStringUtil::ToReal(inputString, &epoch)) && (epoch >= 0.0))
+         if ((GmatStringUtil::ToReal(inputString, &epoch)) && (epoch >= 6116.0))
          {
             epochValue = epochTextCtrl->GetValue();
             a1mjd      = epoch;
@@ -948,15 +965,16 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
 //               }
 //            }
             #ifdef DEBUG_COORD_PANEL_SAVE
-               MessageInterface::ShowMessage("In CoordPanel::SaveData, setting epoch to %12.10f\n",
+               MessageInterface::ShowMessage("In CoordPanel::SaveData, setting epoch on axis to %12.10f\n",
                      a1mjd);
             #endif
             axis->SetEpoch(a1mjd);
          }
          else
          {
+//            epochTextCtrl->SetValue(epochValue);
             MessageInterface::PopupMessage(Gmat::ERROR_, msg.c_str(), 
-               inputString.c_str(),"Epoch","Real Number >= 0.0");
+               inputString.c_str(),"Epoch","Real Number >= 6116.0");
             canClose = false;
          }
       }
