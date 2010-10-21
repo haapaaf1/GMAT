@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              CoordSystemConfigPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Waka Waktola
 // Created: 2004/10/26
@@ -32,6 +32,7 @@ private:
    wxString mEpochFormat;
    bool mOriginChanged;
    bool mObjRefChanged;
+   bool mEpochChanged;
    
    wxTextCtrl *epochTextCtrl;
    wxTextCtrl *intervalTextCtrl;

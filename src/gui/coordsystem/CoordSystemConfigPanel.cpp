@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              CoordSystemConfigPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Waka Waktola
 // Created: 2004/10/26
@@ -158,6 +158,42 @@ void CoordSystemConfigPanel::SaveData()
    try
    {
       //-------------------------------------------------------
+      // check/set new epoch
+      //-------------------------------------------------------
+      if (mEpochChanged)
+      {
+         std::string savedEpoch = (mCoordPanel->epochValue).c_str();
+         Real epoch;
+         std::string str = mCoordPanel->GetEpochTextCtrl()->GetValue().c_str();
+         #if DEBUG_COORD_PANEL_SAVE
+         MessageInterface::ShowMessage
+            ("CoordSystemConfigPanel::SaveData() epoch value = %s\n",
+             str.c_str());
+         #endif
+         bool isValid = CheckReal(epoch, str, "Epoch", "Real Number >= 0");
+         #if DEBUG_COORD_PANEL_SAVE
+         MessageInterface::ShowMessage
+            ("CoordSystemConfigPanel::SaveData() isValid = %s, and epoch real value = %12.10f\n",
+             (isValid? "true" : "false"), epoch);
+         #endif
+
+         // check range here too
+
+//         if (isValid && epoch < 0.0)
+//            isValid = CheckReal(epoch, str, "Epoch", "Real Number >= 0", true);
+         if (isValid)
+            isValid = CheckRealRange(str, epoch, "Epoch", 6116.0, 0.0, true, false, true, false);
+         if (!isValid)
+         {
+            canClose = false;
+         }
+      }
+
+      if (!canClose)
+         return;
+
+
+      //-------------------------------------------------------
       // set new origin
       //-------------------------------------------------------
       if (mOriginChanged)
@@ -223,12 +259,16 @@ void CoordSystemConfigPanel::SaveData()
 
 
 //------------------------------------------------------------------------------
-// void OnGravityTextUpdate(wxCommandEvent& event)
+// void OnTextUpdate(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void CoordSystemConfigPanel::OnTextUpdate(wxCommandEvent& event)
 {
    mObjRefChanged = true;
    EnableUpdate(true);
+   if (mCoordPanel->GetEpochTextCtrl()->IsModified() )
+   {
+      mEpochChanged = true;
+   }
 }
 
 
