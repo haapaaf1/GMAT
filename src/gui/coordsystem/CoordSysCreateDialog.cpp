@@ -158,7 +158,7 @@ void CoordSysCreateDialog::SaveData()
           (isValid? "true" : "false"), epoch);
       #endif
       
-      // check range here, since there is no CoordinateSystem created yet
+      // check range here
       
 //      if (isValid && epoch < 0.0)
 //         CheckReal(epoch, str, "Epoch", "Real Number >= 0", true);
