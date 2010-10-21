@@ -358,6 +358,7 @@ bool UserInputValidator::IsValidName(const wxString &name)
 
 //------------------------------------------------------------------------------
 // bool CheckRealRange(Real value, Real lower, Real upper,
+//                     bool checkLower = true, bool checkUpper = true,
 //                     bool includeLower, bool includeUpper)
 //------------------------------------------------------------------------------
 /*
@@ -367,6 +368,8 @@ bool UserInputValidator::IsValidName(const wxString &name)
  * @param  value       real value to be checked
  * @param  lower       lower bound against which to check the value
  * @param  upper       upper bound against which to check the value
+ * @param  checkLower  flag indicating whether or not to check the lower bound
+ * @param  checkUpper  flag indicating whether or not to check the upper bound
  * @param includeLower flag indicating whether or not the range check is inclusive of the
  *                     lower bound
  * @param includeUpper flag indicating whether or not the range check is inclusive of the
@@ -378,14 +381,60 @@ bool UserInputValidator::IsValidName(const wxString &name)
 bool UserInputValidator::CheckRealRange(const std::string &sValue,
                                         Real value,        const std::string &field,
                                         Real lower,        Real upper,
+                                        bool checkLower,   bool checkUpper,
                                         bool includeLower, bool includeUpper)
 {
-   if ((value > lower) && (value < upper))                  return true;
-   if (includeLower && GmatMathUtil::IsEqual(value, lower)) return true;
-   if (includeUpper && GmatMathUtil::IsEqual(value, upper)) return true;
+   static std::string lessOrEq = " <= ";
+   static std::string lessThan = " < ";
+   static std::string moreOrEq = " >= ";
+   static std::string moreThan = " > ";
 
+   if ((!checkLower) && (!checkUpper)) return true;
+
+   if (checkLower && checkUpper)
+   {
+      if ((value > lower) && (value < upper))                  return true;
+      if (includeLower && GmatMathUtil::IsEqual(value, lower)) return true;
+      if (includeUpper && GmatMathUtil::IsEqual(value, upper)) return true;
+   }
+   else if (checkLower)
+   {
+      if (value > lower) return true;
+      if (includeLower && GmatMathUtil::IsEqual(value, lower)) return true;
+   }
+   else // checkUpper only
+   {
+      if (value < upper) return true;
+      if (includeUpper && GmatMathUtil::IsEqual(value, upper)) return true;
+   }
+
+   // range check failed; generate error message
    std::stringstream ss("");
-   ss << lower << " <= Real Number <= " << upper;
+   if (checkLower && checkUpper)
+   {
+      ss << lower;
+      if (includeLower) ss << lessOrEq;
+      else              ss << lessThan;
+      ss << "Real Number";
+      if (includeUpper) ss << lessOrEq;
+      else              ss << lessThan;
+      ss << upper;
+   }
+   else if (checkLower)
+   {
+      ss << "Real Number";
+      if (includeLower) ss << moreOrEq;
+      else              ss << moreThan;
+      ss << lower;
+   }
+   else if (checkUpper)
+   {
+      ss << "Real Number";
+      if (includeUpper) ss << lessOrEq;
+      else              ss << lessThan;
+      ss << upper;
+   }
+
    std::string expRange = ss.str();
    MessageInterface::PopupMessage
       (Gmat::ERROR_, mMsgFormat.c_str(), sValue.c_str(), field.c_str(),
