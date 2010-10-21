@@ -1879,19 +1879,19 @@ bool OrbitPanel::CheckEquinoctial(Rvector6 &state)
    }
    
    if ((!theScPanel->CheckReal(state[1], mElements[1], "EquinoctialH", "Real Number")) ||
-       (!theScPanel->CheckRealRange(mElements[1], state[1], "EquinoctialH", -1.0, 1.0, true, true)))
+       (!theScPanel->CheckRealRange(mElements[1], state[1], "EquinoctialH", -1.0, 1.0, true, true, true, true)))
          retval =  false;
    
    if ((!theScPanel->CheckReal(state[2], mElements[2], "EquinoctialK", "Real Number")) ||
-         (!theScPanel->CheckRealRange(mElements[2], state[2], "EquinoctialK", -1.0, 1.0, true, true)))
+         (!theScPanel->CheckRealRange(mElements[2], state[2], "EquinoctialK", -1.0, 1.0, true, true, true, true)))
       retval = false;
    
    if ((!theScPanel->CheckReal(state[3], mElements[3], "EquinoctialP", "Real Number")) ||
-         (!theScPanel->CheckRealRange(mElements[3], state[3], "EquinoctialP", -1.0, 1.0, true, true)))
+         (!theScPanel->CheckRealRange(mElements[3], state[3], "EquinoctialP", -1.0, 1.0, true, true, true, true)))
       retval = false;
    
    if ((!theScPanel->CheckReal(state[4], mElements[4], "EquinoctialQ", "Real Number")) ||
-         (!theScPanel->CheckRealRange(mElements[4], state[4], "EquinoctialQ", -1.0, 1.0, true, true)))
+         (!theScPanel->CheckRealRange(mElements[4], state[4], "EquinoctialQ", -1.0, 1.0, true, true, true, true)))
       retval = false;
    
    if (!theScPanel->CheckReal(state[5], mElements[5], "Mean Longitude", "Real Number"))
