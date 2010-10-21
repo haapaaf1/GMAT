@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              CoordSysCreateDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Allison Greene
 // Created: 2005/03/03
@@ -160,8 +160,10 @@ void CoordSysCreateDialog::SaveData()
       
       // check range here, since there is no CoordinateSystem created yet
       
-      if (isValid && epoch < 0.0)
-         CheckReal(epoch, str, "Epoch", "Real Number >= 0", true);
+//      if (isValid && epoch < 0.0)
+//         CheckReal(epoch, str, "Epoch", "Real Number >= 0", true);
+      if (isValid)
+         CheckRealRange(str, epoch, "Epoch", 6116.0, 0.0, true, false, true, false);
       
 //      str = mCoordPanel->GetIntervalTextCtrl()->GetValue();
 //      isValid = CheckReal(interval, str, "UpdateInterval", "Real Number >= 0");
