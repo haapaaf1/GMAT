@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  CalculatedPoint
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Wendy C. Shoan
 // Created: 2005/04/04
@@ -396,6 +396,10 @@ bool CalculatedPoint::SetStringParameter(const Integer id,
    {
       if (find(bodyNames.begin(), bodyNames.end(), value) == bodyNames.end())
       {
+         #ifdef DEBUG_CP_OBJECT
+            MessageInterface::ShowMessage("Adding %s to body name list for object %s\n",
+                  value.c_str(), instanceName.c_str());
+         #endif
          bodyNames.push_back(value);
       }
       
@@ -589,7 +593,7 @@ bool CalculatedPoint::SetRefObject(GmatBase *obj,
 {
    if (obj->IsOfType(Gmat::SPACE_POINT))
    {
-      // first check to see if it's already in the list
+      // check to see if it's already in the list
       std::vector<SpacePoint*>::iterator pos =
          find(bodyList.begin(), bodyList.end(), obj);
       if (pos != bodyList.end())
@@ -629,7 +633,8 @@ bool CalculatedPoint::SetRefObject(GmatBase *obj,
          #ifdef DEBUG_CP_OBJECT
          MessageInterface::ShowMessage
             ("CalculatedPoint::SetRefObject() this=<%p> '%s', adding <%p> '%s' "
-             "to bodyList\n", this, GetName().c_str(), obj, name.c_str());
+             "to bodyList for object %s\n", this, GetName().c_str(), obj, name.c_str(),
+             instanceName.c_str());
          #endif
          
          bodyList.push_back((SpacePoint*) obj);         
