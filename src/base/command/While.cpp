@@ -103,7 +103,7 @@ While::~While()
 }
 
     
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------10001
 //  bool Append(GmatCommand *cmd)
 //------------------------------------------------------------------------------
 /**
@@ -233,6 +233,7 @@ bool While::Execute()
             MessageInterface::ShowMessage(
                "   Conditions false; command complete\n");
          #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
+         publisher->FlushBuffers();
          commandComplete  = true;
          commandExecuting = false;
          branchExecuting  = false;

@@ -543,6 +543,7 @@ bool Optimize::Execute()
 
       if (theSolver->GetState() == Solver::FINISHED) 
       {
+         publisher->FlushBuffers();
          optimizerConverged = true;
       }
    }

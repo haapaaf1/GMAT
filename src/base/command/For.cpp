@@ -301,7 +301,7 @@ bool For::Execute()
       {
          // Branch finished executing; update loop indexWrapper
          currentValue += stepSize;
-		 currentPass  += 1;
+                 currentPass  += 1;
          indexWrapper->SetReal(currentValue);
          #ifdef DEBUG_FOR_EXE
             MessageInterface::ShowMessage(
@@ -326,6 +326,7 @@ bool For::Execute()
       }
       else
       {
+         publisher->FlushBuffers();
          commandComplete  = true;
          commandExecuting = false;
          currentValue     = UNINITIALIZED_VALUE;  // start the loop over
@@ -1044,8 +1045,8 @@ bool For::StillLooping()
       startValue = startWrapper->EvaluateReal();
       endValue   = endWrapper->EvaluateReal();
       stepSize   = incrWrapper->EvaluateReal();
-	  numPasses  = (int)( floor((endValue - startValue)/stepSize)) + 1;
-	  currentPass = 1;
+          numPasses  = (int)( floor((endValue - startValue)/stepSize)) + 1;
+          currentPass = 1;
       
       #if DEBUG_FOR_EXE
       MessageInterface::ShowMessage
@@ -1055,20 +1056,20 @@ bool For::StillLooping()
       
       if ((stepSize == 0.0) ||
           ((stepSize > 0.0) && (startValue > endValue)) ||
-		  ((stepSize < 0.0) && (startValue < endValue)) )
-	  {
+                  ((stepSize < 0.0) && (startValue < endValue)) )
+          {
          //throw CommandException(
          //      "For loop values incorrect - will result in infinite loop "
          //      "in line:\n   \"" + generatingString + "\"\n");
-	  commandComplete = true;
-	  return false;
-	  }
-	  else
-	  {
+          commandComplete = true;
+          return false;
+          }
+          else
+          {
       currentValue = startValue;
       indexWrapper->SetReal(currentValue);
       commandComplete  = false;
-	  }
+          }
    }
    if (((stepSize > 0.0) && (currentPass <= numPasses)) ||
        ((stepSize < 0.0) && (currentPass <= numPasses)) )

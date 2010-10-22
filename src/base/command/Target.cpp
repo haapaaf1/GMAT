@@ -838,11 +838,13 @@ bool Target::Execute()
    {
       theSolver->AdvanceState();
 
-      if (theSolver->GetState() == Solver::FINISHED) {
+      if (theSolver->GetState() == Solver::FINISHED)
+      {
+         publisher->FlushBuffers();
          targeterConverged = true;
       }
    }
-
+   
    // Pass spacecraft data to the targeter for reporting in debug mode
    if (targeterInDebugMode)
    {
