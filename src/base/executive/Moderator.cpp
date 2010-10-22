@@ -71,6 +71,7 @@
 //#define DEBUG_RUN 1
 //#define DEBUG_CREATE_COORDSYS 1
 //#define DEBUG_CREATE_RESOURCE 2
+//#define DEBUG_CREATE_CALC_POINT
 //#define DEBUG_CREATE_PARAMETER 1
 //#define DEBUG_PARAMETER_REF_OBJ 1
 //#define DEBUG_DEFAULT_COMMAND 1
@@ -1956,6 +1957,10 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
    
    if (GetCalculatedPoint(name) == NULL)
    {
+      #ifdef DEBUG_CREATE_CALC_POINT
+         MessageInterface::ShowMessage("Moderator::Creating new %s named %s\n",
+               type.c_str(), name.c_str());
+      #endif
       CalculatedPoint *obj = theFactoryManager->CreateCalculatedPoint(type, name);
       
       if (obj == NULL)
@@ -2004,7 +2009,7 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
             
             #if DEBUG_CREATE_RESOURCE
             MessageInterface::ShowMessage
-               ("   Setting sun <%p> and earth <%p> to LibrationPoint\n", sun, earth);
+               ("Moderator::Setting sun <%p> and earth <%p> to LibrationPoint %s\n", sun, earth, name.c_str());
             #endif
             
             obj->SetRefObject(sun, Gmat::SPACE_POINT, "Sun");
@@ -2015,18 +2020,19 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
       {
          if (addDefaultBodies)
          {
-            obj->SetStringParameter("BodyNames", "Earth");
-            
-            // Set body and J2000Body pointer, so that GUI can create LibrationPoint
-            // and use it in Coord.System conversion
-            SpacePoint *earth = (SpacePoint*)FindObject("Earth");
-            obj->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
-
-            // obj->SetStringParameter("BodyNames", "Luna");
-            // SpacePoint *luna = (SpacePoint*)FindObject("Luna");
-            // if (luna->GetJ2000Body() == NULL)
-            //    luna->SetJ2000Body(earth);
-            // obj->SetRefObject(luna, Gmat::SPACE_POINT, "Luna");
+            ;
+//            obj->SetStringParameter("BodyNames", "Earth");
+//
+//            // Set body and J2000Body pointer, so that GUI can create LibrationPoint
+//            // and use it in Coord.System conversion
+//            SpacePoint *earth = (SpacePoint*)FindObject("Earth");
+//            obj->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
+//
+//            // obj->SetStringParameter("BodyNames", "Luna");
+//            // SpacePoint *luna = (SpacePoint*)FindObject("Luna");
+//            // if (luna->GetJ2000Body() == NULL)
+//            //    luna->SetJ2000Body(earth);
+//            // obj->SetRefObject(luna, Gmat::SPACE_POINT, "Luna");
          }
       }
       
