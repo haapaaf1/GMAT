@@ -1107,7 +1107,7 @@ void Burn::ConvertDeltaVToInertial(Real *dv, Real *dvInertial, Real epoch)
    }
    else
    {
-      // if MJ2000Eq axes rotation matrix is alway identity matrix
+      // if MJ2000Eq axes rotation matrix is always identity matrix
       if (isMJ2000EqAxes)
       {
          dvInertial[0] = dv[0];
@@ -1119,7 +1119,7 @@ void Burn::ConvertDeltaVToInertial(Real *dv, Real *dvInertial, Real epoch)
          Rvector3 inDeltaV(dv[0], dv[1], dv[2]);
          Rvector3 outDeltaV;
          // Get attitude matrix from Spacecraft and transpose since
-         // attitide matrix from spacecraft gives rotation matrix from
+         // attitude matrix from spacecraft gives rotation matrix from
          // inertial to body
          Rmatrix33 inertialToBody = spacecraft->GetAttitude(epoch);
          Rmatrix33 rotMat = inertialToBody.Transpose();
@@ -1131,7 +1131,7 @@ void Burn::ConvertDeltaVToInertial(Real *dv, Real *dvInertial, Real epoch)
       {         
          // Now rotate to MJ2000Eq axes
          localCoordSystem->ToMJ2000Eq(epoch, inDeltaV, outDeltaV, true);
-         
+
          dvInertial[0] = outDeltaV[0];
          dvInertial[1] = outDeltaV[1];
          dvInertial[2] = outDeltaV[2];
