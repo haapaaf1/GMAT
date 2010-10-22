@@ -105,7 +105,6 @@ zAxis         ("")
  *
  * @param itsType Type for the object.
  * @param itsName Name for the object.
- *
  */
 //---------------------------------------------------------------------------
 ObjectReferencedAxes::ObjectReferencedAxes(const std::string &itsType,
@@ -773,7 +772,7 @@ bool ObjectReferencedAxes::SetRefObject(GmatBase *obj,
  * This method will compute the rotMatrix and rotDotMatrix used for rotations
  * from/to this AxisSystem to/from the ObjectReferencedAxes system.
  *
- * @param atEpoch  epoch at which to compute the roration matrix
+ * @param atEpoch  epoch at which to compute the rotation matrix
  */
 //---------------------------------------------------------------------------
 void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
@@ -817,8 +816,12 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    #ifdef DEBUG_ROT_MATRIX
       if (visitCount == 0)
       {
+         std::stringstream cout;
          cout.precision(30);
-         cout << " ----------------- rv Earth to Moon (truncated)    = " << rv << endl;
+         cout << " ----------------- rv Earth to Moon (truncated)    = "
+              << rv << std::endl;
+
+         MessageInterface::ShowMessage("%s\n", cout.str().c_str());
          visitCount++;
       }
    #endif
@@ -992,11 +995,16 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    #ifdef DEBUG_ROT_MATRIX
       MessageInterface::ShowMessage
          ("rotMatrix=%s\n", rotMatrix.ToString().c_str());
-      cout.setf(ios::fixed);
+
+      std::stringstream cout;
+
+      cout.setf(std::ios::fixed);
       cout.precision(30);
-      cout << " ----------------- rotMatrix    = " << rotMatrix << endl;
-      cout.setf(ios::scientific);
-      cout << " ----------------- rotDotMatrix = " << rotDotMatrix << endl;
+      cout << " ----------------- rotMatrix    = " << rotMatrix << std::endl;
+      cout.setf(std::ios::scientific);
+      cout << " ----------------- rotDotMatrix = " << rotDotMatrix << std::endl;
+
+      MessageInterface::ShowMessage("%s\n", cout.str().c_str());
    #endif
 
 //      if (!rotMatrix.IsOrthogonal(1.0e-14))
