@@ -241,6 +241,7 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
        satState[3], satState[4], satState[5]);
    #endif
    
+   // The returned vector here is not rotated correctly because one of the bodies is not centered correctly
    ConvertDeltaVToInertial(deltaV, deltaVInertial, epoch);
    
    satState[3] += deltaVInertial[0];
