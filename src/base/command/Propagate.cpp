@@ -4319,16 +4319,20 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
             "epoch = %16.10lf\n", secsToStep,
             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
       #endif
-   
-      publisher->FlushBuffers();
-    
+
+      // FlushBuffers here causes to write EphemerisFile multiple data segments
+      // when propagating inside a loop using  stop condition of Sat.TAIModJulian = stopTime.
+      // Stop condition of Sat.ElapsedSecs = 60 has no effects.
+      // So passed false for end of data block. (LOJ: 2010.10.22)
+      publisher->FlushBuffers(false);
+      
       #if DEBUG_PROPAGATE_EXE
          MessageInterface::ShowMessage
             ("Propagate::TakeFinalStep complete; epoch = %16.10lf\n",
              (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
       #endif
    }
-
+   
    // Clear previous stop conditions from the spacecraft, and then store the 
    // stop name in the spacecraft that triggered it
    for (ObjectArray::iterator it = sats.begin();

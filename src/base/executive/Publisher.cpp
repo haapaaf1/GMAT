@@ -365,10 +365,10 @@ bool Publisher::Publish(Integer id, char *data, Integer count)
    // Convert the data into a string for distribution
    Integer length;
    if (count)
-   	length = count + 1;
+        length = count + 1;
    else
-   	length = strlen(data) + 1;
-   	
+        length = strlen(data) + 1;
+        
    char *stream = new char[length];
 
    if (count)
@@ -445,9 +445,13 @@ bool Publisher::Publish(Integer id, Integer *data, Integer count)
 }
 
 //------------------------------------------------------------------------------
-// bool FlushBuffers()
+// bool FlushBuffers(bool endOfDataBlock = true)
 //------------------------------------------------------------------------------
-bool Publisher::FlushBuffers()
+/**
+ * Indicates end of data stream.
+ */
+//------------------------------------------------------------------------------
+bool Publisher::FlushBuffers(bool endOfDataBlock)
 {
    // No subscribers
    if (subscriberList.empty())
@@ -456,7 +460,7 @@ bool Publisher::FlushBuffers()
    std::list<Subscriber*>::iterator current = subscriberList.begin();
    while (current != subscriberList.end())
    {
-      if (!(*current)->FlushData())
+      if (!(*current)->FlushData(endOfDataBlock))
          return false;
       current++;
    }

@@ -41,7 +41,7 @@ public:
    bool Publish(Integer id, char *data, Integer count = 0);
    bool Publish(Integer id, Integer *data, Integer count);
    
-   bool FlushBuffers();
+   bool FlushBuffers(bool endOfDataBlock = true);
    bool NotifyEndOfRun();
    
    // Interface methods used to identify the data sent to the publisher and
