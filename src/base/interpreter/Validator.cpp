@@ -972,12 +972,17 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
          if (leftEw->GetDataType() == Gmat::FILENAME_TYPE &&
              !GmatStringUtil::IsEnclosedWith(name, "'"))
          {
-            name = GmatStringUtil::AddEnclosingString(origVal, "'");
-            addedQuotes = true;
-            #if DBGLVL_WRAPPERS > 1
-            MessageInterface::ShowMessage
-               ("   ===> It is FILENAME_TYPE, so added quotes, name='%s'\n", name.c_str());
-            #endif
+            // Check if name is not an object name (Bug 2148 fix)
+            if (FindObject(name) == NULL)
+            {
+               name = GmatStringUtil::AddEnclosingString(origVal, "'");
+               addedQuotes = true;
+               #if DBGLVL_WRAPPERS > 1
+               MessageInterface::ShowMessage
+                  ("   ===> It is FILENAME_TYPE and not an object name, "
+                   "so added quotes, name='%s'\n", name.c_str());
+               #endif
+            }
          }
       }
       if (name != "")
