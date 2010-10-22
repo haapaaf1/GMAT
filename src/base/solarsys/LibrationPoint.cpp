@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  LibrationPoint
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Wendy C. Shoan
 // Created: 2005/04/04
@@ -729,6 +729,15 @@ bool LibrationPoint::SetRefObject(GmatBase *obj,
       else if (name == secondaryBodyName)
          secondaryBody = (SpacePoint*)obj;
    }
+   #ifdef DEBUG_LP_OBJECT
+   MessageInterface::ShowMessage
+      ("   end of SetRefObject() this=<%p> '%s', obj=<%p><%s> entered\n",
+       this, GetName().c_str(), obj, obj->GetName().c_str());
+   MessageInterface::ShowMessage
+      ("   primaryBodyName='%s', primaryBody=<%p>\n   secondaryBodyName='%s', "
+       "secondaryBody=<%p>\n", primaryBodyName.c_str(), primaryBody,
+       secondaryBodyName.c_str(), secondaryBody);
+   #endif
    
    // Call parent class to add objects to bodyList
    return CalculatedPoint::SetRefObject(obj, type, name);
