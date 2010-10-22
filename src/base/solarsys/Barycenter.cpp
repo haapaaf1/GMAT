@@ -19,6 +19,9 @@
 #include "Barycenter.hpp"
 #include "SolarSystemException.hpp"
 #include "CelestialBody.hpp"
+#include "MessageInterface.hpp"
+
+//#define DEBUG_BARYCENTER
 
 //---------------------------------
 // static data
@@ -121,24 +124,43 @@ Barycenter::~Barycenter()
 const Rvector6 Barycenter::GetMJ2000State(const A1Mjd &atTime)
 {
    CheckBodies();
+   #ifdef DEBUG_BARYCENTER
+      MessageInterface::ShowMessage("Entering BaryCenter;:GetMJ2000EqState at time %12.10f\n",
+            atTime.Get());
+   #endif
    Real     bodyMass = 0.0;
    Rvector3 bodyPos(0.0,0.0,0.0);
    Rvector3 bodyVel(0.0,0.0,0.0);
    
    Real     sumMass  = 0.0;
+   Real     weight   = 0.0;
    Rvector3 sumMassPos(0.0,0.0,0.0);
    Rvector3 sumMassVel(0.0,0.0,0.0);
+
+   for (unsigned int ii = 0; ii < bodyList.size(); ii++)
+      sumMass +=  ((CelestialBody*) (bodyList.at(ii)))->GetMass();
+
    for (unsigned int i = 0; i < bodyList.size() ; i++)
    {
       bodyMass    = ((CelestialBody*) (bodyList.at(i)))->GetMass();
       bodyPos     = (bodyList.at(i))->GetMJ2000Position(atTime);
       bodyVel     = (bodyList.at(i))->GetMJ2000Velocity(atTime);
-      sumMass    += bodyMass;
-      sumMassPos += (bodyMass * bodyPos);
-      sumMassVel += (bodyMass * bodyVel);
+      weight      = bodyMass/sumMass;
+      #ifdef DEBUG_BARYCENTER
+         MessageInterface::ShowMessage("Mass (and weight) of body %s = %12.10f (%12.10f)\n",
+               ((bodyList.at(i))->GetName()).c_str(), bodyMass, weight);
+         MessageInterface::ShowMessage("    pos = %s\n", (bodyPos.ToString()).c_str());
+         MessageInterface::ShowMessage("    vel = %s\n", (bodyVel.ToString()).c_str());
+      #endif
+//      sumMassPos += (bodyMass * bodyPos);
+//      sumMassVel += (bodyMass * bodyVel);
+      sumMassPos += (weight * bodyPos);
+      sumMassVel += (weight * bodyVel);
    }
-   sumMassPos    /= sumMass;
-   sumMassVel    /= sumMass;
+   #ifdef DEBUG_BARYCENTER
+      MessageInterface::ShowMessage("sumMassPos = %s\n",
+            (sumMassPos.ToString()).c_str());
+   #endif
    return Rvector6(sumMassPos(0), sumMassPos(1), sumMassPos(2),
                    sumMassVel(0), sumMassVel(1), sumMassVel(2));
 }
