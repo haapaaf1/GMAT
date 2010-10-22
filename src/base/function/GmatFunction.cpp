@@ -493,6 +493,15 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
             throw;
          }
          
+         if (e.IsFatal())
+         {
+            #ifdef DEBUG_FUNCTION_EXEC
+            MessageInterface::ShowMessage
+               ("*** The exception is fatal, so re-throwing...\n");
+            #endif
+            throw;
+         }
+         
          // Let's try initialzing local objects here again (2008.10.14)
          InitializeLocalObjects(objInit, current, false);
          

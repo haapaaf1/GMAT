@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Subscriber
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -99,6 +99,7 @@ Subscriber::Subscriber(const std::string &typeStr, const std::string &nomme) :
    active(true),
    isManeuvering(false),
    isEndOfReceive(false),
+   isEndOfDataBlock(false),
    isEndOfRun(false),
    isInitialized(false),
    isFinalized(false),
@@ -250,6 +251,7 @@ Subscriber::~Subscriber()
 bool Subscriber::Initialize()
 {
    isEndOfReceive = false;
+   isEndOfDataBlock = false;
    isEndOfRun = false;
    isInitialized = false;
    isFinalized = false;
@@ -360,14 +362,16 @@ bool Subscriber::ReceiveData(const double *datastream, const int len)
 
 
 //------------------------------------------------------------------------------
-// bool FlushData()
+// bool FlushData(bool endOfDataBlock = true)
 //------------------------------------------------------------------------------
-bool Subscriber::FlushData()
+bool Subscriber::FlushData(bool endOfDataBlock)
 {
+   isEndOfDataBlock = endOfDataBlock;
    isEndOfReceive = true;
    Distribute(0);
    Distribute(NULL, 0);
    isEndOfReceive = false;
+   
    return true;
 }
 
@@ -378,10 +382,12 @@ bool Subscriber::FlushData()
 bool Subscriber::SetEndOfRun()
 {
    isEndOfReceive = true;
+   isEndOfDataBlock = true;
    isEndOfRun = true;
    Distribute(0);
    Distribute(NULL, 0);
    isEndOfReceive = false;
+   isEndOfDataBlock = false;
    isEndOfRun = false;
    return true;
 }
@@ -1375,7 +1381,7 @@ bool Subscriber::Distribute(const double *dat, int len)
 
 
 //------------------------------------------------------------------------------
-// virtual void HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
+// virtual void HandleManeuvering(GmatBase *originator, bool maneuvering, Real epoch,
 //                                const StringArray &satNames,
 //                                const std::string &desc)
 //------------------------------------------------------------------------------
@@ -1383,14 +1389,14 @@ bool Subscriber::Distribute(const double *dat, int len)
  * Handles maneuvering on or off.
  * 
  * @param originator  The maneuver command pointer who is maneuvering
- * @param flag  Set to true if maneuvering
+ * @param maneuvering  Set to true if maneuvering
  * @param epoch  Epoch of maneuver on or off
  * @param satNames  Names of the maneuvering spacecraft
  * @param desc  Description of maneuver (e.g. impulsive or finite)
  */
 //------------------------------------------------------------------------------
-void Subscriber::HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
-                                   const StringArray &satNames,
+void Subscriber::HandleManeuvering(GmatBase *originator, bool maneuvering,
+                                   Real epoch, const StringArray &satNames,
                                    const std::string &desc)
 {
    // do nothing here

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Subscriber
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -52,7 +52,7 @@ public:
    virtual bool         ReceiveData(const char * datastream);
    virtual bool         ReceiveData(const char * datastream, const Integer len);
    virtual bool         ReceiveData(const Real * datastream, const Integer len = 0);
-   virtual bool         FlushData();
+   virtual bool         FlushData(bool endOfDataBlock = true);
    virtual bool         SetEndOfRun();
    virtual void         SetRunState(Gmat::RunState rs);
    void                 SetManeuvering(GmatBase *maneuver, bool flag, Real epoch,
@@ -152,6 +152,7 @@ protected:
    bool                 active;
    bool                 isManeuvering;
    bool                 isEndOfReceive;
+   bool                 isEndOfDataBlock;
    bool                 isEndOfRun;
    bool                 isInitialized;
    bool                 isFinalized;
@@ -178,7 +179,7 @@ protected:
    virtual bool         Distribute(Integer len) = 0;
    virtual bool         Distribute(const Real *dat, Integer len);
    virtual void         HandleManeuvering(GmatBase *originator,
-                                          bool flag, Real epoch,
+                                          bool maneuvering, Real epoch,
                                           const StringArray &satNames,
                                           const std::string &desc);
    virtual void         HandleScPropertyChange(GmatBase *originator, Real epoch,

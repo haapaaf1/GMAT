@@ -144,7 +144,7 @@ protected:
    Real        nextReqEpoch;
    Real        currEpochInDays;
    Real        currEpochInSecs;
-   Real        prevEpoch;
+   Real        prevEpochInSecs;
    Real        prevProcTime;
    Real        lastEpochWrote;
    Real        attEpoch;
@@ -278,7 +278,7 @@ protected:
    // methods inherited from Subscriber
    virtual bool Distribute(Integer len);
    virtual bool Distribute(const Real * dat, Integer len);
-   virtual void HandleManeuvering(GmatBase *originator, bool flag, Real epoch,
+   virtual void HandleManeuvering(GmatBase *originator, bool maneuvering, Real epoch,
                                   const StringArray &satNames,
                                   const std::string &desc);
    virtual void HandlePropagatorChange(GmatBase *provider);
