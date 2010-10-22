@@ -1695,8 +1695,10 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
             // check if LHS is object.property
             if (FindPropertyID(obj, lhs, &owner, paramID, paramType))
             {
+               Gmat::ParameterType paramType = obj->GetParameterType(paramID);
                // Since string can have minus sign, check it first
-               if (obj->GetParameterType(paramID) != Gmat::STRING_TYPE)
+               if (paramType != Gmat::STRING_TYPE && paramType != Gmat::ENUMERATION_TYPE &&
+                   paramType != Gmat::FILENAME_TYPE)
                   inCommandMode = true;
             }
             else
