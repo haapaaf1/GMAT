@@ -160,7 +160,7 @@ void EphemerisFilePanel::Create()
    grid2->Add(fileFormatComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(0, 0, wxALIGN_CENTER|wxALL, bsize );
    
-   id = mObject->GetParameterID("FileName");
+   id = mObject->GetParameterID("Filename");
    wxStaticText * fileNameStaticText =
       new  wxStaticText(this, ID_TEXT, wxT("File "GUI_ACCEL_KEY"Name"), wxDefaultPosition, wxDefaultSize, 0 );
    fileNameTextCtrl = (wxTextCtrl*) BuildControl(this, id);
@@ -258,7 +258,7 @@ void EphemerisFilePanel::LoadData()
       LoadControl("CoordinateSystem");
       LoadControl("WriteEphemeris");
       LoadControl("FileFormat");
-      LoadControl("FileName");
+      LoadControl("Filename");
       LoadControl("Interpolator");
       LoadControl("InterpolationOrder");
       LoadControl("StepSize");
@@ -297,7 +297,7 @@ void EphemerisFilePanel::SaveData()
       SaveControl("CoordinateSystem");
       SaveControl("WriteEphemeris");
       SaveControl("FileFormat");
-      SaveControl("FileName");
+      SaveControl("Filename");
       SaveControl("Interpolator");
       SaveControl("InterpolationOrder");
       SaveControl("StepSize");
@@ -489,7 +489,7 @@ void EphemerisFilePanel::LoadControl(const std::string &label)
       valueString = wxT(mObject->GetStringParameter(label).c_str());
       fileFormatComboBox->SetValue(valueString);
    }
-   else if (label == "FileName")
+   else if (label == "Filename")
    {
       valueString = wxT(mObject->GetStringParameter(label).c_str());
       fileNameTextCtrl->SetValue(valueString);
@@ -570,7 +570,7 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
       valueString = fileFormatComboBox->GetValue();
       mObject->SetStringParameter(index, valueString);
    }
-   else if (label == "FileName")
+   else if (label == "Filename")
    {
       valueString = fileNameTextCtrl->GetValue();
       mObject->SetStringParameter(index, valueString);
