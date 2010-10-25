@@ -321,6 +321,10 @@ protected:
    bool BuildFunctionDefinition(const std::string &str);
    void ClearTempObjectNames();
    
+   bool ValidateMcsCommands(GmatCommand *first, GmatCommand *parent = NULL,
+         StringArray *missingObjects = NULL, std::string
+         *accumulatedErrors = NULL);
+
 private:
       
    StringArray   commandList;

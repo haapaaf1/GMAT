@@ -114,6 +114,10 @@ public:
    virtual void         SetPublisher(Publisher *p);
    virtual Publisher*   GetPublisher();
    
+   // Methods used in validation
+   virtual const StringArray& GetObjectList();
+   virtual bool         Validate();
+
    // Access methods inherited from GmatBase
    virtual std::string GetParameterText(const Integer id) const;
    virtual Integer     GetParameterID(const std::string &str) const;
@@ -328,6 +332,10 @@ protected:
    void                ClearOldWrappers();
    void                CollectOldWrappers(ElementWrapper **wrapper);
    void                DeleteOldWrappers();
+
+   // Publish methods that are overridden as needed
+   virtual void        PrepareToPublish(bool publishAll = true);
+   virtual void        PublishData();
 };
 
 #endif // Command_hpp

@@ -59,6 +59,8 @@ public:
    virtual void         SetGlobalObjectMap(ObjectMap *map);
    
    virtual bool         InterpretAction();
+   virtual const StringArray& GetObjectList();
+   virtual bool         Validate();
    virtual bool         Initialize();
    virtual bool         Execute();
    virtual void         RunComplete();

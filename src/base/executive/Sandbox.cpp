@@ -645,81 +645,98 @@ bool Sandbox::Initialize()
          "Sandbox::Initialize() Initializing Commands...\n");
    #endif
    
-   
-   //MessageInterface::ShowMessage("=====> Initialize commands\n");
+   StringArray exceptions;
+   UnsignedInt exceptionCount = 0;
+
    // Initialize commands
    while (current)
    {
-      #ifdef DEBUG_SANDBOX_INIT
-      MessageInterface::ShowMessage
-         ("Initializing %s command\n   \"%s\"\n",
-          current->GetTypeName().c_str(),
-          current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
-      #endif
-      
-      current->SetTriggerManagers(&triggerManagers);
-
-      #ifdef DEBUG_SANDBOX_GMATFUNCTION
-         MessageInterface::ShowMessage("Initializing %s command\n",
-            current->GetTypeName().c_str());
-      #endif
-         
-      current->SetObjectMap(&objectMap);
-      current->SetGlobalObjectMap(&globalObjectMap);
-      SetGlobalRefObject(current);
-      
-      // Handle GmatFunctions
-      if ((current->IsOfType("CallFunction")) ||
-          (current->IsOfType("Assignment")))
-      {
-         #ifdef DEBUG_SANDBOX_GMATFUNCTION
-            MessageInterface::ShowMessage(
-               "CallFunction or Assignment found in MCS: calling HandleGmatFunction \n");
-         #endif
-         HandleGmatFunction(current, &combinedObjectMap);
-      }
-      if (current->IsOfType("BranchCommand"))
-      {
-         std::vector<GmatCommand*> cmdList = ((BranchCommand*) current)->GetCommandsWithGmatFunctions();
-         Integer sz = (Integer) cmdList.size();
-         #ifdef DEBUG_SANDBOX_GMATFUNCTION
-            MessageInterface::ShowMessage("... returning %d functions with GmatFunctions\n", sz);
-         #endif
-         for (Integer jj = 0; jj < sz; jj++)
-         {
-            HandleGmatFunction(cmdList.at(jj), &combinedObjectMap);
-            (cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
-         }
-      }
-
       try
       {
-         rv = current->Initialize();
-         if (!rv)
-            throw SandboxException("The Mission Control Sequence command\n\n" +
-                  current->GetGeneratingString(Gmat::SCRIPTING, "   ") +
-                  "\n\nfailed to initialize correctly.  Please correct the error "
-                  "and try again.");
+         #ifdef DEBUG_SANDBOX_INIT
+         MessageInterface::ShowMessage
+            ("Initializing %s command\n   \"%s\"\n",
+             current->GetTypeName().c_str(),
+             current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+         #endif
+
+         current->SetTriggerManagers(&triggerManagers);
+
+         #ifdef DEBUG_SANDBOX_GMATFUNCTION
+            MessageInterface::ShowMessage("Initializing %s command\n",
+               current->GetTypeName().c_str());
+         #endif
+
+         current->SetObjectMap(&objectMap);
+         current->SetGlobalObjectMap(&globalObjectMap);
+         SetGlobalRefObject(current);
+
+         // Handle GmatFunctions
+         if ((current->IsOfType("CallFunction")) ||
+             (current->IsOfType("Assignment")))
+         {
+            #ifdef DEBUG_SANDBOX_GMATFUNCTION
+               MessageInterface::ShowMessage(
+                  "CallFunction or Assignment found in MCS: calling HandleGmatFunction \n");
+            #endif
+            HandleGmatFunction(current, &combinedObjectMap);
+         }
+         if (current->IsOfType("BranchCommand"))
+         {
+            std::vector<GmatCommand*> cmdList = ((BranchCommand*) current)->GetCommandsWithGmatFunctions();
+            Integer sz = (Integer) cmdList.size();
+            #ifdef DEBUG_SANDBOX_GMATFUNCTION
+               MessageInterface::ShowMessage("... returning %d functions with GmatFunctions\n", sz);
+            #endif
+            for (Integer jj = 0; jj < sz; jj++)
+            {
+               HandleGmatFunction(cmdList.at(jj), &combinedObjectMap);
+               (cmdList.at(jj))->SetInternalCoordSystem(internalCoordSys);
+            }
+         }
+
+         try
+         {
+            rv = current->Initialize();
+            if (!rv)
+               throw SandboxException("The Mission Control Sequence command\n\n" +
+                     current->GetGeneratingString(Gmat::SCRIPTING, "   ") +
+                     "\n\nfailed to initialize correctly.  Please correct the error "
+                     "and try again.");
+         }
+         catch (BaseException &be)
+         {
+            // Call ValidateCommand to create wrappers and Initialize.(LOJ: 2010.08.24)
+            // This will fix bug 1918 for the following scenario in ScriptEvent.
+            // In ScriptEvent, x = 1 where x is undefined, save it.
+            // Add x from the ResourceTree and run the mission.
+            moderator->ValidateCommand(current);
+            rv = current->Initialize();
+         }
+
+         // Check to see if the command needs a server startup
+         if (current->NeedsServerStartup())
+            if (moderator->StartMatlabServer() == false)
+               throw SandboxException("Unable to start the server needed by the " +
+                        (current->GetTypeName()) + " command");
       }
       catch (BaseException &be)
       {
-         // Call ValidateCommand to create wrappers and Initialize.(LOJ: 2010.08.24)
-         // This will fix bug 1918 for the following senario in ScriptEvent.
-         // In ScriptEvent, x = 1 where x is undefined, save it.
-         // Add x from the ResourceTree and run the mission.
-         moderator->ValidateCommand(current);
-         rv = current->Initialize();
+         ++exceptionCount;
+         exceptions.push_back(be.GetFullMessage());
       }
-      
-      // Check to see if the command needs a server startup
-      if (current->NeedsServerStartup())
-         if (moderator->StartMatlabServer() == false)
-            throw SandboxException("Unable to start the server needed by the " +
-                     (current->GetTypeName()) + " command");
-
       current = current->GetNext();
    }
 
+   if (exceptionCount > 0)
+   {
+      for (UnsignedInt i = 0; i < exceptionCount; ++i)
+      {
+         MessageInterface::ShowMessage("%d: %s\n", i+1, exceptions[i].c_str());
+      }
+      throw SandboxException("Errors were found in the mission control "
+            "sequence; please correct the errors listed in the message window");
+   }
 
    #ifdef DEBUG_SANDBOX_INIT
       MessageInterface::ShowMessage(

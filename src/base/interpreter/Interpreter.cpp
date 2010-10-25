@@ -45,6 +45,7 @@
 //#define DEBUG_HANDLE_ERROR
 //#define DEBUG_INIT
 //#define DEBUG_COMMAND_LIST
+//#define DEBUG_COMMAND_VALIDATION
 //#define DEBUG_OBJECT_LIST
 //#define DEBUG_ARRAY_GET
 //#define DEBUG_CREATE_OBJECT
@@ -6712,8 +6713,8 @@ bool Interpreter::CheckBranchCommands(const IntegerArray &lineNumbers,
  *
  * @return true if the references were set; false otherwise.
  *
- * @note: Most objects has reference objects already set in the SetObject*(),
- *        if paramter type is OBJECT_TYPE, so not requiring additional call to
+ * @note: Most objects have reference objects already set in the SetObject*(),
+ *        if parameter type is OBJECT_TYPE, so not requiring additional call to
  *        SetRefObject()
  */
 //------------------------------------------------------------------------------
@@ -7163,7 +7164,6 @@ bool Interpreter::FinalPass()
       }
    }
 
-   
    //-------------------------------------------------------------------
    // Special case for SolverBranchCommand such as Optimize, Target,
    // we need to set Solver object to SolverBranchCommand and then
@@ -7183,6 +7183,11 @@ bool Interpreter::FinalPass()
       current = current->GetNext();
    }
    
+   // Validate the references used in the commands
+   if (ValidateMcsCommands(theModerator->GetFirstCommand()) == false)
+      retval = false;;
+
+
    #if DBGLVL_FINAL_PASS
    MessageInterface::ShowMessage("Interpreter::FinalPass() returning %d\n", retval);
    #endif
@@ -7192,8 +7197,176 @@ bool Interpreter::FinalPass()
 
 
 //------------------------------------------------------------------------------
-// void SetObjectInBranchCommand(GmatCommand *brCmd, const std::string &branchType,
-//                      const std::string childType, const std::string &objName)
+// bool Interpreter::ValidateMcsCommands(GmatCommand *first)
+//------------------------------------------------------------------------------
+/**
+ * Checks that the commands in the Mission Control Sequence were built
+ * acceptably when parsed.
+ *
+ * Note that acceptability at this level is necessary but not sufficient for a
+ * control sequence to run.  Some commands need additional information,
+ * generated in the Sandbox or during the run, to proceed.
+ *
+ * @param first The command at the start of the control sequence
+ *
+ * @return true if the command references have been validated and the commands
+ *         were set up acceptably, false if not.
+ */
+//------------------------------------------------------------------------------
+bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
+      StringArray *missingObjects, std::string *accumulatedErrors)
+{
+   bool retval = true, cleanMissingObj = false, cleanAccError = false;
+   GmatCommand *current = first;
+
+   StringArray theObjects =
+         theModerator->GetListOfObjects(Gmat::UNKNOWN_OBJECT);
+
+   if (missingObjects == NULL)
+   {
+      missingObjects = new StringArray;
+      cleanMissingObj = true;
+   }
+   if (accumulatedErrors == NULL)
+   {
+      accumulatedErrors = new std::string;
+      cleanAccError = true;
+   }
+
+   Integer errorCount, validationErrorCount = 0;
+
+   do
+   {
+      StringArray refs;
+      // Validate that objects exist for object references
+      if (current)
+      {
+         #ifdef DEBUG_COMMAND_VALIDATION
+            MessageInterface::ShowMessage("Checking \"%s\"; refs:\n", current->
+                  GetGeneratingString(Gmat::NO_COMMENTS, "", "").c_str());
+         #endif
+
+         errorCount = 0;
+         refs = current->GetObjectList();
+         #ifdef DEBUG_COMMAND_VALIDATION
+            for (UnsignedInt i = 0; i < refs.size(); ++i)
+               MessageInterface::ShowMessage("   %s\n", refs[i].c_str());
+         #endif
+
+         std::string missing;
+
+         for (UnsignedInt i = 0; i < refs.size(); ++i)
+         {
+            #ifdef DEBUG_COMMAND_VALIDATION
+               MessageInterface::ShowMessage("   Looking for %s...",
+                     refs[i].c_str());
+            #endif
+            // Check to see if each referenced object exists
+            if (find(theObjects.begin(), theObjects.end(),
+                  refs[i]) == theObjects.end())
+            {
+               if (missing.length() == 0)
+               {
+                  missing = "      \"";
+                  missing += current->GetGeneratingString(Gmat::NO_COMMENTS);
+                  missing += "\" references missing object(s):";
+                  ++errorCount;
+                  retval = false;
+               }
+               if (errorCount == 1)
+                  missing += "  " + refs[i];
+               else
+                  missing += ", " + refs[i];
+               #ifdef DEBUG_COMMAND_VALIDATION
+                  MessageInterface::ShowMessage("missing\n");
+               #endif
+            }
+            #ifdef DEBUG_COMMAND_VALIDATION
+               else
+                  MessageInterface::ShowMessage("Found!\n");
+            #endif
+         }
+
+         if (missing.length() > 0)
+         {
+            std::stringstream msg;
+            msg << errorCount << ": " << missing;
+            missingObjects->push_back(missing);
+         }
+      }
+
+      try
+      {
+         if (current->IsOfType("BranchCommand"))
+         {
+            retval &= ValidateMcsCommands(current->GetChildCommand(0), current,
+                  missingObjects, accumulatedErrors);
+         }
+      }
+      catch (BaseException &ex)
+      {
+         // Ignore the derived exception
+      }
+
+      // Call the command's Validate method to check internal validity
+      if (current->Validate() == false)
+      {
+         #ifdef DEBUG_COMMAND_VALIDATION
+            MessageInterface::ShowMessage("The command \"%s\" failed "
+                  "validation\n",
+                  current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+         #endif
+         (*accumulatedErrors) += "   The command \"" +
+               current->GetGeneratingString(Gmat::NO_COMMENTS) +
+               "\" failed validation.\n";
+         ++validationErrorCount;
+         retval = false;
+      }
+
+      current = current->GetNext();
+   }
+   while ((current != NULL) && (current != first) && (current != parent));
+
+   std::string exceptionError = (*accumulatedErrors);
+
+   if ((missingObjects->size() > 0) || (validationErrorCount > 0))
+   {
+      #ifdef DEBUG_VALIDATION
+         MessageInterface::ShowMessage("\n   Missing objects:\n");
+      #endif
+      if (missingObjects->size() > 0)
+      {
+         exceptionError += "   Possible missing objects referenced:\n";
+         for (UnsignedInt i = 0; i < missingObjects->size(); ++i)
+         {
+            #ifdef DEBUG_VALIDATION
+               MessageInterface::ShowMessage("      %s\n",
+                     missingObjects[i].c_str());
+            #endif
+            exceptionError += (*missingObjects)[i] + "\n";
+         }
+      }
+
+      if (cleanMissingObj)
+         delete missingObjects;
+      if (cleanAccError)
+         delete accumulatedErrors;
+
+      throw InterpreterException("\n" + exceptionError);
+   }
+
+   if (cleanMissingObj)
+      delete missingObjects;
+   if (cleanAccError)
+      delete accumulatedErrors;
+
+   return retval;
+}
+
+//------------------------------------------------------------------------------
+// void SetObjectInBranchCommand(GmatCommand *brCmd,
+//       const std::string &branchType, const std::string childType,
+//       const std::string &objName)
 //------------------------------------------------------------------------------
 void Interpreter::SetObjectInBranchCommand(GmatCommand *brCmd,
                                            const std::string &branchType,

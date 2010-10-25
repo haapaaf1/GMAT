@@ -776,6 +776,42 @@ Publisher* GmatCommand::GetPublisher()
 
 
 //------------------------------------------------------------------------------
+// const StringArray& GetObjectList()
+//------------------------------------------------------------------------------
+/**
+ * Returns a list of objects referenced by the command, so that the command can
+ * be validated as only referencing existing objects.
+ *
+ * Derived classes can override this method to build different lists, or to add
+ * to the objects list.
+ *
+ * @return The list of objects
+ */
+//------------------------------------------------------------------------------
+const StringArray& GmatCommand::GetObjectList()
+{
+   return objects;
+}
+
+//------------------------------------------------------------------------------
+// bool Validate()
+//------------------------------------------------------------------------------
+/**
+ * Performs internal validation of the command
+ *
+ * This method is called during the final pass of script reading to verify that
+ * the command has internal consistency.
+ *
+ * @return true if the command is internally consistent, false if not.
+ */
+//------------------------------------------------------------------------------
+bool GmatCommand::Validate()
+{
+   return GmatBase::Validate();
+}
+
+
+//------------------------------------------------------------------------------
 //  std::string GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 /**
@@ -2701,4 +2737,25 @@ void GmatCommand::DeleteOldWrappers()
       ("GmatCommand::DeleteOldWrappers() <%p>'%s' leaving, has %d old wrappers\n",
        this, GetTypeName().c_str(), oldWrappers.size());
    #endif
+}
+
+
+void GmatCommand::PrepareToPublish(bool publishAll)
+{
+   StringArray owners, elements;
+
+   if (publishAll)
+   {
+      owners.push_back("All");
+      elements.push_back("All.epoch");
+   }
+
+   streamID = publisher->RegisterPublishedData(this, streamID, owners,
+         elements);
+}
+
+
+void GmatCommand::PublishData()
+{
+   publisher->Publish(this, streamID, NULL, 0);
 }

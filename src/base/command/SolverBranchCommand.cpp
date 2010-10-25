@@ -326,6 +326,9 @@ void SolverBranchCommand::ResetLoopData()
 //         cmd->TakeAction("ResetLoopData");
 //      cmd = cmd->GetNext();
 //   }
+
+   // Now push the current data point to the subscribers to avoid a data gap
+
 }
 
 
@@ -820,11 +823,8 @@ void SolverBranchCommand::ApplySolution()
 // void GetActiveSubscribers()
 //------------------------------------------------------------------------------
 /**
- * This method...
- *
- * @param
- *
- * @return
+ * Builds a list of subscribers that are active for use in color changes and
+ * pen up/down actions
  */
 //------------------------------------------------------------------------------
 void SolverBranchCommand::GetActiveSubscribers()
@@ -869,11 +869,7 @@ void SolverBranchCommand::GetActiveSubscribers()
 // void PenUpSubscribers()
 //------------------------------------------------------------------------------
 /**
- * This method...
- *
- * @param
- *
- * @return
+ * Sends a PenUp command to all active subscribers
  */
 //------------------------------------------------------------------------------
 void SolverBranchCommand::PenUpSubscribers()
@@ -887,17 +883,15 @@ void SolverBranchCommand::PenUpSubscribers()
 // void PenDownSubscribers()
 //------------------------------------------------------------------------------
 /**
- * This method...
- *
- * @param
- *
- * @return
+ * Sends a PenDown command to all active subscribers
  */
 //------------------------------------------------------------------------------
 void SolverBranchCommand::PenDownSubscribers()
 {
    for (UnsignedInt i = 0; i < activeSubscribers.size(); ++i)
+   {
       activeSubscribers[i]->TakeAction("PenDown");
+   }
 }
 
 
@@ -1015,4 +1009,25 @@ GmatBase* SolverBranchCommand::GetClone(Integer cloneIndex)
       retPtr = BranchCommand::GetClone(cloneIndex - 1);
 
    return retPtr;
+}
+
+
+void SolverBranchCommand::PrepareToPublish(bool publishAll)
+{
+   StringArray owners, elements;
+
+   if (publishAll)
+   {
+      owners.push_back("All");
+      elements.push_back("All.epoch");
+   }
+
+   streamID = publisher->RegisterPublishedData(this, streamID, owners,
+         elements);
+}
+
+
+void SolverBranchCommand::PublishData()
+{
+   publisher->Publish(this, streamID, NULL, 0);
 }

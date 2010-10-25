@@ -1566,6 +1566,24 @@ bool Propagate::InterpretAction()
    // Now fill in the list of propagators
    AssemblePropagators(loc, generatingString);
    
+   // Load up the array listing the objects referenced so they can be validated
+   objects.clear();
+
+   for (UnsignedInt i = 0; i < propName.size(); ++i)
+   {
+      objects.push_back(propName[i]);
+
+      for (UnsignedInt j = 0; j < satName[i]->size(); ++j)
+      {
+         // todo: Point fix for STM.
+         /** @todo: This point fix needs to be generalized so that a list of
+          *         keywords isn't maintained here.
+          */
+         if ((*satName[i])[j] != "STM")
+            objects.push_back((*satName[i])[j]);
+      }
+   }
+
    return true;
 }
 

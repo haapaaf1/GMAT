@@ -116,6 +116,8 @@ protected:
    virtual void        LightenSubscribers(Integer denominator = 1);
    virtual void        SetSubscriberBreakpoint();
    virtual void        ApplySubscriberBreakpoint(Integer bp = -1);
+   virtual void        PrepareToPublish(bool publishAll = true);
+   virtual void        PublishData();
 
    enum
    {

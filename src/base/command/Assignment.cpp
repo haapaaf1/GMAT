@@ -435,8 +435,8 @@ bool Assignment::InterpretAction()
    
    if (!GmatStringUtil::HasNoBrackets(lhs,true))
       throw CommandException("An assignment command is not allowed to contain "
-         "brackets, braces, or parentheses (except to indicate an array element)"
-         " on the left-hand-side");
+         "brackets, braces, or parentheses (except to indicate an array "
+         "element) on the left-hand-side");
    
    // check for unexpected commas on the left-hand-side
    Integer commaPos = -1;
@@ -444,7 +444,8 @@ bool Assignment::InterpretAction()
    {
       GmatStringUtil::GetArrayCommaIndex(lhs, commaPos);
       if (commaPos == -1)
-         throw CommandException("Command contains an unexpected comma on left-hand-side");
+         throw CommandException("Command contains an unexpected comma on "
+               "left-hand-side");
    }
    
    bool isRhsString = false;
@@ -511,7 +512,7 @@ bool Assignment::InterpretAction()
                ("   topNode=%s\n", topNode->GetTypeName().c_str());
          #endif
          
-         // check if sting has missing start quote (loj: 2008.07.23)
+         // check if string has missing start quote (loj: 2008.07.23)
          // it will be an error only if rhs with blank space removed matches with
          // any GmatFunction name without letter case
          std::string str1 = rhs;
@@ -581,6 +582,155 @@ bool Assignment::InterpretAction()
    return true;
 }
 
+
+//------------------------------------------------------------------------------
+// const StringArray& Assignment::GetObjectList()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the list of objects referenced in the Assignment command
+ *
+ * @return The object names
+ */
+//------------------------------------------------------------------------------
+const StringArray& Assignment::GetObjectList()
+{
+   objects.clear();
+   if (lhsWrapper != NULL)
+      objects = lhsWrapper->GetRefObjectNames();
+   else
+      objects.push_back(lhs);
+   if (rhsWrapper != NULL)
+   {
+      StringArray rhsNames = rhsWrapper->GetRefObjectNames();
+      for (UnsignedInt i = 0; i < rhsNames.size(); ++i)
+         objects.push_back(rhsNames[i]);
+   }
+   else if (mathTree == NULL)
+   {
+      objects.push_back(rhs);
+   }
+   else
+   {
+//      StringArray mathObjects =
+//            mathTree->GetRefObjectNameArray(Gmat::UNKNOWN_OBJECT);
+//      for (UnsignedInt i = 0; i < mathObjects.size(); ++i)
+//         objects.push_back(mathObjects[i]);
+   }
+
+   #ifdef DEBUG_VALIDATION
+      MessageInterface::ShowMessage("Assignment::GetObjectList() Found %d "
+            "object names:\n", objects.size());
+      for (UnsignedInt i = 0; i < objects.size(); ++i)
+         MessageInterface::ShowMessage("   %s\n", objects[i].c_str());
+   #endif
+
+   return objects;
+}
+
+
+//------------------------------------------------------------------------------
+// bool Validate()
+//------------------------------------------------------------------------------
+/**
+ * Checks the command for internal consistency during the final pass of script
+ * parsing.
+ *
+ * @return true if no issues were detected, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool Assignment::Validate()
+{
+   bool retval = true;
+
+   #ifdef DEBUG_VALIDATION
+      MessageInterface::ShowMessage("Assignment command has lhs = %s, "
+            "rhs = %s\n", lhs.c_str(), rhs.c_str());
+      MessageInterface::ShowMessage("Validate has "
+            "lhsWrapper = %p, rhsWrapper = %p\n", lhsWrapper, rhsWrapper);
+   #endif
+   if (lhsWrapper != NULL)
+   {
+      if (rhsWrapper != NULL)
+      {
+         if (lhsWrapper->GetWrapperType() != rhsWrapper->GetWrapperType())
+         {
+            #ifdef DEBUG_VALIDATION
+               MessageInterface::ShowMessage("Wrapper types don't match:\n");
+               MessageInterface::ShowMessage("   lhsWrapper: %d type, \"%s\"\n",
+                     lhsWrapper->GetWrapperType(),
+                     lhsWrapper->GetDescription().c_str());
+               MessageInterface::ShowMessage("   rhsWrapper: %d type, \"%s\"\n",
+                     rhsWrapper->GetWrapperType(),
+                     rhsWrapper->GetDescription().c_str());
+            #endif
+
+            Gmat::ParameterType lhsDataType = lhsWrapper->GetDataType();
+            Gmat::ParameterType rhsDataType = rhsWrapper->GetDataType();
+
+            #ifdef DEBUG_VALIDATION
+               MessageInterface::ShowMessage("Checking compatibility of %s "
+                     "with %s\n", PARAM_TYPE_STRING[lhsDataType].c_str(),
+                     PARAM_TYPE_STRING[rhsDataType].c_str());
+            #endif
+            if (lhsDataType != rhsDataType)
+            {
+               // Object = string is handled separately
+               if ((lhsDataType == Gmat::OBJECT_TYPE) ||
+                   (lhsDataType == Gmat::OBJECTARRAY_TYPE))
+               {
+                  if ((rhsDataType != Gmat::STRING_TYPE) &&
+                      (rhsDataType != Gmat::STRINGARRAY_TYPE) &&
+                      (rhsDataType != Gmat::OBJECT_TYPE) &&
+                      (rhsDataType != Gmat::OBJECTARRAY_TYPE))
+                     retval = false;
+                  #ifdef DEBUG_VALIDATION
+                  else
+                     MessageInterface::ShowMessage("Assuming object = string "
+                           "okay for now\n");
+                  #endif
+               }
+               else if (lhsDataType == Gmat::FILENAME_TYPE)
+               {
+                  if ((rhsDataType != Gmat::STRING_TYPE) )
+                     retval = false;
+               }
+               else if (lhsDataType == Gmat::ENUMERATION_TYPE)
+               {
+                  if ((rhsDataType != Gmat::STRING_TYPE) )
+                     retval = false;
+               }
+               else if (lhsWrapper->GetWrapperType() == Gmat::VARIABLE_WT)
+               {
+                  if ((rhsDataType != Gmat::STRING_TYPE) &&
+                      (rhsDataType != Gmat::REAL_TYPE))
+                     retval = false;
+               }
+               else
+               {
+                  #ifdef DEBUG_VALIDATION
+                     MessageInterface::ShowMessage("Type mismatch in the line "
+                           "\"%s\"; %d != %d; wrappers are %d and %d\n",
+                           GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+                           lhsDataType, rhsDataType,
+                           lhsWrapper->GetWrapperType(),
+                           rhsWrapper->GetWrapperType());
+                  #endif
+                  retval = false;
+               }
+            }
+         }
+      }
+      else
+      {
+         if (mathTree == NULL)
+            retval = false;
+      }
+   }
+   else                 // Wrappers should be set by now
+      retval = false;
+
+   return retval;
+}
 
 //------------------------------------------------------------------------------
 // bool Initialize()
