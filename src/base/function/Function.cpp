@@ -13,7 +13,7 @@
 // Created: 2004/09/22
 //
 /**
- * Defines the Funtion base class used for Matlab and Gmat functions.
+ * Defines the Function base class used for Matlab and Gmat functions.
  */
 //------------------------------------------------------------------------------
 

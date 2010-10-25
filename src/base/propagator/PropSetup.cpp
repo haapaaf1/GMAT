@@ -354,6 +354,10 @@ void PropSetup::SetPropagator(Propagator *propagator)
       throw PropSetupException("SetPropagator() failed: propagator is NULL");
    
    DeleteOwnedObject(PROPAGATOR, true);
+//   mPropagator = propagator;
+
+   // Not cloned here; the propagator is owned by the PropSetup, and doesn't
+   // get configured -- need to track this re: memory management
    ClonePropagator(propagator);
 
    if (mPropagator->UsesODEModel() == false)
