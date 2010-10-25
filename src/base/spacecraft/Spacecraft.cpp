@@ -5091,8 +5091,7 @@ bool Spacecraft::SetElement(const std::string &label, const Real &value)
       throw se;
    }
    // Equinoctial elements must be within bounds
-   if (((label == "EquinoctialH") || (label == "EquinoctialK") ||
-       (label == "EquinoctialP") || (label == "EquinoctialQ")) &&
+   if (((label == "EquinoctialH") || (label == "EquinoctialK")) &&
        ((value < -1.0) || (value > 1.0)))
    {
       #ifdef DEBUG_SPACECRAFT_SET_ELEMENT
