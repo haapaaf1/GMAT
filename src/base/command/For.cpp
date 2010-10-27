@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                For
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -301,13 +301,27 @@ bool For::Execute()
       {
          // Branch finished executing; update loop indexWrapper
          currentValue += stepSize;
-                 currentPass  += 1;
-         indexWrapper->SetReal(currentValue);
-         #ifdef DEBUG_FOR_EXE
-            MessageInterface::ShowMessage(
-            "...... Branch done executing -> currentValue updated to %.4f\n",
-            currentValue);
-         #endif
+         currentPass  += 1;
+         // We do need currentValue to be incremented; however, we only
+         // want to set currentValue on the index variable if it will
+         // not pass the endValue (ie. the value of the index variable
+         // should never end up going past the endValue)
+         if (currentValue <= endValue)
+         {
+            indexWrapper->SetReal(currentValue);
+            #ifdef DEBUG_FOR_EXE
+               MessageInterface::ShowMessage(
+               "...... Branch done executing -> currentValue updated to %.4f\n",
+               currentValue);
+            #endif
+         }
+         else
+         {
+            #ifdef DEBUG_FOR_EXE
+               MessageInterface::ShowMessage(
+               "...... Branch done executing -> currentValue NOT updated, as value would be > endValue\n");
+            #endif
+         }
       }
    }
    else 
@@ -1057,19 +1071,19 @@ bool For::StillLooping()
       if ((stepSize == 0.0) ||
           ((stepSize > 0.0) && (startValue > endValue)) ||
                   ((stepSize < 0.0) && (startValue < endValue)) )
-          {
+      {
          //throw CommandException(
          //      "For loop values incorrect - will result in infinite loop "
          //      "in line:\n   \"" + generatingString + "\"\n");
-          commandComplete = true;
-          return false;
-          }
-          else
-          {
-      currentValue = startValue;
-      indexWrapper->SetReal(currentValue);
-      commandComplete  = false;
-          }
+         commandComplete = true;
+         return false;
+      }
+      else
+      {
+         currentValue = startValue;
+         indexWrapper->SetReal(currentValue);
+         commandComplete  = false;
+      }
    }
    if (((stepSize > 0.0) && (currentPass <= numPasses)) ||
        ((stepSize < 0.0) && (currentPass <= numPasses)) )
