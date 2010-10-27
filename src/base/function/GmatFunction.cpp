@@ -124,6 +124,8 @@ GmatFunction::GmatFunction(const std::string &name) :
       }
    }
    
+   objectTypeNames.push_back("GmatFunction");
+
    #ifdef DEBUG_FUNCTION
    MessageInterface::ShowMessage
       ("   Gmat functionPath=<%s>\n", functionPath.c_str());
