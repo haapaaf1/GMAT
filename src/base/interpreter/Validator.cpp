@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Validator
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -188,7 +188,7 @@ bool Validator::StartMatlabServer(GmatCommand *cmd)
  * gets reference object type list by calling obj->GetRefObjectTypeArray() and
  * then gets reference object name list by calling obj->GetRefObjectNameArray(reftype).
  * If reference object type is Parameter, it checks if owner object of that
- * paramter exist; otherwise, it only check for the reference object name exist.
+ * Parameter exist; otherwise, it only check for the reference object name exist.
  *
  * @param  obj  input object of undefined reference object to be checked
  * @param <contOnError> flag indicating whether or not to continue on error (true)
