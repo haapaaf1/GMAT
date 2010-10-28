@@ -7184,8 +7184,15 @@ bool Interpreter::FinalPass()
    }
    
    // Validate the references used in the commands
+   try {
    if (ValidateMcsCommands(theModerator->GetFirstCommand()) == false)
       retval = false;;
+   }
+   catch (BaseException &ex)
+   {
+      HandleError(ex, false, false);
+      retval = false;
+   }
 
 
    #if DBGLVL_FINAL_PASS
