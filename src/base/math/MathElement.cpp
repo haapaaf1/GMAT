@@ -336,7 +336,7 @@ Rmatrix MathElement::MatrixEvaluate()
 {
    #ifdef DEBUG_EVALUATE
    MessageInterface::ShowMessage
-      ("MathElement::Evaluate() this='%s', refObjectName='%s', refObject=<%p>, "
+      ("MathElement::MatrixEvaluate() this='%s', refObjectName='%s', refObject=<%p>, "
        "elementType=%d\n", GetName().c_str(), refObjectName.c_str(), refObject, elementType);
    #endif
    
@@ -354,7 +354,7 @@ Rmatrix MathElement::MatrixEvaluate()
          #ifdef DEBUG_EVALUATE
          Rmatrix rmat = refObject->GetRmatrix();
          MessageInterface::ShowMessage
-            ("MathElement::Evaluate() It's an Array: %s matVal =\n%s\n",
+            ("MathElement::MatrixEvaluate() It's an Array: %s matVal =\n%s\n",
              refObject->GetName().c_str(), rmat.ToString().c_str());
          #endif
          
@@ -365,7 +365,7 @@ Rmatrix MathElement::MatrixEvaluate()
       {
          #ifdef DEBUG_EVALUATE
          MessageInterface::ShowMessage
-            ("MathElement::Evaluate() It's a Rmatrix. matVal =\n%s\n",
+            ("MathElement::MatrixEvaluate() It's a Rmatrix. matVal =\n%s\n",
              matrix.ToString().c_str());
          #endif
          
@@ -373,7 +373,19 @@ Rmatrix MathElement::MatrixEvaluate()
       }
    }
    else
-      throw MathException("MathElement::MatrixEvaluate() Invalid matrix");
+   {
+      Real rval = Evaluate();
+      
+      #ifdef DEBUG_EVALUATE
+      MessageInterface::ShowMessage
+         ("MathElement::MatrixEvaluate() It's a number: rval = %f\n", rval);
+      #endif
+      
+      // Set matrix 1x1 and return
+      Rmatrix rmat(1, 1, rval);
+      return rmat;
+      //throw MathException("MathElement::MatrixEvaluate() Invalid matrix");
+   }
 }
 
 
