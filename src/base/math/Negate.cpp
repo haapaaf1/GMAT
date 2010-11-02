@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Negate
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -85,6 +86,9 @@ GmatBase* Negate::Clone() const
 void Negate::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 {
    Integer type1, row1, col1; // Left node
+   
+   if (!leftNode)
+      throw MathException("Negate::GetOutputInfo() The left node is NULL");
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
    leftNode->GetOutputInfo(type1, row1, col1);

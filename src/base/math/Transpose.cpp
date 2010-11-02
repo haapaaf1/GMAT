@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Transpose
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -134,9 +134,13 @@ bool Transpose::ValidateInputs()
    
    #ifdef DEBUG_INPUT_OUTPUT
    MessageInterface::ShowMessage
-      ("Transpose::ValidateInputs() left=%s, %s\n",
-       leftNode->GetTypeName().c_str(), leftNode->GetName().c_str());
+      ("Transpose::ValidateInputs() leftNode=%s, %s\n",
+       leftNode ? leftNode->GetTypeName().c_str() : "NULL",
+       leftNode ? leftNode->GetName().c_str() : "NULL");
    #endif
+   
+   if (leftNode == NULL)
+      throw MathException("Transpose::ValidateInputs() The left node is NULL");
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
    leftNode->GetOutputInfo(type1, row1, col1);
