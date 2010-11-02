@@ -2,14 +2,13 @@
 //------------------------------------------------------------------------------
 //                                Rmatrix
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
-// Author: M. Weippert, T. McRoberts, E. Corderman
 // Created: 1996/06/30 for GSS project (originally Matrix)
 // Modified:
 //   2003/09/15 Linda Jun - Replaced GSSString with std::string.
@@ -90,6 +89,7 @@ public:
    Rvector operator*(const Rvector &v) const;
    
    friend Rmatrix operator*(Real scalar, const Rmatrix &m);
+   friend Rmatrix operator/(Real scalar, const Rmatrix &m);
    
    virtual Real   Trace() const ;                            
    virtual Real   Determinant() const;            
