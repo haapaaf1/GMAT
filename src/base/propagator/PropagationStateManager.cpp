@@ -27,6 +27,8 @@
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
 
+#include <cmath>           // for isnan() and isinf()
+
 //#define DEBUG_STATE_CONSTRUCTION
 //#define DUMP_STATE
 //#define DEBUG_OBJECT_UPDATES
@@ -428,21 +430,53 @@ bool PropagationStateManager::MapObjectsToVector()
       MessageInterface::ShowMessage("Mapping objects to vector\n");
    #endif
 
+   Real value;
+
    for (Integer index = 0; index < stateSize; ++index)
    {
       switch (stateMap[index]->parameterType)
       {
          case Gmat::REAL_TYPE:
-            state[index] = 
-               stateMap[index]->object->GetRealParameter(
-                     stateMap[index]->parameterID);
+            value = stateMap[index]->object->GetRealParameter(
+                          stateMap[index]->parameterID);
+
+            if (std::isnan(value))
+               throw PropagatorException("Value for parameter " +
+                     stateMap[index]->object->GetParameterText(
+                     stateMap[index]->parameterID) + " on object " +
+                     stateMap[index]->object->GetName() +
+                     " is not a number");
+
+            if (std::isinf(value))
+               throw PropagatorException("Value for parameter " +
+                     stateMap[index]->object->GetParameterText(
+                     stateMap[index]->parameterID) + " on object " +
+                     stateMap[index]->object->GetName() +
+                     " is infinite");
+
+            state[index] =value;
             break;
             
          case Gmat::RMATRIX_TYPE:
-            state[index] = 
-               stateMap[index]->object->GetRealParameter(
-                     stateMap[index]->parameterID, stateMap[index]->rowIndex,
-                     stateMap[index]->colIndex);
+            value = stateMap[index]->object->GetRealParameter(
+                  stateMap[index]->parameterID, stateMap[index]->rowIndex,
+                  stateMap[index]->colIndex);
+
+            if (std::isnan(value))
+               throw PropagatorException("Value for array parameter " +
+                     stateMap[index]->object->GetParameterText(
+                     stateMap[index]->parameterID) + " on object " +
+                     stateMap[index]->object->GetName() +
+                     " is not a number");
+
+            if (std::isinf(value))
+               throw PropagatorException("Value for array parameter " +
+                     stateMap[index]->object->GetParameterText(
+                     stateMap[index]->parameterID) + " on object " +
+                     stateMap[index]->object->GetName() +
+                     " is infinite");
+
+            state[index] = value;
             break;
 
          default:
