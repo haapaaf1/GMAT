@@ -70,9 +70,9 @@ Create Thruster engine1;
 GMAT engine1.CoordinateSystem = Local;
 GMAT engine1.Origin = Earth;
 GMAT engine1.Axes = VNB;
-GMAT engine1.Element1 = 1;
-GMAT engine1.Element2 = 0;
-GMAT engine1.Element3 = 0;
+GMAT engine1.ThrustDirection1 = 1;
+GMAT engine1.ThrustDirection2 = 0;
+GMAT engine1.ThrustDirection3 = 0;
 GMAT engine1.DutyCycle = 1;
 
 GMAT engine1.ThrustScaleFactor = 1;
@@ -117,9 +117,9 @@ GMAT engine1.K16 = 0;
 
 Create Thruster engine2;
 GMAT engine2.CoordinateSystem = EarthMJ2000Eq;
-GMAT engine2.Element1 = 1;
-GMAT engine2.Element2 = 0;
-GMAT engine2.Element3 = 0;
+GMAT engine2.ThrustDirection1 = 1;
+GMAT engine2.ThrustDirection2 = 0;
+GMAT engine2.ThrustDirection3 = 0;
 GMAT engine2.DutyCycle = 1;
 GMAT engine2.ThrustScaleFactor = 1;
 GMAT engine2.DecrementMass = false;
@@ -223,10 +223,17 @@ GMAT ReportFile1.ColumnWidth = 24;
 %  Create XYPlot  
 Create XYPlot energy;
 GMAT energy.SolverIterations = None;
-GMAT energy.IndVar = Sc.ElapsedDays;
-GMAT energy.Add = {Sc.Energy};
-GMAT energy.Grid = On;
+GMAT energy.XVariable = Sc.ElapsedDays;
+GMAT energy.YVariables = {Sc.Energy};
+GMAT energy.ShowGrid = true;
 GMAT energy.ShowPlot = true;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.SolverIterations = None;
+GMAT XYPlot1.XVariable = Sc.A1ModJulian;
+GMAT XYPlot1.YVariables = {Sc.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
+GMAT XYPlot1.ShowPlot = true;
 
 %  Create OpenGL Plot  
 Create OpenGLPlot SatOpenGL;
@@ -277,16 +284,9 @@ GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
 GMAT OpenGLPlot1.NumPointsToRedraw = 0;
 GMAT OpenGLPlot1.ShowPlot = true;
 
-Create XYPlot XYPlot1;
-GMAT XYPlot1.SolverIterations = None;
-GMAT XYPlot1.IndVar = Sc.A1ModJulian;
-GMAT XYPlot1.Add = {Sc.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
-GMAT XYPlot1.ShowPlot = true;
-
 Create EphemerisFile CCSDS_OEM;
 GMAT CCSDS_OEM.Spacecraft         = Sc;
-GMAT CCSDS_OEM.FileName           = 'TestEphemFiniteBurn-CCSDS-OEM.eph';
+GMAT CCSDS_OEM.Filename           = 'TestEphemFiniteBurn-CCSDS-OEM.eph';
 GMAT CCSDS_OEM.FileFormat         = CCSDS-OEM;
 GMAT CCSDS_OEM.EpochFormat        = UTCGregorian;
 GMAT CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
@@ -300,7 +300,7 @@ GMAT CCSDS_OEM.WriteEphemeris     = true;
 
 Create EphemerisFile SPK;
 GMAT SPK.Spacecraft               = Sc;
-GMAT SPK.FileName                 = 'TestEphemFiniteBurn-SPK.eph';
+GMAT SPK.Filename                 = 'TestEphemFiniteBurn-SPK.bsp';
 GMAT SPK.FileFormat               = SPK;
 GMAT SPK.EpochFormat              = UTCGregorian;
 GMAT SPK.InitialEpoch             = InitialSpacecraftEpoch;

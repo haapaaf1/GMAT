@@ -1,0 +1,42 @@
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = 'Bug1998_Func_EphemSPK_For.bsp';
+
+Create String reportLoc2;
+GMAT reportLoc2 = 'Bug1998_Func_EphemOEM_For.eph';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Bug1998_Func_EphemSPK_For_nested.bsp';
+  
+Create String reportLoc2_nested;
+GMAT reportLoc2_nested = 'Bug1998_Func_EphemOEM_For_nested.eph';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+BeginMissionSequence;
+ 
+% Call function
+Bug1998_Func_Ephem_For(reportLoc1, reportLoc2)
+Bug1998_Func_Ephem_For_nested(reportLoc1_nested, reportLoc2_nested)

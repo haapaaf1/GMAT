@@ -60,7 +60,6 @@ GMAT DefaultProp.StopIfAccuracyIsViolated = false;
 Create ImpulsiveBurn TOI;
 GMAT TOI.Origin = Earth;
 GMAT TOI.Axes = VNB;
-GMAT TOI.VectorFormat = Cartesian;
 GMAT TOI.Element1 = 1.432982502463442;
 GMAT TOI.Element2 = 0;
 GMAT TOI.Element3 = 0;
@@ -96,9 +95,9 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 Create DifferentialCorrector DC;
 GMAT DC.ShowProgress = true;
 GMAT DC.ReportStyle = Normal;
-GMAT DC.TargeterTextFile = TestCcsdsTargetHohmann-DC.data;
+GMAT DC.ReportFile = TestCcsdsTargetHohmann-DC.data;
 GMAT DC.MaximumIterations = 25;
-GMAT DC.UseCentralDifferences = false;
+GMAT DC.DerivativeMethod = CentralDifference;
 
 
 %----------------------------------------
@@ -137,19 +136,20 @@ GMAT SolverNonePlot.ViewScaleFactor = 2;
 GMAT SolverNonePlot.SolverIterations = None;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = sat.A1ModJulian;
-GMAT XYPlot1.Add = {sat.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = sat.A1ModJulian;
+GMAT XYPlot1.YVariables = {sat.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
 Create ReportFile rf;
 GMAT rf.Filename = 'TestEphemTargetHohmann.report';
 GMAT rf.WriteHeaders = Off;
+GMAT rf.ColumnWidth = 24;
 
 Create EphemerisFile CCSDS_OEM;
 CCSDS_OEM.Spacecraft         = sat;
-CCSDS_OEM.FileName           = TestEphemTargetHohmann-CCSDS-OEM.eph;
+CCSDS_OEM.Filename           = TestEphemTargetHohmann-CCSDS-OEM.eph;
 CCSDS_OEM.FileFormat         = CCSDS-OEM;
 CCSDS_OEM.EpochFormat        = UTCGregorian;
 CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
@@ -163,7 +163,7 @@ CCSDS_OEM.WriteEphemeris     = true;
 
 Create EphemerisFile SPK;
 SPK.Spacecraft               = sat;
-SPK.FileName                 = TestEphemTargetHohmann-SPK.bsp;
+SPK.Filename                 = TestEphemTargetHohmann-SPK.bsp;
 SPK.FileFormat               = SPK;
 SPK.EpochFormat              = UTCGregorian;
 SPK.InitialEpoch             = InitialSpacecraftEpoch;
@@ -175,37 +175,72 @@ SPK.StateType                = Cartesian;
 SPK.CoordinateSystem         = EarthMJ2000Eq;
 SPK.WriteEphemeris           = true;
 
+Create String msg;
+
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
 
 BeginMissionSequence;
 
-Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
-Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
-Propagate DefaultProp(sat) {sat.Periapsis};
+msg = '========== Start of run';
+Report rf msg;
 Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
 
+Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
+msg = '========== After propagate for 86400 secs';
+Report rf msg;
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+
+Propagate DefaultProp(sat) {sat.Periapsis};
+msg = '========== After propagate to sat.Periapsis';
+Report rf msg;
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+
+msg = ' ';
+Report rf msg;
+msg = '========== Begin Target sat.Earth.RMAG = 42165';
+Report rf msg;
+
 Target DC;
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    Maneuver TOI(sat);
    Propagate DefaultProp(sat) {sat.Apoapsis};
    Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
-Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
-Propagate DefaultProp(sat) {sat.Periapsis};
-Propagate DefaultProp(sat) {sat.Apoapsis};
+msg = '========== After target sat.Earth.RMAG = 42165';
+Report rf msg;
 Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
 
+Propagate DefaultProp(sat) {sat.Periapsis};
+msg = '========== After propagate sat.Periapsis';
+Report rf msg;
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+
+Propagate DefaultProp(sat) {sat.Apoapsis};
+msg = '========== After propagate sat.Apoapsis';
+Report rf msg;
+Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+
+msg = ' ';
+Report rf msg;
+msg = '========== Begin Target sat.Earth.SMA = 42165';
+Report rf msg;
+
 Target DC;
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    Maneuver TOI(sat);
    Propagate DefaultProp(sat) {sat.Periapsis};
    Achieve DC(sat.Earth.SMA = 42165, {Tolerance = 0.1});
 EndTarget;  % For targeter DC
 
+msg = '========== After target sat.Earth.SMA = 42165';
+Report rf msg;
 Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
+
 Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
+msg = '========== After propagate for 86400 secs';
+Report rf msg;
 Report rf sat.UTCGregorian sat.X sat.Y sat.Z;
 

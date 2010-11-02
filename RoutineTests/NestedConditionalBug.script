@@ -249,9 +249,10 @@ BeginMissionSequence;
 %**********************************************************************%
 % % ----- Write something to report so you don't get an error message
 Report Data MMS1.X 
-GMAT ErrorPropET.Expression = 1;
-GMAT UpperTA.Expression = 200;
-GMAT LowerTA.Expression = 160;
+GMAT ErrorPropET = 1; %%%.Expression = 1; %% Expression is no longer valid (2010.10.27)
+GMAT UpperTA = 200; %%%.Expression = 200;
+GMAT LowerTA = 160; %%%.Expression = 160;
+
 % ----- Set spacecraft state equal according to matlab input
 BeginScript
    GMAT MMS1.X = -20356.067377181;
@@ -289,10 +290,10 @@ While MMS1.ElapsedDays < ErrorPropET
    % The following two if statements should result in var begin negative
    % when the true anomamly is less that 160 or greater than 200.
    % Otherwise var should be positive.
-   GMAT var.Expression = -1;
+   GMAT var = -1; %%%.Expression = -1;
    If MMS1.TA > LowerTA
       If MMS1.TA < UpperTA
-         GMAT var.Expression = 1;
+         GMAT var = 1; %%%.Expression = 1;
       EndIf;
    EndIf;
    Report Data LowerTA MMS1.TA UpperTA var 

@@ -1,6 +1,7 @@
 %$Id%
 
 Create Spacecraft DefaultSC;
+Create Spacecraft sat;
 
 Create GroundStation theGroundStation;
 GMAT theGroundStation.CentralBody = Earth;
@@ -17,14 +18,25 @@ GMAT gsTopo.Axes = MJ2000Eq;
 GMAT gsTopo.UpdateInterval = 60;
 GMAT gsTopo.OverrideOriginInterval = false;
 
-Create Variable var1, var2, var3, var4
+Create Variable var, lhsVar, var1, var2, var3, var4, varOut, bugNum
 Create Variable lat long height X Y Z;
+Create Variable mu r v;
+Create Array rv[3,1] vv[3,1] ev[3,1] arr13[1,3] lhsArray[1,3]
+Create Array arr22[2,2] arr22a[2,2] arr11[1,1];
+Create Array aArr31[3,1] bArr31[3,1] cArr31[3,1] dArr31[3,1] eArr31[3,1]
+Create Array ev1[3,1] ev2[3,1] ev3[3,1] ev4[3,1] ev5[3,1] ev6[3,1] ev7[3,1];
+Create String msg;
+
+Create GmatFunction cross;
 
 Create ReportFile rf;
 GMAT rf.Filename = SimpleMathTest.report;
 GMAT rf.Add = {var1, var2, var3, var4};
 
 BeginMissionSequence;
+
+mu = 398600.4415;
+
 
 BeginScript
    GMAT var1 = 1.111;
@@ -43,6 +55,309 @@ For lat = -88:5:88;
       GMAT X = -(DefaultSC.gsTopo.X);
       GMAT Y = -DefaultSC.gsTopo.Y;
       GMAT Z = -DefaultSC.gsTopo.Z;
-      Report rf X Y Z;
    EndFor;
 EndFor;
+Report rf X Y Z;
+
+GMAT rf.WriteHeaders = Off;
+msg = ' ';
+
+%%============================== Wrong results bugs
+%%========== Bug 2165 (Power Operator Mishandles Large Powers of Near Zero Argument)
+Report rf msg;
+var3 = -1967;
+var4 = 1.9846348;
+bugNum = 2165;
+
+varOut =     -((var4 / var3))     ;
+Report rf bugNum varOut
+
+varOut =     0.001008965327910524^869.28     ;
+Report rf bugNum varOut
+
+varOut =     -0.001008965327910524^869.28     ;
+Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+%%varOut =     (-0.001008965327910524)^869.28     ;
+%%Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+%%varOut =     -(-0.001008965327910524)^869.28     ;
+%%Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+%%varOut =     -(1.9846348 / -1967)^869.28     ;
+%%Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+%%varOut =     -((var4 / var3))     ^  869.28   ;
+%%Report rf bugNum varOut
+
+%%========== Bug 2169 (Norm of negative scalar should yield positive number)
+Report rf msg;
+bugNum = 2169;
+
+varOut = norm(-45);
+Report rf bugNum varOut
+
+var1 = -45;
+varOut = norm(var1);
+Report rf bugNum varOut
+
+%%========== Bug 2175 (Divide operators gives wrong results)
+Report rf msg;
+bugNum =2175
+
+varOut = -218.6  /  -248.715095169  / (   -209.5774  /  -132.61614521353   )   ;
+Report rf bugNum varOut
+
+varOut =   (   ( -482   /  361.39709   ) ) /  -20    /  105.0607241;
+Report rf bugNum varOut
+
+varOut = -17.0739907090839/  -326.8978637951/ 163.37184 / 405.4228071837256       ;
+Report rf bugNum varOut
+
+%%========== Bug 2176 (Power operators gives wrong results)
+Report rf msg;
+bugNum = 2176
+
+varOut = 0.137466421432647^    0.06533509 ^ -0.02467255477529   ;
+Report rf bugNum varOut
+
+varOut = 0.1683633   ^    0.3833055966 ^0.0788 ;
+Report rf bugNum varOut
+
+varOut =  0.0047658 ^-0.209793841278   ^  0.0592844003;
+Report rf bugNum varOut
+
+
+
+%%============================== Crash bugs
+%%========== Bug 2112 (CrashWhenStartsWithPlusOrMinus)
+Report rf msg;
+var   = 5
+sat.X = 5;
+arr13(1,1) = 5;
+arr13(1,2) = 5;
+arr13(1,3) = 5;
+bugNum = 2112;
+
+lhsVar = - var;
+Report rf bugNum lhsVar;
+
+lhsVar = + var;
+Report rf bugNum lhsVar;
+
+lhsVar = -var;
+Report rf bugNum lhsVar;
+
+lhsVar = +var;
+Report rf bugNum lhsVar;
+
+lhsVar = - (var);
+Report rf bugNum lhsVar;
+
+lhsVar = + (var);
+Report rf bugNum lhsVar;
+
+lhsVar = -(var);
+Report rf bugNum lhsVar;
+
+lhsVar = +(var);
+Report rf bugNum lhsVar;
+
+lhsVar = - sat.X;
+Report rf bugNum lhsVar;
+
+lhsVar = + sat.X;
+Report rf bugNum lhsVar;
+
+lhsVar = -sat.X;
+Report rf bugNum lhsVar;
+
+lhsVar = +sat.X;
+Report rf bugNum lhsVar;
+
+lhsVar = - (sat.X);
+Report rf bugNum lhsVar;
+
+lhsVar = + (sat.X);
+Report rf bugNum lhsVar;
+
+lhsVar = -(sat.X);
+Report rf bugNum lhsVar;
+
+lhsVar = +(sat.X);
+Report rf bugNum lhsVar;
+
+lhsArray = - arr13;
+Report rf bugNum lhsArray;
+
+lhsArray = + arr13;
+Report rf bugNum lhsArray;
+
+lhsArray = -arr13;
+Report rf bugNum lhsArray;
+
+lhsArray = +arr13;
+Report rf bugNum lhsArray;
+
+lhsArray = - (arr13);
+Report rf bugNum lhsArray;
+
+lhsArray = + (arr13);
+Report rf bugNum lhsArray;
+
+lhsArray = -(arr13);
+Report rf bugNum lhsArray;
+
+lhsArray = +(arr13);
+Report rf bugNum lhsArray;
+
+%%========== Bug 2111 (Can't multiply a ((1x3)*(3x1))*(3x1))
+
+bugNum = 2111;
+
+arr22(1,1) = 1.1;
+arr22(1,2) = 1.2;
+arr22(2,1) = 2.1;
+arr22(2,2) = 2.2;
+arr11(1,1) = 10.0;
+
+msg = '==================== arr22, ar11';
+Report rf msg;
+Report rf bugNum arr22 arr11;
+
+msg = '==================== arr22 + arr11'
+Report rf msg;
+arr22a = arr22 + arr11;
+Report rf bugNum arr22a
+
+msg = '==================== arr11 + arr22'
+Report rf msg;
+arr22a = arr11 - arr22;
+Report rf bugNum arr22a
+
+msg = '==================== arr22 - arr11'
+Report rf msg;
+arr22a = arr22 - arr11;
+Report rf bugNum arr22a
+
+msg = '==================== arr11 - arr22'
+Report rf msg;
+arr22a = arr11 - arr22;
+Report rf bugNum arr22a
+
+msg = '==================== arr22 * arr11'
+Report rf msg;
+arr22a = arr22 * arr11;
+Report rf bugNum arr22a
+
+msg = '==================== arr11 * arr22'
+Report rf msg;
+arr22a = arr11 * arr22;
+Report rf bugNum arr22a
+
+msg = '==================== arr22 / arr11'
+Report rf msg;
+arr22a = arr22 / arr11;
+Report rf bugNum arr22a
+
+msg = '==================== arr11 / arr22'
+Report rf msg;
+arr22a = arr11 / arr22;
+Report rf bugNum arr22a
+
+mu = 398600.4415;
+rv(1,1) = sat.X;
+rv(2,1) = sat.Y;
+rv(3,1) = sat.Z;
+vv(1,1) = sat.VX;
+vv(2,1) = sat.VY;
+vv(3,1) = sat.VZ;
+r = norm(rv);
+v = norm(vv);
+
+msg = '==================== rv vv';
+Report rf msg;
+Report rf bugNum rv vv;
+
+msg = '==================== aArr31 = (v^2 - mu/r)*rv'
+Report rf msg;
+aArr31 = (v^2 - mu/r)*rv;
+Report rf bugNum aArr31;
+
+msg = '==================== var1 = (rv'*vv)'
+Report rf msg;
+var1 = (rv'*vv);
+Report rf bugNum var1;
+
+msg = '==================== bArr31 = (rv'*vv)*vv'
+Report rf msg;
+bArr31 = (rv'*vv)*vv;
+Report rf bugNum bArr31
+
+msg = '==================== eArr31 = vv*(rv'*vv)'
+Report rf msg;
+eArr31 = vv*(rv'*vv);
+Report rf bugNum eArr31
+
+msg = '==================== dArr31 = var1*vv'
+Report rf msg;
+dArr31 = var1*vv;
+Report rf bugNum dArr31
+
+msg = '==================== cArr31 = aArr31 - bArr31'
+Report rf msg;
+cArr31 = aArr31 - bArr31;
+Report rf bugNum cArr31;
+
+msg = '==================== ev1 = (cArr31) / mu'
+Report rf msg;
+ev1 = (cArr31) / mu;                        
+Report rf bugNum ev1;
+
+msg = '==================== ev2 = (aArr31 - bArr31) / mu'
+Report rf msg;
+ev2 = (aArr31 - bArr31) / mu;               
+Report rf bugNum ev2;
+
+msg = '==================== ev3 = (aArr31 - dArr31) / mu'
+Report rf msg;
+ev3 = (aArr31 - dArr31) / mu;               
+Report rf bugNum ev3;
+
+msg = '==================== ev4 = (aArr31 - var1*vv) / mu'
+Report rf msg;
+ev4 = (aArr31 - var1*vv) / mu;              
+Report rf bugNum ev4;
+
+msg = '==================== ev5 = (aArr31 - (rv'*vv)*vv) / mu'
+Report rf msg;
+ev5  = (aArr31 - (rv'*vv)*vv) / mu;         
+Report rf bugNum ev5;
+
+msg = '==================== ev6 = ((v^2 - mu/r)*rv - var1*vv) / mu'
+Report rf msg;
+ev6  = ((v^2 - mu/r)*rv - var1*vv) / mu;      
+Report rf bugNum ev6;
+
+msg = '==================== ev7 = ((v^2 - mu/r)*rv - (rv'*vv)*vv) / mu'
+Report rf msg;
+ev7  = ((v^2 - mu/r)*rv - (rv'*vv)*vv) / mu;  
+Report rf bugNum ev7;
+
+%%========== Bug 2110 (Math in script causes crash on load)
+Report rf msg;
+rv(1,1) = DefaultSC.X;
+rv(2,1) = DefaultSC.Y;
+rv(3,1) = DefaultSC.Z;
+vv(1,1) = DefaultSC.VX;
+vv(2,1) = DefaultSC.VY;
+vv(3,1) = DefaultSC.VZ;
+r = norm(rv);
+v = norm(vv);
+ev = ((v^2 - mu/r)*rv - (ev) + vv)/mu;  %% <=== caused crash
+%%ev = ((v^2 - mu/r)*rv - cross(ev,vv))/mu;
+

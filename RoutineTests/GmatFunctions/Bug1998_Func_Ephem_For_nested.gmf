@@ -1,0 +1,4 @@
+function Bug1998_Func_Ephem_For_nested(reportLoc1, reportLoc2)
+ 
+% Call function
+Bug1998_Func_Ephem_For(reportLoc1, reportLoc2)
