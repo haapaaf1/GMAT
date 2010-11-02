@@ -958,8 +958,11 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    {
       std::string origVal = (*i);
       
-      // Since wrapperNames includes wrapper name for LHS, skip if same as LHS
-      if (!isMathTree && origVal == lhs)
+      // Since wrapperNames includes wrapper name for LHS, skip if same as LHS.
+      // For math tree we need to create new ParameterWrapper if it is object property
+      // since math tree works with Parameters only
+      if ((origVal == lhs && !isMathTree) ||
+          (origVal == lhs && isMathTree && origVal.find(".") == origVal.npos))
          continue;
       
       std::string name = origVal;
