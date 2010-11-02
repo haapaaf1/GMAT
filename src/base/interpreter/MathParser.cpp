@@ -220,6 +220,13 @@ bool MathParser::IsEquation(const std::string &str, bool checkMinusSign)
  * Finds lowest operator from the input string.
  * Single operators are +, -, *, /, ^, '.
  *
+ * Precedence of operators is (highest to lowest)
+ *    Parentheses ()
+ *    matrix Transpose('), power (^),  matrix power(^)
+ *    Unary plus (+), unary minus (-)
+ *    Multiplication (*), right division (/), matrix multiplication (*), matrix right division (/)
+ *    Addition (+), subtraction (-)
+ *
  * @param  str  Input string
  * @param  opIndex  Index of operator
  * @param  start  Index to start
@@ -319,7 +326,13 @@ std::string MathParser::FindLowestOperator(const std::string &str,
       start1 = str.find('(', close1);
       
       if (start1 == -1)
+      {
+         #if DEBUG_FIND_OPERATOR
+         MessageInterface::ShowMessage
+            ("   ===> There is no ( found after %d, so exiting while loop\n", close1);
+         #endif
          break;
+      }
       
       substr = str.substr(close1+1, start1-close1-1);
       
@@ -363,16 +376,46 @@ std::string MathParser::FindLowestOperator(const std::string &str,
    
    IntegerMap::iterator pos1;
    IntegerMap::iterator pos2;
+   Integer index1 = -1;
+   Integer index2 = -1;
    std::string lastOp;
+   bool opFound = false;
+   bool unaryMinusFound = false;
    
    // find + or - first
    pos1 = opIndexMap.find("+");
    pos2 = opIndexMap.find("-");
+   
+   #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage
+      ("   +op index=%d, -op index=%d\n", pos1->second, pos2->second);
+   #endif
+   
    if (pos1 != opIndexMap.end() || pos2 != opIndexMap.end())
    {
-      opStr = GetOperator(pos1, pos2, opIndexMap, index);
+      if (pos1 != opIndexMap.end())
+         index1 = pos1->second;
+      if (pos2 != opIndexMap.end())
+         index2 = pos2->second;
+      
+      // Check for unary - operator
+      if (index2 == 0)
+      {
+         unaryMinusFound = true;
+      }
+      else
+      {
+         opStr = GetOperator(pos1, pos2, opIndexMap, index);
+         opFound = true;
+      }
    }
-   else
+   
+   #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage
+      ("   unaryMinusFound=%d, opFound=%d\n", unaryMinusFound, opFound);
+   #endif
+   
+   if (!opFound)
    {
       // find * or /
       pos1 = opIndexMap.find("*");
@@ -383,19 +426,24 @@ std::string MathParser::FindLowestOperator(const std::string &str,
       }
       else
       {
-         // find ^ and not ^(-1) which is inverse of matrix
-         // find ' which is transpose of matrix (LOJ: 2010.07.29)
-         pos1 = opIndexMap.find("^");
-         pos2 = opIndexMap.find("'");
-         if (pos1 != opIndexMap.end() || pos2 != opIndexMap.end())
+         if (unaryMinusFound)
          {
-            //opStr = pos1->first;
-            opStr = GetOperator(pos1, pos2, opIndexMap, index);
-            //index = pos1->second;
+            index = 0;
+            opStr = "-";
+         }
+         else
+         {
+            // find ^ and not ^(-1) which is inverse of matrix
+            // find ' which is transpose of matrix (LOJ: 2010.07.29)
+            pos1 = opIndexMap.find("^");
+            pos2 = opIndexMap.find("'");
+            if (pos1 != opIndexMap.end() || pos2 != opIndexMap.end())
+            {
+               opStr = GetOperator(pos1, pos2, opIndexMap, index);
+            }
          }
       }
    }
-   
    
    opIndex = index;
    
@@ -1254,10 +1302,19 @@ std::string MathParser::GetOperatorName(const std::string &op, bool &opFound)
 // std::string FindOperator(const std::string &str, Integer &opIndex)
 //------------------------------------------------------------------------------
 /*
- * Finds operator from the input string.
+ * Finds the right most lowest operator from the input string.
+ *
+ * Precedence of operators is (lowest to highest)
+ *    +, -
+ *    *, /
+ *    unary -
+ *    ', ^
+ *    ()
+ *
  * Single operators are +, -, *, /, ^, '
  * Double operators are ++, --, +-, -+, *-, /-, ^+, ^-
  *
+ * 
  * @param  str  Input string
  * @param  opIndex  Index of operator
  *
@@ -1278,13 +1335,48 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
    std::string::size_type index;
    std::string::size_type index1 = str.find_last_of("+");
    std::string::size_type index2 = str.find_last_of("-");
+   std::string::size_type index3 = str.find_first_of("-");
+   bool unaryMinusFound = false;
+   bool checkNext = true;
    
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
-      ("FindOperator() for +,- index1=%u, index2=%u\n", index1, index2);
+      ("FindOperator() for +,- index1=%u, index2=%u, index3=%u\n", index1, index2, index3);
    #endif
    
-   if (index1 == str.npos && index2 == str.npos)
+   if (index1 != str.npos || index2 != str.npos)
+      checkNext = false;
+   
+   // Check for unary - operator
+   if (index3 != str.npos)
+   {
+      #if DEBUG_FIND_OPERATOR
+      MessageInterface::ShowMessage("   Found unary minus operator\n");
+      #endif
+      unaryMinusFound = true;
+      if (index1 != str.npos || index2 != str.npos)
+      {
+         std::string::size_type index4;
+         if (index1 != str.npos && index2 != str.npos)
+            index4 = index1 > index2 ? index1 : index2;
+         else
+            index4 = index1 == str.npos ? index2 : index1;
+         
+         #if DEBUG_FIND_OPERATOR
+         MessageInterface::ShowMessage("   index4=%u\n", index4);
+         #endif
+         
+         if ((index4 > 0) &&
+             (str[index4-1] == '*' || str[index4-1] == '/'))
+            checkNext = true;
+      }
+   }
+   
+   #if DEBUG_FIND_OPERATOR
+   MessageInterface::ShowMessage("FindOperator() %s *,/\n", checkNext ? "check" : "skip");
+   #endif
+   
+   if (checkNext)
    {
       index1 = str.find_last_of("*");
       index2 = str.find_last_of("/");
@@ -1296,6 +1388,19 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
       
       if (index1 == str.npos && index2 == str.npos)
       {
+         if (unaryMinusFound)
+         {
+            op = "-";
+            opIndex = 0;
+            
+            #if DEBUG_FIND_OPERATOR
+            MessageInterface::ShowMessage
+               ("FindOperator() returning op=%s, opIndex=%u\n", op.c_str(), opIndex);
+            #endif
+            
+            return op;            
+         }
+         
          index1 = str.find_last_of("^");
          
          #if DEBUG_FIND_OPERATOR
@@ -1345,7 +1450,7 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
       }
    }
    
-   // if both operators found, assign to greator position
+   // if both operators found, assign to greater position
    if (index1 != str.npos && index2 != str.npos)
       index = index1 > index2 ? index1 : index2;
    else
@@ -1385,7 +1490,7 @@ std::string MathParser::FindOperator(const std::string &str, Integer &opIndex)
    
    #if DEBUG_FIND_OPERATOR
    MessageInterface::ShowMessage
-      ("MathParser::FindOperator() returning op=%s, opIndex=%u\n", op.c_str(), opIndex);
+      ("FindOperator() returning op=%s, opIndex=%u\n", op.c_str(), opIndex);
    #endif
    
    return op;
@@ -1773,8 +1878,8 @@ StringArray MathParser::ParsePower(const std::string &str)
    StringArray items;
    std::string op = "";
    
-   // find first ^
-   std::string::size_type index1 = str.find('^');
+   // We should find last ^ insted of first ^ to fix bug 2176 (LOJ: 2010.10.29)
+   std::string::size_type index1 = str.find_last_of('^');
    
    if (index1 == str.npos)
    {
@@ -2353,14 +2458,14 @@ std::string::size_type MathParser::FindMatchingParen(const std::string &str,
 {
    #if DEBUG_MATH_PARSER > 1
    MessageInterface::ShowMessage
-      ("MathParser::FindMatchingParen() entered, str=%s, start=%u\n",
-       str.c_str(), start);
+      ("MathParser::FindMatchingParen() entered, str='%s', str.size()=%u, start=%u\n",
+       str.c_str(), str.size(), start);
    #endif
    
    int leftCounter = 0;
    int rightCounter = 0;
    
-   for (UnsignedInt i=start; i<str.size(); i++)
+   for (UnsignedInt i = start; i < str.size(); i++)
    {
       if (str[i] == '(')
          leftCounter++;
