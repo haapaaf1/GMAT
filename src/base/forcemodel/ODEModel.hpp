@@ -247,8 +247,11 @@ protected:
    
    /// Parameter IDs on spacecraft needed to access the parms during integration
    Integer satIds[7];
-//   /// ID for the "Epoch" parameter  -- NOT NEEDED, THIS IS A PHYSICAL MODEL ALREADY!!!
-//   Integer modelEpochId;
+
+   /// ID for CartesianState start for processing dynamic state data
+   Integer stateStart;
+   /// ID for CartesianState end for processing dynamic state data
+   Integer stateEnd;
 
    /// Number of objects providing Cartesian state data
    Integer cartObjCount;

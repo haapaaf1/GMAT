@@ -73,6 +73,7 @@
 //#define DEBUG_INITIALIZATION
 //#define DEBUG_BUILDING_MODELS
 //#define DEBUG_STATE
+//#define DEBUG_MASS_FLOW
 //#define DEBUG_REORIGIN
 //#define DEBUG_ERROR_ESTIMATE
 
@@ -161,6 +162,8 @@ ODEModel::ODEModel(const std::string &modelName, const std::string typeName) :
    centralBodyName   ("Earth"),
    forceMembersNotInitialized (true),
    satCount          (0),
+   stateStart        (-1),
+   stateEnd          (-1),
    cartObjCount      (0),
    cartStateStart    (-1),
    cartStateSize     (0),
@@ -245,6 +248,8 @@ ODEModel::ODEModel(const ODEModel& fdf) :
    centralBodyName            (fdf.centralBodyName),
    forceMembersNotInitialized (true),
    satCount                   (0),
+   stateStart                 (fdf.stateStart),
+   stateEnd                   (fdf.stateEnd),
    cartObjCount               (0),
    cartStateStart             (-1),
    cartStateSize              (0),
@@ -323,6 +328,9 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
    state = NULL;
    psm   = NULL;
    satCount = 0;
+   stateStart = fdf.stateStart;
+   stateEnd   = fdf.stateEnd;
+
    cartObjCount      = 0;
    cartStateStart    = -1;
    cartStateSize     =  0;
@@ -1649,6 +1657,9 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
             throw ODEModelException("Cr parameter undefined on object " +
                                     sat->GetName());
          
+         stateStart = sat->GetParameterID("CartesianX");
+         stateEnd   = sat->GetParameterID("CartesianVZ");
+
          #ifdef DEBUG_SATELLITE_PARAMETERS
          MessageInterface::ShowMessage(
             "Parameter ID Array: [%d %d %d %d %d %d %d]; PMepoch id  = %d\n",
@@ -1767,9 +1778,6 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
    
    return i;
 }
-
-
-
 
 
 Integer ODEModel::UpdateDynamicSpacecraftData(ObjectArray *sats, Integer i)
@@ -1894,9 +1902,25 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
                   dynamicObjects[i]->GetName().c_str(),
                   state[dynamicsIndex[i]]);
          #endif
+         if (((dynamicIDs[i] >= stateStart) && (dynamicIDs[i] <= stateEnd)))
+         {
+            SpacePoint *objBody = NULL;
+            if (dynamicObjects[i]->IsOfType(Gmat::SPACEOBJECT))
+               objBody = ((SpaceObject*)(dynamicObjects[i]))->GetOrigin();
+            if (objBody != NULL)
+            {
+               Rvector6 offset = objBody->GetMJ2000State(((SpaceObject*)
+                     (dynamicObjects[i]))->GetEpoch() + dt /
+                     GmatTimeUtil::SECS_PER_DAY);
 
-         dynamicObjects[i]->
-               SetRealParameter(dynamicIDs[i], state[dynamicsIndex[i]]);
+               dynamicObjects[i]->SetRealParameter(dynamicIDs[i],
+                     state[dynamicsIndex[i]] +
+                     offset[dynamicIDs[i]-stateStart]);
+            }
+            else
+               dynamicObjects[i]->SetRealParameter(dynamicIDs[i],
+                     state[dynamicsIndex[i]]);
+         }
       }
       UpdateInitialData(true);
    }
@@ -1908,7 +1932,7 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
    #ifdef DEBUG_STATE
       MessageInterface::ShowMessage(
          "Top of GetDeriv; State with dimension %d = [", dimension);
-      for (Integer i = 0; i < dimension; ++i)
+      for (Integer i = 0; i < dimension-1; ++i)
          MessageInterface::ShowMessage("%le, ", state[i]);
       MessageInterface::ShowMessage("%le]\n", state[dimension-1]);
    #endif
