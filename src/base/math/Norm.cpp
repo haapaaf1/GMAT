@@ -161,6 +161,8 @@ Real Norm::Evaluate()
    }
    else
    {
-      return leftNode->Evaluate();
+      // Norm of a scalar should be the absolute value of the scalar.
+      Real result = leftNode->Evaluate();
+      return GmatMathUtil::Abs(result);
    }
 }
