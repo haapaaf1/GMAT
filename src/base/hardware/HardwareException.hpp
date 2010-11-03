@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  HardwareException
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/10/27
@@ -16,17 +16,18 @@
 //------------------------------------------------------------------------------
 
 
-#ifndef HARDWAREEXCEPTION_HPP
-#define HARDWAREEXCEPTION_HPP
+#ifndef HardwareException_hpp
+#define HardwareException_hpp
 
 #include "BaseException.hpp"
 
-class GMAT_API HardwareException : public BaseException{
+class GMAT_API HardwareException : public BaseException
+{
 public:
 
-	HardwareException(std::string details);
+	HardwareException(std::string details = "");
 	virtual ~HardwareException();
    HardwareException(const HardwareException &soe);
 };
 
-#endif // HARDWAREEXCEPTION_HPP
+#endif // HardwareException_hpp
