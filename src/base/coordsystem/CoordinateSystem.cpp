@@ -611,7 +611,7 @@ Rvector CoordinateSystem::FromMJ2000Eq(const A1Mjd &epoch, const Rvector &inStat
                                          + instanceName);
     #ifdef DEBUG_INPUTS_OUTPUTS
       MessageInterface::ShowMessage(
-      "In CS::FromMJ2000Eq, translation happening\n");
+      "In CS::FromMJ2000Eq (2), translation happening\n");
     #endif
    }
    else
@@ -659,7 +659,7 @@ void CoordinateSystem::FromMJ2000Eq(const A1Mjd &epoch, const Real *inState,
                                          + instanceName);
     #ifdef DEBUG_INPUTS_OUTPUTS
       MessageInterface::ShowMessage(
-      "In CS::FromMJ2000Eq, translation happening\n");
+      "In CS::FromMJ2000Eq (1), translation happening\n");
     #endif
    }
    else
@@ -668,6 +668,10 @@ void CoordinateSystem::FromMJ2000Eq(const A1Mjd &epoch, const Real *inState,
 
    if (axes)
    {
+      #ifdef DEBUG_INPUTS_OUTPUTS
+         MessageInterface::ShowMessage("About to call RotateFromMJ2000Eq for object %s\n",
+               (GetName()).c_str());
+      #endif
       //if (!axes->RotateFromMJ2000Eq(epoch,internalState,internalState))//,j2000Body))
       //   throw CoordinateSystemException("Error rotating state from MJ2000Eq for "
       //                                   + instanceName);
@@ -677,7 +681,13 @@ void CoordinateSystem::FromMJ2000Eq(const A1Mjd &epoch, const Real *inState,
                                          + instanceName);
    }
    else
+   {
+      #ifdef DEBUG_INPUTS_OUTPUTS
+         MessageInterface::ShowMessage("AXES are NULL in CS::FromMJ2000Eq (1) for c.s.of type %s\n",
+               (GetTypeName()).c_str());
+      #endif
       for (Integer i=0; i<6; i++) outState[i]    = internalState[i];
+   }
                                          
 }
 

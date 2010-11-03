@@ -736,11 +736,18 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
                                     Rvector &outState,
                                     bool forceComputation)
 {
+   #ifdef DEBUG_ROT_MATRIX
+      MessageInterface::ShowMessage("Entering AxisSystem::RotateFromMJ2000Eq on object of type %s\n",
+            (GetTypeName()).c_str());
+   #endif
    static Rvector3 tmpPosVec;
    static Rvector3 tmpVelVec;
    static const Real  *tmpPos = tmpPosVec.GetDataVector();
    static const Real  *tmpVel = tmpVelVec.GetDataVector();
    CalculateRotationMatrix(epoch, forceComputation);
+   #ifdef DEBUG_ROT_MATRIX
+      MessageInterface::ShowMessage("In AxisSystem::rotateFromMJ2000Eq, DONE computing rotation matrix\n");
+   #endif
    
    // *********** assuming only one 6-vector for now - UPDATE LATER!!!!!!
    tmpPosVec.Set(inState[0],inState[1], inState[2]);
