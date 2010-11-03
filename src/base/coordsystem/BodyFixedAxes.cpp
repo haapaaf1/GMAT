@@ -45,6 +45,7 @@ using namespace GmatTimeUtil;      // for JD offsets, etc.
 //#define DEBUG_MOON_MATRIX
 //#define DEBUG_BF_MATRICES
 //#define DEBUG_BF_CHECK_DETERMINANT
+//#define DEBUG_BF_ROT_MATRIX
 
 #ifdef DEBUG_FIRST_CALL
    static bool firstCallFired = false;
@@ -192,6 +193,48 @@ bool BodyFixedAxes::Initialize()
 GmatBase* BodyFixedAxes::Clone() const
 {
    return (new BodyFixedAxes(*this));
+}
+
+//------------------------------------------------------------------------------
+//  bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+//                    const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method sets a reference object for the BodyFixedAxes class.  This is
+ * overridden from the CoordinateBase version, in order to make sure the origin
+ * is a CelestialBody
+ *
+ * @param obj   pointer to the reference object
+ * @param type  type of the reference object
+ * @param name  name of the reference object
+ *
+ * @return true if successful; otherwise, false.
+ *
+ */
+//------------------------------------------------------------------------------
+bool BodyFixedAxes::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                                 const std::string &name)
+{
+   if (obj == NULL)
+      return false;
+
+   #ifdef DEBUG_SET_REF
+   MessageInterface::ShowMessage
+      ("BodyFixedAxes::SetRefObject() <%s>, obj=%p, name=%s\n", GetName().c_str(),
+       obj, name.c_str());
+   #endif
+   if (name == originName)
+   {
+      if (!obj->IsOfType("CelestialBody"))
+      {
+         CoordinateSystemException cse("");
+         cse.SetDetails(errorMessageFormatUnnamed.c_str(),
+                        (obj->GetName()).c_str(),
+                       "Origin", "Celestial Body");
+         throw cse;
+      }
+   }
+   return DynamicAxes::SetRefObject(obj, type, name);
 }
 
 //------------------------------------------------------------------------------
@@ -371,10 +414,18 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
          MessageInterface::ShowMessage(
             "Calling CalculateRotationMatrix at epoch %lf; ", atEpoch.Get());
    #endif
+   #ifdef DEBUG_BF_ROT_MATRIX
+      MessageInterface::ShowMessage("Entering CalculateRotationMatrix on object of type %s, origin = %s\n",
+            (GetTypeName()).c_str(), originName.c_str());
+   #endif
+
    
    // compute rotMatrix and rotDotMatrix
    if (originName == SolarSystem::EARTH_NAME)
    {
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("   body name is EARTH\n");
+      #endif
       #ifdef DEBUG_FIRST_CALL
          if (!firstCallFired)
             MessageInterface::ShowMessage("In BFA, Body is the Earth\n");
@@ -430,13 +481,18 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
  
       #ifdef DEBUG_FIRST_CALL
          if (!firstCallFired)
+         {
             Real jdUT1    = mjdUT1 + JD_JAN_5_1941; // right?
             MessageInterface::ShowMessage(
                "   Epoch data[mjdUTC, mjdUT1, jdUT1, tUT1, mjdTT1, jdTT, tTDB] "
                "=\n        [%.10lf %.10lf %.10lf %.10lf %.10lf %.10lf %.10lf ]\n",
                mjdUTC, mjdUT1, jdUT1, tUT1, mjdTT, jdTT, tTDB);
+         }
       #endif
 
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("   about to figure out update interval ...\n");
+      #endif
       if (overrideOriginInterval) 
       {
          updateIntervalToUse = updateInterval;
@@ -463,14 +519,32 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       
       //MessageInterface::ShowMessage("Setting %4.3f as interval \n",
       //                              updateIntervalToUse);
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("About to call ComputePrecessionMatrix\n");
+      #endif
       ComputePrecessionMatrix(tTDB, atEpoch);
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("About to call ComputeNutationMatrix\n");
+      #endif
       ComputeNutationMatrix(tTDB, atEpoch, dPsi, longAscNodeLunar, cosEpsbar,
                             forceComputation);
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("About to call ComputeSiderealTimeRotation\n");
+      #endif
       ComputeSiderealTimeRotation(jdTT, tUT1, dPsi, longAscNodeLunar, cosEpsbar,
                              cosAst, sinAst);
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("About to call ComputeSiderealTimeDotRotation\n");
+      #endif
       ComputeSiderealTimeDotRotation(mjdUTC, atEpoch, cosAst, sinAst,
                                      forceComputation);
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("About to call ComputePolarMotionRotation\n");
+      #endif
       ComputePolarMotionRotation(mjdUTC, atEpoch, forceComputation);
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("DONE calling all computation submethods\n");
+      #endif
       
    #ifdef DEBUG_BF_MATRICES
       MessageInterface::ShowMessage("atEpoch = %12.10f\n", atEpoch.Get());
@@ -675,6 +749,9 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    
    else // compute for other bodies, using IAU data
    {
+      #ifdef DEBUG_BF_ROT_MATRIX
+         MessageInterface::ShowMessage("   origin name is %s\n", originName.c_str());
+      #endif
       Real Wderiv[9];
       Real R13[3][3];
       Real rotResult[3][3];
@@ -767,6 +844,7 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       
    #ifdef DEBUG_FIRST_CALL
       firstCallFired = true;
+      MessageInterface::ShowMessage("NOW exiting BFA::CalculateRotationMatrix ...\n");
    #endif
 
 }
