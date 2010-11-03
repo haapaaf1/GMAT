@@ -24,6 +24,8 @@
 #include "ThrusterConfigPanel.hpp"
 #include "MessageInterface.hpp"
 
+//#define DEBUG_BURNPANEL_SAVE
+
 //------------------------------
 // public methods
 //------------------------------
@@ -141,7 +143,7 @@ void ThrusterConfigPanel::SaveData()
       canClose = false;
    }
    
-   BurnThrusterPanel::SaveData();
+   if (canClose) BurnThrusterPanel::SaveData();
    
    #ifdef DEBUG_BURNPANEL_SAVE
    MessageInterface::ShowMessage("ThrusterConfigPanel::SaveData() exiting\n");
