@@ -25,6 +25,7 @@
 #include "StringUtil.hpp"               // for GmatStringUtil::ToUpper()
 #include "MessageInterface.hpp"
 #include "bitmaps/OpenFolder.xpm"
+#include "TimeSystemConverter.hpp"
 
 #include "wx/platform.h"
 #include <wx/config.h>
@@ -659,6 +660,19 @@ void PropagationConfigPanel::LoadData()
       // Load the name in case the user changes to an integrator
       theForceModelName = thePropSetup->GetName() + "_ForceModel";
       numOfForces   = 0;
+
+      // Set the data buffers used in the dialog
+      Real ss     = thePropagator->GetRealParameter("StepSize");
+      spkStep     = ToString(ss);
+      spkBody     = thePropagator->GetStringParameter("CentralBody").c_str();
+      spkEpFormat = thePropagator->GetStringParameter("EpochFormat").c_str();
+      spkEpoch    = thePropagator->GetStringParameter("StartEpoch").c_str();
+
+      // Set the flags so that dialog populates correctly
+      isSpkStepChanged     = true;
+      isSpkBodyChanged     = true;
+      isSpkEpFormatChanged = true;
+      isSpkEpochChanged    = true;
    }
 
    PopulateForces();
@@ -1568,6 +1582,11 @@ void PropagationConfigPanel::Initialize()
    isOriginChanged = false;
    isErrControlChanged = false;
 
+   isSpkStepChanged     = false;
+   isSpkBodyChanged     = false;
+   isSpkEpFormatChanged = false;
+   isSpkEpochChanged    = false;
+
    //Note: All the settings should match enum types in the header.
 
    StringArray propTypes = theGuiInterpreter->GetListOfFactoryItems(Gmat::PROPAGATOR);
@@ -1654,6 +1673,20 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
       {
          thePropagator = (Propagator*)
             theGuiInterpreter->CreateObject(integratorType, thePropagatorName);
+      }
+
+      if (!thePropagator->IsOfType("Integrator"))
+      {
+         Real ss     = thePropagator->GetRealParameter("StepSize");
+         spkStep     = ToString(ss);
+         spkBody     = thePropagator->GetStringParameter("CentralBody").c_str();
+         spkEpFormat = thePropagator->GetStringParameter("EpochFormat").c_str();
+         spkEpoch    = thePropagator->GetStringParameter("StartEpoch").c_str();
+
+         isSpkStepChanged     = true;
+         isSpkBodyChanged     = true;
+         isSpkEpFormatChanged = true;
+         isSpkEpochChanged    = true;
       }
 
       if (theForceModel == NULL)    // Switched from an ODE-model free propagator
@@ -1787,24 +1820,40 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
    else
    {
       // Fill in Propagator data
-      Real ss = thePropagator->GetRealParameter("StepSize");
-
-      wxString cbSetting, epFormatSetting;
-      cbSetting = thePropagator->GetStringParameter("CentralBody").c_str();
-      epFormatSetting = thePropagator->GetStringParameter("EpochFormat").c_str();
-
       #ifdef DEBUG_PROP_INTEGRATOR
          MessageInterface::ShowMessage("CB = %s, EP = %s\n", cbSetting.c_str(),
                epFormatSetting.c_str());
       #endif
 
-      propagatorStepSizeTextCtrl->SetValue(ToString(ss));
-      Integer cbIndex = propCentralBodyComboBox->FindString(cbSetting);
-      propCentralBodyComboBox->SetSelection(cbIndex);
-      Integer epIndex = propagatorEpochFormatComboBox->FindString(epFormatSetting);
-      propagatorEpochFormatComboBox->SetSelection(epIndex);
-      startEpochTextCtrl->SetValue(thePropagator->GetStringParameter(
-            "StartEpoch").c_str());
+      if (isSpkStepChanged)
+      {
+         propagatorStepSizeTextCtrl->SetValue(spkStep);
+      }
+
+      if (isSpkBodyChanged)
+      {
+         Integer cbIndex = propCentralBodyComboBox->FindString(spkBody);
+         propCentralBodyComboBox->SetSelection(cbIndex);
+      }
+      if (isSpkEpFormatChanged)
+      {
+         Integer epIndex = propagatorEpochFormatComboBox->FindString(spkEpFormat);
+         propagatorEpochFormatComboBox->SetSelection(epIndex);
+      }
+      if (isSpkEpochChanged)
+      {
+            startEpochTextCtrl->SetValue(spkEpoch);
+      }
+
+//      spkStep = propagatorStepSizeTextCtrl->GetValue();
+//      spkBody = propCentralBodyComboBox->GetValue();
+//      spkEpFormat = propagatorEpochFormatComboBox->GetValue();
+//      spkEpoch = startEpochTextCtrl->GetValue();
+
+      isSpkStepChanged     = false;
+      isSpkBodyChanged     = false;
+      isSpkEpFormatChanged = false;
+      isSpkEpochChanged    = false;
 
       theStopCheckBox->Show(false);
       theStopCheckBox->Enable(false);
@@ -2207,7 +2256,6 @@ bool PropagationConfigPanel::SaveIntegratorData()
    CheckInteger(maxAttempts, str, "Max Step Attempts", "Integer Number > 0",
                 false, true, true);
 
-//   if (integratorString.IsSameAs(integratorArray[ABM]))
    if (thePropagator->IsOfType("PredictorCorrector"))
    {
       str = minIntErrorTextCtrl->GetValue();
@@ -2365,8 +2413,6 @@ bool PropagationConfigPanel::SaveDegOrder()
    //-----------------------------------------------------------------
    // save values to base, base code should do the range checking
    //-----------------------------------------------------------------
-
-   /// @todo ltr: implement < the maximum specified by the model validation
    try
    {
       #ifdef DEBUG_PROP_PANEL_SAVE
@@ -2752,17 +2798,16 @@ void PropagationConfigPanel::OnPropOriginComboBox(wxCommandEvent &)
    if (thePropagator->IsOfType("Integrator"))
       return;
 
-   wxString propOrigin = thePropagator->GetStringParameter("CentralBody").c_str();
    wxString propSelection = propCentralBodyComboBox->GetStringSelection();
 
-   if (!propOrigin.IsSameAs(propSelection))
+   if (!spkBody.IsSameAs(propSelection))
    {
       isIntegratorDataChanged = true;
-      thePropagator->SetStringParameter("CentralBody", propSelection.c_str());
+      spkBody = propSelection;
+      isSpkBodyChanged = true;
       Integer cbIndex = propCentralBodyComboBox->FindString(propSelection);
       propCentralBodyComboBox->SetSelection(cbIndex);
       DisplayIntegratorData(false);
-      isIntegratorDataChanged = false;
       EnableUpdate(true);
    }
 }
@@ -2776,17 +2821,28 @@ void PropagationConfigPanel::OnPropEpochComboBox(wxCommandEvent &)
    if (thePropagator->IsOfType("Integrator"))
       return;
 
-   wxString propEpoch = thePropagator->GetStringParameter("EpochFormat").c_str();
    wxString epochSelection = propagatorEpochFormatComboBox->GetStringSelection();
 
-   if (!propEpoch.IsSameAs(epochSelection))
+   if (!spkEpFormat.IsSameAs(epochSelection))
    {
       isIntegratorDataChanged = true;
-      thePropagator->SetStringParameter("EpochFormat", epochSelection.c_str());
+
+      // Update the epoch string
+      Real fromVal = -999.999;
+      Real toVal = -999.999;
+      std::string newStr;
+      TimeConverterUtil::Convert(spkEpFormat.c_str(), fromVal, spkEpoch.c_str(),
+            epochSelection.c_str(), toVal, newStr);
+
+      spkEpFormat = epochSelection;
+      isSpkEpFormatChanged = true;
       Integer epIndex = propagatorEpochFormatComboBox->FindString(epochSelection);
       propagatorEpochFormatComboBox->SetSelection(epIndex);
+
+      spkEpoch = newStr.c_str();
+      isSpkEpochChanged = true;
+
       DisplayIntegratorData(false);
-      isIntegratorDataChanged = false;
       EnableUpdate(true);
    }
 }

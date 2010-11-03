@@ -148,7 +148,7 @@ private:
       GravityField *gravf;
       DragForce *dragf;
       SolarRadiationPressure *srpf;
-      bool useSrp; // for future use (SRP on indivitual body is future implementation)
+      bool useSrp; // for future use (SRP on individual body is future implementation)
       
       ForceType(const wxString &body, const wxString &grav = "None",
                 const wxString &drag = "None", const wxString &mag = "None",
@@ -177,6 +177,17 @@ private:
          }
    };
    
+   // SPK parameter buffers
+   wxString spkStep;
+   wxString spkBody;
+   wxString spkEpFormat;
+   wxString spkEpoch;
+
+   bool isSpkStepChanged;
+   bool isSpkBodyChanged;
+   bool isSpkEpFormatChanged;
+   bool isSpkEpochChanged;
+
    wxFlexGridSizer *intFlexGridSizer;
    GmatStaticBoxSizer *intStaticSizer;
    GmatStaticBoxSizer *fmStaticSizer;
@@ -351,7 +362,7 @@ private:
    void OnIntegratorTextUpdate(wxCommandEvent &event);
    void OnGravityTextUpdate(wxCommandEvent& event);
    void OnMagneticTextUpdate(wxCommandEvent& event);
-   
+
    // Checkbox event method
    void OnSRPCheckBoxChange(wxCommandEvent &event);
    void OnStopCheckBoxChange(wxCommandEvent &event);
