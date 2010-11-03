@@ -2822,17 +2822,43 @@ void PropagationConfigPanel::OnPropEpochComboBox(wxCommandEvent &)
       return;
 
    wxString epochSelection = propagatorEpochFormatComboBox->GetStringSelection();
+   std::string newStr;
 
    if (!spkEpFormat.IsSameAs(epochSelection))
    {
       isIntegratorDataChanged = true;
 
+      spkEpoch = startEpochTextCtrl->GetValue();
+
       // Update the epoch string
-      Real fromVal = -999.999;
-      Real toVal = -999.999;
-      std::string newStr;
-      TimeConverterUtil::Convert(spkEpFormat.c_str(), fromVal, spkEpoch.c_str(),
-            epochSelection.c_str(), toVal, newStr);
+      try
+      {
+         Real fromVal;
+         Real toVal = -999.999;
+
+         if (spkEpFormat.Find("ModJulian") == wxNOT_FOUND)
+            fromVal = -999.999;
+         else
+         {
+            spkEpoch.ToDouble(&fromVal);
+            if (fromVal < 6116.0)
+               throw GmatBaseException("ModJulian epochs must be later than "
+                     "(or equal to) 6116, the date Sputnik launched.");
+         }
+
+         TimeConverterUtil::Convert(spkEpFormat.c_str(), fromVal, spkEpoch.c_str(),
+               epochSelection.c_str(), toVal, newStr);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, e.GetFullMessage() +
+             "\nPlease enter valid Epoch before changing the Epoch Format\n");
+
+         Integer epIndex = propagatorEpochFormatComboBox->FindString(spkEpFormat);
+         propagatorEpochFormatComboBox->SetSelection(epIndex);
+         return;
+      }
 
       spkEpFormat = epochSelection;
       isSpkEpFormatChanged = true;
