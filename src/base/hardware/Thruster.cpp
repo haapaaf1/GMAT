@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                               Thruster
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2004/11/08
@@ -860,16 +860,15 @@ Real Thruster::SetRealParameter(const Integer id, const Real value)
          
       // Other parameters
       case DUTY_CYCLE:
-         if (value >= 0.0)
+         if ((value >= 0.0) && (value <= 1.0))
             dutyCycle = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"DutyCycle\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException he;
+            he.SetDetails(errorMessageFormat.c_str(),
+                          GmatStringUtil::ToString(value, GetDataPrecision()).c_str(),
+                          "DutyCycle", "0.0 <= Real Number <= 1.0");
+            throw he;
          }
          return dutyCycle;
       case THRUST_SCALE_FACTOR:
@@ -877,12 +876,11 @@ Real Thruster::SetRealParameter(const Integer id, const Real value)
             thrustScaleFactor = value;
          else
          {
-            std::stringstream buffer;
-            buffer << value;
-            throw HardwareException(
-               "The value of \"" + buffer.str() + "\" for field \"Thrust Scale Factor\""
-               " on object \"" + instanceName + "\" is not an allowed value.\n"
-               "The allowed values are: [ Real Number >= 0.0 ]. ");
+            HardwareException he;
+            he.SetDetails(errorMessageFormat.c_str(),
+                          GmatStringUtil::ToString(value, GetDataPrecision()).c_str(),
+                          "ThrustScaleFactor", "Real Number >= 0.0");
+            throw he;
          }
          return thrustScaleFactor;
       case GRAVITATIONAL_ACCELERATION:
