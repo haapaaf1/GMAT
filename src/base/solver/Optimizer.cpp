@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                         Optimizer
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -567,6 +567,12 @@ Real Optimizer::SetRealParameter(const Integer id, const Real value)
 {
    if (id == OPTIMIZER_TOLERANCE)
    {
+      if (value <= 0.0)
+         throw SolverException(
+               "The value entered for the optimizer tolerance on " +
+               instanceName + " is not an allowed value. The allowed value "
+               "is: [Real > 0.0].");
+
       tolerance = value;
       return tolerance;
    }
