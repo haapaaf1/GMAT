@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                           PhysicalConstants
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -33,6 +33,10 @@ namespace GmatPhysicalConst
 
     //Astronomical Constants        
     const Real ASTRONOMICAL_UNIT                = 1.4959787e11;  // m
+
+    // Temperature constants
+    const Real ABSOLUTE_ZERO_K                  = 0.0;           // K
+    const Real ABSOLUTE_ZERO_C                  = -273.15;       // degrees C
 }
 
 #endif // PhysicalConstants_hpp
