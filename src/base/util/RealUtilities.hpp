@@ -2,14 +2,13 @@
 //------------------------------------------------------------------------------
 //                              RealUtilities
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
-// Author: M. Weippert, Chu-chi Li, E. Corderman, W. Shoan
 // Created: 1995/07/21 for GSS project
 // Modified: 2003/09/15 Linda Jun - Put functions under namespace GmatRealUtil.
 //                      Added NearestInt().
@@ -30,12 +29,10 @@ struct GMAT_API RealUtilitiesExceptions
 {
    class GMAT_API ArgumentError : public BaseException
    {public : ArgumentError(const std::string& message = "")
-       //: BaseException("Real Utilities Argument Error: ", message) {};  };
        : BaseException("", message) {};  };
    
    class GMAT_API IllegalTime   : public BaseException
    {public : IllegalTime(const std::string& message = "")
-       //: BaseException("Real Utilities Illegal Time: ", message) {};  };
        : BaseException("", message) {};  };
 };
 
@@ -101,7 +98,7 @@ namespace GmatMathUtil
    Real    ArcsecToRad(Real asec,bool modBy2Pi = false);
    
    Real    Sin(Real angleInRad, Real cycleInRad=TWO_PI); 
-   Real    SinXOverX(Real angleInRad, Real cycleInRad=TWO_PI); //loj: 7/22/05 Uncommented
+   Real    SinXOverX(Real angleInRad, Real cycleInRad=TWO_PI);
    Real    Cos(Real angleInRad, Real cycleInRad=TWO_PI); 
    Real    Tan(Real angleInRad, Real cycleInRad=TWO_PI);
 
@@ -140,6 +137,37 @@ namespace GmatMathUtil
    Real    Exp10(Real x);          // Raises 10 to the x power(10^x)
    Real    Pow(Real x, Real y);    // Raises x to the y power(x^y)
    Real    Pow(Real x, Integer y); // Raises x to the y power(x^y)
-
+   
+   bool    IsNaN(Real x);
+   bool    IsInf(Real x);
 }
+
+// This inline doesn't work with MSVC++ compiler
+#ifndef _MSC_VER
+#include <cmath>
+//------------------------------------------------------------------------------
+// bool IsNaN(Real x)
+//------------------------------------------------------------------------------
+/**
+ * Tests if input value is not a number.
+ */
+//------------------------------------------------------------------------------
+inline bool GmatMathUtil::IsNaN(Real x)
+{
+   return std::isnan(x);
+}
+
+//------------------------------------------------------------------------------
+// bool IsInf(Real x)
+//------------------------------------------------------------------------------
+/**
+ * Tests if input value is a infinite number.
+ */
+//------------------------------------------------------------------------------
+inline bool GmatMathUtil::IsInf(Real x)
+{
+   return std::isinf(x);
+}
+#endif
+
 #endif // RealUtilities_hpp

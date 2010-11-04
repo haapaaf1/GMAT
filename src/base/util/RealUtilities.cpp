@@ -2,14 +2,13 @@
 //------------------------------------------------------------------------------
 //                              RealUtilities
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
-// Author: M. Weippert, Chu-chi Li, E. Corderman, W. Shoan
 // Created: 1995/07/21 for GSS project
 // Modified:
 //   2003/09/15 Linda Jun - Used namespace GmatRealUtil
@@ -956,3 +955,32 @@ Real GmatMathUtil::Pow(Real x, Integer y)
    return pow(x, y);
 }
 
+#ifdef _MSC_VER
+#include <float.h>  // for _isnan() on VC++
+#define isnan(x) _isnan(x)    // VC++ uses _isnan()  instead of isnan()
+#define isinf(x) !_finite(x)  // VC++ uses _finite() instead of isinf()
+
+//------------------------------------------------------------------------------
+// bool IsNaN(Real x)
+//------------------------------------------------------------------------------
+/**
+ * Tests if input value is not a number.
+ */
+//------------------------------------------------------------------------------
+bool GmatMathUtil::IsNaN(Real x)
+{
+   return isnan(x);
+}
+
+//------------------------------------------------------------------------------
+// bool IsInf(Real x)
+//------------------------------------------------------------------------------
+/**
+ * Tests if input value is a infinite number.
+ */
+//------------------------------------------------------------------------------
+bool GmatMathUtil::IsInf(Real x)
+{
+   return isinf(x);
+}
+#endif
