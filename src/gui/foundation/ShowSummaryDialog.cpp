@@ -21,7 +21,6 @@
 
 #include "ShowSummaryDialog.hpp"
 
-
 //------------------------------------------------------------------------------
 //  ShowSummaryDialog(wxWindow *parent, wxWindowID id, const wxString& title, 
 //                   GmatBase *obj)
@@ -66,7 +65,14 @@ void ShowSummaryDialog::Create()
    wxSize scriptPanelSize(500, 32);
    if (theObject != NULL) {
       text = theObject->GetStringParameter("Summary").c_str();
-      scriptPanelSize.Set(500, 400);
+
+      // This code is flaky -- text width is height dependent??? -- on Linux:
+//      GetTextExtent(text, &w, &h);
+//      w = (w + 200 > 1000 ? 1000 : w + 200);
+//      h = (h > 700 ? 700 : h);
+      scriptPanelSize.Set(690, 720);
+
+      SetSize(wxDefaultCoord, wxDefaultCoord, w, h);
    }
    
    // Set additional style wxTE_RICH to Ctrl + mouse scroll wheel to decrease or
