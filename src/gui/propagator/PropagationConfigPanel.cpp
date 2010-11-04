@@ -2341,7 +2341,6 @@ bool PropagationConfigPanel::SavePropagatorData()
    str = propagatorStepSizeTextCtrl->GetValue().c_str();
    CheckReal(step, str, "StepSize", "Real Number");
 
-
    //-----------------------------------------------------------------
    // save values to base, base code should do the range checking
    //-----------------------------------------------------------------
@@ -2350,16 +2349,39 @@ bool PropagationConfigPanel::SavePropagatorData()
       Integer id;
 
       id = thePropagator->GetParameterID("StepSize");
+      if (step <= 0.0)
+         throw GmatBaseException("Step size must be a real positive number");
       thePropagator->SetRealParameter(id, step);
 
       str = propCentralBodyComboBox->GetValue().c_str();
       id = thePropagator->GetParameterID("CentralBody");
       thePropagator->SetStringParameter(id, str);
 
+      // Range check the epoch value
+      Real fromVal;
+      Real toVal = -999.999;
+      std::string newStr;
+      if (spkEpFormat.Find("ModJulian") == wxNOT_FOUND)
+      {
+         fromVal = -999.999;
+         TimeConverterUtil::Convert(spkEpFormat.c_str(), fromVal,
+               startEpochTextCtrl->GetValue().c_str(), "A1ModJulian", toVal,
+               newStr);
+         if (toVal < 6116.0)
+            throw GmatBaseException("Start epochs must be later than "
+                  "A.1 date 04 Oct 1957 12:00:00.000.");
+      }
+      else
+      {
+         startEpochTextCtrl->GetValue().ToDouble(&fromVal);
+         if (fromVal < 6116.0)
+            throw GmatBaseException("ModJulian epochs must be later than "
+                  "(or equal to) 6116, the date Sputnik launched.");
+      }
+
       str = propagatorEpochFormatComboBox->GetValue().c_str();
       id = thePropagator->GetParameterID("EpochFormat");
       thePropagator->SetStringParameter(id, str);
-
 
       str = startEpochTextCtrl->GetValue().c_str();
       id = thePropagator->GetParameterID("StartEpoch");
