@@ -26,8 +26,7 @@
 
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
-
-#include <cmath>           // for isnan() and isinf()
+#include "RealUtilities.hpp"       // for IsNaN() and IsInf()
 
 //#define DEBUG_STATE_CONSTRUCTION
 //#define DUMP_STATE
@@ -440,14 +439,14 @@ bool PropagationStateManager::MapObjectsToVector()
             value = stateMap[index]->object->GetRealParameter(
                           stateMap[index]->parameterID);
 
-            if (std::isnan(value))
+            if (GmatMathUtil::IsNaN(value))
                throw PropagatorException("Value for parameter " +
                      stateMap[index]->object->GetParameterText(
                      stateMap[index]->parameterID) + " on object " +
                      stateMap[index]->object->GetName() +
                      " is not a number");
 
-            if (std::isinf(value))
+            if (GmatMathUtil::IsInf(value))
                throw PropagatorException("Value for parameter " +
                      stateMap[index]->object->GetParameterText(
                      stateMap[index]->parameterID) + " on object " +
@@ -462,14 +461,14 @@ bool PropagationStateManager::MapObjectsToVector()
                   stateMap[index]->parameterID, stateMap[index]->rowIndex,
                   stateMap[index]->colIndex);
 
-            if (std::isnan(value))
+            if (GmatMathUtil::IsNaN(value))
                throw PropagatorException("Value for array parameter " +
                      stateMap[index]->object->GetParameterText(
                      stateMap[index]->parameterID) + " on object " +
                      stateMap[index]->object->GetName() +
                      " is not a number");
 
-            if (std::isinf(value))
+            if (GmatMathUtil::IsInf(value))
                throw PropagatorException("Value for array parameter " +
                      stateMap[index]->object->GetParameterText(
                      stateMap[index]->parameterID) + " on object " +
