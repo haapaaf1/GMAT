@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                         FminconOptimizer
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -13,7 +13,7 @@
 // Created: 2006.07.14
 //
 /**
- * Implementation for the FminconOptimizer class. 
+ * Implementation for the FminconOptimizer class.
  *
  */
 //------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ FminconOptimizer::PARAMETER_TYPE[
 // list of allowed fmincon options
 // NOTE - if changes are made to this list, changes MUST also be
 // made to the Optimize command (where it is adding single quotes to
-// string options) and to the IsAllowedValue method; the 
+// string options) and to the IsAllowedValue method; the
 // NUM_MATLAB_OPTIONS parameter may also need to be changed
 const std::string FminconOptimizer::ALLOWED_OPTIONS[6] =
 {
@@ -117,12 +117,12 @@ FminconOptimizer::FminconOptimizer(const std::string &name) :
    }
    // ********* BEGIN temporary prototype, testing, etc. *****************************//
    //functionPath = "/Users/wcshoan/dev/Ec_GMAT/bin/files/matlab_functions";
-   //OpenConnection();  
+   //OpenConnection();
    // ********* END temporary prototype, testing, etc. *****************************//
-   
+
    AllowStepsizeLimit = false;
    AllowIndependentPerts = false;
-   
+
    matlabIf = NULL;
 }
 
@@ -133,7 +133,7 @@ FminconOptimizer::FminconOptimizer(const std::string &name) :
 FminconOptimizer::~FminconOptimizer()
 {
    FreeArrays();
-   
+
    // loj: Let's leave it open (4/11/07)
    // So that it will be automatically connected to the current running Matlab session.
    // User has to manually close the Matlab session if we want to create a new session.
@@ -170,19 +170,19 @@ FminconOptimizer::FminconOptimizer(const FminconOptimizer &opt) :
 //------------------------------------------------------------------------------
 // FminconOptimizer& operator=(const FminconOptimizer& opt)
 //------------------------------------------------------------------------------
-FminconOptimizer& 
+FminconOptimizer&
 FminconOptimizer::operator=(const FminconOptimizer& opt)
 {
    if (&opt == this)
       return *this;
-   
+
    ExternalOptimizer::operator=(opt);
    options.clear();
    optionValues.clear();
    options          = opt.options;
    optionValues     = opt.optionValues;
    fminconExitFlag  = opt.fminconExitFlag; // right?
-   
+
    return *this;
 }
 
@@ -193,12 +193,12 @@ FminconOptimizer::operator=(const FminconOptimizer& opt)
 bool FminconOptimizer::Initialize()
 {
    ExternalOptimizer::Initialize();
-   
+
    // open connection(s) to the external source
    //if (!OpenConnection())
    //   throw SolverException(
    //         "Fmincon - Unable to connect to external interface");
-   
+
    // Open Matlab engine and find fmincon related files
    if (OpenConnection())
       return true;
@@ -242,7 +242,7 @@ Solver::SolverState FminconOptimizer::AdvanceState()
          RunExternal();
          ReportProgress();
          break;
-        
+
       case FINISHED:
          #ifdef DEBUG_STATE_MACHINE // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
             MessageInterface::ShowMessage(
@@ -254,7 +254,7 @@ Solver::SolverState FminconOptimizer::AdvanceState()
       default:
          break;
    }
-     
+
    return currentState;
 }
 
@@ -297,11 +297,11 @@ StringArray FminconOptimizer::AdvanceNestedState(std::vector<Real> vars)
          MessageInterface::ShowMessage(
          "now building return string array\n");
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-      CalculateParameters(); 
+      CalculateParameters();
       std::stringstream outS;
       outS.precision(18);
       std::string       oneResult;
-      
+
       // F
       outS.str();
       outS << cost;
@@ -311,7 +311,7 @@ StringArray FminconOptimizer::AdvanceNestedState(std::vector<Real> vars)
          "   adding %s to string array\n", oneResult.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
       results.push_back(oneResult);
-      
+
       // GradF
       outS.str("");
       for (Integer i=0; i<(Integer) gradient.size(); i++)
@@ -322,7 +322,7 @@ StringArray FminconOptimizer::AdvanceNestedState(std::vector<Real> vars)
          "   adding %s to string array\n", oneResult.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
       results.push_back(oneResult);
-      
+
       // equality constraints
       outS.str("");
       for (Integer i=0; i<(Integer) eqConstraintValues.size(); i++)
@@ -333,7 +333,7 @@ StringArray FminconOptimizer::AdvanceNestedState(std::vector<Real> vars)
          "   adding %s to string array\n", oneResult.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
       results.push_back(oneResult);
-      
+
       // inequality constraints
       outS.str("");
       for (Integer i=0; i<(Integer) ineqConstraintValues.size(); i++)
@@ -344,9 +344,9 @@ StringArray FminconOptimizer::AdvanceNestedState(std::vector<Real> vars)
          "   adding %s to string array\n", oneResult.c_str());
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
       results.push_back(oneResult);
-      
+
       // Jacobian in the future ---------------------- <future> ----------------
-      oneResult = "JacNonLinearEqCon = [];"; 
+      oneResult = "JacNonLinearEqCon = [];";
       #ifdef DEBUG_OPTIMIZER_DATA // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
          MessageInterface::ShowMessage(
          "   adding %s to string array\n", oneResult.c_str());
@@ -359,7 +359,7 @@ StringArray FminconOptimizer::AdvanceNestedState(std::vector<Real> vars)
       #endif // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
       results.push_back(oneResult);
       // Jacobian in the future ---------------------- <future> ----------------
-          
+
       WriteToTextFile(nestedState);
       nestedState = NOMINAL;
    }
@@ -371,33 +371,33 @@ StringArray FminconOptimizer::AdvanceNestedState(std::vector<Real> vars)
 // bool Optimize()
 //------------------------------------------------------------------------------
 bool FminconOptimizer::Optimize()
-{   
+{
    #ifdef DEBUG_ML_CONNECTIONS
    MessageInterface::ShowMessage("Entering Optimize method ....\n");
    #endif
-   
+
    // set format long so that we don't lose precision between string transmission
    matlabIf->EvalString("format long");
    // clear last errormsg
    matlabIf->EvalString("clear errormsg");
-   
+
    // set up options/values list for OPTIMSET call
    bool allEmpty = true;
    std::string optionsStr     = "GMAToptions = optimset(";
    std::string defaultOptions = optionsStr +"\'fmincon\');";
    std::ostringstream optS;
    bool debugMatlabIF = GmatGlobal::Instance()->IsMatlabDebugOn();
-   
+
    if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
    {
       MessageInterface::ShowMessage(
-      "In Optimize method, the number of options is %d ....\n", 
+      "In Optimize method, the number of options is %d ....\n",
       (Integer)options.size());
       MessageInterface::ShowMessage(
-      "In Optimize method, the number of option values is %d ....\n", 
+      "In Optimize method, the number of option values is %d ....\n",
       (Integer)optionValues.size());
    } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-   
+
    for (Integer i=0; i < (Integer) options.size(); i++)
    {
       if (optionValues.at(i) != "")
@@ -422,13 +422,13 @@ bool FminconOptimizer::Optimize()
       matlabIf->RunMatlabString(defaultOptions);
    else
       matlabIf->RunMatlabString(optionsStr);
-   
+
    std::string inParm;
    std::ostringstream mlS;
    // pass to MATLAB the X0 array (needs to be a column vector)
    mlS.str("");
    mlS.precision(18);
-   
+
    for (Integer i=0;i<(Integer)variable.size();i++)
       mlS << variable.at(i) << ";";
    inParm = "X0 = [" + mlS.str() + "];";
@@ -438,7 +438,7 @@ bool FminconOptimizer::Optimize()
       "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
    } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    matlabIf->RunMatlabString(inParm);
-   
+
    // pass to MATLAB the Lower column vector
    mlS.str("");
    for (Integer i=0;i<(Integer)variableMinimum.size();i++)
@@ -450,12 +450,12 @@ bool FminconOptimizer::Optimize()
       "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
    } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    matlabIf->RunMatlabString(inParm);
-   
+
    // pass to MATLAB the Upper column vector
    mlS.str("");
    for (Integer i=0;i<(Integer)variableMaximum.size();i++)
       mlS << variableMaximum.at(i) << ";";
-   
+
    inParm = "Upper = [" + mlS.str() + "];";
    if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
    {
@@ -463,10 +463,10 @@ bool FminconOptimizer::Optimize()
       "In Optimize method, parameter string is: %s ....\n", inParm.c_str());
    } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    matlabIf->RunMatlabString(inParm);
-      
+
    // clear last errormsg
    matlabIf->EvalString("clear errormsg");
-   //std::string runString = 
+   //std::string runString =
    //   "[X] = GmatFminconOptimizationDriver(X0,Lower,Upper);";
    // wcs - made it into an m-file instead of a function
    std::string runString = "GmatFminconOptimizationDriver;";
@@ -476,11 +476,11 @@ bool FminconOptimizer::Optimize()
    int         OKint = 0;
    std::string resStr    = "exitFlag";
    OKint                 = matlabIf->GetRealArray(resStr, 1, outArr);
-   
+
    if (!OKint)
       throw SolverException("Error determining exitFlag from fmincon");
    fminconExitFlag = (Integer) outArr[0];
-   
+
    // need to ask for fVal as well?
    return false;
 }
@@ -506,7 +506,7 @@ GmatBase* FminconOptimizer::Clone() const
 //---------------------------------------------------------------------------
 /**
  * Sets this object to match another one.
- * 
+ *
  * @param orig The original that is being copied.
  */
 //---------------------------------------------------------------------------
@@ -560,7 +560,7 @@ Integer FminconOptimizer::GetParameterID(const std::string &str) const
    {
       return Gmat::PARAMETER_REMOVED; // return the id of the fields no longer in use
    }
-   
+
    // part 2:
    for (Integer i = ExternalOptimizerParamCount; i < FminconOptimizerParamCount; ++i)
    {
@@ -570,7 +570,7 @@ Integer FminconOptimizer::GetParameterID(const std::string &str) const
    for (Integer j =0; j < NUM_MATLAB_OPTIONS; j++)
       if (str == ALLOWED_OPTIONS[j])
          return (MATLAB_OPTIONS_OFFSET + j);
-   
+
    return ExternalOptimizer::GetParameterID(str);
 }
 
@@ -616,7 +616,7 @@ bool FminconOptimizer::IsParameterReadOnly(const Integer id) const
 {
    if (id == OPTIMIZER_TOLERANCE || id == SOURCE_TYPE)
       return true;
-   
+
    return ExternalOptimizer::IsParameterReadOnly(id);
 }
 
@@ -685,11 +685,11 @@ bool FminconOptimizer::SetStringParameter(const Integer id,
    {
       if (!IsAllowedValue(options[id - MATLAB_OPTIONS_OFFSET], value))
       {
-          std::string errorStr = "FminconOptimizer error: Value " + 
-               value + " not valid for option " 
+          std::string errorStr = "FminconOptimizer error: Value " +
+               value + " not valid for option "
                + options[id - MATLAB_OPTIONS_OFFSET] + "\n";
           throw SolverException(errorStr);
-      }     
+      }
       optionValues[id - MATLAB_OPTIONS_OFFSET] = value;
       return true;
    }
@@ -717,7 +717,7 @@ std::string FminconOptimizer::GetStringParameter(const std::string &label) const
 bool FminconOptimizer::SetStringParameter(const std::string &label,
                                           const std::string &value)
 {
-        
+
    #ifdef DEBUG_FMINCON_OPTIONS // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
       MessageInterface::ShowMessage("Fmincon::setting param %s value to %s\n",
       label.c_str(), value.c_str());
@@ -728,7 +728,7 @@ bool FminconOptimizer::SetStringParameter(const std::string &label,
       {
          if (!IsAllowedValue(label, value))
          {
-            std::string errorStr = "FminconOptimizer error: Value " + 
+            std::string errorStr = "FminconOptimizer error: Value " +
                value + " not valid for option " + label + "\n";
             throw SolverException(errorStr);
          }
@@ -756,7 +756,7 @@ std::string FminconOptimizer::GetStringParameter(const Integer id,
       if ((index < 0) || (index >= (Integer) optionValues.size()))
          throw SolverException("FminconOptimizer::GetString index out of range.");
       return optionValues[index];
-   }     
+   }
     return ExternalOptimizer::GetStringParameter(id, index);
 }
 
@@ -765,7 +765,7 @@ std::string FminconOptimizer::GetStringParameter(const Integer id,
 // bool SetStringParameter(const Integer id, const std::string &value,
 //                         const Integer index)
 //------------------------------------------------------------------------------
-bool FminconOptimizer::SetStringParameter(const Integer id, 
+bool FminconOptimizer::SetStringParameter(const Integer id,
                                           const std::string &value,
                                           const Integer index)
 {
@@ -780,17 +780,17 @@ bool FminconOptimizer::SetStringParameter(const Integer id,
      {
         if (!IsAllowedValue(value, optionValues[index]))
            throw SolverException(
-              "FminconOptimizer::SetString - invalid value for option " 
+              "FminconOptimizer::SetString - invalid value for option "
               + value);
      }
-     
+
      if (index == (Integer) options.size())
      {
          options.push_back(value);
      }
      else  // substitute string for already existing one
         options[index] = value;
-        
+
      return true;
    }
    if (id == OPTION_VALUES)
@@ -800,7 +800,7 @@ bool FminconOptimizer::SetStringParameter(const Integer id,
      if (((Integer) options.size()) > index)
         if (!IsAllowedValue(options[index], value))
            throw SolverException(
-           "FminconOptimizer::SetString - invalid value for option " 
+           "FminconOptimizer::SetString - invalid value for option "
            + options[index]);
       if (index == (Integer) optionValues.size())
       {
@@ -808,9 +808,9 @@ bool FminconOptimizer::SetStringParameter(const Integer id,
       }
       else // replace a value currently there
          optionValues[index] = value;
-         
+
       return true;
-   }     
+   }
     return ExternalOptimizer::SetStringParameter(id, value, index);
 }
 
@@ -830,7 +830,7 @@ std::string FminconOptimizer::GetStringParameter(const std::string &label,
 // bool SetStringParameter(const std::string &label, const std::string &value,
 //                         const Integer index)
 //------------------------------------------------------------------------------
-bool FminconOptimizer::SetStringParameter(const std::string &label, 
+bool FminconOptimizer::SetStringParameter(const std::string &label,
                                           const std::string &value,
                                           const Integer index)
 {
@@ -857,7 +857,7 @@ const StringArray& FminconOptimizer::GetStringArrayParameter(
       return options;
    if (id == OPTION_VALUES)
       return optionValues;
-   
+
    return ExternalOptimizer::GetStringArrayParameter(id);
 }
 
@@ -880,7 +880,7 @@ void FminconOptimizer::CompleteInitialization()
 //------------------------------------------------------------------------------
 void FminconOptimizer::RunExternal()
 {
-   Optimize(); 
+   Optimize();
    currentState = FINISHED;
    nestedState  = INITIALIZING;
 }
@@ -900,7 +900,7 @@ void FminconOptimizer::RunNominal()
 //------------------------------------------------------------------------------
 void FminconOptimizer::CalculateParameters()
 {
-   //ExternalOptimizer::CalculateParameters(); 
+   //ExternalOptimizer::CalculateParameters();
    // check to make sure we have all of the data we need, from Minimize, etc.?
 }
 
@@ -933,14 +933,14 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
 {
    StringArray::iterator current;
    Integer i;
-   
+
    SolverState trigger = currentState;
    if (stateToUse != UNDEFINED_STATE)
       trigger = stateToUse;
-   
+
    if (!textFile.is_open())
       OpenSolverTextFile();
-   
+
    if (initialized)
    {
       std::stringstream message;
@@ -974,17 +974,17 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
                {
                   message << *current << "\n***    ";
                }
-                 
+
                message << "\n*** Equality Constraints:\n***    ";
-                 
+
                for (current = eqConstraintNames.begin(), i = 0;
                     current != eqConstraintNames.end(); ++current)
                {
                   message << *current << "\n***    ";
                }
-                 
+
                message << "\n*** Inequality Constraints:\n***    ";
-                 
+
                for (current = ineqConstraintNames.begin(), i = 0;
                     current != ineqConstraintNames.end(); ++current)
                {
@@ -995,7 +995,7 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
                         << std::endl;
             }
             break;
-            
+
          case NOMINAL:
             message << "Iteration " << iterationsTaken
                      << "\n   Variable Values: [";
@@ -1007,8 +1007,8 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
             }
             message << "]" << std::endl;
             break;
-            
-            
+
+
          case CALCULATING:
             if (textFileMode == "Verbose")
                message << "In the Calculating state" << std::endl;
@@ -1031,7 +1031,7 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
             }
             message << "   Objective function value:  " << cost << std::endl;
             break;
-                        
+
          case FINISHED:
             message << "\n****************************"
                      << "****************************\n"
@@ -1040,9 +1040,9 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
                      << "\n****************************"
                      << "****************************\n"
                      << std::endl;
-                         
+
             break;
-            
+
          case RUNEXTERNAL:
             message << "Iteration " << iterationsTaken+1
                      << "\nExternal Run\nVariables:\n   ";
@@ -1054,10 +1054,10 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
             }
             message << std::endl;
             break;
-            
+
          default:
             MessageInterface::ShowMessage(
-            "Solver state %d not supported for FminconOptimizer\n", 
+            "Solver state %d not supported for FminconOptimizer\n",
             currentState);
             //throw SolverException(
             //   "Solver state not supported for the Fmincon optimizer");
@@ -1074,44 +1074,44 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
 bool FminconOptimizer::OpenConnection()
 {
    bool debugMatlabIF = GmatGlobal::Instance()->IsMatlabDebugOn();
-   
+
    if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
    {
       MessageInterface::ShowMessage("\nFminconOptimizer::OpenConnection() entered\n");
    } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-   
+
    if (!GmatGlobal::Instance()->IsMatlabAvailable())
    {
       throw SolverException
          ("Error attempting to access interface to MATLAB.\nMATLAB is not installed "
           "on the system or use of MATLAT was disabled from the gmat_startup_file.\n");
    }
-   
+
    matlabIf = MatlabInterface::Instance();
-   
+
    if (debugMatlabIF)
    {
       MessageInterface::ShowMessage
       ("Got MatlabInterface pointer = %p\n", matlabIf);
    }
-   
+
    // open the MatlabInterface
    if (!matlabIf->Open("GmatMatlab"))
       throw SolverException
          ("Error attempting to access interface to MATLAB.\nMATLAB is not installed "
           "on the system or GMAT was not built with MATLAB engine.\n");
-   
+
    // clear the last error message
    matlabIf->EvalString("clear errormsg");
-   
+
    // Get current path and cd (LOJ: 2010.08.11)
    std::string evalStr;
    std::string resStr;
    std::string currPath = FileManager::Instance()->GetCurrentPath();
-   
+
    // Shoud I cd to current path before adding relative path?
    RunCdCommand(currPath);
-   
+
    // Add path to the top of the Matlab path in reverse order(loj: 2008.10.16)
    // since FileManager::GetAllMatlabFunctionPaths() returns in top to bottom order
    FileManager *fm = FileManager::Instance();
@@ -1133,7 +1133,7 @@ bool FminconOptimizer::OpenConnection()
       }
       rpos++;
    }
-   
+
    // Now add the function path to the top using path('newpath', path)
    if (functionPath != "")
    {
@@ -1141,14 +1141,14 @@ bool FminconOptimizer::OpenConnection()
       matlabIf->RunMatlabString(setPath);
       if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
       {
-         MessageInterface::ShowMessage("MATLAB path set to %s\n", 
+         MessageInterface::ShowMessage("MATLAB path set to %s\n",
          functionPath.c_str());
       } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
    }
-   
+
    // check for availability of Optimization Toolbox (well, really
    // just fmincon, but of course, its existence implies the existence of
-   // the entire toolbox) here 
+   // the entire toolbox) here
    double      outArr[1], outArr2[1];
    double      out1[1], out2[1], out3[1], out4[1];
    int         OKint = 0;
@@ -1156,11 +1156,11 @@ bool FminconOptimizer::OpenConnection()
    resStr    = "fminconexist";
    matlabIf->RunMatlabString(evalStr);
    OKint = matlabIf->GetRealArray(resStr, 1, outArr);
-   
+
    if (!OKint)
       throw SolverException(
             "Error determining existence of Optimization Toolbox");
-   
+
    if (outArr[0] > 0.0) // 2 means it is in the MATLAB path
    {
       if (debugMatlabIF)
@@ -1170,20 +1170,20 @@ bool FminconOptimizer::OpenConnection()
       evalStr   = "startupexist = exist(\'gmat_startup\');";
       resStr    = "startupexist";
       matlabIf->RunMatlabString(evalStr);
-      OKint     = matlabIf->GetRealArray(resStr, 1, outArr2); 
+      OKint     = matlabIf->GetRealArray(resStr, 1, outArr2);
       if (!OKint)
          throw SolverException(
                "Error determining existence of MATLAB gmat_startup");
-      
+
       if (outArr2[0] > 0.0) // 2 means it is in the MATLAB path
       {
          if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
          {
             MessageInterface::ShowMessage(
-            "gmat_startup exists (code = %.4f), running gmat_startup\n", 
+            "gmat_startup exists (code = %.4f), running gmat_startup\n",
             outArr2[0]);
          } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-         
+
          // Find directory that has gmat_startup.m and cd to that directory
          // before running gmat_startup.m
          evalStr = "whichStr = which('gmat_startup');";
@@ -1193,9 +1193,9 @@ bool FminconOptimizer::OpenConnection()
             if (debugMatlabIF)
                MessageInterface::ShowMessage
                   ("Here is the path of gmat_startup:\n%s\n", resStr.c_str());
-            
+
             std::string startupPath = GmatFileUtil::ParsePathName(resStr);
-            
+
             // cd to directory has gmat_startup.m
             RunCdCommand(startupPath);
          }
@@ -1204,34 +1204,34 @@ bool FminconOptimizer::OpenConnection()
             MessageInterface::ShowMessage
                ("Unable to get whichStr from MATLAB workspace.\n");
          }
-         
+
          // run the startup file to add to the MATLAB path correctly
          evalStr = "gmat_startup;";
          matlabIf->RunMatlabString(evalStr);
-         // check for existence on the path of the support MATLAB files 
-         evalStr = "driverexist = exist(\'GmatFminconOptimizationDriver\');"; 
-         resStr  = "driverexist";  
+         // check for existence on the path of the support MATLAB files
+         evalStr = "driverexist = exist(\'GmatFminconOptimizationDriver\');";
+         resStr  = "driverexist";
          matlabIf->RunMatlabString(evalStr);
-         OKint   = matlabIf->GetRealArray(resStr, 1, out1); 
-         evalStr = "objectiveexist = exist(\'EvaluateGMATObjective\');"; 
-         resStr  = "objectiveexist";  
+         OKint   = matlabIf->GetRealArray(resStr, 1, out1);
+         evalStr = "objectiveexist = exist(\'EvaluateGMATObjective\');";
+         resStr  = "objectiveexist";
          matlabIf->RunMatlabString(evalStr);
-         OKint   = matlabIf->GetRealArray(resStr, 1, out2); 
-         evalStr = "constraintexist = exist(\'EvaluateGMATConstraints\');"; 
-         resStr  = "constraintexist";  
+         OKint   = matlabIf->GetRealArray(resStr, 1, out2);
+         evalStr = "constraintexist = exist(\'EvaluateGMATConstraints\');";
+         resStr  = "constraintexist";
          matlabIf->RunMatlabString(evalStr);
-         OKint   = matlabIf->GetRealArray(resStr, 1, out3); 
-         evalStr = "callbackexist = exist(\'CallGMATfminconSolver\');"; 
-         resStr  = "callbackexist";  
+         OKint   = matlabIf->GetRealArray(resStr, 1, out3);
+         evalStr = "callbackexist = exist(\'CallGMATfminconSolver\');";
+         resStr  = "callbackexist";
          matlabIf->RunMatlabString(evalStr);
-         OKint                 = matlabIf->GetRealArray(resStr, 1, out4); 
+         OKint                 = matlabIf->GetRealArray(resStr, 1, out4);
          if (debugMatlabIF) // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ debug ~~~~
          {
             MessageInterface::ShowMessage(
-            "existence codes for support files  = %.4f  %.4f  %.4f  %.4f\n", 
+            "existence codes for support files  = %.4f  %.4f  %.4f  %.4f\n",
             out1[0], out2[0], out3[0], out4[0]);
          } // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end debug ~~~~
-         
+
          if ((out1[0] <= 0.0) || (out2[0] <= 0.0) ||
              (out3[0] <= 0.0) || (out4[0] <= 0.0))
          {
@@ -1244,27 +1244,27 @@ bool FminconOptimizer::OpenConnection()
                missingFiles = missingFiles + "EvaluateGMATConstraints, ";
             if (out4[0] <= 0.0)
                missingFiles = missingFiles + "CallGMATfminconSolver, ";
-            
+
             if (debugMatlabIF)
                WriteSearchPath("In FminconOptimizer::OpenConnection():");
-            
+
             throw SolverException
                ("MATLAB support files: " + missingFiles + " not in the MATLAB search path\n");
          }
          if (inSource == NULL) inSource = GmatInterface::Instance();
-         if (inSource == NULL)  
+         if (inSource == NULL)
             throw SolverException(
             "Error attempting to access GMAT server (to MATLAB)");
-         
+
          // Shoue I cd to initial directory?
          //RunCdCommand(currPath);
-         
+
          // ********* BEGIN temporary prototype, testing, etc. *****************************//
          //inSource->RegisterCallbackServer(this);
          //evalStr = "bogusFunction;";
          //MessageInterface::ShowMessage("Now trying to execute bogusFunction ...\n");
          //int OK = matlabIf->EvalString(evalStr);
-         //if (OK == 0) 
+         //if (OK == 0)
          //   MessageInterface::ShowMessage("ERROR calling EvalString\n");
          //MessageInterface::ShowMessage("Done executing bogusFunction\n");
          // ********* END temporary prototype, testing, etc. *****************************//
@@ -1273,7 +1273,7 @@ bool FminconOptimizer::OpenConnection()
       {
          if (debugMatlabIF)
             WriteSearchPath("In FminconOptimizer::OpenConnection():");
-         
+
          throw SolverException("gmat_startup.m not in the MATLAB search path\n");
       }
    }
@@ -1281,13 +1281,13 @@ bool FminconOptimizer::OpenConnection()
    {
       if (debugMatlabIF)
          WriteSearchPath("In FminconOptimizer::OpenConnection():");
-      
+
       throw SolverException("fmincon.m not in the MATLAB search path\n");
    }
-   
-   if (debugMatlabIF) 
+
+   if (debugMatlabIF)
       MessageInterface::ShowMessage("FminconOptimizer::OpenConnection() leaving\n\n");
-   
+
    return true;
 }
 
@@ -1307,25 +1307,25 @@ void FminconOptimizer::CloseConnection()
 //------------------------------------------------------------------------------
 /**
  * Code that writes the parameter details for an object.
- * 
+ *
  * @param prefix Starting portion of the script string used for the parameter.
  * @param obj The object that is written.
  */
 //------------------------------------------------------------------------------
-void FminconOptimizer::WriteParameters(Gmat::WriteMode mode, std::string &prefix, 
+void FminconOptimizer::WriteParameters(Gmat::WriteMode mode, std::string &prefix,
                                  std::stringstream &stream)
 {
    Integer id;
    Gmat::ParameterType parmType;
    std::stringstream value;
-   value.precision(GetDataPrecision()); 
+   value.precision(GetDataPrecision());
    for (id = 0; id < parameterCount; ++id)
    {
-      if (IsParameterReadOnly(id) == false) 
+      if (IsParameterReadOnly(id) == false)
       {
          parmType = GetParameterType(id);
          if (parmType != Gmat::STRINGARRAY_TYPE)
-         {  
+         {
             parmType = GetParameterType(id);
             // Skip unhandled types
             if (
@@ -1341,17 +1341,17 @@ void FminconOptimizer::WriteParameters(Gmat::WriteMode mode, std::string &prefix
                if (value.str() != "")
                {
                     std::string attCmtLn = GetAttributeCommentLine(id);
-                    
-                    if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) || 
+
+                    if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                      (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))
                      stream << attCmtLn;
-                     
+
                   stream << prefix << GetParameterText(id)
                          << " = " << value.str() << ";";
-                  
+
                   // overwrite tmp variable for attribute cmt line
                   attCmtLn = GetInlineAttributeComment(id);
-                  if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) || 
+                  if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                       (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))
                      stream << attCmtLn << "\n";
                   else
@@ -1368,15 +1368,15 @@ void FminconOptimizer::WriteParameters(Gmat::WriteMode mode, std::string &prefix
                if (sar.size() > 0)
                {
                   std::string attCmtLn = GetAttributeCommentLine(id);
-                       
-                  if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) || 
+
+                  if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                      (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))
                   {
                      stream << attCmtLn.c_str();
                   }
-                  
+
                   stream << prefix << GetParameterText(id) << " = {";
-                  
+
                   for (StringArray::iterator n = sar.begin(); n != sar.end(); ++n)
                   {
                      if (n != sar.begin())
@@ -1387,10 +1387,10 @@ void FminconOptimizer::WriteParameters(Gmat::WriteMode mode, std::string &prefix
                      if (inMatlabMode)
                         stream << "'";
                   }
-                  
+
                   attCmtLn  = GetInlineAttributeComment(id);
-                  
-                  if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) || 
+
+                  if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                      (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))
                   {
                      stream << "};" << attCmtLn << "\n";
@@ -1409,17 +1409,17 @@ void FminconOptimizer::WriteParameters(Gmat::WriteMode mode, std::string &prefix
                   if (value.str() != "")
                   {
                        std::string attCmtLn = GetAttributeCommentLine(id);
-                       
-                       if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) || 
+
+                       if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                         (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))
                         stream << attCmtLn;
-                        
+
                      stream << prefix << GetParameterText(ii + MATLAB_OPTIONS_OFFSET)
                             << " = " << value.str() << ";";
-                     
+
                      // overwrite tmp variable for attribute cmt line
                      attCmtLn = GetInlineAttributeComment(id);
-                     if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) || 
+                     if ((attCmtLn != "") && ((mode == Gmat::SCRIPTING) ||
                          (mode == Gmat::OWNED_OBJECT) || (mode == Gmat::SHOW_SCRIPT)))
                         stream << attCmtLn << "\n";
                      else
@@ -1427,11 +1427,11 @@ void FminconOptimizer::WriteParameters(Gmat::WriteMode mode, std::string &prefix
                   }
                }
             }
-            else 
-               ; // do nothing for OPTION_VALUES - handled with OPTIONS      
+            else
+               ; // do nothing for OPTION_VALUES - handled with OPTIONS
          }
       }
-   } // for 
+   } // for
 }
 
 
@@ -1465,6 +1465,8 @@ bool FminconOptimizer::IsAllowedValue(const std::string &opt,
    {
       Real tmpVal;
       if (!GmatStringUtil::ToReal(val.c_str(), &tmpVal)) return false;
+      if (tmpVal <= 0.0)
+         return false;
       return true;
    }
    else if (opt == ALLOWED_OPTIONS[2])
@@ -1472,7 +1474,7 @@ bool FminconOptimizer::IsAllowedValue(const std::string &opt,
       if (atoi(val.c_str()) > 0) return true;
       return false;
    }
-   
+
    return false;
 }
 
@@ -1484,19 +1486,19 @@ void FminconOptimizer::RunCdCommand(const std::string &pathName)
 {
    std::string evalStr, resStr;
    bool debugMatlabIF = GmatGlobal::Instance()->IsMatlabDebugOn();
-   
-   evalStr = "cd ", 
+
+   evalStr = "cd ",
    evalStr = evalStr + pathName;
    matlabIf->RunMatlabString(evalStr);
-   
+
    if (debugMatlabIF)
    {
       MessageInterface::ShowMessage
          ("Changed directory to: %s\n", pathName.c_str());
-      
+
       evalStr = "pwdStr = pwd";
       matlabIf->RunMatlabString(evalStr);
-      
+
       if (matlabIf->GetString("pwdStr", resStr) == 1)
          MessageInterface::ShowMessage
             ("The current path is:\n%s\n", resStr.c_str());
@@ -1513,11 +1515,11 @@ void FminconOptimizer::RunCdCommand(const std::string &pathName)
 void FminconOptimizer::WriteSearchPath(const std::string &msg)
 {
    std::string evalStr, resStr;
-   
+
    MessageInterface::ShowMessage("%s\n", msg.c_str());
    evalStr = "pathStr = path; pathStr = regexprep(pathStr, ';', '\\n');";
    matlabIf->RunMatlabString(evalStr);
-   
+
    if (matlabIf->GetString("pathStr", resStr) == 1)
       MessageInterface::ShowMessage
          ("The current path is:\n%s\n", resStr.c_str());
