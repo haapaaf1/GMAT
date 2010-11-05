@@ -142,9 +142,9 @@ MathNode* MathFactory::CreateMathNode(const std::string &ofType,
       mathNode = new Atan2(withName);
    
    // Unit conversion functions
-   else if (newType == "DegToRad")
+   else if (newType == "DegToRad" || newType == "Deg2Rad")
       mathNode = new DegToRad(withName);
-   else if (newType == "RadToDeg")
+   else if (newType == "RadToDeg" || newType == "Rad2Deg")
       mathNode = new RadToDeg(withName);
    
    else if (newType == "FunctionRunner")
@@ -288,6 +288,8 @@ void MathFactory::BuildCreatables()
    // Unit conversion functions
    creatables.push_back("DegToRad");  
    creatables.push_back("RadToDeg");
+   creatables.push_back("Deg2Rad");  
+   creatables.push_back("Rad2Deg");
    
    // GmatFunction
    creatables.push_back("FunctionRunner");  
