@@ -429,10 +429,104 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
 {
    #ifdef DEBUG_REPLACE_NAME
    MessageInterface::ShowMessage
-      ("GmatStringUtil::ReplaceName()> str=\"%s\", from=\"%s\", to=\"%s\"\n", str.c_str(),
+      ("GmatStringUtil::ReplaceName() str=\"%s\", from=\"%s\", to=\"%s\"\n", str.c_str(),
        from.c_str(), to.c_str());
    #endif
 
+   std::string str1 = str;
+   std::string::size_type pos = str1.find(from);
+
+   // if string not found, just return same string
+   if (pos == str1.npos)
+      return str1;
+
+   // if input string is the same as string to replace, just return <to> string
+   if (str == from)
+      return to;
+   
+   bool done = false;
+   std::string::size_type start = 0;
+   std::string::size_type strSize = str1.size();
+   std::string::size_type fromSize = from.size();
+   bool replace = false;
+   
+   while (!done)
+   {
+      #ifdef DEBUG_REPLACE_NAME
+      MessageInterface::ShowMessage("===> str1='%s'\n", str1.c_str());
+      #endif
+      
+      strSize = str1.size();
+      pos = str1.find(from, start);
+      
+      if (pos != str1.npos)
+      {
+         replace = false;
+         
+         #ifdef DEBUG_REPLACE_NAME
+         MessageInterface::ShowMessage("===> start=%u, pos=%u\n", start, pos);
+         #endif
+         
+         if (pos == 0 && fromSize < strSize)
+         {
+            if (!isalnum(str1[fromSize]) && str1[fromSize] != '_')
+               replace = true;
+         }
+         else if (pos > 0 && (pos + fromSize) < strSize)
+         {
+            if (!isalnum(str1[pos + fromSize]) && str1[pos + fromSize] != '_')
+               replace = true;
+         }
+         else if (pos == strSize-fromSize) // replace last name
+         {
+            replace = true;
+         }
+         
+         #ifdef DEBUG_REPLACE_NAME
+         MessageInterface::ShowMessage("===> replace=%d\n", replace);
+         #endif
+                  
+         if (replace)
+            str1.replace(pos, fromSize, to);
+         
+         start = pos + to.size();
+         
+         #ifdef DEBUG_REPLACE_NAME
+         MessageInterface::ShowMessage("===> start=%d, str1=<%s>\n", start, str1.c_str());
+         #endif
+      }
+      else
+      {
+         break;
+      }
+   }
+
+   #ifdef DEBUG_REPLACE_NAME
+   MessageInterface::ShowMessage("GmatStringUtil::ReplaceName() returning <%s>\n", str1.c_str());
+   #endif
+   
+   return str1;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string ReplaceNumber(const std::string &str, const std::string &from,
+//                         const std::string &to)
+//------------------------------------------------------------------------------
+/*
+ * Replaces all occurenece of <from> string to <to> string if <from> is a part
+ * of number. It will replace if input string is for example 3e-, 0E+, 34234
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::ReplaceNumber(const std::string &str, const std::string &from,
+                                          const std::string &to)
+{
+   #ifdef DEBUG_REPLACE_NUMBER
+   MessageInterface::ShowMessage
+      ("GmatStringUtil::ReplaceNumber() str=\"%s\", from=\"%s\", to=\"%s\"\n", str.c_str(),
+       from.c_str(), to.c_str());
+   #endif
+   
    std::string str1 = str;
    std::string::size_type pos = str1.find(from);
 
@@ -448,39 +542,22 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
    std::string::size_type start = 0;
    std::string::size_type strSize = str1.size();
    std::string::size_type fromSize = from.size();
-   bool replace = false;
-
+   
    while (!done)
    {
       pos = str1.find(from, start);
       if (pos != str1.npos)
       {
-         #ifdef DEBUG_REPLACE_NAME
+         #ifdef DEBUG_REPLACE_NUMBER
          MessageInterface::ShowMessage("===> start=%u, pos=%u\n", start, pos);
          #endif
-
-         if (pos == 0 && fromSize < strSize)
-         {
-            if (!isalnum(str1[fromSize]) && str1[fromSize] != '_')
-               replace = true;
-         }
-         else if (pos > 0 && (pos + fromSize) < strSize)
-         {
-            if (!isalnum(str1[pos + fromSize]) && str1[pos + fromSize] != '_')
-               replace = true;
-         }
-         else if (pos == strSize-fromSize) // replace last name
-         {
-            replace = true;
-         }
-
-         if (!replace)
-            break;
-
-         str1.replace(pos, fromSize, to);
+         
+         if (pos > 0 && isdigit(str1[pos-1]))
+            str1.replace(pos, fromSize, to);
+         
          start = pos + to.size();
-
-         #ifdef DEBUG_REPLACE_NAME
+         
+         #ifdef DEBUG_REPLACE_NUMBER
          MessageInterface::ShowMessage("===> start=%d, str1=<%s>\n", start, str1.c_str());
          #endif
       }
@@ -489,9 +566,9 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
          break;
       }
    }
-
-   #ifdef DEBUG_REPLACE_NAME
-   MessageInterface::ShowMessage("===> returning <%s>\n", str1.c_str());
+   
+   #ifdef DEBUG_REPLACE_NUMBER
+   MessageInterface::ShowMessage("GmatStringUtil::ReplaceNumber() returning <%s>\n", str1.c_str());
    #endif
 
    return str1;

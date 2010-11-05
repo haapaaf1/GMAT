@@ -48,6 +48,8 @@ namespace GmatStringUtil
                        const std::string &to);
    GMAT_API std::string ReplaceName(const std::string &str, const std::string &from,
                            const std::string &to);
+   GMAT_API std::string ReplaceNumber(const std::string &str, const std::string &from,
+                           const std::string &to);
    
    GMAT_API std::string ToString(const bool &val);
    GMAT_API std::string ToString(const Real &val, Integer precision, bool showPoint = false,
