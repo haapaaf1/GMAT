@@ -689,6 +689,16 @@ bool Assignment::Validate()
                            "okay for now\n");
                   #endif
                }
+               else if (lhsDataType == Gmat::STRING_TYPE)
+               {
+                  // Allow settng String, Number, Variable, or ArrayElement to String
+                  // This fixes bug 1340.
+                  if (rhsDataType == Gmat::STRING_TYPE ||
+                      rhsDataType == Gmat::REAL_TYPE)
+                     retval = true;
+                  else
+                     retval = false;
+               }
                else if (lhsDataType == Gmat::FILENAME_TYPE)
                {
                   if ((rhsDataType != Gmat::STRING_TYPE) )
@@ -782,9 +792,12 @@ bool Assignment::Initialize()
       
       #ifdef DEBUG_ASSIGNMENT_INIT
       for (ewi = mathWrapperMap.begin(); ewi != mathWrapperMap.end(); ++ewi)
+      {
+         ElementWrapper *wrapper = ewi->second;
          MessageInterface::ShowMessage
-            ("   name=<%s>, wrapper=<%p>, type=%d\n", (ewi->first).c_str(), ewi->second,
-             (ewi->second)->GetWrapperType());
+            ("   name=<%s>, wrapper=<%p>, type=%d\n", (ewi->first).c_str(), wrapper,
+             wrapper ? wrapper->GetWrapperType() : -999);
+      }
       #endif
       
       // Set references for the rhs math element wrappers
@@ -1214,6 +1227,9 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    
    if (withName == lhs)
    {
+      #ifdef DEBUG_WRAPPER_CODE
+      MessageInterface::ShowMessage("   Checking LHS...\n");
+      #endif
       // All lhs object property wrapper are settable, so check first
       if (withName.find(".") == withName.npos ||
           (withName.find(".") != withName.npos &&
@@ -1243,8 +1259,16 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
       }
    }
    
+   #ifdef DEBUG_WRAPPER_CODE
+   MessageInterface::ShowMessage
+      ("   lhsWrapper=<%p>, rhsWrapper=<%p>\n", lhsWrapper, rhsWrapper);
+   #endif
+   
    if (mathTree == NULL)
    {
+      #ifdef DEBUG_WRAPPER_CODE
+      MessageInterface::ShowMessage("   Checking RHS and it is not a math tree...\n");
+      #endif
       if (withName == rhs)
       {
          if (rhsWrapper != toWrapper)
@@ -1258,9 +1282,24 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
    }
    else
    {
+      #ifdef DEBUG_WRAPPER_CODE
+      MessageInterface::ShowMessage("   Checking RHS and it is a math tree...\n");
+      std::map<std::string, ElementWrapper *>::iterator ewi;
+      for (ewi = mathWrapperMap.begin(); ewi != mathWrapperMap.end(); ++ewi)
+         if (ewi->second != NULL)
+            MessageInterface::ShowMessage
+               ("   name=<%s>, wrapper=<%p>, type=%d\n", (ewi->first).c_str(), ewi->second,
+                (ewi->second)->GetWrapperType());
+         else
+            MessageInterface::ShowMessage
+               ("   name=<%s>, wrapper=<%p>\n", (ewi->first).c_str(), ewi->second);
+      #endif
       // if name found in the math wrapper map
       if (mathWrapperMap.find(withName) != mathWrapperMap.end())
       {
+         #ifdef DEBUG_WRAPPER_CODE
+         MessageInterface::ShowMessage("   name '%s' found in mathWrapperMap\n", withName.c_str());
+         #endif
          // rhs should always be parameter wrapper, so check first
          if (withName.find(".") == withName.npos ||
              (withName.find(".") != withName.npos &&
@@ -1268,6 +1307,9 @@ bool Assignment::SetElementWrapper(ElementWrapper *toWrapper,
          {
             if (mathWrapperMap[withName] != toWrapper)
             {
+               #ifdef DEBUG_WRAPPER_CODE
+               MessageInterface::ShowMessage("   now setting rhsNewWrapper to <%p>\n", toWrapper);
+               #endif
                rhsOldWrapper = mathWrapperMap[withName];
                rhsNewWrapper = toWrapper;
                mathWrapperMap[withName] = toWrapper;
