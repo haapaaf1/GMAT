@@ -109,6 +109,9 @@ void Determinant::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCo
 //------------------------------------------------------------------------------
 bool Determinant::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Determinant() - Missing input arguments.\n");
+   
    Integer type1, row1, col1; // Left node
 
    #if DEBUG_DETERMINANT

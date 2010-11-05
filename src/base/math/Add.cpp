@@ -175,6 +175,9 @@ bool Add::ValidateInputs()
       ("Add::ValidateInputs() '%s' entered\n", GetName().c_str());
    #endif
    
+   if (rightNode == NULL)
+      throw MathException("Add() - Not enough input arguments");
+   
    Integer type1, row1, col1; // Left node
    Integer type2, row2, col2; // Right node
    bool retval = false;

@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Log
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -110,6 +111,9 @@ void Log::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 bool Log::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Log() - Missing input arguments.\n");
+   
    Integer type1, row1, col1; // Left node
    
    // Get the type(Real or Matrix), # rows and # columns of the left node

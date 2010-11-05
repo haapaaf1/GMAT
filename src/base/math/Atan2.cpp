@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Atan2
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -115,6 +116,12 @@ void Atan2::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 bool Atan2::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Atan2() - Missing input arguments");
+   
+   if (rightNode == NULL)
+      throw MathException("Atan2() - Not enough input arguments");
+   
    Integer type1, row1, col1; // Left node
    Integer type2, row2, col2; // Right node
    

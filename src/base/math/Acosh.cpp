@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Acosh
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -111,13 +111,13 @@ void Acosh::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 bool Acosh::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Acosh() - Missing input arguments.\n");
+   
    Integer type1, row1, col1; // Left node
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
-   if (leftNode)
-      leftNode->GetOutputInfo(type1, row1, col1);
-   else
-      throw MathException("Acosh::ValidateInputs() leftNode is NULL\n");
+   leftNode->GetOutputInfo(type1, row1, col1);
    
    if (type1 == Gmat::REAL_TYPE)
       return true;

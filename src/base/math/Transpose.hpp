@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                              Transpose
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -32,7 +33,7 @@ public:
    
    virtual void GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount);
    virtual bool ValidateInputs(); 
-//    virtual Real Evaluate();
+   virtual Real Evaluate();
    virtual Rmatrix MatrixEvaluate();
 
 protected:

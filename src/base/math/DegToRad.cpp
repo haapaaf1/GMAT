@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  DegToRad
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -80,6 +81,58 @@ GmatBase* DegToRad::Clone() const
 
 
 //------------------------------------------------------------------------------
+// void GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
+//------------------------------------------------------------------------------
+void DegToRad::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
+{
+   type = Gmat::REAL_TYPE;
+   rowCount = 1;
+   colCount = 1;
+}
+
+
+//------------------------------------------------------------------------------
+// bool ValidateInputs()
+//------------------------------------------------------------------------------
+/**
+ * This method calls its subnodes and checks to be sure that the subnodes return
+ * compatible data for the function.
+ */
+//------------------------------------------------------------------------------
+bool DegToRad::ValidateInputs()
+{
+   if (leftNode == NULL)
+      throw MathException("DegToRad() - Missing input arguments.\n");
+   
+   Integer type1, row1, col1; // Left node
+   
+   // Get the type(Real or Matrix), # rows and # columns of the left node
+   leftNode->GetOutputInfo(type1, row1, col1);
+
+   // Only Real type is allowed
+   if (type1 == Gmat::REAL_TYPE)
+      return true;
+   else
+      return false;
+   
+//    if ( leftNode->ValidateInputs() )
+//    {
+//       try
+//       {
+//          leftNode->Evaluate();
+//          return true;
+//       }
+//       catch (MathException &e)
+//       {
+//          return false;
+//       } 
+//    }
+//    else
+//       return false;
+}
+
+
+//------------------------------------------------------------------------------
 // Real Evaluate()
 //------------------------------------------------------------------------------
 /**
@@ -92,41 +145,6 @@ Real DegToRad::Evaluate()
    return GmatMathUtil::DegToRad(leftNode->Evaluate());
 }
 
-//------------------------------------------------------------------------------
-// bool ValidateInputs()
-//------------------------------------------------------------------------------
-/**
- * This method calls its subnodes and checks to be sure that the subnodes return
- * compatible data for the function.
- */
-//------------------------------------------------------------------------------
-bool DegToRad::ValidateInputs()
-{
-   if ( leftNode->ValidateInputs() )
-   {
-      try
-      {
-         leftNode->Evaluate();
-         return true;
-      }
-      catch (MathException &e)
-      {
-         return false;
-      } 
-   }
-   else
-      return false;
-}
-
-//------------------------------------------------------------------------------
-// void GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
-//------------------------------------------------------------------------------
-void DegToRad::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
-{
-   type = Gmat::REAL_TYPE;
-   rowCount = 1;
-   colCount = 1;
-}
 
 //------------------------------------------------------------------------------
 // Rmatrix *MatrixEvaluate()

@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Acos
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -110,6 +111,9 @@ void Acos::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 bool Acos::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Acos() - Missing input arguments.\n");
+   
    Integer type1, row1, col1; // Left node
    
    // Get the type(Real or Matrix), # rows and # columns of the left node

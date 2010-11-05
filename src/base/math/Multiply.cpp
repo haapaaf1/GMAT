@@ -174,6 +174,12 @@ bool Multiply::ValidateInputs()
       ("\nMultiply::ValidateInputs() '%s' entered\n", GetName().c_str());
    #endif
    
+   if (leftNode == NULL)
+      throw MathException("Multiply() - Missing input arguments");
+   
+   if (rightNode == NULL)
+      throw MathException("Multiply() - Not enough input arguments");
+   
    Integer type1, row1, col1; // Left node
    Integer type2, row2, col2; // Right node
    bool retval = false;

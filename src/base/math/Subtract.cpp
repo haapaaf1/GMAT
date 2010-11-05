@@ -157,7 +157,7 @@ bool Subtract::ValidateInputs()
    bool retval = false;
    
    if (!leftNode)
-      throw MathException("Subtract::ValidateInputs() The left node is NULL");
+      throw MathException("Subtract() - Missing input arguments");
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
    leftNode->GetOutputInfo(type1, row1, col1);
@@ -181,17 +181,6 @@ bool Subtract::ValidateInputs()
       if (row1 == row2 && col1 == col2)
          retval = true;
    }
-//    if (type1 == Gmat::REAL_TYPE && type2 == Gmat::REAL_TYPE)
-//    {
-//       retval = true;
-//    }
-//    else if (type1 == Gmat::RMATRIX_TYPE && type2 == Gmat::RMATRIX_TYPE)
-//    {
-//       if (row1 == row2 && col1 == col2)
-//          retval = true;
-//       else if (row1 == 1 && col1 == 1 || row2 == 1 && col2 == 1)
-//          retval = true;
-//    }
    
    #ifdef DEBUG_INPUT_OUTPUT
    MessageInterface::ShowMessage

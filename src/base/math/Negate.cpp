@@ -109,6 +109,9 @@ void Negate::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 bool Negate::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Negate() - Missing input arguments.\n");
+   
    // it can be any type
    return true;
    //return leftNode->ValidateInputs();

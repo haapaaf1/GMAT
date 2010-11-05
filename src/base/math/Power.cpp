@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Power
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -114,16 +115,14 @@ void Power::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 bool Power::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Power() - Missing input arguments.\n");
+   
    Integer type1, row1, col1; // Left node
-//   Integer type2, row2, col2; // Right node
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
    leftNode->GetOutputInfo(type1, row1, col1);
    
-//   // Get the type(Real or Matrix), # rows and # columns of the right node
-//   rightNode->GetOutputInfo(type2, row2, col2);
-
-//   if ((type1 == Gmat::REAL_TYPE) && (type2 == Gmat::REAL_TYPE))
    if (type1 == Gmat::REAL_TYPE)
       return true;
    else

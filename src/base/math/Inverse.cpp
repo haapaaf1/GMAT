@@ -81,16 +81,17 @@ GmatBase* Inverse::Clone() const
 }
 
 //------------------------------------------------------------------------------
-// Real Evaluate()
+// void GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
-/**
- * @return the Inverse of left node
- *
- */
-//------------------------------------------------------------------------------
-Real Inverse::Evaluate()
+void Inverse::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 {
-   return GmatMathUtil::Pow(leftNode->Evaluate(), -1.0);
+   type = Gmat::RMATRIX_TYPE;
+   
+   leftNode->GetOutputInfo(type, rowCount, colCount);
+
+   if (rowCount == 1 && colCount == 1)
+      type = Gmat::REAL_TYPE;
+
 }
 
 //------------------------------------------------------------------------------
@@ -103,6 +104,9 @@ Real Inverse::Evaluate()
 //------------------------------------------------------------------------------
 bool Inverse::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Inverse() - Missing input arguments.\n");
+   
    Integer type, row, col;
    
    GetOutputInfo(type, row, col);
@@ -116,17 +120,16 @@ bool Inverse::ValidateInputs()
 }
 
 //------------------------------------------------------------------------------
-// void GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
+// Real Evaluate()
 //------------------------------------------------------------------------------
-void Inverse::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
+/**
+ * @return the Inverse of left node
+ *
+ */
+//------------------------------------------------------------------------------
+Real Inverse::Evaluate()
 {
-   type = Gmat::RMATRIX_TYPE;
-   
-   leftNode->GetOutputInfo(type, rowCount, colCount);
-
-   if (rowCount == 1 && colCount == 1)
-      type = Gmat::REAL_TYPE;
-
+   return GmatMathUtil::Pow(leftNode->Evaluate(), -1.0);
 }
 
 //------------------------------------------------------------------------------

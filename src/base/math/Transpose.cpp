@@ -20,8 +20,8 @@
 #include "Transpose.hpp"
 #include "MessageInterface.hpp"
 
-//#define DEBUG_TRANSPOSE 1
 //#define DEBUG_INPUT_OUTPUT
+//#define DEBUG_EVALUATE
 
 //---------------------------------
 // public methods
@@ -103,8 +103,9 @@ void Transpose::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCoun
    // Get the type(Real or Matrix), # rows and # columns of the left node
    leftNode->GetOutputInfo(type1, row1, col1);
    
-   if (type1 != Gmat::RMATRIX_TYPE)
-      throw MathException("Left is not a matrix, so cannot do Transpose().\n");
+   // Transpose of scalar is allowed. (See Bug 2186)
+   //if (type1 != Gmat::RMATRIX_TYPE)
+   //   throw MathException("Left is not a matrix, so cannot do Transpose().\n");
    
    // output row and col is transpose of leftNode's row and col
    type = type1;
@@ -158,6 +159,55 @@ bool Transpose::ValidateInputs()
    #endif
    
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// Real Evaluate()
+//------------------------------------------------------------------------------
+/**
+ * @return the Transpose of left node
+ *
+ */
+//------------------------------------------------------------------------------
+Real Transpose::Evaluate()
+{
+   #ifdef DEBUG_EVALUATE
+   MessageInterface::ShowMessage
+      ("Transpose::Evaluate() '%s' entered\n", GetName().c_str());
+   #endif
+   
+   Integer type, rowCount, colCount;
+   leftNode->GetOutputInfo(type, rowCount, colCount);
+   
+   if(type == Gmat::RMATRIX_TYPE)
+   {
+      // Allow 1x1 matrix
+      if (rowCount == 1 && colCount == 1)
+      {
+         Rmatrix rmat = leftNode->MatrixEvaluate();
+         Real result = rmat(0,0);
+         #ifdef DEBUG_EVALUATE
+         MessageInterface::ShowMessage
+            ("Transpose::Evaluate() '%s' returning 1x1 value %lf\n",
+             GetName().c_str(), result);
+         #endif
+         return result;
+      }
+      else
+         throw MathException("Transpose() Cannot evaluate \"" + GetName() + "\"\n");
+   }
+   else
+   {
+      // Transpose of a scalar just returns value of the scalar.
+      Real result = leftNode->Evaluate();
+      #ifdef DEBUG_EVALUATE
+      MessageInterface::ShowMessage
+         ("Transpose::Evaluate() '%s' returning scalar value %lf\n",
+          GetName().c_str(), result);
+      #endif
+      return result;
+   }
 }
 
 

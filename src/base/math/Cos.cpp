@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                                  Cos
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -117,20 +118,14 @@ void Cos::GetOutputInfo(Integer &type, Integer &rowCount, Integer &colCount)
 //------------------------------------------------------------------------------
 bool Cos::ValidateInputs()
 {
+   if (leftNode == NULL)
+      throw MathException("Cos() - Missing input arguments.\n");
+   
    Integer type1, row1, col1; // Left node
-//   Integer type2, row2, col2; // Right node
    
    // Get the type(Real or Matrix), # rows and # columns of the left node
-   if (leftNode)
-      leftNode->GetOutputInfo(type1, row1, col1);
-   else
-      throw MathException("Left node is NULL in " + GetTypeName() +
-                          "::ValidateInputs()\n");
+   leftNode->GetOutputInfo(type1, row1, col1);
    
-//   // Get the type(Real or Matrix), # rows and # columns of the right node
-//   rightNode->GetOutputInfo(type2, row2, col2);
-
-//   if ((type1 == Gmat::REAL_TYPE) && (type2 == Gmat::REAL_TYPE))
    if (type1 == Gmat::REAL_TYPE)
       return true;
    else

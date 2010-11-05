@@ -111,6 +111,9 @@ bool Norm::ValidateInputs()
 {
    Integer type1, row1, col1; // Left node
    
+   if (leftNode == NULL)
+      throw MathException("Norm() - Missing input arguments");
+   
    #ifdef DEBUG_NORM
    MessageInterface::ShowMessage
       ("Norm::ValidateInputs() left=%s, %s\n",
@@ -120,7 +123,7 @@ bool Norm::ValidateInputs()
    // Get the type(Real or Matrix), # rows and # columns of the left node
    // Input can be a scalar or matrix, so just call leftNode (LOJ: 2010.07.28)
    leftNode->GetOutputInfo(type1, row1, col1);
-      
+   
    #ifdef DEBUG_NORM
    MessageInterface::ShowMessage
       ("Norm::ValidateInputs() returning true, type=%d, row=%d, col=%d\n", 
@@ -156,7 +159,7 @@ Real Norm::Evaluate()
       }
       else
          throw MathException(
-            "Norm::Evaluate()::Can only be done on a vector or a scalar.  "
+            "Norm::Evaluate():: Can only be done on a vector or a scalar.  "
             "This is a matrix.\n");
    }
    else
