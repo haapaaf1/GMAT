@@ -169,6 +169,7 @@ public:
                                           const std::string &name);
 
    virtual Real        GetSolverVariable(Integer id);
+   virtual void        SetUnscaledVariable(Integer id, Real value);
     
    //---------------------------------------------------------------------------
    //  Integer SetSolverResults(Real *data, std::string name)
@@ -224,6 +225,8 @@ protected:
    StringArray         variableNames;
    /// Array used to track the variables in the solver run
    std::vector<Real>   variable;
+   /// Array used to track the unscaled variables in the solver run
+   std::vector<Real>   unscaledVariable;
    /// Array used to track the variables in the solver run
    std::vector<Real>   variableInitialValues;
    /// The number of iterations taken (increments when the matrix is inverted)

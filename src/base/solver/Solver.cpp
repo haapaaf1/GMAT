@@ -294,6 +294,7 @@ bool Solver::Initialize()
          variableMaximumStep.push_back(9.999e300);
          perturbation.push_back(1.0e-04);
          pertDirection.push_back(1.0);
+         unscaledVariable.push_back(0.0);
       }
    }
    catch(const std::exception &re)
@@ -392,6 +393,7 @@ Integer Solver::SetSolverVariables(Real *data, const std::string &name)
       variableMinimum.at(variableCount)           = data[2];
       variableMaximum.at(variableCount)           = data[3];
       variableMaximumStep.at(variableCount)       = data[4];
+      unscaledVariable.at(variableCount)          = data[5];
    }
    catch(const std::exception &re)
    {
@@ -468,6 +470,7 @@ bool Solver::RefreshSolverVariables(Real *data, const std::string &name)
             variableMinimum.at(n)           = data[2];
             variableMaximum.at(n)           = data[3];
             variableMaximumStep.at(n)       = data[4];
+            unscaledVariable.at(n)          = data[5];
          }
          catch(const std::exception &re)
          {
@@ -509,6 +512,26 @@ Real Solver::GetSolverVariable(Integer id)
    #endif
 
    return variable.at(id); 
+}
+
+//------------------------------------------------------------------------------
+// void SetUnscaledVariable(Integer id, Real value)
+//------------------------------------------------------------------------------
+/**
+ * Sets the unscaled value of variables for reporting purposes
+ *
+ * @param id The ID of the variable
+ * @param value The unscaled value
+ */
+//------------------------------------------------------------------------------
+void Solver::SetUnscaledVariable(Integer id, Real value)
+{
+   if (id >= variableCount)
+      throw SolverException(
+         "Solver member requested a parameter outside the range "
+         "of the configured variables.");
+
+   unscaledVariable.at(id) = value;
 }
 
 //------------------------------------------------------------------------------

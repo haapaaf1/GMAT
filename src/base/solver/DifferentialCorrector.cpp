@@ -849,7 +849,7 @@ Solver::SolverState DifferentialCorrector::AdvanceState()
                {
                   MessageInterface::ShowMessage(
                         "Differential corrector %s %s\n", instanceName.c_str(),
-                        "has exceeded to maximum number of allowed "
+                        "has exceeded the maximum number of allowed "
                         "iterations.");
                   currentState = FINISHED;
                }
@@ -1364,7 +1364,10 @@ std::string DifferentialCorrector::GetProgressString()
             {
                if (current != variableNames.begin())
                   progress << ", ";
-               progress << *current << " = " << variable.at(i++);
+               progress << *current << " = " << unscaledVariable.at(i);
+               if (textFileMode == "Verbose")
+                  progress << "; targeter scaled value: " << variable[i];
+               ++i;
             }
             break;
 
@@ -1372,8 +1375,10 @@ std::string DifferentialCorrector::GetProgressString()
             progress << "   Completed iteration " << iterationsTaken
                      << ", pert " << pertNumber+1 << " ("
                      << variableNames[pertNumber] << " = "
-                     << variable.at(pertNumber) << ")\n";
-                     //<< variable[pertNumber] << ")\n";
+                     << unscaledVariable.at(pertNumber);
+            if (textFileMode == "Verbose")
+               progress << "; targeter scaled value: " << variable[pertNumber];
+            progress << ")";
             break;
 
          case CALCULATING:
@@ -1406,7 +1411,7 @@ std::string DifferentialCorrector::GetProgressString()
                   for (current = variableNames.begin(), i = 0;
                        current != variableNames.end(); ++current)
                      progress << "      " << *current
-                              << " = " << variable.at(i++) << "\n";
+                              << " = " << unscaledVariable.at(i++) << "\n";
                   progress << "\n   Goal Values:\n";
                   for (current = goalNames.begin(), i = 0;
                        current != goalNames.end(); ++current)
@@ -1437,7 +1442,7 @@ std::string DifferentialCorrector::GetProgressString()
                   for (current = variableNames.begin(), i = 0;
                        current != variableNames.end(); ++current)
                      progress << "   " << *current << " = "
-                              << variable.at(i++) << "\n";
+                              << unscaledVariable.at(i++) << "\n";
             }
             break;
 
@@ -1534,8 +1539,11 @@ void DifferentialCorrector::WriteToTextFile(SolverState stateToUse)
             for (current = variableNames.begin(), i = 0;
                  current != variableNames.end(); ++current)
             {
-               //textFile << *current << " = " << variable[i++] << "\n   ";
-               textFile << *current << " = " << variable.at(i++) << "\n   ";
+               textFile << *current << " = " << unscaledVariable.at(i);
+               if ((textFileMode == "Verbose") || (textFileMode == "Debug"))
+                     textFile << "; targeter scaled value: " << variable.at(i);
+               textFile << "\n   ";
+               ++i;
             }
             textFile << std::endl;
             break;
@@ -1562,8 +1570,11 @@ void DifferentialCorrector::WriteToTextFile(SolverState stateToUse)
                for (current = variableNames.begin(), i = 0;
                     current != variableNames.end(); ++current)
                {
-                  //textFile << *current << " = " << variable[i++] << "\n   ";
-                  textFile << *current << " = " << variable.at(i++) << "\n   ";
+                  textFile << *current << " = " << unscaledVariable.at(i);
+                  if ((textFileMode == "Verbose") || (textFileMode == "Debug"))
+                        textFile << "; targeter scaled value: " << variable.at(i);
+                  textFile << "\n   ";
+                  ++i;
                }
                textFile << std::endl;
             }
@@ -1617,7 +1628,7 @@ void DifferentialCorrector::WriteToTextFile(SolverState stateToUse)
                textFile << "\n";
             }
 
-            textFile << "\n\nNew variable estimates:\n   ";
+            textFile << "\n\nNew scaled variable estimates:\n   ";
             for (current = variableNames.begin(), i = 0;
                  current != variableNames.end(); ++current)
             {

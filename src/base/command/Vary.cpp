@@ -176,8 +176,8 @@ Vary& Vary::operator=(const Vary& t)
    initialValueName              = t.initialValueName;
    currentValue                  = 0.0;
    perturbationName              = t.perturbationName;
-   variableLowerName           = t.variableLowerName;
-   variableUpperName           = t.variableUpperName;
+   variableLowerName             = t.variableLowerName;
+   variableUpperName             = t.variableUpperName;
    variableMaximumStepName       = t.variableMaximumStepName;
    additiveScaleFactorName       = t.additiveScaleFactorName;
    multiplicativeScaleFactorName = t.multiplicativeScaleFactorName;
@@ -1205,14 +1205,14 @@ bool Vary::Execute()
             ("Vary::Execute() - running code for the first time through <<<\n");
       #endif
       // First time through, tell the solver about the variables
-      Real varData[5], asf, msf;
+      Real varData[6], asf, msf;
       asf = additiveScaleFactor->EvaluateReal();
-      msf = multiplicativeScaleFactor->EvaluateReal();
+      msf = 1.0 / multiplicativeScaleFactor->EvaluateReal();
 
-      varData[0] = initialValue->EvaluateReal();                // Initial value
+      varData[5] = initialValue->EvaluateReal();                // Initial value
 
       // scale by using Eq. 13.5 of Architecture document
-      varData[0] = (varData[0] + asf) / msf;
+      varData[0] = (varData[5] + asf) / msf;
       varData[1] = (perturbation->EvaluateReal()) / msf;         // pert
       varData[2] = (variableLower->EvaluateReal() + asf) / msf;  // minimum
       varData[3] = (variableUpper->EvaluateReal() + asf) / msf;  // maximum
@@ -1243,7 +1243,7 @@ bool Vary::Execute()
    
    Real var = solver->GetSolverVariable(variableID);
    // scale using Eq. 13.6 of Architecture document
-   var = var * multiplicativeScaleFactor->EvaluateReal() - 
+   var = var / multiplicativeScaleFactor->EvaluateReal() -
       additiveScaleFactor->EvaluateReal();
    
    #ifdef DEBUG_VARIABLE_RANGES
@@ -1254,6 +1254,7 @@ bool Vary::Execute()
    #endif
 
    variable->SetReal(var);
+   solver->SetUnscaledVariable(variableID, var);
    
    BuildCommandSummary(true);
    #ifdef DEBUG_VARY_EXECUTE
@@ -1397,7 +1398,7 @@ void Vary::RefreshData()
 {
    Real varData[5], asf, msf;
    asf = additiveScaleFactor->EvaluateReal();
-   msf = multiplicativeScaleFactor->EvaluateReal();
+   msf = 1.0 / multiplicativeScaleFactor->EvaluateReal();
 
    varData[0] = initialValue->EvaluateReal();                // Initial value
 

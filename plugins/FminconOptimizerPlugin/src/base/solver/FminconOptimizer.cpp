@@ -1003,7 +1003,7 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
             for (current = variableNames.begin(), i = 0;
                  current != variableNames.end(); ++current)
             {
-               message << " " << variable[i++] << " ";
+               message << " " << unscaledVariable[i++] << " ";
             }
             message << "]" << std::endl;
             break;
@@ -1050,7 +1050,7 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
             for (current = variableNames.begin(), i = 0;
                  current != variableNames.end(); ++current)
             {
-               message << *current << " = " << variable[i++] << "\n   ";
+               message << *current << " = " << unscaledVariable[i++] << "\n   ";
             }
             message << std::endl;
             break;
