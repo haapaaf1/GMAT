@@ -164,8 +164,12 @@ bool Optimize::Append(GmatCommand *cmd)
       // Code for nesting, currently disabled
       // if (solverName == cmd->GetStringParameter("OptimizerName"))
       {
+         #ifdef DEBUG_OPTIMIZE_PARSING
+            MessageInterface::ShowMessage("MinCount: %d     nest level: %d\n",
+                  minimizeCount, nestLevel);
+         #endif
          ++minimizeCount;
-         if (minimizeCount > 1)
+         if (minimizeCount > nestLevel + 1)
             throw CommandException("Optimization control sequences are only "
                   "allowed one Minimize command");
       }
