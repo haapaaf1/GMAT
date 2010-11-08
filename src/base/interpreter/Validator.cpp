@@ -920,8 +920,11 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    #endif
    
    createDefaultStringWrapper = true;
-   if (leftEw->GetWrapperType() == Gmat::VARIABLE_WT ||
-       leftEw->GetWrapperType() == Gmat::ARRAY_ELEMENT_WT)
+   // Actually we want to check for return data type not the wrapper type here.
+   // (This will fix bug 2196)
+   //if (leftEw->GetWrapperType() == Gmat::VARIABLE_WT ||
+   //    leftEw->GetWrapperType() == Gmat::ARRAY_ELEMENT_WT)
+   if (leftEw->GetDataType() == Gmat::REAL_TYPE)
       createDefaultStringWrapper = false;
    
    #if DBGLVL_WRAPPERS > 1
