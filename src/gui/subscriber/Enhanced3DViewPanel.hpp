@@ -50,7 +50,7 @@ protected:
    bool mHasCoordSysChanged;
    bool mHasViewInfoChanged;
    bool mHasViewUpInfoChanged;
-	bool mHasStarOptionChanged;
+   bool mHasStarOptionChanged;
    
    int  mScCount;
    int  mNonScCount;
@@ -61,6 +61,7 @@ protected:
    std::map<std::string, bool> mDrawObjectMap;
    
    wxArrayString mExcludedScList;
+   wxArrayString mExcludedCelesPointList;
    
    wxColour mOrbitColor;
    wxColour mTargetColor;
@@ -70,10 +71,10 @@ protected:
    wxStaticText *mViewPointRefStaticText;
    wxStaticText *mViewPointVecStaticText;
    wxStaticText *mViewDirStaticText;
-	wxStaticText *mStarCountStaticText;
-	wxStaticText *mFovStaticText;
-	wxStaticText *mFovMinStaticText;
-	wxStaticText *mFovMaxStaticText;
+   wxStaticText *mStarCountStaticText;
+   wxStaticText *mFovStaticText;
+   wxStaticText *mFovMinStaticText;
+   wxStaticText *mFovMaxStaticText;
    
    wxCheckBox *mShowPlotCheckBox;
    wxCheckBox *mWireFrameCheckBox;
@@ -86,8 +87,8 @@ protected:
    wxCheckBox *mGridCheckBox;
    wxCheckBox *mOriginSunLineCheckBox;
    wxCheckBox *mDrawObjectCheckBox;
-	wxCheckBox *mEnableStarsCheckBox;
-	wxCheckBox *mEnableConstellationsCheckBox;
+   wxCheckBox *mEnableStarsCheckBox;
+   wxCheckBox *mEnableConstellationsCheckBox;
    
    wxTextCtrl *mDataCollectFreqTextCtrl;
    wxTextCtrl *mUpdatePlotFreqTextCtrl;
@@ -103,13 +104,13 @@ protected:
    wxTextCtrl *mViewDir1TextCtrl;
    wxTextCtrl *mViewDir2TextCtrl;
    wxTextCtrl *mViewDir3TextCtrl;
-	wxTextCtrl *mStarCountTextCtrl;
-	wxTextCtrl *mFovTextCtrl;
-	wxTextCtrl *mFovMinTextCtrl;
-	wxTextCtrl *mFovMaxTextCtrl;
+   wxTextCtrl *mStarCountTextCtrl;
+   wxTextCtrl *mFovTextCtrl;
+   wxTextCtrl *mFovMinTextCtrl;
+   wxTextCtrl *mFovMaxTextCtrl;
    
    wxListBox *mSpacecraftListBox;
-   wxListBox *mCelesObjectListBox;
+   wxListBox *mCelesPointListBox;
    wxListBox *mSelectedScListBox;
    wxListBox *mSelectedObjListBox;
    
@@ -155,8 +156,8 @@ protected:
    void OnComboBoxChange(wxCommandEvent& event);
    void OnTextChange(wxCommandEvent& event);
 
-	// Support Function
-	void ValidateFovValues();
+        // Support Function
+        void ValidateFovValues();
    
    DECLARE_EVENT_TABLE();
    

@@ -34,6 +34,7 @@
 //#define DEBUG_OPENGL_PANEL_SAVE 1
 //#define DEBUG_OPENGL_PANEL_CHECKBOX 1
 //#define DEBUG_OPENGL_PANEL_SHOW 1
+//#define DEBUG_ADD_SP
 
 //------------------------------
 // event tables for wxWindows
@@ -89,24 +90,8 @@ Enhanced3DViewPanel::Enhanced3DViewPanel(wxWindow *parent,
    
    // Set the pointer for the "Show Script" button
    mObject = mEnhanced3DView;
-
-   InitializeData();
    
-//    mHasIntegerDataChanged = false;
-//    mHasRealDataChanged = false;
-//    mHasDrawingOptionChanged = false;
-//    mHasSpChanged = false;
-//    mHasOrbitColorChanged = false;
-//    mHasTargetColorChanged = false;
-//    mHasShowObjectChanged = false;
-//    mHasCoordSysChanged = false;
-//    mHasViewInfoChanged = false;
-//    mScCount = 0;
-//    mNonScCount = 0;
-   
-//    mOrbitColorMap.clear();
-//    mTargetColorMap.clear();
-   
+   InitializeData();   
    Create();
    Show();
    
@@ -126,6 +111,7 @@ Enhanced3DViewPanel::~Enhanced3DViewPanel()
        mSpacecraftListBox);
    #endif
    
+   theGuiManager->UnregisterListBox("CelestialPoint", mCelesPointListBox, &mExcludedCelesPointList);
    theGuiManager->UnregisterListBox("Spacecraft", mSpacecraftListBox, &mExcludedScList);
    
    theGuiManager->UnregisterComboBox("CoordinateSystem", mCoordSysComboBox);
@@ -258,25 +244,25 @@ void Enhanced3DViewPanel::Create()
    wxStaticText *updatePlotFreqLabel2 =
       new wxStaticText(this, -1, wxT("cycle"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
-	 
+   
    mDataCollectFreqTextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(35, 20), 0);
    
    mUpdatePlotFreqTextCtrl =
       new wxTextCtrl(this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, wxSize(35, 20), 0);
-
-	mStarCountStaticText =
-		new wxStaticText(this, -1, wxT("Number of stars "), 
-								wxDefaultPosition, wxSize(-1,-1), 0);
-	mStarCountTextCtrl = 
-		new wxTextCtrl(this, ID_TEXTCTRL, wxT("7000"), wxDefaultPosition, wxSize(50, 20), 0);
-	//mStarCountTextCtrl->Disable();
-
-	mEnableStarsCheckBox = 
-		new wxCheckBox(this, CHECKBOX, wxT("Enable Stars"), wxDefaultPosition, wxSize(100, 20), 0);
-	mEnableConstellationsCheckBox = 
-		new wxCheckBox(this, CHECKBOX, wxT("Enable Constellations"), wxDefaultPosition, wxSize(160, 20), 0);
-	//mEnableConstellationsCheckBox->Disable();
+   
+   mStarCountStaticText =
+      new wxStaticText(this, -1, wxT("Number of stars "), 
+                       wxDefaultPosition, wxSize(-1,-1), 0);
+   mStarCountTextCtrl = 
+      new wxTextCtrl(this, ID_TEXTCTRL, wxT("7000"), wxDefaultPosition, wxSize(50, 20), 0);
+   //mStarCountTextCtrl->Disable();
+   
+   mEnableStarsCheckBox = 
+      new wxCheckBox(this, CHECKBOX, wxT("Enable Stars"), wxDefaultPosition, wxSize(100, 20), 0);
+   mEnableConstellationsCheckBox = 
+      new wxCheckBox(this, CHECKBOX, wxT("Enable Constellations"), wxDefaultPosition, wxSize(160, 20), 0);
+   //mEnableConstellationsCheckBox->Disable();
    
    wxBoxSizer *colFreqSizer = new wxBoxSizer(wxHORIZONTAL);
    colFreqSizer->Add(dataCollectFreqLabel1, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -288,16 +274,16 @@ void Enhanced3DViewPanel::Create()
    updFreqSizer->Add(mUpdatePlotFreqTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
    updFreqSizer->Add(updatePlotFreqLabel2, 0, wxALIGN_LEFT|wxALL, bsize);
 
-	wxBoxSizer *starOptionSizer = new wxBoxSizer(wxHORIZONTAL);
-	starOptionSizer->Add(mStarCountStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
-	starOptionSizer->Add(mStarCountTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   wxBoxSizer *starOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+   starOptionSizer->Add(mStarCountStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+   starOptionSizer->Add(mStarCountTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
    
    wxBoxSizer *plotOptionSizer = new wxBoxSizer(wxVERTICAL);   
    plotOptionSizer->Add(colFreqSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    plotOptionSizer->Add(updFreqSizer, 0, wxALIGN_LEFT|wxALL, bsize);
-	plotOptionSizer->Add(mEnableStarsCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
-	plotOptionSizer->Add(mEnableConstellationsCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
-	plotOptionSizer->Add(starOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+   plotOptionSizer->Add(mEnableStarsCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   plotOptionSizer->Add(mEnableConstellationsCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   plotOptionSizer->Add(starOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
    
    wxStaticText *numPointsToRedrawLabel1 =
       new wxStaticText(this, -1, wxT("Number of points to redraw\n"
@@ -386,34 +372,38 @@ void Enhanced3DViewPanel::Create()
    mOriginSunLineCheckBox =
       new wxCheckBox(this, CHECKBOX, wxT("Draw Sun Line"),
                      wxDefaultPosition, wxSize(-1, -1), 0);
-
-	// Field of View Options
-	/*wxBoxSizer *fovOptionSizer = new wxBoxSizer(wxHORIZONTAL);
-	mFovStaticText = 
-		new wxStaticText(this, -1, wxT("Starting FOV "),
-								wxDefaultPosition, wxSize(-1, -1), 0);
-	mFovTextCtrl = 
-		new wxTextCtrl(this, ID_TEXTCTRL, wxT("45"), wxDefaultPosition, wxSize(50, -1), 0);
-	fovOptionSizer->Add(mFovStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
-	fovOptionSizer->Add(mFovTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);
-
-	wxBoxSizer *fovMinOptionSizer = new wxBoxSizer(wxHORIZONTAL);
-	mFovMinStaticText =
-		new wxStaticText(this, -1, wxT("Min FOV        "),
-								wxDefaultPosition, wxSize(-1, -1), 0);
-	mFovMinTextCtrl =
-		new wxTextCtrl(this, ID_TEXTCTRL, wxT("0"), wxDefaultPosition, wxSize(50, -1), 0);
-	fovMinOptionSizer->Add(mFovMinStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
-	fovMinOptionSizer->Add(mFovMinTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);
-
-	wxBoxSizer *fovMaxOptionSizer = new wxBoxSizer(wxHORIZONTAL);
-	mFovMaxStaticText = 
-		new wxStaticText(this, -1, wxT("Max FOV       "),
-								wxDefaultPosition, wxSize(-1, -1), 0);
-	mFovMaxTextCtrl =
-		new wxTextCtrl(this, ID_TEXTCTRL, wxT("90"), wxDefaultPosition, wxSize(50, -1), 0);
-	fovMaxOptionSizer->Add(mFovMaxStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
-	fovMaxOptionSizer->Add(mFovMaxTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);*/
+   
+   //-----------------------------------------------------------------
+   // Field of View Options
+   //-----------------------------------------------------------------
+   #ifdef __ENABLE_FOV__
+   wxBoxSizer *fovOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+   mFovStaticText = 
+      new wxStaticText(this, -1, wxT("Starting FOV "),
+                       wxDefaultPosition, wxSize(-1, -1), 0);
+   mFovTextCtrl = 
+      new wxTextCtrl(this, ID_TEXTCTRL, wxT("45"), wxDefaultPosition, wxSize(50, -1), 0);
+   fovOptionSizer->Add(mFovStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+   fovOptionSizer->Add(mFovTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);
+   
+   wxBoxSizer *fovMinOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+   mFovMinStaticText =
+      new wxStaticText(this, -1, wxT("Min FOV        "),
+                       wxDefaultPosition, wxSize(-1, -1), 0);
+   mFovMinTextCtrl =
+      new wxTextCtrl(this, ID_TEXTCTRL, wxT("0"), wxDefaultPosition, wxSize(50, -1), 0);
+   fovMinOptionSizer->Add(mFovMinStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+   fovMinOptionSizer->Add(mFovMinTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);
+   
+   wxBoxSizer *fovMaxOptionSizer = new wxBoxSizer(wxHORIZONTAL);
+   mFovMaxStaticText = 
+      new wxStaticText(this, -1, wxT("Max FOV       "),
+                       wxDefaultPosition, wxSize(-1, -1), 0);
+   mFovMaxTextCtrl =
+      new wxTextCtrl(this, ID_TEXTCTRL, wxT("90"), wxDefaultPosition, wxSize(50, -1), 0);
+   fovMaxOptionSizer->Add(mFovMaxStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
+   fovMaxOptionSizer->Add(mFovMaxTextCtrl, 0, wxALIGN_RIGHT|wxALL, bsize);
+   #endif
    
    // Solver Iteration ComboBox
    wxStaticText *solverIterLabel =
@@ -441,9 +431,13 @@ void Enhanced3DViewPanel::Create()
    drawOptionSizer->Add(mGridCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
    drawOptionSizer->Add(mOriginSunLineCheckBox, 0, wxALIGN_LEFT|wxALL, bsize);
    drawOptionSizer->Add(solverIterOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
-	//drawOptionSizer->Add(fovOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
-	//drawOptionSizer->Add(fovMinOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
-	//drawOptionSizer->Add(fovMaxOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+   
+   #ifdef __ENABLE_FOV__
+   drawOptionSizer->Add(fovOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+   drawOptionSizer->Add(fovMinOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+   drawOptionSizer->Add(fovMaxOptionSizer, 0, wxALIGN_LEFT|wxALL, bsize);
+   #endif
+   
    drawOptionSizer->Add(20, 2, 0, wxALIGN_LEFT|wxALL, bsize);
    
    GmatStaticBoxSizer *drawOptionStaticSizer =
@@ -461,14 +455,14 @@ void Enhanced3DViewPanel::Create()
    wxStaticText *coAvailableLabel =
       new wxStaticText(this, -1, wxT("Celestial Object"),
                        wxDefaultPosition, wxSize(-1,-1), 0);
-   mCelesObjectListBox = theGuiManager->
-      GetCelestialPointListBox(this, ID_LISTBOX, wxSize(150,65), empty);
+   mCelesPointListBox = theGuiManager->
+      GetCelestialPointListBox(this, ID_LISTBOX, wxSize(150,65), &mExcludedCelesPointList);
    
    wxBoxSizer *availObjSizer = new wxBoxSizer(wxVERTICAL);
    availObjSizer->Add(scAvailableLabel, 0, wxALIGN_CENTRE|wxALL, bsize);
    availObjSizer->Add(mSpacecraftListBox, 0, wxALIGN_CENTRE|wxALL, bsize);
    availObjSizer->Add(coAvailableLabel, 0, wxALIGN_CENTRE|wxALL, bsize);
-   availObjSizer->Add(mCelesObjectListBox, 0, wxALIGN_CENTRE|wxALL, bsize);
+   availObjSizer->Add(mCelesPointListBox, 0, wxALIGN_CENTRE|wxALL, bsize);
    
    //-----------------------------------------------------------------
    // add, remove, clear buttons
@@ -759,10 +753,10 @@ void Enhanced3DViewPanel::LoadData()
          SetValue(mEnhanced3DView->GetOnOffParameter("UseInitialView") == "On");
       mSolverIterComboBox->
          SetValue(mEnhanced3DView->GetStringParameter("SolverIterations").c_str());
-		mEnableStarsCheckBox->
-			SetValue(mEnhanced3DView->GetOnOffParameter("EnableStars") == "On");
-		mEnableConstellationsCheckBox->
-			SetValue(mEnhanced3DView->GetOnOffParameter("EnableConstellations") == "On");
+                mEnableStarsCheckBox->
+                        SetValue(mEnhanced3DView->GetOnOffParameter("EnableStars") == "On");
+                mEnableConstellationsCheckBox->
+                        SetValue(mEnhanced3DView->GetOnOffParameter("EnableConstellations") == "On");
       
       #ifdef __ENABLE_GL_PERSPECTIVE__
       mPerspectiveModeCheckBox->
@@ -902,7 +896,7 @@ void Enhanced3DViewPanel::LoadData()
       
       mScCount = scNameArray.size();
       mNonScCount = nonScNameArray.size();
-
+      
       #if DEBUG_OPENGL_PANEL_LOAD
       MessageInterface::ShowMessage
          ("Enhanced3DViewPanel::LoadData() mScCount=%d, mNonScCount=%d\n",
@@ -926,6 +920,12 @@ void Enhanced3DViewPanel::LoadData()
             mTargetColorMap[scNameArray[i]]
                = RgbColor(mEnhanced3DView->GetColor("Target", scNameArray[i]));
             
+            // Remove from the available ListBox
+            mSpacecraftListBox->Delete(mSpacecraftListBox->FindString(scNames[i]));
+            
+            // Add to excluded list
+            mExcludedScList.Add(scNames[i]);
+            
             #if DEBUG_OPENGL_PANEL_LOAD > 1
             MessageInterface::ShowMessage
                ("Enhanced3DViewPanel::LoadData() scName=%s, orbColor=%u, "
@@ -945,13 +945,19 @@ void Enhanced3DViewPanel::LoadData()
          for (int i=0; i<mNonScCount; i++)
          {
             nonScNames[i] = nonScNameArray[i].c_str();
-         
+            
             mDrawObjectMap[nonScNameArray[i]] =
                mEnhanced3DView->GetShowObject(nonScNameArray[i]);
             mOrbitColorMap[nonScNameArray[i]]
                = RgbColor(mEnhanced3DView->GetColor("Orbit", nonScNameArray[i]));
             mTargetColorMap[nonScNameArray[i]]
                = RgbColor(mEnhanced3DView->GetColor("Target", nonScNameArray[i]));
+            
+            // Remove from the available ListBox
+            mCelesPointListBox->Delete(mCelesPointListBox->FindString(nonScNames[i]));
+            
+            // Add to excluded list
+            mExcludedCelesPointList.Add(nonScNames[i]);
          }
          
          mSelectedObjListBox->Set(mNonScCount, nonScNames);
@@ -971,8 +977,8 @@ void Enhanced3DViewPanel::LoadData()
    
    // deselect available object list
    mSpacecraftListBox->Deselect(mSpacecraftListBox->GetSelection());
-   mCelesObjectListBox->Deselect(mCelesObjectListBox->GetSelection());
-
+   mCelesPointListBox->Deselect(mCelesPointListBox->GetSelection());
+   
    #ifdef __ENABLE_GL_PERSPECTIVE__
    mPerspectiveModeCheckBox->Enable();
    #endif
@@ -985,7 +991,7 @@ void Enhanced3DViewPanel::LoadData()
       mFovLabel->Disable();
       mFixedFovTextCtrl->Disable();
    }
-
+   
    // if perspective mode, enalbe fov
    if (mPerspectiveModeCheckBox->IsChecked())
    {
@@ -1029,7 +1035,7 @@ void Enhanced3DViewPanel::SaveData()
    canClose = true;
    std::string str1, str2;
    Integer collectFreq = 0, updateFreq = 0, pointsToRedraw = 0, starCount = 0,
-		initialFOV = 0, minFOV = 0, maxFOV = 0;
+                initialFOV = 0, minFOV = 0, maxFOV = 0;
    Real scaleFactor;
    Real viewRef[3], viewVec[3], viewDir[3];
    Rvector3 vec;
@@ -1049,15 +1055,18 @@ void Enhanced3DViewPanel::SaveData()
       
       CheckInteger(pointsToRedraw, mNumPointsToRedrawTextCtrl->GetValue().c_str(),
                    "NumPointsToRedraw", "Integer Number >= 0", false, true, true, true);
-
-		CheckInteger(starCount, mStarCountTextCtrl->GetValue().c_str(),
-						 "StarCount", "Integer Number >= 0", false, true);
-		CheckInteger(initialFOV, mFovTextCtrl->GetValue().c_str(),
-						 "InitialFOV", "");
-		CheckInteger(minFOV, mFovMinTextCtrl->GetValue().c_str(),
-						 "MinFOV", "");
-		CheckInteger(maxFOV, mFovMaxTextCtrl->GetValue().c_str(),
-						 "MaxFOV", "");
+      
+      CheckInteger(starCount, mStarCountTextCtrl->GetValue().c_str(),
+                   "StarCount", "Integer Number >= 0", false, true);
+      
+      #ifdef __ENABLE_FOV__
+      CheckInteger(initialFOV, mFovTextCtrl->GetValue().c_str(),
+                   "InitialFOV", "");
+      CheckInteger(minFOV, mFovMinTextCtrl->GetValue().c_str(),
+                   "MinFOV", "");
+      CheckInteger(maxFOV, mFovMaxTextCtrl->GetValue().c_str(),
+                   "MaxFOV", "");
+      #endif
    }
    
    if ((mViewPointRefComboBox->GetStringSelection() == "Vector")||
@@ -1119,10 +1128,10 @@ void Enhanced3DViewPanel::SaveData()
          mEnhanced3DView->SetIntegerParameter("DataCollectFrequency", collectFreq);
          mEnhanced3DView->SetIntegerParameter("UpdatePlotFrequency", updateFreq);
          mEnhanced3DView->SetIntegerParameter("NumPointsToRedraw", pointsToRedraw);
-			mEnhanced3DView->SetIntegerParameter("StarCount", starCount);
-			mEnhanced3DView->SetIntegerParameter("MinFOV", minFOV);
-			mEnhanced3DView->SetIntegerParameter("MaxFOV", maxFOV);
-			mEnhanced3DView->SetIntegerParameter("InitialFOV", initialFOV);
+         mEnhanced3DView->SetIntegerParameter("StarCount", starCount);
+         mEnhanced3DView->SetIntegerParameter("MinFOV", minFOV);
+         mEnhanced3DView->SetIntegerParameter("MaxFOV", maxFOV);
+         mEnhanced3DView->SetIntegerParameter("InitialFOV", initialFOV);
       }
       
       //--------------------------------------------------------------
@@ -1239,21 +1248,21 @@ void Enhanced3DViewPanel::SaveData()
                                          mSolverIterComboBox->GetValue().c_str());
       }
 
-		//--------------------------------------------------------------
-		// save star options
-		//--------------------------------------------------------------
-		if (mHasStarOptionChanged){
-			mHasStarOptionChanged = false;
-			if (mEnableStarsCheckBox->IsChecked())
-				mEnhanced3DView->SetOnOffParameter("EnableStars", "On");
-			else
-				mEnhanced3DView->SetOnOffParameter("EnableStars", "Off");
+                //--------------------------------------------------------------
+                // save star options
+                //--------------------------------------------------------------
+                if (mHasStarOptionChanged){
+                        mHasStarOptionChanged = false;
+                        if (mEnableStarsCheckBox->IsChecked())
+                                mEnhanced3DView->SetOnOffParameter("EnableStars", "On");
+                        else
+                                mEnhanced3DView->SetOnOffParameter("EnableStars", "Off");
 
-			if (mEnableConstellationsCheckBox->IsChecked())
-				mEnhanced3DView->SetOnOffParameter("EnableConstellations", "On");
-			else
-				mEnhanced3DView->SetOnOffParameter("EnableConstellations", "Off");
-		}
+                        if (mEnableConstellationsCheckBox->IsChecked())
+                                mEnhanced3DView->SetOnOffParameter("EnableConstellations", "On");
+                        else
+                                mEnhanced3DView->SetOnOffParameter("EnableConstellations", "Off");
+                }
       
       
       //--------------------------------------------------------------
@@ -1498,56 +1507,92 @@ void Enhanced3DViewPanel::SaveData()
 //------------------------------------------------------------------------------
 void Enhanced3DViewPanel::OnAddSpacePoint(wxCommandEvent& event)
 {
+   #ifdef DEBUG_ADD_SP
+   MessageInterface::ShowMessage("Enhanced3DViewPanel::OnAddSpacePoint() entered\n");
+   #endif
+   
    if (mSpacecraftListBox->GetSelection() != -1)
    {
       // get string in first list and then search for it
       // in the second list
-      wxString s = mSpacecraftListBox->GetStringSelection();
-      int found = mSelectedScListBox->FindString(s);
-    
+      wxString str = mSpacecraftListBox->GetStringSelection();
+      int strId = mSpacecraftListBox->FindString(str);
+      int found = mSelectedScListBox->FindString(str);
+      
+      #ifdef DEBUG_ADD_SP
+      MessageInterface::ShowMessage
+         ("   str='%s', strId=%d, found=%d\n", str.c_str(), strId, found);
+      #endif
+      
       // if the string wasn't found in the second list, insert it
       if (found == wxNOT_FOUND)
       {
-         mSelectedScListBox->Append(s);
-         mSelectedScListBox->SetStringSelection(s);
-      
+         mSelectedScListBox->Append(str);
+         mSelectedScListBox->SetStringSelection(str);
+         
+         // Removed from available list
+         mSpacecraftListBox->Delete(strId);
+         
          // select next available item
-         mSpacecraftListBox->
-            SetSelection(mSpacecraftListBox->GetSelection()+1);
-
+         if (strId == 0)
+            mSpacecraftListBox->SetSelection(0);
+         else if (strId > 0)
+            mSpacecraftListBox->SetSelection(strId - 1);
+         
          // deselect selected other object
          mSelectedObjListBox->Deselect(mSelectedObjListBox->GetSelection());
          
-         mDrawObjectMap[s.c_str()] = true;
-         ShowSpacePointOption(s, true, true, GmatColor::RED32);
+         // Add to excluded list
+         mExcludedScList.Add(str);
+         
+         mDrawObjectMap[str.c_str()] = true;
+         ShowSpacePointOption(str, true, true, GmatColor::RED32);
          mHasSpChanged = true;
          EnableUpdate(true);
       }
    }
-   else if (mCelesObjectListBox->GetSelection() != -1)
+   else if (mCelesPointListBox->GetSelection() != -1)
    {
-      wxString s = mCelesObjectListBox->GetStringSelection();
-      int found = mSelectedObjListBox->FindString(s);
-    
+      wxString str = mCelesPointListBox->GetStringSelection();
+      int strId = mCelesPointListBox->FindString(str);
+      int found = mSelectedObjListBox->FindString(str);
+      
+      #ifdef DEBUG_ADD_SP
+      MessageInterface::ShowMessage
+         ("   str='%s', strId=%d, found=%d\n", str.c_str(), strId, found);
+      #endif
+      
       // if the string wasn't found in the second list, insert it
       if (found == wxNOT_FOUND)
       {
-         mSelectedObjListBox->Append(s);
-         mSelectedObjListBox->SetStringSelection(s);
+         // Add to selected list
+         mSelectedObjListBox->Append(str);
+         mSelectedObjListBox->SetStringSelection(str);
+         
+         // Removed from available list
+         mCelesPointListBox->Delete(strId);
          
          // select next available item
-         mCelesObjectListBox->
-            SetSelection(mCelesObjectListBox->GetSelection()+1);
+         if (strId == 0)
+            mCelesPointListBox->SetSelection(0);
+         else if (strId > 0)
+            mCelesPointListBox->SetSelection(strId - 1);
          
          // deselect selected spacecraft
          mSelectedScListBox->Deselect(mSelectedScListBox->GetSelection());
          
-         mDrawObjectMap[s.c_str()] = true;
-         ShowSpacePointOption(s, true, false, GmatColor::L_BROWN32);
+         // Add to excluded list
+         mExcludedCelesPointList.Add(str);
+         
+         mDrawObjectMap[str.c_str()] = true;
+         ShowSpacePointOption(str, true, false, GmatColor::L_BROWN32);
          mHasSpChanged = true;
          EnableUpdate(true);
       }
    }
+   #ifdef DEBUG_ADD_SP
+   MessageInterface::ShowMessage("Enhanced3DViewPanel::OnAddSpacePoint() leaving\n");
+   #endif
 }
 
 
@@ -1558,9 +1603,18 @@ void Enhanced3DViewPanel::OnRemoveSpacePoint(wxCommandEvent& event)
 {
    if (mSelectedScListBox->GetSelection() != -1)
    {
+      wxString str = mSelectedScListBox->GetStringSelection();
       int sel = mSelectedScListBox->GetSelection();
+      
+      // Add to available list
+      mSpacecraftListBox->Append(str);
+      
+      // Remove from selected list
       mSelectedScListBox->Delete(sel);
-   
+      
+      // Remove from excluded list
+      mExcludedScList.Remove(str);
+      
       if (sel-1 < 0)
       {
          mSelectedScListBox->SetSelection(0);
@@ -1577,9 +1631,18 @@ void Enhanced3DViewPanel::OnRemoveSpacePoint(wxCommandEvent& event)
    }
    else if (mSelectedObjListBox->GetSelection() != -1)
    {
+      wxString str = mSelectedObjListBox->GetStringSelection();
       int sel = mSelectedObjListBox->GetSelection();
+      
+      // Add to available list
+      mCelesPointListBox->Append(str);
+      
+      // Remove from selected list
       mSelectedObjListBox->Delete(sel);
-   
+      
+      // Remove from excluded list
+      mExcludedCelesPointList.Remove(str);
+      
       if (sel-1 < 0)
       {
          mSelectedObjListBox->SetSelection(0);
@@ -1607,11 +1670,29 @@ void Enhanced3DViewPanel::OnClearSpacePoint(wxCommandEvent& event)
 {
    if (mSelectedScListBox->GetSelection() != -1)
    {
+      Integer count = mSelectedScListBox->GetCount();
+      
+      if (count == 0)
+         return;
+      
+      for (Integer i = 0; i < count; i++)
+         mSpacecraftListBox->Append(mSelectedScListBox->GetString(i));
+      
       mSelectedScListBox->Clear();
+      mExcludedScList.Clear();
    }
    else if (mSelectedObjListBox->GetSelection() != -1)
    {
+      Integer count = mSelectedObjListBox->GetCount();
+      
+      if (count == 0)
+         return;
+      
+      for (Integer i = 0; i < count; i++)
+         mCelesPointListBox->Append(mSelectedObjListBox->GetString(i));
+      
       mSelectedObjListBox->Clear();
+      mExcludedCelesPointList.Clear();
    }
    
    ShowSpacePointOption("", false);
@@ -1626,8 +1707,8 @@ void Enhanced3DViewPanel::OnClearSpacePoint(wxCommandEvent& event)
 void Enhanced3DViewPanel::OnSelectAvailObject(wxCommandEvent& event)
 {
    if (event.GetEventObject() == mSpacecraftListBox)
-      mCelesObjectListBox->Deselect(mCelesObjectListBox->GetSelection());
-   else if (event.GetEventObject() == mCelesObjectListBox)
+      mCelesPointListBox->Deselect(mCelesPointListBox->GetSelection());
+   else if (event.GetEventObject() == mCelesPointListBox)
       mSpacecraftListBox->Deselect(mSpacecraftListBox->GetSelection());
 }
 
@@ -1718,23 +1799,23 @@ void Enhanced3DViewPanel::OnCheckBoxChange(wxCommandEvent& event)
           mSelSpName.c_str(), mDrawObjectMap[mSelSpName]);
       #endif
    }
-	else if (event.GetEventObject() == mEnableStarsCheckBox)
-	{
-		if (mEnableStarsCheckBox->GetValue()){
-			mEnableConstellationsCheckBox->Enable();
-			mStarCountTextCtrl->Enable();
-		}
-		else {
-			mEnableConstellationsCheckBox->Disable();
-			mEnableConstellationsCheckBox->SetValue(false);
-			mStarCountTextCtrl->Disable();
-		}
-		mHasStarOptionChanged = true;
-	}
-	else if (event.GetEventObject() == mEnableConstellationsCheckBox)
-	{
-		mHasStarOptionChanged = true;
-	}
+        else if (event.GetEventObject() == mEnableStarsCheckBox)
+        {
+                if (mEnableStarsCheckBox->GetValue()){
+                        mEnableConstellationsCheckBox->Enable();
+                        mStarCountTextCtrl->Enable();
+                }
+                else {
+                        mEnableConstellationsCheckBox->Disable();
+                        mEnableConstellationsCheckBox->SetValue(false);
+                        mStarCountTextCtrl->Disable();
+                }
+                mHasStarOptionChanged = true;
+        }
+        else if (event.GetEventObject() == mEnableConstellationsCheckBox)
+        {
+                mHasStarOptionChanged = true;
+        }
    else
    {
       mHasDrawingOptionChanged = true;
@@ -1921,10 +2002,13 @@ void Enhanced3DViewPanel::OnTextChange(wxCommandEvent& event)
       if (obj == mDataCollectFreqTextCtrl ||
           obj == mUpdatePlotFreqTextCtrl ||
           obj == mNumPointsToRedrawTextCtrl ||
-			 obj == mStarCountTextCtrl ||
-			 obj == mFovTextCtrl ||
-			 obj == mFovMinTextCtrl ||
-			 obj == mFovMaxTextCtrl)
+          obj == mStarCountTextCtrl
+          #ifdef __ENABLE_FOV__
+          || obj == mFovTextCtrl ||
+          obj == mFovMinTextCtrl ||
+          obj == mFovMaxTextCtrl
+          #endif
+          )
       {
          mHasIntegerDataChanged = true;
       }
@@ -2023,25 +2107,28 @@ void Enhanced3DViewPanel::ShowSpacePointOption(const wxString &name, bool show,
 // Just a helper function to make sure the Initial, Minimum, and
 // Maximum FOV values make sense
 //--------------------------------------------------------------
-void Enhanced3DViewPanel::ValidateFovValues(){
-	wxString fov = mFovTextCtrl->GetValue(), 
-				minFov = mFovMinTextCtrl->GetValue(),
-				maxFov = mFovMaxTextCtrl->GetValue();
-	double fovValue, minFovValue,	maxFovValue;
-	fov.ToDouble(&fovValue); 
-	minFov.ToDouble(&minFovValue);
-	maxFov.ToDouble(&maxFovValue);
-	if (minFovValue > maxFovValue)
-		mFovMinTextCtrl->SetValue(maxFov);
-	if (maxFovValue < minFovValue)
-		mFovMaxTextCtrl->SetValue(minFov);
-	if (minFovValue > fovValue)
-		mFovMinTextCtrl->SetValue(fov);
-	if (maxFovValue < fovValue)
-		mFovMaxTextCtrl->SetValue(fov);
-	if (fovValue < minFovValue)
-		mFovTextCtrl->SetValue(minFov);
-	if (fovValue > maxFovValue)
-		mFovTextCtrl->SetValue(maxFov);
+void Enhanced3DViewPanel::ValidateFovValues()
+{
+   #ifdef __ENABLE_FOV__
+   wxString fov = mFovTextCtrl->GetValue(),
+      minFov = mFovMinTextCtrl->GetValue(),
+      maxFov = mFovMaxTextCtrl->GetValue();
+   double fovValue, minFovValue,   maxFovValue;
+   fov.ToDouble(&fovValue); 
+   minFov.ToDouble(&minFovValue);
+   maxFov.ToDouble(&maxFovValue);
+   if (minFovValue > maxFovValue)
+      mFovMinTextCtrl->SetValue(maxFov);
+   if (maxFovValue < minFovValue)
+      mFovMaxTextCtrl->SetValue(minFov);
+   if (minFovValue > fovValue)
+      mFovMinTextCtrl->SetValue(fov);
+   if (maxFovValue < fovValue)
+      mFovMaxTextCtrl->SetValue(fov);
+   if (fovValue < minFovValue)
+      mFovTextCtrl->SetValue(minFov);
+   if (fovValue > maxFovValue)
+      mFovTextCtrl->SetValue(maxFov);
+   #endif
 }
 
