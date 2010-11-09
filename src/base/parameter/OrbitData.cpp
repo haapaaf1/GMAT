@@ -41,6 +41,7 @@
 //#define DEBUG_CLONE
 //#define DEBUG_MA
 //#define DEBUG_HA
+//#define DEBUG_ORBITDATA_OBJREF_EPOCH
 
 using namespace GmatMathUtil;
 
@@ -59,6 +60,8 @@ OrbitData::VALID_OBJECT_TYPE_LIST[OrbitDataObjectCount] =
    "SpacePoint"
 };
 
+
+const Real OrbitData::ORBIT_DATA_TOLERANCE     = 2.0e-10;
 
 //---------------------------------
 // public methods
@@ -315,15 +318,26 @@ Rvector6 OrbitData::GetCartState()
          GmatBase *objRefOrigin = mOutCoordSystem->GetOrigin();
          if (objRefOrigin->IsOfType("Spacecraft"))
          {
-            std::string scName = ((Spacecraft*) objRefOrigin)->GetName();
-            if (scName != mSpacecraft->GetName())
+            std::string objRefScName = ((Spacecraft*) objRefOrigin)->GetName();
+            if (objRefScName != mSpacecraft->GetName())
             {
-               std::string errmsg = "Warning:  In Coordinate System \"";
-               errmsg += mOutCoordSystem->GetName() + "\", \"";
-               errmsg += mSpacecraft->GetName() + "\" and \"";
-               errmsg += objRefOrigin->GetName() + "\" may have different epochs.\n";
-               MessageInterface::PopupMessage(Gmat::WARNING_, errmsg);
-               firstTimeEpochWarning = true;
+               // Get the epochs of the spacecraft to see if they are different
+               Real scEpoch   = mSpacecraft->GetRealParameter("A1Epoch");
+               Real origEpoch = ((Spacecraft*) objRefOrigin)->GetRealParameter("A1Epoch");
+               #ifdef DEBUG_ORBITDATA_OBJREF_EPOCH
+                  MessageInterface::ShowMessage("obj ref cs sc epoch = %12.10f\n", origEpoch);
+                  MessageInterface::ShowMessage("   and the sc epoch = %12.10f\n", scEpoch);
+               #endif
+               if (!GmatMathUtil::IsEqual(scEpoch, origEpoch, ORBIT_DATA_TOLERANCE))
+               {
+                  std::string errmsg = "Warning:  In Coordinate System \"";
+                  errmsg += mOutCoordSystem->GetName() + "\", \"";
+                  errmsg += mSpacecraft->GetName() + "\" and \"";
+                  errmsg += objRefScName + "\" have different epochs.\n";
+//                  MessageInterface::PopupMessage(Gmat::WARNING_, errmsg);
+                  MessageInterface::ShowMessage(errmsg);
+                  firstTimeEpochWarning = true;
+               }
             }
          }
       }

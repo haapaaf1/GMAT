@@ -142,6 +142,7 @@ protected:
    };
    
    static const std::string VALID_OBJECT_TYPE_LIST[OrbitDataObjectCount];
+   static const Real        ORBIT_DATA_TOLERANCE;
 };
 #endif // OrbitData_hpp
 
