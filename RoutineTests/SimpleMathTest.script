@@ -2,6 +2,17 @@
 
 Create Spacecraft DefaultSC;
 Create Spacecraft sat;
+Create Spacecraft SatIn SatOut SatInOut satLHSArg satRHSArg
+Create Spacecraft MMSrefSat_truth;
+
+GMAT MMSrefSat_truth.Tanks = {TankMMS};
+Create FuelTank TankMMS;
+GMAT TankMMS.FuelMass = 328.8;
+GMAT TankMMS.Pressure = 1868.9;
+GMAT TankMMS.Temperature = 20;
+GMAT TankMMS.RefTemperature = 20;
+GMAT TankMMS.Volume = 0.796;
+GMAT TankMMS.FuelDensity = 1010;
 
 Create GroundStation theGroundStation;
 GMAT theGroundStation.CentralBody = Earth;
@@ -25,6 +36,11 @@ Create Array rv[3,1] vv[3,1] ev[3,1] arr13[1,3] lhsArray[1,3]
 Create Array arr22[2,2] arr22a[2,2] arr11[1,1];
 Create Array aArr31[3,1] bArr31[3,1] cArr31[3,1] dArr31[3,1] eArr31[3,1]
 Create Array ev1[3,1] ev2[3,1] ev3[3,1] ev4[3,1] ev5[3,1] ev6[3,1] ev7[3,1];
+Create Variable varIn varInOut numOut varLHSArg varRHSArg
+Create Array ArrayIn33[3,3] ArrayOut22[2,2] Array31[3,1] Array13[1,3] ArrayInOut[2,2] arrLHSArg[3,3] arrRHSArg[3,3]
+Create Array arr33[3,3];
+Create Variable count;
+Create Variable actualDeltaMass estDeltaMass;
 Create String msg;
 
 Create GmatFunction cross;
@@ -61,38 +77,6 @@ Report rf X Y Z;
 
 GMAT rf.WriteHeaders = Off;
 msg = ' ';
-
-%%============================== Wrong results bugs
-%%========== Bug 2165 (Power Operator Mishandles Large Powers of Near Zero Argument)
-Report rf msg;
-var3 = -1967;
-var4 = 1.9846348;
-bugNum = 2165;
-
-varOut =     -((var4 / var3))     ;
-Report rf bugNum varOut
-
-varOut =     0.001008965327910524^869.28     ;
-Report rf bugNum varOut
-
-varOut =     -0.001008965327910524^869.28     ;
-Report rf bugNum varOut
-
-%% Gives -1.#IND in Visual C++, nan in GCC
-%%varOut =     (-0.001008965327910524)^869.28     ;
-%%Report rf bugNum varOut
-
-%% Gives -1.#IND in Visual C++, nan in GCC
-%%varOut =     -(-0.001008965327910524)^869.28     ;
-%%Report rf bugNum varOut
-
-%% Gives -1.#IND in Visual C++, nan in GCC
-%%varOut =     -(1.9846348 / -1967)^869.28     ;
-%%Report rf bugNum varOut
-
-%% Gives -1.#IND in Visual C++, nan in GCC
-%%varOut =     -((var4 / var3))     ^  869.28   ;
-%%Report rf bugNum varOut
 
 %%========== Bug 2169 (Norm of negative scalar should yield positive number)
 Report rf msg;
@@ -216,7 +200,6 @@ lhsArray = +(arr13);
 Report rf bugNum lhsArray;
 
 %%========== Bug 2111 (Can't multiply a ((1x3)*(3x1))*(3x1))
-
 bugNum = 2111;
 
 arr22(1,1) = 1.1;
@@ -348,7 +331,521 @@ Report rf msg;
 ev7  = ((v^2 - mu/r)*rv - (rv'*vv)*vv) / mu;  
 Report rf bugNum ev7;
 
-%%========== Bug 2110 (Math in script causes crash on load)
+%%========== Bug 2166 (Parsing fails for atan2 with array arguments)
+bugNum = 2166;
+msg = '==============================';
+count = 0;
+varInOut  = 1;
+SatInOut.X = 1;
+ArrayInOut(2,2) = 1;
+ 
+% Test using the same variable as input and output
+count = count + 1;
+Report rf msg count;
+varInOut  = atan2(1,0)
+SatInOut.X = atan2(1,0)
+ArrayInOut(2,2) = atan2(1,0)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+
+% Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = 1
+varRHSArg = 0
+numOut          = atan2(1,1 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = 1
+arrRHSArg(3,3) = 0
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = 1
+satRHSArg.X = 0
+SatIn.X  = 1
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Test using the same variable as input and output 
+count = count + 1;
+Report rf msg count;
+varInOut  = 0;
+SatInOut.X = 0;
+ArrayInOut(2,2) = 0;
+varInOut  = atan2(0,1)
+SatInOut.X = atan2(0,1)
+ArrayInOut(2,2) = atan2(0,1)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+ 
+% Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = 0
+varRHSArg = 1
+numOut          = atan2(0,0 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf bugNum numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = 0
+arrRHSArg(3,3) = 1
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = 0
+satRHSArg.X = 1
+SatIn.X  = 0
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Test using the same variable as input and output 
+count = count + 1;
+Report rf msg count;
+varInOut  = 0;
+SatInOut.X = 0;
+ArrayInOut(2,2) = 0;
+varInOut  = atan2(0,0)
+SatInOut.X = atan2(0,0)
+ArrayInOut(2,2) = atan2(0,0)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+ 
+%  Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = 0
+varRHSArg = 0
+numOut          = atan2(0,0 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf bugNum numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = 0
+arrRHSArg(3,3) = 0
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = 0
+satRHSArg.X = 0
+SatIn.X  = 0
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Test using the same variable as input and output 
+count = count + 1;
+Report rf msg count;
+varInOut  = -100000000;
+SatInOut.X = -100000000;
+ArrayInOut(2,2) = -100000000;
+varInOut  = atan2(-100000000,100000000)
+SatInOut.X = atan2(-100000000,100000000)
+ArrayInOut(2,2) = atan2(-100000000,100000000)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+ 
+%  Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = -100000000
+varRHSArg = 100000000
+numOut          = atan2(-100000000,-100000000 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf bugNum numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = -100000000
+arrRHSArg(3,3) = 100000000
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = -100000000
+satRHSArg.X = 100000000
+SatIn.X  = -100000000
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Test using the same variable as input and output 
+count = count + 1;
+Report rf msg count;
+varInOut  = 100000000;
+SatInOut.X = 100000000;
+ArrayInOut(2,2) = 100000000;
+varInOut  = atan2(100000000,-100000000)
+SatInOut.X = atan2(100000000,-100000000)
+ArrayInOut(2,2) = atan2(100000000,-100000000)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+ 
+%  Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = 100000000
+varRHSArg = -100000000
+numOut          = atan2(100000000,100000000 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf bugNum numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = 100000000
+arrRHSArg(3,3) = -100000000
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = 100000000
+satRHSArg.X = -100000000
+SatIn.X  = 100000000
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Test using the same variable as input and output 
+count = count + 1;
+Report rf msg count;
+varInOut  = 2;
+SatInOut.X = 2;
+ArrayInOut(2,2) = 2;
+varInOut  = atan2(2,4)
+SatInOut.X = atan2(2,4)
+ArrayInOut(2,2) = atan2(2,4)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+ 
+%  Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = 2
+varRHSArg = 4
+numOut          = atan2(2,2 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf bugNum numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = 2
+arrRHSArg(3,3) = 4
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = 2
+satRHSArg.X = 4
+SatIn.X  = 2
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+% Test using the same variable as input and output 
+count = count + 1;
+Report rf msg count;
+varInOut  = 4;
+SatInOut.X = 4;
+ArrayInOut(2,2) = 4;
+varInOut  = atan2(4,2)
+SatInOut.X = atan2(4,2)
+ArrayInOut(2,2) = atan2(4,2)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+ 
+%  Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = 4
+varRHSArg = 2
+numOut          = atan2(4,4 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf bugNum numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = 4
+arrRHSArg(3,3) = 2
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = 4
+satRHSArg.X = 2
+SatIn.X  = 4
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2) 
+ 
+% Test using the same variable as input and output 
+count = count + 1;
+Report rf msg count;
+varInOut  = 1e-007;
+SatInOut.X = 1e-007;
+ArrayInOut(2,2) = 1e-007;
+varInOut  = atan2(1e-007,0.0001)
+SatInOut.X = atan2(1e-007,0.0001)
+ArrayInOut(2,2) = atan2(1e-007,0.0001)
+Report rf bugNum varInOut
+Report rf bugNum SatInOut.X 
+Report rf bugNum ArrayInOut(2,2)
+ 
+%  Literal and variable as input
+count = count + 1;
+Report rf msg count;
+varLHSArg = 1e-007
+varRHSArg = 0.0001
+numOut          = atan2(1e-007,1e-007 )
+varOut          = atan2(varLHSArg,varRHSArg)
+SatOut.X        = atan2(varLHSArg,varRHSArg)
+ArrayOut22(2,2) = atan2(varLHSArg,varRHSArg)
+Report rf bugNum numOut
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+arrLHSArg(3,3) = 1e-007
+arrRHSArg(3,3) = 0.0001
+varOut          = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+SatOut.X        = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+ArrayOut22(2,2) = atan2(arrLHSArg(3,3),arrRHSArg(3,3))
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+%   Array element as input
+count = count + 1;
+Report rf msg count;
+satLHSArg.X = 1e-007
+satRHSArg.X = 0.0001
+SatIn.X  = 1e-007
+varOut          = atan2(satLHSArg.X,satRHSArg.X)
+SatOut.X        = atan2(satLHSArg.X,satRHSArg.X)
+ArrayOut22(2,2) = atan2(satLHSArg.X,satRHSArg.X)
+Report rf bugNum varOut 
+Report rf bugNum SatOut.X 
+Report rf bugNum ArrayOut22(2,2)
+ 
+msg = '========== Bug 2186 (Transpose of a scalar fails)'
+bugNum = 2186;
+Report rf msg;
+
+var = 5;
+arr33(1,1) = 5
+arr11(1,1) = 5;
+sat.X = 5;
+
+varOut = 5';
+Report rf bugNum varOut;
+
+varOut = var';
+Report rf bugNum varOut;
+
+varOut = arr33(1,1)';
+Report rf bugNum varOut;
+
+varOut = sat.X';
+Report rf bugNum varOut;
+
+varOut = arr11';
+Report rf bugNum varOut;
+
+var = -5
+arr33(1,1) = -5
+arr11(1,1) = -5
+sat.X = -5;
+
+varOut = -5';
+Report rf bugNum varOut;
+
+varOut = var';
+Report rf bugNum varOut;
+
+varOut = arr33(1,1)';
+Report rf bugNum varOut;
+
+varOut = sat.X';
+Report rf bugNum varOut;
+
+varOut = arr11';
+Report rf bugNum varOut;
+
+
+msg = '========== Bug 2188 (Unary Minus yields wrong answer)'
+bugNum = 2188;
+Report rf msg;
+
+varOut = -tan(11.907)  + 1.47756418563724;
+Report rf bugNum varOut;
+
+varOut =  -tan(10 + 1.907)  + 1.47756418563724
+Report rf bugNum varOut
+
+varOut =  -atan2(11.907, 0.2345)  + 1.47756418563724
+Report rf bugNum varOut
+
+varOut =  -atan2(10 + 1.907, 0.2345)  + 1.47756418563724
+Report rf bugNum varOut
+
+varOut =  -norm(10 + 1.907 + 10.2345)  + 1.47756418563724
+Report rf bugNum varOut
+
+varOut =  -norm(10 + 1.907 + 0.2345 + 10)  + 1.47756418563724
+Report rf bugNum varOut
+
+varOut =  -DegToRad(-343.23532);
+Report rf bugNum varOut
+
+varOut =  -RadToDeg(-varOut);
+Report rf bugNum varOut
+
+varOut =  -Deg2Rad(-343.23532);
+Report rf bugNum varOut
+
+varOut =  -Rad2Deg(-varOut);
+Report rf bugNum varOut
+
+msg = '========== Bug 2196 (Unknown Crash)'
+bugNum = 2196;
+Report rf msg;
+
+actualDeltaMass = 0;
+estDeltaMass = 1;
+If actualDeltaMass < 0.00001
+   MMSrefSat_truth.TankMMS.FuelMass = MMSrefSat_truth.TankMMS.FuelMass - estDeltaMass;
+EndIf
+Report rf bugNum MMSrefSat_truth.TankMMS.FuelMass;
+
+%%==============================================================================
+%%================================= Do this last ===============================
+%%==============================================================================
+msg = '========== Bug 2110 (Math in script causes crash on load)'
 Report rf msg;
 rv(1,1) = DefaultSC.X;
 rv(2,1) = DefaultSC.Y;
@@ -360,4 +857,36 @@ r = norm(rv);
 v = norm(vv);
 ev = ((v^2 - mu/r)*rv - (ev) + vv)/mu;  %% <=== caused crash
 %%ev = ((v^2 - mu/r)*rv - cross(ev,vv))/mu;
+
+%%============================== Wrong results bugs
+msg = '========== Bug 2165 (Power Operator Mishandles Large Powers of Near Zero Argument)'
+Report rf msg;
+var3 = -1967;
+var4 = 1.9846348;
+bugNum = 2165;
+
+varOut =     -((var4 / var3))     ;
+Report rf bugNum varOut
+
+varOut =     0.001008965327910524^869.28     ;
+Report rf bugNum varOut
+
+varOut =     -0.001008965327910524^869.28     ;
+Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+varOut =     (-0.001008965327910524)^869.28     ;
+Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+varOut =     -(-0.001008965327910524)^869.28     ;
+Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+varOut =     -(1.9846348 / -1967)^869.28     ;
+Report rf bugNum varOut
+
+%% Gives -1.#IND in Visual C++, nan in GCC
+varOut =     -((var4 / var3))     ^  869.28   ;
+Report rf bugNum varOut
 
