@@ -38,7 +38,8 @@ private:
    bool mIsBodySelected;
 
    wxString mSelBodyName;
-
+   wxArrayString mExcludedCelesBodyList;
+   
    wxButton *addBodyButton;
    wxButton *removeBodyButton;
    wxButton *clearBodyButton;
