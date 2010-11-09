@@ -192,14 +192,6 @@ const Rvector6 LibrationPoint::GetMJ2000State(const A1Mjd &atTime)
       throw SolarSystemException(
             "Primary and secondary bodies for LibrationPoint are massless");
    Real muStar = massSecondary / (massPrimary + massSecondary);
-   /*
-   cout.setf(ios::fixed);
-   cout.precision(30);
-   
-   cout << "Mass of the primary is "  << massPrimary << endl;
-   cout << "Mass of the secondary is " << massSecondary << endl;
-   cout << "Mu(star) = " << muStar << endl;
-   */
    #ifdef DEBUG_GET_STATE
    MessageInterface::ShowMessage
       ("   Mass of the primary is %f\n", massPrimary);
@@ -218,7 +210,6 @@ const Rvector6 LibrationPoint::GetMJ2000State(const A1Mjd &atTime)
       else  gamma = GmatMathUtil::Pow((muStar / (3.0 * (1.0 - muStar))),
                                       (1.0 / 3.0));
       
-      //cout << ">>>>>> gamma to start is : " << gamma << endl;
 
       Integer counter = 0;
       Real diff = 999.99;
@@ -262,13 +253,7 @@ const Rvector6 LibrationPoint::GetMJ2000State(const A1Mjd &atTime)
          counter++;
          gammaPrev = gamma;
          gamma     = gammaPrev - (F / Fdot);
-         diff      = GmatMathUtil::Abs(gamma - gammaPrev);/*
-         if (whichPoint == "L3" && counter <= 4)
-         {
-            cout << ">>>>>>>>>>> F  = " << F << endl;
-            cout << ">>>>>>>>>>> Fdot  = " << Fdot << endl;
-            cout << ">>>>>>>>>>> Gamma  = " << gamma << endl;
-         }*/
+         diff      = GmatMathUtil::Abs(gamma - gammaPrev);
       }
    }
    Real x = 0.0;
@@ -310,10 +295,6 @@ const Rvector6 LibrationPoint::GetMJ2000State(const A1Mjd &atTime)
    ri         = rMag * ri;
    Real vMult = (v * r) / rMag;
    vi         = vMult * vi;
-   /*
-   cout << "ri = " << endl << ri << endl;
-   cout << "vi = " << endl << vi << endl;
-   */
    // Determine the rotation matrix and its derivative
    Rvector3 xHat    = r / r.GetMagnitude();  // unit vector
    Rvector3 zHat    = (Cross(r,v)).GetUnitVector();
@@ -547,14 +528,14 @@ bool LibrationPoint::SetStringParameter(const Integer id,
 {     
    if (id == PRIMARY_BODY_NAME)             
    {
-      // since we don't know the order of setting, we cannot do the ckecking
+      // since we don't know the order of setting, we cannot do the checking
       // of primary and secondary bodies are the same
       primaryBodyName = value;
       return true;
    }
    if (id == SECONDARY_BODY_NAME)             
    {
-      // since we don't know the order of setting, we cannot do the ckecking
+      // since we don't know the order of setting, we cannot do the checking
       // of primary and secondary bodies are the same
       secondaryBodyName = value;
       return true;
