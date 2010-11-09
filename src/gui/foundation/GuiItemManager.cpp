@@ -34,12 +34,12 @@
 
 //#define DBGLVL_GUI_ITEM 1
 //#define DBGLVL_GUI_ITEM_UPDATE 1
+//#define DBGLVL_GUI_ITEM_REG 1
 //#define DBGLVL_GUI_ITEM_UNREG 1
 //#define DBGLVL_GUI_ITEM_PARAM 2
 //#define DBGLVL_GUI_ITEM_PROPERTY 2
-//#define DBGLVL_GUI_ITEM_FN 2
-//#define DBGLVL_GUI_ITEM_SP 2
 //#define DBGLVL_GUI_ITEM 2
+//#define DBGLVL_GUI_ITEM_FN 2
 //#define DBGLVL_GUI_ITEM_SO 2
 //#define DBGLVL_GUI_ITEM_SC 2
 //#define DBGLVL_GUI_ITEM_SP 2
@@ -792,17 +792,45 @@ void GuiItemManager::NotifyObjectNameChange(Gmat::ObjectType type,
 
 //------------------------------------------------------------------------------
 // void UnregisterListBox(const wxString &type, wxListBox *lb)
-//                        wxArrayString *excList)
+//                        wxArrayString *excList = NULL)
 //------------------------------------------------------------------------------
 void GuiItemManager::UnregisterListBox(const wxString &type, wxListBox *lb,
                                        wxArrayString *excList)
 {
    #if DBGLVL_GUI_ITEM_UNREG
    MessageInterface::ShowMessage
-      ("GuiItemManager::UnregisterListBox() lb=%d, excList=%d\n", lb, excList);
+      ("GuiItemManager::UnregisterListBox() lb=<%p>, excList=<%p>\n", lb, excList);
    #endif
    
-   if (type == "SpaceObject")
+   if (type == "CelestialPoint")
+   {
+      std::vector<wxListBox*>::iterator pos1 =
+         find(mCelestialPointLBList.begin(), mCelestialPointLBList.end(), lb);
+      
+      if (pos1 != mCelestialPointLBList.end())
+         mCelestialPointLBList.erase(pos1);
+      
+      std::vector<wxArrayString*>::iterator pos2 =
+         find(mCelestialPointExcList.begin(), mCelestialPointExcList.end(), excList);
+      
+      if (pos2 != mCelestialPointExcList.end())
+         mCelestialPointExcList.erase(pos2);
+   }
+   else if (type == "CelestialBody")
+   {
+      std::vector<wxListBox*>::iterator pos1 =
+         find(mCelestialBodyLBList.begin(), mCelestialBodyLBList.end(), lb);
+      
+      if (pos1 != mCelestialBodyLBList.end())
+         mCelestialBodyLBList.erase(pos1);
+      
+      std::vector<wxArrayString*>::iterator pos2 =
+         find(mCelestialBodyExcList.begin(), mCelestialBodyExcList.end(), excList);
+      
+      if (pos2 != mCelestialBodyExcList.end())
+         mCelestialBodyExcList.erase(pos2);
+   }
+   else if (type == "SpaceObject")
    {
       std::vector<wxListBox*>::iterator pos1 =
          find(mSpaceObjectLBList.begin(), mSpaceObjectLBList.end(), lb);
@@ -1405,7 +1433,7 @@ wxComboBox* GuiItemManager::GetCelestialBodyComboBox(wxWindow *parent, wxWindowI
    
    wxComboBox *celesBodyComboBox =
       new wxComboBox(parent, id, wxT(""), wxDefaultPosition, size,
-                     theCelesBodyList, wxCB_READONLY);
+                     theCelestialBodyList, wxCB_READONLY);
    
    // show Earth as a default body
    celesBodyComboBox->SetStringSelection("Earth");
@@ -1513,7 +1541,7 @@ GuiItemManager::GetCelestialPointComboBox(wxWindow *parent, wxWindowID id,
       celestialPointComboBox->Append("Vector");
    
    for (int i=0; i<theNumCelesPoint; i++)
-      celestialPointComboBox->Append(theCelesPointList[i]);
+      celestialPointComboBox->Append(theCelestialPointList[i]);
    
    // select first item
    celestialPointComboBox->SetSelection(0);
@@ -2033,7 +2061,7 @@ wxListBox* GuiItemManager::GetSpacePointListBox(wxWindow *parent, wxWindowID id,
 
 //------------------------------------------------------------------------------
 // wxListBox* GetCelestialPointListBox(wxWindow *parent, wxWindowID id,
-//                                     const wxSize &size, wxArrayString &excList)
+//                                     const wxSize &size, wxArrayString *excList = NULL)
 //------------------------------------------------------------------------------
 /**
  * @return configured CelestialBody and CalculatedPoint object ListBox pointer
@@ -2042,7 +2070,7 @@ wxListBox* GuiItemManager::GetSpacePointListBox(wxWindow *parent, wxWindowID id,
 //------------------------------------------------------------------------------
 wxListBox* GuiItemManager::GetCelestialPointListBox(wxWindow *parent, wxWindowID id,
                                                     const wxSize &size,
-                                                    wxArrayString &excList)
+                                                    wxArrayString *excList)
 {
    #if DBGLVL_GUI_ITEM
    MessageInterface::ShowMessage
@@ -2055,23 +2083,85 @@ wxListBox* GuiItemManager::GetCelestialPointListBox(wxWindow *parent, wxWindowID
       new wxListBox(parent, id, wxDefaultPosition, size, emptyList,
                     wxLB_SINGLE|wxLB_SORT);
    
-   if (excList.GetCount() > 0)
+   if (excList != NULL && excList->GetCount() > 0)
    {
       for (int i=0; i<theNumCelesPoint; i++)
       {
-         if (excList.Index(theCelesPointList[i].c_str()) == wxNOT_FOUND)
-            celesPointListBox->Append(theCelesPointList[i]);
+         if (excList->Index(theCelestialPointList[i].c_str()) == wxNOT_FOUND)
+            celesPointListBox->Append(theCelestialPointList[i]);
       }
    }
    else
    {
       for (int i=0; i<theNumCelesPoint; i++)
-         celesPointListBox->Append(theCelesPointList[i]);
+         celesPointListBox->Append(theCelestialPointList[i]);
    }
    
-   
    celesPointListBox->SetSelection(0);
+   
+   //---------------------------------------------
+   // register to update list
+   //---------------------------------------------
+   mCelestialPointLBList.push_back(celesPointListBox);
+   mCelestialPointExcList.push_back(excList);
+   
+   #if DBGLVL_GUI_ITEM_REG
+   MessageInterface::ShowMessage
+      ("GuiItemManager::GetCelestialPointListBox() mCelestialPointLBList.size()=%d, "
+       "mCelestialPointExcList.size()=%d, celesBodyListBox=<%p>\n",
+       mCelestialPointLBList.size(), mCelestialPointExcList.size(), celesPointListBox);
+   #endif
+   
    return celesPointListBox;
+}
+
+
+//------------------------------------------------------------------------------
+// wxListBox* GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
+//                                    const wxSize &size, wxArrayString *excList = NULL)
+//------------------------------------------------------------------------------
+/**
+ * @return  Celestial body ListBox pointer
+ */
+//------------------------------------------------------------------------------
+wxListBox* GuiItemManager::GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
+                                                   const wxSize &size,
+                                                   wxArrayString *excList)
+{
+   wxArrayString emptyList;
+   wxListBox *celesBodyListBox =
+      new wxListBox(parent, id, wxDefaultPosition, size, emptyList, wxLB_SINGLE | wxLB_SORT);
+   
+   if (excList != NULL && excList->GetCount() > 0)
+   {
+      for (int i=0; i<theNumCelesBody; i++)
+      {
+         if (excList->Index(theCelestialBodyList[i].c_str()) == wxNOT_FOUND)
+            celesBodyListBox->Append(theCelestialBodyList[i]);
+      }
+   }
+   else
+   {
+      for (int i=0; i<theNumCelesBody; i++)
+         celesBodyListBox->Append(theCelestialBodyList[i]);
+   }
+   
+   celesBodyListBox->SetSelection(0);
+   
+   //---------------------------------------------
+   // register to update list
+   //---------------------------------------------
+   mCelestialBodyLBList.push_back(celesBodyListBox);
+   mCelestialBodyExcList.push_back(excList);
+   
+   #if DBGLVL_GUI_ITEM_REG
+   MessageInterface::ShowMessage
+      ("GuiItemManager::GetCelestialBodyListBox() mCelestialBodyLBList.size()=%d, "
+       "mCelestialBodyExcList.size()=%d, celesBodyListBox=<%p>\n",
+       mCelestialBodyLBList.size(), mCelestialBodyExcList.size(), celesBodyListBox);
+   #endif
+   
+   return celesBodyListBox;
 }
 
 
@@ -2143,10 +2233,11 @@ wxListBox* GuiItemManager::GetSpaceObjectListBox(wxWindow *parent, wxWindowID id
    mSpaceObjectLBList.push_back(spaceObjectListBox);
    mSpaceObjectExcList.push_back(excList);
    
-   #if DBGLVL_GUI_ITEM_SO
+   #if DBGLVL_GUI_ITEM_REG
    MessageInterface::ShowMessage
-      ("GuiItemManager::GetSpaceObjectListBox() size=%d, addr=%d\n",
-       mSpaceObjectLBList.size(), spaceObjectListBox);
+      ("GuiItemManager::GetSpaceObjectListBox() mSpaceObjectLBList.size()=%d, "
+       "mSpaceObjectExcList.size()=%d, celesBodyListBox=<%p>\n",
+       mSpaceObjectLBList.size(), mSpaceObjectExcList.size(), spaceObjectListBox);
    #endif
    
    return spaceObjectListBox;
@@ -2618,41 +2709,6 @@ wxListBox* GuiItemManager::GetUserParameterListBox(wxWindow *parent, wxWindowID 
    }
    
    return userParamListBox;
-}
-
-
-//------------------------------------------------------------------------------
-// wxListBox* GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
-//                                    const wxSize &size, wxArrayString &excList)
-//------------------------------------------------------------------------------
-/**
- * @return  Celestial body ListBox pointer
- */
-//------------------------------------------------------------------------------
-wxListBox* GuiItemManager::GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
-                                                   const wxSize &size,
-                                                   wxArrayString &excList)
-{
-   wxArrayString emptyList;
-   wxListBox *celesBodyListBox =
-      new wxListBox(parent, id, wxDefaultPosition, size, emptyList, wxLB_SINGLE | wxLB_SORT);
-   
-   if (excList.GetCount() > 0)
-   {
-      for (int i=0; i<theNumCelesBody; i++)
-      {
-         if (excList.Index(theCelesBodyList[i].c_str()) == wxNOT_FOUND)
-            celesBodyListBox->Append(theCelesBodyList[i]);
-      }
-   }
-   else
-   {
-      for (int i=0; i<theNumCelesBody; i++)
-         celesBodyListBox->Append(theCelesBodyList[i]);
-   }
-   
-   celesBodyListBox->SetSelection(0);
-   return celesBodyListBox;
 }
 
 
@@ -3871,15 +3927,20 @@ void GuiItemManager::UpdateCelestialBodyList()
    
    StringArray items = theGuiInterpreter->GetListOfObjects(Gmat::CELESTIAL_BODY);
    theNumCelesBody = items.size();
-   theCelesBodyList.Clear();
+   theCelestialBodyList.Clear();
+   
+   #if DBGLVL_GUI_ITEM_SP
+   MessageInterface::ShowMessage
+      ("GuiItemManager::UpdateCelestialBodyList() Adding %d items\n", theNumCelesBody);
+   #endif
    
    for (int i=0; i<theNumCelesBody; i++)
    {
-      theCelesBodyList.Add(items[i].c_str());
+      theCelestialBodyList.Add(items[i].c_str());
       
       #if DBGLVL_GUI_ITEM > 1
-      MessageInterface::ShowMessage("GuiItemManager::UpdateCelestialBodyArray() " +
-                                    std::string(theCelesBodyList[i].c_str()) + "\n");
+      MessageInterface::ShowMessage("GuiItemManager::UpdateCelestialBodyList() " +
+                                    std::string(theCelestialBodyList[i].c_str()) + "\n");
       #endif
    }
    
@@ -3890,9 +3951,48 @@ void GuiItemManager::UpdateCelestialBodyList()
         pos != mCelestialBodyCBList.end(); ++pos)
    {
       wxString str = (*pos)->GetStringSelection();      
-      (*pos)->Append(theCelesBodyList);
+      (*pos)->Append(theCelestialBodyList);
       (*pos)->SetStringSelection(str);
    }
+   
+   //-------------------------------------------------------
+   // update registered CelestialBodyListBox
+   //-------------------------------------------------------
+   std::vector<wxArrayString*>::iterator exPos = mCelestialBodyExcList.begin();
+   
+   for (std::vector<wxListBox*>::iterator pos = mCelestialBodyLBList.begin();
+        pos != mCelestialBodyLBList.end(); ++pos)
+   {
+      wxArrayString *excList = *exPos;
+      (*pos)->Clear();
+      
+      #if DBGLVL_GUI_ITEM_REG
+      MessageInterface::ShowMessage
+         ("===============> registerdListBox=<%p>, excList=<%p>\n", *pos, excList);
+      #endif
+      
+      for (int i=0; i<theNumCelesBody; i++)
+      {
+         if (excList != NULL && excList->Index(theCelestialBodyList[i].c_str()) == wxNOT_FOUND)
+         {
+            #if DBGLVL_GUI_ITEM_REG
+            MessageInterface::ShowMessage
+               ("   ==> Appending '%s'\n", theCelestialBodyList[i].c_str());
+            #endif
+            (*pos)->Append(theCelestialBodyList[i]);
+         }
+         else
+         {
+            #if DBGLVL_GUI_ITEM_REG
+            MessageInterface::ShowMessage("   ==> Excluding '%s'\n", theCelestialBodyList[i].c_str());
+            #endif
+         }
+      }
+      
+      (*pos)->SetSelection(0);
+      exPos++;
+   }
+   
 }
 
 
@@ -3921,13 +4021,13 @@ void GuiItemManager::UpdateCelestialPointList()
        theNumCelesPoint);
    #endif
    
-   theCelesBodyList.Clear();
+   theCelestialBodyList.Clear();
    theCalPointList.Clear();
-   theCelesPointList.Clear();
+   theCelestialPointList.Clear();
    
    // update CelestialBody list
    for (int i=0; i<theNumCelesBody; i++)
-      theCelesBodyList.Add(celesBodyList[i].c_str());
+      theCelestialBodyList.Add(celesBodyList[i].c_str());
    
    // update CalculatedPoint list
    for (int i=0; i<theNumCalPoint; i++)
@@ -3935,12 +4035,44 @@ void GuiItemManager::UpdateCelestialPointList()
    
    // add CelestialBody to CelestionPoint list
    for (int i=0; i<theNumCelesBody; i++)
-      theCelesPointList.Add(theCelesBodyList[i]);
+      theCelestialPointList.Add(theCelestialBodyList[i]);
    
    // add CalculatedPoint to CelestialPoint list
    for (int i=0; i<theNumCalPoint; i++)
-      theCelesPointList.Add(theCalPointList[i]);
+      theCelestialPointList.Add(theCalPointList[i]);
    
+   //-------------------------------------------------------
+   // update registered CelestialPointListBox
+   //-------------------------------------------------------
+   std::vector<wxArrayString*>::iterator exPos = mCelestialPointExcList.begin();
+   
+   for (std::vector<wxListBox*>::iterator pos = mCelestialPointLBList.begin();
+        pos != mCelestialPointLBList.end(); ++pos)
+   {
+      wxArrayString *excList = *exPos;
+      (*pos)->Clear();
+      
+      #if DBGLVL_GUI_ITEM_REG
+      MessageInterface::ShowMessage
+         ("===============> registerdListBox=<%p>, excList=<%p>\n", *pos, excList);
+      #endif
+      
+      for (int i=0; i<theNumCelesPoint; i++)
+      {
+         if (excList != NULL && excList->Index(theCelestialPointList[i].c_str()) == wxNOT_FOUND)
+            (*pos)->Append(theCelestialPointList[i]);
+      }
+      
+      (*pos)->SetSelection(0);
+      exPos++;
+   }
+   
+   #if DBGLVL_GUI_ITEM_SP
+   MessageInterface::ShowMessage
+      ("theNumCelesPoint=%d\n"
+       "<==========GuiItemManager::UpdateCelestialPointList() exiting\n",
+       theNumCelesPoint);
+   #endif
 } //UpdateCelestialPointList()
 
 

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GuiItemManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/02/06
@@ -113,7 +113,7 @@ public:
    wxArrayString GetUserStringList() { return theUserStringList; }
    wxArrayString GetUserParameterList() { return theUserParamList; }
    wxArrayString GetCoordSysList() { return theCoordSysList; }
-   wxArrayString GetConfigBodyList() { return theCelesBodyList; }
+   wxArrayString GetConfigBodyList() { return theCelestialBodyList; }
    wxArrayString GetSpacecraftList() { return theSpacecraftList; }
    wxArrayString GetImpulsiveBurnList() { return theImpBurnList; }
    wxArrayString GetFiniteBurnList() { return theFiniteBurnList; }
@@ -214,7 +214,11 @@ public:
    
    wxListBox* GetCelestialPointListBox(wxWindow *parent, wxWindowID id,
                                        const wxSize &size,
-                                       wxArrayString &excList);
+                                       wxArrayString *excList = NULL);
+   
+   wxListBox* GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
+                                      const wxSize &size,
+                                      wxArrayString *excList = NULL);
    
    wxListBox* GetSpaceObjectListBox(wxWindow *parent, wxWindowID id,
                                     const wxSize &size,
@@ -228,7 +232,7 @@ public:
    
    wxListBox* GetFormationListBox(wxWindow *parent, wxWindowID id,
                                   const wxSize &size,
-                                  wxArrayString &sosToExclude);
+                                  wxArrayString *excList = NULL);
    
    wxListBox* GetImpBurnListBox(wxWindow *parent, wxWindowID id,
                                 const wxSize &size,
@@ -266,18 +270,15 @@ public:
    wxListBox* GetUserParameterListBox(wxWindow *parent, wxWindowID id,
                                       const wxSize &size);
    
-   wxListBox* GetCelestialBodyListBox(wxWindow *parent, wxWindowID id,
-                                      const wxSize &size,
-                                      wxArrayString &excList);
    wxListBox* GetFuelTankListBox(wxWindow *parent, wxWindowID id,
                                  const wxSize &size,
                                  wxArrayString *excList = NULL);
    wxListBox* GetThrusterListBox(wxWindow *parent, wxWindowID id,
                                  const wxSize &size,
-                                 wxArrayString *excList);
+                                 wxArrayString *excList = NULL);
    wxListBox* GetSensorListBox(wxWindow *parent, wxWindowID id,
                                const wxSize &size,
-                               wxArrayString *excList);
+                               wxArrayString *excList = NULL);
    
    wxBoxSizer* CreateParameterSizer
          (wxWindow *parent,
@@ -368,6 +369,8 @@ private:
    // Register for resource change
    std::vector<GmatPanel*> mResourceUpdateListeners;
    
+   std::vector<wxListBox*> mCelestialPointLBList;
+   std::vector<wxListBox*> mCelestialBodyLBList;
    std::vector<wxListBox*> mSpaceObjectLBList;
    std::vector<wxListBox*> mSpacecraftLBList;
    std::vector<wxListBox*> mImpBurnLBList;
@@ -396,6 +399,8 @@ private:
    std::vector<wxComboBox*> mBoundarySolverCBList;
    std::vector<wxComboBox*> mOptimizerCBList;
    
+   std::vector<wxArrayString*> mCelestialPointExcList;
+   std::vector<wxArrayString*> mCelestialBodyExcList;
    std::vector<wxArrayString*> mSpaceObjectExcList;
    std::vector<wxArrayString*> mSpacecraftExcList;
    std::vector<wxArrayString*> mImpBurnExcList;
@@ -497,8 +502,8 @@ private:
    
    // SpacePoint
    wxArrayString theSpacePointList;
-   wxArrayString theCelesPointList;
-   wxArrayString theCelesBodyList;
+   wxArrayString theCelestialPointList;
+   wxArrayString theCelestialBodyList;
    wxArrayString theCalPointList;
    wxArrayString theSpaceObjectList;
    wxArrayString theSpacecraftList;
