@@ -94,13 +94,13 @@ void CelesBodySelectDialog::Create()
    {
       mBodyListBox =
          theGuiManager->GetCelestialPointListBox(this, -1, wxSize(150, 200),
-                                                 mBodiesToExclude);
+                                                 &mBodiesToExclude);
    }
    else
    {
       mBodyListBox =
          theGuiManager->GetCelestialBodyListBox(this, -1, wxSize(150, 200),
-                                                mBodiesToExclude);
+                                                &mBodiesToExclude);
    }
    mBodyListBox->SetToolTip(pConfig->Read(_T("AvailableBodiesHint")));
    bodyAvailableSizer->Add(mBodyListBox, 0, wxALIGN_CENTER|wxGROW, borderSize);
