@@ -208,13 +208,13 @@ protected:
    Integer mObjectCount;
    Integer mNonStdBodyCount;
    
-	std::string mEnableStars;
-	std::string mEnableConstellations;
-	Integer mStarCount;
+        std::string mEnableStars;
+        std::string mEnableConstellations;
+        Integer mStarCount;
 
-	Integer mMinFOV;
-	Integer mMaxFOV;
-	Integer mInitialFOV;
+        Integer mMinFOV;
+        Integer mMaxFOV;
+        Integer mInitialFOV;
    
    StringArray mScNameArray;
    StringArray mObjectNameArray;
@@ -282,13 +282,13 @@ protected:
       DATA_COLLECT_FREQUENCY,
       UPDATE_PLOT_FREQUENCY,
       NUM_POINTS_TO_REDRAW,
+      STAR_COUNT,
+      ENABLE_STARS,
+      ENABLE_CONSTELLATIONS,
+      MIN_FOV,
+      MAX_FOV,
+      INITIAL_FOV,
       SHOW_PLOT,
-		STAR_COUNT,
-		ENABLE_STARS,
-		ENABLE_CONSTELLATIONS,
-		MIN_FOV,
-		MAX_FOV,
-		INITIAL_FOV,
       Enhanced3DViewParamCount
    };
    
