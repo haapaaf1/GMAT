@@ -240,6 +240,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
+   naifName           (name),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
@@ -332,6 +333,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
+   naifName           (name),
    textureMapFileName ("GenericCelestialBody.jpg")
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
@@ -443,6 +445,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    orientation         (cBody.orientation),
 //   naifId              (cBody.naifId),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet           (cBody.naifIdSet),
+   naifName            (cBody.naifName),
    textureMapFileName  (cBody.textureMapFileName)
 {
    state                  = cBody.state;
@@ -602,6 +605,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    
 //   naifId              = cBody.naifId;   // moved to SpacePoint  wcs  2009.12.28
    naifIdSet           = cBody.naifIdSet;
+   naifName            = cBody.naifName;
    textureMapFileName  = cBody.textureMapFileName;
    
    for (Integer i=0;i<6;i++)  prevState[i] = cBody.prevState[i];
@@ -792,7 +796,8 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
 //                  (kernelReader == NULL? "really" : "NOT"));       
 //         #endif
          // @todo - what is the observing body here??  Need to handle exceptions here
-         Rvector6 spiceState = kernelReader->GetTargetState(instanceName, naifId, atTime, j2000BodyName);
+//         Rvector6 spiceState = kernelReader->GetTargetState(instanceName, naifId, atTime, j2000BodyName);
+         Rvector6 spiceState = kernelReader->GetTargetState(naifName, naifId, atTime, j2000BodyName);
          state.Set(spiceState[0], spiceState[1], spiceState[2],
                    spiceState[3], spiceState[4], spiceState[5]);
          #else
@@ -891,7 +896,8 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
       case Gmat::SPICE :
       #ifdef __USE_SPICE__
          SetUpSPICE();
-         state = kernelReader->GetTargetState(instanceName, naifId, atTime, j2000BodyName);
+//         state = kernelReader->GetTargetState(instanceName, naifId, atTime, j2000BodyName);
+         state = kernelReader->GetTargetState(naifName, naifId, atTime, j2000BodyName);
          for (Integer i=0;i<6;i++) outState[i] = state[i];
       #endif
          break;
@@ -4185,11 +4191,20 @@ bool CelestialBody::SetUpSPICE()
          MessageInterface::ShowMessage("   kernelReader is STILL NULL\n");
    #endif
    std::string mainSPK = theSolarSystem->GetStringParameter("SPKFilename");
-   if ((orbitSpiceKernelNames.empty()) && (mainSPK == ""))
+   if (orbitSpiceKernelNames.empty())
    {
-      std::string errmsg = "ERROR - SPICE selected as source for body \"";
-      errmsg += instanceName + "\", but no SPK file(s) specified.\n";
-      throw SolarSystemException(errmsg);
+      if (mainSPK == "")
+      {
+         std::string errmsg = "ERROR - SPICE selected as source for body \"";
+         errmsg += instanceName + "\", but no SPK file(s) specified.\n";
+         throw SolarSystemException(errmsg);
+      }
+      else
+      {
+         MessageInterface::ShowMessage(
+               "No body-specific SPK file selected for body %s. Attempting to use main planetary SPK.\n",
+               instanceName.c_str());
+      }
    }
    // make sure the "main" Solar System Kernel(s) are loaded first
    theSolarSystem->LoadSpiceKernels();
@@ -4241,7 +4256,25 @@ bool CelestialBody::SetUpSPICE()
       if (instanceName == SolarSystem::MOON_NAME)
          spiceNaifId = kernelReader->GetNaifID("MOON"); 
       else
-         spiceNaifId = kernelReader->GetNaifID(instanceName); 
+      {
+            spiceNaifId = kernelReader->GetNaifID(instanceName, false);
+            // if not found with the instanceName, try using the NAIF ID
+            if (spiceNaifId == 0)
+            {
+               std::stringstream ss("");
+               ss << naifId;
+//               spiceNaifId = kernelReader->GetNaifID(ss.str(), true);
+//               if (spiceNaifId != 0)
+                  naifName = ss.str();
+//               else
+//                  naifName = instanceName;  // ??
+                  spiceNaifId = naifId;
+            }
+            else
+            {
+               naifName = instanceName;
+            }
+      }
       
       if ((naifId != UNDEFINED_NAIF_ID) && (spiceNaifId != naifId))
       {

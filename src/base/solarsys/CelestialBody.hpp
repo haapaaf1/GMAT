@@ -558,6 +558,8 @@ protected:
    Rvector6               orientation;   
    // has the naifID been set (figured out from SPK file(s))
    bool                   naifIdSet;
+   /// name to use when requesting data from an SPK kernel
+   std::string            naifName;
    /// Name of the texture map file to use when plotting
    std::string            textureMapFileName;
    /// date and time of start of source file
