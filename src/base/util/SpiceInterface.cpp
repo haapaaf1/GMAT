@@ -460,18 +460,20 @@ void SpiceInterface::SetLeapSecondKernel(const std::string &lsk)
 }
 
 //------------------------------------------------------------------------------
-//  Integer GetNaifID(const std::string &forBody)
+//  Integer GetNaifID(const std::string &forBody, bool popupMsg)
 //------------------------------------------------------------------------------
 /**
  * This method returns the NAIF Id of an object, given its name.
  *
  * @param <forBody>  name of the object.
+ * @param <popupMsg> indicates whether or not to put up a Popup message if there
+ *                   is an error
  *
  * @return corresponding NAIF id; or 0 if not found
  *
  */
 //------------------------------------------------------------------------------
-Integer SpiceInterface::GetNaifID(const std::string &forBody)
+Integer SpiceInterface::GetNaifID(const std::string &forBody, bool popupMsg)
 {
    SpiceBoolean   found;
    SpiceInt       id;
@@ -479,9 +481,12 @@ Integer SpiceInterface::GetNaifID(const std::string &forBody)
    bodn2c_c(bodyName, &id, &found);
    if (found == SPICEFALSE)
    {
-      std::string warnmsg = "Cannot find NAIF ID for object ";
-      warnmsg += forBody + ".  Insufficient data available.  Another SPICE Kernel may be necessary.";
-      MessageInterface::PopupMessage(Gmat::WARNING_, warnmsg);
+      if (popupMsg)
+      {
+         std::string warnmsg = "Cannot find NAIF ID for object ";
+         warnmsg += forBody + ".  Insufficient data available.  Another SPICE Kernel may be necessary.";
+         MessageInterface::PopupMessage(Gmat::WARNING_, warnmsg);
+      }
       return 0;
    }
    #ifdef DEBUG_SPK_READING
