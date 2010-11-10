@@ -1,7 +1,7 @@
 # Project: TestFileManager
 # Compiler: Default GCC compiler
 # Compiler Type: MingW 3
-# Makefile created by wxDev-C++ 7.3 on 04/10/10 11:46
+# Makefile created by wxDev-C++ 7.3 on 08/10/10 11:25
 
 WXLIBNAME = wxmsw28
 CPP       = g++.exe

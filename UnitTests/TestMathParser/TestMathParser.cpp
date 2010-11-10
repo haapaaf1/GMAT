@@ -60,7 +60,7 @@ namespace GmatTest
    ElementWrapper *ewI;
 }
 
-#define DEBUG_TEST_MATH_PARSER 2
+//#define DEBUG_TEST_MATH_PARSER 2
 
 using namespace std;
 
@@ -70,7 +70,6 @@ using namespace std;
 //------------------------------------------------------------------------------
 void GetNodes(MathNode *node, MathNode **left, MathNode **right)
 {
-   
    *left = node->GetLeft();
    *right = node->GetRight();
 
@@ -207,7 +206,7 @@ void EvaluateNode(MathNode *node, TestOutput &out, Real expVal, Rmatrix &expMat)
       if (returnType == Gmat::REAL_TYPE)
       {
          realVal = node->Evaluate();
-         out.Validate(realVal, expVal);
+         out.Validate(realVal, expVal, 1.e-10);
       }
       else
       {
@@ -242,70 +241,70 @@ void TestIsEquation(TestOutput &out, MathParser &mp)
    //------------------------------
    expstr = "123.456";
    expBoolVal = false;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "-123.456";
    expBoolVal = false;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "Cos(0)";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "ars(1,1)";
    expBoolVal = false;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "a+b";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "-abc";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "M'";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "M^(-1)";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
    //------------------------------
    expstr = "TA1 = abs( TA1 - 360 )";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
 
    //------------------------------
    expstr = "cross(vv, cross(rv, vv));";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    
@@ -322,6 +321,73 @@ void TestFindLowestOperator(TestOutput &out, MathParser &mp)
    Integer opIndex;
    std::string str1;
 
+   #if 1
+   //------------------------------
+   expstr = "-tan(11.907)+1.47756418563724";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "+");
+   out.Validate(opIndex, 12);
+   out.Put("");
+   #endif
+   
+   #if 1
+   //------------------------------
+   expstr = "2.0e-1+3.0e-1+4.0e+0";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "+");
+   out.Validate(opIndex, 13);
+   out.Put("");
+   
+   //------------------------------
+   expstr = "(rv'*vv)*vv";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "*");
+   out.Validate(opIndex, 8);
+   out.Put("");
+   
+   //------------------------------
+   expstr = "2^3^4";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "^");
+   out.Validate(opIndex, 3);
+   out.Put("");
+   
+   //------------------------------
+   expstr = "-218.6/-248.715095169/(-209.5774/-132.61614521353)";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "/");
+   out.Validate(opIndex, 21);
+   out.Put("");
+   
+   //------------------------------
+   expstr = "-(-0.001008965327910524)^869.28";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "-");
+   out.Validate(opIndex, 0);
+   out.Put("");
+   
+   //------------------------------
+   expstr = "-((var4/var3))";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "-");
+   out.Validate(opIndex, 0);
+   out.Put("");
+   
+   //------------------------------
+   expstr = "count+1";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "+");
+   out.Validate(opIndex, 5);
+   out.Put("");
+   
    //------------------------------
    expstr = "((3*a+4)-(9*b-20)*(cos(c)^2))*(-a/b)*d-x";
    str1 = mp.FindLowestOperator(expstr, opIndex);
@@ -561,7 +627,9 @@ void TestFindLowestOperator(TestOutput &out, MathParser &mp)
    out.Validate(str1, "^");
    out.Validate(opIndex, 26);
    out.Put("");
-}
+   
+   #endif
+} //TestFindLowestOperator()
 
 
 //------------------------------------------------------------------------------
@@ -576,6 +644,111 @@ void TestOpsWithNumber(TestOutput &out, MathParser &mp)
    Rmatrix unsetMat;
    MathNode *node = NULL;
    
+   #if 1
+   //------------------------------
+   expstr = "2+3+4";
+   expRealVal = 2 + 3 + 4;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "2.0e-1 + 3.0e-1 + 4.0e+0";
+   expRealVal = 2.0e-1 + 3.0e-1 + 4.0e+0;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "(2.0e-1 + 3.0e-1) - (4.0e+0 - 5.0e-1)";
+   expRealVal = (2.0e-1 + 3.0e-1) - (4.0e+0 - 5.0e-1);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "((2.0e-1 + 3.0e-1) - (4.0e+0 - 5.0e-1)) + (1000e-0003 - 500e-00004)";
+   expRealVal = ((2.0e-1 + 3.0e-1) - (4.0e+0 - 5.0e-1)) + (1000e-0003 - 500e-00004);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   #endif
+   
+   #if 1
+   //------------------------------
+   expstr = "((((0.584628238e+005-((0.87652836e+0005-0.242169149e-01))-0.2799199e-0000004)-0.8234313e-000001)-0.247998748e-0006)-0.665e-000004)-0.619624588838e-000001;";
+   expRealVal = ((((0.584628238e+005-((0.87652836e+0005-0.242169149e-01))-0.2799199e-0000004)-0.8234313e-000001)-0.247998748e-0006)-0.665e-000004)-0.619624588838e-000001;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   #endif
+   
+   #if 1
+   //------------------------------
+   expstr = "2^3^4";
+   expRealVal = pow(pow(2.0, 3.0), 4.0);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "0.137466421432647^    0.06533509 ^ -0.02467255477529   ";
+   expRealVal = pow(pow(0.137466421432647, 0.06533509), -0.02467255477529);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "-218.6  /  -248.715095169  / (   -209.5774  /  -132.61614521353   )   ";
+   expRealVal = -218.6  /  -248.715095169  / (   -209.5774  /  -132.61614521353   )   ;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+
+   //------------------------------
+   expstr = "0.001008965327910524^869.28";
+   expRealVal = pow(0.001008965327910524, 869.28);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "-0.001008965327910524^869.28";
+   expRealVal = -pow(0.001008965327910524, 869.28);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   #endif
+   
+   #if 1
+   //------------------------------
+   expstr = "-(-0.001008965327910524)^869.28";
+   expRealVal = -pow((-0.001008965327910524), 869.28);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "-(1.9846348 / -1967)^869.28";
+   expRealVal = -pow((1.9846348 / -1967), 869.28);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   #endif
+   
+   #if 1
    //------------------------------
    expstr = "123.456";
    expRealVal = 123.456;
@@ -703,6 +876,8 @@ void TestOpsWithNumber(TestOutput &out, MathParser &mp)
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
    delete node;
+   
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -719,7 +894,7 @@ void TestOpsWithNumberWithParen(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "5^(-1/2)";
-   expRealVal = 0.447213595;
+   expRealVal = 0.447213595499958;
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1020,11 +1195,11 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    Rmatrix unsetMat;
    MathNode *node = NULL;
 
-   #if 0
+   #if 1
    
    //------------------------------
    expstr = "(cos(0.000134)^2)";
-   expRealVal = 9.999999820440001e-001;
+   expRealVal = (pow(cos(0.000134), 2.0));
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1032,7 +1207,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "( (3.4*2.34+4.2)-(9.1*1000.23-20.21)*(cos(0.000134)^2) )*(-2.34/0.001)*0.000134 - 0.05";
-   expRealVal = 2.843853546986425e+003;
+   expRealVal = ( (3.4*2.34+4.2)-(9.1*1000.23-20.21)*(pow(cos(0.000134),2)) )*(-2.34/0.001)*0.000134 - 0.05;
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1040,7 +1215,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "( (3*2.34+4)-(9*1000-20)*(cos(34.78)^2) )*(-2.34/0.001)*0.000134 - 0.00267522370194881";
-   expRealVal = 2.675221026725112e+003;
+   expRealVal = ( (3*2.34+4)-(9*1000-20)*(pow(cos(34.78),2)) )*(-2.34/0.001)*0.000134 - 0.00267522370194881;
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1048,7 +1223,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "Sqrt(( 10 - 2 )^2 + ( 4 - 2 )^2 + ( 15 - 10 )^2)";
-   expRealVal = 9.64365076099295;
+   expRealVal = sqrt(pow(( 10 - 2 ), 2.0) + pow(( 4 - 2 ), 2.0) + pow(( 15 - 10 ), 2.0));
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1056,7 +1231,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "Cos(0.0) + 10.0";
-   expRealVal = 11;
+   expRealVal = cos(0.0) + 10.0;
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1064,7 +1239,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "Cos(0.0) + 10.0^2";
-   expRealVal = 101;
+   expRealVal = cos(0.0) + pow(10.0, 2.0);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1072,7 +1247,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "Sqrt(39)";
-   expRealVal = 6.245;
+   expRealVal = sqrt(39);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1080,7 +1255,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "Sqrt(44+10*10)";
-   expRealVal = 12;
+   expRealVal = sqrt(44+10*10);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1088,7 +1263,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "Sqrt(10*10+(54-10))";
-   expRealVal = 12;
+   expRealVal = sqrt(10*10+(54-10));
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1096,7 +1271,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "Sqrt(2^2 + 3^2 + 4^2)";
-   expRealVal = 5.38516;
+   expRealVal = sqrt(pow(2.0, 2.0) + pow(3.0, 2.0) + pow(4.0, 2.0));
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1104,7 +1279,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "acos(0)";
-   expRealVal = 1.57079632;
+   expRealVal = acos(0);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1112,7 +1287,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "asin(1)";
-   expRealVal = 1.57079632;
+   expRealVal = asin(1);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1120,7 +1295,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "atan(1)";
-   expRealVal = 0.78539816339745;
+   expRealVal = atan(1);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1128,7 +1303,6 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "atan2(1,0)";
-   //expRealVal = 1.57079632679490;
    expRealVal = GmatMathUtil::ATan(1,0);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
@@ -1136,8 +1310,16 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    delete node;
    
    //------------------------------
+   expstr = "atan2(5-2+1,((2-1)+(2+5)))";
+   expRealVal = GmatMathUtil::ATan(5-2+1,((2-1)+(2+5)));
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
    expstr = "exp(1)";
-   expRealVal = 2.71828182845905;
+   expRealVal = exp(1);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1145,7 +1327,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "log(5+4*2-3)";
-   expRealVal = 2.30258509299405;
+   expRealVal = log(5+4*2-3);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1153,7 +1335,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "log10(10)";
-   expRealVal = 1.0;
+   expRealVal = log10(10);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1161,7 +1343,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "tan(0.5)";
-   expRealVal = 0.54630248984379;
+   expRealVal = tan(0.5);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1169,7 +1351,7 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "DegToRad(180)";
-   expRealVal = 3.14159265358979;
+   expRealVal = GmatMathUtil::DegToRad(180);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1177,7 +1359,22 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "RadToDeg(3.14159265358979)";
-   expRealVal = 180.0;
+   expRealVal = GmatMathUtil::RadToDeg(3.14159265358979);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   
+   //------------------------------
+   expstr = "Rad2Deg(3.14159265358979)";
+   expRealVal = GmatMathUtil::RadToDeg(3.14159265358979);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "Deg2Rad(180)";
+   expRealVal = GmatMathUtil::DegToRad(180);
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1185,7 +1382,9 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "sqrt( 1.0^2 + 2.0^2 + 3.0^2 ) + sqrt( 4.0^2 + 5.0^2 + 6.0^2 );;";
-   expRealVal = 12.51662177416606;
+   expRealVal = sqrt( pow(1.0, 2.0) + pow(2.0, 2.0) + pow(3.0, 2.0) ) +
+      sqrt( pow(4.0, 2.0) + pow(5.0, 2.0) + pow(6.0, 2.0) );
+   //expRealVal = 12.51662177416606;
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
@@ -1193,45 +1392,41 @@ void TestFunctionWithNumber(TestOutput &out, MathParser &mp)
    
    //------------------------------
    expstr = "(sin(0.5)^2);";
-   expRealVal = 0.229848847;
+   expRealVal = (pow(sin(0.5), 2.0));
+   //expRealVal = 0.229848847;
    out.Put(expstr + " should return ", expRealVal);
    node = mp.Parse(expstr);
    EvaluateNode(node, out, expRealVal, unsetMat);
    delete node;
    
-//    //------------------------------
-//    expstr = "sin(0.5 * 1.0)^2;";
-//    expRealVal = 0.229848847;
-//    out.Put(expstr + " should return ", expRealVal);
-//    node = mp.Parse(expstr);
-//    EvaluateNode(node, out, expRealVal, unsetMat);
-//    delete node;
+   //------------------------------
+   expstr = "sin(0.5 * 1.0)^2;";
+   expRealVal = pow(sin(0.5 * 1.0), 2.0);
+   //expRealVal = 0.229848847;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
    
-//    //------------------------------
-//    expstr = "(sin(0.5 * 1.0)^2);";
-//    expRealVal = 0.229848847;
-//    out.Put(expstr + " should return ", expRealVal);
-//    node = mp.Parse(expstr);
-//    EvaluateNode(node, out, expRealVal, unsetMat);
-//    delete node;
+   //------------------------------
+   expstr = "(sin(0.5 * 1.0)^2);";
+   expRealVal = (pow(sin(0.5 * 1.0), 2.0));
+   //expRealVal = 0.229848847;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "(sin(94*0.0174532925199433))^2;";
+   expRealVal = pow((sin(94*0.0174532925199433)), 2.0);
+   //expRealVal = 0.9951340343707851;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
    
    #endif
-   
-   //------------------------------
-   expstr = "(sin(94*0.0174532925199433))^2;";
-   node = mp.Parse(expstr);
-   expRealVal = 0.9951340343707851;
-   out.Put(expstr + " should return ", expRealVal);
-   EvaluateNode(node, out, expRealVal, unsetMat);
-   delete node;
-   
-   //------------------------------
-   expstr = "sin(94*0.0174532925199433)^2;";
-   node = mp.Parse(expstr);
-   expRealVal = 0.9951340343707851;
-   out.Put(expstr + " should return ", expRealVal);
-   EvaluateNode(node, out, expRealVal, unsetMat);
-   delete node;
 }
 
 
@@ -1408,6 +1603,14 @@ void TestArray(TestOutput &out, MathParser &mp)
    delete node;
    
    //------------------------------
+   expstr = "transpose(-5)";
+   expRealVal = -5.0;
+   out.Put(expstr + " should return\n", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
    expstr = "transpose(arrA)";
    Rmatrix expMat3 = matA.Transpose();
    out.Put(expstr + " should return\n", expMat3);
@@ -1572,7 +1775,7 @@ void TestLongEquations(TestOutput &out, MathParser &mp)
    //expstr = "sin(  abs(-.5) + acos(.5) - acos(.5) );"; // OK
    //expstr = "sin(  abs(-.5) + acos(.5) - asin(.5) );";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    node = mp.Parse(expstr);
@@ -1675,7 +1878,7 @@ void TestJustParsing(TestOutput &out, MathParser &mp)
    //------------------------------
    expstr = "acos( xxx )";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    node = mp.Parse(expstr);
@@ -1683,7 +1886,7 @@ void TestJustParsing(TestOutput &out, MathParser &mp)
    //------------------------------
    expstr = "sin(INC*d2r)^2;";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put(expstr + " should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    node = mp.Parse(expstr);
@@ -1693,7 +1896,7 @@ void TestJustParsing(TestOutput &out, MathParser &mp)
    {
       expstr = "cross(vv, cross(rv, vv));";
       expBoolVal = true;
-      boolVal = mp.IsEquation(expstr);
+      boolVal = mp.IsEquation(expstr, false);
       out.Put(expstr + " should return ", expBoolVal);
       out.Validate(boolVal, expBoolVal);
       node = mp.Parse(expstr);
@@ -1757,7 +1960,7 @@ void TestFunctionRunner(TestOutput &out, MathParser &mp)
    }
    catch (BaseException &be)
    {
-      out.Put(be.GetFullMessage());
+      out.Put(be.GetFullMessage() + "\n");
    }
    
    //------------------------------
@@ -1772,7 +1975,7 @@ void TestFunctionRunner(TestOutput &out, MathParser &mp)
    }
    catch (BaseException &be)
    {
-      out.Put(be.GetFullMessage());
+      out.Put(be.GetFullMessage() + "\n");
    }
    
    //------------------------------
@@ -1787,7 +1990,7 @@ void TestFunctionRunner(TestOutput &out, MathParser &mp)
    }
    catch (BaseException &be)
    {
-      out.Put(be.GetFullMessage());
+      out.Put(be.GetFullMessage() + "\n");
    }
    
    //------------------------------
@@ -1802,7 +2005,7 @@ void TestFunctionRunner(TestOutput &out, MathParser &mp)
    }
    catch (BaseException &be)
    {
-      out.Put(be.GetFullMessage());
+      out.Put(be.GetFullMessage() + "\n");
    }
 }
 
@@ -1848,12 +2051,125 @@ void TestSpecialParsing(TestOutput &out, MathParser &mp)
    bool expBoolVal;
    MathNode *node = NULL;
    Rmatrix unsetMat;
+   Array *arrI = NULL;
+
+   #if 1
+   expstr = "atan2(arrLHSArg(3,3),arrRHSArg(3,3))";
+   node = mp.Parse(expstr);
+   delete node;
+   #endif
+
+   
+   #if 1
+   try
+   {
+      expstr = "atan2(a,b,c)";
+      node = mp.Parse(expstr);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage() + "\n");
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+   }
+   #endif
+   
+   
+   #if 1
+   try
+   {
+      expstr = "atan2(arrLHSArg(3,3),)";
+      node = mp.Parse(expstr);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage() + "\n");
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+   }
+   #endif
+   
+   
+   #if 1
+   try
+   {
+      expstr = "atan2(arrLHSArg(3,3)+1234.123)";
+      node = mp.Parse(expstr);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage() + "\n");
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+   }
+   
+   try
+   {
+      expstr = "atan2(arrLHSArg(3,3)arrRHSArg(3,3))";
+      node = mp.Parse(expstr);
+      delete node;
+   }
+   catch (BaseException &be)
+   {
+      out.Put(be.GetFullMessage() + "\n");
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+   }
+   #endif
+
+   
+   #if 1
+   //------------------------------
+   expstr = "Rad2Deg(-6.283185307179586)";
+   node = mp.Parse(expstr);
+   delete node;
    
    //------------------------------
+   expstr = "2+3+4";
+   node = mp.Parse(expstr);
+   delete node;
+   
+   //------------------------------
+   expstr = "2.0e-1 + 3.0e-1 + 4.0e+0";
+   node = mp.Parse(expstr);
+   delete node;
+   
+   //------------------------------
+   expstr = "(rv'*vv)*vv";
+   node = mp.Parse(expstr);
+   delete node;
+   
+   //------------------------------
+   expstr = "((v^2 - mu/r)*rv - (rv'*vv)*vv)/mu";
+   node = mp.Parse(expstr);
+   delete node;
+   
+   //------------------------------
+   expstr = "2^3^4";
+   node = mp.Parse(expstr);
+   delete node;
+   
+   //------------------------------
+   expstr = "-218.6  /  -248.715095169  / (   -209.5774  /  -132.61614521353   )   ";
+   node = mp.Parse(expstr);
+   delete node;
+   
+   //------------------------------
+   expstr = "count + 1";
+   node = mp.Parse(expstr);
+   delete node;
+   
+   //------------------------------
+   expstr = "-(-0.001008965327910524)^869.28";
+   node = mp.Parse(expstr);
+   delete node;
+   #endif
+   
+   #if 1
+   //------------------------------
    //@note SetParameters() assumes input matrix is arrI
-   #if 0
+   #if 1
    expstr = "norm(arrI)";
-   Array *arrI = new Array("arrI");   
+   arrI = new Array("arrI");   
    arrI->SetSize(1,4);
    Rmatrix matI(1, 4, 0.0, 1.0, 2.0, 3.0);
    arrI->SetRmatrixParameter("RmatValue", matI);
@@ -1867,11 +2183,11 @@ void TestSpecialParsing(TestOutput &out, MathParser &mp)
    delete node;
    #endif
    
-   #if 0
+   #if 1
    //------------------------------
    expstr = "norm(RadToDeg(DegToRad(exp(log10(-log(atan(acos(asin(tan(cos(sin(3)))/( 1.5239+ 10 )))/( 1.4378+ 10 ))))))))";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put("IsEquation(" + expstr + "} should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    node = mp.Parse(expstr);
@@ -1880,11 +2196,11 @@ void TestSpecialParsing(TestOutput &out, MathParser &mp)
    delete node;
    #endif
    
-   #if 0
+   #if 1
    //------------------------------
    expstr = "norm(2.3)";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put("IsEquation(" + expstr + ") should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    node = mp.Parse(expstr);
@@ -1893,36 +2209,34 @@ void TestSpecialParsing(TestOutput &out, MathParser &mp)
    delete node;
    #endif
 
-   #if 0
+   #if 1
    //------------------------------
    expstr = "det(3.5)";
    expBoolVal = true;
-   boolVal = mp.IsEquation(expstr);
+   boolVal = mp.IsEquation(expstr, false);
    out.Put("IsEquation(" + expstr + ") should return ", expBoolVal);
    out.Validate(boolVal, expBoolVal);
    node = mp.Parse(expstr);
    expRealVal = 3.5;
    EvaluateNode(node, out, expRealVal, unsetMat);
    delete node;
-   #endif
    
-   #if 0
    //------------------------------
    expstr = "inv(((arrI)))";
-   Array *arrI = new Array("arrI");
+   arrI = new Array("arrI");
    arrI->SetSize(3,3);
-   Rmatrix matI(3, 3, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
-   arrI->SetRmatrixParameter("RmatValue", matI);
+   Rmatrix matII(3, 3, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+   arrI->SetRmatrixParameter("RmatValue", matII);
    out.Put("arrI =\n", arrI->GetRmatrixParameter("RmatValue"));
-   out.Put(expstr + " should return\n", matI);
+   out.Put(expstr + " should return\n", matII);
    node = mp.Parse(expstr);
    SetParameters(node, "arrI", arrI, "arrI", arrI);
-   EvaluateNode(node, out, expRealVal, matI);
+   EvaluateNode(node, out, expRealVal, matII);
    delete arrI;
    delete node;
    #endif
    
-   #if 0
+   #if 1
    //------------------------------
    expstr = "(inv(arrI))^2"; // works!
    node = mp.Parse(expstr);
@@ -1938,7 +2252,7 @@ void TestSpecialParsing(TestOutput &out, MathParser &mp)
    delete node;
    #endif
    
-   #if 0
+   #if 1
    //------------------------------
    expstr = "inv(arr_55 - arr_51*arr_15)'";
    node = mp.Parse(expstr);
@@ -1951,22 +2265,208 @@ void TestSpecialParsing(TestOutput &out, MathParser &mp)
    node = mp.Parse(expstr);
    delete node;
    #endif
+
+   // Not working
+//    #if 1
+//    expstr = "inv(((arr_22*arr_22)+(inv((arr_22*arr_23*arr_32))' ))' -inv(((arr_23*arr_32)' )))";
+//    arrI = new Array("arrI");
+//    arrI->SetSize(3,3);
+//    Rmatrix matIa(3, 3, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+//    arrI->SetRmatrixParameter("RmatValue", matIa);
+//    out.Put("arrI =\n", arrI->GetRmatrixParameter("RmatValue"));
+//    out.Put(expstr + " should return\n", matIa);
+//    node = mp.Parse(expstr);
+//    SetParameters(node, "arrI", arrI, "arrI", arrI);
+//    EvaluateNode(node, out, expRealVal, matIa);
+//    delete arrI;
+//    delete node;
+//    #endif
+   
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void TestMathFunctions(TestOutput &out, MathParser &mp)
+//------------------------------------------------------------------------------
+void TestMathFunctions(TestOutput &out, MathParser &mp)
+{
+   out.Put("============================== Test BuiltInMathFunctions");
+   
+   std::string expstr;
+   Real expRealVal;
+   Rmatrix unsetMat;
+   MathNode *node = NULL;
+   
+   //------------------------------
+   expstr = "-tan(11.907)  + 1.47756418563724";
+   expRealVal = -tan(11.907)  + 1.47756418563724;
+   out.Put(expstr + " should return\n", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "transpose(-5)";
+   expRealVal = -5.0;
+   out.Put(expstr + " should return\n", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   // Not working since Math uses ElementWrappers.
+//    //------------------------------
+//    Rmatrix matA(1, 1, 10.0);
+//    Array *arrA = new Array("arrA");
+//    arrA->SetSize(1,1);
+//    expstr = "transpose(arrA)";
+//    Rmatrix expMatA = matA.Transpose();
+//    out.Put(expstr + " should return\n", expMatA);
+//    node = mp.Parse(expstr);
+//    SetParameters(node, "arrA", arrA, "", NULL);      
+//    EvaluateNode(node, out, expRealVal, expMatA);
+//    delete node;
+   
+   //------------------------------
+   expstr = "norm(-45)";
+   expRealVal = 45.0;
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+   //------------------------------
+   expstr = "Rad2Deg(-6.283185307179586)";
+   expRealVal = GmatMathUtil::RadToDeg(-6.283185307179586);
+   out.Put(expstr + " should return ", expRealVal);
+   node = mp.Parse(expstr);
+   EvaluateNode(node, out, expRealVal, unsetMat);
+   delete node;
+   
+}
+
+
+//------------------------------------------------------------------------------
+// void TestValidation(TestOutput &out, MathParser &mp)
+//------------------------------------------------------------------------------
+void TestValidation(TestOutput &out, MathParser &mp)
+{
+   out.Put("============================== Test Validation");
+   
+   std::string expstr;
+   Real expRealVal;
+   Rmatrix unsetMat;
+   MathNode *node = NULL;
+   
+   try
+   {
+      expstr = "-norm(2,3)";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
    
    #if 0
-   expstr = "inv(((arr_22*arr_22)+(inv((arr_22*arr_23*arr_32))' ))' -inv(((arr_23*arr_32)' )))";
-   Array *arrI = new Array("arrI");
-   arrI->SetSize(3,3);
-   Rmatrix matI(3, 3, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
-   arrI->SetRmatrixParameter("RmatValue", matI);
-   out.Put("arrI =\n", arrI->GetRmatrixParameter("RmatValue"));
-   out.Put(expstr + " should return\n", matI);
-   node = mp.Parse(expstr);
-   SetParameters(node, "arrI", arrI, "arrI", arrI);
-   EvaluateNode(node, out, expRealVal, matI);
-   delete arrI;
-   delete node;
+   try
+   {
+      expstr = "-norm(1+2, 3+4)";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
+   
+   try
+   {
+      expstr = "-norm()";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
+   
+   try
+   {
+      expstr = "-Atan2()";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
+   
+   try
+   {
+      expstr = "Atan2(1+2, 2+3, 3+4)";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
    #endif
    
+   
+   #if 0
+   try
+   {
+      expstr = "123 + ";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
+   
+   try
+   {
+      expstr = "123 / ";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
+   
+   try
+   {
+      expstr = "* 123";
+      out.Put(expstr + " should throw an exception");
+      node = mp.Parse(expstr);
+      EvaluateNode(node, out, expRealVal, unsetMat);
+   }
+   catch (BaseException &be)
+   {
+      MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
+      out.Put(be.GetFullMessage() + "\n");
+   }
+
+   #endif
 }
 
 
@@ -1984,11 +2484,35 @@ int RunTest(TestOutput &out)
    try
    {
       #if 0
-      TestIsEquation(out, mp);
       TestFindLowestOperator(out, mp);
+      #endif
+      
+      #if 0
+      TestSpecialParsing(out, mp);
+      #endif
+      
+      #if 0
       TestOpsWithNumber(out, mp);
-      TestOpsWithNumberWithParen(out, mp);
+      #endif
+      
+      #if 0
+      TestMathFunctions(out, mp);
+      #endif
+      
+      #if 1
+      TestValidation(out, mp);
+      #endif
+      
+      #if 0
+      TestIsEquation(out, mp);
+      #endif
+      
+      #if 0
       TestFunctionWithNumber(out, mp);
+      #endif
+      
+      #if 0
+      TestOpsWithNumberWithParen(out, mp);
       TestOpsWithMatrix(out, mp);
       TestLongEquations(out, mp);
       TestJustParsing(out, mp);
@@ -1997,8 +2521,6 @@ int RunTest(TestOutput &out)
       ////TestArray(out, mp);    // currently not working due to NULL ElementWrapper
       ////TestFunctionRunner(out, mp); // currently not working due to NULL Function
       #endif
-      
-      TestSpecialParsing(out, mp);
       
       // Just testing StringArray
       #if 0
@@ -2027,8 +2549,8 @@ int RunTest(TestOutput &out)
    }
    catch (BaseException &e)
    {
-      MessageInterface::ShowMessage(e.GetFullMessage());
-      out.Put(e.GetFullMessage());
+      MessageInterface::ShowMessage(e.GetFullMessage() + "\n");
+      out.Put(e.GetFullMessage() + "\n");
       throw MathException("\n>>>>> Unit testing of MathParser was Unsuccessful!!");
    }
    
@@ -2068,7 +2590,7 @@ int main(int argc, char *argv[])
    }
    catch (BaseException &e)
    {
-      out.Put(e.GetFullMessage());
+      out.Put(e.GetFullMessage() + "\n");
    }
    catch (...)
    {

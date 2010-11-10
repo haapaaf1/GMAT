@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  TestStringUtil
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2005/02/14
@@ -38,6 +38,14 @@ int RunTest(TestOutput &out)
    StringArray itemNames;
    
    out.Put("");
+   
+   out.Put("============================== test GmatStringUtil::DecomposeBy(' ')");
+   //---------------------------------------------
+   str = "input String XX";
+   out.Put(str);
+   itemNames = DecomposeBy(str, " ");
+   out.Validate(itemNames[0], "input");
+   out.Validate(itemNames[1], "String XX");
    
    out.Put("============================== test GmatStringUtil::RemoveLastString()");
    //---------------------------------------------
@@ -947,6 +955,30 @@ int RunTest(TestOutput &out)
    str1 = ReplaceName(str, "M", "MMM");
    out.Validate(str1, str);
    
+   out.Put("");
+   out.Put("============================== test GmatStringUtil::ReplaceNumber()");
+   
+   //------------------------------
+   str = "3.14e-0";
+   out.Put(str);
+   str1 = ReplaceNumber(str, "e-", "e#");
+   out.Validate(str1, "3.14e#0");
+   
+   //------------------------------
+   str = "3.14e-0+e-3.14";
+   out.Put(str);
+   str1 = ReplaceNumber(str, "e-", "e#");
+   out.Validate(str1, "3.14e#0+e-3.14");
+   
+   //------------------------------
+   str = "3.14e-0+e-3.14-1.2E+1";
+   out.Put(str);
+   str1 = ReplaceNumber(str, "e-", "e#");
+   out.Validate(str1, "3.14e#0+e-3.14-1.2E+1");
+
+   str1 = ReplaceNumber(str1, "E+", "E#");
+   out.Validate(str1, "3.14e#0+e-3.14-1.2E#1");
+   
    out.Put("============================== test GmatStringUtil::GetArrayIndexVar(rowStr, colStr)");
    std::string rowStr, colStr;
    std::string name;
@@ -1616,7 +1648,7 @@ int main(int argc, char *argv[])
    try
    {
       RunTest(out);
-      out.Put("\nSuccessfully ran unit testing of RealUtilities!!");
+      out.Put("\nSuccessfully ran unit testing of StingUtil!!");
    }
    catch (UtilityException &e)
    {

@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
 #include "gmatdefs.hpp"
 #include "RealTypes.hpp"
 #include "TimeTypes.hpp"
@@ -22,6 +23,7 @@
 #include "TestOutput.hpp"
 #include "MessageInterface.hpp"
 #include "ConsoleMessageReceiver.hpp"
+#include "FileManager.hpp"             // for ReadStartupFile()
 
 using namespace std;
 using namespace GmatMathUtil;
@@ -33,6 +35,7 @@ int RunTest(TestOutput &out)
 {
    Real x = 0.0;
    Real tol = 1.0e-11;
+   bool bval = false;
    
    out.Put("");
 
@@ -111,7 +114,15 @@ int RunTest(TestOutput &out)
    out.Put("========================= Acos(-1.0000000000000002)");
    out.Put(ACos(x, tol));
    out.Put("");
-
+   
+   bval = IsNaN(sqrt(-1.0));
+   out.Put("========================= IsNaN(Sqrt(-1))");
+   out.Validate(bval, true);
+   
+   bval = IsInf(1e+1000);
+   out.Put("========================= IsInf(1e+1000)");
+   out.Validate(bval, true);
+   
    try
    {
       x = -1.0000000000000002;
@@ -158,12 +169,22 @@ int RunTest(TestOutput &out)
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+   std::string startupFile = "gmat_startup_file.txt";
+   FileManager *fm = FileManager::Instance();
+   fm->ReadStartupFile(startupFile);
+   
    ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
    MessageInterface::SetMessageReceiver(consoleMsg);
    std::string outPath = "../../TestRealUtil/";
    MessageInterface::SetLogFile(outPath + "GmatLog.txt");
-   std::string outFile = outPath + "TestRealUtil.txt";
+   std::string outFile = outPath + "TestRealUtilOut.txt";
    TestOutput out(outFile);
+   out.Put(GmatTimeUtil::FormatCurrentTime());
+   MessageInterface::ShowMessage("%s\n", GmatTimeUtil::FormatCurrentTime().c_str());
+   
+   // Set global format setting
+   GmatGlobal *global = GmatGlobal::Instance();
+   global->SetActualFormat(false, false, 16, 1, false);
    
    try
    {

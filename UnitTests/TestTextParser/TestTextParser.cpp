@@ -1266,6 +1266,19 @@ void TestParsePropagateCommand(TextParser &tp, TestOutput &out)
    str1 = prop1 + ", " + " {" + expStop1 + "} )";
    str  = str1;
    ParsePropagateCommand(out, tp, str, expProp1, expStop1, expStop2);
+   
+   out.Put("---------------------------------------- ParsePropagate 14");
+   prop1 = "Prop1(Sat1";
+   expProp1 = prop1 + ")";
+   prop2 = "";
+   expProp2 = prop2;
+   expStop1 = "Sat1.Apoapsis";
+   expStop2 = "";
+   expStop3 = "";
+   expStop4 = "";
+   str1 = prop1 + ", " + " {" + expStop1 + "} )";
+   str  = str1;
+   ParsePropagateCommand(out, tp, str, expProp1, expStop1, expStop2);
 }
 
 
