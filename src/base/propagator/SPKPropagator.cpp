@@ -621,7 +621,10 @@ bool SPKPropagator::Initialize()
 
                   currentEpoch = initialEpoch + timeFromEpoch /
                         GmatTimeUtil::SECS_PER_DAY;
-                  if ((currentEpoch < ephemStart) || (currentEpoch > ephemEnd))
+
+                  // Allow for slop in the last few bits
+                  if ((currentEpoch < ephemStart - 1e-10) ||
+                      (currentEpoch > ephemEnd + 1e-10))
                   {
                      std::stringstream errmsg;
                      errmsg.precision(16);
@@ -650,6 +653,7 @@ bool SPKPropagator::Initialize()
             {
                MessageInterface::ShowMessage(e.GetFullMessage());
                retval = false;
+               throw;
             }
          }
       }
@@ -710,7 +714,9 @@ bool SPKPropagator::Step()
             currentEpoch = initialEpoch + timeFromEpoch /
                   GmatTimeUtil::SECS_PER_DAY;
 
-            if ((currentEpoch < ephemStart) || (currentEpoch > ephemEnd))
+            // Allow for slop in the last few bits
+            if ((currentEpoch < ephemStart - 1e-10) ||
+                (currentEpoch > ephemEnd + 1e-10))
             {
                std::stringstream errmsg;
                errmsg.precision(16);
@@ -755,6 +761,7 @@ bool SPKPropagator::Step()
       {
          MessageInterface::ShowMessage(e.GetFullMessage());
          retval = false;
+         throw;
       }
    }
 
@@ -826,7 +833,9 @@ void SPKPropagator::UpdateState()
             std::string scName = propObjectNames[i];
             Integer id = naifIds[i];
 
-            if ((currentEpoch < ephemStart) || (currentEpoch > ephemEnd))
+            // Allow for slop in the last few bits
+            if ((currentEpoch < ephemStart - 1e-10) ||
+                (currentEpoch > ephemEnd + 1e-10))
             {
                std::stringstream errmsg;
                errmsg.precision(16);
@@ -868,6 +877,7 @@ void SPKPropagator::UpdateState()
       catch (BaseException &e)
       {
          MessageInterface::ShowMessage(e.GetFullMessage());
+         throw;
       }
    }
 }
