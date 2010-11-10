@@ -1172,7 +1172,8 @@ void PropSetup::ClonePropagator(Propagator *prop)
    {
       mPropagatorName = "";
       mPropagator = (Propagator *)(prop->Clone());
-      mPropagator->SetName(instanceName);
+      // This change breaks the Save
+//      mPropagator->SetName(instanceName);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (mPropagator, mPropagatorName, "PropSetup::ClonePropagator()",
