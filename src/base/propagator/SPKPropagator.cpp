@@ -63,6 +63,8 @@ SPKPropagator::SPKPropagator(const std::string &name) :
    // GmatBase data
   objectTypeNames.push_back("SPK");
   parameterCount = SPKPropagatorParamCount;
+
+  spkCentralBody = centralBody;
 }
 
 
@@ -96,7 +98,8 @@ SPKPropagator::~SPKPropagator()
 //------------------------------------------------------------------------------
 SPKPropagator::SPKPropagator(const SPKPropagator & spk) :
    EphemerisPropagator        (spk),
-   skr                        (NULL)
+   skr                        (NULL),
+   spkCentralBody             (spk.spkCentralBody)
 {
 }
 
@@ -119,6 +122,7 @@ SPKPropagator & SPKPropagator::operator =(const SPKPropagator & spk)
       EphemerisPropagator::operator=(spk);
 
       skr = NULL;
+      spkCentralBody = spk.spkCentralBody;
    }
 
    return *this;
@@ -306,6 +310,7 @@ std::string SPKPropagator::GetStringParameter(const Integer id) const
 bool SPKPropagator::SetStringParameter(const Integer id,
       const std::string &value)
 {
+
    if (id == SPKFILENAMES)
    {
       if (value != "")
@@ -315,7 +320,15 @@ bool SPKPropagator::SetStringParameter(const Integer id,
       return true;         // Idempotent, so return true
    }
 
-   return EphemerisPropagator::SetStringParameter(id, value);
+   bool retval = EphemerisPropagator::SetStringParameter(id, value);
+
+   if ((retval = true) && (id == EPHEM_CENTRAL_BODY))
+      if (centralBody == "Luna")
+         spkCentralBody = "Moon";
+      else
+         spkCentralBody = centralBody;
+
+   return retval;
 }
 
 
@@ -639,7 +652,7 @@ bool SPKPropagator::Initialize()
                      throw PropagatorException(errmsg.str());
                   }
                   outState = skr->GetTargetState(scName, id, currentEpoch,
-                        centralBody);
+                        spkCentralBody);
 
                   std::memcpy(state, outState.GetDataVector(),
                         dimension*sizeof(Real));
@@ -732,7 +745,7 @@ bool SPKPropagator::Step()
             }
 
             outState = skr->GetTargetState(scName, id, currentEpoch,
-                  centralBody);
+                  spkCentralBody);
 
             /**
              *  @todo: When SPKProp can evolve more than one spacecraft, these
@@ -851,7 +864,7 @@ void SPKPropagator::UpdateState()
             }
 
             outState = skr->GetTargetState(scName, id, currentEpoch,
-                  centralBody);
+                  spkCentralBody);
 
             /**
              *  @todo: When SPKProp can evolve more than one spacecraft, this

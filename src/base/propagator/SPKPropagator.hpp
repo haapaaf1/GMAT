@@ -89,6 +89,9 @@ protected:
    /// J2000 Epoch from the SPICE library
    SpiceDouble j2ET;
 
+   /// Central body string used by SPK (needed because of Luna/Moon names)
+   std::string spkCentralBody;
+
    SpiceOrbitKernelReader *skr;
 
 

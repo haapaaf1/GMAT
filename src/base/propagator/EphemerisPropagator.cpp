@@ -801,20 +801,22 @@ void EphemerisPropagator::SetSolarSystem(SolarSystem *ss)
    {
       solarSystem = ss;
 
-      std::string bName = centralBody;
-      if (bName == "Moon")
-         bName = "Luna";
-      propOrigin = solarSystem->GetBody(bName);
+      // "Moon" no longer allowed
+//      std::string bName = centralBody;
+//      if (bName == "Moon")
+//         bName = "Luna";
+      propOrigin = solarSystem->GetBody(centralBody);
 
       if (propOrigin == NULL)
          throw ODEModelException(
             "Ephemeris propagator origin (" + centralBody +
             ") was not found in the solar system");
 
-      bName = j2kBodyName;
-      if (bName == "Moon")
-         bName = "Luna";
-      j2kBody = solarSystem->GetBody(bName);
+      // "Moon" no longer allowed
+//      bName = j2kBodyName;
+//      if (bName == "Moon")
+//         bName = "Luna";
+      j2kBody = solarSystem->GetBody(j2kBodyName);
    }
 }
 
