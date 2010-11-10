@@ -83,6 +83,7 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
    stepDirection        (1.0),
    solarSystem          (NULL)
 {
+   objectTypeNames.push_back("EphemerisPropagator");
    parameterCount = EphemerisPropagatorParamCount;
 }
 
@@ -354,6 +355,10 @@ Real EphemerisPropagator::GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
 Real EphemerisPropagator::SetRealParameter(const Integer id, const Real value)
 {
+   #ifdef DEBUG_SET_PROPAGATOR_PARAMETER
+   	MessageInterface::ShowMessage("EphemProp %p setting ID %d to %lf\n", this,
+      	   id, value);
+   #endif
    if (id == EPHEM_STEP_SIZE)
    {
       if (value != 0.0)
@@ -363,6 +368,9 @@ Real EphemerisPropagator::SetRealParameter(const Integer id, const Real value)
 
    if (id == INITIAL_STEP_SIZE)
    {
+//      if (value != 0.0)
+//         ephemStep = value;
+
       if (value < 0.0)
          stepDirection = -1.0;
       else
@@ -370,6 +378,10 @@ Real EphemerisPropagator::SetRealParameter(const Integer id, const Real value)
       // Let this fall through to Propagator, so no return here
    }
 
+   #ifdef DEBUG_SET_PROPAGATOR_PARAMETER
+      MessageInterface::ShowMessage("   ---> <%p> has ephem step %lf\n", this, ephemStep);
+   #endif
+   
    return Propagator::SetRealParameter(id, value);
 }
 
