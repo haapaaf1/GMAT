@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                               FuelTank
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2004/11/08
@@ -123,7 +123,8 @@ public:
    /// Published parameters for generic fuel tanks
    enum
    {
-      FUEL_MASS = HardwareParamCount, 
+      ALLOW_NEGATIVE_FUEL_MASS = HardwareParamCount,
+      FUEL_MASS,
       PRESSURE, 
       TEMPERATURE,
       REFERENCE_TEMPERATURE,
@@ -131,7 +132,6 @@ public:
       FUEL_DENSITY,
       PRESSURE_MODEL,
       PRESSURE_REGULATED,  // deprecated
-      ALLOW_NEGATIVE_FUEL_MASS,
       FuelTankParamCount
    };
    

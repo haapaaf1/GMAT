@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                               FuelTank
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2004/11/08
@@ -35,6 +35,7 @@ StringArray FuelTank::pressureModelList;
 const std::string
 FuelTank::PARAMETER_TEXT[FuelTankParamCount - HardwareParamCount] =
 {
+   "AllowNegativeFuelMass",
    "FuelMass",
    "Pressure", 
    "Temperature",
@@ -43,13 +44,13 @@ FuelTank::PARAMETER_TEXT[FuelTankParamCount - HardwareParamCount] =
    "FuelDensity",
    "PressureModel",
    "PressureRegulated",  // deprecated
-   "AllowNegativeFuelMass",
 };
 
 /// Types of the parameters used by fuel tanks.
 const Gmat::ParameterType
 FuelTank::PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount] =
 {
+   Gmat::BOOLEAN_TYPE,     // "AllowNegativeFuelMass"
    Gmat::REAL_TYPE,        // "FuelMass",
    Gmat::REAL_TYPE,        // "Pressure", 
    Gmat::REAL_TYPE,        // "Temperature",
@@ -58,7 +59,6 @@ FuelTank::PARAMETER_TYPE[FuelTankParamCount - HardwareParamCount] =
    Gmat::REAL_TYPE,        // "FuelDensity",
    Gmat::ENUMERATION_TYPE, // "PressureModel",
    Gmat::BOOLEAN_TYPE,     // deprecated
-   Gmat::BOOLEAN_TYPE,     // "AllowNegativeFuelMass"
 };
 
 
