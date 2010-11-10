@@ -931,6 +931,10 @@ Real PropSetup::GetRealParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 Real PropSetup::SetRealParameter(const Integer id, const Real value)
 {
+   #ifdef DEBUG_SET_PROPAGATOR_PARAMETER
+      MessageInterface::ShowMessage("PropSetup::SetRealParameter(%d <%s>, %lf) "
+            "called\n", id, GetParameterText(id).c_str(), value);
+   #endif
    switch (id)
    {
       case ACCURACY:
@@ -1168,6 +1172,7 @@ void PropSetup::ClonePropagator(Propagator *prop)
    {
       mPropagatorName = "";
       mPropagator = (Propagator *)(prop->Clone());
+      mPropagator->SetName(instanceName);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (mPropagator, mPropagatorName, "PropSetup::ClonePropagator()",
@@ -1333,6 +1338,10 @@ Integer PropSetup::GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const
                ("PropSetup::GetOwnedObjectId() failed: Propagator is NULL");
          
          actualId = mPropagator->GetParameterID(GetParameterText(id));
+
+         #ifdef DEBUG_SET_PROPAGATOR_PARAMETER
+            MessageInterface::ShowMessage("   Actual ID is %d\n", actualId);
+			#endif
       }
       else if (objType == Gmat::ODE_MODEL)
       {
