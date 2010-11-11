@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ParameterWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -27,6 +27,7 @@
 
 //#define DEBUG_PW
 //#define DEBUG_PW_REFOBJ
+//#define DEBUG_PARAMETER_WRAPPER
 
 //---------------------------------
 // static data
