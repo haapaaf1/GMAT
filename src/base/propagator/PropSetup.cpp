@@ -1142,9 +1142,18 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
          gen = mODEModel->GetGeneratingString(mode, prefix, fmName) + "\n";
    }
    
+   // Temporarily rename propagator to the type name so the Type field fills
+   std::string pname = mPropagator->GetName();
+   if (mPropagator != NULL)
+      mPropagator->SetName(mPropagator->GetTypeName());
+
    gen += GmatBase::GetGeneratingString(mode, prefix, useName);
    generatingString = gen;
    
+   // Reset the name
+   if (mPropagator != NULL)
+      mPropagator->SetName(pname);
+
    #ifdef DEBUG_PROPSETUP_GEN_STRING
    MessageInterface::ShowMessage
       ("PropSetup::GetGeneratingString() <%p>'%s' returning\n%s\n", this,
@@ -1172,8 +1181,7 @@ void PropSetup::ClonePropagator(Propagator *prop)
    {
       mPropagatorName = "";
       mPropagator = (Propagator *)(prop->Clone());
-      // This change breaks the Save
-//      mPropagator->SetName(instanceName);
+      mPropagator->SetName(instanceName);
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (mPropagator, mPropagatorName, "PropSetup::ClonePropagator()",
