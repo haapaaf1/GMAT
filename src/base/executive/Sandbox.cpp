@@ -44,6 +44,7 @@
 //#define DEBUG_SANDBOX_OBJECT_MAPS
 //#define DBGLVL_SANDBOX_RUN 1
 //#define DEBUG_SANDBOX_CLEAR
+//#define DEBUG_SANDBOX_CLONING
 //#define DEBUG_SS_CLONING
 
 //#ifndef DEBUG_MEMORY
@@ -78,43 +79,6 @@ Sandbox::Sandbox() :
    pollFrequency     (50),
    objInit           (NULL)
 {
-   #ifdef DEBUG_SANDBOX_CLONING
-      // List of the objects that can safely be cloned.  This list will be removed
-      // when the cloning has been tested for all of GMAT's classes.
-      clonable.push_back(Gmat::SPACECRAFT);
-      clonable.push_back(Gmat::FORMATION);
-      clonable.push_back(Gmat::SPACEOBJECT);
-      clonable.push_back(Gmat::GROUND_STATION);
-      clonable.push_back(Gmat::BURN);
-      clonable.push_back(Gmat::IMPULSIVE_BURN);
-      clonable.push_back(Gmat::FINITE_BURN);
-      clonable.push_back(Gmat::COMMAND);
-      clonable.push_back(Gmat::PROPAGATOR);
-      clonable.push_back(Gmat::ODE_MODEL);
-      clonable.push_back(Gmat::PHYSICAL_MODEL);
-      clonable.push_back(Gmat::TRANSIENT_FORCE);
-      clonable.push_back(Gmat::INTERPOLATOR);
-      clonable.push_back(Gmat::SPACE_POINT);
-      clonable.push_back(Gmat::CELESTIAL_BODY);
-      clonable.push_back(Gmat::CALCULATED_POINT);
-      clonable.push_back(Gmat::LIBRATION_POINT);
-      clonable.push_back(Gmat::BARYCENTER);
-      clonable.push_back(Gmat::ATMOSPHERE);
-      clonable.push_back(Gmat::PARAMETER);
-      clonable.push_back(Gmat::STOP_CONDITION);
-      clonable.push_back(Gmat::SOLVER);
-      clonable.push_back(Gmat::SUBSCRIBER);
-      clonable.push_back(Gmat::PROP_SETUP);
-      clonable.push_back(Gmat::FUNCTION);
-      clonable.push_back(Gmat::FUEL_TANK);
-      clonable.push_back(Gmat::THRUSTER);
-      clonable.push_back(Gmat::HARDWARE);
-      clonable.push_back(Gmat::COORDINATE_SYSTEM);
-      clonable.push_back(Gmat::AXIS_SYSTEM);
-   #endif
-
-   // SolarSystem instances are handled separately from the other objects
-   // clonable.push_back(Gmat::SOLAR_SYSTEM);
 }
 
 
@@ -217,9 +181,8 @@ GmatBase* Sandbox::AddObject(GmatBase *obj)
    {
       // If not, store the new object pointer
       #ifdef DEBUG_SANDBOX_CLONING
-      if (find(clonable.begin(), clonable.end(), obj->GetType()) !=
-          clonable.end())
-      {
+         MessageInterface::ShowMessage("Cloning %s <%p> -> ",
+               obj->GetName().c_str(), obj);
       #endif
          #ifdef DEBUG_SANDBOX_OBJECT_MAPS
          MessageInterface::ShowMessage(
@@ -235,9 +198,12 @@ GmatBase* Sandbox::AddObject(GmatBase *obj)
          #endif
          SetObjectByNameInMap(name, cloned);
       #ifdef DEBUG_SANDBOX_CLONING
-      }
-      else
-         SetObjectByNameInMap(name, obj);
+         MessageInterface::ShowMessage("<%p>\n", cloned);
+
+         if (cloned->IsOfType(Gmat::PROP_SETUP))
+            MessageInterface::ShowMessage("   PropSetup propagator <%p> -> "
+                  "<%p>\n", ((PropSetup*)(obj))->GetPropagator(),
+                  ((PropSetup*)(cloned))->GetPropagator());
       #endif
    }
    else
@@ -983,24 +949,18 @@ void Sandbox::Clear()
       if ((omi->second != NULL) && (omi->second)->GetType() == Gmat::SUBSCRIBER)
          publisher->Unsubscribe((Subscriber*)(omi->second));
       
-      #ifdef DEBUG_SANDBOX_CLONING
-         if (find(clonable.begin(), clonable.end(),
-             (omi->second)->GetType()) != clonable.end())
+      #ifdef DEBUG_SANDBOX_OBJECT_MAPS
+         MessageInterface::ShowMessage("   Deleting <%p>'%s'\n", omi->second,
+            (omi->second)->GetName().c_str());
       #endif
-      {
-         #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-            MessageInterface::ShowMessage("   Deleting <%p>'%s'\n", omi->second,
-               (omi->second)->GetName().c_str());
-         #endif
-         #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
-               (omi->second, omi->first, "Sandbox::Clear()",
-                " deleting cloned obj from objectMap");
-         #endif
-         delete omi->second;
-         omi->second = NULL;
-         //objectMap.erase(omi);
-      }
+      #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (omi->second, omi->first, "Sandbox::Clear()",
+             " deleting cloned obj from objectMap");
+      #endif
+      delete omi->second;
+      omi->second = NULL;
+      //objectMap.erase(omi);
    }
    #ifdef DEBUG_SANDBOX_CLEAR
    MessageInterface::ShowMessage
@@ -1018,24 +978,18 @@ void Sandbox::Clear()
       if ((omi->second != NULL) && (omi->second)->GetType() == Gmat::SUBSCRIBER)
          publisher->Unsubscribe((Subscriber*)(omi->second));
       
-      #ifdef DEBUG_SANDBOX_CLONING
-         if (find(clonable.begin(), clonable.end(),
-             (omi->second)->GetType()) != clonable.end())
+      #ifdef DEBUG_SANDBOX_OBJECT_MAPS
+         MessageInterface::ShowMessage("   Deleting <%p>'%s'\n", omi->second,
+            (omi->second)->GetName().c_str());
       #endif
-      {
-         #ifdef DEBUG_SANDBOX_OBJECT_MAPS
-            MessageInterface::ShowMessage("   Deleting <%p>'%s'\n", omi->second,
-               (omi->second)->GetName().c_str());
-         #endif
-         #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
-               (omi->second, omi->first, "Sandbox::Clear()",
-                " deleting cloned obj from globalObjectMap");
-         #endif
-         delete omi->second;
-         omi->second = NULL;
-         //globalObjectMap.erase(omi);
-      }
+      #ifdef DEBUG_MEMORY
+         MemoryTracker::Instance()->Remove
+            (omi->second, omi->first, "Sandbox::Clear()",
+             " deleting cloned obj from globalObjectMap");
+      #endif
+      delete omi->second;
+      omi->second = NULL;
+      //globalObjectMap.erase(omi);
    }
    
    #ifdef DEBUG_SANDBOX_CLEAR

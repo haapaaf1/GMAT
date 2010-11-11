@@ -47,6 +47,7 @@
 //#define DEBUG_FUNCTION 1
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_ASSIGN_CALLING_FUNCTION
+//#define DEBUG_CLONE_UPDATES
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -904,6 +905,12 @@ bool Assignment::Execute()
    
    ElementWrapper *outWrapper = NULL;
    
+   #ifdef DEBUG_CLONE_UPDATES
+      GmatBase *ptr = lhsWrapper->GetRefObject();
+      MessageInterface::ShowMessage("Assignment LHS object is %s <%p>\n",
+            ptr->GetName().c_str(), ptr);
+   #endif
+
    try
    {
       bool retval = false;
@@ -1729,8 +1736,8 @@ void Assignment::PassToClones()
       {
          GmatBase *theClone = current->GetClone(i);
          #ifdef DEBUG_CLONE_UPDATES
-            MessageInterface::ShowMessage("Clone %d: %s\n", i, (theClone == NULL ?
-                  "is NULL" : theClone->GetName().c_str()));
+            MessageInterface::ShowMessage("Clone %d: %s <%p>\n", i, (theClone == NULL ?
+                  "is NULL" : theClone->GetName().c_str()), theClone);
          #endif
          if (theClone == NULL)
             continue;
@@ -1770,8 +1777,8 @@ void Assignment::PassToClones()
 void Assignment::MatchAttribute(Integer id, GmatBase *owner, GmatBase *receiver)
 {
    #ifdef DEBUG_CLONE_UPDATES
-      MessageInterface::ShowMessage("   MatchAttribute(%d, %s, %s) called\n", id,
-            owner->GetName().c_str(), receiver->GetName().c_str());
+      MessageInterface::ShowMessage("   MatchAttribute(%d, %s, %s) called\n",
+            id, owner->GetName().c_str(), receiver->GetName().c_str());
    #endif
 
    Gmat::ParameterType theType = owner->GetParameterType(id);

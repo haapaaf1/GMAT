@@ -191,6 +191,9 @@ Gmat::WrapperDataType ElementWrapper::GetWrapperType() const
 //------------------------------------------------------------------------------
 void ElementWrapper::ClearRefObjectNames()
 {
+   #ifdef DEBUG_EW_SET_VALUE
+      MessageInterface::ShowMessage("Clearing reference object names\n");
+   #endif
    refObjectNames.clear();
 }
 
