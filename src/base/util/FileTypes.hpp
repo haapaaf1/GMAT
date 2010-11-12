@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                FileTypes
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -23,7 +23,8 @@
 
 namespace GmatFile
 {
-   static const Integer MAX_PATH_LEN = 512;
+   static const Integer MAX_PATH_LEN = 232;
+   static const Integer MAX_FILE_LEN = 232;
    static const Integer MAX_LINE_LEN = 512;
 }
 
