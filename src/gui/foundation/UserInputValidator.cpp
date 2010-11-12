@@ -17,8 +17,9 @@
 #include "GmatPanel.hpp"
 #include "GmatDialog.hpp"
 #include "StringUtil.hpp"           // for GmatStringUtil::
+#include "FileUtil.hpp"             // for GmatFileUtil::
+#include "RealUtilities.hpp"        // for GmatMathUtil::
 #include "MessageInterface.hpp"
-#include "RealUtilities.hpp"
 
 //#define DEBUG_CHECK_REAL
 
@@ -100,6 +101,86 @@ bool UserInputValidator::IsInputValid()
 
 
 //------------------------------------------------------------------------------
+// bool IsValidName(const wxString &name)
+//------------------------------------------------------------------------------
+/*
+ * Checks for a valid name.
+ *
+ * @param  name  Input name to be valdated
+ *
+ * @return true if input name is valid, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool UserInputValidator::IsValidName(const wxString &name)
+{
+   if (name == "")
+   {
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "The name is blank, please enter a valid name");
+      
+      SetErrorFlag();
+      return false;
+   }
+   
+   if (!GmatStringUtil::IsValidName(name.c_str()))
+   {
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "\"%s\" is not a valid name. Please reenter a name.\n\n"
+          "[Name cannot be a GMAT keyword, such as \"GMAT\", \"Create\", \"function\" and \n"
+          "must begin with a letter, which may be followed by any combination "
+          "of letters, \ndigits, and underscores.]", name.c_str());
+      SetErrorFlag();
+      return false;
+   }
+   
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool CheckFileName(const wxString &str, const std::string &str,
+//                    const std::string &field, bool onlyMsg = false)
+//------------------------------------------------------------------------------
+/*
+ * Checks for a valid file name.
+ *
+ * @param  str        Input file name to be validated
+ * @param  field      Field name should be used in the error message
+ * @param  onlyMsg    if true, it only shows error message (false)
+ *
+ * @return true if input name is valid, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool UserInputValidator::CheckFileName(const std::string &str,
+                                       const std::string &field, bool onlyMsg)
+{
+   if (onlyMsg)
+   {
+      std::string msg = GmatFileUtil::GetInvalidFileNameMessage(1);
+      MessageInterface::PopupMessage
+         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
+          msg.c_str());
+      
+      SetErrorFlag();
+      return false;
+   }
+   
+   if (!GmatFileUtil::IsValidFileName(str))
+   {
+      std::string msg = GmatFileUtil::GetInvalidFileNameMessage(1);
+      MessageInterface::PopupMessage
+         (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
+          msg.c_str());
+      
+      SetErrorFlag();
+      return false;
+   }
+   
+   return true;
+}
+
+
+//------------------------------------------------------------------------------
 // bool CheckReal(Real &rvalue, const std::string &str,
 //                const std::string &field, const std::string &expRange,
 //                bool onlyMsg, bool checkRange, bool positive bool zeroOk)
@@ -168,7 +249,7 @@ bool UserInputValidator::CheckReal(Real &rvalue, const std::string &str,
    MessageInterface::PopupMessage
       (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
        expRange.c_str());
-
+   
    SetErrorFlag();
    return false;
 }
@@ -319,42 +400,6 @@ bool UserInputValidator::CheckVariable(const std::string &varName, Gmat::ObjectT
    return true;
 }
 
-
-//------------------------------------------------------------------------------
-// bool IsValidName(const wxString &name)
-//------------------------------------------------------------------------------
-/*
- * Checks for a valid name.
- *
- * @param  name  Input name to be valdated
- *
- * @return true if input name is valid, false otherwise
- */
-//------------------------------------------------------------------------------
-bool UserInputValidator::IsValidName(const wxString &name)
-{
-   if (name == "")
-   {
-      MessageInterface::PopupMessage
-         (Gmat::WARNING_, "The name is blank, please enter a valid name");
-      
-      SetErrorFlag();
-      return false;
-   }
-   
-   if (!GmatStringUtil::IsValidName(name.c_str()))
-   {
-      MessageInterface::PopupMessage
-         (Gmat::WARNING_, "\"%s\" is not a valid name. Please reenter a name.\n\n"
-          "[Name cannot be a GMAT keyword, such as \"GMAT\", \"Create\", \"function\" and \n"
-          "must begin with a letter, which may be followed by any combination "
-          "of letters, \ndigits, and underscores.]", name.c_str());
-      SetErrorFlag();
-      return false;
-   }
-   
-   return true;
-}
 
 //------------------------------------------------------------------------------
 // bool CheckRealRange(Real value, Real lower, Real upper,

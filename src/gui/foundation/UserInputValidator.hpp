@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              UserInputValidator
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/02/02
@@ -32,6 +32,10 @@ public:
    void SetWindow(wxWindow *window);
    bool IsInputValid();
    
+   bool IsValidName(const wxString &name);
+   bool CheckFileName(const std::string &str, const std::string &field,
+                      bool onlyMsg = false);
+   
    bool CheckReal(Real &rvalue, const std::string &str,
                   const std::string &field, const std::string &expRange,
                   bool onlyMsg = false, bool checkRange = false, 
@@ -46,14 +50,12 @@ public:
                       const std::string &field, const std::string &expRange,
                       bool allowNumber = true, bool allowNonPlottable = false);
    
-   bool IsValidName(const wxString &name);
-   
    bool CheckRealRange(const std::string &sValue, Real value, const std::string &field,
                        Real lower, Real upper,
                        bool checkLower = true, bool checkUpper = true,
                        bool includeLower = false,
                        bool includeUpper = false);
-
+   
    wxArrayString ToWxArrayString(const StringArray &array);
    wxString ToWxString(const wxArrayString &names);
    
