@@ -1235,6 +1235,8 @@ ObjectMap* Moderator::GetConfiguredObjectMap()
 const StringArray& Moderator::GetListOfObjects(Gmat::ObjectType type,
                                                bool excludeDefaultObjects)
 {
+   tempObjectNames.clear();
+   
    if (type == Gmat::UNKNOWN_OBJECT)
       return theConfigManager->GetListOfAllItems();
    
@@ -1269,7 +1271,12 @@ const StringArray& Moderator::GetListOfObjects(Gmat::ObjectType type,
          StringArray osptList =
             theConfigManager->GetListOfItems(Gmat::SPACE_POINT);
          for (UnsignedInt i=0; i<osptList.size(); i++)
-            tempObjectNames.push_back(osptList[i]);
+         {
+            // do not add the same object name
+            if (find(tempObjectNames.begin(), tempObjectNames.end(), osptList[i])
+                == tempObjectNames.end())
+               tempObjectNames.push_back(osptList[i]);
+         }
       }
       
       return tempObjectNames;
