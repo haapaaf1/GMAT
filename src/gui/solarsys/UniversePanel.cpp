@@ -476,9 +476,12 @@ void UniversePanel::SaveData()
 //         if (type != "Analytic" && !filename) 
          if (type != "TwoBodyPropagation" && !filename) 
          {
+            std::string fieldName = "DEFilename";
+            if (type == "SPICE")
+               fieldName = "SPKFilename";
             MessageInterface::PopupMessage
                (Gmat::ERROR_, mMsgFormat.c_str(),
-                str.c_str(), "File Name", "File must exist");
+                str.c_str(), fieldName.c_str(), "File must exist");
             canClose = false;
             return;
          }
@@ -504,9 +507,10 @@ void UniversePanel::SaveData()
 //         if (type != "Analytic" && !filename)
          if (type == "SPICE" && !filename)
          {
+            std::string fieldName = "LSKFilename";
             MessageInterface::PopupMessage
                (Gmat::ERROR_, mMsgFormat.c_str(),
-                str.c_str(), "File Name", "File must exist");
+                str.c_str(), fieldName.c_str(), "File must exist");
             canClose = false;
             return;
          }
@@ -666,5 +670,10 @@ void UniversePanel::OnTextCtrlChange(wxCommandEvent& event)
       mHasFileNameChanged = true;
    }
    
+   if (event.GetEventObject() == mLSKFileNameTextCtrl)
+   {
+      mHasLSKFileNameChanged = true;
+   }
+
    EnableUpdate(true);
 }
