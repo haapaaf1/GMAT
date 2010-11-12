@@ -197,32 +197,12 @@ std::string FileManager::GetCurrentPath()
 // bool DoesDirectoryExist(const std::string &dirPath)
 //------------------------------------------------------------------------------
 /*
- * Note: This function calls opendir() which is defiend in <dirent>. There is a
- *       problem compling with VC++ compiler, so until it is resolved, it will
- *       always return false if it is compiled with VC++ compiler.
- *
  * @return  true  If directory exist, false otherwise
  */
 //------------------------------------------------------------------------------
 bool FileManager::DoesDirectoryExist(const std::string &dirPath)
 {
-   if (dirPath == "")
-      return false;
-
-   bool dirExist = false;
-
-#ifndef _MSC_VER  // if not Microsoft Visual C++
-   DIR *dir = NULL;
-   dir = opendir(dirPath.c_str());
-
-   if (dir != NULL)
-   {
-      dirExist = true;
-      closedir(dir);
-   }
-#endif
-
-   return dirExist;
+   return GmatFileUtil::DoesDirectoryExist(dirPath);
 }
 
 
