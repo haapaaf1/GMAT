@@ -33,6 +33,9 @@ namespace GmatFileUtil
    std::string ParsePathName(const std::string &fullPath, bool appendSep = true);
    std::string ParseFileName(const std::string &fullPath);
    std::string ParseFileExtension(const std::string &fullPath, bool prependDot = false);
+   std::string GetInvalidFileNameMessage(Integer option = 1);
+   
+   bool IsValidFileName(const std::string &fname);
    bool DoesDirectoryExist(const std::string &dirPath);
    bool DoesFileExist(const std::string &filename);
    bool GetLine(std::istream *inStream, std::string &line);

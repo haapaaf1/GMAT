@@ -229,26 +229,87 @@ std::string GmatFileUtil::ParseFileExtension(const std::string &fullPath,
 
 
 //------------------------------------------------------------------------------
-// bool DoesDirectoryExist(const std::string &dirPath)
+// std::string GetInvalidFileNameMessage(Integer option = 1)
+//------------------------------------------------------------------------------
+/**
+ * Returns invalid file name message.
+ */
+//------------------------------------------------------------------------------
+std::string GmatFileUtil::GetInvalidFileNameMessage(Integer option)
+{
+   std::string msg;
+   
+   if (option == 1)
+      msg = "Maximum of 232 chars of non-blank name without containing any of "
+         "the following characters: \\/:*?\"<>| ";
+   else if (option == 2)
+      msg = "A file name cannot be blank or contain any of the following characters:\n"
+      "   \\/:*?\"<>|";
+   
+   return msg;
+}
+
+
+//------------------------------------------------------------------------------
+// bool GmatFileUtil::IsValidFileName(const std::string &fname)
+//------------------------------------------------------------------------------
+bool GmatFileUtil::IsValidFileName(const std::string &fname)
+{
+   if (fname == "")
+      return false;
+   
+   std::string filename = ParseFileName(fname);
+   bool retval = false;
+
+   // Check for invalid characters
+   std::string invalidChars = "\\/:*?\"<>|";
+   if (filename.find_first_of(invalidChars) == filename.npos)
+      retval = true;
+   else
+      retval = false;
+   
+   // Check for name too long
+   if (retval)
+   {
+      if (filename.size() > GmatFile::MAX_FILE_LEN)
+         retval = false;
+   }
+   
+   return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// bool DoesDirectoryExist(const std::string &fullPath)
 //------------------------------------------------------------------------------
 /*
- * Note: This function calls opendir() which is defined in <dirent>. There is a
- *       problem compling with VC++ compiler, so until it is resolved, it will
- *       always return false if it is compiled with VC++ compiler.
- *
  * @return  true  If directory exist, false otherwise
  */
 //------------------------------------------------------------------------------
-bool GmatFileUtil::DoesDirectoryExist(const std::string &dirPath)
+bool GmatFileUtil::DoesDirectoryExist(const std::string &fullPath)
 {
-   if (dirPath == "")
+   #ifdef DEBUG_DIR_EXIST
+   MessageInterface::ShowMessage
+      ("GmatFileUtil::DoesDirectoryExist() entered, fullPath='%s'\n", fullPath.c_str());
+   #endif
+   
+   if (fullPath == "")
       return false;
    
    bool dirExist = false;
+   std::string dirName = ParsePathName(fullPath, true);
+   
+   // empty dir name is OK.
+   if (dirName == "")
+      return true;
+   
+   #ifdef DEBUG_DIR_EXIST
+   MessageInterface::ShowMessage("   ==> dirName='%s'\n", dirName.c_str());
+   #endif
    
 #ifndef _MSC_VER  // if not Microsoft Visual C++
    DIR *dir = NULL;
-   dir = opendir(dirPath.c_str());
+   dir = opendir(dirName.c_str());
    
    if (dir != NULL)
    {
@@ -256,10 +317,20 @@ bool GmatFileUtil::DoesDirectoryExist(const std::string &dirPath)
       closedir(dir);
    }
 #else
-   MessageInterface::ShowMessage
-      ("*** WARNING *** GmatFileUtil::DoesDirectoryExist() \n"
-       "Cannot compile opendir() with MSVC, so jsut returning false\n");
+   TCHAR currDir[BUFFER_SIZE];
+   
+   // Save current directory
+   DWORD ret = GetCurrentDirectory(BUFFER_SIZE, currDir);
+   // Try setting to requested direcotry
+   dirExist = SetCurrentDirectory(dirName.c_str());
+   // Set back to current directory
+   SetCurrentDirectory(currDir);
 #endif
+   
+   #ifdef DEBUG_DIR_EXIST
+   MessageInterface::ShowMessage
+      ("GmatFileUtil::DoesDirectoryExist() returning %d\n", dirExist);
+   #endif
    
    return dirExist;
 }
