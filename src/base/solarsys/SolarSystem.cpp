@@ -23,6 +23,7 @@
 #include "Planet.hpp"
 #include "Moon.hpp"
 #include "StringUtil.hpp"               // for ToString()
+#include "FileUtil.hpp"                 // for DoesFileExist
 #include "FileManager.hpp"              // for GetFullPathname()
 #include "MessageInterface.hpp"         // for debugging
 #include "CoordinateSystem.hpp"
@@ -1282,15 +1283,13 @@ void SolarSystem::CreatePlanetarySource(bool setDefault)
          std::string spkFullPath = fm->GetFullPathname("PLANETARY_SPK_FILE");
          if (!(GmatStringUtil::IsBlank(spkFullPath)))
          {
-            if (!(SetSPKFile(spkFullPath)))
-               throw SolarSystemException("Unable to set SPK file on the Solar System.\n");
+            SetSPKFile(spkFullPath);
             thePlanetarySourceNames.push_back(theSPKFilename);
          }
          std::string lskFullPath = fm->GetFullPathname("LSK_FILE");
          if (!(GmatStringUtil::IsBlank(lskFullPath)))
          {
-            if (!(SetLSKFile(lskFullPath)))
-               throw SolarSystemException("Unable to set LSK file on the Solar System.\n");
+            SetLSKFile(lskFullPath);
          }
          else
             throw SolarSystemException("Unable to obtain Leap Second Kernel (LSK) full path name.  Please set LSK_FILE in start-up file.\n");
@@ -1537,9 +1536,7 @@ Integer SolarSystem::SetPlanetarySourceTypesInUse(const StringArray &sourceTypes
          if (SetSource(Gmat::SPICE))
             if (theSPKFilename != "")
             {
-               bool isOK = SetSPKFile(theSPKFilename);
-               if (!isOK)
-                  throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+               SetSPKFile(theSPKFilename);
             }
             retCode = 1;
          break;
@@ -2112,6 +2109,13 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
 
 bool SolarSystem::SetSPKFile(const std::string &spkFile)
 {
+   if (!(GmatFileUtil::DoesFileExist(spkFile)))
+   {
+      SolarSystemException sse;
+      sse.SetDetails(errorMessageFormat.c_str(),
+                     spkFile.c_str(), "SPKFilename", "File must exist");
+      throw sse;
+   }
    theSPKFilename = spkFile;
    return true;
 }
@@ -2120,6 +2124,13 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
 //------------------------------------------------------------------------------
 bool SolarSystem::SetLSKFile(const std::string &lskFile)
 {
+   if (!(GmatFileUtil::DoesFileExist(lskFile)))
+   {
+      SolarSystemException sse;
+      sse.SetDetails(errorMessageFormat.c_str(),
+                     lskFile.c_str(), "LSKFilename", "File must exist");
+      throw sse;
+   }
    lskKernelName = lskFile;
    return true;
 }
@@ -2653,18 +2664,13 @@ bool SolarSystem::SetStringParameter(const Integer id,
    }
    if (id == SPK_FILE_NAME)
    {
-      bool isOK = SetSPKFile(value);
-      if (!isOK)
-         throw SolarSystemException("Unable to set SPK file on one or more of the default bodies.\n");
+      SetSPKFile(value);
       return true;
    }
 
    if (id == LSK_FILE_NAME)
    {
-      bool isOK = SetLSKFile(value);
-      if (!isOK)
-         throw SolarSystemException("Unable to set LSK file on one or more of the default bodies.\n");
-      return true;
+      SetLSKFile(value);
    }
 
    return GmatBase::SetStringParameter(id, value);

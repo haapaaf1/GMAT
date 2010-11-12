@@ -41,6 +41,7 @@
 #include "PhysicalConstants.hpp"
 #include "TimeSystemConverter.hpp"
 #include "UtcDate.hpp"
+#include "FileUtil.hpp"
 #include "TimeTypes.hpp"
 #include "AngleUtil.hpp"
 #include "TimeTypes.hpp"
@@ -2874,11 +2875,25 @@ bool CelestialBody::SetStringParameter(const Integer id,
    }
    if (id == SOURCE_FILENAME)
    {
+      if (!(GmatFileUtil::DoesFileExist(value)))
+      {
+         SolarSystemException sse;
+         sse.SetDetails(errorMessageFormat.c_str(),
+                        value.c_str(), "SourceFilename", "File must exist");
+         throw sse;
+      }
       sourceFilename = value;
       return true;
    }
    if (id == POTENTIAL_FILE_NAME)
    {
+      if (!(GmatFileUtil::DoesFileExist(value)))
+      {
+         SolarSystemException sse;
+         sse.SetDetails(errorMessageFormat.c_str(),
+                        value.c_str(), "PotentialFileName", "File must exist");
+         throw sse;
+      }
       potentialFileName = value;
       return true;
    }
