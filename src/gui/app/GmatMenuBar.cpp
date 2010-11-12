@@ -90,9 +90,9 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
       fileMenu->AppendSeparator();
       fileMenu->Append(MENU_EMPTY_PROJECT, wxT("Empty Project"), wxT(""));   
       fileMenu->AppendSeparator();
+      
+      fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths"), wxT(""));
    }
-   
-   fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths"), wxT(""));
    
    #ifdef __ENABLE_PRINT__
    fileMenu->AppendSeparator();
