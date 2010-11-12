@@ -251,16 +251,21 @@ std::string GmatFileUtil::GetInvalidFileNameMessage(Integer option)
 
 
 //------------------------------------------------------------------------------
-// bool GmatFileUtil::IsValidFileName(const std::string &fname)
+// bool GmatFileUtil::IsValidFileName(const std::string &fname, bool blankIsOk = true)
 //------------------------------------------------------------------------------
-bool GmatFileUtil::IsValidFileName(const std::string &fname)
+bool GmatFileUtil::IsValidFileName(const std::string &fname, bool blankIsOk)
 {
    if (fname == "")
-      return false;
+   {
+      if (blankIsOk)
+         return true;
+      else
+         return false;
+   }
    
    std::string filename = ParseFileName(fname);
    bool retval = false;
-
+   
    // Check for invalid characters
    std::string invalidChars = "\\/:*?\"<>|";
    if (filename.find_first_of(invalidChars) == filename.npos)
@@ -280,13 +285,13 @@ bool GmatFileUtil::IsValidFileName(const std::string &fname)
 
 
 //------------------------------------------------------------------------------
-// bool DoesDirectoryExist(const std::string &fullPath)
+// bool DoesDirectoryExist(const std::string &fullPath, bool blankIsOk = true)
 //------------------------------------------------------------------------------
 /*
  * @return  true  If directory exist, false otherwise
  */
 //------------------------------------------------------------------------------
-bool GmatFileUtil::DoesDirectoryExist(const std::string &fullPath)
+bool GmatFileUtil::DoesDirectoryExist(const std::string &fullPath, bool blankIsOk)
 {
    #ifdef DEBUG_DIR_EXIST
    MessageInterface::ShowMessage
@@ -294,7 +299,12 @@ bool GmatFileUtil::DoesDirectoryExist(const std::string &fullPath)
    #endif
    
    if (fullPath == "")
-      return false;
+   {
+      if (blankIsOk)
+         return true;
+      else
+         return false;
+   }
    
    bool dirExist = false;
    std::string dirName = ParsePathName(fullPath, true);

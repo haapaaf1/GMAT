@@ -164,8 +164,9 @@ bool UserInputValidator::CheckFileName(const std::string &str,
       SetErrorFlag();
       return false;
    }
-   
-   if (!GmatFileUtil::IsValidFileName(str))
+
+   // We don't want allow blank file name so pass false
+   if (!GmatFileUtil::IsValidFileName(str, false))
    {
       std::string msg = GmatFileUtil::GetInvalidFileNameMessage(1);
       MessageInterface::PopupMessage
