@@ -22,6 +22,7 @@
 #include "GmatStaticBoxSizer.hpp"
 #include "ParameterInfo.hpp"            // for GetDepObjectType()
 #include "StringUtil.hpp"
+#include "FileUtil.hpp"
 #include "MessageInterface.hpp"
 #include <fstream>
 
@@ -83,6 +84,7 @@ ReportFileSetupPanel::ReportFileSetupPanel(wxWindow *parent,
    Create();
    Show();
    mHasParameterChanged = false;
+   mHasBoolDataChanged = false;
    EnableUpdate(false);
    
    // Listen for Spacecraft and Parameter name change
@@ -142,6 +144,7 @@ void ReportFileSetupPanel::ObjectNameChanged(Gmat::ObjectType type,
       return;
    
    mHasParameterChanged = false;
+   mHasBoolDataChanged = false;
    LoadData();
    
    // We don't need to save data if object name changed from the resouce tree
@@ -159,6 +162,7 @@ void ReportFileSetupPanel::ObjectNameChanged(Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 void ReportFileSetupPanel::OnCheckBoxChange(wxCommandEvent& event)
 {
+   mHasBoolDataChanged = true;
    EnableUpdate(true);
 }
 
@@ -325,8 +329,15 @@ void ReportFileSetupPanel::LoadData()
    {
       // load file name data from core engine
       //Note: Do not use GetStringParameter() since filename may be empty.
-      //      GetFileName() constructs filename if name is empty
-      std::string filename = reportFile->GetFileName();
+      //      GetPathAndFileName() constructs filename if name is empty
+      // We don't want to write name with path unless user specified the path
+      // in the script, so check for the empty name first (LOJ: 2010.11.10)
+      std::string filename = reportFile->GetStringParameter("Filename");
+      if (filename == "")
+      {
+         std::string fullname = reportFile->GetPathAndFileName();
+         filename = reportFile->GetDefaultFileName();
+      }
       
       Integer id;
       
@@ -414,7 +425,8 @@ void ReportFileSetupPanel::SaveData()
 {
    #if DEBUG_REPORTFILE_PANEL_SAVE
    MessageInterface::ShowMessage
-      ("ReportFileSetupPanel::SaveData() mHasParameterChanged=%d\n", mHasParameterChanged);
+      ("ReportFileSetupPanel::SaveData() mHasParameterChanged=%d, mHasBoolDataChanged=%d\n",
+       mHasParameterChanged, mHasBoolDataChanged);
    #endif
    
    canClose = true;
@@ -429,7 +441,10 @@ void ReportFileSetupPanel::SaveData()
    CheckInteger(width, str, "Column Width", "Integer Number > 0");
    
    str = precisionTextCtrl->GetValue();
-   CheckInteger(prec, str, "Column Precision", "Integer Number > 0");
+   CheckInteger(prec, str, "Precision", "Integer Number > 0");
+   
+   str = mFileTextCtrl->GetValue();
+   CheckFileName(str, "Filename");
    
    if (!canClose)
       return;
@@ -440,80 +455,68 @@ void ReportFileSetupPanel::SaveData()
    try
    {
       Integer id;
+      GmatBase *clonedObj = reportFile->Clone();
       
-      //reportFile->Activate(writeCheckBox->IsChecked());
-      reportFile->SetBooleanParameter("WriteReport", writeCheckBox->IsChecked());
-      
-      #if DEBUG_RF_PANEL_SAVE
-      if (theSubscriber->IsActive())
-         MessageInterface::ShowMessage
-            ("\nReportFileSetupPanel:: The subscriber was activiated\n");
-      else
-         MessageInterface::ShowMessage
-            ("\nReportFileSetupPanel:: The subscriber was NOT activiated\n");
-      #endif
-      
-      // To show all the error messages, multiple try/catch is used
-      try
+      if (mHasBoolDataChanged)
       {
-         id = reportFile->GetParameterID("ColumnWidth");
-         reportFile->SetIntegerParameter(id, width);
+         mHasBoolDataChanged = false;
+         
+         clonedObj->SetBooleanParameter("WriteReport", writeCheckBox->IsChecked());
+         
+         #if DEBUG_RF_PANEL_SAVE
+         if (theSubscriber->IsActive())
+            MessageInterface::ShowMessage
+               ("\nReportFileSetupPanel:: The subscriber was activiated\n");
+         else
+            MessageInterface::ShowMessage
+               ("\nReportFileSetupPanel:: The subscriber was NOT activiated\n");
+         #endif
+         
+         id = clonedObj->GetParameterID("WriteHeaders");
+         if (showHeaderCheckBox->IsChecked())
+            clonedObj->SetOnOffParameter(id, "On");
+         else
+            clonedObj->SetOnOffParameter(id, "Off");
+         
+         id = clonedObj->GetParameterID("LeftJustify");
+         if (leftJustifyCheckBox->IsChecked())
+            clonedObj->SetOnOffParameter(id, "On");
+         else
+            clonedObj->SetOnOffParameter(id, "Off");
+         
+         id = clonedObj->GetParameterID("ZeroFill");
+         if (zeroFillCheckBox->IsChecked())
+            clonedObj->SetOnOffParameter(id, "On");
+         else
+            clonedObj->SetOnOffParameter(id, "Off");
       }
-      catch (BaseException &e)
-      {
-         MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
-         canClose = false;
-      }
       
-      try
-      {
-         id = reportFile->GetParameterID("Precision");
-         reportFile->SetIntegerParameter(id, prec);
-      }
-      catch (BaseException &e)
-      {
-         MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
-         canClose = false;
-      }
+      id = clonedObj->GetParameterID("ColumnWidth");
+      clonedObj->SetIntegerParameter(id, width);
       
-      id = reportFile->GetParameterID("WriteHeaders");
-      if (showHeaderCheckBox->IsChecked())
-         reportFile->SetOnOffParameter(id, "On");
-      else
-         reportFile->SetOnOffParameter(id, "Off");
+      id = clonedObj->GetParameterID("Precision");
+      clonedObj->SetIntegerParameter(id, prec);
       
-      id = reportFile->GetParameterID("LeftJustify");
-      if (leftJustifyCheckBox->IsChecked())
-         reportFile->SetOnOffParameter(id, "On");
-      else
-         reportFile->SetOnOffParameter(id, "Off");
-      
-      id = reportFile->GetParameterID("ZeroFill");
-      if (zeroFillCheckBox->IsChecked())
-         reportFile->SetOnOffParameter(id, "On");
-      else
-         reportFile->SetOnOffParameter(id, "Off");
-      
-      id = reportFile->GetParameterID("SolverIterations");
-      reportFile->
+      id = clonedObj->GetParameterID("SolverIterations");
+      clonedObj->
          SetStringParameter(id, mSolverIterComboBox->GetValue().c_str());
       
       // save file name data
       str = mFileTextCtrl->GetValue();
-      std::ofstream filename(str.c_str());
+      std::string filename = str.c_str();
       
-      // Check for non-existing pathname/filename
-      if (!filename)
+      // Check for file extension
+      // If file extension is blank, append .txt
+      if (GmatFileUtil::ParseFileExtension(filename) == "")
       {
          MessageInterface::PopupMessage
-            (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(),
-             "File", "Valid File Path and Name");
-         canClose = false;
-         return;
+            (Gmat::WARNING_, "Appended .txt to file name '%s'\n", filename.c_str());
+         filename = filename + ".txt";
+         mFileTextCtrl->SetValue(wxT(filename.c_str()));
       }
       
-      id = reportFile->GetParameterID("Filename");
-      reportFile->SetStringParameter(id, str.c_str());
+      id = clonedObj->GetParameterID("Filename");
+      clonedObj->SetStringParameter(id, filename.c_str());
       
       // if parameter changed, clear the list and re-add parameters
       if (mHasParameterChanged)
@@ -527,16 +530,19 @@ void ReportFileSetupPanel::SaveData()
          
          if (mNumParameters >= 0) // >=0 because the list needs to be cleared
          {
-            reportFile->TakeAction("Clear");
+            clonedObj->TakeAction("Clear");
             for (int i=0; i<mNumParameters; i++)
             {
                std::string selYName = mSelectedListBox->GetString(i).c_str();
-               reportFile->SetStringParameter("Add", selYName, i);
+               clonedObj->SetStringParameter("Add", selYName, i);
             }
          }
          
-         theGuiInterpreter->ValidateSubscriber(mObject);
+         theGuiInterpreter->ValidateSubscriber(clonedObj);
       }
+      
+      reportFile->Copy(clonedObj);
+      delete clonedObj;
    }
    catch (BaseException &e)
    {

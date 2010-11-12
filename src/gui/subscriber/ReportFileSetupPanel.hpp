@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              ReportFileSetupPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -40,6 +40,7 @@ protected:
    
    int  mNumParameters;
    bool mHasParameterChanged;
+   bool mHasBoolDataChanged;
    
    wxArrayString mObjectTypeList;
    wxArrayString mReportWxStrings;
