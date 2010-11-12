@@ -2480,18 +2480,19 @@ ElementWrapper* Validator::CreateSubPropertyWrapper(GmatBase *obj,
          ew->SetRefObjectName(ownedObj->GetName(), 0);
          ew->SetRefObject(ownedObj);
          
-         // @note
-         // Handle special case for GmatFunction(loj: 2008.07.07)
-         // AxisSystem of CoordinateSystem, or Propagator of PropSetup are
-         // created as local objects, but name is added automatically to
-         // refObjectNames in SetupWrapper(), so we need to clear.
-         // GMAT CS.Axes = ObjectReferenced;
-         // GMAT Prop.Type = BulirschStoer;
-         if ((obj->IsOfType(Gmat::COORDINATE_SYSTEM) &&
-              ownedObj->IsOfType(Gmat::AXIS_SYSTEM)) ||
-             (obj->IsOfType(Gmat::PROP_SETUP) &&
-              ownedObj->IsOfType(Gmat::PROPAGATOR)))
-            ew->ClearRefObjectNames();
+         // Removed to address bug 2203
+//         // @note
+//         // Handle special case for GmatFunction(loj: 2008.07.07)
+//         // AxisSystem of CoordinateSystem, or Propagator of PropSetup are
+//         // created as local objects, but name is added automatically to
+//         // refObjectNames in SetupWrapper(), so we need to clear.
+//         // GMAT CS.Axes = ObjectReferenced;
+//         // GMAT Prop.Type = BulirschStoer;
+//         if ((obj->IsOfType(Gmat::COORDINATE_SYSTEM) &&
+//              ownedObj->IsOfType(Gmat::AXIS_SYSTEM)) ||
+//             (obj->IsOfType(Gmat::PROP_SETUP) &&
+//              ownedObj->IsOfType(Gmat::PROPAGATOR)))
+//            ew->ClearRefObjectNames();
       }
       else
       {

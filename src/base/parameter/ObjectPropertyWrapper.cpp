@@ -26,6 +26,8 @@
 #include "ParameterException.hpp"
 #include "StringUtil.hpp"
 
+#include "PropSetup.hpp"               // Handle owned Propagator special case
+
 #include "MessageInterface.hpp"
 
 //#define DEBUG_RENAME_OBJ_PROP
@@ -256,7 +258,23 @@ bool ObjectPropertyWrapper::SetRefObject(GmatBase *obj)
    if (obj->GetName() == refObjectNames[0])
    {
       object = obj;
-      propID = object->GetParameterID(propIDNames[0]);
+      
+      // Handle owned Propagators as a special case
+      try
+      {
+         propID = object->GetParameterID(propIDNames[0]);
+      }
+      catch (GmatBaseException ex)
+      {
+         // Handle the Propagator inside a PropSetup
+         if (obj->IsOfType(Gmat::PROP_SETUP))
+         {
+            object = (GmatBase*)(((PropSetup *)obj)->GetPropagator());
+            propID = object->GetParameterID(propIDNames[0]);
+         }
+         else
+            throw;
+      }
       #ifdef DEBUG_OPW
          MessageInterface::ShowMessage(
          "In ObjPropWrapper::SetRefObject, setting to object %s\n",
