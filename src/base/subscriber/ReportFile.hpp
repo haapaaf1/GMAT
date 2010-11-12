@@ -45,16 +45,16 @@ public:
    ReportFile& operator=(const ReportFile&);
    
    // methods for this class
-   std::string          GetFileName();
+   std::string          GetDefaultFileName();
+   std::string          GetPathAndFileName();
    Integer              GetNumParameters();
    bool                 AddParameter(const std::string &paramName, Integer index);
    bool                 AddParameterForTitleOnly(const std::string &paramName);
    bool                 WriteData(WrapperArray dataArray);
    
-   // methods inherited from Subscriber
+   // methods inherited from GmatBase
    virtual bool         Initialize();
    
-   // methods inherited from GmatBase
    virtual GmatBase*    Clone(void) const;
    virtual void         Copy(const GmatBase* orig);
    
@@ -128,6 +128,8 @@ protected:
    std::string          filename;
    /// Default file name of the report file when it is not set
    std::string          defFileName;
+   /// Full file name with path
+   std::string          fullPathName;
    /// Precision for output of real data
    Integer              precision;  
    /// Width of column

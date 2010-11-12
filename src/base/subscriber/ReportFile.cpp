@@ -25,6 +25,7 @@
 #include "FileManager.hpp"         // for GetPathname()
 #include "SubscriberException.hpp"
 #include "StringUtil.hpp"          // for GetArrayIndex()
+#include "FileUtil.hpp"            // for GmatFileUtil::
 #include <iomanip>
 #include <sstream>
 
@@ -78,6 +79,7 @@ ReportFile::ReportFile(const std::string &type, const std::string &name,
    outputPath      (""),
    filename        (fileName),
    defFileName     (""),
+   fullPathName    (""),
    precision       (16),
    columnWidth     (20),
    writeHeaders    (true),
@@ -117,6 +119,7 @@ ReportFile::ReportFile(const ReportFile &rf) :
    outputPath      (rf.outputPath),
    filename        (rf.filename),
    defFileName     (rf.defFileName),
+   fullPathName    (rf.fullPathName),
    precision       (rf.precision),
    columnWidth     (rf.columnWidth),
    writeHeaders    (rf.writeHeaders),
@@ -161,6 +164,7 @@ ReportFile& ReportFile::operator=(const ReportFile& rf)
    outputPath = rf.outputPath;
    filename = rf.filename;
    defFileName = rf.defFileName;
+   fullPathName = rf.fullPathName;
    precision = rf.precision;
    columnWidth = rf.columnWidth;
    writeHeaders = rf.writeHeaders;
@@ -190,15 +194,32 @@ ReportFile& ReportFile::operator=(const ReportFile& rf)
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// std::string GetFileName()
+// std::string GetDefaultFileName()
 //------------------------------------------------------------------------------
-std::string ReportFile::GetFileName()
+/**
+ * Returns default filename without path.
+ */
+//------------------------------------------------------------------------------
+std::string ReportFile::GetDefaultFileName()
+{
+   return defFileName;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetPathAndFileName()
+//------------------------------------------------------------------------------
+/**
+ * Returns full file name with path
+ */
+//------------------------------------------------------------------------------
+std::string ReportFile::GetPathAndFileName()
 {
    std::string fname = filename;
-
+   
    #ifdef DEBUG_REPORTFILE_OPEN
    MessageInterface::ShowMessage
-      ("ReportFile::GetFileName() fname=%s\n", fname.c_str());
+      ("ReportFile::GetPathAndFileName() fname=%s\n", fname.c_str());
    #endif
    
    try
@@ -208,7 +229,9 @@ std::string ReportFile::GetFileName()
       
       if (filename == "")
       {
-         defFileName = outputPath + instanceName + ".txt";
+         defFileName = instanceName + ".txt";
+         filename = defFileName;
+         fname = outputPath + filename;
       }
       else
       {
@@ -230,9 +253,10 @@ std::string ReportFile::GetFileName()
    
    #ifdef DEBUG_REPORTFILE_OPEN
    MessageInterface::ShowMessage
-      ("ReportFile::GetFileName() returning fname=%s\n", fname.c_str());
+      ("ReportFile::GetPathAndFileName() returning fname=%s\n", fname.c_str());
    #endif
    
+   fullPathName = fname;
    return fname;
 }
 
@@ -482,7 +506,7 @@ bool ReportFile::WriteData(WrapperArray wrapperArray)
 
 
 //----------------------------------
-// methods inherited from Subscriber
+// methods inherited from GmatBase
 //----------------------------------
 
 //------------------------------------------------------------------------------
@@ -884,18 +908,20 @@ std::string ReportFile::GetStringParameter(const Integer id) const
 {
    if (id == FILENAME)
    {
-      std::string::size_type index = filename.find_last_of("/\\");
-      if (index != filename.npos)
-         return filename;
-      else
-      {
-         // if pathname is the same as the default path, just write name
-         std::string opath = filename.substr(0, index+1);
-         if (opath == outputPath)
-            return filename.substr(index+1);
-         else
-            return filename;
-      }
+      return filename;
+      
+//       std::string::size_type index = filename.find_last_of("/\\");
+//       if (index != filename.npos)
+//          return filename;
+//       else
+//       {
+//          // if pathname is the same as the default path, just write name
+//          std::string opath = filename.substr(0, index+1);
+//          if (opath == outputPath)
+//             return filename.substr(index+1);
+//          else
+//             return filename;
+//       }
    }
    
    return Subscriber::GetStringParameter(id);
@@ -924,17 +950,40 @@ bool ReportFile::SetStringParameter(const Integer id, const std::string &value)
           "ReportFile '%s'\n", value.c_str(), instanceName.c_str());
       #endif
       
+      // Validate filename
+      if (!GmatFileUtil::IsValidFileName(value))
+      {
+         std::string msg = GmatFileUtil::GetInvalidFileNameMessage(1);
+         SubscriberException se;
+         se.SetDetails(errorMessageFormat.c_str(), value.c_str(), "Filename", msg.c_str());
+         throw se;
+      }
+      
+      // Check for non-existing directory
+      if (!GmatFileUtil::DoesDirectoryExist(value))
+      {
+         SubscriberException se;
+         se.SetDetails("Path does not exist in '%s'", value.c_str());
+         throw se;
+      }
+      
       filename = value;
       
-      if (filename.find("/") == filename.npos &&
-          filename.find("\\") == filename.npos)
-         filename = outputPath + filename;
+      // If file extension is blank, append .txt
+      if (GmatFileUtil::ParseFileExtension(filename) == "")
+      {
+         filename = filename + ".txt";
+         MessageInterface::ShowMessage
+            ("*** WARNING *** Appended .txt to file name '%s'\n", value.c_str());
+      }
+      
+      std::string fullName = GetPathAndFileName();
       
       // Close the stream if it is open
       if (dstream.is_open())
       {
          dstream.close();
-         dstream.open(filename.c_str());
+         dstream.open(fullPathName.c_str());
       }
       
       return true;
@@ -1236,7 +1285,7 @@ const StringArray& ReportFile::GetWrapperObjectNameArray()
 //------------------------------------------------------------------------------
 bool ReportFile::OpenReportFile(void)
 {
-   filename = GetFileName();
+   filename = GetPathAndFileName();
 
    // If file name is blank, use default file name (LOJ: 2009.10.02)
    if (filename == "")
