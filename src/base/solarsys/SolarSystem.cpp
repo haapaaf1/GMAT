@@ -2109,7 +2109,13 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
 
 bool SolarSystem::SetSPKFile(const std::string &spkFile)
 {
-   if (!(GmatFileUtil::DoesFileExist(spkFile)))
+   std::string fullSpkName = spkFile;
+   std::string spkPath = FileManager::Instance()->GetPathname("PLANETARY_SPK_FILE");
+   
+   if (GmatFileUtil::ParsePathName(spkFile) == "")
+      fullSpkName = spkPath + fullSpkName;
+   
+   if (!(GmatFileUtil::DoesFileExist(fullSpkName)))
    {
       SolarSystemException sse;
       sse.SetDetails(errorMessageFormat.c_str(),
@@ -2124,7 +2130,13 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
 //------------------------------------------------------------------------------
 bool SolarSystem::SetLSKFile(const std::string &lskFile)
 {
-   if (!(GmatFileUtil::DoesFileExist(lskFile)))
+   std::string fullLskName = lskFile;
+   std::string lskPath = FileManager::Instance()->GetPathname("LSK_FILE");
+   
+   if (GmatFileUtil::ParsePathName(lskFile) == "")
+      fullLskName = lskPath + fullLskName;
+   
+   if (!(GmatFileUtil::DoesFileExist(fullLskName)))
    {
       SolarSystemException sse;
       sse.SetDetails(errorMessageFormat.c_str(),
