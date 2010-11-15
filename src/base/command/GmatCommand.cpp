@@ -2009,8 +2009,8 @@ void GmatCommand::BuildCommandSummaryString(bool commandCompleted)
 
             data << "        Cartesian State                       "
                  << "Keplerian State\n"
-				     << "        ---------------------------           "
-				     << "-------------------------------- \n"
+                                     << "        ---------------------------           "
+                                     << "-------------------------------- \n"
                  << "        X  = " << BuildNumber(cartState[0]) << " km     "
                  << "        SMA  = " << BuildNumber(kepState[0]) << " km\n"
                  << "        Y  = " << BuildNumber(cartState[1]) << " km     "
@@ -2615,6 +2615,9 @@ bool GmatCommand::SetWrapperReferences(ElementWrapper &wrapper)
          GmatBase *obj = FindObject(name);
          if (obj == NULL)
          {
+            if (name == "")
+               continue;
+            
             throw CommandException(
                   "GmatCommand::SetWrapperReferences failed to find object named \"" + 
                   name + "\" in: \n   \"" + GetGeneratingString(Gmat::NO_COMMENTS) + "\"\n");
