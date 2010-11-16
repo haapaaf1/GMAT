@@ -1077,7 +1077,7 @@ void Enhanced3DViewPanel::SaveData()
    if (setVector || mHasRealDataChanged)
    {
       CheckReal(scaleFactor, mViewScaleFactorTextCtrl->GetValue().c_str(),
-                "ViewScaleFactor", "Real Number > 0", false, true);
+                "ViewScaleFactor", "Real Number > 0", false, true, true);
       
       if (mViewPointRefComboBox->GetStringSelection() == "Vector")
       {
