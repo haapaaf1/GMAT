@@ -69,6 +69,9 @@ protected:
    wxComboBox*     initialEpochComboBox;
    wxComboBox*     finalEpochComboBox;
    
+   // Buffer for time conversion code
+   wxString        previousEpochFormat;
+
    wxFileDialog *fileDialog;
    
    /// Managed wxComboBox map used by GuiItemManager

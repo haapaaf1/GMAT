@@ -19,6 +19,7 @@
 #include "EphemerisFilePanel.hpp"
 #include "MessageInterface.hpp"
 #include "bitmaps/OpenFolder.xpm"
+#include "TimeSystemConverter.hpp"
 #include <wx/config.h>
 
 /// wxWidget event mappings for the panel
@@ -46,7 +47,8 @@ END_EVENT_TABLE()
  */
 //------------------------------------------------------------------------------
 EphemerisFilePanel::EphemerisFilePanel(wxWindow *parent, const wxString &name)
-   : GmatPanel(parent)
+   : GmatPanel                (parent),
+     previousEpochFormat      (_T(""))
 {
    fileDialog = NULL;
    
@@ -60,7 +62,8 @@ EphemerisFilePanel::EphemerisFilePanel(wxWindow *parent, const wxString &name)
    else
    {
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "The object named \"%s\" does not exist\n", name.c_str());      
+         (Gmat::WARNING_, "The object named \"%s\" does not exist\n",
+               name.c_str());
    }
 }
 
@@ -76,7 +79,8 @@ EphemerisFilePanel::~EphemerisFilePanel()
 {
    // Unregister automatically registered ComboBoxes
    std::map<wxString, wxComboBox *>::iterator iter;
-   for (iter = managedComboBoxMap.begin(); iter != managedComboBoxMap.end(); ++iter)
+   for (iter = managedComboBoxMap.begin(); iter != managedComboBoxMap.end();
+         ++iter)
       theGuiManager->UnregisterComboBox(iter->first, iter->second);
 }
 
@@ -107,14 +111,16 @@ void EphemerisFilePanel::Create()
    pConfig->SetPath(wxT("/Ephemeris File"));
    
    // 1. Create Options box:
-   wxStaticBoxSizer *optionsStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Options");
+   wxStaticBoxSizer *optionsStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL,
+         this, "Options");
    
    wxFlexGridSizer *grid1 = new wxFlexGridSizer( 2, 0, 0 );
    grid1->AddGrowableCol(1);
    
    id = mObject->GetParameterID("Spacecraft");
    wxStaticText * spacecraftStaticText =
-      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Spacecraft"), wxDefaultPosition, wxDefaultSize, 0 );
+      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Spacecraft"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    spacecraftComboBox = (wxComboBox*)BuildControl(this, id);
    spacecraftComboBox->SetToolTip(pConfig->Read(_T("SpacecraftHint")));
    grid1->Add(spacecraftStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
@@ -122,7 +128,8 @@ void EphemerisFilePanel::Create()
    
 //   id = mObject->GetParameterID("StateType");
 //   wxStaticText * stateTypeStaticText =
-//      new wxStaticText(this, ID_TEXT, wxT("State T"GUI_ACCEL_KEY"ype"), wxDefaultPosition, wxDefaultSize, 0 );
+//      new wxStaticText(this, ID_TEXT, wxT("State T"GUI_ACCEL_KEY"ype"),
+//            wxDefaultPosition, wxDefaultSize, 0 );
 //   stateTypeComboBox = (wxComboBox*) BuildControl(this, id);
 //   stateTypeComboBox->SetToolTip(pConfig->Read(_T("StateTypeHint")));
 //   grid1->Add(stateTypeStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
@@ -130,9 +137,11 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("CoordinateSystem");
    wxStaticText * coordinateSystemStaticText =
-      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Coordinate System"), wxDefaultPosition, wxDefaultSize, 0 );
+      new wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Coordinate System"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    coordinateSystemComboBox = (wxComboBox*) BuildControl(this, id);
-   coordinateSystemComboBox->SetToolTip(pConfig->Read(_T("CoordinateSystemHint")));
+   coordinateSystemComboBox->SetToolTip(pConfig->Read(
+         _T("CoordinateSystemHint")));
    grid1->Add(coordinateSystemStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid1->Add(coordinateSystemComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
@@ -153,7 +162,8 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("FileFormat");
    wxStaticText * fileFormatStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("File For"GUI_ACCEL_KEY"mat"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("File For"GUI_ACCEL_KEY"mat"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    fileFormatComboBox = (wxComboBox*) BuildControl(this, id);
    fileFormatComboBox->SetToolTip(pConfig->Read(_T("FileFormatHint")));
    grid2->Add(fileFormatStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
@@ -162,7 +172,8 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("Filename");
    wxStaticText * fileNameStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("File "GUI_ACCEL_KEY"Name"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("File "GUI_ACCEL_KEY"Name"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    fileNameTextCtrl = (wxTextCtrl*) BuildControl(this, id);
    fileNameTextCtrl->SetToolTip(pConfig->Read(_T("FilenameHint")));
    browseButton =
@@ -175,7 +186,8 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("Interpolator");
    wxStaticText * interpolatorStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Interpolato"GUI_ACCEL_KEY"r"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("Interpolato"GUI_ACCEL_KEY"r"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    interpolatorComboBox = (wxComboBox*) BuildControl(this, id);
    interpolatorComboBox->SetToolTip(pConfig->Read(_T("InterpolatorHint")));
    interpolatorComboBox->Enable(false);
@@ -185,16 +197,19 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("InterpolationOrder");
    wxStaticText * interpolationOrderStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("Interpolation "GUI_ACCEL_KEY"Order"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("Interpolation "GUI_ACCEL_KEY
+            "Order"), wxDefaultPosition, wxDefaultSize, 0 );
    interpolationOrderTextCtrl = (wxTextCtrl*) BuildControl(this, id);
-   interpolationOrderTextCtrl->SetToolTip(pConfig->Read(_T("InterpolationOrderHint")));
+   interpolationOrderTextCtrl->SetToolTip(pConfig->Read(
+         _T("InterpolationOrderHint")));
    grid2->Add(interpolationOrderStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(interpolationOrderTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(0, 0, wxALIGN_CENTER|wxALL, bsize );
    
    id = mObject->GetParameterID("StepSize");
    wxStaticText * stepSizeStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT("S"GUI_ACCEL_KEY"tep Size"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT("S"GUI_ACCEL_KEY"tep Size"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    stepSizeComboBox = (wxComboBox*) BuildControl(this, id);
    stepSizeComboBox->SetToolTip(pConfig->Read(_T("StepSizeHint")));
    grid2->Add(stepSizeStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
@@ -205,21 +220,25 @@ void EphemerisFilePanel::Create()
    
    
    // 3. Create Epoch box:
-   wxStaticBoxSizer *epochStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Epoch");
+   wxStaticBoxSizer *epochStaticBoxSizer = new wxStaticBoxSizer(wxHORIZONTAL,
+         this, "Epoch");
    wxFlexGridSizer *grid3 = new wxFlexGridSizer( 2, 0, 0 );
    grid3->AddGrowableCol(1);
    
    id = mObject->GetParameterID("EpochFormat");
    wxStaticText * epochFormatStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Epoch Format"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Epoch Format"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    epochFormatComboBox = (wxComboBox*) BuildControl(this, id);
    epochFormatComboBox->SetToolTip(pConfig->Read(_T("EpochFormatHint")));
    grid3->Add(epochFormatStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid3->Add(epochFormatComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
+   previousEpochFormat = epochFormatComboBox->GetValue();
    
    id = mObject->GetParameterID("InitialEpoch");
    wxStaticText * initialEpochStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Initial Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Initial Epoch"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    initialEpochComboBox = (wxComboBox*) BuildControl(this, id);
    initialEpochComboBox->SetToolTip(pConfig->Read(_T("InitialEpochHint")));
    grid3->Add(initialEpochStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
@@ -227,7 +246,8 @@ void EphemerisFilePanel::Create()
    
    id = mObject->GetParameterID("FinalEpoch");
    wxStaticText * finalEpochStaticText =
-      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Final Epoch"), wxDefaultPosition, wxDefaultSize, 0 );
+      new  wxStaticText(this, ID_TEXT, wxT(GUI_ACCEL_KEY"Final Epoch"),
+            wxDefaultPosition, wxDefaultSize, 0 );
    finalEpochComboBox = (wxComboBox*) BuildControl(this, id);
    finalEpochComboBox->SetToolTip(pConfig->Read(_T("FinalEpochHint")));
    grid3->Add(finalEpochStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
@@ -340,9 +360,11 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
       {
          wxCheckBox *cbControl;
          if (mObject->GetParameterText(index) == "WriteEphemeris")
-            cbControl = new wxCheckBox(parent, ID_CHECKBOX, GUI_ACCEL_KEY"Write Ephemeris");
+            cbControl = new wxCheckBox(parent, ID_CHECKBOX,
+                  GUI_ACCEL_KEY"Write Ephemeris");
          else
-            cbControl = new wxCheckBox(parent, ID_CHECKBOX, (mObject->GetParameterText(index)).c_str());
+            cbControl = new wxCheckBox(parent, ID_CHECKBOX,
+                  (mObject->GetParameterText(index)).c_str());
          
          cbControl->SetValue(mObject->GetBooleanParameter(index));
          control = cbControl;
@@ -370,7 +392,8 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
             wxComboBox *cbControl =
             theGuiManager->GetCelestialBodyComboBox(this, ID_COMBOBOX,
                                                     wxSize(180,-1));
-            managedComboBoxMap.insert(std::make_pair("CelestialBody", cbControl));
+            managedComboBoxMap.insert(std::make_pair("CelestialBody",
+                  cbControl));
             control = cbControl;
          }
          else if (type == Gmat::SPACECRAFT)
@@ -392,7 +415,8 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
             wxComboBox *cbControl =
                theGuiManager->GetCoordSysComboBox(this, ID_COMBOBOX,
                                                   wxSize(180,-1));
-            managedComboBoxMap.insert(std::make_pair("CoordinateSystem", cbControl));
+            managedComboBoxMap.insert(std::make_pair("CoordinateSystem",
+                  cbControl));
             control = cbControl;
          }
          else
@@ -404,8 +428,8 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
                enumList.Add(enumStrings[i].c_str());
             
             control = new wxComboBox(parent, ID_COMBOBOX, wxT(""),
-                                     wxDefaultPosition, wxSize(180,-1), enumList,
-                                     wxCB_READONLY);
+                                     wxDefaultPosition, wxSize(180,-1),
+                                     enumList, wxCB_READONLY);
          }
       }
       break;
@@ -522,6 +546,7 @@ void EphemerisFilePanel::LoadControl(const std::string &label)
    {
       valueString = wxT(mObject->GetStringParameter(label).c_str());
       epochFormatComboBox->SetValue(valueString);
+      previousEpochFormat = epochFormatComboBox->GetValue();
    }
    else if (label == "InitialEpoch")
    {
@@ -645,6 +670,90 @@ void EphemerisFilePanel::OnComboBoxChange(wxCommandEvent& event)
          interpolatorComboBox->SetValue("Hermite");
       if (selection == "CCSDS-OEM")
          interpolatorComboBox->SetValue("Lagrange");
+   }
+
+   // Update the epoch data fields if the format changes and they are times
+   if (event.GetEventObject() == epochFormatComboBox)
+   {
+      #ifdef DEBUG_TIME_CONVERSIONS
+         MessageInterface::ShowMessage("Epoch format changed from '%s' to "
+               "'%s'\n", previousEpochFormat.c_str(),
+               epochFormatComboBox->GetValue().c_str());
+      #endif
+      if (previousEpochFormat == _T(""))
+         return;
+
+      wxString shownEpoch;
+      std::string oldEpoch, newEpoch, epFormat;
+      Real fromVal;
+      Real toVal = -999.999;
+      epFormat = epochFormatComboBox->GetValue().c_str();
+
+      // Start epoch
+      shownEpoch = initialEpochComboBox->GetValue();
+
+      #ifdef DEBUG_TIME_CONVERSIONS
+         MessageInterface::ShowMessage("   Displayed initial epoch is %s\n",
+               shownEpoch.c_str());
+      #endif
+
+      Integer id = mObject->GetParameterID("InitialEpoch");
+      StringArray enumStrings = mObject->GetPropertyEnumStrings(id);
+      if (find(enumStrings.begin(), enumStrings.end(), shownEpoch.c_str()) ==
+            enumStrings.end())
+      {
+         // Not in the list, so must be an epoch string
+         oldEpoch = shownEpoch.c_str();
+
+         if (previousEpochFormat.Find("ModJulian") == wxNOT_FOUND)
+            fromVal = -999.999;
+         else
+         {
+            shownEpoch.ToDouble(&fromVal);
+            if (fromVal < 6116.0)
+               throw GmatBaseException("ModJulian epochs must be later than "
+                     "(or equal to) 6116, the date Sputnik launched.");
+         }
+
+         TimeConverterUtil::Convert(previousEpochFormat.c_str(), fromVal,
+               oldEpoch, epFormat, toVal, newEpoch);
+
+         initialEpochComboBox->SetValue(newEpoch.c_str());
+      }
+
+      // End epoch
+      shownEpoch = finalEpochComboBox->GetValue();
+
+      #ifdef DEBUG_TIME_CONVERSIONS
+         MessageInterface::ShowMessage("   Displayed final epoch is %s\n",
+               shownEpoch.c_str());
+      #endif
+
+      id = mObject->GetParameterID("FinalEpoch");
+      enumStrings = mObject->GetPropertyEnumStrings(id);
+      if (find(enumStrings.begin(), enumStrings.end(), shownEpoch.c_str()) ==
+            enumStrings.end())
+      {
+         // Not in the list, so must be an epoch string
+         oldEpoch = shownEpoch.c_str();
+
+         if (previousEpochFormat.Find("ModJulian") == wxNOT_FOUND)
+            fromVal = -999.999;
+         else
+         {
+            shownEpoch.ToDouble(&fromVal);
+            if (fromVal < 6116.0)
+               throw GmatBaseException("ModJulian epochs must be later than "
+                     "(or equal to) 6116, the date Sputnik launched.");
+         }
+
+         TimeConverterUtil::Convert(previousEpochFormat.c_str(), fromVal,
+               oldEpoch, epFormat, toVal, newEpoch);
+
+         finalEpochComboBox->SetValue(newEpoch.c_str());
+      }
+
+      previousEpochFormat = epochFormatComboBox->GetValue();
    }
 
    if (theApplyButton != NULL)
