@@ -56,7 +56,7 @@ protected:
    void OnCheck(wxCommandEvent& event);
    
    wxComboBox*     spacecraftComboBox;
-   wxComboBox*     stateTypeComboBox;
+//   wxComboBox*     stateTypeComboBox;
    wxComboBox*     coordinateSystemComboBox;
    wxCheckBox*     writeEphemerisCheckBox;
    wxComboBox*     fileFormatComboBox;

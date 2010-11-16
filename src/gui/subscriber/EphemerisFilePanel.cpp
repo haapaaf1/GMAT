@@ -120,13 +120,13 @@ void EphemerisFilePanel::Create()
    grid1->Add(spacecraftStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid1->Add(spacecraftComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
-   id = mObject->GetParameterID("StateType");
-   wxStaticText * stateTypeStaticText =
-      new wxStaticText(this, ID_TEXT, wxT("State T"GUI_ACCEL_KEY"ype"), wxDefaultPosition, wxDefaultSize, 0 );
-   stateTypeComboBox = (wxComboBox*) BuildControl(this, id);
-   stateTypeComboBox->SetToolTip(pConfig->Read(_T("StateTypeHint")));
-   grid1->Add(stateTypeStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
-   grid1->Add(stateTypeComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
+//   id = mObject->GetParameterID("StateType");
+//   wxStaticText * stateTypeStaticText =
+//      new wxStaticText(this, ID_TEXT, wxT("State T"GUI_ACCEL_KEY"ype"), wxDefaultPosition, wxDefaultSize, 0 );
+//   stateTypeComboBox = (wxComboBox*) BuildControl(this, id);
+//   stateTypeComboBox->SetToolTip(pConfig->Read(_T("StateTypeHint")));
+//   grid1->Add(stateTypeStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
+//   grid1->Add(stateTypeComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    
    id = mObject->GetParameterID("CoordinateSystem");
    wxStaticText * coordinateSystemStaticText =
@@ -178,6 +178,7 @@ void EphemerisFilePanel::Create()
       new  wxStaticText(this, ID_TEXT, wxT("Interpolato"GUI_ACCEL_KEY"r"), wxDefaultPosition, wxDefaultSize, 0 );
    interpolatorComboBox = (wxComboBox*) BuildControl(this, id);
    interpolatorComboBox->SetToolTip(pConfig->Read(_T("InterpolatorHint")));
+   interpolatorComboBox->Enable(false);
    grid2->Add(interpolatorStaticText, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(interpolatorComboBox, 0, wxALIGN_LEFT|wxALL, bsize );
    grid2->Add(0, 0, wxALIGN_CENTER|wxALL, bsize );
@@ -469,11 +470,11 @@ void EphemerisFilePanel::LoadControl(const std::string &label)
       valueString = wxT(mObject->GetStringParameter(label).c_str());
       spacecraftComboBox->SetValue(valueString);
    }
-   else if (label == "StateType")
-   {
-      valueString = wxT(mObject->GetStringParameter(label).c_str());
-      stateTypeComboBox->SetValue(valueString);
-   }
+//   else if (label == "StateType")
+//   {
+//      valueString = wxT(mObject->GetStringParameter(label).c_str());
+//      stateTypeComboBox->SetValue(valueString);
+//   }
    else if (label == "CoordinateSystem")
    {
       valueString = wxT(mObject->GetStringParameter(label).c_str());
@@ -488,17 +489,25 @@ void EphemerisFilePanel::LoadControl(const std::string &label)
    {
       valueString = wxT(mObject->GetStringParameter(label).c_str());
       fileFormatComboBox->SetValue(valueString);
+
+      // Set interpolator based on the format, per bug 2219
+      valueString = wxT(mObject->GetStringParameter("Interpolator").c_str());
+      interpolatorComboBox->SetValue(valueString);
+      // Use the order from the object as well
+      valueInteger = mObject->GetIntegerParameter("InterpolationOrder");
+      interpolationOrderTextCtrl->SetValue(wxString::Format("%d",valueInteger));
    }
    else if (label == "Filename")
    {
       valueString = wxT(mObject->GetStringParameter(label).c_str());
       fileNameTextCtrl->SetValue(valueString);
    }
-   else if (label == "Interpolator")
-   {
-      valueString = wxT(mObject->GetStringParameter(label).c_str());
-      interpolatorComboBox->SetValue(valueString);
-   }
+   // Set interpolator based on the format, per bug 2219
+//   else if (label == "Interpolator")
+//   {
+//      valueString = wxT(mObject->GetStringParameter(label).c_str());
+//      interpolatorComboBox->SetValue(valueString);
+//   }
    else if (label == "InterpolationOrder")
    {
       valueInteger = mObject->GetIntegerParameter(label.c_str());
@@ -550,11 +559,12 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
       valueString = spacecraftComboBox->GetValue();
       mObject->SetStringParameter(index, valueString);
    }
-   else if (label == "StateType")
-   {
-      valueString = stateTypeComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
-   }
+   // Only allowed StateType is Cartesian for the 2010 release, per bug 2219
+//   else if (label == "StateType")
+//   {
+//      valueString = stateTypeComboBox->GetValue();
+//      mObject->SetStringParameter(index, valueString);
+//   }
    else if (label == "CoordinateSystem")
    {
       valueString = coordinateSystemComboBox->GetValue();
@@ -575,11 +585,12 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
       valueString = fileNameTextCtrl->GetValue();
       mObject->SetStringParameter(index, valueString);
    }
-   else if (label == "Interpolator")
-   {
-      valueString = interpolatorComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
-   }
+   // Set interpolator based on the format, per bug 2219
+//   else if (label == "Interpolator")
+//   {
+//      valueString = interpolatorComboBox->GetValue();
+//      mObject->SetStringParameter(index, valueString);
+//   }
    else if (label == "InterpolationOrder")
    {
       valueInteger = atoi(interpolationOrderTextCtrl->GetValue());
@@ -589,7 +600,8 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
    {
       valueString = stepSizeComboBox->GetValue();
       if ((valueString == "IntegratorSteps") ||
-          (CheckReal(stepSize, valueString, "StepSize", "Real Number > 0.0 or equals 'IntegratorSteps'", false, true, true, false)))
+          (CheckReal(stepSize, valueString, "StepSize", "Real Number > 0.0 or "
+                "equals 'IntegratorSteps'", false, true, true, false)))
          mObject->SetStringParameter(index, valueString);
    }
    else if (label == "EpochFormat")
@@ -624,6 +636,17 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
 //------------------------------------------------------------------------------
 void EphemerisFilePanel::OnComboBoxChange(wxCommandEvent& event)
 {
+   // Make the file type and interpolator compatible
+   if (event.GetEventObject() == fileFormatComboBox)
+   {
+      // MessageInterface::ShowMessage("File format ComboBoxChange\n");
+      wxString selection = fileFormatComboBox->GetValue();
+      if (selection == "SPK")
+         interpolatorComboBox->SetValue("Hermite");
+      if (selection == "CCSDS-OEM")
+         interpolatorComboBox->SetValue("Lagrange");
+   }
+
    if (theApplyButton != NULL)
       EnableUpdate(true);
 }
@@ -705,7 +728,7 @@ void EphemerisFilePanel::OnBrowse(wxCommandEvent &event)
    }
    else
    {
-      // only hide fileDialog when clik on Cancel button
+      // only hide fileDialog when click on Cancel button
       fileDialog->Hide();
    }
    

@@ -178,7 +178,8 @@ EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
    // Available enumeration type list, since it is static data, clear it first
    fileFormatList.clear();
    fileFormatList.push_back("CCSDS-OEM");
-   fileFormatList.push_back("CCSDS-AEM");
+   // CCSDS-AEM not allowed in 2010 release (bug 2219)
+//   fileFormatList.push_back("CCSDS-AEM");
    fileFormatList.push_back("SPK");
    
    epochFormatList.clear();
@@ -199,10 +200,11 @@ EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
    
    stepSizeList.clear();
    stepSizeList.push_back("IntegratorSteps");
-   
+
+   // Cartesian is the only allowed state type for the 2010 release (bug 2219)
    stateTypeList.clear();
    stateTypeList.push_back("Cartesian");
-   stateTypeList.push_back("Quaternion");
+//   stateTypeList.push_back("Quaternion");
    
    writeEphemerisList.clear();
    writeEphemerisList.push_back("Yes");
@@ -211,7 +213,9 @@ EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
    interpolatorTypeList.clear();
    interpolatorTypeList.push_back("Lagrange");
    interpolatorTypeList.push_back("Hermite");
-   interpolatorTypeList.push_back("SLERP");
+
+   // SLERP not allowed in 2010 release (Bug 2219)
+//   interpolatorTypeList.push_back("SLERP");
       
    #ifdef DEBUG_EPHEMFILE
    MessageInterface::ShowMessage
@@ -485,7 +489,7 @@ void EphemerisFile::ValidateParameters()
       // check interpolator type
       if (stepSize != "IntegratorSteps")
       {
-         // check for StateType Cartesion and Interpolator
+         // check for StateType Cartesian and Interpolator
          if (stateType == "Cartesian" && interpolatorName != "Lagrange")
             throw SubscriberException
                ("The Interpolator must be \"Lagrange\" for StateType of \"Cartesian\" for "
@@ -816,6 +820,13 @@ bool EphemerisFile::IsParameterReadOnly(const Integer id) const
 {
    if (id == SOLVER_ITERATIONS)
       return true;
+   // Disable state type until it is selectable -- currently must be Cartesian
+   if (id == STATE_TYPE)
+      return true;
+   // Disable interpolator type until it is selectable -- currently set by
+   // ephem file format
+   if (id == INTERPOLATOR)
+      return true;
    
    return Subscriber::IsParameterReadOnly(id);
 }
@@ -940,7 +951,17 @@ Integer EphemerisFile::SetIntegerParameter(const Integer id, const Integer value
    switch (id)
    {
    case INTERPOLATION_ORDER:
-      if (value >= 1 && value <= 10)
+   {
+      bool violatesHermiteOddness = false;
+      if (interpolatorName == "Hermite")
+      {
+         // Make sure the number is odd
+         Integer roundTrip = (Integer)((value / 2) * 2);
+         if (roundTrip == value)  // Number is even
+            violatesHermiteOddness = true;
+      }
+
+      if ((value >= 1 && value <= 10) && !violatesHermiteOddness)
       {
          interpolationOrder = value;
          return value;
@@ -948,12 +969,23 @@ Integer EphemerisFile::SetIntegerParameter(const Integer id, const Integer value
       else
       {
          SubscriberException se;
-         se.SetDetails(errorMessageFormat.c_str(),
-                       GmatStringUtil::ToString(value, 1).c_str(),
-                       GetParameterText(INTERPOLATION_ORDER).c_str(),
-                       "1 <= Integer Number <= 10");
+         if (interpolatorName == "Hermite")
+         {
+            se.SetDetails(errorMessageFormat.c_str(),
+                          GmatStringUtil::ToString(value, 1).c_str(),
+                          GetParameterText(INTERPOLATION_ORDER).c_str(),
+                          "1 <= Odd Integer Number <= 10");
+         }
+         else
+         {
+            se.SetDetails(errorMessageFormat.c_str(),
+                          GmatStringUtil::ToString(value, 1).c_str(),
+                          GetParameterText(INTERPOLATION_ORDER).c_str(),
+                          "1 <= Integer Number <= 10");
+         }
          throw se;
       }
+   }
    default:
       return Subscriber::SetIntegerParameter(id, value);
    }
@@ -1036,11 +1068,20 @@ bool EphemerisFile::SetStringParameter(const Integer id, const std::string &valu
          filePath = oututPath + fileName;
       
       return true;
+
+   // Interpolator is now set along with file format (bug 2219)
    case FILE_FORMAT:
       if (find(fileFormatList.begin(), fileFormatList.end(), value) !=
           fileFormatList.end())
       {
          fileFormat = value;
+
+         // Code to link interpolator selection to file type
+         if (fileFormat == "CCSDS-OEM")
+            interpolatorName = "Lagrange";
+         if (fileFormat == "SPK")
+            interpolatorName = "Hermite";
+
          return true;
       }
       else
@@ -1097,8 +1138,27 @@ bool EphemerisFile::SetStringParameter(const Integer id, const std::string &valu
       {
          return SetStepSize(STEP_SIZE, value, stepSizeList);
       }
+   // Interpolator is now set along with file format (bug 2219); if the parm is
+   // passed in, just ensure compatibility
    case INTERPOLATOR:
-      interpolatorName = value;
+      if (fileFormat == "CCSDS-OEM")
+      {
+         if (value != "Lagrange")
+            throw SubscriberException("Cannot set interpolator \"" + value +
+                  "\" on the EphemerisFile named \"" + instanceName +
+                  "\"; CCSDS-OEM ephemerides require Lagrange interpolators");
+      }
+      else if (fileFormat == "SPK")
+      {
+         if (value != "Hermite")
+            throw SubscriberException("Cannot set interpolator \"" + value +
+                  "\" on the EphemerisFile named \"" + instanceName +
+                  "\"; SPK ephemerides require Hermite interpolators");
+      }
+      else
+         throw SubscriberException("The interpolator \"" + value +
+               "\" on the EphemerisFile named \"" + instanceName +
+               "\" cannot be set; set the file format to set the interpolator");
       return true;
    case STATE_TYPE:
       if (find(stateTypeList.begin(), stateTypeList.end(), value) !=
