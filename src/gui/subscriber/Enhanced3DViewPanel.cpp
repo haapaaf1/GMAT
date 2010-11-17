@@ -735,6 +735,8 @@ void Enhanced3DViewPanel::LoadData()
       mUpdatePlotFreqTextCtrl->SetValue(str);
       str.Printf("%d", mEnhanced3DView->GetIntegerParameter("NumPointsToRedraw"));
       mNumPointsToRedrawTextCtrl->SetValue(str);
+      str.Printf("%d", mEnhanced3DView->GetIntegerParameter("StarCount"));
+      mStarCountTextCtrl->SetValue(str);
       
       mShowPlotCheckBox->SetValue(mEnhanced3DView->IsActive());
       mXYPlaneCheckBox->
@@ -753,10 +755,10 @@ void Enhanced3DViewPanel::LoadData()
          SetValue(mEnhanced3DView->GetOnOffParameter("UseInitialView") == "On");
       mSolverIterComboBox->
          SetValue(mEnhanced3DView->GetStringParameter("SolverIterations").c_str());
-                mEnableStarsCheckBox->
-                        SetValue(mEnhanced3DView->GetOnOffParameter("EnableStars") == "On");
-                mEnableConstellationsCheckBox->
-                        SetValue(mEnhanced3DView->GetOnOffParameter("EnableConstellations") == "On");
+      mEnableStarsCheckBox->
+         SetValue(mEnhanced3DView->GetOnOffParameter("EnableStars") == "On");
+      mEnableConstellationsCheckBox->
+         SetValue(mEnhanced3DView->GetOnOffParameter("EnableConstellations") == "On");
       
       #ifdef __ENABLE_GL_PERSPECTIVE__
       mPerspectiveModeCheckBox->
@@ -1248,21 +1250,21 @@ void Enhanced3DViewPanel::SaveData()
                                          mSolverIterComboBox->GetValue().c_str());
       }
 
-                //--------------------------------------------------------------
-                // save star options
-                //--------------------------------------------------------------
-                if (mHasStarOptionChanged){
-                        mHasStarOptionChanged = false;
-                        if (mEnableStarsCheckBox->IsChecked())
-                                mEnhanced3DView->SetOnOffParameter("EnableStars", "On");
-                        else
-                                mEnhanced3DView->SetOnOffParameter("EnableStars", "Off");
-
-                        if (mEnableConstellationsCheckBox->IsChecked())
-                                mEnhanced3DView->SetOnOffParameter("EnableConstellations", "On");
-                        else
-                                mEnhanced3DView->SetOnOffParameter("EnableConstellations", "Off");
-                }
+      //--------------------------------------------------------------
+      // save star options
+      //--------------------------------------------------------------
+      if (mHasStarOptionChanged){
+         mHasStarOptionChanged = false;
+         if (mEnableStarsCheckBox->IsChecked())
+            mEnhanced3DView->SetOnOffParameter("EnableStars", "On");
+         else
+            mEnhanced3DView->SetOnOffParameter("EnableStars", "Off");
+         
+         if (mEnableConstellationsCheckBox->IsChecked())
+            mEnhanced3DView->SetOnOffParameter("EnableConstellations", "On");
+         else
+            mEnhanced3DView->SetOnOffParameter("EnableConstellations", "Off");
+      }
       
       
       //--------------------------------------------------------------
@@ -1799,23 +1801,23 @@ void Enhanced3DViewPanel::OnCheckBoxChange(wxCommandEvent& event)
           mSelSpName.c_str(), mDrawObjectMap[mSelSpName]);
       #endif
    }
-        else if (event.GetEventObject() == mEnableStarsCheckBox)
-        {
-                if (mEnableStarsCheckBox->GetValue()){
-                        mEnableConstellationsCheckBox->Enable();
-                        mStarCountTextCtrl->Enable();
-                }
-                else {
-                        mEnableConstellationsCheckBox->Disable();
-                        mEnableConstellationsCheckBox->SetValue(false);
-                        mStarCountTextCtrl->Disable();
-                }
-                mHasStarOptionChanged = true;
-        }
-        else if (event.GetEventObject() == mEnableConstellationsCheckBox)
-        {
-                mHasStarOptionChanged = true;
-        }
+   else if (event.GetEventObject() == mEnableStarsCheckBox)
+   {
+      if (mEnableStarsCheckBox->GetValue()){
+         mEnableConstellationsCheckBox->Enable();
+         mStarCountTextCtrl->Enable();
+      }
+      else {
+         mEnableConstellationsCheckBox->Disable();
+         mEnableConstellationsCheckBox->SetValue(false);
+         mStarCountTextCtrl->Disable();
+      }
+      mHasStarOptionChanged = true;
+   }
+   else if (event.GetEventObject() == mEnableConstellationsCheckBox)
+   {
+      mHasStarOptionChanged = true;
+   }
    else
    {
       mHasDrawingOptionChanged = true;
