@@ -27,7 +27,7 @@
 //#define DEBUG_IMPBURN_SET
 //#define DEBUG_IMPBURN_OBJECT
 //#define DEBUG_IMPBURN_FIRE
-//#define DEBUG_IMPBURN_DECMASS
+#define DEBUG_IMPBURN_DECMASS
 
 //---------------------------------
 // static data

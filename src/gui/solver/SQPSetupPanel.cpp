@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                SQPSetupPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -433,8 +433,8 @@ void SQPSetupPanel::OnBrowse(wxCommandEvent &event)
 		wxString caption = wxT("Choose a File");
 		wxString defaultDir = wxT("C:/DevelGMAT/scripts/");
 		wxString defaultFile = wxEmptyString;
-		wxString wildcard = wxT("*.script");
-
+		//wxString wildcard = wxT("*.script");
+		wxString wildcard = wxT("Data files (*.data)|*.data|All files (*.*)|*.*");
 		fileDialog = new wxFileDialog(this, caption,
 			defaultDir, defaultFile,
 			wildcard, wxOPEN);
