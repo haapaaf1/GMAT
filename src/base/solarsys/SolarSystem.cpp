@@ -2683,6 +2683,7 @@ bool SolarSystem::SetStringParameter(const Integer id,
    if (id == LSK_FILE_NAME)
    {
       SetLSKFile(value);
+      return true;
    }
 
    return GmatBase::SetStringParameter(id, value);
