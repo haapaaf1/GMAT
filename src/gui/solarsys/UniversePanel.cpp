@@ -417,6 +417,14 @@ void UniversePanel::SaveData()
 {
    #ifdef DEBUG_UNIVERSEPANEL_SAVE
    MessageInterface::ShowMessage("UniversePanel::SaveData() entered\n");
+   MessageInterface::ShowMessage(" hasTextModified = %s\n",
+         (mHasTextModified? "true": "false"));
+   MessageInterface::ShowMessage(" mHasFileTypesInUseChanged = %s\n",
+         (mHasFileTypesInUseChanged? "true": "false"));
+   MessageInterface::ShowMessage(" mHasFileNameChanged = %s\n",
+         (mHasFileNameChanged? "true": "false"));
+   MessageInterface::ShowMessage(" mHasLSKFileNameChanged = %s\n",
+         (mHasLSKFileNameChanged? "true": "false"));
    #endif
    
    canClose = true;
@@ -659,6 +667,17 @@ void UniversePanel::OnCheckBoxChange(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void UniversePanel::OnTextCtrlChange(wxCommandEvent& event)
 {
+   #ifdef DEBUG_UNIVERSEPANEL_SAVE
+   MessageInterface::ShowMessage("UniversePanel::OnTextCtrlChange() entered\n");
+   MessageInterface::ShowMessage(" hasTextModified = %s\n",
+         (mHasTextModified? "true": "false"));
+   MessageInterface::ShowMessage(" mHasFileTypesInUseChanged = %s\n",
+         (mHasFileTypesInUseChanged? "true": "false"));
+   MessageInterface::ShowMessage(" mHasFileNameChanged = %s\n",
+         (mHasFileNameChanged? "true": "false"));
+   MessageInterface::ShowMessage(" mHasLSKFileNameChanged = %s\n",
+         (mHasLSKFileNameChanged? "true": "false"));
+   #endif
    if (event.GetEventObject() == mIntervalTextCtrl)
    {
       if (mIntervalTextCtrl->IsModified())
@@ -667,13 +686,26 @@ void UniversePanel::OnTextCtrlChange(wxCommandEvent& event)
    
    if (event.GetEventObject() == mFileNameTextCtrl)
    {
-      mHasFileNameChanged = true;
+      if (mFileNameTextCtrl->IsModified())
+         mHasFileNameChanged = true;
    }
    
    if (event.GetEventObject() == mLSKFileNameTextCtrl)
    {
-      mHasLSKFileNameChanged = true;
+      if (mLSKFileNameTextCtrl->IsModified())
+         mHasLSKFileNameChanged = true;
    }
 
    EnableUpdate(true);
+   #ifdef DEBUG_UNIVERSEPANEL_SAVE
+   MessageInterface::ShowMessage("end of UniversePanel::OnTextCtrlChange() entered\n");
+   MessageInterface::ShowMessage(" hasTextModified = %s\n",
+         (mHasTextModified? "true": "false"));
+   MessageInterface::ShowMessage(" mHasFileTypesInUseChanged = %s\n",
+         (mHasFileTypesInUseChanged? "true": "false"));
+   MessageInterface::ShowMessage(" mHasFileNameChanged = %s\n",
+         (mHasFileNameChanged? "true": "false"));
+   MessageInterface::ShowMessage(" mHasLSKFileNameChanged = %s\n",
+         (mHasLSKFileNameChanged? "true": "false"));
+   #endif
 }
