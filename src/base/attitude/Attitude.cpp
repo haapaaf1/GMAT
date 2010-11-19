@@ -1167,6 +1167,73 @@ UnsignedIntArray Attitude::ExtractEulerSequence(const std::string &seqStr)
 }
 
 //------------------------------------------------------------------------------
+//  Rmatrix33  EulerAxisAndAngleToDCM(const Rvector3 &eAxis, Real eAngle)
+//------------------------------------------------------------------------------
+/**
+ * This method computes the direction cosine matrix given the input
+ * euler axis and angle.
+ *
+ * @param <eAxis>  euler axis.
+ * @param <eAngle> euler angle.
+ *
+ * @return  Cosine matrix representation of the attitude.
+ *
+ */
+//------------------------------------------------------------------------------
+Rmatrix33 Attitude::EulerAxisAndAngleToDCM(const Rvector3 &eAxis, Real eAngle)
+{
+   Rmatrix33 a_x(      0.0, -eAxis(2),  eAxis(1),
+                  eAxis(2),       0.0, -eAxis(0),
+                 -eAxis(1),  eAxis(0),      0.0);
+   Rmatrix33 I33(true);
+   Real c = GmatMathUtil::Cos(eAngle);
+   Real s = GmatMathUtil::Sin(eAngle);
+   return Rmatrix33((c*I33) + ((1.0 - c)*Outerproduct(eAxis, eAxis))
+                    - s*a_x);
+}
+
+//------------------------------------------------------------------------------
+//  void  DCMToEulerAxisAndAngle(const Rmatrix33 &cosmat,
+//                               Rvector3 &eAxis, Real &eAngle)
+//------------------------------------------------------------------------------
+/**
+ * This method computes the direction cosine matrix given the input
+ * euler axis and angle.
+ *
+ * @param <cosmat>  cosine matrix.
+ * @param <eAxis>   euler axis (output).
+ * @param <eAngle>  euler angle (output).
+ *
+ * @return  Euler Axis/Angle representation of the attitude.
+ *
+ */
+//------------------------------------------------------------------------------
+void Attitude::DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat,
+                                      Rvector3 &eAxis, Real &eAngle)
+{
+   static Real TOL = 1.0E-14;
+   Real R12  = cosMat(0,1);
+   Real R13  = cosMat(0,2);
+   Real R21  = cosMat(1,0);
+   Real R23  = cosMat(1,2);
+   Real R31  = cosMat(2,0);
+   Real R32  = cosMat(2,1);
+
+   eAngle      = GmatMathUtil::ACos(0.5 * (cosMat.Trace() - 1.0));
+   Real s      = GmatMathUtil::Sin(eAngle);
+   if (GmatMathUtil::Abs(s)  < TOL)
+   {
+      eAxis.Set(1.0, 0.0, 0.0);
+      return;
+   }
+   Real mult   = 1.0 / (2.0 * s);
+   eAxis.Set(mult*(R23-R32), mult*(R31-R13), mult*(R12-R21));
+   return;
+}
+
+
+
+//------------------------------------------------------------------------------
 // public methods
 //------------------------------------------------------------------------------
 
@@ -1178,7 +1245,7 @@ UnsignedIntArray Attitude::ExtractEulerSequence(const std::string &seqStr)
  * The default value is the (0,0,0,1) quaternion.
  */
 //------------------------------------------------------------------------------
-Attitude::Attitude(const std::string &typeStr, const std::string &itsName) : 
+Attitude::Attitude(const std::string &typeStr, const std::string &itsName) :
    GmatBase(Gmat::ATTITUDE, typeStr, itsName),
    inputAttitudeType       (GmatAttitude::EULER_ANGLES_AND_SEQUENCE_TYPE),
    inputAttitudeRateType   (GmatAttitude::ANGULAR_VELOCITY_TYPE),
@@ -1197,7 +1264,7 @@ Attitude::Attitude(const std::string &typeStr, const std::string &itsName) :
    parameterCount = AttitudeParamCount;
    objectTypes.push_back(Gmat::ATTITUDE);
    objectTypeNames.push_back("Attitude");
-   
+
    // push the default sequence to the array
    unsigned int defSeq[3] = {3, 2, 1};  // Dunn Changed from 312 to 321
    eulerSequenceArray.push_back(defSeq[0]);
@@ -3428,71 +3495,6 @@ const std::string& Attitude::GetGeneratingString(Gmat::WriteMode   mode,
 // protected methods
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-//  Rmatrix33  EulerAxisAndAngleToDCM(const Rvector3 &eAxis, Real eAngle)
-//------------------------------------------------------------------------------
-/**
- * This method computes the direction cosine matrix given the input
- * euler axis and angle.
- *
- * @param <eAxis>  euler axis.
- * @param <eAngle> euler angle.
- *
- * @return  Cosine matrix representation of the attitude.
- *
- */
-//------------------------------------------------------------------------------
-Rmatrix33 Attitude::EulerAxisAndAngleToDCM(const Rvector3 &eAxis, Real eAngle)
-{
-   Rmatrix33 a_x(      0.0, -eAxis(2),  eAxis(1),
-                  eAxis(2),       0.0, -eAxis(0),
-                 -eAxis(1),  eAxis(0),      0.0);
-   Rmatrix33 I33(true);
-   Real c = GmatMathUtil::Cos(eAngle);
-   Real s = GmatMathUtil::Sin(eAngle);
-   return Rmatrix33((c*I33) + ((1.0 - c)*Outerproduct(eAxis, eAxis))
-                    - s*a_x);
-}
-
-//------------------------------------------------------------------------------
-//  void  DCMToEulerAxisAndAngle(const Rmatrix33 &cosmat, 
-//                               Rvector3 &eAxis, Real &eAngle)
-//------------------------------------------------------------------------------
-/**
- * This method computes the direction cosine matrix given the input
- * euler axis and angle.
- *
- * @param <cosmat>  cosine matrix.
- * @param <eAxis>   euler axis (output).
- * @param <eAngle>  euler angle (output).
- *
- * @return  Euler Axis/Angle representation of the attitude.
- *
- */
-//------------------------------------------------------------------------------
-void Attitude::DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat, 
-                                      Rvector3 &eAxis, Real &eAngle)
-{
-   static Real TOL = 1.0E-14;
-   Real R12  = cosMat(0,1);
-   Real R13  = cosMat(0,2);
-   Real R21  = cosMat(1,0);
-   Real R23  = cosMat(1,2);
-   Real R31  = cosMat(2,0);
-   Real R32  = cosMat(2,1);
-   
-   eAngle      = GmatMathUtil::ACos(0.5 * (cosMat.Trace() - 1.0));
-   Real s      = GmatMathUtil::Sin(eAngle);
-   if (GmatMathUtil::Abs(s)  < TOL)
-   {
-      eAxis.Set(1.0, 0.0, 0.0);
-      return;
-   }
-   Real mult   = 1.0 / (2.0 * s);
-   eAxis.Set(mult*(R23-R32), mult*(R31-R13), mult*(R12-R21));
-   return;
-}
-                            
                             
 
 //------------------------------------------------------------------------------

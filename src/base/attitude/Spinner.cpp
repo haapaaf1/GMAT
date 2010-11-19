@@ -219,7 +219,7 @@ void Spinner::ComputeCosineMatrixAndAngularVelocity(Real atTime)
                               GmatTimeUtil::SECS_PER_DAY;
    // Compute the Euler angle
    Real      theEAngle      = initialwMag * dt;
-   Rmatrix33 RBB0t          = EulerAxisAndAngleToDCM(
+   Rmatrix33 RBB0t          = Attitude::EulerAxisAndAngleToDCM(
                               initialeAxis, theEAngle);
    
    cosMat                   = RBB0t * RB0I;

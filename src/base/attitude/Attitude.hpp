@@ -92,7 +92,15 @@ public:
                                       
    static StringArray       GetEulerSequenceStrings();
    static UnsignedIntArray  ExtractEulerSequence(const std::string &seqStr);
-   // END static methods for conversion
+
+
+   // method to convert an euler axis and angle to a cosine matrix
+   static Rmatrix33 EulerAxisAndAngleToDCM(
+                        const Rvector3 &eAxis, Real eAngle);
+   // method to convert a cosine matrix to an euler axis and angle
+   static void      DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat,
+                                            Rvector3 &eAxis, Real &eAngle);
+// END static methods for conversion
 
 
    // Constructor
@@ -320,12 +328,6 @@ protected:
    
    std::string attitudeModelName;
  
-   // method to convert an euler axis and angle to a cosine matrix                     
-   virtual Rmatrix33 EulerAxisAndAngleToDCM(
-                        const Rvector3 &eAxis, Real eAngle);
-   // method to convert a cosine matrix to an euler axis and angle
-   virtual void      DCMToEulerAxisAndAngle(const Rmatrix33 &cosMat, 
-                                            Rvector3 &eAxis, Real &eAngle);
 
    
    //------------------------------------------------------------------------------
