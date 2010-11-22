@@ -23,6 +23,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_CP_OBJECT
+//#define DEBUG_CP_BODIES
 
 //---------------------------------
 // static data
@@ -81,6 +82,7 @@ SpacePoint          (cp)
 {
    bodyNames.clear();
    bodyList.clear();
+   defaultBodies.clear();
    // copy the list of body pointers
    for (unsigned int i = 0; i < (cp.bodyList).size(); i++)
    {
@@ -92,6 +94,12 @@ SpacePoint          (cp)
       bodyNames.push_back((cp.bodyNames).at(i));
    }
    numberOfBodies = (Integer) bodyList.size();
+
+   // copy the list of default body names
+   for (unsigned int i = 0; i < (cp.defaultBodies).size(); i++)
+   {
+      defaultBodies.push_back((cp.defaultBodies).at(i));
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -114,6 +122,7 @@ CalculatedPoint& CalculatedPoint::operator=(const CalculatedPoint &cp)
    SpacePoint::operator=(cp);
    bodyNames.clear();
    bodyList.clear();
+   defaultBodies.clear();
    // copy the list of body pointers
    for (unsigned int i = 0; i < (cp.bodyList).size(); i++)
    {
@@ -125,6 +134,13 @@ CalculatedPoint& CalculatedPoint::operator=(const CalculatedPoint &cp)
       bodyNames.push_back((cp.bodyNames).at(i));
    }
    numberOfBodies = (Integer) bodyList.size();
+
+   // copy the list of default body names
+   for (unsigned int i = 0; i < (cp.defaultBodies).size(); i++)
+   {
+      defaultBodies.push_back((cp.defaultBodies).at(i));
+   }
+
    return *this;
 }
 
@@ -137,7 +153,9 @@ CalculatedPoint& CalculatedPoint::operator=(const CalculatedPoint &cp)
 //------------------------------------------------------------------------------
 CalculatedPoint::~CalculatedPoint()
 {
-   // nothing to do here ..... hm .. hm .. hm
+   bodyNames.clear();
+   bodyList.clear();
+   defaultBodies.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -513,7 +531,8 @@ const StringArray& CalculatedPoint::GetStringArrayParameter(const Integer id) co
 {
    if (id == BODY_NAMES)
    {
-      return bodyNames;
+      if (!bodyNames.empty()) return bodyNames;
+      else                    return defaultBodies;
    }
    
    return SpacePoint::GetStringArrayParameter(id);
@@ -557,7 +576,7 @@ GmatBase* CalculatedPoint::GetRefObject(const Gmat::ObjectType type,
                                         const std::string &name,
                                         const Integer index)
 {
-   if (type == Gmat::SPACE_POINT) 
+   if (type == Gmat::SPACE_POINT)
    {
       try
       {
@@ -666,12 +685,17 @@ bool CalculatedPoint::RenameRefObject(const Gmat::ObjectType type,
                                       const std::string &oldName,
                                       const std::string &newName)
 {
-   if (type == Gmat::CALCULATED_POINT)
+   if ((type == Gmat::SPACE_POINT) || (type == Gmat::CALCULATED_POINT))
    {
       for (unsigned int i=0; i< bodyNames.size(); i++)
       {
          if (bodyNames[i] == oldName)
              bodyNames[i] = newName;
+      }
+      for (unsigned int i=0; i< defaultBodies.size(); i++)
+      {
+         if (defaultBodies[i] == oldName)
+            defaultBodies[i] = newName;
       }
    }
    return SpacePoint::RenameRefObject(type, oldName, newName);
@@ -725,7 +749,10 @@ const StringArray& CalculatedPoint::GetRefObjectNameArray(const Gmat::ObjectType
 {
    if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::SPACE_POINT)
    {
-      return bodyNames;
+      if (!bodyNames.empty())
+         return bodyNames;
+      else
+         return defaultBodies;
    }
    
    // Not handled here -- invoke the next higher GetRefObject call
@@ -751,10 +778,39 @@ bool CalculatedPoint::TakeAction(const std::string &action,
    {
       bodyNames.clear();
       bodyList.clear();
+      defaultBodies.clear();
       numberOfBodies = 0;
       return true; 
    }
    return SpacePoint::TakeAction(action, actionData);
+}
+
+
+//---------------------------------------------------------------------------
+//  void SetDefaultBody(const std::string &defBody)
+//---------------------------------------------------------------------------
+/**
+ * Method returning the total mass of the celestial bodies included in
+ * this Barycenter.
+ *
+ * @return total mass of the celestial bodies included in this Barycenter.
+ */
+//---------------------------------------------------------------------------
+void CalculatedPoint::SetDefaultBody(const std::string &defBody)
+{
+   if (find(defaultBodies.begin(), defaultBodies.end(), defBody) == defaultBodies.end())
+   {
+      #ifdef DEBUG_CP_BODIES
+         MessageInterface::ShowMessage("Adding %s to DEFAULT body name list for object %s\n",
+               defBody.c_str(), instanceName.c_str());
+      #endif
+         defaultBodies.push_back(defBody);
+   }
+}
+
+const StringArray& CalculatedPoint::GetDefaultBodies() const
+{
+   return defaultBodies;
 }
 
 

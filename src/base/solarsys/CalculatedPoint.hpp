@@ -108,6 +108,10 @@ public:
    virtual bool         TakeAction(const std::string &action,  
                                    const std::string &actionData = "");
    
+   virtual void         SetDefaultBody(const std::string &defBody);
+   virtual const StringArray&
+                        GetDefaultBodies() const;
+
 protected:
    
    enum
@@ -128,6 +132,9 @@ protected:
    std::vector<SpacePoint*> bodyList;
    /// list of body names
    StringArray              bodyNames;
+
+   // names of the default bodies to use
+   StringArray defaultBodies;
     
 private:
       
