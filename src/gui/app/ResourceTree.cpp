@@ -3062,6 +3062,14 @@ void ResourceTree::OnAddPlanet(wxCommandEvent &event)
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
+      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+      if (ss->IsBodyInUse(newName))
+      {
+         std::string errmsg = "Error creating new planet: celestial body \"";
+         errmsg += newName + "\" already exists.";
+         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+         return;
+      }
       GmatBase *obj = theGuiInterpreter->CreateObject("Planet", newName);
       ((CelestialBody*)obj)->SetCentralBody(cBody);
       // For now, we only have one solar system with one star ...
@@ -3111,6 +3119,14 @@ void ResourceTree::OnAddMoon(wxCommandEvent &event)
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
+      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+      if (ss->IsBodyInUse(newName))
+      {
+         std::string errmsg = "Error creating new Moon: celestial body \"";
+         errmsg += newName + "\" already exists.";
+         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+         return;
+      }
       GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName);
       ((CelestialBody*)obj)->SetCentralBody(cBody);
       // For now, we only have one solar system with one star ...
@@ -3165,6 +3181,14 @@ void ResourceTree::OnAddComet(wxCommandEvent &event)
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
+      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+      if (ss->IsBodyInUse(newName))
+      {
+         std::string errmsg = "Error creating new comet: celestial body \"";
+         errmsg += newName + "\" already exists.";
+         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+         return;
+      }
       GmatBase *obj = theGuiInterpreter->CreateObject("Comet", newName);
       #ifdef DEBUG_ADD_COMET
          if (obj == NULL)
@@ -3220,6 +3244,14 @@ void ResourceTree::OnAddAsteroid(wxCommandEvent &event)
    if (!name.IsEmpty())
    {
       const std::string newName = name.c_str();
+      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+      if (ss->IsBodyInUse(newName))
+      {
+         std::string errmsg = "Error creating new asteroid: celestial body \"";
+         errmsg += newName + "\" already exists.";
+         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+         return;
+      }
       GmatBase *obj = theGuiInterpreter->CreateObject("Asteroid", newName);
       ((CelestialBody*)obj)->SetCentralBody(cBody);
       // For now, we only have one solar system with one star ...
