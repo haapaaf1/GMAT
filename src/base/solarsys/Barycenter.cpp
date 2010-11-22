@@ -22,6 +22,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_BARYCENTER
+//#define DEBUG_BARYCENTER_BODIES
 
 //---------------------------------
 // static data
@@ -199,6 +200,17 @@ const Rvector3 Barycenter::GetMJ2000Velocity(const A1Mjd &atTime)
    return (tmp.GetV());
 }
 
+
+//---------------------------------------------------------------------------
+//  Real GetMass()
+//---------------------------------------------------------------------------
+/**
+ * Method returning the total mass of the celestial bodies included in
+ * this Barycenter.
+ *
+ * @return total mass of the celestial bodies included in this Barycenter.
+ */
+//---------------------------------------------------------------------------
 Real Barycenter::GetMass() 
 {
    Real     sumMass  = 0.0;
@@ -208,6 +220,7 @@ Real Barycenter::GetMass()
    }
    return sumMass;
 }
+
 
 //------------------------------------------------------------------------------
 //  std::string  GetParameterText(const Integer id) const
@@ -322,6 +335,47 @@ void Barycenter::Copy(const GmatBase* orig)
 }
 
 
+//---------------------------------------------------------------------------
+//  bool Initialize()
+//---------------------------------------------------------------------------
+/**
+ * Method that initializes this Barycenter.
+ *
+ * @return success flag for initializing
+ */
+//---------------------------------------------------------------------------
+bool Barycenter::Initialize()
+{
+   #ifdef DEBUG_BARYCENTER_BODIES
+      MessageInterface::ShowMessage("Entering Barycenter::Initialize\n   bodyNames:\n");
+      for (unsigned int ii = 0; ii < bodyNames.size(); ii++)
+         MessageInterface::ShowMessage("   %d    %s\n", ii, (bodyNames.at(ii)).c_str());
+      MessageInterface::ShowMessage("and defaultBodies:\n");
+      for (unsigned int ii = 0; ii < defaultBodies.size(); ii++)
+         MessageInterface::ShowMessage("   %d    %s\n", ii, (defaultBodies.at(ii)).c_str());
+   #endif
+   if ((bodyNames.empty()) && !(defaultBodies.empty()))
+   {
+      for (unsigned int ii = 0; ii < defaultBodies.size(); ii++)
+         bodyNames.push_back(defaultBodies.at(ii));
+//      bodyNames = defaultBodies;
+   }
+   if (bodyNames.empty())
+   {
+      std::string errmsg = "No celestial body specified for Barycenter ";
+      errmsg += instanceName + "\n";
+      throw SolarSystemException(errmsg);
+   }
+   #ifdef DEBUG_BARYCENTER_BODIES
+      MessageInterface::ShowMessage("at end of Barycenter::Initialize\n   bodyNames:\n");
+      for (unsigned int ii = 0; ii < bodyNames.size(); ii++)
+         MessageInterface::ShowMessage("   %d    %s\n", ii, (bodyNames.at(ii)).c_str());
+   #endif
+   return CalculatedPoint::Initialize();
+}
+
+
+
 //------------------------------------------------------------------------------
 // private methods
 //------------------------------------------------------------------------------
@@ -338,6 +392,9 @@ void Barycenter::Copy(const GmatBase* orig)
 //------------------------------------------------------------------------------
 void Barycenter::CheckBodies()
 {
+   if (bodyNames.empty())
+      throw SolarSystemException("Attempting to use Barycenter with no bodies set ...\n");
+
    for (unsigned int i = 0; i < bodyList.size() ; i++)
       if ((bodyList.at(i))->GetType() != Gmat::CELESTIAL_BODY)
          throw SolarSystemException(
