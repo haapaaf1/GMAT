@@ -52,6 +52,7 @@
 
 #include "NoOp.hpp"
 #include "GravityField.hpp"
+#include "CalculatedPoint.hpp"
 #include "TimeSystemConverter.hpp"  // for SetLeapSecsFileReader(), SetEopFile()
 #include "BodyFixedAxes.hpp"        // for SetEopFile(), SetCoefficientsFile()
 #include "ObjectReferencedAxes.hpp"
@@ -2027,19 +2028,20 @@ CalculatedPoint* Moderator::CreateCalculatedPoint(const std::string &type,
       {
          if (addDefaultBodies)
          {
-            ;
 //            obj->SetStringParameter("BodyNames", "Earth");
-//
-//            // Set body and J2000Body pointer, so that GUI can create LibrationPoint
-//            // and use it in Coord.System conversion
+            ((CalculatedPoint*) obj)->SetDefaultBody("Earth");
+            ((CalculatedPoint*) obj)->SetDefaultBody("Luna");
+
+            // Set body and J2000Body pointer, so that GUI can create LibrationPoint
+            // and use it in Coord.System conversion
 //            SpacePoint *earth = (SpacePoint*)FindObject("Earth");
 //            obj->SetRefObject(earth, Gmat::SPACE_POINT, "Earth");
-//
-//            // obj->SetStringParameter("BodyNames", "Luna");
-//            // SpacePoint *luna = (SpacePoint*)FindObject("Luna");
-//            // if (luna->GetJ2000Body() == NULL)
-//            //    luna->SetJ2000Body(earth);
-//            // obj->SetRefObject(luna, Gmat::SPACE_POINT, "Luna");
+
+            // obj->SetStringParameter("BodyNames", "Luna");
+            // SpacePoint *luna = (SpacePoint*)FindObject("Luna");
+            // if (luna->GetJ2000Body() == NULL)
+            //    luna->SetJ2000Body(earth);
+            // obj->SetRefObject(luna, Gmat::SPACE_POINT, "Luna");
          }
       }
       

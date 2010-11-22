@@ -132,6 +132,8 @@ void BarycenterPanel::LoadData()
    {
       StringArray selectedBodies = theBarycenter->
          GetStringArrayParameter("BodyNames");
+      if (selectedBodies.empty())
+         selectedBodies = theBarycenter->GetDefaultBodies();
       
       for (unsigned int i=0; i<selectedBodies.size(); i++)
       {
