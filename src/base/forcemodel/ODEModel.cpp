@@ -1921,6 +1921,9 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
                dynamicObjects[i]->SetRealParameter(dynamicIDs[i],
                      state[dynamicsIndex[i]]);
          }
+         else  // Handle the other (non-Cartesian) dynamical property changes
+            dynamicObjects[i]->SetRealParameter(dynamicIDs[i],
+                  state[dynamicsIndex[i]]);
       }
       UpdateInitialData(true);
    }

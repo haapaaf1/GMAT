@@ -24,6 +24,7 @@
 //#define DEBUG_FINITETHRUST_INIT
 //#define DEBUG_REGISTRATION
 //#define DEBUG_FINITETHRUST_EXE
+//#define DEBUG_MASS_FLOW
 
 
 #include "MessageInterface.hpp"
@@ -599,7 +600,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                   accel[2] += burnData[2];
                   #ifdef DEBUG_MASS_FLOW
                      MessageInterface::ShowMessage(
-                           "   --> direction = [%.12lf %.12lf %.12lf]",
+                           "   --> direction = [%.12le %.12le %.12le]",
                            accel[0], accel[1], accel[2]);
                   #endif
                   if ((*fb)->DepletesMass())
