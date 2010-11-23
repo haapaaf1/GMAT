@@ -1208,14 +1208,17 @@ bool SolarSystem::Initialize()
 {
    #ifdef DEBUG_SS_INIT
    MessageInterface::ShowMessage
-      ("SolarSystem::Initialize() this=<%p> entered, planetarySPK=<%p>\n"
-       "There are %d bodies in use\n", this, planetarySPK, bodiesInUse.size());
+      ("SolarSystem::Initialize() this=<%p> entered.\n"
+       "There are %d bodies in use\n", this, bodiesInUse.size());
    for (UnsignedInt i = 0; i < bodiesInUse.size(); i++)
    {
       CelestialBody *cb = bodiesInUse[i];
       MessageInterface::ShowMessage
          ("   <%p>  %-9s %-10s\n", cb, cb->GetTypeName().c_str(), cb->GetName().c_str());
    }
+   #ifdef __USE_SPICE__
+   MessageInterface::ShowMessage("   planetarySPK=<%p>\n", planetarySPK);
+   #endif
    #endif
 
 #ifdef __USE_SPICE__
@@ -2107,42 +2110,57 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
    return true;
 }
 
+
+//------------------------------------------------------------------------------
+// bool SolarSystem::SetSPKFile(const std::string &spkFile)
+//------------------------------------------------------------------------------
 bool SolarSystem::SetSPKFile(const std::string &spkFile)
 {
-   std::string fullSpkName = spkFile;
-   std::string spkPath = FileManager::Instance()->GetPathname("PLANETARY_SPK_FILE");
-   
-   if (GmatFileUtil::ParsePathName(spkFile) == "")
-      fullSpkName = spkPath + fullSpkName;
-   
-   if (!(GmatFileUtil::DoesFileExist(fullSpkName)))
+   if (!(GmatFileUtil::DoesFileExist(spkFile)))
    {
-      SolarSystemException sse;
-      sse.SetDetails(errorMessageFormat.c_str(),
-                     spkFile.c_str(), "SPKFilename", "File must exist");
-      throw sse;
+      // try again with path name from startup file
+      std::string fullSpkName = spkFile;
+      std::string spkPath = FileManager::Instance()->GetPathname("PLANETARY_SPK_FILE");
+      
+      if (GmatFileUtil::ParsePathName(spkFile) == "")
+         fullSpkName = spkPath + fullSpkName;
+      
+      if (!(GmatFileUtil::DoesFileExist(fullSpkName)))
+      {
+         SolarSystemException sse;
+         sse.SetDetails(errorMessageFormat.c_str(),
+                        spkFile.c_str(), "SPKFilename", "File must exist");
+         throw sse;
+      }
    }
+   
    theSPKFilename = spkFile;
    return true;
 }
 
 
 //------------------------------------------------------------------------------
+// bool SetLSKFile(const std::string &lskFile)
+//------------------------------------------------------------------------------
 bool SolarSystem::SetLSKFile(const std::string &lskFile)
 {
-   std::string fullLskName = lskFile;
-   std::string lskPath = FileManager::Instance()->GetPathname("LSK_FILE");
-   
-   if (GmatFileUtil::ParsePathName(lskFile) == "")
-      fullLskName = lskPath + fullLskName;
-   
-   if (!(GmatFileUtil::DoesFileExist(fullLskName)))
+   if (!(GmatFileUtil::DoesFileExist(lskFile)))
    {
-      SolarSystemException sse;
-      sse.SetDetails(errorMessageFormat.c_str(),
-                     lskFile.c_str(), "LSKFilename", "File must exist");
-      throw sse;
+      std::string fullLskName = lskFile;
+      std::string lskPath = FileManager::Instance()->GetPathname("LSK_FILE");
+      
+      if (GmatFileUtil::ParsePathName(lskFile) == "")
+         fullLskName = lskPath + fullLskName;
+      
+      if (!(GmatFileUtil::DoesFileExist(fullLskName)))
+      {
+         SolarSystemException sse;
+         sse.SetDetails(errorMessageFormat.c_str(),
+                        lskFile.c_str(), "LSKFilename", "File must exist");
+         throw sse;
+      }
    }
+   
    lskKernelName = lskFile;
    return true;
 }
