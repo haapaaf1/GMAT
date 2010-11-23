@@ -1978,14 +1978,20 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
             j, ddt[j]);
       #endif
       
+      #ifdef DEBUG_ODEMODEL_EXE
+         MessageInterface::ShowMessage("  deriv = [");
+      #endif
       for (Integer j = 0; j < dimension; ++j)
       {
          deriv[j] += ddt[j];
          #ifdef DEBUG_ODEMODEL_EXE
-            MessageInterface::ShowMessage("  deriv[%d] = %16.14le\n", j,
-               deriv[j]);
+            MessageInterface::ShowMessage(" %16.14le ", ddt[j]);
          #endif
       }
+      #ifdef DEBUG_ODEMODEL_EXE
+         MessageInterface::ShowMessage("]\n");
+      #endif
+
 
       #ifdef DEBUG_FIRST_CALL
          if (firstCallFired == false)
