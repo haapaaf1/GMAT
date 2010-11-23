@@ -21,6 +21,10 @@
 
 #include "gmatdefs.hpp"
 
+// forward references
+class EopFile;
+class ItrfCoefficientsFile;
+
 class GMAT_API GmatGlobal
 {
 public:
@@ -92,7 +96,7 @@ public:
    void SetMatlabAvailable(bool flag);
    bool IsMatlabDebugOn();
    void SetMatlabDebug(bool flag);
-   
+
    // IO formatting
    bool IsScientific();
    bool ShowPoint();
@@ -128,7 +132,13 @@ public:
    
    void SetToDefaultFormat();
    void SetToCurrentFormat();
-      
+   
+   // Files
+   EopFile* GetEopFile();
+   ItrfCoefficientsFile* GetItrfCoefficientsFile();
+   void SetEopFile(EopFile *eop);
+   void SetItrfCoefficientsFile(ItrfCoefficientsFile *itrf);
+   
 private:
 
    // Global setting
@@ -204,6 +214,9 @@ private:
    IoFormat actualFormat;
    
    std::string matlabExt;
+
+   EopFile *theEopFile;
+   ItrfCoefficientsFile *theItrfFile;
    
    /// The singleton instance
    static GmatGlobal *theGmatGlobal;

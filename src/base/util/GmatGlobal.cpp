@@ -508,6 +508,41 @@ void GmatGlobal::SetToCurrentFormat()
    actualFormat = currentFormat;
 }
 
+//------------------------------------------------------------------------------
+// EopFile* GetEopFile()
+//------------------------------------------------------------------------------
+EopFile* GmatGlobal::GetEopFile()
+{
+   return theEopFile;
+}
+
+
+//------------------------------------------------------------------------------
+// ItrfCoefficientsFile* GetItrfCoefficientsFile()
+//------------------------------------------------------------------------------
+ItrfCoefficientsFile* GmatGlobal::GetItrfCoefficientsFile()
+{
+   return theItrfFile;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetEopFile(EopFile *eop)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetEopFile(EopFile *eop)
+{
+   theEopFile = eop;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetItrfCoefficientsFile(ItrfCoefficientsFile *itrf)
+//------------------------------------------------------------------------------
+void GmatGlobal::SetItrfCoefficientsFile(ItrfCoefficientsFile *itrf)
+{
+   theItrfFile = itrf;
+}
+
 //---------------------------------
 // private methods
 //---------------------------------

@@ -6513,6 +6513,7 @@ void Moderator::CreatePlanetaryCoeffFile()
    
    theItrfFile = new ItrfCoefficientsFile(nutFileName, planFileName);
    theItrfFile->Initialize();
+   GmatGlobal::Instance()->SetItrfCoefficientsFile(theItrfFile);
 }
 
 
@@ -6538,6 +6539,7 @@ void Moderator::CreateTimeFile()
    
    TimeConverterUtil::SetLeapSecsFileReader(theLeapSecsFile);
    TimeConverterUtil::SetEopFile(theEopFile);
+   GmatGlobal::Instance()->SetEopFile(theEopFile);
 }
 
 

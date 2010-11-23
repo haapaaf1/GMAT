@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  CoordinateSystem
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -31,6 +31,7 @@
 #include "TopocentricAxes.hpp"
 #include "BodyFixedAxes.hpp"
 #include "Rmatrix33.hpp"
+#include "GmatGlobal.hpp"               // for GetEopFile(), GetItrfCoefficientsFile()
 #include "MessageInterface.hpp"
 
 #include <algorithm>                    // Required by GCC 4.3
@@ -1389,8 +1390,7 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
    AxisSystem       *theAxes = NULL;
    
    // check for supported axes name - these are used at least in the Burn code
-   if (axesType == "VNB" || axesType == "LVLH" || // axesType == "MJ2000Eq" ||
-       axesType == "SpacecraftBody")
+   if (axesType == "VNB" || axesType == "LVLH" || axesType == "SpacecraftBody")
    {
       if (primary == NULL || secondary == NULL)
          return NULL;
@@ -1427,10 +1427,6 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
          localCS->SetStringParameter("Origin", secondary->GetName());
          localCS->SetRefObject(secondary, Gmat::SPACE_POINT, secondary->GetName());
       }
-//      else if (axesType == "MJ2000Eq")
-//      {
-//         localCS->SetStringParameter("Origin", j2000Body->GetName());
-//      }
       else if (axesType == "SpacecraftBody")
       {
          localCS->SetStringParameter("Origin", j2000Body->GetName());
@@ -1475,7 +1471,7 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
          theAxes = new TopocentricAxes(csName);
       else
          theAxes = new BodyFixedAxes(csName);
-
+      
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
          (localCS, "localCS", "CreateLocalCoordinateSystem()",
@@ -1484,6 +1480,20 @@ CoordinateSystem* CoordinateSystem::CreateLocalCoordinateSystem(
          (theAxes, "theAxes", "CreateLocalCoordinateSystem()",
           "new ObjectReferencedAxes()");
       #endif
+      
+      GmatGlobal *gmatGlobal = GmatGlobal::Instance();
+      
+      #ifdef DEBUG_CS_CREATE
+      MessageInterface::ShowMessage
+         ("   eop=<%p>, itrf=<%p>\n", gmatGlobal->GetEopFile(),
+          gmatGlobal->GetItrfCoefficientsFile());
+      #endif
+      
+      if (theAxes->UsesEopFile() == GmatCoordinate::REQUIRED)
+         theAxes->SetEopFile(gmatGlobal->GetEopFile());
+      
+      if (theAxes->UsesItrfFile() == GmatCoordinate::REQUIRED)
+         theAxes->SetCoefficientsFile(gmatGlobal->GetItrfCoefficientsFile());
       
       localCS->SetStringParameter("Origin", origin->GetName());
       localCS->SetRefObject(origin, Gmat::SPACE_POINT, origin->GetName());
