@@ -195,7 +195,7 @@ protected:
    //virtual void DrawSphere(GLdouble radius, GLint slices, GLint stacks, GLenum style,
    //                GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_SMOOTH,
    //                GLenum textureCoords = GL_TRUE) = 0;
-   virtual void DrawObject(const wxString &objName) = 0;
+   virtual void DrawObject(const wxString &objName, int obj) = 0;
    //virtual void DrawObjectOrbit() = 0;
    virtual void DrawOrbit(const wxString &objName, int obj, int objId) = 0;
    virtual void DrawOrbitLines(int i, const wxString &objName, int obj, int objId) = 0;

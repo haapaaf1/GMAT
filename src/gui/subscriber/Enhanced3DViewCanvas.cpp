@@ -86,10 +86,10 @@ using namespace FloatAttUtil;
 
 // currently lighting is not working    - PS, working on it!
 #define ENABLE_LIGHT_SOURCE
-#define USE_MHA_TO_ROTATE_EARTH
-
-//@todo We need a method GetAttitude() from SpacePoint to enalbe this
-//#define ENABLE_OBJECT_ATTITUDE
+// Rotating Earth using attitude seems to work, so commented out (LOJ: 2010.11.22)
+//#define USE_MHA_TO_ROTATE_EARTH
+// GetAttitude() from SpacePoint has been implemented, so we can ust it
+#define ENABLE_OBJECT_ATTITUDE
 
 // If Sleep in not defined (on unix boxes)
 #ifndef Sleep 
@@ -142,6 +142,7 @@ using namespace FloatAttUtil;
 //#define DEBUG_TRAJCANVAS_LONGITUDE 1
 //#define DEBUG_SHOW_SKIP 1
 //#define DEBUG_ROTATE 1
+#define DEBUG_ROTATE_BODY 1
 //#define DEBUG_DATA_BUFFERRING
 //#define DEBUG_ORBIT_LINES
 #define MODE_CENTERED_VIEW 0
@@ -168,8 +169,7 @@ const Real Enhanced3DViewCanvas::RADIUS_ZOOM_RATIO = 2.2;
 const Real Enhanced3DViewCanvas::DEFAULT_DIST = 30000.0;
 const int Enhanced3DViewCanvas::UNKNOWN_OBJ_ID = -999;
 
-bool openGLInitialized = false,
-        viewPointInitialized = false;
+bool openGLInitialized = false, viewPointInitialized = false;
 int current_model = 0;
 //ModelObject object[MAX_OBJECTS];
 
@@ -197,7 +197,7 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
                                const wxString& name, long style)
    : ViewCanvas(parent, id, pos, size, name, style)
 {
-        mGlInitialized = false;
+   mGlInitialized = false;
    mPlotName = name;
    mParent = parent;
    
@@ -226,11 +226,11 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
 
    theContext = mm->modelContext;//new wxGLContext(this);
 
-        mStars = GLStars::Instance();
-        mStars->InitStars();
-        mStars->SetDesiredStarCount(mStarCount);
-
-        mCamera.Reset();
+   mStars = GLStars::Instance();
+   mStars->InitStars();
+   mStars->SetDesiredStarCount(mStarCount);
+   
+   mCamera.Reset();
    mCamera.Relocate(DEFAULT_DIST, 0.0, 0.0, 0.0, 0.0, 0.0);
    
    // initialize data members
@@ -425,8 +425,8 @@ bool Enhanced3DViewCanvas::InitOpenGL()
    MessageInterface::ShowMessage("GLU extensions = '%s'\n", (char*)str);
    #endif
    
-        InitGL();
-
+   InitGL();
+   
    // remove back faces
    /*glDisable(GL_CULL_FACE);
    
@@ -456,8 +456,8 @@ bool Enhanced3DViewCanvas::InitOpenGL()
    ilutRenderer(ILUT_OPENGL);
    
 #endif
-
-        #ifdef __USE_WX280_GL__
+   
+   #ifdef __USE_WX280_GL__
    SetCurrent(*theContext);
    #else
    SetCurrent();
@@ -477,8 +477,8 @@ bool Enhanced3DViewCanvas::InitOpenGL()
 
    mShowMaxWarning = true;
    mIsAnimationRunning = false;
-
-        openGLInitialized = true;
+   
+   openGLInitialized = true;
    
    return true;
 }
@@ -1448,7 +1448,7 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
    #endif
    
    mTime[mLastIndex] = time;
-
+   
    // Dunn notes the variable "longitude" below is declared elsewhere in this
    // file.  Even if the other "longitude" is protected, it should probably
    // have a different name.  This is the SECOND place longitude is declared.
@@ -1488,64 +1488,61 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
    // Dunn took out minus signs below to position vectors correctly in the 
    // ECI reference frame.
    //
-//    if (mNumData < MAX_DATA)
-//       mNumData++;
-        if (!viewPointInitialized || mUseInitialViewPoint){
-                wxString name;
-                int objId;
-                int index;
-                Rvector3 reference, viewpoint, direction;
-
-                if (mUseViewPointRefVector){
-                        reference = mViewPointRefVector;
-                }
-                else{
-                        name = pViewPointRefObj->GetName().c_str();
-                        objId = GetObjectId(name);
-                        index = objId * MAX_DATA * 3 + (mLastIndex*3);
-                        reference = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
-                }
-
-                if (mUseViewPointVector){
-                        viewpoint = mViewPointVector;
-                }
-                else{
-                        name = pViewPointVectorObj->GetName().c_str();
-                        objId = GetObjectId(name);
-                        index = objId * MAX_DATA * 3 + (mLastIndex*3);
-                        viewpoint = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
-                }
-                viewpoint *= mViewScaleFactor;
-
-                if (mUseViewDirectionVector){
-                        direction = mViewDirectionVector;
-                }
-                else{
-                        name = pViewDirectionObj->GetName().c_str();
-                        objId = GetObjectId(name);
-                        index = objId * MAX_DATA * 3 + (mLastIndex*3);
-                        direction = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
-                }
-
-                mCamera.Reset();
-                if (mViewUpAxisName == "X")
-                        mCamera.up = Rvector3(1.0, 0.0, 0.0);
-                else if (mViewUpAxisName == "-X")
-                        mCamera.up = Rvector3(-1.0, 0.0, 0.0);
-                else if (mViewUpAxisName == "Y")
-                        mCamera.up = Rvector3(0.0, 1.0, 0.0);
-                else if (mViewUpAxisName == "-Y")
-                        mCamera.up = Rvector3(0.0, -1.0, 0.0);
-                else if (mViewUpAxisName == "Z")
-                        mCamera.up = Rvector3(0.0, 0.0, 1.0);
-                else if (mViewUpAxisName == "-Z")
-                        mCamera.up = Rvector3(0.0, 0.0, -1.0);
-                mCamera.Relocate(reference+viewpoint, direction);
-                mCamera.ReorthogonalizeVectors();
-
-                viewPointInitialized = true;
-        }
-
+   if (!viewPointInitialized || mUseInitialViewPoint){
+      wxString name;
+      int objId;
+      int index;
+      Rvector3 reference, viewpoint, direction;
+      
+      if (mUseViewPointRefVector){
+         reference = mViewPointRefVector;
+      }
+      else{
+         name = pViewPointRefObj->GetName().c_str();
+         objId = GetObjectId(name);
+         index = objId * MAX_DATA * 3 + (mLastIndex*3);
+         reference = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
+      }
+      
+      if (mUseViewPointVector){
+         viewpoint = mViewPointVector;
+      }
+      else{
+         name = pViewPointVectorObj->GetName().c_str();
+         objId = GetObjectId(name);
+         index = objId * MAX_DATA * 3 + (mLastIndex*3);
+         viewpoint = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
+      }
+      viewpoint *= mViewScaleFactor;
+      
+      if (mUseViewDirectionVector){
+         direction = mViewDirectionVector;
+      }
+      else{
+         name = pViewDirectionObj->GetName().c_str();
+         objId = GetObjectId(name);
+         index = objId * MAX_DATA * 3 + (mLastIndex*3);
+         direction = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
+      }
+      
+      mCamera.Reset();
+      if (mViewUpAxisName == "X")
+         mCamera.up = Rvector3(1.0, 0.0, 0.0);
+      else if (mViewUpAxisName == "-X")
+         mCamera.up = Rvector3(-1.0, 0.0, 0.0);
+      else if (mViewUpAxisName == "Y")
+         mCamera.up = Rvector3(0.0, 1.0, 0.0);
+      else if (mViewUpAxisName == "-Y")
+         mCamera.up = Rvector3(0.0, -1.0, 0.0);
+      else if (mViewUpAxisName == "Z")
+         mCamera.up = Rvector3(0.0, 0.0, 1.0);
+      else if (mViewUpAxisName == "-Z")
+         mCamera.up = Rvector3(0.0, 0.0, -1.0);
+      mCamera.Relocate(reference+viewpoint, direction);
+      mCamera.ReorthogonalizeVectors();
+      
+      viewPointInitialized = true;
+   }
 }
 
 
@@ -1790,10 +1787,10 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
    GetClientSize(&nWidth, &nHeight);
    glViewport(0, 0, nWidth, nHeight);
    
-        GLUquadricObj *qobj = gluNewQuadric();
-        for (int i = 10; i < 110; i  += 10)
-                DrawCircle(qobj, i);
-
+   GLUquadricObj *qobj = gluNewQuadric();
+   for (int i = 10; i < 110; i  += 10)
+      DrawCircle(qobj, i);
+   
    if (mDrawWireFrame)
    {
       glPolygonMode(GL_FRONT, GL_LINE);
@@ -1982,23 +1979,23 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
          Refresh(false);
       }*/
       //------------------------------
-                // FOV Zoom
+      // FOV Zoom
       //------------------------------
-                else if (event.ShiftDown() && event.RightIsDown()){
-                        Real x2 = Pow(mLastMouseX - mouseX, 2);
+      else if (event.ShiftDown() && event.RightIsDown()){
+         Real x2 = Pow(mLastMouseX - mouseX, 2);
          Real y2 = Pow(mouseY - mLastMouseY, 2);
          Real length = sqrt(x2 + y2);
-
-                        Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
-
+         
+         Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
+         
          mZoomAmount = length * distance / 1000000;
-                        if (mouseY > mLastMouseY)
-                                mCamera.ZoomOut(mZoomAmount);
-                        else
-                                mCamera.ZoomIn(mZoomAmount);
-
-                        Refresh(false);
-                }
+         if (mouseY > mLastMouseY)
+            mCamera.ZoomOut(mZoomAmount);
+         else
+            mCamera.ZoomIn(mZoomAmount);
+         
+         Refresh(false);
+      }
       //------------------------------
       // "zooming"
       //------------------------------
@@ -2062,7 +2059,7 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
    // Mousewheel movements
    else if (event.GetWheelRotation() != 0 && mControlMode == MODE_ASTRONAUT_6DOF){
       float rot = event.GetWheelRotation();
-                Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
+      Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
       Real movement = rot * distance / 3000;
 
       if (event.ShiftDown() && rot > 0){
@@ -2416,12 +2413,12 @@ GLuint Enhanced3DViewCanvas::BindTexture(SpacePoint *obj, const wxString &objNam
          }
       #else
          
-                        #ifdef __USE_WX280_GL__
-                        SetCurrent(*theContext);
-                        #else
-                        SetCurrent();
-                        #endif
-
+         #ifdef __USE_WX280_GL__
+            SetCurrent(*theContext);
+         #else
+            SetCurrent();
+         #endif
+            
          glGenTextures(1, &ret);
          glBindTexture(GL_TEXTURE_2D, ret);
          
@@ -2520,25 +2517,25 @@ void Enhanced3DViewCanvas::SetupWorld()
    }
    #endif 
       
-        // Setup how we view the world
+   // Setup how we view the world
    GLfloat aspect = (GLfloat)mCanvasSize.x / (GLfloat)mCanvasSize.y;
    
    #if DEBUG_TRAJCANVAS_PERSPECTIVE
    if (mUseSingleRotAngle)
    {
-                MessageInterface::ShowMessage
-      ("   mAxisLength=%f, size=%f, dist=%f, mViewObjRadius=%f\n   "
-                        "mFovDeg=%f, ratio=%f, \n", mAxisLength, size, dist, mViewObjRadius,
-         mFovDeg, ratio);
+      MessageInterface::ShowMessage
+         ("   mAxisLength=%f, size=%f, dist=%f, mViewObjRadius=%f\n   "
+          "mFovDeg=%f, ratio=%f, \n", mAxisLength, size, dist, mViewObjRadius,
+          mFovDeg, ratio);
    }
    #endif
       
    // PS - Greatly simplified. Uses the FOV from the active camera, the aspect ratio of the screen,
    //       and a constant near-far plane
-        float distance = (mCamera.position - mCamera.view_center).GetMagnitude() * 2;
-        if (500000000.0f > distance)
-                distance = 500000000.0f;
-
+   float distance = (mCamera.position - mCamera.view_center).GetMagnitude() * 2;
+   if (500000000.0f > distance)
+      distance = 500000000.0f;
+   
    gluPerspective(mCamera.fovDeg, aspect, 50.0f, distance);
    
    //-----------------------------------------------------------------
@@ -2927,26 +2924,25 @@ void Enhanced3DViewCanvas::TransformView()
    
    glLoadIdentity();
    
-      //MessageInterface::ShowMessage("==> TransformView() call gluLookAt()\n");
+   //MessageInterface::ShowMessage("==> TransformView() call gluLookAt()\n");
       
+   
+   if (mUseGluLookAt)
+   {
+      gluLookAt(mCamera.position[0], mCamera.position[1], mCamera.position[2],
+                mCamera.view_center[0], mCamera.view_center[1], mCamera.view_center[2],
+                mCamera.up[0], mCamera.up[1], mCamera.up[2]);
+   }
+   else
+   {
+      glTranslatef(mfCamTransX, mfCamTransY, mfCamTransZ);
+      glRotatef(mfCamSingleRotAngle, mfCamRotXAxis, mfCamRotYAxis, mfCamRotZAxis);
       
-      if (mUseGluLookAt)
-      {
-                        gluLookAt(mCamera.position[0], mCamera.position[1], mCamera.position[2],
-            mCamera.view_center[0], mCamera.view_center[1], mCamera.view_center[2],
-            mCamera.up[0], mCamera.up[1], mCamera.up[2]);
-      }
-      else
-      {
-         glTranslatef(mfCamTransX, mfCamTransY, mfCamTransZ);
-         glRotatef(mfCamSingleRotAngle,
-                   mfCamRotXAxis, mfCamRotYAxis, mfCamRotZAxis);
-         
-         // DJC added for Up
-         glRotatef(-mfUpAngle, mfUpXAxis, mfUpYAxis, -mfUpZAxis);
-                           
-      } //if (mUseGluLookAt)
-
+      // DJC added for Up
+      glRotatef(-mfUpAngle, mfUpXAxis, mfUpYAxis, -mfUpZAxis);
+      
+   } //if (mUseGluLookAt)
+   
 } // end TransformView()
 
 
@@ -2987,7 +2983,7 @@ void Enhanced3DViewCanvas::DrawFrame()
    int numberOfData = mNumData;
    mIsEndOfData = false;
    mIsEndOfRun = false;
-        mCurrIndex = 0;
+   mCurrIndex = 0;
    
    // refresh every 50 points (Allow user to set frame this increment?)
    for (int frame=1; frame<numberOfData; frame+=mFrameInc)
@@ -3119,7 +3115,7 @@ void Enhanced3DViewCanvas::DrawPlot()
    #endif
    
    glDisable(GL_LIGHTING);
-
+   
    // draw stars
    if (mDrawStars){
       // drawing the stars at infinity requires them to have their own projection
@@ -3187,21 +3183,24 @@ void Enhanced3DViewCanvas::DrawPlot()
 
 
 //------------------------------------------------------------------------------
-//  void DrawObject(const wxString &objName, int frame)
+//  void DrawObject(const wxString &objName, int obj)
 //------------------------------------------------------------------------------
 /**
  * Draws object sphere and maps texture image.
+ *
+ * @param  objName  Name of the object
+ * @param  obj      Index of the object for mObjectArray
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
+void Enhanced3DViewCanvas::DrawObject(const wxString &objName, int obj)
 {
    int frame = mLastIndex;
    int objId = GetObjectId(objName);
    
    #if DEBUG_TRAJCANVAS_DRAW > 1
    MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::DrawObject() drawing:%s, objId:%d, frame=%d\n",
-          objName.c_str(), objId, frame);
+         ("Enhanced3DViewCanvas::DrawObject() drawing:%s, obj=%d, objId:%d, frame:%d\n",
+          objName.c_str(), obj, objId, frame);
    #endif
    
    //loj: 11/4/05 Added for light
@@ -3247,78 +3246,15 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
        mObjectTextureIdMap[objName]);
    #endif
    
-   //-------------------------------------------------------
-   // rotate Earth, need to rotate before texture mapping
-   //-------------------------------------------------------
-   if (objName == "Earth" && mCanRotateBody)
-   {
-      Real earthRotAngle = 0.0;
-
-      // Dunn would like to note that the mInitialLongitude being used to initialize
-      // the variable "initialLong" was calculated in ComputeLongitudeLst and is
-      // a function of spacecraft position.  Its value comes from the following
-      // equation - "lon = raDeg - mha;"
-      Real initialLong = mInitialLongitude;
-
-      // Dunn will try different offsets.  Need to understand where initialLong
-      // comes from.
-      //Real offset = 40.0; // need this to line up earth texture with longitude
-      Real offset = 90.0;
-      
-      //========== #ifdef
-      #ifdef USE_MHA_TO_ROTATE_EARTH
-      
-      if (pSolarSystem)
-      {         
-         Real mha = 0.0;
-         
-         if (initialLong < 180.0)
-            initialLong = -initialLong - offset;
-         
-         CelestialBody *earth = pSolarSystem->GetBody("Earth");
-         if (earth)
-            mha = earth->GetHourAngle(mTime[frame]);
-         
-         // Dunn would like to note that in the equation below, initialLong has
-         // the value "-mha" in it which was calculated in ComputeLongitudeLst.
-         // The variable earthRotAngle does continue to grow because initialLong
-         // is a constant while mha continues to grow.  But really this equation
-         // should be a function of GMST and nothing to do with spacecraft
-         // longitude.
-         //earthRotAngle = mha + initialLong + offset;
-         earthRotAngle = mha + offset;
-         
-         #if DEBUG_TRAJCANVAS_DRAW > 1
-         if (!mIsEndOfRun)
-            MessageInterface::ShowMessage
-               ("   frame=%3d, mha=%12.6f, initialLong=%12.6f, earthRotAngle=%12.6f\n",
-                frame, mha, initialLong, earthRotAngle);
-         #endif
-         
-      }
-      
-      //========== #else
-      #else
-      
-      if (initialLong < 180.0)
-         initialLong = -initialLong - offset;
-      
-      earthRotAngle = (Abs(mTime[frame] - mTime[0])) * 361.0 + mInitialMha +
-         initialLong + offset;
-      
-      #endif
-      //========== #endif
-      
-      earthRotAngle =
-         AngleUtil::PutAngleInDegRange(earthRotAngle, 0.0, 360.0);
-      
-      #if DEBUG_TRAJCANVAS_DRAW > 1
-      if (!mIsEndOfRun)
-         MessageInterface::ShowMessage("   earthRotAngle=%f\n", earthRotAngle);
-      #endif
-      
-      glRotatef(earthRotAngle, 0.0, 0.0, 1.0);
-   }
+   // Rotate body before drawing texture
+   if (mObjectArray[obj]->IsOfType(Gmat::CELESTIAL_BODY))
+      RotateBody(objName, frame, objId);
+   
+   #if DEBUG_TRAJCANVAS_DRAW > 1
+   MessageInterface::ShowMessage
+      ("   After rotate body, mDrawAxes=%d, objId=%d, mOriginId=%d, mCanRotateAxes=%d\n",
+       mDrawAxes, objId, mOriginId, mCanRotateAxes);
+   #endif
    
    //-------------------------------------------------------
    // draw axes if it rotates with the body
@@ -3336,40 +3272,40 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
       // call an OpenGL rotate command here before and after drawing the axes in
       // order to get them correctly oriented wrt the prime meridian.
       glRotatef(-90.0, 0.0, 0.0, 1.0);
-
+      
       // This next line is the NASA call that draws the ECF axes with ECI labels.
       // Dunn has commented it out and added the code to draw with correct labels.
       // This is a kludge that needs to be fixed.
       DrawAxes();
-
+      
       //// Here is Dunn's temporary kludge.
       //glDisable(GL_LIGHTING);
       //glDisable(GL_LIGHT0);
       //wxString axisLabel;
       //GLfloat viewDist;
-
+      
       //glLineWidth(2.5); // Thicker for ECF
-
+      
       ////-----------------------------------
       //// draw axes
       ////-----------------------------------
-
+      
       ////viewDist = mCurrViewDist/2; //zooms in and out
       //viewDist = mAxisLength;///1.8; // stays the same
       //Rvector3 axis;
       //Rvector3 origin;
       //origin.Set(0, 0, 0);
-
+      
       //// PS - See Rendering.cpp
       //axis.Set(viewDist, 0, 0);
       //DrawLine(1, 0, 0, origin, axis);
-
+      
       //axis.Set(0, viewDist, 0);
       //DrawLine(0, 1, 0, origin, axis);
-
+      
       //axis.Set(0, 0, viewDist);
       //DrawLine(0, 0, 1, origin, axis);
-
+      
       ////-----------------------------------
       //// throw some text out...
       ////-----------------------------------
@@ -3398,6 +3334,9 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
       glRotatef(90.0, 0.0, 0.0, 1.0);
    }
    
+   // Trying this, but why 90 degree offset? (LOJ: 2010.11.19)
+   glRotatef(90.0, 0.0, 0.0, 1.0);
+   
    //-------------------------------------------------------
    // draw object with texture on option
    //-------------------------------------------------------
@@ -3405,25 +3344,26 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
    {
       //glColor4f(1.0, 1.0, 1.0, 1.0);
       glColor3f(1.0, 1.0, 1.0);
-
-                /*Rmatrix coordMatrix = mCoordConverter.GetLastRotationMatrix();
-                Rmatrix dataMatrix = Rmatrix(4,4);
-                for (int i = 0; i < 3; i++)
-                        for (int j = 0; j < 3; j++)
-                                dataMatrix.SetElement(i, j, coordMatrix.GetElement(i,j));
-                dataMatrix.SetElement(3, 3, 1);
-                dataMatrix = dataMatrix.Transpose();
-                glMultMatrixd(dataMatrix.GetDataVector());*/
-                glMultMatrixd(mCoordMatrix.GetDataVector());
+      
+      /*Rmatrix coordMatrix = mCoordConverter.GetLastRotationMatrix();
+        Rmatrix dataMatrix = Rmatrix(4,4);
+        for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+        dataMatrix.SetElement(i, j, coordMatrix.GetElement(i,j));
+        dataMatrix.SetElement(3, 3, 1);
+        dataMatrix = dataMatrix.Transpose();
+        glMultMatrixd(dataMatrix.GetDataVector());*/
+      // Commented out to make body fixed to work (2010.11.19)
+      ////loj:glMultMatrixd(mCoordMatrix.GetDataVector());
       
       glBindTexture(GL_TEXTURE_2D, mObjectTextureIdMap[objName]);
       glEnable(GL_TEXTURE_2D);
 
-                if (objName == "Sun"){
-                        glDisable(GL_LIGHTING);
+      if (objName == "Sun"){
+         glDisable(GL_LIGHTING);
          DrawSphere(mObjectRadius[objId], 50, 50, GLU_FILL, GLU_INSIDE);
-                        glEnable(GL_LIGHTING);
-                }
+         glEnable(GL_LIGHTING);
+      }
       else
          DrawSphere(mObjectRadius[objId], 50, 50, GLU_FILL);     
       
@@ -3482,6 +3422,10 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName)
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::DrawObjectOrbit(int frame)
 {
+   #if DEBUG_TRAJCANVAS_DRAW
+   MessageInterface::ShowMessage("==========> DrawObjectOrbit() entered, frame=%d\n", frame);
+   #endif
+   
    int endFrame = mLastIndex;
    int objId;
    wxString objName;
@@ -3523,6 +3467,10 @@ void Enhanced3DViewCanvas::DrawObjectOrbit(int frame)
          DrawObjectTexture(objName, obj, objId, frame);
       }
    }
+   
+   #if DEBUG_TRAJCANVAS_DRAW
+   MessageInterface::ShowMessage("==========> DrawObjectOrbit() leaving, frame=%d\n", frame);
+   #endif
 } // end DrawObjectOrbit()
 
 
@@ -3534,9 +3482,9 @@ void Enhanced3DViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId
    glPushMatrix();
    glBegin(GL_LINES);
    
-   #ifdef DEBUG_ORBIT_LINES
+   #ifdef DEBUG_TRAJCANVAS_DRAW
    MessageInterface::ShowMessage
-      ("==========> Enhanced3DViewCanvas::DrawOrbit() objName='%s', drawing first part\n",
+      ("==========> DrawOrbit() objName='%s', drawing first part\n",
        objName.c_str());
    #endif
    
@@ -3549,9 +3497,9 @@ void Enhanced3DViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId
    // Draw second part from the ring buffer
    if (mEndIndex2 != -1 && mBeginIndex1 != mBeginIndex2)
    {
-      #ifdef DEBUG_ORBIT_LINES
+      #ifdef DEBUG_TRAJCANVAS_DRAW
       MessageInterface::ShowMessage
-         ("==========> Enhanced3DViewCanvas::DrawOrbit() objName='%s', drawing second part\n",
+         ("==========> DrawOrbit() objName='%s', drawing second part\n",
           objName.c_str());
       #endif
       
@@ -3570,7 +3518,7 @@ void Enhanced3DViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId
 // void DrawOrbitLines(int i, const wxString &objName, int obj, int objId)
 //------------------------------------------------------------------------------
 void Enhanced3DViewCanvas::DrawOrbitLines(int i, const wxString &objName, int obj,
-                                    int objId)
+                                          int objId)
 {
    int index1 = 0, index2 = 0;
    
@@ -3626,7 +3574,7 @@ void Enhanced3DViewCanvas::DrawOrbitLines(int i, const wxString &objName, int ob
             *sIntColor = mObjectColorMap[objName].GetIntColor();}
 
          // PS - Rendering.cpp
-                        DrawLine(sGlColor, r1, r2);
+         DrawLine(sGlColor, r1, r2);
       }
       
       // save last valid frame to show object at final frame
@@ -3640,19 +3588,20 @@ void Enhanced3DViewCanvas::DrawOrbitLines(int i, const wxString &objName, int ob
 
 
 //------------------------------------------------------------------------------
-// void DrawObjectTexture(const wxString &objName, int obj, int objId)
+// void DrawObjectTexture(const wxString &objName, int obj, int objId, int frame)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, int objId, int frame)
+void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
+                                             int objId, int frame)
 {
    if (mNumData < 1)
       return;
-
-   int index1 = objId * MAX_DATA * 3 + mObjLastFrame[objId] * 3;
+   
+   int index1 = objId * MAX_DATA * 3 + frame * 3;
    
    #if DEBUG_TRAJCANVAS_DRAW
    MessageInterface::ShowMessage
-      ("   objName=%s, objId=%d, lastFrame=%d\n", objName.c_str(), objId,
-       mObjLastFrame[objId]);
+      ("DrawObjectTexture() entered, objName=%s, objId=%d, lastFrame=%d\n",
+       objName.c_str(), objId, mObjLastFrame[objId]);
    MessageInterface::ShowMessage
       ("   mObjectViewPos=%f, %f, %f\n",
        mObjectViewPos[index1+0], mObjectViewPos[index1+1],
@@ -3717,8 +3666,13 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
       }
    #endif
    
+   // Draw spacecraft
    if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
    {
+      #if DEBUG_TRAJCANVAS_DRAW
+      MessageInterface::ShowMessage("==> Drawing spacecraft '%s'\n", objName.c_str());
+      #endif
+      
       Spacecraft *spac = (Spacecraft*)mObjectArray[obj];
       ModelManager *mm = ModelManager::Instance();
       ModelObject *model = mm->GetModel(spac->modelID);
@@ -3743,22 +3697,19 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
       
       if (spac->modelID != -1)
       {
-         // Set conversion factor until we know GMAT utility that does this
-         //float     RTD         = 180.0f/3.14159265f;
-         float     RTD         = (float)GmatMathUtil::DEG_PER_RAD; //LOJ
+         float     RTD         = (float)GmatMathUtil::DEG_PER_RAD;
          
-         #ifdef __CALL_SC_FOR_ATTITUDE__
-            // Extract spacecraft attitude from saved data files using subscriber
-            Attitude  *scAttitude  = (Attitude*) spac->GetRefObject(Gmat::ATTITUDE, "");
-            Rmatrix33 AMat         = scAttitude->GetCosineMatrix(mTime[frame]);
-            Rvector3  EARad        = Attitude::ToEulerAngles(AMat,1,2,3);
-         #else
-            int attIndex = objId * MAX_DATA * 4 + mObjLastFrame[objId] * 4;
-            Rvector quat = Rvector(4, mObjectQuat[attIndex+0], mObjectQuat[attIndex+1],
-                                   mObjectQuat[attIndex+2], mObjectQuat[attIndex+3]);
-            Rvector3 EARad = Attitude::ToEulerAngles(quat, 1,2,3);
-         #endif
-
+         int attIndex = objId * MAX_DATA * 4 + mObjLastFrame[objId] * 4;
+         Rvector quat = Rvector(4, mObjectQuat[attIndex+0], mObjectQuat[attIndex+1],
+                                mObjectQuat[attIndex+2], mObjectQuat[attIndex+3]);
+         Rvector3 EARad = Attitude::ToEulerAngles(quat, 1,2,3);
+         
+         // old code commented out (LOJ: 2010.11.22_
+         // Extract spacecraft attitude from saved data files using subscriber
+         //   Attitude  *scAttitude  = (Attitude*) spac->GetRefObject(Gmat::ATTITUDE, "");
+         //   Rmatrix33 AMat         = scAttitude->GetCosineMatrix(mTime[frame]);
+         //   Rvector3  EARad        = Attitude::ToEulerAngles(AMat,1,2,3);
+         
          #ifdef DEBUG_SC_ATTITUDE
          MessageInterface::ShowMessage
             ("===> '%s', EARad=%s\n", objName.c_str(),EARad.ToString().c_str());
@@ -3832,30 +3783,16 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj, i
       }
    }
    else
-   {
-      //====================================================
-      #ifdef ENABLE_OBJECT_ATTITUDE
-      //====================================================
-      int attIndex = objId * MAX_DATA * 4 + mObjLastFrame[objId] * 4;
-      Rvector quat = Rvector(4, mObjectQuat[attIndex+0], mObjectQuat[attIndex+1],
-                             mObjectQuat[attIndex+2], mObjectQuat[attIndex+3]);
-      Rvector3 eulerAngle = Attitude::ToEulerAngles(quat, 1,2,3) * (float)GmatMathUtil::DEG_PER_RAD;
-      #ifdef DEBUG_OBJECT_ATTITUDE
-      MessageInterface::ShowMessage
-         ("===> '%s', eulerAngle=%s\n", objName.c_str(),eulerAngle.ToString().c_str());
+   {      
+      #if DEBUG_TRAJCANVAS_DRAW
+      MessageInterface::ShowMessage("==> Drawing body '%s'\n", objName.c_str());
       #endif
-      
-      // Add rotate code here ...
-      
-      //====================================================
-      #endif
-      //====================================================
       
       //put object at final position
       //
       // Dunn took out minus signs
       glTranslatef(mObjectViewPos[index1+0],mObjectViewPos[index1+1],mObjectViewPos[index1+2]);
-      DrawObject(objName);
+      DrawObject(objName, obj);
    }
    
    if (mEnableLightSource && mSunPresent){
@@ -4038,11 +3975,11 @@ void Enhanced3DViewCanvas::DrawEquatorialPlane(UnsignedInt color)
          DrawCircle(qobj, i*size);
    
    gluDeleteQuadric(qobj);
-        sGlColor->not_used = 255;
+   sGlColor->not_used = 255;
    
    glPopMatrix();
-        glLineWidth(1.0f);
-        glEnable(GL_LINE_SMOOTH);
+   glLineWidth(1.0f);
+   glEnable(GL_LINE_SMOOTH);
    
 } // end DrawEquatorialPlane()
 
@@ -4130,7 +4067,7 @@ void Enhanced3DViewCanvas::DrawSunLine()
    DrawStringAt(" +S", sunPos[0]/mag*distance/2.0,
                        sunPos[1]/mag*distance/2.0,
                        sunPos[2]/mag*distance/2.0,
-                                         1.0);
+                1.0);
    
 } // end DrawSunLine()
 
@@ -4154,35 +4091,35 @@ void Enhanced3DViewCanvas::DrawAxes()
    //viewDist = mCurrViewDist/2; //zooms in and out
    viewDist = mAxisLength;///1.8; // stays the same
    Rvector3 axis;
-        Rvector3 origin;
-        origin.Set(0, 0, 0);
+   Rvector3 origin;
+   origin.Set(0, 0, 0);
 
    // PS - See Rendering.cpp
    axis.Set(viewDist, 0, 0);
-        DrawLine(1, 0, 0, origin, axis);
+   DrawLine(1, 0, 0, origin, axis);
 
    axis.Set(0, viewDist, 0);
-        DrawLine(0, 1, 0, origin, axis);
+   DrawLine(0, 1, 0, origin, axis);
 
    axis.Set(0, 0, viewDist);
-        DrawLine(0, 0, 1, origin, axis);
+   DrawLine(0, 0, 1, origin, axis);
    
    //-----------------------------------
    // throw some text out...
    //-----------------------------------
    // Dunn took out old minus signs to get axis labels at the correct end of
    // each axis and thus make attitude correct.
-        glColor3f(1, 0, 0);     // red
+   glColor3f(1, 0, 0);     // red
    axisLabel = "+X ";
-        DrawStringAt(axisLabel, +viewDist, 0.0, 0.0, 1.0);
+   DrawStringAt(axisLabel, +viewDist, 0.0, 0.0, 1.0);
    
-        glColor3f(0, 1, 0);     // green
+   glColor3f(0, 1, 0);     // green
    axisLabel = "+Y ";
-        DrawStringAt(axisLabel, 0.0, +viewDist, 0.0, 1.0);
+   DrawStringAt(axisLabel, 0.0, +viewDist, 0.0, 1.0);
    
-        glColor3f(0, 0, 1);     // blue
+   glColor3f(0, 0, 1);     // blue
    axisLabel = "+Z ";
-        DrawStringAt(axisLabel, 0.0, 0.0, +viewDist, 1.0);
+   DrawStringAt(axisLabel, 0.0, 0.0, +viewDist, 1.0);
    
    glLineWidth(1.0);
    
@@ -4272,6 +4209,222 @@ void Enhanced3DViewCanvas::DrawStatus(const wxString &label1, int frame,
                mTime[frame]);
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
+}
+
+
+//---------------------------------------------------------------------------
+// void RotateEarthUsingMha(const wxString &objName, int frame)
+//---------------------------------------------------------------------------
+/**
+ * This method is old way of computing Earth rotation angle using MHA and
+ * will be removed when rotation using Earth's attitude matrix is completely
+ * tested.
+ */
+//---------------------------------------------------------------------------
+void Enhanced3DViewCanvas::RotateEarthUsingMha(const wxString &objName, int frame)
+{
+   #if DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage
+      ("RotateEarthUsingMha() entered, frame=%d\n", objName.c_str(), frame);
+   #endif
+   
+   Real earthRotAngle = 0.0;
+   
+   // Dunn would like to note that the mInitialLongitude being used to initialize
+   // the variable "initialLong" was calculated in ComputeLongitudeLst and is
+   // a function of spacecraft position.  Its value comes from the following
+   // equation - "lon = raDeg - mha;"
+   Real initialLong = mInitialLongitude;
+   
+   // Dunn will try different offsets.  Need to understand where initialLong
+   // comes from.
+   //Real offset = 40.0; // need this to line up earth texture with longitude
+   Real offset = 90.0;
+   
+   if (pSolarSystem)
+   {         
+      Real mha = 0.0;
+      
+      if (initialLong < 180.0)
+         initialLong = -initialLong - offset;
+      
+      CelestialBody *earth = pSolarSystem->GetBody("Earth");
+      if (earth)
+         mha = earth->GetHourAngle(mTime[frame]);
+      
+      // Dunn would like to note that in the equation below, initialLong has
+      // the value "-mha" in it which was calculated in ComputeLongitudeLst.
+      // The variable earthRotAngle does continue to grow because initialLong
+      // is a constant while mha continues to grow.  But really this equation
+      // should be a function of GMST and nothing to do with spacecraft
+      // longitude.
+      //earthRotAngle = mha + initialLong + offset;
+      earthRotAngle = mha + offset;
+      
+      #if DEBUG_ROTATE_BODY
+      if (!mIsEndOfRun)
+         MessageInterface::ShowMessage
+            ("   frame=%3d, mha=%12.6f, initialLong=%12.6f, earthRotAngle=%12.6f\n",
+             frame, mha, initialLong, earthRotAngle);
+      #endif
+   }
+   
+   earthRotAngle =
+      AngleUtil::PutAngleInDegRange(earthRotAngle, 0.0, 360.0);
+   
+   #if DEBUG_ROTATE_BODY
+   if (!mIsEndOfRun)
+      MessageInterface::ShowMessage("   earthRotAngle=%f\n", earthRotAngle);
+   #endif
+   
+   glRotatef(earthRotAngle, 0.0, 0.0, 1.0);
+   
+   #if DEBUG_ROTATE_BODY 
+   MessageInterface::ShowMessage
+      ("RotateEarthUsingMha() After rotate body, mDrawAxes=%d, mOriginId=%d, mCanRotateAxes=%d\n",
+       mDrawAxes, mOriginId, mCanRotateAxes);
+   #endif
+}
+
+
+//---------------------------------------------------------------------------
+// void RotateBodyUsingAttitude(const wxString &objName, int objId)
+//---------------------------------------------------------------------------
+void Enhanced3DViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId)
+{
+   //=======================================================
+   #ifdef ENABLE_OBJECT_ATTITUDE
+   //=======================================================
+   
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage
+      ("RotateBodyUsingAttitude() '%s' entered, objId=%d, mLastIndex=%d, time=%f\n",
+       objName.c_str(), objId, mLastIndex, mTime[mLastIndex]);
+   #endif
+   
+   // Any object that has an attitude (spacecraft, celestial sphere, and celestial bodies)
+   // needs to be oriented correctly in the  coordinate system in which the Orbit View is drawn.    
+   //
+   // Define the following matrices:
+   // R_IP:  the rotation matrix from the coordinate system of the plot to the inertial coordinate system 
+   // R_IB:  the rotation matrix from celestial body fixed to inertial, for the body to be drawn in the Orbit View
+   //
+   // We can calculate the rotation matrix from celestial body fixed to the plot coordinate system, R_BP, using:
+   //
+   // R_BP = R_IB^T*R_IP;
+   //
+   // R_PB defines the rotation that must be applied to the celestial body before drawing in the Orbit View.
+   // I don't know what OpenGL method is being used for this so we can talk about that this afternoon.
+   // We may need to convert R_PB to quaternion or Euler angles  but the most efficient way would be to
+   // just pass in R_PB.
+   
+   // Rotate body
+   int attIndex = objId * MAX_DATA * 4 + mLastIndex * 4;
+   
+   Rvector quat = Rvector(4, mObjectQuat[attIndex+0], mObjectQuat[attIndex+1],
+                          mObjectQuat[attIndex+2], mObjectQuat[attIndex+3]);
+   
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage("==================================\n");
+   MessageInterface::ShowMessage
+      ("==> attIndex=%d, quat=%s\n", attIndex, quat.ToString(16, 1).c_str());
+   #endif
+   
+   // the rotation matrix from celestial body fixed to inertial
+   Rmatrix33 matIB = Attitude::ToCosineMatrix(quat);
+   
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage("==> matIB=\n%s", matIB.ToString(16, 25).c_str());
+   #endif
+   
+   // Get the rotation matrix from the coordinate system of the plot to the inertial coordinate system
+   Rvector6 inState, outState;
+   int posIndex = objId * MAX_DATA * 3 + mLastIndex * 3;
+   inState.Set(mObjectGciPos[posIndex+0], mObjectGciPos[posIndex+1],
+               mObjectGciPos[posIndex+2], 0.0, 0.0, 0.0);
+   
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage
+      ("   posIndex=%d, inState=%s\n", posIndex, inState.ToString(16, 1).c_str());
+   MessageInterface::ShowMessage
+      ("   pViewCoordSystem=<%p>'%s', pInternalCoordSystem=<%p>'%s'\n",
+       pViewCoordSystem,
+       pViewCoordSystem ? pViewCoordSystem->GetName().c_str() : "NULL",
+       pInternalCoordSystem,
+       pInternalCoordSystem ? pInternalCoordSystem->GetName().c_str() : "NULL");
+   #endif
+
+   mCoordConverter.Convert(mTime[mLastIndex], inState, pViewCoordSystem,
+                           outState, pInternalCoordSystem);
+   
+   Rmatrix33 matIP = mCoordConverter.GetLastRotationMatrix();
+   
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage("==> matIP=\n%s", matIP.ToString(16, 25).c_str());
+   #endif
+   
+   Rmatrix33 matBP = matIB.Transpose() * matIP;
+   
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage("==> matPB=\n%s", matBP.ToString(16, 25).c_str());
+   #endif
+   
+   // Compute angle and axis
+   Rvector3 eAxis;
+   Real eAngle;
+   Attitude::DCMToEulerAxisAndAngle(matBP, eAxis, eAngle);
+   
+   // Convert to degree
+   Real angInDeg = GmatMathUtil::RadToDeg(eAngle, true);
+   
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage
+      ("RotateBodyUsingAttitude() '%s', epoch=%f, attIndex=%d, eAngle=%f, angInDeg=%f\n"
+       "   eAxis=%s\n", objName.c_str(), mTime[mLastIndex], attIndex, eAngle, angInDeg,
+       eAxis.ToString().c_str());
+   #endif
+   
+   // Now rotate
+   glRotated(angInDeg, eAxis[0], eAxis[1], eAxis[2]);
+
+   //=======================================================
+   #endif
+   //=======================================================
+}
+
+
+//---------------------------------------------------------------------------
+// void RotateBody(const wxString &objName, int frame, int objId)
+//---------------------------------------------------------------------------
+void Enhanced3DViewCanvas::RotateBody(const wxString &objName, int frame, int objId)
+{
+   #ifdef DEBUG_ROTATE_BODY
+   MessageInterface::ShowMessage
+      ("RotateBody() '%s' entered, objId=%d, mCanRotateBody=%d\n", objName.c_str(),
+       objId, mCanRotateBody);
+   #endif
+
+   if (!mCanRotateBody)
+      return;
+   
+   #ifdef USE_MHA_TO_ROTATE_EARTH
+   bool useMhaToRotateEarth = true;
+   #else
+   bool useMhaToRotateEarth = false;
+   #endif
+   
+   if (objName == "Earth")
+   {
+      if (useMhaToRotateEarth)
+         RotateEarthUsingMha(objName, frame);
+      else
+         RotateBodyUsingAttitude(objName, objId);
+      
+      return;
+   }
+   
+   // Rotate other body
+   RotateBodyUsingAttitude(objName, objId);
 }
 
 
@@ -4603,7 +4756,6 @@ void Enhanced3DViewCanvas::UpdateSpacecraftAttitude(Real time, Spacecraft *sat,
    mObjectQuat[attIndex+1] = quat[1];
    mObjectQuat[attIndex+2] = quat[2];
    mObjectQuat[attIndex+3] = quat[3];
-   
 }
 
 
@@ -4662,12 +4814,13 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
             else
             {
                Rvector6 outState;
-                  
+               
                mCoordConverter.Convert(time, objState, pInternalCoordSystem,
                                        outState, pViewCoordSystem);
-                  
+               
                mObjectViewPos[posIndex+0] = outState[0];
                mObjectViewPos[posIndex+1] = outState[1];
+               mObjectViewPos[posIndex+2] = outState[2];                  
             }
             
             #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
@@ -4710,28 +4863,32 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
 void Enhanced3DViewCanvas::UpdateOtherObjectAttitude(Real time, SpacePoint *sp,
                                                      int objId)
 {
-   //====================================================
+   //=======================================================
    #ifdef ENABLE_OBJECT_ATTITUDE
-   //====================================================
+   //=======================================================
    
    if (sp == NULL)
       return;
    
    int attIndex = objId * MAX_DATA * 4 + (mLastIndex*4);
    
-   //@todo We need a method GetAttitude() from SpacePoint, until then just
-   // try identity matrix for testing (LOJ: 2010.10.18)
-   //Rmatrix33 cosMat = sp->GetAttitude(time);
-   Rmatrix33 cosMat;
+   // Get attitude matrix   
+   Rmatrix33 cosMat = sp->GetAttitude(time);
    Rvector quat = Attitude::ToQuaternion(cosMat);
+   #ifdef DEBUG_ATTITUDE
+   MessageInterface::ShowMessage
+      ("UpdateOtherObjectAttitude() '%s', attIndex=%d, quat=%s", sp->GetName().c_str(),
+       attIndex, quat.ToString().c_str());
+   #endif
    mObjectQuat[attIndex+0] = quat[0];
    mObjectQuat[attIndex+1] = quat[1];
    mObjectQuat[attIndex+2] = quat[2];
    mObjectQuat[attIndex+3] = quat[3];
    
-   //====================================================
+   //=======================================================
    #endif
-   //====================================================
+   //=======================================================
+   
 }
 
 

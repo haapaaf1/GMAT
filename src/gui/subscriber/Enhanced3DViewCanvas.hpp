@@ -461,7 +461,7 @@ private:
    // drawing objects
    void DrawFrame();
    void DrawPlot();
-   void DrawObject(const wxString &objName);
+   void DrawObject(const wxString &objName, int obj);
    void DrawObjectOrbit(int frame);
    void DrawOrbit(const wxString &objName, int obj, int objId);
    void DrawOrbitLines(int i, const wxString &objName, int obj, int objId);   
@@ -477,6 +477,9 @@ private:
                    const wxString &label3 = "");
 
    // for rotation
+   void RotateEarthUsingMha(const wxString &objName, int frame);
+   void RotateBodyUsingAttitude(const wxString &objName, int objId);
+   void RotateBody(const wxString &objName, int frame, int objId);
    void ApplyEulerAngles();
    
    // for object
