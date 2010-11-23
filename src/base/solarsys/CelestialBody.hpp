@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  CelestialBody
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -149,7 +149,8 @@ public:
    virtual const Rvector6&      GetState(A1Mjd atTime);
    virtual const Rvector6&      GetState(Real atTime); 
    virtual void                 GetState(const A1Mjd &atTime, Real *outState);
-   virtual void                 SetSolarSystem(SolarSystem *ss);
+   // Moved to SpacePoint (LOJ: 2010.11.19)
+   //virtual void                 SetSolarSystem(SolarSystem *ss);
 #ifdef __USE_SPICE__
    virtual void                 SetSpiceOrbitKernelReader(SpiceOrbitKernelReader *skr);
 #endif
@@ -414,12 +415,14 @@ protected:
    /// source for position and velocity
    Gmat::PosVelSource       posVelSrc;
    /// state of the body 0-2 position 3-5 velocity
-   Rvector6                 state ;
+   Rvector6                 state;
    // time of the state
    A1Mjd                    stateTime;
    
+   // Moved to SpacePoint (LOJ: 2010.11.19)
    /// the solar system to which this body belongs
-   SolarSystem              *theSolarSystem;
+   //SolarSystem              *theSolarSystem;
+   
    /// name of central body around which this body revolves
    std::string              theCentralBodyName;
    /// central body around which this body revolves

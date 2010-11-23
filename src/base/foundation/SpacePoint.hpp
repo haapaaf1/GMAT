@@ -34,6 +34,10 @@
 #include "A1Mjd.hpp"
 #include "Rvector6.hpp"
 #include "Rvector3.hpp"
+#include "Rmatrix33.hpp"
+
+// forward reference for SolarSystem
+class SolarSystem;
 
 class GMAT_API SpacePoint : public GmatBase
 {
@@ -49,6 +53,8 @@ public:
    // destructor
    virtual ~SpacePoint();
    
+   virtual void       SetSolarSystem(SolarSystem *ss);
+   
    // methods for accessing the bodyName or body pointer
    virtual bool       RequiresJ2000Body();
    const std::string  GetJ2000BodyName() const;
@@ -60,7 +66,11 @@ public:
    virtual bool       IsParameterEqualToDefault(const Integer id) const;
    virtual bool       SaveAllAsDefault();
    virtual bool       SaveParameterAsDefault(const Integer id);
-
+   
+   // methods for accessing attitude
+   virtual bool       HasAttitude() const;
+   virtual const Rmatrix33& GetAttitude(Real a1mjdTime);
+   
    //---------------------------------------------------------------------------
    //  const Rvector6 GetMJ2000State(const A1Mjd &atTime)
    //---------------------------------------------------------------------------
@@ -186,8 +196,14 @@ protected:
    
    static const Integer UNDEFINED_NAIF_ID;
    static const Integer UNDEFINED_NAIF_ID_REF_FRAME;
-
    
+   
+   /// the solar system to which this body belongs
+   SolarSystem     *theSolarSystem;
+   /// Inertial coordinate system to be unsed in GetAttitude()
+   CoordinateSystem *inertialCS;
+   /// BodyFixed coordinate system to be unsed in GetAttitude()
+   CoordinateSystem *bodyFixedCS;
    /// Origin for the return coordinate system (aligned with the MJ2000 Earth
    /// Equatorial coordinate system)
    SpacePoint      *j2000Body;  
@@ -213,6 +229,9 @@ protected:
    StringArray     scClockSpiceKernelNames;
    /// Frame SPICE kernel name(s)
    StringArray     frameSpiceKernelNames;
-
+   
+   /// Current rotation matrix (from inertial to body)
+   bool      hasAttitude;
+   Rmatrix33 cosineMat;
 };
 #endif // SpacePoint_hpp

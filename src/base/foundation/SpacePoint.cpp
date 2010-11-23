@@ -29,13 +29,14 @@
 #include "Rvector6.hpp"
 #include "Rvector3.hpp"
 #include "StringUtil.hpp"
-
+#include "CoordinateConverter.hpp"      // for Convert()
 #include "MessageInterface.hpp"
 
 
 //#define DEBUG_J2000_STATE
 //#define DEBUG_SPACE_POINT_CLOAKING
 //#define DEBUG_SPICE_KERNEL
+//#define DEBUG_ATTITUDE
 
 //---------------------------------
 // static data
@@ -92,10 +93,14 @@ const Integer SpacePoint::UNDEFINED_NAIF_ID_REF_FRAME = -123456789;
 SpacePoint::SpacePoint(Gmat::ObjectType ofType, const std::string &itsType,
                        const std::string &itsName) :
 GmatBase(ofType,itsType,itsName),
+theSolarSystem (NULL),
+inertialCS     (NULL),
+bodyFixedCS    (NULL),
 j2000Body      (NULL),
 j2000BodyName  ("Earth"),
 naifId         (UNDEFINED_NAIF_ID),
-naifIdRefFrame (UNDEFINED_NAIF_ID)
+naifIdRefFrame (UNDEFINED_NAIF_ID),
+hasAttitude    (false)
 {
    objectTypes.push_back(Gmat::SPACE_POINT);
    objectTypeNames.push_back("SpacePoint");
@@ -114,7 +119,10 @@ naifIdRefFrame (UNDEFINED_NAIF_ID)
 //---------------------------------------------------------------------------
 SpacePoint::SpacePoint(const SpacePoint &sp) :
 GmatBase(sp),
-j2000Body                (NULL),
+theSolarSystem           (sp.theSolarSystem),
+inertialCS               (NULL),
+bodyFixedCS              (NULL),
+j2000Body                (sp.j2000Body), //(NULL),
 j2000BodyName            (sp.j2000BodyName),
 naifId                   (sp.naifId),
 naifIdRefFrame           (sp.naifIdRefFrame),
@@ -123,7 +131,8 @@ default_naifId           (sp.default_naifId),
 orbitSpiceKernelNames    (sp.orbitSpiceKernelNames),
 attitudeSpiceKernelNames (sp.attitudeSpiceKernelNames),
 scClockSpiceKernelNames  (sp.scClockSpiceKernelNames),
-frameSpiceKernelNames    (sp.frameSpiceKernelNames)
+frameSpiceKernelNames    (sp.frameSpiceKernelNames),
+hasAttitude              (false)
 {
 }
 
@@ -142,6 +151,9 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
 {
    if (&sp == this)
       return *this;
+   theSolarSystem           = sp.theSolarSystem;
+   inertialCS               = NULL;
+   bodyFixedCS              = NULL;
    j2000Body                = sp.j2000Body;
    j2000BodyName            = sp.j2000BodyName;
    naifId                   = sp.naifId;
@@ -152,7 +164,8 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
    frameSpiceKernelNames    = sp.frameSpiceKernelNames;
    default_j2000BodyName    = sp.default_j2000BodyName;
    default_naifId           = sp.default_naifId;
-
+   hasAttitude              = false;
+   
    return *this;
 }
 //---------------------------------------------------------------------------
@@ -164,6 +177,18 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
 //---------------------------------------------------------------------------
 SpacePoint::~SpacePoint()
 {
+   if (inertialCS)
+      delete inertialCS;
+   if (bodyFixedCS)
+      delete bodyFixedCS;
+}
+
+//------------------------------------------------------------------------------
+// virtual void SetSolarSystem(SolarSystem *ss)
+//------------------------------------------------------------------------------
+void SpacePoint::SetSolarSystem(SolarSystem *ss)
+{
+   theSolarSystem = ss;
 }
 
 //------------------------------------------------------------------------------
@@ -285,6 +310,105 @@ bool SpacePoint::SaveParameterAsDefault(const Integer id)
       return true;
    }
    return GmatBase::SaveParameterAsDefault(id);
+}
+
+
+//------------------------------------------------------------------------------
+//  virtual bool HasAttitude() const
+//------------------------------------------------------------------------------
+/**
+ * @return true if attitude was computed or can be computed, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool SpacePoint::HasAttitude() const
+{
+   if (theSolarSystem != NULL && j2000Body != NULL)
+      if (inertialCS == NULL && bodyFixedCS == NULL)
+         return hasAttitude;
+      else
+         return true;
+   else
+      return false;
+}
+
+
+//------------------------------------------------------------------------------
+// virtual const Rmatrix33& GetAttitude(Real a1mjdTime)
+//------------------------------------------------------------------------------
+/**
+ * @return Computed cosine matrix if attitude can be computed for celestial body
+ */
+//------------------------------------------------------------------------------
+const Rmatrix33& SpacePoint::GetAttitude(Real a1mjdTime)
+{
+   #ifdef DEBUG_ATTITUDE
+   MessageInterface::ShowMessage
+      ("SpacePoint::GetAttitude() '%s' entered, epoch=%f, theSolarSystem=<%p>, "
+       "j2000Body=<%p>\n   inertialCS=<%p>, bodyFixedCS=<%p>\n", GetName().c_str(),
+       a1mjdTime, theSolarSystem, j2000Body, inertialCS, bodyFixedCS);
+   #endif
+   
+   // If not a celestial body, just return identity matrix
+   if (!IsOfType(Gmat::CELESTIAL_BODY))
+      return cosineMat;
+   
+   if (theSolarSystem != NULL && j2000Body != NULL)
+   {
+      Rvector6 currState = GetMJ2000State(a1mjdTime);
+      Rvector6 outState;
+      
+      #ifdef DEBUG_ATTITUDE
+      MessageInterface::ShowMessage
+         ("   currState=%s\n", currState.ToString(16).c_str());
+      #endif
+      
+      if (inertialCS == NULL && bodyFixedCS == NULL)
+      {
+         inertialCS =
+            CoordinateSystem::
+            CreateLocalCoordinateSystem("Sp_Inertial", "MJ2000Eq", this,
+                                        NULL, NULL, j2000Body, theSolarSystem);
+         bodyFixedCS =
+            CoordinateSystem::
+            CreateLocalCoordinateSystem("Sp_BodyFixed", "BodyFixed", this,
+                                        NULL, NULL, j2000Body, theSolarSystem);
+         #ifdef DEBUG_ATTITUDE
+         MessageInterface::ShowMessage
+            ("   inertialCS=<%p>, bodyFixedCS=<%p>\n", inertialCS, bodyFixedCS);
+         #endif
+         
+         // if coordinate systems are still NULL, just return identity matrix
+         if (inertialCS == NULL || bodyFixedCS == NULL)
+            return cosineMat;
+      }
+      
+      CoordinateConverter coordConverter;
+      // The Attitude matrix is rotation matrix from inertial to body fixed,
+      // but coordConverter.GetLastRotationMatrix() returns rotation matrix to inertial
+      // so convert body fixed to inertial
+      coordConverter.Convert(a1mjdTime, currState, bodyFixedCS, outState,
+                             inertialCS, false, false);
+      Rmatrix33 rotMat = coordConverter.GetLastRotationMatrix();
+      
+      #ifdef DEBUG_ATTITUDE
+      MessageInterface::ShowMessage
+         ("   outState =%s\n", outState.ToString(16).c_str());
+      MessageInterface::ShowMessage
+         ("   rotMat   =\n%s", rotMat.ToString(16, 25, false, "      ").c_str());
+      #endif
+      
+      cosineMat = rotMat;
+      hasAttitude = true;
+   }
+   else
+   {
+      hasAttitude = false;
+      MessageInterface::ShowMessage
+         ("*** WARNING *** SpacePoint::GetAttitude() Cannot compute attitude at epoch %f, "
+          "SolarSystem or J2000Body is NULL\n", a1mjdTime);
+   }
+   
+   return cosineMat;
 }
 
 

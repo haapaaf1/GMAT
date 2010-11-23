@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  CelestialBody
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Wendy C. Shoan
 // Created: 2004/01/28
@@ -209,7 +209,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (21545.0),
-   theSolarSystem     (NULL),
+   //theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
    centralBodySet     (false),
@@ -299,7 +299,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (21545.0),
-   theSolarSystem     (NULL),
+   //theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
    centralBodySet     (false),
@@ -387,7 +387,7 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    mu                  (cBody.mu),
    posVelSrc           (cBody.posVelSrc),
 //   analyticMethod      (cBody.analyticMethod),
-   theSolarSystem      (cBody.theSolarSystem),    // correct?
+   //theSolarSystem      (cBody.theSolarSystem),    // correct?
    theCentralBodyName  (cBody.theCentralBodyName),
    theCentralBody      (cBody.theCentralBody),    // correct?
    centralBodySet      (cBody.centralBodySet),    // correct?
@@ -515,7 +515,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
 //   analyticMethod      = cBody.analyticMethod;
    state               = cBody.state;
    stateTime           = cBody.stateTime;
-   theSolarSystem      = cBody.theSolarSystem;   // correct?
+   //theSolarSystem      = cBody.theSolarSystem;   // correct?
    theCentralBodyName  = cBody.theCentralBodyName;
    theCentralBody      = cBody.theCentralBody;   // correct?
    centralBodySet      = cBody.centralBodySet;   // correct?
@@ -920,10 +920,11 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
    #endif
 }
 
-void CelestialBody::SetSolarSystem(SolarSystem *ss)
-{
-   theSolarSystem = ss;
-}
+// Moved to SpacePoint (LOJ: 2010.11.19)
+// void CelestialBody::SetSolarSystem(SolarSystem *ss)
+// {
+//    theSolarSystem = ss;
+// }
 
 #ifdef __USE_SPICE__
 void CelestialBody::SetSpiceOrbitKernelReader(SpiceOrbitKernelReader *skr)
