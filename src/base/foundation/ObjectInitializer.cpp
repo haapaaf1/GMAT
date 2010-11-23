@@ -469,7 +469,10 @@ void ObjectInitializer::SetObjectJ2000Body(ObjectMap *objMap)
          SpacePoint *spObj = (SpacePoint *)obj;
          SpacePoint* j2k = FindSpacePoint(spObj->GetJ2000BodyName());
          if (j2k)
+         {
+            spObj->SetSolarSystem(ss);
             spObj->SetJ2000Body(j2k);
+         }
          else
             throw GmatBaseException("ObjectInitializer did not find the Spacepoint \"" +
                spObj->GetJ2000BodyName() + "\"");
