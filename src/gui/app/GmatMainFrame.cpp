@@ -471,15 +471,19 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    {
       MessageInterface::ShowMessage(e.GetFullMessage());
    }
-
-   // show welcome panel
-   wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
-   wxCommandEvent WXUNUSED; 
-   wxString showWelcomePanel;
-   pConfig->Read("/Main/ShowWelcomeOnStart", &showWelcomePanel, "true");
-   if (showWelcomePanel.Lower() == "true")
-      OnHelpWelcome(WXUNUSED);
-
+   
+   // If GUI mode is normal (not minimized), show welcome panel
+   if (GmatGlobal::Instance()->GetGuiMode() == GmatGlobal::NORMAL_GUI)
+   {
+      // show welcome panel
+      wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
+      wxCommandEvent WXUNUSED; 
+      wxString showWelcomePanel;
+      pConfig->Read("/Main/ShowWelcomeOnStart", &showWelcomePanel, "true");
+      if (showWelcomePanel.Lower() == "true")
+         OnHelpWelcome(WXUNUSED);
+   }
+   
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage("GmatMainFrame::GmatMainFrame() exiting\n");
    #endif
@@ -2278,7 +2282,7 @@ void GmatMainFrame::OnCloseAll(wxCommandEvent& WXUNUSED(event))
    wxSafeYield();
 
    wxToolBar* toolBar = GetToolBar();
-	// enable screen capture when the simulation is run
+   // enable screen capture when the simulation is run
    toolBar->EnableTool(TOOL_SCREENSHOT, false);
 }
 
@@ -2299,7 +2303,7 @@ void GmatMainFrame::OnCloseActive(wxCommandEvent& WXUNUSED(event))
 
    if (theMdiChildren->GetCount() <= 0){
       wxToolBar* toolBar = GetToolBar();
-		// deactivate screen capture when not running
+      // deactivate screen capture when not running
       toolBar->EnableTool(TOOL_SCREENSHOT, false);
    }
 }
@@ -3826,12 +3830,17 @@ bool GmatMainFrame::SetScriptFileName(const std::string &filename)
 {
    if (!mRunCompleted)
    {
-      wxMessageBox(wxT("GMAT is still running the mission.\n"
-                       "Please STOP before reading a new script."),
-                   wxT("GMAT Warning"));
+      // We also want to log this message, so use PopupMessage()
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "GMAT is still running the mission.\n"
+          "Please STOP before reading a new script.");
+      
+      //wxMessageBox(wxT("GMAT is still running the mission.\n"
+      //                 "Please STOP before reading a new script."),
+      //             wxT("GMAT Warning"));
       return false;
    }
-
+   
    mScriptFilename = filename;
    return true;
 }
