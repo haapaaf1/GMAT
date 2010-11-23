@@ -142,7 +142,7 @@ using namespace FloatAttUtil;
 //#define DEBUG_TRAJCANVAS_LONGITUDE 1
 //#define DEBUG_SHOW_SKIP 1
 //#define DEBUG_ROTATE 1
-#define DEBUG_ROTATE_BODY 1
+//#define DEBUG_ROTATE_BODY 1
 //#define DEBUG_DATA_BUFFERRING
 //#define DEBUG_ORBIT_LINES
 #define MODE_CENTERED_VIEW 0
