@@ -2914,10 +2914,22 @@ void Propagate::PrepareToPropagate()
                               (*i)->GetName().c_str());
                      #endif
                      prop[index]->GetODEModel()->AddForce(*i);
+
+                     // Refresh ODE model mapping, since a new force was added
+                     if (prop[index]->GetODEModel()->BuildModelFromMap()
+                           == false)
+                        throw CommandException("Unable to assemble the ODE "
+                              "model  after adding a finite burn for " +
+                              (*i)->GetName());
                   }
                }
             }
          }
+         #ifdef DEBUG_FINITE_MANEUVER
+            else
+               MessageInterface::ShowMessage("SpaceObject %s is not "
+                     "maneuvering\n", (*sc)->GetName().c_str());
+         #endif
       }
 
       for (Integer n = 0; n < (Integer)prop.size(); ++n)
