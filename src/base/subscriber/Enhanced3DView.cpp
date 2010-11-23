@@ -845,6 +845,11 @@ bool Enhanced3DView::Initialize()
          if (mViewDirectionObj != NULL)
             UpdateObjectList(mViewDirectionObj);
          
+         // Add Sun to list if it was not added already to enable light source (LOJ: 2010.11.22)
+         if (find(mObjectNameArray.begin(), mObjectNameArray.end(), "Sun") ==
+             mObjectNameArray.end())
+            UpdateObjectList(theSolarSystem->GetBody("Sun"), false);
+         
          #if DBGLVL_OPENGL_INIT > 1
          MessageInterface::ShowMessage
             ("   mScNameArray.size=%d, mScOrbitColorArray.size=%d\n",
