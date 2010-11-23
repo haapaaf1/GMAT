@@ -63,12 +63,14 @@ public:
    Rvector6             GetModifiedKeplerianState();
 
    Anomaly              GetAnomaly() const;
-
-   const Rmatrix33&     GetAttitude(Real a1mjdTime) const;
+   
+   virtual bool         HasAttitude();
+   virtual const Rmatrix33&
+                        GetAttitude(Real a1mjdTime);
    const Rvector3&      GetAngularVelocity(Real a1mjdTime) const;
    const UnsignedIntArray&
                         GetEulerAngleSequence() const;
-
+   
    // The ID of the model that the spacecraft uses, and the filename as well
    std::string          modelFile;
    int                  modelID;
@@ -148,8 +150,8 @@ public:
    const StringArray&   GetStringArrayParameter(const Integer id) const;
    virtual const StringArray&
                         GetStringArrayParameter(const std::string &label) const;
-   virtual std::string 	GetStringParameter(const Integer id, const Integer index) const;			// made changes by Tuan Nguyen
-   virtual std::string  GetStringParameter(const std::string & label, const Integer index) const;	// made changes by Tuan Nguyen
+   virtual std::string  GetStringParameter(const Integer id, const Integer index) const;           // made changes by Tuan Nguyen
+   virtual std::string  GetStringParameter(const std::string & label, const Integer index) const;  // made changes by Tuan Nguyen
 
    virtual std::string  GetParameterText(const Integer id) const;
    virtual Gmat::ParameterType
@@ -241,8 +243,8 @@ protected:
       CARTESIAN_VZ,
       MASS_FLOW,
 
-		// Hardware for spacecraft
-		ADD_HARDWARE,					// made changes by Tuan Nguyen
+      // Hardware for spacecraft
+      ADD_HARDWARE,                                             // made changes by Tuan Nguyen
       // The filename used for the spacecraft's model 
       MODEL_FILE,
 
@@ -403,9 +405,9 @@ protected:
 
    // Hardware
    /// List of hardware names used in the spacecraft
-   StringArray		 hardwareNames;					// made changes by Tuan Nguyen
+   StringArray           hardwareNames;                                 // made changes by Tuan Nguyen
    /// List of hardware objects used in the spacecraft
-   ObjectArray 		 hardwareList;					// made changes by Tuan Nguyen
+   ObjectArray           hardwareList;                                  // made changes by Tuan Nguyen
 
    Real              UpdateTotalMass();
    Real              UpdateTotalMass() const;
@@ -433,7 +435,7 @@ protected:
    void              RecomputeStateAtEpoch(const GmatEpoch &toEpoch);
 
 private:
-   bool 			 VerifyAddHardware();			// made changes by Tuan Nguyen
+   bool                          VerifyAddHardware();                   // made changes by Tuan Nguyen
 
 };
 

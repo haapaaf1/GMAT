@@ -121,7 +121,7 @@ Spacecraft::PARAMETER_TYPE[SpacecraftParamCount - SpaceObjectParamCount] =
       Gmat::REAL_TYPE,        // CartesianVY
       Gmat::REAL_TYPE,        // CartesianVZ
       Gmat::REAL_TYPE,        // Mass Flow
-		Gmat::OBJECTARRAY_TYPE, // AddHardware    // made changes by Tuan Nguyen
+                Gmat::OBJECTARRAY_TYPE, // AddHardware    // made changes by Tuan Nguyen
       Gmat::STRING_TYPE,      // Model File
       Gmat::REAL_TYPE,        // Model Offset X
       Gmat::REAL_TYPE,        // Model Offset Y
@@ -177,14 +177,14 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "CartesianVZ",
       "MassFlow",
       "AddHardware",                            // made changes by Tuan Nguyen
-	  "ModelFile",
-	  "ModelOffsetX",
-	  "ModelOffsetY",
-	  "ModelOffsetZ",
-	  "ModelRotationX",
-	  "ModelRotationY",
-	  "ModelRotationZ",
-	  "ModelScale",
+          "ModelFile",
+          "ModelOffsetX",
+          "ModelOffsetY",
+          "ModelOffsetZ",
+          "ModelRotationX",
+          "ModelRotationY",
+          "ModelRotationZ",
+          "ModelScale",
 };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] =
@@ -870,9 +870,17 @@ Anomaly Spacecraft::GetAnomaly() const
 }
 
 //------------------------------------------------------------------------------
+// virtual bool HasAttitude()
+//------------------------------------------------------------------------------
+bool Spacecraft::HasAttitude()
+{
+   return true;
+}
+
+//------------------------------------------------------------------------------
 // const Rmatrix33& GetAttitude(Real a1mjdTime) const
 //------------------------------------------------------------------------------
-const Rmatrix33& Spacecraft::GetAttitude(Real a1mjdTime) const
+const Rmatrix33& Spacecraft::GetAttitude(Real a1mjdTime)
 {
    #ifdef DEBUG_SC_ATTITUDE
       MessageInterface::ShowMessage("Entering SC::GetAttitude ...\n");
@@ -2690,9 +2698,9 @@ bool Spacecraft::SetStringParameter(const Integer id, const std::string &value)
 //         orbitSpiceKernelNames.push_back(value);
 //      }
 //   }
-	else if (id == MODEL_FILE)
+        else if (id == MODEL_FILE)
    {
-    	modelFile = value;
+        modelFile = value;
    }
    else if (id == ORBIT_SPICE_KERNEL_NAME)
    {
