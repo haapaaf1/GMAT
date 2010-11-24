@@ -36,6 +36,7 @@
 //#define DEBUG_NO_BRACKETS
 //#define DEBUG_BALANCED_BRACKETS
 //#define DEBUG_MATH_EQ 1
+//#define DEBUG_STRING_UTIL_SEP_COMMA
 
 
 //------------------------------------------------------------------------------
@@ -540,7 +541,6 @@ std::string GmatStringUtil::ReplaceNumber(const std::string &str, const std::str
 
    bool done = false;
    std::string::size_type start = 0;
-   std::string::size_type strSize = str1.size();
    std::string::size_type fromSize = from.size();
    
    while (!done)
@@ -879,7 +879,7 @@ StringArray GmatStringUtil::SeparateBy(const std::string &str,
 //------------------------------------------------------------------------------
 StringArray GmatStringUtil::SeparateByComma(const std::string &str)
 {
-   #if DEBUG_STRING_UTIL_SEP_COMMA
+   #ifdef DEBUG_STRING_UTIL_SEP_COMMA
    MessageInterface::ShowMessage
       ("GmatStringUtil::SeparateByComma() str=\"%s\"n", str.c_str());
    #endif
@@ -2585,7 +2585,7 @@ bool GmatStringUtil::IsParenPartOfArray(const std::string &str)
  * Checks if there is equal sign (=) not enclosed with single quotes.
  * It will return when it finds first equal sign not in quotes.
  *
- * @param  return true if it finds equal sign not in qotes, false otherwise
+ * @param  return true if it finds equal sign not in quotes, false otherwise
  */
 //------------------------------------------------------------------------------
 bool GmatStringUtil::IsThereEqualSign(const std::string &str)
