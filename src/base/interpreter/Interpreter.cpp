@@ -5369,11 +5369,45 @@ bool Interpreter::SetProperty(GmatBase *obj, const Integer id,
    StringArray rhsValues;
    Integer count = 0;
    
-   // if value has braces, setting multiple values
-   if (value.find("{") != value.npos || value.find("}") != value.npos)
-      rhsValues = theTextParser.SeparateBrackets(value, "{}", " ,");
-   else if (value.find("[") != value.npos || value.find("]") != value.npos)
-      rhsValues = theTextParser.SeparateBrackets(value, "[]", " ,");
+   // if value has braces or brackets, setting multiple values
+      if (value.find("{") != value.npos || value.find("}") != value.npos)
+      {
+         // first, check to see if it is a list of strings (e.g. file names);
+         // in that case, we do not want to remove spaces inside the strings
+         // or use space as a delimiter
+         if (value.find("\'") != value.npos)
+         {
+            std::string trimmed = GmatStringUtil::Trim(value);
+            std::string inside  = GmatStringUtil::RemoveOuterString(trimmed, "{", "}");
+            #ifdef DEBUG_SET
+            MessageInterface::ShowMessage("------> found single quotes in %s\n", value.c_str());
+            MessageInterface::ShowMessage("------> trimmed =  %s\n", trimmed.c_str());
+            MessageInterface::ShowMessage("------> inside  =  %s\n", inside.c_str());
+            #endif
+            rhsValues = GmatStringUtil::SeparateByComma(inside);
+         }
+         else
+         {
+            rhsValues = theTextParser.SeparateBrackets(value, "{}", " ,");
+         }
+      }
+      else if (value.find("[") != value.npos || value.find("]") != value.npos)
+      {
+         // first, check to see if it is a list of strings (e.g. file names);
+         // in that case, we do not want to remove spaces inside the strings
+         // or use space as a delimiter
+         if (value.find("\'") != value.npos)
+         {
+            std::string trimmed = GmatStringUtil::Trim(value);
+            std::string inside = GmatStringUtil::RemoveOuterString(trimmed, "[", "]");
+            rhsValues = GmatStringUtil::SeparateByComma(inside);
+        }
+         else
+         {
+            rhsValues = theTextParser.SeparateBrackets(value, "[]", " ,");
+         }
+      }
+//   }
    
    count = rhsValues.size();
    
