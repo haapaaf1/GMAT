@@ -36,7 +36,9 @@
 //#define DEBUG_J2000_STATE
 //#define DEBUG_SPACE_POINT_CLOAKING
 //#define DEBUG_SPICE_KERNEL
+//#define DEBUG_SPACE_POINT_ORBIT_KERNELS
 //#define DEBUG_ATTITUDE
+
 
 //---------------------------------
 // static data
@@ -753,6 +755,10 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
 //   bool alreadyInList = false;
    if (id == ORBIT_SPICE_KERNEL_NAME)
    {
+      #ifdef DEBUG_SPACE_POINT_ORBIT_KERNELS
+          MessageInterface::ShowMessage("Entering SP::SetString with value = %s\n",
+             value.c_str());
+      #endif
       // if it is the whole StringArray of kernel names, handle that here
       // (needed so that assignments will work inside of GmatFunctions) wcs 2010.05.18
       std::string value1 = GmatStringUtil::Trim(value);
@@ -760,6 +766,12 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       {
          orbitSpiceKernelNames.clear();
          orbitSpiceKernelNames = GmatStringUtil::ToStringArray(value1);
+         #ifdef DEBUG_SPACE_POINT_ORBIT_KERNELS
+             MessageInterface::ShowMessage("In SP::SetString value IS enclosed with braces and values are:\n");
+             for (unsigned int ii = 0; ii < orbitSpiceKernelNames.size(); ii++)
+                MessageInterface::ShowMessage("   (%d)   %s\n", (Integer) ii,
+                      (orbitSpiceKernelNames.at(ii)).c_str());
+         #endif
       }
       else
       {
