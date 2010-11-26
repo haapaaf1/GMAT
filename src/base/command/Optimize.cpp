@@ -151,7 +151,11 @@ bool Optimize::Append(GmatCommand *cmd)
          #endif
       }
       else
+      {
          --nestLevel;
+         if (minimizeCount > 0)
+            --minimizeCount;
+      }
    }
 
    // If it's a nested optimizer branch, add to the nest level.
