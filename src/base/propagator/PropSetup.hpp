@@ -129,7 +129,25 @@ public:
                                          const Real value);
    virtual Real         SetRealParameter(const std::string &label,
                                          const Real value);
-   
+
+   virtual bool         GetBooleanParameter(const Integer id) const;
+   virtual bool         SetBooleanParameter(const Integer id,
+                                            const bool value);
+   virtual bool         GetBooleanParameter(const Integer id,
+                                            const Integer index) const;
+   virtual bool         SetBooleanParameter(const Integer id,
+                                            const bool value,
+                                            const Integer index);
+   virtual bool         GetBooleanParameter(const std::string &label) const;
+   virtual bool         SetBooleanParameter(const std::string &label,
+                                            const bool value);
+   virtual bool         GetBooleanParameter(const std::string &label,
+                                            const Integer index) const;
+   virtual bool         SetBooleanParameter(const std::string &label,
+                                            const bool value,
+                                            const Integer index);
+
+
    virtual Integer      GetIntegerParameter(const Integer id) const;
    virtual Integer      GetIntegerParameter(const std::string &label) const;
    virtual Integer      SetIntegerParameter(const Integer id,
@@ -173,6 +191,7 @@ private:
       MAX_STEP_ATTEMPTS,
       LOWER_ERROR,
       TARGET_ERROR,
+      STOP_IF_ACCURACY_VIOLATED,
       PropSetupParamCount
    };
    

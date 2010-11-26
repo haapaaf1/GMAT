@@ -72,6 +72,7 @@ PropSetup::PARAMETER_TEXT[PropSetupParamCount - GmatBaseParamCount] =
    "MaxStepAttempts",
    "LowerError",
    "TargetError",
+   "StopIfAccuracyIsViolated",
 };
 
 
@@ -89,6 +90,7 @@ PropSetup::PARAMETER_TYPE[PropSetupParamCount - GmatBaseParamCount] =
    Gmat::INTEGER_TYPE, // "MaxStepAttempts",
    Gmat::REAL_TYPE,    // "LowerError",
    Gmat::REAL_TYPE,    // "TargetError",
+   Gmat::BOOLEAN_TYPE, // "StopIfAccuracyIsViolated"
 };
 
 //---------------------------------
@@ -1019,6 +1021,177 @@ Integer PropSetup::SetIntegerParameter(const Integer id, const Integer value)
 Integer PropSetup::SetIntegerParameter(const std::string &label, const Integer value)
 {
    return SetIntegerParameter(GetParameterID(label), value);
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a Boolean parameter
+ *
+ * @param id The parameter ID
+ *
+ * @return the current value
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::GetBooleanParameter(const Integer id) const
+{
+   switch (id)
+   {
+      case STOP_IF_ACCURACY_VIOLATED:
+         {
+            // Get actual id
+            Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);
+            return mPropagator->GetBooleanParameter(actualId);
+         }
+   default:
+      return GmatBase::GetBooleanParameter(id);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a Boolean parameter
+ *
+ * @param id The parameter ID
+ * @param value The new parameter setting
+ *
+ * @return the value after setting
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::SetBooleanParameter(const Integer id, const bool value)
+{
+   switch (id)
+   {
+      case STOP_IF_ACCURACY_VIOLATED:
+         {
+            // Get actual id
+            Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);
+            return mPropagator->SetBooleanParameter(actualId, value);
+         }
+   default:
+      return GmatBase::GetBooleanParameter(id, value);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const Integer id, const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a Boolean parameter from an array of Booleans
+ *
+ * @param id The parameter ID
+ * @param index The index into the array
+ *
+ * @return the current value
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::GetBooleanParameter(const Integer id, const Integer index) const
+{
+   return GmatBase::GetBooleanParameter(id, index);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const Integer id, const bool value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a Boolean parameter in an array
+ *
+ * @param id The parameter ID
+ * @parm value The new parameter value
+ * @param index The index into the array
+ *
+ * @return the current value
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::SetBooleanParameter(const Integer id, const bool value,
+      const Integer index)
+{
+   return GmatBase::SetBooleanParameter(id, value, index);
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const std::string &label) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a Boolean parameter
+ *
+ * @param label The parameter's script string
+ *
+ * @return the current value
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::GetBooleanParameter(const std::string &label) const
+{
+   return GetBooleanParameter(GetParameterID(label));
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const std::string &label, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * Sets a Boolean parameter
+ *
+ * @param label The parameter's script string
+ * @param value The new parameter setting
+ *
+ * @return the value after setting
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::SetBooleanParameter(const std::string &label,
+                                         const bool value)
+{
+   return SetBooleanParameter(GetParameterID(label), value);
+}
+
+
+//------------------------------------------------------------------------------
+// bool GetBooleanParameter(const std::string &label,
+//                                          const Integer index) const
+//------------------------------------------------------------------------------
+/**
+ * Retrieves a Boolean parameter from an array of Booleans
+ *
+ * @param label The parameter's script string
+ * @param index The index into the array
+ *
+ * @return the current value
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::GetBooleanParameter(const std::string &label,
+                                         const Integer index) const
+{
+   return GetBooleanParameter(GetParameterID(label), index);
+}
+
+
+//------------------------------------------------------------------------------
+// bool SetBooleanParameter(const std::string &label, const bool value,
+//       const Integer index)
+//------------------------------------------------------------------------------
+/**
+ * Sets a Boolean parameter in an array
+ *
+ * @param label The parameter's script string
+ * @parm value The new parameter value
+ * @param index The index into the array
+ *
+ * @return the current value
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::SetBooleanParameter(const std::string &label, const bool value,
+      const Integer index)
+{
+   return SetBooleanParameter(GetParameterID(label), value, index);
 }
 
 
