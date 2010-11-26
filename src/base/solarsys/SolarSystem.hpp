@@ -64,7 +64,7 @@ public:
    
    virtual bool Initialize();
    
-   // method for planetary ephemris files
+   // method for planetary ephemeris files
    void CreatePlanetarySource(bool setDefault = true);
    
    const StringArray& GetPlanetarySourceTypes();
