@@ -29,6 +29,7 @@
 BeginMissionSequence::BeginMissionSequence() :
     GmatCommand("BeginMissionSequence")
 {
+   objectTypeNames.push_back("BeginMissionSequence");
 }
 
 
