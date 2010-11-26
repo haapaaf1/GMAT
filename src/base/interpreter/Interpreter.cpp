@@ -7263,6 +7263,15 @@ bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
    StringArray theObjects =
          theModerator->GetListOfObjects(Gmat::UNKNOWN_OBJECT);
 
+   SolarSystem *ss = theModerator->GetSolarSystemInUse();
+
+   StringArray theSSBodies = ss->GetBodiesInUse();
+   // Do this to treat SS bodies like all other objects:
+   for (UnsignedInt i = 0; i < theSSBodies.size(); ++i)
+      theObjects.push_back(theSSBodies[i]);
+
+   Integer beginMCSCount = 0;
+
    if (missingObjects == NULL)
    {
       missingObjects = new StringArray;
@@ -7278,6 +7287,9 @@ bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
 
    do
    {
+      if (current->IsOfType("BeginMissionSequence"))
+         ++beginMCSCount;
+
       StringArray refs;
       // Validate that objects exist for object references
       if (current)
@@ -7370,7 +7382,9 @@ bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
 
    std::string exceptionError = (*accumulatedErrors);
 
-   if ((missingObjects->size() > 0) || (validationErrorCount > 0))
+   if ((missingObjects->size() > 0) || (validationErrorCount > 0) ||
+       (beginMCSCount > 1))  // for now -- use this when BMS is REQUIRED:
+//       (beginMCSCount != 1))
    {
       #ifdef DEBUG_VALIDATION
          MessageInterface::ShowMessage("\n   Missing objects:\n");
@@ -7392,6 +7406,14 @@ bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
          delete missingObjects;
       if (cleanAccError)
          delete accumulatedErrors;
+
+      if (beginMCSCount > 1)
+         exceptionError += "Too many \"BeginMissionSequence\" "
+               "commands were found";
+
+      if (beginMCSCount == 0)
+         exceptionError += "No \"BeginMissionSequence\" "
+               "commands were found";
 
       throw InterpreterException("\n" + exceptionError);
    }
