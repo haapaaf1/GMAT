@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                Variable
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -13,11 +13,7 @@
 // Created: 2004/09/15
 //
 /**
- * Implements Variable class which provides methods for general variable evaluation.
- *    Such as: 100 * Sat1.X; where Sat1.X is already defined
- *             Sat1.X + Sat1.X;
- *             A * B; where A and B are already defined
- *    Only operator allowed are: +*-/^
+ * Implements Variable class.
  */
 //------------------------------------------------------------------------------
 
@@ -64,35 +60,17 @@ Variable::Variable(const std::string &name, const std::string &valStr,
    : RealVar(name, valStr, "Variable", GmatParam::USER_PARAM, NULL, desc, unit,
              GmatParam::NO_DEP, Gmat::UNKNOWN_OBJECT, false)
 {
-   
    objectTypes.push_back(Gmat::VARIABLE);
    objectTypeNames.push_back("Variable");
    
-   mParamDb = new ParameterDatabase();
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (mParamDb, name, "Variable::Variable(default)", "mParamDb = new ParameterDatabase()");
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
+   CreateSimpleExpression();
    #endif
-   
-   mExpParser = new ExpressionParser();
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (mExpParser, name, "Variable::Variable(default)", "mExpParser = new ExpressionParser()");
-   #endif
-   
-   // Set parameter database to be used
-   mExpParser->SetParameterDatabase(mParamDb);
    
    // Initialize real value and expression
    mIsNumber = true;
    mRealValue = 0.0;
    mExpr = "0";
-   
-   #ifdef DEBUG_VARIABLE_CREATE
-   MessageInterface::ShowMessage("Variable::Variable() constructor\n");
-   MessageInterface::ShowMessage
-      ("   numDBParams = %d\n", mParamDb->GetNumParameters());
-   #endif
 }
 
 
@@ -110,34 +88,16 @@ Variable::Variable(const Variable &copy)
 {
    #ifdef DEBUG_VARIABLE_CLONE
    MessageInterface::ShowMessage
-      ("Variable copy constructor <%p>'%s' entered, mParamDb=<%p>, mExpParser=<%p>\n",
-       this, GetName().c_str(), mParamDb, mExpParser);
+      ("Variable copy constructor <%p>'%s' entered\n", this, GetName().c_str());
    #endif
    
-   mParamDb = new ParameterDatabase(*copy.mParamDb);
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (mParamDb, GetName(), "Variable::Variable(copy)", "mParamDb = new ParameterDatabase()");
-   #endif
-   
-   mExpParser = new ExpressionParser();
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Add
-      (mExpParser, GetName(), "Variable::Variable(copy)", "mExpParser = new ExpressionParser()");
-   #endif
-   mExpParser->SetParameterDatabase(mParamDb);
-   
-   #ifdef DEBUG_VARIABLE_CLONE
-   MessageInterface::ShowMessage("Variable::Variable(copy)\n");
-   MessageInterface::ShowMessage
-      ("   copy.numDBParams = %d\n", copy.mParamDb->GetNumParameters());
-   MessageInterface::ShowMessage
-      ("   numDBParams = %d\n", mParamDb->GetNumParameters());
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
+   CopySimpleExpression(copy);
    #endif
    
    #ifdef DEBUG_VARIABLE_CLONE
    MessageInterface::ShowMessage
-      ("***** Variable(copy) this=<%p> '%s', mRealValue=%f\n",
+      ("Variable copy constructor this=<%p> '%s' leaving, mRealValue=%f\n",
        this, GetName().c_str(), mRealValue);
    #endif
 }
@@ -160,45 +120,11 @@ Variable& Variable::operator=(const Variable &right)
       std::string thisName = GetName();
       
       RealVar::operator=(right);
-      
-      if (mParamDb)
-      {
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (mParamDb, GetName(), "Variable::operator=", "deleting mParamDb");
-         #endif
-         delete mParamDb;
-      }
-      
-      mParamDb = new ParameterDatabase(*right.mParamDb);
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (mParamDb, GetName(), "Variable::operator=", "mParamDb = new ParameterDatabase()");
+
+      #ifdef __ALLOW_SIMPLE_VAR_EXP__
+      AssignSimpleExpression(right);
       #endif
       
-      if (mExpParser)
-      {
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Remove
-            (mExpParser, GetName(), "Variable::operator=", "deleting mExpParser");
-         #endif
-         delete mExpParser;
-      }
-      
-      mExpParser = new ExpressionParser();
-      #ifdef DEBUG_MEMORY
-      MemoryTracker::Instance()->Add
-         (mExpParser, GetName(), "Variable::operator=", "mExpParser = new ExpressionParser()");
-      #endif
-      
-      mExpParser->SetParameterDatabase(mParamDb);
-      // Set expression to name of right side since expression is used for
-      // writnig in GetGeneratingString() (loj: 2008.08.13)
-      // For example:
-      // var1 = 123.45;
-      // var2 = var1;
-      // We want to write "var2 = var1" instead of "var2 = 123.45"
-      mExpr = right.GetName();
       SetName(thisName);
    }
    
@@ -221,17 +147,10 @@ Variable& Variable::operator=(const Variable &right)
 //------------------------------------------------------------------------------
 Variable::~Variable()
 {
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Remove
-      (mParamDb, GetName(), "Variable::~Variable()", "deleting mParamDb");
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
+   DeleteSimpleExpression();
    #endif
-   delete mParamDb;
    
-   #ifdef DEBUG_MEMORY
-   MemoryTracker::Instance()->Remove
-      (mExpParser, GetName(), "Variable::~Variable()", "deleting mExpParser");
-   #endif
-   delete mExpParser;
 }
 
 //-------------------------------------
@@ -277,8 +196,11 @@ Real Variable::EvaluateReal()
    }
    else
    {
+      //=======================================================
+      #ifdef __ALLOW_SIMPLE_VAR_EXP__
+      //=======================================================
       try
-      {
+      {         
          // Evaluate the expression
          mRealValue = mExpParser->EvalExp(mExpr.c_str());
          
@@ -295,6 +217,9 @@ Real Variable::EvaluateReal()
          throw ParameterException
             (e.GetFullMessage() + " for the Variable \"" + GetName() + "\"");
       }
+      //=======================================================
+      #endif
+      //=======================================================
    }
 }
 
@@ -424,7 +349,10 @@ bool Variable::RenameRefObject(const Gmat::ObjectType type,
    if (pos != mExpr.npos)
       mExpr = GmatStringUtil::Replace(mExpr, oldName, newName);
    
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
    mParamDb->RenameParameter(oldName, newName);
+   #endif
+   
    RealVar::RenameRefObject(type, oldName, newName);
    return true;
 }
@@ -448,7 +376,11 @@ std::string Variable::GetRefObjectName(const Gmat::ObjectType type) const
           " is not valid object type of " + this->GetTypeName() + "\n");
    }
    
-   return mParamDb->GetFirstParameterName();
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
+      return mParamDb->GetFirstParameterName();
+   #else
+      return "";
+   #endif
 }
 
 
@@ -485,7 +417,10 @@ bool Variable::SetRefObjectName(const Gmat::ObjectType type,
       ("   Adding '%s' to '%s' parameter database\n", name.c_str(), GetName().c_str());
    #endif
    
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
    mParamDb->Add(name);
+   #endif
+   
    return true;
 }
 
@@ -513,7 +448,11 @@ GmatBase* Variable::GetRefObject(const Gmat::ObjectType type,
           " is not valid object type of " + this->GetTypeName() + "\n");
    }
    
-   return mParamDb->GetParameter(name);
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
+      return mParamDb->GetParameter(name);
+   #else
+      return NULL;
+   #endif
 }
 
 
@@ -542,7 +481,11 @@ bool Variable::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
           " is not valid object type of " + this->GetTypeName() + "\n");
    }
    
-   return mParamDb->SetParameter(name, (Parameter*)obj);
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
+      return mParamDb->SetParameter(name, (Parameter*)obj);
+   #else
+      return false;
+   #endif
 }
 
 
@@ -551,24 +494,35 @@ bool Variable::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 const StringArray& Variable::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
-   if (mParamDb == NULL)
-      throw ParameterException
-         ("Variable::GetRefObjectNameArray() mParamDb is NULL\n");
-   
-   #ifdef DEBUG_REF_OBJ
-   MessageInterface::ShowMessage
-      ("Variable::GetRefObjectNameArray() type=%d\n", type);
-   StringArray paramNames = mParamDb->GetNamesOfParameters();
-   MessageInterface::ShowMessage
-      ("Variable::GetStringArrayParameter() mParamDb->GetNamesOfParameters() "
-       "size=%d\n", paramNames.size());
-   for (unsigned int i=0; i<paramNames.size(); i++)
+   //=======================================================
+   #ifdef __ALLOW_SIMPLE_VAR_EXP__
+   //=======================================================
+      if (mParamDb == NULL)
+         throw ParameterException
+            ("Variable::GetRefObjectNameArray() mParamDb is NULL\n");
+      
+      #ifdef DEBUG_REF_OBJ
       MessageInterface::ShowMessage
-         ("Variable::GetStringArrayParameter() "
-          "paramNames[%d]=%s\n", i, paramNames[i].c_str());
+         ("Variable::GetRefObjectNameArray() type=%d\n", type);
+      StringArray paramNames = mParamDb->GetNamesOfParameters();
+      MessageInterface::ShowMessage
+         ("Variable::GetStringArrayParameter() mParamDb->GetNamesOfParameters() "
+          "size=%d\n", paramNames.size());
+      for (unsigned int i=0; i<paramNames.size(); i++)
+         MessageInterface::ShowMessage
+            ("Variable::GetStringArrayParameter() "
+             "paramNames[%d]=%s\n", i, paramNames[i].c_str());
+      #endif
+      
+      return mParamDb->GetNamesOfParameters();
+   //=======================================================
+   #else
+   //=======================================================
+      static StringArray objectNames;
+      return objectNames;
+   //=======================================================
    #endif
-   
-   return mParamDb->GetNamesOfParameters();
+   //=======================================================
 }
 
 
@@ -639,7 +593,8 @@ const std::string& Variable::GetGeneratingString(Gmat::WriteMode mode,
    if (generateStr)
    {
       //generatingString = "GMAT " + GetName() + " = " + mExpr + ";";
-      generatingString = "GMAT " + GetName() + " = " + mInitialValue + ";";
+      //generatingString = "GMAT " + GetName() + " = " + mInitialValue + ";";
+      generatingString = "GMAT " + GetName() + " = " + GmatStringUtil::ToString(mRealValue, 16, false, 1) + ";";
       generatingString = generatingString + inlineComment + "\n";
    }
    
@@ -651,3 +606,137 @@ const std::string& Variable::GetGeneratingString(Gmat::WriteMode mode,
    return generatingString;
 }
 
+
+#ifdef __ALLOW_SIMPLE_VAR_EXP__
+//------------------------------------------------------------------------------
+// void CreateSimpleExpression()
+//------------------------------------------------------------------------------
+void Variable::CreateSimpleExpression()
+{
+   mParamDb = new ParameterDatabase();
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (mParamDb, name, "Variable::CreateSimpleExpression()", "mParamDb = new ParameterDatabase()");
+   #endif
+   
+   mExpParser = new ExpressionParser();
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (mExpParser, name, "Variable::ParameterDatabase()", "mExpParser = new ExpressionParser()");
+   #endif
+   
+   // Set parameter database to be used
+   mExpParser->SetParameterDatabase(mParamDb);
+   
+   #ifdef DEBUG_VARIABLE_CREATE
+   MessageInterface::ShowMessage("Variable::Variable() constructor\n");
+   MessageInterface::ShowMessage
+      ("   numDBParams = %d\n", mParamDb->GetNumParameters());
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void CopySimpleExpression(const Variable &copy)
+//------------------------------------------------------------------------------
+void Variable::CopySimpleExpression(const Variable &copy)
+{
+   #ifdef DEBUG_VARIABLE_CLONE
+   MessageInterface::ShowMessage
+      ("Variable::CopySimpleExpression() <%p>'%s' entered, mParamDb=<%p>, "
+       "mExpParser=<%p>\n", this, GetName().c_str(), mParamDb, mExpParser);
+   #endif
+   
+   mParamDb = new ParameterDatabase(*copy.mParamDb);
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (mParamDb, GetName(), "Variable::Variable(copy)", "mParamDb = new ParameterDatabase()");
+   #endif
+   
+   mExpParser = new ExpressionParser();
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (mExpParser, GetName(), "Variable::Variable(copy)", "mExpParser = new ExpressionParser()");
+   #endif
+   
+   mExpParser->SetParameterDatabase(mParamDb);
+   
+   #ifdef DEBUG_VARIABLE_CLONE
+   MessageInterface::ShowMessage("Variable::Variable(copy)\n");
+   MessageInterface::ShowMessage
+      ("   copy.numDBParams = %d\n", copy.mParamDb->GetNumParameters());
+   MessageInterface::ShowMessage
+      ("   numDBParams = %d\n", mParamDb->GetNumParameters());
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void AssignSimpleExpression(const Variable &right)
+//------------------------------------------------------------------------------
+void Variable::AssignSimpleExpression(const Variable &right)
+{
+   if (mParamDb)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (mParamDb, GetName(), "Variable::operator=", "deleting mParamDb");
+      #endif
+      delete mParamDb;
+   }
+   
+   mParamDb = new ParameterDatabase(*right.mParamDb);
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (mParamDb, GetName(), "Variable::operator=", "mParamDb = new ParameterDatabase()");
+   #endif
+   
+   if (mExpParser)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (mExpParser, GetName(), "Variable::operator=", "deleting mExpParser");
+      #endif
+      delete mExpParser;
+   }
+   
+   mExpParser = new ExpressionParser();
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (mExpParser, GetName(), "Variable::operator=", "mExpParser = new ExpressionParser()");
+   #endif
+   
+   mExpParser->SetParameterDatabase(mParamDb);
+   // Set expression to name of right side since expression is used for
+   // writnig in GetGeneratingString() (loj: 2008.08.13)
+   // For example:
+   // var1 = 123.45;
+   // var2 = var1;
+   // We want to write "var2 = var1" instead of "var2 = 123.45"
+   mExpr = right.GetName();
+}
+
+
+//------------------------------------------------------------------------------
+// void DeleteSimpleExpression()
+//------------------------------------------------------------------------------
+void Variable::DeleteSimpleExpression()
+{
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Remove
+      (mParamDb, GetName(), "Variable::~Variable()", "deleting mParamDb");
+   #endif
+   delete mParamDb;
+   
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Remove
+      (mExpParser, GetName(), "Variable::~Variable()", "deleting mExpParser");
+   #endif
+   delete mExpParser;
+}
+
+#endif
