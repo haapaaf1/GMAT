@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  Linear
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -298,8 +298,9 @@ std::ostream& GmatRealUtil::operator<< (std::ostream &output, const Rvector &a)
             output << prefix;
             std::string sval = ToString(a[i], false, scientific, showPoint, p, w);
             output << sval;
-            if (i < size-1)
-               output << std::endl;
+            if (appendEol)
+               if (i < size-1)
+                  output << std::endl;
          }
       }
    }
