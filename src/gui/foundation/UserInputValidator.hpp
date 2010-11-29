@@ -46,6 +46,13 @@ public:
                      bool onlyMsg = false, bool checkRange = false,
                      bool positive = false, bool zeroOk = false);
    
+   bool CheckIntegerRange(Integer &ivalue, const std::string &str, 
+                          const std::string &field,
+                          Integer lower, Integer upper,
+                          bool checkLower = true, bool checkUpper = true,
+                          bool includeLower = false,
+                          bool includeUpper = false);
+   
    bool CheckVariable(const std::string &varName, Gmat::ObjectType ownerType,
                       const std::string &field, const std::string &expRange,
                       bool allowNumber = true, bool allowNonPlottable = false);
@@ -54,12 +61,16 @@ public:
                        Real lower, Real upper,
                        bool checkLower = true, bool checkUpper = true,
                        bool includeLower = false,
-                       bool includeUpper = false);
+                       bool includeUpper = false, bool isInteger = false);
    
    wxArrayString ToWxArrayString(const StringArray &array);
    wxString ToWxString(const wxArrayString &names);
    
 protected:
+   static std::string lessOrEq;
+   static std::string lessThan;
+   static std::string moreOrEq;
+   static std::string moreThan;
    
    GmatBase       *mObject;
    GuiItemManager *mGuiManager;

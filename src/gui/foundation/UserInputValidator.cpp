@@ -23,6 +23,14 @@
 
 //#define DEBUG_CHECK_REAL
 
+//---------------------------------
+// static variables
+//---------------------------------
+std::string UserInputValidator::lessOrEq = " <= ";
+std::string UserInputValidator::lessThan = " < ";
+std::string UserInputValidator::moreOrEq = " >= ";
+std::string UserInputValidator::moreThan = " > ";
+
 //------------------------------------------------------------------------------
 // UserInputValidator()
 //------------------------------------------------------------------------------
@@ -192,7 +200,7 @@ bool UserInputValidator::CheckFileName(const std::string &str,
  * pops up the error message and return false if input string is
  * not a real number.
  *
- * @param  rvalue     Real value to be set if input string is valid
+ * @param  rvalue     Real value to be set if input string is valid real number
  * @param  str        Input string value
  * @param  field      Field name should be used in the error message
  * @param  expRange   Expected value range to be used in the error message
@@ -267,7 +275,7 @@ bool UserInputValidator::CheckReal(Real &rvalue, const std::string &str,
  * pops up the error message and return false if input string is
  * not an integer number.
  *
- * @param  ivalue     Integer value to be set if input string is valid
+ * @param  ivalue     Integer value to be set if input string is valid integer
  * @param  str        Input string value
  * @param  field      Field name should be used in the error message
  * @param  expRange   Expected value range to be used in the error message
@@ -309,6 +317,57 @@ bool UserInputValidator::CheckInteger(Integer &ivalue, const std::string &str,
          return true;
    }
    
+   MessageInterface::PopupMessage
+      (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
+       expRange.c_str());
+   
+   SetErrorFlag();
+   return false;
+}
+
+
+//------------------------------------------------------------------------------
+// bool CheckIntegerRange(Integer &ivalue, const std::string &str, 
+//         const std::string &field, Integer lower, Integer upper,
+//         bool checkLower = true, bool checkUpper = true,
+//         bool includeLower = false, bool includeUpper = false)
+//------------------------------------------------------------------------------
+/*
+ * Checks an integer number against a lower and upper bound.
+ *
+ * @param  ivalue       Integer value to be set if input string is valid integer
+ * @param  str          Input string value
+ * @param  lower        Lower bound against which to check the value
+ * @param  upper        Upper bound against which to check the value
+ * @param  checkLower   Flag indicating whether or not to check the lower bound (true)
+ * @param  checkUpper   Flag indicating whether or not to check the upper bound (true)
+ * @param  includeLower Flag indicating whether or not the range check is inclusive of the
+ *                      lower bound (false)
+ * @param  includeUpper Flag indicating whether or not the range check is inclusive of the
+ *                      upper bound (false)
+ *
+ * @return true if input value is valid, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool UserInputValidator::CheckIntegerRange(Integer &ivalue, const std::string &str, 
+                                           const std::string &field, Integer lower,
+                                           Integer upper, bool checkLower, bool checkUpper,
+                                           bool includeLower, bool includeUpper)
+{
+   Integer ival;
+   if (GmatStringUtil::ToInteger(str, &ival))
+   {
+      Real rval = (Real)ival;
+      
+      bool retval = CheckRealRange(str, rval, field, lower, upper, checkLower,
+                                   checkUpper, includeLower, includeUpper, true);
+      if (retval)
+         ivalue = ival;
+      
+      return retval;
+   }
+   
+   std::string expRange = "Integer";
    MessageInterface::PopupMessage
       (Gmat::ERROR_, mMsgFormat.c_str(), str.c_str(), field.c_str(),
        expRange.c_str());
@@ -410,7 +469,7 @@ bool UserInputValidator::CheckVariable(const std::string &varName, Gmat::ObjectT
 /*
  * Checks a real number against a lower and upper bound.
  *
- *@param   sValue      string representaiton of the real value
+ * @param  sValue      string representaiton of the real value
  * @param  value       real value to be checked
  * @param  lower       lower bound against which to check the value
  * @param  upper       upper bound against which to check the value
@@ -420,23 +479,20 @@ bool UserInputValidator::CheckVariable(const std::string &varName, Gmat::ObjectT
  *                     lower bound
  * @param includeUpper flag indicating whether or not the range check is inclusive of the
  *                     upper bound
+ * @param  isInteger   flag indicating input value is integer number (false)
  *
- * @return true if input name is valid, false otherwise
+ * @return true if input value is valid, false otherwise
  */
 //------------------------------------------------------------------------------
 bool UserInputValidator::CheckRealRange(const std::string &sValue,
                                         Real value,        const std::string &field,
                                         Real lower,        Real upper,
                                         bool checkLower,   bool checkUpper,
-                                        bool includeLower, bool includeUpper)
+                                        bool includeLower, bool includeUpper,
+                                        bool isInteger)
 {
-   static std::string lessOrEq = " <= ";
-   static std::string lessThan = " < ";
-   static std::string moreOrEq = " >= ";
-   static std::string moreThan = " > ";
-
    if ((!checkLower) && (!checkUpper)) return true;
-
+   
    if (checkLower && checkUpper)
    {
       if ((value > lower) && (value < upper))                  return true;
@@ -454,6 +510,10 @@ bool UserInputValidator::CheckRealRange(const std::string &sValue,
       if (includeUpper && GmatMathUtil::IsEqual(value, upper)) return true;
    }
 
+   std::string inputType = "Real Number";
+   if (isInteger)
+      inputType = "Integer Number";
+   
    // range check failed; generate error message
    std::stringstream ss("");
    if (checkLower && checkUpper)
@@ -461,21 +521,21 @@ bool UserInputValidator::CheckRealRange(const std::string &sValue,
       ss << lower;
       if (includeLower) ss << lessOrEq;
       else              ss << lessThan;
-      ss << "Real Number";
+      ss << inputType;
       if (includeUpper) ss << lessOrEq;
       else              ss << lessThan;
       ss << upper;
    }
    else if (checkLower)
    {
-      ss << "Real Number";
+      ss << inputType;
       if (includeLower) ss << moreOrEq;
       else              ss << moreThan;
       ss << lower;
    }
    else if (checkUpper)
    {
-      ss << "Real Number";
+      ss << inputType;
       if (includeUpper) ss << lessOrEq;
       else              ss << lessThan;
       ss << upper;
