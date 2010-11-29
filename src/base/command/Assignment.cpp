@@ -48,6 +48,8 @@
 //#define DEBUG_OBJECT_MAP
 //#define DEBUG_ASSIGN_CALLING_FUNCTION
 //#define DEBUG_CLONE_UPDATES
+//#define DEBUG_VALIDATION
+
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -692,8 +694,8 @@ bool Assignment::Validate()
                }
                else if (lhsDataType == Gmat::STRING_TYPE)
                {
-                  // Allow settng String, Number, Variable, or ArrayElement to String
-                  // This fixes bug 1340.
+                  // Allow setting String, Number, Variable, or ArrayElement to
+                  // String.  This fixes bug 1340.
                   if (rhsDataType == Gmat::STRING_TYPE ||
                       rhsDataType == Gmat::REAL_TYPE)
                      retval = true;
@@ -714,6 +716,14 @@ bool Assignment::Validate()
                {
                   if ((rhsDataType != Gmat::STRING_TYPE) &&
                       (rhsDataType != Gmat::REAL_TYPE))
+                     retval = false;
+               }
+               else if (lhsDataType == Gmat::INTEGER_TYPE)
+               {
+                  if (rhsDataType == Gmat::INTEGER_TYPE || // Redundant but safe
+                      rhsDataType == Gmat::REAL_TYPE)
+                     retval = true;
+                  else
                      retval = false;
                }
                else
@@ -921,7 +931,7 @@ bool Assignment::Execute()
       // spacecraft's CoordinateSystem which is not NULL and
       // CoordinateSystem is defined later in the GmatFunction script.
       // GMAT Sat1.CoordinateSystem = EarthSunL1_MJ2000Eq;
-      // Since Spacecraft converts initial state to given CoordinateSyatem
+      // Since Spacecraft converts initial state to given CoordinateSystem
       // when CoordinateSyatem is not NULL for nested GmatFunction,
       // we don't want to convert until initial state is set.
       // So pass setRefObj to true when this command is not in GmatFunction and

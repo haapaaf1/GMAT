@@ -267,6 +267,16 @@ namespace Gmat
       std::string subtype;          // Subtype off of the core
    } PLUGIN_RESOURCE;
 
+
+   enum MessageType
+   {
+      ERROR_ = 10, //loj: cannot have ERROR
+      WARNING_,
+      INFO_,
+      DEBUG_,
+      GENERAL_    // Default type for exceptions
+   };
+
 }
 
 typedef std::vector<Gmat::ObjectType>           ObjectTypeArray;

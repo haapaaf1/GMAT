@@ -480,7 +480,7 @@ bool Target::Initialize()
       std::string errorString = "Target command cannot find targeter \"";
       errorString += solverName;
       errorString += "\"";
-      throw CommandException(errorString);
+      throw CommandException(errorString, Gmat::ERROR_);
    }
    
    // Clone the targeter for local use

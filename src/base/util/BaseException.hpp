@@ -39,7 +39,11 @@ public:
    static const int MAX_MESSAGE_LENGTH = 3000;
    
 protected:
-   BaseException(const std::string& message = "", const std::string &details = "");
+   BaseException(const std::string& message = "",
+         const std::string &details = "",
+         Gmat::MessageType mt = Gmat::ERROR_);
+         // Change to this if it's problematic:
+         // Gmat::GENERAL_);
    BaseException(const BaseException& be);
    virtual ~BaseException();
    const BaseException& operator=(const BaseException& be);
@@ -47,6 +51,7 @@ protected:
 private:
    std::string theMessage;
    std::string theDetails;
+   Gmat::MessageType msgType;
    bool isFatal;
 };
 #endif // BaseException_hpp

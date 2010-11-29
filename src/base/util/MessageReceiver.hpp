@@ -28,19 +28,8 @@
 #include <queue>                   // for queue
 #include "BaseException.hpp"
 #include "GmatGlobal.hpp"          // for RunBachMode()
+#include "gmatdefs.hpp"            // for MessageTypes
 
-
-namespace Gmat
-{
-   enum MessageType
-   {
-      ERROR_ = 10, //loj: cannot have ERROR
-      WARNING_,
-      INFO_,
-      DEBUG_
-   };
-
-}
 
 /**
  * MessageReceiver is an abstract class designed to receive messages from GMAT's 

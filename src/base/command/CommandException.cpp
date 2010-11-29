@@ -27,8 +27,9 @@
  * @param details A message providing the details of the exception. 
  */
 //------------------------------------------------------------------------------
-CommandException::CommandException(const std::string &details) :
-    BaseException           ("Command Exception: ", details)
+CommandException::CommandException(const std::string &details,
+      Gmat::MessageType mt) :
+    BaseException           ("Command Exception: ", details, mt)
 {
 }
 

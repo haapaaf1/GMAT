@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  CommandException
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/10/27
@@ -28,7 +28,10 @@ class GMAT_API CommandException : public BaseException
 {
 public:
    // class constructor
-   CommandException(const std::string &details = "");
+   CommandException(const std::string &details = "",
+         Gmat::MessageType mt = Gmat::ERROR_);
+         // Change to this if it's problematic:
+         // Gmat::GENERAL_);
    // class destructor
    ~CommandException();
    // Copy constructor

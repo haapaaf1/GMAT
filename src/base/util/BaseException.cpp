@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             BaseException
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -30,7 +30,13 @@
 //------------------------------------------------------------------------------
 std::string BaseException::GetFullMessage() const 
 {
-   return theMessage + theDetails;
+   std::string preface = "";
+
+   if (msgType == Gmat::ERROR_)
+      preface = "**** ERROR **** ";
+   if (msgType == Gmat::WARNING_)
+      preface = "**** WARNING **** ";
+   return preface + theMessage + theDetails;
 }
 
 //------------------------------------------------------------------------------
@@ -124,10 +130,12 @@ void BaseException::SetDetails(const char *details, ...)
 //------------------------------------------------------------------------------
 // BaseException(const std::string& message = "", const std::string &details = "") 
 //------------------------------------------------------------------------------
-BaseException::BaseException(const std::string& message, const std::string &details) 
+BaseException::BaseException(const std::string& message,
+      const std::string &details, Gmat::MessageType mt)
 {
    theMessage = message;
    theDetails = details;
+   msgType    = mt;
    isFatal = false;
 }
 
