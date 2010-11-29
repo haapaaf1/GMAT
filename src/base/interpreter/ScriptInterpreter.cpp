@@ -33,6 +33,8 @@
 //#define DEBUG_PARSE_FOOTER
 //#define DEBUG_SET_COMMENTS
 //#define DEBUG_SCRIPT_WRITING
+//#define DEBUG_SCRIPT_WRITING_PARAMETER
+//#define DEBUG_SECTION_DELIMITER
 //#define DEBUG_SCRIPT_WRITING_COMMANDS
 //#define DBGLVL_SCRIPT_READING 1
 //#define DBGLVL_GMAT_FUNCTION 1
@@ -1183,7 +1185,6 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    if (objs.size() > 0)
       WriteObjects(objs, "Propagators", mode);
    
-   
    //-----------------------------------
    // Burn
    //-----------------------------------
@@ -1195,14 +1196,14 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       WriteObjects(objs, "Burns", mode);
    
    //-----------------------------------
-   // Array and Variable
+   // Array, Variable and String
    //-----------------------------------
    objs = theModerator->GetListOfObjects(Gmat::PARAMETER);
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Parameters\n", objs.size());
    #endif
    bool foundVarsAndArrays = false;
-   bool foundOtherParameter = false;
+   bool foundOtherParameter = false; // such as Create X pos; where X is Parameter name
    if (objs.size() > 0)
    {
       for (current = objs.begin(); current != objs.end(); ++current)
@@ -1918,24 +1919,25 @@ void ScriptInterpreter::SetComments(GmatBase *obj, const std::string &preStr,
 
 //------------------------------------------------------------------------------
 // void WriteSectionDelimiter(const GmatBase *firstObj,
-//                            const std::string &objDesc)
+//                            const std::string &objDesc, bool forceWriting = false)
 //------------------------------------------------------------------------------
 void ScriptInterpreter::WriteSectionDelimiter(const GmatBase *firstObj,
-                                              const std::string &objDesc)
+                                              const std::string &objDesc,
+                                              bool forceWriting)
 {
    if (firstObj == NULL)
       return;
    
    std::string comment = firstObj->GetCommentLine();
    
-   #ifdef DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SECTION_DELIMITER
    MessageInterface::ShowMessage
       ("WriteSectionDelimiter() PrefaceComment of %s=<%s>\n",
        firstObj->GetName().c_str(), comment.c_str());
    #endif
    
    // Write if section delimiter not found
-   if (comment.find(sectionDelimiterString[0]) == comment.npos)
+   if (comment.find(sectionDelimiterString[0]) == comment.npos || forceWriting)
    {
       theReadWriter->WriteText(sectionDelimiterString[0]);
       theReadWriter->WriteText(sectionDelimiterString[1] + objDesc);
@@ -1946,10 +1948,11 @@ void ScriptInterpreter::WriteSectionDelimiter(const GmatBase *firstObj,
 
 //------------------------------------------------------------------------------
 // void WriteSectionDelimiter(const std::string &firstObj,
-//                            const std::string &objDesc)
+//                            const std::string &objDesc, bool forceWriting = false)
 //------------------------------------------------------------------------------
 void ScriptInterpreter::WriteSectionDelimiter(const std::string &firstObj,
-                                              const std::string &objDesc)
+                                              const std::string &objDesc,
+                                              bool forceWriting)
 {
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage
@@ -1962,7 +1965,7 @@ void ScriptInterpreter::WriteSectionDelimiter(const std::string &firstObj,
    if (object == NULL)
       return;
    
-   WriteSectionDelimiter(object, objDesc);
+   WriteSectionDelimiter(object, objDesc, forceWriting);
 }
 
 
@@ -2249,16 +2252,24 @@ void ScriptInterpreter::WriteSubscribers(StringArray &objs, Gmat::WriteMode mode
 void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
                                                 Gmat::WriteMode mode)
 {
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
+   MessageInterface::ShowMessage("WriteVariablesAndArrays() entered\n");
+   #endif
+   
    // Updated to write Variable and Array as they appear in the script. (LOJ: 2010.09.23)
    // It uses userParameterLines which are saved during the parsing.
-  
+   
    StringArray::iterator current;
-   std::vector<GmatBase*> arrList;
-   std::vector<GmatBase*> varList;
-   std::vector<GmatBase*> strList;
+   ObjectArray arrList;
+   ObjectArray varList;
+   ObjectArray strList;
+   ObjectArray arrWithValList;
+   ObjectArray varWithValList;
+   ObjectArray strWithValList;
+   std::string genStr;
    GmatBase *object =  NULL;
    
-   WriteSectionDelimiter(objs[0], "Variables, Arrays, Strings");
+   WriteSectionDelimiter(objs[0], "Arrays, Variables, Strings", true);
    
    //-----------------------------------------------------------------
    // Fill in proper arrays
@@ -2268,32 +2279,60 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
       object = FindObject(*current);
       if (object != NULL)
       {
+         genStr = object->GetGeneratingString(Gmat::NO_COMMENTS);
+         
          if (object->GetTypeName() == "Array")
          {
             arrList.push_back(object);
+            
+            // if initial value found
+            if (genStr.find("=") != genStr.npos)
+               arrWithValList.push_back(object);            
          }
          else if (object->GetTypeName() == "Variable")
          {
             varList.push_back(object);
+            
+            // if initial value found
+            if (genStr.find("=") != genStr.npos)
+            {
+               std::string::size_type equalPos = genStr.find("=");
+               std::string rhs = genStr.substr(equalPos + 1);
+               rhs = GmatStringUtil::Trim(rhs, GmatStringUtil::BOTH, true, true);
+               Real rval;
+               // check if initial value is Real number or other Variable object
+               if (GmatStringUtil::ToReal(rhs, rval))
+                  varWithValList.push_back(object);
+            }
          }
          else if (object->GetTypeName() == "String")
          {
             strList.push_back(object);
+            
+            // if initial value found
+            if (genStr.find("=") != genStr.npos)
+            {
+               std::string::size_type equalPos = genStr.find("=");
+               std::string rhs = genStr.substr(equalPos + 1);
+               rhs = GmatStringUtil::Trim(rhs, GmatStringUtil::BOTH, true, true);
+               // check if initial value is string literal or other String object
+               if (GmatStringUtil::IsEnclosedWith(rhs, "'"))
+                  strWithValList.push_back(object);
+            }
          }
       }
    }
    
-   
    //-----------------------------------------------------------------
-   // Write Create Variable ...
-   // Write 10 Variables without initial values per line
+   // Write Create Array ...
+   // Write 10 Arrays without initial values per line
    //-----------------------------------------------------------------
    Integer counter = 0;
-   UnsignedInt size = varList.size();
+   UnsignedInt size = arrList.size();
    
-   #ifdef DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
    MessageInterface::ShowMessage
-      ("WriteVariablesAndArrays() Writing %d Variables without initial values \n", size);
+      ("WriteVariablesAndArrays() Writing %d Arrays without initial values \n", size);
    #endif
    
    for (UnsignedInt i = 0; i<size; i++)
@@ -2310,9 +2349,9 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
       }
       
       if (counter == 1)
-         theReadWriter->WriteText("Create Variable");
+         theReadWriter->WriteText("Create Array");
       
-      theReadWriter->WriteText(" " + varList[i]->GetName());
+      theReadWriter->WriteText(" " + arrList[i]->GetStringParameter("Description"));
       
       if ((counter % 10) == 0 || (i == size-1))
       {
@@ -2322,15 +2361,15 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    }
    
    //-----------------------------------------------------------------
-   // Write Create Array ...
-   // Write 10 Arrays without initial values per line
+   // Write Create Variable ...
+   // Write 10 Variables without initial values per line
    //-----------------------------------------------------------------
    counter = 0;
-   size = arrList.size();
+   size = varList.size();
    
-   #ifdef DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
    MessageInterface::ShowMessage
-      ("WriteVariablesAndArrays() Writing %d Arrays without initial values \n", size);
+      ("WriteVariablesAndArrays() Writing %d Variables without initial values \n", size);
    #endif
    
    for (UnsignedInt i = 0; i<size; i++)
@@ -2338,13 +2377,13 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
       counter++;
       
       // Write comment line
-      //if (i == 0)
-      //   theReadWriter->WriteText(((Parameter*)arrList[i])->GetCommentLine(1));
+      if (i == 0)
+         theReadWriter->WriteText(((Parameter*)varList[i])->GetCommentLine(1));
       
       if (counter == 1)
-         theReadWriter->WriteText("Create Array");
+         theReadWriter->WriteText("Create Variable");
       
-      theReadWriter->WriteText(" " + arrList[i]->GetStringParameter("Description"));
+      theReadWriter->WriteText(" " + varList[i]->GetName());
       
       if ((counter % 10) == 0 || (i == size-1))
       {
@@ -2360,7 +2399,7 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    counter = 0;   
    size = strList.size();
    
-   #ifdef DEBUG_SCRIPT_WRITING
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
    MessageInterface::ShowMessage
       ("WriteVariablesAndArrays() Writing %d Strings without initial values \n", size);
    #endif
@@ -2385,21 +2424,123 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
       }
    }
    
-   // Write saved user Parameter lines for Variable, Array and String
-   for (UnsignedInt i = 0; i < userParameterLines.size(); ++i)
+   // Write initial values created or changed via the GUI
+   WriteArrayInitialValues(arrWithValList, mode);
+   WriteVariableInitialValues(varWithValList, mode);
+   WriteStringInitialValues(strWithValList, mode);
+   theReadWriter->WriteText("\n");
+     
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
+   MessageInterface::ShowMessage("WriteVariablesAndArrays() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteArrayInitialValues(const ObjectArray &arrWithValList, Gmat::WriteMode mode)
+//------------------------------------------------------------------------------
+/*
+ * This method writes initial value of Variables
+ */
+//------------------------------------------------------------------------------
+void ScriptInterpreter::WriteArrayInitialValues(const ObjectArray &arrWithValList,
+                                                Gmat::WriteMode mode)
+{
+   //-----------------------------------------------------------------
+   // Write Arrays with initial values
+   //-----------------------------------------------------------------
+   
+   UnsignedInt size = arrWithValList.size();
+   
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
+   MessageInterface::ShowMessage
+      ("WriteArrayInitialValues() Writing %d Arrays with initial values \n", size);
+   #endif
+   
+   for (UnsignedInt i = 0; i < size; i++)
    {
-      theReadWriter->WriteText(userParameterLines[i]);
-      theReadWriter->WriteText(";\n");
+      // Write comment line
+      if (i == 0)
+         theReadWriter->WriteText(((Parameter*)arrWithValList[0])->GetCommentLine(2));
+      
+      theReadWriter->WriteText(arrWithValList[i]->GetStringParameter("InitialValue"));
    }
 }
 
 
 //------------------------------------------------------------------------------
-// void WriteOtherParameters(StringArray &objs, Gmat::WriteMode mod)
+// void WriteVariableInitialValues(const ObjectArray &varWithValList, Gmat::WriteMode mode)
 //------------------------------------------------------------------------------
 /*
- * This method writes 10 variables and arrays per line.
- * If variable or array was initialzied (non zero), it writes after Create line.
+ * This method writes initial value of Variables
+ */
+//------------------------------------------------------------------------------
+void ScriptInterpreter::WriteVariableInitialValues(const ObjectArray &varWithValList,
+                                                   Gmat::WriteMode mode)
+{
+   //-----------------------------------------------------------------
+   // Write Variables with initial values
+   //-----------------------------------------------------------------
+   UnsignedInt size = varWithValList.size();
+   
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
+   MessageInterface::ShowMessage
+      ("WriteVariablesAndArrays() Writing %d Variables with initial Real values \n", size);
+   #endif
+   
+   for (UnsignedInt i = 0; i < size; i++)
+   {
+      if (i == 0)
+         theReadWriter->WriteText(((Parameter*)varWithValList[i])->GetCommentLine(2));
+      
+      theReadWriter->WriteText(varWithValList[i]->GetGeneratingString(mode));
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteStringInitialValues(const ObjectArray &strWithValList, Gmat::WriteMode mode)
+//------------------------------------------------------------------------------
+/*
+ * This method writes initial value of Variables
+ */
+//------------------------------------------------------------------------------
+void ScriptInterpreter::WriteStringInitialValues(const ObjectArray &strWithValList,
+                                                 Gmat::WriteMode mode)
+{
+   //-----------------------------------------------------------------
+   // Write Strings with initial values by string literal
+   //-----------------------------------------------------------------
+   UnsignedInt size = strWithValList.size();
+   
+   #ifdef DEBUG_SCRIPT_WRITING_PARAMETER
+   MessageInterface::ShowMessage
+      ("WriteStringInitialValues() Writing %d Strings with initial values \n", size);
+   #endif
+   
+   for (UnsignedInt i = 0; i<size; i++)
+   {
+      // If no new value has been assigned, skip
+      //if (strWithValList[i]->GetName() ==
+      //    strWithValList[i]->GetStringParameter("Expression"))
+      if (strWithValList[i]->GetName() == "")
+         continue;
+      
+      // Write comment line
+      if (i == 0)
+         theReadWriter->WriteText(((Parameter*)strWithValList[i])->GetCommentLine(2));
+      
+      theReadWriter->WriteText(strWithValList[i]->GetGeneratingString(mode));
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void WriteOtherParameters(StringArray &objs, Gmat::WriteMode mode)
+//------------------------------------------------------------------------------
+/*
+ * This method writes other Parameters, such as X in Create X pos;
+ * where X is calculated (system) Parameter name.
  */
 //------------------------------------------------------------------------------
 void ScriptInterpreter::WriteOtherParameters(StringArray &objs,

@@ -92,14 +92,22 @@ private:
    void SetComments(GmatBase *obj, const std::string &preStr,
                     const std::string &inStr);
    
-   void WriteSectionDelimiter(const GmatBase *firstObj, const std::string &objDesc);
-   void WriteSectionDelimiter(const std::string &firstObj, const std::string &objDesc);
+   void WriteSectionDelimiter(const GmatBase *firstObj, const std::string &objDesc,
+                              bool forceWriting = false);
+   void WriteSectionDelimiter(const std::string &firstObj, const std::string &objDesc,
+                              bool forceWriting = false);
    void WriteObjects(StringArray &objs, const std::string &objDesc,
                      Gmat::WriteMode mode);
    void WriteODEModels(StringArray &objs, Gmat::WriteMode mode);
    void WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode);
    void WriteHardwares(StringArray &objs, Gmat::WriteMode mode);
    void WriteVariablesAndArrays(StringArray &objs, Gmat::WriteMode mode);
+   void WriteArrayInitialValues(const ObjectArray &arrWithValList,
+                                Gmat::WriteMode mode);
+   void WriteVariableInitialValues(const ObjectArray &varWithValList,
+                                   Gmat::WriteMode mode);
+   void WriteStringInitialValues(const ObjectArray &strWithValList,
+                                 Gmat::WriteMode mode);
    void WriteOtherParameters(StringArray &objs, Gmat::WriteMode mode);
    void WriteSubscribers(StringArray &objs, Gmat::WriteMode mode);
    void WriteCommandSequence(Gmat::WriteMode mode);
