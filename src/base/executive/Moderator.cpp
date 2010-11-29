@@ -5983,7 +5983,7 @@ Integer Moderator::RunMission(Integer sandboxNum)
          else
          {
             status = -3;
-            msg = "**** ERROR **** " + msg;
+//            msg = "**** ERROR **** " + msg;
             // Dunn would like to note that this is the popup message we were
             // getting that only said "ERROR" and did not provide a message.
             // We might want to debug that some day.
