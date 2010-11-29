@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              ParameterCreateDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/02/25
@@ -27,22 +27,26 @@ class ParameterCreateDialog : public GmatDialog
 public:
    
    // parameter type to create
-   enum e_parameter_type
+   enum ParameterType
    {
       VARIABLE,
       ARRAY,
       STRING
    };
    
-   ParameterCreateDialog(wxWindow *parent, e_parameter_type paramType);
-   ParameterCreateDialog(wxWindow *parent, const wxString param_name);
+   ParameterCreateDialog(wxWindow *parent, ParameterType paramType);
+   ParameterCreateDialog(wxWindow *parent, const wxString paramName);
    ~ParameterCreateDialog();
    
    wxArrayString& GetParamNames()
       { return mParamNames; }
    bool IsParamCreated()
       { return mIsParamCreated; }
-   virtual void SetParameterType( e_parameter_type param_type );
+   virtual void SetParameterType( ParameterType paramType );
+   
+   // OK button works like Close so reimplement here
+   virtual void OnOK(wxCommandEvent &event);
+   
 protected:
 
    Parameter *mCurrParam;
@@ -51,11 +55,12 @@ protected:
    wxArrayString mExcludedScList;
    wxArrayString mSelectVarStrings;
    
-   e_parameter_type mParamType;
+   ParameterType mParamType;
    bool mIsParamCreated;
+   bool mPageChangedByUser;
    
    wxTextCtrl *mVarNameTextCtrl;
-   wxTextCtrl *mExprTextCtrl;
+   wxTextCtrl *mVarValueTextCtrl;
    wxTextCtrl *mStringNameTextCtrl;
    wxTextCtrl *mStringValueTextCtrl;
    wxTextCtrl *mArrNameTextCtrl;
@@ -96,8 +101,9 @@ protected:
    void OnClearButtonClick(wxCommandEvent& event);
    void OnEditArrayButtonClick(wxCommandEvent& event);
    void OnPageChanged(wxNotebookEvent& event);
+   void OnPageChanging(wxNotebookEvent& event);
    void OnListboxClick(wxCommandEvent& event);
-
+   
    DECLARE_EVENT_TABLE();
    
    // IDs for the controls and the menu commands
@@ -122,7 +128,8 @@ private:
    void CreateVariable();
    void CreateString();
    void CreateArray();
-   
+   void SetVariableToAnotherObject(const std::string &varName,
+                                   const std::string &varExpr);
 };
 
 #endif

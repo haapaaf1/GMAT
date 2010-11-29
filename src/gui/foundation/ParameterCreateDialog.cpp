@@ -30,16 +30,19 @@
 #include <wx/tglbtn.h>
 #include <wx/notebook.h>
 #include <wx/config.h>
+#include <wx/variant.h>                 // for wxVariant()
 
-//#define DEBUG_PARAM_CREATE_DIALOG 1
-//#define DEBUG_PARAM_CREATE_VAR 1
-//#define DEBUG_PARAM_CREATE_SAVE 1
+//#define DEBUG_PARAM_CREATE
+//#define DEBUG_PARAM_CREATE_VAR
+//#define DEBUG_PARAM_CREATE_LOAD
+//#define DEBUG_PARAM_CREATE_SAVE
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
 //------------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(ParameterCreateDialog, GmatDialog)
+   EVT_BUTTON(ID_BUTTON_OK, ParameterCreateDialog::OnOK)
    EVT_BUTTON(ID_CREATE_BUTTON, ParameterCreateDialog::OnCreateButton)
    EVT_BUTTON(ID_SELECT_BUTTON, ParameterCreateDialog::OnSelectButtonClick)
    EVT_BUTTON(ID_EDITARRAY_BUTTON, ParameterCreateDialog::OnEditArrayButtonClick)
@@ -60,34 +63,44 @@ END_EVENT_TABLE()
  * @param paramType 1 = Variable, 2 = Array, 3 = String
  */
 //------------------------------------------------------------------------------
-ParameterCreateDialog::ParameterCreateDialog(wxWindow *parent, e_parameter_type paramType)
+ParameterCreateDialog::ParameterCreateDialog(wxWindow *parent, ParameterType paramType)
    : GmatDialog(parent, -1, wxString(_T("ParameterCreateDialog")))
 {
+   #ifdef DEBUG_PARAM_CREATE
+   MessageInterface::ShowMessage
+      ("ParameterCreateDialog() entered, paramType=%d\n", paramType);
+   #endif
+   
    mParamType = paramType;
    mCurrParam = NULL;
    mParamNames.Clear();
    mIsParamCreated = false;
+   mPageChangedByUser = false;
    mSelectVarStrings.Add("Spacecraft");
    mSelectVarStrings.Add("ImpulsiveBurn");
-   
-   //mColor.Set(0, 0, 0); // initialize to black
    
    Create(); 
    SetParameterType( paramType );
    ShowData();
+   mPageChangedByUser = true;
 }
 
 
 //------------------------------------------------------------------------------
-// ParameterCreateDialog(wxWindow *parent, string param_name)
+// ParameterCreateDialog(wxWindow *parent, string paramName)
 //------------------------------------------------------------------------------
 /*
-  */
+ */
 //------------------------------------------------------------------------------
-ParameterCreateDialog::ParameterCreateDialog(wxWindow *parent, const wxString param_name)
+ParameterCreateDialog::ParameterCreateDialog(wxWindow *parent, const wxString paramName)
    : GmatDialog(parent, -1, wxString(_T("ParameterCreateDialog")))
 {
-   mObjectName = param_name.c_str();
+   #ifdef DEBUG_PARAM_CREATE
+   MessageInterface::ShowMessage
+      ("ParameterCreateDialog() entered, paramName='%s'\n", paramName.c_str());
+   #endif
+   
+   mObjectName = paramName.c_str();
    mCurrParam = (Parameter*)theGuiInterpreter->GetConfiguredObject(mObjectName);
    if (!mCurrParam)
    {
@@ -98,9 +111,9 @@ ParameterCreateDialog::ParameterCreateDialog(wxWindow *parent, const wxString pa
    {
       mParamNames.Clear();
       mIsParamCreated = false;
+      mPageChangedByUser = false;
       mSelectVarStrings.Add("Spacecraft");
       mSelectVarStrings.Add("ImpulsiveBurn");
-      //mColor.Set(0, 0, 0); // initialize to black
       
       Create(); 
       std::string s = mCurrParam->GetTypeName();
@@ -112,6 +125,7 @@ ParameterCreateDialog::ParameterCreateDialog(wxWindow *parent, const wxString pa
          mParamType = VARIABLE;
       SetParameterType( mParamType );
       ShowData();
+      mPageChangedByUser = true;
    }
 }
 
@@ -126,11 +140,24 @@ ParameterCreateDialog::~ParameterCreateDialog()
 
 
 //------------------------------------------------------------------------------
+// void OnOK()
+//------------------------------------------------------------------------------
+/**
+ * Closes the page
+ */
+//------------------------------------------------------------------------------
+void ParameterCreateDialog::OnOK(wxCommandEvent &event)
+{
+   Close();
+}
+
+
+//------------------------------------------------------------------------------
 // virtual void Create()
 //------------------------------------------------------------------------------
 void ParameterCreateDialog::Create()
 {
-   #if DEBUG_PARAM_CREATE_DIALOG
+   #ifdef DEBUG_PARAM_CREATE
    MessageInterface::ShowMessage("ParameterCreateDialog::Create() entered\n");
    #endif
    
@@ -201,9 +228,11 @@ void ParameterCreateDialog::Create()
                                      wxDefaultPosition, wxSize(130,20), 0);
    mVarNameTextCtrl->SetToolTip(pConfig->Read(_T("VariableNameHint")));
 
-   mExprTextCtrl = new wxTextCtrl(varPanel, ID_VARTEXTCTRL, wxT(""),
-                                  wxDefaultPosition, wxSize(280,20), 0);
-   mExprTextCtrl->SetToolTip(pConfig->Read(_T("VariableValueHint")));
+   // Only numeric value is allowed (LOJ: 2010.11.24)
+   mVarValueTextCtrl = new wxTextCtrl(varPanel, ID_VARTEXTCTRL, wxT(""),
+                                  wxDefaultPosition, wxSize(280,20), 0,
+                                  wxTextValidator(wxGMAT_FILTER_NUMERIC));
+   mVarValueTextCtrl->SetToolTip(pConfig->Read(_T("VariableValueHint")));
    
    mArrClearButton =
       new wxBitmapButton(arrPanel, ID_CLEAR_ARR_BUTTON, clearBitmap, wxDefaultPosition,
@@ -272,7 +301,6 @@ void ParameterCreateDialog::Create()
    mUserStringListBox->SetToolTip(pConfig->Read(_T("StringListHint")));
           
    // wxSizers
-   wxBoxSizer *pageBoxSizer = new wxBoxSizer(wxVERTICAL);
    mDetailsBoxSizer = new wxBoxSizer(wxHORIZONTAL);   
    
    wxFlexGridSizer *top1FlexGridSizer = new wxFlexGridSizer(5, 0, 0);
@@ -303,7 +331,7 @@ void ParameterCreateDialog::Create()
    top1FlexGridSizer->Add(mVarClearButton, 0, wxALIGN_CENTER|wxALL, bsize);
    top1FlexGridSizer->Add(mVarNameTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
    top1FlexGridSizer->Add(varEqualSignStaticText, 0, wxALIGN_CENTER|wxALL, bsize);
-   top1FlexGridSizer->Add(mExprTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
+   top1FlexGridSizer->Add(mVarValueTextCtrl, 0, wxALIGN_CENTER|wxALL, bsize);
    top1FlexGridSizer->Add(mCreateVariableButton, 0, wxALIGN_CENTRE|wxALL, bsize);
    
    top1FlexGridSizer->Add(0, 0, wxALIGN_CENTER|wxALL, bsize);
@@ -374,9 +402,12 @@ void ParameterCreateDialog::Create()
    
    theMiddleSizer->Add(notebook, 0, wxALIGN_LEFT|wxGROW, 0);
    
-   theCancelButton->SetLabel("Done");
-   theOkButton->Hide();
-   #if DEBUG_PARAM_CREATE_DIALOG
+   theCancelButton->SetLabel("Cancel");
+   theOkButton->SetLabel("Close"); // OK button acts like Close   
+   // Only numbers and string literals are allowed for initial values, so hide
+   mSelectButton->Hide();
+   
+   #ifdef DEBUG_PARAM_CREATE
    MessageInterface::ShowMessage("ParameterCreateDialog::Create() exiting\n");
    #endif
    
@@ -388,14 +419,15 @@ void ParameterCreateDialog::Create()
 //------------------------------------------------------------------------------
 void ParameterCreateDialog::LoadData()
 {
-   #if DEBUG_PARAM_CREATE_DIALOG
-   MessageInterface::ShowMessage("ParameterCreateDialog::LoadData() entering\n");
+   #ifdef DEBUG_PARAM_CREATE_LOAD
+   MessageInterface::ShowMessage
+      ("ParameterCreateDialog::LoadData() entering, mObjectName='%s'\n", mObjectName.c_str());
    #endif
    
    wxString str;
    int mNumRows;
    int mNumCols;
-
+   
    if (mObjectName != "")
    {
       mCurrParam =
@@ -410,7 +442,9 @@ void ParameterCreateDialog::LoadData()
       {
          case VARIABLE:
             mVarNameTextCtrl->SetValue(mObjectName.c_str());
-            mExprTextCtrl->SetValue(mCurrParam->GetStringParameter("Expression").c_str());
+            // We no longer allow expression (LOJ: 2010.11.24)
+            //mVarValueTextCtrl->SetValue(mCurrParam->GetStringParameter("Expression").c_str());
+            mVarValueTextCtrl->SetValue(wxVariant(mCurrParam->GetRealParameter("Value")));
             mCreateVariableButton->Disable();
             mUserVarListBox->SetStringSelection(mObjectName.c_str());
             break;
@@ -436,7 +470,7 @@ void ParameterCreateDialog::LoadData()
       }
    }
    
-   #if DEBUG_PARAM_CREATE_DIALOG
+   #ifdef DEBUG_PARAM_CREATE_LOAD
    MessageInterface::ShowMessage("ParameterCreateDialog::LoadData() exiting\n");
    #endif   
 }
@@ -452,12 +486,11 @@ void ParameterCreateDialog::SaveData()
    Integer mNumRows;
 
    canClose = true;
+   wxString paramName;
    
-   #if DEBUG_PARAM_CREATE_SAVE
+   #ifdef DEBUG_PARAM_CREATE_SAVE
    MessageInterface::ShowMessage
-      ("ParameterCreateDialog::SaveData() canClose=%d, mCreateVariable=%d, "
-       "mCreateString=%d, mCreateArray=%d\n", canClose, mCreateVariable,
-       mCreateString, mCreateArray);
+      ("ParameterCreateDialog::SaveData() entered, mParamType=%d, mCurrParam=<%p>\n", mParamType);
    #endif
    
    switch (mParamType)
@@ -469,7 +502,7 @@ void ParameterCreateDialog::SaveData()
          }
          else
          {
-            std::string expr = mExprTextCtrl->GetValue().c_str();
+            std::string expr = mVarValueTextCtrl->GetValue().c_str();
             Real rval;
             CheckReal(rval, expr, "Expression", "Real Number");
             mCurrParam->SetStringParameter("Expression", expr);
@@ -477,18 +510,40 @@ void ParameterCreateDialog::SaveData()
          }
          break;
       case ARRAY:
-         if ((mCurrParam == NULL) || (mObjectName.c_str() != mArrNameTextCtrl->GetValue()))
+         paramName = mArrNameTextCtrl->GetValue();
+         if ((mCurrParam == NULL) || (mObjectName.c_str() != paramName))
          {         
+            #ifdef DEBUG_PARAM_CREATE_SAVE
+            MessageInterface::ShowMessage
+               ("   Creating new Array '%s'\n", paramName.c_str());
+            #endif
             CreateArray();
          }
          else
          {
-            s = mArrColTextCtrl->GetValue().c_str();
-            CheckInteger(mNumCols, s, "Columns", "Integer Number >= 1", false, true, true, false);
+            #ifdef DEBUG_PARAM_CREATE_SAVE
+            MessageInterface::ShowMessage
+               ("   Modifying existing Array '%s'\n", paramName.c_str());
+            #endif
+            
             s = mArrRowTextCtrl->GetValue().c_str();
-            CheckInteger(mNumRows, s, "Rows", "Integer Number >= 1", false, true, true, false);
-            ((Array *) mCurrParam)->SetSize(mNumRows, mNumCols);
-            ResetControls();
+            CheckIntegerRange(mNumRows, s, "Rows", 1, 1000, true, true, true, true);
+            s = mArrColTextCtrl->GetValue().c_str();
+            CheckIntegerRange(mNumCols, s, "Columns", 1, 1000, true, true, true, true);
+            
+            // Reset size if columns and rows are valid
+            if (canClose)
+            {
+               #ifdef DEBUG_PARAM_CREATE_SAVE
+               MessageInterface::ShowMessage
+                  ("   Resetting size of Array '%s' to rows=%d, cols=%d\n",
+                   paramName.c_str(), mNumRows, mNumCols);
+               #endif
+               ((Array *) mCurrParam)->SetSize(mNumRows, mNumCols);
+            }
+            
+            if (canClose)
+               ResetControls();
          }
          break;
       case STRING:
@@ -504,13 +559,13 @@ void ParameterCreateDialog::SaveData()
          }
          break;
    }
+   
    if (!canClose) return;
-
+   
    EnableUpdate( mCreateVariableButton->IsEnabled() || 
                  mCreateArrayButton->IsEnabled() || 
                  mCreateStringButton->IsEnabled() );
    
-     
 }
 
 
@@ -532,7 +587,7 @@ void ParameterCreateDialog::ResetControls()
    {
       case VARIABLE:
          mCreateVariableButton->Disable();
-         mExprTextCtrl->SetValue("");
+         mVarValueTextCtrl->SetValue("");
          mVarNameTextCtrl->SetValue("");
          break;
       case ARRAY:
@@ -562,9 +617,8 @@ void ParameterCreateDialog::OnVarTextUpdate(wxCommandEvent& event)
 {
    mCreateVariableButton->Disable();
 
-   if (mVarNameTextCtrl->GetValue().Trim() != "" &&
-       mVarNameTextCtrl->GetValue().Trim() != " " &&
-       mExprTextCtrl->GetValue().Trim() != "")
+   if (mVarNameTextCtrl->IsModified() && mVarNameTextCtrl->GetValue().Trim() != "" ||
+       mVarValueTextCtrl->IsModified() && mVarValueTextCtrl->GetValue().Trim() != "")
    {
       mCreateVariableButton->Enable();
       EnableUpdate(true);
@@ -579,10 +633,10 @@ void ParameterCreateDialog::OnVarTextUpdate(wxCommandEvent& event)
 void ParameterCreateDialog::OnAryTextUpdate(wxCommandEvent& event)
 {
    mCreateArrayButton->Disable();
-
-   if (mArrNameTextCtrl->GetValue().Trim() != "" &&
-       mArrRowTextCtrl->GetValue().Trim() != "" &&
-       mArrColTextCtrl->GetValue().Trim() != "")
+   
+   if (mArrNameTextCtrl->IsModified() && mArrNameTextCtrl->GetValue().Trim() != "" ||
+       mArrRowTextCtrl->IsModified() && mArrRowTextCtrl->GetValue().Trim() != "" ||
+       mArrColTextCtrl->IsModified() && mArrColTextCtrl->GetValue().Trim() != "")
    {
       mCreateArrayButton->Enable();
       EnableUpdate(true);
@@ -598,7 +652,8 @@ void ParameterCreateDialog::OnStrTextUpdate(wxCommandEvent& event)
 {
    mCreateStringButton->Disable();
    
-   if (mStringNameTextCtrl->GetValue().Trim() != "" )
+   if (mStringNameTextCtrl->IsModified() && mStringNameTextCtrl->GetValue().Trim() != "" ||
+       mStringValueTextCtrl->IsModified())
    {
       mCreateStringButton->Enable();
       EnableUpdate(true);
@@ -628,21 +683,56 @@ void ParameterCreateDialog::OnCreateButton(wxCommandEvent& event)
 }
 
 //------------------------------------------------------------------------------
-// void SetParameterType(e_parameter_type param_type)
+// void SetParameterType(ParameterType paramType)
 //------------------------------------------------------------------------------
-void ParameterCreateDialog::SetParameterType( e_parameter_type param_type )
+void ParameterCreateDialog::SetParameterType( ParameterType paramType )
 {
-   mParamType = param_type;
+   mParamType = paramType;
 
-   notebook->SetSelection( (size_t) mParamType );
+   #ifdef DEBUG_PARAM_CREATE
+   MessageInterface::ShowMessage
+      ("SetParameterType() entered, mParamType=%d, mObjectName='%s'\n",
+       mParamType, mObjectName.c_str());
+   #endif
+   
+   // This SetSelection() is deprecated and should not be used in new code.
+   // So used the ChangeSelection() function instead. (LOJ: 2010.11.29)
+   notebook->ChangeSelection( (size_t) mParamType );
 }
 
+
 //------------------------------------------------------------------------------
-// void OnPageChanged(wxCommandEvent& event)
+// void OnPageChanged(wxNotebookEvent& event)
 //------------------------------------------------------------------------------
 void ParameterCreateDialog::OnPageChanged(wxNotebookEvent& event)
-{    
-   SetParameterType( (e_parameter_type) event.GetSelection() );
+{
+   #ifdef DEBUG_PAGE_CHANGED
+   MessageInterface::ShowMessage
+      ("OnPageChanged() entered, mPageChangedByUser=%d\n", mPageChangedByUser);
+   #endif
+   
+   if (mPageChangedByUser)
+   {
+      // Show current selection data when page chaged by user
+      mParamType = (ParameterType) event.GetSelection();
+      switch (mParamType)
+      {
+      case VARIABLE:
+         mObjectName = mUserVarListBox->GetStringSelection();
+         LoadData();
+         break;
+      case ARRAY:
+         mObjectName = mUserArrayListBox->GetStringSelection();
+         LoadData();
+         break;
+      case STRING:
+         mObjectName = mUserStringListBox->GetStringSelection();
+         LoadData();
+         break;
+      }
+   }
+   
+   // Show current selection data when page chages
    switch (mParamType)
    {
       case VARIABLE:
@@ -667,7 +757,7 @@ void ParameterCreateDialog::OnClearButtonClick(wxCommandEvent& event)
    {
       case VARIABLE:
          mVarNameTextCtrl->Clear();
-         mExprTextCtrl->Clear();
+         mVarValueTextCtrl->Clear();
          break;
       case ARRAY:
          mArrNameTextCtrl->Clear();
@@ -709,13 +799,13 @@ void ParameterCreateDialog::OnSelectButtonClick(wxCommandEvent& event)
          wxArrayString selectVarStrings = paramDlg.GetParamNameArray();
          if (selectVarStrings.Count() > 0)
          {
-            mExprTextCtrl->Clear();
+            mVarValueTextCtrl->Clear();
             for (unsigned int i=0; i<selectVarStrings.Count(); i++)
-               mExprTextCtrl->AppendText(selectVarStrings[i]);
+               mVarValueTextCtrl->AppendText(selectVarStrings[i]);
          }
          else // no selections
          {
-            mExprTextCtrl->Clear();
+            mVarValueTextCtrl->Clear();
          }
       }
 }
@@ -741,7 +831,7 @@ void ParameterCreateDialog::OnListboxClick(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 Parameter* ParameterCreateDialog::CreateParameter(const wxString &name)
 {
-   #if DEBUG_PARAM_CREATE_DIALOG
+   #ifdef DEBUG_PARAM_CREATE
    MessageInterface::ShowMessage
       ("ParameterCreateDialog::CreateParameter() name:%s\n", name.c_str());
    #endif
@@ -772,7 +862,7 @@ Parameter* ParameterCreateDialog::CreateParameter(const wxString &name)
       //   param->SetStringParameter("DepObject", depObjName);
    }
    
-   #if DEBUG_PARAM_CREATE_DIALOG
+   #ifdef DEBUG_PARAM_CREATE
    MessageInterface::ShowMessage("ParameterCreateDialog::CreateParameter() exiting\n");
    #endif
    
@@ -791,17 +881,16 @@ void ParameterCreateDialog::CreateVariable()
 {
    wxString wxvarName = mVarNameTextCtrl->GetValue().Trim();
    std::string varName = std::string(wxvarName.c_str());
-   wxString wxvarExpr = mExprTextCtrl->GetValue().Trim();
+   wxString wxvarExpr = mVarValueTextCtrl->GetValue().Trim();
    std::string varExpr = std::string(wxvarExpr.c_str());
    Real realNum;
    bool isRealNumber = true;
    
-   #if DEBUG_PARAM_CREATE_VAR
+   #ifdef DEBUG_PARAM_CREATE_VAR
    MessageInterface::ShowMessage
       ("ParameterCreateDialog::CreateVariable() varName = "  + varName +
        " varExpr = " + varExpr + "\n");
    #endif
-   
    
    // check if it has blank variable name or expression
    if (varName == "" || varExpr == "")
@@ -812,12 +901,16 @@ void ParameterCreateDialog::CreateVariable()
       return;
    }
    
+   // Trim blank spaces
+   varName = GmatStringUtil::Trim(varName);
+   
    // check if it has valid variable name
    if (!GmatStringUtil::IsValidName(varName))
    {
       MessageInterface::PopupMessage
          (Gmat::ERROR_, "Invalid variable name: \"%s.\" Variable name must "
-          "follow GMAT variable name rules (start with an alphabetic character, only alphanumerics and underscores, no reserved words)", varName.c_str());
+          "follow GMAT variable name rules (start with an alphabetic character, "
+          "only alphanumerics and underscores, no reserved words)", varName.c_str());
       canClose = false;
       return;
    }
@@ -837,7 +930,7 @@ void ParameterCreateDialog::CreateVariable()
       canClose = false;
       return;
    }
-
+   
    try
    {
       // create a variable if rhs is a number
@@ -848,69 +941,17 @@ void ParameterCreateDialog::CreateVariable()
       }
       else
       {
-         // Parse the Parameter
-         //StringTokenizer st(varExpr, "()*/+-^ ");
-         // tokenize nothing, we want no expressions, 04/2010 TGG
-         StringTokenizer st(varExpr, "");
-         StringArray tokens = st.GetAllTokens();
-         StringArray paramArray;
-         
-         // Check if unexisting varibles used in expression
-         for (unsigned int i=0; i<tokens.size(); i++)
-         {
-            #if DEBUG_PARAM_CREATE_VAR
-            MessageInterface::ShowMessage("   token:<%s> \n", tokens[i].c_str());
-            #endif
-            
-            if (!GmatStringUtil::ToReal(tokens[i], realNum))
-            {
-               // create system parameter if it is NULL
-               if (theGuiInterpreter->GetParameter(tokens[i]) == NULL)
-               {
-                  // check if it is system parameter
-                  std::string type, owner, depObj;
-                  GmatStringUtil::ParseParameter(tokens[i], type, owner, depObj);
-                  if (theGuiInterpreter->IsParameter(type))
-                  {
-                     #if DEBUG_PARAM_CREATE_VAR
-                     MessageInterface::ShowMessage
-                        ("type:%s is a system parameter\n", type.c_str());
-                     #endif
-                  
-                     Parameter *sysParam = 
-                        theGuiInterpreter->CreateParameter(type, tokens[i]);
-                  
-                     // set ref. object name
-                     sysParam->SetRefObjectName(sysParam->GetOwnerType(), owner);
-                  
-                     // set dependent object name
-                     if (depObj != "")
-                        sysParam->SetStringParameter("DepObject", depObj);
-                  
-                  }
-                  else
-                  {
-                     MessageInterface::PopupMessage
-                        (Gmat::WARNING_, "The variable \"%s\" does not exist. "
-                         "It must be created first.", tokens[i].c_str());
-                     canClose = false;
-                     return;
-                  }
-               }
-            
-               // create a variable
-               param = theGuiInterpreter->CreateParameter("Variable", varName);
-               param->SetStringParameter("Expression", varExpr);
-            
-               // set parameter names used in expression
-               param->SetRefObjectName(Gmat::PARAMETER, tokens[i]);
-            
-            }
-         }      
+         #ifdef __ALLOW_SETTING_TO_ANOTHER_OBJECT__
+            SetVariableToAnotherObject(varExpr);
+         #else
+            MessageInterface::PopupMessage
+               (Gmat::ERROR_, "\"%s\" is not a valid number", varExpr.c_str());
+            canClose = false;
+            return;
+         #endif
       }
-   
-   
-      #if DEBUG_PARAM_CREATE_VAR
+      
+      #ifdef DEBUG_PARAM_CREATE_VAR
       MessageInterface::ShowMessage
          ("ParameterCreateDialog::CreateVariable() The variable \"%s\" added\n",
           varName.c_str());
@@ -956,7 +997,6 @@ void ParameterCreateDialog::CreateString()
       // if new user string to create
       if (theGuiInterpreter->GetParameter(strName) == NULL)
       {
-
          // check if it has blank variable name
          if (strName == "")
          {
@@ -965,29 +1005,33 @@ void ParameterCreateDialog::CreateString()
             canClose = false;
             return;
          }
-
+         
+         // Trim blank spaces
+         strName = GmatStringUtil::Trim(strName);
+         
          // check if it has valid variable name
          if (!GmatStringUtil::IsValidName(strName))
          {
             MessageInterface::PopupMessage
                (Gmat::ERROR_, "Invalid string name: \"%s.\" String name must "
-                "follow GMAT variable name rules (start with an alphabetic character, only alphanumerics and underscores, no reserved words)", strName.c_str());
+                "follow GMAT variable name rules (start with an alphabetic character, "
+                "only alphanumerics and underscores, no reserved words)", strName.c_str());
             canClose = false;
             return;
          }
-
+         
          Parameter *param;
-      
+         
          param = theGuiInterpreter->CreateParameter("String", strName);
          param->SetStringParameter("Expression", strValue);
-      
+         
          mParamNames.Add(strName.c_str());
          mIsParamCreated = true;
          theGuiManager->UpdateParameter();
-      
+         
          GmatAppData::Instance()->GetResourceTree()->UpdateVariable();
          mUserStringListBox->Append(strName.c_str());
-      
+         
          for (unsigned int i=0; i<mUserStringListBox->GetCount(); i++)
          {
             if (mUserStringListBox->GetString(i).IsSameAs(strName.c_str()))
@@ -996,7 +1040,7 @@ void ParameterCreateDialog::CreateString()
                break;
             }
          }
-
+         
          EnableUpdate(true);
       }
       else
@@ -1005,7 +1049,7 @@ void ParameterCreateDialog::CreateString()
             (Gmat::WARNING_, "ParameterCreateDialog::CreateString()\nThe string: %s"
              " cannot be created. It already exists.", strName.c_str());
       }
-
+      
       ResetControls();
    }
    catch (BaseException &e)
@@ -1025,10 +1069,10 @@ void ParameterCreateDialog::CreateArray()
    long row, col;
    Integer mNumCols, mNumRows;
 
-   s = mArrColTextCtrl->GetValue().c_str();
-   CheckInteger(mNumCols, s, "Columns", "Integer Number >= 1", false, true, true, false);
    s = mArrRowTextCtrl->GetValue().c_str();
-   CheckInteger(mNumRows, s, "Rows", "Integer Number >= 1", false, true, true, false);
+   CheckIntegerRange(mNumRows, s, "Rows", 1, 1000, true, true, true, true);
+   s = mArrColTextCtrl->GetValue().c_str();
+   CheckIntegerRange(mNumCols, s, "Columns", 1, 1000, true, true, true, true);
    
    if (!(mArrRowTextCtrl->GetValue().ToLong(&row)) ||
        !(mArrColTextCtrl->GetValue().ToLong(&col)))
@@ -1038,7 +1082,7 @@ void ParameterCreateDialog::CreateArray()
       canClose = false;
       return;
    }
-
+   
    // Check for maximum array size of 1000x1000
    if (row > 1000 || col > 1000)
    {
@@ -1048,6 +1092,9 @@ void ParameterCreateDialog::CreateArray()
       canClose = false;
       return;
    }
+   
+   if (!canClose)
+      return;
    
    try
    {
@@ -1065,17 +1112,21 @@ void ParameterCreateDialog::CreateArray()
             canClose = false;
             return;
          }
-
+         
+         // Trim blank spaces
+         arrName = GmatStringUtil::Trim(arrName);
+         
          // check if it has valid variable name
          if (!GmatStringUtil::IsValidName(arrName))
          {
             MessageInterface::PopupMessage
                (Gmat::ERROR_, "Invalid array name: \"%s.\" Array name must "
-                "follow GMAT variable name rules (start with an alphabetic character, only alphanumerics and underscores, no reserved words)", arrName.c_str());
+                "follow GMAT variable name rules (start with an alphabetic character, "
+                "only alphanumerics and underscores, no reserved words)", arrName.c_str());
             canClose = false;
             return;
          }
-
+         
          Parameter *param;
          
          param = theGuiInterpreter->CreateParameter("Array", arrName);
@@ -1112,5 +1163,86 @@ void ParameterCreateDialog::CreateArray()
    {
       MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void SetVariableToAnotherObject(const std::string &varName,
+//                                 const std::string &varExpr)
+//------------------------------------------------------------------------------
+void ParameterCreateDialog::SetVariableToAnotherObject(const std::string &varName,
+                                                       const std::string &varExpr)
+{
+   // Parse the Parameter
+   //StringTokenizer st(varExpr, "()*/+-^ ");
+   // tokenize nothing, we want no expressions, 04/2010 TGG
+   StringTokenizer st(varExpr, "");
+   StringArray tokens = st.GetAllTokens();
+   StringArray paramArray;
+   Real realNum;
+   Parameter *param = NULL;
+   
+   // Check if unexisting varibles used in expression
+   for (unsigned int i=0; i<tokens.size(); i++)
+   {
+      #ifdef DEBUG_PARAM_CREATE_VAR
+      MessageInterface::ShowMessage("   token:<%s> \n", tokens[i].c_str());
+      #endif
+      
+      if (!GmatStringUtil::ToReal(tokens[i], realNum))
+      {
+         // Check for the valid name
+         if (!GmatStringUtil::IsValidName(tokens[i]))
+         {
+            MessageInterface::PopupMessage
+               (Gmat::ERROR_, "\"%s\" is not a valid number or variable name",
+                tokens[i].c_str());
+            canClose = false;
+            return;
+         }
+         
+         // create system parameter if it is NULL
+         if (theGuiInterpreter->GetParameter(tokens[i]) == NULL)
+         {
+            // check if it is system parameter
+            std::string type, owner, depObj;
+            GmatStringUtil::ParseParameter(tokens[i], type, owner, depObj);
+            if (theGuiInterpreter->IsParameter(type))
+            {
+               #ifdef DEBUG_PARAM_CREATE_VAR
+               MessageInterface::ShowMessage
+                  ("type:%s is a system parameter\n", type.c_str());
+               #endif
+               
+               Parameter *sysParam = 
+                  theGuiInterpreter->CreateParameter(type, tokens[i]);
+               
+               // set ref. object name
+               sysParam->SetRefObjectName(sysParam->GetOwnerType(), owner);
+               
+               // set dependent object name
+               if (depObj != "")
+                  sysParam->SetStringParameter("DepObject", depObj);
+               
+            }
+            else
+            {
+               MessageInterface::PopupMessage
+                  (Gmat::WARNING_, "The variable \"%s\" does not exist. "
+                   "It must be created first.", tokens[i].c_str());
+               canClose = false;
+               return;
+            }
+         }
+         
+         // create a variable
+         param = theGuiInterpreter->CreateParameter("Variable", varName);
+         param->SetStringParameter("Expression", varExpr);
+         
+         // set parameter names used in expression
+         param->SetRefObjectName(Gmat::PARAMETER, tokens[i]);
+         
+      }
+   }      
 }
 
