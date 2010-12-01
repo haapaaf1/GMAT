@@ -2608,7 +2608,8 @@ PhysicalModel* Moderator::CreateDefaultPhysicalModel(const std::string &name)
       
       if (obj ==  NULL)
          throw GmatBaseException
-            ("The Moderator cannot create a PhysicalModel type \"" + type + "\"\n");
+               ("The Moderator cannot create a PhysicalModel type \"" + type +
+                "\"\n");
       
       #ifdef DEBUG_MEMORY
       std::string funcName;
