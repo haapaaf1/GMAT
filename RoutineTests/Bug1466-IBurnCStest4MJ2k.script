@@ -527,7 +527,7 @@ Maneuver MoonBurn3(BurnSC3Moon);
 Report MoonReport MoonCase3 BurnSC3Moon.A1ModJulian BurnSC3Moon.MoonMJ2000Eq.VX BurnSC3Moon.MoonMJ2000Eq.VY BurnSC3Moon.MoonMJ2000Eq.VZ;
 % ==============
 % Moon Case 4
-BeginMissionSequence;
+%%BeginMissionSequence;
 
 % ==============
 BurnSC4Moon = OrigMoonSC;

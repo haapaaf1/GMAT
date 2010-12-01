@@ -41,9 +41,9 @@ GMAT DefaultSC.AngularVelocityZ = 0;
 Create Thruster engine1;
 GMAT engine1.CoordinateSystem = EarthMJ2000Eq;
 
-GMAT engine1.Element1 = 1;
-GMAT engine1.Element2 = 0;
-GMAT engine1.Element3 = 0;
+GMAT engine1.ThrustDirection1 = 1;
+GMAT engine1.ThrustDirection2 = 0;
+GMAT engine1.ThrustDirection3 = 0;
 GMAT engine1.DutyCycle = 1;
 GMAT engine1.ThrustScaleFactor = 1;
 GMAT engine1.DecrementMass = true;
@@ -123,13 +123,13 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create EphemerisFile GMAT_Leo_Ephem_3600sec;
 GMAT GMAT_Leo_Ephem_3600sec.Spacecraft = DefaultSC;
-GMAT GMAT_Leo_Ephem_3600sec.FileName = reportLoc1;
+GMAT GMAT_Leo_Ephem_3600sec.Filename = reportLoc1;
 GMAT GMAT_Leo_Ephem_3600sec.FileFormat = SPK;
 GMAT GMAT_Leo_Ephem_3600sec.EpochFormat = UTCGregorian;
 GMAT GMAT_Leo_Ephem_3600sec.InitialEpoch = InitialSpacecraftEpoch;
 GMAT GMAT_Leo_Ephem_3600sec.FinalEpoch = FinalSpacecraftEpoch;
 GMAT GMAT_Leo_Ephem_3600sec.StepSize = 3600;
-GMAT GMAT_Leo_Ephem_3600sec.Interpolator = Lagrange;
+GMAT GMAT_Leo_Ephem_3600sec.Interpolator = Hermite;
 GMAT GMAT_Leo_Ephem_3600sec.InterpolationOrder = 7;
 GMAT GMAT_Leo_Ephem_3600sec.StateType = Cartesian;
 GMAT GMAT_Leo_Ephem_3600sec.CoordinateSystem = EarthMJ2000Eq;

@@ -25,11 +25,11 @@ GMAT DefaultProp.FM = DefaultProp_ForceModel;
  
 Create String reportLoc1;
 %%GMAT reportLoc1 = './output/SystemTest/Func_Ephem_GMAT_SPK_3600sec.report';
-GMAT reportLoc1 = 'Bug1891-Func_Ephem_GMAT_SPK_3600sec.report';
+GMAT reportLoc1 = 'Bug1891-Func_Ephem_GMAT_SPK_3600sec.bsp';
  
 Create String reportLoc1_nested;
 %%GMAT reportLoc1_nested = './output/SystemTest/Func_Ephem_GMAT_SPK_3600sec_nested.report';
-GMAT reportLoc1_nested = 'Bug1891-Func_Ephem_GMAT_SPK_3600sec_nested.report';
+GMAT reportLoc1_nested = 'Bug1891-Func_Ephem_GMAT_SPK_3600sec_nested.bsp';
  
  
 %----------------------------------------
