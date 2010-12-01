@@ -42,6 +42,7 @@ private:
    void OnPageChange(wxCommandEvent &event);
     
    CelestialBody *theCelestialBody;
+   CelestialBody *origCelestialBody;
    //Planet *thePlanet;
    wxString      bodyName;
    bool          isUserDefined;

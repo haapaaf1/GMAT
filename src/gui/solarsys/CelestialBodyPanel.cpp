@@ -68,14 +68,14 @@ END_EVENT_TABLE()
 CelestialBodyPanel::CelestialBodyPanel(wxWindow *parent, const wxString &name)
    : GmatPanel(parent, true)
 {
-   theCelestialBody = (CelestialBody*)
+   origCelestialBody = (CelestialBody*)
       theGuiInterpreter->GetConfiguredObject(name.c_str());
            
    bodyName = name.c_str();
    
-   if (theCelestialBody)
+   if (origCelestialBody)
    {
-      isUserDefined = theCelestialBody->IsUserDefined();
+      isUserDefined = origCelestialBody->IsUserDefined();
             
       Create();
       Show();
@@ -91,7 +91,7 @@ CelestialBodyPanel::CelestialBodyPanel(wxWindow *parent, const wxString &name)
 //------------------------------------------------------------------------------
 CelestialBodyPanel::~CelestialBodyPanel()
 {
-   //delete child panels (tabs) in the Mainframe
+   delete theCelestialBody;
 }
 
 
@@ -100,6 +100,9 @@ CelestialBodyPanel::~CelestialBodyPanel()
 //------------------------------------------------------------------------------
 void CelestialBodyPanel::Create()
 {
+   // use a clone here
+   theCelestialBody = (CelestialBody*) (origCelestialBody->Clone());
+
    try
    {
       cbNotebook = new wxNotebook(this, ID_NOTEBOOK, wxDefaultPosition, 
@@ -145,7 +148,8 @@ void CelestialBodyPanel::LoadData()
    }
 
    // Activate "ShowScript"
-   mObject = theCelestialBody;
+//   mObject = theCelestialBody;
+   mObject = origCelestialBody;
    
    EnableUpdate(false);
 }
@@ -168,7 +172,7 @@ void CelestialBodyPanel::SaveData()
    if (properties->IsDataChanged())
    {
       properties->SaveData();
-      canClose = properties->CanClosePanel();
+      canClose = canClose && properties->CanClosePanel();
    }
    if (orbit->IsDataChanged())
    {
@@ -181,11 +185,13 @@ void CelestialBodyPanel::SaveData()
       canClose = canClose && orientation->CanClosePanel();
    }
    
-   if (!canClose)   // why do this???? spaceraft panel did this ....
+   if (!canClose)   // why do this???? spacecraft panel did this ....
    {
       EnableUpdate(true);
       return;
    }
+   // copy the current info into origCelestialBody
+   origCelestialBody->Copy(theCelestialBody);
    EnableUpdate(false);
 
 }
