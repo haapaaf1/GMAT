@@ -71,6 +71,8 @@ private:
    bool         HasFunctionName(const std::string &str, const StringArray &fnList);
    bool         IsParenPartOfFunction(const std::string &str);
    bool         IsGmatFunction(const std::string &name);
+   bool         IsValidOperator(const std::string &str);
+   
    std::string  GetFunctionName(UnsignedInt functionType, const std::string &str,
                                 std::string &leftStr);
    std::string::size_type

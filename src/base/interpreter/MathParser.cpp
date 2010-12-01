@@ -586,16 +586,19 @@ MathNode* MathParser::ParseNode(const std::string &str)
    {
       #if DEBUG_CREATE_NODE
       MessageInterface::ShowMessage
-         ("=====> Should create MathElement: %s\n", str.c_str());
+         ("=====> Should create MathElement: '%s'\n", str.c_str());
       #endif
-            
+      
       // Remove extra parenthesis before creating a node (LOJ: 2010.07.29)
       std::string str1 = GmatStringUtil::RemoveExtraParen(str);
       
       #if DEBUG_CREATE_NODE
       MessageInterface::ShowMessage
-         ("       Creating MathElement with %s\n", str1.c_str());
+         ("       Creating MathElement with '%s'\n", str1.c_str());
       #endif
+      
+      if (str1 == "")
+         throw MathException("Missing input arguments");
       
       mathNode = CreateNode("MathElement", str1);
    }
@@ -2160,17 +2163,19 @@ StringArray MathParser::ParseMatrixOps(const std::string &str)
    
    // find matrix function
    std::string fnName = GetFunctionName(MATRIX_FUNCTION, str, left);
-
+   
+   // Check for matrix operator symbol, such as ' for transpose and ^(-1) for inverse
    if (fnName == "")
    {
       // try matrix op ' for transpose
       std::string::size_type index1 = str.find("'");
-
+      
       #if DEBUG_MATRIX_OPS
       MessageInterface::ShowMessage
-         ("MathParser::ParseMatrixOps() find ' index1=%u\n", index1);
+         ("MathParser::ParseMatrixOps() find ' for transpose, index1=%u\n", index1);
       #endif
       
+      // if transpose ' not found
       if (index1 == str.npos)
       {
          // try matrix op ^(-1) for inverse
@@ -2192,6 +2197,25 @@ StringArray MathParser::ParseMatrixOps(const std::string &str)
          left = str.substr(0, index1);
          fnName = "Transpose";
          FillItems(items, fnName, left, "");
+      }
+      
+      // Check for invalid operators after matrix ops
+      if (fnName != "")
+      {
+         std::string::size_type index2 = index1 + 1;
+         
+         if (fnName == "Inv")
+            index2 = index1 + 4;
+         
+         if (str.size() > index2)
+         {
+            std::string nextOp = str.substr(index2+1, 1);
+            #if DEBUG_MATRIX_OPS
+            MessageInterface::ShowMessage("   nextOp='%s'\n", nextOp.c_str());
+            #endif
+            if (nextOp != "" && !IsValidOperator(nextOp))
+                throw MathException("Invalid math operator \"" + nextOp + "\" found");
+         }
       }
    }
    else // matrix function name found
@@ -2378,6 +2402,19 @@ bool MathParser::IsGmatFunction(const std::string &name)
          return true;
    
    return false;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsValidOperator(const std::string &str)
+//------------------------------------------------------------------------------
+bool MathParser::IsValidOperator(const std::string &str)
+{
+   char op = str[0];
+   if (op == '+' || op == '-' || op == '*' || op == '/' || op == '^' || op == '\'')
+      return true;
+   else
+      return false;
 }
 
 
