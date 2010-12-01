@@ -199,8 +199,6 @@ void CelestialBodyOrientationPanel::SaveData()
 
    if (realsOK && stringsOK && reallyChanged)
    {
-//      if (isLuna) theBody->SetStringParameter(theBody->GetParameterID("RotationDataSource"), 
-//                                  rotationDataSource);
       theBody->SetStringParameter(theBody->GetParameterID("RotationDataSource"), 
                                   rotationDataSource);
       if (isEarth)
