@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              RunScriptFolderDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2005/12/22
@@ -50,7 +50,8 @@ RunScriptFolderDialog::RunScriptFolderDialog(wxWindow *parent, int numScripts,
    mNumTimesToRun = 1;
    mAbsTol = absTol;
    mCompareDir = compareDir;
-   
+
+   mFilterString = "";
    mReplaceString = "GMAT";
    
    Create();
@@ -124,6 +125,14 @@ void RunScriptFolderDialog::Create()
       new wxTextCtrl(this, ID_TEXTCTRL, wxT("1"),
                      wxDefaultPosition, wxSize(80,20), 0);
    
+   wxStaticText *filterScriptsLabel =
+      new wxStaticText(this, ID_TEXT, wxT("Run scripts contain:"),
+                       wxDefaultPosition, wxDefaultSize, 0);
+   
+   mFilterStringTextCtrl =
+      new wxTextCtrl(this, ID_TEXTCTRL, wxT(""),
+                     wxDefaultPosition, wxSize(80,20), 0);
+   
    wxStaticText *numTimesLabel =
       new wxStaticText(this, ID_TEXT, wxT("Number of times to run each script:"),
                        wxDefaultPosition, wxDefaultSize, 0);
@@ -160,6 +169,10 @@ void RunScriptFolderDialog::Create()
    runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(numScriptsLabel, 0, wxALIGN_LEFT|wxALL, bsize);
    runSizer->Add(mNumScriptsToRunTextCtrl, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
+   runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
+   runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
+   runSizer->Add(filterScriptsLabel, 0, wxALIGN_LEFT|wxALL, bsize);
+   runSizer->Add(mFilterStringTextCtrl, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(5, 20, 0, wxALIGN_RIGHT|wxGROW|wxALL, bsize);
    runSizer->Add(numTimesLabel, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -294,7 +307,7 @@ void RunScriptFolderDialog::LoadData()
    mCurrOutDir = fm->GetFullPathname(FileManager::OUTPUT_PATH).c_str();
    mSaveScriptsDirTextCtrl->SetValue(mCurrOutDir + "AutoSave");
    mCurrOutDirTextCtrl->SetValue(mCurrOutDir);
-
+   
    //=======================================================
    #ifdef __ENABLE_COMPARE__
    //=======================================================
@@ -324,7 +337,7 @@ void RunScriptFolderDialog::SaveData()
    long numScriptsToRun;
    long numTimesToRun;
    canClose = true;
-      
+   
    if (!mStartingScriptTextCtrl->GetValue().ToLong(&numStartingScript))
    {
       wxMessageBox("Invalid number of scripts to run entered.");
@@ -385,6 +398,7 @@ void RunScriptFolderDialog::SaveData()
    mNumScriptsToRun = numScriptsToRun;
    mNumTimesToRun = numTimesToRun;
    
+   mFilterString = mFilterStringTextCtrl->GetValue();
    mSaveScriptsDir = mSaveScriptsDirTextCtrl->GetValue();
    mCurrOutDir = mCurrOutDirTextCtrl->GetValue();
    
@@ -413,9 +427,9 @@ void RunScriptFolderDialog::SaveData()
    
    #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
    MessageInterface::ShowMessage
-      ("RunScriptFolderDialog::SaveData() mNumScriptsToRun=%d, mNumTimesToRun=%d\n"
-       "mCompareResults=%d, mAbsTol=%e\n   mCompareDir=%s, mReplaceString=%s\n",
-       mNumScriptsToRun, mNumTimesToRun, mCompareResults, mAbsTol,
+      ("RunScriptFolderDialog::SaveData() mNumScriptsToRun=%d, mFilterString='%s', "
+       "mNumTimesToRun=%d\nmCompareResults=%d, mAbsTol=%e\n   mCompareDir=%s, mReplaceString=%s\n",
+       mNumScriptsToRun, mFilterString.c_str(), mNumTimesToRun, mCompareResults, mAbsTol,
        mCompareDir.c_str(), mReplaceString.c_str());
    #endif
 }

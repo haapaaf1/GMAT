@@ -3562,6 +3562,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    bool runFromSavedScripts = dlg.RunFromSavedScripts();
    bool compare = dlg.CompareResults();
    bool saveCompareResults = dlg.SaveCompareResults();
+   wxString filterString = dlg.GetFilterString();
    bool builtOk = false;
 
    // for current output path
@@ -3672,6 +3673,14 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
 
       // Set main frame title to script file name
       filename = ((GmatTreeItemData*)GetItemData(scriptId))->GetName();
+      
+      // Filter scripts
+      if (filterString != "" && !filename.Contains(filterString))
+      {
+         scriptId = GetNextChild(itemId, cookie);
+         continue;
+      }
+      
       wxString titleText;
       titleText.Printf("%s - General Mission Analysis Tool (GMAT)", filename.c_str());
       theMainFrame->SetTitle(titleText);
@@ -3813,8 +3822,9 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    if (mBuildErrorCount > 0)
    {
       wxString scriptNames1;
-      msg1 = "Script errors were found in the following script(s):\n";
-
+      msg1 = "Script errors were found in the following " +
+         GmatStringUtil::ToString(mBuildErrorCount, 1) + " script(s):\n";
+      
       for (int i=0; i<mBuildErrorCount; i++)
          scriptNames1 = scriptNames1 + mFailedScriptsList[i] + "\n";
 

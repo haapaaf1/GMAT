@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              RunScriptFolderDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2005/12/22
@@ -36,6 +36,7 @@ public:
    Integer GetNumScriptsToRun() { return mNumScriptsToRun; }
    Integer GetNumTimesToRun() { return mNumTimesToRun; }
    Real GetAbsTolerance() { return mAbsTol; }
+   wxString GetFilterString() { return mFilterString; }
    wxString GetReplaceString() { return mReplaceString; }
    wxString GetCompareDirectory() { return mCompareDir; }
    wxString GetSaveFilename() { return mSaveFilename; }
@@ -52,6 +53,7 @@ protected:
    
    wxTextCtrl *mStartingScriptTextCtrl;
    wxTextCtrl *mNumScriptsToRunTextCtrl;
+   wxTextCtrl *mFilterStringTextCtrl;
    wxTextCtrl *mNumTimesToRunTextCtrl;
    wxTextCtrl *mCompareDirTextCtrl;
    wxTextCtrl *mReplaceTextCtrl;
@@ -97,6 +99,7 @@ private:
    Integer mNumScriptsToRun;
    Integer mNumTimesToRun;
    Real mAbsTol;
+   wxString mFilterString;
    wxString mReplaceString;
    wxString mCurrOutDir;
    wxString mSaveScriptsDir;
