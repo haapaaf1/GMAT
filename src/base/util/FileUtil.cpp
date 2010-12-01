@@ -91,7 +91,7 @@ std::string GmatFileUtil::GetCurrentPath()
    // Intentionally get the return and then ignore it to move warning from
    // system libraries to GMAT code base.  The "unused variable" warning
    // here can be safely ignored.
-   char *ch = getcwd(buffer, GmatFile::MAX_PATH_LEN);
+//   char *ch = getcwd(buffer, GmatFile::MAX_PATH_LEN);
    currPath = buffer;
 #else
    MessageInterface::ShowMessage
@@ -276,7 +276,7 @@ bool GmatFileUtil::IsValidFileName(const std::string &fname, bool blankIsOk)
    // Check for name too long
    if (retval)
    {
-      if (filename.size() > GmatFile::MAX_FILE_LEN)
+      if ((Integer) filename.size() > GmatFile::MAX_FILE_LEN)
          retval = false;
    }
    
