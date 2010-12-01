@@ -544,7 +544,12 @@ bool PropSetup::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       return true;
    case Gmat::ODE_MODEL:
       SetODEModel((ODEModel*)obj);
-      return true;;
+      {  // Manage case statement scoping issues
+         std::string refName = obj->GetName();
+         if ((refName != "") && (refName != "InternalODEModel"))
+            mODEModelName = refName;
+      }
+      return true;
    default:
       return false;
    }
@@ -814,7 +819,8 @@ std::string PropSetup::GetStringParameter(const Integer id) const
       break;
    case ODE_MODEL:
       if (mODEModel)
-         name = mODEModel->GetName();
+//         name = mODEModel->GetName();
+         name = mODEModelName;
       else
          name = "UndefinedODEModel";
       break;

@@ -1355,8 +1355,8 @@ Function* Interpreter::GetFunction()
  * the Validator.
  *
  * @param  obj  input object of undefined reference object to be checked
- * @param  writeLine  flag indicating whether or not line number should be written
- *                    for ther error message
+ * @param  writeLine  flag indicating whether or not line number should be
+ *                    written for the error message
  */
 //------------------------------------------------------------------------------
 bool Interpreter::CheckUndefinedReference(GmatBase *obj, bool writeLine)
@@ -5084,18 +5084,30 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
             
             // Create Owned Object, if it is valid owned object type
             GmatBase *ownedObj = NULL;
+            bool skipCreate = false;
             if (obj->IsOwnedObject(id))
             {
-               // Handle named owned Propagator object for PropSetup (loj: 2008.11.05)
+               // Handle named owned Propagator object for PropSetup
                // since Integrator is not created by Create command
                std::string ownedName = "";
                if (obj->IsOfType(Gmat::PROP_SETUP))
+               {
                   ownedName = valueToUse;
-               ownedObj = CreateObject(valueToUse, ownedName, 0);
-               if (ownedObj == NULL)
-                  MessageInterface::ShowMessage
-                     ("*** WARNING *** Owned object %s was not created for '%s'; "
-                      "using default\n", ownedName.c_str(), obj->GetName().c_str());
+                  if (obj->GetParameterText(id) == "FM")
+                  {
+                     obj->SetStringParameter(id, ownedName);
+                     skipCreate = true;
+                  }
+               }
+               if (!skipCreate)
+               {
+                  ownedObj = CreateObject(valueToUse, ownedName, 0);
+                  if (ownedObj == NULL)
+                     MessageInterface::ShowMessage
+                        ("*** WARNING *** Owned object %s was not created for "
+                         "'%s'; using default\n", ownedName.c_str(),
+                         obj->GetName().c_str());
+               }
             }
             
             #ifdef DEBUG_SET
@@ -5136,22 +5148,25 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
                // Special case of InternalODEModel in script
                // Since PropSetup no longer creates InternalODEModel
                // create it here (loj: 2008.11.06)
-               if (valueToUse == "InternalODEModel")
+               if (!skipCreate)
                {
-                  ownedObj = CreateObject("ForceModel", valueToUse);
-                  obj->SetRefObject(ownedObj, ownedObj->GetType(), valueToUse);
-               }
-               else
-               {
-                  // Set as String parameter, so it can be caught in FinalPass()
-                  #ifdef DEBUG_SET
-                  MessageInterface::ShowMessage
-                     ("   Calling '%s'->SetStringParameter(%d, %s) so it can be "
-                      "caught in FinalPass()\n",
-                      obj->GetName().c_str(), id, valueToUse.c_str());
-                  #endif
-                  
-                  obj->SetStringParameter(id, valueToUse);
+                  if (valueToUse == "InternalODEModel")
+                  {
+                     ownedObj = CreateObject("ForceModel", valueToUse);
+                     obj->SetRefObject(ownedObj, ownedObj->GetType(), valueToUse);
+                  }
+                  else
+                  {
+                     // Set as String parameter, so it can be caught in FinalPass()
+                     #ifdef DEBUG_SET
+                     MessageInterface::ShowMessage
+                        ("   Calling '%s'->SetStringParameter(%d, %s) so it can be "
+                         "caught in FinalPass()\n",
+                         obj->GetName().c_str(), id, valueToUse.c_str());
+                     #endif
+
+                     obj->SetStringParameter(id, valueToUse);
+                  }
                }
             }
          }
@@ -6980,15 +6995,30 @@ bool Interpreter::FinalPass()
       {
          if (((PropSetup*)obj)->GetPropagator()->UsesODEModel())
          {
-            ODEModel *ode = ((PropSetup*)obj)->GetODEModel();
-            if (ode != NULL)
+            std::string refName = obj->GetStringParameter("FM");
+            GmatBase *configuredOde = FindObject(refName);
+//            ODEModel *ode = ((PropSetup*)obj)->GetODEModel();
+            if (configuredOde != NULL)
             {
-               std::string refName = ode->GetName();
+               if (configuredOde->IsOfType(Gmat::ODE_MODEL))
+                  ((PropSetup*)obj)->SetODEModel(((ODEModel*)configuredOde));
+               else
+                  throw InterpreterException("The object named \"" +
+                        refName + "\", referenced by the Propagator \"" +
+                        obj->GetName() + "\" as an ODE model is the wrong "
+                              "type; it is a " + configuredOde->GetTypeName());
+            }
+            else
+            {
+               if (refName != "InternalODEModel")
+                  throw InterpreterException("The ODEModel named \"" +
+                        refName + "\", referenced by the Propagator \"" +
+                        obj->GetName() + "\" cannot be found");
 
-               GmatBase *configuredOde = FindObject(refName);
-               if ((configuredOde != NULL) &&
-                   (configuredOde->IsOfType(Gmat::ODE_MODEL)))
-                  *ode = *((ODEModel*)configuredOde);
+               // Create default ODE model
+               configuredOde = CreateObject("ODEModel", refName, 1);
+               obj->SetRefObject(configuredOde, configuredOde->GetType(),
+                     configuredOde->GetName());
             }
          }
       }
