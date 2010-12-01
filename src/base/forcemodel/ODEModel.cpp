@@ -402,7 +402,7 @@ ODEModel& ODEModel::operator=(const ODEModel& fdf)
  * using a TBD data structure.
  * 
  * The force that is passed in is owned by this class, and should not be 
- * destructed externally.  In addition, every force that is passed to this class 
+ * destroyed externally.  In addition, every force that is passed to this class
  * needs to have a copy constructor and an assignment operator so that it can be 
  * cloned for distribution to multiple sandboxes.
  * 

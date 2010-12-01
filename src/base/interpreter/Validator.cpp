@@ -277,7 +277,7 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
             MessageInterface::ShowMessage("      %s\n", refNames[j].c_str());
          #endif
          
-         // Check System Parameters seperately since it follows certain naming
+         // Check System Parameters separately since it follows certain naming
          // convention.  "owner.dep.type" where owner can be either Spacecraft
          // or Burn for now
          
