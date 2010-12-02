@@ -26,6 +26,7 @@
 //#define DEBUG_CONFIG_ADD_CLONE 1
 //#define DEBUG_CONFIG_REMOVE
 //#define DEBUG_CONFIG_REMOVE_MORE
+//#define DEBUG_CONFIG_OBJ_USING
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -847,9 +848,10 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
    GmatBase *obj;
    std::string objName;
    std::string objString;
+   StringArray genStringArray;
    static StringArray itemList;
    itemList.clear();
-
+   
    #if DEBUG_RENAME
    MessageInterface::ShowMessage
       ("ConfigManager::GetListOfItemsHas() name=%s, includeSysParam=%d\n",
@@ -881,17 +883,33 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
          }
          
          objName = obj->GetName();
-         objString = obj->GetGeneratingString();
-         pos = objString.find(name);
          
-         #if DEBUG_RENAME
-         MessageInterface::ShowMessage
-            ("===> objString =\n%s\n", objString.c_str());
-         #endif
+         // We need to check names RHS of equal sign (LOJ: 2010.12.01)
+         // This fixes bug 2222
+         //objString = obj->GetGeneratingString();
+         //pos = objString.find(name);
          
-         if (pos != objString.npos)
+         genStringArray = obj->GetGeneratingStringArray();
+         std::string rhsString;
+         for (StringArray::iterator i = genStringArray.begin();
+              i < genStringArray.end(); i++)
          {
-            itemList.push_back(objName);
+            objString = *i;
+            StringArray parts = GmatStringUtil::SeparateBy(objString, "=");
+            if (parts.size() > 1)
+            {
+               rhsString = parts[1];
+               
+               #if DEBUG_RENAME
+               MessageInterface::ShowMessage
+                  ("   objString='%s', rhsString='%s'\n", objString.c_str(),
+                   rhsString.c_str());
+               #endif
+               
+               pos = rhsString.find(name);
+               if (pos != rhsString.npos)
+                  itemList.push_back(objName);
+            }
          }
       }
    }
