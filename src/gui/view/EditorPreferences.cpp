@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              EditorPreferences
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2009/01/15
@@ -353,121 +353,121 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("Default"),
     _T("BLACK"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_WORD1 (with wxSTC_LEX_PYTHON, GMAT KeyWords shows in this color)
    {_T("Keyword1"),
     _T("BLUE"), _T("WHITE"),
     //_T(""), 10, GMAT_STC_STYLE_BOLD, 0},
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_WORD2
    {_T("Keyword2"),
     _T("RED"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_WORD3
    {_T("Keyword3"),
     _T("CORNFLOWER BLUE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_WORD4
    {_T("Keyword4"),
     _T("CYAN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_WORD5
    {_T("Keyword5"),
     _T("DARK GREY"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_WORD6
    {_T("Keyword6"),
     _T("GREY"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_COMMENT
    {_T("Comment"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_COMMENT_DOC
    {_T("Comment (Doc)"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_COMMENT_LINE
    {_T("Comment line"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_COMMENT_SPECIAL
    {_T("Special comment"),
     _T("FOREST GREEN"), _T("WHITE"),
     _T(""), 10, GMAT_STC_STYLE_ITALIC, 0},
-   
+
    // GMAT_STC_TYPE_CHARACTER (with wxSTC_LEX_PYTHON, string inside single quote)
    {_T("Character"),
     _T("PURPLE"), _T("WHITE"),
     //_T("KHAKI"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_CHARACTER_EOL
    {_T("Character (EOL)"),
     _T("PURPLE"), _T("WHITE"),
     //_T("KHAKI"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_STRING (with wxSTC_LEX_PYTHON, string inside double quote)
    {_T("String"),
     _T("BROWN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_STRING_EOL
    {_T("String (EOL)"),
     _T("BROWN"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_DELIMITER
    {_T("Delimiter"),
     _T("ORANGE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_PUNCTUATION
    {_T("Punctuation"),
     _T("ORANGE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_OPERATOR (with wxSTC_LEX_PYTHON, () [] math operators shown in this color)
    {_T("Operator"),
     _T("BLACK"), _T("WHITE"),
     //_T(""), 10, GMAT_STC_STYLE_BOLD, 0},
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_BRACE
    {_T("Label"),
     _T("VIOLET"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_COMMAND
    {_T("Command"),
     _T("BLUE"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_IDENTIFIER (with wxSTC_LEX_PYTHON, statesments showns in this color)
    {_T("Identifier"),
     _T("BLACK"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_LABEL
    {_T("Label"),
     _T("VIOLET"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_NUMBER
    {_T("Number"),
     _T("SIENNA"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_PARAMETER
    {_T("Parameter"),
     _T("VIOLET"), _T("WHITE"),
@@ -482,7 +482,7 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("UUID"),
     _T("ORCHID"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_VALUE
    {_T("Value"),
     _T("ORCHID"), _T("WHITE"),
@@ -492,7 +492,7 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("Preprocessor"),
     _T("GREY"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_SCRIPT
    {_T("Script"),
     _T("DARK GREY"), _T("WHITE"),
@@ -502,7 +502,7 @@ const GmatEditor::StyleInfoType GmatEditor::globalStylePrefs [] = {
    {_T("Error"),
     _T("RED"), _T("WHITE"),
     _T(""), 10, 0, 0},
-   
+
    // GMAT_STC_TYPE_UNDEFINED
    {_T("Undefined"),
     _T("ORANGE"), _T("WHITE"),

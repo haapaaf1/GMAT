@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 ViewTextFrame
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -45,16 +45,16 @@ ViewTextFrame::ViewTextFrame(wxFrame *frame, const wxString& title,
    CreateStatusBar(2);
    mWindowMode = mode;
    mTextType = type;
-   
+
    // Set additional style wxTE_RICH to Ctrl + mouse scroll wheel to decrease or
    // increase text size(loj: 2009.02.05)
    mTextCtrl = new wxTextCtrl(this, -1, _T(""), wxPoint(0, 0), wxSize(0, 0),
                               wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH);
    mTextCtrl->SetMaxLength(320000);
    mTextCtrl->SetFont(GmatAppData::Instance()->GetFont());
-   
+
 #if wxUSE_MENUS
-   // create a menu bar 
+   // create a menu bar
    SetMenuBar(CreateMainMenu());
 #endif // wxUSE_MENUS
 
@@ -75,7 +75,7 @@ ViewTextFrame::ViewTextFrame(wxFrame *frame, const wxString& title,
    {
       //MessageInterface::ShowMessage(e.GetMessage());
    }
-   
+
    CenterOnScreen(wxBOTH);
 }
 
@@ -131,10 +131,10 @@ void ViewTextFrame::OnSaveAs(wxCommandEvent& WXUNUSED(event))
                         "Report files (*.report)|*.report|Text files (*.txt)|*.txt",
                         wxSAVE);
    }
-   
+
    if (!filename.empty())
       mTextCtrl->SaveFile(filename);
-   
+
 }
 
 

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              FindReplaceDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -56,7 +56,7 @@ FindReplaceDialog::FindReplaceDialog(wxWindow *parent, wxWindowID id,
    : wxDialog(parent, id, title, pos, size, style, title)
 {
    mEditor = NULL;
-   
+
    Create();
 }
 
@@ -68,7 +68,7 @@ void FindReplaceDialog::Create()
 {
    //---------- find
    wxStaticText *findText = new wxStaticText(this, -1, "Find What");
-   mFindComboBox = 
+   mFindComboBox =
       new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize,
                      mFindArray, wxTE_PROCESS_ENTER);
    mFindNextButton =
@@ -77,10 +77,10 @@ void FindReplaceDialog::Create()
    mFindPrevButton =
       new wxButton(this, ID_BUTTON, wxT("Find Previous"),
                    wxDefaultPosition, wxDefaultSize, 0);
-   
+
    //---------- replace
    wxStaticText *replaceText = new wxStaticText(this, -1, "Replace With");
-   mReplaceComboBox = 
+   mReplaceComboBox =
       new wxComboBox(this, ID_COMBOBOX, wxT(""), wxDefaultPosition, wxDefaultSize,
                      mReplaceArray);
    mReplaceButton =
@@ -89,34 +89,34 @@ void FindReplaceDialog::Create()
    mReplaceAllButton =
       new wxButton(this, ID_BUTTON, wxT("Replace All"),
                    wxDefaultPosition, wxDefaultSize, 0);
-   
+
    //---------- close
    mCloseButton =
       new wxButton(this, ID_BUTTON, wxT("Close"),
                    wxDefaultPosition, wxDefaultSize, 0);
-   
+
    int bsize = 3;
-   
+
    //---------- sizer
-   wxFlexGridSizer *findSizer = new wxFlexGridSizer(4, 0, 0);   
+   wxFlexGridSizer *findSizer = new wxFlexGridSizer(4, 0, 0);
    findSizer->Add(findText, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize);
    findSizer->Add(mFindComboBox, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize);
    findSizer->Add(mFindNextButton, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize);
    findSizer->Add(mFindPrevButton, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize);
-   
+
    findSizer->Add(replaceText, 0, wxALIGN_LEFT|wxALIGN_CENTER_HORIZONTAL|wxGROW|wxALL, bsize);
    findSizer->Add(mReplaceComboBox, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize);
    findSizer->Add(mReplaceButton, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize);
    findSizer->Add(mReplaceAllButton, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize);
-   
+
    // Add to page sizer and set sizer to this dialog
    wxStaticBoxSizer *findStaticSizer = new wxStaticBoxSizer(wxVERTICAL, this);
    findStaticSizer->Add(findSizer, 0, wxALIGN_CENTRE|wxGROW|wxALL, bsize);
-   
+
    wxBoxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
    pageSizer->Add(findStaticSizer, 0, wxALIGN_CENTER|wxALL, 4);
    pageSizer->Add(mCloseButton, 0, wxALIGN_CENTER|wxALL, 4);
-   
+
    SetAutoLayout(TRUE);
    SetSizer(pageSizer);
    pageSizer->Fit(this);
@@ -144,10 +144,10 @@ void FindReplaceDialog::OnButtonClick(wxCommandEvent &event)
             ("FindReplaceDialog::OnButtonClick() FindButton clicked, "
              "mFindText='%s', mEditor=<%p>\n", mFindText.c_str(), mEditor);
          #endif
-         
+
          if (mFindComboBox->FindString(mFindText, true) == wxNOT_FOUND)
             mFindComboBox->Append(mFindText);
-         
+
          if (mEditor)
          {
             mEditor->SetFindText(mFindText);
@@ -164,7 +164,7 @@ void FindReplaceDialog::OnButtonClick(wxCommandEvent &event)
    {
       mFindText = mFindComboBox->GetValue();
       mReplaceText = mReplaceComboBox->GetValue();
-      
+
       if (mFindText != "" && mReplaceText != "")
       {
          #ifdef DEBUG_FIND_REPLACE
@@ -173,13 +173,13 @@ void FindReplaceDialog::OnButtonClick(wxCommandEvent &event)
              "mFindText='%s', mReplaceText='%s', mEditor=<%p>\n", mFindText.c_str(),
              mReplaceText.c_str(), mEditor);
          #endif
-         
+
          if (mFindComboBox->FindString(mFindText, true) == wxNOT_FOUND)
             mFindComboBox->Append(mFindText);
-         
+
          if (mReplaceComboBox->FindString(mReplaceText, true) == wxNOT_FOUND)
             mReplaceComboBox->Append(mReplaceText);
-         
+
          if (mEditor)
          {
             mEditor->SetFindText(mFindText);
@@ -207,11 +207,11 @@ void FindReplaceDialog::OnComboBoxEnter(wxCommandEvent& event)
    if (event.GetEventObject() == mFindComboBox ||
        event.GetEventObject() == mReplaceComboBox)
    {
-      #ifdef DEBUG_FIND_REPLACE      
+      #ifdef DEBUG_FIND_REPLACE
       MessageInterface::ShowMessage
          ("FindReplaceDialog::OnComboBoxEnter() Find entered\n");
       #endif
-      
+
       wxCommandEvent tempEvent;
       tempEvent.SetEventObject(mFindNextButton);
       OnButtonClick(tempEvent);

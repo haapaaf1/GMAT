@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                 ViewTextFrame
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -24,12 +24,12 @@
 class ViewTextFrame: public wxFrame
 {
 public:
-   
+
    // constructors
    ViewTextFrame(wxFrame *frame, const wxString& title, int x, int y, int w, int h,
                  const wxString &mode = "Temporary", const wxString &type = "Output");
    ~ViewTextFrame();
-   
+
    // operations
    void AppendText(const wxString& text);
    void SetMaxLength(unsigned long len)
@@ -44,7 +44,7 @@ public:
       { return mWindowMode; };
    wxTextCtrl *GetTextCtrl()
       { return mTextCtrl; };
-    
+
 private:
 
    wxMenuBar *CreateMainMenu();
@@ -68,7 +68,7 @@ private:
 
    /// window mode ("Permanent", "Temporary")
    wxString mWindowMode;
-   
+
    /// text type ("Output", "Script")
    wxString mTextType;
 };

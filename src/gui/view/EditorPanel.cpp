@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              EditorPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2009/01/05
@@ -50,10 +50,10 @@ EditorPanel::EditorPanel(wxWindow *parent, const wxString &name)
    MessageInterface::ShowMessage
       ("EditorPanel::EditorPanel() entered, name='%s'\n", name.c_str());
    #endif
-   
+
    mScriptFilename = name;
    mEditor = NULL;
-   
+
    Create();
    Show();
 }
@@ -72,7 +72,7 @@ EditorPanel::~EditorPanel()
    MessageInterface::ShowMessage
       ("EditorPanel::~EditorPanel() mEditor=<%p>\n", mEditor);
    #endif
-   
+
    if (mEditor)
    {
       delete mEditor;
@@ -95,22 +95,22 @@ void EditorPanel::OnClosePanel(wxCommandEvent &event)
       ("EditorPanel::OnClosePanel() entered, IsModified()=%d\n",
        mEditor->IsModified());
    #endif
-   
+
    if (mEditor->IsModified())
    {
       wxMessageDialog *msgDlg =
          new wxMessageDialog(this, "Would you like to save changes?", "Save...",
                              wxYES_NO | wxICON_QUESTION, wxDefaultPosition);
       int result = msgDlg->ShowModal();
-      
+
       if (result == wxID_YES)
          OnSave(event);
       else
          SetModified(false);
-      
+
       delete msgDlg;
    }
-   
+
    GmatSavePanel::OnClosePanel(event);
 }
 
@@ -125,30 +125,30 @@ void EditorPanel::Create()
    //------------------------------------------------------
    mEditor = new Editor(this);
    mEditor->SetFocus();
-   
+
    #ifdef DEBUG_EDITORPANEL_CREATE
    MessageInterface::ShowMessage
       ("EditorPanel::Create() new Editor <%p> created\n", mEditor);
    #endif
-   
+
    //------------------------------------------------------
    // for build and build & run
    //------------------------------------------------------
    mBuildButton =
       new wxButton(this, ID_BUTTON, "Build", wxDefaultPosition, wxDefaultSize, 0);
    mBuildRunButton =
-      new wxButton(this, ID_BUTTON, "Build and Run", wxDefaultPosition, wxDefaultSize, 0);   
-   
+      new wxButton(this, ID_BUTTON, "Build and Run", wxDefaultPosition, wxDefaultSize, 0);
+
    //------------------------------------------------------
    // add to sizer
    //------------------------------------------------------
    int bsize = 3; // border size
-   
+
    #ifdef __ADD_BUILD_TO_TOP__
    wxBoxSizer *topSizer = new wxBoxSizer( wxHORIZONTAL);
    topSizer->Add(mBuildButton, 0, wxALIGN_CENTER | wxALL, bsize);
    topSizer->Add(mBuildRunButton, 0, wxALIGN_CENTER | wxALL, bsize);
-   
+
    wxGridSizer *bottomSizer = new wxGridSizer( 1, 0, 0 );
    bottomSizer->Add(mEditor, 0, wxGROW | wxALIGN_CENTER | wxALL, bsize);
    #else
@@ -156,19 +156,19 @@ void EditorPanel::Create()
    theButtonSizer->Insert(1, mBuildRunButton, 0, wxALIGN_LEFT | wxALL, bsize);
    theButtonSizer->Insert(2, 100, 20);
    #endif
-   
+
    //------------------------------------------------------
    // add to parent sizer
    //------------------------------------------------------
    wxBoxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
-   
+
    #ifdef __ADD_BUILD_TO_TOP__
    pageSizer->Add(topSizer, 0, wxALIGN_CENTER | wxALL, bsize);
    pageSizer->Add(bottomSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
    #else
    pageSizer->Add(mEditor, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
    #endif
-   
+
    theMiddleSizer->Add(pageSizer, 1, wxGROW | wxALIGN_CENTER | wxALL, bsize);
 }
 
@@ -181,24 +181,24 @@ void EditorPanel::LoadData()
    #ifdef DEBUG_EDITORPANEL
    MessageInterface::ShowMessage("EditorPanel::LoadData() entered\n");
    #endif
-   
+
    wxFile *file = new wxFile();
    bool mFileExists = file->Exists(mScriptFilename);
-   
+
    if (mFileExists)
       mEditor->LoadFile(mScriptFilename);
-   
+
    #ifdef DEBUG_EDITORPANEL
    MessageInterface::ShowMessage
       ("   '%s' %sexist\n", mScriptFilename.c_str(), mFileExists ? "" : "does not ");
    #endif
-   
+
    theSaveAsButton->Enable(true);
    theSaveButton->Enable(true);
    GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(false);
-   
+
    delete file;
-   
+
    #ifdef DEBUG_EDITORPANEL
    MessageInterface::ShowMessage("EditorPanel::LoadData() exiting\n");
    #endif
@@ -211,17 +211,17 @@ void EditorPanel::LoadData()
 void EditorPanel::SaveData()
 {
    GmatAppData *gmatAppData = GmatAppData::Instance();
-   
+
    if (mScriptFilename != mFilename)
    {
       // add new script to tree
       gmatAppData->GetResourceTree()->AddScriptItem(mFilename);
-      
+
       // rename this child window
       gmatAppData->GetMainFrame()->RenameActiveChild(mFilename);
       mScriptFilename = mFilename;
    }
-   
+
    mEditor->SaveFile(mScriptFilename);
    gmatAppData->GetMainFrame()->SetActiveChildDirty(false);
 }
@@ -249,13 +249,13 @@ void EditorPanel::OnButton(wxCommandEvent& event)
          (this, "Can not build an empty file ", "Can not build...",
           wxOK | wxICON_INFORMATION, wxDefaultPosition);
       msgDlg->ShowModal();
-      
+
       delete msgDlg;
       return;
    }
-   
+
    GmatAppData *gmatAppData = GmatAppData::Instance();
-   
+
    if (event.GetEventObject() == mBuildButton ||
        event.GetEventObject() == mBuildRunButton)
    {
@@ -266,12 +266,12 @@ void EditorPanel::OnButton(wxCommandEvent& event)
             "Would you like to save changes?", "Save...", wxYES_NO | wxICON_QUESTION ,
             wxDefaultPosition);
          int result = msgDlg->ShowModal();
-         
+
          if (result == wxID_YES)
             OnSave(event);
       }
    }
-   
+
    // Set script file name and build script
    if (event.GetEventObject() == mBuildButton)
    {

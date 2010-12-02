@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              FindReplaceDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -30,24 +30,24 @@ class Editor;
 class FindReplaceDialog : public wxDialog
 {
 public:
-   
+
    // constructors
    FindReplaceDialog(wxWindow *parent, wxWindowID id, const wxString& title,
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxDefaultSize,
                      long style = wxDEFAULT_DIALOG_STYLE);
-   
+
    void SetEditor(Editor *editor) { mEditor = editor; };
    wxString GetFindText() { return mFindText; };
-   
+
 protected:
-   
+
    Editor *mEditor;
    wxArrayString mFindArray;
    wxArrayString mReplaceArray;
    wxString   mFindText;
    wxString   mReplaceText;
-   
+
    wxComboBox *mFindComboBox;
    wxComboBox *mReplaceComboBox;
    wxButton   *mFindNextButton;
@@ -55,19 +55,19 @@ protected:
    wxButton   *mReplaceButton;
    wxButton   *mReplaceAllButton;
    wxButton   *mCloseButton;
-   
+
    void Create();
-   
+
    void OnButtonClick(wxCommandEvent &event);
    void OnComboBoxEnter(wxCommandEvent &event);
    void OnKeyDown(wxKeyEvent &event);
-   
+
    // any class wishing to process wxWindows events must use this macro
    DECLARE_EVENT_TABLE();
-   
+
    // IDs for the controls and the menu commands
    enum
-   {     
+   {
       ID_BUTTON = 500,
       ID_COMBOBOX,
    };

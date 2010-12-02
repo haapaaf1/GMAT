@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              EditorPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2009/01/15
@@ -24,33 +24,33 @@ class EditorPanel: public GmatSavePanel
 public:
    EditorPanel(wxWindow *parent, const wxString &name);
    ~EditorPanel();
-   
+
    virtual void OnClosePanel(wxCommandEvent &event);
-   
+
    Editor* GetEditor() { return mEditor; };
-   
+
 private:
    Editor *mEditor;
-   
+
    wxString mScriptFilename;
-   
+
    wxButton *mBuildButton;
    wxButton *mBuildRunButton;
-   
+
    // methods inherited from GmatSavePanel
    virtual void Create();
    virtual void LoadData();
    virtual void SaveData();
-   
+
    // event handling
    void OnTextOverMaxLen(wxCommandEvent& event);
    void OnButton(wxCommandEvent& event);
-   
+
    DECLARE_EVENT_TABLE();
-   
+
    // IDs for the controls and the menu commands
    enum
-   {     
+   {
       ID_TEXT = 9000,
       ID_BUTTON,
    };

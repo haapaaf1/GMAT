@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              EditorPrefs
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2009/01/15
@@ -83,7 +83,7 @@
 
 namespace GmatEditor
 {
-   
+
    //----------------------------------------------------------
    // CommonInfo
    //----------------------------------------------------------
@@ -103,10 +103,10 @@ namespace GmatEditor
       bool longLineOnEnable;
       bool whiteSpaceEnable;
    };
-   
+
    //----------------------------------------------------------
    // LanguageInfoType
-   //----------------------------------------------------------   
+   //----------------------------------------------------------
    struct LanguageInfoType
    {
       wxChar *name;
@@ -119,7 +119,7 @@ namespace GmatEditor
       } styles [STYLE_TYPES_COUNT];
       int folds;
    };
-   
+
    //----------------------------------------------------------
    // StyleInfoType
    //----------------------------------------------------------
@@ -133,13 +133,13 @@ namespace GmatEditor
       int fontstyle;
       int lettercase;
    };
-   
+
    extern const CommonInfoType globalCommonPrefs;
    extern const LanguageInfoType globalLanguagePrefs[];
    extern const int globalLanguagePrefsSize;
    extern const StyleInfoType globalStylePrefs[];
    extern const int globalStylePrefsSize;
-   
+
 };
 
 #endif
