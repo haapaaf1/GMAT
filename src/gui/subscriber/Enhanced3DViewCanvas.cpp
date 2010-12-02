@@ -197,6 +197,9 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
                                const wxString& name, long style)
    : ViewCanvas(parent, id, pos, size, name, style)
 {
+	#ifndef __USE_WX280_GL__
+	modelsAreLoaded = false;
+	#endif
    mGlInitialized = false;
    mPlotName = name;
    mParent = parent;
@@ -222,6 +225,9 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    #ifndef __WXMAC__
       if (!mm->modelContext)
          mm->modelContext = new wxGLContext(this);
+	#else
+      if (!mm->modelContext)
+    	  mm->modelContext = this->GetGLContext();
    #endif
 
    theContext = mm->modelContext;//new wxGLContext(this);
@@ -308,14 +314,8 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    mDrawAxes = false;
    mDrawGrid = false;
 
-   //mXyPlaneColor = GmatColor::D_GRAY32;
-   //mXyPlaneColor = GmatColor::D_TEAL32;
-   mXyPlaneColor = GmatColor::NAVY32;
-   //mXyPlaneColor = GmatColor::CHESTNUT;
-   //mXyPlaneColor = GmatColor::L_BLUE32;
-   //mXyPlaneColor = GmatColor::PURPLE32;
-   //mEcPlaneColor = GmatColor::CHESTNUT;
-   mEcPlaneColor = GmatColor::YELLOW32;
+	mXyPlaneColor = GmatColor::NAVY32;
+   mEcPlaneColor = 0x00002266; //dark red
    mSunLineColor = GmatColor::YELLOW32;
    
    // animation
@@ -426,7 +426,7 @@ bool Enhanced3DViewCanvas::InitOpenGL()
    #endif
    
    InitGL();
-   
+
    // remove back faces
    /*glDisable(GL_CULL_FACE);
    
@@ -456,8 +456,8 @@ bool Enhanced3DViewCanvas::InitOpenGL()
    ilutRenderer(ILUT_OPENGL);
    
 #endif
-   
-   #ifdef __USE_WX280_GL__
+
+	#ifdef __USE_WX280_GL__
    SetCurrent(*theContext);
    #else
    SetCurrent();
@@ -605,7 +605,6 @@ void Enhanced3DViewCanvas::SetShowObjects(const wxStringBoolMap &showObjMap)
    mShowObjectMap = showObjMap;
 }
 
-
 //------------------------------------------------------------------------------
 // void SetGLContext(wxGLContext *glContext)
 //------------------------------------------------------------------------------
@@ -669,6 +668,10 @@ void Enhanced3DViewCanvas::ResetPlotInfo()
    mIsEndOfRun = false;
    mWriteWarning = true;
    
+#ifndef __USE_WX280_GL__
+   modelsAreLoaded = false;
+#endif
+
    // Initialize view
    if (mUseInitialViewPoint)
       SetDefaultView();
@@ -1756,14 +1759,12 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
    #else
    SetCurrent();
    #endif
-   
-   #ifdef __USE_WX280_GL__
-   if (!mGlInitialized)
+
+   if (!mGlInitialized && mObjectCount > 0)
    {
       InitOpenGL();
       mGlInitialized = true;
    }
-   #endif
    
    // set OpenGL to recognize the counter clockwise defined side of a polygon
    // as its 'front' for lighting and culling purposes
@@ -1779,9 +1780,9 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
    // ..the front face's ambient and diffuse components
    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
-        // Set the ambient lighting
-        GLfloat ambient[4] = {0.4f, 0.4f, 0.4f, 1.0f};
-        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	// Set the ambient lighting
+   GLfloat ambient[4] = {0.4f, 0.4f, 0.4f, 1.0f};
+   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
    int nWidth, nHeight;
    GetClientSize(&nWidth, &nHeight);
@@ -1789,8 +1790,8 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
    
    GLUquadricObj *qobj = gluNewQuadric();
    for (int i = 10; i < 110; i  += 10)
-      DrawCircle(qobj, i);
-   
+		DrawCircle(qobj, i);
+
    if (mDrawWireFrame)
    {
       glPolygonMode(GL_FRONT, GL_LINE);
@@ -2223,12 +2224,11 @@ bool Enhanced3DViewCanvas::SetPixelFormatDescriptor()
    
    return true;
    
-#else
+#endif
    
    // Should we return true for non-Window system?
+   //return false;
    return true;
-   
-#endif
 }
 
 
@@ -3088,13 +3088,13 @@ void Enhanced3DViewCanvas::DrawPlot()
       return;
    }
    
-   Rmatrix converterMatrix = mCoordConverter.GetLastRotationMatrix();
-   mCoordMatrix = Rmatrix(4,4);
-   for (int i = 0; i < 3; i++)
-      for (int j = 0; j < 3; j++)
-         mCoordMatrix.SetElement(i, j, converterMatrix.GetElement(i,j));
-   mCoordMatrix.SetElement(3, 3, 1);
-   mCoordMatrix = mCoordMatrix.Transpose();
+	/*Rmatrix converterMatrix = mCoordConverter.GetLastRotationMatrix();
+	mCoordMatrix = Rmatrix(4,4);
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			mCoordMatrix.SetElement(i, j, converterMatrix.GetElement(i,j));
+	mCoordMatrix.SetElement(3, 3, 1);
+	mCoordMatrix = mCoordMatrix.Transpose();*/
    
    // compute projection if using initial viewpoint and not end of run or
    // if not using initial viewpoint and not first run.
@@ -3116,36 +3116,32 @@ void Enhanced3DViewCanvas::DrawPlot()
    
    glDisable(GL_LIGHTING);
    
-   // draw stars
-   if (mDrawStars){
-      // drawing the stars at infinity requires them to have their own projection
-      glMatrixMode(GL_PROJECTION); 
-      glLoadIdentity();
-      GLfloat aspect = (GLfloat)mCanvasSize.x / (GLfloat)mCanvasSize.y;
-      glMatrixMode(GL_MODELVIEW);
-      gluPerspective(mCamera.fovDeg, aspect, 0.1f, 50000000.0f);
-      // they stars also need to be drawn in their own world view to be drawn at infinity
-      Rvector3 starPosition = mCamera.position;
-      Rvector3 starCenter = mCamera.view_center - starPosition;
-      Rvector3 starUp = mCamera.up;
-      starPosition.Normalize();
-      starCenter += starPosition;
-      
-      gluLookAt(starPosition[0], starPosition[1], starPosition[2],
-                starCenter[0], starCenter[1], starCenter[2],
-                starUp[0], starUp[1], starUp[2]);
-      
-      glMultMatrixd(mCoordMatrix.GetDataVector());
-      
-      // set the desired number of stars if the user has changed it
-      if (mStars->GetDesiredStarCount() != mStarCount){
-         mStars->SetDesiredStarCount(mStarCount);
-      }
-      // draw the stars
-      mStars->DrawStarsVA(1.0f, mDrawConstellations);
-   }
-   
-   SetProjection();
+	// draw stars
+	if (mDrawStars){
+		// drawing the stars at infinity requires them to have their own projection
+		glMatrixMode(GL_PROJECTION); 
+		glLoadIdentity();
+		GLfloat aspect = (GLfloat)mCanvasSize.x / (GLfloat)mCanvasSize.y;
+		glMatrixMode(GL_MODELVIEW);
+		gluPerspective(mCamera.fovDeg, aspect, 0.1f, 50000000.0f);
+		// they stars also need to be drawn in their own world view to be drawn at infinity
+		Rvector3 starPosition = mCamera.position;
+		Rvector3 starCenter = mCamera.view_center - starPosition;
+		Rvector3 starUp = mCamera.up;
+		starPosition.Normalize();
+		starCenter += starPosition;
+
+		gluLookAt(starPosition[0], starPosition[1], starPosition[2],
+            starCenter[0], starCenter[1], starCenter[2],
+            starUp[0], starUp[1], starUp[2]);
+
+		glMultMatrixd(mCoordMatrix.GetDataVector());
+
+		// draw the stars
+		mStars->DrawStarsVA(1.0f, mStarCount, mDrawConstellations);
+	}
+	
+	SetProjection();
    TransformView();
    
    // draw axes
@@ -3344,6 +3340,8 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName, int obj)
    {
       //glColor4f(1.0, 1.0, 1.0, 1.0);
       glColor3f(1.0, 1.0, 1.0);
+
+		glMultMatrixd(mCoordMatrix.GetDataVector());
       
       /*Rmatrix coordMatrix = mCoordConverter.GetLastRotationMatrix();
         Rmatrix dataMatrix = Rmatrix(4,4);
@@ -4508,6 +4506,9 @@ void Enhanced3DViewCanvas::ClearObjectArrays(bool deleteArrays)
       
       if (mObjectQuat)
          delete [] mObjectQuat;
+
+		if (mCoordData)
+			delete [] mCoordData;
    }
    
    mObjectRadius = NULL;
@@ -4568,6 +4569,9 @@ bool Enhanced3DViewCanvas::CreateObjectArrays()
    
    if ((mObjectQuat = new Real[mObjectCount*MAX_DATA*4]) == NULL)
       return false;
+
+	if ((mCoordData = new Real[MAX_DATA*16]) == NULL)
+		return false;
    
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage("Enhanced3DViewCanvas::CreateObjectArrays() exiting\n");
@@ -4658,16 +4662,19 @@ void Enhanced3DViewCanvas
          {
             //Spacecraft *spac = (Spacecraft*)mObjectArray[satId];// moved up
             ModelManager *mm = ModelManager::Instance();
-            if (spac->modelFile != "" && spac->modelID == -1)
-            {
                #ifdef __USE_WX280_GL__
-                  SetCurrent(*theContext);
+				if (spac->modelFile != "" && spac->modelID == -1){
+					wxString modelPath(spac->modelFile.c_str());
+					spac->modelID = mm->LoadModel(modelPath);
+				}
                #else
-                  SetCurrent();
+				if (!modelsAreLoaded){
+					MessageInterface::ShowMessage("");
+					wxString modelPath(spac->modelFile.c_str());
+					spac->modelID = mm->LoadModel(modelPath);
+					loadedModels = true;
+				}
                #endif
-               wxString modelPath(spac->modelFile.c_str());
-               spac->modelID = mm->LoadModel(modelPath);
-            }
          }
          
          if (!mDrawOrbitArray[satId])
@@ -4854,6 +4861,25 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
          #endif
       }
    }
+
+	int cIndex = mLastIndex*16;
+	Rmatrix converterMatrix = mCoordConverter.GetLastRotationMatrix();
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < 4; j++){
+			if (j < 3 && i < 3)
+				mCoordData[cIndex+(i*4)+j] = converterMatrix.GetElement(i,j);
+			else
+				mCoordData[cIndex+(i*4)+j] = 0;
+		}
+	}
+	mCoordData[cIndex+15] = 1;
+
+	mCoordMatrix = Rmatrix(4,4);
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			mCoordMatrix.SetElement(i, j, converterMatrix.GetElement(i,j));
+	mCoordMatrix.SetElement(3, 3, 1);
+	mCoordMatrix = mCoordMatrix.Transpose();
 }
 
 

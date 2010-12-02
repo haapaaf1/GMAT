@@ -151,7 +151,6 @@ int ModelObject::LoadTexture(const wxString &filename){
 	GLenum error;
    wxImage img; 
 	bool result = false;
-   int i = 0;
    wxString ext;
    if (!wxFileExists(filename))
       return -1;
@@ -190,7 +189,10 @@ int ModelObject::LoadTexture(const wxString &filename){
    // Define the 2D texture
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.GetWidth(), img.GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, img.GetData());
    // Create the 2D mipmaps for minification
-   gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, img.GetWidth(), img.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.GetData());
+	#ifndef __WXGTK__
+      // This call crashes GMAT on Linux, so it is excluded here. 
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, img.GetWidth(), img.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.GetData());
+	#endif
    
    return id;
 }
@@ -705,7 +707,8 @@ void ModelObject::Draw(int frame, bool isLit){
 // Draw the object on the screen
 void ModelObject::Draw(bool isLit){
    int i,j,k;
-   float black[4] = {0.0f, 0.0f, 0.0f, 0.0f}, grey[4] = {.4f, .4f, .4f};
+	float white[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+   float black[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
    glMatrixMode(GL_MODELVIEW);
@@ -720,16 +723,18 @@ void ModelObject::Draw(bool isLit){
 #ifndef WIREFRAME_MODE
 //   if (WIREFRAME_MODE == 0){
    // Go through all of the materials in the object
-   for (i = 0; i < num_materials; i++){
+	for (i = 0; i < num_materials; i++){
       GLenum error;
       // As long as have a texture id, we bind it and enable textures
       if (material[i].id_texture != -1){
 			GLint params = -13;
+			error = glGetError();
          glBindTexture(GL_TEXTURE_2D, material[i].id_texture);
+			error = glGetError();
 			glGetIntegerv(GL_TEXTURE_BINDING_2D, &params);
 			error = glGetError();
          glEnable(GL_TEXTURE_2D);
-         error = glGetError();
+			error = glGetError();
       }
       // If we have no texture id, we disable textures
       else

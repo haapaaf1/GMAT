@@ -223,7 +223,7 @@ char Load3DS(ModelObject *p_object, const wxString &p_filename){
             for (i = p_object->num_vertices-l_qty; i < p_object->num_vertices; i++){
                fread(&p_object->mapcoord[i], sizeof(float), 2, l_file);
 					p_object->mapcoord[i].u = p_object->mapcoord[i].u;
-					p_object->mapcoord[i].v = p_object->mapcoord[i].v;
+					p_object->mapcoord[i].v = -p_object->mapcoord[i].v;
                if (LOAD3DS_DEBUG)
                {
                   fprintf(stdout, "Mapping list u,v: %f,%f\n", p_object->mapcoord[i].u, p_object->mapcoord[i].v);

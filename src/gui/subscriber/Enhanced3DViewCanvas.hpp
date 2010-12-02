@@ -188,11 +188,19 @@ private:
    bool mDrawStars;
    bool mDrawConstellations;
    
+	// Coordinate Transformation Matrices
+	Rmatrix mCoordMatrix;
+	Real *mCoordData;
+
+	// OpenGL Context
    wxGLContext *theContext;
    
    // initialization
    wxWindow *mParent;
    bool mGlInitialized;
+	#ifndef __USE_WX280_GL__
+   bool modelsAreLoaded;
+	#endif
    wxString mPlotName;
    
    // camera
@@ -355,9 +363,6 @@ private:
    // earth
    float mEarthRadius;
 
-   // Matrices for coordinate system tranformations
-   Rmatrix mCoordMatrix;
-   
    // objects
    wxArrayString mObjectNames;
    wxArrayString mShowObjectNames;

@@ -44,7 +44,7 @@ class GLStars
 public:
    static GLStars* Instance();
    void InitStars();                        // Initialize the Stars, including loading from file
-   void DrawStarsVA(GLfloat ColorAlpha, bool drawConstellations);    // Vertex Array Method, with alpha
+   void DrawStarsVA(GLfloat ColorAlpha, int starCount, bool drawConstellations);    // Vertex Array Method, with alpha
    void SetDesiredStarCount(int count) {
       if (DesiredStarCount <= MAXSTARS)
          DesiredStarCount = count;

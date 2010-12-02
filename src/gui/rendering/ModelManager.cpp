@@ -20,6 +20,7 @@
 //------------------------------------------------------------------------------
 
 #include "ModelManager.hpp"
+#include "MessageInterface.hpp"
 
 ModelManager* ModelManager::theInstance = NULL;
 
@@ -56,8 +57,10 @@ ModelObject* ModelManager::GetModel(int id){
 }
 
 int ModelManager::LoadModel(wxString &modelPath){
+	#ifdef __USE_WX280_GL__
    if (stringMap.find(modelPath) != stringMap.end())
       return stringMap[modelPath];
+	#endif
    ModelObject *newModel = new ModelObject();
    newModel->Load(modelPath);
    modelMap[numElements] = newModel;

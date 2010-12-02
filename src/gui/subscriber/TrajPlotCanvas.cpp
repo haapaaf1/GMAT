@@ -46,6 +46,7 @@
 // the directory
 // On Linux, just use the installed versions of DevIL
 #ifdef __WXGTK__
+#define ILUT_USE_OPENGL
 #  include <IL/il.h>
 #  include <IL/ilu.h>
 #  include <IL/ilut.h>

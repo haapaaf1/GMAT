@@ -321,11 +321,12 @@ void GLStars::InitStars(){
 }
 
 // Draw the stars and the constellation lines, if you want them.
-void GLStars::DrawStarsVA(GLfloat ColorAlpha, bool drawConstellations){
+void GLStars::DrawStarsVA(GLfloat ColorAlpha, int starCount, bool drawConstellations){
    // The colors for the stars, north star, and constellation lines
+	SetDesiredStarCount(starCount);
    GLfloat StarWhite[4] = {1.0f, 1.0f, 1.0f, 1.0f};
    GLfloat StarBlue[4] = {0.2f, 0.2f, 1.0f, 1.0f};
-   GLfloat LineWhite[4] = {1.0f, 1.0f, 1.0f, 0.3f};
+   GLfloat LineWhite[4] = {1.0f, 1.0f, 1.0f, 0.6f};
 
    // Set the alpha value
    StarWhite[3] = ColorAlpha;

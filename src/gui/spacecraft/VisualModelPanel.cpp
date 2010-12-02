@@ -109,7 +109,7 @@ void VisualModelPanel::Create()
       MessageInterface::ShowMessage("In VisualModelPanel::Create() \n");
    #endif
 
-   Integer bsize = 2; // border size
+   Integer bsize = 2.0; // border size
 
    //causing VC++ error => wxString emptyList[] = {};
    wxArrayString emptyList;
@@ -191,7 +191,7 @@ void VisualModelPanel::Create()
    wxStaticText *xRotMin =
       new wxStaticText(this, ID_TEXT, wxT("-180"), wxDefaultPosition, wxDefaultSize, 0);
    xRotSlider =
-      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(180, 40),
+      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(120, 25),
       wxSL_HORIZONTAL);
    wxStaticText *xRotMax =
       new wxStaticText(this, ID_TEXT, wxT("180"), wxDefaultPosition, wxDefaultSize, 0);
@@ -207,7 +207,7 @@ void VisualModelPanel::Create()
    wxStaticText *yRotMin =
       new wxStaticText(this, ID_TEXT, wxT("-180"), wxDefaultPosition, wxDefaultSize, 0);
    yRotSlider =
-      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(180, 40),
+      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(120, 25),
       wxSL_HORIZONTAL);
    wxStaticText *yRotMax =
       new wxStaticText(this, ID_TEXT, wxT("180"), wxDefaultPosition, wxDefaultSize, 0);
@@ -222,7 +222,7 @@ void VisualModelPanel::Create()
    wxStaticText *zRotMin =
       new wxStaticText(this, ID_TEXT, wxT("-180"), wxDefaultPosition, wxDefaultSize, 0);
    zRotSlider =
-      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(180, 40),
+      new wxSlider(this, ID_ROT_SLIDER, 0, -180, 180, wxDefaultPosition, wxSize(120, 25),
       wxSL_HORIZONTAL);
    wxStaticText *zRotMax =
       new wxStaticText(this, ID_TEXT, wxT("180"), wxDefaultPosition, wxDefaultSize, 0);
@@ -237,7 +237,7 @@ void VisualModelPanel::Create()
    wxStaticText *xTranMin =
       new wxStaticText(this, ID_TEXT, wxT("-3.5"), wxDefaultPosition, wxDefaultSize, 0);
    xTranSlider =
-      new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(180, 40),
+      new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(120, 25),
       wxSL_HORIZONTAL);
    wxStaticText *xTranMax =
       new wxStaticText(this, ID_TEXT, wxT("3.5"), wxDefaultPosition, wxDefaultSize, 0);
@@ -250,7 +250,7 @@ void VisualModelPanel::Create()
    wxStaticText *yTranText =
       new wxStaticText(this, ID_TEXT, wxT("Y"), wxDefaultPosition, wxDefaultSize, 0);
    yTranSlider =
-      new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(180, 40),
+      new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(120, 25),
       wxSL_HORIZONTAL);
    wxStaticText *yTranMax =
       new wxStaticText(this, ID_TEXT, wxT("3.5"), wxDefaultPosition, wxDefaultSize, 0);
@@ -263,7 +263,7 @@ void VisualModelPanel::Create()
    wxStaticText *zTranText =
       new wxStaticText(this, ID_TEXT, wxT("Z"), wxDefaultPosition, wxDefaultSize, 0);
    zTranSlider =
-      new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(180, 40),
+      new wxSlider(this, ID_TRAN_SLIDER, 0, -350, 350, wxDefaultPosition, wxSize(120, 25),
       wxSL_HORIZONTAL);
    wxStaticText *zTranMax =
       new wxStaticText(this, ID_TEXT, wxT("3.5"), wxDefaultPosition, wxDefaultSize, 0);
@@ -274,7 +274,7 @@ void VisualModelPanel::Create()
    wxStaticText *scaleMinLabel =
       new wxStaticText(this, ID_TEXT, wxT("0.001"), wxDefaultPosition, wxDefaultSize, 0);
    scaleSlider =
-      new wxSlider(this, ID_SCALE_SLIDER, 0, -1000, 1000, wxDefaultPosition, wxSize(180, 40),
+      new wxSlider(this, ID_SCALE_SLIDER, 0, -1000, 1000, wxDefaultPosition, wxSize(120, 25),
       wxSL_HORIZONTAL);
    wxStaticText *scaleMaxLabel =
       new wxStaticText(this, ID_TEXT, wxT("1000.0"), wxDefaultPosition, wxDefaultSize, 0);
@@ -343,7 +343,7 @@ void VisualModelPanel::Create()
    leftSizer->Add(rotationOuterSizer, 0, wxGROW | wxALIGN_CENTER, bsize);
    leftSizer->Add(translationOuterSizer, 0, wxGROW | wxALIGN_CENTER, bsize);
    leftSizer->Add(scaleOuterSizer, 0, wxGROW | wxALIGN_CENTER, bsize);
-   leftSizer->Add(recenterButton, 0, wxALL | wxALIGN_CENTER, bsize);
+	leftSizer->Add(recenterButton, 0, wxALL | wxALIGN_CENTER, bsize);
 	leftSizer->Add(autoscaleButton, 0, wxALL | wxALIGN_CENTER, bsize);
    rightSizer->Add(canvasPanel, 0, wxEXPAND | wxALIGN_CENTER, bsize);
    rightSizer->Add(showEarthButton, 0, wxALL | wxALIGN_CENTER, bsize);
