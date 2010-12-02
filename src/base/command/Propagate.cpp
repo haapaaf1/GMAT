@@ -1405,7 +1405,7 @@ bool Propagate::RenameRefObject(const Gmat::ObjectType type,
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
    
-   // Propagate needs to know about spacecraft or formation only
+   // Propagate needs to know about Spacecraft, Formation, PropSetup, Parameter
    if (type != Gmat::SPACECRAFT && type != Gmat::FORMATION &&
        type != Gmat::PROP_SETUP && type != Gmat::PARAMETER)
       return true;
@@ -1481,6 +1481,11 @@ const ObjectTypeArray& Propagate::GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 const StringArray& Propagate::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
+   #ifdef DEBUG_PROPAGATE_OBJ
+   MessageInterface::ShowMessage
+      ("Propagate::GetRefObjectNameArray() <%p> entered, type=%d\n", this, type);
+   #endif
+   
    refObjectNames.clear();
    
    if (type == Gmat::UNKNOWN_OBJECT ||
@@ -1506,13 +1511,55 @@ const StringArray& Propagate::GetRefObjectNameArray(const Gmat::ObjectType type)
    
    if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::PARAMETER)
    {
-      // If LHS is a number, do not add to ref object names (LOJ: 2010.06.14) 
-      //refObjectNames.insert(refObjectNames.end(), stopNames.begin(),
-      //                      stopNames.end());
+      #ifdef DEBUG_PROPAGATE_OBJ
+      MessageInterface::ShowMessage
+         ("   The type is Parameter, stopNames.size()=%d, goalNames.size()=%d, "
+          "stopWhen.size()=%d\n", stopNames.size(), goalNames.size(), stopWhen.size());
+      #endif
+      
+      // Add LHS of stopping condition
       for (UnsignedInt i = 0; i < stopNames.size(); i++)
       {
-         if (!GmatStringUtil::IsNumber(stopNames[i]))
+         #ifdef DEBUG_PROPAGATE_OBJ
+         MessageInterface::ShowMessage
+            ("      stopName[%d]='%s'\n", i, stopNames[i].c_str());
+         #endif
+         
+         if (!GmatStringUtil::IsNumber(stopNames[i]) &&
+             find(refObjectNames.begin(), refObjectNames.end(), stopNames[i]) ==
+             refObjectNames.end())
             refObjectNames.push_back(stopNames[i]);
+      }
+      
+      // Add RHS of stopping condition
+      for (UnsignedInt i = 0; i < goalNames.size(); i++)
+      {
+         #ifdef DEBUG_PROPAGATE_OBJ
+         MessageInterface::ShowMessage
+            ("      goalName[%d]='%s'\n", i, goalNames[i].c_str());
+         #endif
+         
+         if (!GmatStringUtil::IsNumber(goalNames[i]) &&
+             find(refObjectNames.begin(), refObjectNames.end(), goalNames[i]) ==
+             refObjectNames.end())
+            refObjectNames.push_back(goalNames[i]);
+      }
+      
+      // Add StopCondition parameters
+      for (UnsignedInt i = 0; i < stopWhen.size(); i++)
+      {
+         StringArray refNames = stopWhen[i]->GetRefObjectNameArray(Gmat::PARAMETER);
+         for (UnsignedInt j = 0; j < refNames.size(); j++)
+         {
+            #ifdef DEBUG_PROPAGATE_OBJ
+            MessageInterface::ShowMessage
+               ("      refNames[%d]='%s'\n", j, refNames[j].c_str());
+            #endif
+            
+            if (find(refObjectNames.begin(), refObjectNames.end(), refNames[j]) ==
+                refObjectNames.end())
+               refObjectNames.push_back(refNames[j]);
+         }
       }
    }
    

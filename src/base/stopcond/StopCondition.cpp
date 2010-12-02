@@ -31,6 +31,7 @@
 //#define DEBUG_STOPCOND_INIT
 //#define DEBUG_STOPCOND_GET
 //#define DEBUG_STOPCOND_SET
+//#define DEBUG_STOPCOND_OBJ
 //#define DEBUG_STOPCOND_EVAL
 //#define DEBUG_RENAME
 //#define DEBUG_STOPCOND_PERIAPSIS
@@ -1632,7 +1633,7 @@ void StopCondition::SetRhsString(const std::string &str)
    
    #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
-      ("StopCondition::SetRhsString() mAllowGoalParam=%d, rhsString=<%s>, "
+      ("StopCondition::SetRhsString() leaving, mAllowGoalParam=%d, rhsString='%s', "
        "currentGoalValue=%le\n", mAllowGoalParam, rhsString.c_str(), currentGoalValue);
    #endif
    
@@ -1779,6 +1780,12 @@ bool StopCondition::RenameRefObject(const Gmat::ObjectType type,
 const StringArray&
 StopCondition::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
+   #ifdef DEBUG_STOPCOND_OBJ
+   MessageInterface::ShowMessage
+      ("StopCondition::GetRefObjectNameArray() entered, type=%d, mAllowGoalParam=%d\n",
+       type, mAllowGoalParam);
+   #endif
+   
    mAllRefObjectNames.clear();
    
    if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::PARAMETER)
@@ -1787,6 +1794,12 @@ StopCondition::GetRefObjectNameArray(const Gmat::ObjectType type)
       if (mAllowGoalParam)
          mAllRefObjectNames.push_back(rhsString);
    }
+   
+   #ifdef DEBUG_STOPCOND_OBJ
+   MessageInterface::ShowMessage
+      ("StopCondition::GetRefObjectNameArray() returning %d ref object names\n", \
+       mAllRefObjectNames.size());
+   #endif
    
    return mAllRefObjectNames;
 }
@@ -2078,6 +2091,7 @@ bool StopCondition::SetStringParameter(const Integer id, const std::string &valu
       return true;
    case STOP_VAR:
       mStopParamName = value;
+      SetLhsString(value);
       return true;
    case GOAL:
       SetRhsString(value);

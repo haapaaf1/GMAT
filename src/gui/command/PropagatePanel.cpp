@@ -25,6 +25,7 @@
 //#define DEBUG_PROPAGATE_PANEL
 //#define DEBUG_PROPAGATE_PANEL_LOAD
 //#define DEBUG_PROPAGATE_PANEL_SAVE
+//#define DEBUG_PROPAGATE_PANEL_STOPCOND
 //#define DEBUG_RENAME
 
 //------------------------------------------------------------------------------
@@ -353,11 +354,9 @@ void PropagatePanel::DisplayStopCondition()
 //------------------------------------------------------------------------------
 void PropagatePanel::UpdateStopCondition(Integer stopRow)
 {
-   #ifdef DEBUG_PROPAGATE_PANEL
+   #ifdef DEBUG_PROPAGATE_PANEL_STOPCOND
    MessageInterface::ShowMessage
-      ("PropagatePanel::UpdateStopCondition() entered\n");
-   MessageInterface::ShowMessage
-      ("PropagatePanel::UpdateStopCondition() stopRow = %d\n", stopRow);
+      ("PropagatePanel::UpdateStopCondition() entered, stopRow = %d\n", stopRow);
    #endif
    
    wxString oldStopName = mTempStopCond[stopRow].name;
@@ -367,7 +366,7 @@ void PropagatePanel::UpdateStopCondition(Integer stopRow)
       stopCondGrid->GetCellValue(stopRow, STOPCOND_PARAM_COL);
    mTempStopCond[stopRow].relOpStr = 
       stopCondGrid->GetCellValue(stopRow, STOPCOND_RELOPER_COL);
-
+   
    // if Apoapsis or Periapsis, disable goal
    if (mTempStopCond[stopRow].varName.Contains(".Periapsis") ||
         mTempStopCond[stopRow].varName.Contains(".Apoapsis"))
@@ -380,32 +379,37 @@ void PropagatePanel::UpdateStopCondition(Integer stopRow)
          stopCondGrid->GetCellValue(stopRow, STOPCOND_COND_COL);
    }
 
-   #ifdef DEBUG_PROPAGATE_PANEL
+   std::string nameStr = mTempStopCond[stopRow].name.c_str();
+   std::string stopStr = mTempStopCond[stopRow].varName.c_str();
+   std::string goalStr = mTempStopCond[stopRow].goalStr.c_str();
+   
+   #ifdef DEBUG_PROPAGATE_PANEL_STOPCOND
    MessageInterface::ShowMessage
-      ("PropagatePanel::UpdateStopCondition() "
-       "StopCondition: old name = %s\n", oldStopName.c_str());
-   MessageInterface::ShowMessage
-      ("PropagatePanel::UpdateStopCondition() "
-       "StopCondition: name = %s\n", mTempStopCond[stopRow].name.c_str());
-   MessageInterface::ShowMessage
-      ("PropagatePanel::UpdateStopCondition() "
-       "StopCondition: condition = %s\n", 
-       mTempStopCond[stopRow].goalStr.c_str());
+      ("   old name = '%s'\n   new name = '%s'\n   stop str = '%s'\n   goal str = '%s'\n",
+       oldStopName.c_str(), nameStr.c_str(), stopStr.c_str(), goalStr.c_str());
    #endif
-             
+   
    wxString str = FormatStopCondDesc(mTempStopCond[stopRow].varName,
                                      mTempStopCond[stopRow].relOpStr,
                                      mTempStopCond[stopRow].goalStr);
    mTempStopCond[stopRow].desc = str;
+   
+   #ifdef DEBUG_PROPAGATE_PANEL_STOPCOND
+   MessageInterface::ShowMessage("   str='%s'\n", str.c_str());
+   #endif
+   
    
    //-----------------------------------------------------------------
    // create StopCondition if new StopCondition
    //-----------------------------------------------------------------
    if (oldStopName.IsSameAs(""))
    {
+      #ifdef DEBUG_PROPAGATE_PANEL_STOPCOND
+      MessageInterface::ShowMessage("   Creating new stop condition\n");
+      #endif
       StopCondition *stopCond = 
          (StopCondition*)theGuiInterpreter-> CreateStopCondition
-         ("StopCondition", mTempStopCond[stopRow].name.c_str());
+         ("StopCondition", stopStr);
       mTempStopCond[stopRow].stopCondPtr = stopCond;
       
       if (stopCond == NULL)
@@ -417,14 +421,25 @@ void PropagatePanel::UpdateStopCondition(Integer stopRow)
    }
    else
    {
-      mTempStopCond[stopRow].stopCondPtr->
-         SetName(std::string(mTempStopCond[stopRow].name.c_str()));
+      //  Actually we don't need to do anything
+      //       #ifdef DEBUG_PROPAGATE_PANEL_STOPCOND
+      //       MessageInterface::ShowMessage
+      //          ("   Setting new stop condition to name='%s', stop='%s', goal='%s'\n",
+      //           nameStr.c_str(), stopStr.c_str(), goalStr.c_str());
+      //       #endif
+      //       mTempStopCond[stopRow].stopCondPtr->SetName(nameStr);
+      //       mTempStopCond[stopRow].stopCondPtr->SetLhsString(stopStr);
+      //       mTempStopCond[stopRow].stopCondPtr->SetRhsString(goalStr);
    }
    
    mTempStopCond[stopRow].isChanged = true;
    
    mStopCondChanged = true;
    EnableUpdate(true);
+   
+   #ifdef DEBUG_PROPAGATE_PANEL_STOPCOND
+   MessageInterface::ShowMessage("PropagatePanel::UpdateStopCondition() leaving\n");
+   #endif
 }
 
 
@@ -1147,27 +1162,28 @@ void PropagatePanel::SaveData()
             if (stopCondGrid->GetCellValue(i, STOPCOND_PARAM_COL) != "")
             {
                UpdateStopCondition(i);
+
+               StopCondition *currStop = mTempStopCond[mStopCondCount].stopCondPtr;
+               std::string nameStr = mTempStopCond[i].name.c_str();
+               std::string stopStr = mTempStopCond[i].varName.c_str();
+               std::string goalStr = mTempStopCond[i].goalStr.c_str();
                
                #ifdef DEBUG_PROPAGATE_PANEL_SAVE
                MessageInterface::ShowMessage
-                  ("PropagatePanel::SaveData() name = '%s'\n varName = %s\n goal = %s\n",
-                   mTempStopCond[i].name.c_str(),
-                   mTempStopCond[i].varName.c_str(),
-                   mTempStopCond[i].goalStr.c_str());
+                  ("   Saving stop condition, name='%s', stop='%s', goal='%s'\n",
+                   nameStr.c_str(), stopStr.c_str(), goalStr.c_str());
                #endif
-               mTempStopCond[mStopCondCount].stopCondPtr->
-                  SetName(std::string(mTempStopCond[i].name.c_str()));
                
-               mTempStopCond[mStopCondCount].stopCondPtr->
-                  SetStringParameter("StopVar", mTempStopCond[i].varName.c_str());
-               
-               mTempStopCond[mStopCondCount].stopCondPtr->
-                  SetStringParameter("Goal", mTempStopCond[i].goalStr.c_str());
+               currStop->SetName(nameStr);
+               currStop->SetStringParameter("StopVar", stopStr);
+               currStop->SetStringParameter("Goal", goalStr);
                
                thePropCmd->
                   SetRefObject(mTempStopCond[mStopCondCount].stopCondPtr, 
                                Gmat::STOP_CONDITION,"", mStopCondCount);
+               
                mStopCondCount++;
+               
                #ifdef DEBUG_PROPAGATE_PANEL_SAVE
                MessageInterface::ShowMessage
                   ("PropagatePanel::SaveData() mStopCondCount=%d\n", 
