@@ -7010,7 +7010,8 @@ bool Interpreter::FinalPass()
             }
             else
             {
-               if (refName != "InternalODEModel")
+               if ((refName != "InternalODEModel") &&
+                   (refName != "InternalForceModel"))
                   throw InterpreterException("The ODEModel named \"" +
                         refName + "\", referenced by the Propagator \"" +
                         obj->GetName() + "\" cannot be found");
