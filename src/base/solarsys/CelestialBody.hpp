@@ -565,6 +565,8 @@ protected:
    std::string            naifName;
    /// Name of the texture map file to use when plotting
    std::string            textureMapFileName;
+   /// has message about possible needed SPKs been written
+   bool                   msgWritten;
    /// date and time of start of source file
    //A1Mjd                  sourceStart;      // currently unused
    /// date and time of end of sourcce file
@@ -586,7 +588,7 @@ protected:
    virtual Real     GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const;
    virtual Rvector6 ComputeTwoBody(const A1Mjd &forTime);
    virtual Rvector6 KeplersProblem(const A1Mjd &forTime);
-   virtual bool     SetUpSPICE(); // @todo - move this to SpacePoint?
+   virtual bool     SetUpSPICE();
    
 private:
 

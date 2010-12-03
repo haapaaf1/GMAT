@@ -242,7 +242,8 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
    naifName           (name),
-   textureMapFileName ("GenericCelestialBody.jpg")
+   textureMapFileName ("GenericCelestialBody.jpg"),
+   msgWritten         (false)
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
    objectTypeNames.push_back("CelestialBody");
@@ -335,7 +336,8 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
    naifName           (name),
-   textureMapFileName ("GenericCelestialBody.jpg")
+   textureMapFileName ("GenericCelestialBody.jpg"),
+   msgWritten         (false)
 {
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
    objectTypeNames.push_back("CelestialBody");
@@ -447,7 +449,8 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
 //   naifId              (cBody.naifId),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet           (cBody.naifIdSet),
    naifName            (cBody.naifName),
-   textureMapFileName  (cBody.textureMapFileName)
+   textureMapFileName  (cBody.textureMapFileName),
+   msgWritten          (cBody.msgWritten)
 {
    state                  = cBody.state;
    stateTime              = cBody.stateTime;
@@ -608,6 +611,7 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    naifIdSet           = cBody.naifIdSet;
    naifName            = cBody.naifName;
    textureMapFileName  = cBody.textureMapFileName;
+   msgWritten          = cBody.msgWritten;
    
    for (Integer i=0;i<6;i++)  prevState[i] = cBody.prevState[i];
    
@@ -4215,11 +4219,17 @@ bool CelestialBody::SetUpSPICE()
          errmsg += instanceName + "\", but no SPK file(s) specified.\n";
          throw SolarSystemException(errmsg);
       }
-      else
+      else  // outer planets/moons, comets, and asteroids must have their own SPK file specified
       {
-         MessageInterface::ShowMessage(
-               "No body-specific SPK file selected for body %s. Attempting to use main planetary SPK.\n",
+         if (!msgWritten && ((instanceName != SolarSystem::SUN_NAME) && (instanceName != SolarSystem::MERCURY_NAME) &&
+             (instanceName != SolarSystem::VENUS_NAME) && (instanceName != SolarSystem::EARTH_NAME) &&
+             (instanceName != SolarSystem::MOON_NAME)))
+         {
+            MessageInterface::ShowMessage(
+               "An additional body-specific SPK may be required for body %s or its satellites.\n",
                instanceName.c_str());
+            msgWritten = true;
+         }
       }
    }
    // make sure the "main" Solar System Kernel(s) are loaded first
