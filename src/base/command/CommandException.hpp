@@ -29,9 +29,10 @@ class GMAT_API CommandException : public BaseException
 public:
    // class constructor
    CommandException(const std::string &details = "",
-         Gmat::MessageType mt = Gmat::ERROR_);
+         // Change to this when the repeated strings are fixed:
+//         Gmat::MessageType mt = Gmat::ERROR_);
          // Change to this if it's problematic:
-         // Gmat::GENERAL_);
+         Gmat::MessageType mt = Gmat::GENERAL_);
    // class destructor
    ~CommandException();
    // Copy constructor

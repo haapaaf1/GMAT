@@ -41,9 +41,10 @@ public:
 protected:
    BaseException(const std::string& message = "",
          const std::string &details = "",
-         Gmat::MessageType mt = Gmat::ERROR_);
+         // Change to this when the repeated instances are fixed:
+//         Gmat::MessageType mt = Gmat::ERROR_);
          // Change to this if it's problematic:
-         // Gmat::GENERAL_);
+         Gmat::MessageType mt = Gmat::GENERAL_);
    BaseException(const BaseException& be);
    virtual ~BaseException();
    const BaseException& operator=(const BaseException& be);
