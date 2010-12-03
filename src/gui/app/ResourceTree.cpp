@@ -3818,12 +3818,16 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    wxString msg1;
    wxString msg2;
    wxString msg3;
+   std::string msg1Str;
 
    if (mBuildErrorCount > 0)
    {
       wxString scriptNames1;
-      msg1 = "Script errors were found in the following " +
-         GmatStringUtil::ToString(mBuildErrorCount, 1) + " script(s):\n";
+      msg1Str = "Script errors were found in the following ";
+      msg1Str += GmatStringUtil::ToString(mBuildErrorCount, 1) +  " script(s):\n";
+      msg1 = msg1Str.c_str();
+//      msg1 = "Script errors were found in the following " +
+//         GmatStringUtil::ToString(mBuildErrorCount, 1) + " script(s):\n";
       
       for (int i=0; i<mBuildErrorCount; i++)
          scriptNames1 = scriptNames1 + mFailedScriptsList[i] + "\n";
