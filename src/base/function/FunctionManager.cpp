@@ -1068,10 +1068,13 @@ void FunctionManager::Finalize()
    #endif
    #endif
    
-   Cleanup();
+   if (!isFinalized)
+   {
+      Cleanup();
    
-   firstExecution = true;
-   isFinalized = true;
+      firstExecution = true;
+      isFinalized = true;
+   }
    
    #ifdef DEBUG_TRACE
    ShowTrace(callCount, t1, "FunctionManager::Finalize() exiting", true, true);
@@ -2164,22 +2167,32 @@ bool FunctionManager::PopFromStack(ObjectMap* cloned, const StringArray &outName
 void FunctionManager::Cleanup()
 {
    #ifdef DEBUG_CLEANUP
-   MessageInterface::ShowMessage("==> FunctionManager::Cleanup() entered\n");
+   MessageInterface::ShowMessage("==> FunctionManager::Cleanup() entered, f=<%p>\n", f);
    #endif
    
    if (f != NULL)
+   {
       if (f->IsOfType("GmatFunction"))
       {
          ////Edwin's MMS script failed, so commented out (loj: 2008.12.03)
          ////We need to delete this somewhere though.
          ////f->ClearAutomaticObjects();
+         #ifdef DEBUG_CLEANUP
+         MessageInterface::ShowMessage("   Calling f->Finalize()\n");
+         #endif
+         
          f->Finalize();
       }
+   }
    
    // now delete all of the items/entries in the FOS - we can do this since they 
    // are all either locally-created or clones of reference objects or automatic objects
    if (functionObjectStore)
    {
+      #ifdef DEBUG_CLEANUP
+      MessageInterface::ShowMessage
+         ("   Deleting functionObjectStore <%p>\n", functionObjectStore);
+      #endif
       DeleteObjectMap(functionObjectStore, "FOS in Finalize");
       functionObjectStore = NULL;
    }
@@ -2187,6 +2200,10 @@ void FunctionManager::Cleanup()
    Integer numClones = clonedObjectStores.size();
    for (Integer i=0; i<numClones; i++)
    {
+      #ifdef DEBUG_CLEANUP
+      MessageInterface::ShowMessage
+         ("   Deleting clonedObjectStores[%d] <%p>\n", i, clonedObjectStores[i]);
+      #endif
       DeleteObjectMap(clonedObjectStores[i], "clonedOS in Finalize");
       clonedObjectStores[i] = NULL;
    }
