@@ -771,7 +771,7 @@ bool PropSetup::IsParameterReadOnly(const Integer id) const
 
       return false;
    }
-   else if (id >= INITIAL_STEP_SIZE && id <= TARGET_ERROR)
+   else if ((id >= INITIAL_STEP_SIZE) && (id <= STOP_IF_ACCURACY_VIOLATED))
       return true;
    else
       return GmatBase::IsParameterReadOnly(id);
@@ -1294,6 +1294,7 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
    std::string gen, fmName = "", temp;
    bool showODEModel = false;
    bool propUsesODEModel = true;
+
    if (mPropagator != NULL)
       propUsesODEModel = mPropagator->UsesODEModel();
    if (mODEModel != NULL)

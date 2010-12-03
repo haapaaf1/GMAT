@@ -1368,7 +1368,7 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
       
       if (cs == NULL)
       {
-         // We need to handle both intertial and fixed CS's here
+         // We need to handle both inertial and fixed CS's here
          if (earthEq == NULL)
             throw ODEModelException(
                "Error setting force model coordinate system: EarthEq pointer "
