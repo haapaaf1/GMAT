@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  GmatFunction
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -30,6 +30,7 @@
 //#define DEBUG_FUNCTION_INIT
 //#define DEBUG_FUNCTION_EXEC
 //#define DEBUG_FUNCTION_FINALIZE
+//#define DEBUG_UNUSED_GOL
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -312,7 +313,7 @@ bool GmatFunction::Initialize()
           current->GetTypeName().c_str());
       #endif
       
-      // Let's try to ValidateCommand here, this will validate the comand
+      // Let's try to ValidateCommand here, this will validate the command
       // and create wrappers also
       if (!validator->ValidateCommand(current, false, 2))
       {
@@ -362,7 +363,7 @@ bool GmatFunction::Initialize()
    
    // Get automatic global object list and check if they are used in the function
    // command sequence so that when any global object is declared in the main script
-   // but not used in the fucntion, they can be ignored during function local object
+   // but not used in the function, they can be ignored during function local object
    // initialization. (LOJ: 2009.12.18)
    BuildUnusedGlobalObjectList();
    
@@ -440,8 +441,8 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
       
       if (!objectsInitialized)
       {
-         // Since we don't know where actual mission squence start, just check for command
-         // that is not NoOp, Create, Global, and GMAT with equation.
+         // Since we don't know where actual mission sequence starts, just check
+         // for command that is not NoOp, Create, Global, and GMAT with equation.
          // Can we have simple command indicating beginning of the sequence,
          // such as BeginSequence? (loj: 2008.06.19)
          // @todo: Now we have BeginMissionSequence, but not all functions have it,
@@ -829,7 +830,7 @@ bool GmatFunction::InitializeLocalObjects(ObjectInitializer *objInit,
    // Set internal coordinate system (added (loj: 2008.10.07)
    objInit->SetInternalCoordinateSystem(internalCoordSys);
    
-   // Let's try initialzing local objects using ObjectInitializer (2008.06.19)
+   // Let's try initializing local objects using ObjectInitializer (2008.06.19)
    // We need to add subscribers to publisher, so pass true
    try
    {
