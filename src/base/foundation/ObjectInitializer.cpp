@@ -663,7 +663,12 @@ void ObjectInitializer::InitializeAllOtherObjects(ObjectMap *objMap)
             ("ObjectInitializer::Initialize objTypeName = %s, objName = %s\n",
              obj->GetTypeName().c_str(), obj->GetName().c_str());
          #endif
-         if (obj->GetType() == Gmat::PROP_SETUP)
+         if (obj->GetType() == Gmat::ODE_MODEL)
+         {
+            // ODEModel needs coordinate system settings
+            BuildReferences(obj);
+         }
+         else if (obj->GetType() == Gmat::PROP_SETUP)
          {
             // PropSetup initialization is handled by the commands, since the
             // state that is propagated may change as spacecraft are added or
@@ -901,15 +906,20 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
 
       if (hasODEModel)
       {
-         ODEModel *fm = ((PropSetup *)obj)->GetODEModel();
+         ODEModel *fm = NULL;
+         if (obj->IsOfType(Gmat::PROP_SETUP))
+            fm = ((PropSetup *)obj)->GetODEModel();
+         else
+            fm = ((ODEModel *)obj);
+
          fm->SetSolarSystem(ss);
 
          // Handle the coordinate systems
          StringArray csList = fm->GetStringArrayParameter("CoordinateSystemList");
 
          #ifdef DEBUG_OBJECT_INITIALIZER
-            MessageInterface::ShowMessage("Coordinate system list for '%s':\n",
-               fm->GetName().c_str());
+            MessageInterface::ShowMessage("Coordinate system list for '%s' <%p>:\n",
+               fm->GetName().c_str(), fm);
             for (StringArray::iterator i = csList.begin(); i != csList.end(); ++i)
                MessageInterface::ShowMessage("   %s\n", i->c_str());
          #endif

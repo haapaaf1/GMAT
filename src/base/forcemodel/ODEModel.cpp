@@ -1371,12 +1371,12 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
          // We need to handle both inertial and fixed CS's here
          if (earthEq == NULL)
             throw ODEModelException(
-               "Error setting force model coordinate system: EarthEq pointer "
-               "has not been initialized!");
+               "Error setting force model coordinate system for " +
+               instanceName + ": EarthEq pointer has not been initialized!");
          if (earthFixed == NULL)
             throw ODEModelException(
-               "Error setting force model coordinate system: EarthFixed "
-               "pointer has not been initialized!");
+               "Error setting force model coordinate system for " +
+               instanceName + ": EarthFixed pointer has not been initialized!");
          
          if (csName.find("Fixed", 0) == std::string::npos)
          {
