@@ -57,9 +57,9 @@ VisualModelCanvas::VisualModelCanvas(wxWindow *parent, Spacecraft *spacecraft,
 
    lastMouseX = 0; lastMouseY = 0;
 
-   ModelManager *mm = ModelManager::Instance();
 
    #ifndef __WXMAC__
+      ModelManager *mm = ModelManager::Instance();
       if (!mm->modelContext)
          mm->modelContext = new wxGLContext(this);
       theContext = mm->modelContext;
