@@ -79,6 +79,7 @@
 //#define DBGLVL_FINAL_PASS 2
 //#define DEBUG_AXIS_SYSTEM
 //#define DEBUG_SET_MEASUREMENT_MODEL
+//#define DEBUG_ALL_OBJECTS
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -7295,11 +7296,17 @@ bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
          theModerator->GetListOfObjects(Gmat::UNKNOWN_OBJECT);
 
    SolarSystem *ss = theModerator->GetSolarSystemInUse();
+   theObjects.push_back(ss->GetName());
 
    StringArray theSSBodies = ss->GetBodiesInUse();
    // Do this to treat SS bodies like all other objects:
    for (UnsignedInt i = 0; i < theSSBodies.size(); ++i)
       theObjects.push_back(theSSBodies[i]);
+   #ifdef DEBUG_ALL_OBJECTS
+      for (unsigned int ii = 0; ii < theObjects.size(); ii++)
+         MessageInterface::ShowMessage(" Obj %d :  %s\n", (Integer) ii,
+               (theObjects.at(ii)).c_str());
+   #endif
 
    Integer beginMCSCount = 0;
 
