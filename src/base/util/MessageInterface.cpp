@@ -59,16 +59,24 @@ MessageInterface::~MessageInterface()
 //---------------------------------
 
 
+//------------------------------------------------------------------------------
+// bool SetMessageReceiver(MessageReceiver *mr)
+//------------------------------------------------------------------------------
 bool MessageInterface::SetMessageReceiver(MessageReceiver *mr)
 {
    theMessageReceiver = mr;
    return true;
 }
 
+
+//------------------------------------------------------------------------------
+// MessageReceiver* GetMessageReceiver()
+//------------------------------------------------------------------------------
 MessageReceiver* MessageInterface::GetMessageReceiver()
 {
    return theMessageReceiver;
 }
+
 
 //------------------------------------------------------------------------------
 //  void ShowMessage(const std::string &msgString)
@@ -81,24 +89,23 @@ MessageReceiver* MessageInterface::GetMessageReceiver()
 //------------------------------------------------------------------------------
 void MessageInterface::ShowMessage(const std::string &msgString)
 {
-   if (theMessageReceiver != NULL)
-      theMessageReceiver->ShowMessage(msgString);
+   ShowMessage("%s", msgString.c_str());
 }
 
 
 //------------------------------------------------------------------------------
-//  void ShowMessage(const char *msg, ...)
+//  void ShowMessage(const char *format, ...)
 //------------------------------------------------------------------------------
 /**
  * Passes a variable argument delimited message to the MessageReceiver.
  *
- * @param msg The message, possibly including markers for variable argument
- *            substitution.
- * @param ... The optional list of parameters that are inserted into the msg
- *            string.
+ * @param format The format, possibly including markers for variable argument
+ *                  substitution.
+ * @param ...    The optional list of parameters that are inserted into the format
+ *                  string.
  */
 //------------------------------------------------------------------------------
-void MessageInterface::ShowMessage(const char *msg, ...)
+void MessageInterface::ShowMessage(const char *format, ...)
 {
    if (theMessageReceiver != NULL)
    {
@@ -107,17 +114,17 @@ void MessageInterface::ShowMessage(const char *msg, ...)
       va_list  marker;
       char     *msgBuffer = NULL;
       
-      // msg is vsprintf format
+      // format is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
-      size = strlen(msg) + MAX_MESSAGE_LENGTH;
-      //LogMessage("strlen(msg)=%d, size=%d\n", strlen(msg), size);
-
+      size = strlen(format) + MAX_MESSAGE_LENGTH;
+      //LogMessage("strlen(format)=%d, size=%d\n", strlen(format), size);
+      
       if( (msgBuffer = (char *)malloc(size)) != NULL )
       {
          for (int i=0; i<size; i++)
             msgBuffer[i] = '\0';
-         va_start(marker, msg);
-         ret = vsprintf(msgBuffer, msg, marker);
+         va_start(marker, format);
+         ret = vsprintf(msgBuffer, format, marker);
          va_end(marker);
       }
       else
@@ -139,34 +146,31 @@ void MessageInterface::ShowMessage(const char *msg, ...)
  * Passes a popup message to the MessageReceiver.
  *
  * @param msgType The type of message that is displayed, selected from the set
- *                {ERROR_, WARNING_, INFO_} enumerated in the Gmat namespace.
- * @param msg The message.
+ *                   {ERROR_, WARNING_, INFO_} enumerated in the Gmat namespace.
+ * @param msg     The message.
  */
 //------------------------------------------------------------------------------
 void MessageInterface::PopupMessage(Gmat::MessageType msgType, const std::string &msg)
 {
-   if (theMessageReceiver != NULL)
-   {
-      PopupMessage(msgType, msg.c_str());
-   }
-} // end PopupMessage()
+   PopupMessage(msgType, "%s", msg.c_str());
+}
 
 
 //------------------------------------------------------------------------------
-//  static void PopupMessage(Gmat::MessageType msgType, const char *msg, ...)
+//  static void PopupMessage(Gmat::MessageType msgType, const char *format, ...)
 //------------------------------------------------------------------------------
 /**
  * Passes a variable argument delimited popup message to the MessageReceiver.
  *
  * @param msgType The type of message that is displayed, selected from the set
- *                {ERROR_, WARNING_, INFO_} enumerated in the Gmat namespace.
- * @param msg The message, possibly including markers for variable argument
- *            substitution.
- * @param ... The optional list of parameters that are inserted into the msg
- *            string.
+ *                   {ERROR_, WARNING_, INFO_} enumerated in the Gmat namespace.
+ * @param format  The format, possibly including markers for variable argument
+ *                    substitution.
+ * @param ...     The optional list of parameters that are inserted into the format
+ *                   string.
  */
 //------------------------------------------------------------------------------
-void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
+void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *format,
       ...)
 {
    if (theMessageReceiver != NULL)
@@ -176,16 +180,16 @@ void MessageInterface::PopupMessage(Gmat::MessageType msgType, const char *msg,
       va_list  marker;
       char     *msgBuffer = NULL;
 
-      // msg is vsprintf format
+      // format is vsprintf format
       // actual max message length is MAX_MESSAGE_LENGTH
-      size = strlen(msg) + MAX_MESSAGE_LENGTH;
+      size = strlen(format) + MAX_MESSAGE_LENGTH;
       
       if ( (msgBuffer = (char *)malloc(size)) != NULL )
       {
          for (int i=0; i<size; i++)
             msgBuffer[i] = '\0';
-         va_start(marker, msg);
-         ret = vsprintf(msgBuffer, msg, marker);
+         va_start(marker, format);
+         ret = vsprintf(msgBuffer, format, marker);
          va_end(marker);
          
          // if no EOL then append it

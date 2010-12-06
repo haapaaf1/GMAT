@@ -37,10 +37,10 @@ public:
    static MessageReceiver* GetMessageReceiver();
 
    static void ShowMessage(const std::string &msg);
-   static void ShowMessage(const char *msg, ...);
+   static void ShowMessage(const char *format, ...);
 
    static void PopupMessage(Gmat::MessageType msgType, const std::string &msg);
-   static void PopupMessage(Gmat::MessageType msgType, const char *msg, ...);
+   static void PopupMessage(Gmat::MessageType msgType, const char *format, ...);
    
    static std::string GetLogFileName();
    static void SetLogEnable(bool flag);
