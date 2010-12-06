@@ -159,13 +159,20 @@ const std::string& BeginScript::GetGeneratingString(Gmat::WriteMode mode,
 
    if (mode != Gmat::GUI_EDITOR)
    {
-      IndentComment(gen, commentLine, prefix);
-      gen << prefix << "BeginScript";   
-   
-      if (inlineComment != "")
-         gen << inlineComment << "\n";
+      if (mode == Gmat::NO_COMMENTS)
+      {
+         gen << prefix << "BeginScript" << "\n";
+      }
       else
-         gen << "\n";
+      {
+         IndentComment(gen, commentLine, prefix);
+         gen << prefix << "BeginScript";   
+         
+         if (inlineComment != "")
+            gen << inlineComment << "\n";
+         else
+            gen << "\n";
+      }
    }
    
    #if DBGLVL_GEN_STRING
@@ -337,7 +344,8 @@ void BeginScript::IndentChildString(std::stringstream &gen, GmatCommand* cmd,
    ShowCommand("", "BeginScript::IndentChildString() cmd = ", cmd);
    MessageInterface::ShowMessage
       ("BeginScript::IndentChildString() indent='%s', mode=%d, prefix='%s', "
-       "useName='%s'\n", indent.c_str(), mode, prefix.c_str(), useName.c_str());
+       "useName='%s', indentCommentOnly=%d\n", indent.c_str(), mode, prefix.c_str(),
+       useName.c_str(), indentCommentOnly);
    #endif
    
    std::string cmdstr;
@@ -348,6 +356,10 @@ void BeginScript::IndentChildString(std::stringstream &gen, GmatCommand* cmd,
    
    StringArray textArray = tp.DecomposeBlock(cmdstr);
    UnsignedInt size = textArray.size();
+   
+   #if DBGLVL_GEN_STRING
+   MessageInterface::ShowMessage("   There are %d text lines\n", size);
+   #endif
    
    if (size > 0 && textArray[0] != "")
    {
