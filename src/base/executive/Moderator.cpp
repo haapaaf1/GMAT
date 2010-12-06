@@ -79,6 +79,7 @@
 //#define DEBUG_COMMAND_APPEND 1
 //#define DEBUG_COMMAND_DELETE 1
 //#define DEBUG_RENAME 1
+//#define DEBUG_REMOVE 1
 //#define DEBUG_DEFAULT_MISSION 2
 //#define DEBUG_MULTI_STOP 2
 //#define DEBUG_USER_INTERRUPT 1
@@ -1623,6 +1624,9 @@ bool Moderator::RemoveObject(Gmat::ObjectType type, const std::string &name,
    else
    {
       // remove if object is not used in other resource
+      #if DEBUG_REMOVE
+      MessageInterface::ShowMessage("   Checking if '%s' is used in resource\n", name.c_str());
+      #endif
       GmatBase *obj = theConfigManager->GetFirstItemUsing(type, name);
       if (obj != NULL)
       {
@@ -1634,6 +1638,10 @@ bool Moderator::RemoveObject(Gmat::ObjectType type, const std::string &name,
       }
       else
       {
+         #if DEBUG_REMOVE
+         MessageInterface::ShowMessage
+            ("   '%s' is not used in resource, checking command\n", name.c_str());
+         #endif
          // remove if object is not used in the command sequence
          std::string cmdName;
          if (GmatCommandUtil::FindObject(cmd, type, name, cmdName))
@@ -1645,7 +1653,13 @@ bool Moderator::RemoveObject(Gmat::ObjectType type, const std::string &name,
          }
          else
          {
-            return theConfigManager->RemoveItem(type, name);
+            bool retval = theConfigManager->RemoveItem(type, name);
+            #if DEBUG_REMOVE
+            MessageInterface::ShowMessage
+               ("Moderator::RemoveObject() returning %d from "
+                "theConfigManager->RemoveItem()\n", retval);
+            #endif
+            return retval;
          }
       }
    }
@@ -6270,11 +6284,12 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
    if (second != NULL && second->GetTypeName() != "BeginMissionSequence")
    {
       // Show warning message for now (LOJ: 2010.07.15)
-      std::string firstCmd = "The first command detected is '";
-      firstCmd = firstCmd + second->GetGeneratingString(Gmat::NO_COMMENTS) + "'";
+      std::string firstCmdStr = "The first command detected is \n'";
+      firstCmdStr = firstCmdStr + second->GetGeneratingString(Gmat::NO_COMMENTS) + "'";
+      //firstCmdStr = firstCmdStr + second->GetGeneratingString() + "'";
       MessageInterface::PopupMessage
          (Gmat::WARNING_, "*** WARNING *** BeginMissionSequence is missing. "
-          "It will be required in future builds.\n" + firstCmd);
+          "It will be required in future builds.\n" + firstCmdStr);
       
       #if DEBUG_INTERPRET
       MessageInterface::ShowMessage

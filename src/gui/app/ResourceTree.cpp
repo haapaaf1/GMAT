@@ -1824,7 +1824,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
    GmatTree::ItemType itemType = selItemData->GetItemType();
 
-   // if panel is currently opened give warning and return
+   // if panel is currently opened, give warning and return
    // Bug 547 fix (loj: 2008.11.25)
    if (theMainFrame->IsChildOpen(selItemData))
    {

@@ -1095,7 +1095,7 @@ void Assignment::RunComplete()
    {
       #ifdef DEBUG_RUN_COMPLETE
       MessageInterface::ShowMessage
-         ("RunComplete::RunComplete() calling MathTree::Finalize()\n");
+         ("Assignment::RunComplete() calling MathTree::Finalize()\n");
       #endif
       
       mathTree->Finalize();

@@ -1726,8 +1726,8 @@ void GmatCommand::RunComplete()
    if (next)
    {
       #if DEBUG_RUN_COMPLETE
-      MessageInterface::ShowMessage("   Next cmd is a (%p)%s\n", next,
-                                    (next->GetTypeName()).c_str());
+      MessageInterface::ShowMessage("   Next cmd is a <%p><%s>'%s'\n", next,
+                                    (next->GetTypeName()).c_str(), next->GetGeneratingString().c_str());
       if (next->IsOfType("BranchEnd"))
          MessageInterface::ShowMessage
             ("   .. and that cmd is a branchEnd!!!!!!!!! %s\n",

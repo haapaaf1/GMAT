@@ -324,14 +324,14 @@ void MathTree::Finalize()
 {   
    if (theTopNode == NULL)
    {
-      #ifdef DEBUG_MATH_TREE_INIT
+      #ifdef DEBUG_MATH_TREE_FINALIZE
       MessageInterface::ShowMessage
          ("MathTree::Finalize() theTopNode is NULL, so just returning true\n");
       #endif
       return;
    }
    
-   #ifdef DEBUG_MATH_TREE_INIT
+   #ifdef DEBUG_MATH_TREE_FINALIZE
    MessageInterface::ShowMessage
       ("MathTree::Finalize() theTopNode=%s, %s\n", theTopNode->GetTypeName().c_str(),
        theTopNode->GetName().c_str());

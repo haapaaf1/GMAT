@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 CommandUtil
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -717,8 +717,8 @@ bool GmatCommandUtil::FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
    
    #ifdef DEBUG_COMMAND_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("===> GmatCommandUtil::FindObject() cmd=<%p><%s>\n", cmd, cmdstr.c_str(),
-       objName.c_str());
+      ("===> GmatCommandUtil::FindObject() entered, objType=%d, objName='%s', "
+       "cmd=<%p><%s>\n", objType, objName.c_str(), cmd, cmdstr.c_str());
    #endif
    
    
@@ -764,6 +764,10 @@ bool GmatCommandUtil::FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
       current = current->GetNext();
    }
    
+   #ifdef DEBUG_COMMAND_FIND_OBJECT
+   MessageInterface::ShowMessage
+      ("===> GmatCommandUtil::FindObject() returning false\n");
+   #endif
    return false;
 }
 

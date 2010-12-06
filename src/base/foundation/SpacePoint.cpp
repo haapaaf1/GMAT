@@ -39,6 +39,13 @@
 //#define DEBUG_SPACE_POINT_ORBIT_KERNELS
 //#define DEBUG_ATTITUDE
 
+//#ifndef DEBUG_MEMORY
+//#define DEBUG_MEMORY
+//#endif
+
+#ifdef DEBUG_MEMORY
+#include "MemoryTracker.hpp"
+#endif
 
 //---------------------------------
 // static data
@@ -180,9 +187,24 @@ const SpacePoint& SpacePoint::operator=(const SpacePoint &sp)
 SpacePoint::~SpacePoint()
 {
    if (inertialCS)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (inertialCS, inertialCS->GetTypeName(), "SpacePoint::~SpacePoint()",
+          "deleting inertialCS");
+      #endif
       delete inertialCS;
+   }
+   
    if (bodyFixedCS)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (bodyFixedCS, bodyFixedCS->GetTypeName(), "SpacePoint::~SpacePoint()",
+          "deleting bodyFixedCS");
+      #endif
       delete bodyFixedCS;
+   }
 }
 
 //------------------------------------------------------------------------------
