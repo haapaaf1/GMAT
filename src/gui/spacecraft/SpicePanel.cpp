@@ -1,4 +1,4 @@
-//$Id:$
+//$Id$
 //------------------------------------------------------------------------------
 //                            SpicePanel
 //------------------------------------------------------------------------------
@@ -516,40 +516,40 @@ void SpicePanel::Create()
    rightFlexGridSizer->Add(0, 0);
    rightFlexGridSizer->Add(sclkButtonSizer, 0, wxALIGN_CENTRE|wxALL, bSize);
 //   rightFlexGridSizer->Add(0, 0);
-
+   
    mainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-
-   GmatStaticBoxSizer  *boxSizer1 = new GmatStaticBoxSizer(wxHORIZONTAL, this, "" );
-   boxSizer1->Add(leftFlexGridSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
-
-   GmatStaticBoxSizer  *boxSizer2 = new GmatStaticBoxSizer(wxHORIZONTAL, this, "");
-   boxSizer1->Add(rightFlexGridSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
-
-   mainBoxSizer->Add(boxSizer1, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
+   
+   GmatStaticBoxSizer  *boxSizer1 = new GmatStaticBoxSizer(wxVERTICAL, this, "" );
+   boxSizer1->Add(leftFlexGridSizer, 0, wxALIGN_CENTRE|wxALL, bSize);
+   
+   GmatStaticBoxSizer  *boxSizer2 = new GmatStaticBoxSizer(wxVERTICAL, this, "");
+   boxSizer2->Add(rightFlexGridSizer, 0, wxALIGN_CENTRE|wxALL, bSize);
+   
+   mainBoxSizer->Add(boxSizer1, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
    mainBoxSizer->Add(boxSizer2, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
-//   mainBoxSizer->Add(leftFlexGridSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
-//   mainBoxSizer->Add(rightFlexGridSizer, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
-
-
+   
    // Added #if in case if we want to add another layer of lined box for consistency.
    // I like without another layer, too many lines, so set to 0 (LOJ: 2009.11.18) - from CelestialBody
    #if 0
-
-   GmatStaticBoxSizer *mainStaticBoxSizer = new GmatStaticBoxSizer(wxHORIZONTAL, this, "");
+   
+   GmatStaticBoxSizer *mainStaticBoxSizer = new GmatStaticBoxSizer(wxVERTICAL, this, "");
    mainStaticBoxSizer->Add(mainBoxSizer, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
-
+   
    this->SetAutoLayout(true);
    this->SetSizer(mainStaticBoxSizer);
    mainStaticBoxSizer->Fit(this);
    mainStaticBoxSizer->SetSizeHints(this);
-
+   
    #else
-
+   
+   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
+   mainSizer->Add(mainBoxSizer, 1, wxGROW|wxALIGN_CENTRE|wxALL, bSize);
+   
    this->SetAutoLayout(true);
-   this->SetSizer(mainBoxSizer);
-   mainBoxSizer->Fit(this);
-   mainBoxSizer->SetSizeHints(this);
-
+   this->SetSizer(mainSizer);
+   mainSizer->Fit(this);
+   mainSizer->SetSizeHints(this);
+   
    #endif
 
 }
