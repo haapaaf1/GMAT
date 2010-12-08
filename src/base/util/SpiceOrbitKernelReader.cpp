@@ -380,13 +380,13 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
 #ifdef DEBUG_SPK_PLANETS
    Real        ttMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD,
                                TimeConverterUtil::TTMJD, GmatTimeUtil::JD_JAN_5_1941);
-   Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
+//   Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
    Real ttJd                 = ttMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
    MessageInterface::ShowMessage("Asking CSPICE for state of body %s, with observer %s, referenceFrame %s, and aberration correction %s\n",
          objectNameSPICE, observingBodyNameSPICE, referenceFrameSPICE, aberrationSPICE);
    MessageInterface::ShowMessage(
          "           Body: %s   TT Time:  %12.10f  TDB Time: %12.10f   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
-         targetName.c_str(), ttJd, etJd, state[0], state[1], state[2], state[3], state[4], state[5]);
+         targetName.c_str(), ttJd, /*etJd,*/ state[0], state[1], state[2], state[3], state[4], state[5]);
 #endif
    if (failed_c())
    {
