@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              ArraySetupDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/12/30
@@ -23,7 +23,7 @@
 
 #include "wx/colordlg.h"        // for wxColourDialog
 
-//#define DEBUG_ARRAY_PANEL 1
+//#define DEBUG_ARRAY_LOAD 1
 //#define DEBUG_ARRAY_SAVE 1
 
 //------------------------------------------------------------------------------
@@ -189,10 +189,9 @@ void ArraySetupDialog::LoadData()
 
    if (mParam != NULL)
    {
-      
-      #if DEBUG_ARRAY_PANEL
+      #if DEBUG_ARRAY_LOAD
       MessageInterface::ShowMessage
-         ("ArraySetupDialog::LoadData() paramName=%s\n", mParam->GetName().c_str());
+         ("ArraySetupDialog::LoadData() paramName=<%p>'%s'\n", mParam, mParam->GetName().c_str());
       #endif
 
       try
@@ -232,7 +231,7 @@ void ArraySetupDialog::LoadData()
          Real val = arrParam->GetRealParameter("SingleValue", 0, 0);
          mArrValTextCtrl->SetValue(theGuiManager->ToWxString(val));
          
-         #ifdef DEBUG_ARRAY_PANEL
+         #ifdef DEBUG_ARRAY_LOAD
          MessageInterface::ShowMessage("mNumRows=%d, mNumCols=%d\n",
                                        mNumRows, mNumCols);
          #endif
@@ -264,9 +263,9 @@ void ArraySetupDialog::LoadData()
                mRmat.SetElement(row, col, arrParam->
                                 GetRealParameter("SingleValue", row, col));
                
-               #ifdef DEBUG_ARRAY_PANEL
+               #ifdef DEBUG_ARRAY_LOAD
                MessageInterface::ShowMessage
-                  ("==> val(%d,%d)=%f\n", row, col, mRmat.GetElement(row, col));
+                  ("   val(%d,%d)=%f\n", row, col, mRmat.GetElement(row, col));
                #endif
                
                rval = mRmat.GetElement(row, col);
@@ -340,7 +339,27 @@ void ArraySetupDialog::SaveData()
    {
       for (int i=0; i<mNumRows; i++)
          for (int j=0; j<mNumCols; j++)
+         {
+            wxString arrValue = mArrGrid->GetCellValue(i, j);
+            #if DEBUG_ARRAY_SAVE
+            MessageInterface::ShowMessage
+               ("   Settting %g '%s' to (%d,%d)\n", mRmat.GetElement(i,j), arrValue.c_str(), i, j);
+            #endif
             arrParam->SetRealParameter("SingleValue", mRmat.GetElement(i,j), i, j);
+
+            // Set initial value as string (LOJ: 2010.12.07)
+            // As default if user enters 0.000005, it will write out 5e-006;
+            // If we want to write out as user enters value,
+            // define __WRITE_INITIAL_VALUE_STRING__ in Array.cpp
+            wxString arrValueStr;
+            arrValueStr.Printf("%s(%d,%d)=%s", mVarName.c_str(), i+1, j+1, arrValue.c_str());
+            
+            #if DEBUG_ARRAY_SAVE
+            MessageInterface::ShowMessage("   arrValueStr='%s'\n", arrValueStr.c_str());
+            #endif
+            
+            arrParam->SetStringParameter("InitialValue", arrValueStr.c_str());
+         }
    }
    catch (BaseException &e)
    {
