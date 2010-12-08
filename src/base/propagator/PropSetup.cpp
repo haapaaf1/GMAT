@@ -822,7 +822,7 @@ std::string PropSetup::GetStringParameter(const Integer id) const
 //         name = mODEModel->GetName();
          name = mODEModelName;
       else
-         name = "UndefinedODEModel";
+         name = "InternalODEModel";
       break;
    default:
       return GmatBase::GetStringParameter(id);
