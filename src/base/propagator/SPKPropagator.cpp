@@ -98,8 +98,8 @@ SPKPropagator::~SPKPropagator()
 //------------------------------------------------------------------------------
 SPKPropagator::SPKPropagator(const SPKPropagator & spk) :
    EphemerisPropagator        (spk),
-   skr                        (NULL),
-   spkCentralBody             (spk.spkCentralBody)
+   spkCentralBody             (spk.spkCentralBody),
+   skr                        (NULL)
 {
 }
 
@@ -323,10 +323,12 @@ bool SPKPropagator::SetStringParameter(const Integer id,
    bool retval = EphemerisPropagator::SetStringParameter(id, value);
 
    if ((retval = true) && (id == EPHEM_CENTRAL_BODY))
+   {
       if (centralBody == "Luna")
          spkCentralBody = "Moon";
       else
          spkCentralBody = centralBody;
+   }
 
    return retval;
 }
@@ -751,8 +753,12 @@ bool SPKPropagator::Step()
              *  @todo: When SPKProp can evolve more than one spacecraft, these
              *  memcpy lines need revision
              */
-            std::memcpy(state, outState.GetDataVector(),
+//            std::memcpy(state, outState.GetDataVector(),
+//                  dimension*sizeof(Real));
+//            ReturnFromOrigin(currentEpoch);
+            std::memcpy(j2kState, outState.GetDataVector(),
                   dimension*sizeof(Real));
+            MoveToOrigin(currentEpoch);
 
             #ifdef DEBUG_PROPAGATION
                MessageInterface::ShowMessage("State at epoch %.12lf is [",
@@ -870,8 +876,11 @@ void SPKPropagator::UpdateState()
              *  @todo: When SPKProp can evolve more than one spacecraft, this
              *  memcpy line needs revision
              */
-            std::memcpy(state, outState.GetDataVector(),
+//            std::memcpy(state, outState.GetDataVector(),
+//                  dimension*sizeof(Real));
+            std::memcpy(j2kState, outState.GetDataVector(),
                   dimension*sizeof(Real));
+            MoveToOrigin(currentEpoch);
 
             #ifdef DEBUG_PROPAGATION
                MessageInterface::ShowMessage("State at epoch %.12lf is [",
