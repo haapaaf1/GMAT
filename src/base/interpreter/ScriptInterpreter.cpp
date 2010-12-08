@@ -2268,8 +2268,8 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    ObjectArray strWithValList;
    std::string genStr;
    GmatBase *object =  NULL;
-   
-   WriteSectionDelimiter(objs[0], "Arrays, Variables, Strings", true);
+   std::string sectionStr = "Arrays, Variables, Strings";
+   WriteSectionDelimiter(objs[0], sectionStr, true);
    
    //-----------------------------------------------------------------
    // Fill in proper arrays
@@ -2342,10 +2342,17 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
       // Write comment line
       if (i == 0)
       {
-         if (((Parameter*)varList[i])->GetCommentLine(1) == "")
+         if (((Parameter*)arrList[i])->GetCommentLine(1) == "")
             theReadWriter->WriteText("\n");
          else
-            theReadWriter->WriteText(((Parameter*)varList[i])->GetCommentLine(1));
+         {
+            // Write comment line if non section delimiter
+            std::string comment = ((Parameter*)arrList[i])->GetCommentLine(1);
+            if (comment.find(sectionStr) == comment.npos)
+               theReadWriter->WriteText(comment);
+            else
+               theReadWriter->WriteText("\n");
+         }
       }
       
       if (counter == 1)
@@ -2376,9 +2383,13 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    {
       counter++;
       
-      // Write comment line
+      // Write comment line if non section delimiter
       if (i == 0)
-         theReadWriter->WriteText(((Parameter*)varList[i])->GetCommentLine(1));
+      {
+         std::string comment = ((Parameter*)varList[i])->GetCommentLine(1);
+         if (comment.find(sectionStr) == comment.npos)
+            theReadWriter->WriteText(comment);
+      }
       
       if (counter == 1)
          theReadWriter->WriteText("Create Variable");
@@ -2408,9 +2419,13 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
    {
       counter++;
       
-      // Write comment line
+      // Write comment line if non section delimiter
       if (i == 0)
-         theReadWriter->WriteText(((Parameter*)strList[i])->GetCommentLine(1));
+      {
+         std::string comment = ((Parameter*)strList[i])->GetCommentLine(1);
+         if (comment.find(sectionStr) == comment.npos)
+            theReadWriter->WriteText(comment);
+      }
       
       if (counter == 1)
          theReadWriter->WriteText("Create String");
