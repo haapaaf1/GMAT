@@ -181,6 +181,8 @@ private:
    static const Real DEFAULT_DIST;// = 30000.0;
    static const int UNKNOWN_OBJ_ID;// = -999;
    
+   // error handling
+   bool    mFatalErrorFound;
    // stars
    GLStars *mStars;
    // star options

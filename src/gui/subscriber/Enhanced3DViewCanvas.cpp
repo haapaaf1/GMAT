@@ -203,6 +203,7 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    mGlInitialized = false;
    mPlotName = name;
    mParent = parent;
+   mFatalErrorFound = false;
    
    // Linux specific
    #ifdef __WXGTK__
@@ -1491,7 +1492,8 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
    // Dunn took out minus signs below to position vectors correctly in the 
    // ECI reference frame.
    //
-   if (!viewPointInitialized || mUseInitialViewPoint){
+   if (!viewPointInitialized || mUseInitialViewPoint)
+   {
       wxString name;
       int objId;
       int index;
@@ -1500,17 +1502,20 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
       if (mUseViewPointRefVector){
          reference = mViewPointRefVector;
       }
-      else{
+      else
+      {
          name = pViewPointRefObj->GetName().c_str();
          objId = GetObjectId(name);
          index = objId * MAX_DATA * 3 + (mLastIndex*3);
          reference = Rvector3(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
       }
       
-      if (mUseViewPointVector){
+      if (mUseViewPointVector)
+      {
          viewpoint = mViewPointVector;
       }
-      else{
+      else
+      {
          name = pViewPointVectorObj->GetName().c_str();
          objId = GetObjectId(name);
          index = objId * MAX_DATA * 3 + (mLastIndex*3);
@@ -1747,6 +1752,8 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
    // must always be here
    wxPaintDC dc(this);
    
+   if (mFatalErrorFound) return;
+
    #ifndef __WXMOTIF__
       #ifndef __USE_WX280_GL__
          if (!GetContext()) return;
@@ -1956,10 +1963,12 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
          // The angles used are based on how far the mouse moved
          float angleX = (mLastMouseX - mouseX) / 400.0 * mInversion,
             angleY = (mLastMouseY - mouseY) / 400.0 * mInversion;
-         if (mControlMode == 0){
+         if (mControlMode == 0)
+         {
             mCamera.Rotate(angleX, angleY, 0.0, false, true);
          }
-         else{
+         else
+         {
             mCamera.Rotate(angleX, angleY, 0.0, false, false);
          }
          
@@ -2047,9 +2056,11 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
       //------------------------------
       // roll
       //------------------------------
-      else if (event.MiddleIsDown()){
+      else if (event.MiddleIsDown())
+      {
          float roll = (mouseY - mLastMouseY) / 400.0 * mInversion;
-         if (mControlMode == MODE_CENTERED_VIEW){
+         if (mControlMode == MODE_CENTERED_VIEW)
+         {
             mCamera.Rotate(0.0, 0.0, roll, false, true);
          }
          else
@@ -2058,21 +2069,26 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
       }
    }
    // Mousewheel movements
-   else if (event.GetWheelRotation() != 0 && mControlMode == MODE_ASTRONAUT_6DOF){
+   else if (event.GetWheelRotation() != 0 && mControlMode == MODE_ASTRONAUT_6DOF)
+   {
       float rot = event.GetWheelRotation();
       Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
       Real movement = rot * distance / 3000;
 
-      if (event.ShiftDown() && rot > 0){
+      if (event.ShiftDown() && rot > 0)
+      {
          mCamera.ZoomIn(1);
       }
-      else if (event.ShiftDown() && rot < 0){
+      else if (event.ShiftDown() && rot < 0)
+      {
          mCamera.ZoomOut(1);
       }
-      else if (rot > 0){
+      else if (rot > 0)
+      {
          mCamera.Translate(0.0, 0.0, movement, true);
       }
-      else if (rot < 0){
+      else if (rot < 0)
+      {
          mCamera.Translate(0.0, 0.0, movement, true);
       }
       Refresh(false);
@@ -2110,40 +2126,51 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
 void Enhanced3DViewCanvas::OnKeyDown(wxKeyEvent &event)
 {
    int keyDown = event.GetKeyCode();
-   if (keyDown == 'w' || keyDown == 'W'){
+   if (keyDown == 'w' || keyDown == 'W')
+   {
       mCamera.Translate(0.0, 0.0, 300, true);
    }
-   else if (keyDown == 's' || keyDown == 'S'){
+   else if (keyDown == 's' || keyDown == 'S')
+   {
       mCamera.Translate(0.0, 0.0, -300, true);
    }
-   else if (keyDown == 'a' || keyDown == 'A'){
+   else if (keyDown == 'a' || keyDown == 'A')
+   {
       mCamera.Translate(-300, 0.0, 0.0, true);
    }
-   else if (keyDown == 'd' || keyDown == 'D'){
+   else if (keyDown == 'd' || keyDown == 'D')
+   {
       mCamera.Translate(300, 0.0, 0.0, true);
    }
-   else if (keyDown == 'z' || keyDown == 'Z'){
-      if (event.ShiftDown()){
+   else if (keyDown == 'z' || keyDown == 'Z')
+   {
+      if (event.ShiftDown())
+      {
          mControlMode = MODE_ASTRONAUT_6DOF;
       }
-      else{
+      else
+      {
          if (mControlMode == MODE_ASTRONAUT_6DOF)
             mControlMode = MODE_FREE_FLYING;
-         else {
+         else
+         {
             mControlMode = 1 - mControlMode;
          }
       }
    }
-   else if (keyDown == 'i' || keyDown == 'I'){
+   else if (keyDown == 'i' || keyDown == 'I')
+   {
       mInversion *= -1;
    }
-   /*else if (keyDown == 't' || keyDown == 'T'){
+   /*else if (keyDown == 't' || keyDown == 'T')
+    * {
       if (mCamera.TrackingMode() == 1)
          mCamera.Untrack();
       else
          mCamera.TrackStill(0);
    }
-   else if (keyDown == 'f' || keyDown == 'F'){
+   else if (keyDown == 'f' || keyDown == 'F')
+   {
       if (mCamera.TrackingMode() == 2)
          mCamera.Untrack();
       else
@@ -3117,7 +3144,8 @@ void Enhanced3DViewCanvas::DrawPlot()
    glDisable(GL_LIGHTING);
    
    // draw stars
-   if (mDrawStars){
+   if (mDrawStars)
+   {
       // drawing the stars at infinity requires them to have their own projection
       glMatrixMode(GL_PROJECTION); 
       glLoadIdentity();
@@ -3209,10 +3237,12 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName, int obj)
       int sunId = GetObjectId("Sun");
       int index = sunId * MAX_DATA * 3 + frame * 3;
       
-      if (sunId == UNKNOWN_OBJ_ID){
+      if (sunId == UNKNOWN_OBJ_ID)
+      {
          mLight.SetPosition(0.01f, 1.0f, 0.3f);
       }
-      else{
+      else
+      {
          index = sunId * MAX_DATA * 3 + frame * 3;
          mLight.SetPosition(mObjectViewPos[index+0],mObjectViewPos[index+1],mObjectViewPos[index+2]);
       }
@@ -3357,7 +3387,8 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName, int obj)
       glBindTexture(GL_TEXTURE_2D, mObjectTextureIdMap[objName]);
       glEnable(GL_TEXTURE_2D);
 
-      if (objName == "Sun"){
+      if (objName == "Sun")
+      {
          glDisable(GL_LIGHTING);
          DrawSphere(mObjectRadius[objId], 50, 50, GLU_FILL, GLU_INSIDE);
          glEnable(GL_LIGHTING);
@@ -3628,11 +3659,13 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
       {
          int sunId = GetObjectId("Sun");
          int index;
-         if (sunId == UNKNOWN_OBJ_ID){
+         if (sunId == UNKNOWN_OBJ_ID)
+         {
             mLight.SetPosition(0.01f, 1.0f, 0.3f);
             mLight.SetDirectional(true);
          }
-         else{
+         else
+         {
             index = sunId * MAX_DATA * 3 + frame * 3;
             mLight.SetPosition(mObjectViewPos[index+0], mObjectViewPos[index+1], mObjectViewPos[index+2]);
             mLight.SetDirectional(false);
@@ -3770,7 +3803,8 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
          // model->Reposition(PosX,PosY,PosZ);
          // model->TranslateW(PosX,PosY,PosZ);
       }
-      else{
+      else
+      {
          // Dunn took out old minus signs to make attitude correct.
          glTranslatef(mObjectViewPos[index1+0],
                       mObjectViewPos[index1+1],
@@ -3793,7 +3827,8 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
       DrawObject(objName, obj);
    }
    
-   if (mEnableLightSource && mSunPresent){
+   if (mEnableLightSource && mSunPresent)
+   {
       glDisable(GL_LIGHTING);
    }
    
@@ -4182,7 +4217,8 @@ void Enhanced3DViewCanvas::DrawStatus(const wxString &label1, int frame,
    }
    
    /*text.Printf("Current Control Mode: ");
-   switch (mControlMode) {
+   switch (mControlMode)
+   {
       case MODE_CENTERED_VIEW:
          str.Printf("Centered View ");
          break;
@@ -4673,7 +4709,8 @@ void Enhanced3DViewCanvas
                   MessageInterface::ShowMessage("");
                   wxString modelPath(spac->modelFile.c_str());
                   spac->modelID = mm->LoadModel(modelPath);
-                  loadedModels = true;
+//                  loadedModels = true;
+                  modelsAreLoaded = true;
                }
             #endif
          }
@@ -4800,8 +4837,17 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
             }
             
             int colorIndex = objId * MAX_DATA + mLastIndex;
-            mDrawOrbitFlag[colorIndex] = true;               
-            Rvector6 objState = otherObj->GetMJ2000State(time);
+            mDrawOrbitFlag[colorIndex] = true;
+            Rvector6 objState;
+            try
+            {
+               objState = otherObj->GetMJ2000State(time);
+            }
+            catch (BaseException &be)
+            {
+               mFatalErrorFound = true;
+               throw;
+            }
             
             int posIndex = objId * MAX_DATA * 3 + (mLastIndex*3);
             mObjectGciPos[posIndex+0] = objState[0];
@@ -4865,8 +4911,10 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
    
    int cIndex = mLastIndex*16;
    Rmatrix converterMatrix = mCoordConverter.GetLastRotationMatrix();
-   for (int i = 0; i < 4; i++){
-      for (int j = 0; j < 4; j++){
+   for (int i = 0; i < 4; i++)
+   {
+      for (int j = 0; j < 4; j++)
+      {
          if (j < 3 && i < 3)
             mCoordData[cIndex+(i*4)+j] = converterMatrix.GetElement(i,j);
          else
