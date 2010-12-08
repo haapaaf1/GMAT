@@ -27,6 +27,7 @@
 //#define DEBUG_ARRAY 1
 //#define DEBUG_ARRAY_GET
 //#define DEBUG_ARRAY_SET
+//#define DEBUG_INITIAL_VALUE
 
 //---------------------------------
 // static data
@@ -718,12 +719,21 @@ Real Array::GetRealParameter(const std::string &label, const Integer row,
 // Real SetRealParameter(const Integer id, const Real value, const Integer row,
 //                       const Integer col)
 //------------------------------------------------------------------------------
+/**
+ * Sets value of array element row and col.
+ *
+ * @param id     The Id of the parameter
+ * @param value  The real value of the array element
+ * @param row    The row of the array element (starts from 0)
+ * @param col    The column of the array element (starts form 0)
+ */
+//------------------------------------------------------------------------------
 Real Array::SetRealParameter(const Integer id, const Real value,
                              const Integer row, const Integer col)
 {
    switch (id)
    {
-   case SINGLE_VALUE: //loj: 12/30/04 Changed from ROW_VALUE
+   case SINGLE_VALUE:
       #ifdef DEBUG_ARRAY_SET
          MessageInterface::ShowMessage(
          "In Array::SetRealParameter, row = %d, col = %d, value = %.12f\n",
@@ -805,9 +815,10 @@ bool Array::SetStringParameter(const Integer id, const std::string &value)
             // parse array name and index
             GmatStringUtil::GetArrayIndexVar(parts[0], rowStr, colStr, name);
             std::string mapstr = rowStr + "," + colStr;
-            #ifdef DEBUG_STRING_SET
+            #ifdef DEBUG_ARRAY_SET
             MessageInterface::ShowMessage
-               ("Array::SetStringParameter() mapstr='%s'\n", mapstr.c_str());
+               ("Array::SetStringParameter() mapstr='%s', value=%s\n",
+                mapstr.c_str(), parts[1].c_str());
             #endif
             initialValueMap[mapstr] = parts[1];
          }
@@ -931,6 +942,11 @@ std::string Array::GetArrayDefString() const
 //------------------------------------------------------------------------------
 std::string Array::GetInitialValueString(const std::string &prefix)
 {
+   #ifdef DEBUG_INITIAL_VALUE
+   MessageInterface::ShowMessage
+      ("Array::GetInitialValueString() '%s' entered\n", GetName().c_str());
+   #endif
+   
    std::stringstream data;
    
    Integer row = GetIntegerParameter("NumRows");
@@ -941,9 +957,28 @@ std::string Array::GetInitialValueString(const std::string &prefix)
       //loj: Do not write if value is zero since default is zero(03/27/07)
       for (Integer j = 0; j < col; ++j)
       {
-         if (GetRealParameter(SINGLE_VALUE, i, j) != 0.0)
+         Real realVal = GetRealParameter(SINGLE_VALUE, i, j);
+         #ifdef DEBUG_INITIAL_VALUE
+         MessageInterface::ShowMessage("   value = %f\n", realVal);
+         #endif
+         
+         //if (GetRealParameter(SINGLE_VALUE, i, j) != 0.0)
+         if (realVal != 0.0)
          {
-            // Write initial value string (LOJ: 2010.09.21)
+            //========================================================
+            #ifndef __WRITE_INITIAL_VALUE_STRING__
+            //========================================================
+            
+            // This writes out actual value
+            data << "GMAT " << instanceName << "(" << i+1 << ", " << j+1 <<
+               ") = " << GetRealParameter(SINGLE_VALUE, i, j) << ";";
+            data << GetInlineComment() + "\n";
+            
+            //========================================================
+            #else
+            //========================================================
+            
+            // This writes out initial value string (LOJ: 2010.09.21)
             std::string mapstr = GmatStringUtil::ToString(i+1, 1) + "," +
                GmatStringUtil::ToString(j+1, 1);
             
@@ -957,6 +992,10 @@ std::string Array::GetInitialValueString(const std::string &prefix)
             
             if (initialValueMap.find(mapstr) != initialValueMap.end())
                initialVal = initialValueMap[mapstr];
+            
+            #ifdef DEBUG_INITIAL_VALUE
+            MessageInterface::ShowMessage("   initialVal='%s'\n", initialVal.c_str());
+            #endif
             
             if (GmatStringUtil::IsNumber(initialVal))
                if (mInitialValueType == 1)
@@ -973,13 +1012,12 @@ std::string Array::GetInitialValueString(const std::string &prefix)
             {
                data << prefix << "GMAT " << instanceName << "(" << i+1 << ", " << j+1 << ") = "
                     << initialVal;
-               
-               // This is old code that writing out actual value
-               //data << "GMAT " << instanceName << "(" << i+1 << ", " << j+1 <<
-               //   ") = " << GetRealParameter(SINGLE_VALUE, i, j) << ";";
-               
                data << GetInlineComment() + "\n";
             }
+            
+            //========================================================
+            #endif
+            //========================================================
          }
       }
    }
