@@ -761,7 +761,7 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    //---------------------------------------------------------------------------
    // Special case for Assignment command (LHS = RHS).
    // Since such as Sat.X can be both Parameter or ObjectProperty, we want to
-   // create a Parameter wapper if RHS is a Parameter for Assignment command.
+   // create a Parameter wrapper if RHS is a Parameter for Assignment command.
    // So special code is needed to tell the CreateElementWrapper() to check for
    // Parameter first.
    //---------------------------------------------------------------------------
@@ -787,6 +787,9 @@ bool Validator::CreateAssignmentWrappers(GmatCommand *cmd, Integer manage)
    {
       if (parts[1] == "Type")
       {
+//         throw InterpreterException("Cannot set a Propagator type (" + rhs +
+//               ") on the PropSetup " + theObj->GetName() +
+//               "; this action is not allowed in the Mission Control Sequence.");
          if (!CreatePropSetupProperty(theObj, lhs, rhs))
          {
             MessageInterface::ShowMessage
