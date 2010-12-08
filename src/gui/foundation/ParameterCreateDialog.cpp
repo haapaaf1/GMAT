@@ -776,7 +776,13 @@ void ParameterCreateDialog::OnClearButtonClick(wxCommandEvent& event)
 // void OnEditArrayButtonClick(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void ParameterCreateDialog::OnEditArrayButtonClick(wxCommandEvent& event)
-{    
+{
+   #ifdef DEBUG_EDIT_ARRAY
+   MessageInterface::ShowMessage
+      ("ParameterCreateDialog::OnEditArrayButtonClick() paramName='%s'\n",
+       mArrNameTextCtrl->GetValue().c_str());
+   #endif
+   
    ArraySetupDialog paramDlg(this, mArrNameTextCtrl->GetValue());
    paramDlg.ShowModal();
 }
@@ -788,26 +794,26 @@ void ParameterCreateDialog::OnEditArrayButtonClick(wxCommandEvent& event)
 void ParameterCreateDialog::OnSelectButtonClick(wxCommandEvent& event)
 {    
 
-      ParameterSelectDialog paramDlg(this, mSelectVarStrings,
-         GuiItemManager::SHOW_PLOTTABLE, false, true);
-      
-      paramDlg.SetParamNameArray(mSelectVarStrings);
-      paramDlg.ShowModal();
-      
-      if (paramDlg.HasSelectionChanged())
+   ParameterSelectDialog paramDlg(this, mSelectVarStrings,
+                                  GuiItemManager::SHOW_PLOTTABLE, false, true);
+   
+   paramDlg.SetParamNameArray(mSelectVarStrings);
+   paramDlg.ShowModal();
+   
+   if (paramDlg.HasSelectionChanged())
+   {
+      wxArrayString selectVarStrings = paramDlg.GetParamNameArray();
+      if (selectVarStrings.Count() > 0)
       {
-         wxArrayString selectVarStrings = paramDlg.GetParamNameArray();
-         if (selectVarStrings.Count() > 0)
-         {
-            mVarValueTextCtrl->Clear();
-            for (unsigned int i=0; i<selectVarStrings.Count(); i++)
-               mVarValueTextCtrl->AppendText(selectVarStrings[i]);
-         }
-         else // no selections
-         {
-            mVarValueTextCtrl->Clear();
-         }
+         mVarValueTextCtrl->Clear();
+         for (unsigned int i=0; i<selectVarStrings.Count(); i++)
+            mVarValueTextCtrl->AppendText(selectVarStrings[i]);
       }
+      else // no selections
+      {
+         mVarValueTextCtrl->Clear();
+      }
+   }
 }
 
 
