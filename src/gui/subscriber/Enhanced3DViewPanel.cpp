@@ -1835,7 +1835,6 @@ void Enhanced3DViewPanel::OnOrbitColorClick(wxCommandEvent& event)
    data.SetColour(mOrbitColor);
 
    wxColourDialog dialog(this, &data);
-   //dialog.CenterOnParent();
    dialog.Center();
    
    if (dialog.ShowModal() == wxID_OK)
@@ -1844,44 +1843,48 @@ void Enhanced3DViewPanel::OnOrbitColorClick(wxCommandEvent& event)
       if (mSelectedScListBox->GetSelection() != -1)
       {
          mSelSpName = std::string(mSelectedScListBox->GetStringSelection().c_str());
-      
+         
          mOrbitColor = dialog.GetColourData().GetColour();
          mOrbitColorButton->SetBackgroundColour(mOrbitColor);
          mOrbitColorButton->Refresh();
          mOrbitColorMap[mSelSpName].Set(mOrbitColor.Red(),
                                         mOrbitColor.Green(),
-                                        mOrbitColor.Blue());
-
-         #if DEBUG_OPENGL_PANEL
-         MessageInterface::ShowMessage("OnOrbitColorClick() r=%d g=%d b=%d\n",
-                                       mOrbitColor.Red(), mOrbitColor.Green(),
-                                       mOrbitColor.Blue());
+                                        mOrbitColor.Blue(), 0);
+                                        //mOrbitColor.Alpha());
          
+         #if DEBUG_OPENGL_PANEL_COLOR
          MessageInterface::ShowMessage
-            ("OnOrbitColorClick() mOrbitColorMap[%s]=%u\n",
-             mSelSpName.c_str(), mOrbitColorMap[mSelSpName].GetIntColor());
+            ("OnOrbitColorClick() red=%u, green=%u, blue=%u, alpha=%u\n",
+             mOrbitColor.Red(), mOrbitColor.Green(), mOrbitColor.Blue(),
+             mOrbitColor.Alpha());
+         UnsignedInt intColor = mOrbitColorMap[mSelSpName].GetIntColor();
+         MessageInterface::ShowMessage
+            ("OnOrbitColorClick() mOrbitColorMap[%s]=%u<%08x>\n",
+             mSelSpName.c_str(), intColor, intColor);
          #endif
       }
       else if (mSelectedObjListBox->GetSelection() != -1)
       {
          mSelSpName = std::string(mSelectedObjListBox->GetStringSelection().c_str());
-      
+         
          mOrbitColor = dialog.GetColourData().GetColour();
          mOrbitColorButton->SetBackgroundColour(mOrbitColor);
          mOrbitColorButton->Refresh();
-
+         
          mOrbitColorMap[mSelSpName].Set(mOrbitColor.Red(),
                                         mOrbitColor.Green(),
-                                        mOrbitColor.Blue());
+                                        mOrbitColor.Blue(), 0);
+                                        //mOrbitColor.Alpha());
          
-         #if DEBUG_OPENGL_PANEL
+         #if DEBUG_OPENGL_PANEL_COLOR
          MessageInterface::ShowMessage
-            ("OnOrbitColorClick() r=%d g=%d b=%d\n", mOrbitColor.Red(),
-             mOrbitColor.Green(), mOrbitColor.Blue());
-
+            ("OnOrbitColorClick() red=%u, green=%u, blue=%u, alpha=%u\n",
+             mOrbitColor.Red(), mOrbitColor.Green(), mOrbitColor.Blue(),
+             mOrbitColor.Alpha());
+         UnsignedInt intColor = mOrbitColorMap[mSelSpName].GetIntColor();
          MessageInterface::ShowMessage
-            ("OnOrbitColorClick() mOrbitColorMap[%s]=%u\n",
-             mSelSpName.c_str(), mOrbitColorMap[mSelSpName].GetIntColor());
+            ("OnOrbitColorClick() mOrbitColorMap[%s]=%u<%08x>\n",
+             mSelSpName.c_str(), intColor, intColor);
          #endif
       }
       
@@ -1912,16 +1915,18 @@ void Enhanced3DViewPanel::OnTargetColorClick(wxCommandEvent& event)
       mTargetColorButton->Refresh();
       mTargetColorMap[mSelSpName].Set(mTargetColor.Red(),
                                       mTargetColor.Green(),
-                                      mTargetColor.Blue());
+                                      mTargetColor.Blue(), 0);
+                                      //mTargetColor.Alpha());
       
       #if DEBUG_OPENGL_PANEL
       MessageInterface::ShowMessage
-         ("OnTargetColorClick() r=%d g=%d b=%d\n", mTargetColor.Red(),
-          mTargetColor.Green(), mTargetColor.Blue());
-      
+         ("OnTargetColorClick() red=%u, green=%u, blue=%u, alpha=%u\n",
+          mTargetColor.Red(), mTargetColor.Green(), mTargetColor.Blue(),
+          mTargetColor.Alpha());
+      UnsignedInt intColor = mTargetColorMap[mSelSpName].GetIntColor();
       MessageInterface::ShowMessage
-         ("OnTargetColorClick() mTargetColorMap[%s]=%u\n",
-          mSelSpName.c_str(), mTargetColorMap[mSelSpName].GetIntColor());
+         ("OnTargetColorClick() mTargetColorMap[%s]=%u<%08x>\n",
+          mSelSpName.c_str(), intColor, intColor);
       #endif
       
       EnableUpdate(true);
