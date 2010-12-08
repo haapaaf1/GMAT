@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                              Enhanced3DViewCanvas
+//                              OrbitViewCanvas
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -24,7 +24,7 @@
  */
 //------------------------------------------------------------------------------
 
-#include "Enhanced3DViewCanvas.hpp"
+#include "OrbitViewCanvas.hpp"
 #include "Camera.hpp"
 #include "ModelObject.hpp"
 #include "ModelManager.hpp"
@@ -149,11 +149,11 @@ using namespace FloatAttUtil;
 #define MODE_FREE_FLYING 1
 #define MODE_ASTRONAUT_6DOF 2
 
-BEGIN_EVENT_TABLE(Enhanced3DViewCanvas, wxGLCanvas)
-   EVT_SIZE(Enhanced3DViewCanvas::OnTrajSize)
-   EVT_PAINT(Enhanced3DViewCanvas::OnPaint)
-   EVT_MOUSE_EVENTS(Enhanced3DViewCanvas::OnMouse)
-   EVT_KEY_DOWN(Enhanced3DViewCanvas::OnKeyDown)
+BEGIN_EVENT_TABLE(OrbitViewCanvas, wxGLCanvas)
+   EVT_SIZE(OrbitViewCanvas::OnTrajSize)
+   EVT_PAINT(OrbitViewCanvas::OnPaint)
+   EVT_MOUSE_EVENTS(OrbitViewCanvas::OnMouse)
+   EVT_KEY_DOWN(OrbitViewCanvas::OnKeyDown)
 END_EVENT_TABLE()
 
 using namespace GmatPlot;
@@ -162,12 +162,12 @@ using namespace GmatMathUtil;
 //---------------------------------
 // static data
 //---------------------------------
-const int Enhanced3DViewCanvas::LAST_STD_BODY_ID = 10;
-const int Enhanced3DViewCanvas::MAX_COORD_SYS = 10;
-const Real Enhanced3DViewCanvas::MAX_ZOOM_IN = 3700.0;
-const Real Enhanced3DViewCanvas::RADIUS_ZOOM_RATIO = 2.2;
-const Real Enhanced3DViewCanvas::DEFAULT_DIST = 30000.0;
-const int Enhanced3DViewCanvas::UNKNOWN_OBJ_ID = -999;
+const int OrbitViewCanvas::LAST_STD_BODY_ID = 10;
+const int OrbitViewCanvas::MAX_COORD_SYS = 10;
+const Real OrbitViewCanvas::MAX_ZOOM_IN = 3700.0;
+const Real OrbitViewCanvas::RADIUS_ZOOM_RATIO = 2.2;
+const Real OrbitViewCanvas::DEFAULT_DIST = 30000.0;
+const int OrbitViewCanvas::UNKNOWN_OBJ_ID = -999;
 
 bool openGLInitialized = false, viewPointInitialized = false;
 int current_model = 0;
@@ -178,7 +178,7 @@ static int *sIntColor = new int;
 static GlColorType *sGlColor = (GlColorType*)sIntColor;
 
 //------------------------------------------------------------------------------
-// Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id, ...)
+// OrbitViewCanvas(wxWindow *parent, wxWindowID id, ...)
 //------------------------------------------------------------------------------
 /**
  * Constructor.
@@ -192,9 +192,9 @@ static GlColorType *sGlColor = (GlColorType*)sIntColor;
  *
  */
 //------------------------------------------------------------------------------
-Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
-                               const wxPoint& pos, const wxSize& size,
-                               const wxString& name, long style)
+OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
+                                 const wxPoint& pos, const wxSize& size,
+                                 const wxString& name, long style)
    : ViewCanvas(parent, id, pos, size, name, style)
 {
    #ifndef __USE_WX280_GL__
@@ -212,7 +212,7 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    
    #if DEBUG_TRAJCANVAS_INIT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas() name=%s, size.X=%d, size.Y=%d\n",
+      ("OrbitViewCanvas() name=%s, size.X=%d, size.Y=%d\n",
        name.c_str(), size.GetWidth(), size.GetHeight());
    #endif
    
@@ -335,7 +335,7 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    // solar system
    pSolarSystem = NULL;
    //MessageInterface::ShowMessage
-   //   ("==> Enhanced3DViewCanvas::Enhanced3DViewCanvas() pSolarSystem=%p\n", pSolarSystem);
+   //   ("==> OrbitViewCanvas::OrbitViewCanvas() pSolarSystem=%p\n", pSolarSystem);
    
    // objects
    mObjectDefaultRadius = 200; //km: make big enough to see
@@ -369,23 +369,23 @@ Enhanced3DViewCanvas::Enhanced3DViewCanvas(wxWindow *parent, wxWindowID id,
    if (pViewCoordSystem)
       MessageInterface::ShowMessage
          ("   pViewCoordSystem=%s\n", pViewCoordSystem->GetName().c_str());
-   MessageInterface::ShowMessage("Enhanced3DViewCanvas() constructor exiting\n");
+   MessageInterface::ShowMessage("OrbitViewCanvas() constructor exiting\n");
    #endif
 }
 
 
 //------------------------------------------------------------------------------
-// ~Enhanced3DViewCanvas()
+// ~OrbitViewCanvas()
 //------------------------------------------------------------------------------
 /**
  * Destructor.
  */
 //------------------------------------------------------------------------------
-Enhanced3DViewCanvas::~Enhanced3DViewCanvas()
+OrbitViewCanvas::~OrbitViewCanvas()
 {
    #ifdef DEBUG_RESOURCE_CLEARING
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::~Enhanced3DViewCanvas() '%s' entered\n", mPlotName.c_str());
+      ("OrbitViewCanvas::~OrbitViewCanvas() '%s' entered\n", mPlotName.c_str());
    #endif
    
    if (mTextTrajFile)
@@ -398,19 +398,19 @@ Enhanced3DViewCanvas::~Enhanced3DViewCanvas()
    
    #ifdef DEBUG_RESOURCE_CLEARING
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::~Enhanced3DViewCanvas() '%s' exiting\n", mPlotName.c_str());
+      ("OrbitViewCanvas::~OrbitViewCanvas() '%s' exiting\n", mPlotName.c_str());
    #endif
 }
 
 
 //------------------------------------------------------------------------------
-// bool Enhanced3DViewCanvas::InitOpenGL()
+// bool OrbitViewCanvas::InitOpenGL()
 //------------------------------------------------------------------------------
 /**
  * Initializes GL and IL.
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::InitOpenGL()
+bool OrbitViewCanvas::InitOpenGL()
 {
    // get GL version
    #ifdef __GET_GL_INFO__
@@ -488,7 +488,7 @@ bool Enhanced3DViewCanvas::InitOpenGL()
 //------------------------------------------------------------------------------
 // wxString GetGotoObjectName()
 //------------------------------------------------------------------------------
-wxString Enhanced3DViewCanvas::GetGotoObjectName()
+wxString OrbitViewCanvas::GetGotoObjectName()
 {
    return mObjectNames[mViewObjId];
 }
@@ -501,7 +501,7 @@ wxString Enhanced3DViewCanvas::GetGotoObjectName()
  * Return current GLContext pointer.
  */
 //------------------------------------------------------------------------------
-wxGLContext* Enhanced3DViewCanvas::GetGLContext()
+wxGLContext* OrbitViewCanvas::GetGLContext()
 {
    return theContext;
 }
@@ -510,11 +510,11 @@ wxGLContext* Enhanced3DViewCanvas::GetGLContext()
 //------------------------------------------------------------------------------
 // void SetEndOfRun(bool flag = true)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetEndOfRun(bool flag)
+void OrbitViewCanvas::SetEndOfRun(bool flag)
 {
    #if DEBUG_TRAJCANVAS_UPDATE
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetEndOfRun() Enhanced3DViewCanvas::SetEndOfRun() flag=%d, "
+      ("OrbitViewCanvas::SetEndOfRun() OrbitViewCanvas::SetEndOfRun() flag=%d, "
        "mNumData=%d\n",  flag, mNumData);
    #endif
    
@@ -531,7 +531,7 @@ void Enhanced3DViewCanvas::SetEndOfRun(bool flag)
    {
       #if DEBUG_TRAJCANVAS_LONGITUDE
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::SetEndOfRun() mIsEndOfRun=%d, mNumData=%d\n",
+         ("OrbitViewCanvas::SetEndOfRun() mIsEndOfRun=%d, mNumData=%d\n",
           mIsEndOfRun, mNumData);
       #endif
       
@@ -566,7 +566,7 @@ void Enhanced3DViewCanvas::SetEndOfRun(bool flag)
       
       #if DEBUG_TRAJCANVAS_LONGITUDE
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::SetEndOfRun() mInitialLongitude=%f, time=%f, x=%f,\n   "
+         ("OrbitViewCanvas::SetEndOfRun() mInitialLongitude=%f, time=%f, x=%f,\n   "
           "y=%f, mFinalMha=%f, mFinalLongitude=%f, mFinalLst=%f\n",
           mInitialLongitude, time, x, y, mha, longitudeFinal, lst);
       #endif
@@ -578,11 +578,11 @@ void Enhanced3DViewCanvas::SetEndOfRun(bool flag)
 //------------------------------------------------------------------------------
 // void SetUsePerspectiveMode(bool perspMode)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetUsePerspectiveMode(bool perspMode)
+void OrbitViewCanvas::SetUsePerspectiveMode(bool perspMode)
 {
    #if DEBUG_TRAJCANVAS_INIT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas()::SetUsePerspectiveMode() perspMode=%d\n", perspMode);
+      ("OrbitViewCanvas()::SetUsePerspectiveMode() perspMode=%d\n", perspMode);
    #endif
    
    mUsePerspectiveMode = perspMode;
@@ -592,7 +592,7 @@ void Enhanced3DViewCanvas::SetUsePerspectiveMode(bool perspMode)
 //------------------------------------------------------------------------------
 // void SetObjectColors(const wxStringColorMap &objectColorMap)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetObjectColors(const wxStringColorMap &objectColorMap)
+void OrbitViewCanvas::SetObjectColors(const wxStringColorMap &objectColorMap)
 {
    mObjectColorMap = objectColorMap;
 }
@@ -601,7 +601,7 @@ void Enhanced3DViewCanvas::SetObjectColors(const wxStringColorMap &objectColorMa
 //------------------------------------------------------------------------------
 // void SetShowObjects(const wxStringColorMap &showObjMap)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetShowObjects(const wxStringBoolMap &showObjMap)
+void OrbitViewCanvas::SetShowObjects(const wxStringBoolMap &showObjMap)
 {
    mShowObjectMap = showObjMap;
 }
@@ -609,7 +609,7 @@ void Enhanced3DViewCanvas::SetShowObjects(const wxStringBoolMap &showObjMap)
 //------------------------------------------------------------------------------
 // void SetGLContext(wxGLContext *glContext)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetGLContext(wxGLContext *glContext)
+void OrbitViewCanvas::SetGLContext(wxGLContext *glContext)
 {
    #ifdef __USE_WX280_GL__
    if (glContext == NULL)
@@ -629,7 +629,7 @@ void Enhanced3DViewCanvas::SetGLContext(wxGLContext *glContext)
  * Clears plot.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ClearPlot()
+void OrbitViewCanvas::ClearPlot()
 {
    //loj: black for now.. eventually it will use background color
    glClearColor(0.0, 0.0, 0.0, 1);
@@ -650,7 +650,7 @@ void Enhanced3DViewCanvas::ClearPlot()
  * Resets plotting information.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ResetPlotInfo()
+void OrbitViewCanvas::ResetPlotInfo()
 {
    mNumData = 0;
    mTotalPoints = 0;
@@ -688,18 +688,18 @@ void Enhanced3DViewCanvas::ResetPlotInfo()
  * @param <viewAnimation> true if animation is viewed
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::RedrawPlot(bool viewAnimation)
+void OrbitViewCanvas::RedrawPlot(bool viewAnimation)
 {
    #ifdef DEBUG_REDRAW
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::RedrawPlot() entered, viewAnimation=%d\n", viewAnimation);
+      ("OrbitViewCanvas::RedrawPlot() entered, viewAnimation=%d\n", viewAnimation);
    #endif
    
    if (mAxisLength < mMaxZoomIn)
    {
       mAxisLength = mMaxZoomIn;
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::RedrawPlot() distance < max zoom in. distance set to %f\n",
+         ("OrbitViewCanvas::RedrawPlot() distance < max zoom in. distance set to %f\n",
           mAxisLength);
    }
    
@@ -718,7 +718,7 @@ void Enhanced3DViewCanvas::RedrawPlot(bool viewAnimation)
  * Shows default view.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ShowDefaultView()
+void OrbitViewCanvas::ShowDefaultView()
 {
    int clientWidth, clientHeight;
    GetClientSize(&clientWidth, &clientHeight);
@@ -736,7 +736,7 @@ void Enhanced3DViewCanvas::ShowDefaultView()
  * Shows objects in wire frame.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawWireFrame(bool flag)
+void OrbitViewCanvas::DrawWireFrame(bool flag)
 {
    mDrawWireFrame = flag;
    Refresh(false);
@@ -750,7 +750,7 @@ void Enhanced3DViewCanvas::DrawWireFrame(bool flag)
  * Draws equatorial plane
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawXyPlane(bool flag)
+void OrbitViewCanvas::DrawXyPlane(bool flag)
 {
    mDrawXyPlane = flag;
    Refresh(false);
@@ -764,7 +764,7 @@ void Enhanced3DViewCanvas::DrawXyPlane(bool flag)
  * Draws ecliptic plane
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawEcPlane(bool flag)
+void OrbitViewCanvas::DrawEcPlane(bool flag)
 {
    mDrawEcPlane = flag;
    Refresh(false);
@@ -778,7 +778,7 @@ void Enhanced3DViewCanvas::DrawEcPlane(bool flag)
  * Draws axes.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::OnDrawAxes(bool flag)
+void OrbitViewCanvas::OnDrawAxes(bool flag)
 {
    mDrawAxes = flag;
    Refresh(false);
@@ -792,7 +792,7 @@ void Enhanced3DViewCanvas::OnDrawAxes(bool flag)
  * Draws axes.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::OnDrawGrid(bool flag)
+void OrbitViewCanvas::OnDrawGrid(bool flag)
 {
    mDrawGrid = flag;
    Refresh(false);
@@ -806,11 +806,11 @@ void Enhanced3DViewCanvas::OnDrawGrid(bool flag)
  * Draws objects in other coordinate system.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawInOtherCoordSystem(const wxString &csName)
+void OrbitViewCanvas::DrawInOtherCoordSystem(const wxString &csName)
 {
    #if DEBUG_TRAJCANVAS_ACTION
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::DrawInOtherCoordSysName() viewCS=%s, newCS=%s\n",
+      ("OrbitViewCanvas::DrawInOtherCoordSysName() viewCS=%s, newCS=%s\n",
        mViewCoordSysName.c_str(), csName.c_str());
    #endif
 
@@ -849,7 +849,7 @@ void Enhanced3DViewCanvas::DrawInOtherCoordSystem(const wxString &csName)
 //---------------------------------------------------------------------------
 // void GotoObject(const wxString &objName)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::GotoObject(const wxString &objName)
+void OrbitViewCanvas::GotoObject(const wxString &objName)
 {
    int objId = GetObjectId(objName);
    
@@ -879,7 +879,7 @@ void Enhanced3DViewCanvas::GotoObject(const wxString &objName)
    
    #ifdef DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::GotoObject() objName=%s, mViewObjId=%d, mMaxZoomIn=%f\n"
+      ("OrbitViewCanvas::GotoObject() objName=%s, mViewObjId=%d, mMaxZoomIn=%f\n"
        "   mAxisLength=%f\n", objName.c_str(), mViewObjId, mMaxZoomIn, mAxisLength);
    #endif
 
@@ -892,10 +892,10 @@ void Enhanced3DViewCanvas::GotoObject(const wxString &objName)
 //---------------------------------------------------------------------------
 // void GotoOtherBody(const wxString &body)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::GotoOtherBody(const wxString &body)
+void OrbitViewCanvas::GotoOtherBody(const wxString &body)
 {
    #ifdef DEBUG_TRAJCANVAS_OBJECT
-      MessageInterface::ShowMessage("Enhanced3DViewCanvas::GotoOtherBody() body=%s\n",
+      MessageInterface::ShowMessage("OrbitViewCanvas::GotoOtherBody() body=%s\n",
                                     body.c_str());
    #endif
 }
@@ -904,11 +904,11 @@ void Enhanced3DViewCanvas::GotoOtherBody(const wxString &body)
 //---------------------------------------------------------------------------
 // void ViewAnimation(int interval, int frameInc)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ViewAnimation(int interval, int frameInc)
+void OrbitViewCanvas::ViewAnimation(int interval, int frameInc)
 {
    #ifdef DEBUG_TRAJCANVAS_ANIMATION
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::ViewAnimation() interval=%d, frameInc=%d\n",
+      ("OrbitViewCanvas::ViewAnimation() interval=%d, frameInc=%d\n",
        interval, frameInc);
    #endif
    
@@ -936,13 +936,13 @@ void Enhanced3DViewCanvas::ViewAnimation(int interval, int frameInc)
 //                  const UnsignedIntArray &objOrbitColors,
 //                  const std::vector<SpacePoint*> &objArray)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetGlObject(const StringArray &objNames,
-                                 const UnsignedIntArray &objOrbitColors,
-                                 const std::vector<SpacePoint*> &objArray)
+void OrbitViewCanvas::SetGlObject(const StringArray &objNames,
+                                  const UnsignedIntArray &objOrbitColors,
+                                  const std::vector<SpacePoint*> &objArray)
 {
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetGlObject() entered for %s, objCount=%d, colorCount=%d.\n",
+      ("OrbitViewCanvas::SetGlObject() entered for %s, objCount=%d, colorCount=%d.\n",
        mPlotName.c_str(), objNames.size(), objOrbitColors.size());
    #endif
    
@@ -970,12 +970,12 @@ void Enhanced3DViewCanvas::SetGlObject(const StringArray &objNames,
    }
    else
    {
-      MessageInterface::ShowMessage("Enhanced3DViewCanvas::SetGlObject() object sizes "
+      MessageInterface::ShowMessage("OrbitViewCanvas::SetGlObject() object sizes "
                                     "are not the same. No objects added.\n");
    }
    
    #if DEBUG_TRAJCANVAS_OBJECT
-   MessageInterface::ShowMessage("Enhanced3DViewCanvas::SetGlObject() leaving\n");
+   MessageInterface::ShowMessage("OrbitViewCanvas::SetGlObject() leaving\n");
    #endif
 }
 
@@ -983,7 +983,7 @@ void Enhanced3DViewCanvas::SetGlObject(const StringArray &objNames,
 //------------------------------------------------------------------------------
 // void SetSolarSystem(SolarSystem *ss)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetSolarSystem(SolarSystem *ss)
+void OrbitViewCanvas::SetSolarSystem(SolarSystem *ss)
 {
    pSolarSystem = ss;
 }
@@ -993,13 +993,13 @@ void Enhanced3DViewCanvas::SetSolarSystem(SolarSystem *ss)
 // void SetGlCoordSystem(CoordinateSystem *internalCs,CoordinateSystem *viewCs,
 //                       CoordinateSystem *viewUpCs)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
-                                      CoordinateSystem *viewCs,
-                                      CoordinateSystem *viewUpCs)
+void OrbitViewCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
+                                       CoordinateSystem *viewCs,
+                                       CoordinateSystem *viewUpCs)
 {
    #if DEBUG_TRAJCANVAS_CS
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetGlCoordSystem() for '%s', internalCs=<%p>, viewCs=<%p>, "
+      ("OrbitViewCanvas::SetGlCoordSystem() for '%s', internalCs=<%p>, viewCs=<%p>, "
        " viweUpCs=%p\n",  mPlotName.c_str(), internalCs, viewCs, viewUpCs);
    #endif
    
@@ -1084,12 +1084,12 @@ void Enhanced3DViewCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
  * @param <usevdVec> true if use vector for view direction
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
-                                     SpacePoint *vdObj, Real vsFactor,
-                                     const Rvector3 &vpRefVec, const Rvector3 &vpVec,
-                                     const Rvector3 &vdVec, const std::string &upAxis,
-                                     bool usevpRefVec, bool usevpVec, bool usevdVec,
-                                     bool useFixedFov, Real fov)
+void OrbitViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
+                                      SpacePoint *vdObj, Real vsFactor,
+                                      const Rvector3 &vpRefVec, const Rvector3 &vpVec,
+                                      const Rvector3 &vdVec, const std::string &upAxis,
+                                      bool usevpRefVec, bool usevpVec, bool usevdVec,
+                                      bool useFixedFov, Real fov)
 {
    pViewPointRefObj = vpRefObj;
    pViewPointVectorObj = vpVecObj;
@@ -1112,7 +1112,7 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
       
    #if DEBUG_TRAJCANVAS_PROJ
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetGlViewOption() pViewPointRefObj=%p, "
+      ("OrbitViewCanvas::SetGlViewOption() pViewPointRefObj=%p, "
        "pViewPointVectorObj=%p\n   pViewDirectionObj=%p, mViewScaleFactor=%f   "
        "mViewPointRefVector=%s\n   mViewPointVector=%s, mViewDirectionVector=%s, "
        "mViewUpAxisName=%s\n   mUseViewPointRefVector=%d, mUseViewDirectionVector=%d, "
@@ -1134,7 +1134,7 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
       {
          mUseViewPointRefVector = true;
          MessageInterface::ShowMessage
-            ("*** Warning *** Enhanced3DViewCanvas::SetGlViewOption() Cannot find "
+            ("*** Warning *** OrbitViewCanvas::SetGlViewOption() Cannot find "
              "pViewPointRefObj name=%s, so using vector=%s\n",
              pViewPointRefObj->GetName().c_str(),
              mViewPointRefVector.ToString().c_str());
@@ -1146,7 +1146,7 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
       
       if (!mUseViewPointRefVector)
          MessageInterface::ShowMessage
-            ("*** Warning *** Enhanced3DViewCanvas::SetGlViewOption() "
+            ("*** Warning *** OrbitViewCanvas::SetGlViewOption() "
              "ViewPointRefObject is NULL,"
              "so will use default Vector instead.\n");
    }
@@ -1160,7 +1160,7 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
       {
          mUseViewPointVector = true;
          MessageInterface::ShowMessage
-            ("*** Warning *** Enhanced3DViewCanvas::SetGlViewOption() Cannot find "
+            ("*** Warning *** OrbitViewCanvas::SetGlViewOption() Cannot find "
              "pViewPointVectorObj name=%s, so using vector=%s\n",
              pViewPointVectorObj->GetName().c_str(),
              mViewPointVector.ToString().c_str());
@@ -1170,7 +1170,7 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
    {
       if (!mUseViewPointVector)
          MessageInterface::ShowMessage
-            ("*** Warning *** Enhanced3DViewCanvas::SetGlViewOption() "
+            ("*** Warning *** OrbitViewCanvas::SetGlViewOption() "
              "ViewPointVectorObject is NULL, "
              "so will use default Vector instead.\n");
    }
@@ -1184,7 +1184,7 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
       {
          mUseViewDirectionVector = true;
          MessageInterface::ShowMessage
-            ("*** Warning *** Enhanced3DViewCanvas::SetGlViewOption() Cannot find "
+            ("*** Warning *** OrbitViewCanvas::SetGlViewOption() Cannot find "
              "pViewDirectionObj name=%s, so using vector=%s\n",
              pViewDirectionObj->GetName().c_str(),
              mViewDirectionVector.ToString().c_str());
@@ -1194,7 +1194,7 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
    {
       if (!mUseViewDirectionVector)
          MessageInterface::ShowMessage
-            ("*** Warning *** Enhanced3DViewCanvas::SetGlViewOption() "
+            ("*** Warning *** OrbitViewCanvas::SetGlViewOption() "
              "ViewDirectionObject is NULL,"
              "so will use default Vector instead.\n");
    }
@@ -1205,13 +1205,13 @@ void Enhanced3DViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpV
 //------------------------------------------------------------------------------
 // void SetGlDrawOrbitFlag(const std::vector<bool> &drawArray)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetGlDrawOrbitFlag(const std::vector<bool> &drawArray)
+void OrbitViewCanvas::SetGlDrawOrbitFlag(const std::vector<bool> &drawArray)
 {
    mDrawOrbitArray = drawArray;
    
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetGlDrawObjectFlag() mDrawOrbitArray.size()=%d, "
+      ("OrbitViewCanvas::SetGlDrawObjectFlag() mDrawOrbitArray.size()=%d, "
        "mObjectCount=%d\n", mDrawOrbitArray.size(), mObjectCount);
    
    bool draw;
@@ -1219,7 +1219,7 @@ void Enhanced3DViewCanvas::SetGlDrawOrbitFlag(const std::vector<bool> &drawArray
    {
       draw = mDrawOrbitArray[i] ? true : false;      
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::SetGlDrawObjectFlag() i=%d, mDrawOrbitArray[%s]=%d\n",
+         ("OrbitViewCanvas::SetGlDrawObjectFlag() i=%d, mDrawOrbitArray[%s]=%d\n",
           i, mObjectNames[i].c_str(), draw);
    }
    #endif
@@ -1229,13 +1229,13 @@ void Enhanced3DViewCanvas::SetGlDrawOrbitFlag(const std::vector<bool> &drawArray
 //------------------------------------------------------------------------------
 // void SetGlShowObjectFlag(const std::vector<bool> &showArray)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArray)
+void OrbitViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArray)
 {
    mShowObjectArray = showArray;
 
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetGlDrawObjectFlag() mDrawOrbitArray.size()=%d, "
+      ("OrbitViewCanvas::SetGlDrawObjectFlag() mDrawOrbitArray.size()=%d, "
        "mObjectCount=%d\n", mShowObjectArray.size(), mObjectCount);
    #endif
    
@@ -1252,14 +1252,14 @@ void Enhanced3DViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArra
       
       #if DEBUG_TRAJCANVAS_OBJECT
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::SetGlShowObjectFlag() i=%d, mShowObjectMap[%s]=%d\n",
+         ("OrbitViewCanvas::SetGlShowObjectFlag() i=%d, mShowObjectMap[%s]=%d\n",
           i, mObjectNames[i].c_str(), show);
       #endif
    }
    
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetGlDrawObjectFlag() mEnableLightSource=%d, mSunPresent=%d\n",
+      ("OrbitViewCanvas::SetGlDrawObjectFlag() mEnableLightSource=%d, mSunPresent=%d\n",
        mEnableLightSource, mSunPresent);
    #endif
    
@@ -1304,7 +1304,7 @@ void Enhanced3DViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArra
 //------------------------------------------------------------------------------
 // void SetNumPointsToRedraw(Integer numPoints)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetNumPointsToRedraw(Integer numPoints)
+void OrbitViewCanvas::SetNumPointsToRedraw(Integer numPoints)
 {
    mNumPointsToRedraw = numPoints;
    mRedrawLastPointsOnly = false;
@@ -1319,7 +1319,7 @@ void Enhanced3DViewCanvas::SetNumPointsToRedraw(Integer numPoints)
 //------------------------------------------------------------------------------
 // void SetUpdateFrequency(Integer updFreq)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetUpdateFrequency(Integer updFreq)
+void OrbitViewCanvas::SetUpdateFrequency(Integer updFreq)
 {
    mUpdateFrequency = updFreq;
 }
@@ -1352,12 +1352,12 @@ void Enhanced3DViewCanvas::SetUpdateFrequency(Integer updFreq)
  *           2 (Subscriber::SI_NONE)    = Draw no iteration
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
-                                const RealArray &posX, const RealArray &posY,
-                                const RealArray &posZ, const RealArray &velX,
-                                const RealArray &velY, const RealArray &velZ,
-                                const UnsignedIntArray &scColors, bool solving,
-                                Integer solverOption)
+void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
+                                 const RealArray &posX, const RealArray &posY,
+                                 const RealArray &posZ, const RealArray &velX,
+                                 const RealArray &velY, const RealArray &velZ,
+                                 const UnsignedIntArray &scColors, bool solving,
+                                 Integer solverOption)
 {
    mScCount = scNames.size();
    mScNameArray = scNames;
@@ -1373,7 +1373,7 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
    MessageInterface::ShowMessage
       ("=====================================================\n");
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::UpdatePlot() plot=%s, time=%f, posX=%f, mNumData=%d, "
+      ("OrbitViewCanvas::UpdatePlot() plot=%s, time=%f, posX=%f, mNumData=%d, "
        "mScCount=%d, scColor=%u, solving=%d, solverOption=%d\n", GetName().c_str(),
        time, posX[0], mNumData, mScCount, scColors[0], solving, solverOption);
    #endif
@@ -1477,7 +1477,7 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
       mInitialMha = mha;
       #if DEBUG_TRAJCANVAS_LONGITUDE
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::UpdatePlot() mInitialLongitude = %f, mInitialMha = %f\n",
+         ("OrbitViewCanvas::UpdatePlot() mInitialLongitude = %f, mInitialMha = %f\n",
           mInitialLongitude, mInitialMha);
       #endif
    }
@@ -1557,7 +1557,7 @@ void Enhanced3DViewCanvas::UpdatePlot(const StringArray &scNames, const Real &ti
 //---------------------------------------------------------------------------
 // void TakeAction(const std::string &action)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::TakeAction(const std::string &action)
+void OrbitViewCanvas::TakeAction(const std::string &action)
 {
    if (action == "ClearSolverData")
    {
@@ -1578,13 +1578,13 @@ void Enhanced3DViewCanvas::TakeAction(const std::string &action)
 // void AddObjectList(wxArrayString &objNames, UnsignedIntArray &objColors,
 //                    bool clearList=true)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::AddObjectList(const wxArrayString &objNames,
-                                   const UnsignedIntArray &objColors,
-                                   bool clearList)
+void OrbitViewCanvas::AddObjectList(const wxArrayString &objNames,
+                                    const UnsignedIntArray &objColors,
+                                    bool clearList)
 {
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::AddObjectList() entered, object count=%d, color count=%d\n",
+      ("OrbitViewCanvas::AddObjectList() entered, object count=%d, color count=%d\n",
        objNames.GetCount(), objColors.size());
    #endif
    
@@ -1611,7 +1611,7 @@ void Enhanced3DViewCanvas::AddObjectList(const wxArrayString &objNames,
       {
          #if DEBUG_TRAJCANVAS_OBJECT
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::AddObjectList() Bind new texture object=%s\n",
+            ("OrbitViewCanvas::AddObjectList() Bind new texture object=%s\n",
              objNames[i].c_str());
          #endif
          
@@ -1639,7 +1639,7 @@ void Enhanced3DViewCanvas::AddObjectList(const wxArrayString &objNames,
       
       #if DEBUG_TRAJCANVAS_OBJECT > 1
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::AddObjectList() objNames[%d]=%s\n",
+         ("OrbitViewCanvas::AddObjectList() objNames[%d]=%s\n",
           i, objNames[i].c_str());
       #endif
    }
@@ -1655,7 +1655,7 @@ void Enhanced3DViewCanvas::AddObjectList(const wxArrayString &objNames,
    ClearPlot();
    
    #if DEBUG_TRAJCANVAS_OBJECT
-   MessageInterface::ShowMessage("Enhanced3DViewCanvas::AddObjectList() leaving\n");
+   MessageInterface::ShowMessage("OrbitViewCanvas::AddObjectList() leaving\n");
    #endif
    
 } //AddObjectList()
@@ -1673,7 +1673,7 @@ void Enhanced3DViewCanvas::AddObjectList(const wxArrayString &objNames,
  * @note Assumes the trajectory file has time, x, y, z, vx, vy, vz.
  */
 //------------------------------------------------------------------------------
-int Enhanced3DViewCanvas::ReadTextTrajectory(const wxString &filename)
+int OrbitViewCanvas::ReadTextTrajectory(const wxString &filename)
 {
    int numDataPoints = 0;
    mTextTrajFile =  new TextTrajectoryFile(std::string(filename.c_str()));
@@ -1747,7 +1747,7 @@ int Enhanced3DViewCanvas::ReadTextTrajectory(const wxString &filename)
  * Processes wxPaintEvent.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
+void OrbitViewCanvas::OnPaint(wxPaintEvent& event)
 {   
    // must always be here
    wxPaintDC dc(this);
@@ -1826,7 +1826,7 @@ void Enhanced3DViewCanvas::OnPaint(wxPaintEvent& event)
  * Processes wxSizeEvent.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::OnTrajSize(wxSizeEvent& event)
+void OrbitViewCanvas::OnTrajSize(wxSizeEvent& event)
 {
    // Linux specific handler for sizing
    #ifdef __WXGTK__
@@ -1868,7 +1868,7 @@ void Enhanced3DViewCanvas::OnTrajSize(wxSizeEvent& event)
  * Processes wxMouseEvent.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
+void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
 {
      
    //MessageInterface::ShowMessage
@@ -1916,10 +1916,10 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
          
          #if DEBUG_TRAJCANVAS_EULER
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::OnMouse() mCurrRotXAngle=%f, %f, %f\n",
+            ("OrbitViewCanvas::OnMouse() mCurrRotXAngle=%f, %f, %f\n",
              mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::OnMouse() mfCamRotXYZAngle=%f, %f, %f\n",
+            ("OrbitViewCanvas::OnMouse() mfCamRotXYZAngle=%f, %f, %f\n",
              mfCamRotXAngle, mfCamRotYAngle, mfCamRotZAngle);
          #endif
          
@@ -2123,7 +2123,7 @@ void Enhanced3DViewCanvas::OnMouse(wxMouseEvent& event)
  * Processes wxKeyEvent.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::OnKeyDown(wxKeyEvent &event)
+void OrbitViewCanvas::OnKeyDown(wxKeyEvent &event)
 {
    int keyDown = event.GetKeyCode();
    if (keyDown == 'w' || keyDown == 'W')
@@ -2192,7 +2192,7 @@ void Enhanced3DViewCanvas::OnKeyDown(wxKeyEvent &event)
  * Sets pixel format on Windows.
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::SetPixelFormatDescriptor()
+bool OrbitViewCanvas::SetPixelFormatDescriptor()
 {
 #ifdef __WXMSW__
    
@@ -2230,7 +2230,7 @@ bool Enhanced3DViewCanvas::SetPixelFormatDescriptor()
    
    #ifdef DEBUG_TRAJCANVAS_INIT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetPixelFormatDescriptor() pixelFormatId = %d \n",
+      ("OrbitViewCanvas::SetPixelFormatDescriptor() pixelFormatId = %d \n",
        pixelFormatId);
    #endif
    
@@ -2266,7 +2266,7 @@ bool Enhanced3DViewCanvas::SetPixelFormatDescriptor()
  * Sets default GL font.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetDefaultGLFont()
+void OrbitViewCanvas::SetDefaultGLFont()
 {
 #ifdef __WXMSW__
    // Set up font stuff for windows -
@@ -2283,7 +2283,7 @@ void Enhanced3DViewCanvas::SetDefaultGLFont()
 //------------------------------------------------------------------------------
 // void InitializeViewPoint()
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::InitializeViewPoint()
+void OrbitViewCanvas::InitializeViewPoint()
 {
    mViewPointRefObjName = "UNKNOWN";
    
@@ -2310,7 +2310,7 @@ void Enhanced3DViewCanvas::InitializeViewPoint()
 //------------------------------------------------------------------------------
 // void ComputeActualIndex()
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ComputeActualIndex()
+void OrbitViewCanvas::ComputeActualIndex()
 {
    mRealBeginIndex1 = mBeginIndex1;
    mRealEndIndex1   = mEndIndex1;
@@ -2366,11 +2366,11 @@ void Enhanced3DViewCanvas::ComputeActualIndex()
  * Loads textures.
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::LoadGLTextures()
+bool OrbitViewCanvas::LoadGLTextures()
 {
    #if DEBUG_TRAJCANVAS_TEXTURE
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::LoadGLTextures() mObjectCount=%d\n", mObjectCount);
+      ("OrbitViewCanvas::LoadGLTextures() mObjectCount=%d\n", mObjectCount);
    #endif
    
    //--------------------------------------------------
@@ -2385,7 +2385,7 @@ bool Enhanced3DViewCanvas::LoadGLTextures()
       {
          #if DEBUG_TRAJCANVAS_TEXTURE > 1
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::LoadGLTextures() object=<%p>'%s'\n",
+            ("OrbitViewCanvas::LoadGLTextures() object=<%p>'%s'\n",
              mObjectArray[i], mObjectNames[i].c_str());
          #endif
          
@@ -2406,11 +2406,11 @@ bool Enhanced3DViewCanvas::LoadGLTextures()
  * Loads textures and returns binding index.
  */
 //------------------------------------------------------------------------------
-GLuint Enhanced3DViewCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
+GLuint OrbitViewCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
 {
    GLuint ret = GmatPlot::UNINIT_TEXTURE;
 
-   //MessageInterface::ShowMessage("===> Enhanced3DViewCanvas::BindTexture() ret = %d\n", ret);
+   //MessageInterface::ShowMessage("===> OrbitViewCanvas::BindTexture() ret = %d\n", ret);
    // texture map file names now stored with the CelestialBody  wcs 2009.01.06
    //FileManager *fm = FileManager::Instance();
    std::string textureFile;  
@@ -2428,7 +2428,7 @@ GLuint Enhanced3DViewCanvas::BindTexture(SpacePoint *obj, const wxString &objNam
          if (!status)
          {
             MessageInterface::ShowMessage
-               ("*** WARNING *** Enhanced3DViewCanvas::BindTexture() Unable to load "
+               ("*** WARNING *** OrbitViewCanvas::BindTexture() Unable to load "
                 "texture file for %s\nfile name:%s\n", objName.c_str(),
                 textureFile.c_str());
          }
@@ -2461,13 +2461,13 @@ GLuint Enhanced3DViewCanvas::BindTexture(SpacePoint *obj, const wxString &objNam
    catch (BaseException &e)
    {
       MessageInterface::ShowMessage
-         ("*** WARNING *** Enhanced3DViewCanvas::BindTexture() Cannot bind texture "
+         ("*** WARNING *** OrbitViewCanvas::BindTexture() Cannot bind texture "
           "image for %s.\n%s\n", objName.c_str(), e.GetFullMessage().c_str());
    }
    
    #if DEBUG_TRAJCANVAS_TEXTURE
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::BindTexture() objName=%s ret=%d\n", objName.c_str(),
+      ("OrbitViewCanvas::BindTexture() objName=%s ret=%d\n", objName.c_str(),
        ret);
    #endif
    
@@ -2478,7 +2478,7 @@ GLuint Enhanced3DViewCanvas::BindTexture(SpacePoint *obj, const wxString &objNam
 //------------------------------------------------------------------------------
 // void SetDefaultView()
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetDefaultView()
+void OrbitViewCanvas::SetDefaultView()
 {
    mCurrRotXAngle = mDefaultRotXAngle;
    mCurrRotYAngle = mDefaultRotYAngle;
@@ -2505,7 +2505,7 @@ void Enhanced3DViewCanvas::SetDefaultView()
  * Sets view projection.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetProjection()
+void OrbitViewCanvas::SetProjection()
 {
    // Setup the world view
    glMatrixMode(GL_PROJECTION); // first go to projection mode
@@ -2525,12 +2525,12 @@ void Enhanced3DViewCanvas::SetProjection()
  * other, so distance from the camera doesn't affect how large a object appears.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::SetupWorld()
+void OrbitViewCanvas::SetupWorld()
 {
 
    #if DEBUG_TRAJCANVAS_PROJ > 2
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::SetupWorld() mUsePerspectiveMode=%d, mUseSingleRotAngle=%d\n",
+      ("OrbitViewCanvas::SetupWorld() mUsePerspectiveMode=%d, mUseSingleRotAngle=%d\n",
        mUsePerspectiveMode, mUseSingleRotAngle);
    #endif
    
@@ -2538,7 +2538,7 @@ void Enhanced3DViewCanvas::SetupWorld()
    if (mUseSingleRotAngle)
    {
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::SetupWorld() mfLeftPos=%f, mfRightPos=%f\n   mfBottomPos=%f, "
+         ("OrbitViewCanvas::SetupWorld() mfLeftPos=%f, mfRightPos=%f\n   mfBottomPos=%f, "
           "mfTopPos=%f\n   mfViewNear=%f, mfViewFar=%f\n", mfLeftPos, mfRightPos,
           mfBottomPos, mfTopPos, mfViewNear, mfViewFar);
    }
@@ -2588,7 +2588,7 @@ void Enhanced3DViewCanvas::SetupWorld()
  * left-right, we want to rotate about the Y axis, and vice versa
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ComputeView(GLfloat fEndX, GLfloat fEndY)
+void OrbitViewCanvas::ComputeView(GLfloat fEndX, GLfloat fEndY)
 {
    float fYAmnt = 360*(fEndX - mfStartX)/(mfRightPos - mfLeftPos);
    float fXAmnt = 360*(fEndY - mfStartY)/(mfBottomPos - mfTopPos);
@@ -2625,7 +2625,7 @@ void Enhanced3DViewCanvas::ComputeView(GLfloat fEndX, GLfloat fEndY)
  * @param <viewZ> rotation angle of Z component.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ChangeView(float viewX, float viewY, float viewZ)
+void OrbitViewCanvas::ChangeView(float viewX, float viewY, float viewZ)
 {
 
    mfCamRotXAngle = (int)(viewX) % 360 + 270;
@@ -2633,7 +2633,7 @@ void Enhanced3DViewCanvas::ChangeView(float viewX, float viewY, float viewZ)
    mfCamRotZAngle = (int)(viewZ) % 360;
    
    //MessageInterface::ShowMessage
-   //   ("===> Enhanced3DViewCanvas::ChangeView() mfCamRotXYZAngle = %f %f %f\n",
+   //   ("===> OrbitViewCanvas::ChangeView() mfCamRotXYZAngle = %f %f %f\n",
    //    mfCamRotXAngle, mfCamRotYAngle, mfCamRotZAngle);
    
    // don't let the rotation angles build up to some insane size
@@ -2665,7 +2665,7 @@ void Enhanced3DViewCanvas::ChangeView(float viewX, float viewY, float viewZ)
  * orthographic projection.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ChangeProjection(int width, int height, float axisLength)
+void OrbitViewCanvas::ChangeProjection(int width, int height, float axisLength)
 {    
    GLfloat fAspect = (GLfloat) height / (GLfloat) width;
    
@@ -2721,7 +2721,7 @@ void Enhanced3DViewCanvas::ChangeProjection(int width, int height, float axisLen
  *      Consider removing quite a bit
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ComputeViewVectors()
+void OrbitViewCanvas::ComputeViewVectors()
 {   
    //int frame = mNumData - 1;
    int frame = mLastIndex;
@@ -2758,7 +2758,7 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
       else
       {
          MessageInterface::ShowMessage
-            ("*** WARNING *** Enhanced3DViewCanvas::ComputeViewVectors() Invalid "
+            ("*** WARNING *** OrbitViewCanvas::ComputeViewVectors() Invalid "
              "mVpRefObjId=%d\n", mVpRefObjId);
       }
    }
@@ -2805,7 +2805,7 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
       else
       {
          MessageInterface::ShowMessage
-            ("*** WARNING *** Enhanced3DViewCanvas::ComputeViewVectors() Invalid "
+            ("*** WARNING *** OrbitViewCanvas::ComputeViewVectors() Invalid "
              "mVpVecObjId=%d\n", mVpVecObjId);
       }
    }
@@ -2850,7 +2850,7 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
       else
       {
          MessageInterface::ShowMessage
-            ("*** WARNING *** Enhanced3DViewCanvas::ComputeViewVectors() Invalid "
+            ("*** WARNING *** OrbitViewCanvas::ComputeViewVectors() Invalid "
              "mVdirObjId=%d\n", mVdirObjId);
       }
    }
@@ -2910,7 +2910,7 @@ void Enhanced3DViewCanvas::ComputeViewVectors()
 // void ComputeUpAngleAxis()
 //    PS - Also pretty deprecated
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ComputeUpAngleAxis()
+void OrbitViewCanvas::ComputeUpAngleAxis()
 {
    // calculate view up direction
    //int frame = mNumData - 1;
@@ -2926,7 +2926,7 @@ void Enhanced3DViewCanvas::ComputeUpAngleAxis()
    
    #if DEBUG_TRAJCANVAS_PROJ
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::ComputeUpAngleAxis() mVpLocVec=%s, mVdVec=%s\n   "
+      ("OrbitViewCanvas::ComputeUpAngleAxis() mVpLocVec=%s, mVdVec=%s\n   "
        "mVcVec=%s, mUpVec=%s\n", mVpLocVec.ToString().c_str(),
        mVdVec.ToString().c_str(), mVcVec.ToString().c_str(),
        mUpVec.ToString().c_str());
@@ -2940,11 +2940,11 @@ void Enhanced3DViewCanvas::ComputeUpAngleAxis()
 //------------------------------------------------------------------------------
 // void TransformView()
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::TransformView()
+void OrbitViewCanvas::TransformView()
 {
-   #if DEBUG_Enhanced3DViewCanvas_DRAW
+   #if DEBUG_OrbitViewCanvas_DRAW
    MessageInterface::ShowMessage
-      ("==> Enhanced3DViewCanvas::TransformView() mUseSingleRotAngle=%d, "
+      ("==> OrbitViewCanvas::TransformView() mUseSingleRotAngle=%d, "
        "mUseGluLookAt=%d, mIsEndOfData=%d, mIsEndOfRun=%d\n", mUseSingleRotAngle,
        mUseGluLookAt, mIsEndOfData, mIsEndOfRun);
    #endif
@@ -2980,11 +2980,11 @@ void Enhanced3DViewCanvas::TransformView()
  * Draws whole picture.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawFrame()
+void OrbitViewCanvas::DrawFrame()
 {
    #if DEBUG_TRAJCANVAS_ANIMATION
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::DrawFrame() mNumData=%d, mUsenitialViewPoint=%d\n"
+      ("OrbitViewCanvas::DrawFrame() mNumData=%d, mUsenitialViewPoint=%d\n"
        "   mViewCoordSysName=%s, mInitialCoordSysName=%s\n", mNumData,
        mUseInitialViewPoint, mViewCoordSysName.c_str(), mInitialCoordSysName.c_str());
    #endif
@@ -3079,13 +3079,13 @@ void Enhanced3DViewCanvas::DrawFrame()
  * Draws whole plot.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawPlot()
+void OrbitViewCanvas::DrawPlot()
 {
    #if DEBUG_TRAJCANVAS_DRAW
    MessageInterface::ShowMessage
       ("===========================================================================\n");
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::DrawPlot() mTotalPoints=%d, mNumData=%d, mTime[%d]=%f\n",
+      ("OrbitViewCanvas::DrawPlot() mTotalPoints=%d, mNumData=%d, mTime[%d]=%f\n",
        mTotalPoints, mNumData, mLastIndex, mTime[mLastIndex]);
    #endif
    #if DEBUG_TRAJCANVAS_DRAW > 1
@@ -3216,14 +3216,14 @@ void Enhanced3DViewCanvas::DrawPlot()
  * @param  obj      Index of the object for mObjectArray
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawObject(const wxString &objName, int obj)
+void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
 {
    int frame = mLastIndex;
    int objId = GetObjectId(objName);
    
    #if DEBUG_TRAJCANVAS_DRAW > 1
    MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::DrawObject() drawing:%s, obj=%d, objId:%d, frame:%d\n",
+         ("OrbitViewCanvas::DrawObject() drawing:%s, obj=%d, objId:%d, frame:%d\n",
           objName.c_str(), obj, objId, frame);
    #endif
    
@@ -3419,7 +3419,7 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName, int obj)
    {
       #if DEBUG_TRAJCANVAS_DRAW
       MessageInterface::ShowMessage
-         ("*** WARNING *** Enhanced3DViewCanvas::DrawObject() %s texture not found.\n",
+         ("*** WARNING *** OrbitViewCanvas::DrawObject() %s texture not found.\n",
           objName.c_str());
       #endif
       
@@ -3449,7 +3449,7 @@ void Enhanced3DViewCanvas::DrawObject(const wxString &objName, int obj)
  * @param  frame  Frame number to be used for drawing
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawObjectOrbit(int frame)
+void OrbitViewCanvas::DrawObjectOrbit(int frame)
 {
    #if DEBUG_TRAJCANVAS_DRAW
    MessageInterface::ShowMessage("==========> DrawObjectOrbit() entered, frame=%d\n", frame);
@@ -3506,7 +3506,7 @@ void Enhanced3DViewCanvas::DrawObjectOrbit(int frame)
 //------------------------------------------------------------------------------
 // void DrawOrbit(const wxString &objName, int obj, int objId)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId)
+void OrbitViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId)
 {   
    glPushMatrix();
    glBegin(GL_LINES);
@@ -3546,7 +3546,7 @@ void Enhanced3DViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId
 //------------------------------------------------------------------------------
 // void DrawOrbitLines(int i, const wxString &objName, int obj, int objId)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawOrbitLines(int i, const wxString &objName, int obj,
+void OrbitViewCanvas::DrawOrbitLines(int i, const wxString &objName, int obj,
                                           int objId)
 {
    int index1 = 0, index2 = 0;
@@ -3619,8 +3619,8 @@ void Enhanced3DViewCanvas::DrawOrbitLines(int i, const wxString &objName, int ob
 //------------------------------------------------------------------------------
 // void DrawObjectTexture(const wxString &objName, int obj, int objId, int frame)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
-                                             int objId, int frame)
+void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
+                                        int objId, int frame)
 {
    if (mNumData < 1)
       return;
@@ -3845,7 +3845,7 @@ void Enhanced3DViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
  * solver passes at the same time, see TrajPlotCanvas::UpdatePlot()
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawSolverData()
+void OrbitViewCanvas::DrawSolverData()
 {
    Rvector3 start, end;
    int numPoints = mSolverAllPosX.size();
@@ -3886,7 +3886,7 @@ void Enhanced3DViewCanvas::DrawSolverData()
  * Draws spacecraft.
  */
 //------------------------------------------------------------------------------
-/*void Enhanced3DViewCanvas::DrawSpacecraft(UnsignedInt scColor)
+/*void OrbitViewCanvas::DrawSpacecraft(UnsignedInt scColor)
 {
    // draw six faces of a long cube
    *sIntColor = scColor;
@@ -3920,7 +3920,7 @@ void Enhanced3DViewCanvas::DrawSolverData()
  * Draws equatorial plane circles.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawEquatorialPlane(UnsignedInt color)
+void OrbitViewCanvas::DrawEquatorialPlane(UnsignedInt color)
 {
    int i;
    float endPos[3];
@@ -4024,7 +4024,7 @@ void Enhanced3DViewCanvas::DrawEquatorialPlane(UnsignedInt color)
  * Draws ecliptic plane circles.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawEclipticPlane(UnsignedInt color)
+void OrbitViewCanvas::DrawEclipticPlane(UnsignedInt color)
 {
    // First rotate the grand coordinate system to obliquity of the ecliptic
    // (23.5) and draw equatorial plane
@@ -4047,7 +4047,7 @@ void Enhanced3DViewCanvas::DrawEclipticPlane(UnsignedInt color)
  * Draws Origin to Sun lines.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawSunLine()
+void OrbitViewCanvas::DrawSunLine()
 {
    //int frame = mNumData - 1;
    int frame = mLastIndex;
@@ -4108,7 +4108,7 @@ void Enhanced3DViewCanvas::DrawSunLine()
 //---------------------------------------------------------------------------
 // void DrawAxes()
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawAxes()
+void OrbitViewCanvas::DrawAxes()
 {
    glDisable(GL_LIGHTING);
    glDisable(GL_LIGHT0);
@@ -4170,9 +4170,9 @@ void Enhanced3DViewCanvas::DrawAxes()
  * Writes status at the bottom of the frame
  */
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::DrawStatus(const wxString &label1, int frame,
-                                const wxString &label2, double time,
-                                int xpos, int ypos, const wxString &label3)
+void OrbitViewCanvas::DrawStatus(const wxString &label1, int frame,
+                                 const wxString &label2, double time,
+                                 int xpos, int ypos, const wxString &label3)
 {
    //----------------------------------------------------
    // draw current frame number and time
@@ -4255,7 +4255,7 @@ void Enhanced3DViewCanvas::DrawStatus(const wxString &label1, int frame,
  * tested.
  */
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::RotateEarthUsingMha(const wxString &objName, int frame)
+void OrbitViewCanvas::RotateEarthUsingMha(const wxString &objName, int frame)
 {
    #if DEBUG_ROTATE_BODY
    MessageInterface::ShowMessage
@@ -4324,7 +4324,7 @@ void Enhanced3DViewCanvas::RotateEarthUsingMha(const wxString &objName, int fram
 //---------------------------------------------------------------------------
 // void RotateBodyUsingAttitude(const wxString &objName, int objId)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId)
+void OrbitViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId)
 {
    //=======================================================
    #ifdef ENABLE_OBJECT_ATTITUDE
@@ -4430,7 +4430,7 @@ void Enhanced3DViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int 
 //---------------------------------------------------------------------------
 // void RotateBody(const wxString &objName, int frame, int objId)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::RotateBody(const wxString &objName, int frame, int objId)
+void OrbitViewCanvas::RotateBody(const wxString &objName, int frame, int objId)
 {
    #ifdef DEBUG_ROTATE_BODY
    MessageInterface::ShowMessage
@@ -4465,9 +4465,9 @@ void Enhanced3DViewCanvas::RotateBody(const wxString &objName, int frame, int ob
 //---------------------------------------------------------------------------
 // void ApplyEulerAngles()
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ApplyEulerAngles()
+void OrbitViewCanvas::ApplyEulerAngles()
 {
-   //MessageInterface::ShowMessage("==> Enhanced3DViewCanvas::ApplyEulerAngles()\n");
+   //MessageInterface::ShowMessage("==> OrbitViewCanvas::ApplyEulerAngles()\n");
    
    if (mRotateAboutXaxis)
    {
@@ -4492,7 +4492,7 @@ void Enhanced3DViewCanvas::ApplyEulerAngles()
 //---------------------------------------------------------------------------
 // int GetObjectId(const wxString &name)
 //---------------------------------------------------------------------------
-int Enhanced3DViewCanvas::GetObjectId(const wxString &name)
+int OrbitViewCanvas::GetObjectId(const wxString &name)
 {
    for (int i=0; i<mObjectCount; i++)
       if (mObjectNames[i] == name)
@@ -4500,7 +4500,7 @@ int Enhanced3DViewCanvas::GetObjectId(const wxString &name)
    
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::GetObjectId() obj name: " + name +
+      ("OrbitViewCanvas::GetObjectId() obj name: " + name +
        " not found in the object list\n");
    #endif
    
@@ -4509,12 +4509,12 @@ int Enhanced3DViewCanvas::GetObjectId(const wxString &name)
 
 
 //------------------------------------------------------------------------------
-// void Enhanced3DViewCanvas::ClearObjectArrays(bool deleteArrays = true)
+// void OrbitViewCanvas::ClearObjectArrays(bool deleteArrays = true)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ClearObjectArrays(bool deleteArrays)
+void OrbitViewCanvas::ClearObjectArrays(bool deleteArrays)
 {
    #if DEBUG_TRAJCANVAS_OBJECT
-   MessageInterface::ShowMessage("Enhanced3DViewCanvas::ClearObjectArrays() entered\n");
+   MessageInterface::ShowMessage("OrbitViewCanvas::ClearObjectArrays() entered\n");
    #endif
 
    if (deleteArrays)
@@ -4558,19 +4558,19 @@ void Enhanced3DViewCanvas::ClearObjectArrays(bool deleteArrays)
    mCoordData = NULL;
    
    #if DEBUG_TRAJCANVAS_OBJECT
-   MessageInterface::ShowMessage("Enhanced3DViewCanvas::ClearObjectArrays() exiting\n");
+   MessageInterface::ShowMessage("OrbitViewCanvas::ClearObjectArrays() exiting\n");
    #endif
 }
 
 
 //------------------------------------------------------------------------------
-// bool Enhanced3DViewCanvas::CreateObjectArrays()
+// bool OrbitViewCanvas::CreateObjectArrays()
 //------------------------------------------------------------------------------
 /*
  * Allocates arrays for objects.
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::CreateObjectArrays()
+bool OrbitViewCanvas::CreateObjectArrays()
 {
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
@@ -4611,7 +4611,7 @@ bool Enhanced3DViewCanvas::CreateObjectArrays()
       return false;
    
    #if DEBUG_TRAJCANVAS_OBJECT
-   MessageInterface::ShowMessage("Enhanced3DViewCanvas::CreateObjectArrays() exiting\n");
+   MessageInterface::ShowMessage("OrbitViewCanvas::CreateObjectArrays() exiting\n");
    #endif
    
    return true;
@@ -4621,7 +4621,7 @@ bool Enhanced3DViewCanvas::CreateObjectArrays()
 //------------------------------------------------------------------------------
 // void UpdateSolverData(RealArray posX, RealArray posY, RealArray posZ, ...)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas
+void OrbitViewCanvas
 ::UpdateSolverData(const RealArray &posX, const RealArray &posY, const RealArray &posZ,
                    const UnsignedIntArray &scColors, bool solving)
 {
@@ -4666,7 +4666,7 @@ void Enhanced3DViewCanvas
 //---------------------------------------------------------------------------
 // void UpdateSpacecraftData(const RealArray &posX, const RealArray &posY, ...)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas
+void OrbitViewCanvas
 ::UpdateSpacecraftData(const Real &time,
                        const RealArray &posX, const RealArray &posY,
                        const RealArray &posZ, const RealArray &velX,
@@ -4687,7 +4687,7 @@ void Enhanced3DViewCanvas
       
       #if DEBUG_TRAJCANVAS_UPDATE
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::UpdateSpacecraftData() satId=%d, scName=%s\n", satId,
+         ("OrbitViewCanvas::UpdateSpacecraftData() satId=%d, scName=%s\n", satId,
           mObjectNames[satId].c_str());
       #endif
       
@@ -4787,8 +4787,8 @@ void Enhanced3DViewCanvas
 //------------------------------------------------------------------------------
 // void UpdateSpacecraftAttitude(Real time, Spacecraft *sat, int satId)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::UpdateSpacecraftAttitude(Real time, Spacecraft *sat,
-                                                    int satId)
+void OrbitViewCanvas::UpdateSpacecraftAttitude(Real time, Spacecraft *sat,
+                                               int satId)
 {
    if (sat == NULL)
       return;
@@ -4807,7 +4807,7 @@ void Enhanced3DViewCanvas::UpdateSpacecraftAttitude(Real time, Spacecraft *sat,
 //------------------------------------------------------------------------------
 // void UpdateOtherData(const Real &time)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
+void OrbitViewCanvas::UpdateOtherData(const Real &time)
 {
    for (int obj = 0; obj < mObjectCount; obj++)
    {
@@ -4820,7 +4820,7 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
          
          #if DEBUG_TRAJCANVAS_UPDATE_OBJECT
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::UpdateOtherData() objId=%d, obj=%s\n", objId,
+            ("OrbitViewCanvas::UpdateOtherData() objId=%d, obj=%s\n", objId,
              mObjectNames[objId].c_str());
          #endif
          
@@ -4856,7 +4856,7 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
             
             #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
             MessageInterface::ShowMessage
-               ("Enhanced3DViewCanvas::UpdateOtherData() %s, posIndex=%d, objState=%s\n",
+               ("OrbitViewCanvas::UpdateOtherData() %s, posIndex=%d, objState=%s\n",
                 mObjectNames[obj].c_str(), posIndex, objState.ToString().c_str());
             #endif
             
@@ -4891,7 +4891,7 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
          {
             #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
             MessageInterface::ShowMessage
-               ("Enhanced3DViewCanvas::UpdateOtherData() Cannot Add data. Invalid objId=%d\n",
+               ("OrbitViewCanvas::UpdateOtherData() Cannot Add data. Invalid objId=%d\n",
                 objId);
             #endif
          }
@@ -4902,7 +4902,7 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
          if (mObjectArray[obj] == NULL)
          {
             MessageInterface::ShowMessage
-               ("Enhanced3DViewCanvas::UpdateOtherData() Cannot add data. %s is NULL\n",
+               ("OrbitViewCanvas::UpdateOtherData() Cannot add data. %s is NULL\n",
                 mObjectNames[obj].c_str());
          }
          #endif
@@ -4935,8 +4935,8 @@ void Enhanced3DViewCanvas::UpdateOtherData(const Real &time)
 //------------------------------------------------------------------------------
 // void UpdateOtherObjectAttitude(Real time, SpacePoint *sp, int objId)
 //------------------------------------------------------------------------------
-void Enhanced3DViewCanvas::UpdateOtherObjectAttitude(Real time, SpacePoint *sp,
-                                                     int objId)
+void OrbitViewCanvas::UpdateOtherObjectAttitude(Real time, SpacePoint *sp,
+                                                int objId)
 {
    //=======================================================
    #ifdef ENABLE_OBJECT_ATTITUDE
@@ -4970,7 +4970,7 @@ void Enhanced3DViewCanvas::UpdateOtherObjectAttitude(Real time, SpacePoint *sp,
 //---------------------------------------------------------------------------
 // bool TiltOriginZAxis()
 //---------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::TiltOriginZAxis()
+bool OrbitViewCanvas::TiltOriginZAxis()
 {
    if (mNumData == 0)
       return false;
@@ -4983,7 +4983,7 @@ bool Enhanced3DViewCanvas::TiltOriginZAxis()
    
    #if DEBUG_TRAJCANVAS_DRAW
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::TiltOriginZAxis() AxisTypeName=%s\n", axisTypeName.c_str());
+      ("OrbitViewCanvas::TiltOriginZAxis() AxisTypeName=%s\n", axisTypeName.c_str());
    #endif
    
    // rotate earth Z axis if view CS is EarthMJ2000Ec
@@ -4998,13 +4998,13 @@ bool Enhanced3DViewCanvas::TiltOriginZAxis()
       
       #if DEBUG_TRAJCANVAS_DRAW > 2
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::TiltOriginZAxis() in=%g, %g, %g, out=%g, %g, %g\n",
+            ("OrbitViewCanvas::TiltOriginZAxis() in=%g, %g, %g, out=%g, %g, %g\n",
              inState[0], inState[1], inState[2], outState[0], outState[1], outState[2]);
          Rvector3 vecA(inState[0], inState[1], inState[2]);
          Rvector3 vecB(outState[0], outState[1], outState[2]);
          Real angDeg = AngleUtil::ComputeAngleInDeg(vecA, vecB);
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::TiltOriginZAxis() angDeg=%g\n", angDeg);
+            ("OrbitViewCanvas::TiltOriginZAxis() angDeg=%g\n", angDeg);
          //outState = 0, 0.397777, 0.917482
          //angDeg = 23.4393
       #endif
@@ -5023,7 +5023,7 @@ bool Enhanced3DViewCanvas::TiltOriginZAxis()
 //---------------------------------------------------------------------------
 // void UpdateRotateFlags()
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::UpdateRotateFlags()
+void OrbitViewCanvas::UpdateRotateFlags()
 {
    AxisSystem *axis =
       (AxisSystem*)pViewCoordSystem->GetRefObject(Gmat::AXIS_SYSTEM, "");
@@ -5048,7 +5048,7 @@ void Enhanced3DViewCanvas::UpdateRotateFlags()
    
    #if DEBUG_TRAJCANVAS_OBJECT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::UpdateRotateFlags() mCanRotateBody=%d, "
+      ("OrbitViewCanvas::UpdateRotateFlags() mCanRotateBody=%d, "
        "mCanRotateAxes=%d\n", mCanRotateBody, mCanRotateAxes);
    #endif
 }
@@ -5057,7 +5057,7 @@ void Enhanced3DViewCanvas::UpdateRotateFlags()
 //---------------------------------------------------------------------------
 // bool ConvertObjectData()
 //---------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::ConvertObjectData()
+bool OrbitViewCanvas::ConvertObjectData()
 {
    if (pInternalCoordSystem == NULL || pViewCoordSystem == NULL)
       return false;
@@ -5066,7 +5066,7 @@ bool Enhanced3DViewCanvas::ConvertObjectData()
    
    #if DEBUG_TRAJCANVAS_CONVERT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::ConvertObjectData() internalCS=%s, viewCSName=%s, viewCS=%d\n",
+      ("OrbitViewCanvas::ConvertObjectData() internalCS=%s, viewCSName=%s, viewCS=%d\n",
        pInternalCoordSystem->GetName().c_str(), pViewCoordSystem->GetName().c_str(),
        pViewCoordSystem);
    #endif
@@ -5076,7 +5076,7 @@ bool Enhanced3DViewCanvas::ConvertObjectData()
    {
       #if DEBUG_TRAJCANVAS_CONVERT
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::ConvertObjectData() No conversion is needed. "
+         ("OrbitViewCanvas::ConvertObjectData() No conversion is needed. "
           "Just copy MJ2000 pos\n");
       #endif
       for (int obj=0; obj<mObjectCount; obj++)
@@ -5110,7 +5110,7 @@ bool Enhanced3DViewCanvas::ConvertObjectData()
          
          #if DEBUG_TRAJCANVAS_CONVERT
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::ConvertObjectData() mObjectNames[%d]=%s\n", objId,
+            ("OrbitViewCanvas::ConvertObjectData() mObjectNames[%d]=%s\n", objId,
              mObjectNames[i].c_str());
          #endif         
          
@@ -5134,7 +5134,7 @@ bool Enhanced3DViewCanvas::ConvertObjectData()
 //---------------------------------------------------------------------------
 // void ConvertObject(int objId, int index)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ConvertObject(int objId, int index)
+void OrbitViewCanvas::ConvertObject(int objId, int index)
 {
    Rvector6 inState, outState;
    int start = objId*MAX_DATA*3+index*3;
@@ -5163,7 +5163,7 @@ void Enhanced3DViewCanvas::ConvertObject(int objId, int index)
 //---------------------------------------------------------------------------
 // Rvector3 ComputeEulerAngles()
 //---------------------------------------------------------------------------
-Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
+Rvector3 OrbitViewCanvas::ComputeEulerAngles()
 {
    Rvector3 modAngle;
 
@@ -5194,7 +5194,7 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
       
       #ifdef DEBUG_TRAJCANVAS_EULER
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::ComputeEulerAngles() sViewMat=\n"
+         ("OrbitViewCanvas::ComputeEulerAngles() sViewMat=\n"
           "   %f, %f, %f, %f\n   %f, %f, %f, %f\n"
           "   %f, %f, %f, %f\n   %f, %f, %f, %f\n",
           sViewMat[0], sViewMat[1], sViewMat[2], sViewMat[3],
@@ -5202,10 +5202,10 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
           sViewMat[8], sViewMat[9], sViewMat[10], sViewMat[11],
           sViewMat[12], sViewMat[13], sViewMat[14], sViewMat[15]);
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::ComputeEulerAngles() mvmat=%s\n",
+         ("OrbitViewCanvas::ComputeEulerAngles() mvmat=%s\n",
           mvmat.ToString().c_str());
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::ComputeEulerAngles() finalMat=%s\n",
+         ("OrbitViewCanvas::ComputeEulerAngles() finalMat=%s\n",
           finalMat.ToString().c_str());
       #endif
    }
@@ -5217,11 +5217,11 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
       
       #ifdef DEBUG_TRAJCANVAS_EULER
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::ComputeEulerAngles() mfUpAngle=%f, upAxis=%s\n",
+         ("OrbitViewCanvas::ComputeEulerAngles() mfUpAngle=%f, upAxis=%s\n",
           mfUpAngle, upAxis.ToString().c_str());
       
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::ComputeEulerAngles() mfCamSingleRotAngle=%f, rotAxis=%s\n",
+         ("OrbitViewCanvas::ComputeEulerAngles() mfCamSingleRotAngle=%f, rotAxis=%s\n",
           mfCamSingleRotAngle, rotAxis.ToString().c_str());
       #endif
       
@@ -5241,7 +5241,7 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
          
          #ifdef DEBUG_TRAJCANVAS_EULER
          MessageInterface::ShowMessage
-            ("Enhanced3DViewCanvas::ComputeEulerAngles() \n  rotMat=%s  upMat=%s  "
+            ("OrbitViewCanvas::ComputeEulerAngles() \n  rotMat=%s  upMat=%s  "
              "finalMat=%s\n", rotMat.ToString().c_str(),
              upMat.ToString().c_str(), finalMat.ToString().c_str());
          #endif
@@ -5251,7 +5251,7 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
       {
          error = true;
          MessageInterface::ShowMessage
-            ("*** ERROR *** Enhanced3DViewCanvas::ComputeEulerAngles() %s\n",
+            ("*** ERROR *** OrbitViewCanvas::ComputeEulerAngles() %s\n",
              e.GetFullMessage().c_str());
       }
    }
@@ -5275,7 +5275,7 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
       
       #ifdef DEBUG_TRAJCANVAS_EULER
       MessageInterface::ShowMessage
-         ("Enhanced3DViewCanvas::ComputeEulerAngles() eulerAngle=%s\n",
+         ("OrbitViewCanvas::ComputeEulerAngles() eulerAngle=%s\n",
           eulerAngle.ToString().c_str());
       #endif
       
@@ -5283,7 +5283,7 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
    catch (BaseException &e)
    {
       MessageInterface::ShowMessage
-         ("*** ERROR *** Enhanced3DViewCanvas::ComputeEulerAngles() %s\n",
+         ("*** ERROR *** OrbitViewCanvas::ComputeEulerAngles() %s\n",
           e.GetFullMessage().c_str());
    }
    
@@ -5355,7 +5355,7 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
    
    #ifdef DEBUG_TRAJCANVAS_EULER
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::ComputeEulerAngles() modAngle=%s\n",
+      ("OrbitViewCanvas::ComputeEulerAngles() modAngle=%s\n",
        modAngle.ToString().c_str());
    #endif
 
@@ -5369,9 +5369,9 @@ Rvector3 Enhanced3DViewCanvas::ComputeEulerAngles()
 // void ComputeLongitudeLst(Real time, Real x, Real y, Real *meanHourAngle,
 //                          Real *longitude, Real *localSiderealTime)
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::ComputeLongitudeLst(Real time, Real x, Real y,
-                                         Real *meanHourAngle, Real *longitude,
-                                         Real *localSiderealTime)
+void OrbitViewCanvas::ComputeLongitudeLst(Real time, Real x, Real y,
+                                          Real *meanHourAngle, Real *longitude,
+                                          Real *localSiderealTime)
 {
    Real mha = 0.0;
    Real lon = 0.0;
@@ -5417,7 +5417,7 @@ void Enhanced3DViewCanvas::ComputeLongitudeLst(Real time, Real x, Real y,
 //---------------------------------------------------------------------------
 //  void CopyVector3(Real to[3], Real from[3])
 //---------------------------------------------------------------------------
-void Enhanced3DViewCanvas::CopyVector3(Real to[3], Real from[3])
+void OrbitViewCanvas::CopyVector3(Real to[3], Real from[3])
 {
    to[0] = from[0];
    to[1] = from[1];
@@ -5428,7 +5428,7 @@ void Enhanced3DViewCanvas::CopyVector3(Real to[3], Real from[3])
 //---------------------------------------------------------------------------
 // bool LoadImage(const std::string &fileName)
 //---------------------------------------------------------------------------
-bool Enhanced3DViewCanvas::LoadImage(const std::string &fileName)
+bool OrbitViewCanvas::LoadImage(const std::string &fileName)
 {
 #ifndef SKIP_DEVIL
    return false;
@@ -5436,7 +5436,7 @@ bool Enhanced3DViewCanvas::LoadImage(const std::string &fileName)
 #else
    #if DEBUG_TRAJCANVAS_INIT
    MessageInterface::ShowMessage
-      ("Enhanced3DViewCanvas::LoadImage() Not using DevIL. file='%s'\n", fileName.c_str());
+      ("OrbitViewCanvas::LoadImage() Not using DevIL. file='%s'\n", fileName.c_str());
    #endif
    
    if (fileName == "")

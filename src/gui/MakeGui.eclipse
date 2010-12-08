@@ -293,11 +293,11 @@ OBJECTS = \
     subscriber/MdiChildTsFrame.o \
     subscriber/MdiGlPlotData.o \
     subscriber/MdiTsPlotData.o \
-    subscriber/Enhanced3DViewPanel.o \
+    subscriber/OrbitViewPanel.o \
     subscriber/ReportFileSetupPanel.o \
     subscriber/SubscriberSetupPanel.o \
     subscriber/ViewCanvas.o \
-    subscriber/Enhanced3DViewCanvas.o \
+    subscriber/OrbitViewCanvas.o \
     subscriber/TsPlotCanvas.o \
     subscriber/TsPlotXYCanvas.o \
     subscriber/TsPlotCurve.o \

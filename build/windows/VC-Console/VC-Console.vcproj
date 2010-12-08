@@ -2779,14 +2779,6 @@
 					Name="subscriber"
 					>
 					<File
-						RelativePath="..\..\..\src\base\subscriber\Enhanced3DView.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\base\subscriber\Enhanced3DView.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\base\subscriber\EphemerisFile.cpp"
 						>
 					</File>
@@ -2800,6 +2792,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\base\subscriber\MessageWindow.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\subscriber\OrbitView.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\base\subscriber\OrbitView.hpp"
 						>
 					</File>
 					<File

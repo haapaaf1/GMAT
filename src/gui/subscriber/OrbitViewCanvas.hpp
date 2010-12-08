@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                              Enhanced3DViewCanvas
+//                              OrbitViewCanvas
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -9,11 +9,11 @@
 // Author: Linda Jun
 // Created: 2003/11/25
 /**
- * Declares Enhanced3DViewCanvas for opengl plot.
+ * Declares OrbitViewCanvas for opengl plot.
  */
 //------------------------------------------------------------------------------
-#ifndef Enhanced3DViewCanvas_hpp
-#define Enhanced3DViewCanvas_hpp
+#ifndef OrbitViewCanvas_hpp
+#define OrbitViewCanvas_hpp
 
 #include "ViewCanvas.hpp"
 #include "gmatwxdefs.hpp"
@@ -31,15 +31,15 @@
 
 #include <map>
 
-class Enhanced3DViewCanvas: public ViewCanvas
+class OrbitViewCanvas: public ViewCanvas
 {
 public:
-   Enhanced3DViewCanvas(wxWindow *parent, const wxWindowID id = -1,
+   OrbitViewCanvas(wxWindow *parent, const wxWindowID id = -1,
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize, 
-                  const wxString& name = wxT("Enhanced3DViewCanvas"),
+                  const wxString& name = wxT("OrbitViewCanvas"),
                   long style = 0);
-   virtual ~Enhanced3DViewCanvas();
+   virtual ~OrbitViewCanvas();
    
    // initialization
    bool InitOpenGL();
@@ -190,19 +190,19 @@ private:
    bool mDrawStars;
    bool mDrawConstellations;
    
-	// Coordinate Transformation Matrices
-	Rmatrix mCoordMatrix;
-	Real *mCoordData;
+        // Coordinate Transformation Matrices
+        Rmatrix mCoordMatrix;
+        Real *mCoordData;
 
-	// OpenGL Context
+        // OpenGL Context
    wxGLContext *theContext;
    
    // initialization
    wxWindow *mParent;
    bool mGlInitialized;
-	#ifndef __USE_WX280_GL__
+        #ifndef __USE_WX280_GL__
    bool modelsAreLoaded;
-	#endif
+        #endif
    wxString mPlotName;
    
    // camera

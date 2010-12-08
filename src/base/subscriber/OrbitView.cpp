@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  Enhanced3DView
+//                                  OrbitView
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -13,11 +13,11 @@
 // Created: 2010/04/19
 //
 /**
- * Implements Enhanced3DView class.
+ * Implements OrbitView class.
  */
 //------------------------------------------------------------------------------
 
-#include "Enhanced3DView.hpp"
+#include "OrbitView.hpp"
 #include "PlotInterface.hpp"       // for UpdateGlPlot()
 #include "ColorTypes.hpp"          // for namespace GmatColor::
 #include "SubscriberException.hpp" // for SubscriberException()
@@ -47,7 +47,7 @@
 // static data
 //---------------------------------
 const std::string
-Enhanced3DView::PARAMETER_TEXT[Enhanced3DViewParamCount - SubscriberParamCount] =
+OrbitView::PARAMETER_TEXT[OrbitViewParamCount - SubscriberParamCount] =
 {
    "Add",
    "OrbitColor",
@@ -92,7 +92,7 @@ Enhanced3DView::PARAMETER_TEXT[Enhanced3DViewParamCount - SubscriberParamCount] 
 
 
 const Gmat::ParameterType
-Enhanced3DView::PARAMETER_TYPE[Enhanced3DViewParamCount - SubscriberParamCount] =
+OrbitView::PARAMETER_TYPE[OrbitViewParamCount - SubscriberParamCount] =
 {
    Gmat::OBJECTARRAY_TYPE,       //"Add"
    Gmat::UNSIGNED_INTARRAY_TYPE, //"OrbitColor",
@@ -141,7 +141,7 @@ Enhanced3DView::PARAMETER_TYPE[Enhanced3DViewParamCount - SubscriberParamCount] 
 
 
 const UnsignedInt
-Enhanced3DView::DEFAULT_ORBIT_COLOR[MAX_SP_COLOR] =
+OrbitView::DEFAULT_ORBIT_COLOR[MAX_SP_COLOR] =
 {
    GmatColor::RED32,       GmatColor::LIME32,    GmatColor::YELLOW32,
    GmatColor::AQUA32,      GmatColor::PINK32,    GmatColor::L_BLUE32,
@@ -152,20 +152,18 @@ Enhanced3DView::DEFAULT_ORBIT_COLOR[MAX_SP_COLOR] =
 
 
 //------------------------------------------------------------------------------
-// Enhanced3DView(const std::string &name)
+// OrbitView(const std::string &name)
 //------------------------------------------------------------------------------
 /**
  * The default constructor
  */
 //------------------------------------------------------------------------------
-Enhanced3DView::Enhanced3DView(const std::string &name)
-   //: Subscriber("Enhanced3DView", name)
+OrbitView::OrbitView(const std::string &name)
    : Subscriber("OrbitView", name)
 {
    // GmatBase data
-   parameterCount = Enhanced3DViewParamCount;
+   parameterCount = OrbitViewParamCount;
    objectTypes.push_back(Gmat::ORBIT_VIEW);
-   //objectTypeNames.push_back("Enhanced3DView");
    objectTypeNames.push_back("OrbitView");
    
    mEclipticPlane = "Off";
@@ -178,7 +176,7 @@ Enhanced3DView::Enhanced3DView(const std::string &name)
    mUseInitialView = "On";
    mPerspectiveMode = "Off";
    mUseFixedFov = "Off";
-
+   
    // stars
    mEnableStars = "On";
    mEnableConstellations = "On";
@@ -267,13 +265,13 @@ Enhanced3DView::Enhanced3DView(const std::string &name)
 
 
 //------------------------------------------------------------------------------
-// Enhanced3DView(const Enhanced3DView &ogl)
+// OrbitView(const OrbitView &ogl)
 //------------------------------------------------------------------------------
 /**
  * The copy consturctor
  */
 //------------------------------------------------------------------------------
-Enhanced3DView::Enhanced3DView(const Enhanced3DView &ogl)
+OrbitView::OrbitView(const OrbitView &ogl)
    : Subscriber(ogl)
 {
    mEclipticPlane = ogl.mEclipticPlane;
@@ -362,13 +360,13 @@ Enhanced3DView::Enhanced3DView(const Enhanced3DView &ogl)
 
 
 //------------------------------------------------------------------------------
-// Enhanced3DView& operator=(const Enhanced3DView&)
+// OrbitView& operator=(const OrbitView&)
 //------------------------------------------------------------------------------
 /**
  * The assignment operator
  */
 //------------------------------------------------------------------------------
-Enhanced3DView& Enhanced3DView::operator=(const Enhanced3DView& ogl)
+OrbitView& OrbitView::operator=(const OrbitView& ogl)
 {
    if (this == &ogl)
       return *this;
@@ -463,7 +461,7 @@ Enhanced3DView& Enhanced3DView::operator=(const Enhanced3DView& ogl)
 
 
 //------------------------------------------------------------------------------
-// ~Enhanced3DView()
+// ~OrbitView()
 //------------------------------------------------------------------------------
 /**
  * Destructor
@@ -473,7 +471,7 @@ Enhanced3DView& Enhanced3DView::operator=(const Enhanced3DView& ogl)
  *       shuts down.
  */
 //------------------------------------------------------------------------------
-Enhanced3DView::~Enhanced3DView()
+OrbitView::~OrbitView()
 {
    PlotInterface::TakeGlAction(instanceName, "ClearObjects");
 }
@@ -482,7 +480,7 @@ Enhanced3DView::~Enhanced3DView()
 //------------------------------------------------------------------------------
 // const StringArray& GetSpacePointList()
 //------------------------------------------------------------------------------
-const StringArray& Enhanced3DView::GetSpacePointList()
+const StringArray& OrbitView::GetSpacePointList()
 {
    return mAllSpNameArray;
 }
@@ -491,7 +489,7 @@ const StringArray& Enhanced3DView::GetSpacePointList()
 //------------------------------------------------------------------------------
 // const StringArray& GetSpacecraftList()
 //------------------------------------------------------------------------------
-const StringArray& Enhanced3DView::GetSpacecraftList()
+const StringArray& OrbitView::GetSpacecraftList()
 {
    return mScNameArray;
 }
@@ -500,7 +498,7 @@ const StringArray& Enhanced3DView::GetSpacecraftList()
 //------------------------------------------------------------------------------
 // const StringArray& GetNonSpacecraftList()
 //------------------------------------------------------------------------------
-const StringArray& Enhanced3DView::GetNonSpacecraftList()
+const StringArray& OrbitView::GetNonSpacecraftList()
 {
    return mObjectNameArray;
 }
@@ -509,12 +507,12 @@ const StringArray& Enhanced3DView::GetNonSpacecraftList()
 //------------------------------------------------------------------------------
 // UnsignedInt GetColor(const std::string &item, const std::string &name)
 //------------------------------------------------------------------------------
-UnsignedInt Enhanced3DView::GetColor(const std::string &item,
-                                 const std::string &name)
+UnsignedInt OrbitView::GetColor(const std::string &item,
+                                const std::string &name)
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetColor() item=%s, name=%s\n",
+      ("OrbitView::GetColor() item=%s, name=%s\n",
        item.c_str(), name.c_str());
    #endif
    
@@ -537,12 +535,12 @@ UnsignedInt Enhanced3DView::GetColor(const std::string &item,
 // bool SetColor(const std::string &item, const std::string &name,
 //               UnsignedInt value)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetColor(const std::string &item, const std::string &name,
-                          UnsignedInt value)
+bool OrbitView::SetColor(const std::string &item, const std::string &name,
+                         UnsignedInt value)
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetColor() item=%s, name=%s, value=%u\n",
+      ("OrbitView::SetColor() item=%s, name=%s, value=%u\n",
        item.c_str(), name.c_str(), value);
    #endif
    
@@ -580,11 +578,11 @@ bool Enhanced3DView::SetColor(const std::string &item, const std::string &name,
 //------------------------------------------------------------------------------
 // bool GetShowObject(const std::string &name)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::GetShowObject(const std::string &name)
+bool OrbitView::GetShowObject(const std::string &name)
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetShowObject() name=%s returning %d\n",
+      ("OrbitView::GetShowObject() name=%s returning %d\n",
        name.c_str(), mDrawOrbitMap[name]);
    #endif
    
@@ -595,11 +593,11 @@ bool Enhanced3DView::GetShowObject(const std::string &name)
 //------------------------------------------------------------------------------
 // void SetShowObject(const std::string &name, bool value)
 //------------------------------------------------------------------------------
-void Enhanced3DView::SetShowObject(const std::string &name, bool value)
+void OrbitView::SetShowObject(const std::string &name, bool value)
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetShowObject() name=%s setting %d\n", name.c_str(), value);
+      ("OrbitView::SetShowObject() name=%s setting %d\n", name.c_str(), value);
    #endif
    
    mShowObjectMap[name] = value;
@@ -611,7 +609,7 @@ void Enhanced3DView::SetShowObject(const std::string &name, bool value)
 //------------------------------------------------------------------------------
 // Rvector3 GetVector(const std::string &which)
 //------------------------------------------------------------------------------
-Rvector3 Enhanced3DView::GetVector(const std::string &which)
+Rvector3 OrbitView::GetVector(const std::string &which)
 {
    if (which == "ViewPointReference")
       return mViewPointRefVector;
@@ -620,18 +618,18 @@ Rvector3 Enhanced3DView::GetVector(const std::string &which)
    else if (which == "ViewDirection")
       return mViewDirectionVector;
    else
-      throw SubscriberException(which + " is unknown Enhanced3DView parameter\n");
+      throw SubscriberException(which + " is unknown OrbitView parameter\n");
 }
 
 
 //------------------------------------------------------------------------------
 // void SetVector(const std::string &which, const Rvector3 &value)
 //------------------------------------------------------------------------------
-void Enhanced3DView::SetVector(const std::string &which, const Rvector3 &value)
+void OrbitView::SetVector(const std::string &which, const Rvector3 &value)
 {
    #if DBGLVL_OPENGL_SET
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetVector() which=%s, value=%s\n", which.c_str(),
+      ("OrbitView::SetVector() which=%s, value=%s\n", which.c_str(),
        value.ToString().c_str());
    #endif
    
@@ -642,7 +640,7 @@ void Enhanced3DView::SetVector(const std::string &which, const Rvector3 &value)
    else if (which == "ViewDirection")
       mViewDirectionVector = value;
    else
-      throw SubscriberException(which + " is unknown Enhanced3DView parameter\n");
+      throw SubscriberException(which + " is unknown OrbitView parameter\n");
 }
 
 
@@ -653,7 +651,7 @@ void Enhanced3DView::SetVector(const std::string &which, const Rvector3 &value)
 //------------------------------------------------------------------------------
 // virtual bool Initialize()
 //------------------------------------------------------------------------------
-bool Enhanced3DView::Initialize()
+bool OrbitView::Initialize()
 {
    if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING_NO_PLOTS)
       return true;
@@ -672,7 +670,7 @@ bool Enhanced3DView::Initialize()
    
    #if DBGLVL_OPENGL_INIT
    MessageInterface::ShowMessage
-      ("Enhanced3DView::Initialize() this=<%p>'%s', active=%d, isInitialized=%d, "
+      ("OrbitView::Initialize() this=<%p>'%s', active=%d, isInitialized=%d, "
        "isEndOfReceive=%d, mAllSpCount=%d\n", this, GetName().c_str(), active,
        isInitialized, isEndOfReceive, mAllSpCount);
    #endif
@@ -695,7 +693,7 @@ bool Enhanced3DView::Initialize()
    {
       #if DBGLVL_OPENGL_INIT > 1
       MessageInterface::ShowMessage
-         ("Enhanced3DView::Initialize() mAllSpNameArray[%d]=%s, addr=%d\n",
+         ("OrbitView::Initialize() mAllSpNameArray[%d]=%s, addr=%d\n",
           i, mAllSpNameArray[i].c_str(), mAllSpArray[i]);
       #endif
       
@@ -737,7 +735,7 @@ bool Enhanced3DView::Initialize()
    {
       #if DBGLVL_OPENGL_INIT
       MessageInterface::ShowMessage
-         ("Enhanced3DView::Initialize() CreateGlPlotWindow() theSolarSystem=%p\n",
+         ("OrbitView::Initialize() CreateGlPlotWindow() theSolarSystem=%p\n",
           theSolarSystem);
       #endif
       
@@ -770,7 +768,7 @@ bool Enhanced3DView::Initialize()
          {
             #if DBGLVL_OPENGL_INIT > 1
             MessageInterface::ShowMessage
-               ("Enhanced3DView::Initialize() mAllSpNameArray[%d]=%s, addr=%d\n",
+               ("OrbitView::Initialize() mAllSpNameArray[%d]=%s, addr=%d\n",
                 i, mAllSpNameArray[i].c_str(), mAllSpArray[i]);
             #endif
             
@@ -813,12 +811,12 @@ bool Enhanced3DView::Initialize()
          // included in the non-spacecraft list
          if (mViewCoordSystem == NULL)
             throw SubscriberException
-               ("Enhanced3DView::Initialize() CoordinateSystem: " + mViewCoordSysName +
+               ("OrbitView::Initialize() CoordinateSystem: " + mViewCoordSysName +
                 " not set\n");
          
          if (mViewUpCoordSystem == NULL)
             throw SubscriberException
-               ("Enhanced3DView::Initialize() CoordinateSystem: " + mViewUpCoordSysName +
+               ("OrbitView::Initialize() CoordinateSystem: " + mViewUpCoordSysName +
                 " not set\n");               
          
          // Get View CoordinateSystem Origin pointer
@@ -960,7 +958,7 @@ bool Enhanced3DView::Initialize()
    {
       #if DBGLVL_OPENGL_INIT
       MessageInterface::ShowMessage
-         ("Enhanced3DView::Initialize() Plot is active and initialized, "
+         ("OrbitView::Initialize() Plot is active and initialized, "
           "so calling DeleteGlPlot()\n");
       #endif
       
@@ -970,7 +968,7 @@ bool Enhanced3DView::Initialize()
    }
    
    #if DBGLVL_OPENGL_INIT
-   MessageInterface::ShowMessage("Enhanced3DView::Initialize() exiting\n");
+   MessageInterface::ShowMessage("OrbitView::Initialize() exiting\n");
    #endif
    
    return retval;
@@ -980,11 +978,11 @@ bool Enhanced3DView::Initialize()
 //------------------------------------------------------------------------------
 // void Activate(bool state)
 //------------------------------------------------------------------------------
-void Enhanced3DView::Activate(bool state)
+void OrbitView::Activate(bool state)
 {
    #ifdef DEBUG_OPENGL_ACTIVATE
    MessageInterface::ShowMessage
-      ("Enhanced3DView::Activate() this=<%p>'%s' entered, state=%d, isInitialized=%d\n",
+      ("OrbitView::Activate() this=<%p>'%s' entered, state=%d, isInitialized=%d\n",
        this, GetName().c_str(), state, isInitialized);
    #endif
    
@@ -1000,15 +998,15 @@ void Enhanced3DView::Activate(bool state)
 //  GmatBase* Clone() const
 //------------------------------------------------------------------------------
 /**
- * This method returns a clone of the Enhanced3DView.
+ * This method returns a clone of the OrbitView.
  *
- * @return clone of the Enhanced3DView.
+ * @return clone of the OrbitView.
  *
  */
 //------------------------------------------------------------------------------
-GmatBase* Enhanced3DView::Clone() const
+GmatBase* OrbitView::Clone() const
 {
-   return (new Enhanced3DView(*this));
+   return (new OrbitView(*this));
 }
 
 
@@ -1021,9 +1019,9 @@ GmatBase* Enhanced3DView::Clone() const
  * @param orig The original that is being copied.
  */
 //---------------------------------------------------------------------------
-void Enhanced3DView::Copy(const GmatBase* orig)
+void OrbitView::Copy(const GmatBase* orig)
 {
-   operator=(*((Enhanced3DView *)(orig)));
+   operator=(*((OrbitView *)(orig)));
 }
 
 
@@ -1037,11 +1035,11 @@ void Enhanced3DView::Copy(const GmatBase* orig)
  *
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetName(const std::string &who, const std::string &oldName)
+bool OrbitView::SetName(const std::string &who, const std::string &oldName)
 {
    #if DBGLVL_RENAME
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetName() newName=%s, oldName=%s\n", who.c_str(),
+      ("OrbitView::SetName() newName=%s, oldName=%s\n", who.c_str(),
        oldName.c_str());
    #endif
    
@@ -1067,12 +1065,12 @@ bool Enhanced3DView::SetName(const std::string &who, const std::string &oldName)
  *
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DView::TakeAction(const std::string &action,
-                            const std::string &actionData)
+bool OrbitView::TakeAction(const std::string &action,
+                           const std::string &actionData)
 {
    #if DBGLVL_TAKE_ACTION
    MessageInterface::ShowMessage
-      ("Enhanced3DView::TakeAction() '%s' entered, action='%s', actionData='%s'\n",
+      ("OrbitView::TakeAction() '%s' entered, action='%s', actionData='%s'\n",
        GetName().c_str(), action.c_str(), actionData.c_str());
    #endif
    if (action == "Clear")
@@ -1096,13 +1094,13 @@ bool Enhanced3DView::TakeAction(const std::string &action,
 //  bool RenameRefObject(const Gmat::ObjectType type,
 //                       const std::string &oldName, const std::string &newName)
 //---------------------------------------------------------------------------
-bool Enhanced3DView::RenameRefObject(const Gmat::ObjectType type,
-                                 const std::string &oldName,
-                                 const std::string &newName)
+bool OrbitView::RenameRefObject(const Gmat::ObjectType type,
+                                const std::string &oldName,
+                                const std::string &newName)
 {
    #if DBGLVL_RENAME
    MessageInterface::ShowMessage
-      ("Enhanced3DView::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
+      ("OrbitView::RenameRefObject() type=%s, oldName=%s, newName=%s\n",
        GetObjectTypeString(type).c_str(), oldName.c_str(), newName.c_str());
    #endif
    
@@ -1168,9 +1166,9 @@ bool Enhanced3DView::RenameRefObject(const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // std::string GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
-std::string Enhanced3DView::GetParameterText(const Integer id) const
+std::string OrbitView::GetParameterText(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < Enhanced3DViewParamCount)
+   if (id >= SubscriberParamCount && id < OrbitViewParamCount)
       return PARAMETER_TEXT[id - SubscriberParamCount];
    else
       return Subscriber::GetParameterText(id);
@@ -1181,9 +1179,9 @@ std::string Enhanced3DView::GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------
 // Integer GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
-Integer Enhanced3DView::GetParameterID(const std::string &str) const
+Integer OrbitView::GetParameterID(const std::string &str) const
 {
-   for (int i=SubscriberParamCount; i<Enhanced3DViewParamCount; i++)
+   for (int i=SubscriberParamCount; i<OrbitViewParamCount; i++)
    {
       if (str == PARAMETER_TEXT[i - SubscriberParamCount])
          return i;
@@ -1196,9 +1194,9 @@ Integer Enhanced3DView::GetParameterID(const std::string &str) const
 //------------------------------------------------------------------------------
 // Gmat::ParameterType GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
-Gmat::ParameterType Enhanced3DView::GetParameterType(const Integer id) const
+Gmat::ParameterType OrbitView::GetParameterType(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < Enhanced3DViewParamCount)
+   if (id >= SubscriberParamCount && id < OrbitViewParamCount)
       return PARAMETER_TYPE[id - SubscriberParamCount];
    else
       return Subscriber::GetParameterType(id);
@@ -1208,9 +1206,9 @@ Gmat::ParameterType Enhanced3DView::GetParameterType(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetParameterTypeString(const Integer id) const
 //------------------------------------------------------------------------------
-std::string Enhanced3DView::GetParameterTypeString(const Integer id) const
+std::string OrbitView::GetParameterTypeString(const Integer id) const
 {
-   if (id >= SubscriberParamCount && id < Enhanced3DViewParamCount)
+   if (id >= SubscriberParamCount && id < OrbitViewParamCount)
       return GmatBase::PARAM_TYPE_STRING[GetParameterType(id - SubscriberParamCount)];
    else
       return Subscriber::GetParameterTypeString(id);
@@ -1229,7 +1227,7 @@ std::string Enhanced3DView::GetParameterTypeString(const Integer id) const
  *         throws if the parameter is out of the valid range of values.
  */
 //---------------------------------------------------------------------------
-bool Enhanced3DView::IsParameterReadOnly(const Integer id) const
+bool OrbitView::IsParameterReadOnly(const Integer id) const
 {
    //Note: We can remove PERSPECTIVE_MODE, USE_FIXED_FOV, FIXED_FOV_ANGLE
    //      when perspective mode is working.
@@ -1250,7 +1248,7 @@ bool Enhanced3DView::IsParameterReadOnly(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Integer Enhanced3DView::GetIntegerParameter(const Integer id) const
+Integer OrbitView::GetIntegerParameter(const Integer id) const
 {
    switch (id)
    {
@@ -1277,7 +1275,7 @@ Integer Enhanced3DView::GetIntegerParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Integer GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-Integer Enhanced3DView::GetIntegerParameter(const std::string &label) const
+Integer OrbitView::GetIntegerParameter(const std::string &label) const
 {
    return GetIntegerParameter(GetParameterID(label));
 }
@@ -1286,7 +1284,7 @@ Integer Enhanced3DView::GetIntegerParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Integer SetIntegerParameter(const Integer id, const Integer value)
 //------------------------------------------------------------------------------
-Integer Enhanced3DView::SetIntegerParameter(const Integer id, const Integer value)
+Integer OrbitView::SetIntegerParameter(const Integer id, const Integer value)
 {
    switch (id)
    {
@@ -1364,8 +1362,8 @@ Integer Enhanced3DView::SetIntegerParameter(const Integer id, const Integer valu
 // virtual Integer SetIntegerParameter(const std::string &label,
 //                                     const Integer value)
 //------------------------------------------------------------------------------
-Integer Enhanced3DView::SetIntegerParameter(const std::string &label,
-                                        const Integer value)
+Integer OrbitView::SetIntegerParameter(const std::string &label,
+                                       const Integer value)
 {
    return SetIntegerParameter(GetParameterID(label), value);
 }
@@ -1374,7 +1372,7 @@ Integer Enhanced3DView::SetIntegerParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // virtual Real GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
-Real Enhanced3DView::GetRealParameter(const Integer id) const
+Real OrbitView::GetRealParameter(const Integer id) const
 {
    switch (id)
    {
@@ -1391,11 +1389,11 @@ Real Enhanced3DView::GetRealParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual Real GetRealParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-Real Enhanced3DView::GetRealParameter(const std::string &label) const
+Real OrbitView::GetRealParameter(const std::string &label) const
 {
    #if DBGLVL_OPENGL_PARAM
      MessageInterface::ShowMessage
-        ("Enhanced3DView::GetRealParameter() label = %s\n", label.c_str());
+        ("OrbitView::GetRealParameter() label = %s\n", label.c_str());
    #endif
    
    return GetRealParameter(GetParameterID(label));
@@ -1405,7 +1403,7 @@ Real Enhanced3DView::GetRealParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // virtual Real SetRealParameter(const Integer id, const Real value)
 //------------------------------------------------------------------------------
-Real Enhanced3DView::SetRealParameter(const Integer id, const Real value)
+Real OrbitView::SetRealParameter(const Integer id, const Real value)
 {
    switch (id)
    {
@@ -1424,11 +1422,11 @@ Real Enhanced3DView::SetRealParameter(const Integer id, const Real value)
 //------------------------------------------------------------------------------
 // virtual Real SetRealParameter(const std::string &label, const Real value)
 //------------------------------------------------------------------------------
-Real Enhanced3DView::SetRealParameter(const std::string &label, const Real value)
+Real OrbitView::SetRealParameter(const std::string &label, const Real value)
 {
    #if DBGLVL_OPENGL_PARAM
       MessageInterface::ShowMessage
-         ("Enhanced3DView::SetRealParameter() label = %s, value = %f \n",
+         ("OrbitView::SetRealParameter() label = %s, value = %f \n",
           label.c_str(), value);
    #endif
    
@@ -1439,7 +1437,7 @@ Real Enhanced3DView::SetRealParameter(const std::string &label, const Real value
 //------------------------------------------------------------------------------
 // Real GetRealParameter(const Integer id, const Integer index) const
 //------------------------------------------------------------------------------
-Real Enhanced3DView::GetRealParameter(const Integer id, const Integer index) const
+Real OrbitView::GetRealParameter(const Integer id, const Integer index) const
 {
    switch (id)
    {
@@ -1464,8 +1462,8 @@ Real Enhanced3DView::GetRealParameter(const Integer id, const Integer index) con
 //------------------------------------------------------------------------------
 // Real SetRealParameter(const Integer id, const Real value, const Integer index)
 //------------------------------------------------------------------------------
-Real Enhanced3DView::SetRealParameter(const Integer id, const Real value,
-                                  const Integer index)
+Real OrbitView::SetRealParameter(const Integer id, const Real value,
+                                 const Integer index)
 {
    switch (id)
    {
@@ -1493,7 +1491,7 @@ Real Enhanced3DView::SetRealParameter(const Integer id, const Real value,
 //------------------------------------------------------------------------------
 // virtual const Rvector& GetRvectorParameter(const Integer id) const
 //------------------------------------------------------------------------------
-const Rvector& Enhanced3DView::GetRvectorParameter(const Integer id) const
+const Rvector& OrbitView::GetRvectorParameter(const Integer id) const
 {
    switch (id)
    {
@@ -1506,7 +1504,7 @@ const Rvector& Enhanced3DView::GetRvectorParameter(const Integer id) const
          #if DBGLVL_OPENGL_PARAM
          Rvector vec = mViewPointVecVector;
          MessageInterface::ShowMessage
-            ("Enhanced3DView::GetRvectorParameter() returning = %s\n",
+            ("OrbitView::GetRvectorParameter() returning = %s\n",
              vec.ToString().c_str());
          #endif
          return mViewPointVecVector;
@@ -1523,11 +1521,11 @@ const Rvector& Enhanced3DView::GetRvectorParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // virtual const Rvector& GetRvectorParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-const Rvector& Enhanced3DView::GetRvectorParameter(const std::string &label) const
+const Rvector& OrbitView::GetRvectorParameter(const std::string &label) const
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetRvectorParameter() label = %s\n", label.c_str());
+      ("OrbitView::GetRvectorParameter() label = %s\n", label.c_str());
    #endif
    
    return GetRvectorParameter(GetParameterID(label));
@@ -1538,8 +1536,8 @@ const Rvector& Enhanced3DView::GetRvectorParameter(const std::string &label) con
 // virtual const Rvector& SetRvectorParameter(const Integer id,
 //                                            const Rvector &value)
 //------------------------------------------------------------------------------
-const Rvector& Enhanced3DView::SetRvectorParameter(const Integer id,
-                                               const Rvector &value)
+const Rvector& OrbitView::SetRvectorParameter(const Integer id,
+                                              const Rvector &value)
 {
    switch (id)
    {
@@ -1573,13 +1571,13 @@ const Rvector& Enhanced3DView::SetRvectorParameter(const Integer id,
 // virtual const Rvector& SetRvectorParameter(const std::string &label,
 //                                            const Rvector &value)
 //------------------------------------------------------------------------------
-const Rvector& Enhanced3DView::SetRvectorParameter(const std::string &label,
-                                               const Rvector &value)
+const Rvector& OrbitView::SetRvectorParameter(const std::string &label,
+                                              const Rvector &value)
 {
    #if DBGLVL_OPENGL_PARAM
    Rvector val = value;
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetRvectorParameter() label = %s, "
+      ("OrbitView::SetRvectorParameter() label = %s, "
        "value = %s \n", label.c_str(), val.ToString().c_str());
    #endif
    
@@ -1590,11 +1588,11 @@ const Rvector& Enhanced3DView::SetRvectorParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
-std::string Enhanced3DView::GetStringParameter(const Integer id) const
+std::string OrbitView::GetStringParameter(const Integer id) const
 {
    #if DBGLVL_OPENGL_PARAM_STRING
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetStringParameter()<%s> id=%d<%s>\n",
+      ("OrbitView::GetStringParameter()<%s> id=%d<%s>\n",
        instanceName.c_str(), id, GetParameterText(id).c_str());
    #endif
    
@@ -1642,11 +1640,11 @@ std::string Enhanced3DView::GetStringParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // std::string GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-std::string Enhanced3DView::GetStringParameter(const std::string &label) const
+std::string OrbitView::GetStringParameter(const std::string &label) const
 {
    #if DBGLVL_OPENGL_PARAM_STRING
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetStringParameter() label = %s\n", label.c_str());
+      ("OrbitView::GetStringParameter() label = %s\n", label.c_str());
    #endif
    
    return GetStringParameter(GetParameterID(label));
@@ -1656,11 +1654,11 @@ std::string Enhanced3DView::GetStringParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const Integer id, const std::string &value)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &value)
+bool OrbitView::SetStringParameter(const Integer id, const std::string &value)
 {
    #if DBGLVL_OPENGL_PARAM_STRING
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetStringParameter() this=<%p>'%s', id=%d<%s>, value='%s'\n",
+      ("OrbitView::SetStringParameter() this=<%p>'%s', id=%d<%s>, value='%s'\n",
        this, instanceName.c_str(), id, GetParameterText(id).c_str(), value.c_str());
    #endif
    
@@ -1756,12 +1754,12 @@ bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &val
 //------------------------------------------------------------------------------
 // bool SetStringParameter(const std::string &label, const std::string &value)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetStringParameter(const std::string &label,
-                                    const std::string &value)
+bool OrbitView::SetStringParameter(const std::string &label,
+                                   const std::string &value)
 {
    #if DBGLVL_OPENGL_PARAM_STRING
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetStringParameter()<%s> label=%s, value=%s \n",
+      ("OrbitView::SetStringParameter()<%s> label=%s, value=%s \n",
        instanceName.c_str(), label.c_str(), value.c_str());
    #endif
    
@@ -1773,12 +1771,12 @@ bool Enhanced3DView::SetStringParameter(const std::string &label,
 // virtual bool SetStringParameter(const Integer id, const std::string &value,
 //                                 const Integer index)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &value,
-                                    const Integer index)
+bool OrbitView::SetStringParameter(const Integer id, const std::string &value,
+                                   const Integer index)
 {
    #if DBGLVL_OPENGL_PARAM_STRING
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetStringParameter()<%s> id=%d<%s>, value=%s, index= %d\n",
+      ("OrbitView::SetStringParameter()<%s> id=%d<%s>, value=%s, index= %d\n",
        instanceName.c_str(), id, GetParameterText(id).c_str(), value.c_str(), index);
    #endif
    
@@ -1814,13 +1812,13 @@ bool Enhanced3DView::SetStringParameter(const Integer id, const std::string &val
 //                                 const std::string &value,
 //                                 const Integer index)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetStringParameter(const std::string &label,
-                                    const std::string &value,
-                                    const Integer index)
+bool OrbitView::SetStringParameter(const std::string &label,
+                                   const std::string &value,
+                                   const Integer index)
 {
    #if DBGLVL_OPENGL_PARAM_STRING
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetStringParameter() label = %s, value = %s, index = %d\n",
+      ("OrbitView::SetStringParameter() label = %s, value = %s, index = %d\n",
        label.c_str(), value.c_str(), index);
    #endif
    
@@ -1833,7 +1831,7 @@ bool Enhanced3DView::SetStringParameter(const std::string &label,
 // GetUnsignedIntArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
 const UnsignedIntArray&
-Enhanced3DView::GetUnsignedIntArrayParameter(const Integer id) const
+OrbitView::GetUnsignedIntArrayParameter(const Integer id) const
 {   
    switch (id)
    {
@@ -1852,13 +1850,13 @@ Enhanced3DView::GetUnsignedIntArrayParameter(const Integer id) const
 //                                             const UnsignedInt value,
 //                                             const Integer index)
 //------------------------------------------------------------------------------
-UnsignedInt Enhanced3DView::SetUnsignedIntParameter(const Integer id,
-                                                const UnsignedInt value,
-                                                const Integer index)
+UnsignedInt OrbitView::SetUnsignedIntParameter(const Integer id,
+                                               const UnsignedInt value,
+                                               const Integer index)
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetUnsignedIntParameter() this=%s\n   id=%d, value=%u<%08x>, index=%d, "
+      ("OrbitView::SetUnsignedIntParameter() this=%s\n   id=%d, value=%u<%08x>, index=%d, "
        "mAllSpCount=%d, mOrbitColorArray.size()=%d, mTargetColorArray.size()=%d\n",
        instanceName.c_str(), id, value, value, index, mAllSpCount, mOrbitColorArray.size(),
        mTargetColorArray.size());
@@ -1913,7 +1911,7 @@ UnsignedInt Enhanced3DView::SetUnsignedIntParameter(const Integer id,
 //------------------------------------------------------------------------------
 // const StringArray& GetStringArrayParameter(const Integer id) const
 //------------------------------------------------------------------------------
-const StringArray& Enhanced3DView::GetStringArrayParameter(const Integer id) const
+const StringArray& OrbitView::GetStringArrayParameter(const Integer id) const
 {
    switch (id)
    {
@@ -1928,7 +1926,7 @@ const StringArray& Enhanced3DView::GetStringArrayParameter(const Integer id) con
 //------------------------------------------------------------------------------
 // bool GetBooleanParameter(const Integer id) const
 //------------------------------------------------------------------------------
-bool Enhanced3DView::GetBooleanParameter(const Integer id) const
+bool OrbitView::GetBooleanParameter(const Integer id) const
 {
    if (id == SHOW_PLOT)
       return active;
@@ -1939,11 +1937,11 @@ bool Enhanced3DView::GetBooleanParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // bool SetBooleanParameter(const Integer id, const bool value)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetBooleanParameter(const Integer id, const bool value)
+bool OrbitView::SetBooleanParameter(const Integer id, const bool value)
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetBooleanParameter()<%s> id=%d, value=%d\n",
+      ("OrbitView::SetBooleanParameter()<%s> id=%d, value=%d\n",
        instanceName.c_str(), id, value);
    #endif
    
@@ -1959,7 +1957,7 @@ bool Enhanced3DView::SetBooleanParameter(const Integer id, const bool value)
 //---------------------------------------------------------------------------
 //  std::string GetOnOffParameter(const Integer id) const
 //---------------------------------------------------------------------------
-std::string Enhanced3DView::GetOnOffParameter(const Integer id) const
+std::string OrbitView::GetOnOffParameter(const Integer id) const
 {
    switch (id)
    {
@@ -1996,9 +1994,9 @@ std::string Enhanced3DView::GetOnOffParameter(const Integer id) const
 
 
 //------------------------------------------------------------------------------
-// std::string Enhanced3DView::GetOnOffParameter(const std::string &label) const
+// std::string OrbitView::GetOnOffParameter(const std::string &label) const
 //------------------------------------------------------------------------------
-std::string Enhanced3DView::GetOnOffParameter(const std::string &label) const
+std::string OrbitView::GetOnOffParameter(const std::string &label) const
 {
    return GetOnOffParameter(GetParameterID(label));
 }
@@ -2007,7 +2005,7 @@ std::string Enhanced3DView::GetOnOffParameter(const std::string &label) const
 //---------------------------------------------------------------------------
 //  bool SetOnOffParameter(const Integer id, const std::string &value)
 //---------------------------------------------------------------------------
-bool Enhanced3DView::SetOnOffParameter(const Integer id, const std::string &value)
+bool OrbitView::SetOnOffParameter(const Integer id, const std::string &value)
 {
    switch (id)
    {
@@ -2060,8 +2058,8 @@ bool Enhanced3DView::SetOnOffParameter(const Integer id, const std::string &valu
 //------------------------------------------------------------------------------
 // bool SetOnOffParameter(const std::string &label, const std::string &value)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetOnOffParameter(const std::string &label, 
-                                   const std::string &value)
+bool OrbitView::SetOnOffParameter(const std::string &label, 
+                                  const std::string &value)
 {
    return SetOnOffParameter(GetParameterID(label), value);
 }
@@ -2070,11 +2068,11 @@ bool Enhanced3DView::SetOnOffParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // virtual std::string GetRefObjectName(const Gmat::ObjectType type) const
 //------------------------------------------------------------------------------
-std::string Enhanced3DView::GetRefObjectName(const Gmat::ObjectType type) const
+std::string OrbitView::GetRefObjectName(const Gmat::ObjectType type) const
 {
    #if DBGLVL_OPENGL_OBJ
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetRefObjectName() type: %s\n",
+      ("OrbitView::GetRefObjectName() type: %s\n",
        GmatBase::GetObjectTypeString(type).c_str());
    #endif
    
@@ -2086,7 +2084,7 @@ std::string Enhanced3DView::GetRefObjectName(const Gmat::ObjectType type) const
    #if DBGLVL_OPENGL_OBJ
    std::string msg = "type: " + GmatBase::GetObjectTypeString(type) + " not found";
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetRefObjectName() %s\n", msg.c_str());
+      ("OrbitView::GetRefObjectName() %s\n", msg.c_str());
    #endif
    
    return Subscriber::GetRefObjectName(type);
@@ -2100,7 +2098,7 @@ std::string Enhanced3DView::GetRefObjectName(const Gmat::ObjectType type) const
  * @see GmatBase
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DView::HasRefObjectTypeArray()
+bool OrbitView::HasRefObjectTypeArray()
 {
    return true;
 }
@@ -2116,7 +2114,7 @@ bool Enhanced3DView::HasRefObjectTypeArray()
  * 
  */
 //------------------------------------------------------------------------------
-const ObjectTypeArray& Enhanced3DView::GetRefObjectTypeArray()
+const ObjectTypeArray& OrbitView::GetRefObjectTypeArray()
 {
    refObjectTypes.clear();
    refObjectTypes.push_back(Gmat::SPACE_POINT);
@@ -2128,7 +2126,7 @@ const ObjectTypeArray& Enhanced3DView::GetRefObjectTypeArray()
 //------------------------------------------------------------------------------
 // virtual const StringArray& GetRefObjectNameArray(const Gmat::ObjectType type)
 //------------------------------------------------------------------------------
-const StringArray& Enhanced3DView::GetRefObjectNameArray(const Gmat::ObjectType type)
+const StringArray& OrbitView::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    mAllRefObjectNames.clear();
    
@@ -2208,7 +2206,7 @@ const StringArray& Enhanced3DView::GetRefObjectNameArray(const Gmat::ObjectType 
    
    #if DBGLVL_OPENGL_OBJ
    MessageInterface::ShowMessage
-      ("Enhanced3DView::GetRefObjectNameArray() returning for type:%d\n", type);
+      ("OrbitView::GetRefObjectNameArray() returning for type:%d\n", type);
    for (unsigned int i=0; i<mAllRefObjectNames.size(); i++)
       MessageInterface::ShowMessage("   %s\n", mAllRefObjectNames[i].c_str());
    #endif
@@ -2221,8 +2219,8 @@ const StringArray& Enhanced3DView::GetRefObjectNameArray(const Gmat::ObjectType 
 // virtual GmatBase* GetRefObject(const Gmat::ObjectType type,
 //                                const std::string &name)
 //------------------------------------------------------------------------------
-GmatBase* Enhanced3DView::GetRefObject(const Gmat::ObjectType type,
-                                   const std::string &name)
+GmatBase* OrbitView::GetRefObject(const Gmat::ObjectType type,
+                                  const std::string &name)
 {
    if (type == Gmat::COORDINATE_SYSTEM)
    {
@@ -2243,7 +2241,7 @@ GmatBase* Enhanced3DView::GetRefObject(const Gmat::ObjectType type,
    
    return Subscriber::GetRefObject(type, name);
    
-//    throw SubscriberException("Enhanced3DView::GetRefObject() the object name: " + name +
+//    throw SubscriberException("OrbitView::GetRefObject() the object name: " + name +
 //                            "not found\n");
 }
 
@@ -2260,12 +2258,12 @@ GmatBase* Enhanced3DView::GetRefObject(const Gmat::ObjectType type,
  * @param <name> Reference object name
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
-                              const std::string &name)
+bool OrbitView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
+                             const std::string &name)
 {
    #if DBGLVL_OPENGL_OBJ
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetRefObject() this=<%p>'%s', obj=<%p>'%s', type=%d[%s], name='%s'\n",
+      ("OrbitView::SetRefObject() this=<%p>'%s', obj=<%p>'%s', type=%d[%s], name='%s'\n",
        this, GetName().c_str(), obj, obj->GetName().c_str(), type,
        obj->GetTypeName().c_str(), name.c_str());
    #endif
@@ -2308,7 +2306,7 @@ bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       
       #if DBGLVL_OPENGL_OBJ
       MessageInterface::ShowMessage
-         ("Enhanced3DView::SetRefObject() realName='%s', mViewPointRefName='%s', "
+         ("OrbitView::SetRefObject() realName='%s', mViewPointRefName='%s', "
           "mViewPointVecName='%s', mViewDirectionName='%s'\n", realName.c_str(),
           mViewPointRefName.c_str(), mViewPointVecName.c_str(),
           mViewDirectionName.c_str());
@@ -2326,7 +2324,7 @@ bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       
       #if DBGLVL_OPENGL_OBJ
       MessageInterface::ShowMessage
-         ("Enhanced3DView::SetRefObject() mViewPointRefObj=<%p>, mViewPointObj=<%p>, "
+         ("OrbitView::SetRefObject() mViewPointRefObj=<%p>, mViewPointObj=<%p>, "
           "mViewDirectionObj=<%p>\n", mViewPointRefObj, mViewPointObj,
           mViewDirectionObj);
       #endif
@@ -2344,11 +2342,11 @@ bool Enhanced3DView::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 //------------------------------------------------------------------------------
 // bool AddSpacePoint(const std::string &name, Integer index, bool show = true)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::AddSpacePoint(const std::string &name, Integer index, bool show)
+bool OrbitView::AddSpacePoint(const std::string &name, Integer index, bool show)
 {
    #if DBGLVL_OPENGL_ADD
    MessageInterface::ShowMessage
-      ("Enhanced3DView::AddSpacePoint()<%s> name=%s, index=%d, show=%d, mAllSpCount=%d\n",
+      ("OrbitView::AddSpacePoint()<%s> name=%s, index=%d, show=%d, mAllSpCount=%d\n",
        instanceName.c_str(), name.c_str(), index, show, mAllSpCount);
    #endif
    
@@ -2415,9 +2413,9 @@ bool Enhanced3DView::AddSpacePoint(const std::string &name, Integer index, bool 
 //------------------------------------------------------------------------------
 // bool ClearSpacePointList()
 //------------------------------------------------------------------------------
-bool Enhanced3DView::ClearSpacePointList()
+bool OrbitView::ClearSpacePointList()
 {
-   //MessageInterface::ShowMessage("Enhanced3DView::ClearSpacePointList()\n");
+   //MessageInterface::ShowMessage("OrbitView::ClearSpacePointList()\n");
    
    mAllSpNameArray.clear();
    mAllSpArray.clear();
@@ -2458,7 +2456,7 @@ bool Enhanced3DView::ClearSpacePointList()
  *
  */
 //------------------------------------------------------------------------------
-bool Enhanced3DView::RemoveSpacePoint(const std::string &name)
+bool OrbitView::RemoveSpacePoint(const std::string &name)
 {
    //-----------------------------------------------------------------
    #ifdef __REMOVE_OBJ_BY_SETTING_FLAG__
@@ -2488,7 +2486,7 @@ bool Enhanced3DView::RemoveSpacePoint(const std::string &name)
    //-------------------------------------------------------
    #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
-      ("Enhanced3DView::RemoveSpacePoint() name=%s\n--- Before remove from "
+      ("OrbitView::RemoveSpacePoint() name=%s\n--- Before remove from "
        "mScNameArray:\n", name.c_str());
    MessageInterface::ShowMessage("mScCount=%d\n", mScCount);
    for (int i=0; i<mScCount; i++)
@@ -2547,7 +2545,7 @@ bool Enhanced3DView::RemoveSpacePoint(const std::string &name)
    //-------------------------------------------------------
    #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
-      ("Enhanced3DView::RemoveSpacePoint() name=%s\n--- Before remove from "
+      ("OrbitView::RemoveSpacePoint() name=%s\n--- Before remove from "
        "mAllSpNameArray:\n", name.c_str());
    MessageInterface::ShowMessage("mAllSpCount=%d\n", mAllSpCount);
    for (int i=0; i<mAllSpCount; i++)
@@ -2609,7 +2607,7 @@ bool Enhanced3DView::RemoveSpacePoint(const std::string &name)
    //-------------------------------------------------------
    #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
-      ("Enhanced3DView::RemoveSpacePoint() name=%s\n--- Before remove from "
+      ("OrbitView::RemoveSpacePoint() name=%s\n--- Before remove from "
        "mObjectArray:\n", name.c_str());
    MessageInterface::ShowMessage("size=%d\n", mObjectArray.size());
    #endif
@@ -2628,7 +2626,7 @@ bool Enhanced3DView::RemoveSpacePoint(const std::string &name)
    
    #if DBGLVL_REMOVE_SP
    MessageInterface::ShowMessage
-      ("Enhanced3DView::RemoveSpacePoint() name=%s\n--- After remove from "
+      ("OrbitView::RemoveSpacePoint() name=%s\n--- After remove from "
        "mObjectArray:\n", name.c_str());
    MessageInterface::ShowMessage("size=%d\n", mObjectArray.size());
    #endif
@@ -2654,7 +2652,7 @@ bool Enhanced3DView::RemoveSpacePoint(const std::string &name)
  *    All.epoch, scName.X, scName.Y, scName.Z, scName.Vx, scName.Vy, scName.Vz.
  */
 //------------------------------------------------------------------------------
-Integer Enhanced3DView::FindIndexOfElement(StringArray &labelArray,
+Integer OrbitView::FindIndexOfElement(StringArray &labelArray,
                                        const std::string &label)
 {
    std::vector<std::string>::iterator pos;
@@ -2669,7 +2667,7 @@ Integer Enhanced3DView::FindIndexOfElement(StringArray &labelArray,
 //------------------------------------------------------------------------------
 // void ClearDynamicArrays()
 //------------------------------------------------------------------------------
-void Enhanced3DView::ClearDynamicArrays()
+void OrbitView::ClearDynamicArrays()
 {
    mObjectNameArray.clear();
    mOrbitColorArray.clear();
@@ -2696,7 +2694,7 @@ void Enhanced3DView::ClearDynamicArrays()
  * Add non-spacecraft object to the list.
  */
 //------------------------------------------------------------------------------
-void Enhanced3DView::UpdateObjectList(SpacePoint *sp, bool show)
+void OrbitView::UpdateObjectList(SpacePoint *sp, bool show)
 {
    // Add all spacepoint objects
    std::string name = sp->GetName();
@@ -2720,7 +2718,7 @@ void Enhanced3DView::UpdateObjectList(SpacePoint *sp, bool show)
    #if DBGLVL_OPENGL_INIT > 1
    Integer draw, showObj;
    MessageInterface::ShowMessage
-      ("Enhanced3DView::UpdateObjectList() instanceName=%s\n", instanceName.c_str());
+      ("OrbitView::UpdateObjectList() instanceName=%s\n", instanceName.c_str());
    for (int i=0; i<mObjectCount; i++)
    {
       draw = mDrawOrbitArray[i] ? 1 : 0;
@@ -2748,12 +2746,12 @@ void Enhanced3DView::UpdateObjectList(SpacePoint *sp, bool show)
  *               from a string format of "[element1 element2 element3]"
  */
 //------------------------------------------------------------------------------
-void Enhanced3DView::PutRvector3Value(Rvector3 &rvec3, Integer id,
+void OrbitView::PutRvector3Value(Rvector3 &rvec3, Integer id,
                                   const std::string &sval, Integer index)
 {
    #if DBGLVL_OPENGL_PARAM_RVEC3
    MessageInterface::ShowMessage
-      ("Enhanced3DView::PutRvector3Value() id=%d, sval=%s, index=%d\n",
+      ("OrbitView::PutRvector3Value() id=%d, sval=%s, index=%d\n",
        id, sval.c_str(), index);
    #endif
    
@@ -2848,7 +2846,7 @@ void Enhanced3DView::PutRvector3Value(Rvector3 &rvec3, Integer id,
 //------------------------------------------------------------------------------
 // void PutUnsignedIntValue(Integer id, const std::string &sval)
 //------------------------------------------------------------------------------
-void Enhanced3DView::PutUnsignedIntValue(Integer id, const std::string &sval)
+void OrbitView::PutUnsignedIntValue(Integer id, const std::string &sval)
 {
    #ifdef DEBUG_OPENGL_PUT
    MessageInterface::ShowMessage
@@ -2864,7 +2862,7 @@ void Enhanced3DView::PutUnsignedIntValue(Integer id, const std::string &sval)
 //------------------------------------------------------------------------------
 // void WriteDeprecatedMessage(Integer id) const
 //------------------------------------------------------------------------------
-void Enhanced3DView::WriteDeprecatedMessage(Integer id) const
+void OrbitView::WriteDeprecatedMessage(Integer id) const
 {
    // Write only one message per session
    static bool writeEarthSunLines = true;
@@ -2931,7 +2929,7 @@ void Enhanced3DView::WriteDeprecatedMessage(Integer id) const
 //------------------------------------------------------------------------------
 // bool UpdateSolverData()
 //------------------------------------------------------------------------------
-bool Enhanced3DView::UpdateSolverData()
+bool OrbitView::UpdateSolverData()
 {
    int size = mCurrEpochArray.size();
    int last = size - 1;
@@ -3000,7 +2998,7 @@ bool Enhanced3DView::UpdateSolverData()
 //------------------------------------------------------------------------------
 // bool Distribute(int len)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::Distribute(int len)
+bool OrbitView::Distribute(int len)
 {
    //loj: How do I convert data to Real data?
    return false;
@@ -3010,11 +3008,11 @@ bool Enhanced3DView::Distribute(int len)
 //------------------------------------------------------------------------------
 // bool Distribute(const Real *dat, Integer len)
 //------------------------------------------------------------------------------
-bool Enhanced3DView::Distribute(const Real *dat, Integer len)
+bool OrbitView::Distribute(const Real *dat, Integer len)
 {
    #if DBGLVL_OPENGL_UPDATE
    MessageInterface::ShowMessage
-      ("Enhanced3DView::Distribute() instanceName=%s, active=%d, isEndOfRun=%d, "
+      ("OrbitView::Distribute() instanceName=%s, active=%d, isEndOfRun=%d, "
        "isEndOfReceive=%d\n   mAllSpCount=%d, mScCount=%d, len=%d, runstate=%d\n",
        instanceName.c_str(), active, isEndOfRun, isEndOfReceive, mAllSpCount,
        mScCount, len, runstate);
@@ -3096,7 +3094,7 @@ bool Enhanced3DView::Distribute(const Real *dat, Integer len)
       
       #if DBGLVL_OPENGL_UPDATE > 2
       MessageInterface::ShowMessage
-         ("Enhanced3DView::Distribute() Using new Publisher code\n");
+         ("OrbitView::Distribute() Using new Publisher code\n");
       #endif
       
       // @note

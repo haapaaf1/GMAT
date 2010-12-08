@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 #include "gmatwxrcs.hpp"
 #include "MdiChild3DViewFrame.hpp"
-#include "Enhanced3DViewCanvas.hpp"
+#include "OrbitViewCanvas.hpp"
 #include "GmatAppData.hpp"
 
 //#define DEBUG_TRAJ_FRAME
@@ -45,8 +45,8 @@ MdiChild3DViewFrame::MdiChild3DViewFrame(wxMDIParentFrame *parent,
    // Create GLCanvas
    int width, height;
    GetClientSize(&width, &height);
-   Enhanced3DViewCanvas *canvas =
-      new Enhanced3DViewCanvas(this, -1, wxPoint(0, 0), wxSize(width, height), plotName);
+   OrbitViewCanvas *canvas =
+      new OrbitViewCanvas(this, -1, wxPoint(0, 0), wxSize(width, height), plotName);
    
    mCanvas = canvas;
    

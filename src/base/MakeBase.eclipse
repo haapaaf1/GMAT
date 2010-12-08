@@ -469,7 +469,7 @@ OBJECTS = \
     subscriber/EphemerisFile.o \
     subscriber/MessageWindow.o \
     subscriber/TextEphemFile.o \
-    subscriber/Enhanced3DView.o \
+    subscriber/OrbitView.o \
     subscriber/OwnedPlot.o \
     subscriber/ReportFile.o \
     subscriber/Subscriber.o \
@@ -480,7 +480,7 @@ OBJECTS = \
     util/Anomaly.o \
     util/AttitudeUtil.o \
     util/BaseException.o \
-	 util/BodyFixedStateConverter.o \
+    util/BodyFixedStateConverter.o \
     util/Cartesian.o \
     util/CoordUtil.o \
     util/Date.o \

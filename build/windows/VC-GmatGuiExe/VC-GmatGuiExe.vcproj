@@ -834,22 +834,6 @@
 					Name="subscriber"
 					>
 					<File
-						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewCanvas.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewCanvas.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewPanel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\subscriber\Enhanced3DViewPanel.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\src\gui\subscriber\EphemerisFilePanel.cpp"
 						>
 					</File>
@@ -895,6 +879,22 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\subscriber\MdiTsPlotData.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\OrbitViewCanvas.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\OrbitViewCanvas.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\OrbitViewPanel.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\gui\subscriber\OrbitViewPanel.hpp"
 						>
 					</File>
 					<File

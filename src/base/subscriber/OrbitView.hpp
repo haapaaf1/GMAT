@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                                  Enhanced3DView
+//                                  OrbitView
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -13,24 +13,24 @@
 // Created: 2010/04/19
 //
 /**
- * Declares Enhanced3DView class.
+ * Declares OrbitView class.
  */
 //------------------------------------------------------------------------------
-#ifndef Enhanced3DView_hpp
-#define Enhanced3DView_hpp
+#ifndef OrbitView_hpp
+#define OrbitView_hpp
 
 #include "Subscriber.hpp"
 #include "SpacePoint.hpp"
 #include "CoordinateSystem.hpp"
 #include <map>
 
-class GMAT_API Enhanced3DView : public Subscriber
+class GMAT_API OrbitView : public Subscriber
 {
 public:
-   Enhanced3DView(const std::string &name);
-   Enhanced3DView(const Enhanced3DView &ogl);
-   Enhanced3DView& operator=(const Enhanced3DView&);
-   virtual ~Enhanced3DView(void);
+   OrbitView(const std::string &name);
+   OrbitView(const OrbitView &ogl);
+   OrbitView& operator=(const OrbitView&);
+   virtual ~OrbitView(void);
    
    const StringArray&   GetSpacePointList();
    const StringArray&   GetSpacecraftList();
@@ -289,13 +289,13 @@ protected:
       MAX_FOV,
       INITIAL_FOV,
       SHOW_PLOT,
-      Enhanced3DViewParamCount
+      OrbitViewParamCount
    };
    
    static const Gmat::ParameterType
-      PARAMETER_TYPE[Enhanced3DViewParamCount - SubscriberParamCount];
+      PARAMETER_TYPE[OrbitViewParamCount - SubscriberParamCount];
    static const std::string
-      PARAMETER_TEXT[Enhanced3DViewParamCount - SubscriberParamCount];
+      PARAMETER_TEXT[OrbitViewParamCount - SubscriberParamCount];
    
    virtual bool Distribute(Integer len);
    virtual bool Distribute(const Real * dat, Integer len);

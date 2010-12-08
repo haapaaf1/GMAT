@@ -26,7 +26,7 @@
 #include "OpenGlPlot.hpp"
 #include "XyPlot.hpp"
 #include "EphemerisFile.hpp"
-#include "Enhanced3DView.hpp"
+#include "OrbitView.hpp"
 
 //---------------------------------
 //  public methods
@@ -78,11 +78,11 @@ Subscriber* SubscriberFactory::CreateSubscriber(const std::string &ofType,
    else if (ofType == "EphemerisFile")
       return new EphemerisFile(withName);
    else if (ofType == "OpenGLPlot")
-      return new Enhanced3DView(withName);
+      return new OrbitView(withName);
    else if (ofType == "Enhanced3DView")
-      return new Enhanced3DView(withName);
+      return new OrbitView(withName);
    else if (ofType == "OrbitView")
-      return new Enhanced3DView(withName);
+      return new OrbitView(withName);
    
    return NULL;
 }

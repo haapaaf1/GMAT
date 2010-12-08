@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                              Enhanced3DViewPanel
+//                              OrbitViewPanel
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -12,33 +12,33 @@
 // Author: Linda Jun
 // Created: 2010/06/18
 /**
- * Declares Enhanced3DViewPanel class. This class allows user to setup OrbitView.
+ * Declares OrbitViewPanel class. This class allows user to setup OrbitView.
  */
 //------------------------------------------------------------------------------
-#ifndef Enhanced3DViewPanel_hpp
-#define Enhanced3DViewPanel_hpp
+#ifndef OrbitViewPanel_hpp
+#define OrbitViewPanel_hpp
 
 #include "gmatwxdefs.hpp"
 #include "GmatPanel.hpp"
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
-#include "Enhanced3DView.hpp"
-#include "Enhanced3DView.hpp"
+#include "OrbitView.hpp"
+#include "OrbitView.hpp"
 #include "RgbColor.hpp"
 #include "ColorTypes.hpp"
 
-class Enhanced3DViewPanel: public GmatPanel
+class OrbitViewPanel: public GmatPanel
 {
 public:
-   Enhanced3DViewPanel(wxWindow *parent, const wxString &subscriberName);
-   ~Enhanced3DViewPanel();
+   OrbitViewPanel(wxWindow *parent, const wxString &subscriberName);
+   ~OrbitViewPanel();
    
    virtual bool PrepareObjectNameChange();
    virtual void ObjectNameChanged(Gmat::ObjectType type,
                                   const wxString &oldName,
                                   const wxString &newName);
 protected:
-   Enhanced3DView *mEnhanced3DView;
+   OrbitView *mOrbitView;
    
    bool mHasIntegerDataChanged;
    bool mHasRealDataChanged;
