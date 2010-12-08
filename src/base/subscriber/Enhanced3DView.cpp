@@ -1858,9 +1858,9 @@ UnsignedInt Enhanced3DView::SetUnsignedIntParameter(const Integer id,
 {
    #if DBGLVL_OPENGL_PARAM
    MessageInterface::ShowMessage
-      ("Enhanced3DView::SetUnsignedIntParameter() this=%s\n   id=%d, value=%u, index=%d, "
+      ("Enhanced3DView::SetUnsignedIntParameter() this=%s\n   id=%d, value=%u<%08x>, index=%d, "
        "mAllSpCount=%d, mOrbitColorArray.size()=%d, mTargetColorArray.size()=%d\n",
-       instanceName.c_str(), id, value, index, mAllSpCount, mOrbitColorArray.size(),
+       instanceName.c_str(), id, value, value, index, mAllSpCount, mOrbitColorArray.size(),
        mTargetColorArray.size());
    #endif
    
