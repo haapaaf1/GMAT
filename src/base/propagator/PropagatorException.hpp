@@ -24,8 +24,12 @@
 class GMAT_API PropagatorException : public BaseException
 {
    public:
-      PropagatorException(const std::string& message = "Unspecified") 
-         : BaseException("Propagator Exception: ", message) {};
+      PropagatorException(const std::string& message = "Unspecified",
+            // Change to this when the repeated instances are fixed:
+   //         Gmat::MessageType mt = Gmat::ERROR_);
+            // Change to this if it's problematic:
+            Gmat::MessageType mt = Gmat::GENERAL_)
+         : BaseException("Propagator Exception: ", message, mt) {};
 };
 
 #endif

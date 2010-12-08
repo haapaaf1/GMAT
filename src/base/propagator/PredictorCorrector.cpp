@@ -228,7 +228,7 @@ PredictorCorrector& PredictorCorrector::operator=(const PredictorCorrector& pc)
 /**
  * Used to create a copy of the object.
  * This method returns a copy of the current instance.  The copy has all of the
- * parameters set to the current values, but is not yet initialized becuse the 
+ * parameters set to the current values, but is not yet initialized because the
  * PhysicalModel pointer is not set, nor are the internal arrays that depend on 
  * the PhysicalModel allocated.
  *
@@ -254,6 +254,15 @@ bool PredictorCorrector::Initialize()
     initialized = false;
     if (stepCount <= 0)
         return initialized;
+
+    // Check the P-C error control tolerances
+    if ((lowerError >= targetError) || (targetError >= tolerance))
+       throw PropagatorException("Setup error in the " + typeName +
+             " Propagator; Predictor-Corrector integrators require that the "
+             "error control settings satisfy the relationship\n\n"
+             "   LowerError < TargetError < Accuracy\n\n"
+             "and work best if the settings differ from one another by at "
+             "least a factor of 10", Gmat::ERROR_);
 
     if (physicalModel)
     {
@@ -539,13 +548,13 @@ bool PredictorCorrector::Step()
 
 
 //------------------------------------------------------------------------------
-// bool PredictorCorrector::RawStep(void)
+// bool PredictorCorrector::RawStep()
 //------------------------------------------------------------------------------
 /**
  * For the P-C integrators, this method just returns false.
  */
 //------------------------------------------------------------------------------
-bool PredictorCorrector::RawStep(void)
+bool PredictorCorrector::RawStep()
 {
     return false;
 }
