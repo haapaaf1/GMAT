@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             RgbColor
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -33,16 +33,18 @@ RgbColor::RgbColor()
    colorType.rgbColor.red = 0;
    colorType.rgbColor.green = 0;
    colorType.rgbColor.blue = 0;
+   colorType.rgbColor.alpha = 0;
 }
 
 //------------------------------------------------------------------------------
-// RgbColor(const Byte red, const Byte green, const Byte blue)
+// RgbColor(const Byte red, const Byte green, const Byte blue, const Byte alpha = 0)
 //------------------------------------------------------------------------------
-RgbColor::RgbColor(const Byte red, const Byte green, const Byte blue)
+RgbColor::RgbColor(const Byte red, const Byte green, const Byte blue, const Byte alpha)
 {
    colorType.rgbColor.red = red;
    colorType.rgbColor.green = green;
    colorType.rgbColor.blue = blue;
+   colorType.rgbColor.alpha = alpha;
 }
 
 //------------------------------------------------------------------------------
@@ -61,6 +63,7 @@ RgbColor::RgbColor(const RgbColor &copy)
    colorType.rgbColor.red = copy.colorType.rgbColor.red;
    colorType.rgbColor.green = copy.colorType.rgbColor.green;
    colorType.rgbColor.blue = copy.colorType.rgbColor.blue;
+   colorType.rgbColor.alpha = copy.colorType.rgbColor.alpha;
 }
 
 //------------------------------------------------------------------------------
@@ -73,6 +76,7 @@ RgbColor& RgbColor::operator=(const RgbColor &right)
       colorType.rgbColor.red = right.colorType.rgbColor.red;
       colorType.rgbColor.green = right.colorType.rgbColor.green;
       colorType.rgbColor.blue = right.colorType.rgbColor.blue;
+      colorType.rgbColor.alpha = right.colorType.rgbColor.alpha;
    }
    return *this;
 }
@@ -118,13 +122,31 @@ Byte RgbColor::Blue()
 }
 
 //------------------------------------------------------------------------------
-// void Set(const Byte red, const Byte green, const Byte blue)
+// Byte Alpha()
 //------------------------------------------------------------------------------
-void RgbColor::Set(const Byte red, const Byte green, const Byte blue)
+Byte RgbColor::Alpha()
+{
+   return colorType.rgbColor.alpha;
+}
+
+//------------------------------------------------------------------------------
+// void Set(const Byte red, const Byte green, const Byte blue, const Byte alpha = 0)
+//------------------------------------------------------------------------------
+/**
+ * Sets rgb color
+ *
+ * @param  red    Red value (0 - 255)
+ * @param  green  Green value (0 - 255)
+ * @param  blue   Blue value (0 - 255)
+ * @param  alpha  Alpha value (0 = Transparent, 255 = Opaque)
+ */
+//------------------------------------------------------------------------------
+void RgbColor::Set(const Byte red, const Byte green, const Byte blue, const Byte alpha)
 {
    colorType.rgbColor.red = red;
    colorType.rgbColor.green = green;
    colorType.rgbColor.blue = blue;
+   colorType.rgbColor.alpha = alpha;
 }
 
 //------------------------------------------------------------------------------

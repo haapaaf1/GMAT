@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             RgbColor
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -25,8 +25,9 @@
 class GMAT_API RgbColor
 {
 public:
+
    RgbColor();
-   RgbColor(const Byte red, const Byte green, const Byte blue);
+   RgbColor(const Byte red, const Byte green, const Byte blue, const Byte alpha = 0);
    RgbColor(const UnsignedInt rgb);
    RgbColor(const RgbColor &copy);
    RgbColor& operator=(const RgbColor &right);
@@ -36,7 +37,9 @@ public:
    Byte Red();
    Byte Green();
    Byte Blue();
-   void Set(const Byte red, const Byte green, const Byte blue);
+   Byte Alpha();
+   
+   void Set(const Byte red, const Byte green, const Byte blue, const Byte alpha = 0);
    void Set(const UnsignedInt rgb);
    
 private:
@@ -45,9 +48,9 @@ private:
       unsigned red      : 8;
       unsigned green    : 8;
       unsigned blue     : 8;
-      unsigned not_used : 8;
+      unsigned alpha    : 8;
    } rgbType;
-
+   
    union ColorType
    {
       RgbType rgbColor;
