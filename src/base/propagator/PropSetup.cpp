@@ -73,6 +73,10 @@ PropSetup::PARAMETER_TEXT[PropSetupParamCount - GmatBaseParamCount] =
    "LowerError",
    "TargetError",
    "StopIfAccuracyIsViolated",
+   "StepSize",
+   "CentralBody",
+   "EpochFormat",
+   "StartEpoch",
 };
 
 
@@ -91,6 +95,10 @@ PropSetup::PARAMETER_TYPE[PropSetupParamCount - GmatBaseParamCount] =
    Gmat::REAL_TYPE,    // "LowerError",
    Gmat::REAL_TYPE,    // "TargetError",
    Gmat::BOOLEAN_TYPE, // "StopIfAccuracyIsViolated"
+   Gmat::REAL_TYPE,    // "StepSize",
+   Gmat::OBJECT_TYPE,  // "CentralBody",
+   Gmat::STRING_TYPE,  // "EpochFormat",
+   Gmat::STRING_TYPE,  // "StartEpoch",
 };
 
 //---------------------------------
@@ -771,7 +779,7 @@ bool PropSetup::IsParameterReadOnly(const Integer id) const
 
       return false;
    }
-   else if ((id >= INITIAL_STEP_SIZE) && (id <= STOP_IF_ACCURACY_VIOLATED))
+   else if ((id >= INITIAL_STEP_SIZE) && (id <= ANALYTIC_STARTEPOCH))
       return true;
    else
       return GmatBase::IsParameterReadOnly(id);
@@ -824,6 +832,14 @@ std::string PropSetup::GetStringParameter(const Integer id) const
       else
          name = "InternalODEModel";
       break;
+   case ANALYTIC_CENTRALBODY:
+   case ANALYTIC_EPOCHFORMAT:
+   case ANALYTIC_STARTEPOCH:
+   {
+      // Get actual id
+      Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);
+      return mPropagator->GetStringParameter(actualId);
+   }
    default:
       return GmatBase::GetStringParameter(id);
    }
@@ -870,6 +886,16 @@ bool PropSetup::SetStringParameter(const Integer id, const std::string &value)
    case ODE_MODEL:
       mODEModelName = value;
       return true;
+
+   case ANALYTIC_CENTRALBODY:
+   case ANALYTIC_EPOCHFORMAT:
+   case ANALYTIC_STARTEPOCH:
+   {
+      // Get actual id
+      Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);
+      return mPropagator->SetStringParameter(actualId, value);
+   }
+
    default:
       return GmatBase::SetStringParameter(id, value);
    }
@@ -910,13 +936,14 @@ Real PropSetup::GetRealParameter(const Integer id) const
       case MAX_STEP_ATTEMPTS:
       case LOWER_ERROR:
       case TARGET_ERROR:
+      case ANALYTIC_STEPSIZE:
          {
             // Get actual id
             Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);
             return mPropagator->GetRealParameter(actualId);
          }
-   default:
-      return GmatBase::GetRealParameter(id);
+      default:
+         return GmatBase::GetRealParameter(id);
    }
 }
 
@@ -954,6 +981,7 @@ Real PropSetup::SetRealParameter(const Integer id, const Real value)
       case MAX_STEP_ATTEMPTS:
       case LOWER_ERROR:
       case TARGET_ERROR:
+      case ANALYTIC_STEPSIZE:
          {
             // Get actual id
             Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);

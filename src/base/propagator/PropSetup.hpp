@@ -147,6 +147,16 @@ public:
                                             const bool value,
                                             const Integer index);
 
+//   virtual std::string  GetStringParameter(const Integer id,
+//                                           const Integer index) const;
+//   virtual bool         SetStringParameter(const Integer id,
+//                                           const std::string &value,
+//                                           const Integer index);
+//   virtual std::string  GetStringParameter(const std::string &label,
+//                                           const Integer index) const;
+//   virtual bool         SetStringParameter(const std::string &label,
+//                                           const std::string &value,
+//                                           const Integer index);
 
    virtual Integer      GetIntegerParameter(const Integer id) const;
    virtual Integer      GetIntegerParameter(const std::string &label) const;
@@ -192,6 +202,11 @@ private:
       LOWER_ERROR,
       TARGET_ERROR,
       STOP_IF_ACCURACY_VIOLATED,
+      ANALYTIC_STEPSIZE,
+      ANALYTIC_CENTRALBODY,
+      ANALYTIC_EPOCHFORMAT,
+      ANALYTIC_STARTEPOCH,
+
       PropSetupParamCount
    };
    

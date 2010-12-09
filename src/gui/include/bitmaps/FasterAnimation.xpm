@@ -1,5 +1,5 @@
 /* XPM */
-static char * FasterAnimation_xpm[] = {
+static const char * FasterAnimation_xpm[] = {
 "17 16 102 2",
 "  	c None",
 ". 	c #337EC1",
