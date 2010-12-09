@@ -865,6 +865,10 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
    Real      s3          = GmatMathUtil::Sin(eulerAngles(2));
    Real      c3          = GmatMathUtil::Cos(eulerAngles(2));
    Rmatrix33 Si;
+   #ifdef DEBUG_EULER_ANGLE_RATES
+      MessageInterface::ShowMessage(
+            "s2 = %12.10f,   c2 = %12.10f,   s3 = %12.10f,   c3 = %12.10f\n", s2, c2, s3, c3);
+   #endif
    
    if ((seq1 == 1) && (seq2 == 2) && (seq3 == 3))        // 1-2-3
    {
@@ -991,9 +995,16 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
       "Invalid Euler sequence - cannot compute euler angle rates.");
    if (singularity)
    {
-      MessageInterface::ShowMessage(
-      "Singularity detected - using zero vector for euler angle rates\n");
-      return Rvector3(); // return zero vector
+//      MessageInterface::ShowMessage(
+//      "Singularity detected - using zero vector for euler angle rates\n");
+      std::ostringstream errmsg;
+      errmsg << "Error: the attitude defined by the euler angles (";
+      errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", "
+             << (eulerAngles(1) * GmatMathUtil::DEG_PER_RAD) << ", "
+             << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
+      errmsg << ") is near a singularity." << std::endl;
+      throw AttitudeException(errmsg.str());
+//      return Rvector3(); // return zero vector
    }
    #ifdef DEBUG_EULER_ANGLE_RATES
       MessageInterface::ShowMessage(
@@ -1690,8 +1701,8 @@ const Rvector3& Attitude::GetEulerAngleRates(Real atTime)
    #ifdef DEBUG_EULER_ANGLE_RATES
    MessageInterface::ShowMessage("Entering Attitude::GetEulerAngleRates ...\n");
    MessageInterface::ShowMessage(
-   "   with atTime = %.12f, attitudeTime = %.12f, and eulerAngleRatesTime = %.12f\n",
-   atTime, attitudeTime, eulerAngleRatesTime);
+   "   with atTime = %.12f, and attitudeTime = %.12f\n",
+   atTime, attitudeTime);
    #endif
    if (isInitialized && needsReinit) Initialize();
    if (GmatMathUtil::Abs(atTime - attitudeTime) >
