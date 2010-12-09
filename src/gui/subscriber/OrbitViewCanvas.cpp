@@ -5470,11 +5470,8 @@ bool OrbitViewCanvas::LoadImage(const std::string &fileName)
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    
    //pass image to OpenGL
-   #ifndef __WXGTK__
-      // This call crashes GMAT on Linux, so it is excluded here. 
-      gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB,
-                     GL_UNSIGNED_BYTE, data1);
-   #endif
+   gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB,
+                  GL_UNSIGNED_BYTE, data1);
    
    return true;
 #endif
