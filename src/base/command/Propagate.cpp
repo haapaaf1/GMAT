@@ -4372,6 +4372,13 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
                "   Refined timestep of %15.10lf secs gives %.9le\n", 
                secsToStep, stopper->GetStopParameter()->EvaluateReal());
          #endif
+
+         if (fabs(stopper->GetStopDifference()) > accuracy)
+            MessageInterface::ShowMessage("**** WARNING **** For the line \""
+                  "%s\" the achieved stop is outside of the stopping "
+                  "tolerance (%le); the difference from the desired value is "
+                  "%le\n", GetGeneratingString(Gmat::NO_COMMENTS).c_str(),
+                  accuracy, fabs(stopper->GetStopDifference()));
       }
       
       // Publish the final data point here
