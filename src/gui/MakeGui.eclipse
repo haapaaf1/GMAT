@@ -411,4 +411,4 @@ macstacksize:
 	$(C) $(CPPFLAGS) $(HEADERS) -c -o $@ $<
 
 $(GMAT_ICON_O):
-	windres -o $(GMAT_ICON_O) $(GMAT_ICON_RC)
+	windres -o $(GMAT_ICON_O) $(GMAT_ICON_RC) -I$(GMAT_ICON_DIR)
