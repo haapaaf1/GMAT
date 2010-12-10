@@ -6806,6 +6806,8 @@ bool Interpreter::FinalPass()
       // check System Parameters separately since it follows certain naming
       // convention.  "owner.dep.type" where owner can be either Spacecraft
       // or Burn for now
+      if (obj == NULL)
+         throw InterpreterException("The object " + (*i) + " does not exist");
       
       if (obj->GetType() == Gmat::PARAMETER)
       {
