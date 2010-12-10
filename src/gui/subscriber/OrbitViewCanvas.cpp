@@ -126,20 +126,20 @@ using namespace FloatAttUtil;
 //#define SKIP_OVER_LIMIT_DATA
 
 // debug
-//#define DEBUG_TRAJCANVAS_INIT 1
-//#define DEBUG_TRAJCANVAS_UPDATE 1
-//#define DEBUG_TRAJCANVAS_UPDATE_OBJECT 2
-//#define DEBUG_TRAJCANVAS_ACTION 1
-//#define DEBUG_TRAJCANVAS_CONVERT 1
-//#define DEBUG_TRAJCANVAS_DRAW 1
-//#define DEBUG_TRAJCANVAS_ZOOM 1
-//#define DEBUG_TRAJCANVAS_OBJECT 2
-//#define DEBUG_TRAJCANVAS_TEXTURE 2
-//#define DEBUG_TRAJCANVAS_PERSPECTIVE 1
-//#define DEBUG_TRAJCANVAS_PROJ 1
-//#define DEBUG_TRAJCANVAS_CS 1
-//#define DEBUG_TRAJCANVAS_ANIMATION 1
-//#define DEBUG_TRAJCANVAS_LONGITUDE 1
+//#define DEBUG_INIT 1
+//#define DEBUG_UPDATE 1
+//#define DEBUG_UPDATE_OBJECT 2
+//#define DEBUG_ACTION 1
+//#define DEBUG_CONVERT 1
+//#define DEBUG_DRAW 1
+//#define DEBUG_ZOOM 1
+//#define DEBUG_OBJECT 2
+//#define DEBUG_TEXTURE 2
+//#define DEBUG_PERSPECTIVE 1
+//#define DEBUG_PROJECTION 1
+//#define DEBUG_CS 1
+//#define DEBUG_ANIMATION 1
+//#define DEBUG_LONGITUDE 1
 //#define DEBUG_SHOW_SKIP 1
 //#define DEBUG_ROTATE 1
 //#define DEBUG_ROTATE_BODY 1
@@ -210,7 +210,7 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
       hasBeenPainted = false;
    #endif
    
-   #if DEBUG_TRAJCANVAS_INIT
+   #if DEBUG_INIT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas() name=%s, size.X=%d, size.Y=%d\n",
        name.c_str(), size.GetWidth(), size.GetHeight());
@@ -359,7 +359,7 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
    // CoordinateSystem conversion
    mViewCsIsInternalCs = true;
    
-   #if DEBUG_TRAJCANVAS_INIT
+   #if DEBUG_INIT
    MessageInterface::ShowMessage
       ("   pInternalCoordSystem=%p, pViewCoordSystem=%p\n", pInternalCoordSystem,
        pViewCoordSystem);
@@ -512,7 +512,7 @@ wxGLContext* OrbitViewCanvas::GetGLContext()
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::SetEndOfRun(bool flag)
 {
-   #if DEBUG_TRAJCANVAS_UPDATE
+   #if DEBUG_UPDATE
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetEndOfRun() OrbitViewCanvas::SetEndOfRun() flag=%d, "
        "mNumData=%d\n",  flag, mNumData);
@@ -529,7 +529,7 @@ void OrbitViewCanvas::SetEndOfRun(bool flag)
    
    if (mIsEndOfRun)
    {
-      #if DEBUG_TRAJCANVAS_LONGITUDE
+      #if DEBUG_LONGITUDE
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::SetEndOfRun() mIsEndOfRun=%d, mNumData=%d\n",
           mIsEndOfRun, mNumData);
@@ -564,7 +564,7 @@ void OrbitViewCanvas::SetEndOfRun(bool flag)
       mFinalLongitude = longitudeFinal;
       mFinalLst = lst;
       
-      #if DEBUG_TRAJCANVAS_LONGITUDE
+      #if DEBUG_LONGITUDE
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::SetEndOfRun() mInitialLongitude=%f, time=%f, x=%f,\n   "
           "y=%f, mFinalMha=%f, mFinalLongitude=%f, mFinalLst=%f\n",
@@ -580,7 +580,7 @@ void OrbitViewCanvas::SetEndOfRun(bool flag)
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::SetUsePerspectiveMode(bool perspMode)
 {
-   #if DEBUG_TRAJCANVAS_INIT
+   #if DEBUG_INIT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas()::SetUsePerspectiveMode() perspMode=%d\n", perspMode);
    #endif
@@ -808,7 +808,7 @@ void OrbitViewCanvas::OnDrawGrid(bool flag)
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::DrawInOtherCoordSystem(const wxString &csName)
 {
-   #if DEBUG_TRAJCANVAS_ACTION
+   #if DEBUG_ACTION
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::DrawInOtherCoordSysName() viewCS=%s, newCS=%s\n",
        mViewCoordSysName.c_str(), csName.c_str());
@@ -877,7 +877,7 @@ void OrbitViewCanvas::GotoObject(const wxString &objName)
          mAxisLength = mMaxZoomIn;
    }
    
-   #ifdef DEBUG_TRAJCANVAS_OBJECT
+   #ifdef DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::GotoObject() objName=%s, mViewObjId=%d, mMaxZoomIn=%f\n"
        "   mAxisLength=%f\n", objName.c_str(), mViewObjId, mMaxZoomIn, mAxisLength);
@@ -894,7 +894,7 @@ void OrbitViewCanvas::GotoObject(const wxString &objName)
 //---------------------------------------------------------------------------
 void OrbitViewCanvas::GotoOtherBody(const wxString &body)
 {
-   #ifdef DEBUG_TRAJCANVAS_OBJECT
+   #ifdef DEBUG_OBJECT
       MessageInterface::ShowMessage("OrbitViewCanvas::GotoOtherBody() body=%s\n",
                                     body.c_str());
    #endif
@@ -906,7 +906,7 @@ void OrbitViewCanvas::GotoOtherBody(const wxString &body)
 //---------------------------------------------------------------------------
 void OrbitViewCanvas::ViewAnimation(int interval, int frameInc)
 {
-   #ifdef DEBUG_TRAJCANVAS_ANIMATION
+   #ifdef DEBUG_ANIMATION
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::ViewAnimation() interval=%d, frameInc=%d\n",
        interval, frameInc);
@@ -940,7 +940,7 @@ void OrbitViewCanvas::SetGlObject(const StringArray &objNames,
                                   const UnsignedIntArray &objOrbitColors,
                                   const std::vector<SpacePoint*> &objArray)
 {
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetGlObject() entered for %s, objCount=%d, colorCount=%d.\n",
        mPlotName.c_str(), objNames.size(), objOrbitColors.size());
@@ -959,7 +959,7 @@ void OrbitViewCanvas::SetGlObject(const StringArray &objNames,
       {
          tempList.Add(objNames[i].c_str());
          
-         #if DEBUG_TRAJCANVAS_OBJECT > 1
+         #if DEBUG_OBJECT > 1
          MessageInterface::ShowMessage
             ("   objNames[%d]=%s, objPtr=<%p>%s\n", i, objNames[i].c_str(),
              mObjectArray[i], mObjectArray[i]->GetName().c_str());
@@ -974,7 +974,7 @@ void OrbitViewCanvas::SetGlObject(const StringArray &objNames,
                                     "are not the same. No objects added.\n");
    }
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage("OrbitViewCanvas::SetGlObject() leaving\n");
    #endif
 }
@@ -997,7 +997,7 @@ void OrbitViewCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
                                        CoordinateSystem *viewCs,
                                        CoordinateSystem *viewUpCs)
 {
-   #if DEBUG_TRAJCANVAS_CS
+   #if DEBUG_CS
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetGlCoordSystem() for '%s', internalCs=<%p>, viewCs=<%p>, "
        " viweUpCs=%p\n",  mPlotName.c_str(), internalCs, viewCs, viewUpCs);
@@ -1048,7 +1048,7 @@ void OrbitViewCanvas::SetGlCoordSystem(CoordinateSystem *internalCs,
    
    UpdateRotateFlags();
    
-   #if DEBUG_TRAJCANVAS_CS
+   #if DEBUG_CS
    MessageInterface::ShowMessage
       ("   mViewCoordSysName=%s, pViewCoordSystem=%p, mOriginName=%s, "
        "mOriginId=%d\n", mViewCoordSysName.c_str(), pViewCoordSystem,
@@ -1110,7 +1110,7 @@ void OrbitViewCanvas::SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj
    Rvector3 lvpVec(vpVec);
    Rvector3 lvdVec(vdVec);
       
-   #if DEBUG_TRAJCANVAS_PROJ
+   #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetGlViewOption() pViewPointRefObj=%p, "
        "pViewPointVectorObj=%p\n   pViewDirectionObj=%p, mViewScaleFactor=%f   "
@@ -1209,7 +1209,7 @@ void OrbitViewCanvas::SetGlDrawOrbitFlag(const std::vector<bool> &drawArray)
 {
    mDrawOrbitArray = drawArray;
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetGlDrawObjectFlag() mDrawOrbitArray.size()=%d, "
        "mObjectCount=%d\n", mDrawOrbitArray.size(), mObjectCount);
@@ -1233,7 +1233,7 @@ void OrbitViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArray)
 {
    mShowObjectArray = showArray;
 
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetGlDrawObjectFlag() mDrawOrbitArray.size()=%d, "
        "mObjectCount=%d\n", mShowObjectArray.size(), mObjectCount);
@@ -1250,14 +1250,14 @@ void OrbitViewCanvas::SetGlShowObjectFlag(const std::vector<bool> &showArray)
       if (mObjectNames[i] == "Sun" && mShowObjectMap["Sun"])
          mSunPresent = true;
       
-      #if DEBUG_TRAJCANVAS_OBJECT
+      #if DEBUG_OBJECT
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::SetGlShowObjectFlag() i=%d, mShowObjectMap[%s]=%d\n",
           i, mObjectNames[i].c_str(), show);
       #endif
    }
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetGlDrawObjectFlag() mEnableLightSource=%d, mSunPresent=%d\n",
        mEnableLightSource, mSunPresent);
@@ -1369,7 +1369,7 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
    if (mScCount > MAX_SCS)
       mScCount = MAX_SCS;
    
-   #if DEBUG_TRAJCANVAS_UPDATE
+   #if DEBUG_UPDATE
    MessageInterface::ShowMessage
       ("=====================================================\n");
    MessageInterface::ShowMessage
@@ -1464,7 +1464,7 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
    // and the location in ECI space of the spacecraft.
    ComputeLongitudeLst(mTime[mLastIndex], posX[0], posY[0], &mha, &longitude2, &lst);
    
-   #if DEBUG_TRAJCANVAS_LONGITUDE
+   #if DEBUG_LONGITUDE
    MessageInterface::ShowMessage
       ("   time=%f, mLastIndex=%d, mha=%f, longitude2=%f, lst = %f\n",
        mTime[mLastIndex], mLastIndex, mha, longitude2, lst);
@@ -1475,7 +1475,7 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
    {
       mInitialLongitude = longitude2;
       mInitialMha = mha;
-      #if DEBUG_TRAJCANVAS_LONGITUDE
+      #if DEBUG_LONGITUDE
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::UpdatePlot() mInitialLongitude = %f, mInitialMha = %f\n",
           mInitialLongitude, mInitialMha);
@@ -1582,7 +1582,7 @@ void OrbitViewCanvas::AddObjectList(const wxArrayString &objNames,
                                     const UnsignedIntArray &objColors,
                                     bool clearList)
 {
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::AddObjectList() entered, object count=%d, color count=%d\n",
        objNames.GetCount(), objColors.size());
@@ -1609,7 +1609,7 @@ void OrbitViewCanvas::AddObjectList(const wxArrayString &objNames,
       
       if (mObjectTextureIdMap.find(objNames[i]) == mObjectTextureIdMap.end())
       {
-         #if DEBUG_TRAJCANVAS_OBJECT
+         #if DEBUG_OBJECT
          MessageInterface::ShowMessage
             ("OrbitViewCanvas::AddObjectList() Bind new texture object=%s\n",
              objNames[i].c_str());
@@ -1637,7 +1637,7 @@ void OrbitViewCanvas::AddObjectList(const wxArrayString &objNames,
          mObjMaxZoomIn[i] = mObjectDefaultRadius * RADIUS_ZOOM_RATIO;
       }
       
-      #if DEBUG_TRAJCANVAS_OBJECT > 1
+      #if DEBUG_OBJECT > 1
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::AddObjectList() objNames[%d]=%s\n",
           i, objNames[i].c_str());
@@ -1654,7 +1654,7 @@ void OrbitViewCanvas::AddObjectList(const wxArrayString &objNames,
    ResetPlotInfo();
    ClearPlot();
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage("OrbitViewCanvas::AddObjectList() leaving\n");
    #endif
    
@@ -1914,7 +1914,7 @@ void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
          mCurrRotYAngle = rotAngle[1];
          mCurrRotZAngle = rotAngle[2];
          
-         #if DEBUG_TRAJCANVAS_EULER
+         #if DEBUG_EULER
          MessageInterface::ShowMessage
             ("OrbitViewCanvas::OnMouse() mCurrRotXAngle=%f, %f, %f\n",
              mCurrRotXAngle, mCurrRotYAngle, mCurrRotZAngle);
@@ -2228,7 +2228,7 @@ bool OrbitViewCanvas::SetPixelFormatDescriptor()
    // get the device context's best-available-match pixel format
    int pixelFormatId = ChoosePixelFormat(hdc, &pfd);
    
-   #ifdef DEBUG_TRAJCANVAS_INIT
+   #ifdef DEBUG_INIT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetPixelFormatDescriptor() pixelFormatId = %d \n",
        pixelFormatId);
@@ -2368,7 +2368,7 @@ void OrbitViewCanvas::ComputeActualIndex()
 //------------------------------------------------------------------------------
 bool OrbitViewCanvas::LoadGLTextures()
 {
-   #if DEBUG_TRAJCANVAS_TEXTURE
+   #if DEBUG_TEXTURE
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::LoadGLTextures() mObjectCount=%d\n", mObjectCount);
    #endif
@@ -2383,7 +2383,7 @@ bool OrbitViewCanvas::LoadGLTextures()
       
       if (mObjectTextureIdMap[mObjectNames[i]] == GmatPlot::UNINIT_TEXTURE)
       {
-         #if DEBUG_TRAJCANVAS_TEXTURE > 1
+         #if DEBUG_TEXTURE > 1
          MessageInterface::ShowMessage
             ("OrbitViewCanvas::LoadGLTextures() object=<%p>'%s'\n",
              mObjectArray[i], mObjectNames[i].c_str());
@@ -2465,7 +2465,7 @@ GLuint OrbitViewCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
           "image for %s.\n%s\n", objName.c_str(), e.GetFullMessage().c_str());
    }
    
-   #if DEBUG_TRAJCANVAS_TEXTURE
+   #if DEBUG_TEXTURE
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::BindTexture() objName=%s ret=%d\n", objName.c_str(),
        ret);
@@ -2528,13 +2528,13 @@ void OrbitViewCanvas::SetProjection()
 void OrbitViewCanvas::SetupWorld()
 {
 
-   #if DEBUG_TRAJCANVAS_PROJ > 2
+   #if DEBUG_PROJECTION > 2
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::SetupWorld() mUsePerspectiveMode=%d, mUseSingleRotAngle=%d\n",
        mUsePerspectiveMode, mUseSingleRotAngle);
    #endif
    
-   #if DEBUG_TRAJCANVAS_PROJ > 2
+   #if DEBUG_PROJECTION > 2
    if (mUseSingleRotAngle)
    {
       MessageInterface::ShowMessage
@@ -2547,7 +2547,7 @@ void OrbitViewCanvas::SetupWorld()
    // Setup how we view the world
    GLfloat aspect = (GLfloat)mCanvasSize.x / (GLfloat)mCanvasSize.y;
    
-   #if DEBUG_TRAJCANVAS_PERSPECTIVE
+   #if DEBUG_PERSPECTIVE
    if (mUseSingleRotAngle)
    {
       MessageInterface::ShowMessage
@@ -2728,7 +2728,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    mIsFirstRun = false;
    int index = 0;
    
-   #if DEBUG_TRAJCANVAS_PROJ
+   #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
       ("ComputeViewVectors() frame=%d, time=%f\n", frame, mTime[frame]);
    #endif
@@ -2740,7 +2740,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    
    if (!mUseViewPointRefVector && pViewPointRefObj != NULL)
    {
-      #if DEBUG_TRAJCANVAS_PROJ
+      #if DEBUG_PROJECTION
       MessageInterface::ShowMessage
          ("ComputeViewVectors() pViewPointRefObj=%p, name=%s\n",
           pViewPointRefObj, pViewPointRefObj->GetName().c_str());
@@ -2770,7 +2770,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    
    if (!mUseViewPointVector && pViewPointVectorObj != NULL)
    {
-      #if DEBUG_TRAJCANVAS_PROJ
+      #if DEBUG_PROJECTION
       MessageInterface::ShowMessage
          ("ComputeViewVectors() pViewPointVectorObj=%p, name=%s, mVpVecObjId=%d\n",
           pViewPointVectorObj, pViewPointVectorObj->GetName().c_str(),
@@ -2822,7 +2822,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    
    if (!mUseViewDirectionVector && pViewDirectionObj != NULL)
    {
-      #if DEBUG_TRAJCANVAS_PROJ
+      #if DEBUG_PROJECTION
       MessageInterface::ShowMessage
          ("ComputeViewVectors() pViewDirectionObj=%p, name=%s\n",
           pViewDirectionObj, pViewDirectionObj->GetName().c_str());
@@ -2858,7 +2858,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    // set view center vector for gluLookAt()
    //mVcVec = mVdVec;
    
-   #if DEBUG_TRAJCANVAS_PROJ
+   #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
       ("ComputeViewVectors() mVpRefVec=%s, mVpVec=%s\nmVpLocVec=%s, "
        " mVdVec=%s, mVcVec=%s\n", mVpRefVec.ToString().c_str(),
@@ -2896,7 +2896,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    
    ComputeUpAngleAxis();
    
-   #if DEBUG_TRAJCANVAS_PROJ
+   #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
       ("==> ComputeViewVectors() mfCamTransXYZ=%f, %f, %f, mfCamSingleRotAngle=%f\n"
        "   mfCamRotXYZ=%f, %f, %f mAxisLength=%f\n", mfCamTransX, mfCamTransY,
@@ -2924,7 +2924,7 @@ void OrbitViewCanvas::ComputeUpAngleAxis()
                               upOutState, pViewCoordSystem);
    }
    
-   #if DEBUG_TRAJCANVAS_PROJ
+   #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::ComputeUpAngleAxis() mVpLocVec=%s, mVdVec=%s\n   "
        "mVcVec=%s, mUpVec=%s\n", mVpLocVec.ToString().c_str(),
@@ -2982,7 +2982,7 @@ void OrbitViewCanvas::TransformView()
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::DrawFrame()
 {
-   #if DEBUG_TRAJCANVAS_ANIMATION
+   #if DEBUG_ANIMATION
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::DrawFrame() mNumData=%d, mUsenitialViewPoint=%d\n"
        "   mViewCoordSysName=%s, mInitialCoordSysName=%s\n", mNumData,
@@ -3081,14 +3081,14 @@ void OrbitViewCanvas::DrawFrame()
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::DrawPlot()
 {
-   #if DEBUG_TRAJCANVAS_DRAW
+   #if DEBUG_DRAW
    MessageInterface::ShowMessage
       ("===========================================================================\n");
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::DrawPlot() mTotalPoints=%d, mNumData=%d, mTime[%d]=%f\n",
        mTotalPoints, mNumData, mLastIndex, mTime[mLastIndex]);
    #endif
-   #if DEBUG_TRAJCANVAS_DRAW > 1
+   #if DEBUG_DRAW > 1
    MessageInterface::ShowMessage
       ("   mRedrawLastPointsOnly=%d, mNumPointsToRedraw=%d, mViewCsIsInternalCs=%d, "
        "mUseInitialViewPoint=%d, mAxisLength=%f\n", mRedrawLastPointsOnly, mNumPointsToRedraw,
@@ -3221,7 +3221,7 @@ void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
    int frame = mLastIndex;
    int objId = GetObjectId(objName);
    
-   #if DEBUG_TRAJCANVAS_DRAW > 1
+   #if DEBUG_DRAW > 1
    MessageInterface::ShowMessage
          ("OrbitViewCanvas::DrawObject() drawing:%s, obj=%d, objId:%d, frame:%d\n",
           objName.c_str(), obj, objId, frame);
@@ -3265,8 +3265,12 @@ void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
       glEnable(GL_LIGHTING);
    }
    #endif
+
+   // if object is not at the origin, just return
+   if (objId != mOriginId)
+      return;
    
-   #if DEBUG_TRAJCANVAS_DRAW > 1
+   #if DEBUG_DRAW > 1
    MessageInterface::ShowMessage
       ("   mObjectTextureIdMap[%s]=%d\n", objName.c_str(),
        mObjectTextureIdMap[objName]);
@@ -3276,7 +3280,7 @@ void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
    if (mObjectArray[obj]->IsOfType(Gmat::CELESTIAL_BODY))
       RotateBody(objName, frame, objId);
    
-   #if DEBUG_TRAJCANVAS_DRAW > 1
+   #if DEBUG_DRAW > 1
    MessageInterface::ShowMessage
       ("   After rotate body, mDrawAxes=%d, objId=%d, mOriginId=%d, mCanRotateAxes=%d\n",
        mDrawAxes, objId, mOriginId, mCanRotateAxes);
@@ -3417,7 +3421,7 @@ void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
    }
    else
    {
-      #if DEBUG_TRAJCANVAS_DRAW
+      #if DEBUG_DRAW
       MessageInterface::ShowMessage
          ("*** WARNING *** OrbitViewCanvas::DrawObject() %s texture not found.\n",
           objName.c_str());
@@ -3451,7 +3455,7 @@ void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::DrawObjectOrbit(int frame)
 {
-   #if DEBUG_TRAJCANVAS_DRAW
+   #if DEBUG_DRAW
    MessageInterface::ShowMessage("==========> DrawObjectOrbit() entered, frame=%d\n", frame);
    #endif
    
@@ -3475,7 +3479,7 @@ void OrbitViewCanvas::DrawObjectOrbit(int frame)
       objId = GetObjectId(objName);
       mObjLastFrame[objId] = 0;
       
-      #if DEBUG_TRAJCANVAS_DRAW
+      #if DEBUG_DRAW
       MessageInterface::ShowMessage
          ("DrawObjectOrbit() obj=%d, objId=%d, objName=%s\n", obj, objId,
           objName.c_str());
@@ -3497,7 +3501,7 @@ void OrbitViewCanvas::DrawObjectOrbit(int frame)
       }
    }
    
-   #if DEBUG_TRAJCANVAS_DRAW
+   #if DEBUG_DRAW
    MessageInterface::ShowMessage("==========> DrawObjectOrbit() leaving, frame=%d\n", frame);
    #endif
 } // end DrawObjectOrbit()
@@ -3511,7 +3515,7 @@ void OrbitViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId)
    glPushMatrix();
    glBegin(GL_LINES);
    
-   #ifdef DEBUG_TRAJCANVAS_DRAW
+   #ifdef DEBUG_DRAW
    MessageInterface::ShowMessage
       ("==========> DrawOrbit() objName='%s', drawing first part\n",
        objName.c_str());
@@ -3526,7 +3530,7 @@ void OrbitViewCanvas::DrawOrbit(const wxString &objName, int obj, int objId)
    // Draw second part from the ring buffer
    if (mEndIndex2 != -1 && mBeginIndex1 != mBeginIndex2)
    {
-      #ifdef DEBUG_TRAJCANVAS_DRAW
+      #ifdef DEBUG_DRAW
       MessageInterface::ShowMessage
          ("==========> DrawOrbit() objName='%s', drawing second part\n",
           objName.c_str());
@@ -3627,7 +3631,7 @@ void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
    
    int index1 = objId * MAX_DATA * 3 + frame * 3;
    
-   #if DEBUG_TRAJCANVAS_DRAW
+   #if DEBUG_DRAW
    MessageInterface::ShowMessage
       ("DrawObjectTexture() entered, objName=%s, objId=%d, lastFrame=%d\n",
        objName.c_str(), objId, mObjLastFrame[objId]);
@@ -3700,7 +3704,7 @@ void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
    // Draw spacecraft
    if (mObjectArray[obj]->IsOfType(Gmat::SPACECRAFT))
    {
-      #if DEBUG_TRAJCANVAS_DRAW
+      #if DEBUG_DRAW
       MessageInterface::ShowMessage("==> Drawing spacecraft '%s'\n", objName.c_str());
       #endif
       
@@ -3816,7 +3820,7 @@ void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
    }
    else
    {      
-      #if DEBUG_TRAJCANVAS_DRAW
+      #if DEBUG_DRAW
       MessageInterface::ShowMessage("==> Drawing body '%s'\n", objName.c_str());
       #endif
       
@@ -4330,11 +4334,14 @@ void OrbitViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId
    #ifdef ENABLE_OBJECT_ATTITUDE
    //=======================================================
    
-   #ifdef DEBUG_ROTATE_BODY
+   #if DEBUG_ROTATE_BODY > 1
    MessageInterface::ShowMessage
       ("RotateBodyUsingAttitude() '%s' entered, objId=%d, mLastIndex=%d, time=%f\n",
        objName.c_str(), objId, mLastIndex, mTime[mLastIndex]);
    #endif
+   
+   if (mTime[mLastIndex] == 0.0)
+      return;
    
    // Any object that has an attitude (spacecraft, celestial sphere, and celestial bodies)
    // needs to be oriented correctly in the  coordinate system in which the Orbit View is drawn.    
@@ -4358,16 +4365,19 @@ void OrbitViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId
    Rvector quat = Rvector(4, mObjectQuat[attIndex+0], mObjectQuat[attIndex+1],
                           mObjectQuat[attIndex+2], mObjectQuat[attIndex+3]);
    
-   #ifdef DEBUG_ROTATE_BODY
+   #if DEBUG_ROTATE_BODY > 1
    MessageInterface::ShowMessage("==================================\n");
    MessageInterface::ShowMessage
       ("==> attIndex=%d, quat=%s\n", attIndex, quat.ToString(16, 1).c_str());
    #endif
    
+   if (quat.IsZeroVector())
+      return;
+   
    // the rotation matrix from celestial body fixed to inertial
    Rmatrix33 matIB = Attitude::ToCosineMatrix(quat);
    
-   #ifdef DEBUG_ROTATE_BODY
+   #if DEBUG_ROTATE_BODY > 1
    MessageInterface::ShowMessage("==> matIB=\n%s", matIB.ToString(16, 25).c_str());
    #endif
    
@@ -4377,7 +4387,7 @@ void OrbitViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId
    inState.Set(mObjectGciPos[posIndex+0], mObjectGciPos[posIndex+1],
                mObjectGciPos[posIndex+2], 0.0, 0.0, 0.0);
    
-   #ifdef DEBUG_ROTATE_BODY
+   #if DEBUG_ROTATE_BODY > 1
    MessageInterface::ShowMessage
       ("   posIndex=%d, inState=%s\n", posIndex, inState.ToString(16, 1).c_str());
    MessageInterface::ShowMessage
@@ -4393,13 +4403,13 @@ void OrbitViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId
    
    Rmatrix33 matIP = mCoordConverter.GetLastRotationMatrix();
    
-   #ifdef DEBUG_ROTATE_BODY
+   #if DEBUG_ROTATE_BODY > 1
    MessageInterface::ShowMessage("==> matIP=\n%s", matIP.ToString(16, 25).c_str());
    #endif
    
    Rmatrix33 matBP = matIB.Transpose() * matIP;
    
-   #ifdef DEBUG_ROTATE_BODY
+   #if DEBUG_ROTATE_BODY > 1
    MessageInterface::ShowMessage("==> matPB=\n%s", matBP.ToString(16, 25).c_str());
    #endif
    
@@ -4411,7 +4421,7 @@ void OrbitViewCanvas::RotateBodyUsingAttitude(const wxString &objName, int objId
    // Convert to degree
    Real angInDeg = GmatMathUtil::RadToDeg(eAngle, true);
    
-   #ifdef DEBUG_ROTATE_BODY
+   #if DEBUG_ROTATE_BODY > 1
    MessageInterface::ShowMessage
       ("RotateBodyUsingAttitude() '%s', epoch=%f, attIndex=%d, eAngle=%f, angInDeg=%f\n"
        "   eAxis=%s\n", objName.c_str(), mTime[mLastIndex], attIndex, eAngle, angInDeg,
@@ -4434,11 +4444,15 @@ void OrbitViewCanvas::RotateBody(const wxString &objName, int frame, int objId)
 {
    #ifdef DEBUG_ROTATE_BODY
    MessageInterface::ShowMessage
-      ("RotateBody() '%s' entered, objId=%d, mCanRotateBody=%d\n", objName.c_str(),
-       objId, mCanRotateBody);
+      ("RotateBody() '%s' entered, objName='%s', objId=%d, mOriginId=%d, "
+       "mOriginName='%s', mCanRotateBody=%d\n", mPlotName.c_str(), objName.c_str(),
+       objId, mOriginId, mOriginName.c_str(), mCanRotateBody);
    #endif
-
+   
    if (!mCanRotateBody)
+      return;
+   
+   if (objId != mOriginId)
       return;
    
    #ifdef USE_MHA_TO_ROTATE_EARTH
@@ -4498,7 +4512,7 @@ int OrbitViewCanvas::GetObjectId(const wxString &name)
       if (mObjectNames[i] == name)
          return i;
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::GetObjectId() obj name: " + name +
        " not found in the object list\n");
@@ -4513,7 +4527,7 @@ int OrbitViewCanvas::GetObjectId(const wxString &name)
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::ClearObjectArrays(bool deleteArrays)
 {
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage("OrbitViewCanvas::ClearObjectArrays() entered\n");
    #endif
 
@@ -4557,7 +4571,7 @@ void OrbitViewCanvas::ClearObjectArrays(bool deleteArrays)
    mObjectQuat = NULL;
    mCoordData = NULL;
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage("OrbitViewCanvas::ClearObjectArrays() exiting\n");
    #endif
 }
@@ -4572,7 +4586,7 @@ void OrbitViewCanvas::ClearObjectArrays(bool deleteArrays)
 //------------------------------------------------------------------------------
 bool OrbitViewCanvas::CreateObjectArrays()
 {
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("CreateObjectArrays() allocating object arrays with %d\n", mObjectCount);
    #endif
@@ -4610,7 +4624,7 @@ bool OrbitViewCanvas::CreateObjectArrays()
    if ((mCoordData = new Real[MAX_DATA*16]) == NULL)
       return false;
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage("OrbitViewCanvas::CreateObjectArrays() exiting\n");
    #endif
    
@@ -4674,7 +4688,7 @@ void OrbitViewCanvas
                        const UnsignedIntArray &scColors,
                        Integer solverOption)
 {
-   #if DEBUG_TRAJCANVAS_UPDATE
+   #if DEBUG_UPDATE
    static int sNumDebugOutput = 1000;
    #endif
    
@@ -4685,7 +4699,7 @@ void OrbitViewCanvas
    {
       int satId = GetObjectId(mScNameArray[sc].c_str());
       
-      #if DEBUG_TRAJCANVAS_UPDATE
+      #if DEBUG_UPDATE
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::UpdateSpacecraftData() satId=%d, scName=%s\n", satId,
           mObjectNames[satId].c_str());
@@ -4736,7 +4750,7 @@ void OrbitViewCanvas
          mObjectViewPos[posIndex+1] = posY[sc];
          mObjectViewPos[posIndex+2] = posZ[sc];            
          
-         #if DEBUG_TRAJCANVAS_UPDATE
+         #if DEBUG_UPDATE
          if (mNumData < sNumDebugOutput)
          {
             MessageInterface::ShowMessage
@@ -4767,7 +4781,7 @@ void OrbitViewCanvas
             mObjectGciPos[posIndex+2] = outState[2];                  
          }
          
-         #if DEBUG_TRAJCANVAS_UPDATE
+         #if DEBUG_UPDATE
          if (mNumData < sNumDebugOutput)
          {
             MessageInterface::ShowMessage
@@ -4818,7 +4832,7 @@ void OrbitViewCanvas::UpdateOtherData(const Real &time)
       {
          int objId = GetObjectId(mObjectNames[obj]);
          
-         #if DEBUG_TRAJCANVAS_UPDATE_OBJECT
+         #if DEBUG_UPDATE_OBJECT
          MessageInterface::ShowMessage
             ("OrbitViewCanvas::UpdateOtherData() objId=%d, obj=%s\n", objId,
              mObjectNames[objId].c_str());
@@ -4854,7 +4868,7 @@ void OrbitViewCanvas::UpdateOtherData(const Real &time)
             mObjectGciPos[posIndex+1] = objState[1];
             mObjectGciPos[posIndex+2] = objState[2];
             
-            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+            #if DEBUG_UPDATE_OBJECT > 1
             MessageInterface::ShowMessage
                ("OrbitViewCanvas::UpdateOtherData() %s, posIndex=%d, objState=%s\n",
                 mObjectNames[obj].c_str(), posIndex, objState.ToString().c_str());
@@ -4877,7 +4891,7 @@ void OrbitViewCanvas::UpdateOtherData(const Real &time)
                mObjectViewPos[posIndex+2] = outState[2];                  
             }
             
-            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+            #if DEBUG_UPDATE_OBJECT > 1
             MessageInterface::ShowMessage
                ("    %s posIndex=%d, tmppos = %f, %f, %f\n", mObjectNames[obj].c_str(),
                 posIndex, mObjectViewPos[posIndex+0], mObjectViewPos[posIndex+1],
@@ -4889,7 +4903,7 @@ void OrbitViewCanvas::UpdateOtherData(const Real &time)
          }
          else
          {
-            #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+            #if DEBUG_UPDATE_OBJECT > 1
             MessageInterface::ShowMessage
                ("OrbitViewCanvas::UpdateOtherData() Cannot Add data. Invalid objId=%d\n",
                 objId);
@@ -4898,7 +4912,7 @@ void OrbitViewCanvas::UpdateOtherData(const Real &time)
       }
       else
       {
-         #if DEBUG_TRAJCANVAS_UPDATE_OBJECT > 1
+         #if DEBUG_UPDATE_OBJECT > 1
          if (mObjectArray[obj] == NULL)
          {
             MessageInterface::ShowMessage
@@ -4981,7 +4995,7 @@ bool OrbitViewCanvas::TiltOriginZAxis()
    std::string axisTypeName =
       pViewCoordSystem->GetRefObject(Gmat::AXIS_SYSTEM, "")->GetTypeName();
    
-   #if DEBUG_TRAJCANVAS_DRAW
+   #if DEBUG_DRAW
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::TiltOriginZAxis() AxisTypeName=%s\n", axisTypeName.c_str());
    #endif
@@ -4996,7 +5010,7 @@ bool OrbitViewCanvas::TiltOriginZAxis()
       mCoordConverter.Convert(mTime[0], inState, pInternalCoordSystem,
                               outState, pViewCoordSystem);
       
-      #if DEBUG_TRAJCANVAS_DRAW > 2
+      #if DEBUG_DRAW > 2
          MessageInterface::ShowMessage
             ("OrbitViewCanvas::TiltOriginZAxis() in=%g, %g, %g, out=%g, %g, %g\n",
              inState[0], inState[1], inState[2], outState[0], outState[1], outState[2]);
@@ -5046,7 +5060,7 @@ void OrbitViewCanvas::UpdateRotateFlags()
    }
    
    
-   #if DEBUG_TRAJCANVAS_OBJECT
+   #if DEBUG_OBJECT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::UpdateRotateFlags() mCanRotateBody=%d, "
        "mCanRotateAxes=%d\n", mCanRotateBody, mCanRotateAxes);
@@ -5064,7 +5078,7 @@ bool OrbitViewCanvas::ConvertObjectData()
    
    Rvector6 inState, outState;
    
-   #if DEBUG_TRAJCANVAS_CONVERT
+   #if DEBUG_CONVERT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::ConvertObjectData() internalCS=%s, viewCSName=%s, viewCS=%d\n",
        pInternalCoordSystem->GetName().c_str(), pViewCoordSystem->GetName().c_str(),
@@ -5074,7 +5088,7 @@ bool OrbitViewCanvas::ConvertObjectData()
    // do not convert if view CS is internal CS
    if (mViewCsIsInternalCs)
    {
-      #if DEBUG_TRAJCANVAS_CONVERT
+      #if DEBUG_CONVERT
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::ConvertObjectData() No conversion is needed. "
           "Just copy MJ2000 pos\n");
@@ -5108,7 +5122,7 @@ bool OrbitViewCanvas::ConvertObjectData()
       {
          int objId = GetObjectId(mObjectNames[obj]);
          
-         #if DEBUG_TRAJCANVAS_CONVERT
+         #if DEBUG_CONVERT
          MessageInterface::ShowMessage
             ("OrbitViewCanvas::ConvertObjectData() mObjectNames[%d]=%s\n", objId,
              mObjectNames[i].c_str());
@@ -5148,7 +5162,7 @@ void OrbitViewCanvas::ConvertObject(int objId, int index)
    mObjectViewPos[index+1] = outState[1];
    mObjectViewPos[index+2] = outState[2];
    
-   #if DEBUG_TRAJCANVAS_CONVERT
+   #if DEBUG_CONVERT
    if (index < 10)
    {
       MessageInterface::ShowMessage
@@ -5192,7 +5206,7 @@ Rvector3 OrbitViewCanvas::ComputeEulerAngles()
       
       finalMat = mvmat;
       
-      #ifdef DEBUG_TRAJCANVAS_EULER
+      #ifdef DEBUG_EULER
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::ComputeEulerAngles() sViewMat=\n"
           "   %f, %f, %f, %f\n   %f, %f, %f, %f\n"
@@ -5215,7 +5229,7 @@ Rvector3 OrbitViewCanvas::ComputeEulerAngles()
       Rvector3 rotAxis = Rvector3((Real)mfCamRotXAxis, (Real)mfCamRotYAxis,
                                   (Real)mfCamRotZAxis);
       
-      #ifdef DEBUG_TRAJCANVAS_EULER
+      #ifdef DEBUG_EULER
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::ComputeEulerAngles() mfUpAngle=%f, upAxis=%s\n",
           mfUpAngle, upAxis.ToString().c_str());
@@ -5239,7 +5253,7 @@ Rvector3 OrbitViewCanvas::ComputeEulerAngles()
          //finalMat = rotMat * upMat;
          finalMat = upMat * rotMat;
          
-         #ifdef DEBUG_TRAJCANVAS_EULER
+         #ifdef DEBUG_EULER
          MessageInterface::ShowMessage
             ("OrbitViewCanvas::ComputeEulerAngles() \n  rotMat=%s  upMat=%s  "
              "finalMat=%s\n", rotMat.ToString().c_str(),
@@ -5273,7 +5287,7 @@ Rvector3 OrbitViewCanvas::ComputeEulerAngles()
             
       eulerAngle = eulerAngle * DEG_PER_RAD;
       
-      #ifdef DEBUG_TRAJCANVAS_EULER
+      #ifdef DEBUG_EULER
       MessageInterface::ShowMessage
          ("OrbitViewCanvas::ComputeEulerAngles() eulerAngle=%s\n",
           eulerAngle.ToString().c_str());
@@ -5353,7 +5367,7 @@ Rvector3 OrbitViewCanvas::ComputeEulerAngles()
       }
    }
    
-   #ifdef DEBUG_TRAJCANVAS_EULER
+   #ifdef DEBUG_EULER
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::ComputeEulerAngles() modAngle=%s\n",
        modAngle.ToString().c_str());
@@ -5434,7 +5448,7 @@ bool OrbitViewCanvas::LoadImage(const std::string &fileName)
    return false;
    
 #else
-   #if DEBUG_TRAJCANVAS_INIT
+   #if DEBUG_INIT
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::LoadImage() Not using DevIL. file='%s'\n", fileName.c_str());
    #endif
@@ -5454,7 +5468,7 @@ bool OrbitViewCanvas::LoadImage(const std::string &fileName)
    if (data == NULL)
       return false;
    
-   #if DEBUG_TRAJCANVAS_INIT
+   #if DEBUG_INIT
    int size = width * height * 3;
    MessageInterface::ShowMessage
       ("   width=%d, height=%d, size=%d\n", width, height, size);
