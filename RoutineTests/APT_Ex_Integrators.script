@@ -95,9 +95,11 @@ GMAT  BulirschStoer.FM       =  PointMass;
 Create Propagator AdamsBashfourthMoulton;
 GMAT  AdamsBashfourthMoulton.Type     = AdamsBashforthMoulton;
 GMAT  AdamsBashfourthMoulton.InitialStepSize = 30;;
-GMAT  AdamsBashfourthMoulton.Accuracy = 1e-12;
 GMAT  AdamsBashfourthMoulton.MinStep  = 1e-5;
 GMAT  AdamsBashfourthMoulton.MaxStep  = 1000;
+GMAT  AdamsBashfourthMoulton.Accuracy = 1e-10;
+GMAT  AdamsBashfourthMoulton.LowerError = 1e-13;
+GMAT  AdamsBashfourthMoulton.TargetError = 1e-11;
 GMAT  AdamsBashfourthMoulton.FM       =  PointMass;
 
 %----------------------------Create OpenGL Plot_---------------------------
