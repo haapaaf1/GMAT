@@ -2474,6 +2474,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
          sizer->Add(functPanel, 0, wxGROW|wxALL, 0);
          #ifdef __USE_STC_EDITOR__
          newChild->SetEditor(functPanel->GetEditor());
+         newChild->OverrideDirty(true);
          #else
          newChild->SetScriptTextCtrl(functPanel->mFileContentsTextCtrl);
          #endif
