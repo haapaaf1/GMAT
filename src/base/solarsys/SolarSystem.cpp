@@ -2116,10 +2116,10 @@ bool SolarSystem::SetSourceFile(PlanetaryEphem *src)
 //------------------------------------------------------------------------------
 bool SolarSystem::SetSPKFile(const std::string &spkFile)
 {
+   std::string fullSpkName = spkFile;
    if (!(GmatFileUtil::DoesFileExist(spkFile)))
    {
       // try again with path name from startup file
-      std::string fullSpkName = spkFile;
       std::string spkPath = FileManager::Instance()->GetPathname("PLANETARY_SPK_FILE");
       
       if (GmatFileUtil::ParsePathName(spkFile) == "")
@@ -2134,7 +2134,7 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
       }
    }
    
-   theSPKFilename = spkFile;
+   theSPKFilename = fullSpkName;
    return true;
 }
 
@@ -2144,9 +2144,9 @@ bool SolarSystem::SetSPKFile(const std::string &spkFile)
 //------------------------------------------------------------------------------
 bool SolarSystem::SetLSKFile(const std::string &lskFile)
 {
+   std::string fullLskName = lskFile;
    if (!(GmatFileUtil::DoesFileExist(lskFile)))
    {
-      std::string fullLskName = lskFile;
       std::string lskPath = FileManager::Instance()->GetPathname("LSK_FILE");
       
       if (GmatFileUtil::ParsePathName(lskFile) == "")
@@ -2161,7 +2161,7 @@ bool SolarSystem::SetLSKFile(const std::string &lskFile)
       }
    }
    
-   lskKernelName = lskFile;
+   lskKernelName = fullLskName;
    return true;
 }
 
@@ -2695,6 +2695,10 @@ bool SolarSystem::SetStringParameter(const Integer id,
    if (id == SPK_FILE_NAME)
    {
       SetSPKFile(value);
+      if (value != thePlanetarySourceNames[Gmat::SPICE])
+      {
+         thePlanetarySourceNames[Gmat::SPICE] = value;
+      }
       return true;
    }
 
