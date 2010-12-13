@@ -4430,13 +4430,13 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 
       Real howClose = fabs(stopper->GetStopDifference());
       // First step tolerance is one order of magnitude above stop accuracy.
-      firstStepTolerance = (howClose > DEFAULT_STOP_TOLERANCE ?
-            howClose : DEFAULT_STOP_TOLERANCE) * 10.0;
+      firstStepTolerance = (howClose > accuracy ?
+            howClose : accuracy) * 10.0;
 
       #ifdef DEBUG_FIRST_STEP_STOP
          MessageInterface::ShowMessage("First step tolerance = %le,    "
-               "achieved = %le, default = %le\n", firstStepTolerance, howClose,
-               DEFAULT_STOP_TOLERANCE);
+               "achieved = %le, desired = %le\n", firstStepTolerance, howClose,
+               accuracy);
       #endif
 
       for (std::vector<StopCondition*>::iterator i = stopWhen.begin();
