@@ -38,7 +38,7 @@
 #include <wx/config.h>
 
 //#define DEBUG_ATTITUDE_PANEL 1
-
+//#define DEBUG_ATTITUDE_SAVE
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
@@ -624,6 +624,17 @@ void AttitudePanel::SaveData()
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::SaveData() entered\n");
    #endif
+   #ifdef DEBUG_ATTITUDE_SAVE
+      MessageInterface::ShowMessage("   modelModified = %s, seqModified = %s\n",
+            (modelModified? "true" : "false"),  (seqModified? "true" : "false"));
+      MessageInterface::ShowMessage("   csModified = %s, stateTypeModified = %s\n",
+            (csModified? "true" : "false"),  (stateTypeModified? "true" : "false"));
+      MessageInterface::ShowMessage("   stateModified = %s, rateStateTypeModified = %s\n",
+            (stateModified? "true" : "false"),  (rateStateTypeModified? "true" : "false"));
+      MessageInterface::ShowMessage("   stateRateModified = %s\n",
+            (stateRateModified? "true" : "false"));
+      MessageInterface::ShowMessage("   attStateType = %s\n", attStateType.c_str());
+   #endif
    
    if (!ValidateState("Both"))
    {
@@ -715,6 +726,12 @@ void AttitudePanel::SaveData()
       {
          #ifdef DEBUG_ATTITUDE_PANEL
             MessageInterface::ShowMessage("   Setting new state ...\n");
+            if (attStateType == stateTypeArray[QUATERNION])
+            {
+               MessageInterface::ShowMessage(
+                     "Quaternion = %12.10f   %12.10f   %12.10f   %12.10f\n",
+                     q[0], q[1], q[2], q[3]);
+            }
          #endif
          if (attStateType == stateTypeArray[EULER_ANGLES])
             useAttitude->SetRvectorParameter("EulerAngles", ea);
@@ -755,6 +772,8 @@ void AttitudePanel::SaveData()
             attitudeModel.c_str());
          #endif
          theSpacecraft->SetRefObject(useAttitude, Gmat::ATTITUDE, "");
+         // spacecraft deletes the old attitude pointer
+         theAttitude = useAttitude;
       }
    }
    catch (BaseException &ex)
@@ -1079,8 +1098,7 @@ bool AttitudePanel::ValidateState(const std::string which)
          }
       }
    }
-   if (!retval) canClose = false;
-   else         canClose = true;
+   canClose = retval;
    return retval;
 }
 
