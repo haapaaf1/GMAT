@@ -59,6 +59,7 @@ private:
    SolarSystem *theSolarSystem;
    
    wxStaticText *lskNameLabel;
+   wxStaticText *fileNameLabel;
 
 
    void OnBrowseButton(wxCommandEvent& event);
