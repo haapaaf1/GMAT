@@ -32,9 +32,12 @@ public:
    virtual void SetMessage(const std::string &message);
    virtual void SetDetails(const std::string &details);
    virtual void SetFatal(bool fatal);
+   virtual void SetDetails(const char *details, ...);
+   virtual Gmat::MessageType GetMessageType();
+   virtual void SetMessageType(Gmat::MessageType mt);
+   
    const BaseException& operator=(const std::string &newMessage);
    
-   virtual void SetDetails(const char *details, ...);
    
    static const int MAX_MESSAGE_LENGTH = 3000;
    

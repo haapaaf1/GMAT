@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  ClassName
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/mm/dd
@@ -32,11 +32,11 @@
  */
 class GMAT_API SandboxException : public BaseException
 {
-	public:
-		// class constructor
-		SandboxException(std::string details);
-		// class destructor
-		~SandboxException();
+public:
+   // class constructor
+   SandboxException(std::string details, Gmat::MessageType mt = Gmat::ERROR_);
+   // class destructor
+   ~SandboxException();
 };
 
 #endif // SANDBOXEXCEPTION_HPP

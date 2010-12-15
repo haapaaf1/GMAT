@@ -612,6 +612,7 @@ bool Sandbox::Initialize()
    #endif
    
    StringArray exceptions;
+   IntegerArray exceptionTypes;
    UnsignedInt exceptionCount = 0;
 
    // Initialize commands
@@ -629,7 +630,7 @@ bool Sandbox::Initialize()
          current->SetTriggerManagers(&triggerManagers);
 
          #ifdef DEBUG_SANDBOX_GMATFUNCTION
-            MessageInterface::ShowMessage("Initializing %s command\n",
+            MessageInterface::ShowMessage("Sandbox Initializing %s command\n",
                current->GetTypeName().c_str());
          #endif
 
@@ -689,16 +690,21 @@ bool Sandbox::Initialize()
       catch (BaseException &be)
       {
          ++exceptionCount;
+         exceptionTypes.push_back(be.GetMessageType());
          exceptions.push_back(be.GetFullMessage());
       }
       current = current->GetNext();
    }
-
+   
    if (exceptionCount > 0)
    {
       for (UnsignedInt i = 0; i < exceptionCount; ++i)
       {
-         MessageInterface::ShowMessage("%d: %s\n", i+1, exceptions[i].c_str());
+         // Add error count only if message type is Gmat::ERROR_ (Bug 2272 fix)
+         if (exceptionTypes[i] == Gmat::ERROR_)
+             MessageInterface::ShowMessage("%d: %s\n", i+1, exceptions[i].c_str());
+         else
+            MessageInterface::ShowMessage("%s\n", exceptions[i].c_str());
       }
       throw SandboxException("Errors were found in the mission control "
             "sequence; please correct the errors listed in the message window");
@@ -1312,8 +1318,12 @@ bool Sandbox::HandleGmatFunction(GmatCommand *cmd, std::map<std::string,
             (f->GetStringParameter("FunctionName")).c_str());
          #endif
          GmatCommand* fcs = moderator->InterpretGmatFunction(f, usingMap, solarSys);
+
+         // If FCS not created, throw an exception with Gmat::GENERAL_ so that it will not
+         // write error count again for function in Initialize()(Bug 2272 fix)
          if (fcs == NULL)
-            throw SandboxException("Sandbox::HandleGmatFunction - error creating FCS\n");
+            throw SandboxException("Sandbox::HandleGmatFunction - error creating FCS\n",
+                                   Gmat::GENERAL_);
          
          f->SetFunctionControlSequence(fcs);
          GmatCommand* fcsCmd = fcs;

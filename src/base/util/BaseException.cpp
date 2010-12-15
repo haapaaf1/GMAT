@@ -80,6 +80,22 @@ void BaseException::SetFatal(bool fatal)
 }
 
 //------------------------------------------------------------------------------
+// Gmat::MessageType GetMessageType()
+//------------------------------------------------------------------------------
+Gmat::MessageType BaseException::GetMessageType()
+{
+   return msgType;
+}
+
+//------------------------------------------------------------------------------
+// void SetMessageType(Gmat::MessageType mt)
+//------------------------------------------------------------------------------
+void BaseException::SetMessageType(Gmat::MessageType mt)
+{
+   msgType = mt;
+}
+
+//------------------------------------------------------------------------------
 // const BaseException& operator=(const std::string &newMessage) 
 //------------------------------------------------------------------------------
 const BaseException& BaseException::operator=(const std::string &newMessage) 
