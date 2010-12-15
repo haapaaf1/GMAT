@@ -31,12 +31,16 @@ WX_INSTALLED = /usr/local/bin
 # *** EDIT THIS *** - this is where you installed MATLAB ......
 # NOTE! for later versions of MATLAB, this needs to be the actual application bundle
 # and you must also provide the name of the hdf dylib
-MATLAB = /Applications/MATLAB_R2009a/MATLAB_R2009a.app
+MATLAB = /Applications/MATLAB_R2010a/MATLAB_R2010a.app
+#MATLAB = /Applications/MATLAB_R2009a/MATLAB_R2009a.app
 #MATLAB = /Applications/MATLAB_R2007b
 MATLAB_LIB_DIR = $(MATLAB)/bin/maci
-MATLAB_HDF = -lhdf5.5
-MATLAB_ICUDATA = $(MATLAB_LIB_DIR)/libicudata.dylib.38 $(MATLAB_LIB_DIR)/libicui18n.dylib.38 \
-   $(MATLAB_LIB_DIR)/libicuio.dylib.38 $(MATLAB_LIB_DIR)/libicuuc.dylib.38
+MATLAB_HDF = -lhdf5.6
+MATLAB_ICUDATA = $(MATLAB_LIB_DIR)/libicudata.dylib.40 $(MATLAB_LIB_DIR)/libicui18n.dylib.40 \
+   $(MATLAB_LIB_DIR)/libicuio.dylib.40 $(MATLAB_LIB_DIR)/libicuuc.dylib.40
+#MATLAB_HDF = -lhdf5.5
+#MATLAB_ICUDATA = $(MATLAB_LIB_DIR)/libicudata.dylib.38 $(MATLAB_LIB_DIR)/libicui18n.dylib.38 \
+#   $(MATLAB_LIB_DIR)/libicuio.dylib.38 $(MATLAB_LIB_DIR)/libicuuc.dylib.38
 #MATLAB_HDF = -lhdf5.0  
 #MATLAB_ICUDATA = $(MATLAB_LIB_DIR)/libicudata.dylib.36 $(MATLAB_LIB_DIR)/libicui18n.dylib.36 \
 #   $(MATLAB_LIB_DIR)/libicuio.dylib.36 $(MATLAB_LIB_DIR)/libicuuc.dylib.36
@@ -96,7 +100,8 @@ endif
 
 # wxWidgets settings
 ifeq ($(WX_28_SYNTAX), 1)
-WX_28_DEFINES = -D__USE_WX280__ -D__USE_WX280_GL
+#WX_28_DEFINES = -D__USE_WX280__ -D__USE_WX280_GL__
+WX_28_DEFINES = -D__USE_WX280__
 else
 WX_28_DEFINES = 
 endif
@@ -154,7 +159,8 @@ MAC_APP      = $(MACOS_DIR)/GMAT
 MAC_SCRIPT_DIR   = $(MACOS_DIR)/
 MAC_PKG      = $(CONTENTS_DIR)/Info.plist
 MAC_PKGINFO  = $(CONTENTS_DIR)/PkgInfo
-GMAT_ICONS   = $(TOP_DIR)/bin/files/icons/GMATIcon.icns
+GMAT_ICONS   = $(TOP_DIR)/src/gui/resource/GMATIcon.icns
+#GMAT_ICONS   = $(TOP_DIR)/bin/files/icons/GMATIcon.icns
 MAC_ICONS    = $(RES_DIR)/gmat.icns
 
 #REZ =
@@ -196,8 +202,13 @@ F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
 TCPIP_OBJECTS =	$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabClient.o \
 				$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabConnection.o
 else
-CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS) \
-           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ -D__SHOW_HELP_BUTTON__ -D__SMART_APPLY_BUTTON__ $(WX_28_DEFINES)
+#CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS) \
+#           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ -D__SHOW_HELP_BUTTON__ -D__SMART_APPLY_BUTTON__ $(WX_28_DEFINES)
+CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall\
+           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE)\
+           $(IL_HEADERS) $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS)\
+           -fpascal-strings -I/Developer/Headers/FlatCarbon  \
+           -D__WXMAC__ -D__DARWIN__ -D__SHOW_HELP_BUTTON__ -D__SMART_APPLY_BUTTON__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common
 F77_FLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall \
             $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
 TCPIP_OBJECTS =	
