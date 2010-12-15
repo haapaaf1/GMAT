@@ -2956,6 +2956,42 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
       return false;
    }
    
+   // If object type is automatic global and the same object names found in
+   // the GlobalObjectStore, throw an exception
+   // (Handles all object names in the Create command)
+   
+   #ifdef DEBUG_ASSEMBLE_CREATE
+   MessageInterface::ShowMessage
+      ("   '%s' %s an global object\n", objNames[0].c_str(),
+       obj->GetIsGlobal() ? "is" : "is not ");
+   #endif
+   
+   if (obj->GetIsGlobal())
+   {
+      bool globalObjFound = false;
+      std::string globalObjNames;
+      for (UnsignedInt i=0; i<objNames.size(); i++)
+      {
+         std::string name1 = objNames[i];
+         
+         GmatBase *obj1 = FindObject(name1, objTypeStrToUse);
+         if (obj1 != NULL)
+         {
+            globalObjFound = true;
+            globalObjNames = globalObjNames + name1 + " ";
+         }
+      }
+      
+      if (globalObjFound)
+      {
+         std::string msg = 
+            "The following automatic global objects are already created: " + globalObjNames;
+         InterpreterException ex(msg);
+         HandleError(ex);
+         return false;
+      }
+   }
+   
    // Send the object to the Create command
    //cmd->SetRefObject(obj, Gmat::UNKNOWN_OBJECT, obj->GetName());
    cmd->SetRefObject(obj, GmatBase::GetObjectType(objTypeStrToUse), obj->GetName());
