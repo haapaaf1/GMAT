@@ -165,7 +165,9 @@ public:
    virtual Integer      SetIntegerParameter(const std::string &label,
                                             const Integer value);
    
-   bool                 Initialize();
+   virtual bool         Initialize();
+   virtual bool         TakeAction(const std::string &action,
+                                   const std::string &actionData = "");
    
    virtual const std::string&
                         GetGeneratingString(Gmat::WriteMode mode = Gmat::SCRIPTING,
@@ -175,6 +177,7 @@ public:
 private:
    
    bool mInitialized;
+   bool mMcsCreated;
    std::string mPropagatorName;
    std::string mODEModelName;
    Propagator *mPropagator;
@@ -206,6 +209,9 @@ private:
       ANALYTIC_CENTRALBODY,
       ANALYTIC_EPOCHFORMAT,
       ANALYTIC_STARTEPOCH,
+      BULIRSCH_MINIMUMREDUCTION,
+      BULIRSCH_MAXIMUMREDUCTION,
+      BULIRSCH_MINIMUMTOLERANCE,
 
       PropSetupParamCount
    };

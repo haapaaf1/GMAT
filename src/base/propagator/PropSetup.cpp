@@ -34,6 +34,8 @@
 //#define DEBUG_PROPSETUP_CLONE
 //#define DEBUG_PROPSETUP_DELETE
 //#define DEBUG_PROPSETUP_GEN_STRING
+//#define DEBUG_FUNCTION_CREATION
+
 
 //#ifndef DEBUG_MEMORY 
 //#define DEBUG_MEMORY
@@ -77,6 +79,9 @@ PropSetup::PARAMETER_TEXT[PropSetupParamCount - GmatBaseParamCount] =
    "CentralBody",
    "EpochFormat",
    "StartEpoch",
+   "MinimumReduction",
+   "MaximumReduction",
+   "MinimumTolerance"
 };
 
 
@@ -99,6 +104,9 @@ PropSetup::PARAMETER_TYPE[PropSetupParamCount - GmatBaseParamCount] =
    Gmat::OBJECT_TYPE,  // "CentralBody",
    Gmat::STRING_TYPE,  // "EpochFormat",
    Gmat::STRING_TYPE,  // "StartEpoch",
+   Gmat::REAL_TYPE,    // "MinimumReduction",
+   Gmat::REAL_TYPE,    // "MaximumReduction",
+   Gmat::REAL_TYPE,    // "MinimumTolerance"
 };
 
 //---------------------------------
@@ -125,6 +133,7 @@ PropSetup::PropSetup(const std::string &name)
    ownedObjectCount += 1;
    
    mInitialized = false;
+   mMcsCreated = false;
    
    // Name it Internal* so that they can be deleted when new Propagator or ODEModel
    // is set. These names are not actual names but tells whether they can be deleted or not.
@@ -180,7 +189,8 @@ PropSetup::PropSetup(const PropSetup &ps) :
    
    // PropSetup data
    mInitialized = false;
-   mPropagatorName = "";
+   mMcsCreated = ps.mMcsCreated;
+   mPropagatorName = ps.mPropagatorName;
    mODEModelName = "";
    mPropagator = NULL;
    mODEModel = NULL;
@@ -231,7 +241,8 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
    
    // PropSetup data
    mInitialized = false;
-   mPropagatorName = "";
+   mMcsCreated = ps.mMcsCreated;
+   mPropagatorName = ps.mPropagatorName;
    mODEModelName = "";
    
    psm = ps.psm;
@@ -358,8 +369,15 @@ void PropSetup::SetPropagator(Propagator *propagator)
    MessageInterface::ShowMessage
       ("PropSetup::SetPropagator() this=<%p> '%s' entered, mPropagator=<%p>, "
        "propagator=<%p>\n", this, GetName().c_str(), mPropagator, propagator);
+   MessageInterface::ShowMessage("   Prop name is '%s', PropSetup %s\n",
+         mPropagatorName.c_str(), (mMcsCreated ? "was MCS Created" :
+         "was not MCS Created"));
    #endif
    
+//   if ((mPropagatorName != "InternalPropagator") && !mMcsCreated)
+//      throw PropSetupException("You cannot change the owned Integrator or "
+//            "Analytic Propagator after setting it once");
+
    if (propagator == NULL)
       throw PropSetupException("SetPropagator() failed: propagator is NULL");
    
@@ -937,6 +955,9 @@ Real PropSetup::GetRealParameter(const Integer id) const
       case LOWER_ERROR:
       case TARGET_ERROR:
       case ANALYTIC_STEPSIZE:
+      case BULIRSCH_MINIMUMREDUCTION:
+      case BULIRSCH_MAXIMUMREDUCTION:
+      case BULIRSCH_MINIMUMTOLERANCE:
          {
             // Get actual id
             Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);
@@ -982,6 +1003,9 @@ Real PropSetup::SetRealParameter(const Integer id, const Real value)
       case LOWER_ERROR:
       case TARGET_ERROR:
       case ANALYTIC_STEPSIZE:
+      case BULIRSCH_MINIMUMREDUCTION:
+      case BULIRSCH_MAXIMUMREDUCTION:
+      case BULIRSCH_MINIMUMTOLERANCE:
          {
             // Get actual id
             Integer actualId = GetOwnedObjectId(id, Gmat::PROPAGATOR);
@@ -1293,6 +1317,34 @@ bool PropSetup::Initialize()
    }
    
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool TakeAction(const std::string &action, const std::string &actionData)
+//------------------------------------------------------------------------------
+/**
+ * Applies a user action
+ *
+ * PropSetup uses this method to set the flag for instances created in the
+ * MissionControlSequence (i.e. in command mode), so that those instances can
+ * accept properties that otherwise are only settable in object mode.
+ */
+//------------------------------------------------------------------------------
+bool PropSetup::TakeAction(const std::string &action,
+      const std::string &actionData)
+{
+   if (action == "WasMcsCreated")
+   {
+      #ifdef DEBUG_FUNCTION_CREATION
+         MessageInterface::ShowMessage("PropSetup::TakeAction: %s was MCS "
+               "created for <%p>\n", instanceName.c_str(), this);
+      #endif
+      mMcsCreated = true;
+      return true;
+   }
+
+   return GmatBase::TakeAction(action, actionData);
 }
 
 
