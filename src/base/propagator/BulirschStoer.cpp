@@ -11,8 +11,8 @@
 // ***  Administrator of the National Aeronautics and Space               ***
 // ***  Administration                                                    ***
 // ***                                                                    ***
-// ***  This software is subject to the Sofware Usage Agreement described ***
-// ***  by NASA Case Number GSC-14735-1.  The Softare Usage Agreement     ***
+// ***  This software is subject to the Software Usage Agreement described***
+// ***  by NASA Case Number GSC-14735-1.  The Software Usage Agreement    ***
 // ***  must be included in any distribution.  Removal of this header is  ***
 // ***  strictly prohibited.                                              ***
 // ***                                                                    ***
@@ -61,7 +61,7 @@ BulirschStoer::PARAMETER_TYPE[BulirschStoerParamCount - IntegratorParamCount] =
 {
    Gmat::REAL_TYPE,
    Gmat::REAL_TYPE,
-    Gmat::REAL_TYPE,
+   Gmat::REAL_TYPE,
 };
 
 //---------------------------------
