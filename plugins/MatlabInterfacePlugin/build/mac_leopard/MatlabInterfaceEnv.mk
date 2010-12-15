@@ -8,15 +8,19 @@ GMAT_BIN_LOCATION = ../../../../bin
 WX_INSTALLED = /usr/local/bin
 
 # location of MATLAB headers and libraries
-# **** edit this line to point to your MATLAB (2009) installation ****
-MATLAB_DIR = /Applications/MATLAB_R2009a/MATLAB_R2009a.app
+# **** use these lines to point to your MATLAB (2009b) installation ****
+#MATLAB_DIR = /Applications/MATLAB_R2009b/MATLAB_R2009b.app
+#MATLAB_HDF = -lhdf5.5
+
+# **** use these lines to point to your MATLAB (2010a) installation ****
+MATLAB_DIR = /Applications/MATLAB_R2010a/MATLAB_R2010a.app
+MATLAB_HDF = -lhdf5.6
 
 MATLAB_CPP_FLAGS = -D__USE_MATLAB__=1 -I$(MATLAB_DIR)/extern/include -Imatlab/gmat_mex/src
 MATLAB_LIB_DIR = -L$(MATLAB_DIR)/bin/maci -L$(MATLAB_DIR)/bin -L$(MATLAB_DIR)/sys/os/maci
-MATLAB_HDF = -lhdf5.5
 MATLAB_ICU_LIB = $(MATLAB_DIR)/bin/maci
-MATLAB_ICUDATA = $(MATLAB_ICU_LIB)/libicudata.dylib.38 $(MATLAB_ICU_LIB)/libicui18n.dylib.38 \
-	$(MATLAB_ICU_LIB)/libicuio.dylib.38 $(MATLAB_ICU_LIB)/libicuuc.dylib.38
+MATLAB_ICUDATA = $(MATLAB_ICU_LIB)/libicudata.dylib.40 $(MATLAB_ICU_LIB)/libicui18n.dylib.40 \
+	$(MATLAB_ICU_LIB)/libicuio.dylib.40 $(MATLAB_ICU_LIB)/libicuuc.dylib.40
 MATLAB_LIBRARIES = $(MATLAB_LIB_DIR) -leng -lmx -lmat -lut -lz -lstdc++ -lc $(MATLAB_ICUDATA) \
 	-lz.1 -lxerces-c.27 $(MATLAB_HDF)
 

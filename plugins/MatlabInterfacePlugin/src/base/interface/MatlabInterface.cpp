@@ -712,7 +712,7 @@ int MatlabInterface::OpenEngineOnMac()
    // hangs both MATLAB and GMAT
    //std::string runString = "matlab -display " + hNameStr + ":0.0 -desktop";
    //std::string runString = "matlab -display " + hNameStr + ":0.0";
-   std::string runString = "matlab ";
+   std::string runString = "matlab -maci ";  // for 32-bit ONLY for now!!!
    if ((enginePtr = engOpen(runString.c_str())))
    {
       MessageInterface::ShowMessage(
