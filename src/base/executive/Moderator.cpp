@@ -4863,7 +4863,7 @@ GmatCommand* Moderator::InterpretGmatFunction(const std::string &fileName)
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("Moderator::InterpretGmatFunction() returning <%p><%s>\n", cmd,
-       cmd->GetTypeName().c_str());
+       cmd ? cmd->GetTypeName().c_str() : "NULL");
    #endif
    
    return cmd;
@@ -4949,7 +4949,7 @@ GmatCommand* Moderator::InterpretGmatFunction(Function *funct, ObjectMap *objMap
    #if DEBUG_GMAT_FUNCTION
    MessageInterface::ShowMessage
       ("Moderator::InterpretGmatFunction() returning <%p><%s>\n", cmd,
-       cmd->GetTypeName().c_str());
+       cmd ? cmd->GetTypeName().c_str() : "NULL");
    #endif
    
    return cmd;
