@@ -1029,11 +1029,10 @@ void OrbitViewPanel::LoadData()
 //------------------------------------------------------------------------------
 void OrbitViewPanel::SaveData()
 {
-
    #if DEBUG_OPENGL_PANEL_SAVE
    MessageInterface::ShowMessage("OrbitViewPanel::SaveData() entered.\n");
    #endif
-
+   
    canClose = true;
    std::string str1, str2;
    Integer collectFreq = 0, updateFreq = 0, pointsToRedraw = 0, starCount = 0,
@@ -1330,9 +1329,8 @@ void OrbitViewPanel::SaveData()
             MessageInterface::ShowMessage("   Sc[%d] = %s\n", i, mSelSpName.c_str());
             #endif
             
-            mOrbitView->
-               SetStringParameter("Add", mSelSpName, i);
-         }         
+            mOrbitView->SetStringParameter("Add", mSelSpName, i);
+         }
          
          // add non-spacecraft
          for (int i=0; i<mNonScCount; i++)
@@ -1345,9 +1343,7 @@ void OrbitViewPanel::SaveData()
                 mSelSpName.c_str());
             #endif
             
-            
-            mOrbitView->
-               SetStringParameter("Add", mSelSpName, mScCount+i);
+            mOrbitView->SetStringParameter("Add", mSelSpName, mScCount+i);
          }
       }
       
@@ -1412,7 +1408,7 @@ void OrbitViewPanel::SaveData()
          for (int i=0; i<mNonScCount; i++)
          {
             mSelSpName = std::string(mSelectedObjListBox->GetString(i).c_str());
-         
+            
             mOrbitView->
                SetColor("Orbit", mSelSpName,
                         mOrbitColorMap[mSelSpName].GetIntColor());
@@ -1437,7 +1433,23 @@ void OrbitViewPanel::SaveData()
             
             #if DEBUG_OPENGL_PANEL_SAVE
             MessageInterface::ShowMessage
-               ("OrbitViewPanel::SaveData() objName=%s targetColor=%u\n",
+               ("   objName=%s targetColor=%u\n",
+                mSelSpName.c_str(), mTargetColorMap[mSelSpName].GetIntColor());
+            #endif
+            
+            mOrbitView->
+               SetColor("Target", mSelSpName,
+                        mTargetColorMap[mSelSpName].GetIntColor());
+         }
+         
+         // change non-spacecraft target color
+         for (int i=0; i<mNonScCount; i++)
+         {
+            mSelSpName = std::string(mSelectedObjListBox->GetString(i).c_str());
+            
+            #if DEBUG_OPENGL_PANEL_SAVE
+            MessageInterface::ShowMessage
+               ("   objName=%s targetColor=%u\n",
                 mSelSpName.c_str(), mTargetColorMap[mSelSpName].GetIntColor());
             #endif
             
@@ -2083,7 +2095,11 @@ void OrbitViewPanel::ShowSpacePointOption(const wxString &name, bool show,
       mDrawObjectCheckBox->SetValue(mDrawObjectMap[mSelSpName]);
       
       mOrbitColor.Set(orbColor.Red(), orbColor.Green(), orbColor.Blue());
-      mTargetColor.Set(targColor.Red(), targColor.Green(), targColor.Blue());
+      
+      if (isSc)
+         mTargetColor.Set(targColor.Red(), targColor.Green(), targColor.Blue());
+      else
+         mTargetColor.Set(0, 0, 0, 0); // Set target colot to black for non-spacecraft
       
       mOrbitColorButton->SetBackgroundColour(mOrbitColor);
       mTargetColorButton->SetBackgroundColour(mTargetColor);
