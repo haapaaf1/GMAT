@@ -379,6 +379,8 @@ Subscriber* GuiInterpreter::CreateSubscriber(const std::string &type,
                                              const std::string &filename,
                                              bool createDefault)
 {
+   // Set object manage option to configuration object
+   theModerator->SetObjectManageOption(1);
    return theModerator->
       CreateSubscriber(type, name, filename, createDefault);
 }
