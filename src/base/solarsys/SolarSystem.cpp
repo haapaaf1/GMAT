@@ -2694,18 +2694,26 @@ bool SolarSystem::SetStringParameter(const Integer id,
    }
    if (id == SPK_FILE_NAME)
    {
-      SetSPKFile(value);
-      if (value != thePlanetarySourceNames[Gmat::SPICE])
-      {
-         thePlanetarySourceNames[Gmat::SPICE] = value;
-      }
-      return true;
+      #ifdef __USE_SPICE__
+         SetSPKFile(value);
+         if (value != thePlanetarySourceNames[Gmat::SPICE])
+         {
+            thePlanetarySourceNames[Gmat::SPICE] = value;
+         }
+         return true;
+      #else
+         return false;
+      #endif
    }
 
    if (id == LSK_FILE_NAME)
    {
-      SetLSKFile(value);
-      return true;
+      #ifdef __USE_SPICE__
+         SetLSKFile(value);
+         return true;
+      #else
+         return false;
+      #endif
    }
 
    return GmatBase::SetStringParameter(id, value);
