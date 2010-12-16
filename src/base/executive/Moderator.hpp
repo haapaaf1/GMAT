@@ -276,6 +276,7 @@ public:
                                             bool internal = false,
                                             Integer manage = 1);
    CoordinateSystem* GetCoordinateSystem(const std::string &name);
+   const StringArray& GetDefaultCoordinateSystemNames();
    
    // Subscriber
    Subscriber* CreateSubscriber(const std::string &type,
@@ -479,6 +480,7 @@ private:
    SolarSystem *theSolarSystemInUse;
    SolarSystem *theInternalSolarSystem;
    CoordinateSystem *theInternalCoordSystem;
+   StringArray defaultCoordSystemNames;
    StringArray tempObjectNames;
    EopFile *theEopFile;
    ItrfCoefficientsFile *theItrfFile;

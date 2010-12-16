@@ -4289,6 +4289,16 @@ CoordinateSystem* Moderator::GetCoordinateSystem(const std::string &name)
       return (CoordinateSystem*)FindObject(name);
 }
 
+
+//------------------------------------------------------------------------------
+// const StringArray& GetDefaultCoordinateSystemNames()
+//------------------------------------------------------------------------------
+const StringArray& Moderator::GetDefaultCoordinateSystemNames()
+{
+   return defaultCoordSystemNames;
+}
+
+
 // Subscriber
 //------------------------------------------------------------------------------
 // Subscriber* CreateSubscriber(const std::string &type, const std::string &name,
@@ -6821,6 +6831,8 @@ void Moderator::CreateDefaultCoordSystems()
       ("Moderator checking if default coordinate systems should be created...\n");
    #endif
    
+   defaultCoordSystemNames.clear();
+   
    try
    {
       SpacePoint *earth = (SpacePoint*)GetConfiguredObject("Earth");
@@ -6828,6 +6840,7 @@ void Moderator::CreateDefaultCoordSystems()
       
       // EarthMJ2000Eq
       CoordinateSystem *eqcs = GetCoordinateSystem("EarthMJ2000Eq");
+      defaultCoordSystemNames.push_back("EarthMJ2000Eq");
       if (eqcs == NULL)
       {
          eqcs = CreateCoordinateSystem("EarthMJ2000Eq", true);
@@ -6849,6 +6862,7 @@ void Moderator::CreateDefaultCoordSystems()
       
       // EarthMJ2000Ec
       CoordinateSystem *eccs = GetCoordinateSystem("EarthMJ2000Ec");
+      defaultCoordSystemNames.push_back("EarthMJ2000Ec");
       if (eccs == NULL)
       {
          eccs = CreateCoordinateSystem("EarthMJ2000Ec", false);
@@ -6885,6 +6899,7 @@ void Moderator::CreateDefaultCoordSystems()
       
       // EarthFixed
       CoordinateSystem *bfcs = GetCoordinateSystem("EarthFixed");
+      defaultCoordSystemNames.push_back("EarthFixed");
       if (bfcs == NULL)
       {
          bfcs = CreateCoordinateSystem("EarthFixed", false);
