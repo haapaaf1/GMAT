@@ -2921,6 +2921,48 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
       throw;
    }
    
+   //----------------------------------------------------------------------
+   // Check all object names in the Create command for global objects.
+   // If object type is automatic global and the same object names found in
+   // the GlobalObjectStore, throw an exception exception
+   // Just give warning for now (LOJ: 2010.12.16)
+   //----------------------------------------------------------------------
+   bool globalObjFound = false;
+   std::string globalObjNames;
+   StringArray defaultCSNames = theModerator->GetDefaultCoordinateSystemNames();
+   
+   for (UnsignedInt i = 0; i < objNames.size(); i++)
+   {
+      std::string name1 = objNames[i];
+      if (find(defaultCSNames.begin(), defaultCSNames.end(), name1) != defaultCSNames.end())
+      {
+         std::string msg = 
+            "The default CoordinateSystem \"" + name1 + "\" is automatic "
+            "global object and was already created, so ignoring";
+         InterpreterException ex(msg);
+         HandleError(ex, true, true);
+      }
+      else
+      {
+         GmatBase *obj1 = FindObject(name1, objTypeStrToUse);
+         if (obj1 != NULL && obj1->GetIsGlobal())
+         {
+            globalObjFound = true;
+            globalObjNames = globalObjNames + name1 + " ";
+         }
+      }
+   }
+   
+   if (globalObjFound)
+   {
+      std::string msg = 
+         "The following automatic global objects are already created, so ignoring: " + globalObjNames;
+      InterpreterException ex(msg);
+      HandleError(ex, true, true);
+      //return false;
+   }
+   
+   
    //-------------------------------------------------------------------
    // Create an unmanaged object and set to command
    // Note: Generally unnamed object will not be added to configuration,
@@ -2954,42 +2996,6 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
          MessageInterface::ShowMessage("Reference object for Create command is NULL??\n");
       #endif
       return false;
-   }
-   
-   // If object type is automatic global and the same object names found in
-   // the GlobalObjectStore, throw an exception
-   // (Handles all object names in the Create command)
-   
-   #ifdef DEBUG_ASSEMBLE_CREATE
-   MessageInterface::ShowMessage
-      ("   '%s' %s an global object\n", objNames[0].c_str(),
-       obj->GetIsGlobal() ? "is" : "is not ");
-   #endif
-   
-   if (obj->GetIsGlobal())
-   {
-      bool globalObjFound = false;
-      std::string globalObjNames;
-      for (UnsignedInt i=0; i<objNames.size(); i++)
-      {
-         std::string name1 = objNames[i];
-         
-         GmatBase *obj1 = FindObject(name1, objTypeStrToUse);
-         if (obj1 != NULL)
-         {
-            globalObjFound = true;
-            globalObjNames = globalObjNames + name1 + " ";
-         }
-      }
-      
-      if (globalObjFound)
-      {
-         std::string msg = 
-            "The following automatic global objects are already created: " + globalObjNames;
-         InterpreterException ex(msg);
-         HandleError(ex);
-         return false;
-      }
    }
    
    // Send the object to the Create command
