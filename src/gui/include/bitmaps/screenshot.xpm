@@ -1,5 +1,5 @@
 /* XPM */
-static char * screenshot_xpm[] = {
+static const char * screenshot_xpm[] = {
 "16 15 82 1",
 " 	c None",
 ".	c #85878A",

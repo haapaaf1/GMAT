@@ -1,5 +1,5 @@
 /* XPM */
-static char * CloseAll_xpm[] = {
+static const char * CloseAll_xpm[] = {
 "16 16 80 1",
 " 	c None",
 ".	c #BDBFC1",

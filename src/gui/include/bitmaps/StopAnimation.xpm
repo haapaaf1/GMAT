@@ -1,5 +1,5 @@
 /* XPM */
-static char * StopAnimation_xpm[] = {
+static const char * StopAnimation_xpm[] = {
 "16 16 62 1",
 " 	c None",
 ".	c #CE383A",
