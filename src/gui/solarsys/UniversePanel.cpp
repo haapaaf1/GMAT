@@ -347,6 +347,8 @@ void UniversePanel::LoadData()
          mFileNameTextCtrl->Disable();
          lskNameLabel->Show(false);
          mLSKBrowseButton->Show(false);
+         wxWindow *windowWithFocus = FindFocus();
+         if (windowWithFocus == mLSKFileNameTextCtrl)  mFileNameTextCtrl->SetFocus();
          mLSKFileNameTextCtrl->Show(false);
          //mPageSizer->Show(mAnaModelSizer, true);
       }
@@ -366,6 +368,8 @@ void UniversePanel::LoadData()
             fileNameLabel->SetLabel(wxT("DE "GUI_ACCEL_KEY"Filename"));
             lskNameLabel->Show(false);
             mLSKBrowseButton->Show(false);
+            wxWindow *windowWithFocus = FindFocus();
+            if (windowWithFocus == mLSKFileNameTextCtrl)  mFileNameTextCtrl->SetFocus();
             mLSKFileNameTextCtrl->Show(false);
          }
          //mPageSizer->Show(mAnaModelSizer, false);
@@ -498,12 +502,22 @@ void UniversePanel::SaveData()
          }
          filename.close();
          
-         for (unsigned int i=0; i<mAllFileTypes.size(); i++)
-         {
-            wxString type = mAllFileTypes[i].c_str();
-            std::string name = std::string(mFileTypeNameMap[type].c_str());
-            theGuiInterpreter->SetPlanetarySourceName(mAllFileTypes[i], name);
-         }
+//         for (unsigned int i=0; i<mAllFileTypes.size(); i++)
+//         {
+//            wxString theType = mAllFileTypes[i].c_str();
+//            std::string name = std::string(mFileTypeNameMap[theType].c_str());
+//            theGuiInterpreter->SetPlanetarySourceName(mAllFileTypes[i], name);
+            #ifdef DEBUG_UNIVERSEPANEL_SAVE
+               std::string fieldName = "DEFilename";
+               if (type == "SPICE")
+                  fieldName = "SPKFilename";
+//               MessageInterface::ShowMessage("theType = %s\n", theType.c_str());
+               MessageInterface::ShowMessage("fieldName = %s\n", fieldName.c_str());
+               MessageInterface::ShowMessage("str = %s\n", str.c_str());
+            #endif
+            theGuiInterpreter->SetPlanetarySourceName(type.c_str(), str);
+            mFileTypeNameMap[mFileTypeComboBox->GetStringSelection()] = str.c_str();
+//         }
          
          mHasFileNameChanged = false;
       }
@@ -626,6 +640,9 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
          mFileNameTextCtrl->Disable();
          lskNameLabel->Show(false);
          mLSKBrowseButton->Show(false);
+         // Attempt to remove weird remaining visibility/focus problem
+         wxWindow *windowWithFocus = FindFocus();
+         if (windowWithFocus == mLSKFileNameTextCtrl)  mFileNameTextCtrl->SetFocus();
          mLSKFileNameTextCtrl->Show(false);
       }
       else
@@ -645,9 +662,13 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
             fileNameLabel->SetLabel(wxT("DE "GUI_ACCEL_KEY"Filename"));
             lskNameLabel->Show(false);
             mLSKBrowseButton->Show(false);
+            // Attempt to remove weird remaining visibility/focus problem
+            wxWindow *windowWithFocus = FindFocus();
+            if (windowWithFocus == mLSKFileNameTextCtrl)  mFileNameTextCtrl->SetFocus();
             mLSKFileNameTextCtrl->Show(false);
          }
       }
+
 
       mPageSizer->Layout();
    }
