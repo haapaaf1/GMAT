@@ -797,7 +797,7 @@ bool PropSetup::IsParameterReadOnly(const Integer id) const
 
       return false;
    }
-   else if ((id >= INITIAL_STEP_SIZE) && (id <= ANALYTIC_STARTEPOCH))
+   else if ((id >= INITIAL_STEP_SIZE) && (id <= BULIRSCH_MINIMUMTOLERANCE))
       return true;
    else
       return GmatBase::IsParameterReadOnly(id);
