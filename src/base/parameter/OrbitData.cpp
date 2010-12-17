@@ -301,12 +301,14 @@ Rvector6 OrbitData::GetCartState()
              mOutCoordSystem->GetTypeName().c_str(),
              mOutCoordSystem->GetRefObject(Gmat::AXIS_SYSTEM, ""));
          if (mOutCoordSystem->AreAxesOfType("ObjectReferencedAxes"))
-               MessageInterface::ShowMessage("OrbitData::GetCartState() <-- mOutCoordSystem IS of type ObjectReferencedAxes!!!\n");
+               MessageInterface::ShowMessage("OrbitData::GetCartState() <-- "
+                     "mOutCoordSystem IS of type ObjectReferencedAxes!!!\n");
          else
-            MessageInterface::ShowMessage("OrbitData::GetCartState() <-- mOutCoordSystem IS NOT of type ObjectReferencedAxes!!!\n");
+            MessageInterface::ShowMessage("OrbitData::GetCartState() <-- "
+                  "mOutCoordSystem IS NOT of type ObjectReferencedAxes!!!\n");
          MessageInterface::ShowMessage
-            ("OrbitData::GetCartState() <-- Before convert: mCartEpoch=%f\nstate = %s\n", 
-             mCartEpoch, mCartState.ToString().c_str());
+            ("OrbitData::GetCartState() <-- Before convert: mCartEpoch=%f\n"
+                  "state = %s\n", mCartEpoch, mCartState.ToString().c_str());
          MessageInterface::ShowMessage
             ("OrbitData::GetCartState() <-- firstTimeEpochWarning = %s\n",
              (firstTimeEpochWarning? "true" : "false"));
@@ -344,6 +346,11 @@ Rvector6 OrbitData::GetCartState()
       
       try
       {
+         #ifdef DEBUG_ORBITDATA_CONVERT
+            MessageInterface::ShowMessage("    --> Converting from %s to %s\n\n",
+                  mInternalCoordSystem->GetName().c_str(),
+                  mOutCoordSystem->GetName().c_str());
+         #endif
          mCoordConverter.Convert(A1Mjd(mCartEpoch), mCartState, mInternalCoordSystem,
                                  mCartState, mOutCoordSystem, true);
          #ifdef DEBUG_ORBITDATA_CONVERT

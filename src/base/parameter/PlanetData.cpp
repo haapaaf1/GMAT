@@ -31,6 +31,7 @@
 
 //#define DEBUG_PLANETDATA_INIT
 //#define DEBUG_PLANETDATA_RUN
+#define DEBUG_ALTITUDE
 
 using namespace GmatMathUtil;
 
@@ -214,7 +215,7 @@ Real PlanetData::GetPlanetReal(Integer item)
          //     defined by sc.centralbody.Longitude. so, if the central
          //     body is Mars, we convert the state to MarsFixed,
          //     if the central body is Venus, we convert to Venus fixed.
-         //     This gives us X_f, Y_f, and Z_f,  the cartesian coordinates
+         //     This gives us X_f, Y_f, and Z_f,  the Cartesian coordinates
          //     in the fixed system.
          // 2)  Longitude = atan2( Y_f, X_f )
          
@@ -244,7 +245,8 @@ Real PlanetData::GetPlanetReal(Integer item)
          
          #ifdef DEBUG_ALTITUDE
          MessageInterface::ShowMessage
-            ("PlanetData::GetPlanetReal(%d) state=%s\n", item, state.ToString().c_str());
+            ("PlanetData::GetPlanetReal(%d) state=%s\n", item,
+                  intState.ToString().c_str());
          #endif
          
          Real epoch = mSpacecraft->GetRealParameter("A1Epoch");
