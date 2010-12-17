@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 Create
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Wendy C. Shoan
 // Created: 2008.03.14
@@ -271,6 +271,7 @@ bool Create::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             "Reference object for Create command already set.\n"); 
    }
    refObj = obj;
+   refObj->TakeAction("WasMcsCreated");
    return true;
 }
 
@@ -363,6 +364,7 @@ bool Create::Initialize()
       #endif
       
       newObj->SetName(useNames.at(jj));
+      newObj->TakeAction("WasMcsCreated");
       if (refObj->GetType() == Gmat::COORDINATE_SYSTEM)
          newObj->SetSolarSystem(((CoordinateBase*)refObj)->GetSolarSystem());
       #ifdef DEBUG_CREATE_INIT
