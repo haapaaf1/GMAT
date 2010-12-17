@@ -1235,7 +1235,7 @@ Real* EphemerisPropagator::GetJ2KState()
 // void UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
 /**
- * Passes state data from the propagator t the objects that are being propagated
+ * Passes state data from propagator to the objects that are being propagated
  *
  * @param newEpoch The epoch of the state; use -1.0 to leave the epoch unchanged
  */
