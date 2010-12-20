@@ -374,9 +374,15 @@ void PropSetup::SetPropagator(Propagator *propagator)
          "was not MCS Created"));
    #endif
    
-//   if ((mPropagatorName != "InternalPropagator") && !mMcsCreated)
-//      throw PropSetupException("You cannot change the owned Integrator or "
-//            "Analytic Propagator after setting it once");
+   if ((mPropagatorName != "InternalPropagator") && !mMcsCreated)
+   {
+      if (propagator != NULL)
+      {
+         if (propagator->GetTypeName() != mPropagator->GetTypeName())
+            throw PropSetupException("You cannot change the owned Integrator "
+                  "or Analytic Propagator after setting it once");
+      }
+   }
 
    if (propagator == NULL)
       throw PropSetupException("SetPropagator() failed: propagator is NULL");
