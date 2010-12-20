@@ -31,7 +31,7 @@
 
 //#define DEBUG_PLANETDATA_INIT
 //#define DEBUG_PLANETDATA_RUN
-#define DEBUG_ALTITUDE
+//#define DEBUG_ALTITUDE
 
 using namespace GmatMathUtil;
 
