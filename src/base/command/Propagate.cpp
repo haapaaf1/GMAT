@@ -1602,8 +1602,8 @@ bool Propagate::InterpretAction()
    const char *str = generatingString.c_str();
    
    if (generatingString.find("..") != generatingString.npos)
-      throw CommandException("Propagate::InterpretAction: Can not parse command\n "
-                                + generatingString);
+      throw CommandException("Propagate::InterpretAction: Can not parse "
+            "command\n " + generatingString);
    
    while (str[loc] == ' ')
       ++loc;
@@ -1613,6 +1613,11 @@ bool Propagate::InterpretAction()
    // Now fill in the list of propagators
    AssemblePropagators(loc, generatingString);
    
+   if (propName.size() == 0)
+      throw CommandException("A Propagate command is not valid: no "
+            "propagators are identified");
+
+
    // Load up the array listing the objects referenced so they can be validated
    objects.clear();
 
