@@ -503,11 +503,14 @@ void ParameterCreateDialog::SaveData()
        mCurrParam, mArrayChanged, mVariableChanged, mStringChanged);
    #endif
    
+   // Check for the existing name
+   
    switch (mParamType)
    {
       case VARIABLE:
-         if ((mCurrParam == NULL) || (mObjectName.c_str() != mVarNameTextCtrl->GetValue()))
-         {         
+         paramName = mVarNameTextCtrl->GetValue();
+         if ((mCurrParam == NULL) || (mObjectName.c_str() != paramName))
+         {
             CreateVariable();
          }
          else
@@ -526,7 +529,7 @@ void ParameterCreateDialog::SaveData()
       case ARRAY:
          paramName = mArrNameTextCtrl->GetValue();
          if ((mCurrParam == NULL) || (mObjectName.c_str() != paramName))
-         {         
+         {
             #ifdef DEBUG_PARAM_CREATE_SAVE
             MessageInterface::ShowMessage
                ("   Creating new Array '%s'\n", paramName.c_str());
@@ -561,8 +564,9 @@ void ParameterCreateDialog::SaveData()
          }
          break;
       case STRING:
-         if ((mCurrParam == NULL) || (mObjectName.c_str() != mStringNameTextCtrl->GetValue()))
-         {         
+         paramName = mStringNameTextCtrl->GetValue();
+         if ((mCurrParam == NULL) || (mObjectName.c_str() != paramName))
+         {
             CreateString();
          }
          else
@@ -1016,11 +1020,12 @@ void ParameterCreateDialog::CreateVariable()
    Parameter *param = NULL;
    
    // check if variable name already exist
-   if (theGuiInterpreter->GetParameter(varName) != NULL)
+   //if (theGuiInterpreter->GetParameter(varName) != NULL)
+   if (theGuiInterpreter->GetConfiguredObject(varName) != NULL)
    {
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "The variable: %s cannot be created. It already exists.",
-          varName.c_str());
+         (Gmat::WARNING_, "The variable: \"%s\" cannot be created. "
+          "The name already exists.", varName.c_str());
       canClose = false;
       return;
    }
@@ -1094,7 +1099,7 @@ void ParameterCreateDialog::CreateString()
    try
    {
       // if new user string to create
-      if (theGuiInterpreter->GetParameter(strName) == NULL)
+      if (theGuiInterpreter->GetConfiguredObject(strName) == NULL)
       {
          // check if it has blank variable name
          if (strName == "")
@@ -1145,8 +1150,8 @@ void ParameterCreateDialog::CreateString()
       else
       {
          MessageInterface::PopupMessage
-            (Gmat::WARNING_, "ParameterCreateDialog::CreateString()\nThe string: %s"
-             " cannot be created. It already exists.", strName.c_str());
+            (Gmat::WARNING_, "The string: \"%s\" cannot be created. "
+             "The name already exists.", strName.c_str());
       }
       
       ResetControls();
@@ -1201,7 +1206,7 @@ void ParameterCreateDialog::CreateArray()
       std::string arrName = std::string(wxarrName.c_str());
       
       // if new user array to create
-      if (theGuiInterpreter->GetParameter(arrName) == NULL)
+      if (theGuiInterpreter->GetConfiguredObject(arrName) == NULL)
       {
          // check if it has blank variable name or expression
          if (arrName == "")
@@ -1253,8 +1258,8 @@ void ParameterCreateDialog::CreateArray()
       else
       {
          MessageInterface::PopupMessage
-            (Gmat::WARNING_, "ParameterCreateDialog::CreateArray()\nThe array: %s"
-             " cannot be created. It already exists.", arrName.c_str());
+            (Gmat::WARNING_, "The array: \"%s\" cannot be created. "
+             "The name already exists.", arrName.c_str());
       }
       ResetControls();      
    }
