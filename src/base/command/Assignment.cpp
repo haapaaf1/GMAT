@@ -726,6 +726,14 @@ bool Assignment::Validate()
                   else
                      retval = false;
                }
+               else if (lhsDataType == Gmat::RVECTOR_TYPE)
+               {
+                  if ((rhsDataType == Gmat::STRING_TYPE) ||
+                      (rhsDataType == Gmat::RVECTOR_TYPE))
+                     return true;
+                  else
+                     return false;
+               }
                else
                {
                   #ifdef DEBUG_VALIDATION
