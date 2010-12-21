@@ -58,6 +58,9 @@ protected:
    ParameterType mParamType;
    bool mIsParamCreated;
    bool mPageChangedByUser;
+   bool mArrayChanged;
+   bool mVariableChanged;
+   bool mStringChanged;
    
    wxTextCtrl *mVarNameTextCtrl;
    wxTextCtrl *mVarValueTextCtrl;

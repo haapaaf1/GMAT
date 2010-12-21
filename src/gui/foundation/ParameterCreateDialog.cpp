@@ -36,6 +36,7 @@
 //#define DEBUG_PARAM_CREATE_VAR
 //#define DEBUG_PARAM_CREATE_LOAD
 //#define DEBUG_PARAM_CREATE_SAVE
+//#define DEBUG_PAGE_CHANGED
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -76,6 +77,9 @@ ParameterCreateDialog::ParameterCreateDialog(wxWindow *parent, ParameterType par
    mParamNames.Clear();
    mIsParamCreated = false;
    mPageChangedByUser = false;
+   mArrayChanged = false;
+   mVariableChanged = false;
+   mStringChanged = false;
    mSelectVarStrings.Add("Spacecraft");
    mSelectVarStrings.Add("ImpulsiveBurn");
    
@@ -427,6 +431,7 @@ void ParameterCreateDialog::LoadData()
    wxString str;
    int mNumRows;
    int mNumCols;
+   Real rval;
    
    if (mObjectName != "")
    {
@@ -437,7 +442,7 @@ void ParameterCreateDialog::LoadData()
       mObject = mCurrParam;
       if (mCurrParam == NULL)
          return;
-
+      
       switch (mParamType)
       {
          case VARIABLE:
@@ -447,6 +452,7 @@ void ParameterCreateDialog::LoadData()
             mVarValueTextCtrl->SetValue(wxVariant(mCurrParam->GetRealParameter("Value")));
             mCreateVariableButton->Disable();
             mUserVarListBox->SetStringSelection(mObjectName.c_str());
+            mVariableChanged = false;
             break;
          case ARRAY:
             mArrNameTextCtrl->SetValue(mObjectName.c_str());
@@ -460,12 +466,14 @@ void ParameterCreateDialog::LoadData()
             mCreateArrayButton->Disable();
             mEditArrayButton->Enable(mCurrParam != NULL);
             mUserArrayListBox->SetStringSelection(mObjectName.c_str());
+            mArrayChanged = false;
             break;
          case STRING:
             mStringNameTextCtrl->SetValue(mObjectName.c_str());
             mStringValueTextCtrl->SetValue(mCurrParam->GetStringParameter("Expression").c_str());
             mCreateStringButton->Disable();
             mUserStringListBox->SetStringSelection(mObjectName.c_str());
+            mStringChanged = false;
             break;
       }
    }
@@ -490,7 +498,9 @@ void ParameterCreateDialog::SaveData()
    
    #ifdef DEBUG_PARAM_CREATE_SAVE
    MessageInterface::ShowMessage
-      ("ParameterCreateDialog::SaveData() entered, mParamType=%d, mCurrParam=<%p>\n", mParamType);
+      ("ParameterCreateDialog::SaveData() entered, mParamType=%d, mCurrParam=<%p>\n"
+       "   mArrayChanged=%d, mVariableChanged=%d, mStringChanged=%d\n", mParamType,
+       mCurrParam, mArrayChanged, mVariableChanged, mStringChanged);
    #endif
    
    switch (mParamType)
@@ -505,6 +515,10 @@ void ParameterCreateDialog::SaveData()
             std::string expr = mVarValueTextCtrl->GetValue().c_str();
             Real rval;
             CheckReal(rval, expr, "Expression", "Real Number");
+            #ifdef DEBUG_PARAM_CREATE_SAVE
+            MessageInterface::ShowMessage
+               ("   Setting %s to variable '%s'\n", expr.c_str(), mCurrParam->GetName().c_str());
+            #endif
             mCurrParam->SetStringParameter("Expression", expr);
             ResetControls();
          }
@@ -566,6 +580,12 @@ void ParameterCreateDialog::SaveData()
                  mCreateArrayButton->IsEnabled() || 
                  mCreateStringButton->IsEnabled() );
    
+   #ifdef DEBUG_PARAM_CREATE_SAVE
+   MessageInterface::ShowMessage
+      ("ParameterCreateDialog::SaveData() leaving, mParamType=%d, mCurrParam=<%p>\n"
+       "   mArrayChanged=%d, mVariableChanged=%d, mStringChanged=%d\n", mParamType,
+       mCurrParam, mArrayChanged, mVariableChanged, mStringChanged);
+   #endif
 }
 
 
@@ -589,6 +609,8 @@ void ParameterCreateDialog::ResetControls()
          mCreateVariableButton->Disable();
          mVarValueTextCtrl->SetValue("");
          mVarNameTextCtrl->SetValue("");
+         mVariableChanged = false;
+         mUserVarListBox->Deselect(mUserVarListBox->GetSelection());
          break;
       case ARRAY:
          mCreateArrayButton->Disable();
@@ -596,11 +618,15 @@ void ParameterCreateDialog::ResetControls()
          mArrRowTextCtrl->SetValue("");
          mArrColTextCtrl->SetValue("");
          mEditArrayButton->Disable();
+         mUserArrayListBox->Deselect(mUserArrayListBox->GetSelection());
+         mArrayChanged = false;
          break;
       case STRING:
          mCreateStringButton->Disable();
          mStringNameTextCtrl->SetValue("");
          mStringValueTextCtrl->SetValue("");
+         mUserStringListBox->Deselect(mUserStringListBox->GetSelection());
+         mStringChanged = false;
          break;
    }
 }
@@ -622,6 +648,7 @@ void ParameterCreateDialog::OnVarTextUpdate(wxCommandEvent& event)
    {
       mCreateVariableButton->Enable();
       EnableUpdate(true);
+      mVariableChanged = true;
    }
    
 }
@@ -640,6 +667,7 @@ void ParameterCreateDialog::OnAryTextUpdate(wxCommandEvent& event)
    {
       mCreateArrayButton->Enable();
       EnableUpdate(true);
+      mArrayChanged = true;
    }
 
 }
@@ -657,6 +685,7 @@ void ParameterCreateDialog::OnStrTextUpdate(wxCommandEvent& event)
    {
       mCreateStringButton->Enable();
       EnableUpdate(true);
+      mStringChanged = true;
    }
    
 }
@@ -708,8 +737,11 @@ void ParameterCreateDialog::OnPageChanged(wxNotebookEvent& event)
 {
    #ifdef DEBUG_PAGE_CHANGED
    MessageInterface::ShowMessage
-      ("OnPageChanged() entered, mPageChangedByUser=%d\n", mPageChangedByUser);
+      ("OnPageChanged() entered, mPageChangedByUser=%d, mArrayChanged=%d, "
+       "mVariableChanged=%d, mStringChanged=%d\n", mPageChangedByUser, mArrayChanged,
+       mVariableChanged, mStringChanged);
    #endif
+   
    
    if (mPageChangedByUser)
    {
@@ -719,15 +751,18 @@ void ParameterCreateDialog::OnPageChanged(wxNotebookEvent& event)
       {
       case VARIABLE:
          mObjectName = mUserVarListBox->GetStringSelection();
-         LoadData();
+         if (!mVariableChanged)
+            LoadData();
          break;
       case ARRAY:
          mObjectName = mUserArrayListBox->GetStringSelection();
-         LoadData();
+         if (!mArrayChanged)
+            LoadData();
          break;
       case STRING:
          mObjectName = mUserStringListBox->GetStringSelection();
-         LoadData();
+         if (!mStringChanged)
+            LoadData();
          break;
       }
    }
@@ -758,15 +793,18 @@ void ParameterCreateDialog::OnClearButtonClick(wxCommandEvent& event)
       case VARIABLE:
          mVarNameTextCtrl->Clear();
          mVarValueTextCtrl->Clear();
+         mUserVarListBox->Deselect(mUserVarListBox->GetSelection());
          break;
       case ARRAY:
          mArrNameTextCtrl->Clear();
          mArrRowTextCtrl->Clear();
          mArrColTextCtrl->Clear();
+         mUserArrayListBox->Deselect(mUserArrayListBox->GetSelection());
          break;
       case STRING:
          mStringNameTextCtrl->Clear();
          mStringValueTextCtrl->Clear();
+         mUserStringListBox->Deselect(mUserStringListBox->GetSelection());
          break;
    }
 }
@@ -821,9 +859,59 @@ void ParameterCreateDialog::OnSelectButtonClick(wxCommandEvent& event)
 // void OnListboxClick(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void ParameterCreateDialog::OnListboxClick(wxCommandEvent& event)
-{    
+{
+   wxString currObject = mObjectName.c_str();
+   wxString nextObject = event.GetString();
    mObjectName = event.GetString();
+
+   #ifdef DEBUG_LIST_BOX
+   MessageInterface::ShowMessage
+      ("OnListboxClick() entered, currObject='%s', nextObject='%s'\n   "
+       "mArrayChanged=%d, mVariableChanged=%d, mStringChanged=%d\n", currObject.c_str(),
+       nextObject.c_str(), mArrayChanged, mVariableChanged, mStringChanged);
+   #endif
+   
+   bool objectChanged = false;
+   
+   if (event.GetEventObject() == mUserVarListBox)
+      objectChanged = mVariableChanged;
+   else if (event.GetEventObject() == mUserArrayListBox)
+      objectChanged = mVariableChanged;
+   else if (event.GetEventObject() == mUserStringListBox)
+      objectChanged = mStringChanged;
+   
+   // Prompt user for saving current object before switching to other of the same type
+   if (objectChanged)
+   {
+      if (currObject != nextObject)
+      {      
+         wxMessageDialog *msgDlg = new wxMessageDialog
+            (this, "The change will be lost, do you want to save it first?", "Save...",
+             wxYES_NO |wxICON_QUESTION, wxDefaultPosition);
+         
+         int result = msgDlg->ShowModal();
+         if (result == wxID_YES)
+         {
+            // Save current object before switching to other
+            mObjectName = currObject;
+            SaveData();
+            mObjectName = nextObject;
+         }
+         else if (result == wxID_NO)
+         {
+            mVariableChanged = false;
+         }
+      }
+   }
+   
    LoadData();
+   
+   #ifdef DEBUG_LIST_BOX
+   MessageInterface::ShowMessage
+      ("OnListboxClick() leaving, currObject='%s', mObjectName='%s'\n   "
+       "mArrayChanged=%d, mVariableChanged=%d, mStringChanged=%d\n", currObject.c_str(),
+       mObjectName.c_str(), mArrayChanged, mVariableChanged, mStringChanged);
+   #endif
 }
 
 
@@ -894,7 +982,7 @@ void ParameterCreateDialog::CreateVariable()
    
    #ifdef DEBUG_PARAM_CREATE_VAR
    MessageInterface::ShowMessage
-      ("ParameterCreateDialog::CreateVariable() varName = "  + varName +
+      ("ParameterCreateDialog::CreateVariable() entered, varName = "  + varName +
        " varExpr = " + varExpr + "\n");
    #endif
    
@@ -902,7 +990,7 @@ void ParameterCreateDialog::CreateVariable()
    if (varName == "" || varExpr == "")
    {
       MessageInterface::PopupMessage
-         (Gmat::ERROR_, "Variable or expression cannot be blank");
+         (Gmat::ERROR_, "Variable name or value cannot be blank");
       canClose = false;
       return;
    }
@@ -981,6 +1069,11 @@ void ParameterCreateDialog::CreateVariable()
       
       // reset values 
       ResetControls();
+      
+      #ifdef DEBUG_PARAM_CREATE_VAR
+      MessageInterface::ShowMessage
+         ("ParameterCreateDialog::CreateVariable() leaving\n");
+      #endif
    }
    catch (BaseException &e)
    {
