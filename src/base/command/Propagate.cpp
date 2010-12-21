@@ -4768,9 +4768,22 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
                   throw;
                }
                if (bisectStep == 0.0)
-                  throw CommandException("Error refining timestep for Propagate"
-                     " command: infinite slope in secant and bisection failed"
-                     " to stop on \"" + stopper->GetName() + "\"; Exiting\n");
+               {
+                  // Changed to a warning message
+                  // throw CommandException("Error refining timestep for "
+                  //       "Propagate command: infinite slope in secant and "
+                  //       "bisection failed to stop on \"" +
+                  //       stopper->GetName() + "\"; Exiting\n");
+                  MessageInterface::ShowMessage("**** WARNING **** The "
+                        "secant and bisection methods failed when attempting "
+                        "to stop with tolerance %le  on stopping condition %s;"
+                        "the achieved stopping condition error was %le\n",
+                        stopAccuracy, stopper->GetName().c_str(),
+                        fabs(stopper->GetStopDifference()));
+
+                  break;
+               }
+
                secsToStep = bisectStep;
                break;
             }
@@ -4801,10 +4814,22 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
                   throw;
                }
                if (bisectStep == 0.0)
-                  throw CommandException("Error refining timestep for Propagate"
-                     " command: zero slope in secant and bisection failed to"
-                     " stop on \"" +
-                     stopper->GetName() + "\"; Exiting\n");
+               {
+                  // Changed to a warning message
+                  // throw CommandException("Error refining timestep for "
+                  //       "Propagate command: zero slope in secant and "
+                  //       "bisection failed to stop on \"" +
+                  //       stopper->GetName() + "\"; Exiting\n");
+                  MessageInterface::ShowMessage("**** WARNING **** The "
+                        "secant and bisection methods failed when attempting "
+                        "to stop with tolerance %le  on stopping condition %s;"
+                        "the achieved stopping condition error was %le\n",
+                        stopAccuracy, stopper->GetName().c_str(),
+                        fabs(stopper->GetStopDifference()));
+
+                  break;
+               }
+               
                secsToStep = bisectStep;
                break;
             }
