@@ -2160,6 +2160,10 @@ CelestialBody* Moderator::CreateCelestialBody(const std::string &type,
           "\"%s\" and added to Solar System <%p>\n", obj, name.c_str(), ss);
       #endif
       
+      // Manually set configuration changed to true here since
+      // SolarSystem is not configured yet
+      theConfigManager->ConfigurationChanged(true);
+      
       return obj;
    }
    else
@@ -4327,8 +4331,9 @@ Subscriber* Moderator::CreateSubscriber(const std::string &type,
        "   createDefault=%d\n", type.c_str(), name.c_str(), fileName.c_str(),
        createDefault);
    MessageInterface::ShowMessage
-      ("   in function = <%p>'%s'\n", currentFunction,
-       currentFunction ? currentFunction->GetName().c_str() : "NULL");
+      ("   currentFunction = <%p>'%s', objectManageOption=%d\n", currentFunction,
+       currentFunction ? currentFunction->GetName().c_str() : "NULL",
+       objectManageOption);
    #endif
    
    if (GetSubscriber(name) == NULL)
