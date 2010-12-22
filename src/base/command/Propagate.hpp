@@ -140,6 +140,7 @@ public:
    
    // Methods used for interpreting the command
    virtual bool         InterpretAction();
+//   virtual bool         Validate();
    
    // Methods used for setting ElementWrapper
    virtual const StringArray& 

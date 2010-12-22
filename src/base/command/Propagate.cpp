@@ -1605,6 +1605,32 @@ bool Propagate::InterpretAction()
       throw CommandException("Propagate::InterpretAction: Can not parse "
             "command\n " + generatingString);
    
+   // Verify bracket/parentheses matching
+   Integer parenCount[2] = {0,0}, bracketCount[2] = {0,0};
+   for (UnsignedInt i = 0; i < strlen(str); ++i)
+   {
+      if (str[i] == '(')
+         ++parenCount[0];
+      if (str[i] == ')')
+         ++parenCount[1];
+
+      if (str[i] == '{')
+         ++bracketCount[0];
+      if (str[i] == '}')
+         ++bracketCount[1];
+   }
+   std::string errmsg;
+   if (parenCount[0] != parenCount[1])
+      errmsg = "Parentheses are mismatched";
+   if (bracketCount[0] != bracketCount[1])
+   {
+      if (errmsg.size() > 0)
+         errmsg += " and ";
+      errmsg += "Brackets are mismatched";
+   }
+   if (errmsg.length() > 0)
+      throw CommandException(errmsg);
+
    while (str[loc] == ' ')
       ++loc;
 
@@ -1620,11 +1646,15 @@ bool Propagate::InterpretAction()
 
    // Load up the array listing the objects referenced so they can be validated
    objects.clear();
+   StringArray satList, satDuplicates;
 
    for (UnsignedInt i = 0; i < propName.size(); ++i)
    {
       objects.push_back(propName[i]);
 
+      #ifdef DEBUG_PROPAGATE_ASSEMBLE
+         MessageInterface::ShowMessage("Satellites to propagate:\n");
+      #endif
       for (UnsignedInt j = 0; j < satName[i]->size(); ++j)
       {
          // todo: Point fix for STM.
@@ -1632,9 +1662,34 @@ bool Propagate::InterpretAction()
           *         keywords isn't maintained here.
           */
          if ((*satName[i])[j] != "STM")
+         {
+            #ifdef DEBUG_PROPAGATE_ASSEMBLE
+               MessageInterface::ShowMessage("  [%d][%d] = %s\n", i, j,
+                     (*satName[i])[j].c_str());
+            #endif
             objects.push_back((*satName[i])[j]);
+            satList.push_back((*satName[i])[j]);
+         }
       }
    }
+
+   // Look for repeated spacecraft names in list (will miss formation members)
+   for (UnsignedInt i = 0; i < satList.size(); ++i)
+   {
+      std::string currentSat = satList[i];
+      for (UnsignedInt j = i+1; j < satList.size(); ++j)
+      {
+         if (currentSat == satList[j])
+            satDuplicates.push_back(satList[j]);
+      }
+   }
+   if (satDuplicates.size() > 0)
+      throw CommandException("Duplicate Spacecraft names in a single Propagate "
+            "line are not allowed");
+
+   if ((bracketCount[0] > 0) && (stopNames.size() == 0))
+      throw CommandException("Brackets for stopping conditions were found, "
+            "but no stopping conditions detected");
 
    return true;
 }
@@ -2167,10 +2222,11 @@ void Propagate::FindSetupsAndStops(Integer &loc,
       for (UnsignedInt i = 0; i < parts.size(); i++)
       {
          #ifdef DEBUG_PARSING
-         MessageInterface::ShowMessage("   parts[%d] = '%s'\n", i, parts[i].c_str());
+            MessageInterface::ShowMessage("   parts[%d] = '%s'\n", i,
+                  parts[i].c_str());
          #endif
          
-         // If it does not starts with {, it is propagator and spacecrafts
+         // If it does not starts with {, it is propagator and spacecraft
          if (parts[i][0] != '{')
          {
             #ifdef DEBUG_PARSING
@@ -2184,6 +2240,11 @@ void Propagate::FindSetupsAndStops(Integer &loc,
             #ifdef DEBUG_PARSING
             MessageInterface::ShowMessage("   adding stop conditions\n");
             #endif
+
+            if (parts[i].find(",,") != std::string::npos)
+               throw CommandException("Stopping condition parsing error; is "
+                     "there an extra comma?");
+
             StringArray tempStops = tp.SeparateBrackets(parts[i], "{}", ",", true);
             copy(tempStops.begin(), tempStops.end(), back_inserter(stopStrings));
          }
@@ -2422,6 +2483,9 @@ void Propagate::CleanString(std::string &theString, const StringArray *extras)
    UnsignedInt loc, len = theString.length();
    bool keepGoing = false;
    
+   if (len == 0)
+      return;
+
    // Clean up the start of the string
    for (loc = 0; loc < len; ++loc)
    {
