@@ -1276,6 +1276,7 @@ Real Propagate::SetRealParameter(const Integer id, const Real value)
       if (value > 0.0)
       {
          stopAccuracy = value;
+         timeAccuracy = value;
          firstStepTolerance = stopAccuracy * 10.0;
       }
       else
@@ -4260,11 +4261,12 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       {
          dt = (*i)->GetStopEpoch();
                   
-         #ifdef DEBUG_PROPAGATE_STEPSIZE         
+         #ifdef DEBUG_PROPAGATE_STEPSIZE
             MessageInterface::ShowMessage("Stopping on time\n   current "
                "epoch = %.14lf\n   goal          = %.14lf\n   dt            = "
-               "%.14lf\n   sc diff       = %.14lf\n", currEpoch[0], 
-               (*i)->GetStopGoal(), dt, (*i)->GetStopDifference()); 
+               "%.14lf\n   sc diff       = %.14lf\n   tolerance = %le\n",
+               currEpoch[0], (*i)->GetStopGoal(), dt,
+               (*i)->GetStopDifference(), timeAccuracy);
          #endif
       }
       else
