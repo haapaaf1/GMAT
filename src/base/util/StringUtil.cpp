@@ -3054,6 +3054,22 @@ std::string GmatStringUtil::AddEnclosingString(const std::string &str,
 
 
 //------------------------------------------------------------------------------
+// std::string GetInvalidNameMessageFormat()
+//------------------------------------------------------------------------------
+/**
+ * Returns invalid object name message.
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::GetInvalidNameMessageFormat()
+{
+   return ("\"%s\" is not a valid name. Please reenter a valid name.\n\n"
+           "[Name cannot be a GMAT keyword, such as \"GMAT\", \"Create\", "
+           "\"function\" and \n must begin with a letter, which may be followed "
+           "by any combination of letters, \ndigits, and underscores.]");
+}
+
+
+//------------------------------------------------------------------------------
 // StringArray DecomposeBy(const std::string &str, const std::string &delim)
 //------------------------------------------------------------------------------
 /**
