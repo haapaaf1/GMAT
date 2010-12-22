@@ -324,6 +324,10 @@ bool SPKPropagator::SetStringParameter(const Integer id,
 
    if ((retval = true) && (id == EPHEM_CENTRAL_BODY))
    {
+      // Special case code that we may want to remove later
+      if (value == "Moon")
+         throw PropagatorException("\"Moon\" is not an allowed central body; "
+               "try \"Luna\"", Gmat::ERROR_);
       if (centralBody == "Luna")
          spkCentralBody = "Moon";
       else
