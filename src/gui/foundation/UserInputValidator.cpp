@@ -132,11 +132,10 @@ bool UserInputValidator::IsValidName(const wxString &name)
    
    if (!GmatStringUtil::IsValidName(name.c_str()))
    {
+      std::string format = GmatStringUtil::GetInvalidNameMessageFormat();
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "\"%s\" is not a valid name. Please reenter a name.\n\n"
-          "[Name cannot be a GMAT keyword, such as \"GMAT\", \"Create\", \"function\" and \n"
-          "must begin with a letter, which may be followed by any combination "
-          "of letters, \ndigits, and underscores.]", name.c_str());
+         (Gmat::WARNING_, format.c_str(), name.c_str());
+      
       SetErrorFlag();
       return false;
    }
@@ -600,11 +599,15 @@ wxString UserInputValidator::ToWxString(const wxArrayString &names)
 //------------------------------------------------------------------------------
 void UserInputValidator::SetErrorFlag()
 {
+   mIsInputValid = false;
+   
+   if (mWindow == NULL)
+      return;
+   
    if (mWindow->IsKindOf(CLASSINFO(wxPanel)))
       ((GmatPanel*)mWindow)->SetCanClose(false);
    else if (mWindow->IsKindOf(CLASSINFO(wxDialog)))
       ((GmatDialog*)mWindow)->SetCanClose(false);
    
-   mIsInputValid = false;
 }
 
