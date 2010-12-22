@@ -1685,33 +1685,17 @@ void ResourceTree::OnRename(wxCommandEvent &event)
    #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage("ResourceTree::OnRename() entered\n");
    #endif
-
+   
    wxTreeItemId itemId = GetSelection();
    GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
    wxString oldName = selItemData->GetName();
    GmatTree::ItemType itemType = selItemData->GetItemType();
-
+   
    wxString newName = oldName;
-   newName = wxGetTextFromUser(wxT("New name: "), wxT("Input Text"),
-                               newName, this);
-
-   // @note
-   // There is no way of kwowing whether user entered blank and clicked OK
-   // or just clicked Cancel, since wxGetTextFromUser() returns blank for
-   // both cases. So if blank is returned, no change is assumed. (loj: 2008.08.29)
-   if (newName == "")
-      return;
-
-   if (!GmatStringUtil::IsValidName(newName.c_str()))
-   {
-      MessageInterface::PopupMessage
-         (Gmat::WARNING_, "\"%s\" is not a valid name. Please reenter a valid name.\n\n"
-          "[Name cannot be a GMAT keyword, such as \"GMAT\", \"Create\", \"function\" and \n"
-          "must begin with a letter, which may be followed by any combination "
-          "of letters, \ndigits, and underscores.]", newName.c_str());
-      return;
-   }
-
+   wxString name;
+   if (GetNameFromUser(name, oldName, "Enter new name:", "Rename") == 1)
+      newName = name;
+   
    if ( !newName.IsEmpty() && !(newName.IsSameAs(oldName)))
    {
       Gmat::ObjectType objType = GetObjectType(itemType);
@@ -2192,30 +2176,36 @@ void ResourceTree::OnAddBody(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
    wxString name, centralBody, prompt;
-
-   //Get name from the user first
-   name = wxGetTextFromUser(wxT("Name: "), wxT("Celestial Body"), name, this);
-   prompt = "Central Body for " + name;
-   centralBody = wxGetTextFromUser(wxT(prompt), wxT("Central Body"), centralBody, this);
    
-   if (!name.IsEmpty())
+   //Get name from the user first
+   if (GetNameFromUser(name, name, "Enter name: ", "Celestial Body") == 1)
    {
-      const std::string newName = name.c_str();
-      const std::string newCentralBody = centralBody.c_str();
-      GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName); // ************
-      ((CelestialBody*) obj)->SetCentralBody(newCentralBody);
-      
-      if (obj != NULL)
+      if (!name.IsEmpty())
       {
-         // need to get teh sub-item for the appropriate central body here ...
-         AppendItem(item, name, GmatTree::ICON_MOON, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY));
-         Expand(item);
-         
-         theGuiManager->UpdateCelestialPoint();
+         prompt = "Enter Central Body for " + name;
+         if (GetNameFromUser(centralBody, centralBody, prompt, "Celestial Body") == 1)
+         {
+            if (!centralBody.IsEmpty())
+            {
+               const std::string newName = name.c_str();
+               const std::string newCentralBody = centralBody.c_str();
+               GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName); // ************
+               ((CelestialBody*) obj)->SetCentralBody(newCentralBody);
+               
+               if (obj != NULL)
+               {
+                  // need to get teh sub-item for the appropriate central body here ...
+                  AppendItem(item, name, GmatTree::ICON_MOON, -1,
+                             new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY));
+                  Expand(item);
+                  
+                  theGuiManager->UpdateCelestialPoint();
+               }
+               
+               SelectItem(GetLastChild(item));
+            }
+         }
       }
-      
-      SelectItem(GetLastChild(item));
    }
 }
 
@@ -2845,25 +2835,26 @@ void ResourceTree::OnAddMatlabFunction(wxCommandEvent &event)
 {
    wxTreeItemId item = GetSelection();
    wxString name;
-
+   
    //Get name from the user first
-   name = wxGetTextFromUser(wxT("Name: "), wxT("MATLAB function"), name, this);
-
-   if (!name.IsEmpty())
+   if (GetNameFromUser(name, name, "Enter name: ", "MATLAB function") == 1)
    {
-      const std::string newName = name.c_str();
-      GmatBase *obj = theGuiInterpreter->CreateObject("MatlabFunction", newName);
-
-      if (obj != NULL)
+      if (!name.IsEmpty())
       {
-         AppendItem(item, name, GmatTree::ICON_MATLAB_FUNCTION, -1,
-                    new GmatTreeItemData(name, GmatTree::MATLAB_FUNCTION));
-         Expand(item);
-
-         theGuiManager->UpdateFunction();
+         const std::string newName = name.c_str();
+         GmatBase *obj = theGuiInterpreter->CreateObject("MatlabFunction", newName);
+         
+         if (obj != NULL)
+         {
+            AppendItem(item, name, GmatTree::ICON_MATLAB_FUNCTION, -1,
+                       new GmatTreeItemData(name, GmatTree::MATLAB_FUNCTION));
+            Expand(item);
+            
+            theGuiManager->UpdateFunction();
+         }
+         
+         SelectItem(GetLastChild(item));
       }
-
-      SelectItem(GetLastChild(item));
    }
 }
 
@@ -2886,18 +2877,19 @@ void ResourceTree::OnAddGmatFunction(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
    wxString name;
    GmatBase *obj = NULL;
-
+   
    //-----------------------------------------------------------------
    // if creating a new GmatFunction
    //-----------------------------------------------------------------
    if (event.GetId() == POPUP_NEW_GMAT_FUNCTION)
    {
-      //Get name from the user first
-      name = wxGetTextFromUser(wxT("Name: "), wxT("GMAT function"), name, this);
-      if (!name.IsEmpty())
+      if (GetNameFromUser(name, name, "Enter name: ", "New GMAT function") == 1)
       {
-         obj = theGuiInterpreter->CreateObject("GmatFunction", name.c_str());
-         ((GmatFunction *)(obj))->SetNewFunction(true);
+         if (!name.IsEmpty())
+         {
+            obj = theGuiInterpreter->CreateObject("GmatFunction", name.c_str());
+            ((GmatFunction *)(obj))->SetNewFunction(true);
+         }
       }
    }
    //-----------------------------------------------------------------
@@ -3045,49 +3037,40 @@ void ResourceTree::OnAddPlanet(wxCommandEvent &event)
    wxString cBodyName = selItemData->GetName();
    std::string cBody  = cBodyName.c_str();
    wxString name;
-
+   
    //Get name from the user first
-   name = wxGetTextFromUser(wxT("Name: "), wxT("Planet"), name, this);
-   std::string planetName = name.c_str();
-
-   if (!GmatStringUtil::IsValidName(planetName, false))
+   if (GetNameFromUser(name, name, "Enter name: ", "New Planet") == 1)
    {
-      std::string errmsg = "Error creating new planet: \"";
-      errmsg += planetName + "\" is not a valid object name.";
-      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-      return;
-   }
-
-
-   if (!name.IsEmpty())
-   {
-      const std::string newName = name.c_str();
-      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
-      if (ss->IsBodyInUse(newName))
+      if (!name.IsEmpty())
       {
-         std::string errmsg = "Error creating new planet: celestial body \"";
-         errmsg += newName + "\" already exists.";
-         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-         return;
+         const std::string newName = name.c_str();
+         SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+         if (ss->IsBodyInUse(newName))
+         {
+            std::string errmsg = "Error creating new planet: celestial body \"";
+            errmsg += newName + "\" already exists.";
+            MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+            return;
+         }
+         GmatBase *obj = theGuiInterpreter->CreateObject("Planet", newName);
+         ((CelestialBody*)obj)->SetCentralBody(cBody);
+         // For now, we only have one solar system with one star ...
+         if (cBody == SolarSystem::SUN_NAME)
+         {
+            wxTreeItemId parent = GetItemParent(item);
+            AppendItem(parent, name, GmatTree::ICON_PLANET_GENERIC, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_PLANET));
+            Expand(parent);
+         }
+         else
+         {
+            AppendItem(item, name, GmatTree::ICON_PLANET_GENERIC, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_PLANET));
+            Expand(item);
+         }
+         
+         theGuiManager->UpdateSolarSystem();
       }
-      GmatBase *obj = theGuiInterpreter->CreateObject("Planet", newName);
-      ((CelestialBody*)obj)->SetCentralBody(cBody);
-      // For now, we only have one solar system with one star ...
-      if (cBody == SolarSystem::SUN_NAME)
-      {
-         wxTreeItemId parent = GetItemParent(item);
-         AppendItem(parent, name, GmatTree::ICON_PLANET_GENERIC, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_PLANET));
-         Expand(parent);
-      }
-      else
-      {
-         AppendItem(item, name, GmatTree::ICON_PLANET_GENERIC, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_PLANET));
-         Expand(item);
-      }
-
-      theGuiManager->UpdateSolarSystem();
    }
 }
 
@@ -3105,47 +3088,39 @@ void ResourceTree::OnAddMoon(wxCommandEvent &event)
    wxString name;
 
    //Get name from the user first
-   name = wxGetTextFromUser(wxT("Name: "), wxT("Moon"), name, this);
-   std::string moonName = name.c_str();
-
-   if (!GmatStringUtil::IsValidName(moonName, false))
+   if (GetNameFromUser(name, name, "Enter name: ", "New Moon") == 1)
    {
-      std::string errmsg = "Error creating new moon: \"";
-      errmsg += moonName + "\" is not a valid object name.";
-      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-      return;
-   }
-
-   if (!name.IsEmpty())
-   {
-      const std::string newName = name.c_str();
-      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
-      if (ss->IsBodyInUse(newName))
+      if (!name.IsEmpty())
       {
-         std::string errmsg = "Error creating new Moon: celestial body \"";
-         errmsg += newName + "\" already exists.";
-         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-         return;
+         const std::string newName = name.c_str();
+         SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+         if (ss->IsBodyInUse(newName))
+         {
+            std::string errmsg = "Error creating new Moon: celestial body \"";
+            errmsg += newName + "\" already exists.";
+            MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+            return;
+         }
+         GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName);
+         ((CelestialBody*)obj)->SetCentralBody(cBody);
+         // For now, we only have one solar system with one star ...
+         // Of course, a moon around a star makes no sense ...
+         if (cBody == SolarSystem::SUN_NAME)
+         {
+            wxTreeItemId parent = GetItemParent(item);
+            AppendItem(parent, name, GmatTree::ICON_MOON_GENERIC, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_MOON));
+            Expand(parent);
+         }
+         else
+         {
+            AppendItem(item, name, GmatTree::ICON_MOON_GENERIC, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_MOON));
+            Expand(item);
+         }
+         
+         theGuiManager->UpdateSolarSystem();
       }
-      GmatBase *obj = theGuiInterpreter->CreateObject("Moon", newName);
-      ((CelestialBody*)obj)->SetCentralBody(cBody);
-      // For now, we only have one solar system with one star ...
-      // Of course, a moon around a star makes no sense ...
-      if (cBody == SolarSystem::SUN_NAME)
-      {
-         wxTreeItemId parent = GetItemParent(item);
-         AppendItem(parent, name, GmatTree::ICON_MOON_GENERIC, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_MOON));
-         Expand(parent);
-      }
-      else
-      {
-         AppendItem(item, name, GmatTree::ICON_MOON_GENERIC, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_MOON));
-         Expand(item);
-      }
-
-      theGuiManager->UpdateSolarSystem();
    }
 }
 
@@ -3163,57 +3138,46 @@ void ResourceTree::OnAddComet(wxCommandEvent &event)
    wxString name;
 
    //Get name from the user first
-   name = wxGetTextFromUser(wxT("Name: "), wxT("Comet"), name, this);
-   std::string cometName = name.c_str();
-
-   if (!GmatStringUtil::IsValidName(cometName, false))
+   if (GetNameFromUser(name, name, "Enter name: ", "New Comet") == 1)
    {
-      std::string errmsg = "Error creating new comet: \"";
-      errmsg += cometName + "\" is not a valid object name.";
-      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-      return;
-   }
-
-   #ifdef DEBUG_ADD_COMET
-      MessageInterface::ShowMessage("Attempting to add comet %s around body %s\n", name.c_str(), cBody.c_str());
-   #endif
-
-   if (!name.IsEmpty())
-   {
-      const std::string newName = name.c_str();
-      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
-      if (ss->IsBodyInUse(newName))
+      if (!name.IsEmpty())
       {
-         std::string errmsg = "Error creating new comet: celestial body \"";
-         errmsg += newName + "\" already exists.";
-         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-         return;
-      }
-      GmatBase *obj = theGuiInterpreter->CreateObject("Comet", newName);
-      #ifdef DEBUG_ADD_COMET
+         const std::string newName = name.c_str();
+         SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+         if (ss->IsBodyInUse(newName))
+         {
+            std::string errmsg = "Error creating new comet: celestial body \"";
+            errmsg += newName + "\" already exists.";
+            MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+            return;
+         }
+         GmatBase *obj = theGuiInterpreter->CreateObject("Comet", newName);
+         #ifdef DEBUG_ADD_COMET
          if (obj == NULL)
             MessageInterface::ShowMessage("ERROR creating body!!\n");
          else
             MessageInterface::ShowMessage("Body %s created!!\n", name.c_str());
-      #endif
-      ((CelestialBody*)obj)->SetCentralBody(cBody);
-      // For now, we only have one solar system with one star ...
-      if (cBody == SolarSystem::SUN_NAME)
-      {
-         wxTreeItemId parent = GetItemParent(item);
-         AppendItem(parent, name, GmatTree::ICON_COMET, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_COMET));
-         Expand(parent);
+         #endif
+         ((CelestialBody*)obj)->SetCentralBody(cBody);
+         // For now, we only have one solar system with one star ...
+         if (cBody == SolarSystem::SUN_NAME)
+         {
+            wxTreeItemId parent = GetItemParent(item);
+            AppendItem(parent, name, GmatTree::ICON_COMET, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_COMET));
+            Expand(parent);
+         }
+         else
+         {
+            AppendItem(item, name, GmatTree::ICON_COMET, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_COMET));
+            Expand(item);
+         }
+         
+         theGuiManager->UpdateSolarSystem();
       }
-      else
-      {
-         AppendItem(item, name, GmatTree::ICON_COMET, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_COMET));
-         Expand(item);
-      }
-
-      theGuiManager->UpdateSolarSystem();
    }
+   
 }
 
 
@@ -3230,46 +3194,38 @@ void ResourceTree::OnAddAsteroid(wxCommandEvent &event)
    wxString name;
 
    //Get name from the user first
-   name = wxGetTextFromUser(wxT("Name: "), wxT("Asteroid"), name, this);
-   std::string asteroidName = name.c_str();
-
-   if (!GmatStringUtil::IsValidName(asteroidName, false))
+   if (GetNameFromUser(name, name, "Enter name: ", "New Comet") == 1)
    {
-      std::string errmsg = "Error creating new asteroid: \"";
-      errmsg += asteroidName + "\" is not a valid object name.";
-      MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-      return;
-   }
-
-   if (!name.IsEmpty())
-   {
-      const std::string newName = name.c_str();
-      SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
-      if (ss->IsBodyInUse(newName))
+      if (!name.IsEmpty())
       {
-         std::string errmsg = "Error creating new asteroid: celestial body \"";
-         errmsg += newName + "\" already exists.";
-         MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
-         return;
+         const std::string newName = name.c_str();
+         SolarSystem   *ss         = theGuiInterpreter->GetSolarSystemInUse();
+         if (ss->IsBodyInUse(newName))
+         {
+            std::string errmsg = "Error creating new asteroid: celestial body \"";
+            errmsg += newName + "\" already exists.";
+            MessageInterface::PopupMessage(Gmat::ERROR_, errmsg.c_str());
+            return;
+         }
+         GmatBase *obj = theGuiInterpreter->CreateObject("Asteroid", newName);
+         ((CelestialBody*)obj)->SetCentralBody(cBody);
+         // For now, we only have one solar system with one star ...
+         if (cBody == SolarSystem::SUN_NAME)
+         {
+            wxTreeItemId parent = GetItemParent(item);
+            AppendItem(parent, name, GmatTree::ICON_ASTEROID, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_ASTEROID));
+            Expand(parent);
+         }
+         else
+         {
+            AppendItem(item, name, GmatTree::ICON_ASTEROID, -1,
+                       new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_ASTEROID));
+            Expand(item);
+         }
+         
+         theGuiManager->UpdateSolarSystem();
       }
-      GmatBase *obj = theGuiInterpreter->CreateObject("Asteroid", newName);
-      ((CelestialBody*)obj)->SetCentralBody(cBody);
-      // For now, we only have one solar system with one star ...
-      if (cBody == SolarSystem::SUN_NAME)
-      {
-         wxTreeItemId parent = GetItemParent(item);
-         AppendItem(parent, name, GmatTree::ICON_ASTEROID, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_ASTEROID));
-         Expand(parent);
-      }
-      else
-      {
-         AppendItem(item, name, GmatTree::ICON_ASTEROID, -1,
-                    new GmatTreeItemData(name, GmatTree::CELESTIAL_BODY_ASTEROID));
-         Expand(item);
-      }
-
-      theGuiManager->UpdateSolarSystem();
    }
 }
 
@@ -4547,6 +4503,9 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
    }
 }
 
+//------------------------------------------------------------------------------
+// void GetBodyTypeAndIcon(const std::string bodyName, ...)
+//------------------------------------------------------------------------------
 void ResourceTree::GetBodyTypeAndIcon(const std::string bodyName,
                                       GmatTree::ItemType &bodyItemType,
                                       GmatTree::ResourceIconType &iconType)
@@ -4593,6 +4552,40 @@ void ResourceTree::GetBodyTypeAndIcon(const std::string bodyName,
    default:
       bodyItemType = GmatTree::CELESTIAL_BODY;
       break;
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// int GetNameFromUser(wxString &newName, const wxString &oldName = "",
+//                     const wxString &msg = "", const wxString &caption = "")
+//------------------------------------------------------------------------------
+/**
+ * Gets user text input until valid name is entered or canceld
+ *
+ * @return  1  Valid name entered
+ *          2  User canceled or no changes made
+ */
+//------------------------------------------------------------------------------
+int ResourceTree::GetNameFromUser(wxString &newName, const wxString &oldName,
+                                  const wxString &msg, const wxString &caption)
+{
+   newName = wxGetTextFromUser(wxT(msg), wxT(caption), oldName, this);
+   
+   // @note
+   // There is no way of kwowing whether user entered blank and clicked OK
+   // or just clicked Cancel, since wxGetTextFromUser() returns blank for
+   // both cases. So if blank is returned, no change is assumed. (loj: 2008.08.29)
+   if (newName == "")
+      return 2;
+   
+   if (IsValidName(newName.c_str()))
+   {
+      return 1;
+   }
+   else
+   {
+      return GetNameFromUser(newName, newName, msg, caption);
    }
 }
 

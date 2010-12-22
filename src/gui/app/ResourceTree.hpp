@@ -22,10 +22,11 @@
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
 #include "GmatTreeItemData.hpp"
+#include "UserInputValidator.hpp"
 
 class GmatMainFrame;
 
-class ResourceTree : public wxTreeCtrl
+class ResourceTree : public wxTreeCtrl, public UserInputValidator
 {
 public:
 
@@ -209,7 +210,11 @@ protected:
    void GetBodyTypeAndIcon(const std::string bodyName,
                           GmatTree::ItemType &bodyItemType,
                           GmatTree::ResourceIconType &iconType);
-
+   
+   // user text input
+   int GetNameFromUser(wxString &newName, const wxString &oldName = "",
+                       const wxString &msg = "", const wxString &caption = "");
+   
    // compare
    void CompareScriptRunResult(Real absTol, const wxString &replaceStr,
                                const wxString &dir1, const wxString &dir2,
