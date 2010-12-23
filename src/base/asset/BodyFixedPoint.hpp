@@ -134,6 +134,7 @@ public:
                            GetBodyFixedCoordinateSystem() const;
 
    virtual void            SetSolarSystem(SolarSystem *ss);
+   virtual bool            IsValidID(const std::string &id) = 0;
 
 protected:
    /// The point is attached to this body

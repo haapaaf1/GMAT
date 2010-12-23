@@ -107,6 +107,8 @@ public:
    virtual Integer         GetEstimationParameterSize(const Integer id);
    virtual Real*           GetEstimationParameterValue(const Integer id);
 
+   virtual bool            IsValidID(const std::string &id);
+
 protected:
    /// Ground station ID
    std::string          stationId;

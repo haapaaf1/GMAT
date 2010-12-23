@@ -134,7 +134,7 @@ GroundStation& GroundStation::operator=(const GroundStation& gs)
    {
       BodyFixedPoint::operator=(gs);
 
-      stationId 	= gs.stationId;
+      stationId 	  = gs.stationId;
       hardwareNames = gs.hardwareNames;		// made changes by Tuan Nguyen
 //      hardwareList	= gs.hardwareList;		// should it be cloned ????
    }
@@ -339,8 +339,18 @@ bool GroundStation::SetStringParameter(const Integer id,
 {
    if (id == STATION_ID)
    {
-      stationId = value;
-      return true;
+      if (IsValidID(value))
+      {
+         stationId = value;
+         return true;
+      }
+      else
+      {
+         AssetException ae;
+         ae.SetDetails(errorMessageFormat.c_str(),
+                       value.c_str(), "Id", "Must begin with a letter; may contain letters, integers, dashes, underscores");
+         throw ae;
+      }
    }
 
    // made changes by Tuan Nguyen
@@ -968,6 +978,35 @@ Real* GroundStation::GetEstimationParameterValue(const Integer item)
    return retval;
 }
 
+//------------------------------------------------------------------------------
+// bool  IsValidID(const std::string &id)
+//------------------------------------------------------------------------------
+/**
+ * Checks to see if the input string represents a valid station ID.
+ *
+ * As of 2010.12.23, valid IDs must:
+ *    - start with a letter
+ * As of 2010.12.23, valid IDs may:
+ *    - contain letters & integers
+ *    - contain only the following special characters:  dashes, underscores
+ *
+ * @param id string for the station ID.
+ *
+ * @return true if input is a valid ID; false otherwise.
+ */
+//------------------------------------------------------------------------------
+bool GroundStation::IsValidID(const std::string &id)
+{
+   // first character must be a letter
+   if (!isalpha(id[0]))  return false;
+
+   // each character must be a letter, an integer, a dash, or an underscore
+   unsigned int sz = id.size();
+   for (unsigned int ii = 0; ii < sz; ii++)
+      if (!isalnum(id[ii]) && id[ii] != '-' && id[ii] != '_') return false;
+
+   return true;
+}
 
 //------------------------------------------------------------------------------
 // const std::string&  GetGeneratingString(Gmat::WriteMode mode,
