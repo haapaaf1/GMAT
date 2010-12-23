@@ -2267,6 +2267,30 @@ bool PropagationConfigPanel::SaveIntegratorData()
                 false, true, true);
    }
 
+   try
+   {
+      if (minStep >= maxStep)
+         throw GmatBaseException("The step control values are invalid; "
+               "Integrators require 0.0 <= Min Step Size < Max Step Size");
+
+      if (thePropagator->IsOfType("PredictorCorrector"))
+      {
+         // Check the error control settings
+         if ((minError > nomError) ||
+             (nomError > accuracy) ||
+             (minError > accuracy))
+            throw GmatBaseException("The step control values are invalid; "
+                  "Predictor-Corrector Integrators require 0.0 < Min "
+                  "Integration Error < Nominal Integration Error < Accuracy");
+      }
+
+   }
+   catch (GmatBaseException &ex)
+   {
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+      canClose = false;
+   }
+
    if (!canClose)
       return false;
 
