@@ -412,11 +412,13 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
       ("PropSetup::SetODEModel() this=<%p> '%s' entered, mODEModel=<%p>, "
-       "odeModel=<%p>\n", this, GetName().c_str(), mODEModel, odeModel);
+       "odeModel=<%p> '%s'\n", this, GetName().c_str(), mODEModel, odeModel,
+       odeModel->GetName().c_str());
    #endif
    
    DeleteOwnedObject(ODE_MODEL, true);
    CloneODEModel(odeModel);      // Makes clone or sets pointer to NULL
+   mODEModelName = odeModel->GetName();
    
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
@@ -800,13 +802,12 @@ bool PropSetup::IsParameterReadOnly(const Integer id) const
       if ((id == ODE_MODEL) && (mPropagator != NULL))
          if (!mPropagator->UsesODEModel())
             return true;
-
       return false;
    }
    else if ((id >= INITIAL_STEP_SIZE) && (id <= BULIRSCH_MINIMUMTOLERANCE))
       return true;
-   else
-      return GmatBase::IsParameterReadOnly(id);
+
+   return GmatBase::IsParameterReadOnly(id);
 }
 
 
