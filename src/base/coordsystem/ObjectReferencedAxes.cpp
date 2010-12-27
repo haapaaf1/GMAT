@@ -190,7 +190,7 @@ GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesPrimary() const
 
 GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesSecondary() const
 {
-   return GmatCoordinate::OPTIONAL_USE;
+   return GmatCoordinate::REQUIRED;
 }
 
 GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesXAxis() const
@@ -221,6 +221,10 @@ GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesZAxis() const
 //------------------------------------------------------------------------------
 void ObjectReferencedAxes::SetPrimaryObject(SpacePoint *prim)
 {
+   #ifdef DEBUG_REFERENCE_SETTING
+      MessageInterface::ShowMessage("Setting %s as primary object for ObjectReferenced c.s.\n",
+            (prim->GetName()).c_str());
+   #endif
    primary     = prim;
    primaryName = primary->GetName();
 }
@@ -237,6 +241,10 @@ void ObjectReferencedAxes::SetPrimaryObject(SpacePoint *prim)
 //------------------------------------------------------------------------------
 void ObjectReferencedAxes::SetSecondaryObject(SpacePoint *second)
 {
+   #ifdef DEBUG_REFERENCE_SETTING
+      MessageInterface::ShowMessage("Setting %s as secondary object for ObjectReferenced c.s.\n",
+            (second->GetName()).c_str());
+   #endif
    secondary     = second;
    secondaryName = secondary->GetName();
 }
@@ -779,8 +787,9 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                                                    bool forceComputation)
 {
    if (!primary)
-      throw CoordinateSystemException("Primary \"" + primaryName +
-         "\" is not yet set in object referenced!");
+      throw CoordinateSystemException("Primary is not yet set on ObjectReferencedAxes object!");
+   if (!secondary)
+      throw CoordinateSystemException("Secondary is not yet set on ObjectReferencedAxes object!");
    
    if ((xAxis == yAxis) || (xAxis == zAxis) || (yAxis == zAxis))
    {
@@ -801,7 +810,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    }
    
    SpacePoint *useAsSecondary = secondary;
-   if (!useAsSecondary)  useAsSecondary = origin;
+//   if (!useAsSecondary)  useAsSecondary = origin;
    Rvector6 rv     = useAsSecondary->GetMJ2000State(atEpoch) -
                      primary->GetMJ2000State(atEpoch);
    #ifdef DEBUG_ROT_MATRIX
@@ -816,12 +825,12 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    #ifdef DEBUG_ROT_MATRIX
       if (visitCount == 0)
       {
-         std::stringstream cout;
-         cout.precision(30);
-         cout << " ----------------- rv Earth to Moon (truncated)    = "
+         std::stringstream ss;
+         ss.precision(30);
+         ss << " ----------------- rv Earth to Moon (truncated)    = "
               << rv << std::endl;
 
-         MessageInterface::ShowMessage("%s\n", cout.str().c_str());
+         MessageInterface::ShowMessage("%s\n", ss.str().c_str());
          visitCount++;
       }
    #endif
@@ -996,15 +1005,15 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       MessageInterface::ShowMessage
          ("rotMatrix=%s\n", rotMatrix.ToString().c_str());
 
-      std::stringstream cout;
+      std::stringstream ss;
 
-      cout.setf(std::ios::fixed);
-      cout.precision(30);
-      cout << " ----------------- rotMatrix    = " << rotMatrix << std::endl;
-      cout.setf(std::ios::scientific);
-      cout << " ----------------- rotDotMatrix = " << rotDotMatrix << std::endl;
+      ss.setf(std::ios::fixed);
+      ss.precision(30);
+      ss << " ----------------- rotMatrix    = " << rotMatrix << std::endl;
+      ss.setf(std::ios::scientific);
+      ss << " ----------------- rotDotMatrix = " << rotDotMatrix << std::endl;
 
-      MessageInterface::ShowMessage("%s\n", cout.str().c_str());
+      MessageInterface::ShowMessage("%s\n", ss.str().c_str());
    #endif
 
 //      if (!rotMatrix.IsOrthogonal(1.0e-14))
