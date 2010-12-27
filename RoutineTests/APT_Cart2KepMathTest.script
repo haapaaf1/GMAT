@@ -53,24 +53,24 @@ Create Variable SMAError ECCError INCError RAANError AOPError TAError;
 Create Array rv[3,1] vv[3,1] hv[3,1] ev[3,1] nv[3,1];
 
 Create XYPlot SMAvsTimeINT;
-GMAT SMAvsTimeINT.IndVar= { Sat.TAIModJulian  };
-GMAT SMAvsTimeINT.Grid = On;
-GMAT SMAvsTimeINT.Add = { Sat.SMA  };
+GMAT SMAvsTimeINT.XVariable= { Sat.TAIModJulian  };
+GMAT SMAvsTimeINT.ShowGrid = true;
+GMAT SMAvsTimeINT.YVariables = { Sat.SMA  };
 
 Create XYPlot SMAvsTimeScript;
-GMAT SMAvsTimeScript.IndVar= { Sat.TAIModJulian  };
-GMAT SMAvsTimeScript.Grid = On
-GMAT SMAvsTimeScript.Add = {SMA }
+GMAT SMAvsTimeScript.XVariable= { Sat.TAIModJulian  };
+GMAT SMAvsTimeScript.ShowGrid = true
+GMAT SMAvsTimeScript.YVariables = {SMA }
 
 Create XYPlot RAANvsTimeINT;
-GMAT RAANvsTimeINT.IndVar= { Sat.TAIModJulian  };
-GMAT RAANvsTimeINT.Grid = On;
-GMAT RAANvsTimeINT.Add = { Sat.RAAN  };
+GMAT RAANvsTimeINT.XVariable= { Sat.TAIModJulian  };
+GMAT RAANvsTimeINT.ShowGrid = true;
+GMAT RAANvsTimeINT.YVariables = { Sat.RAAN  };
 
 Create XYPlot RAANvsTimeScript;
-GMAT RAANvsTimeScript.IndVar= { Sat.TAIModJulian  };
-GMAT RAANvsTimeScript.Grid = On;
-GMAT RAANvsTimeScript.Add = {RAAN }
+GMAT RAANvsTimeScript.XVariable= { Sat.TAIModJulian  };
+GMAT RAANvsTimeScript.ShowGrid = true;
+GMAT RAANvsTimeScript.YVariables = {RAAN }
 
 
 %  Create a report to output error data

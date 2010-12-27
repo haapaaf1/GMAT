@@ -76,14 +76,14 @@ GMAT DefaultOpenGL.NumPointsToRedraw = 0;
 GMAT DefaultOpenGL.ShowPlot = true;
 
 Create ReportFile rf;
-GMAT rf.Filename = TestEphemFminconOptimizer.report;
+GMAT rf.Filename = ZMATLAB_TestEphemFminconOptimizer.report;
 GMAT rf.Precision = 16;
 GMAT rf.WriteHeaders = Off;
 GMAT rf.ColumnWidth = 24;
 
 Create EphemerisFile CCSDS_OEM;
 CCSDS_OEM.Spacecraft         = Sat;
-CCSDS_OEM.FileName           = TestEphemFminconOptimizer-CCSDS-OEM.eph;
+CCSDS_OEM.FileName           = ZMATLAB_TestEphemFminconOptimizer-CCSDS-OEM.eph;
 CCSDS_OEM.FileFormat         = CCSDS-OEM;
 CCSDS_OEM.EpochFormat        = UTCGregorian;
 CCSDS_OEM.InitialEpoch       = InitialSpacecraftEpoch;
@@ -98,7 +98,7 @@ CCSDS_OEM.WriteEphemeris     = true;
 
 Create EphemerisFile SPK;
 SPK.Spacecraft               = Sat;
-SPK.FileName                 = TestEphemFminconOptimizer-SPK.bsp;
+SPK.FileName                 = ZMATLAB_TestEphemFminconOptimizer-SPK.bsp;
 SPK.FileFormat               = SPK;
 SPK.EpochFormat              = UTCGregorian;
 SPK.InitialEpoch             = InitialSpacecraftEpoch;
