@@ -165,6 +165,8 @@ void CelestialBodyPanel::SaveData()
 //      ("CelestialBodyPanel::SaveData() isTextModified=%d, isStateTextModified=%d,"
 //       " isRotDataSourceChanged=%d\n", isTextModified, isStateTextModified,
 //       isRotDataSourceChanged);
+      MessageInterface::ShowMessage("in CBPanel, origBody = %p, theBody = %p\n",
+            origCelestialBody, theCelestialBody);
    #endif
    
    canClose = true;
