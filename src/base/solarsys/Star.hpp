@@ -73,6 +73,8 @@ public:
 
    // inherited from GmatBase
    virtual GmatBase* Clone(void) const;
+   // required method for all subclasses that can be copied in a script
+   virtual void      Copy(const GmatBase* orig);
 
 
 //   static const Real                  STAR_RADIANT_POWER;       // W / m^2

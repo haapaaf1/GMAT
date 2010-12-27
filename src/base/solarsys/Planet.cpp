@@ -30,6 +30,7 @@
 
 //#define DEBUG_PLANET 1
 //#define DEBUG_PLANET_TWO_BODY
+#define DEBUG_PLANET_NUTATION_INTERVAL
 
 using namespace GmatMathUtil;
 
@@ -377,6 +378,10 @@ Real Planet::GetNutationUpdateInterval() const
 
 bool Planet::SetNutationUpdateInterval(Real val)
 {
+   #ifdef DEBUG_PLANET_NUTATION_INTERVAL
+      MessageInterface::ShowMessage("Setting nutation interval for body %s to %12.10f\n",
+            instanceName.c_str(), val);
+   #endif
    if (val < 0.0)
    {
       SolarSystemException sse;
@@ -409,6 +414,22 @@ GmatBase* Planet::Clone(void) const
 {
    return (new Planet(*this));
 }
+
+//---------------------------------------------------------------------------
+//  void Copy(const GmatBase* orig)
+//---------------------------------------------------------------------------
+/**
+ * Set this instance to match the one passed in.
+ *
+ * @param <orig> The object that is being copied.
+ */
+//---------------------------------------------------------------------------
+void Planet::Copy(const GmatBase* orig)
+{
+   operator=(*((Planet *)(orig)));
+}
+
+
 
 //------------------------------------------------------------------------------
 // public methods inherited from GmatBase
@@ -621,6 +642,8 @@ bool Planet::SaveParameterAsDefault(const Integer id)
    }
    return CelestialBody::SaveParameterAsDefault(id);
 }
+
+
 
 //------------------------------------------------------------------------------
 // protected methods

@@ -268,6 +268,23 @@ GmatBase* Star::Clone(void) const
    return (new Star(*this));
 }
 
+
+//---------------------------------------------------------------------------
+//  void Copy(const GmatBase* orig)
+//---------------------------------------------------------------------------
+/**
+ * Set this instance to match the one passed in.
+ *
+ * @param <orig> The object that is being copied.
+ */
+//---------------------------------------------------------------------------
+void Star::Copy(const GmatBase* orig)
+{
+   operator=(*((Star *)(orig)));
+}
+
+
+
 //------------------------------------------------------------------------------
 //  std::string  GetParameterText(const Integer id) const
 //------------------------------------------------------------------------------

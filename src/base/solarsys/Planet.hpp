@@ -76,6 +76,8 @@ public:
 
    // inherited from GmatBase
    virtual GmatBase* Clone(void) const;
+   // required method for all subclasses that can be copied in a script
+   virtual void      Copy(const GmatBase* orig);
 
    // Parameter access methods - overridden from GmatBase - may need these later??
    virtual std::string     GetParameterText(const Integer id) const;     

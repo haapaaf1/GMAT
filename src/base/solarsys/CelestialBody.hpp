@@ -322,8 +322,8 @@ public:
    //                                             Rmatrix& bodyCij);
    
    
-   // required method for all subclasses that can be copied in a script
-   virtual void         Copy(const GmatBase* orig);
+//   // required method for all subclasses that can be copied in a script
+//   virtual void         Copy(const GmatBase* orig);
    
    
    // strings representing the possible celestial body types

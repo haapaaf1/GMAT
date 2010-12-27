@@ -1610,6 +1610,10 @@ bool CelestialBody::SetCentralBody(const std::string &cBody)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetGravitationalConstant(Real newMu)
 {
+   #ifdef DEBUG_CB_SET
+      MessageInterface::ShowMessage("In CB::SetGravitationalConstant, newMu = %.14f\n",
+            newMu);
+   #endif
    if (newMu <= 0.0)
    {
       SolarSystemException sse;
@@ -1640,6 +1644,10 @@ bool CelestialBody::SetGravitationalConstant(Real newMu)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetEquatorialRadius(Real newEqRadius)
 {
+   #ifdef DEBUG_CB_SET
+      MessageInterface::ShowMessage("In CB::SetEquatorialRadius, newEqRadius = %.14f\n",
+            newEqRadius);
+   #endif
    if (newEqRadius <= 0.0)
    {
       SolarSystemException sse;
@@ -1668,6 +1676,10 @@ bool CelestialBody::SetEquatorialRadius(Real newEqRadius)
 //------------------------------------------------------------------------------
 bool CelestialBody::SetFlattening(Real flat) 
 {
+   #ifdef DEBUG_CB_SET
+      MessageInterface::ShowMessage("In CB::SetFlattening, flat = %.14f\n",
+         flat);
+   #endif
    if (flat < 0.0)
    {
       SolarSystemException sse;
@@ -3779,10 +3791,14 @@ bool CelestialBody::SaveParameterAsDefault(const Integer id)
  * @param <orig> The object that is being copied.
  */
 //---------------------------------------------------------------------------
-void CelestialBody::Copy(const GmatBase* orig)
-{
-   operator=(*((CelestialBody *)(orig)));
-}
+//void CelestialBody::Copy(const GmatBase* orig)
+//{
+//   #ifdef DEBUG_CB_COPY
+//      MessageInterface::ShowMessage("Entering CB::Copy: copying from %p to %p\n",
+//            orig, this);
+//   #endif
+//   operator=(*((CelestialBody *)(orig)));
+//}
 
 
 //------------------------------------------------------------------------------

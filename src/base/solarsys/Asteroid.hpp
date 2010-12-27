@@ -45,6 +45,8 @@ public:
 
    // inherited from GmatBase
    virtual GmatBase* Clone() const;
+   // required method for all subclasses that can be copied in a script
+   virtual void      Copy(const GmatBase* orig);
 
 
 protected:
