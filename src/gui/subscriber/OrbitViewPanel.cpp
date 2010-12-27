@@ -1111,6 +1111,16 @@ void OrbitViewPanel::SaveData()
       }
    }
    
+   // Check if Sun was added to draw Sun line
+   if (mOriginSunLineCheckBox->IsChecked() &&
+       mSelectedObjListBox->FindString("Sun") == wxNOT_FOUND)
+   {
+      MessageInterface::PopupMessage
+         (Gmat::WARNING_, "\"Sun\" needs to be added to the view object list "
+          "to draw Sun line");
+      canClose = false;
+   }
+   
    if (!canClose)
       return;
    
@@ -1252,7 +1262,8 @@ void OrbitViewPanel::SaveData()
       //--------------------------------------------------------------
       // save star options
       //--------------------------------------------------------------
-      if (mHasStarOptionChanged){
+      if (mHasStarOptionChanged)
+      {
          mHasStarOptionChanged = false;
          if (mEnableStarsCheckBox->IsChecked())
             mOrbitView->SetOnOffParameter("EnableStars", "On");
@@ -1491,17 +1502,7 @@ void OrbitViewPanel::SaveData()
             ("ViewUpAxis",
              std::string(mViewUpAxisComboBox->GetStringSelection().c_str()));
       }
-      
-      //--------------------------------------------------------------
-      // Just warning message
-      //--------------------------------------------------------------
-      // Check if Sun was added to draw Sun line
-      if (mOriginSunLineCheckBox->IsChecked() &&
-          mSelectedObjListBox->FindString("Sun") == wxNOT_FOUND)
-         MessageInterface::PopupMessage
-            (Gmat::WARNING_, "\"Sun\" needs to be added to the view object list "
-             "to draw Sun line");
-      
+            
       EnableUpdate(false);
       canClose = true;
    }
