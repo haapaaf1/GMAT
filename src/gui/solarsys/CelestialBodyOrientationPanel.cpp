@@ -31,6 +31,7 @@
 #include <fstream>
 
 //#define DEBUG_CB_ORIENTATION_PANEL
+//#define DEBUG_CB_ORIENT_SAVE
 
 // event tables for wxMac/Widgets
 BEGIN_EVENT_TABLE(CelestialBodyOrientationPanel, wxPanel)
@@ -95,21 +96,15 @@ void CelestialBodyOrientationPanel::SaveData()
    
    // don't do anything if no data has been changed.
    // note that dataChanged will be true if the user modified any combo box or
-   // text ctrl, whether or not he/she actually changed the value; we want to only
-   // send the values to the object if something was really changed, to avoid
-   // the hasBeenModified flag being set to true erroneously
+   // text ctrl, whether or not he/she actually changed the value
    // Note - as of 2009.02.18, the hasBeenModified flag is not yet working correctly 
    if (!dataChanged) return;
-   
-   bool reallyChanged = false;
-   
+
    canClose    = true;
    
-//   if (isLuna && rotationDataSourceChanged)
    if (rotationDataSourceChanged)
    {
       strval = rotationDataSourceComboBox->GetValue();
-      if (strval != rotationDataSource) reallyChanged = true;
       rotationDataSource = strval;
    }
    if (isEarth && nutationUpdateIntervalChanged)
@@ -119,7 +114,6 @@ void CelestialBodyOrientationPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != nutationUpdateInterval) reallyChanged = true;
          nutationUpdateInterval = tmpval;
       }
    }
@@ -130,7 +124,6 @@ void CelestialBodyOrientationPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != spinAxisRAConstant) reallyChanged = true;
          spinAxisRAConstant = tmpval;
       }
    }
@@ -141,7 +134,6 @@ void CelestialBodyOrientationPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != spinAxisRARate) reallyChanged = true;
          spinAxisRARate = tmpval;
       }
    }
@@ -152,7 +144,6 @@ void CelestialBodyOrientationPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != spinAxisDECConstant) reallyChanged = true;
          spinAxisDECConstant = tmpval;
       }
    }
@@ -163,7 +154,6 @@ void CelestialBodyOrientationPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != spinAxisDECRate) reallyChanged = true;
          spinAxisDECRate = tmpval;
       }
    }
@@ -174,7 +164,6 @@ void CelestialBodyOrientationPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != rotationConstant) reallyChanged = true;
          rotationConstant = tmpval;
       }
    }
@@ -185,7 +174,6 @@ void CelestialBodyOrientationPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != rotationRate) reallyChanged = true;
          rotationRate = tmpval;
       }
    }
@@ -197,7 +185,7 @@ void CelestialBodyOrientationPanel::SaveData()
       MessageInterface::PopupMessage(Gmat::ERROR_, errmsg);
    }
 
-   if (realsOK && stringsOK && reallyChanged)
+   if (realsOK && stringsOK)
    {
       theBody->SetStringParameter(theBody->GetParameterID("RotationDataSource"), 
                                   rotationDataSource);
@@ -213,7 +201,21 @@ void CelestialBodyOrientationPanel::SaveData()
       ResetChangeFlags(true);
    }
    else
+   {
+      #ifdef DEBUG_CB_ORIENT_SAVE
+      MessageInterface::ShowMessage("in CBOrientPanel::SaveData, realsOK = %s\n",
+            (realsOK? "true" : "false"));
+      MessageInterface::ShowMessage("                            stringsOK = %s\n",
+            (stringsOK? "true" : "false"));
+      #endif
       canClose = false;
+   }
+   #ifdef DEBUG_CB_ORIENT_SAVE
+      MessageInterface::ShowMessage("at end of CBOrientPanel::SaveData, canClose = %s\n",
+            (canClose? "true" : "false"));
+      MessageInterface::ShowMessage("at end of CBOrientPanel::SaveData, isEarth = %s\n",
+            (isEarth? "true" : "false"));
+   #endif
    
 }
 

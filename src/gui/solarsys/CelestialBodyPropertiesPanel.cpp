@@ -29,6 +29,8 @@
 #include <fstream>
 
 //#define DEBUG_CB_PROP_PANEL
+//#define DEBUG_CB_PROP_SAVE
+
 
 // event tables for wxMac/Widgets
 BEGIN_EVENT_TABLE(CelestialBodyPropertiesPanel, wxPanel)
@@ -80,12 +82,22 @@ void CelestialBodyPropertiesPanel::SaveData()
    
    // don't do anything if no data has been changed.
    // note that dataChanged will be true if the user modified any combo box or
-   // text ctrl, whether or not he/she actually changed the value; we want to only
-   // send the values to the object if something was really changed, to avoid
-   // the hasBeenModified flag being set to true erroneously
+   // text ctrl, whether or not he/she actually changed the value
+   #ifdef DEBUG_CB_PROP_SAVE
+
+      MessageInterface::ShowMessage("Entering CBPropPanel::SaveData, dataChanged = %s\n",
+         (dataChanged? "true" : "false"));
+      MessageInterface::ShowMessage("    muChanged = %s\n",
+         (muChanged? "true" : "false"));
+      MessageInterface::ShowMessage("    eqRadChanged = %s\n",
+         (eqRadChanged? "true" : "false"));
+      MessageInterface::ShowMessage("    flatChanged = %s\n",
+         (flatChanged? "true" : "false"));
+      MessageInterface::ShowMessage("    textureChanged = %s\n",
+         (textureChanged? "true" : "false"));
+   #endif
    if (!dataChanged) return;
    
-   bool reallyChanged = false;
    canClose    = true;
    
    if (muChanged)
@@ -96,7 +108,6 @@ void CelestialBodyPropertiesPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != mu) reallyChanged = true;
          mu = tmpval;
       }
    }
@@ -108,7 +119,6 @@ void CelestialBodyPropertiesPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != eqRad) reallyChanged = true;
          eqRad = tmpval;
       }
    }
@@ -120,7 +130,6 @@ void CelestialBodyPropertiesPanel::SaveData()
          realsOK = false;
       else 
       {
-         if (tmpval != flat) reallyChanged = true;
          flat = tmpval;
       }
    }
@@ -148,30 +157,38 @@ void CelestialBodyPropertiesPanel::SaveData()
       }
       else
       {
-         if (strval != textureMap) reallyChanged = true;
          textureMap = strval;
          filename.close();
       } 
    }
 
-   if (realsOK && stringsOK && reallyChanged)
+   if (realsOK && stringsOK)
    {
       #ifdef DEBUG_CB_PROP_PANEL
          MessageInterface::ShowMessage("Reals and Strings are OK - setting them\n");
          MessageInterface::ShowMessage(
                "mu = %12.4f, eqRad = %12.4f, flat = %12.4f, textureMap = %s\n",
-               mu, eqRad, flat, textureMap.c_str());       
+               mu, eqRad, flat, textureMap.c_str());
+         MessageInterface::ShowMessage("in Properties panel, body pointer is %p\n",
+               theBody);
       #endif
       theBody->SetGravitationalConstant(mu);
       theBody->SetEquatorialRadius(eqRad);
       theBody->SetFlattening(flat);
-      theBody->SetStringParameter(theBody->GetParameterID("TextureMapFileName"), 
+      theBody->SetStringParameter(theBody->GetParameterID("TextureMapFileName"),
                                   textureMap);
       dataChanged = false;
       ResetChangeFlags(true);
    }
    else
+   {
       canClose = false;
+   }
+   #ifdef DEBUG_CB_PROP_SAVE
+
+      MessageInterface::ShowMessage("At end of CBPropPanel::SaveData, canClose = %s\n",
+         (canClose? "true" : "false"));
+   #endif
    
 }
 
