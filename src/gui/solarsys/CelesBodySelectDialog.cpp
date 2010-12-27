@@ -66,7 +66,11 @@ CelesBodySelectDialog::~CelesBodySelectDialog()
    #endif
    
    // Unregister GUI components
-   //theGuiManager->UnregisterListBox("CelestialBody",mBodyListBox);
+   if (mShowCalPoints)
+      theGuiManager->UnregisterListBox("CelestialPoint", mBodyListBox);
+   else
+      theGuiManager->UnregisterListBox("CelestialBody", mBodyListBox);
+   
 }
 
 
