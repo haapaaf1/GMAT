@@ -31,6 +31,7 @@
 #include <fstream>
 
 //#define DEBUG_CB_ORBIT_PANEL
+//#define DEBUG_CB_ORBIT_SAVE
 
 // event tables for wxMac/Widgets
 BEGIN_EVENT_TABLE(CelestialBodyOrbitPanel, wxPanel)
@@ -115,9 +116,7 @@ void CelestialBodyOrbitPanel::SaveData()
    
    // don't do anything if no data has been changed.
    // note that dataChanged will be true if the user modified any combo box or
-   // text ctrl, whether or not he/she actually changed the value; we want to only
-   // send the values to the object if something was really changed, to avoid
-   // the hasBeenModified flag being set to true erroneously
+   // text ctrl, whether or not he/she actually changed the value
    canClose    = true;
    
    try
@@ -275,8 +274,8 @@ void CelestialBodyOrbitPanel::SaveData()
       MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
    }
    
-   #ifdef DEBUG_CB_ORBIT_PANEL
-      MessageInterface::ShowMessage("at end of SaveData, canClose = %s\n",
+   #ifdef DEBUG_CB_ORBIT_SAVE
+      MessageInterface::ShowMessage("at end of CBOrbitPanel::SaveData, canClose = %s\n",
             (canClose? "true" : "false"));
    #endif
    if (canClose)
