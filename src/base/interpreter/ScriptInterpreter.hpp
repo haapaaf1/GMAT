@@ -99,6 +99,8 @@ private:
    void WriteObjects(StringArray &objs, const std::string &objDesc,
                      Gmat::WriteMode mode);
    void WriteODEModels(StringArray &objs, Gmat::WriteMode mode);
+   void WritePropagators(StringArray &objs, const std::string &objDesc,
+         Gmat::WriteMode mode, const StringArray &odes);
    void WriteSpacecrafts(StringArray &objs, Gmat::WriteMode mode);
    void WriteHardwares(StringArray &objs, Gmat::WriteMode mode);
    void WriteVariablesAndArrays(StringArray &objs, Gmat::WriteMode mode);

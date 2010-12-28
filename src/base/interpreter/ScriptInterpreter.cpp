@@ -1169,11 +1169,11 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    //-----------------------------------
    // Force Model
    //-----------------------------------
-   objs = theModerator->GetListOfObjects(Gmat::ODE_MODEL);
+   StringArray odeObjs = theModerator->GetListOfObjects(Gmat::ODE_MODEL);
    #ifdef DEBUG_SCRIPT_WRITING
    MessageInterface::ShowMessage("   Found %d Force Models\n", objs.size());
    #endif
-   WriteODEModels(objs, mode);
+   WriteODEModels(odeObjs, mode);
    
    //-----------------------------------
    // Propagator
@@ -1183,7 +1183,7 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
    MessageInterface::ShowMessage("   Found %d Propagators\n", objs.size());
    #endif
    if (objs.size() > 0)
-      WriteObjects(objs, "Propagators", mode);
+      WritePropagators(objs, "Propagators", mode, odeObjs);
    
    //-----------------------------------
    // Burn
@@ -2099,6 +2099,68 @@ void ScriptInterpreter::WriteODEModels(StringArray &objs, Gmat::WriteMode mode)
          }
       }
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void WritePropagators(StringArray &objs, const std::string &objDesc,
+//       Gmat::WriteMode mode, const StringArray &odes)
+//------------------------------------------------------------------------------
+/**
+ * This method writes out PropSetup objects, including ODEModels that were not
+ * previously written
+ *
+ * @param objs The list of prop setup objects
+ * @param objDesc The section opener for the script file
+ * @param mode The scripting mode
+ * @param odes The ODEModels that have been written already
+ */
+//------------------------------------------------------------------------------
+void ScriptInterpreter::WritePropagators(StringArray &objs,
+      const std::string &objDesc, Gmat::WriteMode mode, const StringArray &odes)
+{
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("SI::WritePropagators() entered, objs.size=%d, objDesc='%s', mode=%d\n",
+       objs.size(), objDesc.c_str(), mode);
+   #endif
+
+   if (objs.empty())
+      return;
+
+   StringArray::iterator current;
+   GmatBase *object =  NULL;
+
+   WriteSectionDelimiter(objs[0], objDesc);
+
+   for (current = objs.begin(); current != objs.end(); ++current)
+   {
+      object = FindObject(*current);
+      if (object != NULL)
+      {
+         if (object->GetCommentLine() == "")
+            theReadWriter->WriteText("\n");
+
+         if (!object->IsOfType(Gmat::PROP_SETUP))
+            throw InterpreterException("In ScriptInterpreter::WritePropagators,"
+                  " the object " + (*current) + " should be a PropSetup, but "
+                  "it is a " + object->GetTypeName());
+
+         PropSetup *prop = (PropSetup*)object;
+         std::string odeName = prop->GetStringParameter("FM");
+         if (find(odes.begin(), odes.end(), odeName) != odes.end())
+            prop->TakeAction("ExcludeODEModel");
+
+         theReadWriter->WriteText(object->GetGeneratingString(mode));
+
+         prop->TakeAction("IncludeODEModel");
+      }
+   }
+
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage
+      ("SI::WritePropagators() returning for '%s'\n", objDesc.c_str());
+   #endif
 }
 
 

@@ -178,6 +178,7 @@ private:
    
    bool mInitialized;
    bool mMcsCreated;
+   bool includeODEModelInGenString;
    std::string mPropagatorName;
    std::string mODEModelName;
    Propagator *mPropagator;
