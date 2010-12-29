@@ -1802,10 +1802,14 @@ void ResourceTree::OnRename(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnDelete(wxCommandEvent &event)
 {
-   event.Skip();
-
    wxTreeItemId itemId = GetSelection();
    GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
+   #if DEBUG_DELETE
+   if (selItemData == NULL)
+      MessageInterface::ShowMessage("selItemData is NULL!!!!!!!\n");
+   MessageInterface::ShowMessage
+      ("ResourceTree::OnDelete() name=%s\n", selItemData->GetName().c_str());
+   #endif
    GmatTree::ItemType itemType = selItemData->GetItemType();
 
    // if panel is currently opened, give warning and return
@@ -1851,6 +1855,10 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
             "sequence");
       wxLog::FlushActive();
    }
+   #if DEBUG_DELETE
+   MessageInterface::ShowMessage
+      ("exiting ResourceTree::OnDelete()\n");
+   #endif
 }
 
 
