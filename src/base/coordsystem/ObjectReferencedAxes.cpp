@@ -83,13 +83,13 @@ ObjectReferencedAxes::PARAMETER_TYPE[ObjectReferencedAxesParamCount - DynamicAxe
 //---------------------------------------------------------------------------
 ObjectReferencedAxes::ObjectReferencedAxes(const std::string &itsName) :
 DynamicAxes("ObjectReferenced",itsName),
-primaryName   (""),
-secondaryName (""),
+primaryName   ("Earth"),
+secondaryName ("Luna"),
 primary       (NULL),
 secondary     (NULL),
-xAxis         (""),
+xAxis         ("R"),
 yAxis         (""),
-zAxis         ("")
+zAxis         ("N")
 {
    objectTypeNames.push_back("ObjectReferencedAxes");
    parameterCount = ObjectReferencedAxesParamCount;
