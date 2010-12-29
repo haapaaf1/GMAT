@@ -31,7 +31,6 @@
 
 //#define DEBUG_PROPSETUP
 //#define DEBUG_PROPSETUP_SET
-//#define DEBUG_PROPSETUP_GET
 //#define DEBUG_PROPSETUP_CLONE
 //#define DEBUG_PROPSETUP_DELETE
 //#define DEBUG_PROPSETUP_GEN_STRING
@@ -135,7 +134,6 @@ PropSetup::PropSetup(const std::string &name)
    
    mInitialized = false;
    mMcsCreated = false;
-   includeODEModelInGenString = true;
    
    // Name it Internal* so that they can be deleted when new Propagator or ODEModel
    // is set. These names are not actual names but tells whether they can be deleted or not.
@@ -192,16 +190,15 @@ PropSetup::PropSetup(const PropSetup &ps) :
    // PropSetup data
    mInitialized = false;
    mMcsCreated = ps.mMcsCreated;
-   includeODEModelInGenString = ps.includeODEModelInGenString;
    mPropagatorName = ps.mPropagatorName;
-   mODEModelName = ps.mODEModelName;
+   mODEModelName = "";
    mPropagator = NULL;
    mODEModel = NULL;
    
    if (ps.mPropagator != NULL)
       mPropagatorName = ps.mPropagator->GetName();
    if (ps.mODEModel != NULL)
-      mODEModelName = ps.mODEModelName;
+      mODEModelName = ps.mODEModel->GetName();
    
    // first delete old propagator and ODEModel (loj: 2008.11.04)
    DeleteOwnedObject(PROPAGATOR);
@@ -245,16 +242,15 @@ PropSetup& PropSetup::operator= (const PropSetup &ps)
    // PropSetup data
    mInitialized = false;
    mMcsCreated = ps.mMcsCreated;
-   includeODEModelInGenString = ps.includeODEModelInGenString;
    mPropagatorName = ps.mPropagatorName;
-   mODEModelName = ps.mODEModelName;
+   mODEModelName = "";
    
    psm = ps.psm;
    
    if (ps.mPropagator != NULL)
       mPropagatorName = ps.mPropagator->GetName();
    if (ps.mODEModel != NULL)
-      mODEModelName = ps.mODEModelName;
+      mODEModelName = ps.mODEModel->GetName();
    
    // first delete old propagator and ODEModel
    DeleteOwnedObject(PROPAGATOR, true);
@@ -320,11 +316,10 @@ bool PropSetup::IsInitialized()
 //------------------------------------------------------------------------------
 Propagator* PropSetup::GetPropagator()
 {
-   #ifdef DEBUG_PROPSETUP_GET
+   #if DEBUG_PROPSETUP_GET
    MessageInterface::ShowMessage
       ("PropSetup::GetPropagator() mPropagator=<%p>, name='%s'\n",
-       mPropagator, (mPropagator == NULL ? "N/A" :
-       mPropagator->GetName().c_str()));
+       mPropagator, mPropagator->GetName().c_str());
    #endif
    
    return mPropagator;
@@ -423,8 +418,7 @@ void PropSetup::SetODEModel(ODEModel *odeModel)
    
    DeleteOwnedObject(ODE_MODEL, true);
    CloneODEModel(odeModel);      // Makes clone or sets pointer to NULL
-   if (odeModel->GetName() != "")
-      mODEModelName = odeModel->GetName();
+   mODEModelName = odeModel->GetName();
    
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
@@ -845,8 +839,7 @@ std::string PropSetup::GetStringParameter(const Integer id) const
 {
    #ifdef DEBUG_PROPSETUP_GET
    MessageInterface::ShowMessage
-      ("PropSetup::GetStringParameter() '%s' entered, id=%d\n",
-            GetParameterText(id).c_str(), id);
+      ("PropSetup::GetStringParameter() '%s' entered, id=%d\n", id);
    #endif
    std::string name;
    switch (id)
@@ -859,6 +852,7 @@ std::string PropSetup::GetStringParameter(const Integer id) const
       break;
    case ODE_MODEL:
       if (mODEModel)
+//         name = mODEModel->GetName();
          name = mODEModelName;
       else
          name = "InternalODEModel";
@@ -876,10 +870,8 @@ std::string PropSetup::GetStringParameter(const Integer id) const
    }
    #ifdef DEBUG_PROPSETUP_GET
    MessageInterface::ShowMessage
-      ("PropSetup::GetStringParameter() '%s' returning '%s'\n",
-            GetParameterText(id).c_str(), name.c_str());
+      ("PropSetup::GetStringParameter() '%s' returning '%s'\n", name.c_str());
    #endif
-
    return name;
 }
 
@@ -1358,16 +1350,6 @@ bool PropSetup::TakeAction(const std::string &action,
       mMcsCreated = true;
       return true;
    }
-   if (action == "IncludeODEModel")
-   {
-      includeODEModelInGenString = true;
-      return true;
-   }
-   if (action == "ExcludeODEModel")
-   {
-      includeODEModelInGenString = false;
-      return true;
-   }
 
    return GmatBase::TakeAction(action, actionData);
 }
@@ -1411,11 +1393,7 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
          showODEModel = true;
       }
       else
-      {
          fmName = temp;
-         if ((fmName != "") && (fmName != "InternalODEModel"))
-            showODEModel = true;
-      }
 
       // For Gmat::SCRIPTING which saves to script file, we need to write
       // ODEModels first so it is handled in the ScriptInterpreter.
@@ -1427,7 +1405,7 @@ const std::string& PropSetup::GetGeneratingString(Gmat::WriteMode mode,
          ("   fmName='%s', showODEModel=%d\n", fmName.c_str(), showODEModel);
       #endif
       
-      if (showODEModel && includeODEModelInGenString)
+      if (showODEModel)
          gen = mODEModel->GetGeneratingString(mode, prefix, fmName) + "\n";
    }
    
@@ -1503,10 +1481,7 @@ void PropSetup::CloneODEModel(ODEModel *fm)
    #endif
    if (fm != NULL)
    {
-      if (fm->GetName() != "")
-         mODEModelName = fm->GetName();
-      else
-         mODEModelName = "";
+      mODEModelName = "";
       mODEModel = (ODEModel *)(fm->Clone());
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
