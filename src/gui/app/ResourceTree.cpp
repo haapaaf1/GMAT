@@ -3194,7 +3194,7 @@ void ResourceTree::OnAddAsteroid(wxCommandEvent &event)
    wxString name;
 
    //Get name from the user first
-   if (GetNameFromUser(name, name, "Enter name: ", "New Comet") == 1)
+   if (GetNameFromUser(name, name, "Enter name: ", "New Asteroid") == 1)
    {
       if (!name.IsEmpty())
       {
