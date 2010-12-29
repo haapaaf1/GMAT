@@ -87,9 +87,9 @@ primaryName   ("Earth"),
 secondaryName ("Luna"),
 primary       (NULL),
 secondary     (NULL),
-xAxis         ("R"),
+xAxis         (""),
 yAxis         (""),
-zAxis         ("N")
+zAxis         ("")
 {
    objectTypeNames.push_back("ObjectReferencedAxes");
    parameterCount = ObjectReferencedAxesParamCount;
