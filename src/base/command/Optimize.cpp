@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                Optimize 
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -34,6 +34,7 @@ static GmatInterface *gmatInt = GmatInterface::Instance();
 //#define DEBUG_OPTIMIZE_CONSTRUCTION
 //#define DEBUG_OPTIMIZE_INIT
 //#define DEBUG_OPTIMIZE_EXEC
+//#define DEBUG_STATE_TRANSITIONS
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -787,66 +788,101 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
          #endif
          switch (specialState) 
          {
-         case Solver::INITIALIZING:
-            currentCmd = branch[0];
-            optimizerConverged = false;
-            while (currentCmd != this)  
-            {
-               std::string type = currentCmd->GetTypeName();
-               if ((type == "Optimize") || (type == "Vary") ||
-                   (type == "Minimize") || (type == "NonlinearConstraint"))
-                  currentCmd->Execute();
-               currentCmd = currentCmd->GetNext();
-            }
-            StoreLoopData();
-            specialState = Solver::NOMINAL;
-            break;
-            
-         case Solver::NOMINAL:
-            // Execute the nominal sequence
-            if (!commandComplete) {
-               branchExecuting = true;
-               ResetLoopData();
-            }
-            specialState = Solver::RUNSPECIAL;
-            break;
-                     
-         case Solver::RUNSPECIAL:
-            #ifdef DEBUG_OPTIMIZE_EXEC
-            MessageInterface::ShowMessage
-               ("Optimize::Execute - internal solver in RUNSPECIAL state\n");
-            #endif
-            // Run once more to publish the data from the converged state
-            if (!commandComplete)
-            {
+            case Solver::INITIALIZING:
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage("Mode: %d  State: %d  Special state: INITIALIZING (%d)",
+                     startMode, state, specialState);
+               #endif
+               currentCmd = branch[0];
+               optimizerConverged = false;
+               while (currentCmd != this)
+               {
+                  std::string type = currentCmd->GetTypeName();
+                  if ((type == "Optimize") || (type == "Vary") ||
+                      (type == "Minimize") || (type == "NonlinearConstraint"))
+                     currentCmd->Execute();
+                  currentCmd = currentCmd->GetNext();
+               }
+               StoreLoopData();
+               specialState = Solver::NOMINAL;
+//               specialState = Solver::RUNSPECIAL;
+
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage(" -> Mode: %d  Special state: "
+                     "(%d)\n", startMode, specialState);
+               #endif
+               break;
+
+            case Solver::NOMINAL:
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage("Mode: %d  State: %d  Special "
+                     "state: NOMINAL (%d)", startMode, state, specialState);
+               #endif
+               // Execute the nominal sequence
+               if (!commandComplete) {
+                  branchExecuting = true;
+                  ResetLoopData();
+               }
+               specialState = Solver::RUNSPECIAL;
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage(" -> Mode: %d  Special state: "
+                     "(%d)\n", startMode, specialState);
+               #endif
+               break;
+
+            case Solver::RUNSPECIAL:
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage("Mode: %d  State: %d  Special "
+                     "state: RUNSPECIAL (%d)", startMode, state, specialState);
+               #endif
                #ifdef DEBUG_OPTIMIZE_EXEC
                MessageInterface::ShowMessage
-                  ("Optimize::Execute - internal solver setting publisher with SOLVEDPASS\n");
+                  ("Optimize::Execute - internal solver in RUNSPECIAL state\n");
                #endif
-               ResetLoopData();
-               branchExecuting = true;
-               publisher->SetRunState(Gmat::SOLVEDPASS);
-            }
-            theSolver->Finalize();
-            specialState = Solver::FINISHED;
-            
-            // Final clean-up
-            optimizerConverged = true;
-            break;
-            
-         case Solver::FINISHED:
-            commandComplete = true;
-            #ifdef DEBUG_OPTIMIZE_EXEC
-            MessageInterface::ShowMessage
-               ("Optimize::Execute - internal solver in FINISHED state\n");
-            #endif
-            optimizerConverged = true;
-            
-            specialState = Solver::INITIALIZING;
-            break;
-            
-         default:
-            break;
+               // Run once more to publish the data from the converged state
+               if (!commandComplete)
+               {
+                  #ifdef DEBUG_OPTIMIZE_EXEC
+                  MessageInterface::ShowMessage
+                     ("Optimize::Execute - internal solver setting publisher with SOLVEDPASS\n");
+                  #endif
+                  ResetLoopData();
+                  branchExecuting = true;
+                  publisher->SetRunState(Gmat::SOLVEDPASS);
+               }
+               theSolver->Finalize();
+               specialState = Solver::FINISHED;
+
+               // Final clean-up
+               optimizerConverged = true;
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage(" -> Mode: %d  Special state: "
+                     "(%d)\n", startMode, specialState);
+               #endif
+               break;
+
+            case Solver::FINISHED:
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage("Mode: %d  State: %d  Special "
+                     "state: FINISHED (%d)", startMode, state, specialState);
+               #endif
+               commandComplete = true;
+               #ifdef DEBUG_OPTIMIZE_EXEC
+               MessageInterface::ShowMessage
+                  ("Optimize::Execute - internal solver in FINISHED state\n");
+               #endif
+               optimizerConverged = true;
+//               branchExecuting = true;
+
+               specialState = Solver::INITIALIZING;
+               #ifdef DEBUG_STATE_TRANSITIONS
+               MessageInterface::ShowMessage(" -> Mode: %d  Special state: "
+                     "(%d)\n", startMode, specialState);
+               #endif
+               break;
+
+            default:
+               break;
          }                     
          break;
          
@@ -856,7 +892,7 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
             ("Running as RUN_SOLUTION, state = %d\n", state);
          #endif
          throw SolverException
-            ("Run Solution is not yet implemented for the Target command\n");
+            ("Run Solution is not yet implemented for the Optimize command\n");
          break;
          
       case RUN_AND_SOLVE:

@@ -3533,7 +3533,11 @@ bool Propagate::Execute()
                                 firstStepTolerance);
                stopWhen[i]->Reset();
                stopWhen[i]->Evaluate();
-
+#ifdef DEBUG_STOPPING_CONDITIONS
+MessageInterface::ShowMessage("Achieved: %.12lf Goal: %.12lf Difference: %.12le\n",
+      stopWhen[i]->GetStopValue(), stopWhen[i]->GetStopGoal(),
+      stopWhen[i]->GetStopValue() - stopWhen[i]->GetStopGoal());
+#endif
                // Set the flag to check the first step only if 
                //    (1) the stop value is <= stopAccuracy and
                //    (2) it was (one of) the last stop(s) triggered
