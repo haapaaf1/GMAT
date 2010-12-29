@@ -23,6 +23,7 @@
 
 //#define DEBUG_COORD_PANEL_LOAD 1
 //#define DEBUG_COORD_PANEL_SAVE 1
+//#define DEBUG_COORD_PANEL_TEXT
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -48,6 +49,7 @@ CoordSystemConfigPanel::CoordSystemConfigPanel(wxWindow *parent,
    mEpochFormat = "A1ModJulian";
    mOriginChanged = false;
    mObjRefChanged = false;
+   mEpochChanged  = false;
    
    Create();
    Show();
@@ -166,6 +168,7 @@ void CoordSystemConfigPanel::SaveData()
          Real epoch;
          std::string str = mCoordPanel->GetEpochTextCtrl()->GetValue().c_str();
          #if DEBUG_COORD_PANEL_SAVE
+         MessageInterface::ShowMessage("Epoch data has been changed!!!!\n");
          MessageInterface::ShowMessage
             ("CoordSystemConfigPanel::SaveData() epoch value = %s\n",
              str.c_str());
@@ -268,6 +271,9 @@ void CoordSystemConfigPanel::OnTextUpdate(wxCommandEvent& event)
    if (mCoordPanel->GetEpochTextCtrl()->IsModified() )
    {
       mEpochChanged = true;
+      #ifdef DEBUG_COORD_PANEL_TEXT
+         MessageInterface::ShowMessage("Text has been updated and epoch has been changed!!!\n");
+      #endif
    }
 }
 
