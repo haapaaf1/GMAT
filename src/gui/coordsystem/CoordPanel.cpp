@@ -21,6 +21,8 @@
 
 //#define DEBUG_COORD_PANEL 1
 //#define DEBUG_COORD_PANEL_SAVE
+//#define DEBUG_COORD_EPOCH
+//#define DEBUG_COORD_PANEL_PRIMARY_SECONDARY
 
 //------------------------------------------------------------------------------
 // CoordPanel()
@@ -122,6 +124,9 @@ void CoordPanel::EnableOptions(AxisSystem *axis)
       epochTextCtrl->SetValue(epochValue);
 //      formatComboBox->SetValue(epochFormatValue);
    }
+   #ifdef DEBUG_COORD_EPOCH
+      MessageInterface::ShowMessage("mShowEpoch = %s\n", (mShowEpoch? "true" : "false"));
+   #endif
    
    if ((tmpAxis->UsesXAxis() == GmatCoordinate::NOT_USED) &&
        (tmpAxis->UsesYAxis() == GmatCoordinate::NOT_USED) &&
@@ -279,12 +284,18 @@ void CoordPanel::ShowAxisData(AxisSystem *axis)
       
       if (mShowPrimaryBody)
       {
+         #ifdef DEBUG_COORD_PANEL_PRIMARY_SECONDARY
+            MessageInterface::ShowMessage("Primary is %s\n", (axis->GetStringParameter("Primary")).c_str());
+         #endif
          primaryComboBox->
             SetStringSelection(axis->GetStringParameter("Primary").c_str());
       }
       
       if (mShowSecondaryBody)
       {
+         #ifdef DEBUG_COORD_PANEL_PRIMARY_SECONDARY
+            MessageInterface::ShowMessage("Secondary is %s\n", (axis->GetStringParameter("Secondary")).c_str());
+         #endif
          secondaryComboBox->
             SetStringSelection(axis->GetStringParameter("Secondary").c_str());
       }
@@ -767,8 +778,8 @@ void CoordPanel::LoadData()
       for (unsigned int i = 0; i<itemNames.size(); i++)
          typeComboBox->Append(wxString(itemNames[i].c_str()));
       
-      // insert a blank option for secondary
-      secondaryComboBox->Append("");
+//      // insert a blank option for secondary
+//      secondaryComboBox->Append("");
       
       StringArray reps = TimeConverterUtil::GetValidTimeRepresentations();
       
