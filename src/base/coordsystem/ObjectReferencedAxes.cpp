@@ -84,7 +84,7 @@ ObjectReferencedAxes::PARAMETER_TYPE[ObjectReferencedAxesParamCount - DynamicAxe
 ObjectReferencedAxes::ObjectReferencedAxes(const std::string &itsName) :
 DynamicAxes("ObjectReferenced",itsName),
 primaryName   ("Earth"),
-secondaryName ("Luna"),
+secondaryName (""),
 primary       (NULL),
 secondary     (NULL),
 xAxis         (""),
@@ -190,7 +190,7 @@ GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesPrimary() const
 
 GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesSecondary() const
 {
-   return GmatCoordinate::REQUIRED;
+   return GmatCoordinate::OPTIONAL_USE;
 }
 
 GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesXAxis() const
@@ -221,10 +221,6 @@ GmatCoordinate::ParameterUsage ObjectReferencedAxes::UsesZAxis() const
 //------------------------------------------------------------------------------
 void ObjectReferencedAxes::SetPrimaryObject(SpacePoint *prim)
 {
-   #ifdef DEBUG_REFERENCE_SETTING
-      MessageInterface::ShowMessage("Setting %s as primary object for ObjectReferenced c.s.\n",
-            (prim->GetName()).c_str());
-   #endif
    primary     = prim;
    primaryName = primary->GetName();
 }
@@ -241,10 +237,6 @@ void ObjectReferencedAxes::SetPrimaryObject(SpacePoint *prim)
 //------------------------------------------------------------------------------
 void ObjectReferencedAxes::SetSecondaryObject(SpacePoint *second)
 {
-   #ifdef DEBUG_REFERENCE_SETTING
-      MessageInterface::ShowMessage("Setting %s as secondary object for ObjectReferenced c.s.\n",
-            (second->GetName()).c_str());
-   #endif
    secondary     = second;
    secondaryName = secondary->GetName();
 }
@@ -787,9 +779,9 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                                                    bool forceComputation)
 {
    if (!primary)
-      throw CoordinateSystemException("Primary is not yet set on ObjectReferencedAxes object!");
-   if (!secondary)
-      throw CoordinateSystemException("Secondary is not yet set on ObjectReferencedAxes object!");
+      throw CoordinateSystemException("Primary \"" + primaryName +
+         "\" is not yet set in object referenced!");
+
    
    if ((xAxis == yAxis) || (xAxis == zAxis) || (yAxis == zAxis))
    {
@@ -810,7 +802,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    }
    
    SpacePoint *useAsSecondary = secondary;
-//   if (!useAsSecondary)  useAsSecondary = origin;
+   if (!useAsSecondary)  useAsSecondary = origin;
    Rvector6 rv     = useAsSecondary->GetMJ2000State(atEpoch) -
                      primary->GetMJ2000State(atEpoch);
    #ifdef DEBUG_ROT_MATRIX
