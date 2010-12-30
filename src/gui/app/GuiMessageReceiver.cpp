@@ -198,7 +198,8 @@ void GuiMessageReceiver::ShowMessage(const std::string &msgString)
 //  void ShowMessage(const char *msg, ...)
 //------------------------------------------------------------------------------
 /**
- * Displays a message passed in as a char* and a variable argument list.
+ * Displays a message passed in as a char* and a variable argument
+ * list.  Throws std::bad_alloc on memory exhaustion.
  * 
  * @param msg The message, possibly including markers for variable argument 
  *            substitution.
@@ -218,25 +219,42 @@ void GuiMessageReceiver::ShowMessage(const char *msg, ...)
    size = strlen(msg) + MAX_MESSAGE_LENGTH;
    //LogMessage("strlen(msg)=%d, size=%d\n", strlen(msg), size);
    
-   if( (msgBuffer = (char *)malloc(size)) != NULL )
-   {
-      va_start(marker, msg);      
-      ret = vsprintf(msgBuffer, msg, marker);
-      va_end(marker);
-      //LogMessage("ret from vsprintf()=%d\n", ret);
-   }
-   else
-   {
-      msgBuffer = 
-         "*** WARNING *** Cannot allocate enough memory to show the message.\n";
-   }
+//   if( (msgBuffer = (char *)malloc(size)) != NULL )
+//   {
+//      va_start(marker, msg);
+//      ret = vsprintf(msgBuffer, msg, marker);
+//      va_end(marker);
+//      //LogMessage("ret from vsprintf()=%d\n", ret);
+//   }
+//   else
+//   {
+//      msgBuffer =
+//         "*** WARNING *** Cannot allocate enough memory to show the message.\n";
+//   }
+
+   // Note: 'new' throws an exception of type std::bad_alloc on failure.
+   // (Note that if an exception is thrown, no memory will have been
+   // allocated, so there will be no memory leak.)
+   msgBuffer = new char[size];
+
+   // For older C++ compilers, duplicate that behavior by hand.
+   if (!msgBuffer)
+      throw std::bad_alloc();
+
+   // Process the message
+   va_start(marker, msg);
+   ret = vsprintf(msgBuffer, msg, marker);
+   va_end(marker);
+   //LogMessage("ret from vsprintf()=%d\n", ret);
    
    GmatAppData *appData = GmatAppData::Instance();
    if (appData->GetMessageTextCtrl() != NULL)
       appData->GetMessageTextCtrl()->AppendText(wxString(msgBuffer));
    
    LogMessage(std::string(msgBuffer));
-   free(msgBuffer);
+
+//   free(msgBuffer);
+   delete[] msgBuffer;
 } // end ShowMessage()
 
 
@@ -315,6 +333,8 @@ void GuiMessageReceiver::PopupMessage(Gmat::MessageType msgType, const std::stri
  * 
  * This method logs informational messages directed at pop-up message boxes and
  * shows the message as a pop-up.
+ *
+ * Throws std::bad_alloc in memory exhaustion.
  * 
  * @param msgType The type of message that is displayed, selected from the set
  *                {ERROR_, WARNING_, INFO_} enumerated in the Gmat namespace.
@@ -335,20 +355,37 @@ void GuiMessageReceiver::PopupMessage(Gmat::MessageType msgType, const char *msg
    // actual max message length is MAX_MESSAGE_LENGTH
    size = strlen(msg) + MAX_MESSAGE_LENGTH;
    
-   if ( (msgBuffer = (char *)malloc(size)) != NULL )
-   {
-      va_start(marker, msg);      
-      ret = vsprintf(msgBuffer, msg, marker);      
-      va_end(marker);
-      
-      // if no EOL then append it
-      if (msgBuffer[strlen(msgBuffer)-1] != '\n')
-         msgBuffer[strlen(msgBuffer)] = '\n';
-   }
-   else
-   {
-      msgBuffer = "*** WARNING *** Cannot allocate enough memory to show the message.\n";
-   }
+   // Note: 'new' throws an exception of type std::bad_alloc on failure.
+   // (Note that if an exception is thrown, no memory will have been
+   // allocated, so there will be no memory leak.)
+   msgBuffer = new char[size];
+
+   // For older C++ compilers, duplicate that behavior by hand.
+   if (!msgBuffer) throw std::bad_alloc();
+
+   // Process the message
+   va_start(marker, msg);
+   ret = vsprintf(msgBuffer, msg, marker);
+   va_end(marker);
+
+   // if no EOL then append it
+   if (msgBuffer[strlen(msgBuffer)-1] != '\n')
+      msgBuffer[strlen(msgBuffer)] = '\n';
+
+//   if ( (msgBuffer = (char *)malloc(size)) != NULL )
+//   {
+//      va_start(marker, msg);
+//      ret = vsprintf(msgBuffer, msg, marker);
+//      va_end(marker);
+//
+//      // if no EOL then append it
+//      if (msgBuffer[strlen(msgBuffer)-1] != '\n')
+//         msgBuffer[strlen(msgBuffer)] = '\n';
+//   }
+//   else
+//   {
+//      msgBuffer = "*** WARNING *** Cannot allocate enough memory to show the message.\n";
+//   }
    
    // always show message
    ShowMessage(msgBuffer);
@@ -374,8 +411,8 @@ void GuiMessageReceiver::PopupMessage(Gmat::MessageType msgType, const char *msg
       };
    }
    
-   free(msgBuffer);
-   
+//   free(msgBuffer);
+   delete[] msgBuffer;
 } // end PopupMessage()
 
 
@@ -467,8 +504,10 @@ void GuiMessageReceiver::LogMessage(const std::string &msg)
 /**
  * Logs a variable argument formatted message to the log file.
  * 
- * This method calls teh std::string vrrersion of LogMessage to do the actual 
+ * This method calls the std::string vrrersion of LogMessage to do the actual
  * logging.
+ *
+ * Throws std::bad_alloc on memory exhaustion.
  * 
  * @param msg The message, possibly including markers for variable argument 
  *            substitution.
@@ -487,20 +526,35 @@ void GuiMessageReceiver::LogMessage(const char *msg, ...)
    // actual max message length is MAX_MESSAGE_LENGTH
    size = strlen(msg) + MAX_MESSAGE_LENGTH;
    
-   if ( (msgBuffer = (char *)malloc(size)) != NULL )
-   {
-      va_start(marker, msg);      
-      ret = vsprintf(msgBuffer, msg, marker);      
-      va_end(marker);
-   }
-   else
-   {
-      msgBuffer = "*** WARNING *** Cannot allocate enough memory to log the message.\n";
-   }
+//   if ( (msgBuffer = (char *)malloc(size)) != NULL )
+//   {
+//      va_start(marker, msg);
+//      ret = vsprintf(msgBuffer, msg, marker);
+//      va_end(marker);
+//   }
+//   else
+//   {
+//      msgBuffer = "*** WARNING *** Cannot allocate enough memory to log the message.\n";
+//   }
+//
+
+   // Note: 'new' throws an exception of type std::bad_alloc on failure.
+   // (Note that if an exception is thrown, no memory will have been
+   // allocated, so there will be no memory leak.)
+   msgBuffer = new char[size];
+
+   // For older C++ compilers, duplicate that behavior by hand.
+   if (!msgBuffer) throw std::bad_alloc();
+
+   // Process the message
+   va_start(marker, msg);
+   ret = vsprintf(msgBuffer, msg, marker);
+   va_end(marker);
    
    LogMessage(std::string(msgBuffer));
-   free(msgBuffer);
    
+//   free(msgBuffer);
+   delete[] msgBuffer;
 } // end LogMessage()
 
 
