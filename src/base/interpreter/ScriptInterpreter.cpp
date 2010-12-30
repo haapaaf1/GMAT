@@ -2147,12 +2147,8 @@ void ScriptInterpreter::WritePropagators(StringArray &objs,
                   "it is a " + object->GetTypeName());
 
          PropSetup *prop = (PropSetup*)object;
-         std::string odeName = prop->GetStringParameter("FM");
-         if (find(odes.begin(), odes.end(), odeName) != odes.end())
-            prop->TakeAction("ExcludeODEModel");
-
+         prop->TakeAction("ExcludeODEModel");  // WriteODEModels wrote them all
          theReadWriter->WriteText(object->GetGeneratingString(mode));
-
          prop->TakeAction("IncludeODEModel");
       }
    }
