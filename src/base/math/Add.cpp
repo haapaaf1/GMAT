@@ -199,7 +199,7 @@ bool Add::ValidateInputs()
    }
    
    // If any one side is 1x1, then it is valid, so check first
-   if (row1 == 1 && col1 == 1 || row2 == 1 && col2 == 1)
+   if ((row1 == 1 && col1 == 1) || (row2 == 1 && col2 == 1))
    {
       retval = true;
    }
