@@ -15,6 +15,7 @@
 #include "CompareReportPanel.hpp"
 #include "GmatAppData.hpp"
 #include "MessageInterface.hpp"
+#include "GmatStaticBoxSizer.hpp"
 
 
 //------------------------------------------------------------------------------
@@ -62,7 +63,8 @@ CompareReportPanel::CompareReportPanel(wxWindow *parent, const wxString &name)
    wxBoxSizer *theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
    theButtonSizer->Add(theCloseButton, 0, wxALIGN_CENTER | wxALL, borderSize);
    
-   wxStaticBoxSizer *theBottomSizer = new wxStaticBoxSizer(wxVERTICAL, this, "");
+   GmatStaticBoxSizer *theBottomSizer = new GmatStaticBoxSizer(wxVERTICAL, this, "");
+//   wxStaticBoxSizer *theBottomSizer = new wxStaticBoxSizer(wxVERTICAL, this, "");
    theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
    
    wxBoxSizer *thePanelSizer = new wxBoxSizer(wxVERTICAL);
