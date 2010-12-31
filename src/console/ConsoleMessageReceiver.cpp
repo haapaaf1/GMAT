@@ -101,24 +101,23 @@ void ConsoleMessageReceiver::ShowMessage(const char *msg, ...)
    // msg is vsprintf format
    // actual max message length is MAX_MESSAGE_LENGTH
    size = strlen(msg) + MAX_MESSAGE_LENGTH;
-   //LogMessage("strlen(msg)=%d, size=%d\n", strlen(msg), size);
    
-   if( (msgBuffer = (char *)malloc(size)) != NULL )
-   {
-      va_start(marker, msg);      
-      ret = vsprintf(msgBuffer, msg, marker);
-      va_end(marker);
-      //LogMessage("ret from vsprintf()=%d\n", ret);
-   }
-   else
-   {
-      msgBuffer = (char *)malloc(256);
-      strcpy(msgBuffer, "*** WARNING *** Cannot allocate enough memory to "
-    		  "show the message.\n");
-   }
+   // Note: 'new' throws an exception of type std::bad_alloc on failure.
+   // (Note that if an exception is thrown, no memory will have been
+   // allocated, so there will be no memory leak.)
+   msgBuffer = new char[size];
+
+   // For older C++ compilers, duplicate that behavior by hand.
+   if (!msgBuffer)
+      throw std::bad_alloc();
+
+   // Process the message
+   va_start(marker, msg);
+   ret = vsprintf(msgBuffer, msg, marker);
+   va_end(marker);
    
    LogMessage(std::string(msgBuffer));
-   free(msgBuffer);
+   delete [] msgBuffer;
 }
 
 //------------------------------------------------------------------------------
@@ -178,26 +177,26 @@ void ConsoleMessageReceiver::PopupMessage(Gmat::MessageType msgType,
    // actual max message length is MAX_MESSAGE_LENGTH
    size = strlen(msg) + MAX_MESSAGE_LENGTH;
    
-   if ( (msgBuffer = (char *)malloc(size)) != NULL )
-   {
-      va_start(marker, msg);      
-      ret = vsprintf(msgBuffer, msg, marker);      
-      va_end(marker);
-      
-      // if no EOL then append it
-      if (msgBuffer[strlen(msgBuffer)-1] != '\n')
-         msgBuffer[strlen(msgBuffer)] = '\n';
-   }
-   else
-   {
-      msgBuffer = (char *)malloc(256);
-      strcpy(msgBuffer, "*** WARNING *** Cannot allocate enough memory to show"
-    		  " the message.\n");
-   }
-   
+   // Note: 'new' throws an exception of type std::bad_alloc on failure.
+   // (Note that if an exception is thrown, no memory will have been
+   // allocated, so there will be no memory leak.)
+   msgBuffer = new char[size];
+
+   // For older C++ compilers, duplicate that behavior by hand.
+   if (!msgBuffer)
+      throw std::bad_alloc();
+
+   // Process the message
+   va_start(marker, msg);
+   ret = vsprintf(msgBuffer, msg, marker);
+   va_end(marker);
+
+   // if no EOL then append it
+   if (msgBuffer[strlen(msgBuffer)-1] != '\n')
+       msgBuffer[strlen(msgBuffer)] = '\n';
+
    LogMessage(std::string(msgBuffer) + "\n");
-   
-   free(msgBuffer);
+   delete [] msgBuffer;
 }
 
 //------------------------------------------------------------------------------
@@ -437,21 +436,22 @@ void ConsoleMessageReceiver::LogMessage(const char *msg, ...)
    // actual max message length is MAX_MESSAGE_LENGTH
    size = strlen(msg) + MAX_MESSAGE_LENGTH;
    
-   if ( (msgBuffer = (char *)malloc(size)) != NULL )
-   {
-      va_start(marker, msg);      
-      ret = vsprintf(msgBuffer, msg, marker);      
-      va_end(marker);
-   }
-   else
-   {
-      msgBuffer = (char *)malloc(256);
-      strcpy(msgBuffer, "*** WARNING *** Cannot allocate enough memory "
-    		  "to log the message.\n");
-   }
-   
+   // Note: 'new' throws an exception of type std::bad_alloc on failure.
+   // (Note that if an exception is thrown, no memory will have been
+   // allocated, so there will be no memory leak.)
+   msgBuffer = new char[size];
+
+   // For older C++ compilers, duplicate that behavior by hand.
+   if (!msgBuffer)
+      throw std::bad_alloc();
+
+   // Process the message
+   va_start(marker, msg);
+   ret = vsprintf(msgBuffer, msg, marker);
+   va_end(marker);
+
    LogMessage(std::string(msgBuffer));
-   free(msgBuffer);
+   delete [] msgBuffer;
 }
 
 //------------------------------------------------------------------------------
