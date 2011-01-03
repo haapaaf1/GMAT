@@ -68,6 +68,7 @@ GmatApp::GmatApp()
    scriptToRun = "";
    showMainFrame = true;
    runScript = false;
+   runBatch = false;
    startMatlabServer = false;
 }
 
@@ -239,7 +240,10 @@ bool GmatApp::OnInit()
             if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::EXIT_AFTER_RUN)
                theMainFrame->Close();
          }
-         
+         else if (runBatch)
+         {
+            RunBatch();
+         }
          status = true;
       }
       else
@@ -428,6 +432,14 @@ void GmatApp::ProcessCommandLineOptions()
          }
       }
    }
+}
+
+
+//------------------------------------------------------------------------------
+// void RunBatch()
+//------------------------------------------------------------------------------
+void GmatApp::RunBatch()
+{
 }
 
 

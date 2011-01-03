@@ -37,6 +37,7 @@ public:
    void SetMainFrame(GmatMainFrame *gmf);
    void ClearResource(bool leaveScripts);
    void UpdateResource(bool resetCounter);
+   void SetActiveScript(const wxString &script);
    void AddScript(wxString path);
    bool AddScriptItem(wxString path);
    void UpdateFormation();
@@ -44,8 +45,9 @@ public:
    void UpdateRecentFiles(wxString filename);
    void OnAddScript(wxCommandEvent &event);
    void UpdateMatlabServerItem(bool start);
-   bool WasScriptAdded() { return mScriptAdded; }
-
+   bool WasScriptAdded();
+   wxString GetLastScriptAdded();
+   
    // Added so plugin code can update the tree structure
    void AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
          bool onlyChildNodes = false);
@@ -60,6 +62,7 @@ protected:
    bool mHasUserInterrupted;
    bool mScriptAdded;
    bool mMatlabServerStarted;
+   wxString mLastScriptAdded;
    
    // for script error log
    int mBuildErrorCount;
@@ -221,7 +224,8 @@ protected:
                                wxTextCtrl *textCtrl);
 
    wxTreeItemId FindIdOfNode(const wxString &txt, wxTreeItemId start);
-
+   wxTreeItemId FindIdOfScript(const wxString &scriptName);
+   
    DECLARE_EVENT_TABLE();
 
    // for popup menu

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GmatSavePanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/02/02
@@ -43,20 +43,24 @@ END_EVENT_TABLE()
  */
 //------------------------------------------------------------------------------
 GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
-                             wxString filename)
+                             wxString filename, bool showScriptActiveStatus,
+                             bool isScriptActive)
+
    : wxPanel(parent)
 {
-   
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
    canClose = true;
    isModified = false;
+   hasFileLoaded = false;
    mShowScriptButton = showScriptButton;
    mFilename = filename;
+   mShowScriptActiveStatus = showScriptActiveStatus;
+   mIsScriptActive = isScriptActive;
    
    theParent = parent;
    
-   int borderSize = 3;
+   int borderSize = 2;
    wxStaticBox *topStaticBox = new wxStaticBox( this, -1, wxT("") );
    wxStaticBox *middleStaticBox = new wxStaticBox( this, -1, wxT("") );
    wxStaticBox *bottomStaticBox = new wxStaticBox( this, -1, wxT("") );
@@ -83,12 +87,42 @@ GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
    // add items to top sizer
    theTopSizer->Add(theScriptButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
    
+   //------------------------------------------------------
+   // for active or inactive script indicator
+   //------------------------------------------------------
+   wxFlexGridSizer *bottomGridSizer = new wxFlexGridSizer(5);
+   
+   if (mShowScriptActiveStatus)
+   {
+      mScriptActiveLabel = new wxStaticText
+         (this, -1, wxT(""), wxDefaultPosition, wxSize(100, 20), wxALIGN_CENTRE);
+
+      // Make font size little bigger
+      wxFont font = mScriptActiveLabel->GetFont();
+      int fontSize = font.GetPointSize();
+      font.SetPointSize(fontSize + 2);
+      mScriptActiveLabel->SetFont(font);
+      
+      RefreshScriptActiveStatus(mIsScriptActive);
+      bottomGridSizer->Add(mScriptActiveLabel, 0, wxALIGN_LEFT | wxALL, borderSize*2);
+      bottomGridSizer->Add(30, 20);
+   }
+   
+   // Add script status label
+   mScriptDirtyLabel = new wxStaticText
+      (this, -1, wxT(""), wxDefaultPosition, wxSize(30, 20), wxALIGN_CENTRE);
+   bottomGridSizer->Add(mScriptDirtyLabel, 0, wxALIGN_LEFT | wxALL, borderSize*2);
+   bottomGridSizer->Add(50, 20);
+   
    // adds the buttons to button sizer
    theButtonSizer->Add(theSaveButton, 0, wxALIGN_CENTER | wxALL, borderSize);
    theButtonSizer->Add(theSaveAsButton, 0, wxALIGN_CENTER | wxALL, borderSize);
    theButtonSizer->Add(theCloseButton, 0, wxALIGN_CENTER | wxALL, borderSize);
+   if (mIsScriptActive)
+      theButtonSizer->Hide(theSaveButton);
    
-   theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
+   bottomGridSizer->Add(theButtonSizer, 0, wxALIGN_RIGHT | wxALL, borderSize);
+   theBottomSizer->Add(bottomGridSizer, 0, wxALIGN_LEFT | wxALL, borderSize);
    
    topStaticBox->Show(mShowScriptButton);
    
@@ -125,6 +159,7 @@ void GmatSavePanel::Show()
    thePanelSizer->SetSizeHints(this); //set size hints to honour minimum size
    
    LoadData();
+   mScriptDirtyLabel->SetLabel("");
 
 }
 
@@ -145,7 +180,133 @@ void GmatSavePanel::OnSave(wxCommandEvent &event)
       return;
    }
    
-   SaveData();
+   bool saveScript = false;
+   if (theGuiManager->GetGuiStatus() == 1)
+   {
+      saveScript = true;
+   }
+   // If GUI is dirty, prompt user to select an action
+   else if (theGuiManager->GetGuiStatus() == 2)
+   {
+      wxMessageDialog *msgDlg = new wxMessageDialog
+         (this, "You will loose changes made in GUI, do you want to save and "
+          "refresh the GUI?", "Save script...",
+          wxYES_NO | wxCANCEL |wxICON_QUESTION, wxDefaultPosition);
+      
+      int result = msgDlg->ShowModal();
+      if (result == wxID_YES)
+         saveScript = true;
+      
+      delete msgDlg;
+   }
+   
+   
+   if (saveScript)
+   {
+      SaveData();
+      mScriptDirtyLabel->SetLabel("");
+      
+      // If script is active, build the script 
+      if (mIsScriptActive)
+      {
+         GmatAppData *gmatAppData = GmatAppData::Instance();
+         if (gmatAppData->GetMainFrame()->SetScriptFileName(mFilename.c_str()))
+            gmatAppData->GetMainFrame()->OnScriptBuildObject(event);
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnSaveAs()
+//------------------------------------------------------------------------------
+/**
+ * Saves the data and remain unclosed.
+ */
+//------------------------------------------------------------------------------
+void GmatSavePanel::OnSaveAs(wxCommandEvent &event)
+{
+   #ifdef DEBUG_SAVE
+   MessageInterface::ShowMessage
+      ("GmatSavePanel::OnSaveAs() '%s' entered\n", mFilename.c_str());
+   #endif
+   
+   wxFileDialog dialog(this, _T("Choose a file"), _T(""), _T(""),
+         _T("Script files (*.script, *.m)|*.script;*.m|"\
+            "Text files (*.txt, *.text)|*.txt;*.text|"\
+            "All files (*.*)|*.*"), wxSAVE);
+
+   bool saveScript = false;
+   
+   if (dialog.ShowModal() == wxID_OK)
+   {
+      wxString path = dialog.GetPath().c_str();
+      
+      if(FileExists(path.c_str()))
+      {
+         if (wxMessageBox(_T("File already exists.\nDo you want to overwrite?"), 
+                          _T("Please confirm"), wxICON_QUESTION | wxYES_NO) == wxYES)
+         {
+            mFilename = path;
+            saveScript = true;
+         }
+      }
+      else
+      {
+         mFilename = path;
+         saveScript = true;
+      }
+   }
+   
+   if (saveScript)
+   {
+      GmatAppData *gmatAppData = GmatAppData::Instance();
+      
+      // If script is active, build the script 
+      if (mIsScriptActive)
+      {
+         SaveData();
+         mScriptDirtyLabel->SetLabel("");
+         
+         if (gmatAppData->GetMainFrame()->SetScriptFileName(mFilename.c_str()))
+            gmatAppData->GetMainFrame()->OnScriptBuildObject(event);
+      }
+      else
+      {
+         wxString activeScriptName =
+            gmatAppData->GetMainFrame()->GetActiveScriptFileName().c_str();
+         
+         #ifdef DEBUG_SAVE
+         MessageInterface::ShowMessage
+            ("   activeScriptName='%s'\n           mFilename='%s'\n",
+             activeScriptName.c_str(), mFilename.c_str());
+         #endif
+         
+         if (mFilename == activeScriptName)
+         {
+            // If active script is open, close it first
+            if (gmatAppData->GetMainFrame()->GetChild(activeScriptName) != NULL)
+            {
+               #ifdef DEBUG_SAVE
+               MessageInterface::ShowMessage
+                  ("   Now about to close opened active script\n");
+               #endif
+               gmatAppData->GetMainFrame()->CloseChild(activeScriptName, GmatTree::SCRIPT_FILE);
+            }
+            
+            SaveData();      
+            mScriptDirtyLabel->SetLabel("");
+            
+            // Now build the script 
+            if (gmatAppData->GetMainFrame()->SetScriptFileName(mFilename.c_str()))
+               gmatAppData->GetMainFrame()->OnScriptBuildObject(event);
+         }
+      }
+   }
+   #ifdef DEBUG_SAVE
+   MessageInterface::ShowMessage
+      ("GmatSavePanel::OnSaveAs() '%s' leaving\n", mFilename.c_str());
+   #endif
 }
 
 
@@ -158,9 +319,10 @@ void GmatSavePanel::OnSave(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GmatSavePanel::OnClosePanel(wxCommandEvent &event)
 {
-   #ifdef DEBUG_SAVE_PANEL
+   #ifdef DEBUG_CLOSE_PANEL
    MessageInterface::ShowMessage
-      ("GmatSavePanel::OnClosePanel() entered, isModified=%d\n", isModified);
+      ("GmatSavePanel::OnClosePanel() '%s' entered, isModified=%d\n",
+       mFilename.c_str(), isModified);
    #endif
    
    // We don't want to show duplicate save message when GmatMdiChildFrame is closing,
@@ -176,48 +338,6 @@ void GmatSavePanel::OnClosePanel(wxCommandEvent &event)
        (GmatAppData::Instance()->GetMainFrame()->GetActiveChild()))->SetDirty(false);
    
    GmatAppData::Instance()->GetMainFrame()->CloseActiveChild();
-}
-
-
-//------------------------------------------------------------------------------
-// void OnApply()
-//------------------------------------------------------------------------------
-/**
- * Saves the data and remain unclosed.
- */
-//------------------------------------------------------------------------------
-void GmatSavePanel::OnSaveAs(wxCommandEvent &event)
-{
-   wxFileDialog dialog(this, _T("Choose a file"), _T(""), _T(""),
-         _T("Script files (*.script, *.m)|*.script;*.m|"\
-            "Text files (*.txt, *.text)|*.txt;*.text|"\
-            "All files (*.*)|*.*"), wxSAVE);
-   
-   if (dialog.ShowModal() == wxID_OK)
-   {
-      wxString path = dialog.GetPath().c_str();
-      
-      if(FileExists(path.c_str()))
-      {
-         if (wxMessageBox(_T("File already exists.\nDo you want to overwrite?"), 
-                          _T("Please confirm"), wxICON_QUESTION | wxYES_NO) == wxYES)
-         {
-            // just for now
-            mFilename = path;
-            SaveData();
-         }
-         else
-         {
-            return;
-         }
-      }
-      else
-      {
-         // just for now
-         mFilename = path;
-         SaveData();
-      }
-   }
 }
 
 
@@ -242,11 +362,65 @@ void GmatSavePanel::OnScript(wxCommandEvent &event)
 
 
 //------------------------------------------------------------------------------
+// void UpdateScriptActiveStatus(bool isActive)
+//------------------------------------------------------------------------------
+void GmatSavePanel::UpdateScriptActiveStatus(bool isActive)
+{
+   mIsScriptActive = isActive;
+   
+   if (mShowScriptActiveStatus)
+      RefreshScriptActiveStatus(mIsScriptActive);
+}
+
+
+//------------------------------------------------------------------------------
+// void ReloadFile()
+//------------------------------------------------------------------------------
+/**
+ * Reloads file contents.
+ */
+//------------------------------------------------------------------------------
+void GmatSavePanel::ReloadFile()
+{
+   LoadData();
+   mScriptDirtyLabel->SetLabel("");
+}
+
+
+//------------------------------------------------------------------------------
 // void SetModified(bool flag)
 //------------------------------------------------------------------------------
 void GmatSavePanel::SetModified(bool flag)
 {
-   isModified = flag;
+   #ifdef DEBUG_TEXT_MODIFIED
+   MessageInterface::ShowMessage
+      ("GmatSavePanel::SetModified() entered, flag=%d, isModified=%d, "
+       "hasFileLoaded=%d, mIsScriptActive=%d\n", flag, isModified, hasFileLoaded,
+       mIsScriptActive);
+   #endif
+   
+   // Update script modified status
+   if (hasFileLoaded)
+   {
+      int scriptStatus = flag ? 2 : 1; // 1 = clean, 2 = dirty
+      if (isModified != flag)
+      {
+         if (scriptStatus == 1)
+            mScriptDirtyLabel->SetLabel("");
+         else
+            mScriptDirtyLabel->SetLabel("**modified**");
+      }
+      
+      // For active script, update sync status
+      if (mIsScriptActive)
+      {
+         theGuiManager->SetActiveScriptStatus(scriptStatus);
+         GmatAppData::Instance()->GetMainFrame()->
+            UpdateGuiScriptSyncStatus(0, scriptStatus);
+      }
+      
+      isModified = flag;
+   }
 }
 
 
@@ -275,4 +449,31 @@ bool GmatSavePanel::FileExists(std::string scriptFilename)
       return false;
    
 }
+
+
+//------------------------------------------------------------------------------
+// void RefreshScriptActiveStatus(bool isActive)
+//------------------------------------------------------------------------------
+void GmatSavePanel::RefreshScriptActiveStatus(bool isActive)
+{
+   if (mIsScriptActive)
+   {
+      theButtonSizer->Hide(theSaveButton);
+      theButtonSizer->Layout();
+      
+      mScriptActiveLabel->SetLabel(" Active Script ");
+      mScriptActiveLabel->SetForegroundColour(*wxGREEN);
+      mScriptActiveLabel->SetBackgroundColour(*wxBLACK);
+   }
+   else
+   {
+      theButtonSizer->Show(theSaveButton);
+      theButtonSizer->Layout();
+      
+      mScriptActiveLabel->SetLabel(" Inactive Script ");
+      mScriptActiveLabel->SetForegroundColour(*wxRED);
+      mScriptActiveLabel->SetBackgroundColour(*wxBLACK);
+   }
+}
+
 

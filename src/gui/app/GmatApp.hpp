@@ -52,11 +52,14 @@ private:
    Moderator *theModerator;
    GmatMainFrame *theMainFrame;
    wxString scriptToRun;
+   wxString batchFile;
    bool showMainFrame;
    bool runScript;
+   bool runBatch;
    bool startMatlabServer;
    
    void ProcessCommandLineOptions();
+   void RunBatch();
 };
 
 DECLARE_APP(GmatApp)

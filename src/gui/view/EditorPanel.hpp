@@ -22,7 +22,7 @@
 class EditorPanel: public GmatSavePanel
 {
 public:
-   EditorPanel(wxWindow *parent, const wxString &name);
+   EditorPanel(wxWindow *parent, const wxString &name, bool activeScript = false);
    ~EditorPanel();
 
    virtual void OnClosePanel(wxCommandEvent &event);
@@ -30,10 +30,9 @@ public:
    Editor* GetEditor() { return mEditor; };
 
 private:
-   Editor *mEditor;
-
+   Editor   *mEditor;
    wxString mScriptFilename;
-
+   
    wxButton *mBuildButton;
    wxButton *mBuildRunButton;
 

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GmatToolBar
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -29,7 +29,11 @@ public:
    
    void CreateToolBar(wxToolBar *toolBar);
    void AddAnimationTools(wxToolBar* toolBar);
-   
+   void AddGuiScriptSyncStatus(wxToolBar* toolBar);
+   void UpdateGuiScriptSyncStatus(wxToolBar* toolBar, int guiStat, int scriptStat);
+
+protected:
+   wxStaticText *theSyncStatus;
 };
 
 #endif

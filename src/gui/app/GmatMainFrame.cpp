@@ -58,7 +58,7 @@
 #include "OpenGlPlotSetupPanel.hpp"
 #include "OrbitViewPanel.hpp"
 #include "ReportFileSetupPanel.hpp"
-#include "EphemerisFilePanel.hpp"                       // made a change
+#include "EphemerisFilePanel.hpp"
 #include "SubscriberSetupPanel.hpp"
 #include "MessageInterface.hpp"
 #include "SolverGoalsPanel.hpp"
@@ -142,6 +142,7 @@
 //#define DEBUG_SERVER
 //#define DEBUG_CREATE_CHILD
 //#define DEBUG_REMOVE_CHILD
+//#define DEBUG_OPEN_SCRIPT
 //#define DEBUG_INTERPRET
 //#define DEBUG_RUN
 //#define DEBUG_SIZE
@@ -597,24 +598,31 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
        itemType <= GmatTree::END_OF_RESOURCE)
    {
       // Added check for SCRIPT_FILE when showing error message(LOJ: 2009.03.04)
-      if (item->GetTitle() == "" && itemType != GmatTree::SCRIPT_FILE)
+      if (item->GetTitle() == "")
       {
-         wxString name = item->GetName();
-         GmatBase *obj = theGuiInterpreter->GetConfiguredObject(name.c_str());
-         if (obj == NULL)
+         if (itemType == GmatTree::SCRIPT_FILE)
          {
-            MessageInterface::ShowMessage
-               ("**** ERROR **** Cannot find object named '%s' in "
-                "GmatMainFrame::CreateChild\n", item->GetName().c_str());
-            return NULL;
+            item->SetTitle(item->GetName());
          }
-
-         // Append object type name to title (loj: 2009.01.28)
-         wxString objType = (obj->GetTypeName()).c_str();
-         wxString newTitle = objType + " - " + name;
-         item->SetTitle(newTitle);
+         else
+         {
+            wxString name = item->GetName();
+            GmatBase *obj = theGuiInterpreter->GetConfiguredObject(name.c_str());
+            if (obj == NULL)
+            {
+               MessageInterface::ShowMessage
+                  ("**** ERROR **** Cannot find object named '%s' in "
+                   "GmatMainFrame::CreateChild\n", item->GetName().c_str());
+               return NULL;
+            }
+            
+            // Append object type name to title (loj: 2009.01.28)
+            wxString objType = (obj->GetTypeName()).c_str();
+            wxString newTitle = objType + " - " + name;
+            item->SetTitle(newTitle);
+         }
       }
-
+      
       newChild = CreateNewResource(item->GetTitle(), item->GetName(), itemType);
    }
    else if (itemType >= GmatTree::BEGIN_OF_COMMAND &&
@@ -944,7 +952,7 @@ bool GmatMainFrame::RemoveChild(const wxString &name, GmatTree::ItemType itemTyp
 
 
 //------------------------------------------------------------------------------
-// void CloseChild(const wxString &name, GmatTree::ItemType itemType)
+// void CloseWelcomePanel(const wxString &name, GmatTree::ItemType itemType)
 //------------------------------------------------------------------------------
 /*
  * Closes child frame of given item name and type.
@@ -972,7 +980,7 @@ void GmatMainFrame::CloseChild(const wxString &name, GmatTree::ItemType itemType
 {
    #ifdef DEBUG_REMOVE_CHILD
    MessageInterface::ShowMessage
-      ("GmatMainFrame::CloseChild() name=%s, itemType=%d\n", name.c_str(),
+      ("GmatMainFrame::CloseChild() name='%s', itemType=%d\n", name.c_str(),
        itemType);
    #endif
 
@@ -985,6 +993,9 @@ void GmatMainFrame::CloseChild(const wxString &name, GmatTree::ItemType itemType
       if ((child->GetName().IsSameAs(name.c_str())) &&
           (child->GetItemType() == itemType))
       {
+         #ifdef DEBUG_REMOVE_CHILD
+         MessageInterface::ShowMessage("   About to close '%s'\n", name.c_str());
+         #endif
          wxCloseEvent event;
          child->OnClose(event);
          break;
@@ -1074,6 +1085,8 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
    if (mWelcomePanel != NULL)
       mWelcomePanel->Close();
 
+   wxArrayString ignoreNames;
+   
    //-------------------------------------------------------
    // delete child frames
    //-------------------------------------------------------
@@ -1093,7 +1106,14 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       #ifdef DEBUG_MAINFRAME_CLOSE
       MessageInterface::ShowMessage("   name = %s, type = %d\n", name.c_str(), type);
       #endif
-
+      
+      // If name is in the ignore list, continue
+      if (ignoreNames.Index(name) != wxNOT_FOUND)
+      {
+         node = node->GetNext();
+         continue;
+      }
+      
       if ((type >= GmatTree::BEGIN_OF_RESOURCE && type <= GmatTree::END_OF_RESOURCE) ||
           (type >= GmatTree::BEGIN_OF_COMMAND && type <= GmatTree::END_OF_CONTROL))
       {
@@ -1170,9 +1190,12 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
                   canDelete = false;
                   #ifdef DEBUG_MAINFRAME_CLOSE
                   MessageInterface::ShowMessage
-                     ("   ==> cannot close this child, so returning false\n");
+                     //("   ==> cannot close this child, so returning false\n");
+                     ("   ==> cannot close this child, so added to ignore list\n");
                   #endif
-                  return false;
+                  // returning false does not check for the next child, so commented out (LOJ: 2010.12.29)
+                  //return false;
+                  ignoreNames.Add(name);
                }
             }
          }
@@ -1189,10 +1212,11 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       else
       {
          nextNode = node->GetNext();
-         #ifdef DEBUG_MAINFRAME_CLOSE
-         MessageInterface::ShowMessage("   ==> child was not deleted, so returning false\n");
-         #endif
-         return false;
+         // returning false does not check for the next child, so commented out (LOJ: 2010.12.29)
+         //#ifdef DEBUG_MAINFRAME_CLOSE
+         //MessageInterface::ShowMessage("   ==> child was not deleted, so returning false\n");
+         //#endif
+         //return false;
       }
 
       #ifdef DEBUG_MAINFRAME_CLOSE
@@ -1236,14 +1260,18 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       // endif  __WXMSW__
       //--------------------------------------------------------------
    }
-
+   
    wxSafeYield();
-
+   bool retval = true;
+   if (!ignoreNames.IsEmpty())
+      retval = false;
+   
    #ifdef DEBUG_MAINFRAME_CLOSE
-   MessageInterface::ShowMessage("GmatMainFrame::CloseAllChildren() returning true\n");
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::CloseAllChildren() returning %s\n", retval ? "true" : "false");
    #endif
-
-   return true;
+   
+   return retval;
 }
 
 
@@ -1373,7 +1401,10 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
    gmatAppData->GetResourceTree()->ClearResource(true);
    gmatAppData->GetMissionTree()->ClearMission();
    gmatAppData->GetOutputTree()->UpdateOutput(true, true);
-
+   
+   // Indicate active script in bold face in the ResourceTree (LOJ: 2010.12.27)
+   RefreshActiveScript(filename);
+   
    // let's try building the script, Moderator::InterpretScript() will
    // clear all resource and commands
    try
@@ -1397,13 +1428,15 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
          theGuiInterpreter->ClearCommandSeq();
          theGuiInterpreter->ClearResource();
       }
-
+      
       if (success)
       {
          // Update ResourceTree and MissionTree
          gmatAppData->GetResourceTree()->UpdateResource(true);
          gmatAppData->GetMissionTree()->UpdateMission(true);
-
+         
+         UpdateGuiScriptSyncStatus(1, 1);
+         
          // if not running script folder, clear status
          if (!multiScripts)
             SetStatusText("", 2);
@@ -1420,6 +1453,9 @@ bool GmatMainFrame::InterpretScript(const wxString &filename, Integer scriptOpen
          if (scriptOpenOpt == GmatGui::ALWAYS_OPEN_SCRIPT ||
              scriptOpenOpt == GmatGui::OPEN_SCRIPT_ON_ERROR)
             OpenScript();
+         
+         UpdateGuiScriptSyncStatus(1, 3);
+         
       }
    }
    catch (BaseException &e)
@@ -1692,7 +1728,7 @@ void GmatMainFrame::OnClose(wxCloseEvent& event)
       event.Veto();
       return;
    }
-
+   
    // close all child windows first
    if (CloseAllChildren(true, true))
    {
@@ -1735,6 +1771,37 @@ wxStatusBar* GmatMainFrame::GetMainFrameStatusBar()
 //-------------------------------
 
 //------------------------------------------------------------------------------
+// bool ShowScriptOverwriteMessage()
+//------------------------------------------------------------------------------
+/*
+ * Shows save changes to script file message.
+ *
+ * @return true if user chose to overwrite the script
+ */
+//------------------------------------------------------------------------------
+bool GmatMainFrame::ShowScriptOverwriteMessage()
+{
+   wxMessageDialog *msgDlg = new wxMessageDialog
+      (this, "You will loose changes made in the script, do you want to overwrite "
+       "the script?", "Save GUI...",
+       wxYES_NO | wxCANCEL |wxICON_QUESTION, wxDefaultPosition);
+   
+   int result = msgDlg->ShowModal();
+   if (result == wxID_YES)
+   {
+      SaveGuiToActiveScript();
+      delete msgDlg;
+      return true;
+   }
+   else
+   {
+      delete msgDlg;
+      return false;
+   }
+}
+
+
+//------------------------------------------------------------------------------
 // bool ShowSaveMessage()
 //------------------------------------------------------------------------------
 /*
@@ -1759,7 +1826,6 @@ bool GmatMainFrame::ShowSaveMessage()
 
       if (result == wxID_CANCEL)
       {
-         // per kw report
          delete msgDlg;
          return true;
       }
@@ -1768,38 +1834,22 @@ bool GmatMainFrame::ShowSaveMessage()
          // If we decided to ignore any changes made to panel later,
          // just uncomment this
          //mExitWithoutConfirm = true;
-         // per kw report
          delete msgDlg;
          return false;
       }
       else if (result == wxID_YES)
       {
-         bool scriptSaved = false;
-         wxString wxCurrFilename = mScriptFilename.c_str();
-         wxString wxBackupFilename = wxCurrFilename + ".bak";
-
-         //if (strcmp(mScriptFilename.c_str(), "$gmattempscript$.script") == 0)
          if (mScriptFilename == mTempScriptName)
          {
-            scriptSaved = SaveScriptAs();
+            SaveScriptAs();
          }
          else
          {
-            // Create backup file
-            ::wxCopyFile(wxCurrFilename, wxBackupFilename);
-
-            theGuiInterpreter->SaveScript(mScriptFilename);
-            scriptSaved = true;
+            SaveGuiToActiveScript();
          }
-
-         if (scriptSaved)
-         {
-            MessageInterface::PopupMessage
-               (Gmat::INFO_, "Script saved to \"%s\"\nSaved backup to \"%s\"\n",
-                mScriptFilename.c_str(), wxBackupFilename.c_str());
-         }
-         // per kw report
+         
          delete msgDlg;
+         return false;
       }
    }
    else
@@ -1813,13 +1863,12 @@ bool GmatMainFrame::ShowSaveMessage()
 
       if (result == wxID_NO)
       {
-         // per kw report
          delete msgDlg;
          return false;
       }
       #endif
    }
-
+   
    return false;
 }
 
@@ -1834,7 +1883,7 @@ bool GmatMainFrame::SaveScriptAs()
       ("GmatMainFrame::SaveScriptAs() mScriptFilename=%s\n",
        mScriptFilename.c_str());
    #endif
-
+   
    bool scriptSaved = true;
    std::string oldScriptName = mScriptFilename;
 
@@ -1874,14 +1923,17 @@ bool GmatMainFrame::SaveScriptAs()
    {
       scriptSaved = false;
    }
-
+   
    #ifdef __CLOSE_CHILDREN_AFTER_SAVE__
    if (scriptSaved)
       CloseAllChildren();
    #endif
 
+   if (scriptSaved)
+      UpdateGuiScriptSyncStatus(1, 1);
+   
    return scriptSaved;
-}
+} // SaveScriptAs()
 
 
 //------------------------------------------------------------------------------
@@ -1890,7 +1942,7 @@ bool GmatMainFrame::SaveScriptAs()
 /**
  * Creates script item and opens the script in the text editor.
  *
- * @param <restore> if true the child will be restored if minimized
+ * @param <restore> if true the child will be restored if minimized [true]
  */
 //------------------------------------------------------------------------------
 void GmatMainFrame::OpenScript(bool restore)
@@ -1947,13 +1999,16 @@ void GmatMainFrame::OpenRecentScript(wxString filename, wxCommandEvent &event)
 
    if (gmatAppData->GetResourceTree()->WasScriptAdded())
    {
-      #ifdef DEBUG_MAINFRAME_OPEN
+      #ifdef DEBUG_OPEN_SCRIPT
       MessageInterface::ShowMessage
          ("GmatMainFrame::OnOpenRecentScript() mInterpretFailed=%d, "
           "HasConfigurationChanged=%d\n", mInterpretFailed,
           theGuiInterpreter->HasConfigurationChanged());
       #endif
-
+      
+      wxString scriptName = gmatAppData->GetResourceTree()->GetLastScriptAdded();
+      SetScriptFileName(scriptName.c_str());
+      
       if (!mInterpretFailed && theGuiInterpreter->HasConfigurationChanged())
       {
           // need to save new file name because it gets overwritten in save
@@ -1975,20 +2030,6 @@ void GmatMainFrame::OpenRecentScript(wxString filename, wxCommandEvent &event)
    }
 }
 
-
-//------------------------------------------------------------------------------
-// void UpdateTitle(const wxString &filename)
-//------------------------------------------------------------------------------
-void GmatMainFrame::UpdateTitle(const wxString &filename)
-{
-   wxString title;
-   if (filename == "")
-      title = "General Mission Analysis Tool (GMAT)";
-   else
-      title.Printf("%s - General Mission Analysis Tool (GMAT)", filename.c_str());
-
-   SetTitle(title);
-}
 
 //---------------------------------
 // event handling
@@ -2073,7 +2114,6 @@ void GmatMainFrame::OnSaveScript(wxCommandEvent& event)
    bool scriptSaved = false;
    GmatAppData *gmatAppData = GmatAppData::Instance();
 
-   //if (strcmp(mScriptFilename.c_str(), "$gmattempscript$.script") == 0)
    if (mScriptFilename == mTempScriptName)
    {
       scriptSaved = SaveScriptAs();
@@ -2094,26 +2134,25 @@ void GmatMainFrame::OnSaveScript(wxCommandEvent& event)
       }
       else
       {
-         // Create backup file
-         wxString currFilename = mScriptFilename.c_str();
-         wxString backupFilename = currFilename + ".bak";
-         ::wxCopyFile(currFilename, backupFilename);
-
-         #ifdef DEBUG_MAINFRAME_SAVE
-         MessageInterface::ShowMessage
-            ("GmatMainFrame::OnSaveScript() Created backup file: %s\n",
-             backupFilename.c_str());
-         #endif
-
-         theGuiInterpreter->SaveScript(mScriptFilename);
-         scriptSaved = true;
+         GuiItemManager *guiManager = GuiItemManager::GetInstance();
+         if (guiManager->GetGuiStatus() == 2 && guiManager->GetActiveScriptStatus() == 2)
+         {
+            scriptSaved = ShowScriptOverwriteMessage();
+         }
+         else
+         {
+            SaveGuiToActiveScript();
+            scriptSaved = true;
+         }
       }
    }
-
+   
    if (scriptSaved)
    {
       UpdateTitle(mScriptFilename.c_str());
-
+      UpdateGuiScriptSyncStatus(1, 1);
+      RefreshActiveScript(mScriptFilename);
+      
       #ifdef __CONFIRM_SAVE__
       MessageInterface::PopupMessage
          (Gmat::INFO_, "Script saved to \"%s\"\n", mScriptFilename.c_str());
@@ -2124,7 +2163,7 @@ void GmatMainFrame::OnSaveScript(wxCommandEvent& event)
       #endif
 
    }
-}
+} // OnSaveScript
 
 
 //------------------------------------------------------------------------------
@@ -2471,6 +2510,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::GMAT_FUNCTION:
       {
          FunctionSetupPanel *functPanel = new FunctionSetupPanel(scrolledWin, name);
+         newChild->SetAssociatedWindow(functPanel);
          sizer->Add(functPanel, 0, wxGROW|wxALL, 0);
          #ifdef __USE_STC_EDITOR__
          newChild->SetEditor(functPanel->GetEditor());
@@ -2482,14 +2522,20 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
       }
    case GmatTree::SCRIPT_FILE:
       {
+         bool activeScript = false;
+         if (mScriptFilename == name)
+            activeScript = true;
+         
          #ifdef __USE_STC_EDITOR__
-         EditorPanel *editorPanel = new EditorPanel(scrolledWin, name);
+         EditorPanel *editorPanel = new EditorPanel(scrolledWin, name, activeScript);
          sizer->Add(editorPanel, 0, wxGROW|wxALL, 0);
          newChild->SetEditor(editorPanel->GetEditor());
+         newChild->SetAssociatedWindow(editorPanel);
          #else
-         ScriptPanel *scriptPanel = new ScriptPanel(scrolledWin, name);
+         ScriptPanel *scriptPanel = new ScriptPanel(scrolledWin, name, activeScript);
          sizer->Add(scriptPanel, 0, wxGROW|wxALL, 0);
          newChild->SetScriptTextCtrl(scriptPanel->mFileContentsTextCtrl);
+         newChild->SetAssociatedWindow(scriptPanel);
          #endif
          break;
       }
@@ -2867,13 +2913,16 @@ void GmatMainFrame::OnOpenScript(wxCommandEvent& event)
 
    if (gmatAppData->GetResourceTree()->WasScriptAdded())
    {
-      #ifdef DEBUG_MAINFRAME_OPEN
+      #ifdef DEBUG_OPEN_SCRIPT
       MessageInterface::ShowMessage
          ("GmatMainFrame::OnOpenScript() mInterpretFailed=%d, "
           "HasConfigurationChanged=%d\n", mInterpretFailed,
           theGuiInterpreter->HasConfigurationChanged());
       #endif
 
+      wxString scriptName = gmatAppData->GetResourceTree()->GetLastScriptAdded();
+      SetScriptFileName(scriptName.c_str());
+      
       if (!mInterpretFailed && theGuiInterpreter->HasConfigurationChanged())
       {
           // need to save new file name because it gets overwritten in save
@@ -3848,6 +3897,119 @@ bool GmatMainFrame::SetScriptFileName(const std::string &filename)
 
 
 //------------------------------------------------------------------------------
+// bool IsActiveScriptModified()
+//------------------------------------------------------------------------------
+bool GmatMainFrame::IsActiveScriptModified()
+{
+   return true;  // for testing only
+}
+
+
+//------------------------------------------------------------------------------
+// void RefreshActiveScript(const wxString &filename)
+//------------------------------------------------------------------------------
+/**
+ * Refreshes active script by making active script bold face in the ResourceTree,
+ * updates active script status on any opened script panel.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::RefreshActiveScript(const wxString &filename)
+{
+   #ifdef DEBUG_REFRESH_SCRIPT
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::RefreshActiveScript() entered, filename='%s'\n",
+       filename.c_str());
+   #endif
+   
+   // Show active script in bold in the ResourceTree (LOJ: 2010.12.27)
+   GmatAppData::Instance()->GetResourceTree()->SetActiveScript(filename);
+   UpdateTitle(filename);
+   
+   // Update active script status on any opened script panels.
+   wxNode *node = theMdiChildren->GetFirst();
+   while (node)
+   {
+      #ifdef DEBUG_REFRESH_SCRIPT
+      MessageInterface::ShowMessage("   node = %p\n", node);
+      #endif
+      
+      GmatMdiChildFrame *child = (GmatMdiChildFrame *)node->GetData();
+      
+      wxString title = child->GetTitle();
+      wxString name = child->GetName();
+      GmatTree::ItemType type = child->GetItemType();
+      
+      #ifdef DEBUG_REFRESH_SCRIPT
+      MessageInterface::ShowMessage("   name = %s, type = %d\n", name.c_str(), type);
+      #endif
+      
+      if (type >= GmatTree::BEGIN_OF_RESOURCE && type <= GmatTree::END_OF_RESOURCE)
+      {
+         // Check if script file is opened
+         if (type == GmatTree::SCRIPT_FILE)
+         {
+            if (child->GetAssociatedWindow() != NULL)
+            {
+               if (name == filename)
+               {
+                  ((GmatSavePanel*)child->GetAssociatedWindow())->ReloadFile();
+                  ((GmatSavePanel*)child->GetAssociatedWindow())->UpdateScriptActiveStatus(true);
+               }
+               else
+               {
+                  ((GmatSavePanel*)child->GetAssociatedWindow())->UpdateScriptActiveStatus(false);
+               }
+
+               break;
+            }
+         }
+      }
+      
+      node = node->GetNext();
+   }
+   
+   #ifdef DEBUG_REFRESH_SCRIPT
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::RefreshActiveScript() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetActiveScriptFileName();
+//------------------------------------------------------------------------------
+std::string GmatMainFrame::GetActiveScriptFileName()
+{
+   return mScriptFilename;
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateGuiScriptSyncStatus(int guiStatus, int scriptStatus)
+//------------------------------------------------------------------------------
+/**
+ * Calls GmatToolBar to update GUI and Script file synchronization status
+ *
+ * @param <guiStatus> status of GUI,
+ *                       0 = no change, 1 = clean, 2 = dirty, 3 = error
+ * @param <scriptStatus>  status of active script,
+ *                       0 = no change, 1 = clean, 2 = dirty, 3 = error
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::UpdateGuiScriptSyncStatus(int guiStatus, int scriptStatus)
+{
+   GuiItemManager *guiManager = GuiItemManager::GetInstance();
+   if (guiStatus != 0)
+      guiManager->SetGuiStatus(guiStatus);
+   if (scriptStatus != 0)
+      guiManager->SetActiveScriptStatus(scriptStatus);
+   
+   ((GmatToolBar*)theToolBar)->
+      UpdateGuiScriptSyncStatus(theToolBar, guiStatus, scriptStatus);
+}
+
+
+//------------------------------------------------------------------------------
 // void OnUndo(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnUndo(wxCommandEvent& event)
@@ -4228,4 +4390,47 @@ void GmatMainFrame::OnAnimation(wxCommandEvent& event)
    }
 }
 
+
+//------------------------------------------------------------------------------
+// void UpdateTitle(const wxString &filename)
+//------------------------------------------------------------------------------
+void GmatMainFrame::UpdateTitle(const wxString &filename)
+{
+   wxString title;
+   if (filename == "")
+      title = "General Mission Analysis Tool (GMAT)";
+   else
+      title.Printf("%s - General Mission Analysis Tool (GMAT)", filename.c_str());
+
+   SetTitle(title);
+}
+
+
+//------------------------------------------------------------------------------
+// void SaveGuiToActiveScript()
+//------------------------------------------------------------------------------
+void GmatMainFrame::SaveGuiToActiveScript()
+{
+   static int backupCounter = 0;
+   static wxString backupFilename;
+   
+   backupCounter++;
+   wxString cntStr;
+   cntStr.Printf("%d", backupCounter);
+   wxString currFilename = mScriptFilename.c_str();
+   backupFilename = currFilename + "." + cntStr + ".bak";
+   
+   ::wxCopyFile(currFilename, backupFilename);
+   
+   #ifdef DEBUG_MAINFRAME_SAVE
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::SaveGuiToActiveScript() Created backup file: %s\n",
+       backupFilename.c_str());
+   #endif
+   
+   MessageInterface::PopupMessage
+      (Gmat::INFO_, "Old script saved to backup file \"%s\"\n", backupFilename.c_str());
+   
+   theGuiInterpreter->SaveScript(mScriptFilename);
+}
 

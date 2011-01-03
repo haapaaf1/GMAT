@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GuiInterpreter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -54,6 +54,11 @@ public:
    void ResetConfigurationChanged(bool resetResource = true,
                                   bool resetCommands = true,
                                   Integer sandboxNum = 1);
+   
+   // General Object
+   virtual GmatBase* CreateObject(const std::string &type, const std::string &name,
+                                  Integer manage = 1, bool createDefault = false);
+   
    // SolarSystem
    SolarSystem* GetDefaultSolarSystem();
    SolarSystem* GetSolarSystemInUse();

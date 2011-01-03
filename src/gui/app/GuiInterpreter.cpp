@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GuiInterpreter
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -246,7 +246,19 @@ bool GuiInterpreter::HasConfigurationChanged(Integer sandboxNum)
 //------------------------------------------------------------------------------
 void GuiInterpreter::ConfigurationChanged(GmatBase *obj, bool tf)
 {
+   #if !defined __CONSOLE_APP__
+   
+   GmatMainFrame *mainFrame = GmatAppData::Instance()->GetMainFrame();
    theModerator->ConfigurationChanged(obj, tf);
+
+   if (tf == true)
+      mainFrame->UpdateGuiScriptSyncStatus(2, 0); // Set GUI dirty
+   
+   #else
+   
+   theModerator->ConfigurationChanged(obj, tf);
+   
+   #endif
 }
 
 
@@ -260,6 +272,36 @@ void GuiInterpreter::ResetConfigurationChanged(bool resetResource,
                                                Integer sandboxNum)
 {
    theModerator->ResetConfigurationChanged(resetResource, resetCommands, sandboxNum);
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* CreateObject(const std::string &type, const std::string &name,
+//                        Integer manage, bool createDefault)
+//------------------------------------------------------------------------------
+/**
+ * Creates an object by calling Interpreter::CreateObject()
+ */
+//------------------------------------------------------------------------------
+GmatBase* GuiInterpreter::CreateObject(const std::string &type,
+                                       const std::string &name,
+                                       Integer manage, bool createDefault)
+{
+   #if !defined __CONSOLE_APP__
+   
+   GmatMainFrame *mainFrame = GmatAppData::Instance()->GetMainFrame();
+   GmatBase *obj = Interpreter::CreateObject(type, name, manage, createDefault);
+   if (obj == NULL)
+      mainFrame->UpdateGuiScriptSyncStatus(3, 0); // Set GUI error
+   else
+      mainFrame->UpdateGuiScriptSyncStatus(2, 0); // Set GUI dirty
+   return obj;
+   
+   #else
+   
+   return Interpreter::CreateObject(type, name, manage, createDefault);
+   
+   #endif
 }
 
 

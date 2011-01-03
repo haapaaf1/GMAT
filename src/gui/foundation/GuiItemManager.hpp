@@ -45,6 +45,11 @@ public:
    };
    
    static GuiItemManager* GetInstance();
+
+   int  GetGuiStatus(); // 1 = clean, 2 = dirty, 3 = error
+   void SetGuiStatus(int status);
+   int  GetActiveScriptStatus();
+   void SetActiveScriptStatus(int status);
    
    wxString ToWxString(Real rval);
    wxString ToWxString(Integer ival);
@@ -363,6 +368,8 @@ private:
    
    static GuiItemManager *theInstance;
    GuiInterpreter *theGuiInterpreter;
+   int mGuiStatus;
+   int mActiveScriptStatus;
    
    Integer theDataPrecision;
    

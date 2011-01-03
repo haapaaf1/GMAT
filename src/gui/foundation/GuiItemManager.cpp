@@ -79,6 +79,54 @@ GuiItemManager* GuiItemManager::GetInstance()
 
 
 //------------------------------------------------------------------------------
+// int GetGuiStatus()
+//------------------------------------------------------------------------------
+int GuiItemManager::GetGuiStatus()
+{
+   return mGuiStatus;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetGuiStatus(int status)
+//------------------------------------------------------------------------------
+/**
+ * Sets status of GUI
+ *
+ * @param  status  1 = clean, 2 = dirty
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::SetGuiStatus(int status)
+{
+   mGuiStatus = status;
+}
+
+
+//------------------------------------------------------------------------------
+// int  GetActiveScriptStatus()
+//------------------------------------------------------------------------------
+int GuiItemManager::GetActiveScriptStatus()
+{
+   return mActiveScriptStatus;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetActiveScriptStatus(int status)
+//------------------------------------------------------------------------------
+/**
+ * Sets status of active script
+ *
+ * @param  status  1 = clean, 2 = dirty
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::SetActiveScriptStatus(int status)
+{
+   mActiveScriptStatus = status;
+}
+
+
+//------------------------------------------------------------------------------
 // wxString ToWxString(Real rval)
 //------------------------------------------------------------------------------
 wxString GuiItemManager::ToWxString(Real rval)
@@ -5268,6 +5316,9 @@ GuiItemManager::GuiItemManager()
    #if DBGLVL_GUI_ITEM
    MessageInterface::ShowMessage("GuiItemManager::GuiItemManager() entered\n");
    #endif
+
+   mGuiStatus = 1;
+   mActiveScriptStatus = 1;
    
    theDataPrecision = GmatGlobal::Instance()->GetDataPrecision();   
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();

@@ -62,8 +62,8 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
 {
    #ifdef DEBUG_MDI_CHILD_FRAME
    MessageInterface::ShowMessage
-      ("GmatMdiChildFrame::GmatMdiChildFrame() entered, name='%s', title='%s', "
-       "type=%d\n", name.c_str(), title.c_str(), type);
+      ("GmatMdiChildFrame::GmatMdiChildFrame() entered, type=%d\n    "
+       "name='%s'\n   title='%s', ", type, name.c_str(), title.c_str());
    #endif
    
    theParent = parent;
@@ -73,6 +73,7 @@ GmatMdiChildFrame::GmatMdiChildFrame(wxMDIParentFrame *parent,
    mItemType = type;
    theScriptTextCtrl = NULL;
    theMenuBar = NULL;
+   theAssociatedWin = NULL;
    
    #ifdef __USE_STC_EDITOR__
    theEditor = NULL;
@@ -264,6 +265,24 @@ bool GmatMdiChildFrame::CanClose()
 
 
 //------------------------------------------------------------------------------
+// wxWindow* GetAssociatedWindow()
+//------------------------------------------------------------------------------
+wxWindow* GmatMdiChildFrame::GetAssociatedWindow()
+{
+   return theAssociatedWin;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetAssociatedWindow(wxWindow *win)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::SetAssociatedWindow(wxWindow *win)
+{
+   theAssociatedWin = win;
+}
+
+
+//------------------------------------------------------------------------------
 //void OnActivate(wxActivateEvent &event)
 //------------------------------------------------------------------------------
 void GmatMdiChildFrame::OnActivate(wxActivateEvent &event)
@@ -358,6 +377,15 @@ void GmatMdiChildFrame::OnClose(wxCloseEvent &event)
    #ifdef DEBUG_MDI_CHILD_FRAME
    MessageInterface::ShowMessage("GmatMdiChildFrame::OnClose() exiting\n");
    #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateScriptActiveStatus(bool isActive)
+//------------------------------------------------------------------------------
+void GmatMdiChildFrame::UpdateScriptActiveStatus(bool isActive)
+{
+   // Do nothing here
 }
 
 

@@ -145,17 +145,18 @@ std::string GmatFileUtil::ParsePathName(const std::string &fullPath,
 
 
 //------------------------------------------------------------------------------
-// std::string ParseFileName(const std::string &fullPath)
+// std::string ParseFileName(const std::string &fullPath, bool removeExt = false)
 //------------------------------------------------------------------------------
 /*
  * This function parses file name from given full path name.
  *
  * @param  fullPath  input full path name
+ * @param  removeExt  Set this flag to true if file extension to be removed [false]
  * @return  The file name from the full path
  *
  */
 //------------------------------------------------------------------------------
-std::string GmatFileUtil::ParseFileName(const std::string &fullPath)
+std::string GmatFileUtil::ParseFileName(const std::string &fullPath, bool removeExt)
 {
    #ifdef DEBUG_PARSE_FILENAME
    MessageInterface::ShowMessage
@@ -172,6 +173,13 @@ std::string GmatFileUtil::ParseFileName(const std::string &fullPath)
    MessageInterface::ShowMessage
       ("GmatFileUtil::ParseFileName() returning <%s>\n", fileName.c_str());
    #endif
+   
+   if (removeExt)
+   {
+      std::string::size_type index1 = fileName.find_first_of(".");
+      if (index1 != fileName.npos)
+         fileName = fileName.substr(0, index1);
+   }
    
    return fileName;
 }

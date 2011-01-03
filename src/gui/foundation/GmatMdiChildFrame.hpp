@@ -59,8 +59,12 @@ public:
    bool IsDirty();
    bool CanClose();
    
+   virtual wxWindow* GetAssociatedWindow();
+   virtual void SetAssociatedWindow(wxWindow *win);
+   
    virtual void OnActivate(wxActivateEvent &event);
    virtual void OnClose(wxCloseEvent &event);
+   virtual void UpdateScriptActiveStatus(bool isActive);
    
 protected:
    
@@ -75,6 +79,7 @@ protected:
    wxTextCtrl *theScriptTextCtrl;
    GmatMenuBar *theMenuBar;
    wxMDIParentFrame *theParent;
+   wxWindow *theAssociatedWin;
    
 #ifdef __USE_STC_EDITOR__
    Editor *theEditor;

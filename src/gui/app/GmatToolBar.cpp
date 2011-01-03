@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GmatToolBar
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -15,6 +15,7 @@
 
 #include "GmatToolBar.hpp"
 #include "GmatMenuBar.hpp"        // for namespace GmatMenu
+#include "GuiItemManager.hpp"
 #include "MessageInterface.hpp"
 
 #include "bitmaps/NewScript.xpm"
@@ -56,6 +57,7 @@ GmatToolBar::GmatToolBar(wxWindow* parent, long style, wxWindowID id,
 {
    CreateToolBar(this);
    AddAnimationTools(this);
+   AddGuiScriptSyncStatus(this);
 }
 
 
@@ -267,4 +269,133 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    for (int i = 0; i < NUM_ICONS; i++)
       delete bitmaps[i];
 }
+
+
+//------------------------------------------------------------------------------
+// void AddGuiScriptSyncStatus(wxToolBar* toolBar)
+//------------------------------------------------------------------------------
+/**
+ * Adds GUI and Script file synchronization status to tool bar.
+ *
+ * @param <toolBar> input tool bar.
+ */
+//------------------------------------------------------------------------------
+void GmatToolBar::AddGuiScriptSyncStatus(wxToolBar* toolBar)
+{
+   #ifndef __WXMAC__
+   // Add Animation text
+   wxStaticText *syncLabel = new wxStaticText
+      (this, -1, wxT("                GUI/Script Sync Status: "));
+   theSyncStatus = new wxStaticText
+      (this, -1, wxT(" Synchronized "), wxDefaultPosition, wxSize(120, 20), wxALIGN_CENTRE);
+   
+   // Make font size little bigger
+   wxFont font = theSyncStatus->GetFont();
+   int fontSize = font.GetPointSize();
+   font.SetPointSize(fontSize + 1);
+   theSyncStatus->SetFont(font);
+   
+   // Set color
+   theSyncStatus->SetBackgroundColour(*wxBLACK);
+   theSyncStatus->SetForegroundColour(*wxGREEN);
+   
+   toolBar->AddControl(syncLabel);
+   toolBar->AddControl(theSyncStatus);
+   
+   // now realize to make tools appear
+   toolBar->Realize();
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void UpdateGuiScriptSyncStatus(wxToolBar* toolBar, int guiStat, int scriptStat)
+//------------------------------------------------------------------------------
+/**
+ * Updates GUI and Script file synchronization status in the tool bar.
+ *
+ * @param <toolBar> input tool bar.
+ * @param <guiStat> status of GUI,
+ *                       0 = no change, 1 = clean, 2 = dirty, 3 = error
+ * @param <scriptStat>  status of active script,
+ *                       0 = no change, 1 = clean, 2 = dirty, 3 = error
+ */
+//------------------------------------------------------------------------------
+void GmatToolBar::UpdateGuiScriptSyncStatus(wxToolBar* toolBar, int guiStat,
+                                            int scriptStat)
+{
+   #ifdef DEBUG_SYNC_STATUS
+   MessageInterface::ShowMessage
+      ("GmatToolBar::UpdateGuiScriptSyncStatus() entered, guiStat=%d, scriptStat = %d\n",
+       guiStat, scriptStat);
+   #endif
+   
+   int guiStatus = guiStat;
+   int scriptStatus = scriptStat;
+   
+   GuiItemManager *guiManager = GuiItemManager::GetInstance();
+   
+   if (guiStatus == 0)
+      guiStatus = guiManager->GetGuiStatus();
+   if (scriptStatus == 0)
+      scriptStatus = guiManager->GetActiveScriptStatus();
+   
+   #ifdef DEBUG_SYNC_STATUS
+   MessageInterface::ShowMessage
+      ("   guiStatus=%d, scriptStatus = %d\n", guiStatus, scriptStatus);
+   #endif
+   
+   if (guiStatus == 1 && scriptStatus == 1)
+   {
+      theSyncStatus->SetLabel(" Synchronized ");
+      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      theSyncStatus->SetForegroundColour(*wxGREEN);
+   }
+   else if (guiStatus == 2 && scriptStatus == 1)
+   {
+      theSyncStatus->SetLabel(" GUI Modified ");
+      wxColour yellow = wxTheColourDatabase->Find("Yellow");
+      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      theSyncStatus->SetForegroundColour(yellow);
+   }
+   else if (guiStatus == 1 && scriptStatus == 2)
+   {
+      theSyncStatus->SetLabel(" Script Modified ");
+      wxColour yellow = wxTheColourDatabase->Find("Yellow");
+      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      theSyncStatus->SetForegroundColour(yellow);
+   }
+   else if (guiStatus == 2 && scriptStatus == 2)
+   {
+      theSyncStatus->SetLabel(" Unsynchronized ");
+      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      theSyncStatus->SetForegroundColour(*wxRED);
+   }
+   else if (guiStatus == 3 && scriptStatus == 3)
+   {
+      // This will never happen, but handle just in case
+      theSyncStatus->SetLabel(" Both GUI and Script Error ");
+      theSyncStatus->SetBackgroundColour(*wxRED);
+      theSyncStatus->SetForegroundColour(*wxWHITE);
+   }
+   else if (guiStatus == 3)
+   {
+      theSyncStatus->SetLabel(" GUI Error ");
+      theSyncStatus->SetBackgroundColour(*wxRED);
+      theSyncStatus->SetForegroundColour(*wxWHITE);
+   }
+   else if (scriptStatus == 3)
+   {
+      theSyncStatus->SetLabel(" Script Error ");
+      theSyncStatus->SetBackgroundColour(*wxRED);
+      theSyncStatus->SetForegroundColour(*wxWHITE);
+   }
+   
+   #ifdef DEBUG_SYNC_STATUS
+   MessageInterface::ShowMessage
+      ("GmatToolBar::UpdateGuiScriptSyncStatus() leaving\n");
+   #endif
+}
+
+
 

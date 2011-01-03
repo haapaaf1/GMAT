@@ -31,7 +31,7 @@ namespace GmatFileUtil
    std::string GetPathSeparator();
    std::string GetCurrentPath();
    std::string ParsePathName(const std::string &fullPath, bool appendSep = true);
-   std::string ParseFileName(const std::string &fullPath);
+   std::string ParseFileName(const std::string &fullPath, bool removeExt = false);
    std::string ParseFileExtension(const std::string &fullPath, bool prependDot = false);
    std::string GetInvalidFileNameMessage(Integer option = 1);
    

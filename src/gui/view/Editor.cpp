@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 
 #include "Editor.hpp"
-#include "GmatPanel.hpp"
+#include "GmatSavePanel.hpp"
 #include "EditorPreferences.hpp"
 #include "FindReplaceDialog.hpp"
 #include "MessageInterface.hpp"
@@ -779,7 +779,13 @@ void Editor::OnMarginClick (wxStyledTextEvent &event)
 void Editor::OnTextChange (wxStyledTextEvent &event)
 {
    if (mNotifyChange)
-      ((GmatPanel*)mParent)->EnableUpdate(true);
+   {
+      if (IsModified())
+      {
+         ((GmatSavePanel*)mParent)->SetModified(true);
+         GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(true);
+      }
+   }
 }
 
 

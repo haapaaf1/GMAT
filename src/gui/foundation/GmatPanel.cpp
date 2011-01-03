@@ -196,6 +196,15 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
 
 
 //------------------------------------------------------------------------------
+// wxPanel* GetPanel()
+//------------------------------------------------------------------------------
+wxPanel* GmatPanel::GetPanel()
+{
+   return this;
+}
+
+
+//------------------------------------------------------------------------------
 // virtual void EnableUpdate(bool enable = true)
 //------------------------------------------------------------------------------
 void GmatPanel::EnableUpdate(bool enable)

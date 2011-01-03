@@ -96,6 +96,8 @@
 //#define DEBUG_RESOURCE_TREE_UPDATE 1
 //#define DEBUG_ADD_ICONS
 //#define DEBUG_ADD_COMET
+//#define DEBUG_ACTIVE_SCRIPT
+//#define DEBUG_FIND_SCRIPT
 
 // ID macros for plug-ins
 #define SOLVER_BEGIN 150
@@ -338,6 +340,49 @@ void ResourceTree::UpdateResource(bool restartCounter)
 
 
 //------------------------------------------------------------------------------
+// void SetActiveScript(const wxString &scriptWithPath)
+//------------------------------------------------------------------------------
+void ResourceTree::SetActiveScript(const wxString &scriptWithPath)
+{
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage("ResourceTree::SetActiveScript() entered\n");
+   #endif
+   
+   wxTreeItemIdValue cookie;
+   wxTreeItemId childId = GetFirstChild(mScriptItem, cookie);
+   wxString scriptPath, childText;
+   
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage("   numScripts=%u\n", GetChildrenCount(mScriptItem));
+   #endif
+   
+   // Make bold script unbold first
+   while (childId.IsOk())
+   {
+      if (IsBold(childId))
+         SetItemBold(childId, false);
+      
+      childId = GetNextChild(mScriptItem, cookie);
+   }
+   
+   wxString script = GmatFileUtil::ParseFileName(scriptWithPath.c_str(), true);
+   
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage
+      ("   scriptWithPath='%s'\n   script='%s'\n", scriptWithPath.c_str(), script.c_str());
+   #endif
+   
+   wxTreeItemId scriptId = FindIdOfScript(script);
+   if (scriptId.IsOk())
+      SetItemBold(scriptId);
+   
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage("ResourceTree::SetActiveScript() leaving\n");
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
 // void AddScript(wxString path)
 //------------------------------------------------------------------------------
 /*
@@ -353,7 +398,10 @@ void ResourceTree::AddScript(wxString path)
    if (mScriptAdded)
    {
       // need to set the filename to MainFrame
-      theMainFrame->SetScriptFileName(path.c_str());
+      // We don't want to set the filename here (LOJ: 2010.12.30)
+      // GmatMainFrame will call GetLastScriptAdded() instead
+      //theMainFrame->SetScriptFileName(path.c_str());
+      mLastScriptAdded = path;
    }
 }
 
@@ -399,7 +447,7 @@ bool ResourceTree::AddScriptItem(wxString path)
 
       #if DEBUG_RESOURCE_TREE_ADD_SCRIPT
       MessageInterface::ShowMessage
-         ("ResourceTree::OnAddScript() childText=<%s>\n", childText.c_str());
+         ("ResourceTree::OnAddScriptItem() childText=<%s>\n", childText.c_str());
       #endif
 
       scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetName();
@@ -2266,7 +2314,7 @@ void ResourceTree::OnAddSpacecraft(wxCommandEvent &event)
       AppendItem(item, name, GmatTree::ICON_SPACECRAFT, -1,
                  new GmatTreeItemData(name, GmatTree::SPACECRAFT));
       Expand(item);
-
+      
       theGuiManager->UpdateSpacecraft();
       // Update CoordindateSystem folder since Moderator creates default
       // coordinate systems if not created already when creating a spacecraft
@@ -3313,6 +3361,24 @@ void ResourceTree::OnAddUserObject(wxCommandEvent &event)
 void ResourceTree::UpdateMatlabServerItem(bool started)
 {
    mMatlabServerStarted = started;
+}
+
+
+//------------------------------------------------------------------------------
+// bool WasScriptAdded()
+//------------------------------------------------------------------------------
+bool ResourceTree::WasScriptAdded()
+{
+   return mScriptAdded;
+}
+
+
+//------------------------------------------------------------------------------
+// wxString GetLastScriptAdded()
+//------------------------------------------------------------------------------
+wxString ResourceTree::GetLastScriptAdded()
+{
+   return mLastScriptAdded;
 }
 
 
@@ -4843,3 +4909,57 @@ wxTreeItemId ResourceTree::FindIdOfNode(const wxString &txt, wxTreeItemId start)
 
    return retval;
 }
+
+
+//------------------------------------------------------------------------------
+// wxTreeItemId FindIdOfScript(const wxString &scriptName)
+//------------------------------------------------------------------------------
+/**
+ * Finds tree id of script
+ *
+ * @param  scriptName  Item name of script
+ * @return  wxTreeItemId
+ */
+//------------------------------------------------------------------------------
+wxTreeItemId ResourceTree::FindIdOfScript(const wxString &scriptName)
+{
+   wxTreeItemIdValue cookie;
+   wxTreeItemId childId = GetFirstChild(mScriptItem, cookie);
+   wxString scriptPath, childText;
+   
+   #ifdef DEBUG_FIND_SCRIPT
+   MessageInterface::ShowMessage
+      ("ResourceTree::FindIdOfScript() entered, numScripts=%d, firstChildId=%d\n",
+       GetChildrenCount(mScriptItem), childId);
+   #endif
+   
+   // find child with same path
+   while (childId.IsOk())
+   {
+      childText = GetItemText(childId);
+      
+      #ifdef DEBUG_FIND_SCRIPT
+      MessageInterface::ShowMessage("   childText=<%s>\n", childText.c_str());
+      #endif
+      
+      scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetName();
+      
+      #ifdef DEBUG_FIND_SCRIPT
+      MessageInterface::ShowMessage("   scriptPath=<%s>\n", scriptPath.c_str());
+      #endif
+      
+      if (childText == scriptName)
+         break;
+      
+      childId = GetNextChild(mScriptItem, cookie);
+   }
+   
+   #ifdef DEBUG_FIND_SCRIPT
+   MessageInterface::ShowMessage
+      ("ResourceTree::FindIdOfScript() returning %d\n", childId);
+   #endif
+   
+   return childId;
+}
+
+

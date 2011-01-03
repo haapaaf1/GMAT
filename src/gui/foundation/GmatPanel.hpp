@@ -37,6 +37,8 @@ public:
    // constructors
    GmatPanel(wxWindow *parent, bool showBottomSizer = true,
              bool showScriptButton = true);
+
+   virtual wxPanel* GetPanel();
    
    virtual bool PrepareObjectNameChange();
    virtual void ObjectNameChanged(Gmat::ObjectType type,

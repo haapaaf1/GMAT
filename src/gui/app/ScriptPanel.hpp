@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              ScriptPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Allison Greene
 // Created: 2005/03/25
@@ -22,13 +22,14 @@ class ScriptPanel: public GmatSavePanel
 {
 public:
    // constructors
-   ScriptPanel(wxWindow *parent, const wxString &name);
+   ScriptPanel(wxWindow *parent, const wxString &name, bool activeScript = false);
    wxTextCtrl *mFileContentsTextCtrl;
    virtual void OnClosePanel(wxCommandEvent &event);
 
 private:
-   int mOldLineNumber;
-   int mOldLastPos;
+   int  mOldLineNumber;
+   int  mOldLastPos;
+   bool mUserModified;
    
    wxString mScriptFilename;
    wxColour mDefBgColor;

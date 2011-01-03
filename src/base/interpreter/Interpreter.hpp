@@ -101,8 +101,8 @@ public:
    
    GmatBase* GetConfiguredObject(const std::string &name);
    GmatBase* FindObject(const std::string &name, const std::string &ofType = "");
-   GmatBase* CreateObject(const std::string &type, const std::string &name,
-                          Integer manage = 1, bool createDefault = false);
+   virtual GmatBase* CreateObject(const std::string &type, const std::string &name,
+                                  Integer manage = 1, bool createDefault = false);
    
    void SetConfiguredObjectMap();
    void SetSolarSystemInUse(SolarSystem *ss);

@@ -174,8 +174,12 @@ public:
    void OnScriptRun(wxCommandEvent& WXUNUSED(event));
    void OnCloseAll(wxCommandEvent &event);
    void OnCloseActive(wxCommandEvent &event);
-   
+
    bool SetScriptFileName(const std::string &filename);
+   bool IsActiveScriptModified();
+   void RefreshActiveScript(const wxString &filename);
+   std::string GetActiveScriptFileName();
+   void UpdateGuiScriptSyncStatus(int guiStatus, int scriptStatus);
    
    virtual bool Show(bool show = true);
 
@@ -220,10 +224,12 @@ private:
                                       const wxString &name,
                                       GmatTree::ItemType itemType);
    
+   bool ShowScriptOverwriteMessage();
    bool ShowSaveMessage();
    bool SaveScriptAs();
    void OpenScript(bool restore = true);
    void UpdateTitle(const wxString &filename = "");
+   void SaveGuiToActiveScript();
    
    // IDs for the controls
    enum
