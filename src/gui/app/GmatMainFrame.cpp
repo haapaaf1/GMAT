@@ -2151,7 +2151,7 @@ void GmatMainFrame::OnSaveScript(wxCommandEvent& event)
    {
       UpdateTitle(mScriptFilename.c_str());
       UpdateGuiScriptSyncStatus(1, 1);
-      RefreshActiveScript(mScriptFilename);
+      RefreshActiveScript(mScriptFilename.c_str());
       
       #ifdef __CONFIRM_SAVE__
       MessageInterface::PopupMessage
@@ -2523,7 +2523,7 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::SCRIPT_FILE:
       {
          bool activeScript = false;
-         if (mScriptFilename == name)
+         if (mScriptFilename.c_str() == name)
             activeScript = true;
          
          #ifdef __USE_STC_EDITOR__

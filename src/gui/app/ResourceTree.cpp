@@ -365,7 +365,7 @@ void ResourceTree::SetActiveScript(const wxString &scriptWithPath)
       childId = GetNextChild(mScriptItem, cookie);
    }
    
-   wxString script = GmatFileUtil::ParseFileName(scriptWithPath.c_str(), true);
+   wxString script = (GmatFileUtil::ParseFileName(scriptWithPath.c_str(), true)).c_str();
    
    #ifdef DEBUG_ACTIVE_SCRIPT
    MessageInterface::ShowMessage
