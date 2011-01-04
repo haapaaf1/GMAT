@@ -1139,9 +1139,8 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
       }
       
       //--------------------------------------------------------------
-      // delete chilren by child->OnClose() on Windows
+      // delete children by child->OnClose()
       //--------------------------------------------------------------
-      #ifdef __WXMSW__
       
       bool childDeleted = false;
       
@@ -1234,31 +1233,6 @@ bool GmatMainFrame::CloseAllChildren(bool closeScriptWindow, bool closePlots,
 
       node = nextNode;
 
-      //--------------------------------------------------------------
-      // delete chilren need more work on platforms other than Windows
-      //--------------------------------------------------------------
-      #else
-
-      wxNode *temp = NULL;
-      if (canDelete)
-      {
-         #ifdef DEBUG_MAINFRAME_CLOSE
-         MessageInterface::ShowMessage
-            ("   ==> deleting child = %s\n", title.c_str());
-         #endif
-
-         delete child;
-         temp = node;
-      }
-
-      node = node->GetNext();
-      if (canDelete)
-         delete temp;
-
-      #endif
-      //--------------------------------------------------------------
-      // endif  __WXMSW__
-      //--------------------------------------------------------------
    }
    
    wxSafeYield();
