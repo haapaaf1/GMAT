@@ -1609,16 +1609,26 @@ void ODEModel::UpdateTransientForces()
 //------------------------------------------------------------------------------
 Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
 {
+   #ifdef DEBUG_SPACECRAFT_PROPERTIES
+      MessageInterface::ShowMessage("ODEModel::SetupSpacecraftData(*, %d) "
+            "called\n", i);
+   #endif
+
    Real parm;
    std::string stringParm;
-   
+
    GmatBase* sat;
+   Integer increment = 1;
    
    for (ObjectArray::iterator j = sats->begin(); 
         j != sats->end(); ++j)
    {
       sat = *j;
-   
+
+      #ifdef DEBUG_SPACECRAFT_PROPERTIES
+         MessageInterface::ShowMessage("   Looking at %s\n",
+               sat->GetName().c_str());
+      #endif
       // Only retrieve the parameter IDs once
       if ((satIds[1] < 0) && sat->IsOfType("Spacecraft"))
       {
@@ -1692,7 +1702,8 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
             epoch = parm;
             pm->SetRealParameter(PhysicalModel::EPOCH, parm);
             
-            if (((SpaceObject*)sat)->ParametersHaveChanged() || !parametersSetOnce)
+            if (((SpaceObject*)sat)->ParametersHaveChanged() ||
+                !parametersSetOnce)
             {
                #ifdef DEBUG_SATELLITE_PARAMETERS
                   MessageInterface::ShowMessage(
@@ -1753,6 +1764,7 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
                
                ((SpaceObject*)sat)->ParametersHaveChanged(false);
             }
+            increment = 1;
          }
          else if (sat->GetType() == Gmat::FORMATION) 
          {
@@ -1767,15 +1779,19 @@ Integer ODEModel::SetupSpacecraftData(ObjectArray *sats, Integer i)
                   throw ODEModelException("Object \"" + sat->GetName() +
                                           "\" is not a SpaceObject.");
             }
-            SetupSpacecraftData(&formSats, i);
+            increment = SetupSpacecraftData(&formSats, i) - i;
          }
          else
             throw ODEModelException("Setting SpaceObject parameters on unknown "
                   "type for " + sat->GetName());
       }
-      ++i;
+      i += increment;
    }
    
+   #ifdef DEBUG_SPACECRAFT_PROPERTIES
+      MessageInterface::ShowMessage("   ---> %d returned\n", i);
+   #endif
+
    return i;
 }
 
