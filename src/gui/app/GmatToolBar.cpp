@@ -41,6 +41,7 @@
 #include "bitmaps/screenshot.xpm"
 
 //#define DEBUG_TOOLBAR
+//#define DEBUG_SYNC_STATUS
 
 using namespace GmatMenu;
 
@@ -282,12 +283,16 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
 //------------------------------------------------------------------------------
 void GmatToolBar::AddGuiScriptSyncStatus(wxToolBar* toolBar)
 {
-   #ifndef __WXMAC__
-   // Add Animation text
+#ifndef __WXMAC__
+   // Add GUI/Script status text
    wxStaticText *syncLabel = new wxStaticText
       (this, -1, wxT("                GUI/Script Sync Status: "));
    theSyncStatus = new wxStaticText
       (this, -1, wxT(" Synchronized "), wxDefaultPosition, wxSize(120, 20), wxALIGN_CENTRE);
+#else
+   theSyncStatus = new wxStaticText
+      (this, -1, wxT("S"), wxDefaultPosition, wxSize(20, 20), wxALIGN_CENTRE);
+#endif
    
    // Make font size little bigger
    wxFont font = theSyncStatus->GetFont();
@@ -299,12 +304,13 @@ void GmatToolBar::AddGuiScriptSyncStatus(wxToolBar* toolBar)
    theSyncStatus->SetBackgroundColour(*wxBLACK);
    theSyncStatus->SetForegroundColour(*wxGREEN);
    
+#ifndef __WXMAC__
    toolBar->AddControl(syncLabel);
+#endif
    toolBar->AddControl(theSyncStatus);
    
    // now realize to make tools appear
    toolBar->Realize();
-   #endif
 }
 
 
@@ -345,48 +351,73 @@ void GmatToolBar::UpdateGuiScriptSyncStatus(wxToolBar* toolBar, int guiStat,
       ("   guiStatus=%d, scriptStatus = %d\n", guiStatus, scriptStatus);
    #endif
    
+   wxString synchronized;
+   wxString guiModified;
+   wxString scriptModified;
+   wxString unsynchronized;
+   wxString guiScriptError;
+   wxString guiError;
+   wxString scriptError;
+#ifndef __WXMAC__
+   synchronized    = " Synchronized ";
+   guiModified     = " GUI Modified ";
+   scriptModified  = " Script Modified ";
+   unsynchronized  = " Unsynchronized ";
+   guiScriptError  = " Both GUI and Script Error ";
+   guiError        = " GUI Error ";
+   scriptError     = " Script Error ";
+#else
+   synchronized    = "S";
+   guiModified     = "g";
+   scriptModified  = "s";
+   unsynchronized  = "U";
+   guiScriptError  = "E";
+   guiError        = "g";
+   scriptError     = "s";
+#endif
+
    if (guiStatus == 1 && scriptStatus == 1)
    {
-      theSyncStatus->SetLabel(" Synchronized ");
+      theSyncStatus->SetLabel(synchronized);
       theSyncStatus->SetBackgroundColour(*wxBLACK);
       theSyncStatus->SetForegroundColour(*wxGREEN);
    }
    else if (guiStatus == 2 && scriptStatus == 1)
    {
-      theSyncStatus->SetLabel(" GUI Modified ");
+      theSyncStatus->SetLabel(guiModified);
       wxColour yellow = wxTheColourDatabase->Find("Yellow");
       theSyncStatus->SetBackgroundColour(*wxBLACK);
       theSyncStatus->SetForegroundColour(yellow);
    }
    else if (guiStatus == 1 && scriptStatus == 2)
    {
-      theSyncStatus->SetLabel(" Script Modified ");
+      theSyncStatus->SetLabel(scriptModified);
       wxColour yellow = wxTheColourDatabase->Find("Yellow");
       theSyncStatus->SetBackgroundColour(*wxBLACK);
       theSyncStatus->SetForegroundColour(yellow);
    }
    else if (guiStatus == 2 && scriptStatus == 2)
    {
-      theSyncStatus->SetLabel(" Unsynchronized ");
+      theSyncStatus->SetLabel(unsynchronized);
       theSyncStatus->SetBackgroundColour(*wxBLACK);
       theSyncStatus->SetForegroundColour(*wxRED);
    }
    else if (guiStatus == 3 && scriptStatus == 3)
    {
       // This will never happen, but handle just in case
-      theSyncStatus->SetLabel(" Both GUI and Script Error ");
+      theSyncStatus->SetLabel(guiScriptError);
       theSyncStatus->SetBackgroundColour(*wxRED);
       theSyncStatus->SetForegroundColour(*wxWHITE);
    }
    else if (guiStatus == 3)
    {
-      theSyncStatus->SetLabel(" GUI Error ");
+      theSyncStatus->SetLabel(guiError);
       theSyncStatus->SetBackgroundColour(*wxRED);
       theSyncStatus->SetForegroundColour(*wxWHITE);
    }
    else if (scriptStatus == 3)
    {
-      theSyncStatus->SetLabel(" Script Error ");
+      theSyncStatus->SetLabel(scriptError);
       theSyncStatus->SetBackgroundColour(*wxRED);
       theSyncStatus->SetForegroundColour(*wxWHITE);
    }
