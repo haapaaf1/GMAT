@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              PhysicalModel
 //------------------------------------------------------------------------------
@@ -33,23 +33,28 @@
 //                           : 2/5/2003 - D. Conway, Thinking Systems, Inc.
 //                             Incorporated the Derivative class into this
 //                             class and removed Derivative from the class
-//                             heirarchy
+//                             hierarchy
 //
 //                           : 3/3/2003 - D. Conway, Thinking Systems, Inc.
 //                             Updated parameter strings to include units;
 //                             Added code to switch between relative and 
-//                             absolute erro
+//                             absolute error
 //
-//                           : 09/24/2003 - W. Waktola, Missions Applications Branch
+//                           : 09/24/2003 - W. Waktola, Missions Applications
+//                                          Branch
 //                              Changes:
 //                                - Updated style using GMAT cpp style guide
 //
-//                           : 10/15/2003 - W. Waktola, Missions Applications Branch
+//                           : 10/15/2003 - W. Waktola, Missions Applications
+//                                          Branch
 //                              Changes:
 //                                - All double types to Real types
 //                                - All primitive int types to Integer types
-//                                - virtual char* GetParameterName(const int parm) const to
-//                                  virtual std::string GetParameterName(const int parm) const
+//                                - virtual char* GetParameterName(
+//                                                   const int parm) const
+//                                  to
+//                                  virtual std::string GetParameterName(
+//                                                   const int parm) const
 //                              Removals:
 //                                - static Real parameterUndefined
 //                                - SetUndefinedValue()
@@ -66,18 +71,23 @@
 //                                - GetRealParameter()
 //                                - SetRealParameter()
 //
-//                           : 10/20/2003 - W. Waktola, Missions Applications Branch
+//                           : 10/20/2003 - W. Waktola, Missions Applications
+//                                          Branch
 //                              Changes:
 //                                - Fixed format.
 //                              Removals:
 //                                - GetParameterName()
 //
 //                           : 10/23/2003 - D. Conway, Thinking Systems, Inc. &
-//                                          W. Waktola, Missions Applications Branch
+//                                          W. Waktola, Missions Applications
+//                                          Branch
 //                              Changes:
-//                                - Changed constructor from PhysicalModel::PhysicalModel(void) to
-//                                  PhysicalModel(Gmat::ObjectType typeId, const std::string &typeStr,
-//                                  const std::string &nomme = "")
+//                                - Changed constructor from
+//                                    PhysicalModel::PhysicalModel(void)
+//                                  to
+//                                    PhysicalModel(Gmat::ObjectType typeId,
+//                                          const std::string &typeStr,
+//                                          const std::string &nomme = "")
 //                                - Added parameterCount = 1 in constructors
 //
 // **************************************************************************
@@ -109,8 +119,8 @@
  * Propagators fall into two basic subclasses: Integrators and analytic 
  * solutions.  The analytic solutions typically require minimal interaction with
  * the system; for example, for two body orbit propagation, the PhysicalModel
- * supplies the gravitational constant for the centralbody.  Integrators require
- * more detailed information to evolve their models; see the text of the 
+ * supplies the gravitational constant for the central body.  Integrators
+ * require more detailed information to evolve their models; see the text of the
  * PhysicalModelIntegrator class description for details of their requirements.
  */
 class GMAT_API PhysicalModel : public GmatBase
@@ -217,11 +227,11 @@ public:
 protected:
       
    /// pointer to the body for which this force is computed
-   CelestialBody           *body;
+   CelestialBody *body;
    /// pointer to the origin used in propagation
-   CelestialBody           *forceOrigin;
+   CelestialBody *forceOrigin;
    /// name of the body
-   std::string             bodyName;
+   std::string bodyName;
    /// Number of parameters being modeled
    Integer dimension;
    /// Flag used to tell the readiness of the model for use

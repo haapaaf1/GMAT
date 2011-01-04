@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              SolarRadiationPressure
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -45,6 +45,7 @@
 
 #include "SolarRadiationPressure.hpp"
 #include <sstream>                      // For stringstream
+#include "MessageInterface.hpp"
 
 //#define DEBUG_SRP_ORIGIN
 //#define DEBUG_SOLAR_RADIATION_PRESSURE

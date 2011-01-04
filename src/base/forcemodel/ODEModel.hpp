@@ -31,12 +31,15 @@
 //                             Filled in some code to model cases with 
 //                             discontinuous forces (e.g. SRP)
 //
-//                           : 10/01/2003 - W. Waktola, Missions Applications Branch
+//                           : 10/01/2003 - W. Waktola, Missions Applications
+//                                          Branch
 //                              Changes:
 //                                - Updated style using GMAT cpp style guide
-//                                - Changed FlightDynamicsForces class to ForceModel class
+//                                - Changed FlightDynamicsForces class to
+//                                  ForceModel class
 //
-//                           : 10/20/2003 - W. Waktola, Missions Applications Branch
+//                           : 10/20/2003 - W. Waktola, Missions Applications
+//                                          Branch
 //                              Changes:
 //                                - All double types to Real types
 //                                - All primitive int types to Integer types
@@ -109,7 +112,8 @@ public:
    StringArray& GetForceTypeNames();
    std::string GetForceTypeName(Integer index);
    PhysicalModel* GetForce(Integer index) const;
-   const PhysicalModel* GetForce(std::string forcetype, Integer whichOne = 0) const; 
+   const PhysicalModel* GetForce(std::string forcetype,
+                                 Integer whichOne = 0) const;
    void UpdateSpaceObject(Real newEpoch = -1.0);
    void UpdateFromSpaceObject();
    void RevertSpaceObject();

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              SolarRadiationPressure
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -152,7 +152,7 @@ protected:
    /// Flag used to indicate that there are other bodies casting shadows
    bool hasMoons;
 
-   /// Basically the reflectivity of the body experiancing the force
+   /// Basically the reflectivity of the body experiencing the force
    std::vector<Real> cr;
    /// Reflective surface area of the body, in square meters
    std::vector<Real> area;
