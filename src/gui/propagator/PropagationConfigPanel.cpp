@@ -1087,8 +1087,7 @@ void PropagationConfigPanel::SaveData()
             if (SaveIntegratorData())
                isIntegratorDataChanged = false;
 
-         thePropSetup->SetPropagator(thePropagator);
-
+         thePropSetup->SetPropagator(thePropagator, true);
          // Since the propagator is cloned in the base code, get new pointer
          thePropagator = thePropSetup->GetPropagator();
          if (!thePropagator->IsOfType("Integrator"))
@@ -1102,7 +1101,6 @@ void PropagationConfigPanel::SaveData()
          if (SaveIntegratorData())
             isIntegratorDataChanged = false;
       }
-
       //-------------------------------------------------------
       // Saving the force model
       //-------------------------------------------------------
@@ -1820,11 +1818,6 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
    else
    {
       // Fill in Propagator data
-      #ifdef DEBUG_PROP_INTEGRATOR
-         MessageInterface::ShowMessage("CB = %s, EP = %s\n", cbSetting.c_str(),
-               epFormatSetting.c_str());
-      #endif
-
       if (isSpkStepChanged)
       {
          propagatorStepSizeTextCtrl->SetValue(spkStep);

@@ -79,7 +79,8 @@ public:
    ODEModel*            GetODEModel();
    PropagationStateManager*            
                         GetPropStateManager();
-   void                 SetPropagator(Propagator *propagator);
+   void                 SetPropagator(Propagator *propagator,
+                                      bool fromGUI = false);
    void                 SetODEModel(ODEModel *odeModel);
    void                 SetUseDrag(bool flag);
    

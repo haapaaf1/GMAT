@@ -368,7 +368,7 @@ PropagationStateManager* PropSetup::GetPropStateManager()
  *@param <*propagator> propagator pointer to set internal propagator to
  */
 //------------------------------------------------------------------------------
-void PropSetup::SetPropagator(Propagator *propagator)
+void PropSetup::SetPropagator(Propagator *propagator, bool fromGUI)
 {
    #ifdef DEBUG_PROPSETUP_SET
    MessageInterface::ShowMessage
@@ -379,13 +379,16 @@ void PropSetup::SetPropagator(Propagator *propagator)
          "was not MCS Created"));
    #endif
    
-   if ((mPropagatorName != "InternalPropagator") && !mMcsCreated)
+   if (!fromGUI)
    {
-      if (propagator != NULL)
+      if ((mPropagatorName != "InternalPropagator") && !mMcsCreated)
       {
-         if (propagator->GetTypeName() != mPropagator->GetTypeName())
-            throw PropSetupException("You cannot change the owned Integrator "
-                  "or Analytic Propagator after setting it once");
+         if (propagator != NULL)
+         {
+            if (propagator->GetTypeName() != mPropagator->GetTypeName())
+               throw PropSetupException("You cannot change the owned Integrator "
+                     "or Analytic Propagator after setting it once");
+         }
       }
    }
 
