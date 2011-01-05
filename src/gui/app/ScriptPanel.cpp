@@ -21,7 +21,7 @@
 // To add build and build&run at top of the panel
 //#define __ADD_BUILD_AT_TOP__
 
-#define DEBUG_SCRIPTPANEL_LOAD
+//#define DEBUG_SCRIPTPANEL_LOAD
 //#define DEBUG_SCRIPTPANEL_TEXT
 
 
@@ -335,7 +335,7 @@ void ScriptPanel::OnButton(wxCommandEvent& event)
    }
    
    GmatAppData *gmatAppData = GmatAppData::Instance();
-   bool continueBuild = false;
+   bool continueBuild = true;
    
    if (event.GetEventObject() == mBuildButton ||
        event.GetEventObject() == mBuildRunButton)
@@ -350,6 +350,8 @@ void ScriptPanel::OnButton(wxCommandEvent& event)
          
          if (result == wxID_YES)
             continueBuild = true;
+         else
+            continueBuild = false;
       }
       
       

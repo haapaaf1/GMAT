@@ -36,6 +36,7 @@ namespace GmatFileUtil
    std::string GetInvalidFileNameMessage(Integer option = 1);
    
    bool IsValidFileName(const std::string &fname, bool blankIsOk = true);
+   bool IsSameFileName(const std::string &fname1, const std::string &fname2);
    bool DoesDirectoryExist(const std::string &dirPath, bool blankIsOk = true);
    bool DoesFileExist(const std::string &filename);
    bool GetLine(std::istream *inStream, std::string &line);

@@ -63,6 +63,7 @@ protected:
    bool mScriptAdded;
    bool mMatlabServerStarted;
    wxString mLastScriptAdded;
+   wxString mLastActiveScript;
    
    // for script error log
    int mBuildErrorCount;
@@ -224,7 +225,10 @@ protected:
                                wxTextCtrl *textCtrl);
 
    wxTreeItemId FindIdOfNode(const wxString &txt, wxTreeItemId start);
-   wxTreeItemId FindIdOfScript(const wxString &scriptName);
+   void MakeScriptActive(const wxString &scriptName, bool active);
+   void MakeChildScriptActive(const wxTreeItemId &scriptItem,
+                              const wxString &scriptName, bool active,
+                              bool &scriptFound);
    
    DECLARE_EVENT_TABLE();
 

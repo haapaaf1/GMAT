@@ -250,9 +250,15 @@ void GuiInterpreter::ConfigurationChanged(GmatBase *obj, bool tf)
    
    GmatMainFrame *mainFrame = GmatAppData::Instance()->GetMainFrame();
    theModerator->ConfigurationChanged(obj, tf);
-
+   
    if (tf == true)
+   {
+      #ifdef DEBUG_SYNC_STATUS
+      MessageInterface::ShowMessage
+         ("GuiInterpreter::ConfigurationChanged() Setting GUI dirty\n");
+      #endif
       mainFrame->UpdateGuiScriptSyncStatus(2, 0); // Set GUI dirty
+   }
    
    #else
    
@@ -289,12 +295,19 @@ GmatBase* GuiInterpreter::CreateObject(const std::string &type,
 {
    #if !defined __CONSOLE_APP__
    
+   #ifdef DEBUG_SYNC_STATUS
+   MessageInterface::ShowMessage
+      ("GuiInterpreter::CreateObject() type='%s', name='%s', Setting GUI dirty\n",
+       type.c_str(), name.c_str());
+   #endif
+   
    GmatMainFrame *mainFrame = GmatAppData::Instance()->GetMainFrame();
    GmatBase *obj = Interpreter::CreateObject(type, name, manage, createDefault);
    if (obj == NULL)
       mainFrame->UpdateGuiScriptSyncStatus(3, 0); // Set GUI error
    else
       mainFrame->UpdateGuiScriptSyncStatus(2, 0); // Set GUI dirty
+   
    return obj;
    
    #else

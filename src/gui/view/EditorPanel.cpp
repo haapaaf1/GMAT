@@ -259,7 +259,7 @@ void EditorPanel::OnButton(wxCommandEvent& event)
    }
 
    GmatAppData *gmatAppData = GmatAppData::Instance();
-   bool continueBuild = false;
+   bool continueBuild = true;
    
    if (event.GetEventObject() == mBuildButton ||
        event.GetEventObject() == mBuildRunButton)
@@ -274,6 +274,8 @@ void EditorPanel::OnButton(wxCommandEvent& event)
          
          if (result == wxID_YES)
             continueBuild = true;
+         else
+            continueBuild = false;
       }
       
       if (mEditor->IsModified())

@@ -143,6 +143,7 @@
 //#define DEBUG_CREATE_CHILD
 //#define DEBUG_REMOVE_CHILD
 //#define DEBUG_OPEN_SCRIPT
+//#define DEBUG_REFRESH_SCRIPT
 //#define DEBUG_INTERPRET
 //#define DEBUG_RUN
 //#define DEBUG_SIZE
@@ -724,20 +725,42 @@ Integer GmatMainFrame::GetNumberOfChildOpen(bool incPlots, bool incScripts)
 //------------------------------------------------------------------------------
 bool GmatMainFrame::IsChildOpen(GmatTreeItemData *item, bool restore)
 {
+   #ifdef DEBUG_CHILD_OPEN
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::IsChildOpen() entered, title='%s'\n   name='%s'\n",
+       item->GetTitle().c_str(), item->GetName().c_str());
+   #endif
+   
    wxNode *node = theMdiChildren->GetFirst();
    while (node)
    {
       GmatMdiChildFrame *theChild = (GmatMdiChildFrame *)node->GetData();
-
-      #ifdef DEBUG_MAINFRAME
+      
+      #ifdef DEBUG_CHILD_OPEN
       MessageInterface::ShowMessage
-         ("GmatMainFrame::IsChildOpen() title=%s\n   desc=%s\n",
+         ("   child title='%s'\n   child name='%s'\n",
           theChild->GetTitle().c_str(), item->GetName().c_str());
       #endif
-
-      if ((theChild->GetName().IsSameAs(item->GetName().c_str())) &&
-          (theChild->GetItemType() == item->GetItemType()))
+      
+      bool isChildAlreadyOpen = false;
+      // If item is script file, compare the name which is script path and name
+      if(item->GetItemType() == GmatTree::SCRIPT_FILE)
       {
+         if (GmatFileUtil::IsSameFileName(item->GetName().c_str(),
+                                          theChild->GetTitle().c_str()))
+            isChildAlreadyOpen = true;
+      }
+      else if ((theChild->GetName().IsSameAs(item->GetName().c_str())) &&
+               (theChild->GetItemType() == item->GetItemType()))
+      {
+         isChildAlreadyOpen = true;
+      }
+      
+      if (isChildAlreadyOpen)
+      {
+         #ifdef DEBUG_CHILD_OPEN
+         MessageInterface::ShowMessage("   child is already open\n");
+         #endif
          // move child to the front
          if (restore)
          {
@@ -746,9 +769,10 @@ bool GmatMainFrame::IsChildOpen(GmatTreeItemData *item, bool restore)
          }
          return TRUE;
       }
+      
       node = node->GetNext();
    }
-
+   
    return FALSE;
 }
 
@@ -1756,7 +1780,7 @@ wxStatusBar* GmatMainFrame::GetMainFrameStatusBar()
 bool GmatMainFrame::ShowScriptOverwriteMessage()
 {
    wxMessageDialog *msgDlg = new wxMessageDialog
-      (this, "You will loose changes made in the script, do you want to overwrite "
+      (this, "You will lose changes made in the script, do you want to overwrite "
        "the script?", "Save GUI...",
        wxYES_NO | wxCANCEL |wxICON_QUESTION, wxDefaultPosition);
    
@@ -2497,7 +2521,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    case GmatTree::SCRIPT_FILE:
       {
          bool activeScript = false;
-         if (mScriptFilename.c_str() == name)
+         
+         //if (mScriptFilename.c_str() == name)
+         if (GmatFileUtil::IsSameFileName(mScriptFilename.c_str(), name.c_str()))
             activeScript = true;
          
          #ifdef __USE_STC_EDITOR__
@@ -3900,6 +3926,11 @@ void GmatMainFrame::RefreshActiveScript(const wxString &filename)
    UpdateTitle(filename);
    
    // Update active script status on any opened script panels.
+   #ifdef DEBUG_REFRESH_SCRIPT
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::RefreshActiveScript() now updating active script status "
+       "on opened script panels\n");
+   #endif
    wxNode *node = theMdiChildren->GetFirst();
    while (node)
    {
@@ -3924,17 +3955,22 @@ void GmatMainFrame::RefreshActiveScript(const wxString &filename)
          {
             if (child->GetAssociatedWindow() != NULL)
             {
-               if (name == filename)
+               //if (name == filename)
+               if (GmatFileUtil::IsSameFileName(name.c_str(), filename.c_str()))
                {
+                  #ifdef DEBUG_REFRESH_SCRIPT
+                  MessageInterface::ShowMessage("   Setting the script as ACTIVE\n");
+                  #endif
                   ((GmatSavePanel*)child->GetAssociatedWindow())->ReloadFile();
                   ((GmatSavePanel*)child->GetAssociatedWindow())->UpdateScriptActiveStatus(true);
                }
                else
                {
+                  #ifdef DEBUG_REFRESH_SCRIPT
+                  MessageInterface::ShowMessage("   Setting the script as INACTIVE\n");
+                  #endif
                   ((GmatSavePanel*)child->GetAssociatedWindow())->UpdateScriptActiveStatus(false);
                }
-
-               break;
             }
          }
       }

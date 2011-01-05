@@ -87,17 +87,18 @@
 // If we are ready to handle Constellations, enable this
 //define __ENABLE_CONSTELLATIONS__
 
-//#define DEBUG_RESOURCE_TREE 1
-//#define DEBUG_ADD_DEFAULT_OBJECTS 1
-//#define DEBUG_RENAME 1
-//#define DEBUG_DELETE 1
-//#define DEBUG_COMPARE_REPORT 1
-//#define DEBUG_RUN_SCRIPT_FOLDER 1
-//#define DEBUG_RESOURCE_TREE_UPDATE 1
+//#define DEBUG_RESOURCE_TREE
+//#define DEBUG_ADD_DEFAULT_OBJECTS
+//#define DEBUG_RENAME
+//#define DEBUG_DELETE
+//#define DEBUG_COMPARE_REPORT
+//#define DEBUG_RUN_SCRIPT_FOLDER
+//#define DEBUG_RESOURCE_TREE_UPDATE
 //#define DEBUG_ADD_ICONS
 //#define DEBUG_ADD_COMET
 //#define DEBUG_ACTIVE_SCRIPT
 //#define DEBUG_FIND_SCRIPT
+//#define DEBUG_ADD_SCRIPT
 
 // ID macros for plug-ins
 #define SOLVER_BEGIN 150
@@ -305,7 +306,7 @@ void ResourceTree::ClearResource(bool leaveScripts)
 //------------------------------------------------------------------------------
 void ResourceTree::UpdateResource(bool restartCounter)
 {
-   #if DEBUG_RESOURCE_TREE_UPDATE
+   #ifdef DEBUG_RESOURCE_TREE_UPDATE
    MessageInterface::ShowMessage("ResourceTree::UpdateResource() entered\n");
    #endif
 
@@ -333,7 +334,7 @@ void ResourceTree::UpdateResource(bool restartCounter)
    theGuiManager->UpdateAll();
    ScrollTo(mSpacecraftItem);
 
-   #if DEBUG_RESOURCE_TREE_UPDATE
+   #ifdef DEBUG_RESOURCE_TREE_UPDATE
    MessageInterface::ShowMessage("ResourceTree::UpdateResource() exiting\n");
    #endif
 }
@@ -345,36 +346,25 @@ void ResourceTree::UpdateResource(bool restartCounter)
 void ResourceTree::SetActiveScript(const wxString &scriptWithPath)
 {
    #ifdef DEBUG_ACTIVE_SCRIPT
-   MessageInterface::ShowMessage("ResourceTree::SetActiveScript() entered\n");
+   MessageInterface::ShowMessage
+      ("ResourceTree::SetActiveScript() entered, mLastActiveScript='%s', "
+       "scriptWithPath='%s'\n", mLastActiveScript.c_str(), scriptWithPath.c_str());
    #endif
    
-   wxTreeItemIdValue cookie;
-   wxTreeItemId childId = GetFirstChild(mScriptItem, cookie);
-   wxString scriptPath, childText;
+   // Make last active script normal face first
+   MakeScriptActive(mLastActiveScript, false);
    
-   #ifdef DEBUG_ACTIVE_SCRIPT
-   MessageInterface::ShowMessage("   numScripts=%u\n", GetChildrenCount(mScriptItem));
-   #endif
-   
-   // Make bold script unbold first
-   while (childId.IsOk())
-   {
-      if (IsBold(childId))
-         SetItemBold(childId, false);
-      
-      childId = GetNextChild(mScriptItem, cookie);
-   }
-   
-   wxString script = (GmatFileUtil::ParseFileName(scriptWithPath.c_str(), true)).c_str();
+   // Make new active script bold face
+   wxString newScript = (GmatFileUtil::ParseFileName(scriptWithPath.c_str())).c_str();
    
    #ifdef DEBUG_ACTIVE_SCRIPT
    MessageInterface::ShowMessage
-      ("   scriptWithPath='%s'\n   script='%s'\n", scriptWithPath.c_str(), script.c_str());
+      ("   scriptWithPath='%s'\n   newScript='%s'\n", scriptWithPath.c_str(), newScript.c_str());
    #endif
    
-   wxTreeItemId scriptId = FindIdOfScript(script);
-   if (scriptId.IsOk())
-      SetItemBold(scriptId);
+   MakeScriptActive(newScript, true);
+      
+   mLastActiveScript = newScript;
    
    #ifdef DEBUG_ACTIVE_SCRIPT
    MessageInterface::ShowMessage("ResourceTree::SetActiveScript() leaving\n");
@@ -419,7 +409,7 @@ void ResourceTree::AddScript(wxString path)
 //------------------------------------------------------------------------------
 bool ResourceTree::AddScriptItem(wxString path)
 {
-   #if DEBUG_RESOURCE_TREE_ADD_SCRIPT
+   #ifdef DEBUG_ADD_SCRIPT
    MessageInterface::ShowMessage
       ("ResourceTree::AddScriptItem() path=<%s>\n", path.c_str());
    #endif
@@ -431,12 +421,14 @@ bool ResourceTree::AddScriptItem(wxString path)
    bool scriptAdded = false;
    bool hasSameName = false;
    bool hasSamePath = false;
-
+   
    // extract file name
-   wxFileName fn(path);
-   wxString filename = fn.GetName();
-
-   #if DEBUG_RESOURCE_TREE_ADD_SCRIPT
+   //wxFileName fn(path);
+   //wxString filename = fn.GetName();
+   // Use FileUtil for consistency (LOJ: 2010.01.04)
+   wxString filename = (GmatFileUtil::ParseFileName(path.c_str())).c_str();
+   
+   #ifdef DEBUG_ADD_SCRIPT
    MessageInterface::ShowMessage("   filename=%s\n", filename.c_str());
    #endif
 
@@ -445,14 +437,15 @@ bool ResourceTree::AddScriptItem(wxString path)
    {
       childText = GetItemText(childId);
 
-      #if DEBUG_RESOURCE_TREE_ADD_SCRIPT
+      #ifdef DEBUG_ADD_SCRIPT
       MessageInterface::ShowMessage
          ("ResourceTree::OnAddScriptItem() childText=<%s>\n", childText.c_str());
       #endif
-
+      
       scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetName();
-
-      if (childText == filename)
+      
+      //if (childText == filename)
+      if (GmatFileUtil::IsSameFileName(childText.c_str(), filename.c_str()))
       {
          hasSameName = true;
          if (scriptPath == path)
@@ -695,7 +688,7 @@ void ResourceTree::AddItemFolder(wxTreeItemId parentItemId, wxTreeItemId &itemId
 //------------------------------------------------------------------------------
 void ResourceTree::AddNode(GmatTree::ItemType itemType, const wxString &name)
 {
-   #if DEBUG_RESOURCE_TREE
+   #ifdef DEBUG_RESOURCE_TREE
    MessageInterface::ShowMessage("ResourceTree::AddNode() entered\n");
    #endif
 
@@ -1852,7 +1845,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
 {
    wxTreeItemId itemId = GetSelection();
    GmatTreeItemData *selItemData = (GmatTreeItemData *) GetItemData(itemId);
-   #if DEBUG_DELETE
+   #ifdef DEBUG_DELETE
    if (selItemData == NULL)
       MessageInterface::ShowMessage("selItemData is NULL!!!!!!!\n");
    MessageInterface::ShowMessage
@@ -1874,7 +1867,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
    if (objType == Gmat::UNKNOWN_OBJECT)
       return;
 
-   #if DEBUG_DELETE
+   #ifdef DEBUG_DELETE
    MessageInterface::ShowMessage
       ("ResourceTree::OnDelete() name=%s\n", selItemData->GetName().c_str());
    #endif
@@ -1889,7 +1882,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
       // We don't want to delete all children (bug 547 fix, loj: 2008.11.25)
       //theMainFrame->CloseAllChildren(false, true);
 
-      #if DEBUG_DELETE
+      #ifdef DEBUG_DELETE
       MessageInterface::ShowMessage
          ("ResourceTree::OnDelete() now calling theGuiManager->UpdateAll(%d)\n",
           objType);
@@ -1903,7 +1896,7 @@ void ResourceTree::OnDelete(wxCommandEvent &event)
             "sequence");
       wxLog::FlushActive();
    }
-   #if DEBUG_DELETE
+   #ifdef DEBUG_DELETE
    MessageInterface::ShowMessage
       ("exiting ResourceTree::OnDelete()\n");
    #endif
@@ -3485,7 +3478,7 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
    {
       wxString dirname = dialog.GetPath();
 
-      #if DEBUG_RESOURCE_TREE
+      #ifdef DEBUG_RESOURCE_TREE
       MessageInterface::ShowMessage("OnAddScriptFolder() dirname=%s\n",
                                     dirname.c_str());
       #endif
@@ -3518,13 +3511,19 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
                std::ifstream ifs(filepath.c_str());
                std::string item;
                ifs >> item;
-
+               
                if (item != "function")
                {
+                  GmatTreeItemData *newItemData =
+                     new GmatTreeItemData(filepath, GmatTree::SCRIPT_FILE);
                   AppendItem(newItem, filename, GmatTree::ICON_SCRIPT, -1,
-                             new GmatTreeItemData(filepath, GmatTree::SCRIPT_FILE));
+                             newItemData);
+                  
+                  // Make it bold face if script is the same as currently active script file
+                  if (GmatFileUtil::IsSameFileName(mLastActiveScript.c_str(), filename.c_str()))
+                     SetItemBold(newItemData->GetId(), true);
                }
-
+               
                ifs.close();
             }
          }
@@ -3561,7 +3560,7 @@ void ResourceTree::OnRunScriptsFromFolder(wxCommandEvent &event)
    // find only script file, exclude script folder
    while (scriptId.IsOk())
    {
-      #if DEBUG_RUN_SCRIPT_FOLDER
+      #ifdef DEBUG_RUN_SCRIPT_FOLDER
       MessageInterface::ShowMessage
          ("ResourceTree::OnRunScriptsFromFolder() scriptText=<%s>\n",
           GetItemText(scriptId).c_str());
@@ -3965,7 +3964,7 @@ bool ResourceTree::BuildScript(const wxString &filename, Integer scriptOpenOpt,
                                bool closeScript, bool readBack,
                                const wxString &savePath, bool multiScripts)
 {
-   #if DEBUG_RESOURCE_TREE
+   #ifdef DEBUG_RESOURCE_TREE
    MessageInterface::ShowMessage
       ("ResourceTree::BuildScript() filename=%s, scriptOpenOpt=%d, closeScript=%d, "
        "readBack=%d, multiScripts=%d\n   savePath=%s\n", filename.c_str(),
@@ -3989,7 +3988,7 @@ bool ResourceTree::BuildScript(const wxString &filename, Integer scriptOpenOpt,
          mFailedScriptsList.Add(filename);
       }
 
-      #if DEBUG_RESOURCE_TREE
+      #ifdef DEBUG_RESOURCE_TREE
       MessageInterface::ShowMessage
          ("ResourceTree::BuildScript() returning %s\n", (status ? "true" : "false"));
       #endif
@@ -3997,7 +3996,7 @@ bool ResourceTree::BuildScript(const wxString &filename, Integer scriptOpenOpt,
       return status;
    }
 
-   #if DEBUG_RESOURCE_TREE
+   #ifdef DEBUG_RESOURCE_TREE
    MessageInterface::ShowMessage("ResourceTree::BuildScript() returning false\n");
    #endif
 
@@ -4673,7 +4672,7 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
                                           const wxString &dir1, const wxString &dir2,
                                           wxTextCtrl *textCtrl)
 {
-   #if DEBUG_COMPARE_REPORT
+   #ifdef DEBUG_COMPARE_REPORT
    MessageInterface::ShowMessage
       ("ResourceTree::CompareScriptRunResult() absTol=%g, replaceStr=%s\n"
        "   dir1=%s\n   dir2=%s\n   textCtrl=%d\n", absTol, replaceStr.c_str(),
@@ -4716,7 +4715,7 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
          StringArray colTitles = reportFile->GetRefObjectNameArray(Gmat::PARAMETER);
          //MessageInterface::ShowMessage("===> colTitles.size=%d\n", colTitles.size());
 
-         #if DEBUG_COMPARE_REPORT
+         #ifdef DEBUG_COMPARE_REPORT
          MessageInterface::ShowMessage("   filename1=%s\n", filename1.c_str());
          #endif
 
@@ -4749,7 +4748,7 @@ void ResourceTree::CompareScriptRunResult(Real absTol, const wxString &replaceSt
          // set filename2
          filename2 = dir2 + "/" + name2;
 
-         #if DEBUG_COMPARE_REPORT
+         #ifdef DEBUG_COMPARE_REPORT
          MessageInterface::ShowMessage("   filename2=%s\n", filename2.c_str());
          #endif
 
@@ -4912,54 +4911,114 @@ wxTreeItemId ResourceTree::FindIdOfNode(const wxString &txt, wxTreeItemId start)
 
 
 //------------------------------------------------------------------------------
-// wxTreeItemId FindIdOfScript(const wxString &scriptName)
+// void MakeScriptActive(const wxString &scriptName, bool active)
 //------------------------------------------------------------------------------
 /**
- * Finds tree id of script
+ * Makes script active or inactive by changing script text bold face or normal
  *
  * @param  scriptName  Item name of script
- * @return  wxTreeItemId
+ * @param  active      Set this to true if script is active, false otherwise
  */
 //------------------------------------------------------------------------------
-wxTreeItemId ResourceTree::FindIdOfScript(const wxString &scriptName)
+void ResourceTree::MakeScriptActive(const wxString &scriptName, bool active)
 {
-   wxTreeItemIdValue cookie;
-   wxTreeItemId childId = GetFirstChild(mScriptItem, cookie);
-   wxString scriptPath, childText;
-   
-   #ifdef DEBUG_FIND_SCRIPT
+   #ifdef DEBUG_ACTIVE_SCRIPT
    MessageInterface::ShowMessage
-      ("ResourceTree::FindIdOfScript() entered, numScripts=%d, firstChildId=%d\n",
-       GetChildrenCount(mScriptItem), childId);
+      ("ResourceTree::MakeScriptActive() entered, scriptName='%s', active=%d\n",
+       scriptName.c_str(), active);
    #endif
    
-   // find child with same path
+   bool scriptFound = false;
+   MakeChildScriptActive(mScriptItem, scriptName, active, scriptFound);
+   
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage
+      ("ResourceTree::MakeScriptActive() leaving, scriptFound=%d\n", scriptFound);
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void MakeChildScriptActive(const wxTreeItemId &scriptItem,
+//                           const wxString &scriptName, bool active,
+//                           bool &scriptFound)
+//------------------------------------------------------------------------------
+/**
+ * Makes child script active or inactive by changing script text bold face or normal
+ *
+ * @param  scriptItem  Id of script node
+ * @param  scriptName  Name of script to find
+ * @param  scriptFound Output flag indicating script found
+ * @return  wxTreeItemId of last script found
+ */
+//------------------------------------------------------------------------------
+void ResourceTree::MakeChildScriptActive(const wxTreeItemId &scriptItem,
+                                         const wxString &scriptName, bool active,
+                                         bool &scriptFound)
+{
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage
+      ("ResourceTree::MakeChildScriptActive() entered, scriptItem='%s', "
+       "scriptName='%s', active=%d\n", GetItemText(scriptItem).c_str(),
+       scriptName.c_str(), active);
+   #endif
+   
+   scriptFound = false;
+   wxTreeItemIdValue cookie;
+   wxTreeItemId childId = GetFirstChild(scriptItem, cookie);
+   wxTreeItemId scriptId = childId;
+   wxString scriptPath, nodeText;
+   
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage
+      ("   numChildren=%d, firstChildId is %s\n",
+       GetChildrenCount(scriptItem), childId.IsOk() ? "OK" : "not OK");
+   #endif
+   
+   wxTreeItemId grandChildId;
    while (childId.IsOk())
    {
-      childText = GetItemText(childId);
+      if (ItemHasChildren(childId))
+      {
+         #ifdef DEBUG_ACTIVE_SCRIPT
+         MessageInterface::ShowMessage
+            ("   item '%s' has %d children\n", GetItemText(childId).c_str(),
+             GetChildrenCount(childId));
+         #endif
+         MakeChildScriptActive(childId, scriptName, active, scriptFound);
+      }
       
-      #ifdef DEBUG_FIND_SCRIPT
-      MessageInterface::ShowMessage("   childText=<%s>\n", childText.c_str());
+      scriptId = childId;
+      
+      // find child with same path
+      nodeText = GetItemText(scriptId);
+      
+      #ifdef DEBUG_ACTIVE_SCRIPT
+      MessageInterface::ShowMessage("   nodeText=<%s>\n", nodeText.c_str());
       #endif
       
-      scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetName();
+      scriptPath = ((GmatTreeItemData *)GetItemData(scriptId))->GetName();
       
-      #ifdef DEBUG_FIND_SCRIPT
+      #ifdef DEBUG_ACTIVE_SCRIPT
       MessageInterface::ShowMessage("   scriptPath=<%s>\n", scriptPath.c_str());
       #endif
       
-      if (childText == scriptName)
-         break;
+      if (GmatFileUtil::IsSameFileName(nodeText.c_str(), scriptName.c_str()))
+      {
+         scriptFound = true;
+         #ifdef DEBUG_ACTIVE_SCRIPT
+         MessageInterface::ShowMessage
+            ("   Setting %d %s\n", scriptId, active ? "ACTIVE" : "INACTIVE");
+         #endif
+         SetItemBold(scriptId, active);
+      }
       
-      childId = GetNextChild(mScriptItem, cookie);
+      childId = GetNextChild(scriptItem, cookie);
    }
    
-   #ifdef DEBUG_FIND_SCRIPT
-   MessageInterface::ShowMessage
-      ("ResourceTree::FindIdOfScript() returning %d\n", childId);
+   #ifdef DEBUG_ACTIVE_SCRIPT
+   MessageInterface::ShowMessage("ResourceTree::MakeChildScriptActive() leaving\n");
    #endif
    
-   return childId;
 }
-
 

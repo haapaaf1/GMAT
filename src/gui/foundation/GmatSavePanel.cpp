@@ -45,7 +45,6 @@ END_EVENT_TABLE()
 GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
                              wxString filename, bool showScriptActiveStatus,
                              bool isScriptActive)
-
    : wxPanel(parent)
 {
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
@@ -189,7 +188,7 @@ void GmatSavePanel::OnSave(wxCommandEvent &event)
    else if (theGuiManager->GetGuiStatus() == 2)
    {
       wxMessageDialog *msgDlg = new wxMessageDialog
-         (this, "You will loose changes made in GUI, do you want to save and "
+         (this, "You will lose changes made in GUI, do you want to save and "
           "refresh the GUI?", "Save script...",
           wxYES_NO | wxCANCEL |wxICON_QUESTION, wxDefaultPosition);
       
@@ -366,6 +365,12 @@ void GmatSavePanel::OnScript(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GmatSavePanel::UpdateScriptActiveStatus(bool isActive)
 {
+   #ifdef DEBUG_UPDATE_ACTIVE_STATUS
+   MessageInterface::ShowMessage
+      ("GmatSavePanel::UpdateScriptActiveStatus() entered, isActive=%d, "
+       "mFilename='%s'\n", isActive, mFilename.c_str());
+   #endif
+   
    mIsScriptActive = isActive;
    
    if (mShowScriptActiveStatus)

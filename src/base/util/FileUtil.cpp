@@ -293,6 +293,31 @@ bool GmatFileUtil::IsValidFileName(const std::string &fname, bool blankIsOk)
 
 
 //------------------------------------------------------------------------------
+// bool GmatFileUtil::IsSameFileName(const std::string &fname1, const std::string &fname2)
+//------------------------------------------------------------------------------
+/*
+ * @return  true  If two file names are same, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool GmatFileUtil::IsSameFileName(const std::string &fname1, const std::string &fname2)
+{
+   if (fname1 == "" || fname2 == "")
+      return false;
+
+   std::string name1 = fname1;
+   std::string name2 = fname2;
+   
+   // Replace \ with /
+   name1 = GmatStringUtil::Replace(name1, "\\", "/");
+   name2 = GmatStringUtil::Replace(name2, "\\", "/");
+   if (name1 == name2)
+      return true;
+   else
+      return false;
+}
+
+
+//------------------------------------------------------------------------------
 // bool DoesDirectoryExist(const std::string &fullPath, bool blankIsOk = true)
 //------------------------------------------------------------------------------
 /*

@@ -56,8 +56,8 @@ public:
                                   Integer sandboxNum = 1);
    
    // General Object
-   virtual GmatBase* CreateObject(const std::string &type, const std::string &name,
-                                  Integer manage = 1, bool createDefault = false);
+   GmatBase* CreateObject(const std::string &type, const std::string &name,
+                          Integer manage = 1, bool createDefault = false);
    
    // SolarSystem
    SolarSystem* GetDefaultSolarSystem();
