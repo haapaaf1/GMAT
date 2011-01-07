@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GmatApp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -17,6 +17,7 @@
 //  - Added test for Unix envirnment, and set the size if the main frame in that
 //    environment, so that the Linux build (and, presumably, Unix builds) would
 //    appear reasonably sized.
+//
 /**
  * This class contains GMAT main application. Program starts here.
  */
@@ -186,7 +187,7 @@ bool GmatApp::OnInit()
                // Changed to time out in 1 sec (LOJ: 2009.10.07)
                new wxSplashScreen(*bitmap,
                                   wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,
-                                  1000, NULL, -1, wxDefaultPosition, wxSize(100, 100),
+                                  4000, NULL, -1, wxDefaultPosition, wxSize(100, 100),
                                   wxSIMPLE_BORDER|wxSTAY_ON_TOP);
             }
             catch (BaseException &e)
