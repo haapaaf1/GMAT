@@ -293,15 +293,18 @@ void GmatToolBar::AddGuiScriptSyncStatus(wxToolBar* toolBar)
    theSyncStatus = new wxStaticText
       (this, -1, wxT("S"), wxDefaultPosition, wxSize(20, 20), wxALIGN_CENTRE);
 #endif
-   
-   // Make font size little bigger
+
+   // Make font bold face
    wxFont font = theSyncStatus->GetFont();
+   font.SetWeight(wxFONTWEIGHT_BOLD);
+   // Make font size little bigger
    int fontSize = font.GetPointSize();
    font.SetPointSize(fontSize + 1);
    theSyncStatus->SetFont(font);
    
    // Set color
-   theSyncStatus->SetBackgroundColour(*wxBLACK);
+   wxColour bgcolor = wxTheColourDatabase->Find("DIM GREY");
+   theSyncStatus->SetBackgroundColour(bgcolor);
    theSyncStatus->SetForegroundColour(*wxGREEN);
    
 #ifndef __WXMAC__
@@ -376,30 +379,32 @@ void GmatToolBar::UpdateGuiScriptSyncStatus(wxToolBar* toolBar, int guiStat,
    scriptError     = "s";
 #endif
 
+   wxColour bgcolor = wxTheColourDatabase->Find("DIM GREY");
    if (guiStatus == 1 && scriptStatus == 1)
    {
       theSyncStatus->SetLabel(synchronized);
-      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      theSyncStatus->SetBackgroundColour(bgcolor);
       theSyncStatus->SetForegroundColour(*wxGREEN);
    }
    else if (guiStatus == 2 && scriptStatus == 1)
    {
       theSyncStatus->SetLabel(guiModified);
       wxColour yellow = wxTheColourDatabase->Find("Yellow");
-      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      theSyncStatus->SetBackgroundColour(bgcolor);
       theSyncStatus->SetForegroundColour(yellow);
    }
    else if (guiStatus == 1 && scriptStatus == 2)
    {
       theSyncStatus->SetLabel(scriptModified);
       wxColour yellow = wxTheColourDatabase->Find("Yellow");
-      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      theSyncStatus->SetBackgroundColour(bgcolor);
       theSyncStatus->SetForegroundColour(yellow);
    }
    else if (guiStatus == 2 && scriptStatus == 2)
    {
       theSyncStatus->SetLabel(unsynchronized);
-      theSyncStatus->SetBackgroundColour(*wxBLACK);
+      wxColour bgcolor = wxTheColourDatabase->Find("LIGHT GREY");
+      theSyncStatus->SetBackgroundColour(bgcolor);
       theSyncStatus->SetForegroundColour(*wxRED);
    }
    else if (guiStatus == 3 && scriptStatus == 3)

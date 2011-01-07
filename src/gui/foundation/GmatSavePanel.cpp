@@ -94,12 +94,14 @@ GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
    if (mShowScriptActiveStatus)
    {
       mScriptActiveLabel = new wxStaticText
-         (this, -1, wxT(""), wxDefaultPosition, wxSize(100, 20), wxALIGN_CENTRE);
-
-      // Make font size little bigger
+         (this, -1, wxT(""), wxDefaultPosition, wxSize(110, 18), wxALIGN_CENTRE);
+      mScriptActiveLabel->Centre();
+      // Make font bold face
       wxFont font = mScriptActiveLabel->GetFont();
+      font.SetWeight(wxFONTWEIGHT_BOLD);
+      // Make font size little bigger
       int fontSize = font.GetPointSize();
-      font.SetPointSize(fontSize + 2);
+      font.SetPointSize(fontSize + 1);
       mScriptActiveLabel->SetFont(font);
       
       RefreshScriptActiveStatus(mIsScriptActive);
@@ -109,7 +111,7 @@ GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
    
    // Add script status label
    mScriptDirtyLabel = new wxStaticText
-      (this, -1, wxT(""), wxDefaultPosition, wxSize(30, 20), wxALIGN_CENTRE);
+      (this, -1, wxT(""), wxDefaultPosition, wxSize(80, 20), wxALIGN_CENTRE);
    bottomGridSizer->Add(mScriptDirtyLabel, 0, wxALIGN_LEFT | wxALL, borderSize*2);
    bottomGridSizer->Add(50, 20);
    
@@ -467,8 +469,9 @@ void GmatSavePanel::RefreshScriptActiveStatus(bool isActive)
       theButtonSizer->Layout();
       
       mScriptActiveLabel->SetLabel(" Active Script ");
+      wxColour bgcolor = wxTheColourDatabase->Find("DIM GREY");
+      mScriptActiveLabel->SetBackgroundColour(bgcolor);
       mScriptActiveLabel->SetForegroundColour(*wxGREEN);
-      mScriptActiveLabel->SetBackgroundColour(*wxBLACK);
    }
    else
    {
@@ -476,8 +479,9 @@ void GmatSavePanel::RefreshScriptActiveStatus(bool isActive)
       theButtonSizer->Layout();
       
       mScriptActiveLabel->SetLabel(" Inactive Script ");
+      wxColour bgcolor = wxTheColourDatabase->Find("LIGHT GREY");
+      mScriptActiveLabel->SetBackgroundColour(bgcolor);
       mScriptActiveLabel->SetForegroundColour(*wxRED);
-      mScriptActiveLabel->SetBackgroundColour(*wxBLACK);
    }
 }
 
