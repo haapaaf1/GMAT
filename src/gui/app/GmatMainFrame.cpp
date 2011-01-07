@@ -73,9 +73,8 @@
 #include "ReportPanel.hpp"
 #include "TogglePanel.hpp"
 #include "ParameterCreateDialog.hpp"
-#include "IfPanel.hpp"
+#include "ConditionPanel.hpp"
 #include "ForPanel.hpp"
-#include "WhilePanel.hpp"
 #include "DoWhilePanel.hpp"
 #include "FormationSetupPanel.hpp"
 #include "CallFunctionPanel.hpp"
@@ -2090,6 +2089,10 @@ void GmatMainFrame::OnLoadDefaultMission(wxCommandEvent& WXUNUSED(event))
    gmatAppData->GetResourceTree()->UpdateResource(true);
    gmatAppData->GetMissionTree()->UpdateMission(true);
    gmatAppData->GetOutputTree()->UpdateOutput(true, true);
+   
+   // Update GUI/Script sync status
+   UpdateGuiScriptSyncStatus(1, 1);
+   
 }
 
 
@@ -2742,18 +2745,15 @@ GmatMainFrame::CreateNewControl(const wxString &title, const wxString &name,
 
    switch (itemType)
    {
-      break;
    case GmatTree::IF_CONTROL:
-      sizer->Add(new IfPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
+   case GmatTree::WHILE_CONTROL:
+      sizer->Add(new ConditionPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
       //case GmatTree::ELSE_IF_CONTROL:
       //sizer->Add(new ElseIfPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       //break;
    case GmatTree::FOR_CONTROL:
       sizer->Add(new ForPanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
-      break;
-   case GmatTree::WHILE_CONTROL:
-      sizer->Add(new WhilePanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);
       break;
       //case GmatTree::DO_CONTROL:
       //sizer->Add(new DoWhilePanel(scrolledWin, cmd), 0, wxGROW|wxALL, 0);

@@ -216,10 +216,8 @@ OBJECTS = \
     command/TargetPanel.o \
     command/TogglePanel.o \
     command/VaryPanel.o \
-    controllogic/ForDialog.o \
     controllogic/ForPanel.o \
-    controllogic/IfPanel.o \
-    controllogic/WhilePanel.o \
+    controllogic/ConditionPanel.o \
     coordsystem/CoordPanel.o \
     coordsystem/CoordSysCreateDialog.o \
     coordsystem/CoordSystemConfigPanel.o \

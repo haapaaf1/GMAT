@@ -1,19 +1,24 @@
-//$Header: 
+//$Id$
 //------------------------------------------------------------------------------
-//                              IfPanel
+//                              ConditionPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
-// Author: Waka Waktola
-// Created: 2003/09/08
-// Modified: 2004/05/06 by Allison Greene to inherit from GmatPanel
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
+// Author: Linda Jun
+// Created: 2011/01/06 based on IfPanel which was developed by Waka Waktola
+//
 /**
  * This class contains the Propagator command setup window.
  */
 //------------------------------------------------------------------------------
 
-#ifndef IfPanel_hpp
-#define IfPanel_hpp
+#ifndef ConditionPanel_hpp
+#define ConditionPanel_hpp
 
 #include "gmatwxdefs.hpp"
 #include "GmatAppData.hpp"
@@ -22,53 +27,53 @@
 // base includes
 #include "gmatdefs.hpp"
 #include "GmatCommand.hpp"
-#include "If.hpp"
+#include "ConditionalBranch.hpp"
 #include "Parameter.hpp"
 
-class IfPanel : public GmatPanel
+class ConditionPanel : public GmatPanel
 {
 public:
-    // constructors
-    IfPanel(wxWindow *parent, GmatCommand *cmd);
-    ~IfPanel();  
-
+   // constructors
+   ConditionPanel(wxWindow *parent, GmatCommand *cmd);
+   ~ConditionPanel();  
+   
 private:
-    wxGrid *conditionGrid;
-
-    static const int MAX_ROW = 10;
-    static const int MAX_COL = 4;
-    static const int COMMAND_COL = 0;
-    static const int LHS_COL = 1;
-    static const int COND_COL = 2;
-    static const int RHS_COL = 3;
-    
-    If *theIfCommand;
-    Parameter *theParameter;
-    
-    // methods inherited from GmatPanel
-    virtual void Create();
-    virtual void LoadData();
-    virtual void SaveData();
-    //loj: 2/27/04 commented out
-    //virtual void OnHelp();
-    //virtual void OnScript();
-
-    // Layout & data handling methods
-    void Setup(wxWindow *parent);
-
-    // Grid table event methods
-    void OnCellRightClick(wxGridEvent& event);
-    void OnCellValueChange(wxGridEvent& event);
- 
-    // any class wishing to process wxWindows events must use this macro
-    DECLARE_EVENT_TABLE();
-    
-    // IDs for the controls and the menu commands
-    enum
-    {     
-        ID_GRID = 50000,
-    };
-      
+   wxGrid *conditionGrid;
+   
+   static const int MAX_ROW     = 10;
+   static const int MAX_COL     = 6;
+   static const int COMMAND_COL = 0;
+   static const int LHS_SEL_COL = 1;
+   static const int LHS_COL     = 2;
+   static const int COND_COL    = 3;
+   static const int RHS_SEL_COL = 4;
+   static const int RHS_COL     = 5;
+   
+   ConditionalBranch *theCommand;
+   Parameter *theParameter;
+   
+   // methods inherited from GmatPanel
+   virtual void Create();
+   virtual void LoadData();
+   virtual void SaveData();
+   
+   // data handling methods
+   void GetNewValue(Integer row, Integer col);
+   
+   // Grid table event methods
+   void OnCellLeftClick(wxGridEvent& event);
+   void OnCellRightClick(wxGridEvent& event);
+   void OnCellValueChange(wxGridEvent& event);
+   
+   // any class wishing to process wxWindows events must use this macro
+   DECLARE_EVENT_TABLE();
+   
+   // IDs for the controls and the menu commands
+   enum
+   {     
+      ID_GRID = 50000,
+   };
+   
    Integer mNumberOfConditions;
    Integer mNumberOfLogicalOps;
    
@@ -82,4 +87,4 @@ private:
    StringArray mRhsList;   
 };
 
-#endif // IfPanel_hpp
+#endif // ConditionPanel_hpp

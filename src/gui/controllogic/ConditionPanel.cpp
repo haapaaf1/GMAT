@@ -1,43 +1,50 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                              IfPanel
+//                              ConditionPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
-// Author: Waka Waktola
-// Created: 2004/09/16
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
+// Author: Linda Jun
+// Created: 2011/01/06 based on IfPanel which was developed by Waka Waktola
+//
 /**
- * This class contains the If condition setup window.
+ * This class contains the condition command such as If and While setup window.
  */
 //------------------------------------------------------------------------------
 
-#include "IfPanel.hpp"
+#include "ConditionPanel.hpp"
 #include "ParameterSelectDialog.hpp"
 #include "gmatdefs.hpp"
 #include "GmatAppData.hpp"
 #include "MessageInterface.hpp"
 
-//#define DEBUG_IF_PANEL_SAVE 1
+//#define DEBUG_PANEL_SAVE 1
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
 //------------------------------------------------------------------------------
 
-BEGIN_EVENT_TABLE(IfPanel, GmatPanel)
-    EVT_GRID_CELL_RIGHT_CLICK(IfPanel::OnCellRightClick)
-    EVT_GRID_CELL_CHANGE(IfPanel::OnCellValueChange)  
+BEGIN_EVENT_TABLE(ConditionPanel, GmatPanel)
+    EVT_GRID_CELL_LEFT_CLICK(ConditionPanel::OnCellLeftClick)
+    EVT_GRID_CELL_RIGHT_CLICK(ConditionPanel::OnCellRightClick)
+    EVT_GRID_CELL_CHANGE(ConditionPanel::OnCellValueChange)  
 END_EVENT_TABLE()
 
 //------------------------------------------------------------------------------
-// IfPanel()
+// ConditionPanel()
 //------------------------------------------------------------------------------
 /**
  * A constructor.
  */
 //------------------------------------------------------------------------------
-IfPanel::IfPanel(wxWindow *parent, GmatCommand *cmd) : GmatPanel(parent)
+ConditionPanel::ConditionPanel(wxWindow *parent, GmatCommand *cmd) : GmatPanel(parent)
 {
-   theIfCommand = (If *)cmd;
+   theCommand = (ConditionalBranch*)cmd;
    
    mNumberOfConditions = 0;
    mNumberOfLogicalOps = 0;
@@ -55,13 +62,13 @@ IfPanel::IfPanel(wxWindow *parent, GmatCommand *cmd) : GmatPanel(parent)
 }
 
 //------------------------------------------------------------------------------
-// IfPanel()
+// ConditionPanel()
 //------------------------------------------------------------------------------
 /**
  * A destructor.
  */
 //------------------------------------------------------------------------------
-IfPanel::~IfPanel()
+ConditionPanel::~ConditionPanel()
 {
    mObjectTypeList.Clear();
 }
@@ -73,84 +80,88 @@ IfPanel::~IfPanel()
 //------------------------------------------------------------------------------
 // void Create()
 //------------------------------------------------------------------------------
-void IfPanel::Create()
+void ConditionPanel::Create()
 {
-    Setup(this);    
-}
-
-//------------------------------------------------------------------------------
-// void Setup(wxWindow *parent)
-//------------------------------------------------------------------------------
-void IfPanel::Setup(wxWindow *parent)
-{
-    wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
-
-    conditionGrid = new wxGrid( parent, ID_GRID, wxDefaultPosition, 
-                                wxDefaultSize, wxWANTS_CHARS );
-    conditionGrid->CreateGrid( MAX_ROW, MAX_COL, wxGrid::wxGridSelectCells );
-    conditionGrid->SetRowLabelSize(0);
-    conditionGrid->SetDefaultCellAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
-    
-    for (Integer i = 0; i < MAX_ROW; i++)
-    {
-       conditionGrid->SetReadOnly(i, COMMAND_COL, true);
-       conditionGrid->SetReadOnly(i, COND_COL, true);
-    }    
-    //conditionGrid->SetReadOnly(0,0, true);
-    
-    conditionGrid->SetColLabelValue(0, _T(""));
-    conditionGrid->SetColSize(0, 60);
-    conditionGrid->SetColLabelValue(1, _T("Left Hand Side"));
-    conditionGrid->SetColSize(1, 165);
-    conditionGrid->SetColLabelValue(2, _T("Condition"));
+   wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+   
+   conditionGrid = new wxGrid( this, ID_GRID, wxDefaultPosition, 
+                               wxDefaultSize, wxWANTS_CHARS );
+   
+   conditionGrid->CreateGrid( MAX_ROW, MAX_COL, wxGrid::wxGridSelectCells );
+   conditionGrid->SetRowLabelSize(0);
+   conditionGrid->SetDefaultCellAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+   wxColour gridColor = wxTheColourDatabase->Find("DIM GREY");
+   conditionGrid->SetGridLineColour(gridColor);
+   
+   conditionGrid->SetColLabelValue(COMMAND_COL, _T(""));
+   conditionGrid->SetColLabelValue(LHS_SEL_COL, _T(""));
+   conditionGrid->SetColLabelValue(LHS_COL, _T("Left Hand Side"));
+   conditionGrid->SetColLabelValue(COND_COL, _T("Condition"));
+   conditionGrid->SetColLabelValue(RHS_SEL_COL, _T(""));
+   conditionGrid->SetColLabelValue(RHS_COL, _T("Right Hand Side"));
+   conditionGrid->SetColSize(COMMAND_COL, 60);
+   conditionGrid->SetColSize(LHS_SEL_COL, 25);
+   conditionGrid->SetColSize(LHS_COL, 165);
 #ifdef __WXMAC__
-    conditionGrid->SetColSize(2, 80);
+   conditionGrid->SetColSize(COND_COL, 80);
 #else
-    conditionGrid->SetColSize(2, 60);
+   conditionGrid->SetColSize(COND_COL, 60);
 #endif
-    conditionGrid->SetColLabelValue(3, _T("Right Hand Side"));
-    conditionGrid->SetColSize(3, 165);
-    conditionGrid->SetCellValue(0, COMMAND_COL, "If");
-        
-    item0->Add( conditionGrid, 0, wxALIGN_CENTER|wxALL, 5 );
+   conditionGrid->SetColSize(RHS_SEL_COL, 25);
+   conditionGrid->SetColSize(RHS_COL, 165);
+   conditionGrid->SetCellValue(0, COMMAND_COL, theCommand->GetTypeName().c_str());
 
-    theMiddleSizer->Add(item0, 0, wxGROW, 5);
+   // Set ... for LHS and RHS select columns
+   for (Integer i = 0; i < MAX_ROW; i++)
+   {
+      conditionGrid->SetReadOnly(i, COMMAND_COL, true);
+      conditionGrid->SetReadOnly(i, COND_COL, true);
+      conditionGrid->SetCellBackgroundColour(i, LHS_SEL_COL, *wxLIGHT_GREY);
+      conditionGrid->SetCellBackgroundColour(i, RHS_SEL_COL, *wxLIGHT_GREY);
+      conditionGrid->SetCellValue(i, LHS_SEL_COL, _T("  ... "));
+      conditionGrid->SetCellValue(i, RHS_SEL_COL, _T("  ... "));
+   }
+   
+   item0->Add( conditionGrid, 0, wxALIGN_CENTER|wxALL, 0 );
+   
+   theMiddleSizer->Add(item0, 0, wxGROW, 0);
 }
+
 
 //------------------------------------------------------------------------------
 // void LoadData()
 //------------------------------------------------------------------------------
-void IfPanel::LoadData()
+void ConditionPanel::LoadData()
 {
    // Set the pointer for the "Show Script" button
-   mObject = theIfCommand;
+   mObject = theCommand;
    
-   if (theIfCommand == NULL)
+   if (theCommand == NULL)
       return;
    
    try
    {
       Integer paramId;
-       
-      paramId = theIfCommand->GetParameterID("NumberOfConditions");
-      mNumberOfConditions = theIfCommand->GetIntegerParameter(paramId);
+      
+      paramId = theCommand->GetParameterID("NumberOfConditions");
+      mNumberOfConditions = theCommand->GetIntegerParameter(paramId);
       
       if (mNumberOfConditions > 0)
       {
-         paramId = theIfCommand->GetParameterID("NumberOfLogicalOperators");
-         mNumberOfLogicalOps = theIfCommand->GetIntegerParameter(paramId); 
+         paramId = theCommand->GetParameterID("NumberOfLogicalOperators");
+         mNumberOfLogicalOps = theCommand->GetIntegerParameter(paramId); 
          
-         paramId = theIfCommand->GetParameterID("LeftHandStrings");
-         mLhsList = theIfCommand->GetStringArrayParameter(paramId);
+         paramId = theCommand->GetParameterID("LeftHandStrings");
+         mLhsList = theCommand->GetStringArrayParameter(paramId);
          
-         paramId = theIfCommand->GetParameterID("OperatorStrings");
-         mEqualityOpStrings = theIfCommand->GetStringArrayParameter(paramId);
+         paramId = theCommand->GetParameterID("OperatorStrings");
+         mEqualityOpStrings = theCommand->GetStringArrayParameter(paramId);
           
-         paramId = theIfCommand->GetParameterID("RightHandStrings");
-         mRhsList = theIfCommand->GetStringArrayParameter(paramId);
+         paramId = theCommand->GetParameterID("RightHandStrings");
+         mRhsList = theCommand->GetStringArrayParameter(paramId);
          
-         paramId = theIfCommand->GetParameterID("LogicalOperators");
-         mLogicalOpStrings = theIfCommand->GetStringArrayParameter(paramId); 
+         paramId = theCommand->GetParameterID("LogicalOperators");
+         mLogicalOpStrings = theCommand->GetStringArrayParameter(paramId); 
          
          for (Integer i = 0; i < mNumberOfConditions; i++)
          {
@@ -175,7 +186,7 @@ void IfPanel::LoadData()
                                            mLogicalOpStrings[i-1].c_str());
          }    
       }
-   }         
+   }
    catch (BaseException &e)
    {
       MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
@@ -186,7 +197,7 @@ void IfPanel::LoadData()
 //------------------------------------------------------------------------------
 // void SaveData()
 //------------------------------------------------------------------------------
-void IfPanel::SaveData()
+void ConditionPanel::SaveData()
 {
    canClose = true;
    
@@ -213,10 +224,10 @@ void IfPanel::SaveData()
       if (itemMissing == 0)
       {
          mNumberOfConditions++;
-         mLogicalOpStrings.push_back(conditionGrid->GetCellValue(i, 0).c_str());
-         mLhsList.push_back(conditionGrid->GetCellValue(i, 1).c_str());
-         mEqualityOpStrings.push_back(conditionGrid->GetCellValue(i, 2).c_str());
-         mRhsList.push_back(conditionGrid->GetCellValue(i, 3).c_str());         
+         mLogicalOpStrings.push_back(conditionGrid->GetCellValue(i, COMMAND_COL).c_str());
+         mLhsList.push_back(conditionGrid->GetCellValue(i, LHS_COL).c_str());
+         mEqualityOpStrings.push_back(conditionGrid->GetCellValue(i, COND_COL).c_str());
+         mRhsList.push_back(conditionGrid->GetCellValue(i, RHS_COL).c_str());         
       }
       else if (itemMissing < 4)
       {
@@ -228,9 +239,9 @@ void IfPanel::SaveData()
       }
    }
    
-   #if DEBUG_IF_PANEL_SAVE
+   #ifdef DEBUG_PANEL_SAVE
    MessageInterface::ShowMessage
-      ("IfPanel::SaveData() mNumberOfConditions=%d\n", mNumberOfConditions);
+      ("ConditionPanel::SaveData() mNumberOfConditions=%d\n", mNumberOfConditions);
    #endif
    
    if (mNumberOfConditions == 0)
@@ -263,7 +274,7 @@ void IfPanel::SaveData()
    {
       for (Integer i = 0; i < mNumberOfConditions; i++)
       {
-         #if DEBUG_IF_PANEL_SAVE
+         #ifdef DEBUG_PANEL_SAVE
          MessageInterface::ShowMessage
             ("   i=%d, mLogicalOpStrings='%s', mLhsList='%s', mEqualityOpStrings='%s'\n"
              "   mRhsList='%s'\n", i, mLogicalOpStrings[i].c_str(), mLhsList[i].c_str(),
@@ -271,11 +282,11 @@ void IfPanel::SaveData()
          #endif
          try
          {
-            theIfCommand->SetCondition(mLhsList[i], mEqualityOpStrings[i],
-                                       mRhsList[i], i);
+            theCommand->SetCondition(mLhsList[i], mEqualityOpStrings[i],
+                                     mRhsList[i], i);
             
             if (i > 0)
-               theIfCommand->SetConditionOperator(mLogicalOpStrings[i], i-1);
+               theCommand->SetConditionOperator(mLogicalOpStrings[i], i-1);
             
          }
          catch (BaseException &be)
@@ -288,7 +299,7 @@ void IfPanel::SaveData()
       }
       
       if (canClose)
-         if (!theGuiInterpreter->ValidateCommand(theIfCommand))
+         if (!theGuiInterpreter->ValidateCommand(theCommand))
             canClose = false;
       
    }
@@ -301,9 +312,45 @@ void IfPanel::SaveData()
 
 
 //------------------------------------------------------------------------------
+// void GetNewValue(Integer row, Integer col)
+//------------------------------------------------------------------------------
+void ConditionPanel::GetNewValue(Integer row, Integer col)
+{
+   wxString oldStr = conditionGrid->GetCellValue(row, col);
+   ParameterSelectDialog paramDlg(this, mObjectTypeList);
+   paramDlg.ShowModal();
+   
+   if (paramDlg.IsParamSelected())
+   {
+      if (oldStr != paramDlg.GetParamName())
+      {
+         conditionGrid->SetCellValue(row, col, paramDlg.GetParamName());
+         EnableUpdate(true);
+      }
+   }
+}
+
+
+//------------------------------------------------------------------------------
+// void OnCellLeftClick(wxGridEvent& event)
+//------------------------------------------------------------------------------
+void ConditionPanel::OnCellLeftClick(wxGridEvent& event)
+{
+   int row = event.GetRow();
+   int col = event.GetCol();
+   
+   conditionGrid->SelectBlock(row, col, row, col);
+   conditionGrid->SetGridCursor(row, col);
+   
+   if (col == LHS_SEL_COL || col == RHS_SEL_COL)
+      GetNewValue(row, col + 1);
+}
+
+
+//------------------------------------------------------------------------------
 // void OnCellRightClick(wxGridEvent& event)
 //------------------------------------------------------------------------------
-void IfPanel::OnCellRightClick(wxGridEvent& event)
+void ConditionPanel::OnCellRightClick(wxGridEvent& event)
 {
    int row = event.GetRow();
    int col = event.GetCol();
@@ -311,13 +358,16 @@ void IfPanel::OnCellRightClick(wxGridEvent& event)
    if ( (row == 0) && (col == COMMAND_COL) )
       return;
    
+   conditionGrid->SelectBlock(row, col, row, col);
+   conditionGrid->SetGridCursor(row, col);
+   
    if (col == COMMAND_COL)
    {
       wxString oldStr = conditionGrid->GetCellValue(row, col);
       wxString strArray[] = {wxT("&"), wxT("|")};        
       
-      wxSingleChoiceDialog dialog(this, _T("Logic Selection: \n"),
-                                        _T("IfConditionDialog"), 2, strArray);
+      wxSingleChoiceDialog dialog(this, _T("Logical Operator Selection:"),
+                                        _T("LogicalOperators"), 2, strArray);
       dialog.SetSelection(0);
       
       if (dialog.ShowModal() == wxID_OK)
@@ -331,27 +381,16 @@ void IfPanel::OnCellRightClick(wxGridEvent& event)
    }   
    else if (col == LHS_COL)
    {
-      wxString oldStr = conditionGrid->GetCellValue(row, col);
-      ParameterSelectDialog paramDlg(this, mObjectTypeList);
-      paramDlg.ShowModal();
-      
-      if (paramDlg.IsParamSelected())
-      {
-         if (oldStr != paramDlg.GetParamName())
-         {
-            conditionGrid->SetCellValue(row, col, paramDlg.GetParamName());
-            EnableUpdate(true);
-         }
-      }
+      GetNewValue(row, col);
    }
    else if (col == COND_COL)
-   {   
+   {
       wxString oldStr = conditionGrid->GetCellValue(row, col);
       wxString strArray[] = {wxT("=="), wxT("~="), wxT(">"), wxT("<"), 
                              wxT(">="), wxT("<=")};        
       
-      wxSingleChoiceDialog dialog(this, _T("Equality Selection: \n"),
-                                        _T("IfConditionDialog"), 6, strArray);
+      wxSingleChoiceDialog dialog(this, _T("Relation Operator Selection:"),
+                                        _T("RelationalOperators"), 6, strArray);
       dialog.SetSelection(0);
       
       if (dialog.ShowModal() == wxID_OK)
@@ -365,18 +404,7 @@ void IfPanel::OnCellRightClick(wxGridEvent& event)
    }
    else if (col == RHS_COL)
    {
-      wxString oldStr = conditionGrid->GetCellValue(row, col);
-      ParameterSelectDialog paramDlg(this, mObjectTypeList);
-      paramDlg.ShowModal();
-
-      if (paramDlg.IsParamSelected())
-      {
-         if (oldStr != paramDlg.GetParamName())
-         {
-            conditionGrid->SetCellValue(row, col, paramDlg.GetParamName());
-            EnableUpdate(true);
-         }
-      }
+      GetNewValue(row, col);
    }
 }
 
@@ -384,7 +412,7 @@ void IfPanel::OnCellRightClick(wxGridEvent& event)
 //------------------------------------------------------------------------------
 // void OnCellValueChange(wxGridEvent& event)
 //------------------------------------------------------------------------------
-void IfPanel::OnCellValueChange(wxGridEvent& event)
+void ConditionPanel::OnCellValueChange(wxGridEvent& event)
 {
    EnableUpdate(true);
 } 

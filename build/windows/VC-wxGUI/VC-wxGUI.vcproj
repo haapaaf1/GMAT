@@ -3613,11 +3613,11 @@
 					Name="controllogic"
 					>
 					<File
-						RelativePath="..\..\..\src\gui\controllogic\ForDialog.cpp"
+						RelativePath="..\..\..\src\gui\controllogic\ConditionPanel.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\src\gui\controllogic\ForDialog.hpp"
+						RelativePath="..\..\..\src\gui\controllogic\ConditionPanel.hpp"
 						>
 					</File>
 					<File
@@ -3626,22 +3626,6 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\gui\controllogic\ForPanel.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\controllogic\IfPanel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\controllogic\IfPanel.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\controllogic\WhilePanel.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\gui\controllogic\WhilePanel.hpp"
 						>
 					</File>
 				</Filter>

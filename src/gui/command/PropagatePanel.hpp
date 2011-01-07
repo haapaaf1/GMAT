@@ -42,13 +42,19 @@ public:
    
 private:
    
-   static const Integer MAX_PROP_ROW     = 15;
-   static const Integer MAX_STOPCOND_ROW = 10;
-   static const Integer PROP_NAME_COL = 0;
-   static const Integer PROP_SOS_COL  = 1;
-   static const Integer STOPCOND_PARAM_COL   = 0;
-   static const Integer STOPCOND_RELOPER_COL = 1;
-   static const Integer STOPCOND_COND_COL    = 2;
+   static const Integer MAX_PROP_ROW           = 15;
+   static const Integer MAX_PROP_COL           = 4;
+   static const Integer MAX_STOPCOND_ROW       = 10;
+   static const Integer MAX_STOPCOND_COL       = 5;
+   static const Integer PROP_NAME_SEL_COL      = 0;
+   static const Integer PROP_NAME_COL          = 1;
+   static const Integer PROP_SOS_SEL_COL       = 2;
+   static const Integer PROP_SOS_COL           = 3;
+   static const Integer STOPCOND_LEFT_SEL_COL  = 0;
+   static const Integer STOPCOND_LEFT_COL      = 1;
+   static const Integer STOPCOND_RELOPER_COL   = 2;
+   static const Integer STOPCOND_RIGHT_SEL_COL = 3;
+   static const Integer STOPCOND_RIGHT_COL     = 4;
    
    struct PropType
    {
@@ -110,6 +116,10 @@ private:
    void DisplayPropagator();
    void DisplayStopCondition();
    void UpdateStopCondition(Integer stopRow);
+   void GetNewPropagatorName(Integer row, Integer col);
+   void GetNewSpaceObjectList(Integer row, Integer col);
+   void GetNewStopCondLeftValue(Integer row, Integer col);
+   void GetNewStopCondRightValue(Integer row, Integer col);
    
    wxString FormatStopCondDesc(const wxString &varName,
                                const wxString &relOpStr,
@@ -117,6 +127,7 @@ private:
    
    // event handling method
    void OnTextChange(wxCommandEvent& event);
+   void OnCellLeftClick(wxGridEvent &event);
    void OnCellRightClick(wxGridEvent &event);
    void OnCellValueChange(wxGridEvent& event);
    void OnCheckBoxChange(wxCommandEvent& event);
