@@ -623,7 +623,7 @@ bool Moderator::CloseMatlabEngine()
    {
       #ifdef DEBUG_MATLAB
       MessageInterface::ShowMessage
-         ("Moderator::OpenMatlabEngine() calling theMatlabInterface->Close()\n");
+         ("Moderator::CloseMatlabEngine() calling theMatlabInterface->Close()\n");
       #endif
       
       if (theMatlabInterface->Close() == 1)
