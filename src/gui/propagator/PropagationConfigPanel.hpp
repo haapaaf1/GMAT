@@ -214,7 +214,7 @@ private:
    wxTextCtrl *maxStepAttemptTextCtrl;
    wxTextCtrl *minIntErrorTextCtrl;
    wxTextCtrl *nomIntErrorTextCtrl;
-   wxTextCtrl *bodyTextCtrl;
+//   wxTextCtrl *bodyTextCtrl;
    wxTextCtrl *gravityDegreeTextCtrl;
    wxTextCtrl *gravityOrderTextCtrl;
    wxTextCtrl *potFileTextCtrl;
@@ -278,11 +278,13 @@ private:
    
    std::map<wxString, wxString> theFileMap;
    
-   wxArrayString primaryBodiesArray;
+   // Restrict to one primary body:
+   wxString primaryBody;
+//   wxArrayString primaryBodiesArray;
    wxArrayString secondaryBodiesArray;
    wxArrayString integratorArray;
    
-   Integer numOfBodies;
+//   Integer numOfBodies;
    Integer numOfForces;
    Integer currentBodyId;
    
@@ -319,9 +321,12 @@ private:
    CelestialBody                  *theCelestialBody;
    AtmosphereModel                *theAtmosphereModel;
    std::vector<PointMassForce *>  thePMForces;
-   std::vector<ForceType*> primaryBodyList;
+//   std::vector<ForceType*> primaryBodyList;
    std::vector<ForceType*> pointMassBodyList;
    
+   // Restricted to one primary, so using a single ForceType rather than array
+   ForceType                      *primaryBodyData;
+
    // methods inherited from GmatPanel
    virtual void Create();
    virtual void LoadData();
@@ -347,6 +352,7 @@ private:
    void DisplayErrorControlData();
    void EnablePrimaryBodyItems(bool enable = true, bool clear = false);
    void UpdatePrimaryBodyItems();
+   void UpdatePrimaryBodyComboBoxList();
    
    // Saving data
    bool SaveIntegratorData();

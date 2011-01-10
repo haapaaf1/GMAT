@@ -84,6 +84,8 @@ PropagationConfigPanel::PropagationConfigPanel(wxWindow *parent,
    mObjectName = propName.c_str();
    propSetupName = propName.c_str();
    theForceModelName = propSetupName + "_ForceModel";
+   primaryBodyData = NULL;
+   primaryBody = "None";
 
    #ifdef DEBUG_PROP_PANEL_SETUP
    MessageInterface::ShowMessage
@@ -124,21 +126,24 @@ PropagationConfigPanel::PropagationConfigPanel(wxWindow *parent,
 //------------------------------------------------------------------------------
 PropagationConfigPanel::~PropagationConfigPanel()
 {
-   for (Integer i=0; i<(Integer)primaryBodyList.size(); i++)
-      delete primaryBodyList[i];
+//   for (Integer i=0; i<(Integer)primaryBodyList.size(); i++)
+//      delete primaryBodyList[i];
+   if (primaryBodyData != NULL)
+      delete primaryBodyData;
    for (Integer i=0; i<(Integer)pointMassBodyList.size(); i++)
       delete pointMassBodyList[i];
 
    // Unregister GUI components
    theGuiManager->UnregisterComboBox("CoordinateSystem", theOriginComboBox);
    theGuiManager->UnregisterComboBox("CelestialBody", theOriginComboBox);
+   theGuiManager->UnregisterComboBox("CelestialBody", thePrimaryBodyComboBox);
 
    theGuiManager->UnregisterComboBox("CoordinateSystem", propCentralBodyComboBox);
    theGuiManager->UnregisterComboBox("CelestialBody", propCentralBodyComboBox);
 }
 
 //------------------------------------------
-// proteced methods inherited from GmatPanel
+// Protected methods inherited from GmatPanel
 //------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -365,9 +370,19 @@ void PropagationConfigPanel::Create()
    // Force Model
    //-----------------------------------------------------------------
    // Error Control
+   Integer w, h, ecWidth, cbWidth;
+   wxString text = "Error Control";
+   GetTextExtent(text, &w, &h);
+   ecWidth = (Integer)(w * 1.2);
+   text = "Central Body";
+   GetTextExtent(text, &w, &h);
+   cbWidth = (Integer)(w * 1.2);
+
+   w = (ecWidth > cbWidth ? ecWidth : cbWidth);
+
    wxStaticText *errorCtrlStaticText =
       new wxStaticText( this, ID_TEXT, wxT(GUI_ACCEL_KEY"Error Control"),
-                        wxDefaultPosition, wxSize(70,20), wxST_NO_AUTORESIZE );
+                        wxDefaultPosition, wxSize(w,20), wxST_NO_AUTORESIZE );
 
    theErrorComboBox =
       new wxComboBox( this, ID_CB_ERROR, errorControlArray[0],
@@ -382,7 +397,7 @@ void PropagationConfigPanel::Create()
    // Central Body
    wxStaticText *centralBodyStaticText =
       new wxStaticText( this, ID_TEXT, wxT("Central "GUI_ACCEL_KEY"Body"),
-                        wxDefaultPosition, wxSize(70,20), wxST_NO_AUTORESIZE);
+                        wxDefaultPosition, wxSize(w,20), wxST_NO_AUTORESIZE);
    theOriginComboBox  =
       theGuiManager->GetCelestialBodyComboBox(this, ID_CB_ORIGIN, wxSize(100,-1));
    theOriginComboBox->SetToolTip(pConfig->Read(_T("ForceModelCentralBodyHint")));
@@ -391,28 +406,38 @@ void PropagationConfigPanel::Create()
    centralBodySizer->Add( centralBodyStaticText, 0, wxALIGN_LEFT|wxALL, bsize);
    centralBodySizer->Add( theOriginComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
 
-   // Primary Bodies
+   // Primary Bodies -- for 1.0, changed to allow only one body; commented code
+   // is a start on allowing multiple bodies
    GmatStaticBoxSizer *primaryStaticSizer =
-      new GmatStaticBoxSizer(wxVERTICAL, this, "Primary "GUI_ACCEL_KEY"Bodies");
+      new GmatStaticBoxSizer(wxVERTICAL, this, "Primary "GUI_ACCEL_KEY"Body");
+//   GmatStaticBoxSizer *primaryStaticSizer =
+//      new GmatStaticBoxSizer(wxVERTICAL, this, "Primary "GUI_ACCEL_KEY"Bodies");
    wxArrayString bodyArray;
-   thePrimaryBodyComboBox =
-      new wxComboBox( this, ID_CB_BODY, wxT(primaryBodyString),
-                      wxDefaultPosition,  wxSize(80,-1),// 0,
-                      bodyArray, wxCB_DROPDOWN|wxCB_READONLY );
+
+   thePrimaryBodyComboBox = theGuiManager->GetCelestialBodyComboBox(this,
+         ID_CB_BODY, wxSize(100, -1));
+
+//   thePrimaryBodyComboBox =
+//      new wxComboBox( this, ID_CB_BODY, wxT(primaryBodyString),
+//                      wxDefaultPosition,  wxSize(100,-1),// 0,
+//                      bodyArray, wxCB_DROPDOWN|wxCB_READONLY );
    thePrimaryBodyComboBox->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesComboHint")));
-   bodyTextCtrl =
-      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""),
-                      wxDefaultPosition, wxSize(160,-1), wxTE_READONLY );
-   bodyTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesEditHint")));
-   wxButton *primaryBodySelectButton =
-      new wxButton( this, ID_BUTTON_ADD_BODY, wxT("Select"),
-                    wxDefaultPosition, wxDefaultSize, 0 );
-   primaryBodySelectButton->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesSelectHint")));
+
+   // Not used; left in place for later use
+//   bodyTextCtrl =
+//      new wxTextCtrl( this, ID_TEXTCTRL, wxT(""),
+//                      wxDefaultPosition, wxSize(160,-1), wxTE_READONLY );
+//   bodyTextCtrl->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesEditHint")));
+   // Not used; left in place for later use
+//   wxButton *primaryBodySelectButton =
+//      new wxButton( this, ID_BUTTON_ADD_BODY, wxT("Select"),
+//                    wxDefaultPosition, wxDefaultSize, 0 );
+//   primaryBodySelectButton->SetToolTip(pConfig->Read(_T("ForceModelPrimaryBodiesSelectHint")));
 
    wxBoxSizer *bodySizer = new wxBoxSizer( wxHORIZONTAL );
    bodySizer->Add( thePrimaryBodyComboBox, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
-   bodySizer->Add( bodyTextCtrl, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
-   bodySizer->Add( primaryBodySelectButton, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
+//   bodySizer->Add( bodyTextCtrl, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
+//   bodySizer->Add( primaryBodySelectButton, 0, wxGROW|wxALIGN_CENTRE|wxALL, bsize);
 
    // Gravity
    wxStaticText *type1StaticText =
@@ -681,9 +706,12 @@ void PropagationConfigPanel::LoadData()
    MessageInterface::ShowMessage("   Getting Primary bodies array.\n");
    #endif
 
-   if (!primaryBodiesArray.IsEmpty())
+//   if (!primaryBodiesArray.IsEmpty())
+   if (primaryBody != "None")
    {
-      primaryBodyString = primaryBodiesArray.Item(0).c_str();
+//      primaryBodyString = primaryBodiesArray.Item(0).c_str();
+      primaryBodyString = primaryBody.c_str();
+      currentBodyName = primaryBodyString;
       currentBodyName = primaryBodyString;
       currentBodyId = FindPrimaryBody(currentBodyName);
    }
@@ -692,7 +720,8 @@ void PropagationConfigPanel::LoadData()
    MessageInterface::ShowMessage("   primaryBodyString=%s\n", primaryBodyString.c_str());
    #endif
 
-   numOfBodies = (Integer)primaryBodiesArray.GetCount();
+//   numOfBodies = (Integer)primaryBodiesArray.GetCount();
+
    std::string propType = thePropagator->GetTypeName();
 
    #ifdef DEBUG_PROP_PANEL_LOAD
@@ -705,9 +734,12 @@ void PropagationConfigPanel::LoadData()
          typeId = i;
 
    // Display primary bodies
-   if ( !primaryBodiesArray.IsEmpty() )
-      for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
-         thePrimaryBodyComboBox->Append(primaryBodiesArray[i]);
+   UpdatePrimaryBodyComboBoxList();
+//   if ( !primaryBodiesArray.IsEmpty() )
+//      thePrimaryBodyComboBox->SetValue(primaryBodyList[0]->bodyName.c_str());
+   thePrimaryBodyComboBox->SetValue(primaryBody.c_str());
+//      for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
+//         thePrimaryBodyComboBox->Append(primaryBodiesArray[i]);
 
    theIntegratorComboBox->SetSelection(typeId);
    integratorString = integratorArray[typeId];
@@ -718,7 +750,8 @@ void PropagationConfigPanel::LoadData()
    DisplayIntegratorData(false);
    DisplayForceData();
 
-   Integer count = (Integer)primaryBodyList.size();
+//   Integer count = (Integer)primaryBodyList.size();
+   Integer count = (primaryBodyData == NULL ? 0 : 1);
 
    if (count == 0)
       EnablePrimaryBodyItems(false, false);
@@ -796,13 +829,15 @@ void PropagationConfigPanel::PopulateForces()
                                                          thePMF));
 
                //Warn user about bodies already added as Primary body
-               Integer fmSize = (Integer)primaryBodyList.size();
+//               Integer fmSize = (Integer)primaryBodyList.size();
+               Integer fmSize = (primaryBodyData == NULL ? 0 : 1);
                Integer last = (Integer)pointMassBodyList.size() - 1;
 
                for (Integer i = 0; i < fmSize; i++)
                {
                   if (strcmp(pointMassBodyList[last]->bodyName.c_str(),
-                             primaryBodyList[i]->bodyName.c_str()) == 0)
+//                        primaryBodyList[i]->bodyName.c_str()) == 0)
+                        primaryBodyData->bodyName.c_str()) == 0)
                   {
                      MessageInterface::PopupMessage
                         (Gmat::WARNING_,
@@ -814,11 +849,25 @@ void PropagationConfigPanel::PopulateForces()
             else if (wxForceType == "GravityField")
             {
                theGravForce = (GravityField*)force;
-               wxString potFilename = theGravForce->GetStringParameter("PotentialFile").c_str();
+               wxString potFilename =
+                     theGravForce->GetStringParameter("PotentialFile").c_str();
 
-               currentBodyId = FindPrimaryBody(wxBodyName);
-               primaryBodyList[currentBodyId]->bodyName = wxBodyName;
-               primaryBodyList[currentBodyId]->potFilename = potFilename;
+//               currentBodyId = FindPrimaryBody(wxBodyName);
+//               primaryBodyList[currentBodyId]->bodyName = wxBodyName;
+//               primaryBodyList[currentBodyId]->potFilename = potFilename;
+               if (primaryBodyData == NULL)
+               {
+                  #ifdef DEBUG_PROP_PANEL_GRAV
+                     MessageInterface::ShowMessage("Creating primaryBodyData for "
+                           "%s\n", wxBodyName.c_str());
+                  #endif
+                  primaryBodyData = new ForceType(wxBodyName);
+               }
+
+               primaryBody = wxBodyName;
+
+               primaryBodyData->bodyName = wxBodyName;
+               primaryBodyData->potFilename = potFilename;
 
                #ifdef DEBUG_PROP_PANEL_GRAV
                MessageInterface::ShowMessage
@@ -842,8 +891,13 @@ void PropagationConfigPanel::PopulateForces()
                   else
                      eGravModelType = E_OTHER;
 
-                  primaryBodyList[currentBodyId]->gravType = earthGravModelArray[eGravModelType];
-                  primaryBodyList[currentBodyId]->potFilename =
+//                  primaryBodyList[currentBodyId]->gravType =
+//                        earthGravModelArray[eGravModelType];
+//                  primaryBodyList[currentBodyId]->potFilename =
+//                     theFileMap[earthGravModelArray[eGravModelType]];
+                  primaryBodyData->gravType =
+                        earthGravModelArray[eGravModelType];
+                  primaryBodyData->potFilename =
                      theFileMap[earthGravModelArray[eGravModelType]];
                }
                else if (wxBodyName == "Luna")
@@ -855,8 +909,12 @@ void PropagationConfigPanel::PopulateForces()
                   else
                      lGravModelType = L_OTHER;
 
-                  primaryBodyList[currentBodyId]->gravType = lunaGravModelArray[lGravModelType];
-                  primaryBodyList[currentBodyId]->potFilename =
+//                  primaryBodyList[currentBodyId]->gravType =
+//                        lunaGravModelArray[lGravModelType];
+//                  primaryBodyList[currentBodyId]->potFilename =
+//                     theFileMap[lunaGravModelArray[lGravModelType]];
+                  primaryBodyData->gravType = lunaGravModelArray[lGravModelType];
+                  primaryBodyData->potFilename =
                      theFileMap[lunaGravModelArray[lGravModelType]];
                }
                else if (wxBodyName == "Venus")
@@ -868,8 +926,12 @@ void PropagationConfigPanel::PopulateForces()
                   else
                      vGravModelType = V_OTHER;
 
-                  primaryBodyList[currentBodyId]->gravType = venusGravModelArray[vGravModelType];
-                  primaryBodyList[currentBodyId]->potFilename =
+//                  primaryBodyList[currentBodyId]->gravType =
+//                        venusGravModelArray[vGravModelType];
+//                  primaryBodyList[currentBodyId]->potFilename =
+//                     theFileMap[venusGravModelArray[vGravModelType]];
+                  primaryBodyData->gravType = venusGravModelArray[vGravModelType];
+                  primaryBodyData->potFilename =
                      theFileMap[venusGravModelArray[vGravModelType]];
                }
                else if (wxBodyName == "Mars")
@@ -881,9 +943,14 @@ void PropagationConfigPanel::PopulateForces()
                   else
                      mGravModelType = M_OTHER;
 
-                  primaryBodyList[currentBodyId]->gravType = marsGravModelArray[mGravModelType];
-                  primaryBodyList[currentBodyId]->potFilename =
-                     theFileMap[marsGravModelArray[mGravModelType]];
+//                  primaryBodyList[currentBodyId]->gravType =
+//                        marsGravModelArray[mGravModelType];
+//                  primaryBodyList[currentBodyId]->potFilename =
+//                     theFileMap[marsGravModelArray[mGravModelType]];
+                  primaryBodyData->gravType =
+                        marsGravModelArray[mGravModelType];
+                  primaryBodyData->potFilename =
+                        theFileMap[marsGravModelArray[mGravModelType]];
                }
                else //other bodies
                {
@@ -891,8 +958,13 @@ void PropagationConfigPanel::PopulateForces()
 
                   oGravModelType = O_OTHER;
 
-                  primaryBodyList[currentBodyId]->gravType = othersGravModelArray[oGravModelType];
-                  primaryBodyList[currentBodyId]->potFilename =
+//                  primaryBodyList[currentBodyId]->gravType =
+//                        othersGravModelArray[oGravModelType];
+//                  primaryBodyList[currentBodyId]->potFilename =
+//                     theFileMap[othersGravModelArray[oGravModelType]];
+                  primaryBodyData->gravType =
+                        othersGravModelArray[oGravModelType];
+                  primaryBodyData->potFilename =
                      theFileMap[othersGravModelArray[oGravModelType]];
                }
 
@@ -900,33 +972,42 @@ void PropagationConfigPanel::PopulateForces()
                MessageInterface::ShowMessage("   Getting the gravity force\n");
                #endif
 
-               primaryBodyList[currentBodyId]->gravf = theGravForce;
+//               primaryBodyList[currentBodyId]->gravf = theGravForce;
+               primaryBodyData->gravf = theGravForce;
 
                // Set actual full potential file path (loj: 2007.10.26)
-               wxString gravTypeName = primaryBodyList[currentBodyId]->gravType;
+//               wxString gravTypeName = primaryBodyList[currentBodyId]->gravType;
+               wxString gravTypeName = primaryBodyData->gravType;
                std::string fileType = theFileMap[gravTypeName].c_str();
                if (gravTypeName != "None" && gravTypeName != "Other")
                {
-                  primaryBodyList[currentBodyId]->potFilename =
+//                  primaryBodyList[currentBodyId]->potFilename =
+//                     theGuiInterpreter->GetFileName(fileType).c_str();
+                  primaryBodyData->potFilename =
                      theGuiInterpreter->GetFileName(fileType).c_str();
                }
 
                // Warn user about bodies already added as Primary body
                Integer pmSize = (Integer)pointMassBodyList.size();
-               Integer last = (Integer)primaryBodyList.size() - 1;
+//               Integer last = (Integer)primaryBodyList.size() - 1;
 
                for (Integer i = 0; i < pmSize; i++)
                {
-                  if (strcmp(primaryBodyList[last]->bodyName.c_str(),
+//                  if (strcmp(primaryBodyList[last]->bodyName.c_str(),
+//                             pointMassBodyList[i]->bodyName.c_str()) == 0)
+                  if (strcmp(primaryBodyData->bodyName.c_str(),
                              pointMassBodyList[i]->bodyName.c_str()) == 0)
                   {
                      MessageInterface::PopupMessage
-                        (Gmat::WARNING_, "Cannot set %s both as Primary body and Point Mass",
-                         pointMassBodyList[last]->bodyName.c_str());
+                        (Gmat::WARNING_, "Cannot set %s both as Primary body "
+                         "and Point Mass",
+//                         pointMassBodyList[last]->bodyName.c_str());
+                         primaryBodyData->bodyName.c_str());
                   }
                }
 
-               if (primaryBodyList[currentBodyId]->potFilename == "")
+//               if (primaryBodyList[currentBodyId]->potFilename == "")
+               if (primaryBodyData->potFilename == "")
                {
                   MessageInterface::PopupMessage
                      (Gmat::WARNING_, "Cannot find Potential File for %s.\n",
@@ -935,57 +1016,67 @@ void PropagationConfigPanel::PopulateForces()
 
                tempStr = "";
                tempStr << theGravForce->GetIntegerParameter("Degree");
-               primaryBodyList[currentBodyId]->gravDegree = tempStr;
+//               primaryBodyList[currentBodyId]->gravDegree = tempStr;
+               primaryBodyData->gravDegree = tempStr;
 
                tempStr = "";
                tempStr << theGravForce->GetIntegerParameter("Order");
-               primaryBodyList[currentBodyId]->gravOrder = tempStr;
+//               primaryBodyList[currentBodyId]->gravOrder = tempStr;
+               primaryBodyData->gravOrder = tempStr;
 
-               bool found = false;
-               for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
-               {
-                  if ( primaryBodiesArray[i].CmpNoCase(wxBodyName) == 0 )
-                     found = true;
-               }
-
-               if (!found)
-                  primaryBodiesArray.Add(wxBodyName);
+//               bool found = false;
+//               for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
+//               {
+//                  if ( primaryBodiesArray[i].CmpNoCase(wxBodyName) == 0 )
+//                     found = true;
+//               }
+//
+//               if (!found)
+//                  primaryBodiesArray.Add(wxBodyName);
             }
             else if (wxForceType == "DragForce")
             {
                theDragForce = (DragForce*)force;
                paramId = theDragForce->GetParameterID("AtmosphereModel");
-               atmosModelString = theDragForce->GetStringParameter(paramId).c_str();
+               atmosModelString =
+                     theDragForce->GetStringParameter(paramId).c_str();
 
                currentBodyId = FindPrimaryBody(wxBodyName);
-               primaryBodyList[currentBodyId]->bodyName = wxBodyName;
-               primaryBodyList[currentBodyId]->dragType = atmosModelString;
-               primaryBodyList[currentBodyId]->dragf = theDragForce;
+//               primaryBodyList[currentBodyId]->bodyName = wxBodyName;
+//               primaryBodyList[currentBodyId]->dragType = atmosModelString;
+//               primaryBodyList[currentBodyId]->dragf = theDragForce;
+               primaryBodyData->bodyName = wxBodyName;
+               primaryBodyData->dragType = atmosModelString;
+               primaryBodyData->dragf = theDragForce;
 
                //Warn user about bodies already added as Primary body
                Integer pmSize = (Integer)pointMassBodyList.size();
-               Integer last = (Integer)primaryBodyList.size() - 1;
+//               Integer last = (Integer)primaryBodyList.size() - 1;
 
                for (Integer i = 0; i < pmSize; i++)
                {
-                  if (strcmp(primaryBodyList[last]->bodyName.c_str(),
+//                  if (strcmp(primaryBodyList[last]->bodyName.c_str(),
+//                             pointMassBodyList[i]->bodyName.c_str()) == 0)
+                  if (strcmp(primaryBodyData->bodyName.c_str(),
                              pointMassBodyList[i]->bodyName.c_str()) == 0)
                   {
                      MessageInterface::PopupMessage
-                        (Gmat::WARNING_, "Cannot set %s both as Primary body and Point Mass",
-                         pointMassBodyList[last]->bodyName.c_str());
+                        (Gmat::WARNING_, "Cannot set %s both as Primary body "
+                              "and Point Mass",
+//                              pointMassBodyList[last]->bodyName.c_str());
+                              primaryBodyData->bodyName.c_str());
                   }
                }
 
-               bool found = false;
-               for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
-               {
-                  if ( primaryBodiesArray[i].CmpNoCase(wxBodyName) == 0 )
-                     found = true;
-               }
-
-               if (!found)
-                  primaryBodiesArray.Add(wxBodyName.c_str());
+//               bool found = false;
+//               for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
+//               {
+//                  if ( primaryBodiesArray[i].CmpNoCase(wxBodyName) == 0 )
+//                     found = true;
+//               }
+//
+//               if (!found)
+//                  primaryBodiesArray.Add(wxBodyName.c_str());
             }
             else if (wxForceType == "SolarRadiationPressure")
             {
@@ -1032,10 +1123,12 @@ void PropagationConfigPanel::SaveData()
       //-----------------------------------------------------------------
       // check for empty primary bodies or point mass
       //-----------------------------------------------------------------
-      if (primaryBodyList.size() == 0 && pointMassBodyList.size() == 0)
+//      if (primaryBodyList.size() == 0 && pointMassBodyList.size() == 0)
+      if (primaryBodyData == NULL && pointMassBodyList.size() == 0)
       {
          MessageInterface::PopupMessage
-            (Gmat::WARNING_, "Please select primary bodies or point mass bodies\n");
+            (Gmat::WARNING_, "Please select primary bodies or point mass "
+                  "bodies\n");
          canClose = false;
          return;
       }
@@ -1043,13 +1136,16 @@ void PropagationConfigPanel::SaveData()
       //-----------------------------------------------------------------
       // check for valid gravity model before saving
       //-----------------------------------------------------------------
-      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+//      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+      if (primaryBodyData != NULL)
       {
-         if (primaryBodyList[i]->gravType == "None")
+//         if (primaryBodyList[i]->gravType == "None")
+         if (primaryBodyData->gravType == "None")
          {
             MessageInterface::PopupMessage
                (Gmat::WARNING_, "Please select Gravity Field Model for %s\n",
-                primaryBodyList[i]->bodyName.c_str());
+//                     primaryBodyList[i]->bodyName.c_str());
+                     primaryBodyData->bodyName.c_str());
             canClose = false;
             return;
          }
@@ -1131,13 +1227,15 @@ void PropagationConfigPanel::SaveData()
          }
 
          //----------------------------------------------------
-         // save gavity force model
+         // save gravity force model
          //----------------------------------------------------
          try
          {
-            for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+//            for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+            if (primaryBodyData != NULL)
             {
-               GravityField *gf = primaryBodyList[i]->gravf;
+//               GravityField *gf = primaryBodyList[i]->gravf;
+               GravityField *gf = primaryBodyData->gravf;
 
                Integer deg = -999;
                Integer ord = -999;
@@ -1149,20 +1247,20 @@ void PropagationConfigPanel::SaveData()
                   ord = gf->GetIntegerParameter("Order");
                }
 
-               // Create new GravityField since ForceModel destructor will delete
-               // all PhysicalModel
+               // Create new GravityField since ForceModel destructor will
+               // delete all PhysicalModel
+//               bodyName = primaryBodyList[i]->bodyName.c_str();
+               bodyName = primaryBodyData->bodyName.c_str();
                #ifdef DEBUG_PROP_PANEL_SAVE
-               MessageInterface::ShowMessage
-                  ("SaveData() Creating GravityField for %s\n", bodyName.c_str());
+                  MessageInterface::ShowMessage("SaveData() Creating "
+                        "GravityField for %s\n", bodyName.c_str());
                #endif
-
-               // create new GravityField
-               bodyName = primaryBodyList[i]->bodyName.c_str();
                theGravForce = new GravityField("", bodyName);
                theGravForce->SetSolarSystem(theSolarSystem);
                theGravForce->SetStringParameter("BodyName", bodyName);
                theGravForce->SetStringParameter("PotentialFile",
-                                                primaryBodyList[i]->potFilename.c_str());
+//                     primaryBodyList[i]->potFilename.c_str());
+                     primaryBodyData->potFilename.c_str());
 
                if (deg != -999)
                {
@@ -1170,7 +1268,8 @@ void PropagationConfigPanel::SaveData()
                   theGravForce->SetIntegerParameter("Order", ord);
                }
 
-               primaryBodyList[i]->gravf = theGravForce;
+//               primaryBodyList[i]->gravf = theGravForce;
+               primaryBodyData->gravf = theGravForce;
                newFm->AddForce(theGravForce);
             }
          }
@@ -1192,11 +1291,15 @@ void PropagationConfigPanel::SaveData()
 
          try
          {
-            for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+//            for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+            if (primaryBodyData != NULL)
             {
-               if (primaryBodyList[i]->dragType == dragModelArray[NONE_DM])
+//               if (primaryBodyList[i]->dragType == dragModelArray[NONE_DM])
+//               {
+//                  primaryBodyList[i]->dragf = NULL;
+               if (primaryBodyData->dragType == dragModelArray[NONE_DM])
                {
-                  primaryBodyList[i]->dragf = NULL;
+                  primaryBodyData->dragf = NULL;
                }
                else
                {
@@ -1208,7 +1311,8 @@ void PropagationConfigPanel::SaveData()
                   Real fluxF107A = -999.999;
                   Real kp = -999.999;
 
-                  DragForce *df = primaryBodyList[i]->dragf;
+//                  DragForce *df = primaryBodyList[i]->dragf;
+                  DragForce *df = primaryBodyData->dragf;
                   // save drag flux info for later use
                   if (df != NULL)
                   {
@@ -1218,8 +1322,11 @@ void PropagationConfigPanel::SaveData()
                   }
 
                   // create new DragForce
-                  bodyName = primaryBodyList[i]->bodyName.c_str();
-                  theDragForce = new DragForce(primaryBodyList[i]->dragType.c_str());
+//                  bodyName = primaryBodyList[i]->bodyName.c_str();
+                  bodyName = primaryBodyData->bodyName.c_str();
+//                  theDragForce = new DragForce(primaryBodyList[i]->dragType.c_str());
+                  theDragForce = new DragForce(
+                        primaryBodyData->dragType.c_str());
                   theCelestialBody = theSolarSystem->GetBody(bodyName);
                   theAtmosphereModel = theCelestialBody->GetAtmosphereModel();
 
@@ -1230,7 +1337,9 @@ void PropagationConfigPanel::SaveData()
                   if (theAtmosphereModel == NULL)
                   {
                      theAtmosphereModel = (AtmosphereModel*)theGuiInterpreter->CreateObject
-                        (primaryBodyList[i]->dragType.c_str(), primaryBodyList[i]->dragType.c_str());
+//                           (primaryBodyList[i]->dragType.c_str(), primaryBodyList[i]->dragType.c_str());
+                           (primaryBodyData->dragType.c_str(),
+                            primaryBodyData->dragType.c_str());
 
                      #ifdef DEBUG_PROP_PANEL_SAVE
                      ShowForceList("Exiting if (theAtmosphereModel == NULL)");
@@ -1244,8 +1353,11 @@ void PropagationConfigPanel::SaveData()
                   #endif
 
                   paramId = theDragForce->GetParameterID("AtmosphereModel");
-                  bodyName = primaryBodyList[i]->bodyName.c_str();
-                  theDragForce->SetStringParameter(paramId, primaryBodyList[i]->dragType.c_str());
+//                  bodyName = primaryBodyList[i]->bodyName.c_str();
+                  bodyName = primaryBodyData->bodyName.c_str();
+//                  theDragForce->SetStringParameter(paramId, primaryBodyList[i]->dragType.c_str());
+                  theDragForce->SetStringParameter(paramId,
+                        primaryBodyData->dragType.c_str());
                   theDragForce->SetStringParameter("BodyName", bodyName);
 
                   // if drag force was previous defined, set previous flux value
@@ -1256,7 +1368,8 @@ void PropagationConfigPanel::SaveData()
                      theDragForce->SetRealParameter("MagneticIndex", kp);
                   }
 
-                  primaryBodyList[i]->dragf = theDragForce;
+//                  primaryBodyList[i]->dragf = theDragForce;
+                  primaryBodyData->dragf = theDragForce;
                   newFm->AddForce(theDragForce);
 
                   #ifdef DEBUG_PROP_PANEL_SAVE
@@ -1351,7 +1464,8 @@ void PropagationConfigPanel::SaveData()
             theForceModel->SetName(fmName);
 
             PhysicalModel *pm;
-            int size = primaryBodyList.size();
+//            int size = primaryBodyList.size();
+            int size = (primaryBodyData == NULL ? 0 : 1);
             for (int i=0; i<numOfForces; i++)
             {
                pm = theForceModel->GetForce(i);
@@ -1364,16 +1478,22 @@ void PropagationConfigPanel::SaveData()
 
                for (int j=0; j<size; j++)
                {
-                  if ((primaryBodyList[j]->bodyName).IsSameAs(pm->GetBodyName().c_str()))
+//                  if ((primaryBodyList[j]->bodyName).IsSameAs(pm->GetBodyName().c_str()))
+                  if ((primaryBodyData->bodyName).IsSameAs(
+                        pm->GetBodyName().c_str()))
                   {
                      if (pm->GetTypeName() == "PointMassForce")
-                        primaryBodyList[j]->pmf = (PointMassForce*)pm;
+//                        primaryBodyList[j]->pmf = (PointMassForce*)pm;
+                        primaryBodyData->pmf = (PointMassForce*)pm;
                      else if (pm->GetTypeName() == "GravityField")
-                        primaryBodyList[j]->gravf = (GravityField*)pm;
+//                        primaryBodyList[j]->gravf = (GravityField*)pm;
+                        primaryBodyData->gravf = (GravityField*)pm;
                      else if (pm->GetTypeName() == "DragForce")
-                        primaryBodyList[j]->dragf = (DragForce*)pm;
+//                        primaryBodyList[j]->dragf = (DragForce*)pm;
+                        primaryBodyData->dragf = (DragForce*)pm;
                      else if (pm->GetTypeName() == "SolarRadiationPressure")
-                        primaryBodyList[j]->srpf = (SolarRadiationPressure*)pm;
+//                        primaryBodyList[j]->srpf = (SolarRadiationPressure*)pm;
+                        primaryBodyData->srpf = (SolarRadiationPressure*)pm;
                   }
                }
             }
@@ -1487,16 +1607,19 @@ Integer PropagationConfigPanel::FindPrimaryBody(const wxString &bodyName,
                                                 const wxString &dragType,
                                                 const wxString &magfType)
 {
-   for (Integer i=0; i<(Integer)primaryBodyList.size(); i++)
+//   for (Integer i=0; i<(Integer)primaryBodyList.size(); i++)
+   if (primaryBodyData != NULL)
    {
-      if (primaryBodyList[i]->bodyName == bodyName)
-         return i;
+//      if (primaryBodyList[i]->bodyName == bodyName)
+      if (primaryBodyData->bodyName == bodyName)
+         return 0;
    }
 
    if (!create)
       return -1;
 
-   primaryBodyList.push_back(new ForceType(bodyName, gravType, dragType, magfType));
+//   primaryBodyList.push_back(new ForceType(bodyName, gravType, dragType, magfType));
+   primaryBodyData = new ForceType(bodyName, gravType, dragType, magfType);
 
    // Set gravity model file
    if (theFileMap.find(gravType) != theFileMap.end())
@@ -1504,14 +1627,16 @@ Integer PropagationConfigPanel::FindPrimaryBody(const wxString &bodyName,
       std::string potFileType = theFileMap[gravType].c_str();
       wxString wxPotFileName = theGuiInterpreter->GetFileName(potFileType).c_str();
       //MessageInterface::ShowMessage("===> potFile=%s\n", potFileType.c_str());
-      primaryBodyList.back()->potFilename = wxPotFileName;
+//      primaryBodyList.back()->potFilename = wxPotFileName;
+      primaryBodyData->potFilename = wxPotFileName;
    }
 
    #ifdef DEBUG_PROP_PANEL_FIND_BODY
    ShowForceList("FindPrimaryBody() after add body to primaryBodyList");
    #endif
 
-   return (Integer)(primaryBodyList.size() - 1);
+//   return (Integer)(primaryBodyList.size() - 1);
+   return (primaryBodyData == NULL ? 0 : 1);
 }
 
 
@@ -1708,23 +1833,31 @@ void PropagationConfigPanel::DisplayIntegratorData(bool integratorChanged)
          // Display the force model origin (central body)
          theOriginComboBox->SetValue(propOriginName);
 
-         if (!primaryBodiesArray.IsEmpty())
+//         if (!primaryBodiesArray.IsEmpty())
+         if (primaryBody != "None")
          {
-            primaryBodyString = primaryBodiesArray.Item(0).c_str();
+//            primaryBodyString = primaryBodiesArray.Item(0).c_str();
+            primaryBodyString = primaryBody.c_str();
             currentBodyName = primaryBodyString;
             currentBodyId = FindPrimaryBody(currentBodyName);
          }
 
-         numOfBodies = (Integer)primaryBodiesArray.GetCount();
-         thePrimaryBodyComboBox->Clear();
-         if (numOfBodies > 0)
-         {
-            for (Integer index = 0; index < numOfBodies; ++index)
-               thePrimaryBodyComboBox->Append(primaryBodiesArray[index].c_str());
-            thePrimaryBodyComboBox->SetSelection(0);
-         }
-
-         if (numOfBodies == 0)
+//         numOfBodies = (Integer)primaryBodiesArray.GetCount();
+//         thePrimaryBodyComboBox->Clear();
+//         if (numOfBodies > 0)
+//         {
+//            for (Integer index = 0; index < numOfBodies; ++index)
+//               thePrimaryBodyComboBox->Append(primaryBodiesArray[index].c_str());
+//            thePrimaryBodyComboBox->SetSelection(0);
+//         }
+         UpdatePrimaryBodyComboBoxList();
+//         thePrimaryBodyComboBox->SetValue(primaryBodyList[0]->bodyName.c_str());
+         if (primaryBodyData != NULL)
+            thePrimaryBodyComboBox->SetValue(primaryBodyData->bodyName.c_str());
+         else
+            thePrimaryBodyComboBox->SetValue("None");
+//         if (numOfBodies == 0)
+         if (primaryBody == "None")
             EnablePrimaryBodyItems(false, false);
          else
             EnablePrimaryBodyItems(true);
@@ -1877,7 +2010,8 @@ void PropagationConfigPanel::DisplayForceData()
    if (!pointMassBodyList.empty())
       DisplayPointMassData();
 
-   if (primaryBodyList.empty())
+//   if (primaryBodyList.empty())
+   if (primaryBodyData == NULL)
       return;
 
    DisplayPrimaryBodyData();
@@ -1892,18 +2026,21 @@ void PropagationConfigPanel::DisplayForceData()
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::DisplayPrimaryBodyData()
 {
-   Integer bodyIndex = 0;
+//   Integer bodyIndex = 0;
+//
+//   bodyTextCtrl->Clear();
+//
+//   for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
+//   {
+//      bodyTextCtrl->AppendText(primaryBodiesArray.Item(i) + " ");
+//      if ( primaryBodiesArray[i].CmpNoCase(primaryBodyString) == 0 )
+//         bodyIndex = i;
+//   }
+//
+//   thePrimaryBodyComboBox->SetSelection(bodyIndex);
 
-   bodyTextCtrl->Clear();
-
-   for (Integer i = 0; i < (Integer)primaryBodiesArray.GetCount(); i++)
-   {
-      bodyTextCtrl->AppendText(primaryBodiesArray.Item(i) + " ");
-      if ( primaryBodiesArray[i].CmpNoCase(primaryBodyString) == 0 )
-         bodyIndex = i;
-   }
-
-   thePrimaryBodyComboBox->SetSelection(bodyIndex);
+   // todo If none, should we check (and delete) primaryBodyData pointer here?
+   thePrimaryBodyComboBox->SetValue(primaryBody);
 }
 
 //------------------------------------------------------------------------------
@@ -1914,13 +2051,15 @@ void PropagationConfigPanel::DisplayGravityFieldData(const wxString& bodyName)
    #ifdef DEBUG_PROP_PANEL_GRAV
    MessageInterface::ShowMessage
       ("DisplayGravityFieldData() currentBodyName=%s gravType=%s\n",
-       currentBodyName.c_str(), primaryBodyList[currentBodyId]->gravType.c_str());
+//       currentBodyName.c_str(), primaryBodyList[currentBodyId]->gravType.c_str());
+       currentBodyName.c_str(), primaryBodyData->gravType.c_str());
    ShowForceList("DisplayGravityFieldData() entered");
    #endif
 
    theGravModelComboBox->Clear();
 
-   wxString gravType = primaryBodyList[currentBodyId]->gravType;
+//   wxString gravType = primaryBodyList[currentBodyId]->gravType;
+   wxString gravType = primaryBodyData->gravType;
 
    // for gravity model ComboBox
    if (bodyName == "Earth")
@@ -1983,7 +2122,8 @@ void PropagationConfigPanel::DisplayGravityFieldData(const wxString& bodyName)
    potFileTextCtrl->Enable(false);
    gravityDegreeTextCtrl->Enable(true);
    gravityOrderTextCtrl->Enable(true);
-   potFileTextCtrl->SetValue(primaryBodyList[currentBodyId]->potFilename);
+//   potFileTextCtrl->SetValue(primaryBodyList[currentBodyId]->potFilename);
+   potFileTextCtrl->SetValue(primaryBodyData->potFilename);
 
    if (gravType == "None")
    {
@@ -1992,7 +2132,8 @@ void PropagationConfigPanel::DisplayGravityFieldData(const wxString& bodyName)
    }
    else
    {
-      if (primaryBodyList[currentBodyId]->gravType == "Other")
+//      if (primaryBodyList[currentBodyId]->gravType == "Other")
+      if (primaryBodyData->gravType == "Other")
       {
          theGravModelSearchButton->Enable(true);
          potFileStaticText->Enable(true);
@@ -2001,8 +2142,10 @@ void PropagationConfigPanel::DisplayGravityFieldData(const wxString& bodyName)
    }
 
    theGravModelComboBox->SetValue(gravType);
-   gravityDegreeTextCtrl->SetValue(primaryBodyList[currentBodyId]->gravDegree);
-   gravityOrderTextCtrl->SetValue(primaryBodyList[currentBodyId]->gravOrder);
+//   gravityDegreeTextCtrl->SetValue(primaryBodyList[currentBodyId]->gravDegree);
+//   gravityOrderTextCtrl->SetValue(primaryBodyList[currentBodyId]->gravOrder);
+   gravityDegreeTextCtrl->SetValue(primaryBodyData->gravDegree);
+   gravityOrderTextCtrl->SetValue(primaryBodyData->gravOrder);
 
    #ifdef DEBUG_PROP_PANEL_GRAV
    ShowForceList("DisplayGravityFieldData() exiting");
@@ -2032,24 +2175,29 @@ void PropagationConfigPanel::DisplayAtmosphereModelData()
    }
 
    // Set current drag force pointer
-   theDragForce = primaryBodyList[currentBodyId]->dragf;
+//   theDragForce = primaryBodyList[currentBodyId]->dragf;
+   theDragForce = primaryBodyData->dragf;
 
-   if (primaryBodyList[currentBodyId]->dragType == dragModelArray[NONE_DM])
+//   if (primaryBodyList[currentBodyId]->dragType == dragModelArray[NONE_DM])
+   if (primaryBodyData->dragType == dragModelArray[NONE_DM])
    {
       theAtmosModelComboBox->SetSelection(NONE_DM);
       theDragSetupButton->Enable(false);
    }
-//   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
+////   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
+//   else if (primaryBodyData->dragType == dragModelArray[EXPONENTIAL])
 //   {
 //      theAtmosModelComboBox->SetSelection(EXPONENTIAL);
 //      theDragSetupButton->Enable(false);
 //   }
-   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[MSISE90])
+//   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[MSISE90])
+   else if (primaryBodyData->dragType == dragModelArray[MSISE90])
    {
       theAtmosModelComboBox->SetSelection(MSISE90);
       theDragSetupButton->Enable(true);
    }
-   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[JR])
+//   else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[JR])
+   else if (primaryBodyData->dragType == dragModelArray[JR])
    {
       theAtmosModelComboBox->SetSelection(JR);
       theDragSetupButton->Enable(true);
@@ -2074,7 +2222,8 @@ void PropagationConfigPanel::DisplayPointMassData()
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::DisplayMagneticFieldData()
 {
-   if (primaryBodyList[currentBodyId]->magfType == magfModelArray[NONE_MM])
+//   if (primaryBodyList[currentBodyId]->magfType == magfModelArray[NONE_MM])
+   if (primaryBodyData->magfType == magfModelArray[NONE_MM])
    {
       theMagfModelComboBox->SetSelection(NONE_MM);
    }
@@ -2159,10 +2308,16 @@ void PropagationConfigPanel::EnablePrimaryBodyItems(bool enable, bool clear)
    {
       if (clear)
       {
-         primaryBodyList.clear();
-         primaryBodiesArray.Clear();
+//         primaryBodyList.clear();
+         if (primaryBodyData != NULL)
+         {
+            delete primaryBodyData;
+            primaryBodyData = NULL;
+         }
+//         primaryBodiesArray.Clear();
+         primaryBody = "None";
          thePrimaryBodyComboBox->Clear();
-         bodyTextCtrl->Clear();
+//         bodyTextCtrl->Clear();
       }
 
       theGravModelComboBox->Enable(false);
@@ -2183,8 +2338,8 @@ void PropagationConfigPanel::EnablePrimaryBodyItems(bool enable, bool clear)
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::UpdatePrimaryBodyItems()
 {
-   if (primaryBodiesArray.IsEmpty())
-      return;
+   // Reworked for only one primary allowed; the multiple-body code is
+   // commented out below
 
    wxString selBody = thePrimaryBodyComboBox->GetStringSelection();
 
@@ -2193,6 +2348,9 @@ void PropagationConfigPanel::UpdatePrimaryBodyItems()
       primaryBodyString = thePrimaryBodyComboBox->GetStringSelection();
       currentBodyName = selBody;
       currentBodyId = FindPrimaryBody(currentBodyName);
+      primaryBody = selBody;
+
+      isForceModelChanged = true;
 
       DisplayGravityFieldData(currentBodyName);
       DisplayAtmosphereModelData();
@@ -2200,17 +2358,58 @@ void PropagationConfigPanel::UpdatePrimaryBodyItems()
       DisplaySRPData();
    }
 
-//    // Enable atmosphere model only for Earth
-//    if (strcmp(selBody, "Earth") == 0)
-//    {
-//       theAtmosModelComboBox->Enable(true);
-//       theDragSetupButton->Enable(true);
-//    }
-//    else
-//    {
-//       theAtmosModelComboBox->Enable(false);
-//       theDragSetupButton->Enable(false);
-//    }
+//   if (primaryBodiesArray.IsEmpty())
+//      return;
+//
+//   wxString selBody = thePrimaryBodyComboBox->GetStringSelection();
+//
+//   if (currentBodyName != selBody)
+//   {
+//      primaryBodyString = thePrimaryBodyComboBox->GetStringSelection();
+//      currentBodyName = selBody;
+//      currentBodyId = FindPrimaryBody(currentBodyName);
+//
+//      DisplayGravityFieldData(currentBodyName);
+//      DisplayAtmosphereModelData();
+//      DisplayMagneticFieldData();
+//      DisplaySRPData();
+//   }
+}
+
+
+//------------------------------------------------------------------------------
+// void PropagationConfigPanel::UpdatePrimaryBodyComboBoxList()
+//------------------------------------------------------------------------------
+/**
+ * This method updates the list of bodies available for use as the primary body.
+ *
+ * The thePrimaryBodyComboBox widget for release 1.0 of GMAT is used to select
+ * a primary body for the single allowed source of full field gravity (a 1.0
+ * restriction that might be removed in a later release).  This method populates
+ * the combobox with the available bodies, omitting any that are used as point
+ * masses and adding an option to select "None", indicating that there is no
+ * ful field gravity in teh force model.
+ */
+//------------------------------------------------------------------------------
+void PropagationConfigPanel::UpdatePrimaryBodyComboBoxList()
+{
+   wxArrayString cBodies = theGuiManager->GetConfigBodyList();
+   thePrimaryBodyComboBox->Clear();
+   thePrimaryBodyComboBox->Append("None");
+
+   #ifdef DEBUG_PROP_PANEL_GRAV
+      MessageInterface::ShowMessage("Celestial bodies:\n");
+   #endif
+   for (UnsignedInt i = 0; i < cBodies.GetCount(); ++i)
+   {
+      if (secondaryBodiesArray.Index(cBodies[i]) == wxNOT_FOUND)
+      {
+         #ifdef DEBUG_PROP_PANEL_GRAV
+            MessageInterface::ShowMessage("   %s\n", cBodies[i].c_str());
+         #endif
+         thePrimaryBodyComboBox->Append(cBodies[i].c_str());
+      }
+   }
 }
 
 
@@ -2478,12 +2677,16 @@ bool PropagationConfigPanel::SaveDegOrder()
       #endif
 
       // find gravity force pointer
-      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+//      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+      if (primaryBodyData != NULL)
       {
-         if (primaryBodyList[i]->gravType != "None")
+//         if (primaryBodyList[i]->gravType != "None")
+         if (primaryBodyData->gravType != "None")
          {
-            theGravForce = primaryBodyList[i]->gravf;
-            if (theGravForce != NULL && primaryBodyList[i]->bodyName == bodyName)
+//            theGravForce = primaryBodyList[i]->gravf;
+            theGravForce = primaryBodyData->gravf;
+//            if (theGravForce != NULL && primaryBodyList[i]->bodyName == bodyName)
+            if (theGravForce != NULL && primaryBodyData->bodyName == bodyName)
             {
                theGravForce->SetIntegerParameter("Degree", degree);
                theGravForce->SetIntegerParameter("Order", order);
@@ -2522,20 +2725,26 @@ bool PropagationConfigPanel::SavePotFile()
                          thePropSetup->GetName() + "\" is not an allowed value.  "
                         "\nThe allowed values are: [ %s ].";
 
-      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+      //      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+      if (primaryBodyData != NULL)
       {
-         if (primaryBodyList[i]->gravType != "None")
+//         if (primaryBodyList[i]->gravType != "None")
+         if (primaryBodyData->gravType != "None")
          {
-            theGravForce = primaryBodyList[i]->gravf;
+//            theGravForce = primaryBodyList[i]->gravf;
+            theGravForce = primaryBodyData->gravf;
             if (theGravForce != NULL)
             {
                #ifdef DEBUG_PROP_PANEL_SAVE
                   MessageInterface::ShowMessage
                     ("SavePotFile() Saving Body:%s, potFile=%s\n",
-                    primaryBodyList[i]->bodyName.c_str(), primaryBodyList[i]->potFilename.c_str());
+//                          primaryBodyList[i]->bodyName.c_str(), primaryBodyList[i]->potFilename.c_str());
+                     primaryBodyData->bodyName.c_str(),
+                     primaryBodyData->potFilename.c_str());
                #endif
 
-               inputString = primaryBodyList[i]->potFilename.c_str();
+//               inputString = primaryBodyList[i]->potFilename.c_str();
+               inputString = primaryBodyData->potFilename.c_str();
                std::ifstream filename(inputString.c_str());
 
 //               // Check if the file doesn't exist then stop
@@ -2550,7 +2759,8 @@ bool PropagationConfigPanel::SavePotFile()
 
                filename.close();
                theGravForce->SetStringParameter("PotentialFile",
-                                                primaryBodyList[i]->potFilename.c_str());
+//                     primaryBodyList[i]->potFilename.c_str());
+                     primaryBodyData->potFilename.c_str());
             }
          }
       }
@@ -2591,15 +2801,19 @@ bool PropagationConfigPanel::SaveAtmosModel()
       ("   bodyName=%s, dragType=%s\n", bodyName.c_str(), dragType.c_str());
    #endif
 
-   for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+//   for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+   if (primaryBodyData != NULL)
    {
-      if (primaryBodyList[i]->dragType != dragModelArray[NONE_DM])
+//      if (primaryBodyList[i]->dragType != dragModelArray[NONE_DM])
+      if (primaryBodyData->dragType != dragModelArray[NONE_DM])
       {
-         theDragForce = primaryBodyList[i]->dragf;
-         if (theDragForce != NULL && primaryBodyList[i]->bodyName == bodyName)
+//         theDragForce = primaryBodyList[i]->dragf;
+         theDragForce = primaryBodyData->dragf;
+//         if (theDragForce != NULL && primaryBodyList[i]->bodyName == bodyName)
+         if (theDragForce != NULL && primaryBodyData->bodyName == bodyName)
          {
             dragForceFound = true;
-            break;
+//            break;
          }
       }
    }
@@ -2708,21 +2922,26 @@ void PropagationConfigPanel::OnOriginComboBox(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::OnGravityModelComboBox(wxCommandEvent &event)
 {
-   if (primaryBodiesArray.IsEmpty())
+//   if (primaryBodiesArray.IsEmpty())
+   if (primaryBody == "None")
       return;
 
    gravTypeName = theGravModelComboBox->GetStringSelection();
 
-   if (primaryBodyList[currentBodyId]->gravType != gravTypeName)
+//   if (primaryBodyList[currentBodyId]->gravType != gravTypeName)
+   if (primaryBodyData->gravType != gravTypeName)
    {
       #ifdef DEBUG_PROP_PANEL_GRAV
       MessageInterface::ShowMessage
          ("OnGravityModelComboBox() grav changed from=%s to=%s for body=%s\n",
-          primaryBodyList[currentBodyId]->gravType.c_str(), gravTypeName.c_str(),
-          primaryBodyList[currentBodyId]->bodyName.c_str());
+//          primaryBodyList[currentBodyId]->gravType.c_str(), gravTypeName.c_str(),
+//          primaryBodyList[currentBodyId]->bodyName.c_str());
+            primaryBodyData->gravType.c_str(), gravTypeName.c_str(),
+            primaryBodyData->bodyName.c_str());
       #endif
 
-      primaryBodyList[currentBodyId]->gravType = gravTypeName;
+//      primaryBodyList[currentBodyId]->gravType = gravTypeName;
+      primaryBodyData->gravType = gravTypeName;
 
       if (gravTypeName != "None" && gravTypeName != "Other")
       {
@@ -2731,7 +2950,8 @@ void PropagationConfigPanel::OnGravityModelComboBox(wxCommandEvent &event)
 
          try
          {
-            primaryBodyList[currentBodyId]->potFilename =
+//            primaryBodyList[currentBodyId]->potFilename =
+            primaryBodyData->potFilename =
                theGuiInterpreter->GetFileName(fileType).c_str();
          }
          catch (BaseException &e)
@@ -2743,17 +2963,21 @@ void PropagationConfigPanel::OnGravityModelComboBox(wxCommandEvent &event)
       }
       else if (gravTypeName == "Other")
       {
-         primaryBodyList[currentBodyId]->potFilename = potFileTextCtrl->GetValue();
+//         primaryBodyList[currentBodyId]->potFilename = potFileTextCtrl->GetValue();
+         primaryBodyData->potFilename = potFileTextCtrl->GetValue();
       }
 
       #ifdef DEBUG_PROP_PANEL_GRAV
       MessageInterface::ShowMessage
          ("OnGravityModelComboBox() bodyName=%s, potFile=%s\n",
-          primaryBodyList[currentBodyId]->bodyName.c_str(),
-          primaryBodyList[currentBodyId]->potFilename.c_str());
+//          primaryBodyList[currentBodyId]->bodyName.c_str(),
+//          primaryBodyList[currentBodyId]->potFilename.c_str());
+          primaryBodyData->bodyName.c_str(),
+          primaryBodyData->potFilename.c_str());
       #endif
 
-      DisplayGravityFieldData(primaryBodyList[currentBodyId]->bodyName);
+//      DisplayGravityFieldData(primaryBodyList[currentBodyId]->bodyName);
+      DisplayGravityFieldData(primaryBodyData->bodyName);
 
       isPotFileChanged = true;
       EnableUpdate(true);
@@ -2766,7 +2990,8 @@ void PropagationConfigPanel::OnGravityModelComboBox(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::OnAtmosphereModelComboBox(wxCommandEvent &event)
 {
-   if (primaryBodiesArray.IsEmpty())
+//   if (primaryBodiesArray.IsEmpty())
+   if (primaryBody == "None")
       return;
 
    #ifdef DEBUG_PROP_PANEL_ATMOS
@@ -2777,10 +3002,12 @@ void PropagationConfigPanel::OnAtmosphereModelComboBox(wxCommandEvent &event)
    dragTypeName = theAtmosModelComboBox->GetStringSelection();
 
    // if we are creating new DragForce, set isForceModelChanged
-   if (primaryBodyList[currentBodyId]->dragf == NULL)
+//   if (primaryBodyList[currentBodyId]->dragf == NULL)
+   if (primaryBodyData->dragf == NULL)
       isForceModelChanged = true;
 
-   if (primaryBodyList[currentBodyId]->dragType != dragTypeName)
+//   if (primaryBodyList[currentBodyId]->dragType != dragTypeName)
+   if (primaryBodyData->dragType != dragTypeName)
    {
       #ifdef DEBUG_PROP_PANEL_ATMOS
       MessageInterface::ShowMessage
@@ -2789,7 +3016,8 @@ void PropagationConfigPanel::OnAtmosphereModelComboBox(wxCommandEvent &event)
           primaryBodyList[currentBodyId]->bodyName.c_str());
       #endif
 
-      primaryBodyList[currentBodyId]->dragType = dragTypeName;
+//      primaryBodyList[currentBodyId]->dragType = dragTypeName;
+      primaryBodyData->dragType = dragTypeName;
       DisplayAtmosphereModelData();
 
       isForceModelChanged = true;
@@ -2919,70 +3147,74 @@ void PropagationConfigPanel::OnPropEpochComboBox(wxCommandEvent &)
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::OnAddBodyButton(wxCommandEvent &event)
 {
-   CelesBodySelectDialog bodyDlg(this, primaryBodiesArray, secondaryBodiesArray);
-   bodyDlg.ShowModal();
+//   CelesBodySelectDialog bodyDlg(this, primaryBodiesArray, secondaryBodiesArray);
+//   bodyDlg.ShowModal();
 
-   if (bodyDlg.IsBodySelected())
-   {
-      wxArrayString &names = bodyDlg.GetBodyNames();
-
-      if (names.IsEmpty())
-      {
-         EnablePrimaryBodyItems(false, true);
-
-         EnableUpdate(true);
-         isForceModelChanged = true;
-         return;
-      }
-      else
-      {
-         EnablePrimaryBodyItems(true);
-      }
-
-      std::vector<ForceType*> oldList;
-      wxString bodyName;
-
-      oldList = primaryBodyList;
-      primaryBodyList.clear();
-      primaryBodiesArray.Clear();
-
-      for (Integer i = 0; i < (Integer)names.GetCount(); i++)
-      {
-         bodyName = names[i];
-         primaryBodiesArray.Add(bodyName.c_str());
-
-         // Set default gravity model file for display
-         if (bodyName == "Earth")
-            currentBodyId = FindPrimaryBody(bodyName, true, earthGravModelArray[JGM2]);
-         else if (bodyName == "Luna")
-            currentBodyId = FindPrimaryBody(bodyName, true, lunaGravModelArray[LP165]);
-         else if (bodyName == "Venus")
-            currentBodyId = FindPrimaryBody(bodyName, true, venusGravModelArray[MGNP180U]);
-         else if (bodyName == "Mars")
-            currentBodyId = FindPrimaryBody(bodyName, true, marsGravModelArray[MARS50C]);
-         else
-            currentBodyId = FindPrimaryBody(bodyName, true, othersGravModelArray[O_NONE_GM]);
-
-
-         // Copy old body force model
-         for (Integer j = 0; j < (Integer)oldList.size(); j++)
-            if (bodyName == oldList[j]->bodyName)
-               primaryBodyList[currentBodyId] = oldList[j];
-      }
-   }
+//   if (bodyDlg.IsBodySelected())
+//   {
+//      wxArrayString &names = bodyDlg.GetBodyNames();
+//
+//      if (names.IsEmpty())
+//      {
+//         EnablePrimaryBodyItems(false, true);
+//
+//         EnableUpdate(true);
+//         isForceModelChanged = true;
+//         return;
+//      }
+//      else
+//      {
+//         EnablePrimaryBodyItems(true);
+//      }
+//
+//      std::vector<ForceType*> oldList;
+//      wxString bodyName;
+//
+//      oldList = primaryBodyList;
+//      primaryBodyList.clear();
+//      primaryBodiesArray.Clear();
+//      primaryBody = "None";
+//
+//      for (Integer i = 0; i < (Integer)names.GetCount(); i++)
+//      {
+//         bodyName = names[i];
+//         primaryBodiesArray.Add(bodyName.c_str());
+//
+//         // Set default gravity model file for display
+//         if (bodyName == "Earth")
+//            currentBodyId = FindPrimaryBody(bodyName, true, earthGravModelArray[JGM2]);
+//         else if (bodyName == "Luna")
+//            currentBodyId = FindPrimaryBody(bodyName, true, lunaGravModelArray[LP165]);
+//         else if (bodyName == "Venus")
+//            currentBodyId = FindPrimaryBody(bodyName, true, venusGravModelArray[MGNP180U]);
+//         else if (bodyName == "Mars")
+//            currentBodyId = FindPrimaryBody(bodyName, true, marsGravModelArray[MARS50C]);
+//         else
+//            currentBodyId = FindPrimaryBody(bodyName, true, othersGravModelArray[O_NONE_GM]);
+//
+//
+//         // Copy old body force model
+//         for (Integer j = 0; j < (Integer)oldList.size(); j++)
+//            if (bodyName == oldList[j]->bodyName)
+//               primaryBodyList[currentBodyId] = oldList[j];
+//      }
+//   }
 
    //----------------------------------------------
    // Append body names to combobox and text field
    //----------------------------------------------
-   thePrimaryBodyComboBox->Clear();
-   bodyTextCtrl->Clear();
-   wxString name;
-   for (Integer i = 0; i < (Integer)primaryBodyList.size(); i++)
-   {
-      name = primaryBodyList[i]->bodyName.c_str();
-      thePrimaryBodyComboBox->Append(primaryBodyList[i]->bodyName.c_str());
-      thePrimaryBodyComboBox->SetValue(primaryBodyList[i]->bodyName.c_str());
-   }
+//   thePrimaryBodyComboBox->Clear();
+//   bodyTextCtrl->Clear();
+//   wxString name;
+//   for (Integer i = 0; i < (Integer)primaryBodyList.size(); i++)
+//   {
+//      name = primaryBodyList[i]->bodyName.c_str();
+//      thePrimaryBodyComboBox->Append(primaryBodyList[i]->bodyName.c_str());
+//      thePrimaryBodyComboBox->SetValue(primaryBodyList[i]->bodyName.c_str());
+//   }
+   UpdatePrimaryBodyComboBoxList();
+//   thePrimaryBodyComboBox->SetValue(primaryBodyList[0]->bodyName.c_str());
+   thePrimaryBodyComboBox->SetValue(primaryBodyData->bodyName.c_str());
 
    UpdatePrimaryBodyItems();
    DisplayForceData();
@@ -3029,20 +3261,31 @@ void PropagationConfigPanel::OnGravSearchButton(wxCommandEvent &event)
          return;
       }
 
-      primaryBodyList[currentBodyId]->potFilename = filename;
+//      primaryBodyList[currentBodyId]->potFilename = filename;
+      primaryBodyData->potFilename = filename;
 
-      if (primaryBodyList[currentBodyId]->bodyName == "Earth")
-         primaryBodyList[currentBodyId]->gravType = earthGravModelArray[E_OTHER];
-      else if (primaryBodyList[currentBodyId]->bodyName == "Luna")
-         primaryBodyList[currentBodyId]->gravType = lunaGravModelArray[L_OTHER];
-      else if (primaryBodyList[currentBodyId]->bodyName == "Mars")
-         primaryBodyList[currentBodyId]->gravType = marsGravModelArray[M_OTHER];
+//      if (primaryBodyList[currentBodyId]->bodyName == "Earth")
+//         primaryBodyList[currentBodyId]->gravType = earthGravModelArray[E_OTHER];
+//      else if (primaryBodyList[currentBodyId]->bodyName == "Luna")
+//         primaryBodyList[currentBodyId]->gravType = lunaGravModelArray[L_OTHER];
+//      else if (primaryBodyList[currentBodyId]->bodyName == "Mars")
+//         primaryBodyList[currentBodyId]->gravType = marsGravModelArray[M_OTHER];
+//      else //other bodies
+//         primaryBodyList[currentBodyId]->gravType = othersGravModelArray[O_OTHER];
+      if (primaryBodyData->bodyName == "Earth")
+         primaryBodyData->gravType = earthGravModelArray[E_OTHER];
+      else if (primaryBodyData->bodyName == "Luna")
+         primaryBodyData->gravType = lunaGravModelArray[L_OTHER];
+      else if (primaryBodyData->bodyName == "Mars")
+         primaryBodyData->gravType = marsGravModelArray[M_OTHER];
+      // todo Add Venus here?
       else //other bodies
-         primaryBodyList[currentBodyId]->gravType = othersGravModelArray[O_OTHER];
+         primaryBodyData->gravType = othersGravModelArray[O_OTHER];
 
       //loj: Do we need to show? body name didn't change
       //waw: Yes, we need to update the degree & order displays (10/17/06)
-      DisplayGravityFieldData(primaryBodyList[currentBodyId]->bodyName);
+//      DisplayGravityFieldData(primaryBodyList[currentBodyId]->bodyName);
+      DisplayGravityFieldData(primaryBodyData->bodyName);
       isDegOrderChanged = true;
       EnableUpdate(true);
    }
@@ -3057,7 +3300,8 @@ void PropagationConfigPanel::OnSetupButton(wxCommandEvent &event)
    DragForce *dragForce = NULL;
 
    // if DragForce has not been created, create it first by calling SaveData()
-   if (primaryBodyList[currentBodyId]->dragf == NULL)
+//   if (primaryBodyList[currentBodyId]->dragf == NULL)
+   if (primaryBodyData->dragf == NULL)
    {
       isForceModelChanged = true;
       SaveData();
@@ -3067,22 +3311,26 @@ void PropagationConfigPanel::OnSetupButton(wxCommandEvent &event)
       SaveAtmosModel();
    }
 
-   dragForce = primaryBodyList[currentBodyId]->dragf;
+//   dragForce = primaryBodyList[currentBodyId]->dragf;
+   dragForce = primaryBodyData->dragf;
    if (dragForce != NULL)
    {
-//      if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
+////      if (primaryBodyList[currentBodyId]->dragType == dragModelArray[EXPONENTIAL])
+//      if (primaryBodyData->dragType == dragModelArray[EXPONENTIAL])
 //      {
 //         // TBD by Code 595
 //         //DragInputsDialog dragDlg(this, dragForce, "ExponentialDragDialog");
 //         //dragDlg.ShowModal();
 //      }
 //      else
-      if (primaryBodyList[currentBodyId]->dragType == dragModelArray[MSISE90])
+//      if (primaryBodyList[currentBodyId]->dragType == dragModelArray[MSISE90])
+      if (primaryBodyData->dragType == dragModelArray[MSISE90])
       {
          DragInputsDialog dragDlg(this, dragForce, "MSISE90DragDialog");
          dragDlg.ShowModal();
       }
-      else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[JR])
+//      else if (primaryBodyList[currentBodyId]->dragType == dragModelArray[JR])
+      else if (primaryBodyData->dragType == dragModelArray[JR])
       {
          DragInputsDialog dragDlg(this, dragForce, "JacchiaRobertsDialog");
          dragDlg.ShowModal();
@@ -3113,6 +3361,10 @@ void PropagationConfigPanel::OnMagSearchButton(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::OnPMEditButton(wxCommandEvent &event)
 {
+   wxArrayString primaryBodiesArray;
+   if (primaryBody != "None")
+      primaryBodiesArray.Add(primaryBody);
+
    CelesBodySelectDialog bodyDlg(this, secondaryBodiesArray, primaryBodiesArray);
    bodyDlg.ShowModal();
 
@@ -3151,6 +3403,8 @@ void PropagationConfigPanel::OnPMEditButton(wxCommandEvent &event)
          pmEditTextCtrl->AppendText(names[i] + " ");
       }
 
+      UpdatePrimaryBodyComboBoxList();
+
       EnableUpdate(true);
       isForceModelChanged = true;
    }
@@ -3185,21 +3439,24 @@ void PropagationConfigPanel::OnGravityTextUpdate(wxCommandEvent& event)
 
    if (event.GetEventObject() == gravityDegreeTextCtrl)
    {
-      primaryBodyList[currentBodyId]->gravDegree = gravityDegreeTextCtrl->GetValue();
+//      primaryBodyList[currentBodyId]->gravDegree = gravityDegreeTextCtrl->GetValue();
+      primaryBodyData->gravDegree = gravityDegreeTextCtrl->GetValue();
       isDegOrderChanged = true;
       // Do not set to true if only text changed
       //isForceModelChanged = true;
    }
    else if (event.GetEventObject() == gravityOrderTextCtrl)
    {
-      primaryBodyList[currentBodyId]->gravOrder = gravityOrderTextCtrl->GetValue();
+//      primaryBodyList[currentBodyId]->gravOrder = gravityOrderTextCtrl->GetValue();
+      primaryBodyData->gravOrder = gravityOrderTextCtrl->GetValue();
       isDegOrderChanged = true;
       // Do not set to true if only text changed
       //isForceModelChanged = true;
    }
    else if (event.GetEventObject() == potFileTextCtrl)
    {
-      primaryBodyList[currentBodyId]->potFilename = potFileTextCtrl->GetValue();
+//      primaryBodyList[currentBodyId]->potFilename = potFileTextCtrl->GetValue();
+      primaryBodyData->potFilename = potFileTextCtrl->GetValue();
       isPotFileChanged = true;
       // Do not set to true if only text changed
       //isForceModelChanged = true;
@@ -3291,16 +3548,23 @@ void PropagationConfigPanel::ShowForceList(const std::string &header)
          ("   usePropOriginForSrp=%d\n", usePropOriginForSrp);
 
       // primary body list
-      MessageInterface::ShowMessage("   primaryBodyListSize=%d\n", primaryBodyList.size());
-      for (unsigned int i=0; i<primaryBodyList.size(); i++)
+//      for (unsigned int i=0; i<primaryBodyList.size(); i++)
+      if (primaryBodyData != NULL)
       {
+//         MessageInterface::ShowMessage
+//            ("   id=%d, body=%s, gravType=%s, dragType=%s, magfType=%s\n   potFile=%s\n"
+//             "   gravf=%p, dragf=%p, srpf=%p\n", i, primaryBodyList[i]->bodyName.c_str(),
+//             primaryBodyList[i]->gravType.c_str(), primaryBodyList[i]->dragType.c_str(),
+//             primaryBodyList[i]->magfType.c_str(), primaryBodyList[i]->potFilename.c_str(),
+//             primaryBodyList[i]->gravf, primaryBodyList[i]->dragf,
+//             primaryBodyList[i]->srpf);
          MessageInterface::ShowMessage
             ("   id=%d, body=%s, gravType=%s, dragType=%s, magfType=%s\n   potFile=%s\n"
-             "   gravf=%p, dragf=%p, srpf=%p\n", i, primaryBodyList[i]->bodyName.c_str(),
-             primaryBodyList[i]->gravType.c_str(), primaryBodyList[i]->dragType.c_str(),
-             primaryBodyList[i]->magfType.c_str(), primaryBodyList[i]->potFilename.c_str(),
-             primaryBodyList[i]->gravf, primaryBodyList[i]->dragf,
-             primaryBodyList[i]->srpf);
+             "   gravf=%p, dragf=%p, srpf=%p\n", 0, primaryBodyData->bodyName.c_str(),
+             primaryBodyData->gravType.c_str(), primaryBodyData->dragType.c_str(),
+             primaryBodyData->magfType.c_str(), primaryBodyData->potFilename.c_str(),
+             primaryBodyData->gravf, primaryBodyData->dragf,
+             primaryBodyData->srpf);
       }
 
       // pointmass body list
@@ -3427,8 +3691,10 @@ void PropagationConfigPanel::ParseDATGravityFile(const wxString& fname)
    } while ( ( cc<=sz ) && ( fscanf( fp, "%i %i %le %le\n", &n, &m, &Cnm, &Snm ) > 0 ));
 
    // Save as string
-   primaryBodyList[currentBodyId]->gravDegree.Printf("%d", fileDegree);
-   primaryBodyList[currentBodyId]->gravOrder.Printf("%d", fileOrder);
+//   primaryBodyList[currentBodyId]->gravDegree.Printf("%d", fileDegree);
+//   primaryBodyList[currentBodyId]->gravOrder.Printf("%d", fileOrder);
+   primaryBodyData->gravDegree.Printf("%d", fileDegree);
+   primaryBodyData->gravOrder.Printf("%d", fileOrder);
 }
 
 
@@ -3476,8 +3742,10 @@ void PropagationConfigPanel::ParseGRVGravityFile(const wxString& fname)
    }
 
    // Save as string
-   primaryBodyList[currentBodyId]->gravDegree.Printf("%d", fileDegree);
-   primaryBodyList[currentBodyId]->gravOrder.Printf("%d", fileOrder);
+//   primaryBodyList[currentBodyId]->gravDegree.Printf("%d", fileDegree);
+//   primaryBodyList[currentBodyId]->gravOrder.Printf("%d", fileOrder);
+   primaryBodyData->gravDegree.Printf("%d", fileDegree);
+   primaryBodyData->gravOrder.Printf("%d", fileOrder);
 }
 
 //------------------------------------------------------------------------------
@@ -3485,9 +3753,7 @@ void PropagationConfigPanel::ParseGRVGravityFile(const wxString& fname)
 //------------------------------------------------------------------------------
 void PropagationConfigPanel::ParseCOFGravityFile(const wxString& fname)
 {
-   Integer       fileOrder, fileDegree;
-   Integer       int1;
-   Real          real1, real2, real3;
+   Integer       fileOrder = 70, fileDegree = 70;
 
    std::ifstream inFile;
    inFile.open(fname.c_str());
@@ -3503,31 +3769,55 @@ void PropagationConfigPanel::ParseCOFGravityFile(const wxString& fname)
 
    std::string s;
    std::string firstStr;
+   std::string degStr, ordStr;
 
-   while (!done)
+   Integer counter = 0;
+   while (!done && (counter < 129650))
    {
       getline(inFile,s);
 
       std::istringstream lineStr;
 
-      lineStr.str(s);
+//      lineStr.str(s);
 
       // ignore comment lines
       if (s[0] != 'C')
       {
          lineStr >> firstStr;
 
+         firstStr = s.substr(0, 8);
+         firstStr = GmatStringUtil::Trim(firstStr);
+
+         if (counter > 10)
+            break;
+
          if (firstStr == "POTFIELD")
          {
-            lineStr >> fileDegree >> fileOrder >> int1 >> real1 >> real2 >> real3;
+            // This line DOES NOT WORK for fields 100x100 or larger
+//            lineStr >> fileDegree >> fileOrder >> int1 >> real1 >> real2 >> real3;
+            degStr = s.substr(8, 3);
+            ordStr = s.substr(11, 3);
+
+            if ((GmatStringUtil::ToInteger(degStr, fileDegree) == false) ||
+                (GmatStringUtil::ToInteger(ordStr, fileOrder) == false))
+            {
+               MessageInterface::PopupMessage
+                  (Gmat::WARNING_, "Error reading degree and/or order from "
+                        "gravity model file.");
+            }
             done = true;
          }
+
+         // Count non-comment lines to be sure we're not in an infinite loop
+         ++counter;
       }
    }
 
    // Save as string
-   primaryBodyList[currentBodyId]->gravDegree.Printf("%d", fileDegree);
-   primaryBodyList[currentBodyId]->gravOrder.Printf("%d", fileOrder);
+//   primaryBodyList[currentBodyId]->gravDegree.Printf("%d", fileDegree);
+//   primaryBodyList[currentBodyId]->gravOrder.Printf("%d", fileOrder);
+   primaryBodyData->gravDegree.Printf("%d", fileDegree);
+   primaryBodyData->gravOrder.Printf("%d", fileOrder);
 }
 
 //------------------------------------------------------------------------------

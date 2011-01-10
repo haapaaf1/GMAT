@@ -452,6 +452,16 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
                   ", but there is already a " + compType + 
                   " force in place for that body.");
          }
+
+         if ((pmType == "GravityField") && (compType == "GravityField"))
+         {
+            throw ODEModelException(
+               "Attempted to add a GravityField (aka primary body) force to "
+               "the force model \"" + instanceName + "\" for the body " +
+               forceBody + ", but there already is a Gravity Field in the ODE "
+               "Model and only one GravityField is supported per ODE Model in "
+               "the current GMAT release");
+         }
       }      
    }
    
