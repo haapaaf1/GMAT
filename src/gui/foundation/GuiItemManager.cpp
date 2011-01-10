@@ -3964,7 +3964,7 @@ void GuiItemManager::UpdateSpaceObjectList()
 // void UpdateCelestialBodyList()
 //------------------------------------------------------------------------------
 /**
- * Updates confugured CelestialBody list
+ * Updates configured CelestialBody list
  */
 //------------------------------------------------------------------------------
 void GuiItemManager::UpdateCelestialBodyList()
@@ -3998,7 +3998,8 @@ void GuiItemManager::UpdateCelestialBodyList()
    for (std::vector<wxComboBox*>::iterator pos = mCelestialBodyCBList.begin();
         pos != mCelestialBodyCBList.end(); ++pos)
    {
-      wxString str = (*pos)->GetStringSelection();      
+      wxString str = (*pos)->GetStringSelection();
+      (*pos)->Clear();
       (*pos)->Append(theCelestialBodyList);
       (*pos)->SetStringSelection(str);
    }
