@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  ClassName
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/11/04
@@ -23,8 +23,9 @@
 #include "InterpreterException.hpp" // class's header file
 
 // class constructor
-InterpreterException::InterpreterException(std::string details) :
-    BaseException       ("Interpreter Exception: ", details)
+InterpreterException::InterpreterException(const std::string &details,
+      Gmat::MessageType mt) :
+    BaseException       ("Interpreter Exception: ", details, mt)
 {
 }
 
