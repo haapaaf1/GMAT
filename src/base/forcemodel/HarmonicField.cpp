@@ -786,7 +786,7 @@ bool HarmonicField::SetStringParameter(const Integer id,
    if (id == FILENAME)
    {
       std::string newValue = value;
-      // if value has no file extenstion, add .cof as default (loj: 2008.10.14)
+      // if value has no file extension, add .cof as default (loj: 2008.10.14)
       if (value.find(".") == value.npos)
          newValue = value + ".cof";
       
@@ -837,7 +837,15 @@ bool HarmonicField::SetStringParameter(const Integer id,
       {
          // set default potential file path for the body
          FileManager *fm = FileManager::Instance();
-         potPath = fm->GetAbsPathname(bodyName + "_POT_PATH");
+         try
+         {
+            potPath = fm->GetAbsPathname(bodyName + "_POT_PATH");
+         }
+         catch (BaseException &ex)
+         {
+            MessageInterface::ShowMessage("**** WARNING ****: %s\n",
+                  ex.GetFullMessage().c_str());
+         }
          
          #ifdef DEBUG_HARMONIC_FIELD
          MessageInterface::ShowMessage
