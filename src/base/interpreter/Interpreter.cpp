@@ -7730,9 +7730,9 @@ void Interpreter::WriteStringArray(const std::string &title1,
 /*
  * Opens function file and checks if it has valid function definition line.
  *
- * @param  funcPath  The full path and name of fuction file
+ * @param  funcPath  The full path and name of function file
  * @param  function  The Function pointer
- * @param  fullCheck set to true if checking fullly for input and output arguments
+ * @param  fullCheck set to true if checking fully for input and output arguments
  *
  */
 //------------------------------------------------------------------------------
@@ -7766,7 +7766,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       retval = false;
    }
    
-   // check for no extension of .gmf or wrong extenstion
+   // check for no extension of .gmf or wrong extension
    StringArray parts = GmatStringUtil::SeparateBy(funcPath, ".");
    if ((parts.size() == 1) ||
        (parts.size() == 2 && parts[1] != "gmf"))
