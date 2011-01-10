@@ -93,7 +93,7 @@ void CelesBodySelectDialog::Create()
    GmatStaticBoxSizer *bodyAvailableSizer =
       new GmatStaticBoxSizer(wxVERTICAL, this, GUI_ACCEL_KEY"Available Bodies");
    
-   // availabe celetestial body ListBox
+   // Available celestial body ListBox
    if (mShowCalPoints)
    {
       mBodyListBox =
