@@ -4652,9 +4652,23 @@ int ResourceTree::GetNameFromUser(wxString &newName, const wxString &oldName,
    if (newName == "")
       return 2;
    
+   // Remove leading and trailing white spaces
+   newName = newName.Strip(wxString::both);
+   
    if (IsValidName(newName.c_str()))
    {
-      return 1;
+      // Now check for name already in use
+      if (GetObject(newName.c_str()) != NULL)
+      {
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, "\"%s\" already exist. Please enter different name.", newName.c_str());
+         
+         return GetNameFromUser(newName, newName, msg, caption);
+      }
+      else
+      {
+         return 1;
+      }
    }
    else
    {
