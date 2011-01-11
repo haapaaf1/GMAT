@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                TimeTypes
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -132,4 +132,17 @@ std::string GmatTimeUtil::FormatCurrentTime(Integer format)
       return timeBuf;
    }
 }
+
+//------------------------------------------------------------------------------
+// std::string GetGregorianFormat()
+//------------------------------------------------------------------------------
+/**
+ * Return gregorian time format
+ */
+//------------------------------------------------------------------------------
+std::string GmatTimeUtil::GetGregorianFormat()
+{
+   return "DD MMM YYYY HH:MM:SS.mmm";
+}
+
 

@@ -35,6 +35,8 @@ public:
    virtual ~EphemerisFilePanel();
    
 protected:
+
+   GmatBase *clonedObj;
    
    virtual void         Create();
    virtual void         LoadData();

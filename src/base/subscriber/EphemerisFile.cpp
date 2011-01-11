@@ -820,6 +820,8 @@ bool EphemerisFile::IsParameterReadOnly(const Integer id) const
 {
    if (id == SOLVER_ITERATIONS)
       return true;
+   if (id == FILE_NAME)
+      return true;
    // Disable state type until it is selectable -- currently must be Cartesian
    if (id == STATE_TYPE)
       return true;
@@ -1059,6 +1061,15 @@ bool EphemerisFile::SetStringParameter(const Integer id, const std::string &valu
          ("EphemerisFile::SetStringParameter() Setting filename '%s' to "
           "EphemerisFile '%s'\n", value.c_str(), instanceName.c_str());
       #endif
+
+      // Validate filename
+      if (!GmatFileUtil::IsValidFileName(value))
+      {
+         std::string msg = GmatFileUtil::GetInvalidFileNameMessage(1);
+         SubscriberException se;
+         se.SetDetails(errorMessageFormat.c_str(), value.c_str(), "Filename", msg.c_str());
+         throw se;
+      }
       
       fileName = value;
       filePath = fileName;
@@ -2222,7 +2233,12 @@ bool EphemerisFile::SetEpoch(Integer id, const std::string &value,
    }
    catch (BaseException &e)
    {
-      HandleError(id, value, allowedValues, " or value in " + epochFormat);
+      if (epochFormat.find("Gregorian") != epochFormat.npos)
+         HandleError(id, value, allowedValues, " or value in " + epochFormat +
+                     " (" + GmatTimeUtil::GetGregorianFormat() + ")");
+      else
+         HandleError(id, value, allowedValues, " or value in " + epochFormat);
+      
    }
    
    if (id == INITIAL_EPOCH)

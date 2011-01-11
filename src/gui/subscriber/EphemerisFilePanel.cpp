@@ -50,6 +50,7 @@ EphemerisFilePanel::EphemerisFilePanel(wxWindow *parent, const wxString &name)
    : GmatPanel                (parent),
      previousEpochFormat      (_T(""))
 {
+   clonedObj = NULL;
    fileDialog = NULL;
    
    mObject = theGuiInterpreter->GetConfiguredObject(name.c_str());
@@ -304,13 +305,17 @@ void EphemerisFilePanel::LoadData()
 // void SaveData()
 //------------------------------------------------------------------------------
 /**
- * Passes configuration data from the panel to the Solver object
+ * Passes configuration data from the panel to the EphemerisFile object
  */
 //------------------------------------------------------------------------------
 void EphemerisFilePanel::SaveData()
 {
    canClose = true;
    
+   //-----------------------------------------------------------------
+   // save values to base, base code should do the range checking
+   //-----------------------------------------------------------------
+   clonedObj = mObject->Clone();
    try
    {
       SaveControl("Spacecraft");
@@ -323,15 +328,35 @@ void EphemerisFilePanel::SaveData()
       SaveControl("InterpolationOrder");
       SaveControl("StepSize");
       SaveControl("EpochFormat");
-      SaveControl("InitialEpoch");
-      SaveControl("FinalEpoch");
+      try
+      {
+         SaveControl("InitialEpoch");
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+         canClose = false;
+      }
+      
+      try
+      {
+         SaveControl("FinalEpoch");
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+         canClose = false;
+      }
    }
    catch (BaseException &e)
    {
       MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
       canClose = false;
-      return;
    }
+   
+   if (canClose)
+      mObject->Copy(clonedObj);
+
 }
 
 
@@ -460,6 +485,13 @@ wxControl *EphemerisFilePanel::BuildControl(wxWindow *parent, Integer index)
       }
       break;
       
+   case Gmat::INTEGER_TYPE:
+   case Gmat::REAL_TYPE:      
+      control = new wxTextCtrl(parent, ID_TEXTCTRL, 
+                               wxT(""), wxDefaultPosition, wxSize(180,-1), 0,
+                               wxTextValidator(wxGMAT_FILTER_NUMERIC));
+      break;
+      
    case Gmat::STRING_TYPE:
    default:
       control = new wxTextCtrl(parent, ID_TEXTCTRL, 
@@ -565,7 +597,7 @@ void EphemerisFilePanel::LoadControl(const std::string &label)
 // void SaveControl(const std::string &label)
 //------------------------------------------------------------------------------
 /**
- * Passes a control's data to the Solver
+ * Passes a control's data to the EphemerisFile.
  * 
  * @param label The string associated with the control.
  */
@@ -577,49 +609,52 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
    Integer valueInteger;
    Real stepSize;
    
-   Integer index = mObject->GetParameterID(label);
+   Integer paramId = clonedObj->GetParameterID(label);
    
    if (label == "Spacecraft")
    {
       valueString = spacecraftComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      clonedObj->SetStringParameter(paramId, valueString);
    }
    // Only allowed StateType is Cartesian for the 2010 release, per bug 2219
 //   else if (label == "StateType")
 //   {
 //      valueString = stateTypeComboBox->GetValue();
-//      mObject->SetStringParameter(index, valueString);
+//      clonedObj->SetStringParameter(paramId, valueString);
 //   }
    else if (label == "CoordinateSystem")
    {
       valueString = coordinateSystemComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      clonedObj->SetStringParameter(paramId, valueString);
    }
    else if (label == "WriteEphemeris")
    {
       valueBool =  writeEphemerisCheckBox->GetValue();
-      mObject->SetBooleanParameter(index, valueBool);
+      clonedObj->SetBooleanParameter(paramId, valueBool);
    }
    else if (label == "FileFormat")
    {
       valueString = fileFormatComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      clonedObj->SetStringParameter(paramId, valueString);
    }
    else if (label == "Filename")
    {
       valueString = fileNameTextCtrl->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      if (CheckFileName(valueString, "Filename"))
+         clonedObj->SetStringParameter(paramId, valueString);
    }
    // Set interpolator based on the format, per bug 2219
 //   else if (label == "Interpolator")
 //   {
 //      valueString = interpolatorComboBox->GetValue();
-//      mObject->SetStringParameter(index, valueString);
+//      clonedObj->SetStringParameter(paramId, valueString);
 //   }
    else if (label == "InterpolationOrder")
    {
-      valueInteger = atoi(interpolationOrderTextCtrl->GetValue());
-      mObject->SetIntegerParameter(index, valueInteger);
+      valueString = interpolationOrderTextCtrl->GetValue().c_str();
+      if (CheckInteger(valueInteger, valueString, "InterpolationOrder",
+                       "Integer Number > 0.0", false, true, true, false))
+         clonedObj->SetIntegerParameter(paramId, valueInteger);
    }
    else if (label == "StepSize")
    {
@@ -627,22 +662,22 @@ void EphemerisFilePanel::SaveControl(const std::string &label)
       if ((valueString == "IntegratorSteps") ||
           (CheckReal(stepSize, valueString, "StepSize", "Real Number > 0.0 or "
                 "equals 'IntegratorSteps'", false, true, true, false)))
-         mObject->SetStringParameter(index, valueString);
+         clonedObj->SetStringParameter(paramId, valueString);
    }
    else if (label == "EpochFormat")
    {
       valueString = epochFormatComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      clonedObj->SetStringParameter(paramId, valueString);
    }
    else if (label == "InitialEpoch")
    {
       valueString = initialEpochComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      clonedObj->SetStringParameter(paramId, valueString);
    }
    else if (label == "FinalEpoch")
    {
       valueString = finalEpochComboBox->GetValue();
-      mObject->SetStringParameter(index, valueString);
+      clonedObj->SetStringParameter(paramId, valueString);
    }
    
 }

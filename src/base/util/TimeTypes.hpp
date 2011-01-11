@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                TimeTypes
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -107,5 +107,6 @@ namespace GmatTimeUtil
    std::string GetMonthName(Integer month);
    Integer GetMonth(const std::string &monthName);
    std::string FormatCurrentTime(Integer format = 1);
+   std::string GetGregorianFormat();
 }
 #endif // TimeTypes_hpp
