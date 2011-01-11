@@ -3921,6 +3921,10 @@ void GmatMainFrame::RefreshActiveScript(const wxString &filename)
        filename.c_str());
    #endif
    
+   // If scripts are running batch mode, just skip
+   if (GmatGlobal::Instance()->IsBatchMode())
+      return;
+   
    // Show active script in bold in the ResourceTree (LOJ: 2010.12.27)
    GmatAppData::Instance()->GetResourceTree()->SetActiveScript(filename);
    UpdateTitle(filename);

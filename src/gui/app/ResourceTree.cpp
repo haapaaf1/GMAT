@@ -363,7 +363,7 @@ void ResourceTree::SetActiveScript(const wxString &scriptWithPath)
    #endif
    
    MakeScriptActive(newScript, true);
-      
+   
    mLastActiveScript = newScript;
    
    #ifdef DEBUG_ACTIVE_SCRIPT
@@ -444,7 +444,6 @@ bool ResourceTree::AddScriptItem(wxString path)
       
       scriptPath = ((GmatTreeItemData *)GetItemData(childId))->GetName();
       
-      //if (childText == filename)
       if (GmatFileUtil::IsSameFileName(childText.c_str(), filename.c_str()))
       {
          hasSameName = true;
@@ -3518,18 +3517,18 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
                      new GmatTreeItemData(filepath, GmatTree::SCRIPT_FILE);
                   AppendItem(newItem, filename, GmatTree::ICON_SCRIPT, -1,
                              newItemData);
-                  
-                  // Make it bold face if script is the same as currently active script file
-                  if (GmatFileUtil::IsSameFileName(mLastActiveScript.c_str(), filename.c_str()))
-                     SetItemBold(newItemData->GetId(), true);
                }
                
                ifs.close();
             }
          }
-
+         
          cont = dir.GetNext(&filename);
       }
+      
+      // Make it bold face if script is the same as currently active script file
+      if (mLastActiveScript != "")
+         MakeScriptActive(mLastActiveScript, true);
    }
 }
 
