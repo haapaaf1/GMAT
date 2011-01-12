@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Linda Jun
 // Created: 2009/01/05
 //
@@ -17,6 +22,7 @@
 #include "EditorPreferences.hpp" // for GmatEditor::
 #include "wx/stc/stc.h"          // for wxStyledTextCtrl
 
+class GmatPanel;
 class FindReplaceDialog;
 
 class Editor: public wxStyledTextCtrl
@@ -25,8 +31,8 @@ class Editor: public wxStyledTextCtrl
    friend class EditorPrint;
    
 public:
-   Editor(wxWindow *parent, bool notifyChange = false, wxWindowID id = wxID_ANY,
-          const wxPoint &pos = wxDefaultPosition,
+   Editor(wxWindow *parent, bool notifyChange = false,
+          wxWindowID id = wxID_ANY, const wxPoint &pos = wxDefaultPosition,
           const wxSize &size = wxDefaultSize,
           long style = wxSUNKEN_BORDER|wxVSCROLL);
    
@@ -101,8 +107,8 @@ public:
    
 private:
 
-   wxWindow *mParent;
-   bool     mNotifyChange;
+   GmatPanel *mParent;
+   bool      mNotifyChange;
    
    // language/lexer
    wxString DeterminePrefs(const wxString &filename);

@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Allison Greene
 // Created: 2005/1/12
 //
@@ -91,6 +96,16 @@ ScriptEventPanel::~ScriptEventPanel()
       mEditor = NULL;
    }
    #endif
+}
+
+
+//------------------------------------------------------------------------------
+// void SetEditorModified(bool isModified)
+//------------------------------------------------------------------------------
+void ScriptEventPanel::SetEditorModified(bool isModified)
+{
+   EnableUpdate(isModified);
+   mEditorModified = isModified;
 }
 
 
@@ -590,8 +605,8 @@ void ScriptEventPanel::SaveData()
    }
    catch (BaseException &ex)
    {
-      MessageInterface::PopupMessage(Gmat::ERROR_,
-         "Error parsing the ScriptEvent; please correct the text");
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage() + 
+         "\nError parsing the ScriptEvent; please correct the text");
       canClose = false;
    }
    

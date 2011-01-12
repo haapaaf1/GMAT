@@ -25,16 +25,17 @@
 
 //#define DEBUG_FUNCTIONPANEL_LOAD
 //#define DEBUG_FUNCTIONPANEL_SAVE
+//#define DEBUG_FUNCTIONPANEL_BUTTON
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
 //------------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(FunctionSetupPanel, GmatPanel)
-   EVT_BUTTON(ID_BUTTON_CANCEL, GmatPanel::OnCancel)
    EVT_BUTTON(ID_BUTTON_SCRIPT, GmatPanel::OnScript)
    EVT_BUTTON(ID_BUTTON_OK, FunctionSetupPanel::OnButton)
    EVT_BUTTON(ID_BUTTON_APPLY, FunctionSetupPanel::OnButton)
+   EVT_BUTTON(ID_BUTTON_CANCEL, FunctionSetupPanel::OnButton)
    EVT_TEXT(ID_TEXTCTRL, FunctionSetupPanel::OnTextUpdate)
 END_EVENT_TABLE()
 
@@ -43,6 +44,8 @@ END_EVENT_TABLE()
 //------------------------------------------------------------------------------
 /**
  * A constructor.
+ *
+ * @note We may have to consider deriving this class from the GmatSavePanel
  */
 //------------------------------------------------------------------------------
 FunctionSetupPanel::FunctionSetupPanel(wxWindow *parent, const wxString &name)
@@ -56,6 +59,7 @@ FunctionSetupPanel::FunctionSetupPanel(wxWindow *parent, const wxString &name)
    mEnableLoad = false;
    mEnableSave = false;
    mIsNewFunction = true;
+   mEditorModified = false;
    mFunctionName = name;
    mFileContentsTextCtrl = NULL;
    
@@ -91,6 +95,16 @@ FunctionSetupPanel::~FunctionSetupPanel()
 
 
 //------------------------------------------------------------------------------
+// void SetEditorModified(bool isModified)
+//------------------------------------------------------------------------------
+void FunctionSetupPanel::SetEditorModified(bool isModified)
+{
+   EnableUpdate(isModified);
+   mEditorModified = isModified;
+}
+
+
+//------------------------------------------------------------------------------
 // void Create()
 //------------------------------------------------------------------------------
 void FunctionSetupPanel::Create()
@@ -102,7 +116,7 @@ void FunctionSetupPanel::Create()
    //------------------------------------------------------
    
 #ifdef __USE_STC_EDITOR__
-   mEditor = new Editor(this, false, -1, wxDefaultPosition, wxSize(700,400));
+   mEditor = new Editor(this, true, -1, wxDefaultPosition, wxSize(700,400));
 #else
    mFileContentsTextCtrl = 
       new wxTextCtrl( this, ID_TEXTCTRL, wxT(""), wxDefaultPosition, 
@@ -129,6 +143,8 @@ void FunctionSetupPanel::Create()
    theOkButton->SetLabel("Save");
    theApplyButton->SetLabel("Save As");
    theCancelButton->SetLabel("Close");
+   
+   theOkButton->Disable();
 }
 
 
@@ -167,6 +183,8 @@ void FunctionSetupPanel::LoadData()
       #endif
       mEnableSave = false;
       mIsNewFunction = false;
+      EnableUpdate(false);
+      theOkButton->Disable();
    }   
 }
 
@@ -204,6 +222,11 @@ void FunctionSetupPanel::SaveData()
       MessageInterface::ShowMessage("   contents saved to '%s'\n", pathname.c_str());
       #endif
    #endif
+
+   // Do we want to set titile to function path and name later?
+   //(GmatAppData::Instance()->GetMainFrame()->GetActiveChild())->SetTitle(pathname);
+   EnableUpdate(false);
+   theOkButton->Disable();
 }
 
 
@@ -216,6 +239,7 @@ void FunctionSetupPanel::OnTextUpdate(wxCommandEvent& event)
    {
       mEnableSave = true;
       EnableUpdate(true);
+      theOkButton->Enable();
    }
 }
 
@@ -250,6 +274,17 @@ void FunctionSetupPanel::OnButton(wxCommandEvent& event)
       #endif
       
       OnSaveAs(event);
+   }
+   // This is Close button which was renamed from Cancel button
+   else if (event.GetEventObject() == theCancelButton)
+   {
+      #ifdef DEBUG_FUNCTIONPANEL_BUTTON
+      MessageInterface::ShowMessage
+         ("FunctionSetupPanel::OnButton() entered, it is Close Button, canClose=%d\n",
+          canClose);
+      #endif
+      
+      GmatAppData::Instance()->GetMainFrame()->CloseActiveChild();
    }
 }
 
@@ -296,6 +331,7 @@ void FunctionSetupPanel::OnSaveAs(wxCommandEvent &event)
       SaveData();
       mIsNewFunction = false;
       theGmatFunction->SetNewFunction(false);
+      theOkButton->Disable();
    }
    
    #ifdef DEBUG_FUNCTIONPANEL_SAVE

@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Linda Jun
 // Created: 2009/01/15
 //
@@ -24,29 +29,27 @@ class EditorPanel: public GmatSavePanel
 public:
    EditorPanel(wxWindow *parent, const wxString &name, bool activeScript = false);
    ~EditorPanel();
-
-   virtual void OnClosePanel(wxCommandEvent &event);
-
+   
    Editor* GetEditor() { return mEditor; };
-
+   
 private:
    Editor   *mEditor;
    wxString mScriptFilename;
    
    wxButton *mBuildButton;
    wxButton *mBuildRunButton;
-
+   
    // methods inherited from GmatSavePanel
    virtual void Create();
    virtual void LoadData();
    virtual void SaveData();
-
+   
    // event handling
    void OnTextOverMaxLen(wxCommandEvent& event);
    void OnButton(wxCommandEvent& event);
-
+   
    DECLARE_EVENT_TABLE();
-
+   
    // IDs for the controls and the menu commands
    enum
    {

@@ -2,7 +2,12 @@
 //------------------------------------------------------------------------------
 //                              GmatPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
 //
 // Author: Linda Jun
 // Created: 2004/02/02
@@ -259,6 +264,24 @@ void GmatPanel::ObjectNameChanged(Gmat::ObjectType type, const wxString &oldName
 void GmatPanel::SetCanClose(bool flag)
 {
    canClose = flag;
+}
+
+
+//------------------------------------------------------------------------------
+// void SetEditorModified(bool isModified)
+//------------------------------------------------------------------------------
+void GmatPanel::SetEditorModified(bool isModified)
+{
+   mEditorModified = isModified;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsEditorModified()
+//------------------------------------------------------------------------------
+bool GmatPanel::IsEditorModified()
+{
+   return mEditorModified;
 }
 
 

@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Linda Jun
 // Created: 2009/01/05
 //
@@ -33,7 +38,7 @@
 BEGIN_EVENT_TABLE(EditorPanel, GmatSavePanel)
    EVT_BUTTON(ID_BUTTON_SAVE, GmatSavePanel::OnSave)
    EVT_BUTTON(ID_BUTTON_SAVE_AS, GmatSavePanel::OnSaveAs)
-   EVT_BUTTON(ID_BUTTON_CLOSE, EditorPanel::OnClosePanel)
+   EVT_BUTTON(ID_BUTTON_CLOSE, GmatSavePanel::OnClosePanel)
    EVT_BUTTON(ID_BUTTON, EditorPanel::OnButton)
 END_EVENT_TABLE()
 
@@ -80,40 +85,6 @@ EditorPanel::~EditorPanel()
       delete mEditor;
       mEditor = NULL;
    }
-}
-
-
-//------------------------------------------------------------------------------
-// void OnClosePanel(wxCommandEvent &event)
-//------------------------------------------------------------------------------
-/**
- * Close page.
- */
-//------------------------------------------------------------------------------
-void EditorPanel::OnClosePanel(wxCommandEvent &event)
-{
-   #ifdef DEBUG_EDITORPANEL_CLOSE
-   MessageInterface::ShowMessage
-      ("EditorPanel::OnClosePanel() entered, IsModified()=%d\n",
-       mEditor->IsModified());
-   #endif
-
-   if (mEditor->IsModified())
-   {
-      wxMessageDialog *msgDlg =
-         new wxMessageDialog(this, "Would you like to save changes?", "Save...",
-                             wxYES_NO | wxICON_QUESTION, wxDefaultPosition);
-      int result = msgDlg->ShowModal();
-
-      if (result == wxID_YES)
-         OnSave(event);
-      else
-         SetModified(false);
-
-      delete msgDlg;
-   }
-
-   GmatSavePanel::OnClosePanel(event);
 }
 
 
@@ -197,9 +168,9 @@ void EditorPanel::LoadData()
    theSaveAsButton->Enable(true);
    theSaveButton->Enable(true);
    GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(false);
-   isModified = false;
+   mEditorModified = false;
    hasFileLoaded = true;
-   SetModified(false);
+   SetEditorModified(false);
    
    delete file;
    

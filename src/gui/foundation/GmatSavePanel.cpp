@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Linda Jun
 // Created: 2004/02/02
 //
@@ -21,7 +26,7 @@
 // event tables and other macros for wxWindows
 //------------------------------------------------------------------------------
 
-BEGIN_EVENT_TABLE(GmatSavePanel, wxPanel)
+BEGIN_EVENT_TABLE(GmatSavePanel, GmatPanel)
    EVT_BUTTON(ID_BUTTON_SAVE, GmatSavePanel::OnSave)
    EVT_BUTTON(ID_BUTTON_SAVE_AS, GmatSavePanel::OnSaveAs)
    EVT_BUTTON(ID_BUTTON_CLOSE, GmatSavePanel::OnClosePanel)
@@ -45,12 +50,12 @@ END_EVENT_TABLE()
 GmatSavePanel::GmatSavePanel(wxWindow *parent, bool showScriptButton,
                              wxString filename, bool showScriptActiveStatus,
                              bool isScriptActive)
-   : wxPanel(parent)
+   : GmatPanel(parent, false, showScriptButton)
 {
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
    canClose = true;
-   isModified = false;
+   mEditorModified = false;
    hasFileLoaded = false;
    mShowScriptButton = showScriptButton;
    mFilename = filename;
@@ -322,8 +327,8 @@ void GmatSavePanel::OnClosePanel(wxCommandEvent &event)
 {
    #ifdef DEBUG_CLOSE_PANEL
    MessageInterface::ShowMessage
-      ("GmatSavePanel::OnClosePanel() '%s' entered, isModified=%d\n",
-       mFilename.c_str(), isModified);
+      ("GmatSavePanel::OnClosePanel() '%s' entered, mEditorModified=%d\n",
+       mFilename.c_str(), mEditorModified);
    #endif
    
    // We don't want to show duplicate save message when GmatMdiChildFrame is closing,
@@ -331,7 +336,7 @@ void GmatSavePanel::OnClosePanel(wxCommandEvent &event)
    ((GmatMdiChildFrame*)
     (GmatAppData::Instance()->GetMainFrame()->GetActiveChild()))->OverrideDirty(false);
    
-   if (isModified)
+   if (mEditorModified)
       ((GmatMdiChildFrame*)
        (GmatAppData::Instance()->GetMainFrame()->GetActiveChild()))->SetDirty(true);
    else
@@ -395,14 +400,14 @@ void GmatSavePanel::ReloadFile()
 
 
 //------------------------------------------------------------------------------
-// void SetModified(bool flag)
+// void SetEditorModified(bool flag)
 //------------------------------------------------------------------------------
-void GmatSavePanel::SetModified(bool flag)
+void GmatSavePanel::SetEditorModified(bool flag)
 {
    #ifdef DEBUG_TEXT_MODIFIED
    MessageInterface::ShowMessage
-      ("GmatSavePanel::SetModified() entered, flag=%d, isModified=%d, "
-       "hasFileLoaded=%d, mIsScriptActive=%d\n", flag, isModified, hasFileLoaded,
+      ("GmatSavePanel::SetEditorModified() entered, flag=%d, mEditorModified=%d, "
+       "hasFileLoaded=%d, mIsScriptActive=%d\n", flag, mEditorModified, hasFileLoaded,
        mIsScriptActive);
    #endif
    
@@ -410,7 +415,7 @@ void GmatSavePanel::SetModified(bool flag)
    if (hasFileLoaded)
    {
       int scriptStatus = flag ? 2 : 1; // 1 = clean, 2 = dirty
-      if (isModified != flag)
+      if (mEditorModified != flag)
       {
          if (scriptStatus == 1)
             mScriptDirtyLabel->SetLabel("");
@@ -426,17 +431,8 @@ void GmatSavePanel::SetModified(bool flag)
             UpdateGuiScriptSyncStatus(0, scriptStatus);
       }
       
-      isModified = flag;
+      mEditorModified = flag;
    }
-}
-
-
-//------------------------------------------------------------------------------
-// bool IsModified()
-//------------------------------------------------------------------------------
-bool GmatSavePanel::IsModified()
-{
-   return isModified;
 }
 
 

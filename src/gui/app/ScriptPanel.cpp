@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Allison Greene
 // Created: 2005/03/25
 //
@@ -32,7 +37,7 @@
 BEGIN_EVENT_TABLE(ScriptPanel, GmatSavePanel)
    EVT_BUTTON(ID_BUTTON_SAVE, GmatSavePanel::OnSave)
    EVT_BUTTON(ID_BUTTON_SAVE_AS, GmatSavePanel::OnSaveAs)
-   EVT_BUTTON(ID_BUTTON_CLOSE, ScriptPanel::OnClosePanel)
+   EVT_BUTTON(ID_BUTTON_CLOSE, GmatSavePanel::OnClosePanel)
    EVT_TEXT(ID_TEXTCTRL, ScriptPanel::OnTextUpdate)
    EVT_TEXT_ENTER(ID_TEXTCTRL, ScriptPanel::OnTextEnterPressed)
    EVT_TEXT_MAXLEN(ID_TEXTCTRL, ScriptPanel::OnTextOverMaxLen)
@@ -58,32 +63,6 @@ ScriptPanel::ScriptPanel(wxWindow *parent, const wxString &name, bool isActive)
    
    Create();
    Show();
-}
-
-
-//------------------------------------------------------------------------------
-// void OnClosePanel()
-//------------------------------------------------------------------------------
-/**
- * Close page.
- */
-//------------------------------------------------------------------------------
-void ScriptPanel::OnClosePanel(wxCommandEvent &event)
-{
-   if (mFileContentsTextCtrl->IsModified())
-   {
-      wxMessageDialog *msgDlg =
-         new wxMessageDialog(this, "Would you like to save changes?", "Save...",
-                             wxYES_NO | wxICON_QUESTION, wxDefaultPosition);
-      int result = msgDlg->ShowModal();
-      
-      if (result == wxID_YES)
-         OnSave(event);
-      else
-         SetModified(false);
-   }
-   
-   GmatSavePanel::OnClosePanel(event);
 }
 
 
@@ -178,7 +157,7 @@ void ScriptPanel::LoadData()
    theSaveAsButton->Enable(true);
    theSaveButton->Enable(true);
    GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(false);
-   isModified = false;
+   mEditorModified = false;
    hasFileLoaded = true;
    
    mFileContentsTextCtrl->SetDefaultStyle(wxTextAttr(wxNullColour, *wxWHITE));
@@ -301,7 +280,7 @@ void ScriptPanel::OnTextUpdate(wxCommandEvent& event)
          #endif
          
          theSaveButton->Enable(true);
-         GmatSavePanel::SetModified(true);
+         GmatSavePanel::SetEditorModified(true);
          GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(true);
          mOldLastPos = lastPos;
       }

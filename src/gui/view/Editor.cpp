@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Linda Jun
 // Created: 2009/01/05
 //
@@ -14,6 +19,7 @@
 
 #include "Editor.hpp"
 #include "GmatSavePanel.hpp"
+#include "FunctionSetupPanel.hpp"
 #include "EditorPreferences.hpp"
 #include "FindReplaceDialog.hpp"
 #include "MessageInterface.hpp"
@@ -73,8 +79,16 @@ BEGIN_EVENT_TABLE (Editor, wxStyledTextCtrl)
 END_EVENT_TABLE()
 
 //------------------------------------------------------------------------------
-// Editor::Editor(wxWindow *parent, wxWindowID id,
-//                const wxPoint &pos, const wxSize &size, long style)
+// Editor(wxWindow *parent, bool notifyChange, wxWindowID id,
+//        const wxPoint &pos, const wxSize &size, long style)
+//------------------------------------------------------------------------------
+/**
+ * Constructor
+ *
+ * @param  parent  Parent window pointer
+ * @param  notifyChange  Set this to true if parent class to be notified of change
+ *
+ */
 //------------------------------------------------------------------------------
 Editor::Editor(wxWindow *parent, bool notifyChange, wxWindowID id,
                const wxPoint &pos, const wxSize &size, long style)
@@ -85,7 +99,7 @@ Editor::Editor(wxWindow *parent, bool notifyChange, wxWindowID id,
       ("Editor::Editor() entered, parent = <%p>\n", parent);
    #endif
    
-   mParent = parent;
+   mParent = (GmatPanel*)parent;
    mNotifyChange = notifyChange;
    mFileName = wxEmptyString;
    mFindReplaceDialog = NULL;
@@ -782,7 +796,7 @@ void Editor::OnTextChange (wxStyledTextEvent &event)
    {
       if (IsModified())
       {
-         ((GmatSavePanel*)mParent)->SetModified(true);
+         mParent->SetEditorModified(true);
          GmatAppData::Instance()->GetMainFrame()->SetActiveChildDirty(true);
       }
    }

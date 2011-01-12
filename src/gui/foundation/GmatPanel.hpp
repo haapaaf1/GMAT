@@ -2,7 +2,12 @@
 //------------------------------------------------------------------------------
 //                              GmatPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
 //
 // Author: Linda Jun
 // Created: 2004/02/02
@@ -46,6 +51,8 @@ public:
                                   const wxString &newName);
    virtual void EnableUpdate(bool enable = true);
    virtual void SetCanClose(bool flag);
+   virtual void SetEditorModified(bool isModified);
+   virtual bool IsEditorModified();
    
    virtual void OnApply(wxCommandEvent &event);
    virtual void OnOK(wxCommandEvent &event);
@@ -70,6 +77,7 @@ protected:
    bool mShowBottomSizer;
    bool mShowScriptButton;
    bool mDataChanged;
+   bool mEditorModified;
    
    wxWindow *theParent;
    

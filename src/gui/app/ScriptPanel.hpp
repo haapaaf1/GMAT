@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Allison Greene
 // Created: 2005/03/25
 //
@@ -24,8 +29,7 @@ public:
    // constructors
    ScriptPanel(wxWindow *parent, const wxString &name, bool activeScript = false);
    wxTextCtrl *mFileContentsTextCtrl;
-   virtual void OnClosePanel(wxCommandEvent &event);
-
+   
 private:
    int  mOldLineNumber;
    int  mOldLastPos;

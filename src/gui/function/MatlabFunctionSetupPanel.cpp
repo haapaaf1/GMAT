@@ -1,8 +1,13 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              MatlabFunctionSetupPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
 //
 // Author: Allison Greene
 // Created: 2005/02/11

@@ -4,6 +4,11 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Linda Jun
 // Created: 2004/02/02
 //
@@ -26,11 +31,12 @@
 #include <wx/grid.h>
 #include "wx/radiobut.h"
 
+#include "GmatPanel.hpp"
 #include "GmatAppData.hpp"
 #include "GuiInterpreter.hpp"
 #include "GuiItemManager.hpp"
 
-class GmatSavePanel : public wxPanel
+class GmatSavePanel : public GmatPanel
 {
 public:
    // constructors
@@ -43,10 +49,9 @@ public:
    virtual void OnClosePanel(wxCommandEvent &event);
    virtual void OnScript(wxCommandEvent &event);
    
+   virtual void SetEditorModified(bool flag);
    void UpdateScriptActiveStatus(bool isActive);
    void ReloadFile();
-   void SetModified(bool flag);
-   bool IsModified();
    
 protected:
    // member functions
@@ -63,7 +68,6 @@ protected:
    GuiItemManager *theGuiManager;
    bool canClose;
    bool mShowScriptButton;
-   bool isModified;
    bool hasFileLoaded;
    bool mShowScriptActiveStatus;
    bool mIsScriptActive;

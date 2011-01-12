@@ -4,8 +4,16 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
 // Author: Allison Greene
 // Created: 2005/1/12
+// Modified:
+//    2006.12.04 Linda Jun
+//       - Implemented save changes by replacing old command sequence with new
 //
 /**
  * Declares ScriptEventPanel class.
@@ -30,6 +38,8 @@ public:
    // constructors
    ScriptEventPanel(wxWindow *parent, MissionTreeItemData *item);
    ~ScriptEventPanel();
+   
+   virtual void SetEditorModified(bool flag);
    
    wxTextCtrl *mFileContentsTextCtrl;
    
