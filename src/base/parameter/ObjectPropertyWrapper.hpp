@@ -63,6 +63,8 @@ public:
    
    const Integer               GetPropertyId();
 
+   virtual bool                TakeRequiredAction() const;
+
 protected:  
 
    /// pointer to the base object

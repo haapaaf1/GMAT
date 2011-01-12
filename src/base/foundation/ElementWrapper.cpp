@@ -312,6 +312,12 @@ bool ElementWrapper::RenameObject(const std::string &oldName,
    return true;
 }
 
+
+bool ElementWrapper::TakeRequiredAction() const
+{
+   return true;
+}
+
 //---------------------------------------------------------------------------
 // const Rmatrix& EvaluateArray() const
 //---------------------------------------------------------------------------
@@ -479,6 +485,8 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       rhsTypeStr = GmatBase::PARAM_TYPE_STRING[rhsDataType];
       rhsWrapperType = rhsWrapper->GetWrapperType();
       
+      lhsWrapper->TakeRequiredAction();
+
       #ifdef DEBUG_EW_SET_VALUE
       MessageInterface::ShowMessage
          ("   rhsWrapperType=%2d, rhsDataType=%s\n", rhsWrapperType, rhsTypeStr.c_str());

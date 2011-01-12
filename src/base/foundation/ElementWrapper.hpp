@@ -62,6 +62,14 @@ public:
    virtual bool               RenameObject(const std::string &oldName, 
                                            const std::string &newName);
    
+   // This method tells a wrapper's object to take whatever action it needs to take
+   // before the value for the specified parameter is set (e.g. clearing arrays).
+   // This must be implemented in any wrapper type that handles a parameter
+   // for which pre-action(s) must be taken.
+   virtual bool               TakeRequiredAction() const;
+
+
+
    // static functions
    static bool SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWrapper,
                         SolarSystem *solarSys, ObjectMap *objMap,

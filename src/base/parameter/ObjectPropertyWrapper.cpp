@@ -32,6 +32,7 @@
 
 //#define DEBUG_RENAME_OBJ_PROP
 //#define DEBUG_OPW
+//#define DEBUG_OBJ_PROP_SET_STRING
 
 //---------------------------------
 // static data
@@ -433,6 +434,11 @@ std::string ObjectPropertyWrapper::EvaluateString() const
 //---------------------------------------------------------------------------
 bool ObjectPropertyWrapper::SetString(const std::string &toValue)
 {
+#ifdef DEBUG_OBJ_PROP_SET_STRING
+   MessageInterface::ShowMessage("Entering OBWrapper::SetString with toValue = %s\n",
+         toValue.c_str());
+   MessageInterface::ShowMessage("   and data type = %d\n", (Integer) GetDataType());
+#endif
    Gmat::ParameterType propType = GetDataType();
    if (propType == Gmat::STRING_TYPE ||
        propType == Gmat::ENUMERATION_TYPE ||
@@ -593,6 +599,13 @@ const Integer ObjectPropertyWrapper::GetPropertyId()
 {
    return propID;
 }
+
+
+bool ObjectPropertyWrapper::TakeRequiredAction() const
+{
+   return object->TakeRequiredAction(propID);
+}
+
 
 //---------------------------------------------------------------------------
 //  void SetupWrapper()
