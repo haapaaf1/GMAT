@@ -798,8 +798,8 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       else
       {
          if (find(orbitSpiceKernelNames.begin(), orbitSpiceKernelNames.end(),
-             value) == orbitSpiceKernelNames.end())   orbitSpiceKernelNames.push_back(value);
-
+             value) == orbitSpiceKernelNames.end())
+            orbitSpiceKernelNames.push_back(value);
       }
       return true;
    }
@@ -816,7 +816,8 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       else
       {
          if (find(attitudeSpiceKernelNames.begin(), attitudeSpiceKernelNames.end(),
-             value) == attitudeSpiceKernelNames.end())   attitudeSpiceKernelNames.push_back(value);
+             value) == attitudeSpiceKernelNames.end())
+            attitudeSpiceKernelNames.push_back(value);
      }
       return true;
    }
@@ -833,7 +834,8 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       else
       {
          if (find(scClockSpiceKernelNames.begin(), scClockSpiceKernelNames.end(),
-             value) == scClockSpiceKernelNames.end())   scClockSpiceKernelNames.push_back(value);
+             value) == scClockSpiceKernelNames.end())
+            scClockSpiceKernelNames.push_back(value);
       }
       return true;
    }
@@ -850,7 +852,8 @@ std::string SpacePoint::GetStringParameter(const Integer id) const
       else
       {
          if (find(frameSpiceKernelNames.begin(), frameSpiceKernelNames.end(),
-             value) == frameSpiceKernelNames.end())   frameSpiceKernelNames.push_back(value);
+             value) == frameSpiceKernelNames.end())
+            frameSpiceKernelNames.push_back(value);
       }
          return true;
    }
