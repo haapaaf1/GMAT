@@ -2990,6 +2990,41 @@ bool GmatBase::TakeAction(const std::string &action,
    return false;
 }
 
+//---------------------------------------------------------------------------
+//  bool TakeRequiredAction(const Integer id))
+//---------------------------------------------------------------------------
+/**
+ * Tells object to take whatever action it needs to take before the value
+ * of the specified parameter is set (e.g. clearing out arrays)
+ *
+ * @param <id> parameter for which to take prerequisite action.
+ *
+ * @return true if the action was performed (or none needed), false if not.
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::TakeRequiredAction(const Integer id)
+{
+   return true;
+}
+
+//---------------------------------------------------------------------------
+//  bool TakeRequiredAction(const std::string &label)
+//---------------------------------------------------------------------------
+/**
+ * Tells object to take whatever action it needs to take before the value
+ * of the specified parameter is set (e.g. clearing out arrays)
+ *
+ * @param <label> parameter for which to take prerequisite action.
+ *
+ * @return true if the action was performed (or none needed), false if not.
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::TakeRequiredAction(const std::string &label)
+{
+   Integer id = GetParameterID(label);
+   return TakeRequiredAction(id);
+}
+
 
 //------------------------------------------------------------------------------
 // const std::string& GetGeneratingString(Gmat::WriteMode mode = Gmat::SCRIPTING,

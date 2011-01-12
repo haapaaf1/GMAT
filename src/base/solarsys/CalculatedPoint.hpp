@@ -107,6 +107,8 @@ public:
                         GetRefObjectNameArray(const Gmat::ObjectType type);
    virtual bool         TakeAction(const std::string &action,  
                                    const std::string &actionData = "");
+   virtual bool         TakeRequiredAction(const Integer id);
+
    
    virtual void         SetDefaultBody(const std::string &defBody);
    virtual const StringArray&

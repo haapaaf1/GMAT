@@ -21,9 +21,12 @@
 #include "CalculatedPoint.hpp"
 #include "SolarSystemException.hpp"
 #include "MessageInterface.hpp"
+#include "StringUtil.hpp"
 
 //#define DEBUG_CP_OBJECT
 //#define DEBUG_CP_BODIES
+//#define DEBUG_CP_SET_STRING
+//#define DEBUG_CP_ACTION
 
 //---------------------------------
 // static data
@@ -409,18 +412,37 @@ std::string CalculatedPoint::GetStringParameter(const std::string &label,
 //------------------------------------------------------------------------------
 bool CalculatedPoint::SetStringParameter(const Integer id, 
                                          const std::string &value)
-{        
+{
+   #ifdef DEBUG_CP_SET_STRING
+      MessageInterface::ShowMessage("Entering CalculatedPoint::SetString with id = %d (%s), value = %s\n",
+            id, GetParameterText(id).c_str(), value.c_str());
+   #endif
    if (id == BODY_NAMES)
    {
-      if (find(bodyNames.begin(), bodyNames.end(), value) == bodyNames.end())
+      std::string value1 = GmatStringUtil::Trim(value);
+      if (GmatStringUtil::IsEnclosedWithBraces(value1))
       {
-         #ifdef DEBUG_CP_OBJECT
-            MessageInterface::ShowMessage("Adding %s to body name list for object %s\n",
-                  value.c_str(), instanceName.c_str());
-         #endif
-         bodyNames.push_back(value);
+//         bodyNames.clear();
+         TakeAction("ClearBodies");
+         bodyNames = GmatStringUtil::ToStringArray(value1);
+      }
+      else
+      {
+         if (find(bodyNames.begin(), bodyNames.end(), value) == bodyNames.end())
+         {
+            #ifdef DEBUG_CP_OBJECT
+               MessageInterface::ShowMessage("Adding %s to body name list for object %s\n",
+                     value.c_str(), instanceName.c_str());
+            #endif
+            bodyNames.push_back(value);
+         }
       }
       
+      #ifdef DEBUG_CP_SET_STRING
+         MessageInterface::ShowMessage("Exiting CalculatedPoint::SetString: BodyNames are: \n");
+         for (unsigned int ii = 0; ii < bodyNames.size(); ii++)
+            MessageInterface::ShowMessage("   %d     %s\n", (Integer) ii, (bodyNames.at(ii)).c_str());
+      #endif
       return true;
    }
 
@@ -471,6 +493,11 @@ bool  CalculatedPoint::SetStringParameter(const Integer id,
                                           const std::string &value,
                                           const Integer index) 
 {
+   #ifdef DEBUG_CP_SET_STRING
+      MessageInterface::ShowMessage(
+            "Entering CalculatedPoint::SetString with id = %d (%s), index = %d, and value = %s\n",
+            id, GetParameterText(id).c_str(), index, value.c_str());
+   #endif
    if (id == BODY_NAMES)
    {
       if ((index < 0) || (index > (Integer) bodyNames.size()))
@@ -774,15 +801,43 @@ const StringArray& CalculatedPoint::GetRefObjectNameArray(const Gmat::ObjectType
 bool CalculatedPoint::TakeAction(const std::string &action,
                                  const std::string &actionData)
 {
+   #ifdef DEBUG_CP_ACTION
+      MessageInterface::ShowMessage(
+            "Entering CP::TakeAction with action = \"%s\", actionData = \"%s\"\n",
+            action.c_str(), actionData.c_str());
+   #endif
    if (action == "ClearBodies")
    {
       bodyNames.clear();
       bodyList.clear();
-      defaultBodies.clear();
+//      defaultBodies.clear();
       numberOfBodies = 0;
       return true; 
    }
    return SpacePoint::TakeAction(action, actionData);
+}
+
+//---------------------------------------------------------------------------
+//  bool TakeRequiredAction(const Integer id))
+//---------------------------------------------------------------------------
+/**
+ * Tells object to take whatever action it needs to take before the value
+ * of the specified parameter is set (e.g. clearing out arrays)
+ *
+ * @param <id> parameter for which to take prerequisite action.
+ *
+ * @return true if the action was performed (or none needed), false if not.
+ */
+//------------------------------------------------------------------------------
+bool CalculatedPoint::TakeRequiredAction(const Integer id)
+{
+   #ifdef DEBUG_CP_ACTION
+      MessageInterface::ShowMessage(
+            "Entering CP::TakeRequiredAction with id = %d (%s)\n",
+            id, (GetParameterText(id)).c_str());
+   #endif
+   if (id == BODY_NAMES) return TakeAction("ClearBodies");
+   return SpacePoint::TakeRequiredAction(id);
 }
 
 
@@ -804,7 +859,7 @@ void CalculatedPoint::SetDefaultBody(const std::string &defBody)
          MessageInterface::ShowMessage("Adding %s to DEFAULT body name list for object %s\n",
                defBody.c_str(), instanceName.c_str());
       #endif
-         defaultBodies.push_back(defBody);
+      defaultBodies.push_back(defBody);
    }
 }
 

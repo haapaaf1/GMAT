@@ -347,6 +347,8 @@ public:
 
    virtual bool         TakeAction(const std::string &action,
                                    const std::string &actionData = "");
+   virtual bool         TakeRequiredAction(const Integer id);
+   virtual bool         TakeRequiredAction(const std::string &label);
 
    virtual const std::string&
                         GetGeneratingString(
