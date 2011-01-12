@@ -3473,10 +3473,14 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    PropSetup *propSetup = CreatePropSetup(name);
    
    // create default force model with Earth primary body with JGM2
+   // Why unnamed FM? Changed back to named FM, since it causes error in
+   // Interpreter::FinalPass() when parsing ScriptEvent (Begin/EndScript) from GUI.
+   // The error is about undefined DefaultProp_ForceModel(LOJ: 2011.01.12)
+   ODEModel *fm= CreateODEModel("ForceModel", name + "_ForceModel");
    // Create unnamed ODEModel when creating default PropSetup (LOJ: 2009.11.23)
-   //ODEModel *fm= CreateODEModel("ForceModel", name + "_ForceModel");
-   ODEModel *fm = CreateODEModel("ForceModel", "");
-   fm->SetName(name + "_ForceModel");
+   // and delete fm after setting it to PropSetup (see below)
+   //ODEModel *fm = CreateODEModel("ForceModel", "");
+   //fm->SetName(name + "_ForceModel");
    
    //=======================================================
    #if 0
@@ -3502,14 +3506,15 @@ PropSetup* Moderator::CreateDefaultPropSetup(const std::string &name)
    
    propSetup->SetODEModel(fm);
    
+   // Why unnamed FM? Commented out (LOJ: 2011.01.12)
    // PropSetup::SetODEModel() clones the ODEModel, so delete it from here (LOJ: 2009.11.23)
-   #ifdef DEBUG_MEMORY
-   std::string funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
-   MemoryTracker::Instance()->Remove
-      (fm, fm->GetName(), "Moderator::CreateDefaultPropSetup()"
-       "deleting fm", funcName);
-   #endif
-   delete fm;
+   //#ifdef DEBUG_MEMORY
+   //std::string funcName = currentFunction ? "function: " + currentFunction->GetName() : "";
+   //MemoryTracker::Instance()->Remove
+   //   (fm, fm->GetName(), "Moderator::CreateDefaultPropSetup()"
+   //    "deleting fm", funcName);
+   //#endif
+   //delete fm;
    
    #if DEBUG_CREATE_RESOURCE
    MessageInterface::ShowMessage
