@@ -5419,7 +5419,10 @@ bool Interpreter::SetProperty(GmatBase *obj, const Integer id,
    
    std::string valueToUse = value;
    CheckForSpecialCase(obj, id, valueToUse);
-   
+
+   // require the object to take its prerequisite action before setting the value
+   obj->TakeRequiredAction(id);
+
    #ifdef DEBUG_SET
    MessageInterface::ShowMessage("   propertyType=%d\n", obj->GetParameterType(id));
    #endif
