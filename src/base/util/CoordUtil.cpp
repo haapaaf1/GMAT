@@ -29,6 +29,7 @@
 using namespace GmatMathUtil;
 
 //#define DEBUG_CART_TO_KEPL
+//#define DEBUG_KEPL_TO_CART
 
 const Real CoordUtil::ORBIT_TOL = 1.0E-10;
 const Real CoordUtil::ORBIT_TOL_SQ = 1.0E-20;
@@ -464,7 +465,11 @@ Integer CoordUtil::ComputeKeplToCart(Real grav, Real elem[6], Real r[3],
    
    // radius near infinite
    //if (1-ecc*Cos(anom) < 1E-30) {
-   if (1+ecc*Cos(anom) < 1E-30) 
+   #ifdef DEBUG_KEPL_TO_CART
+      MessageInterface::ShowMessage("ecc = %12.10f, anom = %12.10f, Cos(anom) = %12.10f, 1+ecc*Cos(anom) = %12.10f\n",
+            ecc, anom, Cos(anom), (1+ecc*Cos(anom)));
+   #endif
+   if (Abs(1+ecc*Cos(anom)) < 1E-30)
    {
       MessageInterface::PopupMessage(Gmat::WARNING_,
              "Warning::Radius is near infinite in keplerian to cartesian conversion.\n");
