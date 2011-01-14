@@ -63,6 +63,9 @@ public:
                        bool includeLower = false,
                        bool includeUpper = false, bool isInteger = false);
    
+   bool CheckTimeFormatAndValue(const std::string &format, const std::string& value,
+                                const std::string &field,  bool checkRange = false);
+
    wxArrayString ToWxArrayString(const StringArray &array);
    wxString ToWxString(const wxArrayString &names);
    

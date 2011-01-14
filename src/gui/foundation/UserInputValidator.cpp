@@ -19,6 +19,7 @@
 #include "StringUtil.hpp"           // for GmatStringUtil::
 #include "FileUtil.hpp"             // for GmatFileUtil::
 #include "RealUtilities.hpp"        // for GmatMathUtil::
+#include "TimeSystemConverter.hpp"
 #include "MessageInterface.hpp"
 
 //#define DEBUG_CHECK_REAL
@@ -468,7 +469,7 @@ bool UserInputValidator::CheckVariable(const std::string &varName, Gmat::ObjectT
 /*
  * Checks a real number against a lower and upper bound.
  *
- * @param  sValue      string representaiton of the real value
+ * @param  sValue      string representation of the real value
  * @param  value       real value to be checked
  * @param  lower       lower bound against which to check the value
  * @param  upper       upper bound against which to check the value
@@ -547,6 +548,76 @@ bool UserInputValidator::CheckRealRange(const std::string &sValue,
 
    SetErrorFlag();
    return false;
+}
+
+//------------------------------------------------------------------------------
+// bool CheckTimeFormatAndValue(const std::string &format, const std::string& value,
+//                              const std::string &field,  bool checkRange)
+//------------------------------------------------------------------------------
+/*
+ * Checks the input epoch string for correct format and, on option, allowed value.
+ *
+ * @param  format      epoch format
+ * @param  value       epoch value to be checked
+ * @param  field       object's field name
+ * @param  checkRange  flag indicating whether or not to check value range
+ *
+ * @return true if input value is valid, false otherwise
+ */
+//------------------------------------------------------------------------------
+bool UserInputValidator::CheckTimeFormatAndValue(const std::string &format, const std::string& value,
+                                                 const std::string &field,  bool checkRange)
+{
+   std::string timeFormat = "ModJulian";
+   if (format.find("Gregorian") != format.npos)
+      timeFormat = "Gregorian";
+
+   std::string expRange;
+   try
+   {
+      TimeConverterUtil::ValidateTimeFormat(format, value, false);
+   }
+   catch (BaseException &be)
+   {
+      if (timeFormat == "Gregorian")
+      {
+         expRange = "DD Mon YYYY HH:MM:SS.sss";
+      }
+      else
+      {
+         expRange = "Real Number";
+      }
+      MessageInterface::PopupMessage
+         (Gmat::ERROR_, mMsgFormat.c_str(), value.c_str(), field.c_str(),
+          expRange.c_str());
+      SetErrorFlag();
+      return false;
+   }
+   if (checkRange)
+   {
+      try
+      {
+         TimeConverterUtil::ValidateTimeFormat(format, value, true);
+      }
+      catch (BaseException &be)
+      {
+         std::string expRange = "04 Oct 1957 12:00:00.000 or later";
+         if (timeFormat == "Gregorian")
+         {
+            expRange = "04 Oct 1957 12:00:00.000 or later";
+         }
+         else
+         {
+            expRange = "Real Number >= 6116.00";
+         }
+         MessageInterface::PopupMessage
+            (Gmat::ERROR_, mMsgFormat.c_str(), value.c_str(), field.c_str(),
+             expRange.c_str());
+         SetErrorFlag();
+         return false;
+       }
+   }
+   return true;
 }
 
 
