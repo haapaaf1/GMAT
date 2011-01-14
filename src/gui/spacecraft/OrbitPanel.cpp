@@ -404,18 +404,23 @@ void OrbitPanel::SaveData()
       {
          try
          {
+            bool timeOK = theScPanel->CheckTimeFormatAndValue(epochFormat, newEpoch,
+                  "Epoch", true);
 //            TimeConverterUtil::Convert(epochFormat, fromMjd, newEpoch,
 //                                       "TAIModJulian", taimjd, outStr);
             // time sent to the spacecraft should be in A1   WCS 2010.05.22
-            TimeConverterUtil::Convert(epochFormat, fromMjd, newEpoch,
-                                       "A1ModJulian", a1mjd, outStr);
-            
-//            theSpacecraft->SetEpoch(epochFormat, newEpoch, taimjd);
-            theSpacecraft->SetEpoch(epochFormat, newEpoch, a1mjd);
-            mEpochStr = outStr;
-//            mEpoch = taimjd;
-            mEpoch = a1mjd;
-            mIsEpochChanged = false;
+            if (timeOK)
+            {
+               TimeConverterUtil::Convert(epochFormat, fromMjd, newEpoch,
+                                          "A1ModJulian", a1mjd, outStr);
+
+   //            theSpacecraft->SetEpoch(epochFormat, newEpoch, taimjd);
+               theSpacecraft->SetEpoch(epochFormat, newEpoch, a1mjd);
+               mEpochStr = outStr;
+   //            mEpoch = taimjd;
+               mEpoch = a1mjd;
+               mIsEpochChanged = false;
+            }
          }
          catch (BaseException &e)
          {
