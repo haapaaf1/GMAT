@@ -395,7 +395,7 @@ bool IsValidTime (Integer year, Integer month, Integer day,
 
 
 //------------------------------------------------------------------------------
-// bool IsValidGregorian(const std::string &str)
+// bool IsValidGregorian(const std::string &str, bool checkDate = false)
 //------------------------------------------------------------------------------
 /**
  * Determines if input date string is valid Gregorian or not.
@@ -403,11 +403,12 @@ bool IsValidTime (Integer year, Integer month, Integer day,
  *   For example, 01 Jan 2000 12:00:00.000
  *
  * @param  greg  input gregorian string
+ * @param  checkDate check for valid date (i.e. occurs after Sputnik launch)
  *
  * @return true if time is in valid Gregorian format; otherwise, false
  */
 //---------------------------------------------------------------------------
-bool DateUtil::IsValidGregorian(const std::string &str)
+bool DateUtil::IsValidGregorian(const std::string &str, bool checkDate)
 {
    StringArray parts = GmatStringUtil::SeparateBy(str, " ");
    if (parts.size() != 4)
@@ -460,7 +461,27 @@ bool DateUtil::IsValidGregorian(const std::string &str)
    #endif
    
    // check for date
-   return IsValidTime(year, month, day, hour, min, sec);
+   if (!IsValidTime(year, month, day, hour, min, sec))
+      return false;
+   // Date must be equal to or later than Sputnik launch (04 Oct 1957 12:00:00.000)
+   if (checkDate)
+   {
+      if (year < 1957) return false;
+      else if (year == 1957)
+      {
+         if (month < 10) return false;
+         else if (month == 10)
+         {
+            if (day < 4) return false;
+            else if (day == 4)
+            {
+               if (hour < 12) return false;
+            }
+         }
+      }
+   }
+   return true;
+//   return IsValidTime(year, month, day, hour, min, sec);
 }
 
 

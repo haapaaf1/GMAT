@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                    DateUtil
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -61,7 +61,7 @@ public:
                                      Integer& minute, Real& second);
    friend bool IsValidTime(Integer year, Integer month, Integer day, 
                            Integer hour, Integer minute, Real second);
-   static bool IsValidGregorian(const std::string &str);
+   static bool IsValidGregorian(const std::string &str, bool checkDate = false);
    friend bool IsLeapYear(Integer year);
   
 };
