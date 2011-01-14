@@ -706,10 +706,12 @@ bool TimeConverterUtil::ValidateTimeSystem(std::string sys)
 
 //---------------------------------------------------------------------------
 // bool TimeConverterUtil::ValidateTimeFormat(const std::string &format, 
-//                                            const std::string &value)
+//                                            const std::string &value,
+//                                            bool checkValue = true)
 //---------------------------------------------------------------------------
 bool TimeConverterUtil::ValidateTimeFormat(const std::string &format, 
-                                           const std::string &value)
+                                           const std::string &value,
+                                           bool checkValue)
 {
    bool retval = false;
    
@@ -725,11 +727,21 @@ bool TimeConverterUtil::ValidateTimeFormat(const std::string &format,
    
    if (timeFormat == "Gregorian")
    {
-      retval = DateUtil::IsValidGregorian(value);
+      retval = DateUtil::IsValidGregorian(value, false);
       
       if (!retval)
           throw TimeFormatException
              ("Gregorian date \"" + value + "\" is not valid.");
+
+      if (checkValue)
+      {
+         retval = DateUtil::IsValidGregorian(value, true);
+
+         if (!retval)
+             throw TimeFormatException
+                ("Gregorian date \"" + value + "\" is not valid - time specified must be \"04 Oct 1957 12:00:00.000\" or later");
+      }
+
    }
    else if (timeFormat == "ModJulian")
    {
@@ -737,13 +749,20 @@ bool TimeConverterUtil::ValidateTimeFormat(const std::string &format,
       if (GmatStringUtil::ToReal(value, rval))
       {
          // Sputnik launched Oct 4, 1957 = 6116 MJ; don't accept earlier epochs.
-         if (rval >= 6116)
-            retval = true;
+//         if (rval >= 6116)
+//            retval = true;
+         if ((checkValue) && (rval < 6116))
+         {
+            throw InvalidTimeException
+               ("ModJulian Time \"" + value + "\" is not valid - time specified must be >= 6116.00");
+         }
       }
-      
-      if (!retval)
+      else
+      {
+//      if (!retval)
          throw InvalidTimeException
             ("ModJulian Time \"" + value + "\" is not valid.");
+      }
    }
    else
    {

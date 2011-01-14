@@ -146,7 +146,8 @@ namespace TimeConverterUtil
                 Real &toMjd, std::string &toStr, Integer format = 1);
    
    bool ValidateTimeSystem(std::string sys);   
-   bool ValidateTimeFormat(const std::string &format, const std::string &value);
+   bool ValidateTimeFormat(const std::string &format, const std::string &value,
+                           bool checkValue = true);
    StringArray GetValidTimeRepresentations();
 }
 
