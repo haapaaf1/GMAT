@@ -4920,7 +4920,7 @@ bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
    case Gmat::BOOLEAN_TYPE:
       {
          bool tf;
-         if (GmatStringUtil::ToBoolean(value, tf))
+         if (GmatStringUtil::ToBoolean(valueToUse, tf))
          {
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage
@@ -4930,6 +4930,26 @@ bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
             
             obj->SetBooleanParameter(id, tf);
             retval = true;
+         }
+         else
+         {
+            errorMsg1 = errorMsg1 + "The value of \"" + valueToUse + "\" for ";
+            errorMsg2 = " The allowed values are: [true false]";
+         }
+         break;
+      }
+   case Gmat::BOOLEANARRAY_TYPE:
+      {
+         bool tf;
+         if (GmatStringUtil::ToBoolean(valueToUse, tf))
+         {
+            #ifdef DEBUG_SET
+            MessageInterface::ShowMessage
+               ("   Calling %s->SetBooleanParameter(%d, %s, %d) (for BooleanArray)\n", 
+                obj->GetName().c_str(), id, valueToUse.c_str(), index);
+            #endif
+            
+            retval = obj->SetBooleanParameter(id, tf, index);
          }
          else
          {
@@ -5431,44 +5451,43 @@ bool Interpreter::SetProperty(GmatBase *obj, const Integer id,
    Integer count = 0;
    
    // if value has braces or brackets, setting multiple values
-      if (value.find("{") != value.npos || value.find("}") != value.npos)
+   if (value.find("{") != value.npos || value.find("}") != value.npos)
+   {
+      // first, check to see if it is a list of strings (e.g. file names);
+      // in that case, we do not want to remove spaces inside the strings
+      // or use space as a delimiter
+      if (value.find("\'") != value.npos)
       {
-         // first, check to see if it is a list of strings (e.g. file names);
-         // in that case, we do not want to remove spaces inside the strings
-         // or use space as a delimiter
-         if (value.find("\'") != value.npos)
-         {
-            std::string trimmed = GmatStringUtil::Trim(value);
-            std::string inside  = GmatStringUtil::RemoveOuterString(trimmed, "{", "}");
-            #ifdef DEBUG_SET
-            MessageInterface::ShowMessage("------> found single quotes in %s\n", value.c_str());
-            MessageInterface::ShowMessage("------> trimmed =  %s\n", trimmed.c_str());
-            MessageInterface::ShowMessage("------> inside  =  %s\n", inside.c_str());
-            #endif
-            rhsValues = GmatStringUtil::SeparateByComma(inside);
-         }
-         else
-         {
-            rhsValues = theTextParser.SeparateBrackets(value, "{}", " ,");
-         }
+         std::string trimmed = GmatStringUtil::Trim(value);
+         std::string inside  = GmatStringUtil::RemoveOuterString(trimmed, "{", "}");
+         #ifdef DEBUG_SET
+         MessageInterface::ShowMessage("------> found single quotes in %s\n", value.c_str());
+         MessageInterface::ShowMessage("------> trimmed =  %s\n", trimmed.c_str());
+         MessageInterface::ShowMessage("------> inside  =  %s\n", inside.c_str());
+         #endif
+         rhsValues = GmatStringUtil::SeparateByComma(inside);
       }
-      else if (value.find("[") != value.npos || value.find("]") != value.npos)
+      else
       {
-         // first, check to see if it is a list of strings (e.g. file names);
-         // in that case, we do not want to remove spaces inside the strings
-         // or use space as a delimiter
-         if (value.find("\'") != value.npos)
-         {
-            std::string trimmed = GmatStringUtil::Trim(value);
-            std::string inside = GmatStringUtil::RemoveOuterString(trimmed, "[", "]");
-            rhsValues = GmatStringUtil::SeparateByComma(inside);
-        }
-         else
-         {
-            rhsValues = theTextParser.SeparateBrackets(value, "[]", " ,");
-         }
+         rhsValues = theTextParser.SeparateBrackets(value, "{}", " ,");
       }
-//   }
+   }
+   else if (value.find("[") != value.npos || value.find("]") != value.npos)
+   {
+      // first, check to see if it is a list of strings (e.g. file names);
+      // in that case, we do not want to remove spaces inside the strings
+      // or use space as a delimiter
+      if (value.find("\'") != value.npos)
+      {
+         std::string trimmed = GmatStringUtil::Trim(value);
+         std::string inside = GmatStringUtil::RemoveOuterString(trimmed, "[", "]");
+         rhsValues = GmatStringUtil::SeparateByComma(inside);
+      }
+      else
+      {
+         rhsValues = theTextParser.SeparateBrackets(value, "[]", " ,");
+      }
+   }
    
    count = rhsValues.size();
    
@@ -5476,10 +5495,35 @@ bool Interpreter::SetProperty(GmatBase *obj, const Integer id,
    MessageInterface::ShowMessage("   count=%d\n", count);
    #endif
    
+   // If rhs value is an array type, call method for setting whole array
+   // or call SetPropertValue() with index
    if (count > 0)
    {
-      for (int i=0; i<count; i++)
-         retval = SetPropertyValue(obj, id, type, rhsValues[i], i);
+      bool setWithIndex = true;
+      // See if object has a method to handle whole array
+      if (type == Gmat::BOOLEANARRAY_TYPE)
+      {
+         setWithIndex = false;
+         BooleanArray boolArray = GmatStringUtil::ToBooleanArray(value);
+         if (boolArray.size() > 0)
+         {
+            try
+            {
+               retval = obj->SetBooleanArrayParameter(id, boolArray);
+            }
+            catch (BaseException &be)
+            {
+               setWithIndex = true;
+            }
+         }
+      }
+      
+      if (setWithIndex)
+      {
+         // Set value with index
+         for (int i=0; i<count; i++)
+            retval = SetPropertyValue(obj, id, type, rhsValues[i], i);
+      }
    }
    else
    {
@@ -6926,7 +6970,17 @@ bool Interpreter::FinalPass()
             // Subscribers uses ElementWrapper to handle Parameter, Variable,
             // Array, Array elements, so create wrappers in ValidateSubscriber()
             if (retval && obj->IsOfType(Gmat::SUBSCRIBER))
+            {
                retval = retval && ValidateSubscriber(obj);
+               // Since OrbitView has Validate() method
+               if (!obj->Validate())
+               {
+                  retval = retval && false;
+                  InterpreterException ex
+                     (obj->GetLastErrorMessage() + " in \"" + obj->GetName() + "\"");
+                  HandleError(ex, false);
+               }
+            }
          }
          catch (BaseException &ex)
          {

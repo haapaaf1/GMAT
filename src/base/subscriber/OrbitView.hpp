@@ -46,10 +46,12 @@ public:
    void                 SetVector(const std::string &which, const Rvector3 &value);
    
    // methods inherited from Subscriber
-   virtual bool         Initialize();
    virtual void         Activate(bool state = true);
    
    // methods inherited from GmatBase
+   virtual bool         Validate();
+   virtual bool         Initialize();
+   
    virtual GmatBase*    Clone() const;
    virtual void         Copy(const GmatBase* orig);
    
@@ -120,6 +122,15 @@ public:
    virtual bool         SetBooleanParameter(const Integer id,
                                             const bool value);
    
+   virtual const BooleanArray&
+                        GetBooleanArrayParameter(const Integer id) const;
+   virtual const BooleanArray&
+                        GetBooleanArrayParameter(const std::string &label) const;
+   virtual bool         SetBooleanArrayParameter(const Integer id,
+                                                 const BooleanArray &valueArray);
+   virtual bool         SetBooleanArrayParameter(const std::string &label,
+                                                 const BooleanArray &valueArray);
+   
    virtual std::string  GetOnOffParameter(const Integer id) const;
    virtual bool         SetOnOffParameter(const Integer id, 
                                           const std::string &value);
@@ -165,8 +176,8 @@ protected:
    SpacePoint *mViewDirectionObj;
    std::vector<SpacePoint*> mObjectArray;
    std::vector<SpacePoint*> mAllSpArray;
-   std::vector<bool> mDrawOrbitArray;
-   std::vector<bool> mShowObjectArray;
+   BooleanArray mDrawOrbitArray;
+   BooleanArray mDrawObjectArray;
    
    std::string mEclipticPlane;
    std::string mXYPlane;
@@ -208,13 +219,13 @@ protected:
    Integer mObjectCount;
    Integer mNonStdBodyCount;
    
-        std::string mEnableStars;
-        std::string mEnableConstellations;
-        Integer mStarCount;
-
-        Integer mMinFOV;
-        Integer mMaxFOV;
-        Integer mInitialFOV;
+   std::string mEnableStars;
+   std::string mEnableConstellations;
+   Integer mStarCount;
+   
+   Integer mMinFOV;
+   Integer mMaxFOV;
+   Integer mInitialFOV;
    
    StringArray mScNameArray;
    StringArray mObjectNameArray;
@@ -251,6 +262,7 @@ protected:
    enum
    {
       ADD = SubscriberParamCount,
+      DRAW_OBJECT,
       ORBIT_COLOR,
       TARGET_COLOR,
       COORD_SYSTEM,
