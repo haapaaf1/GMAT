@@ -2181,6 +2181,7 @@ void GmatMainFrame::OnSaveScriptAs(wxCommandEvent& WXUNUSED(event))
    if (SaveScriptAs())
    {
       GmatAppData::Instance()->GetResourceTree()->AddScriptItem(mScriptFilename.c_str());
+      GmatAppData::Instance()->GetResourceTree()->SetActiveScript(mScriptFilename.c_str());
       UpdateTitle(mScriptFilename.c_str());
    }
 }
