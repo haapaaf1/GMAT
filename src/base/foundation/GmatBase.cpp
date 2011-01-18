@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  GmatBase
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -88,9 +88,9 @@ const std::string
 GmatBase::PARAM_TYPE_STRING[Gmat::TypeCount] =
 {
    "Integer",     "UnsignedInt", "UnsignedIntArray", "IntegerArray", "Real",
-   "RealElement", "String",      "StringArray",      "Boolean",      "Rvector",
-   "Rmatrix",     "Time",        "Object",           "ObjectArray",  "OnOff",
-   "Enumeration", "Filename"
+   "RealElement", "String",      "StringArray",      "Boolean",      "BooleanArray",
+   "Rvector",     "Rmatrix",     "Time",             "Object",       "ObjectArray",
+   "OnOff",       "Enumeration", "Filename"
 };
 
 /**
@@ -1001,6 +1001,7 @@ void GmatBase::Copy(const GmatBase*)
 /**
  * Performs any pre-run validation that the object needs.
  *
+ * @param msg This receives any message after calling this
  * @return true unless validation fails.
  */
 //------------------------------------------------------------------------------
@@ -2234,7 +2235,7 @@ void GmatBase::SetInlineAttributeComment(Integer index,
 /**
  * Retrieve a boolean parameter.
  *
- * @param <id> The integer ID for the parameter.
+ * @param  id  The integer ID for the parameter.
  *
  * @return the boolean value for this parameter, or throw an exception if the
  *         parameter access in invalid.
@@ -2305,7 +2306,7 @@ bool GmatBase::GetBooleanParameter(const Integer id, const Integer index) const
 /**
  * Sets the value for a boolean parameter.
  *
- * @param <id> The integer ID for the parameter.
+ * @param id The integer ID for the parameter.
  * @param value The new value for the parameter.
  * @param index Index for parameters in arrays.  Use -1 or the index free
  *              version to add the value to the end of the array.
@@ -2323,6 +2324,93 @@ bool GmatBase::SetBooleanParameter(const Integer id, const bool value,
    throw GmatBaseException("Cannot set boolean parameter with ID " +
                            idString.str() + " and index " + indexString.str() +
                            " on " + typeName + " named \"" + instanceName + "\"");
+}
+
+
+//---------------------------------------------------------------------------
+//const BooleanArray& GetBooleanArrayParameter(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the value for a BooleanArray parameter.
+ *
+ * @param id The integer ID for the parameter.
+ *
+ * @return The parameter's value.
+ */
+//------------------------------------------------------------------------------
+const BooleanArray& GmatBase::GetBooleanArrayParameter(const Integer id) const
+{
+   std::stringstream idString;
+   idString << id;
+   throw GmatBaseException("Cannot get BooleanArray parameter with ID " +
+                           idString.str() + " on " + typeName + " named \"" +
+                           instanceName + "\"");
+}
+
+
+//---------------------------------------------------------------------------
+//const BooleanArray& GetBooleanArrayParameter(const std::string &label) const
+//---------------------------------------------------------------------------
+/**
+ * Retrieve the value for a BooleanArray parameter.
+ *
+ * @param label The string label for the parameter.
+ *
+ * @return The parameter's value.
+ */
+//------------------------------------------------------------------------------
+const BooleanArray& GmatBase::GetBooleanArrayParameter(const std::string &label) const
+{
+   Integer id = GetParameterID(label);
+   return GetBooleanArrayParameter(id);
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetBooleanArrayParameter(const Integer id, const BooleanArray &valueArray)
+//---------------------------------------------------------------------------
+/**
+ * Sets the value for a BooleanArray parameter.
+ *
+ * @param id The integer ID for the parameter.
+ * @param valueArray The string of new value list enclosed with brackets,
+ *                  such as [true false]
+ *
+ * @return true if value set successfully, or throw an exception if the
+ *         parameter is invalid or not boolean.
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::SetBooleanArrayParameter(const Integer id,
+                                        const BooleanArray &valueArray)
+{
+   std::stringstream idString;
+   idString << id;
+   throw GmatBaseException("Cannot set BooleanArray parameter with ID " +
+                           idString.str() + " on " + typeName + " named \"" +
+                           instanceName + "\"");
+}
+
+
+//---------------------------------------------------------------------------
+//  bool SetBooleanArrayParameter(const std::string &label,
+//                                const BooleanArray &valueArray)
+//---------------------------------------------------------------------------
+/**
+ * Sets the value for a BooleanArray parameter.
+ *
+ * @param  label  The (string) label for the parameter.
+ * @param  valueArray  The string of new value list enclosed with brackets,
+ *                    such as [true false]
+ *
+ * @return true if value set successfully, or throw an exception if the
+ *         parameter is invalid or not boolean.
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::SetBooleanArrayParameter(const std::string &label,
+                                        const BooleanArray &valueArray)
+{
+   Integer id = GetParameterID(label);
+   return SetBooleanArrayParameter(id, valueArray);
 }
 
 
@@ -3232,6 +3320,21 @@ std::string GmatBase::BuildPropertyName(GmatBase *ownedObj)
 
 
 //------------------------------------------------------------------------------
+// std::string GetLastErrorMessage()
+//------------------------------------------------------------------------------
+/**
+ * Retrieves the last error message
+ *
+ * @return The format string.
+ */
+//------------------------------------------------------------------------------
+std::string GmatBase::GetLastErrorMessage()
+{
+   return lastErrorMessage;
+}
+
+
+//------------------------------------------------------------------------------
 // std::string GetErrorMessageFormat()
 //------------------------------------------------------------------------------
 /**
@@ -3820,6 +3923,16 @@ void GmatBase::WriteParameterValue(Integer id, std::stringstream &stream)
       stream << ((GetBooleanParameter(id)) ? "true" : "false");
       break;
 
+   case Gmat::BOOLEANARRAY_TYPE:
+      {
+         BooleanArray arr = GetBooleanArrayParameter(id);
+         stream << "[ ";
+         for (UnsignedInt i=0; i<arr.size(); i++)
+            stream << (arr[i] ? "true" : "false") << " ";
+         stream << "]";
+      }
+      break;
+      
    case Gmat::STRINGARRAY_TYPE:
       #ifdef DEBUG_ARRAY_TYPE_PARAMETER_WRITING
          MessageInterface::ShowMessage("String array management:WriteParmValue "

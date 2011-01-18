@@ -93,6 +93,7 @@ namespace GmatStringUtil
    GMAT_API IntegerArray ToIntegerArray(const std::string &str);
    GMAT_API UnsignedIntArray ToUnsignedIntArray(const std::string &str);
    GMAT_API StringArray ToStringArray(const std::string &str);
+   GMAT_API BooleanArray ToBooleanArray(const std::string &str);
    
    GMAT_API void ParseParameter(const std::string &str, std::string &type,
                                 std::string &owner, std::string &dep);

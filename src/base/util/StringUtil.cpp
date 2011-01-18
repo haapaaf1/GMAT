@@ -1358,6 +1358,38 @@ StringArray GmatStringUtil::ToStringArray(const std::string &str)
 
 
 //------------------------------------------------------------------------------
+// BooleanArray ToBooleanArray(const std::string &str)
+//------------------------------------------------------------------------------
+BooleanArray GmatStringUtil::ToBooleanArray(const std::string &str)
+{
+   BooleanArray boolArray;
+
+   if (!IsBracketBalanced(str, "[]"))
+      return boolArray;
+
+   std::string str1 = RemoveOuterString(str, "[", "]");
+   str1 = Trim(str1);
+   
+   if (str1 == "")
+      return boolArray;
+
+   StringArray vals = SeparateBy(str1, " ,");
+   bool bval;
+
+   for (UnsignedInt i=0; i<vals.size(); i++)
+   {
+      if (ToBoolean(vals[i], bval))
+          boolArray.push_back(bval);
+      else
+         throw UtilityException
+            ("Invalid Boolean value \"" + vals[i] + "\" found in \"" + str + "\"");
+   }
+
+   return boolArray;
+}
+
+
+//------------------------------------------------------------------------------
 // void ParseParameter(const std::string &str, std::string &type,
 //                     std::string &owner, std::string &dep)
 //------------------------------------------------------------------------------

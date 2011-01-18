@@ -191,6 +191,7 @@ namespace Gmat
       STRING_TYPE,
       STRINGARRAY_TYPE,
       BOOLEAN_TYPE,
+      BOOLEANARRAY_TYPE,
       RVECTOR_TYPE,
       RMATRIX_TYPE,
       TIME_TYPE,

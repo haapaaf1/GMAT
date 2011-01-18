@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  GmatBase
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -229,7 +229,7 @@ public:
                         GetIntegerArrayParameter(const Integer id) const;
    virtual const IntegerArray&
                         GetIntegerArrayParameter(const Integer id,
-                                                const Integer index) const;
+                                                 const Integer index) const;
 
    virtual const Rvector&
                         GetRvectorParameter(const Integer id) const;
@@ -340,7 +340,15 @@ public:
    virtual bool         SetBooleanParameter(const std::string &label,
                                             const bool value,
                                             const Integer index);
-
+   virtual const BooleanArray&
+                        GetBooleanArrayParameter(const Integer id) const;
+   virtual const BooleanArray&
+                        GetBooleanArrayParameter(const std::string &label) const;
+   virtual bool         SetBooleanArrayParameter(const Integer id,
+                                                 const BooleanArray &valueArray);
+   virtual bool         SetBooleanArrayParameter(const std::string &label,
+                                                 const BooleanArray &valueArray);
+   
    virtual std::string  GetOnOffParameter(const std::string &label) const;
    virtual bool         SetOnOffParameter(const std::string &label,
                                           const std::string &value);
@@ -362,6 +370,7 @@ public:
    virtual std::string  BuildPropertyName(GmatBase *ownedObj);
    virtual void         FinalizeCreation();
 
+   virtual std::string  GetLastErrorMessage();
    virtual std::string  GetErrorMessageFormat();
    virtual void         SetErrorMessageFormat(const std::string &fmt);
 
@@ -464,7 +473,8 @@ protected:
    /// flag indicating whether or not a Callback method is currently executing
    bool                callbackExecuting;
 
-   /// error message formats
+   /// error message and formats
+   std::string         lastErrorMessage;
    std::string         errorMessageFormat;
    std::string         errorMessageFormatUnnamed;
    std::string         deprecatedMessageFormat;
