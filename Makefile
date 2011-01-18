@@ -12,15 +12,12 @@ ifeq ($(PLATFORM), nomatlab)
 
 all: 
 	cd src; make -f MakeGmat.eclipse all; \
-	cd ../plugins/MatlabInterfacePlugin; make all; \
 
 rebuild: 
 	cd src; make -f MakeGmat.eclipse clean; make -f MakeGmat.eclipse all; \
-	cd ../plugins/MatlabInterfacePlugin; make rebuild; \
 
 clean:
 	cd src; make -f MakeGmat.eclipse clean; \
-	cd ../plugins/MatlabInterfacePlugin; make clean; \
 
 else
 
