@@ -854,8 +854,8 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
    
    #if DEBUG_RENAME
    MessageInterface::ShowMessage
-      ("ConfigManager::GetListOfItemsHas() name=%s, includeSysParam=%d\n",
-       name.c_str(), includeSysParam);
+      ("ConfigManager::GetListOfItemsHas() type=%d, name='%s', includeSysParam=%d\n",
+       type, name.c_str(), includeSysParam);
    #endif
    
    try
@@ -870,8 +870,10 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
              obj->GetName().c_str());
          #endif
          
-         // if same type, skip
-         if (obj->IsOfType(type))
+         // if same type and name, skip
+         // Added to check for the same name since FuelTank and Thruster are
+         // both HARDWARE type to fix bug 2314 (LOJ: 2011.01.19)
+         if (obj->IsOfType(type) && obj->GetName() == name)
             continue;
          
          // if system parameter not to be included, skip
@@ -996,7 +998,8 @@ GmatBase* ConfigManager::GetFirstItemUsing(Gmat::ObjectType type,
 {
    #ifdef DEBUG_CONFIG_OBJ_USING
    MessageInterface::ShowMessage
-      ("ConfigManager::GetFirstItemUsing() name='%s'\n", name.c_str());
+      ("ConfigManager::GetFirstItemUsing() type=%d, name='%s', includeSysParam=%d\n",
+       type, name.c_str(), includeSysParam);
    #endif
    
    StringArray objList = GetListOfItemsHas(type, name, includeSysParam);
@@ -1362,7 +1365,6 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
    while (currentIter != (std::vector<GmatBase*>::iterator)(objects.end()))
    {
       GmatBase *obj = (*currentIter);
-      //if (obj->GetType() == type)
       if (obj->IsOfType(type))
       {
          if (obj->GetName() == name)
@@ -1388,7 +1390,6 @@ bool ConfigManager::RemoveItem(Gmat::ObjectType type, const std::string &name)
       GmatBase *obj = mapping[name];
       if (obj != NULL)
       {
-         //if (obj->GetType() == type)
          if (obj->IsOfType(type))
          {
             mapping.erase(name);
@@ -1456,7 +1457,6 @@ bool ConfigManager::ReconfigureItem(GmatBase *newobj, const std::string &name)
              newobj);
          #endif
          
-         //if (obj->GetTypeName() == newobj->GetTypeName())
          // We want to replace if classsified as the same sub type
          if (newobj->IsOfType(obj->GetTypeName()))
          {
