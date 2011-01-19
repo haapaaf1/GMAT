@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              FiniteBurnSetupPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: LaMont Ruley
 // Created: 2004/03/04
@@ -172,10 +172,18 @@ void FiniteBurnSetupPanel::LoadData()
       Integer id = theBurn->GetParameterID("Thrusters");
       StringArray thrusters = theBurn->GetStringArrayParameter(id);
       
+      #if DEBUG_FINITEBURN_PANEL
+      MessageInterface::ShowMessage
+         ("   # of configured thrusters = %d\n", thrusters.size() );
+      #endif
+      
       if (thrusters.empty())
       {
          if (theGuiManager->GetNumThruster() > 0)
          {
+            #if DEBUG_FINITEBURN_PANEL
+            MessageInterface::ShowMessage("   Inserting No Thruster Selected\n");
+            #endif
             mThrusterComboBox->Insert("No Thruster Selected", 0);
             mThrusterComboBox->SetSelection(0);
          }
@@ -184,12 +192,7 @@ void FiniteBurnSetupPanel::LoadData()
       {
          thrusterSelected = thrusters[0].c_str(); 
          mThrusterComboBox->SetValue(thrusterSelected.c_str());
-      }      
-      
-      #if DEBUG_FINITEBURN_PANEL
-      MessageInterface::ShowMessage
-         ("   # of configured thrusters = %d\n", thrusters.size() );
-      #endif
+      }
    }
    catch (BaseException &e)
    {

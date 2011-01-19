@@ -4377,6 +4377,11 @@ void GuiItemManager::UpdateFuelTankList()
    {
       sel = (*pos)->GetSelection();
       selStr = (*pos)->GetValue();
+      wxString noSelStr = "No Fuel Tank Selected";
+      
+      #if DBGLVL_GUI_ITEM_HW
+      MessageInterface::ShowMessage("   sel=%d, selStr='%s'\n", sel, selStr.c_str());
+      #endif
       
       if (theNumFuelTank > 0)
       {
@@ -4384,9 +4389,9 @@ void GuiItemManager::UpdateFuelTankList()
          (*pos)->Append(theFuelTankList);
          
          // Insert first item as "No Fuel Tank Selected"
-         if (theFuelTankList[0] != selStr)
+         if (selStr == noSelStr)
          {
-            (*pos)->Insert("No Fuel Tank Selected", 0);
+            (*pos)->Insert(noSelStr, 0);
             (*pos)->SetSelection(0);
          }
          else
@@ -4464,6 +4469,11 @@ void GuiItemManager::UpdateThrusterList()
    {
       sel = (*pos)->GetSelection();
       selStr = (*pos)->GetValue();
+      wxString noSelStr = "No Thruster Selected";
+      
+      #if DBGLVL_GUI_ITEM_HW
+      MessageInterface::ShowMessage("   sel=%d, selStr='%s'\n", sel, selStr.c_str());
+      #endif
       
       if (theNumThruster > 0)
       {
@@ -4471,9 +4481,9 @@ void GuiItemManager::UpdateThrusterList()
          (*pos)->Append(theThrusterList);
          
          // Insert first item as "No Thruster Selected"
-         if (theThrusterList[0] != selStr)
+         if (selStr == noSelStr)
          {
-            (*pos)->Insert("No Thruster Selected", 0);
+            (*pos)->Insert(noSelStr, 0);
             (*pos)->SetSelection(0);
          }
          else
