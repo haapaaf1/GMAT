@@ -422,11 +422,13 @@ bool ObjectPropertyWrapper::SetReal(const Real toValue)
 std::string ObjectPropertyWrapper::EvaluateString() const
 {
    Gmat::ParameterType propType = GetDataType();
-   if (propType == Gmat::STRING_TYPE || propType == Gmat::ON_OFF_TYPE)
+   if (propType == Gmat::STRING_TYPE || propType == Gmat::ON_OFF_TYPE ||
+       propType == Gmat::ENUMERATION_TYPE || propType == Gmat::FILENAME_TYPE)
       return object->GetStringParameter(propID);
    else
       throw GmatBaseException
-         ("EvaluateString() method not valid for wrapper of non-String type.\n");
+         ("ObjectPropertyWrapper::EvaluateString() method not valid for "
+          "wrapper of non-String type.\n");
 }
 
 //---------------------------------------------------------------------------
