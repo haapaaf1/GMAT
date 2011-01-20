@@ -1760,22 +1760,56 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
       if (type1 == "CallFunction")
       {
          std::string funcName = GmatStringUtil::ParseFunctionName(desc);
+         
+         #ifdef DEBUG_CREATE_COMMAND
+         MessageInterface::ShowMessage("   funcName='%s'\n", funcName.c_str());
+         #endif
+         
          if (funcName != "")
          {
             GmatBase *func = FindObject(funcName);
             
-            if (func != NULL && func->IsOfType("MatlabFunction"))
+            #ifdef DEBUG_CREATE_COMMAND
+            MessageInterface::ShowMessage("   funcPtr=<%p>\n", func);
+            #endif
+            
+            // If function name found in matlabFunctionNames, create
+            // CallMatlabFunction (LOJ: Bug 1967 fix)
+            if (find(matlabFunctionNames.begin(), matlabFunctionNames.end(),
+                     funcName) != matlabFunctionNames.end())
+            {
                type1 = "CallMatlabFunction";
+            }
             else
-               type1 = "CallGmatFunction";
+            {
+               if (func != NULL && func->IsOfType("MatlabFunction"))
+                  type1 = "CallMatlabFunction";
+               else
+                  type1 = "CallGmatFunction";
+            }
          }
-      }      
+      }
       
       #ifdef DEBUG_CREATE_COMMAND
       MessageInterface::ShowMessage
          ("   3 Now creating <%s> command and setting GenString to <%s>\n",
           type1.c_str(), std::string(type1 + " " + desc).c_str());
       #endif
+      
+      // How do we detect MatlabFunction inside a GmatFunction?
+      if (desc.find("MatlabFunction") != desc.npos)
+      {
+         StringArray parts = GmatStringUtil::SeparateBy(desc, " ");
+         if (parts.size() == 2)
+         {
+            #ifdef DEBUG_CREATE_COMMAND
+            MessageInterface::ShowMessage
+               ("   Adding '%s' to matlabFunctionNames\n", parts[2].c_str());
+            #endif
+            matlabFunctionNames.push_back(parts[1]);
+         }
+      }
+      
       cmd = AppendCommand(type1, retFlag, inCmd);
       if (cmd != NULL)
          cmd->SetGeneratingString(type1 + " " + desc);

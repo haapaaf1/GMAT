@@ -350,6 +350,8 @@ private:
    StringArray   spacePointList;
    StringArray   celestialBodyList;
    
+   StringArray   matlabFunctionNames;
+   
    static StringArray   allObjectTypeList;
    static StringArray   viewableCommandList;
    static std::map<std::string, Gmat::ObjectType> objectTypeMap;
