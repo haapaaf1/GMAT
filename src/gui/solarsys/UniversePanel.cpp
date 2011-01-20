@@ -502,11 +502,12 @@ void UniversePanel::SaveData()
          }
          filename.close();
          
-//         for (unsigned int i=0; i<mAllFileTypes.size(); i++)
-//         {
-//            wxString theType = mAllFileTypes[i].c_str();
-//            std::string name = std::string(mFileTypeNameMap[theType].c_str());
-//            theGuiInterpreter->SetPlanetarySourceName(mAllFileTypes[i], name);
+         mFileTypeNameMap[mFileTypeComboBox->GetStringSelection()] = str.c_str();
+         for (unsigned int i=0; i<mAllFileTypes.size(); i++)
+         {
+            wxString theType = mAllFileTypes[i].c_str();
+            std::string name = std::string(mFileTypeNameMap[theType].c_str());
+            theGuiInterpreter->SetPlanetarySourceName(mAllFileTypes[i], name);
             #ifdef DEBUG_UNIVERSEPANEL_SAVE
                std::string fieldName = "DEFilename";
                if (type == "SPICE")
@@ -515,9 +516,9 @@ void UniversePanel::SaveData()
                MessageInterface::ShowMessage("fieldName = %s\n", fieldName.c_str());
                MessageInterface::ShowMessage("str = %s\n", str.c_str());
             #endif
-            theGuiInterpreter->SetPlanetarySourceName(type.c_str(), str);
-            mFileTypeNameMap[mFileTypeComboBox->GetStringSelection()] = str.c_str();
-//         }
+         }
+//         theGuiInterpreter->SetPlanetarySourceName(type.c_str(), str);
+
          
          mHasFileNameChanged = false;
       }
@@ -616,6 +617,7 @@ void UniversePanel::OnLSKBrowseButton(wxCommandEvent& event)
          EnableUpdate(true);
       }
    }
+
 }
 
 
@@ -640,10 +642,13 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
          mFileNameTextCtrl->Disable();
          lskNameLabel->Show(false);
          mLSKBrowseButton->Show(false);
-         // Attempt to remove weird remaining visibility/focus problem
-         wxWindow *windowWithFocus = FindFocus();
-         if (windowWithFocus == mLSKFileNameTextCtrl)  mFileNameTextCtrl->SetFocus();
          mLSKFileNameTextCtrl->Show(false);
+         lskNameLabel->Disable();
+         mLSKBrowseButton->Disable();
+         lskNameLabel->Layout();
+         // this next line is needed for the Mac - otherwise, when switching from SPICE,
+         // the LSK text ctrl is still visible (even though it is disabled and hidden)
+         mIntervalTextCtrl->SetFocus();
       }
       else
       {
@@ -653,22 +658,26 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
          if (type == "SPICE")
          {
             fileNameLabel->SetLabel(wxT("SPK "GUI_ACCEL_KEY"Kernel"));
+            mLSKBrowseButton->Enable();
+            mLSKFileNameTextCtrl->Enable();
             lskNameLabel->Show(true);
             mLSKBrowseButton->Show(true);
             mLSKFileNameTextCtrl->Show(true);
          }
-         else
+         else // "DE"
          {
             fileNameLabel->SetLabel(wxT("DE "GUI_ACCEL_KEY"Filename"));
+            mLSKBrowseButton->Disable();
+            mLSKFileNameTextCtrl->Disable();
             lskNameLabel->Show(false);
             mLSKBrowseButton->Show(false);
-            // Attempt to remove weird remaining visibility/focus problem
-            wxWindow *windowWithFocus = FindFocus();
-            if (windowWithFocus == mLSKFileNameTextCtrl)  mFileNameTextCtrl->SetFocus();
             mLSKFileNameTextCtrl->Show(false);
+//            lskNameLabel->Layout();
+            // this next line is needed for the Mac - otherwise, when switching from SPICE,
+            // the LSK text ctrl is still visible (even though it is disabled and hidden)
+            mFileNameTextCtrl->SetFocus();
          }
       }
-
 
       mPageSizer->Layout();
    }
@@ -676,7 +685,6 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
 //   {
 //      mHasAnaModelChanged = true;
 //   }
-   
    mHasFileTypesInUseChanged = true;
    EnableUpdate(true);
 }
@@ -714,7 +722,10 @@ void UniversePanel::OnTextCtrlChange(wxCommandEvent& event)
    if (event.GetEventObject() == mFileNameTextCtrl)
    {
       if (mFileNameTextCtrl->IsModified())
+      {
          mHasFileNameChanged = true;
+         mFileTypeNameMap[mFileTypeComboBox->GetStringSelection()] = mFileNameTextCtrl->GetValue();
+      }
    }
    
    if (event.GetEventObject() == mLSKFileNameTextCtrl)
@@ -723,7 +734,9 @@ void UniversePanel::OnTextCtrlChange(wxCommandEvent& event)
          mHasLSKFileNameChanged = true;
    }
 
+   mPageSizer->Layout();
    EnableUpdate(true);
+
    #ifdef DEBUG_UNIVERSEPANEL_SAVE
    MessageInterface::ShowMessage("end of UniversePanel::OnTextCtrlChange() entered\n");
    MessageInterface::ShowMessage(" hasTextModified = %s\n",
