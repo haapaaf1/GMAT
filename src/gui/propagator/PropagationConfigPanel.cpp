@@ -1121,6 +1121,46 @@ void PropagationConfigPanel::SaveData()
    if (thePropagator->IsOfType("Integrator"))
    {
       //-----------------------------------------------------------------
+      // check for valid gravity model before saving
+      //-----------------------------------------------------------------
+//      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
+
+      if (primaryBodyData != NULL)
+      {
+         if (primaryBodyData->bodyName != "None")
+         {
+   //         if (primaryBodyList[i]->gravType == "None")
+            if ((primaryBodyData->gravType == "None") &&
+                (primaryBodyData->bodyName != "None"))
+            {
+               MessageInterface::PopupMessage
+                  (Gmat::WARNING_, "Please select Gravity Field Model for %s\n",
+   //                     primaryBodyList[i]->bodyName.c_str());
+                        primaryBodyData->bodyName.c_str());
+               canClose = false;
+               return;
+            }
+            //loj: 2007.10.26
+            // Do we need to check empty potential file?
+            // Fow now allow to use default coefficients from the body.
+            //else if (primaryBodyList[i]->gravType == "Other" &&
+            //         primaryBodyList[i]->potFilename == "")
+            //{
+            //   MessageInterface::PopupMessage
+            //      (Gmat::WARNING_, "Please select potential file for %s\n",
+            //       primaryBodyList[i]->bodyName.c_str());
+            //   canClose = false;
+            //   return;
+            //}
+         }
+         else
+         {
+            delete primaryBodyData;
+            primaryBodyData = NULL;
+         }
+      }
+
+      //-----------------------------------------------------------------
       // check for empty primary bodies or point mass
       //-----------------------------------------------------------------
 //      if (primaryBodyList.size() == 0 && pointMassBodyList.size() == 0)
@@ -1132,37 +1172,6 @@ void PropagationConfigPanel::SaveData()
          canClose = false;
          return;
       }
-
-      //-----------------------------------------------------------------
-      // check for valid gravity model before saving
-      //-----------------------------------------------------------------
-//      for (Integer i=0; i < (Integer)primaryBodyList.size(); i++)
-      if (primaryBodyData != NULL)
-      {
-//         if (primaryBodyList[i]->gravType == "None")
-         if (primaryBodyData->gravType == "None")
-         {
-            MessageInterface::PopupMessage
-               (Gmat::WARNING_, "Please select Gravity Field Model for %s\n",
-//                     primaryBodyList[i]->bodyName.c_str());
-                     primaryBodyData->bodyName.c_str());
-            canClose = false;
-            return;
-         }
-         //loj: 2007.10.26
-         // Do we need to check empty potential file?
-         // Fow now allow to use default coefficients from the body.
-         //else if (primaryBodyList[i]->gravType == "Other" &&
-         //         primaryBodyList[i]->potFilename == "")
-         //{
-         //   MessageInterface::PopupMessage
-         //      (Gmat::WARNING_, "Please select potential file for %s\n",
-         //       primaryBodyList[i]->bodyName.c_str());
-         //   canClose = false;
-         //   return;
-         //}
-      }
-
 
       //-----------------------------------------------------------------
       // save values to base, base code should do the range checking
@@ -2215,6 +2224,8 @@ void PropagationConfigPanel::DisplayPointMassData()
       for (Integer i = 0; i < (Integer)secondaryBodiesArray.GetCount(); i++)
          pmEditTextCtrl->AppendText(secondaryBodiesArray.Item(i) + " ");
    }
+
+   UpdatePrimaryBodyComboBoxList();
 }
 
 //------------------------------------------------------------------------------
@@ -2316,7 +2327,7 @@ void PropagationConfigPanel::EnablePrimaryBodyItems(bool enable, bool clear)
          }
 //         primaryBodiesArray.Clear();
          primaryBody = "None";
-         thePrimaryBodyComboBox->Clear();
+//         thePrimaryBodyComboBox->Clear();
 //         bodyTextCtrl->Clear();
       }
 
@@ -2340,6 +2351,7 @@ void PropagationConfigPanel::UpdatePrimaryBodyItems()
 {
    // Reworked for only one primary allowed; the multiple-body code is
    // commented out below
+   mDataChanged = true;
 
    wxString selBody = thePrimaryBodyComboBox->GetStringSelection();
 
@@ -2352,10 +2364,25 @@ void PropagationConfigPanel::UpdatePrimaryBodyItems()
 
       isForceModelChanged = true;
 
-      DisplayGravityFieldData(currentBodyName);
-      DisplayAtmosphereModelData();
-      DisplayMagneticFieldData();
-      DisplaySRPData();
+      if (currentBodyName == "None")
+      {
+         EnablePrimaryBodyItems(false, true);
+         // Delete primary body data
+         if (primaryBodyData != NULL)
+         {
+            delete primaryBodyData;
+            primaryBodyData = NULL;
+         }
+      }
+      else
+      {
+         EnablePrimaryBodyItems();
+         DisplayGravityFieldData(currentBodyName);
+         DisplayAtmosphereModelData();
+         DisplayMagneticFieldData();
+         DisplaySRPData();
+         isForceModelChanged = true;
+      }
    }
 
 //   if (primaryBodiesArray.IsEmpty())
