@@ -1,0 +1,50 @@
+% Created from the following script: CheckData2Matlab_SC.script
+%
+% Functions used: Func_CheckData2Matlab_SC.gmf, Func_CheckData2Matlab_SC_nested.gmf
+% Function path: ./output/SystemTest/
+% Outputs to: ./output/SystemTest/
+ 
+%----------------------------------------
+%---------- Spacecrafts
+%----------------------------------------
+ 
+Create Spacecraft DefaultSC;
+ 
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+ 
+Create ForceModel DefaultProp_ForceModel;
+ 
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+ 
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+ 
+Create String reportLoc1;
+GMAT reportLoc1 = 'Bug1967_Func_CheckData2Matlab_SCgreg.report';
+ 
+Create String reportLoc1_nested;
+GMAT reportLoc1_nested = 'Bug1967_Func_CheckData2Matlab_SCgreg_nested.report';
+ 
+Create String reportLoc2;
+GMAT reportLoc2 = 'Bug1967_Func_CheckData2Matlab_SCmodJul.report';
+ 
+Create String reportLoc2_nested;
+GMAT reportLoc2_nested = 'Bug1967_Func_CheckData2Matlab_SCmodJul_nested.report';
+ 
+ 
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+ 
+% Begin/EndScript used to force GMAT to go into command mode. Might
+% not be necessary but I've included it just in case.
+ 
+BeginMissionSequence;
+
+% Call function
+Bug1967_Func_CheckData2Matlab_SC(reportLoc1,reportLoc2)
+Bug1967_Func_CheckData2Matlab_SC_nested(reportLoc1_nested,reportLoc2_nested)

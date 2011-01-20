@@ -1,0 +1,4 @@
+function Bug1967_Func_CheckData2Matlab_SC_nested(reportLoc1,reportLoc2)
+ 
+% Call function
+Bug1967_Func_CheckData2Matlab_SC(reportLoc1,reportLoc2)
