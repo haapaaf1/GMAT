@@ -2427,6 +2427,7 @@ void PropagationConfigPanel::UpdatePrimaryBodyComboBoxList()
    #ifdef DEBUG_PROP_PANEL_GRAV
       MessageInterface::ShowMessage("Celestial bodies:\n");
    #endif
+
    for (UnsignedInt i = 0; i < cBodies.GetCount(); ++i)
    {
       if (secondaryBodiesArray.Index(cBodies[i]) == wxNOT_FOUND)
@@ -3409,6 +3410,7 @@ void PropagationConfigPanel::OnPMEditButton(wxCommandEvent &event)
          pmEditTextCtrl->Clear();
          EnableUpdate(true);
          isForceModelChanged = true;
+         UpdatePrimaryBodyComboBoxList();
          return;
       }
 
