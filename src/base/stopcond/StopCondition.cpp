@@ -694,7 +694,7 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
    // is bracketed
    bool retval = false;
    
-   Real epoch;
+   Real epoch = 0.0;
    Real currentParmValue, goalValue;
    Real stopEpoch; //in A1Mjd
    
@@ -947,7 +947,7 @@ bool StopCondition::CheckOnPeriapsis()
    
    // Eccentricity must be large enough to keep osculations from masking the
    // stop point
-   Real ecc = mEccParam->EvaluateReal();
+//   Real ecc = mEccParam->EvaluateReal();
    //Real rmag = mRmagParam->EvaluateReal();  // ???
    
    #ifdef DEBUG_STOPCOND_PERIAPSIS
@@ -960,7 +960,7 @@ bool StopCondition::CheckOnPeriapsis()
    // less than the goal value. 
    //----------------------------------------------------------------------
    //if ((rmag <= mRange) && (ecc >= mEccTol))
-   if (ecc >= 1.0e-6)
+//   if (ecc >= 1.0e-6)
    {
       if (( mBackwardsProp && (previousAchievedValue >= currentGoalValue))  ||  
           (!mBackwardsProp && (previousAchievedValue <= currentGoalValue)))
@@ -989,7 +989,7 @@ bool StopCondition::CheckOnApoapsis()
    // Eccentricity must be large enough to keep asculations from masking the
    // stop point
    
-   Real ecc = mEccParam->EvaluateReal();
+//   Real ecc = mEccParam->EvaluateReal();
    
    //----------------------------------------------------------------------
    // A necessary condition for apoapse stop: when moving forward in time,
@@ -998,7 +998,7 @@ bool StopCondition::CheckOnApoapsis()
    //----------------------------------------------------------------------
    
    //if (ecc >= mEccTol)
-   if (ecc >= 1.0e-6)
+//   if (ecc >= 1.0e-6)
    {
       if ((mBackwardsProp && (previousAchievedValue <= currentGoalValue))  ||  
           (!mBackwardsProp && (previousAchievedValue >= currentGoalValue)))
