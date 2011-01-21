@@ -658,6 +658,7 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
          if (type == "SPICE")
          {
             fileNameLabel->SetLabel(wxT("SPK "GUI_ACCEL_KEY"Kernel"));
+            lskNameLabel->Enable();
             mLSKBrowseButton->Enable();
             mLSKFileNameTextCtrl->Enable();
             lskNameLabel->Show(true);
@@ -667,12 +668,12 @@ void UniversePanel::OnComboBoxChange(wxCommandEvent& event)
          else // "DE"
          {
             fileNameLabel->SetLabel(wxT("DE "GUI_ACCEL_KEY"Filename"));
-            mLSKBrowseButton->Disable();
+            lskNameLabel->Disable();
             mLSKFileNameTextCtrl->Disable();
+            mLSKBrowseButton->Disable();
             lskNameLabel->Show(false);
             mLSKBrowseButton->Show(false);
             mLSKFileNameTextCtrl->Show(false);
-//            lskNameLabel->Layout();
             // this next line is needed for the Mac - otherwise, when switching from SPICE,
             // the LSK text ctrl is still visible (even though it is disabled and hidden)
             mFileNameTextCtrl->SetFocus();
