@@ -89,6 +89,7 @@ Create CoordinateSystem Sat1LVLH;
 GMAT Sat1LVLH.Axes    = ObjectReferenced;
 GMAT Sat1LVLH.Origin  = Sat1;
 GMAT Sat1LVLH.Primary = Earth;
+GMAT Sat1LVLH.Secondary = Sat1;
 GMAT Sat1LVLH.YAxis   = -N;
 GMAT Sat1LVLH.ZAxis   = -R;
 %
@@ -100,6 +101,7 @@ Create CoordinateSystem Sat2VNB;
 GMAT Sat2VNB.Axes    = ObjectReferenced;
 GMAT Sat2VNB.Origin  = Sat2;
 GMAT Sat2VNB.Primary = Earth;
+GMAT Sat2VNB.Secondary = Sat2;
 GMAT Sat2VNB.XAxis   = V;
 GMAT Sat2VNB.YAxis   = N;
 
