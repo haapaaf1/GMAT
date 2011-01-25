@@ -57,6 +57,13 @@ PropagatePanel::PropagatePanel(wxWindow *parent, GmatCommand *cmd)
    
    thePropCmd = (Propagate *)cmd;
    
+   InitializeData();   
+   mObjectTypeList.Add("Spacecraft");
+   
+   Create();
+   Show();
+   EnableUpdate(false);
+   
    // Default values
    mPropModeChanged = false;
    mPropDirChanged = false;
@@ -65,13 +72,6 @@ PropagatePanel::PropagatePanel(wxWindow *parent, GmatCommand *cmd)
    mStopTolChanged = false;
    isPropGridDisabled = false;
    canClose = true;
-
-   InitializeData();   
-   mObjectTypeList.Add("Spacecraft");
-   
-   Create();
-   Show();
-   EnableUpdate(false);
    
    // Listen for Propagator or Spacecraft name change
    theGuiManager->AddToResourceUpdateListeners(this);
@@ -651,8 +651,11 @@ wxString PropagatePanel::FormatStopCondDesc(const wxString &varName,
 //------------------------------------------------------------------------------
 void PropagatePanel::OnTextChange(wxCommandEvent& event)
 {
-   mStopTolChanged = true;
-   EnableUpdate(true);
+   if (event.GetEventObject() == mStopTolTextCtrl)
+   {
+      mStopTolChanged = true;
+      EnableUpdate(true);
+   }
 }
 
 
@@ -1270,6 +1273,10 @@ void PropagatePanel::SaveData()
                #endif
             } // STOPCOND_LEFT_COL != ""
          } // for MAX_STOPCOND_ROW
+         
+         // Validate command to create stop condition wrappers
+         //theGuiInterpreter->ValidateCommand(thePropCmd);
+         
       } // if (mStopCondChanged)
    } // try
    catch (BaseException &e)

@@ -178,6 +178,7 @@ StopCondition::StopCondition(const StopCondition &copy)
      mBaseEpoch           (copy.mBaseEpoch),
      internalEpoch        (copy.internalEpoch),
      currentGoalValue     (copy.currentGoalValue),
+     initialGoalValue     (copy.initialGoalValue),
      mRepeatCount         (copy.mRepeatCount),
      mSolarSystem         (copy.mSolarSystem),
      mDescription         (copy.mDescription),
@@ -435,6 +436,13 @@ StopCondition::~StopCondition()
 //------------------------------------------------------------------------------
 bool StopCondition::Evaluate()
 {
+   #ifdef DEBUG_STOPCOND_EVAL
+      MessageInterface::ShowMessage(
+         "StopCondition::Evaluate() entered, mNumValidPoints=%d, mAllowGoalParam=%d, "
+         "isCyclicTimeCondition=%d\n", mNumValidPoints, mAllowGoalParam,
+         isCyclicTimeCondition);
+   #endif
+   
    bool goalMet = false, readyToTest = true;
    Real epoch;
    Real currentParmValue;
@@ -729,7 +737,6 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
       epoch = mEpochParam->EvaluateReal();
    
    // set current LHS value
-   currentParmValue = mStopParam->EvaluateReal();
    try
    {
       currentParmValue = mStopParam->EvaluateReal();
@@ -745,7 +752,8 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
    
    if(isLhsCyclicCondition)
    {
-      currentGoalValue = PutInRange(currentGoalValue, 0.0, GmatMathUtil::TWO_PI_DEG);
+      // CheckCyclicCondition() puts currentGoalValue in range so commented out (LOJ: 2011.01.24)
+      //currentGoalValue = PutInRange(currentGoalValue, 0.0, GmatMathUtil::TWO_PI_DEG);
       if (!CheckCyclicCondition(currentParmValue))
          return false;
    }
@@ -947,12 +955,12 @@ bool StopCondition::CheckOnPeriapsis()
    
    // Eccentricity must be large enough to keep osculations from masking the
    // stop point
-//   Real ecc = mEccParam->EvaluateReal();
+   //Real ecc = mEccParam->EvaluateReal();
    //Real rmag = mRmagParam->EvaluateReal();  // ???
    
-   #ifdef DEBUG_STOPCOND_PERIAPSIS
-   MessageInterface::ShowMessage("   ecc=%.15f\n", ecc);
-   #endif
+   //#ifdef DEBUG_STOPCOND_PERIAPSIS
+   //MessageInterface::ShowMessage("   ecc=%.15f\n", ecc);
+   //#endif
    
    //----------------------------------------------------------------------
    // A necessary condition for periapse stop: when moving forward in time,
@@ -1146,7 +1154,9 @@ bool StopCondition::Initialize()
    
    #ifdef DEBUG_STOPCOND_INIT
    MessageInterface::ShowMessage
-      ("StopCondition::Initialize() returning mInitialized=%d\n", mInitialized);
+      ("StopCondition::Initialize() returning mInitialized=%d, "
+       "initialGoalValue=%.12f, currentGoalValue=%.12f\n", mInitialized,
+       initialGoalValue, currentGoalValue);
    #endif
    
    return mInitialized;
@@ -1202,6 +1212,8 @@ bool StopCondition::Validate()
          ("Currently GMAT expects a Spacecraft Parameter to be on the LHS of "
           "stopping condition");
    }
+   
+   isCyclicTimeCondition = false;
    
    // check on interpolator
    if (mStopParam->IsTimeParameter())
@@ -1539,7 +1551,8 @@ bool StopCondition::SetStopParameter(Parameter *param)
 {
    #ifdef DEBUG_STOP_PARAM
    MessageInterface::ShowMessage
-      ("StopCondition::SetStopParameter() param=<%p>\n", param);
+      ("StopCondition::SetStopParameter() param=<%p>'%s'\n", param,
+       param->GetName().c_str());
    #endif
    
    if (param != NULL)
@@ -1547,9 +1560,10 @@ bool StopCondition::SetStopParameter(Parameter *param)
       mStopParam = param;
       mStopParamType = mStopParam->GetTypeName();
       
+      isCyclicTimeCondition = false;
       if (mStopParamType.find("Elapsed") != mStopParamType.npos)
          isCyclicTimeCondition = true;
-
+      
       if (param->IsTimeParameter())
          mInitialized = true;
       
@@ -1634,7 +1648,8 @@ void StopCondition::SetRhsString(const std::string &str)
    #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
       ("StopCondition::SetRhsString() leaving, mAllowGoalParam=%d, rhsString='%s', "
-       "currentGoalValue=%le\n", mAllowGoalParam, rhsString.c_str(), currentGoalValue);
+       "initialGoalValue=%le, currentGoalValue=%le\n", mAllowGoalParam, rhsString.c_str(),
+       initialGoalValue, currentGoalValue);
    #endif
    
 }
@@ -2009,8 +2024,8 @@ Real StopCondition::SetRealParameter(const Integer id, const Real value)
       {
          currentGoalValue = startValue + initialGoalValue;
          #ifdef DEBUG_CYCLIC_TIME
-            MessageInterface::ShowMessage("  Current value: %12lf  "
-                  "New Stop: %12lf\n", startValue, currentGoalValue);
+            MessageInterface::ShowMessage("  Current value: %.12lf  "
+                  "New Stop: %.12lf\n", startValue, currentGoalValue);
          #endif
       }
       else

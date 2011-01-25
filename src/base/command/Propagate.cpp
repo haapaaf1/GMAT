@@ -745,8 +745,8 @@ bool Propagate::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
 {
    #if DEBUG_PROPAGATE_OBJ
       MessageInterface::ShowMessage
-         ("Propagate::SetRefObject() type=%s name=%s, index=%d\n",
-          obj->GetTypeName().c_str(), name.c_str(), index);
+         ("Propagate::SetRefObject() entered, type=%s, name='%s', index=%d, objName='%s'\n",
+          obj->GetTypeName().c_str(), name.c_str(), index, obj->GetName().c_str());
    #endif
    
    switch (type)
@@ -760,18 +760,24 @@ bool Propagate::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             Integer ndx = satName.find(".",0);
             if (ndx != (Integer)std::string::npos)
                satName = satName.substr(strt, ndx-strt);
-
+            std::string stopStr = obj->GetStringParameter("StopVar");
+            std::string goalStr = obj->GetStringParameter("Goal");
             Integer size = stopWhen.size();
-
-            if (stopWhen.empty() && index == 0)
+            
+            #if DEBUG_PROPAGATE_OBJ
+            MessageInterface::ShowMessage
+               ("satName='%s', stopStr='%s', goalStr='%s', stopWhen.size()=%d, "
+                "stopNames.size()=%d, goalNames.size()=%d\n",
+                satName.c_str(), stopStr.c_str(), goalStr.c_str(), stopWhen.size(),
+                stopNames.size(), goalNames.size());
+            #endif
+            
+            if ((stopWhen.empty() && index == 0) || (index == size))
             {
                stopWhen.push_back((StopCondition *)obj);
                stopSatNames.push_back(satName);
-            }
-            else if (index == size)
-            {
-               stopWhen.push_back((StopCondition *)obj);
-               stopSatNames.push_back(satName);
+               stopNames.push_back(stopStr);
+               goalNames.push_back(goalStr);
             }
             else if (index < size)
             {
@@ -803,6 +809,10 @@ bool Propagate::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             stopCondEpochID = obj->GetParameterID("Epoch");
             stopCondBaseEpochID = obj->GetParameterID("BaseEpoch");
             stopCondStopVarID = obj->GetParameterID("StopVar");
+            
+            #if DEBUG_PROPAGATE_OBJ
+            MessageInterface::ShowMessage("Propagate::SetRefObject() returning true\n");
+            #endif
             return true;
          }
          
@@ -1361,6 +1371,9 @@ bool Propagate::TakeAction(const std::string &action,
          stopWhen.clear();
          stopSats.clear();
          stopSatNames.clear();
+         ClearWrappers();
+         stopNames.clear();
+         goalNames.clear();
          return true;
       }
    }
@@ -1865,11 +1878,20 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
 //------------------------------------------------------------------------------
 void Propagate::ClearWrappers()
 {
+   #ifdef DEBUG_WRAPPERS
+   MessageInterface::ShowMessage
+      ("Propagate::ClearWrappers() entered, stopNames.size()=%d, stopWrappers.size()=%d, "
+       "goalNames.size()=%d, goalWrappers.size()=%d\n", stopNames.size(), stopWrappers.size(),
+       goalNames.size(), goalWrappers.size());
+   #endif
+   
    WrapperArray wrappersToDelete;
    ElementWrapper *ew;
    
    Integer sz = stopNames.size();
-   for (Integer i = 0; i < sz; i++)
+   Integer wrapperSize = stopWrappers.size();
+   Integer actualSize = sz > wrapperSize ? wrapperSize : sz;
+   for (Integer i = 0; i < actualSize; i++)
    {
       if (stopWrappers.at(i) != NULL)
       {
@@ -1884,7 +1906,9 @@ void Propagate::ClearWrappers()
    }
    
    sz = goalNames.size();
-   for (Integer i = 0; i < sz; i++)
+   wrapperSize = goalWrappers.size();
+   actualSize = sz > wrapperSize ? wrapperSize : sz;
+   for (Integer i = 0; i < actualSize; i++)
    {
       if (goalWrappers.at(i) != NULL)
       {
@@ -1910,6 +1934,13 @@ void Propagate::ClearWrappers()
       delete (*ewi);
       (*ewi) = NULL;
    }
+   
+   #ifdef DEBUG_WRAPPERS
+   MessageInterface::ShowMessage
+      ("Propagate::ClearWrappers() leaving, stopNames.size()=%d, stopWrappers.size()=%d, "
+       "goalNames.size()=%d, goalWrappers.size()=%d\n", stopNames.size(), stopWrappers.size(),
+       goalNames.size(), goalWrappers.size());
+   #endif
 }
 
 
@@ -2551,6 +2582,7 @@ void Propagate::SetTransientForces(std::vector<PhysicalModel*> *tf)
 bool Propagate::Initialize()
 {
    #if DEBUG_PROPAGATE_INIT
+      MessageInterface::ShowMessage("Propagate::Initialize() <%p> entered\n", this);
       MessageInterface::ShowMessage("  Size of propName is %d\n",
                                     propName.size());
       for (UnsignedInt ind = 0; ind < propName.size(); ++ind)
@@ -2799,11 +2831,13 @@ bool Propagate::Initialize()
 
    #if DEBUG_PROPAGATE_INIT
       for (UnsignedInt i=0; i<stopSats.size(); i++)
-         MessageInterface::ShowMessage(
-            "Propagate::Initialize() stopSats[%d]=%s\n", i, 
-            stopSats[i]->GetName().c_str());
+         MessageInterface::ShowMessage
+            ("   stopSats[%d]=%s\n", i, stopSats[i]->GetName().c_str());
+      for (UnsignedInt i=0; i<stopWhen.size(); i++)
+         MessageInterface::ShowMessage
+            ("   stopWhen[%d]=%s\n", i, stopWhen[i]->GetName().c_str());
    #endif
-   
+      
    if ((stopWhen.size() == 0) && !singleStepMode)
       throw CommandException("No stopping conditions specified!");
    
@@ -2821,12 +2855,11 @@ bool Propagate::Initialize()
          for (UnsignedInt j=0; j<refNames.size(); j++)
          {
             #if DEBUG_PROPAGATE_INIT
-               MessageInterface::ShowMessage("===> refNames=<%s>\n", 
+               MessageInterface::ShowMessage("   refNames[%d]='%s'\n", j,
                   refNames[j].c_str());
             #endif
             mapObj = FindObject(refNames[j]);
-            stopWhen[i]->SetRefObject(mapObj,
-                                      Gmat::PARAMETER, refNames[j]);
+            stopWhen[i]->SetRefObject(mapObj, Gmat::PARAMETER, refNames[j]);
          }
 
          try
@@ -2859,7 +2892,7 @@ bool Propagate::Initialize()
          ("Propagate::Initialize() SolarSystem not set in StopCondition");
    }
 
-   #if DEBUG_PROPAGATE_EXE
+   #if DEBUG_PROPAGATE_INIT
       MessageInterface::ShowMessage("Propagate::Initialize() complete.\n");
    #endif
 
@@ -2906,6 +2939,11 @@ bool Propagate::Initialize()
       bodiesDefined = 11;      
    #endif
 
+   #if DEBUG_PROPAGATE_INIT
+      MessageInterface::ShowMessage
+         ("Propagate::Initialize() <%p> returning initialized=%d\n", this, initialized);
+   #endif
+      
    return initialized;
 }
 
@@ -2988,6 +3026,8 @@ GmatCommand* Propagate::GetNext()
 void Propagate::PrepareToPropagate()
 {
    #ifdef DEBUG_PROPAGATE_INIT
+      MessageInterface::ShowMessage
+         ("Propagate::PrepareToPropagate() <%p> entered\n", this);
       GmatState *dstate = prop[0]->GetPropStateManager()->GetState();
       Integer dimension = dstate->GetSize();
       MessageInterface::ShowMessage(
@@ -3351,8 +3391,10 @@ void Propagate::PrepareToPropagate()
          
                #if DEBUG_PROPAGATE_INIT
                   MessageInterface::ShowMessage(
-                     "Propagate::PrepareToPropagate() stopSat = %s\n",
-                     stopSats[i]->GetName().c_str());
+                     "Propagate::PrepareToPropagate() stopSat = %s, stopWhen = %s, "
+                     "stopGoal = %s\n", stopSats[i]->GetName().c_str(),
+                     stopWhen[i]->GetName().c_str(),
+                     stopWhen[i]->GetStringParameter("Goal").c_str());
                #endif
          
                stopEpochBase = stopSats[i]->GetRealParameter(epochID);
@@ -3479,6 +3521,10 @@ void Propagate::PrepareToPropagate()
 //         sc->HasPublished(true);
 //      }
 //   }
+   #ifdef DEBUG_PROPAGATE_INIT
+      MessageInterface::ShowMessage
+         ("Propagate::PrepareToPropagate() <%p> leaving\n", this);
+   #endif
 }
 
 
@@ -3533,11 +3579,12 @@ bool Propagate::Execute()
                                 firstStepTolerance);
                stopWhen[i]->Reset();
                stopWhen[i]->Evaluate();
-#ifdef DEBUG_STOPPING_CONDITIONS
-MessageInterface::ShowMessage("Achieved: %.12lf Goal: %.12lf Difference: %.12le\n",
-      stopWhen[i]->GetStopValue(), stopWhen[i]->GetStopGoal(),
-      stopWhen[i]->GetStopValue() - stopWhen[i]->GetStopGoal());
-#endif
+               #ifdef DEBUG_STOPPING_CONDITIONS
+                  MessageInterface::ShowMessage
+                     ("Achieved: %.12lf Goal: %.12lf Difference: %.12le\n",
+                      stopWhen[i]->GetStopValue(), stopWhen[i]->GetStopGoal(),
+                      stopWhen[i]->GetStopValue() - stopWhen[i]->GetStopGoal());
+               #endif
                // Set the flag to check the first step only if 
                //    (1) the stop value is <= stopAccuracy and
                //    (2) it was (one of) the last stop(s) triggered
@@ -4374,12 +4421,13 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
             p[i]->UpdateSpaceObject(
                            baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
       }
-
+      
       stopper->Evaluate();
-
+      
       if (fabs(stopper->GetStopDifference()) > accuracy)
       {
          #ifdef DEBUG_STOPPING_CONDITIONS
+            MessageInterface::ShowMessage("   Using accuracy of %.12f\n", accuracy);
             MessageInterface::ShowMessage("   Stop condition %s missed by %le; "
                "refining step \n", stopper->GetName().c_str(), 
                stopper->GetStopDifference());
