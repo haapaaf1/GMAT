@@ -84,7 +84,7 @@ ObjectReferencedAxes::PARAMETER_TYPE[ObjectReferencedAxesParamCount - DynamicAxe
 ObjectReferencedAxes::ObjectReferencedAxes(const std::string &itsName) :
 DynamicAxes("ObjectReferenced",itsName),
 primaryName   ("Earth"),
-secondaryName (""),
+secondaryName ("Luna"),
 primary       (NULL),
 secondary     (NULL),
 xAxis         (""),
@@ -780,7 +780,11 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 {
    if (!primary)
       throw CoordinateSystemException("Primary \"" + primaryName +
-         "\" is not yet set in object referenced!");
+         "\" is not yet set in object referenced coordinate system!");
+
+   if (!secondary)
+      throw CoordinateSystemException("Secondary \"" + secondaryName +
+         "\" is not yet set in object referenced coordinate system!");
 
    
    if ((xAxis == yAxis) || (xAxis == zAxis) || (yAxis == zAxis))
@@ -802,7 +806,7 @@ void ObjectReferencedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    }
    
    SpacePoint *useAsSecondary = secondary;
-   if (!useAsSecondary)  useAsSecondary = origin;
+//   if (!useAsSecondary)  useAsSecondary = origin;
    Rvector6 rv     = useAsSecondary->GetMJ2000State(atEpoch) -
                      primary->GetMJ2000State(atEpoch);
    #ifdef DEBUG_ROT_MATRIX
