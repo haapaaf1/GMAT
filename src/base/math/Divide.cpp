@@ -187,7 +187,7 @@ bool Divide::ValidateInputs()
    else if ((type1 == Gmat::RMATRIX_TYPE) && (type2 == Gmat::RMATRIX_TYPE))
       if ((row1 == row2) && (col1 == col2))
          retval = true;
-      else if (row1 == 1 && col1 == 1 || row2 == 1 && col2 == 1)
+      else if ((row1 == 1 && col1 == 1) || (row2 == 1 && col2 == 1))
          retval = true;
       else
          retval = false; 
