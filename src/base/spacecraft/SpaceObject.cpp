@@ -649,6 +649,22 @@ void SpaceObject::SetLastStopTriggered(const std::string &stopCondName)
    #endif
 }
 
+//------------------------------------------------------------------------------
+// const std::string SpaceObject::GetLastStopTriggered()
+//------------------------------------------------------------------------------
+/**
+ * This method returns the first entry in the list of triggered stopping
+ * conditions, for use in debugging
+ *
+ * @return The name of the triggered stop
+ */
+//------------------------------------------------------------------------------
+const std::string SpaceObject::GetLastStopTriggered()
+{
+   if (lastStopTriggered.size() > 0)
+      return lastStopTriggered[0];
+   return "";
+}
 
 //------------------------------------------------------------------------------
 // bool WasLastStopTriggered(const std::string &stopCondName)

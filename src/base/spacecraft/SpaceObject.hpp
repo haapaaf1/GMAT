@@ -80,6 +80,7 @@ public:
 
    virtual void ClearLastStopTriggered();
    virtual void SetLastStopTriggered(const std::string &stopCondName);
+   virtual const std::string GetLastStopTriggered();
    virtual bool WasLastStopTriggered(const std::string &stopCondName);
    
    bool HasEphemPropagated();
