@@ -229,6 +229,9 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
       epoch = spacecraft->GetRealParameter("A1Epoch");
    
    Real *satState = spacecraft->GetState().GetState();
+   // Update tank of the spacecraft
+   if (decrementMass)
+      SetTankFromSpacecraft();
    
    #ifdef DEBUG_IMPBURN_FIRE
    MessageInterface::ShowMessage
@@ -381,6 +384,7 @@ bool ImpulsiveBurn::TakeAction(const std::string &action,
 {
    if (action == "ClearTanks")
    {
+      MessageInterface::ShowMessage("Clearing tanks\n");
       tankNames.clear();
       tankMap.clear();
       return true;
@@ -952,7 +956,7 @@ void ImpulsiveBurn::DecrementMass()
    MessageInterface::ShowMessage
       ("       after maneuver totalTankMass = %f\n", totalTankMass);
    #endif
-   
+
    // Update tank mass
    if (!tankMap.empty())
    {
