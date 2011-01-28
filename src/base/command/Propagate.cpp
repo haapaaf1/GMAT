@@ -1668,8 +1668,19 @@ bool Propagate::InterpretAction()
    objects.clear();
    StringArray satList, satDuplicates;
 
+   #ifdef DEBUG_PROPSETUP_NAMES
+      MessageInterface::ShowMessage("PropSetup Names:");
+   #endif
+
    for (UnsignedInt i = 0; i < propName.size(); ++i)
    {
+      if ((propName[i].c_str())[0] == '-')
+         propName[i] = propName[i].substr(1);
+
+      #ifdef DEBUG_PROPSETUP_NAMES
+         MessageInterface::ShowMessage("   %s\n", propName[i].c_str());
+      #endif
+
       objects.push_back(propName[i]);
 
       #ifdef DEBUG_PROPAGATE_ASSEMBLE
