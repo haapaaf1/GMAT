@@ -264,7 +264,7 @@ void ReportFileSetupPanel::Create()
       new wxListBox(this, ID_LISTBOX, wxDefaultPosition, wxSize(200, 150),
                     emptyList, wxLB_SINGLE);
    
-   mViewButton = new wxButton( this, ID_BUTTON, wxT("View"), 
+   mViewButton = new wxButton( this, ID_BUTTON, wxT("Edit"), 
                                 wxDefaultPosition, wxDefaultSize, 0 );
    
    GmatStaticBoxSizer *selectedSizer =

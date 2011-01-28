@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              OutputTree
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -17,7 +17,7 @@
  */
 //------------------------------------------------------------------------------
 #include "gmatwxdefs.hpp"
-#include "bitmaps/folder.xpm"
+#include "bitmaps/ClosedFolder.xpm"
 #include "bitmaps/OpenFolder.xpm"
 #include "bitmaps/file.xpm"
 #include "bitmaps/report.xpm"
@@ -45,7 +45,6 @@
 
 BEGIN_EVENT_TABLE(OutputTree, wxTreeCtrl)
    EVT_TREE_ITEM_RIGHT_CLICK(-1, OutputTree::OnItemRightClick)
-
    EVT_TREE_ITEM_ACTIVATED(-1, OutputTree::OnItemActivated)
    EVT_TREE_BEGIN_LABEL_EDIT(-1, OutputTree::OnBeginLabelEdit)
    EVT_TREE_END_LABEL_EDIT(-1, OutputTree::OnEndLabelEdit)
@@ -218,19 +217,19 @@ void OutputTree::UpdateOutput(bool resetTree, bool removeReports)
       
       if (objTypeName.Trim() == "ReportFile")
       {
-         AppendItem(mReportItem, objName, GmatTree::ICON_FILE, -1,
+         AppendItem(mReportItem, objName, GmatTree::OUTPUT_ICON_REPORTFILE, -1,
                     new GmatTreeItemData(objName, GmatTree::OUTPUT_REPORT));
       }
       else if (objTypeName.Trim() == "OrbitView" &&
                sub->GetBooleanParameter("ShowPlot"))
       {
-         AppendItem(mOpenGlItem, objName, GmatTree::ICON_FILE, -1,
+         AppendItem(mOpenGlItem, objName, GmatTree::OUTPUT_ICON_ORBITVIEW, -1,
                     new GmatTreeItemData(objName, GmatTree::OUTPUT_ORBIT_VIEW));
       }
       else if (objTypeName.Trim() == "XYPlot" &&
                sub->GetBooleanParameter("ShowPlot"))
       {
-         AppendItem(mXyPlotItem, objName, GmatTree::ICON_FILE, -1,
+         AppendItem(mXyPlotItem, objName, GmatTree::OUTPUT_ICON_XYPLOT, -1,
                     new GmatTreeItemData(objName, GmatTree::OUTPUT_XY_PLOT));
       }
    }
@@ -255,29 +254,29 @@ void OutputTree::AddDefaultResources()
    
    //----- Reports
    mReportItem =
-      AppendItem(output, wxT("Reports"), GmatTree::ICON_FOLDER, -1,
+      AppendItem(output, wxT("Reports"), GmatTree::OUTPUT_ICON_CLOSEDFOLDER, -1,
                  new GmatTreeItemData(wxT("Reports"),
                                       GmatTree::REPORTS_FOLDER));
    
-   SetItemImage(mReportItem, GmatTree::ICON_OPENFOLDER,
+   SetItemImage(mReportItem, GmatTree::OUTPUT_ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
    
    //----- Orbit Views
    mOpenGlItem =
-      AppendItem(output, wxT("Orbit Views"), GmatTree::ICON_FOLDER, -1,
+      AppendItem(output, wxT("Orbit Views"), GmatTree::OUTPUT_ICON_CLOSEDFOLDER, -1,
                  new GmatTreeItemData(wxT("Orbit Views"),
                                       GmatTree::ORBIT_VIEWS_FOLDER));
    
-   SetItemImage(mOpenGlItem, GmatTree::ICON_OPENFOLDER,
+   SetItemImage(mOpenGlItem, GmatTree::OUTPUT_ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
    
    //----- XY Plots
    mXyPlotItem =
-      AppendItem(output, wxT("XY Plots"), GmatTree::ICON_FOLDER, -1,
+      AppendItem(output, wxT("XY Plots"), GmatTree::OUTPUT_ICON_CLOSEDFOLDER, -1,
                  new GmatTreeItemData(wxT("XY Plots"),
                                       GmatTree::XY_PLOTS_FOLDER));
     
-   SetItemImage(mXyPlotItem, GmatTree::ICON_OPENFOLDER,
+   SetItemImage(mXyPlotItem, GmatTree::OUTPUT_ICON_OPENFOLDER,
                 wxTreeItemIcon_Expanded);
 }
 
@@ -506,16 +505,16 @@ void OutputTree::AddIcons()
    wxImageList *images = new wxImageList ( size, size, true );
   
    wxBusyCursor wait;
-   wxIcon icons[7];
-
-   icons[0] = wxIcon ( folder_xpm );
-   icons[1] = wxIcon ( file_xpm );
-   icons[2] = wxIcon ( OpenFolder_xpm );
-   icons[3] = wxIcon ( report_xpm );
-   icons[4] = wxIcon ( openglplot_xpm );
-   icons[5] = wxIcon ( xyplot_xpm );
-   icons[6] = wxIcon ( default_xpm );
-
+   wxIcon icons[GmatTree::OUTPUT_ICON_COUNT];
+   
+   icons[GmatTree::OUTPUT_ICON_CLOSEDFOLDER] = wxIcon(ClosedFolder_xpm);
+   icons[GmatTree::OUTPUT_ICON_OPENFOLDER] = wxIcon(OpenFolder_xpm);
+   icons[GmatTree::OUTPUT_ICON_REPORTFILE] = wxIcon(report_xpm);
+   icons[GmatTree::OUTPUT_ICON_ORBITVIEW] = wxIcon(openglplot_xpm);
+   icons[GmatTree::OUTPUT_ICON_XYPLOT] = wxIcon(xyplot_xpm);
+   icons[GmatTree::OUTPUT_ICON_FILE] = wxIcon(file_xpm);
+   icons[GmatTree::OUTPUT_ICON_DEFAULT] = wxIcon(default_xpm);
+   
    int sizeOrig = icons[0].GetWidth();
    for ( size_t i = 0; i < WXSIZEOF(icons); i++ )
    {
@@ -551,7 +550,7 @@ void OutputTree::OnAddReportFile(wxCommandEvent &event)
    if (theGuiInterpreter->CreateSubscriber
        ("ReportFile", std::string(name.c_str())) != NULL)
    {
-      AppendItem(item, name, GmatTree::ICON_REPORT_FILE, -1,
+      AppendItem(item, name, GmatTree::OUTPUT_ICON_REPORTFILE, -1,
                  new GmatTreeItemData(name, GmatTree::REPORT_FILE));
 
       Expand(item);
@@ -578,7 +577,7 @@ void OutputTree::OnAddXyPlot(wxCommandEvent &event)
    if (theGuiInterpreter->CreateSubscriber
        ("XYPlot", std::string(name.c_str())) != NULL)
    {
-      AppendItem(item, name, GmatTree::ICON_XY_PLOT, -1,
+      AppendItem(item, name, GmatTree::OUTPUT_ICON_XYPLOT, -1,
                  new GmatTreeItemData(name, GmatTree::XY_PLOT));
       
       Expand(item);
@@ -605,7 +604,7 @@ void OutputTree::OnAddOrbitView(wxCommandEvent &event)
    if (theGuiInterpreter->CreateSubscriber
        ("OrbitView", std::string(name.c_str())) != NULL)
    {
-      AppendItem(item, name, GmatTree::ICON_ORBIT_VIEW, -1,
+      AppendItem(item, name, GmatTree::OUTPUT_ICON_ORBITVIEW, -1,
                  new GmatTreeItemData(name, GmatTree::ORBIT_VIEW));
 
       Expand(item);

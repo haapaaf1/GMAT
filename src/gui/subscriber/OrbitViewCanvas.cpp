@@ -2104,6 +2104,7 @@ void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
    mfStartX = fEndX;
    mfStartY = fEndY;
    
+   #ifdef __WRITE_GL_MOUSE_POS__
    wxString mousePosStr;
    //mousePosStr.Printf("X = %g Y = %g", fEndX, fEndY);
    mousePosStr.Printf("X = %g Y = %g mouseX = %d, mouseY = %d",
@@ -2112,6 +2113,8 @@ void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
    //wxLogStatus(MdiGlPlot::mdiParentGlFrame,
    //            wxT("X = %d Y = %d lastX = %f lastY = %f Zoom amount = %f Distance = %f"),
    //            event.GetX(), event.GetY(), mfStartX, mfStartY, mZoomAmount, mAxisLength);
+   #endif
+   
    event.Skip();
 }
 
@@ -4213,7 +4216,7 @@ void OrbitViewCanvas::DrawStatus(const wxString &label1, int frame,
    glColor3f(1, 1, 0); //yellow
    glRasterPos2i(xpos, ypos);
    glCallLists(strlen(text.c_str()), GL_BYTE, (GLubyte*)text.c_str());
-
+   
    if (label3 != "")
    {
       glRasterPos2i(xpos, 50);
@@ -4240,11 +4243,15 @@ void OrbitViewCanvas::DrawStatus(const wxString &label1, int frame,
    else
       str.Printf("");
    text+=str;*/
+   
+   // Prepend space before coordinate system name (Bug 2318 fix)
+   wxString viewCsName = "  " + mViewCoordSysName;
    glRasterPos2i(xpos, ypos+20);
-   glCallLists(strlen(mViewCoordSysName.c_str()), GL_BYTE, (GLubyte*)mViewCoordSysName.c_str());
+   glCallLists(strlen(viewCsName.c_str()), GL_BYTE, (GLubyte*)viewCsName.c_str());
    
    wxLogStatus(GmatAppData::Instance()->GetMainFrame(), wxT("Frame#: %d, Time: %f"), frame,
                mTime[frame]);
+   
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
 }

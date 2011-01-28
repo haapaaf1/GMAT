@@ -170,7 +170,6 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    // add help tool
    toolBar->AddTool(MENU_HELP_ABOUT, _T("About GMAT"), *bitmaps[7], _T("About GMAT"));
    toolBar->AddTool(MENU_HELP_ONLINE, _T("Online Help"), *bitmaps[15], _T("Online Help"));
-   toolBar->AddSeparator();
    
    // now realize to make tools appear
    toolBar->Realize();
@@ -237,13 +236,14 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
       *bitmaps[i] = wxBitmap(image);
    }
    
+   toolBar->AddSeparator();
+   
    #ifndef __WXMAC__
    // Add Animation text
-   wxStaticText *aniLabel =
-      new wxStaticText(this, -1, wxT("                Animation"));
-   
+   wxStaticText *aniLabel = new wxStaticText(this, -1, wxT("Animation"));
    toolBar->AddControl(aniLabel);
    #endif
+   
    toolBar->AddTool(TOOL_ANIMATION_PLAY, _T("AnimationPlay"), *bitmaps[0],
                     _T("Start Animation"), wxITEM_CHECK);
    toolBar->AddTool(TOOL_ANIMATION_STOP, _T("AnimationStop"), *bitmaps[1],
@@ -285,8 +285,7 @@ void GmatToolBar::AddGuiScriptSyncStatus(wxToolBar* toolBar)
 {
 #ifndef __WXMAC__
    // Add GUI/Script status text
-   wxStaticText *syncLabel = new wxStaticText
-      (this, -1, wxT("                GUI/Script Sync Status: "));
+   wxStaticText *syncLabel = new wxStaticText(this, -1, wxT("GUI/Script Sync Status: "));
    theSyncStatus = new wxStaticText
       (this, -1, wxT(" Synchronized "), wxDefaultPosition, wxSize(120, 20), wxALIGN_CENTRE);
 #else
@@ -306,6 +305,8 @@ void GmatToolBar::AddGuiScriptSyncStatus(wxToolBar* toolBar)
    wxColour bgcolor = wxTheColourDatabase->Find("DIM GREY");
    theSyncStatus->SetBackgroundColour(bgcolor);
    theSyncStatus->SetForegroundColour(*wxGREEN);
+   
+   toolBar->AddSeparator();
    
 #ifndef __WXMAC__
    toolBar->AddControl(syncLabel);

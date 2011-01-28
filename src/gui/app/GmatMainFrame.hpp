@@ -112,6 +112,10 @@ public:
    void OnHelpAbout(wxCommandEvent &event);
    void OnHelpWelcome(wxCommandEvent &event);
    void OnHelpOnline(wxCommandEvent &event);
+   void OnHelpTutorial(wxCommandEvent &event);
+   void OnHelpForum(wxCommandEvent &event);
+   void OnHelpIssue(wxCommandEvent &event);
+   void OnHelpFeedback(wxCommandEvent &event);
    void OnHyperLinkClick(wxHyperlinkEvent &event);
    
    void OnNewScript(wxCommandEvent &event);

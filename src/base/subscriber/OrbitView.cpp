@@ -197,14 +197,14 @@ OrbitView::OrbitView(const std::string &name)
    // viewpoint
    mViewPointRefName = "Earth";
    mViewPointRefType = "Object";
-   mViewPointVecName = "[ 0 0 30000 ]";
+   mViewPointVecName = "[ 30000 0 0 ]";
    mViewPointVecType = "Vector";
    mViewDirectionName = "Earth";
    mViewDirectionType= "Object";
    mViewScaleFactor = 1.0;
    mFixedFovAngle = 45.0;
    mViewPointRefVector.Set(0.0, 0.0, 0.0);
-   mViewPointVecVector.Set(0.0, 0.0, 30000.0);
+   mViewPointVecVector.Set(30000.0, 0.0, 0.0);
    mViewDirectionVector.Set(0.0, 0.0, -1.0);
    
    mViewCoordSystem = NULL;

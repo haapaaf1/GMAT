@@ -11,12 +11,13 @@ WX_28_SYNTAX = 1
 WX_SHARED = 1
 SHARED_BASE = 1
 USE_STC_EDITOR = 1
+USE_WX_EMAIL = 1
 SHOW_HELP_BUTTON = 1
 SMART_APPLY_BUTTON = 1
 
 # GMAT application icon for Windows only
 # location of GmatIcon
-GMAT_ICON_DIR = D:/Projects/GmatDev/src/gui/resource
+GMAT_ICON_DIR = C:/Projects/GmatDev/src/gui/resource
 GMAT_ICON_RC = $(GMAT_ICON_DIR)/GmatIcon.rc
 GMAT_ICON_O  = $(GMAT_ICON_DIR)/GmatIcon.o
 
@@ -35,7 +36,7 @@ endif
 # SPICE data
 # location of CSPICE headers and libraries
 ifeq ($(USE_SPICE), 1)
-SPICE_DIR = d:/cspice
+SPICE_DIR = C:/cspice
 SPICE_INCLUDE = -I$(SPICE_DIR)/include
 SPICE_CPP_FLAGS = -D__USE_SPICE__ $(SPICE_INCLUDE)
 SPICE_LIB_DIR = $(SPICE_DIR)/lib
@@ -50,8 +51,8 @@ endif
 # DevIL data
 # location of DevIL headers and libraries
 ifeq ($(USE_DEVIL), 1)
-IL_CPP_FLAGS = -ID:/DevIL/include/il -ID:/DevIL/include
-IL_LIBRARIES = -LD:/devIL/dlls -lilu -lilut -lDevIL
+IL_CPP_FLAGS = -IC:/DevIL/include/il -IC:/DevIL/include
+IL_LIBRARIES = -LC:/devIL/dlls -lilu -lilut -lDevIL
 else
 IL_CPP_FLAGS = -DSKIP_DEVIL
 IL_LIBRARIES =
@@ -60,11 +61,21 @@ endif
 # STC editor (wxStyledTextCtrl) data
 # location of STC headers and libraries
 ifeq ($(USE_STC_EDITOR), 1)
-STC_CPP_FLAGS = -D__USE_STC_EDITOR__
-STC_LIBRARIES = -LD:/wxWidgets-2.8.10/lib -lwx_msw_stc-2.8
+STC_CPP_FLAGS = -D__USE_STC_EDITOR__ -I/C:/wxWidgets-2.8.11/contrib/include
+STC_LIBRARIES = -LC:/wxWidgets-2.8.11/lib -lwx_msw_stc-2.8 
 else
 STC_CPP_FLAGS =
 STC_LIBRARIES =
+endif
+
+# wxEmail
+# location of wxEmail headers and libraries
+ifeq ($(USE_WX_EMAIL), 1)
+EMAIL_CPP_FLAGS = -D__ENABLE_EMAIL__ -I/C:/wxWidgets-2.8.11/contrib/include
+EMAIL_LIBRARIES = -LC:/wxWidgets-2.8.11/lib -lwx_msw_netutils-2.8 
+else
+EMAIL_CPP_FLAGS =
+EMAIL_LIBRARIES =
 endif
 
 ifeq ($(SHOW_HELP_BUTTON), 1)
@@ -81,8 +92,8 @@ GUI_CPP_FLAGS =
 endif
 endif
 
-GMAT_CPP_FLAGS = $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS) $(GUI_CPP_FLAGS) 
-GMAT_LINK_FLAGS = $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES) 
+GMAT_CPP_FLAGS = $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS) $(EMAIL_CPP_FLAGS) $(GUI_CPP_FLAGS) 
+GMAT_LINK_FLAGS = $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES) $(EMAIL_LIBRARIES) 
 
 # wxWidgets settings
 ifeq ($(WX_28_SYNTAX), 1)

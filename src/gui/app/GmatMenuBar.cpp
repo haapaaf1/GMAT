@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GmatMenuBar
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -79,11 +79,11 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    newMenu->Append(MENU_LOAD_DEFAULT_MISSION, wxT("Mission"));
    fileMenu->Append(MENU_FILE_NEW, wxT("New"), newMenu, wxT(""));
    fileMenu->AppendSeparator();
-   fileMenu->Append(MENU_FILE_OPEN_SCRIPT, wxT("&Open"), wxT(""));   
+   fileMenu->Append(MENU_FILE_OPEN_SCRIPT, wxT("&Open..."), wxT(""));   
    fileMenu->Append(MENU_FILE_OPEN_RECENT_SCRIPT1, wxT("Open &Recent"), wxT(""));
    fileMenu->AppendSeparator();
-   fileMenu->Append(MENU_FILE_SAVE_SCRIPT, wxT("&Save"), wxT(""));
-   fileMenu->Append(MENU_FILE_SAVE_SCRIPT_AS, wxT("Save As"), wxT(""));
+   fileMenu->Append(MENU_FILE_SAVE_SCRIPT, wxT("&Save..."), wxT(""));
+   fileMenu->Append(MENU_FILE_SAVE_SCRIPT_AS, wxT("Save As..."), wxT(""));
    
    if (runMode == GmatGlobal::TESTING || runMode == GmatGlobal::TESTING_NO_PLOTS)
    {
@@ -91,7 +91,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
       fileMenu->Append(MENU_EMPTY_PROJECT, wxT("Empty Project"), wxT(""));   
       fileMenu->AppendSeparator();
       
-      fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths"), wxT(""));
+      fileMenu->Append(MENU_SET_PATH_AND_LOG, wxT("Set File Paths..."), wxT(""));
    }
    
    #ifdef __ENABLE_PRINT__
@@ -166,6 +166,12 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    wxMenu *helpMenu = new wxMenu;
    helpMenu->Append(MENU_HELP_WELCOME, wxT("Welcome Page"), wxT(""));
    helpMenu->Append(MENU_HELP_ONLINE, wxT("Online Help"), wxT(""));
+   helpMenu->Append(MENU_HELP_TUTORIAL, wxT("Tutorial"), wxT(""));
+   helpMenu->Append(MENU_HELP_FORUM, wxT("Forum"), wxT(""));
+   helpMenu->AppendSeparator();
+   helpMenu->Append(MENU_HELP_ISSUE, wxT("Report an Issue"), wxT(""));
+   helpMenu->Append(MENU_HELP_FEEDBACK, wxT("Provide Feedback"), wxT(""));
+   helpMenu->AppendSeparator();
    helpMenu->Append(MENU_HELP_ABOUT, wxT("About GMAT"), wxT(""));
    this->Append(helpMenu, wxT("Help"));
    

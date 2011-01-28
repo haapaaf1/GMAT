@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GmatMenuBar
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -94,8 +94,8 @@ namespace GmatMenu
       TOOL_CLOSE_CHILDREN,
       TOOL_CLOSE_CURRENT,
       TOOL_SCRIPT,
-	  
-		TOOL_SCREENSHOT,
+      
+      TOOL_SCREENSHOT,
       
       TOOL_ANIMATION_PLAY = 15000,
       TOOL_ANIMATION_STOP,
@@ -113,8 +113,12 @@ namespace GmatMenu
       MENU_MATLAB_SERVER_STOP,
       
       MENU_HELP_TOPICS = 17000,
-      MENU_HELP_ONLINE,
       MENU_HELP_WELCOME,
+      MENU_HELP_ONLINE,
+      MENU_HELP_TUTORIAL,
+      MENU_HELP_FORUM,
+      MENU_HELP_ISSUE,
+      MENU_HELP_FEEDBACK,
       
       // it is important for the id corresponding to the "About" command to have
       // this standard value as otherwise it won't be handled properly under Mac

@@ -101,6 +101,11 @@
 #include "AboutDialog.hpp"
 #include "SetPathDialog.hpp"
 #include "WelcomePanel.hpp"
+// email
+#ifdef __ENABLE_EMAIL__
+#include "wx/net/msg.h"               // for wxMailMessage
+#include "wx/net/email.h"             // for wxEmail
+#endif
 
 #include "FileManager.hpp"
 #include "FileUtil.hpp"               // for Compare()
@@ -183,6 +188,10 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU (MENU_HELP_ABOUT, GmatMainFrame::OnHelpAbout)
    EVT_MENU (MENU_HELP_WELCOME, GmatMainFrame::OnHelpWelcome)
    EVT_MENU (MENU_HELP_ONLINE, GmatMainFrame::OnHelpOnline)
+   EVT_MENU (MENU_HELP_TUTORIAL, GmatMainFrame::OnHelpTutorial)
+   EVT_MENU (MENU_HELP_FORUM, GmatMainFrame::OnHelpForum)
+   EVT_MENU (MENU_HELP_ISSUE, GmatMainFrame::OnHelpIssue)
+   EVT_MENU (MENU_HELP_FEEDBACK, GmatMainFrame::OnHelpFeedback)
 
    EVT_MENU (MENU_FILE_NEW_SCRIPT, GmatMainFrame::OnNewScript)
    EVT_MENU (MENU_FILE_OPEN_SCRIPT, GmatMainFrame::OnOpenScript)
@@ -2400,6 +2409,89 @@ void GmatMainFrame::OnHelpOnline(wxCommandEvent& WXUNUSED(event))
 {
    wxString wikiUrl = "http://gmat.ed-pages.com/wiki/tiki-index.php";
    ::wxLaunchDefaultBrowser(wikiUrl);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnHelpTutorial(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles online help command from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnHelpTutorial(wxCommandEvent& WXUNUSED(event))
+{
+   wxString wikiUrl = "http://gmat.ed-pages.com/wiki/tiki-index.php";
+   ::wxLaunchDefaultBrowser(wikiUrl);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnHelpForum(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles online help command from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnHelpForum(wxCommandEvent& WXUNUSED(event))
+{
+   wxString wikiUrl = "http://gmat.ed-pages.com/forum/index.php";
+   ::wxLaunchDefaultBrowser(wikiUrl);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnHelpIssue(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles report an issue command from the help menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnHelpIssue(wxCommandEvent& WXUNUSED(event))
+{
+   wxString wikiUrl = "http://pows003.gsfc.nasa.gov/bugzilla/";
+   ::wxLaunchDefaultBrowser(wikiUrl);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnHelpFeedback(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles provide feedback command from the help menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnHelpFeedback(wxCommandEvent& WXUNUSED(event))
+{
+   #ifdef __ENABLE_EMAIL__
+   
+   // Should bring up email to gmat@gsfc.nasa.gov
+   wxEmail *email = new wxEmail();
+   wxMailMessage feedback(wxT("GMAT Feedback"),
+                          wxT("gmat@gsfc.nasa.gov"),
+                          wxT("Please enter your feedback here.\n"));
+   
+   if (!wxEmail::Send(feedback))
+   {
+      MessageInterface::ShowMessage("The feedback was not sent.");
+   }
+   
+   delete email;
+   
+   #else
+   
+   MessageInterface::PopupMessage
+      (Gmat::INFO_, "Use of email is disbled.");
+   
+   #endif
 }
 
 

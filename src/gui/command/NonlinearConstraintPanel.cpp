@@ -1,3 +1,19 @@
+//$Id$
+//------------------------------------------------------------------------------
+//                              NonlinearConstraintPanel
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc.
+//
+// Author: Allison Greene
+// Created: 2004/9/15
+/**
+ * This implements setting up NonlinearConstraint command.
+ */
+//------------------------------------------------------------------------------
 #include "gmatwxdefs.hpp"
 #include "GmatAppData.hpp"
 #include "ParameterSelectDialog.hpp"
@@ -72,7 +88,7 @@ void NonlinearConstraintPanel::Create()
 
    // Left choose button
    mLeftChooseButton = new
-      wxButton(this, ID_BUTTON, wxT("Choose"), wxDefaultPosition, 
+      wxButton(this, ID_BUTTON, wxT("Edit"), wxDefaultPosition, 
       wxSize(50,-1), 0);
       
    // Comparison
@@ -94,7 +110,7 @@ void NonlinearConstraintPanel::Create()
 
    // Right choose button
    mRightChooseButton = new
-      wxButton(this, ID_BUTTON, wxT("Choose"), wxDefaultPosition, 
+      wxButton(this, ID_BUTTON, wxT("Edit"), wxDefaultPosition, 
       wxSize(50,-1), 0);
 
    // Tolerence

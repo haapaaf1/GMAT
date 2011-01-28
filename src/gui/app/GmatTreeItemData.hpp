@@ -106,7 +106,22 @@ namespace GmatTree
       MISSION_ICON_COUNT,
       MISSION_NO_ICON,
    };
-
+   
+   // OutputTree icons used in OutputTree::AddIcons()
+   enum OutputIconType
+   {
+      OUTPUT_ICON_CLOSEDFOLDER,
+      OUTPUT_ICON_OPENFOLDER,
+      OUTPUT_ICON_REPORTFILE,
+      OUTPUT_ICON_ORBITVIEW,
+      OUTPUT_ICON_XYPLOT,
+      OUTPUT_ICON_FILE,
+      OUTPUT_ICON_DEFAULT,
+      
+      // OUTPUT_ICON_COUNT should be the last one
+      OUTPUT_ICON_COUNT
+   };
+   
    //----------------------------------------------------------------------
    // Note: Do not change the order of ItemType. The wrong order of dataType
    // will not work propery in GmatMainFrame::CreateChild()

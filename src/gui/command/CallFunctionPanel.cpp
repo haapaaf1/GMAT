@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              CallFunctionPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -245,10 +245,10 @@ void CallFunctionPanel::Create()
                       wxTE_MULTILINE|wxTE_READONLY);
    
    theInputViewButton = new
-      wxButton(this, ID_BUTTON, wxT("View"), wxDefaultPosition, wxDefaultSize, 0);
+      wxButton(this, ID_BUTTON, wxT("Edit"), wxDefaultPosition, wxDefaultSize, 0);
    
    theOutputViewButton = new
-      wxButton(this, ID_BUTTON, wxT("View"), wxDefaultPosition, wxDefaultSize, 0);
+      wxButton(this, ID_BUTTON, wxT("Edit"), wxDefaultPosition, wxDefaultSize, 0);
    
    wxFlexGridSizer *pageSizer = new wxFlexGridSizer( 5, 0, 0 );
    pageSizer->Add(outLeftBracket, 0, wxALIGN_CENTRE|wxALL, bsize);

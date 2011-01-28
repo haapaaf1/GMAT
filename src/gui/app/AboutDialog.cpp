@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              AboutDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -58,32 +58,29 @@ AboutDialog::AboutDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    : wxDialog(parent, id, title, pos, size, style, title)
 {
    wxBitmap bitmap;
+   wxBitmapButton *aboutButton;
    
-   // if splash file available, use it
+   // if icon file available, use it
    FileManager *fm = FileManager::Instance();
-   try
+   std::string iconFile = (fm->GetFullPathname("ICON_PATH") + "GMATAboutIcon.jpg");   
+   if (fm->DoesFileExist(iconFile))
    {
-      wxImage::AddHandler(new wxTIFFHandler);
-      wxString splashFile = fm->GetFullPathname("SPLASH_FILE").c_str();
-      bitmap.LoadFile(splashFile, wxBITMAP_TYPE_TIF);
+      bitmap.LoadFile(iconFile.c_str(), wxBITMAP_TYPE_JPEG);
       wxImage image = bitmap.ConvertToImage();
-      bitmap = wxBitmap(image.Scale(60, 60));
+      bitmap = wxBitmap(image.Scale(60, 60), wxIMAGE_QUALITY_HIGH);     
+      aboutButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
+                                       wxSize(60, 60), wxTRANSPARENT_WINDOW);
    }
-   catch (BaseException &e)
-   {
-      //MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
-   }
+   else
+      aboutButton = new wxBitmapButton(this, -1, NULL, wxDefaultPosition,
+                                       wxSize(60, 60));
    
    wxColourDatabase cdb;
    wxColour gmatColor = cdb.Find("NAVY");
       
-   wxBitmapButton *aboutButton
-      = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
-                           wxSize(60,60));
-   
    wxStaticLine *line1 = new wxStaticLine(this);
    wxStaticLine *line2 = new wxStaticLine(this);
-      
+   
    // title, build date   
    wxStaticText *gmatText =
       new wxStaticText(this, -1, "General Mission Analysis Tool");

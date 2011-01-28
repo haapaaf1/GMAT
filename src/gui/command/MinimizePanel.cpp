@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              MinimizePanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -93,7 +93,7 @@ void MinimizePanel::Create()
    
    // Choose button
    mChooseButton = new
-      wxButton(this, ID_BUTTON, wxT("Choose"), wxDefaultPosition, wxDefaultSize, 0);
+      wxButton(this, ID_BUTTON, wxT("Edit"), wxDefaultPosition, wxDefaultSize, 0);
  
    wxBoxSizer *panelSizer = new wxBoxSizer(wxHORIZONTAL);
    wxBoxSizer *solverSizer = new wxBoxSizer(wxVERTICAL);

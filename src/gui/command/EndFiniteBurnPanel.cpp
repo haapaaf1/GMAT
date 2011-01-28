@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              EndFiniteBurnPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -169,10 +169,6 @@ void EndFiniteBurnPanel::Create()
       theGuiManager->GetFiniteBurnComboBox(this, ID_COMBOBOX, wxSize(150,-1));
    mFiniteBurnComboBox->SetToolTip(pConfig->Read(_T("BurnHint")));
    
-   wxBoxSizer *burnSizer = new wxBoxSizer(wxHORIZONTAL);
-   burnSizer->Add(burnLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
-   burnSizer->Add(mFiniteBurnComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
-   
    //----------------------------------------------------------------------
    // Spacecraft
    //----------------------------------------------------------------------
@@ -185,22 +181,23 @@ void EndFiniteBurnPanel::Create()
    mSatTextCtrl->SetToolTip(pConfig->Read(_T("SpacecraftHint")));
    
    wxButton *selectSatButton =
-      new wxButton(this, ID_BUTTON, wxT("S"GUI_ACCEL_KEY"elect"), wxDefaultPosition, wxDefaultSize);
+      new wxButton(this, ID_BUTTON, wxT("E"GUI_ACCEL_KEY"dit"), wxDefaultPosition, wxDefaultSize);
    selectSatButton->SetToolTip(pConfig->Read(_T("SelectSpacecraftHint")));
    
-   // add spacecraft textbox and select button to sizer
-   wxBoxSizer *satSelectSizer = new wxBoxSizer(wxVERTICAL);   
-   satSelectSizer->Add(mSatTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
-   satSelectSizer->Add(selectSatButton, 0, wxALIGN_LEFT|wxALL, bsize);
    
-   wxBoxSizer *satSizer = new wxBoxSizer(wxHORIZONTAL);
-   satSizer->Add(satLabel, 0, wxALIGN_LEFT|wxALL, bsize);
-   satSizer->Add(satSelectSizer, 1, wxALIGN_LEFT|wxALL, bsize);
-   
+   //----------------------------------------------------------------------
    // add items to page sizer
+   //----------------------------------------------------------------------
+   wxFlexGridSizer *burnSatSizer = new wxFlexGridSizer(3, 0, 0);
+   burnSatSizer->Add(burnLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, bsize);
+   burnSatSizer->Add(mFiniteBurnComboBox, 0, wxALIGN_LEFT|wxALL, bsize);
+   burnSatSizer->Add(20, 20);
+   burnSatSizer->Add(satLabel, 0, wxALIGN_LEFT|wxALL, bsize);
+   burnSatSizer->Add(mSatTextCtrl, 0, wxALIGN_LEFT|wxALL, bsize);
+   burnSatSizer->Add(selectSatButton, 0, wxALIGN_LEFT|wxALL, bsize);
+   
    GmatStaticBoxSizer *optionsSizer = new GmatStaticBoxSizer( wxVERTICAL, this, "Options" );
-   optionsSizer->Add(burnSizer, 0, wxGROW|wxALIGN_LEFT|wxALL, 6);
-   optionsSizer->Add(satSizer, 1, wxGROW|wxALIGN_LEFT|wxALL, bsize);
+   optionsSizer->Add(burnSatSizer, 0, wxGROW|wxALIGN_LEFT|wxALL, 6);
    wxBoxSizer *pageSizer = new wxBoxSizer(wxVERTICAL);
    pageSizer->Add(optionsSizer, 1, wxALIGN_CENTER|wxGROW|wxALL, 6);
    
