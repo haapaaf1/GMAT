@@ -189,14 +189,14 @@ std::string GmatStringUtil::RemoveSpaceInBrackets(const std::string &str,
 //                  bool removeSemicolon = false, bool removeEol = false)
 //------------------------------------------------------------------------------
 /*
- * Removs leading or/and trailing blanks.  On option it removes end-of-line first
- * before removing semicoln.
+ * Removes leading or/and trailing blanks.  On option it removes end-of-line
+ * first before removing semicolon.
  *
  * @param  str  input string to be trimmed
  * @param  stype  option of trimming front, end, or both (default is BOTH)
- * @param  removeSemicolon  option of removing trailing semicoln
+ * @param  removeSemicolon  option of removing trailing semicolon
  * @param  removeEol  option of removing end-of-line character first before
- *                    removing semicoln
+ *                    removing semicolon
  */
 //------------------------------------------------------------------------------
 std::string GmatStringUtil::Trim(const std::string &str, StripType stype,
