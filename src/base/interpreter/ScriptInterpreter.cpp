@@ -2356,6 +2356,14 @@ void ScriptInterpreter::WriteVariablesAndArrays(StringArray &objs,
             {
                std::string::size_type equalPos = genStr.find("=");
                std::string rhs = genStr.substr(equalPos + 1);
+               std::string rhsComment = "";
+               if (rhs.find('%') != std::string::npos)
+               {
+                  rhsComment = rhs.substr(rhs.find('%'));
+                  rhs = rhs.substr(0, rhs.find('%'));
+                  MessageInterface::ShowMessage("Variable with value and comment\n   Value: %s\n   Comment: %s\n",
+                        rhs.c_str(), rhsComment.c_str());
+               }
                rhs = GmatStringUtil::Trim(rhs, GmatStringUtil::BOTH, true, true);
                Real rval;
                // check if initial value is Real number or other Variable object
