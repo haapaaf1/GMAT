@@ -1837,7 +1837,7 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
    wrapperSize = goalWrappers.size();
    actualSize = sz > wrapperSize ? wrapperSize : sz;
    
-   for (Integer i = 0; i < sz; i++)
+   for (Integer i = 0; i < actualSize; i++)
    {
       if (goalNames.at(i) == withName)
       {
