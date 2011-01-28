@@ -375,6 +375,12 @@ bool Propagate::SetObject(const std::string &name, const Gmat::ObjectType type,
                           const std::string &associate,
                           const Gmat::ObjectType associateType)
 {
+   #ifdef DEBUG_PROPAGATE_OBJ
+   MessageInterface::ShowMessage
+      ("Propagate::SetObject() entered, name='%s', type=%d, associate='%s', "
+       "associateType=%d\n", name.c_str(), type, associate.c_str(), associateType);
+   #endif
+   
    Integer propNum = propName.size() - 1;
    
    switch (type) {
@@ -382,7 +388,7 @@ bool Propagate::SetObject(const std::string &name, const Gmat::ObjectType type,
       case Gmat::FORMATION:
          (satName[propNum])->push_back(name);
          return true;
-   
+         
       case Gmat::PROP_SETUP:
          {
             propName.push_back(name);
@@ -1763,7 +1769,10 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
    
    WrapperArray wrappersToDelete;
    Integer sz = stopNames.size();
-   for (Integer i = 0; i < sz; i++)
+   Integer wrapperSize = stopWrappers.size();
+   Integer actualSize = sz > wrapperSize ? wrapperSize : sz;
+   
+   for (Integer i = 0; i < actualSize; i++)
    {
       if (stopNames.at(i) == withName)
       {
@@ -1814,6 +1823,9 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
    #endif
    
    sz = goalNames.size();
+   wrapperSize = goalWrappers.size();
+   actualSize = sz > wrapperSize ? wrapperSize : sz;
+   
    for (Integer i = 0; i < sz; i++)
    {
       if (goalNames.at(i) == withName)
