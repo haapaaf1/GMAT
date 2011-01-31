@@ -848,7 +848,7 @@ bool Optimize::RunInternalSolver(Solver::SolverState state)
                   #endif
                   ResetLoopData();
                   branchExecuting = true;
-                  publisher->SetRunState(Gmat::SOLVEDPASS);
+                  //publisher->SetRunState(Gmat::SOLVEDPASS);
                }
                theSolver->Finalize();
                specialState = Solver::FINISHED;
