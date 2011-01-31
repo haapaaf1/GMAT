@@ -28,6 +28,7 @@
 #include "MessageInterface.hpp"         // for debugging
 #include "CoordinateSystem.hpp"
 
+//#define DEBUG_SS_SET
 //#define DEBUG_SS_COPY
 //#define DEBUG_SS_CLONING
 //#define DEBUG_SS_PLANETARY_FILE
