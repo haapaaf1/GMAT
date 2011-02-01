@@ -96,7 +96,7 @@ void VaryPanel::Create()
       new wxStaticText(this, ID_TEXT, wxT("Solver"),
                        wxDefaultPosition, wxSize(40, -1), 0);
    
-   // Show all userdefined Solvers
+   // Show all user-defined Solvers
    mSolverComboBox =
       theGuiManager->GetSolverComboBox(this, ID_COMBO, wxSize(180,-1));
    
