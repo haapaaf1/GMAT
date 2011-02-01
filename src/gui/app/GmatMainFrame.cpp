@@ -662,7 +662,19 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
           item->GetTitle().c_str(), itemType);
       #endif
    }
-
+   
+   // Reposition mdi child windows (LOJ: 2011.02.01 Bug 2320 fix)
+   if (newChild != NULL)
+   {
+      int numChildren = GetNumberOfChildOpen(false, true);
+      if (numChildren > 0)
+      {
+         int x = (numChildren - 1) * 20;
+         int y = x;
+         newChild->SetPosition(wxPoint(x, y));
+      }
+   }
+   
    return newChild;
 }
 
@@ -1957,7 +1969,7 @@ void GmatMainFrame::OpenScript(bool restore)
 
    GmatTreeItemData *scriptItem =
       new GmatTreeItemData(mScriptFilename.c_str(), GmatTree::SCRIPT_FILE);
-
+   
    CreateChild(scriptItem, restore);
 }
 
@@ -2350,8 +2362,9 @@ void GmatMainFrame::OnCloseActive(wxCommandEvent& WXUNUSED(event))
 {
    CloseActiveChild();
    wxSafeYield();
-
-   if (theMdiChildren->GetCount() <= 0){
+   
+   if (theMdiChildren->GetCount() <= 0)
+   {
       wxToolBar* toolBar = GetToolBar();
       // deactivate screen capture when not running
       toolBar->EnableTool(TOOL_SCREENSHOT, false);
@@ -2525,9 +2538,9 @@ GmatMainFrame::CreateNewResource(const wxString &title, const wxString &name,
    }
    
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
-   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
+   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);   
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
-
+   
    switch (itemType)
    {
    case GmatTree::GROUND_STATION:
@@ -2701,12 +2714,9 @@ GmatMainFrame::CreateNewCommand(GmatTree::ItemType itemType, GmatTreeItemData *i
    #endif
 
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
-
-   GmatMdiChildFrame *newChild =
-      new GmatMdiChildFrame(this, name, title, itemType);
-
+   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
-
+   
    switch (itemType)
    {
    case GmatTree::PROPAGATE:
@@ -2830,12 +2840,9 @@ GmatMainFrame::CreateNewControl(const wxString &title, const wxString &name,
                                 GmatTree::ItemType itemType, GmatCommand *cmd)
 {
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
-
-   GmatMdiChildFrame *newChild =
-      new GmatMdiChildFrame(this, name, title, itemType);
-
+   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
-
+   
    switch (itemType)
    {
    case GmatTree::IF_CONTROL:
@@ -2894,13 +2901,9 @@ GmatMainFrame::CreateNewOutput(const wxString &title, const wxString &name,
       ("GmatMainFrame::CreateNewOutput() title=%s, name=%s, itemType=%d\n",
        title.c_str(), name.c_str(), itemType);
    #endif
-
-
+   
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
-
-   GmatMdiChildFrame *newChild =
-      new GmatMdiChildFrame(this, name, title, itemType);
-
+   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, title, itemType);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
 
    switch (itemType)
@@ -2956,11 +2959,9 @@ void GmatMainFrame::OnNewScript(wxCommandEvent& WXUNUSED(event))
    wxString name = GmatAppData::Instance()->GetTempScriptName();
 
    wxGridSizer *sizer = new wxGridSizer(1, 0, 0);
-   GmatMdiChildFrame *newChild =
-      new GmatMdiChildFrame(this, name, name, GmatTree::SCRIPT_FILE);
-
+   GmatMdiChildFrame *newChild = new GmatMdiChildFrame(this, name, name, GmatTree::SCRIPT_FILE);
    wxScrolledWindow *scrolledWin = new wxScrolledWindow(newChild);
-
+   
    #ifdef __USE_STC_EDITOR__
       EditorPanel *editorPanel = new EditorPanel(scrolledWin, name);
       sizer->Add(editorPanel, 0, wxGROW|wxALL, 0);
