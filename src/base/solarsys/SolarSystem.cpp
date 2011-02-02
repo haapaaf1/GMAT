@@ -437,7 +437,7 @@ const std::string           SolarSystem::PLANET_ATMOSPHERE_MODELS[] =
 {
    // none for Mercury at this time
    // none for Venus at this time
-   "Exponential", "MSISE90",  "Jacchia-Roberts",
+   "Exponential", "MSISE90",  "Jacchia-Roberts", "Simple",
    // none for Mars at this time
    // none for Jupiter at this time
    // none for Saturn at this time

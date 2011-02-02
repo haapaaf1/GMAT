@@ -514,6 +514,7 @@ OBJECTS = \
     util/TimeSystemConverter.o \
     util/TimeTypes.o \
     util/UtcDate.o \
+    solarsys/SimpleExponentialAtmosphere.o \
     $(TCPIP_OBJECTS) \
     $(SPICE_OBJECTS)
 

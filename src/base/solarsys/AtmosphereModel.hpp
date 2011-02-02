@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              AtmosphereModel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -106,10 +106,12 @@ protected:
    Real                    *centralBodyLocation;
    /// Central body radius
    Real                    cbRadius;
-   /// New file?
-   bool newFile;
-   /// File read?
-   bool fileRead;
+   /// Central body flattening factor
+   Real                    cbFlattening;
+   /// Flag indicating that the flux file name is set to a new value
+   bool                    newFile;
+   /// Flag indicating that the flux file has been opened and read once already
+   bool                    fileRead;
     
    // Values used if a file is not set
    /// Nominal value of F10.7 to use.

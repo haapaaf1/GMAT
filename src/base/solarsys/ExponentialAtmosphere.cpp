@@ -20,7 +20,7 @@
 
 #include "ExponentialAtmosphere.hpp"
 #include <cmath>
-
+#include "MessageInterface.hpp"
 
 //------------------------------------------------------------------------------
 // ExponentialAtmosphere(const std::string &name = "")
@@ -308,8 +308,30 @@ void ExponentialAtmosphere::SetConstants(void)
 //------------------------------------------------------------------------------
 Real ExponentialAtmosphere::CalculateHeight(Real *loc)
 {
+   bool geocentric = false;         // Set to true for spherical calc, false for
+                                    // oblate planet
+
    Real mag = sqrt(loc[0]*loc[0] + loc[1]*loc[1] + loc[2]*loc[2]);
-   return mag - cbRadius;
+   Real cbr = cbRadius;
+
+   if (!geocentric)
+   {
+      Real phi, cos_phi;
+
+      // Compute the geocentric latitude in radians
+      // (atan2() is safer than atan() since it avoids division by 0)
+
+      phi = atan2(loc[2], sqrt(loc[0]*loc[0] + loc[1]*loc[1]));
+
+      // Compute the cosine of phi
+      cos_phi = cos(phi);
+
+      // Return the geodetic height
+      cbr = mag - cbRadius * (1.0 - cbFlattening) /
+            sqrt(1 - cbFlattening * (2.0 - cbFlattening) * cos_phi * cos_phi);
+   }
+
+   return mag - cbr;
 }
 
 

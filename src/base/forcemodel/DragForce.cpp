@@ -938,7 +938,7 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
             deriv[3+j6] = factor * vRelMag * vRelative[0];// - a_indirect[0];
             deriv[4+j6] = factor * vRelMag * vRelative[1];// - a_indirect[1];
             deriv[5+j6] = factor * vRelMag * vRelative[2];// - a_indirect[2];
-            // dr/dt = v term not built from drap force
+            // dr/dt = v term not built from drag force
             deriv[j6]   = 
             deriv[1+j6] = 
             deriv[2+j6] = 0.0;

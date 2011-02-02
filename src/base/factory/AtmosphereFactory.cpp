@@ -24,6 +24,7 @@
 #include "ExponentialAtmosphere.hpp"
 #include "Msise90Atmosphere.hpp"
 #include "JacchiaRobertsAtmosphere.hpp"
+#include "SimpleExponentialAtmosphere.hpp"
 
 
 //---------------------------------
@@ -54,6 +55,8 @@ AtmosphereFactory::CreateAtmosphereModel(const std::string &ofType,
 {
    if (ofType == "Exponential")
       return new ExponentialAtmosphere(withName);
+   if (ofType == "Simple")
+      return new SimpleExponentialAtmosphere(withName);
    else if (ofType == "MSISE90")
       return new Msise90Atmosphere(withName);
    else if (ofType == "JacchiaRoberts")
@@ -78,6 +81,7 @@ Factory(Gmat::ATMOSPHERE)
    if (creatables.empty())
    {
       creatables.push_back("Exponential");
+      creatables.push_back("Simple");
       creatables.push_back("MSISE90");
       creatables.push_back("JacchiaRoberts");
    }

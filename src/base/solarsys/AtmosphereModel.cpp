@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              AtmosphereModel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -19,6 +19,8 @@
 
 #include "AtmosphereModel.hpp"
 #include "MessageInterface.hpp"
+#include "CelestialBody.hpp"        // To retrieve radius, flattening factor
+
 //#include "RealUtilities.hpp"        // Inadequate for my needs here, so...
 #include <cmath>                    // for exp
 
@@ -58,12 +60,16 @@ AtmosphereModel::PARAMETER_TYPE[AtmosphereModelParamCount-GmatBaseParamCount] =
 AtmosphereModel::AtmosphereModel(const std::string &typeStr, const std::string &name) :
    GmatBase            (Gmat::ATMOSPHERE, typeStr, name),
    fileReader          (NULL),
+   solarSystem         (NULL),
    mCentralBody        (NULL),
+   solarFluxFile       (NULL),
+   fileName            (""),        // Set to a default when working
    sunVector           (NULL),
    centralBody         ("Earth"),
    centralBodyLocation (NULL),
-   cbRadius            (6378.14),
-   newFile             (false),
+   cbRadius            (6378.1363),
+   cbFlattening        (0.0),       // Default is spherical
+   newFile             (true),
    fileRead            (false),
    nominalF107         (150.0),
    nominalF107a        (150.0),
@@ -72,7 +78,6 @@ AtmosphereModel::AtmosphereModel(const std::string &typeStr, const std::string &
    objectTypes.push_back(Gmat::ATMOSPHERE);
    objectTypeNames.push_back("AtmosphereModel");
 
-   fileName = "";
    parameterCount = AtmosphereModelParamCount;
    nominalAp = ConvertKpToAp(nominalKp);
 
@@ -107,17 +112,21 @@ AtmosphereModel::~AtmosphereModel()
 AtmosphereModel::AtmosphereModel(const AtmosphereModel& am) :
    GmatBase            (am),
    fileReader          (NULL),
+   solarSystem         (am.solarSystem),
+   mCentralBody        (am.mCentralBody),
+   solarFluxFile       (NULL),
+   fileName            (am.fileName),
    sunVector           (NULL),
    centralBody         (am.centralBody),
    centralBodyLocation (NULL),
    cbRadius            (am.cbRadius),
-   newFile             (am.newFile),
-   fileRead            (am.fileRead),
+   cbFlattening        (am.cbFlattening),
+   newFile             (true),
+   fileRead            (false),
    nominalF107         (am.nominalF107),
    nominalF107a        (am.nominalF107a),
    nominalKp           (am.nominalKp)
 {
-   fileName = am.fileName;
    parameterCount = AtmosphereModelParamCount;
    nominalAp = ConvertKpToAp(nominalKp);
 }
@@ -141,17 +150,21 @@ AtmosphereModel& AtmosphereModel::operator=(const AtmosphereModel& am)
    GmatBase::operator=(am);
    
    fileReader          = NULL;
+   solarSystem         = am.solarSystem;
+   mCentralBody        = am.mCentralBody;
+   solarFluxFile       = NULL;
    sunVector           = NULL;
    centralBodyLocation = NULL;
    fileName            = am.fileName;
    centralBody         = am.centralBody;
    cbRadius            = am.cbRadius;
-   newFile             = am.newFile;
-   fileRead            = am.fileRead;
+   cbFlattening        = am.cbFlattening;
+   newFile             = true;
+   fileRead            = false;
    nominalF107         = am.nominalF107;
    nominalF107a        = am.nominalF107a;
    nominalKp           = am.nominalKp;
-   nominalAp = ConvertKpToAp(nominalKp);
+   nominalAp           = ConvertKpToAp(nominalKp);
 
    return *this;
 }
@@ -209,7 +222,18 @@ void AtmosphereModel::SetSolarSystem(SolarSystem *ss)
 //------------------------------------------------------------------------------
 void AtmosphereModel::SetCentralBody(CelestialBody *cb)
 {
-   mCentralBody = cb;
+   if (mCentralBody != cb)
+   {
+      mCentralBody = cb;
+      cbRadius = mCentralBody->GetEquatorialRadius();
+      cbFlattening = mCentralBody->GetFlattening();
+
+      #ifdef DEBUG_CB_PROPERTIES
+         MessageInterface::ShowMessage("Body set to %s; radius = %.12lf, "
+               "flattening = %.12lf\n", mCentralBody->GetName().c_str(),
+               cbRadius, cbFlattening);
+      #endif
+   }
 }
 
 //------------------------------------------------------------------------------
