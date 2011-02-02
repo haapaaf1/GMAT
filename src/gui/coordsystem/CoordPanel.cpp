@@ -650,7 +650,7 @@ void CoordPanel::Setup( wxWindow *parent)
       wxSize(120,-1), false);
    originComboBox->SetToolTip(pConfig->Read(_T("OriginHint")));
    typeComboBox = new wxComboBox
-      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(120,-1), //0,
+      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(150,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
    typeComboBox->SetToolTip(pConfig->Read(_T("TypeHint")));
    primaryComboBox = theGuiManager->GetSpacePointComboBox(this, ID_COMBO,
@@ -664,15 +664,15 @@ void CoordPanel::Setup( wxWindow *parent)
       wxSize(120,-1), false);
    secondaryComboBox->SetToolTip(pConfig->Read(_T("SecondaryHint")));
    xComboBox = new wxComboBox
-      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(50,-1), //0,
+      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(60,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
    xComboBox->SetToolTip(pConfig->Read(_T("XHint")));
    yComboBox = new wxComboBox
-      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(50,-1), //0,
+      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(60,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
    yComboBox->SetToolTip(pConfig->Read(_T("YHint")));
    zComboBox = new wxComboBox
-      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(50,-1), //0,
+      ( parent, ID_COMBO, wxT(""), wxDefaultPosition, wxSize(60,-1), //0,
         emptyList, wxCB_DROPDOWN|wxCB_READONLY );
    zComboBox->SetToolTip(pConfig->Read(_T("ZHint")));
 
