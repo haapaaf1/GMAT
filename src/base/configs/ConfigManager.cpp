@@ -944,6 +944,7 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
                if (parts.size() > 1)
                {
                   rhsString = parts[1];
+                  rhsString = GmatStringUtil::Trim(rhsString, GmatStringUtil::BOTH, true, true);
                   
                   #if DEBUG_RENAME
                   MessageInterface::ShowMessage
@@ -954,11 +955,15 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
                   pos = rhsString.find(name);
                   if (pos != rhsString.npos)
                   {
-                     #if DEBUG_RENAME
-                     MessageInterface::ShowMessage
-                        ("   '%s' found in RHS, so adding '%s'\n", name.c_str(), objName.c_str());
-                     #endif
-                     itemList.push_back(objName);
+                     // Add to list if name not found in string enclosed with single quote
+                     if (!GmatStringUtil::IsEnclosedWith(rhsString, "'"))
+                     {
+                        #if DEBUG_RENAME
+                        MessageInterface::ShowMessage
+                           ("   '%s' found in RHS, so adding '%s'\n", name.c_str(), objName.c_str());
+                        #endif
+                        itemList.push_back(objName);
+                     }
                   }
                }
             }
