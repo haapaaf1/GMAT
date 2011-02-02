@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ArrayElementWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -25,7 +25,6 @@
 #include "RealUtilities.hpp"
 #include "StringUtil.hpp"
 #include "UtilityException.hpp"
-
 #include "MessageInterface.hpp"
 
 //#define DEBUG_AE_WRAPPER
@@ -482,7 +481,7 @@ void ArrayElementWrapper::SetupWrapper()
    }
    #ifdef DEBUG_AE_WRAPPER
       MessageInterface::ShowMessage(
-         "AEWrapper::SetupWrapper for array named %s- \n", arrayName.c_str());
+         "AEWrapper::SetupWrapper for array named '%s' \n", arrayName.c_str());
       MessageInterface::ShowMessage("   description = %s\n", description.c_str());
       MessageInterface::ShowMessage("   rowName     = %s\n", rowName.c_str());
       MessageInterface::ShowMessage("   columnName  = %s\n", columnName.c_str());

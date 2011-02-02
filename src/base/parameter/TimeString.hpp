@@ -56,6 +56,10 @@ public:
                                   const std::string &name);
    virtual bool SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                              const std::string &name = "");
+   virtual const std::string&
+                    GetGeneratingString(Gmat::WriteMode mode = Gmat::SCRIPTING,
+                                        const std::string &prefix = "",
+                                        const std::string &useName = "");
 protected:
    
 

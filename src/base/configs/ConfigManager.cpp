@@ -851,6 +851,7 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
    StringArray genStringArray;
    static StringArray itemList;
    itemList.clear();
+   Gmat::ObjectType objType;
    
    #if DEBUG_RENAME
    MessageInterface::ShowMessage
@@ -860,13 +861,14 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
    
    try
    {
-      for (UnsignedInt i=0; i<items.size(); i++)
+      for (UnsignedInt itemIndex=0; itemIndex<items.size(); itemIndex++)
       {
-         obj = GetItem(items[i]);
+         obj = GetItem(items[itemIndex]);
+         objType == obj->GetType();
          
          #if DEBUG_RENAME
          MessageInterface::ShowMessage
-            ("===> obj[%d]=%s, %s\n", i, obj->GetTypeName().c_str(),
+            ("===> obj[%d]=%s, %s\n", itemIndex, obj->GetTypeName().c_str(),
              obj->GetName().c_str());
          #endif
          
@@ -876,41 +878,89 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
          if (obj->IsOfType(type) && obj->GetName() == name)
             continue;
          
+         bool isSystemParam = false;
+         if (obj->IsOfType(Gmat::PARAMETER))
+            if (((Parameter*)obj)->GetKey() == GmatParam::SYSTEM_PARAM)
+               isSystemParam = true;
+         
          // if system parameter not to be included, skip
-         if (!includeSysParam)
-         {
-            if (obj->IsOfType(Gmat::PARAMETER))
-               if (((Parameter*)obj)->GetKey() == GmatParam::SYSTEM_PARAM)
-                  continue;
-         }
+         if (!includeSysParam && isSystemParam)
+            continue;
          
          objName = obj->GetName();
          
-         // We need to check names RHS of equal sign (LOJ: 2010.12.01)
-         // This fixes bug 2222
+         // We need to check names in RHS of equal sign so use GetGeneratingStringArray
+         // This fixes bug 2222 (LOJ: 2010.12.01) 
          //objString = obj->GetGeneratingString();
          //pos = objString.find(name);
          
          genStringArray = obj->GetGeneratingStringArray();
-         std::string rhsString;
-         for (StringArray::iterator i = genStringArray.begin();
-              i < genStringArray.end(); i++)
+         
+         #if DEBUG_RENAME
+         MessageInterface::ShowMessage("   genStringArray.size()=%d\n", genStringArray.size());
+         for (UnsignedInt ii = 0; ii < genStringArray.size(); ii++)
+            MessageInterface::ShowMessage
+               ("      genStringArray[%d]='%s'\n", ii, genStringArray[ii].c_str());
+         #endif
+         
+         if (genStringArray.empty())
          {
-            objString = *i;
-            StringArray parts = GmatStringUtil::SeparateBy(objString, "=");
-            if (parts.size() > 1)
+            // Add Parameters to list (LOJ: 2011.01.11 - to fix bug 2321)
+            if (obj->IsOfType(Gmat::PARAMETER))
             {
-               rhsString = parts[1];
-               
+               objString = obj->GetGeneratingString();
                #if DEBUG_RENAME
                MessageInterface::ShowMessage
-                  ("   objString='%s', rhsString='%s'\n", objString.c_str(),
-                   rhsString.c_str());
+                  ("   objString='%s'\n", objString.c_str());
+               #endif
+               pos = objString.find(name);
+               if (pos != objString.npos)
+               {
+                  #if DEBUG_RENAME
+                  MessageInterface::ShowMessage
+                     ("   '%s' found in Parameter, so adding '%s'\n", name.c_str(),
+                      objName.c_str());
+                  #endif
+                  itemList.push_back(objName);
+               }
+            }
+         }
+         else
+         {
+            std::string rhsString;
+            for (StringArray::iterator iter = genStringArray.begin();
+                 iter < genStringArray.end(); iter++)
+            {
+               objString = *iter;
+               StringArray parts = GmatStringUtil::SeparateBy(objString, "=");
+               
+               #if DEBUG_RENAME
+               MessageInterface::ShowMessage("   parts.size()=%d\n", parts.size());
+               for (UnsignedInt j = 0; j < parts.size(); j++)
+                  MessageInterface::ShowMessage
+                     ("      parts[%d]='%s'\n", j, parts[j].c_str());
                #endif
                
-               pos = rhsString.find(name);
-               if (pos != rhsString.npos)
-                  itemList.push_back(objName);
+               if (parts.size() > 1)
+               {
+                  rhsString = parts[1];
+                  
+                  #if DEBUG_RENAME
+                  MessageInterface::ShowMessage
+                     ("   objString='%s', rhsString='%s'\n", objString.c_str(),
+                      rhsString.c_str());
+                  #endif
+                  
+                  pos = rhsString.find(name);
+                  if (pos != rhsString.npos)
+                  {
+                     #if DEBUG_RENAME
+                     MessageInterface::ShowMessage
+                        ("   '%s' found in RHS, so adding '%s'\n", name.c_str(), objName.c_str());
+                     #endif
+                     itemList.push_back(objName);
+                  }
+               }
             }
          }
       }
@@ -1147,7 +1197,7 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    StringArray itemList = GetListOfItemsHas(type, oldName);
    #if DEBUG_RENAME
    MessageInterface::ShowMessage
-      ("   There are %d items has '%s'\n", itemList.size(), oldName.c_str());
+      ("   =====> There are %d items has '%s'\n", itemList.size(), oldName.c_str());
    #endif
    for (UnsignedInt i=0; i<itemList.size(); i++)
    {
@@ -1155,7 +1205,8 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
       if (obj)
       {
          #if DEBUG_RENAME
-         MessageInterface::ShowMessage("   Rename obj=%s\n", obj->GetName().c_str());
+         MessageInterface::ShowMessage
+            ("      calling  %s->RenameRefObject()\n", obj->GetName().c_str());
          #endif
          
          renamed = obj->RenameRefObject(type, oldName, newName);
@@ -1252,8 +1303,9 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    
    #if DEBUG_RENAME
    StringArray allItems = GetListOfAllItems();
+   MessageInterface::ShowMessage("===> After rename\n");
    for (UnsignedInt i=0; i<allItems.size(); i++)
-      MessageInterface::ShowMessage("===> item[%d] = %s\n", i, allItems[i].c_str());
+      MessageInterface::ShowMessage("   item[%d] = %s\n", i, allItems[i].c_str());
    #endif
    
    objectChanged = true;

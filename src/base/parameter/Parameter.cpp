@@ -131,6 +131,7 @@ Parameter::Parameter(const std::string &name, const std::string &typeStr,
    
    mExpr = "";
    mUnit = unit;
+   mOwnerName = "";
    mDepObjectName = "";
    mCommentLine2 = "";
    mInitialValue = "";
@@ -180,6 +181,7 @@ Parameter::Parameter(const Parameter &copy)
    mExpr = copy.mExpr;
    mDesc = copy.mDesc;
    mUnit = copy.mUnit;
+   mOwnerName = copy.mOwnerName;
    mDepObjectName = copy.mDepObjectName;
    mCommentLine2 = copy.mCommentLine2;
    mInitialValue = copy.mInitialValue;

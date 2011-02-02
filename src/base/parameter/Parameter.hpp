@@ -160,6 +160,7 @@ protected:
    std::string   mDesc;
    std::string   mUnit;
    std::string   mExpr;
+   std::string   mOwnerName;
    std::string   mDepObjectName;
    std::string   mCommentLine2;
    std::string   mInitialValue;

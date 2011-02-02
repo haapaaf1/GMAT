@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                TimeString
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -20,6 +20,8 @@
 
 #include "TimeString.hpp"
 #include "ParameterException.hpp"
+#include "StringUtil.hpp"               // for ParseParameter()
+#include "MessageInterface.hpp"
 
 //---------------------------------
 // public methods
@@ -46,6 +48,10 @@ TimeString::TimeString(const std::string &name, const std::string &typeStr,
                GmatParam::NO_DEP, Gmat::SPACECRAFT, true),
      TimeData(name)
 {
+   std::string type, ownerName, depObj;
+   GmatStringUtil::ParseParameter(name, type, ownerName, depObj);
+   mOwnerName = ownerName;
+   mExpr = name;
    AddRefObject(obj);
 }
 
@@ -305,5 +311,30 @@ bool TimeString::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                               const std::string &name)
 {
    return TimeData::SetRefObject(obj, type, name);
+}
+
+
+//------------------------------------------------------------------------------
+// const std::string& GetGeneratingString(...)
+//------------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//------------------------------------------------------------------------------
+const std::string& TimeString::GetGeneratingString(Gmat::WriteMode mode,
+                                                   const std::string &prefix,
+                                                   const std::string &useName)
+{
+   #ifdef DEBUG_GEN_STRING
+   MessageInterface::ShowMessage
+      ("TimeString::GetGeneratingString() this=<%p>'%s' entered, mode=%d, prefix='%s', "
+       "useName='%s'\n", this, GetName().c_str(), mode, prefix.c_str(), useName.c_str());
+   MessageInterface::ShowMessage
+      ("   mExpr='%s', mDepObjectName='%s'\n", mExpr.c_str(), mDepObjectName.c_str());
+   #endif
+
+   // We want to skip StringVar::GetGeneratingString() since it is handled specially
+   // for String
+   return Parameter::GetGeneratingString(mode, prefix, useName);
 }
 

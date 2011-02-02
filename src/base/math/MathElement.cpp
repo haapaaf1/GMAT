@@ -442,16 +442,29 @@ bool MathElement::RenameRefObject(const Gmat::ObjectType type,
    
    if (refObjectName.find(oldName) != refObjectName.npos)
    {
-   
       #ifdef DEBUG_RENAME
       MessageInterface::ShowMessage("   old refObjectName=%s\n", refObjectName.c_str());
       #endif
-      
+         
       refObjectName = GmatStringUtil::ReplaceName(refObjectName, oldName, newName);
-      
+         
       #ifdef DEBUG_RENAME
       MessageInterface::ShowMessage("   new refObjectName=%s\n", refObjectName.c_str());
       #endif
+   }
+   
+   #ifdef DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("   now checking %d objects wrapperObjectNames\n", wrapperObjectNames.size());
+   #endif
+   for (UnsignedInt i = 0; i < wrapperObjectNames.size(); i++)
+   {
+      std::string wrapperObjName = wrapperObjectNames[i];
+      if (wrapperObjName.find(oldName) != wrapperObjName.npos)
+      {
+         wrapperObjName = GmatStringUtil::ReplaceName(wrapperObjName, oldName, newName);
+         wrapperObjectNames[i] = wrapperObjName;
+      }
    }
    
    if (theWrapperMap == NULL)
@@ -463,6 +476,10 @@ bool MathElement::RenameRefObject(const Gmat::ObjectType type,
       return true;
    }
    
+   #ifdef DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("   now checking %d objects in theWrapperMap\n", theWrapperMap->size());
+   #endif
    // Rename wrapper objects
    std::map<std::string, ElementWrapper *> tempMap;
    std::map<std::string, ElementWrapper *>::iterator ewi;
@@ -657,8 +674,28 @@ bool MathElement::SetRefObjectName(const Gmat::ObjectType type, const std::strin
 //------------------------------------------------------------------------------
 const StringArray& MathElement::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
+   #ifdef DEBUG_WRAPPERS
+   MessageInterface::ShowMessage
+      ("MathElement::GetRefObjectNameArray() '%s' entered, type=%d\n",
+       GetName().c_str(), type);
+   MessageInterface::ShowMessage
+      ("There are %d wrapper object names:\n", wrapperObjectNames.size());
+   for (UnsignedInt i = 0; i < wrapperObjectNames.size(); i++)
+      MessageInterface::ShowMessage("   [%d] %s\n", i, wrapperObjectNames[i].c_str());
+   #endif
+   
    if (type == Gmat::PARAMETER || Gmat::UNKNOWN_OBJECT)
+   {      
+      #ifdef DEBUG_WRAPPERS
+      MessageInterface::ShowMessage
+         ("MathElement::GetRefObjectNameArray() returning %d wrapper object names:\n",
+          wrapperObjectNames.size());
+      for (UnsignedInt i = 0; i < wrapperObjectNames.size(); i++)
+         MessageInterface::ShowMessage("   [%d] %s\n", i, wrapperObjectNames[i].c_str());
+      #endif
+      
       return wrapperObjectNames;
+   }
    
    return GmatBase::GetRefObjectNameArray(type);
 }
@@ -800,7 +837,7 @@ ElementWrapper* MathElement::FindWrapper(const std::string &name)
    std::map<std::string, ElementWrapper *>::iterator ewi;
    for (ewi = theWrapperMap->begin(); ewi != theWrapperMap->end(); ++ewi)
       MessageInterface::ShowMessage
-         ("   name='%s', wrapper=<%p>, wrapperType=%d, wrapperDesc='%s'\n",
+         ("   wrapperName='%s', wrapper=<%p>, wrapperType=%d, wrapperDesc='%s'\n",
           (ewi->first).c_str(), ewi->second, (ewi->second)->GetWrapperType(),
           (ewi->second)->GetDescription().c_str());
    #endif

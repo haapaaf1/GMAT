@@ -22,7 +22,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_STRINGVAR
-//#define DEBUG_GEN_STRING
+#define DEBUG_GEN_STRING
 
 //---------------------------------
 // static data
@@ -379,7 +379,7 @@ const std::string& StringVar::GetGeneratingString(Gmat::WriteMode mode,
    // @note
    // Do not write "Create name" since multiple Strings per line will be written from
    // the ScriptInterpreter
-      
+   
    // Write value if it is not blank or blank and SHOW_SCRIPT mode
    if ( mExpr != "" ||
        (mExpr == "" && mode == Gmat::SHOW_SCRIPT))

@@ -1014,8 +1014,8 @@ bool MathTree::RenameParameter(MathNode *node, const Gmat::ObjectType type,
 {
    #ifdef DEBUG_RENAME
    MessageInterface::ShowMessage
-      ("MathTree::RenameParameter() oldName=<%s>, newName=<%s>\n", oldName.c_str(),
-       newName.c_str());
+      ("MathTree::RenameParameter() oldName=<%s>, newName=<%s>, node=<%s>\n",
+       oldName.c_str(), newName.c_str(), node ? node->GetName().c_str() : "NULL");
    #endif
    
    if (node == NULL)
@@ -1028,12 +1028,12 @@ bool MathTree::RenameParameter(MathNode *node, const Gmat::ObjectType type,
       #ifdef DEBUG_RENAME
       MessageInterface::ShowMessage("   old nodeName=<%s>\n", nodeName.c_str());
       #endif
-   
+      
       nodeName = GmatStringUtil::ReplaceName(nodeName, oldName, newName);
       node->SetName(nodeName);
-   
+      
       #ifdef DEBUG_RENAME
-      MessageInterface::ShowMessage("   new nodeName=<%s>\n", nodeName.c_str());
+      MessageInterface::ShowMessage("   new nodeName=<%s>\n", node->GetName().c_str());
       #endif
    }
    
@@ -1068,7 +1068,7 @@ void MathTree::CreateParameterNameArray(MathNode *node)
    
    #ifdef DEBUG_MATH_WRAPPERS
    MessageInterface::ShowMessage
-      ("MathTree::GetRefObjectNameArray() node=%s\n", node->GetName().c_str());
+      ("MathTree::CreateParameterNameArray() node=%s\n", node->GetName().c_str());
    #endif
    
    if (!node->IsFunction())
@@ -1080,7 +1080,7 @@ void MathTree::CreateParameterNameArray(MathNode *node)
          for (UnsignedInt i=0; i<refs.size(); i++)
          {
             #ifdef DEBUG_MATH_WRAPPERS
-            MessageInterface::ShowMessage("   %d, %s\n", i, refs[i].c_str());
+            MessageInterface::ShowMessage("   [%d] %s\n", i, refs[i].c_str());
             #endif
             
             // add if not found in the all ref array

@@ -433,14 +433,14 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
       ("GmatStringUtil::ReplaceName() str=\"%s\", from=\"%s\", to=\"%s\"\n", str.c_str(),
        from.c_str(), to.c_str());
    #endif
-
+   
    std::string str1 = str;
    std::string::size_type pos = str1.find(from);
-
+   
    // if string not found, just return same string
    if (pos == str1.npos)
       return str1;
-
+   
    // if input string is the same as string to replace, just return <to> string
    if (str == from)
       return to;
@@ -486,9 +486,15 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
          #ifdef DEBUG_REPLACE_NAME
          MessageInterface::ShowMessage("===> replace=%d\n", replace);
          #endif
-                  
+         
          if (replace)
-            str1.replace(pos, fromSize, to);
+         {
+            // Check for the system Parameter name which should not not be replace,
+            // such as SMA in sat.SMA Parameter or sat.EarthEqCS.X
+            if (pos == 0 || (pos > 0 && str1[pos-1] == '.') &&
+                (pos-1 != str1.find_last_of('.')))
+               str1.replace(pos, fromSize, to);
+         }
          
          start = pos + to.size();
          
@@ -501,7 +507,7 @@ std::string GmatStringUtil::ReplaceName(const std::string &str, const std::strin
          break;
       }
    }
-
+   
    #ifdef DEBUG_REPLACE_NAME
    MessageInterface::ShowMessage("GmatStringUtil::ReplaceName() returning <%s>\n", str1.c_str());
    #endif
@@ -1577,10 +1583,11 @@ void GmatStringUtil::GetArrayIndexVar(const std::string &str, std::string &rowSt
                                       const std::string &bracketPair)
 {
    std::string str1;
-   str1 = RemoveAll(str, ' ');
+   str1 = Trim(str, BOTH, true, true);
+   str1 = RemoveAll(str1, ' ');
    std::string openStr = bracketPair.substr(0,1);
    std::string closeStr = bracketPair.substr(1,1);
-
+   
    #if DEBUG_ARRAY_INDEX
    MessageInterface::ShowMessage
       ("GmatStringUtil::GetArrayIndexVar() str=%s\n   str1=%s\n",
@@ -1622,10 +1629,9 @@ void GmatStringUtil::GetArrayIndexVar(const std::string &str, std::string &rowSt
 
    // get array comma index
    GetArrayCommaIndex(str1, comma, bracketPair);
-
-
+      
    UnsignedInt closeBracket = str1.size() - 1;
-
+   
    // if single array, such as a(5), b(a(5,5)), set row string as "1"
    if (comma == -1)
    {

@@ -793,7 +793,7 @@ bool Assignment::Initialize()
    
    // if rhs is not an equation, set ref obj on both lhs and rhs wrappers
    if (mathTree == NULL)
-   {      
+   {
       // Set references for the wrappers   
       if (SetWrapperReferences(*lhsWrapper) == false)
          return false;
@@ -810,6 +810,7 @@ bool Assignment::Initialize()
       std::map<std::string, ElementWrapper *>::iterator ewi;
       
       #ifdef DEBUG_ASSIGNMENT_INIT
+      MessageInterface::ShowMessage("   Calling SetWrapperReferences() for mathWrapperMap\n");
       for (ewi = mathWrapperMap.begin(); ewi != mathWrapperMap.end(); ++ewi)
       {
          ElementWrapper *wrapper = ewi->second;
@@ -1147,7 +1148,7 @@ void Assignment::SetCallingFunction(FunctionManager *fm)
 // const StringArray& GetWrapperObjectNameArray()
 //------------------------------------------------------------------------------
 /*
- * Returns wrapper object names.
+ * Returns wrapper object names used for creating wrappers in Validator.
  */
 //------------------------------------------------------------------------------
 const StringArray& Assignment::GetWrapperObjectNameArray()
@@ -1497,17 +1498,51 @@ bool Assignment::RenameRefObject(const Gmat::ObjectType type,
    
    if (rhs.find(oldName) != rhs.npos)
       rhs = GmatStringUtil::ReplaceName(rhs, oldName, newName);
-
+   
    // Go through wrappers
    if (lhsWrapper)
       lhsWrapper->RenameObject(oldName, newName);
    
    if (rhsWrapper)
       rhsWrapper->RenameObject(oldName, newName);
-
+   
    // Go through math tree
    if (mathTree)
       mathTree->RenameRefObject(type, oldName, newName);
+   
+   // Go through mathWrapperMap
+   #ifdef DEBUG_RENAME
+   MessageInterface::ShowMessage
+      ("   Now checking %d wrappers in mathWrapperMap\n", mathWrapperMap.size());
+   #endif
+   std::map<std::string, ElementWrapper *>::iterator ewi;
+   for (ewi = mathWrapperMap.begin(); ewi != mathWrapperMap.end(); ++ewi)
+   {
+      std::string wrapperName = ewi->first;
+      ElementWrapper *wrapper = ewi->second;
+      if (wrapperName.find(oldName) != wrapperName.npos)
+      {
+         #ifdef DEBUG_RENAME
+         MessageInterface::ShowMessage
+            ("   Found '%s' in the mathWrapperMap\n", wrapperName.c_str());
+         #endif
+         std::string oldWrapperName = wrapperName;
+         wrapperName = GmatStringUtil::ReplaceName(wrapperName, oldName, newName);
+
+         // If name changed then replace and remove old one
+         if (oldWrapperName != wrapperName)
+         {
+            #ifdef DEBUG_RENAME
+            MessageInterface::ShowMessage
+               ("   New name is '%s' and setting <%p> to wrapper\n", wrapperName.c_str(),
+                wrapper);
+            #endif
+            
+            mathWrapperMap[wrapperName] = wrapper;
+            mathWrapperMap.erase(ewi);
+         }
+      }
+   }
    
    // Update generatingString
    GetGeneratingString();

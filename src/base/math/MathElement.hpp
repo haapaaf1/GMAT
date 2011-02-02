@@ -81,7 +81,6 @@ protected:
    /// The list of names of Wrapper objects
    StringArray wrapperObjectNames;
    /// Wrapper name and ElementWrapper pointer Map for RHS math element
-   //std::map<std::string, ElementWrapper*> *theWrapperMap;
    WrapperMap *theWrapperMap;
    
    void SetWrapperObjectNames(const std::string &name);
