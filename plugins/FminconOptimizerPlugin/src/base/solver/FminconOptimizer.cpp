@@ -957,7 +957,7 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
                Integer localIneqCount = ineqConstraintNames.size();
                message << "************************************************"
                         << "********\n"
-                        << "*** Optimizer Text File\n"
+                        << "*** Fmincon Text File\n"
                         << "*** \n"
                         << "*** Using Fmincon Optimization\n***\n";
 
@@ -997,15 +997,29 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
             break;
 
          case NOMINAL:
-            message << "Iteration " << iterationsTaken
-                     << "\n   Variable Values: [";
-            // Iterate through the variables, writing them to the file
-            for (current = variableNames.begin(), i = 0;
-                 current != variableNames.end(); ++current)
-            {
-               message << " " << unscaledVariable[i++] << " ";
-            }
-            message << "]" << std::endl;
+//            message << "Iteration " << iterationsTaken
+//                     << "\n   Variable Values: [";
+//            // Iterate through the variables, writing them to the file
+//            for (current = variableNames.begin(), i = 0;
+//                 current != variableNames.end(); ++current)
+//            {
+//               message << " " << unscaledVariable[i++] << " ";
+//            }
+//            message << "]" << std::endl;
+        	 message << instanceName << " Iteration " << iterationsTaken+1
+                      << "; Nominal Pass\n   Variables:  ";
+             // Iterate through the variables, writing them to the string
+             for (current = variableNames.begin(), i = 0;
+                  current != variableNames.end(); ++current)
+             {
+                if (current != variableNames.begin())
+                	message << ", ";
+                message << *current << " = " << unscaledVariable.at(i);
+                if (textFileMode == "Verbose")
+                	message << "; optimizer scaled value: " << variable[i];
+                ++i;
+             }
+             message << "\n";
             break;
 
 
