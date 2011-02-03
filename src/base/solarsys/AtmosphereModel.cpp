@@ -69,7 +69,7 @@ AtmosphereModel::AtmosphereModel(const std::string &typeStr, const std::string &
    centralBodyLocation (NULL),
    cbRadius            (6378.1363),
    cbFlattening        (0.0),       // Default is spherical
-   newFile             (true),
+   newFile             (false),
    fileRead            (false),
    nominalF107         (150.0),
    nominalF107a        (150.0),
@@ -121,7 +121,7 @@ AtmosphereModel::AtmosphereModel(const AtmosphereModel& am) :
    centralBodyLocation (NULL),
    cbRadius            (am.cbRadius),
    cbFlattening        (am.cbFlattening),
-   newFile             (true),
+   newFile             (false),
    fileRead            (false),
    nominalF107         (am.nominalF107),
    nominalF107a        (am.nominalF107a),
@@ -159,7 +159,7 @@ AtmosphereModel& AtmosphereModel::operator=(const AtmosphereModel& am)
    centralBody         = am.centralBody;
    cbRadius            = am.cbRadius;
    cbFlattening        = am.cbFlattening;
-   newFile             = true;
+   newFile             = false;
    fileRead            = false;
    nominalF107         = am.nominalF107;
    nominalF107a        = am.nominalF107a;
