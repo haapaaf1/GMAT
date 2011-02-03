@@ -2463,9 +2463,13 @@ GLuint OrbitViewCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
    }
    catch (BaseException &e)
    {
-      MessageInterface::ShowMessage
-         ("*** WARNING *** OrbitViewCanvas::BindTexture() Cannot bind texture "
-          "image for %s.\n%s\n", objName.c_str(), e.GetFullMessage().c_str());
+      // Give warning for missing texture file for only CelestialBody object
+      if (obj->IsOfType(Gmat::CELESTIAL_BODY))
+      {
+         MessageInterface::ShowMessage
+            ("*** WARNING *** OrbitViewCanvas::BindTexture() Cannot bind texture "
+             "image for %s.\n%s\n", objName.c_str(), e.GetFullMessage().c_str());
+      }
    }
    
    #if DEBUG_TEXTURE
