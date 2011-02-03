@@ -834,9 +834,15 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
    for (Integer i = 0; i < count; i++)
       if (sarray[i] == "")
          emptyChunks++;
+   #ifdef DEBUG_PARSE
+   MessageInterface::ShowMessage
+      ("   emptyChunks=%d, count=%d\n",
+       emptyChunks, count);
+   #endif
    
    if (emptyChunks == count)
-      return false;
+      return true;   // ignore lines with just a semicolon
+ //     return false;
    
    // actual script line
    std::string actualScript = sarray[count-1];
