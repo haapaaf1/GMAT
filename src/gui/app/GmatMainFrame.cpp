@@ -2485,6 +2485,14 @@ void GmatMainFrame::OnHelpIssue(wxCommandEvent& WXUNUSED(event))
 void GmatMainFrame::OnHelpFeedback(wxCommandEvent& WXUNUSED(event))
 {
    #ifdef __ENABLE_EMAIL__
+
+   // Get current working directory
+   wxString cwd1 = ::wxGetCwd();
+
+   #ifdef DEBUG_FEEDBACK
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::OnHelpFeedback() before email, cwd = '%s'\n", cwd1.c_str());
+   #endif
    
    // Should bring up email to gmat@gsfc.nasa.gov
    wxEmail *email = new wxEmail();
@@ -2494,7 +2502,31 @@ void GmatMainFrame::OnHelpFeedback(wxCommandEvent& WXUNUSED(event))
    
    if (!wxEmail::Send(feedback))
    {
-      MessageInterface::ShowMessage("The feedback was not sent.");
+      MessageInterface::ShowMessage("The feedback was not sent.\n");
+   }
+   
+   wxString cwd2 = ::wxGetCwd();
+   
+   #ifdef DEBUG_FEEDBACK
+   MessageInterface::ShowMessage
+      ("GmatMainFrame::OnHelpFeedback()  after email, cwd = '%s'\n", cwd2.c_str());
+   #endif
+   
+   if (::wxSetWorkingDirectory(cwd1))
+   {   
+      cwd2 = ::wxGetCwd();
+      
+      #ifdef DEBUG_FEEDBACK
+      MessageInterface::ShowMessage
+         ("GmatMainFrame::OnHelpFeedback()  after resetting cwd, cwd = '%s'\n", cwd2.c_str());
+      #endif
+   }
+   else
+   {
+      #ifdef DEBUG_FEEDBACK
+      MessageInterface::ShowMessage
+         ("GmatMainFrame::OnHelpFeedback()  failed resetting cwd to '%s'\n", cwd1.c_str());
+      #endif
    }
    
    delete email;
