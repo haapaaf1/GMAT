@@ -893,6 +893,7 @@ bool HarmonicField::SetStringParameter(const std::string &label,
    return SetStringParameter(GetParameterID(label), value);
 }
 
+
 //------------------------------------------------------------------------------
 //  GmatBase* GetRefObject(const Gmat::ObjectType type,
 //                         const std::string &name)
@@ -913,12 +914,16 @@ GmatBase* HarmonicField::GetRefObject(const Gmat::ObjectType type,
    switch (type)
    {
       case Gmat::COORDINATE_SYSTEM:
-         if ((inputCS) && (name == inputCSName))       return inputCS;
-         if ((fixedCS) && (name == fixedCSName))       return fixedCS;
-         if ((targetCS) && (name == targetCSName))     return targetCS;
+         if ((inputCS) && (name == inputCSName))
+            return inputCS;
+         if ((fixedCS) && (name == fixedCSName))
+            return fixedCS;
+         if ((targetCS) && (name == targetCSName))
+            return targetCS;
          break;
+
       default:
-            break;
+         break;
    }
    
    // Not handled here -- invoke the next higher GetRefObject call
