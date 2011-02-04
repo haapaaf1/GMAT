@@ -784,6 +784,8 @@ bool Propagate::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                stopSatNames.push_back(satName);
                stopNames.push_back(stopStr);
                goalNames.push_back(goalStr);
+               stopWrappers.push_back(NULL);
+               goalWrappers.push_back(NULL);
             }
             else if (index < size)
             {
@@ -1776,14 +1778,17 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
       ("   Checking %d Propagate Stop Conditions\n", stopNames.size());
    for (UnsignedInt i=0; i<stopNames.size(); i++)
       MessageInterface::ShowMessage("      %s\n", stopNames[i].c_str());
+   MessageInterface::ShowMessage("   There are %d stopWrappers\n", stopWrappers.size());
+   for (UnsignedInt i=0; i<stopWrappers.size(); i++)
+      MessageInterface::ShowMessage
+         ("      <%p>'%s'\n", stopWrappers[i], stopWrappers[i] ?
+          stopWrappers[i]->GetDescription().c_str() : "NULL");
    #endif
    
    WrapperArray wrappersToDelete;
    Integer sz = stopNames.size();
-   Integer wrapperSize = stopWrappers.size();
-   Integer actualSize = sz > wrapperSize ? wrapperSize : sz;
    
-   for (Integer i = 0; i < actualSize; i++)
+   for (Integer i = 0; i < sz; i++)
    {
       if (stopNames.at(i) == withName)
       {
@@ -1809,6 +1814,10 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
          if (stopWrappers.at(i) != NULL)
          {
             ew = stopWrappers.at(i);
+            #ifdef DEBUG_WRAPPERS   
+            MessageInterface::ShowMessage
+               ("   Replacing stopWrapper[%d] <%p> with <%p>\n", i, ew, toWrapper);
+            #endif
             stopWrappers.at(i) = toWrapper;
             
             // Delete old wrapper if wrapper name not found in the goalNames
@@ -1817,6 +1826,10 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
          }
          else
          {
+            #ifdef DEBUG_WRAPPERS   
+            MessageInterface::ShowMessage
+               ("   Setting wrapper <%p> to stopWrappers[%d]\n", toWrapper, i);
+            #endif
             stopWrappers.at(i) = toWrapper;
          }
          retval = true;
@@ -1831,13 +1844,16 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
       ("   Checking %d Propagate Stop Goals\n", goalNames.size());
    for (UnsignedInt i=0; i<goalNames.size(); i++)
       MessageInterface::ShowMessage("      %s\n", goalNames[i].c_str());
+   MessageInterface::ShowMessage("   There are %d goalWrappers\n", goalWrappers.size());
+   for (UnsignedInt i=0; i<goalWrappers.size(); i++)
+      MessageInterface::ShowMessage
+         ("      <%p>'%s'\n", goalWrappers[i], goalWrappers[i] ?
+          goalWrappers[i]->GetDescription().c_str() : "NULL");
    #endif
    
    sz = goalNames.size();
-   wrapperSize = goalWrappers.size();
-   actualSize = sz > wrapperSize ? wrapperSize : sz;
    
-   for (Integer i = 0; i < actualSize; i++)
+   for (Integer i = 0; i < sz; i++)
    {
       if (goalNames.at(i) == withName)
       {
@@ -1861,6 +1877,10 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
          if (goalWrappers.at(i) != NULL)
          {
             ew = goalWrappers.at(i);
+            #ifdef DEBUG_WRAPPERS   
+            MessageInterface::ShowMessage
+               ("   Replacing goalWrapper[%d] <%p> with <%p>\n", i, ew, toWrapper);
+            #endif
             goalWrappers.at(i) = toWrapper;
             
             // Delete old wrapper if wrapper name not found in the stopNames
@@ -1869,6 +1889,10 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
          }
          else
          {
+            #ifdef DEBUG_WRAPPERS   
+            MessageInterface::ShowMessage
+               ("   Setting wrapper <%p> to goalWrappers[%d]\n", toWrapper, i);
+            #endif
             goalWrappers.at(i) = toWrapper;
          }
          retval = true;
@@ -1888,6 +1912,10 @@ bool Propagate::SetElementWrapper(ElementWrapper *toWrapper,
       (*ewi) = NULL;
    }
    
+   #ifdef DEBUG_WRAPPERS   
+   MessageInterface::ShowMessage
+      ("Propagate::SetElementWrapper() returning %s\n", retval ? "true" : "false");
+   #endif
    return retval;
 }
 
@@ -1911,10 +1939,8 @@ void Propagate::ClearWrappers()
    WrapperArray wrappersToDelete;
    ElementWrapper *ew;
    
-   Integer sz = stopNames.size();
-   Integer wrapperSize = stopWrappers.size();
-   Integer actualSize = sz > wrapperSize ? wrapperSize : sz;
-   for (Integer i = 0; i < actualSize; i++)
+   Integer sz = stopWrappers.size();
+   for (Integer i = 0; i < sz; i++)
    {
       if (stopWrappers.at(i) != NULL)
       {
@@ -1928,10 +1954,8 @@ void Propagate::ClearWrappers()
       }
    }
    
-   sz = goalNames.size();
-   wrapperSize = goalWrappers.size();
-   actualSize = sz > wrapperSize ? wrapperSize : sz;
-   for (Integer i = 0; i < actualSize; i++)
+   sz = goalWrappers.size();
+   for (Integer i = 0; i < sz; i++)
    {
       if (goalWrappers.at(i) != NULL)
       {
