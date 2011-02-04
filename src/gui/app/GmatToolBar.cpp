@@ -92,24 +92,26 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    bitmaps[15] = new wxBitmap(WebHelp_xpm);
    bitmaps[16] = new wxBitmap(screenshot_xpm);
    
-   toolBar->SetToolBitmapSize(wxSize(18,15));
+   // Changed from wxSize(18, 15) (LOJ: 2011.02.04)
+   toolBar->SetToolBitmapSize(wxSize(16, 16));
    
    #ifdef DEBUG_TOOLBAR
    MessageInterface::ShowMessage
       ("   Rescaling to default size of 16x15 (Mac), 16x16 (Other)\n");
    #endif
    
-   // recale to default size of 18x15
-   for (int i=0; i<NUM_ICONS; i++)
-   {
-      wxImage image = bitmaps[i]->ConvertToImage();
-      #ifdef __WXMAC__
-         image = image.Rescale(16, 15);
-      #else
-         image = image.Rescale(16, 16);
-      #endif
-      *bitmaps[i] = wxBitmap(image);
-   }
+   // Do we need to rescale? Commented out for now(LOJ: 2011.02.04)
+   // recale to default size of 16x16
+//    for (int i=0; i<NUM_ICONS; i++)
+//    {
+//       wxImage image = bitmaps[i]->ConvertToImage();
+//       #ifdef __WXMAC__
+//          image = image.Rescale(16, 15);
+//       #else
+//          image = image.Rescale(16, 16);
+//       #endif
+//       *bitmaps[i] = wxBitmap(image);
+//    }
    
    #ifdef DEBUG_TOOLBAR
    MessageInterface::ShowMessage("   Adding mission tools\n");
