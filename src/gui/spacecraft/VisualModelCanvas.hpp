@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            VisualModelCanvas
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 //
 // **Legal**
@@ -38,7 +38,7 @@ public:
    ~VisualModelCanvas();
    bool LoadModel(const wxString &filePath);
    void RecenterModel(float *offset);
-	float AutoscaleModel();
+        float AutoscaleModel();
    void Rotate(bool useDegrees, float xAngle, float yAngle, float zAngle);
    void Translate(float x, float y, float z);
    void Scale(float xScale, float yScale, float zScale);
@@ -73,7 +73,8 @@ private:
    wxWindow *vParent;
 
    void DrawAxes();
-	void LoadModel();
+        void LoadModel();
 };
 
 #endif
+
