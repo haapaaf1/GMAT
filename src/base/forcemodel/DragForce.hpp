@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                DragForce
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -24,6 +24,9 @@
 #include "PhysicalModel.hpp"
 #include "AtmosphereModel.hpp"
 #include <vector>
+
+// Forward reference
+class CoordinateSystem;
 
 
 /**
@@ -80,6 +83,8 @@ public:
                                            const std::string &value);
    virtual bool         SetStringParameter(const std::string &label, 
                                            const std::string &value);
+   virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
+                                     const std::string &name);
    virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name = "");
    
@@ -159,6 +164,9 @@ protected:
    Integer              cartIndex;
    /// Flag indicating if the Cartesian state should be populated
    bool                 fillCartesian;
+   /// CS used to get the w cross r piece
+   CoordinateSystem     *cbFixed;
+
 
    
    void                 BuildPrefactors();
@@ -178,6 +186,7 @@ protected:
       FLUX,
       AVERAGE_FLUX,
       MAGNETIC_INDEX,
+      FIXED_COORD_SYSTEM,
       DragForceParamCount
    };
    

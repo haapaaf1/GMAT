@@ -1221,6 +1221,11 @@ bool ODEModel::Initialize()
             if (body == NULL)
                body = solarSystem->GetBody(centralBodyName); // or should we get bodyName?
          }
+
+         if ((*current)->IsOfType("DragForce"))
+         {
+            SetInternalCoordinateSystem("FixedCoordinateSystem", (*current));
+         }
       }
 
       // Initialize the forces
@@ -1366,8 +1371,8 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
    {
       #ifdef DEBUG_ODEMODEL_INIT
          MessageInterface::ShowMessage(
-            "Adding a coordinate system named '%s' for the full field model\n",
-            csName.c_str());
+            "Adding a coordinate system named '%s' for the %s physical model\n",
+            csName.c_str(), currentPm->GetTypeName().c_str());
       #endif
       
       for (std::vector<CoordinateSystem*>::iterator i =

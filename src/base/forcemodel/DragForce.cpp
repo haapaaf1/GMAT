@@ -22,11 +22,13 @@
 #include "StringUtil.hpp"     // for ToString()
 #include "ODEModelException.hpp"
 #include "MessageInterface.hpp"
+#include "CoordinateSystem.hpp"
 
 // Uncomment to generate drag model data for debugging:
 //#define DEBUG_DRAGFORCE_DENSITY
 //#define DEBUG_DRAGFORCE_PARAM
 //#define DEBUG_DRAGFORCE_REFOBJ
+//#define DEBUG_ANGVEL
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -50,13 +52,14 @@
 const std::string
 DragForce::PARAMETER_TEXT[DragForceParamCount - PhysicalModelParamCount] =
 {
-   "AtmosphereModel",   // ATMOSPHERE_MODEL
-   "AtmosphereBody",    // ATMOSPHERE_BODY
-   "InputSource",       // SOURCE_TYPE
-   "SolarFluxFile",     // FLUX_FILE
-   "F107",              // FLUX
-   "F107A",             // AVERAGE_FLUX
-   "MagneticIndex",     // MAGNETIC_INDEX
+   "AtmosphereModel",         // ATMOSPHERE_MODEL
+   "AtmosphereBody",          // ATMOSPHERE_BODY
+   "InputSource",             // SOURCE_TYPE
+   "SolarFluxFile",           // FLUX_FILE
+   "F107",                    // FLUX
+   "F107A",                   // AVERAGE_FLUX
+   "MagneticIndex",           // MAGNETIC_INDEX
+   "FixedCoordinateSystem",   // FIXED_COORD_SYSTEM  (Read-only parameter)
 };
 
 const Gmat::ParameterType
@@ -69,6 +72,7 @@ DragForce::PARAMETER_TYPE[DragForceParamCount - PhysicalModelParamCount] =
    Gmat::REAL_TYPE,     // "F107",
    Gmat::REAL_TYPE,     // "F107A",
    Gmat::REAL_TYPE,     // "MagneticIndex",
+   Gmat::STRING_TYPE    // "FixedCoordinateSystem"
 };
 
 //------------------------------------------------------------------------------
@@ -104,7 +108,8 @@ DragForce::DragForce(const std::string &name) :
    fluxF107A              (150.0),
    kp                     (3.0),
    cartIndex              (0),
-   fillCartesian          (false)
+   fillCartesian          (false),
+   cbFixed                (NULL)
 {
    dimension = 6;
    parameterCount = DragForceParamCount;
@@ -186,6 +191,9 @@ DragForce::~DragForce()
       delete [] prefactor;
    }
    
+//   if (cbFixed)
+//      delete cbFixed;
+
    #ifdef DEBUG_DRAGFORCE_DENSITY
       dragdata.close();
    #endif
@@ -224,7 +232,8 @@ DragForce::DragForce(const DragForce& df) :
    fluxF107A               (df.fluxF107A),
    kp                      (df.kp),
    cartIndex               (df.cartIndex),
-   fillCartesian           (df.fillCartesian)
+   fillCartesian           (df.fillCartesian),
+   cbFixed                 (NULL)
 {
    internalAtmos = NULL;
    if (df.internalAtmos)
@@ -237,6 +246,10 @@ DragForce::DragForce(const DragForce& df) :
       #endif
    }
    
+   if (df.cbFixed)
+//      cbFixed = (CoordinateSystem*)(df.cbFixed->Clone());      // Any other initialization needed?
+      cbFixed = (CoordinateSystem*)(df.cbFixed);
+
    parameterCount += 7;
    dimension = df.dimension;
    orbitDimension = df.orbitDimension;
@@ -310,6 +323,14 @@ DragForce& DragForce::operator=(const DragForce& df)
       #endif
    }
    
+   if (df.cbFixed)
+   {
+//      if (cbFixed)
+//         delete cbFixed;
+//      cbFixed = (CoordinateSystem*)(df.cbFixed->Clone());
+      cbFixed = (CoordinateSystem*)(df.cbFixed);
+   }
+
    atmos                 = NULL;
    density               = NULL;
    prefactor             = NULL;
@@ -561,6 +582,42 @@ void DragForce::ClearSatelliteParameters(const std::string parmName)
       dragCoeff.clear();
    if ((parmName == "DragArea") || (parmName == ""))
       area.clear();
+}
+
+
+//------------------------------------------------------------------------------
+//  GmatBase* GetRefObject(const Gmat::ObjectType type,
+//                         const std::string &name)
+//------------------------------------------------------------------------------
+/**
+ * This method returns a reference object from the HarmonicField class.
+ *
+ * @param type  type of the reference object requested
+ * @param name  name of the reference object requested
+ *
+ * @return pointer to the reference object requested.
+ *
+ */
+//------------------------------------------------------------------------------
+GmatBase* DragForce::GetRefObject(const Gmat::ObjectType type,
+                                      const std::string &name)
+{
+   switch (type)
+   {
+      case Gmat::COORDINATE_SYSTEM:
+         { // Set scope for local variable
+            std::string fixedCSName = bodyName + "Fixed";
+            if ((cbFixed) && (name == fixedCSName))
+               return cbFixed;
+         }
+         break;
+
+      default:
+         break;
+   }
+
+   // Not handled here -- invoke the next higher GetRefObject call
+   return PhysicalModel::GetRefObject(type, name);
 }
 
 
@@ -901,10 +958,72 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
    TranslateOrigin(state, now);
    GetDensity(dragState, now);
 
+   Real in[3], out[3];
+   cbFixed->ToMJ2000Eq(now, in, out, true, true);
+   Rmatrix33 rotMat = cbFixed->GetLastRotationMatrix();
+   Rmatrix33 rotDotMat = cbFixed->GetLastRotationDotMatrix();
+
+   angVel[0] = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) + rotMat(2,2)*rotDotMat(2,1);
+   angVel[1] = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) + rotMat(2,0)*rotDotMat(2,2);
+   angVel[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) + rotMat(2,1)*rotDotMat(2,0);
+
+#ifdef DEBUG_ANGVEL
+   Rmatrix33 rTrd;
+
+   rTrd(0,0) = rotMat(0,0)*rotDotMat(0,0) + rotMat(1,0)*rotDotMat(1,0) + rotMat(2,0)*rotDotMat(2,0);
+   rTrd(0,1) = rotMat(0,0)*rotDotMat(0,1) + rotMat(1,0)*rotDotMat(1,1) + rotMat(2,0)*rotDotMat(2,1);
+   rTrd(0,2) = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) + rotMat(2,0)*rotDotMat(2,2);
+
+   rTrd(1,0) = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) + rotMat(2,1)*rotDotMat(2,0);
+   rTrd(1,1) = rotMat(0,1)*rotDotMat(0,1) + rotMat(1,1)*rotDotMat(1,1) + rotMat(2,1)*rotDotMat(2,1);
+   rTrd(1,2) = rotMat(0,1)*rotDotMat(0,2) + rotMat(1,1)*rotDotMat(1,2) + rotMat(2,1)*rotDotMat(2,2);
+
+   rTrd(2,0) = rotMat(0,2)*rotDotMat(0,0) + rotMat(1,2)*rotDotMat(1,0) + rotMat(2,2)*rotDotMat(2,0);
+   rTrd(2,1) = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) + rotMat(2,2)*rotDotMat(2,1);
+   rTrd(2,2) = rotMat(0,2)*rotDotMat(0,2) + rotMat(1,2)*rotDotMat(1,2) + rotMat(2,2)*rotDotMat(2,2);
+
+   const Rvector3 cbW = body->GetAngularVelocity();
+   MessageInterface::ShowMessage("AngMo = [%le %le %le]\nCB = [%le %le %le]\n",
+         angVel[0], angVel[1], angVel[2], cbW[0], cbW[1], cbW[2]);
+   MessageInterface::ShowMessage("Rot    = [%le %le %le]\n         "
+         "[%le %le %le]\n         [%le %le %le]\n",
+         rotMat(0,0), rotMat(0,1), rotMat(0,2),
+         rotMat(1,0), rotMat(1,1), rotMat(1,2),
+         rotMat(2,0), rotMat(2,1), rotMat(2,2));
+   MessageInterface::ShowMessage("RotDot = [%le %le %le]\n         "
+         "[%le %le %le]\n         [%le %le %le]\n",
+         rotDotMat(0,0), rotDotMat(0,1), rotDotMat(0,2),
+         rotDotMat(1,0), rotDotMat(1,1), rotDotMat(1,2),
+         rotDotMat(2,0), rotDotMat(2,1), rotDotMat(2,2));
+   MessageInterface::ShowMessage("Rot^T * RotDot = [%le %le %le]\n             "
+         "    [%le %le %le]\n                 [%le %le %le]\n",
+         rTrd(0,0), rTrd(0,1), rTrd(0,2),
+         rTrd(1,0), rTrd(1,1), rTrd(1,2),
+         rTrd(2,0), rTrd(2,1), rTrd(2,2));
+   MessageInterface::ShowMessage("Out = [%le %le %le]\n", out[0], out[1],
+         out[2]);
+   Real rcv[3], rR[3], Rr[3];
+   rcv[0] = (angVel[1]*dragState[2] - angVel[2]*dragState[1]);
+   rcv[1] = (angVel[2]*dragState[0] - angVel[0]*dragState[2]);
+   rcv[2] = (angVel[0]*dragState[1] - angVel[1]*dragState[0]);
+
+   rR[0]  = dragState[0]*rotMat(0,0) + dragState[1]*rotMat(0,1) + dragState[2]*rotMat(0,2);
+   rR[1]  = dragState[0]*rotMat(1,0) + dragState[1]*rotMat(1,1) + dragState[2]*rotMat(1,2);
+   rR[2]  = dragState[0]*rotMat(2,0) + dragState[1]*rotMat(2,1) + dragState[2]*rotMat(2,2);
+
+   Rr[0]  = dragState[0]*rotMat(0,0) + dragState[1]*rotMat(1,0) + dragState[2]*rotMat(2,0);
+   Rr[1]  = dragState[0]*rotMat(0,1) + dragState[1]*rotMat(1,1) + dragState[2]*rotMat(2,1);
+   Rr[2]  = dragState[0]*rotMat(0,2) + dragState[1]*rotMat(1,2) + dragState[2]*rotMat(2,2);
+
+   MessageInterface::ShowMessage("rcv = [%le %le %le]\n", rcv[0], rcv[1], rcv[2]);
+   MessageInterface::ShowMessage("rR = [%le %le %le]\n", rR[0], rR[1], rR[2]);
+   MessageInterface::ShowMessage("Rr = [%le %le %le]\n", Rr[0], Rr[1], Rr[2]);
+#endif
+
    #ifdef DEBUG_DRAGFORCE_DENSITY
       dragdata << "density[0] = " << density[0] << "\n";
    #endif
-   
+
    #ifdef DEBUG_DRAGFORCE_EPOCH
       MessageInterface::ShowMessage("Drag epoch = %16.11lf\n", now);
    
@@ -938,6 +1057,7 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
             deriv[3+j6] = factor * vRelMag * vRelative[0];// - a_indirect[0];
             deriv[4+j6] = factor * vRelMag * vRelative[1];// - a_indirect[1];
             deriv[5+j6] = factor * vRelMag * vRelative[2];// - a_indirect[2];
+
             // dr/dt = v term not built from drag force
             deriv[j6]   = 
             deriv[1+j6] = 
@@ -1100,7 +1220,7 @@ bool DragForce::IsParameterReadOnly(const Integer id) const
          return false;
    }
    
-   if (id == ATMOSPHERE_BODY || SOURCE_TYPE)
+   if (id == ATMOSPHERE_BODY || SOURCE_TYPE || FIXED_COORD_SYSTEM)
       return true;
    
    return PhysicalModel::IsParameterReadOnly(id);
@@ -1285,6 +1405,9 @@ std::string DragForce::GetStringParameter(const Integer id) const
    if (id == FLUX_FILE)
       return fluxFile;
     
+   if (id == FIXED_COORD_SYSTEM)
+      return bodyName + "Fixed";
+
    return PhysicalModel::GetStringParameter(id);
 }
 
@@ -1427,6 +1550,19 @@ bool DragForce::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       SetInternalAtmosphereModel((AtmosphereModel*)obj);
       return true;
    }
+
+   if (type == Gmat::COORDINATE_SYSTEM)
+   {
+      if (obj->GetType() != Gmat::COORDINATE_SYSTEM)
+         throw ODEModelException("DragForce::SetRefObject: Coordinate System "
+                                 "type set incorrectly.");
+
+      // todo: Check to be sure it's a fixed CS
+//      cbFixed = (CoordinateSystem*)(obj->Clone());
+      cbFixed = (CoordinateSystem*)(obj);
+      return true;
+   }
+
    return PhysicalModel::SetRefObject(obj, type, name);
 }
 
