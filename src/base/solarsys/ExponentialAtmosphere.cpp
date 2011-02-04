@@ -314,7 +314,7 @@ Real ExponentialAtmosphere::CalculateHeight(Real *loc)
    Real mag = sqrt(loc[0]*loc[0] + loc[1]*loc[1] + loc[2]*loc[2]);
    Real cbr = cbRadius;
 
-   if (!geocentric)
+   if (!geocentric && (cbFlattening != 0.0))
    {
       Real phi, cos_phi;
 
@@ -327,7 +327,7 @@ Real ExponentialAtmosphere::CalculateHeight(Real *loc)
       cos_phi = cos(phi);
 
       // Return the geodetic height
-      cbr = mag - cbRadius * (1.0 - cbFlattening) /
+      cbr = cbRadius * (1.0 - cbFlattening) /
             sqrt(1 - cbFlattening * (2.0 - cbFlattening) * cos_phi * cos_phi);
    }
 

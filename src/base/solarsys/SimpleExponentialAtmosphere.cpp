@@ -23,6 +23,8 @@
 #include <cmath>
 #include "MessageInterface.hpp"
 
+//#define DEBUG_DENSITY
+
 //------------------------------------------------------------------------------
 // SimpleExponentialAtmosphere(const std::string &name = "")
 //------------------------------------------------------------------------------
@@ -118,6 +120,10 @@ SimpleExponentialAtmosphere& SimpleExponentialAtmosphere::operator=(
 //------------------------------------------------------------------------------
 bool SimpleExponentialAtmosphere::Density(Real *position, Real *density, Real epoch, Integer count)
 {
+   #ifdef DEBUG_DENSITY
+      MessageInterface::ShowMessage("SimpleExponentialAtmosphere::Density called\n");
+   #endif
+
    if (centralBodyLocation == NULL)
       throw AtmosphereException("Exponential atmosphere: Central body vector "
             "was not initialized");
@@ -164,7 +170,13 @@ Real SimpleExponentialAtmosphere::CalculateHeight(Real *loc)
    Real mag = sqrt(loc[0]*loc[0] + loc[1]*loc[1] + loc[2]*loc[2]);
    Real cbr = cbRadius;
 
-   if (!geocentricAltitude)
+   #ifdef DEBUG_DENSITY
+      MessageInterface::ShowMessage("   Loc: [%lf %lf %lf]\n   "
+            "Flattening: %lf\n   Radius: %lf\n   Rmag = %lf\n", loc[0], loc[1],
+            loc[2], cbFlattening, cbRadius, mag);
+   #endif
+
+   if (!geocentricAltitude && (cbFlattening != 0.0))
    {
       Real phi, cos_phi;
 
@@ -177,10 +189,14 @@ Real SimpleExponentialAtmosphere::CalculateHeight(Real *loc)
       cos_phi = cos(phi);
 
       // Return the geodetic height
-      cbr = mag - cbRadius * (1.0 - cbFlattening) /
+      cbr = cbRadius * (1.0 - cbFlattening) /
             sqrt(1 - cbFlattening * (2.0 - cbFlattening) * cos_phi * cos_phi);
    }
 
+   #ifdef DEBUG_DENSITY
+      MessageInterface::ShowMessage("   CBR = %lf\n   Height = %lf\n", cbr,
+            mag - cbr);
+   #endif
    return mag - cbr;
 }
 
