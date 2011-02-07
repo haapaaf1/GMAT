@@ -52,14 +52,15 @@
 const std::string
 DragForce::PARAMETER_TEXT[DragForceParamCount - PhysicalModelParamCount] =
 {
-   "AtmosphereModel",         // ATMOSPHERE_MODEL
-   "AtmosphereBody",          // ATMOSPHERE_BODY
-   "InputSource",             // SOURCE_TYPE
-   "SolarFluxFile",           // FLUX_FILE
-   "F107",                    // FLUX
-   "F107A",                   // AVERAGE_FLUX
-   "MagneticIndex",           // MAGNETIC_INDEX
-   "FixedCoordinateSystem",   // FIXED_COORD_SYSTEM  (Read-only parameter)
+   "AtmosphereModel",               // ATMOSPHERE_MODEL
+   "AtmosphereBody",                // ATMOSPHERE_BODY
+   "InputSource",                   // SOURCE_TYPE
+   "SolarFluxFile",                 // FLUX_FILE
+   "F107",                          // FLUX
+   "F107A",                         // AVERAGE_FLUX
+   "MagneticIndex",                 // MAGNETIC_INDEX
+   "FixedCoordinateSystem",         // FIXED_COORD_SYSTEM  (Read-only parameter)
+   "AngularMomentumUpdateInterval", // W_UPDATE_INTERVAL (in days, Read-only)
 };
 
 const Gmat::ParameterType
@@ -72,7 +73,8 @@ DragForce::PARAMETER_TYPE[DragForceParamCount - PhysicalModelParamCount] =
    Gmat::REAL_TYPE,     // "F107",
    Gmat::REAL_TYPE,     // "F107A",
    Gmat::REAL_TYPE,     // "MagneticIndex",
-   Gmat::STRING_TYPE    // "FixedCoordinateSystem"
+   Gmat::STRING_TYPE,   // "FixedCoordinateSystem"
+   Gmat::REAL_TYPE,     // "AngularMomentumUpdateInterval"
 };
 
 //------------------------------------------------------------------------------
@@ -98,6 +100,8 @@ DragForce::DragForce(const std::string &name) :
    satCount               (1),
    orbitDimension         (0),
    dragState              (NULL),
+   wUpdateInterval        (0.02),      // 0.02 = 28.8 minutes
+   wUpdateEpoch           (-1.0),		// Force update if not set to fixed w
    massID                 (-1),
    cdID                   (-1),
    areaID                 (-1),
@@ -222,6 +226,8 @@ DragForce::DragForce(const DragForce& df) :
    satCount                (df.satCount),
    dragBody                (df.dragBody),
    dragState               (NULL),
+   wUpdateInterval         (df.wUpdateInterval),
+   wUpdateEpoch            (df.wUpdateEpoch),
    massID                  (df.massID),
    cdID                    (df.cdID),
    areaID                  (df.areaID),
@@ -339,6 +345,8 @@ DragForce& DragForce::operator=(const DragForce& df)
    satCount              = df.satCount;
    dragBody              = df.dragBody;
    dragState             = df.dragState;
+   wUpdateInterval       = df.wUpdateInterval;
+   wUpdateEpoch          = df.wUpdateEpoch;
    dataType              = df.dataType;
    fluxFile              = df.fluxFile;
    fluxF107              = df.fluxF107;
@@ -958,67 +966,99 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
    TranslateOrigin(state, now);
    GetDensity(dragState, now);
 
-   Real in[3], out[3];
-   cbFixed->ToMJ2000Eq(now, in, out, true, true);
-   Rmatrix33 rotMat = cbFixed->GetLastRotationMatrix();
-   Rmatrix33 rotDotMat = cbFixed->GetLastRotationDotMatrix();
+   // Find the current angular momentum vector; do this at a fixed interval
+   // A negative update interval means never update
+   if (wUpdateInterval >= 0.0)
+   {
+      if (fabs(now - wUpdateEpoch) > wUpdateInterval)
+      {
+         Real in[3], out[3];
+         cbFixed->ToMJ2000Eq(now, in, out, true, true);
+         Rmatrix33 rotMat = cbFixed->GetLastRotationMatrix();
+         Rmatrix33 rotDotMat = cbFixed->GetLastRotationDotMatrix();
 
-   angVel[0] = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) + rotMat(2,2)*rotDotMat(2,1);
-   angVel[1] = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) + rotMat(2,0)*rotDotMat(2,2);
-   angVel[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) + rotMat(2,1)*rotDotMat(2,0);
+         angVel[0] = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) +
+               rotMat(2,2)*rotDotMat(2,1);
+         angVel[1] = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) +
+               rotMat(2,0)*rotDotMat(2,2);
+         angVel[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) +
+               rotMat(2,1)*rotDotMat(2,0);
+         wUpdateEpoch = now;
+      }
+   }
 
-#ifdef DEBUG_ANGVEL
-   Rmatrix33 rTrd;
+   #ifdef DEBUG_ANGVEL
+      Rmatrix33 rTrd;
 
-   rTrd(0,0) = rotMat(0,0)*rotDotMat(0,0) + rotMat(1,0)*rotDotMat(1,0) + rotMat(2,0)*rotDotMat(2,0);
-   rTrd(0,1) = rotMat(0,0)*rotDotMat(0,1) + rotMat(1,0)*rotDotMat(1,1) + rotMat(2,0)*rotDotMat(2,1);
-   rTrd(0,2) = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) + rotMat(2,0)*rotDotMat(2,2);
+      // This is the full matrix product
+      rTrd(0,0) = rotMat(0,0)*rotDotMat(0,0) + rotMat(1,0)*rotDotMat(1,0) +
+            rotMat(2,0)*rotDotMat(2,0);
+      rTrd(0,1) = rotMat(0,0)*rotDotMat(0,1) + rotMat(1,0)*rotDotMat(1,1) +
+            rotMat(2,0)*rotDotMat(2,1);
+      rTrd(0,2) = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) +
+            rotMat(2,0)*rotDotMat(2,2);
 
-   rTrd(1,0) = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) + rotMat(2,1)*rotDotMat(2,0);
-   rTrd(1,1) = rotMat(0,1)*rotDotMat(0,1) + rotMat(1,1)*rotDotMat(1,1) + rotMat(2,1)*rotDotMat(2,1);
-   rTrd(1,2) = rotMat(0,1)*rotDotMat(0,2) + rotMat(1,1)*rotDotMat(1,2) + rotMat(2,1)*rotDotMat(2,2);
+      rTrd(1,0) = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) +
+            rotMat(2,1)*rotDotMat(2,0);
+      rTrd(1,1) = rotMat(0,1)*rotDotMat(0,1) + rotMat(1,1)*rotDotMat(1,1) +
+            rotMat(2,1)*rotDotMat(2,1);
+      rTrd(1,2) = rotMat(0,1)*rotDotMat(0,2) + rotMat(1,1)*rotDotMat(1,2) +
+            rotMat(2,1)*rotDotMat(2,2);
 
-   rTrd(2,0) = rotMat(0,2)*rotDotMat(0,0) + rotMat(1,2)*rotDotMat(1,0) + rotMat(2,2)*rotDotMat(2,0);
-   rTrd(2,1) = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) + rotMat(2,2)*rotDotMat(2,1);
-   rTrd(2,2) = rotMat(0,2)*rotDotMat(0,2) + rotMat(1,2)*rotDotMat(1,2) + rotMat(2,2)*rotDotMat(2,2);
+      rTrd(2,0) = rotMat(0,2)*rotDotMat(0,0) + rotMat(1,2)*rotDotMat(1,0) +
+            rotMat(2,2)*rotDotMat(2,0);
+      rTrd(2,1) = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) +
+            rotMat(2,2)*rotDotMat(2,1);
+      rTrd(2,2) = rotMat(0,2)*rotDotMat(0,2) + rotMat(1,2)*rotDotMat(1,2) +
+            rotMat(2,2)*rotDotMat(2,2);
 
-   const Rvector3 cbW = body->GetAngularVelocity();
-   MessageInterface::ShowMessage("AngMo = [%le %le %le]\nCB = [%le %le %le]\n",
-         angVel[0], angVel[1], angVel[2], cbW[0], cbW[1], cbW[2]);
-   MessageInterface::ShowMessage("Rot    = [%le %le %le]\n         "
-         "[%le %le %le]\n         [%le %le %le]\n",
-         rotMat(0,0), rotMat(0,1), rotMat(0,2),
-         rotMat(1,0), rotMat(1,1), rotMat(1,2),
-         rotMat(2,0), rotMat(2,1), rotMat(2,2));
-   MessageInterface::ShowMessage("RotDot = [%le %le %le]\n         "
-         "[%le %le %le]\n         [%le %le %le]\n",
-         rotDotMat(0,0), rotDotMat(0,1), rotDotMat(0,2),
-         rotDotMat(1,0), rotDotMat(1,1), rotDotMat(1,2),
-         rotDotMat(2,0), rotDotMat(2,1), rotDotMat(2,2));
-   MessageInterface::ShowMessage("Rot^T * RotDot = [%le %le %le]\n             "
-         "    [%le %le %le]\n                 [%le %le %le]\n",
-         rTrd(0,0), rTrd(0,1), rTrd(0,2),
-         rTrd(1,0), rTrd(1,1), rTrd(1,2),
-         rTrd(2,0), rTrd(2,1), rTrd(2,2));
-   MessageInterface::ShowMessage("Out = [%le %le %le]\n", out[0], out[1],
-         out[2]);
-   Real rcv[3], rR[3], Rr[3];
-   rcv[0] = (angVel[1]*dragState[2] - angVel[2]*dragState[1]);
-   rcv[1] = (angVel[2]*dragState[0] - angVel[0]*dragState[2]);
-   rcv[2] = (angVel[0]*dragState[1] - angVel[1]*dragState[0]);
+      const Rvector3 cbW = body->GetAngularVelocity();
+      MessageInterface::ShowMessage("AngMo = [%le %le %le]\nCB = "
+            "[%le %le %le]\n", angVel[0], angVel[1], angVel[2], cbW[0], cbW[1],
+            cbW[2]);
+      MessageInterface::ShowMessage("Rot    = [%le %le %le]\n         "
+            "[%le %le %le]\n         [%le %le %le]\n",
+            rotMat(0,0), rotMat(0,1), rotMat(0,2),
+            rotMat(1,0), rotMat(1,1), rotMat(1,2),
+            rotMat(2,0), rotMat(2,1), rotMat(2,2));
+      MessageInterface::ShowMessage("RotDot = [%le %le %le]\n         "
+            "[%le %le %le]\n         [%le %le %le]\n",
+            rotDotMat(0,0), rotDotMat(0,1), rotDotMat(0,2),
+            rotDotMat(1,0), rotDotMat(1,1), rotDotMat(1,2),
+            rotDotMat(2,0), rotDotMat(2,1), rotDotMat(2,2));
+      MessageInterface::ShowMessage("Rot^T * RotDot = [%le %le %le]\n          "
+            "       [%le %le %le]\n                 [%le %le %le]\n",
+            rTrd(0,0), rTrd(0,1), rTrd(0,2),
+            rTrd(1,0), rTrd(1,1), rTrd(1,2),
+            rTrd(2,0), rTrd(2,1), rTrd(2,2));
+      MessageInterface::ShowMessage("Out = [%le %le %le]\n", out[0], out[1],
+            out[2]);
+      Real rcv[3], rR[3], Rr[3];
+      rcv[0] = (angVel[1]*dragState[2] - angVel[2]*dragState[1]);
+      rcv[1] = (angVel[2]*dragState[0] - angVel[0]*dragState[2]);
+      rcv[2] = (angVel[0]*dragState[1] - angVel[1]*dragState[0]);
 
-   rR[0]  = dragState[0]*rotMat(0,0) + dragState[1]*rotMat(0,1) + dragState[2]*rotMat(0,2);
-   rR[1]  = dragState[0]*rotMat(1,0) + dragState[1]*rotMat(1,1) + dragState[2]*rotMat(1,2);
-   rR[2]  = dragState[0]*rotMat(2,0) + dragState[1]*rotMat(2,1) + dragState[2]*rotMat(2,2);
+      rR[0]  = dragState[0]*rotMat(0,0) + dragState[1]*rotMat(0,1) +
+            dragState[2]*rotMat(0,2);
+      rR[1]  = dragState[0]*rotMat(1,0) + dragState[1]*rotMat(1,1) +
+            dragState[2]*rotMat(1,2);
+      rR[2]  = dragState[0]*rotMat(2,0) + dragState[1]*rotMat(2,1) +
+            dragState[2]*rotMat(2,2);
 
-   Rr[0]  = dragState[0]*rotMat(0,0) + dragState[1]*rotMat(1,0) + dragState[2]*rotMat(2,0);
-   Rr[1]  = dragState[0]*rotMat(0,1) + dragState[1]*rotMat(1,1) + dragState[2]*rotMat(2,1);
-   Rr[2]  = dragState[0]*rotMat(0,2) + dragState[1]*rotMat(1,2) + dragState[2]*rotMat(2,2);
+      Rr[0]  = dragState[0]*rotMat(0,0) + dragState[1]*rotMat(1,0) +
+            dragState[2]*rotMat(2,0);
+      Rr[1]  = dragState[0]*rotMat(0,1) + dragState[1]*rotMat(1,1) +
+            dragState[2]*rotMat(2,1);
+      Rr[2]  = dragState[0]*rotMat(0,2) + dragState[1]*rotMat(1,2) +
+            dragState[2]*rotMat(2,2);
 
-   MessageInterface::ShowMessage("rcv = [%le %le %le]\n", rcv[0], rcv[1], rcv[2]);
-   MessageInterface::ShowMessage("rR = [%le %le %le]\n", rR[0], rR[1], rR[2]);
-   MessageInterface::ShowMessage("Rr = [%le %le %le]\n", Rr[0], Rr[1], Rr[2]);
-#endif
+      MessageInterface::ShowMessage("rcv = [%le %le %le]\n", rcv[0], rcv[1],
+            rcv[2]);
+      MessageInterface::ShowMessage("rR = [%le %le %le]\n", rR[0], rR[1],
+            rR[2]);
+      MessageInterface::ShowMessage("Rr = [%le %le %le]\n", Rr[0], Rr[1],
+            Rr[2]);
+   #endif
 
    #ifdef DEBUG_DRAGFORCE_DENSITY
       dragdata << "density[0] = " << density[0] << "\n";
@@ -1220,7 +1260,8 @@ bool DragForce::IsParameterReadOnly(const Integer id) const
          return false;
    }
    
-   if (id == ATMOSPHERE_BODY || SOURCE_TYPE || FIXED_COORD_SYSTEM)
+   if (id == ATMOSPHERE_BODY || id == SOURCE_TYPE ||
+       id == FIXED_COORD_SYSTEM || id == W_UPDATE_INTERVAL)
       return true;
    
    return PhysicalModel::IsParameterReadOnly(id);
@@ -1257,6 +1298,9 @@ Real DragForce::GetRealParameter(const Integer id) const
     
    if (id == MAGNETIC_INDEX)
       return kp;
+
+   if (id == W_UPDATE_INTERVAL)
+      return wUpdateInterval;
 
    return PhysicalModel::GetRealParameter(id);
 }
@@ -1365,6 +1409,12 @@ Real DragForce::SetRealParameter(const Integer id, const Real value)
 //      ap = CalculateAp(kp);
 //
 //      return kp;
+   }
+
+   if (id == W_UPDATE_INTERVAL)
+   {
+      wUpdateInterval = value;
+      return wUpdateInterval;
    }
 
    return PhysicalModel::SetRealParameter(id, value);

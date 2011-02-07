@@ -138,6 +138,10 @@ protected:
    Integer              orbitDimension;
    /// State vector translated from force model origin to body with atmosphere
    Real                 *dragState;
+   /// Interval of angular momentum vector updates, in days
+   Real                 wUpdateInterval;
+   /// Epoch of last angular momentum update
+   Real                 wUpdateEpoch;
    
    Integer massID;
    Integer cdID;
@@ -187,6 +191,7 @@ protected:
       AVERAGE_FLUX,
       MAGNETIC_INDEX,
       FIXED_COORD_SYSTEM,
+      W_UPDATE_INTERVAL,
       DragForceParamCount
    };
    
