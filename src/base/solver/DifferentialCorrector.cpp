@@ -90,8 +90,6 @@ DifferentialCorrector::DifferentialCorrector(std::string name) :
    #endif
    objectTypeNames.push_back("DifferentialCorrector");
    parameterCount = DifferentialCorrectorParamCount;
-
-   AllowScaleFactors = false;
 }
 
 
