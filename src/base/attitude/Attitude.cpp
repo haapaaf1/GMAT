@@ -2434,7 +2434,7 @@ Real Attitude::SetRealParameter(const Integer id,
       Real angle2 = value * GmatMathUtil::RAD_PER_DEG;
       // check for a nearly singular attitude, for symmetric sequences
       if ((eulerSequenceArray.at(0) == eulerSequenceArray.at(2)) &&
-          (GmatMathUtil::Sin(angle2) < EULER_ANGLE_TOLERANCE))
+          (GmatMathUtil::Abs(GmatMathUtil::Sin(angle2)) < EULER_ANGLE_TOLERANCE))
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
@@ -2445,7 +2445,7 @@ Real Attitude::SetRealParameter(const Integer id,
       }
       // check for a nearly singular attitude, for non-symmetric sequences
       else if ((eulerSequenceArray.at(0) != eulerSequenceArray.at(2)) &&
-               (GmatMathUtil::Cos(angle2) < EULER_ANGLE_TOLERANCE))
+               (GmatMathUtil::Abs(GmatMathUtil::Cos(angle2)) < EULER_ANGLE_TOLERANCE))
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
@@ -2768,7 +2768,7 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
          Real angle2 = value * GmatMathUtil::RAD_PER_DEG;
          // check for a nearly singular attitude, for symmetric sequences
          if ((eulerSequenceArray.at(0) == eulerSequenceArray.at(2)) &&
-             (GmatMathUtil::Sin(angle2) < EULER_ANGLE_TOLERANCE))
+             (GmatMathUtil::Abs(GmatMathUtil::Sin(angle2)) < EULER_ANGLE_TOLERANCE))
          {
             std::ostringstream errmsg;
             errmsg << "Error: the attitude defined by the input euler angles (";
@@ -2778,7 +2778,7 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
          }
          // check for a nearly singular attitude, for non-symmetric sequences
          else if ((eulerSequenceArray.at(0) != eulerSequenceArray.at(2)) &&
-                  (GmatMathUtil::Cos(angle2) < EULER_ANGLE_TOLERANCE))
+                  (GmatMathUtil::Abs(GmatMathUtil::Cos(angle2)) < EULER_ANGLE_TOLERANCE))
          {
             std::ostringstream errmsg;
             errmsg << "Error: the attitude defined by the input euler angles (";
@@ -2997,6 +2997,8 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
    #ifdef DEBUG_ATTITUDE_SET
       MessageInterface::ShowMessage("Entering Attitude::SetRvector with id = %d and value =  %s\n",
             id, (value.ToString()).c_str());
+      MessageInterface::ShowMessage("  and Euler sequence is %d %d %d\n", eulerSequenceArray.at(0),
+            eulerSequenceArray.at(1), eulerSequenceArray.at(2));
    #endif
    Integer sz = value.GetSize();
    Integer i;
@@ -3008,7 +3010,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
       Real angle2 = value(1) * GmatMathUtil::RAD_PER_DEG;
       // check for a nearly singular attitude, for symmetric sequences
       if ((eulerSequenceArray.at(0) == eulerSequenceArray.at(2)) &&
-          (GmatMathUtil::Sin(angle2) < EULER_ANGLE_TOLERANCE))
+          (GmatMathUtil::Abs(GmatMathUtil::Sin(angle2)) < EULER_ANGLE_TOLERANCE))
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
@@ -3018,7 +3020,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
       }
       // check for a nearly singular attitude, for non-symmetric sequences
       else if ((eulerSequenceArray.at(0) != eulerSequenceArray.at(2)) &&
-               (GmatMathUtil::Cos(angle2) < EULER_ANGLE_TOLERANCE))
+               (GmatMathUtil::Abs(GmatMathUtil::Cos(angle2)) < EULER_ANGLE_TOLERANCE))
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
