@@ -65,7 +65,6 @@ GMAT prop.MaxStepAttempts = 50;
 Create ImpulsiveBurn burn;
 GMAT burn.Origin = Earth;
 GMAT burn.Axes = VNB;
-GMAT burn.VectorFormat = Cartesian;
 GMAT burn.Element1 = 0.001545357175413331;
 GMAT burn.Element2 = 0;
 GMAT burn.Element3 = 0;
@@ -101,21 +100,14 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 Create DifferentialCorrector DC;
 GMAT DC.ShowProgress = true;
 GMAT DC.ReportStyle = Normal;
-GMAT DC.TargeterTextFile = Bug874-DC.data;
+GMAT DC.ReportFile = Bug874-DC.data;
 GMAT DC.MaximumIterations = 25;
-GMAT DC.UseCentralDifferences = false;
+GMAT DC.DerivativeMethod = CentralDifference;
 
 
 %----------------------------------------
 %---------- Plots and Reports
 %----------------------------------------
-
-Create XYPlot plot;
-GMAT plot.IndVar = sat.CurrA1MJD;
-GMAT plot.Add = {sat.Altitude};
-GMAT plot.Grid = On;
-GMAT plot.SolverIterations = None;
-GMAT plot.ShowPlot = true;
 
 Create ReportFile Data;
 %%%GMAT Data.Filename = ./output/SampleMissions/Ex_TRMM.report;
@@ -127,10 +119,17 @@ GMAT Data.ZeroFill = Off;
 GMAT Data.ColumnWidth = 20;
 GMAT Data.SolverIterations = None;
 
+Create XYPlot plot;
+GMAT plot.XVariable = sat.CurrA1MJD;
+GMAT plot.YVariables = {sat.Altitude};
+GMAT plot.ShowGrid = true;
+GMAT plot.SolverIterations = None;
+GMAT plot.ShowPlot = true;
+
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = sat.A1ModJulian;
-GMAT XYPlot1.Add = {sat.Earth.ECC};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = sat.A1ModJulian;
+GMAT XYPlot1.YVariables = {sat.Earth.ECC};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
@@ -203,7 +202,7 @@ While sat.ElapsedDays < 5
    Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
    If sat.Altitude < 342
       Target DC;
-         Vary DC(burn.V = 0.002, {Perturbation = 0.0001, MaxStep = 9.999999e300, Lower = -9.999999e300, Upper = 9.999999e300});
+         Vary DC(burn.Element1 = 0.002, {Perturbation = 0.0001, MaxStep = 9.999999e300, Lower = -9.999999e300, Upper = 9.999999e300});
          Maneuver burn(sat);
          Achieve DC(sat.SMA = 6734, {Tolerance = 0.1});
       EndTarget;  % For targeter DC
@@ -211,7 +210,7 @@ While sat.ElapsedDays < 5
       Propagate prop(sat) {sat.Apoapsis};
       Report Data sat.A1ModJulian sat.Altitude sat.SMA sat.ECC sat.INC sat.RAAN sat.TA 
       Target DC;
-         Vary DC(burn.V = 0.001, {Perturbation = 0.00005, MaxStep = 9.999999e300, Lower = -9.999999e300, Upper = 9.999999e300});
+         Vary DC(burn.Element1 = 0.001, {Perturbation = 0.00005, MaxStep = 9.999999e300, Lower = -9.999999e300, Upper = 9.999999e300});
          Maneuver burn(sat);
          Achieve DC(sat.ECC = 0.0005, {Tolerance = 0.0001});
       EndTarget;  % For targeter DC

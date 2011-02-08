@@ -138,7 +138,7 @@ Create OpenGLPlot Sat2InSat1LVLH;
 GMAT Sat2InSat1LVLH.Add = {Sat2, Sat3, Sat4};
 GMAT Sat2InSat1LVLH.CoordinateSystem = Sat1LVLH;
 GMAT Sat2InSat1LVLH.ViewPointReference = Earth;
-GMAT Sat2InSat1LVLH.ViewPointVector = Vector;
+GMAT Sat2InSat1LVLH.ViewPointVector = [0, 0, 20000];
 GMAT Sat2InSat1LVLH.ViewDirection = Earth;
 GMAT Sat2InSat1LVLH.ViewScaleFactor = 0.1;
 GMAT Sat2InSat1LVLH.FixedFovAngle = 45;
