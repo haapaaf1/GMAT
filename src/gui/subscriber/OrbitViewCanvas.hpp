@@ -182,31 +182,34 @@ private:
    static const int UNKNOWN_OBJ_ID;// = -999;
    
    // error handling
-   bool    mFatalErrorFound;
-   // stars
+   bool mFatalErrorFound;
+   
+   // stars and options
    GLStars *mStars;
-   // star options
    int mStarCount;
    bool mDrawStars;
    bool mDrawConstellations;
    
-        // Coordinate Transformation Matrices
-        Rmatrix mCoordMatrix;
-        Real *mCoordData;
-
-        // OpenGL Context
+   // Coordinate Transformation Matrices
+   Rmatrix mCoordMatrix;
+   Real *mCoordData;
+   
+   // OpenGL Context
    wxGLContext *theContext;
    
    // initialization
    wxWindow *mParent;
    bool mGlInitialized;
-        #ifndef __USE_WX280_GL__
-   bool modelsAreLoaded;
-        #endif
+   bool mViewPointInitialized;
+   bool mOpenGLInitialized;
+   #ifndef __USE_WX280_GL__
+      bool modelsAreLoaded;
+   #endif
    wxString mPlotName;
    
    // camera
    Camera mCamera;
+   
    // light source
    Light mLight;
    
@@ -444,10 +447,12 @@ private:
    bool SetPixelFormatDescriptor();
    void SetDefaultGLFont();
    
-   // initialize
+   // view point
+   void SetDefaultViewPoint();
    void InitializeViewPoint();
    
    // for data buffer indexing
+   void ComputeBufferIndex(Real time);
    void ComputeActualIndex();
    
    // texture
