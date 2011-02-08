@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
-//                              
+//                        File: Rendering.hpp      
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -29,15 +30,15 @@ struct GlColorType
 
 void SetColor(GlColorType color, Byte red, Byte green, Byte blue);
 void DrawSphere(GLdouble radius, GLint slices, GLint stacks, GLenum style,
-                   GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_SMOOTH,
-                   GLenum textureCoords = GL_TRUE);
+                GLenum orientation = GLU_OUTSIDE, GLenum normals = GL_SMOOTH,
+                GLenum textureCoords = GL_TRUE);
 void DrawLine(GlColorType *color, Rvector3 start, Rvector3 end);
 void DrawLine(float red, float green, float blue, Rvector3 start, Rvector3 end);
 void DrawCube(float x, float y, float z);
 void DrawSpacecraft(float radius, GlColorType *color1, GlColorType *color2);
 void DrawEquatorialPlanes();
 void DrawCircle(GLUquadricObj *qobj, Real radius);
-void DrawStringAt(const wxString &str, GLfloat x, GLfloat y,
-                                  GLfloat z, GLfloat k);
+void DrawStringAt(const wxString &str, GLfloat x, GLfloat y, GLfloat z,
+                  GLfloat k);
 
 #endif
