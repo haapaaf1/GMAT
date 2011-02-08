@@ -760,6 +760,18 @@ void OrbitViewPanel::LoadData()
       mEnableConstellationsCheckBox->
          SetValue(mOrbitView->GetOnOffParameter("EnableConstellations") == "On");
       
+      // Update constellations and start count items
+      if (mEnableStarsCheckBox->GetValue())
+      {
+         mEnableConstellationsCheckBox->Enable();
+         mStarCountTextCtrl->Enable();
+      }
+      else
+      {
+         mEnableConstellationsCheckBox->Disable();
+         mStarCountTextCtrl->Disable();
+      }
+      
       #ifdef __ENABLE_GL_PERSPECTIVE__
       mPerspectiveModeCheckBox->
          SetValue(mOrbitView->GetOnOffParameter("PerspectiveMode") == "On");
@@ -1110,16 +1122,18 @@ void OrbitViewPanel::SaveData()
                    "ViewDirection[3]", "Real Number");
       }
    }
-   
+
+   // Since OrbitView base class automatically adds Sun for light source,
+   // We don't need this part (LOJ: 2011.02.07)
    // Check if Sun was added to draw Sun line
-   if (mOriginSunLineCheckBox->IsChecked() &&
-       mSelectedObjListBox->FindString("Sun") == wxNOT_FOUND)
-   {
-      MessageInterface::PopupMessage
-         (Gmat::WARNING_, "\"Sun\" needs to be added to the view object list "
-          "to draw Sun line");
-      canClose = false;
-   }
+//    if (mOriginSunLineCheckBox->IsChecked() &&
+//        mSelectedObjListBox->FindString("Sun") == wxNOT_FOUND)
+//    {
+//       MessageInterface::PopupMessage
+//          (Gmat::WARNING_, "\"Sun\" needs to be added to the view object list "
+//           "to draw Sun line");
+//       canClose = false;
+//    }
    
    if (!canClose)
       return;
@@ -1816,13 +1830,15 @@ void OrbitViewPanel::OnCheckBoxChange(wxCommandEvent& event)
    }
    else if (event.GetEventObject() == mEnableStarsCheckBox)
    {
-      if (mEnableStarsCheckBox->GetValue()){
+      if (mEnableStarsCheckBox->GetValue())
+      {
          mEnableConstellationsCheckBox->Enable();
          mStarCountTextCtrl->Enable();
       }
-      else {
+      else
+      {
          mEnableConstellationsCheckBox->Disable();
-         mEnableConstellationsCheckBox->SetValue(false);
+         //mEnableConstellationsCheckBox->SetValue(false);
          mStarCountTextCtrl->Disable();
       }
       mHasStarOptionChanged = true;
