@@ -22,7 +22,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_STRINGVAR
-#define DEBUG_GEN_STRING
+//#define DEBUG_GEN_STRING
 
 //---------------------------------
 // static data
