@@ -6906,6 +6906,14 @@ bool Interpreter::FinalPass()
    StringArray objList;
    
    objList = theModerator->GetListOfObjects(Gmat::UNKNOWN_OBJECT);
+   SolarSystem *ss = theModerator->GetSolarSystemInUse();
+   objList.push_back(ss->GetName());
+
+   StringArray theSSBodies = ss->GetBodiesInUse();
+   // Do this to treat SS bodies like all other objects:
+   for (UnsignedInt i = 0; i < theSSBodies.size(); ++i)
+      objList.push_back(theSSBodies[i]);
+
    
    #if DBGLVL_FINAL_PASS > 0 //------------------------------ debug ----
    MessageInterface::ShowMessage("FinalPass:: All object list =\n");
@@ -7385,9 +7393,10 @@ bool Interpreter::FinalPass()
    }
    
    // Validate the references used in the commands
-   try {
-   if (ValidateMcsCommands(theModerator->GetFirstCommand()) == false)
-      retval = false;;
+   try
+   {
+      if (ValidateMcsCommands(theModerator->GetFirstCommand()) == false)
+         retval = false;;
    }
    catch (BaseException &ex)
    {
