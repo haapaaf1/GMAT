@@ -239,14 +239,13 @@ void AtmosphereModel::SetCentralBodyVector(Real *cv)
 }
 
 //------------------------------------------------------------------------------
-// void SetUpdateParameters(wUpdateInterval, wUpdateEpoch)
+// void SetUpdateParameters(Real interval, GmatEpoch epoch)
 //------------------------------------------------------------------------------
 /**
- * This method...
+ * Sets the update interval and, if selected, and epoch to apply
  *
- * @param
- *
- * @return
+ * @param interval The update interval, in days
+ * @param epoch An update epoch
  */
 //------------------------------------------------------------------------------
 void AtmosphereModel::SetUpdateParameters(Real interval, GmatEpoch epoch)
@@ -256,6 +255,17 @@ void AtmosphereModel::SetUpdateParameters(Real interval, GmatEpoch epoch)
       UpdateAngularVelocity(epoch);
 }
 
+
+//------------------------------------------------------------------------------
+// void SetInternalCoordSystem(CoordinateSystem *cs)
+//------------------------------------------------------------------------------
+/**
+ * Sets the internal coordinate system used to construct the angular momentum
+ * vector
+ *
+ * @param cs The coordinate system
+ */
+//------------------------------------------------------------------------------
 void AtmosphereModel::SetInternalCoordSystem(CoordinateSystem *cs)
 {
    mInternalCoordSystem = cs;
@@ -265,11 +275,10 @@ void AtmosphereModel::SetInternalCoordSystem(CoordinateSystem *cs)
 // void SetFixedCoordinateSystem(CoordinateSystem *cs)
 //------------------------------------------------------------------------------
 /**
- * This method...
+ * Sets the body fixed coordinate system used to construct the angular momentum
+ * vector
  *
- * @param
- *
- * @return
+ * @param cs The coordinate system
  */
 //------------------------------------------------------------------------------
 void AtmosphereModel::SetFixedCoordinateSystem(CoordinateSystem *cs)
@@ -281,11 +290,16 @@ void AtmosphereModel::SetFixedCoordinateSystem(CoordinateSystem *cs)
 // Real* GetAngularVelocity(const Real when)
 //------------------------------------------------------------------------------
 /**
- * This method...
+ * Retrieves the angular momentum vector, optionally at a specified epoch
  *
- * @param
+ * @note This method return the pointer to a data member.  If that pointer is
+ * stored, subsequent updates will change the data pointed to so that the user
+ * need not refresh this data pointer
  *
- * @return
+ * @param when The epoch for the desired vector.  If not specified, the last
+ * calculated vector is returned
+ *
+ * @return A pointer to the angular momentum vector
  */
 //------------------------------------------------------------------------------
 Real* AtmosphereModel::GetAngularVelocity(const Real when)
@@ -299,11 +313,12 @@ Real* AtmosphereModel::GetAngularVelocity(const Real when)
 // void UpdateAngularVelocity(const Real when)
 //------------------------------------------------------------------------------
 /**
- * This method...
+ * Updates the angular momentum vector based on the input epoch.
  *
- * @param
+ * Updates are only performed if the update epoch is outside of the update
+ * interval period.
  *
- * @return
+ * @param when The epoch (in a.1 ModJulian format) of the desired update
  */
 //------------------------------------------------------------------------------
 void AtmosphereModel::UpdateAngularVelocity(const Real when)
@@ -328,6 +343,7 @@ void AtmosphereModel::UpdateAngularVelocity(const Real when)
          angVel[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) +
                rotMat(2,1)*rotDotMat(2,0);
 
+         // todo Replace with the value obtained from the solar system
          Real w = //7.29211585530e-5;
                   7.292115111638994e-05;
 
@@ -369,11 +385,6 @@ void AtmosphereModel::UpdateAngularVelocity(const Real when)
          #endif
       }
    }
-
-//// @todo TEMPORARY Hard code values from Steve
-//angVel[0] = 2.9633547862655779e-008;
-//angVel[1] = 2.32587547796353e-009;
-//angVel[2] = 7.29211450580871e-005;
 }
 
 
@@ -381,11 +392,7 @@ void AtmosphereModel::UpdateAngularVelocity(const Real when)
 // void SetKpApConversionMethod(Integer method)
 //------------------------------------------------------------------------------
 /**
- * This method...
- *
- * @param
- *
- * @return
+ * Selects the Kp -> Ap conversion method
  */
 //------------------------------------------------------------------------------
 void AtmosphereModel::SetKpApConversionMethod(Integer method)
