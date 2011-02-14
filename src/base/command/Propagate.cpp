@@ -1398,6 +1398,13 @@ bool Propagate::TakeAction(const std::string &action,
       }
       return true;
    }
+   else if (action == "IsInFunction")
+   {
+      if (GetCurrentFunction() == NULL)
+         return false;
+      else
+         return true;
+   }
    
    return GmatCommand::TakeAction(action, actionData);
 }
