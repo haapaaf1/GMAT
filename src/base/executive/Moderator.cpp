@@ -1542,6 +1542,9 @@ bool Moderator::RenameObject(Gmat::ObjectType type, const std::string &oldName,
       }
    }
    
+   #if DEBUG_RENAME
+   MessageInterface::ShowMessage("   Calling theConfigManager->RenameItem()\n");
+   #endif
    bool renamed = theConfigManager->RenameItem(type, oldName, newName);
    
    //--------------------------------------------------
@@ -1561,17 +1564,21 @@ bool Moderator::RenameObject(Gmat::ObjectType type, const std::string &oldName,
    {
       typeName = cmd->GetTypeName();
       #if DEBUG_RENAME
-      MessageInterface::ShowMessage("--typeName=%s\n", typeName.c_str());
+      MessageInterface::ShowMessage
+         ("...typeName=%12s, '%s'\n", typeName.c_str(),
+          cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
       #endif
       
       renamed = cmd->RenameRefObject(type, oldName, newName);
       child = cmd->GetChildCommand(0);
-
+      
       while (renamed && (child != NULL) && (child != cmd))
       {
          typeName = child->GetTypeName();
          #if DEBUG_RENAME
-         MessageInterface::ShowMessage("----typeName=%s\n", typeName.c_str());
+         MessageInterface::ShowMessage
+            ("......typeName=%12s, '%s'\n", typeName.c_str(),
+             cmd->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
          #endif
          if (typeName.find("End") == typeName.npos)
             renamed = child->RenameRefObject(type, oldName, newName);
@@ -5255,6 +5262,10 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
       }
       
       // for creating ElementWrapper
+      #if DEBUG_DEFAULT_COMMAND
+      MessageInterface::ShowMessage
+         ("   Moderator calling theScriptInterpreter->ValidateCommand()\n");
+      #endif
       theScriptInterpreter->ValidateCommand(cmd);
       
    }
@@ -5266,7 +5277,7 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
    
    #if DEBUG_DEFAULT_COMMAND
    MessageInterface::ShowMessage
-      ("Moderator::CreateDefaultCommand() returning cmd=%s\n",
+      ("Moderator::CreateDefaultCommand() returning cmd=<%p><%s>\n", cmd,
        cmd->GetTypeName().c_str());
    #endif
    
@@ -7843,6 +7854,7 @@ Subscriber* Moderator::GetDefaultSubscriber(const std::string &type, bool addObj
       sub->SetStringParameter("Add", "DefaultSC");
       sub->SetStringParameter("Add", "Earth");
       sub->SetStringParameter("CoordinateSystem", "EarthMJ2000Eq");
+      sub->SetStringParameter("ViewPointVector", "[30000 0 0]");
       sub->Activate(true);
    }
    else if (type == "XYPlot")
