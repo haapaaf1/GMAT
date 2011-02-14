@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              Msise90Atmosphere
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -70,7 +70,7 @@ Msise90Atmosphere::~Msise90Atmosphere()
 /**
  *  Copy constructor.
  *
- * @param <msise> MSISE90 object to copy increating the new one.
+ * @param <msise> MSISE90 object to copy in creating the new one.
  */
 //------------------------------------------------------------------------------
 Msise90Atmosphere::Msise90Atmosphere(const Msise90Atmosphere& msise) :
@@ -114,7 +114,7 @@ Msise90Atmosphere& Msise90Atmosphere::operator=(const Msise90Atmosphere& msise)
    f107a        = msise.f107a;
    mass         = msise.mass;
    
-        for (Integer i = 0; i < 7; i++)
+   for (Integer i = 0; i < 7; i++)
       ap[i] = msise.ap[i];
       
    return *this;
@@ -139,12 +139,8 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
    Integer i, i6;
    Real    alt;
   
-   Real    lon;     // longitude
    Real    lst;     // Local apparent solar time (Hrs)
-   Real    radlat, lat, geolat, rad, geoRad, arg;
-   Real    den[8], temp[2], rad2deg = 180.0 / M_PI, ra;
-   Real    flatteningFactor = 1.0 / 298.257223563;  // WGS-84
-   Real    geodesicFactor = 6378.137 * (1.0 - flatteningFactor);
+   Real    den[8], temp[2];
    
    #ifdef DEBUG_MSISE90_ATMOSPHERE
    logFile = fopen("GMAT-MSISE90.txt", "w");
@@ -154,80 +150,45 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       throw AtmosphereException(
          "Central body pointer not set in MSISE90 model.");
 
-   Real gha = mCentralBody->GetHourAngle(epoch);
-
    GetInputs(epoch);
 
    for (i = 0; i < count; ++i) 
    {
       i6 = i*6;
       mass = 48;
-      
-      //--------------------------------------------------
-      // Longitude
-      //--------------------------------------------------
-      // Get spacecraft RightAscension
-      ra = atan2(pos[i6+1], pos[i6]) * rad2deg;
 
-      // Compute east longitude
-      lon = ra - gha;
+      alt = CalculateGeodetics(&pos[i6], true);
+      lst = sod/3600.0 + geoLong/15.0; //lon/15.0;
 
-      // Range check because the lst calculation needs 0 < lon < 360
-      if (lon < 0.0) lon += 360.0;
-      if (lon > 360.0) lon -= 360.0;
 
-      lat = atan2(pos[i6+2], sqrt(pos[i6]*pos[i6] + pos[i6+1]*pos[i6+1]))
-               * rad2deg;
+      #ifdef DEBUG_GEODETICS
+         MessageInterface::ShowMessage("Diffs:\n");
+         MessageInterface::ShowMessage("   Height:    %.12lf vs %.12lf\n", geoHeight, alt);
+         MessageInterface::ShowMessage("   Latitude:  %.12lf vs %.12lf\n", geoLat, geolat);
+         MessageInterface::ShowMessage("   Longitude: %.12lf vs %.12lf\n", geoLong, lon);
+      #endif
 
-      // // compute Local Sidereal Time (LST = GMST + Longitude)
-      // // according to Vallado Eq. 3-41
-      // Real gmst = -gha;
-      // lst = gmst + lon;
-      //
-      // // convert it to hours (1h = 15 deg according to Vallado 3.5)
-      // lst /= 15.0;
-
-      // Calculate lst as documented in the FORTRAN code
-      lst = sod/3600.0 + lon/15.0;
-
-      rad = sqrt(pos[ i6 ]*pos[ i6 ] +
-                 pos[i6+1]*pos[i6+1] +
-                 pos[i6+2]*pos[i6+2]);
-                 
-      // Now geodetic latitude
-      arg = pos[i6+2] / rad;
-      arg = ((fabs(arg) <= 1.0) ? arg : arg / fabs(arg));
-      radlat = M_PI / 2.0 - acos(arg);
-      
-      // Convert to geodetic latitude, in degrees
-      radlat += flatteningFactor * sin(2.0 * radlat);
-      geolat = radlat * 180.0 / M_PI;
-
-      // Geodetic altitude
-      geoRad = geodesicFactor / sqrt(1.0 - (2.0 - flatteningFactor) *
-                                flatteningFactor * cos(radlat) * cos(radlat));
-      alt = rad - geoRad;
-      
       #ifdef DEBUG_MSISE90_ATMOSPHERE
          MessageInterface::ShowMessage(
-            "   Radius = %15.9lf\n   GeodesicRad = %15.9lf\n  "
-            "GeodesicLat = %lf\n", rad, geoRad, geolat);      
+               "   GeodeticLat = %lf\n", geoLat);
       #endif
       
       #ifdef DEBUG_MSISE90_ATMOSPHERE
          MessageInterface::ShowMessage(
             "Calculating MSISE90 Density from parameters:\n   "
-            "yd = %d\n   sod = %lf   alt = %lf\n   lat = %lf\n   lon = %lf\n"
-            "   lst = %lf\n   f107a = %lf\n   f107 = %lf\n   ap = "
-            "[%lf %lf %lf %lf %lf %lf %lf]\n", yd, sod, alt, geolat, lon, lst,
-            f107a, f107, ap[0], ap[1], ap[2], ap[3], ap[4], ap[5], ap[6]);
+            "yd = %d\n   sod = %.12lf\n   alt = %.12lf\n   lat = %.12lf\n   "
+            "lon = %.12lf\n   lst = %.12lf\n   f107a = %.12lf\n   "
+            "f107 = %.12lf\n   ap = [%.12lf %.12lf %.12lf %.12lf %.12lf "
+            "%.12lf %.12lf]\n   w = [%.12le %.12le %.12le]\n", yd, sod,
+            geoHeight, geoLat, geoLong, lst, f107a, f107, ap[0], ap[1], ap[2],
+            ap[3], ap[4], ap[5], ap[6], angVel[0], angVel[1], angVel[2]);
       #endif
       
       int xyd = yd;
       float xsod = sod;
-      float xalt = alt;
-      float xlat = geolat; // Geodetic Latitude
-      float xlon = lon;
+      float xalt = geoHeight; //alt;
+      float xlat = geoLat; // Geodetic Latitude
+      float xlon = geoLong; //lon;
       float xlst = lst;
       float xf107a = f107a;
       float xf107 = f107;
@@ -260,7 +221,7 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       fprintf(logFile, "Geomagnetic index[4]   = %le \n", xap[4]);
       fprintf(logFile, "Geomagnetic index[5]   = %le \n", xap[5]);
       fprintf(logFile, "Geomagnetic index[6]   = %le \n", xap[6]);
-      fprintf(logFile, "Mass                   = %le \n", xmass);
+      fprintf(logFile, "Mass                   = %d \n", xmass);
       fprintf(logFile, "HE Number Density      = %le \n", xden[0]);
       fprintf(logFile, "O Number Density       = %le \n", xden[1]);
       fprintf(logFile, "N2 Number Density      = %le \n", xden[2]);
@@ -275,7 +236,8 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       #endif
       
 #ifndef __SKIP_MSISE90__
-      gtd6_(&xyd,&xsod,&xalt,&xlat,&xlon,&xlst,&xf107a,&xf107,&xap[0],&xmass,&xden[0],&xtemp[0]);
+      gtd6_(&xyd,&xsod,&xalt,&xlat,&xlon,&xlst,&xf107a,&xf107,&xap[0],&xmass,
+            &xden[0],&xtemp[0]);
 #endif
       
       #ifdef DEBUG_MSISE90_ATMOSPHERE
@@ -297,7 +259,7 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       fprintf(logFile, "Geomagnetic index[4]   = %le \n", xap[4]);
       fprintf(logFile, "Geomagnetic index[5]   = %le \n", xap[5]);
       fprintf(logFile, "Geomagnetic index[6]   = %le \n", xap[6]);
-      fprintf(logFile, "Mass                   = %le \n", xmass);
+      fprintf(logFile, "Mass                   = %d \n", xmass);
       fprintf(logFile, "HE Number Density      = %le \n", xden[0]);
       fprintf(logFile, "O Number Density       = %le \n", xden[1]);
       fprintf(logFile, "N2 Number Density      = %le \n", xden[2]);
@@ -314,10 +276,10 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       
       yd = xyd;
       sod = xsod;
-      alt = xalt;
-      lat = xlat;
-      lon = xlon;
-      lst = xlst;
+//      alt = xalt;
+//      lat = xlat;
+//      lon = xlon;
+//      lst = xlst;
       f107a = xf107a;
       f107 = xf107;
       mass = xmass;
@@ -361,7 +323,18 @@ void Msise90Atmosphere::GetInputs(Real epoch)
     Integer doy = iEpoch - (Integer)(yearOffset * 365.25) + 5;
 
     sod  = 86400.0 * (epoch - iEpoch + 0.5);  // Includes noon/midnight adjustment
-    sod = (sod < 0.0 ? sod + 86400.0 : sod);
+    if (sod < 0.0)
+    {
+       sod += 86400.0;
+       doy -= 1;
+    }
+
+    if (sod > 86400.0)
+    {
+       sod -= 86400.0;
+       doy += 1;
+    }
+
     yd   = year * 1000 + doy;
 
     if (fileData) {

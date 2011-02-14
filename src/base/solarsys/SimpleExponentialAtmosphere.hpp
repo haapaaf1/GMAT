@@ -71,8 +71,6 @@ protected:
    /// Flag to toggle between geocentric and goedesic altitude calculations
    bool                    geocentricAltitude;
     
-   Real                    CalculateHeight(Real *loc);
-
    virtual GmatBase*       Clone() const; // inherited from GmatBase
 
 private:

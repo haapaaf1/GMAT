@@ -76,6 +76,8 @@
 //#define DEBUG_MASS_FLOW
 //#define DEBUG_REORIGIN
 //#define DEBUG_ERROR_ESTIMATE
+//#define DUMP_TOTAL_DERIVATIVE
+
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -1224,6 +1226,7 @@ bool ODEModel::Initialize()
 
          if ((*current)->IsOfType("DragForce"))
          {
+            SetInternalCoordinateSystem("InputCoordinateSystem", (*current));
             SetInternalCoordinateSystem("FixedCoordinateSystem", (*current));
          }
       }
@@ -2056,14 +2059,22 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
       MessageInterface::ShowMessage(
                "End of GetDeriv; State with dimension %d = [", dimension);
       for (Integer i = 0; i < dimension-1; ++i) //< state->GetSize()-1; ++i)
-         MessageInterface::ShowMessage("%le, ", state[i]); //(*state)[i]);
-      MessageInterface::ShowMessage("%le]\n", state[dimension-1]); //(*state)[state->GetSize()-1]);
+         MessageInterface::ShowMessage("%.12le, ", state[i]); //(*state)[i]);
+      MessageInterface::ShowMessage("%.12le]\n", state[dimension-1]); //(*state)[state->GetSize()-1]);
 
       MessageInterface::ShowMessage(
                "   Derivative = [");
       for (Integer i = 0; i < dimension-1; ++i) //< state->GetSize()-1; ++i)
-         MessageInterface::ShowMessage("%le, ", deriv[i]); //(*state)[i]);
-      MessageInterface::ShowMessage("%le]\n", deriv[dimension-1]); //(*state)[state->GetSize()-1]);
+         MessageInterface::ShowMessage("%.12le, ", deriv[i]); //(*state)[i]);
+      MessageInterface::ShowMessage("%.12le]\n", deriv[dimension-1]); //(*state)[state->GetSize()-1]);
+   #endif
+
+   #ifdef DUMP_TOTAL_DERIVATIVE
+      MessageInterface::ShowMessage(
+               "   Derivative = [");
+      for (Integer i = 0; i < dimension-1; ++i) //< state->GetSize()-1; ++i)
+         MessageInterface::ShowMessage("%.12le, ", deriv[i]); //(*state)[i]);
+      MessageInterface::ShowMessage("%.12le]\n", deriv[dimension-1]); //(*state)[state->GetSize()-1]);
    #endif
 
    return true;

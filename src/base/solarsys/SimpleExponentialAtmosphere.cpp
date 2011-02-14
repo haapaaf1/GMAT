@@ -137,7 +137,7 @@ bool SimpleExponentialAtmosphere::Density(Real *position, Real *density, Real ep
       loc[1] = position[i*6+1] - centralBodyLocation[1];
       loc[2] = position[i*6+2] - centralBodyLocation[2];
         
-      height = CalculateHeight(loc);
+      height = CalculateGeodetics(loc);
       if (height < 0.0)
          throw AtmosphereException("Exponential atmosphere: Position vector is "
                "inside central body");
@@ -150,54 +150,6 @@ bool SimpleExponentialAtmosphere::Density(Real *position, Real *density, Real ep
    }
     
    return true;
-}
-
-
-//------------------------------------------------------------------------------
-// Real CalculateHeight(Real *loc)
-//------------------------------------------------------------------------------
-/**
- * Calculates the altitude used for the density calculation.
- * 
- * @param loc  The position vector pointing from the body with the atmosphere
- *             to the point of interest (typically a spacecraft location).
- * 
- * @return The height above the body's reference ellipsoid.
- */
-//------------------------------------------------------------------------------
-Real SimpleExponentialAtmosphere::CalculateHeight(Real *loc)
-{
-   Real mag = sqrt(loc[0]*loc[0] + loc[1]*loc[1] + loc[2]*loc[2]);
-   Real cbr = cbRadius;
-
-   #ifdef DEBUG_DENSITY
-      MessageInterface::ShowMessage("   Loc: [%lf %lf %lf]\n   "
-            "Flattening: %lf\n   Radius: %lf\n   Rmag = %lf\n", loc[0], loc[1],
-            loc[2], cbFlattening, cbRadius, mag);
-   #endif
-
-   if (!geocentricAltitude && (cbFlattening != 0.0))
-   {
-      Real phi, cos_phi;
-
-      // Compute the geocentric latitude in radians
-      // (atan2() is safer than atan() since it avoids division by 0)
-
-      phi = atan2(loc[2], sqrt(loc[0]*loc[0] + loc[1]*loc[1]));
-
-      // Compute the cosine of phi
-      cos_phi = cos(phi);
-
-      // Return the geodetic height
-      cbr = cbRadius * (1.0 - cbFlattening) /
-            sqrt(1 - cbFlattening * (2.0 - cbFlattening) * cos_phi * cos_phi);
-   }
-
-   #ifdef DEBUG_DENSITY
-      MessageInterface::ShowMessage("   CBR = %lf\n   Height = %lf\n", cbr,
-            mag - cbr);
-   #endif
-   return mag - cbr;
 }
 
 

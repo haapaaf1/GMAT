@@ -83,12 +83,28 @@ public:
                                            const std::string &value);
    virtual bool         SetStringParameter(const std::string &label, 
                                            const std::string &value);
+   virtual Integer      GetIntegerParameter(const Integer id) const;
+   virtual Integer      SetIntegerParameter(const Integer id,
+                                            const Integer value);
+   virtual Integer      GetIntegerParameter(const Integer id,
+                                            const Integer index) const;
+   virtual Integer      SetIntegerParameter(const Integer id,
+                                            const Integer value,
+                                            const Integer index);
+   virtual Integer      GetIntegerParameter(const std::string &label) const;
+   virtual Integer      SetIntegerParameter(const std::string &label,
+                                            const Integer value);
+   virtual Integer      GetIntegerParameter(const std::string &label,
+                                            const Integer index) const;
+   virtual Integer      SetIntegerParameter(const std::string &label,
+                                            const Integer value,
+                                            const Integer index);
+
    virtual GmatBase*    GetRefObject(const Gmat::ObjectType type,
                                      const std::string &name);
    virtual bool         SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
                                      const std::string &name = "");
-   
-   
+
    // Special access methods used by drag forces
    bool                 SetInternalAtmosphereModel(AtmosphereModel* atm);
    AtmosphereModel*     GetInternalAtmosphereModel();
@@ -109,7 +125,7 @@ protected:
    /// Position of the body with the atmosphere
    Real                 cbLoc[3];
    /// Angular velocity of the central body
-   Real                 angVel[3];
+   Real                 *angVel;
    /// Flag to indicate if the atmosphere model is externally owned or internal
    bool                 useExternalAtmosphere;
    /// Name of the atmosphere model we want to use
@@ -143,14 +159,21 @@ protected:
    /// Epoch of last angular momentum update
    Real                 wUpdateEpoch;
    
+   /// ID used to retrieve mass data
    Integer massID;
+   /// ID used to retrieve coefficient of drag
    Integer cdID;
+   /// ID used to retrieve drag area
    Integer areaID;
+   /// ID used to set F10.7
+   Integer F107ID;
+   /// ID used to set F10.7A
+   Integer F107AID;
+   /// ID used to set Geomagnetic index
+   Integer KPID;
 
 
    // Optional input parameters used by atmospheric models
-   /// Name of the body with the atmosphere
-   //std::string         bodyName;
    /// Type of input data -- "File" or "Constant"
    std::string          dataType;
    /// Solar flux file name
@@ -170,6 +193,10 @@ protected:
    bool                 fillCartesian;
    /// CS used to get the w cross r piece
    CoordinateSystem     *cbFixed;
+   /// CS used to for conversions
+   CoordinateSystem     *internalCoordSystem;
+   /// Index used to select Kp/Ap conversion method.  Default is a table lookup
+   Integer              kpApConversion;
 
 
    
@@ -192,6 +219,7 @@ protected:
       MAGNETIC_INDEX,
       FIXED_COORD_SYSTEM,
       W_UPDATE_INTERVAL,
+      KP2AP_METHOD,
       DragForceParamCount
    };
    

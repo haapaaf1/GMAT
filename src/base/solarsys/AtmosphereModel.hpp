@@ -69,6 +69,13 @@ public:
    void SetCentralBodyVector(Real *cv);
    virtual void SetSolarSystem(SolarSystem *ss);
    void SetCentralBody(CelestialBody *cb);
+   void SetUpdateParameters(Real interval, GmatEpoch epoch = -1.0);
+   virtual void SetInternalCoordSystem(CoordinateSystem *cs);
+   void SetFixedCoordinateSystem(CoordinateSystem *cs);
+   Real* GetAngularVelocity(const Real when = -1.0);
+   void UpdateAngularVelocity(const Real when);
+   void SetKpApConversionMethod(Integer method);
+   Real ConvertKpToAp(const Real kp);
 
    // Methods overridden from GmatBase
    virtual std::string GetParameterText(const Integer id) const;
@@ -122,8 +129,36 @@ protected:
    Real                    nominalKp;
    /// Nominal geomagnetic planetary amplitude, calculated via Vallado eq. 8-31.
    Real                    nominalAp;
+   /// Index used to select Kp/Ap conversion method.  Default is a table lookup
+   Integer                 kpApConversion;
+   /// Internal coordinate system used for conversions
+   CoordinateSystem        *mInternalCoordSystem;
+   /// Body fixed CS for the central body
+   CoordinateSystem        *cbFixed;
+   /// Angular velocity of the central body
+   Real                    angVel[3];
+   /// Update interval for the angular momentum vector
+   Real                    wUpdateInterval;
+   /// Most recent update epoch for the angular momentum
+   GmatEpoch               wUpdateEpoch;
+   /// Most recent geodetic height calculated
+   Real                    geoHeight;
+   /// Most recent geodetic latitude calculated
+   Real                    geoLat;
+   /// Most recent geodetic longitude calculated
+   Real                    geoLong;
+   /// Most recent GHA calculated
+   Real                    gha;
+   /// GHA epoch
+   Real                    ghaEpoch;
+
+   /// Conversion routines to go to the fixed frame
+//   CoordinateConverter     mCoordConverter;
+
    
-   Real                    ConvertKpToAp(const Real kp);
+   Real                    CalculateGeodetics(Real *position,
+                                 bool includeLatLong = false,
+                                 GmatEpoch when = -1.0);
 
    enum {
       NOMINAL_FLUX = GmatBaseParamCount,
