@@ -3312,6 +3312,10 @@ void ResourceTree::OnAddScript(wxCommandEvent &event)
       wxString path = dialog.GetPath().c_str();
       AddScript(path);
    }
+   else
+   {
+      mScriptAdded = false;
+   }
 }
 
 
