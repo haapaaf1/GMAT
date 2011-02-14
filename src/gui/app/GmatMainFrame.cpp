@@ -284,6 +284,7 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    mTempScriptName = "$gmattempscript$.script";
    mScriptFilename = mTempScriptName;
    mAnimationFrameInc = 1;
+   mAnimationEnabled = true;
    mInterpretFailed = false;
    mExitWithoutConfirm = false;
    mRunStatus = 0;
@@ -1538,7 +1539,8 @@ Integer GmatMainFrame::RunCurrentMission()
    #endif
 
    Integer retval = 1;
-
+   mAnimationEnabled = true;
+   
    // We don't want to write out script error message since users can start
    // brand new mission from the GUI when script errors occur.
    // So exclude it until we revisit this. Changed the code while looking
@@ -1784,6 +1786,19 @@ wxStatusBar* GmatMainFrame::GetMainFrameStatusBar()
    return GetStatusBar();
 }
 
+
+//------------------------------------------------------------------------------
+// void EnableAnimation(bool enable)
+//------------------------------------------------------------------------------
+void GmatMainFrame::EnableAnimation(bool enable)
+{
+   #ifdef DEBUG_ANIMATION
+   MessageInterface::ShowMessage("GmatMainFrame::EnableAnimation() entered.\n");
+   #endif
+   
+   mAnimationEnabled = enable;
+}
+
 //-------------------------------
 // private methods
 //-------------------------------
@@ -1988,13 +2003,12 @@ void GmatMainFrame::OpenRecentScript(size_t index, wxCommandEvent &event)
    wxString aFilename;
    wxString aKey;
    std::string s;
-   long dummy;
-
+   
    // get the files from the personalization config
    // get the config object
    wxConfigBase *pConfig = GmatAppData::Instance()->GetPersonalizationConfig();
    pConfig->SetPath(wxT("/RecentFiles"));
-
+   
    // read filenames from config object
    aKey = wxString::Format(wxT("%d"), (int) index);
    aFilename = pConfig->Read(aKey);
@@ -3036,7 +3050,7 @@ void GmatMainFrame::OnOpenScript(wxCommandEvent& event)
 {
    GmatAppData *gmatAppData = GmatAppData::Instance();
    gmatAppData->GetResourceTree()->OnAddScript(event);
-
+   
    if (gmatAppData->GetResourceTree()->WasScriptAdded())
    {
       #ifdef DEBUG_OPEN_SCRIPT
@@ -4497,7 +4511,22 @@ void GmatMainFrame::OnAnimation(wxCommandEvent& event)
    MessageInterface::ShowMessage
       ("===> Now start animation of %s\n", frame->GetPlotName().c_str());
    #endif
-
+   
+   if (!mAnimationEnabled)
+   {
+      wxString msg = "*** WARNING *** This plot data was published inside a "
+         "function, so repainting or drawing animation is disabled.\n";
+      MessageInterface::ShowMessage(msg.c_str());
+      wxToolBar* toolBar = GetToolBar();
+      toolBar->ToggleTool(TOOL_ANIMATION_PLAY, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_PLAY, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_STOP, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_FAST, false);
+      toolBar->EnableTool(GmatMenu::TOOL_ANIMATION_SLOW, false);
+      mAnimationEnabled = true;
+      return;
+   }
+   
    switch (event.GetId())
    {
    case TOOL_ANIMATION_PLAY:

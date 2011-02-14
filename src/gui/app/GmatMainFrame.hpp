@@ -96,6 +96,8 @@ public:
    wxToolBar* GetMainFrameToolBar();
    wxStatusBar* GetMainFrameStatusBar();
    
+   void EnableAnimation(bool enable = true);
+   
    // event handling
    void OnClose(wxCloseEvent& event);
    void OnProjectNew(wxCommandEvent &event);
@@ -195,6 +197,7 @@ protected:
 
 private:
    int  mAnimationFrameInc;
+   bool mAnimationEnabled;
    bool mRunPaused;
    bool mRunCompleted;
    bool mInterpretFailed;

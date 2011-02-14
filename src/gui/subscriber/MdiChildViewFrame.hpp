@@ -93,7 +93,7 @@ public:
    virtual void OnClearPlot(wxCommandEvent& event);
    virtual void OnChangeTitle(wxCommandEvent& event);
    virtual void OnShowDefaultView(wxCommandEvent& event);
-
+   
    // from GL option dialog
    virtual void OnDrawWireFrame(wxCommandEvent& event);
    virtual void OnDrawXyPlane(wxCommandEvent& event);
@@ -108,30 +108,31 @@ public:
    
    // drawing
    virtual void SetGlObject(const StringArray &objNames,
-                    const UnsignedIntArray &objOrbitColors,
-                    const std::vector<SpacePoint*> &objArray);
+                            const UnsignedIntArray &objOrbitColors,
+                            const std::vector<SpacePoint*> &objArray);
    
    virtual void SetGlCoordSystem(CoordinateSystem *internalCs,
-                         CoordinateSystem *viewCs,
-                         CoordinateSystem *viewUpCs);
+                                 CoordinateSystem *viewCs,
+                                 CoordinateSystem *viewUpCs);
    
    virtual void SetGlViewOption(SpacePoint *vpRefObj, SpacePoint *vpVecObj,
-                        SpacePoint *vdObj, Real vsFactor,
-                        const Rvector3 &vpRefVec, const Rvector3 &vpVec,
-                        const Rvector3 &vdVec, const std::string &upAxis,
-                        bool usevpRefVec, bool usevpVec, bool usevdVec,
-                        bool useFixedFov, Real fov);
+                                SpacePoint *vdObj, Real vsFactor,
+                                const Rvector3 &vpRefVec, const Rvector3 &vpVec,
+                                const Rvector3 &vdVec, const std::string &upAxis,
+                                bool usevpRefVec, bool usevpVec, bool usevdVec,
+                                bool useFixedFov, Real fov);
    
    virtual void SetGlDrawOrbitFlag(const std::vector<bool> &drawArray);
    virtual void SetGlShowObjectFlag(const std::vector<bool> &showArray);
    virtual void SetGlUpdateFrequency(Integer updFreq);
    
    virtual void UpdatePlot(const StringArray &scNames, const Real &time,
-                   const RealArray &posX, const RealArray &posY,
-                   const RealArray &posZ, const RealArray &velX,
-                   const RealArray &velY, const RealArray &velZ,
-                   const UnsignedIntArray &scColors, bool solving,
-                   Integer solverOption, bool updateCanvas);
+                           const RealArray &posX, const RealArray &posY,
+                           const RealArray &posZ, const RealArray &velX,
+                           const RealArray &velY, const RealArray &velZ,
+                           const UnsignedIntArray &scColors, bool solving,
+                           Integer solverOption, bool updateCanvas,
+                           bool inFunction = false);
    virtual void TakeAction(const std::string &action);
    virtual void RefreshPlot();
    virtual void SetEndOfRun();
@@ -146,6 +147,7 @@ protected:
    wxString mPlotName;
    wxString mPlotTitle;
    bool mOverlapPlot;
+   bool mInFunction;
    
    wxArrayString mBodyNames;
    UnsignedIntArray mBodyColors;

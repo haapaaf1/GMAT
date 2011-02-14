@@ -142,8 +142,7 @@ using namespace FloatAttUtil;
 //#define DEBUG_ANIMATION 1
 //#define DEBUG_LONGITUDE 1
 //#define DEBUG_SHOW_SKIP 1
-//#define DEBUG_ROTATE 1
-//#define DEBUG_ROTATE_BODY 1
+//#define DEBUG_ROTATE_BODY 2
 //#define DEBUG_DATA_BUFFERRING
 //#define DEBUG_ORBIT_LINES
 
@@ -204,6 +203,8 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
    mPlotName = name;
    mParent = parent;
    mFatalErrorFound = false;
+   mInFunction = false;
+   mWriteRepaintDisalbedInfo = true;
    
    // Linux specific
    #ifdef __WXGTK__
@@ -458,7 +459,7 @@ bool OrbitViewCanvas::InitOpenGL()
    
 #endif
 
-        #ifdef __USE_WX280_GL__
+   #ifdef __USE_WX280_GL__
    SetCurrent(*theContext);
    #else
    SetCurrent();
@@ -475,10 +476,9 @@ bool OrbitViewCanvas::InitOpenGL()
    
    // font
    SetDefaultGLFont();
-
+   
    mShowMaxWarning = true;
    mIsAnimationRunning = false;
-   
    mOpenGLInitialized = true;
    
    return true;
@@ -570,7 +570,6 @@ void OrbitViewCanvas::SetEndOfRun(bool flag)
           "y=%f, mFinalMha=%f, mFinalLongitude=%f, mFinalLst=%f\n",
           mInitialLongitude, time, x, y, mha, longitudeFinal, lst);
       #endif
-
    }
 }
 
@@ -668,6 +667,8 @@ void OrbitViewCanvas::ResetPlotInfo()
    mIsEndOfData = false;
    mIsEndOfRun = false;
    mWriteWarning = true;
+   mInFunction = false;
+   mWriteRepaintDisalbedInfo = true;
    
 #ifndef __USE_WX280_GL__
    modelsAreLoaded = false;
@@ -911,6 +912,9 @@ void OrbitViewCanvas::ViewAnimation(int interval, int frameInc)
       ("OrbitViewCanvas::ViewAnimation() interval=%d, frameInc=%d\n",
        interval, frameInc);
    #endif
+   
+   if (mIsEndOfData && mInFunction)
+      return;
    
    this->SetFocus(); // so that it can get key interrupt
    mIsAnimationRunning = true;
@@ -1326,11 +1330,7 @@ void OrbitViewCanvas::SetUpdateFrequency(Integer updFreq)
 
 
 //------------------------------------------------------------------------------
-// void UpdatePlot(const StringArray &scNames, const Real &time,
-//                 const RealArray &posX, const RealArray &posY,
-//                 const RealArray &posZ, const RealArray &velX,
-//                 const RealArray &velY, const RealArray &velZ,
-//                 const UnsignedIntArray &scColors)
+// void UpdatePlot(const StringArray &scNames, const Real &time, ...
 //------------------------------------------------------------------------------
 /**
  * Updates spacecraft trajectory. Position and velocity should be in view
@@ -1350,6 +1350,7 @@ void OrbitViewCanvas::SetUpdateFrequency(Integer updFreq)
  *           0 (Subscriber::SI_ALL)     = Draw all iteration
  *           1 (Subscriber::SI_CURRENT) = Draw current iteration only
  *           2 (Subscriber::SI_NONE)    = Draw no iteration
+ * @param <inFunction> true if data is published inside a function
  */
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
@@ -1357,10 +1358,13 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
                                  const RealArray &posZ, const RealArray &velX,
                                  const RealArray &velY, const RealArray &velZ,
                                  const UnsignedIntArray &scColors, bool solving,
-                                 Integer solverOption)
+                                 Integer solverOption, bool inFunction)
 {
-   mTotalPoints++;
+   if (IsFrozen())
+      Thaw();
    
+   mTotalPoints++;
+   mInFunction = inFunction;   
    mDrawSolverData = false;
    
    //-----------------------------------------------------------------
@@ -1390,8 +1394,9 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
       ("===========================================================================\n");
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::UpdatePlot() plot=%s, time=%f, posX=%f, mNumData=%d, "
-       "mScCount=%d, scColor=%u, solving=%d, solverOption=%d\n", GetName().c_str(),
-       time, posX[0], mNumData, mScCount, scColors[0], solving, solverOption);
+       "mScCount=%d, scColor=%u, solving=%d, solverOption=%d, inFunction=%d\n",
+       GetName().c_str(), time, posX[0], mNumData, mScCount, scColors[0], solving,
+       solverOption, inFunction);
    #endif
    
    
@@ -1641,7 +1646,7 @@ int OrbitViewCanvas::ReadTextTrajectory(const wxString &filename)
  */
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::OnPaint(wxPaintEvent& event)
-{   
+{
    // must always be here
    wxPaintDC dc(this);
    
@@ -1708,6 +1713,21 @@ void OrbitViewCanvas::OnPaint(wxPaintEvent& event)
       hasBeenPainted = true;
    #endif
    
+   if (mIsEndOfRun && mInFunction)
+   {
+      if (mWriteRepaintDisalbedInfo)
+      {
+         Freeze();
+         wxString msg = "*** WARNING *** This plot data was published inside a "
+            "function, so repainting or drawing animation is disabled.\n";
+         MessageInterface::ShowMessage(msg.c_str());
+         GmatAppData::Instance()->GetMainFrame()->EnableAnimation(false);
+         
+         mWriteRepaintDisalbedInfo = false;
+      }
+      return;
+   }
+   
    DrawPlot();
 }
 
@@ -1763,10 +1783,13 @@ void OrbitViewCanvas::OnTrajSize(wxSizeEvent& event)
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
 {
-     
+   
    //MessageInterface::ShowMessage
    //   ("===> OnMouse() mUseInitialViewPoint=%d, mIsEndOfData=%d\n",
    //    mUseInitialViewPoint, mIsEndOfData);
+   
+   if (mIsEndOfData && mInFunction)
+      return;
    
    int flippedY;
    int width, height;
@@ -2146,12 +2169,12 @@ bool OrbitViewCanvas::SetPixelFormatDescriptor()
    }
    
    return true;
-   
-#endif
-   
+
+#else
    // Should we return true for non-Window system?
    //return false;
    return true;
+#endif
 }
 
 
@@ -3017,13 +3040,12 @@ void OrbitViewCanvas::DrawFrame()
    #if DEBUG_ANIMATION
    MessageInterface::ShowMessage
       ("OrbitViewCanvas::DrawFrame() mNumData=%d, mUsenitialViewPoint=%d\n"
-       "   mViewCoordSysName=%s, mInitialCoordSysName=%s\n", mNumData,
-       mUseInitialViewPoint, mViewCoordSysName.c_str(), mInitialCoordSysName.c_str());
+       "   mViewCoordSysName=%s\n", mNumData, mUseInitialViewPoint,
+       mViewCoordSysName.c_str());
    #endif
    
    if (mUseInitialViewPoint)
    {
-      
       #ifdef USE_TRACKBALL
          ToQuat(mQuat, 0.0f, 0.0f, 0.0f, 0.0);
       #endif
@@ -3166,16 +3188,7 @@ void OrbitViewCanvas::DrawPlot()
    }
    
    ChangeProjection(mCanvasSize.x, mCanvasSize.y, mAxisLength);
-   
-   #ifdef __TILT_ORIGIN__
-   // tilt Origin rotation axis if needed
-   if (mNeedOriginConversion)
-   {
-      glPushMatrix();
-      TiltOriginZAxis();
-   }
-   #endif
-   
+      
    glDisable(GL_LIGHTING);
    
    // draw stars
@@ -3219,12 +3232,7 @@ void OrbitViewCanvas::DrawPlot()
    // draw ecliptic plane
    if (mDrawEcPlane)
       DrawEclipticPlane(mEcPlaneColor);
-   
-   #ifdef __TILT_ORIGIN__
-   if (mNeedOriginConversion)
-      glPopMatrix();
-   #endif
-   
+      
    // draw object orbit
    DrawObjectOrbit(mNumData-1);
    
@@ -3300,10 +3308,6 @@ void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
       glEnable(GL_LIGHTING);
    }
    #endif
-
-   // if object is not at the origin, just return
-   if (objId != mOriginId)
-      return;
    
    #if DEBUG_DRAW > 1
    MessageInterface::ShowMessage
@@ -3399,7 +3403,7 @@ void OrbitViewCanvas::DrawObject(const wxString &objName, int obj)
       glRotatef(90.0, 0.0, 0.0, 1.0);
    }
    
-   // Trying this, but why 90 degree offset? (LOJ: 2010.11.19)
+   // Trying this, but why 90 degree offset ? (LOJ: 2010.11.19)
    glRotatef(90.0, 0.0, 0.0, 1.0);
    
    //-------------------------------------------------------
@@ -3526,7 +3530,8 @@ void OrbitViewCanvas::DrawObjectOrbit(int frame)
       if (!mDrawOrbitFlag[objId*MAX_DATA+endFrame])
       {
          #if DEBUG_DRAW
-         MessageInterface::ShowMessage("==> Not drawing this object, so skip\n");
+         MessageInterface::ShowMessage
+            ("==> Not drawing '%s', so skip\n", objName.c_str());
          #endif
          continue;
       }
@@ -3858,13 +3863,13 @@ void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
          glTranslatef(mObjectViewPos[index1+0],
                       mObjectViewPos[index1+1],
                       mObjectViewPos[index1+2]);
-         GlColorType *yellow = (GlColorType*)&GmatColor::YELLOW32,
-                                *red = (GlColorType*)&GmatColor::RED32;
+         GlColorType *yellow = (GlColorType*)&GmatColor::YELLOW32;
+         GlColorType *red = (GlColorType*)&GmatColor::RED32;
          DrawSpacecraft(mScRadius, yellow, red);//mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
       }
    }
    else
-   {      
+   {
       #if DEBUG_DRAW
       MessageInterface::ShowMessage("==> Drawing body '%s'\n", objName.c_str());
       #endif
@@ -4518,12 +4523,6 @@ void OrbitViewCanvas::RotateBody(const wxString &objName, int frame, int objId)
        objId, mOriginId, mOriginName.c_str(), mCanRotateBody);
    #endif
    
-   if (!mCanRotateBody)
-      return;
-   
-   if (objId != mOriginId)
-      return;
-   
    #ifdef USE_MHA_TO_ROTATE_EARTH
    bool useMhaToRotateEarth = true;
    #else
@@ -4790,19 +4789,19 @@ void OrbitViewCanvas
          int colorIndex = satId * MAX_DATA + mLastIndex;
          if (mOpenGLInitialized)
          {
-            //Spacecraft *spac = (Spacecraft*)mObjectArray[satId];// moved up
             ModelManager *mm = ModelManager::Instance();
             #ifdef __USE_WX280_GL__
-               if (spac->modelFile != "" && spac->modelID == -1){
+               if (spac->modelFile != "" && spac->modelID == -1)
+               {
                   wxString modelPath(spac->modelFile.c_str());
                   spac->modelID = mm->LoadModel(modelPath);
                }
             #else
-               if (!modelsAreLoaded){
+               if (!modelsAreLoaded)
+               {
                   MessageInterface::ShowMessage("");
                   wxString modelPath(spac->modelFile.c_str());
                   spac->modelID = mm->LoadModel(modelPath);
-//                  loadedModels = true;
                   modelsAreLoaded = true;
                }
             #endif
@@ -5056,93 +5055,35 @@ void OrbitViewCanvas::UpdateOtherObjectAttitude(Real time, SpacePoint *sp,
    //=======================================================
    #endif
    //=======================================================
-   
-}
-
-
-//---------------------------------------------------------------------------
-// bool TiltOriginZAxis()
-//---------------------------------------------------------------------------
-bool OrbitViewCanvas::TiltOriginZAxis()
-{
-   if (mNumData == 0)
-      return false;
-   
-   if (pInternalCoordSystem == NULL || pViewCoordSystem == NULL)
-      return false;
-
-   std::string axisTypeName =
-      pViewCoordSystem->GetRefObject(Gmat::AXIS_SYSTEM, "")->GetTypeName();
-   
-   #if DEBUG_DRAW
-   MessageInterface::ShowMessage
-      ("OrbitViewCanvas::TiltOriginZAxis() AxisTypeName=%s\n", axisTypeName.c_str());
-   #endif
-   
-   // rotate earth Z axis if view CS is EarthMJ2000Ec
-   if (pViewCoordSystem->GetName() == "EarthMJ2000Ec")
-   {
-      Rvector6 inState, outState;
-      
-      inState.Set(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-      
-      mCoordConverter.Convert(mTime[0], inState, pInternalCoordSystem,
-                              outState, pViewCoordSystem);
-      
-      #if DEBUG_DRAW > 2
-         MessageInterface::ShowMessage
-            ("OrbitViewCanvas::TiltOriginZAxis() in=%g, %g, %g, out=%g, %g, %g\n",
-             inState[0], inState[1], inState[2], outState[0], outState[1], outState[2]);
-         Rvector3 vecA(inState[0], inState[1], inState[2]);
-         Rvector3 vecB(outState[0], outState[1], outState[2]);
-         Real angDeg = AngleUtil::ComputeAngleInDeg(vecA, vecB);
-         MessageInterface::ShowMessage
-            ("OrbitViewCanvas::TiltOriginZAxis() angDeg=%g\n", angDeg);
-         //outState = 0, 0.397777, 0.917482
-         //angDeg = 23.4393
-      #endif
-         
-      // convert outState to rotation angle
-      // How???
-      
-      // rotate Earth Z axis
-      glRotatef(23.5, 1.0, 0.0, 0.0);
-   }
-   
-   return true;
 }
 
 
 //---------------------------------------------------------------------------
 // void UpdateRotateFlags()
 //---------------------------------------------------------------------------
+/**
+ * Updates flag for rotating axes when body rotates.
+ */
+//---------------------------------------------------------------------------
 void OrbitViewCanvas::UpdateRotateFlags()
 {
    AxisSystem *axis =
       (AxisSystem*)pViewCoordSystem->GetRefObject(Gmat::AXIS_SYSTEM, "");
-
+   
    if (axis->IsOfType("BodyFixedAxes") &&
        (mOriginName.IsSameAs(axis->GetStringParameter("Origin").c_str())))
    {
-      mCanRotateBody = false;
-      mCanRotateAxes = false;
-   }
-   else if (axis->IsOfType("InertialAxes"))
-   {
-      mCanRotateBody = true;
-      mCanRotateAxes = false;
+      mCanRotateAxes = true;
    }
    else
    {
-      mCanRotateBody = false;
       mCanRotateAxes = false;
    }
    
-   
    #if DEBUG_OBJECT
    MessageInterface::ShowMessage
-      ("OrbitViewCanvas::UpdateRotateFlags() mCanRotateBody=%d, "
-       "mCanRotateAxes=%d\n", mCanRotateBody, mCanRotateAxes);
+      ("OrbitViewCanvas::UpdateRotateFlags() mCanRotateAxes=%d\n",
+       mCanRotateAxes);
    #endif
 }
 

@@ -144,7 +144,7 @@ public:
                    const RealArray &posZ, const RealArray &velX,
                    const RealArray &velY, const RealArray &velZ,
                    const UnsignedIntArray &scColors, bool solving,
-                   Integer solverOption) = 0;
+                   Integer solverOption, bool inFunction = false) = 0;
    
    virtual void TakeAction(const std::string &action) = 0;
    
@@ -235,8 +235,6 @@ protected:
    virtual void UpdateOtherData(const Real &time) = 0;
    
    // for coordinate system
-   virtual bool TiltOriginZAxis() = 0;
-   virtual void UpdateRotateFlags() = 0;
    virtual bool ConvertObjectData() = 0;
    virtual void ConvertObject(int objId, int index) = 0;
    

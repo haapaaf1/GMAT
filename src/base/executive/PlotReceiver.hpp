@@ -52,7 +52,7 @@ public:
                            bool drawESLines, bool overlapPlot,
                            bool usevpInfo, bool usepm,
                            Integer numPtsToRedraw,
-									bool drawStars, bool drawConstellations, Integer starCount) = 0;
+                           bool drawStars, bool drawConstellations, Integer starCount) = 0;
    
    virtual void SetGlSolarSystem(const std::string &plotName,
                                  SolarSystem *ss) = 0;
@@ -97,7 +97,8 @@ public:
                      const RealArray &posZ, const RealArray &velX,
                      const RealArray &velY, const RealArray &velZ,
                      const UnsignedIntArray &scColors, bool solving,
-                     Integer solverOption, bool updateCanvas) = 0;
+                     Integer solverOption, bool updateCanvas,
+                     bool inFunction) = 0;
    
    virtual bool TakeGlAction(const std::string &plotName,
                      const std::string &action) = 0;

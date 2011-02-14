@@ -121,7 +121,7 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
                                        bool drawGrid, bool drawSunLine,
                                        bool overlapPlot, bool usevpInfo, bool usepm,
                                        Integer numPtsToRedraw,
-													bool drawStars, bool drawConstellations, Integer starCount)
+                                                                                                        bool drawStars, bool drawConstellations, Integer starCount)
 {
    //-------------------------------------------------------
    // check if new MDI child frame is needed
@@ -254,9 +254,9 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
    frame->SetDrawGrid(drawGrid);
    frame->SetDrawSunLine(drawSunLine);
 
-	frame->SetDrawStars(drawStars);
-	frame->SetDrawConstellations(drawConstellations);
-	frame->SetStarCount(starCount);
+        frame->SetDrawStars(drawStars);
+        frame->SetDrawConstellations(drawConstellations);
+        frame->SetStarCount(starCount);
 
    frame->SetOverlapPlot(overlapPlot);
    frame->SetUseInitialViewDef(usevpInfo);
@@ -610,13 +610,14 @@ bool GuiPlotReceiver::SetGlEndOfRun(const std::string &plotName)
  */
 //------------------------------------------------------------------------------
 bool GuiPlotReceiver::UpdateGlPlot(const std::string &plotName,
-                                 const std::string &oldName,
-                                 const StringArray &scNames, const Real &time,
-                                 const RealArray &posX, const RealArray &posY,
-                                 const RealArray &posZ, const RealArray &velX,
-                                 const RealArray &velY, const RealArray &velZ,
-                                 const UnsignedIntArray &scColors, bool solving,
-                                 Integer solverOption, bool updateCanvas)
+                                   const std::string &oldName,
+                                   const StringArray &scNames, const Real &time,
+                                   const RealArray &posX, const RealArray &posY,
+                                   const RealArray &posZ, const RealArray &velX,
+                                   const RealArray &velY, const RealArray &velZ,
+                                   const UnsignedIntArray &scColors, bool solving,
+                                   Integer solverOption, bool updateCanvas,
+                                   bool inFunction)
 {
    #if DEBUG_PLOTIF_GL_UPDATE
    MessageInterface::ShowMessage
@@ -649,7 +650,7 @@ bool GuiPlotReceiver::UpdateGlPlot(const std::string &plotName,
                 frame->GetPlotName().c_str());
             #endif
             frame->UpdatePlot(scNames, time, posX, posY, posZ, velX, velY, velZ,
-                              scColors, solving, solverOption, updateCanvas);
+                              scColors, solving, solverOption, updateCanvas, inFunction);
             
             updated = true;
          }

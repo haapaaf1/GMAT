@@ -91,7 +91,7 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
                                        bool drawGrid, bool drawSunLine,
                                        bool overlapPlot, bool usevpInfo, bool usepm,
                                        Integer numPtsToRedraw,
-													bool drawStars, bool drawConstellations, Integer starCount)
+                                                                                                        bool drawStars, bool drawConstellations, Integer starCount)
 {
    #if DEBUG_PLOTIF_GL_CREATE
    MessageInterface::ShowMessage
@@ -103,7 +103,7 @@ bool PlotInterface::CreateGlPlotWindow(const std::string &plotName,
       return thePlotReceiver->CreateGlPlotWindow(plotName, oldName, drawEcPlane, 
                    drawXyPlane, drawWireFrame, drawAxes, drawGrid, drawSunLine,
                    overlapPlot, usevpInfo, usepm, numPtsToRedraw,
-						 drawStars, drawConstellations, starCount);
+                                                 drawStars, drawConstellations, starCount);
    return false;
 }
 
@@ -286,7 +286,8 @@ bool PlotInterface::UpdateGlPlot(const std::string &plotName,
                                  const RealArray &posZ, const RealArray &velX,
                                  const RealArray &velY, const RealArray &velZ,
                                  const UnsignedIntArray &scColors, bool solving,
-                                 Integer solverOption, bool updateCanvas)
+                                 Integer solverOption, bool updateCanvas,
+                                 bool inFunction)
 {
    #if DEBUG_PLOTIF_GL_UPDATE
    MessageInterface::ShowMessage
@@ -297,7 +298,7 @@ bool PlotInterface::UpdateGlPlot(const std::string &plotName,
    if (thePlotReceiver != NULL)
       return thePlotReceiver->UpdateGlPlot(plotName, oldName, scNames, time,
             posX, posY, posZ, velX, velY, velZ, scColors, solving, solverOption, 
-            updateCanvas);
+            updateCanvas, inFunction);
 
    return false;
 } // end UpdateGlPlot()

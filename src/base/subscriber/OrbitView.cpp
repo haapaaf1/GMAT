@@ -197,14 +197,14 @@ OrbitView::OrbitView(const std::string &name)
    // viewpoint
    mViewPointRefName = "Earth";
    mViewPointRefType = "Object";
-   mViewPointVecName = "[ 30000 0 0 ]";
+   mViewPointVecName = "[ 0 0 30000 ]";
    mViewPointVecType = "Vector";
    mViewDirectionName = "Earth";
    mViewDirectionType= "Object";
    mViewScaleFactor = 1.0;
    mFixedFovAngle = 45.0;
    mViewPointRefVector.Set(0.0, 0.0, 0.0);
-   mViewPointVecVector.Set(30000.0, 0.0, 0.0);
+   mViewPointVecVector.Set(0.0, 0.0, 30000.0);
    mViewDirectionVector.Set(0.0, 0.0, -1.0);
    
    mViewCoordSystem = NULL;
@@ -3160,7 +3160,8 @@ bool OrbitView::Distribute(const Real *dat, Integer len)
 {
    #if DBGLVL_UPDATE
    MessageInterface::ShowMessage
-      ("OrbitView::Distribute() instanceName=%s, active=%d, isEndOfRun=%d, "
+      ("===========================================================================\n"
+       "OrbitView::Distribute() instanceName=%s, active=%d, isEndOfRun=%d, "
        "isEndOfReceive=%d\n   mAllSpCount=%d, mScCount=%d, len=%d, runstate=%d\n",
        instanceName.c_str(), active, isEndOfRun, isEndOfReceive, mAllSpCount,
        mScCount, len, runstate);
@@ -3251,7 +3252,7 @@ bool OrbitView::Distribute(const Real *dat, Integer len)
       // provider id keep incrementing if data is regisgered and
       // published inside a GmatFunction
       StringArray dataLabels = theDataLabels[0];
-            
+      
       #if DBGLVL_DATA_LABELS
       MessageInterface::ShowMessage("   Data labels for %s =\n   ", GetName().c_str());
       for (int j=0; j<(int)dataLabels.size(); j++)
@@ -3380,12 +3381,16 @@ bool OrbitView::Distribute(const Real *dat, Integer len)
          solving = true;
          colorArray = mScTargetColorArray;
       }
+
+      bool inFunction = false;
+      if (currentProvider && currentProvider->TakeAction("IsInFunction"))
+         inFunction = true;
       
       PlotInterface::
          UpdateGlPlot(instanceName, mOldName, mScNameArray,
                       dat[0], mScXArray, mScYArray, mScZArray,
                       mScVxArray, mScVyArray, mScVzArray,
-                      colorArray, solving, mSolverIterOption, update);
+                      colorArray, solving, mSolverIterOption, update, inFunction);
       
       if (update)
          mNumCollected = 0;

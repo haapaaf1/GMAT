@@ -147,7 +147,7 @@ public:
                    const RealArray &posZ, const RealArray &velX,
                    const RealArray &velY, const RealArray &velZ,
                    const UnsignedIntArray &scColors, bool solving,
-                   Integer solverOption);
+                   Integer solverOption, bool inFunction);
    
    void TakeAction(const std::string &action);
    
@@ -181,8 +181,10 @@ private:
    static const Real DEFAULT_DIST;// = 30000.0;
    static const int UNKNOWN_OBJ_ID;// = -999;
    
-   // error handling
+   // error handling and function mode
    bool mFatalErrorFound;
+   bool mInFunction;
+   bool mWriteRepaintDisalbedInfo;
    
    // stars and options
    GLStars *mStars;
@@ -252,7 +254,7 @@ private:
    bool mDrawSunLine;
    bool mDrawAxes;
    bool mDrawGrid;
-      
+   
    // color
    unsigned int mXyPlaneColor;
    unsigned int mEcPlaneColor;
@@ -310,7 +312,6 @@ private:
    bool mUseViewPointRefVector;
    bool mUseViewPointVector;
    bool mUseViewDirectionVector;
-   bool mCanRotateBody;
    bool mCanRotateAxes;
    
    int mVpRefObjId;
@@ -514,7 +515,6 @@ private:
    void UpdateOtherObjectAttitude(Real time, SpacePoint *sp, int objId);
    
    // for coordinate system
-   bool TiltOriginZAxis();
    void UpdateRotateFlags();
    bool ConvertObjectData();
    void ConvertObject(int objId, int index);

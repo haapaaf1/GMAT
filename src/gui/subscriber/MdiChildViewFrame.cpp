@@ -40,6 +40,7 @@ MdiChildViewFrame::MdiChildViewFrame(wxMDIParentFrame *parent,
    mPlotTitle = plotName;
    
    mOverlapPlot = false;
+   mInFunction = false;
    
    // add Earth as default body
    mBodyNames.Add("Earth");
@@ -794,12 +795,15 @@ void MdiChildViewFrame::UpdatePlot(const StringArray &scNames, const Real &time,
                                    const RealArray &posZ, const RealArray &velX,
                                    const RealArray &velY, const RealArray &velZ,
                                    const UnsignedIntArray &scColors, bool solving,
-                                   Integer solverOption, bool updateCanvas)
+                                   Integer solverOption, bool updateCanvas,
+                                   bool inFunction)
 {
    if (mCanvas)
    {
       mCanvas->UpdatePlot(scNames, time, posX, posY, posZ, velX, velY, velZ,
-                          scColors, solving, solverOption);
+                          scColors, solving, solverOption, inFunction);
+
+      mInFunction = inFunction;
       
       if (updateCanvas)
       {
