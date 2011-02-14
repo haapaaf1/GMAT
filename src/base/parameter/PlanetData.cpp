@@ -143,7 +143,7 @@ PlanetData::~PlanetData()
 // Real GetPlanetReal(Integer item)
 //------------------------------------------------------------------------------
 /**
- * Retrives planet related parameters.
+ * Retrieves planet related parameters.
  */
 //------------------------------------------------------------------------------
 Real PlanetData::GetPlanetReal(Integer item)
