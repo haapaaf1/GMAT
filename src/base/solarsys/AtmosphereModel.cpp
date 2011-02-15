@@ -83,7 +83,7 @@ AtmosphereModel::AtmosphereModel(const std::string &typeStr, const std::string &
    kpApConversion       (0),
    mInternalCoordSystem (NULL),
    cbFixed              (NULL),
-   wUpdateInterval      (-1.0),     // Default to never update
+   wUpdateInterval      (0.0),     // Default to always update
    wUpdateEpoch         (0.0),
    geoHeight            (0.0),
    geoLat               (0.0),
@@ -336,21 +336,18 @@ void AtmosphereModel::UpdateAngularVelocity(const Real when)
          Rmatrix33 rotMat = cbFixed->GetLastRotationMatrix();
          Rmatrix33 rotDotMat = cbFixed->GetLastRotationDotMatrix();
 
-         angVel[0] = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) +
+         // Build angVel from R' * Rdot
+         in[0] = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) +
                rotMat(2,2)*rotDotMat(2,1);
-         angVel[1] = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) +
+         in[1] = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) +
                rotMat(2,0)*rotDotMat(2,2);
-         angVel[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) +
+         in[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) +
                rotMat(2,1)*rotDotMat(2,0);
 
-         // todo Replace with the value obtained from the solar system
-         Real w = //7.29211585530e-5;
-                  7.292115111638994e-05;
-
-
-         angVel[0] = rotMat(0,2) * w;
-         angVel[1] = rotMat(1,2) * w;
-         angVel[2] = rotMat(2,2) * w;
+         // Rotate into the J2000 frame
+         angVel[0] = rotMat(0,0)*in[0] + rotMat(0,1)*in[1] + rotMat(0,2)*in[2];
+         angVel[1] = rotMat(1,0)*in[0] + rotMat(1,1)*in[1] + rotMat(1,2)*in[2];
+         angVel[2] = rotMat(2,0)*in[0] + rotMat(2,1)*in[1] + rotMat(2,2)*in[2];
 
          wUpdateEpoch = when;
 
