@@ -989,8 +989,6 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
    Real now = epoch + (elapsedTime + dt) / 86400.0;
    TranslateOrigin(state, now);
 
-   // Find the current angular momentum vector; do this at a fixed interval
-   // A negative update interval means never update
    atmos->UpdateAngularVelocity(now);
 
    #ifdef DEBUG_DRAGFORCE_DENSITY
@@ -1011,8 +1009,6 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
       dragdata << "Looking up density\n";
    #endif
    GetDensity(dragState, now);
-
-//   density[0] = 6.1827487509657e-12;
 
    if (fillCartesian)
    {

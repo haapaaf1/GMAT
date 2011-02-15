@@ -73,6 +73,7 @@ public:
    virtual void SetInternalCoordSystem(CoordinateSystem *cs);
    void SetFixedCoordinateSystem(CoordinateSystem *cs);
    Real* GetAngularVelocity(const Real when = -1.0);
+   void BuildAngularVelocity(const Real when);
    void UpdateAngularVelocity(const Real when);
    void SetKpApConversionMethod(Integer method);
    Real ConvertKpToAp(const Real kp);

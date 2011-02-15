@@ -309,6 +309,60 @@ Real* AtmosphereModel::GetAngularVelocity(const Real when)
    return angVel;
 }
 
+
+void AtmosphereModel::BuildAngularVelocity(const Real when)
+{
+    Real in[3];
+    Rmatrix33 rotMat = cbFixed->GetLastRotationMatrix();
+    Rmatrix33 rotDotMat = cbFixed->GetLastRotationDotMatrix();
+
+    // Build angVel from R' * Rdot
+    in[0] = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) +
+          rotMat(2,2)*rotDotMat(2,1);
+    in[1] = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) +
+          rotMat(2,0)*rotDotMat(2,2);
+    in[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) +
+          rotMat(2,1)*rotDotMat(2,0);
+
+    // Rotate into the J2000 frame
+    angVel[0] = rotMat(0,0)*in[0] + rotMat(0,1)*in[1] + rotMat(0,2)*in[2];
+    angVel[1] = rotMat(1,0)*in[0] + rotMat(1,1)*in[1] + rotMat(1,2)*in[2];
+    angVel[2] = rotMat(2,0)*in[0] + rotMat(2,1)*in[1] + rotMat(2,2)*in[2];
+
+    wUpdateEpoch = when;
+
+    #ifdef DEBUG_ANGVEL
+       MessageInterface::ShowMessage("Rotation Matrix:\n");
+       for (Integer m = 0; m < 3; ++m)
+       {
+          MessageInterface::ShowMessage("   [");
+          for (Integer n = 0; n < 3; ++n)
+             MessageInterface::ShowMessage(" %.14lf ",rotMat(m,n));
+          if (m < 2)
+             MessageInterface::ShowMessage(";\n");
+          else
+             MessageInterface::ShowMessage("]\n");
+       }
+
+       MessageInterface::ShowMessage("Rotation Dot Matrix:\n");
+       for (Integer m = 0; m < 3; ++m)
+       {
+          MessageInterface::ShowMessage("   [");
+          for (Integer n = 0; n < 3; ++n)
+             MessageInterface::ShowMessage(" %.14lf ",rotDotMat(m,n));
+          if (m < 2)
+             MessageInterface::ShowMessage(";\n");
+          else
+             MessageInterface::ShowMessage("]\n");
+       }
+
+       MessageInterface::ShowMessage("AtmosphereModel::"
+             "UpdateAngularVelocity(%.12lf) -> [%.12le %.12le %.12le]\n",
+             when, angVel[0], angVel[1], angVel[2]);
+    #endif
+}
+
+
 //------------------------------------------------------------------------------
 // void UpdateAngularVelocity(const Real when)
 //------------------------------------------------------------------------------
@@ -330,56 +384,9 @@ void AtmosphereModel::UpdateAngularVelocity(const Real when)
          if (cbFixed == NULL)
             throw AtmosphereException("The body-fixed coordinate system is "
                   "not set");
-
          Real in[3], out[3];
          cbFixed->ToMJ2000Eq(when, in, out, true, true);
-         Rmatrix33 rotMat = cbFixed->GetLastRotationMatrix();
-         Rmatrix33 rotDotMat = cbFixed->GetLastRotationDotMatrix();
-
-         // Build angVel from R' * Rdot
-         in[0] = rotMat(0,2)*rotDotMat(0,1) + rotMat(1,2)*rotDotMat(1,1) +
-               rotMat(2,2)*rotDotMat(2,1);
-         in[1] = rotMat(0,0)*rotDotMat(0,2) + rotMat(1,0)*rotDotMat(1,2) +
-               rotMat(2,0)*rotDotMat(2,2);
-         in[2] = rotMat(0,1)*rotDotMat(0,0) + rotMat(1,1)*rotDotMat(1,0) +
-               rotMat(2,1)*rotDotMat(2,0);
-
-         // Rotate into the J2000 frame
-         angVel[0] = rotMat(0,0)*in[0] + rotMat(0,1)*in[1] + rotMat(0,2)*in[2];
-         angVel[1] = rotMat(1,0)*in[0] + rotMat(1,1)*in[1] + rotMat(1,2)*in[2];
-         angVel[2] = rotMat(2,0)*in[0] + rotMat(2,1)*in[1] + rotMat(2,2)*in[2];
-
-         wUpdateEpoch = when;
-
-         #ifdef DEBUG_ANGVEL
-            MessageInterface::ShowMessage("Rotation Matrix:\n");
-            for (Integer m = 0; m < 3; ++m)
-            {
-               MessageInterface::ShowMessage("   [");
-               for (Integer n = 0; n < 3; ++n)
-                  MessageInterface::ShowMessage(" %.14lf ",rotMat(m,n));
-               if (m < 2)
-                  MessageInterface::ShowMessage(";\n");
-               else
-                  MessageInterface::ShowMessage("]\n");
-            }
-
-            MessageInterface::ShowMessage("Rotation Dot Matrix:\n");
-            for (Integer m = 0; m < 3; ++m)
-            {
-               MessageInterface::ShowMessage("   [");
-               for (Integer n = 0; n < 3; ++n)
-                  MessageInterface::ShowMessage(" %.14lf ",rotDotMat(m,n));
-               if (m < 2)
-                  MessageInterface::ShowMessage(";\n");
-               else
-                  MessageInterface::ShowMessage("]\n");
-            }
-
-            MessageInterface::ShowMessage("AtmosphereModel::"
-                  "UpdateAngularVelocity(%.12lf) -> [%.12le %.12le %.12le]\n",
-                  when, angVel[0], angVel[1], angVel[2]);
-         #endif
+         BuildAngularVelocity(when);
       }
    }
 }
@@ -851,6 +858,10 @@ Real AtmosphereModel::CalculateGeodetics(Real *position, bool includeLatLong,
    CoordinateConverter mCoordConverter;
    mCoordConverter.Convert(A1Mjd(when), instate, mInternalCoordSystem,
                            state, cbFixed);
+
+   // Build angular momentum
+   if (wUpdateEpoch != when)
+      BuildAngularVelocity(when);
 
    // Get the body fixed geodetic height
    // Vallado algorithm 12 (Vallado, 2nd ed, p. 177)

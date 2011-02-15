@@ -22,6 +22,8 @@
 #include "Msise90Atmosphere.hpp"
 #include "MessageInterface.hpp"
 #include "CelestialBody.hpp"
+#include "TimeSystemConverter.hpp"
+#include "TimeTypes.hpp"
 
 #ifndef __SKIP_MSISE90__
 extern "C" 
@@ -150,7 +152,9 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       throw AtmosphereException(
          "Central body pointer not set in MSISE90 model.");
 
-   GetInputs(epoch);
+   Real utcEpoch = TimeConverterUtil::Convert(epoch, TimeConverterUtil::A1MJD,
+		   TimeConverterUtil::UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
+   GetInputs(utcEpoch);
 
    for (i = 0; i < count; ++i) 
    {
