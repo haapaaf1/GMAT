@@ -1567,8 +1567,8 @@ bool StopCondition::SetStopParameter(Parameter *param)
       // Set ref object of lhsWrapper
       // Currently lhsWrapper is not used but we may want to stop propagation 
       // when stopVar = goalVar or stopVar = Sat.ElapsedDays in a future
-      if (lhsWrapper != NULL)
-         lhsWrapper->SetRefObject(param);
+      //if (lhsWrapper != NULL)
+      //   lhsWrapper->SetRefObject(param);
       
       return true;
    }
