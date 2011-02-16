@@ -72,9 +72,9 @@ public:
    void SetUpdateParameters(Real interval, GmatEpoch epoch = -1.0);
    virtual void SetInternalCoordSystem(CoordinateSystem *cs);
    void SetFixedCoordinateSystem(CoordinateSystem *cs);
-   Real* GetAngularVelocity(const Real when = -1.0);
-   void BuildAngularVelocity(const Real when);
-   void UpdateAngularVelocity(const Real when);
+   Real* GetAngularVelocity(const Real GmatEpoch = -1.0);
+   void BuildAngularVelocity(const Real GmatEpoch);
+   void UpdateAngularVelocity(const Real GmatEpoch);
    void SetKpApConversionMethod(Integer method);
    Real ConvertKpToAp(const Real kp);
 
@@ -158,8 +158,8 @@ protected:
 
    
    Real                    CalculateGeodetics(Real *position,
-                                 bool includeLatLong = false,
-                                 GmatEpoch when = -1.0);
+                                 GmatEpoch when = -1.0,
+                                 bool includeLatLong = false);
 
    enum {
       NOMINAL_FLUX = GmatBaseParamCount,

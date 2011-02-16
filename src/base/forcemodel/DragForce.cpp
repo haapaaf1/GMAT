@@ -989,7 +989,7 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
    Real now = epoch + (elapsedTime + dt) / 86400.0;
    TranslateOrigin(state, now);
 
-   atmos->UpdateAngularVelocity(now);
+//   atmos->UpdateAngularVelocity(now);
 
    #ifdef DEBUG_DRAGFORCE_DENSITY
       dragdata << "density[0] = " << density[0] << "\n";
@@ -1838,15 +1838,6 @@ void DragForce::GetDensity(Real *state, Real when)
             cbLoc[1]  = cbV[1];
             cbLoc[2]  = cbV[2];
          }
-//         if (fluxFile == "")
-//         {
-//            if (F107ID < 0)
-//               throw ODEModelException("Atmosphere model initialization is "
-//                     "incomplete");
-//            atmos->SetRealParameter(F107ID, fluxF107);
-//            atmos->SetRealParameter(F107AID, fluxF107A);
-//            atmos->SetRealParameter(KPID, kp);
-//         }
       }
 
       #ifdef DEBUG_DRAGFORCE_DENSITY

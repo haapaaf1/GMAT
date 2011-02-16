@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                           ExponentialAtmosphere
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -88,10 +88,12 @@ smoothDensity        (false)
  * @param <bary> the ExponentialAtmosphere object whose data to assign to "this"
  *             calculated point.
  *
- * @return "this" ExponentialAtmosphere with data of input ExponentialAtmosphere ea.
+ * @return "this" ExponentialAtmosphere with data of input ExponentialAtmosphere
+ *  ea.
  */
 //------------------------------------------------------------------------------
-ExponentialAtmosphere& ExponentialAtmosphere::operator=(const ExponentialAtmosphere &atm)
+ExponentialAtmosphere& ExponentialAtmosphere::operator=(
+      const ExponentialAtmosphere &atm)
 {
    if (&atm == this)
       return *this;
@@ -125,13 +127,15 @@ ExponentialAtmosphere& ExponentialAtmosphere::operator=(const ExponentialAtmosph
  * @return true on success, throws on failure.
  */
 //------------------------------------------------------------------------------
-bool ExponentialAtmosphere::Density(Real *position, Real *density, Real epoch, Integer count)
+bool ExponentialAtmosphere::Density(Real *position, Real *density, Real epoch,
+      Integer count)
 {
     if (!refDensity || !refHeight || !scaleHeight)
        throw AtmosphereException("Exponential atmosphere not initialized");
     
     if (centralBodyLocation == NULL)
-       throw AtmosphereException("Exponential atmosphere: Central body vector was not initialized");
+       throw AtmosphereException("Exponential atmosphere: Central body vector "
+             "was not initialized");
         
     Real loc[3], height;
     Integer i, index;
@@ -141,9 +145,10 @@ bool ExponentialAtmosphere::Density(Real *position, Real *density, Real epoch, I
         loc[1] = position[i*6+1] - centralBodyLocation[1];
         loc[2] = position[i*6+2] - centralBodyLocation[2];
         
-        height = CalculateHeight(loc);
+        height = CalculateGeodetics(loc, epoch);
         if (height < 0.0)
-            throw AtmosphereException("Exponential atmosphere: Position vector is inside central body");
+            throw AtmosphereException("Exponential atmosphere: Position vector "
+                  "is inside central body");
             
         index = FindBand(height);
         if (smoothDensity)
@@ -176,7 +181,8 @@ void ExponentialAtmosphere::SetConstants(void)
    
    scaleHeight = new Real[altitudeBands];
    if (!scaleHeight)
-      throw AtmosphereException("Unable to allocate scaleHeight array for ExponentialAtmosphere model");
+      throw AtmosphereException("Unable to allocate scaleHeight array for "
+            "ExponentialAtmosphere model");
    
    // Delete old array first
    if (refHeight)
@@ -186,7 +192,8 @@ void ExponentialAtmosphere::SetConstants(void)
    if (!refHeight) {
       delete [] scaleHeight;
       scaleHeight = NULL;
-      throw AtmosphereException("Unable to allocate refHeight array for ExponentialAtmosphere model");
+      throw AtmosphereException("Unable to allocate refHeight array for "
+            "ExponentialAtmosphere model");
    }
    
    // Delete old array first
@@ -199,7 +206,8 @@ void ExponentialAtmosphere::SetConstants(void)
       scaleHeight = NULL;
       delete [] refHeight;
       refHeight = NULL;
-      throw AtmosphereException("Unable to allocate refDensity array for ExponentialAtmosphere model");
+      throw AtmosphereException("Unable to allocate refDensity array for "
+            "ExponentialAtmosphere model");
    }
    
    // The following assignments contain the data in the table in Vallado,
@@ -289,49 +297,6 @@ void ExponentialAtmosphere::SetConstants(void)
    refHeight[27]   = 1000.0;
    refDensity[27]  = 3.019e-15;
    scaleHeight[27] = 268.00;
-}
-
-
-//------------------------------------------------------------------------------
-// Real CalculateHeight(Real *loc)
-//------------------------------------------------------------------------------
-/**
- * Calculates the altitude used for the density calculation.
- * 
- * @param <loc>  The position vector pointing from the body with the atmosphere
- *               to the point of interest (typically a spacecraft location).
- * 
- * @return The height above the body's reference ellipsoid.
- * 
- * @todo Modify this method to account for oblateness.
- */
-//------------------------------------------------------------------------------
-Real ExponentialAtmosphere::CalculateHeight(Real *loc)
-{
-   bool geocentric = false;         // Set to true for spherical calc, false for
-                                    // oblate planet
-
-   Real mag = sqrt(loc[0]*loc[0] + loc[1]*loc[1] + loc[2]*loc[2]);
-   Real cbr = cbRadius;
-
-   if (!geocentric && (cbFlattening != 0.0))
-   {
-      Real phi, cos_phi;
-
-      // Compute the geocentric latitude in radians
-      // (atan2() is safer than atan() since it avoids division by 0)
-
-      phi = atan2(loc[2], sqrt(loc[0]*loc[0] + loc[1]*loc[1]));
-
-      // Compute the cosine of phi
-      cos_phi = cos(phi);
-
-      // Return the geodetic height
-      cbr = cbRadius * (1.0 - cbFlattening) /
-            sqrt(1 - cbFlattening * (2.0 - cbFlattening) * cos_phi * cos_phi);
-   }
-
-   return mag - cbr;
 }
 
 

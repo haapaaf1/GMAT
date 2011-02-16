@@ -1,6 +1,6 @@
 //$Id$
 //------------------------------------------------------------------------------
-//                           SimpleExponentialAtmosphere
+//                        SimpleExponentialAtmosphere
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
@@ -118,7 +118,8 @@ SimpleExponentialAtmosphere& SimpleExponentialAtmosphere::operator=(
  * @return true on success, throws on failure.
  */
 //------------------------------------------------------------------------------
-bool SimpleExponentialAtmosphere::Density(Real *position, Real *density, Real epoch, Integer count)
+bool SimpleExponentialAtmosphere::Density(Real *position, Real *density,
+      Real epoch, Integer count)
 {
    #ifdef DEBUG_DENSITY
       MessageInterface::ShowMessage("SimpleExponentialAtmosphere::Density called\n");
@@ -137,7 +138,7 @@ bool SimpleExponentialAtmosphere::Density(Real *position, Real *density, Real ep
       loc[1] = position[i*6+1] - centralBodyLocation[1];
       loc[2] = position[i*6+2] - centralBodyLocation[2];
         
-      height = CalculateGeodetics(loc);
+      height = CalculateGeodetics(loc, epoch);
       if (height < 0.0)
          throw AtmosphereException("Exponential atmosphere: Position vector is "
                "inside central body");

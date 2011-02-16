@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                           ExponentialAtmosphere
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -75,7 +75,6 @@ protected:
    bool                    smoothDensity;
     
    virtual void            SetConstants(void);
-   Real                    CalculateHeight(Real *loc);
    Integer                 FindBand(Real height);
    Real                    Smooth(Real height, Integer index);
 

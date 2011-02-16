@@ -336,7 +336,10 @@ bool JacchiaRobertsAtmosphere::Density(Real *pos, Real *density, Real epoch,
    //loj: 1/14/05 Added to handle multiple spacecraft
    for (Integer i=0; i<count; i++)
    {
+      // @todo Replace with a call to CalculateGeodetics
       height = get_geodetic_height(earthRadius, &pos[i*6], flat);
+      if (epoch != wUpdateEpoch)
+         UpdateAngularVelocity(epoch);
       
       #ifdef DEBUG_JR_DRAG
          MessageInterface::ShowMessage

@@ -287,22 +287,22 @@ void AtmosphereModel::SetFixedCoordinateSystem(CoordinateSystem *cs)
 }
 
 //------------------------------------------------------------------------------
-// Real* GetAngularVelocity(const Real when)
+// Real* GetAngularVelocity(const GmatEpoch when)
 //------------------------------------------------------------------------------
 /**
  * Retrieves the angular momentum vector, optionally at a specified epoch
  *
  * @note This method return the pointer to a data member.  If that pointer is
  * stored, subsequent updates will change the data pointed to so that the user
- * need not refresh this data pointer
+ * need not refresh this data pointer.
  *
- * @param when The epoch for the desired vector.  If not specified, the last
- * calculated vector is returned
+ * @param when The epoch for the desired vector.  If not specified or less than
+ * 0.0, the last calculated vector is returned.
  *
  * @return A pointer to the angular momentum vector
  */
 //------------------------------------------------------------------------------
-Real* AtmosphereModel::GetAngularVelocity(const Real when)
+Real* AtmosphereModel::GetAngularVelocity(const GmatEpoch when)
 {
    if (when >= 0.0)
       UpdateAngularVelocity(when);
@@ -310,7 +310,16 @@ Real* AtmosphereModel::GetAngularVelocity(const Real when)
 }
 
 
-void AtmosphereModel::BuildAngularVelocity(const Real when)
+//------------------------------------------------------------------------------
+// void BuildAngularVelocity(const GmatEpoch when)
+//------------------------------------------------------------------------------
+/**
+ * Constructs the angular velocity vector at the specified epoch.
+ *
+ * @param when The epoch
+ */
+//------------------------------------------------------------------------------
+void AtmosphereModel::BuildAngularVelocity(const GmatEpoch when)
 {
     Real in[3];
     Rmatrix33 rotMat = cbFixed->GetLastRotationMatrix();
@@ -364,7 +373,7 @@ void AtmosphereModel::BuildAngularVelocity(const Real when)
 
 
 //------------------------------------------------------------------------------
-// void UpdateAngularVelocity(const Real when)
+// void UpdateAngularVelocity(const GmatEpoch when)
 //------------------------------------------------------------------------------
 /**
  * Updates the angular momentum vector based on the input epoch.
@@ -372,10 +381,10 @@ void AtmosphereModel::BuildAngularVelocity(const Real when)
  * Updates are only performed if the update epoch is outside of the update
  * interval period.
  *
- * @param when The epoch (in a.1 ModJulian format) of the desired update
+ * @param when The epoch (in a.1 ModJulian format) of the desired update.
  */
 //------------------------------------------------------------------------------
-void AtmosphereModel::UpdateAngularVelocity(const Real when)
+void AtmosphereModel::UpdateAngularVelocity(const GmatEpoch when)
 {
    if (wUpdateInterval >= 0.0)
    {
@@ -838,8 +847,8 @@ void AtmosphereModel::CloseFile()
  *         class variables
  */
 //------------------------------------------------------------------------------
-Real AtmosphereModel::CalculateGeodetics(Real *position, bool includeLatLong,
-      GmatEpoch when)
+Real AtmosphereModel::CalculateGeodetics(Real *position, GmatEpoch when,
+      bool includeLatLong)
 {
    Rvector6 instate(position), state;
 

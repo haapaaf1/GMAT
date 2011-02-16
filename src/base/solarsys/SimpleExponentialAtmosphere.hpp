@@ -1,4 +1,4 @@
-//$Id: SimpleExponentialAtmosphere.hpp 7501 2009-12-16 19:35:30Z lindajun $
+//$Id$
 //------------------------------------------------------------------------------
 //                        SimpleExponentialAtmosphere
 //------------------------------------------------------------------------------
@@ -55,7 +55,8 @@ public:
    SimpleExponentialAtmosphere(const std::string &name = "");
    virtual ~SimpleExponentialAtmosphere();
    SimpleExponentialAtmosphere(const SimpleExponentialAtmosphere& atm);
-   SimpleExponentialAtmosphere&  operator=(const SimpleExponentialAtmosphere& atm);
+   SimpleExponentialAtmosphere&  operator=(const SimpleExponentialAtmosphere&
+         atm);
     
    virtual bool            Density(Real *position, Real *density, 
                                    Real epoch=21545.0,

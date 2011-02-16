@@ -154,15 +154,34 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
 
    Real utcEpoch = TimeConverterUtil::Convert(epoch, TimeConverterUtil::A1MJD,
 		   TimeConverterUtil::UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
+
    GetInputs(utcEpoch);
+
+   int xyd = yd;
+   float xsod = sod;
+   float xalt; //alt;
+   float xlat; // Geodetic Latitude
+   float xlon; //lon;
+   float xlst;
+   float xf107a = f107a;
+   float xf107 = f107;
+   int xmass;
+   float xap[7];
+   float xden[8];
+   float xtemp[2];
+
+   Integer j;
+   for (j = 0; j < 7; j++)  xap[j] = ap[j];
+   for (j = 0; j < 8; j++)  xden[j] = den[j] = 0.0;
+   for (j = 0; j < 2; j++)   xtemp[j] = temp[j] = 0.0;
 
    for (i = 0; i < count; ++i) 
    {
       i6 = i*6;
       mass = 48;
 
-      alt = CalculateGeodetics(&pos[i6], true);
-      lst = sod/3600.0 + geoLong/15.0; //lon/15.0;
+      alt = CalculateGeodetics(&pos[i6], epoch, true);
+      lst = sod/3600.0 + geoLong/15.0;
 
 
       #ifdef DEBUG_GEODETICS
@@ -188,23 +207,11 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
             ap[3], ap[4], ap[5], ap[6], angVel[0], angVel[1], angVel[2]);
       #endif
       
-      int xyd = yd;
-      float xsod = sod;
-      float xalt = geoHeight; //alt;
-      float xlat = geoLat; // Geodetic Latitude
-      float xlon = geoLong; //lon;
-      float xlst = lst;
-      float xf107a = f107a;
-      float xf107 = f107;
-      float xap[7];
-      int xmass = mass;
-      float xden[8];
-      float xtemp[2];
-
-      Integer j;
-      for (j = 0; j < 7; j++)  xap[j] = ap[j];
-      for (j = 0; j < 8; j++)  xden[j] = den[j] = 0.0;
-      for (j = 0; j < 2; j++)   xtemp[j] = temp[j] = 0.0;
+      xalt = geoHeight;
+      xlat = geoLat;
+      xlon = geoLong;
+      xlst = lst;
+      xmass = mass;
 
       #ifdef DEBUG_MSISE90_ATMOSPHERE
       fprintf(logFile, "Pre-GTDS6() \n");
@@ -239,10 +246,10 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       fprintf(logFile, "\n");
       #endif
       
-#ifndef __SKIP_MSISE90__
-      gtd6_(&xyd,&xsod,&xalt,&xlat,&xlon,&xlst,&xf107a,&xf107,&xap[0],&xmass,
-            &xden[0],&xtemp[0]);
-#endif
+      #ifndef __SKIP_MSISE90__
+         gtd6_(&xyd,&xsod,&xalt,&xlat,&xlon,&xlst,&xf107a,&xf107,&xap[0],&xmass,
+               &xden[0],&xtemp[0]);
+      #endif
       
       #ifdef DEBUG_MSISE90_ATMOSPHERE
       fprintf(logFile, "Post-GTDS6() \n");
@@ -278,21 +285,7 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
       fprintf(logFile, "\n");
       #endif
       
-      yd = xyd;
-      sod = xsod;
-//      alt = xalt;
-//      lat = xlat;
-//      lon = xlon;
-//      lst = xlst;
-      f107a = xf107a;
-      f107 = xf107;
-      mass = xmass;
-      
-      for (j = 0; j < 7; j++)  ap[j] = xap[j];
-      for (j = 0; j < 8; j++)  den[j] = xden[j];
-      for (j = 0; j < 2; j++)  temp[j] = xtemp[j];
-
-      density[i] = den[5] * 1000.0;
+      density[i] = xden[5] * 1000.0;
 
       #ifdef DEBUG_MSISE90_ATMOSPHERE
          MessageInterface::ShowMessage(
@@ -320,36 +313,37 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
 //------------------------------------------------------------------------------
 void Msise90Atmosphere::GetInputs(Real epoch)
 {
-    /// @todo Get the MSISE90 epoch wired up; this is a crude approximation
-    Integer iEpoch = (Integer)(epoch);  // Truncate the epoch
-    Integer yearOffset = (Integer)((epoch + 5.5) / 365.25);
-    Integer year   = 1941 + yearOffset;
-    Integer doy = iEpoch - (Integer)(yearOffset * 365.25) + 5;
+   Integer iEpoch = (Integer)(epoch);  // Truncate the epoch
+   Integer yearOffset = (Integer)((epoch + 5.5) / 365.25);
+   Integer year   = 1941 + yearOffset;
+   Integer doy = iEpoch - (Integer)(yearOffset * 365.25) + 5;
 
-    sod  = 86400.0 * (epoch - iEpoch + 0.5);  // Includes noon/midnight adjustment
-    if (sod < 0.0)
-    {
-       sod += 86400.0;
-       doy -= 1;
-    }
+   sod  = 86400.0 * (epoch - iEpoch + 0.5);  // Includes noon/midnight adjustment
+   if (sod < 0.0)
+   {
+      sod += 86400.0;
+      doy -= 1;
+   }
 
-    if (sod > 86400.0)
-    {
-       sod -= 86400.0;
-       doy += 1;
-    }
+   if (sod > 86400.0)
+   {
+      sod -= 86400.0;
+      doy += 1;
+   }
 
-    yd   = year * 1000 + doy;
+   yd = year * 1000 + doy;
 
-    if (fileData) {
-       /// @todo Implement the file reader
-    }
-    else {
-       f107 = nominalF107;
-       f107a = nominalF107a;
-       for (Integer i = 0; i < 7; i++)
-           ap[i] = nominalAp;
-    }
+   if (fileData)
+   {
+      /// @todo Implement the file reader
+   }
+   else
+   {
+      f107 = nominalF107;
+      f107a = nominalF107a;
+      for (Integer i = 0; i < 7; i++)
+         ap[i] = nominalAp;
+   }
 }
 
 //------------------------------------------------------------------------------
