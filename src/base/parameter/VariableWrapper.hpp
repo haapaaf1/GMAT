@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  VariableWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -44,6 +44,7 @@ public:
    virtual Gmat::ParameterType GetDataType() const;
    virtual std::string         ToString();  
    
+   virtual GmatBase*           GetRefObject(const std::string &name = "");
    virtual bool                SetRefObject(GmatBase *obj);
    virtual bool                RenameObject(const std::string &oldName, 
                                             const std::string &newName);

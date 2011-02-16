@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  VariableWrapper
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -26,6 +26,7 @@
 #include "MessageInterface.hpp"
 
 //#define DEBUG_VAR_WRAPPER_GET
+//#define DEBUG_VAR_WRAPPER_SET
 //#define DEBUG_VAR_WRAPPER_EVAL
 //#define DEBUG_REF_OBJ
 
@@ -192,6 +193,24 @@ Gmat::ParameterType VariableWrapper::GetDataType() const
 std::string VariableWrapper::ToString()
 {
    return var->ToString();
+}
+
+
+//------------------------------------------------------------------------------
+// GmatBase* GetRefObject(const std::string &name = "")
+//------------------------------------------------------------------------------
+/**
+ * This method retrives a reference object for the wrapper name
+ * 
+ * @param <name> name of the wrapper
+ *
+ * @return reference for success; NULL if name not found
+ *
+ */
+//------------------------------------------------------------------------------
+GmatBase* VariableWrapper::GetRefObject(const std::string &name)
+{
+   return var;
 }
 
 
