@@ -17,10 +17,12 @@
  */
 //------------------------------------------------------------------------------
 
+#include <sstream>
 #include "Epoch.hpp"
 #include "StringTokenizer.hpp"
 #include "UtilityException.hpp"
 #include "MessageInterface.hpp"
+#include "TimeTypes.hpp"
 
 // #define DEBUG_EPOCH 1 
 
@@ -490,7 +492,9 @@ std::string Epoch::GetLabel() const
 void Epoch::DefineDefault()
 {
    format = FORMAT[TAI_MJD];
-   value = "21545.0";
+   std::stringstream epochString("");
+   epochString >> GmatTimeUtil::MJD_OF_J2000;
+   value = epochString.str();
 }
 
 //---------------------------------------------------------------------------

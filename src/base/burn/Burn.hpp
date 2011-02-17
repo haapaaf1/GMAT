@@ -24,6 +24,7 @@
 
 #include "GmatBase.hpp"
 #include "Spacecraft.hpp"
+#include "TimeTypes.hpp"
 
 /**
  * All maneuver classes are derived from this base class.
@@ -83,7 +84,7 @@ public:
    virtual bool         Initialize();
    
    //---------------------------------------------------------------------------
-   // bool Fire(Real *burnData = NULL, Real epoch = 21545.0)
+   // bool Fire(Real *burnData = NULL, Real epoch = GmatTimeUtil::MJD_OF_J2000)
    //---------------------------------------------------------------------------
    /**
     * Applies the burn.  
@@ -97,7 +98,7 @@ public:
     * @return true on success, false or throw on failure.
     */
    //---------------------------------------------------------------------------
-   virtual bool         Fire(Real *burnData = NULL, Real epoch = 21545.0) = 0;
+   virtual bool         Fire(Real *burnData = NULL, Real epoch = GmatTimeUtil::MJD_OF_J2000) = 0;
     
 protected:
 

@@ -77,9 +77,9 @@ A1Mjd::A1Mjd(const Real &val)
 //     Integer hour, minute;
 //     Real second;
 
-//     hour = (Integer)(secondsOfDay / 3600.0);
-//     minute = (Integer)(Rem(secondsOfDay, 3600.0) / 60.0);
-//     second = Rem(Rem(secondsOfDay, 3600.0), 60.0);
+//     hour = (Integer)(secondsOfDay / GmatMathConstants::SECS_PER_DAY);
+//     minute = (Integer)(Rem(secondsOfDay, GmatMathConstants::SECS_PER_DAY) / 60.0);
+//     second = Rem(Rem(secondsOfDay, GmatMathConstants::SECS_PER_DAY), 60.0);
 
 //     // Compute seconds from reference
 //     secondsFromReferenceD =
@@ -594,10 +594,10 @@ CalDate A1Mjd::A1MjdToCalDate(const A1Mjd &a1mjd)
  * @param <utcmjd> input utc modified julian date, days
  * @return UtcDate object
  * @note The modified julian date is the full julian day modified by
- *       subtracting 2430000.0.
+ *       subtracting JD_JAN_5_1941.
  *
  *       A day containing a leap second will appear as though it has only
- *       86400 seconds, though the utc (universal time coordinate)
+ *       GmatTimeUtil::SECS_PER_DAY seconds, though the utc (universal time coordinate)
  *       modified julian date covers the entire day.
  */
 //------------------------------------------------------------------------------
@@ -656,7 +656,7 @@ CalDate A1Mjd::UtcMjdToCalDate(const UtcMjd &utcmjd)
    timeArray[5] = NearestInt(seconds * MJDSEC_TO_WHOLE_NUM) / MJDSEC_TO_WHOLE_NUM;
    
    // calculate day, month, and year using the fliegel & van flandern algorithm
-   l = mjd + (68569 + 2430000);
+   l = mjd + (68569 + GmatTimeUtil::JD_JAN_5_1941);
    n = 4 * l / 146097;
    l -= (146097 * n + 3) / 4;
    i = 4000 * (l + 1) / 1461001;
@@ -713,7 +713,7 @@ CalDate A1Mjd::UtcMjdToCalDate(const UtcMjd &utcmjd)
 
 //     // Compute seconds from reference
 //     seconds = (daysSinceRef * TimeConstants::secondsPerDay) 
-//        + (hour * 3600)
+//        + (hour * GmatMathConstants::SECS_PER_DAY)
 //        + (minute * 60) + second + leapSecondsBtw;
 //     return seconds;
 //  }

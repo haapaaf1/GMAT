@@ -26,6 +26,7 @@
 #include "SphericalParameters.hpp"     // for SphRMag()
 #include "StringUtil.hpp"              // for ReplaceName()
 #include "MessageInterface.hpp"
+#include "TimeTypes.hpp"
 
 
 //#define DEBUG_STOPCOND_INIT
@@ -553,7 +554,7 @@ bool StopCondition::Evaluate()
          if ((currentGoalValue >= min) && (currentGoalValue <= max) && activated)
          {
             goalMet = true;
-            mStopInterval = (epoch - previousEpoch) * 86400.0;
+            mStopInterval = (epoch - previousEpoch) * GmatTimeUtil::SECS_PER_DAY;
       
             #ifdef DEBUG_STOPCOND_EVAL
                MessageInterface::ShowMessage(
@@ -2273,14 +2274,14 @@ Real StopCondition::GetTimeMultiplier()
    switch (stopParamTimeType)
    {
       case MINUTE_PARAM:
-         return 60.0;
+         return GmatTimeUtil::SECS_PER_MINUTE;
 
       case HOUR_PARAM:
-         return 3600.0;
+         return GmatTimeUtil::SECS_PER_HOUR;
       
       case DAY_PARAM:
       case EPOCH_PARAM:
-         return 86400.0;
+         return GmatTimeUtil::SECS_PER_DAY;
       
       // All intentional fall-throughs
       case SECOND_PARAM:

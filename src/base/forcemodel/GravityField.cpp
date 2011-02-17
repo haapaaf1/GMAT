@@ -449,7 +449,7 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
    Real               arr[4] = {0.0, 0.0, 0.0, 0.0};
    static const Real  sqrt2 = Sqrt(2.0);
 
-   dT = (jday - 2.4464305e+06)/365.25; /* years since Jan 1, 1986 */
+   dT = (jday - 2.4464305e+06)/GmatTimeUtil::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
 
    if (r == 0.0)  // (should I) check for hFinitialized here?
    {
@@ -479,7 +479,7 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
       for (m = 0;(m <= n && m <= order); ++m)
       {
          #ifdef DEBUG_GRAVITY_FIELD_DETAILS
-            //dT = (jday - (Real)2.4464305e+06)/(Real)365.25; /* years since Jan 1, 1986 */
+            //dT = (jday - (Real)2.4464305e+06)/(Real)GmatTimeUtil::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
             MessageInterface::ShowMessage("  m = %d  n = %d\n   Cbar[n][m] = %le   Sbar[n][m] = %le\n",
                m, n, Cbar[n][m], Sbar[n][m]);
             if ( n <= GRAV_MAX_DRIFT_DEGREE )
@@ -492,7 +492,7 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
          /* time rate of change of coefficients (drift/year)*/
          if ( n <= GRAV_MAX_DRIFT_DEGREE )
          {
-            //dT = (jday - (Real)2.4464305e+06)/(Real)365.25; /* years since Jan 1, 1986 */
+            //dT = (jday - (Real)2.4464305e+06)/(Real)GmatTimeUtil::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
             Cbar_nm = Cbar[n][m] + dCbar[n][m] * dT;
             Sbar_nm = Sbar[n][m] + dSbar[n][m] * dT;
          }

@@ -66,7 +66,7 @@ const Integer SlpFile::MAX_POTENTIAL_NAME  = 72;
 // The number of bodies normally found on the SLP file
 const Integer SlpFile::NUM_STANDARD_BODIES = 11;
 
-const Real    SlpFile::JD_MJD_OFFSET = 2430000.0;
+const Real    SlpFile::JD_MJD_OFFSET = GmatTimeUtil::JD_JAN_5_1941;
 
 //------------------------------------------------------------------------------
 // public methods
@@ -557,7 +557,7 @@ int SlpFile::read_slp (double time, double elapsec, int islphdo[], int islpdto[]
       // COMPUTE THE NUMBER OF DAYS TO READ INTO THE SLP FILE
       tme = (double)time - djulsps;
       //idayr = (int)floor(tme + SECS_TO_DAYS(elapsec - slpzer)) + 1;
-      idayr = (int)floor(tme + ((elapsec - slpzer)/86400.0)) + 1;
+      idayr = (int)floor(tme + ((elapsec - slpzer)/GmatTimeUtil::SECS_PER_DAY)) + 1;
 
       // IF A NEW RECORD IS NEEDED THEN
       if (idayr < *iday || idayr > (*iday + *ncfday))
@@ -624,7 +624,7 @@ int SlpFile::read_slp (double time, double elapsec, int islphdo[], int islpdto[]
          // CALCULATE THE TIME DIFFERENCE BETWEEN THE REQUESTED TIME AND
          // THE TIME OF THE COEFFICIENTS
          //*eptime = tme + SECS_TO_DAYS(elapsec - *tsec);
-         *eptime = tme + ((elapsec - *tsec)/86400.0);
+         *eptime = tme + ((elapsec - *tsec)/GmatTimeUtil::SECS_PER_DAY);
       }
    }
 
@@ -981,7 +981,7 @@ int SlpFile::slp_vel (double time, double elapst, int nbody, int ibody[],
                      temp = (temp + dkk * ppoly2[(ndxslow*39)+(kk*3)+ii]) * eptime;
                   }
                  // velslp[jj][ii] = SECS_TO_DAYS(temp + ppoly2[(ndxslow*39)+3+ii]);
-                  velslp[jj][ii] = ((temp + ppoly2[(ndxslow*39)+3+ii]))/86400.00;
+                  velslp[jj][ii] = ((temp + ppoly2[(ndxslow*39)+3+ii]))/GmatTimeUtil::SECS_PER_DAY;
 
                }
             }
@@ -1172,7 +1172,7 @@ int SlpFile::a1_utc_offset(double refmjd, double *a1utc, double *ut1utc, double 
 
          // calculate the remaining conversion offsets
          *ut1utc = *a1utc - a1ut1;
-         *tdtutc = 32.184 - 0.0343817 + *a1utc;
+         *tdtutc = GmatTimeUtil::TT_TAI_OFFSET - GmatTimeUtil::A1_TAI_OFFSET  + *a1utc;
       }
    }
 
@@ -1238,15 +1238,15 @@ void SlpFile::time_array_to_utcmjd(double starray[6], double *utcmjd)
       12-3*((i+4900+(j-14)/12)/100)/4;
 
    // subtract standard modification factor
-   //julday -= 2430000;
+   //julday -= GmatTimeUtil::JD_JAN_5_1941;
    julday -= (long int) jdMjdOffset;    // wcs
 
    // remove 12 hour gregorian to julian offset and calculate fractional
    //    part of day
-   //fraction = SECS_TO_DAYS((starray[3] - 12.0) * 3600.0 +
+   //fraction = SECS_TO_DAYS((starray[3] - 12.0) * GmatTimeUtil::SECS_PER_HOUR +
    //                        starray[4] * 60.0  + starray[5]);
-   fraction = (((starray[3] - 12.0) * 3600.0 +
-                           starray[4] * 60.0  + starray[5]))/86400.0;
+   fraction = (((starray[3] - 12.0) * GmatTimeUtil::SECS_PER_HOUR +
+                           starray[4] * 60.0  + starray[5]))/GmatTimeUtil::SECS_PER_DAY;
 
    // float modified julian day and add fractional day
    *utcmjd = (double)julday + fraction;

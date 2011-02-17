@@ -315,7 +315,7 @@ Real ToSecondsOfDayFromHMS (Integer hour, Integer minute, Real second)
       throw Date::TimeRangeError();
    }        
 
-   secondsOfDay = (Real)hour * 3600.0 + (Real)minute * 60.0 + second;
+   secondsOfDay = (Real)hour * GmatTimeUtil::SECS_PER_HOUR + (Real)minute * 60.0 + second;
    return secondsOfDay.Get();
 }
 
@@ -342,12 +342,12 @@ void ToHMSFromSecondsOfDay (Real secsOfDay, Integer& hour, Integer& minute,
    if (secsOfDay  < 0.0 || secsOfDay > maxSecondsPerDay)
       throw Date::TimeRangeError();
 
-   h = (Integer)(GmatMathUtil::Floor(secsOfDay/3600.0));  // constrain hours to 0..23
+   h = (Integer)(GmatMathUtil::Floor(secsOfDay/GmatTimeUtil::SECS_PER_HOUR));  // constrain hours to 0..23
    if (h >= 24)
       h = 23;
 
    hour = h;
-   remainder = secsOfDay - (Real)h * 3600.0;
+   remainder = secsOfDay - (Real)h * GmatTimeUtil::SECS_PER_HOUR;
    m = (Integer)(GmatMathUtil::Floor(remainder / 60.0));  // constrain minutes to 0..59
    if (m >= 60)
       m = 59;

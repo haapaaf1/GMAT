@@ -225,7 +225,7 @@ bool ImpulsiveBurn::Fire(Real *burnData, Real epoch)
          initialized = true;
    }
    
-   if (epoch == 21545.0)
+   if (epoch == GmatTimeUtil::MJD_OF_J2000)
       epoch = spacecraft->GetRealParameter("A1Epoch");
    
    Real *satState = spacecraft->GetState().GetState();

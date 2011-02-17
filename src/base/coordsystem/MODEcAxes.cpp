@@ -254,10 +254,10 @@ void MODEcAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                 TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
                 GmatTimeUtil::JD_JAN_5_1941);      
    //Real jdTT  = mjdTT + GmatTimeUtil::JD_JAN_5_1941;
-   //Real tTDB  = (jdTT - 2451545.0) / 36525.0;
+   //Real tTDB  = (jdTT - GmatTimeUtil::JD_OF_J2000) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
    // Compute Julian centuries of TDB from the base epoch (J2000) 
-   Real offset = GmatTimeUtil::JD_JAN_5_1941 - 2451545.0; 
-   Real tTDB  = (mjdTT + offset) / 36525.0;
+   Real offset = GmatTimeUtil::JD_JAN_5_1941 - GmatTimeUtil::JD_OF_J2000;
+   Real tTDB  = (mjdTT + offset) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
    Real tTDB2 = tTDB * tTDB;
    Real tTDB3 = tTDB * tTDB2;
    

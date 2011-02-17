@@ -64,6 +64,7 @@
 #include "SolarSystem.hpp"
 #include "Rvector6.hpp"
 #include "ODEModelException.hpp"
+#include "TimeTypes.hpp"
 
 //#define DEBUG_PMF_BODY 0
 //#define DEBUG_PMF_DERV 0
@@ -324,7 +325,7 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
       Real radius, r3, mu_r, rbb3, mu_rbb, a_indirect[3];
    
       epoch = theState->GetEpoch();
-      now = epoch + dt/86400.0;
+      now = epoch + dt/GmatTimeUtil::SECS_PER_DAY;
       Real relativePosition[3];
       bodyrv = body->GetState(now);
       orig = forceOrigin->GetState(now);

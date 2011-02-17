@@ -251,6 +251,26 @@ public:
    // add other moons, asteroids, comets, as needed
    // what do we do about libration points??
    
+   static const Real EARTH_EQUATORIAL_RADIUS;
+
+//   enum DefaultPlanets
+//   {
+//      MERCURY = 0,
+//      VENUS,
+//      EARTH,
+//      MARS,
+//      JUPITER,
+//      SATURN,
+//      URANUS,
+//      NEPTUNE,
+//      PLUTO,
+//      NumberOfDefaultPlanets
+//   };
+//
+//
+//   static const Real                  PLANET_EQUATORIAL_RADIUS[NumberOfDefaultPlanets];
+
+
 protected:
    enum
    {

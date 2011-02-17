@@ -37,7 +37,7 @@ public:
    
    // inherited methods from Burn
    virtual void         SetSpacecraftToManeuver(Spacecraft *sat);
-   virtual bool         Fire(Real *burnData = NULL, Real epoch = 21545.0);
+   virtual bool         Fire(Real *burnData = NULL, Real epoch = GmatTimeUtil::MJD_OF_J2000);
    
    // Inherited (GmatBase) methods
    virtual std::string  GetParameterText(const Integer id) const;

@@ -91,6 +91,7 @@
 #include "GmatBase.hpp"
 #include "CelestialBody.hpp"
 #include "MessageInterface.hpp"
+#include "TimeTypes.hpp"
 
 
 //#define PHYSICAL_MODEL_DEBUG_INIT
@@ -1188,7 +1189,7 @@ bool PhysicalModel::IsParameterReadOnly(const std::string &label) const
 Real PhysicalModel::GetRealParameter(const Integer id) const
 {
    if (id == EPOCH)
-      return epoch + elapsedTime / 86400.0;
+      return epoch + elapsedTime / GmatTimeUtil::SECS_PER_DAY;
    if (id == ELAPSED_SECS)
       return elapsedTime;
 

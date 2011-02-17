@@ -28,6 +28,7 @@
 
 
 #include "MessageInterface.hpp"
+#include "TimeTypes.hpp"
 #include <sstream>               // for stringstream
 
 
@@ -589,7 +590,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                  fb != burns.end(); ++fb)
             {
                (*fb)->SetSpacecraftToManeuver((Spacecraft*)sat);
-               Real now = epoch + dt / 86400.0;
+               Real now = epoch + dt / GmatTimeUtil::SECS_PER_DAY;
                if ((*fb)->Fire(burnData, now)) 
                {
                   #ifdef DEBUG_FINITETHRUST_EXE

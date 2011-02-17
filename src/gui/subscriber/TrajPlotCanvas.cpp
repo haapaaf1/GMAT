@@ -17,6 +17,7 @@
 #include "FileManager.hpp"         // for texture files
 #include "ColorTypes.hpp"          // for namespace GmatColor::
 #include "Rvector3.hpp"            // for Rvector3::GetMagnitude()
+#include "GmatConstants.hpp"
 #include "AngleUtil.hpp"           // for ComputeAngleInDeg()
 #include "CelestialBody.hpp"
 #include "MdiGlPlotData.hpp"
@@ -3983,7 +3984,7 @@ void TrajPlotCanvas::DrawEquatorialPlane(UnsignedInt color)
    Real angle;
    
    static const Real RAD_PER_DEG =
-      3.14159265358979323846264338327950288419716939937511 / 180.0;
+         GmatMathUtil::PI / 180.0;
    
    distance = (Real)mAxisLength;
 

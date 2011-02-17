@@ -46,12 +46,12 @@
 #include "SolarRadiationPressure.hpp"
 #include <sstream>                      // For stringstream
 #include "MessageInterface.hpp"
+#include "GmatConstants.hpp"
+#include "TimeTypes.hpp"
 
 //#define DEBUG_SRP_ORIGIN
 //#define DEBUG_SOLAR_RADIATION_PRESSURE
 //#define DEBUG_SOLAR_RADIATION_PRESSURE_TIMESHADOW
-
-#define SPEED_OF_LIGHT 299792458.0
 
 //---------------------------------
 // static data
@@ -120,7 +120,7 @@ SolarRadiationPressure::SolarRadiationPressure(const std::string &name) :
    sunRadius           (6.96e5),
    hasMoons            (false),
    flux                (1367.0),                  // W/m^2, IERS 1996
-   fluxPressure        (flux / SPEED_OF_LIGHT),   // converted to N/m^2
+   fluxPressure        (flux / GmatPhysicalConstants::c),   // converted to N/m^2
    sunDistance         (149597870.691),
    nominalSun          (149597870.691),
    bodyIsTheSun        (false),
@@ -404,13 +404,13 @@ Real SolarRadiationPressure::SetRealParameter(const Integer id, const Real value
    if (id == FLUX)
    {
       flux = value;
-      fluxPressure = flux / SPEED_OF_LIGHT;
+      fluxPressure = flux / GmatPhysicalConstants::c;
       return flux;
    }
    if (id == FLUX_PRESSURE)
    {
       fluxPressure = value;
-      flux = fluxPressure * SPEED_OF_LIGHT;
+      flux = fluxPressure * GmatPhysicalConstants::c;
       return fluxPressure;
    }
    if (id == SUN_DISTANCE)
@@ -683,7 +683,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
    Real distancefactor = 1.0, mag = 0.0;
    bool inSunlight = true, inShadow = false;
 
-   Real ep = epoch + dt / 86400.0;
+   Real ep = epoch + dt / GmatTimeUtil::SECS_PER_DAY;
    sunrv = theSun->GetState(ep);
     
    // Rvector6 is initialized to all 0.0's; only change it if the body is not 
@@ -731,8 +731,8 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
          forceVector[2] = sunSat[2] / sunDistance;
         
          distancefactor = nominalSun / sunDistance;
-         // Factor of 0.001 converts m/s^2 to km/s^2
-         distancefactor *= distancefactor * 0.001;
+         // Convert m/s^2 to km/s^2
+         distancefactor *= distancefactor * GmatMathUtil::M_TO_KM;
       
          #ifdef DEBUG_SRP_ORIGIN
             if (shadowModel == 0) 

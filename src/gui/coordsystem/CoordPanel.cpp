@@ -17,7 +17,9 @@
 #include "TimeSystemConverter.hpp"  // for Convert()
 #include "StringUtil.hpp"           // for ToReal()
 #include "MessageInterface.hpp"
+#include "TimeTypes.hpp"
 #include <wx/config.h>
+#include <sstream>
 
 //#define DEBUG_COORD_PANEL 1
 //#define DEBUG_COORD_PANEL_SAVE
@@ -45,7 +47,10 @@ CoordPanel::CoordPanel(wxWindow *parent, bool enableAll)
    
    mEnableAll = enableAll;
    
-//   epochValue = "21545";
+////   epochValue = "21545";
+//   std::stringstream mjdStr("");
+//   mjdStr << GmatTimeUtil::MJD_OF_J2000;
+//   epochValue = mjdStr.str();
 //   epochFormatValue = "A1ModJulian";
       
    Create();
@@ -223,7 +228,10 @@ void CoordPanel::SetDefaultAxis()
    primaryComboBox->SetValue("Earth");
    secondaryComboBox->SetValue("Luna");
 //   formatComboBox->SetValue(epochFormatValue);
-//   epochTextCtrl->SetValue("21545");
+////   epochTextCtrl->SetValue("21545");
+//   std::stringstream mjdStr("");
+//   mjdStr << GmatTimeUtil::MJD_OF_J2000;
+//   epochTextCtrl->SetValue(mjdStr.str());
    epochTextCtrl->SetValue(epochValue);
    xComboBox->SetValue("R");
    yComboBox->SetValue("");;
@@ -239,7 +247,10 @@ void CoordPanel::SetDefaultEpochRefAxis()
 {
    // default settings
 //   formatComboBox->SetValue(epochFormatValue);
-//   epochTextCtrl->SetValue("21545");
+////   epochTextCtrl->SetValue("21545");
+//   std::stringstream mjdStr("");
+//   mjdStr << GmatTimeUtil::MJD_OF_J2000;
+//   epochTextCtrl->SetValue(mjdStr.str());
     epochTextCtrl->SetValue(epochValue);
 }
 

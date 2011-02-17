@@ -26,6 +26,7 @@
 #include "CoordinateSystem.hpp"
 #include "CoordinateSystemException.hpp"
 #include "Rvector.hpp"
+#include "TimeTypes.hpp"
 
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_TO_FROM
@@ -275,7 +276,7 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
    }
    
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == 21545.0))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "Coordinate conversion check:\n   %s --> %s\n", 
@@ -386,7 +387,7 @@ bool CoordinateConverter::Convert(const A1Mjd &epoch, const Real *inState,
                         lrm[2][0],lrm[2][1],lrm[2][2]);
 
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == 21545.0))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "   internal State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",

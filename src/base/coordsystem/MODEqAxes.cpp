@@ -255,9 +255,9 @@ void MODEqAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                 GmatTimeUtil::JD_JAN_5_1941);      
    //Real jdTT  = mjdTT + GmatTimeUtil::JD_JAN_5_1941;
    // Compute Julian centuries of TDB from the base epoch (J2000) 
-   //Real tTDB  = (jdTT - 2451545.0) / 36525.0;
-   Real offset = GmatTimeUtil::JD_JAN_5_1941 - 2451545.0;
-   Real tTDB   = (mjdTT + offset) / 36525.0;
+   //Real tTDB  = (jdTT - GmatTimeUtil::JD_OF_J2000) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
+   Real offset = GmatTimeUtil::JD_JAN_5_1941 - GmatTimeUtil::JD_OF_J2000;
+   Real tTDB   = (mjdTT + offset) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
    
    if (overrideOriginInterval) updateIntervalToUse = 
                                ((Planet*) origin)->GetNutationUpdateInterval();

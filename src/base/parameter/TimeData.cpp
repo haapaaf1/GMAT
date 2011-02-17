@@ -21,6 +21,7 @@
 #include "TimeData.hpp"
 #include "ParameterException.hpp"
 #include "TimeSystemConverter.hpp"
+#include "TimeTypes.hpp"
 #include "Linear.hpp"               // for GmatRealUtil::ToString()
 #include "MessageInterface.hpp"
 
@@ -30,7 +31,7 @@
 // static data
 //---------------------------------
 
-//const Real TimeData::MJD_OFFSET = 2430000.0; 
+//const Real TimeData::MJD_OFFSET = GmatTimeUtil::JD_JAN_5_1941;
 const Real TimeData::TIME_REAL_UNDEFINED = -9876543210.1234;
 const std::string TimeData::TIME_STRING_UNDEFINED = "INVALID_TIME";
 
@@ -290,7 +291,7 @@ Real TimeData::GetElapsedTimeReal(Integer id)
    //case HOURS:
    //case MINS:
    case SECS:
-      return (a1mjd - mInitialEpoch)* 86400;
+      return (a1mjd - mInitialEpoch)* GmatTimeUtil::SECS_PER_DAY;
    default:
       throw ParameterException("TimeData::GetElapsedTimeReal() Unknown parameter id: " +
                                GmatRealUtil::ToString(id));

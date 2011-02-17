@@ -15,7 +15,7 @@
  *
  * File found at : ftp://maia.usno.navy.mil/ser7/tai-utc.dat
  *
- * @note The MJD-JD offset used is 2400000.5
+ * @note The MJD-JD offset used is GmatTimeUtil::JD_NOV_17_1858
  */
 //------------------------------------------------------------------------------
 

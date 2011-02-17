@@ -17,7 +17,7 @@
 #include "SolarSystem.hpp"
 #include "CelestialBody.hpp"
 #include "Star.hpp"
-#include "PhysicalConstants.hpp"
+#include "GmatConstants.hpp"
 #include "MessageInterface.hpp"
 #include "A1Mjd.hpp"
 #include "AngleUtil.hpp"
@@ -55,7 +55,7 @@
 // Units for radiant power are W / m^2
 //const Real                  Star::STAR_RADIANT_POWER       = 1358.0;     
 //// Units for reference distance are km (1 AU)
-//const Real                  Star::STAR_REFERENCE_DISTANCE  = 1.49597870e8; 
+//const Real                  Star::STAR_REFERENCE_DISTANCE  = GmatPhysicalConstants::ASTRONOMICAL_UNIT;
 //// Units for radius are meters
 //const Real                  Star::STAR_PHOTOSPHERE_RADIUS  = 695990000.0;  
 /// @todo add other ones as needed
@@ -427,7 +427,7 @@ Real        Star::SetRealParameter(const Integer id, const Real value)
 //   mu                  = Star::MU;
 //   //mass                = Star::MASS;
 //   mass                = mu /
-//                         GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+//                         GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
 //   equatorialRadius    = Star::EQUATORIAL_RADIUS;
 //   flattening          = Star::FLATTENING;
 //  // polarRadius         = Star::POLAR_RADIUS;

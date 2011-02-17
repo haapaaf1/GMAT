@@ -25,6 +25,7 @@
 #include "TimeSystemConverter.hpp"
 #include "TimeTypes.hpp"
 
+
 #ifndef __SKIP_MSISE90__
 extern "C" 
 { 
@@ -314,20 +315,22 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
 void Msise90Atmosphere::GetInputs(Real epoch)
 {
    Integer iEpoch = (Integer)(epoch);  // Truncate the epoch
-   Integer yearOffset = (Integer)((epoch + 5.5) / 365.25);
+   Integer yearOffset = (Integer)((epoch + 5.5) / GmatTimeUtil::DAYS_PER_YEAR);
    Integer year   = 1941 + yearOffset;
-   Integer doy = iEpoch - (Integer)(yearOffset * 365.25) + 5;
+   Integer doy = iEpoch - (Integer)(yearOffset * GmatTimeUtil::DAYS_PER_YEAR) + 5;
 
-   sod  = 86400.0 * (epoch - iEpoch + 0.5);  // Includes noon/midnight adjustment
+
+   sod  = GmatTimeUtil::SECS_PER_DAY * (epoch - iEpoch + 0.5);  // Includes noon/midnight adjustment
    if (sod < 0.0)
    {
-      sod += 86400.0;
+      sod += GmatTimeUtil::SECS_PER_DAY;
       doy -= 1;
    }
 
-   if (sod > 86400.0)
+
+   if (sod > GmatTimeUtil::SECS_PER_DAY)
    {
-      sod -= 86400.0;
+      sod -= GmatTimeUtil::SECS_PER_DAY;
       doy += 1;
    }
 

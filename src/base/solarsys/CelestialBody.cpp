@@ -38,7 +38,7 @@
 #include "RealUtilities.hpp"
 #include "AtmosphereModel.hpp"
 #include "MessageInterface.hpp"
-#include "PhysicalConstants.hpp"
+#include "GmatConstants.hpp"
 #include "TimeSystemConverter.hpp"
 #include "UtcDate.hpp"
 #include "FileUtil.hpp"
@@ -178,8 +178,8 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::STRING_TYPE,   //"TextureMapFileName"
 };
 
-const Real    CelestialBody::JD_EPOCH_2000_TCB     = 2451545.0;
-const Real    CelestialBody::JD_EPOCH_2000_TT      = 2451545.0; // @ todo Figure out JD_EPOCH_2000_TT
+const Real    CelestialBody::JD_EPOCH_2000_TCB     = GmatTimeUtil::JD_OF_J2000;
+const Real    CelestialBody::JD_EPOCH_2000_TT      = GmatTimeUtil::JD_OF_J2000; // @ todo Figure out JD_EPOCH_2000_TT
 const Real    CelestialBody::dDot                  = 1.0;
 const Real    CelestialBody::TDot                  = 1.0;
 const Real    CelestialBody::KEPLER_TOL            = 1.0e-08;  // should be 1.0e-08;
@@ -208,7 +208,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    mu                 (398600.4415),
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
-   stateTime          (21545.0),
+   stateTime          (GmatTimeUtil::MJD_OF_J2000),
    //theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
@@ -228,7 +228,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    degree             (0),
    twoBodyFormat     ("TAIModJulian"),
    twoBodyStateType  ("Keplerian"),
-   twoBodyEpoch      (21545.0),
+   twoBodyEpoch      (GmatTimeUtil::MJD_OF_J2000),
    newTwoBody        (true),
    overrideTime      (false),
    ephemUpdateInterval (0.0),
@@ -237,7 +237,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    userDefined        (false),
    allowSpice         (false),
    orientationDateFormat ("TAIModJulian"),
-   orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
+   orientationEpoch   (GmatTimeUtil::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
@@ -299,7 +299,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    mu                 (398600.4415),
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
-   stateTime          (21545.0),
+   stateTime          (GmatTimeUtil::MJD_OF_J2000),
    //theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
@@ -322,7 +322,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    degree             (0),
    twoBodyFormat     ("TAIModjulian"),
    twoBodyStateType  ("Keplerian"),
-   twoBodyEpoch      (21545.0),
+   twoBodyEpoch      (GmatTimeUtil::MJD_OF_J2000),
    newTwoBody        (true),
    overrideTime       (false),
    ephemUpdateInterval (0.0),
@@ -331,7 +331,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    userDefined        (false),
    allowSpice         (false),
    orientationDateFormat ("TAIModJulian"),
-   orientationEpoch   (21545.0), // @todo - really need it to be the TCB epoch used for the major bodies
+   orientationEpoch   (GmatTimeUtil::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
@@ -1032,7 +1032,7 @@ Real CelestialBody::GetGravitationalConstant()
    }
    
    // recompute mass
-   mass = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   mass = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
    return mu;
 }
 
@@ -1152,7 +1152,7 @@ Real CelestialBody::GetPolarRadius()
  Real CelestialBody::GetMass() 
 {
    // make sure it is computed correctly
-   mass = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   mass = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
    return mass;
 }
 
@@ -1282,7 +1282,7 @@ Real  CelestialBody::GetHourAngle(A1Mjd atTime)
 {
    Rvector cart = GetBodyCartographicCoordinates(atTime);
    hourAngle = cart[2];  
-   // reduce to a quantity within one day (86400 seconds, 360.0 degrees)
+   // reduce to a quantity within one day (GmatTimeUtil::SECS_PER_DAY seconds, 360.0 degrees)
    hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
    return hourAngle;
 }
@@ -1624,7 +1624,7 @@ bool CelestialBody::SetGravitationalConstant(Real newMu)
    }
    
    mu                         = newMu;
-   mass                       = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   mass                       = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
    return true;
 }
 
@@ -1850,7 +1850,7 @@ bool CelestialBody::SetUsePotentialFile(bool useIt)
       // recompute polar radius
       polarRadius = (1.0 - flattening) * equatorialRadius;
       // recompute mass
-      mass = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+      mass = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
       isFirstTimeMu = true;
       isFirstTimeRadius = true;
    }
@@ -2334,7 +2334,7 @@ Rvector CelestialBody::GetBodyCartographicCoordinates(const A1Mjd &forTime) cons
       Real W     = 0;
       Real Wdot  = 0.0; 
       Real d = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
-      Real T = d / 36525;                        // interval in Julian centuries
+      Real T = d / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY; // interval in Julian centuries
       
       alpha = orientation[0]  + orientation[1] * T;
       delta = orientation[2]  + orientation[3] * T;
@@ -3066,7 +3066,7 @@ bool CelestialBody::SetBooleanParameter(const Integer id,
          // recompute polar radius
          polarRadius = (1.0 - flattening) * equatorialRadius;
          // recompute mass
-         mass = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+         mass = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
          isFirstTimeMu = true;
          isFirstTimeRadius = true;
       }
@@ -3904,7 +3904,7 @@ bool CelestialBody::ReadPotentialFile()
    // recompute polar radius
    polarRadius = (1.0 - flattening) * equatorialRadius;
    // recompute mass
-   mass = mu / GmatPhysicalConst::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   mass = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
    return true;
 }
 

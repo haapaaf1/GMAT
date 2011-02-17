@@ -18,6 +18,7 @@
 #include "AtmosphereModel.hpp"
 #include "CelestialBody.hpp"
 #include "A1Mjd.hpp"
+#include "TimeTypes.hpp"
 
 class GMAT_API JacchiaRobertsAtmosphere : public AtmosphereModel
 {
@@ -30,7 +31,7 @@ public:
    // inherited from GmatBase
    virtual GmatBase* Clone() const;
     
-   bool Density(Real *position, Real *density, Real epoch = 21545.0,
+   bool Density(Real *position, Real *density, Real epoch = GmatTimeUtil::MJD_OF_J2000,
                 Integer count = 1);
 
    Real  JacchiaRoberts(Real height, Real space_craft[3], Real sun[3],

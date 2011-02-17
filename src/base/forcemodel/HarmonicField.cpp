@@ -53,6 +53,7 @@
 #include "ODEModelException.hpp"
 #include "StringUtil.hpp"     // for ToString()
 #include "RealUtilities.hpp"
+#include "TimeTypes.hpp"
 #include "Rvector.hpp"
 #include "Rmatrix.hpp"
 #include "FileManager.hpp"
@@ -137,7 +138,7 @@ targetCS                (NULL),
 offDiags                (NULL),
 abarCoeff1              (NULL),
 abarCoeff2              (NULL)
-//epoch                   (21545.0)
+//epoch                   (GmatTimeUtil::MJD_OF_J2000)
 {
    objectTypeNames.push_back("HarmonicField");
    parameterCount = HarmonicFieldParamCount;

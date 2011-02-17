@@ -22,6 +22,7 @@
 #include "Star.hpp"
 #include "Planet.hpp"
 #include "Moon.hpp"
+#include "GmatConstants.hpp"
 #include "StringUtil.hpp"               // for ToString()
 #include "FileUtil.hpp"                 // for DoesFileExist
 #include "FileManager.hpp"              // for GetFullPathname()
@@ -151,6 +152,9 @@ const std::string SolarSystem::TRITON_NAME     = "Triton";
 
 const std::string SolarSystem::PLUTO_NAME      = "Pluto";
 const std::string SolarSystem::CHARON_NAME     = "Charon";
+
+const Real SolarSystem::EARTH_EQUATORIAL_RADIUS = SolarSystem::PLANET_EQUATORIAL_RADIUS[SolarSystem::EARTH];
+
 
 
 // default values for Planet data ------------------------ planets ------------------------
@@ -735,7 +739,7 @@ const Rvector6              SolarSystem::STAR_ORIENTATION_PARAMETERS = Rvector6(
 
 const Real                  SolarSystem::STAR_RADIANT_POWER       = 1358.0;
 // Units for reference distance are km (1 AU)
-const Real                  SolarSystem::STAR_REFERENCE_DISTANCE  = 1.49597870e8;
+const Real                  SolarSystem::STAR_REFERENCE_DISTANCE  = GmatPhysicalConstants::ASTRONOMICAL_UNIT;
 // Units for radius are meters
 const Real                  SolarSystem::STAR_PHOTOSPHERE_RADIUS  = 695990000.0;
 const Integer               SolarSystem::STAR_NAIF_IDS            = 10;

@@ -23,6 +23,7 @@
 
 #include "PhysicalModel.hpp"
 #include "AtmosphereModel.hpp"
+#include "TimeTypes.hpp"
 #include <vector>
 
 // Forward reference
@@ -202,7 +203,7 @@ protected:
    
    void                 BuildPrefactors();
    void                 TranslateOrigin(const Real *state, const Real now);
-   void                 GetDensity(Real *state, Real when = 21545.0);
+   void                 GetDensity(Real *state, Real when = GmatTimeUtil::MJD_OF_J2000);
       
    Real                 CalculateAp(Real kp);
    

@@ -18,7 +18,7 @@
 #include "SolarSystemException.hpp"
 #include "CelestialBody.hpp"
 #include "Comet.hpp"
-#include "PhysicalConstants.hpp"
+#include "GmatConstants.hpp"
 #include "MessageInterface.hpp"
 #include "RealUtilities.hpp"
 #include "AngleUtil.hpp"

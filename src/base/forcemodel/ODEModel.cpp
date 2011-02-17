@@ -53,6 +53,7 @@
 #include "Formation.hpp"
 #include "MessageInterface.hpp"
 #include "PropagationStateManager.hpp"
+#include "TimeTypes.hpp"
 
 //#include "PointMassForce.hpp"
 //#include "Formation.hpp"      // for BuildState()
@@ -796,7 +797,7 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
    previousState = (*state);
    memcpy(state->GetState(), rawState, vectorSize);
    
-   Real newepoch = epoch + elapsedTime / 86400.0;      
+   Real newepoch = epoch + elapsedTime / GmatTimeUtil::SECS_PER_DAY;
    
    // Update the epoch if it was passed in
    if (newEpoch != -1.0)
@@ -867,7 +868,7 @@ void ODEModel::RevertSpaceObject()
           prevElapsedTime, elapsedTime);
    #endif
 
-   elapsedTime = prevElapsedTime;//previousState.GetEpoch();// * 86400.0;
+   elapsedTime = prevElapsedTime;//previousState.GetEpoch();// * GmatTimeUtil::SECS_PER_DAY;
 
    memcpy(rawState, previousState.GetState(), dimension*sizeof(Real));
    MoveToOrigin();

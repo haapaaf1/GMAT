@@ -603,7 +603,7 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Rvector &inState,
    #endif
 
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == 21545.0))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "AxisSystem::RotateToMJ2000Eq check for %s\n", typeName.c_str());
@@ -688,7 +688,7 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Real *inState,
    #endif
 
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == 21545.0))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "RotateToMJ2000Eq check for %s\n", typeName.c_str());
@@ -798,7 +798,7 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == 21545.0))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "AxisSystem::RotateFromMJ2000Eq check for %s\n", typeName.c_str());
@@ -876,7 +876,7 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == 21545.0))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "AxisSystem::RotateFromMJ2000Eq check for %s\n", typeName.c_str());
@@ -1393,8 +1393,8 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
       #ifdef DEBUG_FIRST_CALL
          if (!firstCallFired)
             MessageInterface::ShowMessage(
-               "   Using buffered nutation data: %.13lf = 86400*(%.12lf - %.12lf)\n",
-               dt, atEpoch.Get(), lastNUTEpoch.Get());
+               "   Using buffered nutation data: %.13lf = %.12f*(%.12lf - %.12lf)\n",
+               dt, SECS_PER_DAY, atEpoch.Get(), lastNUTEpoch.Get());
       #endif
       
       return;
@@ -1742,8 +1742,8 @@ void AxisSystem::ComputeSiderealTimeRotation(const Real jdTT,
    // Sidereal Time and the Equation of the equinoxes
    // (Vallado Eq. 3-45)
    // NOTE: 1 sec = 15"; 1 hour (= 15 deg) = 54000"
-   Real sec2deg = 15.0 / 3600;
    Real hour2deg = 15.0;
+   Real sec2deg = hour2deg / GmatTimeUtil::SECS_PER_HOUR;
    Real ThetaGmst = ((67310.54841 * sec2deg) + 
                      ((876600 * hour2deg) + (8640184.812866 * sec2deg))*tUT1 +
                      (0.093104 * sec2deg)*tUT12 - (6.2e-06 * sec2deg)*tUT13 )

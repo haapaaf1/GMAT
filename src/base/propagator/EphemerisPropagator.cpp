@@ -15,7 +15,7 @@
  */
 //------------------------------------------------------------------------------
 
-
+#include <sstream>
 #include "EphemerisPropagator.hpp"
 #include "MessageInterface.hpp"
 #include "TimeTypes.hpp"
@@ -69,7 +69,6 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
    Propagator           (typeStr, name),
    ephemStep            (300.0),
    epochFormat          ("A1ModJulian"),
-   startEpoch           ("21545.0"),
    initialEpoch         (-987654321.0),
    currentEpoch         (-987654321.0),
    timeFromEpoch        (0.0),
@@ -85,6 +84,10 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
 {
    objectTypeNames.push_back("EphemerisPropagator");
    parameterCount = EphemerisPropagatorParamCount;
+
+   std::stringstream epochString("");
+   epochString << GmatTimeUtil::MJD_OF_J2000;
+   startEpoch = epochString.str();
 }
 
 
@@ -1326,8 +1329,8 @@ void EphemerisPropagator::RevertSpaceObject()
           prevElapsedTime, elapsedTime);
    #endif
 
-   timeFromEpoch = (previousState.GetEpoch() - initialEpoch) * 86400.0;
-   currentEpoch = initialEpoch + timeFromEpoch / 86400.0;
+   timeFromEpoch = (previousState.GetEpoch() - initialEpoch) * GmatTimeUtil::SECS_PER_DAY;
+   currentEpoch = initialEpoch + timeFromEpoch / GmatTimeUtil::SECS_PER_DAY;
    UpdateState();
 
    MoveToOrigin();

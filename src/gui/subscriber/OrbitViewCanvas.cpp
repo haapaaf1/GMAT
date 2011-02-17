@@ -32,6 +32,7 @@
 #include "FileManager.hpp"         // for texture files
 #include "ColorTypes.hpp"          // for namespace GmatColor::
 #include "Rvector3.hpp"            // for Rvector3::GetMagnitude()
+#include "RealUtilities.hpp"
 #include "AngleUtil.hpp"           // for ComputeAngleInDeg()
 #include "CelestialBody.hpp"
 #include "MdiGlPlotData.hpp"
@@ -3993,9 +3994,6 @@ void OrbitViewCanvas::DrawEquatorialPlane(UnsignedInt color)
    glDisable(GL_LINE_SMOOTH);
    glLineWidth(1.0f);
    
-   static const Real RAD_PER_DEG =
-      3.14159265358979323846264338327950288419716939937511 / 180.0;
-   
    //distance = (Real)mAxisLength;
    distance = (mCamera.position - mCamera.view_center).GetMagnitude();
    
@@ -4009,7 +4007,7 @@ void OrbitViewCanvas::DrawEquatorialPlane(UnsignedInt color)
    //-----------------------------------
    for (i=7; i<368; i+=15)
    {
-      angle = RAD_PER_DEG * ((Real)i);
+      angle = GmatMathUtil::RAD_PER_DEG * ((Real)i);
 
       endPos[0] = distance * cos(angle);
       endPos[1] = distance * sin(angle);
@@ -5265,10 +5263,10 @@ Rvector3 OrbitViewCanvas::ComputeEulerAngles()
       {
          // compute cosine matrix
          if (upAxis.GetMagnitude() > 0.0)
-            upMat = GmatAttUtil::ToCosineMatrix(mfUpAngle * RAD_PER_DEG, upAxis);
+            upMat = GmatAttUtil::ToCosineMatrix(mfUpAngle * GmatMathUtil::RAD_PER_DEG, upAxis);
          
          if (rotAxis.GetMagnitude() > 0.0)
-            rotMat = GmatAttUtil::ToCosineMatrix(mfCamSingleRotAngle * RAD_PER_DEG, rotAxis);
+            rotMat = GmatAttUtil::ToCosineMatrix(mfCamSingleRotAngle * GmatMathUtil::RAD_PER_DEG, rotAxis);
          
          //finalMat = rotMat * upMat;
          finalMat = upMat * rotMat;

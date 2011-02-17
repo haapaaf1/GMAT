@@ -23,6 +23,7 @@
 
 
 #include "AtmosphereModel.hpp"
+#include "TimeTypes.hpp"
 
 
 /**
@@ -59,7 +60,7 @@ public:
          atm);
     
    virtual bool            Density(Real *position, Real *density, 
-                                   Real epoch=21545.0,
+                                   Real epoch = GmatTimeUtil::MJD_OF_J2000,
                                    Integer count = 1);
 
 protected: 

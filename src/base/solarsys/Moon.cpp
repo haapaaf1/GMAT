@@ -18,12 +18,13 @@
 #include "SolarSystemException.hpp"
 #include "CelestialBody.hpp"
 #include "Moon.hpp"
-#include "PhysicalConstants.hpp"
+#include "GmatConstants.hpp"
 #include "MessageInterface.hpp"
 #include "RealUtilities.hpp"
 #include "AngleUtil.hpp"
 //#include "FileManager.hpp"
 #include "StringUtil.hpp"
+#include "TimeTypes.hpp"
 
 //#define DEBUG_MOON 1
 
@@ -207,7 +208,7 @@ Rvector Moon::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
    Real p13 = 0.0;
    // Real p14 = 0.0, p15 = 0.0, p16 = 0.0;
    Real d = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
-   Real T = d / 36525;                          // interval in Julian centuries
+   Real T = d / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY; // interval in Julian centuries
    // Compute for Earth's Moon
    if (theCentralBodyName == SolarSystem::EARTH_NAME) 
    {

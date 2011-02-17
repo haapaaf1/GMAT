@@ -462,9 +462,9 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                     JD_JAN_5_1941);
       
       // Compute elapsed Julian centuries (UT1)
-      //Real tUT1     = (jdUT1 - 2451545.0) / 36525.0;
-      Real tDiff = JD_JAN_5_1941 - 2451545.0;
-      Real tUT1 = (mjdUT1 + tDiff) / 36525.0;
+      //Real tUT1     = (jdUT1 - JD_OF_J2000) / DAYS_PER_JULIAN_CENTURY;
+      Real tDiff = JD_JAN_5_1941 - JD_OF_J2000;
+      Real tUT1 = (mjdUT1 + tDiff) / DAYS_PER_JULIAN_CENTURY;
        
       // convert input A1 MJD to TT MJD (for most calculations)
       // 20.02.06 - arg: changed to use enum types instead of strings
@@ -476,8 +476,8 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       Real jdTT    = mjdTT + JD_JAN_5_1941; // right? 
       // Compute Julian centuries of TDB from the base epoch (J2000) 
       // NOTE - this is really TT, an approximation of TDB *********
-      //Real tTDB    = (jdTT - 2451545.0) / 36525.0;
-      Real tTDB    = (mjdTT + tDiff) / 36525.0;
+      //Real tTDB    = (jdTT - JD_OF_J2000) / DAYS_PER_JULIAN_CENTURY;
+      Real tTDB    = (mjdTT + tDiff) / DAYS_PER_JULIAN_CENTURY;
  
       #ifdef DEBUG_FIRST_CALL
          if (!firstCallFired)

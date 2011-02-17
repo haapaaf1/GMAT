@@ -304,8 +304,8 @@ void EquatorAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       Real mjdTT = TimeConverterUtil::Convert(atEpoch.Get(),
                    TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
                    GmatTimeUtil::JD_JAN_5_1941);      
-      Real offset = GmatTimeUtil::JD_JAN_5_1941 - 2451545.0;
-      Real tTDB  = (mjdTT + offset) / 36525.0;
+      Real offset = GmatTimeUtil::JD_JAN_5_1941 - GmatTimeUtil::JD_OF_J2000;
+      Real tTDB  = (mjdTT + offset) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
       
       if (overrideOriginInterval) updateIntervalToUse = 
                                   ((Planet*) origin)->GetNutationUpdateInterval();

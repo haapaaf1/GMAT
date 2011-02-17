@@ -36,6 +36,7 @@
 #include "MessageInterface.hpp"
 #include "RealUtilities.hpp"
 #include "StringUtil.hpp"
+#include "TimeTypes.hpp"
 
 
 //#define DEBUG_OBJECT_MAPPING
@@ -103,7 +104,8 @@ BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &it
    SpacePoint           (objType, itsType, itsName),
    cBodyName            ("Earth"),
    theBody              (NULL),
-   meanEquatorialRadius (6378.137),
+//   meanEquatorialRadius (6378.137),
+   meanEquatorialRadius (SolarSystem::EARTH_EQUATORIAL_RADIUS),
    flattening           (0.0033528106647474807198455),
    stateType            ("Cartesian"),
    horizon              ("Sphere"),
@@ -319,7 +321,7 @@ bool BodyFixedPoint::Initialize()
          return false;
       }
 
-      Rvector6 j2kState = GetMJ2000State(21545.0);
+      Rvector6 j2kState = GetMJ2000State(GmatTimeUtil::MJD_OF_J2000);
       MessageInterface::ShowMessage("The resulting MJ2000 Cartesian state is "
             "\n   [%s]\n", j2kState.ToString(16).c_str());
    #endif

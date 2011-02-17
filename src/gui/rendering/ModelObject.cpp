@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include "GmatConstants.hpp"
 #include "GmatOpenGLSupport.hpp"   // for OpenGL support
 #include "ModelObject.hpp"
 #include "Load3ds.hpp"
@@ -449,13 +450,14 @@ void ModelObject::TranslateW(float x, float y, float z){
 // x: x angle
 // y: y angle
 // z: z angle
-void ModelObject::Rotate(bool useDegrees, float x, float y, float z){
+void ModelObject::Rotate(bool useDegrees, float x, float y, float z)
+{
    matrix_type mat;
    float rotcos, rotsin;
    float factor = 1.0;
    // If we're using degrees, we'll need to add the conversion factor
    if (useDegrees)
-      factor = (float)(3.1415/180.0);
+      factor = (float)(GmatMathConstants::RAD_PER_DEG);
 	x *= factor;
 	y *= factor;
 	z *= factor;
@@ -558,10 +560,11 @@ void ModelObject::SetBaseOffset(float x, float y, float z){
 // x: The base x offset
 // y: The base y rotation
 // z: The base z rotation
-void ModelObject::SetBaseRotation(bool useDegrees, float x, float y, float z){
+void ModelObject::SetBaseRotation(bool useDegrees, float x, float y, float z)
+{
    float factor = 1.0f;
    if (useDegrees)
-      factor = (float)(3.1415/180.0);
+      factor = (float)(GmatMathConstants::RAD_PER_DEG);
    baseRotation[0] = x * factor;
    baseRotation[1] = y * factor;
    baseRotation[2] = z * factor;

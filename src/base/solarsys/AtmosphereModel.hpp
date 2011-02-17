@@ -23,6 +23,7 @@
 #include "GmatBase.hpp"
 #include "SolarFluxFileReader.hpp"
 #include "AtmosphereException.hpp"
+#include "TimeTypes.hpp"
 
 class SolarSystem;          // Forward reference
 class CelestialBody;
@@ -43,7 +44,7 @@ public:
    AtmosphereModel& operator=(const AtmosphereModel& am);
     
    //---------------------------------------------------------------------------
-   // bool Density(Real *position, Real *density, Real epoch = 21545.0,
+   // bool Density(Real *position, Real *density, Real epoch = GmatTimeUtil::MJD_OF_J2000,
    //              Integer count = 1)
    //---------------------------------------------------------------------------
    /**
@@ -62,7 +63,7 @@ public:
     * @return true on success, false if a problem is encountered.
     */
    //---------------------------------------------------------------------------
-   virtual bool Density(Real *position, Real *density, Real epoch = 21545.0,
+   virtual bool Density(Real *position, Real *density, Real epoch = GmatTimeUtil::MJD_OF_J2000,
                         Integer count = 1) = 0;
 
    void SetSunVector(Real *sv);

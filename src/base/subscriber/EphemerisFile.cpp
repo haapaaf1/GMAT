@@ -25,6 +25,7 @@
 #include "LagrangeInterpolator.hpp"  // for LagrangeInterpolator
 #include "RealUtilities.hpp"         // for IsEven()
 #include "MessageInterface.hpp"
+#include "TimeTypes.hpp"
 
 #ifdef __USE_SPICE__
 #include "SpiceOrbitKernelWriter.hpp"
@@ -2278,7 +2279,7 @@ bool EphemerisFile::SetStepSize(Integer id, const std::string &value,
    
    stepSize = value;
    stepSizeInSecs = rval;
-   stepSizeInA1Mjd = stepSizeInSecs / 86400.0;
+   stepSizeInA1Mjd = stepSizeInSecs / GmatTimeUtil::SECS_PER_DAY;
    
    useStepSize = true;
    
@@ -2663,9 +2664,9 @@ void EphemerisFile::WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6])
    // Since CCSDS utilities do no convert to desired CoordinateSystem,
    // convert it here
    if (!writeDataInDataCS)
-      ConvertState(reqEpochInSecs/86400.0, state, outState);
+      ConvertState(reqEpochInSecs/GmatTimeUtil::SECS_PER_DAY, state, outState);
    
-   BufferOrbitData(reqEpochInSecs/86400.0, outState);
+   BufferOrbitData(reqEpochInSecs/GmatTimeUtil::SECS_PER_DAY, outState);
    
    #ifdef DEBUG_EPHEMFILE_CCSDS
    MessageInterface::ShowMessage("EphemerisFile::WriteCcsdsOemData() leaving\n");
@@ -2980,7 +2981,7 @@ std::string EphemerisFile::ToUtcGregorian(Real epoch, bool inDays, Integer forma
    
    Real epochInDays = epoch;
    if (!inDays)
-      epochInDays = epoch / 86400.0;
+      epochInDays = epoch / GmatTimeUtil::SECS_PER_DAY;
    
    // Convert current epoch to specified format
    TimeConverterUtil::Convert("A1ModJulian", epochInDays, "", epochFormat,
@@ -3008,7 +3009,7 @@ void EphemerisFile::DebugWriteTime(const std::string &msg, Real epoch, bool inDa
 {
    Real epochInDays = epoch;
    if (!inDays)
-      epochInDays = epoch / 86400.0;
+      epochInDays = epoch / GmatTimeUtil::SECS_PER_DAY;
    
    std::string epochStr = ToUtcGregorian(epochInDays, true, format);
    
@@ -3027,7 +3028,7 @@ void EphemerisFile::DebugWriteOrbit(const std::string &msg, Real epoch,
 {
    Real reqEpochInDays = epoch;
    if (!inDays)
-      reqEpochInDays = epoch / 86400.0;
+      reqEpochInDays = epoch / GmatTimeUtil::SECS_PER_DAY;
    
    Rvector6 inState(state);
    Rvector6 outState(state);
@@ -3239,7 +3240,7 @@ bool EphemerisFile::Distribute(const Real * dat, Integer len)
    // Internally all epochs are in seconds to avoid epoch drifting.
    // For long run epochs to process drifts behind the actual.
    prevEpochInSecs = currEpochInSecs;
-   currEpochInSecs = currEpochInDays * 86400.0;
+   currEpochInSecs = currEpochInDays * GmatTimeUtil::SECS_PER_DAY;
    
    // Ignore duplicate data
    if (currEpochInSecs == prevEpochInSecs)

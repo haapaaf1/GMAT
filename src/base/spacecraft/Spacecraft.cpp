@@ -28,6 +28,7 @@
 #include "MessageInterface.hpp"
 #include "SpaceObjectException.hpp"
 #include "StringUtil.hpp"
+#include "TimeTypes.hpp"
 #include "CSFixed.hpp"               // for default attitude creation
 #ifdef __USE_SPICE__
 #include "SpiceAttitude.hpp"         // for SpiceAttitude - to set object name and ID
@@ -251,7 +252,6 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    SpaceObject          (Gmat::SPACECRAFT, typeStr, name),
    modelFile            (""),
    modelID              (NO_MODEL),
-   scEpochStr           ("21545.000000000"),
    dryMass              (850.0),
    coeffDrag            (2.2),
    dragArea             (15.0),
@@ -292,15 +292,19 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    objectTypeNames.push_back("Spacecraft");
    ownedObjectCount = 0;
 
+   std::stringstream ss("");
+   ss << GmatTimeUtil::MJD_OF_J2000;
+   scEpochStr = ss.str();
+
    Real a1mjd = -999.999;
    std::string outStr;
-   Real taimjd = 21545.0;
+   Real taimjd = GmatTimeUtil::MJD_OF_J2000;
 
    // Internal epoch is in A1ModJulian, so convert
    TimeConverterUtil::Convert("TAIModJulian", taimjd, "",
                               "A1ModJulian", a1mjd, outStr);
 
-   //state.SetEpoch(21545.0);
+   //state.SetEpoch(GmatTimeUtil::MJD_OF_J2000);
    state.SetEpoch(a1mjd);
 
    state[0] = 7100.0;

@@ -21,6 +21,7 @@
 #include "CubicSplineInterpolator.hpp"
 #include "Moderator.hpp"
 #include "MessageInterface.hpp"
+#include "TimeTypes.hpp"
 #include <iomanip>
 #include <cstdlib>
 
@@ -434,7 +435,7 @@ bool TextEphemFile::Distribute(const Real * dat, Integer len)
          
          // Compute next output time, first data is time
          mCurrA1Mjd = dat[0];
-         mOutputA1Mjd = dat[0] + mIntervalInSec/86400.0;
+         mOutputA1Mjd = dat[0] + mIntervalInSec/GmatTimeUtil::SECS_PER_DAY;
          
          // Write first data
          WriteFirstData();
@@ -759,7 +760,7 @@ void TextEphemFile::WriteData()
    mStopA1Mjd = mOutputA1Mjd;
    
    // Compute new output time
-   mOutputA1Mjd = mOutputA1Mjd + mIntervalInSec/86400.0;
+   mOutputA1Mjd = mOutputA1Mjd + mIntervalInSec/GmatTimeUtil::SECS_PER_DAY;
    
    #if DEBUG_EPHEMFILE_DATA
    MessageInterface::ShowMessage

@@ -20,7 +20,7 @@
 #include "StringUtil.hpp"          // for GmatStringUtil
 #include "HardwareException.hpp"
 #include "MessageInterface.hpp"
-#include "PhysicalConstants.hpp"
+#include "GmatConstants.hpp"
 #include <sstream>
 
 
@@ -409,28 +409,32 @@ Real FuelTank::SetRealParameter(const Integer id, const Real value)
          return pressure;
          
       case TEMPERATURE:
-         if (value > GmatPhysicalConst::ABSOLUTE_ZERO_C)
+         if (value > GmatPhysicalConstants::ABSOLUTE_ZERO_C)
             temperature = value;
          else
          {
             HardwareException hwe("");
+            std::stringstream ss("");
+            ss << "Real Number > " << GmatPhysicalConstants::ABSOLUTE_ZERO_C;
             hwe.SetDetails(errorMessageFormat.c_str(),
                            GmatStringUtil::ToString(value, 16).c_str(),
-                           "Temperature", "Real Number > -273.15");
+                           "Temperature", (ss.str()).c_str());
             throw hwe;
          }
          initialized = false;
          return temperature;
          
       case REFERENCE_TEMPERATURE:
-         if (value > GmatPhysicalConst::ABSOLUTE_ZERO_C)
+         if (value > GmatPhysicalConstants::ABSOLUTE_ZERO_C)
             refTemperature = value;
          else
          {
             HardwareException hwe("");
+            std::stringstream ss("");
+            ss << "Real Number > " << GmatPhysicalConstants::ABSOLUTE_ZERO_C;
             hwe.SetDetails(errorMessageFormat.c_str(),
                            GmatStringUtil::ToString(value, 16).c_str(),
-                           "RefTemperature", "Real Number > -273.15");
+                           "RefTemperature", (ss.str()).c_str());
             throw hwe;
          }
          initialized = false;

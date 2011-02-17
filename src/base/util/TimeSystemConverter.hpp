@@ -26,6 +26,7 @@
 #include "BaseException.hpp"
 #include "EopFile.hpp"
 #include "LeapSecsFileReader.hpp"
+#include "TimeTypes.hpp"
 
 // struct TimeSystemConverterExceptions
 // {
@@ -66,11 +67,11 @@ namespace TimeConverterUtil
    static const Real TDB_COEFF2                    = 0.00001385;
    static const Real M_E_OFFSET                    = 357.5277233;
    static const Real M_E_COEFF1                    = 35999.05034;
-   static const Real T_TT_OFFSET                   = 2451545.0;
-   static const Real T_TT_COEFF1                   = 36525;
+   static const Real T_TT_OFFSET                   = GmatTimeUtil::JD_OF_J2000;
+   static const Real T_TT_COEFF1                   = GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
    static const Real L_B                           = 1.550505e-8;
    static const Real TCB_JD_MJD_OFFSET             = 2443144.5;
-   static const Real NUM_SECS                      = 86400;
+   static const Real NUM_SECS                      = GmatTimeUtil::SECS_PER_DAY;
 
    enum TimeSystemTypes
    {

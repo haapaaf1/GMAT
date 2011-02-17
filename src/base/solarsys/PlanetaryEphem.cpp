@@ -18,6 +18,7 @@
 //------------------------------------------------------------------------------
 
 #include "PlanetaryEphem.hpp"
+#include "TimeTypes.hpp"
 #include <cstdio>  // Fix for header rearrangement in gcc 4.4
 
 //------------------------------------------------------------------------------
@@ -39,7 +40,7 @@ PlanetaryEphem::PlanetaryEphem(std::string withFileName)
    strcpy(g_pef_dcb.full_path,withFileName.c_str());
    g_pef_dcb.recl           = 0;
    g_pef_dcb.fptr           = NULL;
-   jdMjdOffset              = 2430000.0;  // will be set by subclasses
+   jdMjdOffset              = GmatTimeUtil::JD_JAN_5_1941;
 }
 
 //------------------------------------------------------------------------------

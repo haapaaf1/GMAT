@@ -20,6 +20,7 @@
 
 #include "GmatState.hpp"
 #include "GmatBaseException.hpp"
+#include "TimeTypes.hpp"
 
 #include <sstream>
 #include "MessageInterface.hpp"
@@ -42,7 +43,7 @@
  */
 //------------------------------------------------------------------------------
 GmatState::GmatState(Integer size) :
-   theEpoch          (21545.0),
+   theEpoch          (GmatTimeUtil::MJD_OF_J2000),
    stateSize         (size)   
 {
    if (stateSize == 0)

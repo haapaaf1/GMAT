@@ -21,6 +21,7 @@
 #define Msise90Atmosphere_hpp
 
 #include "AtmosphereModel.hpp"
+#include "TimeTypes.hpp"
  
 /**
  * Wraps the MSISE90 atmosphere code, ported by a.i. Solutions from the FORTRAN,
@@ -35,7 +36,7 @@ public:
    Msise90Atmosphere&      operator=(const Msise90Atmosphere& msise);
     
    bool                    Density(Real *position, Real *density,
-                                    Real epoch=21545.0,
+                                    Real epoch = GmatTimeUtil::MJD_OF_J2000,
                                     Integer count = 1);
 
    virtual GmatBase*       Clone() const; // inherited from GmatBase
