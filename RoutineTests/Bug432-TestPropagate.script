@@ -93,6 +93,9 @@ GMAT passFlag = 1;
 Create Array StopArray[3,3];
 GMAT StopArray(1, 1) = 90.0;
 GMAT StopArray(2, 2) = 160.0;
+Create Variable achievedStop desiredStop startEpoch;
+Create Array arrayRHS[3,3];
+GMAT arrayRHS(1, 1) = 1;
 
 %----------------------------------------
 %---------- Subscribers
@@ -130,6 +133,8 @@ GMAT ReportFile1.WriteHeaders = Off;
 GMAT ReportFile1.LeftJustify = On;
 GMAT ReportFile1.ZeroFill = Off;
 GMAT ReportFile1.ColumnWidth = 20;
+
+Create ReportFile debug
 
 %----------------------------------------
 %---------- Mission Sequence
@@ -183,6 +188,122 @@ If diff > 1e-5
    GMAT passFlag = 0;
 EndIf;
 Report ReportFile1 passFlag;
+
+%==========  Cyclic Condition
+
+arrayRHS(2,2) = 45;
+Propagate DefaultProp(Sat1) {Sat1.TA = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.TA - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag ;
+achievedStop =  Sat1.TA
+desiredStop = arrayRHS(2,2)
+Report debug passFlag achievedStop desiredStop diff;
+
+
+arrayRHS(2,2) = 125;
+Propagate BackProp DefaultProp(Sat1) {Sat1.TA = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.TA - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag diff;
+achievedStop =  Sat1.TA
+desiredStop = arrayRHS(2,2)
+Report debug passFlag achievedStop desiredStop diff;
+
+%==========  ElapsedTime Condition
+
+arrayRHS(1,1) = .15;
+startEpoch = Sat1.TAIModJulian;
+Propagate DefaultProp(Sat1) {Sat1.ElapsedDays = arrayRHS(1,1), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.TAIModJulian - startEpoch - arrayRHS(1,1));
+GMAT passFlag = 1;
+If diff > 1e-5 & startEpoch < Sat1.TAIModJulian
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+achievedStop =  Sat1.TAIModJulian;
+desiredStop = startEpoch + arrayRHS(1,1);
+Report debug passFlag achievedStop desiredStop diff;
+
+arrayRHS(1,1) = -.05;
+startEpoch = Sat1.TAIModJulian;
+Propagate BackProp DefaultProp(Sat1) {Sat1.ElapsedDays = arrayRHS(1,1), StopTolerance = 1e-005};
+GMAT diff = abs(startEpoch - Sat1.TAIModJulian  - arrayRHS(1,1));
+GMAT passFlag = 1;
+If diff > 1e-5 & startEpoch > Sat1.TAIModJulian
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+achievedStop =  Sat1.TAIModJulian;
+desiredStop = startEpoch + arrayRHS(1,1);
+Report debug passFlag achievedStop desiredStop diff;
+
+%==========  "Normal condition" 
+
+arrayRHS(2,2) = 310;
+Propagate DefaultProp(Sat1) {Sat1.X = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.X - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+arrayRHS(2,2) = 500;
+Propagate BackProp DefaultProp(Sat1) {Sat1.X = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.X - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+%==========  Coordinate System Dependence
+
+arrayRHS(2,2) = 310;
+Propagate DefaultProp(Sat1) {Sat1.EarthMJ2000Ec.X = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.EarthMJ2000Ec.X - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+arrayRHS(2,2) = 500;
+Propagate BackProp DefaultProp(Sat1) {Sat1.EarthMJ2000Ec.X = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.EarthMJ2000Ec.X - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+%==========  Central Body Dependency
+
+arrayRHS(2,2) = 7050;
+Propagate DefaultProp(Sat1) {Sat1.Earth.RMAG = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.Earth.RMAG - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
+arrayRHS(2,2) = 7100;
+Propagate BackProp DefaultProp(Sat1) {Sat1.Earth.RMAG = arrayRHS(2,2), StopTolerance = 1e-005};
+GMAT diff = abs(Sat1.Earth.RMAG - arrayRHS(2,2));
+GMAT passFlag = 1;
+If diff > 1e-5
+   GMAT passFlag = 0;
+EndIf;
+Report ReportFile1 passFlag;
+
 
 %%%========================================================================
 %%%----- Currently not allowed
