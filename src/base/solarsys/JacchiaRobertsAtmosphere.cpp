@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              JacchiaRobertsAtmosphere
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Waka A. Waktola
 // Created: 2004/05/11
@@ -17,20 +17,12 @@
 #include "AtmosphereException.hpp"
 #include "SolarSystem.hpp"
 #include "MessageInterface.hpp"
+#include "RealUtilities.hpp"
 
 // #define DEBUG_JR_DRAG 1
 
 #include "MessageInterface.hpp"
 
-const Real pi         = 3.141592653589793238;
-const Real ra         = 6356.766;              /// Average radius of the earth (km) 
-const Real earth_rate = 0.7292115855306586e-4; /// Rotational rate of earth (rad/sec) 
-const Real flat       = 3.3528133297e-3;       /// Earth "flattening factor" 
-const Real avogadro   = 6.022045e23;           /// Avogadro's number 
-const Real g_zero     = 9.80665;               /// earth gravitational constant m/sec**2 
-const Real gas_con    = 8.31432;               /// gas constant (joules/(degK-mole)) 
-const Real rho_zero   = 3.46e-9;               /// low altitude density in g/cm**2
-const Real tzero = 183.0; /// Temperature in degrees kelvin at height of 90km
 
 //---------------------------------
 // Constants for series expansion    
@@ -205,11 +197,18 @@ const Real con_den[5][7] =
 // JacchiaRobertsAtmosphere(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
- *
+ * Default constructor
  */
 //------------------------------------------------------------------------------
 JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const std::string &name) :
-   AtmosphereModel("JacchiaRoberts", name)
+   AtmosphereModel      ("JacchiaRoberts", name),
+   cbPolarRadius        (6356.766),
+   cbPolarSquared       (40408473.978756),
+   rho_zero             (3.46e-9),
+   tzero                (183.0),
+   g_zero               (9.80665),
+   gas_con              (8.31432),
+   avogadro             (6.022045e23)
 {
    earth = NULL;
 }
@@ -218,12 +217,11 @@ JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const std::string &name) :
 // ~JacchiaRobertsAtmosphere()
 //------------------------------------------------------------------------------
 /**
- *
+ * Destructor
  */
 //------------------------------------------------------------------------------
 JacchiaRobertsAtmosphere::~JacchiaRobertsAtmosphere()
 {
-   //loj: 2/23/05 Added if (fileReader)
    if (fileReader)
    {
       if (fileReader->CloseSolarFluxFile(solarFluxFile))
@@ -251,7 +249,14 @@ JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const JacchiaRobertsAtmospher
     y_root              (jr.y_root),
     t_infinity          (jr.t_infinity),
     tx                  (jr.tx),
-    sum                 (jr.sum)
+    sum                 (jr.sum),
+    cbPolarRadius       (jr.cbPolarRadius),
+    cbPolarSquared      (jr.cbPolarSquared),
+    rho_zero            (jr.rho_zero),
+    tzero               (jr.tzero),
+    g_zero              (jr.g_zero),
+    gas_con             (jr.gas_con),
+    avogadro            (jr.avogadro)
 {
 }
 
@@ -274,15 +279,17 @@ JacchiaRobertsAtmosphere& JacchiaRobertsAtmosphere::operator=
         
     AtmosphereModel::operator=(jr);   
     
-    earth       = NULL;
-    root1       = jr.root1;
-    root2       = jr.root2;
-    x_root      = jr.x_root;
-    y_root      = jr.y_root;
-    t_infinity  = jr.t_infinity;
-    tx          = jr.tx;
-    sum         = jr.sum;
-         
+    earth            = NULL;
+    root1            = jr.root1;
+    root2            = jr.root2;
+    x_root           = jr.x_root;
+    y_root           = jr.y_root;
+    t_infinity       = jr.t_infinity;
+    tx               = jr.tx;
+    sum              = jr.sum;
+    cbPolarRadius    = jr.cbPolarRadius;
+    cbPolarSquared   = jr.cbPolarSquared;
+
     return *this;
 }
 
@@ -321,25 +328,23 @@ bool JacchiaRobertsAtmosphere::Density(Real *pos, Real *density, Real epoch,
          ("JacchiaRobertsAtmosphere::Density() epoch=%g, sc count=%d\n", epoch,
           count);
    #endif
-   Real height, rho;
+   Real height;
    Real utc_time;
-   //loj: 1/14/05 A1Mjd *a1mjd_time = new A1Mjd(epoch);
    A1Mjd a1mjd_time(epoch);
+
+   // Don't offset by half a day here:
+   utc_time = (Real)a1mjd_time.ToUtcMjd();// - 0.5;
    
-   // Compute height of spacecraft
-   //  height = sqrt(pos[0]*pos[0] + pos[1]*pos[1]
-   //             + pos[2]*pos[2]) - ra;
-   
-   GetEarth();  
-   Real earthRadius = earth->GetEquatorialRadius();
-   
-   //loj: 1/14/05 Added to handle multiple spacecraft
+   #ifdef DEBUG_JR_DRAG
+      MessageInterface::ShowMessage
+         ("   UTC time = %lf\n", utc_time);
+   #endif
+
    for (Integer i=0; i<count; i++)
    {
-      // @todo Replace with a call to CalculateGeodetics
-      height = get_geodetic_height(earthRadius, &pos[i*6], flat);
+      height = CalculateGeodetics(&pos[i*6], epoch, true);
       if (epoch != wUpdateEpoch)
-         UpdateAngularVelocity(epoch);
+         AtmosphereModel::BuildAngularVelocity(epoch);
       
       #ifdef DEBUG_JR_DRAG
          MessageInterface::ShowMessage
@@ -347,35 +352,21 @@ bool JacchiaRobertsAtmosphere::Density(Real *pos, Real *density, Real epoch,
       #endif
       // Obtain density of atmosphere at spacecraft height
 
-      // Compute the correct time first  
-      //loj: utc_time = (Real)a1mjd_time->ToUtcMjd() - 0.5;
-      utc_time = (Real)a1mjd_time.ToUtcMjd() - 0.5;
-
-      #ifdef DEBUG_JR_DRAG
-         MessageInterface::ShowMessage
-            ("   UTC time = %lf\n", utc_time);
-      #endif
-      //  For heights in the air, use JacchiaRoberts to calculate the density.  For
-      //  heights at or below the surface of the Earth, use the constant value
-      //  used for heights below 90 KM.
+      //  For heights in the air, use JacchiaRoberts to calculate the density.
+      //  For heights at or below the surface of the Earth, use the constant
+      //  value used for heights below 90 KM.
       if (height > 0.0)
       {         
-         rho = 1.0e12 * JacchiaRoberts(height, &pos[i*6], sunVector, utc_time, newFile);
+         // Output density in units of kg/m3
+         density[i] = 1.0e3 * JacchiaRoberts(height, &pos[i*6], sunVector,
+               utc_time, newFile);
       }
       else
       {
-         rho = 1.0e12 * rho_zero;
+         // Output density in units of kg/m3
+         density[i] = 1.0e3 * rho_zero;
       }
 
-      #ifdef DEBUG_JR_DRAG
-         MessageInterface::ShowMessage
-            ("   rho = %15.10le\n", rho);
-      #endif
-
-      // Output density in units of kg/m3
-      //loj: 1/14/05 *density = 1.0e-9 * rho;
-      density[i] = 1.0e-9 * rho;
-      
       #ifdef DEBUG_JR_DRAG
          MessageInterface::ShowMessage
             ("JRDensity(): sat %d pos = %g, %g, %g, height = %g, density = %g\n",
@@ -385,6 +376,25 @@ bool JacchiaRobertsAtmosphere::Density(Real *pos, Real *density, Real epoch,
    
    return true;
 }
+
+
+//------------------------------------------------------------------------------
+// void SetCentralBodyVector(Real *cv)
+//------------------------------------------------------------------------------
+/**
+ * Sets the central body, obtaining locally needed constants
+ *
+ * @param cb The new central body
+ */
+//------------------------------------------------------------------------------
+void JacchiaRobertsAtmosphere::SetCentralBody(CelestialBody *cb)
+{
+   AtmosphereModel::SetCentralBody(cb);
+
+   cbPolarRadius = mCentralBody->GetPolarRadius();
+   cbPolarSquared = cbPolarRadius*cbPolarRadius;
+}
+
 
 //------------------------------------------------------------------------------
 // Real JacchiaRoberts(Real height, Real space_craft[3], Real sun[3], 
@@ -470,11 +480,9 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
    }
    // Compute declination of the sun
    sun_dec = atan2(sun[2], sqrt(sun[0]*sun[0] + sun[1]*sun[1]));
-   // Compute geodetic latitude of spacecraft
-   geo_lat = atan2(space_craft[2],
-                   sqrt(space_craft[0]*space_craft[0] +
-                        space_craft[1]*space_craft[1]) *
-                   ((1.0-flat)*(1.0-flat))); 
+   // Geodetic latitude of spacecraft, in radians
+   geo_lat = geoLat * GmatMathUtil::RAD_PER_DEG;
+
    // Compute height dependent density
    if (height<=90.0)
    {
@@ -482,7 +490,7 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
    }
    else if (height < (Real) 100.0)
    {
-      temperature = exotherm(space_craft, sun, &geo, height,sun_dec, geo_lat);
+      temperature = exotherm(space_craft, sun, &geo, height, sun_dec, geo_lat);
       density = rho_100(height, temperature);
       #ifdef DEBUG_JR_DRAG
          MessageInterface::ShowMessage
@@ -493,7 +501,7 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
    }
    else if (height <= (Real) 125.0)
    {
-      temperature = exotherm(space_craft, sun, &geo, height,sun_dec, geo_lat);
+      temperature = exotherm(space_craft, sun, &geo, height, sun_dec, geo_lat);
       density = rho_125(height, temperature);
       #ifdef DEBUG_JR_DRAG
          MessageInterface::ShowMessage
@@ -504,7 +512,7 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
    }
    else if (height <= (Real) 2500.0)
    {
-      t_500 = exotherm(space_craft, sun, &geo, 500.0, sun_dec,geo_lat);  
+      t_500 = exotherm(space_craft, sun, &geo, 500.0, sun_dec, geo_lat);
       temperature = exotherm(space_craft, sun, &geo, height, sun_dec, geo_lat);
  
       density = rho_high(height, temperature, t_500, sun_dec, geo_lat);
@@ -586,10 +594,10 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
    eta = 0.5 * fabs(geo_lat - sun_dec);
    tau = hour_angle - 0.64577182325 + 0.10471975512 *
       sin(hour_angle + 0.75049157836);
-   if (tau < -pi)
-      tau += 2 * pi;
-   else if (tau > pi)
-      tau -= 2 * pi;
+   if (tau < - GmatMathUtil::PI)
+      tau += 2 * GmatMathUtil::PI;
+   else if (tau > GmatMathUtil::PI)
+      tau -= 2 * GmatMathUtil::PI;
    th22 = pow(sin(theta), 2.2);
    t1 = (Real)geo->xtemp * (1.0 + 0.3*(th22 +pow(cos(0.5*tau),3.0) *
                                          (pow(cos(eta),2.2) - th22)));
@@ -621,7 +629,7 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
    if (height < 125.0)
    {
       // Compute height dependent polynomial
-      for (sum = con_c[4], i = 3; i>=0; i--)
+      for (sum = con_c[4], i = 3; i >= 0; i--)
       {
          sum = con_c[i] + sum*height;
       }
@@ -632,7 +640,7 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
    else if (height > 125.0)
    {
       // Compute temperature dependent polynomial
-      for (sum = con_l[4], i = 3; i>=0; i--)
+      for (sum = con_l[4], i = 3; i >= 0; i--)
       {
          sum = con_l[i] + sum*t_infinity;
       }
@@ -640,7 +648,7 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
       exotemp = t_infinity - (t_infinity - tx) *
          exp(-(tx-tzero)/(t_infinity - tx) *
              (height - 125.0)/35.0 *
-             sum/(ra + height) );
+             sum/(cbPolarRadius + height) );
    }
    else
       exotemp = tx;
@@ -649,7 +657,7 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
    {
       // Obtain coefficients of polynomial for auxiliary quantities
       // required for heights less than 125 km
-      for (c_star[0]=con_c[0] + 1500625.0 * tx/(tx-tzero), i=1; i<=4; i++)
+      for (c_star[0]=con_c[0] + 1500625.0 * tx/(tx-tzero), i = 1; i <= 4; i++)
       {
          c_star[i] = con_c[i];
       }
@@ -716,27 +724,31 @@ Real JacchiaRobertsAtmosphere::rho_100(Real height, Real temperature)
    Integer i;
 
    // Compute M(z) polynomial
-   for (m_poly = m_con[6], i=5; i>=0; i--)
+   for (m_poly = m_con[6], i = 5; i >= 0; i--)
    {
       m_poly = m_poly * height + m_con[i];
    }
 
    // Compute temperature dependent coefficients
-   for (i=0; i<=5; i++)
+   for (i = 0; i <= 5; i++)
    {
       b[i] = s_con[i] + s_beta[i] * tx/(tx-tzero);
    }
 
    // Compute functions of auxiliary temperature values
    roots_2 = x_root*x_root + y_root*y_root;
-   x_star = -2.0* root1 * root2 * ra * (ra*ra + 2.0*ra*x_root + roots_2);
-   v = (ra + root1)*(ra +root2) * (ra*ra + 2.0*ra*x_root + roots_2);
-   u[0] = (root1 - root2) * (root1 + ra) * (root1 + ra) *
+   x_star = -2.0* root1 * root2 * cbPolarRadius * (cbPolarSquared +
+         2.0*cbPolarRadius*x_root + roots_2);
+   v = (cbPolarRadius + root1)*(cbPolarRadius +root2) * (cbPolarSquared +
+         2.0*cbPolarRadius*x_root + roots_2);
+   u[0] = (root1 - root2) * (root1 + cbPolarRadius) * (root1 + cbPolarRadius) *
         (root1*root1 - 2.0*root1*x_root + roots_2);
-   u[1] = (root1 - root2) * (root2 + ra) * (root2 + ra) *
+   u[1] = (root1 - root2) * (root2 + cbPolarRadius) * (root2 + cbPolarRadius) *
         (root2*root2 - 2.0*root2*x_root + roots_2);
-   w[0] = root1 * root2 * ra * (ra + root1) * (ra + roots_2/root1);
-   w[1] = root1 * root2 * ra * (ra + root2) * (ra + roots_2/root2);
+   w[0] = root1 * root2 * cbPolarRadius * (cbPolarRadius + root1) *
+         (cbPolarRadius + roots_2/root1);
+   w[1] = root1 * root2 * cbPolarRadius * (cbPolarRadius + root2) *
+         (cbPolarRadius + roots_2/root2);
 
    // Compute S(z) polynomial for z = root1
    for (s_poly = b[5], i=4; i>=0; i--)
@@ -756,38 +768,40 @@ Real JacchiaRobertsAtmosphere::rho_100(Real height, Real temperature)
    // Compute S(z) polynomial for z = negative earth radius
    for (s_poly = b[5], i=4; i>=0; i--)
    {
-      s_poly = -s_poly * ra + b[i];
+      s_poly = -s_poly * cbPolarRadius + b[i];
    }
    // Compute p5 factor in f2 function
    p5 = s_poly/v;
 
    // Compute power of fourth quantity in f1 function
-   p4 = (b[0] - root1*root2*ra*ra*(b[4] + b[5]*
-       (2.0*x_root + root1 + root2 - ra)) + w[0]*p2 + w[1]*p3
-       - root1*root2*b[5]*ra*roots_2
-       + root1*root2*(ra*ra - roots_2)*p5)/x_star;
+   p4 = (b[0] - root1*root2*cbPolarSquared*(b[4] + b[5]*
+       (2.0*x_root + root1 + root2 - cbPolarRadius)) + w[0]*p2 + w[1]*p3
+       - root1*root2*b[5]*cbPolarRadius*roots_2
+       + root1*root2*(cbPolarSquared - roots_2)*p5)/x_star;
 
    // Compute power of first quantity in f1 function
    p1 = b[5] - 2*p4 - p3 - p2;
 
    // Compute p6 factor in f2 function
-   p6 = b[4] + b[5]*(2.0*x_root + root1 + root2 - ra) - p5
-       - 2.0*(x_root +ra)*p4 - (root2 + ra)*p3 - (root1 +ra)*p2;
+   p6 = b[4] + b[5]*(2.0*x_root + root1 + root2 - cbPolarRadius) - p5
+       - 2.0*(x_root + cbPolarRadius)*p4 - (root2 + cbPolarRadius)*p3
+       - (root1 + cbPolarRadius)*p2;
 
    // Compute natural log of f1 function
-   log_f1 =   p1 * log( (height + ra)/(90.0 + ra))
+   log_f1 =   p1 * log( (height + cbPolarRadius)/(90.0 + cbPolarRadius))
          +   p2 * log( (height - root1)/(90.0 - root1))
          +   p3 * log( (height - root2)/(90.0 - root2))
          +   p4 * log( (height*height - 2.0*x_root*height + roots_2)
              /(8100.0 - 180.0*x_root + roots_2));
 
    // Compute f2 function
-   f2 =    (height - 90.0) * (m_con[6] + p5/((height + ra)*(90.0 + ra)))
+   f2 =    (height - 90.0) * (m_con[6] + p5/((height + cbPolarRadius)*
+         (90.0 + cbPolarRadius)))
        + p6 * atan(y_root * (height - 90.0)/(
         y_root*y_root + (height - x_root)*(90.0 - x_root))) / y_root;
 
    // Compute f1 power
-   factor_k = -1500625.0*g_zero*ra*ra/(gas_con*con_c[4]*(tx-tzero));
+   factor_k = -1500625.0*g_zero*cbPolarSquared/(gas_con*con_c[4]*(tx-tzero));
 
    return rho_zero * tzero * m_poly * exp(factor_k*(log_f1 + f2)) /
        (mzero * temperature);
@@ -823,14 +837,18 @@ Real JacchiaRobertsAtmosphere::rho_125(Real height, Real temperature)
 
    // Compute functions of auxiliary temperature values
    roots_2 = x_root*x_root + y_root*y_root;
-   x_star = -2.0* root1 * root2 * ra * (ra*ra + 2.0*ra*x_root + roots_2);
-   v = (ra + root1)*(ra +root2) * (ra*ra + 2.0*ra*x_root + roots_2);
-   u[0] = (root1 - root2) * (root1 + ra) * (root1 + ra) *
+   x_star = -2.0* root1 * root2 * cbPolarRadius * (cbPolarSquared + 2.0 *
+         cbPolarRadius*x_root + roots_2);
+   v = (cbPolarRadius + root1)*(cbPolarRadius +root2) * (cbPolarSquared + 2.0 *
+         cbPolarRadius*x_root + roots_2);
+   u[0] = (root1 - root2) * (root1 + cbPolarRadius) * (root1 + cbPolarRadius) *
        (root1*root1 - 2.0*root1*x_root + roots_2);
-   u[1] = (root1 - root2) * (root2 + ra) * (root2 + ra) *
+   u[1] = (root1 - root2) * (root2 + cbPolarRadius) * (root2 + cbPolarRadius) *
        (root2*root2 - 2.0*root2*x_root + roots_2);
-   w[0] = root1 * root2 * ra * (ra + root1) * (ra + roots_2/root1);
-   w[1] = root1 * root2 * ra * (ra + root2) * (ra + roots_2/root2);
+   w[0] = root1 * root2 * cbPolarRadius * (cbPolarRadius + root1) *
+         (cbPolarRadius + roots_2/root1);
+   w[1] = root1 * root2 * cbPolarRadius * (cbPolarRadius + root2) *
+         (cbPolarRadius + roots_2/root2);
 
    // Compute power of second quantity in f3 function
    q2 = 1.0/u[0];
@@ -843,28 +861,30 @@ Real JacchiaRobertsAtmosphere::rho_125(Real height, Real temperature)
 
    // Compute power of fourth quantity in f3 function
    q4 = (1.0 + w[0]*q2 + w[1]*q3
-       + root1*root2*(ra*ra - roots_2)*q5)/x_star;
+       + root1*root2*(cbPolarSquared - roots_2)*q5)/x_star;
 
    // Compute power of first quantity in f3 function
    q1 = - 2*q4 - q3 - q2;
 
    // Compute q6 factor in f4 function
-   q6 = - q5 - 2.0*(x_root + ra)*q4 - (root2 + ra)*q3 - (root1 +ra)*q2;
+   q6 = - q5 - 2.0*(x_root + cbPolarRadius)*q4 - (root2 + cbPolarRadius)*q3 -
+         (root1 +cbPolarRadius)*q2;
 
    // Compute log of f3 function
-   log_f3 =  q1 * log( (height + ra)/(100.0 + ra))
+   log_f3 =  q1 * log( (height + cbPolarRadius)/(100.0 + cbPolarRadius))
         +  q2 * log( (height - root1)/(100.0 - root1))
         +  q3 * log( (height - root2)/(100.0 - root2))
         +  q4 * log( (height*height - 2.0*x_root*height + roots_2)
             /(1.0e4 - 200.0*x_root + roots_2));
 
    // Compute f4 function
-   f4 =    (height - 100.0) * q5 / ((height + ra) * (100.0 + ra))
+   f4 =    (height - 100.0) * q5 / ((height + cbPolarRadius) *
+         (100.0 + cbPolarRadius))
        + q6 * atan(y_root * (height - 100.0)/(
        y_root*y_root + (height - x_root)*(100.0 - x_root)))/ y_root;
 
    // Compute f3 power
-   factor_k = -1500625.0*g_zero*ra*ra/(gas_con*con_c[4]*(tx-tzero));
+   factor_k = -1500625.0*g_zero*cbPolarSquared/(gas_con*con_c[4]*(tx-tzero));
 
    // Compute mass-dependent sum
    for (rho_sum = 0.0, i=0; i<=4; i++)
@@ -915,14 +935,15 @@ Real JacchiaRobertsAtmosphere::rho_cor(Real height, Real a1_time, Real geo_lat,
       exp(-0.002868 * height);
    day_58 = (a1_time - 6204.5)/365.2422;
    tausa = day_58 + 0.09544 * (
-                               pow( 0.5*(1.0 + sin(2*pi*day_58 +6.035)), 1.65 )  - 0.5);
-   alpha = sin(4.0*pi*tausa + 4.259);
-   g = 0.02835 + (0.3817 + 0.17829 * sin(2*pi*tausa + 4.137)) * alpha;
+         pow( 0.5*(1.0 + sin(2*GmatMathUtil::PI*day_58 +6.035)), 1.65 )  - 0.5);
+   alpha = sin(4.0*GmatMathUtil::PI*tausa + 4.259);
+   g = 0.02835 + (0.3817 + 0.17829 * sin(2*GmatMathUtil::PI*tausa + 4.137)) *
+         alpha;
    semian_cor = f * g;
 
    // Compute seasonal latitudinal variation
    sin_lat = sin(geo_lat);
-   eta_lat = sin(2.0*pi*day_58 + 1.72) * sin_lat * fabs(sin_lat);
+   eta_lat = sin(2.0*GmatMathUtil::PI*day_58 + 1.72) * sin_lat * fabs(sin_lat);
    slat_cor = 0.014 * (height - 90.0) * eta_lat *
       exp(-0.0013 * (height - 90.0) * (height - 90.0));
 
@@ -970,8 +991,10 @@ Real JacchiaRobertsAtmosphere::rho_high(Real height, Real temperature,
       }
 
       // Compute second exponent in density expression for this component
-      gamma =   35.0 * mol_mass[i] * g_zero * ra * ra * (t_infinity - tx) /
-         ( gas_con * sum * t_infinity * (tx - tzero) * 6481.766);
+      Real polar125 = cbPolarRadius + 125.0;
+      gamma =   35.0 * mol_mass[i] * g_zero * cbPolarSquared * (t_infinity - tx) /
+         ( gas_con * sum * t_infinity * (tx - tzero) * polar125);
+//               6481.766);
 
       // Compute first exponent in density expression for this component 
       exp1 = 1.0 + gamma;
@@ -983,9 +1006,9 @@ Real JacchiaRobertsAtmosphere::rho_high(Real height, Real temperature,
       if (i == 2)
       {
          exp1 -= 0.38;
-         f = 4.9914 * fabs(sun_dec) * (pow(sin(0.25 * pi - 0.5 * geo_lat *
+         f = 4.9914 * fabs(sun_dec) * (pow(sin(0.25 * GmatMathUtil::PI - 0.5 * geo_lat *
                                                sun_dec / fabs(sun_dec)), 3)
-                                       - 0.35355) / pi;
+                                       - 0.35355) / GmatMathUtil::PI;
          f = pow(10.0, f);
       }
 

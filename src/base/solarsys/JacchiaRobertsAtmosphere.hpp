@@ -20,6 +20,7 @@
 #include "A1Mjd.hpp"
 #include "TimeTypes.hpp"
 
+
 class GMAT_API JacchiaRobertsAtmosphere : public AtmosphereModel
 {
 public:
@@ -33,6 +34,7 @@ public:
     
    bool Density(Real *position, Real *density, Real epoch = GmatTimeUtil::MJD_OF_J2000,
                 Integer count = 1);
+   virtual void SetCentralBody(CelestialBody *cb);
 
    Real  JacchiaRoberts(Real height, Real space_craft[3], Real sun[3],
                       Real a1_time, bool new_file);
@@ -68,6 +70,19 @@ private:
    Real t_infinity;
    Real tx;
    Real sum;
+   Real cbPolarRadius;
+   Real cbPolarSquared;
+
+   /// low altitude density in g/cm**2
+   const Real rho_zero;
+   /// Temperature in degrees kelvin at height of 90km
+   const Real tzero;
+   /// earth gravitational constant m/sec**2
+   const Real g_zero;
+   /// gas constant (joules/(degK-mole))
+   const Real gas_con;
+   /// Avogadro's number
+   const Real avogadro;
 };
 
 #endif // JacchiaRobertsAtmosphere_hpp

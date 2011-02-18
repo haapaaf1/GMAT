@@ -69,7 +69,7 @@ public:
    void SetSunVector(Real *sv);
    void SetCentralBodyVector(Real *cv);
    virtual void SetSolarSystem(SolarSystem *ss);
-   void SetCentralBody(CelestialBody *cb);
+   virtual void SetCentralBody(CelestialBody *cb);
    void SetUpdateParameters(Real interval, GmatEpoch epoch = -1.0);
    virtual void SetInternalCoordSystem(CoordinateSystem *cs);
    void SetFixedCoordinateSystem(CoordinateSystem *cs);

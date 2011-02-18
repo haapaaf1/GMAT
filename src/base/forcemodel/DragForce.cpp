@@ -990,8 +990,6 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
    Real now = epoch + (elapsedTime + dt) / GmatTimeUtil::SECS_PER_DAY;
    TranslateOrigin(state, now);
 
-//   atmos->UpdateAngularVelocity(now);
-
    #ifdef DEBUG_DRAGFORCE_DENSITY
       dragdata << "density[0] = " << density[0] << "\n";
    #endif
@@ -1031,7 +1029,7 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
                         (angVel[0]*dragState[i6+1] - angVel[1]*dragState[ i6 ]);
          vRelMag = sqrt(vRelative[0]*vRelative[0] + vRelative[1]*vRelative[1] +
                         vRelative[2]*vRelative[2]);
-           
+
          factor = prefactor[i] * density[i];
    
          if (order == 1)
