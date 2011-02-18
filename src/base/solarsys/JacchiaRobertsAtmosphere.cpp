@@ -4,12 +4,17 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number NNG04CC06P
+//
 // Author: Waka A. Waktola
 // Created: 2004/05/11
 //
 /**
- * The Jacchia-Roberts atmosphere.
- * (From Windows Swingby code)
+ * The Jacchia-Roberts atmosphere.  The implementation here is derived from the
+ * Windows Swingby code.
  */
 //------------------------------------------------------------------------------
 
@@ -21,172 +26,7 @@
 
 // #define DEBUG_JR_DRAG 1
 
-#include "MessageInterface.hpp"
 
-
-//---------------------------------
-// Constants for series expansion    
-//---------------------------------   
-const Real con_c[5]  = 
-{    
-      -89284375.0,             /// below 125 km. The function it defines 
-       3542400.0,              /// interpolates uniformly between 90 km  
-       -52687.5,               /// and 125km, being -1 at height 90km    
-          340.5,               /// and zero at height 125km.             
-           -0.8
-};
-
-//---------------------------------
-// Constants for series expansion
-//--------------------------------- 
-const Real con_l[5]  = 
-{
-       0.1031445e5,            /// above 125 km. 
-       0.2341230e1,
-       0.1579202e-2,
-      -0.1252487e-5,
-       0.2462708e-9
-};
-
-//----------------------------------------------------------
-// Constants required between 90 km  and 100 km 
-//----------------------------------------------------------
-const Real mzero = 28.82678;
-
-//---------------------------------
-// Constants for series expansion 
-//---------------------------------
-const Real m_con[7] = 
-{   
-      -435093.363387,        /// of M(z) function 
-       28275.5646391,        /// (1/km)    
-       -765.33466108,        /// (1/km**2) 
-         11.043387545,       /// (1/km**3) 
-         -0.08958790995,     /// (1/km**4) 
-          0.00038737586,     /// (1/km**5) 
-         -0.000000697444     /// (1/km**6) 
-};
-
-//---------------------------------
-// Constants for series expansion 
-//---------------------------------
-const Real s_con[6] = 
-{   
-    3144902516.672729,            /// of S(z) function 
-    -123774885.4832917,           /// (1/km)    
-       1816141.096520398,         /// (1/km**2) 
-       -11403.31079489267,        /// (1/km**3) 
-          24.36498612105595,      /// (1/km**4) 
-           0.008957502869707995   /// (1/km**5) 
-};
-
-//---------------------------------
-// Constants for series expansion 
-//---------------------------------
-const Real s_beta[6] = 
-{ 
-   -52864482.17910969,           /// of S(z) function - temperature part 
-      -16632.50847336828,        /// (1/km)    
-        -1.308252378125,         /// (1/km**2) 
-         0.0,                    /// (1/km**3) 
-         0.0,                    /// (1/km**4) 
-         0.0                     /// (1/km**5) 
-};
-
-//------------------------------------------------------------
-// Constants required for attitudes between 100 km and 125 km 
-//------------------------------------------------------------
-const Real omega = -0.94585589;
-
-//---------------------------------
-// Constants for series expansion 
-//---------------------------------
-const Real zeta_con[7] = 
-{
-      0.1985549e-10,             /// of 100 to 125 km density function 
-     -0.1833490e-14,             /// (1/deg)    
-      0.1711735e-17,             /// (1/deg**2) 
-     -0.1021474e-20,             /// (1/deg**3) 
-      0.3727894e-24,             /// (1/deg**4) 
-     -0.7734110e-28,             /// (1/deg**5) 
-      0.7026942e-32              /// (1/deg**6) 
-};
-
-//--------------------------------------------------------------
-// Molecular masses of atmospheric  constituents in grams/mole 
-//--------------------------------------------------------------
-const Real mol_mass[6] = 
-{
-      28.0134,                   /// Nitrogen  
-      39.948,                    /// Argon     
-      4.0026,                    /// Helium    
-      31.9988,                   /// Molecular Oxygen 
-      15.9994,                   /// Atomic Oxygen  
-      1.00797                    /// Hydrogen 
-};
-
-//-------------------------------------------------------------------------
-// Number density divided by Avogadro's number of atmospheric constituents 
-//-------------------------------------------------------------------------
-const Real num_dens[5] = 
-{ 
-      0.78110,                   /// Nitrogen  
-      0.93432e-2,                /// Argon     
-      0.61471e-5,                /// Helium    
-      0.161778,                  /// Molecular Oxygen 
-      0.95544e-1                 /// Atomic Oxygen  
-};
-
-//----------------------------------------------------------
-// Constants required for altitude greater than 125 km
-//----------------------------------------------------------
-
-//---------------------------------------------------------------------------
-// Polynomial coefficients for constituent densities of each atmospheric gas
-//---------------------------------------------------------------------------
-const Real con_den[5][7] =
-{
-                             /// Nitrogen
-      {0.1093155e2,
-      0.1186783e-2,              /// (1/deg)    
-     -0.1677341e-5,              /// (1/deg**2) 
-      0.1420228e-8,              /// (1/deg**3) 
-     -0.7139785e-12,             /// (1/deg**4) 
-      0.1969715e-15,             /// (1/deg**5) 
-     -0.2296182e-19}             /// (1/deg**6) 
-      ,                       /// Argon 
-      {0.8049405e1,
-      0.2382822e-2,              /// (1/deg)    
-     -0.3391366e-5,              /// (1/deg**2) 
-      0.2909714e-8,              /// (1/deg**3) 
-     -0.1481702e-11,             /// (1/deg**4) 
-      0.4127600e-15,             /// (1/deg**5) 
-     -0.4837461e-19}             /// (1/deg**6) 
-      ,                       /// Helium 
-      {0.7646886e1,
-     -0.4383486e-3,              /// (1/deg)    
-      0.4694319e-6,              /// (1/deg**2) 
-     -0.2894886e-9,              /// (1/deg**3) 
-      0.9451989e-13,             /// (1/deg**4) 
-     -0.1270838e-16,             /// (1/deg**5) 
-      0.0}                       /// (1/deg**6) 
-      ,                       /// Molecular Oxygen 
-      {0.9924237e1,
-      0.1600311e-2,              /// (1/deg)    
-     -0.2274761e-5,              /// (1/deg**2) 
-      0.1938454e-8,              /// (1/deg**3) 
-     -0.9782183e-12,             /// (1/deg**4) 
-      0.2698450e-15,             /// (1/deg**5) 
-     -0.3131808e-19}             /// (1/deg**6) 
-      ,                        /// Atomic Oxygen 
-      {0.1097083e2,
-      0.6118742e-4,              /// (1/deg)    
-     -0.1165003e-6,              /// (1/deg**2) 
-      0.9239354e-10,             /// (1/deg**3) 
-     -0.3490739e-13,             /// (1/deg**4) 
-      0.5116298e-17,             /// (1/deg**5) 
-      0.0}                        /// (1/deg**6) 
-};
 
 
 //---------------------------------
@@ -198,6 +38,17 @@ const Real con_den[5][7] =
 //------------------------------------------------------------------------------
 /**
  * Default constructor
+ *
+ * GMAT's JR model uses default values for the acceleration due to gravity at
+ * the surface of the Earth, g_zero, and for Avagadro's number, avagadro, that
+ * were picked up from legacy code.  These values, while not in agreement with
+ * references found in the literature and on the Internet, are tuned to make the
+ * model perform  in agreement with other tested systems, and should not be
+ * changed in this  code without testing of propagation in all if the
+ * atmospheric regimes that  apply to Jacchia-Roberts drag (0-100 km,
+ * 100-125 km, 125 - 500 km, 500 - 2500 km).
+ *
+ * @param name Name of the drag object (optional)
  */
 //------------------------------------------------------------------------------
 JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const std::string &name) :
@@ -210,8 +61,9 @@ JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const std::string &name) :
    gas_con              (8.31432),
    avogadro             (6.022045e23)
 {
-   earth = NULL;
+   LoadConstants();
 }
+
 
 //------------------------------------------------------------------------------
 // ~JacchiaRobertsAtmosphere()
@@ -242,7 +94,6 @@ JacchiaRobertsAtmosphere::~JacchiaRobertsAtmosphere()
 //------------------------------------------------------------------------------
 JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const JacchiaRobertsAtmosphere& jr) :
     AtmosphereModel     (jr),
-    earth               (NULL),
     root1               (jr.root1),
     root2               (jr.root2),
     x_root              (jr.x_root),
@@ -258,6 +109,7 @@ JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const JacchiaRobertsAtmospher
     gas_con             (jr.gas_con),
     avogadro            (jr.avogadro)
 {
+   LoadConstants();
 }
 
 //------------------------------------------------------------------------------
@@ -279,7 +131,6 @@ JacchiaRobertsAtmosphere& JacchiaRobertsAtmosphere::operator=
         
     AtmosphereModel::operator=(jr);   
     
-    earth            = NULL;
     root1            = jr.root1;
     root2            = jr.root2;
     x_root           = jr.x_root;
@@ -318,6 +169,8 @@ GmatBase* JacchiaRobertsAtmosphere::Clone() const
  *  @param density   The array of output densities
  *  @param epoch     The current TAIJulian epoch
  *  @param count     The number of spacecraft contained in pos 
+ *
+ *  @return true on success
  */
 //------------------------------------------------------------------------------
 bool JacchiaRobertsAtmosphere::Density(Real *pos, Real *density, Real epoch, 
@@ -397,28 +250,32 @@ void JacchiaRobertsAtmosphere::SetCentralBody(CelestialBody *cb)
 
 
 //------------------------------------------------------------------------------
+//  Private methods
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
 // Real JacchiaRoberts(Real height, Real space_craft[3], Real sun[3], 
 //                     Real a1_time, bool new_file)
 //------------------------------------------------------------------------------
 /**
  * Obtain atmospheric density using the Jacchia-Roberts model
  *  
- *  Return Value Type - Real
  *  
- *  @param <height>       Spacecraft height (km)                 
- *  @param <space_craft>  Spacecraft position (km, TOD GCI)      
- *  @param <sun>          Sun unit vector (TOD GCI)              
- *  @param <a1_time>      Reduced julian date (days)           
- *  @param <new_file>     If true, flush static data for file
+ * Modifications:
+ * Name                Date      Description
+ * ------------------  --------  ------------------------------------------
+ * D. Ginn             01/26/94  DSPSE OPS:  Added new_file argument, logic
+ * W. Waktola          06/08/04  Code 583: Renamed to JacchiaRoberts()
+ * W. Waktola          12/28/04  Code 583: Removed FILE* tkptr
  *
- *  @return density
- *  
- *  Modifications:
- *  Name                Date      Description
- *  ------------------  --------  ------------------------------------------
- *  D. Ginn             01/26/94  DSPSE OPS:  Added new_file argument, logic
- *  W. Waktola          06/08/04  Code 583: Renamed to JacchiaRoberts()
- *  W. Waktola          12/28/04  Code 583: Removed FILE* tkptr
+ * @param height       Spacecraft height (km)
+ * @param space_craft  Spacecraft position (km, TOD GCI)
+ * @param sun          Sun unit vector (TOD GCI)
+ * @param a1_time      Reduced julian date (days)
+ * @param new_file     If true, flush static data for file
+ *
+ * @return The density
  */  
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3], 
@@ -541,6 +398,7 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
    return density * rho_cor(height, a1_time, geo_lat, &geo);
 }
 
+
 //------------------------------------------------------------------------------
 //  Real exotherm(Real space_craft[2], Real sun[3], GEOPARMS *geo, Real height, 
 //                Real sun_dec, Real geo_lat)
@@ -548,19 +406,20 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
 /**
  *  Compute the temperature of earth's atmosphere and auxiliary temperature 
  *  related quantities at a given altitude.
- * 
- *  @param <space_craft[2]>  Spacecraft position (km)
- *  @param <sun>             Sun unit vector
- *  @param <geo>             Geomagnetic index and minimum global exospheric
- *                           temperature (from tables)
- *  @param <height>          Spacecraft height (km)
- *  @return exotemp
  *
  *   global variables -
  *      con_c                Series expansion coefficients for height < 125 km
  *                           (in jr_drag header file)
  *      con_l                Series expansion coefficients for height > 125 km
  *                           (in jr_drag header file)
+ *
+ *  @param space_craft[2]  Spacecraft position (km)
+ *  @param sun             Sun unit vector
+ *  @param geo             Geomagnetic index and minimum global exospheric
+ *                         temperature (from tables)
+ *  @param height          Spacecraft height (km)
+ *
+ *  @return exotemp, the local exospheric temperature used in the model
  */ 
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3], 
@@ -662,19 +521,6 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
          c_star[i] = con_c[i];
       }
 
-      // Set approximate values for solution of auxiliary quantities
-      //      aux[0][0] = 125.0;
-      //      aux[0][1] = 0.0;
-      //      aux[1][0] = 200.0;
-      //      aux[1][1] = 0.0;
-      //      aux[2][0] = 10.0;
-      //      aux[2][1] = 125.0;
-      //      aux[3][0] = 10.0;
-      //      aux[3][1] = -25.0;
-
-      // Solve polynomial equation for auxiliary quantities
-      //      roots(c_star, na, aux, irl);
-
       aux[0][0] = 125.0;            // get 1st real root
       aux[0][1] = 0.0;
       roots(c_star, na, aux, 1);    
@@ -694,16 +540,11 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
       roots(c_star, na-2, aux, 1);    
       x_root = aux[0][0];
       y_root = fabs(aux[0][1]);
-
-      // Extract needed quantities from polynomial solutions
-      //      root1 = aux[0][0];
-      //      root2 = aux[1][0];
-      //      x_root = aux[2][0];
-      //      y_root = fabs(aux[2][1]);
    }
    return exotemp;
    
-} // end exotherm()
+}
+
 
 //------------------------------------------------------------------------------
 //  Real rho_100(Real height, Real temperature)
@@ -712,9 +553,10 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
  *  Compute density of the atmosphere between 90 and 100 km using the 
  *  Jacchia-Roberts density model.
  *  
- *  @param <height>      Spacecraft altitude (km)
- *  @param <temperature> Exospheric temperature at spacecraft altitude(degrees K)
- *  @return
+ *  @param height      Spacecraft altitude (km)
+ *  @param temperature Exospheric temperature at spacecraft altitude(degrees K)
+ *
+ *  @return The density
  */
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::rho_100(Real height, Real temperature)
@@ -805,8 +647,8 @@ Real JacchiaRobertsAtmosphere::rho_100(Real height, Real temperature)
 
    return rho_zero * tzero * m_poly * exp(factor_k*(log_f1 + f2)) /
        (mzero * temperature);
-   
-} // end rho_100()
+}
+
 
 //------------------------------------------------------------------------------
 //  Real rho_125(Real height, Real temperature)
@@ -815,8 +657,10 @@ Real JacchiaRobertsAtmosphere::rho_100(Real height, Real temperature)
  *  Compute density of the atmosphere between 100 and 125 km
  *  using the Jacchia-Roberts density model.
  *  
- *  @param <height>       Spacecraft altitude (km)
- *  @param <temperature>  Exospheric temperature at spacecraft altitude (degrees K)
+ *  @param height       Spacecraft altitude (km)
+ *  @param temperature  Exospheric temperature at spacecraft (degrees K)
+ *
+ *  @return The density
  */
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::rho_125(Real height, Real temperature)
@@ -900,19 +744,21 @@ Real JacchiaRobertsAtmosphere::rho_125(Real height, Real temperature)
    }
    
    return rho_sum * rho_prime * t_100 / temperature;
-   
-} // end rho_125()
+}
+
 
 //------------------------------------------------------------------------------
 //  Real rho_cor(Real height, Real a1_time, Real geo_lat, GEOPARMS *geo)
 //------------------------------------------------------------------------------
 /**
- *  @param <height> 
- *  @param <a1_time> 
- *  @param <geo_lat> 
- *  @param <geo> 
- *  @return
- */
+ * Calculates the density correction factor
+ *
+ * @param height       Spacecraft altitude (km)                 I
+ * @param a1_time      The A.1 epoch
+ * @param geo_lat      Geodetic latitude of spacecraft (radians)
+ * @param geo          The geomagnetic parameters used in the model
+ *
+ * @return The atmospheric density at the spacecraft's location */
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::rho_cor(Real height, Real a1_time, Real geo_lat, 
                                        GEOPARMS *geo)
@@ -950,6 +796,7 @@ Real JacchiaRobertsAtmosphere::rho_cor(Real height, Real a1_time, Real geo_lat,
    return pow(10.0, geo_cor + semian_cor + slat_cor);
 }
 
+
 //------------------------------------------------------------------------------
 //  Real rho_high(Real height, Real temperature, Real t_500, Real sun_dec, 
 //                Real geo_lat)
@@ -958,12 +805,13 @@ Real JacchiaRobertsAtmosphere::rho_cor(Real height, Real a1_time, Real geo_lat,
  * Compute density of the atmosphere between 125 and 2500 km using the 
  * Jacchia-Roberts density model.
  *  
- *  @param <height>       Spacecraft altitude (km)                 I
- *  @param <temperature>  Exospheric temperature at spacecraft altitude(degrees K)
- *  @param <t_500>        Exospheric temperature at altitude of 500 km (degrees K)
- *  @param <sun_dec>      Declination of the sun in TOD coordinates (radians)
- *  @param <geo_lat>      Geodetic latitude of spacecraft (radians)
- *  @return rho_out
+ * @param height       Spacecraft altitude (km)                 I
+ * @param temperature  Exospheric temperature at spacecraft altitude(degrees K)
+ * @param t_500        Exospheric temperature at altitude of 500 km (degrees K)
+ * @param sun_dec      Declination of the sun in TOD coordinates (radians)
+ * @param geo_lat      Geodetic latitude of spacecraft (radians)
+ *
+ * @return rho_out, the atmospheric density at the spacecraft's location
  */
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::rho_high(Real height, Real temperature, 
@@ -994,7 +842,6 @@ Real JacchiaRobertsAtmosphere::rho_high(Real height, Real temperature,
       Real polar125 = cbPolarRadius + 125.0;
       gamma =   35.0 * mol_mass[i] * g_zero * cbPolarSquared * (t_infinity - tx) /
          ( gas_con * sum * t_infinity * (tx - tzero) * polar125);
-//               6481.766);
 
       // Compute first exponent in density expression for this component 
       exp1 = 1.0 + gamma;
@@ -1039,33 +886,25 @@ Real JacchiaRobertsAtmosphere::rho_high(Real height, Real temperature,
    }
    return rho_out;
    
-} // end rho_high()
+}
+
 
 //------------------------------------------------------------------------------
 //  void roots(Real a[], Integer na, Real croots[][2], Integer irl)
 //------------------------------------------------------------------------------
 /**
+ * Finds the roots(s) of a polynomial
+ *
  *  To compute any desired complex roots (zeroes) of a given polynomial if 
  *  approximations to the desired roots are known.
- * 
- *  @param <a>      An array of non-imaginary polynomial coefficients, starting 
- *                  with the lowest power. 
- *  @param <na>     The number of coefficients, one greater than the degree of 
- *                  the polynomial.
- * 
- *  @param <croots> A 2-dimensional array of 'na' rows by 2 columns, containing
- *                  the starting approximations to the desired roots on input 
- *                  and the solutions on output.
- * 
- *  @param <irl>    The number of roots (zeroes) desired to be solved for.
  * 
  * Modification -
  * Name              Date             Description
  * ----              ----             -----------
  * M. Zwick          12/1/92          Original C code converted from
- *                                 preexisting Fortran code.
+ *                                    preexisting Fortran code.
  * 
- *                                 (Release 1, SMR 23)
+ *                                    (Release 1, SMR 23)
  * 
  * Notes:  This module was converted from preexisting Fortran code
  *        written by J. P. Molineaux of CSC.  Mr. Molineaux based
@@ -1077,6 +916,18 @@ Real JacchiaRobertsAtmosphere::rho_high(Real height, Real temperature,
  * 
  *        Curt Anderson of CSC provided mathematical formulas for
  *        conversion of Fortran COMPLEX*16 variables to C formats.
+ *
+ *  @param a      An array of non-imaginary polynomial coefficients, starting
+ *                with the lowest power.
+ *  @param na     The number of coefficients, one greater than the degree of
+ *                the polynomial.
+ *
+ *  @param croots A 2-dimensional array of 'na' rows by 2 columns, containing
+ *                the starting approximations to the desired roots on input
+ *                and the solutions on output.
+ *
+ *  @param irl    The number of roots (zeroes) desired to be solved for.
+ *
  */
 //------------------------------------------------------------------------------
 void JacchiaRobertsAtmosphere::roots(Real a[], Integer na, Real croots[][2], 
@@ -1152,26 +1003,35 @@ void JacchiaRobertsAtmosphere::roots(Real a[], Integer na, Real croots[][2],
       ++ir;                   // Increment roots solved counter
    }
    
-} // end roots()
+}
+
 
 //------------------------------------------------------------------------------
 //  void deflate_polynomial(Real c[], Integer n, Real root, Real c_new[])
 //------------------------------------------------------------------------------
 /**
- *  Given a polynomial P(z) of order n-1 specified by its real coefficients 
- *  c[n-1] to c[0], along with a single real root of the polynomial, this 
- *  function divides the polynomial by (z - root) to arrive at a new set of 
- *  coefficients, c_new[n-2] to c_new[0]. This routine is designed to allow 
- *  calls where c[] and c_new[] are the same array, e.g., 
- *  deflate_polynomial(c, 5, 3.5, c); Note however that only c_new[0] to 
- *  c_new[n-2] are touched, c_new[n-1] is not, so that if c[] and c_new[] 
- *  are the same, the highest order coefficient of c[] is not zeroed out.                                                                            
- *  Reference: Numerical Recipes in C, section 5.3.                         
+ * Reduces the order of a polynomial by division
+ *
+ * Given a polynomial P(z) of order n-1 specified by its real coefficients
+ * c[n-1] to c[0], along with a single real root of the polynomial, this
+ * function divides the polynomial by (z - root) to arrive at a new set of
+ * coefficients, c_new[n-2] to c_new[0]. This routine is designed to allow
+ * calls where c[] and c_new[] are the same array, e.g.,
+ * deflate_polynomial(c, 5, 3.5, c); Note however that only c_new[0] to
+ * c_new[n-2] are touched, c_new[n-1] is not, so that if c[] and c_new[]
+ * are the same, the highest order coefficient of c[] is not zeroed out.
+ *
+ * Reference: Numerical Recipes in C, section 5.3.
  *                                                                         
  *  Modification -
  *  Name              Date             Description
  *  ----              ----             ----------- 
- *  D. Ginn          93/ 8/31   Created unit.    
+ *  D. Ginn           93/8/31          Created unit.
+ *
+ *  @param c The real coefficients of the polynomial
+ *  @param n The order + 1 of the polynomial
+ *  @param root A single real root of the polynomial
+ *  @param c_new The array that is filled with new polynomial coefficients
  */                                                                                     
 //------------------------------------------------------------------------------
 void JacchiaRobertsAtmosphere::deflate_polynomial(Real c[], Integer n, 
@@ -1189,60 +1049,18 @@ void JacchiaRobertsAtmosphere::deflate_polynomial(Real c[], Integer n,
         sum = save + sum * root;
     }
     
-} // end deflate_polynomial()
+}
+
 
 //------------------------------------------------------------------------------
-//  Real get_geodetic_height(Real R_eq, Real r[3], Real f)
-//------------------------------------------------------------------------------
-/**
- *  Compute the geodetic height given the position vector (r), equatorial
- *  radius (R_eq), and flattening coefficient (f). 
- *  Reference: Wertz, appendix L.3.  
- *                
- *  @param <R_eq>
- *  @param <r[3]>
- *  @param <f>                                                          
- *  @returns geodetic height (h)                                          
- *                                                                          
- *  Method:
- *     h = |r| - R_eq * (1 - f)/sqrt(1 - f(2 - f)cos^2 (phi))         
- *             where phi = atan2(r[2] / sqrt(r[0]**2 + r[1]**2))            
- *                                                                          
- *  Modifications:                                                     
- *     08/30/93  D. Ginn -  Created unit.                            
- *                                                                          
- *  Notes:
- *     This could be made much faster by avoiding the atan2() and cos() calls and
- *     computing the cosine directly from r[].      
- */
-//------------------------------------------------------------------------------
-//Real JacchiaRobertsAtmosphere::get_geodetic_height(Real R_eq, Real r[3], Real f)
-Real JacchiaRobertsAtmosphere::get_geodetic_height(Real R_eq, Real *r, Real f)
-{
-    Real phi, d, cos_phi;
-
-    // Compute the geocentric latitude in radians
-    // (atan2() is safer than atan() since it avoids division by 0)
-
-    phi = atan2(r[2], sqrt(r[0]*r[0] + r[1]*r[1]));
-
-    // Compute the cosine of phi
-    cos_phi = cos(phi);
-
-    // Compute the magnitude of position vector
-    d = length_of(r);
-
-    // Return the geodetic height
-    return d - R_eq * (1 - f) / sqrt(1 - f * (2 - f) * cos_phi * cos_phi);
-    
-} // end get_geodetic_height()
-
-//------------------------------------------------------------------------------
-// Real length_of() computes the norm of the 3-vector <v> 
+// Real length_of(Real v[3])
 //------------------------------------------------------------------------------
 /**
- *  @param <v[3]>
- *  @return the norm of the 3-vector v[3]
+ * Calculates the norm of a 3-vector
+ *
+ *  @param v The 3-vector
+ *
+ *  @return the norm of the 3-vector, |v[3]|
  */
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::length_of(Real v[3])
@@ -1250,13 +1068,17 @@ Real JacchiaRobertsAtmosphere::length_of(Real v[3])
    return( sqrt( dot_product(v,v) ) );
 }
 
+
 //------------------------------------------------------------------------------
-// Real dot_product() computes <a> dot <b>
+// Real dot_product(Real a[3] , Real b[3])
 //------------------------------------------------------------------------------
 /**
- *  @param <a[3]>
- *  @param <b[3]>
- *  @return a.b
+ * Calculates a dot product
+ *
+ *  @param a[3] The first vector in the product
+ *  @param b[3] The second vector in the product
+ *
+ *  @return a dot b
  */
 //------------------------------------------------------------------------------
 Real JacchiaRobertsAtmosphere::dot_product(Real a[3] , Real b[3])
@@ -1264,14 +1086,119 @@ Real JacchiaRobertsAtmosphere::dot_product(Real a[3] , Real b[3])
     return(a[0]*b[0] + a[1]*b[1] + a[2]*b[2]);
 }
 
+
 //------------------------------------------------------------------------------
-// void GetEarth()
+// void LoadConstants()
 //------------------------------------------------------------------------------
 /**
- * 
+ * Loads the constants used inthe model
+ *
+ * (These constants were formerly defined as file level globals)
  */
 //------------------------------------------------------------------------------
-void JacchiaRobertsAtmosphere::GetEarth()
-{ 
-   earth = solarSystem->GetBody(SolarSystem::EARTH_NAME);
+void JacchiaRobertsAtmosphere::LoadConstants()
+{
+   con_c[0] = -89284375.0;
+   con_c[1] =   3542400.0;
+   con_c[2] =    -52687.5;
+   con_c[3] =       340.5;
+   con_c[4] =        -0.8;
+
+   con_l[0] = 0.1031445e5;
+   con_l[1] = 0.2341230e1;
+   con_l[2] = 0.1579202e-2;
+   con_l[3] = -0.1252487e-5;
+   con_l[4] = 0.2462708e-9;
+
+   mzero = 28.82678;
+
+   m_con[0] = -435093.363387;      // of M(z) function
+   m_con[1] = 28275.5646391;       // (1/km)
+   m_con[2] = -765.33466108;       // (1/km**2)
+   m_con[3] = 11.043387545;        // (1/km**3)
+   m_con[4] = -0.08958790995;      // (1/km**4)
+   m_con[5] = 0.00038737586;       // (1/km**5)
+   m_con[6] = -0.000000697444;     // (1/km**6)
+
+   s_con[0] = 3144902516.672729;   // of S(z) function
+   s_con[1] = -123774885.4832917;  // (1/km)
+   s_con[2] = 1816141.096520398;   // (1/km**2)
+   s_con[3] = -11403.31079489267;  // (1/km**3)
+   s_con[4] = 24.36498612105595;   // (1/km**4)
+   s_con[5] = 0.008957502869707995;// (1/km**5)
+
+   s_beta[0] = -52864482.17910969; // of S(z) function - temperature part
+   s_beta[1] = -16632.50847336828; // (1/km)
+   s_beta[2] = -1.308252378125;    // (1/km**2)
+   s_beta[3] = 0.0;                // (1/km**3)
+   s_beta[4] = 0.0;                // (1/km**4)
+   s_beta[5] = 0.0;                // (1/km**5)
+
+   omega = -0.94585589;
+
+   zeta_con[0] = 0.1985549e-10;
+   zeta_con[1] = -0.1833490e-14;   // (1/deg)
+   zeta_con[2] = 0.1711735e-17;    // (1/deg**2)
+   zeta_con[3] = -0.1021474e-20;   // (1/deg**3)
+   zeta_con[4] = 0.3727894e-24;    // (1/deg**4)
+   zeta_con[5] = -0.7734110e-28;   // (1/deg**5)
+   zeta_con[6] = 0.7026942e-32;    // (1/deg**6)
+
+   mol_mass[0] = 28.0134;          // Nitrogen
+   mol_mass[1] = 39.948;           // Argon
+   mol_mass[2] = 4.0026;           // Helium
+   mol_mass[3] = 31.9988;          // Molecular Oxygen
+   mol_mass[4] = 15.9994;          // Atomic Oxygen
+   mol_mass[5] = 1.00797;          // Hydrogen
+
+   num_dens[0] = 0.78110;          // Nitrogen
+   num_dens[1] = 0.93432e-2;       // Argon
+   num_dens[2] = 0.61471e-5;       // Helium
+   num_dens[3] = 0.161778;         // Molecular Oxygen
+   num_dens[4] = 0.95544e-1;       // Atomic Oxygen
+
+   // Nitrogen
+   con_den[0][0] = 0.1093155e2;
+   con_den[0][1] = 0.1186783e-2;   // (1/deg)
+   con_den[0][2] = -0.1677341e-5;  // (1/deg**2)
+   con_den[0][3] = 0.1420228e-8;   // (1/deg**3)
+   con_den[0][4] = -0.7139785e-12; // (1/deg**4)
+   con_den[0][5] = 0.1969715e-15;  // (1/deg**5)
+   con_den[0][6] = -0.2296182e-19; // (1/deg**6)
+
+   // Argon
+   con_den[1][0] = 0.8049405e1;
+   con_den[1][1] = 0.2382822e-2;   // (1/deg)
+   con_den[1][2] = -0.3391366e-5;  // (1/deg**2)
+   con_den[1][3] = 0.2909714e-8;   // (1/deg**3)
+   con_den[1][4] = -0.1481702e-11; // (1/deg**4)
+   con_den[1][5] = 0.4127600e-15;  // (1/deg**5)
+   con_den[1][6] = -0.4837461e-19; // (1/deg**6)
+
+   // Helium
+   con_den[2][0] = 0.7646886e1;
+   con_den[2][1] = -0.4383486e-3;  // (1/deg)
+   con_den[2][2] = 0.4694319e-6;   // (1/deg**2)
+   con_den[2][3] = -0.2894886e-9;  // (1/deg**3)
+   con_den[2][4] = 0.9451989e-13;  // (1/deg**4)
+   con_den[2][5] = -0.1270838e-16; // (1/deg**5)
+   con_den[2][6] = 0.0;            // (1/deg**6)
+
+   // Molecular Oxygen
+   con_den[3][0] = 0.9924237e1;
+   con_den[3][1] = 0.1600311e-2;   // (1/deg)
+   con_den[3][2] = -0.2274761e-5;  // (1/deg**2)
+   con_den[3][3] = 0.1938454e-8;   // (1/deg**3)
+   con_den[3][4] = -0.9782183e-12; // (1/deg**4)
+   con_den[3][5] = 0.2698450e-15;  // (1/deg**5)
+   con_den[3][6] = -0.3131808e-19; // (1/deg**6)
+
+   // Atomic Oxygen
+   con_den[4][0] = 0.1097083e2;
+   con_den[4][1] = 0.6118742e-4;   // (1/deg)
+   con_den[4][2] = -0.1165003e-6;  // (1/deg**2)
+   con_den[4][3] = 0.9239354e-10;  // (1/deg**3)
+   con_den[4][4] = -0.3490739e-13; // (1/deg**4)
+   con_den[4][5] = 0.5116298e-17;  // (1/deg**5)
+   con_den[4][6] = 0.0;            // (1/deg**6)
 }
