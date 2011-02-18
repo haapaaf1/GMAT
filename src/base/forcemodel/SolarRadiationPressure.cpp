@@ -523,15 +523,21 @@ Integer SolarRadiationPressure::SetIntegerParameter(const Integer id, const Inte
 }
 
 //------------------------------------------------------------------------------
-// bool SolarRadiationPressure::Initialize(void)
+// bool SolarRadiationPressure::Initialize()
 //------------------------------------------------------------------------------
 /**
- * 
+ * Prepares the SRP model for use
  */
 //------------------------------------------------------------------------------
 bool SolarRadiationPressure::Initialize()
 {
    bool retval = PhysicalModel::Initialize();
+
+   #ifdef DEBUG_SOLAR_RADIATION_PRESSURE
+      MessageInterface::ShowMessage("Flux = %.12le, Flux Pressure = %.12le, "
+            "c = %16.3lf or %16.3lf\n", flux, fluxPressure,
+            GmatPhysicalConstants::c, flux/fluxPressure);
+   #endif
 
    if (!retval)
       return false;
@@ -587,7 +593,7 @@ bool SolarRadiationPressure::Initialize()
 // bool SolarRadiationPressure::SetCentralBody()
 //------------------------------------------------------------------------------
 /**
- * 
+ * Sets the up the Sun and central body for use
  */
 //------------------------------------------------------------------------------
 bool SolarRadiationPressure::SetCentralBody()
@@ -881,7 +887,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
    #endif
 
    #ifdef DEBUG_SRP_ORIGIN
-      if (showData) 
+      if (showData)
       {
          MessageInterface::ShowMessage(
             "SRP Parameters at %s:\n   SunVec = [%16le %16le %16le]\n   posVec"
@@ -902,7 +908,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
 }
 
 //------------------------------------------------------------------------------
-// void SolarRadiationPressure::FindShadowState(bool &lit, bool &dark, Real *state)
+// void FindShadowState(bool &lit, bool &dark, Real *state)
 //------------------------------------------------------------------------------
 /**
  * Determines lighting conditions at the input location
@@ -911,7 +917,8 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
  * @param <dark>  Indicates if the spacecarft is in umbra
  * @param <state> Current spacecraft state
  * 
- * \todo: Currently implemented for one spacecraft, state vector arranges as (x, y, z)
+ * \todo: Currently implemented for one spacecraft, state vector arranges as
+ * (x, y, z)
  */
 //------------------------------------------------------------------------------
 void SolarRadiationPressure::FindShadowState(bool &lit, bool &dark, Real *state)
@@ -1031,7 +1038,7 @@ void SolarRadiationPressure::FindShadowState(bool &lit, bool &dark, Real *state)
 
 
 //------------------------------------------------------------------------------
-// Real SolarRadiationPressure::ShadowFunction(Real * state)
+// Real ShadowFunction(Real * state)
 //------------------------------------------------------------------------------
 /**
  * Calculates %lit when in penumbra.
@@ -1065,6 +1072,7 @@ Real SolarRadiationPressure::ShadowFunction(Real * state)
     // Montenbruck and Gill, eq. 3.94
     return 1.0 - area / (M_PI * a2);
 }
+
 
 //------------------------------------------------------------------------------
 // void SetSatelliteParameter(const Integer i, const std::string parmName, 
@@ -1121,6 +1129,17 @@ void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
     }
 }
 
+//------------------------------------------------------------------------------
+// void SetSatelliteParameter(const Integer i, Integer parmID, const Real parm)
+//------------------------------------------------------------------------------
+/**
+ * Sets the parameters for a specific Spacecraft
+ *
+ * @param i The Spacecraft's index
+ * @param parmID The ID of the parameter that is being set
+ * @param parm The new parameter value
+ */
+//------------------------------------------------------------------------------
 void SolarRadiationPressure::SetSatelliteParameter(const Integer i,
                                    Integer parmID, const Real parm)
 {
