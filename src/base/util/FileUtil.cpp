@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 FileUtil
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -25,6 +25,7 @@
 #include "StringUtil.hpp"          // for ToString()
 #include "FileTypes.hpp"           // for GmatFile::MAX_PATH_LEN
 #include <algorithm>               // for set_difference()
+#include <iterator>                // For back_inserter() with VC++ 2010
 
 #ifndef _MSC_VER  // if not Microsoft Visual C++
 #include <dirent.h>

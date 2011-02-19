@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              TableTemplate
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -23,6 +23,7 @@
 
 #include "gmatdefs.hpp"
 #include "BaseException.hpp"
+#include <iterator>           // For back_inserter() with VC++ 2010
 
 //  exceptions
 class GMAT_API TableTemplateExceptions

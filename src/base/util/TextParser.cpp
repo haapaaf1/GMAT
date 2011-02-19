@@ -23,7 +23,8 @@
 #include "UtilityException.hpp"
 #include "MessageInterface.hpp"
 
-#include <algorithm>                    // Required for GCC 4.3
+#include <algorithm>          // Required for GCC 4.3
+#include <iterator>           // For back_inserter() with VC++ 2010
 
 //#define DEBUG_TP 1
 //#define DEBUG_TP_EVAL_BLOCK 2
