@@ -590,7 +590,7 @@ bool FiniteThrust::GetDerivatives(Real * state, Real dt, Integer order,
                  fb != burns.end(); ++fb)
             {
                (*fb)->SetSpacecraftToManeuver((Spacecraft*)sat);
-               Real now = epoch + dt / GmatTimeUtil::SECS_PER_DAY;
+               Real now = epoch + dt / GmatTimeConstants::SECS_PER_DAY;
                if ((*fb)->Fire(burnData, now)) 
                {
                   #ifdef DEBUG_FINITETHRUST_EXE

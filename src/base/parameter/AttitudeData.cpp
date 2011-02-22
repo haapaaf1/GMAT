@@ -25,6 +25,7 @@
 #include "AttitudeData.hpp"
 #include "Attitude.hpp"
 #include "Linear.hpp"              // for GmatRealUtil::ToString()
+#include "GmatConstants.hpp"
 #include "RealUtilities.hpp"
 #include "ParameterException.hpp"
 #include "MessageInterface.hpp"
@@ -99,7 +100,7 @@ Real AttitudeData::GetAttitudeReal(Integer item)
    // get the basics - cosine matrix, angular velocity, euler angle sequence
    Rmatrix33        cosMat        = mSpacecraft->GetAttitude(epoch);
    Rvector3         angVel        = mSpacecraft->GetAngularVelocity(epoch) 
-                                    * GmatMathUtil::DEG_PER_RAD;
+                                    * GmatMathConstants::DEG_PER_RAD;
    UnsignedIntArray seq           = mSpacecraft->GetEulerAngleSequence();
    Rvector3         euler;
    
@@ -127,7 +128,7 @@ Real AttitudeData::GetAttitudeReal(Integer item)
       euler = Attitude::ToEulerAngles(cosMat, 
               (Integer) seq[0], 
               (Integer) seq[1], 
-              (Integer) seq[2]) * GmatMathUtil::DEG_PER_RAD;
+              (Integer) seq[2]) * GmatMathConstants::DEG_PER_RAD;
       return euler[item - EULERANGLE1];
    }
    // Dunn added conversion below with the comment that this
@@ -144,13 +145,13 @@ Real AttitudeData::GetAttitudeReal(Integer item)
       euler = Attitude::ToEulerAngles(cosMat, 
               (Integer) seq[0], 
               (Integer) seq[1], 
-              (Integer) seq[2]) * GmatMathUtil::DEG_PER_RAD;
+              (Integer) seq[2]) * GmatMathConstants::DEG_PER_RAD;
       Rvector3 eulerRates = Attitude::ToEulerAngleRates(
-                            angVel * GmatMathUtil::RAD_PER_DEG, 
-                            euler  * GmatMathUtil::RAD_PER_DEG,
+                            angVel * GmatMathConstants::RAD_PER_DEG,
+                            euler  * GmatMathConstants::RAD_PER_DEG,
                             (Integer) seq[0], 
                             (Integer) seq[1], 
-                            (Integer) seq[2]) * GmatMathUtil::DEG_PER_RAD;
+                            (Integer) seq[2]) * GmatMathConstants::DEG_PER_RAD;
       return eulerRates[item - EULERANGLERATE1];
    }        
    

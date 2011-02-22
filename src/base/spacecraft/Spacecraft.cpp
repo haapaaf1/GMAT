@@ -293,18 +293,18 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    ownedObjectCount = 0;
 
    std::stringstream ss("");
-   ss << GmatTimeUtil::MJD_OF_J2000;
+   ss << GmatTimeConstants::MJD_OF_J2000;
    scEpochStr = ss.str();
 
    Real a1mjd = -999.999;
    std::string outStr;
-   Real taimjd = GmatTimeUtil::MJD_OF_J2000;
+   Real taimjd = GmatTimeConstants::MJD_OF_J2000;
 
    // Internal epoch is in A1ModJulian, so convert
    TimeConverterUtil::Convert("TAIModJulian", taimjd, "",
                               "A1ModJulian", a1mjd, outStr);
 
-   //state.SetEpoch(GmatTimeUtil::MJD_OF_J2000);
+   //state.SetEpoch(GmatTimeConstants::MJD_OF_J2000);
    state.SetEpoch(a1mjd);
 
    state[0] = 7100.0;
@@ -3178,7 +3178,7 @@ bool Spacecraft::TakeAction(const std::string &action,
             currEpoch = TimeConverterUtil::Convert(currEpoch,
                           TimeConverterUtil::A1,
                           TimeConverterUtil::GetTimeTypeID(epochSystem),
-                          GmatTimeUtil::JD_JAN_5_1941);
+                          GmatTimeConstants::JD_JAN_5_1941);
       }
 
       if (epochFormat != "")

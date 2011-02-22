@@ -31,7 +31,7 @@
 // static data
 //---------------------------------
 
-//const Real TimeData::MJD_OFFSET = GmatTimeUtil::JD_JAN_5_1941;
+//const Real TimeData::MJD_OFFSET = GmatTimeConstants::JD_JAN_5_1941;
 const Real TimeData::TIME_REAL_UNDEFINED = -9876543210.1234;
 const std::string TimeData::TIME_STRING_UNDEFINED = "INVALID_TIME";
 
@@ -199,30 +199,30 @@ Real TimeData::GetCurrentTimeReal(Integer id)
    case TAI_MJD:
       time = TimeConverterUtil::Convert(a1mjd, TimeConverterUtil::A1MJD,
                                         TimeConverterUtil::TAIMJD,
-                                        GmatTimeUtil::JD_JAN_5_1941);
+                                        GmatTimeConstants::JD_JAN_5_1941);
       break;
    case TT_MJD:
       time = TimeConverterUtil::Convert(a1mjd, TimeConverterUtil::A1MJD,
                                         TimeConverterUtil::TTMJD,
-                                        GmatTimeUtil::JD_JAN_5_1941);
+                                        GmatTimeConstants::JD_JAN_5_1941);
       break;
    case TDB_MJD:
       time = TimeConverterUtil::Convert(a1mjd, TimeConverterUtil::A1MJD,
                                         TimeConverterUtil::TDBMJD,
-                                        GmatTimeUtil::JD_JAN_5_1941);
+                                        GmatTimeConstants::JD_JAN_5_1941);
       break;
    case TCB_MJD:
       time = TimeConverterUtil::Convert(a1mjd, TimeConverterUtil::A1MJD,
                                         TimeConverterUtil::TCBMJD,
-                                        GmatTimeUtil::JD_JAN_5_1941);
+                                        GmatTimeConstants::JD_JAN_5_1941);
       break;
    case UTC_MJD:
       time = TimeConverterUtil::Convert(a1mjd, TimeConverterUtil::A1MJD,
                                         TimeConverterUtil::UTCMJD,
-                                        GmatTimeUtil::JD_JAN_5_1941);
+                                        GmatTimeConstants::JD_JAN_5_1941);
       break;
    case JD:
-      time = a1mjd + GmatTimeUtil::JD_JAN_5_1941;
+      time = a1mjd + GmatTimeConstants::JD_JAN_5_1941;
       break;
    default:
       throw ParameterException("TimeData::GetCurrentTimeReal() Unknown parameter id: " +
@@ -291,7 +291,7 @@ Real TimeData::GetElapsedTimeReal(Integer id)
    //case HOURS:
    //case MINS:
    case SECS:
-      return (a1mjd - mInitialEpoch)* GmatTimeUtil::SECS_PER_DAY;
+      return (a1mjd - mInitialEpoch)* GmatTimeConstants::SECS_PER_DAY;
    default:
       throw ParameterException("TimeData::GetElapsedTimeReal() Unknown parameter id: " +
                                GmatRealUtil::ToString(id));

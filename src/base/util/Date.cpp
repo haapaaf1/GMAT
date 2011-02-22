@@ -112,12 +112,12 @@ Real Date::GetSecond() const
 }
 
 //------------------------------------------------------------------------------
-//  GmatTimeUtil::DayName GetDayName() const
+//  GmatTimeConstants::DayName GetDayName() const
 //------------------------------------------------------------------------------
-GmatTimeUtil::DayName Date::GetDayName() const
+GmatTimeConstants::DayName Date::GetDayName() const
 {
    const Integer JD_OF_010172 = 2441318;
-   const GmatTimeUtil::DayName DAY_NAME_OF_010172  = GmatTimeUtil::SATURDAY;
+   const GmatTimeConstants::DayName DAY_NAME_OF_010172  = GmatTimeConstants::SATURDAY;
    Integer dayNumber;
 
    dayNumber = (Integer)(DateUtil::JulianDay(yearD, monthD, dayD))
@@ -125,7 +125,7 @@ GmatTimeUtil::DayName Date::GetDayName() const
 
    dayNumber = (dayNumber + DAY_NAME_OF_010172) % 7;
 
-   return (GmatTimeUtil::DayName)dayNumber;
+   return (GmatTimeConstants::DayName)dayNumber;
 }
 
 //------------------------------------------------------------------------------
@@ -134,17 +134,17 @@ GmatTimeUtil::DayName Date::GetDayName() const
 Integer Date::GetDaysPerMonth() const
 {
    if(IsLeapYear(yearD))
-      return GmatTimeUtil::LEAP_YEAR_DAYS_IN_MONTH[monthD - 1];
+      return GmatTimeConstants::LEAP_YEAR_DAYS_IN_MONTH[monthD - 1];
    else
-      return GmatTimeUtil::DAYS_IN_MONTH[monthD - 1];
+      return GmatTimeConstants::DAYS_IN_MONTH[monthD - 1];
 }
 
 //------------------------------------------------------------------------------
-//  GmatTimeUtil::MonthName GetMonthName() const
+//  GmatTimeConstants::MonthName GetMonthName() const
 //------------------------------------------------------------------------------
-GmatTimeUtil::MonthName Date::GetMonthName() const
+GmatTimeConstants::MonthName Date::GetMonthName() const
 {
-   return (GmatTimeUtil::MonthName)monthD;
+   return (GmatTimeConstants::MonthName)monthD;
 }
 
 //------------------------------------------------------------------------------
@@ -380,8 +380,8 @@ Date::Date(const GmatTimeUtil::CalDate &date)
    yearD = date.year;
    monthD = date.month;
    dayD = date.day;
-   secondsOfDayD = date.hour * GmatTimeUtil::SECS_PER_HOUR +
-      date.minute * GmatTimeUtil::SECS_PER_MINUTE + date.second;
+   secondsOfDayD = date.hour * GmatTimeConstants::SECS_PER_HOUR +
+      date.minute * GmatTimeConstants::SECS_PER_MINUTE + date.second;
 }
 
 //------------------------------------------------------------------------------

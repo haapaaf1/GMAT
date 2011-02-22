@@ -93,6 +93,10 @@ typedef struct geoparms
 typedef Real GmatEpoch;
 
 
+// GMAT's Radians representation
+typedef Real Radians;
+
+
 namespace Gmat
 {
    /**

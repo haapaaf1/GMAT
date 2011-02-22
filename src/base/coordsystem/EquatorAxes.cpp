@@ -28,7 +28,7 @@
 #include "Planet.hpp"
 #include "RealUtilities.hpp"
 #include "Linear.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "TimeSystemConverter.hpp"
 #include "Attitude.hpp"
 #include "Rvector3.hpp"
@@ -43,7 +43,7 @@
 
 
 using namespace GmatMathUtil;      // for trig functions, etc.
-using namespace GmatTimeUtil;      // for JD offsets, etc.
+using namespace GmatTimeConstants;      // for JD offsets, etc.
 
 //---------------------------------
 // static data
@@ -303,9 +303,9 @@ void EquatorAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       // convert epoch (A1 MJD) to TT MJD (for calculations)
       Real mjdTT = TimeConverterUtil::Convert(atEpoch.Get(),
                    TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
-                   GmatTimeUtil::JD_JAN_5_1941);      
-      Real offset = GmatTimeUtil::JD_JAN_5_1941 - GmatTimeUtil::JD_OF_J2000;
-      Real tTDB  = (mjdTT + offset) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
+                   GmatTimeConstants::JD_JAN_5_1941);      
+      Real offset = GmatTimeConstants::JD_JAN_5_1941 - GmatTimeConstants::JD_OF_J2000;
+      Real tTDB  = (mjdTT + offset) / GmatTimeConstants::DAYS_PER_JULIAN_CENTURY;
       
       if (overrideOriginInterval) updateIntervalToUse = 
                                   ((Planet*) origin)->GetNutationUpdateInterval();
@@ -480,8 +480,8 @@ void EquatorAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       cartCoord   = ((CelestialBody*)origin)->
                       GetBodyCartographicCoordinates(atEpoch);
       
-      Real rot1           = GmatMathUtil::PI_OVER_TWO + Rad(cartC[0]);
-      Real rot2           = GmatMathUtil::PI_OVER_TWO - Rad(cartC[1]);
+      Real rot1           = GmatMathConstants::PI_OVER_TWO + Rad(cartC[0]);
+      Real rot2           = GmatMathConstants::PI_OVER_TWO - Rad(cartC[1]);
       // Don't care about W and Wdot here
       Real R3leftT[9] =  {Cos(rot1),-Sin(rot1),0.0,
                           Sin(rot1), Cos(rot1),0.0,

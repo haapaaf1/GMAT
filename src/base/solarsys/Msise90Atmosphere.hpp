@@ -36,7 +36,7 @@ public:
    Msise90Atmosphere&      operator=(const Msise90Atmosphere& msise);
     
    bool                    Density(Real *position, Real *density,
-                                    Real epoch = GmatTimeUtil::MJD_OF_J2000,
+                                    Real epoch = GmatTimeConstants::MJD_OF_J2000,
                                     Integer count = 1);
 
    virtual GmatBase*       Clone() const; // inherited from GmatBase

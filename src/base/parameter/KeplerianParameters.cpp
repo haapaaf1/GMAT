@@ -20,7 +20,6 @@
 //------------------------------------------------------------------------------
 
 #include "KeplerianParameters.hpp"
-#include "OrbitTypes.hpp"
 
 //==============================================================================
 //                              KepSMA
@@ -111,7 +110,7 @@ bool KepSMA::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(SMA);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -224,7 +223,7 @@ bool KepEcc::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(ECC);
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -338,7 +337,7 @@ bool KepInc::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(INC);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -453,7 +452,7 @@ bool KepAOP::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(AOP);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -568,7 +567,7 @@ bool KepRAAN::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(RAAN);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -680,7 +679,7 @@ bool KepRADN::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(RADN);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -795,7 +794,7 @@ bool KepTA::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(TA);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -910,7 +909,7 @@ bool KepMA::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(MA);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -1025,7 +1024,7 @@ bool KepEA::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(EA);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -1140,7 +1139,7 @@ bool KepHA::Evaluate()
 {
    mRealValue = OrbitData::GetKepReal(HA);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -1252,7 +1251,7 @@ bool KepMM::Evaluate()
 {
    mRealValue = OrbitData::GetOtherKepReal(MM);
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -1367,7 +1366,7 @@ bool KepElem::Evaluate()
 {
    mRvec6Value = OrbitData::GetKepState();
 
-   return mRvec6Value.IsValid(GmatOrbit::ORBIT_REAL_UNDEFINED);
+   return mRvec6Value.IsValid(GmatOrbitConstants::ORBIT_REAL_UNDEFINED);
 }
 
 
@@ -1480,7 +1479,7 @@ bool ModKepElem::Evaluate()
 {
    mRvec6Value = OrbitData::GetModKepState();
 
-   return mRvec6Value.IsValid(GmatOrbit::ORBIT_REAL_UNDEFINED);
+   return mRvec6Value.IsValid(GmatOrbitConstants::ORBIT_REAL_UNDEFINED);
 }
 
 

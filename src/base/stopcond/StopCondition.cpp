@@ -26,7 +26,7 @@
 #include "SphericalParameters.hpp"     // for SphRMag()
 #include "StringUtil.hpp"              // for ReplaceName()
 #include "MessageInterface.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 
 
 //#define DEBUG_STOPCOND_INIT
@@ -554,7 +554,7 @@ bool StopCondition::Evaluate()
          if ((currentGoalValue >= min) && (currentGoalValue <= max) && activated)
          {
             goalMet = true;
-            mStopInterval = (epoch - previousEpoch) * GmatTimeUtil::SECS_PER_DAY;
+            mStopInterval = (epoch - previousEpoch) * GmatTimeConstants::SECS_PER_DAY;
       
             #ifdef DEBUG_STOPCOND_EVAL
                MessageInterface::ShowMessage(
@@ -2274,14 +2274,14 @@ Real StopCondition::GetTimeMultiplier()
    switch (stopParamTimeType)
    {
       case MINUTE_PARAM:
-         return GmatTimeUtil::SECS_PER_MINUTE;
+         return GmatTimeConstants::SECS_PER_MINUTE;
 
       case HOUR_PARAM:
-         return GmatTimeUtil::SECS_PER_HOUR;
+         return GmatTimeConstants::SECS_PER_HOUR;
       
       case DAY_PARAM:
       case EPOCH_PARAM:
-         return GmatTimeUtil::SECS_PER_DAY;
+         return GmatTimeConstants::SECS_PER_DAY;
       
       // All intentional fall-throughs
       case SECOND_PARAM:
@@ -2463,7 +2463,7 @@ void StopCondition::UpdateBuffer()
    
    if (isLhsCyclicCondition)
    {
-      currentGoalValue = PutInRange(currentGoalValue, 0.0, GmatMathUtil::TWO_PI_DEG);
+      currentGoalValue = PutInRange(currentGoalValue, 0.0, GmatMathConstants::TWO_PI_DEG);
       CheckCyclicCondition(previousAchievedValue);
    }
    

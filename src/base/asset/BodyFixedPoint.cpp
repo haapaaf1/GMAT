@@ -321,7 +321,7 @@ bool BodyFixedPoint::Initialize()
          return false;
       }
 
-      Rvector6 j2kState = GetMJ2000State(GmatTimeUtil::MJD_OF_J2000);
+      Rvector6 j2kState = GetMJ2000State(GmatTimeConstants::MJD_OF_J2000);
       MessageInterface::ShowMessage("The resulting MJ2000 Cartesian state is "
             "\n   [%s]\n", j2kState.ToString(16).c_str());
    #endif
@@ -848,7 +848,7 @@ Real BodyFixedPoint::GetRealParameter(const Integer id) const
          return location[id - LOCATION_1];
       // need to return units of degrees for Spherical state latitude and longitude
       else
-         return location[id - LOCATION_1] * GmatMathUtil::DEG_PER_RAD;
+         return location[id - LOCATION_1] * GmatMathConstants::DEG_PER_RAD;
    }
 
    return SpacePoint::GetRealParameter(id);
@@ -870,7 +870,7 @@ Real BodyFixedPoint::SetRealParameter(const Integer id,
       if (id == LOCATION_1) // latitude
       {
          if ((value >= -90.0) && (value <= 90))
-            location[id-LOCATION_1] = value * GmatMathUtil::RAD_PER_DEG;
+            location[id-LOCATION_1] = value * GmatMathConstants::RAD_PER_DEG;
          else
          {
             AssetException aException("");
@@ -881,7 +881,7 @@ Real BodyFixedPoint::SetRealParameter(const Integer id,
          }
       }
       else // longitude (0-360)
-         location[id-LOCATION_1] = (GmatMathUtil::Mod(value,360)) * GmatMathUtil::RAD_PER_DEG;
+         location[id-LOCATION_1] = (GmatMathUtil::Mod(value,360)) * GmatMathConstants::RAD_PER_DEG;
       return location[id-LOCATION_1];
    }
    else if ((id >= LOCATION_1) && (id <= LOCATION_3)) // not Spherical

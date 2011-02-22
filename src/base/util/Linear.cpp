@@ -21,7 +21,6 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include "RealTypes.hpp"
 #include "RealUtilities.hpp"     // for PI, TWO_PI, Acos(), Atan()
 #include "Rvector.hpp"
 #include "Rvector3.hpp"
@@ -58,7 +57,7 @@ GmatRealUtil::RaCodec GmatRealUtil::CartesianToRaCodec(const Rvector3 &r)
       else if( r[2]<0.0 ) 
       {
          s.radiusD = -r[2];
-         s.coDeclinationD = GmatMathUtil::PI;
+         s.coDeclinationD = GmatMathConstants::PI;
          s.rightAscensionD = 0.0;
       } 
       else if( r[2]>0.0) 
@@ -100,13 +99,13 @@ GmatRealUtil::RaDec GmatRealUtil::CartesianToRaDec(const Rvector3 &r)
       {
          RD.radiusD = -r[2];
          RD.rightAscensionD = 0.0;
-         RD.declinationD = -GmatMathUtil::PI_OVER_TWO;
+         RD.declinationD = -GmatMathConstants::PI_OVER_TWO;
       } 
       else if(r[2]>0.0) 
       {
          RD.radiusD = r[2];
          RD.rightAscensionD = 0.0;
-         RD.declinationD  = GmatMathUtil::PI_OVER_TWO;
+         RD.declinationD  = GmatMathConstants::PI_OVER_TWO;
       }
    } 
    else 
@@ -140,7 +139,7 @@ GmatRealUtil::RaDec GmatRealUtil::RaCodecToRaDec(const RaCodec &r)
    RaDec rD;
    rD.radiusD = r.radiusD;
    rD.rightAscensionD = r.rightAscensionD;
-   rD.declinationD = GmatMathUtil::PI_OVER_TWO - r.coDeclinationD;
+   rD.declinationD = GmatMathConstants::PI_OVER_TWO - r.coDeclinationD;
    return rD;
 }
 
@@ -166,7 +165,7 @@ GmatRealUtil::RaCodec GmatRealUtil::RaDecToRaCodec(const RaDec &r)
    RaCodec s;
    s.radiusD = r.radiusD;
    s.rightAscensionD = r.rightAscensionD;
-   s.coDeclinationD = GmatMathUtil::PI_OVER_TWO - r.declinationD;
+   s.coDeclinationD = GmatMathConstants::PI_OVER_TWO - r.declinationD;
    return s;
 }
 

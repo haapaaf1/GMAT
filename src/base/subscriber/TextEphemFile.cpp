@@ -435,7 +435,7 @@ bool TextEphemFile::Distribute(const Real * dat, Integer len)
          
          // Compute next output time, first data is time
          mCurrA1Mjd = dat[0];
-         mOutputA1Mjd = dat[0] + mIntervalInSec/GmatTimeUtil::SECS_PER_DAY;
+         mOutputA1Mjd = dat[0] + mIntervalInSec/GmatTimeConstants::SECS_PER_DAY;
          
          // Write first data
          WriteFirstData();
@@ -707,7 +707,7 @@ void TextEphemFile::WriteTime(Real epoch)
 {
    
    Real time = TimeConverterUtil::Convert(epoch, TimeConverterUtil::A1MJD, 
-                                          mEpochSysId, GmatTimeUtil::JD_JAN_5_1941);
+                                          mEpochSysId, GmatTimeConstants::JD_JAN_5_1941);
 
    dstream.width(mColWidth[0]);
    dstream.precision(precision);
@@ -760,7 +760,7 @@ void TextEphemFile::WriteData()
    mStopA1Mjd = mOutputA1Mjd;
    
    // Compute new output time
-   mOutputA1Mjd = mOutputA1Mjd + mIntervalInSec/GmatTimeUtil::SECS_PER_DAY;
+   mOutputA1Mjd = mOutputA1Mjd + mIntervalInSec/GmatTimeConstants::SECS_PER_DAY;
    
    #if DEBUG_EPHEMFILE_DATA
    MessageInterface::ShowMessage

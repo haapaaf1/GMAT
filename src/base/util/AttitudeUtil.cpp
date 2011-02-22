@@ -13,7 +13,6 @@
 // Created: 2005/11/09
 //
 //------------------------------------------------------------------------------
-#include "RealTypes.hpp"
 #include "RealUtilities.hpp"
 #include "AttitudeUtil.hpp"
 #include <cmath>

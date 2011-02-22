@@ -84,7 +84,7 @@ public:
    virtual bool         Initialize();
    
    //---------------------------------------------------------------------------
-   // bool Fire(Real *burnData = NULL, Real epoch = GmatTimeUtil::MJD_OF_J2000)
+   // bool Fire(Real *burnData = NULL, Real epoch = GmatTimeConstants::MJD_OF_J2000)
    //---------------------------------------------------------------------------
    /**
     * Applies the burn.  
@@ -98,7 +98,7 @@ public:
     * @return true on success, false or throw on failure.
     */
    //---------------------------------------------------------------------------
-   virtual bool         Fire(Real *burnData = NULL, Real epoch = GmatTimeUtil::MJD_OF_J2000) = 0;
+   virtual bool         Fire(Real *burnData = NULL, Real epoch = GmatTimeConstants::MJD_OF_J2000) = 0;
     
 protected:
 

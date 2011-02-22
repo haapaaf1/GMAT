@@ -30,8 +30,7 @@
 #include "Planet.hpp"
 #include "RealUtilities.hpp"
 #include "Linear.hpp"
-#include "RealTypes.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "Rvector3.hpp"
 #include "Rvector6.hpp"
 #include "TimeSystemConverter.hpp"
@@ -42,7 +41,7 @@
 
 
 using namespace GmatMathUtil;      // for trig functions, etc.
-using namespace GmatTimeUtil;      // for JD offsets, etc.
+using namespace GmatTimeConstants;      // for JD offsets, etc.
 
 //#define ROT_MAT_DEBUG
 //#define DEBUG_TIME_CALC
@@ -50,8 +49,8 @@ using namespace GmatTimeUtil;      // for JD offsets, etc.
 // static data
 //---------------------------------
 // wcs - 2006.05.01 added negative sign per Bug 260
-const Real GeocentricSolarMagneticAxes::lambdaD = -70.1 * GmatMathUtil::RAD_PER_DEG;  // degrees West
-const Real GeocentricSolarMagneticAxes::phiD    = 78.6 * GmatMathUtil::RAD_PER_DEG;  // degrees North
+const Real GeocentricSolarMagneticAxes::lambdaD = -70.1 * GmatMathConstants::RAD_PER_DEG;  // degrees West
+const Real GeocentricSolarMagneticAxes::phiD    = 78.6 * GmatMathConstants::RAD_PER_DEG;  // degrees North
 
 
 //------------------------------------------------------------------------------

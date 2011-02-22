@@ -40,7 +40,7 @@ PlanetaryEphem::PlanetaryEphem(std::string withFileName)
    strcpy(g_pef_dcb.full_path,withFileName.c_str());
    g_pef_dcb.recl           = 0;
    g_pef_dcb.fptr           = NULL;
-   jdMjdOffset              = GmatTimeUtil::JD_JAN_5_1941;
+   jdMjdOffset              = GmatTimeConstants::JD_JAN_5_1941;
 }
 
 //------------------------------------------------------------------------------

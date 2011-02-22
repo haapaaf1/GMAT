@@ -154,7 +154,7 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
          "Central body pointer not set in MSISE90 model.");
 
    Real utcEpoch = TimeConverterUtil::Convert(epoch, TimeConverterUtil::A1MJD,
-		   TimeConverterUtil::UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
+		   TimeConverterUtil::UTCMJD, GmatTimeConstants::JD_JAN_5_1941);
 
    GetInputs(utcEpoch);
 
@@ -315,22 +315,22 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
 void Msise90Atmosphere::GetInputs(Real epoch)
 {
    Integer iEpoch = (Integer)(epoch);  // Truncate the epoch
-   Integer yearOffset = (Integer)((epoch + 5.5) / GmatTimeUtil::DAYS_PER_YEAR);
+   Integer yearOffset = (Integer)((epoch + 5.5) / GmatTimeConstants::DAYS_PER_YEAR);
    Integer year   = 1941 + yearOffset;
-   Integer doy = iEpoch - (Integer)(yearOffset * GmatTimeUtil::DAYS_PER_YEAR) + 5;
+   Integer doy = iEpoch - (Integer)(yearOffset * GmatTimeConstants::DAYS_PER_YEAR) + 5;
 
 
-   sod  = GmatTimeUtil::SECS_PER_DAY * (epoch - iEpoch + 0.5);  // Includes noon/midnight adjustment
+   sod  = GmatTimeConstants::SECS_PER_DAY * (epoch - iEpoch + 0.5);  // Includes noon/midnight adjustment
    if (sod < 0.0)
    {
-      sod += GmatTimeUtil::SECS_PER_DAY;
+      sod += GmatTimeConstants::SECS_PER_DAY;
       doy -= 1;
    }
 
 
-   if (sod > GmatTimeUtil::SECS_PER_DAY)
+   if (sod > GmatTimeConstants::SECS_PER_DAY)
    {
-      sod -= GmatTimeUtil::SECS_PER_DAY;
+      sod -= GmatTimeConstants::SECS_PER_DAY;
       doy += 1;
    }
 

@@ -23,7 +23,6 @@
 #include "Array.hpp"
 #include "ElementWrapper.hpp"
 #include "NumberWrapper.hpp"
-#include "RealTypes.hpp"
 #include "RealUtilities.hpp"
 #include "Variable.hpp"
 #include "StringVar.hpp"

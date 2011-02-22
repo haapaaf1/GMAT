@@ -26,7 +26,6 @@
 #include <sstream>
 #include "gmatdefs.hpp"
 #include "Rvector6.hpp"
-#include "RealTypes.hpp"
 #include "RealUtilities.hpp"
 #include "CoordUtil.hpp"
 #include "UtilityException.hpp"

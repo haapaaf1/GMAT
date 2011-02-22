@@ -20,7 +20,6 @@
 //------------------------------------------------------------------------------
 
 #include "OrbitalParameters.hpp"
-#include "OrbitTypes.hpp"
 #include "MessageInterface.hpp"
 
 //==============================================================================
@@ -120,7 +119,7 @@ bool VelApoapsis::Evaluate()
    
    mRealValue = OrbitData::GetOtherKepReal(VEL_APOAPSIS);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -242,7 +241,7 @@ bool VelPeriapsis::Evaluate()
    
    mRealValue = OrbitData::GetOtherKepReal(VEL_PERIAPSIS);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -640,7 +639,7 @@ bool OrbitPeriod::Evaluate()
    
    mRealValue = OrbitData::GetOtherKepReal(ORBIT_PERIOD);    
 
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -758,7 +757,7 @@ bool RadApoapsis::Evaluate()
    
    mRealValue = OrbitData::GetOtherKepReal(RAD_APOAPSIS);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -876,7 +875,7 @@ bool RadPeriapsis::Evaluate()
    
    mRealValue = OrbitData::GetOtherKepReal(RAD_PERIAPSIS);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -993,7 +992,7 @@ bool C3Energy::Evaluate()
    
    mRealValue = OrbitData::GetOtherKepReal(C3_ENERGY);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -1110,7 +1109,7 @@ bool Energy::Evaluate()
    
    mRealValue = OrbitData::GetOtherKepReal(ENERGY);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;

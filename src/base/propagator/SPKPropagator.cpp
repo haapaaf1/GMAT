@@ -639,7 +639,7 @@ bool SPKPropagator::Initialize()
                   Integer id = naifIds[i];
 
                   currentEpoch = initialEpoch + timeFromEpoch /
-                        GmatTimeUtil::SECS_PER_DAY;
+                        GmatTimeConstants::SECS_PER_DAY;
 
                   // Allow for slop in the last few bits
                   if ((currentEpoch < ephemStart - 1e-10) ||
@@ -731,7 +731,7 @@ bool SPKPropagator::Step()
             timeFromEpoch += ephemStep;
             stepTaken = ephemStep;
             currentEpoch = initialEpoch + timeFromEpoch /
-                  GmatTimeUtil::SECS_PER_DAY;
+                  GmatTimeConstants::SECS_PER_DAY;
 
             // Allow for slop in the last few bits
             if ((currentEpoch < ephemStart - 1e-10) ||

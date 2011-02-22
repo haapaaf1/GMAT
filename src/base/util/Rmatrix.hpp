@@ -55,9 +55,9 @@ public:
    virtual ~Rmatrix();
    
    virtual bool 
-   IsOrthogonal(Real accuracyRequired = GmatRealConst::REAL_EPSILON) const;
+   IsOrthogonal(Real accuracyRequired = GmatRealConstants::REAL_EPSILON) const;
    virtual bool 
-   IsOrthonormal(Real accuracyRequired = GmatRealConst::REAL_EPSILON) const;
+   IsOrthonormal(Real accuracyRequired = GmatRealConstants::REAL_EPSILON) const;
    
    const Rmatrix& operator=(const Rmatrix &m);
    bool operator==(const Rmatrix &m)const;

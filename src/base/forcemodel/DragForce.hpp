@@ -203,7 +203,7 @@ protected:
    
    void                 BuildPrefactors();
    void                 TranslateOrigin(const Real *state, const Real now);
-   void                 GetDensity(Real *state, Real when = GmatTimeUtil::MJD_OF_J2000);
+   void                 GetDensity(Real *state, Real when = GmatTimeConstants::MJD_OF_J2000);
       
    Real                 CalculateAp(Real kp);
    

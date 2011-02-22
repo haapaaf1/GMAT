@@ -21,7 +21,6 @@
 #define AttitudeUtil_hpp
 
 #include "BaseException.hpp"
-#include "RealTypes.hpp"
 #include "Rvector3.hpp"
 #include "Rmatrix33.hpp"
 

@@ -21,10 +21,10 @@
 #include <sstream>
 #include "gmatdefs.hpp"
 #include "RealUtilities.hpp"     // for PI, TWO_PI, ACos(), Sqrt(), Mod()
+#include "GmatConstants.hpp"
 #include "Keplerian.hpp"
 #include "Rvector.hpp"
 #include "UtilityException.hpp"
-#include "OrbitTypes.hpp"        // for KEP_TOL, KEP_ZERO_TOL
 #include "CoordUtil.hpp"         // for KeplerianToCartesian()
 #include "MessageInterface.hpp"
 
@@ -38,6 +38,7 @@
 //#define DEBUG_ANOMALY_MA
 
 using namespace GmatMathUtil;
+using namespace GmatMathConstants;
 
 
 //---------------------------------
@@ -367,7 +368,7 @@ Real Keplerian::CartesianToSMA(Real mu, const Rvector3 &pos,
 
    // check if the orbit is near parabolic
    Real ecc = CartesianToECC(mu, pos, vel);
-   if ((Abs(1.0 - ecc)) <= GmatOrbit::KEP_ECC_TOL)
+   if ((Abs(1.0 - ecc)) <= GmatOrbitConstants::KEP_ECC_TOL)
    {
      
       throw UtilityException
@@ -450,7 +451,7 @@ Real Keplerian::CartesianToINC(Real mu, const Rvector3 &pos,
    
    // check if the orbit is near parabolic
    Real eMag = CartesianToECC(mu, pos, vel);
-   if ((Abs(1.0 - eMag)) <= GmatOrbit::KEP_ZERO_TOL)
+   if ((Abs(1.0 - eMag)) <= GmatOrbitConstants::KEP_ZERO_TOL)
    {
       
       throw UtilityException
@@ -462,8 +463,8 @@ Real Keplerian::CartesianToINC(Real mu, const Rvector3 &pos,
    Real hMag = hVec.GetMagnitude();
    
    //Real inc = ACos(hVec[2] / hMag);
-   Real inc = ACos((hVec[2] / hMag), GmatOrbit::KEP_TOL);
-   if (inc >= PI - GmatOrbit::KEP_TOL)
+   Real inc = ACos((hVec[2] / hMag), GmatOrbitConstants::KEP_TOL);
+   if (inc >= PI - GmatOrbitConstants::KEP_TOL)
    {
       throw UtilityException
          ("Error in conversion to Keplerian state: "
@@ -505,7 +506,7 @@ Real Keplerian::CartesianToRAAN(Real mu, const Rvector3 &pos,
    
    Real ecc = CartesianToECC(mu, pos, vel);
    Real inc = CartesianToINC(mu, pos, vel, true);
-   if (inc >= PI - GmatOrbit::KEP_TOL)
+   if (inc >= PI - GmatOrbitConstants::KEP_TOL)
    {
       throw UtilityException
          ("Error in conversion to Keplerian state: "
@@ -514,36 +515,36 @@ Real Keplerian::CartesianToRAAN(Real mu, const Rvector3 &pos,
    Real raan = 0.0;
    
    // Case 1:  Non-circular, Inclined Orbit
-   if ((ecc >= GmatOrbit::KEP_TOL) && (inc >= GmatOrbit::KEP_TOL))
+   if ((ecc >= GmatOrbitConstants::KEP_TOL) && (inc >= GmatOrbitConstants::KEP_TOL))
    {
       Rvector3 nVec =  CartesianToDirOfLineOfNode(pos, vel);
       Real nMag = nVec.GetMagnitude();
       //raan = ACos(nVec[0] / nMag);
-      raan = ACos((nVec[0] / nMag), GmatOrbit::KEP_TOL);
+      raan = ACos((nVec[0] / nMag), GmatOrbitConstants::KEP_TOL);
       
       // Fix quadrant
       if (nVec[1] < 0.0)
          raan = TWO_PI - raan;   
    }
    // Case 2: Non-circular, Equatorial Orbit
-   else if ((ecc >= GmatOrbit::KEP_TOL) && (inc < GmatOrbit::KEP_TOL))
+   else if ((ecc >= GmatOrbitConstants::KEP_TOL) && (inc < GmatOrbitConstants::KEP_TOL))
    {
       raan = 0.0;
    }
    // Case 3: Circular, Inclined Orbit
-   else if ((ecc < GmatOrbit::KEP_TOL) && (inc >= GmatOrbit::KEP_TOL))
+   else if ((ecc < GmatOrbitConstants::KEP_TOL) && (inc >= GmatOrbitConstants::KEP_TOL))
    {
       Rvector3 nVec =  CartesianToDirOfLineOfNode(pos, vel);
       Real nMag = nVec.GetMagnitude();
       //raan = ACos(nVec[0] / nMag);
-      raan = ACos((nVec[0] / nMag), GmatOrbit::KEP_TOL);
+      raan = ACos((nVec[0] / nMag), GmatOrbitConstants::KEP_TOL);
       
       // Fix quadrant
       if (nVec[1] < 0.0)
          raan = TWO_PI - raan;   
    }
    // Case 4: Circular, Equatorial Orbit
-   else if ((ecc < GmatOrbit::KEP_TOL) && (inc < GmatOrbit::KEP_TOL))
+   else if ((ecc < GmatOrbitConstants::KEP_TOL) && (inc < GmatOrbitConstants::KEP_TOL))
    {
       raan = 0.0;
    }
@@ -576,7 +577,7 @@ Real Keplerian::CartesianToAOP(Real mu, const Rvector3 &pos,
    
    Rvector3 eVec = CartesianToEccVector(mu, pos, vel);
    Real inc = CartesianToINC(mu, pos, vel, true);
-   if (inc >= PI - GmatOrbit::KEP_TOL)
+   if (inc >= PI - GmatOrbitConstants::KEP_TOL)
    {
       throw UtilityException
          ("Error in conversion to Keplerian state: "
@@ -586,34 +587,34 @@ Real Keplerian::CartesianToAOP(Real mu, const Rvector3 &pos,
    Real aop = 0.0;
    
    // Case 1:  Non-circular, Inclined Orbit
-   if ((ecc >= GmatOrbit::KEP_TOL) && (inc >= GmatOrbit::KEP_TOL))
+   if ((ecc >= GmatOrbitConstants::KEP_TOL) && (inc >= GmatOrbitConstants::KEP_TOL))
    {
       Rvector3 nVec =  CartesianToDirOfLineOfNode(pos, vel);
       Real nMag = nVec.GetMagnitude();
       //aop = ACos((nVec*eVec) / (nMag*ecc));
-      aop = ACos(((nVec*eVec) / (nMag*ecc)), GmatOrbit::KEP_TOL);
+      aop = ACos(((nVec*eVec) / (nMag*ecc)), GmatOrbitConstants::KEP_TOL);
       
       // Fix quadrant
       if (eVec[2] < 0.0)
          aop = TWO_PI - aop;
    }
    // Case 2: Non-circular, Equatorial Orbit
-   else if ((ecc >= GmatOrbit::KEP_TOL) && (inc < GmatOrbit::KEP_TOL))
+   else if ((ecc >= GmatOrbitConstants::KEP_TOL) && (inc < GmatOrbitConstants::KEP_TOL))
    {
       //aop = ACos(eVec[0] / ecc);
-      aop = ACos((eVec[0] / ecc), GmatOrbit::KEP_TOL);
+      aop = ACos((eVec[0] / ecc), GmatOrbitConstants::KEP_TOL);
       
       // Fix quadrant
       if (eVec[1] < 0.0)
          aop = TWO_PI - aop;
    }
    // Case 3: Circular, Inclined Orbit
-   else if ((ecc < GmatOrbit::KEP_TOL) && (inc >= GmatOrbit::KEP_TOL))
+   else if ((ecc < GmatOrbitConstants::KEP_TOL) && (inc >= GmatOrbitConstants::KEP_TOL))
    {
       aop = 0.0;
    }
    // Case 4: Circular, Equatorial Orbit
-   else if ((ecc < GmatOrbit::KEP_TOL) && (inc < GmatOrbit::KEP_TOL))
+   else if ((ecc < GmatOrbitConstants::KEP_TOL) && (inc < GmatOrbitConstants::KEP_TOL))
    {
       aop = 0.0;
    }
@@ -647,7 +648,7 @@ Real Keplerian::CartesianToTA(Real mu, const Rvector3 &pos,
    
    Rvector3 eVec = CartesianToEccVector(mu, pos, vel);
    Real inc = CartesianToINC(mu, pos, vel, true);
-   if (inc >= PI - GmatOrbit::KEP_TOL)
+   if (inc >= PI - GmatOrbitConstants::KEP_TOL)
    {
       throw UtilityException
          ("Error in conversion to Keplerian state: "
@@ -664,17 +665,17 @@ Real Keplerian::CartesianToTA(Real mu, const Rvector3 &pos,
    #endif
    
    // Case 1:  Non-circular, Inclined Orbit
-   if ((ecc >= GmatOrbit::KEP_TOL) && (inc >= GmatOrbit::KEP_TOL))
+   if ((ecc >= GmatOrbitConstants::KEP_TOL) && (inc >= GmatOrbitConstants::KEP_TOL))
    {      
       #ifdef DEBUG_KEPLERIAN_TA
       MessageInterface::ShowMessage("   Case 1:  Non-circular, Inclined Orbit\n");
       #endif
       
       Real temp = (eVec*pos) / (ecc*rMag);
-      ta = ACos(temp, GmatOrbit::KEP_TOL);
+      ta = ACos(temp, GmatOrbitConstants::KEP_TOL);
       
       #if DEBUG_KEPLERIAN_TA > 1
-      MessageInterface::ShowMessage("   ACos(%+.16f) = %+.16f\n", temp, ACos(temp, GmatOrbit::KEP_TOL));      
+      MessageInterface::ShowMessage("   ACos(%+.16f) = %+.16f\n", temp, ACos(temp, GmatOrbitConstants::KEP_TOL));      
       MessageInterface::ShowMessage("   ACos(%+.16f) = %+.16f\n", temp, ta);
       #endif
       
@@ -688,21 +689,21 @@ Real Keplerian::CartesianToTA(Real mu, const Rvector3 &pos,
       }
    }
    // Case 2: Non-circular, Equatorial Orbit
-   else if ((ecc >= GmatOrbit::KEP_TOL) && (inc < GmatOrbit::KEP_TOL))
+   else if ((ecc >= GmatOrbitConstants::KEP_TOL) && (inc < GmatOrbitConstants::KEP_TOL))
    {
       #ifdef DEBUG_KEPLERIAN_TA
       MessageInterface::ShowMessage("   Case 2: Non-circular, Equatorial Orbit\n");
       #endif
       
       //ta = ACos((eVec*pos) / (ecc*rMag));
-      ta = ACos(((eVec*pos) / (ecc*rMag)), GmatOrbit::KEP_TOL);
+      ta = ACos(((eVec*pos) / (ecc*rMag)), GmatOrbitConstants::KEP_TOL);
       
       // Fix quadrant
       if ((pos*vel) < 0.0)
          ta = TWO_PI - ta;
    }
    // Case 3: Circular, Inclined Orbit
-   else if ((ecc < GmatOrbit::KEP_TOL) && (inc >= GmatOrbit::KEP_TOL))
+   else if ((ecc < GmatOrbitConstants::KEP_TOL) && (inc >= GmatOrbitConstants::KEP_TOL))
    {
       #ifdef DEBUG_KEPLERIAN_TA
       MessageInterface::ShowMessage("   Case 3: Circular, Inclined Orbit\n");
@@ -711,21 +712,21 @@ Real Keplerian::CartesianToTA(Real mu, const Rvector3 &pos,
       Rvector3 nVec =  CartesianToDirOfLineOfNode(pos, vel);
       Real nMag = nVec.GetMagnitude();
       //ta = ACos((nVec*pos) / (nMag*rMag));
-      ta = ACos(((nVec*pos) / (nMag*rMag)), GmatOrbit::KEP_TOL);
+      ta = ACos(((nVec*pos) / (nMag*rMag)), GmatOrbitConstants::KEP_TOL);
       
       // Fix quadrant
       if ((pos[2]) < 0.0)
          ta = TWO_PI - ta;
    }
    // Case 4: Circular, Equatorial Orbit
-   else if ((ecc < GmatOrbit::KEP_TOL) && (inc < GmatOrbit::KEP_TOL))
+   else if ((ecc < GmatOrbitConstants::KEP_TOL) && (inc < GmatOrbitConstants::KEP_TOL))
    {
       #ifdef DEBUG_KEPLERIAN_TA
       MessageInterface::ShowMessage("   Case 4: Circular, Equatorial Orbit\n");
       #endif
       
       //ta = ACos(pos[0] / rMag);
-      ta = ACos((pos[0] / rMag), GmatOrbit::KEP_TOL);
+      ta = ACos((pos[0] / rMag), GmatOrbitConstants::KEP_TOL);
       
       // Fix quadrant
       if ((pos[1]) < 0.0)
@@ -990,12 +991,12 @@ Radians Keplerian::TrueToMeanAnomaly(Radians ta, Real ecc)
    
    Real ma = 0.0;
    
-   if (ecc < (1.0 - GmatOrbit::KEP_ANOMALY_TOL))
+   if (ecc < (1.0 - GmatOrbitConstants::KEP_ANOMALY_TOL))
    {
       Real ea = TrueToEccentricAnomaly(ta, ecc);
       ma = ea - ecc * Sin(ea);
    }
-   else if (ecc > (1.0 + GmatOrbit::KEP_ANOMALY_TOL))
+   else if (ecc > (1.0 + GmatOrbitConstants::KEP_ANOMALY_TOL))
    {
       Real ha = TrueToHyperbolicAnomaly(ta, ecc);
       ma = ecc * Sinh(ha) - ha;
@@ -1032,7 +1033,7 @@ Radians Keplerian::TrueToEccentricAnomaly(Radians ta, Real ecc)
    
    Real ea = 0.0;
    
-   if (ecc <= (1.0 - GmatOrbit::KEP_ANOMALY_TOL))
+   if (ecc <= (1.0 - GmatOrbitConstants::KEP_ANOMALY_TOL))
    {
       Real cosTa = Cos(ta);
       Real eccCosTa = ecc * cosTa;
@@ -1064,7 +1065,7 @@ Radians Keplerian::TrueToHyperbolicAnomaly(Radians ta, Real ecc)
    
    Real ha = 0.0;
    
-   if (ecc >= (1.0 + GmatOrbit::KEP_ANOMALY_TOL))
+   if (ecc >= (1.0 + GmatOrbitConstants::KEP_ANOMALY_TOL))
    {
       Real cosTa = Cos(ta);
       Real eccCosTa = ecc * cosTa;

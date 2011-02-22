@@ -23,7 +23,7 @@
 #include "Planet.hpp"
 #include "MOEEqAxes.hpp"
 #include "InertialAxes.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "TimeSystemConverter.hpp"
 
 
@@ -128,15 +128,15 @@ bool MOEEqAxes::Initialize()
    // convert epoch (A1 MJD) to TT MJD (for calculations)
    // 20.02.06 - arg: changed to use enum types instead of strings
 //   Real mjdTT = TimeConverterUtil::Convert(epoch.Get(),
-//                 "A1Mjd", "TtMjd", GmatTimeUtil::JD_JAN_5_1941);      
+//                 "A1Mjd", "TtMjd", GmatTimeConstants::JD_JAN_5_1941);      
    Real mjdTT = TimeConverterUtil::Convert(epoch.Get(),
                  TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
-                 GmatTimeUtil::JD_JAN_5_1941);      
-   //Real jdTT  = mjdTT + GmatTimeUtil::JD_JAN_5_1941;
+                 GmatTimeConstants::JD_JAN_5_1941);      
+   //Real jdTT  = mjdTT + GmatTimeConstants::JD_JAN_5_1941;
    // Compute Julian centuries of TDB from the base epoch (J2000) 
-   //Real tTDB  = (jdTT - GmatTimeUtil::JD_OF_J2000) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
-   Real offset = GmatTimeUtil::JD_JAN_5_1941 - GmatTimeUtil::JD_OF_J2000;
-   Real tTDB  = (mjdTT + offset) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
+   //Real tTDB  = (jdTT - GmatTimeConstants::JD_OF_J2000) / GmatTimeConstants::DAYS_PER_JULIAN_CENTURY;
+   Real offset = GmatTimeConstants::JD_JAN_5_1941 - GmatTimeConstants::JD_OF_J2000;
+   Real tTDB  = (mjdTT + offset) / GmatTimeConstants::DAYS_PER_JULIAN_CENTURY;
    
    if (overrideOriginInterval) updateIntervalToUse = 
                                ((Planet*) origin)->GetNutationUpdateInterval();

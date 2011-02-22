@@ -23,7 +23,7 @@
 #include "Planet.hpp"
 #include "TODEqAxes.hpp"
 #include "TrueOfDateAxes.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "TimeSystemConverter.hpp"
 
 //#define DEBUG_TODEQ_AXES
@@ -262,9 +262,9 @@ void TODEqAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
    // convert epoch (A1 MJD) to TT MJD (for calculations)
    Real mjdTT = TimeConverterUtil::Convert(atEpoch.Get(),
                 TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
-                GmatTimeUtil::JD_JAN_5_1941);      
-   Real offset = GmatTimeUtil::JD_JAN_5_1941 - GmatTimeUtil::JD_OF_J2000;
-   Real tTDB  = (mjdTT + offset) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
+                GmatTimeConstants::JD_JAN_5_1941);      
+   Real offset = GmatTimeConstants::JD_JAN_5_1941 - GmatTimeConstants::JD_OF_J2000;
+   Real tTDB  = (mjdTT + offset) / GmatTimeConstants::DAYS_PER_JULIAN_CENTURY;
    
    if (overrideOriginInterval) updateIntervalToUse = 
                                ((Planet*) origin)->GetNutationUpdateInterval();

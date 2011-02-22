@@ -20,8 +20,9 @@
 #include "ElapsedTime.hpp"
 #include "RealUtilities.hpp"
 
-using namespace GmatTimeUtil;  // for SECS_PER_DAY, SECS_PER_HOUR, etc.
+using namespace GmatTimeConstants;  // for SECS_PER_DAY, SECS_PER_HOUR, etc.
 using namespace GmatMathUtil;  // for Rem(), IsEqual()
+using namespace GmatMathConstants;  // for Rem(), IsEqual()
 
 //---------------------------------
 // static variables

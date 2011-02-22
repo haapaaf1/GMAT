@@ -44,7 +44,7 @@ public:
    AtmosphereModel& operator=(const AtmosphereModel& am);
     
    //---------------------------------------------------------------------------
-   // bool Density(Real *position, Real *density, Real epoch = GmatTimeUtil::MJD_OF_J2000,
+   // bool Density(Real *position, Real *density, Real epoch = GmatTimeConstants::MJD_OF_J2000,
    //              Integer count = 1)
    //---------------------------------------------------------------------------
    /**
@@ -63,7 +63,7 @@ public:
     * @return true on success, false if a problem is encountered.
     */
    //---------------------------------------------------------------------------
-   virtual bool Density(Real *position, Real *density, Real epoch = GmatTimeUtil::MJD_OF_J2000,
+   virtual bool Density(Real *position, Real *density, Real epoch = GmatTimeConstants::MJD_OF_J2000,
                         Integer count = 1) = 0;
 
    void SetSunVector(Real *sv);

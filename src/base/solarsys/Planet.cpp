@@ -23,7 +23,7 @@
 #include "GmatConstants.hpp"
 #include "RealUtilities.hpp"
 #include "SolarSystemException.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "TimeSystemConverter.hpp"
 #include "AngleUtil.hpp"
 #include "StringUtil.hpp"
@@ -210,7 +210,7 @@ Rvector Planet::GetBodyCartographicCoordinates(const A1Mjd &forTime) const
       if (rotationSrc == Gmat::IAU_2002)
       {
       Real d = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
-      Real T = d / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;  // interval in Julian centuries
+      Real T = d / GmatTimeConstants::DAYS_PER_JULIAN_CENTURY;  // interval in Julian centuries
       Real N    = 357.85 + 52.316 * T;
       //Real NDot = 52.316 * CelestialBody::TDot;
       Real NDot = 6.0551e-04;   // per new specs 2004.02.22
@@ -267,11 +267,11 @@ Real  Planet::GetHourAngle(A1Mjd atTime)
       // 20.02.06 - arg: changed to use enum types instead of strings
       Real mjdUT1 = TimeConverterUtil::Convert(atTime.Get(),
                                  TimeConverterUtil::A1MJD, TimeConverterUtil::UT1MJD,
-                                 GmatTimeUtil::JD_JAN_5_1941);
-      Real jdUT1    = mjdUT1 + GmatTimeUtil::JD_JAN_5_1941; // right?
+                                 GmatTimeConstants::JD_JAN_5_1941);
+      Real jdUT1    = mjdUT1 + GmatTimeConstants::JD_JAN_5_1941; // right?
                                                             // Compute elapsed Julian centuries (UT1)
-      Real tUT1     = (jdUT1 - GmatTimeUtil::JD_OF_J2000) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
-      //Real timeUt1  = (ut1Jd - GmatTimeUtil::JD_OF_J2000) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
+      Real tUT1     = (jdUT1 - GmatTimeConstants::JD_OF_J2000) / GmatTimeConstants::DAYS_PER_JULIAN_CENTURY;
+      //Real timeUt1  = (ut1Jd - GmatTimeConstants::JD_OF_J2000) / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY;
       
       // compute mean sidereal time, in degrees
       // according to Vallado Eq. 3-45, converted to degrees, where
@@ -282,7 +282,7 @@ Real  Planet::GetHourAngle(A1Mjd atTime)
          ((0.093104 / 240) * tUT1 * tUT1) -
          ((6.2e-06 / 240) * tUT1 * tUT1 * tUT1);
       
-      // reduce to a quantity within one day (GmatTimeUtil::SECS_PER_DAY seconds, 360.0 degrees)
+      // reduce to a quantity within one day (GmatTimeConstants::SECS_PER_DAY seconds, 360.0 degrees)
       hourAngle = AngleUtil::PutAngleInDegRange(mst,0.0,360.0);
       return hourAngle;
    }

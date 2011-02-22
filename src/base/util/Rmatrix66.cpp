@@ -22,7 +22,6 @@
 #include "Rmatrix66.hpp"
 #include "gmatdefs.hpp"
 #include "Rvector6.hpp"
-#include "RealTypes.hpp"      // for GmatRealConst::REAL_UNDEFINED
 #include "RealUtilities.hpp"
 #include "Linear.hpp"
 #include <stdarg.h>           // for va_list, va_start, va_arg, va_end
@@ -138,7 +137,7 @@ void Rmatrix66::Set(int nArgs, Real a1, ...)
 void Rmatrix66::SetUndefined()
 {
    for (int i=0; i<rowsD*colsD; i++)
-      elementD[i] = GmatRealConst::REAL_UNDEFINED;
+      elementD[i] = GmatRealConstants::REAL_UNDEFINED;
 }
 
 //------------------------------------------------------------------------------

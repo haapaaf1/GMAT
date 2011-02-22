@@ -855,8 +855,8 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
             "Computing Euler Angle Rates from angular velocity %12.10f  %12.10f  %12.10f\n",
             angularVel[0], angularVel[1], angularVel[2]);
       MessageInterface::ShowMessage("and Euler Angles %12.10f  %12.10f  %12.10f\n",
-            eulerAngles[0] * GmatMathUtil::DEG_PER_RAD, eulerAngles[1] * GmatMathUtil::DEG_PER_RAD,
-            eulerAngles[2] * GmatMathUtil::DEG_PER_RAD);
+            eulerAngles[0] * GmatMathConstants::DEG_PER_RAD, eulerAngles[1] * GmatMathConstants::DEG_PER_RAD,
+            eulerAngles[2] * GmatMathConstants::DEG_PER_RAD);
       MessageInterface::ShowMessage("with sequence %d  %d  %d\n", seq1, seq2, seq3);
    #endif
    bool      singularity = false;
@@ -999,9 +999,9 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
 //      "Singularity detected - using zero vector for euler angle rates\n");
       std::ostringstream errmsg;
       errmsg << "Error: the attitude defined by the euler angles (";
-      errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", "
-             << (eulerAngles(1) * GmatMathUtil::DEG_PER_RAD) << ", "
-             << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
+      errmsg << (eulerAngles(0) * GmatMathConstants::DEG_PER_RAD) << ", "
+             << (eulerAngles(1) * GmatMathConstants::DEG_PER_RAD) << ", "
+             << (eulerAngles(2) * GmatMathConstants::DEG_PER_RAD);
       errmsg << ") is near a singularity." << std::endl;
       throw AttitudeException(errmsg.str());
 //      return Rvector3(); // return zero vector
@@ -2201,17 +2201,17 @@ Real Attitude::GetRealParameter(const Integer id) const
    if (id == EULER_ANGLE_1)  
    {              
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
-      return eulerAngles(0) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngles(0) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_2)
    {              
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
-      return eulerAngles(1) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngles(1) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_3)
    {              
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
-      return eulerAngles(2) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngles(2) * GmatMathConstants::DEG_PER_RAD;
    }
    // Dunn Added MRPs Here
    if (id == MRP_1)
@@ -2243,22 +2243,22 @@ Real Attitude::GetRealParameter(const Integer id) const
    if (id == EULER_ANGLE_RATE_1)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
-      return eulerAngleRates(0) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngleRates(0) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_RATE_2)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
-      return eulerAngleRates(1) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngleRates(1) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_RATE_3)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
-      return eulerAngleRates(2) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngleRates(2) * GmatMathConstants::DEG_PER_RAD;
    }
    // angVel is always kept up-to-date, after initialization
-   if (id == ANGULAR_VELOCITY_X) return angVel[0] * GmatMathUtil::DEG_PER_RAD;
-   if (id == ANGULAR_VELOCITY_Y) return angVel[1] * GmatMathUtil::DEG_PER_RAD;
-   if (id == ANGULAR_VELOCITY_Z) return angVel[2] * GmatMathUtil::DEG_PER_RAD;
+   if (id == ANGULAR_VELOCITY_X) return angVel[0] * GmatMathConstants::DEG_PER_RAD;
+   if (id == ANGULAR_VELOCITY_Y) return angVel[1] * GmatMathConstants::DEG_PER_RAD;
+   if (id == ANGULAR_VELOCITY_Z) return angVel[2] * GmatMathConstants::DEG_PER_RAD;
 
    #ifdef DEBUG_ATTITUDE_GET_REAL
    MessageInterface::ShowMessage(
@@ -2416,7 +2416,7 @@ Real Attitude::SetRealParameter(const Integer id,
    if (id == EULER_ANGLE_1)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
-      eulerAngles(0) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngles(0) = value * GmatMathConstants::RAD_PER_DEG;
       cosMat = Attitude::ToCosineMatrix(eulerAngles,
                        eulerSequenceArray.at(0),
                        eulerSequenceArray.at(1),
@@ -2427,19 +2427,19 @@ Real Attitude::SetRealParameter(const Integer id,
       MessageInterface::ShowMessage(
       "   and now euler angles = %.12f   %.12f   %.12f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
       #endif
-      return eulerAngles(0) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngles(0) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_2)
    {
-      Real angle2 = value * GmatMathUtil::RAD_PER_DEG;
+      Real angle2 = value * GmatMathConstants::RAD_PER_DEG;
       // check for a nearly singular attitude, for symmetric sequences
       if ((eulerSequenceArray.at(0) == eulerSequenceArray.at(2)) &&
           (GmatMathUtil::Abs(GmatMathUtil::Sin(angle2)) < EULER_ANGLE_TOLERANCE))
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
-         errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", " 
-                << value << ", " << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
+         errmsg << (eulerAngles(0) * GmatMathConstants::DEG_PER_RAD) << ", "
+                << value << ", " << (eulerAngles(2) * GmatMathConstants::DEG_PER_RAD);
          errmsg << ") is near a singularity." << std::endl;
          throw AttitudeException(errmsg.str());
       }
@@ -2449,13 +2449,13 @@ Real Attitude::SetRealParameter(const Integer id,
       {
          std::ostringstream errmsg;
          errmsg << "Error: the attitude defined by the input euler angles (";
-         errmsg << (eulerAngles(0) * GmatMathUtil::DEG_PER_RAD) << ", " 
-                << value << ", " << (eulerAngles(2) * GmatMathUtil::DEG_PER_RAD);
+         errmsg << (eulerAngles(0) * GmatMathConstants::DEG_PER_RAD) << ", "
+                << value << ", " << (eulerAngles(2) * GmatMathConstants::DEG_PER_RAD);
          errmsg << ") is near a singularity." << std::endl;
          throw AttitudeException(errmsg.str());
       }
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
-      eulerAngles(1) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngles(1) = value * GmatMathConstants::RAD_PER_DEG;
       cosMat = Attitude::ToCosineMatrix(eulerAngles,
                        eulerSequenceArray.at(0),
                        eulerSequenceArray.at(1),
@@ -2466,12 +2466,12 @@ Real Attitude::SetRealParameter(const Integer id,
       MessageInterface::ShowMessage(
       "   and now euler angles = %.12f   %.12f   %.12f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
       #endif
-      return eulerAngles(1) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngles(1) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_3)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
-      eulerAngles(2) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngles(2) = value * GmatMathConstants::RAD_PER_DEG;
       cosMat = Attitude::ToCosineMatrix(eulerAngles,
                        eulerSequenceArray.at(0),
                        eulerSequenceArray.at(1),
@@ -2482,7 +2482,7 @@ Real Attitude::SetRealParameter(const Integer id,
       MessageInterface::ShowMessage(
       "   and now euler angles = %.12f   %.12f   %.12f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
       #endif
-      return eulerAngles(2) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngles(2) * GmatMathConstants::DEG_PER_RAD;
    }
    // Dunn Added MRPs
    if (id == MRP_1)
@@ -2656,62 +2656,62 @@ Real Attitude::SetRealParameter(const Integer id,
    if (id == EULER_ANGLE_RATE_1)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
-      eulerAngleRates(0) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngleRates(0) = value * GmatMathConstants::RAD_PER_DEG;
       angVel = Attitude::ToAngularVelocity(eulerAngleRates,eulerAngles,
                         eulerSequenceArray.at(0),
                         eulerSequenceArray.at(1),
                         eulerSequenceArray.at(2));
       inputAttitudeRateType = GmatAttitude::EULER_ANGLE_RATES_TYPE;
       if (isInitialized) needsReinit = true;
-      return eulerAngleRates(0) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngleRates(0) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_RATE_2)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
-      eulerAngleRates(1) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngleRates(1) = value * GmatMathConstants::RAD_PER_DEG;
       angVel = Attitude::ToAngularVelocity(eulerAngleRates,eulerAngles,
                         eulerSequenceArray.at(0),
                         eulerSequenceArray.at(1),
                         eulerSequenceArray.at(2));
       inputAttitudeRateType = GmatAttitude::EULER_ANGLE_RATES_TYPE;
       if (isInitialized) needsReinit = true;
-      return eulerAngleRates(1) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngleRates(1) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == EULER_ANGLE_RATE_3)
    {
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
-      eulerAngleRates(2) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngleRates(2) = value * GmatMathConstants::RAD_PER_DEG;
       angVel = Attitude::ToAngularVelocity(eulerAngleRates,eulerAngles,
                         eulerSequenceArray.at(0),
                         eulerSequenceArray.at(1),
                         eulerSequenceArray.at(2));
       inputAttitudeRateType = GmatAttitude::EULER_ANGLE_RATES_TYPE;
       if (isInitialized) needsReinit = true;
-      return eulerAngleRates(2) * GmatMathUtil::DEG_PER_RAD;
+      return eulerAngleRates(2) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == ANGULAR_VELOCITY_X)
    {
       (const_cast<Attitude*>(this))->UpdateState("AngularVelocity");
-      angVel(0) = value * GmatMathUtil::RAD_PER_DEG;
+      angVel(0) = value * GmatMathConstants::RAD_PER_DEG;
       inputAttitudeRateType = GmatAttitude::ANGULAR_VELOCITY_TYPE;
       if (isInitialized) needsReinit = true;
-      return angVel(0) * GmatMathUtil::DEG_PER_RAD;
+      return angVel(0) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == ANGULAR_VELOCITY_Y)
    {
       UpdateState("AngularVelocity");
-      angVel(1) = value * GmatMathUtil::RAD_PER_DEG;
+      angVel(1) = value * GmatMathConstants::RAD_PER_DEG;
       inputAttitudeRateType = GmatAttitude::ANGULAR_VELOCITY_TYPE;
       if (isInitialized) needsReinit = true;
-      return angVel(1) * GmatMathUtil::DEG_PER_RAD;
+      return angVel(1) * GmatMathConstants::DEG_PER_RAD;
    }
    if (id == ANGULAR_VELOCITY_Z)
    {
       (const_cast<Attitude*>(this))->UpdateState("AngularVelocity");
-      angVel(2) = value * GmatMathUtil::RAD_PER_DEG;
+      angVel(2) = value * GmatMathConstants::RAD_PER_DEG;
       inputAttitudeRateType = GmatAttitude::ANGULAR_VELOCITY_TYPE;
       if (isInitialized) needsReinit = true;
-      return angVel(2) * GmatMathUtil::DEG_PER_RAD;
+      return angVel(2) * GmatMathConstants::DEG_PER_RAD;
    }
    
    return GmatBase::SetRealParameter(id, value);
@@ -2765,7 +2765,7 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
       }
       if (index == 1) // second angle
       {
-         Real angle2 = value * GmatMathUtil::RAD_PER_DEG;
+         Real angle2 = value * GmatMathConstants::RAD_PER_DEG;
          // check for a nearly singular attitude, for symmetric sequences
          if ((eulerSequenceArray.at(0) == eulerSequenceArray.at(2)) &&
              (GmatMathUtil::Abs(GmatMathUtil::Sin(angle2)) < EULER_ANGLE_TOLERANCE))
@@ -2787,7 +2787,7 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
             throw AttitudeException(errmsg.str());
          }
       }
-      eulerAngles(index) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngles(index) = value * GmatMathConstants::RAD_PER_DEG;
       cosMat = Attitude::ToCosineMatrix(eulerAngles,
                          eulerSequenceArray.at(0),
                          eulerSequenceArray.at(1),
@@ -2839,7 +2839,7 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
       {
          throw AttitudeException("Error: the Euler Angle Rate index is out-of-range\n");
       }
-      eulerAngleRates(index) = value * GmatMathUtil::RAD_PER_DEG;
+      eulerAngleRates(index) = value * GmatMathConstants::RAD_PER_DEG;
       angVel = Attitude::ToAngularVelocity(eulerAngleRates, eulerAngles,
                          eulerSequenceArray.at(0),
                          eulerSequenceArray.at(1),
@@ -2854,7 +2854,7 @@ Real Attitude::SetRealParameter(const Integer id, const Real value,
       {
          throw AttitudeException("Error: the Angular Velocity index is out-of-range\n");
       }
-      angVel(index) = value * GmatMathUtil::RAD_PER_DEG;
+      angVel(index) = value * GmatMathConstants::RAD_PER_DEG;
       inputAttitudeRateType = GmatAttitude::ANGULAR_VELOCITY_TYPE;
       if (isInitialized) needsReinit = true;
       return angVel(index);
@@ -2938,21 +2938,21 @@ const Rvector&    Attitude::GetRvectorParameter(const Integer id) const
    if (id == EULER_ANGLES)   
    {     
       (const_cast<Attitude*>(this))->UpdateState("EulerAngles");
-      vec3 =  (eulerAngles * GmatMathUtil::DEG_PER_RAD);
+      vec3 =  (eulerAngles * GmatMathConstants::DEG_PER_RAD);
       return vec3;
    }
    if (id == ANGULAR_VELOCITY) 
    {  
       (const_cast<Attitude*>(this))->UpdateState("AngularVelocity");
-      vec3 = angVel * GmatMathUtil::DEG_PER_RAD;
+      vec3 = angVel * GmatMathConstants::DEG_PER_RAD;
       return vec3;
    }
    if (id == EULER_ANGLE_RATES) 
    {  
       (const_cast<Attitude*>(this))->UpdateState("EulerAngleRates");
-      vec3 = eulerAngleRates * GmatMathUtil::DEG_PER_RAD;
+      vec3 = eulerAngleRates * GmatMathConstants::DEG_PER_RAD;
       return vec3;
-      //return (eulerAngleRates * GmatMathUtil::DEG_PER_RAD);
+      //return (eulerAngleRates * GmatMathConstants::DEG_PER_RAD);
    }
 
    return GmatBase::GetRvectorParameter(id);
@@ -3007,7 +3007,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
    {
       if (sz != 3) throw AttitudeException(
                   "Incorrectly sized Rvector passed in for euler angles.");
-      Real angle2 = value(1) * GmatMathUtil::RAD_PER_DEG;
+      Real angle2 = value(1) * GmatMathConstants::RAD_PER_DEG;
       // check for a nearly singular attitude, for symmetric sequences
       if ((eulerSequenceArray.at(0) == eulerSequenceArray.at(2)) &&
           (GmatMathUtil::Abs(GmatMathUtil::Sin(angle2)) < EULER_ANGLE_TOLERANCE))
@@ -3029,7 +3029,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
          throw AttitudeException(errmsg.str());
       }
       for (i=0;i<3;i++) 
-         eulerAngles(i) = value(i) * GmatMathUtil::RAD_PER_DEG;
+         eulerAngles(i) = value(i) * GmatMathConstants::RAD_PER_DEG;
       cosMat = Attitude::ToCosineMatrix(eulerAngles, 
                          eulerSequenceArray.at(0),
                          eulerSequenceArray.at(1),
@@ -3077,7 +3077,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
       if (sz != 3) throw AttitudeException(
                   "Incorrectly sized Rvector passed in for euler angle rates.");
       for (i=0;i<3;i++) 
-         eulerAngleRates(i) = value(i) * GmatMathUtil::RAD_PER_DEG;
+         eulerAngleRates(i) = value(i) * GmatMathConstants::RAD_PER_DEG;
       angVel = Attitude::ToAngularVelocity(eulerAngleRates,
                          eulerAngles,
                          eulerSequenceArray.at(0),
@@ -3092,7 +3092,7 @@ const Rvector& Attitude::SetRvectorParameter(const Integer id,
       if (sz != 3) throw AttitudeException(
                   "Incorrectly sized Rvector passed in for angular velocity.");
       for (i=0;i<3;i++) 
-         angVel(i) = value(i) * GmatMathUtil::RAD_PER_DEG;
+         angVel(i) = value(i) * GmatMathConstants::RAD_PER_DEG;
       inputAttitudeRateType = GmatAttitude::ANGULAR_VELOCITY_TYPE;
       if (isInitialized) needsReinit = true;
       return angVel;

@@ -138,7 +138,7 @@ targetCS                (NULL),
 offDiags                (NULL),
 abarCoeff1              (NULL),
 abarCoeff2              (NULL)
-//epoch                   (GmatTimeUtil::MJD_OF_J2000)
+//epoch                   (GmatTimeConstants::MJD_OF_J2000)
 {
    objectTypeNames.push_back("HarmonicField");
    parameterCount = HarmonicFieldParamCount;

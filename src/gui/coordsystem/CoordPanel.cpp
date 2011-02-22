@@ -17,7 +17,7 @@
 #include "TimeSystemConverter.hpp"  // for Convert()
 #include "StringUtil.hpp"           // for ToReal()
 #include "MessageInterface.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include <wx/config.h>
 #include <sstream>
 
@@ -49,7 +49,7 @@ CoordPanel::CoordPanel(wxWindow *parent, bool enableAll)
    
 ////   epochValue = "21545";
 //   std::stringstream mjdStr("");
-//   mjdStr << GmatTimeUtil::MJD_OF_J2000;
+//   mjdStr << GmatTimeConstants::MJD_OF_J2000;
 //   epochValue = mjdStr.str();
 //   epochFormatValue = "A1ModJulian";
       
@@ -230,7 +230,7 @@ void CoordPanel::SetDefaultAxis()
 //   formatComboBox->SetValue(epochFormatValue);
 ////   epochTextCtrl->SetValue("21545");
 //   std::stringstream mjdStr("");
-//   mjdStr << GmatTimeUtil::MJD_OF_J2000;
+//   mjdStr << GmatTimeConstants::MJD_OF_J2000;
 //   epochTextCtrl->SetValue(mjdStr.str());
    epochTextCtrl->SetValue(epochValue);
    xComboBox->SetValue("R");
@@ -249,7 +249,7 @@ void CoordPanel::SetDefaultEpochRefAxis()
 //   formatComboBox->SetValue(epochFormatValue);
 ////   epochTextCtrl->SetValue("21545");
 //   std::stringstream mjdStr("");
-//   mjdStr << GmatTimeUtil::MJD_OF_J2000;
+//   mjdStr << GmatTimeConstants::MJD_OF_J2000;
 //   epochTextCtrl->SetValue(mjdStr.str());
     epochTextCtrl->SetValue(epochValue);
 }
@@ -425,7 +425,7 @@ AxisSystem* CoordPanel::CreateAxis()
 //
 //               //Real epoch = TimeConverterUtil::ConvertFromTaiMjd
 //               //   (TimeConverterUtil::A1MJD, atof(taiEpochStr.c_str()),
-//               //    GmatTimeUtil::JD_JAN_5_1941);
+//               //    GmatTimeConstants::JD_JAN_5_1941);
 //            }
             
             #if DEBUG_COORD_PANEL
@@ -983,7 +983,7 @@ bool CoordPanel::SaveData(const std::string &coordName, AxisSystem *axis,
 //                  //   (epochStr, newEpochFormat.c_str(), "TAIModJulian");
 //                  //epoch = TimeConverterUtil::ConvertFromTaiMjd
 //                  //   (TimeConverterUtil::A1MJD, atof(taiEpochStr.c_str()),
-//                  //    GmatTimeUtil::JD_JAN_5_1941);
+//                  //    GmatTimeConstants::JD_JAN_5_1941);
 //               }
 //            }
             #ifdef DEBUG_COORD_PANEL_SAVE

@@ -60,7 +60,7 @@ public:
          atm);
     
    virtual bool            Density(Real *position, Real *density, 
-                                   Real epoch = GmatTimeUtil::MJD_OF_J2000,
+                                   Real epoch = GmatTimeConstants::MJD_OF_J2000,
                                    Integer count = 1);
 
 protected: 

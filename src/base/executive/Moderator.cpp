@@ -5222,7 +5222,7 @@ GmatCommand* Moderator::CreateDefaultCommand(const std::string &type,
          
          id = cmd->GetParameterID("Upper");
          std::stringstream ss("");
-         ss << GmatMathUtil::PI;
+         ss << GmatMathConstants::PI;
          cmd->SetStringParameter(id, ss.str());
       
          id = cmd->GetParameterID("MaxStep");

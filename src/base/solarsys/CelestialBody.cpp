@@ -178,8 +178,8 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::STRING_TYPE,   //"TextureMapFileName"
 };
 
-const Real    CelestialBody::JD_EPOCH_2000_TCB     = GmatTimeUtil::JD_OF_J2000;
-const Real    CelestialBody::JD_EPOCH_2000_TT      = GmatTimeUtil::JD_OF_J2000; // @ todo Figure out JD_EPOCH_2000_TT
+const Real    CelestialBody::JD_EPOCH_2000_TCB     = GmatTimeConstants::JD_OF_J2000;
+const Real    CelestialBody::JD_EPOCH_2000_TT      = GmatTimeConstants::JD_OF_J2000; // @ todo Figure out JD_EPOCH_2000_TT
 const Real    CelestialBody::dDot                  = 1.0;
 const Real    CelestialBody::TDot                  = 1.0;
 const Real    CelestialBody::KEPLER_TOL            = 1.0e-08;  // should be 1.0e-08;
@@ -208,7 +208,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    mu                 (398600.4415),
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
-   stateTime          (GmatTimeUtil::MJD_OF_J2000),
+   stateTime          (GmatTimeConstants::MJD_OF_J2000),
    //theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
@@ -228,7 +228,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    degree             (0),
    twoBodyFormat     ("TAIModJulian"),
    twoBodyStateType  ("Keplerian"),
-   twoBodyEpoch      (GmatTimeUtil::MJD_OF_J2000),
+   twoBodyEpoch      (GmatTimeConstants::MJD_OF_J2000),
    newTwoBody        (true),
    overrideTime      (false),
    ephemUpdateInterval (0.0),
@@ -237,7 +237,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    userDefined        (false),
    allowSpice         (false),
    orientationDateFormat ("TAIModJulian"),
-   orientationEpoch   (GmatTimeUtil::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
+   orientationEpoch   (GmatTimeConstants::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
@@ -299,7 +299,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    mu                 (398600.4415),
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
-   stateTime          (GmatTimeUtil::MJD_OF_J2000),
+   stateTime          (GmatTimeConstants::MJD_OF_J2000),
    //theSolarSystem     (NULL),
    theCentralBodyName (""),
    theCentralBody     (NULL),
@@ -322,7 +322,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    degree             (0),
    twoBodyFormat     ("TAIModjulian"),
    twoBodyStateType  ("Keplerian"),
-   twoBodyEpoch      (GmatTimeUtil::MJD_OF_J2000),
+   twoBodyEpoch      (GmatTimeConstants::MJD_OF_J2000),
    newTwoBody        (true),
    overrideTime       (false),
    ephemUpdateInterval (0.0),
@@ -331,7 +331,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    userDefined        (false),
    allowSpice         (false),
    orientationDateFormat ("TAIModJulian"),
-   orientationEpoch   (GmatTimeUtil::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
+   orientationEpoch   (GmatTimeConstants::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
    orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
 //   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet          (false),
@@ -758,7 +758,7 @@ const Rvector6&  CelestialBody::GetState(A1Mjd atTime)
    MessageInterface::ShowMessage("   lastEphemTime = %.17f\n",lastEphemTime.Get());
    #endif
    
-   Real dt = Abs(atTime.Subtract(lastEphemTime)) * GmatTimeUtil::SECS_PER_DAY;
+   Real dt = Abs(atTime.Subtract(lastEphemTime)) * GmatTimeConstants::SECS_PER_DAY;
    if ( dt < ephemUpdateInterval)
    {
       #ifdef DEBUG_GET_STATE
@@ -867,7 +867,7 @@ void CelestialBody::GetState(const A1Mjd &atTime, Real *outState)
       
    if (!theCentralBody) SetUpBody();
 
-   Real dt = Abs(atTime.Subtract(lastEphemTime)) * GmatTimeUtil::SECS_PER_DAY;
+   Real dt = Abs(atTime.Subtract(lastEphemTime)) * GmatTimeConstants::SECS_PER_DAY;
    if ( dt < ephemUpdateInterval)
    {
       for (Integer i=0;i<6;i++) outState[i] = prevState[i];
@@ -1282,7 +1282,7 @@ Real  CelestialBody::GetHourAngle(A1Mjd atTime)
 {
    Rvector cart = GetBodyCartographicCoordinates(atTime);
    hourAngle = cart[2];  
-   // reduce to a quantity within one day (GmatTimeUtil::SECS_PER_DAY seconds, 360.0 degrees)
+   // reduce to a quantity within one day (GmatTimeConstants::SECS_PER_DAY seconds, 360.0 degrees)
    hourAngle = AngleUtil::PutAngleInDegRange(hourAngle,0.0,360.0);
    return hourAngle;
 }
@@ -2252,11 +2252,11 @@ const Rvector6 CelestialBody::GetMJ2000State(const A1Mjd &atTime)
 #ifdef DEBUG_CB_GET_MJ2000_STATE
    Rvector6 theState = stateEphem - j2kEphemState;
 //   Real utcTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
-//                    TimeConverterUtil::UTCMJD, GmatTimeUtil::JD_JAN_5_1941);
+//                    TimeConverterUtil::UTCMJD, GmatTimeConstants::JD_JAN_5_1941);
    Real ttTime    = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
-                    TimeConverterUtil::TTMJD, GmatTimeUtil::JD_JAN_5_1941);
+                    TimeConverterUtil::TTMJD, GmatTimeConstants::JD_JAN_5_1941);
    Real tdbTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD, 
-                    TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
+                    TimeConverterUtil::TDBMJD, GmatTimeConstants::JD_JAN_5_1941);
    MessageInterface::ShowMessage(
          "Body: %s   TT(TDB) Time: %12.10f (%12.10f)   state:  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f  %12.10f\n",
          instanceName.c_str(), ttTime, tdbTime, 
@@ -2334,7 +2334,7 @@ Rvector CelestialBody::GetBodyCartographicCoordinates(const A1Mjd &forTime) cons
       Real W     = 0;
       Real Wdot  = 0.0; 
       Real d = GetJulianDaysFromTCBEpoch(forTime); // interval in Julian days
-      Real T = d / GmatTimeUtil::DAYS_PER_JULIAN_CENTURY; // interval in Julian centuries
+      Real T = d / GmatTimeConstants::DAYS_PER_JULIAN_CENTURY; // interval in Julian centuries
       
       alpha = orientation[0]  + orientation[1] * T;
       delta = orientation[2]  + orientation[3] * T;
@@ -3947,8 +3947,8 @@ Real CelestialBody::GetJulianDaysFromTCBEpoch(const A1Mjd &forTime) const
    Real mjdTT  = TimeConverterUtil::Convert(forTime.Get(),
                                             TimeConverterUtil::A1MJD,
                                             TimeConverterUtil::TTMJD, 
-                                            GmatTimeUtil::JD_JAN_5_1941);
-   jdTime      = mjdTT + GmatTimeUtil::JD_JAN_5_1941; 
+                                            GmatTimeConstants::JD_JAN_5_1941);
+   jdTime      = mjdTT + GmatTimeConstants::JD_JAN_5_1941; 
    return (jdTime - JD_EPOCH_2000_TT);
 }
 
@@ -4027,10 +4027,10 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    Real     dTime;
    
    if ((!newTwoBody) && 
-       (Abs(forTime.Subtract(prevTwoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY) <= KEPLER_TOL))
+       (Abs(forTime.Subtract(prevTwoBodyEpoch) * GmatTimeConstants::SECS_PER_DAY) <= KEPLER_TOL))
       return prevTwoBodyState;
       cart  = CoordUtil::KeplerianToCartesian(twoBodyKepler, cbMu, CoordUtil::TA);  // or MA???
-      dTime = forTime.Subtract(twoBodyEpoch) * GmatTimeUtil::SECS_PER_DAY;
+      dTime = forTime.Subtract(twoBodyEpoch) * GmatTimeConstants::SECS_PER_DAY;
    #ifdef DEBUG_TWO_BODY
       MessageInterface::ShowMessage("cbMu = %12.14f    dTime = %12.14f\n", cbMu, dTime);
    #endif
@@ -4039,7 +4039,7 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
    if (instanceName != SolarSystem::SUN_NAME)
    {
       Real sma = twoBodyKepler[0];   // SMA, which should be constant
-      Real T = 2 * PI * Sqrt(Abs(sma)*Abs(sma)*Abs(sma)/cbMu);
+      Real T = 2 * GmatMathConstants::PI * Sqrt(Abs(sma)*Abs(sma)*Abs(sma)/cbMu);
    
       Real revs = dTime/T;
       dTime = dTime - T * Fix(revs);
@@ -4089,7 +4089,7 @@ Rvector6 CelestialBody::KeplersProblem(const A1Mjd &forTime)
       Rvector3 h     = Cross(r0, v0);
       Real     hMag0 = h.GetMagnitude();
       Real     p     = (hMag0 * hMag0) / cbMu;
-      Real     s     = (1.0 / 2.0) * (PI_OVER_TWO - 
+      Real     s     = (1.0 / 2.0) * (GmatMathConstants::PI_OVER_TWO -
                        ATan(3.0 * Sqrt(cbMu / (p * p * p)) * dTime));
       Real     w     = ATan(Pow(Tan(s), (1.0 / 3.0)));
       x0             = Sqrt(p) * 2.0 / Tan(2.0 * w);

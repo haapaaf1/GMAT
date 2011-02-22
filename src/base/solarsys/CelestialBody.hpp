@@ -182,7 +182,7 @@ public:
    virtual std::string          GetAtmosphereModelType();
    virtual AtmosphereModel*     GetAtmosphereModel();
    virtual bool                 GetDensity(Real *position, Real *density,
-                                        Real epoch = GmatTimeUtil::MJD_OF_J2000,
+                                        Real epoch = GmatTimeConstants::MJD_OF_J2000,
                                         Integer count = 1);
    // methods to get the initial epoch and keplerian elements 
    virtual A1Mjd                GetTwoBodyEpoch() const;

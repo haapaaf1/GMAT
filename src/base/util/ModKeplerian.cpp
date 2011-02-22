@@ -188,7 +188,7 @@ Rvector6 KeplerianToModKeplerian(const Rvector6& keplerian)
    
    // Check for parabolic orbit to machine precision
    // then send the error message
-   if ( GmatMathUtil::Abs(e - 1) < 2*GmatRealConst::REAL_EPSILON)
+   if ( GmatMathUtil::Abs(e - 1) < 2*GmatRealConstants::REAL_EPSILON)
    {
 //      throw UtilityException("ModKeplerian::KeplerianToModKeplerian: "
 //                             "Orbit is nearly parabolic and state conversion "

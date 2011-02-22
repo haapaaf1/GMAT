@@ -22,6 +22,7 @@
 #include "gmatdefs.hpp"
 #include "PlanetData.hpp"
 #include "ParameterException.hpp"
+#include "GmatConstants.hpp"
 #include "CelestialBody.hpp"
 #include "AngleUtil.hpp"          // for PutAngleInDegRange()
 #include "Linear.hpp"             // for GmatRealUtil::ToString()
@@ -225,7 +226,7 @@ Real PlanetData::GetPlanetReal(Integer item)
          mCoordConverter.Convert(A1Mjd(epoch), state, mInternalCoordSystem,
                                  outState, mOutCoordSystem);
          
-         Real longitude = ATan(outState[1], outState[0]) * DEG_PER_RAD;
+         Real longitude = ATan(outState[1], outState[0]) * GmatMathConstants::DEG_PER_RAD;
          longitude = AngleUtil::PutAngleInDegRange(longitude, -180.0, 180.0);
 
          #ifdef DEBUG_LONGITUDE
@@ -292,7 +293,7 @@ Real PlanetData::GetPlanetReal(Integer item)
          {
             //return geolat * 180.0 / PI;
             // put latitude between -90 and 90
-            geolat = geolat * 180.0 / PI;
+            geolat = geolat * 180.0 / GmatMathConstants::PI;
             geolat = AngleUtil::PutAngleInDegRange(geolat, -90.0, 90.0);
             return geolat;
          }

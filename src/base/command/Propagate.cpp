@@ -3206,10 +3206,10 @@ void Propagate::PrepareToPropagate()
          else
          {
             elapsedTime[n] = p[n]->GetTime();
-            baseEpoch[n] -= elapsedTime[n] / GmatTimeUtil::SECS_PER_DAY;
+            baseEpoch[n] -= elapsedTime[n] / GmatTimeConstants::SECS_PER_DAY;
          }
          currEpoch[n] = baseEpoch[n] + elapsedTime[n] /
-            GmatTimeUtil::SECS_PER_DAY;
+            GmatTimeConstants::SECS_PER_DAY;
          #if DEBUG_PROPAGATE_DIRECTION
             MessageInterface::ShowMessage(
                "Propagate::PrepareToPropagate() running %s %s.\n",
@@ -3227,7 +3227,7 @@ void Propagate::PrepareToPropagate()
          {
             MessageInterface::ShowMessage
                ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
-             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeConstants::SECS_PER_DAY));
             MessageInterface::ShowMessage
                ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
                (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
@@ -3413,7 +3413,7 @@ void Propagate::PrepareToPropagate()
             {
                MessageInterface::ShowMessage
                   ("Propagate::PrepareToPropagate() Propagate start; epoch = %f\n",
-                (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+                (baseEpoch[0] + fm[0]->GetTime() / GmatTimeConstants::SECS_PER_DAY));
                MessageInterface::ShowMessage
                   ("Propagate::PrepareToPropagate() Propagate start; fm epoch = %f\n",
                   (fm[0]->GetRealParameter(fm[0]->GetParameterID("Epoch"))));
@@ -3707,13 +3707,13 @@ bool Propagate::Execute()
             {
                elapsedTime[i] = fm[i]->GetTime();
                currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
-                  GmatTimeUtil::SECS_PER_DAY;
+                  GmatTimeConstants::SECS_PER_DAY;
             }
             else
             {
                elapsedTime[i] = p[i]->GetTime();
                currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
-                  GmatTimeUtil::SECS_PER_DAY;
+                  GmatTimeConstants::SECS_PER_DAY;
             }
             #ifdef DEBUG_PROPAGATE_EXE
                MessageInterface::ShowMessage
@@ -3823,7 +3823,7 @@ bool Propagate::Execute()
                }
                
                currEpoch[i] = baseEpoch[i] +
-                  elapsedTime[i] / GmatTimeUtil::SECS_PER_DAY;
+                  elapsedTime[i] / GmatTimeConstants::SECS_PER_DAY;
             }
 
             #ifdef DEBUG_STOPPING_CONDITIONS
@@ -4330,10 +4330,10 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
 
       if (fm[i])
          fm[i]->UpdateSpaceObject(  // currEpoch[i]);
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
       else
          p[i]->UpdateSpaceObject(  // currEpoch[i]);
-               baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+               baseEpoch[i] + p[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
    }
    BufferSatelliteStates(true);
    #ifdef DEBUG_FINAL_STEP
@@ -4435,7 +4435,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          MessageInterface::ShowMessage(
             "Propagate::TakeFinalStep: Step(%16.13le) from epoch = %16.10lf\n", 
             secsToStep, 
-            (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+            (baseEpoch[0] + fm[0]->GetTime() / GmatTimeConstants::SECS_PER_DAY));
       #endif
 
       #ifdef DEBUG_EPOCH_SYNC
@@ -4470,10 +4470,10 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       {
          if (fm[i])
             fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
          else
             p[i]->UpdateSpaceObject(
-                           baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+                           baseEpoch[i] + p[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
       }
       
       stopper->Evaluate();
@@ -4538,10 +4538,10 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          {
             if (fm[i])
                fm[i]->UpdateSpaceObject(
-                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
             else
                p[i]->UpdateSpaceObject(
-                  baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+                  baseEpoch[i] + p[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
          }
 
          #ifdef DEBUG_STOPPING_CONDITIONS   
@@ -4560,9 +4560,9 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       
       // Publish the final data point here
       if (fm[0])
-         pubdata[0] = baseEpoch[0]+fm[0]->GetTime()/GmatTimeUtil::SECS_PER_DAY;
+         pubdata[0] = baseEpoch[0]+fm[0]->GetTime()/GmatTimeConstants::SECS_PER_DAY;
       else
-         pubdata[0] = baseEpoch[0] + p[0]->GetTime()/GmatTimeUtil::SECS_PER_DAY;
+         pubdata[0] = baseEpoch[0] + p[0]->GetTime()/GmatTimeConstants::SECS_PER_DAY;
       memcpy(&pubdata[1], j2kState, dim*sizeof(Real));
       #ifdef DEBUG_PUBLISH_DATA
          MessageInterface::ShowMessage
@@ -4578,7 +4578,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
          MessageInterface::ShowMessage
             ("Propagate::TakeFinalStep: Step(%16.13le) advanced to "
             "epoch = %16.10lf\n", secsToStep,
-            (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+            (baseEpoch[0] + fm[0]->GetTime() / GmatTimeConstants::SECS_PER_DAY));
       #endif
 
       // FlushBuffers here causes to write EphemerisFile multiple data segments
@@ -4590,7 +4590,7 @@ void Propagate::TakeFinalStep(Integer EpochID, Integer trigger)
       #if DEBUG_PROPAGATE_EXE
          MessageInterface::ShowMessage
             ("Propagate::TakeFinalStep complete; epoch = %16.10lf\n",
-             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeUtil::SECS_PER_DAY));
+             (baseEpoch[0] + fm[0]->GetTime() / GmatTimeConstants::SECS_PER_DAY));
       #endif
    }
    
@@ -4700,10 +4700,10 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
       {
          if (fm[i])
             fm[i]->UpdateSpaceObject(
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
          else
             p[i]->UpdateSpaceObject(
-               baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+               baseEpoch[i] + p[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
       }
 
       // Update the data in the stop condition
@@ -4748,12 +4748,12 @@ Real Propagate::InterpolateToStop(StopCondition *sc)
             MessageInterface::ShowMessage(
                "Force model base Epoch = %.12lf  elapsedTime = %.12lf  "
                "net Epoch = %.12lf\n", baseEpoch[i], fm[i]->GetTime(),
-               baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+               baseEpoch[i] + fm[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
          else
             MessageInterface::ShowMessage(
                "Propagator base Epoch = %.12lf  elapsedTime = %.12lf  "
                "net Epoch = %.12lf\n", baseEpoch[i], p[i]->GetTime(),
-               baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+               baseEpoch[i] + p[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
       #endif
    }
    
@@ -4835,10 +4835,10 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
          {
             if (fm[i])
                fm[i]->UpdateSpaceObject(
-                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
             else
                p[i]->UpdateSpaceObject(
-                     baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+                     baseEpoch[i] + p[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
 
          }
    
@@ -5058,10 +5058,10 @@ Real Propagate::RefineFinalStep(Real secsToStep, StopCondition *stopper)
          {
             if (fm[i])
                fm[i]->UpdateSpaceObject(
-                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+                  baseEpoch[i] + fm[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
             else
                p[i]->UpdateSpaceObject(
-                  baseEpoch[i] + p[i]->GetTime() / GmatTimeUtil::SECS_PER_DAY);
+                  baseEpoch[i] + p[i]->GetTime() / GmatTimeConstants::SECS_PER_DAY);
          }
 
          #ifdef DEBUG_SECANT_DETAILS
@@ -5248,12 +5248,12 @@ Real Propagate::BisectToStop(StopCondition *stopper)
          if (fm[i])
          {
             fm[i]->UpdateSpaceObject(baseEpoch[i] + fm[i]->GetTime() /
-                  GmatTimeUtil::SECS_PER_DAY);
+                  GmatTimeConstants::SECS_PER_DAY);
          }
          else
          {
             p[i]->UpdateSpaceObject(baseEpoch[i] + p[i]->GetTime() /
-                  GmatTimeUtil::SECS_PER_DAY);
+                  GmatTimeConstants::SECS_PER_DAY);
          }
       }
 
@@ -5791,6 +5791,6 @@ Real Propagate::GetRangedAngle(const Real angle, const Real midpt)
          "Setting angle range for %.12lf around %.12lf\n", angle, midpt);
    #endif
    
-   return AngleUtil::PutAngleInDegRange(angle, midpt - GmatMathUtil::PI_DEG, 
-                                    midpt + GmatMathUtil::PI_DEG);
+   return AngleUtil::PutAngleInDegRange(angle, midpt - GmatMathConstants::PI_DEG,
+                                    midpt + GmatMathConstants::PI_DEG);
 }

@@ -46,9 +46,9 @@ public:
    Rmatrix33 LowerRight();
    
    bool IsOrthogonal(Real accuracyRequired = 
-                     GmatRealConst::REAL_EPSILON) const;
+                     GmatRealConstants::REAL_EPSILON) const;
    bool IsOrthonormal(Real accuracyRequired = 
-                      GmatRealConst::REAL_EPSILON) const;
+                      GmatRealConstants::REAL_EPSILON) const;
    
    Rmatrix66 operator+(const Rmatrix66& m) const;
    const Rmatrix66& operator+=(const Rmatrix66& m);

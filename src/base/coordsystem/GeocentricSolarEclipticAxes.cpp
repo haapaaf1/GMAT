@@ -29,7 +29,6 @@
 #include "CelestialBody.hpp"
 #include "RealUtilities.hpp"
 #include "Linear.hpp"
-#include "RealTypes.hpp"
 #include "TimeTypes.hpp"
 #include "Rvector3.hpp"
 #include "Rvector6.hpp"
@@ -40,7 +39,7 @@
 
 
 using namespace GmatMathUtil;      // for trig functions, etc.
-using namespace GmatTimeUtil;      // for JD offsets, etc.
+using namespace GmatTimeConstants;      // for JD offsets, etc.
 
 //---------------------------------
 // static data

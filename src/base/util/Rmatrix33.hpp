@@ -22,7 +22,6 @@
 #define Rmatrix33_hpp
 
 #include "gmatdefs.hpp"
-#include "RealTypes.hpp"
 #include "Rmatrix.hpp"
 
 // Forward declarations for operations with vector
@@ -47,9 +46,9 @@ public:
             Real a20, Real a21, Real a22);
    
    bool IsOrthogonal(Real accuracyRequired = 
-                     GmatRealConst::REAL_EPSILON) const;
+                     GmatRealConstants::REAL_EPSILON) const;
    bool IsOrthonormal(Real accuracyRequired = 
-                      GmatRealConst::REAL_EPSILON) const;
+                      GmatRealConstants::REAL_EPSILON) const;
    
    Rmatrix33 operator+(const Rmatrix33& m) const;
    const Rmatrix33& operator+=(const Rmatrix33& m);

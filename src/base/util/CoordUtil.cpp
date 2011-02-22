@@ -20,13 +20,14 @@
 #include "gmatdefs.hpp"
 #include "CoordUtil.hpp"
 #include "RealUtilities.hpp"     // for Sqrt(), IsZero()
+#include "GmatConstants.hpp"
 #include "UtilityException.hpp"
 #include "MessageInterface.hpp"
 #include <sstream>               // for stringstream
 #include <math.h>
-#include "OrbitTypes.hpp"
 
 using namespace GmatMathUtil;
+using namespace GmatMathConstants;
 
 //#define DEBUG_CART_TO_KEPL
 //#define DEBUG_KEPL_TO_CART
@@ -264,7 +265,7 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    #ifdef DEBUG_CART_TO_KEPL
       MessageInterface::ShowMessage("CoordUtil::ComputeCartToKepl called ... \n");
       MessageInterface::ShowMessage("   grav = %12.10f\n", grav);
-      MessageInterface::ShowMessage("   KEP_ECC_TOL = %12.10f\n", GmatOrbit::KEP_ECC_TOL);
+      MessageInterface::ShowMessage("   KEP_ECC_TOL = %12.10f\n", GmatOrbitConstants::KEP_ECC_TOL);
    #endif
 
    if (Abs(grav) < 1E-30)
@@ -331,7 +332,7 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
             "   in ComputeCartToKepl, Abs(1.0 - e) = %12.10f\n", Abs(1.0 - e));
    #endif
    
-   if ((Abs(1.0 - e)) <= GmatOrbit::KEP_ECC_TOL)
+   if ((Abs(1.0 - e)) <= GmatOrbitConstants::KEP_ECC_TOL)
    {
       std::string errmsg = "Error in conversion to Keplerian state: ";
       errmsg += "The state results in an orbit that is nearly parabolic.\n";
@@ -359,7 +360,7 @@ Integer CoordUtil::ComputeCartToKepl(Real grav, Real r[3], Real v[3], Real *tfp,
    }
    // eqn 4.11
    Real i = ACos( angMomentum.Get(2)/h );
-   if (i >= PI - GmatOrbit::KEP_TOL)
+   if (i >= PI - GmatOrbitConstants::KEP_TOL)
    {
       throw UtilityException
          ("Error in conversion to Keplerian state: "
@@ -438,7 +439,7 @@ Integer CoordUtil::ComputeKeplToCart(Real grav, Real elem[6], Real r[3],
         per = elem[4]*RAD_PER_DEG,
        anom = elem[5]*RAD_PER_DEG;
 
-   if ((Abs(1.0 - ecc)) <= GmatOrbit::KEP_ECC_TOL)
+   if ((Abs(1.0 - ecc)) <= GmatOrbitConstants::KEP_ECC_TOL)
    {
       throw UtilityException
          ("Error in conversion from Keplerian state: "

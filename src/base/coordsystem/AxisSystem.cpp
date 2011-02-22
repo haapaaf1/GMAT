@@ -27,8 +27,7 @@
 #include "RealUtilities.hpp"
 #include "AngleUtil.hpp"
 #include "Linear.hpp"
-#include "RealTypes.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "Rvector3.hpp"
 #include "MessageInterface.hpp"
 #include "CoordinateSystemException.hpp"
@@ -38,7 +37,8 @@
 
 
 using namespace GmatMathUtil;      // for trig functions, etc.
-using namespace GmatTimeUtil;      // for SECS_PER_DAY
+using namespace GmatMathConstants;      // for RAD_PER_ARCSEC, etc.
+using namespace GmatTimeConstants;      // for SECS_PER_DAY
 
 //static Integer visitCount = 0;
 
@@ -143,7 +143,7 @@ DpVals           (NULL)
    parameterCount = AxisSystemParamCount;
    rotMatrix    = Rmatrix33(false); // want zero matrix, not identity matrix
    rotDotMatrix = Rmatrix33(false); // want zero matrix, not identity matrix
-   epoch        = GmatTimeUtil::A1MJD_OF_J2000;
+   epoch        = GmatTimeConstants::A1MJD_OF_J2000;
    lastPRECEpoch       = A1Mjd(0.0); // 1941?  strange, but ...
    lastNUTEpoch        = A1Mjd(0.0); // 1941?  strange, but ...
    lastSTDerivEpoch    = A1Mjd(0.0); // 1941?  strange, but ...
@@ -603,7 +603,7 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Rvector &inState,
    #endif
 
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeConstants::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "AxisSystem::RotateToMJ2000Eq check for %s\n", typeName.c_str());
@@ -688,7 +688,7 @@ bool AxisSystem::RotateToMJ2000Eq(const A1Mjd &epoch, const Real *inState,
    #endif
 
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeConstants::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "RotateToMJ2000Eq check for %s\n", typeName.c_str());
@@ -798,7 +798,7 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeConstants::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "AxisSystem::RotateFromMJ2000Eq check for %s\n", typeName.c_str());
@@ -876,7 +876,7 @@ bool AxisSystem::RotateFromMJ2000Eq(const A1Mjd &epoch,
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
    #ifdef DEBUG_FIRST_CALL
-      if ((firstCallFired == false) || (epoch.Get() == GmatTimeUtil::MJD_OF_J2000))
+      if ((firstCallFired == false) || (epoch.Get() == GmatTimeConstants::MJD_OF_J2000))
       {
          MessageInterface::ShowMessage(
             "AxisSystem::RotateFromMJ2000Eq check for %s\n", typeName.c_str());
@@ -1743,12 +1743,12 @@ void AxisSystem::ComputeSiderealTimeRotation(const Real jdTT,
    // (Vallado Eq. 3-45)
    // NOTE: 1 sec = 15"; 1 hour (= 15 deg) = 54000"
    Real hour2deg = 15.0;
-   Real sec2deg = hour2deg / GmatTimeUtil::SECS_PER_HOUR;
+   Real sec2deg = hour2deg / GmatTimeConstants::SECS_PER_HOUR;
    Real ThetaGmst = ((67310.54841 * sec2deg) + 
                      ((876600 * hour2deg) + (8640184.812866 * sec2deg))*tUT1 +
                      (0.093104 * sec2deg)*tUT12 - (6.2e-06 * sec2deg)*tUT13 )
                      * RAD_PER_DEG;
-   ThetaGmst = AngleUtil::PutAngleInRadRange(ThetaGmst,0.0,GmatMathUtil::TWO_PI);
+   ThetaGmst = AngleUtil::PutAngleInRadRange(ThetaGmst,0.0,GmatMathConstants::TWO_PI);
    
    Real ThetaAst = ThetaGmst + EQequinox;
    

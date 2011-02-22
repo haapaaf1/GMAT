@@ -370,7 +370,7 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
 //      MessageInterface::ShowMessage(
 //            "In SPKReader::Converted (to TBD) time = %12.10f\n", etMjdAtTime);
 //      MessageInterface::ShowMessage("  then the full JD = %12.10f\n",
-//            (etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941));
+//            (etMjdAtTime + GmatTimeConstants::JD_JAN_5_1941));
       MessageInterface::ShowMessage("So time passed to SPICE is %12.14f\n", (Real) etSPICE);
    #endif
    SpiceDouble state[6];
@@ -379,9 +379,9 @@ Rvector6 SpiceOrbitKernelReader::GetTargetState(const std::string &targetName,
             observingBodyNameSPICE, state, &oneWayLightTime);
 #ifdef DEBUG_SPK_PLANETS
    Real        ttMjdAtTime   = TimeConverterUtil::Convert(atTime.Get(), TimeConverterUtil::A1MJD,
-                               TimeConverterUtil::TTMJD, GmatTimeUtil::JD_JAN_5_1941);
-//   Real etJd                 = etMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
-   Real ttJd                 = ttMjdAtTime + GmatTimeUtil::JD_JAN_5_1941;
+                               TimeConverterUtil::TTMJD, GmatTimeConstants::JD_JAN_5_1941);
+//   Real etJd                 = etMjdAtTime + GmatTimeConstants::JD_JAN_5_1941;
+   Real ttJd                 = ttMjdAtTime + GmatTimeConstants::JD_JAN_5_1941;
    MessageInterface::ShowMessage("Asking CSPICE for state of body %s, with observer %s, referenceFrame %s, and aberration correction %s\n",
          objectNameSPICE, observingBodyNameSPICE, referenceFrameSPICE, aberrationSPICE);
    MessageInterface::ShowMessage(

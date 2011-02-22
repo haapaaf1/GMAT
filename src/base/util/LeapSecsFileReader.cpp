@@ -15,13 +15,14 @@
  *
  * File found at : ftp://maia.usno.navy.mil/ser7/tai-utc.dat
  *
- * @note The MJD-JD offset used is GmatTimeUtil::JD_NOV_17_1858
+ * @note The MJD-JD offset used is GmatTimeConstants::JD_NOV_17_1858
  */
 //------------------------------------------------------------------------------
 
 #include "LeapSecsFileReader.hpp"
 #include "MessageInterface.hpp"
 #include "StringTokenizer.hpp"
+#include "GmatConstants.hpp"
 #include "UtilityException.hpp"
 
 #include <fstream>
@@ -157,7 +158,7 @@ Real LeapSecsFileReader::NumberOfLeapSecondsFrom(UtcMjd utcMjd)
 {
    if (isInitialized)
    {
-      Real jd = utcMjd + GmatTimeUtil::JD_MJD_OFFSET;
+      Real jd = utcMjd + GmatTimeConstants::JD_MJD_OFFSET;
 
       // look up each entry in the table to see if value is greater then the
       // julian date

@@ -471,7 +471,7 @@ bool PropagationEnabledCommand::PrepareToPropagate()
          baseEpoch.push_back(sat1->GetRealParameter(epochID));
          elapsedTime[n] = fm[n]->GetTime();
          currEpoch[n] = baseEpoch[n] + elapsedTime[n] /
-            GmatTimeUtil::SECS_PER_DAY;
+            GmatTimeConstants::SECS_PER_DAY;
       }
 
       inProgress = true;
@@ -692,7 +692,7 @@ bool PropagationEnabledCommand::Step(Real dt)
       // orbit related parameters use spacecraft for data
       elapsedTime[i] = fm[i]->GetTime();
       currEpoch[i] = baseEpoch[i] + elapsedTime[i] /
-         GmatTimeUtil::SECS_PER_DAY;
+         GmatTimeConstants::SECS_PER_DAY;
 
       // Update spacecraft epoch, without argument the spacecraft epoch
       // won't get updated for consecutive Propagate command

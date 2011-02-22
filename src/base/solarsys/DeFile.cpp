@@ -85,8 +85,8 @@ const Integer DeFile::LIBRATIONS_ID       = 14;
 //const Integer DeFile::MAX_ARRAY_SIZE      = 1018;
 
 
-const Real DeFile::JD_MJD_OFFSET = GmatTimeUtil::JD_JAN_5_1941;
-const Real DeFile::TT_OFFSET     = GmatTimeUtil::TT_TAI_OFFSET;
+const Real DeFile::JD_MJD_OFFSET = GmatTimeConstants::JD_JAN_5_1941;
+const Real DeFile::TT_OFFSET     = GmatTimeConstants::TT_TAI_OFFSET;
 
 //------------------------------------------------------------------------------
 // public methods
@@ -116,7 +116,7 @@ PlanetaryEphem(fileName)
    theFileFormat = fmt;
    theFileName = fileName;
    
-   baseEpoch = GmatTimeUtil::JD_JAN_5_1941;
+   baseEpoch = GmatTimeConstants::JD_JAN_5_1941;
 
    Initialize();
 }
@@ -307,7 +307,7 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
    {
       double mjdTT = (double) TimeConverterUtil::Convert(atTime.Get(),
                       TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
-                      GmatTimeUtil::JD_JAN_5_1941);
+                      GmatTimeConstants::JD_JAN_5_1941);
 
       absJD = mjdTT;
 
@@ -322,7 +322,7 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
    {
       double mjdTDB = (double) TimeConverterUtil::Convert(atTime.Get(),
                       TimeConverterUtil::A1MJD, TimeConverterUtil::TDBMJD, 
-                      GmatTimeUtil::JD_JAN_5_1941);
+                      GmatTimeConstants::JD_JAN_5_1941);
 
       absJD = mjdTDB;
 
@@ -346,9 +346,9 @@ Real* DeFile::GetPosVel(Integer forBody, A1Mjd atTime, bool overrideTimeSystem)
       result[0] = (Real) rv.Position[0]; // temporary
       result[1] = (Real) rv.Position[1];
       result[2] = (Real) rv.Position[2];
-      result[3] = (Real) rv.Velocity[0] ; //* GmatTimeUtil::SECS_PER_DAY;
-      result[4] = (Real) rv.Velocity[1] ; //* GmatTimeUtil::SECS_PER_DAY;
-      result[5] = (Real) rv.Velocity[2] ; //* GmatTimeUtil::SECS_PER_DAY;
+      result[3] = (Real) rv.Velocity[0] ; //* GmatTimeConstants::SECS_PER_DAY;
+      result[4] = (Real) rv.Velocity[1] ; //* GmatTimeConstants::SECS_PER_DAY;
+      result[5] = (Real) rv.Velocity[2] ; //* GmatTimeConstants::SECS_PER_DAY;
       return result;
    }
 
@@ -402,14 +402,14 @@ void  DeFile::GetAnglesAndRates(A1Mjd atTime, Real* angles, Real* rates,
    {
        double mjdTT = (double) TimeConverterUtil::Convert(atTime.Get(),
                        TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
-                       GmatTimeUtil::JD_JAN_5_1941);
+                       GmatTimeConstants::JD_JAN_5_1941);
        absJD        = mjdTT;
    }
    else
    {
        double mjdTDB = (double) TimeConverterUtil::Convert(atTime.Get(),
                        TimeConverterUtil::A1MJD, TimeConverterUtil::TDBMJD, 
-                       GmatTimeUtil::JD_JAN_5_1941);
+                       GmatTimeConstants::JD_JAN_5_1941);
        absJD         = mjdTDB;
    }
 
@@ -993,9 +993,9 @@ void DeFile::Interpolate_Libration( double Time , int Target ,
         for ( j=N-1 ; j>-1 ; j-- )  sum[i]     = sum[i] + A[j+i*N] * Cp[j];
         for ( j=N-1 ; j>0  ; j-- )  rateSum[i] = rateSum[i] + A[j+i*N] * Up[j];
         //X.Position[i] = P_Sum[i];
-        //X.Velocity[i] = V_Sum[i] * 2.0 * ((double) G) / (T_span * GmatTimeUtil::SECS_PER_DAY);
+        //X.Velocity[i] = V_Sum[i] * 2.0 * ((double) G) / (T_span * GmatTimeConstants::SECS_PER_DAY);
         Libration[i] = sum[i];
-        rates[i]     = rateSum[i] * 2.0 * ((double) G) / (T_span * GmatTimeUtil::SECS_PER_DAY);
+        rates[i]     = rateSum[i] * 2.0 * ((double) G) / (T_span * GmatTimeConstants::SECS_PER_DAY);
       }
   /*--------------------------------------------------------------------------*/
   /* Compute interpolated the rates.                                          */
@@ -1463,7 +1463,7 @@ void DeFile::Interpolate_State(double Time , int Target, stateType *p)
         for ( j=N-1 ; j>0  ; j-- )  V_Sum[i] = V_Sum[i] + A[j+i*N] * Up[j];
 
         X.Position[i] = P_Sum[i];
-        X.Velocity[i] = V_Sum[i] * 2.0 * ((double) G) / (T_span * GmatTimeUtil::SECS_PER_DAY);
+        X.Velocity[i] = V_Sum[i] * 2.0 * ((double) G) / (T_span * GmatTimeConstants::SECS_PER_DAY);
       }
 
   /*--------------------------------------------------------------------------*/
@@ -1600,7 +1600,7 @@ double DeFile::Gregorian_to_Julian( int     year ,  int     month   ,
   /*  Compute the day fraction:                                               */
   /*--------------------------------------------------------------------------*/
 
-  D = D  +  (H / 24.0)  +  (N / 1440.0)  +  (seconds / GmatTimeUtil::SECS_PER_DAY);
+  D = D  +  (H / 24.0)  +  (N / 1440.0)  +  (seconds / GmatTimeConstants::SECS_PER_DAY);
 
   /*--------------------------------------------------------------------------*/
   /*  Compute the Julian date.                                                */
@@ -1608,7 +1608,7 @@ double DeFile::Gregorian_to_Julian( int     year ,  int     month   ,
 
   A  = floor(Y/100.0);
   B  = 2.0 - A + floor(A/4.0);  
-  JD = floor(GmatTimeUtil::DAYS_PER_YEAR*(Y+4716.0)) + floor(30.6001*(M+1.0)) + D + B - 1524.5;
+  JD = floor(GmatTimeConstants::DAYS_PER_YEAR*(Y+4716.0)) + floor(30.6001*(M+1.0)) + D + B - 1524.5;
   
   return JD;
 }

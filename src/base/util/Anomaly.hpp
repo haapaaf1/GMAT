@@ -22,7 +22,6 @@
 #define Anomaly_hpp
 
 #include "gmatdefs.hpp"
-#include "RealTypes.hpp"          // for Radians
 #include "GmatGlobal.hpp"         // for DATA_PRECISION
 
 class GMAT_API Anomaly 

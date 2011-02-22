@@ -22,7 +22,6 @@
 
 #include <iostream>
 #include "gmatdefs.hpp"
-#include "RealTypes.hpp"          // for Radians
 #include "Anomaly.hpp"
 #include "Rvector3.hpp"
 #include "Rvector6.hpp"

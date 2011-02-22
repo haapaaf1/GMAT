@@ -18,6 +18,7 @@
 //------------------------------------------------------------------------------
 #include "BodyFixedStateConverter.hpp"
 #include "StringUtil.hpp"
+#include "GmatConstants.hpp"
 #include "MessageInterface.hpp"
 #include "RealUtilities.hpp"
 
@@ -230,7 +231,7 @@ Rvector3 BodyFixedStateConverterUtil::CartesianToSpherical(const Rvector3 &cart,
    // Calculate the longitude
    Real longitude = GmatMathUtil::ATan2(cart[1], cart[0]);
    // constrain it to be 0 - 360 degrees
-   while (longitude < 0.0)  longitude += GmatMathUtil::TWO_PI;
+   while (longitude < 0.0)  longitude += GmatMathConstants::TWO_PI;
 
    // Calculate the latitude
    Real rMag      = cart.GetMagnitude();
@@ -341,7 +342,7 @@ Rvector3 BodyFixedStateConverterUtil::CartesianToSphericalEllipsoid(const Rvecto
    // Calculate the longitude
    Real longitude = GmatMathUtil::ATan2(cart[1], cart[0]);
    // constrain it to be 0 - 360 degrees
-   while (longitude < 0.0)  longitude += GmatMathUtil::TWO_PI;
+   while (longitude < 0.0)  longitude += GmatMathConstants::TWO_PI;
 
    // Calculate intermediate variables
 //   Real rMag      = cart.GetMagnitude();
@@ -376,7 +377,7 @@ Rvector3 BodyFixedStateConverterUtil::CartesianToSphericalEllipsoid(const Rvecto
     Real S      = C * (1.0 - ee);
     Real height = 0.0;
     // if near a pole ...
-    if ((GmatMathUtil::PI_OVER_TWO - GmatMathUtil::Abs(latitude)) > .02)
+    if ((GmatMathConstants::PI_OVER_TWO - GmatMathUtil::Abs(latitude)) > .02)
        height = (rxy / GmatMathUtil::Cos(latitude)) - C;
     else // not near a pole
        height = (cart[2] / GmatMathUtil::Sin(latitude)) - S;

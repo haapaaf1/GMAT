@@ -47,7 +47,6 @@
 #include <sstream>                      // For stringstream
 #include "MessageInterface.hpp"
 #include "GmatConstants.hpp"
-#include "TimeTypes.hpp"
 
 //#define DEBUG_SRP_ORIGIN
 //#define DEBUG_SOLAR_RADIATION_PRESSURE
@@ -689,7 +688,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
    Real distancefactor = 1.0, mag = 0.0;
    bool inSunlight = true, inShadow = false;
 
-   Real ep = epoch + dt / GmatTimeUtil::SECS_PER_DAY;
+   Real ep = epoch + dt / GmatTimeConstants::SECS_PER_DAY;
    sunrv = theSun->GetState(ep);
     
    // Rvector6 is initialized to all 0.0's; only change it if the body is not 
@@ -738,7 +737,7 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
         
          distancefactor = nominalSun / sunDistance;
          // Convert m/s^2 to km/s^2
-         distancefactor *= distancefactor * GmatMathUtil::M_TO_KM;
+         distancefactor *= distancefactor * GmatMathConstants::M_TO_KM;
       
          #ifdef DEBUG_SRP_ORIGIN
             if (shadowModel == 0) 

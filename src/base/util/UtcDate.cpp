@@ -28,7 +28,7 @@
 #include "UtcDate.hpp"   // for UtcDate
 //  #include "A1Date.hpp"    // for A1Date
 
-using namespace GmatTimeUtil;
+using namespace GmatTimeConstants;
 using namespace GmatMathUtil;
 
 //---------------------------------

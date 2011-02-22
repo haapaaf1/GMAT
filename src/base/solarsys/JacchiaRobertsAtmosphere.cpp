@@ -23,6 +23,7 @@
 #include "SolarSystem.hpp"
 #include "MessageInterface.hpp"
 #include "RealUtilities.hpp"
+#include "GmatConstants.hpp"
 
 // #define DEBUG_JR_DRAG 1
 
@@ -338,7 +339,7 @@ Real JacchiaRobertsAtmosphere::JacchiaRoberts(Real height, Real space_craft[3],
    // Compute declination of the sun
    sun_dec = atan2(sun[2], sqrt(sun[0]*sun[0] + sun[1]*sun[1]));
    // Geodetic latitude of spacecraft, in radians
-   geo_lat = geoLat * GmatMathUtil::RAD_PER_DEG;
+   geo_lat = geoLat * GmatMathConstants::RAD_PER_DEG;
 
    // Compute height dependent density
    if (height<=90.0)
@@ -453,10 +454,10 @@ Real JacchiaRobertsAtmosphere::exotherm(Real space_craft[2], Real sun[3],
    eta = 0.5 * fabs(geo_lat - sun_dec);
    tau = hour_angle - 0.64577182325 + 0.10471975512 *
       sin(hour_angle + 0.75049157836);
-   if (tau < - GmatMathUtil::PI)
-      tau += 2 * GmatMathUtil::PI;
-   else if (tau > GmatMathUtil::PI)
-      tau -= 2 * GmatMathUtil::PI;
+   if (tau < - GmatMathConstants::PI)
+      tau += 2 * GmatMathConstants::PI;
+   else if (tau > GmatMathConstants::PI)
+      tau -= 2 * GmatMathConstants::PI;
    th22 = pow(sin(theta), 2.2);
    t1 = (Real)geo->xtemp * (1.0 + 0.3*(th22 +pow(cos(0.5*tau),3.0) *
                                          (pow(cos(eta),2.2) - th22)));
@@ -781,15 +782,15 @@ Real JacchiaRobertsAtmosphere::rho_cor(Real height, Real a1_time, Real geo_lat,
       exp(-0.002868 * height);
    day_58 = (a1_time - 6204.5)/365.2422;
    tausa = day_58 + 0.09544 * (
-         pow( 0.5*(1.0 + sin(2*GmatMathUtil::PI*day_58 +6.035)), 1.65 )  - 0.5);
-   alpha = sin(4.0*GmatMathUtil::PI*tausa + 4.259);
-   g = 0.02835 + (0.3817 + 0.17829 * sin(2*GmatMathUtil::PI*tausa + 4.137)) *
+         pow( 0.5*(1.0 + sin(2*GmatMathConstants::PI*day_58 +6.035)), 1.65 )  - 0.5);
+   alpha = sin(4.0*GmatMathConstants::PI*tausa + 4.259);
+   g = 0.02835 + (0.3817 + 0.17829 * sin(2*GmatMathConstants::PI*tausa + 4.137)) *
          alpha;
    semian_cor = f * g;
 
    // Compute seasonal latitudinal variation
    sin_lat = sin(geo_lat);
-   eta_lat = sin(2.0*GmatMathUtil::PI*day_58 + 1.72) * sin_lat * fabs(sin_lat);
+   eta_lat = sin(2.0*GmatMathConstants::PI*day_58 + 1.72) * sin_lat * fabs(sin_lat);
    slat_cor = 0.014 * (height - 90.0) * eta_lat *
       exp(-0.0013 * (height - 90.0) * (height - 90.0));
 
@@ -853,9 +854,9 @@ Real JacchiaRobertsAtmosphere::rho_high(Real height, Real temperature,
       if (i == 2)
       {
          exp1 -= 0.38;
-         f = 4.9914 * fabs(sun_dec) * (pow(sin(0.25 * GmatMathUtil::PI - 0.5 * geo_lat *
+         f = 4.9914 * fabs(sun_dec) * (pow(sin(0.25 * GmatMathConstants::PI - 0.5 * geo_lat *
                                                sun_dec / fabs(sun_dec)), 3)
-                                       - 0.35355) / GmatMathUtil::PI;
+                                       - 0.35355) / GmatMathConstants::PI;
          f = pow(10.0, f);
       }
 

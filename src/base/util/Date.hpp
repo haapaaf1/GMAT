@@ -23,6 +23,7 @@
 
 #include "gmatdefs.hpp"
 #include "BaseException.hpp"
+#include "GmatConstants.hpp"
 #include "TimeTypes.hpp"
 
 class GMAT_API Date
@@ -44,9 +45,9 @@ public:
     Integer GetMinute() const;
     Real GetSecond() const;
 
-    GmatTimeUtil::DayName GetDayName() const;
+    GmatTimeConstants::DayName GetDayName() const;
     Integer GetDaysPerMonth() const;
-    GmatTimeUtil::MonthName GetMonthName() const;
+    GmatTimeConstants::MonthName GetMonthName() const;
 
     Real ToPackedCalendarReal() const;
     std::string& ToPackedCalendarString();  // "YYYYMMDD.hhmmssnnn"

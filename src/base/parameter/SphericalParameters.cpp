@@ -19,7 +19,6 @@
 //------------------------------------------------------------------------------
 
 #include "SphericalParameters.hpp"
-#include "OrbitTypes.hpp"
 
 //==============================================================================
 //                              SphRMag
@@ -111,7 +110,7 @@ bool SphRMag::Evaluate()
 {
    mRealValue = OrbitData::GetSphRaDecReal(RD_RMAG);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -226,7 +225,7 @@ bool SphRA::Evaluate()
 {
    mRealValue = OrbitData::GetSphRaDecReal(RD_RRA);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -341,7 +340,7 @@ bool SphDec::Evaluate()
 {
    mRealValue = OrbitData::GetSphRaDecReal(RD_RDEC);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -454,7 +453,7 @@ bool SphVMag::Evaluate()
 {
    mRealValue = OrbitData::GetSphRaDecReal(RD_VMAG);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -569,7 +568,7 @@ bool SphRAV::Evaluate()
 {
    mRealValue = OrbitData::GetSphRaDecReal(RD_RAV);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -682,7 +681,7 @@ bool SphDecV::Evaluate()
 {
    mRealValue = OrbitData::GetSphRaDecReal(RD_DECV);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -797,7 +796,7 @@ bool SphAzi::Evaluate()
 {
    mRealValue = OrbitData::GetSphAzFpaReal(AF_AZI);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -909,7 +908,7 @@ bool SphFPA::Evaluate()
 {
    mRealValue = OrbitData::GetSphAzFpaReal(AF_FPA);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -1025,7 +1024,7 @@ bool SphRaDecElem::Evaluate()
 {
    mRvec6Value = GetSphRaDecState();
 
-   return mRvec6Value.IsValid(GmatOrbit::ORBIT_REAL_UNDEFINED);
+   return mRvec6Value.IsValid(GmatOrbitConstants::ORBIT_REAL_UNDEFINED);
 }
 
 
@@ -1138,7 +1137,7 @@ bool SphAzFpaElem::Evaluate()
 {
    mRvec6Value = GetSphAzFpaState();
 
-   return mRvec6Value.IsValid(GmatOrbit::ORBIT_REAL_UNDEFINED);
+   return mRvec6Value.IsValid(GmatOrbitConstants::ORBIT_REAL_UNDEFINED);
 }
 
 

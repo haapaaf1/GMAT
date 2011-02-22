@@ -512,11 +512,11 @@ Integer SpiceInterface::GetNaifID(const std::string &forBody, bool popupMsg)
 Real SpiceInterface::SpiceTimeToA1(SpiceDouble spiceTime)
 {
    SpiceDouble j2ET    = j2000_c();
-   SpiceDouble julianOffset = GmatTimeUtil::JD_JAN_5_1941 - j2ET;
-   Real        tdbTime = (spiceTime / GmatTimeUtil::SECS_PER_DAY) - julianOffset;
+   SpiceDouble julianOffset = GmatTimeConstants::JD_JAN_5_1941 - j2ET;
+   Real        tdbTime = (spiceTime / GmatTimeConstants::SECS_PER_DAY) - julianOffset;
 
    Real        a1Time  = TimeConverterUtil::Convert(tdbTime, TimeConverterUtil::TDBMJD,
-                         TimeConverterUtil::A1MJD, GmatTimeUtil::JD_JAN_5_1941);
+                         TimeConverterUtil::A1MJD, GmatTimeConstants::JD_JAN_5_1941);
 
    return a1Time;
 }
@@ -538,10 +538,10 @@ SpiceDouble SpiceInterface::A1ToSpiceTime(Real a1Time)
 {
    SpiceDouble j2ET      = j2000_c();
    Real        tdbTime   = TimeConverterUtil::Convert(a1Time, TimeConverterUtil::A1MJD,
-                           TimeConverterUtil::TDBMJD, GmatTimeUtil::JD_JAN_5_1941);
-   SpiceDouble julianOffset = GmatTimeUtil::JD_JAN_5_1941 - j2ET;
+                           TimeConverterUtil::TDBMJD, GmatTimeConstants::JD_JAN_5_1941);
+   SpiceDouble julianOffset = GmatTimeConstants::JD_JAN_5_1941 - j2ET;
    SpiceDouble spiceTime = (tdbTime + julianOffset) *
-                           GmatTimeUtil::SECS_PER_DAY;
+                           GmatTimeConstants::SECS_PER_DAY;
 
    return spiceTime;
 }

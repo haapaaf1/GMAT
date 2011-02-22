@@ -19,6 +19,7 @@
 
 #include "TimeTypes.hpp"
 #include "StringUtil.hpp"
+#include "GmatConstants.hpp"
 #include "UtilityException.hpp"
 #include <ctime>                   // for time()
 
@@ -39,7 +40,7 @@ bool GmatTimeUtil::IsValidMonthName(const std::string &str)
 {
    for (int i=0; i<12; i++)
    {
-      if (str == MONTH_NAME_TEXT[i])
+      if (str == GmatTimeConstants::MONTH_NAME_TEXT[i])
          return true;
    }
    
@@ -68,7 +69,7 @@ std::string GmatTimeUtil::GetMonthName(Integer month)
          ("Cannot get Month Name for " + GmatStringUtil::ToString(month));
    }
    
-   return GmatTimeUtil::MONTH_NAME_TEXT[month-1];
+   return GmatTimeConstants::MONTH_NAME_TEXT[month-1];
 }
 
 
@@ -91,7 +92,7 @@ Integer GmatTimeUtil::GetMonth(const std::string &monthName)
 {
    for (int i=0; i<12; i++)
    {
-      if (monthName == GmatTimeUtil::MONTH_NAME_TEXT[i])
+      if (monthName == GmatTimeConstants::MONTH_NAME_TEXT[i])
          return i + 1;
    }
    

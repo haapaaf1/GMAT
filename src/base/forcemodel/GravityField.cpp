@@ -449,7 +449,7 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
    Real               arr[4] = {0.0, 0.0, 0.0, 0.0};
    static const Real  sqrt2 = Sqrt(2.0);
 
-   dT = (jday - 2.4464305e+06)/GmatTimeUtil::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
+   dT = (jday - 2.4464305e+06)/GmatTimeConstants::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
 
    if (r == 0.0)  // (should I) check for hFinitialized here?
    {
@@ -479,7 +479,7 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
       for (m = 0;(m <= n && m <= order); ++m)
       {
          #ifdef DEBUG_GRAVITY_FIELD_DETAILS
-            //dT = (jday - (Real)2.4464305e+06)/(Real)GmatTimeUtil::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
+            //dT = (jday - (Real)2.4464305e+06)/(Real)GmatTimeConstants::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
             MessageInterface::ShowMessage("  m = %d  n = %d\n   Cbar[n][m] = %le   Sbar[n][m] = %le\n",
                m, n, Cbar[n][m], Sbar[n][m]);
             if ( n <= GRAV_MAX_DRIFT_DEGREE )
@@ -492,7 +492,7 @@ bool GravityField::gravity_rtq(Real jday, Real F[] )
          /* time rate of change of coefficients (drift/year)*/
          if ( n <= GRAV_MAX_DRIFT_DEGREE )
          {
-            //dT = (jday - (Real)2.4464305e+06)/(Real)GmatTimeUtil::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
+            //dT = (jday - (Real)2.4464305e+06)/(Real)GmatTimeConstants::DAYS_PER_YEAR; /* years since Jan 1, 1986 */
             Cbar_nm = Cbar[n][m] + dCbar[n][m] * dT;
             Sbar_nm = Sbar[n][m] + dSbar[n][m] * dT;
          }
@@ -610,7 +610,7 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder,
    Integer nOffset;
    bool sameCS = false;
 
-   now = epoch + dt/GmatTimeUtil::SECS_PER_DAY;
+   now = epoch + dt/GmatTimeConstants::SECS_PER_DAY;
    //const Rvector6 *rv = &(body->GetState(now));
    //if (body->GetName() != fixedCS->GetOriginName())
    //   throw ODEModelException(
@@ -770,12 +770,12 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder,
                "legendreP_rtq r = ", r, s, t, u);
             MessageInterface::ShowMessage("%s%le\n",
                               "Calling gravity_rtq for Julian epoch = ",
-                              epoch + GmatTimeUtil::JD_JAN_5_1941
-                              + dt/GmatTimeUtil::SECS_PER_DAY);
+                              epoch + GmatTimeConstants::JD_JAN_5_1941
+                              + dt/GmatTimeConstants::SECS_PER_DAY);
          #endif
 
-         if (!gravity_rtq(epoch + GmatTimeUtil::JD_JAN_5_1941 +
-                          dt/GmatTimeUtil::SECS_PER_DAY, f))
+         if (!gravity_rtq(epoch + GmatTimeConstants::JD_JAN_5_1941 +
+                          dt/GmatTimeConstants::SECS_PER_DAY, f))
             throw ODEModelException("GravityField::gravity_rtq failed");
 
          #ifdef DEBUG_GRAVITY_FIELD

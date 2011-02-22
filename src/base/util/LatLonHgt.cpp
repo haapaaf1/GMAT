@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 
 #include "LatLonHgt.hpp"
+#include "GmatConstants.hpp"
 #include "UtilityException.hpp"
 
 //---------------------------------
@@ -260,12 +261,12 @@ void LatLonHgt::CartesianToLatLonHgt(const Rvector3 &position,
   
   // Get longitude measured positive to the East of the Greenwich meridian 
   Real lon = GmatMathUtil::ATan2(posY,posX); 
-  lon = GetDegree(lon,0.0,GmatMathUtil::TWO_PI); 
+  lon = GetDegree(lon,0.0,GmatMathConstants::TWO_PI);
   
   // Get geodetic latitude measured north from the equator
   Real rDeltaSat = GmatMathUtil::Sqrt(posX*posX+posY*posY);
   Real delta = GmatMathUtil::ATan2(posZ,rDeltaSat); 
-  delta = GetDegree(delta,0.0,GmatMathUtil::TWO_PI); 
+  delta = GetDegree(delta,0.0,GmatMathConstants::TWO_PI);
   
   Real latGD = delta;
   Real latGDold = 0;
@@ -739,13 +740,13 @@ std::string LatLonHgt::GetTypeText(const Integer &id) const
 Real LatLonHgt::GetDegree(const Real angle, const Real minAngle, 
                           const Real maxAngle) 
 {
-   Real angleInRange = GmatMathUtil::Mod(angle,GmatMathUtil::TWO_PI);
+   Real angleInRange = GmatMathUtil::Mod(angle,GmatMathConstants::TWO_PI);
    
    if (angleInRange < minAngle)
-      angleInRange += GmatMathUtil::TWO_PI;
+      angleInRange += GmatMathConstants::TWO_PI;
 
    else if (angleInRange > maxAngle)
-      angleInRange -= GmatMathUtil::TWO_PI;
+      angleInRange -= GmatMathConstants::TWO_PI;
 
    return GmatMathUtil::Deg(angleInRange);
 }

@@ -18,8 +18,10 @@
 //------------------------------------------------------------------------------
 #include "gmatdefs.hpp"
 #include "AngleUtil.hpp"
+#include "GmatConstants.hpp"
 #include "RealUtilities.hpp"     // for Mod(), ATan()
 
+using namespace GmatMathConstants;
 using namespace GmatMathUtil;
 
 //---------------------------------

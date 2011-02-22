@@ -21,6 +21,7 @@
 #include "StringUtil.hpp"       // for Trim()
 #include "FileTypes.hpp"        // for MAX_LINE_LEN
 #include "RealUtilities.hpp"
+#include "GmatConstants.hpp"
 #include "UtilityException.hpp"
 #include "MessageInterface.hpp"
 
@@ -262,7 +263,7 @@ bool GravityFile::ReadCofFile(const std::string &filename, Integer& degree,
                if (tmpMu != 0.0)
                   mu = tmpMu / 1.0e09;     // -> km^3/sec^2
                if (tmpA  != 0.0)
-                  radius = tmpA / GmatMathUtil::KM_TO_M;  // -> km
+                  radius = tmpA / GmatMathConstants::KM_TO_M;  // -> km
 
                // if not reading coeffiencts, stop after reading the mu and a
                if (!readCoeff)
@@ -377,7 +378,7 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
       raStream >> radius;
 
       mu = mu / 1.0e09;           // -> Km^3/sec^2
-      radius  = radius / GmatMathUtil::KM_TO_M;  // -> Km
+      radius  = radius / GmatMathConstants::KM_TO_M;  // -> Km
 
       while (!inStream.eof())
       {
@@ -438,7 +439,7 @@ bool GravityFile::ReadDatFile(const std::string &filename, Integer& degree,
 
    int len = fscanf(fp, "%lg\n", &mu ); mu = (Real)mu;
    len += fscanf(fp, "%lg\n", &radius ); radius = (Real)radius;
-   radius  = radius / GmatMathUtil::KM_TO_M;  // -> Km
+   radius  = radius / GmatMathConstants::KM_TO_M;  // -> Km
    mu = mu / 1.0e09;           // -> Km^3/sec^2
 
    fileDegree = 0;
@@ -619,7 +620,7 @@ bool GravityFile::ReadGrvFile(const std::string &filename, Integer& degree,
          {
             lineStream >> tmpA;
             if (tmpA != 0.0)
-               radius = tmpA / GmatMathUtil::KM_TO_M;  // -> Km
+               radius = tmpA / GmatMathConstants::KM_TO_M;  // -> Km
          }
          else if (upperString == "NORMALIZED")
          {

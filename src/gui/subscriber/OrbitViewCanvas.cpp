@@ -3783,7 +3783,7 @@ void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
       
       if (spac->modelID != -1)
       {
-         float     RTD         = (float)GmatMathUtil::DEG_PER_RAD;
+         float     RTD         = (float)GmatMathConstants::DEG_PER_RAD;
          
          int attIndex = objId * MAX_DATA * 4 + mObjLastFrame[objId] * 4;
          Rvector quat = Rvector(4, mObjectQuat[attIndex+0], mObjectQuat[attIndex+1],
@@ -4007,7 +4007,7 @@ void OrbitViewCanvas::DrawEquatorialPlane(UnsignedInt color)
    //-----------------------------------
    for (i=7; i<368; i+=15)
    {
-      angle = GmatMathUtil::RAD_PER_DEG * ((Real)i);
+      angle = GmatMathConstants::RAD_PER_DEG * ((Real)i);
 
       endPos[0] = distance * cos(angle);
       endPos[1] = distance * sin(angle);

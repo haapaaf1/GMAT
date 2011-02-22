@@ -1189,7 +1189,7 @@ bool PhysicalModel::IsParameterReadOnly(const std::string &label) const
 Real PhysicalModel::GetRealParameter(const Integer id) const
 {
    if (id == EPOCH)
-      return epoch + elapsedTime / GmatTimeUtil::SECS_PER_DAY;
+      return epoch + elapsedTime / GmatTimeConstants::SECS_PER_DAY;
    if (id == ELAPSED_SECS)
       return elapsedTime;
 

@@ -3815,7 +3815,7 @@ bool Interpreter::SetObjectToProperty(GmatBase *toObj, GmatBase *fromOwner,
       if (rhsParam == NULL)
       {
          // Try setting as Variable expression (loj: 2008.08.05)
-         // to handle var = sat.A1ModJulian - GmatTimeUtil::MJD_OF_J2000 prior to mission sequence
+         // to handle var = sat.A1ModJulian - GmatTimeConstants::MJD_OF_J2000 prior to mission sequence
          // It also shows correct expression in the GUI
          if (ParseVariableExpression((Parameter*)toObj, rhs))
             return true;

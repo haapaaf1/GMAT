@@ -129,7 +129,7 @@ DragForce::DragForce(const std::string &name) :
    dimension = 6;
    parameterCount = DragForceParamCount;
    
-   // Default Sun location, from the SLP file at MJD GmatTimeUtil::MJD_OF_J2000:
+   // Default Sun location, from the SLP file at MJD GmatTimeConstants::MJD_OF_J2000:
    sunLoc[0] =  2.65e+07;
    sunLoc[1] = -1.32757e+08;
    sunLoc[2] = -5.75566e+07;
@@ -987,7 +987,7 @@ bool DragForce::GetDerivatives(Real *state, Real dt, Integer order,
    }
     
    // First translate to the drag body from the force model origin
-   Real now = epoch + (elapsedTime + dt) / GmatTimeUtil::SECS_PER_DAY;
+   Real now = epoch + (elapsedTime + dt) / GmatTimeConstants::SECS_PER_DAY;
    TranslateOrigin(state, now);
 
    #ifdef DEBUG_DRAGFORCE_DENSITY

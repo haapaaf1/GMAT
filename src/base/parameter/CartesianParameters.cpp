@@ -20,7 +20,6 @@
 
 #include "CartesianParameters.hpp"
 #include "ColorTypes.hpp"
-#include "OrbitTypes.hpp"
 
 //#define DEBUG_CARTESIAN_PARAM 1
 
@@ -118,7 +117,7 @@ bool CartX::Evaluate()
 {
    mRealValue = OrbitData::GetCartReal(PX);
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -248,7 +247,7 @@ bool CartY::Evaluate()
 {
    mRealValue = OrbitData::GetCartReal(PY);
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -377,7 +376,7 @@ bool CartZ::Evaluate()
 {
    mRealValue = OrbitData::GetCartReal(PZ);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -507,7 +506,7 @@ bool CartVx::Evaluate()
 {
    mRealValue = OrbitData::GetCartReal(VX);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -637,7 +636,7 @@ bool CartVy::Evaluate()
 {
    mRealValue = OrbitData::GetCartReal(VY);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -767,7 +766,7 @@ bool CartVz::Evaluate()
 {
    mRealValue = OrbitData::GetCartReal(VZ);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -905,7 +904,7 @@ bool CartState::Evaluate()
        mRvec6Value.ToString().c_str());
    #endif
    
-   return mRvec6Value.IsValid(GmatOrbit::ORBIT_REAL_UNDEFINED);
+   return mRvec6Value.IsValid(GmatOrbitConstants::ORBIT_REAL_UNDEFINED);
 }
 
 

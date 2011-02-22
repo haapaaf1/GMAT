@@ -22,7 +22,7 @@
 #include "GmatBase.hpp"
 #include "BodyInertialAxes.hpp"
 #include "InertialAxes.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "Rvector.hpp"
 #include "RealUtilities.hpp"
 #include "TimeSystemConverter.hpp"
@@ -74,10 +74,10 @@ InertialAxes("BodyInertial",itsName)
 {
    objectTypeNames.push_back("BodyInertialAxes");
    parameterCount = BodyInertialAxesParamCount;
-   Real TAIModJul   = 2451544.9996274998411 - GmatTimeUtil::JD_JAN_5_1941;
+   Real TAIModJul   = 2451544.9996274998411 - GmatTimeConstants::JD_JAN_5_1941;
    Real mjdA1       = TimeConverterUtil::Convert(TAIModJul,
                       TimeConverterUtil::TAIMJD, TimeConverterUtil::A1MJD, 
-                      GmatTimeUtil::JD_JAN_5_1941); 
+                      GmatTimeConstants::JD_JAN_5_1941); 
    epoch.Set(mjdA1);     
    
    #ifdef DEBUG_BODY_INERTIAL
@@ -178,9 +178,9 @@ bool BodyInertialAxes::Initialize()
       // get alpha, delta, W, Wdot at the A1Mjd time of epoch
       Rvector   coords(4);
       coords              = ((CelestialBody*)origin)->GetBodyCartographicCoordinates(epoch);
-      Real      a         = GmatMathUtil::PI_OVER_TWO +    // 90 + alpha
+      Real      a         = GmatMathConstants::PI_OVER_TWO +    // 90 + alpha
                             GmatMathUtil::Rad(coords[0]);
-      Real      b         = GmatMathUtil::PI_OVER_TWO -    // 90 - delta
+      Real      b         = GmatMathConstants::PI_OVER_TWO -    // 90 - delta
                             GmatMathUtil::Rad(coords[1]);
       Rmatrix33 R3T( GmatMathUtil::Cos(a), -GmatMathUtil::Sin(a), 0.0,
                      GmatMathUtil::Sin(a),  GmatMathUtil::Cos(a), 0.0,

@@ -29,8 +29,7 @@
 #include "Planet.hpp"
 #include "RealUtilities.hpp"
 #include "Linear.hpp"
-#include "RealTypes.hpp"
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "Rvector3.hpp"
 #include "TimeSystemConverter.hpp"
 #include "CoordinateSystemException.hpp"
@@ -38,7 +37,7 @@
 #include "Attitude.hpp"
 
 using namespace GmatMathUtil;      // for trig functions, etc.
-using namespace GmatTimeUtil;      // for JD offsets, etc.
+using namespace GmatTimeConstants;      // for JD offsets, etc.
 
 //#define DEBUG_FIRST_CALL
 //#define DEBUG_TIME_CALC
@@ -691,9 +690,9 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       Real librationAngles[3], andRates[3];
       de->GetAnglesAndRates(atEpoch, librationAngles, andRates, override);
       // convert from rad/day to rad/second
-      //andRates[0] /= GmatTimeUtil::SECS_PER_DAY;
-      //andRates[1] /= GmatTimeUtil::SECS_PER_DAY;
-      //andRates[2] /= GmatTimeUtil::SECS_PER_DAY;
+      //andRates[0] /= GmatTimeConstants::SECS_PER_DAY;
+      //andRates[1] /= GmatTimeConstants::SECS_PER_DAY;
+      //andRates[2] /= GmatTimeConstants::SECS_PER_DAY;
       rotMatrix    = (Attitude::ToCosineMatrix(librationAngles, 3, 1, 3)).Transpose();
       Real ca1    = cos(librationAngles[0]);
       Real ca2    = cos(librationAngles[1]);
@@ -766,8 +765,8 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       // W (deg), and Wdot (deg/day)
       cartCoord   = ((CelestialBody*)origin)->
                       GetBodyCartographicCoordinates(atEpoch);
-      Real rot1           = GmatMathUtil::PI_OVER_TWO + Rad(cartC[0]);
-      Real rot2           = GmatMathUtil::PI_OVER_TWO - Rad(cartC[1]);
+      Real rot1           = GmatMathConstants::PI_OVER_TWO + Rad(cartC[0]);
+      Real rot2           = GmatMathConstants::PI_OVER_TWO - Rad(cartC[1]);
       Real W              = Rad(cartC[2]);
       Real Wdot           = Rad(cartC[3]) / SECS_PER_DAY; 
       // Convert Wdot from deg/day to rad/sec

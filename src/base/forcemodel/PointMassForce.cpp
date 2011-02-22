@@ -325,7 +325,7 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
       Real radius, r3, mu_r, rbb3, mu_rbb, a_indirect[3];
    
       epoch = theState->GetEpoch();
-      now = epoch + dt/GmatTimeUtil::SECS_PER_DAY;
+      now = epoch + dt/GmatTimeConstants::SECS_PER_DAY;
       Real relativePosition[3];
       bodyrv = body->GetState(now);
       orig = forceOrigin->GetState(now);

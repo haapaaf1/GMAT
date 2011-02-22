@@ -20,7 +20,6 @@
 #define StopCondition_hpp
 
 #include "gmatdefs.hpp"
-#include "RealTypes.hpp"
 
 #include "paramdefs.hpp"
 #include "GmatBase.hpp"

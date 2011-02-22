@@ -23,6 +23,7 @@
 #include "ParameterException.hpp"
 #include "Rvector3.hpp"
 #include "RealUtilities.hpp"
+#include "GmatConstants.hpp"
 #include "Linear.hpp"
 #include "Keplerian.hpp"         // for Cartesian to Keplerian elements
 #include "AngleUtil.hpp"
@@ -30,7 +31,6 @@
 #include "ModKeplerian.hpp"      // for friend KeplerianToModKeplerian()
 //#include "Equinoctial.hpp"
 #include "CelestialBody.hpp"
-#include "OrbitTypes.hpp"        // for KEP_TOL, KEP_ZERO_TOL
 #include "StringUtil.hpp"        // for ToString()
 #include "MessageInterface.hpp"
 
@@ -204,7 +204,7 @@ void OrbitData::SetReal(Integer item, Real rval)
    {
       MessageInterface::ShowMessage
          ("*** INTERNAL ERROR *** Cannot find Spacecraft object so returning %f\n",
-          GmatOrbit::ORBIT_REAL_UNDEFINED);
+          GmatOrbitConstants::ORBIT_REAL_UNDEFINED);
    }
    
    switch (item)
@@ -251,7 +251,7 @@ void OrbitData::SetRvector6(const Rvector6 &val)
    {
       MessageInterface::ShowMessage
          ("*** INTERNAL ERROR *** Cannot find Spacecraft object so returning %f\n",
-          GmatOrbit::ORBIT_REAL_UNDEFINED);
+          GmatOrbitConstants::ORBIT_REAL_UNDEFINED);
    }
    
    mSpacecraft->SetState(val);
@@ -524,7 +524,7 @@ Real OrbitData::GetKepReal(Integer item)
    Rvector3 vel(state[3], state[4], state[5]);   
    Real rMag = pos.GetMagnitude();
    
-   if (rMag < GmatOrbit::KEP_ZERO_TOL)
+   if (rMag < GmatOrbitConstants::KEP_ZERO_TOL)
       throw ParameterException
          ("OrbitData::GetKepReal(" + GmatRealUtil::ToString(item) +
           ") position vector is zero. pos: " + pos.ToString() + " vel: " +
@@ -599,7 +599,7 @@ Real OrbitData::GetOtherKepReal(Integer item)
    Real sma = Keplerian::CartesianToSMA(mGravConst, pos, vel);   
    Real ecc = Keplerian::CartesianToECC(mGravConst, pos, vel);
    
-   if (GmatMathUtil::Abs(1.0 - ecc) <= GmatOrbit::KEP_ECC_TOL)
+   if (GmatMathUtil::Abs(1.0 - ecc) <= GmatOrbitConstants::KEP_ECC_TOL)
    {
       throw ParameterException
          ("In OrbitData, Error in conversion to Keplerian state: "
@@ -618,14 +618,14 @@ Real OrbitData::GetOtherKepReal(Integer item)
    switch (item)
    {
    case MM:
-      if (ecc < (1.0 - GmatOrbit::KEP_ECC_TOL))      // Ellipse
+      if (ecc < (1.0 - GmatOrbitConstants::KEP_ECC_TOL))      // Ellipse
          return Sqrt(grav / (sma*sma*sma));
-      else if (ecc > (1.0 + GmatOrbit::KEP_ECC_TOL)) // Hyperbola 
+      else if (ecc > (1.0 + GmatOrbitConstants::KEP_ECC_TOL)) // Hyperbola 
          return Sqrt(-(grav / (sma*sma*sma)));
       else                         
          return 2.0 * Sqrt(grav); // Parabola
    case VEL_APOAPSIS:
-      if ( (ecc < 1.0 - GmatOrbit::KEP_ECC_TOL) || (ecc > 1.0 + GmatOrbit::KEP_ECC_TOL))  //Ellipse and Hyperbola
+      if ( (ecc < 1.0 - GmatOrbitConstants::KEP_ECC_TOL) || (ecc > 1.0 + GmatOrbitConstants::KEP_ECC_TOL))  //Ellipse and Hyperbola
          return Sqrt( (grav/sma)*((1-ecc)/(1+ecc)) );  
       else
          return 0.0; // Parabola  
@@ -635,9 +635,9 @@ Real OrbitData::GetOtherKepReal(Integer item)
       if (sma < 0.0)
          return 0.0;
       else
-         return GmatMathUtil::TWO_PI * Sqrt((sma * sma * sma)/ grav);
+         return GmatMathConstants::TWO_PI * Sqrt((sma * sma * sma)/ grav);
    case RAD_APOAPSIS:
-	   if ( (ecc < 1.0 - GmatOrbit::KEP_ECC_TOL) || (ecc > 1.0 + GmatOrbit::KEP_ECC_TOL)) //Ellipse and Hyperbola
+	   if ( (ecc < 1.0 - GmatOrbitConstants::KEP_ECC_TOL) || (ecc > 1.0 + GmatOrbitConstants::KEP_ECC_TOL)) //Ellipse and Hyperbola
          return sma * (1.0 + ecc);
 	  else
 		 return 0.0;   // Parabola
@@ -776,7 +776,7 @@ Real OrbitData::GetAngularReal(Integer item)
             h = Sqrt(hVec3 * hVec3);
          }
          
-         if (h < GmatOrbit::KEP_TOL)
+         if (h < GmatOrbitConstants::KEP_TOL)
             return 0.0;
          else
             return (h / grav) * h;      // B M W; eq. 1.6-1
@@ -845,7 +845,7 @@ Real OrbitData::GetOtherAngleReal(Integer item)
          
          // Math Spec change: eq. 4.99 on 2006/12/11
          //Real betaAngle = ACos(hVec3*originToSun) * DEG_PER_RAD;
-         Real betaAngle = ASin(hVec3*originToSun) * DEG_PER_RAD;
+         Real betaAngle = ASin(hVec3*originToSun) * GmatMathConstants::DEG_PER_RAD;
          return betaAngle;
       }
    default:
@@ -880,7 +880,7 @@ Real OrbitData::GetEquinReal(Integer item)
    Rvector3 vel(state[3], state[4], state[5]);   
    Real rMag = pos.GetMagnitude();
    
-   if (rMag < GmatOrbit::KEP_ZERO_TOL)
+   if (rMag < GmatOrbitConstants::KEP_ZERO_TOL)
       throw ParameterException
          ("OrbitData::GetEquiReal(" + GmatRealUtil::ToString(item) +
           ") position vector is zero. pos: " + pos.ToString() + " vel: " +

@@ -23,6 +23,7 @@
 #include "MessageInterface.hpp"
 #include "Keplerian.hpp"
 #include "RealUtilities.hpp"
+#include "GmatConstants.hpp"
 #include "UtilityException.hpp"
 #include "StringUtil.hpp"
 #include <sstream>
@@ -30,6 +31,7 @@
 //#define DEBUG_ANOMALY 1
 
 using namespace GmatMathUtil;
+using namespace GmatMathConstants;
 
 //---------------------------------
 // static data

@@ -41,7 +41,7 @@ public:
    // inherited from GmatBase
    virtual GmatBase* Clone() const;
     
-   bool Density(Real *position, Real *density, Real epoch = GmatTimeUtil::MJD_OF_J2000,
+   bool Density(Real *position, Real *density, Real epoch = GmatTimeConstants::MJD_OF_J2000,
                 Integer count = 1);
    virtual void SetCentralBody(CelestialBody *cb);
 

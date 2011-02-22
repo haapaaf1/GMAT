@@ -21,6 +21,7 @@
  */
 //------------------------------------------------------------------------------
 #include "GroundStationPanel.hpp"
+#include "GmatConstants.hpp"
 #include "MessageInterface.hpp"
 #include "GmatStaticBoxSizer.hpp"
 #include "BodyFixedStateConverter.hpp"
@@ -558,8 +559,8 @@ void GroundStationPanel::OnStateTypeComboBoxChange(wxCommandEvent &event)
       Rvector3 locInCurrent(location1, location2, location3);
       if (currentStateType == "Spherical") // latitude and longitude need to be passed in as radians
       {
-         locInCurrent[0] *= GmatMathUtil::RAD_PER_DEG;
-         locInCurrent[1] *= GmatMathUtil::RAD_PER_DEG;
+         locInCurrent[0] *= GmatMathConstants::RAD_PER_DEG;
+         locInCurrent[1] *= GmatMathConstants::RAD_PER_DEG;
       }
       Rvector3 locInNew = BodyFixedStateConverterUtil::Convert(locInCurrent, currentStateType,
                           currentHorizonReference, sttype, currentHorizonReference,
@@ -569,8 +570,8 @@ void GroundStationPanel::OnStateTypeComboBoxChange(wxCommandEvent &event)
       location3 = locInNew[2];
       if (sttype == "Spherical") // need to display DEGREES for latitude and longitude
       {
-         location1 *= GmatMathUtil::DEG_PER_RAD;
-         location2 *= GmatMathUtil::DEG_PER_RAD;
+         location1 *= GmatMathConstants::DEG_PER_RAD;
+         location2 *= GmatMathConstants::DEG_PER_RAD;
       }
       localGroundStation->SetStringParameter(BodyFixedPoint::STATE_TYPE, sttype);
       localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_1, location1);
@@ -625,8 +626,8 @@ void GroundStationPanel::OnHorizonReferenceComboBoxChange(wxCommandEvent &event)
       Rvector3 locInCurrent(location1, location2, location3);
       if (currentStateType == "Spherical") // latitude and longitude need to be passed in as radians
       {
-         locInCurrent[0] *= GmatMathUtil::RAD_PER_DEG;
-         locInCurrent[1] *= GmatMathUtil::RAD_PER_DEG;
+         locInCurrent[0] *= GmatMathConstants::RAD_PER_DEG;
+         locInCurrent[1] *= GmatMathConstants::RAD_PER_DEG;
       }
       MessageInterface::ShowMessage(" ... Spherical to new horizon ... loc = %12.10f  %12.10f  %12.10f\n",
             locInCurrent[0], locInCurrent[1], locInCurrent[2]); // *************************
@@ -640,8 +641,8 @@ void GroundStationPanel::OnHorizonReferenceComboBoxChange(wxCommandEvent &event)
       location3 = locInNew[2];
       if (currentStateType == "Spherical") // need to display DEGREES for latitude and longitude
       {
-         location1 *= GmatMathUtil::DEG_PER_RAD;
-         location2 *= GmatMathUtil::DEG_PER_RAD;
+         location1 *= GmatMathConstants::DEG_PER_RAD;
+         location2 *= GmatMathConstants::DEG_PER_RAD;
       }
       localGroundStation->SetStringParameter(BodyFixedPoint::HORIZON_REFERENCE, horizon);
       localGroundStation->SetRealParameter(BodyFixedPoint::LOCATION_1, location1);

@@ -19,7 +19,7 @@
  * dates and times.
  */
 //------------------------------------------------------------------------------
-#include "TimeTypes.hpp"
+#include "GmatConstants.hpp"
 #include "Date.hpp"
 #include "DateUtil.hpp"
 #include "RealUtilities.hpp"  // for namespace GmatMathUtil
@@ -153,7 +153,7 @@ Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
     // of a day term to gain significant digits after the decimal place.
     // The computation is copied from the Julian Date method.
 //   Real jd =  JulianDate(year, month, day, hour, minute, second);
-//   return (jd - GmatTimeUtil::JULIAN_DATE_OF_010541);
+//   return (jd - GmatTimeConstants::JULIAN_DATE_OF_010541);
 
    //Integer computeYearMon = ( 7*(year + (Integer)(month + 9)/12 ) )/4;
    Integer computeYearMon = ( 7*(year + (Integer)((month + 9)/12)) )/4;
@@ -161,7 +161,7 @@ Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
    Real fractionalDay = ((second/60.0 + minute)/60.0 + hour)/24.0;
 
    Real ModJulianDay = 367*year - computeYearMon + computeMonth + day +
-               1721013.5 -  GmatTimeUtil::JULIAN_DATE_OF_010541;
+               1721013.5 -  GmatTimeConstants::JULIAN_DATE_OF_010541;
    Real modJulianDate = ModJulianDay  + fractionalDay;
 
    return modJulianDate;
@@ -259,9 +259,9 @@ void ToMonthDayFromYearDOY (Integer year, Integer dayOfYear, Integer& month,
       throw Date::TimeRangeError();    
    
    if (IsLeapYear(year))
-      ptrDaysList = GmatTimeUtil::LEAP_YEAR_DAYS_BEFORE_MONTH;
+      ptrDaysList = GmatTimeConstants::LEAP_YEAR_DAYS_BEFORE_MONTH;
    else
-      ptrDaysList = GmatTimeUtil::DAYS_BEFORE_MONTH;
+      ptrDaysList = GmatTimeConstants::DAYS_BEFORE_MONTH;
       
    for (i=1; i<12; i++)
       if (dayOfYear <= ptrDaysList[i])
@@ -288,9 +288,9 @@ Integer ToDOYFromYearMonthDay (Integer year, Integer month, Integer day)
       throw Date::TimeRangeError();    
 
    if (IsLeapYear(year) == true)
-      d = GmatTimeUtil::LEAP_YEAR_DAYS_BEFORE_MONTH[month-1] + day;
+      d = GmatTimeConstants::LEAP_YEAR_DAYS_BEFORE_MONTH[month-1] + day;
    else
-      d = GmatTimeUtil::DAYS_BEFORE_MONTH[month-1] + day;
+      d = GmatTimeConstants::DAYS_BEFORE_MONTH[month-1] + day;
 
    return d;
 }
@@ -315,7 +315,7 @@ Real ToSecondsOfDayFromHMS (Integer hour, Integer minute, Real second)
       throw Date::TimeRangeError();
    }        
 
-   secondsOfDay = (Real)hour * GmatTimeUtil::SECS_PER_HOUR + (Real)minute * 60.0 + second;
+   secondsOfDay = (Real)hour * GmatTimeConstants::SECS_PER_HOUR + (Real)minute * 60.0 + second;
    return secondsOfDay.Get();
 }
 
@@ -342,12 +342,12 @@ void ToHMSFromSecondsOfDay (Real secsOfDay, Integer& hour, Integer& minute,
    if (secsOfDay  < 0.0 || secsOfDay > maxSecondsPerDay)
       throw Date::TimeRangeError();
 
-   h = (Integer)(GmatMathUtil::Floor(secsOfDay/GmatTimeUtil::SECS_PER_HOUR));  // constrain hours to 0..23
+   h = (Integer)(GmatMathUtil::Floor(secsOfDay/GmatTimeConstants::SECS_PER_HOUR));  // constrain hours to 0..23
    if (h >= 24)
       h = 23;
 
    hour = h;
-   remainder = secsOfDay - (Real)h * GmatTimeUtil::SECS_PER_HOUR;
+   remainder = secsOfDay - (Real)h * GmatTimeConstants::SECS_PER_HOUR;
    m = (Integer)(GmatMathUtil::Floor(remainder / 60.0));  // constrain minutes to 0..59
    if (m >= 60)
       m = 59;
@@ -371,9 +371,9 @@ bool IsValidTime (Integer year, Integer month, Integer day,
    const Integer *ptrDaysList;
    
    if (IsLeapYear(year))
-      ptrDaysList = GmatTimeUtil::LEAP_YEAR_DAYS_IN_MONTH;
+      ptrDaysList = GmatTimeConstants::LEAP_YEAR_DAYS_IN_MONTH;
    else
-      ptrDaysList = GmatTimeUtil::DAYS_IN_MONTH;
+      ptrDaysList = GmatTimeConstants::DAYS_IN_MONTH;
    
    // check month and day
    if ((month >= 1 && month <= 12) && (day >=1 && day <= ptrDaysList[month-1]))

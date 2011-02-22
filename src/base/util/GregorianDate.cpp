@@ -278,7 +278,7 @@ void GregorianDate::ParseOut(const std::string &str)
          Integer monthNum = 0;
          for (int i=0; i<12; i++)
          {
-            if (GmatTimeUtil::MONTH_NAME_TEXT[i] == dateToken.GetToken(1))
+            if (GmatTimeConstants::MONTH_NAME_TEXT[i] == dateToken.GetToken(1))
             {
                monthFound = true;
                monthNum = i+1;
@@ -510,5 +510,5 @@ std::string GregorianDate::GetMonthName(const Integer month)
       return "";
    }
 
-   return GmatTimeUtil::MONTH_NAME_TEXT[month-1];
+   return GmatTimeConstants::MONTH_NAME_TEXT[month-1];
 }

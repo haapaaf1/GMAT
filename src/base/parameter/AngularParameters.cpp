@@ -20,7 +20,6 @@
 //------------------------------------------------------------------------------
 
 #include "AngularParameters.hpp"
-#include "OrbitTypes.hpp"
 
 //==============================================================================
 //                              SemilatusRectum
@@ -112,7 +111,7 @@ bool SemilatusRectum::Evaluate()
 {
    mRealValue = OrbitData::GetAngularReal(SEMILATUS_RECTUM);    
     
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -225,7 +224,7 @@ bool AngularMomentumMag::Evaluate()
 {
    mRealValue = OrbitData::GetAngularReal(HMAG);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -338,7 +337,7 @@ bool AngularMomentumX::Evaluate()
 {
    mRealValue = OrbitData::GetAngularReal(HX);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -451,7 +450,7 @@ bool AngularMomentumY::Evaluate()
 {
    mRealValue = OrbitData::GetAngularReal(HY);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -563,7 +562,7 @@ bool AngularMomentumZ::Evaluate()
 {
    mRealValue = OrbitData::GetAngularReal(HZ);    
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;
@@ -677,7 +676,7 @@ bool BetaAngle::Evaluate()
 {
    mRealValue = OrbitData::GetOtherAngleReal(BETA_ANGLE);
    
-   if (mRealValue == GmatOrbit::ORBIT_REAL_UNDEFINED)
+   if (mRealValue == GmatOrbitConstants::ORBIT_REAL_UNDEFINED)
       return false;
    else
       return true;

@@ -493,7 +493,7 @@ void Epoch::DefineDefault()
 {
    format = FORMAT[TAI_MJD];
    std::stringstream epochString("");
-   epochString >> GmatTimeUtil::MJD_OF_J2000;
+   epochString >> GmatTimeConstants::MJD_OF_J2000;
    value = epochString.str();
 }
 

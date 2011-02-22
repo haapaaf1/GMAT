@@ -216,7 +216,7 @@ void Spinner::ComputeCosineMatrixAndAngularVelocity(Real atTime)
    
    // Calculate RBIt, where t = atTime
    Real      dt             = (atTime - epoch) * 
-                              GmatTimeUtil::SECS_PER_DAY;
+                              GmatTimeConstants::SECS_PER_DAY;
    // Compute the Euler angle
    Real      theEAngle      = initialwMag * dt;
    Rmatrix33 RBB0t          = Attitude::EulerAxisAndAngleToDCM(

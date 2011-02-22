@@ -139,7 +139,7 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
     case TimeConverterUtil::A1MJD:
     case TimeConverterUtil::A1:
         return (origValue -
-             (GmatTimeUtil::A1_TAI_OFFSET/GmatTimeUtil::SECS_PER_DAY));
+             (GmatTimeConstants::A1_TAI_OFFSET/GmatTimeConstants::SECS_PER_DAY));
     case TimeConverterUtil::TAIMJD:
     case TimeConverterUtil::TAI:
         return origValue;
@@ -148,11 +148,11 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
     {
         Real offsetValue = 0;
     
-        if (refJd != GmatTimeUtil::JD_NOV_17_1858)
+        if (refJd != GmatTimeConstants::JD_NOV_17_1858)
         {
            // DJC: 6/16/05 Reversed order of difference so future times are positive
-           // offsetValue = GmatTimeUtil::JD_NOV_17_1858 - refJd;
-           offsetValue = refJd - GmatTimeUtil::JD_NOV_17_1858;
+           // offsetValue = GmatTimeConstants::JD_NOV_17_1858 - refJd;
+           offsetValue = refJd - GmatTimeConstants::JD_NOV_17_1858;
         }
     
         //loj: 4/12/05 Added
@@ -169,7 +169,7 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
               "      CVT to TAI, Leap secs count = %.14lf\n", numLeapSecs);
         #endif
     
-        return (origValue + (numLeapSecs/GmatTimeUtil::SECS_PER_DAY));
+        return (origValue + (numLeapSecs/GmatTimeConstants::SECS_PER_DAY));
     }
     case TimeConverterUtil::UT1MJD:
     case TimeConverterUtil::UT1:
@@ -179,17 +179,17 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
         
         Real offsetValue = 0;
         
-        if (refJd != GmatTimeUtil::JD_NOV_17_1858)
+        if (refJd != GmatTimeConstants::JD_NOV_17_1858)
         {
-           offsetValue = GmatTimeUtil::JD_NOV_17_1858 - refJd;
+           offsetValue = GmatTimeConstants::JD_NOV_17_1858 - refJd;
         }
     
         Real ut1Offset = theEopFile->GetUt1UtcOffset(origValue + offsetValue);
         Real utcOffset = theEopFile->GetUt1UtcOffset((origValue + offsetValue)
-            - (ut1Offset/GmatTimeUtil::SECS_PER_DAY));
+            - (ut1Offset/GmatTimeConstants::SECS_PER_DAY));
         
         return (TimeConverterUtil::ConvertToTaiMjd(TimeConverterUtil::UTCMJD,
-                 (origValue - (utcOffset/GmatTimeUtil::SECS_PER_DAY)), refJd));
+                 (origValue - (utcOffset/GmatTimeConstants::SECS_PER_DAY)), refJd));
     }
     case TimeConverterUtil::TDBMJD:
     case TimeConverterUtil::TDB:
@@ -201,10 +201,10 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
        // here should be in TT rather than the input TDB, but we do not know TT
        Real t_TT = (origValue - tttOffset) / T_TT_COEFF1;
        Real m_E = (M_E_OFFSET + (M_E_COEFF1 * t_TT)) *
-             GmatMathUtil::RAD_PER_DEG;
+             GmatMathConstants::RAD_PER_DEG;
 
        Real offset = ((TDB_COEFF1 *Sin(m_E)) + (TDB_COEFF2 * Sin(2 * m_E))) /
-             GmatTimeUtil::SECS_PER_DAY ;
+             GmatTimeConstants::SECS_PER_DAY ;
 
        Real ttJd = origValue - offset;
        Real taiJd = TimeConverterUtil::ConvertToTaiMjd(TimeConverterUtil::TTMJD,
@@ -239,7 +239,7 @@ Real TimeConverterUtil::ConvertToTaiMjd(Integer fromType, Real origValue,
     case TimeConverterUtil::TTMJD:
     case TimeConverterUtil::TT:
           return (origValue -
-             (GmatTimeUtil::TT_TAI_OFFSET/GmatTimeUtil::SECS_PER_DAY));
+             (GmatTimeConstants::TT_TAI_OFFSET/GmatTimeConstants::SECS_PER_DAY));
     default:
          ;
    }
@@ -275,7 +275,7 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
              MessageInterface::ShowMessage("      In the 'a1' block\n");
           #endif
           return (origValue +
-                 (GmatTimeUtil::A1_TAI_OFFSET/GmatTimeUtil::SECS_PER_DAY));      
+                 (GmatTimeConstants::A1_TAI_OFFSET/GmatTimeConstants::SECS_PER_DAY));
       }
       case TimeConverterUtil::TAIMJD:
       case TimeConverterUtil::TAI:
@@ -294,10 +294,10 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
           #endif
           Real offsetValue = 0;
     
-          if (refJd != GmatTimeUtil::JD_NOV_17_1858)
+          if (refJd != GmatTimeConstants::JD_NOV_17_1858)
           {
-             //offsetValue = GmatTimeUtil::JD_NOV_17_1858 - refJd;
-             offsetValue = refJd - GmatTimeUtil::JD_NOV_17_1858;
+             //offsetValue = GmatTimeConstants::JD_NOV_17_1858 - refJd;
+             offsetValue = refJd - GmatTimeConstants::JD_NOV_17_1858;
           }
     
           //loj: 4/12/05 Added
@@ -311,7 +311,7 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
           Real utcLeapSecs =
              theLeapSecsFileReader->
              NumberOfLeapSecondsFrom((origValue + offsetValue)
-                                     - (taiLeapSecs/GmatTimeUtil::SECS_PER_DAY));
+                                     - (taiLeapSecs/GmatTimeConstants::SECS_PER_DAY));
     
           #ifdef DEBUG_TIMECONVERTER_DETAILS
              MessageInterface::ShowMessage("      offsetValue = %.17lf\n",
@@ -321,9 +321,9 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
           #endif
     
           if (utcLeapSecs == taiLeapSecs)
-             return (origValue - (taiLeapSecs/GmatTimeUtil::SECS_PER_DAY));
+             return (origValue - (taiLeapSecs/GmatTimeConstants::SECS_PER_DAY));
           else
-             return (origValue - (utcLeapSecs/GmatTimeUtil::SECS_PER_DAY));
+             return (origValue - (utcLeapSecs/GmatTimeConstants::SECS_PER_DAY));
        }
       case TimeConverterUtil::UT1MJD:
       case TimeConverterUtil::UT1:
@@ -337,10 +337,10 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
     
           Real offsetValue = 0;
     
-          if (refJd != GmatTimeUtil::JD_NOV_17_1858)
+          if (refJd != GmatTimeConstants::JD_NOV_17_1858)
           {
-             //offsetValue = GmatTimeUtil::JD_NOV_17_1858 - refJd;
-             offsetValue = refJd - GmatTimeUtil::JD_NOV_17_1858;
+             //offsetValue = GmatTimeConstants::JD_NOV_17_1858 - refJd;
+             offsetValue = refJd - GmatTimeConstants::JD_NOV_17_1858;
           }
           // convert origValue to utc
           Real utcMjd = TimeConverterUtil::ConvertFromTaiMjd(TimeConverterUtil::UTCMJD, 
@@ -363,7 +363,7 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
     
           // add delta ut1 read from eop file
           //return (utcMjd + numOffset);
-          return (utcMjd + (numOffset/GmatTimeUtil::SECS_PER_DAY));
+          return (utcMjd + (numOffset/GmatTimeConstants::SECS_PER_DAY));
        }
       case TimeConverterUtil::TDBMJD:
       case TimeConverterUtil::TDB:      
@@ -382,9 +382,9 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
 
              // compute M_E
              Real m_E = (M_E_OFFSET + (M_E_COEFF1 * t_TT)) *
-                   GmatMathUtil::RAD_PER_DEG;
+                   GmatMathConstants::RAD_PER_DEG;
              Real offset = ((TDB_COEFF1 *Sin(m_E)) +
-                   (TDB_COEFF2 * Sin(2 * m_E))) / GmatTimeUtil::SECS_PER_DAY;
+                   (TDB_COEFF2 * Sin(2 * m_E))) / GmatTimeConstants::SECS_PER_DAY;
              Real tdbJd = ttJd + offset;
              return tdbJd;
           }
@@ -399,10 +399,10 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
                 origValue, refJd);
           //Real jdValue = origValue;  // but this is TAI
           Real jdValue = tdbMjd;
-          //Real offset = L_B * ((jdValue + refJd) - TCB_JD_MJD_OFFSET) * GmatTimeUtil::SECS_PER_DAY;
+          //Real offset = L_B * ((jdValue + refJd) - TCB_JD_MJD_OFFSET) * GmatTimeConstants::SECS_PER_DAY;
           Real offset = L_B * ((jdValue + refJd) - TCB_JD_MJD_OFFSET);
           // units of offset are in seconds, so convert to fraction of days
-          //return ((offset / GmatTimeUtil::SECS_PER_DAY) + tdbMjd);
+          //return ((offset / GmatTimeConstants::SECS_PER_DAY) + tdbMjd);
           return (offset + tdbMjd);
        }
        case TimeConverterUtil::TTMJD:
@@ -412,7 +412,7 @@ Real TimeConverterUtil::ConvertFromTaiMjd(Integer toType, Real origValue,
              MessageInterface::ShowMessage("      In the 'tt' block\n");
           #endif
           return (origValue +
-                 (GmatTimeUtil::TT_TAI_OFFSET/GmatTimeUtil::SECS_PER_DAY));
+                 (GmatTimeConstants::TT_TAI_OFFSET/GmatTimeConstants::SECS_PER_DAY));
        }       
        default:
         ;
@@ -667,7 +667,7 @@ void TimeConverterUtil::Convert(const std::string &fromType, Real fromMjd,
       Integer fromId = TimeConverterUtil::GetTimeTypeID(fromSystem);
       Integer toId = TimeConverterUtil::GetTimeTypeID(toSystem);
       toMjd = TimeConverterUtil::Convert(fromMjdVal, fromId, 
-                                         toId, GmatTimeUtil::JD_JAN_5_1941);
+                                         toId, GmatTimeConstants::JD_JAN_5_1941);
    }
    else
    {

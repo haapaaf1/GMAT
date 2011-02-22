@@ -21,6 +21,7 @@
 #include "ParameterException.hpp"
 #include "Rvector3.hpp"
 #include "RealUtilities.hpp"   // for Sqrt()
+#include "GmatConstants.hpp"
 #include "UtilityException.hpp"
 #include "CelestialBody.hpp"
 #include "Linear.hpp"           // for GmatRealUtil::ToString()
@@ -257,7 +258,7 @@ Real BplaneData::GetBplaneReal(Integer item)
    case B_VECTOR_MAG:
       return Sqrt(bDotT*bDotT + bDotR*bDotR);
    case B_VECTOR_ANGLE:
-      return ATan(bDotR, bDotT) * GmatMathUtil::DEG_PER_RAD;
+      return ATan(bDotR, bDotT) * GmatMathConstants::DEG_PER_RAD;
    default:
       throw ParameterException
          ("BplaneData::GetBplaneReal() Unknown parameter ID: " +

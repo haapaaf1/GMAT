@@ -21,15 +21,15 @@
 
 #include "gmatdefs.hpp"
 #include "TimeTypes.hpp"
-#include "RealTypes.hpp"
+#include "GmatConstants.hpp"
 
 class GMAT_API ElapsedTime
 {
 public:
 
 //ElapsedTime();
-   ElapsedTime(const Real &secs = 0.0, const Real tol = GmatRealConst::REAL_EPSILON);
-   ElapsedTime(const ElapsedTime &elapsedTime, const Real tol = GmatRealConst::REAL_EPSILON);
+   ElapsedTime(const Real &secs = 0.0, const Real tol = GmatRealConstants::REAL_EPSILON);
+   ElapsedTime(const ElapsedTime &elapsedTime, const Real tol = GmatRealConstants::REAL_EPSILON);
    ElapsedTime& operator=(const ElapsedTime &right); 
    virtual ~ElapsedTime();
 

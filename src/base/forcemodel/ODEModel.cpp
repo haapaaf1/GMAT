@@ -797,7 +797,7 @@ void ODEModel::UpdateSpaceObject(Real newEpoch)
    previousState = (*state);
    memcpy(state->GetState(), rawState, vectorSize);
    
-   Real newepoch = epoch + elapsedTime / GmatTimeUtil::SECS_PER_DAY;
+   Real newepoch = epoch + elapsedTime / GmatTimeConstants::SECS_PER_DAY;
    
    // Update the epoch if it was passed in
    if (newEpoch != -1.0)
@@ -868,7 +868,7 @@ void ODEModel::RevertSpaceObject()
           prevElapsedTime, elapsedTime);
    #endif
 
-   elapsedTime = prevElapsedTime;//previousState.GetEpoch();// * GmatTimeUtil::SECS_PER_DAY;
+   elapsedTime = prevElapsedTime;//previousState.GetEpoch();// * GmatTimeConstants::SECS_PER_DAY;
 
    memcpy(rawState, previousState.GetState(), dimension*sizeof(Real));
    MoveToOrigin();
@@ -1946,7 +1946,7 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
             {
                Rvector6 offset = objBody->GetMJ2000State(((SpaceObject*)
                      (dynamicObjects[i]))->GetEpoch() + dt /
-                     GmatTimeUtil::SECS_PER_DAY);
+                     GmatTimeConstants::SECS_PER_DAY);
 
                dynamicObjects[i]->SetRealParameter(dynamicIDs[i],
                      state[dynamicsIndex[i]] +

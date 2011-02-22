@@ -86,7 +86,7 @@ EphemerisPropagator::EphemerisPropagator(const std::string & typeStr,
    parameterCount = EphemerisPropagatorParamCount;
 
    std::stringstream epochString("");
-   epochString << GmatTimeUtil::MJD_OF_J2000;
+   epochString << GmatTimeConstants::MJD_OF_J2000;
    startEpoch = epochString.str();
 }
 
@@ -1261,13 +1261,13 @@ void EphemerisPropagator::UpdateSpaceObject(Real newEpoch)
       stateSize = newState->GetSize();
       vectorSize = stateSize * sizeof(Real);
 
-      currentEpoch = initialEpoch + timeFromEpoch / GmatTimeUtil::SECS_PER_DAY;
+      currentEpoch = initialEpoch + timeFromEpoch / GmatTimeConstants::SECS_PER_DAY;
 
       // Update the epoch if it was passed in
       if (newEpoch != -1.0)
       {
          currentEpoch = newEpoch;
-         timeFromEpoch = (currentEpoch-initialEpoch) * GmatTimeUtil::SECS_PER_DAY;
+         timeFromEpoch = (currentEpoch-initialEpoch) * GmatTimeConstants::SECS_PER_DAY;
       }
       UpdateState();
 
@@ -1329,8 +1329,8 @@ void EphemerisPropagator::RevertSpaceObject()
           prevElapsedTime, elapsedTime);
    #endif
 
-   timeFromEpoch = (previousState.GetEpoch() - initialEpoch) * GmatTimeUtil::SECS_PER_DAY;
-   currentEpoch = initialEpoch + timeFromEpoch / GmatTimeUtil::SECS_PER_DAY;
+   timeFromEpoch = (previousState.GetEpoch() - initialEpoch) * GmatTimeConstants::SECS_PER_DAY;
+   currentEpoch = initialEpoch + timeFromEpoch / GmatTimeConstants::SECS_PER_DAY;
    UpdateState();
 
    MoveToOrigin();
@@ -1378,7 +1378,7 @@ Real EphemerisPropagator::GetTime()
 void EphemerisPropagator::SetTime(Real t)
 {
    timeFromEpoch = t;
-   currentEpoch = initialEpoch + timeFromEpoch / GmatTimeUtil::SECS_PER_DAY;
+   currentEpoch = initialEpoch + timeFromEpoch / GmatTimeConstants::SECS_PER_DAY;
    UpdateState();
 }
 

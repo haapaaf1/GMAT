@@ -28,11 +28,11 @@
 //#include "SphericalRADEC.hpp"
 #include "MessageInterface.hpp"
 #include "UtilityException.hpp"
-#include "RealTypes.hpp"
+#include "GmatConstants.hpp"
 #include "RealUtilities.hpp"
-#include "OrbitTypes.hpp"
 
 using namespace GmatMathUtil;
+using namespace GmatMathConstants;
 
 //#define DEBUG_STATE_CONVERTER 1
 //#define DEBUG_STATE_CONVERTER_SQRT
@@ -770,7 +770,7 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
    Real e = eVec.GetMagnitude();
 
    // Check for a near parabolic or hyperbolic orbit.
-   if ( e > 1.0 - GmatOrbit::KEP_ECC_TOL)
+   if ( e > 1.0 - GmatOrbitConstants::KEP_ECC_TOL)
    {
       std::string errmsg = 
             "Error: Cannot convert to Equinoctial elements because the orbit is either parabolic or hyperbolic.\n";
@@ -794,8 +794,8 @@ Rvector6 StateConverter::CartesianToEquinoctial(const Rvector6& cartesian, const
    }
 
    Rvector3 am = Cross(pos, vel).GetUnitVector();
-   Real inc = ACos((am[2]), GmatOrbit::KEP_TOL);
-   if (inc >= PI - GmatOrbit::KEP_TOL)
+   Real inc = ACos((am[2]), GmatOrbitConstants::KEP_TOL);
+   if (inc >= PI - GmatOrbitConstants::KEP_TOL)
    {
       throw UtilityException
          ("Error in conversion to Equinoctial elements: "

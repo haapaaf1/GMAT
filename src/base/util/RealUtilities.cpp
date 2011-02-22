@@ -19,8 +19,8 @@
  */
 //------------------------------------------------------------------------------
 #include <math.h>             // for fabs()
-#include "RealTypes.hpp"
 #include "RealUtilities.hpp"
+#include "GmatConstants.hpp"
 #include "Linear.hpp"         // for GmatRealUtil::
 
 //#define DEBUG_MATH_UTIL
@@ -30,6 +30,7 @@
 #endif
 
 using namespace GmatMathUtil;
+using namespace GmatMathConstants;
 
 //------------------------------------------------------------------------------
 //  Integer Abs(Integer theNumber)
@@ -316,7 +317,7 @@ Real GmatMathUtil::Sin (Real angleInRad, Real cycleInRad)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::SinXOverX (Real angleInRad, Real cycleInRad)
 {
-   if ( Abs(angleInRad) > Pow(10.0,(-(GmatRealConst::REAL_DIG/2)))) 
+   if ( Abs(angleInRad) > Pow(10.0,(-(GmatRealConstants::REAL_DIG/2)))) 
    {
       Real sinValue = GmatMathUtil::Sin(angleInRad, cycleInRad);
       return sinValue/angleInRad;
@@ -387,13 +388,13 @@ Real GmatMathUtil::Tanh (Real angleInRad, Real cycleInRad)
 }
 
 //------------------------------------------------------------------------------
-//  Real ASin (Real x, Real tol=GmatRealConst::REAL_TOL, Real cycleInRad)
+//  Real ASin (Real x, Real tol=GmatRealConstants::REAL_TOL, Real cycleInRad)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::ASin (Real x, Real tol, Real cycleInRad)
 {
    if (cycleInRad <= 0.0) 
       throw RealUtilitiesExceptions::ArgumentError("ASin(angle, cycle <= 0.0)\n");
-//   else if ((fabs(x) - 1.0) > GmatRealConst::REAL_TOL)
+//   else if ((fabs(x) - 1.0) > GmatRealConstants::REAL_TOL)
 //      throw RealUtilitiesExceptions::ArgumentError("ASin(value > 1.0, cycle)\n");
    if ((fabs(x) - 1.0) > 0.0)
    {
@@ -417,7 +418,7 @@ Real GmatMathUtil::ASin (Real x, Real tol, Real cycleInRad)
 
 
 //------------------------------------------------------------------------------
-//  Real ACos (Real x, Real tol=GmatRealConst::REAL_TOL, Real cycleInRad=TWO_PI)
+//  Real ACos (Real x, Real tol=GmatRealConstants::REAL_TOL, Real cycleInRad=TWO_PI)
 //------------------------------------------------------------------------------
 Real GmatMathUtil::ACos (Real x, Real tol, Real cycleInRad)
 {
@@ -757,7 +758,7 @@ void GmatMathUtil::SetRanKey(Real k)
 //---------------------------------------------------------------------------
 //  Real GmatMathUtil::R (Real g, Real f) 
 //  {
-//     if (GmatRealConst::REAL_DIG<11) 
+//     if (GmatRealConstants::REAL_DIG<11) 
 //     {
 //        const Real p0 =1.0;
 //        const Real p1 = -0.1113614403566;
@@ -790,16 +791,16 @@ void GmatMathUtil::SetRanKey(Real k)
 //------------------------------------------------------------------------------
 //  Real GmatMathUtil::Cot(Real x) 
 //  {
-//     static Real Epsilon = pow(GmatRealConst::SHORT_REAL_RADIX, 
-//                               -(GmatRealConst::REAL_MANT_DIG/2));
+//     static Real Epsilon = pow(GmatRealConstants::SHORT_REAL_RADIX, 
+//                               -(GmatRealConstants::REAL_MANT_DIG/2));
 //     static Real YMax = Real(Integer(PI *
-//                                     pow(2, (GmatRealConst::REAL_MANT_DIG/2))));
+//                                     pow(2, (GmatRealConstants::REAL_MANT_DIG/2))));
 //     Real y;
 //     Integer n;
 //     Real    xn;
 //     Real    f,g,x1,x2;
 //     Real    result;
-//     const Real epsilon1 = 1/GmatRealConst::REAL_MAX;
+//     const Real epsilon1 = 1/GmatRealConstants::REAL_MAX;
 //     const Real c1 = 1.57080078125;
 //     const Real c2 = -0.4454455103380768678308e-5;
 

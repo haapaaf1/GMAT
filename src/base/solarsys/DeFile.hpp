@@ -106,7 +106,7 @@ public:
    static const Integer NUTATIONS_ID;
    static const Integer LIBRATIONS_ID;
 
-   static const Real    JD_MJD_OFFSET;// = GmatTimeUtil::JD_JAN_5_1941;
+   static const Real    JD_MJD_OFFSET;// = GmatTimeConstants::JD_JAN_5_1941;
    // seconds offset to get from A1 to TDT (TT)
    static const Real    TT_OFFSET;//     = 32.184;
 

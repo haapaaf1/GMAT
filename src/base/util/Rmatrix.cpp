@@ -95,7 +95,7 @@ Rmatrix::~Rmatrix()
 
 //------------------------------------------------------------------------------
 //  virtual bool IsOrthogonal(Real accuracyRequired)= 
-//                            GmatRealConst::REAL_EPSILON) const
+//                            GmatRealConstants::REAL_EPSILON) const
 //------------------------------------------------------------------------------
 bool Rmatrix::IsOrthogonal(Real accuracyRequired) const 
 {
@@ -146,7 +146,7 @@ bool Rmatrix::IsOrthogonal(Real accuracyRequired) const
 
 //------------------------------------------------------------------------------
 //  virtual bool IsOrthonormal(Real accuracyRequired) = 
-//                             GmatRealConst::REAL_EPSILON)const
+//                             GmatRealConstants::REAL_EPSILON)const
 //------------------------------------------------------------------------------
 bool Rmatrix::IsOrthonormal (Real accuracyRequired) const 
 {
@@ -224,7 +224,7 @@ bool Rmatrix::operator==(const Rmatrix &m)const
                //loj: 5/5/06 used epsilon
                //if (elementD[ii*colsD+jj] != m(ii,jj))
                if (GmatMathUtil::Abs(elementD[ii*colsD+jj] - m(ii,jj)) >
-                   GmatRealConst::REAL_TOL)
+                   GmatRealConstants::REAL_TOL)
                {
                   return false;
                }
@@ -941,7 +941,7 @@ Rmatrix Rmatrix::Inverse() const
    int i, n, j;
    for (n = 0; n < IndexRange; n++) 
    {
-      PivotElement = GmatRealConst::REAL_EPSILON;
+      PivotElement = GmatRealConstants::REAL_EPSILON;
 
       // find pivot element
       for (i = 0; i < IndexRange; i++) 

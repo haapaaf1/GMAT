@@ -23,10 +23,10 @@
 #include "UtcDate.hpp"
 #include "A1Date.hpp"
 #include "TimeTypes.hpp"     // for TimeConst::, UtcMjd
-#include "RealTypes.hpp"
 #include "RealUtilities.hpp" // for Round(), IsEqual(), Floor()
 
 using namespace GmatTimeUtil;
+using namespace GmatTimeConstants;
 using namespace GmatMathUtil;
 
 //---------------------------------
@@ -38,7 +38,7 @@ const std::string A1Mjd::DATA_DESCRIPTIONS[NUM_DATA] =
 };
 
 const A1Mjd A1Mjd::J2000      = A1Mjd(A1MJD_OF_J2000);
-const Real  A1Mjd::mTolerance = GmatRealConst::REAL_EPSILON;
+const Real  A1Mjd::mTolerance = GmatRealConstants::REAL_EPSILON;
 
 
 //------------------------------------------------------------------------------
@@ -597,7 +597,7 @@ CalDate A1Mjd::A1MjdToCalDate(const A1Mjd &a1mjd)
  *       subtracting JD_JAN_5_1941.
  *
  *       A day containing a leap second will appear as though it has only
- *       GmatTimeUtil::SECS_PER_DAY seconds, though the utc (universal time coordinate)
+ *       GmatTimeConstants::SECS_PER_DAY seconds, though the utc (universal time coordinate)
  *       modified julian date covers the entire day.
  */
 //------------------------------------------------------------------------------
@@ -656,7 +656,7 @@ CalDate A1Mjd::UtcMjdToCalDate(const UtcMjd &utcmjd)
    timeArray[5] = NearestInt(seconds * MJDSEC_TO_WHOLE_NUM) / MJDSEC_TO_WHOLE_NUM;
    
    // calculate day, month, and year using the fliegel & van flandern algorithm
-   l = mjd + (68569 + GmatTimeUtil::JD_JAN_5_1941);
+   l = mjd + (68569 + GmatTimeConstants::JD_JAN_5_1941);
    n = 4 * l / 146097;
    l -= (146097 * n + 3) / 4;
    i = 4000 * (l + 1) / 1461001;

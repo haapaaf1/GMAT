@@ -21,6 +21,7 @@
 #include "MessageInterface.hpp"
 #include "CelestialBody.hpp"        // To retrieve radius, flattening factor
 #include "CoordinateSystem.hpp"
+#include "GmatConstants.hpp"
 #include "AngleUtil.hpp"            // For lat, long range setting
 #include "CoordinateConverter.hpp"
 
@@ -898,9 +899,9 @@ Real AtmosphereModel::CalculateGeodetics(Real *position, GmatEpoch when,
    // Only do lat/long (in degrees) if needed
    if (includeLatLong)
    {
-      geoLat = geoLat * GmatMathUtil::DEG_PER_RAD;
+      geoLat = geoLat * GmatMathConstants::DEG_PER_RAD;
       geoLat = AngleUtil::PutAngleInDegRange(geoLat, -90.0, 90.0);
-      geoLong = atan2(state[1], state[0]) * GmatMathUtil::DEG_PER_RAD;
+      geoLong = atan2(state[1], state[0]) * GmatMathConstants::DEG_PER_RAD;
       geoLong = AngleUtil::PutAngleInDegRange(geoLong, -180.0, 180.0);
    }
 

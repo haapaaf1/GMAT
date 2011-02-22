@@ -1955,16 +1955,16 @@ void GmatCommand::BuildCommandSummaryString(bool commandCompleted)
             //TimeConverterUtil::Convert
             Real utcModJulEpoch = TimeConverterUtil::Convert(epochData[i],
                   TimeConverterUtil::A1MJD, TimeConverterUtil::UTCMJD,
-                  GmatTimeUtil::JD_JAN_5_1941);
+                  GmatTimeConstants::JD_JAN_5_1941);
             Real taiModJulEpoch = TimeConverterUtil::Convert(epochData[i],
                   TimeConverterUtil::A1MJD, TimeConverterUtil::TAIMJD,
-                  GmatTimeUtil::JD_JAN_5_1941);
+                  GmatTimeConstants::JD_JAN_5_1941);
             Real ttModJulEpoch = TimeConverterUtil::Convert(epochData[i],
                   TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD,
-                  GmatTimeUtil::JD_JAN_5_1941);
+                  GmatTimeConstants::JD_JAN_5_1941);
             Real tdbModJulEpoch = TimeConverterUtil::Convert(epochData[i],
                   TimeConverterUtil::A1MJD, TimeConverterUtil::TDBMJD,
-                  GmatTimeUtil::JD_JAN_5_1941);
+                  GmatTimeConstants::JD_JAN_5_1941);
             std::string utcString =
                   TimeConverterUtil::ConvertMjdToGregorian(utcModJulEpoch);
             std::string taiString =
