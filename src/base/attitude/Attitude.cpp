@@ -583,7 +583,7 @@ Rvector3 Attitude::ToEulerAngles(const Rmatrix33 &cosMat,
       sin1   = GmatMathUtil::Sin(theta1);
       cos1   = GmatMathUtil::Cos(theta1);  
       return Rvector3(theta1, theta2, 
-            GmatMathUtil::ATan((R23*sin1 - R21*cos1)/(-R13*sin1 + R11*cos1)));
+            GmatMathUtil::ATan((R23*sin1 - R21*cos1),(-R13*sin1 + R11*cos1)));
    }
    else if ((seq1 == 3) && (seq2 == 1) && (seq3 == 2))     // 3-1-2
    {
