@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Epoch
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //
@@ -194,7 +194,7 @@ std::string Epoch::GetValue(const std::string &mFormat) const
    catch(TimeConverter::TimeConverterException &tce)
    {
       std::string msg = "\nEpoch::GetValue() -> Get error from " +
-                         tce.GetMessage() + "\n";
+                         tce.GetFullMessage() + "\n";
       throw EpochException(msg);
    }
 }
@@ -493,7 +493,7 @@ void Epoch::DefineDefault()
 {
    format = FORMAT[TAI_MJD];
    std::stringstream epochString("");
-   epochString >> GmatTimeConstants::MJD_OF_J2000;
+   epochString << GmatTimeConstants::MJD_OF_J2000;
    value = epochString.str();
 }
 
