@@ -38,6 +38,19 @@ namespace GmatTraj
 
 typedef std::vector<GmatTraj::DataType> TrajectoryArray;
 
+#ifdef EXPORT_TEMPLATES
+
+    // Instantiate STL template classes used in GMAT  
+    // This does not create an object. It only forces the generation of all
+    // of the members of the listed classes. It exports them from the DLL 
+    // and imports them into the .exe file.
+
+    // Fix vector of GmatTraj::DataType:
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<GmatTraj::DataType>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<GmatTraj::DataType>;
+
+#endif
+
 class GMAT_API TextTrajectoryFile
 {
 public:

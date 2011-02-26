@@ -107,6 +107,8 @@ GmatFunction::GmatFunction(const std::string &name) :
    }
    catch (GmatBaseException &e)
    {
+      // Use exception to remove Visual C++ warning
+      e.GetMessageType();
       #ifdef DEBUG_FUNCTION
       MessageInterface::ShowMessage(e.GetFullMessage());
       #endif
@@ -119,6 +121,8 @@ GmatFunction::GmatFunction(const std::string &name) :
       }
       catch (GmatBaseException &e)
       {
+         // Use exception to remove Visual C++ warning
+         e.GetMessageType();
          #ifdef DEBUG_FUNCTION
          MessageInterface::ShowMessage(e.GetFullMessage());
          #endif

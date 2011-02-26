@@ -342,7 +342,7 @@ std::string CalculatedPoint::GetStringParameter(const Integer id,
       {
          return bodyNames.at(index);
       }
-      catch (const std::exception &oor)
+      catch (const std::exception &)
       {
          throw SolarSystemException("CalculatedPoint error: index out-of-range.");
       }
@@ -609,7 +609,7 @@ GmatBase* CalculatedPoint::GetRefObject(const Gmat::ObjectType type,
       {
          return bodyList.at(index);
       }
-      catch (const std::exception &oor)
+      catch (const std::exception &)
       {
          throw SolarSystemException(
                "CalculatedPoint error: index out-of-range.");

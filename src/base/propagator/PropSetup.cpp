@@ -1661,7 +1661,7 @@ Integer PropSetup::GetOwnedObjectId(Integer id, Gmat::ObjectType objType) const
          actualId = mODEModel->GetParameterID(GetParameterText(id));
       }
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       throw;
    }

@@ -366,7 +366,7 @@ bool GmatFileUtil::DoesDirectoryExist(const std::string &fullPath, bool blankIsO
    // Save current directory
    DWORD ret = GetCurrentDirectory(BUFFER_SIZE, currDir);
    // Try setting to requested direcotry
-   dirExist = SetCurrentDirectory(dirName.c_str());
+   dirExist = (SetCurrentDirectory(dirName.c_str()) == 0 ? false : true);
    // Set back to current directory
    SetCurrentDirectory(currDir);
 #endif

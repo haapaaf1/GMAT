@@ -728,7 +728,7 @@ bool StopCondition::AddToBuffer(bool isInitialPoint)
    {
       currentParmValue = mStopParam->EvaluateReal();
    }
-   catch (BaseException &be)
+   catch (BaseException &)
    {
       // try with rhsWrapper
       if (lhsWrapper != NULL)

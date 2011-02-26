@@ -970,7 +970,11 @@ Real GmatMathUtil::Pow(Real x, Integer y)
 //------------------------------------------------------------------------------
 bool GmatMathUtil::IsNaN(Real x)
 {
-   return isnan(x);
+   #ifdef _MSC_VER
+      return (isnan(x) == 0 ? false : true);
+   #else
+      return isnan(x);
+   #endif
 }
 
 //------------------------------------------------------------------------------

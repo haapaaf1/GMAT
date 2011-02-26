@@ -129,7 +129,7 @@ bool Spinner::Initialize()
       Rvector bogus2 = refCS->FromMJ2000Eq(epoch, bogus, true);
       RiI  = (refCS->GetLastRotationMatrix()).Transpose();
    }
-   catch (BaseException &be)
+   catch (BaseException &)
    {
       #ifdef DEBUG_SPINNER_INIT
       MessageInterface::ShowMessage(

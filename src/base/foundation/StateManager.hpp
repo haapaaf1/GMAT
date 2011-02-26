@@ -45,6 +45,30 @@ struct GMAT_API ListItem
 };
 
 
+#ifdef EXPORT_TEMPLATES
+
+    // Instantiate STL template classes used in GMAT  
+    // This does not create an object. It only forces the generation of all
+    // of the members of the listed classes. It exports them from the DLL 
+    // and imports them into the .exe file.
+
+    // Fix the vector of ListItem pointers:
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<ListItem*>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<ListItem*>;
+
+   // Fix the map of GmatBase* -> StringArray* pointers:
+   EXPIMP_TEMPLATE template struct DECLSPECIFIER std::less<GmatBase*>;
+   EXPIMP_TEMPLATE template struct DECLSPECIFIER std::pair<GmatBase*, StringArray>;
+   EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<std::pair<GmatBase*, StringArray const>>;
+   EXPIMP_TEMPLATE template class DECLSPECIFIER std::_Tmap_traits<GmatBase*, StringArray, std::less<GmatBase*>, std::allocator<std::pair<GmatBase*, StringArray const>>, false>;
+   EXPIMP_TEMPLATE template class DECLSPECIFIER std::_Tree_nod<std::_Tmap_traits<GmatBase*, StringArray, std::less<GmatBase*>, std::allocator<std::pair<GmatBase*, StringArray const>>, false>>;
+//   EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<std::_Tree_nod<std::_Tmap_traits<GmatBase *,StringArray,std::less<GmatBase *>,std::allocator<std::pair<GmatBase *,const StringArray>>,false>>::_Node >;
+   EXPIMP_TEMPLATE template class DECLSPECIFIER std::map<GmatBase*, StringArray*>;
+   
+#endif
+
+
+
 /**
  * The state manager base class.
  */

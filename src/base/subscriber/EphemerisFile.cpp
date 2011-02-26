@@ -2232,7 +2232,7 @@ bool EphemerisFile::SetEpoch(Integer id, const std::string &value,
    {
       TimeConverterUtil::ValidateTimeFormat(epochFormat, value);
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       if (epochFormat.find("Gregorian") != epochFormat.npos)
          HandleError(id, value, allowedValues, " or value in " + epochFormat +

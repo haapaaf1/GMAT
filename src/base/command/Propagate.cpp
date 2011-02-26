@@ -3292,6 +3292,8 @@ void Propagate::PrepareToPropagate()
       }
       catch (BaseException &ex)
       {
+         // Use exception to remove Visual C++ warning
+         ex.GetMessageType();
          MessageInterface::ShowMessage(
             "Propagate::PrepareToPropagate() Exception while initializing stopping "
             "conditions\n");
@@ -3468,6 +3470,8 @@ void Propagate::PrepareToPropagate()
          }
          catch (BaseException &ex)
          {
+            // Use exception to remove Visual C++ warning
+            ex.GetMessageType();
             MessageInterface::ShowMessage(
                "Propagate::PrepareToPropagate() Exception while initializing stopping "
                "conditions\n");
@@ -3877,6 +3881,8 @@ bool Propagate::Execute()
    }
    catch (BaseException &ex) 
    {
+      // Use exception to remove Visual C++ warning
+      ex.GetMessageType();
       inProgress = false;
       throw;
    }

@@ -749,6 +749,8 @@ bool GmatCommandUtil::FindObject(GmatCommand *cmd, Gmat::ObjectType objType,
       }
       catch (BaseException &e)
       {
+         // Use exception to remove Visual C++ warning
+         e.GetMessageType();
          #ifdef DEBUG_COMMAND_FIND_OBJECT
          MessageInterface::ShowMessage("*** INTERNAL WARNING *** " + e.GetFullMessage());
          #endif
@@ -831,6 +833,8 @@ bool GmatCommandUtil::FindObjectFromSubCommands(GmatCommand *brCmd, Integer leve
          }
          catch (BaseException &e)
          {
+            // Use exception to remove Visual C++ warning
+            e.GetMessageType();
             #ifdef DEBUG_COMMAND_FIND_OBJECT
             MessageInterface::ShowMessage("*** INTERNAL WARNING *** " + e.GetFullMessage());
             #endif

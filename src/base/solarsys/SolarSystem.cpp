@@ -839,7 +839,7 @@ SolarSystem::SolarSystem(std::string withName)
    {
       textureFile   = fm->GetFullPathname(filename);
    }
-   catch (UtilityException &ue)
+   catch (UtilityException &)
    {
       MessageInterface::ShowMessage("Texture map file is missing or unknown for default body %s\n",
                                     SUN_NAME.c_str());
@@ -906,7 +906,7 @@ SolarSystem::SolarSystem(std::string withName)
       {
          textureFile   = fm->GetFullPathname(filename);
       }
-      catch (UtilityException &ue)
+      catch (UtilityException &)
       {
          MessageInterface::ShowMessage("Texture map file is missing or unknown for default body %s\n",
                                        (PLANET_NAMES[ii]).c_str());
@@ -975,7 +975,7 @@ SolarSystem::SolarSystem(std::string withName)
       {
          textureFile   = fm->GetFullPathname(filename);
       }
-      catch (UtilityException &ue)
+      catch (UtilityException &)
       {
          MessageInterface::ShowMessage("Texture map file is missing or unknown for default body %s\n",
                                        (MOON_NAMES[ii]).c_str());

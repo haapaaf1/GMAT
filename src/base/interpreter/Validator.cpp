@@ -340,6 +340,9 @@ bool Validator::CheckUndefinedReference(GmatBase *obj, bool contOnError)
       }
       catch (BaseException &e)
       {
+         // Use exception to remove Visual C++ warning
+         e.GetMessageType();
+
          #ifdef DEBUG_CHECK_OBJECT
          // since command handles setting reference object during initialization,
          // skip if object is command
@@ -2384,7 +2387,7 @@ ElementWrapper* Validator::CreatePropertyWrapper(GmatBase *obj,
       
       return ew;
    }
-   catch (BaseException &be)
+   catch (BaseException &)
    {
       ; // do nothing here
    }

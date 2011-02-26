@@ -3483,7 +3483,7 @@ Integer GmatBase::GetEstimationParameterID(const std::string &param)
    {
       id += GetParameterID(param);
    }
-   catch (BaseException &ex)
+   catch (BaseException &)
    {
       return -1;
    }

@@ -729,7 +729,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
                {
                   lhsWrapper->SetString(rhs);
                }
-               catch (BaseException &be)
+               catch (BaseException &)
                {
                   //throw GmatBaseException
                   //   ("ElementWrapper::SetValue() Cannot set object \"" + lhs +
@@ -867,7 +867,7 @@ bool ElementWrapper::SetValue(ElementWrapper *lhsWrapper, ElementWrapper *rhsWra
       #endif
       return true;
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       // anyting to add here?
       throw;

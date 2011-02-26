@@ -3419,7 +3419,7 @@ bool CelestialBody::SetRefObject(GmatBase *obj,
    {
       trySP = SpacePoint::SetRefObject(obj, type, name);
    }
-   catch (GmatBaseException &e)
+   catch (GmatBaseException &)
    {
       //loj: We don't want to throw an exception here. (2007.12.05)
       //if (!foundHere) throw;

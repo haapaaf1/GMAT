@@ -674,6 +674,8 @@ bool Optimize::ExecuteCallback()
    }
    catch (BaseException &be)
    {
+      // Use exception to remove Visual C++ warning
+      be.GetMessageType();
       //Just rethrow since message is getting too long (loj: 2007.05.11)
       //std::string errorStr = "Optimize:ExecuteCallback: ERROR - " +
       //   be.GetFullMessage() + "\n";

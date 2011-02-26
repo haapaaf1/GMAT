@@ -359,7 +359,7 @@ char* GmatInterface::GetParameter(const std::string &name)
    {
       obj = Moderator::Instance()->GetInternalObject(name);
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       MessageInterface::ShowMessage
          ("*** WARNING *** Could not find \"%s\" in the Sandbox. "
@@ -434,7 +434,7 @@ char* GmatInterface::GetGmatObject(const std::string &name)
    {
       obj = Moderator::Instance()->GetInternalObject(name);
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       MessageInterface::ShowMessage
          ("*** WARNING *** Could not find \"%s\" in the Sandbox. "

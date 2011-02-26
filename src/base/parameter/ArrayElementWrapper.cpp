@@ -494,7 +494,7 @@ void ArrayElementWrapper::SetupWrapper()
       GmatStringUtil::GetArrayIndexVar(description, rowName, columnName,
                                        arrayName);
    }
-   catch (UtilityException &ue)
+   catch (UtilityException &)
    {
       std::string errmsg = "Unable to set up ArrayElementWrapper \"" +
                            description;

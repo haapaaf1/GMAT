@@ -22,6 +22,7 @@
 #include "Solver.hpp"
 #include "MessageInterface.hpp"
 #include "FileManager.hpp"
+#include "OwnedPlot.hpp"            // Replace with a proxy
 
 //#define DEBUG_SOLVER_INIT
 //#define DEBUG_SOLVER_CALC
@@ -297,7 +298,7 @@ bool Solver::Initialize()
          unscaledVariable.push_back(0.0);
       }
    }
-   catch(const std::exception &re)
+   catch(const std::exception &)
    {
       throw SolverException("Range error initializing Solver object %s\n",
             instanceName.c_str());
@@ -363,7 +364,7 @@ Integer Solver::SetSolverVariables(Real *data, const std::string &name)
       variableInitialValues.at(variableCount) = data[0];
       perturbation.at(variableCount) = data[1];
    }
-   catch(const std::exception &re)
+   catch(const std::exception &)
    {
       throw SolverException(
               "Range error setting variable or perturbation in "
@@ -395,7 +396,7 @@ Integer Solver::SetSolverVariables(Real *data, const std::string &name)
       variableMaximumStep.at(variableCount)       = data[4];
       unscaledVariable.at(variableCount)          = data[5];
    }
-   catch(const std::exception &re)
+   catch(const std::exception &)
    {
       throw SolverException(
             "Range error setting variable min/max in SetSolverVariables\n");
@@ -440,7 +441,7 @@ bool Solver::RefreshSolverVariables(Real *data, const std::string &name)
             variableInitialValues.at(n) = data[0];
             perturbation.at(n) = data[1];
          }
-         catch(const std::exception &re)
+         catch(const std::exception &)
          {
             throw SolverException(
                     "Range error setting variable or perturbation in "
@@ -472,7 +473,7 @@ bool Solver::RefreshSolverVariables(Real *data, const std::string &name)
             variableMaximumStep.at(n)       = data[4];
             unscaledVariable.at(n)          = data[5];
          }
-         catch(const std::exception &re)
+         catch(const std::exception &)
          {
             throw SolverException(
                   "Range error setting variable min/max in "

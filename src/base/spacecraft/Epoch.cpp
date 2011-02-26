@@ -271,7 +271,7 @@ bool Epoch::UpdateValue(const Real mValue)
                                                    format);
       value = newValue;
    }
-   catch (TimeConverter::TimeConverterException &tce) 
+   catch (TimeConverter::TimeConverterException &) 
    {
       return false;
    }
@@ -303,7 +303,7 @@ bool Epoch::SetValue(const std::string &mFormat)
           value = timeConverter.Convert(value,format,mFormat);
           format = mFormat;
        }
-       catch(UtilityException &ue)
+       catch(UtilityException &)
        {
           return false; 
        }

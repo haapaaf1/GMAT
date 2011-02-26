@@ -3803,7 +3803,7 @@ void Attitude::SetRealArrayFromString(Integer id, const std::string &sval)
       for (UnsignedInt i=0; i<vals.size(); i++)
          SetRealParameter(id, vals[i], i);
    }
-   catch (BaseException &be)
+   catch (BaseException &)
    {
       std::string errmsg = "ERROR attempting to set Attitude or Angular Velocity from string \"";
       errmsg += sval + "\"\n";

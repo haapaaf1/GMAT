@@ -159,23 +159,31 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
    GetInputs(utcEpoch);
 
    int xyd = yd;
-   float xsod = sod;
+   float xsod = (float)sod;
    float xalt; //alt;
    float xlat; // Geodetic Latitude
    float xlon; //lon;
    float xlst;
-   float xf107a = f107a;
-   float xf107 = f107;
+   float xf107a = (float)f107a;
+   float xf107 = (float)f107;
    int xmass;
    float xap[7];
    float xden[8];
    float xtemp[2];
 
    Integer j;
-   for (j = 0; j < 7; j++)  xap[j] = ap[j];
-   for (j = 0; j < 8; j++)  xden[j] = den[j] = 0.0;
-   for (j = 0; j < 2; j++)   xtemp[j] = temp[j] = 0.0;
-
+   for (j = 0; j < 7; j++)  
+      xap[j]   = (float)ap[j];
+   for (j = 0; j < 8; j++)  
+   {
+      den[j]  = 0.0;
+      xden[j] = (float)den[j];
+   }
+   for (j = 0; j < 2; j++)
+   {
+      temp[j]  = 0.0;
+      xtemp[j] = (float)temp[j];
+   }
    for (i = 0; i < count; ++i) 
    {
       i6 = i*6;
@@ -208,10 +216,10 @@ bool Msise90Atmosphere::Density(Real *pos, Real *density, Real epoch,
             ap[3], ap[4], ap[5], ap[6], angVel[0], angVel[1], angVel[2]);
       #endif
       
-      xalt = geoHeight;
-      xlat = geoLat;
-      xlon = geoLong;
-      xlst = lst;
+      xalt = (float)geoHeight;
+      xlat = (float)geoLat;
+      xlon = (float)geoLong;
+      xlst = (float)lst;
       xmass = mass;
 
       #ifdef DEBUG_MSISE90_ATMOSPHERE

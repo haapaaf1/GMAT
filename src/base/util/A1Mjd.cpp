@@ -656,7 +656,7 @@ CalDate A1Mjd::UtcMjdToCalDate(const UtcMjd &utcmjd)
    timeArray[5] = NearestInt(seconds * MJDSEC_TO_WHOLE_NUM) / MJDSEC_TO_WHOLE_NUM;
    
    // calculate day, month, and year using the fliegel & van flandern algorithm
-   l = mjd + (68569 + GmatTimeConstants::JD_JAN_5_1941);
+   l = (long)(mjd + (68569 + GmatTimeConstants::JD_JAN_5_1941));
    n = 4 * l / 146097;
    l -= (146097 * n + 3) / 4;
    i = 4000 * (l + 1) / 1461001;

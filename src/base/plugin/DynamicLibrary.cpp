@@ -25,6 +25,10 @@
 #include "MessageReceiver.hpp"
 
 // Platform specific library loader routines
+#ifdef _WIN32
+#define __WIN32__
+#endif
+
 #ifdef __WIN32__
 #include <windows.h>
 #else
@@ -151,7 +155,7 @@ bool DynamicLibrary::LoadDynamicLibrary()
       MessageReceiver* mr = MessageInterface::GetMessageReceiver();
       SetMR(mr);
    }
-   catch (GmatBaseException& ex)
+   catch (GmatBaseException&)
    {
       // Just ignore these exceptions -- no message receiver interfaces
    }
@@ -221,7 +225,7 @@ Integer DynamicLibrary::GetFactoryCount()
    {
       FactoryCount = (Integer(*)())GetFunction("GetFactoryCount");
    }
-   catch (GmatBaseException& ex)
+   catch (GmatBaseException&)
    {
       return 0;
    }
@@ -281,7 +285,7 @@ Integer DynamicLibrary::GetTriggerManagerCount()
       if (tmCount != NULL)  // There may be TriggerManagers
          triggerCount = tmCount();
    }
-   catch (GmatBaseException &ex)
+   catch (GmatBaseException &)
    {
       // Ignored -- Just indicates that there are no TriggerManager interfaces
    }
@@ -341,7 +345,7 @@ Integer DynamicLibrary::GetMenuEntryCount()
       if (meCount != NULL)  // There may be TriggerManagers
          menuEntryCount = meCount();
    }
-   catch (GmatBaseException &ex)
+   catch (GmatBaseException &)
    {
       // Ignored -- Just indicates that there are no menu entry interfaces
    }
@@ -383,7 +387,7 @@ Gmat::PluginResource *DynamicLibrary::GetMenuEntry(Integer index)
 
       return res;
    }
-   catch (GmatBaseException &ex)
+   catch (GmatBaseException &)
    {
       // Ignored -- Just indicates that there are no menu entries
    }

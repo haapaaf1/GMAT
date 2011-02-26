@@ -1398,7 +1398,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             // Attitude::SetRefObject() checks names before setting
             attitude->SetRefObject(obj, type, objName);
          }
-         catch (BaseException &be)
+         catch (BaseException &)
          {
             #ifdef DEBUG_SC_ATTITUDE
             MessageInterface::ShowMessage(
@@ -1467,7 +1467,7 @@ bool Spacecraft::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             MessageInterface::ShowMessage("   %s\n", vec6.ToString().c_str());
             #endif
          }
-         catch (BaseException &e)
+         catch (BaseException &)
          {
             #ifdef DEBUG_SPACECRAFT_CS
             MessageInterface::ShowMessage
@@ -1695,7 +1695,7 @@ Integer Spacecraft::GetParameterID(const std::string &str) const
 
       return SpaceObject::GetParameterID(str);
    }
-   catch (BaseException& be)
+   catch (BaseException&)
    {
       // continue - could be an attitude parameter
       if (attitude)
@@ -2996,7 +2996,7 @@ Real Spacecraft::SetRealParameter(const Integer id, const Real value,
          }
       }
    }
-   catch (BaseException &be)
+   catch (BaseException &)
    {
       return SpaceObject::SetRealParameter(id, value, index);
    }

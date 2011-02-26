@@ -531,7 +531,7 @@ bool ObjectPropertyWrapper::SetInteger(const Integer toValue)
    if (propType == Gmat::INTEGER_TYPE)
    {
       Integer retval = object->SetIntegerParameter(propID, toValue);
-      return retval;
+      return (retval == 0 ? false : true);
 //      return true;
    }
    else

@@ -220,7 +220,7 @@ bool StateVector::SetValue(const std::string &type)
           mState = mStateConverter.Convert(mState, mStateType, type, mAnomaly);
           mStateType = type;
        }
-       catch(UtilityException &ue)
+       catch(UtilityException &)
        {
           return false; 
        }
@@ -423,7 +423,7 @@ bool StateVector::SetElement(const std::string &label, const Real value)
          mState = mStateConverter.Convert(mState, mStateType, findType, mAnomaly);
          mStateType = findType;
       } 
-      catch(UtilityException &ue)
+      catch(UtilityException &)
       {
          return false;
       }  
@@ -659,7 +659,7 @@ bool StateVector::SetAnomalyType(const std::string &type)
    {
       mAnomaly.SetType(type);
    }
-   catch(UtilityException &ue)
+   catch(UtilityException &)
    {
       return false;
    }

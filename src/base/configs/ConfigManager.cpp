@@ -864,7 +864,7 @@ const StringArray& ConfigManager::GetListOfItemsHas(Gmat::ObjectType type,
       for (UnsignedInt itemIndex=0; itemIndex<items.size(); itemIndex++)
       {
          obj = GetItem(items[itemIndex]);
-         objType == obj->GetType();
+         objType = obj->GetType();
          
          #if DEBUG_RENAME
          MessageInterface::ShowMessage

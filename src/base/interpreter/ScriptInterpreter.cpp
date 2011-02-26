@@ -887,6 +887,9 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
    }
    catch (BaseException &e)
    {
+      // Use exception to remove Visual C++ warning
+      e.GetMessageType();
+
       // if in function mode, throw better message 
       if (inFunctionMode && currentFunction != NULL)
       {
@@ -1739,6 +1742,8 @@ bool ScriptInterpreter::ParseAssignmentBlock(const StringArray &chunks,
       }
       catch (BaseException &e)
       {
+         // Use exception to remove Visual C++ warning
+         e.GetMessageType();
          #ifdef DEBUG_PARSE
          MessageInterface::ShowMessage(e.GetFullMessage());
          #endif

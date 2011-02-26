@@ -513,6 +513,8 @@ void GmatCommand::CheckDataType(ElementWrapper* forWrapper,
    }
    catch (BaseException &be)
    {
+      // Use exception to remove Visual C++ warning
+      be.GetMessageType();
       // will need to check data type of object property 
       // wrappers on initialization
       if (!ignoreUnsetReference)

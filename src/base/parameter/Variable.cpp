@@ -221,6 +221,10 @@ Real Variable::EvaluateReal()
       #endif
       //=======================================================
    }
+
+   // If you get here, the evaluation failed
+   throw ParameterException("Variable::EvaluateReal() failed for the Variable \"" + 
+      GetName() + "\"");
 }
 
 

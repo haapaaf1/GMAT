@@ -1587,7 +1587,7 @@ bool Interpreter::FindPropertyID(GmatBase *obj, const std::string &chunk,
       *owner = obj;
       retval = true;
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       if (FindOwnedObject(obj, prop, owner, id, type))
          retval = true;
@@ -4111,7 +4111,7 @@ bool Interpreter::SetPropertyToObject(GmatBase *toOwner, const std::string &toPr
          return true;
       }
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       if (parsingDelayedBlock)
          return false;
@@ -4276,7 +4276,7 @@ bool Interpreter::SetPropertyToProperty(GmatBase *toOwner, const std::string &to
       GmatBase *toObj = NULL;
       FindPropertyID(toOwner, toProp, &toObj, toId, toType);
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       #ifdef DEBUG_SET
       MessageInterface::ShowMessage
@@ -4302,7 +4302,7 @@ bool Interpreter::SetPropertyToProperty(GmatBase *toOwner, const std::string &to
       fromId = fromOwner->GetParameterID(fromProp);   
       fromType = fromOwner->GetParameterType(fromId);
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
       isRhsProperty = false;
       fromType = Gmat::STRING_TYPE;
@@ -4786,7 +4786,7 @@ bool Interpreter::SetArrayToValue(GmatBase *array, const std::string &toArray,
       {
          array->SetRealParameter("SingleValue", rval, row, col);
       }
-      catch (BaseException &e)
+      catch (BaseException &)
       {
          InterpreterException ex("Index exceeds matrix dimensions");
          HandleError(ex);
@@ -5364,7 +5364,7 @@ bool Interpreter::SetPropertyStringValue(GmatBase *obj, const Integer id,
             
             retval = obj->SetStringParameter(id, valueToUse);
          }
-         catch (BaseException &e)
+         catch (BaseException &)
          {
             #ifdef DEBUG_SET
             MessageInterface::ShowMessage
@@ -5546,7 +5546,7 @@ bool Interpreter::SetProperty(GmatBase *obj, const Integer id,
             {
                retval = obj->SetBooleanArrayParameter(id, boolArray);
             }
-            catch (BaseException &be)
+            catch (BaseException &)
             {
                setWithIndex = true;
             }
@@ -6469,7 +6469,7 @@ bool Interpreter::FindOwnedObject(GmatBase *owner, const std::string toProp,
                retval = true;
                break;
             }
-            catch (BaseException &e)
+            catch (BaseException &)
             {
                errorCount++;
                continue;
@@ -7058,6 +7058,8 @@ bool Interpreter::FinalPass()
          }
          catch (BaseException &e)
          {
+            // Use exception to remove Visual C++ warning
+            e.GetMessageType();
             #if DBGLVL_FINAL_PASS
             MessageInterface::ShowMessage(e.GetFullMessage());
             #endif
@@ -7539,7 +7541,7 @@ bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
                   missingObjects, accumulatedErrors);
          }
       }
-      catch (BaseException &ex)
+      catch (BaseException &)
       {
          // Ignore the derived exception
       }
@@ -7943,7 +7945,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       {
          lhsParts = theTextParser.Decompose(parts[0], "[]", false);
       }
-      catch (BaseException &e)
+      catch (BaseException &)
       {
          InterpreterException ex
             ("Invalid output argument list found in the GmatFunction file \"" +
@@ -7994,7 +7996,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
             WriteStringArray("GmatFunction outputArgs", "", outputArgs);
             #endif
          }
-         catch (BaseException &e)
+         catch (BaseException &)
          {
             InterpreterException ex
                ("Invalid output argument list found in the GmatFunction file \"" +
@@ -8051,7 +8053,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
          WriteStringArray("GmatFunction rhsParts", "", rhsParts);
          #endif         
       }
-      catch (BaseException &e)
+      catch (BaseException &)
       {
          InterpreterException ex
             ("The invalid input argument list found in the GmatFunction file \"" +
@@ -8103,7 +8105,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
             WriteStringArray("GmatFunction inputArgs", "", inputArgs);
             #endif
          }
-         catch (BaseException &e)
+         catch (BaseException &)
          {
             InterpreterException ex
                ("Invalid input argument list found in the GmatFunction file \"" +

@@ -1371,7 +1371,7 @@ void ODEModel::SetInternalCoordinateSystem(const std::string csId,
    {
       currentPm->GetRefObject(Gmat::COORDINATE_SYSTEM, csName);
    }
-   catch (BaseException &ex)
+   catch (BaseException &)
    {
       #ifdef DEBUG_ODEMODEL_INIT
          MessageInterface::ShowMessage(
@@ -2418,7 +2418,7 @@ const StringArray& ODEModel::GetRefObjectNameArray(const Gmat::ObjectType type)
                pmName) != forceReferenceNames.end())
          forceReferenceNames.push_back(pmName);
    }
-   catch (BaseException &ex)
+   catch (BaseException &)
    {
       // Do nothing
    }
@@ -2435,7 +2435,7 @@ const StringArray& ODEModel::GetRefObjectNameArray(const Gmat::ObjectType type)
             forceReferenceNames.push_back(pmName);
       }
    }
-   catch (BaseException &ex)
+   catch (BaseException &)
    {
       // Do nothing
    }
@@ -2451,7 +2451,7 @@ const StringArray& ODEModel::GetRefObjectNameArray(const Gmat::ObjectType type)
                   pmName) == forceReferenceNames.end())
             forceReferenceNames.push_back(pmName);
       }
-      catch (BaseException &ex)
+      catch (BaseException &)
       {
          // Do nothing
       }
@@ -2467,7 +2467,7 @@ const StringArray& ODEModel::GetRefObjectNameArray(const Gmat::ObjectType type)
                forceReferenceNames.push_back(*j);
          }
       }
-      catch (BaseException &ex)
+      catch (BaseException &)
       {
          // Do nothing
       }
@@ -2575,7 +2575,7 @@ bool ODEModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       if (PhysicalModel::SetRefObject(obj, type, name))
          wasSet = true;
    }
-   catch (BaseException &ex)
+   catch (BaseException &)
    {
       // Do nothing
    }
@@ -2600,7 +2600,7 @@ bool ODEModel::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
             }
          } 
       }
-      catch (BaseException &ex)
+      catch (BaseException &)
       {
          // Do nothing
       }
@@ -3517,7 +3517,7 @@ Integer ODEModel::GetOwnedObjectId(Integer id, GmatBase **owner) const
          actualId = ownedObj->GetParameterID(GetParameterText(id));
          break;
       }
-      catch (BaseException &e)
+      catch (BaseException &)
       {
          throw;
       }

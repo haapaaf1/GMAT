@@ -234,7 +234,7 @@ Real TimeConverter::GregorianToModJulian(const std::string greg)
                                  a1Date.GetDay(),a1Date.GetHour(),
                                  a1Date.GetMinute(),a1Date.GetSecond());
    }
-   catch (Date::TimeRangeError& e)
+   catch (Date::TimeRangeError&)
    {
       throw TimeConverterException();
    }

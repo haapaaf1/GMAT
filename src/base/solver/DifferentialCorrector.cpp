@@ -1047,7 +1047,7 @@ void DifferentialCorrector::CalculateParameters()
          if (variable.at(i) > variableMaximum.at(i))
             variable.at(i) = variableMaximum.at(i);
       }
-      catch(std::exception &re)
+      catch(std::exception &)
       {
          throw SolverException("Range error in Solver::CalculateParameters\n");
       }

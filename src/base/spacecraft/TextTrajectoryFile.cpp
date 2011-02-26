@@ -93,9 +93,9 @@ bool TextTrajectoryFile::ReadLine()
         mInStream >> mTempData[i];
 
     mTrajData.time = mTempData[0];
-    mTrajData.x = mTempData[1];
-    mTrajData.y = mTempData[2];
-    mTrajData.z = mTempData[3];
+    mTrajData.x = (float)mTempData[1];
+    mTrajData.y = (float)mTempData[2];
+    mTrajData.z = (float)mTempData[3];
     
     // add to mData
     mDataArray.push_back(mTrajData);

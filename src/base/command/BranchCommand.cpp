@@ -1141,6 +1141,8 @@ bool BranchCommand::ExecuteBranch(Integer which)
       }
       catch (BaseException &e)
       {
+         // Use exception to remove Visual C++ warning
+         e.GetMessageType();
          #ifdef DEBUG_BRANCHCOMMAND_EXECUTION
          MessageInterface::ShowMessage
             ("   BranchCommand rethrowing %s\n", e.GetFullMessage().c_str());

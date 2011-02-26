@@ -3211,6 +3211,8 @@ Parameter* Moderator::CreateParameter(const std::string &type,
    }
    catch (BaseException &e)
    {
+      // Use exception to remove Visual C++ warning
+      e.GetMessageType();
       #if DEBUG_CREATE_PARAMETER
       MessageInterface::ShowMessage("Moderator::CreateParameter()\n" +
                                     e.GetFullMessage() + "\n");
@@ -4266,6 +4268,8 @@ CoordinateSystem* Moderator::CreateCoordinateSystem(const std::string &name,
       }
       catch (BaseException &e)
       {
+         // Use exception to remove Visual C++ warning
+         e.GetMessageType();
          #if DEBUG_CREATE_COORDSYS
          MessageInterface::ShowMessage("Moderator::CreateCoordinateSystem() %s\n",
                                        e.GetFullMessage().c_str());

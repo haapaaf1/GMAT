@@ -671,7 +671,7 @@ bool Sandbox::Initialize()
                      "\n\nfailed to initialize correctly.  Please correct the error "
                      "and try again.");
          }
-         catch (BaseException &be)
+         catch (BaseException &)
          {
             // Call ValidateCommand to create wrappers and Initialize.(LOJ: 2010.08.24)
             // This will fix bug 1918 for the following scenario in ScriptEvent.
@@ -837,6 +837,8 @@ bool Sandbox::Execute()
    }
    catch (BaseException &e)
    {
+      // Use exception to remove Visual C++ warning
+      e.GetMessageType();
       sequence->RunComplete();
       state = STOPPED;
       

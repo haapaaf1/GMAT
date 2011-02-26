@@ -26,7 +26,7 @@
 #include "GmatBase.hpp"
 #include "SolverException.hpp"
 
-#include "OwnedPlot.hpp"      // Need to make a Subscriber instead?
+class OwnedPlot;            // Forward reference
 
 
 /**

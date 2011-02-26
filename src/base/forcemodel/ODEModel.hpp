@@ -318,8 +318,11 @@ protected:
    //   Integer size;
    };
    
+private:
+   // Throws a warning, but can be safely ignored becaise this vector is not used elsewhere
    std::vector<StateStructure> sstruct;
-   
+
+protected:
    Integer transientCount;
 
    bool                      BuildModelElement(Gmat::StateElementId id, 

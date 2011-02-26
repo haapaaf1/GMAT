@@ -51,6 +51,8 @@ MatlabFunction::MatlabFunction(const std::string &name) :
    }
    catch (GmatBaseException &e)
    {
+      // Use exception to remove Visual C++ warning
+      e.GetMessageType();
       #ifdef DEBUG_MATLAB_FUNCTION
       MessageInterface::ShowMessage(e.GetFullMessage());
       #endif
@@ -63,6 +65,8 @@ MatlabFunction::MatlabFunction(const std::string &name) :
       }
       catch (GmatBaseException &e)
       {
+         // Use exception to remove Visual C++ warning
+         e.GetMessageType();
          #ifdef DEBUG_MATLAB_FUNCTION
          MessageInterface::ShowMessage(e.GetFullMessage());
          #endif
