@@ -402,31 +402,34 @@ typedef std::map<std::string, Gmat::ObjectType> ObjectTypeMap;
     //EXPIMP_TEMPLATE template class  DECLSPECIFIER std::allocator<std::_Tree_nod<std::_Tmap_traits<std::string,std::string,std::less<std::string>, std::allocator<std::pair<const std::string,std::string> >,false> > >;
     //EXPIMP_TEMPLATE template class  DECLSPECIFIER std::_Tree_val<std::_Tmap_traits<std::string,std::string,std::less<std::string>, std::allocator<std::pair<const std::string,std::string> >,false> >;
     //EXPIMP_TEMPLATE template class  DECLSPECIFIER std::map<std::string, std::string, std::less< std::string >, std::allocator<std::pair<const std::string,std::string> > >;
-   //#define EXPORT_STL_MAP( mapkey, mapvalue ) \
-   //  template struct DECLSPECIFIER std::pair< mapkey,mapvalue >; \
-   //  template class DECLSPECIFIER std::allocator< \
-   //    std::pair<const mapkey,mapvalue> >; \
-   //  template struct DECLSPECIFIER std::less< mapkey >; \
-   //  template class DECLSPECIFIER std::allocator< \
-   //    std::_Tree_ptr<std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
-   //    std::allocator<std::pair<const mapkey,mapvalue> >,false> > >; \
-   //  template class DECLSPECIFIER std::allocator< \
-   //    std::_Tree_nod<std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
-   //    std::allocator<std::pair<const mapkey,mapvalue> >,false> > >; \
-   //  template class DECLSPECIFIER std::_Tree_nod< \
-   //    std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
-   //    std::allocator<std::pair<const mapkey,mapvalue> >,false> >; \
-   //  template class DECLSPECIFIER std::_Tree_ptr< \
-   //    std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
-   //    std::allocator<std::pair<const mapkey,mapvalue> >,false> >; \
-   //  template class DECLSPECIFIER std::_Tree_val< \
-   //    std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
-   //	std::allocator<std::pair<const mapkey,mapvalue> >,false> >; \
-   //  template class DECLSPECIFIER std::map< \
-   //    mapkey, mapvalue, std::less< mapkey >, \
-   //    std::allocator<std::pair<const mapkey,mapvalue> > >;
-   //
-   //EXPORT_STL_MAP(std::string, std::string)
+
+/*
+   #define EXPORT_STL_MAP( mapkey, mapvalue ) \
+     template struct DECLSPECIFIER std::pair< mapkey,mapvalue >; \
+     template class DECLSPECIFIER std::allocator< \
+       std::pair<const mapkey,mapvalue> >; \
+     template struct DECLSPECIFIER std::less< mapkey >; \
+     template class DECLSPECIFIER std::allocator< \
+       std::_Tree_ptr<std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
+       std::allocator<std::pair<const mapkey,mapvalue> >,false> > >; \
+     template class DECLSPECIFIER std::allocator< \
+       std::_Tree_nod<std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
+       std::allocator<std::pair<const mapkey,mapvalue> >,false> > >; \
+     template class DECLSPECIFIER std::_Tree_nod< \
+       std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
+       std::allocator<std::pair<const mapkey,mapvalue> >,false> >; \
+     template class DECLSPECIFIER std::_Tree_ptr< \
+       std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
+       std::allocator<std::pair<const mapkey,mapvalue> >,false> >; \
+     template class DECLSPECIFIER std::_Tree_val< \
+       std::_Tmap_traits<mapkey,mapvalue,std::less<mapkey>, \
+   	std::allocator<std::pair<const mapkey,mapvalue> >,false> >; \
+     template class DECLSPECIFIER std::map< \
+       mapkey, mapvalue, std::less< mapkey >, \
+       std::allocator<std::pair<const mapkey,mapvalue> > >;
+
+   EXPORT_STL_MAP(std::string, std::string)
+*/
 
     // Here are lists of strings:
     //EXPIMP_TEMPLATE template class DECLSPECIFIER std::list<std::string>;
