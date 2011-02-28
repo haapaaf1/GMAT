@@ -26,7 +26,9 @@
 #include "GmatBase.hpp"
 #include "SolverException.hpp"
 
-class OwnedPlot;            // Forward reference
+// This should be switched to a forward reference, but cannot be yet because
+// of plugin dependencies
+#include "OwnedPlot.hpp"
 
 
 /**
