@@ -257,6 +257,12 @@ protected:
    void         WriteSpkComments(const std::string &comments);
    void         FinalizeSpkFile();
    
+   // Epoch handling
+   RealArray::iterator
+                FindEpochOnWaiting(Real epochInSecs, const std::string &msg);
+   void         RemoveEpochAlreadyWritten(Real epochInSecs, const std::string &msg);
+   void         AddNextEpochToWrite(Real epochInSecs, const std::string &msg);
+   
    // CoordinateSystem conversion
    void         ConvertState(Real epochInDays, const Real inState[6],
                              Real outState[6]);
@@ -271,6 +277,7 @@ protected:
                                 bool inDays = false, bool logOnly = false);
    void         DebugWriteOrbit(const std::string &msg, A1Mjd *epochInDays,
                                 Rvector6 *state, bool logOnly = false);
+   void         DebugWriteEpochsOnWaiting(const std::string &msg = "");
    
    // for deprecated field
    void         WriteDeprecatedMessage(Integer id) const;
