@@ -38,7 +38,7 @@ struct LeapSecondInformation
 };    
 
 // Required for Visual Studio dll exports
-#ifdef _MSC_VER
+#ifdef EXPORT_TEMPLATES
    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<LeapSecondInformation>;
    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<LeapSecondInformation>;
 #endif
