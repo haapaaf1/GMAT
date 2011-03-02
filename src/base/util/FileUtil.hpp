@@ -28,35 +28,35 @@ namespace GmatFileUtil
    const Integer BUFFER_SIZE = 4096;
    static Real CompareAbsTol = 1.0e-4;
    
-   std::string GetPathSeparator();
-   std::string GetCurrentPath();
-   std::string ParsePathName(const std::string &fullPath, bool appendSep = true);
-   std::string ParseFileName(const std::string &fullPath, bool removeExt = false);
-   std::string ParseFileExtension(const std::string &fullPath, bool prependDot = false);
-   std::string GetInvalidFileNameMessage(Integer option = 1);
+   std::string GMAT_API GetPathSeparator();
+   std::string GMAT_API GetCurrentPath();
+   std::string GMAT_API ParsePathName(const std::string &fullPath, bool appendSep = true);
+   std::string GMAT_API ParseFileName(const std::string &fullPath, bool removeExt = false);
+   std::string GMAT_API ParseFileExtension(const std::string &fullPath, bool prependDot = false);
+   std::string GMAT_API GetInvalidFileNameMessage(Integer option = 1);
    
-   bool IsValidFileName(const std::string &fname, bool blankIsOk = true);
-   bool IsSameFileName(const std::string &fname1, const std::string &fname2);
-   bool DoesDirectoryExist(const std::string &dirPath, bool blankIsOk = true);
-   bool DoesFileExist(const std::string &filename);
-   bool GetLine(std::istream *inStream, std::string &line);
-   bool IsAppInstalled(const std::string &appName, std::string &appLoc);
+   bool GMAT_API IsValidFileName(const std::string &fname, bool blankIsOk = true);
+   bool GMAT_API IsSameFileName(const std::string &fname1, const std::string &fname2);
+   bool GMAT_API DoesDirectoryExist(const std::string &dirPath, bool blankIsOk = true);
+   bool GMAT_API DoesFileExist(const std::string &filename);
+   bool GMAT_API GetLine(std::istream *inStream, std::string &line);
+   bool GMAT_API IsAppInstalled(const std::string &appName, std::string &appLoc);
    
-   WrapperTypeArray
+   WrapperTypeArray GMAT_API 
       GetFunctionOutputTypes(std::istream *is, const StringArray &inputs,
                              const StringArray &outputs, std::string &errMsg,
                              IntegerArray &outputRows, IntegerArray &outputCols);
    
-   StringArray GetFileListFromDirectory(const std::string &dirName,
+   StringArray GMAT_API GetFileListFromDirectory(const std::string &dirName,
                                         bool addPath = false);
-   StringArray GetTextLines(const std::string &fileName);
+   StringArray GMAT_API GetTextLines(const std::string &fileName);
    
-   StringArray& Compare(const std::string &filename1,
+   StringArray GMAT_API &Compare(const std::string &filename1,
                         const std::string &filename2,
                         const StringArray &colTitles,
                         Real tol = CompareAbsTol);
    
-   StringArray& Compare(Integer numDirsToCompare,
+   StringArray GMAT_API &Compare(Integer numDirsToCompare,
                         const std::string &basefilename,
                         const std::string &filename1,
                         const std::string &filename2,
@@ -64,7 +64,7 @@ namespace GmatFileUtil
                         const StringArray &colTitles,
                         Real tol = CompareAbsTol);
    
-   StringArray& CompareLines(Integer numDirsToCompare,
+   StringArray GMAT_API &CompareLines(Integer numDirsToCompare,
                              const std::string &basefilename,
                              const std::string &filename1,
                              const std::string &filename2,
@@ -72,7 +72,7 @@ namespace GmatFileUtil
                              int &file1DiffCount, int &file2DiffCount,
                              int &file3DiffCount);
    
-   bool SkipHeaderLines(std::ifstream &in, StringArray &tokens);
+   bool GMAT_API SkipHeaderLines(std::ifstream &in, StringArray &tokens);
    
    static StringArray textBuffer;
 }

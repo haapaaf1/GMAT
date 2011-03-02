@@ -122,34 +122,34 @@ namespace TimeConverterUtil
       Real refJd= GmatTimeConstants::JD_NOV_17_1858);
  */
    
-   Integer GetTimeTypeID(std::string &str);
+   Integer GMAT_API GetTimeTypeID(std::string &str);
       
-   Real Convert(const Real origValue,
+   Real GMAT_API Convert(const Real origValue,
                 const Integer fromType,
                 const Integer toType,
                 Real refJd);
    
-   Real ConvertToTaiMjd(Integer fromType, Real origValue,
+   Real GMAT_API ConvertToTaiMjd(Integer fromType, Real origValue,
       Real refJd= GmatTimeConstants::JD_NOV_17_1858);
-   Real ConvertFromTaiMjd(Integer toType, Real origValue,
+   Real GMAT_API ConvertFromTaiMjd(Integer toType, Real origValue,
       Real refJd= GmatTimeConstants::JD_NOV_17_1858);
 
-   void SetEopFile(EopFile *eopFile);
-   void SetLeapSecsFileReader(LeapSecsFileReader *leapSecsFileReader);
+   void GMAT_API SetEopFile(EopFile *eopFile);
+   void GMAT_API SetLeapSecsFileReader(LeapSecsFileReader *leapSecsFileReader);
    
-   void GetTimeSystemAndFormat(const std::string &type, std::string &system,
+   void GMAT_API GetTimeSystemAndFormat(const std::string &type, std::string &system,
                                std::string &format);
    
-   std::string ConvertMjdToGregorian(const Real mjd, Integer format = 1);   
-   Real ConvertGregorianToMjd(const std::string &greg);
-   void Convert(const std::string &fromType, Real fromMjd,
+   std::string GMAT_API ConvertMjdToGregorian(const Real mjd, Integer format = 1);   
+   Real GMAT_API ConvertGregorianToMjd(const std::string &greg);
+   void GMAT_API Convert(const std::string &fromType, Real fromMjd,
                 const std::string &fromStr, const std::string &toType,
                 Real &toMjd, std::string &toStr, Integer format = 1);
    
-   bool ValidateTimeSystem(std::string sys);   
-   bool ValidateTimeFormat(const std::string &format, const std::string &value,
+   bool GMAT_API ValidateTimeSystem(std::string sys);   
+   bool GMAT_API ValidateTimeFormat(const std::string &format, const std::string &value,
                            bool checkValue = true);
-   StringArray GetValidTimeRepresentations();
+   StringArray GMAT_API GetValidTimeRepresentations();
 }
 
 #endif // TimeSystemConverter_hpp

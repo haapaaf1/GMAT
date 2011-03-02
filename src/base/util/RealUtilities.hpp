@@ -38,79 +38,79 @@ struct GMAT_API RealUtilitiesExceptions
 
 namespace GmatMathUtil
 {
-   Integer Abs(Integer theNumber);
-   Real    Abs(Real theNumber);
-   Real    NearestInt(Real theNumber);
-   Real    Round(Real theNumber);
-   Real    Floor(Real theNumber);
-   Real    Fix(Real theNumber);
-   Real    Ceiling(Real theNumber);
-   Real    Mod(Real left, Real right);
-   Real    Rem(Real left, Real right);
-   void    Quotient(Real top, Real bottom, Integer &result);
-   void    Quotient(Real top, Real bottom, Real &result);
-   Real    Min(Real left, Real right);
-   Real    Max(Real left, Real right);
-   bool    IsPositive(Real theNumber);
-   bool    IsNegative(Real theNumber);
-   bool    IsNonNegative(Real theNumber);
-   bool    IsZero(Real theNumber, Real accuracy=GmatRealConstants::REAL_EPSILON);
-   bool    IsEqual(Real left, Real right, 
+   Integer GMAT_API Abs(Integer theNumber);
+   Real    GMAT_API Abs(Real theNumber);
+   Real    GMAT_API NearestInt(Real theNumber);
+   Real    GMAT_API Round(Real theNumber);
+   Real    GMAT_API Floor(Real theNumber);
+   Real    GMAT_API Fix(Real theNumber);
+   Real    GMAT_API Ceiling(Real theNumber);
+   Real    GMAT_API Mod(Real left, Real right);
+   Real    GMAT_API Rem(Real left, Real right);
+   void    GMAT_API Quotient(Real top, Real bottom, Integer &result);
+   void    GMAT_API Quotient(Real top, Real bottom, Real &result);
+   Real    GMAT_API Min(Real left, Real right);
+   Real    GMAT_API Max(Real left, Real right);
+   bool    GMAT_API IsPositive(Real theNumber);
+   bool    GMAT_API IsNegative(Real theNumber);
+   bool    GMAT_API IsNonNegative(Real theNumber);
+   bool    GMAT_API IsZero(Real theNumber, Real accuracy=GmatRealConstants::REAL_EPSILON);
+   bool    GMAT_API IsEqual(Real left, Real right, 
                     Real accuracy = GmatRealConstants::REAL_EPSILON);
-   Integer SignOf(Real theNumber);
-   bool    IsOdd(Integer theNumber);
-   bool    IsEven(Integer theNumber);
+   Integer GMAT_API SignOf(Real theNumber);
+   bool    GMAT_API IsOdd(Integer theNumber);
+   bool    GMAT_API IsEven(Integer theNumber);
    
-   Real    Rad(Real angleInDeg, bool modBy2Pi = false);
-   Real    Deg(Real angleInRad, bool modBy360 = false);
-   Real    DegToRad(Real deg, bool modBy2Pi = false);
-   Real    RadToDeg(Real rad, bool modBy360 = false);
-   Real    ArcsecToDeg(Real asec,bool modBy360 = false);
-   Real    ArcsecToRad(Real asec,bool modBy2Pi = false);
+   Real    GMAT_API Rad(Real angleInDeg, bool modBy2Pi = false);
+   Real    GMAT_API Deg(Real angleInRad, bool modBy360 = false);
+   Real    GMAT_API DegToRad(Real deg, bool modBy2Pi = false);
+   Real    GMAT_API RadToDeg(Real rad, bool modBy360 = false);
+   Real    GMAT_API ArcsecToDeg(Real asec,bool modBy360 = false);
+   Real    GMAT_API ArcsecToRad(Real asec,bool modBy2Pi = false);
    
-   Real    Sin(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    SinXOverX(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    Cos(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    Tan(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API Sin(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API SinXOverX(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API Cos(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API Tan(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
 
-   Real    Cosh(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    Sinh(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    Tanh(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API Cosh(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API Sinh(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API Tanh(Real angleInRad, Real cycleInRad=GmatMathConstants::TWO_PI);
    
-   Real    ASin(Real x, Real tol=GmatRealConstants::REAL_TOL, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    ACos(Real x, Real tol=GmatRealConstants::REAL_TOL, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    ATan(Real y, Real x=1.0, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API ASin(Real x, Real tol=GmatRealConstants::REAL_TOL, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API ACos(Real x, Real tol=GmatRealConstants::REAL_TOL, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API ATan(Real y, Real x=1.0, Real cycleInRad=GmatMathConstants::TWO_PI);
    
-   Real    ATan2(Real y, Real x=1.0, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API ATan2(Real y, Real x=1.0, Real cycleInRad=GmatMathConstants::TWO_PI);
    
-   Real    ASinh(Real x, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    ACosh(Real x, Real cycleInRad=GmatMathConstants::TWO_PI);
-   Real    ATanh(Real x, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API ASinh(Real x, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API ACosh(Real x, Real cycleInRad=GmatMathConstants::TWO_PI);
+   Real    GMAT_API ATanh(Real x, Real cycleInRad=GmatMathConstants::TWO_PI);
    
-   Real    Ln(Real x);             // Natural (base e) Logarithm of x
-   Real    Log(Real x);            // Natural (base e) Logarithm of x
-   Real    Log10(Real x);          // Base 10 Logarithm of x
-   Real    Log(Real x, Real base); // Base <base> Logarithm of x
-   Real    Log(Real x, Integer base);
+   Real    GMAT_API Ln(Real x);             // Natural (base e) Logarithm of x
+   Real    GMAT_API Log(Real x);            // Natural (base e) Logarithm of x
+   Real    GMAT_API Log10(Real x);          // Base 10 Logarithm of x
+   Real    GMAT_API Log(Real x, Real base); // Base <base> Logarithm of x
+   Real    GMAT_API Log(Real x, Integer base);
    
-   void    SetSeed(Integer initialSeed1, Integer initialSeed2); 
-   void    GetSeed(Integer& initialSeed1, Integer& initialSeed2);
-   //loj:void    SetSeedByClock();
-   Real    Number(Real lowerBound=0.0, Real upperBound=1.0); 
-   Real    GaussianNumber(Real mu= 0.0, Real sigma=1.0); 
-   Real    Ran();
-   void    SetRanKey(Real k=0.0); 
-   //loj:Real    Cot(Real x);
-   Real    Cbrt(Real x);
-   Real    Sqrt(Real x);
+   void    GMAT_API SetSeed(Integer initialSeed1, Integer initialSeed2); 
+   void    GMAT_API GetSeed(Integer& initialSeed1, Integer& initialSeed2);
+   //loj:void    GMAT_API SetSeedByClock();
+   Real    GMAT_API Number(Real lowerBound=0.0, Real upperBound=1.0); 
+   Real    GMAT_API GaussianNumber(Real mu= 0.0, Real sigma=1.0); 
+   Real    GMAT_API Ran();
+   void    GMAT_API SetRanKey(Real k=0.0); 
+   //loj:Real    GMAT_API Cot(Real x);
+   Real    GMAT_API Cbrt(Real x);
+   Real    GMAT_API Sqrt(Real x);
    
-   Real    Exp(Real x);            // Raises e  to the x power(e^x)
-   Real    Exp10(Real x);          // Raises 10 to the x power(10^x)
-   Real    Pow(Real x, Real y);    // Raises x to the y power(x^y)
-   Real    Pow(Real x, Integer y); // Raises x to the y power(x^y)
+   Real    GMAT_API Exp(Real x);            // Raises e  to the x power(e^x)
+   Real    GMAT_API Exp10(Real x);          // Raises 10 to the x power(10^x)
+   Real    GMAT_API Pow(Real x, Real y);    // Raises x to the y power(x^y)
+   Real    GMAT_API Pow(Real x, Integer y); // Raises x to the y power(x^y)
    
-   bool    IsNaN(Real x);
-   bool    IsInf(Real x);
+   bool    GMAT_API IsNaN(Real x);
+   bool    GMAT_API IsInf(Real x);
 }
 
 // This inline doesn't work with MSVC++ compiler

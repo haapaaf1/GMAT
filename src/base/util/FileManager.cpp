@@ -392,12 +392,17 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       #endif
 
       // Skip empty line or comment line
-      if (line[0] == '\0' || line[0] == '#')
+      if (line.length() > 0)     // Crashes in VS 2010 debugger without this
       {
-         if (line.size() > 1 && line[1] == '#')
-            mSavedComments.push_back(line);
-         continue;
+         if (line[0] == '\0' || line[0] == '#')
+         {
+            if (line.size() > 1 && line[1] == '#')
+               mSavedComments.push_back(line);
+            continue;
+         }
       }
+      else
+         continue;
 
       std::string type, equal, name;
       std::stringstream ss("");

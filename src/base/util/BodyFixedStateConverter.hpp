@@ -46,28 +46,28 @@ namespace BodyFixedStateConverterUtil
       // future representations here
    };
 
-   Rvector3 Convert(const Rvector3    &origValue, const std::string &fromType, const std::string &toType,
+   Rvector3 GMAT_API Convert(const Rvector3    &origValue, const std::string &fromType, const std::string &toType,
                     const Real        flattening, const Real        meanRadius);
 
-   Rvector3 Convert(const Rvector3    &origValue,
+   Rvector3 GMAT_API Convert(const Rvector3    &origValue,
                     const std::string &fromType,  const std::string &fromHorizon,
                     const std::string &toType,    const std::string &toHorizon,
                     const Real        flattening, const Real        meanRadius);
 
-   Rvector3 CartesianToSpherical(const Rvector3 &cart, const Real flattening, const Real meanRadius);
+   Rvector3 GMAT_API CartesianToSpherical(const Rvector3 &cart, const Real flattening, const Real meanRadius);
 
-   Rvector3 SphericalToCartesian(const Rvector3 &spherical, const Real flattening, const Real meanRadius);
+   Rvector3 GMAT_API SphericalToCartesian(const Rvector3 &spherical, const Real flattening, const Real meanRadius);
 
-   Rvector3 SphericalEllipsoidToCartesian(const Rvector3 &sphEll, const Real flattening, const Real meanRadius);
+   Rvector3 GMAT_API SphericalEllipsoidToCartesian(const Rvector3 &sphEll, const Real flattening, const Real meanRadius);
 
-   Rvector3 CartesianToSphericalEllipsoid(const Rvector3 &cart, const Real flattening, const Real meanRadius);
+   Rvector3 GMAT_API CartesianToSphericalEllipsoid(const Rvector3 &cart, const Real flattening, const Real meanRadius);
 
-   Rvector3 SphericalToSphericalEllipsoid(const Rvector3 &spherical, const Real flattening, const Real meanRadius);
+   Rvector3 GMAT_API SphericalToSphericalEllipsoid(const Rvector3 &spherical, const Real flattening, const Real meanRadius);
 
-   Rvector3 SphericalEllipsoidToSpherical(const Rvector3 &sphEll, const Real flattening, const Real meanRadius);
+   Rvector3 GMAT_API SphericalEllipsoidToSpherical(const Rvector3 &sphEll, const Real flattening, const Real meanRadius);
 
-   bool        IsValidateStateRepresentation(const std::string &rep);
-   StringArray GetValidRepresentations();
+   bool GMAT_API IsValidateStateRepresentation(const std::string &rep);
+   StringArray GMAT_API GetValidRepresentations();
 
 }
 
