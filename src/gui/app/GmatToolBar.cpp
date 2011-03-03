@@ -16,6 +16,8 @@
 #include "GmatToolBar.hpp"
 #include "GmatMenuBar.hpp"        // for namespace GmatMenu
 #include "GuiItemManager.hpp"
+#include "FileUtil.hpp"           // for DoesDirectoryExist()
+#include "FileManager.hpp"        // for GetFullPathname()
 #include "MessageInterface.hpp"
 
 #include "bitmaps/NewScript.xpm"
@@ -41,6 +43,7 @@
 #include "bitmaps/screenshot.xpm"
 
 //#define DEBUG_TOOLBAR
+//#define DEBUG_LOAD_ICON
 //#define DEBUG_SYNC_STATUS
 
 using namespace GmatMenu;
@@ -74,44 +77,83 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    const int NUM_ICONS = 17;
    wxBitmap* bitmaps[NUM_ICONS];
    
-   bitmaps[0] = new wxBitmap(NewScript_xpm);
-   bitmaps[1] = new wxBitmap(OpenScript_xpm);
-   bitmaps[2] = new wxBitmap(SaveMission_xpm);
-   bitmaps[3] = new wxBitmap(copy_xpm);
-   bitmaps[4] = new wxBitmap(cut_xpm);
-   bitmaps[5] = new wxBitmap(paste_xpm);
-   bitmaps[6] = new wxBitmap(print_xpm);
-   bitmaps[7] = new wxBitmap(Help_xpm);
-   bitmaps[8] = new wxBitmap(RunMission_xpm);
-   bitmaps[9] = new wxBitmap(PauseMission_xpm);
-   bitmaps[10] = new wxBitmap(StopMission_xpm);
-   bitmaps[11] = new wxBitmap(CloseAll_xpm);
-   bitmaps[12] = new wxBitmap(CloseOne_xpm);
-   bitmaps[13] = new wxBitmap(NewMission_xpm);
-   bitmaps[14] = new wxBitmap(build_xpm);
-   bitmaps[15] = new wxBitmap(WebHelp_xpm);
-   bitmaps[16] = new wxBitmap(screenshot_xpm);
+   // Load toolbar icons
+   FileManager *fm = FileManager::Instance();
+   std::string loc = fm->GetFullPathname("ICON_PATH");
+   
+   wxImage::AddHandler(new wxPNGHandler);
+   
+   #ifdef DEBUG_TOOLBAR
+   MessageInterface::ShowMessage("   loc = '%s'\n", loc.c_str());
+   #endif
+   
+   // Check if directory exist to load a image file
+   if (GmatFileUtil::DoesDirectoryExist(loc.c_str(), false))
+   {
+      #ifdef DEBUG_TOOLBAR
+      MessageInterface::ShowMessage("   Loadinig images from '%s'\n", loc.c_str());
+      MessageInterface::ShowMessage("   Loading .png files\n");
+      #endif
+      
+      wxString fileType = ".png";
+      long bitmapType = wxBITMAP_TYPE_PNG;
+      
+      // Do not change the order, this order is how it appears in the toolbar
+      
+      // NewScript icon
+      LoadIcon(loc + "NewScript" + fileType, bitmapType, &bitmaps[0], NewScript_xpm);
+      
+      // OpenScript icon
+      LoadIcon(loc + "OpenScript" + fileType, bitmapType, &bitmaps[1], OpenScript_xpm);
+
+      // SaveMission
+      LoadIcon(loc + "SaveMission" + fileType, bitmapType, &bitmaps[2], SaveMission_xpm);
+      
+      // Copy
+      LoadIcon(loc + "Copy" + fileType, bitmapType, &bitmaps[3], copy_xpm);
+      
+      // Cut
+      LoadIcon(loc + "Cut" + fileType, bitmapType, &bitmaps[4], cut_xpm);
+      
+      // Paste
+      LoadIcon(loc + "Paste" + fileType, bitmapType, &bitmaps[5], paste_xpm);
+
+      // Print
+      bitmaps[6] = new wxBitmap(print_xpm);
+      
+      // Help
+      LoadIcon(loc + "Help" + fileType, bitmapType, &bitmaps[7], Help_xpm);
+      
+      // RunMission
+      LoadIcon(loc + "RunMission" + fileType, bitmapType, &bitmaps[8], RunMission_xpm);
+      
+      // PauseMission
+      LoadIcon(loc + "PauseMission" + fileType, bitmapType, &bitmaps[9], PauseMission_xpm);
+      
+      // StopMission
+      LoadIcon(loc + "StopMission" + fileType, bitmapType, &bitmaps[10], StopMission_xpm);
+      
+      // CloseAll
+      LoadIcon(loc + "CloseAll" + fileType, bitmapType, &bitmaps[11], CloseAll_xpm);
+      
+      // CloseOne
+      LoadIcon(loc + "CloseOne" + fileType, bitmapType, &bitmaps[12], CloseOne_xpm);
+      
+      // NewMission
+      LoadIcon(loc + "NewMission" + fileType, bitmapType, &bitmaps[13], NewMission_xpm);
+
+      // Build
+      bitmaps[14] = new wxBitmap(build_xpm);
+
+      // WebHelp
+      LoadIcon(loc + "WebHelp" + fileType, bitmapType, &bitmaps[15], WebHelp_xpm);
+      
+      // ScreenShot
+      bitmaps[16] = new wxBitmap(screenshot_xpm);
+   }
    
    // Changed from wxSize(18, 15) (LOJ: 2011.02.04)
    toolBar->SetToolBitmapSize(wxSize(16, 16));
-   
-   #ifdef DEBUG_TOOLBAR
-   MessageInterface::ShowMessage
-      ("   Rescaling to default size of 16x15 (Mac), 16x16 (Other)\n");
-   #endif
-   
-   // Do we need to rescale? Commented out for now(LOJ: 2011.02.04)
-   // recale to default size of 16x16
-//    for (int i=0; i<NUM_ICONS; i++)
-//    {
-//       wxImage image = bitmaps[i]->ConvertToImage();
-//       #ifdef __WXMAC__
-//          image = image.Rescale(16, 15);
-//       #else
-//          image = image.Rescale(16, 16);
-//       #endif
-//       *bitmaps[i] = wxBitmap(image);
-//    }
    
    #ifdef DEBUG_TOOLBAR
    MessageInterface::ShowMessage("   Adding mission tools\n");
@@ -209,7 +251,7 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
 //------------------------------------------------------------------------------
 void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
 {
-   #ifdef DEBUG_MAINFRAME
+   #ifdef DEBUG_TOOLBAR
    MessageInterface::ShowMessage("GmatToolBar::AddAnimationTools() entered\n");
    #endif
    
@@ -221,22 +263,39 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    
    wxBitmap* bitmaps[NUM_ICONS];
    
-   bitmaps[0] = new wxBitmap(RunAnimation_xpm);
-   bitmaps[1] = new wxBitmap(StopAnimation_xpm);
-   bitmaps[2] = new wxBitmap(FasterAnimation_xpm);
-   bitmaps[3] = new wxBitmap(SlowerAnimation_xpm);
+   // Load toolbar icons
+   FileManager *fm = FileManager::Instance();
+   std::string loc = fm->GetFullPathname("ICON_PATH");
+   
+   // Check if directory exist to load a image file
+   if (GmatFileUtil::DoesDirectoryExist(loc.c_str(), false))
+   {
+      #ifdef DEBUG_TOOLBAR
+      MessageInterface::ShowMessage("   Loadinig images from '%s'\n", loc.c_str());
+      MessageInterface::ShowMessage("   Loading .png files\n");
+      #endif
+      
+      wxString fileType = ".png";
+      long bitmapType = wxBITMAP_TYPE_PNG;
+      
+      // Do not change the order, this order is how it appears in the toolbar
+      
+      // RunAnimation icon
+      LoadIcon(loc + "RunAnimation" + fileType, bitmapType, &bitmaps[0], RunAnimation_xpm);
+      
+      // StopAnimation icon
+      LoadIcon(loc + "StopAnimation" + fileType, bitmapType, &bitmaps[1], StopAnimation_xpm);
+
+      // FasterAnimation
+      LoadIcon(loc + "FasterAnimation" + fileType, bitmapType, &bitmaps[2], FasterAnimation_xpm);
+      
+      // SlowerAnimation
+      LoadIcon(loc + "SlowerAnimation" + fileType, bitmapType, &bitmaps[3], SlowerAnimation_xpm);
+   }
    
    #ifdef __SHOW_GL_OPTION_DIALOG__
    bitmaps[4] = new wxBitmap(animation_options_xpm);
    #endif
-   
-   // recale to default size of 16x15
-   for (int i=0; i<NUM_ICONS; i++)
-   {
-      wxImage image = bitmaps[i]->ConvertToImage();
-      image = image.Rescale(16, 15);
-      *bitmaps[i] = wxBitmap(image);
-   }
    
    toolBar->AddSeparator();
    
@@ -437,4 +496,36 @@ void GmatToolBar::UpdateGuiScriptSyncStatus(wxToolBar* toolBar, int guiStat,
 }
 
 
+//------------------------------------------------------------------------------
+// void LoadIcon(const wxString &filename, long bitmapType, wxBitmap *bitmap, const char* xpm[]
+//------------------------------------------------------------------------------
+void GmatToolBar::LoadIcon(const wxString &filename, long bitmapType, wxBitmap **bitmap,
+                           const char* xpm[])
+{
+   #ifdef DEBUG_LOAD_ICON
+   MessageInterface::ShowMessage
+      ("GmatToolBar::LoadIcon() entered, filename='%s', bitmap=<%p>\n", filename.c_str(), bitmap);
+   #endif
+   
+   wxImage iconImage;
+   if (GmatFileUtil::DoesFileExist(filename.c_str()))
+   {
+      iconImage.LoadFile(filename, bitmapType);
+      #ifdef DEBUG_LOAD_ICON
+      MessageInterface::ShowMessage("   creating bitmap from png image\n");
+      #endif
+      *bitmap = new wxBitmap(iconImage);
+   }
+   else
+   {
+      #ifdef DEBUG_LOAD_ICON
+      MessageInterface::ShowMessage("   creating bitmap from xpm file\n");
+      #endif
+      *bitmap = new wxBitmap(xpm);
+   }
+   
+   #ifdef DEBUG_LOAD_ICON
+   MessageInterface::ShowMessage("GmatToolBar::LoadIcon() leavint\n");
+   #endif
+}
 

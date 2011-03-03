@@ -34,6 +34,8 @@ public:
 
 protected:
    wxStaticText *theSyncStatus;
+
+   void LoadIcon(const wxString &filename, long bitmapType, wxBitmap **bitmap, const char* xpm[]);
 };
 
 #endif

@@ -187,6 +187,7 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
 
    EVT_MENU (MENU_HELP_ABOUT, GmatMainFrame::OnHelpAbout)
    EVT_MENU (MENU_HELP_WELCOME, GmatMainFrame::OnHelpWelcome)
+   EVT_MENU (MENU_HELP_CONTENTS, GmatMainFrame::OnHelpContents)
    EVT_MENU (MENU_HELP_ONLINE, GmatMainFrame::OnHelpOnline)
    EVT_MENU (MENU_HELP_TUTORIAL, GmatMainFrame::OnHelpTutorial)
    EVT_MENU (MENU_HELP_FORUM, GmatMainFrame::OnHelpForum)
@@ -495,6 +496,14 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
          OnHelpWelcome(WXUNUSED);
    }
    
+   // Create HelpController from CHM file
+   std::string helpFileName = fm->GetFullPathname("HELP_FILE");
+   #ifdef __WXMSW__
+   theHelpController = new wxCHMHelpController;
+   theHelpController->Initialize(helpFileName);
+   #else
+   #endif
+   
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage("GmatMainFrame::GmatMainFrame() exiting\n");
    #endif
@@ -524,17 +533,21 @@ GmatMainFrame::~GmatMainFrame()
 
    if (gmatAppData->GetMessageWindow() != NULL)
       gmatAppData->GetMessageWindow()->Close();
-
-   // Commented out since Moderator::Finalize() is called from GmatApp (loj: 2008.03.06)
-   //if (theGuiInterpreter)
-   //   theGuiInterpreter->Finalize();
-
+   
    gmatAppData->SetMainFrame(NULL);
    gmatAppData->SetMessageWindow(NULL);
    gmatAppData->SetMessageTextCtrl(NULL);
    gmatAppData->SetResourceTree(NULL);
    gmatAppData->SetMissionTree(NULL);
    gmatAppData->SetOutputTree(NULL);
+   
+   // Delete Help file
+   #ifdef __WXMSW__
+   theHelpController->Quit();
+   delete theHelpController;
+   #else
+   #endif
+   
    #ifdef DEBUG_MAINFRAME_CLOSE
    MessageInterface::ShowMessage("GmatMainFrame::~GmatMainFrame() exiting.\n");
    #endif
@@ -2416,10 +2429,28 @@ void GmatMainFrame::OnHelpWelcome(wxCommandEvent& WXUNUSED(event))
    if (mWelcomePanel == NULL)
    {
       mWelcomePanel =
-               new WelcomePanel(this, _T("Welcome to GMAT"),
-                              20, 20, 600, 350);
+         new WelcomePanel(this, _T("Welcome to GMAT"),
+                          20, 20, 600, 350);
    }
    mWelcomePanel->Show(true);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnHelpContents(wxCommandEvent& WXUNUSED(event))
+//------------------------------------------------------------------------------
+/**
+ * Handles online help command from the menu bar.
+ *
+ * @param <event> input event.
+ */
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnHelpContents(wxCommandEvent& WXUNUSED(event))
+{
+   #ifdef __WXMSW__
+   theHelpController->DisplayContents();
+   #else
+   #endif
 }
 
 

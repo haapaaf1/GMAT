@@ -114,6 +114,7 @@ namespace GmatMenu
       
       MENU_HELP_TOPICS = 17000,
       MENU_HELP_WELCOME,
+      MENU_HELP_CONTENTS,
       MENU_HELP_ONLINE,
       MENU_HELP_TUTORIAL,
       MENU_HELP_FORUM,

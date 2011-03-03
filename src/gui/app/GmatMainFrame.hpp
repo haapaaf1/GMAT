@@ -43,6 +43,7 @@
 #include <wx/laywin.h>
 #include <wx/textctrl.h>
 #include <wx/hyperlink.h>
+#include <wx/help.h>        // (wxWidgets chooses the appropriate help controller class)
 
 namespace GmatGui
 {
@@ -113,6 +114,8 @@ public:
    void OnStop(wxCommandEvent &event);
    void OnHelpAbout(wxCommandEvent &event);
    void OnHelpWelcome(wxCommandEvent &event);
+   void OnHelpContents(wxCommandEvent &event);
+   void OnHelpSearch(wxCommandEvent &event);
    void OnHelpOnline(wxCommandEvent &event);
    void OnHelpTutorial(wxCommandEvent &event);
    void OnHelpForum(wxCommandEvent &event);
@@ -217,6 +220,8 @@ private:
    wxStatusBar *theStatusBar;
    wxMenuBar *theMenuBar;
    wxToolBar *theToolBar;
+   
+   wxHelpController *theHelpController;
    
    GmatMdiChildFrame* CreateNewResource(const wxString &title,
                                         const wxString &name,
