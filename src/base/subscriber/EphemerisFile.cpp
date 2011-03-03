@@ -1724,10 +1724,9 @@ bool EphemerisFile::IsTimeToWrite(Real epochInSecs, const Real state[6])
       if (writeOrbit)
       {
          #ifdef DEBUG_EPHEMFILE_TIME
-         MessageInterface::ShowMessage
-            ("   Checking if new data points need to be added\n   epochInSecs=%.15f, "
-             "%s, prevEpochInSecs=%.15f, %s\n", epochInSecs, ToUtcGregorian(epochInSecs).c_str(),
-             prevEpochInSecs, ToUtcGregorian(prevEpochInSecs).c_str());
+         MessageInterface::ShowMessage("   Checking if new data points need to be added\n");
+         DebugWriteTime("       epochInSecs, ", epochInSecs);
+         DebugWriteTime("   prevEpochInSecs, ", prevEpochInSecs);
          #endif
          
          // If staring new segment, we want add data to interpolator
@@ -1799,9 +1798,8 @@ bool EphemerisFile::IsTimeToWrite(Real epochInSecs, const Real state[6])
       else
       {
          #ifdef DEBUG_EPHEMFILE_TIME
-         MessageInterface::ShowMessage
-            ("   epochInSecs=%.15f, %s, nextOutEpoch=%.15f, %s\n", epochInSecs,
-             ToUtcGregorian(epochInSecs).c_str(), nextOutEpoch, ToUtcGregorian(nextOutEpoch).c_str());
+         DebugWriteTime("    epochInSecs, ", epochInSecs);
+         DebugWriteTime("   nextOutEpoch, ", nextOutEpoch);
          #endif
          
          if (epochInSecs >= nextOutEpoch)
@@ -1828,8 +1826,8 @@ bool EphemerisFile::IsTimeToWrite(Real epochInSecs, const Real state[6])
    
    #ifdef DEBUG_EPHEMFILE_TIME
    MessageInterface::ShowMessage
-      ("EphemerisFile::IsTimeToWrite() returning %d, nextOutEpoch=%.15f, %s\n",
-       retval, nextOutEpoch, ToUtcGregorian(nextOutEpoch).c_str());
+      ("EphemerisFile::IsTimeToWrite() returning %d\n", retval);
+   DebugWriteTime("   nextOutEpoch, ", nextOutEpoch);
    #endif
    return retval;
 }
@@ -1871,10 +1869,9 @@ void EphemerisFile::WriteOrbit(Real reqEpochInSecs, const Real state[6])
       #ifdef DEBUG_EPHEMFILE_WRITE
       MessageInterface::ShowMessage
          ("***** The difference between current epoch and requested epoch is less "
-          "than 1.0e-6, so writing current state and adjusting\n      reqEpochInSecs "
-          "to %.15f %s and nextOutEpoch to %.15f %s\n", outEpochInSecs,
-          ToUtcGregorian(outEpochInSecs).c_str(), nextOutEpoch,
-          ToUtcGregorian(nextOutEpoch).c_str());
+          "than 1.0e-6, so writing current state\n");
+      DebugWriteTime("   outEpochInSecs, ", outEpochInSecs);
+      DebugWriteTime("   nextOutEpoch, ", nextOutEpoch);
       DebugWriteOrbit("   =====> current state ", currEpochInSecs, currState,
                       false, true);
       #endif
@@ -2957,10 +2954,20 @@ void EphemerisFile::FinalizeSpkFile()
 RealArray::iterator EphemerisFile::FindEpochOnWaiting(Real epochInSecs,
                                                       const std::string &msg)
 {
+   #ifdef DEBUG_FIND_EPOCH
+   MessageInterface::ShowMessage("FindEpochOnWaiting() entered\n");
+   DebugWriteTime("   ", epochInSecs);
+   DebugWriteEpochsOnWaiting();
+   #endif
+   
    // Find matching epoch
    RealArray::iterator iterFound = epochsOnWaiting.begin();
    while (iterFound != epochsOnWaiting.end())
    {
+      #ifdef DEBUG_FIND_EPOCH
+      DebugWriteTime("      iterFound, ", *iterFound);
+      #endif
+      
       if (GmatMathUtil::Abs(*iterFound - epochInSecs) < 1.0e-6)
       {
          #ifdef DEBUG_EPHEMFILE_ORBIT
@@ -3016,10 +3023,16 @@ void EphemerisFile::AddNextEpochToWrite(Real epochInSecs, const std::string &msg
    if (FindEpochOnWaiting(epochInSecs, msg) == epochsOnWaiting.end())
    {
       #ifdef DEBUG_EPHEMFILE_TIME
-      DebugWriteTime("   ===== Adding nextOutEpoch to epochsOnWaiting, ", epochInSecs);
+      DebugWriteTime(msg, epochInSecs);
       #endif
       epochsOnWaiting.push_back(epochInSecs);
-      nextReqEpoch = epochInSecs;
+      nextOutEpoch = epochInSecs;
+   }
+   else
+   {
+      #ifdef DEBUG_EPHEMFILE_TIME
+      DebugWriteTime("   ========== skipping redundant ", epochInSecs);
+      #endif
    }
 }
 
