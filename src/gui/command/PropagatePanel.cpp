@@ -1275,7 +1275,7 @@ void PropagatePanel::SaveData()
          } // for MAX_STOPCOND_ROW
          
          // Validate command to create stop condition wrappers
-         //theGuiInterpreter->ValidateCommand(thePropCmd);
+         theGuiInterpreter->ValidateCommand(thePropCmd);
          
       } // if (mStopCondChanged)
    } // try
