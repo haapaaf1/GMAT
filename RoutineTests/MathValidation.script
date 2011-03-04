@@ -1,0 +1,8 @@
+Create Variable lhsVar;
+
+BeginMissionSequence;
+
+lhsVar = (()) ' 1
+lhsVar = () ' 1
+lhsVar = 1 ' @
+lhsVar = 1 ' X

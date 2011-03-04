@@ -1,0 +1,155 @@
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545.000000000';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.Tanks = {tank1}
+GMAT DefaultSC.Thrusters = {engine1};
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '312';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+
+
+%-----  Thruster A;
+Create Thruster engine1;
+GMAT engine1.CoordinateSystem = EarthMJ2000Eq;
+ 
+GMAT engine1.ThrustDirection1 = 1;
+GMAT engine1.ThrustDirection2 = 0;
+GMAT engine1.ThrustDirection3 = 0;
+GMAT engine1.DutyCycle = 1;
+GMAT engine1.ThrustScaleFactor = 1;
+GMAT engine1.DecrementMass = true;
+GMAT engine1.Tank = {tank1};
+GMAT engine1.GravitationalAccel = 9.81;
+GMAT engine1.C1 = 10;
+GMAT engine1.C2 = 0;
+GMAT engine1.C3 = 0;
+GMAT engine1.C4 = 0;
+GMAT engine1.C5 = 0;
+GMAT engine1.C6 = 0;
+GMAT engine1.C7 = 0;
+GMAT engine1.C8 = 0;
+GMAT engine1.C9 = 0;
+GMAT engine1.C10 = 0;
+GMAT engine1.C11 = 0;
+GMAT engine1.C12 = 0;
+GMAT engine1.C13 = 0;
+GMAT engine1.C14 = 0;
+GMAT engine1.C15 = 0;
+GMAT engine1.C16 = 0;
+GMAT engine1.K1 = 300;
+GMAT engine1.K2 = 0;
+GMAT engine1.K3 = 0;
+GMAT engine1.K4 = 0;
+GMAT engine1.K5 = 0;
+GMAT engine1.K6 = 0;
+GMAT engine1.K7 = 0;
+GMAT engine1.K8 = 0;
+GMAT engine1.K9 = 0;
+GMAT engine1.K10 = 0;
+GMAT engine1.K11 = 0;
+GMAT engine1.K12 = 0;
+GMAT engine1.K13 = 0;
+GMAT engine1.K14 = 0;
+GMAT engine1.K15 = 0;
+GMAT engine1.K16 = 0;
+ 
+%-----  Fuel Tank A
+Create FuelTank tank1;
+GMAT tank1.FuelMass = 725;
+GMAT tank1.Pressure = 1200;
+GMAT tank1.Temperature = 20;
+GMAT tank1.RefTemperature = 12;
+GMAT tank1.Volume = 0.8;
+GMAT tank1.FuelDensity = 1029;
+GMAT tank1.PressureModel = PressureRegulated;
+
+ 
+% -------------------------------------------------------------------------
+% --------------------------- Create Finite Burn  -------------------------
+% -------------------------------------------------------------------------
+Create FiniteBurn fb;
+GMAT fb.Thrusters = {engine1};
+ 
+%  Create a force model
+Create ForceModel fm;
+GMAT fm.CentralBody = Earth;
+GMAT fm.PointMasses = {Earth};
+GMAT fm.Drag = None;
+GMAT fm.SRP = Off;
+GMAT fm.ErrorControl = RSSStep;
+ 
+%  Create a propagator
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = fm;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 3600;
+GMAT DefaultProp.Accuracy = 1e-9;
+GMAT DefaultProp.MinStep = 60;
+GMAT DefaultProp.MaxStep = 60;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.Filename = 'Bug2161_ReportFile1.txt';
+GMAT ReportFile1.Precision = 18;
+GMAT ReportFile1.Add = {DefaultSC.A1ModJulian, DefaultSC.UTCGregorian, DefaultSC.EarthMJ2000Eq.X};
+GMAT ReportFile1.WriteHeaders = On;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.ColumnWidth = 24;
+GMAT ReportFile1.WriteReport = true;
+
+Create EphemerisFile GMAT_Leo_Ephem_3600sec;
+GMAT GMAT_Leo_Ephem_3600sec.Spacecraft = DefaultSC;
+%%GMAT GMAT_Leo_Ephem_3600sec.Filename = '.\output\AcceptTest\Ephem_GMAT_CCSDS_OEM_3600sec.report';
+GMAT GMAT_Leo_Ephem_3600sec.Filename = 'Bug2161_Ephem_GMAT_CCSDS_OEM_3600sec.report';
+GMAT GMAT_Leo_Ephem_3600sec.FileFormat = 'CCSDS-OEM';
+GMAT GMAT_Leo_Ephem_3600sec.EpochFormat = UTCGregorian;
+GMAT GMAT_Leo_Ephem_3600sec.InitialEpoch = InitialSpacecraftEpoch;
+GMAT GMAT_Leo_Ephem_3600sec.FinalEpoch = FinalSpacecraftEpoch;
+GMAT GMAT_Leo_Ephem_3600sec.StepSize = 3600;
+GMAT GMAT_Leo_Ephem_3600sec.Interpolator = Lagrange;
+GMAT GMAT_Leo_Ephem_3600sec.InterpolationOrder = 7;
+GMAT GMAT_Leo_Ephem_3600sec.StateType = Cartesian;
+GMAT GMAT_Leo_Ephem_3600sec.CoordinateSystem = EarthMJ2000Eq;
+GMAT GMAT_Leo_Ephem_3600sec.WriteEphemeris = True;
+
+Create Variable ElapsedSecs;
+ElapsedSecs = 30000;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+BeginMissionSequence
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = ElapsedSecs};
