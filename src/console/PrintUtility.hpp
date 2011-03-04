@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  PrintUtility
 //------------------------------------------------------------------------------
@@ -23,16 +23,14 @@
 #include "gmatdefs.hpp"
 #include "GmatCommand.hpp"
 
-class GMAT_API PrintUtility
+// No GMAT_API here because this class is used in the exe, not in a DLL
+class PrintUtility
 {
 public:
 
    static PrintUtility* Instance();
-
    bool PrintEntireSequence(GmatCommand* firstCmd);
-   
    ~PrintUtility();
-
 
 protected:
 
