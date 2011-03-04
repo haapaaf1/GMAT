@@ -81,7 +81,7 @@ namespace GmatTimeConstants
       "Jan",  "Feb",  "Mar",  "Apr",  "May",  "Jun",
       "Jul",  "Aug",  "Sep",  "Oct",  "Nov",  "Dec"
    };
-}
+} // GmatTimeConstants
 
 
 // Math Constants and Conversion for angles, mass, and length
@@ -89,6 +89,7 @@ namespace GmatMathConstants
 {
    //Math constants
    static const Real PI_DEG = 180.0;
+   static const Real PI_OVER_TWO_DEG = 90.0;
    static const Real TWO_PI_DEG = 360.0;
    static const Real PI = 3.14159265358979323846264338327950288419716939937511;
    static const Real TWO_PI = 6.28318530717958647692528676655900576839433879875022;
@@ -118,7 +119,7 @@ namespace GmatMathConstants
 
    enum SIGN {PLUS = 1, MINUS = -1 };
 
-}
+} // GmatMathConstants
 
 // Constants used in orbital element conversion between Cartesion, Keplerian, ModKeplerian, etc.
 namespace GmatOrbitConstants
@@ -132,7 +133,7 @@ namespace GmatOrbitConstants
    const static Real KEP_ZERO_TOL = 1.0e-30;
    const static Real KEP_ECC_TOL  = 1.0e-7;  // Determined to using numerical experiments
                                              // after multiple transformations
-}
+} // GmatOrbitConstants
 
 // Constants relating to real numbers
 namespace GmatRealConstants
@@ -195,6 +196,6 @@ namespace GmatRealConstants
    #else
       const Integer REAL_MAX_10_EXP  = 308;
    #endif
-}
+} // GmatRealConstants
 
 #endif // GmatConstants_hpp
