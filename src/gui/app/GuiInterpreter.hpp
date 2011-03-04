@@ -23,7 +23,8 @@
 #include "gmatdefs.hpp"
 #include <sstream>      // for std::istringstream
 
-class GMAT_API GuiInterpreter : public ScriptInterpreter
+// GMAT_API not used here because the GuiInterpreter is not exported from a dll
+class GuiInterpreter : public ScriptInterpreter
 {
 public:
 
