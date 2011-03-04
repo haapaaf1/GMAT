@@ -20,6 +20,12 @@
 #include <stdlib.h>         // for NULL
 #include <string.h>         // for memcpy()
 #include <sstream>          // for std::stringstream
+
+// Clear a build error with Visual Studio 2010
+#ifdef _CHAR16T
+#define CHAR16_T
+#endif
+
 #include "engine.h"         // for Matlab Engine
 #include "matrix.h"         // for Matlab mxArray
 

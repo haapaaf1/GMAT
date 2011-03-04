@@ -19,10 +19,11 @@
 #ifndef CallMatlabFunction_hpp
 #define CallMatlabFunction_hpp
 
+#include "matlabinterface_defs.hpp"
 #include "CallFunction.hpp"
 #include "MatlabInterface.hpp"
 
-class GMAT_API CallMatlabFunction : public CallFunction
+class MATLAB_API CallMatlabFunction : public CallFunction
 {
 public:
    CallMatlabFunction();

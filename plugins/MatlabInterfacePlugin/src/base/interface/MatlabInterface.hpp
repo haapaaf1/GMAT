@@ -22,13 +22,20 @@
 #ifndef MatlabInterface_hpp
 #define MatlabInterface_hpp
 
+#include "matlabinterface_defs.hpp"
 #include "Interface.hpp"
+
+// Clear a build error with Visual Studio 2010
+#ifdef _CHAR16T
+#define CHAR16_T
+#endif
+
 #include "engine.h"           // for Matlab Engine
 
 #include <string>
 #include <map>
 
-class GMAT_API MatlabInterface : public Interface
+class MATLAB_API MatlabInterface : public Interface
 {
 
 public:

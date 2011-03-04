@@ -21,15 +21,16 @@
 #ifndef GmatPluginFunctions_hpp
 #define GmatPluginFunctions_hpp
 
+#include "matlabinterface_defs.hpp"
 #include "Factory.hpp"
 
 class MessageReceiver;
 
 extern "C"
 {
-   Integer     GetFactoryCount();
-   Factory*    GetFactoryPointer(Integer index);
-   void        SetMessageReceiver(MessageReceiver* mr);
+   Integer    MATLAB_API GetFactoryCount();
+   Factory    MATLAB_API *GetFactoryPointer(Integer index);
+   void       MATLAB_API SetMessageReceiver(MessageReceiver* mr);
 };
 
 

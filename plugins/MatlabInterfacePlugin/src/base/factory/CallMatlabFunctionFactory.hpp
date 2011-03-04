@@ -20,10 +20,11 @@
 #define CallMatlabFunctionFactory_hpp
 
 
+#include "matlabinterface_defs.hpp"
 #include "Factory.hpp"
 #include "GmatCommand.hpp"
 
-class GMAT_API CallMatlabFunctionFactory : public Factory
+class MATLAB_API CallMatlabFunctionFactory : public Factory
 {
 public:
    virtual GmatCommand* CreateCommand(const std::string &ofType,

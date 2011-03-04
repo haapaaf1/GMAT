@@ -19,10 +19,11 @@
 #ifndef MatlabInterfaceFactory_hpp
 #define MatlabInterfaceFactory_hpp
 
+#include "matlabinterface_defs.hpp"
 #include "Factory.hpp"
 #include "Interface.hpp"
 
-class GMAT_API MatlabInterfaceFactory : public Factory
+class MATLAB_API MatlabInterfaceFactory : public Factory
 {
 public:
    virtual Interface* CreateInterface(const std::string &ofType,

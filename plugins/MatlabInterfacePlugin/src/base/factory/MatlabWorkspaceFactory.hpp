@@ -21,10 +21,11 @@
 #define MatlabWorkspaceFactory_hpp
 
 
+#include "matlabinterface_defs.hpp"
 #include "Factory.hpp"
 #include "Subscriber.hpp"
 
-class GMAT_API MatlabWorkspaceFactory : public Factory
+class MATLAB_API MatlabWorkspaceFactory : public Factory
 {
 public:
    virtual Subscriber* CreateSubscriber(const std::string &ofType,

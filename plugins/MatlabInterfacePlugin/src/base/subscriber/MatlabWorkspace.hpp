@@ -20,12 +20,13 @@
 #ifndef MatlabWorkspace_hpp
 #define MatlabWorkspace_hpp
 
+#include "matlabinterface_defs.hpp"
 #include "Subscriber.hpp"
 
 class Parameter;
 class MatlabInterface;
 
-class GMAT_API MatlabWorkspace : public Subscriber
+class MATLAB_API MatlabWorkspace : public Subscriber
 {
 public:
    MatlabWorkspace(const std::string &name, Parameter *firstParam = NULL);
