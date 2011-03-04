@@ -452,8 +452,8 @@ void ModelObject::TranslateW(float x, float y, float z){
 // z: z angle
 void ModelObject::Rotate(bool useDegrees, float x, float y, float z)
 {
-   matrix_type mat;
-   float rotcos, rotsin;
+//   matrix_type mat;
+//   float rotcos, rotsin;
    float factor = 1.0;
    // If we're using degrees, we'll need to add the conversion factor
    if (useDegrees)

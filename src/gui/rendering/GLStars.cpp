@@ -19,6 +19,11 @@
 #include "MessageInterface.hpp"
 #include "Rendering.hpp"
 
+#ifndef M_PI
+// wx/math.h defines this.  So does math.h in VS 2010, but not earlier incarnations
+#define M_PI 3.1415926535897932384626433832795
+#endif
+
 const GLfloat SOURCELIGHT99[] = {0.99f, 0.99f, 0.99f, 1.0f};
 
 GLStars* GLStars::theInstance = NULL;

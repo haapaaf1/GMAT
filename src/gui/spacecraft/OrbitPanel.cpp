@@ -897,7 +897,7 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
                   ("   Computed TrueAnomaly =\n   [%s]\n", mTrueAnomaly.ToString(16).c_str());
                #endif
             }
-            catch (BaseException& be)
+            catch (BaseException&)
             {
                #ifdef DEBUG_ORBIT_PANEL_COMBOBOX
                MessageInterface::ShowMessage
@@ -932,7 +932,7 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
          theSpacecraft->SetRefObjectName(Gmat::COORDINATE_SYSTEM, mOutCoord->GetName());
          theSpacecraft->SetRefObject(mOutCoord, Gmat::COORDINATE_SYSTEM);
       }
-      catch (BaseException &e)
+      catch (BaseException &)
       {
          mCoordSysComboBox->SetValue(mFromCoordSysStr.c_str());
          stateTypeComboBox->SetValue(mFromStateTypeStr.c_str());
@@ -980,7 +980,7 @@ void OrbitPanel::OnComboBoxChange(wxCommandEvent& event)
          DisplayState();
          mFromAnomalyTypeStr = mAnomalyType;
       }
-      catch (BaseException &e)
+      catch (BaseException &)
       {
          anomalyComboBox->SetValue(mFromAnomalyTypeStr.c_str());
          return;

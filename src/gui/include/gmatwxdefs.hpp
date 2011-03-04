@@ -35,7 +35,14 @@
 #endif
     
 #ifdef _MSC_VER
+
 #pragma warning( default : 4267 )  // Reset warning messages 4267
+
+// VS 2010 defines M_PI in math.h
+#if _MSC_VER >= 1600
+#undef M_PI
+#endif
+
 #endif
 
 #ifdef __BORLANDC__

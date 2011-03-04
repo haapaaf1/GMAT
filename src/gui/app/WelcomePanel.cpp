@@ -376,7 +376,7 @@ wxBitmap WelcomePanel::LoadBitmap( wxString filename, int width, int height )
          bitmap = wxBitmap(image.Scale(width, height));
       }
    }
-   catch (BaseException &e)
+   catch (BaseException &)
    {
    }
    return bitmap;

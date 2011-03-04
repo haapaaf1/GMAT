@@ -183,7 +183,7 @@ AboutDialog::AboutDialog(wxWindow *parent, wxWindowID id, const wxString& title,
          SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_PICT_RESOURCE));
       #endif
    }
-   catch (GmatBaseException &e)
+   catch (GmatBaseException &/*e*/)
    {
       //MessageInterface::ShowMessage(e.GetMessage());
    }

@@ -266,7 +266,7 @@ void GmatDialog::ShowData()
          SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_PICT_RESOURCE));
       #endif
    }
-   catch (GmatBaseException &e)
+   catch (GmatBaseException &)
    {
       //MessageInterface::ShowMessage(e.GetMessage());
    }

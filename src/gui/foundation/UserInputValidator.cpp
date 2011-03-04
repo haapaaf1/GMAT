@@ -577,7 +577,7 @@ bool UserInputValidator::CheckTimeFormatAndValue(const std::string &format, cons
    {
       TimeConverterUtil::ValidateTimeFormat(format, value, false);
    }
-   catch (BaseException &be)
+   catch (BaseException &)
    {
       if (timeFormat == "Gregorian")
       {
@@ -599,7 +599,7 @@ bool UserInputValidator::CheckTimeFormatAndValue(const std::string &format, cons
       {
          TimeConverterUtil::ValidateTimeFormat(format, value, true);
       }
-      catch (BaseException &be)
+      catch (BaseException &)
       {
          std::string expRange = "04 Oct 1957 12:00:00.000 or later";
          if (timeFormat == "Gregorian")

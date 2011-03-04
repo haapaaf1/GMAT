@@ -1108,7 +1108,7 @@ void GmatBaseSetupPanel::OnComboBoxChange(wxCommandEvent& event)
 		if (SaveControl(localObject, label))
 			RefreshProperties(localObject);
 	}
-	catch (BaseException &e)
+	catch (BaseException &)
 	{
 	}
 	EnableUpdate(true);
@@ -1134,7 +1134,7 @@ void GmatBaseSetupPanel::OnComboBoxTextChange(wxCommandEvent& event)
 		if (SaveControl(localObject, label))
 			RefreshProperties(localObject, label);
 	}
-	catch (BaseException &e)
+	catch (BaseException &)
 	{
 	}
 	EnableUpdate(true);
@@ -1160,7 +1160,7 @@ void GmatBaseSetupPanel::OnTextChange(wxCommandEvent& event)
 		if (SaveControl(localObject, label))
 			RefreshProperties(localObject, label);
 	}
-	catch (BaseException &e)
+	catch (BaseException &)
 	{
 	}
 	EnableUpdate(true);

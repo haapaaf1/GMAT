@@ -4933,7 +4933,7 @@ void OrbitViewCanvas::UpdateOtherData(const Real &time)
             {
                objState = otherObj->GetMJ2000State(time);
             }
-            catch (BaseException &be)
+            catch (BaseException &)
             {
                mFatalErrorFound = true;
                throw;

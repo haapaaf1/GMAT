@@ -168,7 +168,7 @@ void GmatCommandPanel::SaveData()
    
    canClose = true;
    std::string str;
-   Integer width, prec;
+//   Integer width, prec;
    
    //-----------------------------------------------------------------
    // save values to base, base code should do the range checking

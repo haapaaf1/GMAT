@@ -431,7 +431,7 @@ void ParameterCreateDialog::LoadData()
    wxString str;
    int mNumRows;
    int mNumCols;
-   Real rval;
+//   Real rval;
    
    if (mObjectName != "")
    {
