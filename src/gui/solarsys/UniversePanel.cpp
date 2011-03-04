@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              UniversePanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 //
 // **Legal**
@@ -258,7 +258,7 @@ void UniversePanel::Create()
    mPageSizer = new GmatStaticBoxSizer (wxVERTICAL, this, "Options");
    mPageSizer->Add(bottomGridSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
    
-   theMiddleSizer->Add(mPageSizer, 0, wxALIGN_CENTER|wxALL, bsize);
+   theMiddleSizer->Add(mPageSizer, 1, wxALIGN_CENTER|wxGROW|wxALL, bsize);
    
    #ifdef DEBUG_UNIVERSEPANEL_CREATE
    MessageInterface::ShowMessage("UniversePanel::Create() leaving\n");
