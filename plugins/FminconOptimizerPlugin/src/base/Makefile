@@ -39,6 +39,7 @@ HEADERS = -Iplugin \
           -I$(GMAT_CODE_LOCATION)/base/forcemodel \
           -I$(GMAT_CODE_LOCATION)/gui/include \
           -I$(GMAT_CODE_LOCATION)/gui/app \
+          -I$(MATLAB_IF_CODE_LOCATION)/base/include \
           -I$(MATLAB_IF_CODE_LOCATION)/base/interface
 
 

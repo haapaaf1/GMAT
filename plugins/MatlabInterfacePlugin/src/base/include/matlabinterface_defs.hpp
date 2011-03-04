@@ -1,5 +1,10 @@
 //$Id$
 
+
+
+#ifndef MATLABINTERFACE_DEFS_HPP
+#define MATLABINTERFACE_DEFS_HPP
+
 #ifdef _WIN32  // Windows
    #ifdef _MSC_VER  // Microsoft Visual C++
 
@@ -36,3 +41,9 @@
       #define EXPORT_TEMPLATES
    #endif
 #endif //  End of OS nits
+
+#ifndef MATLAB_API
+   #define MATLAB_API
+#endif
+
+#endif // MATLABINTERFACE_DEFS_HPP
