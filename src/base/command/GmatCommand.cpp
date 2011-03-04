@@ -607,8 +607,8 @@ bool GmatCommand::SetObject(const std::string &name,
  *         is an internal object.
  */
 //------------------------------------------------------------------------------
-GmatBase* GmatCommand::GetObject(const Gmat::ObjectType type, 
-                             const std::string objName)
+GmatBase* GmatCommand::GetGmatObject(const Gmat::ObjectType type, 
+                                  const std::string objName)
 {
    return NULL;
 }

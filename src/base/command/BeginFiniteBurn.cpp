@@ -328,12 +328,12 @@ bool BeginFiniteBurn::SetRefObjectName(const Gmat::ObjectType type,
  * @return The object.
  */
 //------------------------------------------------------------------------------
-GmatBase* BeginFiniteBurn::GetObject(const Gmat::ObjectType type, 
+GmatBase* BeginFiniteBurn::GetGmatObject(const Gmat::ObjectType type, 
                                    const std::string objName)
 {
    if (type == Gmat::TRANSIENT_FORCE)
       return burnForce;
-   return GmatCommand::GetObject(type, objName);
+   return GmatCommand::GetGmatObject(type, objName);
 }
 
 

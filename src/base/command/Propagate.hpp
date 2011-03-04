@@ -79,7 +79,7 @@ public:
                                   const Gmat::ObjectType associateType =
                                   Gmat::UNKNOWN_OBJECT);
    virtual bool         SetObject(GmatBase *obj, const Gmat::ObjectType type);
-   virtual GmatBase*    GetObject(const Gmat::ObjectType type, 
+   virtual GmatBase*    GetGmatObject(const Gmat::ObjectType type, 
                                   const std::string objName = "");
    virtual void         ClearObject(const Gmat::ObjectType type);
    

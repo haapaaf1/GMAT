@@ -49,7 +49,7 @@ public:
    virtual bool         SetRefObjectName(const Gmat::ObjectType type,
                                         const std::string &name);
    
-   virtual GmatBase*    GetObject(const Gmat::ObjectType type, 
+   virtual GmatBase*    GetGmatObject(const Gmat::ObjectType type, 
                                   const std::string objName = "");
 
    virtual GmatBase*    Clone() const;

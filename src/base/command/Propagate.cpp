@@ -493,7 +493,7 @@ void Propagate::ClearObject(const Gmat::ObjectType type)
  * @return true if the reference was set, false if not.
  */
 //------------------------------------------------------------------------------
-GmatBase* Propagate::GetObject(const Gmat::ObjectType type,
+GmatBase* Propagate::GetGmatObject(const Gmat::ObjectType type,
                                const std::string objName)
 {
    if (type == Gmat::STOP_CONDITION)
@@ -504,7 +504,7 @@ GmatBase* Propagate::GetObject(const Gmat::ObjectType type,
          return stopWhen[0];
    }
 
-   return GmatCommand::GetObject(type, objName);
+   return GmatCommand::GetGmatObject(type, objName);
 }
 
 //------------------------------------------------------------------------------
