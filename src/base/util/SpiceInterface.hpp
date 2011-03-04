@@ -48,6 +48,8 @@ extern "C"
 #include "SpiceUsr.h"    // for CSPICE routines
 }
 
+#define MAX_LONG_MESSAGE_VALUE 1840
+
 class GMAT_API SpiceInterface
 {
 public:

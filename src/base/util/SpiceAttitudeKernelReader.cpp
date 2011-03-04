@@ -200,8 +200,8 @@ void  SpiceAttitudeKernelReader::GetCoverageStartAndEnd(StringArray       &kerne
       if (failed_c())
       {
          ConstSpiceChar option[] = "LONG";
-         SpiceInt       numChar  = MAX_LONG_MESSAGE;
-         SpiceChar      err[MAX_LONG_MESSAGE];
+         SpiceInt       numChar  = MAX_LONG_MESSAGE_VALUE;
+         SpiceChar      err[MAX_LONG_MESSAGE_VALUE];
          getmsg_c(option, numChar, err);
          std::string errStr(err);
          std::string errmsg = "Error determining type of kernel \"";
@@ -252,8 +252,8 @@ void  SpiceAttitudeKernelReader::GetCoverageStartAndEnd(StringArray       &kerne
             if (failed_c())
             {
                ConstSpiceChar option[] = "LONG";
-               SpiceInt       numChar  = MAX_LONG_MESSAGE;
-               SpiceChar      err[MAX_LONG_MESSAGE];
+               SpiceInt       numChar  = MAX_LONG_MESSAGE_VALUE;
+               SpiceChar      err[MAX_LONG_MESSAGE_VALUE];
                getmsg_c(option, numChar, err);
                std::string errStr(err);
                std::string errmsg = "Error determining coverage for CK kernel \"";
@@ -273,8 +273,8 @@ void  SpiceAttitudeKernelReader::GetCoverageStartAndEnd(StringArray       &kerne
                if (failed_c())
                {
                   ConstSpiceChar option[] = "LONG";
-                  SpiceInt       numChar  = MAX_LONG_MESSAGE;
-                  SpiceChar      err[MAX_LONG_MESSAGE];
+                  SpiceInt       numChar  = MAX_LONG_MESSAGE_VALUE;
+                  SpiceChar      err[MAX_LONG_MESSAGE_VALUE];
                   getmsg_c(option, numChar, err);
                   std::string errStr(err);
                   std::string errmsg = "Error getting interval times for CK kernel \"";
@@ -367,9 +367,9 @@ void SpiceAttitudeKernelReader::GetTargetOrientation(const std::string &objectNa
    if (failed_c())
    {
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
-      SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      //SpiceChar      err[MAX_LONG_MESSAGE];
-      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
+      SpiceInt       numChar  = MAX_LONG_MESSAGE_VALUE;
+      //SpiceChar      err[MAX_LONG_MESSAGE_VALUE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE_VALUE];
       getmsg_c(option, numChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting spacecraft time (ticks) for object \"";
@@ -387,9 +387,9 @@ void SpiceAttitudeKernelReader::GetTargetOrientation(const std::string &objectNa
    if (failed_c())
    {
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
-      SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      //SpiceChar      err[MAX_LONG_MESSAGE];
-      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
+      SpiceInt       numChar  = MAX_LONG_MESSAGE_VALUE;
+      //SpiceChar      err[MAX_LONG_MESSAGE_VALUE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE_VALUE];
       getmsg_c(option, numChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting tolerance (ticks) for object \"";
@@ -427,9 +427,9 @@ void SpiceAttitudeKernelReader::GetTargetOrientation(const std::string &objectNa
    if (failed_c())
    {
       ConstSpiceChar option[] = "LONG"; // retrieve long error message, for now
-      SpiceInt       numChar  = MAX_LONG_MESSAGE;
-      //SpiceChar      err[MAX_LONG_MESSAGE];
-      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE];
+      SpiceInt       numChar  = MAX_LONG_MESSAGE_VALUE;
+      //SpiceChar      err[MAX_LONG_MESSAGE_VALUE];
+      SpiceChar      *err = new SpiceChar[MAX_LONG_MESSAGE_VALUE];
       getmsg_c(option, numChar, err);
       std::string errStr(err);
       std::string errmsg = "Error getting C-matrix and/or angular velocity for object \"";

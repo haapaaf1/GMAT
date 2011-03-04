@@ -76,7 +76,7 @@ SpiceInterface::VALID_FRAMES[12] =
 
 const Integer SpiceInterface::MAX_SHORT_MESSAGE   = 320;
 const Integer SpiceInterface::MAX_EXPLAIN_MESSAGE = 320;
-const Integer SpiceInterface::MAX_LONG_MESSAGE    = 1840;
+const Integer SpiceInterface::MAX_LONG_MESSAGE    = MAX_LONG_MESSAGE_VALUE;
 const Integer SpiceInterface::MAX_CHAR_COMMENT    = 4000;
 
 /// array of files (kernels) currently loaded
