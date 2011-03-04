@@ -80,6 +80,7 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    // Load toolbar icons
    FileManager *fm = FileManager::Instance();
    std::string loc = fm->GetFullPathname("ICON_PATH");
+   wxString    locWx = loc.c_str();
    
    wxImage::AddHandler(new wxPNGHandler);
    
@@ -101,52 +102,52 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
       // Do not change the order, this order is how it appears in the toolbar
       
       // NewScript icon
-      LoadIcon(loc + "NewScript" + fileType, bitmapType, &bitmaps[0], NewScript_xpm);
+      LoadIcon(locWx + "NewScript" + fileType, bitmapType, &bitmaps[0], NewScript_xpm);
       
       // OpenScript icon
-      LoadIcon(loc + "OpenScript" + fileType, bitmapType, &bitmaps[1], OpenScript_xpm);
+      LoadIcon(locWx + "OpenScript" + fileType, bitmapType, &bitmaps[1], OpenScript_xpm);
 
       // SaveMission
-      LoadIcon(loc + "SaveMission" + fileType, bitmapType, &bitmaps[2], SaveMission_xpm);
+      LoadIcon(locWx + "SaveMission" + fileType, bitmapType, &bitmaps[2], SaveMission_xpm);
       
       // Copy
-      LoadIcon(loc + "Copy" + fileType, bitmapType, &bitmaps[3], copy_xpm);
+      LoadIcon(locWx + "Copy" + fileType, bitmapType, &bitmaps[3], copy_xpm);
       
       // Cut
-      LoadIcon(loc + "Cut" + fileType, bitmapType, &bitmaps[4], cut_xpm);
+      LoadIcon(locWx + "Cut" + fileType, bitmapType, &bitmaps[4], cut_xpm);
       
       // Paste
-      LoadIcon(loc + "Paste" + fileType, bitmapType, &bitmaps[5], paste_xpm);
+      LoadIcon(locWx + "Paste" + fileType, bitmapType, &bitmaps[5], paste_xpm);
 
       // Print
       bitmaps[6] = new wxBitmap(print_xpm);
       
       // Help
-      LoadIcon(loc + "Help" + fileType, bitmapType, &bitmaps[7], Help_xpm);
+      LoadIcon(locWx + "Help" + fileType, bitmapType, &bitmaps[7], Help_xpm);
       
       // RunMission
-      LoadIcon(loc + "RunMission" + fileType, bitmapType, &bitmaps[8], RunMission_xpm);
+      LoadIcon(locWx + "RunMission" + fileType, bitmapType, &bitmaps[8], RunMission_xpm);
       
       // PauseMission
-      LoadIcon(loc + "PauseMission" + fileType, bitmapType, &bitmaps[9], PauseMission_xpm);
+      LoadIcon(locWx + "PauseMission" + fileType, bitmapType, &bitmaps[9], PauseMission_xpm);
       
       // StopMission
-      LoadIcon(loc + "StopMission" + fileType, bitmapType, &bitmaps[10], StopMission_xpm);
+      LoadIcon(locWx + "StopMission" + fileType, bitmapType, &bitmaps[10], StopMission_xpm);
       
       // CloseAll
-      LoadIcon(loc + "CloseAll" + fileType, bitmapType, &bitmaps[11], CloseAll_xpm);
+      LoadIcon(locWx + "CloseAll" + fileType, bitmapType, &bitmaps[11], CloseAll_xpm);
       
       // CloseOne
-      LoadIcon(loc + "CloseOne" + fileType, bitmapType, &bitmaps[12], CloseOne_xpm);
+      LoadIcon(locWx + "CloseOne" + fileType, bitmapType, &bitmaps[12], CloseOne_xpm);
       
       // NewMission
-      LoadIcon(loc + "NewMission" + fileType, bitmapType, &bitmaps[13], NewMission_xpm);
+      LoadIcon(locWx + "NewMission" + fileType, bitmapType, &bitmaps[13], NewMission_xpm);
 
       // Build
       bitmaps[14] = new wxBitmap(build_xpm);
 
       // WebHelp
-      LoadIcon(loc + "WebHelp" + fileType, bitmapType, &bitmaps[15], WebHelp_xpm);
+      LoadIcon(locWx + "WebHelp" + fileType, bitmapType, &bitmaps[15], WebHelp_xpm);
       
       // ScreenShot
       bitmaps[16] = new wxBitmap(screenshot_xpm);
@@ -266,6 +267,7 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
    // Load toolbar icons
    FileManager *fm = FileManager::Instance();
    std::string loc = fm->GetFullPathname("ICON_PATH");
+   wxString    locWx = loc.c_str();
    
    // Check if directory exist to load a image file
    if (GmatFileUtil::DoesDirectoryExist(loc.c_str(), false))
@@ -281,16 +283,16 @@ void GmatToolBar::AddAnimationTools(wxToolBar* toolBar)
       // Do not change the order, this order is how it appears in the toolbar
       
       // RunAnimation icon
-      LoadIcon(loc + "RunAnimation" + fileType, bitmapType, &bitmaps[0], RunAnimation_xpm);
+      LoadIcon(locWx + "RunAnimation" + fileType, bitmapType, &bitmaps[0], RunAnimation_xpm);
       
       // StopAnimation icon
-      LoadIcon(loc + "StopAnimation" + fileType, bitmapType, &bitmaps[1], StopAnimation_xpm);
+      LoadIcon(locWx + "StopAnimation" + fileType, bitmapType, &bitmaps[1], StopAnimation_xpm);
 
       // FasterAnimation
-      LoadIcon(loc + "FasterAnimation" + fileType, bitmapType, &bitmaps[2], FasterAnimation_xpm);
+      LoadIcon(locWx + "FasterAnimation" + fileType, bitmapType, &bitmaps[2], FasterAnimation_xpm);
       
       // SlowerAnimation
-      LoadIcon(loc + "SlowerAnimation" + fileType, bitmapType, &bitmaps[3], SlowerAnimation_xpm);
+      LoadIcon(locWx + "SlowerAnimation" + fileType, bitmapType, &bitmaps[3], SlowerAnimation_xpm);
    }
    
    #ifdef __SHOW_GL_OPTION_DIALOG__
