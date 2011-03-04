@@ -159,4 +159,11 @@ protected:
    
    
 };
+
+// Required for Visual Studio dll exports
+#ifdef EXPORT_TEMPLATES
+   EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<ElementWrapper*>;
+   EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<ElementWrapper*>;
+#endif
+
 #endif // ElementWrapper_hpp

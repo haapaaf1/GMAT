@@ -321,12 +321,30 @@ typedef std::map<std::string, Gmat::ObjectType> ObjectTypeMap;
     // and imports them into the .exe file.
 
     // This fixes std::string:
-    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<char>;
-    EXPIMP_TEMPLATE template class DECLSPECIFIER std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
+    // Only do this if the export is noe already in a different module (wx, I'm looking at you!)
+    #ifdef IMPEXP_STDSTRING
+        EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<char>;
+        EXPIMP_TEMPLATE template class DECLSPECIFIER std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
+    #endif
+
+//    const std::basic_string::size_type std::basic_string<char, std::char_traits<char>, std::allocator<char>>::npos = size_t(-1); 
+//    EXPIMP_TEMPLATE template const typename DECLSPECIFIER std::basic_string<char, std::char_traits<char>, std::allocator<char>>::npos;
+
+
+ //   template<class _Elem,
+	//class _Traits,
+	//class _Alloc>
+	//_PGLOBAL const typename basic_string<_Elem, _Traits, _Alloc>::size_type
+	//	basic_string<_Elem, _Traits, _Alloc>::npos =
+	//		(typename basic_string<_Elem, _Traits, _Alloc>::size_type)(-1);
 
     // Fix StringArray:
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<std::string>;
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<std::string>;
+
+    // Fix vector of StringArray
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<StringArray>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<StringArray>;
 
     // Fix ObjectArray
     class GmatBase;     // forward reference
