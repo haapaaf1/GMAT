@@ -480,7 +480,6 @@ private:
    void DrawOrbitLines(int i, const wxString &objName, int obj, int objId);   
    void DrawObjectTexture(const wxString &objName, int obj, int objId, int frame);
    void DrawSolverData();
-   //void DrawSpacecraft(UnsignedInt scColor);
    void DrawEquatorialPlane(UnsignedInt color);
    void DrawEclipticPlane(UnsignedInt color);
    void DrawSunLine();

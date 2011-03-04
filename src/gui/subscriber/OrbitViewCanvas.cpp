@@ -3866,7 +3866,10 @@ void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
                       mObjectViewPos[index1+2]);
          GlColorType *yellow = (GlColorType*)&GmatColor::YELLOW32;
          GlColorType *red = (GlColorType*)&GmatColor::RED32;
-         DrawSpacecraft(mScRadius, yellow, red);//mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]]);
+         *sIntColor = mObjectOrbitColor[objId*MAX_DATA+mObjLastFrame[objId]];
+         // We want to differenciate spacecraft by orbit color (LOJ: 2011.02.16)
+         //DrawSpacecraft(mScRadius, yellow, red);
+         DrawSpacecraft(mScRadius, yellow, sGlColor);
       }
    }
    else
@@ -3940,40 +3943,6 @@ void OrbitViewCanvas::DrawSolverData()
    MessageInterface::ShowMessage("==========> DrawSolverData() leaving\n");
    #endif
 }
-
-
-//------------------------------------------------------------------------------
-//  void DrawSpacecraft(UnsignedInt scColor)
-//------------------------------------------------------------------------------
-/**
- * Draws spacecraft.
- */
-//------------------------------------------------------------------------------
-/*void OrbitViewCanvas::DrawSpacecraft(UnsignedInt scColor)
-{
-   // draw six faces of a long cube
-   *sIntColor = scColor;
-   // draw six faces of a long cube
-   // PS - See Rendering.cpp
-   DrawSpaceCraft(mScRadius, mScRadius, mScRadius*2, sGlColor);
-
-   // spacecraft with same color, use Display List
-   if (mGlList == 0)
-   {
-      mGlList = glGenLists( 1 );
-      glNewList( mGlList, GL_COMPILE_AND_EXECUTE );
-      
-      *sIntColor = GmatColor::YELLOW32;
-      // PS - See Rendering.cpp
-      DrawSpaceCraft(mScRadius/4, mScRadius*4, mScRadius*1.5, sGlColor);
-      glEndList();
-   }
-   else
-   {
-      glCallList( mGlList );
-   }
-
-} */// end DrawSpacecraft()
 
 
 //------------------------------------------------------------------------------
@@ -4917,17 +4886,12 @@ void OrbitViewCanvas::UpdateOtherData(const Real &time)
          // if object id found
          if (objId != UNKNOWN_OBJ_ID)
          {
-            // Commented out continue since we still need to get object's
-            // position for viewpoint or view direction object (LOJ: 2010.05.11)
-            if (!mDrawOrbitArray[objId])
-            {
-               //mDrawOrbitFlag[objId*MAX_DATA+mNumData] = false;
-               mDrawOrbitFlag[objId * MAX_DATA + mLastIndex] = false;
-               //continue;
-            }
-            
             int colorIndex = objId * MAX_DATA + mLastIndex;
-            mDrawOrbitFlag[colorIndex] = true;
+            if (!mDrawOrbitArray[objId])
+               mDrawOrbitFlag[colorIndex] = false;
+            else
+               mDrawOrbitFlag[colorIndex] = true;
+            
             Rvector6 objState;
             try
             {
