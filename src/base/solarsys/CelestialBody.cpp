@@ -4262,7 +4262,7 @@ bool CelestialBody::SetUpSPICE()
                      (orbitSpiceKernelNames.at(ii)).c_str());
             #endif
          }
-         catch (UtilityException& ue)
+         catch (UtilityException&)
          {
             // try again with path name if no path found
             std::string spkName = orbitSpiceKernelNames.at(ii);
@@ -4280,7 +4280,7 @@ bool CelestialBody::SetUpSPICE()
                      spkName.c_str());
                   #endif
                }
-               catch (UtilityException& ue)
+               catch (UtilityException&)
                {
                   MessageInterface::ShowMessage("ERROR loading kernel %s\n",
                      (orbitSpiceKernelNames.at(ii).c_str()));

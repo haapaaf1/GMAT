@@ -321,7 +321,7 @@ typedef std::map<std::string, Gmat::ObjectType> ObjectTypeMap;
     // and imports them into the .exe file.
 
     // This fixes std::string:
-    // Only do this if the export is noe already in a different module (wx, I'm looking at you!)
+    // Only do this if the export is not already in a different module (wx, I'm looking at you!)
     #ifdef IMPEXP_STDSTRING
         EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<char>;
         EXPIMP_TEMPLATE template class DECLSPECIFIER std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
@@ -363,7 +363,11 @@ typedef std::map<std::string, Gmat::ObjectType> ObjectTypeMap;
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<UnsignedInt>;
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<UnsignedInt>;
 
-    // Fix ObjectType
+    // Fix vector of bools
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<bool>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<bool>;
+
+    // Fix ObjectType vector
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<Gmat::ObjectType>;
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<Gmat::ObjectType>;
 
@@ -409,6 +413,25 @@ typedef std::map<std::string, Gmat::ObjectType> ObjectTypeMap;
     class CoordinateSystem;        // forward reference
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<CoordinateSystem*>;
     EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<CoordinateSystem*>;
+
+    // Fix vector of TriggerManager pointers
+    class TriggerManager;        // forward reference
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<TriggerManager*>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<TriggerManager*>;
+
+    // Fix vector of Sandbox pointers
+    class Sandbox;        // forward reference
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<Sandbox*>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<Sandbox*>;
+
+    // Fix vector of command pointers
+    class GmatCommand;        // forward reference
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<GmatCommand*>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<GmatCommand*>;
+
+    // Fix vector of PluginResource pointers
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<Gmat::PluginResource*>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::vector<Gmat::PluginResource*>;
 
     // Maps -- still need to be addressed
     //EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<std::string>;

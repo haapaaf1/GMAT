@@ -1416,6 +1416,9 @@ void EphemerisFile::CreateSpiceKernelWriter()
    }
    catch (BaseException &e)
    {
+      // Keep from setting a warning
+      e.GetMessageType();
+
       #ifdef DEBUG_EPHEMFILE_SPICE
       MessageInterface::ShowMessage(
             "  Error creating SpiceOrbitKernelWriter: %s", (e.GetFullMessage()).c_str());
@@ -2891,6 +2894,9 @@ void EphemerisFile::WriteSpkComments(const std::string &comments)
    }
    catch (BaseException &e)
    {
+      // Keep from setting a warning
+      e.GetMessageType();
+
       spkWriteFailed = true;
       #ifdef DEBUG_EPHEMFILE_SPICE
       MessageInterface::ShowMessage("spkWriter->AddMetaData() failed\n");
@@ -2927,6 +2933,9 @@ void EphemerisFile::FinalizeSpkFile()
    }
    catch (BaseException &e)
    {
+      // Keep from setting a warning
+      e.GetMessageType();
+
       DeleteOrbitData();
       spkWriteFailed = true;
       #ifdef DEBUG_EPHEMFILE_SPICE

@@ -1231,7 +1231,7 @@ bool SolarSystem::Initialize()
    {
       LoadSpiceKernels();
    }
-   catch (UtilityException &ue)
+   catch (UtilityException &)
    {
       std::string errmsg = "ERROR loading the main Solar System ephemeris (SPK) or leap second (LSK) kernel.\n";
       throw SolarSystemException(errmsg);
@@ -1672,7 +1672,7 @@ void SolarSystem::LoadSpiceKernels()
          ("   kernelReader has successfully loaded the SPK file %s\n", theSPKFilename.c_str());
       #endif
    }
-   catch (UtilityException& ue)
+   catch (UtilityException&)
    {
       // try again with path name if no path found
       std::string spkName = theSPKFilename;
@@ -1690,7 +1690,7 @@ void SolarSystem::LoadSpiceKernels()
                ("   kernelReader has loaded file %s\n", spkName.c_str());
             #endif
          }
-         catch (UtilityException& ue)
+         catch (UtilityException&)
          {
             MessageInterface::ShowMessage("ERROR loading kernel %s\n",
                spkName.c_str());
@@ -1714,7 +1714,7 @@ void SolarSystem::LoadSpiceKernels()
          ("   kernelReader has successfully loaded the LSK file %s\n", lskKernelName.c_str());
       #endif
    }
-   catch (UtilityException& ue)
+   catch (UtilityException&)
    {
       #ifdef DEBUG_SS_SPICE
       MessageInterface::ShowMessage
@@ -1741,7 +1741,7 @@ void SolarSystem::LoadSpiceKernels()
                ("   kernelReader has loaded LSK file %s\n", lskName.c_str());
             #endif
          }
-         catch (UtilityException& ue)
+         catch (UtilityException&)
          {
             MessageInterface::ShowMessage("ERROR loading kernel %s - rethrowing exception\n",
                lskName.c_str());
