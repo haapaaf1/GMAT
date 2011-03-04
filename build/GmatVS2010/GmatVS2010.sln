@@ -12,6 +12,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GmatLibraryTester", "GmatLi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GMAT_wxGui", "GMAT_wxGui\GMAT_wxGui.vcxproj", "{36C53016-AAAF-4579-993D-B10F668CBD44}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libMatlabInterface", "libMatlabInterface\libMatlabInterface.vcxproj", "{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6} = {CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -41,6 +46,12 @@ Global
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.Release|Win32.ActiveCfg = Release|Win32
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.Release|Win32.Build.0 = Release|Win32
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.Release|x64.ActiveCfg = Release|Win32
+		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Debug|Win32.Build.0 = Debug|Win32
+		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Debug|x64.ActiveCfg = Debug|Win32
+		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|Win32.ActiveCfg = Release|Win32
+		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|Win32.Build.0 = Release|Win32
+		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
