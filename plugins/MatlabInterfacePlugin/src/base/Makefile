@@ -15,7 +15,8 @@ all: prep $(TARGET)
 prep:
 	rm -rf $(TARGET)
 
-HEADERS = -Iplugin \
+HEADERS = -Iinclude \
+          -Iplugin \
           -Ifactory \
           -Ifunction \
           -Iinterface \
