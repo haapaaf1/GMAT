@@ -25,11 +25,7 @@
 //#include "GmatServer.hpp"  
 #include "GmatInterface.hpp"  // a singleton
 
-#if __CONSOLE_APP__
-class GmatServer;
-#else
-#include "GmatServer.hpp"
-#endif
+class GmatServer;             // Forward refefence the server
 
 
 class GMAT_API ExternalOptimizer : public Optimizer
