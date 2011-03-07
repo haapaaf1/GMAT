@@ -453,7 +453,6 @@
     <ClCompile Include="..\..\..\src\base\solver\ExternalOptimizer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\src\base\solver\Gradient.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\InternalOptimizer.cpp" />
@@ -871,7 +870,6 @@
     <ClInclude Include="..\..\..\src\base\solver\ExternalOptimizer.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\..\src\base\solver\Gradient.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\InternalOptimizer.hpp" />

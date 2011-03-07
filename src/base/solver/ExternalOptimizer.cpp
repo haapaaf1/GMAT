@@ -130,7 +130,7 @@ bool ExternalOptimizer::Initialize()
          functionPath = pathname;
       }
    }
-   catch (GmatBaseException &e)
+   catch (GmatBaseException &)
    {
       try
       {
@@ -138,7 +138,7 @@ bool ExternalOptimizer::Initialize()
          pathname = fm->GetFullPathname("FUNCTION_PATH");
          functionPath = pathname;
       }
-      catch (GmatBaseException &e)
+      catch (GmatBaseException &)
       {
          throw;  // for now, at least
       }
