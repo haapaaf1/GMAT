@@ -22,15 +22,16 @@
 #ifndef GmatPluginFunctions_hpp
 #define GmatPluginFunctions_hpp
 
+#include "fmincon_defs.hpp"
 #include "Factory.hpp"
 
 class MessageReceiver;
 
 extern "C"
 {
-   Integer     GetFactoryCount();
-   Factory*    GetFactoryPointer(Integer index);
-   void        SetMessageReceiver(MessageReceiver* mr);
+   Integer    FMINCON_API GetFactoryCount();
+   Factory    FMINCON_API *GetFactoryPointer(Integer index);
+   void       FMINCON_API SetMessageReceiver(MessageReceiver* mr);
 };
 
 

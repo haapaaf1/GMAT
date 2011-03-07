@@ -19,12 +19,13 @@
 #ifndef FminconOptimizer_hpp
 #define FminconOptimizer_hpp
 
+#include "fmincon_defs.hpp"
 #include "gmatdefs.hpp"
 #include "ExternalOptimizer.hpp"
 
 class MatlabInterface;
 
-class GMAT_API FminconOptimizer : public ExternalOptimizer
+class FMINCON_API FminconOptimizer : public ExternalOptimizer
 {
 public:
    FminconOptimizer(const std::string &name);

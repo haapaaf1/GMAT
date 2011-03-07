@@ -1,4 +1,21 @@
 //$Id$
+//------------------------------------------------------------------------------
+//                  MATLAB Interface Import/Export Definitions
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under the FDSS 
+// contract, task order 28
+//
+// Author: Darrel J. Conway, Thinking Systems, Inc.
+// Created: 2011/03/04
+//
+/**
+ * Import/Export Definitions for the MATLAB interface library 
+ */
+//------------------------------------------------------------------------------
 
 
 

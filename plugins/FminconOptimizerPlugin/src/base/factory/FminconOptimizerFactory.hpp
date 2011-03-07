@@ -20,10 +20,11 @@
 #define FminconOptimizerFactory_hpp
 
 
+#include "fmincon_defs.hpp"
 #include "Factory.hpp"
 #include "Solver.hpp"
 
-class FminconOptimizerFactory : public Factory
+class FMINCON_API FminconOptimizerFactory : public Factory
 {
 public:
    virtual Solver* CreateSolver(const std::string &ofType,

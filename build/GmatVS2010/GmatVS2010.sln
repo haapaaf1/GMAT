@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libMatlabInterface", "libMa
 		{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6} = {CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libFminconOptimizer", "libFminconOptimizer\libFminconOptimizer.vcxproj", "{8FCD168C-6159-421A-955F-A04809E38AAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -52,6 +54,12 @@ Global
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|Win32.ActiveCfg = Release|Win32
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|Win32.Build.0 = Release|Win32
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|x64.ActiveCfg = Release|Win32
+		{8FCD168C-6159-421A-955F-A04809E38AAE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8FCD168C-6159-421A-955F-A04809E38AAE}.Debug|Win32.Build.0 = Debug|Win32
+		{8FCD168C-6159-421A-955F-A04809E38AAE}.Debug|x64.ActiveCfg = Debug|Win32
+		{8FCD168C-6159-421A-955F-A04809E38AAE}.Release|Win32.ActiveCfg = Release|Win32
+		{8FCD168C-6159-421A-955F-A04809E38AAE}.Release|Win32.Build.0 = Release|Win32
+		{8FCD168C-6159-421A-955F-A04809E38AAE}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

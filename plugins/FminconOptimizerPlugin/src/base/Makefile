@@ -15,9 +15,9 @@ all: prep $(TARGET)
 prep:
 	rm -rf $(TARGET)
 
-HEADERS = -Iplugin \
+HEADERS = -Iinclude \
+          -Iplugin \
           -Ifactory \
-          -Ifunction \
           -Isolver \
           -I$(GMAT_CODE_LOCATION)/base/include \
           -I$(GMAT_CODE_LOCATION)/base/attitude \
