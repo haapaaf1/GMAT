@@ -74,7 +74,7 @@
       <Version>2011a</Version>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\wxWidgets-2.8.11-VS2010\include;..\..\..\src\gui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\Gmat3rdParty\wxWidgets\include;..\..\..\src\gui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
