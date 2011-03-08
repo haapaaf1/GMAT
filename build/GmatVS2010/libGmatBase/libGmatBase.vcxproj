@@ -117,7 +117,7 @@
       <OutputFile>..\..\..\bin\$(TargetName)$(TargetExt)</OutputFile>
       <Version>2011a</Version>
       <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\cspice\32Bit\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cspice.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
