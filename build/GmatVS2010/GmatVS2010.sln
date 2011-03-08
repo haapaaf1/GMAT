@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libGmatBase", "libGmatBase\libGmatBase.vcxproj", "{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{137C8D89-F967-41A3-BCC8-BB2BBF41F22A}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GmatLibraryTester", "GmatLibraryTester\GmatLibraryTester.vcxproj", "{05588283-9E15-4DA2-955D-9986F4939514}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6} = {CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}
