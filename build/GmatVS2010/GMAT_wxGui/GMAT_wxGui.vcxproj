@@ -59,17 +59,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>C:\wxWidgets-2.8.11-VS2010\include\msvc;C:\wxWidgets-2.8.11-VS2010\include;..\..\..\src\gui\include;..\..\..\src\gui\include\bitmaps;..\..\..\src\gui\foundation;..\..\..\src\gui\asset;..\..\..\src\gui\burn;..\..\..\src\gui\command;..\..\..\src\gui\controllogic;..\..\..\src\gui\coordsystem;..\..\..\src\gui\forcemodel;..\..\..\src\gui\function;..\..\..\src\gui\hardware;..\..\..\src\gui\mission;..\..\..\src\gui\output;..\..\..\src\gui\propagator;..\..\..\src\gui\rendering;..\..\..\src\gui\solarsys;..\..\..\src\gui\solver;..\..\..\src\gui\spacecraft;..\..\..\src\gui\subscriber;..\..\..\src\gui\view;..\..\..\src\gui\app;..\..\..\src\base\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\Gmat3rdParty\wxWidgets\include\msvc;..\..\..\..\Gmat3rdParty\wxWidgets\include;..\..\..\src\gui\include;..\..\..\src\gui\include\bitmaps;..\..\..\src\gui\foundation;..\..\..\src\gui\asset;..\..\..\src\gui\burn;..\..\..\src\gui\command;..\..\..\src\gui\controllogic;..\..\..\src\gui\coordsystem;..\..\..\src\gui\forcemodel;..\..\..\src\gui\function;..\..\..\src\gui\hardware;..\..\..\src\gui\mission;..\..\..\src\gui\output;..\..\..\src\gui\propagator;..\..\..\src\gui\rendering;..\..\..\src\gui\solarsys;..\..\..\src\gui\solver;..\..\..\src\gui\spacecraft;..\..\..\src\gui\subscriber;..\..\..\src\gui\view;..\..\..\src\gui\app;..\..\..\src\base\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PreprocessorDefinitions>_MBCS;_DYNAMICLINK;WXUSINGDLL;SKIP_DEVIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4231;4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4231;4996;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\wxWidgets-2.8.11-VS2010\lib\vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\wxWidgets\lib\vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>2011a</Version>
     </Link>
