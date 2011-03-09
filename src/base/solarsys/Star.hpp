@@ -77,11 +77,6 @@ public:
    virtual void      Copy(const GmatBase* orig);
 
 
-//   static const Real                  STAR_RADIANT_POWER;       // W / m^2
-//   static const Real                  STAR_REFERENCE_DISTANCE;  // km
-//   static const Real                  STAR_PHOTOSPHERE_RADIUS;  // m
-   // add other ones as needed
-
 protected:
 
    enum
@@ -99,18 +94,11 @@ protected:
    static const Gmat::ParameterType PARAMETER_TYPE[
       StarParamCount - CelestialBodyParamCount];
 
-   // constants for cartographic coordinates
-   static const Real alpha;// = 286.13;      // deg
-   static const Real delta;// = 63.87;       // deg
-   static const Real w1;//    = 84.10;       // deg
-   static const Real w2;//    = 14.1844000;  //
-
       // radiant power and reference distance
    Real      radiantPower;
    Real      referenceDistance;
    Real      photosphereRadius;  // meters
 
-//   void             InitializeStar();
    virtual Rvector6 ComputeTwoBody(const A1Mjd &forTime);
 
 private:
