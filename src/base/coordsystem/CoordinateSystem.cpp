@@ -453,6 +453,7 @@ bool CoordinateSystem::Initialize()
       axes->SetJ2000BodyName(j2000BodyName);
       axes->SetRefObject(origin,Gmat::SPACE_POINT,originName);
       axes->SetRefObject(j2000Body,Gmat::SPACE_POINT,j2000BodyName);
+      axes->SetCoordinateSystemName(instanceName);
       axes->Initialize();
    }
    
