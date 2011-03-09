@@ -34,6 +34,7 @@
 #include "Rmatrix.hpp"
 #include "Rvector6.hpp"
 #include "TimeTypes.hpp"
+#include "GmatDefaults.hpp"
 #ifdef __USE_SPICE__
 #include "SpiceOrbitKernelReader.hpp"
 #endif
@@ -51,8 +52,8 @@ namespace Gmat
       SPICE,
       PosVelSourceCount
    };
-   
-   const std::string POS_VEL_SOURCE_STRINGS[PosVelSourceCount] = 
+
+   const std::string POS_VEL_SOURCE_STRINGS[PosVelSourceCount] =
    {
       "TwoBodyPropagation",
       "DE405",

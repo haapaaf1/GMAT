@@ -23,6 +23,7 @@
 #include "Planet.hpp"
 #include "Moon.hpp"
 #include "GmatConstants.hpp"
+#include "GmatDefaults.hpp"
 #include "StringUtil.hpp"               // for ToString()
 #include "FileUtil.hpp"                 // for DoesFileExist
 #include "FileManager.hpp"              // for GetFullPathname()
@@ -47,6 +48,8 @@
 #ifdef DEBUG_MEMORY
 #include "MemoryTracker.hpp"
 #endif
+
+using namespace GmatSolarSystemDefaults;
 
 //---------------------------------
 // static data
@@ -81,340 +84,86 @@ SolarSystem::PARAMETER_TYPE[SolarSystemParamCount - GmatBaseParamCount] =
 
 
 
-// define default names form solar system bodies
-const std::string SolarSystem::SUN_NAME        = "Sun";
+const std::string SolarSystem::SUN_NAME        = GmatSolarSystemDefaults::SUN_NAME;
 
-const std::string SolarSystem::MERCURY_NAME    = "Mercury";
+const std::string SolarSystem::MERCURY_NAME    = GmatSolarSystemDefaults::MERCURY_NAME;
 
-const std::string SolarSystem::VENUS_NAME      = "Venus";
+const std::string SolarSystem::VENUS_NAME      = GmatSolarSystemDefaults::VENUS_NAME;
 
-const std::string SolarSystem::EARTH_NAME      = "Earth";
-const std::string SolarSystem::MOON_NAME       = "Luna";
+const std::string SolarSystem::EARTH_NAME      = GmatSolarSystemDefaults::EARTH_NAME;
+const std::string SolarSystem::MOON_NAME       = GmatSolarSystemDefaults::MOON_NAME;
 
-const std::string SolarSystem::MARS_NAME       = "Mars";
-const std::string SolarSystem::PHOBOS_NAME     = "Phobos";
-const std::string SolarSystem::DEIMOS_NAME     = "Deimos";
+const std::string SolarSystem::MARS_NAME       = GmatSolarSystemDefaults::MARS_NAME;
+const std::string SolarSystem::PHOBOS_NAME     = GmatSolarSystemDefaults::PHOBOS_NAME;
+const std::string SolarSystem::DEIMOS_NAME     = GmatSolarSystemDefaults::DEIMOS_NAME;
 
-const std::string SolarSystem::JUPITER_NAME    = "Jupiter";
-const std::string SolarSystem::METIS_NAME      = "Metis";
-const std::string SolarSystem::ADRASTEA_NAME   = "Adrastea";
-const std::string SolarSystem::AMALTHEA_NAME   = "Amalthea";
-const std::string SolarSystem::THEBE_NAME      = "Thebe";
-const std::string SolarSystem::IO_NAME         = "Io";
-const std::string SolarSystem::EUROPA_NAME     = "Europa";
-const std::string SolarSystem::GANYMEDE_NAME   = "Ganymede";
-const std::string SolarSystem::CALLISTO_NAME   = "Callisto";
+const std::string SolarSystem::JUPITER_NAME    = GmatSolarSystemDefaults::JUPITER_NAME;
+const std::string SolarSystem::METIS_NAME      = GmatSolarSystemDefaults::METIS_NAME;
+const std::string SolarSystem::ADRASTEA_NAME   = GmatSolarSystemDefaults::ADRASTEA_NAME;
+const std::string SolarSystem::AMALTHEA_NAME   = GmatSolarSystemDefaults::AMALTHEA_NAME;
+const std::string SolarSystem::THEBE_NAME      = GmatSolarSystemDefaults::THEBE_NAME;
+const std::string SolarSystem::IO_NAME         = GmatSolarSystemDefaults::IO_NAME;
+const std::string SolarSystem::EUROPA_NAME     = GmatSolarSystemDefaults::EUROPA_NAME;
+const std::string SolarSystem::GANYMEDE_NAME   = GmatSolarSystemDefaults::GANYMEDE_NAME;
+const std::string SolarSystem::CALLISTO_NAME   = GmatSolarSystemDefaults::CALLISTO_NAME;
 
-const std::string SolarSystem::SATURN_NAME     = "Saturn";
-const std::string SolarSystem::PAN_NAME        = "Pan";
-const std::string SolarSystem::ATLAS_NAME      = "Atlas";
-const std::string SolarSystem::PROMETHEUS_NAME = "Promethus";
-const std::string SolarSystem::PANDORA_NAME    = "Pandora";
-const std::string SolarSystem::EPIMETHEUS_NAME = "Epimetheus";
-const std::string SolarSystem::JANUS_NAME      = "Janus";
-const std::string SolarSystem::MIMAS_NAME      = "Mimas";
-const std::string SolarSystem::ENCELADUS_NAME  = "Enceladus";
-const std::string SolarSystem::TETHYS_NAME     = "Tethys";
-const std::string SolarSystem::TELESTO_NAME    = "Telesto";
-const std::string SolarSystem::CALYPSO_NAME    = "Calypso";
-const std::string SolarSystem::DIONE_NAME      = "Dione";
-const std::string SolarSystem::HELENE_NAME     = "Helene";
-const std::string SolarSystem::RHEA_NAME       = "Rhea";
-const std::string SolarSystem::TITAN_NAME      = "Titan";
-const std::string SolarSystem::IAPETUS_NAME    = "Iapetus";
-const std::string SolarSystem::PHOEBE_NAME     = "Phoebe";
+const std::string SolarSystem::SATURN_NAME     = GmatSolarSystemDefaults::SATURN_NAME;
+const std::string SolarSystem::PAN_NAME        = GmatSolarSystemDefaults::PAN_NAME;
+const std::string SolarSystem::ATLAS_NAME      = GmatSolarSystemDefaults::ATLAS_NAME;
+const std::string SolarSystem::PROMETHEUS_NAME = GmatSolarSystemDefaults::PROMETHEUS_NAME;
+const std::string SolarSystem::PANDORA_NAME    = GmatSolarSystemDefaults::PANDORA_NAME;
+const std::string SolarSystem::EPIMETHEUS_NAME = GmatSolarSystemDefaults::EPIMETHEUS_NAME;
+const std::string SolarSystem::JANUS_NAME      = GmatSolarSystemDefaults::JANUS_NAME;
+const std::string SolarSystem::MIMAS_NAME      = GmatSolarSystemDefaults::MIMAS_NAME;
+const std::string SolarSystem::ENCELADUS_NAME  = GmatSolarSystemDefaults::ENCELADUS_NAME;
+const std::string SolarSystem::TETHYS_NAME     = GmatSolarSystemDefaults::TETHYS_NAME;
+const std::string SolarSystem::TELESTO_NAME    = GmatSolarSystemDefaults::TELESTO_NAME;
+const std::string SolarSystem::CALYPSO_NAME    = GmatSolarSystemDefaults::CALYPSO_NAME;
+const std::string SolarSystem::DIONE_NAME      = GmatSolarSystemDefaults::DIONE_NAME;
+const std::string SolarSystem::HELENE_NAME     = GmatSolarSystemDefaults::HELENE_NAME;
+const std::string SolarSystem::RHEA_NAME       = GmatSolarSystemDefaults::RHEA_NAME;
+const std::string SolarSystem::TITAN_NAME      = GmatSolarSystemDefaults::TITAN_NAME;
+const std::string SolarSystem::IAPETUS_NAME    = GmatSolarSystemDefaults::IAPETUS_NAME;
+const std::string SolarSystem::PHOEBE_NAME     = GmatSolarSystemDefaults::PHOEBE_NAME;
 
-const std::string SolarSystem::URANUS_NAME     = "Uranus";
-const std::string SolarSystem::CORDELIA_NAME   = "Cordelia";
-const std::string SolarSystem::OPHELIA_NAME    = "Ophelia";
-const std::string SolarSystem::BIANCA_NAME     = "Bianca";
-const std::string SolarSystem::CRESSIDA_NAME   = "Cressida";
-const std::string SolarSystem::DESDEMONA_NAME  = "Desdemona";
-const std::string SolarSystem::JULIET_NAME     = "Juliet";
-const std::string SolarSystem::PORTIA_NAME     = "Portia";
-const std::string SolarSystem::ROSALIND_NAME   = "Rosalind";
-const std::string SolarSystem::BELINDA_NAME    = "Belinda";
-const std::string SolarSystem::PUCK_NAME       = "Puck";
-const std::string SolarSystem::MIRANDA_NAME    = "Miranda";
-const std::string SolarSystem::ARIEL_NAME      = "Ariel";
-const std::string SolarSystem::UMBRIEL_NAME    = "Umbriel";
-const std::string SolarSystem::TITANIA_NAME    = "Titania";
-const std::string SolarSystem::OBERON_NAME     = "Oberon";
+const std::string SolarSystem::URANUS_NAME     = GmatSolarSystemDefaults::URANUS_NAME;
+const std::string SolarSystem::CORDELIA_NAME   = GmatSolarSystemDefaults::CORDELIA_NAME;
+const std::string SolarSystem::OPHELIA_NAME    = GmatSolarSystemDefaults::OPHELIA_NAME;
+const std::string SolarSystem::BIANCA_NAME     = GmatSolarSystemDefaults::BIANCA_NAME;
+const std::string SolarSystem::CRESSIDA_NAME   = GmatSolarSystemDefaults::CRESSIDA_NAME;
+const std::string SolarSystem::DESDEMONA_NAME  = GmatSolarSystemDefaults::DESDEMONA_NAME;
+const std::string SolarSystem::JULIET_NAME     = GmatSolarSystemDefaults::JULIET_NAME;
+const std::string SolarSystem::PORTIA_NAME     = GmatSolarSystemDefaults::PORTIA_NAME;
+const std::string SolarSystem::ROSALIND_NAME   = GmatSolarSystemDefaults::ROSALIND_NAME;
+const std::string SolarSystem::BELINDA_NAME    = GmatSolarSystemDefaults::BELINDA_NAME;
+const std::string SolarSystem::PUCK_NAME       = GmatSolarSystemDefaults::PUCK_NAME;
+const std::string SolarSystem::MIRANDA_NAME    = GmatSolarSystemDefaults::MIRANDA_NAME;
+const std::string SolarSystem::ARIEL_NAME      = GmatSolarSystemDefaults::ARIEL_NAME;
+const std::string SolarSystem::UMBRIEL_NAME    = GmatSolarSystemDefaults::UMBRIEL_NAME;
+const std::string SolarSystem::TITANIA_NAME    = GmatSolarSystemDefaults::TITANIA_NAME;
+const std::string SolarSystem::OBERON_NAME     = GmatSolarSystemDefaults::OBERON_NAME;
 
-const std::string SolarSystem::NEPTUNE_NAME    = "Neptune";
-const std::string SolarSystem::NAIAD_NAME      = "Naiad";
-const std::string SolarSystem::THALASSA_NAME   = "Thalassa";
-const std::string SolarSystem::DESPINA_NAME    = "Despina";
-const std::string SolarSystem::GALATEA_NAME    = "Galatea";
-const std::string SolarSystem::LARISSA_NAME    = "Larissa";
-const std::string SolarSystem::PROTEUS_NAME    = "Proteus";
-const std::string SolarSystem::TRITON_NAME     = "Triton";
+const std::string SolarSystem::NEPTUNE_NAME    = GmatSolarSystemDefaults::NEPTUNE_NAME;
+const std::string SolarSystem::NAIAD_NAME      = GmatSolarSystemDefaults::NAIAD_NAME;
+const std::string SolarSystem::THALASSA_NAME   = GmatSolarSystemDefaults::THALASSA_NAME;
+const std::string SolarSystem::DESPINA_NAME    = GmatSolarSystemDefaults::DESPINA_NAME;
+const std::string SolarSystem::GALATEA_NAME    = GmatSolarSystemDefaults::GALATEA_NAME;
+const std::string SolarSystem::LARISSA_NAME    = GmatSolarSystemDefaults::LARISSA_NAME;
+const std::string SolarSystem::PROTEUS_NAME    = GmatSolarSystemDefaults::PROTEUS_NAME;
+const std::string SolarSystem::TRITON_NAME     = GmatSolarSystemDefaults::TRITON_NAME;
 
-const std::string SolarSystem::PLUTO_NAME      = "Pluto";
-const std::string SolarSystem::CHARON_NAME     = "Charon";
-
-const Real SolarSystem::EARTH_EQUATORIAL_RADIUS = SolarSystem::PLANET_EQUATORIAL_RADIUS[SolarSystem::EARTH];
+const std::string SolarSystem::PLUTO_NAME      = GmatSolarSystemDefaults::PLUTO_NAME;
+const std::string SolarSystem::CHARON_NAME     = GmatSolarSystemDefaults::CHARON_NAME;
 
 
 
-// default values for Planet data ------------------------ planets ------------------------
-const std::string
-SolarSystem::PLANET_NAMES[NumberOfDefaultPlanets] =
-{
-   SolarSystem::MERCURY_NAME,
-   SolarSystem::VENUS_NAME,
-   SolarSystem::EARTH_NAME,
-   SolarSystem::MARS_NAME,
-   SolarSystem::JUPITER_NAME,
-   SolarSystem::SATURN_NAME,
-   SolarSystem::URANUS_NAME,
-   SolarSystem::NEPTUNE_NAME,
-   SolarSystem::PLUTO_NAME,
-};
-
+//// default values for Planet data ------------------------ planets ------------------------
 const Gmat::PosVelSource    SolarSystem::PLANET_POS_VEL_SOURCE    = Gmat::DE405;
-//const Gmat::AnalyticMethod  Planet::DEFAULT_ANALYTIC_METHOD   = Gmat::LOW_FIDELITY;
-
-// Units for Equatorial radius are km
-const Real                  SolarSystem::PLANET_EQUATORIAL_RADIUS[NumberOfDefaultPlanets]         =
-{
-   2.43970000000000e+003, // to match STK 2006.01.31 - was 2439.7,
-   6.05190000000000e+003, // match to STK 2006.01.31 - was 6051.8,
-   6.3781363E3, // to match STK 2006.01.31 - was 6378.1363,
-   3.39700000000000e+003, // to match STK 2006.01.31 - was 3396.200,
-   7.14920000000000e+004, // to match STK 2006.01.31 - was 71492.00,
-   6.02680000000000e+004, // to match STK 2006.01.31 - was 60368.0,
-   2.55590000000000e+004, // to match STK 2006.01.31 - was 25559.0,
-   2.52690000000000e+004, // to match STK 2006.01.31 - was 24764.0,
-   1162.0 // changed to match with STK. old:1195.0
-};
-const Real                  SolarSystem::PLANET_FLATTENING[NumberOfDefaultPlanets]         =
-{
-   0.0,
-   0.0,
-   0.00335270, // match to STK 2006.01.31 - was 0.0033528,
-   0.00647630, // match to STK 2006.01.31 - was 0.0064763,
-   0.06487439, // match to STK 2006.01.31 - was 0.0648744,
-   0.09796243, // match to STK 2006.01.31 - was 0.0979624,
-   0.02292734, // match to STK 2006.01.31 - was 0.0229273,
-   0.01856029, // match to STK 2006.01.31 - was 0.0171,
-   0.0
-};
-// Units for Mu are km^3/s^2
-const Real                  SolarSystem::PLANET_MU[NumberOfDefaultPlanets]                        =
-{
-   22032.080486418,
-   324858.59882646,
-   398600.4415,
-   42828.314258067,
-   126712767.85780,
-   37940626.061137,
-   5794549.0070719,
-   6836534.0638793,
-   981.60088770700
-};
 const Integer               SolarSystem::PLANET_ORDER[NumberOfDefaultPlanets]               =
                             {0, 0, 4, 0, 0, 0, 0, 0, 0};
 
 const Integer               SolarSystem::PLANET_DEGREE[NumberOfDefaultPlanets]              =
                             {0, 0, 4, 0, 0, 0, 0, 0, 0};
-const Rmatrix               SolarSystem::PLANET_SIJ[NumberOfDefaultPlanets]                 =
-{
-   Rmatrix(5,5,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0),
-   Rmatrix(5,5,
-           0.0,                  0.0,                  0.0,
-           0.0,                  0.0,
-           0.0,                  0.0,                  0.0,
-           0.0,                  0.0,
-           0.0, 1.47467423600000E-08,-9.53141845209000E-08,
-           0.0,                  0.0,
-           0.0, 5.40176936891000E-07, 8.11618282044000E-07,
-           2.11451354723000E-07, 0.0,
-           0.0, 4.91465604098000E-07, 4.83653955909000E-07,
-          -1.18564194898000E-07,      1.37586364127000E-06),
-   Rmatrix(5,5,
-           0.0,                  0.0,                  0.0,
-           0.0,                  0.0,
-           0.0,                  0.0,                  0.0,
-           0.0,                  0.0,
-           0.0, 1.19528010000000E-09,-1.40026639758800E-06,
-           0.0,                  0.0,
-           0.0, 2.48130798255610E-07,-6.18922846478490E-07,
-           1.41420398473540E-06, 0.0,
-           0.0,-4.73772370615970E-07, 6.62571345942680E-07,
-          -2.00987354847310E-07,      3.08848036903550E-07),
-   Rmatrix(5,5,
-           0.0,                  0.0,                  0.0,
-           0.0,                  0.0,
-           0.0,                  0.0,                  0.0,
-           0.0,                  0.0,
-           0.0, 6.54655690000000E-09, 4.90611750000000E-05,
-           0.0,                  0.0,
-           0.0, 2.52926620000000E-05, 8.31603630000000E-06,
-           2.55554990000000E-05, 0.0,
-           0.0, 3.70906170000000E-06,-8.97764090000000E-06,
-          -1.72832060000000E-07,     -1.28554120000000E-05),
-   Rmatrix(5,5,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0),
-   Rmatrix(5,5,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0),
-   Rmatrix(5,5,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0),
-   Rmatrix(5,5,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0),
-   Rmatrix(5,5,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0),
-};
-const Rmatrix               SolarSystem::PLANET_CIJ[NumberOfDefaultPlanets]                 =
-{
-   Rmatrix(5,5,
-                             1.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-           -2.68328157300000E-05, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0),
-   Rmatrix(5,5,
-                             1.0,                  0.0,                  0.0,
-                             0.0,                  0.0,
-                             0.0,                  0.0,                  0.0,
-                             0.0,                  0.0,
-           -1.95847963769000E-06, 2.87322988834000E-08, 8.52182522007000E-07,
-                             0.0,                  0.0,
-            7.98507258430000E-07, 2.34759127059000E-06,-9.45132723095000E-09,
-           -1.84756674598000E-07,                  0.0,
-            7.15385582249000E-07,-4.58736811774000E-07, 1.26875441402000E-07,
-           -1.74034531883000E-07, 1.78438307106000E-07),
-   Rmatrix(5,5,
-                             1.0,                  0.0,                  0.0,
-                             0.0,                   0.0,
-                             0.0,                  0.0,                  0.0,
-                             0.0,                   0.0,
-           -4.84165374886470E-04,-1.86987640000000E-10, 2.43926074865630E-06,
-                             0.0,                   0.0,
-            9.57170590888000E-07, 2.03013720555300E-06, 9.04706341272910E-07,
-            7.21144939823090E-07,                   0.0,
-            5.39777068357300E-07,-5.36243554298510E-07, 3.50670156459380E-07,
-            9.90868905774410E-07,-1.88481367425270E-07),
-   Rmatrix(5,5,
-                             1.0,                  0.0,                  0.0,
-                             0.0,                   0.0,
-                             0.0,                  0.0,                  0.0,
-                             0.0,                   0.0,
-           -8.75977040000000E-04, 3.69395770000000E-09,-8.46829230000000E-05,
-                             0.0,                   0.0,
-           -1.19062310000000E-05, 3.74737410000000E-06,-1.59844090000000E-05,
-            3.51325710000000E-05,                   0.0,
-            5.14919500000000E-06, 4.26122630000000E-06,-1.05467200000000E-06,
-            6.47421510000000E-06, 2.97350070000000E-07),
-   Rmatrix(5,5,
-                             1.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-           -6.59640053360000E-03, 0.0,             0.0,             0.0,
-                             0.0,
-            2.19219394350000E-04, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0),
-   Rmatrix(5,5,
-                             1.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-           -7.35666364600000E-03, 0.0,             0.0,             0.0,
-                             0.0,
-           -3.77964473010000E-04, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0),
-   Rmatrix(5,5,
-                             1.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-           -5.36656314600000E-03, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0),
-   Rmatrix(5,5,
-                             1.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-           -1.78885438200000E-03, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0,
-                             0.0, 0.0,             0.0,             0.0,
-                             0.0),
-   Rmatrix(5,5,
-           1.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0,
-           0.0, 0.0,             0.0,             0.0,             0.0),
-};
-const Real                  SolarSystem::PLANET_TWO_BODY_EPOCH[NumberOfDefaultPlanets]      =
-{
-   21544.500370768266, 21544.500370768266, 21544.500370768266,
-   21544.500370768266, 21544.500370768266, 21544.500370768266,
-   21544.500370768266, 21544.500370768266, 21544.500370768266
-};
-const Rvector6              SolarSystem::PLANET_TWO_BODY_ELEMENTS[NumberOfDefaultPlanets]   =
-{
-   Rvector6(57909212.938567216, 0.20562729774965544, 28.551674963293556,
-            10.99100758149257, 67.548689584103984,  175.10396761800456),
-   Rvector6(108208423.76486244, 0.0067572911404369688, 24.433051334216176,
-            8.007373221205856, 124.55871063212626,     49.889845117140576),
-   Rvector6(149653978.9783766,        0.01704556707314489, 23.439034090426388,
-            0.00018646554487906264, 101.7416388084352,    358.12708491129),
-   Rvector6(227939100.16983532,   0.093314935483163344, 24.677089965042784,
-            3.3736838414054472, 333.01849018562076,     23.020633424007744),
-   Rvector6(779362950.5867208, 0.049715759324379896, 23.235170252934984,
-            3.253166212922,   12.959463238924978,    20.296667207322848),
-   Rvector6(1433895241.1645338,  0.055944006117351672, 22.551333377462712,
-            5.9451029086964872, 83.977808941927856,   316.23400767222348),
-   Rvector6(2876804054.239868,   0.044369079419761096, 23.663364175915172,
-            1.850441916938424, 168.86875273062818,    145.8502865552013),
-   Rvector6(4503691751.2342816, 0.011211871260687014, 22.29780590076114,
-            3.47555654789392,  33.957145210261132,   266.76236610390636),
-   Rvector6(5909627293.567856,    0.24928777871911536, 23.4740184346088,
-            43.998303104440304, 183.03164997859696,    25.513664216653164)
-};
-
 const Integer               SolarSystem::PLANET_NUM_GRAVITY_MODELS[NumberOfDefaultPlanets] =
    {  1,  2,  3,  1,  1,  1,  1,  1,  0 };
 const Integer               SolarSystem::PLANET_NUM_ATMOSPHERE_MODELS[NumberOfDefaultPlanets] =
@@ -477,78 +226,13 @@ const std::string          SolarSystem::PLANET_SHAPE_MODELS[] =
    // none for Neptune at this time
    // none for Pluto at this time
 };
-
-//         SpinAxisRA  Rate        SpinAxisDEC  Rate        Rotation    Rate
-const Rvector6              SolarSystem::PLANET_ORIENTATION_PARAMETERS[NumberOfDefaultPlanets]   =
-{
-   Rvector6(281.01,    -0.033,      61.45,    -0.005,        329.548,    6.1385025),
-   Rvector6(272.76,     0.0   ,     67.16,     0.0,          160.20,    -1.4813688),
-   Rvector6(  0.0,     -0.641,      90.00,    -0.557,        190.147,  360.9856235),
-   Rvector6(317.68143, -0.1061,     52.88650, -0.0609,       176.630,  350.89198226),
-   Rvector6(268.05,    -0.009,      64.49,     0.003,        284.95,   870.5366420),
-   Rvector6( 40.589,   -0.036,      83.537,   -0.004,         38.90,   810.7939024),
-
-   Rvector6(257.311,    0.0,       -15.175,    0.0,          203.81,  -501.1600928),
-   Rvector6(299.36,     0.70,       43.46,    -0.51,         253.18,   536.3128492), // Neptune needs more, though
-   Rvector6(313.02,     0.0,         9.09,     0.0,          236.77,   -56.3623195)
-};
-
-const Integer               SolarSystem::PLANET_NAIF_IDS[NumberOfDefaultPlanets] =
-{
-      199,
-      299,
-      399,
-      499,
-      599,
-      699,
-      799,
-      899,
-      999,
-};
-
-// default values for Planet data ------------------------  moons  ------------------------
-const std::string           SolarSystem::MOON_NAMES[NumberOfDefaultMoons] =
-{
-   SolarSystem::MOON_NAME,
-//   SolarSystem::PHOBOS_NAME,
-//   SolarSystem::DEIMOS_NAME,
-};
-
-const std::string           SolarSystem::MOON_CENTRAL_BODIES[NumberOfDefaultMoons] =
-{
-   SolarSystem::EARTH_NAME,
-//   SolarSystem::MARS_NAME,
-//   SolarSystem::MARS_NAME,
-};
-
+//// default values for Planet data ------------------------  moons  ------------------------
 const Gmat::PosVelSource    SolarSystem::MOON_POS_VEL_SOURCE[NumberOfDefaultMoons]    =
 {
          Gmat::DE405,
 //         Gmat::TWO_BODY_PROPAGATION,
 //         Gmat::TWO_BODY_PROPAGATION,
 //       Gmat::TWO_BODY_PROPAGATION,
-};
-//const Gmat::AnalyticMethod  Planet::DEFAULT_ANALYTIC_METHOD   = Gmat::LOW_FIDELITY;
-
-// Units for Equatorial radius are km
-const Real                  SolarSystem::MOON_EQUATORIAL_RADIUS[NumberOfDefaultMoons]         =
-{
-   1738.2000,
-//   11.1,       // *** TEMPORARY ***
-//   11.1,       // *** TEMPORARY ***
-};
-const Real                  SolarSystem::MOON_FLATTENING[NumberOfDefaultMoons]         =
-{
-   0.0,
-//   0.0,
-//   0.0,
-};
-// Units for Mu are km^3/s^2
-const Real                  SolarSystem::MOON_MU[NumberOfDefaultMoons]                        =
-{
-   4902.8005821478,
-//   7.22e-4,        // *** TEMPORARY ***
-//   7.22e-4,        // *** TEMPORARY ***
 };
 const Integer               SolarSystem::MOON_ORDER[NumberOfDefaultMoons]               =
 {
@@ -563,94 +247,6 @@ const Integer               SolarSystem::MOON_DEGREE[NumberOfDefaultMoons]      
 //   0, // *** TEMPORARY ***
 //   0, // *** TEMPORARY ***
 };
-const Rmatrix               SolarSystem::MOON_SIJ[NumberOfDefaultMoons]                 =
-{
-   Rmatrix(5,5,
-         0.0,                  0.0,                  0.0,                  0.0,
-         0.0,
-         0.0,                  0.0,                  0.0,                  0.0,
-         0.0,
-         0.0, 4.78976286742000E-09, 1.19043314469000E-08,                  0.0,
-         0.0,
-         0.0, 5.46564929895000E-06, 4.88875341590000E-06,-1.76416063010000E-06,
-         0.0,
-         0.0, 1.63304293851000E-06,-6.76012176494000E-06,-1.34287028168000E-05,
-         3.94334642990000E-06),
-//   Rmatrix(5,5,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0),
-//   Rmatrix(5,5,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0),
-};
-const Rmatrix               SolarSystem::MOON_CIJ[NumberOfDefaultMoons]                 =
-{
-   Rmatrix(5,5,
-         1.0,                 0.0,                  0.0,
-         0.0,                 0.0,
-         0.0,                 0.0,                  0.0,
-         0.0,                 0.0,
--9.09314486280000E-05, 9.88441569067000E-09, 3.47139237760000E-05,
-         0.0,                 0.0,
--3.17765981183000E-06, 2.63497832935000E-05, 1.42005317544000E-05,
-1.22860504604000E-05,                 0.0,
-3.21502582986000E-06,-6.01154071094000E-06,-7.10667037450000E-06,
--1.37041711834000E-06,-6.03652719918000E-06),
-//   Rmatrix(5,5,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0),
-//   Rmatrix(5,5,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0,
-//         0.0,                  0.0,                  0.0,                  0.0,
-//         0.0),
-};
-const Real                  SolarSystem::MOON_TWO_BODY_EPOCH[NumberOfDefaultMoons]      =
-{
-      21544.500370768266,
-//      21544.500370768266,   // *** TEMPORARY ***
-//      21544.500370768266,   // *** TEMPORARY ***
-};
-const Rvector6              SolarSystem::MOON_TWO_BODY_ELEMENTS[NumberOfDefaultMoons]   =
-{
-      Rvector6(      385494.90434829952,  0.055908943292024992,   20.940245433093748,
-            12.233244412716252, 68.004298803147648,     137.94325682926458),
-//      Rvector6(      385494.90434829952,  0.055908943292024992,   20.940245433093748,
-//            12.233244412716252, 68.004298803147648,     137.94325682926458),           // *** TEMPORARY ***
-//      Rvector6(      385494.90434829952,  0.055908943292024992,   20.940245433093748,
-//            12.233244412716252, 68.004298803147648,     137.94325682926458),           // *** TEMPORARY ***
-};
-
 const Integer               SolarSystem::MOON_NUM_GRAVITY_MODELS[NumberOfDefaultMoons] =
    {  1,
          //0, 0,
@@ -687,45 +283,11 @@ const std::string          SolarSystem::MOON_SHAPE_MODELS[] =
 {
    "None"
 };
-
-//         SpinAxisRA  Rate        SpinAxisDEC  Rate        Rotation    Rate
-const Rvector6              SolarSystem::MOON_ORIENTATION_PARAMETERS[NumberOfDefaultMoons]   =
-{
-   Rvector6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  // for now, for default moons, calculations are done in the Moon class
-//   Rvector6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  // for now, for default moons, calculations are done in the Moon class
-//   Rvector6(0.0, 0.0, 0.0, 0.0, 0.0, 0.0),  // for now, for default moons, calculations are done in the Moon class
-};
-const Integer               SolarSystem::MOON_NAIF_IDS[NumberOfDefaultPlanets] =
-{
-      301,    // Luna
-//      401,    // Phobos
-//      402,    // Deimos
-};
-
-// default values for Planet data ------------------------  the Sun  ------------------------
-
+//// default values for Planet data ------------------------  the Sun  ------------------------
+//
 const Gmat::PosVelSource    SolarSystem::STAR_POS_VEL_SOURCE      = Gmat::DE405;
-const Real                  SolarSystem::STAR_EQUATORIAL_RADIUS   = 695990.0000;  // km
-const Real                  SolarSystem::STAR_FLATTENING          = 0.0;
-// Units for MU are km^3/s^2
-const Real                  SolarSystem::STAR_MU                  = 132712440017.99;
-//const Gmat::AnalyticMethod  STAR_ANALYTIC_METHOD     = Gmat::LOW_FIDELITY;
 const Integer               SolarSystem::STAR_ORDER               = 0;
 const Integer               SolarSystem::STAR_DEGREE              = 0;
-const Rmatrix               SolarSystem::STAR_SIJ                 = Rmatrix(5,5); //zeroes
-const Rmatrix               SolarSystem::STAR_CIJ                 = Rmatrix(5,5,
-      1.0, 0.0,             0.0,             0.0,             0.0,
-      0.0, 0.0,             0.0,             0.0,             0.0,
-      0.0, 0.0,             0.0,             0.0,             0.0,
-      0.0, 0.0,             0.0,             0.0,             0.0,
-      0.0, 0.0,             0.0,             0.0,             0.0);
-
-// NOTE - these must change when Earth's default values change!!!!!!!!!!!!
-const Real                  SolarSystem::STAR_TWO_BODY_EPOCH           = 21544.500370768266;
-const Rvector6              SolarSystem::STAR_TWO_BODY_ELEMENTS        = Rvector6(
-      149653978.9783766,        0.01704556707314489,  23.439034090426388,
-      0.00018646554487906264, 281.7416388084352,     358.12708491129);
-
 const Integer               SolarSystem::STAR_NUM_GRAVITY_MODELS = 0;
 const Integer               SolarSystem::STAR_NUM_ATMOSPHERE_MODELS = 0;
 const Integer               SolarSystem::STAR_NUM_MAGNETIC_MODELS = 0;
@@ -734,15 +296,6 @@ const std::string           SolarSystem::STAR_GRAVITY_MODELS = "None";
 const std::string           SolarSystem::STAR_ATMOSPHERE_MODELS = "None";
 const std::string           SolarSystem::STAR_MAGNETIC_MODELS = "None";
 const std::string           SolarSystem::STAR_SHAPE_MODELS = "None"; // @todo add Shape Models
-const Rvector6              SolarSystem::STAR_ORIENTATION_PARAMETERS = Rvector6(
-      286.13, 0.0, 63.87, 0.0, 84.10, 14.1844000);
-
-const Real                  SolarSystem::STAR_RADIANT_POWER       = 1358.0;
-// Units for reference distance are km (1 AU)
-const Real                  SolarSystem::STAR_REFERENCE_DISTANCE  = GmatPhysicalConstants::ASTRONOMICAL_UNIT;
-// Units for radius are meters
-const Real                  SolarSystem::STAR_PHOTOSPHERE_RADIUS  = 695990000.0;
-const Integer               SolarSystem::STAR_NAIF_IDS            = 10;
 
 
 // add other moons, asteroids, comets, as needed
@@ -1231,7 +784,7 @@ bool SolarSystem::Initialize()
    {
       LoadSpiceKernels();
    }
-   catch (UtilityException &)
+   catch (UtilityException &ue)
    {
       std::string errmsg = "ERROR loading the main Solar System ephemeris (SPK) or leap second (LSK) kernel.\n";
       throw SolarSystemException(errmsg);
@@ -1672,7 +1225,7 @@ void SolarSystem::LoadSpiceKernels()
          ("   kernelReader has successfully loaded the SPK file %s\n", theSPKFilename.c_str());
       #endif
    }
-   catch (UtilityException&)
+   catch (UtilityException& ue)
    {
       // try again with path name if no path found
       std::string spkName = theSPKFilename;
@@ -1690,7 +1243,7 @@ void SolarSystem::LoadSpiceKernels()
                ("   kernelReader has loaded file %s\n", spkName.c_str());
             #endif
          }
-         catch (UtilityException&)
+         catch (UtilityException& ue)
          {
             MessageInterface::ShowMessage("ERROR loading kernel %s\n",
                spkName.c_str());
@@ -1714,7 +1267,7 @@ void SolarSystem::LoadSpiceKernels()
          ("   kernelReader has successfully loaded the LSK file %s\n", lskKernelName.c_str());
       #endif
    }
-   catch (UtilityException&)
+   catch (UtilityException& ue)
    {
       #ifdef DEBUG_SS_SPICE
       MessageInterface::ShowMessage
@@ -1741,7 +1294,7 @@ void SolarSystem::LoadSpiceKernels()
                ("   kernelReader has loaded LSK file %s\n", lskName.c_str());
             #endif
          }
-         catch (UtilityException&)
+         catch (UtilityException& ue)
          {
             MessageInterface::ShowMessage("ERROR loading kernel %s - rethrowing exception\n",
                lskName.c_str());

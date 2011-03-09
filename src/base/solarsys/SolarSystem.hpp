@@ -35,6 +35,7 @@
 #include "CelestialBody.hpp"
 #include "PlanetaryEphem.hpp"
 #include "DeFile.hpp"
+#include "GmatDefaults.hpp"
 #ifdef __USE_SPICE__
 #include "SpiceOrbitKernelReader.hpp"
 #endif
@@ -251,25 +252,6 @@ public:
    // add other moons, asteroids, comets, as needed
    // what do we do about libration points??
    
-   static const Real EARTH_EQUATORIAL_RADIUS;
-
-//   enum DefaultPlanets
-//   {
-//      MERCURY = 0,
-//      VENUS,
-//      EARTH,
-//      MARS,
-//      JUPITER,
-//      SATURN,
-//      URANUS,
-//      NEPTUNE,
-//      PLUTO,
-//      NumberOfDefaultPlanets
-//   };
-//
-//
-//   static const Real                  PLANET_EQUATORIAL_RADIUS[NumberOfDefaultPlanets];
-
 
 protected:
    enum
@@ -352,100 +334,32 @@ private:
    bool CreateDeFile(const Integer id, const std::string &fileName,
                      Gmat::DeFileFormat format = Gmat::DE_BINARY);
    
-   /// Default planet data ---------------------------- planets ---------------
-   enum DefaultPlanets
-   {
-      MERCURY = 0,
-      VENUS,
-      EARTH,
-      MARS,
-      JUPITER,
-      SATURN,
-      URANUS,
-      NEPTUNE,
-      PLUTO,
-      NumberOfDefaultPlanets
-   };
-   
-   // default values for CelestialBody data
-   static const std::string           PLANET_NAMES[NumberOfDefaultPlanets];
+//   // default values for CelestialBody data
    static const Gmat::PosVelSource    PLANET_POS_VEL_SOURCE;
-
-   static const Real                  PLANET_EQUATORIAL_RADIUS[NumberOfDefaultPlanets];
-   static const Real                  PLANET_FLATTENING[NumberOfDefaultPlanets];
-   static const Real                  PLANET_MU[NumberOfDefaultPlanets];
-   static const Integer               PLANET_ORDER[NumberOfDefaultPlanets];
-   static const Integer               PLANET_DEGREE[NumberOfDefaultPlanets];
-   static const Rmatrix               PLANET_SIJ[NumberOfDefaultPlanets];
-   static const Rmatrix               PLANET_CIJ[NumberOfDefaultPlanets];
-   
-   static const Real                  PLANET_TWO_BODY_EPOCH[NumberOfDefaultPlanets];
-   static const Rvector6              PLANET_TWO_BODY_ELEMENTS[NumberOfDefaultPlanets];
-   
-   static const Integer               PLANET_NUM_GRAVITY_MODELS[NumberOfDefaultPlanets];
-   static const Integer               PLANET_NUM_ATMOSPHERE_MODELS[NumberOfDefaultPlanets];
-   static const Integer               PLANET_NUM_MAGNETIC_MODELS[NumberOfDefaultPlanets];
-   static const Integer               PLANET_NUM_SHAPE_MODELS[NumberOfDefaultPlanets];
+   static const Integer               PLANET_ORDER[GmatSolarSystemDefaults::NumberOfDefaultPlanets];
+   static const Integer               PLANET_DEGREE[GmatSolarSystemDefaults::NumberOfDefaultPlanets];
+   static const Integer               PLANET_NUM_GRAVITY_MODELS[GmatSolarSystemDefaults::NumberOfDefaultPlanets];
+   static const Integer               PLANET_NUM_ATMOSPHERE_MODELS[GmatSolarSystemDefaults::NumberOfDefaultPlanets];
+   static const Integer               PLANET_NUM_MAGNETIC_MODELS[GmatSolarSystemDefaults::NumberOfDefaultPlanets];
+   static const Integer               PLANET_NUM_SHAPE_MODELS[GmatSolarSystemDefaults::NumberOfDefaultPlanets];
    static const std::string           PLANET_GRAVITY_MODELS[];
    static const std::string           PLANET_ATMOSPHERE_MODELS[];
    static const std::string           PLANET_MAGNETIC_MODELS[];
    static const std::string           PLANET_SHAPE_MODELS[]; // @todo add Shape Models
-   static const Rvector6              PLANET_ORIENTATION_PARAMETERS[NumberOfDefaultPlanets];
-   static const Integer               PLANET_NAIF_IDS[NumberOfDefaultPlanets];
-  
-   /// Default planet data ----------------------------  moons  ---------------
-   enum DefaultMoons
-   {
-      LUNA = 0,
-//      PHOBOS, // wcs 2009.02.17 - add these later?
-//      DEIMOS,
-      // @todo - add other solar system moons here
-      NumberOfDefaultMoons
-   };
-   
-   // default values for CelestialBody data
-   static const std::string           MOON_NAMES[NumberOfDefaultMoons];
-   static const std::string           MOON_CENTRAL_BODIES[NumberOfDefaultMoons];
-   static const Gmat::PosVelSource    MOON_POS_VEL_SOURCE[NumberOfDefaultMoons];
-
-   static const Real                  MOON_EQUATORIAL_RADIUS[NumberOfDefaultMoons];
-   static const Real                  MOON_FLATTENING[NumberOfDefaultMoons];
-   static const Real                  MOON_MU[NumberOfDefaultMoons];
-   static const Integer               MOON_ORDER[NumberOfDefaultMoons];
-   static const Integer               MOON_DEGREE[NumberOfDefaultMoons];
-   static const Rmatrix               MOON_SIJ[NumberOfDefaultMoons];
-   static const Rmatrix               MOON_CIJ[NumberOfDefaultMoons];
-   
-   static const Real                  MOON_TWO_BODY_EPOCH[NumberOfDefaultMoons];
-   static const Rvector6              MOON_TWO_BODY_ELEMENTS[NumberOfDefaultMoons];
-   
-   static const Integer               MOON_NUM_GRAVITY_MODELS[NumberOfDefaultMoons];
-   static const Integer               MOON_NUM_ATMOSPHERE_MODELS[NumberOfDefaultMoons];
-   static const Integer               MOON_NUM_MAGNETIC_MODELS[NumberOfDefaultMoons];
-   static const Integer               MOON_NUM_SHAPE_MODELS[NumberOfDefaultMoons];
+   static const Gmat::PosVelSource    MOON_POS_VEL_SOURCE[GmatSolarSystemDefaults::NumberOfDefaultMoons];
+   static const Integer               MOON_ORDER[GmatSolarSystemDefaults::NumberOfDefaultMoons];
+   static const Integer               MOON_DEGREE[GmatSolarSystemDefaults::NumberOfDefaultMoons];
+   static const Integer               MOON_NUM_GRAVITY_MODELS[GmatSolarSystemDefaults::NumberOfDefaultMoons];
+   static const Integer               MOON_NUM_ATMOSPHERE_MODELS[GmatSolarSystemDefaults::NumberOfDefaultMoons];
+   static const Integer               MOON_NUM_MAGNETIC_MODELS[GmatSolarSystemDefaults::NumberOfDefaultMoons];
+   static const Integer               MOON_NUM_SHAPE_MODELS[GmatSolarSystemDefaults::NumberOfDefaultMoons];
    static const std::string           MOON_GRAVITY_MODELS[];
    static const std::string           MOON_ATMOSPHERE_MODELS[];
    static const std::string           MOON_MAGNETIC_MODELS[];
    static const std::string           MOON_SHAPE_MODELS[]; // @todo add Shape Models
-   static const Rvector6              MOON_ORIENTATION_PARAMETERS[NumberOfDefaultMoons];
-   static const Integer               MOON_NAIF_IDS[NumberOfDefaultPlanets];
- 
-   /// Default star data ----------------------------  the Sun  ---------------
-   
-   // default values for CelestialBody data
    static const Gmat::PosVelSource    STAR_POS_VEL_SOURCE;
-
-   static const Real                  STAR_EQUATORIAL_RADIUS;
-   static const Real                  STAR_FLATTENING;
-   static const Real                  STAR_MU;
    static const Integer               STAR_ORDER;
    static const Integer               STAR_DEGREE;
-   static const Rmatrix               STAR_SIJ;
-   static const Rmatrix               STAR_CIJ;
-   
-   static const Real                  STAR_TWO_BODY_EPOCH;
-   static const Rvector6              STAR_TWO_BODY_ELEMENTS;
-   
    static const Integer               STAR_NUM_GRAVITY_MODELS;
    static const Integer               STAR_NUM_ATMOSPHERE_MODELS;
    static const Integer               STAR_NUM_MAGNETIC_MODELS;
@@ -454,12 +368,6 @@ private:
    static const std::string           STAR_ATMOSPHERE_MODELS;
    static const std::string           STAR_MAGNETIC_MODELS;
    static const std::string           STAR_SHAPE_MODELS; // @todo add Shape Models
-   static const Rvector6              STAR_ORIENTATION_PARAMETERS;
-   static const Integer               STAR_NAIF_IDS;
-
-   static const Real                  STAR_RADIANT_POWER;       // W / m^2
-   static const Real                  STAR_REFERENCE_DISTANCE;  // km
-   static const Real                  STAR_PHOTOSPHERE_RADIUS;  // m
 
 };
 
