@@ -111,6 +111,7 @@ AxisSystem::PARAMETER_TYPE[AxisSystemParamCount - CoordinateBaseParamCount] =
 AxisSystem::AxisSystem(const std::string &itsType,
                        const std::string &itsName) :
 CoordinateBase(Gmat::AXIS_SYSTEM,itsType,itsName),
+coordName        (""),
 eop              (NULL),
 itrf             (NULL),
 epochFormat      ("A1ModJulian"),
@@ -165,6 +166,7 @@ CoordinateBase(axisSys),
 rotMatrix         (axisSys.rotMatrix),
 rotDotMatrix      (axisSys.rotDotMatrix),
 epoch             (axisSys.epoch),
+coordName         (axisSys.coordName),
 eop               (axisSys.eop),
 itrf              (axisSys.itrf),
 epochFormat       (axisSys.epochFormat),
@@ -214,6 +216,7 @@ const AxisSystem& AxisSystem::operator=(const AxisSystem &axisSys)
    if (&axisSys == this)
       return *this;
    CoordinateBase::operator=(axisSys);
+   coordName      = axisSys.coordName;
    rotMatrix      = axisSys.rotMatrix;
    rotDotMatrix   = axisSys.rotDotMatrix;
    epoch          = axisSys.epoch;
@@ -498,6 +501,13 @@ void AxisSystem::GetLastRotationDotMatrix(Real *mat) const
       mat[i] = rotDotData[i];
    
 }
+
+void AxisSystem::SetCoordinateSystemName(const std::string &csName)
+{
+   coordName = csName;
+}
+
+
 
 //---------------------------------------------------------------------------
 //  void AxisSystem::Initialize()

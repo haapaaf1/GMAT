@@ -80,6 +80,8 @@ public:
    virtual Rmatrix33             GetLastRotationDotMatrix() const;
    virtual void                  GetLastRotationDotMatrix(Real *mat) const;
    
+   virtual void                  SetCoordinateSystemName(const std::string &csName);
+
    // initializes the AxisSystem
    virtual bool Initialize();
    
@@ -160,6 +162,8 @@ protected:
    Rmatrix33   rotDotMatrix;
    /// epoch
    A1Mjd epoch;
+   /// Name of the coordinate system
+   std::string coordName;
    
    
    const Real *rotData;
@@ -195,8 +199,6 @@ protected:
    std::vector<IntegerArray> a, ap;
    Rvector                   A, B, C, D, E, F, Ap, Bp, Cp, Dp;
    
-   //Integer                   *aVals[];
-   //Integer                   *apVals[];
    Integer                   *aVals;
    Integer                   *apVals;
    
@@ -230,21 +232,6 @@ protected:
    
    virtual void      InitializeFK5();
 
-//   virtual Rmatrix33 ComputePrecessionMatrix(const Real tTDB, A1Mjd atEpoch);
-//   virtual Rmatrix33 ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch, 
-//                                           Real &dPsi,
-//                                           Real &longAscNodeLunar,
-//                                           Real &cosEpsbar);
-//   virtual Rmatrix33 ComputeSiderealTimeRotation(const Real jdTT,
-//                                                 const Real tUT1,
-//                                                 Real dPsi,
-//                                                 Real longAscNodeLunar,
-//                                                 Real cosEpsbar,
-//                                                 Real &cosAst,
-//                                                 Real &sinAst);
-//   virtual Rmatrix33 ComputeSiderealTimeDotRotation(const Real mjdUTC, A1Mjd atEpoch,
-//                                                    Real cosAst, Real sinAst);
-//   virtual Rmatrix33 ComputePolarMotionRotation(const Real mjdUTC, A1Mjd atEpoch);
    virtual void ComputePrecessionMatrix(const Real tTDB, A1Mjd atEpoch);
    virtual void ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch, 
                                            Real &dPsi,
