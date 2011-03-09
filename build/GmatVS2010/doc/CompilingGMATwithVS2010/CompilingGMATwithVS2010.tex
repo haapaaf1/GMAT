@@ -1,0 +1,229 @@
+%% Based on a TeXnicCenter-Template by Gyorgy SZEIDL.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%------------------------------------------------------------
+%
+\documentclass[letterpaper,10pt]{article}%
+%Options -- Point size:  10pt (default), 11pt, 12pt
+%        -- Paper size:  letterpaper (default), a4paper, a5paper, b5paper
+%                        legalpaper, executivepaper
+%        -- Orientation  (portrait is the default)
+%                        landscape
+%        -- Print size:  oneside (default), twoside
+%        -- Quality      final(default), draft
+%        -- Title page   notitlepage, titlepage(default)
+%        -- Columns      onecolumn(default), twocolumn
+%        -- Equation numbering (equation numbers on the right is the default)
+%                        leqno
+%        -- Displayed equations (centered is the default)
+%                        fleqn (equations start at the same distance from the right side)
+%        -- Open bibliography style (closed is the default)
+%                        openbib
+% For instance the command
+%           \documentclass[a4paper,12pt,leqno]{article}
+% ensures that the paper size is a4, the fonts are typeset at the size 12p
+% and the equation numbers are on the left side
+%
+\usepackage{amsmath}%
+\usepackage{amsfonts}%
+\usepackage{amssymb}%
+\usepackage{graphics,color}
+
+\oddsidemargin=0.0in
+\evensidemargin=0.0in
+\textwidth=6.5in
+\headheight=0.25in
+\topmargin=0.0in
+\textheight=8.5in
+
+
+%-------------------------------------------
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\begin{document}
+
+\title{Compiling GMAT using Visual Studio 2010\\\textit{Express Edition Instructions}}
+\author{Darrel J. Conway\thanks{Support provided by NASA GSFC FDSS Contract, Task 28.}
+\\Thinking Systems, Inc.\\Tucson, AZ}
+\date{March 2011}
+\maketitle
+
+\begin{abstract}
+This document describes the steps needed to build GMAT using Visual Studio 2010, Express Edition (VS2010).  The instructions start with a fresh installation of VS2010, provide directions for installing wxWidgets, and finally for building GMAT. 
+\end{abstract}
+
+\section{Introduction}
+
+\section{Installing Visual C++ 2010 / Visual Studio 2010 Express Edition}
+
+\subsection{Option 1: Web installation}
+
+Visual C++ can be installed using a web based installer
+
+\begin{enumerate}
+	\item Open a web browser and browse to the Visual Studio 2010 Express download page: \\http://www.microsoft.com/express/Downloads/\#2010-Visual-CPP
+	\item Download the installer for Visual C++
+	\item Open the installer (vc\_web.exe) by double clicking on it
+	\item Follow the installation instructions
+\end{enumerate}
+
+\subsection{Installing from a Disk Image}
+
+
+
+\begin{enumerate}
+\item Put the installation disk into your DVD drive
+\item If prompted, select ``Run Setup.hta'' from the Autoplay Menu
+%\begin{figure}
+%	\centering
+%		\includegraphics[width=0.60\textwidth]{DiskStart.eps}
+%	\caption{Screen for a New Disk}
+%	\label{fig:DiskStart}
+%\end{figure}
+\item Select Visual C++ 2010 Express from the menu that opens
+%\begin{figure}[H!]
+%	\centering
+%		\includegraphics[width=0.80\textwidth]{VisualCpp.eps}
+%	\caption{To add: Select Visual C\+\+ Here}
+%	\label{fig:VisualCpp}
+%\end{figure}
+\item Follow the installation instructions.  GMAT does not require SQLServer, so you can deselect that option for installation.
+\end{enumerate}
+
+\section{Folder Configuration}
+
+Create a folder for building GMAT.  I'll use C:\textbackslash GmatVS as the root folder.  This folder will contain the sub folders for third party components of the build -- wxWidgets, cspice, pcrecpp, and similar files.  Add the following folders to this root folder:
+\begin{itemize}
+\item Gmat3rdParty
+\item GmatDevelopment
+\end{itemize}
+
+Inside of the Gmat3rdParty folder, create the following subfolders (Skip the 64-bit folders if you are using Visual Studio Express Edition -- it only supports 32-bit builds):
+\begin{itemize}
+\item wxWidgets
+\item wxWidgets64Bit
+\item cspice
+\item cspice64Bit
+\end{itemize}
+
+\section{Downloading GMAT}
+
+GMAT's source code is located in a Subversion repository at SourceForge.  In addition to the source code, the repository at SourceForge contains the build files we'll need to proceed, including wxWidgets project files configured for Visual Studio 2010.  Because of this, you need to begin by downloading the GMAT development code using a Subversion client.  I am using SmartSVN on Windows, but any client should work.  Set up your client to access code at the following URL:
+
+\begin{quote}
+https:\textbackslash\textbackslash gmat.svn.sourceforge.net/svnroot/gmat/branches/development
+\end{quote}
+\noindent Check out the entire source tree from that location.
+
+\section{Building wxWidgets}
+
+\subsection{Install the wx Code}
+
+\begin{enumerate}
+\item Download wxWidgets 2.8 from http://wxwidgets.org/downloads/.  Use the latest stable version of the 2.8 tree (2.8.11 at this writing).
+\item Unpack the wx code into the folder named wxWidgets in your Gmat3rdParty folder.  You should see folders named art, build, contrib, demos, docs, include, lib, locale, samples, src, and utils in the wxWidgets folder when finished.
+\item Visual Studio 2010 has trouble processing the Visual C++ project files that ship with wx.  Instead, we'll use files already configured (using Visual Studio 2010 Professional) for wx at Thinking systems. 
+\begin{enumerate}
+\item The Visual Studio 2010 solution and project files for wxWidgets are located in an archive file in the GMAT folders you checked out earlier.  Find the file wxmsw.zip in the build/GmatVS2010 folder of that check out.
+\item Unpack the wxmsw.zip archive into your wxWidgets\textbackslash build\textbackslash msw folder.
+\item Check to see that the file wx\textbackslash dll.sln is in your Gmat3rdParty\textbackslash wxWidgets\textbackslash build\textbackslash msw folder.
+\end{enumerate}
+ 
+\end{enumerate}
+
+\subsection{Prepare and Build wxWidgets}
+\begin{enumerate}
+\item Open Visual Studio
+\item Select ``File | Open | Project/Solution...'' from the menu bar
+\item Open the wx\textbackslash dll.sln solution file from the build\textbackslash msw folder of your wxWidgets installation.  (For me, the file is found in  C\:\textbackslash GmatVS\textbackslash Gmat3rdParty\textbackslash wxWidgets\textbackslash build\textbackslash msw)
+\item GMAT needs the wxWidgets OpenGL components as part of the build.  This is configures in the wx\textbackslash setup.h configuration file for the build.  We need to change a setting in this file from its default setting.
+\begin{enumerate}
+	\item Open one of the projects in the Visual Studio solution tree
+	\item Open the Setup Headers folder in this project
+	\item Open the first setup.h file in the folder by double clicking on it
+	\item If this file has the line ``\textbackslash\textbackslash  Name:        wx/univ/setup.h'' at the top, open the other setup file. (You want to edit the file in msw rather than in univ; the file you want identifies itself as ``wx/msw/setup.h''.)
+	\item Search for wxUSE\_GLCANVAS in the open file
+	\item Set wxUSE\_GLCANVAS to 1 rather than the default value of 0
+\end{enumerate}
+\item On the Visual C++ toolbar select ``DLL Release'' (specifying the build configuration) and set your solution platform to Win32.
+\item Build the solution (right click on the Solution node at the top of the tree and press ``Build''.)
+\item Most, but not all, of the solution will build.  You may need to repeat the build process to get all of the libraries GMAT requires built.  Build the solution again until all but the dbgrid projects build.  (You are done when 19 of the 20 projects build.)
+\end{enumerate}
+
+\noindent Check to see that you have 13 dll files in the wxWidgets\textbackslash lib\textbackslash vc\_dll folder.  Copy these into your GmatDevelopment/bin folder.
+
+\section{Preparing SPICE}
+
+\textit{Procedure still tbd}  
+
+\section{Building GMAT}
+
+At this point, GMAT should build without further configuration.  Follow these steps:
+
+\begin{enumerate}
+\item Open Visual C++
+\item Select ``File | Open | Project/Solution...'' from the menu bar
+\item Browse to the GmatDevelopment\textbackslash build\textbackslash GmatVS2010 folder
+\item Select the GmatVS2010.sln solution file and click the Open button.  The GMAT solution will open and show projects to build GMAT and several plugin libraries.
+\item On the Visual C++ toolbar, set your solution configuration to Release and your solution platform to Win32.
+\item Right click on the GMAT\_wxGui project, and select Rebuild to completely build GMAT.  This process takes a few minutes.  
+\item Open a windows explorer and browse to your GmatDevelopment\textbackslash bin folder.  You should see GMAT.exe there, along with libGmatBase.dll and your wxWidgets libraries.
+\item Set up the GMAT data files and other files needed to run GMAT (See Appendix A).
+\item Double click on the GMAT.exe file to run GMAT.  Press the Run button to run the default mission.  Rejoice.
+\end{enumerate}
+
+\section{Building the MATLAB Plugin Libraries for MATLAB and fmincon}
+
+Next we will build the GMAT MATLAB interface.
+
+\begin{enumerate}
+\item Open Visual C++
+\item Select ``File | Open | Project/Solution...'' from the menu bar
+\item Browse to the GmatDevelopment\textbackslash build\textbackslash GmatVS2010 folder
+\item Select the GmatVS2010.sln solution file and click the Open button.  The GMAT solution will open and show projects to build GMAT and several plugin libraries.
+\item \textit{TBD: Configuration needed to set the MATLAB folder path info.  Basically, you right click on the project and edit paths to point to your MATLAB installation.}
+\item Right click on the libMatlabInterface project, and select Build.  (Don't select Rebuild unless you want to also rebuild libGmatBase.dll).
+\item Right click on the libFminconOptimizer project, and select Build.  (Don't select Rebuild unless you want to also rebuild libGmatBase.dll and libMatlabInterface).
+\item \textit{Sketchy, needs to be filled in} Add the new libraries to your GMAT startup file
+\item Open a windows explorer and browse to your GmatDevelopment\textbackslash bin folder.  You should see libMatlabInterface.dll and libFminconOptimizer.dll in the folder now.
+\item Double click on the GMAT.exe file to run GMAT.
+\item \textit{Sketchy, needs to be filled in} Check to confirm that fmincon is now available as an optimizer.
+\end{enumerate}
+
+
+
+\begin{thebibliography}{9}                                                                                               
+\bibitem {VisualStudio} Visual Studio Express can be downloaded from http://www.microsoft.com/express/Downloads/\#2010-Visual-CPP
+
+\bibitem {wx} http://wxwidgets.org/downloads/
+\end{thebibliography}
+
+
+\appendix
+
+\section{GMAT Data Files and Support Files }
+
+\textit{Here I'll describe the files folder, etc}
+
+\end{document}
