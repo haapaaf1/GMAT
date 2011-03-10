@@ -45,6 +45,8 @@ using namespace GmatTimeConstants;      // for JD offsets, etc.
 //#define DEBUG_BF_MATRICES
 //#define DEBUG_BF_CHECK_DETERMINANT
 //#define DEBUG_BF_ROT_MATRIX
+//#define DEBUG_BF_RECOMPUTE
+//#define DEBUG_BF_EPOCHS
 
 #ifdef DEBUG_FIRST_CALL
    static bool firstCallFired = false;
@@ -81,7 +83,11 @@ using namespace GmatTimeConstants;      // for JD offsets, etc.
 //------------------------------------------------------------------------------
 BodyFixedAxes::BodyFixedAxes(const std::string &itsName) :
 DynamicAxes("BodyFixed",itsName),
-de(NULL)
+de                       (NULL),
+prevEpoch                (0.0),
+prevUpdateInterval       (-99.9),
+prevOriginUpdateInterval (-99.9),
+prevLunaSrc              (Gmat::RotationDataSrcCount)
 {
    objectTypeNames.push_back("BodyFixedAxes");
    parameterCount = BodyFixedAxesParamCount;
@@ -99,9 +105,19 @@ de(NULL)
  */
 //------------------------------------------------------------------------------
 BodyFixedAxes::BodyFixedAxes(const BodyFixedAxes &bfAxes) :
-DynamicAxes    (bfAxes),
-de             (NULL)
+DynamicAxes(bfAxes),
+de                       (NULL),
+prevEpoch                (bfAxes.prevEpoch),
+prevUpdateInterval       (bfAxes.prevUpdateInterval),
+prevOriginUpdateInterval (bfAxes.prevOriginUpdateInterval),
+prevLunaSrc              (bfAxes.prevLunaSrc)
 {
+   #ifdef DEBUG_BF_RECOMPUTE
+      MessageInterface::ShowMessage("Constructing a new BFA (%p) from the old one (%p)\n",
+            this, &bfAxes);
+      MessageInterface::ShowMessage("   and prevEpoch(old) %12.10f copied to prevEpoch(new) %12.10f\n",
+            bfAxes.prevEpoch, prevEpoch);
+   #endif
 }
 
 //------------------------------------------------------------------------------
@@ -120,7 +136,12 @@ const BodyFixedAxes& BodyFixedAxes::operator=(const BodyFixedAxes &bfAxes)
    if (&bfAxes == this)
       return *this;
    DynamicAxes::operator=(bfAxes); 
-   de = bfAxes.de; 
+   de                       = bfAxes.de;
+   prevEpoch                = bfAxes.prevEpoch;
+   prevUpdateInterval       = bfAxes.prevUpdateInterval;
+   prevOriginUpdateInterval = bfAxes.prevOriginUpdateInterval;
+   prevLunaSrc              = bfAxes.prevLunaSrc;
+
    return *this;
 }
 
@@ -413,17 +434,68 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
          MessageInterface::ShowMessage(
             "Calling CalculateRotationMatrix at epoch %lf; ", atEpoch.Get());
    #endif
-   #ifdef DEBUG_BF_ROT_MATRIX
-      MessageInterface::ShowMessage("Entering CalculateRotationMatrix on object of type %s, origin = %s\n",
-            (GetTypeName()).c_str(), originName.c_str());
+   Real theEpoch = atEpoch.Get();
+   #ifdef DEBUG_BF_EPOCHS
+      MessageInterface::ShowMessage("CalculateRotationMatrix(%s)   epoch = %12.10f, prevEpoch = %12.10f ...... ",
+            (coordName.c_str()), theEpoch, prevEpoch);
+   #endif
+   #ifdef DEBUG_BF_RECOMPUTE
+      MessageInterface::ShowMessage("Entering CalculateRotationMatrix on object %s (%p) of type %s, origin = %s\n",
+            (coordName.c_str()), this, (GetTypeName()).c_str(), originName.c_str());
+      MessageInterface::ShowMessage("     epoch = %12.10f, prevEpoch = %12.10f\n", theEpoch, prevEpoch);
+//      if (originName == SolarSystem::MOON_NAME)
+//         MessageInterface::ShowMessage("   Luna source = %d, prevLunaSrc = %d\n",
+//               (Integer) ((CelestialBody*)origin)->GetRotationDataSource(), (Integer) prevLunaSrc);
+//      if (originName == SolarSystem::EARTH_NAME)
+//      {
+//         MessageInterface::ShowMessage("   Earth interval = %12.10f, prevOriginUpdateInterval = %12.10f\n",
+//               ((Planet*) origin)->GetNutationUpdateInterval(), prevOriginUpdateInterval);
+//         MessageInterface::ShowMessage("    interval = %12.10f, prevUpdateInterval = %12.10f\n",
+//               updateInterval, prevUpdateInterval);
+//      }
    #endif
 
+   // Code must check to see if we need to recompute.  Recomputation is only necessary
+   // if one or more of the following conditions are true:
+   // 1. the epoch is different (within machine precision) from the epoch at the last computation
+   // 2. if the origin is the Earth, the nutation update interval has changed
+   // 3. if the origin is Luna, the rotation data source has changed
+
+   if ((!forceComputation)                    &&
+       (originName == SolarSystem::MOON_NAME) &&
+       (IsEqual(theEpoch,      prevEpoch))    &&
+       (prevLunaSrc == ((CelestialBody*)origin)->GetRotationDataSource()))
+      {
+         #ifdef DEBUG_BF_RECOMPUTE
+            MessageInterface::ShowMessage("Don't need to recompute for Luna at this time!!\n");
+         #endif
+         return;
+      }
    
+
    // compute rotMatrix and rotDotMatrix
    if (originName == SolarSystem::EARTH_NAME)
    {
-      #ifdef DEBUG_BF_ROT_MATRIX
-         MessageInterface::ShowMessage("   body name is EARTH\n");
+      Real intervalFromOrigin = ((Planet*) origin)->GetNutationUpdateInterval();
+      if ((!forceComputation)                                     &&
+          (IsEqual(theEpoch,           prevEpoch)                 &&
+          (IsEqual(intervalFromOrigin, prevOriginUpdateInterval)) &&
+          (IsEqual(updateInterval,     prevUpdateInterval))))
+      {
+         #ifdef DEBUG_BF_EPOCHS
+            MessageInterface::ShowMessage("NOT recomputing\n");
+         #endif
+         #ifdef DEBUG_BF_RECOMPUTE
+            MessageInterface::ShowMessage("Don't need to recompute for Earth at this time!!\n");
+         #endif
+         return;
+      }
+
+      #ifdef DEBUG_BF_EPOCHS
+         MessageInterface::ShowMessage("RECOMPUTING!!!\n");
+      #endif
+      #ifdef DEBUG_BF_RECOMPUTE
+         MessageInterface::ShowMessage("   RECOMPUTING!!! - body name is EARTH\n");
       #endif
       #ifdef DEBUG_FIRST_CALL
          if (!firstCallFired)
@@ -443,7 +515,7 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 //      Real mjdUTC = TimeConverterUtil::Convert(atEpoch.Get(),
 //                    "A1Mjd", "UtcMjd", JD_JAN_5_1941);
 
-      Real mjdUTC = TimeConverterUtil::Convert(atEpoch.Get(),
+      Real mjdUTC = TimeConverterUtil::Convert(theEpoch,
                     TimeConverterUtil::A1MJD, TimeConverterUtil::UTCMJD, 
                     JD_JAN_5_1941);
       Real offset = JD_JAN_5_1941 - JD_NOV_17_1858;
@@ -456,7 +528,7 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
 //      Real mjdUT1 = TimeConverterUtil::Convert(atEpoch.Get(),
 //                    "A1Mjd", "Ut1Mjd", JD_JAN_5_1941);
 
-      Real mjdUT1 = TimeConverterUtil::Convert(atEpoch.Get(),
+      Real mjdUT1 = TimeConverterUtil::Convert(theEpoch,
                     TimeConverterUtil::A1MJD, TimeConverterUtil::UT1, 
                     JD_JAN_5_1941);
       
@@ -469,7 +541,7 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       // 20.02.06 - arg: changed to use enum types instead of strings
 //      Real mjdTT = TimeConverterUtil::Convert(atEpoch.Get(),
 //                   "A1Mjd", "TtMjd", JD_JAN_5_1941);      
-      Real mjdTT = TimeConverterUtil::Convert(atEpoch.Get(),
+      Real mjdTT = TimeConverterUtil::Convert(theEpoch,
                    TimeConverterUtil::A1MJD, TimeConverterUtil::TTMJD, 
                    JD_JAN_5_1941);      
       Real jdTT    = mjdTT + JD_JAN_5_1941; // right? 
@@ -505,8 +577,7 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       }
       else 
       {
-         updateIntervalToUse = 
-                              ((Planet*) origin)->GetNutationUpdateInterval();
+         updateIntervalToUse = intervalFromOrigin;
          //MessageInterface::ShowMessage("Using origin interval .....\n");
          #ifdef DEBUG_FIRST_CALL
             if (!firstCallFired)
@@ -633,7 +704,9 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                        rot[0][1], rot[1][1], rot[2][1],
                        rot[0][2], rot[1][2], rot[2][2]);
 
-
+      // save the data to compare against next time
+      prevUpdateInterval       = updateInterval;
+      prevOriginUpdateInterval = intervalFromOrigin;
 
       #ifdef DEBUG_FIRST_CALL
          if (!firstCallFired) 
@@ -672,12 +745,12 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       #endif
 
    }
-//   else if ((originName == SolarSystem::MOON_NAME) &&
-//      ((((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE_200) ||
-//       (((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE_405)))
    else if ((originName == SolarSystem::MOON_NAME) &&
-       (((CelestialBody*)origin)->GetPosVelSource() == Gmat::DE405))
+           (((CelestialBody*)origin)->GetRotationDataSource() == Gmat::DE_405_FILE))
    {
+      #ifdef DEBUG_BF_RECOMPUTE
+         MessageInterface::ShowMessage("   RECOMPUTING!!! - body name is LUNA\n");
+      #endif
       if (!de)
       {
          de = (DeFile*) ((CelestialBody*)origin)->GetSourceFile();
@@ -744,12 +817,11 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
            rotDotMatrix(1,0), rotDotMatrix(1,1), rotDotMatrix(1,2), 
            rotDotMatrix(2,0), rotDotMatrix(2,1), rotDotMatrix(2,2));
       #endif
-    }
-   
+   }
    else // compute for other bodies, using IAU data
    {
-      #ifdef DEBUG_BF_ROT_MATRIX
-         MessageInterface::ShowMessage("   origin name is %s\n", originName.c_str());
+      #ifdef DEBUG_BF_RECOMPUTE
+         MessageInterface::ShowMessage("   RECOMPUTING!!! - and the body name is %s\n", originName.c_str());
       #endif
       Real Wderiv[9];
       Real R13[3][3];
@@ -763,23 +835,23 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
       #endif
       // this method will return alpha (deg), delta (deg), 
       // W (deg), and Wdot (deg/day)
-      cartCoord   = ((CelestialBody*)origin)->
-                      GetBodyCartographicCoordinates(atEpoch);
+      cartCoord           = ((CelestialBody*)origin)->
+                            GetBodyCartographicCoordinates(atEpoch);
       Real rot1           = GmatMathConstants::PI_OVER_TWO + Rad(cartC[0]);
       Real rot2           = GmatMathConstants::PI_OVER_TWO - Rad(cartC[1]);
       Real W              = Rad(cartC[2]);
       Real Wdot           = Rad(cartC[3]) / SECS_PER_DAY; 
       // Convert Wdot from deg/day to rad/sec
-      Real R3leftT[9] =  {Cos(rot1),-Sin(rot1),0.0,
-                          Sin(rot1), Cos(rot1),0.0,
-                                0.0,       0.0,1.0};
-      Real R1middleT[9] =  {1.0,      0.0,       0.0,
-                            0.0,Cos(rot2),-Sin(rot2),
-                            0.0,Sin(rot2), Cos(rot2)};
+      Real R3leftT[9]     =  {Cos(rot1),-Sin(rot1),0.0,
+                              Sin(rot1), Cos(rot1),0.0,
+                                    0.0,       0.0,1.0};
+      Real R1middleT[9]   =  {1.0,      0.0,       0.0,
+                              0.0,Cos(rot2),-Sin(rot2),
+                              0.0,Sin(rot2), Cos(rot2)};
       
-      Real R3rightT[9] =  {Cos(W),-Sin(W),0.0,
-                           Sin(W), Cos(W),0.0,
-                              0.0,    0.0,1.0};
+      Real R3rightT[9]    =  {Cos(W),-Sin(W),0.0,
+                              Sin(W), Cos(W),0.0,
+                                 0.0,    0.0,1.0};
       
       Integer p3 = 0;
       for (Integer p = 0; p < 3; ++p)
@@ -841,11 +913,17 @@ void BodyFixedAxes::CalculateRotationMatrix(const A1Mjd &atEpoch,
                        rotDotResult[2][0],rotDotResult[2][1],rotDotResult[2][2]); 
    }
       
+   // Save the epoch for comparison the next time through
+   prevEpoch = theEpoch;
+   #ifdef DEBUG_BF_RECOMPUTE
+      MessageInterface::ShowMessage("at the end, just set prevEpoch to %12.10f\n", prevEpoch);
+   #endif
+   if (originName == SolarSystem::MOON_NAME)
+      prevLunaSrc = ((CelestialBody*)origin)->GetRotationDataSource();
+
    #ifdef DEBUG_FIRST_CALL
       firstCallFired = true;
       MessageInterface::ShowMessage("NOW exiting BFA::CalculateRotationMatrix ...\n");
    #endif
 
 }
-
-

@@ -31,6 +31,7 @@
 #include "EopFile.hpp"
 #include "DeFile.hpp"
 #include "ItrfCoefficientsFile.hpp"
+#include "CelestialBody.hpp"
 
 class GMAT_API BodyFixedAxes : public DynamicAxes
 {
@@ -80,8 +81,7 @@ public:
    virtual bool            SetStringParameter(const std::string &label, 
                                               const std::string &value);
     */
-   
-   
+
 protected:
 
    enum
@@ -97,15 +97,12 @@ protected:
    
    virtual void CalculateRotationMatrix(const A1Mjd &atEpoch,
                                         bool forceComputation = false);
-   
-   //Rmatrix33      precT, nutT, stT, stDerivT, pmT;
-   
-   //const Real *precData;  // moved to AxisSystem
-   //const Real *nutData;
-   //const Real *stData;
-   //const Real *stDerivData;
-   //const Real *pmData;
-   
-   DeFile     *de;
+
+   DeFile                   *de;
+   Real                     prevEpoch;
+   Real                     prevUpdateInterval;
+   Real                     prevOriginUpdateInterval;
+   Gmat::RotationDataSource prevLunaSrc;
+
 };
 #endif // BodyFixedAxes_hpp
