@@ -1308,6 +1308,11 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
                   newElem->SetRefObject(FindObject(csName), Gmat::COORDINATE_SYSTEM, csName);
                newElem->Initialize();
                
+               #ifdef DEBUG_BUILD_ASSOCIATIONS
+               MessageInterface::ShowMessage
+                  ("ObjectInitializer::BuildAssociations() adding Thruster's CS to "
+                   "'%s' so that it can set it to cloned Thruster\n", obj->GetName().c_str());
+               #endif
                // Now add Thruster's CoordinateSystem to Spacecraft so that it can set it
                // to cloned Thruster
                StringArray objRefs = obj->GetRefObjectNameArray(Gmat::COORDINATE_SYSTEM);
@@ -1387,6 +1392,10 @@ SpacePoint * ObjectInitializer::FindSpacePoint(const std::string &spName)
 //------------------------------------------------------------------------------
 GmatBase* ObjectInitializer::FindObject(const std::string &name)
 {
+   // Check for special object not in LOS or GOS first (for Bug 2358 fix)
+   if (name == "InternalEarthMJ2000Eq")
+      return internalCS;
+   
    if (LOS->find(name) == LOS->end())
    {
      // If not found in the LOS, check the Global Object Store (GOS)
