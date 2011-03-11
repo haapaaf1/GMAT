@@ -175,7 +175,18 @@ https:\textbackslash\textbackslash gmat.svn.sourceforge.net/svnroot/gmat/branche
 
 \section{Preparing SPICE}
 
-\textit{Procedure still tbd}  
+\begin{enumerate}
+\item Download the SPICE toolkit for Visual C.  The 32-bit edition is available from
+\begin{quote}
+http://naif.jpl.nasa.gov/naif/toolkit_C_PC_Windows_VisualC_32bit.html
+\end{quote}
+\noindent and the 64-bit version from
+\begin{quote}
+http://naif.jpl.nasa.gov/naif/toolkit_C_PC_Windows_VisualC_64bit.html
+\end{quote}
+\noindent You want the file names cspice.zip.
+\end{enumerate}
+\item unpack the archive into your Gmat3rdParty\textbackslash cspice (or cspice64 for 64-bit) folder.  You should unpack the files so that you hace, for example, a Gmat3rdParty\textbackslash cspice\textbackslash include folder that contains the cspice header (.h) files.  Note that cspice include the Fortran to C library code; if you build with SPICE, you do not need to manage f2c separately when working with the GMAT base library code.
 
 \section{Building GMAT}
 
@@ -219,6 +230,7 @@ Next we will build the GMAT MATLAB interface.
 \bibitem {wx} http://wxwidgets.org/downloads/
 \end{thebibliography}
 
+\bibitem {spice} http://naif.jpl.nasa.gov/naif/index.html
 
 \appendix
 
