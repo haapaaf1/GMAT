@@ -24,6 +24,7 @@
 #include "MessageInterface.hpp"
 #include "SubscriberException.hpp"
 #include "TimeSystemConverter.hpp" // for Convert()
+#include "GmatDefaults.hpp"
 #include <string.h>                // for strlen()
 
 #ifdef __WXMAC__
@@ -257,7 +258,10 @@ TrajPlotCanvas::TrajPlotCanvas(wxWindow *parent, wxWindowID id,
    // projection
    ChangeProjection(size.x, size.y, mAxisLength);
    
-   mEarthRadius = 6378.14f; //km
+//   mEarthRadius = 6378.14f; //km
+   // @todo - does this need a pointer to the actual Earth object, to get radius? (mEarthRadius does not
+   // appear to be used, though
+   mEarthRadius = (float) GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]; //km
    mScRadius = 200;        //km: make big enough to see
    
    // light source

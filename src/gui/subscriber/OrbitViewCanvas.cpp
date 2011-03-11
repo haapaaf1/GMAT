@@ -39,6 +39,7 @@
 #include "MessageInterface.hpp"
 #include "SubscriberException.hpp"
 #include "TimeSystemConverter.hpp" // for ConvertMjdToGregorian()
+#include "GmatDefaults.hpp"
 #include "BodyFixedAxes.hpp"
 #include "Rendering.hpp"
 #include "GmatOpenGLSupport.hpp"   // for OpenGL support
@@ -303,7 +304,10 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
    // work in the future.  Models need to be drawn in meters.  Cameras need to
    // be placed near models to "make big enough to see", and if camera is beyond
    // about 2000 meters, model should be drawn as dot.  More discussion to follow!
-   mEarthRadius = 6378.14f; //km
+//   mEarthRadius = 6378.14f; //km
+   // @todo - does this need a pointer to the actual Earth object, to get radius? (mEarthRadius does not
+   // appear to be used, though
+   mEarthRadius = (float) GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]; //km
    mScRadius = 200;        //km: make big enough to see
    
    // light source

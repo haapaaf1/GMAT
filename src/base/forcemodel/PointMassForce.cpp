@@ -63,6 +63,7 @@
 #include "MessageInterface.hpp"
 #include "SolarSystem.hpp"
 #include "Rvector6.hpp"
+#include "GmatDefaults.hpp"
 #include "ODEModelException.hpp"
 #include "TimeTypes.hpp"
 
@@ -107,7 +108,7 @@ PointMassForce::PARAMETER_TYPE[PointMassParamCount - PhysicalModelParamCount] =
 //------------------------------------------------------------------------------
 PointMassForce::PointMassForce(const std::string &name) :
    PhysicalModel          (Gmat::PHYSICAL_MODEL, "PointMassForce", name),
-   mu                     (398600.4415),
+   mu                     (GmatSolarSystemDefaults::PLANET_MU[GmatSolarSystemDefaults::EARTH]),
    estimationMethod       (1.0),
    isPrimaryBody          (true),
    satCount               (0),

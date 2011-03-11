@@ -74,7 +74,7 @@ AtmosphereModel::AtmosphereModel(const std::string &typeStr, const std::string &
    sunVector            (NULL),
    centralBody          ("Earth"),
    centralBodyLocation  (NULL),
-   cbRadius             (6378.1363),
+   cbRadius             (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]),
    cbFlattening         (0.0),       // Default is spherical
    newFile              (false),
    fileRead             (false),
@@ -612,7 +612,7 @@ void AtmosphereModel::SetCentralBody(CelestialBody *cb)
    if (mCentralBody != cb)
    {
       mCentralBody = cb;
-      cbRadius = mCentralBody->GetEquatorialRadius();
+      cbRadius     = mCentralBody->GetEquatorialRadius();
       cbFlattening = mCentralBody->GetFlattening();
 
       #ifdef DEBUG_CB_PROPERTIES

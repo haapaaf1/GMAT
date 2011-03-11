@@ -147,7 +147,7 @@ namespace GmatSolarSystemDefaults
    {
       0.0,
       0.0,
-      0.00335270, // match to STK 2006.01.31 - was 0.0033528,
+      0.00335270, // match to STK 2006.01.31 - was 0.0033528, // or 0.0033528106647474807198455?
       0.00647630, // match to STK 2006.01.31 - was 0.0064763,
       0.06487439, // match to STK 2006.01.31 - was 0.0648744,
       0.09796243, // match to STK 2006.01.31 - was 0.0979624,
@@ -595,6 +595,6 @@ namespace GmatSolarSystemDefaults
    // Units for radius are meters
    const Real                  STAR_PHOTOSPHERE_RADIUS       = 695990000.0;;  // m
 
-}
+} // GmatSolarSystemDefaults
 
 #endif // GmatDefaults_hpp

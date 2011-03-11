@@ -47,6 +47,7 @@
 #include <sstream>                      // For stringstream
 #include "MessageInterface.hpp"
 #include "GmatConstants.hpp"
+#include "GmatDefaults.hpp"
 
 //#define DEBUG_SRP_ORIGIN
 //#define DEBUG_SOLAR_RADIATION_PRESSURE
@@ -113,10 +114,10 @@ SolarRadiationPressure::SolarRadiationPressure(const std::string &name) :
    useAnalytic         (true),
    shadowModel         (CONICAL_MODEL),
    vectorModel         (SUN_PARALLEL),
-   bodyRadius          (6378.14),
+   bodyRadius          (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]),
    cbSunVector         (NULL),
    forceVector         (NULL),
-   sunRadius           (6.96e5),
+   sunRadius           (GmatSolarSystemDefaults::STAR_EQUATORIAL_RADIUS),
    hasMoons            (false),
    flux                (1367.0),                  // W/m^2, IERS 1996
    fluxPressure        (flux / GmatPhysicalConstants::c),   // converted to N/m^2
@@ -543,7 +544,8 @@ bool SolarRadiationPressure::Initialize()
 
    if (solarSystem) 
    {
-      theSun = solarSystem->GetBody(SolarSystem::SUN_NAME);
+      theSun    = solarSystem->GetBody(SolarSystem::SUN_NAME);
+      sunRadius = theSun->GetEquatorialRadius();;
       
       if (!theSun)
          throw ODEModelException("Solar system does not contain the Sun for SRP force.");

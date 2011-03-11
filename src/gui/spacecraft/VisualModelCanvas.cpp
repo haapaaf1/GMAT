@@ -180,7 +180,10 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
    if (showEarth){
       // Draw a wireframe earth for size and location reference
       glColor3f(0.20f, 0.20f, 0.50f);
-      DrawSphere(6378, 15, 15, GLU_LINE);
+      // @todo - do we need a pointer to any actual CelestialBody object here, to get current EqRadius?
+      //         (and for other two places where radius is set, below)
+      DrawSphere(GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH], 15, 15, GLU_LINE);
+//      DrawSphere(6378, 15, 15, GLU_LINE);
       glDisable(GL_TEXTURE_2D);
    }
    // Complete the call
@@ -264,7 +267,8 @@ void VisualModelCanvas::DrawAxes()
    // mode.
    //------------------------------------------------------------------------
 
-   viewDist = 6378.0f; // stays the same
+//   viewDist = 6378.0f; // stays the same
+     viewDist = (float) GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]; // stays the same
 
    Rvector3 axis;
 	Rvector3 origin;
@@ -417,7 +421,8 @@ void VisualModelCanvas::RecenterModel(float *offset){
  */
 //------------------------------------------------------------------------------
 float VisualModelCanvas::AutoscaleModel(){
-	float earthRadius = 6378.0f,
+//   float earthRadius = 6378.0f,
+   float earthRadius = (float) GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH],
 		modelRadius = loadedModel->bsphere_radius;
 	return earthRadius / (5.0f * modelRadius);
 }

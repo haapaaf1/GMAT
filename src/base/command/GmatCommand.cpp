@@ -23,6 +23,7 @@
 #include "StateConverter.hpp"
 #include "MessageInterface.hpp"  // MessageInterface
 #include "TimeSystemConverter.hpp"
+#include "GmatDefaults.hpp"
 
 #include <algorithm>             // for find()
 #include <sstream>               // for command summary generation
@@ -1263,7 +1264,8 @@ bool GmatCommand::Initialize()
       throw CommandException(errorstr);
    }
    
-   if (solarSys == NULL) {
+   if (solarSys == NULL)
+   {
       std::string errorstr("Solar system has not been initialized for ");
       errorstr += GetTypeName();
       throw CommandException(errorstr);
@@ -2469,7 +2471,13 @@ bool GmatCommand::SeparateEquals(const std::string &description,
 //------------------------------------------------------------------------------
 void GmatCommand::CartToKep(const Rvector6 in, Rvector6 &out)
 {
-   Real mu = 398600.4415;
+   GmatBase* earth = FindObject(GmatSolarSystemDefaults::EARTH_NAME);
+   if (!earth)
+      throw CommandException(
+            "GmatCommand::CartToKep failed to find object named \"" +
+            GmatSolarSystemDefaults::EARTH_NAME + "\" in: \n   \"" + GetGeneratingString(Gmat::NO_COMMENTS) + "\"\n");
+
+   Real mu = ((CelestialBody*)earth)->GetGravitationalConstant();
    Real r = sqrt(in[0]*in[0]+in[1]*in[1]+in[2]*in[2]);
    Real v2 = in[3]*in[3]+in[4]*in[4]+in[5]*in[5];
    Real rdotv = in[0]*in[3] + in[1]*in[4] + in[2]*in[5];

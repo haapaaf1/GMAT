@@ -34,7 +34,6 @@
 #include "Rmatrix.hpp"
 #include "Rvector6.hpp"
 #include "TimeTypes.hpp"
-#include "GmatDefaults.hpp"
 #ifdef __USE_SPICE__
 #include "SpiceOrbitKernelReader.hpp"
 #endif
@@ -305,11 +304,8 @@ public:
                                     const std::string &name = "");
    
    virtual bool        IsParameterReadOnly(const Integer id) const;
-//   virtual bool        IsParameterReadOnly(const std::string &label) const;
    virtual bool        IsParameterCloaked(const Integer id) const;
-//   virtual bool        IsParameterCloaked(const std::string &label) const;
    virtual bool        IsParameterEqualToDefault(const Integer id) const;
-//   virtual bool         IsParameterEqualToDefault(const std::string &label);
    virtual bool        SaveAllAsDefault();
    virtual bool        SaveParameterAsDefault(const Integer id);
 
@@ -322,9 +318,6 @@ public:
    //                                             Integer coeffSize, Rmatrix& bodySij,
    //                                             Rmatrix& bodyCij);
    
-   
-//   // required method for all subclasses that can be copied in a script
-//   virtual void         Copy(const GmatBase* orig);
    
    
    // strings representing the possible celestial body types
@@ -361,11 +354,8 @@ protected:
       ANGULAR_VELOCITY,
       HOUR_ANGLE,
       ATMOS_MODEL_NAME,
-      //SUPPORTED_ATMOS_MODELS,
       ORDER,  // may need to access these through general methods at some point
       DEGREE,
-      //SIJ,
-      //CIJ,
       ROTATION_DATA_SRC,
       TWO_BODY_DATE_FORMAT,
       TWO_BODY_STATE_TYPE,
@@ -386,7 +376,6 @@ protected:
       ROTATION_CONSTANT,
       ROTATION_RATE,
       //
-//      NAIF_ID,  moved to SpacePoint   wcs 2009.12.28
       TEXTURE_MAP_FILE_NAME,
       // @todo - add Shape Models, etc.
       CelestialBodyParamCount
@@ -419,10 +408,6 @@ protected:
    Rvector6                 state;
    // time of the state
    A1Mjd                    stateTime;
-   
-   // Moved to SpacePoint (LOJ: 2010.11.19)
-   /// the solar system to which this body belongs
-   //SolarSystem              *theSolarSystem;
    
    /// name of central body around which this body revolves
    std::string              theCentralBodyName;
@@ -469,32 +454,16 @@ protected:
    std::string              default_posVelSrc;
    /// default value for the central body
    std::string              default_centralBodyName;
-//   /// default value for the body number (used when reading DE405 file)
-//   Integer                  default_bodyNumber;
    /// default value for the ephemeris file
    std::string              default_sourceFilename;
    /// default values for the SPICe kernel names
    StringArray              default_orbitSpiceKernelNames;
-//   /// default value for the use potential file flag
-//   bool                     default_usePotentialFile;  
-//   /// default value for potential file name
-//   std::string              default_potentialFileName;
-//   /// default value for angular velocity
-//   Rvector3                 default_angularVelocity;
-//  /// default value for atmosphere model name
-//   std::string              default_atmModel;
    /// default value for rotation data source
    Gmat::RotationDataSource default_rotationSrc; 
-//   /// default value for two-body date format
-//   std::string              default_twoBodyFormat;
-//   /// default value for two-body state type
-//   std::string              default_twoBodyStateType;
    /// default value for two-body intial epoch
    A1Mjd                    default_twoBodyEpoch;
    /// default value for initial two-body state
    Rvector6                 default_twoBodyKepler;
-//   /// default value for orientation data format
-//   std::string              default_orientationDateFormat;
    /// default value for orientation epoch
    A1Mjd                    default_orientationEpoch;
    /// default value for orientation values in the order:

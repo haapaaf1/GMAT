@@ -39,6 +39,7 @@
 #include "AtmosphereModel.hpp"
 #include "MessageInterface.hpp"
 #include "GmatConstants.hpp"
+#include "GmatDefaults.hpp"
 #include "TimeSystemConverter.hpp"
 #include "UtcDate.hpp"
 #include "FileUtil.hpp"
@@ -90,7 +91,6 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "PolarRadius",
    "Mu",
    "PosVelSource",
-//   "AnalyticMethod",
    "State",
    "StateTime",
    "CentralBody",
@@ -98,8 +98,6 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "RefBodyNumber",
    "SourceFilename",
    "SourceFile",
-//   "OrbitSpiceKernelName",
-//   "LeapSecondKernelName",
    "UsePotentialFileFlag",
    "PotentialFileName",
    "AngularVelocity",
@@ -125,7 +123,6 @@ CelestialBody::PARAMETER_TEXT[CelestialBodyParamCount - SpacePointParamCount] =
    "SpinAxisDECRate",
    "RotationConstant",
    "RotationRate",
-//   "NAIFId",     // moved to SpacePoint  wcs 2009.12.28
    "TextureMapFileName",
 };
 
@@ -139,7 +136,6 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::REAL_TYPE,     //"PolarRadius",
    Gmat::REAL_TYPE,     //"Mu",
    Gmat::STRING_TYPE,   //"PosVelSource",
-//   Gmat::STRING_TYPE,   //"AnalyticMethod",
    Gmat::RVECTOR_TYPE,  //"State",
    Gmat::TIME_TYPE,     //"StateTime",
    Gmat::STRING_TYPE,   //"CentralBody",
@@ -147,8 +143,6 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::INTEGER_TYPE,  //"RefBodyNumber",
    Gmat::STRING_TYPE,   //"SourceFilename",
    Gmat::OBJECT_TYPE,   //"SourceFile",
-//   Gmat::STRINGARRAY_TYPE,   //"OrbitSpiceKernelName",
-//   Gmat::STRING_TYPE,   //"LeapScondKernelName",
    Gmat::BOOLEAN_TYPE,  //"UsePotentialFileFlag",
    Gmat::STRING_TYPE,   //"PotentialFileName",
    Gmat::RVECTOR_TYPE,  //"AngularVelocity",
@@ -174,7 +168,6 @@ CelestialBody::PARAMETER_TYPE[CelestialBodyParamCount - SpacePointParamCount] =
    Gmat::REAL_TYPE,     //"SpinAxisDECRate", 
    Gmat::REAL_TYPE,     //"RotationConstant", 
    Gmat::REAL_TYPE,     //"RotationRate", 
-//   Gmat::INTEGER_TYPE,  //"NAIFId"  // moved to SpacePoint   wcs 2009.12.28
    Gmat::STRING_TYPE,   //"TextureMapFileName"
 };
 
@@ -182,7 +175,7 @@ const Real    CelestialBody::JD_EPOCH_2000_TCB     = GmatTimeConstants::JD_OF_J2
 const Real    CelestialBody::JD_EPOCH_2000_TT      = GmatTimeConstants::JD_OF_J2000; // @ todo Figure out JD_EPOCH_2000_TT
 const Real    CelestialBody::dDot                  = 1.0;
 const Real    CelestialBody::TDot                  = 1.0;
-const Real    CelestialBody::KEPLER_TOL            = 1.0e-08;  // should be 1.0e-08;
+const Real    CelestialBody::KEPLER_TOL            = 1.0e-08;
 const Integer CelestialBody::KEPLER_MAX_ITERATIONS = 50;
 
 //------------------------------------------------------------------------------
@@ -201,13 +194,10 @@ const Integer CelestialBody::KEPLER_MAX_ITERATIONS = 50;
 //------------------------------------------------------------------------------
 CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    SpacePoint(Gmat::CELESTIAL_BODY, itsBodyType, name),
-   mass               (5.9733319571407163e24),
-   equatorialRadius   (6378.137),
-   flattening         (0.0033528106647474807198455),
-   polarRadius        (6356.76),
-   mu                 (398600.4415),
+   equatorialRadius   (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]),
+   flattening         (GmatSolarSystemDefaults::PLANET_FLATTENING[GmatSolarSystemDefaults::EARTH]),
+   mu                 (GmatSolarSystemDefaults::PLANET_MU[GmatSolarSystemDefaults::EARTH]),
    posVelSrc          (Gmat::DE405),
-//   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (GmatTimeConstants::MJD_OF_J2000),
    //theSolarSystem     (NULL),
    theCentralBodyName (""),
@@ -217,7 +207,6 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
-//   lskKernelName      (""),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
@@ -238,8 +227,7 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    allowSpice         (false),
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (GmatTimeConstants::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
-   orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
-//   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
+   orientation        (GmatSolarSystemDefaults::PLANET_ORIENTATION_PARAMETERS[GmatSolarSystemDefaults::EARTH]),
    naifIdSet          (false),
    naifName           (name),
    textureMapFileName ("GenericCelestialBody.jpg"),
@@ -248,10 +236,12 @@ CelestialBody::CelestialBody(std::string itsBodyType, std::string name) :
    objectTypes.push_back(Gmat::CELESTIAL_BODY);
    objectTypeNames.push_back("CelestialBody");
    // @todo - what to use for defaults here? - set different values for different celestial bodies
-   Rvector6 initKepler(149653978.9783766,        0.01704556707314489, 23.439034090426388,
-                       0.00018646554487906264, 101.7416388084352,    358.12708491129);
+   Rvector6 initKepler(GmatSolarSystemDefaults::PLANET_TWO_BODY_ELEMENTS[GmatSolarSystemDefaults::EARTH]);
    twoBodyKepler = initKepler;
    
+   mass        = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   polarRadius = (1.0 - flattening) * equatorialRadius;
+
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i].push_back("None");
    
@@ -292,11 +282,9 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    SpacePoint(Gmat::CELESTIAL_BODY,
               Gmat::BODY_TYPE_STRINGS[itsBodyType], name),
    bodyType           (itsBodyType),
-   mass               (5.9733319571407163e24),
-   equatorialRadius   (6378.137),
-   flattening         (0.0033528106647474807198455),
-   polarRadius        (6356.76),
-   mu                 (398600.4415),
+   equatorialRadius   (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]),
+   flattening         (GmatSolarSystemDefaults::PLANET_FLATTENING[GmatSolarSystemDefaults::EARTH]),
+   mu                 (GmatSolarSystemDefaults::PLANET_MU[GmatSolarSystemDefaults::EARTH]),
    posVelSrc          (Gmat::DE405),
 //   analyticMethod     (Gmat::LOW_FIDELITY),
    stateTime          (GmatTimeConstants::MJD_OF_J2000),
@@ -308,16 +296,12 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    referenceBodyNumber(0),
    sourceFilename     (""),
    theSourceFile      (NULL),
-//   lskKernelName      (""),
    usePotentialFile   (false),
    potentialFileName  (""),
    hourAngle          (0.0),
    atmModel           (NULL),
    atmModelType       ("None"),
    potentialFileRead  (false),
-//   default_mu          (398600.4415),
-//   default_equatorialRadius    (6378.14),
-//   default_flattening  (0.0033528106647474807198455),
    order              (0),
    degree             (0),
    twoBodyFormat     ("TAIModjulian"),
@@ -332,8 +316,7 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    allowSpice         (false),
    orientationDateFormat ("TAIModJulian"),
    orientationEpoch   (GmatTimeConstants::MJD_OF_J2000), // @todo - really need it to be the TCB epoch used for the major bodies
-   orientation        (Rvector6(0.0,0.0,0.0,0.0,0.0,0.0)),
-//   naifId             (-99999999),  // moved to SpacePoint  wcs  2009.12.28
+   orientation        (GmatSolarSystemDefaults::PLANET_ORIENTATION_PARAMETERS[GmatSolarSystemDefaults::EARTH]),
    naifIdSet          (false),
    naifName           (name),
    textureMapFileName ("GenericCelestialBody.jpg"),
@@ -343,10 +326,12 @@ CelestialBody::CelestialBody(Gmat::BodyType itsBodyType, std::string name) :
    objectTypeNames.push_back("CelestialBody");
    
    // @todo - what to use for defaults here? - set different values for different celestial bodies
-   Rvector6 initKepler(149653978.9783766,        0.01704556707314489, 23.439034090426388,
-                       0.00018646554487906264, 101.7416388084352,    358.12708491129);
+   Rvector6 initKepler(GmatSolarSystemDefaults::PLANET_TWO_BODY_ELEMENTS[GmatSolarSystemDefaults::EARTH]);
    twoBodyKepler = initKepler;
-   
+
+   mass        = mu / GmatPhysicalConstants::UNIVERSAL_GRAVITATIONAL_CONSTANT;
+   polarRadius = (1.0 - flattening) * equatorialRadius;
+
    for (Integer i = 0; i < Gmat::ModelTypeCount; i++)
       models[i].push_back("None");
    for (Integer i=0;i<6;i++)  prevState[i] = 0.0;
@@ -388,8 +373,6 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    polarRadius         (cBody.polarRadius),
    mu                  (cBody.mu),
    posVelSrc           (cBody.posVelSrc),
-//   analyticMethod      (cBody.analyticMethod),
-   //theSolarSystem      (cBody.theSolarSystem),    // correct?
    theCentralBodyName  (cBody.theCentralBodyName),
    theCentralBody      (cBody.theCentralBody),    // correct?
    centralBodySet      (cBody.centralBodySet),    // correct?
@@ -397,8 +380,6 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    referenceBodyNumber (cBody.referenceBodyNumber),
    sourceFilename      (cBody.sourceFilename),
    theSourceFile       (cBody.theSourceFile), // ????????????????
-//   orbitSpiceKernelNames    (cBody.orbitSpiceKernelNames),
-//   lskKernelName       (cBody.lskKernelName),
    usePotentialFile    (cBody.usePotentialFile),
    potentialFileName   (cBody.potentialFileName),
    hourAngle           (cBody.hourAngle),
@@ -408,22 +389,13 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    default_mu                    (cBody.default_mu),
    default_posVelSrc             (cBody.default_posVelSrc),
    default_centralBodyName       (cBody.default_centralBodyName),
-//   default_bodyNumber            (cBody.default_bodyNumber),
    default_sourceFilename        (cBody.default_sourceFilename),
    default_orbitSpiceKernelNames      (cBody.default_orbitSpiceKernelNames),
-//   default_usePotentialFile      (cBody.default_usePotentialFile),
-//   default_potentialFileName     (cBody.default_potentialFileName),
-//   default_angularVelocity       (cBody.default_angularVelocity),
-//   default_atmModel              (cBody.default_atmModel),
    default_rotationSrc           (cBody.default_rotationSrc), 
-//   default_twoBodyFormat         (cBody.default_twoBodyFormat),
-//   default_twoBodyStateType      (cBody.default_twoBodyStateType),
    default_twoBodyEpoch          (cBody.default_twoBodyEpoch),
    default_twoBodyKepler         (cBody.default_twoBodyKepler),
-//   default_orientationDateFormat (cBody.default_orientationDateFormat),
    default_orientationEpoch      (cBody.default_orientationEpoch),
    default_orientation           (cBody.default_orientation),
-//   default_naifId                (cBody.default_naifId),
    default_textureMapFileName    (cBody.default_textureMapFileName),
    order               (cBody.order),
    degree              (cBody.degree),
@@ -446,7 +418,6 @@ CelestialBody::CelestialBody(const CelestialBody &cBody) :
    orientationDateFormat (cBody.orientationDateFormat),
    orientationEpoch    (cBody.orientationEpoch),
    orientation         (cBody.orientation),
-//   naifId              (cBody.naifId),  // moved to SpacePoint  wcs  2009.12.28
    naifIdSet           (cBody.naifIdSet),
    naifName            (cBody.naifName),
    textureMapFileName  (cBody.textureMapFileName),
@@ -515,10 +486,8 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    polarRadius         = cBody.polarRadius;
    mu                  = cBody.mu;
    posVelSrc           = cBody.posVelSrc;
-//   analyticMethod      = cBody.analyticMethod;
    state               = cBody.state;
    stateTime           = cBody.stateTime;
-   //theSolarSystem      = cBody.theSolarSystem;   // correct?
    theCentralBodyName  = cBody.theCentralBodyName;
    theCentralBody      = cBody.theCentralBody;   // correct?
    centralBodySet      = cBody.centralBodySet;   // correct?
@@ -526,8 +495,6 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    referenceBodyNumber = cBody.referenceBodyNumber;
    sourceFilename      = cBody.sourceFilename;
    theSourceFile       = cBody.theSourceFile;   // ??????????????
-//   orbitSpiceKernelNames    = cBody.orbitSpiceKernelNames;
-//   lskKernelName       = cBody.lskKernelName;
    #ifdef __USE_SPICE__
       kernelReader        = cBody.kernelReader;
    #endif
@@ -541,22 +508,13 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    default_mu                     = cBody.default_mu;
    default_posVelSrc              = cBody.default_posVelSrc;
    default_centralBodyName        = cBody.default_centralBodyName;
-//   default_bodyNumber             = cBody.default_bodyNumber;
    default_sourceFilename         = cBody.default_sourceFilename;
    default_orbitSpiceKernelNames       = cBody.default_orbitSpiceKernelNames;
-//   default_usePotentialFile       = cBody.default_usePotentialFile;
-//   default_potentialFileName      = cBody.default_potentialFileName;
-//   default_angularVelocity        = cBody.default_angularVelocity;
-//   default_atmModel               = cBody.default_atmModel;
    default_rotationSrc            = cBody.default_rotationSrc; 
-//   default_twoBodyFormat          = cBody.default_twoBodyFormat;
-//   default_twoBodyStateType       = cBody.default_twoBodyStateType;
    default_twoBodyEpoch           = cBody.default_twoBodyEpoch;
    default_twoBodyKepler          = cBody.default_twoBodyKepler;
-//   default_orientationDateFormat  = cBody.default_orientationDateFormat;
    default_orientationEpoch       = cBody.default_orientationEpoch;
    default_orientation            = cBody.default_orientation;
-//   default_naifId                 = cBody.default_naifId;
    default_textureMapFileName     = cBody.default_textureMapFileName;
    
    isFirstTimeMu                  = cBody.isFirstTimeMu;
@@ -607,7 +565,6 @@ CelestialBody& CelestialBody::operator=(const CelestialBody &cBody)
    orientationEpoch    = cBody.orientationEpoch;
    orientation         = cBody.orientation;
    
-//   naifId              = cBody.naifId;   // moved to SpacePoint  wcs  2009.12.28
    naifIdSet           = cBody.naifIdSet;
    naifName            = cBody.naifName;
    textureMapFileName  = cBody.textureMapFileName;

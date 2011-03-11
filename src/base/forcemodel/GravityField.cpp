@@ -64,6 +64,7 @@
 #include "TimeTypes.hpp"
 #include "CoordinateConverter.hpp"
 #include "StringUtil.hpp"
+#include "GmatDefaults.hpp"
 #include "GravityFile.hpp"
 #include "FileManager.hpp"
 //#include "SolarSystemException.hpp"
@@ -119,10 +120,10 @@ Gmat::REAL_TYPE
 GravityField::GravityField(const std::string &name, const std::string &forBodyName,
                            Integer maxDeg, Integer maxOrd) :
     HarmonicField   (name, "GravityField", maxDeg, maxOrd),
-    mu              (398600.4415),
-    a               (6378.1363),
-    defaultMu       (398600.4415),
-    defaultA        (6378.1363),
+    mu              (GmatSolarSystemDefaults::PLANET_MU[GmatSolarSystemDefaults::EARTH]),
+    a               (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]),
+    defaultMu       (GmatSolarSystemDefaults::PLANET_MU[GmatSolarSystemDefaults::EARTH]),
+    defaultA        (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]),
 //    Cbar            (NULL),
 //    Sbar            (NULL),
 //    dCbar           (NULL),
@@ -1229,8 +1230,9 @@ bool GravityField::gravity_init(void)
 //      }
 //   }
 
-   if (!fileRead) {        // Only read the file if the name has changed or it
+   if (!fileRead)         // Only read the file if the name has changed or it
                            // was not yet read
+   {
       if (!ReadFile())
       {
          // try to get default coefficients from the body

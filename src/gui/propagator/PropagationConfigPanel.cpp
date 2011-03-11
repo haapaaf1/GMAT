@@ -26,6 +26,7 @@
 #include "MessageInterface.hpp"
 #include "bitmaps/OpenFolder.xpm"
 #include "TimeSystemConverter.hpp"
+#include "GmatDefaults.hpp"
 
 #include "wx/platform.h"
 #include <wx/config.h>
@@ -3645,8 +3646,8 @@ void PropagationConfigPanel::ParseDATGravityFile(const wxString& fname)
    Integer      fileDegree, fileOrder;
    Real         Cnm=0.0, Snm=0.0, dCnm=0.0, dSnm=0.0;
    // @to do should mu & radius be constant?? - waw
-   Real         mu=398600.4415; // gravity parameter of central body
-   Real         a=6378.1363;  // radius of central body ( mean equatorial )
+   Real         mu=GmatSolarSystemDefaults::PLANET_MU[GmatSolarSystemDefaults::EARTH]; // gravity parameter of central body
+   Real         a=GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH];  // radius of central body ( mean equatorial )
    char         buf[CelestialBody::BUFSIZE];
    FILE        *fp;
 

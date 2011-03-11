@@ -37,6 +37,7 @@
 #include "RealUtilities.hpp"
 #include "StringUtil.hpp"
 #include "TimeTypes.hpp"
+#include "GmatDefaults.hpp"
 
 
 //#define DEBUG_OBJECT_MAPPING
@@ -104,8 +105,8 @@ BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &it
    SpacePoint           (objType, itsType, itsName),
    cBodyName            ("Earth"),
    theBody              (NULL),
-   meanEquatorialRadius (6378.137),
-   flattening           (0.0033528106647474807198455),
+   meanEquatorialRadius (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]),
+   flattening           (GmatSolarSystemDefaults::PLANET_FLATTENING[GmatSolarSystemDefaults::EARTH]),
    stateType            ("Cartesian"),
    horizon              ("Sphere"),
    solarSystem          (NULL),
@@ -128,11 +129,11 @@ BodyFixedPoint::BodyFixedPoint(const std::string &itsType, const std::string &it
    locationUnits.push_back("km");
    locationUnits.push_back("km");
 
-   location[0] = 6378.14;
+   location[0] = GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH];
    location[1] = 0.0;
    location[2] = 0.0;
 
-   bfLocation[0] = 6378.14;
+   bfLocation[0] = GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH];
    bfLocation[1] = 0.0;
    bfLocation[2] = 0.0;
 }

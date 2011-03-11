@@ -87,7 +87,7 @@ public:
                     const std::string &toType, Anomaly &anomaly);
    
    // Constant variable
-   static const Real DEFAULT_MU;// = 0.3986004415e+06;  // km^3/s^2
+   static const Real DEFAULT_MU;  // km^3/s^2
    
    static std::string        GetTypeString(const std::string &type);
    static Integer            GetTypeCount() { return StateTypeCount; }

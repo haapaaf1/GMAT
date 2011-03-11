@@ -29,6 +29,7 @@
 #include "MessageInterface.hpp"
 #include "UtilityException.hpp"
 #include "GmatConstants.hpp"
+#include "GmatDefaults.hpp"
 #include "RealUtilities.hpp"
 
 using namespace GmatMathUtil;
@@ -41,7 +42,7 @@ using namespace GmatMathConstants;
 // static data
 //------------------------------------------------------------------------------
 
-const Real StateConverter::DEFAULT_MU = 0.3986004415e+06;
+const Real StateConverter::DEFAULT_MU = GmatSolarSystemDefaults::PLANET_MU[GmatSolarSystemDefaults::EARTH];
 const std::string StateConverter::STATE_TYPE_TEXT[StateTypeCount] =
 {
    "Cartesian",

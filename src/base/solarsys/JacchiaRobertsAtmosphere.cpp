@@ -54,7 +54,7 @@
 //------------------------------------------------------------------------------
 JacchiaRobertsAtmosphere::JacchiaRobertsAtmosphere(const std::string &name) :
    AtmosphereModel      ("JacchiaRoberts", name),
-   cbPolarRadius        (6356.766),
+   cbPolarRadius        (6356.766),       // @todo - check effect of using default from GmatDefaults
    cbPolarSquared       (40408473.978756),
    rho_zero             (3.46e-9),
    tzero                (183.0),
@@ -245,7 +245,7 @@ void JacchiaRobertsAtmosphere::SetCentralBody(CelestialBody *cb)
 {
    AtmosphereModel::SetCentralBody(cb);
 
-   cbPolarRadius = mCentralBody->GetPolarRadius();
+   cbPolarRadius  = mCentralBody->GetPolarRadius();
    cbPolarSquared = cbPolarRadius*cbPolarRadius;
 }
 
@@ -780,7 +780,7 @@ Real JacchiaRobertsAtmosphere::rho_cor(Real height, Real a1_time, Real geo_lat,
    // Compute semiannual variation correction
    f = (5.876e-7 * pow(height, 2.331) + 0.06328) *
       exp(-0.002868 * height);
-   day_58 = (a1_time - 6204.5)/365.2422;
+   day_58 = (a1_time - 6204.5)/365.2422; // @todo - should this use GmatConstants value?
    tausa = day_58 + 0.09544 * (
          pow( 0.5*(1.0 + sin(2*GmatMathConstants::PI*day_58 +6.035)), 1.65 )  - 0.5);
    alpha = sin(4.0*GmatMathConstants::PI*tausa + 4.259);

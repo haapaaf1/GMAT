@@ -29,6 +29,7 @@
 #include "Linear.hpp"
 #include "TimeTypes.hpp"
 #include "Rvector3.hpp"
+#include "GmatDefaults.hpp"
 #include "TimeSystemConverter.hpp"
 #include "CoordinateSystemException.hpp"
 #include "MessageInterface.hpp"
@@ -66,7 +67,7 @@ TopocentricAxes::TopocentricAxes(const std::string &itsName) :
    itsBodyName      (""),
    horizonReference ("Sphere"),
    flattening       (-999.99),
-   radius           (6378.137)
+   radius           (GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH])
 {
    objectTypeNames.push_back("TopocentricAxes");
    parameterCount = TopocentricAxesParamCount;
