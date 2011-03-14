@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              GmatDialog
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Linda Jun
 // Created: 2004/02/02
@@ -57,7 +57,8 @@ END_EVENT_TABLE()
 GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
                        GmatBase *obj, const wxPoint& pos, const wxSize& size,
                        long style)
-   : wxDialog(parent, id, title, pos, size, style, title)
+   : wxDialog(parent, id, title, pos, size, style | wxMAXIMIZE_BOX | wxMINIMIZE_BOX,
+              title)
 {
    mObject = obj;
    UserInputValidator::SetObject(obj);
