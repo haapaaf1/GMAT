@@ -2142,65 +2142,66 @@ void ResourceTree::AddIcons()
    MessageInterface::ShowMessage
       ("ResourceTree::AddIcons() entered, GmatTree::ICON_COUNT=%d\n", GmatTree::ICON_COUNT);
    #endif
-
+   
    int sizeW = 16;
    int sizeH = 15;
-
+   
    wxImageList *images = new wxImageList ( sizeW, sizeH, true );
-   wxBusyCursor wait;
-   wxIcon icons[GmatTree::ICON_COUNT];
+   wxBitmap* bitmaps[GmatTree::ICON_COUNT];
    int index = 0;
-
-   // add icons by the order of enum ResourceIconType
-   icons[index]   = wxIcon ( ClosedFolder_xpm );
-   icons[++index] = wxIcon ( file_xpm );
-   icons[++index] = wxIcon ( OpenFolder_xpm );
-   icons[++index] = wxIcon ( Groundstation_xpm );
-   icons[++index] = wxIcon ( spacecraft_xpm );
-
-   icons[++index] = wxIcon ( tank_xpm );
-   icons[++index] = wxIcon ( thruster_xpm );
-   icons[++index] = wxIcon ( sun_xpm );
-   icons[++index] = wxIcon ( mercury_xpm );
-   icons[++index] = wxIcon ( venus_xpm );
-
-   icons[++index] = wxIcon ( earth_xpm );
-   icons[++index] = wxIcon ( mars_xpm );
-   icons[++index] = wxIcon ( jupiter_xpm );
-   icons[++index] = wxIcon ( saturn_xpm );
-   icons[++index] = wxIcon ( uranus_xpm );
-
-   icons[++index] = wxIcon ( neptune_xpm );
-   icons[++index] = wxIcon ( pluto_xpm );
-   icons[++index] = wxIcon ( report_xpm );
-   icons[++index] = wxIcon ( network_xpm );
-   icons[++index] = wxIcon ( burn_xpm );
-
-   icons[++index] = wxIcon ( moon_xpm );
-   icons[++index] = wxIcon ( moon_generic_xpm);
-   icons[++index] = wxIcon ( planet_generic_xpm);
-   icons[++index] = wxIcon ( comet_xpm);
-   icons[++index] = wxIcon ( asteroid_xpm);
-   icons[++index] = wxIcon ( matlabfunction_xpm );
-   icons[++index] = wxIcon ( function_xpm );
-   icons[++index] = wxIcon ( coordinatesystem_xpm );
-   icons[++index] = wxIcon ( openglplot_xpm );
-
-   icons[++index] = wxIcon ( propagator_xpm );
-   icons[++index] = wxIcon ( variable_xpm );
-   icons[++index] = wxIcon ( array_xpm );
-   icons[++index] = wxIcon ( string_xpm );
-   icons[++index] = wxIcon ( xyplot_xpm );
-
-   icons[++index] = wxIcon ( Script_xpm );
-   icons[++index] = wxIcon ( default_xpm );
-
+   long bitmapType = wxBITMAP_TYPE_PNG;
+   
+   // add icons by the order of enum ResourceIconType in GmatTreeItemData.hpp
+   theGuiManager->LoadIcon("ClosedFolder", bitmapType, &bitmaps[index], ClosedFolder_xpm); 
+   theGuiManager->LoadIcon("file", bitmapType, &bitmaps[++index], file_xpm);   
+   theGuiManager->LoadIcon("OpenFolder", bitmapType, &bitmaps[++index], OpenFolder_xpm);   
+   theGuiManager->LoadIcon("Groundstation", bitmapType, &bitmaps[++index], Groundstation_xpm);   
+   theGuiManager->LoadIcon("spacecraft", bitmapType, &bitmaps[++index], spacecraft_xpm);
+   
+   theGuiManager->LoadIcon("tank", bitmapType, &bitmaps[++index], tank_xpm);
+   theGuiManager->LoadIcon("thruster", bitmapType, &bitmaps[++index], thruster_xpm);
+   theGuiManager->LoadIcon("sun", bitmapType, &bitmaps[++index], sun_xpm);
+   theGuiManager->LoadIcon("mercury", bitmapType, &bitmaps[++index], mercury_xpm);
+   theGuiManager->LoadIcon("venus", bitmapType, &bitmaps[++index], venus_xpm);
+      
+   theGuiManager->LoadIcon("earth", bitmapType, &bitmaps[++index], earth_xpm);
+   theGuiManager->LoadIcon("mars", bitmapType, &bitmaps[++index], mars_xpm);
+   theGuiManager->LoadIcon("jupiter", bitmapType, &bitmaps[++index], jupiter_xpm);
+   theGuiManager->LoadIcon("saturn", bitmapType, &bitmaps[++index], saturn_xpm);
+   theGuiManager->LoadIcon("uranus", bitmapType, &bitmaps[++index], uranus_xpm);
+   
+   theGuiManager->LoadIcon("neptune_xpm", bitmapType, &bitmaps[++index], neptune_xpm);
+   theGuiManager->LoadIcon("pluto", bitmapType, &bitmaps[++index], pluto_xpm);
+   theGuiManager->LoadIcon("report", bitmapType, &bitmaps[++index], report_xpm);
+   theGuiManager->LoadIcon("network_xpm", bitmapType, &bitmaps[++index], network_xpm);
+   theGuiManager->LoadIcon("burn", bitmapType, &bitmaps[++index], burn_xpm);
+   
+   theGuiManager->LoadIcon("moon", bitmapType, &bitmaps[++index], moon_xpm);
+   theGuiManager->LoadIcon("moon_generic", bitmapType, &bitmaps[++index], moon_generic_xpm);
+   theGuiManager->LoadIcon("planet_generic", bitmapType, &bitmaps[++index], planet_generic_xpm);
+   theGuiManager->LoadIcon("comet", bitmapType, &bitmaps[++index], comet_xpm);
+   theGuiManager->LoadIcon("asteroid", bitmapType, &bitmaps[++index], asteroid_xpm);
+   theGuiManager->LoadIcon("matlabfunction", bitmapType, &bitmaps[++index], matlabfunction_xpm);
+   theGuiManager->LoadIcon("function", bitmapType, &bitmaps[++index], function_xpm);
+   theGuiManager->LoadIcon("coordinatesystem", bitmapType, &bitmaps[++index], coordinatesystem_xpm);
+   theGuiManager->LoadIcon("openglplot", bitmapType, &bitmaps[++index], openglplot_xpm);
+   
+   theGuiManager->LoadIcon("propagator", bitmapType, &bitmaps[++index], propagator_xpm);
+   theGuiManager->LoadIcon("variable", bitmapType, &bitmaps[++index], variable_xpm);
+   theGuiManager->LoadIcon("array", bitmapType, &bitmaps[++index], array_xpm);
+   theGuiManager->LoadIcon("string", bitmapType, &bitmaps[++index], string_xpm);
+   theGuiManager->LoadIcon("xyplot", bitmapType, &bitmaps[++index], xyplot_xpm);
+   
+   theGuiManager->LoadIcon("Script", bitmapType, &bitmaps[++index], Script_xpm);
+   theGuiManager->LoadIcon("default", bitmapType, &bitmaps[++index], default_xpm);
+   
+   
    // Let's always recale all icons since size of icon look different on different platforms
-   for ( size_t i = 0; i < WXSIZEOF(icons); i++ )
-      images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(sizeW, sizeH)));
-
+   for ( size_t i = 0; i < WXSIZEOF(bitmaps); i++ )
+      images->Add(bitmaps[i]->ConvertToImage().Rescale(sizeW, sizeH));
+   
    AssignImageList(images);
-
+   
    #ifdef DEBUG_ADD_ICONS
    MessageInterface::ShowMessage
       ("ResourceTree::AddIcons() exiting, %d icons added\n", index + 1);
