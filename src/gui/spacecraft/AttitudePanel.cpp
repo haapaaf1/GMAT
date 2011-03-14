@@ -40,6 +40,7 @@
 
 //#define DEBUG_ATTITUDE_PANEL 1
 //#define DEBUG_ATTITUDE_SAVE
+//#define DEBUG_ATTITUDE_RATE
 //------------------------------------------------------------------------------
 // static data
 //------------------------------------------------------------------------------
@@ -664,7 +665,7 @@ void AttitudePanel::SaveData()
       }
       catch (BaseException &ex)
       {
-         MessageInterface::ShowMessage("ERROR: %s\n", ex.GetFullMessage().c_str());
+         MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
       }
       isNewAttitude = true;
       modelModified = false;
@@ -1409,6 +1410,7 @@ void AttitudePanel::OnEulerSequenceSelection(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void AttitudePanel::OnStateTypeSelection(wxCommandEvent &event)
 {
+   bool OK = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::OnStateTypeSelection() entered\n");
    #endif
@@ -1423,22 +1425,29 @@ void AttitudePanel::OnStateTypeSelection(wxCommandEvent &event)
    }
    
    if (newStateType == stateTypeArray[EULER_ANGLES])
-      DisplayEulerAngles();
+      OK = DisplayEulerAngles();
    else if (newStateType == stateTypeArray[QUATERNION])
-      DisplayQuaternion();
+      OK = DisplayQuaternion();
    else if (newStateType == stateTypeArray[DCM])
-      DisplayDCM();
+      OK = DisplayDCM();
    else if (newStateType == stateTypeArray[MRPS])   // Added by Dunn
-      DisplayMRPs();
+      OK = DisplayMRPs();
       
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("   Now setting attitude state type to %s\n",
       newStateType.c_str());
    #endif
-   attStateType      = newStateType;
-   dataChanged       = true;
-   stateTypeModified = true;
-   theScPanel->EnableUpdate(true);
+   if (OK)
+   {
+      attStateType      = newStateType;
+      dataChanged       = true;
+      stateTypeModified = true;
+      theScPanel->EnableUpdate(true);
+   }
+   else
+   {
+      stateTypeComboBox->SetValue(attStateType.c_str());
+   }
 }
 
 
@@ -1447,6 +1456,7 @@ void AttitudePanel::OnStateTypeSelection(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void AttitudePanel::OnStateTypeRateSelection(wxCommandEvent &event)
 {
+   bool OK = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::OnStateTypeRateSelection() entered\n");
    #endif
@@ -1463,25 +1473,33 @@ void AttitudePanel::OnStateTypeRateSelection(wxCommandEvent &event)
    }
   
    if (newStateRateType == stateRateTypeArray[EULER_ANGLE_RATES])
-      DisplayEulerAngleRates();
+      OK = DisplayEulerAngleRates();
    else if (newStateRateType == stateRateTypeArray[ANGULAR_VELOCITY])
-      DisplayAngularVelocity();
+      OK = DisplayAngularVelocity();
       
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("   Now setting attitude rate state type to %s\n",
       newStateRateType.c_str());
    #endif
-   attRateStateType      = newStateRateType;
-   dataChanged           = true;
-   rateStateTypeModified = true;
-   theScPanel->EnableUpdate(true);
+   if (OK)
+   {
+      attRateStateType      = newStateRateType;
+      dataChanged           = true;
+      rateStateTypeModified = true;
+      theScPanel->EnableUpdate(true);
+   }
+   else
+   {
+      stateRateTypeComboBox->SetValue(attRateStateType.c_str());
+   }
 }
 
 //------------------------------------------------------------------------------
-// void DisplayEulerAngles()
+// bool DisplayEulerAngles()
 //------------------------------------------------------------------------------
-void AttitudePanel::DisplayEulerAngles()
+bool AttitudePanel::DisplayEulerAngles()
 {
+   bool retval = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayEulerAngles() entered\n");
    #endif
@@ -1490,56 +1508,61 @@ void AttitudePanel::DisplayEulerAngles()
    // SetPath() understands ".."
    pConfig->SetPath(wxT("/Spacecraft Attitude"));
 
-   UpdateEulerAngles();
-   stateTypeComboBox->
-      SetValue(wxT("Euler Angles"));
-   attStateType = STATE_TEXT[EULER_ANGLES];
-   
-   st1StaticText->Show(true);
-   st2StaticText->Show(true);
-   st3StaticText->Show(true);
-   st4StaticText->Show(false);
-   
-   st1TextCtrl->Show(true);
-   st1TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle1Hint")));
-   st2TextCtrl->Show(true);
-   st2TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle2Hint")));
-   st3TextCtrl->Show(true);
-   st3TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle3Hint")));
-   st4TextCtrl->Show(false);
-   
-   st5TextCtrl->Show(false);
-   st6TextCtrl->Show(false);
-   st7TextCtrl->Show(false);
-   
-   st8TextCtrl->Show(false);
-   st9TextCtrl->Show(false);
-   st10TextCtrl->Show(false);
-   
-   st1StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"1"));
-   st2StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"2"));
-   st3StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"3"));
+   retval = UpdateEulerAngles();
+   if (retval)
+   {
+      stateTypeComboBox->
+         SetValue(wxT("Euler Angles"));
+      attStateType = STATE_TEXT[EULER_ANGLES];
 
-   st1TextCtrl->SetValue(*eulerAngles[0]);
-   st2TextCtrl->SetValue(*eulerAngles[1]);
-   st3TextCtrl->SetValue(*eulerAngles[2]);
+      st1StaticText->Show(true);
+      st2StaticText->Show(true);
+      st3StaticText->Show(true);
+      st4StaticText->Show(false);
 
-   // Dunn Added - Probably not going to use this.  If you disable, you gray out
-   // the text.  I'll need to remove the text for everything but EAs.
-   //attUnits1->Enable();
-   //attUnits2->Enable();
-   //attUnits3->Enable();
+      st1TextCtrl->Show(true);
+      st1TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle1Hint")));
+      st2TextCtrl->Show(true);
+      st2TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle2Hint")));
+      st3TextCtrl->Show(true);
+      st3TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngle3Hint")));
+      st4TextCtrl->Show(false);
 
-   attitudeSizer->Layout();
-   Refresh();
-   ResetStateFlags("State", true);
+      st5TextCtrl->Show(false);
+      st6TextCtrl->Show(false);
+      st7TextCtrl->Show(false);
+
+      st8TextCtrl->Show(false);
+      st9TextCtrl->Show(false);
+      st10TextCtrl->Show(false);
+
+      st1StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"1"));
+      st2StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"2"));
+      st3StaticText->SetLabel(wxT("Euler Angle "GUI_ACCEL_KEY"3"));
+   
+      st1TextCtrl->SetValue(*eulerAngles[0]);
+      st2TextCtrl->SetValue(*eulerAngles[1]);
+      st3TextCtrl->SetValue(*eulerAngles[2]);
+   
+      // Dunn Added - Probably not going to use this.  If you disable, you gray out
+      // the text.  I'll need to remove the text for everything but EAs.
+      //attUnits1->Enable();
+      //attUnits2->Enable();
+      //attUnits3->Enable();
+   
+      attitudeSizer->Layout();
+      Refresh();
+      ResetStateFlags("State", true);
+   }
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void DisplayQuaternion()
+// bool DisplayQuaternion()
 //------------------------------------------------------------------------------
-void AttitudePanel::DisplayQuaternion()
+bool AttitudePanel::DisplayQuaternion()
 {
+   bool retval = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayQuaternion() entered\n");
    #endif
@@ -1548,59 +1571,64 @@ void AttitudePanel::DisplayQuaternion()
    // SetPath() understands ".."
    pConfig->SetPath(wxT("/Spacecraft Attitude"));
 
-   UpdateQuaternion();
-   stateTypeComboBox->
-      SetValue(wxT("Quaternion"));
-   attStateType = "Quaternion";
-   
-   st1StaticText->Show(true);
-   st2StaticText->Show(true);
-   st3StaticText->Show(true);
-   st4StaticText->Show(true);
-   
-   st1TextCtrl->Show(true);
-   st1TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion1Hint")));
-   st2TextCtrl->Show(true);
-   st2TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion2Hint")));
-   st3TextCtrl->Show(true);
-   st3TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion3Hint")));
-   st4TextCtrl->Show(true);
-   st4TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion4Hint")));
-   
-   st5TextCtrl->Show(false);
-   st6TextCtrl->Show(false);
-   st7TextCtrl->Show(false);
-   
-   st8TextCtrl->Show(false);
-   st9TextCtrl->Show(false);
-   st10TextCtrl->Show(false);
-   
-   st1StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"1"));
-   st2StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"2"));
-   st3StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"3"));
-   st4StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"c"));  // Dunn changed 4 to c
+   retval = UpdateQuaternion();
+   if (retval)
+   {
+      stateTypeComboBox->
+         SetValue(wxT("Quaternion"));
+      attStateType = "Quaternion";
 
-   st1TextCtrl->SetValue(*quaternion[0]);
-   st2TextCtrl->SetValue(*quaternion[1]);
-   st3TextCtrl->SetValue(*quaternion[2]);
-   st4TextCtrl->SetValue(*quaternion[3]);
+      st1StaticText->Show(true);
+      st2StaticText->Show(true);
+      st3StaticText->Show(true);
+      st4StaticText->Show(true);
 
-   // Dunn Added - Probably not going to use this.  If you disable, you gray out
-   // the text.  I'll need to remove the text for everything but EAs.
-   //attUnits1->Disable();
-   //attUnits2->Disable();
-   //attUnits3->Disable();
+      st1TextCtrl->Show(true);
+      st1TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion1Hint")));
+      st2TextCtrl->Show(true);
+      st2TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion2Hint")));
+      st3TextCtrl->Show(true);
+      st3TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion3Hint")));
+      st4TextCtrl->Show(true);
+      st4TextCtrl->SetToolTip(pConfig->Read(_T("Quaternion4Hint")));
 
-   attitudeSizer->Layout();
-   Refresh();
-   ResetStateFlags("State", true);
+      st5TextCtrl->Show(false);
+      st6TextCtrl->Show(false);
+      st7TextCtrl->Show(false);
+
+      st8TextCtrl->Show(false);
+      st9TextCtrl->Show(false);
+      st10TextCtrl->Show(false);
+
+      st1StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"1"));
+      st2StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"2"));
+      st3StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"3"));
+      st4StaticText->SetLabel(wxT("q"GUI_ACCEL_KEY"c"));  // Dunn changed 4 to c
+   
+      st1TextCtrl->SetValue(*quaternion[0]);
+      st2TextCtrl->SetValue(*quaternion[1]);
+      st3TextCtrl->SetValue(*quaternion[2]);
+      st4TextCtrl->SetValue(*quaternion[3]);
+   
+      // Dunn Added - Probably not going to use this.  If you disable, you gray out
+      // the text.  I'll need to remove the text for everything but EAs.
+      //attUnits1->Disable();
+      //attUnits2->Disable();
+      //attUnits3->Disable();
+   
+      attitudeSizer->Layout();
+      Refresh();
+      ResetStateFlags("State", true);
+   }
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void DisplayDCM()
+// bool DisplayDCM()
 //------------------------------------------------------------------------------
-void AttitudePanel::DisplayDCM()
+bool AttitudePanel::DisplayDCM()
 {
+   bool retval = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayDCM() entered\n");
    #endif
@@ -1609,69 +1637,74 @@ void AttitudePanel::DisplayDCM()
    // SetPath() understands ".."
    pConfig->SetPath(wxT("/Spacecraft Attitude"));
 
-   UpdateCosineMatrix();
-   stateTypeComboBox->
-      SetValue(wxT("DirectionCosineMatrix"));
-   attStateType = "DirectionCosineMatrix";
-   
-   st1StaticText->Show(false);
-   st2StaticText->Show(false);
-   st3StaticText->Show(false);
-   st4StaticText->Show(false);
-   
-   st1TextCtrl->Show(true);
-   st1TextCtrl->SetToolTip(pConfig->Read(_T("DCM1Hint")));
-   st2TextCtrl->Show(true);
-   st2TextCtrl->SetToolTip(pConfig->Read(_T("DCM2Hint")));
-   st3TextCtrl->Show(true);
-   st3TextCtrl->SetToolTip(pConfig->Read(_T("DCM3Hint")));
-   st4TextCtrl->Show(false);
-   
-   st5TextCtrl->Show(true);
-   st5TextCtrl->SetToolTip(pConfig->Read(_T("DCM5Hint")));
-   st6TextCtrl->Show(true);
-   st6TextCtrl->SetToolTip(pConfig->Read(_T("DCM6Hint")));
-   st7TextCtrl->Show(true);
-   st7TextCtrl->SetToolTip(pConfig->Read(_T("DCM7Hint")));
-   
-   st8TextCtrl->Show(true);
-   st8TextCtrl->SetToolTip(pConfig->Read(_T("DCM8Hint")));
-   st9TextCtrl->Show(true);
-   st9TextCtrl->SetToolTip(pConfig->Read(_T("DCM9Hint")));
-   st10TextCtrl->Show(true);
-   st10TextCtrl->SetToolTip(pConfig->Read(_T("DCM10Hint")));
-   
-   st1StaticText->SetLabel(wxT(""));
-   st2StaticText->SetLabel(wxT(""));
-   st3StaticText->SetLabel(wxT(""));
-   st4StaticText->SetLabel(wxT(""));
+   retval = UpdateCosineMatrix();
+   if (retval)
+   {
+      stateTypeComboBox->
+         SetValue(wxT("DirectionCosineMatrix"));
+      attStateType = "DirectionCosineMatrix";
 
-   st1TextCtrl->SetValue(*cosineMatrix[0]);
-   st2TextCtrl->SetValue(*cosineMatrix[3]);
-   st3TextCtrl->SetValue(*cosineMatrix[6]);
-   st5TextCtrl->SetValue(*cosineMatrix[1]);
-   st6TextCtrl->SetValue(*cosineMatrix[4]);
-   st7TextCtrl->SetValue(*cosineMatrix[7]);
-   st8TextCtrl->SetValue(*cosineMatrix[2]);
-   st9TextCtrl->SetValue(*cosineMatrix[5]);
-   st10TextCtrl->SetValue(*cosineMatrix[8]);
+      st1StaticText->Show(false);
+      st2StaticText->Show(false);
+      st3StaticText->Show(false);
+      st4StaticText->Show(false);
 
-   // Dunn Added - Probably not going to use this.  If you disable, you gray out
-   // the text.  I'll need to remove the text for everything but EAs.
-   //attUnits1->Disable();
-   //attUnits2->Disable();
-   //attUnits3->Disable();
+      st1TextCtrl->Show(true);
+      st1TextCtrl->SetToolTip(pConfig->Read(_T("DCM1Hint")));
+      st2TextCtrl->Show(true);
+      st2TextCtrl->SetToolTip(pConfig->Read(_T("DCM2Hint")));
+      st3TextCtrl->Show(true);
+      st3TextCtrl->SetToolTip(pConfig->Read(_T("DCM3Hint")));
+      st4TextCtrl->Show(false);
 
-   attitudeSizer->Layout();
-   Refresh();
-   ResetStateFlags("State", true);
+      st5TextCtrl->Show(true);
+      st5TextCtrl->SetToolTip(pConfig->Read(_T("DCM5Hint")));
+      st6TextCtrl->Show(true);
+      st6TextCtrl->SetToolTip(pConfig->Read(_T("DCM6Hint")));
+      st7TextCtrl->Show(true);
+      st7TextCtrl->SetToolTip(pConfig->Read(_T("DCM7Hint")));
+
+      st8TextCtrl->Show(true);
+      st8TextCtrl->SetToolTip(pConfig->Read(_T("DCM8Hint")));
+      st9TextCtrl->Show(true);
+      st9TextCtrl->SetToolTip(pConfig->Read(_T("DCM9Hint")));
+      st10TextCtrl->Show(true);
+      st10TextCtrl->SetToolTip(pConfig->Read(_T("DCM10Hint")));
+
+      st1StaticText->SetLabel(wxT(""));
+      st2StaticText->SetLabel(wxT(""));
+      st3StaticText->SetLabel(wxT(""));
+      st4StaticText->SetLabel(wxT(""));
+   
+      st1TextCtrl->SetValue(*cosineMatrix[0]);
+      st2TextCtrl->SetValue(*cosineMatrix[3]);
+      st3TextCtrl->SetValue(*cosineMatrix[6]);
+      st5TextCtrl->SetValue(*cosineMatrix[1]);
+      st6TextCtrl->SetValue(*cosineMatrix[4]);
+      st7TextCtrl->SetValue(*cosineMatrix[7]);
+      st8TextCtrl->SetValue(*cosineMatrix[2]);
+      st9TextCtrl->SetValue(*cosineMatrix[5]);
+      st10TextCtrl->SetValue(*cosineMatrix[8]);
+   
+      // Dunn Added - Probably not going to use this.  If you disable, you gray out
+      // the text.  I'll need to remove the text for everything but EAs.
+      //attUnits1->Disable();
+      //attUnits2->Disable();
+      //attUnits3->Disable();
+   
+      attitudeSizer->Layout();
+      Refresh();
+      ResetStateFlags("State", true);
+   }
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void DisplayModifiedRodriguesParameters() - Added by Dunn
+// bool DisplayModifiedRodriguesParameters() - Added by Dunn
 //------------------------------------------------------------------------------
-void AttitudePanel::DisplayMRPs()
+bool AttitudePanel::DisplayMRPs()
 {
+   bool retval = true;
 #ifdef DEBUG_ATTITUDE_PANEL
    MessageInterface::ShowMessage("AttitudePanel::DisplayMRPs() entered\n");
 #endif
@@ -1680,56 +1713,61 @@ void AttitudePanel::DisplayMRPs()
    // SetPath() understands ".."
    pConfig->SetPath(wxT("/Spacecraft Attitude"));
 
-   UpdateMRPs();
-   stateTypeComboBox->
-      SetValue(wxT("MRPs"));
-   attStateType = "MRPs";
+   retval = UpdateMRPs();
+   if (retval)
+   {
+      stateTypeComboBox->
+         SetValue(wxT("MRPs"));
+      attStateType = "MRPs";
 
-   st1StaticText->Show(true);
-   st2StaticText->Show(true);
-   st3StaticText->Show(true);
-   st4StaticText->Show(false);
+      st1StaticText->Show(true);
+      st2StaticText->Show(true);
+      st3StaticText->Show(true);
+      st4StaticText->Show(false);
 
-   st1TextCtrl->Show(true);
-   st1TextCtrl->SetToolTip(pConfig->Read(_T("MRP1Hint")));
-   st2TextCtrl->Show(true);
-   st2TextCtrl->SetToolTip(pConfig->Read(_T("MRP2Hint")));
-   st3TextCtrl->Show(true);
-   st3TextCtrl->SetToolTip(pConfig->Read(_T("MRP3Hint")));
-   st4TextCtrl->Show(false);
+      st1TextCtrl->Show(true);
+      st1TextCtrl->SetToolTip(pConfig->Read(_T("MRP1Hint")));
+      st2TextCtrl->Show(true);
+      st2TextCtrl->SetToolTip(pConfig->Read(_T("MRP2Hint")));
+      st3TextCtrl->Show(true);
+      st3TextCtrl->SetToolTip(pConfig->Read(_T("MRP3Hint")));
+      st4TextCtrl->Show(false);
 
-   st5TextCtrl->Show(false);
-   st6TextCtrl->Show(false);
-   st7TextCtrl->Show(false);
+      st5TextCtrl->Show(false);
+      st6TextCtrl->Show(false);
+      st7TextCtrl->Show(false);
 
-   st8TextCtrl->Show(false);
-   st9TextCtrl->Show(false);
-   st10TextCtrl->Show(false);
+      st8TextCtrl->Show(false);
+      st9TextCtrl->Show(false);
+      st10TextCtrl->Show(false);
 
-   st1StaticText->SetLabel(wxT("MRP "GUI_ACCEL_KEY"1"));
-   st2StaticText->SetLabel(wxT("MRP "GUI_ACCEL_KEY"2"));
-   st3StaticText->SetLabel(wxT("MRP "GUI_ACCEL_KEY"3"));
+      st1StaticText->SetLabel(wxT("MRP "GUI_ACCEL_KEY"1"));
+      st2StaticText->SetLabel(wxT("MRP "GUI_ACCEL_KEY"2"));
+      st3StaticText->SetLabel(wxT("MRP "GUI_ACCEL_KEY"3"));
 
-   st1TextCtrl->SetValue(*MRPs[0]);
-   st2TextCtrl->SetValue(*MRPs[1]);
-   st3TextCtrl->SetValue(*MRPs[2]);
+      st1TextCtrl->SetValue(*MRPs[0]);
+      st2TextCtrl->SetValue(*MRPs[1]);
+      st3TextCtrl->SetValue(*MRPs[2]);
 
-   // Dunn Added - Probably not going to use this.  If you disable, you gray out
-   // the text.  I'll need to remove the text for everything but EAs.
-   //attUnits1->Disable();
-   //attUnits2->Disable();
-   //attUnits3->Disable();
+      // Dunn Added - Probably not going to use this.  If you disable, you gray out
+      // the text.  I'll need to remove the text for everything but EAs.
+      //attUnits1->Disable();
+      //attUnits2->Disable();
+      //attUnits3->Disable();
 
-   attitudeSizer->Layout();
-   Refresh();
-   ResetStateFlags("State", true);
+      attitudeSizer->Layout();
+      Refresh();
+      ResetStateFlags("State", true);
+   }
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void DisplayEulerAngleRates()
+// bool DisplayEulerAngleRates()
 //------------------------------------------------------------------------------
-void AttitudePanel::DisplayEulerAngleRates()
+bool AttitudePanel::DisplayEulerAngleRates()
 {
+   bool retval = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayEulerAngleRates() entered\n");
    #endif
@@ -1738,33 +1776,37 @@ void AttitudePanel::DisplayEulerAngleRates()
    // SetPath() understands ".."
    pConfig->SetPath(wxT("/Spacecraft Attitude"));
 
-   UpdateEulerAngleRates();
-   stateRateTypeComboBox->
-      SetValue(wxT("EulerAngleRates"));
-   attRateStateType = "EulerAngleRates";
-   str1StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"1"));
-   str2StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"2"));
-   str3StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"3"));
+   retval  = UpdateEulerAngleRates();
+   if (retval)
+   {
+      stateRateTypeComboBox->
+         SetValue(wxT("EulerAngleRates"));
+      attRateStateType = "EulerAngleRates";
+      str1StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"1"));
+      str2StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"2"));
+      str3StaticText->SetLabel(wxT("Euler Angle Rate "GUI_ACCEL_KEY"3"));
 
-   str1TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate1Hint")));
-   str2TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate2Hint")));
-   str3TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate3Hint")));
+      str1TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate1Hint")));
+      str2TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate2Hint")));
+      str3TextCtrl->SetToolTip(pConfig->Read(_T("EulerAngleRate3Hint")));
 
-   str1TextCtrl->SetValue(*eulerAngleRates[0]);
-   str2TextCtrl->SetValue(*eulerAngleRates[1]);
-   str3TextCtrl->SetValue(*eulerAngleRates[2]);
+      str1TextCtrl->SetValue(*eulerAngleRates[0]);
+      str2TextCtrl->SetValue(*eulerAngleRates[1]);
+      str3TextCtrl->SetValue(*eulerAngleRates[2]);
 
-   attRateSizer->Layout();
-   Refresh();
-   ResetStateFlags("Rate", true);
-
+      attRateSizer->Layout();
+      Refresh();
+      ResetStateFlags("Rate", true);
+   }
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void DisplayAngularVelocity()
+// bool DisplayAngularVelocity()
 //------------------------------------------------------------------------------
-void AttitudePanel::DisplayAngularVelocity()
+bool AttitudePanel::DisplayAngularVelocity()
 {
+   bool retval = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::DisplayAngularVelocity() entered\n");
    #endif
@@ -1773,187 +1815,251 @@ void AttitudePanel::DisplayAngularVelocity()
    // SetPath() understands ".."
    pConfig->SetPath(wxT("/Spacecraft Attitude"));
 
-   UpdateAngularVelocity();
-   stateRateTypeComboBox->
-      SetValue(wxT("AngularVelocity"));
-   attRateStateType = "AngularVelocity";
-   str1StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"X"));
-   str2StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"Y"));
-   str3StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"Z"));
+   retval = UpdateAngularVelocity();
+   if (retval)
+   {
+      stateRateTypeComboBox->
+         SetValue(wxT("AngularVelocity"));
+      attRateStateType = "AngularVelocity";
+      str1StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"X"));
+      str2StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"Y"));
+      str3StaticText->SetLabel(wxT("Angular Velocity "GUI_ACCEL_KEY"Z"));
 
-   str1TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity1Hint")));
-   str2TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity2Hint")));
-   str3TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity3Hint")));
+      str1TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity1Hint")));
+      str2TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity2Hint")));
+      str3TextCtrl->SetToolTip(pConfig->Read(_T("AngularVelocity3Hint")));
 
-   str1TextCtrl->SetValue(*angVel[0]);
-   str2TextCtrl->SetValue(*angVel[1]);
-   str3TextCtrl->SetValue(*angVel[2]);
+      str1TextCtrl->SetValue(*angVel[0]);
+      str2TextCtrl->SetValue(*angVel[1]);
+      str3TextCtrl->SetValue(*angVel[2]);
 
-   attRateSizer->Layout();
-   Refresh();
-   ResetStateFlags("Rate", true);
+      attRateSizer->Layout();
+      Refresh();
+      ResetStateFlags("Rate", true);
+   }
+   return retval;
 }
 
 
 //------------------------------------------------------------------------------
-// void UpdateCosineMatrix()
+// bool UpdateCosineMatrix()
 //------------------------------------------------------------------------------
-void AttitudePanel::UpdateCosineMatrix()
+bool AttitudePanel::UpdateCosineMatrix()
 {
+   bool retval = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::UpdateCosineMatrix() entered\n");
    #endif
-   if (attStateType == stateTypeArray[DCM]) return;
-   if (attStateType == stateTypeArray[QUATERNION])
+   if (attStateType == stateTypeArray[DCM]) return true;
+   try
    {
-      dcmat = Attitude::ToCosineMatrix(q);
+      if (attStateType == stateTypeArray[QUATERNION])
+      {
+         dcmat = Attitude::ToCosineMatrix(q);
+      }
+      else if (attStateType == stateTypeArray[EULER_ANGLES])
+      {
+         dcmat = Attitude::ToCosineMatrix(ea * GmatMathConstants::RAD_PER_DEG,
+                         (Integer) seq[0], (Integer) seq[1], (Integer) seq[2]);
+      }
+      else if (attStateType == stateTypeArray[MRPS])  // Dunn Added
+      {
+         q     = Attitude::ToQuaternion(mrp);
+         dcmat = Attitude::ToCosineMatrix(q);
+      }
+      // update string versions of mat values (cosineMatrix)
+      unsigned int x, y;
+      for (x = 0; x < 3; ++x)
+         for (y = 0; y < 3; ++y)
+            *cosineMatrix[x*3+y] = theGuiManager->ToWxString(dcmat(x,y));
    }
-   else if (attStateType == stateTypeArray[EULER_ANGLES])
+   catch (BaseException &ex)
    {
-      dcmat = Attitude::ToCosineMatrix(ea * GmatMathConstants::RAD_PER_DEG,
-                      (Integer) seq[0], (Integer) seq[1], (Integer) seq[2]);
+      retval = false;
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
    }
-   else if (attStateType == stateTypeArray[MRPS])  // Dunn Added
-   {
-      q     = Attitude::ToQuaternion(mrp);
-      dcmat = Attitude::ToCosineMatrix(q);
-   }
-   // update string versions of mat values (cosineMatrix)
-   unsigned int x, y;
-   for (x = 0; x < 3; ++x)
-      for (y = 0; y < 3; ++y)
-         *cosineMatrix[x*3+y] = theGuiManager->ToWxString(dcmat(x,y));
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void UpdateQuaternion()
+// bool UpdateQuaternion()
 //------------------------------------------------------------------------------
-void AttitudePanel::UpdateQuaternion()
+bool AttitudePanel::UpdateQuaternion()
 {
+   bool retval = true;
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::UpdateQuaternion() entered\n");
    #endif
-   if (attStateType == stateTypeArray[QUATERNION]) return;
-   if (attStateType == stateTypeArray[DCM])
+   if (attStateType == stateTypeArray[QUATERNION]) return true;
+   try
    {
-      q = Attitude::ToQuaternion(dcmat);
+      if (attStateType == stateTypeArray[DCM])
+      {
+         q = Attitude::ToQuaternion(dcmat);
+      }
+      else if (attStateType == stateTypeArray[EULER_ANGLES])
+      {
+         q = Attitude::ToQuaternion(ea * GmatMathConstants::RAD_PER_DEG,
+                       (Integer) seq[0], (Integer) seq[1], (Integer) seq[2]);
+      }
+      else if (attStateType == stateTypeArray[MRPS])  // Dunn Added
+      {
+         q     = Attitude::ToQuaternion(mrp);
+      }
+      // update string versions of q values
+      for (unsigned int x = 0; x < 4; ++x)
+         *quaternion[x] = theGuiManager->ToWxString(q[x]);
    }
-   else if (attStateType == stateTypeArray[EULER_ANGLES])
+   catch (BaseException &ex)
    {
-      q = Attitude::ToQuaternion(ea * GmatMathConstants::RAD_PER_DEG,
-                    (Integer) seq[0], (Integer) seq[1], (Integer) seq[2]);
+      retval = false;
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
    }
-   else if (attStateType == stateTypeArray[MRPS])  // Dunn Added
-   {
-      q     = Attitude::ToQuaternion(mrp);
-   }
-   // update string versions of q values 
-   for (unsigned int x = 0; x < 4; ++x)
-      *quaternion[x] = theGuiManager->ToWxString(q[x]);
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void UpdateEulerAngles()
+// bool UpdateEulerAngles()
 //------------------------------------------------------------------------------
-void AttitudePanel::UpdateEulerAngles()
+bool AttitudePanel::UpdateEulerAngles()
 {
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::UpdateEulerAngles() entered\n");
    #endif
-   if (attStateType == stateTypeArray[EULER_ANGLES]) return;
-   if (attStateType == stateTypeArray[DCM])
+   bool retval = true;
+   if (attStateType == stateTypeArray[EULER_ANGLES]) return true;
+   try
    {
-      ea = Attitude::ToEulerAngles(dcmat, 
-                     (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
-                     * GmatMathConstants::DEG_PER_RAD;
+      if (attStateType == stateTypeArray[DCM])
+      {
+         ea = Attitude::ToEulerAngles(dcmat,
+                        (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
+                        * GmatMathConstants::DEG_PER_RAD;
+      }
+      else if (attStateType == stateTypeArray[QUATERNION])
+      {
+         ea = Attitude::ToEulerAngles(q,
+                       (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
+                       * GmatMathConstants::DEG_PER_RAD;
+      }
+      else if (attStateType == stateTypeArray[MRPS])  // Dunn Added
+      {
+         q  = Attitude::ToQuaternion(mrp);
+         ea = Attitude::ToEulerAngles(q,
+                       (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
+                       * GmatMathConstants::DEG_PER_RAD;
+      }
+      // update string versions of ea values
+      for (unsigned int x = 0; x < 3; ++x)
+         *eulerAngles[x] = theGuiManager->ToWxString(ea[x]);
    }
-   else if (attStateType == stateTypeArray[QUATERNION])
+   catch (BaseException &ex)
    {
-      ea = Attitude::ToEulerAngles(q, 
-                    (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
-                    * GmatMathConstants::DEG_PER_RAD;
+      retval = false;
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
    }
-   else if (attStateType == stateTypeArray[MRPS])  // Dunn Added
-   {
-      q  = Attitude::ToQuaternion(mrp);
-      ea = Attitude::ToEulerAngles(q, 
-                    (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
-                    * GmatMathConstants::DEG_PER_RAD;
-   }
-   // update string versions of ea values 
-   for (unsigned int x = 0; x < 3; ++x)
-      *eulerAngles[x] = theGuiManager->ToWxString(ea[x]);
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void UpdateMRPs() - Added by Dunn
+// bool UpdateMRPs() - Added by Dunn
 //------------------------------------------------------------------------------
-void AttitudePanel::UpdateMRPs()
+bool AttitudePanel::UpdateMRPs()
 {
 #ifdef DEBUG_ATTITUDE_PANEL
    MessageInterface::ShowMessage("AttitudePanel::UpdateEulerAngles() entered\n");
 #endif
-   if (attStateType == stateTypeArray[MRPS]) return;
-   if (attStateType == stateTypeArray[DCM])
+   bool retval = true;
+   if (attStateType == stateTypeArray[MRPS]) return true;
+   try
    {
-      q   = Attitude::ToQuaternion(dcmat);
-      mrp = Attitude::ToMRPs(q);
+      if (attStateType == stateTypeArray[DCM])
+      {
+         q   = Attitude::ToQuaternion(dcmat);
+         mrp = Attitude::ToMRPs(q);
+      }
+      else if (attStateType == stateTypeArray[QUATERNION])
+      {
+         mrp = Attitude::ToMRPs(q);
+      }
+      else if (attStateType == stateTypeArray[EULER_ANGLES])
+      {
+         q   = Attitude::ToQuaternion(ea * GmatMathConstants::RAD_PER_DEG,
+               (Integer) seq[0], (Integer) seq[1], (Integer) seq[2]);
+         mrp = Attitude::ToMRPs(q);
+      }
+      // update string versions of mrp values
+      for (unsigned int x = 0; x < 3; ++x)
+         *MRPs[x] = theGuiManager->ToWxString(mrp[x]);
    }
-   else if (attStateType == stateTypeArray[QUATERNION])
+   catch (BaseException &ex)
    {
-      mrp = Attitude::ToMRPs(q);
+      retval = false;
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
    }
-   else if (attStateType == stateTypeArray[EULER_ANGLES])
-   {
-      q   = Attitude::ToQuaternion(ea * GmatMathConstants::RAD_PER_DEG,
-            (Integer) seq[0], (Integer) seq[1], (Integer) seq[2]);
-      mrp = Attitude::ToMRPs(q);
-   }
-   // update string versions of mrp values 
-   for (unsigned int x = 0; x < 3; ++x)
-      *MRPs[x] = theGuiManager->ToWxString(mrp[x]);
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void UpdateAngularVelocity()
+// bool UpdateAngularVelocity()
 //------------------------------------------------------------------------------
-void AttitudePanel::UpdateAngularVelocity()
+bool AttitudePanel::UpdateAngularVelocity()
 {
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::UpdateAngularVelocity() entered\n");
    #endif
-   if (attRateStateType == stateRateTypeArray[ANGULAR_VELOCITY]) return;
+   bool retval = true;
+   if (attRateStateType == stateRateTypeArray[ANGULAR_VELOCITY]) return true;
    if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES])
    {
-      UpdateEulerAngles();
-      av = Attitude::ToAngularVelocity(ear * GmatMathConstants::RAD_PER_DEG,
-                     ea * GmatMathConstants::RAD_PER_DEG,
-                     (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
-                     * GmatMathConstants::DEG_PER_RAD;
+      try
+      {
+         UpdateEulerAngles();
+         av = Attitude::ToAngularVelocity(ear * GmatMathConstants::RAD_PER_DEG,
+                        ea * GmatMathConstants::RAD_PER_DEG,
+                        (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
+                        * GmatMathConstants::DEG_PER_RAD;
+         // update string versions of av values
+         for (unsigned int x = 0; x < 3; ++x)
+            *angVel[x] = theGuiManager->ToWxString(av[x]);
+      }
+      catch (BaseException &ex)
+      {
+         retval = false;
+         MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+      }
    }
-   // update string versions of av values 
-   for (unsigned int x = 0; x < 3; ++x)
-      *angVel[x] = theGuiManager->ToWxString(av[x]);
+   return retval;
 }
 
 //------------------------------------------------------------------------------
-// void UpdateEulerAngleRates()
+// bool UpdateEulerAngleRates()
 //------------------------------------------------------------------------------
-void AttitudePanel::UpdateEulerAngleRates()
+bool AttitudePanel::UpdateEulerAngleRates()
 {
    #ifdef DEBUG_ATTITUDE_PANEL
       MessageInterface::ShowMessage("AttitudePanel::UpdateEulerAngleRates() entered\n");
    #endif
-   if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES]) return;
+   bool retval = true;
+   if (attRateStateType == stateRateTypeArray[EULER_ANGLE_RATES]) return true;
    if (attRateStateType == stateRateTypeArray[ANGULAR_VELOCITY])
    {
-      UpdateEulerAngles();
-      ear = Attitude::ToEulerAngleRates(av * GmatMathConstants::RAD_PER_DEG,
-                      ea * GmatMathConstants::RAD_PER_DEG,
-                      (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
-                      * GmatMathConstants::DEG_PER_RAD;
+      try
+      {
+         UpdateEulerAngles();
+         ear = Attitude::ToEulerAngleRates(av * GmatMathConstants::RAD_PER_DEG,
+                         ea * GmatMathConstants::RAD_PER_DEG,
+                         (Integer) seq[0], (Integer) seq[1], (Integer) seq[2])
+                         * GmatMathConstants::DEG_PER_RAD;
+         // update string versions of av values
+            for (unsigned int x = 0; x < 3; ++x)
+               *eulerAngleRates[x] = theGuiManager->ToWxString(ear[x]);
+      }
+      catch (BaseException &ex)
+      {
+         retval = false;
+         MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+      }
    }
-   // update string versions of av values 
-      for (unsigned int x = 0; x < 3; ++x)
-         *eulerAngleRates[x] = theGuiManager->ToWxString(ear[x]);
+   return retval;
 }

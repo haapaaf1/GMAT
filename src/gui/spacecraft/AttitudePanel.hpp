@@ -174,19 +174,19 @@ private:
    bool             earModified[3];
 
    void Create();
-   void DisplayEulerAngles();
-   void DisplayQuaternion();
-   void DisplayDCM();
-   void DisplayMRPs();  // Dunn Added
-   void DisplayEulerAngleRates();
-   void DisplayAngularVelocity();
+   bool DisplayEulerAngles();
+   bool DisplayQuaternion();
+   bool DisplayDCM();
+   bool DisplayMRPs();  // Dunn Added
+   bool DisplayEulerAngleRates();
+   bool DisplayAngularVelocity();
    
-   void UpdateEulerAngles();
-   void UpdateQuaternion();
-   void UpdateCosineMatrix();
-   void UpdateMRPs();   // Dunn Added
-   void UpdateEulerAngleRates();
-   void UpdateAngularVelocity();
+   bool UpdateEulerAngles();
+   bool UpdateQuaternion();
+   bool UpdateCosineMatrix();
+   bool UpdateMRPs();   // Dunn Added
+   bool UpdateEulerAngleRates();
+   bool UpdateAngularVelocity();
       
    bool IsStateModified(const std::string which = "Both");
    void ResetStateFlags(const std::string which = "Both",
