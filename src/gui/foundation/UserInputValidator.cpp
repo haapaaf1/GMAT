@@ -387,7 +387,8 @@ bool UserInputValidator::CheckIntegerRange(Integer &ivalue, const std::string &s
  * input owner type.
  *
  * @param  varName    Input variable name to be checked
- * @param  ownerType  Input owner type (such as Gmat::SPACECRAFT)
+ * @param  ownerType  Input owner type if Parameter (such as Gmat::SPACECRAFT),
+ *                       if type is UNKNOWN_OBJECT, it doesn't check for type
  * @param  field      Field name should be used in the error message
  * @param  expRange   Expected value range to be used in the error message
  * @param  allowNumber  true if varName can be a Real number 
@@ -408,8 +409,7 @@ bool UserInputValidator::CheckVariable(const std::string &varName, Gmat::ObjectT
    }
    
    int retval = mGuiManager->
-      IsValidVariable(varName.c_str(), Gmat::SPACECRAFT, allowNumber,
-                      allowNonPlottable);
+      IsValidVariable(varName.c_str(), ownerType, allowNumber, allowNonPlottable);
    
    if (retval == -1)
    {

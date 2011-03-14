@@ -307,55 +307,57 @@ void VaryPanel::SaveData()
    //-----------------------------------------------------------------
    // check input values: Number, Variable, Array element, Parameter
    //-----------------------------------------------------------------
+   
+   std::string expRange = "Real Number, Variable, Array element, Plottable Parameter";
+   
+   // Any plottable Parameters allowed, so use UNKNOWN_OBJECT
    if (mInitialTextCtrl->IsModified())
    {
       strInitVal = mInitialTextCtrl->GetValue().c_str();
-      CheckVariable(strInitVal, Gmat::BURN, "InitialValue",
-                    "Real Number, Variable, Array element, plottable Parameter", true);
+      CheckVariable(strInitVal, Gmat::UNKNOWN_OBJECT,
+                    "InitialValue", expRange, true);
    }
    
    if (mPertTextCtrl->IsModified())
    {
       strPert = mPertTextCtrl->GetValue().c_str();
-      CheckVariable(strPert, Gmat::BURN, "Perturbation",
-                    "Real Number, Variable, Array element, plottable Parameter", true);
+      CheckVariable(strPert, Gmat::UNKNOWN_OBJECT,
+                    "Perturbation", expRange, true);
    }
    
    if (mLowerValueTextCtrl->IsModified())
    {
       strLower = mLowerValueTextCtrl->GetValue().c_str();
-      CheckVariable(strLower, Gmat::BURN, "Lower",
-                    "Real Number, Variable, Array element, plottable Parameter", true);
+      CheckVariable(strLower, Gmat::UNKNOWN_OBJECT,
+                    "Lower", expRange, true);
    }
    
    if (mUpperValueTextCtrl->IsModified())
    {
       strUpper = mUpperValueTextCtrl->GetValue().c_str();
-      CheckVariable(strUpper.c_str(), Gmat::BURN, "Upper",
-                    "Real Number, Variable, Array element, plottable Parameter", true);
+      CheckVariable(strUpper.c_str(), Gmat::UNKNOWN_OBJECT,
+                    "Upper", expRange, true);
    }
    
    if (mMaxStepTextCtrl->IsModified())
    {
       strMaxStep = mMaxStepTextCtrl->GetValue().c_str();
-      CheckVariable(strMaxStep.c_str(), Gmat::BURN, "MaxStep",
-                    "Real Number, Variable, Array element, plottable Parameter", true);
+      CheckVariable(strMaxStep.c_str(), Gmat::UNKNOWN_OBJECT,
+                    "MaxStep", expRange, true);
    }
    
    if (mAdditiveTextCtrl->IsModified())
    {
       strAddSf = mAdditiveTextCtrl->GetValue().c_str();
-      CheckVariable(strAddSf.c_str(), Gmat::BURN,
-                    "AdditiveScaleFactor",
-                    "Real Number, Variable, Array element, plottable Parameter", true);
+      CheckVariable(strAddSf.c_str(), Gmat::UNKNOWN_OBJECT,
+                    "AdditiveScaleFactor", expRange, true);
    }
    
    if (mMultiplicativeTextCtrl->IsModified())
    {
       strMultSf = mMultiplicativeTextCtrl->GetValue().c_str();
-      CheckVariable(strMultSf.c_str(), Gmat::BURN,
-                    "MultiplicativeScaleFactor",
-                    "Real Number, Variable, Array element, plottable Parameter", true);
+      CheckVariable(strMultSf.c_str(), Gmat::UNKNOWN_OBJECT,
+                    "MultiplicativeScaleFactor", expRange, true);
    }
    
    if (!canClose)
@@ -451,7 +453,7 @@ void VaryPanel::SaveData()
          mMultiplicativeTextCtrl->DiscardEdits();
       }
       
-      // avoid unnecessary validation since it clears all wrappers and recreats them
+      // avoid unnecessary validation since it clears all wrappers and recreates them
       if (validateCommand)
       {
          #ifdef DEBUG_VARYPANEL_SAVE
@@ -531,6 +533,11 @@ void VaryPanel::OnSolverSelection(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void VaryPanel::SetControlEnabling(GmatBase *slvr)
 {
+   #ifdef DEBUG_SET_CONTROL
+   MessageInterface::ShowMessage
+      ("VaryPanel::SetControlEnabling() entered, solver=<%p><%s>'%s'\n", slvr,
+       slvr->GetTypeName().c_str(), slvr->GetName().c_str());
+   #endif
    if (slvr->GetBooleanParameter(slvr->GetParameterID("AllowScaleSetting")))
    {
       additiveStaticText->Enable(true);
@@ -582,6 +589,10 @@ void VaryPanel::SetControlEnabling(GmatBase *slvr)
       pertStaticText->Enable(false);
       mPertTextCtrl->Enable(false);
    }
+   #ifdef DEBUG_SET_CONTROL
+   MessageInterface::ShowMessage
+      ("VaryPanel::SetControlEnabling() leaving\n");
+   #endif
 }
 
 
