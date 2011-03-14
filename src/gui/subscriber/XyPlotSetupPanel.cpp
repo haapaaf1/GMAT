@@ -323,7 +323,7 @@ void XyPlotSetupPanel::Create()
                     emptyList, wxLB_SINGLE);
    mXSelectedListBox->SetToolTip(pConfig->Read(_T("SelectedXHint")));
    
-   mViewXButton = new wxButton(this, ID_BUTTON, "Select "GUI_ACCEL_KEY"X",
+   mViewXButton = new wxButton(this, ID_BUTTON, "Edit "GUI_ACCEL_KEY"X",
                                wxDefaultPosition, wxDefaultSize, 0);
    mViewXButton->SetToolTip(pConfig->Read(_T("SelectXHint")));
    
@@ -341,7 +341,7 @@ void XyPlotSetupPanel::Create()
                     emptyList, wxLB_SINGLE);
    mYSelectedListBox->SetToolTip(pConfig->Read(_T("SelectedYHint")));
    
-   mViewYButton = new wxButton(this, ID_BUTTON, "Select "GUI_ACCEL_KEY"Y",
+   mViewYButton = new wxButton(this, ID_BUTTON, "Edit "GUI_ACCEL_KEY"Y",
                                wxDefaultPosition, wxDefaultSize, 0);
    mViewYButton->SetToolTip(pConfig->Read(_T("SelectYHint")));
    
