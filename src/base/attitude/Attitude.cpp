@@ -952,6 +952,10 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
    }
    else if ((seq1 == 2) && (seq2 == 1) && (seq3 == 2))  // 2-1-2
    {
+      #ifdef DEBUG_EULER_ANGLE_RATES
+         MessageInterface::ShowMessage(
+               "in 2-1-2 calculations\n");
+      #endif
       if (s2 == 0.0)   singularity = true;
       else
       {
@@ -995,16 +999,17 @@ Rvector3 Attitude::ToEulerAngleRates(const Rvector3 &angularVel,
       "Invalid Euler sequence - cannot compute euler angle rates.");
    if (singularity)
    {
-//      MessageInterface::ShowMessage(
-//      "Singularity detected - using zero vector for euler angle rates\n");
-      std::ostringstream errmsg;
+      #ifdef DEBUG_EULER_ANGLE_RATES
+         MessageInterface::ShowMessage(
+               "...... singularity found!!!\n");
+      #endif
+      std::stringstream errmsg;
       errmsg << "Error: the attitude defined by the euler angles (";
       errmsg << (eulerAngles(0) * GmatMathConstants::DEG_PER_RAD) << ", "
              << (eulerAngles(1) * GmatMathConstants::DEG_PER_RAD) << ", "
              << (eulerAngles(2) * GmatMathConstants::DEG_PER_RAD);
       errmsg << ") is near a singularity." << std::endl;
       throw AttitudeException(errmsg.str());
-//      return Rvector3(); // return zero vector
    }
    #ifdef DEBUG_EULER_ANGLE_RATES
       MessageInterface::ShowMessage(
