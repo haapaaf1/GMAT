@@ -32,37 +32,38 @@ public:
                                       DayOfMonth day, Integer hour, Integer minute,
                                       Real second);
    
-   friend Real JulianDate(YearNumber year, MonthOfYear month,
+   friend Real GMAT_API JulianDate(YearNumber year, MonthOfYear month,
                           DayOfMonth day, Integer hour, Integer minute,
                           Real second);
    
-   friend Real ModifiedJulianDate(YearNumber year, MonthOfYear month,
+   friend Real GMAT_API ModifiedJulianDate(YearNumber year, MonthOfYear month,
                                   DayOfMonth day, Integer hour, Integer minute,
                                   Real second);
 
-   friend Real ModifiedJulianDate(YearNumber year, MonthOfYear month,
+   friend Real GMAT_API ModifiedJulianDate(YearNumber year, MonthOfYear month,
                                   DayOfMonth day, Integer hour, Integer minute,
                                   Real second, Real refEpochJD);
    
-   friend void UnpackDate(Real packedDate, Integer& year, Integer& month, 
+   friend void GMAT_API UnpackDate(Real packedDate, Integer& year, Integer& month, 
                           Integer& day);        // input in YYYYMMDD. 
-   friend void UnpackDateWithDOY(Real packedDate, Integer& year, Integer& day);
+   friend void GMAT_API UnpackDateWithDOY(Real packedDate, Integer& year, Integer& day);
    
    // input in YYYYDDD. 
-   friend void UnpackTime(Real packedTime, Integer& hour, Integer& minute, 
+   friend void GMAT_API UnpackTime(Real packedTime, Integer& hour, Integer& minute, 
                           Real& second);        // input in hhmmssnnn.
-   friend void ToMonthDayFromYearDOY(Integer year, Integer dayOfYear,
+   friend void GMAT_API ToMonthDayFromYearDOY(Integer year, Integer dayOfYear,
                                      Integer& month, Integer& day);
-   friend Integer ToDOYFromYearMonthDay(Integer year, Integer month,
+   friend Integer GMAT_API ToDOYFromYearMonthDay(Integer year, Integer month,
                                         Integer day);
-   friend Real ToSecondsOfDayFromHMS(Integer hour, Integer minute,
+   friend Real GMAT_API ToSecondsOfDayFromHMS(Integer hour, Integer minute,
                                      Real second);
-   friend void ToHMSFromSecondsOfDay(Real secsOfDay, Integer& hour, 
+   friend void GMAT_API ToHMSFromSecondsOfDay(Real secsOfDay, Integer& hour, 
                                      Integer& minute, Real& second);
-   friend bool IsValidTime(Integer year, Integer month, Integer day, 
+   friend bool GMAT_API IsValidTime(Integer year, Integer month, Integer day, 
                            Integer hour, Integer minute, Real second);
    static bool IsValidGregorian(const std::string &str, bool checkDate = false);
-   friend bool IsLeapYear(Integer year);
+   friend bool GMAT_API IsLeapYear(Integer year);
   
 };
+
 #endif

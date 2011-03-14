@@ -34,7 +34,7 @@
  * find the epochs for events like station rise and set times and shadow entry
  * and exit times.
  */
-class TriggerManager
+class GMAT_API TriggerManager
 {
 public:
    TriggerManager();

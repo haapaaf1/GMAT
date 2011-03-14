@@ -68,10 +68,10 @@ namespace GmatTimeUtil
       Real    seconds;
    };
    
-   bool IsValidMonthName(const std::string &str);
-   std::string GetMonthName(Integer month);
-   Integer GetMonth(const std::string &monthName);
-   std::string FormatCurrentTime(Integer format = 1);
-   std::string GetGregorianFormat();
+   bool GMAT_API IsValidMonthName(const std::string &str);
+   std::string GMAT_API GetMonthName(Integer month);
+   Integer GMAT_API GetMonth(const std::string &monthName);
+   std::string GMAT_API FormatCurrentTime(Integer format = 1);
+   std::string GMAT_API GetGregorianFormat();
 }
 #endif // TimeTypes_hpp
