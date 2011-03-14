@@ -25,6 +25,8 @@
 #include "Hardware.hpp"
 #include "GmatGlobal.hpp"         // for GetDataPrecision()
 #include "StringUtil.hpp"         // for GmatStringUtil::
+#include "FileManager.hpp"        // for GetFullPathname()
+#include "FileUtil.hpp"           // for DoesDirectoryExist()
 #include "MessageInterface.hpp"
 #include <algorithm>              // for sort(), set_difference()
 #include <sstream>
@@ -32,6 +34,7 @@
 #include "GmatStaticBoxSizer.hpp"
 #include <wx/config.h>
 
+//#define DEBUG_GUI_ITEM_VALIDATE
 //#define DBGLVL_GUI_ITEM 1
 //#define DBGLVL_GUI_ITEM_UPDATE 1
 //#define DBGLVL_GUI_ITEM_REG 1
@@ -75,6 +78,78 @@ GuiItemManager* GuiItemManager::GetInstance()
       theInstance = new GuiItemManager();
    }
    return theInstance;
+}
+
+
+//------------------------------------------------------------------------------
+// void LoadIcon(const wxString &filename, long bitmapType, wxBitmap *bitmap,
+//               const char* xpm[]
+//------------------------------------------------------------------------------
+/**
+ * Loads icon from image file if available if not from xpm file.
+ *
+ * @param  filename  Image file name
+ * @param  bitmapType  Image bitmap type
+ * @param  bitmap  wxBitmap pointer to receive loaded bitmap image
+ * @param  xpm  xpm bytes to be used if image file is unavailable
+ */
+//------------------------------------------------------------------------------
+void GuiItemManager::LoadIcon(const wxString &filename, long bitmapType,
+                              wxBitmap **bitmap, const char* xpm[])
+{
+   #ifdef DEBUG_LOAD_ICON
+   MessageInterface::ShowMessage
+      ("GuiItemManager::LoadIcon() entered, filename='%s', bitmap=<%p>\n",
+       filename.c_str(), bitmap);
+   #endif
+   
+   if (bitmapType == wxBITMAP_TYPE_PNG && !mPngHandlerLoaded)
+   {
+      FileManager *fm = FileManager::Instance();
+      std::string loc = fm->GetFullPathname("ICON_PATH");
+      wxString    locWx = loc.c_str();
+      
+      #ifdef DEBUG_TOOLBAR
+      MessageInterface::ShowMessage("   loc = '%s'\n", loc.c_str());
+      #endif
+      
+      // Check if icon file directory exist
+      if (GmatFileUtil::DoesDirectoryExist(loc.c_str(), false))
+      {
+         #ifdef DEBUG_TOOLBAR
+         MessageInterface::ShowMessage("   Loadinig images from '%s'\n", loc.c_str());
+         MessageInterface::ShowMessage("   Loading .png files\n");
+         #endif
+         
+         wxImage::AddHandler(new wxPNGHandler);
+         mPngHandlerLoaded = true;
+         mPngIconLocation = locWx;
+      }
+   }
+   
+   
+   wxImage iconImage;
+   wxString fileType = ".png";
+   wxString fullFileName = mPngIconLocation + filename + fileType;
+   if (mPngHandlerLoaded && GmatFileUtil::DoesFileExist(fullFileName.c_str()))
+   {
+      iconImage.LoadFile(fullFileName, bitmapType);
+      #ifdef DEBUG_LOAD_ICON
+      MessageInterface::ShowMessage("   creating bitmap from png image\n");
+      #endif
+      *bitmap = new wxBitmap(iconImage);
+   }
+   else
+   {
+      #ifdef DEBUG_LOAD_ICON
+      MessageInterface::ShowMessage("   creating bitmap from xpm file\n");
+      #endif
+      *bitmap = new wxBitmap(xpm);
+   }
+   
+   #ifdef DEBUG_LOAD_ICON
+   MessageInterface::ShowMessage("GuiItemManager::LoadIcon() leavint\n");
+   #endif
 }
 
 
@@ -172,7 +247,7 @@ wxArrayString GuiItemManager::ToWxArrayString(const StringArray &array)
 
 
 //------------------------------------------------------------------------------
-// int IsValidVariable(const std::string &varName, Gmat::ObjectType ownerType,
+// int IsValidVariable(const std::string &varName, Gmat::ObjectType allowedType,
 //                     bool allowNumber = false, bool allowNonPlottable = true)
 //------------------------------------------------------------------------------
 /*
@@ -180,7 +255,7 @@ wxArrayString GuiItemManager::ToWxArrayString(const StringArray &array)
  * parameter of input owner type. The plottable parameter returns Real number.
  *
  * @param  varName  input variable name
- * @param  ownerType  input owner type (such as Gmat::SPACECRAFT)
+ * @param  allowedType  input allowed owner type (such as Gmat::SPACECRAFT)
  * @param  allowNumber  true if varName can be a Real number 
  * @param  allowNonPlottable  true if varName can be a non-plottable
  *
@@ -193,9 +268,16 @@ wxArrayString GuiItemManager::ToWxArrayString(const StringArray &array)
  */
 //------------------------------------------------------------------------------
 int GuiItemManager::IsValidVariable(const std::string &varName,
-                                    Gmat::ObjectType ownerType, bool allowNumber,
+                                    Gmat::ObjectType allowedType, bool allowNumber,
                                     bool allowNonPlottable)
 {
+   #ifdef DEBUG_GUI_ITEM_VALIDATE
+   MessageInterface::ShowMessage
+      ("GuiItemManager::IsValidVariable() entered, varName=<%s>, allowedType=%d, "
+       "allowNumber=%d, allowNonPlottable=%d\n", varName.c_str(), allowedType,
+       allowNumber, allowNonPlottable);
+   #endif
+   
    if (allowNumber)
    {
       Real rval;
@@ -210,12 +292,12 @@ int GuiItemManager::IsValidVariable(const std::string &varName,
    {
       std::string type, ownerName, depObj;
       GmatStringUtil::ParseParameter(varName, type, ownerName, depObj);
-
-      #if DBGLVL_GUI_ITEM_VALIDATE
+      
+      #ifdef DEBUG_GUI_ITEM_VALIDATE
       MessageInterface::ShowMessage
-         ("GuiItemManager::IsValidVariable() varName=<%s>, type=<%s>, "
-          "ownerName=<%s>, depObj=<%s>\n", varName.c_str(), type.c_str(),
-          ownerName.c_str(), depObj.c_str());
+         ("   Object name '%s' not found, type=<%s>, ownerName=<%s>, "
+          "depObj=<%s>\n", varName.c_str(), type.c_str(), ownerName.c_str(),
+          depObj.c_str());
       #endif
       
       if (type != "")
@@ -224,8 +306,11 @@ int GuiItemManager::IsValidVariable(const std::string &varName,
          {
             if (theGuiInterpreter->GetConfiguredObject(ownerName))
             {
-               theGuiInterpreter->CreateSystemParameter(varName);
-               return 1;
+               #ifdef DEBUG_GUI_ITEM_VALIDATE
+               MessageInterface::ShowMessage
+                  ("   Creating system Parameter '%s'\n", varName.c_str());
+               #endif
+               obj = theGuiInterpreter->CreateSystemParameter(varName);
             }
             else
                return 3;
@@ -236,8 +321,15 @@ int GuiItemManager::IsValidVariable(const std::string &varName,
       else
          return -1;
    }
+   else
+   {
+      #ifdef DEBUG_GUI_ITEM_VALIDATE
+      MessageInterface::ShowMessage
+         ("   Object name '%s'<%p> found\n", obj->GetName().c_str(), obj);
+      #endif
+   }
    
-   Parameter *param = (Parameter*)obj;   
+   Parameter *param = (Parameter*)obj;
    bool isValid = false;
    
    if (param->IsOfType("Variable"))
@@ -260,19 +352,57 @@ int GuiItemManager::IsValidVariable(const std::string &varName,
    }
    else if (param->GetKey() == GmatParam::SYSTEM_PARAM)
    {
+      std::string ownerName = param->GetStringParameter("Object");
+      GmatBase *owner = theGuiInterpreter->GetConfiguredObject(ownerName);
+      Gmat::ObjectType ownerType = allowedType;
+      
+      // If we don't want to check for the type, just use owner type
+      if (allowedType == Gmat::UNKNOWN_OBJECT)
+         ownerType = owner->GetType();
+      
+      #ifdef DEBUG_GUI_ITEM_VALIDATE
+      MessageInterface::ShowMessage
+         ("   It is a system Parameter, owner='%s'<%p>\n", ownerName.c_str(), owner);
+      #endif
+      
+      try
+      {
+         GmatBase *refObj = param->GetRefObject(ownerType, ownerName);
+      }
+      catch (BaseException &e)
+      {
+         MessageInterface::ShowMessage(e.GetFullMessage());
+      }
+      
       if (allowNonPlottable)
       {
-         // check to see if it is parameter of owenerType
-         if (param->GetOwnerType() == ownerType)
+         #ifdef DEBUG_GUI_ITEM_VALIDATE
+         MessageInterface::ShowMessage
+            ("   Allowing non-plottable Parameter, so checking for owner type %d\n",
+             param->GetOwnerType());
+         #endif
+         
+         // check to see if it is parameter of owner type
+         if (owner && owner->IsOfType(ownerType))
             isValid = true;
       }
       else
       {
-         // check to see if it is parameter of owenerType and plottable
-         if (param->GetOwnerType() == ownerType && param->IsPlottable())
+         #ifdef DEBUG_GUI_ITEM_VALIDATE
+         MessageInterface::ShowMessage
+            ("   Not allowing non-plottable Parameter, so checking for owner type %d "
+             "and plottable %d\n", param->GetOwnerType(), param->IsPlottable());
+         #endif
+         // check to see if it is parameter of owner type and plottable
+         if (owner && owner->IsOfType(ownerType) && param->IsPlottable())
             isValid = true;
       }
    }
+   
+   #ifdef DEBUG_GUI_ITEM_VALIDATE
+   MessageInterface::ShowMessage
+      ("   GuiItemManager::IsValidVariable() returning %d\n", isValid);
+   #endif
    
    if (isValid)
       return 1;
@@ -5328,6 +5458,7 @@ GuiItemManager::GuiItemManager()
    MessageInterface::ShowMessage("GuiItemManager::GuiItemManager() entered\n");
    #endif
 
+   mPngHandlerLoaded = false;
    mGuiStatus = 1;
    mActiveScriptStatus = 1;
    

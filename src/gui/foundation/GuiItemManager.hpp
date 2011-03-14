@@ -45,7 +45,10 @@ public:
    };
    
    static GuiItemManager* GetInstance();
-
+   
+   void LoadIcon(const wxString &filename, long bitmapType, wxBitmap **bitmap,
+                 const char* xpm[]);
+   
    int  GetGuiStatus(); // 1 = clean, 2 = dirty, 3 = error
    void SetGuiStatus(int status);
    int  GetActiveScriptStatus();
@@ -54,7 +57,7 @@ public:
    wxString ToWxString(Real rval);
    wxString ToWxString(Integer ival);
    wxArrayString ToWxArrayString(const StringArray &array);
-   int IsValidVariable(const std::string &varName, Gmat::ObjectType ownerType,
+   int IsValidVariable(const std::string &varName, Gmat::ObjectType allowedType,
                        bool allowNumber = false, bool allowNonPlottable = false);
    
    void UpdateAll(Gmat::ObjectType objType = Gmat::UNKNOWN_OBJECT);
@@ -368,6 +371,10 @@ private:
    
    static GuiItemManager *theInstance;
    GuiInterpreter *theGuiInterpreter;
+   
+   bool mPngHandlerLoaded;
+   wxString mPngIconLocation;
+   
    int mGuiStatus;
    int mActiveScriptStatus;
    
