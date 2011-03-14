@@ -187,6 +187,7 @@ Solver::Solver(const Solver &sol) :
    instanceNumber          (sol.instanceNumber),
    registeredVariableCount (sol.registeredVariableCount),
    registeredComponentCount(sol.registeredComponentCount),
+   AllowScaleFactors       (sol.AllowScaleFactors),
    AllowRangeLimits        (sol.AllowRangeLimits),
    AllowStepsizeLimit      (sol.AllowStepsizeLimit),
    AllowIndependentPerts   (sol.AllowIndependentPerts),
@@ -255,7 +256,12 @@ Solver& Solver::operator=(const Solver &sol)
    status                = COPIED;
    plotCount             = sol.plotCount;
    plotter               = NULL;
-
+   
+   AllowScaleFactors     = sol. AllowScaleFactors;
+   AllowRangeLimits      = sol.AllowRangeLimits;
+   AllowStepsizeLimit    = sol.AllowStepsizeLimit;
+   AllowIndependentPerts = sol.AllowIndependentPerts;
+   
    return *this;
 }
 
