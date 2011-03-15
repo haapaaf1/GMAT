@@ -62,6 +62,7 @@ private:
    // event handling
    void OnButton(wxCommandEvent& event);
    void OnSelectBody(wxCommandEvent& event);
+   void OnListBoxDoubleClick(wxCommandEvent& event);
    
    DECLARE_EVENT_TABLE()
    
@@ -70,7 +71,6 @@ private:
    {     
       ID_TEXT = 9300,
       ID_LISTBOX,
-      ID_BODY_SEL_LISTBOX,
       ID_BUTTON,
    };
 };

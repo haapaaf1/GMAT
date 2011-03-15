@@ -29,7 +29,8 @@ BEGIN_EVENT_TABLE(CelesBodySelectDialog, GmatDialog)
    EVT_BUTTON(ID_BUTTON_OK, GmatDialog::OnOK)
    EVT_BUTTON(ID_BUTTON_CANCEL, GmatDialog::OnCancel)
    EVT_BUTTON(ID_BUTTON, CelesBodySelectDialog::OnButton)
-   EVT_LISTBOX(ID_BODY_SEL_LISTBOX, CelesBodySelectDialog::OnSelectBody)
+   EVT_LISTBOX(ID_LISTBOX, CelesBodySelectDialog::OnSelectBody)
+   EVT_LISTBOX_DCLICK(ID_LISTBOX, CelesBodySelectDialog::OnListBoxDoubleClick)
 END_EVENT_TABLE()
 
 //------------------------------------------------------------------------------
@@ -97,13 +98,13 @@ void CelesBodySelectDialog::Create()
    if (mShowCalPoints)
    {
       mBodyListBox =
-         theGuiManager->GetCelestialPointListBox(this, -1, wxSize(150, 200),
+         theGuiManager->GetCelestialPointListBox(this, ID_LISTBOX, wxSize(150, 200),
                                                  &mBodiesToExclude);
    }
    else
    {
       mBodyListBox =
-         theGuiManager->GetCelestialBodyListBox(this, -1, wxSize(150, 200),
+         theGuiManager->GetCelestialBodyListBox(this, ID_LISTBOX, wxSize(150, 200),
                                                 &mBodiesToExclude);
    }
    mBodyListBox->SetToolTip(pConfig->Read(_T("AvailableBodiesHint")));
@@ -138,13 +139,13 @@ void CelesBodySelectDialog::Create()
          selectedBodyList.Add(mBodiesToExclude[i]);
       
       mBodySelectedListBox =
-         new wxListBox(this, ID_BODY_SEL_LISTBOX, wxDefaultPosition,
+         new wxListBox(this, ID_LISTBOX, wxDefaultPosition,
                        wxSize(150, 200), selectedBodyList, wxLB_SINGLE | wxLB_SORT);
    }
    else
    {
       mBodySelectedListBox =
-         new wxListBox(this, ID_BODY_SEL_LISTBOX, wxDefaultPosition, wxSize(150, 200),
+         new wxListBox(this, ID_LISTBOX, wxDefaultPosition, wxSize(150, 200),
                        emptyList, wxLB_SINGLE|wxLB_SORT);
    }
    mBodySelectedListBox->SetToolTip(pConfig->Read(_T("SelectedBodiesHint")));
@@ -229,6 +230,25 @@ void CelesBodySelectDialog::OnButton(wxCommandEvent& event)
 void CelesBodySelectDialog::OnSelectBody(wxCommandEvent& event)
 {
    ShowBodyOption(mBodySelectedListBox->GetStringSelection(), true);
+}
+
+
+//------------------------------------------------------------------------------
+// void OnListBoxDoubleClick(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void CelesBodySelectDialog::OnListBoxDoubleClick(wxCommandEvent& event)
+{
+   wxCommandEvent evt;
+   if (event.GetEventObject() == mBodyListBox)
+   {
+      evt.SetEventObject(mAddBodyButton);
+      OnButton(evt);
+   }
+   else if (event.GetEventObject() == mBodySelectedListBox)
+   {
+      evt.SetEventObject(mRemoveBodyButton);
+      OnButton(evt);
+   }
 }
 
 
