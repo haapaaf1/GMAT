@@ -3412,6 +3412,8 @@ void PropagationConfigPanel::OnPMEditButton(wxCommandEvent &event)
          EnableUpdate(true);
          isForceModelChanged = true;
          UpdatePrimaryBodyComboBoxList();
+         // Redisplay primary body after combo box change
+         DisplayPrimaryBodyData();
          return;
       }
 
@@ -3438,6 +3440,9 @@ void PropagationConfigPanel::OnPMEditButton(wxCommandEvent &event)
       EnableUpdate(true);
       isForceModelChanged = true;
    }
+   
+   // Redisplay primary body after combo box change
+   DisplayPrimaryBodyData();
 }
 
 //------------------------------------------------------------------------------
