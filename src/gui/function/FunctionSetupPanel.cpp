@@ -100,6 +100,7 @@ FunctionSetupPanel::~FunctionSetupPanel()
 void FunctionSetupPanel::SetEditorModified(bool isModified)
 {
    EnableUpdate(isModified);
+   theOkButton->Enable(isModified); // note: theOKButton is the Save button
    mEditorModified = isModified;
 }
 
