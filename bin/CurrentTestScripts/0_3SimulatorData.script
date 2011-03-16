@@ -61,5 +61,6 @@ GMAT XYPlot1.ShowPlot = true;
 
 
 %------ Run the measurement simulator
+BeginMissionSequence
 RunSimulator MeasSim
 
