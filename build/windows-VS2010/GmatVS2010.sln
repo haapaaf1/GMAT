@@ -1,12 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libGmatBase", "libGmatBase\libGmatBase.vcxproj", "{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GmatLibraryTester", "GmatLibraryTester\GmatLibraryTester.vcxproj", "{05588283-9E15-4DA2-955D-9986F4939514}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6} = {CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GMAT_wxGui", "GMAT_wxGui\GMAT_wxGui.vcxproj", "{36C53016-AAAF-4579-993D-B10F668CBD44}"
 EndProject
@@ -45,21 +40,6 @@ Global
 		{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}.ReleaseWithSPICE|Win32.Build.0 = ReleaseWithSPICE|Win32
 		{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}.ReleaseWithSPICE|x64.ActiveCfg = ReleaseWithSPICE|x64
 		{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}.ReleaseWithSPICE|x64.Build.0 = ReleaseWithSPICE|x64
-		{05588283-9E15-4DA2-955D-9986F4939514}.Debug|Win32.ActiveCfg = Debug|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.Debug|Win32.Build.0 = Debug|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.Debug|x64.ActiveCfg = Debug|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.Release|Win32.ActiveCfg = Release|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.Release|Win32.Build.0 = Release|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.Release|x64.ActiveCfg = Release|x64
-		{05588283-9E15-4DA2-955D-9986F4939514}.Release|x64.Build.0 = Release|x64
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithoutF2C|Win32.ActiveCfg = ReleaseWithoutF2C|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithoutF2C|Win32.Build.0 = ReleaseWithoutF2C|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithoutF2C|x64.ActiveCfg = ReleaseWithoutF2C|x64
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithoutF2C|x64.Build.0 = ReleaseWithoutF2C|x64
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithSPICE|Win32.ActiveCfg = ReleaseWithSPICE|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithSPICE|Win32.Build.0 = ReleaseWithSPICE|Win32
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithSPICE|x64.ActiveCfg = ReleaseWithSPICE|x64
-		{05588283-9E15-4DA2-955D-9986F4939514}.ReleaseWithSPICE|x64.Build.0 = ReleaseWithSPICE|x64
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.Debug|Win32.ActiveCfg = Debug|Win32
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.Debug|Win32.Build.0 = Debug|Win32
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.Debug|x64.ActiveCfg = Debug|Win32
