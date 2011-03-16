@@ -1884,7 +1884,7 @@ void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
          // The angles used are based on how far the mouse moved
          float angleX = (mLastMouseX - mouseX) / 400.0 * mInversion,
             angleY = (mLastMouseY - mouseY) / 400.0 * mInversion;
-         if (mControlMode == 0)
+         if (mControlMode == MODE_CENTERED_VIEW)
          {
             mCamera.Rotate(angleX, angleY, 0.0, false, true);
          }
@@ -1944,9 +1944,9 @@ void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
          Real x2 = Pow(mLastMouseX - mouseX, 2);
          Real y2 = Pow(mouseY - mLastMouseY, 2);
          Real length = sqrt(x2 + y2);
-
-                        Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
-
+         
+         Real distance = (mCamera.view_center - mCamera.position).GetMagnitude();
+         
          mZoomAmount = length * distance / 500;
          
          if (mouseX < mLastMouseX && mouseY > mLastMouseY)
@@ -1965,7 +1965,7 @@ void OrbitViewCanvas::OnMouse(wxMouseEvent& event)
          {
             // if mouse moves toward left then zoom in
             if (mouseX < mLastMouseX || mouseY < mLastMouseY)
-                                        mCamera.Translate(0, 0, mZoomAmount, false);
+               mCamera.Translate(0, 0, mZoomAmount, false);
                //mCamera.ZoomIn(mZoomAmount);
             else
                mCamera.Translate(0, 0, -mZoomAmount, false);
@@ -2239,6 +2239,11 @@ void OrbitViewCanvas::InitializeViewPoint()
 {
    // Dunn took out minus signs below to position vectors correctly in the 
    // ECI reference frame.
+
+   #if DEBUG_INIT
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::InitializeViewPoint() entered\n");
+   #endif
    
    wxString name;
    int objId;
@@ -2295,10 +2300,32 @@ void OrbitViewCanvas::InitializeViewPoint()
       mCamera.up = Rvector3(0.0, 0.0, 1.0);
    else if (mViewUpAxisName == "-Z")
       mCamera.up = Rvector3(0.0, 0.0, -1.0);
-   mCamera.Relocate(refVec+viewpoint, direction);
-   mCamera.ReorthogonalizeVectors();
+   
+   Rvector3 viewPos = refVec + viewpoint;
+   Rvector3 viewDiff = viewPos - direction;
+   
+   #if DEBUG_INIT
+   MessageInterface::ShowMessage("   refVec    = %s", refVec.ToString().c_str());
+   MessageInterface::ShowMessage("   viewpoint = %s", viewpoint.ToString().c_str());
+   MessageInterface::ShowMessage("   viewPos   = %s", viewPos.ToString().c_str());
+   MessageInterface::ShowMessage("   direction = %s", viewPos.ToString().c_str());
+   MessageInterface::ShowMessage("   viewDiff  = %s", viewDiff.ToString().c_str());
+   #endif
+   
+   // If view difference is not zero then relocate camera
+   if (!viewDiff.IsZeroVector())
+   {
+      mCamera.Relocate(viewPos, direction);
+      // ReorthogonalizeVectors() is called from Camera::Relocate(), so commented out
+      //mCamera.ReorthogonalizeVectors();
+   }
    
    mViewPointInitialized = true;
+   
+   #if DEBUG_INIT
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::InitializeViewPoint() leaving\n");
+   #endif
 }
 
 
@@ -2790,7 +2817,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    
    #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
-      ("ComputeViewVectors() frame=%d, time=%f\n", frame, mTime[frame]);
+      ("ComputeViewVectors() entered, frame=%d, time=%f\n", frame, mTime[frame]);
    #endif
    
    //-----------------------------------------------------------------
@@ -2802,7 +2829,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    {
       #if DEBUG_PROJECTION
       MessageInterface::ShowMessage
-         ("ComputeViewVectors() pViewPointRefObj=%p, name=%s\n",
+         ("ComputeViewVectors() pViewPointRefObj=<%p>, name='%s'\n",
           pViewPointRefObj, pViewPointRefObj->GetName().c_str());
       #endif
       
@@ -2832,18 +2859,22 @@ void OrbitViewCanvas::ComputeViewVectors()
    {
       #if DEBUG_PROJECTION
       MessageInterface::ShowMessage
-         ("ComputeViewVectors() pViewPointVectorObj=%p, name=%s, mVpVecObjId=%d\n",
+         ("ComputeViewVectors() pViewPointVectorObj=<%p>, name='%s', mVpVecObjId=%d\n",
           pViewPointVectorObj, pViewPointVectorObj->GetName().c_str(),
           mVpVecObjId);
       #endif
       
       // if valid body id
       if (mVpVecObjId != UNKNOWN_OBJ_ID)
-      {
+      {         
          if (mUseGluLookAt)
          {
             index = mVpVecObjId * MAX_DATA * 3 + frame * 3;
             
+            #if DEBUG_PROJECTION
+            MessageInterface::ShowMessage
+               ("ComputeViewVectors() using GluLookAt, index=%d\n", index);
+            #endif
             // if look at from object, negate it so that we can see the object
             /*mVpVec.Set(-mObjectViewPos[index+0],
                        -mObjectViewPos[index+1],
@@ -2884,7 +2915,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    {
       #if DEBUG_PROJECTION
       MessageInterface::ShowMessage
-         ("ComputeViewVectors() pViewDirectionObj=%p, name=%s\n",
+         ("ComputeViewVectors() pViewDirectionObj=<%p>, name='%s'\n",
           pViewDirectionObj, pViewDirectionObj->GetName().c_str());
       #endif
       
@@ -2920,7 +2951,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    
    #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
-      ("ComputeViewVectors() mVpRefVec=%s, mVpVec=%s\nmVpLocVec=%s, "
+      ("ComputeViewVectors() mVpRefVec=%s, mVpVec=%s\n   mVpLocVec=%s, "
        " mVdVec=%s, mVcVec=%s\n", mVpRefVec.ToString().c_str(),
        mVpVec.ToString().c_str(), mVpLocVec.ToString().c_str(),
        mVdVec.ToString().c_str(), mVcVec.ToString().c_str());
@@ -2958,7 +2989,7 @@ void OrbitViewCanvas::ComputeViewVectors()
    
    #if DEBUG_PROJECTION
    MessageInterface::ShowMessage
-      ("==> ComputeViewVectors() mfCamTransXYZ=%f, %f, %f, mfCamSingleRotAngle=%f\n"
+      ("ComputeViewVectors() leaving, mfCamTransXYZ=%f, %f, %f, mfCamSingleRotAngle=%f\n"
        "   mfCamRotXYZ=%f, %f, %f mAxisLength=%f\n", mfCamTransX, mfCamTransY,
        mfCamTransZ, mfCamSingleRotAngle, mfCamRotXAxis, mfCamRotYAxis,
        mfCamRotZAxis, mAxisLength);
@@ -3209,7 +3240,16 @@ void OrbitViewCanvas::DrawPlot()
       Rvector3 starPosition = mCamera.position;
       Rvector3 starCenter = mCamera.view_center - starPosition;
       Rvector3 starUp = mCamera.up;
-      starPosition.Normalize();
+      
+      #if DEBUG_DRAW > 1
+      MessageInterface::ShowMessage
+         ("   starCenter  =%s   starPosition=%s\n", starCenter.ToString().c_str(),
+          starPosition.ToString().c_str());
+      #endif
+      
+      // if star position is not zero vector then normalize (bug 2367 fix)
+      if (!starPosition.IsZeroVector())
+         starPosition.Normalize();
       starCenter += starPosition;
       
       gluLookAt(starPosition[0], starPosition[1], starPosition[2],
@@ -3505,7 +3545,6 @@ void OrbitViewCanvas::DrawObjectOrbit(int frame)
        mLastIndex);
    #endif
    
-   int endFrame = mLastIndex;
    int objId;
    wxString objName;
    
@@ -3525,19 +3564,27 @@ void OrbitViewCanvas::DrawObjectOrbit(int frame)
       objId = GetObjectId(objName);
       mObjLastFrame[objId] = 0;
       
+      int index = objId * MAX_DATA + mLastIndex;
+      
       #if DEBUG_DRAW
       MessageInterface::ShowMessage
-         ("DrawObjectOrbit() obj=%d, objId=%d, objName='%s'\n", obj, objId,
-          objName.c_str());
+         ("DrawObjectOrbit() obj=%d, objId=%d, objName='%s', index=%d\n",
+          obj, objId, objName.c_str(), index);
       #endif
       
-      // If not showing orbit or object, continue to next one
-      if (!mDrawOrbitFlag[objId*MAX_DATA+endFrame])
+      // If not showing orbit just draw object, continue to next one
+      //if (!mDrawOrbitFlag[objId*MAX_DATA+mLastIndex])
+      if (!mDrawOrbitFlag[index])
       {
          #if DEBUG_DRAW
          MessageInterface::ShowMessage
-            ("==> Not drawing '%s', so skip\n", objName.c_str());
+            ("==> Not drawing orbit of '%s', so skip\n", objName.c_str());
          #endif
+         
+         // just draw object texture and continue
+         if (mShowObjectMap[objName])
+            DrawObjectTexture(objName, obj, objId, frame);
+         
          continue;
       }
       
@@ -3794,7 +3841,7 @@ void OrbitViewCanvas::DrawObjectTexture(const wxString &objName, int obj,
                                 mObjectQuat[attIndex+2], mObjectQuat[attIndex+3]);
          Rvector3 EARad = Attitude::ToEulerAngles(quat, 1,2,3);
          
-         // old code commented out (LOJ: 2010.11.22_
+         // old code commented out (LOJ: 2010.11.22)
          // Extract spacecraft attitude from saved data files using subscriber
          //   Attitude  *scAttitude  = (Attitude*) spac->GetRefObject(Gmat::ATTITUDE, "");
          //   Rmatrix33 AMat         = scAttitude->GetCosineMatrix(mTime[frame]);
@@ -4490,8 +4537,8 @@ void OrbitViewCanvas::RotateBody(const wxString &objName, int frame, int objId)
    #ifdef DEBUG_ROTATE_BODY
    MessageInterface::ShowMessage
       ("RotateBody() '%s' entered, objName='%s', objId=%d, mOriginId=%d, "
-       "mOriginName='%s', mCanRotateBody=%d\n", mPlotName.c_str(), objName.c_str(),
-       objId, mOriginId, mOriginName.c_str(), mCanRotateBody);
+       "mOriginName='%s'\n", mPlotName.c_str(), objName.c_str(),
+       objId, mOriginId, mOriginName.c_str());
    #endif
    
    #ifdef USE_MHA_TO_ROTATE_EARTH
