@@ -1797,39 +1797,42 @@ void MissionTree::AddIcons()
    int sizeH = 15;
    
    wxImageList *images = new wxImageList ( sizeW, sizeH, true );
-   wxBusyCursor wait;
-   wxIcon icons[GmatTree::MISSION_ICON_COUNT];
+   wxBitmap* bitmaps[GmatTree::MISSION_ICON_COUNT];
    int index = 0;
+   long bitmapType = wxBITMAP_TYPE_PNG;
+   
+   // Show hourglass temporarily busy cursor
+   wxBusyCursor wait;
    
    // Icons should follow the order in GmatTreeItemData::MissionIconType.
-   icons[index]   = wxIcon ( propagateevent_xpm );
-   icons[++index] = wxIcon ( target_xpm );
-   icons[++index] = wxIcon ( folder_xpm );
-   icons[++index] = wxIcon ( file_xpm );
-   icons[++index] = wxIcon ( OpenFolder_xpm );
+   theGuiManager->LoadIcon("propagateevent", bitmapType, &bitmaps[index], propagateevent_xpm);
+   theGuiManager->LoadIcon("target", bitmapType, &bitmaps[++index], target_xpm);
+   theGuiManager->LoadIcon("folder", bitmapType, &bitmaps[++index], folder_xpm);
+   theGuiManager->LoadIcon("file", bitmapType, &bitmaps[++index], file_xpm);
+   theGuiManager->LoadIcon("OpenFolder", bitmapType, &bitmaps[++index], OpenFolder_xpm);
    
-   icons[++index] = wxIcon ( whileloop_xpm );
-   icons[++index] = wxIcon ( forloop_xpm );
-   icons[++index] = wxIcon ( if_xpm );
-   icons[++index] = wxIcon ( scriptevent_xpm );
-   icons[++index] = wxIcon ( varyevent_xpm );
+   theGuiManager->LoadIcon("whileloop", bitmapType, &bitmaps[++index], whileloop_xpm);
+   theGuiManager->LoadIcon("forloop", bitmapType, &bitmaps[++index], forloop_xpm);
+   theGuiManager->LoadIcon("if", bitmapType, &bitmaps[++index], if_xpm);
+   theGuiManager->LoadIcon("scriptevent", bitmapType, &bitmaps[++index], scriptevent_xpm);
+   theGuiManager->LoadIcon("varyevent", bitmapType, &bitmaps[++index], varyevent_xpm);
    
-   icons[++index] = wxIcon ( achieveevent_xpm );
-   icons[++index] = wxIcon ( deltav_xpm );
-   icons[++index] = wxIcon ( callfunction_xpm );
-   icons[++index] = wxIcon ( nestreturn_xpm );
-   icons[++index] = wxIcon ( saveobject_xpm );
+   theGuiManager->LoadIcon("achieveevent", bitmapType, &bitmaps[++index], achieveevent_xpm);
+   theGuiManager->LoadIcon("deltav", bitmapType, &bitmaps[++index], deltav_xpm);
+   theGuiManager->LoadIcon("callfunction", bitmapType, &bitmaps[++index], callfunction_xpm);
+   theGuiManager->LoadIcon("nestreturn", bitmapType, &bitmaps[++index], nestreturn_xpm);
+   theGuiManager->LoadIcon("saveobject", bitmapType, &bitmaps[++index], saveobject_xpm);
    
-   icons[++index] = wxIcon ( equalsign_xpm );
-   icons[++index] = wxIcon ( toggle_xpm );
-   icons[++index] = wxIcon ( beginfb_xpm );
-   icons[++index] = wxIcon ( endfb_xpm );
-   icons[++index] = wxIcon ( report_xpm );
+   theGuiManager->LoadIcon("equalsign", bitmapType, &bitmaps[++index], equalsign_xpm);
+   theGuiManager->LoadIcon("toggle", bitmapType, &bitmaps[++index], toggle_xpm);
+   theGuiManager->LoadIcon("beginfb", bitmapType, &bitmaps[++index], beginfb_xpm);
+   theGuiManager->LoadIcon("endfb", bitmapType, &bitmaps[++index], endfb_xpm);
+   theGuiManager->LoadIcon("report", bitmapType, &bitmaps[++index], report_xpm);
    
-   icons[++index] = wxIcon ( stop_xpm );
+   theGuiManager->LoadIcon("stop", bitmapType, &bitmaps[++index], stop_xpm);
    
-   for ( size_t i = 0; i < WXSIZEOF(icons); i++ )
-      images->Add(wxBitmap(wxBitmap(icons[i]).ConvertToImage().Rescale(sizeW, sizeH)));
+   for ( size_t i = 0; i < WXSIZEOF(bitmaps); i++ )
+      images->Add(bitmaps[i]->ConvertToImage().Rescale(sizeW, sizeH));
    
    AssignImageList(images);
    
