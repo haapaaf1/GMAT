@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+# Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libGmatBase", "libGmatBase\libGmatBase.vcxproj", "{CFA43E77-32C5-4EA9-A878-9A55F91BD4A6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GMAT_wxGui", "GMAT_wxGui\GMAT_wxGui.vcxproj", "{36C53016-AAAF-4579-993D-B10F668CBD44}"
@@ -53,7 +53,6 @@ Global
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.ReleaseWithSPICE|Win32.Build.0 = ReleaseWithSPICE|Win32
 		{36C53016-AAAF-4579-993D-B10F668CBD44}.ReleaseWithSPICE|x64.ActiveCfg = ReleaseWithSPICE|Win32
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Debug|Win32.ActiveCfg = Debug|Win32
-		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Debug|Win32.Build.0 = Debug|Win32
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Debug|x64.ActiveCfg = Debug|Win32
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|Win32.ActiveCfg = Release|Win32
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.Release|Win32.Build.0 = Release|Win32
@@ -65,7 +64,6 @@ Global
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.ReleaseWithSPICE|Win32.Build.0 = ReleaseWithSPICE|Win32
 		{42E2094B-A3CC-4CA2-9FA1-85FA018507C5}.ReleaseWithSPICE|x64.ActiveCfg = ReleaseWithSPICE|Win32
 		{8FCD168C-6159-421A-955F-A04809E38AAE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8FCD168C-6159-421A-955F-A04809E38AAE}.Debug|Win32.Build.0 = Debug|Win32
 		{8FCD168C-6159-421A-955F-A04809E38AAE}.Debug|x64.ActiveCfg = Debug|Win32
 		{8FCD168C-6159-421A-955F-A04809E38AAE}.Release|Win32.ActiveCfg = Release|Win32
 		{8FCD168C-6159-421A-955F-A04809E38AAE}.Release|Win32.Build.0 = Release|Win32
