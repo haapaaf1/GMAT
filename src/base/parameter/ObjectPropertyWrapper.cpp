@@ -21,7 +21,6 @@
 #include <sstream>
 #include "gmatdefs.hpp"
 #include "GmatBase.hpp"
-//#include "ODEModel.hpp"             // for GetScriptAlias()
 #include "ObjectPropertyWrapper.hpp"
 #include "ParameterException.hpp"
 #include "StringUtil.hpp"
@@ -448,6 +447,11 @@ bool ObjectPropertyWrapper::SetString(const std::string &toValue)
        propType == Gmat::STRINGARRAY_TYPE ||
        propType == Gmat::OBJECT_TYPE) // Added OBJECT_TYPE to handle "DefaultFM.Drag = None;"
       return object->SetStringParameter(propID, toValue);
+   else if (propType == Gmat::BOOLEANARRAY_TYPE)
+   {
+      BooleanArray boolArray = GmatStringUtil::ToBooleanArray(toValue);
+      return object->SetBooleanArrayParameter(propID, boolArray);
+   }
    else if (propType == Gmat::UNSIGNED_INTARRAY_TYPE)
       return object->SetStringParameter(propID, toValue);
    else if (propType == Gmat::RVECTOR_TYPE)  // added to handle Rvectors with brackets

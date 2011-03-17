@@ -52,7 +52,7 @@
 //#define DEBUG_COORD_SYS_PROP
 //#define DEBUG_PROP_SETUP_PROP
 //#define DEBUG_FORCE_MODEL_PROP
-//#define DBGLVL_WRAPPERS 2
+//#define DBGLVL_WRAPPERS 1
 //#define DEBUG_AXIS_SYSTEM
 
 //#ifndef DEBUG_MEMORY
@@ -434,6 +434,13 @@ bool Validator::ValidateCommand(GmatCommand *cmd, bool contOnError, Integer mana
    theErrorList.clear();
    cmd->ClearWrappers();
    const StringArray wrapperNames = cmd->GetWrapperObjectNameArray();
+   #ifdef DEBUG_VALIDATE_COMMAND
+   MessageInterface::ShowMessage
+      ("   %s has %d wrapper names:\n", cmd->GetTypeName().c_str(), wrapperNames.size());
+   for (Integer ii=0; ii < (Integer) wrapperNames.size(); ii++)
+      MessageInterface::ShowMessage("      %s\n", wrapperNames[ii].c_str());
+   #endif
+   
    #if DBGLVL_WRAPPERS > 1
       MessageInterface::ShowMessage
          ("In ValidateCommand, has %d wrapper names:\n", wrapperNames.size());
@@ -1595,7 +1602,9 @@ ElementWrapper* Validator::CreateOtherWrapper(Integer manage)
             }
             else
             {            
-               theErrorMsg = "Nonexistent object \"" + theDescription + "\" referenced ";
+               theErrorMsg = "Nonexistent object \"" + theDescription +
+                  "\" referenced during creating Wrapper for \"" +
+                  theCommand->GetGeneratingString(Gmat::NO_COMMENTS) + "\"";
                continueOnError = false;
                HandleError();
             }
