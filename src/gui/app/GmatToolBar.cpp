@@ -84,56 +84,23 @@ void GmatToolBar::CreateToolBar(wxToolBar* toolBar)
    
    // Do not change the order, this order is how it appears in the toolbar
    
-   // NewScript icon
    guiManager->LoadIcon("NewScript", bitmapType, &bitmaps[0], NewScript_xpm);
-   
-   // OpenScript icon
    guiManager->LoadIcon("OpenScript", bitmapType, &bitmaps[1], OpenScript_xpm);
-   
-   // SaveMission
    guiManager->LoadIcon("SaveMission", bitmapType, &bitmaps[2], SaveMission_xpm);
-   
-   // Copy
    guiManager->LoadIcon("Copy", bitmapType, &bitmaps[3], copy_xpm);
-   
-   // Cut
    guiManager->LoadIcon("Cut", bitmapType, &bitmaps[4], cut_xpm);
-   
-   // Paste
    guiManager->LoadIcon("Paste", bitmapType, &bitmaps[5], paste_xpm);
-   
-   // Print
-   bitmaps[6] = new wxBitmap(print_xpm);
-   
-   // Help
+   guiManager->LoadIcon("print", bitmapType, &bitmaps[6], print_xpm);
    guiManager->LoadIcon("Help", bitmapType, &bitmaps[7], Help_xpm);
-   
-   // RunMission
    guiManager->LoadIcon("RunMission", bitmapType, &bitmaps[8], RunMission_xpm);
-   
-   // PauseMission
    guiManager->LoadIcon("PauseMission", bitmapType, &bitmaps[9], PauseMission_xpm);
-   
-   // StopMission
    guiManager->LoadIcon("StopMission", bitmapType, &bitmaps[10], StopMission_xpm);
-   
-   // CloseAll
    guiManager->LoadIcon("CloseAll", bitmapType, &bitmaps[11], CloseAll_xpm);
-   
-   // CloseOne
    guiManager->LoadIcon("CloseOne", bitmapType, &bitmaps[12], CloseOne_xpm);
-   
-   // NewMission
    guiManager->LoadIcon("NewMission", bitmapType, &bitmaps[13], NewMission_xpm);
-   
-   // Build
-   bitmaps[14] = new wxBitmap(build_xpm);
-   
-   // WebHelp
+   guiManager->LoadIcon("build", bitmapType, &bitmaps[14], build_xpm);
    guiManager->LoadIcon("WebHelp", bitmapType, &bitmaps[15], WebHelp_xpm);
-   
-   // ScreenShot
-   bitmaps[16] = new wxBitmap(screenshot_xpm);
+   guiManager->LoadIcon("screenshot", bitmapType, &bitmaps[16], screenshot_xpm);
    
    // Changed from wxSize(18, 15) (LOJ: 2011.02.04)
    toolBar->SetToolBitmapSize(wxSize(16, 16));

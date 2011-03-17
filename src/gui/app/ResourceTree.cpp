@@ -2144,7 +2144,7 @@ void ResourceTree::AddIcons()
    #endif
    
    int sizeW = 16;
-   int sizeH = 15;
+   int sizeH = 16;
    
    wxImageList *images = new wxImageList ( sizeW, sizeH, true );
    wxBitmap* bitmaps[GmatTree::ICON_COUNT];
