@@ -344,6 +344,7 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
    //   ("==> OrbitViewCanvas::OrbitViewCanvas() pSolarSystem=%p\n", pSolarSystem);
    
    // objects
+   mObjectCount         = 0;
    mObjectDefaultRadius = 200; //km: make big enough to see
 
    // Initialize arrays to NULL
