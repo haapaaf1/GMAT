@@ -212,11 +212,14 @@ http://naif.jpl.nasa.gov/naif/toolkit\_C\_PC\_Windows\_VisualC\_64bit.html
 
 \section{Preparing f2c (Optional)}
 
-GMAT uses the Fortran to C compiler, f2c, for certain dynamics models and solvers.  The SPICE libraries from JPL include the f2c library code as part of their library.  If you plan to work exclusively with GMAT's source code using a build that includes the SPICE extensions and do not have Fortran code that you need to convert to C, you can skip this step.  Otherwise, you need to follow these steps to configure and build the f2c system:
+GMAT uses the Fortran to C compiler, f2c, for certain dynamics models and solvers.  The SPICE libraries from JPL include the f2c library code as part of their library.  If you plan to work exclusively with GMAT's source code using a build that includes the SPICE extensions and do not have Fortran code that you need to convert to C, you can skip this step.  Otherwise, you need to follow these steps to configure the f2c system:
 
 \begin{enumerate}
-\item \textit{Steps to be enumerated}
+\item A minimal f2c build is contained in the archive f2c.zip, located in the GmatDevelopment\textbackslash build\textbackslash windows-VS2010 folder.  Locate this file.
+\item Unpack the file into your Gmat3rdParty\textbackslash f2c folder.  You should have three directories as a result: Gmat3rdParty\textbackslash f2c\textbackslash bin, Gmat3rdParty\textbackslash f2c\textbackslash lib, and Gmat3rdParty\textbackslash f2c\textbackslash include, along with a file containing the copyright notice of the owners of the f2c system.
 \end{enumerate}
+
+This completes installation of f2c.  The full source for the system can be downloaded and built from http://www.netlib.org/f2c/.
 
 \section{Building GMAT}
 
@@ -259,6 +262,25 @@ Next we will build the GMAT MATLAB interface.
 \end{enumerate}
 
 
+\section{Standard GMAT Plugins}
+
+There are four standard plugin libraries that are built for GMAT at this writing.  If you have access to the plugin repositories, you can configure and build these optional libararies: libDataFile, libCcsdsEphemerisFile, libGmatEstimation, and libVF13Optimizer.  The VF13ad optimizer library and the Estimation library both use the Fortran to C library, so if you plan to build those components, follow the steps above to build f2c.  The DataFile pluging and the CcsdsEphemerisFile plugin use the C++ extensions to the Perl Compatible Regular Expression library, pcrecpp.  Configuration of that component is described next.
+
+\subsection{Configuring ang Building PCRECPP (Optional)}
+
+GMAT uses the C++ version of the Perl Compatible, pcrecpp, for string manipulation when working with data files and CCSDS based ephemeris products.  The following steps describe how to set up pcrecpp.
+
+\begin{enumerate}
+\item Download the pcre 8.12 (to guarantee project file consistency -- preassembled Visual C++ 2010 solutions are packaged in the GMAT repository; other versions may require some modification to the build configuration) from ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/
+\item Unpack the download into your Gmat3rdParty/pcre folder.  This will give you a folder named pcre-<version>, where <version> is the version number for the library.  (For me, the resulting folder is Gmat3rdParty/pcre/pcre-8.12.)
+\item Copy the contents of pcre-8.12 into the pcre folder, moving them up one level.  This places the header files in teh location needed to build the plugins.
+\item The usual way to build pcre is to download and install CMake for your platform, use it to create build files (Makefiles on unix like systems, project files and solution files on Windows), and then build from those files. The pcre library files have already been created for pcre-8.12, and can be found in the GMAT plugins build folder build\textbackslash windows-VS2010 in the archive pcre-VS2010-out.zip.
+\item Locate pcre-VS2010-out.zip.
+\item Unpack its contents into your pcre folder.  This will create a lib and a dll folder in your pcre folder.
+\item Copy the contents of the pcre\textbackslash dll folder into your GMAT executable folder.
+\end{enumerate}
+
+This completes the pcre setup.  If you'd prefer to compile pcre yourself, the instructions for doing this using CMake can be found in the pcre\textbackslash NON-UNIX-USE file.  Just be sure that you place the resulting libraries in place in pcre\textbackslash lib and pcre\textbackslash dll.
 
 \begin{thebibliography}{9}                                                                                               
 \bibitem {VisualStudio} Visual Studio Express can be downloaded from http://www.microsoft.com/express/Downloads/\#2010-Visual-CPP
