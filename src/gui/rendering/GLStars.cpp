@@ -1,7 +1,8 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                              Stars.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // ** Legal **
 //
@@ -64,17 +65,17 @@ void GLStars::ReadTextStars(){
    const GLfloat StarDimmest = 0.02f;
    const GLfloat BaseScale = 9.0f;
    const GLfloat StarRange = 2.0;
-	const GLfloat RangeFactor = 0.0;
+        const GLfloat RangeFactor = 0.0;
 
    FileManager *fm = FileManager::Instance();
-	TxtFilename = (fm->GetFullPathname("STAR_FILE")).c_str();
+        TxtFilename = (fm->GetFullPathname("STAR_FILE")).c_str();
 
    // Try opening the file
    wxTextFile StarsFile;
    if (!StarsFile.Open(TxtFilename)){
       wxString msg = "Could not open Star Catalog at ";
       msg.Append(TxtFilename);
-      MessageInterface::LogMessage(msg);
+      MessageInterface::LogMessage(msg + "\n");
       return;
    }
 
@@ -92,7 +93,7 @@ void GLStars::ReadTextStars(){
    StarsVA[0][CosRAcosDec] = StarRange * cosRA * cosDec;
    StarsVA[0][SinRAcosDec] = StarRange * sinRA * cosDec;
    StarsVA[0][SinDec] = StarRange * sin(Declination * DegToRad);
-	StarsVA[0][Range] = RangeFactor;
+        StarsVA[0][Range] = RangeFactor;
    // Store the point size and the count of its group
    PointSize[index] = 8.0f;
    GroupCount[index] = 1;
@@ -110,7 +111,7 @@ void GLStars::ReadTextStars(){
       StarsVA[i][CosRAcosDec] = StarRange * cosRA * cosDec;
       StarsVA[i][SinRAcosDec] = StarRange * sinRA * cosDec;
       StarsVA[i][SinDec] = StarRange * sin(Declination * DegToRad);
-		StarsVA[i][Range] = RangeFactor;
+                StarsVA[i][Range] = RangeFactor;
 
       if (VisualMag > VisMagStep){
          GroupCount[index] = i - GroupIndex[index];
@@ -194,7 +195,7 @@ void GLStars::ReadTextConstellations(){
    Real sinRA, cosRA, cosDec;
    Real DegToRad = M_PI / 180.0;
    const GLfloat StarRange = 2.0;
-	const GLfloat RangeFactor = 0.0;
+        const GLfloat RangeFactor = 0.0;
    int i;
 
    FileManager *fm = FileManager::Instance();
@@ -205,7 +206,7 @@ void GLStars::ReadTextConstellations(){
    if (!ConstellationFile.Open(TxtFilename)){
       wxString msg = "Could not open Constellation File at ";
       msg.Append(TxtFilename);
-      MessageInterface::LogMessage(msg);
+      MessageInterface::LogMessage(msg + "\n");
       return;
    }
 
@@ -220,7 +221,7 @@ void GLStars::ReadTextConstellations(){
       if (buffer[0] == 'N'){
          ConstellationIndex[NumConstellations][1] = i-1;
          NumConstellations++;
-		 ConstellationNames[NumConstellations] = buffer.AfterFirst(' ');
+                 ConstellationNames[NumConstellations] = buffer.AfterFirst(' ');
          ConstellationIndex[NumConstellations][0] = i;
          continue;
       }
@@ -238,7 +239,7 @@ void GLStars::ReadTextConstellations(){
       CLines[i][0] = StarRange * cosRA * cosDec;
       CLines[i][1] = StarRange * sinRA * cosDec;
       CLines[i][2] = StarRange * sin(Declination1 * DegToRad);
-		CLines[i][3] = RangeFactor;
+                CLines[i][3] = RangeFactor;
 
       sinRA = sin(RightAscension2 * DegToRad);
       cosRA = cos(RightAscension2 * DegToRad);
@@ -247,7 +248,7 @@ void GLStars::ReadTextConstellations(){
       CLines[i+1][0] = StarRange * cosRA * cosDec;
       CLines[i+1][1] = StarRange * sinRA * cosDec;
       CLines[i+1][2] = StarRange * sin(Declination2 * DegToRad);
-		CLines[i+1][3] = RangeFactor;
+                CLines[i+1][3] = RangeFactor;
       i+=2;
    }
 
@@ -328,7 +329,7 @@ void GLStars::InitStars(){
 // Draw the stars and the constellation lines, if you want them.
 void GLStars::DrawStarsVA(GLfloat ColorAlpha, int starCount, bool drawConstellations){
    // The colors for the stars, north star, and constellation lines
-	SetDesiredStarCount(starCount);
+        SetDesiredStarCount(starCount);
    GLfloat StarWhite[4] = {1.0f, 1.0f, 1.0f, 1.0f};
    GLfloat StarBlue[4] = {0.2f, 0.2f, 1.0f, 1.0f};
    GLfloat LineWhite[4] = {1.0f, 1.0f, 1.0f, 0.6f};
@@ -349,7 +350,7 @@ void GLStars::DrawStarsVA(GLfloat ColorAlpha, int starCount, bool drawConstellat
 
    // We want to use vertex arrays for efficiency
    glEnableClientState(GL_VERTEX_ARRAY);
-	glDisable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
    // Point to our array of star vertices
    glVertexPointer(4, GL_DOUBLE, 0, StarsVA);
 
@@ -395,10 +396,10 @@ void GLStars::DrawStarsVA(GLfloat ColorAlpha, int starCount, bool drawConstellat
          DrawStringAt(ConstellationNames[i], CLines[ConstellationIndex[i][0]][0],
             CLines[ConstellationIndex[i][0]][1],
             CLines[ConstellationIndex[i][0]][2],
-				CLines[ConstellationIndex[i][0]][3]);
+                                CLines[ConstellationIndex[i][0]][3]);
       }
    }
-	glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
    // Disable vertex arrays
    glDisableClientState(GL_VERTEX_ARRAY);
 
