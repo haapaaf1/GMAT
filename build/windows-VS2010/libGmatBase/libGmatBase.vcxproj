@@ -610,7 +610,6 @@
     <ClCompile Include="..\..\..\src\base\solver\DerivativeModel.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\DifferentialCorrector.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\ExternalOptimizer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
@@ -1057,7 +1056,6 @@
     <ClInclude Include="..\..\..\src\base\solver\DerivativeModel.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\DifferentialCorrector.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\ExternalOptimizer.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>

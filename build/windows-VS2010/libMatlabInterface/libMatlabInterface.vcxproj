@@ -24,7 +24,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -73,32 +73,39 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
+    <TargetExt>.dll</TargetExt>
+    <OutDir>..\..\..\bin\debug\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\..\plugins\MatlabInterfacePlugin\src\base\include;..\..\..\plugins\MatlabInterfacePlugin\src\base\plugin;..\..\..\plugins\MatlabInterfacePlugin\src\base\factory;..\..\..\plugins\MatlabInterfacePlugin\src\base\function;..\..\..\plugins\MatlabInterfacePlugin\src\base\interface;..\..\..\plugins\MatlabInterfacePlugin\src\base\subscriber;..\..\..\plugins\MatlabInterfacePlugin\src\base\command;..\..\..\src\base\include;..\..\..\src\base\attitude;..\..\..\src\base\coordsystem;..\..\..\src\base\util;..\..\..\src\base\solarsys;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\foundation;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\parameter;..\..\..\src\base\solver;..\..\..\src\base\subscriber;..\..\..\src\base\interface;..\..\..\src\base\command;..\..\..\src\base\executive;..\..\..\src\base\interpreter;..\..\..\src\base\forcemodel;..\..\..\src\gui\include;..\..\..\src\gui\app;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DYNAMICLINK;MATLAB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;4231;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libeng.lib;libmx.lib;libmat.lib;libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\bin\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -107,7 +114,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;..\..\..\plugins\MatlabInterfacePlugin\src\base\include;..\..\..\plugins\MatlabInterfacePlugin\src\base\plugin;..\..\..\plugins\MatlabInterfacePlugin\src\base\factory;..\..\..\plugins\MatlabInterfacePlugin\src\base\function;..\..\..\plugins\MatlabInterfacePlugin\src\base\interface;..\..\..\plugins\MatlabInterfacePlugin\src\base\subscriber;..\..\..\plugins\MatlabInterfacePlugin\src\base\command;..\..\..\src\base\include;..\..\..\src\base\attitude;..\..\..\src\base\coordsystem;..\..\..\src\base\util;..\..\..\src\base\solarsys;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\foundation;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\parameter;..\..\..\src\base\solver;..\..\..\src\base\subscriber;..\..\..\src\base\interface;..\..\..\src\base\command;..\..\..\src\base\executive;..\..\..\src\base\interpreter;..\..\..\src\base\forcemodel;..\..\..\src\gui\include;..\..\..\src\gui\app;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\plugins\MatlabInterfacePlugin\src\base\include;..\..\..\plugins\MatlabInterfacePlugin\src\base\plugin;..\..\..\plugins\MatlabInterfacePlugin\src\base\factory;..\..\..\plugins\MatlabInterfacePlugin\src\base\function;..\..\..\plugins\MatlabInterfacePlugin\src\base\interface;..\..\..\plugins\MatlabInterfacePlugin\src\base\subscriber;..\..\..\plugins\MatlabInterfacePlugin\src\base\command;..\..\..\src\base\include;..\..\..\src\base\attitude;..\..\..\src\base\coordsystem;..\..\..\src\base\util;..\..\..\src\base\solarsys;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\foundation;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\parameter;..\..\..\src\base\solver;..\..\..\src\base\subscriber;..\..\..\src\base\interface;..\..\..\src\base\command;..\..\..\src\base\executive;..\..\..\src\base\interpreter;..\..\..\src\base\forcemodel;..\..\..\src\gui\include;..\..\..\src\gui\app;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;MATLAB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4231;4251</DisableSpecificWarnings>
     </ClCompile>
@@ -115,7 +122,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\bin;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libeng.lib;libmx.lib;libmat.lib;libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -143,7 +150,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;..\..\..\plugins\MatlabInterfacePlugin\src\base\include;..\..\..\plugins\MatlabInterfacePlugin\src\base\plugin;..\..\..\plugins\MatlabInterfacePlugin\src\base\factory;..\..\..\plugins\MatlabInterfacePlugin\src\base\function;..\..\..\plugins\MatlabInterfacePlugin\src\base\interface;..\..\..\plugins\MatlabInterfacePlugin\src\base\subscriber;..\..\..\plugins\MatlabInterfacePlugin\src\base\command;..\..\..\src\base\include;..\..\..\src\base\attitude;..\..\..\src\base\coordsystem;..\..\..\src\base\util;..\..\..\src\base\solarsys;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\foundation;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\parameter;..\..\..\src\base\solver;..\..\..\src\base\subscriber;..\..\..\src\base\interface;..\..\..\src\base\command;..\..\..\src\base\executive;..\..\..\src\base\interpreter;..\..\..\src\base\forcemodel;..\..\..\src\gui\include;..\..\..\src\gui\app;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\plugins\MatlabInterfacePlugin\src\base\include;..\..\..\plugins\MatlabInterfacePlugin\src\base\plugin;..\..\..\plugins\MatlabInterfacePlugin\src\base\factory;..\..\..\plugins\MatlabInterfacePlugin\src\base\function;..\..\..\plugins\MatlabInterfacePlugin\src\base\interface;..\..\..\plugins\MatlabInterfacePlugin\src\base\subscriber;..\..\..\plugins\MatlabInterfacePlugin\src\base\command;..\..\..\src\base\include;..\..\..\src\base\attitude;..\..\..\src\base\coordsystem;..\..\..\src\base\util;..\..\..\src\base\solarsys;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\foundation;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\parameter;..\..\..\src\base\solver;..\..\..\src\base\subscriber;..\..\..\src\base\interface;..\..\..\src\base\command;..\..\..\src\base\executive;..\..\..\src\base\interpreter;..\..\..\src\base\forcemodel;..\..\..\src\gui\include;..\..\..\src\gui\app;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;MATLAB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4231;4251</DisableSpecificWarnings>
     </ClCompile>
@@ -151,7 +158,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\bin;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libeng.lib;libmx.lib;libmat.lib;libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
