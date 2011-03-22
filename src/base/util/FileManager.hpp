@@ -40,7 +40,6 @@ public:
       // file path
       BEGIN_OF_PATH = 0,
       OUTPUT_PATH,
-      SLP_PATH,
       DE_PATH,
       SPK_PATH,
       EARTH_POT_PATH,
@@ -68,9 +67,6 @@ public:
       // specific file name
       //    Notes: Don't add general planet potential files here. They are handled
       //    when gmat_startup_file are read by following naming convention.
-      SLP_FILE,
-      DE200_FILE,
-      DE202_FILE,
       DE405_FILE,
       PLANETARY_SPK_FILE,
       JGM2_FILE,
