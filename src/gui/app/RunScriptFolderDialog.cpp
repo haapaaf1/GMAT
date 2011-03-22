@@ -17,7 +17,7 @@
 #include "MessageInterface.hpp"
 #include "GmatStaticBoxSizer.hpp"
 
-//#define DEBUG_RUN_SCRIPT_FOLDER_DIALOG 1
+//#define DEBUG_RUN_SCRIPT_FOLDER_DIALOG
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -72,7 +72,7 @@ RunScriptFolderDialog::~RunScriptFolderDialog()
 //------------------------------------------------------------------------------
 void RunScriptFolderDialog::Create()
 {
-   #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+   #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
    MessageInterface::ShowMessage("RunScriptFolderDialog::Create() entered.\n");
    #endif
    
@@ -289,6 +289,10 @@ void RunScriptFolderDialog::Create()
    #endif
    
    theMiddleSizer->Add(pageBoxSizer, 0, wxALIGN_CENTRE|wxALL, bsize);
+   
+   #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+   MessageInterface::ShowMessage("RunScriptFolderDialog::Create() leaving.\n");
+   #endif
 }
 
 
@@ -297,6 +301,10 @@ void RunScriptFolderDialog::Create()
 //------------------------------------------------------------------------------
 void RunScriptFolderDialog::LoadData()
 {
+   #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+   MessageInterface::ShowMessage("RunScriptFolderDialog::LoadData() entered.\n");
+   #endif
+   
    wxString str;
    str.Printf("%d", mNumScriptsToRun);
    mNumScriptsToRunTextCtrl->SetValue(str);
@@ -304,7 +312,19 @@ void RunScriptFolderDialog::LoadData()
    FileManager *fm = FileManager::Instance();
    wxString sep = fm->GetPathSeparator().c_str();
    
-   mCurrOutDir = fm->GetFullPathname(FileManager::OUTPUT_PATH).c_str();
+   try
+   {
+      mCurrOutDir = fm->GetFullPathname(FileManager::OUTPUT_PATH).c_str();
+   }
+   catch (BaseException &e)
+   {
+      MessageInterface::ShowMessage(e.GetFullMessage());
+   }
+   
+   #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+   MessageInterface::ShowMessage("   mCurrOutDir='%s'\n", mCurrOutDir.c_str());
+   #endif
+   
    mSaveScriptsDirTextCtrl->SetValue(mCurrOutDir + "AutoSave");
    mCurrOutDirTextCtrl->SetValue(mCurrOutDir);
    
@@ -325,6 +345,10 @@ void RunScriptFolderDialog::LoadData()
    //=======================================================
    
    theOkButton->Enable();
+   
+   #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+   MessageInterface::ShowMessage("RunScriptFolderDialog::LoadData() leaving.\n");
+   #endif
 }
 
 
@@ -425,7 +449,7 @@ void RunScriptFolderDialog::SaveData()
    #endif
    //=======================================================
    
-   #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+   #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
    MessageInterface::ShowMessage
       ("RunScriptFolderDialog::SaveData() mNumScriptsToRun=%d, mFilterString='%s', "
        "mNumTimesToRun=%d\nmCompareResults=%d, mAbsTol=%e\n   mCompareDir=%s, mReplaceString=%s\n",
@@ -461,7 +485,7 @@ void RunScriptFolderDialog::OnButtonClick(wxCommandEvent& event)
          mSaveScriptsDir = dialog.GetPath();
          mSaveScriptsDirTextCtrl->SetValue(mSaveScriptsDir);
          
-         #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+         #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
          MessageInterface::ShowMessage
             ("RunScriptFolderDialog::OnButtonClick() mSaveScriptsDir=%s\n",
              mSaveScriptsDir.c_str());
@@ -489,7 +513,7 @@ void RunScriptFolderDialog::OnButtonClick(wxCommandEvent& event)
          
          mOutDirChanged = true;
          
-         #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+         #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
          MessageInterface::ShowMessage
             ("RunScriptFolderDialog::OnButtonClick() mCurrOutDir=%s\n",
              mCurrOutDir.c_str());
@@ -508,7 +532,7 @@ void RunScriptFolderDialog::OnButtonClick(wxCommandEvent& event)
          wxString dirname = dialog.GetPath();
          mCompareDirTextCtrl->SetValue(dirname);
          
-         #if DEBUG_RUN_SCRIPT_FOLDER_DIALOG
+         #ifdef DEBUG_RUN_SCRIPT_FOLDER_DIALOG
          MessageInterface::ShowMessage
             ("RunScriptFolderDialog::OnButtonClick() dirname=%s\n",
              dirname.c_str());
