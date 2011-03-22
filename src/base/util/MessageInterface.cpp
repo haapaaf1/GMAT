@@ -345,13 +345,13 @@ void MessageInterface::ClearMessage()
 }
 
 //------------------------------------------------------------------------------
-// std::string GetMessage()
+// std::string GetQueuedMessage()
 //------------------------------------------------------------------------------
 /**
  * Tells the MessageReceiver to retrieve all message from the queue.
  */
 //------------------------------------------------------------------------------
-std::string MessageInterface::GetMessage()
+std::string MessageInterface::GetQueuedMessage()
 {
    if (theMessageReceiver != NULL)
       return theMessageReceiver->GetMessage();

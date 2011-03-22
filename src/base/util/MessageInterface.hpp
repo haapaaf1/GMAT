@@ -52,7 +52,7 @@ public:
 
    static void ClearMessage();
    
-   static std::string GetMessage();
+   static std::string GetQueuedMessage();
    static void PutMessage(const std::string &msg);
    static void ClearMessageQueue();
    

@@ -212,7 +212,7 @@ bool GmatApp::OnInit()
          MessageInterface::LogMessage(nowStr + "GMAT GUI successfully launched.\n");
          
          // Show any errors occured during initialization
-         std::string savedMsg = MessageInterface::GetMessage();
+         std::string savedMsg = MessageInterface::GetQueuedMessage();
          if (savedMsg != "")
             MessageInterface::ShowMessage(savedMsg);
          
