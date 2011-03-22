@@ -39,6 +39,7 @@
 #include "GuiMessageReceiver.hpp"
 #include "GuiPlotReceiver.hpp"
 #include "GuiInterpreter.hpp"
+#include "FileUtil.hpp"
 
 //#define DEBUG_GMATAPP
 //#define DEBUG_CMD_LINE
@@ -177,22 +178,22 @@ bool GmatApp::OnInit()
          if (GmatGlobal::Instance()->GetGuiMode() != GmatGlobal::MINIMIZED_GUI)
          {
             //show the splash screen
-            try
+            wxString splashFile = theModerator->GetFileName("SPLASH_FILE").c_str();
+            if (GmatFileUtil::DoesFileExist(splashFile.c_str()))
             {
                wxImage::AddHandler(new wxTIFFHandler);
-               
-               wxString splashFile = theModerator->GetFileName("SPLASH_FILE").c_str();
                wxBitmap *bitmap = new wxBitmap(splashFile, wxBITMAP_TYPE_TIF);
                
-               // Changed to time out in 1 sec (LOJ: 2009.10.07)
+               // Changed to time out in 4 sec (LOJ: 2009.10.07)
                new wxSplashScreen(*bitmap,
                                   wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,
                                   4000, NULL, -1, wxDefaultPosition, wxSize(100, 100),
                                   wxSIMPLE_BORDER|wxSTAY_ON_TOP);
             }
-            catch (BaseException &e)
+            else
             {
-               MessageInterface::PopupMessage(Gmat::ERROR_, e.GetFullMessage());
+               MessageInterface::ShowMessage
+                  ("*** WARNING *** Can't load SPLASH_FILE from '%s'\n", splashFile.c_str());
             }
          }
          

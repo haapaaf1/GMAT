@@ -2538,7 +2538,15 @@ GLuint OrbitViewCanvas::BindTexture(SpacePoint *obj, const wxString &objName)
          //else
          // load image file
          if (!LoadImage(textureFile))
+         {
+            if (obj->IsOfType(Gmat::CELESTIAL_BODY))
+            {
+               MessageInterface::ShowMessage
+                  ("*** WARNING *** OrbitViewCanvas::BindTexture() Cannot load texture "
+                   "image for '%s' from '%s'\n", objName.c_str(), textureFile.c_str());
+            }
             ret = GmatPlot::UNINIT_TEXTURE;
+         }
          
       #endif
    }

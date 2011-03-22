@@ -1,3 +1,4 @@
+//$Id$
 //------------------------------------------------------------------------------
 //                            WelcomePanel
 //------------------------------------------------------------------------------
@@ -26,6 +27,8 @@
 #include <wx/hyperlink.h>
 #include <wx/statline.h>
 #include <wx/gdicmn.h>
+
+//#define DEBUG_FILL_GROUP
 
 //------------------------------
 // event tables for wxWindows
@@ -66,7 +69,10 @@ WelcomePanel::WelcomePanel(wxFrame *frame, const wxString& title,
 //------------------------------------------------------------------------------
 void WelcomePanel::Create()
 {
-
+   #ifdef DEBUG_CREATE
+   MessageInterface::ShowMessage("WelcomePanel::Create() entered\n");
+   #endif
+   
    wxStaticLine *line1;
    wxBitmap bitmap;
    wxBitmapButton *aboutButton;
@@ -75,12 +81,16 @@ void WelcomePanel::Create()
    
    // get the config object
    wxFileConfig *pConfig;
-
-   // first the header
    
    // Load GMAT ICON
    FileManager *fm = FileManager::Instance();
-   if (GmatFileUtil::DoesFileExist(fm->GetFullPathname("ICON_PATH")+"GMATIcon.jpg"))
+   std::string iconFile = fm->GetFullPathname("ICON_PATH") + "GMATIcon.jpg";
+   
+   #ifdef DEBUG_CREATE
+   MessageInterface::ShowMessage("WelcomePanel::Create() iconFile='%s'\n", iconFile.c_str());
+   #endif
+   
+   if (GmatFileUtil::DoesFileExist(iconFile))
    {
       bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+"GMATIcon.jpg").c_str(), 200, 200 );
       aboutButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
@@ -89,7 +99,7 @@ void WelcomePanel::Create()
    else
       aboutButton = new wxBitmapButton(this, -1, NULL, wxDefaultPosition,
                            wxSize(200,200));
-
+   
    wxColourDatabase cdb;
    wxColour gmatColor = cdb.Find("NAVY");
    // title, build date
@@ -155,7 +165,8 @@ void WelcomePanel::Create()
    wxBoxSizer *gettingStartedSizer = new wxBoxSizer(wxVERTICAL);
    gettingStartedSizer->Add(getStartedText, 0, wxALIGN_LEFT|wxALL, bsize);
    gettingStartedSizer->AddSpacer(bsize*2);
-   gettingStartedSizer->Add(FillGroup("/GettingStarted/Tutorials", "/GettingStarted/Tutorials/Icons", 1, ID_URL, false, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
+   gettingStartedSizer->Add(FillGroup("/GettingStarted/Tutorials", "/GettingStarted/Tutorials/Icons",
+                                      1, ID_URL, false, pConfig), 0, wxALIGN_LEFT|wxALL, bsize*2);
    //gettingStartedSizer->AddSpacer(bsize*2);
 
    //-----------------------------------------------------------------
@@ -204,6 +215,9 @@ void WelcomePanel::Create()
    SetSizer(thePanelSizer);
    thePanelSizer->SetSizeHints(this);
 
+   #ifdef DEBUG_CREATE
+   MessageInterface::ShowMessage("WelcomePanel::Create() leaving\n");
+   #endif
 }
 
 
@@ -249,15 +263,23 @@ void WelcomePanel::OnShowWelcomePanelClicked(wxCommandEvent& event)
  * @param config configuration file to read
  */
 //------------------------------------------------------------------------------
-wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGroup, int maxCols, wxWindowID id, bool isFileList, wxFileConfig *config )
+wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGroup,
+                                          int maxCols, wxWindowID id, bool isFileList,
+                                          wxFileConfig *config )
 {
+   #ifdef DEBUG_FILL_GROUP
+   MessageInterface::ShowMessage
+      ("WelcomePanel::FillGroup() entered, INIGroup='%s', INIIconGroup='%s'\n",
+       INIGroup.c_str(), INIIconGroup.c_str());
+   #endif
+   
    wxFlexGridSizer *aSizer;
    wxFlexGridSizer *aIconNTextSizer;
    wxArrayString linkLabels;
    wxArrayString linkURLs;
    wxArrayString linkIcons;
    size_t i;
-   wxBitmapButton *abitmapButton;
+   wxBitmapButton *abitmapButton = NULL;
 
    wxString aKey;
    long dummy;
@@ -300,26 +322,40 @@ wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGro
    }
    else
       aSizer = new wxFlexGridSizer(maxCols, 10, 40);
-
+   
+   #ifdef DEBUG_FILL_GROUP
+   MessageInterface::ShowMessage("   There are %d linkLables\n", linkLabels.size());
+   #endif
+   
    if (linkLabels.size() > 0)
    {
       FileManager *fm = FileManager::Instance();
       for (i=0; i<linkLabels.size(); i++)
       {
          aButton = new wxHyperlinkCtrl
-            (this, id, linkLabels[i], linkURLs[i], wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxHL_ALIGN_CENTRE);
+            (this, id, linkLabels[i], linkURLs[i], wxDefaultPosition, wxDefaultSize,
+             wxNO_BORDER|wxHL_ALIGN_CENTRE);
          aButton->SetToolTip(linkURLs[i]);
          if (linkIcons.size() > 0)
          {
             aIconNTextSizer = new wxFlexGridSizer(2, 20, 20);
-            if (GmatFileUtil::DoesFileExist((fm->GetFullPathname("ICON_PATH")+linkIcons[i].c_str())))
+            std::string fullPath = fm->GetFullPathname("ICON_PATH") + linkIcons[i].c_str();
+            #ifdef DEBUG_FILL_GROUP
+            MessageInterface::ShowMessage("   fullPath='%s'\n", fullPath.c_str());
+            #endif
+            if (GmatFileUtil::DoesFileExist(fullPath.c_str()))
             {
-               wxBitmap bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+(linkIcons[i]).c_str()).c_str(), 50, 50 );
+               wxBitmap bitmap = LoadBitmap( fullPath.c_str(), 50, 50 );
                abitmapButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
-                                       wxSize(50,50));
+                                                  wxSize(50,50));
             }
-            else 
+            else
+            {
+               MessageInterface::ShowMessage
+                  ("*** WARNING *** Can't load image from file '%s'\n", fullPath.c_str());
                abitmapButton = NULL;
+            }
+            
             aIconNTextSizer->Add(abitmapButton, 0, wxALIGN_LEFT, bsize);
             aIconNTextSizer->Add(aButton, 0, wxALIGN_LEFT, bsize);
             aSizer->Add(aIconNTextSizer, 0, wxALIGN_LEFT, bsize*2);
@@ -335,7 +371,12 @@ wxFlexGridSizer *WelcomePanel::FillGroup( wxString INIGroup, wxString INIIconGro
          aCol = (aCol + 1) % maxCols;
       }
    }
-
+   
+   #ifdef DEBUG_FILL_GROUP
+   MessageInterface::ShowMessage
+      ("WelcomePanel::FillGroup() returning aSizer<%p>\n", aSizer);
+   #endif
+   
    return aSizer;
 }
 
@@ -367,7 +408,8 @@ void WelcomePanel::OnOpenRecentScript(wxHyperlinkEvent& event)
 wxBitmap WelcomePanel::LoadBitmap( wxString filename, int width, int height )
 {
    wxBitmap bitmap;
-   try
+   // Check for file exist first, otherwise the system hangs for non-existent file
+   if (GmatFileUtil::DoesDirectoryExist(filename.c_str(), false))
    {
       wxImage::AddHandler(new wxJPEGHandler);
       if (bitmap.LoadFile(filename, wxBITMAP_TYPE_JPEG))
@@ -376,8 +418,12 @@ wxBitmap WelcomePanel::LoadBitmap( wxString filename, int width, int height )
          bitmap = wxBitmap(image.Scale(width, height));
       }
    }
-   catch (BaseException &)
+   else
    {
+      MessageInterface::ShowMessage
+         ("*** WARNING *** Can't load image from '%s'\n", filename.c_str());
    }
+   
    return bitmap;
 }
+
