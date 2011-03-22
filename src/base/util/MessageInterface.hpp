@@ -51,11 +51,15 @@ public:
    static void LogMessage(const char *msg, ...);
 
    static void ClearMessage();
-
+   
+   static std::string GetMessage();
+   static void PutMessage(const std::string &msg);
+   static void ClearMessageQueue();
+   
 private:
    static MessageReceiver  *theMessageReceiver;
    static const int        MAX_MESSAGE_LENGTH;
-
+   
    MessageInterface();
    virtual ~MessageInterface();
 };

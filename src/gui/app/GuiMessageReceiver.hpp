@@ -36,7 +36,6 @@ class GuiMessageReceiver : public MessageReceiver
 public:
    static GuiMessageReceiver*  Instance();
 
-   virtual std::string GetMessage();
    virtual void ClearMessage();
    virtual int  GetNumberOfMessageLines();
    virtual void ShowMessage(const std::string &msg);
@@ -58,6 +57,10 @@ public:
    
    virtual void OpenLogFile(const std::string &filename, bool append = false);
    virtual void CloseLogFile();
+   
+   virtual std::string GetMessage();
+   virtual void PutMessage(const std::string &msg);
+   virtual void ClearMessageQueue();
    
 private:
    static GuiMessageReceiver*  instance;

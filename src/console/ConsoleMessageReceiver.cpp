@@ -465,6 +465,44 @@ void ConsoleMessageReceiver::ClearMessage()
 {
 }
 
+//------------------------------------------------------------------------------
+//  std::string GetMessage()
+//------------------------------------------------------------------------------
+/**
+ * Pops the messages off the message queue and concatenates them together.
+ * 
+ * @return The concatenated messages.
+ */
+//------------------------------------------------------------------------------
+std::string ConsoleMessageReceiver::GetMessage()
+{
+   return "";
+}
+
+//------------------------------------------------------------------------------
+// void PutMessage(const std::string &msg)
+//------------------------------------------------------------------------------
+/**
+ * Push the message into queue
+ */
+//------------------------------------------------------------------------------
+void ConsoleMessageReceiver::PutMessage(const std::string &msg)
+{
+   ; // do nothing here
+}
+
+//------------------------------------------------------------------------------
+// void ClearMessageQueue()
+//------------------------------------------------------------------------------
+/**
+ * Tells the MessageReceiver to clear the message queue.
+ */
+//------------------------------------------------------------------------------
+void ConsoleMessageReceiver::ClearMessageQueue()
+{
+   ; // do nothing here
+}
+
 
 //---------------------------------
 //  private methods

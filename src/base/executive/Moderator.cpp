@@ -142,24 +142,27 @@ Moderator* Moderator::Instance()
 //------------------------------------------------------------------------------
 bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
 {
+   #if DEBUG_INITIALIZE
+   MessageInterface::ShowMessage
+      ("Moderator::Initialize() entered, startupFile='%s', fromGui=%d\n",
+       startupFile.c_str(), fromGui);
+   #endif
+   
    isFromGui = fromGui;
    
    try
    {
+      MessageInterface::ShowMessage("Moderator is reading startup file...\n");
+      
       // Read startup file, Set Log file
       theFileManager = FileManager::Instance();
       theFileManager->ReadStartupFile(startupFile);
       
+      MessageInterface::ShowMessage("Moderator is creating core engine...\n");
+      
       // Set trace flag globally
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->SetShowTrace(false);
-      #endif
-      
-      MessageInterface::ShowMessage("Moderator is creating core engine...\n");
-      
-      #if DEBUG_INITIALIZE
-      MessageInterface::ShowMessage
-         (".....created  (%p)theFileManager\n", theFileManager);
       #endif
       
       // Create Managers
@@ -348,6 +351,9 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theMatlabInterface->
          SetIntegerParameter("MatlabMode",
                              GmatGlobal::Instance()->GetMatlabMode());
+   #if DEBUG_INITIALIZE
+   MessageInterface::ShowMessage("Moderator::Initialize() returning true\n");
+   #endif
    
    return true;;
 } // Initialize()
@@ -758,9 +764,9 @@ void Moderator::LoadAPlugin(std::string pluginName)
          }
       }
       else
-         MessageInterface::PopupMessage(Gmat::WARNING_,
-               "Library %s does not contain a factory\n", pluginName.c_str());
-
+         MessageInterface::PutMessage(
+            "*** Library \"" + pluginName + "\" does not contain a factory\n");
+      
       // Test to see if there might be TriggerManagers
       Integer triggerCount = theLib->GetTriggerManagerCount();
       #ifdef DEBUG_PLUGIN_REGISTRATION
@@ -812,8 +818,8 @@ void Moderator::LoadAPlugin(std::string pluginName)
       }
    }
    else
-      MessageInterface::PopupMessage(Gmat::WARNING_,
-            "*** Unable to load the dynamic library \"%s\"\n", pluginName.c_str());
+      MessageInterface::PutMessage(
+         "*** Unable to load the dynamic library \"" + pluginName + "\"\n");
 }
 
 //------------------------------------------------------------------------------

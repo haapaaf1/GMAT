@@ -64,9 +64,13 @@ public:
 
    virtual void ClearMessage() = 0;
 
+   virtual std::string GetMessage() = 0;
+   virtual void PutMessage(const std::string &msg) = 0;
+   virtual void ClearMessageQueue() = 0;
+   
 protected:
-	MessageReceiver();
-	virtual ~MessageReceiver();
+        MessageReceiver();
+        virtual ~MessageReceiver();
 };
 
 #endif /*MESSAGERECEIVER_HPP_*/

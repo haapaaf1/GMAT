@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                             GuiMessageReceiver
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -60,8 +60,6 @@ GuiMessageReceiver::GuiMessageReceiver() :
    logEnabled              (false),
    logFileSet              (false)
 {
-   messageQueue.push
-      ("GuiMessageReceiver.cpp:GuiMessageReceiver(): Starting GMAT ...");
 }
 
 //------------------------------------------------------------------------------
@@ -101,30 +99,6 @@ GuiMessageReceiver* GuiMessageReceiver::Instance()
 
 
 //------------------------------------------------------------------------------
-//  std::string GetMessage()
-//------------------------------------------------------------------------------
-/**
- * Pops the messages off the message queue and concatenates them together.
- * 
- * @return The concatenated messages.
- */
-//------------------------------------------------------------------------------
-std::string GuiMessageReceiver::GetMessage()
-{
-   std::string msg;
-   
-   while (!GuiMessageReceiver::messageQueue.empty())
-   {
-      msg = msg + GuiMessageReceiver::messageQueue.front().c_str();
-      GuiMessageReceiver::messageQueue.pop();
-   }
-   GuiMessageReceiver::messageExist = 0;
-
-   return msg;
-}
-
-
-//------------------------------------------------------------------------------
 //  void ClearMessage()
 //------------------------------------------------------------------------------
 /**
@@ -136,6 +110,7 @@ void GuiMessageReceiver::ClearMessage()
    GmatAppData *appData = GmatAppData::Instance();
    if (appData->GetMessageTextCtrl() != NULL)
    {
+      ShowMessage("==> GuiMessageReceiver::ClearMessage() clearing message window\n");
       appData->GetMessageTextCtrl()->Clear();
    }
 }
@@ -691,3 +666,56 @@ void GuiMessageReceiver::CloseLogFile()
    logFile = NULL;
    logFileSet = false;
 }
+
+
+//------------------------------------------------------------------------------
+//  std::string GetMessage()
+//------------------------------------------------------------------------------
+/**
+ * Pops the messages off the message queue and concatenates them together.
+ * 
+ * @return The concatenated messages.
+ */
+//------------------------------------------------------------------------------
+std::string GuiMessageReceiver::GetMessage()
+{
+   std::string msg;
+   
+   while (!GuiMessageReceiver::messageQueue.empty())
+   {
+      msg = msg + messageQueue.front().c_str();
+      messageQueue.pop();
+   }
+   GuiMessageReceiver::messageExist = 0;
+   
+   return msg;
+}
+
+//------------------------------------------------------------------------------
+// void PutMessage(const std::string &msg)
+//------------------------------------------------------------------------------
+/**
+ * Push the message into queue
+ */
+//------------------------------------------------------------------------------
+void GuiMessageReceiver::PutMessage(const std::string &msg)
+{
+   messageQueue.push(msg);
+}
+
+//------------------------------------------------------------------------------
+// void ClearMessageQueue()
+//------------------------------------------------------------------------------
+/**
+ * Tells the MessageReceiver to clear the message queue.
+ */
+//------------------------------------------------------------------------------
+void GuiMessageReceiver::ClearMessageQueue()
+{
+   while (!GuiMessageReceiver::messageQueue.empty())
+      messageQueue.pop();
+   
+   GuiMessageReceiver::messageExist = 0;
+}
+
+

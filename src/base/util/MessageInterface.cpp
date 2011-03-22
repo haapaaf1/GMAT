@@ -343,3 +343,45 @@ void MessageInterface::ClearMessage()
    if (theMessageReceiver != NULL)
       theMessageReceiver->ClearMessage();
 }
+
+//------------------------------------------------------------------------------
+// std::string GetMessage()
+//------------------------------------------------------------------------------
+/**
+ * Tells the MessageReceiver to retrieve all message from the queue.
+ */
+//------------------------------------------------------------------------------
+std::string MessageInterface::GetMessage()
+{
+   if (theMessageReceiver != NULL)
+      return theMessageReceiver->GetMessage();
+   else
+      return "";
+}
+
+//------------------------------------------------------------------------------
+// void PutMessage(const std::string &msg)
+//------------------------------------------------------------------------------
+/**
+ * Tells the MessageReceiver to push the message into queue
+ */
+//------------------------------------------------------------------------------
+void MessageInterface::PutMessage(const std::string &msg)
+{
+   if (theMessageReceiver != NULL)
+      theMessageReceiver->PutMessage(msg);
+}
+
+//------------------------------------------------------------------------------
+// void ClearMessageQueue()
+//------------------------------------------------------------------------------
+/**
+ * Tells the MessageReceiver to clear the message queue.
+ */
+//------------------------------------------------------------------------------
+void MessageInterface::ClearMessageQueue()
+{
+   if (theMessageReceiver != NULL)
+      theMessageReceiver->ClearMessageQueue();
+}
+

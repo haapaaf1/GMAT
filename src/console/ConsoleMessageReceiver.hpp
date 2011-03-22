@@ -52,8 +52,11 @@ public:
    virtual void OpenLogFile(const std::string &filename, bool append = false);
    virtual void CloseLogFile();
    
+   virtual std::string GetMessage();
+   virtual void PutMessage(const std::string &msg);
+   virtual void ClearMessageQueue();
+   
    // Other methods not implemented for the ConsoleMessageReceiver
-   //virtual std::string GetMessage();
    //virtual int  GetNumberOfMessageLines();
    //virtual void PopupAbortContinue(const std::string &abortMsg,
    //                               const std::string &continueMsg,
