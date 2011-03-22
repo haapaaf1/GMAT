@@ -39,7 +39,6 @@ public:
    {
       // file path
       BEGIN_OF_PATH = 0,
-      SPLASH_PATH,
       OUTPUT_PATH,
       SLP_PATH,
       DE_PATH,
@@ -54,6 +53,10 @@ public:
       MEASUREMENT_PATH,
       EPHEM_PATH,
       GUI_CONFIG_PATH,
+      SPLASH_PATH,
+      ICON_PATH,
+      STAR_PATH,
+      MODEL_PATH,
       END_OF_PATH,
       
       // general file name
@@ -80,7 +83,11 @@ public:
       PLANETARY_COEFF_FILE,
       NUTATION_COEFF_FILE,
       LEAP_SECS_FILE,
+      LSK_FILE,
       PERSONALIZATION_FILE,
+      MAIN_ICON_FILE,
+      STAR_FILE,
+      CONSTELLATION_FILE,
       FileTypeCount,
    };
    
@@ -92,7 +99,7 @@ public:
    bool DoesDirectoryExist(const std::string &dirPath);
    bool DoesFileExist(const std::string &filename);
    bool RenameFile(const std::string &oldName, const std::string &newName,
-                   Integer           &retCode, bool              overwriteIfExists = false);
+                   Integer &retCode, bool overwriteIfExists = false);
    
    std::string GetStartupFileDir();
    std::string GetStartupFileName();
@@ -138,8 +145,6 @@ public:
    
 private:
    
-   static const std::string VERSION_DATE;
-   
    enum FunctionType
    {
       GMAT_FUNCTION = 101,
@@ -169,6 +174,7 @@ private:
    StringArray mGmatFunctionFullPaths;
    StringArray mMatlabFunctionFullPaths;
    StringArray mSavedComments;
+   StringArray mWrittenOuts;
    
    StringArray mPluginList;
    

@@ -35,8 +35,9 @@
 #include <dirent.h>
 #endif
 
-// If we want to create default input file names turn this on
-//#define FM_CREATE_DEFAULT_INPUT
+// For adding default input path and files
+#define __FM_ADD_DEFAULT_INPUT__
+
 
 //#define DEBUG_FILE_MANAGER
 //#define DEBUG_FUNCTION_PATH
@@ -57,7 +58,6 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
 {
    // file path
    "BEGIN_OF_PATH",
-   "SPLASH_PATH",
    "OUTPUT_PATH",
    "SLP_PATH",
    "DE_PATH",
@@ -72,6 +72,10 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "MEASUREMENT_PATH",
    "EPHEM_PATH",
    "GUI_CONFIG_PATH",
+   "SPLASH_PATH",
+   "ICON_PATH",
+   "STAR_PATH",
+   "MODEL_PATH",
    "END_OF_PATH",
    // file name
    "LOG_FILE",
@@ -94,11 +98,14 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "PLANETARY_COEFF_FILE",
    "NUTATION_COEFF_FILE",
    "LEAP_SECS_FILE",
+   "LSK_FILE",
    "PERSONALIZATION_FILE",
+   "MAIN_ICON_FILE",
+   "STAR_FILE",
+   "CONSTELLATION_FILE",
 };
 
 FileManager* FileManager::theInstance = NULL;
-const std::string FileManager::VERSION_DATE = "2005-07-13";
 
 
 //---------------------------------
@@ -148,6 +155,8 @@ std::string FileManager::GetPathSeparator()
 {
    std::string sep = "/";
 
+   // Just return "/" for all operating system for consistency (LOJ: 2011.03.18)
+   #if 0
    char *buffer;
    buffer = getenv("OS");
    if (buffer != NULL)
@@ -158,7 +167,8 @@ std::string FileManager::GetPathSeparator()
       if (osStr.find("Windows") != osStr.npos)
          sep = "\\";
    }
-
+   #endif
+   
    return sep;
 }
 
@@ -228,13 +238,11 @@ bool FileManager::DoesFileExist(const std::string &filename)
 
 //------------------------------------------------------------------------------
 // bool RenameFile(const std::string &oldName, const std::string &newName,
-//                 Integer           &retCode,
-//                 bool              overwriteIfExists = false)
+//                 Integer &retCode, bool overwriteIfExists = false)
 //------------------------------------------------------------------------------
 bool FileManager::RenameFile(const std::string &oldName,
-                                const std::string &newName,
-                                Integer           &retCode,
-                                bool              overwriteIfExists)
+                             const std::string &newName,
+                             Integer &retCode, bool overwriteIfExists)
 {
    retCode = 0;
    bool oldExists = DoesFileExist(oldName);
@@ -333,8 +341,6 @@ std::string FileManager::GetFullStartupFilePath()
  *
  * @param <fileName> startup file name.
  *
- * @exception thrown if file not found, or VERSION date on the startup up file
- *    does not exist or does not match with VERSION_DATE.
  */
 //------------------------------------------------------------------------------
 void FileManager::ReadStartupFile(const std::string &fileName)
@@ -347,7 +353,6 @@ void FileManager::ReadStartupFile(const std::string &fileName)
    RefreshFiles();
 
    std::string line;
-   bool correctVersionFound = false;
    mSavedComments.clear();
 
    std::string tmpStartupDir;
@@ -386,7 +391,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
    {
       // Use cross-platform GetLine
       GmatFileUtil::GetLine(&mInStream, line);
-
+      
       #ifdef DEBUG_READ_STARTUP_FILE
       MessageInterface::ShowMessage("line=%s\n", line.c_str());
       #endif
@@ -396,6 +401,7 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       {
          if (line[0] == '\0' || line[0] == '#')
          {
+            // save line with ## in the first col
             if (line.size() > 1 && line[1] == '#')
                mSavedComments.push_back(line);
             continue;
@@ -430,76 +436,56 @@ void FileManager::ReadStartupFile(const std::string &fileName)
       #ifdef DEBUG_READ_STARTUP_FILE
       MessageInterface::ShowMessage("type=%s, name=%s\n", type.c_str(), name.c_str());
       #endif
-
-      if (!correctVersionFound)
+      
+      
+      if (type == "RUN_MODE")
       {
-         if (type == "VERSION")
-         {
-            // check for version date
-            if (name == VERSION_DATE)
-            {
-               correctVersionFound = true;
-               continue;
-            }
-            else
-            {
-               throw UtilityException
-                  ("FileManager::ReadStartupFile() the VERSION is incorrect.\n"
-                   "The version date it can handle is " + VERSION_DATE + "\n");
-            }
-         }
+         mRunMode = name;
+         if (name == "TESTING")
+            GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
+         else if (name == "TESTING_NO_PLOTS")
+            GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING_NO_PLOTS);
+         else if (name == "EXIT_AFTER_RUN")
+            GmatGlobal::Instance()->SetRunMode(GmatGlobal::EXIT_AFTER_RUN);
       }
-
-      if (correctVersionFound)
+      else if (type == "MATLAB_MODE")
       {
-         if (type == "RUN_MODE")
+         mMatlabMode = name;
+         if (name == "SINGLE")
+            GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SINGLE_USE);
+         else if (name == "SHARED")
+            GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SHARED);
+         else if (name == "NO_MATLAB")
+            GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::NO_MATLAB);
+      }
+      else if (type == "DEBUG_MATLAB")
+      {
+         if (name == "ON")
          {
-            mRunMode = name;
-            if (name == "TESTING")
-               GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING);
-            else if (name == "TESTING_NO_PLOTS")
-               GmatGlobal::Instance()->SetRunMode(GmatGlobal::TESTING_NO_PLOTS);
-            else if (name == "EXIT_AFTER_RUN")
-               GmatGlobal::Instance()->SetRunMode(GmatGlobal::EXIT_AFTER_RUN);
+            mDebugMatlab = name;
+            GmatGlobal::Instance()->SetMatlabDebug(true);
          }
-         else if (type == "MATLAB_MODE")
-         {
-            mMatlabMode = name;
-            if (name == "SINGLE")
-               GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SINGLE_USE);
-            else if (name == "SHARED")
-               GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::SHARED);
-            else if (name == "NO_MATLAB")
-               GmatGlobal::Instance()->SetMatlabMode(GmatGlobal::NO_MATLAB);
-         }
-         else if (type == "DEBUG_MATLAB")
-         {
-            if (name == "ON")
-            {
-               mDebugMatlab = name;
-               GmatGlobal::Instance()->SetMatlabDebug(true);
-            }
-         }
-         else
-            AddFileType(type, name);
       }
       else
-         throw UtilityException
-            ("FileManager::ReadStartupFile() the VERSION not found.\n"
-             "It no longer can read old startup file.\n");
+      {
+         // Ignore old VERSION specification (2011.03.18)
+         if (type != "VERSION")
+            AddFileType(type, name);
+      }
    } // end While()
    
+   // Since we set all output to ./ as default, we don't need this (LOJ: 2011.03.17)
    // Set EPHEM_PATH to OUTPUT_PATH from the startup file if not set
    // so that ./output directory is not required when writing the ephemeris file.
-   if (mPathMap["EPHEM_PATH"] == "./output/" &&
-       mPathMap["OUTPUT_PATH"] != "./files/output/")
-   {
-      mPathMap["EPHEM_PATH"] = mPathMap["OUTPUT_PATH"];
-      #ifdef DEBUG_READ_STARTUP_FILE
-      MessageInterface::ShowMessage
-         ("==> EPHEM_PATH set to '%s'\n", mPathMap["EPHEM_PATH"].c_str());
-      #endif
-   }
+//    if (mPathMap["EPHEM_PATH"] == "./output/" &&
+//        mPathMap["OUTPUT_PATH"] != "./files/output/")
+//    {
+//       mPathMap["EPHEM_PATH"] = mPathMap["OUTPUT_PATH"];
+//       #ifdef DEBUG_READ_STARTUP_FILE
+//       MessageInterface::ShowMessage
+//          ("==> EPHEM_PATH set to '%s'\n", mPathMap["EPHEM_PATH"].c_str());
+//       #endif
+//    }
    
    // add potential files by type names
    AddAvailablePotentialFiles();
@@ -533,10 +519,11 @@ void FileManager::ReadStartupFile(const std::string &fileName)
 void FileManager::WriteStartupFile(const std::string &fileName)
 {
    std::string outFileName = "gmat_startup_file.new.txt";
-
+   mWrittenOuts.clear();
+   
    if (fileName != "")
       outFileName = fileName;
-
+   
    #ifdef DEBUG_WRITE_STARTUP_FILE
    MessageInterface::ShowMessage
       ("FileManager::WriteStartupFile() entered, outFileName = %s\n",
@@ -627,7 +614,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #endif
    outStream << std::setw(20) << "OUTPUT_PATH" << " = "
              << mPathMap["OUTPUT_PATH"] << "\n";
-   WriteFiles(outStream, "LOG");
+   WriteFiles(outStream, "LOG_");
    outStream << "#-----------------------------------------------------------\n";
    
    //---------------------------------------------
@@ -766,14 +753,40 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
-   // write the TEXTURE_PATH and files next
+   // write the EPHEM_PATH next if set
+   //---------------------------------------------
+   if (mPathMap["EPHEM_PATH"] != "./output/")
+   {
+      #ifdef DEBUG_WRITE_STARTUP_FILE
+      MessageInterface::ShowMessage("   .....Writing EPHEM_PATH path\n");
+      #endif
+      outStream << std::setw(20) << "EPHEM_PATH" << " = "
+                << mPathMap["EPHEM_PATH"];
+      outStream << "\n#---------------------------------------------"
+            "--------------\n";
+   }
+   
+   //---------------------------------------------
+   // write the GUI_CONFIG_PATH and files next
    //---------------------------------------------
    #ifdef DEBUG_WRITE_STARTUP_FILE
-   MessageInterface::ShowMessage("   .....Writing TEXTURE_PATH path\n");
+   MessageInterface::ShowMessage("   .....Writing GUI_CONFIG_PATH path\n");
    #endif
-   outStream << std::setw(20) << "TEXTURE_PATH" << " = "
-             << mPathMap["TEXTURE_PATH"] << "\n";
-   WriteFiles(outStream, "TEXTURE_FILE");
+   outStream << std::setw(20) << "GUI_CONFIG_PATH" << " = "
+             << mPathMap["GUI_CONFIG_PATH"] << "\n";
+   WriteFiles(outStream, "PERSONALIZATION_FILE");
+   outStream << "#-----------------------------------------------------------\n";
+   
+   //---------------------------------------------
+   // write the ICON_PATH and files next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing ICON_PATH path\n");
+   #endif
+   outStream << std::setw(20) << "ICON_PATH" << " = "
+             << mPathMap["ICON_PATH"] << "\n";
+   WriteFiles(outStream, "ICON_FILE");
+   WriteFiles(outStream, "MAIN_ICON_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
@@ -788,41 +801,36 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
-   // write the ICON_PATH and files next
+   // write the TEXTURE_PATH and files next
    //---------------------------------------------
    #ifdef DEBUG_WRITE_STARTUP_FILE
-   MessageInterface::ShowMessage("   .....Writing ICON_PATH path\n");
+   MessageInterface::ShowMessage("   .....Writing TEXTURE_PATH path\n");
    #endif
-   outStream << std::setw(20) << "ICON_PATH" << " = "
-             << mPathMap["ICON_PATH"] << "\n";
-   WriteFiles(outStream, "ICON_FILE");
+   outStream << std::setw(20) << "TEXTURE_PATH" << " = "
+             << mPathMap["TEXTURE_PATH"] << "\n";
+   WriteFiles(outStream, "TEXTURE_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
-   // write the EPHEM_PATH next if set
-   //---------------------------------------------
-   if (mPathMap["EPHEM_PATH"] != "./output/")
-   {
-      #ifdef DEBUG_WRITE_STARTUP_FILE
-      MessageInterface::ShowMessage("   .....Writing EPHEM_PATH path\n");
-      #endif
-      outStream << std::setw(20) << "EPHEM_PATH" << " = "
-                << mPathMap["EPHEM_PATH"];
-      outStream << "\n#---------------------------------------------"
-            "--------------\n";
-   }
-
-   //---------------------------------------------
-   // write the GUI_CONFIG_PATH and files next
+   // write the STAR_PATH and files next
    //---------------------------------------------
    #ifdef DEBUG_WRITE_STARTUP_FILE
-   MessageInterface::ShowMessage("   .....Writing GUI_CONFIG_PATH path\n");
+   MessageInterface::ShowMessage("   .....Writing STAR_PATH path\n");
    #endif
-   outStream << std::setw(20) << "GUI_CONFIG_PATH" << " = " << mPathMap["GUI_CONFIG_PATH"] << "\n";
-   WriteFiles(outStream, "PERSONALIZATION_FILE");
+   outStream << std::setw(20) << "STAR_PATH" << " = "
+             << mPathMap["STAR_PATH"] << "\n";
+   WriteFiles(outStream, "STAR_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
-
+   //---------------------------------------------
+   // write rest of paths and files
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing rest of path\n", );
+   #endif
+   WriteFiles(outStream, "-OTHER-");
+   outStream << "#-----------------------------------------------------------\n";
+   
    //---------------------------------------------
    // write saved comments
    //---------------------------------------------
@@ -1697,11 +1705,10 @@ void FileManager::AddFileType(const std::string &type, const std::string &name)
          #ifdef DEBUG_ADD_FILETYPE
          MessageInterface::ShowMessage
             ("   Adding %s and %s to mFileMap\n", pathName.c_str(), fileName.c_str());
-         #endif
-         
          MessageInterface::ShowMessage
-            ("FileManager::AddFileType() 'PATH/' not found in line:\n%s = %s \n"
-             "So adding CURRENT_PATH = ./\n", type.c_str(), name.c_str());
+            ("   'PATH/' not found in line:\n   %s = %s\n   So adding CURRENT_PATH = ./\n",
+             type.c_str(), name.c_str());
+         #endif
          
          //loj: Should we just throw an exception?
          //mInStream.close();
@@ -1768,15 +1775,12 @@ void FileManager::AddAvailablePotentialFiles()
 //------------------------------------------------------------------------------
 void FileManager::WriteHeader(std::ofstream &outStream)
 {
-   outStream << "VERSION = " << VERSION_DATE << "\n";
-   outStream << "#============================================================="
-      "==================\n";
-   outStream << "# ! Do not remove or change VERSION date, "
-      "it won't work otherwise!!\n";
-   outStream << "# Only the new FileManager, version after " << VERSION_DATE <<
-      " reconizes this new format.\n";
-   outStream << "#-------------------------------------------------------------"
-      "------------------\n";
+   outStream << "#-------------------------------------------------------------------------------\n";
+   outStream << "# General Mission Analysis Tool (GMAT) startup file\n";
+   outStream << "#-------------------------------------------------------------------------------\n";
+   outStream << "# Comment line starts with #\n";
+   outStream << "# Comment line starting with ## will be saved when saving startup file.\n";
+   outStream << "#\n";
    outStream << "# Path/File naming convention:\n";
    outStream << "#   - Path name should end with _PATH\n";
    outStream << "#   - File name should end with _FILE\n";
@@ -1804,10 +1808,7 @@ void FileManager::WriteHeader(std::ofstream &outStream)
    outStream << "# PLUGIN = libDataFile\n";
    outStream << "# PLUGIN = libGmatEstimation\n";
    outStream << "#\n";
-   outStream << "# All comment lines starting ## will be saved when saving startup file.\n";
-   outStream << "#\n";
-   outStream << "#============================================================="
-      "==================\n";
+   outStream << "#===============================================================================\n";
 }
 
 //------------------------------------------------------------------------------
@@ -1820,6 +1821,33 @@ void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
    #endif
    
    std::string realPath;
+   if (type == "-OTHER-")
+   {
+      for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
+           pos != mFileMap.end(); ++pos)
+      {
+         // if name not found in already written out list, then write
+         if (find(mWrittenOuts.begin(), mWrittenOuts.end(), pos->first) ==
+             mWrittenOuts.end())
+         {
+            if (pos->second)
+            {
+               realPath = pos->second->mPath;
+               if (realPath == "CURRENT_PATH")
+                  realPath = "";
+               else
+                  realPath = realPath + mPathSeparator;
+               
+               mWrittenOuts.push_back(pos->first);
+               outStream << std::setw(20) << pos->first << " = "
+                         << realPath << pos->second->mFile << "\n";
+            }
+         }
+      }
+      return;
+   }
+   
+   
    for (std::map<std::string, FileInfo*>::iterator pos = mFileMap.begin();
         pos != mFileMap.end(); ++pos)
    {
@@ -1833,6 +1861,7 @@ void FileManager::WriteFiles(std::ofstream &outStream, const std::string &type)
             else
                realPath = realPath + mPathSeparator;
             
+            mWrittenOuts.push_back(pos->first);
             outStream << std::setw(20) << pos->first << " = "
                       << realPath << pos->second->mFile << "\n";
          }
@@ -1861,96 +1890,125 @@ void FileManager::RefreshFiles()
       delete iter->second;
 
    mFileMap.clear();
-
+   
    //-------------------------------------------------------
    // add root path
    //-------------------------------------------------------
-   AddFileType("ROOT_PATH", "./");
-
+   AddFileType("ROOT_PATH", "../data");
+   
    //-------------------------------------------------------
-   // create default output paths and files
+   // add default output paths and files
    //-------------------------------------------------------
-   // output file path
-   AddFileType("OUTPUT_PATH", "./files/output/");
+   std::string defOutPath = "../output";
+   if (!DoesDirectoryExist(defOutPath))
+      defOutPath = "./";
+   AddFileType("OUTPUT_PATH", defOutPath);
    AddFileType("LOG_FILE", "OUTPUT_PATH/GmatLog.txt");
    AddFileType("REPORT_FILE", "OUTPUT_PATH/ReportFile.txt");
-   AddFileType("MEASUREMENT_PATH", "./output/");
-   AddFileType("EPHEM_PATH", "./output/");
-   AddFileType("MODEL_PATH", "ROOT_PATH/files/models/");
-   AddFileType("SCREENSHOT_FILE", "OUTPUT_PATH/Pic");
-   //AddFileType("STAR_PATH", "ROOT_PATH/plot/stars/");
-   AddFileType("STAR_FILE", "ROOT_PATH/plot/stars//inp_StarCatalog.txt");
-   AddFileType("CONSTELLATION_FILE", "ROOT_PATH/plot/stars//inp_Constellation.txt");
-   AddFileType("EPHEM_PATH", "./output/");
-
-
-   //loj: Should we create default input files?
-#ifdef FM_CREATE_DEFAULT_INPUT
+   AddFileType("MEASUREMENT_PATH", "OUTPUT_PATH");
+   AddFileType("EPHEM_PATH", "OUTPUT_PATH");
+   AddFileType("SCREENSHOT_FILE", "OUTPUT_PATH");
+   AddFileType("EPHEM_PATH", "OUTPUT_PATH");
+   
+   
+   // Should we add default input paths and files?
+   // Yes, for now in case of startup file doesn't specify all the required
+   // input path and files (LOJ: 2011.03.21)
+#ifdef __FM_ADD_DEFAULT_INPUT__
 
    //-------------------------------------------------------
    // create default input paths and files
    //-------------------------------------------------------
-   // output file path
-   AddFileType("OUTPUT_PATH", "./files/output/");
-   AddFileType("LOG_FILE", "OUTPUT_PATH/GmatLog.txt");
-   AddFileType("REPORT_FILE", "OUTPUT_PATH/ReportFile.txt");
-
-   // texture file path
-   AddFileType("TEXTURE_PATH", "./files/plot/texture/");
-
-   // Measurement/observation data path
-   AddFileType("MEASUREMENT_PATH", "./output/");
-
+   
+   // We no longer use SLP file (2011.03.18)
+   #if 0
    // slp files
-   AddFileType("SLP_PATH", "./files/planetary_ephem/slp/");
+   AddFileType("SLP_PATH", "../data/planetary_ephem/slp/");
    AddFileType("SLP_FILE", "SLP_PATH/mn2000.pc");
    AddFileType("SLP_TIME_COEFF_FILE", "SLP_PATH/timecof.pc");
-
+   #endif
+   
    // de files
-   AddFileType("DE_PATH", "./files/planetary_ephem/de/");
-   AddFileType("DE200_FILE", "DE_PATH/winp1941.200");
-   AddFileType("DE202_FILE", "DE_PATH/winp1950.202");
-   AddFileType("DE405_FILE", "DE_PATH/winp1941.405");
+   AddFileType("DE_PATH", "ROOT_PATH/planetary_ephem/de/");
+   AddFileType("DE200_FILE", "DE_PATH/leDE1941.200");
+   AddFileType("DE202_FILE", "DE_PATH/leDE1941.202");
+   AddFileType("DE405_FILE", "DE_PATH/leDE1941.405");
 
    // spk files
-   AddFileType("SPK_PATH", "./files/planetary_ephem/spk/");
+   AddFileType("SPK_PATH", "ROOT_PATH/planetary_ephem/spk/");
    AddFileType("PLANETARY_SPK_FILE", "SPK_PATH/de421.bsp");
 
    // earth gravity files
-   AddFileType("EARTH_POT_PATH", "./files/gravity/earth/");
+   AddFileType("EARTH_POT_PATH", "ROOT_PATH/gravity/earth/");
    AddFileType("JGM2_FILE", "EARTH_POT_PATH/JGM2.cof");
    AddFileType("JGM3_FILE", "EARTH_POT_PATH/JGM3.cof");
    AddFileType("EGM96_FILE", "EARTH_POT_PATH/EGM96.cof");
 
    // luna gravity files
-   AddFileType("LUNA_POT_PATH", "./files/gravity/luna/");
+   AddFileType("LUNA_POT_PATH", "ROOT_PATH/gravity/luna/");
    AddFileType("LP165P_FILE", "LUNA_POT_PATH/lp165p.cof");
 
    // venus gravity files
-   AddFileType("VENUS_POT_PATH", "./files/gravity/venus/");
+   AddFileType("VENUS_POT_PATH", "ROOT_PATH/gravity/venus/");
    AddFileType("MGNP180U_FILE", "VENUS_POT_PATH/MGNP180U.cof");
 
    // mars gravity files
-   AddFileType("MARS_POT_PATH", "./files/gravity/mars/");
+   AddFileType("MARS_POT_PATH", "ROOT_PATH/gravity/mars/");
    AddFileType("MARS50C_FILE", "MARS_POT_PATH/Mars50c.cof");
 
    // planetary coeff. fiels
-   AddFileType("PLANETARY_COEFF_PATH", "./files/planetary_coeff/");
+   AddFileType("PLANETARY_COEFF_PATH", "ROOT_PATH/planetary_coeff/");
    AddFileType("EOP_FILE", "PLANETARY_COEFF_PATH/eopc04.62-now");
    AddFileType("PLANETARY_COEFF_FILE", "PLANETARY_COEFF_PATH/NUT85.DAT");
    AddFileType("NUTATION_COEFF_FILE", "PLANETARY_COEFF_PATH/NUTATION.DAT");
 
-   // time files
-   AddFileType("TIME_PATH", "./files/time/");
+   // time path and files
+   AddFileType("TIME_PATH", "ROOT_PATH/time/");
    AddFileType("LEAP_SECS_FILE", "TIME_PATH/tai-utc.dat");
-
+   AddFileType("LSK_FILE", "TIME_PATH/naif0009.tls");
+   
    // gui config file path
-   AddFileType("GUI_CONFIG_PATH", "./files/gui_config/");
-
+   AddFileType("GUI_CONFIG_PATH", "ROOT_PATH/gui_config/");
+   
    // personalization file
-   AddFileType("PERSONALIZATION_FILE", "./files/gui_config/MyGmat.ini");
+   AddFileType("PERSONALIZATION_FILE", "ROOT_PATH/gui_config/MyGmat.ini");
+   
+   // icon path and main icon file
+   AddFileType("ICON_PATH", "ROOT_PATH/graphics/icons/");
+   
+   #if defined __WXMSW__
+   AddFileType("MAIN_ICON_FILE", "ICON_PATH/GMATWin32.ico");
+   #elif defined __WXGTK__
+   AddFileType("MAIN_ICON_FILE", "ICON_PATH/GMATLinux48.xpm");
+   #elif defined __WXMAC__
+   AddFileType("MAIN_ICON_FILE", "ICON_PATH/GMATIcon.icns");
+   #endif
 
-
+   // splash file path
+   AddFileType("SPLASH_PATH", "ROOT_PATH/graphics/splash/");
+   AddFileType("SPLASH_FILE", "SPLASH_PATH/GMATSplashScreen.tif");
+   
+   // texture file path
+   AddFileType("TEXTURE_PATH", "ROOT_PATH/graphics/texture/");
+   AddFileType("SUN_TEXTURE_FILE", "TEXTURE_PATH/Sun.jpg");
+   AddFileType("MERCURY_TEXTURE_FILE", "TEXTURE_PATH/Mercury_JPLCaltech.jpg");
+   AddFileType("EARTH_TEXTURE_FILE", "TEXTURE_PATH/ModifiedBlueMarble.jpg");
+   AddFileType("MARS_TEXTURE_FILE", "TEXTURE_PATH/Mars_JPLCaltechUSGS.jpg");
+   AddFileType("JUPITER_TEXTURE_FILE", "TEXTURE_PATH/Jupiter_HermesCelestiaMotherlode.jpg");
+   AddFileType("SATRUN_TEXTURE_FILE", "TEXTURE_PATH/Saturn_gradiusCelestiaMotherlode.jpg");
+   AddFileType("URANUS_TEXTURE_FILE", "TEXTURE_PATH/Uranus_JPLCaltech.jpg");
+   AddFileType("NEPTUNE_TEXTURE_FILE", "TEXTURE_PATH/Neptune_BjornJonsson.jpg");
+   AddFileType("PLUTO_TEXTURE_FILE", "TEXTURE_PATH/Pluto_JPLCaltech.jpg");
+   AddFileType("LUNA_TEXTURE_FILE", "TEXTURE_PATH/Moon_HermesCelestiaMotherlode.jpg");
+   
+   // star path and files
+   AddFileType("STAR_PATH", "ROOT_PATH/graphics/stars/");
+   AddFileType("STAR_FILE", "STAR_PATH/inp_StarCatalog.txt");
+   AddFileType("CONSTELLATION_FILE", "STAR_PATH/inp_Constellation.txt");
+   
+   // models
+   AddFileType("MODEL_PATH", "ROOT_PATH/vehicle/models/");
+      
 #endif
 
 }
