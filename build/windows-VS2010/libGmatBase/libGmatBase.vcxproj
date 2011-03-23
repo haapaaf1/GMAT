@@ -48,6 +48,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -72,12 +73,14 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -121,7 +124,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.dll</TargetExt>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\bin64\</OutDir>
+    <OutDir>..\..\..\bin64\debug64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
@@ -156,7 +159,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;__SKIP_MSISE90__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -168,6 +171,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;__SKIP_MSISE90__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -182,7 +186,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\..\Gmat3rdParty\f2c\include;..\..\..\..\Gmat3rdParty\cspice\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -201,9 +205,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\..\Gmat3rdParty\f2c\include;..\..\..\..\Gmat3rdParty\cspice\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\..\Gmat3rdParty\cspice\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;__USE_SPICE__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -211,7 +215,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>..\..\..\bin\$(TargetName)$(TargetExt)</OutputFile>
       <Version>2011a</Version>
-      <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\cspice\lib;..\..\..\..\Gmat3rdParty\f2c\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\cspice\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cspice.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -224,7 +228,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\..\Gmat3rdParty\cspice\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;__SKIP_MSISE90__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -246,7 +250,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;__SKIP_MSISE90__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -261,15 +265,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;__SKIP_MSISE90__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\..\..\src\base\include;..\..\..\..\Gmat3rdParty\cspice64\include;..\..\..\src\base\util;..\..\..\src\base\foundation;..\..\..\src\base\interpolator;..\..\..\src\base\solarsys;..\..\..\src\base\coordsystem;..\..\..\src\base\asset;..\..\..\src\base\attitude;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\burn;..\..\..\src\base\forcemodel;..\..\..\src\base\propagator;..\..\..\src\base\parameter;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\solver;..\..\..\src\base\command;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\interpreter;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\executive;..\..\..\src\base\interface;..\..\..\src\base\subscriber</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DYNAMICLINK;GMAT_EXPORTS;EXP_STL;__USE_SPICE__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <Version>2011a</Version>
+      <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\cspice64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cspice.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">
@@ -578,7 +585,6 @@
     <ClCompile Include="..\..\..\src\base\propagator\SPKPropagator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -684,7 +690,6 @@
     <ClCompile Include="..\..\..\src\base\util\Rvector6.cpp" />
     <ClCompile Include="..\..\..\src\base\util\SpiceAttitudeKernelReader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -692,7 +697,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\base\util\SpiceInterface.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -700,7 +704,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\base\util\SpiceKernelReader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -708,7 +711,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\base\util\SpiceKernelWriter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -716,7 +718,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\base\util\SpiceOrbitKernelReader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -724,7 +725,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\base\util\SpiceOrbitKernelWriter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -1032,7 +1032,6 @@
     <ClInclude Include="..\..\..\src\base\propagator\SPKPropagator.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -1141,7 +1140,6 @@
     <ClInclude Include="..\..\..\src\base\util\Rvector6.hpp" />
     <ClInclude Include="..\..\..\src\base\util\SpiceAttitudeKernelReader.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -1149,7 +1147,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\base\util\SpiceInterface.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -1157,7 +1154,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\base\util\SpiceKernelReader.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -1165,7 +1161,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\base\util\SpiceKernelWriter.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -1173,7 +1168,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\base\util\SpiceOrbitKernelReader.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
@@ -1181,7 +1175,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\base\util\SpiceOrbitKernelWriter.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">true</ExcludedFromBuild>
