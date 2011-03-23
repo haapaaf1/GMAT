@@ -176,7 +176,7 @@ bool DynamicLibrary::LoadDynamicLibrary()
  * @param funName The name of the function.
  *
  * @return The function pointer, or NULL if the function was not located.
- *         A NULL vaaalue should never be found, because the method throws if
+ *         A NULL value should never be found, because the method throws if
  *         the function is not found.
  */
 //------------------------------------------------------------------------------

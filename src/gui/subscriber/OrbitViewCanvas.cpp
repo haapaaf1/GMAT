@@ -306,7 +306,7 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
    // about 2000 meters, model should be drawn as dot.  More discussion to follow!
 //   mEarthRadius = 6378.14f; //km
    // @todo - does this need a pointer to the actual Earth object, to get radius? (mEarthRadius does not
-   // appear to be used, though
+   // appear to be used, though)
    mEarthRadius = (float) GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH]; //km
    mScRadius = 200;        //km: make big enough to see
    
