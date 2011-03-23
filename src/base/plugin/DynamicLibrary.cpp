@@ -138,6 +138,14 @@ bool DynamicLibrary::LoadDynamicLibrary()
 
    #ifdef __WIN32__
       libHandle = LoadLibrary(libName.c_str());
+      #ifdef DEBUG_LIBRARY_LOAD
+         if (libHandle == NULL)
+         {
+            Integer retcode = GetLastError();
+            MessageInterface::ShowMessage("Library load call returned %d\n", retcode);
+            return false;
+         }
+      #endif
    #else
       nameWithPath += UNIX_EXTENSION;
       libHandle = dlopen(nameWithPath.c_str(), RTLD_LAZY);

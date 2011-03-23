@@ -621,11 +621,7 @@
     <ClCompile Include="..\..\..\src\base\solarsys\Star.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\DerivativeModel.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\DifferentialCorrector.cpp" />
-    <ClCompile Include="..\..\..\src\base\solver\ExternalOptimizer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\..\src\base\solver\ExternalOptimizer.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\Gradient.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\InternalOptimizer.cpp" />
     <ClCompile Include="..\..\..\src\base\solver\Jacobian.cpp" />
@@ -1060,11 +1056,7 @@
     <ClInclude Include="..\..\..\src\base\solarsys\Star.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\DerivativeModel.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\DifferentialCorrector.hpp" />
-    <ClInclude Include="..\..\..\src\base\solver\ExternalOptimizer.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="..\..\..\src\base\solver\ExternalOptimizer.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\Gradient.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\InternalOptimizer.hpp" />
     <ClInclude Include="..\..\..\src\base\solver\Jacobian.hpp" />

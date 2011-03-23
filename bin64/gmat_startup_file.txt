@@ -97,9 +97,9 @@ CONSTELLATION_FILE   = STAR_PATH/inp_Constellation.txt
 MEASUREMENT_PATH     = ./measurement/
 #RUN_MODE             = TESTING
 #-----------------------------------------------------------
-#PLUGIN               = libMatlabInterface
-#PLUGIN               = libFminconOptimizer
-#PLUGIN               = libVF13Optimizer
-#PLUGIN               = libDataFile
-#PLUGIN               = libCcsdsEphemerisFile
-#PLUGIN               = libGmatEstimation
+PLUGIN               = libMatlabInterface
+PLUGIN               = libFminconOptimizer
+PLUGIN               = libVF13Optimizer
+PLUGIN               = libDataFile
+PLUGIN               = libCcsdsEphemerisFile
+PLUGIN               = libGmatEstimation

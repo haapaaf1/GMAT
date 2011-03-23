@@ -152,8 +152,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files\MATLAB\R2009b-64bit\extern\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\MATLAB\R2009b-64bit\extern\lib\win64\microsoft;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">
     <TargetExt>.dll</TargetExt>
@@ -277,7 +277,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\bin64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libeng.lib;libmx.lib;libmat.lib;libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
