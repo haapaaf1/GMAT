@@ -138,7 +138,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">
     <TargetExt>.dll</TargetExt>
     <OutDir>..\..\..\bin64\</OutDir>
-    <IncludePath>C:\Program Files\MATLAB\R2009b-64bit\extern\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files\MATLAB\R2009b-64bit\extern\include;C:\Program Files\MATLAB\R2010b\extern\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">
