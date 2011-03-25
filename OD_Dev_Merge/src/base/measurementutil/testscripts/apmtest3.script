@@ -1,0 +1,4 @@
+Create APMCCSDSDataFile APMData
+APMData.FileName = /Users/mwilkins/GMAT/SVN/branches/OD_Dev_Merge/OD_Dev_Merge/src/base/measurementutil/testscripts/APM3.txt;
+APMData.ReadWriteMode = read;
+Save APMData

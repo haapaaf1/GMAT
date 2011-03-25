@@ -1,0 +1,4 @@
+Create B3DataFile B3Data
+B3Data.FileName = /Users/mwilkins/SVN/branches/New_OD_Dev_Merge/src/base/measurementutil/testingscripts/B3.txt;
+B3Data.ReadWriteMode = r;
+Save B3Data

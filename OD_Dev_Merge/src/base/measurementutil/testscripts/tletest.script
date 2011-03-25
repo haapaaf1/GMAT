@@ -1,0 +1,5 @@
+Create TLEDataFile TLEData
+TLEData.FileName = /Users/mwilkins/SVN/branches/New_OD_Dev_Merge/src/base/measurementutil/testingscripts/TLE.txt;
+TLEData.NumLines = 2;
+TLEData.ReadWriteMode = r;
+Save TLEData

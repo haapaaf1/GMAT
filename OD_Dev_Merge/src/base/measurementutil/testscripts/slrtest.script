@@ -1,0 +1,4 @@
+Create SLRDataFile SLRData
+SLRData.FileName = /Users/mwilkins/SVN/branches/New_OD_Dev_Merge/src/base/measurementutil/testingscripts/SLR.txt;
+SLRData.ReadWriteMode = read;
+Save SLRData
