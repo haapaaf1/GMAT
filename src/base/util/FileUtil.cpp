@@ -93,6 +93,9 @@ std::string GmatFileUtil::GetCurrentPath()
    // system libraries to GMAT code base.  The "unused variable" warning
    // here can be safely ignored.
 //   char *ch = getcwd(buffer, GmatFile::MAX_PATH_LEN);
+   // This clears a warning message
+   if (getcwd(buffer, GmatFile::MAX_PATH_LEN) != buffer)
+      ;
    currPath = buffer;
 #else
    MessageInterface::ShowMessage

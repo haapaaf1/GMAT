@@ -54,6 +54,7 @@
 //#define DEBUG_CREATE_PARAM
 //#define DEBUG_CREATE_ARRAY
 //#define DEBUG_CREATE_COMMAND
+//#define DEBUG_CREATE_CALLFUNCTION
 //#define DEBUG_VALIDATE_COMMAND
 //#define DEBUG_WRAPPERS
 //#define DEBUG_MAKE_ASSIGNMENT
@@ -1697,7 +1698,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
             type1 = "CallGmatFunction";
       }
       
-      #ifdef DEBUG_CREATE_COMMAND
+      #ifdef DEBUG_CREATE_CALLFUNCTION
       MessageInterface::ShowMessage
          ("   1 Now creating <%s> command and setting GenString to <%s>\n",
           type1.c_str(), std::string(type1 + " " + desc).c_str());
@@ -1716,7 +1717,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
    {
       StringArray parts = theTextParser.SeparateSpaces(desc1);
       
-      #ifdef DEBUG_CREATE_COMMAND
+      #ifdef DEBUG_CREATE_CALLFUNCTION
       WriteStringArray("Calling IsObjectType()", "", parts);
       #endif
       
@@ -1745,7 +1746,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
                type1 = "CallGmatFunction";
          }
          
-         #ifdef DEBUG_CREATE_COMMAND
+         #ifdef DEBUG_CREATE_CALLFUNCTION
          MessageInterface::ShowMessage
             ("   2 Now creating <%s> command and setting GenString to <%s>\n",
              type1.c_str(), std::string(type1 + " " + desc).c_str());
@@ -1762,16 +1763,21 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
       {
          std::string funcName = GmatStringUtil::ParseFunctionName(desc);
          
-         #ifdef DEBUG_CREATE_COMMAND
-         MessageInterface::ShowMessage("   funcName='%s'\n", funcName.c_str());
+         #ifdef DEBUG_CREATE_CALLFUNCTION
+         MessageInterface::ShowMessage("   funcName = '%s'\n", funcName.c_str());
          #endif
          
          if (funcName != "")
          {
-            GmatBase *func = FindObject(funcName);
+            GmatBase *funcPtr = FindObject(funcName);
             
-            #ifdef DEBUG_CREATE_COMMAND
-            MessageInterface::ShowMessage("   funcPtr=<%p>\n", func);
+            #ifdef DEBUG_CREATE_CALLFUNCTION
+            MessageInterface::ShowMessage("   funcPtr=<%p>\n", funcPtr);
+            MessageInterface::ShowMessage
+               ("   matlabFunctionNames.size()=%d\n", matlabFunctionNames.size());
+            for (UnsignedInt ii = 0; ii < matlabFunctionNames.size(); ii++)
+               MessageInterface::ShowMessage
+                  ("      '%s'\n", matlabFunctionNames[ii].c_str());
             #endif
             
             // If function name found in matlabFunctionNames, create
@@ -1783,7 +1789,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
             }
             else
             {
-               if (func != NULL && func->IsOfType("MatlabFunction"))
+               if (funcPtr != NULL && funcPtr->IsOfType("MatlabFunction"))
                   type1 = "CallMatlabFunction";
                else
                   type1 = "CallGmatFunction";
@@ -1791,7 +1797,8 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
          }
       }
       
-      #ifdef DEBUG_CREATE_COMMAND
+      #if defined (DEBUG_CREATE_COMMAND) || defined (DEBUG_CREATE_CALLFUNCTION)
+      
       MessageInterface::ShowMessage
          ("   3 Now creating <%s> command and setting GenString to <%s>\n",
           type1.c_str(), std::string(type1 + " " + desc).c_str());
@@ -1803,9 +1810,9 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
          StringArray parts = GmatStringUtil::SeparateBy(desc, " ");
          if (parts.size() == 2)
          {
-            #ifdef DEBUG_CREATE_COMMAND
+            #ifdef DEBUG_CREATE_CALLFUNCTION
             MessageInterface::ShowMessage
-               ("   Adding '%s' to matlabFunctionNames\n", parts[2].c_str());
+               ("   Adding '%s' to matlabFunctionNames\n", parts[1].c_str());
             #endif
             matlabFunctionNames.push_back(parts[1]);
          }
@@ -1968,7 +1975,6 @@ bool Interpreter::AssembleCommand(GmatCommand *cmd, const std::string &desc)
    if (cmd->IsOfType("For"))
       retval = AssembleForCommand(cmd, desc);
    else if (cmd->IsOfType("CallFunction"))
-   //else if (cmd->IsOfType("CallGmatFunction") || cmd->IsOfType("CallMatlabFunction"))
       retval = AssembleCallFunctionCommand(cmd, desc);
    else if (cmd->IsOfType("ConditionalBranch"))
       retval = AssembleConditionalCommand(cmd, desc);
@@ -3046,7 +3052,13 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    if (objTypeStrToUse == "MatlabFunction")
    {
       for (UnsignedInt i=0; i<objNames.size(); i++)
+      {
+         #ifdef DEBUG_ASSEMBLE_CREATE
+         MessageInterface::ShowMessage
+            ("   Adding '%s' to tempObjectNames\n", objNames[i].c_str());
+         #endif
          tempObjectNames.push_back(objNames[i]);
+      }
       
       #ifdef DEBUG_ASSEMBLE_CREATE
       MessageInterface::ShowMessage
@@ -8075,7 +8087,7 @@ bool Interpreter::CheckFunctionDefinition(const std::string &funcPath,
       
       #if DBGLVL_FUNCTION_DEF > 0
       MessageInterface::ShowMessage
-         ("   fileFuncName=<%s>, funcName=<%s>\n\n", fileFuncName.c_str(), funcName.c_str());
+         ("   fileFuncName = %s', funcName = '%s'\n\n", fileFuncName.c_str(), funcName.c_str());
       #endif
       
       if (fileFuncName != funcName)

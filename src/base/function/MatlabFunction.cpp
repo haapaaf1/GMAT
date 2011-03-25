@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  MatlabFunction
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -23,7 +23,7 @@
 #include "StringUtil.hpp"        // for Trim()
 #include "MessageInterface.hpp"
 
-//#defin DEBUG_MATLAB_FUNCTION
+//#define DEBUG_MATLAB_FUNCTION
 
 
 //------------------------------------------------------------------------------

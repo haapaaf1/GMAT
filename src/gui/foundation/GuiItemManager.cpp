@@ -54,6 +54,8 @@
 //#define DBGLVL_GUI_ITEM_PROP 2
 //#define DBGLVL_GUI_ITEM_FM 2
 //#define DBGLVL_GUI_ITEM_ALL_OBJECT 2
+//#define DEBUG_LOAD_ICON
+
 
 //------------------------------
 // static data
@@ -148,7 +150,7 @@ void GuiItemManager::LoadIcon(const wxString &filename, long bitmapType,
    }
    
    #ifdef DEBUG_LOAD_ICON
-   MessageInterface::ShowMessage("GuiItemManager::LoadIcon() leavint\n");
+   MessageInterface::ShowMessage("GuiItemManager::LoadIcon() leaving\n");
    #endif
 }
 

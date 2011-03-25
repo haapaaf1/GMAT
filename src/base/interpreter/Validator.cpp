@@ -1638,7 +1638,7 @@ GmatBase* Validator::FindObject(const std::string &name, const std::string &ofTy
 {
    #ifdef DEBUG_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("Validator::FindObject() entered: name=<%s>, type=<%s>\n",
+      ("Validator::FindObject() entered: name = '%s', ofType = '%s'\n",
        name.c_str(), ofType.c_str());
    #endif
    
@@ -2927,8 +2927,9 @@ void Validator::ShowObjectMap(const std::string &label)
            i != theObjectMap->end(); ++i)
       {
          MessageInterface::ShowMessage
-            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
-             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+            ("   %30s  <%p><%s>'%s'\n", i->first.c_str(), i->second,
+             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str(),
+             i->second == NULL ? "NULL" : (i->second)->GetName().c_str());
       }
    }
    else

@@ -109,10 +109,7 @@ void GuiMessageReceiver::ClearMessage()
 {
    GmatAppData *appData = GmatAppData::Instance();
    if (appData->GetMessageTextCtrl() != NULL)
-   {
-      ShowMessage("==> GuiMessageReceiver::ClearMessage() clearing message window\n");
       appData->GetMessageTextCtrl()->Clear();
-   }
 }
 
 

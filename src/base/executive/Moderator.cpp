@@ -152,7 +152,8 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
    
    try
    {
-      MessageInterface::ShowMessage("Moderator is reading startup file...\n");
+      // We don't want to write before startup file is read so commented out
+      //MessageInterface::ShowMessage("Moderator is reading startup file...\n");
       
       // Read startup file, Set Log file
       theFileManager = FileManager::Instance();
