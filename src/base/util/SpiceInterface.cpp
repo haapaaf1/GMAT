@@ -26,6 +26,7 @@
 #include "TimeTypes.hpp"
 #include "TimeSystemConverter.hpp"
 #include "UtilityException.hpp"
+#include "FileManager.hpp"
 
 //#define DEBUG_SPK_LOADING
 //#define DEBUG_SPK_READING
@@ -572,9 +573,25 @@ void SpiceInterface::InitializeInterface()
    if (numInstances == 0)
    {
       loadedKernels.clear();
-      // set output file and action for cspice methods
-      errdev_c("SET", 1840, "./GMATSpiceKernelError.txt"); // @todo this should be set in startup file
-      erract_c("SET", 1840, "RETURN");
+      // Get path for output
+      FileManager *fm = FileManager::Instance();
+      std::string outPath = fm->GetAbsPathname(FileManager::OUTPUT_PATH) + "GMATSpiceKernelError.txt";
+      // need to get rid of const-ness to convert to SpiceChar*
+      char *pathChar;
+      pathChar = new char[outPath.length() + 1];
+      strcpy(pathChar, outPath.c_str());
+
+      // set output file for cspice methods
+      SpiceChar      *spiceErrorFileFullPath = pathChar;
+      errdev_c("SET", 1840, spiceErrorFileFullPath);
+
+      // set actions for cspice error writing
+      char  report[4] = "ALL";
+      char  action[7] = "RETURN";
+      errprt_c("SET", 1840, report);
+      erract_c("SET", 1840, action);
+
+      delete pathChar;
    }
 }
 
