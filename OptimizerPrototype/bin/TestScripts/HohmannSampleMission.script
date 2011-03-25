@@ -1,0 +1,186 @@
+%  Script Mission - Hohmann Transfer Example
+%
+%  This script demonstrates how to target a Hohmann Transfer
+%
+%  REVSION HISTORY
+%  $Id: Ex_TargetHohmannTransfer.script,v 1.4 2007/11/20 22:37:15 edove Exp $
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft sat;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Epoch = 21545;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.X = 7100;
+GMAT sat.Y = 0;
+GMAT sat.Z = 1300;
+GMAT sat.VX = 0;
+GMAT sat.VY = 7.3499999999999996;
+GMAT sat.VZ = 1;
+GMAT sat.DryMass = 850;
+GMAT sat.Cd = 2.2;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+
+%----------------------------------------
+%---------- ForceModels and Propagators
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PointMasses = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 120;
+GMAT DefaultProp.Accuracy = 9.9999999999999994e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn TOI;
+GMAT TOI.Origin = Earth;
+GMAT TOI.Axes = VNB;
+GMAT TOI.VectorFormat = Cartesian;
+GMAT TOI.Element1 = 0.0001;
+GMAT TOI.Element2 = 0;
+GMAT TOI.Element3 = 0;
+
+
+Create ImpulsiveBurn GOI;
+GMAT GOI.Origin = Earth;
+GMAT GOI.Axes = VNB;
+GMAT GOI.VectorFormat = Cartesian;
+GMAT GOI.Element1 = 0;
+GMAT GOI.Element2 = 0;
+GMAT GOI.Element3 = 0;
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DC;
+GMAT DC.ShowProgress = true;
+GMAT DC.ReportStyle = Normal;
+GMAT DC.TargeterTextFile = targeter_DefaultDC.data;
+GMAT DC.MaximumIterations = 25;
+GMAT DC.UseCentralDifferences = false;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+GMAT EarthMJ2000Eq.Epoch = 21545;
+
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+GMAT EarthMJ2000Ec.Epoch = 21545;
+
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+GMAT EarthFixed.Epoch = 21545;
+
+%----------------------------------------
+%---------- Plots/Reports
+%----------------------------------------
+
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.Add = {Earth, Luna, Sun, sat};
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 10;
+GMAT OpenGLPlot1.FixedFovAngle = 45;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = X;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.SolverIterations = All;
+GMAT OpenGLPlot1.Axes = Off;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.PerspectiveMode = Off;
+GMAT OpenGLPlot1.UseFixedFov = Off;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create ReportFile Data;
+GMAT Data.Filename = ./output/SampleMissions/Ex_TargetHohmannTransfer.report;
+GMAT Data.Precision = 16;
+GMAT Data.WriteHeaders = On;
+GMAT Data.ColumnWidth = 20;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+% Propagate orbit for specified duration
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
+GMAT Data.WriteHeaders = Off;
+Propagate DefaultProp(sat, {sat.ElapsedSecs = 86400});
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
+
+% Propagate orbit to the next Periapsis point
+Propagate DefaultProp(sat, {sat.Periapsis});
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
+
+% Burn in the velocity direction to reach an alternate Apoapsis point
+Target DC {SolveMode = Solve};
+   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Apoapsis});
+   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
+
+% Propagate orbit to the next Periapsis point
+Propagate DefaultProp(sat, {sat.Periapsis});
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
+
+% Propagate orbit to the next Apoapsis point
+Propagate DefaultProp(sat, {sat.Apoapsis});
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
+
+% Burn in the velocity direction to reach an alternate Periapsis point
+Target DC {SolveMode = RunInitialGuess};
+   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat, {sat.Periapsis});
+   Achieve DC(sat.Earth.SMA = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
+
+% Propagate orbit for specified duration
+Propagate DefaultProp(sat, {sat.ElapsedSecs = 86400}); 
+Report Data sat.A1ModJulian sat.X sat.Y sat.Z sat.VX sat.VY sat.VZ;
