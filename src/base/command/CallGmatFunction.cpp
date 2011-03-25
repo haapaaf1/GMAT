@@ -174,6 +174,15 @@ bool CallGmatFunction::Execute()
       #endif
       status = fm.Execute(callingFunction);
    }
+   else
+   {
+      // The function is not GmatFunction so throw an exception
+      throw CommandException
+         ("*** INTERNAL ERROR *** in CallGmatFunction. " +
+          GetGeneratingString(Gmat::NO_COMMENTS) + " cannot be executed, "
+          "the function type should be GmatFunction, but it is " +
+          mFunction->GetTypeName() + ".\n");
+   }
    
    #ifdef DEBUG_CALL_FUNCTION_EXEC
    MessageInterface::ShowMessage
