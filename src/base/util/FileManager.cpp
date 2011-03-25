@@ -1795,10 +1795,11 @@ void FileManager::WriteHeader(std::ofstream &outStream)
    outStream << "# the multiple paths you specify and scan for GMAT Functions using the paths \n";
    outStream << "# in top to bottom order and use the first function found from the search paths.\n";
    outStream << "#\n";
-   outStream << "# In order for an object plugin to work inside GMAT, the plugin dll must be placed \n";
-   outStream << "# in the folder containing the GMAT executable. Once placed in the correct folder \n";
-   outStream << "# the PLUGIN line below must be set equal to the plugin name without the dll \n";
-   outStream << "# extension with the comment (#) removed from the front of the line.\n";
+   outStream << "# In order for an object plugin to work inside GMAT, the plugin dynamic link libraries; \n";
+   outStream << "# Windows(.dll), Linux(.so) and Mac(.dylib), must be placed in the folder containing\n";
+   outStream << "# the GMAT executable or application. Once placed in the correct folder \n";
+   outStream << "# the PLUGIN line below must be set equal to the plugin name without the dynamic link \n";
+   outStream << "# library extension with the comment (#) removed from the front of the line.\n";
    outStream << "#\n";
    outStream << "# Availabe PLUGINs are:\n";
    outStream << "# PLUGIN = libMatlabInterface\n";
