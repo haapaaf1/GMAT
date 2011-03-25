@@ -30,7 +30,7 @@
 
 //#define DEBUG_PLANET 1
 //#define DEBUG_PLANET_TWO_BODY
-#define DEBUG_PLANET_NUTATION_INTERVAL
+//#define DEBUG_PLANET_NUTATION_INTERVAL
 
 using namespace GmatMathUtil;
 
