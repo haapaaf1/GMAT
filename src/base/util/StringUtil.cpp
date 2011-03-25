@@ -3051,7 +3051,7 @@ std::string GmatStringUtil::ParseFunctionName(const std::string &str)
       std::string::size_type index1 = str1.find("=");
       std::string::size_type index2 = str1.find("(", index1 + 1);
       if (index2 == str1.npos)
-         funcName = str1.substr(index1);
+         funcName = str1.substr(index1+1);
       else
          funcName = str1.substr(index1+1, index2-index1-1);
    }
