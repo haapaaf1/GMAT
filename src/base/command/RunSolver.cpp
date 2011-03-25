@@ -119,3 +119,29 @@ bool RunSolver::Initialize()
 
    return retval;
 }
+
+//------------------------------------------------------------------------------
+//  bool RenameRefObject(const Gmat::ObjectType type,
+//                       const std::string &oldName, const std::string &newName)
+//------------------------------------------------------------------------------
+/**
+ * Renames referenced objects.
+ *
+ * @param type Type of the object that is renamed.
+ * @param oldName The current name for the object.
+ * @param newName The name the object has when this operation is complete.
+ *
+ * @return true on success.
+ *
+ * @note This is here to catch calls from child RunSImulator/Estimator classes.
+ * There are no other objects to rename at this level.
+ */
+//------------------------------------------------------------------------------
+bool RunSolver::RenameRefObject(const Gmat::ObjectType type,
+                                  const std::string &oldName,
+                                  const std::string &newName)
+{
+   return true;
+}
+
+
