@@ -1395,7 +1395,8 @@ void EphemerisFile::CreateSpiceKernelWriter()
       spkWriter = NULL;
    }
    
-   std::string name = instanceName;
+//   std::string name = instanceName;
+   std::string name = spacecraft->GetName();
    std::string centerName = spacecraft->GetOriginName();
    Integer objNAIFId = spacecraft->GetIntegerParameter("NAIFId");
    Integer centerNAIFId = (spacecraft->GetOrigin())->GetIntegerParameter("NAIFId");
