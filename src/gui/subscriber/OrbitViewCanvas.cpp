@@ -36,6 +36,7 @@
 #include "AngleUtil.hpp"           // for ComputeAngleInDeg()
 #include "CelestialBody.hpp"
 #include "MdiGlPlotData.hpp"
+#include "FileUtil.hpp"            // for GmatFileUtil::DoesFileExist()
 #include "MessageInterface.hpp"
 #include "SubscriberException.hpp"
 #include "TimeSystemConverter.hpp" // for ConvertMjdToGregorian()
@@ -196,9 +197,7 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
                                  const wxString& name, long style)
    : ViewCanvas(parent, id, pos, size, name, style)
 {
-   #ifndef __USE_WX280_GL__
-      modelsAreLoaded = false;
-   #endif
+   modelsAreLoaded = false;
    mGlInitialized = false;
    mViewPointInitialized = false;
    mOpenGLInitialized = false;
@@ -675,10 +674,7 @@ void OrbitViewCanvas::ResetPlotInfo()
    mWriteWarning = true;
    mInFunction = false;
    mWriteRepaintDisalbedInfo = true;
-   
-#ifndef __USE_WX280_GL__
    modelsAreLoaded = false;
-#endif
 
    // Initialize view
    if (mUseInitialViewPoint)
@@ -4817,21 +4813,29 @@ void OrbitViewCanvas
          if (mOpenGLInitialized)
          {
             ModelManager *mm = ModelManager::Instance();
-            #ifdef __USE_WX280_GL__
+            if (!modelsAreLoaded)
+            {
                if (spac->modelFile != "" && spac->modelID == -1)
                {
                   wxString modelPath(spac->modelFile.c_str());
-                  spac->modelID = mm->LoadModel(modelPath);
+                  if (GmatFileUtil::DoesFileExist(modelPath.c_str()))
+                  {
+                     spac->modelID = mm->LoadModel(modelPath);
+                     #ifdef DEBUG_MODEL
+                     MessageInterface::ShowMessage
+                        ("UpdateSpacecraftData() loaded model '%s'\n", modelPath.c_str());
+                     #endif
+                  }
+                  else
+                  {
+                     MessageInterface::ShowMessage
+                        ("*** WARNING *** Cannot load the model file for spacecraft '%s'. "
+                         "The file '%s' does not exist.\n", spac->GetName().c_str(),
+                         modelPath.c_str());
+                  }
                }
-            #else
-               if (!modelsAreLoaded)
-               {
-                  MessageInterface::ShowMessage("");
-                  wxString modelPath(spac->modelFile.c_str());
-                  spac->modelID = mm->LoadModel(modelPath);
-                  modelsAreLoaded = true;
-               }
-            #endif
+               modelsAreLoaded = true;
+            }
          }
          
          if (!mDrawOrbitArray[satId])

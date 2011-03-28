@@ -204,9 +204,7 @@ private:
    bool mGlInitialized;
    bool mViewPointInitialized;
    bool mOpenGLInitialized;
-   #ifndef __USE_WX280_GL__
-      bool modelsAreLoaded;
-   #endif
+   bool modelsAreLoaded;
    wxString mPlotName;
    
    // camera
