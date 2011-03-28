@@ -98,6 +98,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "MAIN_ICON_FILE",
    "STAR_FILE",
    "CONSTELLATION_FILE",
+   "SPACECRAFT_MODEL_FILE",
 };
 
 FileManager* FileManager::theInstance = NULL;
@@ -550,6 +551,11 @@ void FileManager::WriteStartupFile(const std::string &fileName)
       outStream << std::setw(22) << "RUN_MODE" << " = " << mRunMode << "\n";
    }
    
+   // Write other option as comments
+   outStream << std::setw(22) << "#RUN_MODE" << " = TESTING\n";
+   outStream << std::setw(22) << "#RUN_MODE" << " = TESTING_NO_PLOTS\n";
+   outStream << std::setw(22) << "#RUN_MODE" << " = EXIT_AFTER_RUN\n";
+   
    //---------------------------------------------
    // write MATLAB_MODE if not blank
    //---------------------------------------------
@@ -560,6 +566,11 @@ void FileManager::WriteStartupFile(const std::string &fileName)
       #endif
       outStream << std::setw(22) << "MATLAB_MODE" << " = " << mMatlabMode << "\n";
    }
+   
+   // Write other option as comments
+   outStream << std::setw(22) << "#MATLAB_MODE" << " = SINGLE\n";
+   outStream << std::setw(22) << "#MATLAB_MODE" << " = SHARED\n";
+   outStream << std::setw(22) << "#MATLAB_MODE" << " = NO_MATLAB\n";
    
    //---------------------------------------------
    // write DEBUG_MATLAB if not blank
@@ -704,7 +715,7 @@ void FileManager::WriteStartupFile(const std::string &fileName)
              << mPathMap["SPK_PATH"] << "\n";
    WriteFiles(outStream, "SPK");
    outStream << "#-----------------------------------------------------------\n";
-
+   
    //---------------------------------------------
    // write the DE_PATH and DE file next
    //---------------------------------------------
@@ -713,9 +724,9 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    #endif
    outStream << std::setw(22) << "DE_PATH" << " = "
              << mPathMap["DE_PATH"] << "\n";
-   WriteFiles(outStream, "DE");
+   WriteFiles(outStream, "DE405");
    outStream << "#-----------------------------------------------------------\n";
-      
+   
    //---------------------------------------------
    // write the PLANETARY_COEFF_PATH and files next
    //---------------------------------------------
@@ -819,6 +830,17 @@ void FileManager::WriteStartupFile(const std::string &fileName)
              << mPathMap["STAR_PATH"] << "\n";
    WriteFiles(outStream, "STAR_FILE");
    WriteFiles(outStream, "CONSTELLATION_FILE");
+   outStream << "#-----------------------------------------------------------\n";
+
+   //---------------------------------------------
+   // write the MODEL_PATH and files next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing MODEL_PATH path\n");
+   #endif
+   outStream << std::setw(22) << "MODEL_PATH" << " = "
+             << mPathMap["MODEL_PATH"] << "\n";
+   WriteFiles(outStream, "SPACECRAFT_MODEL_FILE");
    outStream << "#-----------------------------------------------------------\n";
 
    //---------------------------------------------
@@ -1998,7 +2020,8 @@ void FileManager::RefreshFiles()
    
    // models
    AddFileType("MODEL_PATH", "ROOT_PATH/vehicle/models/");
-      
+   AddFileType("SPACECRAFT_MODEL_FILE", "MODEL_PATH/aura.3ds");
+   
 #endif
 
 }

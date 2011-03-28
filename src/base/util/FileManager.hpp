@@ -84,6 +84,7 @@ public:
       MAIN_ICON_FILE,
       STAR_FILE,
       CONSTELLATION_FILE,
+      SPACECRAFT_MODEL_FILE,
       FileTypeCount,
    };
    
