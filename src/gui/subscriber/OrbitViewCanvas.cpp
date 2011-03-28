@@ -4834,14 +4834,19 @@ void OrbitViewCanvas
                          modelPath.c_str());
                   }
                }
-               modelsAreLoaded = true;
+               
+               // Set modelsAreLoaded to true if it went through all models
+               if (sc == mScCount-1)
+                  modelsAreLoaded = true;
             }
          }
          
          if (!mDrawOrbitArray[satId])
          {
             mDrawOrbitFlag[colorIndex] = false;
+            #ifdef DEBUG_UPDATE
             MessageInterface::ShowMessage("===> mDrawOrbitArray[satId] is NULL\n");
+            #endif
             continue;
          }
          
