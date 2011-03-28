@@ -30,6 +30,7 @@
 #include "StringUtil.hpp"
 #include "TimeTypes.hpp"
 #include "CSFixed.hpp"               // for default attitude creation
+#include "FileManager.hpp"           // for GetFullPathname()
 #ifdef __USE_SPICE__
 #include "SpiceAttitude.hpp"         // for SpiceAttitude - to set object name and ID
 #endif
@@ -178,14 +179,14 @@ Spacecraft::PARAMETER_LABEL[SpacecraftParamCount - SpaceObjectParamCount] =
       "CartesianVZ",
       "MassFlow",
       "AddHardware",                            // made changes by Tuan Nguyen
-          "ModelFile",
-          "ModelOffsetX",
-          "ModelOffsetY",
-          "ModelOffsetZ",
-          "ModelRotationX",
-          "ModelRotationY",
-          "ModelRotationZ",
-          "ModelScale",
+      "ModelFile",
+      "ModelOffsetX",
+      "ModelOffsetY",
+      "ModelOffsetZ",
+      "ModelRotationX",
+      "ModelRotationY",
+      "ModelRotationZ",
+      "ModelScale",
 };
 
 const std::string Spacecraft::MULT_REP_STRINGS[EndMultipleReps - CART_X] =
@@ -363,15 +364,15 @@ Spacecraft::Spacecraft(const std::string &name, const std::string &typeStr) :
    // Initialize the covariance matrix
    covariance.AddCovarianceElement("CartesianState", this);
    covariance.ConstructLHS();
-
+   
    covariance(0,0) = covariance(1,1) = covariance(2,2) = 1.0e10;
    covariance(3,3) = covariance(4,4) = covariance(5,5) = 1.0e6;
-
+   
+   // Load default model file
+   modelFile = FileManager::Instance()->GetFullPathname("SPACECRAFT_MODEL_FILE");
+   modelScale = 3.0;
    modelID = NO_MODEL;
    
-   // Set some negative value to naifId
-//   naifId = -123456789;   // wcs 2010.01.22 set at SpacePoint level
-
    #ifdef DEBUG_SPACECRAFT
    MessageInterface::ShowMessage
       ("Spacecraft::Spacecraft() <%p>'%s' exiting\n", this, name.c_str());
