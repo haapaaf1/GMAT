@@ -36,6 +36,9 @@
 //---------------------------------
 // static data
 //---------------------------------
+const Integer SpiceInterface::DEFAULT_NAIF_ID           = -123456789;
+const Integer SpiceInterface::DEFAULT_NAIF_ID_REF_FRAME = -123456789;
+
 const std::string
 SpiceInterface::VALID_ABERRATION_FLAGS[9] =
 {
@@ -75,10 +78,10 @@ SpiceInterface::VALID_FRAMES[12] =
    "NONE",   // TBD
 };
 
-const Integer SpiceInterface::MAX_SHORT_MESSAGE   = 320;
-const Integer SpiceInterface::MAX_EXPLAIN_MESSAGE = 320;
-const Integer SpiceInterface::MAX_LONG_MESSAGE    = MAX_LONG_MESSAGE_VALUE;
-const Integer SpiceInterface::MAX_CHAR_COMMENT    = 4000;
+const Integer SpiceInterface::MAX_SHORT_MESSAGE         = 320;
+const Integer SpiceInterface::MAX_EXPLAIN_MESSAGE       = 320;
+const Integer SpiceInterface::MAX_LONG_MESSAGE          = MAX_LONG_MESSAGE_VALUE;
+const Integer SpiceInterface::MAX_CHAR_COMMENT          = 4000;
 
 /// array of files (kernels) currently loaded
 StringArray    SpiceInterface::loadedKernels;
