@@ -218,6 +218,11 @@ void SpacecraftPanel::LoadData()
    // explicitly disable apply button
    // it is turned on in each of the panels
    EnableUpdate(false);
+   #ifdef __WXMAC__
+      // this is needed for the Mac, as the VisualModelCanvas was messing up the other tabs
+      theVisualModelPanel->CanvasOn(false);
+      theVisualModelPanel->CanvasOn(true);
+   #endif
 }
 
 
