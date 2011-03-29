@@ -1,0 +1,349 @@
+% Script Test Case for Simulation using a USNTrackingSystem
+
+GMAT Earth.NutationUpdateInterval = 0;
+
+%--------------------------------------------
+%---------- Spacecraft
+%--------------------------------------------
+Create Spacecraft ODSat;
+GMAT ODSat.DateFormat = UTCGregorian;
+GMAT ODSat.Epoch = '01 Mar 2005 00:00:00.000';
+GMAT ODSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT ODSat.DisplayStateType = Cartesian;
+GMAT ODSat.X = 6648.937;
+%GMAT ODSat.X = 6648.9371;
+GMAT ODSat.Y = -335.169;
+%GMAT ODSat.Y = -335.1689;
+GMAT ODSat.Z = 2789.137;
+%GMAT ODSat.Z = 2789.1371;
+GMAT ODSat.VX = -0.34697109;
+%GMAT ODSat.VX = -0.34697009;
+GMAT ODSat.VY = 7.092177415;
+%GMAT ODSat.VY = 7.092178415;
+GMAT ODSat.VZ = 2.14549075;
+%GMAT ODSat.VZ = 2.14549175;
+GMAT ODSat.DryMass = 850;
+GMAT ODSat.Cd = 2.2;
+GMAT ODSat.Cr = 1.8;
+GMAT ODSat.DragArea = 15;
+GMAT ODSat.SRPArea = 1;
+GMAT ODSat.NAIFId = -123456789;
+GMAT ODSat.NAIFIdReferenceFrame = -123456789;
+GMAT ODSat.Id = 'ODSat01';
+GMAT ODSat.Attitude = CoordinateSystemFixed;
+GMAT ODSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT ODSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT ODSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT ODSat.Q1 = 0;
+GMAT ODSat.Q2 = 0;
+GMAT ODSat.Q3 = 0;
+GMAT ODSat.Q4 = 1;
+GMAT ODSat.EulerAngleSequence = '312';
+GMAT ODSat.AngularVelocityX = 0;
+GMAT ODSat.AngularVelocityY = 0;
+GMAT ODSat.AngularVelocityZ = 0;
+
+%--------------------------------------------
+%---------- Spacecraft
+%--------------------------------------------
+
+Create Spacecraft InitSat;
+GMAT InitSat.DateFormat = TAIModJulian;
+GMAT InitSat.Epoch = '21545.000000000';
+GMAT InitSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT InitSat.DisplayStateType = Cartesian;
+GMAT InitSat.X = 7100;
+GMAT InitSat.Y = 0;
+GMAT InitSat.Z = 1300;
+GMAT InitSat.VX = 0;
+GMAT InitSat.VY = 7.35;
+GMAT InitSat.VZ = 1;
+GMAT InitSat.DryMass = 850;
+GMAT InitSat.Cd = 2.2;
+GMAT InitSat.Cr = 1.8;
+GMAT InitSat.DragArea = 15;
+GMAT InitSat.SRPArea = 1;
+GMAT InitSat.NAIFId = -123456789;
+GMAT InitSat.NAIFIdReferenceFrame = -123456789;
+GMAT InitSat.Id = 'SatId';
+GMAT InitSat.Attitude = CoordinateSystemFixed;
+GMAT InitSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT InitSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT InitSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT InitSat.Q1 = 0;
+GMAT InitSat.Q2 = 0;
+GMAT InitSat.Q3 = 0;
+GMAT InitSat.Q4 = 1;
+GMAT InitSat.EulerAngleSequence = '312';
+GMAT InitSat.AngularVelocityX = 0;
+GMAT InitSat.AngularVelocityY = 0;
+GMAT InitSat.AngularVelocityZ = 0;
+
+Create Spacecraft topoSat;
+GMAT topoSat.DateFormat = A1ModJulian;
+GMAT topoSat.Epoch = '21545.00000039794';
+GMAT topoSat.CoordinateSystem = EarthFixed;
+GMAT topoSat.DisplayStateType = Cartesian;
+GMAT topoSat.X = -4450.799999979195;
+GMAT topoSat.Y = 2676.099999987489;
+GMAT topoSat.Z = -3691.379999982627;
+GMAT topoSat.VX = 1.665334536937735e-16;
+GMAT topoSat.VY = 7.349999999999998;
+GMAT topoSat.VZ = 0.9999999999999993;
+GMAT topoSat.DryMass = 850;
+GMAT topoSat.Cd = 2.2;
+GMAT topoSat.Cr = 1.8;
+GMAT topoSat.DragArea = 15;
+GMAT topoSat.SRPArea = 1;
+GMAT topoSat.NAIFId = -123456789;
+GMAT topoSat.NAIFIdReferenceFrame = -123456789;
+GMAT topoSat.Id = 'SatId';
+GMAT topoSat.Attitude = CoordinateSystemFixed;
+GMAT topoSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT topoSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT topoSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT topoSat.Q1 = 0;
+GMAT topoSat.Q2 = 0;
+GMAT topoSat.Q3 = 0;
+GMAT topoSat.Q4 = 1;
+GMAT topoSat.EulerAngleSequence = '312';
+GMAT topoSat.AngularVelocityX = 0;
+GMAT topoSat.AngularVelocityY = 0;
+GMAT topoSat.AngularVelocityZ = 0;
+
+%topoSat.X = -4450.799344917074;
+%topoSat.Y = 2676.102606173266;
+%topoSat.Z = -3691.380276426538;
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+%Create GroundStation Maui;
+%Maui.CentralBody = Earth;
+%Maui.StateType = Cartesian;
+%Maui.HorizonReference = Sphere;
+%Maui.X = -4450.8;
+%Maui.Y = 2676.1;
+%Maui.Z = -3691.38;
+%Maui.Id = 'Maui';
+
+Create GroundStation Maui;
+GMAT Maui.CentralBody = Earth;
+GMAT Maui.StateType = Spherical;
+GMAT Maui.HorizonReference = Ellipsoid;
+GMAT Maui.Latitude = -35.586612725;
+GMAT Maui.Longitude = 148.983076735;
+GMAT Maui.Altitude = 0.6750119999999999;
+GMAT Maui.Id = 'Maui';
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+Create ForceModel ODProp_ForceModel;
+GMAT ODProp_ForceModel.CentralBody = Earth;
+%ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
+GMAT ODProp_ForceModel.PointMasses = {Earth};
+GMAT ODProp_ForceModel.Drag = None;
+GMAT ODProp_ForceModel.SRP = Off;
+GMAT ODProp_ForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+Create Propagator ODProp;
+GMAT ODProp.FM = ODProp_ForceModel;
+GMAT ODProp.Type = RungeKutta89;
+GMAT ODProp.InitialStepSize = 60;
+GMAT ODProp.Accuracy = 1e-13;
+GMAT ODProp.MinStep = 0;
+GMAT ODProp.MaxStep = 2700;
+GMAT ODProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Variables, Arrays, Strings
+%----------------------------------------
+
+Create Variable measEpochA1 stationX stationY stationZ diff tau speedOfLight timediff oldtau oldRange;
+Create Variable propEpoch range downLinkRange transponderDelay upLinkRange twoWayRange pert;
+Create String solveFor newIteration theSolution DownLinkSolution StartData;
+GMAT solveFor =     '------- SolveFor state -------';
+GMAT newIteration = '------- new Iteration --------';
+GMAT theSolution = '======== The Solution ========';
+GMAT DownLinkSolution = '+++++ Downlink Solution ++++++';
+GMAT StartData = '------- Initial Data  --------';
+
+%----------------------------------------
+%---------- Datafiles
+%----------------------------------------
+Create DataFile MauiMeasData;
+GMAT MauiMeasData.Filename = 'LEO_USNTwoWayRange.gmd';
+GMAT MauiMeasData.Format = GMATInternal;
+
+%----------------------------------------
+%---------- MeasurementModels
+%----------------------------------------
+Create MeasurementModel RangeMeasurement;
+GMAT RangeMeasurement.ObservationData = {MauiMeasData};
+GMAT RangeMeasurement.Type = USNTwoWayRange;
+GMAT RangeMeasurement.Participants = {Maui, ODSat};
+GMAT RangeMeasurement.Bias = [ 0 ];
+GMAT RangeMeasurement.NoiseSigma = [ 1e-05 ];
+GMAT RangeMeasurement.TimeConstant = 6000;
+
+%----------------------------------------
+%---------- Tracking Systems
+%----------------------------------------
+Create USNTrackingSystem USNTracker;
+GMAT USNTracker.Add = {'RangeMeasurement'};
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+Create OpenGLPlot OpenGLPlot1;
+GMAT OpenGLPlot1.SolverIterations = Current;
+GMAT OpenGLPlot1.Add = {ODSat, Earth};
+GMAT OpenGLPlot1.OrbitColor = [ 255 32768 ];
+GMAT OpenGLPlot1.TargetColor = [ 8421440 0 ];
+GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewPointReference = Earth;
+GMAT OpenGLPlot1.ViewPointVector = [ 0 0 30000 ];
+GMAT OpenGLPlot1.ViewDirection = Earth;
+GMAT OpenGLPlot1.ViewScaleFactor = 1;
+GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OpenGLPlot1.ViewUpAxis = Z;
+GMAT OpenGLPlot1.CelestialPlane = Off;
+GMAT OpenGLPlot1.XYPlane = On;
+GMAT OpenGLPlot1.WireFrame = Off;
+GMAT OpenGLPlot1.Axes = On;
+GMAT OpenGLPlot1.Grid = Off;
+GMAT OpenGLPlot1.SunLine = Off;
+GMAT OpenGLPlot1.UseInitialView = On;
+GMAT OpenGLPlot1.DataCollectFrequency = 1;
+GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
+GMAT OpenGLPlot1.NumPointsToRedraw = 0;
+GMAT OpenGLPlot1.ShowPlot = true;
+
+Create ReportFile rf;
+GMAT rf.SolverIterations = Current;
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = Off;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 20;
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+BeginMissionSequence;
+
+Report rf solveFor
+Report rf ODSat.A1ModJulian ODSat.X ODSat.Y ODSat.Z ODSat.VX ODSat.VY ODSat.VZ;
+Report rf topoSat.A1ModJulian topoSat.EarthMJ2000Eq.X topoSat.EarthMJ2000Eq.Y topoSat.EarthMJ2000Eq.Z topoSat.EarthMJ2000Eq.VX topoSat.EarthMJ2000Eq.VY topoSat.EarthMJ2000Eq.VZ;
+Report rf diff timediff tau range;
+
+GMAT measEpochA1 = 23431.02120409296;
+GMAT measEpochA1 = 23431.02120410164;
+%measEpochA1      = 23433.36148187942
+%measEpochA1      = 23431.10037075831;
+%measEpochA1      = 23431.17606520149;
+%measEpochA1      = 23432.08092629752;
+%measEpochA1      = 23433.43509294162;
+
+GMAT speedOfLight = 299792.458;
+GMAT transponderDelay = 0.0000013;
+
+Propagate ODProp(ODSat) {ODSat.A1ModJulian = measEpochA1};
+GMAT topoSat.Epoch = measEpochA1;
+
+%====  Light time solution for downlink leg
+GMAT diff = 1;
+GMAT timediff = 1;
+GMAT range = sqrt( (ODSat.X-topoSat.EarthMJ2000Eq.X)^2 +        (ODSat.Y-topoSat.EarthMJ2000Eq.Y)^2 + (ODSat.Z-topoSat.EarthMJ2000Eq.Z)^2 );
+GMAT tau = range/speedOfLight;
+GMAT oldtau = 0.0;
+
+% Perts
+pert = ODSat.X + 0.0001;
+%ODSat.X = pert;
+pert = ODSat.Y + 0.0001;
+%ODSat.Y = pert;
+pert = ODSat.Z + 0.0001;
+%ODSat.Z = pert;
+pert = ODSat.VX + 0.0000001;
+%ODSat.VX = pert;
+pert = ODSat.VY + 0.0000001;
+%ODSat.VY = pert;
+pert = ODSat.VZ + 0.0000001;
+ODSat.VZ = pert;
+GMAT InitSat = ODSat;
+
+
+Report rf StartData;
+Report rf ODSat.A1ModJulian ODSat.X ODSat.Y ODSat.Z ODSat.VX ODSat.VY ODSat.VZ;
+Report rf topoSat.A1ModJulian topoSat.EarthMJ2000Eq.X topoSat.EarthMJ2000Eq.Y topoSat.EarthMJ2000Eq.Z topoSat.EarthMJ2000Eq.VX topoSat.EarthMJ2000Eq.VY topoSat.EarthMJ2000Eq.VZ;
+Report rf diff timediff tau range;
+
+While diff > 1e-5
+   GMAT oldRange = range;
+   GMAT oldtau = tau;
+   GMAT ODSat = InitSat;
+   GMAT propEpoch = measEpochA1 - tau/86400;
+   
+   If propEpoch > ODSat.A1ModJulian
+      Propagate ODProp(ODSat) {ODSat.A1ModJulian = propEpoch};
+   EndIf;
+   
+   If propEpoch < ODSat.A1ModJulian
+      Propagate BackProp ODProp(ODSat) {ODSat.A1ModJulian = propEpoch};
+   EndIf;
+   
+   GMAT range = sqrt( (ODSat.X-topoSat.EarthMJ2000Eq.X)^2 +          (ODSat.Y-topoSat.EarthMJ2000Eq.Y)^2 + (ODSat.Z-topoSat.EarthMJ2000Eq.Z)^2 );
+   GMAT tau = range/speedOfLight;
+   GMAT diff = abs(range - oldRange)*1000;
+   GMAT timediff = abs(oldtau - tau);
+   
+   Report rf newIteration;
+   Report rf ODSat.A1ModJulian ODSat.X ODSat.Y ODSat.Z ODSat.VX ODSat.VY ODSat.VZ;
+   Report rf topoSat.A1ModJulian topoSat.EarthMJ2000Eq.X topoSat.EarthMJ2000Eq.Y topoSat.EarthMJ2000Eq.Z topoSat.EarthMJ2000Eq.VX topoSat.EarthMJ2000Eq.VY topoSat.EarthMJ2000Eq.VZ;
+   Report rf diff tau range;
+EndWhile;
+
+GMAT downLinkRange = range;
+
+Report rf DownLinkSolution;
+Report rf ODSat.A1ModJulian ODSat.X ODSat.Y ODSat.Z ODSat.VX ODSat.VY ODSat.VZ;
+Report rf topoSat.A1ModJulian topoSat.EarthMJ2000Eq.X topoSat.EarthMJ2000Eq.Y topoSat.EarthMJ2000Eq.Z topoSat.EarthMJ2000Eq.VX topoSat.EarthMJ2000Eq.VY topoSat.EarthMJ2000Eq.VZ;
+Report rf diff timediff tau range;
+
+%====  Light time solution for uplink leg
+%GMAT diff = 1;
+%GMAT timediff = 1;
+%GMAT range = sqrt( (ODSat.X-topoSat.EarthMJ2000Eq.X)^2 +          (ODSat.Y-topoSat.EarthMJ2000Eq.Y)^2 + (ODSat.Z-topoSat.EarthMJ2000Eq.Z)^2 );
+%GMAT tau = range/speedOfLight;
+%GMAT measEpochA1 = ODSat.A1ModJulian;
+%
+%While diff > 0.00001
+%   %While timediff > 1e-6
+%   GMAT oldRange = range;
+%   GMAT oldtau = tau;
+%   GMAT propEpoch = measEpochA1 - tau/86400;
+%   GMAT topoSat.Epoch = propEpoch;
+%   
+%   GMAT range = sqrt( (ODSat.X-topoSat.EarthMJ2000Eq.X)^2 +          (ODSat.Y-topoSat.EarthMJ2000Eq.Y)^2 + (ODSat.Z-topoSat.EarthMJ2000Eq.Z)^2 );
+%   GMAT tau = range/speedOfLight;
+%   GMAT diff = abs(range - oldRange)*1000;
+%   GMAT timediff = abs(oldtau - tau);
+%   
+%   Report rf newIteration;
+%   Report rf ODSat.A1ModJulian ODSat.X ODSat.Y ODSat.Z;
+%   Report rf topoSat.A1ModJulian topoSat.EarthMJ2000Eq.X topoSat.EarthMJ2000Eq.Y topoSat.EarthMJ2000Eq.Z;
+%   Report rf diff timediff tau range;
+%
+%EndWhile;
+%
+%GMAT upLinkRange = range;
+%
+%GMAT twoWayRange = ( upLinkRange + speedOfLight*transponderDelay + downLinkRange )/2;
+%Report rf theSolution;
+%GMAT rf.WriteHeaders = On;
+%Report rf upLinkRange downLinkRange twoWayRange;

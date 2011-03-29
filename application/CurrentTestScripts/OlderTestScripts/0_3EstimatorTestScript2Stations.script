@@ -1,0 +1,87 @@
+% Script Test Case for Build 0.1
+%
+%----- Create the spacecraft
+Create Spacecraft ODSat;
+GMAT ODSat.DateFormat = UTCGregorian;
+GMAT ODSat.Epoch = '01 Jan 2000 11:59:28.000';
+GMAT ODSat.Id = ODSatID;
+GMAT ODSat.X = 6647.937;
+GMAT ODSat.Y = -335.169;
+GMAT ODSat.Z = 2789.137;
+GMAT ODSat.VX = -0.34697109;
+GMAT ODSat.VY = 7.092177415;
+GMAT ODSat.VZ = 2.14549075;
+
+
+%----- Create the ground station
+Create GroundStation Maui;
+GMAT Maui.CentralBody = Earth;
+GMAT Maui.StateType = Cartesian;
+GMAT Maui.HorizonReference = Sphere;
+GMAT Maui.Id = MauiID;
+GMAT Maui.X  = -4450.8;
+GMAT Maui.Y  =  2676.1;
+GMAT Maui.Z  = -3691.38;
+
+%----- Create another ground station
+Create GroundStation gs2;
+GMAT gs2.CentralBody = Earth;
+GMAT gs2.StateType = Cartesian;
+GMAT gs2.HorizonReference = Sphere;
+GMAT gs2.Id = GS2ID;
+GMAT gs2.X  = 6378.14;
+GMAT gs2.Y  = 0.00;
+GMAT gs2.Z  = 0.00;
+
+%----- Create the data file
+Create Datafile AllMeasData
+AllMeasData.Filename = 2StationData.gmd
+AllMeasData.Format  = GMATInternal
+
+%----- Create the propagator
+Create ForceModel ODProp_ForceModel;
+GMAT ODProp_ForceModel.CentralBody = Earth;
+GMAT ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
+Create Propagator ODProp;
+GMAT ODProp.FM = ODProp_ForceModel;
+GMAT ODProp.Type = RungeKutta89;
+GMAT ODProp.Accuracy = 1.0e-12;
+GMAT ODProp.MinStep = 0.0;
+
+%----- Create a range measurement between Maui and ODSat
+Create MeasurementModel RangeMeasurement
+RangeMeasurement.ObservationData = AllMeasData;
+RangeMeasurement.Type            = Range;
+RangeMeasurement.Participants    = { Maui, ODSat };
+
+%----- Create a range measurement between GS2 and ODSat
+Create MeasurementModel RangeMeasurement2
+RangeMeasurement2.ObservationData = AllMeasData;
+RangeMeasurement2.Type   = Range;
+RangeMeasurement2.Participants = { gs2, ODSat };
+
+%----- Create the estimator
+Create BatchEstimatorInv BatchEst
+GMAT BatchEst.TargeterTextFile = TwoStationProgress.data;
+BatchEst.ReportStyle = 'Verbose';
+BatchEst.Measurements  = {RangeMeasurement, RangeMeasurement2};
+BatchEst.AddSolveFor   = {ODSat.CartesianState,RangeMeasurement.Bias,RangeMeasurement2.Bias};
+BatchEst.AbsoluteTol   = 1e-6;
+BatchEst.RelativeTol   = 1e-5;
+BatchEst.MaximumIterations = 25;
+BatchEst.Propagator    = ODProp;
+BatchEst.EstimationEpochFormat = UTCGregorian;
+BatchEst.EstimationEpoch = '01 Jan 2000 14:00:00.000';
+
+%----- Toss in a plot
+Create XYPlot XYPlot1;
+GMAT XYPlot1.SolverIterations = Current;
+GMAT XYPlot1.IndVar = ODSat.A1ModJulian;
+GMAT XYPlot1.Add = {ODSat.EarthMJ2000Eq.X, ODSat.EarthMJ2000Eq.Y, ODSat.EarthMJ2000Eq.Z};
+GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.ShowPlot = true;
+
+%----- Run the estimator
+Save BatchEst;
+RunEstimator BatchEst;
+

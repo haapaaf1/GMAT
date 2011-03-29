@@ -1,0 +1,155 @@
+% Script Test Case for Simulation using a USNTrackingSystem
+
+%--------------------------------------------
+%---------- Spacecraft
+%--------------------------------------------
+Create Spacecraft ODSat;
+ODSat.DateFormat = UTCGregorian;
+ODSat.Epoch = '01 Mar 2005 00:00:00.000';
+ODSat.CoordinateSystem = EarthMJ2000Eq;
+ODSat.DisplayStateType = Cartesian;
+ODSat.X = 6648.937;
+ODSat.Y = -335.169;
+ODSat.Z = 2789.137;
+ODSat.VX = -0.34697109;
+ODSat.VY = 7.092177415;
+ODSat.VZ = 2.14549075;
+ODSat.DryMass = 850;
+ODSat.Cd = 2.2;
+ODSat.Cr = 1.8;
+ODSat.DragArea = 15;
+ODSat.SRPArea = 1;
+ODSat.Id = 'ODSat01';
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+Create GroundStation Maui;
+Maui.CentralBody = Earth;
+Maui.StateType = Cartesian;
+Maui.HorizonReference = Sphere;
+Maui.X = -4450.8;
+Maui.Y = 2676.1;
+Maui.Z = -3691.38;
+Maui.Id = 'Maui';
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+Create ForceModel ODProp_ForceModel;
+ODProp_ForceModel.CentralBody = Earth;
+ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
+ODProp_ForceModel.Drag = None;
+ODProp_ForceModel.SRP = Off;
+ODProp_ForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+Create Propagator ODProp;
+ODProp.FM = ODProp_ForceModel;
+ODProp.Type = RungeKutta89;
+ODProp.InitialStepSize = 60;
+ODProp.Accuracy = 1e-13;
+ODProp.MinStep = 0;
+ODProp.MaxStep = 2700;
+ODProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Datafiles
+%----------------------------------------
+Create DataFile MauiMeasData;
+MauiMeasData.Filename = 'USNRangeTrackMaui.gmd';
+MauiMeasData.Format = GMATInternal;
+
+%----------------------------------------
+%---------- MeasurementModels
+%----------------------------------------
+Create MeasurementModel RangeMeasurement;
+RangeMeasurement.ObservationData = {MauiMeasData};
+RangeMeasurement.Type = USNTwoWayRange;
+RangeMeasurement.Participants = {Maui, ODSat.Transponder1};
+RangeMeasurement.Bias = 0;
+RangeMeasurement.NoiseSigma = 1e-05;
+RangeMeasurement.TimeConstant = 6000;
+RangeMeasurement.Covariance.Bias = [1000000];
+
+%----------------------------------------
+%---------- Tracking Systems
+%----------------------------------------
+Create USNTrackingSystem USNTracker
+USNTracker.Add = {RangeMeasurement}
+
+%----------------------------------------
+%--------- Hardware
+%----------------------------------------
+
+Create Antenna Antenna1;
+Antenna1.PhaseCenterLocation1 = 1;
+Antenna1.PhaseCenterLocation2 = 2;
+Antenna1.PhaseCenterLocation3 = 3;
+
+Create Transmitter Transmitter1;
+Transmitter1.FrequencyModel = 'constant';
+Transmitter1.Frequency = 2000.2345;
+Transmitter1.PrimaryAntenna = Antenna1;
+
+Create Receiver Receiver1;
+Receiver1.FrequencyModel = 'constant'
+Receiver1.CenterFrequency = 2090.6545;
+Receiver1.Bandwidth = 250.0;
+Receiver1.PrimaryAntenna = Antenna1;
+
+Create Transponder Transponder1;
+Transponder1.InputFrequencyModel = 'CenterAndBandwidth';
+Transponder1.InputCenterFrequency = 2090.6545;
+Transponder1.InputBandwidth = 250.0;
+Transponder1.OutputFrequencyModel = 'TurnAroundRatio';
+Transponder1.TurnAroundRatio = '240/221';
+Transponder1.PrimaryAntenna = Antenna1;
+Transponder1.HardwareDelay = 1.3e-6;
+
+Create Antenna Antenna2;
+Antenna2.PhaseCenterLocation1 = 4;
+Antenna2.PhaseCenterLocation2 = 5;
+Antenna2.PhaseCenterLocation3 = 6;
+
+Create Transmitter Transmitter2;
+Transmitter2.FrequencyModel = 'constant';
+Transmitter2.Frequency = 2000.2345;
+Transmitter2.PrimaryAntenna = Antenna2;
+
+Create Receiver Receiver2;
+Receiver2.FrequencyModel = 'constant'
+Receiver2.CenterFrequency = 2090.6545;
+Receiver2.Bandwidth = 250.0;
+Receiver2.PrimaryAntenna = Antenna2;
+
+Create Transponder Transponder2;
+Transponder2.InputFrequencyModel = 'CenterAndBandwidth';
+Transponder2.InputCenterFrequency = 2090.6545;
+Transponder2.InputBandwidth = 250.0;
+Transponder2.OutputFrequencyModel = 'TurnAroundRatio';
+Transponder2.TurnAroundRatio = '240/221';
+Transponder2.PrimaryAntenna = Antenna2;
+
+Maui.AddHardware = {Transponder2,Receiver2,Transmitter2,Antenna2};
+ODSat.AddHardware = {Transponder1,Receiver1,Transmitter1,Antenna1};
+
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+Create Simulator simmer;
+simmer.AddData             = {USNTracker};
+simmer.InitialEpochFormat  = UTCGregorian;
+simmer.InitialEpoch        = '01 Mar 2005 00:00:00.000';
+simmer.FinalEpochFormat    = UTCGregorian;
+simmer.FinalEpoch          = '15 Mar 2005 00:00:00.000';
+simmer.MeasurementTimeStep = 600;
+simmer.Propagator          = ODProp;
+
+%----- Run the estimator
+RunSimulator simmer;
+

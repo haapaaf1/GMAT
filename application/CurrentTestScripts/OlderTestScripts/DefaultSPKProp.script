@@ -1,0 +1,52 @@
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+Create Spacecraft DefaultSC;
+% Used by default: './files/planetary_ephem/spk/de421.bsp'
+DefaultSC.OrbitSpiceKernelName = {'./orbitEphem/default.bsp'}
+% Might need:
+DefaultSC.NAIFId = 12345
+
+%----------------------------------------
+%---------- Propagator
+%----------------------------------------
+Create Propagator spkProp;
+spkProp.Type = SPK;
+spkProp.StepSize = 60;
+spkProp.CentralBody = Earth;
+spkProp.EpochFormat = UTCGregorian;
+spkProp.StartEpoch = '01 Jan 2000 12:00:00.000'; % Option: EphemStart
+
+%----------------------------------------
+%---------- Subscriber
+%----------------------------------------
+Create OpenGLPlot DefaultOpenGL;
+GMAT DefaultOpenGL.SolverIterations = Current;
+GMAT DefaultOpenGL.Add = {DefaultSC, Earth};
+GMAT DefaultOpenGL.OrbitColor = [ 255 32768 ];
+GMAT DefaultOpenGL.TargetColor = [ 8421440 0 ];
+GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewPointReference = Earth;
+GMAT DefaultOpenGL.ViewPointVector = [ 0 0 30000 ];
+GMAT DefaultOpenGL.ViewDirection = Earth;
+GMAT DefaultOpenGL.ViewScaleFactor = 1;
+GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultOpenGL.ViewUpAxis = Z;
+GMAT DefaultOpenGL.CelestialPlane = Off;
+GMAT DefaultOpenGL.XYPlane = On;
+GMAT DefaultOpenGL.WireFrame = Off;
+GMAT DefaultOpenGL.Axes = On;
+GMAT DefaultOpenGL.Grid = Off;
+GMAT DefaultOpenGL.SunLine = Off;
+GMAT DefaultOpenGL.UseInitialView = On;
+GMAT DefaultOpenGL.DataCollectFrequency = 1;
+GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
+GMAT DefaultOpenGL.NumPointsToRedraw = 0;
+GMAT DefaultOpenGL.ShowPlot = true;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+% Test with a stopping condition:
+Propagate spkProp(DefaultSC) {DefaultSC.TA = 300.0};
+
