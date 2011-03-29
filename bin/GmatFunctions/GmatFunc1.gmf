@@ -1,4 +1,0 @@
-function [x] = GMATFunc1(X);
-
-Create Variable x;
-x = 1.0 + X;
