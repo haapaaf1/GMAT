@@ -1223,6 +1223,26 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    //----------------------------------------------------
    if (type == Gmat::PROP_SETUP)
    {
+      // Change _ForceMode name if _ForceModel is configured
+      std::string oldFmName = oldName + "_ForceModel";
+      std::string newFmName = newName + "_ForceModel";
+      if (mapping.find(oldFmName) != mapping.end())
+      {
+         mapObj = mapping[oldFmName];
+         // if newName does not exist, change name
+         if (mapping.find(newFmName) == mapping.end())
+         {
+            mapping.erase(oldFmName);
+            mapping[newFmName] = mapObj;
+            mapObj->SetName(newFmName);         
+            
+            #if DEBUG_RENAME
+            MessageInterface::ShowMessage
+               ("   Rename mapping mapObj=%s\n", mapObj->GetName().c_str());
+            #endif
+         }
+      }
+      
       #if DEBUG_RENAME
       MessageInterface::ShowMessage("   Calling PropSetup::RenameRefObject()\n");
       #endif
