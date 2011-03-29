@@ -89,7 +89,8 @@ VisualModelCanvas::VisualModelCanvas(wxWindow *parent, Spacecraft *spacecraft,
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-VisualModelCanvas::~VisualModelCanvas(){
+VisualModelCanvas::~VisualModelCanvas()
+{
 }
 
 //------------------------------------------------------------------------------
@@ -99,19 +100,22 @@ VisualModelCanvas::~VisualModelCanvas(){
  * Paints the canvas. Has A LOT of work.
  */
 //------------------------------------------------------------------------------
-void VisualModelCanvas::OnPaint(wxPaintEvent &event){
+void VisualModelCanvas::OnPaint(wxPaintEvent &event)
+{
 	float offset[3] = {0.0f, 0.0f, 0.0f}, rotation[3] = {0.0f, 0.0f, 0.0f}, scale;
 
 	#ifndef __WXMAC__
       // Set the context
       theContext->SetCurrent(*this);
       SetCurrent(*theContext);
+   #else
+      SetCurrent();
    #endif
-
    // Set the drawing context
    wxPaintDC dc(this);
    // Initialize OpenGL if it hasn't been initialized yet
-   if (!glInitialized){
+   if (!glInitialized)
+   {
       InitGL();
       glInitialized = true;
    }
@@ -122,8 +126,8 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
    // as its 'front' for lighting and culling purposes
    glFrontFace(GL_CCW);
 
-   // enable face culling, so that polygons facing away (defines by front face)
-   // from the viewer aren't drawn (for efficieny).
+   // enable face culling, so that polygons facing away (defined by front face)
+   // from the viewer aren't drawn (for efficiency).
    // tell OpenGL to use glColor() to get material properties for..
    glEnable(GL_COLOR_MATERIAL);
    // ..the front face's ambient and diffuse components
@@ -155,12 +159,14 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
    // Draw the model
-   if (currentSpacecraft->modelID == -1){
+   if (currentSpacecraft->modelID == -1)
+   {
       GlColorType *red = (GlColorType*)&GmatColor::RED32,
          *yellow = (GlColorType*)&GmatColor::YELLOW32;
       DrawSpacecraft(198, red, yellow);
    }
-   else{
+   else
+   {
 		offset[0] = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetX"));
 		offset[1] = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetY"));
 		offset[2] = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetZ"));
@@ -177,7 +183,8 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
    glDisable(GL_LIGHTING);
    // Draw the axes
    DrawAxes();
-   if (showEarth){
+   if (showEarth)
+   {
       // Draw a wireframe earth for size and location reference
       glColor3f(0.20f, 0.20f, 0.50f);
       // @todo - do we need a pointer to any actual CelestialBody object here, to get current EqRadius?
@@ -198,19 +205,22 @@ void VisualModelCanvas::OnPaint(wxPaintEvent &event){
  * Processes all mouse controls. The mouse controls can move the camera around.
  */
 //------------------------------------------------------------------------------
-void VisualModelCanvas::OnMouse(wxMouseEvent &event){
+void VisualModelCanvas::OnMouse(wxMouseEvent &event)
+{
    float mouseX = event.m_x, mouseY = event.m_y;
    if (event.Dragging())
    {
       // Rotates the camera around the center when the left mouse button is used
-      if (event.LeftIsDown()){
+      if (event.LeftIsDown())
+      {
          float angleX = (lastMouseX - mouseX) / 300.0,
             angleY = (lastMouseY - mouseY) / 300.0;
          mCamera.Rotate(angleX, angleY, 0.0, false, true);
          Refresh(false);
       }
       // Zooms the camera when the right mouse button is used
-      if (event.RightIsDown()){
+      if (event.RightIsDown())
+      {
 			Real x2 = (lastMouseX - mouseX) * (lastMouseX - mouseX);
          Real y2 = (mouseY - lastMouseY) * (mouseY - lastMouseY);
          Real length = sqrt(x2 + y2);
@@ -224,7 +234,8 @@ void VisualModelCanvas::OnMouse(wxMouseEvent &event){
             mCamera.Translate(0, 0, -zoom, false);
          Refresh(false);
       }
-		if (event.MiddleIsDown()){
+		if (event.MiddleIsDown())
+		{
 			float roll = (mouseY - lastMouseY) / 400.0;
 			mCamera.Rotate(0.0, 0.0, roll, false, true);
 			Refresh(false);
@@ -243,7 +254,8 @@ void VisualModelCanvas::OnMouse(wxMouseEvent &event){
  * @note No keyboard commands are implemented.
  */
 //------------------------------------------------------------------------------
-void VisualModelCanvas::OnKeyDown(wxKeyEvent &event){
+void VisualModelCanvas::OnKeyDown(wxKeyEvent &event)
+{
 }
 
 //---------------------------------------------------------------------------
@@ -322,7 +334,8 @@ void VisualModelCanvas::DrawAxes()
  * Sets up the flags to loaded the given model.
  */
 //------------------------------------------------------------------------------
-bool VisualModelCanvas::LoadModel(const wxString &filePath){
+bool VisualModelCanvas::LoadModel(const wxString &filePath)
+{
    modelPath = filePath;
    needToLoadModel = true;
    Refresh(false);
@@ -341,10 +354,12 @@ bool VisualModelCanvas::LoadModel(const wxString &filePath){
  * @param zAngle The z rotation
  */
 //------------------------------------------------------------------------------
-void VisualModelCanvas::Rotate(bool useDegrees, float xAngle, float yAngle, float zAngle){
+void VisualModelCanvas::Rotate(bool useDegrees, float xAngle, float yAngle, float zAngle)
+{
    if (needToLoadModel)
       LoadModel();
-   if (currentSpacecraft->modelID != -1 && loadedModel->isLoaded){
+   if (currentSpacecraft->modelID != -1 && loadedModel->isLoaded)
+   {
       loadedModel->SetBaseRotation(useDegrees, xAngle, yAngle, zAngle);
    }
    Refresh(false);
@@ -361,7 +376,8 @@ void VisualModelCanvas::Rotate(bool useDegrees, float xAngle, float yAngle, floa
  * @param z Translation along the z-axis
  */
 //------------------------------------------------------------------------------
-void VisualModelCanvas::Translate(float x, float y, float z){
+void VisualModelCanvas::Translate(float x, float y, float z)
+{
    if (needToLoadModel)
       LoadModel();
    if (currentSpacecraft->modelID != -1 && loadedModel->isLoaded)
@@ -381,10 +397,12 @@ void VisualModelCanvas::Translate(float x, float y, float z){
  * @param zScale The scale factor along the z-axis
  */
 //------------------------------------------------------------------------------
-void VisualModelCanvas::Scale(float xScale, float yScale, float zScale){
+void VisualModelCanvas::Scale(float xScale, float yScale, float zScale)
+{
    if (needToLoadModel)
       LoadModel();
-   if (currentSpacecraft->modelID != -1 && loadedModel->isLoaded){
+   if (currentSpacecraft->modelID != -1 && loadedModel->isLoaded)
+   {
       loadedModel->SetBaseScale(xScale, yScale, zScale);
    }
    Refresh(false);
@@ -397,10 +415,12 @@ void VisualModelCanvas::Scale(float xScale, float yScale, float zScale){
  * Recenters the model based on its axis-aligned bounding box.
  */
 //------------------------------------------------------------------------------
-void VisualModelCanvas::RecenterModel(float *offset){
+void VisualModelCanvas::RecenterModel(float *offset)
+{
    if (needToLoadModel)
       LoadModel();
-   if (currentSpacecraft->modelID != -1 && loadedModel->isLoaded){
+   if (currentSpacecraft->modelID != -1 && loadedModel->isLoaded)
+   {
       float x = -loadedModel->bsphere_center.x,
          y = -loadedModel->bsphere_center.y,
          z = -loadedModel->bsphere_center.z;
@@ -420,14 +440,16 @@ void VisualModelCanvas::RecenterModel(float *offset){
  * Recenters the model based on its axis-aligned bounding box.
  */
 //------------------------------------------------------------------------------
-float VisualModelCanvas::AutoscaleModel(){
+float VisualModelCanvas::AutoscaleModel()
+{
 //   float earthRadius = 6378.0f,
    float earthRadius = (float) GmatSolarSystemDefaults::PLANET_EQUATORIAL_RADIUS[GmatSolarSystemDefaults::EARTH],
 		modelRadius = loadedModel->bsphere_radius;
 	return earthRadius / (5.0f * modelRadius);
 }
 
-void VisualModelCanvas::LoadModel(){
+void VisualModelCanvas::LoadModel()
+{
 	ModelManager *mm = ModelManager::Instance();
    currentSpacecraft->modelID = mm->LoadModel(modelPath);
    loadedModel = mm->GetModel(currentSpacecraft->modelID);
