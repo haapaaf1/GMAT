@@ -40,6 +40,8 @@ public:
    bool IsDataChanged() { return dataChanged; }
    bool CanClosePanel() { return canClose; }
 
+   bool CanvasOn(bool onOrOff);
+
 protected:
       
    // Event Handling

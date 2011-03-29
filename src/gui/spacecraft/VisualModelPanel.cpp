@@ -91,6 +91,16 @@ VisualModelPanel::~VisualModelPanel()
 
 }
 
+//------------------------------------------------------------------------------
+// bool CanvasOn(bool onOrOff)
+//
+// Needed for the Mac, to avoid having the other tabs messed up by the Canvas
+//------------------------------------------------------------------------------
+bool VisualModelPanel::CanvasOn(bool onOrOff)
+{
+   if (modelCanvas) modelCanvas->Show(onOrOff);
+   return true;
+}
 //-------------------------------
 // private methods
 //-------------------------------
@@ -354,7 +364,8 @@ void VisualModelPanel::Create()
    visSizer->Add(rightSizer, 1, wxGROW | wxALIGN_CENTER, bsize);
 
    InitializeCanvas();
-	if (currentSpacecraft->modelFile == ""){
+	if (currentSpacecraft->modelFile == "")
+	{
 		ToggleInterface(false);
 		interfaceEnabled = false;
 	}
@@ -364,8 +375,10 @@ void VisualModelPanel::Create()
    this->SetSizer( visSizer );
 }
 
-void VisualModelPanel::ToggleInterface(bool enable){
-	if (enable){
+void VisualModelPanel::ToggleInterface(bool enable)
+{
+	if (enable)
+	{
 		xRotSlider->Enable();
 		yRotSlider->Enable();
 		zRotSlider->Enable();
@@ -386,7 +399,8 @@ void VisualModelPanel::ToggleInterface(bool enable){
 		autoscaleButton->Enable();
 		recenterButton->Enable();
 	}
-	else{
+	else
+	{
 		xRotSlider->Disable();
 		yRotSlider->Disable();
 		zRotSlider->Disable();
@@ -409,16 +423,18 @@ void VisualModelPanel::ToggleInterface(bool enable){
 	}
 }
 
-void VisualModelPanel::InitializeCanvas(){
+void VisualModelPanel::InitializeCanvas()
+{
    Real x,y,z;
-   if (currentSpacecraft->modelFile != ""){
+   if (currentSpacecraft->modelFile != "")
+   {
       modelCanvas->LoadModel(currentSpacecraft->modelFile.c_str());
       x = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetX"));
       y = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetY"));
       z = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetZ"));
-	  xTranValueText->SetLabel(wxString::Format(wxT("%f"), x));
-	  yTranValueText->SetLabel(wxString::Format(wxT("%f"), y));
-	  zTranValueText->SetLabel(wxString::Format(wxT("%f"), z));
+      xTranValueText->SetLabel(wxString::Format(wxT("%f"), x));
+      yTranValueText->SetLabel(wxString::Format(wxT("%f"), y));
+      zTranValueText->SetLabel(wxString::Format(wxT("%f"), z));
       xTranSlider->SetValue(x*100);
       yTranSlider->SetValue(y*100);
       zTranSlider->SetValue(z*100);
@@ -427,9 +443,9 @@ void VisualModelPanel::InitializeCanvas(){
       x = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelRotationX"));
       y = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelRotationY"));
       z = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelRotationZ"));
-	  xRotValueText->SetLabel(wxString::Format(wxT("%f"), x));
-	  yRotValueText->SetLabel(wxString::Format(wxT("%f"), y));
-	  zRotValueText->SetLabel(wxString::Format(wxT("%f"), z));
+      xRotValueText->SetLabel(wxString::Format(wxT("%f"), x));
+      yRotValueText->SetLabel(wxString::Format(wxT("%f"), y));
+      zRotValueText->SetLabel(wxString::Format(wxT("%f"), z));
       xRotSlider->SetValue(x);
       yRotSlider->SetValue(y);
       zRotSlider->SetValue(z);
@@ -437,11 +453,11 @@ void VisualModelPanel::InitializeCanvas(){
 
       x = currentSpacecraft->GetRealParameter(currentSpacecraft->GetParameterID("ModelScale"));
       scaleSlider->SetValue(x);
-	  scaleValueText->SetLabel(wxString::Format(wxT("%f"), x));
+      scaleValueText->SetLabel(wxString::Format(wxT("%f"), x));
       //modelCanvas->Scale(x, x, x);
 
       modelTextCtrl->ChangeValue(wxT(currentSpacecraft->modelFile.c_str()));
-	  modelCanvas->Refresh(false);
+      modelCanvas->Refresh(false);
    }
 }
 
@@ -453,7 +469,8 @@ void VisualModelPanel::InitializeCanvas(){
  * values.
  */
 //------------------------------------------------------------------------------
-void VisualModelPanel::ResetSliders(){
+void VisualModelPanel::ResetSliders()
+{
    xRotSlider->SetValue(0);
    yRotSlider->SetValue(0);
    zRotSlider->SetValue(0);
@@ -484,12 +501,15 @@ void VisualModelPanel::ResetSliders(){
  * Paints the panel each cycle.
  */
 //------------------------------------------------------------------------------
-void VisualModelPanel::OnPaint(wxPaintEvent& event){
-	if (interfaceEnabled && currentSpacecraft->modelFile == ""){
+void VisualModelPanel::OnPaint(wxPaintEvent& event)
+{
+	if (interfaceEnabled && currentSpacecraft->modelFile == "")
+	{
 		interfaceEnabled = false;
 		ToggleInterface(false);
 	}
-	if (!interfaceEnabled && currentSpacecraft->modelFile != ""){
+	if (!interfaceEnabled && currentSpacecraft->modelFile != "")
+	{
 		interfaceEnabled = true;
 		ToggleInterface(true);
 	}
@@ -504,10 +524,12 @@ void VisualModelPanel::OnPaint(wxPaintEvent& event){
  * or scales the loaded model appropriately.
  */
 //------------------------------------------------------------------------------
-void VisualModelPanel::OnSlide(wxCommandEvent &event){
+void VisualModelPanel::OnSlide(wxCommandEvent &event)
+{
    int id = event.GetId();
    float x,y,z;
-   switch (id){
+   switch (id)
+   {
       case ID_ROT_SLIDER:
          x = (float)xRotSlider->GetValue();
          y = (float)yRotSlider->GetValue();
@@ -561,10 +583,12 @@ void VisualModelPanel::OnSlide(wxCommandEvent &event){
  * @note At the moment, nothing happens.
  */
 //------------------------------------------------------------------------------
-void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event){
+void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event)
+{
 	double x,y,z;
 	int id = event.GetId();
-	switch (id){
+	switch (id)
+	{
 		case (ID_ROT_TEXT):
 			xRotValueText->GetLabelText().ToDouble(&x);
 			yRotValueText->GetLabelText().ToDouble(&y);
@@ -609,7 +633,8 @@ void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event){
 			//modelCanvas->Scale(x, x, x);
 			currentSpacecraft->SetRealParameter(currentSpacecraft->GetParameterID("ModelScale"), x);
 			scaleValueText->SetLabel(wxString::Format(wxT("%f"), x));
-			if (x < 1){
+			if (x < 1)
+			{
 				int m = scaleSlider->GetMax();
 				x = x*m-m;
 			}
@@ -629,7 +654,8 @@ void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event){
  * It opens up a file dialog that allows the user to select a model.
  */
 //------------------------------------------------------------------------------
-void VisualModelPanel::OnBrowseButton(wxCommandEvent& event){
+void VisualModelPanel::OnBrowseButton(wxCommandEvent& event)
+{
    wxString filename, path;
    // Open up a file dialog
    wxFileDialog fileDialog(this, wxT("Please select a model."), modelPath, wxEmptyString,
@@ -637,7 +663,8 @@ void VisualModelPanel::OnBrowseButton(wxCommandEvent& event){
    //wxFileDialog fileDialog(this, wxT("Please select a 3ds model."), modelPath, wxEmptyString,
       //wxT("3DS files (*.3ds)|*.3ds"), wxOPEN);
    // If it succeeded...
-   if (fileDialog.ShowModal() == wxID_OK){
+   if (fileDialog.ShowModal() == wxID_OK)
+   {
       // Load the model indicated by the path
       filename = fileDialog.GetFilename();
       path = fileDialog.GetPath();
@@ -664,7 +691,8 @@ void VisualModelPanel::OnBrowseButton(wxCommandEvent& event){
  * axis-aligned bounding box.
  */
 //------------------------------------------------------------------------------
-void VisualModelPanel::OnRecenterButton(wxCommandEvent& event){
+void VisualModelPanel::OnRecenterButton(wxCommandEvent& event)
+{
    float offset[3];
    modelCanvas->RecenterModel(offset);
    xTranSlider->SetValue(offset[0]*100);
@@ -681,7 +709,8 @@ void VisualModelPanel::OnRecenterButton(wxCommandEvent& event){
 	theScPanel->EnableUpdate(true);
 }
 
-void VisualModelPanel::OnAutoscaleButton(wxCommandEvent& event){
+void VisualModelPanel::OnAutoscaleButton(wxCommandEvent& event)
+{
 	float scale = modelCanvas->AutoscaleModel();
 	scaleSlider->SetValue(scale);
 	scaleValueText->SetLabel(wxString::Format(wxT("%f"), scale));
@@ -699,7 +728,8 @@ void VisualModelPanel::OnAutoscaleButton(wxCommandEvent& event){
  * Earth is painted or not.
  */
 //------------------------------------------------------------------------------
-void VisualModelPanel::OnEarthButton(wxCommandEvent& event){
+void VisualModelPanel::OnEarthButton(wxCommandEvent& event)
+{
    if (showEarthButton->GetLabel() == wxT("Show Earth"))
       showEarthButton->SetLabel(wxT("Hide Earth"));
    else
