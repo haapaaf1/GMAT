@@ -1,0 +1,137 @@
+% Script Test Case for Simulation using a USNTrackingSystem
+
+SolarSystem.Sun.Mu = 1.327122e11;
+SolarSystem.Earth.Mu = 398600.4418;
+SolarSystem.Luna.Mu = 4902.801076
+
+%--------------------------------------------
+%---------- Spacecraft
+%--------------------------------------------
+Create Spacecraft ODSat;
+ODSat.DateFormat = UTCGregorian;
+ODSat.Epoch = '01 Mar 2005 00:00:00.000';
+ODSat.CoordinateSystem = EarthMJ2000Eq;
+ODSat.DisplayStateType = Cartesian;
+ODSat.X = 6648.937;
+ODSat.Y = -335.169;
+ODSat.Z = 2789.137;
+ODSat.VX = -0.34697109;
+ODSat.VY = 7.092177415;
+ODSat.VZ = 2.14549075;
+ODSat.DryMass = 850;
+ODSat.Cd = 2.2;
+ODSat.Cr = 1.8;
+ODSat.DragArea = 15;
+ODSat.SRPArea = 1;
+ODSat.Id = 'ODSat01';
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+%Create GroundStation Maui;
+%Maui.CentralBody = Earth;
+%Maui.StateType = Cartesian;
+%Maui.HorizonReference = Sphere;
+%Maui.X = -4450.8;
+%Maui.Y = 2676.1;
+%Maui.Z = -3691.38;
+%Maui.Id = 'Maui';
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+Create GroundStation Maui;
+GMAT Maui.CentralBody = Earth;
+GMAT Maui.StateType = Geographical;
+GMAT Maui.HorizonReference = Ellipsoid;
+GMAT Maui.Latitude = -35.586612724715;
+GMAT Maui.Longitude = 148.983076735472;
+GMAT Maui.Height = 0.675012329852;
+GMAT Maui.Id = 'Maui';
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+Create ForceModel ODProp_ForceModel;
+ODProp_ForceModel.CentralBody = Earth;
+ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
+ODProp_ForceModel.Drag = None;
+ODProp_ForceModel.SRP = Off;
+ODProp_ForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+Create Propagator ODProp;
+ODProp.FM = ODProp_ForceModel;
+ODProp.Type = RungeKutta89;
+ODProp.InitialStepSize = 60;
+ODProp.Accuracy = 1e-13;
+ODProp.MinStep = 0;
+ODProp.MaxStep = 2700;
+ODProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- Datafiles
+%----------------------------------------
+Create DataFile MauiMeasData;
+MauiMeasData.Filename = 'USNRangeTrackMaui.gmd';
+MauiMeasData.Format = GMATInternal;
+
+%----------------------------------------
+%---------- MeasurementModels
+%----------------------------------------
+Create MeasurementModel RangeMeasurement;
+RangeMeasurement.ObservationData = {MauiMeasData};
+RangeMeasurement.Type = USNTwoWayRange;
+RangeMeasurement.Participants = {Maui, ODSat};
+RangeMeasurement.Bias = 0;
+RangeMeasurement.NoiseSigma = 1e-05;
+RangeMeasurement.TimeConstant = 6000;
+RangeMeasurement.Covariance.Bias = [1000000];
+
+
+Create MeasurementModel GRangeMeasurement;
+GRangeMeasurement.ObservationData = {MauiMeasData};
+GRangeMeasurement.Type = GeometricRange;
+GRangeMeasurement.Participants = {Maui, ODSat};
+GRangeMeasurement.Bias = 0;
+GRangeMeasurement.NoiseSigma = 1e-05;
+GRangeMeasurement.TimeConstant = 6000;
+GRangeMeasurement.Covariance.Bias = [1000000];
+
+%----------------------------------------
+%---------- Tracking Systems
+%----------------------------------------
+Create USNTrackingSystem USNTracker
+% USNTracker.Add = {RangeMeasurement, GRangeMeasurement}
+USNTracker.Add = {RangeMeasurement}
+
+%----------------------------------------
+% Report
+%----------------------------------------
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.Filename = './output/RangeTrackerEphem.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {ODSat.A1ModJulian, ODSat.UTCGregorian, ODSat.EarthMJ2000Eq.X, ODSat.EarthMJ2000Eq.Y, ODSat.EarthMJ2000Eq.Z, ODSat.EarthMJ2000Eq.VX, ODSat.EarthMJ2000Eq.VY, ODSat.EarthMJ2000Eq.VZ};
+GMAT ReportFile1.WriteHeaders = On;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.ColumnWidth = 22;
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+Create Simulator simmer;
+simmer.AddData             = {USNTracker};
+simmer.InitialEpochFormat  = UTCGregorian;
+simmer.InitialEpoch        = '01 Mar 2005 00:00:00.000';
+simmer.FinalEpochFormat    = UTCGregorian;
+simmer.FinalEpoch          = '04 Mar 2005 00:00:00.000';
+simmer.MeasurementTimeStep = 10;
+simmer.Propagator          = ODProp;
+
+%----- Run the estimator
+RunSimulator simmer;
+

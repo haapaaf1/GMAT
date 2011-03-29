@@ -1,0 +1,126 @@
+%--------------------------------------------------------------
+%===== Create and configure the WMAP spacecraft
+%--------------------------------------------------------------
+Create Spacecraft WMAP;
+GMAT WMAP.DateFormat = UTCGregorian;
+GMAT WMAP.Epoch = '18 Nov 2009 00:00:00.000';
+GMAT WMAP.CoordinateSystem = EarthMJ2000Eq;
+GMAT WMAP.DisplayStateType = Cartesian;
+GMAT WMAP.X = 767579.4188228522;
+GMAT WMAP.Y = 1118848.079418501;
+GMAT WMAP.Z = 593541.9087407679;
+GMAT WMAP.VX = -0.2451132495834106;
+GMAT WMAP.VY = 0.1083307708826794;
+GMAT WMAP.VZ = 0.1427860128980402;
+GMAT WMAP.DryMass = 821.1888;
+GMAT WMAP.Cd = 2.2;
+GMAT WMAP.Cr = 1.448009157951282;
+GMAT WMAP.DragArea = 15;
+GMAT WMAP.SRPArea = 20.438
+GMAT WMAP.Cd = 2.2;
+GMAT WMAP.Id = 'WMAP';
+
+%--------------------------------------------------------------
+%===== Create the propagator
+%--------------------------------------------------------------
+Create ForceModel SunEarthL2ForceModel;
+Create Propagator SunEarthL2Prop;
+GMAT SunEarthL2ForceModel.CentralBody = Earth;
+GMAT SunEarthL2ForceModel.PrimaryBodies = {Earth};
+GMAT SunEarthL2ForceModel.PointMasses = {Sun, Luna, Jupiter};
+GMAT SunEarthL2ForceModel.Drag = None;
+GMAT SunEarthL2ForceModel.SRP = On;
+GMAT SunEarthL2ForceModel.ErrorControl = RSSStep;
+GMAT SunEarthL2ForceModel.GravityField.Earth.Degree = 50;
+GMAT SunEarthL2ForceModel.GravityField.Earth.Order = 50;
+GMAT SunEarthL2ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT SunEarthL2ForceModel.SRP.Flux = 1370.052;
+GMAT SunEarthL2ForceModel.SRP.Nominal_Sun = 149597870.691;
+
+GMAT SunEarthL2Prop.FM              = SunEarthL2ForceModel;
+GMAT SunEarthL2Prop.Type            = PrinceDormand78;
+GMAT SunEarthL2Prop.InitialStepSize = 60;
+GMAT SunEarthL2Prop.Accuracy        = 1e-10;
+GMAT SunEarthL2Prop.MinStep         = 0.0;
+GMAT SunEarthL2Prop.MaxStep         = 86400;
+GMAT SunEarthL2Prop.MaxStepAttempts = 50;
+
+%--------------------------------------------------------------
+%===== Create the ground stations
+%--------------------------------------------------------------
+Create GroundStation DSN43
+DSN43.Id = DSN43
+%DSN43.Sensors  = {DSNXPND};
+DSN43.CentralBody = Earth;
+DSN43.StateType   = Cartesian;
+DSN43.HorizonReference = Ellipsoid;
+DSN43.X = -4460.89492
+DSN43.Y =  2682.36151
+DSN43.Z = -3674.74815
+
+Create GroundStation DSN14
+DSN14.Id = DSN14
+%DSN14.Sensors  = {DSNXPND};
+DSN14.CentralBody = Earth;
+DSN14.StateType   = Cartesian;
+DSN14.HorizonReference = Ellipsoid;
+DSN14.X = -2352.62142
+DSN14.Y = -4641.34147
+DSN14.Z = -3677.05232
+
+%--------------------------------------------------------------
+%===== Create the Tracking System
+%--------------------------------------------------------------
+Create DataFile WMAPDSNData;
+WMAPDSNData.Filename = 'WMAP_DSNPart_DSNUSNData.gmd';
+WMAPDSNData.Format = GMATInternal;
+
+Create DataFile WMAPUSNData;
+WMAPUSNData.Filename = 'WMAP_USNPart_DSNUSNData.gmd';
+WMAPUSNData.Format = GMATInternal;
+
+Create MeasurementModel DSN14Range;
+DSN14Range.ObservationData   = WMAPDSNData;
+DSN14Range.Type              = DSNTwoWayRange;
+DSN14Range.Participants      = {DSN14,WMAP};
+
+Create MeasurementModel DSN43Range;
+DSN43Range.ObservationData   = WMAPDSNData;
+DSN43Range.Type              = DSNTwoWayRange;
+DSN43Range.Participants      = {DSN43,WMAP};
+
+Create DSNTrackingSystem DSN_WMAP
+DSN_WMAP.Add = {DSN14Range, DSN43Range}
+
+Create MeasurementModel USN14Range;
+USN14Range.ObservationData   = WMAPUSNData;
+USN14Range.Type              = USNTwoWayRange;
+USN14Range.Participants      = {DSN14,WMAP};
+
+Create MeasurementModel USN43Range;
+USN43Range.ObservationData   = WMAPUSNData;
+USN43Range.Type              = USNTwoWayRange;
+USN43Range.Participants      = {DSN43,WMAP};
+
+Create USNTrackingSystem USN_WMAP
+USN_WMAP.Add = {USN14Range, USN43Range}
+
+
+%--------------------------------------------------------------
+%===== Create and configure the simulator
+%--------------------------------------------------------------
+Create Simulator WMAPsim;
+WMAPsim.AddData             = {DSN_WMAP, USN_WMAP};
+%WMAPsim.AddData             = {DSN_WMAP};
+WMAPsim.InitialEpochFormat  = UTCGregorian;
+WMAPsim.InitialEpoch        = '18 Nov 2009 00:00:00.000';
+WMAPsim.FinalEpochFormat    = UTCGregorian;
+WMAPsim.FinalEpoch          = '18 Nov 2009 03:00:10.000';
+%WMAPsim.FinalEpoch          = '25 Nov 2009 00:00:00.000';
+WMAPsim.MeasurementTimeStep = 600;
+WMAPsim.Propagator          = SunEarthL2Prop;
+
+%--------------------------------------------------------------
+%===== Run the simulator
+%--------------------------------------------------------------
+RunSimulator WMAPsim
