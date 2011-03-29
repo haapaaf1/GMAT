@@ -121,14 +121,10 @@ void WelcomePanel::Create()
    wxStaticText *webText = new wxStaticText(this, -1, "Website: ");
    wxString gmatUrl = "http://gmat.gsfc.nasa.gov";
    wxHyperlinkCtrl *webLink = new wxHyperlinkCtrl(this, -1, gmatUrl, gmatUrl);
-   wxStaticText *contactText = new wxStaticText(this, -1, "Contact: ");
-   wxStaticText *emailText = new wxStaticText(this, -1, "gmat@gsfc.nasa.gov");
    
    wxFlexGridSizer *contactSizer = new wxFlexGridSizer(2);
    contactSizer->Add(webText, 0, wxALIGN_RIGHT|wxALL, 2);
    contactSizer->Add(webLink, 0, wxALIGN_LEFT|wxALL, 2);
-   contactSizer->Add(contactText, 0, wxALIGN_RIGHT|wxALL, 2);
-   contactSizer->Add(emailText, 0, wxALIGN_LEFT|wxALL, 2);
    
    wxBoxSizer *gmatTextSizer = new wxBoxSizer(wxVERTICAL);
    gmatTextSizer->Add(gmatText, 0, wxALIGN_LEFT|wxALL, bsize);
