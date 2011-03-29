@@ -1,0 +1,152 @@
+% $Id: SimulateTDRSSTwoWayRange.script 8344 2010-08-03 22:52:48Z djcinsb $
+GMAT Earth.NutationUpdateInterval = 0;
+
+%--------------------------------------------------------------
+%===== Create and configure the HST spacecraft
+%--------------------------------------------------------------
+Create Spacecraft AQUA;
+GMAT AQUA.DateFormat = UTCGregorian;
+GMAT AQUA.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT AQUA.CoordinateSystem = EarthMJ2000Eq;
+GMAT AQUA.DisplayStateType = Cartesian;
+GMAT AQUA.X   = 1301.7911569424441000;
+GMAT AQUA.Y   = -6957.7686256239267000
+GMAT AQUA.Z   = -288.7080151269336200
+GMAT AQUA.VX  = -1.1121653537736800
+GMAT AQUA.VY  = 0.0907365703826921 
+GMAT AQUA.VZ  = -7.4188335652599884
+GMAT AQUA.DryMass = 821.1888;
+GMAT AQUA.Cd = 2.2;
+GMAT AQUA.Cr = 1.448009157951282;
+GMAT AQUA.DragArea = 15;
+GMAT AQUA.SRPArea = 20.438
+GMAT AQUA.Cd = 2.2;
+GMAT AQUA.Id = 'AQUA';
+
+Create Antenna ant;
+Create Transponder trans;
+
+trans.PrimaryAntenna = ant;
+trans.HardwareDelay = 1.3e-6;
+
+AQUA.AddHardware = {trans, ant};
+
+Create Spacecraft TDRSS4;
+GMAT TDRSS4.DateFormat = UTCGregorian;
+GMAT TDRSS4.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT TDRSS4.CoordinateSystem = EarthMJ2000Eq;
+GMAT TDRSS4.DisplayStateType = Cartesian;
+GMAT TDRSS4.X = -33706.32486153131300;
+GMAT TDRSS4.Y = -25220.9982290584700000;
+GMAT TDRSS4.Z = 2557.3726408292800000 ;
+GMAT TDRSS4.VX = 1.8200462985895349;
+GMAT TDRSS4.VY = -2.4614667170907318;
+GMAT TDRSS4.VZ = -0.2775481078198591;
+GMAT TDRSS4.DryMass = 821.1888;
+GMAT TDRSS4.Cd = 2.2;
+GMAT TDRSS4.Cr = 1.448009157951282;
+GMAT TDRSS4.DragArea = 15;
+GMAT TDRSS4.SRPArea = 20.438
+GMAT TDRSS4.Cd = 2.2;
+GMAT TDRSS4.Id = 'TDRSS4';
+
+Create Spacecraft TDRSS5;
+GMAT TDRSS5.DateFormat = UTCGregorian;
+GMAT TDRSS5.Epoch = '09 Jun 2004 00:00:00.000';
+GMAT TDRSS5.CoordinateSystem = EarthMJ2000Eq;
+GMAT TDRSS5.DisplayStateType = Cartesian;
+GMAT TDRSS5.X  = 4421.7271216569197000
+GMAT TDRSS5.Y  = 41917.626848489970000
+GMAT TDRSS5.Z  = 596.556114376500200
+GMAT TDRSS5.VX = -3.0453299842557420 	
+GMAT TDRSS5.VY = 0.3168982270839584
+GMAT TDRSS5.VZ = 0.2890083011048917 
+GMAT TDRSS5.DryMass = 821.1888;
+GMAT TDRSS5.Cd = 2.2;
+GMAT TDRSS5.Cr = 1.448009157951282;
+GMAT TDRSS5.DragArea = 15;
+GMAT TDRSS5.SRPArea = 20.438
+GMAT TDRSS5.Cd = 2.2;
+GMAT TDRSS5.Id = 'TDRSS5';
+
+%--------------------------------------------------------------
+%===== Create the propagator
+%--------------------------------------------------------------
+
+Create ForceModel TwoBodyForce;
+Create Propagator TwoBodyProp;
+GMAT TwoBodyForce.CentralBody = Earth;
+GMAT TwoBodyForce.PointMasses = {Earth};
+GMAT TwoBodyForce.Drag = None;
+GMAT TwoBodyForce.SRP = Off;
+GMAT TwoBodyForce.ErrorControl = RSSStep;
+
+GMAT TwoBodyProp.FM              = TwoBodyForce;
+GMAT TwoBodyProp.Type            = PrinceDormand78;
+GMAT TwoBodyProp.InitialStepSize = 60;
+GMAT TwoBodyProp.Accuracy        = 1e-10;
+GMAT TwoBodyProp.MinStep         = 0.0;
+GMAT TwoBodyProp.MaxStep         = 86400;
+GMAT TwoBodyProp.MaxStepAttempts = 50;
+
+%--------------------------------------------------------------
+%===== Create the ground stations
+%--------------------------------------------------------------
+
+Create GroundStation ST2K_48
+ST2K_48.Id = ST2K_48
+ST2K_48.CentralBody = Earth;
+ST2K_48.StateType   = Spherical;
+ST2K_48.HorizonReference = Ellipsoid;
+ST2K_48.Latitude = 32.5429773611111130
+ST2K_48.Longitude= 253.3879110555556100
+ST2K_48.Altitude = 1.4523099999999999
+
+Create GroundStation ST2K_47
+ST2K_47.Id = ST2K_47
+ST2K_47.CentralBody = Earth;
+ST2K_47.StateType   = Spherical;
+ST2K_47.HorizonReference = Ellipsoid;
+ST2K_47.Latitude = 32.5432795833333300 
+ST2K_47.Longitude= 253.3879110555556100 
+ST2K_47.Altitude = 1.4522800000000
+
+%--------------------------------------------------------------
+%===== Create the Tracking Systems and Measurement Models
+%--------------------------------------------------------------
+
+Create TDRSSTrackingSystem AQUA_TDRSS
+AQUA_TDRSS.Add = {AQUA_TDRSS4Range};
+
+Create MeasurementModel AQUA_TDRSS4Range
+AQUA_TDRSS4Range.ObservationData = AQUA_TDRSSData
+AQUA_TDRSS4Range.Type            = TDRSSTwoWayRange;
+AQUA_TDRSS4Range.Participants    = {ST2K_48, TDRSS4, AQUA.trans};
+
+Create MeasurementModel AQUA_TDRSS5Range
+AQUA_TDRSS5Range.ObservationData = AQUA_TDRSSData
+AQUA_TDRSS5Range.Type            = TDRSSTwoWayRange;
+AQUA_TDRSS5Range.Participants    = {ST2K_48, TDRSS5, AQUA.trans};
+
+Create DataFile AQUA_TDRSSData;
+AQUA_TDRSSData.Filename = 'AQUA_TDRSSData.gmd';
+AQUA_TDRSSData.Format   = GMATInternal; 
+
+%--------------------------------------------------------------
+%===== Create and configure the simulator
+%--------------------------------------------------------------
+Create Simulator AQUAsim;
+AQUAsim.AddData             = {AQUA_TDRSS};
+AQUAsim.InitialEpochFormat  = UTCGregorian;
+AQUAsim.InitialEpoch        = '09 Jun 2004 00:00:00.000';
+AQUAsim.FinalEpochFormat    = UTCGregorian;
+AQUAsim.FinalEpoch          = '09 Jun 2004 00:01:00.000';
+AQUAsim.FinalEpoch          = '10 Jun 2004 00:00:00.000';
+AQUAsim.MeasurementTimeStep = 60;
+AQUAsim.Propagator          = TwoBodyProp;
+
+%--------------------------------------------------------------
+%===== Run the simulator
+%--------------------------------------------------------------
+BeginMissionSequence
+RunSimulator AQUAsim

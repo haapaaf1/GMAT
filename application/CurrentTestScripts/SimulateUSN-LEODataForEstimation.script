@@ -1,0 +1,107 @@
+GMAT Earth.NutationUpdateInterval = 0;
+
+%--------------------------------------------------------------
+%===== Create and configure the LEO
+%--------------------------------------------------------------
+Create Spacecraft ODSat;
+GMAT ODSat.DateFormat = UTCGregorian;
+GMAT ODSat.Epoch = '01 Mar 2005 00:00:00.000';
+GMAT ODSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT ODSat.DisplayStateType = Cartesian;
+GMAT ODSat.X = 6648.937;
+GMAT ODSat.Y = -335.169;
+GMAT ODSat.Z = 2789.137;
+GMAT ODSat.VX = -0.34697109;
+GMAT ODSat.VY = 7.092177415;
+GMAT ODSat.VZ = 2.14549075;
+GMAT ODSat.DryMass = 850;
+GMAT ODSat.Cd = 2.2;
+GMAT ODSat.Cr = 1.8;
+GMAT ODSat.DragArea = 15;
+GMAT ODSat.SRPArea = 1;
+GMAT ODSat.NAIFId = -123456789;
+GMAT ODSat.NAIFIdReferenceFrame = -123456789;
+GMAT ODSat.Id = 'ODSat01';
+GMAT ODSat.Attitude = CoordinateSystemFixed;
+GMAT ODSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT ODSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT ODSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT ODSat.Q1 = 0;
+GMAT ODSat.Q2 = 0;
+GMAT ODSat.Q3 = 0;
+GMAT ODSat.Q4 = 1;
+GMAT ODSat.EulerAngleSequence = '312';
+GMAT ODSat.AngularVelocityX = 0;
+GMAT ODSat.AngularVelocityY = 0;
+GMAT ODSat.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+Create ForceModel ODProp_ForceModel;
+GMAT ODProp_ForceModel.CentralBody = Earth;
+%ODProp_ForceModel.PointMasses = {Sun, Earth, Luna};
+GMAT ODProp_ForceModel.PointMasses = {Earth};
+GMAT ODProp_ForceModel.Drag = None;
+GMAT ODProp_ForceModel.SRP = Off;
+GMAT ODProp_ForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+Create Propagator ODProp;
+GMAT ODProp.FM = ODProp_ForceModel;
+GMAT ODProp.Type = RungeKutta89;
+GMAT ODProp.InitialStepSize = 60;
+GMAT ODProp.Accuracy = 1e-13;
+GMAT ODProp.MinStep = 0;
+GMAT ODProp.MaxStep = 2700;
+GMAT ODProp.MaxStepAttempts = 50;
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+Create GroundStation Maui;
+Maui.CentralBody = Earth;
+Maui.StateType = Cartesian;
+Maui.HorizonReference = Sphere;
+Maui.X = -4450.8;
+Maui.Y = 2676.1;
+Maui.Z = -3691.38;
+Maui.Id = 'Maui';
+
+%--------------------------------------------------------------
+%===== Create the Tracking System
+%--------------------------------------------------------------
+Create DataFile USNData;
+USNData.Filename = 'USN_LEO_EstimationData.gmd';
+USNData.Format = GMATInternal;
+
+Create MeasurementModel USNRange;
+USNRange.ObservationData   = USNData;
+USNRange.Type              = USNTwoWayRange;
+USNRange.Bias              = [0.0];
+USNRange.Participants      = {Maui,ODSat};
+
+Create USNTrackingSystem USN_ODSat
+USN_ODSat.Add = {USNRange}
+
+
+%--------------------------------------------------------------
+%===== Create and configure the simulator
+%--------------------------------------------------------------
+Create Simulator ODSatsim;
+ODSatsim.AddData             = {USN_ODSat};
+ODSatsim.InitialEpochFormat  = UTCGregorian;
+ODSatsim.InitialEpoch        = '01 Mar 2005 00:00:00.000';
+ODSatsim.FinalEpochFormat    = UTCGregorian;
+ODSatsim.FinalEpoch          = '04 Mar 2005 00:00:00.000';
+%ODSatsim.FinalEpoch          = '02 Mar 2005 00:00:00.000';
+ODSatsim.MeasurementTimeStep = 60;
+ODSatsim.Propagator          = ODProp;
+
+%--------------------------------------------------------------
+%===== Run the simulator
+%--------------------------------------------------------------
+BeginMissionSequence
+RunSimulator ODSatsim

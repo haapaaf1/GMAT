@@ -1,0 +1,1096 @@
+function [MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est,MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth,firstBurnPass,tankMassAftFunc,tankPressureAftFunc,startNewMCrunFlag,numEOLsc] = MMSscriptMain4targetBugFuncSlimDJC(MMS_AxialThruster,MMS_RadialThruster,TankMMS,IBurnConfig,Prop_norm,PropFM_norm,Prop_truth,PropFM_truth,MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est,MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth,MMSrefSat_desired, MMS1dV_desired, MMS2dV_desired, MMS3dV_desired,refSatIndex,maneuverErrFlag,navErrFlag,navErrType,MCrunNum,ephemFileNameDv,ephemGenFlag,primaryFormFlag,burnTypeFlag,FlagAxialOn,firstBurnPass,burnLocationFlags,burnLocations,Phase1Re,Phase2Re,currPhase,tankMassb4Func,tankPressureb4Func,RadialPWMloss,phViolTripped,PresMass_Coeff_0,PresMass_Coeff_1,PresMass_Coeff_2,PresMass_Coeff_3,RAdeg,DECdeg,designFormFlag,numEOLsc,decrementMassFlag,violationType,maneuverType)
+
+%   PerformMaintenanceManeuvers is a function that performs the MMS maintenance manuevers of all non-reference spacecraft 
+%
+%   Object				Object Type				Units		Dimens.		Description
+% -----------------------------------------------------------------------------------
+%   MMSrefSat_est		Spacecraft      		N/A        	N/A       	Reference S/C for estimated Formation
+%	MMS1dV_est			Spacecraft      		N/A        	N/A       	Non-Reference S/C for estimated Formation
+%	MMS2dV_est			Spacecraft      		N/A        	N/A       	Non-Reference S/C for estimated Formation
+%	MMS3dV_est			Spacecraft      		N/A        	N/A       	Non-Reference S/C for estimated Formation
+%	MMSrefSat_truth		Spacecraft      		N/A        	N/A       	Reference S/C for truth Formation
+%	MMS1dV_truth		Spacecraft      		N/A        	N/A       	Non-Reference S/C for truth Formation
+%	MMS2dV_truth		Spacecraft      		N/A        	N/A       	Non-Reference S/C for truth Formation
+%	MMS3dV_truth		Spacecraft      		N/A        	N/A       	Non-Reference S/C for truth Formation
+%	MMSrefSat_desired	Spacecraft      		N/A        	N/A       	Reference S/C for truth Formation
+%	MMS1dV_desired		Spacecraft      		N/A        	N/A       	Non-Reference S/C for truth Formation
+%	MMS2dV_desired		Spacecraft      		N/A        	N/A       	Non-Reference S/C for truth Formation
+%	MMS3dV_desired		Spacecraft      		N/A        	N/A       	Non-Reference S/C for truth Formation
+%   Prop_norm			Propagator-Integrator	N/A        	N/A       	Integrator portion Propagator used in main mission sequence
+%	PropFM_norm			Propagator-ForceModel	N/A        	N/A       	ForceModel portion Propagator used in main mission sequence
+%
+%   SC Mapping Guide 
+%   ---------------------------------------------------------------------------------
+%   refSatIndex = 1
+%     SC1 = MMSrefSat_* | SC2 = MMS1dV_*    | SC3 = MMS2dV_*    | SC4 = MMS3dV_*
+%   refSatIndex = 2
+%     SC1 = MMS3dV_*    | SC2 = MMSrefSat_* | SC3 = MMS1dV_*    | SC4 = MMS2dV_*
+%   refSatIndex = 3
+%     SC1 = MMS2dV_*    | SC2 = MMS3dV_*    | SC3 = MMSrefSat_* | SC4 = MMS1dV_*
+%   refSatIndex = 4
+%     SC1 = MMS1dV_*    | SC2 = MMS2dV_*    | SC3 = MMS3dV_*    | SC4 = MMSrefSat_*
+%
+%   Modification History
+%   ---------------------------------------------------------------------------------
+%   10/24/2008 - E.Dove: Created the first version.
+%   10/29/2008 - E.Dove: Add code to output data to Matlab
+%	10/30/2008 - E.Dove: Add syntax to manually remove errors added to truth
+%   11/24/2008 - E.Dove: Added dummy sat for use in targeting sequence and the addition of nav errors one hour post perigee
+%   12/12/2008 - E.Dove: Changed dV Dir error to 1deg1sig and left dV Mag error at 1%1sig. And using hardcoded Phase2 nav error
+%   01/09/2009 - E.Dove: Comment out unused ReportFiles
+%   03/06/2009 - E.Dove: Fixed maneuver flag turned off bug. Changed Targeting variables to ensure better convergence and
+%        increased DC Iteration max
+%   03/09/2009 - E.Dove: Changed Targeting values to better converge for MMS problem
+%   03/11/2009 - E.Dove: Added navErrType variable and removed nav related Matlab Function calls since seperate function made for that functionality
+%        Caught bug (Function in control flow in Function doesn't work. CF skipped.) that prevented NavPostPerigee error to be applied and fixed script.
+%   04/05/2009 - E.Dove: Added syntax to apply burn for reference SC at burn location 2 (velocity targeting)
+%   04/22/2009 - E.Dove: Replaced Mag dV error model with 1% 3sigma or 3mm/s function call
+%   06/08/2009 - E.Dove: Added truth propagator inputs and modified code to use truth propagator. Removed use of VectorFormat for IBurn.
+%   06/23/2009 - E.Dove: Added syntax to generate ephems for the est and truth formations
+%   06/26/2009 - E.Dove: Reconfigured ephem gen due to slow performance in previous configuration. Now GMAT controls writing to temp ephem file.
+%        Renamed all s/c to have unique names from anywhere else in MC software. Due to bug in using Report in function like in main script
+%        using slower send data to matlab method for ephem generation.
+%   07/09/2009 - E.Dove: Added ephemGenFlag variable to script 
+%   09/22/2009 - E.Dove: Added primaryFormFlag to function input and send it into ephem generation function
+%   09/29/2009 - E.Dove: Changed propagators for desired formation so that they are dependent on the primary formation
+%   09/30/2009 - E.Dove: Added smaller Stop Tolerence to Propagate commands that stop on an epoch
+%   10/08/2009 - E.Dove: Added impulsive burn decrement mass, added fuelMass values from SC and send to matlab
+%   10/16/2009 - E.Dove: Implemented workaround to use same propagator depending on error flag
+%   10/20/2009 - E.Dove: For velocity dc targeter used dummysat instead of est or truth then set the results equal to est and truth
+%         Implemented new GMAT feature: fuel mass and fuel pressure outputting from the attached tank object
+%   10/22/2009 - E.Dove: Draw fuelMass and pressure data from the tank and send to ephem
+%   10/27/2009 - E.Dove: Changed code so that Reference SC also performs a position maneuver
+%   11/19/2009 - E.Dove: Added sc mapping guide to better know what function sc name goes with the sc name from the main script
+%         Replaced saving of ephem to occur via a report file instead of a matlab call. Removed use of fuelMass and fuelPressure arrays. 
+%  12/22/2009 - E.Dove: Updates made so finite burns can be performed in PerformMaintManeuver function, finite burns still not fully functional
+%         Cleaned up code.
+%  12/23/2009 - E.Dove: Made changes for user to specify burn 1 and/or 2 location based on Re or TA. MaxQF only.
+%  12/28/2009 - E.Dove: Fixed issue where SC Tank Mass and Pressure being reset when first entering PerformMaintenanceManeuvers.gmf by 
+%         passing in the correct values.
+%  12/29/2009 - E.Dove: Added variable to pass in current sc tank fuel mass and pressure to workaround bug 1698 if it is still present. 
+%         Fixed epoch start and stop of all finite burns
+%  01/05/2010 - E.Dove: Changed EpochCenter variables to EpochEnd for the velocity finite burn section and input to IBurn2FBurn function
+%         Corrected script syntax that attempted to propagate sc with different epochs at the same time. 1st working finite burn version.
+%  01/11/2010 - E.Dove: Fixed direction/magnitude dv error calls. Direction error was ignored before. Stefan Novak found this issue.
+%         Added impulsive burn values to input of PerformFinite function calls
+%  01/15/2010 - E.Dove: Implemented initial saveing of burn information. Still need to add merge function so data isn't lost after reenter function.
+%  01/19/2010 - E.Dove: Added merge to maneuver summary report
+%  01/20/2010 - E.Dove: Added error catching syntax for event when fuel mass added to tank for impulsive burn or finite burn will deplete fuel
+%         Added Pulse Width Modulation loss as input to IBurn2FBurn function
+%  01/21/2010 - E.Dove: Fixed bug where nav error for update between burns was never used
+%  01/22/2010 - E.Dove: Moved IBrun report summary merge logic to outside of the finite burn if statement. Cleaned up creation of variables that aren't used
+%         Removed one of the error catching loops since it is buggy
+%  01/26/2010 - E.Dove: Fix error catching code
+%  01/27/2010 - E.Dove:  Added extra debug to be able to reproduce results of IBurn2FBurn
+%  02/01/2010 - E.Dove: Passed phViolTripped to maneuver function
+%  02/01/2010 - E.Dove: Added code to more gracefully stop after an issue occured in maneuver function.
+%  02/02/2010 - E.Dove: Pass in the final velocity burn solution from the position burn finite target sequence to be an initial guess
+%  02/03/2010 - E.Dove: Pass in position burn estimate of velocity burn duty cycle and num thrusters used to velocity burn function
+%  02/09/2010 - E.Dove: Record the correct Delta Mass for finite burn summaries, fix burn type typo, added debug reports
+%  03/31/2010 - E.Dove: Added syntax to replan of burn 2 (equalize periods of all sc to the reference)
+%  04/02/2010 - E.Dove: Added dV tolerance that prevents applying error to burn that is too small. 
+%         Fixed bug of only reporting truth dV to est maneuver summary file. Update pressure based on fuel mass after an impulsive burn.
+%  04/14/2010 - E.Dove: Added Keplerian Element output for maneuver summary report
+%  04/20/2010 - E.Dove: Added debug to check for out of sync propagation and inf loop
+%  04/27/2010 - E.Dove: Added dV minimum burn cutoff and changed code so impulsive burns are only performed in one location
+%  05/04/2010 - E.Dove: Load Spin Axis Dec/RA values as function inputs
+%  05/12/2010 - E.Dove: Changed code to always forward propagate second burn location if propagation is needed
+%  05/27/2010 - E.Dove: Change EOL fuel mass to 10kg based on convo with Laurie and Conrad
+%  07/01/2010 - E.Dove: Added Radial Spin Arc Loss to Iburn. Implemented splitting of IBurn to Axial and Radial.
+%         Expanded GMAT Function for performance increase
+%  07/06/2010 - E.Dove: Changed EOL fuel mass from 10 to 2kg.
+%  07/09/2010 - E.Dove: Add designFormation type as input and for MinFuel leave the maneuvers at location from original script
+%  07/13/2010 - E.Dove: Added more output IBurn maneuver summary ouput (Isp, delta-v, spin axis) and minor code clean up.
+%  07/17/2010 - E.Dove: Pass flag in/out of function to indicate when spacecraft have run out of fuel.
+%  07/29/2010 - E.Dove: Fixed code so decrement mass flag still applies when manually calculating IBurn instead of using IBurn object
+%          Output the current Iburn maneuver type and violation to summary file
+%  09/21/2010 - E.Dove: Output random number realizations for the maneuver errors
+
+% Create temp spacecraft for targeting sequence
+Create Spacecraft dummySCrefSat;
+Create Spacecraft dummySC1;
+Create Spacecraft dummySC2;
+Create Spacecraft dummySC3;
+Create Spacecraft stoppingCondSC;
+
+% All these Create Spacecraft lines shouldn't be necessary (Bug 1327)
+Create Spacecraft MMSrefSat_est;
+Create Spacecraft MMS1dV_est;
+Create Spacecraft MMS2dV_est;
+Create Spacecraft MMS3dV_est;
+Create Spacecraft MMSrefSat_truth;
+Create Spacecraft MMS1dV_truth;
+Create Spacecraft MMS2dV_truth;
+Create Spacecraft MMS3dV_truth;
+Create Spacecraft MMSrefSat_estB1planAtB2;
+Create Spacecraft MMS1dV_estB1planAtB2;
+Create Spacecraft MMS2dV_estB1planAtB2;
+Create Spacecraft MMS3dV_estB1planAtB2;
+Create Spacecraft MMSrefSat_estNavErr;
+Create Spacecraft MMS1dV_estNavErr;
+Create Spacecraft MMS2dV_estNavErr;
+Create Spacecraft MMS3dV_estNavErr;
+Create Spacecraft MMSrefSat_estB4Burn;
+Create Spacecraft MMS1dV_estB4Burn;
+Create Spacecraft MMS2dV_estB4Burn;
+Create Spacecraft MMS3dV_estB4Burn;
+Create Spacecraft MMSrefSat_truthB4Burn;
+Create Spacecraft MMS1dV_truthB4Burn;
+Create Spacecraft MMS2dV_truthB4Burn;
+Create Spacecraft MMS3dV_truthB4Burn;
+Create Spacecraft MMSrefSat_estAftBurn;
+Create Spacecraft MMS1dV_estAftBurn;
+Create Spacecraft MMS2dV_estAftBurn;
+Create Spacecraft MMS3dV_estAftBurn;
+Create Spacecraft MMSrefSat_truthAftBurn;
+Create Spacecraft MMS1dV_truthAftBurn;
+Create Spacecraft MMS2dV_truthAftBurn;
+Create Spacecraft MMS3dV_truthAftBurn;
+Create Spacecraft origAxialRadialSC;
+
+origAxialRadialSC.Tanks       = {TankMMS};
+GMAT dummySCrefSat.Tanks      = {TankMMS};
+GMAT dummySC1.Tanks           = {TankMMS};
+GMAT dummySC2.Tanks           = {TankMMS};
+GMAT dummySC3.Tanks           = {TankMMS};
+MMSrefSat_estB1planAtB2.Tanks = {TankMMS};
+MMS1dV_estB1planAtB2.Tanks    = {TankMMS};
+MMS2dV_estB1planAtB2.Tanks    = {TankMMS};
+MMS3dV_estB1planAtB2.Tanks    = {TankMMS};
+MMSrefSat_estNavErr.Tanks     = {TankMMS};
+MMS1dV_estNavErr.Tanks        = {TankMMS};
+MMS2dV_estNavErr.Tanks        = {TankMMS};
+MMS3dV_estNavErr.Tanks        = {TankMMS};
+MMSrefSat_estB4Burn.Tanks     = {TankMMS};
+MMS1dV_estB4Burn.Tanks        = {TankMMS};
+MMS2dV_estB4Burn.Tanks        = {TankMMS};
+MMS3dV_estB4Burn.Tanks        = {TankMMS};
+MMSrefSat_truthB4Burn.Tanks   = {TankMMS};
+MMS1dV_truthB4Burn.Tanks      = {TankMMS};
+MMS2dV_truthB4Burn.Tanks      = {TankMMS};
+MMS3dV_truthB4Burn.Tanks      = {TankMMS};
+MMSrefSat_estAftBurn.Tanks    = {TankMMS};
+MMS1dV_estAftBurn.Tanks       = {TankMMS};
+MMS2dV_estAftBurn.Tanks       = {TankMMS};
+MMS3dV_estAftBurn.Tanks       = {TankMMS};
+MMSrefSat_truthAftBurn.Tanks  = {TankMMS};
+MMS1dV_truthAftBurn.Tanks     = {TankMMS};
+MMS2dV_truthAftBurn.Tanks     = {TankMMS};
+MMS3dV_truthAftBurn.Tanks     = {TankMMS};
+origAxialRadialSC.Thrusters        = {AxialTh1, RadialTh1};
+GMAT dummySCrefSat.Thrusters       = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+GMAT dummySC1.Thrusters            = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+GMAT dummySC2.Thrusters            = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+GMAT dummySC3.Thrusters            = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMSrefSat_estB1planAtB2.Thrusters  = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS1dV_estB1planAtB2.Thrusters     = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS2dV_estB1planAtB2.Thrusters     = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS3dV_estB1planAtB2.Thrusters     = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMSrefSat_estNavErr.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS1dV_estNavErr.Thrusters         = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS2dV_estNavErr.Thrusters         = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS3dV_estNavErr.Thrusters         = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMSrefSat_estB4Burn.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS1dV_estB4Burn.Thrusters         = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS2dV_estB4Burn.Thrusters         = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS3dV_estB4Burn.Thrusters         = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMSrefSat_truthB4Burn.Thrusters    = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS1dV_truthB4Burn.Thrusters       = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS2dV_truthB4Burn.Thrusters       = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS3dV_truthB4Burn.Thrusters       = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMSrefSat_estAftBurn.Thrusters     = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS1dV_estAftBurn.Thrusters        = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS2dV_estAftBurn.Thrusters        = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS3dV_estAftBurn.Thrusters        = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMSrefSat_truthAftBurn.Thrusters   = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS1dV_truthAftBurn.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS2dV_truthAftBurn.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+MMS3dV_truthAftBurn.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+
+Create Spacecraft GSEconvertSC;
+GSEconvertSC.CoordinateSystem = EarthGSE;
+GSEconvertSC.DateFormat       = TAIModJulian;
+
+Create CoordinateSystem EarthGSE;
+EarthGSE.Origin         = Earth;
+EarthGSE.Axes           = GSE;
+EarthGSE.UpdateInterval = 0;
+
+% Arrays used to save the maneuver values
+Create Array dV1Array_truth[3,1] dV2Array_truth[3,1] dV3Array_truth[3,1] dV4Array_truth[3,1];
+Create Array dV1ArrayAxial_truth[3,1] dV2ArrayAxial_truth[3,1] dV3ArrayAxial_truth[3,1] dV4ArrayAxial_truth[3,1];
+Create Array dV1ArrayRadial_truth[3,1] dV2ArrayRadial_truth[3,1] dV3ArrayRadial_truth[3,1] dV4ArrayRadial_truth[3,1];
+Create Array dV1ArrayCart_truth[3,1] dV2ArrayCart_truth[3,1] dV3ArrayCart_truth[3,1] dV4ArrayCart_truth[3,1];
+Create Array dV1ArrayAxialCart_truth[3,1] dV2ArrayAxialCart_truth[3,1] dV3ArrayAxialCart_truth[3,1] dV4ArrayAxialCart_truth[3,1];
+Create Array dV1ArrayRadialCart_truth[3,1] dV2ArrayRadialCart_truth[3,1] dV3ArrayRadialCart_truth[3,1] dV4ArrayRadialCart_truth[3,1];
+
+Create Array dV1Array_est[3,1] dV2Array_est[3,1] dV3Array_est[3,1] dV4Array_est[3,1] VNBTargetDV[3,1] VNBTargetDVNew[3,1];
+Create Array dV1ArrayAxial_est[3,1] dV2ArrayAxial_est[3,1] dV3ArrayAxial_est[3,1] dV4ArrayAxial_est[3,1];
+Create Array dV1ArrayRadial_est[3,1] dV2ArrayRadial_est[3,1] dV3ArrayRadial_est[3,1] dV4ArrayRadial_est[3,1];
+Create Array dV1ArrayCart_est[3,1] dV2ArrayCart_est[3,1] dV3ArrayCart_est[3,1] dV4ArrayCart_est[3,1];
+Create Array dV1ArrayAxialCart_est[3,1] dV2ArrayAxialCart_est[3,1] dV3ArrayAxialCart_est[3,1] dV4ArrayAxialCart_est[3,1];
+Create Array dV1ArrayRadialCart_est[3,1] dV2ArrayRadialCart_est[3,1] dV3ArrayRadialCart_est[3,1] dV4ArrayRadialCart_est[3,1];
+
+% Create variables needed for matlab output
+Create Variable saveFlag sc2arrFlag;
+Create Variable maneuverCount;
+Create Variable hoursPostPer;
+Create Variable currTAIModJulian dummyQ; % (Input to ephem. gen. script)
+Create String ephemPath currUTCgregEpoch;
+Create String ephemFileNameDvEstSC1 ephemFileNameDvEstSC2 ephemFileNameDvEstSC3 ephemFileNameDvEstSC4 ephemFileNameDvTruthSC1 ephemFileNameDvTruthSC2 ephemFileNameDvTruthSC3 ephemFileNameDvTruthSC4; % Filename of temp ascii ephem report
+Create String manIBurnFileEstSC1 manIBurnFileEstSC2 manIBurnFileEstSC3 manIBurnFileEstSC4;
+Create String manIBurnFileTruthSC1 manIBurnFileTruthSC2 manIBurnFileTruthSC3 manIBurnFileTruthSC4;
+Create String manFBurnFileEstSC1 manFBurnFileEstSC2 manFBurnFileEstSC3 manFBurnFileEstSC4;
+Create String manFBurnFileTruthSC1 manFBurnFileTruthSC2 manFBurnFileTruthSC3 manFBurnFileTruthSC4;
+Create String tempManIBurnFileEstSC1 tempManIBurnFileEstSC2 tempManIBurnFileEstSC3 tempManIBurnFileEstSC4;
+Create String tempManIBurnFileTruthSC1 tempManIBurnFileTruthSC2 tempManIBurnFileTruthSC3 tempManIBurnFileTruthSC4;
+Create String tempManFBurnFileEstSC1 tempManFBurnFileEstSC2 tempManFBurnFileEstSC3 tempManFBurnFileEstSC4;
+Create String tempManFBurnFileTruthSC1 tempManFBurnFileTruthSC2 tempManFBurnFileTruthSC3 tempManFBurnFileTruthSC4;
+Create String filenameSuffix;
+Create String IB2FBrptName errorReport;
+Create String allStr
+Create String fwdPropDebug; % Debug flag to indicate whether truth/est is fwd/back prop to reach est/truth.
+Create String SCtimeSyncTruth SCtimeSyncEst;
+
+Create Array cart1In[6,1] cart2In[6,1] cart3In[6,1] cart4In[6,1];
+Create Array cart1Out[6,1] cart2Out[6,1] cart3Out[6,1] cart4Out[6,1]; % Array used to contain Spacecraft states for input/output to Nav GMAT Functions
+Create Array postBurnMass_est[4,1] preBurnMass_est[4,1] postBurnMass_truth[4,1] preBurnMass_truth[4,1]; % Mass before and after an impulsive burn
+Create Array dvDirVNB[3,1]
+Create Variable TSFburnFactor_refSatTruth TSFburnFactor_1dVTruth TSFburnFactor_2dVTruth TSFburnFactor_3dVTruth
+Create Variable asindeg atan2deg1 atan2deg2 dvMagPos
+Create Variable PerformIBurn_refSatEst PerformIBurn_1dVEst PerformIBurn_2dVEst PerformIBurn_3dVEst;
+Create Variable PerformIBurn_refSatTruth PerformIBurn_1dVTruth PerformIBurn_2dVTruth PerformIBurn_3dVTruth;
+Create Variable DeltaMass_refSatEst DeltaMass_1dVEst DeltaMass_2dVEst DeltaMass_3dVEst;
+Create Variable DeltaMass_refSatTruth DeltaMass_1dVTruth DeltaMass_2dVTruth DeltaMass_3dVTruth;
+Create Variable TargeterSeed_refSatEst TargeterSeed_1dVEst TargeterSeed_2dVEst TargeterSeed_3dVEst;
+Create Variable TargeterSeed_refSatTruth TargeterSeed_1dVTruth TargeterSeed_2dVTruth TargeterSeed_3dVTruth;
+Create Variable ThrustRadial_refSatEst ThrustRadial_1dVEst ThrustRadial_2dVEst ThrustRadial_3dVEst;
+Create Variable ThrustRadial_refSatTruth ThrustRadial_1dVTruth ThrustRadial_2dVTruth ThrustRadial_3dVTruth;
+Create Variable ThrustAxial_refSatEst ThrustAxial_1dVEst ThrustAxial_2dVEst ThrustAxial_3dVEst;
+Create Variable ThrustAxial_refSatTruth ThrustAxial_1dVTruth ThrustAxial_2dVTruth ThrustAxial_3dVTruth;
+Create Variable Tref_refSatEst Tref_1dVEst Tref_2dVEst Tref_3dVEst;
+Create Variable Tref_refSatTruth Tref_1dVTruth Tref_2dVTruth Tref_3dVTruth;
+Create Variable TFuel_refSatEst TFuel_1dVEst TFuel_2dVEst TFuel_3dVEst;
+Create Variable TFuel_refSatTruth TFuel_1dVTruth TFuel_2dVTruth TFuel_3dVTruth;
+Create Variable Pressure_refSatEst Pressure_1dVEst Pressure_2dVEst Pressure_3dVEst;
+Create Variable Pressure_refSatTruth Pressure_1dVTruth Pressure_2dVTruth Pressure_3dVTruth;
+Create Variable DutyCycle_refSatEst DutyCycle_1dVEst DutyCycle_2dVEst DutyCycle_3dVEst;
+Create Variable DutyCycle_refSatTruth DutyCycle_1dVTruth DutyCycle_2dVTruth DutyCycle_3dVTruth;
+Create Variable numRadTh_refSatEst numRadTh_1dVEst numRadTh_2dVEst numRadTh_3dVEst;
+Create Variable numRadThVelInit_refSatEst numRadThVelInit_1dVEst numRadThVelInit_2dVEst numRadThVelInit_3dVEst;
+Create Variable DutyCycleVelInit_refSatEst DutyCycleVelInit_1dVEst DutyCycleVelInit_2dVEst DutyCycleVelInit_3dVEst;
+Create Variable numRadTh_refSatTruth numRadTh_1dVTruth numRadTh_2dVTruth numRadTh_3dVTruth;
+Create Variable EpochCenter_refSatEst EpochCenter_1dVEst EpochCenter_2dVEst EpochCenter_3dVEst; % TAI ModJulian date epoch values
+Create Variable EpochCenter_refSatTruth EpochCenter_1dVTruth EpochCenter_2dVTruth EpochCenter_3dVTruth; % TAI ModJulian date epoch values
+Create Variable EpochStart_refSatEst EpochStart_1dVEst EpochStart_2dVEst EpochStart_3dVEst; % TAI ModJulian date epoch values
+Create Variable EpochStart_refSatTruth EpochStart_1dVTruth EpochStart_2dVTruth EpochStart_3dVTruth; % TAI ModJulian date epoch values
+Create Variable EpochEnd_refSatEst EpochEnd_1dVEst EpochEnd_2dVEst EpochEnd_3dVEst; % TAI ModJulian date epoch values
+Create Variable EpochEnd_refSatTruth EpochEnd_1dVTruth EpochEnd_2dVTruth EpochEnd_3dVTruth; % TAI ModJulian date epoch values
+Create Variable TargetEpoch_refSatEst TargetEpoch_1dVEst TargetEpoch_2dVEst TargetEpoch_3dVEst; % TAI ModJulian date epoch values
+Create Variable TargetEpoch_refSatTruth TargetEpoch_1dVTruth TargetEpoch_2dVTruth TargetEpoch_3dVTruth; % TAI ModJulian date epoch values
+Create Variable BurnDurVelInit_refSatEst BurnDurVelInit_1dVEst BurnDurVelInit_2dVEst BurnDurVelInit_3dVEst;
+Create Variable AlphaVelInit_refSatEst AlphaVelInit_1dVEst AlphaVelInit_2dVEst AlphaVelInit_3dVEst;
+Create Variable BetaVelInit_refSatEst BetaVelInit_1dVEst BetaVelInit_2dVEst BetaVelInit_3dVEst;
+Create Variable SpecificImpulse GravConst;
+Create Variable RadialTh1C1 RadialTh1C2 RadialTh1C3 RadialTh1C4 RadialTh1C5 RadialTh1C6 RadialTh1C7 RadialTh1C8 RadialTh1C9 RadialTh1C10
+Create Variable RadialTh1C11 RadialTh1C12 RadialTh1C13 RadialTh1C14 RadialTh1C15 RadialTh1C16; 
+Create Variable TargeterPert;
+Create Variable BurnDurationStep; % In seconds
+Create Variable firstBurnPass;
+Create Variable FBstartEpoch_refSatEst FBstopEpoch_refSatEst Aplha_refSatEst Beta_refSatEst;
+Create Variable FBstartEpoch_1dVEst FBstopEpoch_1dVEst Aplha_1dVEst Beta_1dVEst;
+Create Variable FBstartEpoch_2dVEst FBstopEpoch_2dVEst Aplha_2dVEst Beta_2dVEst;
+Create Variable FBstartEpoch_3dVEst FBstopEpoch_3dVEst Aplha_3dVEst Beta_3dVEst;
+Create Variable FBstartEpoch_refSatTruth FBstopEpoch_refSatTruth Aplha_refSatTruth Beta_refSatTruth;
+Create Variable FBstartEpoch_1dVTruth FBstopEpoch_1dVTruth Aplha_1dVTruth Beta_1dVTruth;
+Create Variable FBstartEpoch_2dVTruth FBstopEpoch_2dVTruth Aplha_2dVTruth Beta_2dVTruth;
+Create Variable FBstartEpoch_3dVTruth FBstopEpoch_3dVTruth Aplha_3dVTruth Beta_3dVTruth;
+Create Variable EpochPreFBurns EpochPostFBurns;
+Create Variable errTolFuelMass errTolFuelMassEstSCref errTolFuelMassEstSC1 errTolFuelMassEstSC2 errTolFuelMassEstSC3;
+Create Variable errTolFuelMassTruthSCref errTolFuelMassTruthSC1 errTolFuelMassTruthSC2 errTolFuelMassTruthSC3;
+Create Variable pi deg2rad rad2deg EarthRadius EarthMu;
+Create Variable targetRadius currRefSCTA currPhaseTAtarget missTargetFlag propDirection;
+Create Variable currFuelMass currPressure EOLfuelMass startNewMCrunFlag;
+Create Variable dvMag dvRefSatMag dv1Mag dv2Mag dv3Mag dv1MagFactor dv2MagFactor dv3MagFactor;
+Create Variable dvMagAxialEst4 dvMagAxialEst1 dvMagAxialEst2 dvMagAxialEst3;
+Create Variable dvMagRadialEst4 dvMagRadialEst1 dvMagRadialEst2 dvMagRadialEst3;
+Create Variable dvMagAxialTruth4 dvMagAxialTruth1 dvMagAxialTruth2 dvMagAxialTruth3;
+Create Variable dvMagRadialTruth4 dvMagRadialTruth1 dvMagRadialTruth2 dvMagRadialTruth3;
+Create Variable fromCSflag toCSflag;
+Create Variable dVerrTolerance; % no errors get applied below this km/s delta v
+Create Variable dVcutOff; % no maneuvers get applied below this km/s delta v
+Create Variable EstMinusTruth;
+Create Variable hrsPostPer4Nav;
+Create Variable AxialIBurnIsp RadialIBurnIsp;
+Create Variable currSCepoch;
+Create Variable IBurnMf4 IBurnMf1 IBurnMf2 IBurnMf3; % Variabels used to save the final mass of Iburn mass equations.
+Create Variable IBdeltaMass4 IBdeltaMass1 IBdeltaMass2 IBdeltaMass3;
+Create Variable IBdeltaMassAxialEst4 IBdeltaMassAxialEst1 IBdeltaMassAxialEst2 IBdeltaMassAxialEst3;
+Create Variable IBdeltaMassRadialEst4 IBdeltaMassRadialEst1 IBdeltaMassRadialEst2 IBdeltaMassRadialEst3;
+Create Variable IBdeltaMassTargetEst4 IBdeltaMassTargetEst1 IBdeltaMassTargetEst2 IBdeltaMassTargetEst3;
+Create Variable IBdeltaMassAxialTruth4 IBdeltaMassAxialTruth1 IBdeltaMassAxialTruth2 IBdeltaMassAxialTruth3;
+Create Variable IBdeltaMassRadialTruth4 IBdeltaMassRadialTruth1 IBdeltaMassRadialTruth2 IBdeltaMassRadialTruth3;
+Create Variable IBdeltaMassTargetTruth4 IBdeltaMassTargetTruth1 IBdeltaMassTargetTruth2 IBdeltaMassTargetTruth3;
+Create Variable magVector;
+Create Variable spinArcLossFactor;
+Create Variable numEOLsc numEOLsc_lowFuel numEOLsc_incFuel;
+Create Variable fuelIncreasedFlag;
+Create Variable urandnumDirIBurnSC1 urandnumDirIBurnSC2 urandnumDirIBurnSC3 urandnumDirIBurnSC4 urandnumDirFBurnSC1 urandnumDirFBurnSC2 urandnumDirFBurnSC3 urandnumDirFBurnSC4;
+Create Variable grandnumDirIBurnSC1 grandnumDirIBurnSC2 grandnumDirIBurnSC3 grandnumDirIBurnSC4 grandnumDirFBurnSC1 grandnumDirFBurnSC2 grandnumDirFBurnSC3 grandnumDirFBurnSC4;
+Create Variable grandnumMagIBurnSC1 grandnumMagIBurnSC2 grandnumMagIBurnSC3 grandnumMagIBurnSC4 grandnumMagFBurnSC1 grandnumMagFBurnSC2 grandnumMagFBurnSC3 grandnumMagFBurnSC4;
+Create String NewIteration
+NewIteration = '---------------------------- New Iteration --------------------------------'
+Create Array zGSEVector[3,1]; % GSE unit vector pointing in the z-direction
+Create Array sortedEpochs[16,1];
+Create Array achieveDiff_refSatEst[6,1];
+Create Array TargetVector_refSatEst[6,1] TargetVector_1dVEst[6,1] TargetVector_2dVEst[6,1] TargetVector_3dVEst[6,1];
+Create Array TargetVector_refSatTruth[6,1] TargetVector_1dVTruth[6,1] TargetVector_2dVTruth[6,1] TargetVector_3dVTruth[6,1];
+Create Array currPhaseFlag[2,1] currPhaseTAorRe[2,1];
+Create Array tankMassAftFunc[8,1] tankPressureAftFunc[8,1]; % Tank Mass and Pressure just before entering into the PerformMaintenanceManeuvers GMAT function. 1-4 est 5-8 truth
+Create Array scDutyCycles[8,1] numRadThrusters[8,1];
+Create Array velCartDiffRef[3,1] velCartDiffSC1[3,1] velCartDiffSC2[3,1] velCartDiffSC3[3,1];
+Create Array velVNBDiffRef[3,1] velVNBDiffSC1[3,1] velVNBDiffSC2[3,1] velVNBDiffSC3[3,1];
+Create Array rotMatRA[3,3] rotMatDEC[3,3];
+Create Array scSpinAxisGSE[3,1] scSpinAxisMJ2k[3,1] scSpinAxisVNB_ref[3,1] scSpinAxisVNB_1[3,1] scSpinAxisVNB_2[3,1] scSpinAxisVNB_3[3,1];
+Create Array SCposVector[3,1] SCvelVector[3,1];
+Create Array intermVec1[3,1] intermVec2[3,1] intermVec3[3,1]; % Arrays used to construct rotation Matrix
+Create Array M2ktoVNBrotMat_refSatTruth[3,3] M2ktoVNBrotMat_1dVTruth[3,3] M2ktoVNBrotMat_2dVTruth[3,3] M2ktoVNBrotMat_3dVTruth[3,3];
+Create Array M2ktoVNBrotMat_refSatEst[3,3] M2ktoVNBrotMat_1dVEst[3,3] M2ktoVNBrotMat_2dVEst[3,3] M2ktoVNBrotMat_3dVEst[3,3];
+
+% Initialize Matlab Functions
+Create MatlabFunction MMSDeltaVDirectionErrorDeanEval;
+Create MatlabFunction MMSDeltaVMagnitudeErrorDeanEval3Sig5mm;
+
+Create DifferentialCorrector DCiburnPos;
+GMAT DCiburnPos.ShowProgress      = true;
+GMAT DCiburnPos.ReportStyle       = 'Normal';
+GMAT DCiburnPos.MaximumIterations = 200;
+GMAT DCiburnPos.TargeterTextFile  = 'DCiburnPos.data';
+
+Create DifferentialCorrector DCiburnVel;
+GMAT DCiburnVel.ShowProgress      = true;
+GMAT DCiburnVel.ReportStyle       = 'Normal';
+GMAT DCiburnVel.MaximumIterations = 200;
+GMAT DCiburnVel.TargeterTextFile  = 'DCiburnVel.data';
+
+% Two-Body Propagator/Force Model Settings 
+Create ForceModel PropFM_2BodyFunc;
+GMAT PropFM_2BodyFunc.CentralBody = Earth;
+GMAT PropFM_2BodyFunc.PointMasses = {Earth};
+GMAT PropFM_2BodyFunc.Drag = None;
+GMAT PropFM_2BodyFunc.SRP = Off;
+GMAT PropFM_2BodyFunc.ErrorControl = RSSStep;
+
+
+Create Propagator Prop_2BodyFunc;
+GMAT Prop_2BodyFunc.FM = PropFM_2BodyFunc;
+GMAT Prop_2BodyFunc.Type = PrinceDormand78;
+GMAT Prop_2BodyFunc.InitialStepSize = 10;
+GMAT Prop_2BodyFunc.Accuracy = 1e-08;
+GMAT Prop_2BodyFunc.MinStep = 0.0001;
+GMAT Prop_2BodyFunc.MaxStep = 3600;
+GMAT Prop_2BodyFunc.MaxStepAttempts = 50;
+
+Create ForceModel simpleProp_ForceModel;
+GMAT simpleProp_ForceModel.CentralBody = Earth;
+GMAT simpleProp_ForceModel.PointMasses = {Earth};
+
+Create Propagator simpleProp;
+GMAT simpleProp.FM = simpleProp_ForceModel;
+GMAT simpleProp.Type = RungeKutta89;
+GMAT simpleProp.InitialStepSize = 60;
+GMAT simpleProp.Accuracy = 1e-08;
+GMAT simpleProp.MinStep = 60;
+GMAT simpleProp.MaxStep = 60;
+GMAT simpleProp.MaxStepAttempts = 50;
+
+Create Propagator Prop_normFunc;
+Create ForceModel PropFM_normFunc;
+Create Propagator Prop_truthFunc;
+Create ForceModel PropFM_truthFunc;
+
+Prop_normFunc = Prop_norm;
+PropFM_normFunc = PropFM_norm;
+Prop_truthFunc = Prop_truth;
+PropFM_truthFunc = PropFM_truth;
+
+GMAT Prop_normFunc.FM = PropFM_normFunc;
+GMAT Prop_truthFunc.FM = PropFM_truthFunc;
+
+Create ImpulsiveBurn dv1;
+Create ImpulsiveBurn dv2;
+Create ImpulsiveBurn dv3;
+Create ImpulsiveBurn dvRefSat;
+
+Create FiniteBurn fburnClear;
+Create FiniteBurn fburnRefSatAxialTh1;
+Create FiniteBurn fburn1AxialTh1;
+Create FiniteBurn fburn2AxialTh1;
+Create FiniteBurn fburn3AxialTh1;
+Create FiniteBurn fburnRefSatAxialTh2;
+Create FiniteBurn fburn1AxialTh2;
+Create FiniteBurn fburn2AxialTh2;
+Create FiniteBurn fburn3AxialTh2;
+Create FiniteBurn fburnRefSatRadialTh1;
+Create FiniteBurn fburn1RadialTh1;
+Create FiniteBurn fburn2RadialTh1;
+Create FiniteBurn fburn3RadialTh1;
+Create FiniteBurn fburnRefSatRadialTh2;
+Create FiniteBurn fburn1RadialTh2;
+Create FiniteBurn fburn2RadialTh2;
+Create FiniteBurn fburn3RadialTh2;
+Create FiniteBurn fburnRefSatRadialTh3;
+Create FiniteBurn fburn1RadialTh3;
+Create FiniteBurn fburn2RadialTh3;
+Create FiniteBurn fburn3RadialTh3;
+Create FiniteBurn fburnRefSatRadialTh4;
+Create FiniteBurn fburn1RadialTh4;
+Create FiniteBurn fburn2RadialTh4;
+Create FiniteBurn fburn3RadialTh4;
+GMAT fburn1AxialTh1.Thrusters  = {AxialTh1};
+GMAT fburn1AxialTh2.Thrusters  = {AxialTh2};
+GMAT fburn1RadialTh1.Thrusters = {RadialTh1};
+GMAT fburn1RadialTh2.Thrusters = {RadialTh2};
+GMAT fburn1RadialTh3.Thrusters = {RadialTh3};
+GMAT fburn1RadialTh4.Thrusters = {RadialTh4};
+
+Create Thruster AxialTh1;
+Create Thruster AxialTh2;
+Create Thruster RadialTh1;
+Create Thruster RadialTh2;
+Create Thruster RadialTh3;
+Create Thruster RadialTh4;
+
+GMAT AxialTh1  = MMS_AxialThruster;
+GMAT AxialTh2  = MMS_AxialThruster;
+GMAT RadialTh1 = MMS_RadialThruster;
+GMAT RadialTh2 = MMS_RadialThruster;
+GMAT RadialTh3 = MMS_RadialThruster;
+GMAT RadialTh4 = MMS_RadialThruster;
+
+GMAT dvRefSat       = IBurnConfig;
+GMAT dv1            = IBurnConfig;
+GMAT dv2            = IBurnConfig;
+GMAT dv3            = IBurnConfig;
+
+% Add the tank to use on each impulsive burn object
+GMAT dvRefSat.Tank  = {TankMMS};
+GMAT dv1.Tank       = {TankMMS};
+GMAT dv2.Tank       = {TankMMS};
+GMAT dv3.Tank       = {TankMMS};	
+
+% Add the tank to use on each finite burn object
+GMAT AxialTh1.Tank  = {TankMMS};
+GMAT AxialTh2.Tank  = {TankMMS};
+GMAT RadialTh1.Tank = {TankMMS};
+GMAT RadialTh2.Tank = {TankMMS};
+GMAT RadialTh3.Tank = {TankMMS};
+GMAT RadialTh4.Tank = {TankMMS};
+
+Create ReportFile StevesReport
+StevesReport.Filename = 'StevesReport.report';
+
+Create ReportFile DebugReport2;
+GMAT DebugReport2.Filename         = 'DebugReport2.report';
+GMAT DebugReport2.Precision        = 21;
+GMAT DebugReport2.WriteHeaders     = On;
+GMAT DebugReport2.ColumnWidth      = 27;
+
+Create ReportFile FBurnDebugRpt;
+GMAT FBurnDebugRpt.Filename         = 'FBurnDebugRpt.report';
+GMAT FBurnDebugRpt.WriteHeaders     = On;
+
+Create ReportFile EphemDvSC1est;
+GMAT EphemDvSC1est.WriteHeaders = Off;
+GMAT EphemDvSC1est.Precision = 21;
+GMAT EphemDvSC1est.ColumnWidth = 25;
+
+Create ReportFile EphemDvSC2est;
+GMAT EphemDvSC2est.WriteHeaders = Off;
+GMAT EphemDvSC2est.Precision = 21;
+GMAT EphemDvSC2est.ColumnWidth = 25;
+
+Create ReportFile EphemDvSC3est;
+GMAT EphemDvSC3est.WriteHeaders = Off;
+GMAT EphemDvSC3est.Precision = 21;
+GMAT EphemDvSC3est.ColumnWidth = 25;
+
+Create ReportFile EphemDvSC4est;
+GMAT EphemDvSC4est.WriteHeaders = Off;
+GMAT EphemDvSC4est.Precision = 21;
+GMAT EphemDvSC4est.ColumnWidth = 25;
+
+Create ReportFile EphemDvSC1truth;
+GMAT EphemDvSC1truth.WriteHeaders = Off;
+GMAT EphemDvSC1truth.Precision = 21;
+GMAT EphemDvSC1truth.ColumnWidth = 25;
+
+Create ReportFile EphemDvSC2truth;
+GMAT EphemDvSC2truth.WriteHeaders = Off;
+GMAT EphemDvSC2truth.Precision = 21;
+GMAT EphemDvSC2truth.ColumnWidth = 25;
+
+Create ReportFile EphemDvSC3truth;
+GMAT EphemDvSC3truth.WriteHeaders = Off;
+GMAT EphemDvSC3truth.Precision = 21;
+GMAT EphemDvSC3truth.ColumnWidth = 25;
+
+Create ReportFile EphemDvSC4truth;
+GMAT EphemDvSC4truth.WriteHeaders = Off;
+GMAT EphemDvSC4truth.Precision = 21;
+GMAT EphemDvSC4truth.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC1est;
+GMAT IBurnRptSC1est.WriteHeaders = Off;
+GMAT IBurnRptSC1est.Precision = 21;
+GMAT IBurnRptSC1est.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC2est;
+GMAT IBurnRptSC2est.WriteHeaders = Off;
+GMAT IBurnRptSC2est.Precision = 21;
+GMAT IBurnRptSC2est.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC3est;
+GMAT IBurnRptSC3est.WriteHeaders = Off;
+GMAT IBurnRptSC3est.Precision = 21;
+GMAT IBurnRptSC3est.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC4est;
+GMAT IBurnRptSC4est.WriteHeaders = Off;
+GMAT IBurnRptSC4est.Precision = 21;
+GMAT IBurnRptSC4est.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC1truth;
+GMAT IBurnRptSC1truth.WriteHeaders = Off;
+GMAT IBurnRptSC1truth.Precision = 21;
+GMAT IBurnRptSC1truth.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC2truth;
+GMAT IBurnRptSC2truth.WriteHeaders = Off;
+GMAT IBurnRptSC2truth.Precision = 21;
+GMAT IBurnRptSC2truth.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC3truth;
+GMAT IBurnRptSC3truth.WriteHeaders = Off;
+GMAT IBurnRptSC3truth.Precision = 21;
+GMAT IBurnRptSC3truth.ColumnWidth = 25;
+
+Create ReportFile IBurnRptSC4truth;
+GMAT IBurnRptSC4truth.WriteHeaders = Off;
+GMAT IBurnRptSC4truth.Precision = 21;
+GMAT IBurnRptSC4truth.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC1est;
+GMAT FBurnRptSC1est.WriteHeaders = Off;
+GMAT FBurnRptSC1est.Precision = 21;
+GMAT FBurnRptSC1est.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC2est;
+GMAT FBurnRptSC2est.WriteHeaders = Off;
+GMAT FBurnRptSC2est.Precision = 21;
+GMAT FBurnRptSC2est.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC3est;
+GMAT FBurnRptSC3est.WriteHeaders = Off;
+GMAT FBurnRptSC3est.Precision = 21;
+GMAT FBurnRptSC3est.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC4est;
+GMAT FBurnRptSC4est.WriteHeaders = Off;
+GMAT FBurnRptSC4est.Precision = 21;
+GMAT FBurnRptSC4est.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC1truth;
+GMAT FBurnRptSC1truth.WriteHeaders = Off;
+GMAT FBurnRptSC1truth.Precision = 21;
+GMAT FBurnRptSC1truth.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC2truth;
+GMAT FBurnRptSC2truth.WriteHeaders = Off;
+GMAT FBurnRptSC2truth.Precision = 21;
+GMAT FBurnRptSC2truth.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC3truth;
+GMAT FBurnRptSC3truth.WriteHeaders = Off;
+GMAT FBurnRptSC3truth.Precision = 21;
+GMAT FBurnRptSC3truth.ColumnWidth = 25;
+
+Create ReportFile FBurnRptSC4truth;
+GMAT FBurnRptSC4truth.WriteHeaders = Off;
+GMAT FBurnRptSC4truth.Precision = 21;
+GMAT FBurnRptSC4truth.ColumnWidth = 25;
+
+%%%%% The work starts here (?)
+BeginMissionSequence;
+
+Save Prop_normFunc Prop_norm;
+Save PropFM_normFunc PropFM_norm;
+Save Prop_truthFunc Prop_truth;
+Save PropFM_truthFunc PropFM_truth;
+
+% Immediately set the SC Tank properties to the values just before entering the function. Needed due to Bug 1698.
+If refSatIndex == 1;
+	MMSrefSat_est.TankMMS.FuelMass   = tankMassb4Func(1,1);
+	MMS1dV_est.TankMMS.FuelMass      = tankMassb4Func(2,1);
+	MMS2dV_est.TankMMS.FuelMass      = tankMassb4Func(3,1);
+	MMS3dV_est.TankMMS.FuelMass      = tankMassb4Func(4,1);
+	MMSrefSat_truth.TankMMS.FuelMass = tankMassb4Func(5,1);
+	MMS1dV_truth.TankMMS.FuelMass    = tankMassb4Func(6,1);
+	MMS2dV_truth.TankMMS.FuelMass    = tankMassb4Func(7,1);
+	MMS3dV_truth.TankMMS.FuelMass    = tankMassb4Func(8,1);
+
+	MMSrefSat_est.TankMMS.Pressure   = tankPressureb4Func(1,1);
+	MMS1dV_est.TankMMS.Pressure      = tankPressureb4Func(2,1);
+	MMS2dV_est.TankMMS.Pressure      = tankPressureb4Func(3,1);
+	MMS3dV_est.TankMMS.Pressure      = tankPressureb4Func(4,1);
+	MMSrefSat_truth.TankMMS.Pressure = tankPressureb4Func(5,1);
+	MMS1dV_truth.TankMMS.Pressure    = tankPressureb4Func(6,1);
+	MMS2dV_truth.TankMMS.Pressure    = tankPressureb4Func(7,1);
+	MMS3dV_truth.TankMMS.Pressure    = tankPressureb4Func(8,1);
+EndIf
+If refSatIndex == 2;
+	MMSrefSat_est.TankMMS.FuelMass   = tankMassb4Func(2,1);
+	MMS1dV_est.TankMMS.FuelMass      = tankMassb4Func(3,1);
+	MMS2dV_est.TankMMS.FuelMass      = tankMassb4Func(4,1);
+	MMS3dV_est.TankMMS.FuelMass      = tankMassb4Func(1,1);
+	MMSrefSat_truth.TankMMS.FuelMass = tankMassb4Func(6,1);
+	MMS1dV_truth.TankMMS.FuelMass    = tankMassb4Func(7,1);
+	MMS2dV_truth.TankMMS.FuelMass    = tankMassb4Func(8,1);
+	MMS3dV_truth.TankMMS.FuelMass    = tankMassb4Func(5,1);
+
+	MMSrefSat_est.TankMMS.Pressure   = tankPressureb4Func(2,1);
+	MMS1dV_est.TankMMS.Pressure      = tankPressureb4Func(3,1);
+	MMS2dV_est.TankMMS.Pressure      = tankPressureb4Func(4,1);
+	MMS3dV_est.TankMMS.Pressure      = tankPressureb4Func(1,1);
+	MMSrefSat_truth.TankMMS.Pressure = tankPressureb4Func(6,1);
+	MMS1dV_truth.TankMMS.Pressure    = tankPressureb4Func(7,1);
+	MMS2dV_truth.TankMMS.Pressure    = tankPressureb4Func(8,1);
+	MMS3dV_truth.TankMMS.Pressure    = tankPressureb4Func(5,1);
+EndIf
+If refSatIndex == 3;
+	MMSrefSat_est.TankMMS.FuelMass   = tankMassb4Func(3,1);
+	MMS1dV_est.TankMMS.FuelMass      = tankMassb4Func(4,1);
+	MMS2dV_est.TankMMS.FuelMass      = tankMassb4Func(1,1);
+	MMS3dV_est.TankMMS.FuelMass      = tankMassb4Func(2,1);
+	MMSrefSat_truth.TankMMS.FuelMass = tankMassb4Func(7,1);
+	MMS1dV_truth.TankMMS.FuelMass    = tankMassb4Func(8,1);
+	MMS2dV_truth.TankMMS.FuelMass    = tankMassb4Func(5,1);
+	MMS3dV_truth.TankMMS.FuelMass    = tankMassb4Func(6,1);
+
+	MMSrefSat_est.TankMMS.Pressure   = tankPressureb4Func(3,1);
+	MMS1dV_est.TankMMS.Pressure      = tankPressureb4Func(4,1);
+	MMS2dV_est.TankMMS.Pressure      = tankPressureb4Func(1,1);
+	MMS3dV_est.TankMMS.Pressure      = tankPressureb4Func(2,1);
+	MMSrefSat_truth.TankMMS.Pressure = tankPressureb4Func(7,1);
+	MMS1dV_truth.TankMMS.Pressure    = tankPressureb4Func(8,1);
+	MMS2dV_truth.TankMMS.Pressure    = tankPressureb4Func(5,1);
+	MMS3dV_truth.TankMMS.Pressure    = tankPressureb4Func(6,1);
+EndIf
+If refSatIndex == 4;
+	MMSrefSat_est.TankMMS.FuelMass   = tankMassb4Func(4,1);
+	MMS1dV_est.TankMMS.FuelMass      = tankMassb4Func(1,1);
+	MMS2dV_est.TankMMS.FuelMass      = tankMassb4Func(2,1);
+	MMS3dV_est.TankMMS.FuelMass      = tankMassb4Func(3,1);
+	MMSrefSat_truth.TankMMS.FuelMass = tankMassb4Func(8,1);
+	MMS1dV_truth.TankMMS.FuelMass    = tankMassb4Func(5,1);
+	MMS2dV_truth.TankMMS.FuelMass    = tankMassb4Func(6,1);
+	MMS3dV_truth.TankMMS.FuelMass    = tankMassb4Func(7,1);
+
+	MMSrefSat_est.TankMMS.Pressure   = tankPressureb4Func(4,1);
+	MMS1dV_est.TankMMS.Pressure      = tankPressureb4Func(1,1);
+	MMS2dV_est.TankMMS.Pressure      = tankPressureb4Func(2,1);
+	MMS3dV_est.TankMMS.Pressure      = tankPressureb4Func(3,1);
+	MMSrefSat_truth.TankMMS.Pressure = tankPressureb4Func(8,1);
+	MMS1dV_truth.TankMMS.Pressure    = tankPressureb4Func(5,1);
+	MMS2dV_truth.TankMMS.Pressure    = tankPressureb4Func(6,1);
+	MMS3dV_truth.TankMMS.Pressure    = tankPressureb4Func(7,1);
+EndIf
+
+% Initialize misc variables
+GMAT allStr            = 'all';
+GMAT pi                = 3.14159265358979;
+GMAT deg2rad           = pi/180;
+GMAT rad2deg           = 1/deg2rad;
+GMAT maneuverCount     = 0;
+GMAT SpecificImpulse   = origAxialRadialSC.RadialTh1.K1;
+GMAT GravConst         = 9.81;
+GMAT TargeterPert      = 1;
+GMAT BurnDurationStep  = 10;
+GMAT zGSEVector(1,1)   = 0;
+GMAT zGSEVector(2,1)   = 0;
+GMAT zGSEVector(3,1)   = 1;
+GMAT EarthRadius       = 6378.1363;
+GMAT EarthMu           = 398600.4415;
+GMAT missTargetFlag    = 0;
+GMAT EOLfuelMass       = 2;  % kg
+GMAT errTolFuelMass    = 0.1; % kg
+GMAT startNewMCrunFlag = 0;
+GMAT dVerrTolerance    = 1e-6; % km/s
+GMAT dVcutOff          = 1e-7; % km/s
+GMAT hrsPostPer4Nav    = 4; % hours
+GMAT AxialIBurnIsp     = 216;
+GMAT RadialIBurnIsp    = 208.3;
+GMAT spinArcLossFactor = 1.05;
+GMAT numEOLsc_lowFuel  = numEOLsc;
+GMAT numEOLsc_incFuel  = numEOLsc;
+
+If firstBurnPass == 1
+	firstBurnPass = 0
+	% Attach Thrusters 
+	MMSrefSat_est.Thrusters   = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+	MMS1dV_est.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+	MMS2dV_est.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+	MMS3dV_est.Thrusters      = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+	MMSrefSat_truth.Thrusters = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+	MMS1dV_truth.Thrusters    = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+	MMS2dV_truth.Thrusters    = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+	MMS3dV_truth.Thrusters    = {RadialTh1, RadialTh2, RadialTh3, RadialTh4, AxialTh1, AxialTh2};
+EndIf
+
+If currPhase == 1
+	currPhaseTAorRe(1,1) = burnLocations(1,1);
+	currPhaseFlag(1,1)   = burnLocationFlags(1,1);
+	currPhaseTAorRe(2,1) = burnLocations(2,1);
+	currPhaseFlag(2,1)   = burnLocationFlags(2,1);	
+Else
+	currPhaseTAorRe(1,1) = burnLocations(3,1);
+	currPhaseFlag(1,1)   = burnLocationFlags(3,1);
+	currPhaseTAorRe(2,1) = burnLocations(4,1);
+	currPhaseFlag(2,1)   = burnLocationFlags(4,1);
+EndIf
+
+% Propagate to location of Burn 1
+If designFormFlag == 0
+	If primaryFormFlag == 0
+		currRefSCTA = MMSrefSat_est.TA
+	Else
+		currRefSCTA = MMSrefSat_truth.TA
+	EndIf
+
+	If currPhaseFlag(1,1) == 1 % Re
+		If currPhaseTAorRe(1,1) == Phase1Re | currPhaseTAorRe(1,1) == Phase2Re % Default Re value
+		Else
+			targetRadius = currPhaseTAorRe(1,1)*EarthRadius;
+			If targetRadius > MMSrefSat_est.RMAG
+				% Backprop
+				If primaryFormFlag == 0
+					Propagate BackProp Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.RMAG = targetRadius};
+					
+					% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+					GMAT fwdPropDebug = 'back prop truth to est';
+					If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+						GMAT SCtimeSyncEst = 'Est SC in sync';
+					Else
+						GMAT SCtimeSyncEst = 'Est SC out of sync';
+					EndIf
+					If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+						GMAT SCtimeSyncTruth = 'Truth SC in sync';
+					Else
+						GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+					EndIf
+					GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+					% /\ DEBUG
+			
+					Propagate BackProp Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.UTCModJulian = MMSrefSat_est.UTCModJulian};
+				Else
+					Propagate BackProp Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.RMAG = targetRadius};
+
+					% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+					GMAT fwdPropDebug = 'back prop est to truth';
+					If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+						GMAT SCtimeSyncEst = 'Est SC in sync';
+					Else
+						GMAT SCtimeSyncEst = 'Est SC out of sync';
+					EndIf
+					If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+						GMAT SCtimeSyncTruth = 'Truth SC in sync';
+					Else
+						GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+					EndIf
+					GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+					% /\ DEBUG
+					
+					Propagate BackProp Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.UTCModJulian = MMSrefSat_truth.UTCModJulian};
+				EndIf
+			Else
+				% Forward Prop
+				If primaryFormFlag == 0
+					Propagate Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.RMAG = targetRadius};
+					
+					% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+					GMAT fwdPropDebug = 'fwd prop truth to est';
+					If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+						GMAT SCtimeSyncEst = 'Est SC in sync';
+					Else
+						GMAT SCtimeSyncEst = 'Est SC out of sync';
+					EndIf
+					If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+						GMAT SCtimeSyncTruth = 'Truth SC in sync';
+					Else
+						GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+					EndIf
+					GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+					% /\ DEBUG
+					
+					Propagate Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.UTCModJulian = MMSrefSat_est.UTCModJulian};
+				Else
+					Propagate Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.RMAG = targetRadius};
+					
+					% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+					GMAT fwdPropDebug = 'fwd prop est to truth';
+					If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+						GMAT SCtimeSyncEst = 'Est SC in sync';
+					Else
+						GMAT SCtimeSyncEst = 'Est SC out of sync';
+					EndIf
+					If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+						GMAT SCtimeSyncTruth = 'Truth SC in sync';
+					Else
+						GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+					EndIf
+					GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+					% /\ DEBUG
+					
+					Propagate Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.UTCModJulian = MMSrefSat_truth.UTCModJulian};
+				EndIf				
+			EndIf
+		EndIf
+	Else % TA
+		currPhaseTAtarget = currPhaseTAorRe(1,1);
+		If currPhaseTAorRe(1,1) > MMSrefSat_desired.TA & currPhaseTAorRe(1,1) < currRefSCTA
+			%BackProp		
+			If primaryFormFlag == 0
+				Propagate BackProp Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.TA = currPhaseTAtarget};
+				
+				% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+				GMAT fwdPropDebug = 'back prop truth to est';
+				If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+					GMAT SCtimeSyncEst = 'Est SC in sync';
+				Else
+					GMAT SCtimeSyncEst = 'Est SC out of sync';
+				EndIf
+				If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+					GMAT SCtimeSyncTruth = 'Truth SC in sync';
+				Else
+					GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+				EndIf
+				GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+				% /\ DEBUG
+				
+				Propagate BackProp Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.UTCModJulian = MMSrefSat_est.UTCModJulian};
+			Else
+				Propagate BackProp Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.TA = currPhaseTAtarget};
+				
+				% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+				GMAT fwdPropDebug = 'back prop est to truth';
+				If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+					GMAT SCtimeSyncEst = 'Est SC in sync';
+				Else
+					GMAT SCtimeSyncEst = 'Est SC out of sync';
+				EndIf
+				If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+					GMAT SCtimeSyncTruth = 'Truth SC in sync';
+				Else
+					GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+				EndIf
+				GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+				% /\ DEBUG
+				
+				Propagate BackProp Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.UTCModJulian = MMSrefSat_truth.UTCModJulian};
+			EndIf		
+		Else
+			% Forward Prop
+			If primaryFormFlag == 0
+				Propagate Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.TA = currPhaseTAtarget};
+				
+				% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+				GMAT fwdPropDebug = 'fwd prop truth to est';
+				If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+					GMAT SCtimeSyncEst = 'Est SC in sync';
+				Else
+					GMAT SCtimeSyncEst = 'Est SC out of sync';
+				EndIf
+				If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+					GMAT SCtimeSyncTruth = 'Truth SC in sync';
+				Else
+					GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+				EndIf
+				GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+				Report DebugReport2 fwdPropDebug SCtimeSyncEst SCtimeSyncTruth EstMinusTruth MMSrefSat_est.TAIModJulian MMS1dV_est.TAIModJulian MMS2dV_est.TAIModJulian MMS3dV_est.TAIModJulian MMSrefSat_truth.TAIModJulian MMS1dV_truth.TAIModJulian MMS2dV_truth.TAIModJulian MMS3dV_truth.TAIModJulian;				
+				% /\ DEBUG
+				
+				Propagate Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.UTCModJulian = MMSrefSat_est.UTCModJulian};
+			Else
+				Propagate Prop_truthFunc(MMSrefSat_truth,MMS1dV_truth,MMS2dV_truth,MMS3dV_truth) {MMSrefSat_truth.TA = currPhaseTAtarget};
+				
+				% \/ DEBUG - Checking to make sure formation time in-sync and for infinite loop situations
+				GMAT fwdPropDebug = 'fwd prop est to truth';
+				If MMSrefSat_est.TAIModJulian == MMS1dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS2dV_est.TAIModJulian & MMSrefSat_est.TAIModJulian == MMS3dV_est.TAIModJulian 
+					GMAT SCtimeSyncEst = 'Est SC in sync';
+				Else
+					GMAT SCtimeSyncEst = 'Est SC out of sync';
+				EndIf
+				If MMSrefSat_truth.TAIModJulian == MMS1dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS2dV_truth.TAIModJulian & MMSrefSat_truth.TAIModJulian == MMS3dV_truth.TAIModJulian 
+					GMAT SCtimeSyncTruth = 'Truth SC in sync';
+				Else
+					GMAT SCtimeSyncTruth = 'Truth SC out of sync';
+				EndIf
+				GMAT EstMinusTruth = MMSrefSat_est.TAIModJulian - MMSrefSat_truth.TAIModJulian;
+				Report DebugReport2 fwdPropDebug SCtimeSyncEst SCtimeSyncTruth EstMinusTruth MMSrefSat_est.TAIModJulian MMS1dV_est.TAIModJulian MMS2dV_est.TAIModJulian MMS3dV_est.TAIModJulian MMSrefSat_truth.TAIModJulian MMS1dV_truth.TAIModJulian MMS2dV_truth.TAIModJulian MMS3dV_truth.TAIModJulian;			
+				% /\ DEBUG
+				
+				Propagate Prop_normFunc(MMSrefSat_est,MMS1dV_est,MMS2dV_est,MMS3dV_est) {MMSrefSat_est.UTCModJulian = MMSrefSat_truth.UTCModJulian};
+			EndIf		
+		EndIf
+	EndIf
+EndIf
+
+% Propagate desired formation to location of burn 2
+If designFormFlag == 0
+	If primaryFormFlag == 0
+		currRefSCTA = MMSrefSat_est.TA
+	Else
+		currRefSCTA = MMSrefSat_truth.TA
+	EndIf
+
+	If currPhaseFlag(2,1) == 1 % Re
+		If currPhaseTAorRe(2,1) == Phase1Re | currPhaseTAorRe(2,1) == Phase2Re 
+			% Use default Re value
+		Else
+			targetRadius = currPhaseTAorRe(2,1)*EarthRadius;
+
+			Report DebugReport2 targetRadius;
+			
+			% Forward Prop
+			propDirection = 0;
+			If primaryFormFlag == 0
+				Propagate Prop_normFunc(MMSrefSat_desired, MMS1dV_desired, MMS2dV_desired, MMS3dV_desired) {MMSrefSat_desired.RMAG = targetRadius};
+			Else
+				Propagate Prop_truthFunc(MMSrefSat_desired, MMS1dV_desired, MMS2dV_desired, MMS3dV_desired) {MMSrefSat_desired.RMAG = targetRadius};
+			EndIf
+		EndIf
+	Else % TA
+		currPhaseTAtarget = currPhaseTAorRe(2,1);
+
+		Report DebugReport2 currPhaseTAtarget;
+		
+		% Forward Prop
+		propDirection = 0;		
+		If primaryFormFlag == 0
+			Propagate Prop_normFunc(MMSrefSat_desired, MMS1dV_desired, MMS2dV_desired, MMS3dV_desired) {MMSrefSat_desired.TA = currPhaseTAtarget};
+		Else
+			Propagate Prop_truthFunc(MMSrefSat_desired, MMS1dV_desired, MMS2dV_desired, MMS3dV_desired) {MMSrefSat_desired.TA = currPhaseTAtarget};
+		EndIf
+	EndIf
+EndIf
+	
+% First Maneuver Location maneuver
+% =================================
+% Save data in Matlab
+% The order that objects are sent to Matlab is very important!!
+GMAT saveFlag = 1; % Before burn save
+GMAT maneuverCount = maneuverCount + 1;
+
+% Set dummy S/C equal to MMS est/truth S/C
+If primaryFormFlag == 0
+	GMAT dummySCrefSat = MMSrefSat_est;
+	GMAT dummySC1      = MMS1dV_est;
+	GMAT dummySC2      = MMS2dV_est;
+	GMAT dummySC3      = MMS3dV_est;
+Else
+	GMAT dummySCrefSat = MMSrefSat_truth;
+	GMAT dummySC1      = MMS1dV_truth;
+	GMAT dummySC2      = MMS2dV_truth;
+	GMAT dummySC3      = MMS3dV_truth;
+EndIf
+
+% Record Mass before impulsive burn
+GMAT preBurnMass_est(1,1)   = MMSrefSat_est.TotalMass;
+GMAT preBurnMass_est(2,1)   = MMS1dV_est.TotalMass;
+GMAT preBurnMass_est(3,1)   = MMS2dV_est.TotalMass;
+GMAT preBurnMass_est(4,1)   = MMS3dV_est.TotalMass;
+GMAT preBurnMass_truth(1,1) = MMSrefSat_truth.TotalMass;
+GMAT preBurnMass_truth(2,1) = MMS1dV_truth.TotalMass;
+GMAT preBurnMass_truth(3,1) = MMS2dV_truth.TotalMass;
+GMAT preBurnMass_truth(4,1) = MMS3dV_truth.TotalMass;
+
+% Save copy of SC before the Impulsive Burn for Finite Burn
+GMAT MMSrefSat_estB4Burn   = MMSrefSat_est;
+GMAT MMS1dV_estB4Burn      = MMS1dV_est;
+GMAT MMS2dV_estB4Burn      = MMS2dV_est;
+GMAT MMS3dV_estB4Burn      = MMS3dV_est;
+GMAT MMSrefSat_truthB4Burn = MMSrefSat_truth;
+GMAT MMS1dV_truthB4Burn    = MMS1dV_truth;
+GMAT MMS2dV_truthB4Burn    = MMS2dV_truth;
+GMAT MMS3dV_truthB4Burn    = MMS3dV_truth;
+
+% Targeting Position of Target State
+Report StevesReport dummySCrefSat.TAIModJulian dummySCrefSat.X dummySCrefSat.Y dummySCrefSat.Z dummySCrefSat.VX dummySCrefSat.VY dummySCrefSat.VZ dummySCrefSat.TotalMass dummySCrefSat.Cr
+Report StevesReport dummySC1.TAIModJulian dummySC1.X dummySC1.Y dummySC1.Z dummySC1.VX dummySC1.VY dummySC1.VZ dummySC1.TotalMass dummySC1.Cr
+Report StevesReport dummySC2.TAIModJulian dummySC2.X dummySC2.Y dummySC2.Z dummySC2.VX dummySC2.VY dummySC2.VZ dummySC2.TotalMass dummySC2.Cr
+Report StevesReport dummySC3.TAIModJulian dummySC3.X dummySC3.Y dummySC3.Z dummySC3.VX dummySC3.VY dummySC3.VZ dummySC3.TotalMass dummySC3.Cr
+
+Target DCiburnPos  
+    Report StevesReport NewIteration
+	Vary DCiburnPos(dvRefSat.Element1 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dvRefSat.Element2 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dvRefSat.Element3 = .0001, {Perturbation = .00001, MaxStep = .05})
+
+	Vary DCiburnPos(dv1.Element1 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dv1.Element2 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dv1.Element3 = .0001, {Perturbation = .00001, MaxStep = .05})
+	
+	Vary DCiburnPos(dv2.Element1 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dv2.Element2 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dv2.Element3 = .0001, {Perturbation = .00001, MaxStep = .05})
+	
+	Vary DCiburnPos(dv3.Element1 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dv3.Element2 = .0001, {Perturbation = .00001, MaxStep = .05})
+	Vary DCiburnPos(dv3.Element3 = .0001, {Perturbation = .00001, MaxStep = .05})
+	
+	Maneuver dvRefSat(dummySCrefSat);
+	Maneuver dv1(dummySC1);
+	Maneuver dv2(dummySC2);
+	Maneuver dv3(dummySC3);
+    Report StevesReport dummySCrefSat.TAIModJulian dummySCrefSat.X dummySCrefSat.Y dummySCrefSat.Z dummySCrefSat.VX dummySCrefSat.VY dummySCrefSat.VZ dummySCrefSat.TotalMass dummySCrefSat.Cr
+    Report StevesReport dummySC1.TAIModJulian dummySC1.X dummySC1.Y dummySC1.Z dummySC1.VX dummySC1.VY dummySC1.VZ dummySC1.TotalMass dummySC1.Cr
+    Report StevesReport dummySC2.TAIModJulian dummySC2.X dummySC2.Y dummySC2.Z dummySC2.VX dummySC2.VY dummySC2.VZ dummySC2.TotalMass dummySC2.Cr
+    Report StevesReport dummySC3.TAIModJulian dummySC3.X dummySC3.Y dummySC3.Z dummySC3.VX dummySC3.VY dummySC3.VZ dummySC3.TotalMass dummySC3.Cr
+	
+	Save Prop_normFunc Prop_truthFunc
+	If primaryFormFlag == 0
+		Propagate Prop_normFunc(dummySCrefSat,dummySC1,dummySC2,dummySC3) {dummySCrefSat.UTCModJulian = MMSrefSat_desired.UTCModJulian};
+	Else
+		Propagate Prop_truthFunc(dummySCrefSat,dummySC1,dummySC2,dummySC3) {dummySCrefSat.UTCModJulian = MMSrefSat_desired.UTCModJulian};
+	EndIf
+	Save Prop_truthFunc Prop_normFunc
+	
+    Report StevesReport dummySCrefSat.TAIModJulian dummySCrefSat.X dummySCrefSat.Y dummySCrefSat.Z dummySCrefSat.VX dummySCrefSat.VY dummySCrefSat.VZ dummySCrefSat.TotalMass dummySCrefSat.Cr
+    Report StevesReport dummySC1.TAIModJulian dummySC1.X dummySC1.Y dummySC1.Z dummySC1.VX dummySC1.VY dummySC1.VZ dummySC1.TotalMass dummySC1.Cr
+    Report StevesReport dummySC2.TAIModJulian dummySC2.X dummySC2.Y dummySC2.Z dummySC2.VX dummySC2.VY dummySC2.VZ dummySC2.TotalMass dummySC2.Cr
+    Report StevesReport dummySC3.TAIModJulian dummySC3.X dummySC3.Y dummySC3.Z dummySC3.VX dummySC3.VY dummySC3.VZ dummySC3.TotalMass dummySC3.Cr
+	
+	Achieve DCiburnPos(dummySCrefSat.X = MMSrefSat_desired.X, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySCrefSat.Y = MMSrefSat_desired.Y, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySCrefSat.Z = MMSrefSat_desired.Z, {Tolerance = .0001});
+	
+	Achieve DCiburnPos(dummySC1.X = MMS1dV_desired.X, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySC1.Y = MMS1dV_desired.Y, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySC1.Z = MMS1dV_desired.Z, {Tolerance = .0001});
+	
+	Achieve DCiburnPos(dummySC2.X = MMS2dV_desired.X, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySC2.Y = MMS2dV_desired.Y, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySC2.Z = MMS2dV_desired.Z, {Tolerance = .0001});
+	
+	Achieve DCiburnPos(dummySC3.X = MMS3dV_desired.X, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySC3.Y = MMS3dV_desired.Y, {Tolerance = .0001});
+	Achieve DCiburnPos(dummySC3.Z = MMS3dV_desired.Z, {Tolerance = .0001});
+EndTarget;
+
+% Save DC Acheived Estimate Spacecraft state of Burn 1 planning at Burn 2 location
+MMSrefSat_estB1planAtB2 = dummySCrefSat;
+MMS1dV_estB1planAtB2    = dummySC1;
+MMS2dV_estB1planAtB2    = dummySC2;
+MMS3dV_estB1planAtB2    = dummySC3;
+
+

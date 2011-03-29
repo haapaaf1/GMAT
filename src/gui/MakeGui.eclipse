@@ -100,7 +100,8 @@ all: prep $(TARGETS)
 gui: $(WXTARGET)
 
 prep:
-	mkdir -p ../../bin
+	mkdir -p ../../application
+	mkdir -p ../../application/bin
 	rm -f app/AboutDialog.o
 
 HEADERS = -I../base/include \
@@ -307,20 +308,20 @@ ifeq ($(SHARED_BASE), 1)
 ifdef MAC_SPECIFIC
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	cp -f $(WXTARGET) ../../bin/.
-	cp -f $(LIBNAME) ../../bin/.
+	cp -f $(WXTARGET) ../../application/bin/.
+	cp -f $(LIBNAME) ../../application/bin/.
 else
 
 ifeq ($(LINUX_MAC), 1)
 $(WXTARGET) : $(OBJECTS) $(LIBNAME)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
-	cp -f $(LIBNAME) ../../bin/.
+	mv -f $(WXTARGET)* ../../application/bin/.
+	cp -f $(LIBNAME) ../../application/bin/.
 else
 $(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBNAME)
 	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
-	cp -f $(LIBNAME) ../../bin/.
+	mv -f $(WXTARGET)* ../../application/bin/.
+	cp -f $(LIBNAME) ../../application/bin/.
 endif
 
 endif
@@ -330,17 +331,17 @@ else
 ifdef MAC_SPECIFIC
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	cp -f $(WXTARGET) ../../bin/.
+	cp -f $(WXTARGET) ../../application/bin/.
 else
 
 ifeq ($(LINUX_MAC), 1)
 $(WXTARGET) : $(OBJECTS) $(LIBS)
 	$(CPP) $(OBJECTS) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
+	mv -f $(WXTARGET)* ../../application/bin/.
 else
 $(WXTARGET) : $(OBJECTS) $(GMAT_ICON_O) $(LIBS)
 	$(CPP) $(OBJECTS) $(GMAT_ICON_O) $(LIBS) -o $(WXTARGET) $(LINK_FLAGS)
-	mv -f $(WXTARGET)* ../../bin/.
+	mv -f $(WXTARGET)* ../../application/bin/.
 endif
 
 endif
@@ -350,8 +351,8 @@ endif
 macrez:
 	echo "linking Carbon and wx resource files ......."
 	$(REZ) -d WXUSINGDLL -o $(WXTARGET)
-	cp -f $(WXTARGET) ../../bin/.
-#	@chmod -R 755 ../../bin
+	cp -f $(WXTARGET) ../../application/bin/.
+#	@chmod -R 755 ../../application/bin
 #  $(REZ) -o $(WXTARGET)
 
 macosx: 

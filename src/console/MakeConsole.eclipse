@@ -44,7 +44,7 @@ archclean :
 	rm -r -f */core
 	rm -rf TestScriptInterpreter
 	rm -rf $(TARGET)
-	rm -rf ../../bin/$(TARGET)
+	rm -rf ../../application/bin/$(TARGET)
 
 .cpp.o: 
 	$(CPP) $(CPPFLAGS) $(HEADERS) $(OPTIMIZATIONS) -c $<
@@ -52,7 +52,7 @@ archclean :
 $(TARGET): $(OBJECTS)
 	$(CPP) $(OBJECTS) $(CONSOLE_LINK_FLAGS) $(LIBRARIES) $(OPTIMIZATIONS) $(SPICE_LIBRARIES) \
 	$(FORTRAN_LIB) -o $(TARGET)
-	mkdir -p ../../bin
-	cp $(TARGET) ../../bin/$(TARGET)
-#	cp  ../base/lib/libGmatConsole* ../../bin/
+	mkdir -p ../../application/bin
+	cp $(TARGET) ../../application/bin/$(TARGET)
+#	cp  ../base/lib/libGmatConsole* ../../application/bin/
 	
