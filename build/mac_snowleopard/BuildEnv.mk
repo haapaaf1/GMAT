@@ -6,7 +6,7 @@
 # NOTES to user - changes are necessary where you see the "*** EDIT THIS ***" notes
 
 # Flags used to control the build
-USE_SPICE = 0
+USE_SPICE = 1
 USE_DEVIL = 0
 CONSOLE_APP = 0
 DEBUG_BUILD = 0
@@ -20,19 +20,17 @@ USE_SHARED = 1
 # flag indicating whether or not to build as a shared library
 SHARED_BASE = 1
 
-# *** EDIT THIS *** - put the top of the GMAT project directory structure here ....
-TOP_DIR = /Users/djc/TS_Code/GMAT_Development
+# *** EDIT THIS *** - put the top of the GMAT project directory structure here .... make sure not to have trailing blanks
+TOP_DIR = <your-top-level-directory-goes-here>
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
-WX_HOME = /Users/djc/wxmac-2.8.10/shared
+WX_HOME = /Applications/wxmac-2.8.11/shared
 #WX_HOME = /Applications/wxmac-2.8.7/osx-build
 # *** EDIT THIS *** - 'sudo make install' of wxMac will put things here ......
 WX_INSTALLED = /usr/local/bin
-# *** EDIT THIS *** - this is where you installed MATLAB ......
-MATLAB = /Applications/MATLAB_R2008b.app/
 # *** EDIT THIS *** - this should match the version of wxMac you are using
 #INSTALL_WX_LIBS = install_libs_into_bundle_2_8_7
 #INSTALL_WX_LIBS = install_libs_into_bundle_2_8_8
-INSTALL_WX_LIBS = install_libs_into_bundle_2_8_10
+INSTALL_WX_LIBS = install_libs_into_bundle_2_8_11
 
 BUILD = release
 
@@ -61,21 +59,9 @@ endif
 
 # currently cannot use MATLAB or shared base library with console version 
 ifeq ($(CONSOLE_APP), 1)
-USE_MATLAB = 0
 SHARED_BASE = 0
 endif
 
-# MATLAB specific data
-MATLAB_INCLUDE = -I${MATLAB}/extern/include \
-				-I$(TOP_DIR)/src/matlab/gmat_mex/src
-MATLAB_LIB = -L${MATLAB}/bin/maci \
-			-L$(MATLAB)/bin \
-             -L${MATLAB}/sys/os/maci
-MATLAB_LIBRARIES = -leng -lmx -lut -lmat \
-                   -lz -lstdc++ -lc 
-                   
-#                   \
-#                   -licudata -licuuc -licui18n -licuio -lz.1 -lxerces-c.27 -lhdf5.0
 
 # DevIL data
 ifeq ($(USE_DEVIL), 1)
@@ -88,7 +74,8 @@ endif
 
 # wxWidgets settings
 ifeq ($(WX_28_SYNTAX), 1)
-WX_28_DEFINES = -D__USE_WX280__ -D__USE_WX280_GL
+WX_28_DEFINES = -D__USE_WX280__
+#WX_28_DEFINES = -D__USE_WX280__ -D__USE_WX280_GL__
 else
 WX_28_DEFINES = 
 endif
@@ -101,7 +88,8 @@ SHARED_BASE_FLAGS =
 endif
 
 # Snow Leopard Specific Build -- to use carbon based wx
-WX_CARBON_BUILD =  -m32 -arch i386
+#WX_CARBON_BUILD =  -m32 -arch i386
+WX_CARBON_BUILD = -arch i386
 
 WXCPPFLAGS = `$(WX_INSTALLED)/wx-config --cppflags`
 WXLINKFLAGS = `$(WX_INSTALLED)/wx-config --libs --universal=no --static=no`
@@ -111,8 +99,8 @@ WXLINKFLAGS = `$(WX_INSTALLED)/wx-config --libs --universal=no --static=no`
 CPP = g++
 C = gcc
 # *** EDIT THIS *** - You need a fortran compiler here ............
-#FORTRAN = /sw/bin/g77
 FORTRAN = /usr/local/bin/gfortran
+#FORTRAN = /usr/bin/gfortran
 
 PROFILE_FLAGS = -pg
 
@@ -132,15 +120,11 @@ ifeq ($(MAC_SPECIFIC),1)
 
 MAC_CPP_FLAGS=-current_version 0.5 -compatibility_version 0.5 -fvisibility=default
 
-#ifeq ($(USE_MATLAB),1)
+
 EXECUTABLE 	= $(TOP_DIR)/application/bin/GMAT
-#else
-#EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
-#endif
 
 # *** EDIT THIS *** - put the version number of the wxMac that you're using here ...
-WX_VERSION   = 2.8.10
-#WX_VERSION   = 2.8.8
+WX_VERSION   = 2.8.11
 GMAT_INFO    = $(TOP_DIR)/src/gui/Info_GMAT.plist
 CONTENTS_DIR = $(EXECUTABLE).app/Contents
 MACOS_DIR    = $(CONTENTS_DIR)/MacOS
@@ -150,25 +134,19 @@ MAC_APP      = $(MACOS_DIR)/GMAT
 MAC_SCRIPT_DIR   = $(MACOS_DIR)/
 MAC_PKG      = $(CONTENTS_DIR)/Info.plist
 MAC_PKGINFO  = $(CONTENTS_DIR)/PkgInfo
-GMAT_ICONS   = $(TOP_DIR)/application/data/icons/GMATIcon.icns
+GMAT_ICONS   = $(TOP_DIR)/src/gui/resource/GMATMac.icns
 MAC_ICONS    = $(RES_DIR)/gmat.icns
 
 #REZ =
 # Define macros for linking the Carbon and wx resource files
 REZ = /Developer/Tools/Rez -d __DARWIN__ -t APPL -d __WXMAC__ Carbon.r -arch i386
 # *** EDIT THIS *** - Point to where the FORTRAN libraries are
-#FORTRAN_LIB = -L/sw/lib  
-#FORTRAN_LIB = -L/usr/local/lib -lgcc_s.1 -lgfortran 
-#FORTRAN_LIB = -L/usr/local/lib -lgfortran 
-FORTRAN_LIB = -L/usr/local/gfortran/lib -lgfortran 
+FORTRAN_LIB = -L/usr/local/gfortran/lib/i386 -lgfortran 
 
 else 
 REZ = 
 FORTRAN_LIB =                
 endif 
-
-# Build specific flags
-MATLAB_FLAGS = -D__USE_MATLAB__=1
 
 ifeq ($(CONSOLE_APP),1)
 CONSOLE_FLAGS = -D__CONSOLE_APP__
@@ -180,49 +158,20 @@ endif
 DEBUG_FLAGS = 
 
 # Build the complete list of flags for the compilers
-ifeq ($(USE_MATLAB),1)
-CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
-           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE)\
-           $(MATLAB_INCLUDE) $(IL_HEADERS) $(SHARED_BASE_FLAGS) $(MAC_CPP_FLAGS)\
-           -fpascal-strings -I/Developer/Headers/FlatCarbon  \
-           -D__WXMAC__ $(WX_28_DEFINES) -fno-strict-aliasing -fno-common -m32 -arch i386
-F77_FLAGS = $(SOME_OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(MATLAB_FLAGS) \
-           $(WXCPPFLAGS) \
-           $(MATLAB_INCLUDE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES) -m32
-TCPIP_OBJECTS =	$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabClient.o \
-				$(TOP_DIR)/src/matlab/gmat_mex/src/MatlabConnection.o
-else
-CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) \
-           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES) -m32 -arch i386
+CPPFLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall $(SHARED_BASE_FLAGS) -D__SHOW_HELP_BUTTON__ -D__SMART_APPLY_BUTTON__\
+           $(WXCPPFLAGS) $(SPICE_INCLUDE) $(SPICE_DIRECTIVE) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES) $(WX_CARBON_BUILD)
 F77_FLAGS = $(OPTIMIZATIONS) $(CONSOLE_FLAGS) -Wall -m32 \
             $(WXCPPFLAGS) $(IL_HEADERS) -D__WXMAC__ $(WX_28_DEFINES)
-TCPIP_OBJECTS =	
-endif
+
 
 # Link specific flags
-# *** EDIT THIS *** - put the correcct wx lib here (based on the version you're using, 
+# *** EDIT THIS *** - put the correct wx lib here (based on the version you're using, 
 #                     i.e. 2.8, 2.6, etc.)
-ifeq ($(USE_MATLAB),1)
-LINK_FLAGS = $(WXLINKFLAGS)\
-             $(MATLAB_LIB) $(MATLAB_LIBRARIES) \
-             $(SPICE_LIBRARIES) -lm\
-             $(FORTRAN_LIB) -framework OpenGL -framework AGL -headerpad_max_install_names\
-             -lwx_mac_gl-2.8 $(IL_LIBRARIES) $(DEBUG_FLAGS) -m32
-#             -lwx_mac_gl-2.8 -lg2c $(IL_LIBRARIES) $(DEBUG_FLAGS) -arch i386
-else
-LINK_FLAGS = $(WXLINKFLAGS)\
-               $(FORTRAN_LIB) -framework OpenGL -framework AGL  -headerpad_max_install_names \
-               $(SPICE_LIBRARIES) -lm -m32\
-             -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) -arch i386
-#             -lwx_mac_gl-2.8 -lg2c $(DEBUG_FLAGS) $(IL_LIBRARIES) -arch i386
-endif
+LINK_FLAGS =  $(WXLINKFLAGS) /usr/lib/libstdc++.6.dylib \
+               -framework OpenGL -framework AGL  -headerpad_max_install_names \
+               $(SPICE_LIBRARIES) $(FORTRAN_LIB) -lm\
+             -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) $(WX_CARBON_BUILD)
 
 # currently cannot use MATLAB with console version
-# ifeq ($(USE_MATLAB),1)
-# CONSOLE_LINK_FLAGS = $(MATLAB_LIB) $(MATLAB_LIBRARIES) -L../../base/lib \
-#            			$(FORTRAN_LIB) \
-#                     -lg2c -ldl $(DEBUG_FLAGS) 
-# else
-#CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) $(SPICE_LIBRARIES) -lm -lg2c -ldl $(DEBUG_FLAGS) 
 CONSOLE_LINK_FLAGS = -L../../base/lib $(FORTRAN_LIB) $(SPICE_LIBRARIES) -lm -ldl $(DEBUG_FLAGS) 
-# endif
+
