@@ -277,6 +277,9 @@ void SpacecraftPanel::SaveData()
    if (theThrusterPanel->IsDataChanged())
       theThrusterPanel->SaveData();
    
+   if (theVisualModelPanel->IsDataChanged())
+      theVisualModelPanel->SaveData();
+   
    // copy the current info into theSpacecraft
    theSpacecraft->Copy(currentSpacecraft);
    EnableUpdate(false);
