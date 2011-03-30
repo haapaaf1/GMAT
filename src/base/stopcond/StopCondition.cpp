@@ -137,6 +137,7 @@ StopCondition::StopCondition(const std::string &name, const std::string &desc,
      isPeriapse           (false),
      isApoapse            (false),
      isCyclicTimeCondition(false),
+     startValue           (0.0),
      lhsCycleType         (GmatParam::NOT_CYCLIC),
      rhsCycleType         (GmatParam::NOT_CYCLIC)
 {
@@ -179,7 +180,6 @@ StopCondition::StopCondition(const StopCondition &copy)
      mBaseEpoch           (copy.mBaseEpoch),
      internalEpoch        (copy.internalEpoch),
      currentGoalValue     (copy.currentGoalValue),
-     initialGoalValue     (copy.initialGoalValue),
      mRepeatCount         (copy.mRepeatCount),
      mSolarSystem         (copy.mSolarSystem),
      mDescription         (copy.mDescription),
@@ -213,6 +213,7 @@ StopCondition::StopCondition(const StopCondition &copy)
      isPeriapse           (copy.isPeriapse),
      isApoapse            (copy.isApoapse),
      isCyclicTimeCondition(copy.isCyclicTimeCondition),
+     initialGoalValue     (copy.initialGoalValue),
      lhsCycleType         (copy.lhsCycleType),
      rhsCycleType         (copy.rhsCycleType)
 {
