@@ -696,10 +696,18 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
    // Rvector6 is initialized to all 0.0's; only change it if the body is not 
    // the Sun
    if (!bodyIsTheSun)
+   {
       cbrv = body->GetState(ep);
-   cbSunVector[0] = sunrv[0] - cbrv[0];
-   cbSunVector[1] = sunrv[1] - cbrv[1];
-   cbSunVector[2] = sunrv[2] - cbrv[2];
+      cbSunVector[0] = sunrv[0] - cbrv[0];
+      cbSunVector[1] = sunrv[1] - cbrv[1];
+      cbSunVector[2] = sunrv[2] - cbrv[2];
+   }
+   else
+   {
+      cbSunVector[0] = 0.0;
+      cbSunVector[1] = 0.0;
+      cbSunVector[2] = 0.0;
+   }
 
    #ifdef DEBUG_SRP_ORIGIN
       bool showData = false;
@@ -751,6 +759,12 @@ bool SolarRadiationPressure::GetDerivatives(Real *state, Real dt, Integer order,
          {
             psunrad = asin(sunRadius / sunDistance);
             FindShadowState(inSunlight, inShadow, &state[i6]);
+         }
+         else
+         {
+        	 inSunlight= true;
+        	 inShadow = false;
+        	 percentSun = 1.0;
          }
         
          if (!inShadow) 
