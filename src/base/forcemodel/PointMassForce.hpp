@@ -153,6 +153,9 @@ protected:
    Integer stmCount;
    Integer stmIndex;
    bool fillSTM;
+   Integer aMatrixCount;
+   Integer aMatrixIndex;
+   bool fillAMatrix;
    
    // for Debug
    void ShowBodyState(const std::string &header, Real time, Rvector6 &rv);

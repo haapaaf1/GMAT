@@ -365,7 +365,7 @@ bool PropagationEnabledCommand::Initialize()
 /**
  * This method provides an interface derived commands can use to set specific
  * propagation properties where needed.  As an example the orbit STM can be set
- * using in an overridden implementation of this method for estimators that need
+ * using an overridden implementation of this method for estimators that need
  * to propagate the orbit STM.
  *
  * @param psm A PropagationStateManager that controls the propagation state

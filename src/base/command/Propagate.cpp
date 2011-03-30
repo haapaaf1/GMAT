@@ -1701,7 +1701,7 @@ bool Propagate::InterpretAction()
          /** @todo: This point fix needs to be generalized so that a list of
           *         keywords isn't maintained here.
           */
-         if ((*satName[i])[j] != "STM")
+         if (((*satName[i])[j] != "STM") && ((*satName[i])[j] != "AMatrix"))
          {
             #ifdef DEBUG_PROPAGATE_ASSEMBLE
                MessageInterface::ShowMessage("  [%d][%d] = %s\n", i, j,

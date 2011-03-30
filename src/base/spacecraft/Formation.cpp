@@ -1196,6 +1196,8 @@ Integer Formation::SetPropItem(const std::string &propItem)
       return Gmat::CARTESIAN_STATE;
    if (propItem == "STM")
       return Gmat::ORBIT_STATE_TRANSITION_MATRIX;
+   if (propItem == "AMatrix")
+      return Gmat::ORBIT_A_MATRIX;
    
    return SpaceObject::SetPropItem(propItem);
 }
@@ -1222,6 +1224,9 @@ Real* Formation::GetPropItem(const Integer item)
 //         retval = stm;
          break;
          
+      case Gmat::ORBIT_A_MATRIX:
+         break;
+
       case Gmat::MASS_FLOW:
          // todo: Access tanks for mass information to handle mass flow
          break;
@@ -1247,6 +1252,10 @@ Integer Formation::GetPropItemSize(const Integer item)
          retval = 36 * satCount;
          break;
          
+      case Gmat::ORBIT_A_MATRIX:
+         retval = 36 * satCount;
+         break;
+
       case Gmat::MASS_FLOW:
          // todo: Access tanks for mass information to handle mass flow
          break;
@@ -1258,15 +1267,6 @@ Integer Formation::GetPropItemSize(const Integer item)
    
    return retval;
 }
-
-
-
-
-
-
-
-
-
 
 
 //---------------------------------------------------------------------------

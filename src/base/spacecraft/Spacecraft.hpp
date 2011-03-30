@@ -229,6 +229,7 @@ protected:
 //      SC_CLOCK_SPICE_KERNEL_NAME,
 //      FRAME_SPICE_KERNEL_NAME,
       ORBIT_STM,
+      ORBIT_A_MATRIX,
 //      ORBIT_COVARIANCE,
 
       // special parameter to handle in GmatFunction
@@ -399,6 +400,9 @@ protected:
 
    /// The orbit State Transition Matrix
    Rmatrix           orbitSTM;
+
+   /// The orbit State A Matrix
+   Rmatrix           orbitAMatrix;
 
    /// Toggle to making Cart state dynamic; Integer to handle multiple includes
    Integer           includeCartesianState;
