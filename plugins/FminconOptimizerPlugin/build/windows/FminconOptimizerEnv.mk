@@ -2,7 +2,7 @@
 # Environment settings for the FminconOptimizer plugin
 # location of GMAT base headers and libraries
 GMAT_CODE_LOCATION = ../../../../src
-GMAT_BIN_LOCATION = ../../../../bin
+GMAT_BIN_LOCATION = ../../../../application/bin
 
 # location of MATLAB headers and libraries
 MATLAB_DIR = C:/Program\ Files/MATLAB/R2009B

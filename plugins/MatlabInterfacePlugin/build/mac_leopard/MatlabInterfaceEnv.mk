@@ -3,7 +3,7 @@
 # location of GMAT base headers and libraries
 # Mac OS X (Leopard) version 2010.04.13 - Wendy Shoan
 GMAT_CODE_LOCATION = ../../../../src
-GMAT_BIN_LOCATION = ../../../../bin
+GMAT_BIN_LOCATION = ../../../../application/bin
 
 WX_INSTALLED = /usr/local/bin
 
