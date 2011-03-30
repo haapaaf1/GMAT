@@ -7472,7 +7472,8 @@ bool Interpreter::ValidateMcsCommands(GmatCommand *first, GmatCommand *parent,
 
    do
    {
-      if (current->IsOfType("BeginMissionSequence"))
+      if ((current->IsOfType("BeginMissionSequence")) ||
+          (current->IsOfType("PrepareMissionSequence")))
          ++beginMCSCount;
 
       StringArray refs;

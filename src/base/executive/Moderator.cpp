@@ -6008,6 +6008,11 @@ Integer Moderator::RunMission(Integer sandboxNum)
          // initialize Sandbox
          InitializeSandbox(sandboxNum-1);
          
+         if (loadSandboxAndPause)
+         {
+            // Stop processing with loaded Sandbox(es)
+         }
+
          #if DEBUG_RUN
          MessageInterface::ShowMessage
             ("Moderator::RunMission() after InitializeSandbox()\n");
@@ -6324,15 +6329,17 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
    ShowCommand("first cmd = ", first, " second cmd = ", second);
    #endif
    
-   if (second != NULL && second->GetTypeName() != "BeginMissionSequence")
+   if (second != NULL && second->GetTypeName() != "BeginMissionSequence"
+                      && second->GetTypeName() != "PrepareMissionSequence")
    {
       // Show warning message for now (LOJ: 2010.07.15)
       std::string firstCmdStr = "The first command detected is \n'";
       firstCmdStr = firstCmdStr + second->GetGeneratingString(Gmat::NO_COMMENTS) + "'";
       //firstCmdStr = firstCmdStr + second->GetGeneratingString() + "'";
       MessageInterface::PopupMessage
-         (Gmat::WARNING_, "*** WARNING *** BeginMissionSequence is missing. "
-          "It will be required in future builds.\n" + firstCmdStr);
+         (Gmat::WARNING_, "*** WARNING *** BeginMissionSequence or "
+               "PrepareMissionSequence is missing.  One will be required in "
+               "future builds.\n" + firstCmdStr);
       
       #if DEBUG_INTERPRET
       MessageInterface::ShowMessage
@@ -6342,6 +6349,11 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
       bool retval;
       GmatCommand *bms = CreateCommand("BeginMissionSequence", "", retval);
       InsertCommand(bms, first);
+   }
+
+   if (second != NULL && second->GetTypeName() != "PrepareMissionSequence")
+   {
+      loadSandboxAndPause = true;
    }
    
    #if DEBUG_INTERPRET > 1
@@ -8368,6 +8380,7 @@ Moderator::Moderator()
 {
    isRunReady = false;
    showFinalState = false;
+   loadSandboxAndPause = false;
    theDefaultSolarSystem = NULL;
    theSolarSystemInUse = NULL;
    theInternalCoordSystem = NULL;

@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                            CommandFactory
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -23,6 +23,7 @@
 #include "GmatGlobal.hpp"     // for IsMatlabAvailable()
 #include "NoOp.hpp"           // for NoOp command
 #include "BeginMissionSequence.hpp" // for BeginMissionSequence command
+#include "PrepareMissionSequence.hpp" // for PrepareMissionSequence command
 #include "Toggle.hpp"         // for Toggle command
 #include "Propagate.hpp"      // for Propagate command
 #include "Maneuver.hpp"       // for Maneuver command
@@ -95,6 +96,8 @@ GmatCommand* CommandFactory::CreateCommand(const std::string &ofType,
         return new NoOp;
     if (ofType == "BeginMissionSequence")
         return new BeginMissionSequence;
+    if (ofType == "PrepareMissionSequence")
+        return new PrepareMissionSequence;
     else if (ofType == "Propagate")
         return new Propagate;
     else if (ofType == "Toggle")
@@ -228,6 +231,7 @@ CommandFactory::CommandFactory() :
       creatables.push_back("Optimize");
       creatables.push_back("PenUp");
       creatables.push_back("PenDown");
+      creatables.push_back("PrepareMissionSequence");
       creatables.push_back("Propagate");
       creatables.push_back("Report");
       creatables.push_back("Save");
@@ -247,6 +251,7 @@ CommandFactory::CommandFactory() :
       // These commands do nothing
       unviewables.push_back("NoOp");
       unviewables.push_back("BeginMissionSequence");
+      unviewables.push_back("PrepareMissionSequence");
       
       // These commands show as Equation in the MissionTree menu
       unviewables.push_back("Assignment");

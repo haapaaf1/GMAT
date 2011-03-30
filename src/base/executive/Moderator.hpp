@@ -459,6 +459,7 @@ private:
    bool isFromGui;
    bool endOfInterpreter;
    bool showFinalState;
+   bool loadSandboxAndPause;
    Integer objectManageOption;
    std::vector<Sandbox*> sandboxes;
    std::vector<TriggerManager*> triggerManagers;

@@ -1882,6 +1882,7 @@ bool ScriptInterpreter::IsOneWordCommand(const std::string &str)
        (str.find("BeginScript")          != str.npos) ||
        (str.find("NoOp")                 != str.npos) ||
        (str.find("BeginMissionSequence") != str.npos) ||
+       (str.find("PrepareMissionSequence") != str.npos) ||
        (str.find("Else")                 != str.npos  &&
         str.find("ElseIf")               == str.npos) ||
        (str.find("Stop")                 != str.npos))
