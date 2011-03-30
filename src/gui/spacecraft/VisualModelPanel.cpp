@@ -36,10 +36,14 @@
 // event tables for wxWindows
 //------------------------------
 BEGIN_EVENT_TABLE(VisualModelPanel, wxPanel)
-   EVT_TEXT_ENTER(ID_TEXTCTRL, VisualModelPanel::OnTextCtrlChange)
-   EVT_TEXT_ENTER(ID_ROT_TEXT, VisualModelPanel::OnTextCtrlChange)
-   EVT_TEXT_ENTER(ID_TRAN_TEXT, VisualModelPanel::OnTextCtrlChange)
-   EVT_TEXT_ENTER(ID_SCALE_TEXT, VisualModelPanel::OnTextCtrlChange)
+   EVT_TEXT_ENTER(ID_TEXTCTRL, VisualModelPanel::OnTextCtrlEnter)
+   EVT_TEXT_ENTER(ID_ROT_TEXT, VisualModelPanel::OnTextCtrlEnter)
+   EVT_TEXT_ENTER(ID_TRAN_TEXT, VisualModelPanel::OnTextCtrlEnter)
+   EVT_TEXT_ENTER(ID_SCALE_TEXT, VisualModelPanel::OnTextCtrlEnter)
+   EVT_TEXT(ID_TEXTCTRL, VisualModelPanel::OnTextCtrlChange)
+   EVT_TEXT(ID_ROT_TEXT, VisualModelPanel::OnTextCtrlChange)
+   EVT_TEXT(ID_TRAN_TEXT, VisualModelPanel::OnTextCtrlChange)
+   EVT_TEXT(ID_SCALE_TEXT, VisualModelPanel::OnTextCtrlChange)
    EVT_BUTTON(ID_BROWSE_BUTTON, VisualModelPanel::OnBrowseButton)
    EVT_BUTTON(ID_RECENTER_BUTTON, VisualModelPanel::OnRecenterButton)
    EVT_BUTTON(ID_AUTOSCALE_BUTTON, VisualModelPanel::OnAutoscaleButton)
@@ -486,6 +490,7 @@ void VisualModelPanel::ResetSliders()
    xTranValueText->SetLabel(wxT("0"));
    yTranValueText->SetLabel(wxT("0"));
    zTranValueText->SetLabel(wxT("0"));
+   mTextChanged = false;
    currentSpacecraft->SetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetX"), 0);
    currentSpacecraft->SetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetY"), 0);
    currentSpacecraft->SetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetZ"), 0);
@@ -580,13 +585,40 @@ void VisualModelPanel::OnSlide(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 /**
  * Processes the the events where the filename text ctrl changes.
- * @note At the moment, nothing happens.
  */
 //------------------------------------------------------------------------------
 void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event)
 {
-	double x,y,z;
+    mTextChanged = true;
+	dataChanged = true;
+	theScPanel->EnableUpdate(true);
+}
+
+//------------------------------------------------------------------------------
+// void OnTextCtrlEnter(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+/**
+ * Processes the the events where the filename text ctrl changes.
+ */
+//------------------------------------------------------------------------------
+void VisualModelPanel::OnTextCtrlEnter(wxCommandEvent& event)
+{
 	int id = event.GetId();
+	UpdateTextCtrl(id);
+	dataChanged = true;
+	theScPanel->EnableUpdate(true);
+}
+
+//------------------------------------------------------------------------------
+// void UpdateTextCtrl(int id)
+//------------------------------------------------------------------------------
+/**
+ * Updates control based on text in text ctrl
+ */
+//------------------------------------------------------------------------------
+void VisualModelPanel::UpdateTextCtrl(int id)
+{
+	double x,y,z;
 	switch (id)
 	{
 		case (ID_ROT_TEXT):
@@ -642,8 +674,6 @@ void VisualModelPanel::OnTextCtrlChange(wxCommandEvent& event)
 			modelCanvas->Refresh(false);
 			break;
 	}
-	dataChanged = true;
-	theScPanel->EnableUpdate(true);
 }
 
 //------------------------------------------------------------------------------
@@ -706,6 +736,7 @@ void VisualModelPanel::OnRecenterButton(wxCommandEvent& event)
    currentSpacecraft->SetRealParameter(currentSpacecraft->GetParameterID("ModelOffsetZ"), offset[2]);
    modelCanvas->Refresh(false);
    dataChanged = true;
+
 	theScPanel->EnableUpdate(true);
 }
 
@@ -717,7 +748,7 @@ void VisualModelPanel::OnAutoscaleButton(wxCommandEvent& event)
 	currentSpacecraft->SetRealParameter(currentSpacecraft->GetParameterID("ModelScale"), scale);
 	modelCanvas->Refresh(false);
 	dataChanged = true;
-	theScPanel->EnableUpdate(true);
+ 	theScPanel->EnableUpdate(true);
 }
 
 //------------------------------------------------------------------------------
@@ -744,3 +775,36 @@ wxString VisualModelPanel::ToString(Real rval)
 {
    return theGuiManager->ToWxString(rval);
 }
+
+void VisualModelPanel::SaveData()
+{
+   // don't do anything if no data has been changed.
+   // note that dataChanged will be true if the user modified any combo box or
+   // text ctrl, whether or not he/she actually changed the value; we want to only
+   // send the values to the object if something was really changed, to avoid
+   // the hasBeenModified flag being set to true erroneously
+   canClose    = true;
+
+   try
+   {
+      if (mTextChanged)
+      {
+        UpdateTextCtrl(ID_ROT_TEXT);
+        UpdateTextCtrl(ID_TRAN_TEXT);
+        UpdateTextCtrl(ID_SCALE_TEXT);
+        mTextChanged = false;
+      }
+   }
+   catch (BaseException &ex)
+   {
+      canClose = false;
+      dataChanged = true;
+      MessageInterface::PopupMessage(Gmat::ERROR_, ex.GetFullMessage());
+   }
+
+   if (canClose)
+   {
+      dataChanged = false;
+   }
+}
+
