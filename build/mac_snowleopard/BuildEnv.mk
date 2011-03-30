@@ -133,7 +133,7 @@ ifeq ($(MAC_SPECIFIC),1)
 MAC_CPP_FLAGS=-current_version 0.5 -compatibility_version 0.5 -fvisibility=default
 
 #ifeq ($(USE_MATLAB),1)
-EXECUTABLE 	= $(TOP_DIR)/bin/GMAT
+EXECUTABLE 	= $(TOP_DIR)/application/bin/GMAT
 #else
 #EXECUTABLE  = $(TOP_DIR)/bin/GMATNoMatlab
 #endif
@@ -150,7 +150,7 @@ MAC_APP      = $(MACOS_DIR)/GMAT
 MAC_SCRIPT_DIR   = $(MACOS_DIR)/
 MAC_PKG      = $(CONTENTS_DIR)/Info.plist
 MAC_PKGINFO  = $(CONTENTS_DIR)/PkgInfo
-GMAT_ICONS   = $(TOP_DIR)/bin/files/icons/GMATIcon.icns
+GMAT_ICONS   = $(TOP_DIR)/application/data/icons/GMATIcon.icns
 MAC_ICONS    = $(RES_DIR)/gmat.icns
 
 #REZ =

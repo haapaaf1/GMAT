@@ -52,8 +52,8 @@ archclean :
 $(TARGET): $(OBJECTS)
 	$(CPP) $(OBJECTS) $(CONSOLE_LINK_FLAGS) $(LIBRARIES) $(OPTIMIZATIONS) $(SPICE_LIBRARIES) \
 	$(FORTRAN_LIB) -o $(TARGET)
-   mkdir -p ../../application
-   mkdir -p ../../application/bin
+	mkdir -p ../../application
+	mkdir -p ../../application/bin
 	cp $(TARGET) ../../application/bin/$(TARGET)
 #	cp  ../base/lib/libGmatConsole* ../../application/bin/
 	
