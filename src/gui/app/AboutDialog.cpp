@@ -5,6 +5,7 @@
 // GMAT: General Mission Analysis Tool
 //
 // **Legal**
+// $Copyright$
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc.
 //
@@ -20,7 +21,7 @@
 #include "MessageInterface.hpp"
 #include "FileManager.hpp"
 #include "ViewTextDialog.hpp"
-
+#include "FileUtil.hpp"            // for GmatFileUtil::DoesFileExist()
 #include <wx/hyperlink.h>
 #include <wx/statline.h>
 #include <wx/gdicmn.h>
@@ -223,6 +224,9 @@ void AboutDialog::OnHyperLinkClick(wxHyperlinkEvent &event)
       
       wxString rootPath = FileManager::Instance()->GetRootPath().c_str();
       wxString fileName = rootPath + "License.txt";
+      if (!GmatFileUtil::DoesFileExist(fileName.c_str()))
+         fileName = "../License.txt";
+      
       wxTextCtrl *text = dlg->GetTextCtrl();
       text->LoadFile(fileName);
       dlg->ShowModal();
