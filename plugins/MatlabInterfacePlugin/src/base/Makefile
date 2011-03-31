@@ -81,7 +81,7 @@ $(TARGET) : $(OBJECTS)
 	install_name_tool -change /usr/local/lib/libwx_base_carbon_xml-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_base_carbon_xml-2.8.0.dylib $(TARGET)
 	install_name_tool -change /usr/local/lib/libwx_base_carbon_net-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_base_carbon_net-2.8.0.dylib $(TARGET)
 	install_name_tool -change /usr/local/lib/libwx_base_carbon-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_base_carbon-2.8.0.dylib $(TARGET)
-	cp $(TARGET) $(GMAT_BIN_LOCATION)
+	cp $(TARGET) $(GMAT_PLUGIN_LOCATION)
 else
 $(TARGET) : $(OBJECTS)
 	mkdir -p ../../lib
