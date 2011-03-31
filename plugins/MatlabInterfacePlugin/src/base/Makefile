@@ -3,6 +3,7 @@
 # This is the base level makefile 
 #
 # This file builds the plug-in base code
+# This make file currently assumes wxMac version 2.8.x
 
 include ../MatlabInterfaceEnv.mk
 
@@ -70,6 +71,16 @@ $(TARGET) : $(OBJECTS)
 	mkdir -p ../../lib
 	$(CPP) $(OBJECTS) -o $(TARGET) $(SHARED_LIB_FLAGS)
 	install_name_tool -change lib/lib$(BASE_LIBRARY).dylib $(BASE_LIB_LOCATION)lib$(BASE_LIBRARY).dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_mac_richtext-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_mac_richtext-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_mac_aui-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_mac_aui-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_mac_xrc-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_mac_xrc-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_mac_qa-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_mac_qa-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_mac_html-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_mac_html-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_mac_adv-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_mac_adv-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_mac_core-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_mac_core-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_base_carbon_xml-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_base_carbon_xml-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_base_carbon_net-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_base_carbon_net-2.8.0.dylib $(TARGET)
+	install_name_tool -change /usr/local/lib/libwx_base_carbon-2.8.0.dylib $(BASE_LIB_LOCATION)libwx_base_carbon-2.8.0.dylib $(TARGET)
 	cp $(TARGET) $(GMAT_BIN_LOCATION)
 else
 $(TARGET) : $(OBJECTS)
