@@ -6008,28 +6008,26 @@ Integer Moderator::RunMission(Integer sandboxNum)
          // initialize Sandbox
          InitializeSandbox(sandboxNum-1);
          
-         if (loadSandboxAndPause)
-         {
-            // Stop processing with loaded Sandbox(es)
-         }
 
-         #if DEBUG_RUN
-         MessageInterface::ShowMessage
-            ("Moderator::RunMission() after InitializeSandbox()\n");
-         #endif
-         
-         // reset user interrupt flag
-         GmatGlobal::Instance()->SetRunInterrupted(false);
-         
-         // execute sandbox
-         runState = Gmat::RUNNING;
-         ExecuteSandbox(sandboxNum-1);
-         
-         #if DEBUG_RUN
-         MessageInterface::ShowMessage
-            ("Moderator::RunMission() after ExecuteSandbox()\n");
-         #endif
-         
+         if (!loadSandboxAndPause)
+         {
+            #if DEBUG_RUN
+            MessageInterface::ShowMessage
+               ("Moderator::RunMission() after InitializeSandbox()\n");
+            #endif
+
+            // reset user interrupt flag
+            GmatGlobal::Instance()->SetRunInterrupted(false);
+
+            // execute sandbox
+            runState = Gmat::RUNNING;
+            ExecuteSandbox(sandboxNum-1);
+
+            #if DEBUG_RUN
+            MessageInterface::ShowMessage
+               ("Moderator::RunMission() after ExecuteSandbox()\n");
+            #endif
+         }
       }
       catch (BaseException &e)
       {
@@ -6351,10 +6349,10 @@ bool Moderator::InterpretScript(const std::string &filename, bool readBack,
       InsertCommand(bms, first);
    }
 
-   if (second != NULL && second->GetTypeName() != "PrepareMissionSequence")
-   {
+   if (second != NULL && second->GetTypeName() == "PrepareMissionSequence")
       loadSandboxAndPause = true;
-   }
+   else
+      loadSandboxAndPause = false;
    
    #if DEBUG_INTERPRET > 1
    MessageInterface::ShowMessage(GetScript());
@@ -7380,6 +7378,7 @@ void Moderator::CreateDefaultMission()
       SetSolarSystemAndObjectMap(theSolarSystemInUse, objectMapInUse, false,
                                  "CreateDefaultMission()");
       
+      loadSandboxAndPause = false;
       isRunReady = true;
    }
    catch (BaseException &e)
