@@ -621,7 +621,12 @@ void VisualModelPanel::UpdateTextCtrl(int id)
 	double x,y,z;
 	switch (id)
 	{
-		case (ID_ROT_TEXT):
+    case (ID_TEXTCTRL):
+            // Load the model indicated by the path
+            modelCanvas->LoadModel(modelTextCtrl->GetLabelText());
+            currentSpacecraft->modelFile = modelTextCtrl->GetLabelText();
+            break;
+	case (ID_ROT_TEXT):
 			xRotValueText->GetLabelText().ToDouble(&x);
 			yRotValueText->GetLabelText().ToDouble(&y);
 			zRotValueText->GetLabelText().ToDouble(&z);
@@ -704,12 +709,12 @@ void VisualModelPanel::OnBrowseButton(wxCommandEvent& event)
       ResetSliders();
       dataChanged = true;
       theScPanel->EnableUpdate(true);
+      // Set the textctrl to display the selected filename
+      modelTextCtrl->ChangeValue(wxT(filename));
+	  dataChanged = true;
+	  theScPanel->EnableUpdate(true);
+	  ToggleInterface(true);
    }
-   // Set the textctrl to display the selected filename
-   modelTextCtrl->ChangeValue(wxT(filename));
-	dataChanged = true;
-	theScPanel->EnableUpdate(true);
-	ToggleInterface(true);
 }
 
 //------------------------------------------------------------------------------
@@ -792,6 +797,7 @@ void VisualModelPanel::SaveData()
         UpdateTextCtrl(ID_ROT_TEXT);
         UpdateTextCtrl(ID_TRAN_TEXT);
         UpdateTextCtrl(ID_SCALE_TEXT);
+        UpdateTextCtrl(ID_TEXTCTRL);
         mTextChanged = false;
       }
    }
