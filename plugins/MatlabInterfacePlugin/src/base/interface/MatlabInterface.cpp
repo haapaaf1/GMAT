@@ -283,9 +283,6 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
        matlabVarName.c_str(), numElements);
    #endif
    
-   // set precision to long
-   //EvalString("format long");
-
    // get the variable from the MATLAB workspace
    mxArray *mxArrayPtr = NULL;
    mxArrayPtr = engGetVariable(enginePtr, matlabVarName.c_str());
@@ -314,7 +311,7 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
       // If real numeric pointer is NULL, throw an exception
       double *realPtr = mxGetPr(mxArrayPtr);
       if (realPtr == NULL)
-         throw InterfaceException("Received empty output from MATLAB");
+         throw InterfaceException("Received empty real output from MATLAB");
 
       memcpy((char*)outArray, (char*)mxGetPr(mxArrayPtr),
              numElements*sizeof(double));
@@ -329,13 +326,37 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
       mxDestroyArray(mxArrayPtr);
       return 1;
    }
-   else
+   // Added to handle logical scalar data (Bug 2376 fix)
+   else if (mxIsLogicalScalar(mxArrayPtr))
    {
       #ifdef DEBUG_MATLAB_GET_REAL
       MessageInterface::ShowMessage
-         ("MatlabInterface::GetRealArray() Matlab variable is not a double array\n");
+         ("MatlabInterface::GetRealArray() matlab logical scalar pointer found <%p>, "
+          "so calling mxGetPr()\n", mxArrayPtr);
       #endif
-
+      if (mxIsLogicalScalarTrue(mxArrayPtr))
+         outArray[0] = 1.0;
+      else
+         outArray[0] = 0.0;
+      
+      #ifdef DEBUG_MATLAB_GET_REAL
+      for (Integer ii=0; ii < numElements; ii++)
+         MessageInterface::ShowMessage("      outArray[%d] = %f\n", ii, outArray[ii]);
+      MessageInterface::ShowMessage("   Now destroying mxArrayPtr <%p>\n", mxArrayPtr);
+      #endif
+      
+      mxDestroyArray(mxArrayPtr);
+      return 1;
+   }
+   else
+   {
+      // Show warning for now (LOJ: 2011.04.01)
+      //#ifdef DEBUG_MATLAB_GET_REAL
+      MessageInterface::ShowMessage
+         ("*** WARNING *** MatlabInterface::GetRealArray() Matlab variable '%s' "
+          "is not a double array or logical scalar.\n", matlabVarName.c_str());
+      //#endif
+      
       return 0;
    }
 } // end GetRealArray()
