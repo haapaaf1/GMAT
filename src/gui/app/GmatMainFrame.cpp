@@ -687,7 +687,12 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
       if (numChildren > 0)
       {
          int x = (numChildren - 1) * 20;
-         int y = x;
+         #ifdef __WXMAC__
+            // reposition vertical position of first panel for Mac, so top button bar is visible
+            int y = (numChildren) * 20;
+         #else
+            int y = x;
+         #endif
          newChild->SetPosition(wxPoint(x, y));
       }
    }
