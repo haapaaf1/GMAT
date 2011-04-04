@@ -30,6 +30,7 @@ namespace GmatFileUtil
    
    std::string GMAT_API GetPathSeparator();
    std::string GMAT_API GetCurrentPath();
+   std::string GMAT_API ParseFirstPathName(const std::string &fullPath, bool appendSep = true);
    std::string GMAT_API ParsePathName(const std::string &fullPath, bool appendSep = true);
    std::string GMAT_API ParseFileName(const std::string &fullPath, bool removeExt = false);
    std::string GMAT_API ParseFileExtension(const std::string &fullPath, bool prependDot = false);

@@ -109,10 +109,50 @@ std::string GmatFileUtil::GetCurrentPath()
 
 
 //------------------------------------------------------------------------------
+// std::string ParseFirstPathName(const std::string &fullPath, bool appendSep = true)
+//------------------------------------------------------------------------------
+/*
+ * This function parses first path name from given full path name.
+ *
+ * @param  fullPath  input full path name
+ * @param  appendSep appends path separator if true
+ * @return  The file name from the full path
+ *
+ */
+//------------------------------------------------------------------------------
+std::string GmatFileUtil::ParseFirstPathName(const std::string &fullPath,
+                                             bool appendSep)
+{
+   #ifdef DEBUG_PARSE_FILENAME
+   MessageInterface::ShowMessage
+      ("GmatFileUtil::ParseFirstPathName() fullPath=<%s>\n", fullPath.c_str());
+   #endif
+   
+   std::string filePath;
+   std::string::size_type firstSlash = fullPath.find_first_of("/\\");
+   
+   if (firstSlash != filePath.npos)
+   {
+      if (appendSep)
+         filePath = fullPath.substr(0, firstSlash + 1);
+      else
+         filePath = fullPath.substr(0, firstSlash);
+   }
+   
+   #ifdef DEBUG_PARSE_FILENAME
+   MessageInterface::ShowMessage
+      ("GmatFileUtil::ParseFirstPathName() returning <%s>\n", filePath.c_str());
+   #endif
+   
+   return filePath;
+}
+
+
+//------------------------------------------------------------------------------
 // std::string ParsePathName(const std::string &fullPath, bool appendSep = true)
 //------------------------------------------------------------------------------
 /*
- * This function parses file name from given full path name.
+ * This function parses whole path name from given full path name.
  *
  * @param  fullPath  input full path name
  * @param  appendSep appends path separator if true
