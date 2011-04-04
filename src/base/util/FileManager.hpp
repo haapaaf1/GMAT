@@ -171,7 +171,8 @@ private:
    StringArray mGmatFunctionFullPaths;
    StringArray mMatlabFunctionFullPaths;
    StringArray mSavedComments;
-   StringArray mWrittenOuts;
+   StringArray mPathWrittenOuts;
+   StringArray mFileWrittenOuts;
    
    StringArray mPluginList;
    
