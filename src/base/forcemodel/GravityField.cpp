@@ -141,6 +141,16 @@ GravityField::GravityField(const std::string &name, const std::string &forBodyNa
    objectTypeNames.push_back("GravityField");
    bodyName = forBodyName;
    parameterCount = GravityFieldParamCount;
+
+   for (Integer i = 0; i < 17; i++)
+   {
+      for (Integer j = 0; j < 17; j++)
+      {
+         dCbar[i][j] = 0.0;
+         dSbar[i][j] = 0.0;
+      }
+   }
+
 }
 
 
@@ -606,7 +616,7 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder,
 
    //Real* satState;
    Real satState[6];
-   Real f[3]; //, rbb3, mu_rbb;
+   Real f[3] = {0.0,0.0,0.0}; //, rbb3, mu_rbb;
    Real aIndirect[3] = {0.0,0.0,0.0};
    Integer nOffset;
    bool sameCS = false;
