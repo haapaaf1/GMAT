@@ -138,12 +138,12 @@ ifeq ($(USE_DEVIL),1)
 
 LINK_FLAGS = $(WXLINKFLAGS) $(SPICE_LIBRARIES) \
              $(DEBUG_FLAGS) \
-             $(IL_LIBRARIES) $(STC_LIBRARIES) $(PROFILE_FLAGS) $(F2C_FLAGS)
+             $(IL_LIBRARIES) $(STC_LIBRARIES) $(PROFILE_FLAGS) $(F2C_FLAGS) -lpthread
 
 else
 
 LINK_FLAGS = $(WXLINKFLAGS) $(SPICE_LIBRARIES) $(DEBUG_FLAGS) $(STC_LIBRARIES) \
-             $(PROFILE_FLAGS) $(F2C_FLAGS)
+             $(PROFILE_FLAGS) $(F2C_FLAGS) -lpthread
 
 endif
 
