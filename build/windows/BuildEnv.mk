@@ -2,22 +2,23 @@
 # Build environment file for Windows
 
 # Flags used to control the build
-USE_SPICE = 1
+USE_SPICE = 0
 USE_DEVIL = 0
-CONSOLE_APP = 0
+CONSOLE_APP = 1
 DEBUG_BUILD = 0
 PROFILE_BUILD = 0
 WX_28_SYNTAX = 1
 WX_SHARED = 1
 SHARED_BASE = 1
-USE_STC_EDITOR = 1
-USE_WX_EMAIL = 1
+USE_STC_EDITOR = 0
+USE_WX_EMAIL = 0
 SHOW_HELP_BUTTON = 1
 SMART_APPLY_BUTTON = 1
 
 # GMAT application icon for Windows only
 # location of GmatIcon
-GMAT_ICON_DIR = C:/Projects/GmatDev/src/gui/resource
+#GMAT_ICON_DIR = C:/Projects/GmatDev/src/gui/resource
+GMAT_ICON_DIR = D:/IRAD2011/Gmat/src/gui/resource
 GMAT_ICON_RC = $(GMAT_ICON_DIR)/GmatIcon.rc
 GMAT_ICON_O  = $(GMAT_ICON_DIR)/GmatIcon.o
 
@@ -92,8 +93,8 @@ GUI_CPP_FLAGS =
 endif
 endif
 
-GMAT_CPP_FLAGS = $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS) $(EMAIL_CPP_FLAGS) $(GUI_CPP_FLAGS) 
-GMAT_LINK_FLAGS = $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES) $(EMAIL_LIBRARIES) 
+GMAT_CPP_FLAGS = $(SPICE_CPP_FLAGS) $(IL_CPP_FLAGS) $(STC_CPP_FLAGS) $(EMAIL_CPP_FLAGS) $(GUI_CPP_FLAGS) -LC:/MinGW/lib 
+GMAT_LINK_FLAGS = $(SPICE_LIBRARIES) $(IL_LIBRARIES) $(STC_LIBRARIES) $(EMAIL_LIBRARIES) -lws2_32
 
 # wxWidgets settings
 ifeq ($(WX_28_SYNTAX), 1)
