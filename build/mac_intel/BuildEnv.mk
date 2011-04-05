@@ -168,7 +168,7 @@ TCPIP_OBJECTS =
 LINK_FLAGS = $(WXLINKFLAGS)\
                $(FORTRAN_LIB) -framework OpenGL -framework AGL  -headerpad_max_install_names \
                $(SPICE_LIBRARIES) -lm\
-             -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) 
+             -lpthread -lwx_mac_gl-2.8 $(DEBUG_FLAGS) $(IL_LIBRARIES) 
 #             -lwx_mac_gl-2.8 -lg2c $(DEBUG_FLAGS) $(IL_LIBRARIES) $(MAC_CPP_FLAGS) 
 
 
