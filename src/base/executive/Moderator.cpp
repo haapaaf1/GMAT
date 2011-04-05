@@ -714,6 +714,33 @@ void Moderator::LoadPlugins()
 //------------------------------------------------------------------------------
 void Moderator::LoadAPlugin(std::string pluginName)
 {
+   // Set platform specific slash style
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Input plugin name: \"%s\"\n", pluginName.c_str());
+   #endif
+
+   char fSlash = '/';
+   char bSlash = '\\';
+   char osSlash = '\\';       // Default to Windows, but change if *nix
+
+   #ifndef _WIN32
+      osSlash = '/';          // Mac or Linux
+   #endif
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("OS slash is \"%c\"\n", osSlash);
+   #endif
+
+   for (UnsignedInt i = 0; i < pluginName.length(); ++i)
+   {
+      if ((pluginName[i] == fSlash) || (pluginName[i] == bSlash))
+         pluginName[i] = osSlash;
+   }
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Used plugin name:  \"%s\"\n", pluginName.c_str());
+   #endif
+
    DynamicLibrary *theLib = LoadLibrary(pluginName);
 
    if (theLib != NULL)
