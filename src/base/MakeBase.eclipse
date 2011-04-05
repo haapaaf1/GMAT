@@ -306,6 +306,7 @@ OBJECTS = \
     interface/InterfaceException.o \
     interface/Interface.o \
     interface/GmatInterface.o \
+    interface/SocketServer.o \
     interpolator/InterpolatorException.o \
     interpolator/Interpolator.o \
     interpolator/BrentDekkerZero.o \

@@ -10,7 +10,7 @@ PROGRAM_EXTENSION =.exe
 endif
 
 ifeq ($(CONSOLE_APP),1)
-PROGRAM = gmatConsole(PROGRAM_EXTENSION)
+PROGRAM = gmatConsole$(PROGRAM_EXTENSION)
 LIBRARY = base/lib/libGmatConsole.a
 else
 PROGRAM = gmat$(PROGRAM_EXTENSION)

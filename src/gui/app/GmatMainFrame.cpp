@@ -120,6 +120,8 @@
 #include <wx/utils.h>     // for ::wxLaunchDefaultBrowser()
 #include "ddesetup.hpp"   // for IPC_SERVICE, IPC_TOPIC
 
+#include "GmatSocketServer.hpp"		// made changes by TUAN NGUYEN
+
 
 // If we want to show GL option dialog from tool bar
 //#define __SHOW_GL_OPTION_DIALOG__
@@ -507,6 +509,11 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    #else
    #endif
    
+   // Create a new thread to run GMAT socket server
+   GmatSocketServer* server = new GmatSocketServer(this);
+   _beginthread(server->StaticRunServer, 0, (void*)server);
+
+
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage("GmatMainFrame::GmatMainFrame() exiting\n");
    #endif

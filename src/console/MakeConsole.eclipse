@@ -32,7 +32,8 @@ HEADERS = -I../base/include -I../base/foundation \
           -I../base/configs -I../base/burn \
           -I../base/solver -I../base/function \
           -I../base/coordsystem -I../base/attitude \
-          -I../base/math -I../base/plugin
+          -I../base/math -I../base/plugin \
+          -I../base/interface
 
 clean : archclean
 

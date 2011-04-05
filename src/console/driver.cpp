@@ -29,6 +29,8 @@
 #include "PointMassForce.hpp"
 #include "PrintUtility.hpp"
 
+#include "SocketServer.hpp"
+
 
 //------------------------------------------------------------------------------
 //  void ShowHelp()
@@ -47,6 +49,7 @@ void ShowHelp()
              << "The second runs the input script once and then exits.\n"
              << "The third selection executes specific testing scenarios.\n\n" 
              << "Valid options are:\n"
+             << "   --server             Open GMAT server\n"
              << "   --help               Shows available options\n"
              << "   --save               Saves current script (interactive "
              << "mode only)\n"
@@ -477,6 +480,7 @@ void DumpDEData(double secsToStep, double spanInSecs)
 int main(int argc, char *argv[])
 {
    try {
+	  Moderator::Instance()->Initialize();	// made changes by TUAN NGUYEN
       std::string msg = "General Mission Analysis Tool\nConsole Based Version\n";
 
       msg += "Build Date: ";
@@ -518,10 +522,29 @@ int main(int argc, char *argv[])
          }
             
          if ((!strcmp(scriptfile, "q")) || (!strcmp(scriptfile, "Q")))
+         {
             runcomplete = true;
+            break;
+         }
             
          if (scriptfile[0] == '-') {
-            if (!strcmp(scriptfile, "--help")) {
+        	if (!strcmp(scriptfile, "--server"))
+        	{
+        	   // 1. Define message interface in console mode:
+        	   ConsoleMessageReceiver *theMessageReceiver =
+        		      ConsoleMessageReceiver::Instance();
+        	   MessageInterface::SetMessageReceiver(theMessageReceiver);
+
+        	   // 2. Set theUiInterpreter = theScriptInterpreter
+        	   Moderator::SetUiInterpreter(Moderator::GetScriptInterpreter());
+
+        	   // 3. Create a new thread to run socket server
+        	   std::cout << "Start socket server...\n";
+        	   SocketServer* server = new SocketServer();
+        	   _beginthread(server->StaticRunServer, 0, (void*)server);
+
+        	}
+        	else if (!strcmp(scriptfile, "--help")) {
                ShowHelp();
             }
             else if (!strcmp(scriptfile, "--batch")) {
