@@ -61,13 +61,14 @@
 //------------------------------------------------------------------------------
 ObjectInitializer::ObjectInitializer(SolarSystem *solSys, ObjectMap *objMap,
                                      ObjectMap *globalObjMap, CoordinateSystem *intCS, 
-                                     bool useGOS) :
+                                     bool useGOS, bool fromFunction) :
    ss         (solSys),
    LOS        (objMap),
    GOS        (globalObjMap),
    mod        (NULL),
    internalCS (intCS),
    includeGOS (useGOS),
+   inFunction (fromFunction),
    registerSubscribers (false)
 {
    mod = Moderator::Instance();
@@ -84,6 +85,7 @@ ObjectInitializer::ObjectInitializer(const ObjectInitializer &objInit) :
    mod         (NULL),
    internalCS  (objInit.internalCS),
    includeGOS  (objInit.includeGOS),
+   inFunction  (objInit.inFunction),
    registerSubscribers (objInit.registerSubscribers)
 {
    mod = Moderator::Instance();
@@ -104,6 +106,7 @@ ObjectInitializer& ObjectInitializer::operator= (const ObjectInitializer &objIni
       internalCS  = objInit.internalCS;
       publisher   = objInit.publisher;
       includeGOS  = objInit.includeGOS;
+      inFunction  = objInit.inFunction;
       registerSubscribers = objInit.registerSubscribers;
    }
    
@@ -501,7 +504,8 @@ void ObjectInitializer::InitializeObjectsInTheMap(ObjectMap *objMap,
    #ifdef DEBUG_INITIALIZE_OBJ
    MessageInterface::ShowMessage
       ("InitializeObjectsInTheMap() entered, objMap=<%p>, objType=%d, "
-       "objTypeStr='%s'\n", objMap, objType, objTypeStr.c_str());
+       "objTypeStr='%s', inFunction=%d\n", objMap, objType, objTypeStr.c_str(),
+       inFunction);
    #endif
    
    std::string objName;
@@ -1206,14 +1210,28 @@ void ObjectInitializer::BuildReferences(GmatBase *obj)
 void ObjectInitializer::SetRefFromName(GmatBase *obj, const std::string &oName)
 {
    #ifdef DEBUG_OBJECT_INITIALIZER
-      MessageInterface::ShowMessage("Setting reference '%s' on '%s'\n", 
-         oName.c_str(), obj->GetName().c_str());
+      MessageInterface::ShowMessage("Setting reference '%s' on '%s', inFunction=%d\n", 
+         oName.c_str(), obj->GetName().c_str(), inFunction);
    #endif
       
    GmatBase *refObj = NULL;
    
    if ((refObj = FindObject(oName)) != NULL)
-      obj->SetRefObject(refObj, refObj->GetType(), refObj->GetName());
+   {
+      // Do not set if object and its associated hardware in function
+      if (refObj->IsOfType(Gmat::HARDWARE) && obj->IsLocal() && refObj->IsLocal())
+      {
+         #ifdef DEBUG_OBJECT_INITIALIZER
+         MessageInterface::ShowMessage
+            ("   '%s' is associated hardware of '%s' in function, so skip\n",
+             refObj->GetName().c_str(), obj->GetName().c_str());
+         #endif
+      }
+      else
+      {
+         obj->SetRefObject(refObj, refObj->GetType(), refObj->GetName());
+      }
+   }
    else
    {
       // look in the SolarSystem
@@ -1255,8 +1273,8 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
    
    #ifdef DEBUG_BUILD_ASSOCIATIONS
    MessageInterface::ShowMessage
-      ("ObjectInitializer::BuildAssociations() entered, obj=<%p><%s>'%s'\n",
-       obj, objType.c_str(), objName.c_str());
+      ("ObjectInitializer::BuildAssociations() entered, obj=<%p><%s>'%s', "
+       "inFunction=%d\n", obj, objType.c_str(), objName.c_str(), inFunction);
    #endif
    
    // Spacecraft clones associated hardware objects
@@ -1279,6 +1297,17 @@ void ObjectInitializer::BuildAssociations(GmatBase * obj)
          // To handle Spacecraft hardware setting inside the function,
          // all hardware are cloned in the Spacecraft::SetRefObject() method. (LOJ: 2009.07.24)
          GmatBase *newElem = elem;
+         
+         // If hardware is local object inside a function then skip
+         if (inFunction && obj->IsLocal() && newElem->IsLocal())
+         {
+            #ifdef DEBUG_BUILD_ASSOCIATIONS
+            MessageInterface::ShowMessage
+               ("   ---> '%s' and '%s' are local objects inside a function, so skip\n",
+                obj->GetName().c_str(), newElem->GetName().c_str());
+            #endif
+            continue;
+         }
          
          // now set Hardware to Spacecraft
          if (!obj->SetRefObject(newElem, newElem->GetType(), newElem->GetName()))
@@ -1454,7 +1483,8 @@ ObjectInitializer::ObjectInitializer() :
    GOS        (NULL),
    mod        (NULL),
    internalCS (NULL),
-   includeGOS (false)
+   includeGOS (false),
+   inFunction (false)
 {
 }
 
