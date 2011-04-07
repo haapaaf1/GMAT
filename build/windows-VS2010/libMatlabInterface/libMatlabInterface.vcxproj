@@ -118,19 +118,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\..\application\bin\</OutDir>
+    <OutDir>..\..\..\application\plugins\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|Win32'">
-    <OutDir>..\..\..\application\bin\</OutDir>
+    <OutDir>..\..\..\application\plugins\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">
     <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">
-    <OutDir>..\..\..\application\bin\</OutDir>
+    <OutDir>..\..\..\application\plugins\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">
     <OutDir>..\..\..\application\bin64\</OutDir>

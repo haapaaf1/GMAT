@@ -119,7 +119,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
-    <OutDir>..\..\..\application\bin\</OutDir>
+    <OutDir>..\..\..\application\plugins\</OutDir>
     <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -131,7 +131,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|Win32'">
     <TargetExt>.dll</TargetExt>
-    <OutDir>..\..\..\application\bin\</OutDir>
+    <OutDir>..\..\..\application\plugins\</OutDir>
     <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -143,7 +143,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">
     <TargetExt>.dll</TargetExt>
-    <OutDir>..\..\..\application\bin\</OutDir>
+    <OutDir>..\..\..\application\plugins\</OutDir>
     <IncludePath>C:\Program Files (x86)\MATLAB32\R2010b\extern\include;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files (x86)\MATLAB32\R2010b\extern\lib\win32\microsoft;C:\Program Files %28x86%29\MATLAB\R2009b-32bit\extern\lib\win32\microsoft;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -211,7 +211,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\application\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\application\bin;..\..\..\application\plugins;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libMatlabInterface.lib;libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -247,7 +247,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\application\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\application\bin;..\..\..\application\plugins;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libMatlabInterface.lib;libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -283,7 +283,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\application\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\application\bin;..\..\..\application\plugins;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libMatlabInterface.lib;libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
