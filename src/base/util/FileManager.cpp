@@ -716,18 +716,33 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    mPathWrittenOuts.push_back("MATLAB_FUNCTION_PATH");
    
    //---------------------------------------------
+   // write DATA_PATH next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing DATA_PATH path\n");
+   #endif
+   outStream << std::setw(22) << "DATA_PATH" << " = " << mPathMap["DATA_PATH"]
+             << "\n";
+   outStream << "#-----------------------------------------------------------\n";
+   mPathWrittenOuts.push_back("DATA_PATH");
+   
+   //---------------------------------------------
    // write any relative path used in SPK_PATH
    //---------------------------------------------
    std::string spkPath = mPathMap["SPK_PATH"];
    if (spkPath.find("_PATH") != spkPath.npos)
    {
       std::string relPath = GmatFileUtil::ParseFirstPathName(spkPath, false);
-      #ifdef DEBUG_WRITE_STARTUP_FILE
-      MessageInterface::ShowMessage("   .....Writing %s\n", relPath.c_str());
-      #endif
-      outStream << std::setw(22) << relPath << " = " << mPathMap[relPath] << "\n";
-      outStream << "#-----------------------------------------------------------\n";
-      mPathWrittenOuts.push_back(relPath);
+      if (find(mPathWrittenOuts.begin(), mPathWrittenOuts.end(), relPath) ==
+          mPathWrittenOuts.end())
+      {
+         #ifdef DEBUG_WRITE_STARTUP_FILE
+         MessageInterface::ShowMessage("   .....Writing %s\n", relPath.c_str());
+         #endif
+         outStream << std::setw(22) << relPath << " = " << mPathMap[relPath] << "\n";
+         outStream << "#-----------------------------------------------------------\n";
+         mPathWrittenOuts.push_back(relPath);
+      }
    }
    
    //---------------------------------------------
@@ -1965,14 +1980,17 @@ void FileManager::RefreshFiles()
    //-------------------------------------------------------
    // add root path
    //-------------------------------------------------------
-   AddFileType("ROOT_PATH", "../data");
+   AddFileType("ROOT_PATH", "../");
+   AddFileType("DATA_PATH", "ROOT_PATH/data");
    
    //-------------------------------------------------------
    // add default output paths and files
    //-------------------------------------------------------
    std::string defOutPath = "../output";
+   
    if (!DoesDirectoryExist(defOutPath))
       defOutPath = "./";
+   
    AddFileType("OUTPUT_PATH", defOutPath);
    AddFileType("LOG_FILE", "OUTPUT_PATH/GmatLog.txt");
    AddFileType("REPORT_FILE", "OUTPUT_PATH/ReportFile.txt");
@@ -1992,50 +2010,50 @@ void FileManager::RefreshFiles()
    //-------------------------------------------------------
    
    // de files
-   AddFileType("DE_PATH", "ROOT_PATH/planetary_ephem/de/");
+   AddFileType("DE_PATH", "DATA_PATH/planetary_ephem/de/");
    AddFileType("DE405_FILE", "DE_PATH/leDE1941.405");
 
    // spk files
-   AddFileType("SPK_PATH", "ROOT_PATH/planetary_ephem/spk/");
+   AddFileType("SPK_PATH", "DATA_PATH/planetary_ephem/spk/");
    AddFileType("PLANETARY_SPK_FILE", "SPK_PATH/de421.bsp");
 
    // earth gravity files
-   AddFileType("EARTH_POT_PATH", "ROOT_PATH/gravity/earth/");
+   AddFileType("EARTH_POT_PATH", "DATA_PATH/gravity/earth/");
    AddFileType("JGM2_FILE", "EARTH_POT_PATH/JGM2.cof");
    AddFileType("JGM3_FILE", "EARTH_POT_PATH/JGM3.cof");
    AddFileType("EGM96_FILE", "EARTH_POT_PATH/EGM96.cof");
 
    // luna gravity files
-   AddFileType("LUNA_POT_PATH", "ROOT_PATH/gravity/luna/");
+   AddFileType("LUNA_POT_PATH", "DATA_PATH/gravity/luna/");
    AddFileType("LP165P_FILE", "LUNA_POT_PATH/lp165p.cof");
 
    // venus gravity files
-   AddFileType("VENUS_POT_PATH", "ROOT_PATH/gravity/venus/");
+   AddFileType("VENUS_POT_PATH", "DATA_PATH/gravity/venus/");
    AddFileType("MGNP180U_FILE", "VENUS_POT_PATH/MGNP180U.cof");
 
    // mars gravity files
-   AddFileType("MARS_POT_PATH", "ROOT_PATH/gravity/mars/");
+   AddFileType("MARS_POT_PATH", "DATA_PATH/gravity/mars/");
    AddFileType("MARS50C_FILE", "MARS_POT_PATH/Mars50c.cof");
 
    // planetary coeff. fiels
-   AddFileType("PLANETARY_COEFF_PATH", "ROOT_PATH/planetary_coeff/");
+   AddFileType("PLANETARY_COEFF_PATH", "DATA_PATH/planetary_coeff/");
    AddFileType("EOP_FILE", "PLANETARY_COEFF_PATH/eopc04.62-now");
    AddFileType("PLANETARY_COEFF_FILE", "PLANETARY_COEFF_PATH/NUT85.DAT");
    AddFileType("NUTATION_COEFF_FILE", "PLANETARY_COEFF_PATH/NUTATION.DAT");
 
    // time path and files
-   AddFileType("TIME_PATH", "ROOT_PATH/time/");
+   AddFileType("TIME_PATH", "DATA_PATH/time/");
    AddFileType("LEAP_SECS_FILE", "TIME_PATH/tai-utc.dat");
    AddFileType("LSK_FILE", "TIME_PATH/naif0009.tls");
    
    // gui config file path
-   AddFileType("GUI_CONFIG_PATH", "ROOT_PATH/gui_config/");
+   AddFileType("GUI_CONFIG_PATH", "DATA_PATH/gui_config/");
    
    // personalization file
-   AddFileType("PERSONALIZATION_FILE", "ROOT_PATH/gui_config/MyGmat.ini");
+   AddFileType("PERSONALIZATION_FILE", "DATA_PATH/gui_config/MyGmat.ini");
    
    // icon path and main icon file
-   AddFileType("ICON_PATH", "ROOT_PATH/graphics/icons/");
+   AddFileType("ICON_PATH", "DATA_PATH/graphics/icons/");
    
    #if defined __WXMSW__
    AddFileType("MAIN_ICON_FILE", "ICON_PATH/GMATWin32.ico");
@@ -2046,11 +2064,11 @@ void FileManager::RefreshFiles()
    #endif
 
    // splash file path
-   AddFileType("SPLASH_PATH", "ROOT_PATH/graphics/splash/");
+   AddFileType("SPLASH_PATH", "DATA_PATH/graphics/splash/");
    AddFileType("SPLASH_FILE", "SPLASH_PATH/GMATSplashScreen.tif");
    
    // texture file path
-   AddFileType("TEXTURE_PATH", "ROOT_PATH/graphics/texture/");
+   AddFileType("TEXTURE_PATH", "DATA_PATH/graphics/texture/");
    AddFileType("SUN_TEXTURE_FILE", "TEXTURE_PATH/Sun.jpg");
    AddFileType("MERCURY_TEXTURE_FILE", "TEXTURE_PATH/Mercury_JPLCaltech.jpg");
    AddFileType("EARTH_TEXTURE_FILE", "TEXTURE_PATH/ModifiedBlueMarble.jpg");
@@ -2063,12 +2081,12 @@ void FileManager::RefreshFiles()
    AddFileType("LUNA_TEXTURE_FILE", "TEXTURE_PATH/Moon_HermesCelestiaMotherlode.jpg");
    
    // star path and files
-   AddFileType("STAR_PATH", "ROOT_PATH/graphics/stars/");
+   AddFileType("STAR_PATH", "DATA_PATH/graphics/stars/");
    AddFileType("STAR_FILE", "STAR_PATH/inp_StarCatalog.txt");
    AddFileType("CONSTELLATION_FILE", "STAR_PATH/inp_Constellation.txt");
    
    // models
-   AddFileType("MODEL_PATH", "ROOT_PATH/vehicle/models/");
+   AddFileType("MODEL_PATH", "DATA_PATH/vehicle/models/");
    AddFileType("SPACECRAFT_MODEL_FILE", "MODEL_PATH/aura.3ds");
    
 #endif
