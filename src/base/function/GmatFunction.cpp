@@ -263,7 +263,7 @@ bool GmatFunction::Initialize()
    validator->SetSolarSystem(solarSys);
    std::map<std::string, GmatBase *>::iterator omi;
    
-   // add automatic objects to the FOS (well, actually, clones of them)
+   // add automatic objects such as sat.X to the FOS (well, actually, clones of them)
    for (omi = automaticObjectMap.begin(); omi != automaticObjectMap.end(); ++omi)
    {
       std::string autoObjName = omi->first;
@@ -277,6 +277,20 @@ bool GmatFunction::Initialize()
             (autoObj, autoObjName, "GmatFunction::Initialize()",
              "autoObj = (omi->second)->Clone()");
          #endif
+         
+         #ifdef DEBUG_FUNCTION_INIT
+         try
+         {
+            MessageInterface::ShowMessage
+               ("   autoObj->EvaluateReal() = %f\n", autoObj->GetRealParameter("Value"));
+         }
+         catch (BaseException &e)
+         {
+            MessageInterface::ShowMessage(e.GetFullMessage());             
+         }
+         #endif
+         
+         autoObj->SetIsLocal(true);
          objectStore->insert(std::make_pair(autoObjName, autoObj));
       }
    }

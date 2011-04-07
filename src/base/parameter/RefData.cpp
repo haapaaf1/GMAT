@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  RefData
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -484,7 +484,9 @@ bool RefData::AddRefObject(const Gmat::ObjectType type, const std::string &name,
    }
    
    #if DEBUG_REFDATA_ADD
-   MessageInterface::ShowMessage("RefData::AddRefObject() return false\n");
+   MessageInterface::ShowMessage
+      ("RefData::AddRefObject() '%s' is not a valid object type so returnning "
+       "false\n", name.c_str());
    #endif
    
    return false;
