@@ -140,6 +140,8 @@ public:
    virtual GmatBase*    GetOwnedObject(Integer whichOne);
    virtual bool         SetIsGlobal(bool globalFlag);
    virtual bool         GetIsGlobal() const;
+   virtual bool         SetIsLocal(bool localFlag);
+   virtual bool         IsLocal() const;
    virtual bool         IsObjectCloaked() const;
    virtual bool         SaveAllAsDefault();
    virtual bool         SaveParameterAsDefault(const Integer id);
@@ -469,7 +471,9 @@ protected:
    StringArray         refObjectNames;
    /// flag indicating whether or not the object is Global
    bool                isGlobal;
-
+   /// flag indicating whether or not the object is local inside a function
+   bool                isLocal;
+   
    /// flag indicating whether or not a Callback method is currently executing
    bool                callbackExecuting;
 

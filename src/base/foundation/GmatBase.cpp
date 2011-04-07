@@ -212,7 +212,8 @@ GmatBase::GmatBase(const Gmat::ObjectType typeId, const std::string &typeStr,
    
    // Set the isGlobal flag appropriately
    isGlobal = AUTOMATIC_GLOBAL_FLAGS[type - Gmat::SPACECRAFT];
-
+   isLocal = false;
+   
    // one more instance - add to the instanceCount
    ++instanceCount;
 }
@@ -252,6 +253,7 @@ GmatBase::GmatBase(const GmatBase &a) :
     objectTypes               (a.objectTypes),
     objectTypeNames           (a.objectTypeNames),
     isGlobal                  (a.isGlobal),
+    isLocal                   (a.isLocal),
     callbackExecuting         (false),
     errorMessageFormat        (a. errorMessageFormat),
     errorMessageFormatUnnamed (a. errorMessageFormatUnnamed),
@@ -300,6 +302,7 @@ GmatBase& GmatBase::operator=(const GmatBase &a)
    objectTypes               = a.objectTypes;
    objectTypeNames           = a.objectTypeNames;
    // don't want to modify isGlobal here
+   isLocal                   = a.isLocal;
    callbackExecuting         = false;
    errorMessageFormat        = a. errorMessageFormat;
    errorMessageFormatUnnamed = a. errorMessageFormatUnnamed;
@@ -890,6 +893,47 @@ bool GmatBase::GetIsGlobal() const
    return isGlobal;
 }
 
+//------------------------------------------------------------------------------
+//  bool SetIsLocal(bool localFlag)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the isLocal flag for an object. Local object means that
+ * the object was passed to a function or created inside a function.
+ *
+ * @param localFlag  flag indicating whether or not this object is local
+ *
+ * @return value of isLocal flag.
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::SetIsLocal(bool localFlag)
+{
+   isLocal = localFlag;
+   return isLocal;
+}
+
+//------------------------------------------------------------------------------
+//  bool IsLocal()
+//------------------------------------------------------------------------------
+/**
+ * Method to return the isLocal flag for an object.
+ *
+ * @return value of isLocal flag (i.e. whether or not this object is Local)
+ */
+//------------------------------------------------------------------------------
+bool GmatBase::IsLocal() const
+{
+   return isLocal;
+}
+
+//------------------------------------------------------------------------------
+// bool GmatBase::IsObjectCloaked() const
+//------------------------------------------------------------------------------
+/**
+ * Method to return the cloaking flag for an object.
+ *
+ * @return value of cloaking flag (i.e. whether or not this object is cloaked)
+ */
+//------------------------------------------------------------------------------
 bool GmatBase::IsObjectCloaked() const
 {
    if (!cloaking) return false;
