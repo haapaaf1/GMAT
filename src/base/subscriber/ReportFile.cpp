@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                  ReportFile
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //
@@ -37,7 +37,7 @@
 //#define DEBUG_WRAPPER_CODE
 //#define DBGLVL_REPORTFILE_REF_OBJ 1
 //#define DBGLVL_REPORTFILE_DATA 2
-//#define DBGLVL_WRITE_DATA 1
+//#define DBGLVL_WRITE_DATA 2
 
 //---------------------------------
 // static data
@@ -86,7 +86,8 @@ ReportFile::ReportFile(const std::string &type, const std::string &name,
    leftJustify     (true),
    zeroFill        (false),
    lastUsedProvider(-1),
-   usedByReport    (false)
+   usedByReport    (false),
+   calledByReport  (false)
 {
    objectTypes.push_back(Gmat::REPORT_FILE);
    objectTypeNames.push_back("ReportFile");
