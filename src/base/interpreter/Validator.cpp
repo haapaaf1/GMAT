@@ -2137,7 +2137,9 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
       bool paramFirst = true;
       if (parametersFirst)
       {
-         if (obj->IsOfType(Gmat::BURN))
+         if (obj == NULL)
+            paramFirst = true;
+         else if (obj->IsOfType(Gmat::BURN))
             paramFirst = false;
       }
       else
