@@ -887,7 +887,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    }
    
    objInit = new ObjectInitializer(solarSys, functionObjectStore,
-                                   globalObjectStore, internalCS, true);   
+                                   globalObjectStore, internalCS, true, true);   
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (objInit, "objInit", "FunctionManager::Execute()", "objInit = new ObjectInitializer");
@@ -1298,6 +1298,9 @@ bool FunctionManager::CreatePassingArgWrappers()
              "objFOS = obj->Clone()");
          #endif
       }
+      
+      // Flag it as local object
+      objFOS->SetIsLocal(true);
       
       functionObjectStore->insert(std::make_pair(formalName,objFOS));
       
