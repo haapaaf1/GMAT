@@ -99,6 +99,7 @@ FileManager::FILE_TYPE_STRING[FileTypeCount] =
    "STAR_FILE",
    "CONSTELLATION_FILE",
    "SPACECRAFT_MODEL_FILE",
+   "HELP_FILE",
 };
 
 FileManager* FileManager::theInstance = NULL;
@@ -893,6 +894,20 @@ void FileManager::WriteStartupFile(const std::string &fileName)
    WriteFiles(outStream, "SPACECRAFT_MODEL_FILE");
    outStream << "#-----------------------------------------------------------\n";
    mPathWrittenOuts.push_back("MODEL_PATH");
+   
+   //---------------------------------------------
+   // write the HELP_FILE next
+   //---------------------------------------------
+   #ifdef DEBUG_WRITE_STARTUP_FILE
+   MessageInterface::ShowMessage("   .....Writing HELP_FILE\n");
+   #endif
+   
+   if (GetFilename("HELP_FILE") == "")
+      outStream << std::setw(22) << "#HELP_FILE " << " = " << "\n";
+   else
+      WriteFiles(outStream, "HELP_FILE");
+   outStream << "#-----------------------------------------------------------\n";
+   mFileWrittenOuts.push_back("HELP_FILE");
    
    //---------------------------------------------
    // write rest of paths and files
@@ -1864,11 +1879,12 @@ void FileManager::WriteHeader(std::ofstream &outStream)
    outStream << "# the PLUGIN line below must be set equal to the plugin name without the dynamic link \n";
    outStream << "# library extension with the comment (#) removed from the front of the line.\n";
    outStream << "#\n";
-   outStream << "# Availabe PLUGINs are:\n";
+   outStream << "# Some available PLUGINs are:\n";
    outStream << "# PLUGIN = libMatlabInterface\n";
    outStream << "# PLUGIN = libFminconOptimizer\n";
    outStream << "# PLUGIN = libVF13Optimizer\n";
    outStream << "# PLUGIN = libDataFile\n";
+   outStream << "# PLUGIN = libCcsdsEphemerisFile\n";
    outStream << "# PLUGIN = libGmatEstimation\n";
    outStream << "#\n";
    outStream << "#===============================================================================\n";
@@ -1978,7 +1994,7 @@ void FileManager::RefreshFiles()
    mFileMap.clear();
    
    //-------------------------------------------------------
-   // add root path
+   // add root and data path
    //-------------------------------------------------------
    AddFileType("ROOT_PATH", "../");
    AddFileType("DATA_PATH", "ROOT_PATH/data");
@@ -1987,13 +2003,12 @@ void FileManager::RefreshFiles()
    // add default output paths and files
    //-------------------------------------------------------
    std::string defOutPath = "../output";
-   
    if (!DoesDirectoryExist(defOutPath))
       defOutPath = "./";
    
    AddFileType("OUTPUT_PATH", defOutPath);
    AddFileType("LOG_FILE", "OUTPUT_PATH/GmatLog.txt");
-   AddFileType("REPORT_FILE", "OUTPUT_PATH/ReportFile.txt");
+   AddFileType("REPORT_FILE", "OUTPUT_PATH/GmatReport.txt");
    AddFileType("MEASUREMENT_PATH", "OUTPUT_PATH");
    AddFileType("EPHEM_PATH", "OUTPUT_PATH");
    AddFileType("SCREENSHOT_FILE", "OUTPUT_PATH");
@@ -2088,6 +2103,9 @@ void FileManager::RefreshFiles()
    // models
    AddFileType("MODEL_PATH", "DATA_PATH/vehicle/models/");
    AddFileType("SPACECRAFT_MODEL_FILE", "MODEL_PATH/aura.3ds");
+   
+   // help file
+   AddFileType("HELP_FILE", "");
    
 #endif
 
