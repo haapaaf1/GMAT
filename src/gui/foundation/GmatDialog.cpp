@@ -198,12 +198,22 @@ void GmatDialog::OnCancel(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GmatDialog::OnHelp(wxCommandEvent &event)
 {
+    wxString s;
+    wxString baseHelpLink;
+    char msgBuffer[255];
+
     // get the config object
     wxConfigBase *pConfig = wxConfigBase::Get();
     pConfig->SetPath(wxT("/Help"));
-    wxString s = GetName().c_str();
+    s = GetName().c_str();
+    // get base help link if available
+    baseHelpLink = pConfig->Read(_T("BaseHelpLink"),_T("http://gmat.sourceforge.net/docs/2011a/html/%s.html"));
+    sprintf( msgBuffer, baseHelpLink, s);
+
     // open separate window to show help 
-    wxLaunchDefaultBrowser(pConfig->Read(_T(s),_T("http://gmat.ed-pages.com/wiki/tiki-index.php?page="+s+"+Object")));
+    s = pConfig->Read(_T(s),_T(msgBuffer));
+
+    wxLaunchDefaultBrowser(s);
 }
 
 

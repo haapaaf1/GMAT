@@ -369,6 +369,9 @@ void GmatPanel::OnCancel(wxCommandEvent &event)
 void GmatPanel::OnHelp(wxCommandEvent &event)
 {
     wxString s;
+    wxString baseHelpLink;
+    char msgBuffer[255];
+
     // get the config object
     wxConfigBase *pConfig = wxConfigBase::Get();
     pConfig->SetPath(wxT("/Help"));
@@ -376,8 +379,43 @@ void GmatPanel::OnHelp(wxCommandEvent &event)
       s = mObject->GetTypeName().c_str();
     else
       s = GetName().c_str();
+    // get base help link if available
+    baseHelpLink = pConfig->Read(_T("BaseHelpLink"),_T("http://gmat.sourceforge.net/docs/2011a/html/%s.html"));
+    sprintf( msgBuffer, baseHelpLink, s);
+    #ifdef DEBUG_GMATPANEL
+      MessageInterface::ShowMessage
+         ("GmatPanel::OnHelp() Default Help Link=%s\n", msgBuffer);
+    #endif
+
     // open separate window to show help 
-    wxLaunchDefaultBrowser(pConfig->Read(_T(s),_T("http://gmat.ed-pages.com/wiki/tiki-index.php?page="+s+"+Object")));
+    s = pConfig->Read(_T(s),_T(msgBuffer));
+    #ifdef DEBUG_GMATPANEL
+      MessageInterface::ShowMessage
+         ("GmatPanel::OnHelp() Web Page=<%s>\n",
+          s);
+    #endif
+
+    wxLaunchDefaultBrowser(s);
+
+    //wxHelpController *theHelpController = GmatAppData::Instance()->GetHelpController();
+    //#ifdef DEBUG_GMATPANEL
+    //  MessageInterface::ShowMessage
+    //     ("GmatPanel::OnHelp() theHelpController=<%p>\n   "
+    //      "File to display=%s\n", theHelpController,
+    //      s);
+    //#endif
+
+    //if (!theHelpController->LoadFile(s))
+    //  MessageInterface::ShowMessage
+    //    ("The help controller could not load help page: %s\n",s);
+
+    ////theHelpController->Display(s); // works, display chm, not html
+    //theHelpController->KeywordSearch("TRSObjectInspector"); // displays chm, not html 
+ //   if (!wxLaunchDefaultBrowser(s))
+   //   MessageInterface::PopupMessage
+     //    (Gmat::WARNING_, "The browser could not be launched to show help page: " +
+       //   s + "\n");
+
 }
 
 
