@@ -208,7 +208,7 @@ void GmatDialog::OnHelp(wxCommandEvent &event)
     s = GetName().c_str();
     // get base help link if available
     baseHelpLink = pConfig->Read(_T("BaseHelpLink"),_T("http://gmat.sourceforge.net/docs/2011a/html/%s.html"));
-    sprintf( msgBuffer, baseHelpLink.c_str(), s);
+    sprintf( msgBuffer, baseHelpLink.c_str(), s.c_str());
 
     // open separate window to show help
     s = pConfig->Read(_T(s),_T(msgBuffer));
