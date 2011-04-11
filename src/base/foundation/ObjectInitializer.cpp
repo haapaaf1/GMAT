@@ -68,8 +68,8 @@ ObjectInitializer::ObjectInitializer(SolarSystem *solSys, ObjectMap *objMap,
    mod        (NULL),
    internalCS (intCS),
    includeGOS (useGOS),
-   inFunction (fromFunction),
-   registerSubscribers (false)
+   registerSubscribers (false),
+   inFunction (fromFunction)
 {
    mod = Moderator::Instance();
    publisher = Publisher::Instance();
@@ -85,8 +85,8 @@ ObjectInitializer::ObjectInitializer(const ObjectInitializer &objInit) :
    mod         (NULL),
    internalCS  (objInit.internalCS),
    includeGOS  (objInit.includeGOS),
-   inFunction  (objInit.inFunction),
-   registerSubscribers (objInit.registerSubscribers)
+   registerSubscribers (objInit.registerSubscribers),
+   inFunction  (objInit.inFunction)
 {
    mod = Moderator::Instance();
    publisher = Publisher::Instance();
@@ -106,8 +106,8 @@ ObjectInitializer& ObjectInitializer::operator= (const ObjectInitializer &objIni
       internalCS  = objInit.internalCS;
       publisher   = objInit.publisher;
       includeGOS  = objInit.includeGOS;
-      inFunction  = objInit.inFunction;
       registerSubscribers = objInit.registerSubscribers;
+      inFunction  = objInit.inFunction;
    }
    
    return *this;
