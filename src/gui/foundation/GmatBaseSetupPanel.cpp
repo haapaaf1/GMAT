@@ -973,8 +973,8 @@ bool GmatBaseSetupPanel::GetLayoutConfig(GmatBase *theObject, wxFileConfig **con
       loadMessageWritten = true;
    }
 	*config = new wxFileConfig(wxEmptyString, wxEmptyString,
-	                (filename).c_str(),
-		             wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
+	                 (filename).c_str(),
+		             wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH );
 	return configFileExists;
 
 }
