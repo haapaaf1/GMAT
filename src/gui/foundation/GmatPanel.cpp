@@ -11,11 +11,11 @@
 //
 // Author: Linda Jun
 // Created: 2004/02/02
-// Modified: 
-//    2010.03.26 Thomas Grubb 
+// Modified:
+//    2010.03.26 Thomas Grubb
 //       - Reorganized bottom buttons
 //       - Changed Show Script and Command Summary buttons to be bitmap buttons
-//    2010.03.05 Thomas Grubb 
+//    2010.03.05 Thomas Grubb
 //       - Enabled help button to launch wiki page from configuration file (GMAT.ini)
 //       - Added accelerator keys to Apply, Help, Show Script and Command Summary buttons
 //
@@ -87,25 +87,25 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
    theGuiManager = GuiItemManager::GetInstance();
    UserInputValidator::SetGuiManager(theGuiManager);
    UserInputValidator::SetWindow(this);
-   
+
    canClose = true;
    mDataChanged = false;
-   
+
    mShowBottomSizer = showBottomSizer;
    mShowScriptButton = showScriptButton;
-   
+
    theParent = parent;
-   
+
    #ifdef DEBUG_GMATPANEL
    MessageInterface::ShowMessage
       ("GmatPanel::GmatPanel() entered. theGuiInterpreter=<%p>\n   "
        "showBottomSizer=%d, showScriptButton=%d\n", theGuiInterpreter,
        showBottomSizer, showScriptButton);
    #endif
-   
+
    // create sizers
    thePanelSizer = new wxBoxSizer(wxVERTICAL);
-   
+
    #ifdef __SHOW_TOP_SIZER__
    theTopSizer = new wxStaticBoxSizer(wxVERTICAL, this );
    #endif
@@ -114,14 +114,14 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
       theMiddleSizer = (wxSizer*)(new wxStaticBoxSizer(wxVERTICAL, this));
    else
       theMiddleSizer = (wxSizer*)(new wxBoxSizer(wxVERTICAL));
-   
+
    theBottomSizer = new wxStaticBoxSizer(wxVERTICAL, this );
    wxBoxSizer *theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
-   
+
    #ifdef __SHOW_TOP_SIZER__
    wxBoxSizer *theTopButtonSizer = new wxBoxSizer(wxHORIZONTAL);
    #endif
-   
+
    if (showBottomSizer)
    {
       // create bottom buttons
@@ -149,9 +149,9 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
       theHelpButton = new wxButton
          (this, ID_BUTTON_HELP, GUI_ACCEL_KEY"Help", wxDefaultPosition, wxDefaultSize, 0);
       #endif
-      
+
       // set the Apply button as the default button, T. Grubb
-      #ifdef __SMART_APPLY_BUTTON__   
+      #ifdef __SMART_APPLY_BUTTON__
       theApplyButton->SetDefault();
       #endif
 
@@ -159,16 +159,16 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
       theScriptButton->SetForegroundColour(*wxBLUE);
       theSummaryButton->SetForegroundColour(*wxBLUE);
    }
-   
+
    int borderSize = 3;
-   
+
    // add items to top sizer
-   #ifdef __SHOW_TOP_SIZER__   
+   #ifdef __SHOW_TOP_SIZER__
    theTopButtonSizer->Add(theScriptButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
    theTopButtonSizer->Add(theSummaryButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
    theTopSizer->Add(theTopButtonSizer, 0, wxALIGN_RIGHT | wxALL, borderSize);
    #endif
-   
+
    // adds the buttons to button sizer
    if (showBottomSizer)
    {
@@ -179,21 +179,21 @@ GmatPanel::GmatPanel(wxWindow *parent, bool showBottomSizer, bool showScriptButt
       theButtonSizer->Add(theOkButton, 0, wxALIGN_CENTER | wxALL, borderSize);
       theButtonSizer->Add(theApplyButton, 0, wxALIGN_CENTER | wxALL, borderSize);
       theButtonSizer->Add(theCancelButton, 0, wxALIGN_CENTER | wxALL, borderSize);
-      
+
       #ifdef __SHOW_HELP_BUTTON__
       theButtonSizer->Add(0, 1, wxALIGN_RIGHT);
       theButtonSizer->Add(theHelpButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
       #endif
-      
+
       theBottomSizer->Add(theButtonSizer, 0, wxGROW | wxALL, borderSize);
    }
-   
+
    #ifdef __SHOW_TOP_SIZER__
    topStaticBox->Show(mShowScriptButton);
    #endif
-   
+
    mObject = NULL;
-   
+
    #ifdef DEBUG_GMATPANEL
    MessageInterface::ShowMessage("GmatPanel::GmatPanel() exiting\n");
    #endif
@@ -218,9 +218,9 @@ void GmatPanel::EnableUpdate(bool enable)
    MessageInterface::ShowMessage
       ("GmatPanel::EnableUpdate() enable=%d\n", enable);
    #endif
-   
+
    GmatMdiChildFrame* mdichild = (GmatMdiChildFrame*)theParent->GetParent();
-   
+
    if (enable)
    {
       mDataChanged = true;
@@ -232,7 +232,7 @@ void GmatPanel::EnableUpdate(bool enable)
       mdichild->SetDirty(false);
    }
    // toggle the Apply button based on modifications (T Grubb)
-   #ifdef __SMART_APPLY_BUTTON__   
+   #ifdef __SMART_APPLY_BUTTON__
    if (theApplyButton != NULL) theApplyButton->Enable(mDataChanged);
    #endif
 }
@@ -298,7 +298,7 @@ void GmatPanel::OnApply(wxCommandEvent &event)
    MessageInterface::ShowMessage
       ("GmatPanel::OnApply() mDataChanged=%d\n", mDataChanged);
    #endif
-   
+
    if (mDataChanged)
    {
       SaveData();
@@ -326,7 +326,7 @@ void GmatPanel::OnOK(wxCommandEvent &event)
    MessageInterface::ShowMessage
       ("GmatPanel::OnOK() mDataChanged=%d\n", mDataChanged);
    #endif
-   
+
    if (mDataChanged)
    {
       SaveData();
@@ -338,7 +338,7 @@ void GmatPanel::OnOK(wxCommandEvent &event)
          theGuiInterpreter->ConfigurationChanged(mObject, true);
       }
    }
-   
+
    if (canClose)
       GmatAppData::Instance()->GetMainFrame()->CloseActiveChild();
 }
@@ -381,13 +381,13 @@ void GmatPanel::OnHelp(wxCommandEvent &event)
       s = GetName().c_str();
     // get base help link if available
     baseHelpLink = pConfig->Read(_T("BaseHelpLink"),_T("http://gmat.sourceforge.net/docs/2011a/html/%s.html"));
-    sprintf( msgBuffer, baseHelpLink, s);
+    sprintf( msgBuffer, baseHelpLink.c_str(), s);
     #ifdef DEBUG_GMATPANEL
       MessageInterface::ShowMessage
          ("GmatPanel::OnHelp() Default Help Link=%s\n", msgBuffer);
     #endif
 
-    // open separate window to show help 
+    // open separate window to show help
     s = pConfig->Read(_T(s),_T(msgBuffer));
     #ifdef DEBUG_GMATPANEL
       MessageInterface::ShowMessage
@@ -410,7 +410,7 @@ void GmatPanel::OnHelp(wxCommandEvent &event)
     //    ("The help controller could not load help page: %s\n",s);
 
     ////theHelpController->Display(s); // works, display chm, not html
-    //theHelpController->KeywordSearch("TRSObjectInspector"); // displays chm, not html 
+    //theHelpController->KeywordSearch("TRSObjectInspector"); // displays chm, not html
  //   if (!wxLaunchDefaultBrowser(s))
    //   MessageInterface::PopupMessage
      //    (Gmat::WARNING_, "The browser could not be launched to show help page: " +
@@ -498,39 +498,39 @@ bool GmatPanel::SetObject(GmatBase *obj)
 void GmatPanel::Show()
 {
    // add items to panel sizer
-   
+
    #ifdef __SHOW_TOP_SIZER__
    thePanelSizer->Add(theTopSizer, 0, wxGROW | wxALL, 1);
    #endif
-   
+
    thePanelSizer->Add(theMiddleSizer, 1, wxGROW | wxALL, 1);
-   
+
    if (mShowBottomSizer)
       thePanelSizer->Add(theBottomSizer, 0, wxGROW | wxALL, 1);
-   
-   // displays the script button   
+
+   // displays the script button
    #ifdef __SHOW_TOP_SIZER__
    thePanelSizer->Show(theTopSizer, mShowScriptButton);
    #endif
-   
+
    if (mShowBottomSizer)
       theScriptButton->Show(mShowScriptButton);
-   
+
    // tells the enclosing window to adjust to the size of the sizer
    SetAutoLayout( TRUE );
 
    SetSizer(thePanelSizer); //use the sizer for layout
 
    thePanelSizer->SetSizeHints(this); //set size hints to honour minimum size
-   
+
    LoadData();
-      
+
    EnableUpdate(false);
-   
+
    if (mShowBottomSizer)
       if ((mObject == NULL) || (!mObject->IsOfType(Gmat::COMMAND)))
          theSummaryButton->Hide();
-   
+
    // call Layout() to force layout of the children anew
    thePanelSizer->Layout();
 }
