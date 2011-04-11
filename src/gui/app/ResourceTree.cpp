@@ -53,10 +53,11 @@
 #include "bitmaps/array.xpm"
 #include "bitmaps/string.xpm"
 #include "bitmaps/xyplot.xpm"
-#include "bitmaps/default.xpm"
 #include "bitmaps/tank.xpm"
 #include "bitmaps/thruster.xpm"
 #include "bitmaps/Script.xpm"
+//#include "bitmaps/default.xpm"
+#include "bitmaps/rt_Default.xpm"
 #include "GuiInterpreter.hpp"
 #include "ResourceTree.hpp"
 #include "GmatAppData.hpp"
@@ -464,14 +465,14 @@ bool ResourceTree::AddScriptItem(wxString path)
       {
          // add path to tree
          scriptId =
-            AppendItem(mScriptItem, path, GmatTree::ICON_DEFAULT, -1,
+            AppendItem(mScriptItem, path, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                        new GmatTreeItemData(path, GmatTree::SCRIPT_FILE, path));
       }
       else
       {
          // add filename to tree
          scriptId =
-            AppendItem(mScriptItem, filename, GmatTree::ICON_DEFAULT, -1,
+            AppendItem(mScriptItem, filename, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                        new GmatTreeItemData(path, GmatTree::SCRIPT_FILE, path));
       }
 
@@ -1263,28 +1264,28 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
       /// @todo:  need to create different types for the solvers and check strings
       if (objTypeName == "DifferentialCorrector")
       {
-         AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::DIFF_CORR));
       }
       else if (objTypeName == "Broyden")
       {
-         //AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         //AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
          //           new GmatTreeItemData(wxT(objName), GmatTree::BROYDEN));
       }
       else if (objTypeName == "Quasi-Newton")
       {
-         //AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         //AppendItem(mOptimizerItem, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
          //           new GmatTreeItemData(wxT(objName), GmatTree::QUASI_NEWTON));
       }
       else if (objTypeName == "FminconOptimizer")
       {
-         AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(mOptimizerItem, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::SQP));
       }
       else if (solver->IsOfType("Optimizer"))
       {
         // Set generic optimizer stuff here!
-         AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(mOptimizerItem, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::SOLVER));
       }
    };
@@ -1371,9 +1372,9 @@ void ResourceTree::AddDefaultInterfaces(wxTreeItemId itemId)
 {
    if (GmatGlobal::Instance()->IsMatlabAvailable())
    {
-      AppendItem(itemId, wxT("Matlab"), GmatTree::ICON_DEFAULT, -1,
+      AppendItem(itemId, wxT("Matlab"), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(wxT("Matlab"), GmatTree::MATLAB_INTERFACE));
-      AppendItem(itemId, wxT("Matlab Server"), GmatTree::ICON_DEFAULT, -1,
+      AppendItem(itemId, wxT("Matlab Server"), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(wxT("Matlab Server"), GmatTree::MATLAB_SERVER));
    }
    
@@ -1546,12 +1547,12 @@ void ResourceTree::AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCount
 
       if (objTypeName == "Barycenter")
       {
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(itemId, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::BARYCENTER));
       }
       else if (objTypeName == "LibrationPoint")
       {
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(itemId, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::LIBRATION_POINT));
       }
    };
@@ -1609,7 +1610,7 @@ void ResourceTree::AddUserObjects()
             objName = wxString(itemNames[i].c_str());
             objTypeName = wxString(cp->GetTypeName().c_str());
 
-            AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+            AppendItem(itemId, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                   new GmatTreeItemData(wxT(objName),
                         GmatTree::USER_DEFINED_OBJECT));
          }
@@ -1618,7 +1619,7 @@ void ResourceTree::AddUserObjects()
             objName = wxString(itemNames[i].c_str());
             objTypeName = wxString(cp->GetTypeName().c_str());
 
-            AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+            AppendItem(itemId, wxT(objName), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                   new GmatTreeItemData(wxT(objName),
                         GmatTree::USER_DEFINED_OBJECT));
          }
@@ -2193,7 +2194,8 @@ void ResourceTree::AddIcons()
    theGuiManager->LoadIcon("xyplot", bitmapType, &bitmaps[++index], xyplot_xpm);
    
    theGuiManager->LoadIcon("Script", bitmapType, &bitmaps[++index], Script_xpm);
-   theGuiManager->LoadIcon("default", bitmapType, &bitmaps[++index], default_xpm);
+   //theGuiManager->LoadIcon("default", bitmapType, &bitmaps[++index], default_xpm);
+   theGuiManager->LoadIcon("rt_Default", bitmapType, &bitmaps[++index], rt_Default_xpm);
    
    
    // Let's always recale all icons since size of icon look different on different platforms
@@ -2570,7 +2572,7 @@ void ResourceTree::OnAddDiffCorr(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::DIFF_CORR));
       Expand(item);
 
@@ -2601,7 +2603,7 @@ void ResourceTree::OnAddSqp(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::SQP));
       Expand(item);
 
@@ -2635,7 +2637,7 @@ void ResourceTree::OnAddHardware(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::HARDWARE));
       Expand(item);
 
@@ -2669,7 +2671,7 @@ void ResourceTree::OnAddSolver(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::SOLVER));
       Expand(item);
 
@@ -2805,7 +2807,7 @@ void ResourceTree::OnAddSubscriber(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::SUBSCRIBER));
       Expand(item);
 
@@ -3040,7 +3042,7 @@ void ResourceTree::OnAddBarycenter(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::BARYCENTER));
       Expand(item);
 
@@ -3345,7 +3347,7 @@ void ResourceTree::OnAddUserObject(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::USER_DEFINED_OBJECT));
       Expand(item);
    }
@@ -4570,13 +4572,13 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
    case GmatTree::SOLVER:
-      return GmatTree::ICON_DEFAULT;
+      return GmatTree::RESOURCE_ICON_DEFAULT;
    default:
       if (itemType >= GmatTree::RESOURCES_FOLDER &&
           itemType <= GmatTree::END_OF_RESOURCE_FOLDER)
          return GmatTree::ICON_FOLDER;
       else
-         return GmatTree::ICON_DEFAULT;
+         return GmatTree::RESOURCE_ICON_DEFAULT;
    }
 }
 

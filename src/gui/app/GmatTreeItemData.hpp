@@ -67,7 +67,7 @@ namespace GmatTree
       ICON_XY_PLOT,
 
       ICON_SCRIPT,
-      ICON_DEFAULT,
+      RESOURCE_ICON_DEFAULT,
 
       // ICON_COUNT should be the last one, it is used in ResourceTree::AddIcons()
       ICON_COUNT,
@@ -102,7 +102,21 @@ namespace GmatTree
       MISSION_ICON_REPORT,
 
       MISSION_ICON_STOP,
-
+      MISSION_ICON_PEN_UP,
+      MISSION_ICON_PEN_DOWN,
+      MISSION_ICON_MARK_POINT,
+      MISSION_ICON_CLEAR_PLOT,
+      
+      MISSION_ICON_GLOBAL,
+      MISSION_ICON_SAVE_MISSION,
+      MISSION_ICON_OPTIMIZE,
+      MISSION_ICON_MINIMIZE,
+      MISSION_ICON_NONLINEAR_CONSTRAINT,
+      
+      MISSION_ICON_RUN_SIMULATOR,
+      MISSION_ICON_RUN_ESTIMATOR,
+      MISSION_ICON_DEFAULT,
+      
       MISSION_ICON_COUNT,
       MISSION_NO_ICON,
    };
