@@ -380,7 +380,7 @@ void GmatPanel::OnHelp(wxCommandEvent &event)
     else
       s = GetName().c_str();
     // get base help link if available
-    baseHelpLink = pConfig->Read(_T("BaseHelpLink"),_T("http://gmat.sourceforge.net/docs/2011a/html/%s.html"));
+    baseHelpLink = pConfig->Read(_T("BaseHelpLink"),_T("http://gmat.sourceforge.net/docs/R2011a/html/%s.html"));
     sprintf( msgBuffer, baseHelpLink.c_str(), s.c_str());
     #ifdef DEBUG_GMATPANEL
       MessageInterface::ShowMessage
