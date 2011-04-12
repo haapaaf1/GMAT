@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                    DateUtil
 //------------------------------------------------------------------------------
@@ -37,10 +37,10 @@ using namespace GmatMathUtil; // for Floor(), Mod()
 
 //------------------------------------------------------------------------------
 // ElapsedDays DateUtil::JulianDay(YearNumber year, MonthOfYear month,
-//                                 DayOfMonth day) 
+//                                 DayOfMonth day)
 //------------------------------------------------------------------------------
 Integer DateUtil::JulianDay(YearNumber year, MonthOfYear month,
-                            DayOfMonth day) 
+                            DayOfMonth day)
 {
    //Calculate julian date using Fliegel and Van Flandern algorithm
    const Integer L = (month - 14) / 12;
@@ -56,26 +56,26 @@ Integer DateUtil::JulianDay(YearNumber year, MonthOfYear month,
 //---------------------------------
 
 //------------------------------------------------------------------------------
-// Real JulianDate(YearNumber year, MonthOfYear month, DayOfMonth day, 
+// Real JulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
 //                 Integer hour, Integer minute, Real second)
-//  
+//
 //------------------------------------------------------------------------------
 /**
  * Friend function.   Converted from calendar date to Julian Date.
  *
  * @param <year>    - year of calendar
  * @param <month>   - month in calendar format
- * @param <day>     - day of month in calendar format 
- * @param <hour>    - hour of day 
+ * @param <day>     - day of month in calendar format
+ * @param <hour>    - hour of day
  * @param <minute>  - minute of hour
- * @param <second>  - seconds including millisecond 
+ * @param <second>  - seconds including millisecond
  *
- * @return           Julian date   
- * 
+ * @return           Julian date
+ *
  * @note:   The algorithm is used in the Vallado book.
  */
 //------------------------------------------------------------------------------
-Real JulianDate(YearNumber year, MonthOfYear month, DayOfMonth day, 
+Real JulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
                 Integer hour, Integer minute, Real second)
 {
    Integer computeYearMon = (7*(year + (Integer)((month + 9)/12)))/4;
@@ -127,25 +127,25 @@ Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
 }
 
 //------------------------------------------------------------------------------
-// Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day, 
+// Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
 //                         Integer hour, Integer minute, Real second)
-//  
+//
 //------------------------------------------------------------------------------
 /**
  * Friend function.   Converted from calendar date to Modified Julian Date.
  *
  * @param <year>    - year of calendar
  * @param <month>   - month in calendar format
- * @param <day>     - day of month in calendar format 
- * @param <hour>    - hour of day 
+ * @param <day>     - day of month in calendar format
+ * @param <hour>    - hour of day
  * @param <minute>  - minute of hour
- * @param <second>  - seconds including millisecond 
+ * @param <second>  - seconds including millisecond
  *
- * @return           Modified Julian date   
- * 
+ * @return           Modified Julian date
+ *
  */
 //------------------------------------------------------------------------------
-Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day, 
+Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
                         Integer hour, Integer minute, Real second)
 {
     // 5/23/06 - commented out
@@ -167,7 +167,7 @@ Real ModifiedJulianDate(YearNumber year, MonthOfYear month, DayOfMonth day,
    return modJulianDate;
 }
 
-                
+
 //------------------------------------------------------------------------------
 //  void UnpackDate (Real packedDate, Integer& year, Integer& month, Integer& day)
 //------------------------------------------------------------------------------
@@ -185,9 +185,9 @@ void UnpackDate (Real packedDate, Integer& year, Integer& month, Integer& day)
    month = (Integer)(GmatMathUtil::Floor(remainder / 100.0));
    remainder = Mod(remainder, 100.0);
    day = (Integer)(GmatMathUtil::Floor(remainder + 0.5));
-   
+
    if ( month < 0 || month > 12 || day < 0 || day > 31)
-      throw Date::TimeRangeError();    
+      throw Date::TimeRangeError();
 }
 
 //------------------------------------------------------------------------------
@@ -206,9 +206,9 @@ void UnpackDateWithDOY (Real packedDate, Integer& year, Integer& day)
    year = (Integer)(GmatMathUtil::Floor(packedDate / 1000.0));
    remainder = Mod (packedDate, 1000.0);
    day = (Integer)(GmatMathUtil::Floor(remainder + 0.5));
-   
+
    if ( day < 0 || day > 366)
-      throw Date::TimeRangeError();    
+      throw Date::TimeRangeError();
 }
 
 //------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ void UnpackDateWithDOY (Real packedDate, Integer& year, Integer& day)
 /**
  * Friend function.
  *
- * @note Input time is in hhmmssnnn; added 20 seconds to the input time, 
+ * @note Input time is in hhmmssnnn; added 20 seconds to the input time,
  *       to be subtracted later, to avoid gross errors around minute boundaries.
  */
 //------------------------------------------------------------------------------
@@ -227,16 +227,16 @@ void UnpackTime (Real packedTime, Integer& hour, Integer& minute,
    Real remainder = packedTime;
    remainder = remainder + 20000.0;      // 20000 milliseconds (hhmmssnnn.)
    hour = (Integer)(GmatMathUtil::Floor(remainder / 10000000.0));
-   remainder = Mod (remainder, 10000000); 
+   remainder = Mod (remainder, 10000000);
    minute = (Integer)(GmatMathUtil::Floor(remainder / 100000.0));
-   remainder = Mod (remainder, 100000.0); 
+   remainder = Mod (remainder, 100000.0);
    second = (remainder / 1000.0) - 20.0;
-   
+
    if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0.0
        || second > 61.0)
    {
-      throw Date::TimeRangeError();    
-   }     
+      throw Date::TimeRangeError();
+   }
 }
 
 //-----------------------------------------------------------------------------
@@ -256,17 +256,17 @@ void ToMonthDayFromYearDOY (Integer year, Integer dayOfYear, Integer& month,
    const Integer *ptrDaysList;
 
    if ( dayOfYear < 0 || dayOfYear > 366 )
-      throw Date::TimeRangeError();    
-   
+      throw Date::TimeRangeError();
+
    if (IsLeapYear(year))
       ptrDaysList = GmatTimeConstants::LEAP_YEAR_DAYS_BEFORE_MONTH;
    else
       ptrDaysList = GmatTimeConstants::DAYS_BEFORE_MONTH;
-      
+
    for (i=1; i<12; i++)
       if (dayOfYear <= ptrDaysList[i])
          break;
-   
+
    month = i;
    day = dayOfYear - ptrDaysList[i-1];
 }
@@ -283,9 +283,9 @@ void ToMonthDayFromYearDOY (Integer year, Integer dayOfYear, Integer& month,
 Integer ToDOYFromYearMonthDay (Integer year, Integer month, Integer day)
 {
    Integer d;
-   
+
    if ( month < 0 || month > 12 || day < 0 || day > 31)
-      throw Date::TimeRangeError();    
+      throw Date::TimeRangeError();
 
    if (IsLeapYear(year) == true)
       d = GmatTimeConstants::LEAP_YEAR_DAYS_BEFORE_MONTH[month-1] + day;
@@ -301,45 +301,45 @@ Integer ToDOYFromYearMonthDay (Integer year, Integer month, Integer day)
 /**
  * Friend function.
  *
- * @note Seconds of day constrained to 0.0..86401.0; assumes only 1 leap 
+ * @note Seconds of day constrained to 0.0..86401.0; assumes only 1 leap
  *       second per day maximum.
  */
 //------------------------------------------------------------------------------
 Real ToSecondsOfDayFromHMS (Integer hour, Integer minute, Real second)
 {
    ElapsedTime secondsOfDay;
-   
-   if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || 
-       second < 0.0 || second > 61.0) 
+
+   if (hour < 0 || hour > 23 || minute < 0 || minute > 59 ||
+       second < 0.0 || second > 61.0)
    {
       throw Date::TimeRangeError();
-   }        
+   }
 
    secondsOfDay = (Real)hour * GmatTimeConstants::SECS_PER_HOUR + (Real)minute * 60.0 + second;
    return secondsOfDay.Get();
 }
 
 //------------------------------------------------------------------------------
-//  void ToHMSFromSecondsOfDay (Real secsOfDay, Integer& hour, Integer& minute, 
+//  void ToHMSFromSecondsOfDay (Real secsOfDay, Integer& hour, Integer& minute,
 //                              Real& second)
 //------------------------------------------------------------------------------
 /**
  * Friend function.
  *
- *  Notes: Seconds are Real to permit fractions; seconds of day constrained to 
- *         0.0 .. 86401.0; the last second of a leap second day will be 
+ *  Notes: Seconds are Real to permit fractions; seconds of day constrained to
+ *         0.0 .. 86401.0; the last second of a leap second day will be
  *         23:59:60; assumes only 1 leap second per day maximum.
  */
 //------------------------------------------------------------------------------
-void ToHMSFromSecondsOfDay (Real secsOfDay, Integer& hour, Integer& minute, 
+void ToHMSFromSecondsOfDay (Real secsOfDay, Integer& hour, Integer& minute,
                                 Real& second)
 {
    const Real maxSecondsPerDay = 86401.0;
    Real    remainder;
    Integer h;
    Integer m;
-   
-   if (secsOfDay  < 0.0 || secsOfDay > maxSecondsPerDay)
+
+   if (secsOfDay < 0.0 || secsOfDay > maxSecondsPerDay)
       throw Date::TimeRangeError();
 
    h = (Integer)(GmatMathUtil::Floor(secsOfDay/GmatTimeConstants::SECS_PER_HOUR));  // constrain hours to 0..23
@@ -351,34 +351,34 @@ void ToHMSFromSecondsOfDay (Real secsOfDay, Integer& hour, Integer& minute,
    m = (Integer)(GmatMathUtil::Floor(remainder / 60.0));  // constrain minutes to 0..59
    if (m >= 60)
       m = 59;
-   
+
    minute = m;
    second = remainder - (Real)m  * 60.0;
 }
 
 //------------------------------------------------------------------------------
-//  bool IsValidTime (Integer year, Integer month, Integer day, 
+//  bool IsValidTime (Integer year, Integer month, Integer day,
 //                    Integer hour, Integer minute, Real second)
 //------------------------------------------------------------------------------
 /**
  * Friend function.
  */
 //------------------------------------------------------------------------------
-bool IsValidTime (Integer year, Integer month, Integer day, 
+bool IsValidTime (Integer year, Integer month, Integer day,
                   Integer hour, Integer minute, Real second)
 {
    bool valid = false;
    const Integer *ptrDaysList;
-   
+
    if (IsLeapYear(year))
       ptrDaysList = GmatTimeConstants::LEAP_YEAR_DAYS_IN_MONTH;
    else
       ptrDaysList = GmatTimeConstants::DAYS_IN_MONTH;
-   
+
    // check month and day
    if ((month >= 1 && month <= 12) && (day >=1 && day <= ptrDaysList[month-1]))
       valid = true;
-   
+
    // check hour, minute, and seconds
    if (valid)
    {
@@ -389,7 +389,7 @@ bool IsValidTime (Integer year, Integer month, Integer day,
          valid = true;
       }
    }
-   
+
    return valid;
 }
 
@@ -419,47 +419,47 @@ bool DateUtil::IsValidGregorian(const std::string &str, bool checkDate)
       ("DateUtil::IsValidGregorian() parts=%s, %s, %s, %s\n", parts[0].c_str(),
        parts[1].c_str(), parts[2].c_str(), parts[3].c_str());
    #endif
-   
+
    StringArray timeParts = GmatStringUtil::SeparateBy(parts[3], ":");
    if (timeParts.size() != 3)
       return false;
-   
+
    #if DEBUG_DATE_VALIDATE
    MessageInterface::ShowMessage
       ("DateUtil::IsValidGregorian() timeParts=%s, %s, %s\n", timeParts[0].c_str(),
        timeParts[1].c_str(), timeParts[2].c_str());
    #endif
-   
+
    Integer year, month, day, hour, min;
    Real sec;
-   
+
    // check for valid month name
    if (!GmatTimeUtil::IsValidMonthName(parts[1]))
       return false;
-   
+
    month = GmatTimeUtil::GetMonth(parts[1]);
-   
+
    if (!GmatStringUtil::ToInteger(parts[0], day))
       return false;
-   
+
    if (!GmatStringUtil::ToInteger(parts[2], year))
       return false;
-   
+
    if (!GmatStringUtil::ToInteger(timeParts[0], hour))
       return false;
-   
+
    if (!GmatStringUtil::ToInteger(timeParts[1], min))
       return false;
-   
+
    if (!GmatStringUtil::ToReal(timeParts[2], sec))
       return false;
-   
+
    #if DEBUG_DATE_VALIDATE
    MessageInterface::ShowMessage
       ("DateUtil::IsValidGregorian() year=%d, month=%d, day=%d, hour=%d, "
        "min=%d, sec=%f\n", year, month, day, hour, min, sec);
    #endif
-   
+
    // check for date
    if (!IsValidTime(year, month, day, hour, min, sec))
       return false;
@@ -495,7 +495,7 @@ bool DateUtil::IsValidGregorian(const std::string &str, bool checkDate)
 bool IsLeapYear(Integer year)
 {
    bool result = false;
-    
+
    if ((year % 100 == 0) && (year % 400 == 0))
       result = true;
    else if (year % 4 == 0)
