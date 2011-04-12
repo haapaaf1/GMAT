@@ -1,0 +1,84 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2011-03-23 04:11:19
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+
+Create Array vec[4,1];
+Create Variable maxVec floorValue isAField;
+Create String fieldName
+GMAT vec(1, 1) = 1;
+GMAT vec(2, 1) = 2;
+GMAT vec(3, 1) = 3;
+GMAT vec(4, 1) = 4.2214331;
+fieldName = 'CoordinateSystem';
+
+%----------------------------------------
+%---------- Functions
+%----------------------------------------
+
+Create MatlabFunction max floor isfield ;
+Create ReportFile rf;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+GMAT [maxVec] = max(vec);
+Report rf maxVec;
+
+GMAT [floorValue] = floor(maxVec);
+Report rf floorValue;
+
+GMAT [isAField] = isfield(DefaultSC,fieldName)
+Report rf isAField

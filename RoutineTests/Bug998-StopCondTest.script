@@ -807,6 +807,19 @@ If diff > 1e-5
 EndIf    
 Report StopCond_Report  passFlag;
 
+%---------- RMAG using Variable
+msg = '---------- RMAG'
+Report StopCond_Report msg;
+DefaultSC = InitSat;
+stopGoal = 9792;
+Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RMAG = stopGoal, StopTolerance = 1e-5});
+diff = abs(DefaultSC.Earth.RMAG - 9792);
+passFlag = 1;
+If diff > 1e-5
+   passFlag = 0;
+EndIf    
+Report StopCond_Report  passFlag;
+
 %---------- VMAG
 msg = '---------- VMAG'
 Report StopCond_Report msg;
@@ -1547,6 +1560,8 @@ If diff > 1e-5
    passFlag = 0;
 EndIf    
 Report StopCond_Report  passFlag;
+
+
 
 
 msg = '======================================== End of Tests'

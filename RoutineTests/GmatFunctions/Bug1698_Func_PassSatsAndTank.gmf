@@ -1,0 +1,44 @@
+function [MMS1_est, MMS2_est, MMS3_est, MMS4_est, firstBurnPass] = Bug1698_Func_PassSatsAndTank(MMS1_est, MMS2_est, MMS3_est, MMS4_est, Prop_truth, PropFM_truth, AxialTh1, RadialTh1, TankMMS, passedTank);
+
+Create Spacecraft MMS1_est
+Create Spacecraft MMS2_est
+Create Spacecraft MMS3_est
+Create Spacecraft MMS4_est
+Create Variable firstBurnPass
+Create String msg1 msg2;
+Create Spacecraft localSat1;
+Create Spacecraft localSat2;
+Create Spacecraft localSat3;
+
+Create FuelTank localTank;
+
+localSat1.Tanks = {localTank};
+localSat2.Tanks = {passedTank};
+localSat3.Tanks = {TankMMS};
+
+Create ReportFile funcRf
+funcRf.Filename = 'Bug1698_PassSatsAndTankFuncOutput.report';
+funcRf.WriteHeaders = Off;
+
+msg1 = '==================== In Bug1698_Func_PassSatsAndTank()';
+msg2 = 'MMS1_est.TankMMS.FuelMass  MMS1_est.TankMMS.Pressure';
+Report funcRf msg1;
+Report funcRf msg2;
+
+Report funcRf MMS1_est.TankMMS.FuelMass MMS1_est.TankMMS.Pressure
+Report funcRf MMS2_est.TankMMS.FuelMass MMS2_est.TankMMS.Pressure
+Report funcRf MMS3_est.TankMMS.FuelMass MMS3_est.TankMMS.Pressure
+Report funcRf MMS4_est.TankMMS.FuelMass MMS4_est.TankMMS.Pressure
+
+msg2 = 'localSat1.localTank.FuelMass  localSat1.localTank.Pressure';
+Report funcRf msg2;
+Report funcRf localSat1.localTank.FuelMass  localSat1.localTank.Pressure;
+
+msg2 = 'localSat2.passedTank.FuelMass  localSat2.passedTank.Pressure';
+Report funcRf msg2;
+Report funcRf localSat2.passedTank.FuelMass  localSat2.passedTank.Pressure;
+
+msg2 = 'localSat3.TankMMS.FuelMass  localSat3.TankMMS.Pressure';
+Report funcRf msg2;
+Report funcRf localSat3.TankMMS.FuelMass  localSat3.TankMMS.Pressure;
+

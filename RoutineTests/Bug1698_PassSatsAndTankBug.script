@@ -1,0 +1,238 @@
+%**************************************************************************
+%************ Create Objects for Use in Mission Sequence ******************
+%**************************************************************************
+   
+%--------------------------------------------------------------------------
+%----------------- Spacecraft, Formations, Constellations -----------------
+%--------------------------------------------------------------------------
+   
+% MMS Estimated Formation Spacecraft   
+Create Spacecraft MMS1_est;
+GMAT MMS1_est.DateFormat = UTCGregorian;
+GMAT MMS1_est.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS1_est.DisplayStateType = Cartesian;
+GMAT MMS1_est.DryMass = 929.2000000000001;
+GMAT MMS1_est.Cd = 2.2;
+GMAT MMS1_est.Cr = 1.8;
+GMAT MMS1_est.DragArea = 7.1;
+GMAT MMS1_est.SRPArea = 2.026712;
+
+Create Spacecraft MMS2_est;
+GMAT MMS2_est.DateFormat = UTCGregorian;
+GMAT MMS2_est.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS2_est.DisplayStateType = Cartesian;
+GMAT MMS2_est.DryMass = 929.2000000000001;
+GMAT MMS2_est.Cd = 2.2;
+GMAT MMS2_est.Cr = 1.8;
+GMAT MMS2_est.DragArea = 7.1;
+GMAT MMS2_est.SRPArea = 2.026712;
+
+Create Spacecraft MMS3_est;
+GMAT MMS3_est.DateFormat = UTCGregorian;
+GMAT MMS3_est.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS3_est.DisplayStateType = Cartesian;
+GMAT MMS3_est.DryMass = 929.2000000000001;
+GMAT MMS3_est.Cd = 2.2;
+GMAT MMS3_est.Cr = 1.8;
+GMAT MMS3_est.DragArea = 7.1;
+GMAT MMS3_est.SRPArea = 2.026712;
+
+Create Spacecraft MMS4_est;
+GMAT MMS4_est.DateFormat = UTCGregorian;
+GMAT MMS4_est.CoordinateSystem = EarthMJ2000Eq;
+GMAT MMS4_est.DisplayStateType = Cartesian;
+GMAT MMS4_est.DryMass = 929.2000000000001;
+GMAT MMS4_est.Cd = 2.2;
+GMAT MMS4_est.Cr = 1.8;
+GMAT MMS4_est.DragArea = 7.1;
+GMAT MMS4_est.SRPArea = 2.026712;
+
+%--------------------------------------------------------------------------
+%----------------------------- Propagators  -------------------------------
+%--------------------------------------------------------------------------
+
+% MMS Force Model Settings for truth s/c propagation
+Create ForceModel PropFM_truth;
+GMAT PropFM_truth.CentralBody = Earth;
+GMAT PropFM_truth.PrimaryBodies = {Earth};
+GMAT PropFM_truth.PointMasses = {Luna,Sun};
+%GMAT PropFM_truth.Drag = JacchiaRoberts;
+GMAT PropFM_truth.SRP = Off;
+GMAT PropFM_truth.ErrorControl = RSSStep;
+GMAT PropFM_truth.GravityField.Earth.Degree = 8;
+GMAT PropFM_truth.GravityField.Earth.Order = 8;
+GMAT PropFM_truth.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+% MMS Propagator Settings for truth s/c propagation
+Create Propagator Prop_truth;
+GMAT Prop_truth.FM = PropFM_truth;
+GMAT Prop_truth.Type = RungeKutta89;
+GMAT Prop_truth.InitialStepSize = 10;
+GMAT Prop_truth.Accuracy = 1e-08;
+GMAT Prop_truth.MinStep = 0.0001;
+GMAT Prop_truth.MaxStep = 86400;
+GMAT Prop_truth.MaxStepAttempts = 50; 
+ 
+Create Thruster AxialTh1;
+GMAT AxialTh1.CoordinateSystem = EarthMJ2000Eq;
+GMAT AxialTh1.ThrustDirection1 = 1;
+GMAT AxialTh1.ThrustDirection2 = 0;
+GMAT AxialTh1.ThrustDirection3 = 0;
+GMAT AxialTh1.DutyCycle = 1;
+GMAT AxialTh1.ThrustScaleFactor = 1;
+GMAT AxialTh1.DecrementMass = true;
+GMAT AxialTh1.GravitationalAccel = 9.81;
+GMAT AxialTh1.Tank = {TankMMS};
+% Thruster Coefficients
+GMAT AxialTh1.C1 = -0.27790818790197502;
+GMAT AxialTh1.C2 = 0.0027062754452731098;
+GMAT AxialTh1.C3 = 0;
+GMAT AxialTh1.C4 = 0;
+GMAT AxialTh1.C5 = -3.4144724465796798e-007;
+GMAT AxialTh1.C6 = 0;
+GMAT AxialTh1.C7 = 0;
+GMAT AxialTh1.C8 = 0;
+GMAT AxialTh1.C9 = 0;
+GMAT AxialTh1.C10 = 0;
+GMAT AxialTh1.C11 = 0;
+GMAT AxialTh1.C12 = 0;
+GMAT AxialTh1.C13 = 0;
+GMAT AxialTh1.C14 = 0;
+GMAT AxialTh1.C15 = -1;
+GMAT AxialTh1.C16 = 0;
+% Impulse Coefficients
+GMAT AxialTh1.K1 = 200.195236437495;
+GMAT AxialTh1.K2 = 0.0146385334964483;
+GMAT AxialTh1.K3 = 0;
+GMAT AxialTh1.K4 = 0;
+GMAT AxialTh1.K5 = -3.3442940260324198e-006;
+GMAT AxialTh1.K6 = 4.0858269600000001e-008;
+GMAT AxialTh1.K7 = 3;
+GMAT AxialTh1.K8 = -6.9794448900000003e-012;
+GMAT AxialTh1.K9 = 4;
+GMAT AxialTh1.K10 = 0;
+GMAT AxialTh1.K11 = 0;
+GMAT AxialTh1.K12 = 0;
+GMAT AxialTh1.K13 = 0;
+GMAT AxialTh1.K14 = 0;
+GMAT AxialTh1.K15 = -1;
+GMAT AxialTh1.K16 = 0;
+
+Create Thruster AxialTh2;
+
+Create Thruster RadialTh1;
+GMAT RadialTh1.CoordinateSystem = EarthMJ2000Eq;
+GMAT RadialTh1.ThrustDirection1 = 1;
+GMAT RadialTh1.ThrustDirection2 = 0;
+GMAT RadialTh1.ThrustDirection3 = 0;
+GMAT RadialTh1.DutyCycle = 0.3333333333333333333;
+GMAT RadialTh1.ThrustScaleFactor = 0.95;
+GMAT RadialTh1.DecrementMass = true;
+GMAT RadialTh1.GravitationalAccel = 9.81;
+GMAT RadialTh1.Tank = {TankMMS};
+% Thruster Coefficients
+GMAT RadialTh1.C1 = 0.073223303527163899;
+GMAT RadialTh1.C2 = 0.0132531788366246;
+GMAT RadialTh1.C3 = 0;
+GMAT RadialTh1.C4 = 0;
+GMAT RadialTh1.C5 = -2.09596170821782e-006;
+GMAT RadialTh1.C6 = 0;
+GMAT RadialTh1.C7 = 0;
+GMAT RadialTh1.C8 = 0;
+GMAT RadialTh1.C9 = 0;
+GMAT RadialTh1.C10 = 0;
+GMAT RadialTh1.C11 = 0;
+GMAT RadialTh1.C12 = 0;
+GMAT RadialTh1.C13 = 0;
+GMAT RadialTh1.C14 = 0;
+GMAT RadialTh1.C15 = -1;
+GMAT RadialTh1.C16 = 0;
+% Impulse Coefficients
+GMAT RadialTh1.K1 = 217.540643957128;
+GMAT RadialTh1.K2 = 0.0069288486098162396;
+GMAT RadialTh1.K3 = 0;
+GMAT RadialTh1.K4 = 0;
+GMAT RadialTh1.K5 = -1.8797146172231099e-006;
+GMAT RadialTh1.K6 = 4.0858269600000001e-008;
+GMAT RadialTh1.K7 = 3;
+GMAT RadialTh1.K8 = -6.9794448900000003e-012;
+GMAT RadialTh1.K9 = 4;
+GMAT RadialTh1.K10 = 0;
+GMAT RadialTh1.K11 = 0;
+GMAT RadialTh1.K12 = 0;
+GMAT RadialTh1.K13 = 0;
+GMAT RadialTh1.K14 = 0;
+GMAT RadialTh1.K15 = -1;
+GMAT RadialTh1.K16 = 0;
+
+Create Thruster RadialTh2;
+Create Thruster RadialTh3;
+Create Thruster RadialTh4;
+% Configure Thrusters
+GMAT AxialTh2 = AxialTh1;
+GMAT RadialTh2 = RadialTh1;
+GMAT RadialTh3 = RadialTh1;
+GMAT RadialTh4 = RadialTh1;
+
+Create FuelTank TankMMS;
+GMAT TankMMS.FuelMass = 328.8;
+GMAT TankMMS.Pressure = 1868.9;
+GMAT TankMMS.Temperature = 20;
+GMAT TankMMS.RefTemperature = 20;
+GMAT TankMMS.Volume = 0.796;
+GMAT TankMMS.FuelDensity = 1010;
+GMAT TankMMS.PressureModel = BlowDown;
+
+Create FuelTank Tank1;
+GMAT Tank1.FuelMass = 500;
+GMAT Tank1.Pressure = 2000;
+
+GMAT MMS1_est.Tanks       = {TankMMS};
+GMAT MMS2_est.Tanks       = {TankMMS};
+GMAT MMS3_est.Tanks       = {TankMMS};
+GMAT MMS4_est.Tanks       = {TankMMS};
+
+Create ReportFile mainRf
+mainRf.Filename = 'Bug1698_PassSatsAndTankMainOutput.report';
+mainRf.WriteHeaders = Off;
+
+Create Variable firstBurnPass
+Create String msg1 msg2;
+
+% %**************************************************************************
+% %**************************The Mission Sequence****************************
+% %**************************************************************************
+
+BeginMissionSequence;
+
+GMAT MMS1_est.TankMMS.FuelMass   = 89;
+GMAT MMS1_est.TankMMS.Pressure   = 1811;
+
+GMAT MMS2_est.TankMMS.FuelMass   = 120;
+GMAT MMS2_est.TankMMS.Pressure   = 1821;
+
+GMAT MMS3_est.TankMMS.FuelMass   = 145;
+GMAT MMS3_est.TankMMS.Pressure   = 1831;
+
+GMAT MMS4_est.TankMMS.FuelMass   = 111;
+GMAT MMS4_est.TankMMS.Pressure   = 1841;
+
+msg1 = '============================== Before call to Func_PassSatsAndTank';
+msg2 = 'MMS1_est.TankMMS.FuelMass  MMS1_est.TankMMS.Pressure';
+Report mainRf msg1;
+Report mainRf msg2;
+Report mainRf MMS1_est.TankMMS.FuelMass MMS1_est.TankMMS.Pressure
+Report mainRf MMS2_est.TankMMS.FuelMass MMS2_est.TankMMS.Pressure
+Report mainRf MMS3_est.TankMMS.FuelMass MMS3_est.TankMMS.Pressure
+Report mainRf MMS4_est.TankMMS.FuelMass MMS4_est.TankMMS.Pressure
+
+GMAT [MMS1_est, MMS2_est, MMS3_est, MMS4_est, firstBurnPass] = Bug1698_Func_PassSatsAndTank(MMS1_est, MMS2_est, MMS3_est, MMS4_est, Prop_truth, PropFM_truth, AxialTh1, RadialTh1, TankMMS, Tank1);
+
+msg1 = '============================== After  call to Func_PassSatsAndTank';
+Report mainRf msg1;
+Report mainRf msg2;
+Report mainRf MMS1_est.TankMMS.FuelMass MMS1_est.TankMMS.Pressure
+Report mainRf MMS2_est.TankMMS.FuelMass MMS2_est.TankMMS.Pressure
+Report mainRf MMS3_est.TankMMS.FuelMass MMS3_est.TankMMS.Pressure
+Report mainRf MMS4_est.TankMMS.FuelMass MMS4_est.TankMMS.Pressure
+

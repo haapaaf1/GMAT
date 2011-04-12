@@ -1,0 +1,109 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2011-03-15 05:09:22
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft SC;
+GMAT SC.DateFormat = UTCGregorian;
+GMAT SC.Epoch = '01 Jan 2010 00:00:00.000';
+GMAT SC.CoordinateSystem = EarthMJ2000Eq;
+GMAT SC.DisplayStateType = Cartesian;
+GMAT SC.X = 7100;
+GMAT SC.Y = 0;
+GMAT SC.Z = 1300;
+GMAT SC.VX = 0;
+GMAT SC.VY = 7.35;
+GMAT SC.VZ = 1;
+GMAT SC.DryMass = 850;
+GMAT SC.Cd = 2.2;
+GMAT SC.Cr = 1.8;
+GMAT SC.DragArea = 15;
+GMAT SC.SRPArea = 1;
+GMAT SC.NAIFId = -123456789;
+GMAT SC.NAIFIdReferenceFrame = -123456789;
+GMAT SC.Id = 'SatId';
+GMAT SC.Attitude = CoordinateSystemFixed;
+GMAT SC.AttitudeDisplayStateType = 'Quaternion';
+GMAT SC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT SC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT SC.Q1 = 0;
+GMAT SC.Q2 = 0;
+GMAT SC.Q3 = 0;
+GMAT SC.Q4 = 1;
+GMAT SC.EulerAngleSequence = '321';
+GMAT SC.AngularVelocityX = 0;
+GMAT SC.AngularVelocityY = 0;
+GMAT SC.AngularVelocityZ = 0;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel FM;
+GMAT FM.CentralBody = Earth;
+GMAT FM.PrimaryBodies = {Earth};
+GMAT FM.Drag = None;
+GMAT FM.SRP = Off;
+GMAT FM.ErrorControl = RSSStep;
+GMAT FM.GravityField.Earth.Degree = 4;
+GMAT FM.GravityField.Earth.Order = 4;
+GMAT FM.GravityField.Earth.PotentialFile = 'JGM2.cof';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator prop;
+GMAT prop.FM = FM;
+GMAT prop.Type = RungeKutta89;
+GMAT prop.InitialStepSize = 60;
+GMAT prop.Accuracy = 9.999999999999999e-012;
+GMAT prop.MinStep = 0.001;
+GMAT prop.MaxStep = 2700;
+GMAT prop.MaxStepAttempts = 50;
+GMAT prop.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OrbitView ViewSunline;
+GMAT ViewSunline.SolverIterations = Current;
+GMAT ViewSunline.Add = {SC, Earth, Sun};
+GMAT ViewSunline.DrawObject = [ true true true ];
+GMAT ViewSunline.OrbitColor = [ 255 32768 1743054 ];
+GMAT ViewSunline.TargetColor = [ 8421440 0 4227327 ];
+GMAT ViewSunline.CoordinateSystem = EarthMJ2000Eq;
+GMAT ViewSunline.ViewPointReference = Earth;
+GMAT ViewSunline.ViewPointVector = [ 0 0 0 ];
+GMAT ViewSunline.ViewDirection = SC;
+GMAT ViewSunline.ViewScaleFactor = 1;
+GMAT ViewSunline.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT ViewSunline.ViewUpAxis = Z;
+GMAT ViewSunline.CelestialPlane = Off;
+GMAT ViewSunline.XYPlane = On;
+GMAT ViewSunline.WireFrame = On;
+GMAT ViewSunline.Axes = On;
+GMAT ViewSunline.Grid = Off;
+GMAT ViewSunline.SunLine = On;
+GMAT ViewSunline.UseInitialView = On;
+GMAT ViewSunline.DataCollectFrequency = 1;
+GMAT ViewSunline.UpdatePlotFrequency = 50;
+GMAT ViewSunline.NumPointsToRedraw = 0;
+GMAT ViewSunline.StarCount = 7000;
+GMAT ViewSunline.EnableStars = On;
+GMAT ViewSunline.EnableConstellations = On;
+GMAT ViewSunline.ShowPlot = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+%Propagate prop(SC) {SC.ElapsedSecs = 500};
+Propagate prop(SC) {SC.ElapsedSecs = 0.01};
