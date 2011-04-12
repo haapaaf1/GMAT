@@ -210,10 +210,13 @@ protected:
    Gmat::ObjectType GetObjectType(GmatTree::ItemType itemType);
    wxTreeItemId GetTreeItemId(GmatTree::ItemType type);
    GmatTree::ResourceIconType GetTreeItemIcon(GmatTree::ItemType type);
-
+   
+   // icon
    void GetBodyTypeAndIcon(const std::string bodyName,
                           GmatTree::ItemType &bodyItemType,
                           GmatTree::ResourceIconType &iconType);
+   
+   GmatTree::ResourceIconType GetIconId(GmatBase *obj);
    
    // user text input
    int GetNameFromUser(wxString &newName, const wxString &oldName = "",

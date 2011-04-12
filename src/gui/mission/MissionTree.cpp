@@ -33,11 +33,11 @@
 #include "bitmaps/beginfb.xpm"
 #include "bitmaps/endfb.xpm"
 #include "bitmaps/report.xpm"
-#include "bitmaps/stop.xpm"
 #include "bitmaps/penup.xpm"
 #include "bitmaps/pendown.xpm"
 #include "bitmaps/optimize.xpm"
 #include "bitmaps/mt_Default.xpm"
+#include "bitmaps/mt_Stop.xpm"
 #include "bitmaps/mt_MarkPoint.xpm"
 #include "bitmaps/mt_ClearPlot.xpm"
 #include "bitmaps/mt_Global.xpm"
@@ -1840,7 +1840,7 @@ void MissionTree::AddIcons()
    theGuiManager->LoadIcon("endfb", bitmapType, &bitmaps[++index], endfb_xpm);
    theGuiManager->LoadIcon("report", bitmapType, &bitmaps[++index], report_xpm);
    
-   theGuiManager->LoadIcon("stop", bitmapType, &bitmaps[++index], stop_xpm);
+   theGuiManager->LoadIcon("mt_Stop", bitmapType, &bitmaps[++index], mt_Stop_xpm);
    theGuiManager->LoadIcon("penup", bitmapType, &bitmaps[++index], penup_xpm);
    theGuiManager->LoadIcon("pendown", bitmapType, &bitmaps[++index], pendown_xpm);
    theGuiManager->LoadIcon("mt_MarkPoint", bitmapType, &bitmaps[++index], mt_MarkPoint_xpm);
