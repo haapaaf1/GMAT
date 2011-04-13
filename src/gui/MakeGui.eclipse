@@ -367,8 +367,7 @@ macosx:
 	ln -f $(TOP_DIR)/application/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMAT $(MAC_SCRIPT_DIR)/RunGMAT
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMAT ../base/lib $(BASELIBNAME)
-#	./$(INSTALL_WX_LIBS) GMAT $(WX_BASE_VER) $(WX_LIB_VER) ../base/lib $(BASELIBNAME)
+	./$(INSTALL_LIBS_INTO_BUNDLE) GMAT ../base/lib $(BASELIBNAME) $(PCRE_LIB_LOC)
 
 macstacksize:
 	echo "setting stack size needed for SPICE"
