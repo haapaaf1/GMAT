@@ -43,6 +43,7 @@
 //#define DEBUG_RUN_COMPLETE
 //#define DEBUG_MATLAB_EXEC
 //#define DEBUG_MATLAB_EVAL
+//#define DEBUG_CALLING_OBJECT
 
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
@@ -222,8 +223,17 @@ bool CallMatlabFunction::Initialize()
       FileManager *fm = FileManager::Instance();
       StringArray paths = fm->GetAllMatlabFunctionPaths();
       
-      // Open Matlab engine first
+      // Open Matlab engine first and set calling function name
       matlabIf = MatlabInterface::Instance();
+
+      #ifdef DEBUG_CALLING_OBJECT
+      MessageInterface::ShowMessage
+         ("CallMatlabFunction::Initialize() setting calling object '%s'\n",
+          mFunctionPathAndName.c_str());
+      #endif
+      
+      matlabIf->SetCallingObjectName(mFunctionPathAndName);
+      
       if (!matlabIf->IsOpen())
          matlabIf->Open("GmatMatlab");
       
@@ -405,9 +415,22 @@ bool CallMatlabFunction::ExecuteMatlabFunction()
 {
    #ifdef DEBUG_MATLAB_EXEC
    MessageInterface::ShowMessage
-      ("CallMatlabFunction::ExecuteMatlabFunction() entered, function='%s'\n",
-       mFunctionName.c_str());
+      ("CallMatlabFunction::ExecuteMatlabFunction() entered, mFunctionName='%s', "
+       "function=<%p>\n", mFunctionName.c_str(), mFunction);
+   if (mFunction)
+      MessageInterface::ShowMessage
+         ("   functionPath='%s', functionName='%s'\n",
+          mFunction->GetStringParameter("FunctionPath").c_str(),
+          mFunction->GetStringParameter("FunctionName").c_str());
    #endif
+   
+   #ifdef DEBUG_CALLING_OBJECT
+   MessageInterface::ShowMessage
+      ("CallMatlabFunction::ExecuteMatlabFunction() setting calling object '%s'\n",
+       mFunctionPathAndName.c_str());
+   #endif
+   
+   matlabIf->SetCallingObjectName(mFunctionPathAndName);
    
    // open Matlab engine
    #ifdef DEBUG_MATLAB_EXEC
@@ -484,6 +507,9 @@ void CallMatlabFunction::SendInParam(Parameter *param)
       MessageInterface::ShowMessage("Parameter was null");
       return;
    }
+   
+   //MessageInterface::ShowMessage("---> CallMatlabFunction::SendInParam() setting calling object '%s'\n", mFunctionPathAndName.c_str());
+   //matlabIf->SetCallingObjectName(mFunctionPathAndName);
    
    #ifdef DEBUG_SEND_PARAM
    MessageInterface::ShowMessage
@@ -596,6 +622,9 @@ void CallMatlabFunction::SendInParam(Parameter *param)
 //------------------------------------------------------------------------------
 void CallMatlabFunction::GetOutParams()
 {
+   //MessageInterface::ShowMessage("---> CallMatlabFunction::GetOutParams() setting calling object '%s'\n", mFunctionPathAndName.c_str());
+   //matlabIf->SetCallingObjectName(mFunctionPathAndName);
+   
    try
    {
       for (unsigned int i=0; i<mOutputList.size(); i++)
@@ -791,7 +820,7 @@ void CallMatlabFunction::EvalMatlabString(std::string evalString)
        "======================================================================\n"
        "%s\n\n", evalString.c_str());
    #endif
-   
+
    matlabIf->RunMatlabString(evalString);
 }
 

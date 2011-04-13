@@ -86,58 +86,6 @@ MatlabInterface* MatlabInterface::Instance()
 
 
 //------------------------------------------------------------------------------
-//  <constructor>
-//  MatlabInterface()
-//------------------------------------------------------------------------------
-MatlabInterface::MatlabInterface(const std::string &name) :
-   Interface ("MatlabInterface", name)
-{
-   enginePtr = 0;
-   accessCount = 0;
-   matlabMode = SHARED;
-   outBuffer = new char[MAX_OUT_SIZE+1];
-   for (int i=0; i<=MAX_OUT_SIZE; i++)
-      outBuffer[i] = '\0';
-   debugMatlabEngine = GmatGlobal::Instance()->IsMatlabDebugOn();
-}
-
-
-//------------------------------------------------------------------------------
-//  <destructor>
-//  MatlabInterface()
-//------------------------------------------------------------------------------
-MatlabInterface::~MatlabInterface()
-{
-   if (enginePtr != NULL)
-      Close();
-   delete [] outBuffer;
-}
-
-
-//------------------------------------------------------------------------------
-// MatlabInterface(const MatlabInterface &mi)
-//------------------------------------------------------------------------------
-MatlabInterface::MatlabInterface(const MatlabInterface &mi) :
-   Interface (mi)
-{
-}
-
-
-//------------------------------------------------------------------------------
-// MatlabInterface& operator=(const MatlabInterface& mi)
-//------------------------------------------------------------------------------
-MatlabInterface& MatlabInterface::operator=(const MatlabInterface& mi)
-{
-   if (&mi != this)
-   {
-      Interface::operator=(mi);
-   }
-   
-   return *this;
-}
-
-
-//------------------------------------------------------------------------------
 // int Open(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
@@ -212,6 +160,29 @@ int MatlabInterface::Close(const std::string &name)
    #endif
    //=======================================================
 } // end Close()
+
+
+//------------------------------------------------------------------------------
+// void SetCallingObjectName(const std::string &calledFrom)
+//------------------------------------------------------------------------------
+void MatlabInterface::SetCallingObjectName(const std::string &calledFrom)
+{
+   callingObjectName = calledFrom;
+   #ifdef DEBUG_CALLED_FROM
+   MessageInterface::ShowMessage
+      ("MatlabInterface::SetCallingObjectName() calledFrom '%s'\n",
+       calledFrom.c_str());
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetCallingObjectName()
+//------------------------------------------------------------------------------
+std::string MatlabInterface::GetCallingObjectName()
+{
+   return callingObjectName;
+}
 
 
 //------------------------------------------------------------------------------
@@ -599,7 +570,9 @@ void MatlabInterface::RunMatlabString(std::string evalString)
       if (GetString("errormsg", errorStr) == 1)
       {
          #ifdef DEBUG_MATLAB_EVAL
-         MessageInterface::ShowMessage("Error occurred in Matlab\n'%s'\n", errorStr.c_str());
+         MessageInterface::ShowMessage
+            ("Error occurred in Matlab function '%s'\n'%s'\n",
+             callingObjectName.c_str(), errorStr.c_str());
          #endif
          errorReturned = true;
       }
@@ -612,10 +585,12 @@ void MatlabInterface::RunMatlabString(std::string evalString)
       errorReturned = true;
       errorStr = "Error returned from " + evalString;
    }
-
+   
    if (errorReturned)
-      throw InterfaceException(errorStr);
-
+   {
+      throw InterfaceException("\"" + callingObjectName + ".m\", " + errorStr);
+   }
+   
    #ifdef DEBUG_MATLAB_EVAL
    MessageInterface::ShowMessage("MatlabInterface::RunMatlabString() exiting\n\n");
    #endif
@@ -685,6 +660,57 @@ void MatlabInterface::Copy(const GmatBase* orig)
 //--------------------------------------
 //  private functions
 //--------------------------------------
+
+//------------------------------------------------------------------------------
+//  <constructor>
+//  MatlabInterface()
+//------------------------------------------------------------------------------
+MatlabInterface::MatlabInterface(const std::string &name) :
+   Interface ("MatlabInterface", name)
+{
+   enginePtr = 0;
+   accessCount = 0;
+   matlabMode = SHARED;
+   outBuffer = new char[MAX_OUT_SIZE+1];
+   for (int i=0; i<=MAX_OUT_SIZE; i++)
+      outBuffer[i] = '\0';
+   debugMatlabEngine = GmatGlobal::Instance()->IsMatlabDebugOn();
+}
+
+
+//------------------------------------------------------------------------------
+//  <destructor>
+//  MatlabInterface()
+//------------------------------------------------------------------------------
+MatlabInterface::~MatlabInterface()
+{
+   if (enginePtr != NULL)
+      Close();
+   delete [] outBuffer;
+}
+
+
+//------------------------------------------------------------------------------
+// MatlabInterface(const MatlabInterface &mi)
+//------------------------------------------------------------------------------
+MatlabInterface::MatlabInterface(const MatlabInterface &mi) :
+   Interface (mi)
+{
+}
+
+
+//------------------------------------------------------------------------------
+// MatlabInterface& operator=(const MatlabInterface& mi)
+//------------------------------------------------------------------------------
+MatlabInterface& MatlabInterface::operator=(const MatlabInterface& mi)
+{
+   if (&mi != this)
+   {
+      Interface::operator=(mi);
+   }
+   
+   return *this;
+}
 
 
 //------------------------------------------------------------------------------

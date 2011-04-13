@@ -52,6 +52,9 @@ public:
    
    Integer       Open(const std::string &name = "");
    Integer       Close(const std::string &name = "");
+
+   void          SetCallingObjectName(const std::string &calledFrom);
+   std::string   GetCallingObjectName();
    
    Integer       PutRealArray(const std::string &matlabVarName, Integer numRows,
                               Integer numCols, const double *inArray);
@@ -96,6 +99,7 @@ private:
    std::map<std::string, Engine*> matlabEngineMap;
    std::string lastEngineName;
    std::string message;
+   std::string callingObjectName;
    Integer accessCount;
    Integer matlabMode;
    char *outBuffer;

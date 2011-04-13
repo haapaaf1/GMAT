@@ -113,7 +113,8 @@ protected:
    
    Function *mFunction;
    std::string mFunctionName;
-      
+   std::string mFunctionPathAndName;
+   
    /// the manager for the Function
    FunctionManager fm;
    
