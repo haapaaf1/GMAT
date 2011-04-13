@@ -13,6 +13,7 @@ DEBUG_BUILD = 0
 PROFILE_BUILD = 0
 WX_28_SYNTAX = 1
 USE_STC_EDITOR = 0
+USE_F2C_VERSION = 1
 
 # Not currently used 
 USE_SHARED = 1
@@ -24,13 +25,25 @@ SHARED_BASE = 1
 TOP_DIR = <your-top-level-directory-goes-here>
 # *** EDIT THIS *** - this is where you installed the version of wxMac that you're using ...
 WX_HOME = /Applications/wxmac-2.8.11/shared
-#WX_HOME = /Applications/wxmac-2.8.7/osx-build
+
 # *** EDIT THIS *** - 'sudo make install' of wxMac will put things here ......
 WX_INSTALLED = /usr/local/bin
 # *** EDIT THIS *** - this should match the version of wxMac you are using
-#INSTALL_WX_LIBS = install_libs_into_bundle_2_8_7
-#INSTALL_WX_LIBS = install_libs_into_bundle_2_8_8
-INSTALL_WX_LIBS = install_libs_into_bundle_2_8_11
+INSTALL_LIBS_INTO_BUNDLE = install_libs_into_bundle_2_8_11
+
+# *** EDIT THIS *** - where is PCRE installed
+PCRE_LIB_LOC = /Applications/pcre-8.00/.libs
+
+ifeq ($(USE_F2C_VERSION), 1)
+# *** EDIT THIS *** - If you are using F2C, say where it is located
+F2C_INCLUDE_PATH = /Users/wshoan/Documents/workspace/GMAT_3rdParty/f2c32/include
+F2C_LIB_PATH = /Users/wshoan/Documents/workspace/GMAT_3rdParty/f2c32/lib
+
+F2C_INCLUDE = -I$(F2C_INCLUDE_PATH)
+else
+F2C_INCLUDE_PATH =
+F2C_LIB_PATH =
+endif
 
 BUILD = release
 
@@ -141,8 +154,11 @@ MAC_ICONS    = $(RES_DIR)/gmat.icns
 # Define macros for linking the Carbon and wx resource files
 REZ = /Developer/Tools/Rez -d __DARWIN__ -t APPL -d __WXMAC__ Carbon.r -arch i386
 # *** EDIT THIS *** - Point to where the FORTRAN libraries are
-FORTRAN_LIB = -L/usr/local/gfortran/lib/i386 -lgfortran 
-
+ifeq ($(USE_F2C_VERSION), 0)
+FORTRAN_LIB = -L/usr/local/gfortran/lib -lgfortran 
+else
+FORTRAN_LIB = -L$(F2C_LIB_PATH) -lf2c
+endif
 else 
 REZ = 
 FORTRAN_LIB =                
