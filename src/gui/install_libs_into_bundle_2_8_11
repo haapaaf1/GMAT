@@ -2,10 +2,10 @@
 LOC=$1
 BASE_LOC=$2
 BASE_LIB_NAME=$3
+PCRE_LOC=$4
 cp /usr/local/lib/libwx*.dylib ../../application/bin/$LOC.app/Contents/Frameworks
 cp $BASE_LOC/$BASE_LIB_NAME.dylib ../../application/bin/$LOC.app/Contents/Frameworks
-#cp /usr/local/gfortran/lib/i386/libgfortran.3.dylib ../../application/bin/$LOC.app/Contents/Frameworks
-#cp /usr/local/gfortran/lib/i386/libgcc_s.1.dylib ../../application/bin/$LOC.app/Contents/Frameworks
+cp $PCRE_LOC/libpcrecpp.0.dylib ../../application/bin/$LOC.app/Contents/Frameworks
 
 # tell the libraries they are now inside the bundle
 install_name_tool -id @executable_path/../Frameworks/libwx_base_carbon-2.8.dylib ../../application/bin/$LOC.app/Contents/Frameworks/libwx_base_carbon-2.8.dylib
@@ -41,9 +41,6 @@ install_name_tool -id @executable_path/../Frameworks/libwx_mac_richtext-2.8.0.7.
 install_name_tool -id @executable_path/../Frameworks/libwx_mac_xrc-2.8.dylib ../../application/bin/$LOC.app/Contents/Frameworks/libwx_mac_xrc-2.8.dylib
 install_name_tool -id @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.dylib ../../application/bin/$LOC.app/Contents/Frameworks/libwx_mac_xrc-2.8.0.dylib
 install_name_tool -id @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.7.0.dylib ../../application/bin/$LOC.app/Contents/Frameworks/libwx_mac_xrc-2.8.0.7.0.dylib
-
-#install_name_tool -id @executable_path/../Frameworks/libgfortran.3.dylib ../../application/bin/$LOC.app/Contents/Frameworks/libgfortran.3.dylib
-#install_name_tool -id @executable_path/../Frameworks/libgcc_s.1.dylib ../../application/bin/$LOC.app/Contents/Frameworks/libgcc_s.1.dylib
 
 install_name_tool -id @executable_path/../Frameworks/$BASE_LIB_NAME.dylib ../../application/bin/$LOC.app/Contents/Frameworks/$BASE_LIB_NAME.dylib
 
@@ -81,9 +78,6 @@ install_name_tool -change /usr/local/lib/libwx_mac_richtext-2.8.0.7.0.dylib @exe
 install_name_tool -change /usr/local/lib/libwx_mac_xrc-2.8.dylib @executable_path/../Frameworks/libwx_mac_xrc-2.8.dylib ../../application/bin/$LOC.app/Contents/MacOS/GMAT
 install_name_tool -change /usr/local/lib/libwx_mac_xrc-2.8.0.dylib @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.dylib ../../application/bin/$LOC.app/Contents/MacOS/GMAT
 install_name_tool -change /usr/local/lib/libwx_mac_xrc-2.8.0.7.0.dylib @executable_path/../Frameworks/libwx_mac_xrc-2.8.0.7.0.dylib ../../application/bin/$LOC.app/Contents/MacOS/GMAT
-
-#install_name_tool -change /usr/local/gfortran/lib/i386/libgfortran.3.dylib @executable_path/../Frameworks/libgfortran.3.dylib ../../application/bin/$LOC.app/Contents/MacOS/GMAT
-#install_name_tool -change /usr/local/gfortran/lib/i386/libgcc_s.1.dylib @executable_path/../Frameworks/libgcc_s.1.dylib ../../application/bin/$LOC.app/Contents/MacOS/GMAT
 
 install_name_tool -change lib/$BASE_LIB_NAME.dylib @executable_path/../Frameworks/$BASE_LIB_NAME.dylib ../../application/bin/$LOC.app/Contents/MacOS/GMAT
 
