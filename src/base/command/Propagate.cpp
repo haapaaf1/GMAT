@@ -2795,8 +2795,9 @@ bool Propagate::Initialize()
 
             AddToBuffer(so);
 
-//            if (so->GetType() == Gmat::FORMATION)
-//               FillFormation(so, owners, elements);
+            if (so->GetType() == Gmat::FORMATION)
+               ((Formation*)(so))->BuildState();
+//            FillFormation(so, owners, elements);
 //            else
 //            {
 //               SetNames(so->GetName(), owners, elements);
