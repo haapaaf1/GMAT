@@ -6464,11 +6464,13 @@ bool Moderator::InterpretScript(std::istringstream *ss, bool clearObjs)
 //------------------------------------------------------------------------------
 bool Moderator::SaveScript(const std::string &filename, Gmat::WriteMode mode)
 {
-   //MessageInterface::ShowMessage
-   //   ("Moderator::SaveScript() entered\n   file: %s, mode: %d\n",
-   //    filename.c_str(), mode);
-   
+   #ifdef DEBUG_SAVE_SCRIPT
+   MessageInterface::ShowMessage
+      ("Moderator::SaveScript() entered\n   file: %s, mode: %d\n",
+       filename.c_str(), mode);
    MessageInterface::ShowMessage("The Script is saved to " + filename + "\n");
+   #endif
+   
    bool status = false;
    
    try

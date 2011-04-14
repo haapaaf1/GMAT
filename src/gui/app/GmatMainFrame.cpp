@@ -4627,18 +4627,25 @@ void GmatMainFrame::SaveGuiToActiveScript()
    wxString cntStr;
    cntStr.Printf("%d", backupCounter);
    wxString currFilename = mScriptFilename.c_str();
-   backupFilename = currFilename + "." + cntStr + ".bak";
    
-   ::wxCopyFile(currFilename, backupFilename);
+   //backupFilename = currFilename + "." + cntStr + ".bak";
+   backupFilename = currFilename + ".bak";
    
-   #ifdef DEBUG_MAINFRAME_SAVE
-   MessageInterface::ShowMessage
-      ("GmatMainFrame::SaveGuiToActiveScript() Created backup file: %s\n",
-       backupFilename.c_str());
-   #endif
-   
-   MessageInterface::PopupMessage
-      (Gmat::INFO_, "Old script saved to backup file \"%s\"\n", backupFilename.c_str());
+   // Create backup file for the first time only and show message
+   // instead of popup message (Bug 2409 fix)
+   if (backupCounter == 1)
+   {
+      ::wxCopyFile(currFilename, backupFilename);
+      
+      #ifdef DEBUG_MAINFRAME_SAVE
+      MessageInterface::ShowMessage
+         ("GmatMainFrame::SaveGuiToActiveScript() Created backup file: %s\n",
+          backupFilename.c_str());
+      #endif
+      
+      MessageInterface::ShowMessage
+         ("***** Old script saved to backup file \"%s\"\n", backupFilename.c_str());
+   }
    
    theGuiInterpreter->SaveScript(mScriptFilename);
 }
