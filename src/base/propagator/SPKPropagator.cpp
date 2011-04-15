@@ -7,7 +7,7 @@
 // Author: Darrel J. Conway
 // Created: Mar 26, 2010 by Darrel Conway (Thinking Systems)
 //
-// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under the FDSS 
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under the FDSS
 // contract, Task 28
 //
 /**
@@ -563,6 +563,7 @@ bool SPKPropagator::Initialize()
 {
    #ifdef DEBUG_INITIALIZATION
       MessageInterface::ShowMessage("SPKPropagator::Initialize() entered\n");
+      MessageInterface::ShowMessage("spkCentralBody is %s\n", spkCentralBody.c_str());
    #endif
 
    bool retval = false;
@@ -583,9 +584,11 @@ bool SPKPropagator::Initialize()
          skr->LoadKernel(fullPath);
 
       if (propObjects.size() != 1)
-         throw PropagatorException("SPICE propagators (i.e. \"SKP\" "
+         throw PropagatorException("SPICE propagators (i.e. \"SPK\" "
                "propagators) require exactly one SpaceObject.");
-
+      #ifdef DEBUG_INITIALIZATION
+         MessageInterface::ShowMessage("Clearing %d naifIds\n", naifIds.size());
+      #endif
       naifIds.clear();
       for (UnsignedInt i = 0; i < propObjects.size(); ++i)
       {
@@ -617,7 +620,10 @@ bool SPKPropagator::Initialize()
             {
                fullPath = ephemPath + fullPath;
             }
-
+            #ifdef DEBUG_INITIALIZATION
+               MessageInterface::ShowMessage("Checking for kernel %s\n",
+                     fullPath.c_str());
+            #endif
             if (skr->IsLoaded(fullPath) == false)
                skr->LoadKernel(fullPath);
 
@@ -657,6 +663,12 @@ bool SPKPropagator::Initialize()
                               "requested epoch is " << currentEpoch << ".\n";
                      throw PropagatorException(errmsg.str());
                   }
+                  #ifdef DEBUG_INITIALIZATION
+                     MessageInterface::ShowMessage("Getting target state in %p "
+                           "for %s (ID = %ld) at epoch %lf and CB %s\n", this,
+                           scName.c_str(), id, currentEpoch,
+                           spkCentralBody.c_str());
+                  #endif
                   outState = skr->GetTargetState(scName, id, currentEpoch,
                         spkCentralBody);
 
@@ -760,13 +772,15 @@ bool SPKPropagator::Step()
 //            std::memcpy(state, outState.GetDataVector(),
 //                  dimension*sizeof(Real));
 //            ReturnFromOrigin(currentEpoch);
-            std::memcpy(j2kState, outState.GetDataVector(),
+//            std::memcpy(j2kState, outState.GetDataVector(),
+            std::memcpy(state, outState.GetDataVector(),
                   dimension*sizeof(Real));
-            MoveToOrigin(currentEpoch);
+            //MoveToOrigin(currentEpoch);
+            UpdateSpaceObject(currentEpoch);
 
             #ifdef DEBUG_PROPAGATION
-               MessageInterface::ShowMessage("State at epoch %.12lf is [",
-                     currentEpoch);
+               MessageInterface::ShowMessage("(Step for %p) State at epoch "
+                     "%.12lf is [", this, currentEpoch);
                for (Integer i = 0; i < dimension; ++i)
                {
                   MessageInterface::ShowMessage("%.12lf", state[i]);
@@ -882,13 +896,15 @@ void SPKPropagator::UpdateState()
              */
 //            std::memcpy(state, outState.GetDataVector(),
 //                  dimension*sizeof(Real));
-            std::memcpy(j2kState, outState.GetDataVector(),
+//            std::memcpy(j2kState, outState.GetDataVector(),
+            std::memcpy(state, outState.GetDataVector(),
                   dimension*sizeof(Real));
-            MoveToOrigin(currentEpoch);
+//            MoveToOrigin(currentEpoch);
+//            UpdateSpaceObject(currentEpoch);
 
             #ifdef DEBUG_PROPAGATION
-               MessageInterface::ShowMessage("State at epoch %.12lf is [",
-                     currentEpoch);
+               MessageInterface::ShowMessage("(UpdateState for %p) State at "
+                     "epoch %.12lf is [", this, currentEpoch);
                for (Integer i = 0; i < dimension; ++i)
                {
                   MessageInterface::ShowMessage("%.12lf", state[i]);
