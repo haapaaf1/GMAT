@@ -39,10 +39,6 @@
 #include <ctime>                 // for clock()
 #endif
 
-// If deleting old object in LOS is allowd
-// If we replace old objcet, APT_Func_CartToKep_CF.script doesn't work!!
-//#define __REPLACE_OLD_LOS_OBJ__
-
 //---------------------------------
 // static data
 //---------------------------------
@@ -493,7 +489,7 @@ bool Create::InsertIntoLOS(GmatBase *obj, const std::string &withName)
          }
       }
       #ifdef DEBUG_CREATE_INIT
-         MessageInterface::ShowMessage("   InsertIntoLOS: object %s was already "
+         MessageInterface::ShowMessage("   InsertIntoLOS: object '%s' was already "
              "in object store ...\n", withName.c_str());
          MessageInterface::ShowMessage("   InsertIntoLOS: pointer for obj = <%p> "
              "and pointer for mapObj = <%p>\n", obj, mapObj);
@@ -501,24 +497,32 @@ bool Create::InsertIntoLOS(GmatBase *obj, const std::string &withName)
       // it is already in there, so we do not need to put this one in; clean it up
       if (mapObj != obj)  
       {
-         // Should we replace old with new (loj: 2008.11.24)
+         // Should we replace old with new (LOJ: 2008.11.24)
          // If we replace old objcet, APT_Func_CartToKep_CF.script doesn't work!!
-         #ifdef __REPLACE_OLD_LOS_OBJ__
+         // If object is ODE_MODEL replace (LOJ: 2011.04.18 Bug 2409 fix)
+         bool replaceObj = false;
+         if (obj->IsOfType(Gmat::ODE_MODEL))
+            replaceObj = true;
+         
+         if (replaceObj)
+         {
             #ifdef DEBUG_MEMORY
             MemoryTracker::Instance()->Remove
             (mapObj, mapObj->GetName(), "Create::InsertIntoLOS()",
-             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting mapObj");
+             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting old mapObj");
             #endif
             delete mapObj;
             (*objectMap)[withName] = obj;
             return true;
-         #else
+         }
+         else
+         {
             #ifdef DEBUG_CREATE_INIT
             MessageInterface::ShowMessage("   InsertIntoLOS: returning false, "
                "object '%s' is not the same\n", withName.c_str());
             #endif
             return false;
-         #endif
+         }
       }
    }
    else
@@ -528,6 +532,7 @@ bool Create::InsertIntoLOS(GmatBase *obj, const std::string &withName)
          ("   InsertIntoLOS: inserting '%s' into objectMap\n", withName.c_str());
       #endif
       // put it into the LOS
+      obj->SetIsLocal(true);
       objectMap->insert(std::make_pair(withName, obj));
    }
    #ifdef DEBUG_CREATE_INIT
@@ -566,7 +571,7 @@ bool Create::InsertIntoObjectStore(GmatBase *obj, const std::string &withName)
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
             (obj, obj->GetName(), "Create::InsertIntoObjectStore()",
-             GetGeneratingString(Gmat::NO_COMMENTS) + " deleting obj");
+             GetGeneratingString(Gmat::NO_COMMENTS) + ", failed to add to LOS so deleting obj");
          #endif
          delete obj;
       }

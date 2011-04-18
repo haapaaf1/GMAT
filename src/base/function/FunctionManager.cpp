@@ -675,6 +675,7 @@ bool FunctionManager::SetPassedInput(Integer index, GmatBase *obj, bool &inputAd
        "objFOS = obj->Clone()");
    #endif
    
+   objFOS->SetIsLocal(true);
    functionObjectStore->insert(std::make_pair(formalInput, objFOS));
    
    #ifdef DEBUG_INPUT
@@ -936,8 +937,8 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
       if (!f->Execute(objInit, reinitialize))
       {
          MessageInterface::ShowMessage
-            ("*** ERROR *** FunctionManager finalizing... due to false returned "
-             "from f->Execute()\n");
+            ("*** ERROR *** FunctionManager \"%s\" finalizing... due to false returned "
+             "from f->Execute()\n", fName.c_str());
          f->Finalize();
          if (publisher)
             publisher->ClearPublishedData();
@@ -949,7 +950,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    catch (BaseException &e)
    {
       MessageInterface::ShowMessage
-         ("*** ERROR *** FunctionManager finalizing... due to \n%s\n",
+         ("*** ERROR *** FunctionManager \"%s\" finalizing... due to \n%s\n", fName.c_str(),
           e.GetFullMessage().c_str());
       f->Finalize();
       if (publisher)
