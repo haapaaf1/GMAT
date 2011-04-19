@@ -135,7 +135,7 @@ using namespace FloatAttUtil;
 //#define DEBUG_UPDATE_OBJECT 2
 //#define DEBUG_ACTION 1
 //#define DEBUG_CONVERT 1
-//#define DEBUG_DRAW 2
+//#define DEBUG_DRAW 1
 //#define DEBUG_ZOOM 1
 //#define DEBUG_OBJECT 2
 //#define DEBUG_TEXTURE 2
@@ -432,6 +432,12 @@ bool OrbitViewCanvas::InitOpenGL()
    MessageInterface::ShowMessage("GLU extensions = '%s'\n", (char*)str);
    #endif
    
+   #ifdef DEBUG_INIT
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::InitOpenGL() '%s' entered, calling InitGL()\n",
+       mPlotName.c_str());
+   #endif
+   
    InitGL();
 
    // remove back faces
@@ -485,6 +491,11 @@ bool OrbitViewCanvas::InitOpenGL()
    mShowMaxWarning = true;
    mIsAnimationRunning = false;
    mOpenGLInitialized = true;
+   
+   #ifdef DEBUG_INIT_OPENGL
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::InitOpenGL() '%s' returning true\n", mPlotName.c_str());
+   #endif
    
    return true;
 }
@@ -1364,6 +1375,10 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
 {
    if (IsFrozen())
       Thaw();
+   
+   // To load spacecraft model, OpenGL needs to be initialized first
+   if (!mOpenGLInitialized)
+      Update();
    
    mTotalPoints++;
    mInFunction = inFunction;   
@@ -3176,6 +3191,9 @@ void OrbitViewCanvas::DrawFrame()
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::DrawPlot()
 {
+   if (mTotalPoints == 0)
+      return;
+   
    #if DEBUG_DRAW
    MessageInterface::ShowMessage
       ("===========================================================================\n");
@@ -4792,6 +4810,13 @@ void OrbitViewCanvas
    #if DEBUG_UPDATE
    static int sNumDebugOutput = 1000;
    #endif
+
+   #if DEBUG_UPDATE
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::UpdateSpacecraftData() entered, time=%f, mScCount=%d, "
+       "mOpenGLInitialized=%d, modelsAreLoaded=%d\n", time, mScCount,
+       mOpenGLInitialized, modelsAreLoaded);
+   #endif
    
    //-------------------------------------------------------
    // update spacecraft position
@@ -4810,6 +4835,7 @@ void OrbitViewCanvas
       {
          Spacecraft *spac = (Spacecraft*)mObjectArray[satId];
          int colorIndex = satId * MAX_DATA + mLastIndex;
+         
          if (mOpenGLInitialized)
          {
             ModelManager *mm = ModelManager::Instance();
@@ -4906,9 +4932,19 @@ void OrbitViewCanvas
          #endif
          
          // Update spacecraft attitude
+         #if DEBUG_UPDATE
+         MessageInterface::ShowMessage
+            ("   Now updating spacecraft attitude of %d\n", satId);
+         #endif
+         
          UpdateSpacecraftAttitude(time, spac, satId);
       }
    }
+   
+   #if DEBUG_UPDATE
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::UpdateSpacecraftData() leaving\n");
+   #endif
 }
 
 
