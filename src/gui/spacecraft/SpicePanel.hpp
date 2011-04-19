@@ -104,6 +104,7 @@ private:
 //   void OnPckFileRemoveButton(wxCommandEvent &event);
 //   void OnPckFileListBoxChange(wxCommandEvent &event);
    void OnNaifIdTextCtrlChange(wxCommandEvent &event);
+   void OnNaifIdRefTextCtrlChange(wxCommandEvent &event);
 
    wxString ToString(Real rval);
 
