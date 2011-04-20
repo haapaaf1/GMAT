@@ -13,7 +13,7 @@
 
 #include <wx/event.h>
 
-class GMAT_API GmatInterfaceGui
+class GmatInterfaceGui
 {
 public:
    static GmatInterfaceGui* Instance();
