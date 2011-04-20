@@ -245,7 +245,13 @@ bool GmatApp::OnInit()
             theMainFrame->BuildAndRunScript(scriptToRun);
             
             if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::EXIT_AFTER_RUN)
+            {
                theMainFrame->Close();
+               #ifdef __LINUX__
+                  // Linux needs this to complete shutdown
+                  MessageInterface::ShowMessage("\n");
+               #endif
+            }
          }
          else if (runBatch)
          {
