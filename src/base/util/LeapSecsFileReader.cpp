@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              LeapSecsFileReader
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //

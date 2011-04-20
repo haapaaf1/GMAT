@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             File: TimeParameters.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //

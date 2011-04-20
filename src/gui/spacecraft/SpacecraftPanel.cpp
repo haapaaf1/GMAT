@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            SpacecraftPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 //
 // **Legal**

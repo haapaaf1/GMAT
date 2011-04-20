@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              SolarSystemWindow
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Monisha Butler
 // Created: 2003/09/10

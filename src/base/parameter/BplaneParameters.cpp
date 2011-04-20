@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                             File: BplaneParameters.cpp
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //

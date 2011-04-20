@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                 NonlinearConstraint
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // **Legal**
 //

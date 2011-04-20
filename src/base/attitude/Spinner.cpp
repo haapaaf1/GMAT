@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                               Spinner
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Wendy C. Shoan/GSFC
 // Created: 2006.03.24

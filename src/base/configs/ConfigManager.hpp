@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                                ConfigManager
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Darrel J. Conway
 // Created: 2003/10/27

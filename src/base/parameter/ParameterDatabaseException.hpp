@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            ParameterDatabaseException
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // **Legal**
 //

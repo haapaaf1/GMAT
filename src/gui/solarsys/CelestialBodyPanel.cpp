@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              CelestialBodyPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Wendy C. Shoan (original author: Allison Greene 2005.07.06)
 // Created: 2009.01.26

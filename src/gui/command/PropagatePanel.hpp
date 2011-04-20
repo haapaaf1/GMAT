@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 //                              PropagatePanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 // Author: Waka Waktola
 // Created: 2003/09/08

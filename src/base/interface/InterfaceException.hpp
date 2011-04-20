@@ -1,8 +1,8 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                                  InterfaceException
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
 // Author: Wendy Shoan/GSFC
 // Created: 2006.09.15

@@ -1,4 +1,4 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              RungeKuttaNystrom
 // *** File Name : rungekuttanystrom.h
