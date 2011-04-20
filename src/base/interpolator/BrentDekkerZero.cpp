@@ -1,3 +1,24 @@
+//$Id$
+//------------------------------------------------------------------------------
+//                            BrentDekkerZero
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// NNG06CA54C
+//
+// Author: Darrel J. Conway, Thinking Systems, Inc.
+// Created: 2009/04/10
+//
+/**
+ * Implements interpolation class using the cubic spline algorithm described in
+ * Numerical Recipes in C, 2nd Ed., pp 113 ff
+ */
+//------------------------------------------------------------------------------
+
+
 #include "BrentDekkerZero.hpp"
 #include <cmath>
 #include "MessageInterface.hpp"
