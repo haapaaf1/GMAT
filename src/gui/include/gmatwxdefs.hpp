@@ -19,6 +19,7 @@
 #define gmatwxdefs_hpp
 
 #ifdef _MSC_VER
+#include <winsock2.h>      // Required for Tuan's socket work
 #pragma warning( disable : 4267 )  // Disable warning messages 4267 
 #endif                             // (conversion from 'size_t' to 'int', 
                                    // possible loss of data)

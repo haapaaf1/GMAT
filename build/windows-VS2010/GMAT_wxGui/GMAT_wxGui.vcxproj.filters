@@ -510,6 +510,12 @@
     <ClCompile Include="..\..\..\src\gui\output\ReportFilePanel.cpp">
       <Filter>Source Files\output</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\gui\app\GmatSocketServer.cpp">
+      <Filter>Source Files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\gui\app\GmatInterfaceGui.cpp">
+      <Filter>Source Files\app</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\gui\app\GmatToolBar.hpp">
@@ -958,6 +964,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\gui\output\ReportFilePanel.hpp">
       <Filter>Source Files\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\gui\app\GmatSocketServer.hpp">
+      <Filter>Source Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\gui\app\GmatInterfaceGui.hpp">
+      <Filter>Source Files\app</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
