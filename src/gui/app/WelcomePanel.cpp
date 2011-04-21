@@ -94,13 +94,23 @@ void WelcomePanel::Create()
    
    if (GmatFileUtil::DoesFileExist(iconFile))
    {
-      bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+"GMATIcon.jpg").c_str(), 200, 200 );
+      #ifdef DEBUG_CREATE
+      MessageInterface::ShowMessage
+         ("   Loading iconFile '%s'\n", iconFile.c_str());
+      #endif
+      bitmap = LoadBitmap( iconFile.c_str(), 200, 200 );
       aboutButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
                           wxSize(200,200));
    }
    else
+   {
+      #ifdef DEBUG_CREATE
+      MessageInterface::ShowMessage
+         ("   the iconFile '%s' doesnot exist, so creating default\n", iconFile.c_str());
+      #endif
       aboutButton = new wxBitmapButton(this, -1, NULL, wxDefaultPosition,
                            wxSize(200,200));
+   }
    
    wxColourDatabase cdb;
    wxColour gmatColor = cdb.Find("NAVY");
@@ -212,7 +222,24 @@ void WelcomePanel::Create()
    thePanelSizer->Add(theMiddleSizer, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize*2);
    SetSizer(thePanelSizer);
    thePanelSizer->SetSizeHints(this);
-
+   
+   // Set icon if icon file is in the start up file
+   try
+   {
+      wxString iconfile = fm->GetFullPathname("MAIN_ICON_FILE").c_str();
+      #if defined __WXMSW__
+         SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_ICO));
+      #elif defined __WXGTK__
+         SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_XPM));
+      #elif defined __WXMAC__
+         SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_PICT_RESOURCE));
+      #endif
+   }
+   catch (GmatBaseException &/*e*/)
+   {
+      //MessageInterface::ShowMessage(e.GetMessage());
+   }
+   
    #ifdef DEBUG_CREATE
    MessageInterface::ShowMessage("WelcomePanel::Create() leaving\n");
    #endif
