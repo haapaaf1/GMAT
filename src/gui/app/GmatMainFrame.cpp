@@ -8,8 +8,6 @@
 // Administrator of The National Aeronautics and Space Administration.
 // All Other Rights Reserved.
 //
-// ** Legal **
-//
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
 //
@@ -2478,8 +2476,8 @@ void GmatMainFrame::OnHelpContents(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnHelpOnline(wxCommandEvent& WXUNUSED(event))
 {
-   wxString wikiUrl = "http://gmat.ed-pages.com/wiki/tiki-index.php";
-   ::wxLaunchDefaultBrowser(wikiUrl);
+   wxString url = "http://gmat.sourceforge.net/docs/R2011a/html/index.html";
+   ::wxLaunchDefaultBrowser(url);
 }
 
 
@@ -2494,8 +2492,8 @@ void GmatMainFrame::OnHelpOnline(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnHelpTutorial(wxCommandEvent& WXUNUSED(event))
 {
-   wxString wikiUrl = "http://gmat.ed-pages.com/wiki/tiki-index.php";
-   ::wxLaunchDefaultBrowser(wikiUrl);
+   wxString url = "http://gmat.sourceforge.net/docs/R2011a/help.html#N10373";
+   ::wxLaunchDefaultBrowser(url);
 }
 
 
