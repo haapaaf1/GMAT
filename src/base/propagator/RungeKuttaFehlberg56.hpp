@@ -3,7 +3,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // *** File Name : rungekuttafehlberg56.h
 // *** Created   : October 1, 2002

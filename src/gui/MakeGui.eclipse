@@ -1,9 +1,12 @@
 # $Id$
-#
+# 
 # GMAT: General Mission Analysis Tool.
-#
-# **Legal**
-#
+# 
+#  Copyright (c) 2002-2011 United States Government as represented by the
+#  Administrator of The National Aeronautics and Space Administration.
+#  All Other Rights Reserved.
+
+# 
 # Eclipse makefile for the GMAT GUI
 # Initial Version - D. Conway - 2005/06/17
 # Modifed for Mac OS 10.3  W. Shoan - 2005.11.10
