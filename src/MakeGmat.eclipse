@@ -1,4 +1,9 @@
 # $Id$
+#
+# GMAT: General Mission Analysis Tool.
+#
+# **Legal**
+#
 # Mac OSX (Leopard) makefile for GMAT, using Eclipse
 # wcs - 2010.04.13 - updated to work for all 3 platforms
 

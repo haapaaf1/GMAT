@@ -1,3 +1,21 @@
+//$Id$
+//------------------------------------------------------------------------------
+//                                SQPSetupPanel
+//------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool
+//
+// **Legal**
+//
+// Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
+// number S-67573-G
+//
+// Author:
+// Created:
+//
+/**
+ * Declares SQPSetupPanel.
+ */
+//------------------------------------------------------------------------------
 #ifndef SQPSETUPPANEL_HPP_
 #define SQPSETUPPANEL_HPP_
 
@@ -53,9 +71,9 @@ private:
    wxStaticText *reportStyleStaticText;
    wxComboBox *styleComboBox;
 
-   wxButton	  *browseButton;
+   wxButton       *browseButton;
    
-   wxFileDialog	*fileDialog;
+   wxFileDialog *fileDialog;
 
    // methods inherited from GmatPanel
    virtual void Create();
@@ -75,7 +93,7 @@ private:
    void OnCheckboxChange(wxCommandEvent& event);
    void OnBrowse(wxCommandEvent &event);
        
-//   static const wxString DISPLAY_SCHEMES[4];				// made a change here
+//   static const wxString DISPLAY_SCHEMES[4];                          // made a change here
    
    // IDs for the controls and the menu commands
    enum
@@ -86,7 +104,7 @@ private:
       ID_COMBOBOX,
       ID_CHECKBOX,
       ID_NOTEBOOK,
-	  ID_BUTTON_BROWSE
+          ID_BUTTON_BROWSE
    };
 };
 

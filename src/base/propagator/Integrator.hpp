@@ -2,17 +2,16 @@
 //------------------------------------------------------------------------------
 //                              Integrator
 //------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool.
+//
+// **Legal**
+//
 // *** File Name : Integrator.hpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
 // ***  For:  Flight Dynamics Analysis Branch (Code 572)                  ***
 // ***  Under Contract:  P.O.  GSFC S-66617-G                             ***
-// ***                                                                    ***
-// ***  Copyright U.S. Government 2002                                    ***
-// ***  Copyright United States Government as represented by the          ***
-// ***  Administrator of the National Aeronautics and Space               ***
-// ***  Administration                                                    ***
 // ***                                                                    ***
 // ***  This software is subject to the Sofware Usage Agreement described ***
 // ***  by NASA Case Number GSC-14735-1.  The Softare Usage Agreement     ***
@@ -214,7 +213,7 @@ protected:
      */
     //------------------------------------------------------------------------------
     virtual bool AdaptStep(Real maxerror) = 0;
-	
+        
     enum
     {
         ACCURACY = PropagatorParamCount,  // Accuracy parameter for Integrators
@@ -229,9 +228,9 @@ protected:
     
     // Start with the parameter IDs and associates strings
     static const std::string 
-	              PARAMETER_TEXT[IntegratorParamCount - PropagatorParamCount];
+                      PARAMETER_TEXT[IntegratorParamCount - PropagatorParamCount];
     static const Gmat::ParameterType 
-	              PARAMETER_TYPE[IntegratorParamCount - PropagatorParamCount];
+                      PARAMETER_TYPE[IntegratorParamCount - PropagatorParamCount];
         
     /// The level of "acceptable" relative error for the integrator
     Real tolerance;

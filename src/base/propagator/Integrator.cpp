@@ -2,17 +2,16 @@
 //------------------------------------------------------------------------------
 //                              Integrator
 //------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool.
+//
+// **Legal**
+//
 // *** File Name : Integrator.cpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
 // ***  For:  Flight Dynamics Analysis Branch (Code 572)                  ***
 // ***  Under Contract:  P.O.  GSFC S-66617-G                             ***
-// ***                                                                    ***
-// ***  Copyright U.S. Government 2002                                    ***
-// ***  Copyright United States Government as represented by the          ***
-// ***  Administrator of the National Aeronautics and Space               ***
-// ***  Administration                                                    ***
 // ***                                                                    ***
 // ***  This software is subject to the Sofware Usage Agreement described ***
 // ***  by NASA Case Number GSC-14735-1.  The Softare Usage Agreement     ***
@@ -285,7 +284,7 @@ std::string Integrator::GetParameterTypeString(const Integer id) const
 {
     if (id >= PropagatorParamCount && id < IntegratorParamCount)
         return GmatBase::PARAM_TYPE_STRING
-		                      [GetParameterType(id - PropagatorParamCount)];
+                                      [GetParameterType(id - PropagatorParamCount)];
     else
         return Propagator::GetParameterTypeString(id);
 }
@@ -330,19 +329,19 @@ Real Integrator::GetRealParameter(const Integer id) const
    switch (id)
    {
       case ACCURACY:
-	     return tolerance;
-	  case ERROR_THRESHOLD:
-	     if (physicalModel)
+             return tolerance;
+          case ERROR_THRESHOLD:
+             if (physicalModel)
             return physicalModel->GetErrorThreshold();
-		 return errorThreshold;
-	  case SMALLEST_INTERVAL:
-	     return smallestTime;
-	  case MIN_STEP:
-	     return minimumStep;
-	  case MAX_STEP:
-	     return maximumStep;
-	  default:
-	     return Propagator::GetRealParameter(id);   
+                 return errorThreshold;
+          case SMALLEST_INTERVAL:
+             return smallestTime;
+          case MIN_STEP:
+             return minimumStep;
+          case MAX_STEP:
+             return maximumStep;
+          default:
+             return Propagator::GetRealParameter(id);   
    }    
 }
 
@@ -419,8 +418,8 @@ Real Integrator::SetRealParameter(const Integer id, const Real value)
       errorThreshold = fabs(value);
       if (physicalModel)
          physicalModel->SetErrorThreshold(errorThreshold);
-	  else
-	     throw PropagatorException(
+          else
+             throw PropagatorException(
                       "Integrator::SetRealParameter -- PhysicalModel is NULL.");
       return value;
    case SMALLEST_INTERVAL:
@@ -617,9 +616,9 @@ void Integrator::SetPhysicalModel(PhysicalModel *pPhysicalModel)
     Propagator::SetPhysicalModel(pPhysicalModel);
     if (physicalModel != NULL) 
         physicalModel->SetErrorThreshold(errorThreshold);
-	else
-	   throw PropagatorException(
-	         "Integrator::SetPhysicalModel -- PhyscialModel is NULL.");
+        else
+           throw PropagatorException(
+                 "Integrator::SetPhysicalModel -- PhyscialModel is NULL.");
 }
 
 

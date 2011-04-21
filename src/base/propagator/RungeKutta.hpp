@@ -2,17 +2,16 @@
 //------------------------------------------------------------------------------
 //                              RungeKutta
 //------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool.
+//
+// **Legal**
+//
 // *** File Name : RungeKutta.hpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
 // ***  For:  Flight Dynamics Analysis Branch (Code 572)                  ***
 // ***  Under Contract:  P.O.  GSFC S-66617-G                             ***
-// ***                                                                    ***
-// ***  Copyright U.S. Government 2002                                    ***
-// ***  Copyright United States Government as represented by the          ***
-// ***  Administrator of the National Aeronautics and Space               ***
-// ***  Administration                                                    ***
 // ***                                                                    ***
 // ***  This software is subject to the Sofware Usage Agreement described ***
 // ***  by NASA Case Number GSC-14735-1.  The Softare Usage Agreement     ***
@@ -31,15 +30,15 @@
 //                             Updated interfaces based on GSFC feedback
 //
 //                           : 09/24/2003 - W. Waktola, Missions Applications Branch
-//				Changes:
-//				  - Updated style using GMAT cpp style guide
+//                              Changes:
+//                                - Updated style using GMAT cpp style guide
 //
 //                           : 10/21/2003 - W. Waktola, Missions Applications Branch
-//				Changes:
-//				  - All double types to Real types
-//				  - All primitive int types to Integer types
-//				Removals:
-//				Additions:
+//                              Changes:
+//                                - All double types to Real types
+//                                - All primitive int types to Integer types
+//                              Removals:
+//                              Additions:
 // **************************************************************************
 /**
  * Base class for Adaptive Runge-Kutta integrators
@@ -141,7 +140,7 @@ class GMAT_API RungeKutta : public Integrator
 {
 public:
     RungeKutta(Integer st, Integer order, const std::string &typeStr,
-			   const std::string &nomme = "");
+                           const std::string &nomme = "");
     virtual ~RungeKutta();
     RungeKutta(const RungeKutta&);
     RungeKutta & operator=(const RungeKutta&);

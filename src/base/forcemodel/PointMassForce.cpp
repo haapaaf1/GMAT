@@ -2,17 +2,16 @@
 //------------------------------------------------------------------------------
 //                             PointMassForce
 //------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool.
+//
+// **Legal**
+//
 // *** File Name : PointMassForce.cpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
 // ***  For:  Flight Dynamics Analysis Branch (Code 572)                  ***
 // ***  Under Contract:  P.O.  GSFC S-66617-G                             ***
-// ***                                                                    ***
-// ***  Copyright U.S. Government 2002                                    ***
-// ***  Copyright United States Government as represented by the          ***
-// ***  Administrator of the National Aeronautics and Space               ***
-// ***  Administration                                                    ***
 // ***                                                                    ***
 // ***  This software is subject to the Sofware Usage Agreement described ***
 // ***  by NASA Case Number GSC-14735-1.  The Softare Usage Agreement     ***
@@ -354,7 +353,7 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
       if (rbb3 != 0.0) 
       {
          //rbb3 *= sqrt(rbb3);
-      	rbb3 = sqrt(rbb3 * rbb3 * rbb3);
+        rbb3 = sqrt(rbb3 * rbb3 * rbb3);
          mu_rbb = mu / rbb3;
          a_indirect[0] = mu_rbb * rv[0];
          a_indirect[1] = mu_rbb * rv[1];
@@ -384,18 +383,18 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
                a_indirect[1], a_indirect[2]);
       #endif
 
-   	#if DEBUG_PMF_BODY
-   	   ShowBodyState("PointMassForce::GetDerivatives() BEFORE compute " +
-   	                 body->GetName(), now, rv);
-   	#endif
+        #if DEBUG_PMF_BODY
+           ShowBodyState("PointMassForce::GetDerivatives() BEFORE compute " +
+                         body->GetName(), now, rv);
+        #endif
    
-   	#if DEBUG_PMF_DERV
-   	   ShowDerivative("PointMassForce::GetDerivatives() BEFORE compute", state, 
-   	      satCount);
-   	#endif
+        #if DEBUG_PMF_DERV
+           ShowDerivative("PointMassForce::GetDerivatives() BEFORE compute", state, 
+              satCount);
+        #endif
       
- 	   if (fillCartesian)
-  	   {
+           if (fillCartesian)
+           {
          for (Integer i = 0; i < satCount; i++) 
          {
             i6 = cartIndex + i * 6;
@@ -452,7 +451,7 @@ bool PointMassForce::GetDerivatives(Real * state, Real dt, Integer order,
                deriv[i6+5] = 0.0; 
             }
          }
-  	   }   
+           }   
       #if DEBUG_PMF_DERV
          ShowDerivative("PointMassForce::GetDerivatives() AFTER compute", state, 
             satCount);

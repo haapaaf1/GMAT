@@ -2,13 +2,16 @@
 //------------------------------------------------------------------------------
 //                        PrinceDormand78
 //------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool.
+//
+// **Legal**
+//
 // *** File Name : PrinceDormand78.cpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
 // ***  For:  Flight Dynamics Analysis Branch (Code 572)                  ***
 // ***  Under Contract:  P.O.  GSFC S-66617-G                             ***
-// ***  Copyright U.S. Government 2002                                    ***
 // ***                                                                    ***
 // ***  Header Version: July 12, 2002                                     ***
 // **************************************************************************
@@ -19,8 +22,8 @@
 //
 //                           : 1/15/2003 - D. Conway, Thinking Systems, Inc.
 //                             Updated interfaces based on GSFC feedback
-//				Changes:
-//				  - Updated style using GMAT cpp style guide
+//                              Changes:
+//                                - Updated style using GMAT cpp style guide
 //            - All double types to Real types
 //
 //                           : 6/1/2004 - A. Greene, Missions Applications Branch

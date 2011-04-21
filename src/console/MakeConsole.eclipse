@@ -1,4 +1,8 @@
+# $Id$
 # Makefile for console version of GMAT (aka the Script Interpreter tester)
+#
+# **Legal**
+#
 # Initial Version, DJC, 11/8/2005
 
 include ../BuildEnv.mk
