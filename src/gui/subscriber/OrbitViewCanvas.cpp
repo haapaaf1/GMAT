@@ -3994,7 +3994,12 @@ void OrbitViewCanvas::DrawSolverData()
    if (numPoints == 0)
       return;
    
-   for (int i=1; i<numPoints; i++)
+   // Note that we're starting at 2 here rather than at 1.  There is a bug that
+   // looks like a bad pointer when starting from 1 when the plot running in
+   // "Current" mode.  We need to investigate this issue after the 2011a release
+   // is out the door.  This TEMPORARY fix is in place so that the Mac, Linux
+   // and Visual Studio builds won't crash for the "Current" setting.
+   for (int i=2; i<numPoints; i++)
    {
       int numSc = mSolverAllPosX[i].size();      
       //MessageInterface::ShowMessage("==========> sc count = %d\n", numSc);
