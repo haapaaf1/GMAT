@@ -1379,10 +1379,13 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
 {
    if (IsFrozen())
       Thaw();
-   
+
+   // Commented out since spacecraft panel is not showing. (LOJ: 2011.04.25)
+   // This code attempt to show spacecraft moel when total data points are
+   // less than update frequency points (Bug 2380)
    // To load spacecraft model, OpenGL needs to be initialized first
-   if (!mOpenGLInitialized)
-      Update();
+   //if (!mOpenGLInitialized)
+   //   Update();
    
    mTotalPoints++;
    mInFunction = inFunction;   
