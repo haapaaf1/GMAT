@@ -541,7 +541,12 @@ int main(int argc, char *argv[])
         	   // 3. Create a new thread to run socket server
         	   std::cout << "Start socket server...\n";
         	   SocketServer* server = new SocketServer();
-        	   _beginthread(server->StaticRunServer, 0, (void*)server);
+			   #ifdef LINUX_MAC
+				   pthread_t threadID;
+				   pthread_create(&threadID, NULL, server->StaticRunServer,(void *)server);
+			   #else
+				   _beginthread(server->StaticRunServer, 0, (void*)server);
+			   #endif
 
         	}
         	else if (!strcmp(scriptfile, "--help")) {
