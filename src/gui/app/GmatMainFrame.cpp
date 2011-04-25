@@ -511,8 +511,12 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    
    // Create a new thread to run GMAT socket server
    GmatSocketServer* server = new GmatSocketServer(this);
+   #ifdef LINUX_MAC
+   pthread_t threadID;
+   pthread_create(&threadID, NULL, server->StaticRunServer,(void *)server);
+   #else
    _beginthread(server->StaticRunServer, 0, (void*)server);
-
+   #endif
 
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage("GmatMainFrame::GmatMainFrame() exiting\n");
