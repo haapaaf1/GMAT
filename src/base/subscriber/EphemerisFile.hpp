@@ -117,6 +117,7 @@ protected:
    std::string fileName;
    std::string fileFormat;
    std::string epochFormat;
+   std::string ccsdsEpochFormat;
    std::string initialEpoch;
    std::string finalEpoch;
    std::string stepSize;

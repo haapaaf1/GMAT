@@ -100,6 +100,11 @@
 //#define DEBUG_MATLAB
 //#define DEBUG_CCSDS_EPHEMERIS
 
+// Currently we can't use DataFile for 2011a release so commented out
+// Actually we want to put this flag in BuildEnv.mk but it is very close to
+// release so added it here and EphemerisFile.cpp
+//#define __USE_DATAFILE__
+
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
@@ -8225,8 +8230,10 @@ void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
 //------------------------------------------------------------------------------
 void Moderator::AddSubscriberToSandbox(Integer index)
 {
-   // Handle CcsdsEphemerisFile first
+   #ifdef __USE_DATAFILE__
+   // Handle CcsdsEphemerisFile which uses DataFile plugin
    HandleCcsdsEphemerisFile(objectMapInUse, false);
+   #endif
    
    Subscriber *obj;
    StringArray names = theConfigManager->GetListOfItems(Gmat::SUBSCRIBER);
