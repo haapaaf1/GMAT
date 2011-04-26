@@ -1,6 +1,6 @@
 //$Header: /GMAT/dev/cvs/matlab/gmat_mex/src/ipcsetup.h,v 1.1 2005/12/22 19:12:21 jgurgan Exp $
 //------------------------------------------------------------------------------
-//                               pcsetup.h
+//                               ipcsetup.h
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
@@ -15,9 +15,7 @@
 // Created: 2005/11/30
 //
 /**
- * This is IPC setup file.
- * 
- * NOTE:  This file came from the sample of wxWidgets code.
+ * This is the IPC setup file.
  */
 //------------------------------------------------------------------------------
 
@@ -28,13 +26,11 @@
 
 // the default service name
 #define IPC_SERVICE _T("4242")
-//#define IPC_SERVICE _T("/tmp/wxsrv424")
 
 // the hostname
 #define IPC_HOST _T("localhost")
 
 // the IPC topic
-// #define IPC_TOPIC _T("IPC TEST")
 #define IPC_TOPIC _T("GMAT-MATLAB")
 
 // the name of the item we're being advised about
