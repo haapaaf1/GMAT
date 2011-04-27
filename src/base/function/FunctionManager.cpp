@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // Author: Wendy C. Shoan
 // FunctionManagerd: 2008.03.24
 //
@@ -675,6 +679,7 @@ bool FunctionManager::SetPassedInput(Integer index, GmatBase *obj, bool &inputAd
        "objFOS = obj->Clone()");
    #endif
    
+   objFOS->SetIsLocal(true);
    functionObjectStore->insert(std::make_pair(formalInput, objFOS));
    
    #ifdef DEBUG_INPUT
@@ -887,7 +892,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    }
    
    objInit = new ObjectInitializer(solarSys, functionObjectStore,
-                                   globalObjectStore, internalCS, true);   
+                                   globalObjectStore, internalCS, true, true);   
    #ifdef DEBUG_MEMORY
    MemoryTracker::Instance()->Add
       (objInit, "objInit", "FunctionManager::Execute()", "objInit = new ObjectInitializer");
@@ -936,8 +941,8 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
       if (!f->Execute(objInit, reinitialize))
       {
          MessageInterface::ShowMessage
-            ("*** ERROR *** FunctionManager finalizing... due to false returned "
-             "from f->Execute()\n");
+            ("*** ERROR *** FunctionManager \"%s\" finalizing... due to false returned "
+             "from f->Execute()\n", fName.c_str());
          f->Finalize();
          if (publisher)
             publisher->ClearPublishedData();
@@ -949,7 +954,7 @@ bool FunctionManager::Execute(FunctionManager *callingFM)
    catch (BaseException &e)
    {
       MessageInterface::ShowMessage
-         ("*** ERROR *** FunctionManager finalizing... due to \n%s\n",
+         ("*** ERROR *** FunctionManager \"%s\" finalizing... due to \n%s\n", fName.c_str(),
           e.GetFullMessage().c_str());
       f->Finalize();
       if (publisher)
@@ -1298,6 +1303,9 @@ bool FunctionManager::CreatePassingArgWrappers()
              "objFOS = obj->Clone()");
          #endif
       }
+      
+      // Flag it as local object
+      objFOS->SetIsLocal(true);
       
       functionObjectStore->insert(std::make_pair(formalName,objFOS));
       

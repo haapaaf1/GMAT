@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -141,6 +143,16 @@ GravityField::GravityField(const std::string &name, const std::string &forBodyNa
    objectTypeNames.push_back("GravityField");
    bodyName = forBodyName;
    parameterCount = GravityFieldParamCount;
+
+   for (Integer i = 0; i < 17; i++)
+   {
+      for (Integer j = 0; j < 17; j++)
+      {
+         dCbar[i][j] = 0.0;
+         dSbar[i][j] = 0.0;
+      }
+   }
+
 }
 
 
@@ -606,7 +618,7 @@ bool GravityField::GetDerivatives(Real * state, Real dt, Integer dvorder,
 
    //Real* satState;
    Real satState[6];
-   Real f[3]; //, rbb3, mu_rbb;
+   Real f[3] = {0.0,0.0,0.0}; //, rbb3, mu_rbb;
    Real aIndirect[3] = {0.0,0.0,0.0};
    Integer nOffset;
    bool sameCS = false;

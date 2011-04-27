@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -93,6 +95,9 @@ std::string GmatFileUtil::GetCurrentPath()
    // system libraries to GMAT code base.  The "unused variable" warning
    // here can be safely ignored.
 //   char *ch = getcwd(buffer, GmatFile::MAX_PATH_LEN);
+   // This clears a warning message
+   if (getcwd(buffer, GmatFile::MAX_PATH_LEN) != buffer)
+      ;
    currPath = buffer;
 #else
    MessageInterface::ShowMessage
@@ -106,10 +111,50 @@ std::string GmatFileUtil::GetCurrentPath()
 
 
 //------------------------------------------------------------------------------
+// std::string ParseFirstPathName(const std::string &fullPath, bool appendSep = true)
+//------------------------------------------------------------------------------
+/*
+ * This function parses first path name from given full path name.
+ *
+ * @param  fullPath  input full path name
+ * @param  appendSep appends path separator if true
+ * @return  The file name from the full path
+ *
+ */
+//------------------------------------------------------------------------------
+std::string GmatFileUtil::ParseFirstPathName(const std::string &fullPath,
+                                             bool appendSep)
+{
+   #ifdef DEBUG_PARSE_FILENAME
+   MessageInterface::ShowMessage
+      ("GmatFileUtil::ParseFirstPathName() fullPath=<%s>\n", fullPath.c_str());
+   #endif
+   
+   std::string filePath;
+   std::string::size_type firstSlash = fullPath.find_first_of("/\\");
+   
+   if (firstSlash != filePath.npos)
+   {
+      if (appendSep)
+         filePath = fullPath.substr(0, firstSlash + 1);
+      else
+         filePath = fullPath.substr(0, firstSlash);
+   }
+   
+   #ifdef DEBUG_PARSE_FILENAME
+   MessageInterface::ShowMessage
+      ("GmatFileUtil::ParseFirstPathName() returning <%s>\n", filePath.c_str());
+   #endif
+   
+   return filePath;
+}
+
+
+//------------------------------------------------------------------------------
 // std::string ParsePathName(const std::string &fullPath, bool appendSep = true)
 //------------------------------------------------------------------------------
 /*
- * This function parses file name from given full path name.
+ * This function parses whole path name from given full path name.
  *
  * @param  fullPath  input full path name
  * @param  appendSep appends path separator if true

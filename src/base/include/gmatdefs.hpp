@@ -13,7 +13,9 @@
 // Modification History      : 5/20/2003 - D. Conway, Thinking Systems, Inc.
 //                             Original delivery
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 //                           : 2003/09/16 - W. Shoan/GSFC/583
 //                             added ObjectTypes enum type in namespace Gmat

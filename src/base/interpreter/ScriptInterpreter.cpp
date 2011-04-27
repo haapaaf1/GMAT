@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // Author: Waka Waktola
 // Created: 2006/08/25
 // Copyright: (c) 2006 NASA/GSFC. All rights reserved.

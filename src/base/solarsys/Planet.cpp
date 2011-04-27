@@ -2,7 +2,11 @@
 //------------------------------------------------------------------------------
 //                                  Planet
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
+//
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Author: Wendy C. Shoan
 // Created: 2004/01/29
@@ -30,7 +34,7 @@
 
 //#define DEBUG_PLANET 1
 //#define DEBUG_PLANET_TWO_BODY
-#define DEBUG_PLANET_NUTATION_INTERVAL
+//#define DEBUG_PLANET_NUTATION_INTERVAL
 
 using namespace GmatMathUtil;
 

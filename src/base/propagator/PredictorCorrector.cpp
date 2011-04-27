@@ -1,18 +1,19 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              PredictorCorrector
 //------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool.
+//
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // *** File Name : predictorcorrector.cpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
 // ***  For:  Flight Dynamics Analysis Branch (Code 572)                  ***
 // ***  Under Contract:  P.O.  GSFC S-66617-G                             ***
-// ***                                                                    ***
-// ***  Copyright U.S. Government 2002                                    ***
-// ***  Copyright United States Government as represented by the          ***
-// ***  Administrator of the National Aeronautics and Space               ***
-// ***  Administration                                                    ***
 // ***                                                                    ***
 // ***  This software is subject to the Sofware Usage Agreement described ***
 // ***  by NASA Case Number GSC-14735-1.  The Softare Usage Agreement     ***
@@ -66,14 +67,14 @@ PredictorCorrector::PARAMETER_TEXT[PredictorCorrectorParamCount - IntegratorPara
 const Gmat::ParameterType
 PredictorCorrector::PARAMETER_TYPE[PredictorCorrectorParamCount - IntegratorParamCount] =
 {
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::REAL_TYPE,
-	Gmat::BOOLEAN_TYPE,
-	Gmat::INTEGER_TYPE,
-	Gmat::REAL_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::REAL_TYPE,
+        Gmat::BOOLEAN_TYPE,
+        Gmat::INTEGER_TYPE,
+        Gmat::REAL_TYPE,
 };
 
 //---------------------------------
@@ -87,11 +88,11 @@ PredictorCorrector::PARAMETER_TYPE[PredictorCorrectorParamCount - IntegratorPara
 /**
  * The Predictor-Corrector Constructor 
  *
- * @param sc	Size of the Predictor-Corrector buffer needed to advance
+ * @param sc    Size of the Predictor-Corrector buffer needed to advance
  *                   the state (basically the amount of history that needs to be
  *                   preserved from step to step)
  *
- * @param order	Truncation order of the highest order term kept in the
+ * @param order Truncation order of the highest order term kept in the
  *                   series expansion used to construct the algorithm.  This
  *                   value, inverted, is used in the stepsize control algorithm
  *                   to determine new step sizes if the estimated error falls
@@ -787,11 +788,11 @@ bool PredictorCorrector::IsParameterReadOnly(const std::string &label) const
 //------------------------------------------------------------------------------
 Real PredictorCorrector::GetRealParameter(const Integer id) const
 {
-	if (id == MAXIMUM_ERROR)		return maxError;
-	else if (id == LOWEVER_ERROR)	return lowerError;
-	else if (id == TARGET_ERROR)	return targetError;
-	else if (id == STEP_SIGN)	   return stepSign;
-	else if (id == INV_ORDER)		return invOrder;
+        if (id == MAXIMUM_ERROR)                return maxError;
+        else if (id == LOWEVER_ERROR)   return lowerError;
+        else if (id == TARGET_ERROR)    return targetError;
+        else if (id == STEP_SIGN)          return stepSign;
+        else if (id == INV_ORDER)               return invOrder;
 
    return Integrator::GetRealParameter(id);
 }
@@ -824,31 +825,31 @@ Real PredictorCorrector::GetRealParameter(const std::string &label) const
 //------------------------------------------------------------------------------
 Real PredictorCorrector::SetRealParameter(const Integer id, const Real value)
 {
-	if (id == MAXIMUM_ERROR)
-	{
-		maxError = value;
-		return maxError;
-	}
-	else if (id == LOWEVER_ERROR)
-	{
-		lowerError = value;
-		return lowerError;
-	}
-	else if (id == TARGET_ERROR)
-	{
-		targetError = value;
-		return targetError;
-	}
-	else if (id == STEP_SIGN)
-	{
-		stepSign = value;
-		return stepSign;
-	}
-	else if (id == INV_ORDER)
-	{
-		invOrder = value;
-		return invOrder;
-	}
+        if (id == MAXIMUM_ERROR)
+        {
+                maxError = value;
+                return maxError;
+        }
+        else if (id == LOWEVER_ERROR)
+        {
+                lowerError = value;
+                return lowerError;
+        }
+        else if (id == TARGET_ERROR)
+        {
+                targetError = value;
+                return targetError;
+        }
+        else if (id == STEP_SIGN)
+        {
+                stepSign = value;
+                return stepSign;
+        }
+        else if (id == INV_ORDER)
+        {
+                invOrder = value;
+                return invOrder;
+        }
 
    return Integrator::SetRealParameter(id, value);
 }
@@ -880,10 +881,10 @@ Real PredictorCorrector::SetRealParameter(const std::string &label, const Real v
 //------------------------------------------------------------------------------
 Integer PredictorCorrector::GetIntegerParameter(const Integer id) const
 {
-   if (id == STEP_COUNT)			     	return stepCount;
-	else if (id == STARTUP_COUNT)			return startupCount;
+   if (id == STEP_COUNT)                                return stepCount;
+        else if (id == STARTUP_COUNT)                   return startupCount;
 
-	return Integrator::GetIntegerParameter(id);
+        return Integrator::GetIntegerParameter(id);
 }
 
 //------------------------------------------------------------------------------
@@ -901,19 +902,19 @@ Integer PredictorCorrector::GetIntegerParameter(const Integer id) const
  */
 //------------------------------------------------------------------------------
 Integer PredictorCorrector::SetIntegerParameter(const Integer id,
-											               const Integer value) // const?
+                                                                                                       const Integer value) // const?
 {
-	if (id == STEP_COUNT)
-	{
-		stepCount = value;
-		return stepCount;
-	}
-	else if (id == STARTUP_COUNT)
-	{
-		startupCount = value;
-		return startupCount;
-	}
-	return Integrator::SetIntegerParameter(id,value);
+        if (id == STEP_COUNT)
+        {
+                stepCount = value;
+                return stepCount;
+        }
+        else if (id == STARTUP_COUNT)
+        {
+                startupCount = value;
+                return startupCount;
+        }
+        return Integrator::SetIntegerParameter(id,value);
 }
 
 //------------------------------------------------------------------------------
@@ -931,9 +932,9 @@ Integer PredictorCorrector::SetIntegerParameter(const Integer id,
 //------------------------------------------------------------------------------
 bool PredictorCorrector::GetBooleanParameter(const Integer id) const
 {
-	if (id == STARTUP_COMPLETE)	return startupComplete;
+        if (id == STARTUP_COMPLETE)     return startupComplete;
 
-	return Integrator::GetBooleanParameter(id);
+        return Integrator::GetBooleanParameter(id);
 }
 
 //------------------------------------------------------------------------------
@@ -952,13 +953,13 @@ bool PredictorCorrector::GetBooleanParameter(const Integer id) const
 //------------------------------------------------------------------------------
 bool PredictorCorrector::SetBooleanParameter(const Integer id, const bool value)
 {
-	if (id ==  STARTUP_COMPLETE)
-	{
-		startupComplete = value;
-		return startupComplete;
-	}
+        if (id ==  STARTUP_COMPLETE)
+        {
+                startupComplete = value;
+                return startupComplete;
+        }
 
-	return Integrator::SetBooleanParameter(id,value);
+        return Integrator::SetBooleanParameter(id,value);
 }
 
 ////------------------------------------------------------------------------------

@@ -2,9 +2,11 @@
 //------------------------------------------------------------------------------
 //                                  ObjectInitializer
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CCA54C
@@ -40,7 +42,7 @@ class GMAT_API ObjectInitializer
 public:
    ObjectInitializer(SolarSystem *solSys, ObjectMap *objMap,
                      ObjectMap *globalObjMap, CoordinateSystem* intCS,
-                     bool useGOS = false);
+                     bool useGOS = false, bool fromFunction = false);
    ObjectInitializer(const ObjectInitializer &objInit);
    ObjectInitializer& operator= (const ObjectInitializer &objInit);
    virtual ~ObjectInitializer();
@@ -63,6 +65,7 @@ protected:
    
    bool includeGOS;
    bool registerSubscribers;
+   bool inFunction;
    
    void SetObjectJ2000Body(ObjectMap *objMap);
    void InitializeObjectsInTheMap(ObjectMap *objMap, Gmat::ObjectType objType,

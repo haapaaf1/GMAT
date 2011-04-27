@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
 // FDSS Task order 28.
@@ -105,8 +107,12 @@ protected:
    /// flag indicating whether or not a file handle has been obtained, and the file is
    /// open for writing
    bool            fileOpen;
+   /// the name of the temporary text file
+   std::string     tmpTxtFileName;
    /// the temporary text file
    FILE            *tmpTxtFile;
+   /// flag indicating whether or not the temporary file can be written
+   bool            tmpFileOK;
    /// an instance of the FileManager to handle renaming, etc.
    FileManager     *fm;
 

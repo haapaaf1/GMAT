@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G and MOMS Task order 124
@@ -31,6 +33,9 @@
 #include "StringUtil.hpp"
 #include "CoordinateConverter.hpp"      // for Convert()
 #include "MessageInterface.hpp"
+#ifdef __USE_SPICE__
+   #include "SpiceInterface.hpp"
+#endif
 
 
 //#define DEBUG_J2000_STATE
@@ -75,8 +80,13 @@ SpacePoint::PARAMETER_TYPE[SpacePointParamCount - GmatBaseParamCount] =
    Gmat::STRINGARRAY_TYPE,  // "FrameSpiceKernelName"
 };
 
-const Integer SpacePoint::UNDEFINED_NAIF_ID           = -123456789;
-const Integer SpacePoint::UNDEFINED_NAIF_ID_REF_FRAME = -123456789;
+#ifdef __USE_SPICE__
+   const Integer SpacePoint::UNDEFINED_NAIF_ID           = SpiceInterface::DEFAULT_NAIF_ID;
+   const Integer SpacePoint::UNDEFINED_NAIF_ID_REF_FRAME = SpiceInterface::DEFAULT_NAIF_ID_REF_FRAME;
+#else
+   const Integer SpacePoint::UNDEFINED_NAIF_ID           = -123456789;
+   const Integer SpacePoint::UNDEFINED_NAIF_ID_REF_FRAME = -123456789;
+#endif
 
 
 //------------------------------------------------------------------------------

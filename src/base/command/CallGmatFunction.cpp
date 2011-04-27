@@ -2,9 +2,11 @@
 //------------------------------------------------------------------------------
 //                                 CallGmatFunction
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG04CC06P
@@ -173,6 +175,15 @@ bool CallGmatFunction::Execute()
           callingFunction ? (callingFunction->GetFunctionName()).c_str() : "NULL");
       #endif
       status = fm.Execute(callingFunction);
+   }
+   else
+   {
+      // The function is not GmatFunction so throw an exception
+      throw CommandException
+         ("*** INTERNAL ERROR *** in CallGmatFunction. " +
+          GetGeneratingString(Gmat::NO_COMMENTS) + " cannot be executed, "
+          "the function type should be GmatFunction, but it is " +
+          mFunction->GetTypeName() + ".\n");
    }
    
    #ifdef DEBUG_CALL_FUNCTION_EXEC

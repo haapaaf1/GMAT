@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -30,6 +32,7 @@ namespace GmatFileUtil
    
    std::string GMAT_API GetPathSeparator();
    std::string GMAT_API GetCurrentPath();
+   std::string GMAT_API ParseFirstPathName(const std::string &fullPath, bool appendSep = true);
    std::string GMAT_API ParsePathName(const std::string &fullPath, bool appendSep = true);
    std::string GMAT_API ParseFileName(const std::string &fullPath, bool removeExt = false);
    std::string GMAT_API ParseFileExtension(const std::string &fullPath, bool prependDot = false);

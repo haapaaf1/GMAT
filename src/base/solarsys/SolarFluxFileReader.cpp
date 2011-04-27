@@ -1,10 +1,12 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              SolarFluxFileReader
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Author: Waka A. Waktola
 // Created: 2004/06/18

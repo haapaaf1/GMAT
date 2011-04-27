@@ -1,18 +1,19 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                              Propagator
 //------------------------------------------------------------------------------
+// GMAT: General Mission Analysis Tool.
+//
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // *** File Name : Propagator.hpp
 // *** Created   : October 1, 2002
 // **************************************************************************
 // ***  Developed By  :  Thinking Systems, Inc. (www.thinksysinc.com)     ***
 // ***  For:  Flight Dynamics Analysis Branch (Code 572)                  ***
 // ***  Under Contract:  P.O.  GSFC S-66617-G                             ***
-// ***                                                                    ***
-// ***  Copyright U.S. Government 2002                                    ***
-// ***  Copyright United States Government as represented by the          ***
-// ***  Administrator of the National Aeronautics and Space               ***
-// ***  Administration                                                    ***
 // ***                                                                    ***
 // ***  This software is subject to the Sofware Usage Agreement described ***
 // ***  by NASA Case Number GSC-14735-1.  The Softare Usage Agreement     ***
@@ -80,15 +81,15 @@ public:
    Propagator(const std::string &typeStr,
               const std::string &nomme = "");
    virtual ~Propagator(void);
-   
+
    Propagator(const Propagator&);
    Propagator& operator=(const Propagator&);
-   
+
    virtual bool RenameRefObject(const Gmat::ObjectType type,
                                 const std::string &oldName,
                                 const std::string &newName);
-   
-   // Parameter accessor methods -- overridden from GmatBase   
+
+   // Parameter accessor methods -- overridden from GmatBase
    virtual std::string GetParameterText(const Integer id) const;
    virtual Integer GetParameterID(const std::string &str) const;
    virtual Gmat::ParameterType GetParameterType(const Integer id) const;
@@ -100,7 +101,7 @@ public:
    virtual Real GetRealParameter(const std::string &label) const;
    virtual Real SetRealParameter(const Integer id, const Real value);
    virtual Real SetRealParameter(const std::string &label, const Real value);
-   
+
    virtual Real GetRealParameter(const Integer id, const Integer index) const;
    virtual Real GetRealParameter(const Integer id, const Integer row,
          const Integer col) const;
@@ -125,11 +126,11 @@ public:
    virtual void SetPhysicalModel(PhysicalModel *pPhysicalModel);
    virtual bool Step(Real dt);
    virtual void SetAsFinalStep(bool fs);
-   
+
    virtual void Update(bool forwards = true);
    virtual void ResetInitialData();
    const Real* AccessOutState();
-   
+
    virtual Integer GetPropagatorOrder(void) const;
    virtual bool UsesODEModel();
 
@@ -155,15 +156,15 @@ public:
    /**
     * Method to propagate by the default step
     * This pure virtual method provides the interface used to advance the state
-    * by the amount specified in the stepSize parameter.  This is the core 
-    * propagation routine.  
-    * Adaptive step propagators will take the desired step if accuracy permits, 
+    * by the amount specified in the stepSize parameter.  This is the core
+    * propagation routine.
+    * Adaptive step propagators will take the desired step if accuracy permits,
     * and then adjust the stepSize parameter to the estimated optimal size for
     * the next call.
     */
    //---------------------------------------------------------------------------
    virtual bool Step() = 0;
-   
+
    //---------------------------------------------------------------------------
    // virtual bool RawStep(void)
    //---------------------------------------------------------------------------
@@ -171,7 +172,7 @@ public:
     * Method to take a raw propagation step without error control
     */
    virtual bool RawStep() = 0;
-   
+
    //---------------------------------------------------------------------------
    // virtual bool GetStepTaken()
    //---------------------------------------------------------------------------
@@ -179,24 +180,24 @@ public:
     * Method to report the size of the most recent propagation step.
     */
    virtual Real                GetStepTaken() = 0;
-   
+
    virtual bool RawStep(Real dt);
-   
+
    enum
    {
       INITIAL_STEP_SIZE = GmatBaseParamCount, /// Stepsize for the propagation
       AlwaysUpdateStepsize,
       PropagatorParamCount                    /// Count of the parameters for this class
    };
-   
+
 protected:
-    
+
    // Start with the parameter IDs and associated strings
    static const std::string
       PARAMETER_TEXT[PropagatorParamCount - GmatBaseParamCount];
    static const Gmat::ParameterType
       PARAMETER_TYPE[PropagatorParamCount - GmatBaseParamCount];
-   
+
    static const Real STEP_SIZE_TOLERANCE;
 
    /// Size of the default time step
@@ -218,7 +219,7 @@ protected:
    /// Pointer to the information related to the physics of the system
    PhysicalModel *physicalModel;
    /// Flag used to detect if the code is taking the last Propagate step
-   bool finalStep; 
+   bool finalStep;
 
    // Pieces for prop with origin code
    /// Name of the common J2000 body that the state providers all use

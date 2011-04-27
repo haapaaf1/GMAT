@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Author: Linda Jun / NASA
 // Created: 2009/09/02
@@ -31,6 +33,10 @@
 #include "SpiceOrbitKernelWriter.hpp"
 #endif
 
+// Currently we can't use DataFile for 2011a release so commented out
+// Actually we want to put this flag in BuildEnv.mk but it is very close to
+// release so added it here and Moderator.cpp
+//#define __USE_DATAFILE__
 
 //#define DEBUG_EPHEMFILE
 //#define DEBUG_EPHEMFILE_SET
@@ -125,6 +131,7 @@ EphemerisFile::EphemerisFile(const std::string &name, const std::string &type) :
    fileName            (""),
    fileFormat          ("CCSDS-OEM"),
    epochFormat         ("UTCGregorian"),
+   ccsdsEpochFormat    ("UTC"),
    initialEpoch        ("InitialSpacecraftEpoch"),
    finalEpoch          ("FinalSpacecraftEpoch"),
    stepSize            ("IntegratorSteps"),
@@ -289,6 +296,7 @@ EphemerisFile::EphemerisFile(const EphemerisFile &ef) :
    fileName            (ef.fileName),
    fileFormat          (ef.fileFormat),
    epochFormat         (ef.epochFormat),
+   ccsdsEpochFormat    (ef.ccsdsEpochFormat),
    initialEpoch        (ef.initialEpoch),
    finalEpoch          (ef.finalEpoch),
    stepSize            (ef.stepSize),
@@ -354,6 +362,7 @@ EphemerisFile& EphemerisFile::operator=(const EphemerisFile& ef)
    fileName            = ef.fileName;
    fileFormat          = ef.fileFormat;
    epochFormat         = ef.epochFormat;
+   ccsdsEpochFormat    = ef.ccsdsEpochFormat;
    initialEpoch        = ef.initialEpoch;
    finalEpoch          = ef.finalEpoch;
    stepSize            = ef.stepSize;
@@ -598,7 +607,9 @@ bool EphemerisFile::Initialize()
             ("EphemerisFile::Initialize() <%p>'%s' returning false\n",
              this, GetName().c_str());
          #endif
-         return false;
+         throw SubscriberException
+            ("Failed to open EphemerisFile \"" + GetFileName() + "\"\n");
+         //return false;
       }
       
       isInitialized = true;
@@ -1395,7 +1406,8 @@ void EphemerisFile::CreateSpiceKernelWriter()
       spkWriter = NULL;
    }
    
-   std::string name = instanceName;
+//   std::string name = instanceName;
+   std::string name = spacecraft->GetName();
    std::string centerName = spacecraft->GetOriginName();
    Integer objNAIFId = spacecraft->GetIntegerParameter("NAIFId");
    Integer centerNAIFId = (spacecraft->GetOrigin())->GetIntegerParameter("NAIFId");
@@ -1462,22 +1474,51 @@ bool EphemerisFile::OpenEphemerisFile()
    fileName = GetFileName();
    bool retval = true;
    
-   #ifdef DEBUG_EPHEMFILE_TEXT
+   #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
    // Close the stream if it is open
    if (dstream.is_open())
       dstream.close();
    
-   std::string debugFileName = fileName + ".txt";
-   dstream.open(debugFileName.c_str());
-   if (dstream.is_open())
+   std::string debugFileName;
+   bool openDebugFile = false;
+   
+   if (fileType == CCSDS_OEM || fileType == CCSDS_AEM)
    {
-      retval = true;
-      MessageInterface::ShowMessage("   '%s' is opened for debug\n", debugFileName.c_str());
+      #if defined(__USE_DATAFILE__) && defined(DEBUG_EPHEMFILE_TEXT)
+      debugFileName = fileName + ".txt";
+      openDebugFile = true;
+      #elif !defined(__USE_DATAFILE__)
+      debugFileName = fileName;
+      openDebugFile = true;
+      #endif
    }
    else
    {
-      retval = false;
-      MessageInterface::ShowMessage("   '%s' was failed open\n", debugFileName.c_str());
+      #ifdef DEBUG_EPHEMFILE_TEXT
+      debugFileName = fileName + ".txt";
+      openDebugFile = true;
+      #endif
+   }
+   
+   if (openDebugFile)
+   {
+      dstream.open(debugFileName.c_str());
+      if (dstream.is_open())
+      {
+         retval = true;
+         #ifdef DEBUG_EPHEMFILE_TEXT
+         MessageInterface::ShowMessage
+            ("   '%s' is opened for debug\n", debugFileName.c_str());
+         #endif
+      }
+      else
+      {
+         retval = false;
+         #ifdef DEBUG_EPHEMFILE_TEXT
+         MessageInterface::ShowMessage
+            ("   '%s' was failed open\n", debugFileName.c_str());
+         #endif
+      }
    }
    #endif
    
@@ -1677,6 +1718,11 @@ void EphemerisFile::RestartInterpolation(const std::string &comments, bool write
    // CcsdsEphemerisFile::WriteRealCcsdsOrbitDataSegment(), so just set comments here
    writeCommentAfterData = writeAfterData;
    currComments = comments;
+   
+   // If not using DataFile and writing text ehem file, write comments here
+   #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
+   WriteComments(comments);
+   #endif
    
    if (spkWriter != NULL)
    {
@@ -2040,7 +2086,7 @@ void EphemerisFile::FinishUpWriting()
          writeCommentAfterData = false;
          WriteCcsdsOrbitDataSegment();
          
-         #ifdef DEBUG_EPHEMFILE_TEXT
+         #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
          if (fileType == CCSDS_AEM)
             WriteString("DATA_STOP\n");
          #endif
@@ -2463,8 +2509,10 @@ bool EphemerisFile::OpenRealCcsdsEphemerisFile()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteRealCcsdsHeader()
 {
+   #ifdef __USE_DATAFILE__
    MessageInterface::ShowMessage
       ("**** ERROR **** No implementation found for WriteRealCcsdsHeader()\n");
+   #endif
 }
 
 
@@ -2473,8 +2521,14 @@ void EphemerisFile::WriteRealCcsdsHeader()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteRealCcsdsOrbitDataSegment()
 {
+   #ifdef __USE_DATAFILE__
    MessageInterface::ShowMessage
       ("**** ERROR **** No implementation found for WriteRealCcsdsOrbitDataSegment()\n");
+   #elif !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
+   // Since array is deleted from CcsdsEphemerisFile::WriteRealCcsdsOrbitDataSegment()
+   // delete orbit data here
+   DeleteOrbitData();
+   #endif
 }
 
 
@@ -2483,8 +2537,10 @@ void EphemerisFile::WriteRealCcsdsOrbitDataSegment()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteRealCcsdsOemMetaData()
 {
+   #ifdef __USE_DATAFILE__
    MessageInterface::ShowMessage
       ("**** ERROR **** No implementation found for WriteRealCcsdsOemMetaData()\n");
+   #endif
 }
 
 
@@ -2493,8 +2549,10 @@ void EphemerisFile::WriteRealCcsdsOemMetaData()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteRealCcsdsAemMetaData()
 {
+   #ifdef __USE_DATAFILE__
    MessageInterface::ShowMessage
       ("**** ERROR **** No implementation found for WriteRealCcsdsAemMetaData()\n");
+   #endif
 }
 
 
@@ -2503,8 +2561,10 @@ void EphemerisFile::WriteRealCcsdsAemMetaData()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteRealCcsdsAemData(Real reqEpochInSecs, const Real quat[4])
 {
+   #ifdef __USE_DATAFILE__
    MessageInterface::ShowMessage
       ("**** ERROR **** No implementation found for WriteRealCcsdsAemData()\n");
+   #endif
 }
 
 
@@ -2513,8 +2573,10 @@ void EphemerisFile::WriteRealCcsdsAemData(Real reqEpochInSecs, const Real quat[4
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteRealCcsdsComments(const std::string &comments)
 {
+   #ifdef __USE_DATAFILE__
    MessageInterface::ShowMessage
       ("**** ERROR **** No implementation found for WriteRealCcsdsComments()\n");
+   #endif
 }
 
 
@@ -2528,8 +2590,14 @@ bool EphemerisFile::OpenCcsdsEphemerisFile()
       ("CcsdsEphemerisFile::EphemerisFile() entered, fileName = %s\n", fileName.c_str());
    #endif
    
+   bool retval = false;
+   
+   #ifdef __USE_DATAFILE__
    // Open CCSDS output file
-   bool retval = OpenRealCcsdsEphemerisFile();
+   retval = OpenRealCcsdsEphemerisFile();
+   #else
+   retval = true;
+   #endif
    
    #ifdef DEBUG_EPHEMFILE_OPEN
    MessageInterface::ShowMessage
@@ -2545,7 +2613,7 @@ bool EphemerisFile::OpenCcsdsEphemerisFile()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsHeader()
 {
-   #ifdef DEBUG_EPHEMFILE_TEXT
+   #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
    std::string creationTime = GmatTimeUtil::FormatCurrentTime(2);
    std::string originator = "GMAT USER";
    
@@ -2556,8 +2624,8 @@ void EphemerisFile::WriteCcsdsHeader()
    else
       ss << "CCSDS_AEM_VERS = 1.0" << std::endl;
    
-   ss << "CREATION_DATE  = " << creationTime << std::endl;
-   ss << "ORIGINATOR     = " << originator << std::endl;
+   ss << "CREATION_DATE = " << creationTime << std::endl;
+   ss << "ORIGINATOR = " << originator << std::endl;
    
    WriteString(ss.str());
    #endif
@@ -2587,7 +2655,7 @@ void EphemerisFile::WriteCcsdsOrbitDataSegment()
    
    WriteCcsdsOemMetaData();
    
-   #ifdef DEBUG_EPHEMFILE_TEXT
+   #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
    for (UnsignedInt i = 0; i < a1MjdArray.size(); i++)
       DebugWriteOrbit("In WriteCcsdsOrbitDataSegment:", a1MjdArray[i], stateArray[i]);
    #endif
@@ -2600,6 +2668,11 @@ void EphemerisFile::WriteCcsdsOrbitDataSegment()
    #endif
    
    WriteRealCcsdsOrbitDataSegment();
+   
+   #ifdef DEBUG_EPHEMFILE_CCSDS
+   MessageInterface::ShowMessage
+      ("=====> WriteCcsdsOrbitDataSegment() leaving\n");
+   #endif
 }
 
 
@@ -2608,7 +2681,7 @@ void EphemerisFile::WriteCcsdsOrbitDataSegment()
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsOemMetaData()
 {
-   #ifdef DEBUG_EPHEMFILE_TEXT
+   #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -2620,17 +2693,17 @@ void EphemerisFile::WriteCcsdsOemMetaData()
    std::stringstream ss("");
    ss << std::endl;
    ss << "META_START" << std::endl;
-   ss << "OBJECT_NAME           = " << spacecraftName << std::endl;
-   ss << "OBJECT_ID             = " << objId << std::endl;
-   ss << "CENTER_NAME           = " << origin << std::endl;
-   ss << "REF_FRAME             = " << csType << std::endl;
-   ss << "TIME_SYSTEM           = " << epochFormat << std::endl;
-   ss << "START_TIME            = " << metaDataStartStr << std::endl;
-   ss << "USEABLE_START_TIME    = " << metaDataStartStr << std::endl;
-   ss << "USEABLE_STOP_TIME     = " << metaDataStopStr << std::endl;
-   ss << "STOP_TIME             = " << metaDataStopStr << std::endl;
-   ss << "INTERPOLATION         = " << interpolatorName << std::endl;
-   ss << "INTERPOLATION_DEGREE  = " << interpolationOrder << std::endl;
+   ss << "OBJECT_NAME = " << spacecraftName << std::endl;
+   ss << "OBJECT_ID = " << objId << std::endl;
+   ss << "CENTER_NAME = " << origin << std::endl;
+   ss << "REF_FRAME = " << csType << std::endl;
+   ss << "TIME_SYSTEM = " << ccsdsEpochFormat << std::endl;
+   ss << "START_TIME = " << metaDataStartStr << std::endl;
+   ss << "USEABLE_START_TIME = " << metaDataStartStr << std::endl;
+   ss << "USEABLE_STOP_TIME = " << metaDataStopStr << std::endl;
+   ss << "STOP_TIME = " << metaDataStopStr << std::endl;
+   ss << "INTERPOLATION = " << interpolatorName << std::endl;
+   ss << "INTERPOLATION_DEGREE = " << interpolationOrder << std::endl;
    ss << "META_STOP" << std::endl << std::endl;
    
    WriteString(ss.str());
@@ -2673,7 +2746,7 @@ void EphemerisFile::WriteCcsdsOemData(Real reqEpochInSecs, const Real state[6])
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsAemMetaData()
 {
-   #ifdef DEBUG_EPHEMFILE_TEXT
+   #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
    std::string objId  = spacecraft->GetStringParameter("Id");
    std::string origin = spacecraft->GetOriginName();
    std::string csType = "UNKNOWN";
@@ -2683,20 +2756,20 @@ void EphemerisFile::WriteCcsdsAemMetaData()
    
    std::stringstream ss("");
    ss << "META_START" << std::endl;
-   ss << "OBJECT_NAME           = " << spacecraftName << std::endl;
-   ss << "OBJECT_ID             = " << objId << std::endl;
-   ss << "CENTER_NAME           = " << origin << std::endl;
-   ss << "REF_FRAME_A           = " << csType << std::endl;
-   ss << "REF_FRAME_B           = " << "@TODO_REFB" << std::endl;
-   ss << "TIME_SYSTEM           = " << epochFormat << std::endl;
-   ss << "START_TIME            = " << "@TODO_START" << std::endl;
-   ss << "USEABLE_START_TIME    = " << "@TODO_USTART" << std::endl;
-   ss << "USEABLE_STOP_TIME     = " << "@TODO_USTOP" << std::endl;
-   ss << "STOP_TIME             = " << "@TODO_STOP" << std::endl;
-   ss << "ATTITUDE_TYPE         = " << "@TODO_STOP" << std::endl;
-   ss << "QUATERNION_TYPE       = " << "@TODO_STOP" << std::endl;
-   ss << "INTERPOLATION_METHOD  = " << interpolatorName << std::endl;
-   ss << "INTERPOLATION_DEGREE  = " << interpolationOrder << std::endl;
+   ss << "OBJECT_NAME = " << spacecraftName << std::endl;
+   ss << "OBJECT_ID = " << objId << std::endl;
+   ss << "CENTER_NAME = " << origin << std::endl;
+   ss << "REF_FRAME_A = " << csType << std::endl;
+   ss << "REF_FRAME_B = " << "@TODO_REFB" << std::endl;
+   ss << "TIME_SYSTEM = " << ccsdsEpochFormat << std::endl;
+   ss << "START_TIME = " << "@TODO_START" << std::endl;
+   ss << "USEABLE_START_TIME = " << "@TODO_USTART" << std::endl;
+   ss << "USEABLE_STOP_TIME = " << "@TODO_USTOP" << std::endl;
+   ss << "STOP_TIME = " << "@TODO_STOP" << std::endl;
+   ss << "ATTITUDE_TYPE = " << "@TODO_STOP" << std::endl;
+   ss << "QUATERNION_TYPE = " << "@TODO_STOP" << std::endl;
+   ss << "INTERPOLATION_METHOD = " << interpolatorName << std::endl;
+   ss << "INTERPOLATION_DEGREE = " << interpolationOrder << std::endl;
    ss << "META_STOP" << std::endl << std::endl;
    
    WriteString(ss.str());
@@ -2720,11 +2793,14 @@ void EphemerisFile::WriteCcsdsAemData(Real reqEpochInSecs, const Real quat[4])
 //------------------------------------------------------------------------------
 void EphemerisFile::WriteCcsdsComments(const std::string &comments)
 {
-   #ifdef DEBUG_EPHEMFILE_TEXT
-   WriteString("\nCOMMENT  " + comments + "\n");
+   std::string ccsdsComments = "COMMENT  " + comments;
+   #if !defined(__USE_DATAFILE__) || defined(DEBUG_EPHEMFILE_TEXT)
+   //WriteString("\nCOMMENT  " + comments + "\n");
+   WriteString("\n" + ccsdsComments + "\n");
    #endif
    
-   WriteRealCcsdsComments(comments);
+   //WriteRealCcsdsComments(comments);
+   WriteRealCcsdsComments(ccsdsComments);
 }
 
 
@@ -2840,17 +2916,17 @@ void EphemerisFile::WriteSpkOrbitMetaData()
    std::stringstream ss("");
    ss << std::endl;
    ss << "META_START" << std::endl;
-   ss << "OBJECT_NAME           = " << spacecraftName << std::endl;
-   ss << "OBJECT_ID             = " << objId << std::endl;
-   ss << "CENTER_NAME           = " << origin << std::endl;
-   ss << "REF_FRAME             = " << csType << std::endl;
-   ss << "TIME_SYSTEM           = " << epochFormat << std::endl;
-   ss << "START_TIME            = " << "@TODO_START" << std::endl;
-   ss << "USEABLE_START_TIME    = " << "@TODO_USTART" << std::endl;
-   ss << "USEABLE_STOP_TIME     = " << "@TODO_USTOP" << std::endl;
-   ss << "STOP_TIME             = " << "@TODO_STOP" << std::endl;
-   ss << "INTERPOLATION         = " << interpolatorName << std::endl;
-   ss << "INTERPOLATION_DEGREE  = " << interpolationOrder << std::endl;
+   ss << "OBJECT_NAME = " << spacecraftName << std::endl;
+   ss << "OBJECT_ID = " << objId << std::endl;
+   ss << "CENTER_NAME = " << origin << std::endl;
+   ss << "REF_FRAME = " << csType << std::endl;
+   ss << "TIME_SYSTEM = " << epochFormat << std::endl;
+   ss << "START_TIME = " << "@TODO_START" << std::endl;
+   ss << "USEABLE_START_TIME = " << "@TODO_USTART" << std::endl;
+   ss << "USEABLE_STOP_TIME = " << "@TODO_USTOP" << std::endl;
+   ss << "STOP_TIME = " << "@TODO_STOP" << std::endl;
+   ss << "INTERPOLATION = " << interpolatorName << std::endl;
+   ss << "INTERPOLATION_DEGREE = " << interpolationOrder << std::endl;
    ss << "META_STOP" << std::endl << std::endl;
    
    #ifdef DEBUG_EPHEMFILE_TEXT
@@ -3076,9 +3152,13 @@ std::string EphemerisFile::ToUtcGregorian(Real epoch, bool inDays, Integer forma
    Real epochInDays = epoch;
    if (!inDays)
       epochInDays = epoch / GmatTimeConstants::SECS_PER_DAY;
+
+   std::string outFormat = epochFormat;
+   if (format == 2)
+      outFormat = "UTCGregorian";
    
    // Convert current epoch to specified format
-   TimeConverterUtil::Convert("A1ModJulian", epochInDays, "", epochFormat,
+   TimeConverterUtil::Convert("A1ModJulian", epochInDays, "", outFormat,
                               toMjd, epochStr, format);
    
    if (epochStr == "")
@@ -3132,20 +3212,18 @@ void EphemerisFile::DebugWriteOrbit(const std::string &msg, Real epoch,
    if (logOnly)
    {
       MessageInterface::ShowMessage
-         ("%s\n%s\n%24.10f  %24.10f  %24.10f\n%24.15f  %24.15f  %24.15f\n",
+         ("%s\n%s\n%24.14f  %24.14f  %24.14f\n%19.16f  %19.16f  %19.16f\n",
           msg.c_str(), epochStr.c_str(), outState[0], outState[1], outState[2],
           outState[3], outState[4], outState[5]);
    }
    else
    {
-      #ifdef DEBUG_EPHEMFILE_TEXT
       char strBuff[200];
-      sprintf(strBuff, "%s  %24.10f  %24.10f  %24.10f  %20.15f  %20.15f  %20.15f\n",
+      sprintf(strBuff, "%s  %24.14f  %24.14f  %24.14f  %19.16f  %19.16f  %19.16f\n",
               epochStr.c_str(), outState[0], outState[1], outState[2], outState[3],
               outState[4], outState[5]);
       dstream << strBuff;
       dstream.flush();
-      #endif
    }
 }
 

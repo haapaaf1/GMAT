@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // Author: Darrel J. Conway
 // Created: 2003/10/27
 //
@@ -1223,6 +1227,26 @@ bool ConfigManager::RenameItem(Gmat::ObjectType type,
    //----------------------------------------------------
    if (type == Gmat::PROP_SETUP)
    {
+      // Change _ForceMode name if _ForceModel is configured
+      std::string oldFmName = oldName + "_ForceModel";
+      std::string newFmName = newName + "_ForceModel";
+      if (mapping.find(oldFmName) != mapping.end())
+      {
+         mapObj = mapping[oldFmName];
+         // if newName does not exist, change name
+         if (mapping.find(newFmName) == mapping.end())
+         {
+            mapping.erase(oldFmName);
+            mapping[newFmName] = mapObj;
+            mapObj->SetName(newFmName);         
+            
+            #if DEBUG_RENAME
+            MessageInterface::ShowMessage
+               ("   Rename mapping mapObj=%s\n", mapObj->GetName().c_str());
+            #endif
+         }
+      }
+      
       #if DEBUG_RENAME
       MessageInterface::ShowMessage("   Calling PropSetup::RenameRefObject()\n");
       #endif

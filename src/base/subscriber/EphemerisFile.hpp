@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Author: Linda Jun / NASA
 // Created: 2009/09/02
@@ -115,6 +117,7 @@ protected:
    std::string fileName;
    std::string fileFormat;
    std::string epochFormat;
+   std::string ccsdsEpochFormat;
    std::string initialEpoch;
    std::string finalEpoch;
    std::string stepSize;

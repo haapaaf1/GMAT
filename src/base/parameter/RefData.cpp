@@ -2,9 +2,11 @@
 //------------------------------------------------------------------------------
 //                                  RefData
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -484,7 +486,9 @@ bool RefData::AddRefObject(const Gmat::ObjectType type, const std::string &name,
    }
    
    #if DEBUG_REFDATA_ADD
-   MessageInterface::ShowMessage("RefData::AddRefObject() return false\n");
+   MessageInterface::ShowMessage
+      ("RefData::AddRefObject() '%s' is not a valid object type so returnning "
+       "false\n", name.c_str());
    #endif
    
    return false;

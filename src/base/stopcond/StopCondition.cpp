@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -137,6 +139,7 @@ StopCondition::StopCondition(const std::string &name, const std::string &desc,
      isPeriapse           (false),
      isApoapse            (false),
      isCyclicTimeCondition(false),
+     startValue           (0.0),
      lhsCycleType         (GmatParam::NOT_CYCLIC),
      rhsCycleType         (GmatParam::NOT_CYCLIC)
 {
@@ -179,7 +182,6 @@ StopCondition::StopCondition(const StopCondition &copy)
      mBaseEpoch           (copy.mBaseEpoch),
      internalEpoch        (copy.internalEpoch),
      currentGoalValue     (copy.currentGoalValue),
-     initialGoalValue     (copy.initialGoalValue),
      mRepeatCount         (copy.mRepeatCount),
      mSolarSystem         (copy.mSolarSystem),
      mDescription         (copy.mDescription),
@@ -213,6 +215,7 @@ StopCondition::StopCondition(const StopCondition &copy)
      isPeriapse           (copy.isPeriapse),
      isApoapse            (copy.isApoapse),
      isCyclicTimeCondition(copy.isCyclicTimeCondition),
+     initialGoalValue     (copy.initialGoalValue),
      lhsCycleType         (copy.lhsCycleType),
      rhsCycleType         (copy.rhsCycleType)
 {
@@ -388,6 +391,15 @@ StopCondition& StopCondition::operator= (const StopCondition &right)
 //------------------------------------------------------------------------------
 StopCondition::~StopCondition()
 {
+   #ifdef DEBUG_STOPCOND
+   MessageInterface::ShowMessage
+      ("StopCondition::~StopCondition() entered, lhsWrapper=<%p>, rhsWrapper=<%p>, "
+       "mEccParam=<%p>, mRmagParam=<%p>, mInterpolator=<%p>\n", lhsWrapper,
+       rhsWrapper, mEccParam, mRmagParam, mInterpolator);
+   #endif
+   
+   ///@note lhsWrapper and rhsWrapper are deleted from the Propagate command
+   
    if (mEccParam != NULL)
    {
       #ifdef DEBUG_MEMORY
@@ -1549,8 +1561,8 @@ bool StopCondition::SetStopParameter(Parameter *param)
 {
    #ifdef DEBUG_STOP_PARAM
    MessageInterface::ShowMessage
-      ("StopCondition::SetStopParameter() param=<%p>'%s'\n", param,
-       param->GetName().c_str());
+      ("StopCondition::SetStopParameter() entered, param=<%p>'%s'\n", param,
+       param ? param->GetName().c_str() : "NULL");
    #endif
    
    if (param != NULL)
@@ -1571,9 +1583,18 @@ bool StopCondition::SetStopParameter(Parameter *param)
       //if (lhsWrapper != NULL)
       //   lhsWrapper->SetRefObject(param);
       
+      #ifdef DEBUG_STOP_PARAM
+      MessageInterface::ShowMessage
+         ("StopCondition::SetStopParameter() returning true\n");
+      #endif
+      
       return true;
    }
    
+   #ifdef DEBUG_STOP_PARAM
+   MessageInterface::ShowMessage
+      ("StopCondition::SetStopParameter() returning false\n");
+   #endif
    return false;
 }
 
@@ -1591,7 +1612,7 @@ bool StopCondition::SetGoalParameter(Parameter *param)
 {
    #ifdef DEBUG_STOPCOND_SET
    MessageInterface::ShowMessage
-      ("StopCondition::SetGoalParameter() param=<%p>\n", param);
+      ("StopCondition::SetGoalParameter() entered, param=<%p>\n", param);
    #endif
    
    mGoalParam = param;
@@ -1600,6 +1621,10 @@ bool StopCondition::SetGoalParameter(Parameter *param)
    if (rhsWrapper != NULL)
       rhsWrapper->SetRefObject(param);
    
+   #ifdef DEBUG_STOPCOND_SET
+   MessageInterface::ShowMessage
+      ("StopCondition::SetGoalParameter() returning true\n");
+   #endif
    return true;
 }
 
@@ -1813,8 +1838,9 @@ StopCondition::GetRefObjectNameArray(const Gmat::ObjectType type)
 {
    #ifdef DEBUG_STOPCOND_OBJ
    MessageInterface::ShowMessage
-      ("StopCondition::GetRefObjectNameArray() entered, type=%d, mAllowGoalParam=%d\n",
-       type, mAllowGoalParam);
+      ("StopCondition::GetRefObjectNameArray() entered, type=%d, mAllowGoalParam=%d, "
+       "lhsWrapper=<%p>, rhsWrapper=<%p>\n", type, mAllowGoalParam, lhsWrapper,
+       rhsWrapper);
    #endif
    
    mAllRefObjectNames.clear();
@@ -1822,7 +1848,7 @@ StopCondition::GetRefObjectNameArray(const Gmat::ObjectType type)
    if (type == Gmat::UNKNOWN_OBJECT || type == Gmat::PARAMETER)
    {
       mAllRefObjectNames.push_back(mStopParamName);
-      if (mAllowGoalParam)
+      if (mAllowGoalParam || !GmatStringUtil::IsNumber(rhsString) && rhsWrapper != NULL)
          mAllRefObjectNames.push_back(rhsString);
    }
    
@@ -1830,6 +1856,9 @@ StopCondition::GetRefObjectNameArray(const Gmat::ObjectType type)
    MessageInterface::ShowMessage
       ("StopCondition::GetRefObjectNameArray() returning %d ref object names\n", \
        mAllRefObjectNames.size());
+   for (UnsignedInt i = 0; i < mAllRefObjectNames.size(); i++)
+      MessageInterface::ShowMessage
+         ("   mAllRefObjectNames[%d] = '%s'\n", i, mAllRefObjectNames[i].c_str());
    #endif
    
    return mAllRefObjectNames;
@@ -1847,9 +1876,12 @@ bool StopCondition::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
    MessageInterface::ShowMessage
       ("StopCondition::SetRefObject() <%p>'%s' entered, obj=<%p>'%s', type=%d, "
        "name='%s', mStopParamName=%s, rhsString=%s\n", this, this->GetName().c_str(),
-       obj, obj->GetName().c_str(), type, name.c_str(), mStopParamName.c_str(),
-       rhsString.c_str());
+       obj, obj ? obj->GetName().c_str() : "NULL", type, name.c_str(),
+       mStopParamName.c_str(), rhsString.c_str());
    #endif
+   
+   if (obj == NULL)
+      return false;
    
    if (type == Gmat::PARAMETER)
    {

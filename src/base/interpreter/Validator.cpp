@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CCA54C
@@ -1638,7 +1640,7 @@ GmatBase* Validator::FindObject(const std::string &name, const std::string &ofTy
 {
    #ifdef DEBUG_FIND_OBJECT
    MessageInterface::ShowMessage
-      ("Validator::FindObject() entered: name=<%s>, type=<%s>\n",
+      ("Validator::FindObject() entered: name = '%s', ofType = '%s'\n",
        name.c_str(), ofType.c_str());
    #endif
    
@@ -2137,7 +2139,9 @@ ElementWrapper* Validator::CreateValidWrapperWithDot(GmatBase *obj,
       bool paramFirst = true;
       if (parametersFirst)
       {
-         if (obj->IsOfType(Gmat::BURN))
+         if (obj == NULL)
+            paramFirst = true;
+         else if (obj->IsOfType(Gmat::BURN))
             paramFirst = false;
       }
       else
@@ -2927,8 +2931,9 @@ void Validator::ShowObjectMap(const std::string &label)
            i != theObjectMap->end(); ++i)
       {
          MessageInterface::ShowMessage
-            ("   %30s  <%p><%s>\n", i->first.c_str(), i->second,
-             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str());
+            ("   %30s  <%p><%s>'%s'\n", i->first.c_str(), i->second,
+             i->second == NULL ? "NULL" : (i->second)->GetTypeName().c_str(),
+             i->second == NULL ? "NULL" : (i->second)->GetName().c_str());
       }
    }
    else

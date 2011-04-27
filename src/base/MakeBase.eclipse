@@ -1,4 +1,12 @@
 # $Id$
+# 
+# GMAT: General Mission Analysis Tool.
+# 
+#  Copyright (c) 2002-2011 United States Government as represented by the
+#  Administrator of The National Aeronautics and Space Administration.
+#  All Other Rights Reserved.
+
+# 
 # Eclipse makefile for GMAT base library
 # Initial Version - D. Conway - 2005/06/17
 # Modifed for Mac OS 10.3  W. Shoan - 2005.11.10
@@ -15,9 +23,11 @@ ifeq ($(LINUX_MAC), 1)
 ifdef MAC_SPECIFIC
 SHARED_EXTENSION = .dylib
 SHARED_LIB_FLAGS = $(SPICE_LIBRARIES) -dylib -dynamiclib -Wl -two_levelnamespace -undefined dynamic_lookup $(WX_CARBON_BUILD)
+MSISE_C_OBJECTS  = 
 else
 SHARED_EXTENSION = .so
 SHARED_LIB_FLAGS = -shared -Wl --out-implib
+MSISE_C_OBJECTS  = solarsys/msise90_sub.o
 endif
 
 #SHARED_LIB_FLAGS = -shared -Wl --out-implib
@@ -547,6 +557,9 @@ endif
 $(OBJECTS): %.o: %.cpp %.hpp
 	$(CPP) $(CPPFLAGS) $(HEADERS) -c -o $@ $<
 
+#$(OBJECTS): %.o: %.c
+#	$(C) $(CPPFLAGS) $(HEADERS) -c -o $@ $<
+
 
 ifeq ($(CONSOLE_APP), 0)
 $(BRIDGEOBJECTS): %.o: %.cpp %.hpp
@@ -555,8 +568,17 @@ endif
 
 
 # Specific instructions for the fortran code
+ifeq ($(USE_F2C_VERSION), 0)
+
 solarsys/msise90_sub.o: solarsys/msise90_sub.for
 	$(FORTRAN) -c solarsys/msise90_sub.for -o solarsys/msise90_sub.o $(F77_FLAGS) 
+
+else
+
+solarsys/msise90_sub.o: solarsys/msise90_sub.for
+	$(C) -c solarsys/msise90_sub.c -o solarsys/msise90_sub.o $(F2C_INCLUDE) $(CPPFLAGS)
+
+endif
 
 # Instructions for the console app interfaces
 interpreter/GuiInterpreterConsole.o : interpreter/GuiInterpreter.cpp \

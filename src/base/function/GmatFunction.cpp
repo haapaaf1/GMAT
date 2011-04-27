@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -23,6 +25,7 @@
 #include "FileUtil.hpp"          // for ParseFileName()
 #include "StringUtil.hpp"        // for Trim()
 #include "CommandUtil.hpp"       // for ClearCommandSeq()
+#include "HardwareException.hpp" 
 #include "MessageInterface.hpp"
 
 //#define DEBUG_FUNCTION
@@ -263,7 +266,7 @@ bool GmatFunction::Initialize()
    validator->SetSolarSystem(solarSys);
    std::map<std::string, GmatBase *>::iterator omi;
    
-   // add automatic objects to the FOS (well, actually, clones of them)
+   // add automatic objects such as sat.X to the FOS (well, actually, clones of them)
    for (omi = automaticObjectMap.begin(); omi != automaticObjectMap.end(); ++omi)
    {
       std::string autoObjName = omi->first;
@@ -277,6 +280,20 @@ bool GmatFunction::Initialize()
             (autoObj, autoObjName, "GmatFunction::Initialize()",
              "autoObj = (omi->second)->Clone()");
          #endif
+         
+         #ifdef DEBUG_FUNCTION_INIT
+         try
+         {
+            MessageInterface::ShowMessage
+               ("   autoObj->EvaluateReal() = %f\n", autoObj->GetRealParameter("Value"));
+         }
+         catch (BaseException &e)
+         {
+            MessageInterface::ShowMessage(e.GetFullMessage());             
+         }
+         #endif
+         
+         autoObj->SetIsLocal(true);
          objectStore->insert(std::make_pair(autoObjName, autoObj));
       }
    }
@@ -463,11 +480,19 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
             bool beginInit = true;            
             if (cmdType == "GMAT" && !isEquation)
                beginInit = false;
+
+            if (cmdType == "BeginMissionSequence" || cmdType == "BeginScript")
+               beginInit = true;
             
             if (beginInit)
             {
                objectsInitialized = true;
                validator->HandleCcsdsEphemerisFile(objectStore, true);
+               #ifdef DEBUG_FUNCTION_EXEC
+               MessageInterface::ShowMessage
+                  ("============================ Initializing LocalObjects at current\n"
+                   "%s\n", current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+               #endif
                InitializeLocalObjects(objInit, current, true);
             }
          }
@@ -506,21 +531,46 @@ bool GmatFunction::Execute(ObjectInitializer *objInit, bool reinitialize)
             MessageInterface::ShowMessage
                ("*** The exception is fatal, so re-throwing...\n");
             #endif
-            throw;
+            // Add command line to error message (LOJ: 2010.04.13)
+            throw FunctionException
+               ("In " + current->GetGeneratingString(Gmat::NO_COMMENTS) + ", " +
+                e.GetFullMessage());
+            //throw;
          }
          
          // Let's try initialzing local objects here again (2008.10.14)
-         InitializeLocalObjects(objInit, current, false);
-         
-         #ifdef DEBUG_FUNCTION_EXEC
-         MessageInterface::ShowMessage
-            ("......Function re-executing <%p><%s> [%s]\n", current,
-             current->GetTypeName().c_str(),
-             current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
-         #endif
-         
-         if (!(current->Execute()))
-            return false;
+         try
+         {
+            #ifdef DEBUG_FUNCTION_EXEC
+            MessageInterface::ShowMessage
+               ("============================ Reinitializing LocalObjects at current\n"
+                "%s\n", current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+            #endif
+            
+            InitializeLocalObjects(objInit, current, false);
+            
+            #ifdef DEBUG_FUNCTION_EXEC
+            MessageInterface::ShowMessage
+               ("......Function re-executing <%p><%s> [%s]\n", current,
+                current->GetTypeName().c_str(),
+                current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+            #endif
+            
+            if (!(current->Execute()))
+               return false;
+         }
+         catch (HardwareException &he)
+         {
+            // Ignore for hardware exception since spacecraft is associated with Thruster
+            // but Thruster binds with Tank later in the fcs
+         }
+         catch (BaseException &be)
+         {
+            throw FunctionException
+               ("During initialization of local objects before \"" +
+                current->GetGeneratingString(Gmat::NO_COMMENTS) + "\", " +
+                e.GetFullMessage());
+         }
       }
       
       // If current command is BranchCommand and still executing, continue to next
@@ -618,8 +668,9 @@ void GmatFunction::Finalize()
    #ifdef DEBUG_FUNCTION_FINALIZE
    MessageInterface::ShowMessage
       ("======================================================================\n"
-       "GmatFunction::Finalize() entered for '%s', FCS %sfinalized\n",
-       functionName.c_str(), fcsFinalized ? "already " : "NOT ");
+       "GmatFunction::Finalize() entered for '%s', FCS %s\n",
+       functionName.c_str(), fcsFinalized ? "already finalized, so skp fcs" :
+       "NOT finalized, so call fcs->RunComplete");
    #endif
    
    // Call RunComplete on each command in fcs
@@ -634,9 +685,10 @@ void GmatFunction::Finalize()
                MessageInterface::ShowMessage
                   ("   GmatFunction:Finalize() Current is NULL!!!\n");
             else
-               MessageInterface::ShowMessage("   GmatFunction:Finalize() Now "
-                  "about to finalize (call RunComplete on) command %s\n",
-                  (current->GetTypeName()).c_str());
+               MessageInterface::ShowMessage
+                  ("   GmatFunction:Finalize() Now about to finalize "
+                   "(call RunComplete on) command %s\n",
+                   (current->GetTypeName()).c_str());
          #endif
          current->RunComplete();
          current = current->GetNext();
@@ -644,6 +696,10 @@ void GmatFunction::Finalize()
    }
    
    Function::Finalize();
+   
+   #ifdef DEBUG_FUNCTION_FINALIZE
+   MessageInterface::ShowMessage("GmatFunction::Finalize() leaving\n");
+   #endif
    
    #ifdef DEBUG_TRACE
    ShowTrace(callCount, t1, "GmatFunction::Finalize() exiting", true, true);
@@ -824,7 +880,8 @@ bool GmatFunction::InitializeLocalObjects(ObjectInitializer *objInit,
 {
    #ifdef DEBUG_FUNCTION_EXEC
    MessageInterface::ShowMessage
-      ("\n============================ Begin initialization of local objects\n");
+      ("\n============================ Begin initialization of local objects in '%s'\n",
+       functionName.c_str());
    MessageInterface::ShowMessage
       ("Now at command \"%s\"\n",
        current->GetGeneratingString(Gmat::NO_COMMENTS).c_str());
@@ -851,6 +908,11 @@ bool GmatFunction::InitializeLocalObjects(ObjectInitializer *objInit,
       // Create LibrationPoint EarthSunL1;
       if (!ignoreException || (ignoreException && e.IsFatal()))
       {
+         #ifdef DEBUG_FUNCTION_EXEC
+         MessageInterface::ShowMessage
+            ("objInit->InitializeObjects() threw a fatal exception:\n'%s'\n"
+             "   So rethrow...\n", e.GetFullMessage().c_str());
+         #endif
          throw;
       }
       else

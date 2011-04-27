@@ -2,9 +2,11 @@
 //------------------------------------------------------------------------------
 //                                 CallFunction
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool.
+// GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG04CC06P
@@ -20,6 +22,7 @@
 #include "BeginFunction.hpp"
 #include "StringTokenizer.hpp"
 #include "StringUtil.hpp"          // for Replace()
+#include "FileUtil.hpp"            // for ParseFileName()
 #include "FileManager.hpp"         // for GetAllMatlabFunctionPaths()
 #include "MessageInterface.hpp"
 #include <sstream>
@@ -79,12 +82,13 @@ CallFunction::PARAMETER_TYPE[CallFunctionParamCount - GmatCommandParamCount] =
 // CallFunction::CallFunction(const std::string &type)
 //------------------------------------------------------------------------------
 CallFunction::CallFunction(const std::string &type) :
-   GmatCommand      (type),
-   callcmds         (NULL),
-   mFunction        (NULL),
-   mFunctionName    (""),
-   isGmatFunction   (false),
-   isMatlabFunction (false)
+   GmatCommand          (type),
+   callcmds             (NULL),
+   mFunction            (NULL),
+   mFunctionName        (""),
+   mFunctionPathAndName (""),
+   isGmatFunction       (false),
+   isMatlabFunction     (false)
 {
    mNumInputParams = 0;
    mNumOutputParams = 0;
@@ -108,11 +112,12 @@ CallFunction::~CallFunction()
 // CallFunction(const CallFunction& cf) :
 //------------------------------------------------------------------------------
 CallFunction::CallFunction(const CallFunction& cf) :
-   GmatCommand     (cf),
-   callcmds        (NULL),
-   mFunction       (cf.mFunction),
-   mFunctionName   (cf.mFunctionName),
-   fm              (cf.fm)
+   GmatCommand           (cf),
+   callcmds              (NULL),
+   mFunction             (cf.mFunction),
+   mFunctionName         (cf.mFunctionName),
+   mFunctionPathAndName  (cf.mFunctionPathAndName),
+   fm                    (cf.fm)
 {
    mNumInputParams = cf.mNumInputParams;
    mNumOutputParams = cf.mNumOutputParams;
@@ -143,6 +148,7 @@ CallFunction& CallFunction::operator=(const CallFunction& cf)
    
    mFunction = cf.mFunction;
    mFunctionName = cf.mFunctionName;
+   mFunctionPathAndName = cf.mFunctionPathAndName;
    mNumInputParams = cf.mNumInputParams;
    mNumOutputParams = cf.mNumOutputParams;
    
@@ -556,6 +562,7 @@ bool CallFunction::SetStringParameter(const Integer id, const std::string &value
    {
    case FUNCTION_NAME:
       mFunctionName = value;
+      mFunctionPathAndName = value;
       fm.SetFunctionName(value);
       return true;
    case ADD_INPUT:
@@ -845,6 +852,7 @@ bool CallFunction::SetRefObject(GmatBase *obj, const Gmat::ObjectType type,
       if (name == mFunctionName)
       {
          mFunction = (Function *)obj;
+         mFunctionPathAndName = mFunction->GetFunctionPathAndName();
          if (mFunction && mFunction->GetTypeName() == "GmatFunction")
          {
             fm.SetFunction(mFunction);
@@ -930,6 +938,18 @@ bool CallFunction::Initialize()
    if (!isGmatFunction && !isMatlabFunction)
       throw CommandException
          ("CallFunction::Initialize() the function is neither GmatFunction nor MatlabFunction");
+   
+   mFunctionPathAndName = mFunction->GetFunctionPathAndName();
+   std::string fname = GmatFileUtil::ParseFileName(mFunctionPathAndName);
+   if (fname == "")
+      mFunctionPathAndName += mFunctionName;
+   
+   #ifdef DEBUG_CALL_FUNCTION_INIT
+   MessageInterface::ShowMessage
+      ("CallFunction::Initialize() returning %d, fname='%s', mFunctionName='%s', "
+       "mFunctionPathAndName='%s'\n", rv, fname.c_str(), mFunctionName.c_str(),
+       mFunctionPathAndName.c_str());
+   #endif
    
    return rv;
 }

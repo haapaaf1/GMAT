@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
 // FDSS Task order 28.
@@ -45,7 +47,7 @@
 //---------------------------------
 
 
-std::string   SpiceOrbitKernelWriter::TMP_TXT_FILE_NAME = "./GMATtmpSPKcmmnt";
+std::string   SpiceOrbitKernelWriter::TMP_TXT_FILE_NAME = "GMATtmpSPKcmmnt";
 const Integer SpiceOrbitKernelWriter::MAX_FILE_RENAMES  = 1000; // currently unused
 //---------------------------------
 // public methods
@@ -87,16 +89,47 @@ SpiceOrbitKernelWriter::SpiceOrbitKernelWriter(const std::string      &objName, 
    fm              (NULL)
 {
    #ifdef DEBUG_SPK_WRITING
-      MessageInterface::ShowMessage("Entering constructor for SKOrbitWriter with fileName = %s\n",
-            fileName.c_str());
+      MessageInterface::ShowMessage("Entering constructor for SPKOrbitWriter with fileName = %s, objectName = %s\n",
+            fileName.c_str(), objName.c_str());
    #endif
    if (GmatMathUtil::IsEven(deg)) // degree must be odd for Data Type 13
    {
       std::string errmsg = "Error creating SpiceOrbitKernelWriter: degree must be odd for Data Type 13\n";
       throw UtilityException(errmsg);
    }
+   // Check for the default NAIF ID
+   if (objNAIFId == SpiceInterface::DEFAULT_NAIF_ID)
+   {
+      MessageInterface::ShowMessage(
+            "*** WARNING *** NAIF ID for object %s is set to the default NAIF ID (%d).  Resulting SPK file will contain that value as the object's ID.\n",
+            objectName.c_str(), objNAIFId);
+   }
 
+   // Get the FileManage pointer
    fm = FileManager::Instance();
+   // Create the temporary text file to hold the meta data
+   tmpTxtFileName = fm->GetAbsPathname(FileManager::OUTPUT_PATH);
+   tmpTxtFileName += TMP_TXT_FILE_NAME + objectName + ".txt";
+   #ifdef DEBUG_SPK_WRITING
+      MessageInterface::ShowMessage("temporary SPICE file name is: %s\n", tmpTxtFileName.c_str());
+   #endif
+   tmpTxtFile = fopen(tmpTxtFileName.c_str(), "w");
+
+   if (!tmpTxtFile)
+   {
+      std::string errmsg = "Error creating or opening temporary text file for SPK meta data, for object \"";
+      errmsg += objectName + "\".  No meta data will be added to the file.\n";
+      MessageInterface::PopupMessage(Gmat::WARNING_, errmsg);
+      tmpFileOK = false;
+   }
+   else
+   {
+      fclose(tmpTxtFile);
+      // remove the temporary text file
+      remove(tmpTxtFileName.c_str());
+      tmpFileOK = true;
+   }
+
    /// set up CSPICE data
    objectNAIFId      = objNAIFId;
    if (centerNAIFId == 0) // need to find the NAIF Id for the central body  @todo - for object too??
@@ -490,7 +523,7 @@ void SpiceOrbitKernelWriter::SetBasicMetaData()
 void SpiceOrbitKernelWriter::FinalizeKernel()
 {
    // write all the meta data to the file
-   WriteMetaData();
+   if (tmpFileOK) WriteMetaData();
    basicMetaData.clear();
    addedMetaData.clear();
    // close the SPK file
@@ -509,20 +542,10 @@ void SpiceOrbitKernelWriter::FinalizeKernel()
 //------------------------------------------------------------------------------
 void SpiceOrbitKernelWriter::WriteMetaData()
 {
-   // create the temporary text file to hold the meta data
-   std::string    tmpTxtFileName = TMP_TXT_FILE_NAME;
-   tmpTxtFileName += objectName + ".txt";
+   // open the temporary file for writing the metadata
    tmpTxtFile = fopen(tmpTxtFileName.c_str(), "w");
 
-   if (!tmpTxtFile)
-   {
-      std::string errmsg = "Error opening temporary text file for SPK meta data, for object \"";
-      errmsg += objectName + "\".  No meta data will be added to the file.\n";
-      MessageInterface::PopupMessage(Gmat::WARNING_, errmsg);
-      return;
-   }
-
-   // write the meta data to the temporary file (according to SPICE dcs, must use regular C routines)
+   // write the meta data to the temporary file (according to SPICE documentation, must use regular C routines)
    // close the temporary file, when done
    unsigned int basicSize = basicMetaData.size();
    unsigned int addedSize = addedMetaData.size();
@@ -545,9 +568,10 @@ void SpiceOrbitKernelWriter::WriteMetaData()
       tmpTxt[jj] = tmpTxtFileName.at(jj);
    tmpTxt[txtLength] = '\0';
    integer     unit;
+   char        blank[2] = " ";
    ftnlen      txtLen = txtLength + 1;
    txtopr_(tmpTxt, &unit, txtLen);         // CSPICE method to open text file for reading
-   spcac_(&handle, &unit, " ", " ", 1, 1); // CSPICE method to write comments to kernel
+   spcac_(&handle, &unit, blank, blank, 1, 1); // CSPICE method to write comments to kernel
    if (failed_c())
    {
       ConstSpiceChar option[]   = "LONG"; // retrieve long error message
@@ -566,7 +590,7 @@ void SpiceOrbitKernelWriter::WriteMetaData()
    // close the text file
    ftncls_c(unit);                         // CSPICE method to close the text file
    // remove the temporary text file
-   remove(tmpTxt);
+   remove(tmpTxtFileName.c_str());
    delete [] tmpTxt;
 }
 

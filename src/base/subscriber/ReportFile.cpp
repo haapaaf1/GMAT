@@ -2,9 +2,11 @@
 //------------------------------------------------------------------------------
 //                                  ReportFile
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -37,7 +39,7 @@
 //#define DEBUG_WRAPPER_CODE
 //#define DBGLVL_REPORTFILE_REF_OBJ 1
 //#define DBGLVL_REPORTFILE_DATA 2
-//#define DBGLVL_WRITE_DATA 1
+//#define DBGLVL_WRITE_DATA 2
 
 //---------------------------------
 // static data
@@ -86,7 +88,8 @@ ReportFile::ReportFile(const std::string &type, const std::string &name,
    leftJustify     (true),
    zeroFill        (false),
    lastUsedProvider(-1),
-   usedByReport    (false)
+   usedByReport    (false),
+   calledByReport  (false)
 {
    objectTypes.push_back(Gmat::REPORT_FILE);
    objectTypeNames.push_back("ReportFile");

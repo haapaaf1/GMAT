@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -98,6 +100,11 @@
 //#define DEBUG_MATLAB
 //#define DEBUG_CCSDS_EPHEMERIS
 
+// Currently we can't use DataFile for 2011a release so commented out
+// Actually we want to put this flag in BuildEnv.mk but it is very close to
+// release so added it here and EphemerisFile.cpp
+//#define __USE_DATAFILE__
+
 //#ifndef DEBUG_MEMORY
 //#define DEBUG_MEMORY
 //#endif
@@ -152,7 +159,8 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
    
    try
    {
-      MessageInterface::ShowMessage("Moderator is reading startup file...\n");
+      // We don't want to write before startup file is read so commented out
+      //MessageInterface::ShowMessage("Moderator is reading startup file...\n");
       
       // Read startup file, Set Log file
       theFileManager = FileManager::Instance();
@@ -713,6 +721,33 @@ void Moderator::LoadPlugins()
 //------------------------------------------------------------------------------
 void Moderator::LoadAPlugin(std::string pluginName)
 {
+   // Set platform specific slash style
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Input plugin name: \"%s\"\n", pluginName.c_str());
+   #endif
+
+   char fSlash = '/';
+   char bSlash = '\\';
+   char osSlash = '\\';       // Default to Windows, but change if *nix
+
+   #ifndef _WIN32
+      osSlash = '/';          // Mac or Linux
+   #endif
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("OS slash is \"%c\"\n", osSlash);
+   #endif
+
+   for (UnsignedInt i = 0; i < pluginName.length(); ++i)
+   {
+      if ((pluginName[i] == fSlash) || (pluginName[i] == bSlash))
+         pluginName[i] = osSlash;
+   }
+
+   #ifdef DEBUG_PLUGIN_REGISTRATION
+      MessageInterface::ShowMessage("Used plugin name:  \"%s\"\n", pluginName.c_str());
+   #endif
+
    DynamicLibrary *theLib = LoadLibrary(pluginName);
 
    if (theLib != NULL)
@@ -6446,11 +6481,13 @@ bool Moderator::InterpretScript(std::istringstream *ss, bool clearObjs)
 //------------------------------------------------------------------------------
 bool Moderator::SaveScript(const std::string &filename, Gmat::WriteMode mode)
 {
-   //MessageInterface::ShowMessage
-   //   ("Moderator::SaveScript() entered\n   file: %s, mode: %d\n",
-   //    filename.c_str(), mode);
-   
+   #ifdef DEBUG_SAVE_SCRIPT
+   MessageInterface::ShowMessage
+      ("Moderator::SaveScript() entered\n   file: %s, mode: %d\n",
+       filename.c_str(), mode);
    MessageInterface::ShowMessage("The Script is saved to " + filename + "\n");
+   #endif
+   
    bool status = false;
    
    try
@@ -8204,8 +8241,10 @@ void Moderator::HandleCcsdsEphemerisFile(ObjectMap *objMap, bool deleteOld)
 //------------------------------------------------------------------------------
 void Moderator::AddSubscriberToSandbox(Integer index)
 {
-   // Handle CcsdsEphemerisFile first
+   #ifdef __USE_DATAFILE__
+   // Handle CcsdsEphemerisFile which uses DataFile plugin
    HandleCcsdsEphemerisFile(objectMapInUse, false);
+   #endif
    
    Subscriber *obj;
    StringArray names = theConfigManager->GetListOfItems(Gmat::SUBSCRIBER);
