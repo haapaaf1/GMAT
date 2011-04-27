@@ -58,11 +58,13 @@ public:
 	{
 		GmatSocketServer* pThis = (GmatSocketServer*)objPtr;
 		pThis->OnAccept(pThis->client_sock);
+		return NULL;
 	}
 	static void* StaticRunServer(void* objPtr)
 	{
 		GmatSocketServer* pThis = (GmatSocketServer*)objPtr;
 		pThis->RunServer();
+      return NULL;
 	}
 #else
 	void OnAccept(SOCKET sock);
