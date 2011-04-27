@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // ** Legal **
 //
 // Author: Linda Jun
@@ -204,9 +208,7 @@ private:
    bool mGlInitialized;
    bool mViewPointInitialized;
    bool mOpenGLInitialized;
-   #ifndef __USE_WX280_GL__
-      bool modelsAreLoaded;
-   #endif
+   bool modelsAreLoaded;
    wxString mPlotName;
    
    // camera

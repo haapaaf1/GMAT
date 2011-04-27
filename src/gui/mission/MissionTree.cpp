@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // ** Legal **
 //
 // Author: Allison Greene
@@ -33,7 +37,20 @@
 #include "bitmaps/beginfb.xpm"
 #include "bitmaps/endfb.xpm"
 #include "bitmaps/report.xpm"
-#include "bitmaps/stop.xpm"
+#include "bitmaps/penup.xpm"
+#include "bitmaps/pendown.xpm"
+#include "bitmaps/optimize.xpm"
+#include "bitmaps/mt_Default.xpm"
+#include "bitmaps/mt_Stop.xpm"
+#include "bitmaps/mt_MarkPoint.xpm"
+#include "bitmaps/mt_ClearPlot.xpm"
+#include "bitmaps/mt_Global.xpm"
+#include "bitmaps/mt_SaveMission.xpm"
+#include "bitmaps/mt_Minimize.xpm"
+#include "bitmaps/mt_NonlinearConstraint.xpm"
+#include "bitmaps/mt_RunSimulator.xpm"
+#include "bitmaps/mt_RunEstimator.xpm"
+
 #include <wx/tipwin.h>
 
 #include "MissionTree.hpp"
@@ -766,7 +783,6 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
    //------------------------------------------------------------
    if (cmdTypeName == "Target" || cmdTypeName == "For"  ||
        cmdTypeName == "While"  ||  cmdTypeName == "If"  ||
-       //cmdTypeName == "BeginScript" || cmdTypeName == "Optimize")
        cmdTypeName == "ScriptEvent" || cmdTypeName == "Optimize")
    {
       #if DEBUG_MISSION_TREE_INSERT
@@ -794,7 +810,6 @@ MissionTree::InsertCommand(wxTreeItemId parentId, wxTreeItemId currId,
          endCmd = CreateCommand("EndIf");
          endType = GmatTree::END_IF_CONTROL;
       }
-      //else if (cmdTypeName == "BeginScript")
       else if (cmdTypeName == "ScriptEvent")
       {
          endCmd = CreateCommand("EndScript");
@@ -1829,7 +1844,21 @@ void MissionTree::AddIcons()
    theGuiManager->LoadIcon("endfb", bitmapType, &bitmaps[++index], endfb_xpm);
    theGuiManager->LoadIcon("report", bitmapType, &bitmaps[++index], report_xpm);
    
-   theGuiManager->LoadIcon("stop", bitmapType, &bitmaps[++index], stop_xpm);
+   theGuiManager->LoadIcon("mt_Stop", bitmapType, &bitmaps[++index], mt_Stop_xpm);
+   theGuiManager->LoadIcon("penup", bitmapType, &bitmaps[++index], penup_xpm);
+   theGuiManager->LoadIcon("pendown", bitmapType, &bitmaps[++index], pendown_xpm);
+   theGuiManager->LoadIcon("mt_MarkPoint", bitmapType, &bitmaps[++index], mt_MarkPoint_xpm);
+   theGuiManager->LoadIcon("mt_ClearPlot", bitmapType, &bitmaps[++index], mt_ClearPlot_xpm);
+
+   theGuiManager->LoadIcon("mt_Global", bitmapType, &bitmaps[++index], mt_Global_xpm);   
+   theGuiManager->LoadIcon("mt_SaveMission", bitmapType, &bitmaps[++index], mt_SaveMission_xpm);   
+   theGuiManager->LoadIcon("optimize", bitmapType, &bitmaps[++index], optimize_xpm);
+   theGuiManager->LoadIcon("mt_Minimize", bitmapType, &bitmaps[++index], mt_Minimize_xpm);
+   theGuiManager->LoadIcon("mt_NonlinearConstraint", bitmapType, &bitmaps[++index], mt_NonlinearConstraint_xpm);
+   
+   theGuiManager->LoadIcon("mt_RunSimulator", bitmapType, &bitmaps[++index], mt_RunSimulator_xpm);
+   theGuiManager->LoadIcon("mt_RunEstimator", bitmapType, &bitmaps[++index], mt_RunEstimator_xpm);
+   theGuiManager->LoadIcon("mt_Default", bitmapType, &bitmaps[++index], mt_Default_xpm);
    
    for ( size_t i = 0; i < WXSIZEOF(bitmaps); i++ )
       images->Add(bitmaps[i]->ConvertToImage().Rescale(sizeW, sizeH));
@@ -2960,15 +2989,15 @@ GmatTree::MissionIconType MissionTree::GetIconId(const wxString &cmd)
    if (cmd == "EndTarget")
       return GmatTree::MISSION_ICON_NEST_RETURN;
    if (cmd == "Optimize")
-      return GmatTree::MISSION_NO_ICON;
+      return GmatTree::MISSION_ICON_OPTIMIZE;
    if (cmd == "EndOptimize")
       return GmatTree::MISSION_ICON_NEST_RETURN;
    if (cmd == "Achieve")
       return GmatTree::MISSION_ICON_ACHIEVE;
    if (cmd == "Minimize")
-      return GmatTree::MISSION_NO_ICON;
+      return GmatTree::MISSION_ICON_MINIMIZE;
    if (cmd == "NonlinearConstraint")
-      return GmatTree::MISSION_NO_ICON;
+      return GmatTree::MISSION_ICON_NONLINEAR_CONSTRAINT;
    if (cmd == "Vary")
       return GmatTree::MISSION_ICON_VARY;
    if (cmd == "Save")
@@ -3007,8 +3036,28 @@ GmatTree::MissionIconType MissionTree::GetIconId(const wxString &cmd)
       return GmatTree::MISSION_ICON_SCRIPTEVENT;
    if (cmd == "ScriptEvent")
       return GmatTree::MISSION_ICON_SCRIPTEVENT;
+   if (cmd == "PenUp")
+      return GmatTree::MISSION_ICON_PEN_UP;
+   if (cmd == "PenDown")
+      return GmatTree::MISSION_ICON_PEN_DOWN;
+   if (cmd == "MarkPoint")
+      return GmatTree::MISSION_ICON_MARK_POINT;
+   if (cmd == "ClearPlot")
+      return GmatTree::MISSION_ICON_CLEAR_PLOT;
+   if (cmd == "Global")
+      return GmatTree::MISSION_ICON_GLOBAL;
+   if (cmd == "SaveMission")
+      return GmatTree::MISSION_ICON_SAVE_MISSION;
+   if (cmd == "Minimize")
+      return GmatTree::MISSION_ICON_MINIMIZE;
+   if (cmd == "NonlinearConstraint")
+      return GmatTree::MISSION_ICON_NONLINEAR_CONSTRAINT;
+   if (cmd == "RunSimulator")
+      return GmatTree::MISSION_ICON_RUN_SIMULATOR;
+   if (cmd == "RunEstimator")
+      return GmatTree::MISSION_ICON_RUN_ESTIMATOR;
    
-   return GmatTree::MISSION_ICON_FILE;
+   return GmatTree::MISSION_ICON_DEFAULT;
 }
 
 

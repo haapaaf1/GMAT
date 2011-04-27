@@ -1,4 +1,12 @@
 # $Id$
+# 
+# GMAT: General Mission Analysis Tool.
+# 
+#  Copyright (c) 2002-2011 United States Government as represented by the
+#  Administrator of The National Aeronautics and Space Administration.
+#  All Other Rights Reserved.
+
+# 
 # Eclipse makefile for the GMAT GUI
 # Initial Version - D. Conway - 2005/06/17
 # Modifed for Mac OS 10.3  W. Shoan - 2005.11.10
@@ -359,7 +367,7 @@ macrez:
 
 macosx: 
 	echo "building Mac application bundle ......."
-	/Developer/Tools/SetFile -a C $(TOP_DIR)/bin/$(WXTARGET)
+	/Developer/Tools/SetFile -a C $(TOP_DIR)/application/bin/$(WXTARGET)
 	mkdir -p $(CONTENTS_DIR)
 	mkdir -p $(MACOS_DIR)
 	mkdir -p $(RES_DIR)
@@ -367,11 +375,10 @@ macosx:
 	sed -e "s/IDENTIFIER/`echo GMAT | sed -e 's,\.\./,,g' | \
 	sed -e 's,/,.,g'`/" -e "s/EXECUTABLE/RunGMAT/" $(GMAT_INFO) >$(MAC_PKG)
 	echo -n "APPL????" > $(MAC_PKGINFO)
-	ln -f $(TOP_DIR)/bin/$(WXTARGET) $(MAC_APP)
+	ln -f $(TOP_DIR)/application/bin/$(WXTARGET) $(MAC_APP)
 	ln -f $(TOP_DIR)/src/gui/RunGMAT $(MAC_SCRIPT_DIR)/RunGMAT
 	cp -f $(GMAT_ICONS) $(MAC_ICONS) 
-	./$(INSTALL_WX_LIBS) GMAT ../base/lib $(BASELIBNAME)
-#	./$(INSTALL_WX_LIBS) GMAT $(WX_BASE_VER) $(WX_LIB_VER) ../base/lib $(BASELIBNAME)
+	./$(INSTALL_LIBS_INTO_BUNDLE) GMAT ../base/lib $(BASELIBNAME) $(PCRE_LIB_LOC)
 
 macstacksize:
 	echo "setting stack size needed for SPICE"

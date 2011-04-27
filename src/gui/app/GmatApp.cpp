@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -245,7 +247,13 @@ bool GmatApp::OnInit()
             theMainFrame->BuildAndRunScript(scriptToRun);
             
             if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::EXIT_AFTER_RUN)
+            {
                theMainFrame->Close();
+               #ifdef __LINUX__
+                  // Linux needs this to complete shutdown
+                  MessageInterface::ShowMessage("\n");
+               #endif
+            }
          }
          else if (runBatch)
          {

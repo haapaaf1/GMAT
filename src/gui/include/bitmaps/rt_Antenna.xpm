@@ -1,5 +1,5 @@
 /* XPM */
-static const char * Antenna_xpm[] = {
+static const char * rt_Antenna_xpm[] = {
 "16 16 138 2",
 "  	c None",
 ". 	c #F2F1F4",

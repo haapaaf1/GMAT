@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // ** Legal **
 //
 // Developed jointly by NASA/GSFC, Thinking Systems, Inc., and Schafer Corp.,
@@ -36,6 +40,7 @@
 #include "AngleUtil.hpp"           // for ComputeAngleInDeg()
 #include "CelestialBody.hpp"
 #include "MdiGlPlotData.hpp"
+#include "FileUtil.hpp"            // for GmatFileUtil::DoesFileExist()
 #include "MessageInterface.hpp"
 #include "SubscriberException.hpp"
 #include "TimeSystemConverter.hpp" // for ConvertMjdToGregorian()
@@ -134,7 +139,7 @@ using namespace FloatAttUtil;
 //#define DEBUG_UPDATE_OBJECT 2
 //#define DEBUG_ACTION 1
 //#define DEBUG_CONVERT 1
-//#define DEBUG_DRAW 2
+//#define DEBUG_DRAW 1
 //#define DEBUG_ZOOM 1
 //#define DEBUG_OBJECT 2
 //#define DEBUG_TEXTURE 2
@@ -196,9 +201,7 @@ OrbitViewCanvas::OrbitViewCanvas(wxWindow *parent, wxWindowID id,
                                  const wxString& name, long style)
    : ViewCanvas(parent, id, pos, size, name, style)
 {
-   #ifndef __USE_WX280_GL__
-      modelsAreLoaded = false;
-   #endif
+   modelsAreLoaded = false;
    mGlInitialized = false;
    mViewPointInitialized = false;
    mOpenGLInitialized = false;
@@ -433,6 +436,12 @@ bool OrbitViewCanvas::InitOpenGL()
    MessageInterface::ShowMessage("GLU extensions = '%s'\n", (char*)str);
    #endif
    
+   #ifdef DEBUG_INIT
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::InitOpenGL() '%s' entered, calling InitGL()\n",
+       mPlotName.c_str());
+   #endif
+   
    InitGL();
 
    // remove back faces
@@ -486,6 +495,11 @@ bool OrbitViewCanvas::InitOpenGL()
    mShowMaxWarning = true;
    mIsAnimationRunning = false;
    mOpenGLInitialized = true;
+   
+   #ifdef DEBUG_INIT_OPENGL
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::InitOpenGL() '%s' returning true\n", mPlotName.c_str());
+   #endif
    
    return true;
 }
@@ -675,10 +689,7 @@ void OrbitViewCanvas::ResetPlotInfo()
    mWriteWarning = true;
    mInFunction = false;
    mWriteRepaintDisalbedInfo = true;
-   
-#ifndef __USE_WX280_GL__
    modelsAreLoaded = false;
-#endif
 
    // Initialize view
    if (mUseInitialViewPoint)
@@ -1368,6 +1379,13 @@ void OrbitViewCanvas::UpdatePlot(const StringArray &scNames, const Real &time,
 {
    if (IsFrozen())
       Thaw();
+
+   // Commented out since spacecraft panel is not showing. (LOJ: 2011.04.25)
+   // This code attempt to show spacecraft moel when total data points are
+   // less than update frequency points (Bug 2380)
+   // To load spacecraft model, OpenGL needs to be initialized first
+   //if (!mOpenGLInitialized)
+   //   Update();
    
    mTotalPoints++;
    mInFunction = inFunction;   
@@ -3180,6 +3198,9 @@ void OrbitViewCanvas::DrawFrame()
 //------------------------------------------------------------------------------
 void OrbitViewCanvas::DrawPlot()
 {
+   if (mTotalPoints == 0)
+      return;
+   
    #if DEBUG_DRAW
    MessageInterface::ShowMessage
       ("===========================================================================\n");
@@ -3976,7 +3997,12 @@ void OrbitViewCanvas::DrawSolverData()
    if (numPoints == 0)
       return;
    
-   for (int i=1; i<numPoints; i++)
+   // Note that we're starting at 2 here rather than at 1.  There is a bug that
+   // looks like a bad pointer when starting from 1 when the plot running in
+   // "Current" mode.  We need to investigate this issue after the 2011a release
+   // is out the door.  This TEMPORARY fix is in place so that the Mac, Linux
+   // and Visual Studio builds won't crash for the "Current" setting.
+   for (int i=2; i<numPoints; i++)
    {
       int numSc = mSolverAllPosX[i].size();      
       //MessageInterface::ShowMessage("==========> sc count = %d\n", numSc);
@@ -4796,6 +4822,13 @@ void OrbitViewCanvas
    #if DEBUG_UPDATE
    static int sNumDebugOutput = 1000;
    #endif
+
+   #if DEBUG_UPDATE
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::UpdateSpacecraftData() entered, time=%f, mScCount=%d, "
+       "mOpenGLInitialized=%d, modelsAreLoaded=%d\n", time, mScCount,
+       mOpenGLInitialized, modelsAreLoaded);
+   #endif
    
    //-------------------------------------------------------
    // update spacecraft position
@@ -4814,30 +4847,44 @@ void OrbitViewCanvas
       {
          Spacecraft *spac = (Spacecraft*)mObjectArray[satId];
          int colorIndex = satId * MAX_DATA + mLastIndex;
+         
          if (mOpenGLInitialized)
          {
             ModelManager *mm = ModelManager::Instance();
-            #ifdef __USE_WX280_GL__
+            if (!modelsAreLoaded)
+            {
                if (spac->modelFile != "" && spac->modelID == -1)
                {
                   wxString modelPath(spac->modelFile.c_str());
-                  spac->modelID = mm->LoadModel(modelPath);
+                  if (GmatFileUtil::DoesFileExist(modelPath.c_str()))
+                  {
+                     spac->modelID = mm->LoadModel(modelPath);
+                     #ifdef DEBUG_MODEL
+                     MessageInterface::ShowMessage
+                        ("UpdateSpacecraftData() loaded model '%s'\n", modelPath.c_str());
+                     #endif
+                  }
+                  else
+                  {
+                     MessageInterface::ShowMessage
+                        ("*** WARNING *** Cannot load the model file for spacecraft '%s'. "
+                         "The file '%s' does not exist.\n", spac->GetName().c_str(),
+                         modelPath.c_str());
+                  }
                }
-            #else
-               if (!modelsAreLoaded)
-               {
-                  MessageInterface::ShowMessage("");
-                  wxString modelPath(spac->modelFile.c_str());
-                  spac->modelID = mm->LoadModel(modelPath);
+               
+               // Set modelsAreLoaded to true if it went through all models
+               if (sc == mScCount-1)
                   modelsAreLoaded = true;
-               }
-            #endif
+            }
          }
          
          if (!mDrawOrbitArray[satId])
          {
             mDrawOrbitFlag[colorIndex] = false;
+            #ifdef DEBUG_UPDATE
             MessageInterface::ShowMessage("===> mDrawOrbitArray[satId] is NULL\n");
+            #endif
             continue;
          }
          
@@ -4897,9 +4944,19 @@ void OrbitViewCanvas
          #endif
          
          // Update spacecraft attitude
+         #if DEBUG_UPDATE
+         MessageInterface::ShowMessage
+            ("   Now updating spacecraft attitude of %d\n", satId);
+         #endif
+         
          UpdateSpacecraftAttitude(time, spac, satId);
       }
    }
+   
+   #if DEBUG_UPDATE
+   MessageInterface::ShowMessage
+      ("OrbitViewCanvas::UpdateSpacecraftData() leaving\n");
+   #endif
 }
 
 

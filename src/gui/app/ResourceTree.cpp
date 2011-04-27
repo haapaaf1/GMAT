@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -53,10 +55,25 @@
 #include "bitmaps/array.xpm"
 #include "bitmaps/string.xpm"
 #include "bitmaps/xyplot.xpm"
-#include "bitmaps/default.xpm"
 #include "bitmaps/tank.xpm"
 #include "bitmaps/thruster.xpm"
 #include "bitmaps/Script.xpm"
+#include "bitmaps/rt_SolarSystem.xpm"
+#include "bitmaps/rt_Barycenter.xpm"
+#include "bitmaps/rt_LibrationPoint.xpm"
+#include "bitmaps/rt_BoundaryValueSolver.xpm"
+#include "bitmaps/rt_Optimizer.xpm"
+#include "bitmaps/rt_Simulator.xpm"
+#include "bitmaps/rt_Estimator.xpm"
+#include "bitmaps/rt_Antenna.xpm"
+#include "bitmaps/rt_Transmitter.xpm"
+#include "bitmaps/rt_Receiver.xpm"
+#include "bitmaps/rt_Transponder.xpm"
+#include "bitmaps/rt_MeasurementModel.xpm"
+#include "bitmaps/rt_Matlab.xpm"
+#include "bitmaps/rt_MatlabServer.xpm"
+#include "bitmaps/rt_Default.xpm"
+
 #include "GuiInterpreter.hpp"
 #include "ResourceTree.hpp"
 #include "GmatAppData.hpp"
@@ -94,11 +111,14 @@
 //#define DEBUG_COMPARE_REPORT
 //#define DEBUG_RUN_SCRIPT_FOLDER
 //#define DEBUG_RESOURCE_TREE_UPDATE
+//#define DEBUG_RESOURCE_ICON
 //#define DEBUG_ADD_ICONS
 //#define DEBUG_ADD_COMET
 //#define DEBUG_ACTIVE_SCRIPT
 //#define DEBUG_FIND_SCRIPT
 //#define DEBUG_ADD_SCRIPT
+//#define DEBUG_ADD_SOLVER
+//#define DEBUG_USER_GUI
 
 // ID macros for plug-ins
 #define SOLVER_BEGIN 150
@@ -464,14 +484,14 @@ bool ResourceTree::AddScriptItem(wxString path)
       {
          // add path to tree
          scriptId =
-            AppendItem(mScriptItem, path, GmatTree::ICON_DEFAULT, -1,
+            AppendItem(mScriptItem, path, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                        new GmatTreeItemData(path, GmatTree::SCRIPT_FILE, path));
       }
       else
       {
          // add filename to tree
          scriptId =
-            AppendItem(mScriptItem, filename, GmatTree::ICON_DEFAULT, -1,
+            AppendItem(mScriptItem, filename, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                        new GmatTreeItemData(path, GmatTree::SCRIPT_FILE, path));
       }
 
@@ -959,6 +979,60 @@ void ResourceTree::AddDefaultBodies(wxTreeItemId itemId)
 
 
 //------------------------------------------------------------------------------
+// GmatTree::ResourceIconType GetIconId(const wxString &resourceTypeName)
+//------------------------------------------------------------------------------
+/**
+ * Returns icon id to use when showing in the resource tree
+ * Notes: Until we figure out how to use user defined icons for plugins,
+ *        provide all plugin object icons here.
+ */
+//------------------------------------------------------------------------------
+GmatTree::ResourceIconType ResourceTree::GetIconId(GmatBase *obj)
+{
+   #ifdef DEBUG_RESOURCE_ICON
+   MessageInterface::ShowMessage
+      ("ResourceTree::GetIconId() entered, obj=<%p><%s>'%s'\n", obj,
+       obj->GetTypeName().c_str(), obj->GetName().c_str());
+   #endif
+   
+   GmatTree::ResourceIconType iconToUse = GmatTree::RESOURCE_ICON_DEFAULT;
+   
+   // Hardware
+   if (obj->IsOfType("Antenna"))
+      iconToUse = GmatTree::RESOURCE_ICON_ANTENNA;
+   else if (obj->IsOfType("Transmitter"))
+      iconToUse = GmatTree::RESOURCE_ICON_TRANSMITTER;
+   else if (obj->IsOfType("Receiver"))
+      iconToUse = GmatTree::RESOURCE_ICON_RECEIVER;
+   else if (obj->IsOfType("Transponder"))
+      iconToUse = GmatTree::RESOURCE_ICON_TRANSPONDER;
+   
+   // Solver
+   else if (obj->IsOfType("DifferentialCorrector"))
+      iconToUse = GmatTree::RESOURCE_ICON_BOUNDARY_VALUE_SOLVER;
+   else if (obj->IsOfType("Optimizer"))
+      iconToUse = GmatTree::RESOURCE_ICON_OPTIMIZER;
+   else if (obj->IsOfType("Simulator"))
+      iconToUse = GmatTree::RESOURCE_ICON_SIMULATOR;
+   else if (obj->IsOfType("Estimator"))
+      iconToUse = GmatTree::RESOURCE_ICON_ESTIMATOR;
+   
+   // MeasurementModel
+   else if (obj->IsOfType("MeasurementModel"))
+      iconToUse = GmatTree::RESOURCE_ICON_MEASUREMENT_MODEL;
+   else if (obj->IsOfType(Gmat::MEASUREMENT_MODEL))
+      iconToUse = GmatTree::RESOURCE_ICON_MEASUREMENT_MODEL;
+   
+   #ifdef DEBUG_RESOURCE_ICON
+   MessageInterface::ShowMessage
+      ("ResourceTree::GetIconId() returning, icon id to use %d\n", iconToUse);
+   #endif
+   
+   return iconToUse;
+}
+
+
+//------------------------------------------------------------------------------
 // void AddDefaultGroundStation(wxTreeItemId itemId, bool restartCounter = true)
 //------------------------------------------------------------------------------
 /**
@@ -1249,42 +1323,59 @@ void ResourceTree::AddDefaultBurns(wxTreeItemId itemId, bool restartCounter)
 //------------------------------------------------------------------------------
 void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
 {
+   #ifdef DEBUG_ADD_SOLVER
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddDefaultSolvers() entered, restartCounter=%d\n", restartCounter);
+   #endif
+   
    StringArray itemNames = theGuiInterpreter->GetListOfObjects(Gmat::SOLVER);
    int size = itemNames.size();
    wxString objName;
    wxString objTypeName;
-
+   
+   #ifdef DEBUG_ADD_SOLVER
+   MessageInterface::ShowMessage("   There are %d configured Solvers\n", size);
+   #endif
+   
    for (int i = 0; i<size; i++)
    {
       GmatBase *solver = GetObject(itemNames[i]);
       objName = wxString(itemNames[i].c_str());
       objTypeName = wxString(solver->GetTypeName().c_str());
-
+      
+      #ifdef DEBUG_ADD_SOLVER
+      MessageInterface::ShowMessage
+         ("   solver[%d]=<%p><%s>'%s'\n", i, solver, solver->GetTypeName().c_str(),
+          solver->GetName().c_str());
+      #endif
+      
+      GmatTree::ResourceIconType iconToUse = GetIconId(solver);
+      
       /// @todo:  need to create different types for the solvers and check strings
       if (objTypeName == "DifferentialCorrector")
       {
-         AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(mBoundarySolverItem, wxT(objName), iconToUse, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::DIFF_CORR));
       }
       else if (objTypeName == "Broyden")
       {
-         //AppendItem(mBoundarySolverItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         //AppendItem(mBoundarySolverItem, wxT(objName), iconToUse, -1,
          //           new GmatTreeItemData(wxT(objName), GmatTree::BROYDEN));
       }
       else if (objTypeName == "Quasi-Newton")
       {
-         //AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         //AppendItem(mOptimizerItem, wxT(objName), iconToUse, -1,
          //           new GmatTreeItemData(wxT(objName), GmatTree::QUASI_NEWTON));
       }
       else if (objTypeName == "FminconOptimizer")
       {
-         AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(mOptimizerItem, wxT(objName), iconToUse, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::SQP));
       }
       else if (solver->IsOfType("Optimizer"))
       {
-        // Set generic optimizer stuff here!
-         AppendItem(mOptimizerItem, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         // Set generic optimizer stuff here!
+         AppendItem(mOptimizerItem, wxT(objName), iconToUse, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::SOLVER));
       }
    };
@@ -1295,6 +1386,10 @@ void ResourceTree::AddDefaultSolvers(wxTreeItemId itemId, bool restartCounter)
       Expand(mOptimizerItem);
       Expand(itemId);
    }
+   
+   #ifdef DEBUG_ADD_SOLVER
+   MessageInterface::ShowMessage("ResourceTree::AddDefaultSolvers() leaving\n");
+   #endif
 }
 
 
@@ -1371,9 +1466,9 @@ void ResourceTree::AddDefaultInterfaces(wxTreeItemId itemId)
 {
    if (GmatGlobal::Instance()->IsMatlabAvailable())
    {
-      AppendItem(itemId, wxT("Matlab"), GmatTree::ICON_DEFAULT, -1,
+      AppendItem(itemId, wxT("Matlab"), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(wxT("Matlab"), GmatTree::MATLAB_INTERFACE));
-      AppendItem(itemId, wxT("Matlab Server"), GmatTree::ICON_DEFAULT, -1,
+      AppendItem(itemId, wxT("Matlab Server"), GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(wxT("Matlab Server"), GmatTree::MATLAB_SERVER));
    }
    
@@ -1546,12 +1641,12 @@ void ResourceTree::AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCount
 
       if (objTypeName == "Barycenter")
       {
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(itemId, wxT(objName), GmatTree::RESOURCE_ICON_BARYCENTER, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::BARYCENTER));
       }
       else if (objTypeName == "LibrationPoint")
       {
-         AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+         AppendItem(itemId, wxT(objName), GmatTree::RESOURCE_ICON_LIBRATION_POINT, -1,
                     new GmatTreeItemData(wxT(objName), GmatTree::LIBRATION_POINT));
       }
    };
@@ -1571,6 +1666,11 @@ void ResourceTree::AddDefaultSpecialPoints(wxTreeItemId itemId, bool incLibCount
 //------------------------------------------------------------------------------
 void ResourceTree::AddUserObjects()
 {
+   #ifdef DEBUG_USER_GUI
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddUserObjects() entered\n");
+   #endif
+   
    StringArray itemNames;
    Gmat::ObjectType type;
    std::string subtype;
@@ -1600,16 +1700,18 @@ void ResourceTree::AddUserObjects()
       for (int i = 0; i < size; i++)
       {
          #ifdef DEBUG_USER_GUI
-            MessageInterface::ShowMessage("   Object \"%s\"\n",
+            MessageInterface::ShowMessage("   Object[%d] \"%s\"\n", i,
                   itemNames[i].c_str());
          #endif
          GmatBase *cp = GetObject(itemNames[i]);
+         GmatTree::ResourceIconType iconToUse = GetIconId(cp);
+         
          if (subtype == "")
          {
             objName = wxString(itemNames[i].c_str());
             objTypeName = wxString(cp->GetTypeName().c_str());
-
-            AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+            
+            AppendItem(itemId, wxT(objName), iconToUse, -1,
                   new GmatTreeItemData(wxT(objName),
                         GmatTree::USER_DEFINED_OBJECT));
          }
@@ -1617,13 +1719,13 @@ void ResourceTree::AddUserObjects()
          {
             objName = wxString(itemNames[i].c_str());
             objTypeName = wxString(cp->GetTypeName().c_str());
-
-            AppendItem(itemId, wxT(objName), GmatTree::ICON_DEFAULT, -1,
+            
+            AppendItem(itemId, wxT(objName), iconToUse, -1,
                   new GmatTreeItemData(wxT(objName),
                         GmatTree::USER_DEFINED_OBJECT));
          }
       }
-
+      
       if (size > 0)
          Expand(itemId);
    }
@@ -2160,6 +2262,7 @@ void ResourceTree::AddIcons()
    
    theGuiManager->LoadIcon("tank", bitmapType, &bitmaps[++index], tank_xpm);
    theGuiManager->LoadIcon("thruster", bitmapType, &bitmaps[++index], thruster_xpm);
+   theGuiManager->LoadIcon("rt_SolarSystem", bitmapType, &bitmaps[++index], rt_SolarSystem_xpm);
    theGuiManager->LoadIcon("sun", bitmapType, &bitmaps[++index], sun_xpm);
    theGuiManager->LoadIcon("mercury", bitmapType, &bitmaps[++index], mercury_xpm);
    theGuiManager->LoadIcon("venus", bitmapType, &bitmaps[++index], venus_xpm);
@@ -2192,8 +2295,25 @@ void ResourceTree::AddIcons()
    theGuiManager->LoadIcon("string", bitmapType, &bitmaps[++index], string_xpm);
    theGuiManager->LoadIcon("xyplot", bitmapType, &bitmaps[++index], xyplot_xpm);
    
+   theGuiManager->LoadIcon("rt_Barycenter", bitmapType, &bitmaps[++index], rt_Barycenter_xpm);
+   theGuiManager->LoadIcon("rt_LibrationPoint", bitmapType, &bitmaps[++index], rt_LibrationPoint_xpm);
+   
+   theGuiManager->LoadIcon("rt_BoundaryValueSolver", bitmapType, &bitmaps[++index], rt_BoundaryValueSolver_xpm);
+   theGuiManager->LoadIcon("rt_Optimizer", bitmapType, &bitmaps[++index], rt_Optimizer_xpm);
+   theGuiManager->LoadIcon("rt_Simulator", bitmapType, &bitmaps[++index], rt_Simulator_xpm);
+   theGuiManager->LoadIcon("rt_Estimator", bitmapType, &bitmaps[++index], rt_Estimator_xpm);
+   
+   theGuiManager->LoadIcon("rt_Antenna", bitmapType, &bitmaps[++index], rt_Antenna_xpm);
+   theGuiManager->LoadIcon("rt_Transmitter", bitmapType, &bitmaps[++index], rt_Transmitter_xpm);
+   theGuiManager->LoadIcon("rt_Receiver", bitmapType, &bitmaps[++index], rt_Receiver_xpm);
+   theGuiManager->LoadIcon("rt_Transponder", bitmapType, &bitmaps[++index], rt_Transponder_xpm);
+   
+   theGuiManager->LoadIcon("rt_Matlab", bitmapType, &bitmaps[++index], rt_Matlab_xpm);
+   theGuiManager->LoadIcon("rt_MatlabServer", bitmapType, &bitmaps[++index], rt_MatlabServer_xpm);
+
+   theGuiManager->LoadIcon("rt_MeasurementModel", bitmapType, &bitmaps[++index], rt_MeasurementModel_xpm);
    theGuiManager->LoadIcon("Script", bitmapType, &bitmaps[++index], Script_xpm);
-   theGuiManager->LoadIcon("default", bitmapType, &bitmaps[++index], default_xpm);
+   theGuiManager->LoadIcon("rt_Default", bitmapType, &bitmaps[++index], rt_Default_xpm);
    
    
    // Let's always recale all icons since size of icon look different on different platforms
@@ -2569,8 +2689,10 @@ void ResourceTree::OnAddDiffCorr(wxCommandEvent &event)
 
    if (obj != NULL)
    {
+      GmatTree::ResourceIconType iconToUse = GetIconId(obj);
+      
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, iconToUse, -1,
                  new GmatTreeItemData(name, GmatTree::DIFF_CORR));
       Expand(item);
 
@@ -2597,14 +2719,15 @@ void ResourceTree::OnAddSqp(wxCommandEvent &event)
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName("SQP", 1);
    GmatBase *obj = theGuiInterpreter->CreateObject("FminconOptimizer", newName);
-
+   
    if (obj != NULL)
    {
+      GmatTree::ResourceIconType iconToUse = GetIconId(obj);
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, iconToUse, -1,
                  new GmatTreeItemData(name, GmatTree::SQP));
       Expand(item);
-
+      
       theGuiManager->UpdateSolver();
    }
 }
@@ -2629,16 +2752,18 @@ void ResourceTree::OnAddHardware(wxCommandEvent &event)
    // The rest is like the other tree additions
    wxTreeItemId item = GetSelection();
    std::string newName = theGuiInterpreter->GetNewName(selected, 1);
-
+   
    GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
-
+   
    if (obj != NULL)
    {
+      GmatTree::ResourceIconType iconToUse = GetIconId(obj);
+      
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, iconToUse, -1,
                  new GmatTreeItemData(name, GmatTree::HARDWARE));
       Expand(item);
-
+      
       theGuiManager->UpdateSensor();
    }
 }
@@ -2657,6 +2782,10 @@ void ResourceTree::OnAddHardware(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void ResourceTree::OnAddSolver(wxCommandEvent &event)
 {
+   #ifdef DEBUG_ADD_SOLVER
+   MessageInterface::ShowMessage("ResourceTree::OnAddSolver() entered\n");
+   #endif
+   
    // Look up the plugin type based on the ID built with menu that selected it
    std::string selected = pluginMap[event.GetId()];
 
@@ -2668,13 +2797,18 @@ void ResourceTree::OnAddSolver(wxCommandEvent &event)
 
    if (obj != NULL)
    {
+      GmatTree::ResourceIconType iconToUse = GetIconId(obj);
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, iconToUse, -1,
                  new GmatTreeItemData(name, GmatTree::SOLVER));
       Expand(item);
 
       theGuiManager->UpdateSolver();
    }
+   
+   #ifdef DEBUG_ADD_SOLVER
+   MessageInterface::ShowMessage("ResourceTree::OnAddSolver() leaving\n");
+   #endif
 }
 
 
@@ -2805,7 +2939,7 @@ void ResourceTree::OnAddSubscriber(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_DEFAULT, -1,
                  new GmatTreeItemData(name, GmatTree::SUBSCRIBER));
       Expand(item);
 
@@ -3040,7 +3174,7 @@ void ResourceTree::OnAddBarycenter(wxCommandEvent &event)
    if (obj != NULL)
    {
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, GmatTree::RESOURCE_ICON_BARYCENTER, -1,
                  new GmatTreeItemData(name, GmatTree::BARYCENTER));
       Expand(item);
 
@@ -3341,11 +3475,13 @@ void ResourceTree::OnAddUserObject(wxCommandEvent &event)
    std::string newName = theGuiInterpreter->GetNewName(selected, 1);
 
    GmatBase *obj = theGuiInterpreter->CreateObject(selected, newName);
-
+   
    if (obj != NULL)
    {
+      GmatTree::ResourceIconType iconToUse = GetIconId(obj);
+      
       wxString name = newName.c_str();
-      AppendItem(item, name, GmatTree::ICON_DEFAULT, -1,
+      AppendItem(item, name, iconToUse, -1,
                  new GmatTreeItemData(name, GmatTree::USER_DEFINED_OBJECT));
       Expand(item);
    }
@@ -3520,7 +3656,7 @@ void ResourceTree::OnAddScriptFolder(wxCommandEvent &event)
                {
                   GmatTreeItemData *newItemData =
                      new GmatTreeItemData(filepath, GmatTree::SCRIPT_FILE);
-                  AppendItem(newItem, filename, GmatTree::ICON_SCRIPT, -1,
+                  AppendItem(newItem, filename, GmatTree::RESOURCE_ICON_SCRIPT, -1,
                              newItemData);
                }
                
@@ -4570,13 +4706,13 @@ GmatTree::ResourceIconType ResourceTree::GetTreeItemIcon(GmatTree::ItemType item
    case GmatTree::DIFF_CORR:
    case GmatTree::SQP:
    case GmatTree::SOLVER:
-      return GmatTree::ICON_DEFAULT;
+      return GmatTree::RESOURCE_ICON_DEFAULT;
    default:
       if (itemType >= GmatTree::RESOURCES_FOLDER &&
           itemType <= GmatTree::END_OF_RESOURCE_FOLDER)
          return GmatTree::ICON_FOLDER;
       else
-         return GmatTree::ICON_DEFAULT;
+         return GmatTree::RESOURCE_ICON_DEFAULT;
    }
 }
 
@@ -4826,7 +4962,8 @@ void ResourceTree::AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
       #ifdef DEBUG_USER_GUI
          MessageInterface::ShowMessage("Tree resource node:\n"
                "   Name: %s\n   Parent: %s\n   type: %d\n   subtype: %s\n",
-               r->nodeName.c_str(), r->parentNodeName.c_str(), t, sub.c_str());
+               r->nodeName.c_str(), r->parentNodeName.c_str(), r->type,
+               r->subtype.c_str());
       #endif
 
       if (onlyChildNodes && (r->parentNodeName == ""))
@@ -4865,18 +5002,28 @@ void ResourceTree::AddUserResources(std::vector<Gmat::PluginResource*> *rcs,
 wxTreeItemId ResourceTree::AddUserTreeNode(const std::string &newNodeName,
       const std::string &parent)
 {
+   #ifdef DEBUG_USER_GUI
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddUserTreeNode() entered, newNodeName='%s', parent='%s'\n",
+       newNodeName.c_str(), parent.c_str());
+   #endif
    wxTreeItemId parentId = GetRootItem();
-
+   
    if (parent != "")
    {
       // Find the ID of the parent node
       parentId = FindIdOfNode(parent.c_str(), parentId);
    }
-
+   
    wxTreeItemId newTreeItem;
    AddItemFolder(parentId, newTreeItem, newNodeName.c_str(),
                  GmatTree::PLUGIN_FOLDER);
-
+   
+   #ifdef DEBUG_USER_GUI
+   MessageInterface::ShowMessage
+      ("ResourceTree::AddUserTreeNode() returning newTreeItem\n");
+   #endif
+   
    return newTreeItem;
 }
 

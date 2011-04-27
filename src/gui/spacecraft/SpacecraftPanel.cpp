@@ -1,11 +1,13 @@
-//$Header$
+//$Id$
 //------------------------------------------------------------------------------
 //                            SpacecraftPanel
 //------------------------------------------------------------------------------
-// GMAT: Goddard Mission Analysis Tool
+// GMAT: General Mission Analysis Tool
 //
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG04CC06P.
@@ -218,6 +220,11 @@ void SpacecraftPanel::LoadData()
    // explicitly disable apply button
    // it is turned on in each of the panels
    EnableUpdate(false);
+   #ifdef __WXMAC__
+      // this is needed for the Mac, as the VisualModelCanvas was messing up the other tabs
+      theVisualModelPanel->CanvasOn(false);
+      theVisualModelPanel->CanvasOn(true);
+   #endif
 }
 
 
@@ -271,6 +278,9 @@ void SpacecraftPanel::SaveData()
 
    if (theThrusterPanel->IsDataChanged())
       theThrusterPanel->SaveData();
+   
+   if (theVisualModelPanel->IsDataChanged())
+      theVisualModelPanel->SaveData();
    
    // copy the current info into theSpacecraft
    theSpacecraft->Copy(currentSpacecraft);

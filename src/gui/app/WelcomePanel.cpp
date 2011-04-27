@@ -5,7 +5,9 @@
 // GMAT: General Mission Analysis Tool
 //
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG04CC06P.
@@ -92,13 +94,23 @@ void WelcomePanel::Create()
    
    if (GmatFileUtil::DoesFileExist(iconFile))
    {
-      bitmap = LoadBitmap( (fm->GetFullPathname("ICON_PATH")+"GMATIcon.jpg").c_str(), 200, 200 );
+      #ifdef DEBUG_CREATE
+      MessageInterface::ShowMessage
+         ("   Loading iconFile '%s'\n", iconFile.c_str());
+      #endif
+      bitmap = LoadBitmap( iconFile.c_str(), 200, 200 );
       aboutButton = new wxBitmapButton(this, -1, bitmap, wxDefaultPosition,
                           wxSize(200,200));
    }
    else
+   {
+      #ifdef DEBUG_CREATE
+      MessageInterface::ShowMessage
+         ("   the iconFile '%s' doesnot exist, so creating default\n", iconFile.c_str());
+      #endif
       aboutButton = new wxBitmapButton(this, -1, NULL, wxDefaultPosition,
                            wxSize(200,200));
+   }
    
    wxColourDatabase cdb;
    wxColour gmatColor = cdb.Find("NAVY");
@@ -121,14 +133,10 @@ void WelcomePanel::Create()
    wxStaticText *webText = new wxStaticText(this, -1, "Website: ");
    wxString gmatUrl = "http://gmat.gsfc.nasa.gov";
    wxHyperlinkCtrl *webLink = new wxHyperlinkCtrl(this, -1, gmatUrl, gmatUrl);
-   wxStaticText *contactText = new wxStaticText(this, -1, "Contact: ");
-   wxStaticText *emailText = new wxStaticText(this, -1, "gmat@gsfc.nasa.gov");
    
    wxFlexGridSizer *contactSizer = new wxFlexGridSizer(2);
    contactSizer->Add(webText, 0, wxALIGN_RIGHT|wxALL, 2);
    contactSizer->Add(webLink, 0, wxALIGN_LEFT|wxALL, 2);
-   contactSizer->Add(contactText, 0, wxALIGN_RIGHT|wxALL, 2);
-   contactSizer->Add(emailText, 0, wxALIGN_LEFT|wxALL, 2);
    
    wxBoxSizer *gmatTextSizer = new wxBoxSizer(wxVERTICAL);
    gmatTextSizer->Add(gmatText, 0, wxALIGN_LEFT|wxALL, bsize);
@@ -214,7 +222,24 @@ void WelcomePanel::Create()
    thePanelSizer->Add(theMiddleSizer, 0, wxALIGN_LEFT|wxGROW|wxALL, bsize*2);
    SetSizer(thePanelSizer);
    thePanelSizer->SetSizeHints(this);
-
+   
+   // Set icon if icon file is in the start up file
+   try
+   {
+      wxString iconfile = fm->GetFullPathname("MAIN_ICON_FILE").c_str();
+      #if defined __WXMSW__
+         SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_ICO));
+      #elif defined __WXGTK__
+         SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_XPM));
+      #elif defined __WXMAC__
+         SetIcon(wxIcon(iconfile, wxBITMAP_TYPE_PICT_RESOURCE));
+      #endif
+   }
+   catch (GmatBaseException &/*e*/)
+   {
+      //MessageInterface::ShowMessage(e.GetMessage());
+   }
+   
    #ifdef DEBUG_CREATE
    MessageInterface::ShowMessage("WelcomePanel::Create() leaving\n");
    #endif

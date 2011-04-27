@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // ** Legal **
 //
 // Author: Allison Greene
@@ -34,6 +38,7 @@ namespace GmatTree
 
       ICON_TANK,
       ICON_THRUSTER,
+      ICON_SOLARSYSTEM,
       ICON_SUN,
       ICON_MERCURY,
       ICON_VENUS,
@@ -55,6 +60,7 @@ namespace GmatTree
       ICON_PLANET_GENERIC,
       ICON_COMET,
       ICON_ASTEROID,
+      
       ICON_MATLAB_FUNCTION,
       ICON_FUNCTION,
       ICON_COORDINATE_SYSTEM,
@@ -66,9 +72,26 @@ namespace GmatTree
       ICON_STRING,
       ICON_XY_PLOT,
 
-      ICON_SCRIPT,
-      ICON_DEFAULT,
-
+      RESOURCE_ICON_BARYCENTER,
+      RESOURCE_ICON_LIBRATION_POINT,
+      
+      RESOURCE_ICON_BOUNDARY_VALUE_SOLVER,
+      RESOURCE_ICON_OPTIMIZER,
+      RESOURCE_ICON_SIMULATOR,
+      RESOURCE_ICON_ESTIMATOR,
+      
+      RESOURCE_ICON_ANTENNA,
+      RESOURCE_ICON_TRANSMITTER,
+      RESOURCE_ICON_RECEIVER,
+      RESOURCE_ICON_TRANSPONDER,
+      
+      RESOURCE_ICON_MATLAB,
+      RESOURCE_ICON_MATLAB_SERVER,
+      
+      RESOURCE_ICON_MEASUREMENT_MODEL,
+      RESOURCE_ICON_SCRIPT,
+      RESOURCE_ICON_DEFAULT,
+      
       // ICON_COUNT should be the last one, it is used in ResourceTree::AddIcons()
       ICON_COUNT,
    };
@@ -102,7 +125,21 @@ namespace GmatTree
       MISSION_ICON_REPORT,
 
       MISSION_ICON_STOP,
-
+      MISSION_ICON_PEN_UP,
+      MISSION_ICON_PEN_DOWN,
+      MISSION_ICON_MARK_POINT,
+      MISSION_ICON_CLEAR_PLOT,
+      
+      MISSION_ICON_GLOBAL,
+      MISSION_ICON_SAVE_MISSION,
+      MISSION_ICON_OPTIMIZE,
+      MISSION_ICON_MINIMIZE,
+      MISSION_ICON_NONLINEAR_CONSTRAINT,
+      
+      MISSION_ICON_RUN_SIMULATOR,
+      MISSION_ICON_RUN_ESTIMATOR,
+      MISSION_ICON_DEFAULT,
+      
       MISSION_ICON_COUNT,
       MISSION_NO_ICON,
    };

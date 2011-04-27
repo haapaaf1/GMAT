@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // Author: Linda Jun
 // Created: 2004/02/02
 //
@@ -32,7 +36,7 @@ BEGIN_EVENT_TABLE(GmatDialog, wxDialog)
 #ifdef __SHOW_HELP_BUTTON__
    EVT_BUTTON(ID_BUTTON_HELP, GmatDialog::OnHelp)
 #endif
-   EVT_CLOSE(GmatDialog::OnClose) 
+   EVT_CLOSE(GmatDialog::OnClose)
 END_EVENT_TABLE()
 
 //------------------------------
@@ -63,21 +67,21 @@ GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    mObject = obj;
    UserInputValidator::SetObject(obj);
    UserInputValidator::SetWindow(this);
-   
+
    canClose = true;
    mDataChanged = false;
    mDataUpdated = false;
    int borderSize = 2;
-   
+
    theGuiInterpreter = GmatAppData::Instance()->GetGuiInterpreter();
    theGuiManager = GuiItemManager::GetInstance();
    UserInputValidator::SetGuiManager(theGuiManager);
-   
+
    theParent = parent;
-   
+
    theDialogSizer = new wxBoxSizer(wxVERTICAL);
    theButtonSizer = new wxBoxSizer(wxHORIZONTAL);
-   
+
    #if __WXMAC__
    theMiddleSizer = new wxBoxSizer(wxVERTICAL);
    theBottomSizer = new wxBoxSizer(wxVERTICAL);
@@ -87,20 +91,20 @@ GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    theMiddleSizer = new wxStaticBoxSizer(middleStaticBox, wxVERTICAL);
    theBottomSizer = new wxStaticBoxSizer(bottomStaticBox, wxVERTICAL);
    #endif
-   
+
    // create bottom buttons
    theOkButton =
       new wxButton(this, ID_BUTTON_OK, "OK", wxDefaultPosition, wxDefaultSize, 0);
-   
+
    theCancelButton =
       new wxButton(this, ID_BUTTON_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, 0);
-   
+
    #ifdef __SHOW_HELP_BUTTON__
    theHelpButton = new wxButton
       (this, ID_BUTTON_HELP, GUI_ACCEL_KEY"Help", wxDefaultPosition, wxDefaultSize, 0);
    #endif
-   
-   // adds the buttons to button sizer    
+
+   // adds the buttons to button sizer
    #ifdef __SHOW_HELP_BUTTON__
    theButtonSizer->Add(0, 1, wxALIGN_LEFT | wxALL);
    #endif
@@ -110,7 +114,7 @@ GmatDialog::GmatDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    theButtonSizer->Add(0, 1, wxALIGN_RIGHT | wxALL);
    theButtonSizer->Add(theHelpButton, 0, wxALIGN_RIGHT | wxALL, borderSize);
    #endif
-   
+
    theBottomSizer->Add(theButtonSizer, 0, wxALIGN_CENTER | wxALL, borderSize);
 }
 
@@ -124,7 +128,7 @@ void GmatDialog::EnableUpdate(bool enable)
    MessageInterface::ShowMessage
       ("GmatDialog::EnableUpdate() enable=%d\n", enable);
    #endif
-   
+
    if (enable)
       mDataChanged = true;
    else
@@ -165,7 +169,7 @@ void GmatDialog::OnOK(wxCommandEvent &event)
    MessageInterface::ShowMessage
       ("GmatDialog::OnOK() canClose=%d\n", canClose);
    #endif
-   
+
    if (canClose)
    {
       mDataChanged = false;
@@ -198,12 +202,22 @@ void GmatDialog::OnCancel(wxCommandEvent &event)
 //------------------------------------------------------------------------------
 void GmatDialog::OnHelp(wxCommandEvent &event)
 {
+    wxString s;
+    wxString baseHelpLink;
+    char msgBuffer[255];
+
     // get the config object
     wxConfigBase *pConfig = wxConfigBase::Get();
     pConfig->SetPath(wxT("/Help"));
-    wxString s = GetName().c_str();
-    // open separate window to show help 
-    wxLaunchDefaultBrowser(pConfig->Read(_T(s),_T("http://gmat.ed-pages.com/wiki/tiki-index.php?page="+s+"+Object")));
+    s = GetName().c_str();
+    // get base help link if available
+    baseHelpLink = pConfig->Read(_T("BaseHelpLink"),_T("http://gmat.sourceforge.net/docs/R2011a/html/%s.html"));
+    sprintf( msgBuffer, baseHelpLink.c_str(), s.c_str());
+
+    // open separate window to show help
+    s = pConfig->Read(_T(s),_T(msgBuffer));
+
+    wxLaunchDefaultBrowser(s);
 }
 
 
@@ -216,7 +230,7 @@ void GmatDialog::OnClose(wxCloseEvent &event)
    MessageInterface::ShowMessage
       ("GmatDialog::OnClose() mDataChanged=%d\n", mDataChanged);
    #endif
-   
+
    if (mDataChanged)
    {
       if ( wxMessageBox(_T("Changes will be lost. \nDo you really want to close?"),
@@ -226,7 +240,7 @@ void GmatDialog::OnClose(wxCloseEvent &event)
          return;
       }
    }
-   
+
    event.Skip();
 }
 
@@ -244,16 +258,16 @@ void GmatDialog::OnClose(wxCloseEvent &event)
 void GmatDialog::ShowData()
 {
    // add items to middle sizer
-   
+
    theDialogSizer->Add(theMiddleSizer, 1, wxGROW | wxALL, 1);
    theDialogSizer->Add(theBottomSizer, 0, wxGROW | wxALL, 1);
-   
+
    // tells the enclosing window to adjust to the size of the sizer
    SetAutoLayout(TRUE);
    SetSizer(theDialogSizer); //use the sizer for layout
    theDialogSizer->Fit(this); //loj: if theParent is used it doesn't show the scroll bar
    theDialogSizer->SetSizeHints(this); //set size hints to honour minimum size
-   
+
    // Set icon if icon file is in the start up file
    FileManager *fm = FileManager::Instance();
    try
@@ -271,15 +285,15 @@ void GmatDialog::ShowData()
    {
       //MessageInterface::ShowMessage(e.GetMessage());
    }
-   
+
    CenterOnScreen(wxBOTH);
-   
+
    // We want always enable OK button
    //theOkButton->Disable();
    //theHelpButton->Disable(); //loj: for future build
-   
+
    LoadData();
-   
+
 }
 
 

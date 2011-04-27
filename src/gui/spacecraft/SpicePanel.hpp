@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
 // FDSS Task order 28.
@@ -104,6 +106,7 @@ private:
 //   void OnPckFileRemoveButton(wxCommandEvent &event);
 //   void OnPckFileListBoxChange(wxCommandEvent &event);
    void OnNaifIdTextCtrlChange(wxCommandEvent &event);
+   void OnNaifIdRefTextCtrlChange(wxCommandEvent &event);
 
    wxString ToString(Real rval);
 

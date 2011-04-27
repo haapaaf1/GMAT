@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// ** Legal **
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number S-67573-G
@@ -698,7 +700,12 @@ GmatMdiChildFrame* GmatMainFrame::CreateChild(GmatTreeItemData *item,
       if (numChildren > 0)
       {
          int x = (numChildren - 1) * 20;
-         int y = x;
+         #ifdef __WXMAC__
+            // reposition vertical position of first panel for Mac, so top button bar is visible
+            int y = (numChildren) * 20;
+         #else
+            int y = x;
+         #endif
          newChild->SetPosition(wxPoint(x, y));
       }
    }
@@ -2480,8 +2487,8 @@ void GmatMainFrame::OnHelpContents(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnHelpOnline(wxCommandEvent& WXUNUSED(event))
 {
-   wxString wikiUrl = "http://gmat.ed-pages.com/wiki/tiki-index.php";
-   ::wxLaunchDefaultBrowser(wikiUrl);
+   wxString url = "http://gmat.sourceforge.net/docs/R2011a/html/index.html";
+   ::wxLaunchDefaultBrowser(url);
 }
 
 
@@ -2496,8 +2503,8 @@ void GmatMainFrame::OnHelpOnline(wxCommandEvent& WXUNUSED(event))
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnHelpTutorial(wxCommandEvent& WXUNUSED(event))
 {
-   wxString wikiUrl = "http://gmat.ed-pages.com/wiki/tiki-index.php";
-   ::wxLaunchDefaultBrowser(wikiUrl);
+   wxString url = "http://gmat.sourceforge.net/docs/R2011a/help.html#N10373";
+   ::wxLaunchDefaultBrowser(url);
 }
 
 
@@ -4633,18 +4640,25 @@ void GmatMainFrame::SaveGuiToActiveScript()
    wxString cntStr;
    cntStr.Printf("%d", backupCounter);
    wxString currFilename = mScriptFilename.c_str();
-   backupFilename = currFilename + "." + cntStr + ".bak";
    
-   ::wxCopyFile(currFilename, backupFilename);
+   //backupFilename = currFilename + "." + cntStr + ".bak";
+   backupFilename = currFilename + ".bak";
    
-   #ifdef DEBUG_MAINFRAME_SAVE
-   MessageInterface::ShowMessage
-      ("GmatMainFrame::SaveGuiToActiveScript() Created backup file: %s\n",
-       backupFilename.c_str());
-   #endif
-   
-   MessageInterface::PopupMessage
-      (Gmat::INFO_, "Old script saved to backup file \"%s\"\n", backupFilename.c_str());
+   // Create backup file for the first time only and show message
+   // instead of popup message (Bug 2409 fix)
+   if (backupCounter == 1)
+   {
+      ::wxCopyFile(currFilename, backupFilename);
+      
+      #ifdef DEBUG_MAINFRAME_SAVE
+      MessageInterface::ShowMessage
+         ("GmatMainFrame::SaveGuiToActiveScript() Created backup file: %s\n",
+          backupFilename.c_str());
+      #endif
+      
+      MessageInterface::ShowMessage
+         ("***** Old script saved to backup file \"%s\"\n", backupFilename.c_str());
+   }
    
    theGuiInterpreter->SaveScript(mScriptFilename);
 }

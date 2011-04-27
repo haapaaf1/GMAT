@@ -4,7 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+// $Copyright$
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc.
 //
@@ -20,7 +23,7 @@
 #include "MessageInterface.hpp"
 #include "FileManager.hpp"
 #include "ViewTextDialog.hpp"
-
+#include "FileUtil.hpp"            // for GmatFileUtil::DoesFileExist()
 #include <wx/hyperlink.h>
 #include <wx/statline.h>
 #include <wx/gdicmn.h>
@@ -145,6 +148,8 @@ AboutDialog::AboutDialog(wxWindow *parent, wxWindowID id, const wxString& title,
    wxString use;
    use = use + " - Uses " + wxVERSION_STRING + "\n";
    use = use + " - Uses TSPlot\n";
+   use = use + " - Uses Pearl Compatible Regular Expressions\n";
+   use = use + " - Uses JPL SPICE Library\n";
    use = use + " - Planetary images courtesy of JPL/Caltech/USGS, Celestia \n";
    use = use + "   Motherlode, Bjorn Jonsson, and NASA World Wind";
    wxStaticText *useText = new wxStaticText(this, -1, use);
@@ -221,6 +226,9 @@ void AboutDialog::OnHyperLinkClick(wxHyperlinkEvent &event)
       
       wxString rootPath = FileManager::Instance()->GetRootPath().c_str();
       wxString fileName = rootPath + "License.txt";
+      if (!GmatFileUtil::DoesFileExist(fileName.c_str()))
+         fileName = "../License.txt";
+      
       wxTextCtrl *text = dlg->GetTextCtrl();
       text->LoadFile(fileName);
       dlg->ShowModal();

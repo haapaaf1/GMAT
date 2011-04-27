@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under
 // FDSS Task order 28.
@@ -51,6 +53,7 @@ BEGIN_EVENT_TABLE(SpicePanel, wxPanel)
 //   EVT_BUTTON(ID_REMOVE_BUTTON_PCK_FILE, SpicePanel::OnPckFileRemoveButton)
 //   EVT_LISTBOX(ID_LIST_BOX_PCK_FILE, SpicePanel::OnPckFileListBoxChange)
    EVT_TEXT(ID_TEXT_CTRL_NAIF_ID, SpicePanel::OnNaifIdTextCtrlChange)
+   EVT_TEXT(ID_TEXT_CTRL_NAIF_ID_REF_FRAME, SpicePanel::OnNaifIdRefTextCtrlChange)
 END_EVENT_TABLE()
 
 //------------------------------------------------------------------------------
@@ -70,6 +73,7 @@ SpicePanel::SpicePanel(GmatPanel *scPanel,
    fkNameChanged    (false),
 //   pckNameChanged   (false),
    naifIdChanged    (false),
+   naifIdRefFrameChanged (false),
    spkFilesDeleted  (false),
    ckFilesDeleted   (false),
    sclkFilesDeleted (false),
@@ -402,7 +406,7 @@ void SpicePanel::Create()
    // naif ID of the reference frame for the spacecraft
    naifIdRefFrameStaticText   = new wxStaticText(this, ID_TEXT,wxT("F"GUI_ACCEL_KEY"rame\nNAIF ID"),
                         wxDefaultPosition, wxSize(-1,-1), 0);
-   naifIdRefFrameTextCtrl     = new wxTextCtrl(this, ID_TEXT_CTRL_NAIF_ID, wxT(""),
+   naifIdRefFrameTextCtrl     = new wxTextCtrl(this, ID_TEXT_CTRL_NAIF_ID_REF_FRAME, wxT(""),
                         wxDefaultPosition, wxSize(80, -1), 0);
    naifIdRefFrameTextCtrl->SetToolTip(pConfig->Read(_T("NAIFIDRefFrameHint")));
    naifIdRefFrameBlankText    = new wxStaticText(this, ID_TEXT,wxT(""),
@@ -870,6 +874,19 @@ void SpicePanel::OnNaifIdTextCtrlChange(wxCommandEvent &event)
    if (naifIdTextCtrl->IsModified())
    {
       naifIdChanged   = true;
+      dataChanged     = true;
+      theScPanel->EnableUpdate(true);
+   }
+}
+
+//------------------------------------------------------------------------------
+// void OnNaifIdRefTextCtrlChange(wxCommandEvent &event)
+//------------------------------------------------------------------------------
+void SpicePanel::OnNaifIdRefTextCtrlChange(wxCommandEvent &event)
+{
+   if (naifIdRefFrameTextCtrl->IsModified())
+   {
+      naifIdRefFrameChanged   = true;
       dataChanged     = true;
       theScPanel->EnableUpdate(true);
    }

@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG06CA54C
@@ -973,8 +975,8 @@ bool GmatBaseSetupPanel::GetLayoutConfig(GmatBase *theObject, wxFileConfig **con
       loadMessageWritten = true;
    }
 	*config = new wxFileConfig(wxEmptyString, wxEmptyString,
-	                (filename).c_str(),
-		             wxEmptyString, wxCONFIG_USE_LOCAL_FILE );
+	                 (filename).c_str(),
+		             wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH );
 	return configFileExists;
 
 }

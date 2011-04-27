@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
+//
 // Author: Allison Greene
 // Created: 2003/08/28
 //
@@ -210,10 +214,13 @@ protected:
    Gmat::ObjectType GetObjectType(GmatTree::ItemType itemType);
    wxTreeItemId GetTreeItemId(GmatTree::ItemType type);
    GmatTree::ResourceIconType GetTreeItemIcon(GmatTree::ItemType type);
-
+   
+   // icon
    void GetBodyTypeAndIcon(const std::string bodyName,
                           GmatTree::ItemType &bodyItemType,
                           GmatTree::ResourceIconType &iconType);
+   
+   GmatTree::ResourceIconType GetIconId(GmatBase *obj);
    
    // user text input
    int GetNameFromUser(wxString &newName, const wxString &oldName = "",
