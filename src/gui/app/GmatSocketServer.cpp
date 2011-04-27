@@ -176,12 +176,13 @@ char* GmatSocketServer::OnRequest(char* item)
    // For now GetGMATObject.m appends '.' for object name.
 
    char *data;
+   std::string itemString = item;
    if (item[strlen(item)-1] == '.')
    {
 	    item[strlen(item)-1] = '\0';
 	    data = GmatInterfaceGui::Instance()->GetGmatObject(std::string(item));
    }
-   else if (item == "RunState")
+   else if (itemString == "RunState")
    {
 	    data = GmatInterfaceGui::Instance()->GetRunState();
 
@@ -193,7 +194,7 @@ char* GmatSocketServer::OnRequest(char* item)
 			#endif
 		#endif
    }
-   else if (item == "CallbackStatus")
+   else if (itemString == "CallbackStatus")
    {
 	    data = GmatInterfaceGui::Instance()->GetCallbackStatus();
 
@@ -205,7 +206,7 @@ char* GmatSocketServer::OnRequest(char* item)
 			#endif
 		#endif
    }
-   else if (item == "CallbackResults")
+   else if (itemString == "CallbackResults")
    {
 	    data = GmatInterfaceGui::Instance()->GetCallbackResults();
 
@@ -293,7 +294,7 @@ bool GmatSocketServer::OnPoke(char* data)
     	std::string callbackData(&data[strlen("CallbackData")]);
 		#ifdef DEBUG_SOCKET_SERVICE_POKE
 			#ifdef MessageInterface_hpp
-				MessageInterface::ShowMessage("GmatSocketService::callbackData = %s\n", callbackData);
+				MessageInterface::ShowMessage("GmatSocketService::callbackData = %s\n", callbackData.c_str());
 			#else
 				printf("GmatSocketService::callbackData = %s\n", callbackData.c_str());
 			#endif
@@ -416,7 +417,6 @@ void GmatSocketServer::RunServer()
 
 	 // 0. Set event handler:
 
-
 	 // 1. Set number of clients = 0
 	 m_numClients = 0;
 
@@ -450,7 +450,6 @@ void GmatSocketServer::RunServer()
      }
 #endif
 
-
      // 3. Socket creation
      Server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
      if (Server == INVALID_SOCKET)
@@ -475,8 +474,6 @@ void GmatSocketServer::RunServer()
 			#endif
 		#endif
      }
-
-
 
      // 4. Set server IP address:
      serv_addr.sin_family=AF_INET;
@@ -528,7 +525,6 @@ void GmatSocketServer::RunServer()
 			#endif
 		 #endif
      }
-
 
      // 6. Listen for a connection request
      if(listen(Server,5)==SOCKET_ERROR)
