@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool.
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG04CC06P
@@ -86,58 +88,6 @@ MatlabInterface* MatlabInterface::Instance()
 
 
 //------------------------------------------------------------------------------
-//  <constructor>
-//  MatlabInterface()
-//------------------------------------------------------------------------------
-MatlabInterface::MatlabInterface(const std::string &name) :
-   Interface ("MatlabInterface", name)
-{
-   enginePtr = 0;
-   accessCount = 0;
-   matlabMode = SHARED;
-   outBuffer = new char[MAX_OUT_SIZE+1];
-   for (int i=0; i<=MAX_OUT_SIZE; i++)
-      outBuffer[i] = '\0';
-   debugMatlabEngine = GmatGlobal::Instance()->IsMatlabDebugOn();
-}
-
-
-//------------------------------------------------------------------------------
-//  <destructor>
-//  MatlabInterface()
-//------------------------------------------------------------------------------
-MatlabInterface::~MatlabInterface()
-{
-   if (enginePtr != NULL)
-      Close();
-   delete [] outBuffer;
-}
-
-
-//------------------------------------------------------------------------------
-// MatlabInterface(const MatlabInterface &mi)
-//------------------------------------------------------------------------------
-MatlabInterface::MatlabInterface(const MatlabInterface &mi) :
-   Interface (mi)
-{
-}
-
-
-//------------------------------------------------------------------------------
-// MatlabInterface& operator=(const MatlabInterface& mi)
-//------------------------------------------------------------------------------
-MatlabInterface& MatlabInterface::operator=(const MatlabInterface& mi)
-{
-   if (&mi != this)
-   {
-      Interface::operator=(mi);
-   }
-   
-   return *this;
-}
-
-
-//------------------------------------------------------------------------------
 // int Open(const std::string &name = "")
 //------------------------------------------------------------------------------
 /**
@@ -215,6 +165,29 @@ int MatlabInterface::Close(const std::string &name)
 
 
 //------------------------------------------------------------------------------
+// void SetCallingObjectName(const std::string &calledFrom)
+//------------------------------------------------------------------------------
+void MatlabInterface::SetCallingObjectName(const std::string &calledFrom)
+{
+   callingObjectName = calledFrom;
+   #ifdef DEBUG_CALLED_FROM
+   MessageInterface::ShowMessage
+      ("MatlabInterface::SetCallingObjectName() calledFrom '%s'\n",
+       calledFrom.c_str());
+   #endif
+}
+
+
+//------------------------------------------------------------------------------
+// std::string GetCallingObjectName()
+//------------------------------------------------------------------------------
+std::string MatlabInterface::GetCallingObjectName()
+{
+   return callingObjectName;
+}
+
+
+//------------------------------------------------------------------------------
 // int PutRealArray(const std::string &matlabVarName, int numRow, int numCol,
 //                  const double *inArray)
 //------------------------------------------------------------------------------
@@ -283,9 +256,6 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
        matlabVarName.c_str(), numElements);
    #endif
    
-   // set precision to long
-   //EvalString("format long");
-
    // get the variable from the MATLAB workspace
    mxArray *mxArrayPtr = NULL;
    mxArrayPtr = engGetVariable(enginePtr, matlabVarName.c_str());
@@ -314,7 +284,7 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
       // If real numeric pointer is NULL, throw an exception
       double *realPtr = mxGetPr(mxArrayPtr);
       if (realPtr == NULL)
-         throw InterfaceException("Received empty output from MATLAB");
+         throw InterfaceException("Received empty real output from MATLAB");
 
       memcpy((char*)outArray, (char*)mxGetPr(mxArrayPtr),
              numElements*sizeof(double));
@@ -329,13 +299,37 @@ int MatlabInterface::GetRealArray(const std::string &matlabVarName,
       mxDestroyArray(mxArrayPtr);
       return 1;
    }
-   else
+   // Added to handle logical scalar data (Bug 2376 fix)
+   else if (mxIsLogicalScalar(mxArrayPtr))
    {
       #ifdef DEBUG_MATLAB_GET_REAL
       MessageInterface::ShowMessage
-         ("MatlabInterface::GetRealArray() Matlab variable is not a double array\n");
+         ("MatlabInterface::GetRealArray() matlab logical scalar pointer found <%p>, "
+          "so calling mxGetPr()\n", mxArrayPtr);
       #endif
-
+      if (mxIsLogicalScalarTrue(mxArrayPtr))
+         outArray[0] = 1.0;
+      else
+         outArray[0] = 0.0;
+      
+      #ifdef DEBUG_MATLAB_GET_REAL
+      for (Integer ii=0; ii < numElements; ii++)
+         MessageInterface::ShowMessage("      outArray[%d] = %f\n", ii, outArray[ii]);
+      MessageInterface::ShowMessage("   Now destroying mxArrayPtr <%p>\n", mxArrayPtr);
+      #endif
+      
+      mxDestroyArray(mxArrayPtr);
+      return 1;
+   }
+   else
+   {
+      // Show warning for now (LOJ: 2011.04.01)
+      //#ifdef DEBUG_MATLAB_GET_REAL
+      MessageInterface::ShowMessage
+         ("*** WARNING *** MatlabInterface::GetRealArray() Matlab variable '%s' "
+          "is not a double array or logical scalar.\n", matlabVarName.c_str());
+      //#endif
+      
       return 0;
    }
 } // end GetRealArray()
@@ -578,7 +572,9 @@ void MatlabInterface::RunMatlabString(std::string evalString)
       if (GetString("errormsg", errorStr) == 1)
       {
          #ifdef DEBUG_MATLAB_EVAL
-         MessageInterface::ShowMessage("Error occurred in Matlab\n'%s'\n", errorStr.c_str());
+         MessageInterface::ShowMessage
+            ("Error occurred in Matlab function '%s'\n'%s'\n",
+             callingObjectName.c_str(), errorStr.c_str());
          #endif
          errorReturned = true;
       }
@@ -591,10 +587,12 @@ void MatlabInterface::RunMatlabString(std::string evalString)
       errorReturned = true;
       errorStr = "Error returned from " + evalString;
    }
-
+   
    if (errorReturned)
-      throw InterfaceException(errorStr);
-
+   {
+      throw InterfaceException("\"" + callingObjectName + ".m\", " + errorStr);
+   }
+   
    #ifdef DEBUG_MATLAB_EVAL
    MessageInterface::ShowMessage("MatlabInterface::RunMatlabString() exiting\n\n");
    #endif
@@ -664,6 +662,57 @@ void MatlabInterface::Copy(const GmatBase* orig)
 //--------------------------------------
 //  private functions
 //--------------------------------------
+
+//------------------------------------------------------------------------------
+//  <constructor>
+//  MatlabInterface()
+//------------------------------------------------------------------------------
+MatlabInterface::MatlabInterface(const std::string &name) :
+   Interface ("MatlabInterface", name)
+{
+   enginePtr = 0;
+   accessCount = 0;
+   matlabMode = SHARED;
+   outBuffer = new char[MAX_OUT_SIZE+1];
+   for (int i=0; i<=MAX_OUT_SIZE; i++)
+      outBuffer[i] = '\0';
+   debugMatlabEngine = GmatGlobal::Instance()->IsMatlabDebugOn();
+}
+
+
+//------------------------------------------------------------------------------
+//  <destructor>
+//  MatlabInterface()
+//------------------------------------------------------------------------------
+MatlabInterface::~MatlabInterface()
+{
+   if (enginePtr != NULL)
+      Close();
+   delete [] outBuffer;
+}
+
+
+//------------------------------------------------------------------------------
+// MatlabInterface(const MatlabInterface &mi)
+//------------------------------------------------------------------------------
+MatlabInterface::MatlabInterface(const MatlabInterface &mi) :
+   Interface (mi)
+{
+}
+
+
+//------------------------------------------------------------------------------
+// MatlabInterface& operator=(const MatlabInterface& mi)
+//------------------------------------------------------------------------------
+MatlabInterface& MatlabInterface::operator=(const MatlabInterface& mi)
+{
+   if (&mi != this)
+   {
+      Interface::operator=(mi);
+   }
+   
+   return *this;
+}
 
 
 //------------------------------------------------------------------------------

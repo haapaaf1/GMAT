@@ -119,39 +119,39 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.dll</TargetExt>
-    <OutDir>..\..\..\bin\debug\</OutDir>
+    <OutDir>..\..\..\application\bin\debug\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.dll</TargetExt>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\bin64\debug64</OutDir>
+    <OutDir>..\..\..\application\bin64\debug64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
-    <OutDir>..\..\..\bin\</OutDir>
+    <OutDir>..\..\..\application\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|Win32'">
     <TargetExt>.dll</TargetExt>
-    <OutDir>..\..\..\bin\</OutDir>
+    <OutDir>..\..\..\application\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">
     <TargetExt>.dll</TargetExt>
-    <OutDir>..\..\..\bin\</OutDir>
+    <OutDir>..\..\..\application\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\bin64\</OutDir>
+    <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">
     <TargetExt>.dll</TargetExt>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\bin64\</OutDir>
+    <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">
     <TargetExt>.dll</TargetExt>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\..\bin64\</OutDir>
+    <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -192,7 +192,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <OutputFile>..\..\..\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <Version>2011a</Version>
       <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\cspice\lib;..\..\..\..\Gmat3rdParty\f2c\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vcf2c.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -213,7 +213,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <OutputFile>..\..\..\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <Version>2011a</Version>
       <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\cspice\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cspice.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -234,7 +234,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <OutputFile>..\..\..\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <Version>2011a</Version>
       <AdditionalLibraryDirectories>..\..\..\..\Gmat3rdParty\cspice\lib;..\..\..\..\Gmat3rdParty\f2c\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>

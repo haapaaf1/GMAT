@@ -2,7 +2,7 @@
 # Environment settings for the MatlabInterface plugin
 # location of GMAT base headers and libraries
 GMAT_CODE_LOCATION = ../../../../src
-GMAT_BIN_LOCATION = ../../../../bin
+GMAT_BIN_LOCATION = ../../../../application/bin
 
 # location of MATLAB headers and libraries
 MATLAB_DIR = /opt/matlab73

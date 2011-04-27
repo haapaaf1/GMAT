@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
-// **Legal**
+// Copyright (c) 2002-2011 United States Government as represented by the
+// Administrator of The National Aeronautics and Space Administration.
+// All Other Rights Reserved.
 //
 // Developed jointly by NASA/GSFC and Thinking Systems, Inc. under contract
 // number NNG04CC06P
@@ -1006,17 +1008,17 @@ void FminconOptimizer::WriteToTextFile(SolverState stateToUse)
 //               message << " " << unscaledVariable[i++] << " ";
 //            }
 //            message << "]" << std::endl;
-        	 message << instanceName << " Iteration " << iterationsTaken+1
+                 message << instanceName << " Iteration " << iterationsTaken+1
                       << "; Nominal Pass\n   Variables:  ";
              // Iterate through the variables, writing them to the string
              for (current = variableNames.begin(), i = 0;
                   current != variableNames.end(); ++current)
              {
                 if (current != variableNames.begin())
-                	message << ", ";
+                        message << ", ";
                 message << *current << " = " << unscaledVariable.at(i);
                 if (textFileMode == "Verbose")
-                	message << "; optimizer scaled value: " << variable[i];
+                        message << "; optimizer scaled value: " << variable[i];
                 ++i;
              }
              message << "\n";

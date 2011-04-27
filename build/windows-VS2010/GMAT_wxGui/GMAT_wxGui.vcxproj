@@ -118,22 +118,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\..\bin\</OutDir>
+    <OutDir>..\..\..\application\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\..\..\bin64\</OutDir>
+    <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|Win32'">
-    <OutDir>..\..\..\bin\</OutDir>
+    <OutDir>..\..\..\application\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithSPICE|x64'">
-    <OutDir>..\..\..\bin64\</OutDir>
+    <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|Win32'">
-    <OutDir>..\..\..\bin\</OutDir>
+    <OutDir>..\..\..\application\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithoutF2C|x64'">
-    <OutDir>..\..\..\bin64\</OutDir>
+    <OutDir>..\..\..\application\bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>GMAT</TargetName>
@@ -154,11 +154,11 @@
     <TargetName>GMAT</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..\..\bin\debug\</OutDir>
+    <OutDir>..\..\..\application\bin\debug\</OutDir>
     <TargetName>GMAT_D</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\..\..\bin64\debug64\</OutDir>
+    <OutDir>..\..\..\application\bin64\debug64\</OutDir>
     <TargetName>GMAT_D</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
