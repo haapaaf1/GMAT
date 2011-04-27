@@ -1,4 +1,11 @@
+# $Id$
 # Makefile for console version of GMAT (aka the Script Interpreter tester)
+# 
+#  Copyright (c) 2002-2011 United States Government as represented by the
+#  Administrator of The National Aeronautics and Space Administration.
+#  All Other Rights Reserved.
+
+# 
 # Initial Version, DJC, 11/8/2005
 
 include ../BuildEnv.mk
@@ -53,6 +60,7 @@ archclean :
 $(TARGET): $(OBJECTS)
 	$(CPP) $(OBJECTS) $(CONSOLE_LINK_FLAGS) $(LIBRARIES) $(OPTIMIZATIONS) $(SPICE_LIBRARIES) \
 	$(FORTRAN_LIB) -o $(TARGET)
+	mkdir -p ../../application
 	mkdir -p ../../application/bin
 	cp $(TARGET) ../../application/bin/$(TARGET)
 #	cp  ../base/lib/libGmatConsole* ../../application/bin/
