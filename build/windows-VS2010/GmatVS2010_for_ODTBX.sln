@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libMatlabInterface", "libMa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libFminconOptimizer", "libFminconOptimizer\libFminconOptimizer.vcxproj", "{8FCD168C-6159-421A-955F-A04809E38AAE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libOdtbxGmatInterface", "libOdtbxGmatInterface\libOdtbxGmatInterface.vcxproj", "{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -84,6 +86,18 @@ Global
 		{8FCD168C-6159-421A-955F-A04809E38AAE}.ReleaseWithSPICE|Win32.Build.0 = ReleaseWithSPICE|Win32
 		{8FCD168C-6159-421A-955F-A04809E38AAE}.ReleaseWithSPICE|x64.ActiveCfg = ReleaseWithSPICE|x64
 		{8FCD168C-6159-421A-955F-A04809E38AAE}.ReleaseWithSPICE|x64.Build.0 = ReleaseWithSPICE|x64
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.Debug|Win32.Build.0 = Debug|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.Debug|x64.ActiveCfg = Debug|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.Release|Win32.ActiveCfg = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.Release|Win32.Build.0 = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.Release|x64.ActiveCfg = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.ReleaseWithoutF2C|Win32.ActiveCfg = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.ReleaseWithoutF2C|Win32.Build.0 = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.ReleaseWithoutF2C|x64.ActiveCfg = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.ReleaseWithSPICE|Win32.ActiveCfg = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.ReleaseWithSPICE|Win32.Build.0 = Release|Win32
+		{C3252E26-1167-4F4D-AD89-3926B1AF0C5C}.ReleaseWithSPICE|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
