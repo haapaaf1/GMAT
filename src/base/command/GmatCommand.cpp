@@ -75,6 +75,7 @@ const Gmat::ParameterType
    GmatCommand::PARAMETER_TYPE[GmatCommandParamCount - GmatBaseParamCount] =
    {
       Gmat::STRING_TYPE,
+      Gmat::STRING_TYPE,
       Gmat::STRING_TYPE
    };
 
