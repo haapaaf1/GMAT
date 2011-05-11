@@ -106,7 +106,7 @@ protected:
    std::vector<Formation *>     formBuffer;
 
 
-   bool                 PrepareToPropagate();
+   /*virtual*/ bool         PrepareToPropagate();
    bool                 AssemblePropagators();
    bool                 Step(Real dt);
 
