@@ -160,7 +160,10 @@ public:
    virtual bool         Execute();
    virtual void         RunComplete();
    virtual GmatBase*    GetClone(Integer cloneIndex = 0);
-   
+
+   // Made public for the PrepareMissionSequence command's use
+   /*virtual*/ void            PrepareToPropagate();
+
 protected:
    /// Name of the propagator setup(s) used in this command
    StringArray                  propName;
@@ -318,7 +321,7 @@ protected:
    void                    ConfigureStoppingCondition(std::string &stopDesc);
    void                    CleanString(std::string &theString, 
                               const StringArray *extras = NULL);
-   virtual void            PrepareToPropagate();
+//   virtual void            PrepareToPropagate();
    virtual void            CheckStopConditions(Integer EpochID);
    virtual void            TakeFinalStep(Integer EpochID, Integer trigger);
    

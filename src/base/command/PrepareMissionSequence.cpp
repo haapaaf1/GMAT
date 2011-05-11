@@ -17,6 +17,7 @@
 
 
 #include "PrepareMissionSequence.hpp" // class's header file
+#include "Propagate.hpp"
 
 
 //------------------------------------------------------------------------------
@@ -97,6 +98,16 @@ PrepareMissionSequence& PrepareMissionSequence::operator=(
 bool PrepareMissionSequence::Execute()
 {
    BuildCommandSummary(true);
+//   GmatCommand *cmd = GetNext();
+//   while (cmd != NULL)
+//   {
+//      if (cmd->GetTypeName() == "Propagate")
+//      {
+//         ((Propagate*)cmd)->PrepareToPropagate();
+//         break;
+//      }
+//      cmd = cmd->GetNext();
+//   }
    return true;
 }
 

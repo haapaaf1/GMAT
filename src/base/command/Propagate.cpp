@@ -718,6 +718,16 @@ GmatBase* Propagate::GetRefObject(const Gmat::ObjectType type,
 {
    switch (type)
    {
+   case Gmat::PROP_SETUP:
+      if (index < (Integer)prop.size())
+      {
+         return prop[index];
+      }
+      else
+      {
+         throw CommandException("Propagate::GetRefObject() invalid PropSetup index\n");
+      }
+      break;
    case Gmat::STOP_CONDITION:
       if (index < (Integer)stopWhen.size())
       {
