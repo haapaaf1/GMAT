@@ -8,6 +8,7 @@
 #ifndef PrepareDynFun_hpp
 #define PrepareDynFun_hpp
 
+#include "GmatOdtbx_defs.hpp"
 #include "PropagationEnabledCommand.hpp"
 
 

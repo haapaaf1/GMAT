@@ -7,7 +7,8 @@
 
 #include "PrepareDynFun.hpp"
 
-PrepareDynFun::PrepareDynFun()
+PrepareDynFun::PrepareDynFun() :
+   PropagationEnabledCommand     ("PrepareDynFun")
 {
    // TODO Auto-generated constructor stub
 }
