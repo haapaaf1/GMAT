@@ -6063,6 +6063,13 @@ Integer Moderator::RunMission(Integer sandboxNum)
                ("Moderator::RunMission() after ExecuteSandbox()\n");
             #endif
          }
+         else
+         {
+            // Execute only the PrepareMissionSequence command
+            GmatCommand *cmd = commands[sandboxNum-1]->GetNext();
+            if (cmd->GetTypeName() == "PrepareMissionSequence")
+               cmd->Execute();
+         }
       }
       catch (BaseException &e)
       {
