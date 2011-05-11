@@ -16,12 +16,12 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
@@ -36,14 +36,24 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\..\plugins\ODTBX-GMATPlugin\src\include;..\..\..\plugins\ODTBX-GMATPlugin\src\command;..\..\..\plugins\ODTBX-GMATPlugin\src\factory;..\..\..\plugins\ODTBX-GMATPlugin\src\forcemodel;..\..\..\plugins\ODTBX-GMATPlugin\src\plugin;..\..\..\plugins\ODTBX-GMATPlugin\src\propagator;..\..\..\src\base\include;..\..\..\src\base\attitude;..\..\..\src\base\coordsystem;..\..\..\src\base\util;..\..\..\src\base\solarsys;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\foundation;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\parameter;..\..\..\src\base\solver;..\..\..\src\base\subscriber;..\..\..\src\base\interface;..\..\..\src\base\command;..\..\..\src\base\executive;..\..\..\src\base\interpreter;..\..\..\src\base\propagator;..\..\..\src\base\forcemodel;..\..\..\src\gui\include;..\..\..\src\base\interpolator;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\burn;..\..\..\src\gui\app;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DYNAMICLINK;GMATODTBX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\application\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -52,15 +62,25 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\..\plugins\ODTBX-GMATPlugin\src\include;..\..\..\plugins\ODTBX-GMATPlugin\src\command;..\..\..\plugins\ODTBX-GMATPlugin\src\factory;..\..\..\plugins\ODTBX-GMATPlugin\src\forcemodel;..\..\..\plugins\ODTBX-GMATPlugin\src\plugin;..\..\..\plugins\ODTBX-GMATPlugin\src\propagator;..\..\..\src\base\include;..\..\..\src\base\attitude;..\..\..\src\base\coordsystem;..\..\..\src\base\util;..\..\..\src\base\solarsys;..\..\..\src\base\hardware;..\..\..\src\base\spacecraft;..\..\..\src\base\foundation;..\..\..\src\base\factory;..\..\..\src\base\function;..\..\..\src\base\parameter;..\..\..\src\base\solver;..\..\..\src\base\subscriber;..\..\..\src\base\interface;..\..\..\src\base\command;..\..\..\src\base\executive;..\..\..\src\base\interpreter;..\..\..\src\base\propagator;..\..\..\src\base\forcemodel;..\..\..\src\gui\include;..\..\..\src\base\interpolator;..\..\..\src\base\plugin;..\..\..\src\base\configs;..\..\..\src\base\math;..\..\..\src\base\stopcond;..\..\..\src\base\burn;..\..\..\src\gui\app;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;4251;4231</DisableSpecificWarnings>
+      <PreprocessorDefinitions>_DYNAMICLINK;GMATODTBX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\..\application\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libGmatBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(TargetPath) ..\..\..\application\bin\$(TargetFileName)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\plugins\ODTBX-GMATPlugin\src\command\PrepareDynFun.cpp" />
+    <ClCompile Include="..\..\..\plugins\ODTBX-GMATPlugin\src\command\PrepareDynFun.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\plugins\ODTBX-GMATPlugin\src\plugin\GmatOdtbxFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
