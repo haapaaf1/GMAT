@@ -44,9 +44,10 @@ disp(ode);
 scriptName = 'defaultOdtbx.script';
 retval = calllib('libOdtbxGmatInterface','LoadScript',scriptName);
 retval = calllib('libOdtbxGmatInterface','RunScript');
-% % Show the run status
-% ode = calllib('libOdtbxGmatInterface','getLastMessage');
-% disp(ode);
+
+% Show the run status
+ode = calllib('libOdtbxGmatInterface','getLastMessage');
+disp(ode);
 
 % % Optional: See that it all ran
 % ode = calllib('libOdtbxGmatInterface','GetRunSummary');
@@ -112,13 +113,10 @@ dimptr = libpointer('int32Ptr', dim);
 derivsptr = calllib('libOdtbxGmatInterface','GetDerivatives', 0.0, 1, dimptr);
 dimval = get(dimptr,'value');
 if dimval == 0
-    fprintf(1,'Failue in libOdtbxGmatInterface CGetDerivatives() dimval:\n');
-    errmsg = calllib('libOdtbxGmatInterface','getLastError');
+    fprintf(1,'Failure in libOdtbxGmatInterface GetDerivatives() dimval:\n');
+    errmsg = calllib('libOdtbxGmatInterface','getLastMessage');
     fprintf(1,'The error message was: %s\n',errmsg);
     
-    % clean up memory:
-    calllib('libOdtbxGmatInterface','deleteCOdeModel',ode);
-    clear ode;
     return;
 end
 setdatatype(derivsptr, 'doublePtr', dimval, 1);
@@ -144,13 +142,10 @@ fprintf(1, ']\n');
 derivsptr = calllib('libOdtbxGmatInterface','GetDerivativesForState',epoch,statep,statesize,0.0,1,dimptr);
 dimval = get(dimptr,'value');
 if dimval == 0
-    fprintf(1,'Failue in libOdtbxGmatInterface CGetDerivatives() dimval:\n');
-    errmsg = calllib('libOdtbxGmatInterface','getLastError');
+    fprintf(1,'Failure in libOdtbxGmatInterface GetDerivativesForState() dimval:\n');
+    errmsg = calllib('libOdtbxGmatInterface','getLastMessage');
     fprintf(1,'The error message was: %s\n',errmsg);
     
-    % clean up memory:
-    calllib('libOdtbxGmatInterface','deleteCOdeModel',ode);
-    clear ode;
     return;
 end
 setdatatype(derivsptr, 'doublePtr', dimval, 1);
@@ -176,20 +171,16 @@ fprintf(1, ']\n');
 % And now with a different state
 epoch = 21575.0;
 state = [21000.0; 6000.0; 420.0; 0.8; 2.8; 0.00365];
-fprintf(1,'New input state:\n');
+fprintf(1,'\nNew input state:\n');
 fprintf(1,'   Epoch: %f\n',epoch);
 fprintf(1,'   State: \n      [%f\n      %f\n      %f\n      %f\n      %f\n      %f]\n', state);
 statep = libpointer('doublePtr', state);
 derivsptr = calllib('libOdtbxGmatInterface','GetDerivativesForState',epoch,statep,statesize,0.0,1,dimptr);
 dimval = get(dimptr,'value');
 if dimval == 0
-    fprintf(1,'Failue in libOdtbxGmatInterface CGetDerivatives() dimval:\n');
-    errmsg = calllib('libOdtbxGmatInterface','getLastError');
+    fprintf(1,'Failure in libOdtbxGmatInterface GetDerivativesForState() dimval:\n');
+    errmsg = calllib('libOdtbxGmatInterface','getLastMessage');
     fprintf(1,'The error message was: %s\n',errmsg);
-    
-    % clean up memory:
-    calllib('libOdtbxGmatInterface','deleteCOdeModel',ode);
-    clear ode;
     return;
 end
 setdatatype(derivsptr, 'doublePtr', dimval, 1);
