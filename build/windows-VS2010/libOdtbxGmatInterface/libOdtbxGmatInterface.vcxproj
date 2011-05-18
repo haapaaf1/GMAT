@@ -87,6 +87,7 @@
     <ClInclude Include="..\..\..\plugins\ODTBX-GMATPlugin\src\command\PrepareDynFun.hpp" />
     <ClInclude Include="..\..\..\plugins\ODTBX-GMATPlugin\src\include\GmatOdtbx_defs.hpp" />
     <ClInclude Include="..\..\..\plugins\ODTBX-GMATPlugin\src\plugin\GmatOdtbxFunctions.hpp" />
+    <ClInclude Include="..\..\..\plugins\ODTBX-GMATPlugin\src\plugin\MatlabFunctions.hpp" />
     <ClInclude Include="..\..\..\plugins\ODTBX-GMATPlugin\src\propagator\DynFunInterface.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

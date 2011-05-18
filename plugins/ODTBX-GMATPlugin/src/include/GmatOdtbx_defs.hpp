@@ -59,6 +59,11 @@
    #endif
 #endif //  End of OS nits
 
+#ifdef IMPEXP_STDSTRING
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::allocator<char>;
+    EXPIMP_TEMPLATE template class DECLSPECIFIER std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
+#endif
+
 #ifndef GMATODTBX_API
    #define GMATODTBX_API
 #endif

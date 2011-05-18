@@ -23,6 +23,7 @@
 #include "Moderator.hpp"
 #include "ODEModel.hpp"
 #include "Propagate.hpp"
+#include "Factory.hpp"
 
 //#include "xxxFactory.hpp"
 
@@ -32,6 +33,7 @@
 ODEModel    *ode = NULL;
 PropSetup   *pSetup = NULL;
 std::string lastMsg = "";
+std::string extraMsg = "";
 
 extern "C"
 {
@@ -282,16 +284,10 @@ extern "C"
       GetODEModel(current, modelName);
 
       if (ode != NULL)
-      {
-         lastMsg = "ODE model is set to " + ode->GetName();
          retval = 0;
-      }
       else
-      {
-         lastMsg = "No ODE model found";
          retval = -2;
-      }
-
+   
       return retval;
    }
 
@@ -575,84 +571,98 @@ extern "C"
    }
 
 
-   //---------------------------------------------------------------------
-   // Internal functions
-   //---------------------------------------------------------------------
-   
-   //------------------------------------------------------------------------------
-   // ODEModel *GetODEModel(GmatCommand *cmd, std::string modelName)
-   //------------------------------------------------------------------------------
-   /**
-    * Retrieves a PropSetup from the mission control sequence
-    *
-    * Retrieves a PropSetup from the mission control sequence and sets the ode 
-    * pointer to it, along with the pSetup pointer to its owning PropSetup.
-    *
-    * @param cmd The starting command in teh mission control sequence
-    * @param modelName The name of the model that is wanted.  Currently not used.
-    *
-    * @return The ODEModel pointer, or NULL if it was not found
-    *
-    * @note The current implementation returns the first ODEModel found.
-    */
-   //------------------------------------------------------------------------------
-   ODEModel *GetODEModel(GmatCommand *cmd, std::string modelName)
-   {
-      ODEModel* model = NULL;
-
-      PropSetup *prop = GetFirstPropagator(cmd);
-      if (prop != NULL)
-      {
-         model = prop->GetODEModel();
-         if (model != NULL)
-         {
-            pSetup = prop;
-            ode = model;
-         }
-      }
-
-      return model;
-   }
-
-   //------------------------------------------------------------------------------
-   // PropSetup *GetFirstPropagator(GmatCommand *cmd)
-   //------------------------------------------------------------------------------
-   /**
-    * Finds the first PropSetup in teh mission control sequence
-    * 
-    * @param cmd The first command in the mission control sequence
-    * 
-    * @return The first PropSetup found, or NULL if none were located
-    */
-   //------------------------------------------------------------------------------
-   PropSetup *GetFirstPropagator(GmatCommand *cmd)
-   {
-      PropSetup *retval = NULL;
-      GmatCommand *current = cmd;
-
-      while (current != NULL)
-      {
-         if (current->GetTypeName() == "Propagate")
-         {
-            retval = (PropSetup*)(current->GetRefObject(Gmat::PROP_SETUP, "", 0));
-            if (retval != NULL)
-            {
-               try
-               {
-                  // Fire once to set all of the internal connections
-                  current->Execute();
-               }
-               catch (BaseException &ex)
-               {
-                  lastMsg = ex.GetFullMessage();
-               }
-               break;
-            }
-         }
-         current = current->GetNext();
-      }
-
-      return retval;
-   }
 
 };
+
+
+//---------------------------------------------------------------------
+// Internal functions
+//---------------------------------------------------------------------
+   
+//------------------------------------------------------------------------------
+// ODEModel *GetODEModel(GmatCommand *cmd, std::string modelName)
+//------------------------------------------------------------------------------
+/**
+   * Retrieves a PropSetup from the mission control sequence
+   *
+   * Retrieves a PropSetup from the mission control sequence and sets the ode 
+   * pointer to it, along with the pSetup pointer to its owning PropSetup.
+   *
+   * @param cmd The starting command in teh mission control sequence
+   * @param modelName The name of the model that is wanted.  Currently not used.
+   *
+   * @return The ODEModel pointer, or NULL if it was not found
+   *
+   * @note The current implementation returns the first ODEModel found.
+   */
+//------------------------------------------------------------------------------
+void GetODEModel(GmatCommand *cmd, std::string modelName)
+{
+   ODEModel* model = NULL;
+
+   PropSetup *prop = GetFirstPropagator(cmd);
+   if (prop != NULL)
+   {
+      model = prop->GetODEModel();
+      if (model != NULL)
+      {
+         pSetup = prop;
+         ode = model;
+         if (ode != NULL)
+            extraMsg = ode->GetName();
+      }
+   }
+
+   if (ode != NULL)
+   {
+      lastMsg = "ODE model is set to " + extraMsg;
+   }
+   else
+   {
+      lastMsg = "No ODE model found\n" + extraMsg;
+   }
+}
+
+//------------------------------------------------------------------------------
+// PropSetup *GetFirstPropagator(GmatCommand *cmd)
+//------------------------------------------------------------------------------
+/**
+   * Finds the first PropSetup in teh mission control sequence
+   * 
+   * @param cmd The first command in the mission control sequence
+   * 
+   * @return The first PropSetup found, or NULL if none were located
+   */
+//------------------------------------------------------------------------------
+PropSetup *GetFirstPropagator(GmatCommand *cmd)
+{
+   PropSetup *retval = NULL;
+   GmatCommand *current = cmd;
+
+   extraMsg = "Commands checked:\n";
+
+   while (current != NULL)
+   {
+      extraMsg += "   " + current->GetTypeName() + "\n";
+      if (current->GetTypeName() == "Propagate")
+      {
+         retval = (PropSetup*)(current->GetRefObject(Gmat::PROP_SETUP, "", 0));
+         if (retval != NULL)
+         {
+            try
+            {
+               // Fire once to set all of the internal connections
+               current->Execute();
+            }
+            catch (BaseException &ex)
+            {
+               lastMsg = ex.GetFullMessage();
+            }
+            break;
+         }
+      }
+      current = current->GetNext();
+   }
+
+   return retval;
+}

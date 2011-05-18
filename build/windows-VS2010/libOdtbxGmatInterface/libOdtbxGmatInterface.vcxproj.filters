@@ -50,5 +50,8 @@
     <ClInclude Include="..\..\..\plugins\ODTBX-GMATPlugin\src\propagator\DynFunInterface.hpp">
       <Filter>Source Files\propagator</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\plugins\ODTBX-GMATPlugin\src\plugin\MatlabFunctions.hpp">
+      <Filter>Source Files\plugin</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
