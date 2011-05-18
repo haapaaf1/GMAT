@@ -24,7 +24,7 @@ if (libisloaded('libOdtbxGmatInterface'))
     unloadlibrary('libOdtbxGmatInterface');
 end
 
-[notfound, warnings] = loadlibrary('libOdtbxGmatInterface', @gmatCwrapper);
+[notfound, warnings] = loadlibrary('libOdtbxGmatInterface', @InterfaceWrapper);
 
 ready = libisloaded('libOdtbxGmatInterface');
 if ~ready
@@ -59,12 +59,15 @@ disp(ode);
 % 3. Set the ODE model to the one named in the script (currently uses the
 %    first model found; will use named models later on)
 retval = calllib('libOdtbxGmatInterface','FindOdeModel','');
-% ode = calllib('libOdtbxGmatInterface','getLastMessage');
-% disp(ode);
+if retval ~= 0
+    retval = calllib('libOdtbxGmatInterface','FindOdeModel','');
+end
+ode = calllib('libOdtbxGmatInterface','getLastMessage');
+disp(ode);
 
 % 4. Get info about the state from the ODE model
 dimension = calllib('libOdtbxGmatInterface','GetStateSize');
-% fprintf(1,'The ODE model state has %d elements:\n',dimension);
+fprintf(1,'The ODE model state has %d elements:\n',dimension);
 
 % retval = calllib('libOdtbxGmatInterface','GetStateDescription');
 % ode = calllib('libOdtbxGmatInterface','getLastMessage');
