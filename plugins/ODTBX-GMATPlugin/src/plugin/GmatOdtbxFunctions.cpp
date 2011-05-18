@@ -246,7 +246,7 @@ extern "C"
 
       int retval = LoadScript(scriptName);
 
-      if (retval = 0)
+      if (retval == 0)
       {
          retval = RunScript();
       }
