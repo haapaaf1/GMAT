@@ -68,18 +68,18 @@ classdef Earth < handle
             TT    = (jdtt - 2451545.0  )/ 36525.0;
             
             %  Calculate the precession
-            [prec,psia,wa,ea,xa] = precess ( TT, '80' );
+            [prec] = precess ( TT );%, '80' );
             
             %  Calculate the nutation
             ddpsi = earth.ddpsi*pi / (180*3600);  % rad
             ddeps = earth.ddeps*pi / (180*3600);
-            [deltapsi,trueeps,meaneps,omega,nut] = nutation(TT,ddpsi,ddeps);
+            [deltapsi,trueeps,meaneps,omega,nut] = nutation(TT);
             
             %  Calculate the sidereal time
             [st,stdot] = sidereal(jdut1,deltapsi,meaneps,omega,earth.lod,earth.eqeterms );
             
             %  Calculate the polar motion
-            [pm] = polarm(earth.xp,earth.yp,TT,'80');
+            [pm] = polarm(earth.xp,earth.yp);
             thetasa = 7.29211514670698e-05*(1.0  - earth.lod/86400.0 );
             omegaearth = [0; 0; thetasa;];
             R    = (prec*nut*st*pm);

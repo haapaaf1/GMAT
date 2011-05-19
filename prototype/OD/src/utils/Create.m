@@ -32,6 +32,16 @@ elseif strcmp(type,'MeasurementGroup');
     obj = MeasurementGroup;
 elseif strcmp(type,'EclipseLocator');
     obj = EclipseLocator;
+elseif strcmp(type,'PeriapsisVector')
+    obj = PeriapsisVector;
+elseif strcmp(type,'ApoapsisVector')
+    obj = ApoapsisVector;
+elseif strcmp(type,'PositionVector')
+    obj = PositionVector;
+elseif strcmp(type,'OrbitAngularMomentumVector')
+    obj = OrbitAngularMomentumVector;
+elseif strcmp(type,'VelocityVector')
+    obj = VelocityVector;
 end
 
 theSandbox.AddObject(obj,name);
