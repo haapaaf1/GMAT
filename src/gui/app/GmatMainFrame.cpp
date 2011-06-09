@@ -122,7 +122,7 @@
 #include <wx/utils.h>     // for ::wxLaunchDefaultBrowser()
 #include "ddesetup.hpp"   // for IPC_SERVICE, IPC_TOPIC
 
-#include "GmatSocketServer.hpp"		// made changes by TUAN NGUYEN
+#include "GmatInterface.hpp"		// made changes by TUAN NGUYEN
 
 
 // If we want to show GL option dialog from tool bar
@@ -172,6 +172,10 @@ using namespace GmatMenu;
  * @note Indexes event handler functions.
  */
 //------------------------------------------------------------------------------
+
+const wxEventType wxEVT_SOCKET_POKE = wxNewEventType();		// made changes by TUAN NGUYEN
+const wxEventType wxEVT_SOCKET_REQUEST = wxNewEventType();	// made changes by TUAN NGUYEN
+
 BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU (MENU_EMPTY_PROJECT, GmatMainFrame::OnProjectNew)
    EVT_MENU (MENU_LOAD_DEFAULT_MISSION, GmatMainFrame::OnLoadDefaultMission)
@@ -248,6 +252,9 @@ BEGIN_EVENT_TABLE(GmatMainFrame, wxMDIParentFrame)
    EVT_MENU (MENU_SCRIPT_RUN, GmatMainFrame::OnScriptRun)
 
    EVT_MENU_RANGE (TOOL_ANIMATION_PLAY, TOOL_ANIMATION_OPTIONS, GmatMainFrame::OnAnimation)
+
+   EVT_COMMAND(ID_SOCKET_POKE, wxEVT_SOCKET_POKE, GmatMainFrame::OnSocketPoke)				// made changes by TUAN NGUYEN
+   EVT_COMMAND(ID_SOCKET_REQUEST, wxEVT_SOCKET_REQUEST, GmatMainFrame::OnSocketRequest)		// made changes by TUAN NGUYEN
 
 END_EVENT_TABLE()
 
@@ -512,7 +519,12 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    #endif
    
    // Create a new thread to run GMAT socket server
-   GmatSocketServer* server = new GmatSocketServer(this);
+   this->socketrequest = new char[1000];	// use to store request message
+   this->socketresult = new char[1000];		// use to store result after running the request
+   this->socketrequest[0] = '\0';
+   this->socketresult[0] = '\0';
+
+   server = new GmatSocketServer(this);
    #ifdef LINUX_MAC
    pthread_t threadID;
    pthread_create(&threadID, NULL, server->StaticRunServer,(void *)server);
@@ -520,6 +532,7 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    _beginthread(server->StaticRunServer, 0, (void*)server);
    #endif
 
+   
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage("GmatMainFrame::GmatMainFrame() exiting\n");
    #endif
@@ -4661,5 +4674,175 @@ void GmatMainFrame::SaveGuiToActiveScript()
    }
    
    theGuiInterpreter->SaveScript(mScriptFilename);
+}
+//------------------------------------------------------------------------------
+// void OnSocketRequest(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnSocketRequest(wxCommandEvent& event)
+{
+   // 1. Run the request:
+   char* result = this->OnRequest(&this->socketrequest[0]);
+
+   // 2. Get the result after running the request:
+   if (strlen(result) == 0)
+	  strcpy(&this->socketresult[0], " ");
+   else
+	  strcpy(&this->socketresult[0], &result[0]);
+
+   // 3. Clear the request message in order to receive a new request:
+   this->socketrequest[0] = '\0';
+
+}
+
+//------------------------------------------------------------------------------
+// void OnSocketPoke(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+void GmatMainFrame::OnSocketPoke(wxCommandEvent& event)
+{
+   // 1. Run the request:
+   this->OnPoke(&this->socketrequest[0]);
+
+   // 2. Clear the request message in order to receive a new request:
+   this->socketrequest[0] = '\0';
+}
+
+#define DEBUG_SOCKET_SERVICE_REQUEST
+char* GmatMainFrame::OnRequest(char* item)
+{
+   #ifdef DEBUG_SOCKET_SERVICE_REQUEST
+	#ifdef MessageInterface_hpp
+		MessageInterface::ShowMessage("GmatMainFrame::OnRequest() %s\n", item);
+	#else
+		printf("GmatMainFrame::OnRequest() %s\n", item);
+	#endif
+   #endif
+
+   // Check for user interrupt first (loj: 2007.05.11 Added)
+   GmatInterface::Instance()->CheckUserInterrupt();
+
+   // How can I tell whether item is an object or a parameter?
+   // For now GetGMATObject.m appends '.' for object name.
+
+   char *data;
+   std::string itemString = item;
+   if (item[strlen(item)-1] == '.')
+   {
+	    item[strlen(item)-1] = '\0';
+	    data = GmatInterface::Instance()->GetGmatObject(std::string(item));
+   }
+   else if (itemString == "RunState")
+   {
+	    data = GmatInterface::Instance()->GetRunState();
+
+	    #ifdef DEBUG_SOCKET_SERVICE_REQUEST
+		#ifdef MessageInterface_hpp
+			MessageInterface::ShowMessage("GmatMainFrame::OnRequest() data=%s\n", data);
+		#else
+			printf("GmatMainFrame::OnRequest() data=%s\n", data);
+		#endif
+	    #endif
+   }
+   else if (itemString == "CallbackStatus")
+   {
+	    data = GmatInterface::Instance()->GetCallbackStatus();
+
+	    #ifdef DEBUG_SOCKET_SERVICE_REQUEST
+		#ifdef MessageInterface_hpp
+			MessageInterface::ShowMessage("GmatMainFrame::OnRequest() data=%s\n", data);
+		#else
+			printf("GmatMainFrame::OnRequest() data=%s\n", data);
+		#endif
+	    #endif
+   }
+   else if (itemString == "CallbackResults")
+   {
+	    data = GmatInterface::Instance()->GetCallbackResults();
+
+	    #ifdef DEBUG_SOCKET_SERVICE_REQUEST
+		#ifdef MessageInterface_hpp
+			MessageInterface::ShowMessage("GmatMainFrame::OnRequest() data=%s\n", data);
+		#else
+			printf("GmatMainFrame::OnRequest() data=%s\n", data);
+		#endif
+	    #endif
+   }
+   else
+   {
+	   data = GmatInterface::Instance()->GetParameter(std::string(item));
+   }
+
+
+   return data;
+}
+
+#define DEBUG_SOCKET_SERVICE_POKE
+bool GmatMainFrame::OnPoke(char* data)
+{
+    #ifdef DEBUG_SOCKET_SERVICE_POKE
+	#ifdef MessageInterface_hpp
+		MessageInterface::ShowMessage("GmatMainFrame::OnPoke() data = %s\n", data);
+	#else
+		printf("GmatMainFrame::OnPoke() data = %s\n", data);
+	#endif
+    #endif
+
+    //------------------------------
+    // save data to string stream
+    //------------------------------
+
+    if (strcmp(data, "Open;") == 0)
+    {
+    	GmatInterface::Instance()->OpenScript();
+    }
+    else if (strcmp(data, "Clear;") == 0)
+    {
+    	GmatInterface::Instance()->ClearScript();
+    }
+    else if (strcmp(data, "Build;") == 0)
+    {
+    	GmatInterface::Instance()->BuildObject();
+    }
+    else if (strcmp(data, "Update;") == 0)
+    {
+    	GmatInterface::Instance()->UpdateObject();
+    }
+    else if (strcmp(data, "Build+Run;") == 0)
+    {
+    	GmatInterface::Instance()->BuildObject();
+    	GmatInterface::Instance()->RunScript();
+//    	GmatInterfaceGui::Instance()->RunScript(evthandler);
+    }
+    else if (strcmp(data, "Run;") == 0)
+    {
+    	GmatInterface::Instance()->RunScript();
+//	GmatInterfaceGui::Instance()->RunScript(evthandler);
+    }
+    else if (strcmp(data, "Callback;") == 0)
+    {
+    	GmatInterface::Instance()->ExecuteCallback();
+    }
+    else if (strncmp(data, "CallbackData", strlen("CallbackData")) == 0)
+    {
+    	std::string callbackData(&data[strlen("CallbackData")]);
+	#ifdef DEBUG_SOCKET_SERVICE_POKE
+		#ifdef MessageInterface_hpp
+			MessageInterface::ShowMessage("GmatMainFrame::callbackData = %s\n", callbackData.c_str());
+		#else
+			printf("GmatMainFrame::callbackData = %s\n", callbackData.c_str());
+		#endif
+	#endif
+
+		GmatInterface::Instance()->PutCallbackData(callbackData);
+    }
+    else
+    {
+	   char* s = new char[strlen(data)+1];
+	   strcpy(s, data);
+       GmatInterface::Instance()->PutScript(s);
+
+       delete s;
+    }
+
+   return true;
 }
 

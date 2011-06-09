@@ -41,6 +41,10 @@
 #include "MdiChildTsFrame.hpp"
 #include "WelcomePanel.hpp"
 
+extern const wxEventType wxEVT_SOCKET_POKE;		// made changes by TUAN NGUYEN
+extern const wxEventType wxEVT_SOCKET_REQUEST;	// made changes by TUAN NGUYEN
+#include "GmatSocketServer.hpp"					// made changes by TUAN NGUYEN
+
 #include <wx/notebook.h>
 #include <wx/toolbar.h>
 #include <wx/docview.h>
@@ -48,6 +52,7 @@
 #include <wx/textctrl.h>
 #include <wx/hyperlink.h>
 #include <wx/help.h>        // (wxWidgets chooses the appropriate help controller class)
+
 
 namespace GmatGui
 {
@@ -188,6 +193,12 @@ public:
    void OnCloseAll(wxCommandEvent &event);
    void OnCloseActive(wxCommandEvent &event);
 
+   void OnSocketRequest(wxCommandEvent &event);		// made changes by TUAN NGUYEN
+   void OnSocketPoke(wxCommandEvent &event);		// made changes by TUAN NGUYEN
+   char* OnRequest(char* data);				// made changes by TUAN NGUYEN
+   bool OnPoke(char* data);				// made changes by TUAN NGUYEN
+
+
    bool SetScriptFileName(const std::string &filename);
    bool IsActiveScriptModified();
    void RefreshActiveScript(const wxString &filename);
@@ -200,9 +211,14 @@ public:
    MdiChildTsFrame *tsSubframe;
    wxList *theMdiChildren;
 
+   char* socketrequest;			// made changes by Tuan Nguyen
+   char* socketresult;			// made changes by Tuan Nguyen
+   GmatSocketServer* server;	// made changes by Tuan Nguyen
+
 protected:
 
 private:
+
    int  mAnimationFrameInc;
    bool mAnimationEnabled;
    bool mRunPaused;
@@ -253,7 +269,8 @@ private:
       ID_SASH_WINDOW = 100,
       ID_MSG_SASH_WINDOW,
    };
-   
+
+	
    // event handling
    DECLARE_EVENT_TABLE();
    

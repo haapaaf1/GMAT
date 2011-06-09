@@ -5,12 +5,10 @@
  *      Author: Tuan Nguyen
  */
 
+#include "GmatMainFrame.hpp"
 #include "GmatSocketServer.hpp"
-#include "GmatInterfaceGui.hpp"
 #include "MessageInterface.hpp"
 
-#define DEBUG_SOCKET_SERVICE_REQUEST
-#define DEBUG_SOCKET_SERVICE_POKE
 #define DEBUG_SOCKET
 
 
@@ -54,6 +52,7 @@ bool GmatSocketServer::RunRequest(SOCKET sock)
 	struct timeval time;
 	time.tv_sec = 0;
 	time.tv_usec = 2000000;
+	
 #ifdef LINUX_MAC
 	fd_set socks_set;
 	FD_ZERO(&socks_set);
@@ -87,7 +86,11 @@ bool GmatSocketServer::RunRequest(SOCKET sock)
 
 	#ifdef DEBUG_SOCKET
 		#ifdef MessageInterface_hpp
+			#ifdef LINUX_MAC
+			printf("Client %d: Read message:%s\n", sock, buf);
+			#else
 			MessageInterface::ShowMessage("Client %d: Read message:%s\n", sock, buf);
+			#endif
 		#else
 			printf("Client %d: Read message:%s\n", sock, buf);
 		#endif
@@ -98,7 +101,11 @@ bool GmatSocketServer::RunRequest(SOCKET sock)
 	send(sock, buf, len, 0);
 	#ifdef DEBUG_SOCKET
 		#ifdef MessageInterface_hpp
+			#ifdef LINUX_MAC
+			printf("Client %d: Echo back:%s\n", sock, buf);
+			#else
 			MessageInterface::ShowMessage("Client %d: Echo back:%s\n", sock, buf);
+			#endif
 		#else
 			printf("Client %d: Echo back:%s\n", sock, buf);
 		#endif
@@ -111,21 +118,40 @@ bool GmatSocketServer::RunRequest(SOCKET sock)
 	{
 		msg = &buf[strlen("Request,")];
 
-		// 3.1. Run OnRequest function:
-		char* result = OnRequest(msg);
+	    // 3.1.1. save reuqest message to GmatMainFrame.socketrequest:
+	    GmatMainFrame* mainframe = (GmatMainFrame*)evthandler;
+	    strcpy(&mainframe->socketrequest[0], msg);
+ 
+        // 3.1.2. Create and send wxEVT_SOCKET_REQUEST:
+        wxCommandEvent* evt = new wxCommandEvent();
+        evt->SetEventType(wxEVT_SOCKET_REQUEST);
+        evt->SetId(ID_SOCKET_REQUEST);
+        wxPostEvent(evthandler, *evt);
+
+        // 3.1.3. Get result:
+        do
+	    {
+           #ifdef LINUX_MAC
+              usleep(1000);
+           #else
+              _sleep(1);
+           #endif
+		}while (((GmatMainFrame*)evthandler)->socketresult[0] == '\0');
+        char* result = ((GmatMainFrame*)evthandler)->socketresult;
+		// char* result = OnRequest(msg);
 
 		// 3.2. Read 'Idle' state
-		#ifdef LINUX_MAC
-		while (select(0, &socks_set, NULL, NULL, &time) == 0)
-		{
-			usleep(1000);
-		}
-		#else
-		while (select(sock+1, &socks_set, NULL, NULL, &time) == 0)
-		{
-			_sleep(1);
-		}
-		#endif
+//		#ifdef LINUX_MAC
+//		while (select(0, &socks_set, NULL, NULL, &time) == 0)
+//		{
+//			usleep(1000);
+//		}
+//		#else
+//		while (select(sock+1, &socks_set, NULL, NULL, &time) == 0)
+//		{
+//			_sleep(1);
+//		}
+//		#endif
 		recv(sock, &len1c, 1, 0);
 		len1 = (unsigned char)len1c;
 		buf1 = new char[len1+1];
@@ -136,11 +162,17 @@ bool GmatSocketServer::RunRequest(SOCKET sock)
 		send(sock, result, strlen(result), 0);
 		#ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC
+				printf("Client %d: Send result:%s\n", sock, result);
+				#else
 				MessageInterface::ShowMessage("Client %d: Send result:%s\n", sock, result);
+				#endif
 			#else
 				printf("Client %d: Send result:%s\n", sock, result);
 			#endif
 		#endif
+
+		((GmatMainFrame*)evthandler)->socketresult[0] = '\0';
 
 		delete[] buf1;
    }
@@ -148,7 +180,28 @@ bool GmatSocketServer::RunRequest(SOCKET sock)
    {
 	    // 4.Run OnPoke function:
 	    msg = &buf[strlen("script,")];
-	    OnPoke(msg);
+
+	    // 4.1. save poke message to GmatMainFrame.socketrequest:
+	    GmatMainFrame* mainframe = (GmatMainFrame*)evthandler;
+        while (mainframe->socketrequest[0]!= '\0')
+        {
+            #ifdef LINUX_MAC
+               usleep(1000);
+            #else
+               _sleep(1);
+            #endif
+        }
+        mainframe->socketrequest = new char[strlen(msg)+1];
+	    strcpy(&mainframe->socketrequest[0], msg); 
+
+	    // 4.2. Create and send wxEVT_SOCK_POKE:
+	    wxCommandEvent* evt = new wxCommandEvent();
+	    evt->SetEventType(wxEVT_SOCKET_POKE);
+	    evt->SetId(ID_SOCKET_POKE);
+	    wxPostEvent(evthandler, *evt);
+
+	    // OnPoke(msg);
+
 	    if (strcmp(msg, "Close;") == 0)
 	    	return true;
    }
@@ -158,196 +211,6 @@ bool GmatSocketServer::RunRequest(SOCKET sock)
    return false;
 }
 
-
-char* GmatSocketServer::OnRequest(char* item)
-{
-	#ifdef DEBUG_SOCKET_SERVICE_REQUEST
-		#ifdef MessageInterface_hpp
-			MessageInterface::ShowMessage("GmatSocketService::OnRequest() %s\n", item);
-		#else
-			printf("GmatSocketService::OnRequest() %s\n", item);
-		#endif
-   #endif
-
-   // Check for user interrupt first (loj: 2007.05.11 Added)
-   GmatInterfaceGui::Instance()->CheckUserInterrupt();
-
-   // How can I tell whether item is an object or a parameter?
-   // For now GetGMATObject.m appends '.' for object name.
-
-   char *data;
-   std::string itemString = item;
-   if (item[strlen(item)-1] == '.')
-   {
-	    item[strlen(item)-1] = '\0';
-	    data = GmatInterfaceGui::Instance()->GetGmatObject(std::string(item));
-   }
-   else if (itemString == "RunState")
-   {
-	    data = GmatInterfaceGui::Instance()->GetRunState();
-
-		#ifdef DEBUG_SOCKET_SERVICE_REQUEST
-			#ifdef MessageInterface_hpp
-				MessageInterface::ShowMessage("GmatSocketService::OnRequest() data=%s\n", data);
-			#else
-				printf("GmatSocketService::OnRequest() data=%s\n", data);
-			#endif
-		#endif
-   }
-   else if (itemString == "CallbackStatus")
-   {
-	    data = GmatInterfaceGui::Instance()->GetCallbackStatus();
-
-		#ifdef DEBUG_SOCKET_SERVICE_REQUEST
-			#ifdef MessageInterface_hpp
-				MessageInterface::ShowMessage("GmatSocketService::OnRequest() data=%s\n", data);
-			#else
-				printf("GmatSocketService::OnRequest() data=%s\n", data);
-			#endif
-		#endif
-   }
-   else if (itemString == "CallbackResults")
-   {
-	    data = GmatInterfaceGui::Instance()->GetCallbackResults();
-
-		#ifdef DEBUG_SOCKET_SERVICE_REQUEST
-			#ifdef MessageInterface_hpp
-				MessageInterface::ShowMessage("GmatSocketService::OnRequest() data=%s\n", data);
-			#else
-				printf("GmatSocketService::OnRequest() data=%s\n", data);
-			#endif
-		#endif
-   }
-   else
-   {
-	   data = GmatInterfaceGui::Instance()->GetParameter(std::string(item));
-   }
-
-
-   return data;
-}
-
-/*
-//------------------------------------------------------------------------------
-// bool OnExecute(const wxString& WXUNUSED(topic),
-//------------------------------------------------------------------------------
-bool OnExecute(const wxString& WXUNUSED(topic),
-                               wxChar *data,
-                               int WXUNUSED(size),
-                               wxIPCFormat WXUNUSED(format))
-{
-   #ifdef DEBUG_SOCKET_SERVICE_EXECUTE
-   MessageInterface::ShowMessage
-      ("GmatConnection::OnExecute() command: %s\n", data);
-   #endif
-
-   return TRUE;
-}
-*/
-
-
-bool GmatSocketServer::OnPoke(char* data)
-{
-	#ifdef DEBUG_SOCKET_SERVICE_POKE
-		#ifdef MessageInterface_hpp
-			MessageInterface::ShowMessage("GmatSocketService::OnPoke() data = %s\n", data);
-		#else
-			printf("GmatSocketService::OnPoke() data = %s\n", data);
-		#endif
-	#endif
-
-	//------------------------------
-    // save data to string stream
-    //------------------------------
-
-    if (strcmp(data, "Open;") == 0)
-    {
-    	GmatInterfaceGui::Instance()->OpenScript();
-    }
-    else if (strcmp(data, "Clear;") == 0)
-    {
-    	GmatInterfaceGui::Instance()->ClearScript();
-    }
-    else if (strcmp(data, "Build;") == 0)
-    {
-    	GmatInterfaceGui::Instance()->BuildObject();
-    }
-    else if (strcmp(data, "Update;") == 0)
-    {
-    	GmatInterfaceGui::Instance()->UpdateObject();
-    }
-    else if (strcmp(data, "Build+Run;") == 0)
-    {
-    	GmatInterfaceGui::Instance()->BuildObject();
-    	GmatInterfaceGui::Instance()->RunScript(evthandler);
-    }
-    else if (strcmp(data, "Run;") == 0)
-    {
-    	GmatInterfaceGui::Instance()->RunScript(evthandler);
-    }
-    else if (strcmp(data, "Callback;") == 0)
-    {
-    	GmatInterfaceGui::Instance()->ExecuteCallback();
-    }
-    else if (strncmp(data, "CallbackData", strlen("CallbackData")) == 0)
-    {
-    	std::string callbackData(&data[strlen("CallbackData")]);
-		#ifdef DEBUG_SOCKET_SERVICE_POKE
-			#ifdef MessageInterface_hpp
-				MessageInterface::ShowMessage("GmatSocketService::callbackData = %s\n", callbackData.c_str());
-			#else
-				printf("GmatSocketService::callbackData = %s\n", callbackData.c_str());
-			#endif
-		#endif
-
-		GmatInterfaceGui::Instance()->PutCallbackData(callbackData);
-    }
-    else
-    {
-	   char* s = new char[strlen(data)+1];
-	   strcpy(s, data);
-       GmatInterfaceGui::Instance()->PutScript(s);
-
-       delete s;
-    }
-
-   return true;
-}
-
-/*
-//------------------------------------------------------------------------------
-// bool OnStartAdvise(const wxString& WXUNUSED(topic),
-//------------------------------------------------------------------------------
-bool OnStartAdvise(const wxString& WXUNUSED(topic),
-                                   const wxString& item)
-{
-   #ifdef DEBUG_SOCKET_SERVICE_ADVISE
-   MessageInterface::ShowMessage
-      ("GmatSocketService::OnStartAdvise() %s\n", item.c_str());
-   #endif
-
-   //#ifdef DEBUG_SOCKET_SERVICE_ADVISE
-   //char* data = GmatInterfaceGui::Instance()->GetRunState();
-   //MessageInterface::ShowMessage
-   //   ("GmatSocketService::OnStartAdvise() data=%s\n", data);
-   //#endif
-
-   return TRUE;
-}
-
-
-//------------------------------------------------------------------------------
-// bool OnDisconnect()
-//------------------------------------------------------------------------------
-bool OnDisconnect()
-{
-   #ifdef DEBUG_SOCKET_SERVICE
-   MessageInterface::ShowMessage
-      ("GmatSocketService::OnDisconnect() entered, this=%p\n", this);
-   #endif
-   return true;
-}
-*/
 
 
 #ifdef LINUX_MAC
@@ -360,7 +223,11 @@ void GmatSocketServer::OnAccept(SOCKET sk)
 
 	#ifdef DEBUG_SOCKET
 		#ifdef MessageInterface_hpp
+			#ifdef LINUX_MAC
+			printf("number of clients = %d\n", m_numClients);
+			#else
 			MessageInterface::ShowMessage("number of clients = %d\n", m_numClients);
+			#endif
 		#else
 			printf("number of clients = %d\n", m_numClients);
 		#endif
@@ -368,9 +235,9 @@ void GmatSocketServer::OnAccept(SOCKET sk)
 
 	bool stop = false;
 	while(!stop)
-    {
-    	// repeat service until the client tells "it closes the connection"
-    	stop = RunRequest(sk);
+        {
+    		// repeat service until the client tells "it closes the connection"
+    		stop = RunRequest(sk);
 
 		#ifdef LINUX_MAC
 			usleep(1000);
@@ -389,7 +256,11 @@ void GmatSocketServer::OnAccept(SOCKET sk)
 
 	#ifdef DEBUG_SOCKET
 		#ifdef MessageInterface_hpp
+			#ifdef LINUX_MAC
+			printf("number of clients = %d\n", m_numClients);
+			#else
 			MessageInterface::ShowMessage("number of clients = %d\n", m_numClients);
+			#endif
 		#else
 			printf("number of clients = %d\n", m_numClients);
 		#endif
@@ -408,10 +279,10 @@ void GmatSocketServer::RunServer()
 {
 	 struct sockaddr_in serv_addr,cli_addr;
 #ifdef LINUX_MAC
-	 int Server;
+//	 int Server;
 	 socklen_t clilen=sizeof(cli_addr);
 #else
-	 SOCKET Server;
+//	 SOCKET Server;
 	 int clilen=sizeof(cli_addr);
 #endif
 
@@ -426,7 +297,7 @@ void GmatSocketServer::RunServer()
 #else
 	 WSADATA WsaDat;
      if (WSAStartup(MAKEWORD(1,1),&WsaDat) != 0)
-	 {
+     {
 		#ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
 				MessageInterface::ShowMessage("WSA Initialization failed! STOP!!!\n");
@@ -437,7 +308,7 @@ void GmatSocketServer::RunServer()
 
 		error = 1;
 		return;
-	 }
+     }
      else
      {
 		#ifdef DEBUG_SOCKET
@@ -456,7 +327,11 @@ void GmatSocketServer::RunServer()
      {
 		#ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC
+				printf("Socket creation failed!STOP!!!\n");
+				#else
 				MessageInterface::ShowMessage("Socket creation failed!STOP!!!\n");
+				#endif
 			#else
 				printf("Socket creation failed!STOP!!!\n");
 			#endif
@@ -468,7 +343,11 @@ void GmatSocketServer::RunServer()
      {
 		#ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC
+				printf("Socket is created successfully...\n");
+				#else
 				MessageInterface::ShowMessage("Socket is created successfully...\n");
+				#endif
 			#else
 				printf("Socket is created successfully...\n");
 			#endif
@@ -507,7 +386,11 @@ void GmatSocketServer::RunServer()
      {
 		 #ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC
+				printf("Attempt to bind failed!STOP!!!\n");
+				#else
 				MessageInterface::ShowMessage("Attempt to bind failed!STOP!!!\n");
+				#endif
 			#else
 				printf("Attempt to bind failed!STOP!!!\n");
 			#endif
@@ -519,7 +402,11 @@ void GmatSocketServer::RunServer()
      {
 		 #ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC
+				printf("Bind process is created successfully...\n");
+				#else
 				MessageInterface::ShowMessage("Bind process is created successfully...\n");
+				#endif
 			#else
 				printf("Bind process is created successfully...\n");
 			#endif
@@ -531,7 +418,11 @@ void GmatSocketServer::RunServer()
      {
 		 #ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC
+				printf("Error in listening the socket!STOP!!!\n");
+				#else
 				MessageInterface::ShowMessage("Error in listening the socket!STOP!!!\n");
+				#endif
 			#else
 				printf("Error in listening the socket!STOP!!!\n");
 			#endif
@@ -543,7 +434,11 @@ void GmatSocketServer::RunServer()
      {
 		 #ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC
+				printf("Listening process is successfully...\n");
+				#else
 				MessageInterface::ShowMessage("Listening process is successfully...\n");
+				#endif
 			#else
 				printf("Listening process is successfully...\n");
 			#endif
@@ -555,7 +450,11 @@ void GmatSocketServer::RunServer()
      {
 		 #ifdef DEBUG_SOCKET
 			#ifdef MessageInterface_hpp
+				#ifdef LINUX_MAC					
+				printf("Server is waiting for a connection ...\n");
+				#else
 				MessageInterface::ShowMessage("Server is waiting for a connection ...\n");
+				#endif
 			#else
 				printf("Server is waiting for a connection ...\n");
 			#endif
@@ -566,10 +465,10 @@ void GmatSocketServer::RunServer()
 		 #ifdef LINUX_MAC
 			pthread_t threadID;
 			pthread_create(&threadID, NULL, StaticOnAccept,(void *)this);
-			usleep(100000);
+			usleep(10000);
 		 #else
 			_beginthread(StaticOnAccept,0,(void *)this);
-			_sleep(100);
+			_sleep(10);
 		 #endif
      }
 
@@ -579,4 +478,42 @@ void GmatSocketServer::RunServer()
 	 _endthread();		// end of socket-server thread
      #endif
 
+     error = -1;
+     return;	
 }
+
+void GmatSocketServer::Close()
+{
+    shutdownserver = true;
+
+#ifdef LINUX_MAC
+     close(Server);
+#else
+     closesocket(Server);
+     if (WSACleanup() != 0)
+     {
+		#ifdef DEBUG_SOCKET
+			#ifdef MessageInterface_hpp
+				MessageInterface::ShowMessage("WSACleanup failed! STOP!!!\n");
+			#else
+				printf("WSACleanup failed! STOP!!!\n");
+			#endif
+		#endif
+
+		error = 1;
+		return;
+     }
+     else
+     {
+		#ifdef DEBUG_SOCKET
+			#ifdef MessageInterface_hpp
+				MessageInterface::ShowMessage("WSACleanup is successful...\n");
+			#else
+				printf("WSACleanup is successful...\n");
+			#endif
+		#endif
+     }
+#endif
+
+}
+

@@ -32,6 +32,7 @@
 
 
 #define IP_ADDRESS	"localhost"
+//#define IP_ADDRESS	"128.183.221.98"
 #define TCP_PORT	3000
 
 
@@ -41,6 +42,7 @@ public:
 	GmatSocketServer(wxEvtHandler* handler);
 	virtual ~GmatSocketServer();
 
+	void Close();
 	void SetEventHandler(wxEvtHandler* handler) {evthandler = handler;}
 
 #ifdef LINUX_MAC
@@ -64,7 +66,7 @@ public:
 	{
 		GmatSocketServer* pThis = (GmatSocketServer*)objPtr;
 		pThis->RunServer();
-      return NULL;
+      		return NULL;
 	}
 #else
 	void OnAccept(SOCKET sock);
@@ -80,17 +82,24 @@ public:
 	}
 #endif
 private:
-	int error;
 	int m_numClients;
+	int error;
 	bool shutdownserver;
 
 	wxEvtHandler* evthandler;
 
 #ifdef LINUX_MAC
+        int Server;
 	int client_sock;
 #else
 	SOCKET client_sock;
+        SOCKET Server;
 #endif
 };
 
+enum
+{
+	ID_SOCKET_POKE = 10000,
+	ID_SOCKET_REQUEST,
+};
 #endif /* GmatSocketServer_hpp */

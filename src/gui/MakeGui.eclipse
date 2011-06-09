@@ -201,7 +201,6 @@ OBJECTS = \
     app/SetPathDialog.o \
     app/TextEphemFileDialog.o \
     app/WelcomePanel.o \
-    app/GmatInterfaceGui.o \
     app/GmatSocketServer.o \
     asset/GroundStationPanel.o \
     burn/FiniteBurnSetupPanel.o \
