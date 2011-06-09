@@ -6,10 +6,11 @@ function [ message ] = SocketRead( client_socket )
     data_input_stream = DataInputStream(input_stream);
     pause(0.000005);
     message_length = input_stream.available;
-    while (message_length == 0)
+    while (message_length = 0)
+    {
         pause(0.000005);
         message_length = input_stream.available;        
-    end;
+    }
 %    fprintf(1, 'Reading %d bytes\n', message_length);
     
     message = zeros(1, message_length, 'uint8');

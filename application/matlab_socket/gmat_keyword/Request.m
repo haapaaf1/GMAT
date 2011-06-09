@@ -2,7 +2,7 @@
 function data = Request(channel, var)
 
    Poke(channel,'Request', var);
-   SocketWrite(channel,'Idol');
+   SocketWrite(channel,'Idle');
    data = SocketRead(channel);
    disp(['Results:' data]);
    
