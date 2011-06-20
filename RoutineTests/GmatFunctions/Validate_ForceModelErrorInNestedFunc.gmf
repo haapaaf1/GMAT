@@ -1,0 +1,14 @@
+function Validate_ForceModelErrorInNestedFunc
+
+Create ForceModel nestedFM;
+GMAT nestedFM.CentralBody = Earth;
+GMAT nestedFM.PointMasses = {Earth};
+GMAT nestedFM.PointMasses = {Earth};
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = nestedFM;
+GMAT DefaultProp.Type = RungeKutta89;
+
+BeginMissionSequence;
+Bug2412_Func_ForceModelBug;
+

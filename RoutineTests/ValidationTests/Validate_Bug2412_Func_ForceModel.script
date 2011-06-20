@@ -1,0 +1,24 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2011-04-14 05:30:57
+
+Create Variable loop;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel mainFM;
+GMAT mainFM.CentralBody = Earth;
+GMAT mainFM.PrimaryBodies = {Earth};
+GMAT mainFM.PointMasses = {Luna};
+%%GMAT mainFM.PointMasses = {Luna}; %% Adding same force for the same body is not allowed, so it should give an error
+GMAT mainFM.Drag = None;
+GMAT mainFM.SRP = Off;
+GMAT mainFM.ErrorControl = RSSStep;
+
+BeginMissionSequence;
+
+For loop = 1 : 1
+   Validate_Bug2412_Func_ForceModel_nested;
+EndFor;
+
