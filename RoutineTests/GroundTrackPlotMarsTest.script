@@ -1,0 +1,492 @@
+% GMAT Script File
+% GMAT Release Build 5.0, August 2005
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft MPS1;
+GMAT MPS1.DateFormat = TAIModJulian;
+GMAT MPS1.Epoch = '21645';
+GMAT MPS1.CoordinateSystem = MarsMJ2000Eq;
+GMAT MPS1.DisplayStateType = Keplerian;
+GMAT MPS1.SMA = 20000.93881760385;
+GMAT MPS1.ECC = 0.02454974900571146;
+GMAT MPS1.INC = 59.99999999999859;
+GMAT MPS1.RAAN = 0;
+GMAT MPS1.AOP = 314.1905515374442;
+GMAT MPS1.TA = 269.9999999985614;
+GMAT MPS1.DryMass = 850;
+GMAT MPS1.Cd = 2.2;
+GMAT MPS1.Cr = 1.8;
+GMAT MPS1.DragArea = 15;
+GMAT MPS1.SRPArea = 1;
+GMAT MPS1.NAIFId = -123456789;
+GMAT MPS1.NAIFIdReferenceFrame = -123456789;
+GMAT MPS1.Id = 'SatId';
+GMAT MPS1.Attitude = CoordinateSystemFixed;
+GMAT MPS1.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MPS1.ModelOffsetX = 0;
+GMAT MPS1.ModelOffsetY = 0;
+GMAT MPS1.ModelOffsetZ = 0;
+GMAT MPS1.ModelRotationX = 0;
+GMAT MPS1.ModelRotationY = 0;
+GMAT MPS1.ModelRotationZ = 0;
+GMAT MPS1.ModelScale = 3;
+GMAT MPS1.AttitudeDisplayStateType = 'Quaternion';
+GMAT MPS1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MPS1.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MPS1.Q1 = 0;
+GMAT MPS1.Q2 = 0;
+GMAT MPS1.Q3 = 0;
+GMAT MPS1.Q4 = 1;
+GMAT MPS1.EulerAngleSequence = '321';
+GMAT MPS1.AngularVelocityX = 0;
+GMAT MPS1.AngularVelocityY = 0;
+GMAT MPS1.AngularVelocityZ = 0;
+
+Create Spacecraft MPS2;
+GMAT MPS2.DateFormat = TAIModJulian;
+GMAT MPS2.Epoch = '21645';
+GMAT MPS2.CoordinateSystem = MarsMJ2000Eq;
+GMAT MPS2.DisplayStateType = Keplerian;
+GMAT MPS2.SMA = 20000.93881760382;
+GMAT MPS2.ECC = 0.02454974900571914;
+GMAT MPS2.INC = 59.99999999999903;
+GMAT MPS2.RAAN = 90.00000000000098;
+GMAT MPS2.AOP = 314.1905515374482;
+GMAT MPS2.TA = 269.9999999985571;
+GMAT MPS2.DryMass = 850;
+GMAT MPS2.Cd = 2.2;
+GMAT MPS2.Cr = 1.8;
+GMAT MPS2.DragArea = 15;
+GMAT MPS2.SRPArea = 1;
+GMAT MPS2.NAIFId = -123456789;
+GMAT MPS2.NAIFIdReferenceFrame = -123456789;
+GMAT MPS2.Id = 'SatId';
+GMAT MPS2.Attitude = CoordinateSystemFixed;
+GMAT MPS2.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MPS2.ModelOffsetX = 0;
+GMAT MPS2.ModelOffsetY = 0;
+GMAT MPS2.ModelOffsetZ = 0;
+GMAT MPS2.ModelRotationX = 0;
+GMAT MPS2.ModelRotationY = 0;
+GMAT MPS2.ModelRotationZ = 0;
+GMAT MPS2.ModelScale = 3;
+GMAT MPS2.AttitudeDisplayStateType = 'Quaternion';
+GMAT MPS2.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MPS2.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MPS2.Q1 = 0;
+GMAT MPS2.Q2 = 0;
+GMAT MPS2.Q3 = 0;
+GMAT MPS2.Q4 = 1;
+GMAT MPS2.EulerAngleSequence = '321';
+GMAT MPS2.AngularVelocityX = 0;
+GMAT MPS2.AngularVelocityY = 0;
+GMAT MPS2.AngularVelocityZ = 0;
+
+Create Spacecraft MPS3;
+GMAT MPS3.DateFormat = TAIModJulian;
+GMAT MPS3.Epoch = '21645';
+GMAT MPS3.CoordinateSystem = MarsMJ2000Eq;
+GMAT MPS3.DisplayStateType = Keplerian;
+GMAT MPS3.SMA = 20000.93881763405;
+GMAT MPS3.ECC = 0.024549749006818;
+GMAT MPS3.INC = 59.99999999997955;
+GMAT MPS3.RAAN = 180;
+GMAT MPS3.AOP = 314.1905515365761;
+GMAT MPS3.TA = 99.88774933150516;
+GMAT MPS3.DryMass = 850;
+GMAT MPS3.Cd = 2.2;
+GMAT MPS3.Cr = 1.8;
+GMAT MPS3.DragArea = 15;
+GMAT MPS3.SRPArea = 1;
+GMAT MPS3.NAIFId = -123456789;
+GMAT MPS3.NAIFIdReferenceFrame = -123456789;
+GMAT MPS3.Id = 'SatId';
+GMAT MPS3.Attitude = CoordinateSystemFixed;
+GMAT MPS3.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MPS3.ModelOffsetX = 0;
+GMAT MPS3.ModelOffsetY = 0;
+GMAT MPS3.ModelOffsetZ = 0;
+GMAT MPS3.ModelRotationX = 0;
+GMAT MPS3.ModelRotationY = 0;
+GMAT MPS3.ModelRotationZ = 0;
+GMAT MPS3.ModelScale = 3;
+GMAT MPS3.AttitudeDisplayStateType = 'Quaternion';
+GMAT MPS3.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MPS3.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MPS3.Q1 = 0;
+GMAT MPS3.Q2 = 0;
+GMAT MPS3.Q3 = 0;
+GMAT MPS3.Q4 = 1;
+GMAT MPS3.EulerAngleSequence = '321';
+GMAT MPS3.AngularVelocityX = 0;
+GMAT MPS3.AngularVelocityY = 0;
+GMAT MPS3.AngularVelocityZ = 0;
+
+Create Spacecraft MPS4;
+GMAT MPS4.DateFormat = TAIModJulian;
+GMAT MPS4.Epoch = '21645';
+GMAT MPS4.CoordinateSystem = MarsMJ2000Eq;
+GMAT MPS4.DisplayStateType = Keplerian;
+GMAT MPS4.SMA = 20000.9388176305;
+GMAT MPS4.ECC = 0.02454974900634087;
+GMAT MPS4.INC = 59.99999999999967;
+GMAT MPS4.RAAN = 270.0000000000026;
+GMAT MPS4.AOP = 270.0000000002155;
+GMAT MPS4.TA = 99.8877493318531;
+GMAT MPS4.DryMass = 850;
+GMAT MPS4.Cd = 2.2;
+GMAT MPS4.Cr = 1.8;
+GMAT MPS4.DragArea = 15;
+GMAT MPS4.SRPArea = 1;
+GMAT MPS4.NAIFId = -123456789;
+GMAT MPS4.NAIFIdReferenceFrame = -123456789;
+GMAT MPS4.Id = 'SatId';
+GMAT MPS4.Attitude = CoordinateSystemFixed;
+GMAT MPS4.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MPS4.ModelOffsetX = 0;
+GMAT MPS4.ModelOffsetY = 0;
+GMAT MPS4.ModelOffsetZ = 0;
+GMAT MPS4.ModelRotationX = 0;
+GMAT MPS4.ModelRotationY = 0;
+GMAT MPS4.ModelRotationZ = 0;
+GMAT MPS4.ModelScale = 3;
+GMAT MPS4.AttitudeDisplayStateType = 'Quaternion';
+GMAT MPS4.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MPS4.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MPS4.Q1 = 0;
+GMAT MPS4.Q2 = 0;
+GMAT MPS4.Q3 = 0;
+GMAT MPS4.Q4 = 1;
+GMAT MPS4.EulerAngleSequence = '321';
+GMAT MPS4.AngularVelocityX = 0;
+GMAT MPS4.AngularVelocityY = 0;
+GMAT MPS4.AngularVelocityZ = 0;
+
+Create Spacecraft MarsOrbiter;
+GMAT MarsOrbiter.DateFormat = TAIModJulian;
+GMAT MarsOrbiter.Epoch = '21645';
+GMAT MarsOrbiter.CoordinateSystem = MarsMJ2000Eq;
+GMAT MarsOrbiter.DisplayStateType = Keplerian;
+GMAT MarsOrbiter.SMA = 6000.938817624505;
+GMAT MarsOrbiter.ECC = 0.02454974900552332;
+GMAT MarsOrbiter.INC = 0;
+GMAT MarsOrbiter.RAAN = 0;
+GMAT MarsOrbiter.AOP = 314.1905515349503;
+GMAT MarsOrbiter.TA = 99.88774933306067;
+GMAT MarsOrbiter.DryMass = 850;
+GMAT MarsOrbiter.Cd = 2.2;
+GMAT MarsOrbiter.Cr = 1.8;
+GMAT MarsOrbiter.DragArea = 15;
+GMAT MarsOrbiter.SRPArea = 1;
+GMAT MarsOrbiter.NAIFId = -123456789;
+GMAT MarsOrbiter.NAIFIdReferenceFrame = -123456789;
+GMAT MarsOrbiter.Id = 'SatId';
+GMAT MarsOrbiter.Attitude = CoordinateSystemFixed;
+GMAT MarsOrbiter.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MarsOrbiter.ModelOffsetX = 0;
+GMAT MarsOrbiter.ModelOffsetY = 0;
+GMAT MarsOrbiter.ModelOffsetZ = 0;
+GMAT MarsOrbiter.ModelRotationX = 0;
+GMAT MarsOrbiter.ModelRotationY = 0;
+GMAT MarsOrbiter.ModelRotationZ = 0;
+GMAT MarsOrbiter.ModelScale = 3;
+GMAT MarsOrbiter.AttitudeDisplayStateType = 'Quaternion';
+GMAT MarsOrbiter.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MarsOrbiter.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MarsOrbiter.Q1 = 0;
+GMAT MarsOrbiter.Q2 = 0;
+GMAT MarsOrbiter.Q3 = 0;
+GMAT MarsOrbiter.Q4 = 1;
+GMAT MarsOrbiter.EulerAngleSequence = '321';
+GMAT MarsOrbiter.AngularVelocityX = 0;
+GMAT MarsOrbiter.AngularVelocityY = 0;
+GMAT MarsOrbiter.AngularVelocityZ = 0;
+
+Create Spacecraft MarsSupply;
+GMAT MarsSupply.DateFormat = TAIModJulian;
+GMAT MarsSupply.Epoch = '21645';
+GMAT MarsSupply.CoordinateSystem = MarsMJ2000Eq;
+GMAT MarsSupply.DisplayStateType = Keplerian;
+GMAT MarsSupply.SMA = -29999.99999998537;
+GMAT MarsSupply.ECC = 1.300000000000143;
+GMAT MarsSupply.INC = 9.999999999992394;
+GMAT MarsSupply.RAAN = 332.4999999999576;
+GMAT MarsSupply.AOP = 360;
+GMAT MarsSupply.TA = 244.9999999999958;
+GMAT MarsSupply.DryMass = 850;
+GMAT MarsSupply.Cd = 2.2;
+GMAT MarsSupply.Cr = 1.8;
+GMAT MarsSupply.DragArea = 15;
+GMAT MarsSupply.SRPArea = 1;
+GMAT MarsSupply.NAIFId = -123456789;
+GMAT MarsSupply.NAIFIdReferenceFrame = -123456789;
+GMAT MarsSupply.Id = 'SatId';
+GMAT MarsSupply.Attitude = CoordinateSystemFixed;
+GMAT MarsSupply.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MarsSupply.ModelOffsetX = 0;
+GMAT MarsSupply.ModelOffsetY = 0;
+GMAT MarsSupply.ModelOffsetZ = 0;
+GMAT MarsSupply.ModelRotationX = 0;
+GMAT MarsSupply.ModelRotationY = 0;
+GMAT MarsSupply.ModelRotationZ = 0;
+GMAT MarsSupply.ModelScale = 3;
+GMAT MarsSupply.AttitudeDisplayStateType = 'Quaternion';
+GMAT MarsSupply.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MarsSupply.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MarsSupply.Q1 = 0;
+GMAT MarsSupply.Q2 = 0;
+GMAT MarsSupply.Q3 = 0;
+GMAT MarsSupply.Q4 = 1;
+GMAT MarsSupply.EulerAngleSequence = '321';
+GMAT MarsSupply.AngularVelocityX = 0;
+GMAT MarsSupply.AngularVelocityY = 0;
+GMAT MarsSupply.AngularVelocityZ = 0;
+
+
+%----------------------------------------
+%---------- Formation
+%----------------------------------------
+
+Create Formation MPS;
+GMAT MPS.Add = {MPS1, MPS2, MPS3, MPS4, MarsOrbiter, MarsSupply};
+
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel MarsProp_ForceModel;
+GMAT MarsProp_ForceModel.CentralBody = Mars;
+GMAT MarsProp_ForceModel.PointMasses = {Mars};
+GMAT MarsProp_ForceModel.Drag = None;
+GMAT MarsProp_ForceModel.SRP = Off;
+GMAT MarsProp_ForceModel.ErrorControl = RSSStep;
+
+Create ForceModel EarthProp_ForceModel;
+GMAT EarthProp_ForceModel.CentralBody = Earth;
+GMAT EarthProp_ForceModel.PointMasses = {Earth};
+GMAT EarthProp_ForceModel.Drag = None;
+GMAT EarthProp_ForceModel.SRP = Off;
+GMAT EarthProp_ForceModel.ErrorControl = RSSStep;
+
+Create ForceModel SunProp_ForceModel;
+GMAT SunProp_ForceModel.CentralBody = Sun;
+GMAT SunProp_ForceModel.PointMasses = {Sun, Earth, Luna};
+GMAT SunProp_ForceModel.Drag = None;
+GMAT SunProp_ForceModel.SRP = Off;
+GMAT SunProp_ForceModel.ErrorControl = RSSStep;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator MarsProp;
+GMAT MarsProp.FM = MarsProp_ForceModel;
+GMAT MarsProp.Type = RungeKutta89;
+GMAT MarsProp.InitialStepSize = 60;
+GMAT MarsProp.Accuracy = 1e-012;
+GMAT MarsProp.MinStep = 0.001;
+GMAT MarsProp.MaxStep = 2700;
+GMAT MarsProp.MaxStepAttempts = 50;
+GMAT MarsProp.StopIfAccuracyIsViolated = true;
+
+Create Propagator EarthProp;
+GMAT EarthProp.FM = EarthProp_ForceModel;
+GMAT EarthProp.Type = RungeKutta89;
+GMAT EarthProp.InitialStepSize = 60;
+GMAT EarthProp.Accuracy = 1e-012;
+GMAT EarthProp.MinStep = 0.001;
+GMAT EarthProp.MaxStep = 86400;
+GMAT EarthProp.MaxStepAttempts = 50;
+GMAT EarthProp.StopIfAccuracyIsViolated = true;
+
+Create Propagator SunProp;
+GMAT SunProp.FM = SunProp_ForceModel;
+GMAT SunProp.Type = RungeKutta89;
+GMAT SunProp.InitialStepSize = 60;
+GMAT SunProp.Accuracy = 9.999999999999999e-012;
+GMAT SunProp.MinStep = 0.001;
+GMAT SunProp.MaxStep = 160000;
+GMAT SunProp.MaxStepAttempts = 50;
+GMAT SunProp.StopIfAccuracyIsViolated = true;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn TOI;
+GMAT TOI.CoordinateSystem = Local;
+GMAT TOI.Origin = Mars;
+GMAT TOI.Axes = VNB;
+GMAT TOI.Element1 = -1.15;
+GMAT TOI.Element2 = 0;
+GMAT TOI.Element3 = 0;
+GMAT TOI.DecrementMass = false;
+GMAT TOI.Isp = 300;
+GMAT TOI.GravitationalAccel = 9.810000000000001;
+
+Create ImpulsiveBurn MarsTOI;
+GMAT MarsTOI.CoordinateSystem = Local;
+GMAT MarsTOI.Origin = Earth;
+GMAT MarsTOI.Axes = VNB;
+GMAT MarsTOI.Element1 = 0;
+GMAT MarsTOI.Element2 = 0;
+GMAT MarsTOI.Element3 = 0;
+GMAT MarsTOI.DecrementMass = false;
+GMAT MarsTOI.Isp = 300;
+GMAT MarsTOI.GravitationalAccel = 9.810000000000001;
+
+Create ImpulsiveBurn MarsMCC;
+GMAT MarsMCC.CoordinateSystem = Local;
+GMAT MarsMCC.Origin = Sun;
+GMAT MarsMCC.Axes = VNB;
+GMAT MarsMCC.Element1 = 0;
+GMAT MarsMCC.Element2 = 0;
+GMAT MarsMCC.Element3 = 0;
+GMAT MarsMCC.DecrementMass = false;
+GMAT MarsMCC.Isp = 300;
+GMAT MarsMCC.GravitationalAccel = 9.810000000000001;
+
+Create ImpulsiveBurn MarsBPlane;
+GMAT MarsBPlane.CoordinateSystem = Local;
+GMAT MarsBPlane.Origin = Sun;
+GMAT MarsBPlane.Axes = VNB;
+GMAT MarsBPlane.Element1 = 0;
+GMAT MarsBPlane.Element2 = 0;
+GMAT MarsBPlane.Element3 = 0;
+GMAT MarsBPlane.DecrementMass = false;
+GMAT MarsBPlane.Isp = 300;
+GMAT MarsBPlane.GravitationalAccel = 9.810000000000001;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MarsMJ2000Eq;
+GMAT MarsMJ2000Eq.Origin = Mars;
+GMAT MarsMJ2000Eq.Axes = MJ2000Eq;
+
+Create CoordinateSystem SunMJ2kEc;
+GMAT SunMJ2kEc.Origin = Sun;
+GMAT SunMJ2kEc.Axes = MJ2000Ec;
+
+Create CoordinateSystem SunMJ2kEq;
+GMAT SunMJ2kEq.Origin = Sun;
+GMAT SunMJ2kEq.Axes = MJ2000Eq;
+
+Create CoordinateSystem EarthSunRot;
+GMAT EarthSunRot.Origin = Earth;
+GMAT EarthSunRot.Axes = ObjectReferenced;
+GMAT EarthSunRot.XAxis = R;
+GMAT EarthSunRot.ZAxis = N;
+GMAT EarthSunRot.Primary = Sun;
+GMAT EarthSunRot.Secondary = Earth;
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector MarsTOIDC;
+GMAT MarsTOIDC.ShowProgress = true;
+GMAT MarsTOIDC.ReportStyle = Normal;
+GMAT MarsTOIDC.ReportFile = 'DifferentialCorrectorMarsTOIDC.data';
+GMAT MarsTOIDC.MaximumIterations = 25;
+GMAT MarsTOIDC.DerivativeMethod = CentralDifference;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+%  Create a report to output error data
+Create ReportFile rf;
+GMAT rf.SolverIterations = None;
+GMAT rf.Filename = 'AnimationBug.report';
+GMAT rf.Precision = 16;
+GMAT rf.WriteHeaders = On;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 20;
+GMAT rf.WriteReport = true;
+
+Create OrbitView MarsMJ2KView;
+GMAT MarsMJ2KView.SolverIterations = None;
+GMAT MarsMJ2KView.Add = {Mars, MPS1, MPS2, MPS3, MPS4, MarsOrbiter, MarsSupply};
+GMAT MarsMJ2KView.CoordinateSystem = MarsMJ2000Eq;
+GMAT MarsMJ2KView.DrawObject = [ true true true true true true true ];
+GMAT MarsMJ2KView.OrbitColor = [ 14737632 255 65280 65535 16776960 14268074 14399335 ];
+GMAT MarsMJ2KView.TargetColor = [ 0 8421440 8421440 8421440 8421440 8421440 8421440 ];
+GMAT MarsMJ2KView.DataCollectFrequency = 1;
+GMAT MarsMJ2KView.UpdatePlotFrequency = 50;
+GMAT MarsMJ2KView.NumPointsToRedraw = 0;
+GMAT MarsMJ2KView.ShowPlot = true;
+GMAT MarsMJ2KView.ViewPointReference = Mars;
+GMAT MarsMJ2KView.ViewPointVector = [ 30000 30000 30000 ];
+GMAT MarsMJ2KView.ViewDirection = Mars;
+GMAT MarsMJ2KView.ViewScaleFactor = 1;
+GMAT MarsMJ2KView.ViewUpCoordinateSystem = MarsMJ2000Eq;
+GMAT MarsMJ2KView.ViewUpAxis = Z;
+GMAT MarsMJ2KView.CelestialPlane = Off;
+GMAT MarsMJ2KView.XYPlane = On;
+GMAT MarsMJ2KView.WireFrame = Off;
+GMAT MarsMJ2KView.Axes = On;
+GMAT MarsMJ2KView.Grid = Off;
+GMAT MarsMJ2KView.SunLine = Off;
+GMAT MarsMJ2KView.UseInitialView = On;
+GMAT MarsMJ2KView.StarCount = 7000;
+GMAT MarsMJ2KView.EnableStars = On;
+GMAT MarsMJ2KView.EnableConstellations = On;
+
+Create GroundTrackPlot MarsGroundTrack;
+GMAT MarsGroundTrack.SolverIterations = Current;
+GMAT MarsGroundTrack.Add = {MPS1, MPS2, MPS3, MPS4};
+GMAT MarsGroundTrack.DataCollectFrequency = 1;
+GMAT MarsGroundTrack.UpdatePlotFrequency = 50;
+GMAT MarsGroundTrack.NumPointsToRedraw = 0;
+GMAT MarsGroundTrack.ShowPlot = true;
+GMAT MarsGroundTrack.CentralBody = Mars;
+GMAT MarsGroundTrack.ShowFootPrints = None;
+
+Create GroundTrackPlot MarsOrbiterGroundTrack;
+GMAT MarsOrbiterGroundTrack.SolverIterations = Current;
+GMAT MarsOrbiterGroundTrack.Add = {MarsOrbiter};
+GMAT MarsOrbiterGroundTrack.DataCollectFrequency = 1;
+GMAT MarsOrbiterGroundTrack.UpdatePlotFrequency = 50;
+GMAT MarsOrbiterGroundTrack.NumPointsToRedraw = 0;
+GMAT MarsOrbiterGroundTrack.ShowPlot = true;
+GMAT MarsOrbiterGroundTrack.CentralBody = Mars;
+GMAT MarsOrbiterGroundTrack.ShowFootPrints = None;
+
+Create GroundTrackPlot MarsSupplyGroundTrack;
+GMAT MarsSupplyGroundTrack.SolverIterations = Current;
+GMAT MarsSupplyGroundTrack.Add = {MarsSupply};
+GMAT MarsSupplyGroundTrack.DataCollectFrequency = 1;
+GMAT MarsSupplyGroundTrack.UpdatePlotFrequency = 50;
+GMAT MarsSupplyGroundTrack.NumPointsToRedraw = 0;
+GMAT MarsSupplyGroundTrack.ShowPlot = true;
+GMAT MarsSupplyGroundTrack.CentralBody = Mars;
+GMAT MarsSupplyGroundTrack.ShowFootPrints = None;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+%GMAT MarsBPlane.B      = -0.214972341605;
+Propagate MarsProp(MPS) {MPS1.Mars.Periapsis};
+Report rf MPS1.ElapsedSecs MPS1.MarsMJ2000Eq.X MPS1.MarsMJ2000Eq.Y MPS1.MarsMJ2000Eq.Z;
+Maneuver TOI(MarsSupply);
+Propagate MarsProp(MPS) {MPS1.ElapsedDays = 5};
+GMAT rf.WriteHeaders = Off;
+Report rf MPS1.ElapsedSecs MPS1.MarsMJ2000Eq.X MPS1.MarsMJ2000Eq.Y MPS1.MarsMJ2000Eq.Z;
+
+

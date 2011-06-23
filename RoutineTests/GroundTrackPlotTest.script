@@ -6,29 +6,52 @@
 
 Create Spacecraft MMS1;
 GMAT MMS1.DateFormat = TAIGregorian;
-GMAT MMS1.Epoch = 09 Oct 2004 16:30:00.124;
+GMAT MMS1.Epoch = '09 Oct 2004 16:30:00.124';
 GMAT MMS1.CoordinateSystem = EarthMJ2000Eq;
 GMAT MMS1.DisplayStateType = Keplerian;
 GMAT MMS1.SMA = 47000;
 GMAT MMS1.ECC = 0.7999999999999998;
 GMAT MMS1.INC = 28.5;
 GMAT MMS1.RAAN = 90;
-GMAT MMS1.AOP = 0;
+GMAT MMS1.AOP = 360;
 GMAT MMS1.TA = 180;
 GMAT MMS1.DryMass = 100;
 GMAT MMS1.Cd = 2;
 GMAT MMS1.Cr = 1.4;
 GMAT MMS1.DragArea = 1;
 GMAT MMS1.SRPArea = 1;
+GMAT MMS1.NAIFId = -123456789;
+GMAT MMS1.NAIFIdReferenceFrame = -123456789;
+GMAT MMS1.Id = 'SatId';
+GMAT MMS1.Attitude = CoordinateSystemFixed;
+GMAT MMS1.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MMS1.ModelOffsetX = 0;
+GMAT MMS1.ModelOffsetY = 0;
+GMAT MMS1.ModelOffsetZ = 0;
+GMAT MMS1.ModelRotationX = 0;
+GMAT MMS1.ModelRotationY = 0;
+GMAT MMS1.ModelRotationZ = 0;
+GMAT MMS1.ModelScale = 3;
+GMAT MMS1.AttitudeDisplayStateType = 'Quaternion';
+GMAT MMS1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MMS1.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MMS1.Q1 = 0;
+GMAT MMS1.Q2 = 0;
+GMAT MMS1.Q3 = 0;
+GMAT MMS1.Q4 = 1;
+GMAT MMS1.EulerAngleSequence = '321';
+GMAT MMS1.AngularVelocityX = 0;
+GMAT MMS1.AngularVelocityY = 0;
+GMAT MMS1.AngularVelocityZ = 0;
 
 Create Spacecraft MMS2;
 GMAT MMS2.DateFormat = TAIGregorian;
-GMAT MMS2.Epoch = 09 Oct 2004 16:30:00.124;
+GMAT MMS2.Epoch = '09 Oct 2004 16:30:00.124';
 GMAT MMS2.CoordinateSystem = EarthMJ2000Eq;
 GMAT MMS2.DisplayStateType = Keplerian;
-GMAT MMS2.SMA = 46999.99999999999;
-GMAT MMS2.ECC = 0.7999999999999999;
-GMAT MMS2.INC = 28.5;
+GMAT MMS2.SMA = 46999.99999999998;
+GMAT MMS2.ECC = 0.7999999999999998;
+GMAT MMS2.INC = 28.49999999999999;
 GMAT MMS2.RAAN = 90;
 GMAT MMS2.AOP = 0;
 GMAT MMS2.TA = 180.9999999999999;
@@ -37,24 +60,71 @@ GMAT MMS2.Cd = 2;
 GMAT MMS2.Cr = 1.4;
 GMAT MMS2.DragArea = 1;
 GMAT MMS2.SRPArea = 1;
+GMAT MMS2.NAIFId = -123456789;
+GMAT MMS2.NAIFIdReferenceFrame = -123456789;
+GMAT MMS2.Id = 'SatId';
+GMAT MMS2.Attitude = CoordinateSystemFixed;
+GMAT MMS2.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT MMS2.ModelOffsetX = 0;
+GMAT MMS2.ModelOffsetY = 0;
+GMAT MMS2.ModelOffsetZ = 0;
+GMAT MMS2.ModelRotationX = 0;
+GMAT MMS2.ModelRotationY = 0;
+GMAT MMS2.ModelRotationZ = 0;
+GMAT MMS2.ModelScale = 3;
+GMAT MMS2.AttitudeDisplayStateType = 'Quaternion';
+GMAT MMS2.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT MMS2.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT MMS2.Q1 = 0;
+GMAT MMS2.Q2 = 0;
+GMAT MMS2.Q3 = 0;
+GMAT MMS2.Q4 = 1;
+GMAT MMS2.EulerAngleSequence = '321';
+GMAT MMS2.AngularVelocityX = 0;
+GMAT MMS2.AngularVelocityY = 0;
+GMAT MMS2.AngularVelocityZ = 0;
 
 Create Spacecraft Sat3;
 GMAT Sat3.DateFormat = TAIGregorian;
-GMAT Sat3.Epoch = 09 Oct 2004 16:30:00.124;
+GMAT Sat3.Epoch = '09 Oct 2004 16:30:00.124';
 GMAT Sat3.CoordinateSystem = EarthMJ2000Eq;
 GMAT Sat3.DisplayStateType = Keplerian;
-GMAT Sat3.SMA = 8000.000000000001;
-GMAT Sat3.ECC = 0.009999999999999898;
-GMAT Sat3.INC = 28.50000000000001;
+GMAT Sat3.SMA = 7999.999999999997;
+GMAT Sat3.ECC = 0.01000000000000033;
+GMAT Sat3.INC = 28.50000000000003;
 GMAT Sat3.RAAN = 90;
-GMAT Sat3.AOP = 0;
+GMAT Sat3.AOP = 360;
 GMAT Sat3.TA = 181.9999999999999;
 GMAT Sat3.DryMass = 100;
 GMAT Sat3.Cd = 2;
 GMAT Sat3.Cr = 1.4;
 GMAT Sat3.DragArea = 1;
 GMAT Sat3.SRPArea = 1;
+GMAT Sat3.NAIFId = -123456789;
+GMAT Sat3.NAIFIdReferenceFrame = -123456789;
+GMAT Sat3.Id = 'SatId';
+GMAT Sat3.Attitude = CoordinateSystemFixed;
+GMAT Sat3.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT Sat3.ModelOffsetX = 0;
+GMAT Sat3.ModelOffsetY = 0;
+GMAT Sat3.ModelOffsetZ = 0;
+GMAT Sat3.ModelRotationX = 0;
+GMAT Sat3.ModelRotationY = 0;
+GMAT Sat3.ModelRotationZ = 0;
+GMAT Sat3.ModelScale = 3;
+GMAT Sat3.AttitudeDisplayStateType = 'Quaternion';
+GMAT Sat3.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Sat3.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT Sat3.Q1 = 0;
+GMAT Sat3.Q2 = 0;
+GMAT Sat3.Q3 = 0;
+GMAT Sat3.Q4 = 1;
+GMAT Sat3.EulerAngleSequence = '321';
+GMAT Sat3.AngularVelocityX = 0;
+GMAT Sat3.AngularVelocityY = 0;
+GMAT Sat3.AngularVelocityZ = 0;
 
+Create GroundStation GroundStation1;
 
 %----------------------------------------
 %---------- Formation
@@ -62,9 +132,7 @@ GMAT Sat3.SRPArea = 1;
 
 %  Create Formation
 Create Formation MMS;
-GMAT MMS.A1Epoch = 21545;
 GMAT MMS.Add = {MMS1, MMS2};
-
 
 %----------------------------------------
 %---------- ForceModels
@@ -77,9 +145,13 @@ GMAT LowEarth_JR.PointMasses = {Sun, Luna, Jupiter};
 GMAT LowEarth_JR.Drag = JacchiaRoberts;
 GMAT LowEarth_JR.SRP = Off;
 GMAT LowEarth_JR.ErrorControl = RSSStep;
-GMAT LowEarth_JR.Gravity.Earth.Degree = 20;
-GMAT LowEarth_JR.Gravity.Earth.Order = 20;
-GMAT LowEarth_JR.Gravity.Earth.PotentialFile = JGM2.cof;
+GMAT LowEarth_JR.GravityField.Earth.Degree = 20;
+GMAT LowEarth_JR.GravityField.Earth.Order = 20;
+GMAT LowEarth_JR.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT LowEarth_JR.Drag.AtmosphereModel = 'JacchiaRoberts';
+GMAT LowEarth_JR.Drag.F107 = 150;
+GMAT LowEarth_JR.Drag.F107A = 150;
+GMAT LowEarth_JR.Drag.MagneticIndex = 3;
 
 Create ForceModel HighEarth;
 GMAT HighEarth.CentralBody = Earth;
@@ -88,9 +160,9 @@ GMAT HighEarth.PointMasses = {Sun, Luna, Jupiter};
 GMAT HighEarth.Drag = None;
 GMAT HighEarth.SRP = On;
 GMAT HighEarth.ErrorControl = RSSStep;
-GMAT HighEarth.Gravity.Earth.Degree = 20;
-GMAT HighEarth.Gravity.Earth.Order = 20;
-GMAT HighEarth.Gravity.Earth.PotentialFile = JGM2.cof;
+GMAT HighEarth.GravityField.Earth.Degree = 20;
+GMAT HighEarth.GravityField.Earth.Order = 20;
+GMAT HighEarth.GravityField.Earth.PotentialFile = 'JGM2.cof';
 GMAT HighEarth.SRP.Flux = 1367;
 GMAT HighEarth.SRP.Nominal_Sun = 149597870.691;
 
@@ -108,6 +180,7 @@ GMAT RKV_LowEarth_JR.Accuracy = 9.999999999999999e-012;
 GMAT RKV_LowEarth_JR.MinStep = 0.01;
 GMAT RKV_LowEarth_JR.MaxStep = 900;
 GMAT RKV_LowEarth_JR.MaxStepAttempts = 50;
+GMAT RKV_LowEarth_JR.StopIfAccuracyIsViolated = true;
 
 % Create Propagator
 Create Propagator RKF_HighEarth;
@@ -118,48 +191,67 @@ GMAT RKF_HighEarth.Accuracy = 9.999999999999999e-012;
 GMAT RKF_HighEarth.MinStep = 1;
 GMAT RKF_HighEarth.MaxStep = 900;
 GMAT RKF_HighEarth.MaxStepAttempts = 50;
-
-
-%----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
+GMAT RKF_HighEarth.StopIfAccuracyIsViolated = true;
 
 %----------------------------------------
-%---------- Plots and Reports
+%---------- Subscribers
 %----------------------------------------
 
-%  Create ReportFile
-Create ReportFile rf;
-GMAT rf.Filename = APT_Build3TestCase2.report;
-GMAT rf.Precision = 16;
-GMAT rf.WriteHeaders = On;
-GMAT rf.LeftJustify = On;
-GMAT rf.ZeroFill = Off;
-GMAT rf.ColumnWidth = 20;
-GMAT rf.SolverIterations = None;
+%  Create plots
+Create GroundTrackPlot GroundTrackPlot1;
+GMAT GroundTrackPlot1.SolverIterations = Current;
+GMAT GroundTrackPlot1.Add = {MMS1, MMS2, Sat3};
+GMAT GroundTrackPlot1.DataCollectFrequency = 1;
+GMAT GroundTrackPlot1.UpdatePlotFrequency = 50;
+GMAT GroundTrackPlot1.NumPointsToRedraw = 0;
+GMAT GroundTrackPlot1.ShowPlot = true;
+GMAT GroundTrackPlot1.CentralBody = Earth;
+GMAT GroundTrackPlot1.ShowFootPrints = None;
 
-%  Create OpenGL Plot  
-Create GroundTrackPlot plot1;
-GMAT plot1.Add = {MMS1, MMS2, Sat3};
+Create GroundTrackPlot GroundTrackPlot2;
+GMAT GroundTrackPlot2.SolverIterations = Current;
+GMAT GroundTrackPlot2.Add = {MMS1, GroundStation1};
+GMAT GroundTrackPlot2.DataCollectFrequency = 1;
+GMAT GroundTrackPlot2.UpdatePlotFrequency = 50;
+GMAT GroundTrackPlot2.NumPointsToRedraw = 0;
+GMAT GroundTrackPlot2.ShowPlot = true;
+GMAT GroundTrackPlot2.CentralBody = Earth;
+GMAT GroundTrackPlot2.ShowFootPrints = All;
+
+Create XYPlot XYPlot1;
+GMAT XYPlot1.SolverIterations = Current;
+GMAT XYPlot1.XVariable = MMS1.A1ModJulian;
+GMAT XYPlot1.YVariables = {MMS1.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
+GMAT XYPlot1.ShowPlot = true;
+
+Create OrbitView OrbitView1;
+GMAT OrbitView1.SolverIterations = Current;
+GMAT OrbitView1.Add = {MMS1, MMS2, Sat3, Earth};
+GMAT OrbitView1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OrbitView1.DrawObject = [ true true true true ];
+GMAT OrbitView1.OrbitColor = [ 255 4227072 65535 32768 ];
+GMAT OrbitView1.TargetColor = [ 8421440 4227327 4227327 0 ];
+GMAT OrbitView1.DataCollectFrequency = 1;
+GMAT OrbitView1.UpdatePlotFrequency = 50;
+GMAT OrbitView1.NumPointsToRedraw = 0;
+GMAT OrbitView1.ShowPlot = true;
+GMAT OrbitView1.ViewPointReference = Earth;
+GMAT OrbitView1.ViewPointVector = [ 30000 0 0 ];
+GMAT OrbitView1.ViewDirection = Earth;
+GMAT OrbitView1.ViewScaleFactor = 2;
+GMAT OrbitView1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OrbitView1.ViewUpAxis = Z;
+GMAT OrbitView1.CelestialPlane = Off;
+GMAT OrbitView1.XYPlane = On;
+GMAT OrbitView1.WireFrame = Off;
+GMAT OrbitView1.Axes = On;
+GMAT OrbitView1.Grid = Off;
+GMAT OrbitView1.SunLine = Off;
+GMAT OrbitView1.UseInitialView = On;
+GMAT OrbitView1.StarCount = 7000;
+GMAT OrbitView1.EnableStars = On;
+GMAT OrbitView1.EnableConstellations = On;
 
 
 %----------------------------------------
@@ -167,9 +259,6 @@ GMAT plot1.Add = {MMS1, MMS2, Sat3};
 %----------------------------------------
 
 BeginMissionSequence;
-
-% Turn plots on
-Toggle plot1 On;
 
 %  Propagation Sequence One
 Propagate Synchronized RKV_LowEarth_JR(Sat3) RKF_HighEarth(MMS) {Sat3.Periapsis, MMS1.TA = 155};
@@ -190,4 +279,7 @@ GMAT MMS.Remove = Sat3;
 
 %  Propagation Sequence Four
 Propagate Synchronized RKV_LowEarth_JR(MMS1, MMS2, Sat3) {Sat3.Periapsis};
+
+
+
 

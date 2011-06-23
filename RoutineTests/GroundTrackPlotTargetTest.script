@@ -1,0 +1,168 @@
+%Id%
+% GMAT Script File
+% GMAT Release Build 4.1, May 2005
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft sat;
+GMAT sat.DateFormat = TAIModJulian;
+GMAT sat.Epoch = 21545;
+GMAT sat.CoordinateSystem = EarthMJ2000Eq;
+GMAT sat.DisplayStateType = Cartesian;
+GMAT sat.X = 7100;
+GMAT sat.Y = 0;
+GMAT sat.Z = 1300;
+GMAT sat.VX = 0;
+GMAT sat.VY = 7.35;
+GMAT sat.VZ = 1;
+GMAT sat.DryMass = 850;
+GMAT sat.Cd = 2.2;
+GMAT sat.Cr = 1.8;
+GMAT sat.DragArea = 15;
+GMAT sat.SRPArea = 1;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.Gravity.Earth.PotentialFile = JGM2.cof;
+
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 133.0843397834731;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn TOI;
+GMAT TOI.Origin = Earth;
+GMAT TOI.Axes = VNB;
+GMAT TOI.VectorFormat = Cartesian;
+GMAT TOI.Element1 = 1.432982502463442;
+GMAT TOI.Element2 = 0;
+GMAT TOI.Element3 = 0;
+
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem EarthMJ2000Eq;
+GMAT EarthMJ2000Eq.Origin = Earth;
+GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
+GMAT EarthMJ2000Eq.UpdateInterval = 60;
+GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthMJ2000Ec;
+GMAT EarthMJ2000Ec.Origin = Earth;
+GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
+GMAT EarthMJ2000Ec.UpdateInterval = 60;
+GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
+
+Create CoordinateSystem EarthFixed;
+GMAT EarthFixed.Origin = Earth;
+GMAT EarthFixed.Axes = BodyFixed;
+GMAT EarthFixed.UpdateInterval = 60;
+GMAT EarthFixed.OverrideOriginInterval = false;
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DC;
+GMAT DC.ShowProgress = true;
+GMAT DC.ReportStyle = Normal;
+GMAT DC.TargeterTextFile = TargetHohmann4Plots-DC.data;
+GMAT DC.MaximumIterations = 25;
+GMAT DC.UseCentralDifferences = false;
+
+
+%----------------------------------------
+%---------- Plots and Reports
+%----------------------------------------
+
+Create GroundTrackPlot GroundTrackPlotAll;
+GMAT GroundTrackPlotAll.Add = {sat};
+GMAT GroundTrackPlotAll.CentralBody = Earth;
+GMAT GroundTrackPlotAll.SolverIterations = All;
+
+Create GroundTrackPlot GroundTrackPlotCurrent;
+GMAT GroundTrackPlotCurrent.Add = {sat};
+GMAT GroundTrackPlotCurrent.CentralBody = Earth;
+GMAT GroundTrackPlotCurrent.SolverIterations = Current;
+
+Create GroundTrackPlot GroundTrackPlotNone;
+GMAT GroundTrackPlotNone.Add = {sat};
+GMAT GroundTrackPlotNone.CentralBody = Earth;
+GMAT GroundTrackPlotNone.SolverIterations = None;
+
+Create OrbitView OrbitViewAll;
+GMAT OrbitViewAll.Add = {sat};
+GMAT OrbitViewAll.OrbitColor = [ 255 ];
+GMAT OrbitViewAll.CoordinateSystem = EarthMJ2000Eq;
+GMAT OrbitViewAll.ViewPointReference = Earth;
+GMAT OrbitViewAll.ViewPointVector = [ 0 0 30000];
+GMAT OrbitViewAll.ViewDirection = Earth;
+GMAT OrbitViewAll.ViewScaleFactor = 3;
+GMAT OrbitViewAll.SolverIterations = All;
+
+Create ReportFile rf;
+GMAT rf.Filename = 'TargetHohmann4Plots.report';
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+Report rf sat.X sat.Y sat.Z;
+
+Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
+Propagate DefaultProp(sat) {sat.Periapsis};
+Report rf sat.X sat.Y sat.Z;
+
+Target DC;
+   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat) {sat.Apoapsis};
+   Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+
+Propagate DefaultProp(sat) {sat.Periapsis};
+Propagate DefaultProp(sat) {sat.Apoapsis};
+Report rf sat.X sat.Y sat.Z;
+
+Target DC;
+   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Maneuver TOI(sat);
+   Propagate DefaultProp(sat) {sat.Periapsis};
+   Achieve DC(sat.Earth.SMA = 42165, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
+
+Propagate DefaultProp(sat) {sat.ElapsedSecs = 86400};
+Report rf sat.X sat.Y sat.Z;
+
