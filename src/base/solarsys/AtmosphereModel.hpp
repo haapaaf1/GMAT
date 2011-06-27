@@ -67,6 +67,10 @@ public:
    //---------------------------------------------------------------------------
    virtual bool Density(Real *position, Real *density, Real epoch = GmatTimeConstants::MJD_OF_J2000,
                         Integer count = 1) = 0;
+   virtual bool Temperature(Real *position, Real *temperature, Real epoch = GmatTimeConstants::MJD_OF_J2000,
+                        Integer count = 1){ return false;};
+   virtual bool Pressure(Real *position, Real *temperature, Real epoch = GmatTimeConstants::MJD_OF_J2000,
+                        Integer count = 1){ return false;};
 
    void SetSunVector(Real *sv);
    void SetCentralBodyVector(Real *cv);
